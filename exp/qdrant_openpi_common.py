@@ -389,35 +389,68 @@ def matrix_to_multivector(array: np.ndarray, *, width: int | None = None) -> lis
     return matrix.tolist()
 
 
-def build_named_vectors(record: StepRecord, stats: DatasetStats) -> dict[str, list[float]]:
+def build_named_vectors(
+    record: StepRecord,
+    stats: DatasetStats,
+    *,
+    fields: tuple[str, ...] | list[str] | None = None,
+) -> dict[str, list[float]]:
     vectors: dict[str, list[float]] = {}
-    flattened: dict[str, list[float]] = {field: flatten_matrix(record.vision[field]) for field in VISION_FIELDS}
-    flattened[PROMPT_FIELD] = pad_and_flatten_prompt(
-        record.prompt_emb,
-        max_lang_tokens=stats.max_lang_tokens,
-        prompt_width=stats.schema.prompt_width,
-    )
-    flattened[ROBOT_STATE_FIELD] = dense_vector(record.robot_state)
-    flattened[CLEAN_ACTION_FIELD] = flatten_matrix(record.clean_action)
-    for field in stats.schema.noise_action_fields:
-        flattened[field] = flatten_matrix(record.noise_actions[field])
+    chunk_map = named_vector_chunks_map(stats)
+    selected_fields = tuple(chunk_map) if fields is None else tuple(fields)
 
-    for field_name, chunks in named_vector_chunks_map(stats).items():
-        source = flattened[field_name]
-        for chunk in chunks:
+    for field_name in selected_fields:
+        if field_name in VISION_FIELDS:
+            source = flatten_matrix(record.vision[field_name])
+        elif field_name == PROMPT_FIELD:
+            source = pad_and_flatten_prompt(
+                record.prompt_emb,
+                max_lang_tokens=stats.max_lang_tokens,
+                prompt_width=stats.schema.prompt_width,
+            )
+        elif field_name == ROBOT_STATE_FIELD:
+            source = dense_vector(record.robot_state)
+        elif field_name == CLEAN_ACTION_FIELD:
+            source = flatten_matrix(record.clean_action)
+        elif field_name in stats.schema.noise_action_fields:
+            source = flatten_matrix(record.noise_actions[field_name])
+        else:
+            raise KeyError(f"Unknown named vector field: {field_name}")
+
+        for chunk in chunk_map[field_name]:
             vectors[chunk.vector_name] = source[chunk.start : chunk.end]
     return vectors
 
 
-def build_multivector_vectors(record: StepRecord, stats: DatasetStats) -> dict[str, list[float] | list[list[float]]]:
-    vectors: dict[str, list[float] | list[list[float]]] = {
-        field: matrix_to_multivector(record.vision[field], width=stats.schema.vision_shapes[field][1]) for field in VISION_FIELDS
-    }
-    vectors[PROMPT_FIELD] = matrix_to_multivector(record.prompt_emb, width=stats.schema.prompt_width)
-    vectors[ROBOT_STATE_FIELD] = dense_vector(record.robot_state)
-    vectors[CLEAN_ACTION_FIELD] = matrix_to_multivector(record.clean_action, width=stats.schema.clean_action_shape[1])
-    for field in stats.schema.noise_action_fields:
-        vectors[field] = matrix_to_multivector(record.noise_actions[field], width=stats.schema.noise_action_shapes[field][1])
+def build_multivector_vectors(
+    record: StepRecord,
+    stats: DatasetStats,
+    *,
+    fields: tuple[str, ...] | list[str] | None = None,
+) -> dict[str, list[float] | list[list[float]]]:
+    vectors: dict[str, list[float] | list[list[float]]] = {}
+    selected_fields = (
+        (*VISION_FIELDS, PROMPT_FIELD, ROBOT_STATE_FIELD, CLEAN_ACTION_FIELD, *stats.schema.noise_action_fields)
+        if fields is None
+        else tuple(fields)
+    )
+
+    for field_name in selected_fields:
+        if field_name in VISION_FIELDS:
+            vectors[field_name] = matrix_to_multivector(record.vision[field_name], width=stats.schema.vision_shapes[field_name][1])
+        elif field_name == PROMPT_FIELD:
+            vectors[field_name] = matrix_to_multivector(record.prompt_emb, width=stats.schema.prompt_width)
+        elif field_name == ROBOT_STATE_FIELD:
+            vectors[field_name] = dense_vector(record.robot_state)
+        elif field_name == CLEAN_ACTION_FIELD:
+            vectors[field_name] = matrix_to_multivector(record.clean_action, width=stats.schema.clean_action_shape[1])
+        elif field_name in stats.schema.noise_action_fields:
+            vectors[field_name] = matrix_to_multivector(
+                record.noise_actions[field_name],
+                width=stats.schema.noise_action_shapes[field_name][1],
+            )
+        else:
+            raise KeyError(f"Unknown multivector field: {field_name}")
     return vectors
 
 

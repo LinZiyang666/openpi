@@ -373,7 +373,7 @@ def build_prefetches_for_collection(
     atomic_request_count = 0
 
     if mode == "named":
-        named_query_vectors = build_named_vectors(query_record, db_stats)
+        named_query_vectors = build_named_vectors(query_record, db_stats, fields=selected_keys)
         chunk_map = named_vector_chunks_map(db_stats)
         for key in selected_keys:
             chunk_names = [chunk.vector_name for chunk in chunk_map[key]]
@@ -390,7 +390,7 @@ def build_prefetches_for_collection(
                 fusion_weights.append(per_chunk_weight)
                 atomic_request_count += 1
     else:
-        multi_query_vectors = build_multivector_vectors(query_record, db_stats)
+        multi_query_vectors = build_multivector_vectors(query_record, db_stats, fields=selected_keys)
         for key in selected_keys:
             prefetches.append(
                 models.Prefetch(
