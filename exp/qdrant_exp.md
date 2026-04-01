@@ -247,7 +247,7 @@ This keeps re-imports idempotent and avoids accidental collisions from repeated 
 Implement a script, for example:
 
 ```bash
-python scripts/qdrant_ingest_openpi.py --data-dir data/libero_spatial_1 --mode both
+python exp/qdrant_ingest_openpi.py --data-dir data/libero_spatial_1 --mode both
 ```
 
 ### Script responsibilities
