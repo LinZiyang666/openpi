@@ -1,6 +1,6 @@
 # UR5 Example
 
-Below we provide an outline of how to implement the key components mentioned in the "Finetune on your data" section of the [README](../README.md) for finetuning on UR5 datasets.
+Below we provide an outline of how to implement the key components mentioned in the "Finetune on your data" section of the [preserved upstream README](../../UPSTREAM_README.md) for finetuning on UR5 datasets.
 
 First, we will define the `UR5Inputs` and `UR5Outputs` classes, which map the UR5 environment to the model and vice versa. Check the corresponding files in `src/openpi/policies/libero_policy.py` for comments explaining each line.
 

@@ -44,6 +44,7 @@ Run `uv run pytest` after changes. For inference-path changes, verify with the e
 |----------|---------|----------|
 | `docs/` | Project architecture and usage guides | Anyone learning or using the project |
 | `claude_log/` | Implementation plans, design decisions, code change records | Developers and agents working on the code |
+| `weekly_plan.md` | Weekly working plan for the current week | Developers and agents coordinating near-term work |
 | `exp/` | Experiment scripts and configs only — no design docs | — |
 
 ### When to create docs
