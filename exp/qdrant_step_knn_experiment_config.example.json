@@ -1,0 +1,63 @@
+{
+  "query_file": "data/libero_spatial_1/episode_0000_20260331_035016_586551.h5",
+  "db_data_dir": "data/libero_spatial",
+  "output_dir": "exp_outputs/qdrant_step_knn_example",
+  "cache": {
+    "enabled": true,
+    "dir": ".cache/qdrant_step_knn",
+    "refresh": false
+  },
+  "qdrant": {
+    "url": "http://155.98.36.47:6333",
+    "grpc_port": 6334,
+    "prefer_http": false,
+    "request_timeout": 1800,
+    "named_collection": "openpi_steps_named",
+    "multivector_collection": "openpi_steps_multivector"
+  },
+  "experiment": {
+    "mode": "named",
+    "step_filter": "window",
+    "step_window": 5,
+    "top_k": 1,
+    "candidate_limit": 50,
+    "rrf_k": 60,
+    "query_step_idxs": [],
+    "max_query_steps": null
+  },
+  "keys": {
+    "vision_0": {
+      "enabled": true,
+      "weight": 1
+    },
+    "vision_1": {
+      "enabled": false,
+      "weight": 2.0
+    },
+    "vision_2": {
+      "enabled": false,
+      "weight": 1.0
+    },
+    "prompt_emb": {
+      "enabled": false,
+      "weight": 1
+    },
+    "robot_state": {
+      "enabled": true,
+      "weight": 10
+    },
+    "noise_action_1": false,
+    "noise_action_2": false,
+    "noise_action_3": false,
+    "noise_action_4": false,
+    "noise_action_5": false,
+    "noise_action_6": false,
+    "noise_action_7": false,
+    "noise_action_8": false,
+    "noise_action_9": false,
+    "clean_action": {
+      "enabled": false,
+      "weight": 2.0
+    }
+  }
+}

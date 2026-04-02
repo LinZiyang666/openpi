@@ -1,0 +1,215 @@
+# Step 2: 计时系统设计与实现
+
+> 日期：2026-03-29 | 前置：Step 1（commit `a6c9f43`）
+
+---
+
+## 1. 核心问题
+
+Step 1 的计时方案存在根本缺陷：
+
+| 问题 | 说明 |
+|------|------|
+| `time.monotonic()` 测 GPU | 测的是 wall time，不是 GPU 算力时间 |
+| `cuda.synchronize()` 全局同步 | 每个 stage 后同步全部 CUDA 流，阻断并发 |
+| 计时逻辑散落在 `infer()` 里 | 与推理耦合，不可复用、不可开关 |
+| 聚合逻辑在 server 里 | server 不该知道 `stage_timing` 的 key 格式 |
+| 无统计分析 / 无文件保存 | 只输出均值到终端，无 p50/p95/p99，无法事后分析 |
+
+---
+
+## 2. 各组件计时策略
+
+### 2.1 推理三阶段（GPU）→ CUDA Event
+
+| 阶段 | 设备 |
+|------|------|
+| Stage 1: SigLIP + prefix embed | GPU default stream |
+| Stage 2: Gemma 2B prefill | GPU default stream |
+| Stage 3: 10× denoise_step | GPU default stream |
+
+CUDA Event 优势：`end_event.synchronize()` 只等该 event，不阻断后续 kernel；
+`start.elapsed_time(end)` 返回精确 GPU 时间（ms），排除 Python 调度延迟。
+
+### 2.2 未来缓存组件（CPU/GPU 混合）
+
+| 组件 | 设备 | 计时方案 |
+|------|------|---------|
+| Gate / Judge / FAISS CPU 搜索 | CPU | `time.perf_counter_ns` |
+| KeyBuilder / VectorStore GPU 搜索 | GPU (`cache_stream`) | CUDA Event |
+| GPU↔CPU transfer | CUDA `transfer_stream` | CUDA Event |
+
+→ 计时系统需同时支持 CUDA Event 和 CPU perf_counter 两种 backend，由 probe 注册时指定。
+
+### 2.3 Stream 隔离
+
+Stage 1/2/3 的 CUDA Event 记录在 default stream，CP 搜索在 cache_stream，互不干扰。
+
+---
+
+## 3. 设计目标
+
+| 目标 | 要求 |
+|------|------|
+| 精确 GPU 计时 | CUDA Event，非全局 synchronize |
+| 可开关 | `enabled=False` 时 `measure()` 为空操作，零开销 |
+| 可插拔 | 各组件在 `__init__` 注册 probe；probe 集合动态增减 |
+| 任务级聚合 | `on_task_begin()` / `on_task_end()`；任务结束打印摘要 |
+| 内存先行 | 环形缓冲区存 record，任务结束统一写盘 |
+| 不侵入推理代码 | interceptor 调用 `timer.measure()`，不改 `pi0_pytorch.py` |
+
+---
+
+## 4. 文件结构
+
+```
+src/openpi/cache/
+├── timing.py          # 新建：SystemTimer, TimingRecord, TimingStats,
+│                      #   CudaEventBackend, PerfCounterBackend,
+│                      #   ResourceMonitor protocol, TaskLifecycle protocol
+├── interceptor.py     # 修改：移除手工计时，接入 SystemTimer
+├── __init__.py        # 更新：导出 SystemTimer, TaskLifecycle
+
+src/openpi/serving/websocket_policy_server.py  # 修改：移除旧聚合，加 TaskLifecycle 回调
+```
+
+---
+
+## 5. 核心类设计
+
+### 5.1 数据类
+
+```python
+@dataclass
+class TimingRecord:
+    name: str           # probe 名称，如 "stage1_vision"
+    elapsed_ms: float
+    timestamp: float    # wall time，用于 CSV 时间轴
+
+@dataclass
+class TimingStats:
+    name: str
+    count: int
+    mean_ms: float
+    p50_ms: float
+    p95_ms: float
+    p99_ms: float
+    min_ms: float
+    max_ms: float
+```
+
+### 5.2 Backend 协议
+
+```python
+class TimingBackend(Protocol):
+    def start(self) -> Any: ...       # 返回计时句柄
+    def stop(self, handle: Any) -> float: ...  # 返回耗时 ms
+
+class CudaEventBackend:
+    # start() → record start_event on stream
+    # stop()  → record end_event, synchronize end_event, return elapsed_time
+    def __init__(self, stream: torch.cuda.Stream | None = None): ...
+
+class PerfCounterBackend:
+    # start() → perf_counter_ns()
+    # stop()  → (now - start) / 1e6
+```
+
+### 5.3 SystemTimer 主类
+
+```python
+class SystemTimer:
+    def __init__(self, enabled=True, buffer_size=10000, output_csv_dir=None): ...
+    def register_probe(self, name, backend="cuda", stream=None): ...
+
+    @contextmanager
+    def measure(self, name: str) -> Iterator[None]:
+        # enabled=False → yield + return（零开销）
+        # probe 未注册 → 默认 CudaEventBackend（宽松模式）
+
+    def on_task_begin(self): ...   # 记录当前 records 起点
+    def on_task_end(self): ...     # 打印摘要 + 可选写 CSV + task_id++
+    def summary(self, task_only=True) -> dict[str, TimingStats]: ...
+    def export_csv(self, path: str): ...  # 内存构建全部行，一次性写盘
+
+    # 预留接口（Step 2 为 stub）
+    def add_resource_monitor(self, monitor: ResourceMonitor): ...
+    def record_resource_snapshot(self, name: str): ...
+```
+
+### 5.4 TaskLifecycle 协议
+
+```python
+@runtime_checkable
+class TaskLifecycle(Protocol):
+    def on_task_begin(self) -> None: ...
+    def on_task_end(self) -> None: ...
+```
+
+`InferenceInterceptor` 实现该协议，转发给内部 `SystemTimer`。
+Server 侧用 `hasattr(policy, 'on_task_begin')` 判断（避免强依赖）。
+
+---
+
+## 6. 关键实现决策
+
+1. **CudaEventBackend handle 设计**：返回 `("cuda", start_evt, end_evt)` 元组，含类型标记，支持并发/嵌套调用（不在实例上保存 per-call 状态）。
+
+2. **CUDA 不可用时自动降级**：`CudaEventBackend` 内部持有 `PerfCounterBackend`，无 GPU 时返回 `("cpu", ns)` handle，CI 环境也能跑。
+
+3. **任务边界用单调计数器**：`_total_appended` 递增，`on_task_begin()` 保存该值，从 deque 尾部切片取任务内 record。ring buffer wrap 时给出警告。
+
+4. **total (sum) 行的正确计算**：三个 stage 的 record 按顺序对齐、逐次相加得到每次推理总耗时列表，再求 p50/p95/p99（而非简单累加均值）。
+
+5. **`_DISPLAY_ORDER` 常量**控制摘要表行顺序，后续新增 probe 只需加入该列表。
+
+6. **interceptor 注册 4 个 probe**：`stage1_vision`/`stage2_llm`/`stage3_flow`（cuda backend）+ `total_inference`（cpu backend）。`infer()` 用嵌套 `with timer.measure()` 块。
+
+---
+
+## 7. Server 侧改动
+
+```python
+# websocket_policy_server.py _handler()
+async def _handler(self, websocket):
+    if hasattr(self._policy, "on_task_begin"):
+        self._policy.on_task_begin()       # 连接建立
+    ...
+    except websockets.ConnectionClosed:
+        if hasattr(self._policy, "on_task_end"):
+            self._policy.on_task_end()     # 连接关闭 → 打印摘要/写文件
+```
+
+移除：`stage_timing_records` 收集、`action.pop("stage_timing")`、手工均值 print（约 -15 行）。
+`on_task_end()` 也在 `except Exception` 分支调用，确保异常关闭时记录不丢失。
+
+---
+
+## 8. 验证结果
+
+脚本：`scripts/verify_step2.py`
+
+全部 12 项通过：语法检查、旧代码移除、CPU probe 循环、enabled=False 零 record、
+任务边界隔离、task_id 自增、未注册 probe 警告、CSV 正确性、auto CSV 写盘、
+TaskLifecycle 接口、摘要格式（含 total sum 行）、非法 backend 报错。
+
+摘要输出样例：
+```
+=== Inference Timing Summary (task #0, 4 inferences) ===
+  Probe                          N     mean      p50      p95      p99  ms
+  ------------------------------------------------------------------------
+  stage1_vision                  4      2.1      2.1      2.3      2.3
+  stage2_llm                     4      6.1      6.1      6.1      6.1
+  stage3_flow                    4      3.1      3.1      3.1      3.1
+  total_inference                4     11.3     11.3     11.5     11.5
+  ------------------------------------------------------------------------
+  total (sum)                    4     11.3     11.2     11.4     11.5
+```
+
+---
+
+## 9. 遗留事项
+
+- **Step 3**：CacheStorage 实现时注册 `cp*_*` probe（cpu backend）到同一 timer
+- **Step 4**：CacheOrchestrator 的 `cache_stream` 通过 `register_probe(..., stream=cache_stream)` 接入
+- **Step N**：实现 `GpuVramMonitor` / `CpuRamMonitor` 后调用 `timer.add_resource_monitor()`

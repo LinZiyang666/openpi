@@ -56,6 +56,11 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+# Ignore ad-hoc logs everywhere, but keep curated project logs under claude_log/.
+*.log
+!claude_log/
+!claude_log/**
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -76,7 +81,7 @@ cover/
 *.pot
 
 # Django stuff:
-*.log
+#*.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -181,5 +186,9 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+faiss.wiki
+exp_outputs
+.codex
 
 faiss.wiki
