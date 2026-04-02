@@ -1,23 +1,27 @@
 # LIBERO Remote Inference Guide
 
+> **Status:** The code modifications described in this document have already been integrated into `examples/libero/main.py`. The current implementation includes episode lifecycle control (`episode_start`/`episode_end`), real-time display, and wall-clock video recording. **Do not replace main.py with the code below** — it is retained as a historical reference for the original design.
+>
+> **Current source of truth:** [`examples/libero/main.py`](../examples/libero/main.py)
+
 The simulator runs on the local WSL2 machine, while model inference runs on a remote GPU server, communicating via WebSocket.
 
 ```
 [Local WSL2]                        [GPU Server]
   LIBERO simulator    <--websocket-->   π0.5 model inference
   main.py                              serve_policy.py
-  port 9000 (client)                   port 9000 (server)
+  port 9000 (via frp)                   port 8000 (model server)
 ```
 
-Video recording strategy: A background thread captures frames at a fixed rate (30fps). **During inference wait periods, the last frame is repeated**, so inference latency is faithfully reflected in the recorded video.
+Video recording strategy: Each frame is timestamped at capture time. When saving the video, frames are duration-weighted so that **inference latency is faithfully reflected** in the recorded video.
 
 ---
 
-## 1. Code Modifications
+## 1. Code Modifications (Historical Reference)
 
-The original `examples/libero/main.py` only saves frames after `env.step()`, meaning inference latency is not captured in the video and there is no real-time rendering window. The following modifications are needed.
+> The changes below have already been applied. This section is kept for design context only.
 
-Replace `examples/libero/main.py` with the following:
+The original upstream `examples/libero/main.py` only saves frames after `env.step()`, meaning inference latency is not captured in the video. The following modifications were made:
 
 ```python
 import collections

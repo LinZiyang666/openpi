@@ -1,0 +1,90 @@
+# Qdrant Step KNN Experiment Plan
+
+## Goal
+
+Experiment script that takes one HDF5 episode as query input, iterates over all steps, retrieves from both Qdrant collections (`openpi_steps_named`, `openpi_steps_multivector`), and compares retrieval quality via `clean_action` similarity evaluation.
+
+## Target Script
+
+`exp/qdrant_step_knn_experiment.py`
+
+## Inputs
+
+- Query HDF5 file (iterate all `step_xxxx` groups)
+- Collection names (named + multivector)
+- Step filter mode: `exact` | `window` | `all` (with optional window delta)
+- Selected logical keys + per-key weights (normalized to sum=1)
+- `top_k`, candidate pool size
+- Output paths for summary and detail CSVs
+
+## Supported Keys
+
+`vision_0/1/2`, `prompt_emb`, `robot_state`, `noise_action_1..9`, `clean_action`
+
+For named collection, chunked fields (`vision_0/1/2`: 9 chunks, `prompt_emb`: 7 chunks) require per-chunk query + aggregation. Multivector fields are queried directly.
+
+## Retrieval Strategy
+
+**Not** a single monolithic Qdrant weighted query. Instead:
+
+1. Query each selected field separately (with step filter applied)
+2. Collect candidate point IDs from all fields (union)
+3. Fetch payload + vectors for candidates
+4. Recompute **cosine similarity** client-side for all fields (even if collection uses Euclid)
+5. Compute weighted total score, sort, keep top-k
+
+This ensures consistent scoring across both collection types.
+
+### Named Collection Scoring
+
+- Direct fields (`robot_state`, actions): cosine directly
+- Chunked fields (`vision_*`, `prompt_emb`): query each chunk, merge candidates, average chunk cosine scores for the logical field, then apply weight
+
+### Multivector Collection Scoring
+
+All fields queried directly by name. Client-side cosine recomputation + same weighting logic.
+
+## Clean Action Evaluation
+
+For each query step's top-k results:
+
+1. Compute `clean_action` cosine between query and each retrieved point
+2. Compute top-k mean `clean_action` cosine
+3. Compute background baseline: query `clean_action` vs all points in search scope
+4. Report: per-result cosine, top-k mean, background mean, lift (`topk_mean - background_mean`)
+
+## Timing
+
+Record per query step, separately for each collection:
+
+- Total retrieval time (first field query → final top-k ranking)
+- Candidate generation time
+- Reranking time
+
+## Output
+
+### 1. Per-query-step summary (one row per step)
+
+Query metadata, filter mode, active keys/weights, named/multivector retrieval times, top-k IDs for each collection, overlap/Jaccard, clean_action means (named, multivector, background)
+
+### 2. Per-result detail (one row per retrieved point)
+
+Query step, collection type, rank, point ID, source file, step name/idx, final weighted score, per-key score breakdown, clean_action cosine
+
+### 3. Aggregate summary (across all query steps)
+
+Average times (named, multivector, ratio), average overlap/Jaccard, average clean_action lift, fraction of exact top-k match between collections
+
+## Optional Extensions
+
+- **Key ablation**: vision-only, prompt-only, action-only, vision+prompt, vision+action
+- **Step scope ablation**: exact, window=1, window=3, all
+- **Agreement metrics**: top-k overlap, Jaccard, rank correlation
+
+## Implementation Notes
+
+1. Reuse existing HDF5 parsing and vector conversion logic
+2. Reuse payload fields and point ID logic
+3. Treat Qdrant as candidate generator + storage backend
+4. Final weighted scoring on client side
+5. Scoring logic identical between both collections

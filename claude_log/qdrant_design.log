@@ -1,0 +1,171 @@
+# Qdrant Experiment Plan
+
+## Goal
+
+Build a Qdrant-based retrieval experiment for collected OpenPI HDF5 episodes. Two collections inside one Qdrant instance (`http://localhost:6333`):
+
+1. `openpi_steps_named` — baseline, flattened dense vectors
+2. `openpi_steps_multivector` — preserves matrix structure via multivector
+
+## Source Data Model
+
+Each HDF5 episode file contains:
+
+- Attributes: `experiment_name`, `task`, `episode_id`, `num_steps`, `timestamp`, `success`
+- Groups: `step_0000`, `step_0001`, ...
+
+Each `step_xxxx` (= one retrieval unit) contains:
+
+| Field | Shape | Dtype |
+|-------|-------|-------|
+| `vision_0/1/2` | `(256, 2048)` | float16 |
+| `prompt_emb` | `(num_lang_tokens, 2048)` | float16 |
+| `robot_state` | `(32,)` | float32 |
+| `noise_action_1..9` | `(10, 32)` | float32 |
+| `clean_action` | `(10, 32)` | float32 |
+
+Typical `pi05_libero`: `prompt_emb` is `(200, 2048)`.
+
+## Collection 1: Named Vectors (`openpi_steps_named`)
+
+### Vector Schema
+
+All tensors flattened to 1D. No pooling, no dimensionality reduction.
+
+- `vision_0/1/2`: flatten `(256, 2048)` → `(524288,)`
+- `prompt_emb`: pad to `(MAX_LANG_TOKENS, 2048)`, flatten. `MAX_LANG_TOKENS` computed via dataset scan. Original length stored in payload as `num_lang_tokens`.
+- `robot_state`: `(32,)`
+- `noise_action_*/clean_action`: flatten `(10, 32)` → `(320,)`
+
+### Distance
+
+- `vision_*`, `prompt_emb`: `Cosine`
+- `robot_state`, `noise_action_*`, `clean_action`: `Euclid`
+
+### Tradeoff
+
+Full value preservation. 2D structure lost; recoverable via payload shape metadata + reshape. High storage cost.
+
+## Collection 2: Multivector (`openpi_steps_multivector`)
+
+### Vector Schema
+
+Named vectors mixing dense and multivector types:
+
+- `vision_0/1/2`: multivector, row size `2048`
+- `prompt_emb`: multivector, row size `2048`
+- `robot_state`: dense vector, size `32`
+- `noise_action_1..9`, `clean_action`: multivector, row size `32`
+
+Comparator: `MultiVectorComparator.MAX_SIM`. Distance same as Collection 1.
+
+### Tradeoff
+
+Preserves sequence structure directly. More complex creation/querying, higher storage cost.
+
+## Payload Schema (Both Collections)
+
+```
+experiment_name, task, episode_id, step_idx, step_name, success, timestamp,
+source_file, num_lang_tokens, max_lang_tokens, vision_shape, prompt_shape,
+robot_state_shape, action_shape
+```
+
+## Point ID Strategy
+
+Use stable 64-bit hash of `source_file + "::" + step_name`. Same ID for both collections. Handles repeated `episode_id=0` across files. Idempotent re-imports.
+
+## Import Pipeline
+
+```bash
+python exp/qdrant_ingest_openpi.py --data-dir data/libero_spatial_1 --mode both
+```
+
+CLI: `--data-dir`, `--url`, `--mode named|multivector|both`, `--batch-size`, `--recreate`, `--named-collection`, `--multivector-collection`, `--max-lang-tokens`
+
+Steps: connect → validate server → create/recreate collections → scan HDF5 files → convert tensors → build payload → batch upsert. Named collection requires first-pass scan for `MAX_LANG_TOKENS`.
+
+## Query Validation
+
+1. Point count matches total `step_xxxx` groups
+2. Self-query a known step; top-1 should return itself
+3. Test fields: `vision_0`, `prompt_emb`, `clean_action` (both collections)
+
+## Implementation Order
+
+1. HDF5 step iterator
+2. Stable point ID function
+3. Payload builder
+4. First-pass `MAX_LANG_TOKENS` scan
+5. Named-vector tensor conversion (flatten + prompt padding)
+6. Multivector tensor conversion (raw matrix preservation)
+7. Collection creation helpers
+8. Batched upsert
+9. Query verification
+
+## Experiment Config File
+
+Driven by JSON config:
+
+```bash
+python -m exp.qdrant_step_knn_experiment --config exp/qdrant_step_knn_experiment_config.example.json
+```
+
+### Top-Level Fields
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| `query_file` | Single HDF5 file as query source | `"data/libero_spatial_1/episode_0000_....h5"` |
+| `db_data_dir` | HDF5 directory for DB corpus / metadata cache / background eval | `"data/libero_spatial"` |
+| `output_dir` | Output directory (`config.json`, `summary.csv`, `details.csv`, `report.md`) | `"exp_outputs/qdrant_step_knn_example"` |
+
+### `cache`
+
+| Field | Values | Description |
+|-------|--------|-------------|
+| `enabled` | `true/false` | Use local cache for scan results / metadata |
+| `dir` | path | Cache directory |
+| `refresh` | `true/false` | Force cache rebuild |
+
+### `qdrant`
+
+| Field | Example | Description |
+|-------|---------|-------------|
+| `url` | `"http://localhost:6333"` | Qdrant HTTP URL |
+| `grpc_port` | `6334` | gRPC port |
+| `prefer_http` | `false` | Use gRPC when false |
+| `request_timeout` | `1800` | Timeout in seconds |
+| `named_collection` | `"openpi_steps_named"` | Named-vector collection name |
+| `multivector_collection` | `"openpi_steps_multivector"` | Multivector collection name |
+
+### `experiment`
+
+| Field | Values / Example | Description |
+|-------|------------------|-------------|
+| `mode` | `"named"`, `"multivector"`, `"both"` | Which collection(s) to query |
+| `step_filter` | `"all"`, `"exact"`, `"window"` | Step-range filtering mode |
+| `step_window` | `5` | Window radius (only for `"window"` mode) |
+| `top_k` | `10` | Final results per query step |
+| `candidate_limit` | `50` | Candidates per prefetch branch before fusion |
+| `rrf_k` | `60` | Weighted RRF fusion parameter |
+| `query_step_idxs` | `[0, 5, 9]` or `[]` | Restrict to specific query steps (empty = all) |
+| `max_query_steps` | `3` or `null` | Cap on executed query steps |
+
+### `keys`
+
+Per-key config controlling which fields participate in retrieval:
+
+```json
+"vision_0": { "enabled": true, "weight": 1.0 },
+"robot_state": false,
+"clean_action": { "enabled": true, "weight": 2.0 }
+```
+
+Boolean form: `true` = enabled with weight 1.0, `false` = disabled.
+Weights are normalized so enabled weights sum to 1.0.
+
+Supported keys: `vision_0/1/2`, `prompt_emb`, `robot_state`, `noise_action_1..9`, `clean_action`.
+
+### Notes on Metric Choice
+
+Query metric per field is determined by the collection schema at creation time. To change a field's metric, rebuild the collection. The config file cannot override distance dynamically.

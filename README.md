@@ -1,5 +1,10 @@
 # openpi
 
+> **Fork navigation:** This is a fork with inference caching, data collection, and retrieval experiments.
+> - [`CLAUDE.md`](CLAUDE.md) — Development workflow and quick reference
+> - [`docs/README.md`](docs/README.md) — Architecture specs and usage guides
+> - [`claude_log/README.md`](claude_log/README.md) — Implementation logs and design records
+
 openpi holds open-source models and packages for robotics, published by the [Physical Intelligence team](https://www.physicalintelligence.company/).
 
 Currently, this repo contains three types of models:

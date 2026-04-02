@@ -1,0 +1,124 @@
+# Faiss GPU Build Plan for `uv` Environment (Condensed)
+
+## Environment Assumptions
+
+- Python `3.11`, runtime at `/home/ziyang10/openpi/.venv`
+- `torch==2.7.1+cu126`, `torch.cuda.is_available() == True`
+- No `nvcc` or `swig` in PATH (Conda provides them)
+- Faiss target version: `1.14.1`
+
+## Key Paths
+
+- Conda toolchain env: `/home/ziyang10/.conda/envs/faiss-build`
+- Faiss source: `/home/ziyang10/faiss-build/faiss-src`
+- CMake build dir: `/home/ziyang10/faiss-build/build`
+- C++ install prefix: `/home/ziyang10/faiss-build/install`
+- Final package: `/home/ziyang10/openpi/.venv/lib/python3.11/site-packages/faiss`
+
+## Build Commands
+
+### 1. Create Conda Toolchain
+
+```bash
+conda create -y -n faiss-build -c conda-forge python=3.11 cmake swig cxx-compiler pkg-config ninja git openblas
+conda install -y -n faiss-build -c nvidia cuda-nvcc cuda-libraries-dev cuda-cupti cuda-nvtx
+```
+
+### 2. Clone Faiss Source
+
+```bash
+mkdir -p /home/ziyang10/faiss-build/{build,wheelhouse,logs}
+git clone --branch v1.14.1 --depth 1 https://github.com/facebookresearch/faiss.git /home/ziyang10/faiss-build/faiss-src
+```
+
+### 3. CMake Configure (must activate Conda first)
+
+```bash
+source /home/ziyang10/miniforge3/etc/profile.d/conda.sh
+conda activate faiss-build
+
+cmake -S /home/ziyang10/faiss-build/faiss-src \
+  -B /home/ziyang10/faiss-build/build \
+  -G Ninja \
+  -DFAISS_ENABLE_GPU=ON \
+  -DFAISS_ENABLE_PYTHON=ON \
+  -DFAISS_ENABLE_MKL=OFF \
+  -DFAISS_ENABLE_EXTRAS=OFF \
+  -DBUILD_TESTING=OFF \
+  -DBUILD_SHARED_LIBS=ON \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DFAISS_OPT_LEVEL=avx2 \
+  -DBLA_VENDOR=OpenBLAS \
+  -DCUDAToolkit_ROOT=$CONDA_PREFIX \
+  -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
+  -DCMAKE_CUDA_ARCHITECTURES=90 \
+  -DPython_EXECUTABLE=/home/ziyang10/openpi/.venv/bin/python \
+  -DPython_ROOT_DIR=/home/ziyang10/openpi/.venv \
+  -DPython_INCLUDE_DIR=/home/ziyang10/.conda/envs/lerobot/include/python3.11 \
+  -DPython_NumPy_INCLUDE_DIR=/home/ziyang10/openpi/.venv/lib/python3.11/site-packages/numpy/core/include
+```
+
+### 4. Compile
+
+```bash
+cmake --build /home/ziyang10/faiss-build/build -j 8 --target faiss faiss_avx2 swigfaiss swigfaiss_avx2
+```
+
+### 5. Install C++ Libraries
+
+```bash
+cmake --install /home/ziyang10/faiss-build/build --prefix /home/ziyang10/faiss-build/install
+```
+
+### 6. Build Python Package
+
+```bash
+cd /home/ziyang10/faiss-build/build/faiss/python
+/home/ziyang10/openpi/.venv/bin/python setup.py build
+```
+
+### 7. Install into uv Runtime
+
+```bash
+cp -r /home/ziyang10/faiss-build/build/faiss/python/build/lib/faiss /home/ziyang10/openpi/.venv/lib/python3.11/site-packages/
+```
+
+## Validation
+
+```bash
+/home/ziyang10/openpi/.venv/bin/python -c "
+import faiss
+print('version:', faiss.__version__)
+# CPU test
+idx = faiss.IndexFlatL2(64)
+import numpy as np
+idx.add(np.random.rand(10, 64).astype('float32'))
+D, I = idx.search(np.random.rand(1, 64).astype('float32'), 5)
+print('CPU OK')
+# GPU test
+res = faiss.StandardGpuResources()
+gpu_idx = faiss.index_cpu_to_gpu(res, 0, idx)
+D, I = gpu_idx.search(np.random.rand(1, 64).astype('float32'), 5)
+print('GPU OK')
+"
+```
+
+## Critical Gotchas
+
+1. **Python target binding**: CMake MUST point to `/home/ziyang10/openpi/.venv/bin/python`, not Conda's Python. Verify in `CMakeCache.txt` after configure.
+2. **LD_LIBRARY_PATH**: On this machine, not required after install. If GPU fails in the future, try:
+   ```bash
+   export LD_LIBRARY_PATH=/home/ziyang10/faiss-build/install/lib:/home/ziyang10/.conda/envs/faiss-build/lib:/home/ziyang10/.conda/envs/faiss-build/targets/x86_64-linux/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+   ```
+3. **NVCC warning #611-D**: Benign, does not affect the build.
+4. **Shell line breaks**: The `LD_LIBRARY_PATH` export must be on one logical line; split lines cause shell errors.
+5. **uv sync caveat**: If `openpi/.venv` is recreated, the copied `faiss` package is lost. Recopy from `build/lib/faiss`.
+
+## Recovery Order
+
+1. Verify `openpi/.venv/bin/python` is the expected interpreter
+2. Verify `import faiss` works
+3. Verify `StandardGpuResources()` works
+4. If GPU fails, retry with `LD_LIBRARY_PATH` (see above)
+5. If package missing from `site-packages`, recopy from build output
+6. If build artifacts gone, rerun full build from step 1

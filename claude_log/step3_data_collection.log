@@ -1,0 +1,164 @@
+# Step 3 Data Collection — Implementation Summary (Pure Observer)
+
+> 目标：在 PyTorch 推理服务器上通过 forward hook 收集每个 episode 的模型中间嵌入，写入 HDF5。
+> 核心原则：对现有代码零侵入。`policy.infer()` 是唯一执行路径；数据收集是纯旁路 observer。
+
+---
+
+## 一、每次 infer 收集的数据
+
+| 数据项 | 来源 | 形状（batch=1） | dtype |
+|--------|------|-----------------|-------|
+| `vision_0/1/2` | `multi_modal_projector` forward hook 输出 | `[256, 2048]` | float16 |
+| `prompt_emb` | `embed_tokens` forward hook + sqrt 缩放 | `[num_lang_tokens, 2048]` | float16 |
+| `robot_state` | `policy.infer()` 返回 dict 的 `"state"` 字段 | `[32]` | float32 |
+| `noise_action_1`…`(N-1)` | `action_in_proj` hook，跳过第 1 次（纯高斯），取第 2-N 次 | `[50, 32]` | float32 |
+| `clean_action` | `action_in_captures[-1] + dt × action_out_captures[-1]`，dt = -1/N | `[50, 32]` | float32 |
+
+---
+
+## 二、四个 Forward Hook
+
+| Hook | 挂载目标 | 触发时机 | 捕获 |
+|------|---------|---------|------|
+| `_vision_hook` | `model.paligemma_with_expert.paligemma.multi_modal_projector` | Stage 1，每张图一次 | `out [B,256,2048]` |
+| `_lang_hook` | `model.paligemma_with_expert.paligemma.language_model.embed_tokens` | Stage 1 一次（Stage 2/3 传 inputs_embeds 不触发） | `out*sqrt(dim) [B,N_lang,2048]` |
+| `_action_in_hook` | `model.action_in_proj` | Stage 3 每步去噪一次，共 N 次 | `inp[0]`（x_t）`[B,50,32]` |
+| `_action_out_hook` | `model.action_out_proj` | Stage 3 每步去噪一次，共 N 次 | `out`（v_t）`[B,50,32]` |
+
+代码验证：`action_in_proj`/`action_out_proj` 是 `PI0Pytorch` 直接属性；推理时不被 compile wrapper 覆盖；`embed_tokens` 仅 Stage 1 触发。
+
+### x_t / v_t 对应关系
+
+```
+step 1: call[0] → x_noise,  v_1  → x_1 = x_noise + dt*v_1
+step 2: call[1] → x_1,      v_2  → x_2 = x_1 + dt*v_2
+...
+step N: call[N-1] → x_{N-1}, v_N → x_0 = x_{N-1} + dt*v_N
+
+N = len(action_in_captures)    （动态推断，默认 10）
+dt = -1.0 / N                  （动态计算，不硬编码）
+noise_action_i = action_in_captures[i], i=1..N-1（跳过 [0] = 纯高斯）
+clean_action   = action_in_captures[-1] + dt * action_out_captures[-1]
+```
+
+---
+
+## 三、CollectionPolicy 行为
+
+```
+--collect 关闭：CollectionPolicy 不存在，零影响
+--collect 开启，_collecting=False（episode 间）：纯委托，无 hook，零开销
+--collect 开启，_collecting=True（episode 中）：
+  1. 注册 4 个临时 forward hook
+  2. result = self._policy.infer(obs)   ← 唯一执行路径
+  3. finally: 移除所有 hook（异常也移除）
+  4. 从 captures 构建 InferenceEmbeddings
+  5. self._collector.record_inference(embs)
+  6. return result
+```
+
+### Wrapper 顺序（serve_policy.py）
+
+```python
+policy = create_policy(args)                              # 原始 Policy
+if args.cache:  policy = InferenceInterceptor(policy)     # 内层
+if args.record: policy = PolicyRecorder(policy)           # 内层
+if args.collect: policy = CollectionPolicy(policy, collector)  # 最外层
+```
+
+CollectionPolicy 必须在最外层：它只调 `self._policy.infer()`，不关心内层类型。
+InferenceInterceptor 需要直接包裹 Policy 以访问 `_model` 等私有字段。
+
+### 关键兼容性处理
+
+- **noise kwarg**：`PolicyRecorder.infer(obs)` 不接受 noise。CollectionPolicy 在 `noise=None` 时传 `**{}`，避免 TypeError。
+- **_find_inner_model()**：遍历 wrapper 链找到暴露 `_model` 属性的对象，取其 PI0Pytorch 实例用于注册 hook。
+- **断连保护**：`on_task_end()` 在转发前先 flush 未完成 episode 的 buffer。
+- **无 --collect 服务器**：控制消息无条件发 ack，客户端不会挂死。
+
+---
+
+## 四、HDF5 Schema
+
+```
+/data/{experiment}/episode_{N:04d}_{YYYYMMDD_HHMMSS_ffffff}.h5
+├── attrs:
+│   ├── experiment_name: str
+│   ├── task:            str
+│   ├── episode_id:      int
+│   ├── num_steps:       int
+│   ├── timestamp:       str (ISO 8601)
+│   └── success:         bool
+├── step_0000/
+│   ├── vision_0        float16[256, 2048]   lzf
+│   ├── vision_1        float16[256, 2048]   lzf
+│   ├── vision_2        float16[256, 2048]   lzf
+│   ├── prompt_emb      float16[N_lang, 2048] lzf
+│   ├── robot_state     float32[32]
+│   ├── noise_action_1  float32[50, 32]
+│   │   ...
+│   ├── noise_action_9  float32[50, 32]
+│   └── clean_action    float32[50, 32]
+├── step_0001/ ...
+└── step_NNNN/
+```
+
+存储：~3.5 MB/infer，50 步 episode 约 ~175 MB。写入使用 .h5.tmp → rename 原子操作。
+
+---
+
+## 五、修改的文件清单
+
+### 新建文件
+1. `src/openpi/collect/__init__.py` — 空
+2. `src/openpi/collect/data_collector.py` — InferenceEmbeddings dataclass + EpisodeDataCollector（缓冲 + HDF5 写入）
+3. `src/openpi/collect/collection_policy.py` — CollectionPolicy wrapper
+
+### 修改文件
+4. `scripts/serve_policy.py` — 新增 `--collect` / `--collect_dir` 参数，最外层包装 CollectionPolicy
+5. `src/openpi/serving/websocket_policy_server.py` — 带内控制消息识别（`__ctrl__: episode_start/end`）
+6. `packages/openpi-client/src/openpi_client/websocket_client_policy.py` — 新增 `episode_start()` / `episode_end()` 方法
+7. `examples/libero/main.py` — episode 循环前后插入 `client.episode_start/end()` 调用
+
+---
+
+## 六、带内控制消息协议
+
+客户端发送含 `__ctrl__` 键的 msgpack 消息，服务器识别后调用 policy 的 lifecycle 方法并回 ack：
+
+```python
+# 客户端 → 服务器
+{"__ctrl__": "episode_start", "__experiment__": "...", "__task__": "...", "__episode_id__": N}
+{"__ctrl__": "episode_end", "__success__": bool}
+
+# 服务器 → 客户端（无条件 ack）
+{"__ack__": "episode_start"}
+{"__ack__": "episode_end"}
+```
+
+---
+
+## 七、使用示例
+
+```bash
+# 服务器
+uv run scripts/serve_policy.py \
+    --env libero --policy.config pi05_libero \
+    --policy.dir checkpoints/pi05_libero/exp/10000 \
+    --collect --collect_dir /data/libero_experiments
+
+# 客户端（main.py 内部已调用 episode_start/end）
+uv run examples/libero/main.py --host <server_ip> --task_suite_name libero_spatial
+```
+
+---
+
+## 八、兼容性矩阵
+
+| 组件 | --collect 关闭 | --collect 开启，episode 外 | --collect 开启，episode 中 |
+|------|:---:|:---:|:---:|
+| pi0_pytorch.py | 零改动 | 零改动 | 零改动 |
+| Policy / InferenceInterceptor / PolicyRecorder | 零改动 | 零改动 | 零改动 |
+| JAX 推理路径 | 不变 | 不变 | 不涉及 |
+| 未发控制消息的客户端 | 不变 | 不变 | 不变 |

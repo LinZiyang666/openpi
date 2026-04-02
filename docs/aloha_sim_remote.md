@@ -1,57 +1,28 @@
 # Aloha Sim Remote Inference Guide
 
+> **Status:** The `--display` support described in Section 1 has already been integrated. No code modifications are needed.
+>
+> **Current source of truth:** [`examples/aloha_sim/env.py`](../examples/aloha_sim/env.py), [`examples/aloha_sim/main.py`](../examples/aloha_sim/main.py)
+
 The simulator runs on the local WSL2 machine, while model inference runs on a remote GPU server, communicating via WebSocket.
 
 ```
 [Local WSL2]                        [GPU Server]
   aloha_sim simulator  <--websocket-->  π0/π0.5 model inference
   main.py                              serve_policy.py
-  port 9000 (client)                   port 9000 (server)
+  port 9000 (via frp)                   port 8000 (model server)
 ```
 
 ---
 
-## 1. Code Modifications (Enable Real-Time Rendering Window)
+## 1. Display Support (Historical Reference — Already Integrated)
 
-The default code does not wire the `--display` flag into the rendering logic. The following two files need to be modified.
+> The following changes have already been applied to the codebase. This section is kept for design context only.
 
-### `examples/aloha_sim/env.py`
+The upstream code did not wire the `--display` flag into the rendering logic. The following modifications were made:
 
-Modify `__init__` and `apply_action` as follows:
-
-```python
-def __init__(self, task: str, obs_type: str = "pixels_agent_pos", seed: int = 0, display: bool = False) -> None:
-    np.random.seed(seed)
-    self._rng = np.random.default_rng(seed)
-
-    render_mode = "human" if display else None
-    self._gym = gymnasium.make(task, obs_type=obs_type, render_mode=render_mode)
-    self._display = display
-
-    self._last_obs = None
-    self._done = True
-    self._episode_reward = 0.0
-
-def apply_action(self, action: dict) -> None:
-    gym_obs, reward, terminated, truncated, info = self._gym.step(action["actions"])
-    self._last_obs = self._convert_observation(gym_obs)
-    self._done = terminated or truncated
-    self._episode_reward = max(self._episode_reward, reward)
-    if self._display:
-        self._gym.render()
-```
-
-### `examples/aloha_sim/main.py`
-
-Change the environment initialization to:
-
-```python
-environment=_env.AlohaSimEnvironment(
-    task=args.task,
-    seed=args.seed,
-    display=args.display,
-),
-```
+- `examples/aloha_sim/env.py`: `__init__` accepts `display` param, sets `render_mode="human"` when True; `apply_action` calls `self._gym.render()` when display is enabled.
+- `examples/aloha_sim/main.py`: Passes `display=args.display` to `AlohaSimEnvironment`.
 
 ---
 

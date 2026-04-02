@@ -56,6 +56,11 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+# Ignore ad-hoc logs everywhere, but keep curated project logs under claude_log/.
+*.log
+!claude_log/
+!claude_log/**
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -76,7 +81,7 @@ cover/
 *.pot
 
 # Django stuff:
-*.log
+#*.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -183,3 +188,4 @@ cython_debug/
 
 faiss.wiki
 exp_outputs
+.codex
