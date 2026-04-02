@@ -9,9 +9,24 @@ incompatible with the project's uv lockfile).  It depends only on:
 
     qdrant_client, numpy, h5py, flask, msgpack, msgpack_numpy
 
-All query configuration (keys, weights, mode, step_filter, RRF, etc.)
-uses the same JSON config format and the same functions as
-``qdrant_step_knn_experiment.py``.
+Query modes
+-----------
+named (default)
+    Uses CacheStorage (QdrantVectorStore) as the query entry point.
+    Fusion strategy (RRF weights, rrf_k, candidate_limit) is declared in
+    QdrantBackendConfig and handled entirely inside the backend.
+    Only fields supported by the storage interface are used; noise_action_*
+    and clean_action are silently ignored if selected.
+
+multivector
+    Unchanged: direct QdrantClient with server-side RRF.  Multivector
+    collections are Qdrant-specific and outside the storage abstraction.
+
+clean_action retrieval
+----------------------
+clean_action is returned from the local db_index (in-memory) rather than
+from the Qdrant payload.  This avoids large tensor transfer for every query.
+When data is re-ingested in CacheEntry format, switch to fetch_payload().
 
 Usage
 -----
@@ -39,23 +54,22 @@ from qdrant_client import QdrantClient, models
 
 import sys
 
-# Ensure repo root is on sys.path so ``exp.*`` imports work when invoked as
-# ``python exp/toy_qdrant_server.py``.
 _REPO_ROOT = str(Path(__file__).resolve().parents[1])
+_SRC_DIR = str(Path(__file__).resolve().parents[1] / "src")
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
+if _SRC_DIR not in sys.path:
+    sys.path.insert(0, _SRC_DIR)
 
 from exp.qdrant_openpi_common import (
     StepRecord,
     build_multivector_vectors,
-    build_named_vectors,
     named_vector_chunks_map,
     scan_dataset,
 )
 from exp.qdrant_step_knn_experiment import (
     DBPointMeta,
     build_db_index,
-    build_filter,
     build_prefetches_for_collection,
     ensure_rrf_support,
     load_config,
@@ -65,19 +79,71 @@ from exp.qdrant_step_knn_experiment import (
     parse_weights,
 )
 
+# ---------------------------------------------------------------------------
+# Storage layer imports (named mode)
+# ---------------------------------------------------------------------------
+
+from openpi.cache.types import VISION_0, VISION_1, VISION_2, PROMPT_EMB, ROBOT_STATE
+from openpi.cache.storage_types import QueryFilter, QuerySpec
+from openpi.cache.cache_storage import CacheStorage
+from openpi.cache.backends.qdrant_backend import QdrantVectorStore, QdrantBackendConfig
+
 logger = logging.getLogger(__name__)
 
+# Fields that the storage interface handles (superset check in query)
+_STORAGE_FIELD_INPUTS = (VISION_0, VISION_1, VISION_2, PROMPT_EMB, ROBOT_STATE)
+
 # ---------------------------------------------------------------------------
-# Constants
+# Helpers
 # ---------------------------------------------------------------------------
 
-ALLOWED_QUERY_KEYS = frozenset({
-    "vision_0",
-    "vision_1",
-    "vision_2",
-    "prompt_emb",
-    "robot_state",
-})
+
+def _derive_vector_dims(db_stats, selected_keys: list[str]) -> dict[str, int]:
+    """Derive per-field full flat dims from db_stats.
+
+    The backend handles Qdrant's 65 535-dim chunk limit internally, so all
+    field sizes are valid regardless of how many chunks they require.
+    """
+    chunk_map = named_vector_chunks_map(db_stats)
+    return {
+        field_name: sum(c.end - c.start for c in chunks)
+        for field_name in selected_keys
+        if (chunks := chunk_map.get(field_name))
+    }
+
+
+def _make_named_storage(
+    config: dict[str, Any],
+    db_stats,
+    selected_keys: list[str],
+    weights: dict[str, float],
+) -> CacheStorage:
+    qdrant_cfg = config.get("qdrant", {})
+    experiment_cfg = config.get("experiment", {})
+
+    vector_dims = _derive_vector_dims(db_stats, selected_keys)
+    if not vector_dims:
+        raise RuntimeError(
+            "No recognised fields found for storage interface. "
+            "Check that selected_keys contains valid CACHE_QUERY_FIELDS entries."
+        )
+
+    top_k = int(experiment_cfg.get("top_k", 1))
+    candidate_limit = int(experiment_cfg.get("candidate_limit", 50))
+
+    backend_cfg = QdrantBackendConfig(
+        url=str(qdrant_cfg.get("url", "http://localhost:6333")),
+        collection_name=str(qdrant_cfg.get("named_collection", "openpi_steps_named")),
+        vector_dims=vector_dims,
+        prefer_grpc=not bool(qdrant_cfg.get("prefer_http", False)),
+        grpc_port=int(qdrant_cfg.get("grpc_port", 6334)),
+        request_timeout=int(qdrant_cfg.get("request_timeout", 300)),
+        rrf_k=int(experiment_cfg.get("rrf_k", 60)),
+        candidate_multiplier=max(1, candidate_limit // max(1, top_k)),
+        fusion_weights=weights if len(weights) > 1 else None,
+    )
+    return CacheStorage(QdrantVectorStore(backend_cfg))
+
 
 # ---------------------------------------------------------------------------
 # Server class
@@ -87,8 +153,8 @@ ALLOWED_QUERY_KEYS = frozenset({
 class ToyQdrantQueryServer:
     """Stateful query handler backed by a Qdrant collection.
 
-    Configuration parsing and query construction reuse the same functions as
-    ``qdrant_step_knn_experiment.py``.
+    Named mode  : uses CacheStorage.search() — backend handles fusion.
+    Multivector : uses QdrantClient directly — unchanged.
     """
 
     def __init__(
@@ -96,14 +162,12 @@ class ToyQdrantQueryServer:
         config: dict[str, Any],
         db_stats: Any,
         db_index: dict[int, DBPointMeta],
-        client: QdrantClient,
+        storage_or_client: CacheStorage | QdrantClient,
     ) -> None:
         self.config = config
         self.db_stats = db_stats
         self.db_index = db_index
-        self.client = client
 
-        # ---- Validate and parse config ----
         self._validate_config()
 
         experiment_cfg = config.get("experiment", {})
@@ -118,10 +182,16 @@ class ToyQdrantQueryServer:
         self.top_k: int = int(experiment_cfg.get("top_k", 1))
         self.candidate_limit: int = int(experiment_cfg.get("candidate_limit", 50))
         self.rrf_k: int = int(experiment_cfg.get("rrf_k", 60))
-        self.named_collection: str = str(qdrant_cfg.get("named_collection", "openpi_steps_named"))
         self.multivector_collection: str = str(
             qdrant_cfg.get("multivector_collection", "openpi_steps_multivector")
         )
+
+        if self.mode == "named":
+            self._storage: CacheStorage = storage_or_client
+            self._client: QdrantClient | None = None
+        else:
+            self._storage = None
+            self._client = storage_or_client
 
         logger.info("Mode: %s", self.mode)
         logger.info("Selected keys: %s", self.selected_keys)
@@ -153,21 +223,23 @@ class ToyQdrantQueryServer:
         if not isinstance(key_cfg, dict):
             raise ValueError("Config field 'keys' must be an object")
 
-        for key_name, value in key_cfg.items():
-            if key_name in ALLOWED_QUERY_KEYS:
-                continue
-            enabled = False
-            if isinstance(value, bool):
-                enabled = value
-            elif isinstance(value, dict):
-                enabled = bool(value.get("enabled", False))
-            if enabled:
-                raise ValueError(
-                    f"Key '{key_name}' is enabled in config but not available in "
-                    f"toy mode. Only {sorted(ALLOWED_QUERY_KEYS)} are supported."
-                )
+        _ALLOWED = frozenset({VISION_0, VISION_1, VISION_2, PROMPT_EMB, ROBOT_STATE})
+        if mode == "multivector":
+            for key_name, value in key_cfg.items():
+                if key_name in _ALLOWED:
+                    continue
+                enabled = False
+                if isinstance(value, bool):
+                    enabled = value
+                elif isinstance(value, dict):
+                    enabled = bool(value.get("enabled", False))
+                if enabled:
+                    raise ValueError(
+                        f"Key '{key_name}' is enabled in config but not available in "
+                        f"toy mode. Only {sorted(_ALLOWED)} are supported."
+                    )
 
-    # ---- Query ----
+    # ---- Query entry point ----
 
     def query(
         self,
@@ -178,12 +250,86 @@ class ToyQdrantQueryServer:
         robot_state: np.ndarray,
         step_idx: int,
     ) -> np.ndarray:
-        """Query Qdrant and return the best-matching clean_action.
+        """Query and return the best-matching clean_action as float32 array."""
+        if self.mode == "named":
+            return self._query_via_storage(vision_0, vision_1, vision_2, prompt_emb, robot_state, step_idx)
+        else:
+            return self._query_via_client(vision_0, vision_1, vision_2, prompt_emb, robot_state, step_idx)
 
-        Returns:
-            clean_action as float32 array with shape ``clean_action_shape``.
-        """
-        # Build a synthetic StepRecord for the query vector builders
+    # ---- Named mode: CacheStorage path ----
+
+    def _query_via_storage(
+        self,
+        vision_0: np.ndarray,
+        vision_1: np.ndarray,
+        vision_2: np.ndarray,
+        prompt_emb: np.ndarray,
+        robot_state: np.ndarray,
+        step_idx: int,
+    ) -> np.ndarray:
+        _inputs: dict[str, np.ndarray] = {
+            VISION_0: vision_0,
+            VISION_1: vision_1,
+            VISION_2: vision_2,
+            PROMPT_EMB: prompt_emb,
+            ROBOT_STATE: robot_state,
+        }
+        # Only include fields that are both selected and supported by the backend
+        supported = self._storage._backend.vector_dims
+        query_keys = {
+            field: np.asarray(arr, dtype=np.float32).reshape(-1)
+            for field, arr in _inputs.items()
+            if field in self.selected_keys and field in supported
+        }
+        if not query_keys:
+            raise RuntimeError(
+                "No selected fields are supported by the storage backend. "
+                f"Selected: {self.selected_keys}, Backend fields: {set(supported.keys())}"
+            )
+
+        spec = QuerySpec(
+            query_keys=query_keys,
+            top_k=self.top_k,
+            filters=self._make_query_filter(step_idx),
+        )
+
+        results = self._storage.search(spec)
+        if not results and self.step_filter_mode != "all":
+            import dataclasses
+            logger.warning(
+                "No results for step_idx=%d with step_filter=%s; retrying without filter",
+                step_idx,
+                self.step_filter_mode,
+            )
+            results = self._storage.search(dataclasses.replace(spec, filters=None))
+
+        if not results:
+            raise RuntimeError(
+                f"Storage returned no results for step_idx={step_idx}, even after fallback"
+            )
+
+        return self._clean_action_from_index(int(results[0].id))
+
+    def _make_query_filter(self, step_idx: int) -> QueryFilter | None:
+        if self.step_filter_mode == "all":
+            return None
+        if self.step_filter_mode == "exact":
+            return QueryFilter(step_range=(step_idx, step_idx))
+        if self.step_filter_mode == "window":
+            return QueryFilter(step_range=(step_idx - self.step_window, step_idx + self.step_window))
+        return None
+
+    # ---- Multivector mode: direct QdrantClient path (unchanged) ----
+
+    def _query_via_client(
+        self,
+        vision_0: np.ndarray,
+        vision_1: np.ndarray,
+        vision_2: np.ndarray,
+        prompt_emb: np.ndarray,
+        robot_state: np.ndarray,
+        step_idx: int,
+    ) -> np.ndarray:
         record = StepRecord(
             source_file=Path("__live_query__"),
             source_file_display="__live_query__",
@@ -206,37 +352,18 @@ class ToyQdrantQueryServer:
             noise_actions={},
         )
 
-        # Build step filter (from qdrant_step_knn_experiment.build_filter)
-        step_filter = build_filter(self.step_filter_mode, step_idx, self.step_window)
-
-        # Build prefetches (from qdrant_step_knn_experiment.build_prefetches_for_collection)
-        prefetches, fusion_weights, atomic_count = build_prefetches_for_collection(
-            selected_keys=self.selected_keys,
-            weights=self.weights,
-            query_record=record,
-            step_filter=step_filter,
-            candidate_limit=self.candidate_limit,
-            mode=self.mode,
-            db_stats=self.db_stats,
-        )
-
-        # Choose collection
-        collection_name = (
-            self.named_collection if self.mode == "named" else self.multivector_collection
-        )
-
-        def _query_points(active_filter: models.Filter | None):
+        def _query_points(active_filter):
             active_prefetches, active_fusion_weights, _ = build_prefetches_for_collection(
                 selected_keys=self.selected_keys,
                 weights=self.weights,
                 query_record=record,
                 step_filter=active_filter,
                 candidate_limit=self.candidate_limit,
-                mode=self.mode,
+                mode="multivector",
                 db_stats=self.db_stats,
             )
-            return self.client.query_points(
-                collection_name=collection_name,
+            return self._client.query_points(
+                collection_name=self.multivector_collection,
                 prefetch=active_prefetches,
                 query=models.RrfQuery(rrf=models.Rrf(k=self.rrf_k, weights=active_fusion_weights)),
                 limit=self.top_k,
@@ -244,33 +371,34 @@ class ToyQdrantQueryServer:
                 with_vectors=False,
             )
 
-        # Query Qdrant with RRF fusion.
+        from exp.qdrant_step_knn_experiment import build_filter
+        step_filter = build_filter(self.step_filter_mode, step_idx, self.step_window)
         response = _query_points(step_filter)
         if not response.points and self.step_filter_mode != "all":
             logger.warning(
-                "No Qdrant results for step_idx=%d on collection=%s with step_filter=%s; retrying without step filter",
+                "No results for step_idx=%d with step_filter=%s; retrying without filter",
                 step_idx,
-                collection_name,
                 self.step_filter_mode,
             )
             response = _query_points(None)
 
         if not response.points:
             raise RuntimeError(
-                f"Qdrant returned no results for step_idx={step_idx} on "
-                f"collection={collection_name}, even after fallback"
+                f"Qdrant returned no results for step_idx={step_idx}, even after fallback"
             )
 
-        # Look up clean_action from local index
-        point_id = int(response.points[0].id)
+        return self._clean_action_from_index(int(response.points[0].id))
+
+    # ---- Shared: local index lookup ----
+
+    def _clean_action_from_index(self, point_id: int) -> np.ndarray:
         if point_id not in self.db_index:
             raise RuntimeError(
                 f"Point ID {point_id} returned by Qdrant not found in local DB index. "
                 "The index may be stale or incomplete."
             )
         meta = self.db_index[point_id]
-        clean_action = meta.clean_action_flat.reshape(self.db_stats.schema.clean_action_shape)
-        return clean_action.astype(np.float32)
+        return meta.clean_action_flat.reshape(self.db_stats.schema.clean_action_shape).astype(np.float32)
 
 
 # ---------------------------------------------------------------------------
@@ -295,10 +423,12 @@ def main() -> None:
     args = parse_args()
     config = load_config(args.config)
 
-    # Validate RRF support
-    ensure_rrf_support()
+    experiment_cfg = config.get("experiment", {})
+    mode = str(experiment_cfg.get("mode", "named"))
 
-    # Load DB data and build local index
+    if mode == "multivector":
+        ensure_rrf_support()
+
     db_data_dir = Path(str(config.get("db_data_dir", "")))
     if not db_data_dir.as_posix() or db_data_dir.as_posix() == ".":
         raise ValueError("Config must include a non-empty 'db_data_dir' field.")
@@ -309,13 +439,19 @@ def main() -> None:
     db_index = db_state.db_index
     logger.info("DB index ready: %d points", len(db_index))
 
-    # Create Qdrant client
-    client = make_client(config)
-    version_info = client.info()
-    logger.info("Connected to Qdrant: %s %s", version_info.title, version_info.version)
+    key_cfg = config.get("keys", {})
+    selected_keys = parse_selected_keys(key_cfg)
+    weights = parse_weights(selected_keys, key_cfg)
 
-    # Create server instance
-    server = ToyQdrantQueryServer(config, db_stats, db_index, client)
+    if mode == "named":
+        storage_or_client = _make_named_storage(config, db_stats, selected_keys, weights)
+        logger.info("Named mode: using CacheStorage (QdrantVectorStore)")
+    else:
+        storage_or_client = make_client(config)
+        version_info = storage_or_client.info()
+        logger.info("Multivector mode: direct QdrantClient %s %s", version_info.title, version_info.version)
+
+    server = ToyQdrantQueryServer(config, db_stats, db_index, storage_or_client)
 
     # ---- Flask app ----
     import msgpack

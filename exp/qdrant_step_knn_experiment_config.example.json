@@ -17,8 +17,8 @@
   },
   "experiment": {
     "mode": "named",
-    "step_filter": "window",
-    "step_window": 5,
+    "step_filter": "all",
+    "step_window": 1,
     "top_k": 1,
     "candidate_limit": 50,
     "rrf_k": 60,

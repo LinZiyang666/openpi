@@ -1,0 +1,1280 @@
+# Step 3: Cache 数据结构与存储层 — 设计讨论
+
+> Status: ⚠️ 暂时完成 · 高危
+> Date: 2026-04-02
+> 阶段: 代码已落地，接口可用；无测试覆盖，torch 懒导入改动未在 uv 环境回归。详见 `src/openpi/cache/README.md`。
+
+---
+
+## 致审核者
+
+我们在为 Pi0.5 机器人推理系统开发一套多级缓存（详见 `docs/cache_system_architecture.md` step3）。核心思路是：在推理的三个关键节点（视觉编码后、LLM 解码后、动作生成后）检查历史缓存，如果当前场景与历史高度相似，直接复用历史结果，跳过后续计算，降低推理延迟。
+
+**本 log 解决的具体问题**：缓存需要一个向量数据库来存储和检索历史嵌入。我们目前用 Qdrant 做实验，但不确定最终用哪个库（FAISS、自研 GPU store 等都在考虑范围内）。本文档记录了如何设计存储抽象层，使得上层的缓存逻辑与底层的具体数据库解耦——换数据库时不需要改业务代码。
+
+**本文档包含**：设计目标、分层架构、数据模型定义、各层职责边界、以及每个文件的具体接口设计（code plan）。代码尚未实现，目前处于 plan 阶段，欢迎在动手之前提出意见。
+
+---
+
+## 背景
+
+架构书（`docs/cache_system_architecture.md`）已经定义了 `CacheStorage`、`VectorStore` 的概念骨架，以及 `CacheOrchestrator` 如何调用 `storage.search()` / `storage.insert()`。Step 3 要把这些设计落地成真实代码，但有一个核心问题没有解决：
+
+**我们现在用 Qdrant 做实验，但未来可能换成 FAISS、自研 GPU store、或其他向量库。上层逻辑（Orchestrator / 各 CP Handler）不应该感知底层用的是哪个 DB。**
+
+用户的直觉是借鉴 Django ORM 的思路：定义抽象接口，各 DB 各自继承实现。这个思路方向正确，但向量数据库比关系型数据库异构程度高很多，有几个关键挑战需要先想清楚。
+
+---
+
+## 为什么向量 DB 的抽象比 SQL 难
+
+Django ORM 能干净地抽象 MySQL / PostgreSQL / SQLite，是因为它们都讲 SQL，差异只是方言。向量数据库之间的差异要深得多：
+
+| 维度 | Qdrant | FAISS（本地） | 自研 TorchGPU Store |
+|------|--------|--------------|---------------------|
+| 向量组织 | named vectors（一个 point 多个命名向量）| 单 index，单向量 | torch.Tensor，flat |
+| 元数据（payload）| 原生支持，可过滤 | 不支持，需自己维护 | 需要并行 dict |
+| 持久化 | 服务端持久化 | 本地 .index 文件 | 进程生命周期内 |
+| 网络 | HTTP / gRPC 远程调用 | 本地调用 | 本地 CUDA stream |
+| 过滤查询 | 原生 filter（step_idx、task 等）| 不支持 | 不支持 |
+| 延迟特性 | 10–100ms（网络 + 服务） | <1ms（本地） | <0.1ms（GPU） |
+| Multivector | 支持（MAX_SIM） | 不支持 | 可实现 |
+
+这意味着：我们不能用一个过于薄的接口完全屏蔽底层差异，但也不应该把底层细节全暴露给上层。
+
+---
+
+## 设计目标
+
+1. **上层逻辑（Orchestrator、CP Handler）只看到稳定接口**，不 import 任何 qdrant / faiss 模块。
+2. **数据模型统一**：`CacheEntry`（写入单元）、`QuerySpec`（查询描述）、`SearchResult`（查询结果）在所有 backend 中定义一致。
+3. **接口不要过早固化**：现阶段用 ABC 定义最小公约数接口，允许 backend 暴露扩展能力，但上层不依赖扩展能力。
+4. **替换 backend 只需改 config**，不修改业务代码。
+5. **保持简单**：不搞插件系统、不搞 registry，就是 ABC + 具体实现类。
+
+---
+
+## 分层设计
+
+```
+CacheOrchestrator
+      │
+      ▼
+ CacheStorage          ← 门面（Facade），唯一对外接口
+      │
+      ▼
+VectorStoreBackend     ← ABC，定义最小接口
+      ├── QdrantVectorStore      （当前实验用）
+      ├── FaissVectorStore       （未来，本地离线）
+      └── TorchGPUVectorStore    （未来，热缓存）
+```
+
+`CacheStorage` 作为 Facade 存在的价值：
+- 架构书里 `CacheStorage` 已经是 `VectorDB + MetadataDB` 的组合，它比 `VectorStoreBackend` 高一层。
+- 上层只认识 `CacheStorage`，不认识 `VectorStoreBackend`。
+- `CacheStorage` 负责将上层请求翻译成 backend 调用，也负责 MetadataDB（如果有的话）的并发写。
+
+---
+
+## 数据模型（统一，不因 backend 而变）
+
+```python
+# src/openpi/cache/storage_types.py
+
+@dataclass
+class CachePayload:
+    """缓存条目的有效载荷。强类型，CP1/CP2/CP3 共用，差异字段用 Optional。
+
+    CP1: action_chunk 必填，intermediates 为 None，next_action_chunk 为 None
+    CP2: action_chunk 必填，intermediates 可选（warm start 用）
+    CP3: action_chunk 必填，next_action_chunk 必填（预测下一 cycle 用）
+    """
+    action_chunk: torch.Tensor                          # [horizon, action_dim]
+    intermediates: Optional[dict[float, torch.Tensor]] # {t: x_t}，warm start 用
+    next_action_chunk: Optional[torch.Tensor]           # CP3 预测下一 cycle 动作
+    task_prompt: str = ""
+    hit_count: int = 0
+    quality_score: float = 1.0
+
+
+@dataclass
+class CacheEntry:
+    """写入存储的完整单元。backend 负责将其序列化成自己的格式。"""
+    id: str                          # 稳定 ID（hash of context）
+    checkpoint_id: CheckpointID      # CP1 / CP2 / CP3
+    query_key: torch.Tensor          # [dim] float32，归一化，用于检索
+    payload: CachePayload
+    timestamp: float = field(default_factory=time.time)
+
+
+@dataclass
+class QuerySpec:
+    """查询描述。backend 拿到它，决定怎么搜。"""
+    query_key: torch.Tensor          # [dim] float32
+    top_k: int = 10
+    checkpoint_id: Optional[CheckpointID] = None   # 可选：只搜某个 CP 的条目
+    # backend-specific 参数（Qdrant filter、FAISS nprobe 等）放在各自的 config 里，不在这里。
+
+
+@dataclass
+class SearchResult:
+    """查询返回的候选条目。payload 已反序列化为强类型，SimilarityJudge 可直接使用。"""
+    id: str
+    score: float                     # 相似度分数（越高越相似，backend 统一转换）
+    payload: CachePayload
+    checkpoint_id: CheckpointID
+```
+
+---
+
+## VectorStoreBackend ABC
+
+```python
+# src/openpi/cache/backend_base.py
+
+from abc import ABC, abstractmethod
+from openpi.cache.storage_types import CacheEntry, QuerySpec, SearchResult
+
+
+class VectorStoreBackend(ABC):
+    """向量存储后端的最小公约数接口。
+
+    实现者须保证：
+    - insert() 是幂等的（相同 id 重复 insert 不报错，以最新为准）
+    - search() 返回的 score 语义统一：越高越相似（内部如果是 distance，需转换）
+    - delete() 不存在的 id 不报错
+    """
+
+    @abstractmethod
+    def insert(self, entry: CacheEntry) -> None:
+        """写入一条缓存条目。"""
+        ...
+
+    @abstractmethod
+    def search(self, spec: QuerySpec) -> list[SearchResult]:
+        """向量近邻搜索，返回 top-k 结果。"""
+        ...
+
+    @abstractmethod
+    def delete(self, ids: list[str]) -> None:
+        """按 ID 删除条目（eviction 用）。"""
+        ...
+
+    @abstractmethod
+    def count(self) -> int:
+        """当前存储的条目数。"""
+        ...
+
+    # --- 可选扩展（不是 abstract，有默认实现）---
+
+    def batch_insert(self, entries: list[CacheEntry]) -> None:
+        """批量写入。默认退化为逐条 insert，backend 可重写提升效率。"""
+        for e in entries:
+            self.insert(e)
+
+    def flush(self) -> None:
+        """刷新未持久化的数据（对内存 backend 有意义）。默认 no-op。"""
+        pass
+
+    def close(self) -> None:
+        """释放连接/资源。默认 no-op。"""
+        pass
+```
+
+接口故意很小。**不暴露** collection name、named vector、multivector、filter 语法等概念——这些全在各 backend 的 `__init__` config 里处理。
+
+---
+
+## QdrantVectorStore 实现思路（当前阶段）
+
+```python
+# src/openpi/cache/backends/qdrant_backend.py
+
+@dataclass
+class QdrantBackendConfig:
+    url: str = "http://localhost:6333"
+    collection_name: str = "openpi_cache"
+    vector_dim: int = 1024
+    distance: str = "Cosine"          # Qdrant distance metric
+    prefer_grpc: bool = False
+    timeout: int = 30
+
+
+class QdrantVectorStore(VectorStoreBackend):
+    def __init__(self, config: QdrantBackendConfig):
+        self.config = config
+        self._client = QdrantClient(url=config.url, prefer_grpc=config.prefer_grpc)
+        self._ensure_collection()
+
+    def insert(self, entry: CacheEntry) -> None:
+        # CacheEntry.query_key → Qdrant vector（flat [dim]）
+        # CacheEntry.payload + checkpoint_id + timestamp → Qdrant payload
+        ...
+
+    def search(self, spec: QuerySpec) -> list[SearchResult]:
+        # spec.query_key → Qdrant search
+        # 可选 filter：spec.checkpoint_id → Qdrant filter by payload["checkpoint_id"]
+        # 返回时将 Qdrant distance 转成 similarity score（1 - distance for Cosine）
+        ...
+```
+
+---
+
+## 一个容易踩的坑：Cache 系统向量 vs HDF5 实验向量
+
+目前 `exp/` 目录里的实验脚本直接把 HDF5 里的**原始 embedding**（vision_0/1/2 各 (256,2048) 等）灌进 Qdrant，用的是 named vector schema。
+
+Cache 系统存的是 `QueryKeyBuilder.build()` 生成的**融合后查询向量**，是固定维度的 flat `[1024]` float32，schema 完全不同。
+
+**两者必须用不同的 Qdrant collection，不能混用。** 这不是设计缺陷，只需文档清楚，避免将来接手的人混淆。
+
+`exp/` 是数据分析工具，Cache 系统是推理组件，平行发展，无代码复用关系（schema 不同）。
+
+---
+
+## 已确认决策（2026-04-02）
+
+| 问题 | 决策 |
+|------|------|
+| payload 类型 | **强类型 `CachePayload` dataclass**，Optional 字段覆盖 CP1/CP2/CP3 差异 |
+| QuerySpec multi-vector | **不预留**，multi-vector 是 DB 存储细节，上层只传单个 fused query vector |
+| MetadataDB | **预留接口**，`CacheStorage` 留 `metadata_db: Optional[MetadataStore]` 参数，暂不实现 |
+| Collection 创建 | **由人手动维护**，backend 不做自动创建 |
+
+---
+
+## 核心问题：上层如何统一处理差异巨大的 vector DB？
+
+这是这个设计里最容易让人迷惑的地方，单独解释清楚。
+
+### 混淆的根源
+
+Qdrant 支持 named vectors、payload filter、gRPC；FAISS 只有一个 flat index、没有元数据；TorchGPU store 是 torch.Tensor。看起来差别太大，怎么用一个 ABC 统一？
+
+### 答案：上层不需要感知这些差异，因为这些差异根本不在上层的职责范围内
+
+上层（Orchestrator）只问一件事：**"我有一个 [1024] 的查询向量，给我最相似的 top-k 条缓存条目"**。
+
+这件事每个 vector DB 都能做，只是内部实现方式不同：
+- Qdrant：发 HTTP 请求，服务端搜索，返回 scored points
+- FAISS：本地 index.search()，并行查 metadata dict
+- TorchGPU：torch.mm() + topk，查并行 list
+
+它们内部多么不同无所谓，因为**那些差异被封装在各自的 `search()` 实现里，永远不会泄漏到 ABC 边界之上**。
+
+类比：你的程序只调用 `file.read()`，不管底下是本地磁盘、NFS、S3 FUSE 挂载还是 ramdisk，文件系统的差异被 OS 的 VFS 层吸收了。
+
+### named vector / multivector 的情况
+
+Qdrant 的 named vector 是它的存储细节：一个 point 存多个命名向量，支持 multi-vector 相似度。
+
+**Cache 系统用不到这个**，原因：`QueryKeyBuilder` 已经把多路 embedding（vision + state + prompt）**融合**成一个 `[1024]` flat vector 作为 query key，存进去的也是这个 flat vector。Qdrant backend 内部就是一个普通的 dense vector collection，named vector 完全用不上。
+
+如果将来实验表明"不融合、各路 embedding 分别检索再 RRF 融合"效果更好，那是 `QueryKeyBuilder` 和 backend 内部的事，`QuerySpec` 的接口不需要变（或者只加一个 `named_queries: Optional[dict]` 字段），Orchestrator 完全不受影响。
+
+### 那些真的无法统一的能力怎么办？
+
+确实存在某些能力 FAISS / TorchGPU 完全不支持（比如 Qdrant 的 payload filter）。
+
+**处理方式**：这些能力降级为 backend 的 config 参数，ABC 接口不暴露。
+
+例如：Qdrant backend 可以在 `QdrantBackendConfig` 里配置 `filter_by_checkpoint: bool = True`，它内部做 server-side filter。FAISS backend 不支持 server-side filter，但它在 `search()` 实现里可以 client-side 过滤返回结果——结果语义相同，性能不同，上层感知不到。
+
+**这和 Django 的做法一样**：`QuerySet.filter()` 在 MySQL 上走 SQL WHERE，在 SQLite 上走另一套，结果语义相同，性能有差异，上层不管。
+
+### 总结成一句话
+
+> ABC 定义的是**语义契约**（"给我 top-k 最相似的"），不是**实现契约**（"用什么协议、什么数据结构"）。差异在 ABC 边界以下，永远不往上泄漏。
+
+---
+
+---
+
+## 上层系统与存储层的关系
+
+### 调用关系全图
+
+```
+InferenceInterceptor
+        │
+        ▼
+CacheOrchestrator          ← 唯一直接使用 CacheStorage 的运行时组件
+   │    │    │
+   │    │    └── write_async() → 后台线程 → storage.batch_insert()
+   │    │
+   │    └── check(CP1/CP2/CP3)
+   │              │
+   │              ├── storage.search(QuerySpec) → list[SearchResult]
+   │              │                                       │
+   │              └── judge.evaluate(results)  ←──────────┘
+   │                    读 result.payload.action_chunk
+   │                    读 result.payload.intermediates
+   │
+   └── evict() → storage.delete(ids)
+
+离线工具（数据预填充）
+        │
+        └── storage.batch_insert(entries)   ← 冷启动 cache 用
+```
+
+### SimilarityJudge 不是存储层的组件
+
+Judge 的职责是：拿到 `list[SearchResult]`，决定"命中还是未命中、全命中还是 warm start"。它只关心 `result.score` 和 `result.payload`，与 backend 无关。
+
+存储层的职责在 `search()` 返回结果时结束。Judge 是 `CacheOrchestrator` 的内部组件，与 `CacheStorage` 平级，不是其下级。
+
+这一点对 `SearchResult` 的设计有一个直接约束：**`SearchResult.payload` 必须是强类型 `CachePayload`**。因为 Judge 要 `.action_chunk`、`.intermediates`，如果是 `dict` 就没有类型检查，容易出错。backend 的序列化/反序列化逻辑（把 `CachePayload` 存进 Qdrant payload、再从 Qdrant payload 还原）完全封装在 backend 内部，Judge 感知不到。
+
+### 各层职责边界总结
+
+| 层 | 组件 | 职责 | 不负责 |
+|----|------|------|--------|
+| 推理层 | `InferenceInterceptor` | 调用 Orchestrator，处理 cache hit/miss 分支 | 任何存储细节 |
+| 编排层 | `CacheOrchestrator` | 协调 gate/search/judge/write 流程 | 知道用的是哪个 DB |
+| 编排层 | `SimilarityJudge` | 判断命中类型，读 payload 字段 | 任何存储细节 |
+| 门面层 | `CacheStorage` | 组合 backend + MetadataDB，暴露干净接口 | DB 内部实现 |
+| 抽象层 | `VectorStoreBackend` | 定义语义契约（insert/search/delete/count） | 实现细节 |
+| 实现层 | `QdrantVectorStore` 等 | 序列化、网络调用、score 转换 | 业务逻辑 |
+
+---
+
+## 详细代码计划
+
+### 文件结构
+
+```
+src/openpi/cache/
+├── __init__.py              # 已存在，Step 3 后追加导出新符号
+├── timing.py                # 已存在，不动
+├── interceptor.py           # 已存在，不动
+│
+├── types.py                 # 新建：CheckpointID 等基础枚举，无任何业务依赖
+├── storage_types.py         # 新建：所有数据模型（payload/entry/query/result）
+├── backend_base.py          # 新建：VectorStoreBackend ABC
+├── cache_storage.py         # 新建：CacheStorage facade（锁、校验、两段式搜索）
+├── orchestrator.py          # 新建：CacheOrchestrator + SimilarityJudge + GateFunction
+│
+└── backends/
+    ├── __init__.py          # 新建：空文件
+    └── qdrant_backend.py    # 新建：QdrantVectorStore
+```
+
+不修改任何已有文件（`timing.py`、`interceptor.py`）。
+
+---
+
+### types.py — 基础枚举
+
+```python
+# src/openpi/cache/types.py
+from enum import Enum, auto
+
+
+class CheckpointID(Enum):
+    CP1 = auto()
+    CP2 = auto()
+    CP3 = auto()
+```
+
+独立文件，不依赖任何项目模块。`timing.py` 和 `storage_types.py` 都从这里 import，避免循环依赖。
+
+---
+
+### storage_types.py — 数据模型
+
+```python
+# src/openpi/cache/storage_types.py
+from __future__ import annotations
+import time
+from dataclasses import dataclass, field
+from typing import Optional
+import torch
+from openpi.cache.types import CheckpointID
+
+
+class UnsupportedFilterError(Exception):
+    """QueryFilter 包含此 backend 不支持的字段时抛出。"""
+
+
+@dataclass
+class CachePayload:
+    """缓存条目的有效载荷。
+
+    Tensor 契约：所有 tensor 必须是 CPU contiguous float32，调用方在构造前负责转换。
+    search() 返回的 payload 同样保证 CPU float32，GPU 转移由 Orchestrator 负责。
+
+    CP1: action_chunk 必填，其余为 None。
+    CP2 full hit: action_chunk 必填，其余为 None。
+    CP2 warm start: action_chunk + intermediates + denoising_num_steps 必填。
+    CP3: action_chunk + next_action_chunk 必填。
+    """
+    action_chunk: torch.Tensor                          # [50, 32]，所有 CP 必填
+    intermediates: Optional[dict[float, torch.Tensor]]  # {t: x_t}，key 与 save_timesteps 字面量对齐
+    denoising_num_steps: Optional[int]                  # warm start 时必填，传给 run_stage3_from()
+    next_action_chunk: Optional[torch.Tensor]           # [50, 32]，CP3 必填
+    task_key: str = ""                                  # 规范化 task 标识符，非原始 prompt
+
+    def validate_for_checkpoint(self, checkpoint_id: CheckpointID) -> None:
+        if self.action_chunk is None:
+            raise ValueError("action_chunk 对所有 CP 都必须非空")
+        if checkpoint_id == CheckpointID.CP3 and self.next_action_chunk is None:
+            raise ValueError("CP3 的 next_action_chunk 必须非空")
+        if self.intermediates is not None and self.denoising_num_steps is None:
+            raise ValueError("intermediates 非空时 denoising_num_steps 必须提供")
+
+
+@dataclass
+class CacheEntry:
+    """写入存储的完整单元。
+
+    id 语义：stable_hash(checkpoint_id.name + ":" + query_key_bytes)
+    同一 context + 同一 CP 只保留一条记录（语义去重键）。
+    不同 CP 的相同 query_key 不会互相覆盖，因为 checkpoint_id 参与了 hash。
+    """
+    id: str
+    checkpoint_id: CheckpointID
+    query_key: torch.Tensor     # CPU float32 [dim]，L2 归一化
+    payload: CachePayload
+    timestamp: float = field(default_factory=time.time)
+
+    def validate(self) -> None:
+        """校验 CP-specific 不变量。CacheStorage.insert() 自动调用，无需手动触发。"""
+        self.payload.validate_for_checkpoint(self.checkpoint_id)
+
+
+@dataclass
+class QueryFilter:
+    """每次查询不同的约束条件。
+
+    不支持某个字段的 backend 必须在 supported_filters() 中不列出它，
+    CacheStorage 会在调用 backend 前 fail-fast，而不是静默忽略。
+
+    task_key: 规范化 task 标识符（如 "libero_spatial_pick_up_the_black_bowl"），
+              调用方负责规范化，不传原始 prompt 字符串。
+    step_range: 限制检索的 episode step 范围 [min, max]（含两端）。
+    """
+    task_key: Optional[str] = None
+    step_range: Optional[tuple[int, int]] = None
+
+
+@dataclass
+class QuerySpec:
+    query_key: torch.Tensor             # CPU float32 [dim]
+    top_k: int = 10
+    checkpoint_id: Optional[CheckpointID] = None
+    filters: Optional[QueryFilter] = None
+
+
+@dataclass
+class SearchResultLite:
+    """轻量搜索结果，不含大 tensor payload。
+
+    search() 返回此类型，judge 用 score 做阈值筛选。
+    只对命中候选调用 fetch_payload() 获取完整 payload，避免传输无用数据。
+
+    score 契约：归一化 cosine similarity ∈ [-1, 1]，所有 backend 必须统一转换。
+    不同 backend 的 threshold 因此可以复用。
+    """
+    id: str
+    score: float
+    checkpoint_id: CheckpointID
+
+
+@dataclass
+class SearchResult:
+    """完整搜索结果，含 payload，由 fetch_payload() 或 search_and_fetch() 填充。"""
+    id: str
+    score: float
+    payload: CachePayload
+    checkpoint_id: CheckpointID
+
+
+@dataclass
+class BatchInsertResult:
+    inserted: int
+    failed_ids: list[str]
+```
+
+---
+
+### backend_base.py — ABC
+
+```python
+# src/openpi/cache/backend_base.py
+from abc import ABC, abstractmethod
+from openpi.cache.storage_types import (
+    BatchInsertResult, CacheEntry, CachePayload, QuerySpec, SearchResultLite,
+)
+
+
+class VectorStoreBackend(ABC):
+    """向量存储后端的最小公约数接口。
+
+    契约：
+    - insert() 幂等：相同 id 重复写入以最新为准，不报错
+    - search() 返回 SearchResultLite（无 payload），score 为归一化 cosine similarity ∈ [-1, 1]
+    - search() 返回"至多 top_k"条结果，client-side filter 后可能少于 k，调用方须能处理
+    - fetch_payload() 按 id 取完整 payload
+    - delete() 容忍不存在的 id
+    - 实现不保证线程安全，CacheStorage 负责加锁
+    """
+
+    @property
+    @abstractmethod
+    def vector_dim(self) -> int:
+        """此 backend 期望的向量维度，CacheStorage 用于校验输入。"""
+        ...
+
+    @abstractmethod
+    def supported_filters(self) -> frozenset[str]:
+        """返回此 backend 支持的 QueryFilter 字段名集合。
+        不支持的字段若被请求，CacheStorage 将抛出 UnsupportedFilterError。
+        """
+        ...
+
+    @abstractmethod
+    def insert(self, entry: CacheEntry) -> None: ...
+
+    @abstractmethod
+    def search(self, spec: QuerySpec) -> list[SearchResultLite]: ...
+
+    @abstractmethod
+    def fetch_payload(self, id: str) -> CachePayload: ...
+
+    @abstractmethod
+    def delete(self, ids: list[str]) -> None: ...
+
+    @abstractmethod
+    def count(self) -> int: ...
+
+    def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult:
+        """默认逐条插入，部分失败不中断。backend 可重写为原生批量 API。"""
+        inserted = 0
+        failed_ids = []
+        for entry in entries:
+            try:
+                self.insert(entry)
+                inserted += 1
+            except Exception:
+                failed_ids.append(entry.id)
+        return BatchInsertResult(inserted=inserted, failed_ids=failed_ids)
+
+    def flush(self) -> None:
+        """持久化缓冲数据。内存型 backend 实现；其他默认 no-op。"""
+
+    def close(self) -> None:
+        """释放连接/资源。close() 前自动调用 flush()。"""
+        self.flush()
+```
+
+---
+
+### cache_storage.py — Facade
+
+```python
+# src/openpi/cache/cache_storage.py
+from __future__ import annotations
+import dataclasses
+import threading
+from typing import Optional
+from openpi.cache.backend_base import VectorStoreBackend
+from openpi.cache.storage_types import (
+    BatchInsertResult, CacheEntry, CachePayload, QuerySpec,
+    SearchResult, SearchResultLite, UnsupportedFilterError,
+)
+
+
+class CacheStorage:
+    """存储层门面。CacheOrchestrator 唯一的存储入口。
+
+    职责：
+    - 线程安全（RLock 保护所有 backend 调用）
+    - 维度校验（insert/search 时检查 query_key.shape）
+    - Filter 能力检查（fail-fast，不静默忽略）
+    - CacheEntry 校验（调用 entry.validate()）
+    - 两段式搜索（search 返回 lite，fetch_payload 按需取完整 payload）
+    - MetadataDB 预留（vector 先写，metadata 后写，vector 为 source of truth）
+    """
+
+    def __init__(self, backend: VectorStoreBackend, metadata_db=None):
+        self._backend = backend
+        self._metadata_db = metadata_db   # 预留，暂未使用
+        self._dim = backend.vector_dim
+        self._lock = threading.RLock()
+
+    # --- 搜索（两段式）---
+
+    def search(self, spec: QuerySpec) -> list[SearchResultLite]:
+        """向量搜索，返回轻量结果（无 payload）。"""
+        self._check_query_dim(spec.query_key)
+        self._check_filters(spec)
+        with self._lock:
+            return self._backend.search(spec)
+
+    def fetch_payload(self, id: str) -> CachePayload:
+        """按 id 取完整 payload，仅对命中候选调用。"""
+        with self._lock:
+            return self._backend.fetch_payload(id)
+
+    def search_and_fetch(self, spec: QuerySpec) -> list[SearchResult]:
+        """便利方法：搜索后对所有 lite 结果逐一 fetch payload。
+        top_k 较小时可用；top_k 较大时建议手动 search() + 筛选后再 fetch_payload()。
+        """
+        lites = self.search(spec)
+        results = []
+        for lite in lites:
+            payload = self.fetch_payload(lite.id)
+            results.append(SearchResult(
+                id=lite.id, score=lite.score,
+                payload=payload, checkpoint_id=lite.checkpoint_id,
+            ))
+        return results
+
+    # --- 写入 ---
+
+    def insert(self, entry: CacheEntry) -> None:
+        self._check_entry_dim(entry)
+        entry.validate()
+        with self._lock:
+            self._backend.insert(entry)
+            # MetadataDB 写在 vector 之后；vector 为 source of truth
+            # if self._metadata_db: self._metadata_db.insert(entry)
+
+    def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult:
+        for entry in entries:
+            self._check_entry_dim(entry)
+            entry.validate()
+        with self._lock:
+            return self._backend.batch_insert(entries)
+
+    # --- 管理 ---
+
+    def delete(self, ids: list[str]) -> None:
+        with self._lock:
+            self._backend.delete(ids)
+
+    def count(self) -> int:
+        with self._lock:
+            return self._backend.count()
+
+    def close(self) -> None:
+        """close() 隐式调用 flush()，两个 DB 都保证持久化。"""
+        with self._lock:
+            self._backend.close()   # backend.close() 内部已调用 flush()
+
+    # --- 内部校验 ---
+
+    def _check_query_dim(self, query_key) -> None:
+        if query_key.shape != (self._dim,):
+            raise ValueError(f"query_key 维度不匹配：期望 ({self._dim},)，实际 {tuple(query_key.shape)}")
+
+    def _check_entry_dim(self, entry: CacheEntry) -> None:
+        if entry.query_key.shape != (self._dim,):
+            raise ValueError(f"entry.query_key 维度不匹配：期望 ({self._dim},)，实际 {tuple(entry.query_key.shape)}")
+
+    def _check_filters(self, spec: QuerySpec) -> None:
+        if spec.filters is None:
+            return
+        requested = {
+            k for k, v in dataclasses.asdict(spec.filters).items() if v is not None
+        }
+        unsupported = requested - self._backend.supported_filters()
+        if unsupported:
+            raise UnsupportedFilterError(
+                f"此 backend 不支持 filter 字段：{unsupported}。"
+                f"支持的字段：{self._backend.supported_filters()}"
+            )
+```
+
+---
+
+### backends/qdrant_backend.py — Qdrant 实现
+
+```python
+# src/openpi/cache/backends/qdrant_backend.py
+from __future__ import annotations
+import base64
+import io
+import logging
+from dataclasses import dataclass
+from typing import Optional
+import torch
+from qdrant_client import QdrantClient
+from qdrant_client.models import (
+    Filter, FieldCondition, MatchValue, Range, PointStruct,
+)
+from openpi.cache.backend_base import VectorStoreBackend
+from openpi.cache.storage_types import (
+    BatchInsertResult, CacheEntry, CachePayload, QuerySpec, SearchResultLite,
+)
+from openpi.cache.types import CheckpointID
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class QdrantBackendConfig:
+    url: str = "http://localhost:6333"
+    collection_name: str = "openpi_cache"
+    vector_dim: int = 1024
+    prefer_grpc: bool = False
+    request_timeout: int = 30
+
+
+class QdrantVectorStore(VectorStoreBackend):
+    """Qdrant 向量存储后端。
+
+    collection 由运维人员预先创建，此类不做自动创建。
+    序列化：tensor → torch.save bytes → base64 字符串，存入 Qdrant JSON payload。
+    """
+
+    _SUPPORTED_FILTERS = frozenset({"checkpoint_id", "task_key", "step_range"})
+
+    def __init__(self, config: QdrantBackendConfig):
+        self._config = config
+        self._client = QdrantClient(
+            url=config.url,
+            prefer_grpc=config.prefer_grpc,
+            timeout=config.request_timeout,
+        )
+
+    @property
+    def vector_dim(self) -> int:
+        return self._config.vector_dim
+
+    def supported_filters(self) -> frozenset[str]:
+        return self._SUPPORTED_FILTERS
+
+    # --- 公开接口 ---
+
+    def insert(self, entry: CacheEntry) -> None:
+        self._client.upsert(
+            collection_name=self._config.collection_name,
+            points=[self._to_point(entry)],
+        )
+
+    def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult:
+        points = []
+        failed_ids = []
+        for entry in entries:
+            try:
+                points.append(self._to_point(entry))
+            except Exception as e:
+                logger.warning("序列化失败，跳过 entry %s：%s", entry.id, e)
+                failed_ids.append(entry.id)
+        if points:
+            self._client.upsert(
+                collection_name=self._config.collection_name,
+                points=points,
+            )
+        return BatchInsertResult(inserted=len(points), failed_ids=failed_ids)
+
+    def search(self, spec: QuerySpec) -> list[SearchResultLite]:
+        hits = self._client.search(
+            collection_name=self._config.collection_name,
+            query_vector=spec.query_key.float().cpu().numpy().tolist(),
+            limit=spec.top_k,
+            query_filter=self._make_filter(spec),
+            with_payload=False,   # 轻量搜索，不取 payload
+            with_vectors=False,
+        )
+        return [
+            SearchResultLite(
+                id=str(h.id),
+                score=float(h.score),   # Qdrant Cosine 已是 [-1,1]，直接用
+                checkpoint_id=CheckpointID[h.payload["checkpoint_id"]] if h.payload else spec.checkpoint_id,
+            )
+            for h in hits
+        ]
+
+    def fetch_payload(self, id: str) -> CachePayload:
+        results = self._client.retrieve(
+            collection_name=self._config.collection_name,
+            ids=[id],
+            with_payload=True,
+        )
+        if not results:
+            raise KeyError(f"id {id!r} 在 collection 中不存在")
+        return self._deserialize_payload(results[0].payload)
+
+    def delete(self, ids: list[str]) -> None:
+        self._client.delete(
+            collection_name=self._config.collection_name,
+            points_selector=ids,
+        )
+
+    def count(self) -> int:
+        return self._client.count(collection_name=self._config.collection_name).count
+
+    # --- 内部序列化 ---
+
+    def _to_point(self, entry: CacheEntry) -> PointStruct:
+        return PointStruct(
+            id=entry.id,
+            vector=entry.query_key.float().cpu().numpy().tolist(),
+            payload={
+                "checkpoint_id": entry.checkpoint_id.name,
+                "timestamp": entry.timestamp,
+                **self._serialize_payload(entry.payload),
+            },
+        )
+
+    @staticmethod
+    def _serialize_payload(p: CachePayload) -> dict:
+        def t2b64(t: Optional[torch.Tensor]) -> Optional[str]:
+            if t is None:
+                return None
+            buf = io.BytesIO()
+            torch.save(t, buf)
+            return base64.b64encode(buf.getvalue()).decode()
+
+        intermediates_b64 = None
+        if p.intermediates:
+            # key 用 f"{t:.4f}" 字符串，避免 JSON round-trip 精度问题
+            intermediates_b64 = {f"{k:.4f}": t2b64(v) for k, v in p.intermediates.items()}
+
+        return {
+            "action_chunk": t2b64(p.action_chunk),
+            "intermediates": intermediates_b64,
+            "denoising_num_steps": p.denoising_num_steps,
+            "next_action_chunk": t2b64(p.next_action_chunk),
+            "task_key": p.task_key,
+        }
+
+    @staticmethod
+    def _deserialize_payload(p: dict) -> CachePayload:
+        def b642t(s: Optional[str]) -> Optional[torch.Tensor]:
+            if s is None:
+                return None
+            buf = io.BytesIO(base64.b64decode(s))
+            return torch.load(buf, weights_only=True)
+
+        intermediates = None
+        if p.get("intermediates"):
+            intermediates = {float(k): b642t(v) for k, v in p["intermediates"].items()}
+
+        return CachePayload(
+            action_chunk=b642t(p["action_chunk"]),
+            intermediates=intermediates,
+            denoising_num_steps=p.get("denoising_num_steps"),
+            next_action_chunk=b642t(p.get("next_action_chunk")),
+            task_key=p.get("task_key", ""),
+        )
+
+    @staticmethod
+    def _make_filter(spec: QuerySpec) -> Optional[Filter]:
+        conditions = []
+        if spec.checkpoint_id is not None:
+            conditions.append(
+                FieldCondition(key="checkpoint_id", match=MatchValue(value=spec.checkpoint_id.name))
+            )
+        if spec.filters:
+            if spec.filters.task_key is not None:
+                conditions.append(
+                    FieldCondition(key="task_key", match=MatchValue(value=spec.filters.task_key))
+                )
+            if spec.filters.step_range is not None:
+                lo, hi = spec.filters.step_range
+                conditions.append(
+                    FieldCondition(key="step_idx", range=Range(gte=lo, lte=hi))
+                )
+        return Filter(must=conditions) if conditions else None
+```
+
+---
+
+### __init__.py 追加导出
+
+```python
+# src/openpi/cache/__init__.py（追加，不删除已有内容）
+from openpi.cache.types import CheckpointID
+from openpi.cache.storage_types import (
+    CachePayload, CacheEntry, QueryFilter, QuerySpec,
+    SearchResultLite, SearchResult, BatchInsertResult,
+    UnsupportedFilterError,
+)
+from openpi.cache.backend_base import VectorStoreBackend
+from openpi.cache.cache_storage import CacheStorage
+
+__all__ = [
+    "SystemTimer", "TaskLifecycle",          # 已有
+    "CheckpointID",
+    "CachePayload", "CacheEntry",
+    "QueryFilter", "QuerySpec",
+    "SearchResultLite", "SearchResult", "BatchInsertResult",
+    "UnsupportedFilterError",
+    "VectorStoreBackend",
+    "CacheStorage",
+]
+```
+
+---
+
+## 实现优先级
+
+| 顺序 | 文件 | 说明 |
+|------|------|------|
+| 1 | `types.py` | CheckpointID 枚举，零依赖 |
+| 2 | `storage_types.py` | 所有数据模型，依赖 1 |
+| 3 | `backend_base.py` | ABC，依赖 2 |
+| 4 | `cache_storage.py` | Facade + 锁 + 校验，依赖 3 |
+| 5 | `backends/qdrant_backend.py` | 依赖 1/2/3，需要 qdrant-client 和 Qdrant 服务 |
+| 6 | `orchestrator.py` | 依赖 1/2/4，CP1 placeholder 端到端联调 |
+| 7 | `__init__.py` 追加导出 | 依赖以上所有 |
+
+---
+
+## 审查意见回应（2026-04-02）
+
+### #1 CacheEntry.id：物理主键 vs 语义去重键
+
+**驳回**。ID 就是语义去重键，这是刻意的。
+
+同一个 context（相同的 query_key hash）应该只保留一条记录——重复写入是更新，不是新增，这是 cache 的正确语义。如果场景稍有不同，hash 就不同，ID 就不同，会作为独立条目存入。"允许相似 context 保留多个 exemplar"用 top-k search 解决：search 返回多个相似候选，judge 从中选；不靠 ID 来做。
+
+### #2 CachePayload 的 CP-specific 不变量
+
+**接受**。在 `CachePayload.__post_init__` 里加运行时校验，比拆成三个子类代价小且够用：
+
+```python
+def __post_init__(self):
+    if self.action_chunk is None:
+        raise ValueError("action_chunk 对所有 CP 都必须非空")
+    # CP-specific 校验由调用方在构造时触发，不在此强制 checkpoint_id
+```
+
+注：`CachePayload` 本身不知道自己属于哪个 CP（checkpoint_id 在 `CacheEntry` 上），所以只校验"所有 CP 共享的不变量"。CP2 warm start 要求 intermediates 非空的校验，放在构造 `CacheEntry` 的地方（Orchestrator 的 write-back 路径），不在 payload 里。
+
+### #3 QuerySpec 的动态 filter 扩展
+
+**接受**。增加 `QueryFilter` dataclass 承载每次查询不同的约束，backend 按能力选择 server-side 或 client-side 执行：
+
+```python
+@dataclass
+class QueryFilter:
+    task_prompt: Optional[str] = None      # 只搜同一 task 的条目
+    step_range: Optional[tuple[int, int]] = None  # [step_min, step_max]
+    # 按需扩展，新字段加在这里，不改 QuerySpec
+
+@dataclass
+class QuerySpec:
+    query_key: torch.Tensor
+    top_k: int = 10
+    checkpoint_id: Optional[CheckpointID] = None
+    filters: Optional[QueryFilter] = None   # 新增
+```
+
+不支持某个 filter 字段的 backend，忽略该字段并在文档里注明（行为降级，不报错）。
+
+### #4 SearchResult.score 语义太弱
+
+**接受**。强制要求归一化 cosine similarity ∈ [-1, 1]，所有 backend 必须在返回前转换。这样 judge 的 threshold 可以跨 backend 复用。在 ABC 的 docstring 里明确写死这个契约，不只是"higher-is-better"。
+
+### #5 client-side filter 后结果不足 k
+
+**接受，选择简单语义**：`search()` 的契约是"返回**至多** top_k 条结果"，不保证恰好 k 条。client-side filter 后可以少于 k，judge 必须能处理空/稀疏输入。over-fetch 增加复杂性和延迟，不值得。在 ABC docstring 里写清楚这个契约。
+
+### #6 Tensor 设备和 dtype 契约
+
+**接受**。在 ABC docstring 里定义：
+- `insert()` 前调用方保证：`query_key` 和 `CachePayload` 里的所有 tensor 已转成 **CPU contiguous float32**
+- `search()` 返回的 `SearchResult.payload` 里的 tensor 保证是 **CPU float32**
+- GPU 转移是 Orchestrator 的责任，不在存储层处理
+
+### #7 intermediates 的 float key
+
+**接受**。float key 有 round-trip 精度问题。改用 `dict[int, torch.Tensor]`，key 是 flow matching 的 **step index**（整数），比浮点时间戳更稳定：
+
+```python
+# 修改前
+intermediates: Optional[dict[float, torch.Tensor]]  # {0.3: x_t, ...}
+# 修改后
+intermediates: Optional[dict[int, torch.Tensor]]    # {3: x_t, 5: x_t, 7: x_t}
+# key 含义：flow matching 第几步时的中间状态（共 10 步，index 0-9）
+```
+
+### #8 hit_count / quality_score 没有 update 接口
+
+**接受，明确语义**：这两个字段**静态写入，不在线更新**。命中后如需更新 hit_count，通过 re-insert（upsert）实现——把 entry 整体取出、修改、写回。ABC 不加 `update()` 接口，过于复杂。
+
+实际上初期这两个字段对 eviction 策略（LRU/LFU）用处不大，LRU 可以靠 timestamp 实现，不需要 hit_count。可以考虑把这两个字段从 `CachePayload` 移除，等真正需要 quality-based eviction 时再加。**这是一个待用户确认的问题。**
+
+### #9 search 返回完整 payload 太重
+
+**当前阶段驳回，记录扩展点**。
+
+action_chunk 大小：`[10, 32] * 4 bytes = 1.3KB`，intermediates（3个中间状态）：`3 * 1.3KB ≈ 4KB`。top_k=10 时总计约 50KB，对一次推理来说可以接受。
+
+两段式（先拿 id/score，再 hydrate）增加一次网络往返，在 Qdrant 延迟已经是 10-100ms 的情况下反而可能更慢。如果将来 top_k 增大或 payload 膨胀，在 `VectorStoreBackend` 里加 `fetch(ids) -> list[CacheEntry]` 接口即可升级，不需要改 ABC 语义。
+
+### #10 torch.save -> base64 序列化
+
+**接受批评，但定性为 backend 实现细节**。ABC 不规定序列化格式，各 backend 自选。
+
+`qdrant_backend.py` 的当前方案（torch.save -> base64）绑定 PyTorch 版本，且 base64 膨胀约 33%。实现时改用 **numpy bytes**：`tensor.numpy().tobytes()` + shape/dtype 作为独立字段存入 payload。体积更小，无 PyTorch 版本绑定，反序列化更快。这是 backend 内部实现改动，不影响 ABC。
+
+### #11 并发语义
+
+**接受**。在 ABC docstring 里明确：**实现不保证线程安全，调用方负责并发控制**。Orchestrator 的 write-back 用单一后台线程串行写，search 与 write 在实践中不会真正并发（Qdrant 服务端自己是线程安全的，本地 backend 则由 Orchestrator 保证不并发）。
+
+### #12 batch_insert 失败语义
+
+**接受**。契约：**best-effort，部分失败时记录日志，继续处理剩余条目，不抛异常**。write-back 是非关键路径，cache miss 是可接受的降级。调用方（后台写线程）不做 retry，失败条目丢弃。在 ABC docstring 里写明。
+
+### #13 维度校验位置
+
+**接受**。在 `CacheStorage` 做统一校验，不在各 backend 重复做。`CacheStorage` 是唯一入口，是做边界校验的正确位置：
+
+```python
+# cache_storage.py
+def insert(self, entry: CacheEntry) -> None:
+    if entry.query_key.shape != (self._dim,):
+        raise ValueError(f"query_key dim 不匹配：期望 {self._dim}，实际 {entry.query_key.shape}")
+    self._backend.insert(entry)
+```
+
+`self._dim` 在构造时从 backend config 读取。
+
+### #14 SearchResult 和 CacheResult 的边界
+
+**驳回，现有边界是对的**。
+
+- `SearchResult`：存储层输出，含 id/score/payload，judge 消费
+- `CacheResult`：judge 输出，含 HitType（full/warm_start/miss）和用于 Orchestrator 决策的字段（cached_action / cached_x_t 等）
+
+两者字段不重叠，职责清晰。`CacheResult` 由 judge 构造，Orchestrator 只读不构造。这个分层是对的，不需要合并。
+
+### #15 CheckpointID 的归属模块
+
+**接受**。`timing.py` 不应该是基础类型的来源，`storage_types.py` 也不应该反向依赖 `timing`。
+
+新增 `src/openpi/cache/types.py`，存放 `CheckpointID` 等基础枚举。`timing.py` 和 `storage_types.py` 都从 `types.py` import。文件结构更新如下（见文件结构小节的修订版）。
+
+### #16 CacheStorage 挂 MetadataDB 的一致性策略
+
+**接受，先写契约**，即使 MetadataDB 暂未实现：
+- 写入顺序：先写 vector（含完整 payload），再写 metadata
+- 任一失败的 source of truth：**vector DB**（payload 已完整，metadata 是辅助索引）
+- `close()` 隐式调用 `flush()`，两个 DB 都要 flush
+
+---
+
+## 修订后的文件结构
+
+```
+src/openpi/cache/
+├── __init__.py
+├── timing.py              # 已有，不动
+├── interceptor.py         # 已有，不动
+│
+├── types.py               # 新建：CheckpointID 等基础枚举（#15）
+├── storage_types.py       # 新建：CachePayload / CacheEntry / QuerySpec / QueryFilter / SearchResult
+├── backend_base.py        # 新建：VectorStoreBackend ABC
+├── cache_storage.py       # 新建：CacheStorage facade（含维度校验 #13）
+├── orchestrator.py        # 新建：CacheOrchestrator + SimilarityJudge + GateFunction
+│
+└── backends/
+    ├── __init__.py
+    └── qdrant_backend.py  # 新建：序列化改用 numpy bytes（#10）
+```
+
+## 修订后的核心数据模型
+
+```python
+# types.py
+from enum import Enum, auto
+
+class CheckpointID(Enum):
+    CP1 = auto()
+    CP2 = auto()
+    CP3 = auto()
+
+
+# storage_types.py
+@dataclass
+class CachePayload:
+    action_chunk: torch.Tensor                         # CPU float32 [50,32]，所有 CP 必填
+    intermediates: Optional[dict[float, torch.Tensor]] # 与模型 API 保持一致，key = float timestep
+    denoising_num_steps: Optional[int]                 # warm start 必须与缓存时一致，配合 intermediates 使用
+    next_action_chunk: Optional[torch.Tensor]          # CP3 必填
+    task_key: str = ""                                 # 标准化 task 标识符，非原始 prompt
+
+    def validate_for_checkpoint(self, checkpoint_id: "CheckpointID") -> None:
+        if self.action_chunk is None:
+            raise ValueError("action_chunk 必须非空")
+        if checkpoint_id == CheckpointID.CP3 and self.next_action_chunk is None:
+            raise ValueError("CP3 的 next_action_chunk 必须非空")
+
+
+@dataclass
+class CacheEntry:
+    id: str                   # hash(checkpoint_id + query_key_bytes)，语义去重键，包含 checkpoint_id（#3）
+    checkpoint_id: CheckpointID
+    query_key: torch.Tensor   # CPU float32 [dim]，L2 归一化
+    payload: CachePayload
+    timestamp: float = field(default_factory=time.time)
+
+    def validate(self) -> None:
+        self.payload.validate_for_checkpoint(self.checkpoint_id)
+
+
+@dataclass
+class QueryFilter:
+    task_key: Optional[str] = None              # 标准化 task 标识符，非原始 prompt（#10）
+    step_range: Optional[tuple[int, int]] = None
+
+
+@dataclass
+class QuerySpec:
+    query_key: torch.Tensor        # CPU float32
+    top_k: int = 10
+    checkpoint_id: Optional[CheckpointID] = None
+    filters: Optional[QueryFilter] = None
+
+
+@dataclass
+class SearchResultLite:
+    """轻量搜索结果，不含大 tensor payload，用于 judge 筛选候选。"""
+    id: str
+    score: float               # 归一化 cosine similarity ∈ [-1, 1]
+    checkpoint_id: CheckpointID
+
+
+@dataclass
+class SearchResult:
+    """完整搜索结果，含 payload，由 fetch_payload() 填充。"""
+    id: str
+    score: float
+    payload: CachePayload
+    checkpoint_id: CheckpointID
+
+
+@dataclass
+class BatchInsertResult:
+    inserted: int
+    failed_ids: list[str]
+```
+
+---
+
+## 审查意见第二轮回应（2026-04-02）
+
+### #1 QueryFilter 静默忽略导致错误语义
+
+**接受，改为 fail-fast**。
+
+在 `VectorStoreBackend` ABC 上增加 `supported_filters()` 抽象方法，`CacheStorage` 在调用 backend 前做能力检查：
+
+```python
+# backend_base.py
+@abstractmethod
+def supported_filters(self) -> frozenset[str]:
+    """返回此 backend 支持的 QueryFilter 字段名集合。
+    不在集合中的字段若被请求，CacheStorage 将抛出 UnsupportedFilterError。
+    """
+    ...
+
+# cache_storage.py
+def search(self, spec: QuerySpec) -> list[SearchResultLite]:
+    if spec.filters:
+        requested = {k for k, v in dataclasses.asdict(spec.filters).items() if v is not None}
+        unsupported = requested - self._backend.supported_filters()
+        if unsupported:
+            raise UnsupportedFilterError(f"此 backend 不支持 filter 字段：{unsupported}")
+    return self._backend.search(spec)
+```
+
+静默降级会改变 cache 语义（搜全库 vs 搜子集），不可接受。
+
+### #2 intermediates key 与 warm-start API 对齐
+
+**接受，保持 `dict[float, torch.Tensor]`，增加 `denoising_num_steps`**。
+
+查阅代码（`pi0_pytorch.py:577`）：`run_stage3_from(start_t: float, num_steps: int)` 要求两者都提供，且 `num_steps` 必须与缓存时一致。用 step index 做 key 在 num_steps 可变时有歧义，而 float key 与 `save_timesteps=(0.7, 0.5, 0.3)` 字面量完全对齐，无精度问题（存入时直接是 Python float 字面量，序列化用 `f"{t:.4f}"` 字符串 key，反序列化 `float(k)` 还原）。
+
+`CachePayload` 增加 `denoising_num_steps: Optional[int]`，CP2 warm start 时必须非空，由 `validate_for_checkpoint()` 校验。
+
+### #3 CacheEntry.id 组成
+
+**接受，明确定义**：`id = stable_hash(checkpoint_id.name + ":" + query_key_bytes)`。
+
+必须包含 `checkpoint_id`，否则 CP1/CP2 相同 query key 会互相覆盖。**不包含** task/step 信息——task 过滤是 `QueryFilter` 的职责；同一 context（相同 query_key + checkpoint）不论 task 如何，语义上就是同一条 cache entry。
+
+### #4 维度校验接口
+
+**接受**，ABC 增加抽象 property：
+
+```python
+@property
+@abstractmethod
+def vector_dim(self) -> int:
+    """此 backend 期望的向量维度。"""
+    ...
+```
+
+`CacheStorage.__init__` 读取 `backend.vector_dim` 存为 `self._dim`，`insert()`/`search()` 时统一校验。
+
+### #5 payload 体积重算
+
+**接受审查员的纠正**。正确数字：
+
+- `action_chunk = [50, 32] × 4 bytes = 6.4 KB`（非之前错算的 1.3 KB）
+- 3 个 intermediate = 3 × 6.4 KB = 19.2 KB
+- `SearchResult` 含 intermediates ≈ 25.6 KB/条
+- top_k=10 时：256 KB/次搜索
+
+256 KB 对延迟敏感的推理链路不可接受。**修改立场**：增加两段式搜索路径：
+
+- `search()` 改为返回 `list[SearchResultLite]`（id/score/checkpoint_id，无 payload）
+- ABC 增加 `fetch_payload(id: str) -> CachePayload`
+- `CacheStorage` 暴露 `search_and_fetch(spec) -> list[SearchResult]` 作为便利方法（内部先 search，对 top-1 winner fetch payload）
+
+judge 在 lite 结果上做阈值筛选，只对命中候选 fetch 完整 payload，绝大多数情况只需一次 fetch。
+
+### #6 序列化方案
+
+**驳回"改 numpy bytes 能减小体积"的论断，但明确选择**。
+
+numpy bytes + base64 与 torch.save + base64 的 base64 膨胀率相同（均约 33%）。numpy 节省的只是 pickle header（对 [50,32] 这类大 tensor 而言 <1%）。换 numpy 不改变体积数量级。
+
+**实际选择**：保持 `torch.save + base64`，原因是实现最简单且已验证可用。将来若体积成瓶颈，在 `qdrant_backend.py` 内部独立优化（改 msgpack、改 named vector 存储等），不影响 ABC。
+
+### #7 CP 校验统一入口
+
+**接受**。`CachePayload.validate_for_checkpoint(checkpoint_id)` 是唯一校验入口，`CacheEntry.validate()` 调用它。`CacheStorage.insert()` 调用 `entry.validate()` 后再传给 backend。离线预填充、测试代码若直接构造 `CacheEntry`，只要走 `CacheStorage.insert()` 就自动被校验，不依赖调用方自觉。
+
+### #8 batch_insert 返回结构化结果
+
+**接受**。返回 `BatchInsertResult(inserted: int, failed_ids: list[str])`，ABC 更新签名：
+
+```python
+def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult: ...
+```
+
+后台写线程收到结果后，将 `failed_ids` 记录到 `SystemTimer` 的统计里（lost write count），便于监控，不做 retry。
+
+### #9 并发语义
+
+**接受，锁放在 CacheStorage 层**。
+
+```python
+class CacheStorage:
+    def __init__(self, backend, ...):
+        self._lock = threading.RLock()
+
+    def search(self, spec):
+        with self._lock:
+            return self._backend.search(spec)
+
+    def insert(self, entry):
+        with self._lock:
+            self._backend.insert(entry)
+```
+
+理由：各 backend 均不要求自身线程安全（ABC docstring 明确），统一在 CacheStorage 加锁更易审计。Qdrant（远程）的锁开销可忽略不计；本地 backend 靠此锁保证安全。
+
+"实践中不会并发"的表述撤回——后台写线程确实存在，不能依赖假设。
+
+### #10 QueryFilter.task_prompt 改为标准化 task key
+
+**接受**。字段改为 `task_key: Optional[str]`，含义是实验配置里的规范化 task 标识符（如 `"libero_spatial_pick_up_the_black_bowl"`），不是原始 prompt 字符串。调用方在构造 `QueryFilter` 之前负责规范化（去空白、小写、去模板差异）。此契约写入 `QueryFilter` 的 docstring。

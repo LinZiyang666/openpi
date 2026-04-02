@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Ensure repo root is on sys.path so openpi and exp packages are importable
+# when running as `python -m exp.qdrant_step_knn_experiment` or directly.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 import argparse
 import csv
 import datetime
@@ -8,19 +16,20 @@ import importlib.metadata
 import json
 import pickle
 from dataclasses import dataclass
-from pathlib import Path
 from time import perf_counter
 from typing import Any
+
+import dataclasses
 
 import h5py
 import numpy as np
 from qdrant_client import QdrantClient
 from qdrant_client import models
 
-if __package__ in {None, ""}:
-    import sys
-
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from openpi.cache.types import VISION_0, VISION_1, VISION_2, PROMPT_EMB, ROBOT_STATE
+from openpi.cache.storage_types import QueryFilter, QuerySpec
+from openpi.cache.cache_storage import CacheStorage
+from openpi.cache.backends.qdrant_backend import QdrantVectorStore, QdrantBackendConfig
 
 from exp.qdrant_openpi_common import build_multivector_vectors
 from exp.qdrant_openpi_common import build_named_vectors
@@ -123,6 +132,53 @@ def make_client(config: dict[str, Any]) -> QdrantClient:
     )
 
 
+def make_named_storage(
+    config: dict[str, Any],
+    db_stats,
+    selected_keys: list[str],
+    weights: dict[str, float],
+) -> CacheStorage:
+    """Build a CacheStorage backed by QdrantVectorStore for named-vector mode.
+
+    vector_dims are derived from db_stats.  Multi-chunk fields (raw embeddings
+    with dim > 65535) are not supported by the storage interface and are skipped
+    with a warning; only single-vector fields are included.
+    """
+    from exp.qdrant_openpi_common import named_vector_chunks_map
+
+    qdrant_cfg = config.get("qdrant", {})
+    experiment_cfg = config.get("experiment", {})
+
+    chunk_map = named_vector_chunks_map(db_stats)
+    vector_dims: dict[str, int] = {
+        field_name: sum(c.end - c.start for c in chunks)
+        for field_name in selected_keys
+        if (chunks := chunk_map.get(field_name))
+    }
+
+    if not vector_dims:
+        raise RuntimeError(
+            "No recognised fields found for storage interface. "
+            "Check that selected_keys contains valid CACHE_QUERY_FIELDS entries."
+        )
+
+    top_k = int(experiment_cfg.get("top_k", 10))
+    candidate_limit = int(experiment_cfg.get("candidate_limit", 50))
+
+    backend_cfg = QdrantBackendConfig(
+        url=str(qdrant_cfg.get("url", "http://localhost:6333")),
+        collection_name=str(qdrant_cfg.get("named_collection", "openpi_steps_named")),
+        vector_dims=vector_dims,
+        prefer_grpc=not bool(qdrant_cfg.get("prefer_http", False)),
+        grpc_port=int(qdrant_cfg.get("grpc_port", 6334)),
+        request_timeout=int(qdrant_cfg.get("request_timeout", 300)),
+        rrf_k=int(experiment_cfg.get("rrf_k", 60)),
+        candidate_multiplier=max(1, candidate_limit // max(1, top_k)),
+        fusion_weights=weights if len(weights) > 1 else None,
+    )
+    return CacheStorage(QdrantVectorStore(backend_cfg))
+
+
 def ensure_rrf_support() -> None:
     if hasattr(models, "RrfQuery") and hasattr(models, "Rrf"):
         return
@@ -202,6 +258,17 @@ def build_local_step_predicate(step_filter: str, query_step_idx: int, step_windo
         return lambda step_idx: step_idx == query_step_idx
     if step_filter == "window":
         return lambda step_idx: abs(step_idx - query_step_idx) <= step_window
+    raise ValueError(f"Unsupported step filter: {step_filter}")
+
+
+def build_query_filter(step_filter: str, query_step_idx: int, step_window: int) -> QueryFilter | None:
+    """Storage-compatible equivalent of build_filter() for CacheStorage.search()."""
+    if step_filter == "all":
+        return None
+    if step_filter == "exact":
+        return QueryFilter(step_range=(query_step_idx, query_step_idx))
+    if step_filter == "window":
+        return QueryFilter(step_range=(query_step_idx - step_window, query_step_idx + step_window))
     raise ValueError(f"Unsupported step filter: {step_filter}")
 
 
@@ -473,6 +540,80 @@ def run_collection(
     )
 
 
+def run_named_collection(
+    *,
+    storage: CacheStorage,
+    query_record: StepRecord,
+    db_index: dict[int, DBPointMeta],
+    selected_keys: list[str],
+    top_k: int,
+    query_filter: QueryFilter | None,
+    step_filter_mode: str,
+) -> CollectionRun:
+    """Named-vector collection run using CacheStorage.search().
+
+    The backend handles prefetch building, chunking, and RRF fusion internally.
+    Fields not in CACHE_QUERY_FIELDS (noise_action_*, clean_action) are skipped.
+    """
+    collection_name = storage._backend._config.collection_name
+    log(f"  [named] start storage search for {query_record.step_name} on {collection_name}")
+    start = perf_counter()
+
+    _field_inputs: dict[str, np.ndarray | None] = {
+        VISION_0: query_record.vision.get("vision_0"),
+        VISION_1: query_record.vision.get("vision_1"),
+        VISION_2: query_record.vision.get("vision_2"),
+        PROMPT_EMB: query_record.prompt_emb,
+        ROBOT_STATE: query_record.robot_state,
+    }
+    supported = storage._backend.vector_dims
+    query_keys = {
+        field: np.asarray(arr, dtype=np.float32).reshape(-1)
+        for field, arr in _field_inputs.items()
+        if field in selected_keys and field in supported and arr is not None
+    }
+
+    spec = QuerySpec(query_keys=query_keys, top_k=top_k, filters=query_filter)
+    results = storage.search(spec)
+
+    if not results and step_filter_mode != "all":
+        log(f"  [named] {query_record.step_name}: no results with filter, retrying without")
+        results = storage.search(dataclasses.replace(spec, filters=None))
+
+    atomic_request_count = len(query_keys)
+    log(
+        f"  [named] {query_record.step_name}: storage_fields={atomic_request_count}, "
+        f"topk_returned={len(results)}"
+    )
+
+    clean_action_query = np.asarray(query_record.clean_action, dtype=np.float32).reshape(-1)
+    ranked_results: list[RankedResult] = []
+    for result in results:
+        point_id = int(result.id)
+        meta = db_index[point_id]
+        clean_action_l2 = float(np.linalg.norm(clean_action_query - meta.clean_action_flat))
+        ranked_results.append(RankedResult(
+            point_id=point_id,
+            weighted_score=result.score,
+            logical_scores={},
+            clean_action_l2=clean_action_l2,
+        ))
+
+    total_time_sec = perf_counter() - start
+    log(
+        f"  [named] done for {query_record.step_name}: "
+        f"api_requests=1, prefetches={atomic_request_count}, topk_returned={len(results)}, "
+        f"time={total_time_sec:.3f}s"
+    )
+    return CollectionRun(
+        collection_name=collection_name,
+        atomic_request_count=atomic_request_count,
+        candidate_count=len(results),
+        total_time_sec=total_time_sec,
+        top_results=ranked_results,
+    )
+
+
 def compute_topk_clean_action_l2_mean(results: list[RankedResult]) -> float:
     if not results:
         return 0.0
@@ -554,7 +695,6 @@ def write_markdown_report(
 def main() -> None:
     args = parse_args()
     config = load_config(args.config)
-    ensure_rrf_support()
     query_file = get_config_path(config, "query_file")
     db_data_dir = get_config_path(config, "db_data_dir")
     output_dir = ensure_output_dir(Path(config["output_dir"]) if "output_dir" in config else None)
@@ -612,12 +752,25 @@ def main() -> None:
     log(f"Query steps to run: {len(effective_query_steps)}")
     log(f"Selected keys: {selected_keys}")
     log(f"Normalized weights: {weights}")
-    log(f"Transport: {'http' if prefer_http else 'grpc'}")
     log(f"Mode: {mode}")
     log(f"Step filter: {step_filter_mode}")
     log(f"Candidate limit: {candidate_limit}, top_k: {top_k}, rrf_k: {rrf_k}")
 
-    client = make_client(config)
+    # Build query resources based on mode
+    named_storage: CacheStorage | None = None
+    client: QdrantClient | None = None
+
+    if mode in {"named", "both"}:
+        named_storage = make_named_storage(config, db_stats, selected_keys, weights)
+        log(f"Named mode: CacheStorage ready (fields={list(named_storage._backend.vector_dims.keys())})")
+
+    if mode in {"multivector", "both"}:
+        ensure_rrf_support()
+        client = make_client(config)
+        version = client.info()
+        log(f"Connected to Qdrant: title={version.title!r} version={version.version!r}")
+
+    log(f"Transport: {'http' if prefer_http else 'grpc'}")
 
     summary_rows: list[dict[str, Any]] = []
     detail_rows: list[dict[str, Any]] = []
@@ -632,7 +785,10 @@ def main() -> None:
         start=1,
     ):
         log(f"Running query step {query_index}/{len(effective_query_steps)}: {query_record.step_name}")
+        # Qdrant filter for multivector mode
         query_filter = build_filter(step_filter_mode, query_record.step_idx, step_window)
+        # Storage-compatible filter for named mode
+        storage_query_filter = build_query_filter(step_filter_mode, query_record.step_idx, step_window)
         local_predicate = build_local_step_predicate(step_filter_mode, query_record.step_idx, step_window)
         background_clean_action_l2_mean = compute_background_clean_action_l2_mean(
             np.asarray(query_record.clean_action, dtype=np.float32).reshape(-1),
@@ -644,19 +800,14 @@ def main() -> None:
         multivector_run: CollectionRun | None = None
 
         if mode in {"named", "both"}:
-            named_run = run_collection(
-                client=client,
-                collection_name=named_collection,
+            named_run = run_named_collection(
+                storage=named_storage,
                 query_record=query_record,
                 db_index=db_index,
                 selected_keys=selected_keys,
-                weights=weights,
-                step_filter=query_filter,
                 top_k=top_k,
-                candidate_limit=candidate_limit,
-                mode="named",
-                db_stats=db_stats,
-                rrf_k=rrf_k,
+                query_filter=storage_query_filter,
+                step_filter_mode=step_filter_mode,
             )
         if mode in {"multivector", "both"}:
             multivector_run = run_collection(

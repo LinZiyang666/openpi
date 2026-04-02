@@ -12,6 +12,7 @@ Implementation plans and development records. For project architecture docs, see
 | `Implemented` | Code and log exist, but final validation or sign-off is still pending |
 | `Validated` | Implemented and explicitly verified |
 | `Historical` | Kept for record; not the active source of truth for ongoing work |
+| `⚠️ 暂时完成·高危` | 代码落地可用，但无测试覆盖，存在已知风险点，待回归验证 |
 
 ## Cache System Implementation
 
@@ -20,6 +21,7 @@ Implementation plans and development records. For project architecture docs, see
 | [step1.log](step1.log) | `Validated` | Stage 1/2/3 public interface design, Pi0 vs Pi0.5 architectural comparison |
 | [step2.log](step2.log) | `Validated` | CUDA Event timing system: per-component timing strategy and API design |
 | [step3_data_collection.log](step3_data_collection.log) | `Implemented` | Forward-hook based HDF5 data collection: hook points, schema, wrapper ordering |
+| [step3_cache.log](step3_cache.log) | `⚠️ 暂时完成·高危` | Cache 存储层抽象设计+落地：VectorStoreBackend ABC、named vectors、Qdrant chunked RRF 实现；无测试覆盖，详见 `src/openpi/cache/README.md` |
 
 ## Retrieval System
 
