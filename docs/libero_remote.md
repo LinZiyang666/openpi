@@ -320,7 +320,7 @@ conda activate libero_sim
 export PYTHONPATH=$PYTHONPATH:$PWD/third_party/libero
 
 MUJOCO_GL=egl python examples/libero/main.py \
-    --args.host 155.98.36.47 \
+    --args.host 155.98.36.13 \
     --args.port 9000 \
     --args.task-suite-name libero_spatial
 ```
@@ -331,7 +331,7 @@ Videos are saved to: `data/libero/videos/rollout_<task>_<success|failure>.mp4`
 
 ```bash
 MUJOCO_GL=egl python examples/libero/main.py \
-    --args.host 155.98.36.47 \
+    --args.host 155.98.36.13 \
     --args.port 9000 \
     --args.task-suite-name libero_spatial \
     --args.display
@@ -343,7 +343,7 @@ MUJOCO_GL=egl python examples/libero/main.py \
 
 | Parameter | Default | Description |
 |---|---|---|
-| `--host` | `155.98.36.47` | Server IP |
+| `--host` | `155.98.36.13` | Server IP |
 | `--port` | `9000` | Server port |
 | `--task-suite-name` | `libero_spatial` | Task suite: `libero_spatial` / `libero_object` / `libero_goal` / `libero_10` / `libero_90` |
 | `--replan-steps` | `5` | Re-infer every N steps |
@@ -358,7 +358,7 @@ MUJOCO_GL=egl python examples/libero/main.py \
 Before starting the simulator, confirm the server is reachable:
 
 ```bash
-nc -zv 155.98.36.47 9000
+nc -zv 155.98.36.13 9000
 ```
 
 Start the local simulator only after the server log shows `Listening on port 8000`.

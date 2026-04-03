@@ -105,7 +105,7 @@ No window required — videos are automatically saved as mp4.
 ```bash
 cd /path/to/openpi
 MUJOCO_GL=egl python examples/aloha_sim/main.py \
-    --args.host 155.98.36.47 \
+    --args.host 155.98.36.13 \
     --args.port 9000
 ```
 
@@ -116,7 +116,7 @@ Video output path: `data/aloha_sim/videos/out_0.mp4`
 ```bash
 cd /path/to/openpi
 MUJOCO_GL=glfw python examples/aloha_sim/main.py \
-    --args.host 155.98.36.47 \
+    --args.host 155.98.36.13 \
     --args.port 9000 \
     --args.display
 ```
@@ -130,7 +130,7 @@ MUJOCO_GL=glfw python examples/aloha_sim/main.py \
 Before starting the simulator, confirm the server port is reachable:
 
 ```bash
-nc -zv 155.98.36.47 9000
+nc -zv 155.98.36.13 9000
 ```
 
 Start the local simulator only after the server log shows `Listening on port 8000`.
