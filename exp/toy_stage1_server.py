@@ -86,6 +86,7 @@ class Args:
     default_prompt: str | None = None
     port: int = 8000
     qdrant_server_url: str = "http://localhost:8100"
+    stage1_device: str | None = None
     policy: Checkpoint | Default = dataclasses.field(default_factory=Default)
 
 
@@ -101,6 +102,7 @@ def _create_policy(args: Args) -> _policy.Policy:
                 _config.get_config(args.policy.config),
                 args.policy.dir,
                 default_prompt=args.default_prompt,
+                pytorch_device="cpu",
             )
         case Default():
             checkpoint = DEFAULT_CHECKPOINT.get(args.env)
@@ -110,6 +112,7 @@ def _create_policy(args: Args) -> _policy.Policy:
                 _config.get_config(checkpoint.config),
                 checkpoint.dir,
                 default_prompt=args.default_prompt,
+                pytorch_device="cpu",
             )
 
 
@@ -126,7 +129,7 @@ class ToyStage1Policy(_base_policy.BasePolicy):
     ``WebsocketPolicyServer``.
     """
 
-    def __init__(self, policy: _policy.Policy, qdrant_server_url: str) -> None:
+    def __init__(self, policy: _policy.Policy, qdrant_server_url: str, stage1_device: str | None = None) -> None:
         if not policy._is_pytorch_model:
             raise ValueError("ToyStage1Policy only supports PyTorch policies.")
 
@@ -134,18 +137,48 @@ class ToyStage1Policy(_base_policy.BasePolicy):
         self._model = policy._model
         self._input_transform = policy._input_transform
         self._output_transform = policy._output_transform
-        self._pytorch_device = policy._pytorch_device
         self._qdrant_url = qdrant_server_url.rstrip("/")
         self._step_counter = 0
+        self._stage1_device = self._resolve_stage1_device(stage1_device)
 
         # Lazy imports for HTTP client
         self._requests = None
         self._msgpack = None
         self._msgpack_numpy = None
 
+        self._configure_stage1_device_placement()
+
     @property
     def metadata(self) -> dict[str, Any]:
         return self._policy.metadata
+
+    def _resolve_stage1_device(self, requested_device: str | None) -> torch.device:
+        # Keep device selection local to the toy server so shared policy loading code stays unchanged.
+        if requested_device is None:
+            requested_device = "cuda" if torch.cuda.is_available() else "cpu"
+        device = torch.device(requested_device)
+        if device.type == "cuda" and not torch.cuda.is_available():
+            raise RuntimeError(f"stage1_device={requested_device!r} requested, but CUDA is not available.")
+        return device
+
+    def _configure_stage1_device_placement(self) -> None:
+        # Load the checkpoint on CPU first, then move only the Stage 1 modules to the accelerator.
+        paligemma = self._model.paligemma_with_expert.paligemma
+        paligemma.vision_tower.to(self._stage1_device)
+        paligemma.multi_modal_projector.to(self._stage1_device)
+        paligemma.language_model.embed_tokens.to(self._stage1_device)
+
+        # CPU execution is a fallback path; keep Stage 1 compute in float32 there.
+        if self._stage1_device.type == "cpu":
+            paligemma.vision_tower.to(dtype=torch.float32)
+            paligemma.multi_modal_projector.to(dtype=torch.float32)
+            paligemma.language_model.embed_tokens.to(dtype=torch.float32)
+
+        logger.info(
+            "ToyStage1Policy device placement: stage1_device=%s, model_load_device=%s",
+            self._stage1_device,
+            self._policy._pytorch_device,
+        )
 
     def _ensure_http_deps(self):
         if self._requests is None:
@@ -166,7 +199,7 @@ class ToyStage1Policy(_base_policy.BasePolicy):
 
         # ---- 2. Convert to torch tensors ----
         torch_inputs = jax.tree.map(
-            lambda x: torch.from_numpy(np.array(x)).to(self._pytorch_device)[None, ...],
+            lambda x: torch.from_numpy(np.array(x)).to(self._stage1_device)[None, ...],
             inputs,
         )
         observation = _model.Observation.from_dict(torch_inputs)
@@ -210,7 +243,7 @@ class ToyStage1Policy(_base_policy.BasePolicy):
         self._step_counter += 1
 
         # ---- 6. Apply output transforms ----
-        action_tensor = torch.from_numpy(clean_action).to(self._pytorch_device)[None, ...]
+        action_tensor = torch.from_numpy(clean_action)[None, ...]
         outputs: dict[str, Any] = {
             "state": torch_inputs["state"],
             "actions": action_tensor,
@@ -287,8 +320,12 @@ def main(args: Args) -> None:
     policy = _create_policy(args)
     policy_metadata = policy.metadata
 
-    logger.info("Wrapping with ToyStage1Policy (qdrant_server_url=%s)", args.qdrant_server_url)
-    toy_policy = ToyStage1Policy(policy, args.qdrant_server_url)
+    logger.info(
+        "Wrapping with ToyStage1Policy (qdrant_server_url=%s, stage1_device=%s)",
+        args.qdrant_server_url,
+        args.stage1_device,
+    )
+    toy_policy = ToyStage1Policy(policy, args.qdrant_server_url, args.stage1_device)
 
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
