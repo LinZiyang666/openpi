@@ -1,8 +1,9 @@
 # Pi0.5 Inference Cache System - Architecture Specification
 
-> Version: 0.1 (Draft)
-> Status: Design Phase
+> Version: 0.3 (Step 1 已验证, Step 2 已验证, Step 3 ⚠️ 代码落地·高危)
+> Status: 实施阶段 — Step 0-2 已验证，Step 3 ⚠️ 不稳定（无测试覆盖，接口将频繁变动），CP2 搁置
 > Scope: PyTorch inference pipeline only (JAX path disabled)
+> Last updated: 2026-04-03
 
 ---
 
@@ -27,8 +28,8 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
 +---------------------------+     +------------------------+     +---------------------------+
 | SigLIP vision encoder     |     | Gemma 2B (PaliGemma)   |     | Gemma 300M + adaRMSNorm   |
 | Prompt tokenization       |     | Prefix-LM attention    |     | Flow matching (10 steps)  |
-| State discretization      |     | Generate low-level cmd |     | Euler ODE: x1 -> x0      |
-| -> prefix tokens + KV     |     | (subtask prediction)   |     | -> action chunk [50, 32]  |
+| State discretization      |     | Fill prefix KV cache   |     | Euler ODE: x1 -> x0      |
+| -> prefix tokens + KV     |     | (no autoregressive gen)|     | -> action chunk [50, 32]  |
 +---------------------------+     +------------------------+     +---------------------------+
             |                                |                                |
          [CP1]                            [CP2]                           [CP3]
@@ -40,7 +41,7 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
 | Stage | 主要计算 | 参数量 | 特点 |
 |-------|---------|--------|------|
 | 1. Token Prep | SigLIP forward + tokenize | ~400M | 单次前向，可并行 |
-| 2. LLM Backbone | Gemma 2B autoregressive decode | ~2B | 自回归，序列依赖 |
+| 2. LLM Backbone | Gemma 2B prefix forward (KV 填充) | ~2B | 单次前向，填充 KV cache（PyTorch 路径无自回归生成） |
 | 3. Action Expert | 10x Gemma 300M forward | ~300M x10 | 迭代式，可部分跳过 |
 
 ---
@@ -56,21 +57,24 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
 - **风险**：最高——跳过了 subtask 预测，如果场景发生了微妙变化（如物体被移走），缓存的 subtask 可能不再正确。
 - **适用场景**：高度重复的操作（如流水线上的同一动作）。
 
-### CP2: LLM Backbone 之后
+### CP2: LLM Backbone 之后 — ⚠️ 暂时搁置
 
-- **触发时机**：Stage 2 完成，low-level command（subtask text tokens）已生成。
-- **可用信息**：CP1 的全部信息 + low-level command embedding。
-- **命中行为（两种模式）**：
+> **搁置原因**：架构设计时假设 Pi0.5 在 Stage 2 会进行自回归子任务文本生成（产出 command tokens + command embedding），使 CP2 具有 "same command → same action" 的语义基础。但 Step 1 代码分析发现，**PyTorch 实现中 Pi0.5 的 Stage 2 只做 prefix KV cache 填充，没有自回归文本生成**（JAX 路径已禁用）。Stage 2 完成后新增的信息只有 `past_key_values`（HuggingFace DynamicCache，opaque 对象），无法直接用作检索键。CP2 的语义前提不成立，暂时搁置，待未来有合适的 Stage 2 表征提取方案（如从 KV cache 最后一层 hidden state 提取 embedding）后再启用。
+
+- **触发时机**：Stage 2 完成，~~low-level command（subtask text tokens）已生成~~ KV cache 已填充。
+- **可用信息**：CP1 的全部信息 + `past_key_values`（opaque KV cache，不能直接用作检索键）。
+- **命中行为（两种模式）**（*设计保留，暂不实现*）：
   - **Full hit**：跳过 Stage 3 全部，直接输出缓存的 action chunk。
   - **Partial hit (warm start)**：用缓存的中间状态 `x_t`（t < 1.0）作为 flow matching 起点，跳过部分去噪步骤。
 - **节省量**：中等（跳过全部或部分 flow matching）。
 - **风险**：中等——subtask 已由当前推理计算，缓存的 action 与当前场景的一致性更高。
 - **适用场景**：相同 subtask 在相似场景下的复用。
+- **当前状态**：**搁置** — 无可用检索键，需要新的表征提取方案。
 
 ### CP3: Action Expert 之后
 
 - **触发时机**：Stage 3 完成，当前推理周期的 action chunk 已生成。
-- **可用信息**：全部信息（vision + prompt + state + command + action chunk）。
+- **可用信息**：全部信息（vision + prompt + state + action chunk）。
 - **命中行为**：不影响当前周期的输出。判定**下一个推理周期**是否可以跳过，直接执行 cache 中的后续 action chunk。
 - **节省量**：最大（跳过完整的下一次推理）。
 - **风险**：中等——依赖对未来状态的预测准确性。
@@ -85,11 +89,11 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
             │ Vision  │  LLM    │ FlowMatch│          │ (may be skipped) │
             └────┬────┴────┬────┴─────┬────┘          └────────┬─────────┘
                  │         │          │                         │
-              [CP1]     [CP2]      [CP3]─── predict ──────> skip?
-                 │         │          │
-          hit: skip    hit: skip   hit: schedule
-          S2+S3        S3 (full    next cycle's
-                       or partial) action from cache
+              [CP1]  [CP2:搁置]    [CP3]─── predict ──────> skip?
+                 │                    │
+          hit: skip              hit: schedule
+          S2+S3                  next cycle's
+                                 action from cache
 ```
 
 ---
@@ -127,13 +131,16 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
 └──────────────────────────┬───────────────────────────────────────────────┘
                            │
           ┌────────────────┴────────────────┐
-          │         CacheStorage             │
-          │  ┌───────────┐  ┌────────────┐  │
-          │  │ VectorDB   │  │ MetadataDB │  │
-          │  │(GPU/CPU    │  │(optional   │  │
-          │  │ hybrid)    │  │ MongoDB/   │  │
-          │  │            │──│ SQLite)    │  │
-          │  └───────────┘  └────────────┘  │
+          │    CacheStorage（门面）           │
+          │  ┌───────────────┐ ┌──────────┐ │
+          │  │VectorStore-   │ │MetadataDB│ │
+          │  │Backend (ABC)  │ │（预留，   │ │
+          │  │ ⚠️ 不稳定     │ │ 未实现） │ │
+          │  │               │─│          │ │
+          │  │┄Qdrant（当前）┄│ └──────────┘ │
+          │  │┄FAISS（未来） │               │
+          │  │┄TorchGPU(未来)│               │
+          │  └───────────────┘               │
           └─────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────────────────────┐
@@ -150,93 +157,61 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
 
 ### 4.2 与推理管线的接入方式
 
-Cache 系统通过 **Interceptor 模式** 接入，不修改 `PI0Pytorch` 的内部代码：
+Cache 系统通过 **Interceptor 模式** 接入，不修改 `PI0Pytorch` 的内部代码。
+
+> **Step 1 实现说明**：`InferenceInterceptor` 已在 Step 1（commit `a6c9f43`）中实现，作为 `BasePolicy` 子类。它通过 `self._model` 直接访问 `PI0Pytorch` 实例（从被包装的 `Policy` 借用引用），自行管理 transform 管线。它**不**调用 `self.policy.run_stage*()` —— 而是直接调用 `self._model.run_stage1/2/3()`。
 
 ```python
-class InferenceInterceptor:
-    """Wraps the inference pipeline, injecting cache checks between stages."""
+class InferenceInterceptor(BasePolicy):
+    """包装 Policy，将推理路由到 staged API。
 
-    def __init__(self, policy: Policy, orchestrator: CacheOrchestrator):
-        self.policy = policy
-        self.orchestrator = orchestrator
+    实现 BasePolicy 接口，对 WebsocketPolicyServer 透明替换。
+    通过 serve_policy.py 的 --cache 参数激活。
+    """
 
-    def infer(self, observation: dict) -> dict:
-        """Cache-aware inference. Replaces direct policy.infer() calls."""
-        timer = TimingContext()
+    def __init__(self, policy: Policy):
+        # 借用引用（非拷贝）
+        self._model = policy._model          # PI0Pytorch 实例
+        self._input_transform = policy._input_transform
+        self._output_transform = policy._output_transform
+        self._timer = SystemTimer()          # Step 2: CUDA event 计时
+
+    def infer(self, observation: dict, *, noise=None) -> dict:
+        """带缓存的推理。替代直接的 policy.infer() 调用。"""
 
         # --- Stage 1: Token Preparation ---
-        with timer.stage("stage1_vision"):
-            stage1_output = self.policy.run_stage1(observation)
+        with self._timer.measure("stage1_vision"):
+            stage1_output = self._model.run_stage1(observation)
 
-        # --- CP1: Cache Check ---
-        with timer.stage("cp1_check"):
-            cp1_result = self.orchestrator.check(
-                checkpoint=CheckpointID.CP1,
-                context=stage1_output,
-            )
-        if cp1_result.hit:
-            timer.record_event("cp1_hit")
-            return cp1_result.cached_action
+        # --- CP1: Cache Check (TODO: Step 4+) ---
+        # cp1_result = self.orchestrator.check(CP1, stage1_output)
+        # if cp1_result.hit: return cp1_result.cached_action
 
         # --- Stage 2: LLM Backbone ---
-        with timer.stage("stage2_llm"):
-            stage2_output = self.policy.run_stage2(stage1_output)
+        with self._timer.measure("stage2_llm"):
+            stage2_output = self._model.run_stage2(stage1_output)
 
-        # --- CP2: Cache Check ---
-        with timer.stage("cp2_check"):
-            cp2_result = self.orchestrator.check(
-                checkpoint=CheckpointID.CP2,
-                context=CacheContext(stage1=stage1_output, stage2=stage2_output),
-            )
-        if cp2_result.hit:
-            timer.record_event("cp2_hit")
-            if cp2_result.hit_type == HitType.FULL:
-                return cp2_result.cached_action
-            elif cp2_result.hit_type == HitType.WARM_START:
-                # Partial flow matching from cached intermediate state
-                with timer.stage("stage3_partial_flow"):
-                    action = self.policy.run_stage3_from(
-                        stage2_output,
-                        start_x=cp2_result.cached_noisy_action,
-                        start_t=cp2_result.cached_timestep,
-                    )
-                return action
+        # --- CP2: 搁置 ---
+        # CP2 搁置，因为 Stage 2 只产出 opaque 的 past_key_values（DynamicCache），
+        # 没有 command embedding 可用作检索键。详见 Section 3。
 
         # --- Stage 3: Action Expert (full flow matching) ---
-        with timer.stage("stage3_flow"):
-            action, intermediates = self.policy.run_stage3(
-                stage2_output, return_intermediates=True
-            )
+        with self._timer.measure("stage3_flow"):
+            stage3_output = self._model.run_stage3(stage2_output, noise=noise)
 
-        # --- CP3: Predictive Cache Check ---
-        with timer.stage("cp3_check"):
-            cp3_result = self.orchestrator.check(
-                checkpoint=CheckpointID.CP3,
-                context=CacheContext(
-                    stage1=stage1_output,
-                    stage2=stage2_output,
-                    action=action,
-                ),
-            )
-        if cp3_result.hit:
-            self.orchestrator.schedule_next_action(cp3_result.cached_next_action)
+        # --- CP3: Predictive Cache Check (TODO: Step 4+) ---
+        # cp3_result = self.orchestrator.check(CP3, ...)
+        # if cp3_result.hit:
+        #     self.orchestrator.schedule_next_action(cp3_result.cached_next_action)
 
-        # --- Write-back: populate cache (async, non-blocking) ---
-        self.orchestrator.write_async(
-            context=CacheContext(
-                stage1=stage1_output,
-                stage2=stage2_output,
-                action=action,
-                intermediates=intermediates,  # x_t at selected timesteps
-            )
-        )
-
-        return action
+        return stage3_output.action_chunk
 ```
 
 关键设计点：
-- `policy.run_stage1/2/3` 是对现有 `PI0Pytorch` 的薄封装，不改变其内部逻辑，只把 `sample_actions()` 的单体调用拆成三段可独立执行的子过程。
+- `PI0Pytorch.run_stage1/2/3` 是在已有私有方法 `_stage1_token_prep`、`_stage2_llm_backbone`、`_stage3_action_expert` 之上添加的**公共类型化包装**。原有的 `sample_actions()` 未做任何修改。
+- `InferenceInterceptor` 实现 `BasePolicy` 接口，对 WebsocketPolicyServer 和客户端透明替换，无需任何改动。
 - `return_intermediates=True` 让 Stage 3 返回 flow matching 过程中选定时间步的 `x_t`，用于未来的 warm start cache。
+- CP2 检查被有意省略（搁置）—— 原因见 Section 3。
 
 ---
 
@@ -245,6 +220,8 @@ class InferenceInterceptor:
 ### 5.1 CacheOrchestrator
 
 总控组件。管理所有检查点的生命周期、协调 gate/search/judge 流程、处理异步写回。
+
+> **注**：CP2 搁置后，orchestrator 当前只处理 CP1 和 CP3。`config.cp2_enabled` 默认为 `False`。
 
 ```python
 class CacheOrchestrator:
@@ -301,41 +278,123 @@ class CacheOrchestrator:
         self._next_action_scheduled = action
 ```
 
-### 5.2 CacheStorage
+### 5.2 CacheStorage — ⚠️ Step 3 已实现（不稳定）
 
-存储层。包含 vector DB 和可选的 metadata DB。
+> **实现**：`src/openpi/cache/cache_storage.py` | **设计日志**：`claude_log/step3_cache.log`
+> **状态**：⚠️ 代码已落地，无测试覆盖，接口将频繁变动。
+
+存储层门面。`CacheOrchestrator` 是唯一消费方。内含 `VectorStoreBackend`（ABC）和可选的 `MetadataDB`（预留，尚未实现）。
+
+**为什么做 ABC 抽象？** 我们尚不确定最终使用哪个向量数据库。当前用 Qdrant 做实验，但**一定会更换**。`VectorStoreBackend` ABC 将上层逻辑与具体 DB 解耦，换 backend 时 `CacheOrchestrator` 和其他业务代码无需任何修改。
 
 ```python
 class CacheStorage:
-    def __init__(self, config: StorageConfig):
-        self.vector_db = VectorStore(config.vector_db)
-        self.metadata_db = MetadataStore(config.metadata_db)  # optional
+    """存储层门面。CacheOrchestrator 唯一的存储入口。
 
-    def search(self, query: torch.Tensor, top_k: int) -> list[CacheCandidate]:
-        """Search vector DB, return top-k candidates with metadata."""
-        ids, distances = self.vector_db.search(query, top_k)
-        entries = self.vector_db.get_payloads(ids)
-        return [
-            CacheCandidate(id=id, distance=d, entry=e)
-            for id, d, e in zip(ids, distances, entries)
-        ]
+    职责：
+    - 线程安全（RLock 保护所有 backend 调用）
+    - 维度校验（insert/search 时检查 query_key.shape）
+    - Filter 能力检查（fail-fast，通过 supported_filters() 判断，不静默忽略）
+    - CacheEntry 校验（调用 entry.validate()）
+    - 两段式搜索（search 返回 SearchResultLite，fetch_payload 按需取完整 payload）
+    - MetadataDB 预留（vector 先写，metadata 后写，vector 为 source of truth）
+    """
 
-    def insert(self, entry: CacheEntry):
-        """Insert new entry. Vector DB stores embedding + action data.
-        Metadata DB stores auxiliary info (timestamp, task, episode, etc.)."""
-        vector_id = self.vector_db.insert(
-            vector=entry.query_key,
-            payload=entry.to_payload(),  # action, intermediates, checkpoint_id
-        )
-        if self.metadata_db is not None:
-            self.metadata_db.insert(vector_id, entry.metadata)
+    def __init__(self, backend: VectorStoreBackend, metadata_db=None):
+        self._backend = backend
+        self._metadata_db = metadata_db   # 预留，暂未使用
+        self._dim = backend.vector_dim
+        self._lock = threading.RLock()
 
-    def evict(self, policy: EvictionPolicy):
-        """Remove entries based on eviction policy (LRU, LFU, quality-based)."""
+    def search(self, spec: QuerySpec) -> list[SearchResultLite]:
+        """向量搜索，返回轻量结果（无 payload）。"""
         ...
+
+    def fetch_payload(self, id: str) -> CachePayload:
+        """按 id 取完整 payload，仅对命中候选调用。"""
+        ...
+
+    def search_and_fetch(self, spec: QuerySpec) -> list[SearchResult]:
+        """便利方法：搜索后对所有结果逐一 fetch payload。"""
+        ...
+
+    def insert(self, entry: CacheEntry) -> None:
+        """校验 entry，然后委托 backend.insert()。"""
+        ...
+
+    def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult: ...
+    def delete(self, ids: list[str]) -> None: ...
+    def count(self) -> int: ...
+    def close(self) -> None: ...
 ```
 
-### 5.3 VectorStore（GPU/CPU 混合）
+关键设计点：
+- **两段式搜索**：`search()` 返回 `SearchResultLite`（仅含 score，无 payload tensor）。只有命中候选调用 `fetch_payload()` 获取完整 `CachePayload`，避免无用数据传输。
+- **Filter fail-fast**：`CacheStorage` 在调用 `search()` 前检查 `spec.filters` 是否被 `backend.supported_filters()` 支持。不支持的 filter 抛出 `UnsupportedFilterError`，而非静默忽略。
+- **维度校验**：每次 `insert()` 和 `search()` 调用均检查 `query_key.shape == (vector_dim,)`。
+
+### 5.3 VectorStoreBackend — ⚠️ Step 3 已实现（不稳定）
+
+> **实现**：`src/openpi/cache/backend_base.py` + `src/openpi/cache/backends/qdrant_backend.py`
+> **设计日志**：`claude_log/step3_cache.log`
+> **状态**：⚠️ 代码已落地，无测试覆盖，接口将频繁变动。
+
+**向量数据库选型未定。** 当前用 Qdrant 做实验，但未来**一定会更换**（候选：FAISS、自研 TorchGPU store 或其他）。为将上层逻辑与选型决策隔离，Step 3 引入 `VectorStoreBackend` ABC 作为最小公约数接口。
+
+```python
+class VectorStoreBackend(ABC):
+    """向量存储后端的最小公约数接口。
+
+    契约：
+    - insert() 幂等：相同 id 重复写入以最新为准，不报错
+    - search() 返回 SearchResultLite（无 payload），score 为归一化
+      cosine similarity ∈ [-1, 1]，所有 backend 必须统一转换
+    - search() 返回至多 top_k 条；client-side filter 后可能少于 k
+    - fetch_payload() 按 id 取完整 CachePayload
+    - delete() 容忍不存在的 id
+    - 实现不保证线程安全，CacheStorage 负责加锁
+    """
+
+    @property
+    @abstractmethod
+    def vector_dim(self) -> int: ...
+
+    @abstractmethod
+    def supported_filters(self) -> frozenset[str]: ...
+
+    @abstractmethod
+    def insert(self, entry: CacheEntry) -> None: ...
+
+    @abstractmethod
+    def search(self, spec: QuerySpec) -> list[SearchResultLite]: ...
+
+    @abstractmethod
+    def fetch_payload(self, id: str) -> CachePayload: ...
+
+    @abstractmethod
+    def delete(self, ids: list[str]) -> None: ...
+
+    @abstractmethod
+    def count(self) -> int: ...
+
+    # --- 可选（有默认实现）---
+    def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult: ...
+    def flush(self) -> None: ...
+    def close(self) -> None: ...
+```
+
+**当前 backend — QdrantVectorStore**（`src/openpi/cache/backends/qdrant_backend.py`）：
+- 通过 HTTP/gRPC 连接远程 Qdrant 服务器
+- Collection 由运维人员预先创建，backend 不做自动创建
+- 序列化：tensor → `torch.save` bytes → base64 字符串 → Qdrant JSON payload
+- 支持的 filter：`checkpoint_id`、`task_key`、`step_range`
+- Score：Qdrant Cosine distance 已在 [-1, 1] 范围内，直接使用
+
+**为什么 ABC 接口故意很小**：named vector、multivector、payload filter 语法、gRPC 选项——这些全是 backend 特有细节，配在各 backend 的 `__init__` config 里，永远不暴露到 ABC 边界之上。上层代码只问一件事："给我一个 `[dim]` 的查询向量，返回最相似的 top-k 条目"。
+
+#### 5.3.1 搁置设计：GPU/CPU 混合 VectorStore
+
+> **状态**：搁置——未实现。以下设计保留用于未来需要本地高性能向量存储时开发（如 FAISS GPU index + CPU 回退）。当前所有存储经由远程 Qdrant backend。
 
 ```python
 class VectorStore:
@@ -350,61 +409,18 @@ class VectorStore:
 
     def __init__(self, config: VectorStoreConfig):
         self.dim = config.embedding_dim
-        self.gpu_capacity = config.gpu_capacity      # max entries on GPU
-        self.cpu_capacity = config.cpu_capacity      # max entries on CPU
-
-        # GPU partition: flat index for small-to-medium cache, IVF for large
+        self.gpu_capacity = config.gpu_capacity
+        self.cpu_capacity = config.cpu_capacity
         self.gpu_vectors: torch.Tensor  # [gpu_capacity, dim] on cuda
-        self.gpu_payloads: list         # associated data
-        self.gpu_count: int = 0
-
-        # CPU partition: FAISS or custom index
         self.cpu_index: faiss.Index     # CPU-resident index
-        self.cpu_payloads: list
-
-        # Async transfer infrastructure
         self._transfer_stream = torch.cuda.Stream()
 
-    def search(self, query: torch.Tensor, top_k: int) -> tuple[list[int], list[float]]:
-        """Search GPU first, then CPU if needed.
-
-        GPU search uses torch matmul on the dedicated stream.
-        CPU search uses FAISS on a thread pool.
-        Both can run concurrently.
-        """
-        # GPU search (fast, non-blocking on separate stream)
-        gpu_ids, gpu_dists = self._search_gpu(query, top_k)
-
-        # If GPU results are confident enough, skip CPU
-        if gpu_dists and gpu_dists[0] < self.config.gpu_confidence_threshold:
-            return gpu_ids, gpu_dists
-
-        # CPU search (concurrent with GPU search in full mode)
-        cpu_ids, cpu_dists = self._search_cpu(query.cpu(), top_k)
-
-        # Merge results
-        return self._merge_results(gpu_ids, gpu_dists, cpu_ids, cpu_dists, top_k)
-
-    def _search_gpu(self, query: torch.Tensor, top_k: int):
-        """Cosine similarity search on GPU using the transfer stream."""
-        if self.gpu_count == 0:
-            return [], []
-        with torch.cuda.stream(self._transfer_stream):
-            # query: [1, dim], gpu_vectors: [N, dim]
-            sims = torch.mm(query, self.gpu_vectors[:self.gpu_count].T)
-            topk = torch.topk(sims[0], min(top_k, self.gpu_count))
-        self._transfer_stream.synchronize()
-        return topk.indices.tolist(), topk.values.tolist()
-
-    def promote_to_gpu(self, cpu_ids: list[int]):
-        """Move frequently accessed CPU entries to GPU (async)."""
-        with torch.cuda.stream(self._transfer_stream):
-            # Pinned memory -> GPU transfer
-            ...
-
-    def demote_to_cpu(self, gpu_ids: list[int]):
-        """Move cold GPU entries to CPU to free GPU memory."""
+    def search(self, query, top_k):
+        """Search GPU first, then CPU if needed. Both can run concurrently."""
         ...
+
+    def promote_to_gpu(self, cpu_ids): ...
+    def demote_to_cpu(self, gpu_ids): ...
 ```
 
 **GPU 显存预算管理**：VectorStore 通过 `gpu_capacity` 硬上限控制显存占用，实际占用 = `gpu_capacity * dim * sizeof(float16)` 字节。例如 10k entries x 1024 dim x 2 bytes = **20MB**，对 inference 的显存影响可忽略。
@@ -421,14 +437,18 @@ class QueryKeyBuilder(Protocol):
 
 
 class MeanPoolKeyBuilder(QueryKeyBuilder):
-    """Baseline: mean-pool available embeddings, project to fixed dim."""
+    """Baseline: mean-pool available embeddings, project to fixed dim.
+
+    注意：'command' projection 已移除 — Stage 2 只产出 opaque 的
+    KV cache，无可提取的 command embedding（CP2 搁置，详见 Section 3）。
+    """
 
     def __init__(self, output_dim: int = 1024):
         self.projections = nn.ModuleDict({
             "vision": nn.Linear(..., output_dim),
             "prompt": nn.Linear(..., output_dim),
             "state": nn.Linear(..., output_dim),
-            "command": nn.Linear(..., output_dim),
+            # "command": 已移除 — 无 command embedding（CP2 搁置）
             "action": nn.Linear(..., output_dim),
         })
 
@@ -437,8 +457,7 @@ class MeanPoolKeyBuilder(QueryKeyBuilder):
         if context.stage1:
             parts.append(self.projections["vision"](context.stage1.vision_emb.mean(dim=1)))
             parts.append(self.projections["state"](context.stage1.state_emb))
-        if context.stage2:
-            parts.append(self.projections["command"](context.stage2.command_emb.mean(dim=1)))
+        # CP2 搁置：无 context.stage2.command_emb 可用
         if context.action is not None:
             parts.append(self.projections["action"](context.action.mean(dim=1)))
 
@@ -516,7 +535,7 @@ class ThresholdJudge(SimilarityJudge):
         self.thresholds = thresholds
         # CP1 threshold should be stricter (higher similarity required)
         # because skipping more computation carries more risk.
-        # Default: CP1=0.98, CP2=0.95, CP3=0.90
+        # Default: CP1=0.98, CP3=0.90 (CP2 搁置)
 
     def evaluate(self, checkpoint, context, candidates):
         if not candidates:
@@ -531,54 +550,113 @@ class ThresholdJudge(SimilarityJudge):
 
     def _make_hit(self, checkpoint, candidate):
         entry = candidate.entry
-        if checkpoint == CheckpointID.CP2 and entry.has_intermediate:
-            # Decide full hit vs warm start based on similarity
-            if candidate.distance >= self.thresholds[CheckpointID.CP2_FULL]:
-                return CacheResult.full_hit(entry.action)
-            else:
-                return CacheResult.warm_start(
-                    cached_noisy_action=entry.intermediate_x_t,
-                    cached_timestep=entry.intermediate_t,
-                )
+        # CP2 warm start 分支 — 搁置（无 command embedding 可用）。
+        # 设计保留，待 CP2 重新启用时使用。
+        # if checkpoint == CheckpointID.CP2 and entry.has_intermediate:
+        #     if candidate.distance >= self.thresholds[CheckpointID.CP2_FULL]:
+        #         return CacheResult.full_hit(entry.action)
+        #     else:
+        #         return CacheResult.warm_start(
+        #             cached_noisy_action=entry.intermediate_x_t,
+        #             cached_timestep=entry.intermediate_t,
+        #         )
         return CacheResult.full_hit(entry.action)
 ```
 
-### 5.7 CacheEntry 数据结构
+### 5.7 Cache 数据模型 — ⚠️ Step 3 已实现（不稳定）
+
+> **实现**：`src/openpi/cache/storage_types.py` + `src/openpi/cache/types.py`
+> **设计日志**：`claude_log/step3_cache.log`
+> **状态**：⚠️ 代码已落地，无测试覆盖，接口将频繁变动。
+
+Step 3 用更丰富的数据模型替换了原来的扁平 `CacheEntry`。与原设计的主要差异：`CachePayload` 是独立的嵌套 dataclass（非 `CacheEntry` 上的扁平字段），新增 `QueryFilter` 用于结构化过滤，搜索结果分为 `SearchResultLite`（轻量，用于阈值筛选）和 `SearchResult`（完整，含 payload）。
 
 ```python
+# src/openpi/cache/types.py
+class CheckpointID(Enum):
+    CP1 = auto()
+    CP2 = auto()
+    CP3 = auto()
+
+# src/openpi/cache/storage_types.py
+
+@dataclass
+class CachePayload:
+    """缓存条目的有效载荷。强类型，CP1/CP2/CP3 共用。
+
+    Tensor 契约：所有 tensor 必须是 CPU contiguous float32。
+    调用方在构造前负责转换；search() 返回同样保证 CPU float32。
+
+    CP1：action_chunk 必填，其余为 None。
+    CP2 warm start：action_chunk + intermediates + denoising_num_steps 必填。
+    CP3：action_chunk + next_action_chunk 必填。
+    """
+    action_chunk: torch.Tensor                          # [50, 32]
+    intermediates: Optional[dict[float, torch.Tensor]]  # {t: x_t}
+    denoising_num_steps: Optional[int]                  # warm start 时必填
+    next_action_chunk: Optional[torch.Tensor]           # [50, 32]，CP3 必填
+    task_key: str = ""                                  # 规范化 task 标识符
+
+    def validate_for_checkpoint(self, checkpoint_id: CheckpointID) -> None: ...
+
+
 @dataclass
 class CacheEntry:
-    """What gets stored in the cache."""
+    """写入存储的完整单元。
 
-    # Query key for retrieval
-    query_key: torch.Tensor          # [embedding_dim], normalized
+    id 语义：stable_hash(checkpoint_id.name + ":" + query_key_bytes)
+    同一 context + 同一 CP 只保留一条记录（语义去重键）。
+    """
+    id: str
+    checkpoint_id: CheckpointID
+    query_key: torch.Tensor     # CPU float32 [dim]，L2 归一化
+    payload: CachePayload
+    timestamp: float = field(default_factory=time.time)
 
-    # Checkpoint level this entry was created from
+    def validate(self) -> None: ...
+
+
+@dataclass
+class QueryFilter:
+    """每次查询不同的约束条件。不支持某个字段的 backend 必须在
+    supported_filters() 中不列出它，CacheStorage 会 fail-fast。"""
+    task_key: Optional[str] = None
+    step_range: Optional[tuple[int, int]] = None
+
+
+@dataclass
+class QuerySpec:
+    query_key: torch.Tensor             # CPU float32 [dim]
+    top_k: int = 10
+    checkpoint_id: Optional[CheckpointID] = None
+    filters: Optional[QueryFilter] = None
+
+
+@dataclass
+class SearchResultLite:
+    """轻量搜索结果（无 payload）。search() 返回此类型。
+    score：归一化 cosine similarity ∈ [-1, 1]。"""
+    id: str
+    score: float
     checkpoint_id: CheckpointID
 
-    # Core cached data
-    action_chunk: torch.Tensor       # [action_horizon, action_dim], clean x_0
 
-    # Optional: flow matching intermediates for warm start
-    # Stores x_t at selected timesteps (e.g., t=0.7, 0.5, 0.3)
-    intermediates: Optional[dict[float, torch.Tensor]] = None
-    # intermediates = {0.7: x_0.7, 0.5: x_0.5, 0.3: x_0.3}
-
-    # Context for CP3 predictive cache
-    next_action_chunk: Optional[torch.Tensor] = None  # action from the NEXT cycle
-
-    # Metadata
-    timestamp: float = 0.0
-    task_prompt: str = ""
-    hit_count: int = 0               # for LFU eviction
-    quality_score: float = 1.0       # for quality-based eviction
+@dataclass
+class SearchResult:
+    """完整搜索结果（含 payload）。由 fetch_payload() 填充。"""
+    id: str
+    score: float
+    payload: CachePayload
+    checkpoint_id: CheckpointID
 ```
 
-**Warm start 的中间状态选择**：不缓存所有 10 步的中间状态，只缓存 2-3 个关键时间点（如 t=0.7, 0.5, 0.3）。命中时选择离当前推理起点最近的缓存时间点。例如 CP2 warm start 时，如果缓存了 `x_0.3`，则从 t=0.3 开始执行 3 步 flow matching（而非全部 10 步），节省 70% 的 Stage 3 计算。
+**Warm start 的中间状态选择**（设计保留，尚未填充）：不缓存所有 10 步的中间状态，只缓存 2-3 个关键时间点（如 t=0.7, 0.5, 0.3）。`denoising_num_steps` 字段告知 `run_stage3_from()` 从哪里恢复。此机制依赖 CP2 warm start，目前搁置。
 
 ---
 
 ## 6. 数据流与时序
+
+> **注意**：以下数据流图中涉及的 cache search/write 操作依赖存储层（Section 5.2/5.3）。存储层当前 ⚠️ 不稳定——接口和 backend 实现将频繁变动。时序结构（stage 划分、checkpoint 位置）是稳定的，存储交互细节不是。
 
 ### 6.1 完整推理周期（无 cache hit）
 
@@ -615,7 +693,7 @@ Time ─────────────────────────
 Total: Stage1 + CP1 latency only
 ```
 
-### 6.3 CP2 Warm Start 的时序
+### 6.3 CP2 Warm Start 的时序 — ⚠️ 搁置（设计保留）
 
 ```
 Time ──────────────────────────────────────────────>
@@ -641,7 +719,9 @@ Cycle N:                                             Cycle N+1:
 
 ---
 
-## 7. 硬件资源分配策略
+## 7. 硬件资源分配策略 — 搁置
+
+> **状态**：搁置——未实现。以下设计保留用于未来本地 GPU/CPU 混合向量存储替代当前远程 Qdrant backend 时开发。当前所有缓存存储为远程调用，无 GPU 向量分区、无 pinned memory pool、无 cache 专用 CUDA stream。
 
 ### 7.1 GPU 显存布局
 
@@ -696,7 +776,9 @@ Thread 3 (optional):   Cache maintenance (eviction, compaction)
 
 ---
 
-## 8. Cache 管理与动态优化
+## 8. Cache 管理与动态优化 — 搁置
+
+> **状态**：搁置——未实现。写入策略、淘汰策略、GPU/CPU 数据迁移为未来 GPU/CPU 混合存储（Section 5.3.1 / Section 7）设计。当前远程 Qdrant backend 的淘汰由 Qdrant 服务端或运维手动处理。以下设计保留用于未来开发。
 
 ### 8.1 写入策略
 
@@ -737,65 +819,111 @@ class CompositeEviction(EvictionPolicy):
 
 ---
 
-## 9. 计时系统
+## 9. 计时系统 — ✅ 已实现（Step 2）
+
+> 实现文件：`src/openpi/cache/timing.py` | 设计日志：`claude_log/step2.log`
+
+计时系统采用 **基于 probe 的架构**：每个流水线组件在启动时注册一个命名 probe 并指定后端类型，`SystemTimer` 在热路径上提供零开销的 `measure()` 上下文管理器。
+
+### 9.1 Backend 协议
+
+```python
+class TimingBackend(Protocol):
+    def start(self) -> Any: ...          # 返回不透明的计时句柄
+    def stop(self, handle: Any) -> float: ...  # 返回耗时 ms
+
+class CudaEventBackend:
+    """GPU 计时，使用 torch.cuda.Event。
+    end_event.synchronize() 仅等待该 event 完成，不阻断整个 CUDA 流水线。
+    CUDA 不可用时自动降级为 PerfCounterBackend。"""
+    def __init__(self, stream: torch.cuda.Stream | None = None): ...
+
+class PerfCounterBackend:
+    """CPU 计时，使用 time.perf_counter_ns，亚微秒精度。"""
+```
+
+关键设计决策：
+- **CudaEventBackend handle 设计**：返回 `("cuda", start_evt, end_evt)` 元组，含类型标记——支持并发/嵌套调用，不在实例上保存 per-call 状态。
+- **自动降级**：`CudaEventBackend` 内部持有 `PerfCounterBackend`；无 GPU 时返回 `("cpu", ns)` handle，CI 环境也能跑。
+
+### 9.2 SystemTimer
 
 ```python
 class SystemTimer:
-    """Precise timing for all cache operations.
-
-    Uses CUDA events for GPU operations, time.perf_counter_ns for CPU.
-    All timings stored in a ring buffer, exportable for analysis.
-    """
-
-    def __init__(self, buffer_size: int = 10000):
-        self._records: deque[TimingRecord] = deque(maxlen=buffer_size)
+    def __init__(self, enabled=True, buffer_size=10000, output_csv_dir=None): ...
+    def register_probe(self, name: str, backend: str = "cuda", stream=None): ...
 
     @contextmanager
-    def measure(self, name: str):
-        """Time a block. Auto-detects GPU/CPU context."""
-        if torch.cuda.is_available() and torch.cuda.current_stream() != torch.cuda.default_stream():
-            # GPU timing with CUDA events
-            start_event = torch.cuda.Event(enable_timing=True)
-            end_event = torch.cuda.Event(enable_timing=True)
-            start_event.record()
-            yield
-            end_event.record()
-            end_event.synchronize()
-            elapsed_ms = start_event.elapsed_time(end_event)
-        else:
-            # CPU timing
-            start = time.perf_counter_ns()
-            yield
-            elapsed_ms = (time.perf_counter_ns() - start) / 1e6
+    def measure(self, name: str) -> Iterator[None]:
+        # enabled=False → yield + return（零开销）
+        # 未注册的 probe → 默认 CudaEventBackend（宽松模式，带警告）
 
-        self._records.append(TimingRecord(name=name, elapsed_ms=elapsed_ms, timestamp=time.time()))
+    # TaskLifecycle（见 9.3）
+    def on_task_begin(self) -> None: ...   # 记录当前 ring buffer 位置
+    def on_task_end(self) -> None: ...     # 打印摘要 + 可选写 CSV + task_id++
 
-    def summary(self, last_n: int = 100) -> dict[str, TimingStats]:
-        """Aggregate timing stats per component."""
-        ...
+    def summary(self, task_only=True) -> dict[str, TimingStats]: ...
+    def export_csv(self, path: str): ...   # 内存构建全部行，一次性写盘
 
-    def export_csv(self, path: str):
-        """Export all timing records for external analysis."""
-        ...
+    # 预留接口（Step 2 为 stub）
+    def add_resource_monitor(self, monitor: ResourceMonitor): ...
+    def record_resource_snapshot(self, name: str): ...
 ```
 
-每个组件自动记录的计时项：
+环形缓冲区使用**单调追加计数器**（`_total_appended`）追踪任务边界。`on_task_begin()` 保存该值；`on_task_end()` 从 deque 尾部切片。Ring buffer wrap 时给出警告。
 
-| Component | Timing Key | Description |
-|-----------|-----------|-------------|
-| Stage 1 | `stage1_vision` | Vision encoder + tokenization |
-| Stage 2 | `stage2_llm` | LLM backbone autoregressive decode |
-| Stage 3 | `stage3_flow` | Full flow matching (10 steps) |
-| Stage 3 partial | `stage3_partial_flow` | Warm start flow matching |
-| CP1 | `cp1_gate`, `cp1_key_build`, `cp1_search`, `cp1_judge` | Each sub-step |
-| CP2 | `cp2_gate`, `cp2_key_build`, `cp2_search`, `cp2_judge` | Each sub-step |
-| CP3 | `cp3_gate`, `cp3_key_build`, `cp3_search`, `cp3_judge` | Each sub-step |
-| Write | `write_vectordb`, `write_metadata` | Async write-back |
-| Transfer | `gpu_to_cpu`, `cpu_to_gpu` | Data migration |
+**total (sum) 行**的正确计算方式：将三个 stage 的 record 按顺序对齐、逐次相加得到每次推理总耗时列表，再求 p50/p95/p99（而非简单累加均值）。
+
+`_DISPLAY_ORDER` 常量控制摘要表行顺序；后续新增 probe 只需加入该列表。
+
+### 9.3 TaskLifecycle 协议
+
+```python
+@runtime_checkable
+class TaskLifecycle(Protocol):
+    def on_task_begin(self) -> None: ...
+    def on_task_end(self) -> None: ...
+```
+
+`InferenceInterceptor` 实现该协议，转发给内部 `SystemTimer`。Server 侧用 `hasattr(policy, 'on_task_begin')` 判断（避免强依赖）。
+
+**Server 侧集成**（`websocket_policy_server.py`）：
+- 连接建立 → `policy.on_task_begin()`
+- 连接关闭（正常或异常）→ `policy.on_task_end()` → 打印摘要 / 写 CSV
+- 已移除：旧的 `stage_timing_records` 收集、`action.pop("stage_timing")`、手工均值 print（约 -15 行）
+
+### 9.4 已注册 Probes
+
+| Probe | 后端 | 状态 | 说明 |
+|-------|------|------|------|
+| `stage1_vision` | cuda | ✅ 已注册 | Vision encoder + tokenization |
+| `stage2_llm` | cuda | ✅ 已注册 | LLM backbone prefix KV 填充 |
+| `stage3_flow` | cuda | ✅ 已注册 | 完整 flow matching（10 次 denoise step） |
+| `total_inference` | cpu | ✅ 已注册 | Wall-clock 总耗时（外层 `measure()` 包裹三个 stage） |
+| `cp1_*`, `cp3_*` | 待定 | 计划中（Step 4+） | Cache 子步骤 probe |
+| `cp2_*` | — | 搁置 | CP2 搁置（见 Section 3） |
+| `write_vectordb`, `write_metadata` | cpu | 计划中 | 异步写回 |
+| `gpu_to_cpu`, `cpu_to_gpu` | cuda | 计划中 | `transfer_stream` 上的数据迁移 |
+
+### 9.5 摘要输出示例
+
+```
+=== Inference Timing Summary (task #0, 4 inferences) ===
+  Probe                          N     mean      p50      p95      p99  ms
+  ------------------------------------------------------------------------
+  stage1_vision                  4      2.1      2.1      2.3      2.3
+  stage2_llm                     4      6.1      6.1      6.1      6.1
+  stage3_flow                    4      3.1      3.1      3.1      3.1
+  total_inference                4     11.3     11.3     11.5     11.5
+  ------------------------------------------------------------------------
+  total (sum)                    4     11.3     11.2     11.4     11.5
+```
 
 ---
 
 ## 10. 配置系统
+
+> **注意**：`CacheConfig` 尚未作为独立文件实现。以下配置项反映完整设计意图。标注 **搁置** 的项依赖 GPU/CPU 混合存储（Section 5.3.1 / Section 7），不适用于当前 Qdrant backend。标注 **⚠️** 的项与 Step 3 存储层相关，将随接口演化而变。
 
 ```python
 @dataclass
@@ -806,7 +934,7 @@ class CacheConfig:
 
     # Per-checkpoint enable/disable
     cp1_enabled: bool = True
-    cp2_enabled: bool = True
+    cp2_enabled: bool = False              # 搁置 — 无 command embedding 可用（见 Section 3）
     cp3_enabled: bool = True
 
     # Retrieval
@@ -815,8 +943,8 @@ class CacheConfig:
 
     # Similarity thresholds (cosine similarity, higher = stricter)
     cp1_threshold: float = 0.98            # CP1 strictest: skipping most
-    cp2_full_threshold: float = 0.96       # CP2 full hit
-    cp2_warm_threshold: float = 0.90       # CP2 warm start (more lenient)
+    cp2_full_threshold: float = 0.96       # CP2 full hit（搁置）
+    cp2_warm_threshold: float = 0.90       # CP2 warm start（搁置）
     cp3_threshold: float = 0.92            # CP3 predictive
 
     # Flow matching warm start
@@ -824,14 +952,14 @@ class CacheConfig:
         default_factory=lambda: [0.7, 0.5, 0.3]
     )  # which timesteps to cache x_t for
 
-    # Storage
+    # Storage — ⚠️ 将随 backend 演化而变
     vector_db: VectorStoreConfig = field(default_factory=VectorStoreConfig)
     metadata_db: Optional[MetadataStoreConfig] = None
 
-    # Hardware
-    gpu_capacity: int = 10000              # max entries on GPU
-    cpu_capacity: int = 100000             # max entries on CPU
-    pinned_memory_mb: int = 32             # pinned memory pool
+    # Hardware — 搁置（需要 GPU/CPU 混合存储，Section 5.3.1）
+    gpu_capacity: int = 10000              # 搁置
+    cpu_capacity: int = 100000             # 搁置
+    pinned_memory_mb: int = 32             # 搁置
 
     # Write policy
     write_similarity_threshold: float = 0.99  # don't write if too similar to existing
@@ -851,58 +979,103 @@ class CacheConfig:
 
 ## 11. 对现有代码的改动边界
 
-### 必须修改的部分（最小侵入）
+### 实际改动（Step 1 — 仅添加，零修改已有代码）
 
-| 文件 | 改动 | 原因 |
+> **关键发现**：`pi0_pytorch.py` 中已有三个私有 stage 方法（`_stage1_token_prep`、`_stage2_llm_backbone`、`_stage3_action_expert`），`sample_actions()` 内部已串联调用它们。Step 1 **没有修改** `sample_actions()` —— 而是在已有私有方法之上添加了公共类型化包装。
+
+| 文件 | 改动 | 类型 |
 |------|------|------|
-| `models_pytorch/pi0_pytorch.py` | 将 `sample_actions()` 拆分出 `run_stage1()`, `run_stage2()`, `run_stage3()` 公共方法 | Cache 需要在 stage 之间插入检查点 |
-| `models_pytorch/pi0_pytorch.py` | `run_stage3()` 增加 `return_intermediates` 参数和 `run_stage3_from(start_x, start_t)` 方法 | 支持 warm start 和中间状态缓存 |
+| `models_pytorch/pi0_pytorch.py` | 添加 3 个 dataclass（`Stage1Output`、`Stage2Output`、`Stage3Output`）+ 5 个方法（`run_stage1/2/3`、`run_stage3_from`、`_stage3_with_intermediates`） | **仅添加**（+256 行，0 行修改） |
+| `src/openpi/cache/__init__.py` | 新建模块标记 | **新建文件** |
+| `src/openpi/cache/interceptor.py` | `InferenceInterceptor(BasePolicy)` — 将推理路由到 staged API | **新建文件**（+137 行） |
+| `scripts/serve_policy.py` | 添加 `--cache` CLI 参数和 `InferenceInterceptor` 包装逻辑 | **仅添加**（+13 行） |
+
+### 实际改动（Step 3 — ⚠️ 不稳定，将频繁变动）
+
+> **状态**：⚠️ 代码已落地，无测试覆盖，接口将频繁变动。
+> Step 3 包含两个子部分：数据收集（稳定的 observer 模式）和 cache 存储层（不稳定）。
+
+**Step 3a：数据收集**（`claude_log/step3_data_collection.log`）
+
+| 文件 | 改动 | 类型 |
+|------|------|------|
+| `src/openpi/collect/__init__.py` | 空模块标记 | **新建文件** |
+| `src/openpi/collect/data_collector.py` | `InferenceEmbeddings` dataclass + `EpisodeDataCollector`（缓冲 + HDF5 写入） | **新建文件** |
+| `src/openpi/collect/collection_policy.py` | `CollectionPolicy` wrapper（最外层，4 个 forward hook） | **新建文件** |
+| `scripts/serve_policy.py` | 添加 `--collect` / `--collect_dir` 参数，最外层 `CollectionPolicy` 包装 | **仅添加** |
+| `serving/websocket_policy_server.py` | 带内控制消息识别（`__ctrl__: episode_start/end`） | **修改** |
+| `openpi-client/websocket_client_policy.py` | 添加 `episode_start()` / `episode_end()` 方法 | **仅添加** |
+| `examples/libero/main.py` | 在 episode 循环前后插入 `client.episode_start/end()` 调用 | **修改** |
+
+**Step 3b：Cache 存储层**（`claude_log/step3_cache.log`）— ⚠️
+
+| 文件 | 改动 | 类型 |
+|------|------|------|
+| `src/openpi/cache/types.py` | `CheckpointID` 枚举 | **新建文件** |
+| `src/openpi/cache/storage_types.py` | `CachePayload`、`CacheEntry`、`QueryFilter`、`QuerySpec`、`SearchResultLite`、`SearchResult`、`BatchInsertResult` | **新建文件** |
+| `src/openpi/cache/backend_base.py` | `VectorStoreBackend` ABC | **新建文件** |
+| `src/openpi/cache/cache_storage.py` | `CacheStorage` 门面（线程安全、校验、两段式搜索） | **新建文件** |
+| `src/openpi/cache/backends/__init__.py` | 空模块标记 | **新建文件** |
+| `src/openpi/cache/backends/qdrant_backend.py` | `QdrantVectorStore`（`VectorStoreBackend` 的 Qdrant 实现） | **新建文件** |
+| `src/openpi/cache/__init__.py` | 更新导出新符号 | **修改** |
 
 ### 不修改的部分
 
 | 文件 | 说明 |
 |------|------|
+| `models_pytorch/pi0_pytorch.py` — 已有代码 | `sample_actions()`、`_stage1/2/3_*`、`denoise_step()` — 零修改 |
 | `policies/policy.py` | Policy 类不变，InferenceInterceptor 在外层包装 |
 | `models/pi0.py` | JAX 路径已关闭，不动 |
-| `serving/websocket_policy_server.py` | 服务层不变，透明适配 |
+| `serving/websocket_policy_server.py` | ✅ Step 2：移除旧 `stage_timing_records` 聚合，添加 `TaskLifecycle` 回调；✅ Step 3a：添加控制消息处理 |
 | `training/` | 训练代码完全不动 |
 | `transforms.py` | 数据变换不变 |
 
 ---
 
-## 12. 文件结构规划
+## 12. 文件结构
+
+### 实际（截至 Step 3）
 
 ```
-src/openpi/cache/                           # 新增的 cache 模块
+src/openpi/cache/                           # Cache 模块
+├── __init__.py                             # ✅ Step 1，Step 3 更新
+├── interceptor.py                          # ✅ Step 1 — InferenceInterceptor (wraps Policy)
+├── timing.py                               # ✅ Step 2 — SystemTimer, TimingRecord, TimingStats
+├── types.py                                # ⚠️ Step 3 — CheckpointID 枚举
+├── storage_types.py                        # ⚠️ Step 3 — CachePayload, CacheEntry, QuerySpec 等
+├── backend_base.py                         # ⚠️ Step 3 — VectorStoreBackend ABC
+├── cache_storage.py                        # ⚠️ Step 3 — CacheStorage 门面
+├── backends/
+│   ├── __init__.py                         # ⚠️ Step 3
+│   └── qdrant_backend.py                   # ⚠️ Step 3 — QdrantVectorStore
+└── README.md                               # ⚠️ Step 3 — 模块级文档
+
+src/openpi/collect/                         # 数据收集模块（Step 3a）
 ├── __init__.py
-├── config.py                               # CacheConfig, VectorStoreConfig, etc.
+├── data_collector.py                       # InferenceEmbeddings + EpisodeDataCollector
+└── collection_policy.py                    # CollectionPolicy wrapper（最外层）
+```
+
+### 计划（未来步骤，尚未创建）
+
+```
+src/openpi/cache/
+├── config.py                               # CacheConfig, VectorStoreConfig 等
 ├── orchestrator.py                         # CacheOrchestrator 主控
-├── interceptor.py                          # InferenceInterceptor (wraps Policy)
-├── storage/
-│   ├── __init__.py
-│   ├── vector_store.py                     # VectorStore (GPU/CPU hybrid)
-│   ├── metadata_store.py                   # MetadataStore (optional MongoDB/SQLite)
-│   └── cache_entry.py                      # CacheEntry, CacheResult, etc.
 ├── components/
-│   ├── __init__.py
-│   ├── key_builder.py                      # QueryKeyBuilder protocol + implementations
-│   ├── gate.py                             # GateFunction protocol + implementations
-│   └── judge.py                            # SimilarityJudge protocol + implementations
-├── hardware/
-│   ├── __init__.py
-│   ├── cuda_manager.py                     # CacheHardwareManager, stream management
+│   ├── key_builder.py                      # QueryKeyBuilder protocol + 实现
+│   ├── gate.py                             # GateFunction protocol + 实现
+│   └── judge.py                            # SimilarityJudge protocol + 实现
+├── hardware/                               # 搁置 — GPU/CPU 混合存储
+│   ├── cuda_manager.py                     # CacheHardwareManager，stream 管理
 │   └── memory_pool.py                      # PinnedMemoryPool
-├── timing.py                               # SystemTimer, TimingRecord
-├── maintenance/
-│   ├── __init__.py
-│   ├── eviction.py                         # EvictionPolicy implementations
-│   ├── promotion.py                        # GPU/CPU data migration
-│   └── writer.py                           # AsyncWriteWorker
-└── tests/
-    ├── test_orchestrator.py
-    ├── test_vector_store.py
-    ├── test_interceptor.py
-    └── test_timing.py
+├── maintenance/                            # 搁置 — 淘汰、迁移
+│   ├── eviction.py
+│   ├── promotion.py
+│   └── writer.py
+└── backends/
+    ├── faiss_backend.py                    # 计划 — FAISS 本地 backend
+    └── torch_gpu_backend.py                # 计划 — TorchGPU 进程内 backend
 ```
 
 ---
@@ -914,159 +1087,164 @@ src/openpi/cache/                           # 新增的 cache 模块
 
 ---
 
-### Step 0: 认识现有推理管线（前置，不写代码）
+### Step 0: 认识现有推理管线 — ✅ 已融入 Step 1
 
-**目标**：对 PyTorch 推理路径建立精确的认知，所有后续工作基于此。
-
-**工作内容**：
-
-0.1. 精读 `src/openpi/models_pytorch/pi0_pytorch.py` 的 `sample_actions()` 方法，标注三个 stage 的代码边界（哪一行到哪一行是 vision/LLM/flow matching）。记录：
-  - 每个 stage 的输入张量 shape、dtype、device
-  - stage 之间传递的中间变量（KV cache 的具体结构、prefix tokens 的 shape）
-  - flow matching 循环内部 `denoise_step()` 的输入输出
-
-0.2. 精读 `src/openpi/policies/policy.py` 的 `infer()` 方法，理解 transforms 在 inference 时的实际调用顺序，确认 observation dict 在进入模型前的完整 key 列表和 shape。
-
-0.3. 跑一次完整推理（用 `debug_pi05` config 或已有 checkpoint），用 `torch.cuda.Event` 手动测量三个 stage 各自的耗时。记录 baseline 数字：
-  - Stage 1 (vision): __ ms
-  - Stage 2 (LLM): __ ms
-  - Stage 3 (flow matching, 10 steps total): __ ms，每步: __ ms
-  - 端到端: __ ms
-
-**产出**：一份简短的 baseline 报告（可以是 markdown 文件或 notebook），包含上述数字和代码边界标注。后续所有优化都以此为对照基线。
-
-**这一步不能跳过的原因**：如果不清楚 stage 之间传递了什么张量、什么 shape，后续拆分 `sample_actions()` 时会反复踩坑。如果没有 baseline 延迟数据，后面无法判断 cache 引入的开销是否值得。
+> Step 0 没有作为独立步骤执行。代码分析和基线理解在 Step 1 的规划阶段完成。详见 `claude_log/step1.log` 第一节，包含张量形状、阶段间数据流、Pi0 vs Pi0.5 架构对比等完整分析结果。
 
 ---
 
-### Step 1: 拆分推理管线（最小侵入改动）
+### Step 1: Staged Public API + Interceptor 骨架 — ✅ 已完成
 
-**目标**：将 `PI0Pytorch.sample_actions()` 拆成三段可独立调用的方法，同时保证原始调用路径不受影响。
+> **状态**：已验证 | **Commit**：`a6c9f43` on branch `Ziyang` | **日期**：2026-03-29
+> **日志**：`claude_log/step1.log`
 
-**工作内容**：
+**目标**：在已有的私有 stage 方法之上添加公共类型化包装，并创建 `InferenceInterceptor` 骨架将推理路由到 staged API。
 
-1.1. 在 `pi0_pytorch.py` 中新增三个方法：
+**代码分析关键发现**：`pi0_pytorch.py` 中已有三个私有方法（`_stage1_token_prep`、`_stage2_llm_backbone`、`_stage3_action_expert`），`sample_actions()` 内部已串联调用。不需要"拆分"——只需添加公共类型化包装。
 
-```python
-def run_stage1(self, observation) -> Stage1Output:
-    """Vision encoding + prefix KV cache construction.
-    Extracts the code from sample_actions() up to and including
-    the prefix forward pass that produces past_key_values."""
-    ...
+**关键发现 — CP2 前提失效**：架构设计时假设 Pi0.5 的 Stage 2 会进行自回归子任务文本生成（产出 command tokens + command embedding）。但 **PyTorch 路径没有自回归生成** —— Stage 2 只做 prefix KV cache 填充。唯一输出是 opaque 的 `past_key_values`（DynamicCache），无法作为检索键。**CP2 因此搁置**，待找到合适的表征提取方案后再启用。
 
-def run_stage2(self, stage1: Stage1Output) -> Stage2Output:
-    """LLM backbone: generate low-level command tokens.
-    For pi05=True, this is the autoregressive subtask prediction.
-    For pi05=False (pi0), this stage may be trivial (no text generation)."""
-    ...
+**实际实现内容**：
 
-def run_stage3(self, stage2: Stage2Output, *, return_intermediates=False) -> Stage3Output:
-    """Action expert: full flow matching (10 Euler steps).
-    If return_intermediates=True, also return x_t at selected timesteps."""
-    ...
-```
-
-1.2. `sample_actions()` 改为内部顺序调用 `run_stage1 -> run_stage2 -> run_stage3`，逻辑完全等价，不改变任何计算。
-
-1.3. 定义 stage 之间的数据结构：
+1.1. 在 `pi0_pytorch.py` 中添加 3 个 dataclass（`PI0Pytorch` 类之前）：
 
 ```python
 @dataclass
 class Stage1Output:
-    prefix_tokens: torch.Tensor
-    prefix_masks: torch.Tensor
-    past_key_values: tuple         # KV cache
-    raw_state: torch.Tensor        # 原始 state vector，cache key 用
-    # ... 其他 prefix 相关中间量
+    state: torch.Tensor               # [B, action_dim] — 原始状态，用于 cache key
+    prefix_embs: torch.Tensor         # [B, prefix_len, emb_dim] (bfloat16)
+    prefix_pad_masks: torch.Tensor    # [B, prefix_len] (bool)
+    prefix_att_2d_masks_4d: torch.Tensor  # [B, 1, prefix_len, prefix_len]
+    prefix_position_ids: torch.Tensor # [B, prefix_len] (int64)
 
 @dataclass
 class Stage2Output:
-    stage1: Stage1Output           # 包含 stage1 的输出
-    command_tokens: torch.Tensor   # 生成的 subtask text tokens
-    command_embedding: torch.Tensor # LLM 最后一层的 hidden state
-    # ...
+    stage1: Stage1Output
+    past_key_values: Any              # HuggingFace DynamicCache — 原样传递，禁止 clone
 
 @dataclass
 class Stage3Output:
-    action_chunk: torch.Tensor     # [B, action_horizon, action_dim]
+    action_chunk: torch.Tensor        # [B, action_horizon, action_dim] (float32)
     intermediates: Optional[dict[float, torch.Tensor]] = None  # warm start 用
 ```
 
-1.4. **验证**：跑同样的输入，对比拆分前后的输出张量，确认 `torch.allclose(original_output, split_output, atol=1e-5)`。这是硬性门控——不通过不进入下一步。
+> **注意**：`Stage2Output` 中没有 `command_tokens` 或 `command_embedding` —— PyTorch 路径中不存在这些。这是 CP2 搁置的根本原因。
 
-**关键注意事项**：
-- Pi0.5 的 Stage 2（LLM subtask prediction）和 Pi0 的 Stage 2 逻辑不同。Pi0 没有 autoregressive text generation，LLM 只做一次前向。先只处理 Pi0.5 路径（`pi05=True`），Pi0 路径后续按需补充。
-- `past_key_values` 的结构要原封不动传递，不要做任何 clone 或 reshape——这是最容易出数值 bug 的地方。
+1.2. 在 `PI0Pytorch` 类中添加 5 个方法（全部为新增，零修改已有代码）：
+  - `run_stage1(observation) -> Stage1Output` — 包装 `_stage1_token_prep`
+  - `run_stage2(stage1) -> Stage2Output` — 包装 `_stage2_llm_backbone`
+  - `run_stage3(stage2, *, noise, num_steps, return_intermediates, save_timesteps) -> Stage3Output`
+  - `run_stage3_from(stage2, start_x, start_t, *, num_steps) -> Stage3Output` — warm start 入口
+  - `_stage3_with_intermediates(...)` — 中间状态捕获的内部辅助方法
 
-**产出**：修改后的 `pi0_pytorch.py`，通过数值一致性测试。
+1.3. 创建 `src/openpi/cache/interceptor.py`（+137 行）：
+  - `InferenceInterceptor(BasePolicy)` — 从被包装的 Policy 借用 `_model`、`_input_transform`、`_output_transform`
+  - `infer()` 调用 `run_stage1 → run_stage2 → run_stage3`，每阶段计时
+  - `TODO(Step 4)` 标记 CP1/CP3 缓存检查的插入点
+
+1.4. 修改 `scripts/serve_policy.py`（+13 行）：
+  - 添加 `--cache` CLI 参数
+  - `if args.cache: policy = InferenceInterceptor(policy)`
+
+**验证结果**：
+
+| 验证项 | 结果 |
+|--------|------|
+| AST 语法检查（所有新增文件） | ✅ 通过 |
+| server 以 `--cache` 启动 | ✅ `INFO: Cache mode enabled` + `listening on 0.0.0.0:8001` |
+| 已有计时系统（`stage_timing` 字段） | ✅ interceptor 输出相同字段 |
+| 外部接口兼容性 | ✅ WebsocketPolicyServer 和客户端无需任何修改 |
+
+**产出**：`pi0_pytorch.py` 新增公共 staged API + `interceptor.py` + `--cache` 集成。
 
 ---
 
-### Step 2: 计时系统
+### Step 2: 计时系统 — ✅ 已完成
 
 **目标**：实现 `SystemTimer`，为所有后续的性能量化提供基础设施。
 
-**工作内容**：
+**实际实现**（完整细节见 `claude_log/step2.log`）：
 
-2.1. 实现 `src/openpi/cache/timing.py`：
-  - `SystemTimer` 类，支持 context manager `with timer.measure("name"):`
-  - GPU 计时用 `torch.cuda.Event`，CPU 计时用 `time.perf_counter_ns`
-  - Ring buffer 存储，`summary()` 输出均值/p50/p95/p99
-  - `export_csv()` 导出原始记录
+2.1. `src/openpi/cache/timing.py`：
+  - 基于 probe 的 `SystemTimer`，支持 `register_probe(name, backend="cuda"/"cpu", stream=None)`
+  - `TimingBackend` 协议，`CudaEventBackend`（无 GPU 时自动降级为 CPU）和 `PerfCounterBackend`
+  - `enabled=False` 零开销关闭；未注册 probe 以宽松模式处理并给出警告
+  - 环形缓冲区 + 单调计数器追踪任务边界
+  - `summary()` 输出逐 probe 的 mean/p50/p95/p99 + 正确的 total (sum) 行
+  - `export_csv()` 导出原始记录；通过 `output_csv_dir` 在任务结束时自动写 CSV
 
-2.2. 将 timer 嵌入 Step 1 拆分后的三个 stage，替换 Step 0 的手动计时，验证数字一致。
+2.2. `InferenceInterceptor` 注册 4 个 probe：`stage1_vision`/`stage2_llm`/`stage3_flow`（cuda）+ `total_inference`（cpu），替换 Step 0 的手动计时。
 
-**这一步必须在 cache 逻辑之前完成的原因**：后续每一步的开发都需要量化延迟。没有 timer，无法回答 "cache 检索花了多久" "是否值得" 这些问题。
+2.3. `TaskLifecycle` 协议：`on_task_begin()`/`on_task_end()` 实现任务级聚合。
 
-**产出**：`timing.py` + 集成到 stage 调用中的计时。
+2.4. `websocket_policy_server.py`：移除旧 `stage_timing_records` 聚合（约 -15 行），在连接建立/关闭时添加 `TaskLifecycle` 回调。
 
----
+2.5. 验证：`scripts/verify_step2.py` 全部 12 项测试通过。
 
-### Step 3: Cache 数据结构与存储层
-
-**目标**：实现 cache 的 "仓库" 部分——能存、能查、能取。此阶段不涉及与推理管线的集成。
-
-**工作内容**：
-
-3.1. 实现 `src/openpi/cache/storage/cache_entry.py`：
-  - `CacheEntry` dataclass（query_key, action_chunk, checkpoint_id, metadata）
-  - `CacheResult` dataclass（hit/miss, hit_type, cached_action, cached_noisy_action, cached_timestep）
-  - `CheckpointID` enum（CP1, CP2, CP3）
-  - `HitType` enum（FULL, WARM_START, PREDICTIVE）
-
-3.2. 实现 `src/openpi/cache/storage/vector_store.py`：
-  - **此阶段仅实现 CPU 版本**，使用 FAISS `IndexFlatIP`（内积，配合 L2 归一化等价于 cosine similarity）
-  - `insert(vector, payload)` → id
-  - `search(query, top_k)` → list of (id, similarity, payload)
-  - `delete(id)`
-  - `size()`, `clear()`
-  - 单元测试：插入 1000 条随机向量，验证 search 返回正确的 top-k
-
-3.3. 实现 `src/openpi/cache/config.py`：
-  - `CacheConfig` dataclass，包含所有可调参数
-  - 提供 `default_config()` 和 `debug_config()` 工厂方法
-
-**这一步与推理无关**：存储层是纯粹的数据结构，可以独立开发和测试。不需要加载模型，不需要 GPU。
-
-**产出**：数据结构 + CPU VectorStore + 单元测试通过。
+**产出**：`timing.py` + 集成到 interceptor 的计时 + server 侧生命周期回调。
 
 ---
 
-### Step 4: Orchestrator 骨架 + Interceptor
+### Step 3: 数据收集 + Cache 存储层 — ⚠️ 已落地（高危）
 
-**目标**：将 cache 检查逻辑与推理管线连接起来，实现端到端的 cache 工作流。此阶段使用最简单的组件实现（PlaceholderKeyBuilder + AlwaysSearchGate + ThresholdJudge），**只开启 CP2**。
+> **状态**：⚠️ 代码已落地，无测试覆盖，接口将频繁变动。
+> **日志**：`claude_log/step3_data_collection.log`（3a）、`claude_log/step3_cache.log`（3b）
+> **日期**：2026-04-02
 
-**为什么先做 CP2 而非 CP1**：
-- CP2 在 LLM 之后，此时已有 subtask 信息，cache 的语义最清晰（"相同场景+相同指令→相同动作"）。
-- CP2 命中跳过的是 flow matching（最纯粹的数值计算），不涉及跳过语义理解，风险最低。
-- CP1 跳过 subtask 预测，风险高，不适合作为第一个验证点。
-- CP3 是预测性的，逻辑更复杂，不适合首轮。
+**目标**：两个子部分——（3a）构建纯 observer 数据收集系统，将推理嵌入写入 HDF5；（3b）实现 cache 存储层抽象，使上层逻辑与具体向量数据库解耦。
+
+**为什么做存储抽象？** 我们尚不确定最终使用哪个向量数据库。当前用 Qdrant 做实验，但**一定会更换**（候选：FAISS、自研 TorchGPU store 等）。`VectorStoreBackend` ABC 确保换 backend 时 orchestrator 和业务代码无需任何修改。
+
+**实际实现内容**：
+
+3a. **数据收集**（稳定的 observer 模式）：
+  - `src/openpi/collect/collection_policy.py`：`CollectionPolicy` wrapper（wrapper 链最外层），每次推理注册 4 个临时 forward hook，将 `InferenceEmbeddings` 写入 `EpisodeDataCollector`
+  - `src/openpi/collect/data_collector.py`：`InferenceEmbeddings` dataclass + `EpisodeDataCollector`（缓冲 + HDF5 原子写入）
+  - 4 个 forward hook：`_vision_hook`（multi_modal_projector）、`_lang_hook`（embed_tokens）、`_action_in_hook`（action_in_proj）、`_action_out_hook`（action_out_proj）
+  - HDF5 schema：per-step 分组，含 vision_0/1/2、prompt_emb、robot_state、noise_action_1..N-1、clean_action
+  - 带内控制消息（`__ctrl__: episode_start/end`）实现客户端-服务器 episode 生命周期
+  - `scripts/serve_policy.py`：`--collect` / `--collect_dir` 参数
+
+3b. **Cache 存储层**（⚠️ 不稳定）：
+  - `src/openpi/cache/types.py`：`CheckpointID` 枚举（CP1/CP2/CP3）
+  - `src/openpi/cache/storage_types.py`：`CachePayload`、`CacheEntry`、`QueryFilter`、`QuerySpec`、`SearchResultLite`、`SearchResult`、`BatchInsertResult` — 全部强类型，含 CP 级校验
+  - `src/openpi/cache/backend_base.py`：`VectorStoreBackend` ABC — 最小接口（insert/search/fetch_payload/delete/count + supported_filters）
+  - `src/openpi/cache/cache_storage.py`：`CacheStorage` 门面 — 线程安全（RLock）、维度校验、filter fail-fast、两段式搜索
+  - `src/openpi/cache/backends/qdrant_backend.py`：`QdrantVectorStore` — Qdrant 实现，tensor 序列化（torch.save → base64），支持 filter：checkpoint_id/task_key/step_range
+
+**关键设计决策**（详见 `claude_log/step3_cache.log`）：
+- `CachePayload` 是独立的嵌套 dataclass（非扁平字段），含 `validate_for_checkpoint()` 做 CP 级不变量校验
+- 两段式搜索：`search()` 返回 `SearchResultLite`（无 payload），`fetch_payload()` 按需取 — 避免传输无用 tensor 数据
+- `QueryFilter` + `supported_filters()` fail-fast — 不支持的 filter 抛出 `UnsupportedFilterError`，绝不静默忽略
+- ABC 接口故意很小：named vector、multivector、gRPC 选项全在 backend 内部 config，不暴露到 ABC 边界之上
+- Cache 系统向量（融合后 `[1024]` query key）与 HDF5 实验向量（原始 embedding）使用不同 Qdrant collection — 禁止混用
+
+**⚠️ 已知风险**：
+- 无测试覆盖 — 所有接口都可能变动
+- `torch` 懒导入改动未在 uv 环境回归测试
+- Qdrant backend 将被替换；ABC 接口可能随新 backend 需求演化
+- `CacheConfig` 尚未作为独立文件实现
+
+**产出**：数据收集系统（3a）+ 存储层抽象及 Qdrant backend（3b）。
+
+---
+
+### Step 4: Orchestrator 骨架（CP1 + CP3）
+
+**目标**：将 cache 检查逻辑与推理管线连接起来，实现端到端的 cache 工作流。此阶段使用最简单的组件实现（PlaceholderKeyBuilder + AlwaysSearchGate + ThresholdJudge），**开启 CP1 和 CP3**（CP2 搁置 — 见 Section 3）。
+
+> **注**：`InferenceInterceptor` 已在 Step 1 创建。此步骤添加 `CacheOrchestrator`，将 CP1/CP3 检查插入 interceptor 中已有的 `TODO(Step 4)` 槽位。
+
+**为什么是 CP1 + CP3（而非 CP2）**：
+- CP2 的原始理由（"same command → same action"）依赖 command embedding，而 PyTorch 路径中不存在。CP2 搁置。
+- CP1 在 vision 之后：使用 `raw_state` 和/或 vision embedding 作为键。语义为 "相同场景+相同状态→相同动作"。最严格阈值（0.98）缓解跳过 subtask 预测的风险。
+- CP3 在 action expert 之后：预测性缓存，用于跳过下一推理周期。当连续动作具有时间局部性时，这是节省量最大的路径。
 
 **工作内容**：
 
 4.1. 实现 `src/openpi/cache/components/key_builder.py`：
   - `QueryKeyBuilder` Protocol
-  - `PlaceholderKeyBuilder`：直接用 `stage2_output.command_embedding` 做 mean pool + L2 normalize，或者更简单地用 `raw_state` concatenate `command_embedding` 然后 normalize。具体维度取决于 Step 0 中记录的张量 shape。
+  - `PlaceholderKeyBuilder`：使用 `stage1_output.state`（原始状态向量 `[B, 32]`）做 L2 normalize 作为最简键。CP3 额外拼接 state + action chunk。
 
 4.2. 实现 `src/openpi/cache/components/gate.py`：
   - `GateFunction` Protocol
@@ -1079,18 +1257,19 @@ class Stage3Output:
 4.4. 实现 `src/openpi/cache/orchestrator.py`：
   - `CacheOrchestrator`：组合 key_builder + gate + judge + storage
   - `check()` 方法：gate → build key → search → judge
-  - `write_async()` 方法：先用同步写入（async 在 Step 7 优化）
+  - `write_async()` 方法：先用同步写入（async 在 Step 8 优化）
 
-4.5. 实现 `src/openpi/cache/interceptor.py`：
-  - `InferenceInterceptor`：包装 Policy，在 stage 之间注入 cache check
-  - 此阶段只在 Stage 2 之后注入 CP2 check
+4.5. 集成到 `src/openpi/cache/interceptor.py`：
+  - 将 CP1 检查插入 Stage 1 之后的 `TODO(Step 4)` 槽位
+  - 将 CP3 检查插入 Stage 3 之后的 `TODO(Step 4)` 槽位
+  - CP2 槽位保持注释状态
 
 4.6. **端到端测试**：
-  - 加载模型，跑 10 次相同输入 → 第 1 次 miss，第 2-10 次应该 hit（输入完全相同）
+  - 加载模型，跑 10 次相同输入 → 第 1 次 miss，第 2-10 次应该 CP1 hit（输入完全相同）
   - 跑 10 次不同输入 → 全部 miss
-  - 验证 hit 时返回的 action 与正常推理结果的 L2 距离（应该 = 0，因为是完全相同的输入）
+  - 验证 CP1 hit 时返回的 action 与正常推理结果的 L2 距离（应该 = 0）
 
-**产出**：可运行的端到端 cache 系统（仅 CP2），通过上述测试。
+**产出**：可运行的端到端 cache 系统（CP1 + CP3），通过上述测试。
 
 ---
 
@@ -1104,10 +1283,10 @@ class Stage3Output:
 
 5.1. **数据准备**：收集一组推理 episode（100-500 步），记录每一步的：
   - 输入 observation（images, state, prompt）
-  - Stage 1 输出（vision embedding）
-  - Stage 2 输出（command embedding）
+  - Stage 1 输出（vision embedding, state）
   - 最终 action chunk
   - 将所有上述数据保存到磁盘（HDF5 或 pickle）
+  - *（注：command embedding 不可用 — CP2 搁置）*
 
 5.2. **实验 A：State 空间中的 action 连续性**
   - 对记录的 episode，计算所有 step 两两之间的 state cosine similarity
@@ -1117,7 +1296,7 @@ class Stage3Output:
   - **如果看不到这个趋势**：cache 思路存在根本问题
 
 5.3. **实验 B：Cache hit 的 action 质量**
-  - 用 Step 4 的系统，逐步降低 CP2 threshold（从 0.99 到 0.80）
+  - 用 Step 4 的系统，逐步降低 CP1 threshold（从 0.99 到 0.80）
   - 记录每个 threshold 下的：hit rate, action L2 error (vs 正常推理), 延迟节省
   - 画三条曲线：threshold vs hit_rate, threshold vs action_error, threshold vs latency_saving
   - **寻找 sweet spot**：action error 可接受（< 某个值）的前提下 hit rate 最大化
@@ -1125,9 +1304,10 @@ class Stage3Output:
 5.4. **实验 C：不同 query key 的区分度**
   - 对比几种 key 构建方式的检索质量：
     - (a) raw state vector only
-    - (b) command embedding only
-    - (c) state + command concatenation
-    - (d) vision embedding mean pool
+    - (b) vision embedding mean pool
+    - (c) state + vision embedding concatenation
+    - (d) state + action chunk concatenation（用于 CP3）
+  - *（command embedding 已移除 — PyTorch 路径中不可用）*
   - 指标：precision@k（top-k 检索结果中，action 真正相近的比例）
   - **这个实验指导后续 QueryKeyBuilder 的设计**
 
@@ -1135,20 +1315,20 @@ class Stage3Output:
 
 ---
 
-### Step 6: CP1 和 CP3 实现
+### Step 6: CP1/CP3 细化 + CP3 延迟写入器
 
 **前置条件**：Step 5 实验结果正面（cache 可行性得到验证）。
 
+> **注**：CP1 和 CP3 的基本集成已在 Step 4 完成。此步骤专注于 CP3 的延迟写入机制，以及基于 Step 5 实验结果的细化调优。
+
 **工作内容**：
 
-6.1. **CP1 实现**：
-  - 在 Stage 1 之后注入 cache check
-  - Key builder 需要处理 vision embedding（Step 5 实验 C 会给出方向）
+6.1. **CP1 细化**：
+  - 基于 Step 5 实验 C 结果调优 key builder（哪些信息源效果最好）
   - CP1 使用更严格的 threshold（默认 0.98）
   - 测试：相同场景相同 prompt 应该 hit，更换物体或 prompt 应该 miss
 
-6.2. **CP3 实现**：
-  - 在 Stage 3 之后注入检查
+6.2. **CP3 延迟写入器**：
   - `schedule_next_action()` 机制：在 orchestrator 中维护一个 `_next_action_scheduled` 槽位
   - `should_skip_inference()`：在每个 cycle 开始前检查是否有预调度的 action
   - CP3 的 key 需要包含 action chunk 信息（因为是预测"下一步"）
@@ -1159,17 +1339,17 @@ class Stage3Output:
   - 实现一个 `DeferredWriter`：在 cycle N 写入 entry（不含 next），在 cycle N+1 回填 next_action_chunk
 
 6.4. **实验**：
-  - 在 episode 上统计 CP1/CP2/CP3 各自的 hit rate
-  - 量化三个检查点的命中时的延迟节省
+  - 在 episode 上统计 CP1/CP3 各自的 hit rate（CP2 搁置）
+  - 量化各检查点命中时的延迟节省
   - CP3 的 predictive accuracy：预调度的 action 与实际推理出的 action 的 L2 距离
 
-**产出**：三检查点完整系统 + 各检查点的命中率和延迟报告。
+**产出**：细化后的 CP1 + CP3（含延迟写入器）+ 命中率和延迟报告。
 
 ---
 
 ### Step 7: Flow Matching Warm Start
 
-**前置条件**：Step 6 完成，CP2 full hit 路径已验证。
+**前置条件**：Step 6 完成，CP1/CP3 已验证。*（注：warm start 最初为 CP2 设计。CP2 搁置后，warm start 可能用于 CP1 的部分跳过，或推迟到 CP2 重新启用时。）*
 
 **工作内容**：
 
@@ -1267,9 +1447,11 @@ class Stage3Output:
   | raw_state | 32 | ? | ? | 极低 |
   | state + prompt_hash | 32+64 | ? | ? | 低 |
   | vision_emb (mean pool) | 2048 | ? | ? | 中 |
-  | command_emb (mean pool) | 2048 | ? | ? | 中 |
-  | state + command_emb | 32+2048 | ? | ? | 中 |
+  | state + vision_emb | 32+2048 | ? | ? | 中 |
+  | state + action_chunk (CP3) | 32+1600 | ? | ? | 中 |
   | learned projection | 128/256/512 | ? | ? | 需训练 |
+
+  > *（command_emb 行已移除 — PyTorch 路径中不可用，CP2 搁置）*
 
   - 其中 "Precision@5" 定义为：top-5 检索到的 entry 中，其 action 与当前推理 action 的 L2 距离 < epsilon 的比例
 
@@ -1280,10 +1462,10 @@ class Stage3Output:
   - 约束：projection head 的推理延迟 < 0.5ms（否则不如不用 cache）
 
 9.3. **不同检查点的最优 key 可能不同**：
-  - CP1 的 key 没有 command 信息，可能需要更多 vision 信息
-  - CP2 的 key 有 command，state 信息的权重可能可以降低
+  - CP1 的 key 有 vision + state 信息，实验不同权重组合
   - CP3 的 key 需要 action 信息来预测后续
-  - 每个 checkpoint 独立调参
+  - *（CP2 搁置 — 重新启用前无需设计 key）*
+  - 每个活跃 checkpoint 独立调参
 
 **产出**：每个 checkpoint 的最优 key builder 方案 + 实验数据支撑。
 
@@ -1372,29 +1554,29 @@ class Stage3Output:
 ### 开发依赖关系总图
 
 ```
-Step 0: 认识推理管线
+Step 0: 认识推理管线 ─── ✅ 已融入 Step 1
   │
   ▼
-Step 1: 拆分 sample_actions()  ──────────────────────────────────┐
-  │                                                               │
-  ▼                                                               │
-Step 2: 计时系统                                                   │
-  │                                                               │
-  ├──────────────────┐                                            │
-  ▼                  ▼                                            │
-Step 3: 数据结构    (并行开发)                                      │
-  │                                                               │
-  ▼                                                               │
-Step 4: Orchestrator + Interceptor (CP2 only) ◄───────────────────┘
+Step 1: Staged Public API + Interceptor ─── ✅ 已完成 (a6c9f43)
+  │  关键发现：无自回归生成 → CP2 搁置
+  ▼
+Step 2: 计时系统 ─── ✅ 已完成
+  │
+  ├──────────────────┐
+  ▼                  ▼
+Step 3: 数据结构    (并行开发)
+  │
+  ▼
+Step 4: Orchestrator (CP1 + CP3) ──── CP2 搁置，不在关键路径上
   │
   ▼
 Step 5: ★ 可行性实验 ★  ── 如果失败 ──> 重新评估整体方案
   │ (通过)
   ▼
-Step 6: CP1 + CP3 实现
+Step 6: CP1/CP3 细化 + CP3 延迟写入器
   │
   ▼
-Step 7: Warm Start 实现 + ★ 精度实验 ★
+Step 7: Warm Start（可能推迟 — 原为 CP2 设计）
   │
   ▼
 Step 8: 系统效率优化 (async, GPU, stream)
@@ -1410,6 +1592,7 @@ Step 11: 集成测试
   │
   ▼
 Step 12: 进阶功能 (按需)
+         ├── CP2 重新启用（待表征提取方案就绪）
 ```
 
 **★ 标记的步骤是关键实验节点**，其结论直接决定后续工作的方向甚至是否继续。
@@ -1418,23 +1601,23 @@ Step 12: 进阶功能 (按需)
 
 ### 各步骤预估工作量
 
-| Step | 工作类型 | 主要产出 | 预估开发量 |
-|------|---------|---------|-----------|
-| 0 | 阅读+分析 | Baseline 报告 | 1-2 天 |
-| 1 | 代码改造 | 拆分后的 pi0_pytorch.py | 2-3 天 |
-| 2 | 基础设施开发 | timing.py | 1 天 |
-| 3 | 基础设施开发 | 数据结构 + VectorStore | 2 天 |
-| 4 | 核心开发 | Orchestrator + Interceptor | 3-4 天 |
-| 5 | **实验** | 可行性报告 | 3-5 天 |
-| 6 | 核心开发 | CP1 + CP3 | 3-4 天 |
-| 7 | 开发+**实验** | Warm start + tradeoff 数据 | 4-5 天 |
-| 8 | 性能优化 | 异步/GPU/Stream | 3-5 天 |
-| 9 | **实验** | Key builder 研究 | 5-7 天 |
-| 10 | 工具开发 | 预填充脚本 | 2-3 天 |
-| 11 | 测试 | 稳定性+A/B 报告 | 2-3 天 |
-| 12 | 进阶 | 按需 | 不定 |
+| Step | 状态 | 工作类型 | 主要产出 |
+|------|------|---------|---------|
+| 0 | ✅ 已融入 Step 1 | 阅读+分析 | （包含在 Step 1 日志中） |
+| 1 | ✅ 已完成 | Staged API + Interceptor | pi0_pytorch.py 公共 API + interceptor.py |
+| 2 | ✅ 已完成 | 基础设施开发 | timing.py + SystemTimer |
+| 3 | ⚠️ 代码落地，无测试 | 基础设施开发 | 数据结构 + VectorStore backend |
+| 4 | 待开始 | 核心开发 | Orchestrator（CP1 + CP3） |
+| 5 | 待开始 | **实验** | 可行性报告 |
+| 6 | 待开始 | 核心开发 | CP1/CP3 细化 + CP3 延迟写入器 |
+| 7 | 待开始（可能推迟） | 开发+**实验** | Warm start（原为 CP2 设计） |
+| 8 | 待开始 | 性能优化 | 异步/GPU/Stream |
+| 9 | 待开始 | **实验** | Key builder 研究 |
+| 10 | 待开始 | 工具开发 | 预填充脚本 |
+| 11 | 待开始 | 测试 | 稳定性+A/B 报告 |
+| 12 | 待开始 | 进阶 | 按需（含 CP2 重新启用） |
 
-> **注**：以上时间估算不含等待实验跑完和分析结果的时间。实际实验周期取决于 GPU 资源和 episode 数据量。Step 3 和 Step 2 之间无依赖，可以并行开发。
+> **注**：Step 2 和 Step 3 之间无依赖，可以并行开发。Step 7（warm start）原为 CP2 设计，CP2 搁置后可能推迟或转用。
 
 ---
 
@@ -1448,3 +1631,5 @@ Step 12: 进阶功能 (按需)
 | Query key | Protocol 接口，初期 raw state | 固定方案 | 目前信息不足以确定最优方案，保持灵活 |
 | CP1 阈值最严 | 0.98 | 统一阈值 | CP1 跳过最多计算，错误代价最高 |
 | 写入去重 | 相似度检查 | 全写 | 避免 cache 膨胀，保持检索效率 |
+| CP2 搁置 | 暂不实现 CP2 | 从 KV cache 提取 hidden state 做 key | PyTorch 路径 Stage 2 无自回归生成，无 command embedding 可用；强行提取 KV cache 特征复杂度高且效果未知 |
+| 首轮验证用 CP1+CP3 | 跳过 CP2，先做 CP1+CP3 | 原计划先做 CP2 | CP2 前提失效；CP1 语义简单（state 相似→action 相似），CP3 节省量最大 |

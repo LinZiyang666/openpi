@@ -1,8 +1,9 @@
 # Pi0.5 Inference Cache System - Architecture Specification
 
-> Version: 0.1 (Draft)
-> Status: Design Phase
+> Version: 0.3 (Step 1 validated, Step 2 validated, Step 3 ⚠️ landed with high-risk tag)
+> Status: Implementation Phase — Steps 0-2 validated, Step 3 ⚠️ unstable (no test coverage, interfaces will change), CP2 suspended
 > Scope: PyTorch inference pipeline only (JAX path disabled)
+> Last updated: 2026-04-03
 
 ---
 
@@ -27,8 +28,8 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
 +---------------------------+     +------------------------+     +---------------------------+
 | SigLIP vision encoder     |     | Gemma 2B (PaliGemma)   |     | Gemma 300M + adaRMSNorm   |
 | Prompt tokenization       |     | Prefix-LM attention    |     | Flow matching (10 steps)  |
-| State discretization      |     | Generate low-level cmd |     | Euler ODE: x1 -> x0      |
-| -> prefix tokens + KV     |     | (subtask prediction)   |     | -> action chunk [50, 32]  |
+| State discretization      |     | Fill prefix KV cache   |     | Euler ODE: x1 -> x0      |
+| -> prefix tokens + KV     |     | (no autoregressive gen)|     | -> action chunk [50, 32]  |
 +---------------------------+     +------------------------+     +---------------------------+
             |                                |                                |
          [CP1]                            [CP2]                           [CP3]
@@ -40,7 +41,7 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
 | Stage | Primary Computation | Parameters | Characteristics |
 |-------|---------------------|------------|-----------------|
 | 1. Token Prep | SigLIP forward + tokenize | ~400M | Single forward pass, parallelizable |
-| 2. LLM Backbone | Gemma 2B autoregressive decode | ~2B | Autoregressive, sequential dependency |
+| 2. LLM Backbone | Gemma 2B prefix forward (KV fill) | ~2B | Single forward pass, fills KV cache (no autoregressive generation in PyTorch path) |
 | 3. Action Expert | 10x Gemma 300M forward | ~300M x10 | Iterative, partially skippable |
 
 ---
@@ -56,21 +57,24 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
 - **Risk**: Highest — skips subtask prediction. If the scene has changed subtly (e.g., an object was removed), the cached subtask may no longer be correct.
 - **Applicable scenario**: Highly repetitive operations (e.g., the same action on an assembly line).
 
-### CP2: After LLM Backbone
+### CP2: After LLM Backbone — ⚠️ Suspended
 
-- **Trigger**: Stage 2 complete; low-level command (subtask text tokens) generated.
-- **Available information**: All CP1 information + low-level command embedding.
-- **Hit behavior (two modes)**:
+> **Why suspended**: The original design assumed Pi0.5's Stage 2 performs autoregressive subtask text generation, producing command tokens + command embedding that give CP2 its "same command → same action" semantic basis. However, Step 1 code analysis revealed that **the PyTorch implementation of Pi0.5's Stage 2 only fills the prefix KV cache — there is no autoregressive text generation** (JAX path is disabled). The only new information after Stage 2 is `past_key_values` (a HuggingFace DynamicCache, an opaque object), which cannot be directly used as a retrieval key. CP2's semantic premise does not hold. It is suspended until a suitable Stage 2 representation extraction approach is available (e.g., extracting embedding from the last-layer hidden state of the KV cache).
+
+- **Trigger**: Stage 2 complete; ~~low-level command (subtask text tokens) generated~~ KV cache filled.
+- **Available information**: All CP1 information + `past_key_values` (opaque KV cache, not directly usable as query key).
+- **Hit behavior (two modes)** *(design preserved, not implemented)*:
   - **Full hit**: Skip all of Stage 3, directly output cached action chunk.
   - **Partial hit (warm start)**: Use cached intermediate state `x_t` (t < 1.0) as flow matching starting point, skipping some denoising steps.
 - **Savings**: Medium (skip all or part of flow matching).
 - **Risk**: Medium — subtask was computed by the current inference; cached action has higher consistency with the current scene.
 - **Applicable scenario**: Reuse of the same subtask in similar scenes.
+- **Current status**: **Suspended** — no usable retrieval key; requires a new representation extraction approach.
 
 ### CP3: After Action Expert
 
 - **Trigger**: Stage 3 complete; current cycle's action chunk generated.
-- **Available information**: All information (vision + prompt + state + command + action chunk).
+- **Available information**: All information (vision + prompt + state + action chunk).
 - **Hit behavior**: Does NOT affect the current cycle's output. Determines whether the **next inference cycle** can be skipped, directly executing cached subsequent action chunks.
 - **Savings**: Maximum (skip an entire next inference).
 - **Risk**: Medium — depends on the accuracy of future state prediction.
@@ -85,11 +89,11 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
             │ Vision  │  LLM    │ FlowMatch│          │ (may be skipped) │
             └────┬────┴────┬────┴─────┬────┘          └────────┬─────────┘
                  │         │          │                         │
-              [CP1]     [CP2]      [CP3]─── predict ──────> skip?
-                 │         │          │
-          hit: skip    hit: skip   hit: schedule
-          S2+S3        S3 (full    next cycle's
-                       or partial) action from cache
+              [CP1]  [CP2:suspended] [CP3]─── predict ────> skip?
+                 │                    │
+          hit: skip              hit: schedule
+          S2+S3                  next cycle's
+                                 action from cache
 ```
 
 ---
@@ -127,13 +131,16 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
 └──────────────────────────┬───────────────────────────────────────────────┘
                            │
           ┌────────────────┴────────────────┐
-          │         CacheStorage             │
-          │  ┌───────────┐  ┌────────────┐  │
-          │  │ VectorDB   │  │ MetadataDB │  │
-          │  │(GPU/CPU    │  │(optional   │  │
-          │  │ hybrid)    │  │ MongoDB/   │  │
-          │  │            │──│ SQLite)    │  │
-          │  └───────────┘  └────────────┘  │
+          │    CacheStorage (facade)         │
+          │  ┌───────────────┐ ┌──────────┐ │
+          │  │VectorStore-   │ │MetadataDB│ │
+          │  │Backend (ABC)  │ │(reserved,│ │
+          │  │ ⚠️ unstable   │ │ not impl)│ │
+          │  │               │─│          │ │
+          │  │┄Qdrant (now) ┄│ └──────────┘ │
+          │  │┄FAISS (future)│               │
+          │  │┄TorchGPU(fut.)│               │
+          │  └───────────────┘               │
           └─────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────────────────────┐
@@ -150,93 +157,62 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
 
 ### 4.2 Integration with the Inference Pipeline
 
-The cache system hooks in via the **Interceptor pattern**, without modifying `PI0Pytorch` internals:
+The cache system hooks in via the **Interceptor pattern**, without modifying `PI0Pytorch` internals.
+
+> **Step 1 implementation note**: `InferenceInterceptor` was implemented in Step 1 (commit `a6c9f43`) as a `BasePolicy` subclass. It accesses `PI0Pytorch` via `self._model` (borrowed from the wrapped `Policy`), and manages the transform pipeline itself. It does **not** call `self.policy.run_stage*()` — instead it calls `self._model.run_stage1/2/3()` directly.
 
 ```python
-class InferenceInterceptor:
-    """Wraps the inference pipeline, injecting cache checks between stages."""
+class InferenceInterceptor(BasePolicy):
+    """Wraps a Policy, routing inference through the staged API.
 
-    def __init__(self, policy: Policy, orchestrator: CacheOrchestrator):
-        self.policy = policy
-        self.orchestrator = orchestrator
+    Implements BasePolicy so it is a transparent drop-in for WebsocketPolicyServer.
+    Activated via `--cache` flag on serve_policy.py.
+    """
 
-    def infer(self, observation: dict) -> dict:
+    def __init__(self, policy: Policy):
+        # Borrow references (not copies) from the wrapped policy
+        self._model = policy._model          # PI0Pytorch instance
+        self._input_transform = policy._input_transform
+        self._output_transform = policy._output_transform
+        self._timer = SystemTimer()          # Step 2: CUDA event timing
+
+    def infer(self, observation: dict, *, noise=None) -> dict:
         """Cache-aware inference. Replaces direct policy.infer() calls."""
-        timer = TimingContext()
 
         # --- Stage 1: Token Preparation ---
-        with timer.stage("stage1_vision"):
-            stage1_output = self.policy.run_stage1(observation)
+        with self._timer.measure("stage1_vision"):
+            stage1_output = self._model.run_stage1(observation)
 
-        # --- CP1: Cache Check ---
-        with timer.stage("cp1_check"):
-            cp1_result = self.orchestrator.check(
-                checkpoint=CheckpointID.CP1,
-                context=stage1_output,
-            )
-        if cp1_result.hit:
-            timer.record_event("cp1_hit")
-            return cp1_result.cached_action
+        # --- CP1: Cache Check (TODO: Step 4+) ---
+        # cp1_result = self.orchestrator.check(CP1, stage1_output)
+        # if cp1_result.hit: return cp1_result.cached_action
 
         # --- Stage 2: LLM Backbone ---
-        with timer.stage("stage2_llm"):
-            stage2_output = self.policy.run_stage2(stage1_output)
+        with self._timer.measure("stage2_llm"):
+            stage2_output = self._model.run_stage2(stage1_output)
 
-        # --- CP2: Cache Check ---
-        with timer.stage("cp2_check"):
-            cp2_result = self.orchestrator.check(
-                checkpoint=CheckpointID.CP2,
-                context=CacheContext(stage1=stage1_output, stage2=stage2_output),
-            )
-        if cp2_result.hit:
-            timer.record_event("cp2_hit")
-            if cp2_result.hit_type == HitType.FULL:
-                return cp2_result.cached_action
-            elif cp2_result.hit_type == HitType.WARM_START:
-                # Partial flow matching from cached intermediate state
-                with timer.stage("stage3_partial_flow"):
-                    action = self.policy.run_stage3_from(
-                        stage2_output,
-                        start_x=cp2_result.cached_noisy_action,
-                        start_t=cp2_result.cached_timestep,
-                    )
-                return action
+        # --- CP2: Suspended ---
+        # CP2 is suspended because Stage 2 produces only an opaque
+        # past_key_values (DynamicCache), with no command embedding
+        # available as a retrieval key. See Section 3 for details.
 
         # --- Stage 3: Action Expert (full flow matching) ---
-        with timer.stage("stage3_flow"):
-            action, intermediates = self.policy.run_stage3(
-                stage2_output, return_intermediates=True
-            )
+        with self._timer.measure("stage3_flow"):
+            stage3_output = self._model.run_stage3(stage2_output, noise=noise)
 
-        # --- CP3: Predictive Cache Check ---
-        with timer.stage("cp3_check"):
-            cp3_result = self.orchestrator.check(
-                checkpoint=CheckpointID.CP3,
-                context=CacheContext(
-                    stage1=stage1_output,
-                    stage2=stage2_output,
-                    action=action,
-                ),
-            )
-        if cp3_result.hit:
-            self.orchestrator.schedule_next_action(cp3_result.cached_next_action)
+        # --- CP3: Predictive Cache Check (TODO: Step 4+) ---
+        # cp3_result = self.orchestrator.check(CP3, ...)
+        # if cp3_result.hit:
+        #     self.orchestrator.schedule_next_action(cp3_result.cached_next_action)
 
-        # --- Write-back: populate cache (async, non-blocking) ---
-        self.orchestrator.write_async(
-            context=CacheContext(
-                stage1=stage1_output,
-                stage2=stage2_output,
-                action=action,
-                intermediates=intermediates,  # x_t at selected timesteps
-            )
-        )
-
-        return action
+        return stage3_output.action_chunk
 ```
 
 Key design points:
-- `policy.run_stage1/2/3` are thin wrappers around the existing `PI0Pytorch`, breaking the monolithic `sample_actions()` call into three independently executable sub-processes without changing internal logic.
+- `PI0Pytorch.run_stage1/2/3` are **public typed wrappers** added on top of existing private `_stage1_token_prep`, `_stage2_llm_backbone`, `_stage3_action_expert` methods. The original `sample_actions()` is unmodified.
+- `InferenceInterceptor` implements `BasePolicy`, making it a transparent drop-in — WebsocketPolicyServer and clients require zero changes.
 - `return_intermediates=True` causes Stage 3 to return `x_t` at selected timesteps during flow matching, for future warm start caching.
+- CP2 check is intentionally omitted (suspended) — see Section 3 for the rationale.
 
 ---
 
@@ -245,6 +221,8 @@ Key design points:
 ### 5.1 CacheOrchestrator
 
 The master controller. Manages the lifecycle of all checkpoints, coordinates the gate/search/judge workflow, and handles async write-back.
+
+> **Note**: With CP2 suspended, the orchestrator currently only handles CP1 and CP3. `config.cp2_enabled` defaults to `False`.
 
 ```python
 class CacheOrchestrator:
@@ -301,41 +279,123 @@ class CacheOrchestrator:
         self._next_action_scheduled = action
 ```
 
-### 5.2 CacheStorage
+### 5.2 CacheStorage — ⚠️ Step 3 Implemented (Unstable)
 
-The storage layer. Contains a vector DB and an optional metadata DB.
+> **Implementation**: `src/openpi/cache/cache_storage.py` | **Design log**: `claude_log/step3_cache.log`
+> **Status**: ⚠️ Code landed, no test coverage, interfaces will change.
+
+The storage layer facade. `CacheOrchestrator` is the sole consumer. Wraps a `VectorStoreBackend` (ABC) and an optional `MetadataDB` (reserved, not yet implemented).
+
+**Why an ABC abstraction?** We do not yet know which vector DB we will use long-term. Qdrant is the current experiment backend, but it **will** be replaced. The `VectorStoreBackend` ABC decouples upper-layer logic from any specific DB, so swapping backends requires zero changes to `CacheOrchestrator` or other business code.
 
 ```python
 class CacheStorage:
-    def __init__(self, config: StorageConfig):
-        self.vector_db = VectorStore(config.vector_db)
-        self.metadata_db = MetadataStore(config.metadata_db)  # optional
+    """Storage facade. The only storage entry point for CacheOrchestrator.
 
-    def search(self, query: torch.Tensor, top_k: int) -> list[CacheCandidate]:
-        """Search vector DB, return top-k candidates with metadata."""
-        ids, distances = self.vector_db.search(query, top_k)
-        entries = self.vector_db.get_payloads(ids)
-        return [
-            CacheCandidate(id=id, distance=d, entry=e)
-            for id, d, e in zip(ids, distances, entries)
-        ]
+    Responsibilities:
+    - Thread safety (RLock on all backend calls)
+    - Dimension validation (check query_key.shape on insert/search)
+    - Filter capability check (fail-fast via supported_filters(), not silent ignore)
+    - CacheEntry validation (call entry.validate())
+    - Two-phase search (search returns SearchResultLite, fetch_payload on demand)
+    - MetadataDB reserved (vector first, metadata second; vector is source of truth)
+    """
 
-    def insert(self, entry: CacheEntry):
-        """Insert new entry. Vector DB stores embedding + action data.
-        Metadata DB stores auxiliary info (timestamp, task, episode, etc.)."""
-        vector_id = self.vector_db.insert(
-            vector=entry.query_key,
-            payload=entry.to_payload(),  # action, intermediates, checkpoint_id
-        )
-        if self.metadata_db is not None:
-            self.metadata_db.insert(vector_id, entry.metadata)
+    def __init__(self, backend: VectorStoreBackend, metadata_db=None):
+        self._backend = backend
+        self._metadata_db = metadata_db   # reserved, not yet used
+        self._dim = backend.vector_dim
+        self._lock = threading.RLock()
 
-    def evict(self, policy: EvictionPolicy):
-        """Remove entries based on eviction policy (LRU, LFU, quality-based)."""
+    def search(self, spec: QuerySpec) -> list[SearchResultLite]:
+        """Vector search, returns lightweight results (no payload)."""
         ...
+
+    def fetch_payload(self, id: str) -> CachePayload:
+        """Fetch full payload by id, called only for hit candidates."""
+        ...
+
+    def search_and_fetch(self, spec: QuerySpec) -> list[SearchResult]:
+        """Convenience: search + fetch payload for all results."""
+        ...
+
+    def insert(self, entry: CacheEntry) -> None:
+        """Validates entry, then delegates to backend.insert()."""
+        ...
+
+    def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult: ...
+    def delete(self, ids: list[str]) -> None: ...
+    def count(self) -> int: ...
+    def close(self) -> None: ...
 ```
 
-### 5.3 VectorStore (GPU/CPU Hybrid)
+Key design points:
+- **Two-phase search**: `search()` returns `SearchResultLite` (score only, no payload tensors). Only hit candidates call `fetch_payload()` to retrieve full `CachePayload`, avoiding unnecessary data transfer.
+- **Filter fail-fast**: `CacheStorage` checks `spec.filters` against `backend.supported_filters()` before calling `search()`. Unsupported filters raise `UnsupportedFilterError` instead of being silently ignored.
+- **Dimension validation**: Every `insert()` and `search()` call checks `query_key.shape == (vector_dim,)`.
+
+### 5.3 VectorStoreBackend — ⚠️ Step 3 Implemented (Unstable)
+
+> **Implementation**: `src/openpi/cache/backend_base.py` + `src/openpi/cache/backends/qdrant_backend.py`
+> **Design log**: `claude_log/step3_cache.log`
+> **Status**: ⚠️ Code landed, no test coverage, interfaces will change.
+
+**Vector DB choice is undecided.** Qdrant is the current experiment backend, but we **will** switch to another DB in the future (candidates: FAISS, custom TorchGPU store, or others). To isolate upper-layer logic from this decision, Step 3 introduced a `VectorStoreBackend` ABC as the minimal common-denominator interface.
+
+```python
+class VectorStoreBackend(ABC):
+    """Minimal interface for vector storage backends.
+
+    Contracts:
+    - insert() is idempotent: same id re-insert overwrites silently
+    - search() returns SearchResultLite (no payload), score is normalized
+      cosine similarity in [-1, 1] — all backends must convert
+    - search() returns at most top_k; client-side filter may reduce count
+    - fetch_payload() retrieves full CachePayload by id
+    - delete() tolerates non-existent ids
+    - Implementations are NOT thread-safe; CacheStorage handles locking
+    """
+
+    @property
+    @abstractmethod
+    def vector_dim(self) -> int: ...
+
+    @abstractmethod
+    def supported_filters(self) -> frozenset[str]: ...
+
+    @abstractmethod
+    def insert(self, entry: CacheEntry) -> None: ...
+
+    @abstractmethod
+    def search(self, spec: QuerySpec) -> list[SearchResultLite]: ...
+
+    @abstractmethod
+    def fetch_payload(self, id: str) -> CachePayload: ...
+
+    @abstractmethod
+    def delete(self, ids: list[str]) -> None: ...
+
+    @abstractmethod
+    def count(self) -> int: ...
+
+    # --- Optional (have default implementations) ---
+    def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult: ...
+    def flush(self) -> None: ...
+    def close(self) -> None: ...
+```
+
+**Current backend — QdrantVectorStore** (`src/openpi/cache/backends/qdrant_backend.py`):
+- Connects to a remote Qdrant server via HTTP/gRPC
+- Collection must be pre-created by ops; the backend does NOT auto-create
+- Serialization: tensor → `torch.save` bytes → base64 string → Qdrant JSON payload
+- Supported filters: `checkpoint_id`, `task_key`, `step_range`
+- Score: Qdrant Cosine distance is already in [-1, 1], used directly
+
+**Why the ABC interface is intentionally small**: Named vectors, multivector, payload filter syntax, gRPC options — these are all backend-specific details, configured in each backend's `__init__` config, never exposed above the ABC boundary. Upper-layer code only asks: "given a `[dim]` query vector, return the top-k most similar entries."
+
+#### 5.3.1 Deferred Design: GPU/CPU Hybrid VectorStore
+
+> **Status**: Deferred — not implemented. The design below is preserved for future development when a local high-performance vector store is needed (e.g., FAISS GPU index + CPU fallback). Currently all storage goes through the remote Qdrant backend.
 
 ```python
 class VectorStore:
@@ -350,61 +410,18 @@ class VectorStore:
 
     def __init__(self, config: VectorStoreConfig):
         self.dim = config.embedding_dim
-        self.gpu_capacity = config.gpu_capacity      # max entries on GPU
-        self.cpu_capacity = config.cpu_capacity      # max entries on CPU
-
-        # GPU partition: flat index for small-to-medium cache, IVF for large
+        self.gpu_capacity = config.gpu_capacity
+        self.cpu_capacity = config.cpu_capacity
         self.gpu_vectors: torch.Tensor  # [gpu_capacity, dim] on cuda
-        self.gpu_payloads: list         # associated data
-        self.gpu_count: int = 0
-
-        # CPU partition: FAISS or custom index
         self.cpu_index: faiss.Index     # CPU-resident index
-        self.cpu_payloads: list
-
-        # Async transfer infrastructure
         self._transfer_stream = torch.cuda.Stream()
 
-    def search(self, query: torch.Tensor, top_k: int) -> tuple[list[int], list[float]]:
-        """Search GPU first, then CPU if needed.
-
-        GPU search uses torch matmul on the dedicated stream.
-        CPU search uses FAISS on a thread pool.
-        Both can run concurrently.
-        """
-        # GPU search (fast, non-blocking on separate stream)
-        gpu_ids, gpu_dists = self._search_gpu(query, top_k)
-
-        # If GPU results are confident enough, skip CPU
-        if gpu_dists and gpu_dists[0] < self.config.gpu_confidence_threshold:
-            return gpu_ids, gpu_dists
-
-        # CPU search (concurrent with GPU search in full mode)
-        cpu_ids, cpu_dists = self._search_cpu(query.cpu(), top_k)
-
-        # Merge results
-        return self._merge_results(gpu_ids, gpu_dists, cpu_ids, cpu_dists, top_k)
-
-    def _search_gpu(self, query: torch.Tensor, top_k: int):
-        """Cosine similarity search on GPU using the transfer stream."""
-        if self.gpu_count == 0:
-            return [], []
-        with torch.cuda.stream(self._transfer_stream):
-            # query: [1, dim], gpu_vectors: [N, dim]
-            sims = torch.mm(query, self.gpu_vectors[:self.gpu_count].T)
-            topk = torch.topk(sims[0], min(top_k, self.gpu_count))
-        self._transfer_stream.synchronize()
-        return topk.indices.tolist(), topk.values.tolist()
-
-    def promote_to_gpu(self, cpu_ids: list[int]):
-        """Move frequently accessed CPU entries to GPU (async)."""
-        with torch.cuda.stream(self._transfer_stream):
-            # Pinned memory -> GPU transfer
-            ...
-
-    def demote_to_cpu(self, gpu_ids: list[int]):
-        """Move cold GPU entries to CPU to free GPU memory."""
+    def search(self, query, top_k):
+        """Search GPU first, then CPU if needed. Both can run concurrently."""
         ...
+
+    def promote_to_gpu(self, cpu_ids): ...
+    def demote_to_cpu(self, gpu_ids): ...
 ```
 
 **GPU VRAM budget management**: VectorStore controls VRAM usage via a hard `gpu_capacity` cap. Actual usage = `gpu_capacity * dim * sizeof(float16)` bytes. For example, 10k entries x 1024 dim x 2 bytes = **20MB**, negligible impact on inference VRAM.
@@ -421,14 +438,18 @@ class QueryKeyBuilder(Protocol):
 
 
 class MeanPoolKeyBuilder(QueryKeyBuilder):
-    """Baseline: mean-pool available embeddings, project to fixed dim."""
+    """Baseline: mean-pool available embeddings, project to fixed dim.
+
+    Note: 'command' projection is omitted — Stage 2 produces only an opaque
+    KV cache with no extractable command embedding (CP2 suspended, see Section 3).
+    """
 
     def __init__(self, output_dim: int = 1024):
         self.projections = nn.ModuleDict({
             "vision": nn.Linear(..., output_dim),
             "prompt": nn.Linear(..., output_dim),
             "state": nn.Linear(..., output_dim),
-            "command": nn.Linear(..., output_dim),
+            # "command": removed — no command embedding available (CP2 suspended)
             "action": nn.Linear(..., output_dim),
         })
 
@@ -437,8 +458,7 @@ class MeanPoolKeyBuilder(QueryKeyBuilder):
         if context.stage1:
             parts.append(self.projections["vision"](context.stage1.vision_emb.mean(dim=1)))
             parts.append(self.projections["state"](context.stage1.state_emb))
-        if context.stage2:
-            parts.append(self.projections["command"](context.stage2.command_emb.mean(dim=1)))
+        # CP2 suspended: no context.stage2.command_emb available
         if context.action is not None:
             parts.append(self.projections["action"](context.action.mean(dim=1)))
 
@@ -516,7 +536,7 @@ class ThresholdJudge(SimilarityJudge):
         self.thresholds = thresholds
         # CP1 threshold should be stricter (higher similarity required)
         # because skipping more computation carries more risk.
-        # Default: CP1=0.98, CP2=0.95, CP3=0.90
+        # Default: CP1=0.98, CP3=0.90 (CP2 suspended)
 
     def evaluate(self, checkpoint, context, candidates):
         if not candidates:
@@ -531,54 +551,113 @@ class ThresholdJudge(SimilarityJudge):
 
     def _make_hit(self, checkpoint, candidate):
         entry = candidate.entry
-        if checkpoint == CheckpointID.CP2 and entry.has_intermediate:
-            # Decide full hit vs warm start based on similarity
-            if candidate.distance >= self.thresholds[CheckpointID.CP2_FULL]:
-                return CacheResult.full_hit(entry.action)
-            else:
-                return CacheResult.warm_start(
-                    cached_noisy_action=entry.intermediate_x_t,
-                    cached_timestep=entry.intermediate_t,
-                )
+        # CP2 warm start branch — suspended (no command embedding available).
+        # Design preserved for future use when CP2 is re-enabled.
+        # if checkpoint == CheckpointID.CP2 and entry.has_intermediate:
+        #     if candidate.distance >= self.thresholds[CheckpointID.CP2_FULL]:
+        #         return CacheResult.full_hit(entry.action)
+        #     else:
+        #         return CacheResult.warm_start(
+        #             cached_noisy_action=entry.intermediate_x_t,
+        #             cached_timestep=entry.intermediate_t,
+        #         )
         return CacheResult.full_hit(entry.action)
 ```
 
-### 5.7 CacheEntry Data Structure
+### 5.7 Cache Data Model — ⚠️ Step 3 Implemented (Unstable)
+
+> **Implementation**: `src/openpi/cache/storage_types.py` + `src/openpi/cache/types.py`
+> **Design log**: `claude_log/step3_cache.log`
+> **Status**: ⚠️ Code landed, no test coverage, interfaces will change.
+
+Step 3 replaced the original flat `CacheEntry` with a richer data model consisting of multiple dataclasses. Key differences from the original design: `CachePayload` is a separate nested dataclass (not flat fields on `CacheEntry`), `QueryFilter` was added for structured filtering, and search results are split into `SearchResultLite` (lightweight, for threshold filtering) and `SearchResult` (full, with payload).
 
 ```python
+# src/openpi/cache/types.py
+class CheckpointID(Enum):
+    CP1 = auto()
+    CP2 = auto()
+    CP3 = auto()
+
+# src/openpi/cache/storage_types.py
+
+@dataclass
+class CachePayload:
+    """Payload of a cache entry. Strongly typed, shared across CP1/CP2/CP3.
+
+    Tensor contract: all tensors must be CPU contiguous float32.
+    Caller converts before construction; search() returns CPU float32 too.
+
+    CP1: action_chunk required, rest None.
+    CP2 warm start: action_chunk + intermediates + denoising_num_steps required.
+    CP3: action_chunk + next_action_chunk required.
+    """
+    action_chunk: torch.Tensor                          # [50, 32]
+    intermediates: Optional[dict[float, torch.Tensor]]  # {t: x_t}
+    denoising_num_steps: Optional[int]                  # for warm start
+    next_action_chunk: Optional[torch.Tensor]           # [50, 32], CP3 required
+    task_key: str = ""                                  # normalized task identifier
+
+    def validate_for_checkpoint(self, checkpoint_id: CheckpointID) -> None: ...
+
+
 @dataclass
 class CacheEntry:
-    """What gets stored in the cache."""
+    """Complete unit written to storage.
 
-    # Query key for retrieval
-    query_key: torch.Tensor          # [embedding_dim], normalized
+    id semantics: stable_hash(checkpoint_id.name + ":" + query_key_bytes)
+    Same context + same CP keeps only one record (semantic dedup key).
+    """
+    id: str
+    checkpoint_id: CheckpointID
+    query_key: torch.Tensor     # CPU float32 [dim], L2 normalized
+    payload: CachePayload
+    timestamp: float = field(default_factory=time.time)
 
-    # Checkpoint level this entry was created from
+    def validate(self) -> None: ...
+
+
+@dataclass
+class QueryFilter:
+    """Per-query constraints. Backends that don't support a field must
+    declare so via supported_filters(); CacheStorage will fail-fast."""
+    task_key: Optional[str] = None
+    step_range: Optional[tuple[int, int]] = None
+
+
+@dataclass
+class QuerySpec:
+    query_key: torch.Tensor             # CPU float32 [dim]
+    top_k: int = 10
+    checkpoint_id: Optional[CheckpointID] = None
+    filters: Optional[QueryFilter] = None
+
+
+@dataclass
+class SearchResultLite:
+    """Lightweight search result (no payload). Returned by search().
+    score: normalized cosine similarity in [-1, 1]."""
+    id: str
+    score: float
     checkpoint_id: CheckpointID
 
-    # Core cached data
-    action_chunk: torch.Tensor       # [action_horizon, action_dim], clean x_0
 
-    # Optional: flow matching intermediates for warm start
-    # Stores x_t at selected timesteps (e.g., t=0.7, 0.5, 0.3)
-    intermediates: Optional[dict[float, torch.Tensor]] = None
-    # intermediates = {0.7: x_0.7, 0.5: x_0.5, 0.3: x_0.3}
-
-    # Context for CP3 predictive cache
-    next_action_chunk: Optional[torch.Tensor] = None  # action from the NEXT cycle
-
-    # Metadata
-    timestamp: float = 0.0
-    task_prompt: str = ""
-    hit_count: int = 0               # for LFU eviction
-    quality_score: float = 1.0       # for quality-based eviction
+@dataclass
+class SearchResult:
+    """Full search result with payload. Populated by fetch_payload()."""
+    id: str
+    score: float
+    payload: CachePayload
+    checkpoint_id: CheckpointID
 ```
 
-**Intermediate state selection for warm start**: Rather than caching all 10 intermediate states, only 2-3 key timesteps are cached (e.g., t=0.7, 0.5, 0.3). On hit, the cached timestep closest to the current inference starting point is selected. For example, with a CP2 warm start using cached `x_0.3`, flow matching executes only 3 steps (instead of 10), saving 70% of Stage 3 computation.
+**Intermediate state selection for warm start** *(design preserved, not yet populated)*: Rather than caching all 10 intermediate states, only 2-3 key timesteps are cached (e.g., t=0.7, 0.5, 0.3). The `denoising_num_steps` field tells `run_stage3_from()` how many steps to resume from. This mechanism is tied to CP2 warm start, which is currently suspended.
 
 ---
 
 ## 6. Data Flow and Timing
+
+> **Note**: The data flow diagrams below reference cache search/write operations that depend on the storage layer (Section 5.2/5.3). The storage layer is ⚠️ unstable — interfaces and backend implementations will change. The timing structure (stages, checkpoint positions) is stable; the storage interaction details are not.
 
 ### 6.1 Full Inference Cycle (No Cache Hit)
 
@@ -615,7 +694,7 @@ Time ─────────────────────────
 Total: Stage1 + CP1 latency only
 ```
 
-### 6.3 CP2 Warm Start Timing
+### 6.3 CP2 Warm Start Timing — ⚠️ Suspended (design preserved)
 
 ```
 Time ──────────────────────────────────────────────>
@@ -641,7 +720,9 @@ Cycle N:                                             Cycle N+1:
 
 ---
 
-## 7. Hardware Resource Allocation Strategy
+## 7. Hardware Resource Allocation Strategy — Deferred
+
+> **Status**: Deferred — not implemented. The designs below are preserved for future development when a local GPU/CPU hybrid vector store replaces the current remote Qdrant backend. Currently, all cache storage is remote; there is no GPU vector partition, no pinned memory pool, and no dedicated CUDA stream for cache operations.
 
 ### 7.1 GPU VRAM Layout
 
@@ -696,7 +777,9 @@ Thread 3 (optional):   Cache maintenance (eviction, compaction)
 
 ---
 
-## 8. Cache Management and Dynamic Optimization
+## 8. Cache Management and Dynamic Optimization — Deferred
+
+> **Status**: Deferred — not implemented. Write strategy, eviction policies, and GPU/CPU data migration are designed for the future GPU/CPU hybrid store (Section 5.3.1 / Section 7). With the current remote Qdrant backend, eviction is handled by Qdrant server-side or manual ops. These designs are preserved for future development.
 
 ### 8.1 Write Strategy
 
@@ -737,65 +820,112 @@ class CompositeEviction(EvictionPolicy):
 
 ---
 
-## 9. Timing System
+## 9. Timing System — ✅ Implemented (Step 2)
+
+> Implementation: `src/openpi/cache/timing.py` | Design log: `claude_log/step2.log`
+
+The timing system uses a **probe-based** architecture: each pipeline component registers a named probe at startup, specifying which backend to use. The `SystemTimer` then provides a zero-overhead `measure()` context manager for the hot path.
+
+### 9.1 Backend Protocol
+
+```python
+class TimingBackend(Protocol):
+    def start(self) -> Any: ...          # Returns an opaque timing handle
+    def stop(self, handle: Any) -> float: ...  # Returns elapsed ms
+
+class CudaEventBackend:
+    """GPU timing via torch.cuda.Event.
+    end_event.synchronize() blocks only until that event completes,
+    without flushing the entire CUDA pipeline.
+    Falls back to PerfCounterBackend when CUDA is unavailable."""
+    def __init__(self, stream: torch.cuda.Stream | None = None): ...
+
+class PerfCounterBackend:
+    """CPU timing via time.perf_counter_ns. Sub-microsecond resolution."""
+```
+
+Key design decisions:
+- **CudaEventBackend handle**: returns `("cuda", start_evt, end_evt)` tuple with type tag — supports concurrent/nested calls without per-instance state.
+- **Auto-degradation**: `CudaEventBackend` holds an internal `PerfCounterBackend`; returns `("cpu", ns)` handle when no GPU is available, so CI environments work without changes.
+
+### 9.2 SystemTimer
 
 ```python
 class SystemTimer:
-    """Precise timing for all cache operations.
-
-    Uses CUDA events for GPU operations, time.perf_counter_ns for CPU.
-    All timings stored in a ring buffer, exportable for analysis.
-    """
-
-    def __init__(self, buffer_size: int = 10000):
-        self._records: deque[TimingRecord] = deque(maxlen=buffer_size)
+    def __init__(self, enabled=True, buffer_size=10000, output_csv_dir=None): ...
+    def register_probe(self, name: str, backend: str = "cuda", stream=None): ...
 
     @contextmanager
-    def measure(self, name: str):
-        """Time a block. Auto-detects GPU/CPU context."""
-        if torch.cuda.is_available() and torch.cuda.current_stream() != torch.cuda.default_stream():
-            # GPU timing with CUDA events
-            start_event = torch.cuda.Event(enable_timing=True)
-            end_event = torch.cuda.Event(enable_timing=True)
-            start_event.record()
-            yield
-            end_event.record()
-            end_event.synchronize()
-            elapsed_ms = start_event.elapsed_time(end_event)
-        else:
-            # CPU timing
-            start = time.perf_counter_ns()
-            yield
-            elapsed_ms = (time.perf_counter_ns() - start) / 1e6
+    def measure(self, name: str) -> Iterator[None]:
+        # enabled=False → yield + return (zero overhead)
+        # Unregistered probe → default CudaEventBackend (lenient mode, with warning)
 
-        self._records.append(TimingRecord(name=name, elapsed_ms=elapsed_ms, timestamp=time.time()))
+    # TaskLifecycle (see 9.3)
+    def on_task_begin(self) -> None: ...   # Record current ring buffer position
+    def on_task_end(self) -> None: ...     # Print summary + optional CSV flush + task_id++
 
-    def summary(self, last_n: int = 100) -> dict[str, TimingStats]:
-        """Aggregate timing stats per component."""
-        ...
+    def summary(self, task_only=True) -> dict[str, TimingStats]: ...
+    def export_csv(self, path: str): ...   # Build all rows in memory, single write
 
-    def export_csv(self, path: str):
-        """Export all timing records for external analysis."""
-        ...
+    # Reserved stubs (Step 2)
+    def add_resource_monitor(self, monitor: ResourceMonitor): ...
+    def record_resource_snapshot(self, name: str): ...
 ```
 
-Timing keys recorded automatically by each component:
+Ring buffer uses a **monotonic append counter** (`_total_appended`) for task boundary tracking. `on_task_begin()` saves the counter value; `on_task_end()` slices from deque tail. Warns on ring buffer wrap.
 
-| Component | Timing Key | Description |
-|-----------|-----------|-------------|
-| Stage 1 | `stage1_vision` | Vision encoder + tokenization |
-| Stage 2 | `stage2_llm` | LLM backbone autoregressive decode |
-| Stage 3 | `stage3_flow` | Full flow matching (10 steps) |
-| Stage 3 partial | `stage3_partial_flow` | Warm start flow matching |
-| CP1 | `cp1_gate`, `cp1_key_build`, `cp1_search`, `cp1_judge` | Each sub-step |
-| CP2 | `cp2_gate`, `cp2_key_build`, `cp2_search`, `cp2_judge` | Each sub-step |
-| CP3 | `cp3_gate`, `cp3_key_build`, `cp3_search`, `cp3_judge` | Each sub-step |
-| Write | `write_vectordb`, `write_metadata` | Async write-back |
-| Transfer | `gpu_to_cpu`, `cpu_to_gpu` | Data migration |
+The **total (sum) row** in the summary aligns the three stage records per-inference, sums each inference's latencies, then computes p50/p95/p99 over the per-inference totals (not a naive sum of per-stage means).
+
+`_DISPLAY_ORDER` constant controls summary table row order; new probes only need to be added to this list.
+
+### 9.3 TaskLifecycle Protocol
+
+```python
+@runtime_checkable
+class TaskLifecycle(Protocol):
+    def on_task_begin(self) -> None: ...
+    def on_task_end(self) -> None: ...
+```
+
+`InferenceInterceptor` implements this protocol, forwarding to its internal `SystemTimer`. The server uses `hasattr(policy, 'on_task_begin')` to avoid a hard dependency.
+
+**Server-side integration** (`websocket_policy_server.py`):
+- Connection open → `policy.on_task_begin()`
+- Connection close (normal or exception) → `policy.on_task_end()` → prints summary / writes CSV
+- Removed: old `stage_timing_records` collection, `action.pop("stage_timing")`, manual mean printing (~15 lines deleted)
+
+### 9.4 Registered Probes
+
+| Probe | Backend | Status | Description |
+|-------|---------|--------|-------------|
+| `stage1_vision` | cuda | ✅ Registered | Vision encoder + tokenization |
+| `stage2_llm` | cuda | ✅ Registered | LLM backbone prefix KV fill |
+| `stage3_flow` | cuda | ✅ Registered | Full flow matching (10 denoise steps) |
+| `total_inference` | cpu | ✅ Registered | Wall-clock total (outer `measure()` wrapping all 3 stages) |
+| `cp1_*`, `cp3_*` | tbd | Planned (Step 4+) | Cache sub-step probes |
+| `cp2_*` | — | Suspended | CP2 suspended (see Section 3) |
+| `write_vectordb`, `write_metadata` | cpu | Planned | Async write-back |
+| `gpu_to_cpu`, `cpu_to_gpu` | cuda | Planned | Data migration on `transfer_stream` |
+
+### 9.5 Summary Output Example
+
+```
+=== Inference Timing Summary (task #0, 4 inferences) ===
+  Probe                          N     mean      p50      p95      p99  ms
+  ------------------------------------------------------------------------
+  stage1_vision                  4      2.1      2.1      2.3      2.3
+  stage2_llm                     4      6.1      6.1      6.1      6.1
+  stage3_flow                    4      3.1      3.1      3.1      3.1
+  total_inference                4     11.3     11.3     11.5     11.5
+  ------------------------------------------------------------------------
+  total (sum)                    4     11.3     11.2     11.4     11.5
+```
 
 ---
 
 ## 10. Configuration System
+
+> **Note**: `CacheConfig` is not yet implemented as a standalone file. The configuration items below reflect the full design intent. Items marked **Deferred** depend on the GPU/CPU hybrid store (Section 5.3.1 / Section 7) and are not applicable with the current Qdrant backend. Items marked **⚠️** are related to Step 3 storage layer and will change as interfaces evolve.
 
 ```python
 @dataclass
@@ -806,7 +936,7 @@ class CacheConfig:
 
     # Per-checkpoint enable/disable
     cp1_enabled: bool = True
-    cp2_enabled: bool = True
+    cp2_enabled: bool = False              # Suspended — no command embedding available (see Section 3)
     cp3_enabled: bool = True
 
     # Retrieval
@@ -815,8 +945,8 @@ class CacheConfig:
 
     # Similarity thresholds (cosine similarity, higher = stricter)
     cp1_threshold: float = 0.98            # CP1 strictest: skipping most
-    cp2_full_threshold: float = 0.96       # CP2 full hit
-    cp2_warm_threshold: float = 0.90       # CP2 warm start (more lenient)
+    cp2_full_threshold: float = 0.96       # CP2 full hit (suspended)
+    cp2_warm_threshold: float = 0.90       # CP2 warm start (suspended)
     cp3_threshold: float = 0.92            # CP3 predictive
 
     # Flow matching warm start
@@ -824,14 +954,14 @@ class CacheConfig:
         default_factory=lambda: [0.7, 0.5, 0.3]
     )  # which timesteps to cache x_t for
 
-    # Storage
+    # Storage — ⚠️ will change with backend evolution
     vector_db: VectorStoreConfig = field(default_factory=VectorStoreConfig)
     metadata_db: Optional[MetadataStoreConfig] = None
 
-    # Hardware
-    gpu_capacity: int = 10000              # max entries on GPU
-    cpu_capacity: int = 100000             # max entries on CPU
-    pinned_memory_mb: int = 32             # pinned memory pool
+    # Hardware — Deferred (requires GPU/CPU hybrid store, Section 5.3.1)
+    gpu_capacity: int = 10000              # Deferred
+    cpu_capacity: int = 100000             # Deferred
+    pinned_memory_mb: int = 32             # Deferred
 
     # Write policy
     write_similarity_threshold: float = 0.99  # don't write if too similar to existing
@@ -851,58 +981,103 @@ class CacheConfig:
 
 ## 11. Modification Boundary for Existing Code
 
-### Required Modifications (Minimal Invasion)
+### Actual Modifications (Step 1 — Additions Only, Zero Changes to Existing Code)
 
-| File | Change | Reason |
-|------|--------|--------|
-| `models_pytorch/pi0_pytorch.py` | Split `sample_actions()` into `run_stage1()`, `run_stage2()`, `run_stage3()` public methods | Cache needs to insert checkpoints between stages |
-| `models_pytorch/pi0_pytorch.py` | Add `return_intermediates` parameter to `run_stage3()` and a `run_stage3_from(start_x, start_t)` method | Support warm start and intermediate state caching |
+> **Key finding**: `pi0_pytorch.py` already had three private stage methods (`_stage1_token_prep`, `_stage2_llm_backbone`, `_stage3_action_expert`) with `sample_actions()` calling them internally. Step 1 did **not** modify `sample_actions()` — it added public typed wrappers on top of the existing private methods.
+
+| File | Change | Type |
+|------|--------|------|
+| `models_pytorch/pi0_pytorch.py` | Add 3 dataclasses (`Stage1Output`, `Stage2Output`, `Stage3Output`) + 5 methods (`run_stage1/2/3`, `run_stage3_from`, `_stage3_with_intermediates`) | **Add only** (+256 lines, 0 lines modified) |
+| `src/openpi/cache/__init__.py` | New module marker | **New file** |
+| `src/openpi/cache/interceptor.py` | `InferenceInterceptor(BasePolicy)` — routes inference through staged API | **New file** (+137 lines) |
+| `scripts/serve_policy.py` | Add `--cache` CLI flag and `InferenceInterceptor` wrapping logic | **Add only** (+13 lines) |
+
+### Actual Modifications (Step 3 — ⚠️ Unstable, Will Change)
+
+> **Status**: ⚠️ Code landed, no test coverage, interfaces will change frequently.
+> Step 3 has two sub-parts: data collection (stable observer pattern) and cache storage layer (unstable).
+
+**Step 3a: Data Collection** (`claude_log/step3_data_collection.log`)
+
+| File | Change | Type |
+|------|--------|------|
+| `src/openpi/collect/__init__.py` | Empty module marker | **New file** |
+| `src/openpi/collect/data_collector.py` | `InferenceEmbeddings` dataclass + `EpisodeDataCollector` (buffer + HDF5 write) | **New file** |
+| `src/openpi/collect/collection_policy.py` | `CollectionPolicy` wrapper (outermost, 4 forward hooks) | **New file** |
+| `scripts/serve_policy.py` | Add `--collect` / `--collect_dir` args, outermost `CollectionPolicy` wrapping | **Add only** |
+| `serving/websocket_policy_server.py` | In-band control message recognition (`__ctrl__: episode_start/end`) | **Modify** |
+| `openpi-client/websocket_client_policy.py` | Add `episode_start()` / `episode_end()` methods | **Add only** |
+| `examples/libero/main.py` | Insert `client.episode_start/end()` calls around episode loop | **Modify** |
+
+**Step 3b: Cache Storage Layer** (`claude_log/step3_cache.log`) — ⚠️
+
+| File | Change | Type |
+|------|--------|------|
+| `src/openpi/cache/types.py` | `CheckpointID` enum | **New file** |
+| `src/openpi/cache/storage_types.py` | `CachePayload`, `CacheEntry`, `QueryFilter`, `QuerySpec`, `SearchResultLite`, `SearchResult`, `BatchInsertResult` | **New file** |
+| `src/openpi/cache/backend_base.py` | `VectorStoreBackend` ABC | **New file** |
+| `src/openpi/cache/cache_storage.py` | `CacheStorage` facade (thread-safe, validation, two-phase search) | **New file** |
+| `src/openpi/cache/backends/__init__.py` | Empty module marker | **New file** |
+| `src/openpi/cache/backends/qdrant_backend.py` | `QdrantVectorStore` (Qdrant implementation of `VectorStoreBackend`) | **New file** |
+| `src/openpi/cache/__init__.py` | Updated exports for new symbols | **Modify** |
 
 ### Unmodified Parts
 
 | File | Notes |
 |------|-------|
+| `models_pytorch/pi0_pytorch.py` — existing code | `sample_actions()`, `_stage1/2/3_*`, `denoise_step()` — zero modifications |
 | `policies/policy.py` | Policy class unchanged; InferenceInterceptor wraps it externally |
 | `models/pi0.py` | JAX path disabled, untouched |
-| `serving/websocket_policy_server.py` | Serving layer unchanged, transparent adaptation |
+| `serving/websocket_policy_server.py` | ✅ Step 2: removed old `stage_timing_records` aggregation, added `TaskLifecycle` callbacks; ✅ Step 3a: added control message handling |
 | `training/` | Training code completely untouched |
 | `transforms.py` | Data transforms unchanged |
 
 ---
 
-## 12. Planned File Structure
+## 12. File Structure
+
+### Actual (as of Step 3)
 
 ```
-src/openpi/cache/                           # New cache module
+src/openpi/cache/                           # Cache module
+├── __init__.py                             # ✅ Step 1, updated Step 3
+├── interceptor.py                          # ✅ Step 1 — InferenceInterceptor (wraps Policy)
+├── timing.py                               # ✅ Step 2 — SystemTimer, TimingRecord, TimingStats
+├── types.py                                # ⚠️ Step 3 — CheckpointID enum
+├── storage_types.py                        # ⚠️ Step 3 — CachePayload, CacheEntry, QuerySpec, etc.
+├── backend_base.py                         # ⚠️ Step 3 — VectorStoreBackend ABC
+├── cache_storage.py                        # ⚠️ Step 3 — CacheStorage facade
+├── backends/
+│   ├── __init__.py                         # ⚠️ Step 3
+│   └── qdrant_backend.py                   # ⚠️ Step 3 — QdrantVectorStore
+└── README.md                               # ⚠️ Step 3 — module-level docs
+
+src/openpi/collect/                         # Data collection module (Step 3a)
 ├── __init__.py
+├── data_collector.py                       # InferenceEmbeddings + EpisodeDataCollector
+└── collection_policy.py                    # CollectionPolicy wrapper (outermost)
+```
+
+### Planned (future steps, not yet created)
+
+```
+src/openpi/cache/
 ├── config.py                               # CacheConfig, VectorStoreConfig, etc.
 ├── orchestrator.py                         # CacheOrchestrator master controller
-├── interceptor.py                          # InferenceInterceptor (wraps Policy)
-├── storage/
-│   ├── __init__.py
-│   ├── vector_store.py                     # VectorStore (GPU/CPU hybrid)
-│   ├── metadata_store.py                   # MetadataStore (optional MongoDB/SQLite)
-│   └── cache_entry.py                      # CacheEntry, CacheResult, etc.
 ├── components/
-│   ├── __init__.py
 │   ├── key_builder.py                      # QueryKeyBuilder protocol + implementations
 │   ├── gate.py                             # GateFunction protocol + implementations
 │   └── judge.py                            # SimilarityJudge protocol + implementations
-├── hardware/
-│   ├── __init__.py
+├── hardware/                               # Deferred — GPU/CPU hybrid store
 │   ├── cuda_manager.py                     # CacheHardwareManager, stream management
 │   └── memory_pool.py                      # PinnedMemoryPool
-├── timing.py                               # SystemTimer, TimingRecord
-├── maintenance/
-│   ├── __init__.py
-│   ├── eviction.py                         # EvictionPolicy implementations
-│   ├── promotion.py                        # GPU/CPU data migration
-│   └── writer.py                           # AsyncWriteWorker
-└── tests/
-    ├── test_orchestrator.py
-    ├── test_vector_store.py
-    ├── test_interceptor.py
-    └── test_timing.py
+├── maintenance/                            # Deferred — eviction, migration
+│   ├── eviction.py
+│   ├── promotion.py
+│   └── writer.py
+└── backends/
+    ├── faiss_backend.py                    # Planned — FAISS local backend
+    └── torch_gpu_backend.py                # Planned — TorchGPU in-process backend
 ```
 
 ---
@@ -914,159 +1089,164 @@ src/openpi/cache/                           # New cache module
 
 ---
 
-### Step 0: Understand the Existing Inference Pipeline (Prerequisite, No Code)
+### Step 0: Understand the Existing Inference Pipeline — ✅ Merged into Step 1
 
-**Goal**: Build a precise understanding of the PyTorch inference path. All subsequent work depends on this.
-
-**Tasks**:
-
-0.1. Carefully read `src/openpi/models_pytorch/pi0_pytorch.py`'s `sample_actions()` method. Annotate the code boundaries of the three stages (which lines are vision/LLM/flow matching). Record:
-  - Input tensor shapes, dtypes, and devices for each stage
-  - Intermediate variables passed between stages (KV cache structure, prefix token shapes)
-  - `denoise_step()` inputs and outputs within the flow matching loop
-
-0.2. Read `src/openpi/policies/policy.py`'s `infer()` method. Understand the actual calling order of transforms during inference. Confirm the complete key list and shapes of the observation dict before it enters the model.
-
-0.3. Run a complete inference (using the `debug_pi05` config or an existing checkpoint). Manually measure each stage's latency with `torch.cuda.Event`. Record baseline numbers:
-  - Stage 1 (vision): __ ms
-  - Stage 2 (LLM): __ ms
-  - Stage 3 (flow matching, 10 steps total): __ ms, per step: __ ms
-  - End-to-end: __ ms
-
-**Deliverable**: A short baseline report (markdown file or notebook) containing the above numbers and code boundary annotations. All subsequent optimizations are measured against this baseline.
-
-**Why this step cannot be skipped**: Without knowing what tensors pass between stages and their shapes, splitting `sample_actions()` later will be error-prone. Without baseline latency data, there's no way to judge whether cache overhead is worthwhile.
+> Step 0 was not executed as a standalone step. The code analysis and baseline understanding were performed as part of Step 1's planning phase. See `claude_log/step1.log` Section 1 for the full analysis results, including tensor shapes, inter-stage data flow, and Pi0 vs Pi0.5 architectural comparison.
 
 ---
 
-### Step 1: Split the Inference Pipeline (Minimal Invasion)
+### Step 1: Staged Public API + Interceptor Skeleton — ✅ Completed
 
-**Goal**: Split `PI0Pytorch.sample_actions()` into three independently callable methods while ensuring the original call path remains unaffected.
+> **Status**: Validated | **Commit**: `a6c9f43` on branch `Ziyang` | **Date**: 2026-03-29
+> **Log**: `claude_log/step1.log`
 
-**Tasks**:
+**Goal**: Add public typed wrappers on top of the existing private stage methods, and create an `InferenceInterceptor` skeleton that routes inference through the staged API.
 
-1.1. Add three new methods to `pi0_pytorch.py`:
+**Key finding from code analysis**: `pi0_pytorch.py` already had three private methods (`_stage1_token_prep`, `_stage2_llm_backbone`, `_stage3_action_expert`) with `sample_actions()` calling them internally. No need to "split" — only need to add public typed wrappers.
 
-```python
-def run_stage1(self, observation) -> Stage1Output:
-    """Vision encoding + prefix KV cache construction.
-    Extracts the code from sample_actions() up to and including
-    the prefix forward pass that produces past_key_values."""
-    ...
+**Critical discovery — CP2 basis invalidated**: The original architecture assumed Pi0.5's Stage 2 performs autoregressive subtask text generation (producing command tokens + command embedding). However, the **PyTorch path does NOT have autoregressive generation** — Stage 2 only fills the prefix KV cache. The only output is an opaque `past_key_values` (DynamicCache), which cannot serve as a retrieval key. **CP2 is therefore suspended** until a suitable representation extraction approach is found.
 
-def run_stage2(self, stage1: Stage1Output) -> Stage2Output:
-    """LLM backbone: generate low-level command tokens.
-    For pi05=True, this is the autoregressive subtask prediction.
-    For pi05=False (pi0), this stage may be trivial (no text generation)."""
-    ...
+**What was implemented**:
 
-def run_stage3(self, stage2: Stage2Output, *, return_intermediates=False) -> Stage3Output:
-    """Action expert: full flow matching (10 Euler steps).
-    If return_intermediates=True, also return x_t at selected timesteps."""
-    ...
-```
-
-1.2. Refactor `sample_actions()` to internally call `run_stage1 -> run_stage2 -> run_stage3` sequentially, with fully equivalent logic and no computation changes.
-
-1.3. Define inter-stage data structures:
+1.1. Added 3 dataclasses to `pi0_pytorch.py` (before `PI0Pytorch` class):
 
 ```python
 @dataclass
 class Stage1Output:
-    prefix_tokens: torch.Tensor
-    prefix_masks: torch.Tensor
-    past_key_values: tuple         # KV cache
-    raw_state: torch.Tensor        # Original state vector, for cache key
-    # ... other prefix-related intermediates
+    state: torch.Tensor               # [B, action_dim] — raw state for cache key
+    prefix_embs: torch.Tensor         # [B, prefix_len, emb_dim] (bfloat16)
+    prefix_pad_masks: torch.Tensor    # [B, prefix_len] (bool)
+    prefix_att_2d_masks_4d: torch.Tensor  # [B, 1, prefix_len, prefix_len]
+    prefix_position_ids: torch.Tensor # [B, prefix_len] (int64)
 
 @dataclass
 class Stage2Output:
-    stage1: Stage1Output           # Contains stage1 output
-    command_tokens: torch.Tensor   # Generated subtask text tokens
-    command_embedding: torch.Tensor # LLM last layer hidden state
-    # ...
+    stage1: Stage1Output
+    past_key_values: Any              # HuggingFace DynamicCache — pass as-is, do NOT clone
 
 @dataclass
 class Stage3Output:
-    action_chunk: torch.Tensor     # [B, action_horizon, action_dim]
+    action_chunk: torch.Tensor        # [B, action_horizon, action_dim] (float32)
     intermediates: Optional[dict[float, torch.Tensor]] = None  # For warm start
 ```
 
-1.4. **Verification**: Run the same input and compare output tensors before and after the split. Confirm `torch.allclose(original_output, split_output, atol=1e-5)`. This is a hard gate — do not proceed to the next step until this passes.
+> **Note**: `Stage2Output` has no `command_tokens` or `command_embedding` — these do not exist in the PyTorch path. This is the root cause of CP2 suspension.
 
-**Key considerations**:
-- Pi0.5's Stage 2 (LLM subtask prediction) has different logic from Pi0's Stage 2. Pi0 has no autoregressive text generation; the LLM does a single forward pass. Handle the Pi0.5 path (`pi05=True`) first; add Pi0 support later as needed.
-- `past_key_values` structure must be passed through as-is — no cloning or reshaping. This is the most likely source of numerical bugs.
+1.2. Added 5 methods to `PI0Pytorch` class (all additions, zero modifications to existing code):
+  - `run_stage1(observation) -> Stage1Output` — wraps `_stage1_token_prep`
+  - `run_stage2(stage1) -> Stage2Output` — wraps `_stage2_llm_backbone`
+  - `run_stage3(stage2, *, noise, num_steps, return_intermediates, save_timesteps) -> Stage3Output`
+  - `run_stage3_from(stage2, start_x, start_t, *, num_steps) -> Stage3Output` — warm start entry point
+  - `_stage3_with_intermediates(...)` — internal helper for intermediate state capture
 
-**Deliverable**: Modified `pi0_pytorch.py` that passes numerical consistency tests.
+1.3. Created `src/openpi/cache/interceptor.py` (+137 lines):
+  - `InferenceInterceptor(BasePolicy)` — borrows `_model`, `_input_transform`, `_output_transform` from wrapped Policy
+  - `infer()` calls `run_stage1 → run_stage2 → run_stage3` with per-stage timing
+  - `TODO(Step 4)` markers for CP1/CP3 cache check insertion points
+
+1.4. Modified `scripts/serve_policy.py` (+13 lines):
+  - Added `--cache` CLI flag
+  - `if args.cache: policy = InferenceInterceptor(policy)`
+
+**Verification**:
+
+| Check | Result |
+|-------|--------|
+| AST syntax check (all new files) | ✅ Pass |
+| Server starts with `--cache` | ✅ `INFO: Cache mode enabled` + `listening on 0.0.0.0:8001` |
+| Existing timing system (`stage_timing` field) | ✅ Interceptor outputs same fields |
+| External interface compatibility | ✅ WebsocketPolicyServer and clients require zero changes |
+
+**Deliverable**: Modified `pi0_pytorch.py` with public staged API + `interceptor.py` + `--cache` integration.
 
 ---
 
-### Step 2: Timing System
+### Step 2: Timing System — ✅ Completed
 
 **Goal**: Implement `SystemTimer` to provide infrastructure for all subsequent performance quantification.
 
-**Tasks**:
+**Actual implementation** (see `claude_log/step2.log` for full details):
 
-2.1. Implement `src/openpi/cache/timing.py`:
-  - `SystemTimer` class with context manager `with timer.measure("name"):`
-  - GPU timing via `torch.cuda.Event`, CPU timing via `time.perf_counter_ns`
-  - Ring buffer storage, `summary()` outputs mean/p50/p95/p99
-  - `export_csv()` for raw record export
+2.1. `src/openpi/cache/timing.py`:
+  - Probe-based `SystemTimer` with `register_probe(name, backend="cuda"/"cpu", stream=None)`
+  - `TimingBackend` protocol with `CudaEventBackend` (auto-degrades to CPU when no GPU) and `PerfCounterBackend`
+  - `enabled=False` for zero-overhead disable; unregistered probes handled in lenient mode with warning
+  - Ring buffer with monotonic counter for task boundary tracking
+  - `summary()` with per-probe mean/p50/p95/p99 + correct total (sum) row
+  - `export_csv()` for raw record export; auto-CSV on task end via `output_csv_dir`
 
-2.2. Integrate the timer into the three stages from Step 1, replacing Step 0's manual timing. Verify numbers are consistent.
+2.2. `InferenceInterceptor` registers 4 probes: `stage1_vision`/`stage2_llm`/`stage3_flow` (cuda) + `total_inference` (cpu). Replaces Step 0's manual timing.
 
-**Why this must be completed before cache logic**: Every subsequent development step needs latency quantification. Without a timer, questions like "how long did cache retrieval take?" and "is it worth it?" cannot be answered.
+2.3. `TaskLifecycle` protocol: `on_task_begin()`/`on_task_end()` for task-level aggregation.
 
-**Deliverable**: `timing.py` + timing integrated into stage calls.
+2.4. `websocket_policy_server.py`: removed old `stage_timing_records` aggregation (~15 lines), added `TaskLifecycle` callbacks on connection open/close.
 
----
+2.5. Validation: 12 tests passing via `scripts/verify_step2.py`.
 
-### Step 3: Cache Data Structures and Storage Layer
-
-**Goal**: Implement the cache "warehouse" — able to store, search, and retrieve. This step does NOT involve integration with the inference pipeline.
-
-**Tasks**:
-
-3.1. Implement `src/openpi/cache/storage/cache_entry.py`:
-  - `CacheEntry` dataclass (query_key, action_chunk, checkpoint_id, metadata)
-  - `CacheResult` dataclass (hit/miss, hit_type, cached_action, cached_noisy_action, cached_timestep)
-  - `CheckpointID` enum (CP1, CP2, CP3)
-  - `HitType` enum (FULL, WARM_START, PREDICTIVE)
-
-3.2. Implement `src/openpi/cache/storage/vector_store.py`:
-  - **CPU-only version for this step**, using FAISS `IndexFlatIP` (inner product; with L2 normalization, equivalent to cosine similarity)
-  - `insert(vector, payload)` -> id
-  - `search(query, top_k)` -> list of (id, similarity, payload)
-  - `delete(id)`
-  - `size()`, `clear()`
-  - Unit test: insert 1000 random vectors, verify search returns correct top-k
-
-3.3. Implement `src/openpi/cache/config.py`:
-  - `CacheConfig` dataclass with all tunable parameters
-  - Provide `default_config()` and `debug_config()` factory methods
-
-**This step is independent of inference**: The storage layer is a pure data structure that can be developed and tested standalone. No model loading or GPU required.
-
-**Deliverable**: Data structures + CPU VectorStore + passing unit tests.
+**Deliverable**: `timing.py` + timer integrated into interceptor + server-side lifecycle hooks.
 
 ---
 
-### Step 4: Orchestrator Skeleton + Interceptor
+### Step 3: Data Collection + Cache Storage Layer — ⚠️ Landed (High Risk)
 
-**Goal**: Connect cache check logic to the inference pipeline, achieving an end-to-end cache workflow. This step uses the simplest component implementations (PlaceholderKeyBuilder + AlwaysSearchGate + ThresholdJudge), with **only CP2 enabled**.
+> **Status**: ⚠️ Code landed, no test coverage, interfaces will change frequently.
+> **Logs**: `claude_log/step3_data_collection.log` (3a), `claude_log/step3_cache.log` (3b)
+> **Date**: 2026-04-02
 
-**Why CP2 first, not CP1**:
-- CP2 is after the LLM, with subtask information available. The cache semantics are clearest ("same scene + same command -> same action").
-- CP2 hits skip flow matching (pure numerical computation), not involving semantic understanding. Lowest risk.
-- CP1 skips subtask prediction — high risk, not suitable as the first validation point.
-- CP3 is predictive with more complex logic, not suitable for the first round.
+**Goal**: Two sub-parts — (3a) build a pure-observer data collection system for gathering inference embeddings into HDF5, and (3b) implement the cache storage layer abstraction so that upper-layer logic is decoupled from any specific vector DB.
+
+**Why the storage abstraction?** We do not yet know which vector DB we will use long-term. Qdrant is the experiment backend now, but it **will** be replaced (candidates: FAISS, custom TorchGPU store, etc.). The `VectorStoreBackend` ABC ensures that swapping backends requires zero changes to orchestrator or business code.
+
+**What was implemented**:
+
+3a. **Data Collection** (stable observer pattern):
+  - `src/openpi/collect/collection_policy.py`: `CollectionPolicy` wrapper (outermost in wrapper chain), registers 4 temporary forward hooks per inference, writes `InferenceEmbeddings` to `EpisodeDataCollector`
+  - `src/openpi/collect/data_collector.py`: `InferenceEmbeddings` dataclass + `EpisodeDataCollector` (buffer + HDF5 atomic write)
+  - 4 forward hooks: `_vision_hook` (multi_modal_projector), `_lang_hook` (embed_tokens), `_action_in_hook` (action_in_proj), `_action_out_hook` (action_out_proj)
+  - HDF5 schema: per-step groups with vision_0/1/2, prompt_emb, robot_state, noise_action_1..N-1, clean_action
+  - In-band control messages (`__ctrl__: episode_start/end`) for client-server episode lifecycle
+  - `scripts/serve_policy.py`: `--collect` / `--collect_dir` flags
+
+3b. **Cache Storage Layer** (⚠️ unstable):
+  - `src/openpi/cache/types.py`: `CheckpointID` enum (CP1/CP2/CP3)
+  - `src/openpi/cache/storage_types.py`: `CachePayload`, `CacheEntry`, `QueryFilter`, `QuerySpec`, `SearchResultLite`, `SearchResult`, `BatchInsertResult` — all strongly typed, with CP-specific validation
+  - `src/openpi/cache/backend_base.py`: `VectorStoreBackend` ABC — minimal interface (insert/search/fetch_payload/delete/count + supported_filters)
+  - `src/openpi/cache/cache_storage.py`: `CacheStorage` facade — thread-safe (RLock), dimension validation, filter fail-fast, two-phase search
+  - `src/openpi/cache/backends/qdrant_backend.py`: `QdrantVectorStore` — Qdrant implementation with tensor serialization (torch.save → base64), supported filters: checkpoint_id/task_key/step_range
+
+**Key design decisions** (see `claude_log/step3_cache.log` for full rationale):
+- `CachePayload` is a separate nested dataclass (not flat fields), with `validate_for_checkpoint()` for CP-specific invariants
+- Two-phase search: `search()` returns `SearchResultLite` (no payload), `fetch_payload()` on demand — avoids transferring unused tensor data
+- `QueryFilter` with `supported_filters()` fail-fast — unsupported filters raise `UnsupportedFilterError`, never silently ignored
+- ABC is intentionally small: named vectors, multivector, gRPC options are backend-internal config, never exposed above the ABC boundary
+- Cache system vectors (fused `[1024]` query key) vs HDF5 experiment vectors (raw embeddings) use different Qdrant collections — must not be mixed
+
+**⚠️ Known risks**:
+- No test coverage — all interfaces are subject to change
+- `torch` lazy import changes not regression-tested in uv environment
+- Qdrant backend will be replaced; ABC interface may evolve with new backend requirements
+- `CacheConfig` not yet implemented as standalone file
+
+**Deliverable**: Data collection system (3a) + storage layer abstraction with Qdrant backend (3b).
+
+---
+
+### Step 4: Orchestrator Skeleton (CP1 + CP3)
+
+**Goal**: Connect cache check logic to the inference pipeline, achieving an end-to-end cache workflow. This step uses the simplest component implementations (PlaceholderKeyBuilder + AlwaysSearchGate + ThresholdJudge), with **CP1 and CP3 enabled** (CP2 suspended — see Section 3).
+
+> **Note**: `InferenceInterceptor` was already created in Step 1. This step adds the `CacheOrchestrator` and plugs CP1/CP3 checks into the existing interceptor's `TODO(Step 4)` slots.
+
+**Why CP1 + CP3 (not CP2)**:
+- CP2's original rationale ("same command → same action") assumed command embedding availability, which does not exist in the PyTorch path. CP2 is suspended.
+- CP1 after vision: uses `raw_state` and/or vision embeddings as key. The semantics are "same scene + same state → same action". Strictest threshold (0.98) mitigates the risk of skipping subtask prediction.
+- CP3 after action expert: predictive cache for next-cycle skip. This is the highest-savings path when consecutive actions have temporal locality.
 
 **Tasks**:
 
 4.1. Implement `src/openpi/cache/components/key_builder.py`:
   - `QueryKeyBuilder` Protocol
-  - `PlaceholderKeyBuilder`: Directly use `stage2_output.command_embedding` with mean pool + L2 normalize, or more simply concatenate `raw_state` with `command_embedding` and normalize. Exact dimensions depend on tensor shapes recorded in Step 0.
+  - `PlaceholderKeyBuilder`: Use `stage1_output.state` (raw state vector `[B, 32]`) with L2 normalize as the simplest key. For CP3, concatenate state + action chunk.
 
 4.2. Implement `src/openpi/cache/components/gate.py`:
   - `GateFunction` Protocol
@@ -1081,16 +1261,17 @@ class Stage3Output:
   - `check()` method: gate -> build key -> search -> judge
   - `write_async()` method: Use synchronous writes initially (async deferred to Step 8)
 
-4.5. Implement `src/openpi/cache/interceptor.py`:
-  - `InferenceInterceptor`: Wraps Policy, injecting cache checks between stages
-  - This step only injects CP2 check after Stage 2
+4.5. Integrate into `src/openpi/cache/interceptor.py`:
+  - Plug CP1 check into the `TODO(Step 4)` slot after Stage 1
+  - Plug CP3 check into the `TODO(Step 4)` slot after Stage 3
+  - CP2 slot remains commented out
 
 4.6. **End-to-end tests**:
-  - Load model, run 10 identical inputs -> 1st should miss, 2nd-10th should hit (identical input)
+  - Load model, run 10 identical inputs -> 1st should miss, 2nd-10th should hit CP1 (identical input)
   - Run 10 different inputs -> all miss
-  - Verify that the action returned on hit has L2 distance = 0 from normal inference result (since input is identical)
+  - Verify that the action returned on CP1 hit has L2 distance = 0 from normal inference result
 
-**Deliverable**: A working end-to-end cache system (CP2 only) that passes the above tests.
+**Deliverable**: A working end-to-end cache system (CP1 + CP3) that passes the above tests.
 
 ---
 
@@ -1104,10 +1285,10 @@ class Stage3Output:
 
 5.1. **Data preparation**: Collect inference episodes (100-500 steps), recording for each step:
   - Input observation (images, state, prompt)
-  - Stage 1 output (vision embedding)
-  - Stage 2 output (command embedding)
+  - Stage 1 output (vision embedding, state)
   - Final action chunk
   - Save all data to disk (HDF5 or pickle)
+  - *(Note: command embedding is unavailable — CP2 suspended)*
 
 5.2. **Experiment A: Action continuity in state space**
   - For recorded episodes, compute pairwise state cosine similarity across all steps
@@ -1117,7 +1298,7 @@ class Stage3Output:
   - **If this trend is not observed**: The cache approach has a fundamental problem
 
 5.3. **Experiment B: Cache hit action quality**
-  - Using the Step 4 system, gradually lower the CP2 threshold (from 0.99 to 0.80)
+  - Using the Step 4 system, gradually lower the CP1 threshold (from 0.99 to 0.80)
   - Record at each threshold: hit rate, action L2 error (vs normal inference), latency savings
   - Plot three curves: threshold vs hit_rate, threshold vs action_error, threshold vs latency_saving
   - **Find the sweet spot**: Maximize hit rate subject to action error being acceptable (< some value)
@@ -1125,9 +1306,10 @@ class Stage3Output:
 5.4. **Experiment C: Discriminative power of different query keys**
   - Compare retrieval quality across several key construction approaches:
     - (a) raw state vector only
-    - (b) command embedding only
-    - (c) state + command concatenation
-    - (d) vision embedding mean pool
+    - (b) vision embedding mean pool
+    - (c) state + vision embedding concatenation
+    - (d) state + action chunk concatenation (for CP3)
+  - *(command embedding removed — unavailable in PyTorch path)*
   - Metric: precision@k (proportion of top-k retrieved entries whose action is truly close to the current inference action)
   - **This experiment guides subsequent QueryKeyBuilder design**
 
@@ -1135,20 +1317,20 @@ class Stage3Output:
 
 ---
 
-### Step 6: CP1 and CP3 Implementation
+### Step 6: CP1/CP3 Refinement + CP3 Deferred Writer
 
 **Prerequisite**: Step 5 experiment results are positive (cache feasibility validated).
 
+> **Note**: Basic CP1 and CP3 integration was done in Step 4. This step focuses on CP3's deferred write mechanism and refinement based on Step 5 experiment results.
+
 **Tasks**:
 
-6.1. **CP1 implementation**:
-  - Inject cache check after Stage 1
-  - Key builder needs to handle vision embedding (Step 5 Experiment C will provide direction)
-  - CP1 uses a stricter threshold (default 0.98)
+6.1. **CP1 refinement**:
+  - Tune key builder based on Step 5 Experiment C results (which information sources work best)
+  - CP1 uses the stricter threshold (default 0.98)
   - Test: same scene + same prompt should hit; changing objects or prompt should miss
 
-6.2. **CP3 implementation**:
-  - Inject check after Stage 3
+6.2. **CP3 deferred writer**:
   - `schedule_next_action()` mechanism: maintain a `_next_action_scheduled` slot in the orchestrator
   - `should_skip_inference()`: Check at the start of each cycle for a pre-scheduled action
   - CP3 key needs to include action chunk information (since it predicts "the next step")
@@ -1159,17 +1341,17 @@ class Stage3Output:
   - Implement a `DeferredWriter`: Write the entry in cycle N (without next), backfill `next_action_chunk` in cycle N+1
 
 6.4. **Experiments**:
-  - Measure CP1/CP2/CP3 hit rates across episodes
+  - Measure CP1/CP3 hit rates across episodes (CP2 suspended)
   - Quantify latency savings at each checkpoint on hit
   - CP3 predictive accuracy: L2 distance between pre-scheduled action and actually inferred action
 
-**Deliverable**: Complete three-checkpoint system + hit rate and latency reports for each checkpoint.
+**Deliverable**: Refined CP1 + CP3 with deferred writer + hit rate and latency reports.
 
 ---
 
 ### Step 7: Flow Matching Warm Start
 
-**Prerequisite**: Step 6 complete, CP2 full hit path validated.
+**Prerequisite**: Step 6 complete, CP1/CP3 validated. *(Note: warm start was originally designed for CP2. With CP2 suspended, warm start may be repurposed for CP1 partial skip or deferred to when CP2 is re-enabled.)*
 
 **Tasks**:
 
@@ -1267,9 +1449,11 @@ class Stage3Output:
   | raw_state | 32 | ? | ? | Minimal |
   | state + prompt_hash | 32+64 | ? | ? | Low |
   | vision_emb (mean pool) | 2048 | ? | ? | Medium |
-  | command_emb (mean pool) | 2048 | ? | ? | Medium |
-  | state + command_emb | 32+2048 | ? | ? | Medium |
+  | state + vision_emb | 32+2048 | ? | ? | Medium |
+  | state + action_chunk (CP3) | 32+1600 | ? | ? | Medium |
   | learned projection | 128/256/512 | ? | ? | Requires training |
+
+  > *(command_emb rows removed — unavailable in PyTorch path, CP2 suspended)*
 
   - "Precision@5" defined as: proportion of top-5 retrieved entries whose action L2 distance from the current inference action is < epsilon
 
@@ -1280,10 +1464,10 @@ class Stage3Output:
   - Constraint: Projection head inference latency < 0.5ms (otherwise not worth using cache)
 
 9.3. **Optimal key may differ per checkpoint**:
-  - CP1's key lacks command information, may need more vision information
-  - CP2's key has command, state information weight can potentially be reduced
+  - CP1's key has vision + state information; experiment with different weightings
   - CP3's key needs action information to predict subsequent actions
-  - Tune each checkpoint independently
+  - *(CP2 suspended — no key design needed until re-enabled)*
+  - Tune each active checkpoint independently
 
 **Deliverable**: Optimal key builder approach per checkpoint + supporting experiment data.
 
@@ -1372,29 +1556,29 @@ The following items are mutually independent; implement based on priority:
 ### Development Dependency Graph
 
 ```
-Step 0: Understand inference pipeline
+Step 0: Understand inference pipeline ─── ✅ merged into Step 1
   │
   ▼
-Step 1: Split sample_actions()  ───────────────────────────────────┐
-  │                                                                │
-  ▼                                                                │
-Step 2: Timing system                                              │
-  │                                                                │
-  ├──────────────────┐                                             │
-  ▼                  ▼                                             │
-Step 3: Data structs (parallel dev)                                │
-  │                                                                │
-  ▼                                                                │
-Step 4: Orchestrator + Interceptor (CP2 only) ◄────────────────────┘
+Step 1: Staged Public API + Interceptor ─── ✅ completed (a6c9f43)
+  │  Key finding: no autoregressive gen → CP2 suspended
+  ▼
+Step 2: Timing system ─── ✅ completed
+  │
+  ├──────────────────┐
+  ▼                  ▼
+Step 3: Data structs (parallel dev)
+  │
+  ▼
+Step 4: Orchestrator (CP1 + CP3) ──── CP2 suspended, not on critical path
   │
   ▼
 Step 5: ★ Feasibility experiment ★  ── if failed ──> Reevaluate approach
   │ (passed)
   ▼
-Step 6: CP1 + CP3 implementation
+Step 6: CP1/CP3 refinement + CP3 deferred writer
   │
   ▼
-Step 7: Warm start implementation + ★ Accuracy experiment ★
+Step 7: Warm start (may defer — originally for CP2)
   │
   ▼
 Step 8: System efficiency optimization (async, GPU, stream)
@@ -1410,6 +1594,7 @@ Step 11: Integration testing
   │
   ▼
 Step 12: Advanced features (on demand)
+         ├── CP2 re-enablement (when representation extraction available)
 ```
 
 **★-marked steps are critical experiment milestones** whose conclusions directly determine the direction of subsequent work, or even whether to continue.
@@ -1418,20 +1603,20 @@ Step 12: Advanced features (on demand)
 
 ### Estimated Effort Per Step
 
-| Step | Work Type | Primary Deliverable | Estimated Effort |
-|------|-----------|---------------------|------------------|
-| 0 | Reading + analysis | Baseline report | 1-2 days |
-| 1 | Code refactoring | Split pi0_pytorch.py | 2-3 days |
-| 2 | Infrastructure dev | timing.py | 1 day |
-| 3 | Infrastructure dev | Data structures + VectorStore | 2 days |
-| 4 | Core development | Orchestrator + Interceptor | 3-4 days |
-| 5 | **Experiment** | Feasibility report | 3-5 days |
-| 6 | Core development | CP1 + CP3 | 3-4 days |
-| 7 | Dev + **Experiment** | Warm start + tradeoff data | 4-5 days |
-| 8 | Performance optimization | Async/GPU/Stream | 3-5 days |
-| 9 | **Experiment** | Key builder research | 5-7 days |
-| 10 | Tooling dev | Pre-fill script | 2-3 days |
-| 11 | Testing | Stability + A/B report | 2-3 days |
-| 12 | Advanced | On demand | TBD |
+| Step | Status | Work Type | Primary Deliverable |
+|------|--------|-----------|---------------------|
+| 0 | ✅ Merged into Step 1 | Reading + analysis | (included in Step 1 log) |
+| 1 | ✅ Completed | Staged API + Interceptor | pi0_pytorch.py public API + interceptor.py |
+| 2 | ✅ Completed | Infrastructure dev | timing.py + SystemTimer |
+| 3 | ⚠️ Code landed, no tests | Infrastructure dev | Data structures + VectorStore backend |
+| 4 | Pending | Core development | Orchestrator (CP1 + CP3) |
+| 5 | Pending | **Experiment** | Feasibility report |
+| 6 | Pending | Core development | CP1/CP3 refinement + CP3 deferred writer |
+| 7 | Pending (may defer) | Dev + **Experiment** | Warm start (originally for CP2) |
+| 8 | Pending | Performance optimization | Async/GPU/Stream |
+| 9 | Pending | **Experiment** | Key builder research |
+| 10 | Pending | Tooling dev | Pre-fill script |
+| 11 | Pending | Testing | Stability + A/B report |
+| 12 | Pending | Advanced | On demand (includes CP2 re-enablement) |
 
-> **Note**: The above time estimates do not include time waiting for experiments to complete or analyzing results. Actual experiment turnaround depends on GPU resources and episode data volume. Steps 2 and 3 have no dependency on each other and can be developed in parallel.
+> **Note**: Steps 2 and 3 have no dependency on each other and can be developed in parallel. Step 7 (warm start) was originally designed for CP2; with CP2 suspended, it may be deferred or repurposed.
