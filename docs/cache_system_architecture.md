@@ -13,7 +13,7 @@ Introduce a multi-level cache system into the Pi0.5 inference pipeline to reduce
 
 1. **Decoupled from inference pipeline**: The cache system operates as an external plugin, hooking into the inference pipeline via an interceptor pattern without modifying existing inference code internals.
 2. **Multi-level progressive hit**: Cache checkpoints are placed at three key positions in the pipeline — earlier hits save more computation.
-3. **Hardware-aware**: Vector DB data is intelligently distributed between GPU and CPU, with async transfers that do not block inference computation.
+3. **Backend-agnostic storage**: The storage layer uses a `VectorStoreBackend` ABC to decouple upper-layer logic from any specific vector DB. Swapping backends (Qdrant, FAISS, TorchGPU, etc.) requires zero changes to orchestrator or business code. *(Deferred: GPU/CPU hybrid data distribution and async transfer — see Section 7)*
 4. **Precise timing**: Each component (retrieval, judgment, data transfer) is independently timed to support informed performance optimization decisions.
 5. **Incremental implementation**: Start with single-machine, single-task repetitive scenarios, then gradually extend to multi-task/multi-robot/distributed settings.
 
@@ -220,6 +220,9 @@ Key design points:
 
 ### 5.1 CacheOrchestrator
 
+> **Status**: Step 4 design — not yet implemented.
+> ⚠️ This design uses Step 3 storage layer types (`QuerySpec`, `SearchResultLite`, `CacheEntry`, etc.) which are unstable. `CacheContext` and `CacheResult` are orchestrator-layer types to be defined in Step 4.
+
 The master controller. Manages the lifecycle of all checkpoints, coordinates the gate/search/judge workflow, and handles async write-back.
 
 > **Note**: With CP2 suspended, the orchestrator currently only handles CP1 and CP3. `config.cp2_enabled` defaults to `False`.
@@ -236,10 +239,10 @@ class CacheOrchestrator:
         timer: SystemTimer,
     ):
         ...
-        self._next_action_scheduled: Optional[CachedAction] = None
-        self._write_queue: AsyncQueue = AsyncQueue()
+        self._next_action_scheduled: Optional[torch.Tensor] = None  # [50, 32]
+        # Write queue implementation TBD in Step 4
 
-    def should_skip_inference(self) -> Optional[dict]:
+    def should_skip_inference(self) -> Optional[torch.Tensor]:
         """Called BEFORE inference starts. If CP3 from previous cycle
         scheduled a cached action, return it and skip entire inference."""
         if self._next_action_scheduled is not None:
@@ -249,20 +252,29 @@ class CacheOrchestrator:
         return None
 
     def check(self, checkpoint: CheckpointID, context: CacheContext) -> CacheResult:
-        """Core cache check logic at a given checkpoint."""
+        """Core cache check logic at a given checkpoint.
+
+        CacheContext, CacheResult: Step 4 orchestrator-layer types (not yet defined).
+        Storage interaction uses Step 3 types (⚠️ unstable).
+        """
 
         # Step 1: Gate - should we even search?
         with self.timer.measure(f"{checkpoint.name}_gate"):
             if not self.gate.should_search(checkpoint, context):
                 return CacheResult.miss()
 
-        # Step 2: Build query key
+        # Step 2: Build query keys (multi-named-vector)
         with self.timer.measure(f"{checkpoint.name}_key_build"):
-            query = self.key_builder.build(checkpoint, context)
+            keys = self.key_builder.build(checkpoint, context)  # dict[str, Tensor]
 
-        # Step 3: Search vector DB
+        # Step 3: Search vector DB — ⚠️ uses Step 3 storage types
         with self.timer.measure(f"{checkpoint.name}_search"):
-            candidates = self.storage.search(query, top_k=self.config.top_k)
+            spec = QuerySpec(
+                query_keys=keys,
+                top_k=self.config.top_k,
+                checkpoint_id=checkpoint,
+            )
+            candidates: list[SearchResultLite] = self.storage.search(spec)
 
         # Step 4: Judge - is the best candidate good enough?
         with self.timer.measure(f"{checkpoint.name}_judge"):
@@ -270,12 +282,13 @@ class CacheOrchestrator:
 
         return result
 
-    def write_async(self, context: CacheContext):
-        """Non-blocking cache write. Runs on background thread."""
-        self._write_queue.put(context)
+    def write_async(self, entry: CacheEntry):
+        """Non-blocking cache write. Runs on background thread.
+        Parameter is a CacheEntry (⚠️ Step 3 type, unstable)."""
+        ...
 
-    def schedule_next_action(self, action: CachedAction):
-        """CP3 schedules an action for the next cycle."""
+    def schedule_next_action(self, action: torch.Tensor):
+        """CP3 schedules an action chunk for the next cycle."""
         self._next_action_scheduled = action
 ```
 
@@ -304,7 +317,7 @@ class CacheStorage:
     def __init__(self, backend: VectorStoreBackend, metadata_db=None):
         self._backend = backend
         self._metadata_db = metadata_db   # reserved, not yet used
-        self._dim = backend.vector_dim
+        self._dims = backend.vector_dims   # dict[str, int] — per-field dimensions
         self._lock = threading.RLock()
 
     def search(self, spec: QuerySpec) -> list[SearchResultLite]:
@@ -332,7 +345,7 @@ class CacheStorage:
 Key design points:
 - **Two-phase search**: `search()` returns `SearchResultLite` (score only, no payload tensors). Only hit candidates call `fetch_payload()` to retrieve full `CachePayload`, avoiding unnecessary data transfer.
 - **Filter fail-fast**: `CacheStorage` checks `spec.filters` against `backend.supported_filters()` before calling `search()`. Unsupported filters raise `UnsupportedFilterError` instead of being silently ignored.
-- **Dimension validation**: Every `insert()` and `search()` call checks `query_key.shape == (vector_dim,)`.
+- **Dimension validation**: Every `insert()` and `search()` call validates each field in `query_keys` against `backend.vector_dims`.
 
 ### 5.3 VectorStoreBackend — ⚠️ Step 3 Implemented (Unstable)
 
@@ -358,7 +371,9 @@ class VectorStoreBackend(ABC):
 
     @property
     @abstractmethod
-    def vector_dim(self) -> int: ...
+    def vector_dims(self) -> dict[str, int]:
+        """Field names → embedding dimensions. Keys are a subset of CACHE_QUERY_FIELDS."""
+        ...
 
     @abstractmethod
     def supported_filters(self) -> frozenset[str]: ...
@@ -391,7 +406,7 @@ class VectorStoreBackend(ABC):
 - Supported filters: `checkpoint_id`, `task_key`, `step_range`
 - Score: Qdrant Cosine distance is already in [-1, 1], used directly
 
-**Why the ABC interface is intentionally small**: Named vectors, multivector, payload filter syntax, gRPC options — these are all backend-specific details, configured in each backend's `__init__` config, never exposed above the ABC boundary. Upper-layer code only asks: "given a `[dim]` query vector, return the top-k most similar entries."
+**Why the ABC interface is intentionally small**: Payload filter syntax, gRPC options, fusion strategy (RRF weights, etc.) — these are all backend-specific details, configured in each backend's `__init__` config, never exposed above the ABC boundary. Upper-layer code only asks: "given named query vectors (`dict[str, Tensor]`), return the top-k most similar entries." How multiple fields are fused (e.g., RRF, weighted average) is the backend's internal decision.
 
 #### 5.3.1 Deferred Design: GPU/CPU Hybrid VectorStore
 
@@ -428,17 +443,25 @@ class VectorStore:
 
 ### 5.4 QueryKeyBuilder (Pluggable)
 
+> **Status**: Step 4 design — not yet implemented.
+> ⚠️ Return type `dict[str, torch.Tensor]` aligns with `QuerySpec.query_keys` / `CacheEntry.query_keys` (Step 3 storage types, unstable). `CacheContext` is a Step 4 orchestrator-layer type (not yet defined).
+
 ```python
 class QueryKeyBuilder(Protocol):
-    """Converts stage outputs into a fixed-dimensional query vector."""
+    """Converts stage outputs into named query vectors.
 
-    def build(self, checkpoint: CheckpointID, context: CacheContext) -> torch.Tensor:
-        """Returns a normalized query vector [1, embedding_dim]."""
+    Returns a dict mapping field names (subset of CACHE_QUERY_FIELDS)
+    to L2-normalized tensors. The backend stores/queries only the fields
+    declared in its vector_dims; extra fields are silently ignored.
+    """
+
+    def build(self, checkpoint: CheckpointID, context: CacheContext) -> dict[str, torch.Tensor]:
+        """Returns named query vectors {field: [dim] tensor, L2 normalized}."""
         ...
 
 
 class MeanPoolKeyBuilder(QueryKeyBuilder):
-    """Baseline: mean-pool available embeddings, project to fixed dim.
+    """Baseline: project each embedding source to a fixed dim, return as named vectors.
 
     Note: 'command' projection is omitted — Stage 2 produces only an opaque
     KV cache with no extractable command embedding (CP2 suspended, see Section 3).
@@ -446,36 +469,40 @@ class MeanPoolKeyBuilder(QueryKeyBuilder):
 
     def __init__(self, output_dim: int = 1024):
         self.projections = nn.ModuleDict({
-            "vision": nn.Linear(..., output_dim),
-            "prompt": nn.Linear(..., output_dim),
-            "state": nn.Linear(..., output_dim),
+            "vision_0": nn.Linear(..., output_dim),
+            "prompt_emb": nn.Linear(..., output_dim),
+            "robot_state": nn.Linear(..., output_dim),
             # "command": removed — no command embedding available (CP2 suspended)
-            "action": nn.Linear(..., output_dim),
         })
 
     def build(self, checkpoint, context):
-        parts = []
+        keys = {}
         if context.stage1:
-            parts.append(self.projections["vision"](context.stage1.vision_emb.mean(dim=1)))
-            parts.append(self.projections["state"](context.stage1.state_emb))
-        # CP2 suspended: no context.stage2.command_emb available
-        if context.action is not None:
-            parts.append(self.projections["action"](context.action.mean(dim=1)))
-
-        combined = torch.stack(parts).mean(dim=0)  # [1, output_dim]
-        return F.normalize(combined, dim=-1)
+            keys["vision_0"] = F.normalize(
+                self.projections["vision_0"](context.stage1.vision_emb.mean(dim=1)), dim=-1
+            )
+            keys["robot_state"] = F.normalize(
+                self.projections["robot_state"](context.stage1.state_emb), dim=-1
+            )
+            keys["prompt_emb"] = F.normalize(
+                self.projections["prompt_emb"](context.stage1.prompt_emb), dim=-1
+            )
+        return keys
 
 
 class PlaceholderKeyBuilder(QueryKeyBuilder):
-    """For early development: use raw state vector as key."""
+    """For early development: use raw state vector as the only query field."""
 
     def build(self, checkpoint, context):
-        return F.normalize(context.stage1.raw_state.float(), dim=-1)
+        return {"robot_state": F.normalize(context.stage1.raw_state.float(), dim=-1)}
 ```
 
 Designed as a Protocol so it can be swapped for a learned encoder or other approaches later without affecting the rest of the system.
 
 ### 5.5 GateFunction (Pluggable)
+
+> **Status**: Step 4 design — not yet implemented.
+> `CacheContext` is a Step 4 orchestrator-layer type (not yet defined). Gate does not interact with the storage layer directly, but its input type will be finalized when Step 4 is implemented.
 
 Decides whether to initiate a search at a given checkpoint. Avoids the overhead of searching every time.
 
@@ -520,19 +547,24 @@ class StateChangeGate(GateFunction):
 
 ### 5.6 SimilarityJudge (Pluggable)
 
+> **Status**: Step 4 design — not yet implemented.
+> ⚠️ Uses `SearchResultLite` from Step 3 storage layer (unstable). `CacheContext` and `CacheResult` are Step 4 orchestrator-layer types (not yet defined). `SearchResultLite.score` range depends on backend/mode — thresholds must be calibrated accordingly.
+
 Determines whether search results constitute a valid hit.
 
 ```python
 class SimilarityJudge(Protocol):
     def evaluate(
-        self, checkpoint: CheckpointID, context: CacheContext, candidates: list[CacheCandidate]
+        self, checkpoint: CheckpointID, context: CacheContext,
+        candidates: list[SearchResultLite],  # ⚠️ Step 3 type
     ) -> CacheResult:
         ...
 
 class ThresholdJudge(SimilarityJudge):
     """Simple threshold-based judge with per-checkpoint thresholds."""
 
-    def __init__(self, thresholds: dict[CheckpointID, float]):
+    def __init__(self, storage: CacheStorage, thresholds: dict[CheckpointID, float]):
+        self.storage = storage  # needed for fetch_payload on hit
         self.thresholds = thresholds
         # CP1 threshold should be stricter (higher similarity required)
         # because skipping more computation carries more risk.
@@ -542,26 +574,30 @@ class ThresholdJudge(SimilarityJudge):
         if not candidates:
             return CacheResult.miss()
 
-        best = candidates[0]
+        best: SearchResultLite = candidates[0]
         threshold = self.thresholds[checkpoint]
 
-        if best.distance >= threshold:  # cosine similarity
+        if best.score >= threshold:
             return self._make_hit(checkpoint, best)
         return CacheResult.miss()
 
-    def _make_hit(self, checkpoint, candidate):
-        entry = candidate.entry
+    def _make_hit(self, checkpoint, candidate: SearchResultLite):
+        # Two-phase: fetch full payload only for hit candidates
+        payload: CachePayload = self.storage.fetch_payload(candidate.id)
+
         # CP2 warm start branch — suspended (no command embedding available).
         # Design preserved for future use when CP2 is re-enabled.
-        # if checkpoint == CheckpointID.CP2 and entry.has_intermediate:
-        #     if candidate.distance >= self.thresholds[CheckpointID.CP2_FULL]:
-        #         return CacheResult.full_hit(entry.action)
+        # if checkpoint == CheckpointID.CP2 and payload.intermediates:
+        #     if candidate.score >= self.thresholds[CheckpointID.CP2_FULL]:
+        #         return CacheResult.full_hit(payload.action_chunk)
         #     else:
+        #         t = max(payload.intermediates.keys())
         #         return CacheResult.warm_start(
-        #             cached_noisy_action=entry.intermediate_x_t,
-        #             cached_timestep=entry.intermediate_t,
+        #             cached_noisy_action=payload.intermediates[t],
+        #             cached_timestep=t,
+        #             num_steps=payload.denoising_num_steps,
         #         )
-        return CacheResult.full_hit(entry.action)
+        return CacheResult.full_hit(payload.action_chunk)
 ```
 
 ### 5.7 Cache Data Model — ⚠️ Step 3 Implemented (Unstable)
@@ -605,12 +641,14 @@ class CachePayload:
 class CacheEntry:
     """Complete unit written to storage.
 
-    id semantics: stable_hash(checkpoint_id.name + ":" + query_key_bytes)
+    id semantics: stable_hash(checkpoint_id.name + ":" + sorted_concat_of_query_key_bytes)
     Same context + same CP keeps only one record (semantic dedup key).
+    checkpoint_id is part of the hash so CP1/CP2/CP3 entries for the same
+    observation do not overwrite each other.
     """
     id: str
     checkpoint_id: CheckpointID
-    query_key: torch.Tensor     # CPU float32 [dim], L2 normalized
+    query_keys: dict[str, torch.Tensor]  # {field: [dim] CPU float32, L2 normalized}
     payload: CachePayload
     timestamp: float = field(default_factory=time.time)
 
@@ -627,7 +665,7 @@ class QueryFilter:
 
 @dataclass
 class QuerySpec:
-    query_key: torch.Tensor             # CPU float32 [dim]
+    query_keys: dict[str, torch.Tensor]  # {field: [dim] CPU float32}
     top_k: int = 10
     checkpoint_id: Optional[CheckpointID] = None
     filters: Optional[QueryFilter] = None
@@ -636,7 +674,9 @@ class QuerySpec:
 @dataclass
 class SearchResultLite:
     """Lightweight search result (no payload). Returned by search().
-    score: normalized cosine similarity in [-1, 1]."""
+    score: higher = more similar. Range depends on backend/mode:
+      single-field cosine: [-1, 1]; multi-field RRF fusion: small positive numbers.
+    Thresholds must be calibrated per backend/mode."""
     id: str
     score: float
     checkpoint_id: CheckpointID
@@ -661,6 +701,8 @@ class SearchResult:
 
 ### 6.1 Full Inference Cycle (No Cache Hit)
 
+> **Note**: The `[GPU Transfer Stream]` and `[CPU Thread Pool]` rows below represent the **target design** with GPU/CPU hybrid VectorStore (Deferred — see Section 7). With the current remote Qdrant backend, cache search runs synchronously on the main thread; there is no GPU vector partition or dedicated transfer stream.
+
 ```
 Time ──────────────────────────────────────────────────────────────>
 
@@ -669,16 +711,18 @@ Time ─────────────────────────
 │ Vision ││ LLM    ││ step1 step2 ... step10             ││
 │        ││        ││                                     ││
 
-[GPU Transfer Stream] (non-blocking)
+[GPU Transfer Stream] (Deferred — GPU/CPU hybrid, see Section 7)
          ││  CP1   ││       CP2        ││            CP3  ││  write-back
          ││ search ││      search      ││           check ││  (async)
 
-[CPU Thread Pool]
+[CPU Thread Pool] (Deferred — GPU/CPU hybrid, see Section 7)
          ││ CP1 CPU││   CP2 CPU search ││ CP3 CPU search  ││ metadata write
          ││ search ││  (if GPU miss)   ││                 ││
 ```
 
 ### 6.2 CP1 Hit Timing
+
+> **Note**: `[GPU Transfer Stream]` is Deferred (see Section 7). Current reality: CP1 search is a remote Qdrant call; cached action is fetched over network, not from GPU memory.
 
 ```
 Time ──────────────────────────>
@@ -687,9 +731,9 @@ Time ─────────────────────────
 │ Stage1 ││ (idle - stages 2,3 skipped)
 │ Vision ││
 
-[GPU Transfer Stream]
+[GPU Transfer Stream] (Deferred — currently: remote fetch from Qdrant)
          ││ CP1 search ──> HIT!
-         ││ load cached action from GPU memory
+         ││ load cached action
 
 Total: Stage1 + CP1 latency only
 ```
@@ -932,6 +976,7 @@ class TaskLifecycle(Protocol):
 class CacheConfig:
     """Top-level cache system configuration."""
 
+    # ── General (stable) ─────────────────────────────────────────
     enabled: bool = True
 
     # Per-checkpoint enable/disable
@@ -941,9 +986,9 @@ class CacheConfig:
 
     # Retrieval
     top_k: int = 5                         # candidates per search
-    embedding_dim: int = 1024              # query key dimension
 
-    # Similarity thresholds (cosine similarity, higher = stricter)
+    # Similarity thresholds (higher = stricter)
+    # Note: threshold scale depends on backend/mode — see SearchResultLite.score docs
     cp1_threshold: float = 0.98            # CP1 strictest: skipping most
     cp2_full_threshold: float = 0.96       # CP2 full hit (suspended)
     cp2_warm_threshold: float = 0.90       # CP2 warm start (suspended)
@@ -954,15 +999,6 @@ class CacheConfig:
         default_factory=lambda: [0.7, 0.5, 0.3]
     )  # which timesteps to cache x_t for
 
-    # Storage — ⚠️ will change with backend evolution
-    vector_db: VectorStoreConfig = field(default_factory=VectorStoreConfig)
-    metadata_db: Optional[MetadataStoreConfig] = None
-
-    # Hardware — Deferred (requires GPU/CPU hybrid store, Section 5.3.1)
-    gpu_capacity: int = 10000              # Deferred
-    cpu_capacity: int = 100000             # Deferred
-    pinned_memory_mb: int = 32             # Deferred
-
     # Write policy
     write_similarity_threshold: float = 0.99  # don't write if too similar to existing
     write_async: bool = True
@@ -972,9 +1008,18 @@ class CacheConfig:
     gate_interval: int = 1
     gate_state_threshold: float = 0.01
 
-    # Timing
+    # Timing (✅ Step 2 implemented)
     timing_enabled: bool = True
     timing_buffer_size: int = 10000
+
+    # ── Storage — ⚠️ unstable, will change with backend evolution ──
+    vector_db: VectorStoreConfig = field(default_factory=VectorStoreConfig)
+    metadata_db: Optional[MetadataStoreConfig] = None
+
+    # ── Hardware — Deferred (requires GPU/CPU hybrid store, Section 5.3.1 / Section 7) ──
+    gpu_capacity: int = 10000              # Deferred
+    cpu_capacity: int = 100000             # Deferred
+    pinned_memory_mb: int = 32             # Deferred
 ```
 
 ---

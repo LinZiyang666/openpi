@@ -13,7 +13,7 @@
 
 1. **与推理管线解耦**：Cache 系统作为外挂组件，通过 hook/interceptor 模式接入推理管线，不修改现有 inference 代码的内部逻辑。
 2. **多级渐进式命中**：在推理管线的三个关键位置设置检查点，越早命中节省越多计算。
-3. **硬件感知**：Vector DB 数据在 GPU/CPU 间智能分配，异步传输不阻塞推理计算。
+3. **存储层后端无关**：存储层通过 `VectorStoreBackend` ABC 将上层逻辑与具体向量数据库解耦，更换 backend（Qdrant、FAISS、TorchGPU 等）无需修改 orchestrator 或业务代码。*（搁置：GPU/CPU 混合数据分配与异步传输——见 Section 7）*
 4. **精确计时**：每个组件（检索、判定、数据传输）独立计时，支撑后续性能优化决策。
 5. **递进式实现**：从单机单任务重复场景起步，逐步扩展到多任务/多机器人/分布式。
 
@@ -219,6 +219,9 @@ class InferenceInterceptor(BasePolicy):
 
 ### 5.1 CacheOrchestrator
 
+> **状态**：Step 4 设计——尚未实现。
+> ⚠️ 此设计使用 Step 3 存储层类型（`QuerySpec`、`SearchResultLite`、`CacheEntry` 等），这些接口不稳定。`CacheContext` 和 `CacheResult` 是编排层类型，将在 Step 4 定义。
+
 总控组件。管理所有检查点的生命周期、协调 gate/search/judge 流程、处理异步写回。
 
 > **注**：CP2 搁置后，orchestrator 当前只处理 CP1 和 CP3。`config.cp2_enabled` 默认为 `False`。
@@ -235,12 +238,11 @@ class CacheOrchestrator:
         timer: SystemTimer,
     ):
         ...
-        self._next_action_scheduled: Optional[CachedAction] = None
-        self._write_queue: AsyncQueue = AsyncQueue()
+        self._next_action_scheduled: Optional[torch.Tensor] = None  # [50, 32]
+        # 写入队列实现 TBD in Step 4
 
-    def should_skip_inference(self) -> Optional[dict]:
-        """Called BEFORE inference starts. If CP3 from previous cycle
-        scheduled a cached action, return it and skip entire inference."""
+    def should_skip_inference(self) -> Optional[torch.Tensor]:
+        """在推理开始前调用。如果上一周期 CP3 预调度了 cached action，直接返回并跳过整次推理。"""
         if self._next_action_scheduled is not None:
             action = self._next_action_scheduled
             self._next_action_scheduled = None
@@ -248,33 +250,43 @@ class CacheOrchestrator:
         return None
 
     def check(self, checkpoint: CheckpointID, context: CacheContext) -> CacheResult:
-        """Core cache check logic at a given checkpoint."""
+        """给定 checkpoint 的核心 cache 检查逻辑。
 
-        # Step 1: Gate - should we even search?
+        CacheContext, CacheResult：Step 4 编排层类型（尚未定义）。
+        与存储层的交互使用 Step 3 类型（⚠️ 不稳定）。
+        """
+
+        # Step 1: Gate — 是否需要搜索？
         with self.timer.measure(f"{checkpoint.name}_gate"):
             if not self.gate.should_search(checkpoint, context):
                 return CacheResult.miss()
 
-        # Step 2: Build query key
+        # Step 2: 构建多命名查询向量
         with self.timer.measure(f"{checkpoint.name}_key_build"):
-            query = self.key_builder.build(checkpoint, context)
+            keys = self.key_builder.build(checkpoint, context)  # dict[str, Tensor]
 
-        # Step 3: Search vector DB
+        # Step 3: 搜索向量 DB — ⚠️ 使用 Step 3 存储层类型
         with self.timer.measure(f"{checkpoint.name}_search"):
-            candidates = self.storage.search(query, top_k=self.config.top_k)
+            spec = QuerySpec(
+                query_keys=keys,
+                top_k=self.config.top_k,
+                checkpoint_id=checkpoint,
+            )
+            candidates: list[SearchResultLite] = self.storage.search(spec)
 
-        # Step 4: Judge - is the best candidate good enough?
+        # Step 4: Judge — 最佳候选是否足够好？
         with self.timer.measure(f"{checkpoint.name}_judge"):
             result = self.judge.evaluate(checkpoint, context, candidates)
 
         return result
 
-    def write_async(self, context: CacheContext):
-        """Non-blocking cache write. Runs on background thread."""
-        self._write_queue.put(context)
+    def write_async(self, entry: CacheEntry):
+        """非阻塞 cache 写入。在后台线程执行。
+        参数为 CacheEntry（⚠️ Step 3 类型，不稳定）。"""
+        ...
 
-    def schedule_next_action(self, action: CachedAction):
-        """CP3 schedules an action for the next cycle."""
+    def schedule_next_action(self, action: torch.Tensor):
+        """CP3 预调度下一周期的 action chunk。"""
         self._next_action_scheduled = action
 ```
 
@@ -303,7 +315,7 @@ class CacheStorage:
     def __init__(self, backend: VectorStoreBackend, metadata_db=None):
         self._backend = backend
         self._metadata_db = metadata_db   # 预留，暂未使用
-        self._dim = backend.vector_dim
+        self._dims = backend.vector_dims   # dict[str, int] — 各字段维度
         self._lock = threading.RLock()
 
     def search(self, spec: QuerySpec) -> list[SearchResultLite]:
@@ -331,7 +343,7 @@ class CacheStorage:
 关键设计点：
 - **两段式搜索**：`search()` 返回 `SearchResultLite`（仅含 score，无 payload tensor）。只有命中候选调用 `fetch_payload()` 获取完整 `CachePayload`，避免无用数据传输。
 - **Filter fail-fast**：`CacheStorage` 在调用 `search()` 前检查 `spec.filters` 是否被 `backend.supported_filters()` 支持。不支持的 filter 抛出 `UnsupportedFilterError`，而非静默忽略。
-- **维度校验**：每次 `insert()` 和 `search()` 调用均检查 `query_key.shape == (vector_dim,)`。
+- **维度校验**：每次 `insert()` 和 `search()` 调用均逐字段校验 `query_keys` 的各维度是否与 `backend.vector_dims` 一致。
 
 ### 5.3 VectorStoreBackend — ⚠️ Step 3 已实现（不稳定）
 
@@ -357,7 +369,9 @@ class VectorStoreBackend(ABC):
 
     @property
     @abstractmethod
-    def vector_dim(self) -> int: ...
+    def vector_dims(self) -> dict[str, int]:
+        """字段名 → 向量维度。键为 CACHE_QUERY_FIELDS 子集。"""
+        ...
 
     @abstractmethod
     def supported_filters(self) -> frozenset[str]: ...
@@ -390,7 +404,7 @@ class VectorStoreBackend(ABC):
 - 支持的 filter：`checkpoint_id`、`task_key`、`step_range`
 - Score：Qdrant Cosine distance 已在 [-1, 1] 范围内，直接使用
 
-**为什么 ABC 接口故意很小**：named vector、multivector、payload filter 语法、gRPC 选项——这些全是 backend 特有细节，配在各 backend 的 `__init__` config 里，永远不暴露到 ABC 边界之上。上层代码只问一件事："给我一个 `[dim]` 的查询向量，返回最相似的 top-k 条目"。
+**为什么 ABC 接口故意很小**：payload filter 语法、gRPC 选项、融合策略（RRF 权重等）——这些全是 backend 特有细节，配在各 backend 的 `__init__` config 里，永远不暴露到 ABC 边界之上。上层代码只问一件事："给我一组命名查询向量（`dict[str, Tensor]`），返回最相似的 top-k 条目"。多字段如何融合（如 RRF、加权平均）是 backend 内部决策。
 
 #### 5.3.1 搁置设计：GPU/CPU 混合 VectorStore
 
@@ -427,17 +441,24 @@ class VectorStore:
 
 ### 5.4 QueryKeyBuilder（可插拔）
 
+> **状态**：Step 4 设计——尚未实现。
+> ⚠️ 返回类型 `dict[str, torch.Tensor]` 与 `QuerySpec.query_keys` / `CacheEntry.query_keys`（Step 3 存储层类型，不稳定）对齐。`CacheContext` 是 Step 4 编排层类型（尚未定义）。
+
 ```python
 class QueryKeyBuilder(Protocol):
-    """Converts stage outputs into a fixed-dimensional query vector."""
+    """将 stage 输出转换为命名查询向量。
 
-    def build(self, checkpoint: CheckpointID, context: CacheContext) -> torch.Tensor:
-        """Returns a normalized query vector [1, embedding_dim]."""
+    返回 dict，键为 CACHE_QUERY_FIELDS 子集，值为 L2 归一化 tensor。
+    Backend 只存储/查询其 vector_dims 声明的字段；多余字段静默忽略。
+    """
+
+    def build(self, checkpoint: CheckpointID, context: CacheContext) -> dict[str, torch.Tensor]:
+        """返回命名查询向量 {field: [dim] tensor, L2 归一化}。"""
         ...
 
 
 class MeanPoolKeyBuilder(QueryKeyBuilder):
-    """Baseline: mean-pool available embeddings, project to fixed dim.
+    """Baseline：对各 embedding 源投影到固定维度，返回命名向量。
 
     注意：'command' projection 已移除 — Stage 2 只产出 opaque 的
     KV cache，无可提取的 command embedding（CP2 搁置，详见 Section 3）。
@@ -445,36 +466,40 @@ class MeanPoolKeyBuilder(QueryKeyBuilder):
 
     def __init__(self, output_dim: int = 1024):
         self.projections = nn.ModuleDict({
-            "vision": nn.Linear(..., output_dim),
-            "prompt": nn.Linear(..., output_dim),
-            "state": nn.Linear(..., output_dim),
+            "vision_0": nn.Linear(..., output_dim),
+            "prompt_emb": nn.Linear(..., output_dim),
+            "robot_state": nn.Linear(..., output_dim),
             # "command": 已移除 — 无 command embedding（CP2 搁置）
-            "action": nn.Linear(..., output_dim),
         })
 
     def build(self, checkpoint, context):
-        parts = []
+        keys = {}
         if context.stage1:
-            parts.append(self.projections["vision"](context.stage1.vision_emb.mean(dim=1)))
-            parts.append(self.projections["state"](context.stage1.state_emb))
-        # CP2 搁置：无 context.stage2.command_emb 可用
-        if context.action is not None:
-            parts.append(self.projections["action"](context.action.mean(dim=1)))
-
-        combined = torch.stack(parts).mean(dim=0)  # [1, output_dim]
-        return F.normalize(combined, dim=-1)
+            keys["vision_0"] = F.normalize(
+                self.projections["vision_0"](context.stage1.vision_emb.mean(dim=1)), dim=-1
+            )
+            keys["robot_state"] = F.normalize(
+                self.projections["robot_state"](context.stage1.state_emb), dim=-1
+            )
+            keys["prompt_emb"] = F.normalize(
+                self.projections["prompt_emb"](context.stage1.prompt_emb), dim=-1
+            )
+        return keys
 
 
 class PlaceholderKeyBuilder(QueryKeyBuilder):
-    """For early development: use raw state vector as key."""
+    """早期开发用：仅使用 raw state 向量作为唯一查询字段。"""
 
     def build(self, checkpoint, context):
-        return F.normalize(context.stage1.raw_state.float(), dim=-1)
+        return {"robot_state": F.normalize(context.stage1.raw_state.float(), dim=-1)}
 ```
 
 设计为 Protocol，后续可替换为学习型 encoder 或其他方案，不影响系统其他部分。
 
 ### 5.5 GateFunction（可插拔）
+
+> **状态**：Step 4 设计——尚未实现。
+> `CacheContext` 是 Step 4 编排层类型（尚未定义）。Gate 不直接与存储层交互，但其输入类型将在 Step 4 实现时最终确定。
 
 决定是否在某个 checkpoint 启动检索。避免每次都搜索的开销。
 
@@ -519,48 +544,56 @@ class StateChangeGate(GateFunction):
 
 ### 5.6 SimilarityJudge（可插拔）
 
+> **状态**：Step 4 设计——尚未实现。
+> ⚠️ 使用 Step 3 存储层的 `SearchResultLite`（不稳定）。`CacheContext` 和 `CacheResult` 是 Step 4 编排层类型（尚未定义）。`SearchResultLite.score` 范围取决于 backend/mode，阈值需相应校准。
+
 判定检索结果是否构成有效 hit。
 
 ```python
 class SimilarityJudge(Protocol):
     def evaluate(
-        self, checkpoint: CheckpointID, context: CacheContext, candidates: list[CacheCandidate]
+        self, checkpoint: CheckpointID, context: CacheContext,
+        candidates: list[SearchResultLite],  # ⚠️ Step 3 类型
     ) -> CacheResult:
         ...
 
 class ThresholdJudge(SimilarityJudge):
     """Simple threshold-based judge with per-checkpoint thresholds."""
 
-    def __init__(self, thresholds: dict[CheckpointID, float]):
+    def __init__(self, storage: CacheStorage, thresholds: dict[CheckpointID, float]):
+        self.storage = storage  # 命中时需要 fetch_payload
         self.thresholds = thresholds
-        # CP1 threshold should be stricter (higher similarity required)
-        # because skipping more computation carries more risk.
-        # Default: CP1=0.98, CP3=0.90 (CP2 搁置)
+        # CP1 阈值更严格（要求更高相似度），因为跳过更多计算风险更大。
+        # 默认：CP1=0.98, CP3=0.90（CP2 搁置）
 
     def evaluate(self, checkpoint, context, candidates):
         if not candidates:
             return CacheResult.miss()
 
-        best = candidates[0]
+        best: SearchResultLite = candidates[0]
         threshold = self.thresholds[checkpoint]
 
-        if best.distance >= threshold:  # cosine similarity
+        if best.score >= threshold:
             return self._make_hit(checkpoint, best)
         return CacheResult.miss()
 
-    def _make_hit(self, checkpoint, candidate):
-        entry = candidate.entry
+    def _make_hit(self, checkpoint, candidate: SearchResultLite):
+        # 两段式：仅对命中候选 fetch 完整 payload
+        payload: CachePayload = self.storage.fetch_payload(candidate.id)
+
         # CP2 warm start 分支 — 搁置（无 command embedding 可用）。
         # 设计保留，待 CP2 重新启用时使用。
-        # if checkpoint == CheckpointID.CP2 and entry.has_intermediate:
-        #     if candidate.distance >= self.thresholds[CheckpointID.CP2_FULL]:
-        #         return CacheResult.full_hit(entry.action)
+        # if checkpoint == CheckpointID.CP2 and payload.intermediates:
+        #     if candidate.score >= self.thresholds[CheckpointID.CP2_FULL]:
+        #         return CacheResult.full_hit(payload.action_chunk)
         #     else:
+        #         t = max(payload.intermediates.keys())
         #         return CacheResult.warm_start(
-        #             cached_noisy_action=entry.intermediate_x_t,
-        #             cached_timestep=entry.intermediate_t,
+        #             cached_noisy_action=payload.intermediates[t],
+        #             cached_timestep=t,
+        #             num_steps=payload.denoising_num_steps,
         #         )
-        return CacheResult.full_hit(entry.action)
+        return CacheResult.full_hit(payload.action_chunk)
 ```
 
 ### 5.7 Cache 数据模型 — ⚠️ Step 3 已实现（不稳定）
@@ -604,12 +637,13 @@ class CachePayload:
 class CacheEntry:
     """写入存储的完整单元。
 
-    id 语义：stable_hash(checkpoint_id.name + ":" + query_key_bytes)
+    id 语义：stable_hash(checkpoint_id.name + ":" + sorted_concat_of_query_key_bytes)
     同一 context + 同一 CP 只保留一条记录（语义去重键）。
+    checkpoint_id 参与 hash，确保同一 observation 在 CP1/CP2/CP3 不互相覆盖。
     """
     id: str
     checkpoint_id: CheckpointID
-    query_key: torch.Tensor     # CPU float32 [dim]，L2 归一化
+    query_keys: dict[str, torch.Tensor]  # {field: [dim] CPU float32, L2 归一化}
     payload: CachePayload
     timestamp: float = field(default_factory=time.time)
 
@@ -626,7 +660,7 @@ class QueryFilter:
 
 @dataclass
 class QuerySpec:
-    query_key: torch.Tensor             # CPU float32 [dim]
+    query_keys: dict[str, torch.Tensor]  # {field: [dim] CPU float32}
     top_k: int = 10
     checkpoint_id: Optional[CheckpointID] = None
     filters: Optional[QueryFilter] = None
@@ -635,7 +669,9 @@ class QuerySpec:
 @dataclass
 class SearchResultLite:
     """轻量搜索结果（无 payload）。search() 返回此类型。
-    score：归一化 cosine similarity ∈ [-1, 1]。"""
+    score：越高越相似。范围取决于 backend/mode：
+      单字段 cosine：∈ [-1, 1]；多字段 RRF 融合：小正数。
+    阈值需按 backend/mode 校准。"""
     id: str
     score: float
     checkpoint_id: CheckpointID
@@ -660,6 +696,8 @@ class SearchResult:
 
 ### 6.1 完整推理周期（无 cache hit）
 
+> **注意**：下图中 `[GPU Transfer Stream]` 和 `[CPU Thread Pool]` 为 GPU/CPU 混合 VectorStore 的**目标设计**（搁置——见 Section 7）。当前使用远程 Qdrant backend，cache search 在主线程同步执行，无 GPU 向量分区和专用 transfer stream。
+
 ```
 Time ──────────────────────────────────────────────────────────────>
 
@@ -668,16 +706,18 @@ Time ─────────────────────────
 │ Vision ││ LLM    ││ step1 step2 ... step10             ││
 │        ││        ││                                     ││
 
-[GPU Transfer Stream] (non-blocking)
+[GPU Transfer Stream]（搁置 — GPU/CPU 混合方案，见 Section 7）
          ││  CP1   ││       CP2        ││            CP3  ││  write-back
          ││ search ││      search      ││           check ││  (async)
 
-[CPU Thread Pool]
+[CPU Thread Pool]（搁置 — GPU/CPU 混合方案，见 Section 7）
          ││ CP1 CPU││   CP2 CPU search ││ CP3 CPU search  ││ metadata write
          ││ search ││  (if GPU miss)   ││                 ││
 ```
 
 ### 6.2 CP1 Hit 的时序
+
+> **注意**：`[GPU Transfer Stream]` 为搁置设计（见 Section 7）。当前实际：CP1 search 为远程 Qdrant 调用，cached action 通过网络获取而非 GPU 内存。
 
 ```
 Time ──────────────────────────>
@@ -686,9 +726,9 @@ Time ─────────────────────────
 │ Stage1 ││ (idle - stages 2,3 skipped)
 │ Vision ││
 
-[GPU Transfer Stream]
+[GPU Transfer Stream]（搁置 — 当前为远程 Qdrant fetch）
          ││ CP1 search ──> HIT!
-         ││ load cached action from GPU memory
+         ││ load cached action
 
 Total: Stage1 + CP1 latency only
 ```
@@ -930,6 +970,7 @@ class TaskLifecycle(Protocol):
 class CacheConfig:
     """Top-level cache system configuration."""
 
+    # ── 通用配置（稳定）─────────────────────────────────────────
     enabled: bool = True
 
     # Per-checkpoint enable/disable
@@ -939,10 +980,10 @@ class CacheConfig:
 
     # Retrieval
     top_k: int = 5                         # candidates per search
-    embedding_dim: int = 1024              # query key dimension
 
-    # Similarity thresholds (cosine similarity, higher = stricter)
-    cp1_threshold: float = 0.98            # CP1 strictest: skipping most
+    # Similarity thresholds（越高越严格）
+    # 注意：阈值尺度取决于 backend/mode — 见 SearchResultLite.score 文档
+    cp1_threshold: float = 0.98            # CP1 最严格：跳过最多计算
     cp2_full_threshold: float = 0.96       # CP2 full hit（搁置）
     cp2_warm_threshold: float = 0.90       # CP2 warm start（搁置）
     cp3_threshold: float = 0.92            # CP3 predictive
@@ -952,17 +993,8 @@ class CacheConfig:
         default_factory=lambda: [0.7, 0.5, 0.3]
     )  # which timesteps to cache x_t for
 
-    # Storage — ⚠️ 将随 backend 演化而变
-    vector_db: VectorStoreConfig = field(default_factory=VectorStoreConfig)
-    metadata_db: Optional[MetadataStoreConfig] = None
-
-    # Hardware — 搁置（需要 GPU/CPU 混合存储，Section 5.3.1）
-    gpu_capacity: int = 10000              # 搁置
-    cpu_capacity: int = 100000             # 搁置
-    pinned_memory_mb: int = 32             # 搁置
-
     # Write policy
-    write_similarity_threshold: float = 0.99  # don't write if too similar to existing
+    write_similarity_threshold: float = 0.99  # 与已有条目太相似时不写入
     write_async: bool = True
 
     # Gate
@@ -970,9 +1002,18 @@ class CacheConfig:
     gate_interval: int = 1
     gate_state_threshold: float = 0.01
 
-    # Timing
+    # Timing（✅ Step 2 已实现）
     timing_enabled: bool = True
     timing_buffer_size: int = 10000
+
+    # ── 存储配置 — ⚠️ 不稳定，将随 backend 演化而变 ──────────────
+    vector_db: VectorStoreConfig = field(default_factory=VectorStoreConfig)
+    metadata_db: Optional[MetadataStoreConfig] = None
+
+    # ── 硬件配置 — 搁置（需要 GPU/CPU 混合存储，Section 5.3.1 / Section 7）──
+    gpu_capacity: int = 10000              # 搁置
+    cpu_capacity: int = 100000             # 搁置
+    pinned_memory_mb: int = 32             # 搁置
 ```
 
 ---
