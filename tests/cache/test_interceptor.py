@@ -81,9 +81,18 @@ class FakePolicy:
 
 
 def _make_obs() -> dict:
-    """Minimal observation dict that passes through identity transforms."""
+    """Minimal observation dict that passes through identity transforms.
+
+    Observation.from_dict requires 'image', 'image_mask', and 'state'.
+    """
     return {
         "state": np.random.randn(32).astype(np.float32),
+        "image": {
+            "base_0_rgb": np.random.randint(0, 255, (3, 224, 224), dtype=np.uint8),
+        },
+        "image_mask": {
+            "base_0_rgb": np.ones(1, dtype=bool),
+        },
     }
 
 
