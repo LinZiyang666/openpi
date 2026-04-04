@@ -162,7 +162,7 @@ class CacheOrchestrator:
 
         with self._timer.measure(f"{prefix}_gate"):
             should_search = gate(checkpoint_id, self._key_builder.cached_data)
-        logger.debug("[step %d] %s gate: %s", self._step_counter, prefix, "SEARCH" if should_search else "SKIP")
+        logger.info("[step %d] %s gate: %s", self._step_counter, prefix, "SEARCH" if should_search else "SKIP")
         if not should_search:
             if checkpoint_id == CheckpointID.CP1:
                 self._step_counter += 1
@@ -184,7 +184,7 @@ class CacheOrchestrator:
                 results, checkpoint_id, self._key_builder.cached_data
             )
         top_score = results[0].score if results else None
-        logger.debug("[step %d] %s judge: %s (top_score=%s, winner=%s)", self._step_counter, prefix, hit_type.name, top_score, winner_id)
+        logger.info("[step %d] %s judge: %s (top_score=%s, winner=%s)", self._step_counter, prefix, hit_type.name, top_score, winner_id)
 
         if checkpoint_id == CheckpointID.CP1:
             self._step_counter += 1
