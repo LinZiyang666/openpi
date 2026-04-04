@@ -127,6 +127,10 @@ class CacheOrchestrator:
         """Reset per-task state. Called when a client connection opens."""
         self._step_counter = 0
 
+    def on_episode_start(self) -> None:
+        """Reset per-episode state. Called when simulator sends episode_start."""
+        self._step_counter = 0
+
     def check(self, checkpoint_id: CheckpointID, **stage_outputs) -> CheckResult:
         """Cache check pipeline: collect -> gate -> build -> ctx -> strategy.search() -> judge -> fetch.
 
@@ -158,6 +162,7 @@ class CacheOrchestrator:
 
         with self._timer.measure(f"{prefix}_gate"):
             should_search = gate(checkpoint_id, self._key_builder.cached_data)
+        logger.debug("[step %d] %s gate: %s", self._step_counter, prefix, "SEARCH" if should_search else "SKIP")
         if not should_search:
             if checkpoint_id == CheckpointID.CP1:
                 self._step_counter += 1
@@ -178,6 +183,8 @@ class CacheOrchestrator:
             hit_type, winner_id = judge(
                 results, checkpoint_id, self._key_builder.cached_data
             )
+        top_score = results[0].score if results else None
+        logger.debug("[step %d] %s judge: %s (top_score=%s, winner=%s)", self._step_counter, prefix, hit_type.name, top_score, winner_id)
 
         if checkpoint_id == CheckpointID.CP1:
             self._step_counter += 1
@@ -194,13 +201,21 @@ class CacheOrchestrator:
 
         return CheckResult(hit_type=HitType.MISS)
 
+    def build_keys(self, checkpoint_id: CheckpointID) -> dict[str, torch.Tensor]:
+        """Build query keys from already-collected stage outputs.
+
+        Must be called in the main thread (accesses GPU tensors via key_builder).
+        Returns CPU tensors safe for cross-thread use.
+        """
+        return self._key_builder.build(checkpoint_id)
+
     def write(
         self,
         checkpoint_id: CheckpointID,
         payload: CachePayload,
         **stage_outputs,
     ) -> None:
-        """Write a cache entry (synchronous). Async deferred to Step 8.
+        """Write a cache entry (synchronous).
 
         Flow:
           1. key_builder.collect(...) [if not already collected this cycle]
@@ -213,6 +228,25 @@ class CacheOrchestrator:
         self._key_builder.collect(checkpoint_id, **stage_outputs)
         query_keys = self._key_builder.build(checkpoint_id)
 
+        entry_id = _stable_hash(checkpoint_id, query_keys)
+        entry = CacheEntry(
+            id=entry_id,
+            checkpoint_id=checkpoint_id,
+            query_keys=query_keys,
+            payload=payload,
+        )
+        self._storage.insert(entry)
+
+    def write_with_keys(
+        self,
+        checkpoint_id: CheckpointID,
+        payload: CachePayload,
+        query_keys: dict[str, torch.Tensor],
+    ) -> None:
+        """Write a cache entry with pre-built query keys. Thread-safe.
+
+        All tensors must already be on CPU. Used by background write threads.
+        """
         entry_id = _stable_hash(checkpoint_id, query_keys)
         entry = CacheEntry(
             id=entry_id,

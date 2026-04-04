@@ -68,6 +68,7 @@ Coupling map:
 
 from __future__ import annotations
 
+import concurrent.futures
 import logging
 from typing import Any, Callable, Optional
 
@@ -211,10 +212,17 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # When orchestrator=None, all cache code paths are skipped (zero overhead).
         # Data flow: Interceptor -> Orchestrator -> CacheStorage facade (Step 3)
         self._orchestrator = orchestrator
+        self._write_executor: concurrent.futures.ThreadPoolExecutor | None = None
         if orchestrator is not None:
             self._timer.register_probe("cp1_check", backend="cpu")
             self._timer.register_probe("cp1_write", backend="cpu")
             self._timer.register_probe("cp3_check", backend="cpu")
+            # Single-thread pool for non-blocking cache writes.
+            # One thread ensures writes are serialised (no concurrent upserts)
+            # while not blocking inference.
+            self._write_executor = concurrent.futures.ThreadPoolExecutor(
+                max_workers=1, thread_name_prefix="cache_write"
+            )
 
     # -----------------------------------------------------------------------
     # TaskLifecycle interface  (called by WebsocketPolicyServer._handler)
@@ -230,15 +238,30 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         if self._orchestrator is not None:
             self._orchestrator.on_task_begin()
 
+    def on_episode_start(self, experiment: str, task: str, episode_id: int) -> None:
+        """Reset per-episode state. Called when simulator sends episode_start."""
+        if self._orchestrator is not None:
+            self._orchestrator.on_episode_start()
+
+    def on_episode_end(self, success: bool) -> None:
+        """Finalise per-episode state. Called when simulator sends episode_end."""
+        pass
+
     def on_task_end(self) -> None:
         """Finalise and report timing for the completed task.
 
-        Forwards to ``SystemTimer.on_task_end()``, which:
-        1. Prints a per-probe summary table to the terminal.
-        2. Writes a CSV file if ``output_csv_dir`` was configured.
+        Waits for any pending background writes to finish, then forwards
+        to ``SystemTimer.on_task_end()`` for summary printing.
 
         Called when a client WebSocket connection closes.
         """
+        # Drain pending background writes before reporting timing.
+        if self._write_executor is not None:
+            self._write_executor.shutdown(wait=True)
+            # Recreate for next task.
+            self._write_executor = concurrent.futures.ThreadPoolExecutor(
+                max_workers=1, thread_name_prefix="cache_write"
+            )
         self._timer.on_task_end()
 
     # -----------------------------------------------------------------------
@@ -358,16 +381,6 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
                 # Post-inference cache operations (only on normal path, not on hit path).
                 if self._orchestrator is not None:
-                    # Write CP1 entry for future lookups.
-                    # Data flow: stage1.state -> key, stage3.action_chunk -> payload -> storage
-                    with self._timer.measure("cp1_write"):
-                        cp1_payload = CachePayload(
-                            action_chunk=stage3.action_chunk[0].detach().cpu().float().contiguous()
-                        )
-                        self._orchestrator.write(
-                            CheckpointID.CP1, cp1_payload, stage1=stage1
-                        )
-
                     # CP3 check: infrastructure validation only.
                     # No CP3 entries exist in Step 4, so this always returns MISS.
                     # Real CP3 write + skip deferred to Step 6 (DeferredWriter).
@@ -375,6 +388,17 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                         _cp3_result = self._orchestrator.check(
                             CheckpointID.CP3, stage1=stage1, stage3=stage3
                         )
+
+                    # Write CP1 entry for future lookups — non-blocking.
+                    # Tensors are materialised to CPU here (in the main thread)
+                    # so the background thread never touches GPU state.
+                    cp1_payload = CachePayload(
+                        action_chunk=stage3.action_chunk[0].detach().cpu().float().contiguous()
+                    )
+                    cp1_query_keys = self._orchestrator.build_keys(CheckpointID.CP1)
+                    self._write_executor.submit(
+                        self._bg_write, CheckpointID.CP1, cp1_payload, cp1_query_keys
+                    )
 
                     # Release per-cycle cached data.
                     self._orchestrator.clear()
@@ -391,6 +415,22 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         )
         outputs = self._output_transform(outputs)
         return outputs
+
+    # -----------------------------------------------------------------------
+    # Background write helper
+    # -----------------------------------------------------------------------
+
+    def _bg_write(
+        self,
+        checkpoint_id: CheckpointID,
+        payload: CachePayload,
+        query_keys: dict[str, torch.Tensor],
+    ) -> None:
+        """Execute cache write in background thread. All tensors must be CPU."""
+        try:
+            self._orchestrator.write_with_keys(checkpoint_id, payload, query_keys)
+        except Exception:
+            logger.exception("Background cache write failed for %s", checkpoint_id.name)
 
     # -----------------------------------------------------------------------
     # BasePolicy metadata property

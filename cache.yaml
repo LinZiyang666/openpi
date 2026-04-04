@@ -45,17 +45,13 @@ checkpoints:
     <<: *cp_defaults
     enabled: true           # set false to disable CP1 cache check entirely
     judge:
-      type: threshold
-      threshold: 0.98     # WARNING: placeholder, needs calibration with real data
-      # Multi-field RRF fusion: score is a small positive number, NOT cosine [-1,1].
-      # Recalibrate with real data.
+      type: always_hit
 
   cp3:
     <<: *cp_defaults
     enabled: true           # set false to disable CP3 cache check entirely
     judge:
-      type: threshold
-      threshold: 0.95     # WARNING: placeholder, needs calibration with real data
+      type: always_hit
 
 backend:
   type: qdrant            # "in_memory" | "qdrant"

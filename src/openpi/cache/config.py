@@ -353,8 +353,8 @@ def validate_cache_config(config: CacheConfig) -> None:
         if cp_config.gate.type not in ("always_search",):
             errors.append(f"{prefix}.gate.type '{cp_config.gate.type}' is unknown. Valid: ['always_search']")
 
-        if cp_config.judge.type not in ("threshold",):
-            errors.append(f"{prefix}.judge.type '{cp_config.judge.type}' is unknown. Valid: ['threshold']")
+        if cp_config.judge.type not in ("threshold", "always_hit"):
+            errors.append(f"{prefix}.judge.type '{cp_config.judge.type}' is unknown. Valid: ['threshold', 'always_hit']")
 
         if cp_config.search_strategy.type not in ("simple_knn",):
             errors.append(
@@ -537,8 +537,12 @@ def _build_judge(cfg: JudgeConfig):
         from openpi.cache.components.judge import ThresholdJudge
 
         return ThresholdJudge(cp1_threshold=cfg.threshold, cp3_threshold=cfg.threshold)
+    elif cfg.type == "always_hit":
+        from openpi.cache.components.judge import AlwaysHitJudge
+
+        return AlwaysHitJudge()
     else:
-        raise ConfigValidationError(f"Unknown judge.type '{cfg.type}'. Valid: ['threshold']")
+        raise ConfigValidationError(f"Unknown judge.type '{cfg.type}'. Valid: ['threshold', 'always_hit']")
 
 
 def _build_search_strategy(cfg: SearchStrategyConfig, storage, fusion_weights: dict[str, float]):

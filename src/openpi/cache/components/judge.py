@@ -71,6 +71,24 @@ class SimilarityJudge(Protocol):
         ...
 
 
+class AlwaysHitJudge:
+    """Always returns FULL_HIT for the top-1 result (if any results exist).
+
+    Useful for testing / calibration: confirms the full hit path works
+    end-to-end without threshold tuning.
+    """
+
+    def __call__(
+        self,
+        results: list[SearchResultLite],
+        checkpoint_id: CheckpointID,
+        cached_data: dict[str, torch.Tensor],
+    ) -> tuple[HitType, Optional[str]]:
+        if not results:
+            return HitType.MISS, None
+        return HitType.FULL_HIT, results[0].id
+
+
 class ThresholdJudge:
     """Simple threshold-based judge: top-1 score > threshold -> FULL_HIT.
 
