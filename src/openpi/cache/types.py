@@ -2,6 +2,12 @@
 
 Kept in a separate module so that both timing.py and storage_types.py can
 import from here without creating circular dependencies.
+
+Coupling map:
+  DEPENDS ON:  nothing (leaf module)
+  CONSUMED BY: KeyBuilder (field name constants), Orchestrator (CheckpointID),
+               storage_types (CheckpointID), cache_storage (via storage_types)
+  IF CHANGED:  All consumers must update field references
 """
 
 from enum import Enum, auto

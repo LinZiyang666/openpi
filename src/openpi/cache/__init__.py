@@ -48,6 +48,12 @@ from openpi.cache.storage_types import (
 from openpi.cache.backend_base import VectorStoreBackend
 from openpi.cache.cache_storage import CacheStorage
 
+# Step 4: Orchestrator + pluggable components
+from openpi.cache.components.key_builder import QueryKeyBuilder, PlaceholderKeyBuilder
+from openpi.cache.components.gate import GateFunction, AlwaysSearchGate
+from openpi.cache.components.judge import SimilarityJudge, ThresholdJudge, HitType
+from openpi.cache.orchestrator import CacheOrchestrator, CheckResult
+
 __all__ = [
     # timing (existing)
     "SystemTimer",
@@ -70,4 +76,14 @@ __all__ = [
     "UnsupportedFilterError",
     "VectorStoreBackend",
     "CacheStorage",
+    # Step 4: orchestrator + components
+    "QueryKeyBuilder",
+    "PlaceholderKeyBuilder",
+    "GateFunction",
+    "AlwaysSearchGate",
+    "SimilarityJudge",
+    "ThresholdJudge",
+    "HitType",
+    "CacheOrchestrator",
+    "CheckResult",
 ]

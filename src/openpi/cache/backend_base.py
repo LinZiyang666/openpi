@@ -3,6 +3,12 @@
 All backends must implement this interface.  CacheStorage (the facade above
 this layer) is the only caller; application code never touches backends directly.
 
+Coupling map:
+  DEPENDS ON:  storage_types.py (CacheEntry, CachePayload, QuerySpec, etc.)
+  CONSUMED BY: CacheStorage (the only caller), concrete backends (Qdrant, future FAISS)
+  IF CHANGED:  CacheStorage internal calls, all concrete backend implementations
+  NOTE:        Application code (Orchestrator, Interceptor) must NEVER import this
+
 Threading
 ---------
 Backends are NOT required to be thread-safe.  CacheStorage serialises all

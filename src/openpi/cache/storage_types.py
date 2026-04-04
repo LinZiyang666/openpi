@@ -4,6 +4,14 @@ All types in this module are backend-agnostic: they define what data looks like
 at the boundary between CacheOrchestrator and CacheStorage, not how any
 particular database stores it.
 
+Coupling map:
+  DEPENDS ON:  types.py (CheckpointID)
+  CONSUMED BY: KeyBuilder (CachePayload, CacheEntry construction),
+               Orchestrator (QuerySpec, SearchResultLite, SearchResult),
+               CacheStorage (all types), backends (all types)
+  IF CHANGED:  Orchestrator QuerySpec construction, KeyBuilder payload construction,
+               Judge threshold calibration (if score semantics change)
+
 Tensor contract
 ---------------
 Every torch.Tensor inside CachePayload or CacheEntry must be:

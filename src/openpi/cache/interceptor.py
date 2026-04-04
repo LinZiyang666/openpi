@@ -8,22 +8,28 @@ WebSocket server.  When ``--cache`` is passed to ``serve_policy.py``, the
 server receives this interceptor instead of the raw ``Policy`` with zero
 changes to ``WebsocketPolicyServer`` or any client code.
 
-Current state (Step 2)
+Current state (Step 4)
 ----------------------
 The interceptor routes inference through the *staged* public API
-(``run_stage1`` / ``run_stage2`` / ``run_stage3``) introduced in Step 1, and
-times each stage using ``SystemTimer`` with CUDA Event backends.  No caching
-logic is applied yet — the output is numerically identical to ``Policy.infer``.
-Caching logic (``CacheOrchestrator``) will be injected at the TODO markers in
-Step 4.
+(``run_stage1`` / ``run_stage2`` / ``run_stage3``) introduced in Step 1,
+times each stage using ``SystemTimer`` with CUDA Event backends (Step 2),
+and optionally integrates ``CacheOrchestrator`` (Step 4) for cache check
+and write at CP1 and CP3 checkpoints.
 
-The manual wall-clock / global-synchronize timing from Step 1 has been
-removed.  All timing now flows through ``SystemTimer``:
+When ``orchestrator`` is provided:
+* CP1 check after Stage 1: on FULL_HIT, skip Stage 2 + 3, return cached action.
+* CP1 write after normal inference: store state -> action mapping for future lookups.
+* CP3 consume at infer() entry: check for pre-scheduled action (stub in Step 4).
+* CP3 check after Stage 3: infrastructure validation only (always MISS in Step 4).
 
-* Stage 1 (vision + token prep)  → probe ``"stage1_vision"`` (CUDA backend)
-* Stage 2 (LLM backbone)         → probe ``"stage2_llm"``    (CUDA backend)
-* Stage 3 (flow matching)        → probe ``"stage3_flow"``   (CUDA backend)
-* End-to-end wall time           → probe ``"total_inference"`` (CPU backend)
+When ``orchestrator=None``: behavior is identical to Step 2 (zero overhead).
+
+Timing probes:
+* Stage 1 (vision + token prep)  -> probe ``"stage1_vision"`` (CUDA backend)
+* Stage 2 (LLM backbone)         -> probe ``"stage2_llm"``    (CUDA backend)
+* Stage 3 (flow matching)        -> probe ``"stage3_flow"``   (CUDA backend)
+* End-to-end wall time           -> probe ``"total_inference"`` (CPU backend)
+* CP1 check/write, CP3 check     -> probes ``"cp1_check"`` etc. (CPU backend)
 
 Task lifecycle
 --------------
@@ -43,11 +49,6 @@ External contract (what the client / server sees)
         "server_timing" is added by the server, not here,
     }
 
-The per-inference timing keys (``policy_timing`` / per-stage ms dict) that
-were present in the Step 1 version have been removed.  Timing output is now
-handled entirely by ``SystemTimer`` (printed at task end, optionally written
-to CSV).
-
 Limitations
 -----------
 * Only PyTorch policies are supported.  JAX policies do not expose
@@ -55,6 +56,14 @@ Limitations
 * ``SystemTimer`` is created with default settings.  To customise
   ``buffer_size`` or ``output_csv_dir``, pass a pre-configured
   ``SystemTimer`` instance via the ``timer`` argument.
+
+Coupling map:
+  DEPENDS ON:  Policy (wrapped), SystemTimer (Step 2),
+               CacheOrchestrator + CheckResult + HitType (Step 4, optional),
+               CachePayload (Step 3, for CP1 write),
+               CheckpointID (types.py)
+  CONSUMED BY: WebsocketPolicyServer (as BasePolicy drop-in)
+  IF CHANGED:  Server sees no change (same BasePolicy interface)
 """
 
 from __future__ import annotations
@@ -68,7 +77,11 @@ import torch
 from openpi_client import base_policy as _base_policy
 from typing_extensions import override
 
+from openpi.cache.components.judge import HitType
+from openpi.cache.orchestrator import CacheOrchestrator
+from openpi.cache.storage_types import CachePayload
 from openpi.cache.timing import SystemTimer, TaskLifecycle
+from openpi.cache.types import CheckpointID
 from openpi.models import model as _model
 from openpi.policies import policy as _policy
 
@@ -106,6 +119,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         self,
         policy: _policy.Policy,
         timer: Optional[SystemTimer] = None,
+        orchestrator: Optional["CacheOrchestrator"] = None,
     ) -> None:
         if not policy._is_pytorch_model:  # noqa: SLF001
             raise ValueError(
@@ -193,6 +207,15 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # from the robot's perspective.
         self._timer.register_probe("total_inference", backend="cpu")
 
+        # ---- CacheOrchestrator (Step 4) ----
+        # When orchestrator=None, all cache code paths are skipped (zero overhead).
+        # Data flow: Interceptor -> Orchestrator -> CacheStorage facade (Step 3)
+        self._orchestrator = orchestrator
+        if orchestrator is not None:
+            self._timer.register_probe("cp1_check", backend="cpu")
+            self._timer.register_probe("cp1_write", backend="cpu")
+            self._timer.register_probe("cp3_check", backend="cpu")
+
     # -----------------------------------------------------------------------
     # TaskLifecycle interface  (called by WebsocketPolicyServer._handler)
     # -----------------------------------------------------------------------
@@ -222,28 +245,24 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
     @override
     def infer(self, obs: dict, *, noise: np.ndarray | None = None) -> dict:  # type: ignore[misc]
-        """Cache-aware inference.
+        """Cache-aware inference through the staged API.
 
-        Currently a pass-through (Step 2): calls run_stage1 → run_stage2 →
-        run_stage3 sequentially and returns the same action dict as
-        ``Policy.infer``.
+        Pipeline:
+        1. Input transforms (same as Policy.infer).
+        2. CP3 consume: check if previous cycle pre-scheduled an action (stub in Step 4).
+        3. Stage 1 (vision) -> CP1 check -> on HIT: early return cached action.
+        4. Stage 2 (LLM) -> Stage 3 (flow matching).
+        5. CP1 write: store state -> action for future lookups.
+        6. CP3 check: infrastructure validation (always MISS in Step 4).
+        7. Build outputs.
 
-        Timing is measured by ``SystemTimer``:
-        * ``total_inference``: CPU wall time for the entire staged inference.
-        * ``stage1_vision``, ``stage2_llm``, ``stage3_flow``: per-stage GPU
-          execution time via CUDA Events.
+        When orchestrator=None, steps 2/3-hit/5/6 are skipped — identical to Step 2.
 
-        The ``stage_timing`` key is no longer included in the returned dict.
-        Timing summaries are printed by ``SystemTimer.on_task_end()`` at the
-        end of each connection.
+        Timing probes: total_inference (CPU), stage1/2/3 (CUDA), cp1_check/write, cp3_check (CPU).
 
         Args:
-            obs: Observation dict in the format expected by the wrapped policy's
-                 input transform.  Must contain at least the keys defined by
-                 the robot-specific transform (e.g. ``AlohaInputs``).
-            noise: Optional initial noise tensor for flow matching.  If given,
-                   must have shape ``[action_horizon, action_dim]`` or
-                   ``[1, action_horizon, action_dim]``.
+            obs: Observation dict for the wrapped policy's input transform.
+            noise: Optional initial noise for flow matching, shape [H, D] or [1, H, D].
 
         Returns:
             Dict with keys ``"actions"`` and ``"state"``.
@@ -265,10 +284,29 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             if start_noise.ndim == 2:
                 start_noise = start_noise[None, ...]
 
-        # ---- 2. Staged inference with SystemTimer ----
-        # total_inference uses a CPU (perf_counter) backend and wraps all
-        # three stages.  It captures end-to-end wall time including Python
-        # overhead and the per-stage CUDA event synchronizations.
+        # ---- CP3 consume point (before any stage) ----
+        # Check if previous cycle pre-scheduled an action via CP3.
+        # Data flow: orchestrator._next_action_scheduled -> action (or None)
+        # Stub in Step 4: always None. Step 6 implements actual skip.
+        if self._orchestrator is not None:
+            scheduled_action = self._orchestrator.should_skip_inference()
+            if scheduled_action is not None:
+                # scheduled_action is CachePayload.next_action_chunk: CPU float32 [50, 32].
+                # inputs["state"] is a batched GPU tensor [1, state_dim].
+                # Strip batch dim from state only; action has no batch dim.
+                state_np = np.asarray(inputs["state"][0, ...].detach().cpu())
+                action_np = np.asarray(scheduled_action.detach().cpu()) \
+                    if isinstance(scheduled_action, torch.Tensor) \
+                    else np.asarray(scheduled_action)
+                outputs: dict[str, Any] = {
+                    "state": state_np,
+                    "actions": action_np,
+                }
+                outputs = self._output_transform(outputs)
+                self._orchestrator.clear()
+                return outputs
+
+        # ---- 2. Staged inference with cache checks ----
         # Mark a fresh compiled-step boundary before invoking staged compiled
         # functions; this prevents CUDAGraph-managed outputs from being read
         # across step boundaries.
@@ -276,28 +314,73 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         with self._timer.measure("total_inference"):
             with torch.no_grad():
                 # Stage 1: SigLIP vision encoding + prefix embedding.
-                # Uses self._stage1_fn which is either torch.compile'd or eager
-                # depending on config.pytorch_compile_mode.
                 with self._timer.measure("stage1_vision"):
                     stage1 = self._stage1_fn(observation)
 
-                # Stage 2: Gemma 2B backbone forward pass → KV cache.
-                # TODO(Step 4): insert CP1 cache check between stage1 and stage2.
+                # CP1: check cache after Stage 1.
+                # Data flow: stage1 -> orchestrator.check(CP1) -> CheckResult
+                # On HIT: skip stage2 + stage3, return cached action.
+                if self._orchestrator is not None:
+                    with self._timer.measure("cp1_check"):
+                        cp1_result = self._orchestrator.check(
+                            CheckpointID.CP1, stage1=stage1
+                        )
+                    if cp1_result.hit_type == HitType.FULL_HIT:
+                        # Build outputs from cached payload.
+                        # CachePayload.action_chunk is CPU float32 [50, 32].
+                        # Move to device and add batch dim to match normal path.
+                        outputs = {
+                            "state": inputs["state"],
+                            "actions": cp1_result.payload.action_chunk.to(
+                                self._pytorch_device
+                            )[None, ...],  # [1, 50, 32]
+                        }
+                        outputs = jax.tree.map(
+                            lambda x: np.asarray(x[0, ...].detach().cpu()),
+                            outputs,
+                        )
+                        outputs = self._output_transform(outputs)
+                        self._orchestrator.clear()
+                        return outputs
+
+                # Stage 2: Gemma 2B backbone forward pass -> KV cache.
                 with self._timer.measure("stage2_llm"):
                     stage2 = self._stage2_fn(stage1)
 
+                # CP2 slot: remains commented out (suspended).
+                # TODO(Step 7): insert CP2 cache check here.
+
                 # Stage 3: Action Expert — 10-step Euler flow-matching loop.
-                # TODO(Step 4): insert CP2 cache check between stage2 and stage3.
                 with self._timer.measure("stage3_flow"):
                     stage3 = self._stage3_fn(stage2, noise=start_noise)
 
-                # TODO(Step 4): insert CP3 predictive cache check after stage3.
+                # Post-inference cache operations (only on normal path, not on hit path).
+                if self._orchestrator is not None:
+                    # Write CP1 entry for future lookups.
+                    # Data flow: stage1.state -> key, stage3.action_chunk -> payload -> storage
+                    with self._timer.measure("cp1_write"):
+                        cp1_payload = CachePayload(
+                            action_chunk=stage3.action_chunk[0].detach().cpu().float().contiguous()
+                        )
+                        self._orchestrator.write(
+                            CheckpointID.CP1, cp1_payload, stage1=stage1
+                        )
+
+                    # CP3 check: infrastructure validation only.
+                    # No CP3 entries exist in Step 4, so this always returns MISS.
+                    # Real CP3 write + skip deferred to Step 6 (DeferredWriter).
+                    with self._timer.measure("cp3_check"):
+                        _cp3_result = self._orchestrator.check(
+                            CheckpointID.CP3, stage1=stage1, stage3=stage3
+                        )
+
+                    # Release per-cycle cached data.
+                    self._orchestrator.clear()
 
         # ---- 3. Build outputs ----
         # Output format matches Policy.infer so the server and client require
-        # no changes.  stage_timing / policy_timing are intentionally omitted;
-        # timing is reported by SystemTimer at task end instead.
-        outputs: dict[str, Any] = {
+        # no changes.  Timing is reported by SystemTimer at task end.
+        outputs = {
             "state":   inputs["state"],
             "actions": stage3.action_chunk,
         }

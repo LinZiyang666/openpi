@@ -2,6 +2,12 @@
 
 CacheOrchestrator talks only to this class — never to backends directly.
 
+Coupling map:
+  DEPENDS ON:  backend_base.py (VectorStoreBackend), storage_types.py (all types)
+  CONSUMED BY: CacheOrchestrator (search/insert/fetch_payload) — ONLY consumer
+  IF CHANGED:  Orchestrator's search/write calls may need updating
+  NOTE:        Step 4+ code must ONLY interact via this facade, never via backend directly
+
 Responsibilities
 ----------------
 1. Thread safety    — RLock around every backend call.
@@ -154,12 +160,17 @@ class CacheStorage:
                 )
 
     def _check_entry_dims(self, entry: CacheEntry) -> None:
-        for field_name, expected in self._dims.items():
-            if field_name not in entry.query_keys:
-                raise ValueError(
-                    f"entry.query_keys missing required field {field_name!r}. "
-                    f"Backend requires: {set(self._dims.keys())}"
-                )
+        # Intersection-based validation: only check fields present in both
+        # entry and backend. At least one must overlap.
+        active = set(entry.query_keys.keys()) & set(self._dims.keys())
+        if not active:
+            raise ValueError(
+                f"entry.query_keys has no fields matching backend. "
+                f"Backend fields: {set(self._dims.keys())}, "
+                f"entry fields: {set(entry.query_keys.keys())}"
+            )
+        for field_name in active:
+            expected = self._dims[field_name]
             shape = tuple(entry.query_keys[field_name].shape)
             if shape != (expected,):
                 raise ValueError(
