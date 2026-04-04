@@ -338,10 +338,10 @@ def validate_cache_config(config: CacheConfig) -> None:
             )
 
     # 4. key_builder type.
-    if config.key_builder.type not in ("placeholder",):
+    if config.key_builder.type not in ("placeholder", "full_original"):
         errors.append(
             f"Unknown key_builder.type '{config.key_builder.type}'.\n"
-            f"  Valid types: ['placeholder']"
+            f"  Valid types: ['placeholder', 'full_original']"
         )
 
     # 5 + 7. Per-checkpoint validation.
@@ -513,8 +513,12 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str]):
         from openpi.cache.components.key_builder import PlaceholderKeyBuilder
 
         return PlaceholderKeyBuilder()
+    elif cfg.type == "full_original":
+        from openpi.cache.components.key_builder import FullOriginalKeyBuilder
+
+        return FullOriginalKeyBuilder(enabled_fields=enabled_fields)
     else:
-        raise ConfigValidationError(f"Unknown key_builder.type '{cfg.type}'. Valid: ['placeholder']")
+        raise ConfigValidationError(f"Unknown key_builder.type '{cfg.type}'. Valid: ['placeholder', 'full_original']")
 
 
 def _build_gate(cfg: GateConfig):

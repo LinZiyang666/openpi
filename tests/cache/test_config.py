@@ -57,8 +57,8 @@ def test_load_default_config():
     assert config.enabled is True
     assert "cp1" in config.checkpoints
     assert "cp3" in config.checkpoints
-    assert config.backend.type == "in_memory"
-    assert config.key_builder.type == "placeholder"
+    assert config.backend.type == "qdrant"
+    assert config.key_builder.type == "full_original"
 
 
 # ---------------------------------------------------------------------------

@@ -28,7 +28,7 @@ Step 3（存储层）+ Step 4（Orchestrator 骨架 + Config 配置系统）代�
 
 | 文件 | 说明 | 状态 |
 |------|------|------|
-| `components/key_builder.py` | `QueryKeyBuilder` Protocol + `PlaceholderKeyBuilder`（state-only） | 🟡 单元测试通过，未集成验证 |
+| `components/key_builder.py` | `QueryKeyBuilder` Protocol + `PlaceholderKeyBuilder`（state-only）+ `FullOriginalKeyBuilder`（vision+prompt+state 原始 flatten） | 🟡 单元测试通过，未集成验证 |
 | `components/gate.py` | `GateFunction` Protocol + `AlwaysSearchGate` | ✅ 稳定（极简） |
 | `components/judge.py` | `HitType` enum + `SimilarityJudge` Protocol + `ThresholdJudge` | 🟡 单元测试通过，阈值未校准 |
 | `components/search_strategy.py` | `SearchStrategy` Protocol + `SearchContext` + `SimpleKnnStrategy` | 🟡 单元测试通过，未集成验证 |

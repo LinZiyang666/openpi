@@ -13,20 +13,20 @@ timer:
 
 # Query vector field config.
 # enabled: whether the field participates in cache key building and search.
-# weight: fusion weight for SearchStrategy.
-# WARNING: key_builder.type=placeholder only supports robot_state.
-#   Other fields with enabled=true will cause a startup validation error.
-#   Enable more fields after KeyBuilder is extended in future steps.
+# weight: fusion weight for SearchStrategy (higher = more important in RRF fusion).
+# Dimensions are raw flattened: vision = 196 tokens * emb_dim, prompt = max_token_len * emb_dim.
+# Actual values depend on dataset (set by qdrant_ingest_openpi.py at collection creation).
 # task_key filtering: not yet implemented, requires task normalization pipeline.
 keys:
-  vision_0:    { enabled: false, weight: 1.0 }
-  vision_1:    { enabled: false, weight: 1.0 }
-  vision_2:    { enabled: false, weight: 1.0 }
-  prompt_emb:  { enabled: false, weight: 1.0 }
-  robot_state: { enabled: true,  weight: 1.0 }
+  vision_0:    { enabled: true,  weight: 1.0 }   # base_0_rgb, [196, emb_dim] flattened
+  vision_1:    { enabled: true,  weight: 1.0 }   # left_wrist_0_rgb, [196, emb_dim] flattened
+  vision_2:    { enabled: true,  weight: 1.0 }   # right_wrist_0_rgb, [196, emb_dim] flattened
+  prompt_emb:  { enabled: true,  weight: 1.0 }   # language tokens, [max_token_len, emb_dim] flattened
+  robot_state: { enabled: true,  weight: 1.0 }   # raw state vector [action_dim]
 
 key_builder:
-  type: placeholder       # "placeholder" = robot_state only
+  type: full_original       # "full_original" = raw flatten, matches collect hook output
+                            # "placeholder" = robot_state only (for testing)
 
 # Per-checkpoint config: CP1 and CP3 can be configured independently.
 checkpoints:
@@ -47,10 +47,8 @@ checkpoints:
     judge:
       type: threshold
       threshold: 0.98     # WARNING: placeholder, needs calibration with real data
-      # Threshold semantics depend on search mode:
-      #   single-field cosine (robot_state only): score in [-1, 1], 0.98 = very high similarity
-      #   multi-field RRF fusion: score is a small positive number, different scale
-      # Recalibrate after switching search mode.
+      # Multi-field RRF fusion: score is a small positive number, NOT cosine [-1,1].
+      # Recalibrate with real data.
 
   cp3:
     <<: *cp_defaults
@@ -60,12 +58,20 @@ checkpoints:
       threshold: 0.95     # WARNING: placeholder, needs calibration with real data
 
 backend:
-  type: in_memory         # "in_memory" | "qdrant"
+  type: qdrant            # "in_memory" | "qdrant"
+  # vector_dims must match the Qdrant collection schema created by qdrant_ingest_openpi.py.
+  # These are full flattened dims; the backend handles Qdrant's 65535-dim chunk limit internally.
+  # To get actual values, run: python exp/qdrant_ingest_openpi.py --dry-run --data-dir <path>
+  # and read the dataset summary output.
   vector_dims:
-    robot_state: 32       # must align with enabled keys
+    vision_0: 401408      # 196 * 2048 (projection_dim)
+    vision_1: 401408
+    vision_2: 401408
+    prompt_emb: 409600    # 200 (max_token_len) * 2048 — adjust if your dataset differs
+    robot_state: 32       # action_dim
   qdrant:
     url: ${QDRANT_URL:-http://localhost:6333}
-    collection_name: openpi_cache
+    collection_name: openpi_steps_named   # must match qdrant_ingest_openpi.py --named-collection
     prefer_grpc: false
     grpc_port: 6334
     request_timeout: 30

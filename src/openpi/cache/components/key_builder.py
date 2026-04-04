@@ -17,7 +17,14 @@ from typing import Protocol, runtime_checkable
 import torch
 import torch.nn.functional as F
 
-from openpi.cache.types import ROBOT_STATE, CheckpointID
+from openpi.cache.types import (
+    PROMPT_EMB,
+    ROBOT_STATE,
+    VISION_0,
+    VISION_1,
+    VISION_2,
+    CheckpointID,
+)
 
 
 @runtime_checkable
@@ -109,6 +116,104 @@ class PlaceholderKeyBuilder:
             return {ROBOT_STATE: key.cpu().float().contiguous()}
 
         raise ValueError(f"Unsupported checkpoint_id: {checkpoint_id}")
+
+    @property
+    def cached_data(self) -> dict[str, torch.Tensor]:
+        return self._cache
+
+    def clear(self) -> None:
+        self._cache.clear()
+
+
+# ---------------------------------------------------------------------------
+# Token layout constants for prefix_embs
+# ---------------------------------------------------------------------------
+
+# SigLIP: image_resolution=224, patch_size=16 -> (224/16)^2 = 196 tokens per image
+_TOKENS_PER_IMAGE = 196
+_NUM_IMAGES = 3  # base_0_rgb, left_wrist_0_rgb, right_wrist_0_rgb
+
+# Offsets into prefix_embs [B, prefix_len, emb_dim]:
+#   [0:196)    = vision_0 (base_0_rgb)
+#   [196:392)  = vision_1 (left_wrist_0_rgb)
+#   [392:588)  = vision_2 (right_wrist_0_rgb)
+#   [588:...)  = prompt_emb (language tokens, padded to max_token_len)
+_VISION_OFFSETS = [
+    (VISION_0, 0, _TOKENS_PER_IMAGE),
+    (VISION_1, _TOKENS_PER_IMAGE, 2 * _TOKENS_PER_IMAGE),
+    (VISION_2, 2 * _TOKENS_PER_IMAGE, 3 * _TOKENS_PER_IMAGE),
+]
+_PROMPT_START = _NUM_IMAGES * _TOKENS_PER_IMAGE  # 588
+
+
+class FullOriginalKeyBuilder:
+    """Raw key builder: slice prefix_embs back into original segments and flatten.
+
+    embed_prefix() concatenates [vision_0 | vision_1 | vision_2 | prompt] into
+    prefix_embs. This builder simply reverses that concatenation — slices at
+    fixed token boundaries and flattens each segment into a 1-D vector.
+    No mean pooling, no L2 normalization. The output matches what the collect
+    system's forward hooks capture (multi_modal_projector / embed_tokens output).
+
+    Token layout (from embed_prefix()):
+      prefix_embs = [vision_0 (196) | vision_1 (196) | vision_2 (196) | prompt (max_token_len)]
+
+    Output dims (after flatten):
+      vision_0:    [196 * emb_dim]   (e.g. 196 * 2048 = 401408)
+      vision_1:    [196 * emb_dim]
+      vision_2:    [196 * emb_dim]
+      prompt_emb:  [max_token_len * emb_dim]  (e.g. 200 * 2048 = 409600)
+      robot_state: [action_dim]      (e.g. 32)
+
+    Coupling:
+      - DEPENDS ON: Stage1Output fields (prefix_embs, state)
+      - DEPENDS ON: SigLIP patch_size=16, image_resolution=224 (196 tokens/image)
+      - DEPENDS ON: 3 images in fixed order (IMAGE_KEYS in model.py)
+      - IF image count or SigLIP config changes: offsets must be updated
+      - IF Stage output shapes change: backend vector_dims must match
+    """
+
+    def __init__(self, enabled_fields: list[str] | None = None) -> None:
+        self._cache: dict[str, torch.Tensor] = {}
+        self._enabled = set(enabled_fields) if enabled_fields is not None else None
+
+    def _is_enabled(self, field: str) -> bool:
+        return self._enabled is None or field in self._enabled
+
+    def collect(self, checkpoint_id: CheckpointID, **stage_outputs) -> None:
+        self._cache.clear()
+        if "stage1" in stage_outputs:
+            s1 = stage_outputs["stage1"]
+            self._cache["state"] = s1.state                       # [B, action_dim]
+            self._cache["prefix_embs"] = s1.prefix_embs           # [B, prefix_len, emb_dim]
+        if "stage3" in stage_outputs:
+            self._cache["action_chunk"] = stage_outputs["stage3"].action_chunk
+
+    def build(self, checkpoint_id: CheckpointID) -> dict[str, torch.Tensor]:
+        if checkpoint_id not in (CheckpointID.CP1, CheckpointID.CP3):
+            raise ValueError(f"Unsupported checkpoint_id: {checkpoint_id}")
+
+        keys: dict[str, torch.Tensor] = {}
+        prefix = self._cache["prefix_embs"][0]  # [prefix_len, emb_dim]
+
+        # Vision fields: slice at fixed 196-token boundaries, flatten raw.
+        for field_name, start, end in _VISION_OFFSETS:
+            if not self._is_enabled(field_name):
+                continue
+            segment = prefix[start:end]  # [196, emb_dim]
+            keys[field_name] = segment.reshape(-1).cpu().float().contiguous()
+
+        # Prompt: slice remainder after vision tokens, flatten raw.
+        if self._is_enabled(PROMPT_EMB):
+            prompt_segment = prefix[_PROMPT_START:]  # [max_token_len, emb_dim]
+            keys[PROMPT_EMB] = prompt_segment.reshape(-1).cpu().float().contiguous()
+
+        # Robot state: raw, no normalization.
+        if self._is_enabled(ROBOT_STATE):
+            state = self._cache["state"][0]  # [action_dim]
+            keys[ROBOT_STATE] = state.cpu().float().contiguous()
+
+        return keys
 
     @property
     def cached_data(self) -> dict[str, torch.Tensor]:
