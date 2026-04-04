@@ -375,9 +375,17 @@ class QdrantVectorStore(VectorStoreBackend):
     def _b64_to_tensor(s: Optional[str]) -> Optional[torch.Tensor]:
         if s is None:
             return None
+        import numpy as np
         import torch
-        buf = io.BytesIO(base64.b64decode(s))
-        return torch.load(buf, weights_only=True)
+        raw = base64.b64decode(s)
+        buf = io.BytesIO(raw)
+        # Try torch format first, fall back to numpy (.npy) format
+        try:
+            return torch.load(buf, weights_only=True)
+        except Exception:
+            buf.seek(0)
+            arr = np.load(buf)
+            return torch.from_numpy(arr.astype(np.float32))
 
     @classmethod
     def _serialize_payload(cls, p: CachePayload) -> dict:
@@ -405,11 +413,11 @@ class QdrantVectorStore(VectorStoreBackend):
             }
 
         return CachePayload(
-            action_chunk=cls._b64_to_tensor(raw["action_chunk"]),
+            action_chunk=cls._b64_to_tensor(raw.get("action_chunk")),
             intermediates=intermediates,
             denoising_num_steps=raw.get("denoising_num_steps"),
             next_action_chunk=cls._b64_to_tensor(raw.get("next_action_chunk")),
-            task_key=raw.get("task_key", ""),
+            task_key=raw.get("task_key", raw.get("task", "")),
         )
 
     # ------------------------------------------------------------------

@@ -63,7 +63,6 @@ if _SRC_DIR not in sys.path:
 
 from exp.qdrant_openpi_common import (
     StepRecord,
-    build_multivector_vectors,
     named_vector_chunks_map,
     scan_dataset,
 )

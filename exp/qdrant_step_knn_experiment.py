@@ -31,7 +31,6 @@ from openpi.cache.storage_types import QueryFilter, QuerySpec
 from openpi.cache.cache_storage import CacheStorage
 from openpi.cache.backends.qdrant_backend import QdrantVectorStore, QdrantBackendConfig
 
-from exp.qdrant_openpi_common import build_multivector_vectors
 from exp.qdrant_openpi_common import build_named_vectors
 from exp.qdrant_openpi_common import load_step_record
 from exp.qdrant_openpi_common import make_point_id
@@ -457,18 +456,8 @@ def build_prefetches_for_collection(
                 fusion_weights.append(per_chunk_weight)
                 atomic_request_count += 1
     else:
-        multi_query_vectors = build_multivector_vectors(query_record, db_stats, fields=selected_keys)
-        for key in selected_keys:
-            prefetches.append(
-                models.Prefetch(
-                    query=multi_query_vectors[key],
-                    using=key,
-                        filter=step_filter,
-                        limit=candidate_limit,
-                    )
-            )
-            fusion_weights.append(weights[key])
-            atomic_request_count += 1
+        # multivector mode removed
+        raise ValueError(f"Unsupported mode {mode!r}. Only 'named' mode is supported.")
     return prefetches, fusion_weights, atomic_request_count
 
 

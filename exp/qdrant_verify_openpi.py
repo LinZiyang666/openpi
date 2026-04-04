@@ -15,7 +15,6 @@ from exp.qdrant_openpi_common import CLEAN_ACTION_FIELD
 from exp.qdrant_openpi_common import NamedVectorChunk
 from exp.qdrant_openpi_common import PROMPT_FIELD
 from exp.qdrant_openpi_common import VISION_FIELDS
-from exp.qdrant_openpi_common import build_multivector_vectors
 from exp.qdrant_openpi_common import build_named_vectors
 from exp.qdrant_openpi_common import dataset_summary_lines
 from exp.qdrant_openpi_common import make_point_id
@@ -179,17 +178,7 @@ def main() -> None:
         )
         _print_query_result(f"named/{field_name}", response, expected_id)
 
-    multivector_vectors = build_multivector_vectors(sample, stats)
-    for field_name in (PROMPT_FIELD,):
-        response = client.query_points(
-            collection_name=args.multivector_collection,
-            query=multivector_vectors[field_name],
-            using=field_name,
-            query_filter=query_filter,
-            limit=args.limit,
-            with_payload=["source_file", "step_name", "step_idx"],
-        )
-        _print_query_result(f"multivector/{field_name}", response, expected_id)
+    # multivector mode removed
 
 
 if __name__ == "__main__":

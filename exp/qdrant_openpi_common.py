@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import base64
 from dataclasses import dataclass
 import hashlib
+import io
 from pathlib import Path
 import re
 from typing import Any
@@ -282,6 +284,19 @@ def make_point_id(source_file_display: str, step_name: str) -> int:
     return int.from_bytes(digest, byteorder="big") & ((1 << 63) - 1)
 
 
+def _ndarray_to_b64(arr: np.ndarray) -> str:
+    """Serialize numpy array to base64 string (np.save format)."""
+    buf = io.BytesIO()
+    np.save(buf, arr.astype(np.float32))
+    return base64.b64encode(buf.getvalue()).decode()
+
+
+def b64_to_ndarray(s: str) -> np.ndarray:
+    """Deserialize base64 string back to numpy array."""
+    buf = io.BytesIO(base64.b64decode(s))
+    return np.load(buf)
+
+
 def build_payload(record: StepRecord, *, max_lang_tokens: int, noise_action_fields: tuple[str, ...]) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "point_key": f"{record.source_file_display}::{record.step_name}",
@@ -307,9 +322,13 @@ def build_payload(record: StepRecord, *, max_lang_tokens: int, noise_action_fiel
         "prompt_dtype": str(record.prompt_emb.dtype),
         "robot_state_dtype": str(record.robot_state.dtype),
         "action_dtype": str(record.clean_action.dtype),
+        # Tensor data as base64 (numpy format)
+        "action_chunk": _ndarray_to_b64(record.clean_action),
     }
     if noise_action_fields:
         payload["noise_action_shape"] = list(record.noise_actions[noise_action_fields[0]].shape)
+        for field in noise_action_fields:
+            payload[field] = _ndarray_to_b64(record.noise_actions[field])
     return payload
 
 
@@ -348,11 +367,7 @@ def named_vector_chunks_map(stats: DatasetStats) -> dict[str, tuple[NamedVectorC
         chunk_map[field] = chunk_layout_for_size(field, rows * width)
     chunk_map[PROMPT_FIELD] = chunk_layout_for_size(field_name=PROMPT_FIELD, total_size=stats.max_lang_tokens * stats.schema.prompt_width)
     chunk_map[ROBOT_STATE_FIELD] = chunk_layout_for_size(field_name=ROBOT_STATE_FIELD, total_size=stats.schema.robot_state_shape[0])
-    clean_rows, clean_width = stats.schema.clean_action_shape
-    chunk_map[CLEAN_ACTION_FIELD] = chunk_layout_for_size(field_name=CLEAN_ACTION_FIELD, total_size=clean_rows * clean_width)
-    for field in stats.schema.noise_action_fields:
-        rows, width = stats.schema.noise_action_shapes[field]
-        chunk_map[field] = chunk_layout_for_size(field_name=field, total_size=rows * width)
+    # clean_action and noise_actions are stored in payload (base64), not as vectors
     return chunk_map
 
 
@@ -380,15 +395,6 @@ def pad_and_flatten_prompt(prompt_emb: np.ndarray, *, max_lang_tokens: int, prom
     return padded.reshape(-1).tolist()
 
 
-def matrix_to_multivector(array: np.ndarray, *, width: int | None = None) -> list[list[float]]:
-    matrix = np.asarray(array)
-    if matrix.ndim != 2:
-        raise ValueError(f"Expected 2D multivector matrix, got shape={matrix.shape}")
-    if width is not None and matrix.shape[1] != width:
-        raise ValueError(f"Multivector width mismatch: {matrix.shape[1]} != {width}")
-    return matrix.tolist()
-
-
 def build_named_vectors(
     record: StepRecord,
     stats: DatasetStats,
@@ -410,47 +416,11 @@ def build_named_vectors(
             )
         elif field_name == ROBOT_STATE_FIELD:
             source = dense_vector(record.robot_state)
-        elif field_name == CLEAN_ACTION_FIELD:
-            source = flatten_matrix(record.clean_action)
-        elif field_name in stats.schema.noise_action_fields:
-            source = flatten_matrix(record.noise_actions[field_name])
         else:
             raise KeyError(f"Unknown named vector field: {field_name}")
 
         for chunk in chunk_map[field_name]:
             vectors[chunk.vector_name] = source[chunk.start : chunk.end]
-    return vectors
-
-
-def build_multivector_vectors(
-    record: StepRecord,
-    stats: DatasetStats,
-    *,
-    fields: tuple[str, ...] | list[str] | None = None,
-) -> dict[str, list[float] | list[list[float]]]:
-    vectors: dict[str, list[float] | list[list[float]]] = {}
-    selected_fields = (
-        (*VISION_FIELDS, PROMPT_FIELD, ROBOT_STATE_FIELD, CLEAN_ACTION_FIELD, *stats.schema.noise_action_fields)
-        if fields is None
-        else tuple(fields)
-    )
-
-    for field_name in selected_fields:
-        if field_name in VISION_FIELDS:
-            vectors[field_name] = matrix_to_multivector(record.vision[field_name], width=stats.schema.vision_shapes[field_name][1])
-        elif field_name == PROMPT_FIELD:
-            vectors[field_name] = matrix_to_multivector(record.prompt_emb, width=stats.schema.prompt_width)
-        elif field_name == ROBOT_STATE_FIELD:
-            vectors[field_name] = dense_vector(record.robot_state)
-        elif field_name == CLEAN_ACTION_FIELD:
-            vectors[field_name] = matrix_to_multivector(record.clean_action, width=stats.schema.clean_action_shape[1])
-        elif field_name in stats.schema.noise_action_fields:
-            vectors[field_name] = matrix_to_multivector(
-                record.noise_actions[field_name],
-                width=stats.schema.noise_action_shapes[field_name][1],
-            )
-        else:
-            raise KeyError(f"Unknown multivector field: {field_name}")
     return vectors
 
 
@@ -460,8 +430,6 @@ def build_named_vectors_config(stats: DatasetStats) -> dict[str, models.VectorPa
         **{field: models.Distance.COSINE for field in VISION_FIELDS},
         PROMPT_FIELD: models.Distance.COSINE,
         ROBOT_STATE_FIELD: models.Distance.EUCLID,
-        CLEAN_ACTION_FIELD: models.Distance.EUCLID,
-        **{field: models.Distance.EUCLID for field in stats.schema.noise_action_fields},
     }
     for field_name, chunks in named_vector_chunks_map(stats).items():
         for chunk in chunks:
@@ -474,43 +442,6 @@ def build_named_vectors_config(stats: DatasetStats) -> dict[str, models.VectorPa
                     else models.Datatype.FLOAT32
                 ),
             )
-    return config
-
-
-def build_multivector_vectors_config(stats: DatasetStats) -> dict[str, models.VectorParams]:
-    multivector = models.MultiVectorConfig(comparator=models.MultiVectorComparator.MAX_SIM)
-    config: dict[str, models.VectorParams] = {}
-    for field in VISION_FIELDS:
-        config[field] = models.VectorParams(
-            size=stats.schema.vision_shapes[field][1],
-            distance=models.Distance.COSINE,
-            datatype=models.Datatype.FLOAT16,
-            multivector_config=multivector,
-        )
-    config[PROMPT_FIELD] = models.VectorParams(
-        size=stats.schema.prompt_width,
-        distance=models.Distance.COSINE,
-        datatype=models.Datatype.FLOAT16,
-        multivector_config=multivector,
-    )
-    config[ROBOT_STATE_FIELD] = models.VectorParams(
-        size=stats.schema.robot_state_shape[0],
-        distance=models.Distance.EUCLID,
-        datatype=models.Datatype.FLOAT32,
-    )
-    config[CLEAN_ACTION_FIELD] = models.VectorParams(
-        size=stats.schema.clean_action_shape[1],
-        distance=models.Distance.EUCLID,
-        datatype=models.Datatype.FLOAT32,
-        multivector_config=multivector,
-    )
-    for field in stats.schema.noise_action_fields:
-        config[field] = models.VectorParams(
-            size=stats.schema.noise_action_shapes[field][1],
-            distance=models.Distance.EUCLID,
-            datatype=models.Datatype.FLOAT32,
-            multivector_config=multivector,
-        )
     return config
 
 

@@ -214,9 +214,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         self._orchestrator = orchestrator
         self._write_executor: concurrent.futures.ThreadPoolExecutor | None = None
         if orchestrator is not None:
-            self._timer.register_probe("cp1_check", backend="cpu")
+            self._timer.register_probe("cp1_sum", backend="cpu")
             self._timer.register_probe("cp1_write", backend="cpu")
-            self._timer.register_probe("cp3_check", backend="cpu")
+            self._timer.register_probe("cp3_sum", backend="cpu")
             # Single-thread pool for non-blocking cache writes.
             # One thread ensures writes are serialised (no concurrent upserts)
             # while not blocking inference.
@@ -346,7 +346,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 # Data flow: stage1 -> orchestrator.check(CP1) -> CheckResult
                 # On HIT: skip stage2 + stage3, return cached action.
                 if self._orchestrator is not None:
-                    with self._timer.measure("cp1_check"):
+                    with self._timer.measure("cp1_sum"):
                         cp1_result = self._orchestrator.check(
                             CheckpointID.CP1, stage1=stage1
                         )
@@ -384,7 +384,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                     # CP3 check: infrastructure validation only.
                     # No CP3 entries exist in Step 4, so this always returns MISS.
                     # Real CP3 write + skip deferred to Step 6 (DeferredWriter).
-                    with self._timer.measure("cp3_check"):
+                    with self._timer.measure("cp3_sum"):
                         _cp3_result = self._orchestrator.check(
                             CheckpointID.CP3, stage1=stage1, stage3=stage3
                         )

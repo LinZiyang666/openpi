@@ -18,8 +18,6 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from exp.qdrant_openpi_common import PAYLOAD_INDEXES
-from exp.qdrant_openpi_common import build_multivector_vectors
-from exp.qdrant_openpi_common import build_multivector_vectors_config
 from exp.qdrant_openpi_common import build_named_vectors
 from exp.qdrant_openpi_common import build_named_vectors_config
 from exp.qdrant_openpi_common import build_payload
@@ -37,12 +35,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--data-dir", type=Path, required=True, help="Directory containing episode .h5 files.")
     parser.add_argument("--url", default="http://localhost:6333", help="Qdrant base URL.")
     parser.add_argument("--grpc-port", type=int, default=6334, help="Qdrant gRPC port.")
-    parser.add_argument(
-        "--mode",
-        choices=("named", "multivector", "both"),
-        default="both",
-        help="Which collection(s) to populate.",
-    )
     parser.add_argument(
         "--batch-size",
         type=int,
@@ -70,11 +62,6 @@ def parse_args() -> argparse.Namespace:
         help="Override named-vector padding length. Must be >= the observed dataset maximum.",
     )
     parser.add_argument("--named-collection", default="openpi_steps_named", help="Collection name for named vectors.")
-    parser.add_argument(
-        "--multivector-collection",
-        default="openpi_steps_multivector",
-        help="Collection name for multivectors.",
-    )
     parser.add_argument(
         "--skip-payload-indexes",
         action="store_true",
@@ -178,41 +165,28 @@ def _flush_batch(
     return written
 
 
-def _build_points_for_record(
+def _build_point_for_record(
     record,
     stats,
-    mode: str,
-) -> tuple[models.PointStruct | None, models.PointStruct | None]:
+) -> models.PointStruct:
     point_id = make_point_id(record.source_file_display, record.step_name)
     payload = build_payload(
         record,
         max_lang_tokens=stats.max_lang_tokens,
         noise_action_fields=stats.schema.noise_action_fields,
     )
-
-    named_point: models.PointStruct | None = None
-    multivector_point: models.PointStruct | None = None
-    if mode in {"named", "both"}:
-        named_point = models.PointStruct(
-            id=point_id,
-            vector=build_named_vectors(record, stats),
-            payload=payload,
-        )
-    if mode in {"multivector", "both"}:
-        multivector_point = models.PointStruct(
-            id=point_id,
-            vector=build_multivector_vectors(record, stats),
-            payload=payload,
-        )
-    return named_point, multivector_point
+    return models.PointStruct(
+        id=point_id,
+        vector=build_named_vectors(record, stats),
+        payload=payload,
+    )
 
 
-def _build_points_for_locator(
+def _build_point_for_locator(
     locator: StepLocator,
     stats,
-    mode: str,
-) -> tuple[models.PointStruct | None, models.PointStruct | None]:
-    return _build_points_for_record(load_step_record(locator, stats), stats, mode)
+) -> models.PointStruct:
+    return _build_point_for_record(load_step_record(locator, stats), stats)
 
 
 def _await_upsert_future(
@@ -270,10 +244,7 @@ def main() -> None:
     if args.dry_run:
         converted = 0
         for record in iter_step_records(stats):
-            if args.mode in {"named", "both"}:
-                build_named_vectors(record, stats)
-            if args.mode in {"multivector", "both"}:
-                build_multivector_vectors(record, stats)
+            build_named_vectors(record, stats)
             converted += 1
         print(f"Dry run succeeded: converted {converted} step records without writing to Qdrant.")
         return
@@ -288,68 +259,37 @@ def main() -> None:
         print("Vector indexing: disabled (plain/exact search mode)")
     print(f"Prepare workers: {args.prepare_workers}")
 
-    if args.mode in {"named", "both"}:
-        _prepare_collection(
-            admin_client,
-            collection_name=args.named_collection,
-            vectors_config=build_named_vectors_config(stats),
-            recreate=args.recreate,
-            create_payload_indexes=not args.skip_payload_indexes,
-            request_timeout=args.request_timeout,
-            enable_vector_indexing=args.enable_vector_indexing,
-        )
-    if args.mode in {"multivector", "both"}:
-        _prepare_collection(
-            admin_client,
-            collection_name=args.multivector_collection,
-            vectors_config=build_multivector_vectors_config(stats),
-            recreate=args.recreate,
-            create_payload_indexes=not args.skip_payload_indexes,
-            request_timeout=args.request_timeout,
-            enable_vector_indexing=args.enable_vector_indexing,
-        )
+    _prepare_collection(
+        admin_client,
+        collection_name=args.named_collection,
+        vectors_config=build_named_vectors_config(stats),
+        recreate=args.recreate,
+        create_payload_indexes=not args.skip_payload_indexes,
+        request_timeout=args.request_timeout,
+        enable_vector_indexing=args.enable_vector_indexing,
+    )
 
-    named_client = _make_client(args) if args.mode in {"named", "both"} else None
-    multivector_client = _make_client(args) if args.mode in {"multivector", "both"} else None
-    upsert_executor = ThreadPoolExecutor(max_workers=2 if args.mode == "both" else 1)
+    client = _make_client(args)
+    upsert_executor = ThreadPoolExecutor(max_workers=1)
     prepare_executor = ProcessPoolExecutor(max_workers=args.prepare_workers) if args.prepare_workers > 1 else None
-    named_batch: list[models.PointStruct] = []
-    multivector_batch: list[models.PointStruct] = []
-    totals: dict[str, int] = {
-        args.named_collection: 0,
-        args.multivector_collection: 0,
-    }
-    named_future: Future[tuple[str, int]] | None = None
-    multivector_future: Future[tuple[str, int]] | None = None
-    prepared_queue: deque[tuple[int, Future[tuple[models.PointStruct | None, models.PointStruct | None]]]] = deque()
+    batch: list[models.PointStruct] = []
+    totals: dict[str, int] = {args.named_collection: 0}
+    pending_future: Future[tuple[str, int]] | None = None
+    prepared_queue: deque[tuple[int, Future[models.PointStruct]]] = deque()
 
-    def process_prepared(index: int, prepared: tuple[models.PointStruct | None, models.PointStruct | None]) -> None:
-        nonlocal named_future, multivector_future
-        named_point, multivector_point = prepared
-        if named_point is not None:
-            named_batch.append(named_point)
-            if len(named_batch) >= args.batch_size:
-                named_future = _submit_collection_batch(
-                    executor=upsert_executor,
-                    pending_future=named_future,
-                    client=named_client,
-                    collection_name=args.named_collection,
-                    batch=named_batch,
-                    request_timeout=args.request_timeout,
-                    totals=totals,
-                )
-        if multivector_point is not None:
-            multivector_batch.append(multivector_point)
-            if len(multivector_batch) >= args.batch_size:
-                multivector_future = _submit_collection_batch(
-                    executor=upsert_executor,
-                    pending_future=multivector_future,
-                    client=multivector_client,
-                    collection_name=args.multivector_collection,
-                    batch=multivector_batch,
-                    request_timeout=args.request_timeout,
-                    totals=totals,
-                )
+    def process_prepared(index: int, point: models.PointStruct) -> None:
+        nonlocal pending_future
+        batch.append(point)
+        if len(batch) >= args.batch_size:
+            pending_future = _submit_collection_batch(
+                executor=upsert_executor,
+                pending_future=pending_future,
+                client=client,
+                collection_name=args.named_collection,
+                batch=batch,
+                request_timeout=args.request_timeout,
+                totals=totals,
+            )
         if index % 25 == 0 or index == stats.total_steps:
             print(f"Processed {index}/{stats.total_steps} steps")
 
@@ -357,13 +297,13 @@ def main() -> None:
         step_iter = iter_step_locators(stats) if prepare_executor is not None else iter_step_records(stats)
         for index, item in enumerate(step_iter, start=1):
             if prepare_executor is None:
-                process_prepared(index, _build_points_for_record(item, stats, args.mode))
+                process_prepared(index, _build_point_for_record(item, stats))
                 continue
 
             prepared_queue.append(
                 (
                     index,
-                    prepare_executor.submit(_build_points_for_locator, item, stats, args.mode),
+                    prepare_executor.submit(_build_point_for_locator, item, stats),
                 )
             )
             while len(prepared_queue) >= args.prepare_workers:
@@ -374,42 +314,24 @@ def main() -> None:
             ready_index, future = prepared_queue.popleft()
             process_prepared(ready_index, future.result())
 
-        if args.mode in {"named", "both"}:
-            named_future = _submit_collection_batch(
-                executor=upsert_executor,
-                pending_future=named_future,
-                client=named_client,
-                collection_name=args.named_collection,
-                batch=named_batch,
-                request_timeout=args.request_timeout,
-                totals=totals,
-            )
-        if args.mode in {"multivector", "both"}:
-            multivector_future = _submit_collection_batch(
-                executor=upsert_executor,
-                pending_future=multivector_future,
-                client=multivector_client,
-                collection_name=args.multivector_collection,
-                batch=multivector_batch,
-                request_timeout=args.request_timeout,
-                totals=totals,
-            )
+        pending_future = _submit_collection_batch(
+            executor=upsert_executor,
+            pending_future=pending_future,
+            client=client,
+            collection_name=args.named_collection,
+            batch=batch,
+            request_timeout=args.request_timeout,
+            totals=totals,
+        )
 
-        _await_upsert_future(named_future, totals)
-        _await_upsert_future(multivector_future, totals)
+        _await_upsert_future(pending_future, totals)
     finally:
         if prepare_executor is not None:
             prepare_executor.shutdown(wait=True)
         upsert_executor.shutdown(wait=True)
 
-    if args.mode in {"named", "both"}:
-        named_count = named_client.count(collection_name=args.named_collection, exact=True).count
-        print(f"Named collection written={totals[args.named_collection]} stored_count={named_count}")
-    if args.mode in {"multivector", "both"}:
-        multivector_count = multivector_client.count(collection_name=args.multivector_collection, exact=True).count
-        print(
-            f"Multivector collection written={totals[args.multivector_collection]} stored_count={multivector_count}"
-        )
+    named_count = client.count(collection_name=args.named_collection, exact=True).count
+    print(f"Collection written={totals[args.named_collection]} stored_count={named_count}")
 
 
 if __name__ == "__main__":
