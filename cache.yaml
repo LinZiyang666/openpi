@@ -14,14 +14,14 @@ timer:
 # Query vector field config.
 # enabled: whether the field participates in cache key building and search.
 # weight: fusion weight for SearchStrategy (higher = more important in RRF fusion).
-# Dimensions are raw flattened: vision = 196 tokens * emb_dim, prompt = max_token_len * emb_dim.
+# Dimensions are raw flattened: vision = 256 tokens * emb_dim, prompt = max_lang_tokens * emb_dim.
 # Actual values depend on dataset (set by qdrant_ingest_openpi.py at collection creation).
 # task_key filtering: not yet implemented, requires task normalization pipeline.
 keys:
-  vision_0:    { enabled: true,  weight: 1.0 }   # base_0_rgb, [196, emb_dim] flattened
-  vision_1:    { enabled: true,  weight: 1.0 }   # left_wrist_0_rgb, [196, emb_dim] flattened
-  vision_2:    { enabled: true,  weight: 1.0 }   # right_wrist_0_rgb, [196, emb_dim] flattened
-  prompt_emb:  { enabled: true,  weight: 1.0 }   # language tokens, [max_token_len, emb_dim] flattened
+  vision_0:    { enabled: true,  weight: 1.0 }   # base_0_rgb, [256, emb_dim] flattened
+  vision_1:    { enabled: true,  weight: 1.0 }   # left_wrist_0_rgb, [256, emb_dim] flattened
+  vision_2:    { enabled: true,  weight: 1.0 }   # right_wrist_0_rgb, [256, emb_dim] flattened
+  prompt_emb:  { enabled: true,  weight: 1.0 }   # language tokens, [max_lang_tokens, emb_dim] padded+flattened
   robot_state: { enabled: true,  weight: 1.0 }   # raw state vector [action_dim]
 
 key_builder:
@@ -64,13 +64,13 @@ backend:
   # To get actual values, run: python exp/qdrant_ingest_openpi.py --dry-run --data-dir <path>
   # and read the dataset summary output.
   vector_dims:
-    vision_0: 401408      # 196 * 2048 (projection_dim)
-    vision_1: 401408
-    vision_2: 401408
-    prompt_emb: 409600    # 200 (max_token_len) * 2048 — adjust if your dataset differs
+    vision_0: 524288      # 256 * 2048 (SigLIP patch_size=14, 224/14=16, 16^2=256 tokens)
+    vision_1: 524288
+    vision_2: 524288
+    prompt_emb: 409600    # 200 (max_lang_tokens) * 2048 — must match Qdrant collection schema
     robot_state: 32       # action_dim
   qdrant:
-    url: ${QDRANT_URL:-http://localhost:6333}
+    url: ${QDRANT_URL:-http://155.98.36.13:6333}
     collection_name: openpi_steps_named   # must match qdrant_ingest_openpi.py --named-collection
     prefer_grpc: false
     grpc_port: 6334

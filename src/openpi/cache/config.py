@@ -450,7 +450,7 @@ def build_cache_components(config: CacheConfig) -> dict[str, Any]:
 
     # 3. KeyBuilder.
     enabled_fields = [name for name, kf in _keys_iter(config.keys) if kf.enabled]
-    key_builder = _build_key_builder(config.key_builder, enabled_fields)
+    key_builder = _build_key_builder(config.key_builder, enabled_fields, config.backend.vector_dims)
 
     # 4. Per-checkpoint: Gate / Judge / SearchStrategy.
     fusion_weights = {name: kf.weight for name, kf in _keys_iter(config.keys) if kf.enabled}
@@ -507,7 +507,7 @@ def _build_backend(cfg: BackendConfig):
         raise ConfigValidationError(f"Unknown backend.type '{cfg.type}'. Valid: ['in_memory', 'qdrant']")
 
 
-def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str]):
+def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_dims: dict[str, int]):
     """Instantiate a QueryKeyBuilder from config."""
     if cfg.type == "placeholder":
         from openpi.cache.components.key_builder import PlaceholderKeyBuilder
@@ -516,7 +516,7 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str]):
     elif cfg.type == "full_original":
         from openpi.cache.components.key_builder import FullOriginalKeyBuilder
 
-        return FullOriginalKeyBuilder(enabled_fields=enabled_fields)
+        return FullOriginalKeyBuilder(enabled_fields=enabled_fields, vector_dims=vector_dims)
     else:
         raise ConfigValidationError(f"Unknown key_builder.type '{cfg.type}'. Valid: ['placeholder', 'full_original']")
 

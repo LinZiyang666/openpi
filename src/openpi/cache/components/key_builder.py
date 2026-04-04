@@ -129,15 +129,15 @@ class PlaceholderKeyBuilder:
 # Token layout constants for prefix_embs
 # ---------------------------------------------------------------------------
 
-# SigLIP: image_resolution=224, patch_size=16 -> (224/16)^2 = 196 tokens per image
-_TOKENS_PER_IMAGE = 196
+# SigLIP: image_resolution=224, patch_size=14 -> (224/14)^2 = 256 tokens per image
+_TOKENS_PER_IMAGE = 256
 _NUM_IMAGES = 3  # base_0_rgb, left_wrist_0_rgb, right_wrist_0_rgb
 
 # Offsets into prefix_embs [B, prefix_len, emb_dim]:
-#   [0:196)    = vision_0 (base_0_rgb)
-#   [196:392)  = vision_1 (left_wrist_0_rgb)
-#   [392:588)  = vision_2 (right_wrist_0_rgb)
-#   [588:...)  = prompt_emb (language tokens, padded to max_token_len)
+#   [0:256)    = vision_0 (base_0_rgb)
+#   [256:512)  = vision_1 (left_wrist_0_rgb)
+#   [512:768)  = vision_2 (right_wrist_0_rgb)
+#   [768:...)  = prompt_emb (language tokens, variable length)
 _VISION_OFFSETS = [
     (VISION_0, 0, _TOKENS_PER_IMAGE),
     (VISION_1, _TOKENS_PER_IMAGE, 2 * _TOKENS_PER_IMAGE),
@@ -156,26 +156,38 @@ class FullOriginalKeyBuilder:
     system's forward hooks capture (multi_modal_projector / embed_tokens output).
 
     Token layout (from embed_prefix()):
-      prefix_embs = [vision_0 (196) | vision_1 (196) | vision_2 (196) | prompt (max_token_len)]
+      prefix_embs = [vision_0 (256) | vision_1 (256) | vision_2 (256) | prompt (variable)]
 
     Output dims (after flatten):
-      vision_0:    [196 * emb_dim]   (e.g. 196 * 2048 = 401408)
-      vision_1:    [196 * emb_dim]
-      vision_2:    [196 * emb_dim]
-      prompt_emb:  [max_token_len * emb_dim]  (e.g. 200 * 2048 = 409600)
+      vision_0:    [256 * emb_dim]   (e.g. 256 * 2048 = 524288)
+      vision_1:    [256 * emb_dim]
+      vision_2:    [256 * emb_dim]
+      prompt_emb:  [target_dim from vector_dims]  (zero-padded/truncated to match Qdrant schema)
       robot_state: [action_dim]      (e.g. 32)
+
+    Prompt padding:
+      prompt token count varies per input. Qdrant requires fixed-dim vectors.
+      The ingest pipeline (exp/qdrant_openpi_common.py::pad_and_flatten_prompt)
+      zero-pads to (max_lang_tokens * emb_dim). This builder does the same:
+      if vector_dims is provided, prompt_emb is zero-padded or truncated to
+      vector_dims[PROMPT_EMB].
 
     Coupling:
       - DEPENDS ON: Stage1Output fields (prefix_embs, state)
-      - DEPENDS ON: SigLIP patch_size=16, image_resolution=224 (196 tokens/image)
+      - DEPENDS ON: SigLIP patch_size=14, image_resolution=224 (256 tokens/image)
       - DEPENDS ON: 3 images in fixed order (IMAGE_KEYS in model.py)
       - IF image count or SigLIP config changes: offsets must be updated
       - IF Stage output shapes change: backend vector_dims must match
     """
 
-    def __init__(self, enabled_fields: list[str] | None = None) -> None:
+    def __init__(
+        self,
+        enabled_fields: list[str] | None = None,
+        vector_dims: dict[str, int] | None = None,
+    ) -> None:
         self._cache: dict[str, torch.Tensor] = {}
         self._enabled = set(enabled_fields) if enabled_fields is not None else None
+        self._vector_dims = vector_dims or {}
 
     def _is_enabled(self, field: str) -> bool:
         return self._enabled is None or field in self._enabled
@@ -203,10 +215,20 @@ class FullOriginalKeyBuilder:
             segment = prefix[start:end]  # [196, emb_dim]
             keys[field_name] = segment.reshape(-1).cpu().float().contiguous()
 
-        # Prompt: slice remainder after vision tokens, flatten raw.
+        # Prompt: slice remainder after vision tokens, flatten, pad/truncate to target dim.
+        # Prompt token count varies per input but Qdrant needs fixed-dim vectors.
+        # Zero-pad or truncate to match vector_dims[PROMPT_EMB], mirroring
+        # exp/qdrant_openpi_common.py::pad_and_flatten_prompt().
         if self._is_enabled(PROMPT_EMB):
-            prompt_segment = prefix[_PROMPT_START:]  # [max_token_len, emb_dim]
-            keys[PROMPT_EMB] = prompt_segment.reshape(-1).cpu().float().contiguous()
+            prompt_segment = prefix[_PROMPT_START:]  # [num_prompt_tokens, emb_dim]
+            flat = prompt_segment.reshape(-1).cpu().float().contiguous()
+            target_dim = self._vector_dims.get(PROMPT_EMB)
+            if target_dim is not None and flat.shape[0] != target_dim:
+                if flat.shape[0] < target_dim:
+                    flat = torch.nn.functional.pad(flat, (0, target_dim - flat.shape[0]))
+                else:
+                    flat = flat[:target_dim]
+            keys[PROMPT_EMB] = flat
 
         # Robot state: raw, no normalization.
         if self._is_enabled(ROBOT_STATE):
