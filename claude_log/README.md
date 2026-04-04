@@ -22,9 +22,10 @@ Implementation plans and development records. For project architecture docs, see
 | [step2.log](step2.log) | `Validated` | CUDA Event timing system: per-component timing strategy and API design |
 | [step3_data_collection.log](step3_data_collection.log) | `Implemented` | Forward-hook based HDF5 data collection: hook points, schema, wrapper ordering |
 | [step3_cache.log](step3_cache.log) | `⚠️ 暂时完成·高危` | Cache 存储层抽象设计+落地：VectorStoreBackend ABC、named vectors、Qdrant chunked RRF 实现；无测试覆盖，详见 `src/openpi/cache/README.md` |
-| [step4_discussion.log.md](step4_discussion.log.md) | `In Progress` | Step 4 讨论记录：稳定性分析、设计争议、答辩问答与范围收敛 |
-| [step4_plan.log.md](step4_plan.log.md) | `Plan` | Step 4 计划全文：原始实施摘要 + 答辩后修订版详细实现计划 |
-| [step4_test_plan.log.md](step4_test_plan.log.md) | `Plan` | Step 4 测试计划：6个测试文件、40+用例、InMemoryBackend、执行顺序 |
+| [step4_discussion.log.md](step4_discussion.log.md) | `Historical` | Step 4 讨论记录：稳定性分析、设计争议、答辩问答与范围收敛 |
+| [step4_plan.log.md](step4_plan.log.md) | `Historical` | Step 4 计划全文：原始实施摘要 + 答辩后修订版详细实现计划 |
+| [step4_test_plan.log.md](step4_test_plan.log.md) | `Validated` | Step 4 测试计划+执行：6个文件45用例全部通过 |
+| step4 (overall) | `⚠️ 暂时完成·高危` | Orchestrator骨架：CP1端到端闭环+CP3骨架；不稳定部件见 `src/openpi/cache/README.md` |
 
 ## Retrieval System
 
