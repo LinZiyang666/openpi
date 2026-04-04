@@ -1,0 +1,71 @@
+# OpenPI Cache Configuration
+# Cache subsystem config file. Specify via CLI:
+#   uv run scripts/serve_policy.py --cache_config cache.yaml
+#   uv run scripts/serve_policy.py --cache_config configs/experiment_rrf.yaml
+# Server/policy/debug/collect parameters are still passed via tyro CLI.
+
+enabled: true
+
+timer:
+  enabled: true
+  buffer_size: 10000
+  output_csv_dir: null    # null = terminal only, no CSV
+
+# Query vector field config.
+# enabled: whether the field participates in cache key building and search.
+# weight: fusion weight for SearchStrategy.
+# WARNING: key_builder.type=placeholder only supports robot_state.
+#   Other fields with enabled=true will cause a startup validation error.
+#   Enable more fields after KeyBuilder is extended in future steps.
+# task_key filtering: not yet implemented, requires task normalization pipeline.
+keys:
+  vision_0:    { enabled: false, weight: 1.0 }
+  vision_1:    { enabled: false, weight: 1.0 }
+  vision_2:    { enabled: false, weight: 1.0 }
+  prompt_emb:  { enabled: false, weight: 1.0 }
+  robot_state: { enabled: true,  weight: 1.0 }
+
+key_builder:
+  type: placeholder       # "placeholder" = robot_state only
+
+# Per-checkpoint config: CP1 and CP3 can be configured independently.
+checkpoints:
+  _defaults: &cp_defaults
+    gate:
+      type: always_search
+    search_strategy:
+      type: simple_knn
+      top_k: 1
+      step_filter: all    # "all" | "exact" | "window"
+      step_window: 5      # only effective when step_filter=window
+      rrf_k: 60           # Qdrant RRF fusion param (in_memory backend ignores)
+      candidate_multiplier: 5  # Qdrant prefetch = top_k * multiplier (in_memory ignores)
+
+  cp1:
+    <<: *cp_defaults
+    enabled: true           # set false to disable CP1 cache check entirely
+    judge:
+      type: threshold
+      threshold: 0.98     # WARNING: placeholder, needs calibration with real data
+      # Threshold semantics depend on search mode:
+      #   single-field cosine (robot_state only): score in [-1, 1], 0.98 = very high similarity
+      #   multi-field RRF fusion: score is a small positive number, different scale
+      # Recalibrate after switching search mode.
+
+  cp3:
+    <<: *cp_defaults
+    enabled: true           # set false to disable CP3 cache check entirely
+    judge:
+      type: threshold
+      threshold: 0.95     # WARNING: placeholder, needs calibration with real data
+
+backend:
+  type: in_memory         # "in_memory" | "qdrant"
+  vector_dims:
+    robot_state: 32       # must align with enabled keys
+  qdrant:
+    url: ${QDRANT_URL:-http://localhost:6333}
+    collection_name: openpi_cache
+    prefer_grpc: false
+    grpc_port: 6334
+    request_timeout: 30

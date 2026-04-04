@@ -1,11 +1,11 @@
 # openpi/cache — 模块状态说明
 
-> 最后更新：2026-04-03
+> 最后更新：2026-04-04
 
 ## 整体状态：⚠️ 高危 · 暂时完成
 
-Step 3（存储层）+ Step 4（Orchestrator 骨架）代码已落地。
-- Step 4 单元测试 45 用例全部通过（`tests/cache/`）
+Step 3（存储层）+ Step 4（Orchestrator 骨架 + Config 配置系统）代码已落地。
+- Step 4 单元测试通过（`tests/cache/`）
 - Step 3 存储层仍无测试覆盖
 - 未经端到端集成验证（需要真实模型 + Qdrant 实例）
 
@@ -31,8 +31,17 @@ Step 3（存储层）+ Step 4（Orchestrator 骨架）代码已落地。
 | `components/key_builder.py` | `QueryKeyBuilder` Protocol + `PlaceholderKeyBuilder`（state-only） | 🟡 单元测试通过，未集成验证 |
 | `components/gate.py` | `GateFunction` Protocol + `AlwaysSearchGate` | ✅ 稳定（极简） |
 | `components/judge.py` | `HitType` enum + `SimilarityJudge` Protocol + `ThresholdJudge` | 🟡 单元测试通过，阈值未校准 |
-| `orchestrator.py` | `CacheOrchestrator`：check/write 编排 + CP3 stubs | 🟡 单元测试通过，未集成验证 |
-| `interceptor.py` | `InferenceInterceptor`：CP1 check/write + CP3 consume/check | 🟡 FakeModel 测试通过，未真实模型验证 |
+| `components/search_strategy.py` | `SearchStrategy` Protocol + `SearchContext` + `SimpleKnnStrategy` | 🟡 单元测试通过，未集成验证 |
+| `orchestrator.py` | `CacheOrchestrator`：分检查点 dict 编排 + step counter + CP3 stubs | 🟡 单元测试通过，未集成验证 |
+| `interceptor.py` | `InferenceInterceptor`：CP1 check/write + CP3 consume/check + on_task_begin 转发 | 🟡 FakeModel 测试通过，未真实模型验证 |
+
+### Step 4: Config 配置系统
+
+| 文件 | 说明 | 状态 |
+|------|------|------|
+| `config.py` | `CacheConfig` dataclass 树 + YAML 加载 + 校验 + 组件工厂 | 🟡 单元测试通过，未真实模型验证 |
+| `backends/in_memory_backend.py` | `InMemoryBackend` 正式实现（从 conftest 提升） | 🟡 间接测试覆盖 |
+| `cache.yaml`（项目根目录） | 默认 cache 配置文件 | ✅ 稳定（纯数据文件） |
 
 ---
 

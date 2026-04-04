@@ -71,6 +71,12 @@ class Args:
     # Example: --timing_csv_dir /tmp/timing
     timing_csv_dir: str | None = None
 
+    # Path to a YAML cache config file. When set, loads full cache components
+    # (backend, key_builder, gate, judge, search_strategy) from the YAML file
+    # and assembles a CacheOrchestrator. Overrides --cache and --timing_csv_dir.
+    # Example: --cache_config cache.yaml
+    cache_config: str | None = None
+
     # Specifies how to load the policy. If not provided, the default policy for the environment will be used.
     policy: Checkpoint | Default = dataclasses.field(default_factory=Default)
 
@@ -136,15 +142,45 @@ def main(args: Args) -> None:
     policy_metadata = policy.metadata
 
     # Wrap with cache-aware interceptor if requested.
-    # The interceptor implements the same BasePolicy interface, so the server
-    # and all clients see identical behaviour.
-    if args.cache:
+    # Two cache paths (mutually exclusive, cache_config takes priority):
+    #   1. --cache_config: YAML-based full cache system with Orchestrator
+    #   2. --cache: simple interceptor with timing only, no Orchestrator
+    # Wrapper ordering matters:
+    #   1. InferenceInterceptor (innermost -- needs direct Policy access)
+    #   2. PolicyRecorder (records interceptor's output)
+    #   3. CollectionPolicy (outermost -- hooks into model internals via _model)
+    # DO NOT reorder without verifying CollectionPolicy._model lookup.
+    if args.cache_config is not None:
+        from openpi.cache.config import build_cache_components, load_cache_config
+        from openpi.cache.interceptor import InferenceInterceptor
+        from openpi.cache.orchestrator import CacheOrchestrator
+
+        if args.cache:
+            logging.warning("--cache_config overrides --cache. Ignoring --cache flag.")
+
+        cache_config = load_cache_config(args.cache_config)
+        components = build_cache_components(cache_config)
+        orchestrator = CacheOrchestrator(
+            storage=components["storage"],
+            key_builder=components["key_builder"],
+            gates=components["gates"],
+            judges=components["judges"],
+            search_strategies=components["search_strategies"],
+            timer=components["timer"],
+        )
+        policy = InferenceInterceptor(
+            policy,
+            timer=components["timer"],
+            orchestrator=orchestrator,
+        )
+        logging.info("Cache mode enabled via config: %s", args.cache_config)
+    elif args.cache:
         from openpi.cache.interceptor import InferenceInterceptor
         from openpi.cache.timing import SystemTimer
         timer = SystemTimer(enabled=True, output_csv_dir=args.timing_csv_dir)
         if args.timing_csv_dir:
             logging.info("Timing CSV output enabled: writing to %s", args.timing_csv_dir)
-        logging.info("Cache mode enabled: routing inference through InferenceInterceptor.")
+        logging.info("Cache mode enabled (simple, no config).")
         policy = InferenceInterceptor(policy, timer=timer)
 
     # Record the policy's behavior.

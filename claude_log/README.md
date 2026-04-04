@@ -25,6 +25,8 @@ Implementation plans and development records. For project architecture docs, see
 | [step4_discussion.log.md](step4_discussion.log.md) | `Historical` | Step 4 讨论记录：稳定性分析、设计争议、答辩问答与范围收敛 |
 | [step4_plan.log.md](step4_plan.log.md) | `Historical` | Step 4 计划全文：原始实施摘要 + 答辩后修订版详细实现计划 |
 | [step4_test_plan.log.md](step4_test_plan.log.md) | `Validated` | Step 4 测试计划+执行：6个文件45用例全部通过 |
+| [step4_config_discussion.log.md](step4_config_discussion.log.md) | `Validated` | Step 4 Config 讨论记录：SearchStrategy 抽象、分检查点配置、YAML 格式、组件与 Config 解耦原则 |
+| [step4_config_plan.log.md](step4_config_plan.log.md) | `Implemented` | Step 4 Config 实现计划：SearchStrategy 组件 + Config dataclass 树 + YAML 加载 + serve_policy.py 改造 |
 | step4 (overall) | `⚠️ 暂时完成·高危` | Orchestrator骨架：CP1端到端闭环+CP3骨架；不稳定部件见 `src/openpi/cache/README.md` |
 
 ## Retrieval System

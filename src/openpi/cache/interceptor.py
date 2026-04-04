@@ -223,10 +223,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
     def on_task_begin(self) -> None:
         """Reset per-task state.  Called when a client connection opens.
 
-        Forwards to ``SystemTimer.on_task_begin()``, which records the
-        current record count as the task boundary.
+        Forwards to ``SystemTimer.on_task_begin()`` and
+        ``CacheOrchestrator.on_task_begin()`` (resets step_counter).
         """
         self._timer.on_task_begin()
+        if self._orchestrator is not None:
+            self._orchestrator.on_task_begin()
 
     def on_task_end(self) -> None:
         """Finalise and report timing for the completed task.

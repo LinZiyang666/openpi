@@ -205,13 +205,21 @@ class QdrantVectorStore(VectorStoreBackend):
                 with_vectors=False,
             )
         else:
-            candidate_limit = spec.top_k * self._config.candidate_multiplier
+            # Read fusion params from spec (per-query, from SearchStrategy) with
+            # fallback to backend config (global defaults).
+            hints = spec.backend_hints or {}
+            candidate_multiplier = hints.get("candidate_multiplier", self._config.candidate_multiplier)
+            rrf_k = hints.get("rrf_k", self._config.rrf_k)
+
+            candidate_limit = spec.top_k * candidate_multiplier
             prefetches = [
                 Prefetch(query=values, using=name, filter=query_filter, limit=candidate_limit)
                 for name, values, _ in all_chunks
             ]
-            fusion_weights = self._build_fusion_weights_for_chunks(active_fields, all_chunks)
-            rrf = Rrf(k=self._config.rrf_k, weights=fusion_weights)
+            fusion_weights = self._build_fusion_weights_for_chunks(
+                active_fields, all_chunks, override_weights=spec.fusion_weights,
+            )
+            rrf = Rrf(k=rrf_k, weights=fusion_weights)
             response = self._client.query_points(
                 collection_name=self._config.collection_name,
                 prefetch=prefetches,
@@ -311,13 +319,18 @@ class QdrantVectorStore(VectorStoreBackend):
         self,
         active_fields: list[str],
         all_chunks: list[tuple[str, list[float], str]],
+        override_weights: Optional[dict[str, float]] = None,
     ) -> Optional[list[float]]:
         """Per-prefetch weight list with equal split within each field's chunks.
+
+        Args:
+            override_weights: Per-query fusion weights from QuerySpec.fusion_weights
+                (set by SearchStrategy). Takes precedence over self._config.fusion_weights.
 
         Returns None when fusion_weights is not configured (equal weights for all
         prefetches, which is Qdrant's default when weights=None).
         """
-        cfg = self._config.fusion_weights
+        cfg = override_weights if override_weights is not None else self._config.fusion_weights
         if not cfg:
             return None
 

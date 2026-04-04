@@ -7,10 +7,12 @@ particular database stores it.
 Coupling map:
   DEPENDS ON:  types.py (CheckpointID)
   CONSUMED BY: KeyBuilder (CachePayload, CacheEntry construction),
-               Orchestrator (QuerySpec, SearchResultLite, SearchResult),
+               Orchestrator (SearchResultLite, SearchResult, CachePayload),
+               SearchStrategy (QuerySpec construction),
                CacheStorage (all types), backends (all types)
-  IF CHANGED:  Orchestrator QuerySpec construction, KeyBuilder payload construction,
-               Judge threshold calibration (if score semantics change)
+  IF CHANGED:  SearchStrategy QuerySpec construction,
+               Backend.search() fusion parameter reading,
+               Orchestrator write path (CacheEntry unchanged)
 
 Tensor contract
 ---------------
@@ -28,7 +30,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
     import torch
@@ -160,6 +162,8 @@ class QueryFilter:
 class QuerySpec:
     """Everything a backend needs to execute one search.
 
+    Data flow: SearchStrategy -> QuerySpec -> CacheStorage.search() -> Backend.search()
+
     query_keys
     ----------
     Named query vectors, same key conventions as CacheEntry.query_keys.
@@ -167,17 +171,24 @@ class QuerySpec:
     are ignored.  At least one key must match a backend field, otherwise
     CacheStorage raises ValueError before calling the backend.
 
-    Fusion strategy
-    ---------------
-    How multiple query fields are combined (e.g. RRF, weighted average) is an
-    internal backend detail — it is not expressed here.  Configure fusion
-    behaviour in the backend's config dataclass.
+    Fusion parameters
+    -----------------
+    fusion_weights is a generic concept (any multi-vector backend may need weighted
+    fusion). Backend-specific parameters (e.g. Qdrant's rrf_k, candidate_multiplier)
+    are passed via backend_hints — backends read what they recognise, ignore the rest.
+
+    Coupling:
+      - CONSTRUCTED BY: SearchStrategy (the only constructor after this change)
+      - CONSUMED BY: CacheStorage.search() (validation), Backend.search() (execution)
+      - IF CHANGED: SearchStrategy construction logic, Backend.search() parameter reading
     """
 
     query_keys: dict[str, torch.Tensor]          # {field: [dim] CPU float32}
     top_k: int = 10
     checkpoint_id: Optional[CheckpointID] = None
     filters: Optional[QueryFilter] = None
+    fusion_weights: Optional[dict[str, float]] = None     # per-field fusion weights (backend-agnostic)
+    backend_hints: Optional[dict[str, Any]] = None        # e.g. {"rrf_k": 60, "candidate_multiplier": 5}
 
 
 # ---------------------------------------------------------------------------

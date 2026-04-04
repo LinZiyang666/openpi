@@ -1,7 +1,8 @@
 """Shared fixtures and helpers for cache tests.
 
-InMemoryBackend: minimal VectorStoreBackend for unit tests.
-Computes cosine similarity in [-1, 1], matching Qdrant cosine semantics.
+InMemoryBackend is now in src/openpi/cache/backends/in_memory_backend.py.
+This module re-exports it and provides factory helpers that wire up
+Orchestrator with the new per-checkpoint dict signatures.
 """
 
 from __future__ import annotations
@@ -11,88 +12,17 @@ from typing import Optional
 
 import pytest
 import torch
-import torch.nn.functional as F
 
-from openpi.cache.backend_base import VectorStoreBackend
+from openpi.cache.backends.in_memory_backend import InMemoryBackend
 from openpi.cache.cache_storage import CacheStorage
 from openpi.cache.components.gate import AlwaysSearchGate
 from openpi.cache.components.judge import ThresholdJudge
 from openpi.cache.components.key_builder import PlaceholderKeyBuilder
+from openpi.cache.components.search_strategy import SimpleKnnStrategy
 from openpi.cache.orchestrator import CacheOrchestrator
-from openpi.cache.storage_types import (
-    CacheEntry,
-    CachePayload,
-    QuerySpec,
-    SearchResultLite,
-)
+from openpi.cache.storage_types import CachePayload
 from openpi.cache.timing import SystemTimer
-
-
-# ---------------------------------------------------------------------------
-# InMemoryBackend
-# ---------------------------------------------------------------------------
-
-
-class InMemoryBackend(VectorStoreBackend):
-    """Minimal in-memory backend for unit tests.
-
-    Stores entries in a dict. search() computes cosine similarity
-    against stored vectors for the first matching field.
-    Score range: [-1, 1] (same as Qdrant cosine).
-    """
-
-    def __init__(self, vector_dims: dict[str, int]) -> None:
-        self._dims = vector_dims
-        self._entries: dict[str, CacheEntry] = {}
-        # Counters for call tracking in tests.
-        self.search_call_count: int = 0
-        self.fetch_payload_call_count: int = 0
-
-    @property
-    def vector_dims(self) -> dict[str, int]:
-        return self._dims
-
-    def supported_filters(self) -> frozenset[str]:
-        return frozenset({"checkpoint_id"})
-
-    def insert(self, entry: CacheEntry) -> None:
-        self._entries[entry.id] = entry
-
-    def search(self, spec: QuerySpec) -> list[SearchResultLite]:
-        self.search_call_count += 1
-        if not self._entries:
-            return []
-        results: list[SearchResultLite] = []
-        for eid, entry in self._entries.items():
-            # Filter by checkpoint_id if specified.
-            if spec.checkpoint_id is not None and entry.checkpoint_id != spec.checkpoint_id:
-                continue
-            # Cosine similarity on first matching field.
-            score = 0.0
-            for field in spec.query_keys:
-                if field in entry.query_keys:
-                    q = spec.query_keys[field].float()
-                    e = entry.query_keys[field].float()
-                    score = float(F.cosine_similarity(q.unsqueeze(0), e.unsqueeze(0)))
-                    break
-            results.append(
-                SearchResultLite(id=eid, score=score, checkpoint_id=entry.checkpoint_id)
-            )
-        results.sort(key=lambda r: r.score, reverse=True)
-        return results[: spec.top_k]
-
-    def fetch_payload(self, id: str) -> CachePayload:
-        self.fetch_payload_call_count += 1
-        if id not in self._entries:
-            raise KeyError(id)
-        return self._entries[id].payload
-
-    def delete(self, ids: list[str]) -> None:
-        for i in ids:
-            self._entries.pop(i, None)
-
-    def count(self) -> int:
-        return len(self._entries)
+from openpi.cache.types import CheckpointID
 
 
 # ---------------------------------------------------------------------------
@@ -103,7 +33,7 @@ class InMemoryBackend(VectorStoreBackend):
 class CountingStorage(CacheStorage):
     """CacheStorage subclass that counts fetch_payload() calls."""
 
-    def __init__(self, backend: VectorStoreBackend) -> None:
+    def __init__(self, backend: InMemoryBackend) -> None:
         super().__init__(backend)
         self.fetch_payload_call_count: int = 0
 
@@ -127,6 +57,11 @@ def make_stage3(action_chunk: torch.Tensor) -> SimpleNamespace:
     return SimpleNamespace(action_chunk=action_chunk)
 
 
+def _wrap_per_checkpoint(component):
+    """Wrap a single component into a dict for all checkpoints."""
+    return {CheckpointID.CP1: component, CheckpointID.CP3: component}
+
+
 def make_orchestrator(
     vector_dims: Optional[dict[str, int]] = None,
     gate=None,
@@ -140,7 +75,15 @@ def make_orchestrator(
     g = gate if gate is not None else AlwaysSearchGate()
     j = judge if judge is not None else ThresholdJudge(cp1_threshold=0.98, cp3_threshold=0.95)
     timer = SystemTimer(enabled=False)
-    orch = CacheOrchestrator(storage, kb, g, j, timer)
+    strategy = SimpleKnnStrategy(storage, top_k=1)
+    orch = CacheOrchestrator(
+        storage,
+        kb,
+        gates=_wrap_per_checkpoint(g),
+        judges=_wrap_per_checkpoint(j),
+        search_strategies=_wrap_per_checkpoint(strategy),
+        timer=timer,
+    )
     return orch, backend, storage
 
 
@@ -156,7 +99,15 @@ def make_counting_orchestrator(
     g = AlwaysSearchGate()
     j = judge if judge is not None else ThresholdJudge(cp1_threshold=0.98, cp3_threshold=0.95)
     timer = SystemTimer(enabled=False)
-    orch = CacheOrchestrator(storage, kb, g, j, timer)
+    strategy = SimpleKnnStrategy(storage, top_k=1)
+    orch = CacheOrchestrator(
+        storage,
+        kb,
+        gates=_wrap_per_checkpoint(g),
+        judges=_wrap_per_checkpoint(j),
+        search_strategies=_wrap_per_checkpoint(strategy),
+        timer=timer,
+    )
     return orch, backend, storage
 
 
