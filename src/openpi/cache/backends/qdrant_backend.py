@@ -242,10 +242,18 @@ class QdrantVectorStore(VectorStoreBackend):
             )
         return results
 
+    @staticmethod
+    def _parse_point_id(id: str) -> int | str:
+        """Convert string ID back to Qdrant's native type (int or UUID string)."""
+        try:
+            return int(id)
+        except ValueError:
+            return id
+
     def fetch_payload(self, id: str) -> CachePayload:
         results = self._client.retrieve(
             collection_name=self._config.collection_name,
-            ids=[id],
+            ids=[self._parse_point_id(id)],
             with_payload=True,
         )
         if not results:
@@ -255,7 +263,7 @@ class QdrantVectorStore(VectorStoreBackend):
     def delete(self, ids: list[str]) -> None:
         self._client.delete(
             collection_name=self._config.collection_name,
-            points_selector=ids,
+            points_selector=[self._parse_point_id(i) for i in ids],
         )
 
     def count(self) -> int:
