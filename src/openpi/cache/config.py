@@ -368,21 +368,9 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"is invalid. Valid: {sorted(_VALID_STEP_FILTERS)}"
             )
 
-        # 8. qdrant + step_filter != "all" is not yet supported.
-        # The write path does not persist step_idx into Qdrant point payloads,
-        # so step_range filters would match nothing and cause stable misses.
-        # Fail-fast until the write path is extended to include step_idx.
-        if (
-            config.backend.type == "qdrant"
-            and cp_config.search_strategy.step_filter != "all"
-        ):
-            errors.append(
-                f"{prefix}.search_strategy.step_filter='{cp_config.search_strategy.step_filter}' "
-                f"is not supported with backend.type='qdrant'.\n"
-                f"  The Qdrant write path does not yet persist step_idx, so step_range "
-                f"filters would match nothing.\n"
-                f"  Fix: set step_filter='all', or use backend.type='in_memory' for testing"
-            )
+        # step_filter with qdrant is now supported — the ingest script
+        # persists step_idx in the Qdrant payload, and the backend builds
+        # Range filters on the "step_idx" field.
 
     # 6. key_builder.type <-> enabled keys cross-validation.
     if config.key_builder.type == "placeholder":
