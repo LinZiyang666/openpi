@@ -244,8 +244,13 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             self._orchestrator.on_episode_start()
 
     def on_episode_end(self, success: bool) -> None:
-        """Finalise per-episode state. Called when simulator sends episode_end."""
-        pass
+        """Finalise per-episode state. Called when simulator sends episode_end.
+
+        Prints timing summary for the completed episode, then resets the
+        timer window so the next episode starts with fresh statistics.
+        """
+        self._timer.on_task_end()
+        self._timer.on_task_begin()
 
     def on_task_end(self) -> None:
         """Finalise and report timing for the completed task.
