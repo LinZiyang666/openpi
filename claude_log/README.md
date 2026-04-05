@@ -29,6 +29,12 @@ Implementation plans and development records. For project architecture docs, see
 | [step4_config_plan.log.md](step4_config_plan.log.md) | `Implemented` | Step 4 Config implementation plan: SearchStrategy component + Config dataclass tree + YAML loading + serve_policy.py integration |
 | step4 (overall) | `⚠️ Done·High-Risk` | Orchestrator skeleton: CP1 end-to-end loop + CP3 skeleton; unstable components listed in `src/openpi/cache/README.md` |
 
+## Cache Key 降维
+
+| File | Status | Description |
+|------|--------|-------------|
+| [key_dim_reduction_recommendations.log.md](key_dim_reduction_recommendations.log.md) | `Design Only` | Cache key 降维方法推荐：两层流水线（Token 池化 + 维度投影），含实施路径 |
+
 ## Retrieval System
 
 | File | Status | Description |
@@ -36,6 +42,12 @@ Implementation plans and development records. For project architecture docs, see
 | [qdrant_design.log](qdrant_design.log) | `Design Only` | Qdrant collection schema: named vectors vs multivector, payload structure |
 | [qdrant_step_knn_experiment_plan.log](qdrant_step_knn_experiment_plan.log) | `Plan` | Step-KNN retrieval experiment: candidate generation, scoring, evaluation |
 | [faiss_uv_toolchain_plan.log](faiss_uv_toolchain_plan.log) | `Plan` | GPU Faiss build commands for uv environment |
+
+## Concurrent Inference
+
+| File | Status | Description |
+|------|--------|-------------|
+| [concurrent_inference_plan.log.md](concurrent_inference_plan.log.md) | `Implemented` | 并发推理方案：服务端多连接 + 客户端多 worker 线程池 |
 
 ## Meta
 

@@ -3,7 +3,10 @@ import dataclasses
 import logging
 import math
 import pathlib
+import queue
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import cv2
 import imageio
@@ -49,48 +52,110 @@ class Args:
 
     seed: int = 7  # Random Seed (for reproducibility)
 
+    #################################################################################################################
+    # Concurrency
+    #################################################################################################################
+    num_workers: int = 1  # Number of concurrent evaluation workers (1 = serial)
 
-def eval_libero(args: Args) -> None:
-    # Set random seed
-    np.random.seed(args.seed)
 
-    # Initialize LIBERO task suite
-    benchmark_dict = benchmark.get_benchmark_dict()
-    task_suite = benchmark_dict[args.task_suite_name]()
-    num_tasks_in_suite = task_suite.n_tasks
-    logging.info(f"Task suite: {args.task_suite_name}")
+def _get_max_steps(task_suite_name: str) -> int:
+    """Return the maximum episode length for the given task suite."""
+    limits = {
+        "libero_spatial": 220,   # longest training demo has 193 steps
+        "libero_object": 280,    # longest training demo has 254 steps
+        "libero_goal": 300,      # longest training demo has 270 steps
+        "libero_10": 520,        # longest training demo has 505 steps
+        "libero_90": 400,        # longest training demo has 373 steps
+    }
+    if task_suite_name not in limits:
+        raise ValueError(f"Unknown task suite: {task_suite_name}")
+    return limits[task_suite_name]
 
+
+def _run_episode(env, client, initial_state, task_description, args, max_steps,
+                 *, record_video: bool = False) -> tuple:
+    """Run a single episode.
+
+    Returns:
+        (success, images, timestamps) — images/timestamps are empty lists
+        when record_video is False.
+    """
+    env.reset()
+    action_plan = collections.deque()
+    obs = env.set_init_state(initial_state)
+
+    images = []
+    timestamps = []
+
+    t = 0
+    done = False
+
+    while t < max_steps + args.num_steps_wait:
+        try:
+            if t < args.num_steps_wait:
+                obs, reward, done, info = env.step(LIBERO_DUMMY_ACTION)
+                if record_video:
+                    _record_step(obs, images, timestamps, args.display)
+                t += 1
+                continue
+
+            img = np.ascontiguousarray(obs["agentview_image"][::-1, ::-1])
+            wrist_img = np.ascontiguousarray(obs["robot0_eye_in_hand_image"][::-1, ::-1])
+            img = image_tools.convert_to_uint8(
+                image_tools.resize_with_pad(img, args.resize_size, args.resize_size)
+            )
+            wrist_img = image_tools.convert_to_uint8(
+                image_tools.resize_with_pad(wrist_img, args.resize_size, args.resize_size)
+            )
+
+            if not action_plan:
+                element = {
+                    "observation/image": img,
+                    "observation/wrist_image": wrist_img,
+                    "observation/state": np.concatenate(
+                        (
+                            obs["robot0_eef_pos"],
+                            _quat2axisangle(obs["robot0_eef_quat"]),
+                            obs["robot0_gripper_qpos"],
+                        )
+                    ),
+                    "prompt": str(task_description),
+                }
+                action_chunk = client.infer(element)["actions"]
+                assert (
+                    len(action_chunk) >= args.replan_steps
+                ), f"We want to replan every {args.replan_steps} steps, but policy only predicts {len(action_chunk)} steps."
+                action_plan.extend(action_chunk[: args.replan_steps])
+
+            action = action_plan.popleft()
+            obs, reward, done, info = env.step(action.tolist())
+            if record_video:
+                _record_step(obs, images, timestamps, args.display)
+
+            if done:
+                break
+            t += 1
+
+        except Exception as e:
+            logging.error(f"Caught exception: {e}")
+            break
+
+    return done, images, timestamps
+
+
+def _eval_serial(args: Args, task_suite, num_tasks_in_suite, max_steps) -> None:
+    """Original serial evaluation path (num_workers=1)."""
     pathlib.Path(args.video_out_path).mkdir(parents=True, exist_ok=True)
-
-    if args.task_suite_name == "libero_spatial":
-        max_steps = 220  # longest training demo has 193 steps
-    elif args.task_suite_name == "libero_object":
-        max_steps = 280  # longest training demo has 254 steps
-    elif args.task_suite_name == "libero_goal":
-        max_steps = 300  # longest training demo has 270 steps
-    elif args.task_suite_name == "libero_10":
-        max_steps = 520  # longest training demo has 505 steps
-    elif args.task_suite_name == "libero_90":
-        max_steps = 400  # longest training demo has 373 steps
-    else:
-        raise ValueError(f"Unknown task suite: {args.task_suite_name}")
 
     client = _websocket_client_policy.WebsocketClientPolicy(args.host, args.port)
 
-    # Start evaluation
     total_episodes, total_successes = 0, 0
     global_episode_id = 0
     for task_id in tqdm.tqdm(range(num_tasks_in_suite)):
-        # Get task
         task = task_suite.get_task(task_id)
-
-        # Get default LIBERO initial states
         initial_states = task_suite.get_task_init_states(task_id)
-
-        # Initialize LIBERO environment and task description
         env, task_description = _get_libero_env(task, LIBERO_ENV_RESOLUTION, args.seed)
 
-        # Start episodes
         task_episodes, task_successes = 0, 0
         for episode_idx in tqdm.tqdm(range(args.num_trials_per_task)):
             logging.info(f"\nTask: {task_description}")
@@ -100,109 +165,136 @@ def eval_libero(args: Args) -> None:
                 episode_id=global_episode_id,
             )
 
-            # Reset environment
-            env.reset()
-            action_plan = collections.deque()
-
-            # Set initial states
-            obs = env.set_init_state(initial_states[episode_idx])
-
-            # Recording state: frame + wall-clock timestamp after each env.step().
-            # Inference latency is captured because step_duration between consecutive
-            # timestamps includes both sim step time and inference time.
-            images = []
-            timestamps = []
-
-            t = 0
-            done = False
-
-            logging.info(f"Starting episode {task_episodes+1}...")
-            while t < max_steps + args.num_steps_wait:
-                try:
-                    # IMPORTANT: Do nothing for the first few timesteps because the simulator drops objects
-                    # and we need to wait for them to fall
-                    if t < args.num_steps_wait:
-                        obs, reward, done, info = env.step(LIBERO_DUMMY_ACTION)
-                        _record_step(obs, images, timestamps, args.display)
-                        t += 1
-                        continue
-
-                    # Get preprocessed image
-                    # IMPORTANT: rotate 180 degrees to match train preprocessing
-                    img = np.ascontiguousarray(obs["agentview_image"][::-1, ::-1])
-                    wrist_img = np.ascontiguousarray(obs["robot0_eye_in_hand_image"][::-1, ::-1])
-                    img = image_tools.convert_to_uint8(
-                        image_tools.resize_with_pad(img, args.resize_size, args.resize_size)
-                    )
-                    wrist_img = image_tools.convert_to_uint8(
-                        image_tools.resize_with_pad(wrist_img, args.resize_size, args.resize_size)
-                    )
-
-                    if not action_plan:
-                        # Finished executing previous action chunk -- compute new chunk
-                        # Prepare observations dict
-                        element = {
-                            "observation/image": img,
-                            "observation/wrist_image": wrist_img,
-                            "observation/state": np.concatenate(
-                                (
-                                    obs["robot0_eef_pos"],
-                                    _quat2axisangle(obs["robot0_eef_quat"]),
-                                    obs["robot0_gripper_qpos"],
-                                )
-                            ),
-                            "prompt": str(task_description),
-                        }
-
-                        # Query model to get action
-                        action_chunk = client.infer(element)["actions"]
-                        assert (
-                            len(action_chunk) >= args.replan_steps
-                        ), f"We want to replan every {args.replan_steps} steps, but policy only predicts {len(action_chunk)} steps."
-                        action_plan.extend(action_chunk[: args.replan_steps])
-
-                    action = action_plan.popleft()
-
-                    # Execute action in environment
-                    obs, reward, done, info = env.step(action.tolist())
-                    _record_step(obs, images, timestamps, args.display)
-
-                    if done:
-                        task_successes += 1
-                        total_successes += 1
-                        break
-                    t += 1
-
-                except Exception as e:
-                    logging.error(f"Caught exception: {e}")
-                    break
+            done, images, timestamps = _run_episode(
+                env, client, initial_states[episode_idx],
+                task_description, args, max_steps,
+                record_video=True,
+            )
 
             if args.display:
                 cv2.destroyAllWindows()
 
-            # Save video: repeat each frame according to real wall-clock step duration
-            # so that inference latency is visible in the video.
             suffix = "success" if done else "failure"
             task_segment = task_description.replace(" ", "_")
             out_path = pathlib.Path(args.video_out_path) / f"rollout_{task_segment}_{suffix}.mp4"
             _save_video(images, timestamps, out_path)
             client.episode_end(success=done)
 
+            if done:
+                task_successes += 1
+                total_successes += 1
             task_episodes += 1
             total_episodes += 1
             global_episode_id += 1
 
-            # Log current results
             logging.info(f"Success: {done}")
             logging.info(f"# episodes completed so far: {total_episodes}")
             logging.info(f"# successes: {total_successes} ({total_successes / total_episodes * 100:.1f}%)")
 
-        # Log final results
         logging.info(f"Current task success rate: {float(task_successes) / float(task_episodes)}")
         logging.info(f"Current total success rate: {float(total_successes) / float(total_episodes)}")
 
     logging.info(f"Total success rate: {float(total_successes) / float(total_episodes)}")
     logging.info(f"Total episodes: {total_episodes}")
+
+
+def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> None:
+    """Concurrent evaluation path (num_workers > 1).
+
+    Each worker thread runs all episodes for one task at a time, then pulls
+    the next unfinished task from a shared queue.  Video recording and display
+    are disabled; a single tqdm bar tracks overall progress.
+    """
+    # 1. Check server supports concurrent mode.
+    probe_client = _websocket_client_policy.WebsocketClientPolicy(args.host, args.port)
+    server_meta = probe_client.get_server_metadata()
+    if not server_meta.get("concurrent", False):
+        probe_client._ws.close()
+        raise RuntimeError(
+            "Server does not support concurrent mode. "
+            "Start the server with --concurrent to enable multi-worker evaluation."
+        )
+    probe_client._ws.close()
+
+    # 2. Build task queue.
+    task_queue: queue.Queue[int] = queue.Queue()
+    for task_id in range(num_tasks_in_suite):
+        task_queue.put(task_id)
+
+    # 3. Shared state for progress reporting.
+    lock = threading.Lock()
+    counters = {"episodes": 0, "successes": 0}
+    total_episodes = num_tasks_in_suite * args.num_trials_per_task
+    pbar = tqdm.tqdm(total=total_episodes, desc="Eval", unit="ep")
+
+    # 4. Worker function.
+    def worker():
+        client = _websocket_client_policy.WebsocketClientPolicy(args.host, args.port)
+        try:
+            while True:
+                try:
+                    task_id = task_queue.get_nowait()
+                except queue.Empty:
+                    break
+
+                task = task_suite.get_task(task_id)
+                initial_states = task_suite.get_task_init_states(task_id)
+                env, task_description = _get_libero_env(task, LIBERO_ENV_RESOLUTION, args.seed)
+
+                for episode_idx in range(args.num_trials_per_task):
+                    global_episode_id = task_id * args.num_trials_per_task + episode_idx
+                    client.episode_start(
+                        experiment=args.task_suite_name,
+                        task=str(task_description),
+                        episode_id=global_episode_id,
+                    )
+
+                    done, _, _ = _run_episode(
+                        env, client, initial_states[episode_idx],
+                        task_description, args, max_steps,
+                        record_video=False,
+                    )
+                    client.episode_end(success=done)
+
+                    with lock:
+                        counters["episodes"] += 1
+                        if done:
+                            counters["successes"] += 1
+                        pbar.update(1)
+                        ep = counters["episodes"]
+                        sr = counters["successes"] / ep
+                        pbar.set_postfix(sr=f"{sr:.1%}")
+
+                env.close()
+        finally:
+            client._ws.close()
+
+    # 5. Launch workers.
+    with ThreadPoolExecutor(max_workers=args.num_workers) as pool:
+        futures = [pool.submit(worker) for _ in range(args.num_workers)]
+        for f in as_completed(futures):
+            f.result()  # re-raises worker exceptions
+
+    pbar.close()
+    ep = counters["episodes"]
+    sr = counters["successes"]
+    logging.info(f"Total success rate: {sr / ep:.1%} ({sr}/{ep})")
+
+
+def eval_libero(args: Args) -> None:
+    np.random.seed(args.seed)
+
+    benchmark_dict = benchmark.get_benchmark_dict()
+    task_suite = benchmark_dict[args.task_suite_name]()
+    num_tasks_in_suite = task_suite.n_tasks
+    logging.info(f"Task suite: {args.task_suite_name}")
+
+    max_steps = _get_max_steps(args.task_suite_name)
+
+    if args.num_workers > 1:
+        _eval_concurrent(args, task_suite, num_tasks_in_suite, max_steps)
+    else:
+        _eval_serial(args, task_suite, num_tasks_in_suite, max_steps)
 
 
 def _record_step(obs, images, timestamps, display):

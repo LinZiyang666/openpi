@@ -388,6 +388,10 @@ class SystemTimer:
                         task.  The file is written in a single batch at task
                         end to avoid per-record disk IO.
                         Set to ``None`` (default) to disable CSV output.
+        quiet: When ``True``, suppress the timing summary printed to stdout
+               at task end.  Timing data is still collected and CSV output
+               (if configured) is unaffected.  Used in concurrent server
+               mode to avoid interleaved output from multiple connections.
     """
 
     def __init__(
@@ -395,9 +399,11 @@ class SystemTimer:
         enabled: bool = True,
         buffer_size: int = 10_000,
         output_csv_dir: Optional[str] = None,
+        quiet: bool = False,
     ) -> None:
         self._enabled = enabled
         self._output_csv_dir = output_csv_dir
+        self._quiet = quiet
 
         # Ring buffer: holds TimingRecord objects.  deque.append is atomic
         # under CPython's GIL, safe for concurrent probe writes from threads.
@@ -712,7 +718,13 @@ class SystemTimer:
         computed by summing the three stage times for each individual
         inference call (not by summing per-probe means, which would give the
         correct mean but incorrect percentiles).
+
+        When ``quiet=True``, the summary is suppressed (used in concurrent
+        mode to avoid interleaved output from multiple connections).
         """
+        if self._quiet:
+            return
+
         if not task_records:
             print(
                 f"\n=== Inference Timing Summary "

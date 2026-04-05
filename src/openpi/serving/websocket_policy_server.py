@@ -2,9 +2,19 @@
 
 Overview
 --------
-``WebsocketPolicyServer`` accepts one client connection at a time and serves
-``infer`` requests over a msgpack-encoded WebSocket protocol.  See
-``openpi_client.websocket_client_policy`` for the matching client.
+``WebsocketPolicyServer`` serves ``infer`` requests over a msgpack-encoded
+WebSocket protocol.  See ``openpi_client.websocket_client_policy`` for the
+matching client.
+
+Concurrency modes
+-----------------
+* **Single-connection** (default, ``concurrent=False``): accepts one client at
+  a time.  Additional connections are rejected with close code 1013.
+* **Concurrent** (``concurrent=True``): accepts multiple simultaneous clients.
+  Each connection gets its own policy wrapper stack (created via the
+  ``connection_policy_factory``), sharing the same base policy (GPU model).
+  ``asyncio.to_thread`` is used for ``policy.infer()`` so the event loop is
+  never blocked.
 
 Timing integration
 ------------------
@@ -40,6 +50,7 @@ import http
 import logging
 import time
 import traceback
+from typing import Callable, Optional
 
 from openpi_client import base_policy as _base_policy
 from openpi_client import msgpack_numpy
@@ -53,15 +64,24 @@ class WebsocketPolicyServer:
     """Serves a policy using the WebSocket protocol.
 
     Args:
-        policy: Any object implementing ``BasePolicy.infer()``.  If the
-                policy also implements the ``TaskLifecycle`` protocol (has
-                ``on_task_begin`` / ``on_task_end``), the server will call
-                those methods at connection open / close.
+        policy: Any object implementing ``BasePolicy.infer()``.  In
+                single-connection mode this is the fully-wrapped policy.  In
+                concurrent mode this is the *base* (unwrapped) policy shared
+                across all connections.
+                If the policy also implements the ``TaskLifecycle`` protocol
+                (``on_task_begin`` / ``on_task_end``), the server calls those
+                methods at connection open / close.
         host: Bind address (default ``"0.0.0.0"`` — all interfaces).
         port: TCP port.  ``None`` lets the OS choose a free port.
         metadata: Arbitrary dict sent to the client immediately after the
                   WebSocket handshake.  Typically includes robot type, action
                   shape, etc.  Defaults to ``{}``.
+        concurrent: When ``True``, allow multiple simultaneous client
+                    connections with per-connection wrapper stacks.
+        connection_policy_factory: Called once per new connection in
+                    concurrent mode.  Receives the base ``policy`` and returns
+                    a per-connection wrapper stack.  Required when
+                    ``concurrent=True``.
     """
 
     def __init__(
@@ -70,11 +90,16 @@ class WebsocketPolicyServer:
         host: str = "0.0.0.0",
         port: int | None = None,
         metadata: dict | None = None,
+        concurrent: bool = False,
+        connection_policy_factory: Optional[Callable[[_base_policy.BasePolicy], _base_policy.BasePolicy]] = None,
     ) -> None:
         self._policy = policy
         self._host = host
         self._port = port
         self._metadata = metadata or {}
+        self._concurrent = concurrent
+        self._connection_policy_factory = connection_policy_factory
+        self._has_active_connection = False  # for single-connection mode
         logging.getLogger("websockets.server").setLevel(logging.INFO)
 
     def serve_forever(self) -> None:
@@ -92,14 +117,35 @@ class WebsocketPolicyServer:
             await server.serve_forever()
 
     async def _handler(self, websocket: _server.ServerConnection):
+        # ------------------------------------------------------------------
+        # Determine per-connection policy
+        # ------------------------------------------------------------------
+        if self._concurrent:
+            # Concurrent mode: create a fresh wrapper stack for this connection.
+            conn_policy = self._connection_policy_factory(self._policy)
+        else:
+            # Single-connection mode: reject if another connection is active.
+            if self._has_active_connection:
+                logger.warning(
+                    "Rejected connection from %s — server is in single-connection mode.",
+                    websocket.remote_address,
+                )
+                await websocket.close(
+                    code=1013,
+                    reason="Server is in single-connection mode. Only one client at a time.",
+                )
+                return
+            self._has_active_connection = True
+            conn_policy = self._policy
+
         logger.info(f"Connection from {websocket.remote_address} opened")
         packer = msgpack_numpy.Packer()
 
         # Notify the policy that a new task (connection) is starting.
         # InferenceInterceptor implements on_task_begin(); plain Policy does not.
         # The hasattr check keeps this server decoupled from cache internals.
-        if hasattr(self._policy, "on_task_begin"):
-            self._policy.on_task_begin()
+        if hasattr(conn_policy, "on_task_begin"):
+            conn_policy.on_task_begin()
 
         await websocket.send(packer.pack(self._metadata))
 
@@ -116,23 +162,25 @@ class WebsocketPolicyServer:
                 if "__ctrl__" in obs:
                     ctrl = obs["__ctrl__"]
                     if ctrl == "episode_start":
-                        if hasattr(self._policy, "on_episode_start"):
-                            self._policy.on_episode_start(
+                        if hasattr(conn_policy, "on_episode_start"):
+                            conn_policy.on_episode_start(
                                 obs.get("__experiment__", "unknown"),
                                 obs.get("__task__", ""),
                                 obs.get("__episode_id__", -1),
                             )
                         await websocket.send(packer.pack({"__ack__": "episode_start"}))
                     elif ctrl == "episode_end":
-                        if hasattr(self._policy, "on_episode_end"):
-                            self._policy.on_episode_end(obs.get("__success__", False))
+                        if hasattr(conn_policy, "on_episode_end"):
+                            conn_policy.on_episode_end(obs.get("__success__", False))
                         await websocket.send(packer.pack({"__ack__": "episode_end"}))
                     else:
                         await websocket.send(packer.pack({"__ack__": "ignored"}))
                     continue
 
                 infer_time = time.monotonic()
-                action = self._policy.infer(obs)
+                # Run blocking inference in a thread so the asyncio event
+                # loop stays responsive for other connections and health checks.
+                action = await asyncio.to_thread(conn_policy.infer, obs)
                 infer_time = time.monotonic() - infer_time
 
                 # server_timing: wall-clock time spent in policy.infer(),
@@ -153,8 +201,10 @@ class WebsocketPolicyServer:
                 # Notify the policy that the task has ended.
                 # SystemTimer.on_task_end() will print the per-probe timing
                 # summary and (if configured) write a CSV file.
-                if hasattr(self._policy, "on_task_end"):
-                    self._policy.on_task_end()
+                if hasattr(conn_policy, "on_task_end"):
+                    conn_policy.on_task_end()
+                if not self._concurrent:
+                    self._has_active_connection = False
                 break
 
             except Exception:
@@ -167,8 +217,10 @@ class WebsocketPolicyServer:
                 )
                 # Ensure task-end hooks run even on error so timing records
                 # are not silently lost (e.g. CSV is still flushed).
-                if hasattr(self._policy, "on_task_end"):
-                    self._policy.on_task_end()
+                if hasattr(conn_policy, "on_task_end"):
+                    conn_policy.on_task_end()
+                if not self._concurrent:
+                    self._has_active_connection = False
                 raise
 
 

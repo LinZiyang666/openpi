@@ -77,6 +77,13 @@ class Args:
     # Example: --cache_config cache.yaml
     cache_config: str | None = None
 
+    # Enable concurrent multi-client mode.  When True, each WebSocket
+    # connection gets its own InferenceInterceptor / CacheOrchestrator / Timer
+    # wrapper stack while sharing the same base policy (GPU model).  Timing
+    # summary prints and orchestrator info logs are suppressed to avoid
+    # interleaved output.
+    concurrent: bool = False
+
     # Specifies how to load the policy. If not provided, the default policy for the environment will be used.
     policy: Checkpoint | Default = dataclasses.field(default_factory=Default)
 
@@ -136,20 +143,23 @@ def _configure_torchinductor_cache_dir() -> None:
     logging.info("TORCHINDUCTOR_CACHE_DIR=%s", cache_dir)
 
 
-def main(args: Args) -> None:
-    _configure_torchinductor_cache_dir()
-    policy = create_policy(args)
-    policy_metadata = policy.metadata
+def _wrap_policy(base_policy, args: Args, *, quiet: bool = False):
+    """Build the wrapper chain around a base policy.
 
-    # Wrap with cache-aware interceptor if requested.
-    # Two cache paths (mutually exclusive, cache_config takes priority):
-    #   1. --cache_config: YAML-based full cache system with Orchestrator
-    #   2. --cache: simple interceptor with timing only, no Orchestrator
-    # Wrapper ordering matters:
-    #   1. InferenceInterceptor (innermost -- needs direct Policy access)
-    #   2. PolicyRecorder (records interceptor's output)
-    #   3. CollectionPolicy (outermost -- hooks into model internals via _model)
-    # DO NOT reorder without verifying CollectionPolicy._model lookup.
+    Wrapper ordering matters:
+      1. InferenceInterceptor (innermost -- needs direct Policy access)
+      2. PolicyRecorder (records interceptor's output)
+      3. CollectionPolicy (outermost -- hooks into model internals via _model)
+    DO NOT reorder without verifying CollectionPolicy._model lookup.
+
+    Args:
+        base_policy: The unwrapped policy (shared GPU model).
+        args: CLI arguments.
+        quiet: When True, suppress timing prints and orchestrator info logs
+               (used in concurrent mode).
+    """
+    policy = base_policy
+
     if args.cache_config is not None:
         from openpi.cache.config import build_cache_components, load_cache_config
         from openpi.cache.interceptor import InferenceInterceptor
@@ -160,6 +170,9 @@ def main(args: Args) -> None:
 
         cache_config = load_cache_config(args.cache_config)
         components = build_cache_components(cache_config)
+        if quiet:
+            components["timer"]._quiet = True
+            logging.getLogger("openpi.cache.orchestrator").setLevel(logging.WARNING)
         orchestrator = CacheOrchestrator(
             storage=components["storage"],
             key_builder=components["key_builder"],
@@ -173,38 +186,68 @@ def main(args: Args) -> None:
             timer=components["timer"],
             orchestrator=orchestrator,
         )
-        logging.info("Cache mode enabled via config: %s", args.cache_config)
     elif args.cache:
         from openpi.cache.interceptor import InferenceInterceptor
         from openpi.cache.timing import SystemTimer
-        timer = SystemTimer(enabled=True, output_csv_dir=args.timing_csv_dir)
+        timer = SystemTimer(enabled=True, output_csv_dir=args.timing_csv_dir, quiet=quiet)
         if args.timing_csv_dir:
             logging.info("Timing CSV output enabled: writing to %s", args.timing_csv_dir)
-        logging.info("Cache mode enabled (simple, no config).")
         policy = InferenceInterceptor(policy, timer=timer)
 
-    # Record the policy's behavior.
     if args.record:
         policy = _policy.PolicyRecorder(policy, "policy_records")
 
     if args.collect:
         from openpi.collect.collection_policy import CollectionPolicy
         from openpi.collect.data_collector import EpisodeDataCollector
-
         collector = EpisodeDataCollector(base_dir=args.collect_dir)
         policy = CollectionPolicy(policy, collector)
         logging.info("Data collection enabled -> %s", args.collect_dir)
+
+    return policy
+
+
+def main(args: Args) -> None:
+    _configure_torchinductor_cache_dir()
+    base_policy = create_policy(args)
+    policy_metadata = base_policy.metadata
 
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
     logging.info("Creating server (host: %s, ip: %s)", hostname, local_ip)
 
-    server = websocket_policy_server.WebsocketPolicyServer(
-        policy=policy,
-        host="0.0.0.0",
-        port=args.port,
-        metadata=policy_metadata,
-    )
+    if args.concurrent:
+        # Concurrent mode: the base policy (GPU model) is shared.
+        # Each connection gets its own wrapper stack via the factory.
+        def _connection_policy_factory(shared_base_policy):
+            return _wrap_policy(shared_base_policy, args, quiet=True)
+
+        policy_metadata = {**policy_metadata, "concurrent": True}
+        logging.info("Concurrent mode enabled.")
+
+        server = websocket_policy_server.WebsocketPolicyServer(
+            policy=base_policy,
+            host="0.0.0.0",
+            port=args.port,
+            metadata=policy_metadata,
+            concurrent=True,
+            connection_policy_factory=_connection_policy_factory,
+        )
+    else:
+        # Single-connection mode: wrap once at startup.
+        policy = _wrap_policy(base_policy, args, quiet=False)
+        if args.cache_config:
+            logging.info("Cache mode enabled via config: %s", args.cache_config)
+        elif args.cache:
+            logging.info("Cache mode enabled (simple, no config).")
+
+        server = websocket_policy_server.WebsocketPolicyServer(
+            policy=policy,
+            host="0.0.0.0",
+            port=args.port,
+            metadata=policy_metadata,
+        )
+
     server.serve_forever()
 
 
