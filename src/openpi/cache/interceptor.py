@@ -70,6 +70,7 @@ from __future__ import annotations
 
 import concurrent.futures
 import logging
+import threading
 from typing import Any, Callable, Optional
 
 import jax
@@ -135,60 +136,14 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         self._output_transform = policy._output_transform  # composed transform fn  # noqa: SLF001
         self._pytorch_device = policy._pytorch_device      # e.g. "cuda:0"          # noqa: SLF001
 
-        # ---- torch.compile for the three stage methods ----
-        # sample_actions() is compiled by PI0Pytorch.__init__ using
-        # config.pytorch_compile_mode (default "max-autotune").  The stage
-        # methods are compiled here with the same mode so the interceptor
-        # achieves equivalent throughput.
-        #
-        # Persistent cache: torch.compile (inductor backend) automatically
-        # saves compiled artifacts to disk between restarts:
-        #   default location : ~/.cache/torch/inductor/
-        #   override via env : TORCHINDUCTOR_CACHE_DIR=/your/path
-        # On first run the compilation takes 30–120 s; subsequent starts with
-        # the same model and input shapes load from cache and skip recompilation.
-        #
-        # If pytorch_compile_mode is None (disabled in config), the stage
-        # methods run in eager mode — correct but slower.
-        raw_compile_mode: str | None = getattr(
-            self._model.config, "pytorch_compile_mode", None
+        # ---- torch.compile (compile-once, cached on model) ----
+        self._stage1_fn, self._stage2_fn, self._stage3_fn = (
+            self._get_or_compile_stages()
         )
-        # Staged run_stage1/2/3 execution passes outputs across independently
-        # compiled functions. In practice, max-autotune can trigger CUDAGraph
-        # output-lifetime issues in this pattern; prefer the no-cudagraph mode.
-        compile_mode: str | None = raw_compile_mode
-        if raw_compile_mode == "max-autotune":
-            compile_mode = "max-autotune-no-cudagraphs"
-            logger.info(
-                "InferenceInterceptor: overriding compile mode for staged path "
-                "from '%s' to '%s' to avoid CUDAGraph output reuse errors.",
-                raw_compile_mode,
-                compile_mode,
-            )
-        if compile_mode is not None:
-            self._stage1_fn: Callable = torch.compile(
-                self._model.run_stage1, mode=compile_mode
-            )
-            self._stage2_fn: Callable = torch.compile(
-                self._model.run_stage2, mode=compile_mode
-            )
-            self._stage3_fn: Callable = torch.compile(
-                self._model.run_stage3, mode=compile_mode
-            )
-            logger.info(
-                "InferenceInterceptor: stage methods compiled "
-                "(mode='%s', cache: ~/.cache/torch/inductor or $TORCHINDUCTOR_CACHE_DIR).",
-                compile_mode,
-            )
-        else:
-            # Compile disabled — run in eager mode.
-            self._stage1_fn = self._model.run_stage1
-            self._stage2_fn = self._model.run_stage2
-            self._stage3_fn = self._model.run_stage3
-            logger.info(
-                "InferenceInterceptor: pytorch_compile_mode is None, "
-                "stage methods running in eager mode."
-            )
+        # Shared lock: torch.dynamo is not thread-safe for concurrent calls.
+        if not hasattr(self._model, "_infer_lock"):
+            self._model._infer_lock = threading.Lock()
+        self._infer_lock = self._model._infer_lock
 
         # ---- SystemTimer setup ----
         # Each probe corresponds to one pipeline component.  The backend
@@ -223,6 +178,48 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             self._write_executor = concurrent.futures.ThreadPoolExecutor(
                 max_workers=1, thread_name_prefix="cache_write"
             )
+
+    # -----------------------------------------------------------------------
+    # Compile-once helpers
+    # -----------------------------------------------------------------------
+
+    def _get_or_compile_stages(self) -> tuple[Callable, Callable, Callable]:
+        """Compile stage methods once, cache on model for reuse across Interceptors."""
+        if hasattr(self._model, "_compiled_stage1_fn"):
+            logger.info("InferenceInterceptor: reusing compiled stage methods.")
+            return (
+                self._model._compiled_stage1_fn,
+                self._model._compiled_stage2_fn,
+                self._model._compiled_stage3_fn,
+            )
+
+        raw_compile_mode: str | None = getattr(
+            self._model.config, "pytorch_compile_mode", None
+        )
+        compile_mode: str | None = raw_compile_mode
+        if raw_compile_mode == "max-autotune":
+            compile_mode = "max-autotune-no-cudagraphs"
+            logger.info(
+                "InferenceInterceptor: compile mode '%s' -> '%s' "
+                "(avoid CUDAGraph output reuse errors).",
+                raw_compile_mode, compile_mode,
+            )
+
+        if compile_mode is not None:
+            s1 = torch.compile(self._model.run_stage1, mode=compile_mode)
+            s2 = torch.compile(self._model.run_stage2, mode=compile_mode)
+            s3 = torch.compile(self._model.run_stage3, mode=compile_mode)
+            logger.info("InferenceInterceptor: stages compiled (mode='%s').", compile_mode)
+        else:
+            s1 = self._model.run_stage1
+            s2 = self._model.run_stage2
+            s3 = self._model.run_stage3
+            logger.info("InferenceInterceptor: stages running in eager mode.")
+
+        self._model._compiled_stage1_fn = s1
+        self._model._compiled_stage2_fn = s2
+        self._model._compiled_stage3_fn = s3
+        return s1, s2, s3
 
     # -----------------------------------------------------------------------
     # TaskLifecycle interface  (called by WebsocketPolicyServer._handler)
@@ -337,52 +334,51 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 return outputs
 
         # ---- 2. Staged inference with cache checks ----
-        # Mark a fresh compiled-step boundary before invoking staged compiled
-        # functions; this prevents CUDAGraph-managed outputs from being read
-        # across step boundaries.
-        torch.compiler.cudagraph_mark_step_begin()
-        with self._timer.measure("total_inference"):
-            with torch.no_grad():
-                # Stage 1: SigLIP vision encoding + prefix embedding.
-                with self._timer.measure("stage1_vision"):
-                    stage1 = self._stage1_fn(observation)
+        # _infer_lock: torch.dynamo is not thread-safe for concurrent calls.
+        with self._infer_lock:
+            torch.compiler.cudagraph_mark_step_begin()
+            with self._timer.measure("total_inference"):
+                with torch.no_grad():
+                    # Stage 1: SigLIP vision encoding + prefix embedding.
+                    with self._timer.measure("stage1_vision"):
+                        stage1 = self._stage1_fn(observation)
 
-                # CP1: check cache after Stage 1.
-                # Data flow: stage1 -> orchestrator.check(CP1) -> CheckResult
-                # On HIT: skip stage2 + stage3, return cached action.
-                if self._orchestrator is not None:
-                    with self._timer.measure("cp1_sum"):
-                        cp1_result = self._orchestrator.check(
-                            CheckpointID.CP1, stage1=stage1
-                        )
-                    if cp1_result.hit_type == HitType.FULL_HIT:
-                        # Build outputs from cached payload.
-                        # CachePayload.action_chunk is CPU float32 [50, 32].
-                        # Move to device and add batch dim to match normal path.
-                        outputs = {
-                            "state": inputs["state"],
-                            "actions": cp1_result.payload.action_chunk.to(
-                                self._pytorch_device
-                            )[None, ...],  # [1, 50, 32]
-                        }
-                        outputs = jax.tree.map(
-                            lambda x: np.asarray(x[0, ...].detach().cpu()),
-                            outputs,
-                        )
-                        outputs = self._output_transform(outputs)
-                        self._orchestrator.clear()
-                        return outputs
+                    # CP1: check cache after Stage 1.
+                    # Data flow: stage1 -> orchestrator.check(CP1) -> CheckResult
+                    # On HIT: skip stage2 + stage3, return cached action.
+                    if self._orchestrator is not None:
+                        with self._timer.measure("cp1_sum"):
+                            cp1_result = self._orchestrator.check(
+                                CheckpointID.CP1, stage1=stage1
+                            )
+                        if cp1_result.hit_type == HitType.FULL_HIT:
+                            # Build outputs from cached payload.
+                            # CachePayload.action_chunk is CPU float32 [50, 32].
+                            # Move to device and add batch dim to match normal path.
+                            outputs = {
+                                "state": inputs["state"],
+                                "actions": cp1_result.payload.action_chunk.to(
+                                    self._pytorch_device
+                                )[None, ...],  # [1, 50, 32]
+                            }
+                            outputs = jax.tree.map(
+                                lambda x: np.asarray(x[0, ...].detach().cpu()),
+                                outputs,
+                            )
+                            outputs = self._output_transform(outputs)
+                            self._orchestrator.clear()
+                            return outputs
 
-                # Stage 2: Gemma 2B backbone forward pass -> KV cache.
-                with self._timer.measure("stage2_llm"):
-                    stage2 = self._stage2_fn(stage1)
+                    # Stage 2: Gemma 2B backbone forward pass -> KV cache.
+                    with self._timer.measure("stage2_llm"):
+                        stage2 = self._stage2_fn(stage1)
 
-                # CP2 slot: remains commented out (suspended).
-                # TODO(Step 7): insert CP2 cache check here.
+                    # CP2 slot: remains commented out (suspended).
+                    # TODO(Step 7): insert CP2 cache check here.
 
-                # Stage 3: Action Expert — 10-step Euler flow-matching loop.
-                with self._timer.measure("stage3_flow"):
-                    stage3 = self._stage3_fn(stage2, noise=start_noise)
+                    # Stage 3: Action Expert — 10-step Euler flow-matching loop.
+                    with self._timer.measure("stage3_flow"):
+                        stage3 = self._stage3_fn(stage2, noise=start_noise)
 
                 # Post-inference cache operations (only on normal path, not on hit path).
                 if self._orchestrator is not None:
