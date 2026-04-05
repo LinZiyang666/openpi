@@ -12,7 +12,7 @@ Implementation plans and development records. For project architecture docs, see
 | `Implemented` | Code and log exist, but final validation or sign-off is still pending |
 | `Validated` | Implemented and explicitly verified |
 | `Historical` | Kept for record; not the active source of truth for ongoing work |
-| `⚠️ 暂时完成·高危` | 代码落地可用，但无测试覆盖，存在已知风险点，待回归验证 |
+| `⚠️ Done·High-Risk` | Code landed and functional, but no test coverage; known risk points remain; pending regression validation |
 
 ## Cache System Implementation
 
@@ -21,13 +21,13 @@ Implementation plans and development records. For project architecture docs, see
 | [step1.log](step1.log) | `Validated` | Stage 1/2/3 public interface design, Pi0 vs Pi0.5 architectural comparison |
 | [step2.log](step2.log) | `Validated` | CUDA Event timing system: per-component timing strategy and API design |
 | [step3_data_collection.log](step3_data_collection.log) | `Implemented` | Forward-hook based HDF5 data collection: hook points, schema, wrapper ordering |
-| [step3_cache.log](step3_cache.log) | `⚠️ 暂时完成·高危` | Cache 存储层抽象设计+落地：VectorStoreBackend ABC、named vectors、Qdrant chunked RRF 实现；无测试覆盖，详见 `src/openpi/cache/README.md` |
-| [step4_discussion.log.md](step4_discussion.log.md) | `Historical` | Step 4 讨论记录：稳定性分析、设计争议、答辩问答与范围收敛 |
-| [step4_plan.log.md](step4_plan.log.md) | `Historical` | Step 4 计划全文：原始实施摘要 + 答辩后修订版详细实现计划 |
-| [step4_test_plan.log.md](step4_test_plan.log.md) | `Validated` | Step 4 测试计划+执行：6个文件45用例全部通过 |
-| [step4_config_discussion.log.md](step4_config_discussion.log.md) | `Validated` | Step 4 Config 讨论记录：SearchStrategy 抽象、分检查点配置、YAML 格式、组件与 Config 解耦原则 |
-| [step4_config_plan.log.md](step4_config_plan.log.md) | `Implemented` | Step 4 Config 实现计划：SearchStrategy 组件 + Config dataclass 树 + YAML 加载 + serve_policy.py 改造 |
-| step4 (overall) | `⚠️ 暂时完成·高危` | Orchestrator骨架：CP1端到端闭环+CP3骨架；不稳定部件见 `src/openpi/cache/README.md` |
+| [step3_cache.log](step3_cache.log) | `⚠️ Done·High-Risk` | Cache storage layer abstraction + implementation: VectorStoreBackend ABC, named vectors, Qdrant chunked RRF; no test coverage, see `src/openpi/cache/README.md` |
+| [step4_discussion.log.md](step4_discussion.log.md) | `Historical` | Step 4 discussion log: stability analysis, design debates, Q&A review and scope convergence |
+| [step4_plan.log.md](step4_plan.log.md) | `Historical` | Step 4 full plan: original implementation summary + revised detailed plan after review |
+| [step4_test_plan.log.md](step4_test_plan.log.md) | `Validated` | Step 4 test plan + execution: 6 files, 45 test cases all passed |
+| [step4_config_discussion.log.md](step4_config_discussion.log.md) | `Validated` | Step 4 Config discussion: SearchStrategy abstraction, per-checkpoint config, YAML format, component-config decoupling principles |
+| [step4_config_plan.log.md](step4_config_plan.log.md) | `Implemented` | Step 4 Config implementation plan: SearchStrategy component + Config dataclass tree + YAML loading + serve_policy.py integration |
+| step4 (overall) | `⚠️ Done·High-Risk` | Orchestrator skeleton: CP1 end-to-end loop + CP3 skeleton; unstable components listed in `src/openpi/cache/README.md` |
 
 ## Retrieval System
 

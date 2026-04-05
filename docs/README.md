@@ -37,8 +37,7 @@ Project architecture and usage guides. For implementation logs, see [`claude_log
 |------|-------------|
 | [cache_system_architecture.md](cache_system_architecture.md) | Cache system spec: 3-stage pipeline, CP1/CP2/CP3 checkpoints, interceptor pattern (English) |
 | [cache_system_architecture_chinese.md](cache_system_architecture_chinese.md) | Same as above, Chinese version |
-| [adding_vector_store_backend.md](adding_vector_store_backend.md) | Step-by-step guide: implement a new vector DB backend (interface, serialisation, filter contract, testing) |
-| [custom_cache_components.md](custom_cache_components.md) | Guide: write custom Gate, Judge, SearchStrategy — protocols, examples, score semantics, registration, testing |
+| [cache_system_tutorial.md](cache_system_tutorial.md) | Complete tutorial: glossary, all components (KeyBuilder/Gate/Judge/SearchStrategy/Backend), YAML config, registration, testing |
 | [openpi_reference.md](openpi_reference.md) | Project structure, model architecture, Pi0 vs Pi0.5 differences, code paths, training configs, deployment, hardware |
 
 ## Usage Guides

@@ -219,8 +219,8 @@ class InferenceInterceptor(BasePolicy):
 
 ### 5.1 CacheOrchestrator
 
-> **状态**：Step 4 设计——尚未实现。
-> ⚠️ 此设计使用 Step 3 存储层类型（`QuerySpec`、`SearchResultLite`、`CacheEntry` 等），这些接口不稳定。`CacheContext` 和 `CacheResult` 是编排层类型，将在 Step 4 定义。
+> **状态**：已实现（Step 4）——不稳定，接口可能在 Step 5/6 变更。
+> ⚠️ 使用 Step 3 存储层类型（`QuerySpec`、`SearchResultLite`、`CacheEntry` 等），这些接口不稳定。`CacheContext` 未采用，改为组件级 Protocol；`CacheResult` 改为 `CheckResult`。
 
 总控组件。管理所有检查点的生命周期、协调 gate/search/judge 流程、处理异步写回。
 
@@ -441,8 +441,8 @@ class VectorStore:
 
 ### 5.4 QueryKeyBuilder（可插拔）
 
-> **状态**：Step 4 设计——尚未实现。
-> ⚠️ 返回类型 `dict[str, torch.Tensor]` 与 `QuerySpec.query_keys` / `CacheEntry.query_keys`（Step 3 存储层类型，不稳定）对齐。`CacheContext` 是 Step 4 编排层类型（尚未定义）。
+> **状态**：已实现（Step 4）——不稳定。两种实现：`PlaceholderKeyBuilder`（仅 L2 归一化 state）和 `FullOriginalKeyBuilder`（多模态分割 + flatten，无 pooling/归一化）。
+> ⚠️ 返回类型 `dict[str, torch.Tensor]` 与 `QuerySpec.query_keys` / `CacheEntry.query_keys`（Step 3 存储层类型，不稳定）对齐。`CacheContext` 未采用；Gate/Judge 直接从 KeyBuilder 读取 `cached_data`。
 
 ```python
 class QueryKeyBuilder(Protocol):
@@ -498,8 +498,8 @@ class PlaceholderKeyBuilder(QueryKeyBuilder):
 
 ### 5.5 GateFunction（可插拔）
 
-> **状态**：Step 4 设计——尚未实现。
-> `CacheContext` 是 Step 4 编排层类型（尚未定义）。Gate 不直接与存储层交互，但其输入类型将在 Step 4 实现时最终确定。
+> **状态**：已实现（Step 4）——不稳定。当前实现：`AlwaysSearchGate`（始终返回 True）。
+> `CacheContext` 未采用；Gate 直接接收 `checkpoint_id` 和 `cached_data` dict。接口可能随 state-change gate 的引入而演进。
 
 决定是否在某个 checkpoint 启动检索。避免每次都搜索的开销。
 
@@ -544,8 +544,8 @@ class StateChangeGate(GateFunction):
 
 ### 5.6 SimilarityJudge（可插拔）
 
-> **状态**：Step 4 设计——尚未实现。
-> ⚠️ 使用 Step 3 存储层的 `SearchResultLite`（不稳定）。`CacheContext` 和 `CacheResult` 是 Step 4 编排层类型（尚未定义）。`SearchResultLite.score` 范围取决于 backend/mode，阈值需相应校准。
+> **状态**：已实现（Step 4）——不稳定。当前实现：`ThresholdJudge`，按 checkpoint 设阈值（cp1=0.98, cp3=0.95，未校准）。
+> ⚠️ 使用 Step 3 存储层的 `SearchResultLite`（不稳定）。`CacheContext` 未采用；Judge 接收 results + `checkpoint_id` + `cached_data`。阈值尚未在真实数据上校准。
 
 判定检索结果是否构成有效 hit。
 
@@ -940,7 +940,7 @@ class TaskLifecycle(Protocol):
 | `stage2_llm` | cuda | ✅ 已注册 | LLM backbone prefix KV 填充 |
 | `stage3_flow` | cuda | ✅ 已注册 | 完整 flow matching（10 次 denoise step） |
 | `total_inference` | cpu | ✅ 已注册 | Wall-clock 总耗时（外层 `measure()` 包裹三个 stage） |
-| `cp1_*`, `cp3_*` | 待定 | 计划中（Step 4+） | Cache 子步骤 probe |
+| `cp1_*`, `cp3_*` | cpu | ✅ 已注册（Step 4）——不稳定 | Cache 子步骤 probe（gate, build, search, judge, write） |
 | `cp2_*` | — | 搁置 | CP2 搁置（见 Section 3） |
 | `write_vectordb`, `write_metadata` | cpu | 计划中 | 异步写回 |
 | `gpu_to_cpu`, `cpu_to_gpu` | cuda | 计划中 | `transfer_stream` 上的数据迁移 |
@@ -1310,7 +1310,7 @@ class Stage3Output:
   - 跑 10 次不同输入 → 全部 miss
   - 验证 CP1 hit 时返回的 action 与正常推理结果的 L2 距离（应该 = 0）
 
-**产出**：可运行的端到端 cache 系统（CP1 + CP3），通过上述测试。
+**产出**：可运行的端到端 cache 系统（CP1 + CP3），通过上述测试。 ✅ 已完成（不稳定）——CP3 检查基础设施就位，但 CP3 写入/调度/跳过逻辑为 stub（延迟到 Step 6）。
 
 ---
 
@@ -1608,7 +1608,7 @@ Step 2: 计时系统 ─── ✅ 已完成
 Step 3: 数据结构    (并行开发)
   │
   ▼
-Step 4: Orchestrator (CP1 + CP3) ──── CP2 搁置，不在关键路径上
+Step 4: Orchestrator (CP1 + CP3) ──── ✅ 已完成（不稳定） ──── CP2 搁置，不在关键路径上
   │
   ▼
 Step 5: ★ 可行性实验 ★  ── 如果失败 ──> 重新评估整体方案

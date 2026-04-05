@@ -220,8 +220,8 @@ Key design points:
 
 ### 5.1 CacheOrchestrator
 
-> **Status**: Step 4 design — not yet implemented.
-> ⚠️ This design uses Step 3 storage layer types (`QuerySpec`, `SearchResultLite`, `CacheEntry`, etc.) which are unstable. `CacheContext` and `CacheResult` are orchestrator-layer types to be defined in Step 4.
+> **Status**: Implemented (Step 4) — unstable. Interfaces may change in Step 5/6.
+> ⚠️ Uses Step 3 storage layer types (`QuerySpec`, `SearchResultLite`, `CacheEntry`, etc.) which are unstable. `CacheContext` was replaced by component-level protocols; `CacheResult` was replaced by `CheckResult`.
 
 The master controller. Manages the lifecycle of all checkpoints, coordinates the gate/search/judge workflow, and handles async write-back.
 
@@ -443,8 +443,8 @@ class VectorStore:
 
 ### 5.4 QueryKeyBuilder (Pluggable)
 
-> **Status**: Step 4 design — not yet implemented.
-> ⚠️ Return type `dict[str, torch.Tensor]` aligns with `QuerySpec.query_keys` / `CacheEntry.query_keys` (Step 3 storage types, unstable). `CacheContext` is a Step 4 orchestrator-layer type (not yet defined).
+> **Status**: Implemented (Step 4) — unstable. Two implementations: `PlaceholderKeyBuilder` (L2-normalized state only) and `FullOriginalKeyBuilder` (multi-modal split + flatten, no pooling/normalization).
+> ⚠️ Return type `dict[str, torch.Tensor]` aligns with `QuerySpec.query_keys` / `CacheEntry.query_keys` (Step 3 storage types, unstable). `CacheContext` was not adopted; Gate/Judge read `cached_data` directly from KeyBuilder.
 
 ```python
 class QueryKeyBuilder(Protocol):
@@ -501,8 +501,8 @@ Designed as a Protocol so it can be swapped for a learned encoder or other appro
 
 ### 5.5 GateFunction (Pluggable)
 
-> **Status**: Step 4 design — not yet implemented.
-> `CacheContext` is a Step 4 orchestrator-layer type (not yet defined). Gate does not interact with the storage layer directly, but its input type will be finalized when Step 4 is implemented.
+> **Status**: Implemented (Step 4) — unstable. Current implementation: `AlwaysSearchGate` (always returns True).
+> `CacheContext` was not adopted; Gate receives `checkpoint_id` and `cached_data` dict directly. Interface may evolve with state-change gates in later steps.
 
 Decides whether to initiate a search at a given checkpoint. Avoids the overhead of searching every time.
 
@@ -547,8 +547,8 @@ class StateChangeGate(GateFunction):
 
 ### 5.6 SimilarityJudge (Pluggable)
 
-> **Status**: Step 4 design — not yet implemented.
-> ⚠️ Uses `SearchResultLite` from Step 3 storage layer (unstable). `CacheContext` and `CacheResult` are Step 4 orchestrator-layer types (not yet defined). `SearchResultLite.score` range depends on backend/mode — thresholds must be calibrated accordingly.
+> **Status**: Implemented (Step 4) — unstable. Current implementation: `ThresholdJudge` with per-checkpoint thresholds (cp1=0.98, cp3=0.95, uncalibrated).
+> ⚠️ Uses `SearchResultLite` from Step 3 storage layer (unstable). `CacheContext` was not adopted; Judge receives results + `checkpoint_id` + `cached_data`. Thresholds not yet calibrated on real data.
 
 Determines whether search results constitute a valid hit.
 
@@ -946,7 +946,7 @@ class TaskLifecycle(Protocol):
 | `stage2_llm` | cuda | ✅ Registered | LLM backbone prefix KV fill |
 | `stage3_flow` | cuda | ✅ Registered | Full flow matching (10 denoise steps) |
 | `total_inference` | cpu | ✅ Registered | Wall-clock total (outer `measure()` wrapping all 3 stages) |
-| `cp1_*`, `cp3_*` | tbd | Planned (Step 4+) | Cache sub-step probes |
+| `cp1_*`, `cp3_*` | cpu | ✅ Registered (Step 4) — unstable | Cache sub-step probes (gate, build, search, judge, write) |
 | `cp2_*` | — | Suspended | CP2 suspended (see Section 3) |
 | `write_vectordb`, `write_metadata` | cpu | Planned | Async write-back |
 | `gpu_to_cpu`, `cpu_to_gpu` | cuda | Planned | Data migration on `transfer_stream` |
@@ -1316,7 +1316,7 @@ class Stage3Output:
   - Run 10 different inputs -> all miss
   - Verify that the action returned on CP1 hit has L2 distance = 0 from normal inference result
 
-**Deliverable**: A working end-to-end cache system (CP1 + CP3) that passes the above tests.
+**Deliverable**: A working end-to-end cache system (CP1 + CP3) that passes the above tests. ✅ Completed (unstable) — CP3 check infrastructure in place but CP3 write/schedule/skip logic are stubs (deferred to Step 6).
 
 ---
 
@@ -1614,7 +1614,7 @@ Step 2: Timing system ─── ✅ completed
 Step 3: Data structs (parallel dev)
   │
   ▼
-Step 4: Orchestrator (CP1 + CP3) ──── CP2 suspended, not on critical path
+Step 4: Orchestrator (CP1 + CP3) ──── ✅ completed (unstable) ──── CP2 suspended, not on critical path
   │
   ▼
 Step 5: ★ Feasibility experiment ★  ── if failed ──> Reevaluate approach
