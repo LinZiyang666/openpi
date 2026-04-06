@@ -71,14 +71,19 @@ class RunState:
 
 
 def _send_cache_config(server_url: str, yaml_path: str) -> None:
-    """Send load_cache_config control message via short-lived WebSocket."""
+    """Send load_cache_config control message with YAML content via WebSocket.
+
+    Sends yaml_content (the file body) so the server doesn't need the local path.
+    """
     import msgpack
     import websockets
+
+    yaml_content = Path(yaml_path).read_text()
 
     async def _send():
         async with websockets.connect(server_url) as ws:
             _metadata = await ws.recv()
-            msg = {"__ctrl__": "load_cache_config", "yaml_path": str(Path(yaml_path).resolve())}
+            msg = {"__ctrl__": "load_cache_config", "yaml_content": yaml_content}
             await ws.send(msgpack.packb(msg))
             resp = msgpack.unpackb(await ws.recv())
             if resp.get("__ack__") != "load_cache_config":
@@ -104,6 +109,8 @@ def _execute_task(
     port: int,
     task_suite: str,
     log_path: Path,
+    seed: int = 7,
+    conda_env: str | None = None,
 ) -> dict:
     """Execute a single task within a run.
 
@@ -111,15 +118,20 @@ def _execute_task(
     Appends output to the run's log file.
     Kills subprocess after _TASK_TIMEOUT seconds (even if stdout is blocked).
     """
-    cmd = [
-        "uv", "run", "examples/libero/main.py",
+    main_args = [
+        "examples/libero/main.py",
         "--host", host,
         "--port", str(port),
         "--task_suite_name", task_suite,
         "--num_trials_per_task", str(episodes_per_task),
         "--num_workers", str(num_workers),
         "--task-ids", str(task_id),
+        "--seed", str(seed),
     ]
+    if conda_env:
+        cmd = ["conda", "run", "--no-capture-output", "-n", conda_env, "python", *main_args]
+    else:
+        cmd = ["uv", "run", *main_args]
 
     with open(log_path, "a") as log_file:
         log_file.write(f"\n{'='*60}\n")
@@ -225,10 +237,10 @@ def _parse_runs_filter(runs_str: str | None, total: int) -> set[int]:
     return indices
 
 
-def _init_task_progress(state: RunState, num_tasks: int) -> None:
+def _init_task_progress(state: RunState, task_id_list: list[int]) -> None:
     """Initialize task_progress if empty (first run or migrated state)."""
     if not state.task_progress:
-        state.task_progress = {str(i): "pending" for i in range(num_tasks)}
+        state.task_progress = {str(i): "pending" for i in task_id_list}
         state.task_results = {}
 
 
@@ -267,12 +279,25 @@ def main():
     parser.add_argument("--resume", action="store_true", help="Resume from last checkpoint (per-task granularity)")
     parser.add_argument("--state-path", default=None, help="State file path (default: yaml-dir/experiment_state.json)")
     parser.add_argument("--log-dir", default=None, help="Directory for run log files (default: alongside YAMLs)")
+    parser.add_argument("--seed", type=int, default=7, help="Random seed passed to main.py (default: 7)")
+    parser.add_argument("--task-ids", default=None, help="Only run these task IDs, e.g. '0' or '0,3,5' (default: all tasks in suite)")
+    parser.add_argument("--conda-env", default=None, help="Use conda environment instead of uv to run main.py (e.g. 'libero')")
     args = parser.parse_args()
 
     num_tasks = _SUITE_NUM_TASKS.get(args.task_suite)
     if num_tasks is None:
         print(f"Unknown task suite: {args.task_suite}. Known: {list(_SUITE_NUM_TASKS)}")
         return
+
+    # Determine which task IDs to run.
+    if args.task_ids is not None:
+        task_id_list = [int(x.strip()) for x in args.task_ids.split(",")]
+        for tid in task_id_list:
+            if tid < 0 or tid >= num_tasks:
+                print(f"Invalid task ID {tid} for suite {args.task_suite} (valid: 0-{num_tasks-1})")
+                return
+    else:
+        task_id_list = list(range(num_tasks))
 
     yaml_dir = Path(args.yaml_dir)
     yaml_files = sorted(yaml_dir.glob("*.yaml"))
@@ -357,7 +382,7 @@ def main():
         if idx not in run_filter:
             continue
 
-        _init_task_progress(state, num_tasks)
+        _init_task_progress(state, task_id_list)
 
         if args.resume and state.status == "done":
             logger.info("Skipping completed run %s", state.run_id)
@@ -418,6 +443,8 @@ def main():
                     port=args.port,
                     task_suite=args.task_suite,
                     log_path=log_path,
+                    seed=args.seed,
+                    conda_env=args.conda_env,
                 )
                 state.task_results[str(task_id)] = [result["successes"], result["total"]]
 

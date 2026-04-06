@@ -216,12 +216,18 @@ class WebsocketPolicyServer:
                             await websocket.send(packer.pack({"__ack__": "error", "msg": msg}))
                             continue
                         yaml_path = obs.get("yaml_path", "")
-                        if not yaml_path:
-                            await websocket.send(packer.pack({"__ack__": "error", "msg": "missing yaml_path"}))
+                        yaml_content = obs.get("yaml_content", "")
+                        if not yaml_path and not yaml_content:
+                            await websocket.send(packer.pack({"__ack__": "error", "msg": "missing yaml_path or yaml_content"}))
                         else:
                             try:
                                 from openpi.cache.config import build_shared_storage, load_cache_config
 
+                                if yaml_content:
+                                    import tempfile
+                                    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as tmp:
+                                        tmp.write(yaml_content)
+                                        yaml_path = tmp.name
                                 cache_config = load_cache_config(yaml_path)
                                 shared_storage = build_shared_storage(cache_config)
                                 global _current_bundle, _bundle_version

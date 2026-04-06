@@ -189,3 +189,4 @@ cython_debug/
 faiss.wiki
 exp_outputs
 .codex
+configs

@@ -720,3 +720,99 @@ Cross Encoder       →  新的 SearchStrategy 实现（TwoStageStrategy）
 ```
 
 不需要修改 Orchestrator、Gate、Judge 或 Backend。
+
+---
+
+## CP1 Calibration 实验发现与改进方向（2026-04-06）
+
+### Calibration 结果
+
+对 4 种池化方式（mean_pool / spatial_pool_16 / spatial_pool_64 / max_pool）构建 artifact（1040 entries）后，运行 `calibrate_score_sum_stats.py` 计算 same-task vs cross-task 区分度（separation = same_task_mean - cross_task_mean）：
+
+| 字段 | 相似度类型 | separation 范围 | 评价 |
+|------|-----------|----------------|------|
+| vision_0 | cosine | 0.001 ~ 0.003 | 很低，池化后几乎无区分力 |
+| vision_1 | cosine | 0.001 ~ 0.002 | 同上 |
+| prompt_emb | cosine | ~0.000002 | 几乎为零，CP1 级别 prompt embedding 对所有 task 一模一样 |
+| robot_state | L2 | ~0.06 | **最好**，是 vision 的 20-60 倍 |
+
+**核心问题**：256 个 ViT patch token 中大部分对应静态背景（桌面、墙壁），只有少数 patch 捕获任务相关物体（机械臂、目标物体）。简单池化（mean/max/spatial）把所有 patch 平等对待，有用信号被背景淹没。
+
+相对而言 spatial_pool_16 保留最多空间信息（sep=0.0025），mean_pool 最差（sep=0.001）。
+
+### 改进方向：更智能的 Token 处理
+
+#### 方向 1: Variance-based Token Selection（静态分析，最简单）
+
+从已有数据预计算每个 token position 的方差，选最活跃的 top-k 个 token：
+
+```python
+# 对所有 entries 的 vision_0 [256, 2048] 做统计
+all_tokens = torch.stack(...)  # [N, 256, 2048]
+variance = all_tokens.var(dim=0)  # [256, 2048]
+position_importance = variance.sum(dim=1)  # [256]
+top_k_positions = position_importance.topk(k=32).indices  # 选最活跃的 32 个 token
+```
+
+只用这 32 个 token flatten 成 32×2048 = 65536d 向量做 cosine。
+
+- **优点**：离线计算一次 mask，search 时直接用，改动小
+- **缺点**：mask 是全局的，不同 task 的关键 token 可能不同
+
+#### 方向 2: MaxSim（ColBERT 风格，不压缩）
+
+完全不池化，直接做 token-level 匹配：
+
+```python
+def maxsim(query, candidate):
+    # query: [256, 2048], candidate: [256, 2048]
+    sim_matrix = query @ candidate.T  # [256, 256]
+    # 每个 query token 找最相似的 candidate token
+    max_per_query = sim_matrix.max(dim=1).values  # [256]
+    return max_per_query.mean()  # scalar
+```
+
+信息检索领域（ColBERT）验证过的方法。
+
+- **优点**：保留完整的 token 级匹配，不丢信息，理论上区分度最高
+- **缺点**：计算量大（每对比较是 256×256 矩阵乘法），但 1040 entries batched 应该可接受
+
+#### 方向 3: Residual Encoding（减去均值模板）
+
+```python
+# 离线：计算所有 entries 的 mean template
+mean_template = all_tokens.mean(dim=0)  # [256, 2048]
+
+# 每个 entry 的 key = tokens - mean_template（去掉共享的静态部分）
+residual = tokens - mean_template
+key = residual.flatten()  # 或者对 residual 再池化
+```
+
+- **核心思想**：所有 entry 共有的部分（背景）被减掉，剩下的是差异部分
+- **优点**：池化后 cosine 区分度会显著提升，改动小
+- **缺点**：依赖均值模板的代表性
+
+#### 方向 4: Cross-step Attention（时序差异分析）
+
+用每个 episode 内 token 的时间变化识别动态 token：
+
+```python
+# 同一 episode 的连续 step 对比
+delta = tokens_t - tokens_{t-1}  # [256, 2048]
+dynamic_mask = delta.norm(dim=1) > threshold  # 哪些 token 变化大
+```
+
+变化大的 token 对应机械臂运动轨迹、物体移动，是最有区分力的。
+
+- **优点**：捕获真正的动态信号
+- **缺点**：需要时序信息，构建 artifact 时更复杂
+
+### 推荐实施顺序
+
+| 优先级 | 方向 | 原因 |
+|--------|------|------|
+| **P0** | 方向 3（Residual）+ 方向 1（Variance Selection）组合 | 成本低，改动小，只需在 artifact 构建时预计算 mean_template 和 variance mask，新增一个 `CP1ResidualKeyBuilder`，与现有实验框架完全兼容 |
+| **P1** | 方向 2（MaxSim） | 效果可能最好，但需要修改 similarity 计算逻辑（不再是简单向量 cosine），需要在 `in_memory_backend.py` 中新增 similarity type |
+| **P2** | 方向 4（Cross-step） | 需要更多数据处理逻辑，但与方向 1 可以组合使用 |
+
+这些方向与本文档前述的 Dual Encoder / Cross Encoder 方案是正交的——前者改进 token 表示/匹配方式（信号提取），后者改进整体 embedding 空间（学习优化）。两者可以叠加。

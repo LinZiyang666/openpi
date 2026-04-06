@@ -148,23 +148,25 @@ curl http://localhost:8000/healthz
 
 ## Step 5: 运行 Phase 1 实验（评估端）
 
-### 5a. 完整运行（64 个配置 × 10 task × 10 episodes = 6400 episodes）
+### 5a. 完整运行（64 个配置 × 10 task × 5 episodes = 3200 episodes）
 
 ```bash
 uv run exp/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/phase1 \
-    --episodes-per-run 10 \
-    --num-workers 4 \
+    --episodes-per-run 5 \
+    --num-workers 5 \
     --host 155.98.36.13 \
     --port 9000 \
-    --task-suite libero_spatial
+    --task-suite libero_spatial \
+    --seed 42
 ```
 
 参数说明：
 - `--host 155.98.36.13 --port 9000`: 通过 frp 隧道连接 GPU 服务器
-- `--episodes-per-run 10`: 每个 task 跑 10 个 episode
-- `--num-workers 4`: 每个 task 开 4 个并发 worker（需要 `--concurrent` 服务器）
+- `--episodes-per-run 5`: 每个 task 跑 5 个 episode（与数据收集时一致）
+- `--num-workers 5`: 每个 task 开 5 个并发 worker（需要 `--concurrent` 服务器）
 - `--task-suite libero_spatial`: 10 个 task 的 suite
+- `--seed 42`: 固定随机种子（数据收集时用默认 seed=7，实验评估用不同种子避免过拟合）
 
 ### 5b. 只运行部分配置（调试用）
 
@@ -172,11 +174,12 @@ uv run exp/run_cache_experiments.py \
 # 只运行第 1~8 个配置（即第一个 combo 的所有权重）
 uv run exp/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/phase1 \
-    --episodes-per-run 10 \
-    --num-workers 4 \
+    --episodes-per-run 5 \
+    --num-workers 5 \
     --host 155.98.36.13 \
     --port 9000 \
     --task-suite libero_spatial \
+    --seed 42 \
     --runs 1-8
 ```
 
@@ -187,11 +190,12 @@ uv run exp/run_cache_experiments.py \
 ```bash
 uv run exp/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/phase1 \
-    --episodes-per-run 10 \
-    --num-workers 4 \
+    --episodes-per-run 5 \
+    --num-workers 5 \
     --host 155.98.36.13 \
     --port 9000 \
     --task-suite libero_spatial \
+    --seed 42 \
     --resume
 ```
 
@@ -260,11 +264,12 @@ uv run exp/generate_cache_run_yamls.py \
 ```bash
 uv run exp/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/phase1_5 \
-    --episodes-per-run 10 \
-    --num-workers 4 \
+    --episodes-per-run 5 \
+    --num-workers 5 \
     --host 155.98.36.13 \
     --port 9000 \
-    --task-suite libero_spatial
+    --task-suite libero_spatial \
+    --seed 42
 ```
 
 断点续跑同理加 `--resume`。
@@ -301,11 +306,12 @@ uv run exp/generate_cache_run_yamls.py \
 ```bash
 uv run exp/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/phase2 \
-    --episodes-per-run 10 \
-    --num-workers 4 \
+    --episodes-per-run 5 \
+    --num-workers 5 \
     --host 155.98.36.13 \
     --port 9000 \
-    --task-suite libero_spatial
+    --task-suite libero_spatial \
+    --seed 42
 ```
 
 ---
@@ -326,9 +332,9 @@ uv run exp/analyze_cache_results.py \
 
 | Phase | 配置数 | Task 数 | Episodes/Task | 总 Episodes | 预计时长 |
 |-------|--------|---------|---------------|-------------|---------|
-| 1     | 64     | 10      | 10            | 6,400       | 取决于单 episode 时间 |
-| 1.5   | ~45    | 10      | 10            | ~4,500      | — |
-| 2     | 3      | 10      | 10            | 300         | — |
+| 1     | 64     | 10      | 5             | 3,200       | 取决于单 episode 时间 |
+| 1.5   | ~45    | 10      | 5             | ~2,250      | — |
+| 2     | 3      | 10      | 5             | 150         | — |
 
 单个 episode 时间取决于 LIBERO task 的 max_steps（libero_spatial: 220 步）和推理延迟。
 
@@ -368,11 +374,12 @@ for s in states:
 # 继续运行
 uv run exp/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/phase1 \
-    --episodes-per-run 10 \
-    --num-workers 4 \
+    --episodes-per-run 5 \
+    --num-workers 5 \
     --host 155.98.36.13 \
     --port 9000 \
     --task-suite libero_spatial \
+    --seed 42 \
     --resume
 ```
 
