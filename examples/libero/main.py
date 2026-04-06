@@ -227,7 +227,23 @@ def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> N
 
     # 3. Progress bars: one overall + one per worker.
     lock = threading.Lock()
-    counters = {"episodes": 0, "successes": 0}
+    counters = {"episodes": 0, "successes": 0, "steps": 0}
+    step_times: collections.deque[float] = collections.deque()
+    _last_rate: list[float] = [0.0]  # cached rate value
+
+    def _update_rate() -> float:
+        """Recalc actions/s over a 10s sliding window. Caller must hold lock."""
+        now = time.monotonic()
+        cutoff = now - 10.0
+        while step_times and step_times[0] < cutoff:
+            step_times.popleft()
+        if len(step_times) < 2:
+            _last_rate[0] = 0.0
+        else:
+            span = step_times[-1] - step_times[0]
+            _last_rate[0] = (len(step_times) - 1) / span if span > 0 else 0.0
+        return _last_rate[0]
+
     total_episodes = num_tasks_in_suite * args.num_trials_per_task
     pbar = tqdm.tqdm(total=total_episodes, desc="Total", unit="ep",
                      position=0, leave=True)
@@ -269,6 +285,14 @@ def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> N
                         _wbar.n = step
                         _wbar.set_postfix_str(str(_ts[0] + step))
                         _wbar.refresh()
+                        with lock:
+                            counters["steps"] += 1
+                            step_times.append(time.monotonic())
+                            if counters["steps"] % 20 == 0:
+                                aps = _update_rate()
+                                ep = counters["episodes"]
+                                sr = f"{counters['successes'] / ep:.1%}" if ep else "N/A"
+                                pbar.set_postfix_str(f"sr={sr}, {aps:.1f} act/s")
 
                     client.episode_start(
                         experiment=args.task_suite_name,
@@ -292,7 +316,8 @@ def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> N
                         pbar.update(1)
                         ep = counters["episodes"]
                         sr = counters["successes"] / ep
-                        pbar.set_postfix(sr=f"{sr:.1%}")
+                        aps = _update_rate()
+                        pbar.set_postfix_str(f"sr={sr:.1%}, {aps:.1f} act/s")
 
                 env.close()
         finally:

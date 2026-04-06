@@ -10,13 +10,14 @@ Coupling map:
 
 Responsibilities
 ----------------
-1. Thread safety    — RLock around every backend call.
-2. Dim validation   — check query_keys shapes on insert and search.
-3. Entry validation — call entry.validate() before every insert.
-4. Filter checking  — fail-fast if QueryFilter contains unsupported fields.
-5. Two-phase search — search() returns lightweight results; fetch_payload()
+1. Dim validation   — check query_keys shapes on insert and search.
+2. Entry validation — call entry.validate() before every insert.
+3. Filter checking  — fail-fast if QueryFilter contains unsupported fields.
+4. Two-phase search — search() returns lightweight results; fetch_payload()
                       hydrates a single winner to avoid bulk tensor transfer.
-6. MetadataDB hook  — optional secondary store; vector DB is source of truth.
+5. MetadataDB hook  — optional secondary store; vector DB is source of truth.
+
+Thread safety: delegated to the backend (e.g. Qdrant httpx client is thread-safe).
 
 MetadataDB consistency
 ----------------------
@@ -28,7 +29,6 @@ so the cache is still correct.  close() flushes both stores.
 from __future__ import annotations
 
 import dataclasses
-import threading
 from typing import Optional
 
 from openpi.cache.backend_base import VectorStoreBackend
@@ -53,7 +53,6 @@ class CacheStorage:
         self._backend = backend
         self._metadata_db = metadata_db
         self._dims: dict[str, int] = backend.vector_dims
-        self._lock = threading.RLock()
 
     # ------------------------------------------------------------------
     # Search (two-phase)
@@ -67,13 +66,11 @@ class CacheStorage:
         """
         self._check_query_dims(spec)
         self._check_filters(spec)
-        with self._lock:
-            return self._backend.search(spec)
+        return self._backend.search(spec)
 
     def fetch_payload(self, id: str) -> CachePayload:
         """Fetch the full payload for one candidate id."""
-        with self._lock:
-            return self._backend.fetch_payload(id)
+        return self._backend.fetch_payload(id)
 
     def search_and_fetch(self, spec: QuerySpec) -> list[SearchResult]:
         """Convenience: search then fetch payload for every result.
@@ -102,41 +99,35 @@ class CacheStorage:
     def insert(self, entry: CacheEntry) -> None:
         self._check_entry_dims(entry)
         entry.validate()
-        with self._lock:
-            self._backend.insert(entry)
-            if self._metadata_db is not None:
-                # MetadataDB written after vector; vector is source of truth.
-                self._metadata_db.insert(entry)
+        self._backend.insert(entry)
+        if self._metadata_db is not None:
+            self._metadata_db.insert(entry)
 
     def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult:
         for entry in entries:
             self._check_entry_dims(entry)
             entry.validate()
-        with self._lock:
-            result = self._backend.batch_insert(entries)
-            if self._metadata_db is not None and result.inserted > 0:
-                successful = [e for e in entries if e.id not in result.failed_ids]
-                self._metadata_db.batch_insert(successful)
-            return result
+        result = self._backend.batch_insert(entries)
+        if self._metadata_db is not None and result.inserted > 0:
+            successful = [e for e in entries if e.id not in result.failed_ids]
+            self._metadata_db.batch_insert(successful)
+        return result
 
     # ------------------------------------------------------------------
     # Management
     # ------------------------------------------------------------------
 
     def delete(self, ids: list[str]) -> None:
-        with self._lock:
-            self._backend.delete(ids)
+        self._backend.delete(ids)
 
     def count(self) -> int:
-        with self._lock:
-            return self._backend.count()
+        return self._backend.count()
 
     def close(self) -> None:
         """Flush and release resources for both vector store and metadata store."""
-        with self._lock:
-            self._backend.close()   # backend.close() calls flush() internally
-            if self._metadata_db is not None:
-                self._metadata_db.close()
+        self._backend.close()
+        if self._metadata_db is not None:
+            self._metadata_db.close()
 
     # ------------------------------------------------------------------
     # Internal validation helpers
