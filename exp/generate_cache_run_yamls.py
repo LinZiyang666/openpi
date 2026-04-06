@@ -56,14 +56,14 @@ COMBOS = [
 ]
 
 WEIGHT_GRID_PHASE1 = [
-    {"vision_0": 1.0,  "vision_1": 0.0,  "robot_state": 0.0},   # W1
-    {"vision_0": 0.75, "vision_1": 0.25, "robot_state": 0.0},   # W2
-    {"vision_0": 0.75, "vision_1": 0.0,  "robot_state": 0.25},  # W3
-    {"vision_0": 0.5,  "vision_1": 0.25, "robot_state": 0.25},  # W4
-    {"vision_0": 0.5,  "vision_1": 0.5,  "robot_state": 0.0},   # W5
-    {"vision_0": 0.5,  "vision_1": 0.0,  "robot_state": 0.5},   # W6
-    {"vision_0": 0.25, "vision_1": 0.5,  "robot_state": 0.25},  # W7
-    {"vision_0": 0.25, "vision_1": 0.25, "robot_state": 0.5},   # W8
+    {"vision_0": 1.0,  "vision_1": 0.0,  "robot_state": 0.0},   # W1: vision_0 only
+    {"vision_0": 0.0,  "vision_1": 0.0,  "robot_state": 1.0},   # W2: robot_state only
+    {"vision_0": 0.5,  "vision_1": 0.0,  "robot_state": 0.5},   # W3: v0 + rs equal
+    {"vision_0": 0.25, "vision_1": 0.0,  "robot_state": 0.75},  # W4: rs dominant
+    {"vision_0": 0.25, "vision_1": 0.25, "robot_state": 0.5},   # W5: balanced
+    {"vision_0": 0.15, "vision_1": 0.1,  "robot_state": 0.75},  # W6: rs heavy
+    {"vision_0": 0.1,  "vision_1": 0.1,  "robot_state": 0.8},   # W7: rs very heavy
+    {"vision_0": 0.5,  "vision_1": 0.25, "robot_state": 0.25},  # W8: vision dominant
 ]
 
 
