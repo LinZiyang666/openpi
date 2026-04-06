@@ -229,7 +229,6 @@ def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> N
     lock = threading.Lock()
     counters = {"episodes": 0, "successes": 0, "steps": 0}
     step_times: collections.deque[float] = collections.deque()
-    _last_rate: list[float] = [0.0]  # cached rate value
 
     def _update_rate() -> float:
         """Recalc actions/s over a 10s sliding window. Caller must hold lock."""
@@ -238,11 +237,9 @@ def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> N
         while step_times and step_times[0] < cutoff:
             step_times.popleft()
         if len(step_times) < 2:
-            _last_rate[0] = 0.0
-        else:
-            span = step_times[-1] - step_times[0]
-            _last_rate[0] = (len(step_times) - 1) / span if span > 0 else 0.0
-        return _last_rate[0]
+            return 0.0
+        span = step_times[-1] - step_times[0]
+        return (len(step_times) - 1) / span if span > 0 else 0.0
 
     total_episodes = num_tasks_in_suite * args.num_trials_per_task
     pbar = tqdm.tqdm(total=total_episodes, desc="Total", unit="ep",
@@ -256,12 +253,15 @@ def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> N
         worker_bars.append(bar)
 
     # 4. Worker function.
-    def worker(worker_id):
+    init_lock = threading.Lock()  # Serialize env creation + server connection
+
+    def worker(worker_id, stop: threading.Event):
         wbar = worker_bars[worker_id]
         total_steps = [0]  # mutable container for closure access
-        client = _websocket_client_policy.WebsocketClientPolicy(args.host, args.port)
+        with init_lock:
+            client = _websocket_client_policy.WebsocketClientPolicy(args.host, args.port)
         try:
-            while True:
+            while not stop.is_set():
                 try:
                     task_id = task_queue.get_nowait()
                 except queue.Empty:
@@ -270,71 +270,95 @@ def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> N
 
                 task = task_suite.get_task(task_id)
                 initial_states = task_suite.get_task_init_states(task_id)
-                env, task_description = _get_libero_env(task, LIBERO_ENV_RESOLUTION, args.seed)
+                with init_lock:
+                    env, task_description = _get_libero_env(task, LIBERO_ENV_RESOLUTION, args.seed)
                 short_desc = task_description[:30]
 
-                for episode_idx in range(args.num_trials_per_task):
-                    global_episode_id = task_id * args.num_trials_per_task + episode_idx
+                try:
+                    for episode_idx in range(args.num_trials_per_task):
+                        if stop.is_set():
+                            break
+                        global_episode_id = task_id * args.num_trials_per_task + episode_idx
 
-                    wbar.reset(total=max_steps)
-                    wbar.set_description_str(
-                        f"W{worker_id}: T{task_id} E{episode_idx} {short_desc}"
-                    )
+                        wbar.reset(total=max_steps)
+                        wbar.set_description_str(
+                            f"W{worker_id}: T{task_id} E{episode_idx} {short_desc}"
+                        )
 
-                    def step_cb(step, _wbar=wbar, _ts=total_steps):
-                        _wbar.n = step
-                        _wbar.set_postfix_str(str(_ts[0] + step))
-                        _wbar.refresh()
+                        def step_cb(step, _wbar=wbar, _ts=total_steps):
+                            _wbar.n = step
+                            _wbar.set_postfix_str(str(_ts[0] + step))
+                            _wbar.refresh()
+                            with lock:
+                                counters["steps"] += 1
+                                step_times.append(time.monotonic())
+                                if counters["steps"] % 20 == 0:
+                                    aps = _update_rate()
+                                    ep = counters["episodes"]
+                                    sr = f"{counters['successes'] / ep:.1%}" if ep else "N/A"
+                                    pbar.set_postfix_str(f"sr={sr}, {aps:.1f} act/s")
+
+                        client.episode_start(
+                            experiment=args.task_suite_name,
+                            task=str(task_description),
+                            episode_id=global_episode_id,
+                        )
+
+                        done, _, _ = _run_episode(
+                            env, client, initial_states[episode_idx],
+                            task_description, args, max_steps,
+                            record_video=False,
+                            step_callback=step_cb,
+                        )
+                        total_steps[0] += wbar.n
+                        client.episode_end(success=done)
+
                         with lock:
-                            counters["steps"] += 1
-                            step_times.append(time.monotonic())
-                            if counters["steps"] % 20 == 0:
-                                aps = _update_rate()
-                                ep = counters["episodes"]
-                                sr = f"{counters['successes'] / ep:.1%}" if ep else "N/A"
-                                pbar.set_postfix_str(f"sr={sr}, {aps:.1f} act/s")
-
-                    client.episode_start(
-                        experiment=args.task_suite_name,
-                        task=str(task_description),
-                        episode_id=global_episode_id,
-                    )
-
-                    done, _, _ = _run_episode(
-                        env, client, initial_states[episode_idx],
-                        task_description, args, max_steps,
-                        record_video=False,
-                        step_callback=step_cb,
-                    )
-                    total_steps[0] += wbar.n
-                    client.episode_end(success=done)
-
-                    with lock:
-                        counters["episodes"] += 1
-                        if done:
-                            counters["successes"] += 1
-                        pbar.update(1)
-                        ep = counters["episodes"]
-                        sr = counters["successes"] / ep
-                        aps = _update_rate()
-                        pbar.set_postfix_str(f"sr={sr:.1%}, {aps:.1f} act/s")
-
-                env.close()
+                            counters["episodes"] += 1
+                            if done:
+                                counters["successes"] += 1
+                            pbar.update(1)
+                            ep = counters["episodes"]
+                            sr = counters["successes"] / ep
+                            aps = _update_rate()
+                            pbar.set_postfix_str(f"sr={sr:.1%}, {aps:.1f} act/s")
+                finally:
+                    env.close()
         finally:
             client._ws.close()
 
     # 5. Launch workers.
-    with ThreadPoolExecutor(max_workers=args.num_workers) as pool:
-        futures = [pool.submit(worker, i) for i in range(args.num_workers)]
-        for f in as_completed(futures):
-            f.result()
+    stop_event = threading.Event()
+    threads: list[threading.Thread] = []
+    for i in range(args.num_workers):
+        t = threading.Thread(target=worker, args=(i, stop_event), daemon=True)
+        t.start()
+        threads.append(t)
+
+    try:
+        while any(t.is_alive() for t in threads):
+            for t in threads:
+                t.join(timeout=0.5)
+    except KeyboardInterrupt:
+        logging.info("\nInterrupted — shutting down workers...")
+        stop_event.set()
+        # Drain task queue so workers exit their loop
+        while not task_queue.empty():
+            try:
+                task_queue.get_nowait()
+            except queue.Empty:
+                break
 
     for bar in worker_bars:
         bar.close()
     pbar.close()
+
     ep = counters["episodes"]
     sr = counters["successes"]
-    logging.info(f"Total success rate: {sr / ep:.1%} ({sr}/{ep})")
+    if ep > 0:
+        logging.info(f"Total success rate: {sr / ep:.1%} ({sr}/{ep})")
+    else:
+        logging.info("No episodes completed.")
 
 
 def eval_libero(args: Args) -> None:
