@@ -40,7 +40,7 @@ import os
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Iterator, Optional
 
 import yaml
 
@@ -90,6 +90,20 @@ class JudgeConfig:
 
 
 @dataclass
+class FieldSimilarityConfig:
+    type: str = "cosine"           # "cosine" | "l2"
+    to_similarity: Optional[dict[str, Any]] = None
+    # Only for l2, e.g.: {"type": "exp", "tau": 0.334717}
+
+
+@dataclass
+class ScoreNormalizationConfig:
+    type: str = "none"             # "none" | "percentile"
+    fields: Optional[dict[str, dict[str, float]]] = None
+    # Only for percentile, e.g.: {"vision_0": {"p5": 0.82, "p95": 0.99}}
+
+
+@dataclass
 class SearchStrategyConfig:
     type: str = "qdrant_weighted_rrf_knn"
     top_k: int = 1
@@ -97,6 +111,8 @@ class SearchStrategyConfig:
     step_window: int = 5
     rrf_k: int = 60
     candidate_multiplier: int = 5
+    field_similarity: Optional[dict[str, FieldSimilarityConfig]] = None
+    score_normalization: Optional[ScoreNormalizationConfig] = None
 
 
 @dataclass
@@ -117,10 +133,17 @@ class QdrantConfig:
 
 
 @dataclass
+class InMemoryConfig:
+    preload_path: Optional[str] = None    # artifact .pkl path
+    index_type: str = "brute_force"       # only brute_force for now
+
+
+@dataclass
 class BackendConfig:
     type: str = "qdrant"
     vector_dims: dict[str, int] = field(default_factory=lambda: {"robot_state": 32})
     qdrant: QdrantConfig = field(default_factory=QdrantConfig)
+    in_memory: InMemoryConfig = field(default_factory=InMemoryConfig)
 
 
 @dataclass
@@ -194,9 +217,12 @@ _CONFIG_TYPES: dict[str, type] = {
     "KeysConfig": KeysConfig,
     "GateConfig": GateConfig,
     "JudgeConfig": JudgeConfig,
+    "FieldSimilarityConfig": FieldSimilarityConfig,
+    "ScoreNormalizationConfig": ScoreNormalizationConfig,
     "SearchStrategyConfig": SearchStrategyConfig,
     "CheckpointConfig": CheckpointConfig,
     "QdrantConfig": QdrantConfig,
+    "InMemoryConfig": InMemoryConfig,
     "BackendConfig": BackendConfig,
     "TimerConfig": TimerConfig,
     "KeyBuilderConfig": KeyBuilderConfig,
@@ -205,13 +231,23 @@ _CONFIG_TYPES: dict[str, type] = {
 
 
 def _resolve_type(type_hint: str | type) -> type:
-    """Resolve a string annotation to an actual type using the config type registry."""
+    """Resolve a string annotation to an actual type using the config type registry.
+
+    Handles Optional[X] (i.e. X | None) by extracting the inner type name.
+    """
     if isinstance(type_hint, type):
         return type_hint
-    # Strip Optional / union wrappers for simple lookup.
     clean = type_hint.replace("'", "").strip()
     if clean in _CONFIG_TYPES:
         return _CONFIG_TYPES[clean]
+    # Handle "Optional[X]" -> extract "X"
+    m = re.match(r"Optional\[(\w+)\]", clean)
+    if m and m.group(1) in _CONFIG_TYPES:
+        return _CONFIG_TYPES[m.group(1)]
+    # Handle "X | None" -> extract "X"
+    m = re.match(r"(\w+)\s*\|\s*None", clean)
+    if m and m.group(1) in _CONFIG_TYPES:
+        return _CONFIG_TYPES[m.group(1)]
     return type_hint  # type: ignore[return-value]
 
 
@@ -251,6 +287,14 @@ def _dict_to_dataclass(cls: type, data: dict[str, Any]) -> Any:
             kwargs[key] = result
         elif key == "vector_dims" and isinstance(value, dict):
             kwargs[key] = value
+        elif key == "field_similarity" and isinstance(value, dict):
+            result = {}
+            for field_name, field_data in value.items():
+                if isinstance(field_data, dict):
+                    result[field_name] = _dict_to_dataclass(FieldSimilarityConfig, field_data)
+                else:
+                    result[field_name] = field_data
+            kwargs[key] = result
         elif isinstance(value, dict) and isinstance(field_type, type) and dataclasses.is_dataclass(field_type):
             kwargs[key] = _dict_to_dataclass(field_type, value)
         else:
@@ -338,13 +382,20 @@ def validate_cache_config(config: CacheConfig) -> None:
             )
 
     # 4. key_builder type.
-    if config.key_builder.type not in ("placeholder", "full_original"):
+    _valid_key_builder_types = frozenset({
+        "placeholder", "full_original",
+        "cp1_mean_pool", "cp1_spatial_pool_16", "cp1_spatial_pool_64", "cp1_max_pool",
+    })
+    if config.key_builder.type not in _valid_key_builder_types:
         errors.append(
             f"Unknown key_builder.type '{config.key_builder.type}'.\n"
-            f"  Valid types: ['placeholder', 'full_original']"
+            f"  Valid types: {sorted(_valid_key_builder_types)}"
         )
 
     # 5 + 7. Per-checkpoint validation.
+    _valid_strategy_types = frozenset({
+        "qdrant_weighted_rrf_knn", "weighted_rrf_knn", "weighted_score_sum_knn",
+    })
     for cp_name, cp_config in config.checkpoints.items():
         if cp_name.startswith("_"):
             continue
@@ -356,28 +407,58 @@ def validate_cache_config(config: CacheConfig) -> None:
         if cp_config.judge.type not in ("threshold", "always_hit"):
             errors.append(f"{prefix}.judge.type '{cp_config.judge.type}' is unknown. Valid: ['threshold', 'always_hit']")
 
-        if cp_config.search_strategy.type not in ("qdrant_weighted_rrf_knn",):
+        ss = cp_config.search_strategy
+        if ss.type not in _valid_strategy_types:
             errors.append(
-                f"{prefix}.search_strategy.type '{cp_config.search_strategy.type}' "
-                f"is unknown. Valid: ['qdrant_weighted_rrf_knn']"
+                f"{prefix}.search_strategy.type '{ss.type}' "
+                f"is unknown. Valid: {sorted(_valid_strategy_types)}"
             )
 
-        if cp_config.search_strategy.type == "qdrant_weighted_rrf_knn" and config.backend.type != "qdrant":
+        # Backend compatibility checks.
+        if ss.type == "qdrant_weighted_rrf_knn" and config.backend.type != "qdrant":
             errors.append(
                 f"{prefix}.search_strategy.type 'qdrant_weighted_rrf_knn' requires backend.type='qdrant'.\n"
                 f"  Current backend.type: {config.backend.type!r}\n"
                 f"  Fix: use backend.type='qdrant' or choose a different search strategy"
             )
 
-        if cp_config.search_strategy.step_filter not in _VALID_STEP_FILTERS:
+        if ss.type in ("weighted_rrf_knn", "weighted_score_sum_knn") and config.backend.type != "in_memory":
             errors.append(
-                f"{prefix}.search_strategy.step_filter '{cp_config.search_strategy.step_filter}' "
-                f"is invalid. Valid: {sorted(_VALID_STEP_FILTERS)}"
+                f"{prefix}.search_strategy.type '{ss.type}' requires backend.type='in_memory'.\n"
+                f"  Current backend.type: {config.backend.type!r}"
             )
 
-        # step_filter with qdrant is now supported — the ingest script
-        # persists step_idx in the Qdrant payload, and the backend builds
-        # Range filters on the "step_idx" field.
+        # weighted_score_sum_knn requires score_normalization.
+        if ss.type == "weighted_score_sum_knn":
+            if ss.score_normalization is None or ss.score_normalization.type == "none":
+                errors.append(
+                    f"{prefix}.search_strategy: weighted_score_sum_knn requires score_normalization"
+                )
+            elif ss.score_normalization.type == "percentile":
+                if not ss.score_normalization.fields:
+                    errors.append(
+                        f"{prefix}.search_strategy: percentile normalization requires fields"
+                    )
+                else:
+                    # Percentile fields must cover all enabled fields with weight > 0.
+                    weighted_fields = {
+                        name for name, kf in _keys_iter(config.keys)
+                        if kf.enabled and kf.weight > 0
+                    }
+                    missing = weighted_fields - set(ss.score_normalization.fields)
+                    if missing:
+                        errors.append(
+                            f"{prefix}.search_strategy: percentile normalization missing "
+                            f"stats for weighted fields: {sorted(missing)}.\n"
+                            f"  Calibration must cover all enabled fields with weight > 0.\n"
+                            f"  Fix: re-run calibrate_score_sum_stats.py or add entries for {sorted(missing)}"
+                        )
+
+        if ss.step_filter not in _VALID_STEP_FILTERS:
+            errors.append(
+                f"{prefix}.search_strategy.step_filter '{ss.step_filter}' "
+                f"is invalid. Valid: {sorted(_VALID_STEP_FILTERS)}"
+            )
 
     # 6. key_builder.type <-> enabled keys cross-validation.
     if config.key_builder.type == "placeholder":
@@ -388,13 +469,27 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"only supports: {sorted(_PLACEHOLDER_SUPPORTED_FIELDS)}.\n"
                 f"  Fix: set keys.{unsupported[0]}.enabled=false, or use a key_builder that supports these fields"
             )
-        # PlaceholderKeyBuilder always produces robot_state, so it must be enabled.
         if "robot_state" not in enabled_fields:
             errors.append(
                 "key_builder type 'placeholder' requires keys.robot_state.enabled=true.\n"
                 "  PlaceholderKeyBuilder always outputs robot_state; disabling it in config "
                 "would cause config/runtime semantic mismatch.\n"
                 "  Fix: set keys.robot_state.enabled=true"
+            )
+
+    # cp1_* builders require at least vision_0 and robot_state.
+    if config.key_builder.type.startswith("cp1_"):
+        for f in ("vision_0", "robot_state"):
+            if f not in enabled_fields:
+                errors.append(
+                    f"key_builder.type={config.key_builder.type} requires keys.{f}.enabled=true"
+                )
+
+    # in_memory backend + cp1_* builder requires preload_path.
+    if config.backend.type == "in_memory" and config.key_builder.type.startswith("cp1_"):
+        if not config.backend.in_memory.preload_path:
+            errors.append(
+                "in_memory backend with cp1_* key_builder requires backend.in_memory.preload_path"
             )
 
     if errors:
@@ -483,7 +578,10 @@ def _build_backend(cfg: BackendConfig):
     if cfg.type == "in_memory":
         from openpi.cache.backends.in_memory_backend import InMemoryBackend
 
-        return InMemoryBackend(vector_dims=cfg.vector_dims)
+        backend = InMemoryBackend(vector_dims=cfg.vector_dims)
+        if cfg.in_memory.preload_path:
+            backend.load_artifact(cfg.in_memory.preload_path)
+        return backend
     elif cfg.type == "qdrant":
         from openpi.cache.backends.qdrant_backend import QdrantBackendConfig, QdrantVectorStore
 
@@ -510,8 +608,28 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
         from openpi.cache.components.key_builder import FullOriginalKeyBuilder
 
         return FullOriginalKeyBuilder(enabled_fields=enabled_fields, vector_dims=vector_dims)
+    elif cfg.type == "cp1_mean_pool":
+        from openpi.cache.components.key_builder import CP1MeanPoolKeyBuilder
+
+        return CP1MeanPoolKeyBuilder(enabled_fields=enabled_fields)
+    elif cfg.type == "cp1_spatial_pool_16":
+        from openpi.cache.components.key_builder import CP1SpatialPool16KeyBuilder
+
+        return CP1SpatialPool16KeyBuilder(enabled_fields=enabled_fields)
+    elif cfg.type == "cp1_spatial_pool_64":
+        from openpi.cache.components.key_builder import CP1SpatialPool64KeyBuilder
+
+        return CP1SpatialPool64KeyBuilder(enabled_fields=enabled_fields)
+    elif cfg.type == "cp1_max_pool":
+        from openpi.cache.components.key_builder import CP1MaxPoolKeyBuilder
+
+        return CP1MaxPoolKeyBuilder(enabled_fields=enabled_fields)
     else:
-        raise ConfigValidationError(f"Unknown key_builder.type '{cfg.type}'. Valid: ['placeholder', 'full_original']")
+        raise ConfigValidationError(
+            f"Unknown key_builder.type '{cfg.type}'. "
+            f"Valid: ['placeholder', 'full_original', 'cp1_mean_pool', "
+            f"'cp1_spatial_pool_16', 'cp1_spatial_pool_64', 'cp1_max_pool']"
+        )
 
 
 def _build_gate(cfg: GateConfig):
@@ -538,6 +656,33 @@ def _build_judge(cfg: JudgeConfig):
         raise ConfigValidationError(f"Unknown judge.type '{cfg.type}'. Valid: ['threshold', 'always_hit']")
 
 
+def _field_similarity_to_dict(
+    cfg: Optional[dict[str, FieldSimilarityConfig]],
+) -> Optional[dict[str, dict[str, Any]]]:
+    """FieldSimilarityConfig dict -> plain dict for QuerySpec.field_similarity."""
+    if cfg is None:
+        return None
+    result = {}
+    for name, fs in cfg.items():
+        d: dict[str, Any] = {"type": fs.type}
+        if fs.to_similarity is not None:
+            d["to_similarity"] = fs.to_similarity
+        result[name] = d
+    return result
+
+
+def _score_norm_to_dict(
+    cfg: Optional[ScoreNormalizationConfig],
+) -> Optional[dict[str, Any]]:
+    """ScoreNormalizationConfig -> plain dict for QuerySpec.score_normalization."""
+    if cfg is None:
+        return None
+    d: dict[str, Any] = {"type": cfg.type}
+    if cfg.fields is not None:
+        d["fields"] = cfg.fields
+    return d
+
+
 def _build_search_strategy(cfg: SearchStrategyConfig, storage, fusion_weights: dict[str, float]):
     """Instantiate a SearchStrategy from config."""
     if cfg.type == "qdrant_weighted_rrf_knn":
@@ -552,7 +697,32 @@ def _build_search_strategy(cfg: SearchStrategyConfig, storage, fusion_weights: d
             fusion_weights=fusion_weights if fusion_weights else None,
             candidate_multiplier=cfg.candidate_multiplier,
         )
+    elif cfg.type == "weighted_rrf_knn":
+        from openpi.cache.components.search_strategy import WeightedRrfKnnStrategy
+
+        return WeightedRrfKnnStrategy(
+            storage,
+            top_k=cfg.top_k,
+            step_filter=cfg.step_filter,
+            step_window=cfg.step_window,
+            fusion_weights=fusion_weights if fusion_weights else None,
+            rrf_k=cfg.rrf_k,
+            field_similarity=_field_similarity_to_dict(cfg.field_similarity),
+        )
+    elif cfg.type == "weighted_score_sum_knn":
+        from openpi.cache.components.search_strategy import WeightedScoreSumKnnStrategy
+
+        return WeightedScoreSumKnnStrategy(
+            storage,
+            top_k=cfg.top_k,
+            step_filter=cfg.step_filter,
+            step_window=cfg.step_window,
+            fusion_weights=fusion_weights if fusion_weights else None,
+            field_similarity=_field_similarity_to_dict(cfg.field_similarity),
+            score_normalization=_score_norm_to_dict(cfg.score_normalization),
+        )
     else:
         raise ConfigValidationError(
-            f"Unknown search_strategy.type '{cfg.type}'. Valid: ['qdrant_weighted_rrf_knn']"
+            f"Unknown search_strategy.type '{cfg.type}'. "
+            f"Valid: ['qdrant_weighted_rrf_knn', 'weighted_rrf_knn', 'weighted_score_sum_knn']"
         )

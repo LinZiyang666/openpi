@@ -163,7 +163,37 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
     """
     policy = base_policy
 
-    if args.cache_config is not None:
+    # Dynamic bundle from load_cache_config control message (highest priority).
+    # Must be checked before args.cache_config so that server started without
+    # --cache_config can still pick up bundles injected at runtime.
+    from openpi.serving.websocket_policy_server import get_current_cache_bundle
+
+    bundle = get_current_cache_bundle()
+    if bundle is not None:
+        from openpi.cache.config import build_per_connection_components
+        from openpi.cache.interceptor import InferenceInterceptor
+        from openpi.cache.orchestrator import CacheOrchestrator
+
+        components = build_per_connection_components(
+            bundle.cache_config,
+            bundle.shared_storage,
+            quiet=True,
+        )
+        orchestrator = CacheOrchestrator(
+            storage=components["storage"],
+            key_builder=components["key_builder"],
+            gates=components["gates"],
+            judges=components["judges"],
+            search_strategies=components["search_strategies"],
+            timer=components["timer"],
+        )
+        policy = InferenceInterceptor(
+            policy,
+            timer=components["timer"],
+            orchestrator=orchestrator,
+            eager=eager,
+        )
+    elif args.cache_config is not None:
         from openpi.cache.config import (
             build_cache_components,
             build_per_connection_components,
@@ -176,7 +206,6 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
             logging.warning("--cache_config overrides --cache. Ignoring --cache flag.")
 
         if shared_cache is not None:
-            # Concurrent: reuse storage, fresh key_builder/timer/gates/judges.
             cache_config = load_cache_config(args.cache_config)
             components = build_per_connection_components(
                 cache_config,
@@ -184,7 +213,6 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
                 quiet=True,
             )
         else:
-            # Single-connection: build everything fresh.
             cache_config = load_cache_config(args.cache_config)
             components = build_cache_components(cache_config)
             if quiet:

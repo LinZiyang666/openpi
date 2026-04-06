@@ -146,6 +146,201 @@ _VISION_OFFSETS = [
 _PROMPT_START = _NUM_IMAGES * _TOKENS_PER_IMAGE  # 588
 
 
+# ---------------------------------------------------------------------------
+# CP1 experiment key builder helpers (private)
+# ---------------------------------------------------------------------------
+
+
+def _slice_cp1_fields(
+    prefix_embs: torch.Tensor,
+    state: torch.Tensor,
+    enabled: set[str] | None,
+) -> dict[str, torch.Tensor]:
+    """Slice per-modality raw token sequences from prefix_embs[0] and state[0].
+
+    Returns GPU tensors (not yet reduced or transferred to CPU).
+    vision_*: [256, emb_dim], prompt_emb: [num_tokens, emb_dim], robot_state: [state_dim]
+    """
+    result: dict[str, torch.Tensor] = {}
+    prefix = prefix_embs[0]  # [prefix_len, emb_dim], drop batch dim
+
+    for field_name, start, end in _VISION_OFFSETS:
+        if enabled is not None and field_name not in enabled:
+            continue
+        result[field_name] = prefix[start:end]  # [256, emb_dim]
+
+    if enabled is None or PROMPT_EMB in enabled:
+        result[PROMPT_EMB] = prefix[_PROMPT_START:]  # [num_prompt_tokens, emb_dim]
+
+    if enabled is None or ROBOT_STATE in enabled:
+        result[ROBOT_STATE] = state[0]  # [state_dim]
+
+    return result
+
+
+def _mean_pool_tokens(tokens: torch.Tensor) -> torch.Tensor:
+    """[num_tokens, emb_dim] -> [emb_dim], mean over token dim."""
+    return tokens.mean(dim=0)
+
+
+def _max_pool_tokens(tokens: torch.Tensor) -> torch.Tensor:
+    """[num_tokens, emb_dim] -> [emb_dim], per-dim max over token dim."""
+    return tokens.max(dim=0).values
+
+
+def _spatial_pool_tokens(
+    tokens: torch.Tensor,
+    grid_size: int,
+    pool_size: int,
+) -> torch.Tensor:
+    """2D adaptive average pooling on vision patch tokens.
+
+    Args:
+        tokens: [grid_size*grid_size, emb_dim] flat SigLIP patch tokens
+        grid_size: original grid side (16, since 256 = 16x16)
+        pool_size: output grid side (4 for B1, 2 for B2)
+
+    Returns:
+        [pool_size*pool_size * emb_dim] flattened 1-D vector
+    """
+    emb_dim = tokens.shape[1]
+    # [grid*grid, emb_dim] -> [1, emb_dim, grid, grid]
+    x = tokens.reshape(grid_size, grid_size, emb_dim).permute(2, 0, 1).unsqueeze(0)
+    # [1, emb_dim, pool, pool]
+    pooled = F.adaptive_avg_pool2d(x, (pool_size, pool_size))
+    # -> [pool*pool * emb_dim]
+    return pooled.squeeze(0).permute(1, 2, 0).reshape(-1)
+
+
+def _to_cpu_float32(t: torch.Tensor) -> torch.Tensor:
+    """GPU tensor -> CPU float32 contiguous. Single D2H transfer point."""
+    return t.cpu().float().contiguous()
+
+
+# ---------------------------------------------------------------------------
+# CP1 experiment key builder base class
+# ---------------------------------------------------------------------------
+
+
+class _CP1BaseKeyBuilder:
+    """Shared base for CP1 experiment key builders.
+
+    Subclasses override _reduce_vision() and _reduce_prompt() only.
+    robot_state is always output as raw vector (no L2 normalize, no pooling)
+    because the backend needs real L2 distance for exp(-d/tau) conversion.
+    """
+
+    def __init__(self, enabled_fields: list[str] | None = None) -> None:
+        self._cache: dict[str, torch.Tensor] = {}
+        self._enabled = set(enabled_fields) if enabled_fields is not None else None
+
+    def collect(self, checkpoint_id: CheckpointID, **stage_outputs) -> None:
+        self._cache.clear()
+        if "stage1" in stage_outputs:
+            s1 = stage_outputs["stage1"]
+            self._cache["state"] = s1.state               # [B, state_dim] GPU
+            self._cache["prefix_embs"] = s1.prefix_embs   # [B, prefix_len, emb_dim] GPU
+        if "stage3" in stage_outputs:
+            self._cache["action_chunk"] = stage_outputs["stage3"].action_chunk
+
+    def build(self, checkpoint_id: CheckpointID) -> dict[str, torch.Tensor]:
+        if checkpoint_id not in (CheckpointID.CP1, CheckpointID.CP3):
+            raise ValueError(f"Unsupported checkpoint_id: {checkpoint_id}")
+
+        raw = _slice_cp1_fields(
+            self._cache["prefix_embs"],
+            self._cache["state"],
+            self._enabled,
+        )
+        keys: dict[str, torch.Tensor] = {}
+
+        for field_name in (VISION_0, VISION_1, VISION_2):
+            if field_name in raw:
+                keys[field_name] = _to_cpu_float32(self._reduce_vision(raw[field_name]))
+
+        if PROMPT_EMB in raw:
+            keys[PROMPT_EMB] = _to_cpu_float32(self._reduce_prompt(raw[PROMPT_EMB]))
+
+        if ROBOT_STATE in raw:
+            keys[ROBOT_STATE] = _to_cpu_float32(raw[ROBOT_STATE])
+
+        return keys
+
+    def _reduce_vision(self, tokens: torch.Tensor) -> torch.Tensor:
+        """[256, emb_dim] -> [reduced_dim]. Subclass override."""
+        raise NotImplementedError
+
+    def _reduce_prompt(self, tokens: torch.Tensor) -> torch.Tensor:
+        """[num_tokens, emb_dim] -> [reduced_dim]. Subclass override."""
+        raise NotImplementedError
+
+    @property
+    def cached_data(self) -> dict[str, torch.Tensor]:
+        return self._cache
+
+    def clear(self) -> None:
+        self._cache.clear()
+
+
+# ---------------------------------------------------------------------------
+# CP1 experiment key builder concrete classes
+# ---------------------------------------------------------------------------
+
+
+class CP1MeanPoolKeyBuilder(_CP1BaseKeyBuilder):
+    """Group A: Mean Pool. vision/prompt mean-pooled to [emb_dim].
+    Output: vision_*=[2048], prompt_emb=[2048], robot_state=[32].
+    """
+
+    def _reduce_vision(self, tokens: torch.Tensor) -> torch.Tensor:
+        return _mean_pool_tokens(tokens)
+
+    def _reduce_prompt(self, tokens: torch.Tensor) -> torch.Tensor:
+        return _mean_pool_tokens(tokens)
+
+
+class CP1SpatialPool16KeyBuilder(_CP1BaseKeyBuilder):
+    """Group B1: Spatial Pool 4x4 (16x compression).
+    Output: vision_*=[16*2048=32768], prompt_emb=[2048] (mean pool), robot_state=[32].
+    """
+
+    _GRID_SIZE = 16   # sqrt(256)
+    _POOL_SIZE = 4    # 16x16 -> 4x4
+
+    def _reduce_vision(self, tokens: torch.Tensor) -> torch.Tensor:
+        return _spatial_pool_tokens(tokens, self._GRID_SIZE, self._POOL_SIZE)
+
+    def _reduce_prompt(self, tokens: torch.Tensor) -> torch.Tensor:
+        return _mean_pool_tokens(tokens)
+
+
+class CP1SpatialPool64KeyBuilder(_CP1BaseKeyBuilder):
+    """Group B2: Spatial Pool 2x2 (64x compression).
+    Output: vision_*=[4*2048=8192], prompt_emb=[2048] (mean pool), robot_state=[32].
+    """
+
+    _GRID_SIZE = 16
+    _POOL_SIZE = 2    # 16x16 -> 2x2
+
+    def _reduce_vision(self, tokens: torch.Tensor) -> torch.Tensor:
+        return _spatial_pool_tokens(tokens, self._GRID_SIZE, self._POOL_SIZE)
+
+    def _reduce_prompt(self, tokens: torch.Tensor) -> torch.Tensor:
+        return _mean_pool_tokens(tokens)
+
+
+class CP1MaxPoolKeyBuilder(_CP1BaseKeyBuilder):
+    """Group C: Max Pool. vision/prompt per-dim max to [emb_dim].
+    Output: vision_*=[2048], prompt_emb=[2048], robot_state=[32].
+    """
+
+    def _reduce_vision(self, tokens: torch.Tensor) -> torch.Tensor:
+        return _max_pool_tokens(tokens)
+
+    def _reduce_prompt(self, tokens: torch.Tensor) -> torch.Tensor:
+        return _max_pool_tokens(tokens)
+
+
 class FullOriginalKeyBuilder:
     """Raw key builder: slice prefix_embs back into original segments and flatten.
 

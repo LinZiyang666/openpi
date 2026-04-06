@@ -48,14 +48,46 @@ are implemented.
 import asyncio
 import http
 import logging
+import threading
 import time
 import traceback
+from dataclasses import dataclass
 from typing import Callable, Optional
 
 from openpi_client import base_policy as _base_policy
 from openpi_client import msgpack_numpy
 import websockets.asyncio.server as _server
 import websockets.frames
+
+
+# ---------------------------------------------------------------------------
+# Global cache bundle (for dynamic YAML switching in experiments)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class CurrentCacheBundle:
+    """Snapshot of the current cache config for experiment runs.
+
+    Atomically replaced by load_cache_config control messages.
+    Same-run worker connections share the same shared_storage.
+    """
+
+    config_path: str
+    cache_config: object        # CacheConfig
+    shared_storage: object      # CacheStorage
+    version: int
+
+
+_bundle_lock = threading.Lock()
+_current_bundle: Optional[CurrentCacheBundle] = None
+_bundle_version: int = 0
+
+
+def get_current_cache_bundle() -> Optional[CurrentCacheBundle]:
+    """Return current cache bundle snapshot (if any). Thread-safe."""
+    with _bundle_lock:
+        return _current_bundle
 
 logger = logging.getLogger(__name__)
 
@@ -173,6 +205,44 @@ class WebsocketPolicyServer:
                         if hasattr(conn_policy, "on_episode_end"):
                             conn_policy.on_episode_end(obs.get("__success__", False))
                         await websocket.send(packer.pack({"__ack__": "episode_end"}))
+                    elif ctrl == "load_cache_config":
+                        if not self._concurrent:
+                            msg = (
+                                "load_cache_config requires --concurrent mode. "
+                                "In single-connection mode the policy is wrapped once at startup "
+                                "and cannot be dynamically switched."
+                            )
+                            logger.error(msg)
+                            await websocket.send(packer.pack({"__ack__": "error", "msg": msg}))
+                            continue
+                        yaml_path = obs.get("yaml_path", "")
+                        if not yaml_path:
+                            await websocket.send(packer.pack({"__ack__": "error", "msg": "missing yaml_path"}))
+                        else:
+                            try:
+                                from openpi.cache.config import build_shared_storage, load_cache_config
+
+                                cache_config = load_cache_config(yaml_path)
+                                shared_storage = build_shared_storage(cache_config)
+                                global _current_bundle, _bundle_version
+                                with _bundle_lock:
+                                    _bundle_version += 1
+                                    _current_bundle = CurrentCacheBundle(
+                                        config_path=yaml_path,
+                                        cache_config=cache_config,
+                                        shared_storage=shared_storage,
+                                        version=_bundle_version,
+                                    )
+                                version = _bundle_version
+                                logger.info("Cache bundle updated to v%d: %s", version, yaml_path)
+                                await websocket.send(packer.pack({
+                                    "__ack__": "load_cache_config",
+                                    "yaml_path": yaml_path,
+                                    "version": version,
+                                }))
+                            except Exception as e:
+                                logger.error("Failed to load cache config %s: %s", yaml_path, e)
+                                await websocket.send(packer.pack({"__ack__": "error", "msg": str(e)}))
                     else:
                         await websocket.send(packer.pack({"__ack__": "ignored"}))
                     continue

@@ -120,15 +120,19 @@ class CacheEntry:
     ----------
     Named query vectors, e.g. {"vision_0": Tensor[1024], "prompt_emb": Tensor[2048]}.
     Keys must be a subset of CACHE_QUERY_FIELDS (openpi.cache.types).
-    Each tensor: CPU float32, L2-normalised, shape [dim].
+    Each tensor: CPU float32 contiguous, shape [dim].
+    Whether to L2-normalise depends on the field's similarity type:
+      - cosine fields (vision_0/1/2, prompt_emb): not required (F.cosine_similarity handles it)
+      - L2 distance fields (robot_state): must keep raw vector (L2 normalise would destroy distance semantics)
     The backend stores the fields declared in its vector_dims; extra fields in
     query_keys are silently ignored by the backend.
     """
 
     id: str
     checkpoint_id: CheckpointID
-    query_keys: dict[str, torch.Tensor]  # {field: [dim] CPU float32, L2-normalised}
+    query_keys: dict[str, torch.Tensor]  # {field: [dim] CPU float32}
     payload: CachePayload
+    step_idx: Optional[int] = None
     timestamp: float = field(default_factory=time.time)
 
     def validate(self) -> None:
@@ -189,6 +193,20 @@ class QuerySpec:
     filters: Optional[QueryFilter] = None
     fusion_weights: Optional[dict[str, float]] = None     # per-field fusion weights (backend-agnostic)
     backend_hints: Optional[dict[str, Any]] = None        # e.g. {"rrf_k": 60, "candidate_multiplier": 5}
+
+    fusion_method: Optional[str] = None
+    # "weighted_rrf" | "weighted_score_sum" | None
+    # None: backend falls back to single-field cosine (backward compatible)
+
+    field_similarity: Optional[dict[str, dict[str, Any]]] = None
+    # Per-field similarity definition, e.g.:
+    # {"vision_0": {"type": "cosine"},
+    #  "robot_state": {"type": "l2", "to_similarity": {"type": "exp", "tau": 0.334717}}}
+
+    score_normalization: Optional[dict[str, Any]] = None
+    # Only for weighted_score_sum, e.g.:
+    # {"type": "percentile",
+    #  "fields": {"vision_0": {"p5": 0.82, "p95": 0.99}, ...}}
 
 
 # ---------------------------------------------------------------------------

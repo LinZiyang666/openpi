@@ -47,6 +47,7 @@ Project architecture and usage guides. For implementation logs, see [`claude_log
 | [data_collection_guide.md](data_collection_guide.md) | HDF5 data collection via `--collect` flag, schema and directory layout |
 | [remote_inference.md](remote_inference.md) | General WebSocket remote inference setup (upstream) |
 | [aloha_sim_remote.md](aloha_sim_remote.md) | ALOHA Sim remote inference (WSL2 client + remote GPU) |
+| [run_cp1_cache_experiment.md](run_cp1_cache_experiment.md) | CP1 Cache 实验完整运行指南：artifact 构建、校准、YAML 生成、3-phase 实验执行、结果分析 |
 | [libero_remote.md](libero_remote.md) | LIBERO remote inference with video recording |
 | [docker.md](docker.md) | Docker installation and container usage (upstream) |
 | [norm_stats.md](norm_stats.md) | Normalization statistics: reuse, recompute, asset_id mapping (upstream) |

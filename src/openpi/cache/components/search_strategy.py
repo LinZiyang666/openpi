@@ -24,7 +24,7 @@ Coupling map:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Protocol, runtime_checkable
+from typing import Any, Optional, Protocol, runtime_checkable
 
 import torch
 
@@ -144,17 +144,126 @@ class QdrantWeightedRrfKnnStrategy:
         return self._storage.search(spec)
 
     def _build_filters(self, ctx: SearchContext) -> Optional[QueryFilter]:
-        """Build QueryFilter based on step_filter mode and runtime context.
+        return _build_step_filters(self._step_filter, self._step_window, ctx)
 
-        Data flow: step_filter config + ctx.current_step -> QueryFilter or None
-        """
-        if self._step_filter == "all":
-            return None
-        elif self._step_filter == "exact":
-            return QueryFilter(step_range=(ctx.current_step, ctx.current_step))
-        elif self._step_filter == "window":
-            lo = max(0, ctx.current_step - self._step_window)
-            hi = ctx.current_step + self._step_window
-            return QueryFilter(step_range=(lo, hi))
-        else:
-            raise ValueError(f"Unknown step_filter: {self._step_filter}")
+
+# ---------------------------------------------------------------------------
+# Shared filter builder (used by all strategy implementations)
+# ---------------------------------------------------------------------------
+
+
+def _build_step_filters(
+    step_filter: str,
+    step_window: int,
+    ctx: SearchContext,
+) -> Optional[QueryFilter]:
+    """Build QueryFilter from step_filter config + runtime context.
+
+    Shared by QdrantWeightedRrfKnnStrategy, WeightedRrfKnnStrategy,
+    and WeightedScoreSumKnnStrategy.
+    """
+    task_filter = QueryFilter(task_key=ctx.task_key) if ctx.task_key else None
+
+    if step_filter == "all":
+        return task_filter
+    elif step_filter == "exact":
+        f = QueryFilter(step_range=(ctx.current_step, ctx.current_step))
+        if ctx.task_key:
+            f.task_key = ctx.task_key
+        return f
+    elif step_filter == "window":
+        lo = max(0, ctx.current_step - step_window)
+        hi = ctx.current_step + step_window
+        f = QueryFilter(step_range=(lo, hi))
+        if ctx.task_key:
+            f.task_key = ctx.task_key
+        return f
+    else:
+        raise ValueError(f"Unknown step_filter: {step_filter}")
+
+
+# ---------------------------------------------------------------------------
+# In-memory experiment strategies
+# ---------------------------------------------------------------------------
+
+
+class WeightedRrfKnnStrategy:
+    """In-memory weighted RRF search strategy.
+
+    Sets fusion_method="weighted_rrf" in QuerySpec.
+    InMemoryBackend executes the actual per-field ranking and RRF fusion.
+    """
+
+    def __init__(
+        self,
+        storage: CacheStorage,
+        *,
+        top_k: int = 1,
+        step_filter: str = "all",
+        step_window: int = 5,
+        fusion_weights: Optional[dict[str, float]] = None,
+        rrf_k: int = 60,
+        field_similarity: Optional[dict[str, dict[str, Any]]] = None,
+    ) -> None:
+        self._storage = storage
+        self._top_k = top_k
+        self._step_filter = step_filter
+        self._step_window = step_window
+        self._fusion_weights = fusion_weights
+        self._rrf_k = rrf_k
+        self._field_similarity = field_similarity
+
+    def search(self, ctx: SearchContext) -> list[SearchResultLite]:
+        filters = _build_step_filters(self._step_filter, self._step_window, ctx)
+        spec = QuerySpec(
+            query_keys=ctx.query_keys,
+            top_k=self._top_k,
+            checkpoint_id=ctx.checkpoint_id,
+            filters=filters,
+            fusion_weights=self._fusion_weights,
+            fusion_method="weighted_rrf",
+            field_similarity=self._field_similarity,
+            backend_hints={"rrf_k": self._rrf_k},
+        )
+        return self._storage.search(spec)
+
+
+class WeightedScoreSumKnnStrategy:
+    """In-memory weighted score sum search strategy.
+
+    Sets fusion_method="weighted_score_sum" in QuerySpec.
+    InMemoryBackend executes similarity computation, normalization, and weighted sum.
+    """
+
+    def __init__(
+        self,
+        storage: CacheStorage,
+        *,
+        top_k: int = 1,
+        step_filter: str = "all",
+        step_window: int = 5,
+        fusion_weights: Optional[dict[str, float]] = None,
+        field_similarity: Optional[dict[str, dict[str, Any]]] = None,
+        score_normalization: Optional[dict[str, Any]] = None,
+    ) -> None:
+        self._storage = storage
+        self._top_k = top_k
+        self._step_filter = step_filter
+        self._step_window = step_window
+        self._fusion_weights = fusion_weights
+        self._field_similarity = field_similarity
+        self._score_normalization = score_normalization
+
+    def search(self, ctx: SearchContext) -> list[SearchResultLite]:
+        filters = _build_step_filters(self._step_filter, self._step_window, ctx)
+        spec = QuerySpec(
+            query_keys=ctx.query_keys,
+            top_k=self._top_k,
+            checkpoint_id=ctx.checkpoint_id,
+            filters=filters,
+            fusion_weights=self._fusion_weights,
+            fusion_method="weighted_score_sum",
+            field_similarity=self._field_similarity,
+            score_normalization=self._score_normalization,
+        )
+        return self._storage.search(spec)

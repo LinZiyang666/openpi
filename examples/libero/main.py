@@ -54,6 +54,11 @@ class Args:
     seed: int = 7  # Random Seed (for reproducibility)
 
     #################################################################################################################
+    # Task selection
+    #################################################################################################################
+    task_ids: tuple[int, ...] = ()  # If non-empty, run only these task IDs (0-indexed). Default: all tasks.
+
+    #################################################################################################################
     # Concurrency
     #################################################################################################################
     num_workers: int = 1  # Number of concurrent evaluation workers (1 = serial)
@@ -153,7 +158,7 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
     return done, images, timestamps
 
 
-def _eval_serial(args: Args, task_suite, num_tasks_in_suite, max_steps) -> None:
+def _eval_serial(args: Args, task_suite, task_id_list: list[int], max_steps) -> None:
     """Original serial evaluation path (num_workers=1)."""
     pathlib.Path(args.video_out_path).mkdir(parents=True, exist_ok=True)
 
@@ -161,7 +166,7 @@ def _eval_serial(args: Args, task_suite, num_tasks_in_suite, max_steps) -> None:
 
     total_episodes, total_successes = 0, 0
     global_episode_id = 0
-    for task_id in tqdm.tqdm(range(num_tasks_in_suite)):
+    for task_id in tqdm.tqdm(task_id_list):
         task = task_suite.get_task(task_id)
         initial_states = task_suite.get_task_init_states(task_id)
         env, task_description = _get_libero_env(task, LIBERO_ENV_RESOLUTION, args.seed)
@@ -208,8 +213,10 @@ def _eval_serial(args: Args, task_suite, num_tasks_in_suite, max_steps) -> None:
     logging.info(f"Total episodes: {total_episodes}")
 
 
-def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> None:
+def _eval_concurrent(args: Args, task_suite, task_id_list: list[int], max_steps) -> None:
     """Concurrent evaluation path (num_workers > 1)."""
+    num_tasks_in_suite = len(task_id_list)
+
     # 1. Check server supports concurrent mode.
     probe_client = _websocket_client_policy.WebsocketClientPolicy(args.host, args.port)
     server_meta = probe_client.get_server_metadata()
@@ -223,7 +230,7 @@ def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> N
 
     # 2. Build task queue.
     task_queue: queue.Queue[int] = queue.Queue()
-    for task_id in range(num_tasks_in_suite):
+    for task_id in task_id_list:
         task_queue.put(task_id)
 
     # 3. Progress bars: one overall + one per worker.
@@ -379,6 +386,16 @@ def eval_libero(args: Args) -> None:
     num_tasks_in_suite = task_suite.n_tasks
     logging.info(f"Task suite: {args.task_suite_name}")
 
+    # Resolve task ID list (filter or all).
+    if args.task_ids:
+        task_id_list = list(args.task_ids)
+        for tid in task_id_list:
+            if tid < 0 or tid >= num_tasks_in_suite:
+                raise ValueError(f"task_id {tid} out of range [0, {num_tasks_in_suite})")
+        logging.info(f"Running subset of tasks: {task_id_list}")
+    else:
+        task_id_list = list(range(num_tasks_in_suite))
+
     max_steps = _get_max_steps(args.task_suite_name)
 
     if args.num_workers > 5:
@@ -386,9 +403,9 @@ def eval_libero(args: Args) -> None:
         args.num_workers = 5
 
     if args.num_workers > 1:
-        _eval_concurrent(args, task_suite, num_tasks_in_suite, max_steps)
+        _eval_concurrent(args, task_suite, task_id_list, max_steps)
     else:
-        _eval_serial(args, task_suite, num_tasks_in_suite, max_steps)
+        _eval_serial(args, task_suite, task_id_list, max_steps)
 
 
 def _record_step(obs, images, timestamps, display):
