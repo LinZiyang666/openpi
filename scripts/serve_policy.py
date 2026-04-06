@@ -143,7 +143,7 @@ def _configure_torchinductor_cache_dir() -> None:
     logging.info("TORCHINDUCTOR_CACHE_DIR=%s", cache_dir)
 
 
-def _wrap_policy(base_policy, args: Args, *, quiet: bool = False):
+def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, shared_cache=None):
     """Build the wrapper chain around a base policy.
 
     Wrapper ordering matters:
@@ -157,22 +157,41 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False):
         args: CLI arguments.
         quiet: When True, suppress timing prints and orchestrator info logs
                (used in concurrent mode).
+        shared_cache: Pre-built cache components from build_cache_components().
+               When provided, storage/key_builder are reused (thread-safe);
+               timer/gates/judges/strategies are created fresh per call.
     """
     policy = base_policy
 
     if args.cache_config is not None:
-        from openpi.cache.config import build_cache_components, load_cache_config
+        from openpi.cache.config import (
+            build_cache_components,
+            build_per_connection_components,
+            load_cache_config,
+        )
         from openpi.cache.interceptor import InferenceInterceptor
         from openpi.cache.orchestrator import CacheOrchestrator
 
         if args.cache:
             logging.warning("--cache_config overrides --cache. Ignoring --cache flag.")
 
-        cache_config = load_cache_config(args.cache_config)
-        components = build_cache_components(cache_config)
-        if quiet:
-            components["timer"]._quiet = True
-            logging.getLogger("openpi.cache.orchestrator").setLevel(logging.WARNING)
+        if shared_cache is not None:
+            # Concurrent: reuse storage/key_builder, fresh timer/gates/judges.
+            cache_config = load_cache_config(args.cache_config)
+            components = build_per_connection_components(
+                cache_config,
+                shared_cache["storage"],
+                shared_cache["key_builder"],
+                quiet=True,
+            )
+        else:
+            # Single-connection: build everything fresh.
+            cache_config = load_cache_config(args.cache_config)
+            components = build_cache_components(cache_config)
+            if quiet:
+                components["timer"]._quiet = True
+                logging.getLogger("openpi.cache.orchestrator").setLevel(logging.WARNING)
+
         orchestrator = CacheOrchestrator(
             storage=components["storage"],
             key_builder=components["key_builder"],
@@ -219,8 +238,19 @@ def main(args: Args) -> None:
     if args.concurrent:
         # Concurrent mode: the base policy (GPU model) is shared.
         # Each connection gets its own wrapper stack via the factory.
+        # Storage/key_builder are shared (Qdrant client is thread-safe);
+        # timer/gates/judges/strategies are per-connection (have mutable state).
+        shared_cache = None
+        if args.cache_config is not None:
+            from openpi.cache.config import build_cache_components, load_cache_config
+            cache_config = load_cache_config(args.cache_config)
+            shared_cache = build_cache_components(cache_config)
+
         def _connection_policy_factory(shared_base_policy):
-            return _wrap_policy(shared_base_policy, args, quiet=True)
+            return _wrap_policy(
+                shared_base_policy, args, quiet=True,
+                shared_cache=shared_cache,
+            )
 
         policy_metadata = {**policy_metadata, "concurrent": True}
         logging.info("Concurrent mode enabled.")

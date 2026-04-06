@@ -73,8 +73,12 @@ def _get_max_steps(task_suite_name: str) -> int:
 
 
 def _run_episode(env, client, initial_state, task_description, args, max_steps,
-                 *, record_video: bool = False) -> tuple:
+                 *, record_video: bool = False, step_callback=None) -> tuple:
     """Run a single episode.
+
+    Args:
+        step_callback: Optional callable(step_number) invoked each sim step
+                       for live progress display.
 
     Returns:
         (success, images, timestamps) — images/timestamps are empty lists
@@ -98,6 +102,9 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
                     _record_step(obs, images, timestamps, args.display)
                 t += 1
                 continue
+
+            if step_callback is not None:
+                step_callback(t - args.num_steps_wait)
 
             img = np.ascontiguousarray(obs["agentview_image"][::-1, ::-1])
             wrist_img = np.ascontiguousarray(obs["robot0_eye_in_hand_image"][::-1, ::-1])
@@ -199,12 +206,7 @@ def _eval_serial(args: Args, task_suite, num_tasks_in_suite, max_steps) -> None:
 
 
 def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> None:
-    """Concurrent evaluation path (num_workers > 1).
-
-    Each worker thread runs all episodes for one task at a time, then pulls
-    the next unfinished task from a shared queue.  Video recording and display
-    are disabled; a single tqdm bar tracks overall progress.
-    """
+    """Concurrent evaluation path (num_workers > 1)."""
     # 1. Check server supports concurrent mode.
     probe_client = _websocket_client_policy.WebsocketClientPolicy(args.host, args.port)
     server_meta = probe_client.get_server_metadata()
@@ -221,28 +223,51 @@ def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> N
     for task_id in range(num_tasks_in_suite):
         task_queue.put(task_id)
 
-    # 3. Shared state for progress reporting.
+    # 3. Progress bars: one overall + one per worker.
     lock = threading.Lock()
     counters = {"episodes": 0, "successes": 0}
     total_episodes = num_tasks_in_suite * args.num_trials_per_task
-    pbar = tqdm.tqdm(total=total_episodes, desc="Eval", unit="ep")
+    pbar = tqdm.tqdm(total=total_episodes, desc="Total", unit="ep",
+                     position=0, leave=True)
+    worker_bars = []
+    for i in range(args.num_workers):
+        bar = tqdm.tqdm(total=max_steps, desc=f"W{i}: idle",
+                        unit="step", position=i + 1, leave=True,
+                        bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [total:{postfix}]")
+        bar.set_postfix_str("0")
+        worker_bars.append(bar)
 
     # 4. Worker function.
-    def worker():
+    def worker(worker_id):
+        wbar = worker_bars[worker_id]
+        total_steps = [0]  # mutable container for closure access
         client = _websocket_client_policy.WebsocketClientPolicy(args.host, args.port)
         try:
             while True:
                 try:
                     task_id = task_queue.get_nowait()
                 except queue.Empty:
+                    wbar.set_description_str(f"W{worker_id}: done")
                     break
 
                 task = task_suite.get_task(task_id)
                 initial_states = task_suite.get_task_init_states(task_id)
                 env, task_description = _get_libero_env(task, LIBERO_ENV_RESOLUTION, args.seed)
+                short_desc = task_description[:30]
 
                 for episode_idx in range(args.num_trials_per_task):
                     global_episode_id = task_id * args.num_trials_per_task + episode_idx
+
+                    wbar.reset(total=max_steps)
+                    wbar.set_description_str(
+                        f"W{worker_id}: T{task_id} E{episode_idx} {short_desc}"
+                    )
+
+                    def step_cb(step, _wbar=wbar, _ts=total_steps):
+                        _wbar.n = step
+                        _wbar.set_postfix_str(str(_ts[0] + step))
+                        _wbar.refresh()
+
                     client.episode_start(
                         experiment=args.task_suite_name,
                         task=str(task_description),
@@ -253,7 +278,9 @@ def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> N
                         env, client, initial_states[episode_idx],
                         task_description, args, max_steps,
                         record_video=False,
+                        step_callback=step_cb,
                     )
+                    total_steps[0] += wbar.n
                     client.episode_end(success=done)
 
                     with lock:
@@ -271,10 +298,12 @@ def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> N
 
     # 5. Launch workers.
     with ThreadPoolExecutor(max_workers=args.num_workers) as pool:
-        futures = [pool.submit(worker) for _ in range(args.num_workers)]
+        futures = [pool.submit(worker, i) for i in range(args.num_workers)]
         for f in as_completed(futures):
-            f.result()  # re-raises worker exceptions
+            f.result()
 
+    for bar in worker_bars:
+        bar.close()
     pbar.close()
     ep = counters["episodes"]
     sr = counters["successes"]

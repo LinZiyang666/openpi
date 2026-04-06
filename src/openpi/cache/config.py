@@ -397,71 +397,59 @@ def validate_cache_config(config: CacheConfig) -> None:
 def build_cache_components(config: CacheConfig) -> dict[str, Any]:
     """Instantiate all cache components from config.
 
-    Data flow:
-      CacheConfig -> validate
-        -> _build_backend() -> VectorStoreBackend
-        -> CacheStorage(backend)
-        -> _build_key_builder() -> QueryKeyBuilder
-        -> for each checkpoint:
-             _build_gate() -> GateFunction
-             _build_judge() -> SimilarityJudge
-             _build_search_strategy(storage) -> SearchStrategy
-        -> return dict of all components
-
     Returns dict with keys: timer, storage, key_builder, gates, judges, search_strategies
-
-    Coupling:
-      - DEPENDS ON: all component constructors (see module-level coupling map)
-      - CONSUMED BY: serve_policy.py main() -- the ONLY caller
-      - INSTANTIATION ORDER MATTERS:
-          Backend -> CacheStorage -> SearchStrategy (needs storage ref)
-          KeyBuilder, Gate, Judge are independent of each other
-      - IF CHANGED: serve_policy.py assembly must match returned dict keys
     """
     from openpi.cache.cache_storage import CacheStorage
-    from openpi.cache.components.gate import AlwaysSearchGate
-    from openpi.cache.components.judge import ThresholdJudge
-    from openpi.cache.components.key_builder import PlaceholderKeyBuilder
-    from openpi.cache.components.search_strategy import SimpleKnnStrategy
+
+    backend = _build_backend(config.backend)
+    storage = CacheStorage(backend)
+    enabled_fields = [name for name, kf in _keys_iter(config.keys) if kf.enabled]
+    key_builder = _build_key_builder(config.key_builder, enabled_fields, config.backend.vector_dims)
+
+    return build_per_connection_components(config, storage, key_builder)
+
+
+def build_per_connection_components(
+    config: CacheConfig,
+    shared_storage,
+    shared_key_builder,
+    *,
+    quiet: bool = False,
+) -> dict[str, Any]:
+    """Build cache components, reusing shared storage/key_builder.
+
+    In single-connection mode, called via build_cache_components() with
+    freshly created storage/key_builder.  In concurrent mode, called
+    directly with shared instances.
+    """
     from openpi.cache.timing import SystemTimer
 
-    # 1. Timer.
     timer = SystemTimer(
         enabled=config.timer.enabled,
         buffer_size=config.timer.buffer_size,
         output_csv_dir=config.timer.output_csv_dir,
+        quiet=quiet,
     )
 
-    # 2. Backend + CacheStorage.
-    backend = _build_backend(config.backend)
-    storage = CacheStorage(backend)
-
-    # 3. KeyBuilder.
-    enabled_fields = [name for name, kf in _keys_iter(config.keys) if kf.enabled]
-    key_builder = _build_key_builder(config.key_builder, enabled_fields, config.backend.vector_dims)
-
-    # 4. Per-checkpoint: Gate / Judge / SearchStrategy.
     fusion_weights = {name: kf.weight for name, kf in _keys_iter(config.keys) if kf.enabled}
     gates: dict[CheckpointID, Any] = {}
     judges: dict[CheckpointID, Any] = {}
     search_strategies: dict[CheckpointID, Any] = {}
 
     for cp_name, cp_config in config.checkpoints.items():
-        if cp_name.startswith("_"):
-            continue
-        if not cp_config.enabled:
+        if cp_name.startswith("_") or not cp_config.enabled:
             continue
         cp_id = CheckpointID[cp_name.upper()]
         gates[cp_id] = _build_gate(cp_config.gate)
         judges[cp_id] = _build_judge(cp_config.judge)
         search_strategies[cp_id] = _build_search_strategy(
-            cp_config.search_strategy, storage, fusion_weights
+            cp_config.search_strategy, shared_storage, fusion_weights
         )
 
     return {
         "timer": timer,
-        "storage": storage,
-        "key_builder": key_builder,
+        "storage": shared_storage,
+        "key_builder": shared_key_builder,
         "gates": gates,
         "judges": judges,
         "search_strategies": search_strategies,
