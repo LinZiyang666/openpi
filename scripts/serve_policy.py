@@ -143,7 +143,7 @@ def _configure_torchinductor_cache_dir() -> None:
     logging.info("TORCHINDUCTOR_CACHE_DIR=%s", cache_dir)
 
 
-def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, shared_cache=None):
+def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = False, shared_cache=None):
     """Build the wrapper chain around a base policy.
 
     Wrapper ordering matters:
@@ -204,6 +204,7 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, shared_cache=N
             policy,
             timer=components["timer"],
             orchestrator=orchestrator,
+            eager=eager,
         )
     elif args.cache:
         from openpi.cache.interceptor import InferenceInterceptor
@@ -211,7 +212,7 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, shared_cache=N
         timer = SystemTimer(enabled=True, output_csv_dir=args.timing_csv_dir, quiet=quiet)
         if args.timing_csv_dir:
             logging.info("Timing CSV output enabled: writing to %s", args.timing_csv_dir)
-        policy = InferenceInterceptor(policy, timer=timer)
+        policy = InferenceInterceptor(policy, timer=timer, eager=eager)
 
     if args.record:
         policy = _policy.PolicyRecorder(policy, "policy_records")
@@ -248,7 +249,7 @@ def main(args: Args) -> None:
 
         def _connection_policy_factory(shared_base_policy):
             return _wrap_policy(
-                shared_base_policy, args, quiet=True,
+                shared_base_policy, args, quiet=True, eager=True,
                 shared_cache=shared_cache,
             )
 

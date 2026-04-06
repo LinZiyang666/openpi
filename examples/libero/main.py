@@ -143,6 +143,8 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
                 break
             t += 1
 
+        except RuntimeError:
+            raise  # Server error — let it propagate and stop the worker.
         except Exception as e:
             logging.error(f"Caught exception: {e}")
             break

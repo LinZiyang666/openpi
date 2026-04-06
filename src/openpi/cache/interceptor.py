@@ -70,7 +70,6 @@ from __future__ import annotations
 
 import concurrent.futures
 import logging
-import threading
 from typing import Any, Callable, Optional
 
 import jax
@@ -122,6 +121,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         policy: _policy.Policy,
         timer: Optional[SystemTimer] = None,
         orchestrator: Optional["CacheOrchestrator"] = None,
+        eager: bool = False,
     ) -> None:
         if not policy._is_pytorch_model:  # noqa: SLF001
             raise ValueError(
@@ -136,14 +136,16 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         self._output_transform = policy._output_transform  # composed transform fn  # noqa: SLF001
         self._pytorch_device = policy._pytorch_device      # e.g. "cuda:0"          # noqa: SLF001
 
-        # ---- torch.compile (compile-once, cached on model) ----
-        self._stage1_fn, self._stage2_fn, self._stage3_fn = (
-            self._get_or_compile_stages()
-        )
-        # Shared lock: torch.dynamo is not thread-safe for concurrent calls.
-        if not hasattr(self._model, "_infer_lock"):
-            self._model._infer_lock = threading.Lock()
-        self._infer_lock = self._model._infer_lock
+        # ---- Stage functions (eager or compiled) ----
+        if eager:
+            self._stage1_fn = self._model.run_stage1
+            self._stage2_fn = self._model.run_stage2
+            self._stage3_fn = self._model.run_stage3
+            logger.info("InferenceInterceptor: eager mode (no compile).")
+        else:
+            self._stage1_fn, self._stage2_fn, self._stage3_fn = (
+                self._get_or_compile_stages()
+            )
 
         # ---- SystemTimer setup ----
         # Each probe corresponds to one pipeline component.  The backend
@@ -334,75 +336,55 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 return outputs
 
         # ---- 2. Staged inference with cache checks ----
-        # _infer_lock: torch.dynamo is not thread-safe for concurrent calls.
-        with self._infer_lock:
-            torch.compiler.cudagraph_mark_step_begin()
-            with self._timer.measure("total_inference"):
-                with torch.no_grad():
-                    # Stage 1: SigLIP vision encoding + prefix embedding.
-                    with self._timer.measure("stage1_vision"):
-                        stage1 = self._stage1_fn(observation)
+        torch.compiler.cudagraph_mark_step_begin()
+        with self._timer.measure("total_inference"):
+            with torch.no_grad():
+                with self._timer.measure("stage1_vision"):
+                    stage1 = self._stage1_fn(observation)
 
-                    # CP1: check cache after Stage 1.
-                    # Data flow: stage1 -> orchestrator.check(CP1) -> CheckResult
-                    # On HIT: skip stage2 + stage3, return cached action.
-                    if self._orchestrator is not None:
-                        with self._timer.measure("cp1_sum"):
-                            cp1_result = self._orchestrator.check(
-                                CheckpointID.CP1, stage1=stage1
-                            )
-                        if cp1_result.hit_type == HitType.FULL_HIT:
-                            # Build outputs from cached payload.
-                            # CachePayload.action_chunk is CPU float32 [50, 32].
-                            # Move to device and add batch dim to match normal path.
-                            outputs = {
-                                "state": inputs["state"],
-                                "actions": cp1_result.payload.action_chunk.to(
-                                    self._pytorch_device
-                                )[None, ...],  # [1, 50, 32]
-                            }
-                            outputs = jax.tree.map(
-                                lambda x: np.asarray(x[0, ...].detach().cpu()),
-                                outputs,
-                            )
-                            outputs = self._output_transform(outputs)
-                            self._orchestrator.clear()
-                            return outputs
-
-                    # Stage 2: Gemma 2B backbone forward pass -> KV cache.
-                    with self._timer.measure("stage2_llm"):
-                        stage2 = self._stage2_fn(stage1)
-
-                    # CP2 slot: remains commented out (suspended).
-                    # TODO(Step 7): insert CP2 cache check here.
-
-                    # Stage 3: Action Expert — 10-step Euler flow-matching loop.
-                    with self._timer.measure("stage3_flow"):
-                        stage3 = self._stage3_fn(stage2, noise=start_noise)
-
-                # Post-inference cache operations (only on normal path, not on hit path).
+                # CP1: check cache after Stage 1.
                 if self._orchestrator is not None:
-                    # CP3 check: infrastructure validation only.
-                    # No CP3 entries exist in Step 4, so this always returns MISS.
-                    # Real CP3 write + skip deferred to Step 6 (DeferredWriter).
-                    with self._timer.measure("cp3_sum"):
-                        _cp3_result = self._orchestrator.check(
-                            CheckpointID.CP3, stage1=stage1, stage3=stage3
+                    with self._timer.measure("cp1_sum"):
+                        cp1_result = self._orchestrator.check(
+                            CheckpointID.CP1, stage1=stage1
                         )
+                    if cp1_result.hit_type == HitType.FULL_HIT:
+                        outputs = {
+                            "state": inputs["state"],
+                            "actions": cp1_result.payload.action_chunk.to(
+                                self._pytorch_device
+                            )[None, ...],
+                        }
+                        outputs = jax.tree.map(
+                            lambda x: np.asarray(x[0, ...].detach().cpu()),
+                            outputs,
+                        )
+                        outputs = self._output_transform(outputs)
+                        self._orchestrator.clear()
+                        return outputs
 
-                    # Write CP1 entry for future lookups — non-blocking.
-                    # Tensors are materialised to CPU here (in the main thread)
-                    # so the background thread never touches GPU state.
-                    cp1_payload = CachePayload(
-                        action_chunk=stage3.action_chunk[0].detach().cpu().float().contiguous()
-                    )
-                    cp1_query_keys = self._orchestrator.build_keys(CheckpointID.CP1)
-                    self._write_executor.submit(
-                        self._bg_write, CheckpointID.CP1, cp1_payload, cp1_query_keys
+                with self._timer.measure("stage2_llm"):
+                    stage2 = self._stage2_fn(stage1)
+
+                with self._timer.measure("stage3_flow"):
+                    stage3 = self._stage3_fn(stage2, noise=start_noise)
+
+            # Post-inference cache operations.
+            if self._orchestrator is not None:
+                with self._timer.measure("cp3_sum"):
+                    _cp3_result = self._orchestrator.check(
+                        CheckpointID.CP3, stage1=stage1, stage3=stage3
                     )
 
-                    # Release per-cycle cached data.
-                    self._orchestrator.clear()
+                cp1_payload = CachePayload(
+                    action_chunk=stage3.action_chunk[0].detach().cpu().float().contiguous()
+                )
+                cp1_query_keys = self._orchestrator.build_keys(CheckpointID.CP1)
+                self._write_executor.submit(
+                    self._bg_write, CheckpointID.CP1, cp1_payload, cp1_query_keys
+                )
+
+                self._orchestrator.clear()
 
         # ---- 3. Build outputs ----
         # Output format matches Policy.infer so the server and client require
