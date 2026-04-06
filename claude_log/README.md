@@ -34,6 +34,7 @@ Implementation plans and development records. For project architecture docs, see
 | File | Status | Description |
 |------|--------|-------------|
 | [key_dim_reduction_recommendations.log.md](key_dim_reduction_recommendations.log.md) | `Design Only` | Cache key 降维方法推荐：两层流水线（Token 池化 + 维度投影），含实施路径 |
+| [cache_experiment_plan.log.md](cache_experiment_plan.log.md) | `Plan` | Cache 实验方案组合：仅 CP1，Gate/Judge 固定 always-on，4 种降维 × 2 种跨模态融合（Weighted RRF / Weighted Score Sum） |
 
 ## Retrieval System
 

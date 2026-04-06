@@ -377,10 +377,10 @@ QuerySpec(
 | `"exact"` | `step_range=(step, step)` | Only entries at exact same step |
 | `"window"` | `step_range=(step - window, step + window)` | Entries within a time window |
 
-### Existing Implementation: SimpleKnnStrategy
+### Existing Implementation: QdrantWeightedRrfKnnStrategy
 
 ```python
-SimpleKnnStrategy(
+QdrantWeightedRrfKnnStrategy(
     storage=cache_storage,          # receives storage reference
     top_k=1,
     step_filter="all",              # "all" | "exact" | "window"
@@ -390,6 +390,10 @@ SimpleKnnStrategy(
     candidate_multiplier=5,         # prefetch = top_k * multiplier
 )
 ```
+
+This strategy is Qdrant-specific. It forwards weighted-RRF parameters via
+`QuerySpec.fusion_weights` and `QuerySpec.backend_hints`; actual fusion runs
+inside `QdrantVectorStore.search()`.
 
 ### Constraints
 
@@ -700,11 +704,11 @@ checkpoints:
     gate:
       type: always_search          # Only type available currently
     search_strategy:
-      type: simple_knn
+      type: qdrant_weighted_rrf_knn
       top_k: 1                     # Max results to return
       step_filter: all             # "all" | "exact" | "window"
       step_window: 5               # Window size (only for step_filter=window)
-      rrf_k: 60                    # Qdrant RRF param (in_memory ignores)
+      rrf_k: 60                    # Qdrant RRF param
       candidate_multiplier: 5      # Qdrant prefetch = top_k * multiplier
 
   cp1:
@@ -886,19 +890,17 @@ assert hit_type == HitType.FULL_HIT
 assert winner == "abc"
 ```
 
-### SearchStrategy Test (with InMemoryBackend)
+### SearchStrategy Test (with mocked CacheStorage)
 
 ```python
-from openpi.cache.backends.in_memory_backend import InMemoryBackend
+from unittest.mock import MagicMock
+
 from openpi.cache.cache_storage import CacheStorage
-from openpi.cache.components.search_strategy import SimpleKnnStrategy, SearchContext
+from openpi.cache.components.search_strategy import QdrantWeightedRrfKnnStrategy, SearchContext
 
-backend = InMemoryBackend(vector_dims={"robot_state": 32})
-storage = CacheStorage(backend)
-strategy = SimpleKnnStrategy(storage, top_k=1)
+storage = MagicMock(spec=CacheStorage)
+strategy = QdrantWeightedRrfKnnStrategy(storage, top_k=1)
 
-# Insert an entry, then search
-# ...
 ctx = SearchContext(query_keys={"robot_state": query_vec}, checkpoint_id=CheckpointID.CP1)
 results = strategy.search(ctx)
 ```
@@ -916,7 +918,7 @@ orchestrator = CacheOrchestrator(
     key_builder=PlaceholderKeyBuilder(),
     gates={CheckpointID.CP1: AlwaysSearchGate()},
     judges={CheckpointID.CP1: ThresholdJudge(cp1_threshold=0.95)},
-    search_strategies={CheckpointID.CP1: SimpleKnnStrategy(storage, top_k=1)},
+    search_strategies={CheckpointID.CP1: my_test_search_strategy},
 )
 ```
 

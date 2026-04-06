@@ -25,7 +25,7 @@ Coupling map:
                - PlaceholderKeyBuilder (components/key_builder.py)
                - AlwaysSearchGate (components/gate.py)
                - ThresholdJudge (components/judge.py)
-               - SimpleKnnStrategy (components/search_strategy.py)
+               - QdrantWeightedRrfKnnStrategy (components/search_strategy.py)
   CONSUMED BY: serve_policy.py (the ONLY consumer, via --cache_config path)
   DOES NOT:    get imported by any component -- components are config-unaware
   IF CHANGED:  serve_policy.py assembly logic must sync;
@@ -91,7 +91,7 @@ class JudgeConfig:
 
 @dataclass
 class SearchStrategyConfig:
-    type: str = "simple_knn"
+    type: str = "qdrant_weighted_rrf_knn"
     top_k: int = 1
     step_filter: str = "all"
     step_window: int = 5
@@ -118,7 +118,7 @@ class QdrantConfig:
 
 @dataclass
 class BackendConfig:
-    type: str = "in_memory"
+    type: str = "qdrant"
     vector_dims: dict[str, int] = field(default_factory=lambda: {"robot_state": 32})
     qdrant: QdrantConfig = field(default_factory=QdrantConfig)
 
@@ -356,10 +356,17 @@ def validate_cache_config(config: CacheConfig) -> None:
         if cp_config.judge.type not in ("threshold", "always_hit"):
             errors.append(f"{prefix}.judge.type '{cp_config.judge.type}' is unknown. Valid: ['threshold', 'always_hit']")
 
-        if cp_config.search_strategy.type not in ("simple_knn",):
+        if cp_config.search_strategy.type not in ("qdrant_weighted_rrf_knn",):
             errors.append(
                 f"{prefix}.search_strategy.type '{cp_config.search_strategy.type}' "
-                f"is unknown. Valid: ['simple_knn']"
+                f"is unknown. Valid: ['qdrant_weighted_rrf_knn']"
+            )
+
+        if cp_config.search_strategy.type == "qdrant_weighted_rrf_knn" and config.backend.type != "qdrant":
+            errors.append(
+                f"{prefix}.search_strategy.type 'qdrant_weighted_rrf_knn' requires backend.type='qdrant'.\n"
+                f"  Current backend.type: {config.backend.type!r}\n"
+                f"  Fix: use backend.type='qdrant' or choose a different search strategy"
             )
 
         if cp_config.search_strategy.step_filter not in _VALID_STEP_FILTERS:
@@ -533,10 +540,10 @@ def _build_judge(cfg: JudgeConfig):
 
 def _build_search_strategy(cfg: SearchStrategyConfig, storage, fusion_weights: dict[str, float]):
     """Instantiate a SearchStrategy from config."""
-    if cfg.type == "simple_knn":
-        from openpi.cache.components.search_strategy import SimpleKnnStrategy
+    if cfg.type == "qdrant_weighted_rrf_knn":
+        from openpi.cache.components.search_strategy import QdrantWeightedRrfKnnStrategy
 
-        return SimpleKnnStrategy(
+        return QdrantWeightedRrfKnnStrategy(
             storage,
             top_k=cfg.top_k,
             step_filter=cfg.step_filter,
@@ -547,5 +554,5 @@ def _build_search_strategy(cfg: SearchStrategyConfig, storage, fusion_weights: d
         )
     else:
         raise ConfigValidationError(
-            f"Unknown search_strategy.type '{cfg.type}'. Valid: ['simple_knn']"
+            f"Unknown search_strategy.type '{cfg.type}'. Valid: ['qdrant_weighted_rrf_knn']"
         )

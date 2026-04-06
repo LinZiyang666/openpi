@@ -23,7 +23,7 @@
 
 | 文件 | 说明 |
 |------|------|
-| `src/openpi/cache/components/search_strategy.py` | SearchStrategy Protocol + SearchContext + SimpleKnnStrategy 实现 |
+| `src/openpi/cache/components/search_strategy.py` | SearchStrategy Protocol + SearchContext + QdrantWeightedRrfKnnStrategy 实现 |
 | `src/openpi/cache/backends/in_memory_backend.py` | InMemoryBackend 正式实现（从 conftest 提升） |
 | `src/openpi/cache/config.py` | CacheConfig dataclass 树 + YAML 加载 + 校验 + 组件工厂 |
 | `cache.yaml` | 项目根目录，cache 默认配置文件（全量注释） |
@@ -102,7 +102,7 @@ class QuerySpec:
 - InMemoryBackend 忽略 fusion_weights 和 backend_hints（单向量 cosine 搜索）
 - FAISS 等未来 backend 可从 backend_hints 读取自己的参数，不污染 QuerySpec 公共字段
 
-#### 3.1.2 新建 SearchStrategy Protocol + SimpleKnnStrategy（`components/search_strategy.py`）
+#### 3.1.2 新建 SearchStrategy Protocol + QdrantWeightedRrfKnnStrategy（`components/search_strategy.py`）
 
 ```python
 """SearchStrategy: the single exit point for database search.
@@ -172,7 +172,7 @@ class SearchStrategy(Protocol):
         ...
 
 
-class SimpleKnnStrategy:
+class QdrantWeightedRrfKnnStrategy:
     """Standard KNN search with configurable fusion and step filtering.
 
     Data flow: SearchContext -> QueryFilter + QuerySpec(fusion, backend_hints)
@@ -384,7 +384,7 @@ Coupling map:
 #### 3.1.5 SearchStrategy 单元测试（`tests/cache/test_search_strategy.py`）
 
 测试内容：
-- SimpleKnnStrategy 构造 + 基本搜索，走 InMemoryBackend 全链路（step_filter="all"，无 filter）
+- QdrantWeightedRrfKnnStrategy 构造 + 基本搜索
 - QuerySpec 中 fusion_weights + backend_hints 正确传递（mock storage.search() 捕获 spec）
 - step_filter="all"：不加 filter，走 InMemoryBackend 全链路
 - step_filter="exact"：mock storage.search()，断言 QuerySpec.filters.step_range==(step, step)（InMemoryBackend 不支持 step_range，不走全链路）
@@ -428,7 +428,7 @@ Coupling map:
                - PlaceholderKeyBuilder (components/key_builder.py)
                - AlwaysSearchGate (components/gate.py)
                - ThresholdJudge (components/judge.py)
-               - SimpleKnnStrategy (components/search_strategy.py)
+               - QdrantWeightedRrfKnnStrategy (components/search_strategy.py)
   CONSUMED BY: serve_policy.py (the ONLY consumer, via --cache_config path)
   DOES NOT:    get imported by any component — components are config-unaware
   IF CHANGED:  serve_policy.py assembly logic must sync;
@@ -460,7 +460,7 @@ class JudgeConfig:
 
 @dataclass
 class SearchStrategyConfig:
-    type: str = "simple_knn"
+    type: str = "qdrant_weighted_rrf_knn"
     top_k: int = 1
     step_filter: str = "all"        # "all" | "exact" | "window"
     step_window: int = 5
@@ -697,7 +697,7 @@ checkpoints:
     gate:
       type: always_search
     search_strategy:
-      type: simple_knn
+      type: qdrant_weighted_rrf_knn
       top_k: 1
       step_filter: all    # "all" | "exact" | "window"
       step_window: 5      # 仅 step_filter=window 时生效
@@ -855,13 +855,13 @@ def main(args: Args) -> None:
 
 | 用例 | 说明 |
 |------|------|
-| `test_simple_knn_basic_search` | 基本搜索流程（InMemoryBackend） |
+| `test_qdrant_weighted_rrf_knn_basic_search` | 基本 QuerySpec / storage 委托流程 |
 | `test_query_spec_fusion_params` | fusion_weights + backend_hints 正确出现在 QuerySpec 中 |
 | `test_step_filter_all` | step_filter="all" 不添加 filter |
 | `test_step_filter_exact` | step_filter="exact"：mock storage.search()，验证 QuerySpec.filters.step_range==(step, step) |
 | `test_step_filter_window` | step_filter="window"：mock storage.search()，验证 QuerySpec.filters.step_range 正确 |
 | `test_search_context_fields` | SearchContext 各字段正确传递 |
-| `test_protocol_compliance` | SimpleKnnStrategy 满足 SearchStrategy Protocol |
+| `test_protocol_compliance` | QdrantWeightedRrfKnnStrategy 满足 SearchStrategy Protocol |
 
 #### 3.4.3 更新现有测试
 
@@ -879,7 +879,7 @@ Orchestrator 构造函数签名变更后，更新：
 ```
 Phase 1  SearchStrategy 组件（独立于 Config）
   1.1  storage_types.py — QuerySpec 扩展（fusion_weights + backend_hints）
-  1.2  components/search_strategy.py — SearchContext + Protocol + SimpleKnnStrategy
+  1.2  components/search_strategy.py — SearchContext + Protocol + QdrantWeightedRrfKnnStrategy
   1.3  backends/in_memory_backend.py — 从 conftest 提升为正式代码
   1.4  orchestrator.py — 接入分检查点 dict + step counter + on_task_begin() + SearchContext 构造
   1.5  interceptor.py — on_task_begin() 转发给 orchestrator（重置 step_counter）
@@ -922,7 +922,7 @@ Phase 4  收尾
 
 | 文件 | 说明 | 预期状态 |
 |------|------|----------|
-| `components/search_strategy.py` | SearchContext + `SearchStrategy` Protocol + `SimpleKnnStrategy` 实现 | 🟡 单元测试覆盖，未集成验证 |
+| `components/search_strategy.py` | SearchContext + `SearchStrategy` Protocol + `QdrantWeightedRrfKnnStrategy` 实现 | 🟡 单元测试覆盖，未集成验证 |
 | `backends/in_memory_backend.py` | InMemoryBackend 正式实现（从 conftest 提升） | 🟡 间接测试覆盖（现有 Orchestrator/Interceptor 测试使用） |
 | `config.py` | CacheConfig dataclass 树 + YAML 加载 + 校验 + 组件工厂 | 🟡 单元测试覆盖，未真实模型验证 |
 | `cache.yaml` | 默认 cache 配置文件 | ✅ 稳定（纯数据文件） |
@@ -940,7 +940,7 @@ Phase 4  收尾
 ### 不稳定部件详述
 
 #### `components/search_strategy.py`（新增·🟡）
-- SimpleKnnStrategy 持有 CacheStorage 引用做搜索，与 Orchestrator 共享同一 CacheStorage 实例——并发安全依赖 CacheStorage 的 RLock
+- QdrantWeightedRrfKnnStrategy 持有 CacheStorage 引用做搜索，与 Orchestrator 共享同一 CacheStorage 实例——并发安全依赖 CacheStorage 的 RLock
 - 三种 step_filter 模式全部实现；current_step 从 SearchContext 获取（由 Orchestrator 的 step counter 填充）
 - fusion_weights 传递路径：Config → SearchStrategy → QuerySpec.fusion_weights → Backend，中间任何一环 key 不匹配会导致搜索异常
 - backend_hints 是 dict[str, Any] 无类型约束——Backend 拼写错误读取不到参数时静默降级为默认值
@@ -1074,7 +1074,7 @@ class SearchContext:
 ```
 - Protocol 签名改为 `search(ctx: SearchContext) -> list[SearchResultLite]`
 - Orchestrator 负责构造 SearchContext（从 Interceptor 传入的运行时信息填充）
-- 初始实现中 `current_step` 和 `task_key` 传 None，SimpleKnnStrategy 在 None 时等价于 step_filter=”all”
+- 初始实现中 `current_step` 和 `task_key` 传 None，QdrantWeightedRrfKnnStrategy 在 None 时等价于 step_filter=”all”
 
 #### Q3：step_filter 交付范围不一致
 **接受。** plan 正文和风险节自相矛盾。
@@ -1099,7 +1099,7 @@ class SearchContext:
 
 **修改方案**：
 - QuerySpec 只保留通用字段：`fusion_weights: Optional[dict[str, float]]`
-- `rrf_k` 和 `candidate_multiplier` 移回 backend-specific 配置——但不是移回 QdrantBackendConfig（讨论中已否决），而是作为 SearchStrategy 的内部参数，由 SimpleKnnStrategy 在构造 QuerySpec 时通过 `backend_hints: Optional[dict[str, Any]]` 附加字段下传
+- `rrf_k` 和 `candidate_multiplier` 移回 backend-specific 配置——但不是移回 QdrantBackendConfig（讨论中已否决），而是作为 SearchStrategy 的内部参数，由 QdrantWeightedRrfKnnStrategy 在构造 QuerySpec 时通过 `backend_hints: Optional[dict[str, Any]]` 附加字段下传
 - 这样 QuerySpec 保持 backend-agnostic，backend-specific 参数通过 hints 通道传递，FAISS 等新 backend 可以忽略不认识的 hints
 
 ```python
@@ -1113,7 +1113,7 @@ class QuerySpec:
     backend_hints: Optional[dict[str, Any]] = None          # backend-specific
 ```
 
-SimpleKnnStrategy 构造时：
+QdrantWeightedRrfKnnStrategy 构造时：
 ```python
 spec = QuerySpec(
     ...,
@@ -1155,7 +1155,7 @@ QdrantVectorStore.search() 从 `spec.backend_hints` 读取。InMemoryBackend / F
 **修改方案**：
 - 本次实现中 task_key 相关功能不激活：
   - SearchContext.task_key 默认 None
-  - SimpleKnnStrategy 在 task_key=None 时不添加 task_key filter
+  - QdrantWeightedRrfKnnStrategy 在 task_key=None 时不添加 task_key filter
   - CachePayload 构造时 task_key 保持默认空字符串
 - YAML 中不暴露 task_key 相关配置项（不写进 search_strategy 块）
 - YAML 注释说明：`# task_key filtering: not yet implemented, requires task normalization pipeline`
@@ -1289,7 +1289,7 @@ judge:
 2. ✅ **Section 1 新增文件**：新增 `backends/in_memory_backend.py`；`server.yaml` → `cache.yaml`
 3. ✅ **Section 2 修改文件**：serve_policy.py 描述改为"新增 --cache_config"；新增 conftest/test_orchestrator/test_interceptor 修改
 4. ✅ **Phase 1.1**：QuerySpec 只保留 `fusion_weights` + 新增 `backend_hints`，删除 `rrf_k` 和 `candidate_multiplier`
-5. ✅ **Phase 1.2**：SearchStrategy Protocol 签名改为 `search(ctx: SearchContext)`；新增 `SearchContext` dataclass；SimpleKnnStrategy 实现全部三种 step_filter 模式，rrf_k/candidate_multiplier 放入 backend_hints
+5. ✅ **Phase 1.2**：SearchStrategy Protocol 签名改为 `search(ctx: SearchContext)`；新增 `SearchContext` dataclass；QdrantWeightedRrfKnnStrategy 实现全部三种 step_filter 模式，rrf_k/candidate_multiplier 放入 backend_hints
 6. ✅ **Phase 1.3**：新增 3.1.4 InMemoryBackend 提升（从 conftest 移到 backends/）
 7. ✅ **Phase 1.3 Orchestrator**：新增 step counter + on_task_begin() 重置 + SearchContext 构造
 8. ✅ **Phase 1.5 测试**：更新为三种 step_filter 测试 + SearchContext 测试

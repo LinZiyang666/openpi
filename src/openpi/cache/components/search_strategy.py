@@ -77,8 +77,8 @@ class SearchStrategy(Protocol):
         ...
 
 
-class SimpleKnnStrategy:
-    """Standard KNN search with configurable fusion and step filtering.
+class QdrantWeightedRrfKnnStrategy:
+    """Qdrant-only KNN search strategy for weighted RRF retrieval.
 
     Data flow: SearchContext -> QueryFilter + QuerySpec(fusion, backend_hints)
               -> CacheStorage.search() -> results
@@ -93,9 +93,12 @@ class SimpleKnnStrategy:
       - top_k: number of results to return
       - step_filter: "all" (no filter) | "exact" | "window"
       - step_window: window size for "window" mode
-      - rrf_k: RRF fusion parameter k (backend-specific, passed via backend_hints)
-      - fusion_weights: per-field fusion weights (from keys config, backend-agnostic)
-      - candidate_multiplier: prefetch limit (backend-specific, passed via backend_hints)
+      - rrf_k: Qdrant RRF fusion parameter k (passed via backend_hints)
+      - fusion_weights: per-field fusion weights used by Qdrant RRF
+      - candidate_multiplier: Qdrant prefetch limit (passed via backend_hints)
+
+    This strategy only names a search intent; actual weighted RRF execution
+    happens inside QdrantVectorStore.search().
     """
 
     def __init__(

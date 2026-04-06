@@ -155,7 +155,7 @@ def test_build_cache_components():
     """Factory produces correct component types."""
     config = CacheConfig(
         enabled=True,
-        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        backend=BackendConfig(type="qdrant", vector_dims={"robot_state": 32}),
         checkpoints={
             "cp1": CheckpointConfig(judge=JudgeConfig(threshold=0.98)),
             "cp3": CheckpointConfig(judge=JudgeConfig(threshold=0.95)),
@@ -190,7 +190,7 @@ def test_build_and_assemble():
 
     config = CacheConfig(
         enabled=True,
-        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        backend=BackendConfig(type="qdrant", vector_dims={"robot_state": 32}),
         checkpoints={
             "cp1": CheckpointConfig(judge=JudgeConfig(threshold=0.98)),
             "cp3": CheckpointConfig(judge=JudgeConfig(threshold=0.95)),
@@ -227,7 +227,7 @@ def test_yaml_anchor_merge(tmp_path):
         gate:
           type: always_search
         search_strategy:
-          type: simple_knn
+          type: qdrant_weighted_rrf_knn
       cp1:
         <<: *cp_defaults
         judge:
@@ -239,7 +239,7 @@ def test_yaml_anchor_merge(tmp_path):
           type: threshold
           threshold: 0.95
     backend:
-      type: in_memory
+      type: qdrant
       vector_dims:
         robot_state: 32
     """
@@ -257,12 +257,12 @@ def test_yaml_anchor_merge(tmp_path):
 
 def test_fusion_weights_from_keys():
     """Keys config weights should be dispatched to SearchStrategy."""
-    from openpi.cache.components.search_strategy import SimpleKnnStrategy
+    from openpi.cache.components.search_strategy import QdrantWeightedRrfKnnStrategy
 
     config = CacheConfig(
         enabled=True,
         keys=KeysConfig(robot_state=KeyFieldConfig(enabled=True, weight=2.5)),
-        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        backend=BackendConfig(type="qdrant", vector_dims={"robot_state": 32}),
         checkpoints={
             "cp1": CheckpointConfig(judge=JudgeConfig(threshold=0.98)),
         },
@@ -271,7 +271,7 @@ def test_fusion_weights_from_keys():
     components = build_cache_components(config)
 
     strategy = components["search_strategies"][CheckpointID.CP1]
-    assert isinstance(strategy, SimpleKnnStrategy)
+    assert isinstance(strategy, QdrantWeightedRrfKnnStrategy)
     assert strategy._fusion_weights == {"robot_state": 2.5}
 
 
@@ -286,7 +286,7 @@ def test_valid_default_config_passes():
 
 
 # ---------------------------------------------------------------------------
-# test_validation_qdrant_step_filter: qdrant + step_filter!=all should raise
+# test_validation_qdrant_step_filter: qdrant supports exact/window/all
 # ---------------------------------------------------------------------------
 
 
@@ -299,8 +299,7 @@ def test_validation_qdrant_step_filter_exact():
             ),
         },
     )
-    with pytest.raises(ConfigValidationError, match="step_filter.*not supported.*qdrant"):
-        validate_cache_config(config)
+    validate_cache_config(config)
 
 
 def test_validation_qdrant_step_filter_window():
@@ -312,8 +311,7 @@ def test_validation_qdrant_step_filter_window():
             ),
         },
     )
-    with pytest.raises(ConfigValidationError, match="step_filter.*not supported.*qdrant"):
-        validate_cache_config(config)
+    validate_cache_config(config)
 
 
 def test_validation_qdrant_step_filter_all_passes():
@@ -338,7 +336,7 @@ def test_validation_qdrant_step_filter_all_passes():
 def test_validation_placeholder_robot_state_disabled():
     config = CacheConfig(
         keys=KeysConfig(robot_state=KeyFieldConfig(enabled=False)),
-        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        backend=BackendConfig(type="qdrant", vector_dims={"robot_state": 32}),
         key_builder=KeyBuilderConfig(type="placeholder"),
     )
     with pytest.raises(ConfigValidationError, match="robot_state.enabled=true"):
@@ -354,7 +352,7 @@ def test_checkpoint_enabled_false_excluded():
     """Disabled checkpoint should not appear in built components."""
     config = CacheConfig(
         enabled=True,
-        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        backend=BackendConfig(type="qdrant", vector_dims={"robot_state": 32}),
         checkpoints={
             "cp1": CheckpointConfig(enabled=True, judge=JudgeConfig(threshold=0.98)),
             "cp3": CheckpointConfig(enabled=False),
@@ -377,7 +375,7 @@ def test_disabled_checkpoint_orchestrator_returns_miss():
 
     config = CacheConfig(
         enabled=True,
-        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        backend=BackendConfig(type="qdrant", vector_dims={"robot_state": 32}),
         checkpoints={
             "cp1": CheckpointConfig(enabled=True, judge=JudgeConfig(threshold=0.98)),
             "cp3": CheckpointConfig(enabled=False),

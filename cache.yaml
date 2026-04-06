@@ -34,12 +34,12 @@ checkpoints:
     gate:
       type: always_search
     search_strategy:
-      type: simple_knn
+      type: qdrant_weighted_rrf_knn
       top_k: 1
       step_filter: all    # "all" | "exact" | "window"
       step_window: 5      # only effective when step_filter=window
-      rrf_k: 60           # Qdrant RRF fusion param (in_memory backend ignores)
-      candidate_multiplier: 5  # Qdrant prefetch = top_k * multiplier (in_memory ignores)
+      rrf_k: 60           # Qdrant RRF fusion param
+      candidate_multiplier: 5  # Qdrant prefetch = top_k * multiplier
 
   cp1:
     <<: *cp_defaults

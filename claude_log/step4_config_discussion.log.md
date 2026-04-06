@@ -214,7 +214,7 @@ CacheConfig
 │   │   ├── gate: {type: "always_search"}
 │   │   ├── judge: {type: "threshold", threshold: 0.98}
 │   │   └── search_strategy:
-│   │       ├── type: "simple_knn"
+│   │       ├── type: "qdrant_weighted_rrf_knn"
 │   │       ├── top_k: int
 │   │       ├── step_filter: "all" | "exact" | "window"
 │   │       ├── step_window: int

@@ -13,6 +13,7 @@ from openpi.cache.types import ROBOT_STATE, CheckpointID
 from openpi.cache.backends.in_memory_backend import InMemoryBackend
 
 from tests.cache.conftest import (
+    TestStorageSearchStrategy,
     _wrap_per_checkpoint,
     make_counting_orchestrator,
     make_orchestrator,
@@ -177,11 +178,10 @@ def test_gate_false_skips_search():
     backend = InMemoryBackend(dims)
     from openpi.cache.cache_storage import CacheStorage
     from openpi.cache.components.key_builder import PlaceholderKeyBuilder
-    from openpi.cache.components.search_strategy import SimpleKnnStrategy
     from openpi.cache.timing import SystemTimer
 
     storage = CacheStorage(backend)
-    strategy = SimpleKnnStrategy(storage, top_k=1)
+    strategy = TestStorageSearchStrategy(storage, top_k=1)
     orch = CacheOrchestrator(
         storage,
         PlaceholderKeyBuilder(),

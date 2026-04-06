@@ -386,7 +386,7 @@ Layer 1 (Field Similarity)  →  VectorStoreBackend 的 distance metric 配置
                                 （Qdrant: per-vector distance; InMemory: F.cosine_similarity）
 
 Layer 2 (Cross-Modal Fusion) → SearchStrategy 的职责
-                                （当前: SimpleKnnStrategy 通过 backend_hints 传 RRF 参数）
+                                （当前: QdrantWeightedRrfKnnStrategy 通过 backend_hints 传 RRF 参数）
                                 （改进: 可在 SearchStrategy 层做 score-level 融合）
 ```
 

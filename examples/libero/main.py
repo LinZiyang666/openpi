@@ -2,11 +2,12 @@ import collections
 import dataclasses
 import logging
 import math
+import os
 import pathlib
 import queue
+import signal
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import cv2
 import imageio
@@ -335,6 +336,10 @@ def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> N
         t.start()
         threads.append(t)
 
+    def _force_exit(signum, frame):
+        """Second Ctrl+C: force immediate exit."""
+        os._exit(1)
+
     try:
         while any(t.is_alive() for t in threads):
             for t in threads:
@@ -342,12 +347,17 @@ def _eval_concurrent(args: Args, task_suite, num_tasks_in_suite, max_steps) -> N
     except KeyboardInterrupt:
         logging.info("\nInterrupted — shutting down workers...")
         stop_event.set()
+        signal.signal(signal.SIGINT, _force_exit)
         # Drain task queue so workers exit their loop
         while not task_queue.empty():
             try:
                 task_queue.get_nowait()
             except queue.Empty:
                 break
+        # Give workers a moment to notice stop_event, then force exit
+        for t in threads:
+            t.join(timeout=2.0)
+        os._exit(0)
 
     for bar in worker_bars:
         bar.close()
@@ -370,6 +380,10 @@ def eval_libero(args: Args) -> None:
     logging.info(f"Task suite: {args.task_suite_name}")
 
     max_steps = _get_max_steps(args.task_suite_name)
+
+    if args.num_workers > 5:
+        logging.warning("num_workers capped at 5 (MuJoCo EGL context limit). Using 5.")
+        args.num_workers = 5
 
     if args.num_workers > 1:
         _eval_concurrent(args, task_suite, num_tasks_in_suite, max_steps)

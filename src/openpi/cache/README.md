@@ -31,7 +31,7 @@ Step 3（存储层）+ Step 4（Orchestrator 骨架 + Config 配置系统）代�
 | `components/key_builder.py` | `QueryKeyBuilder` Protocol + `PlaceholderKeyBuilder`（state-only）+ `FullOriginalKeyBuilder`（vision+prompt+state 原始 flatten） | 🟡 单元测试通过，未集成验证 |
 | `components/gate.py` | `GateFunction` Protocol + `AlwaysSearchGate` | ✅ 稳定（极简） |
 | `components/judge.py` | `HitType` enum + `SimilarityJudge` Protocol + `ThresholdJudge` | 🟡 单元测试通过，阈值未校准 |
-| `components/search_strategy.py` | `SearchStrategy` Protocol + `SearchContext` + `SimpleKnnStrategy` | 🟡 单元测试通过，未集成验证 |
+| `components/search_strategy.py` | `SearchStrategy` Protocol + `SearchContext` + `QdrantWeightedRrfKnnStrategy` | 🟡 单元测试通过，未集成验证 |
 | `orchestrator.py` | `CacheOrchestrator`：分检查点 dict 编排 + step counter + CP3 stubs | 🟡 单元测试通过，未集成验证 |
 | `interceptor.py` | `InferenceInterceptor`：CP1 check/write + CP3 consume/check + on_task_begin 转发 | 🟡 FakeModel 测试通过，未真实模型验证 |
 

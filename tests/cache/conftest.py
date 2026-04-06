@@ -18,9 +18,8 @@ from openpi.cache.cache_storage import CacheStorage
 from openpi.cache.components.gate import AlwaysSearchGate
 from openpi.cache.components.judge import ThresholdJudge
 from openpi.cache.components.key_builder import PlaceholderKeyBuilder
-from openpi.cache.components.search_strategy import SimpleKnnStrategy
 from openpi.cache.orchestrator import CacheOrchestrator
-from openpi.cache.storage_types import CachePayload
+from openpi.cache.storage_types import CachePayload, QuerySpec
 from openpi.cache.timing import SystemTimer
 from openpi.cache.types import CheckpointID
 
@@ -62,6 +61,27 @@ def _wrap_per_checkpoint(component):
     return {CheckpointID.CP1: component, CheckpointID.CP3: component}
 
 
+class TestStorageSearchStrategy:
+    """Test-only strategy that forwards directly to CacheStorage.search().
+
+    Used by in-memory orchestrator tests so production Qdrant-specific search
+    strategy types are not exercised against the wrong backend.
+    """
+
+    def __init__(self, storage: CacheStorage, *, top_k: int = 1) -> None:
+        self._storage = storage
+        self._top_k = top_k
+
+    def search(self, ctx):
+        return self._storage.search(
+            QuerySpec(
+                query_keys=ctx.query_keys,
+                top_k=self._top_k,
+                checkpoint_id=ctx.checkpoint_id,
+            )
+        )
+
+
 def make_orchestrator(
     vector_dims: Optional[dict[str, int]] = None,
     gate=None,
@@ -75,7 +95,7 @@ def make_orchestrator(
     g = gate if gate is not None else AlwaysSearchGate()
     j = judge if judge is not None else ThresholdJudge(cp1_threshold=0.98, cp3_threshold=0.95)
     timer = SystemTimer(enabled=False)
-    strategy = SimpleKnnStrategy(storage, top_k=1)
+    strategy = TestStorageSearchStrategy(storage, top_k=1)
     orch = CacheOrchestrator(
         storage,
         kb,
@@ -99,7 +119,7 @@ def make_counting_orchestrator(
     g = AlwaysSearchGate()
     j = judge if judge is not None else ThresholdJudge(cp1_threshold=0.98, cp3_threshold=0.95)
     timer = SystemTimer(enabled=False)
-    strategy = SimpleKnnStrategy(storage, top_k=1)
+    strategy = TestStorageSearchStrategy(storage, top_k=1)
     orch = CacheOrchestrator(
         storage,
         kb,
