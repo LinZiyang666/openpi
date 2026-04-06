@@ -158,8 +158,8 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
         quiet: When True, suppress timing prints and orchestrator info logs
                (used in concurrent mode).
         shared_cache: Pre-built cache components from build_cache_components().
-               When provided, storage/key_builder are reused (thread-safe);
-               timer/gates/judges/strategies are created fresh per call.
+               When provided, only storage is reused (thread-safe);
+               key_builder/timer/gates/judges/strategies are created fresh per call.
     """
     policy = base_policy
 
@@ -176,12 +176,11 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
             logging.warning("--cache_config overrides --cache. Ignoring --cache flag.")
 
         if shared_cache is not None:
-            # Concurrent: reuse storage/key_builder, fresh timer/gates/judges.
+            # Concurrent: reuse storage, fresh key_builder/timer/gates/judges.
             cache_config = load_cache_config(args.cache_config)
             components = build_per_connection_components(
                 cache_config,
                 shared_cache["storage"],
-                shared_cache["key_builder"],
                 quiet=True,
             )
         else:
@@ -239,13 +238,13 @@ def main(args: Args) -> None:
     if args.concurrent:
         # Concurrent mode: the base policy (GPU model) is shared.
         # Each connection gets its own wrapper stack via the factory.
-        # Storage/key_builder are shared (Qdrant client is thread-safe);
-        # timer/gates/judges/strategies are per-connection (have mutable state).
+        # Only storage is shared (Qdrant client is thread-safe);
+        # key_builder/timer/gates/judges/strategies are per-connection (have mutable state).
         shared_cache = None
         if args.cache_config is not None:
-            from openpi.cache.config import build_cache_components, load_cache_config
+            from openpi.cache.config import build_shared_storage, load_cache_config
             cache_config = load_cache_config(args.cache_config)
-            shared_cache = build_cache_components(cache_config)
+            shared_cache = {"storage": build_shared_storage(cache_config)}
 
         def _connection_policy_factory(shared_base_policy):
             return _wrap_policy(

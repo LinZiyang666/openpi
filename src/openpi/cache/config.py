@@ -394,33 +394,40 @@ def validate_cache_config(config: CacheConfig) -> None:
         raise ConfigValidationError("\n\n".join(errors))
 
 
+def build_shared_storage(config: CacheConfig):
+    """Create only the shared CacheStorage instance (for concurrent mode)."""
+    from openpi.cache.cache_storage import CacheStorage
+
+    backend = _build_backend(config.backend)
+    return CacheStorage(backend)
+
+
 def build_cache_components(config: CacheConfig) -> dict[str, Any]:
     """Instantiate all cache components from config.
 
-    Returns dict with keys: timer, storage, key_builder, gates, judges, search_strategies
+    Returns dict with keys: timer, storage, key_builder, gates, judges, search_strategies.
+    In single-connection mode this is all you need.
+    In concurrent mode, only 'storage' is shared; call build_per_connection_components()
+    for each connection to get fresh key_builder/gates/judges/strategies.
     """
     from openpi.cache.cache_storage import CacheStorage
 
     backend = _build_backend(config.backend)
     storage = CacheStorage(backend)
-    enabled_fields = [name for name, kf in _keys_iter(config.keys) if kf.enabled]
-    key_builder = _build_key_builder(config.key_builder, enabled_fields, config.backend.vector_dims)
 
-    return build_per_connection_components(config, storage, key_builder)
+    return build_per_connection_components(config, storage)
 
 
 def build_per_connection_components(
     config: CacheConfig,
     shared_storage,
-    shared_key_builder,
     *,
     quiet: bool = False,
 ) -> dict[str, Any]:
-    """Build cache components, reusing shared storage/key_builder.
+    """Build per-connection cache components, reusing only shared storage.
 
-    In single-connection mode, called via build_cache_components() with
-    freshly created storage/key_builder.  In concurrent mode, called
-    directly with shared instances.
+    key_builder has mutable per-cycle state (_cache) and MUST be per-connection.
+    storage (and its backend) is thread-safe and shared.
     """
     from openpi.cache.timing import SystemTimer
 
@@ -430,6 +437,9 @@ def build_per_connection_components(
         output_csv_dir=config.timer.output_csv_dir,
         quiet=quiet,
     )
+
+    enabled_fields = [name for name, kf in _keys_iter(config.keys) if kf.enabled]
+    key_builder = _build_key_builder(config.key_builder, enabled_fields, config.backend.vector_dims)
 
     fusion_weights = {name: kf.weight for name, kf in _keys_iter(config.keys) if kf.enabled}
     gates: dict[CheckpointID, Any] = {}
@@ -449,7 +459,7 @@ def build_per_connection_components(
     return {
         "timer": timer,
         "storage": shared_storage,
-        "key_builder": shared_key_builder,
+        "key_builder": key_builder,
         "gates": gates,
         "judges": judges,
         "search_strategies": search_strategies,
