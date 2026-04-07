@@ -55,7 +55,7 @@ backend:
   vector_dims:
     vision_0: 2048        # cp1_mean_pool output dim
     vision_1: 2048
-    vision_2: 2048
+    # vision_2: 2048      # LIBERO 数据没有 right_wrist_0_rgb，artifact 不含此字段
     prompt_emb: 2048
     robot_state: 32
   in_memory:
