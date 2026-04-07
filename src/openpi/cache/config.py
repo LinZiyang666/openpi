@@ -331,7 +331,8 @@ def load_cache_config(path: str | Path) -> CacheConfig:
       - IF CHANGED: YAML file format must match; serve_policy.py may need to
                     handle new exceptions
     """
-    path = Path(path)
+    path = Path(path).resolve()
+    logger.info("Loading cache config from %s", path)
     text = path.read_text(encoding="utf-8")
     text = _substitute_env_vars(text)
     raw = yaml.safe_load(text)
@@ -339,6 +340,13 @@ def load_cache_config(path: str | Path) -> CacheConfig:
         raw = {}
     config = _dict_to_dataclass(CacheConfig, raw)
     validate_cache_config(config)
+    logger.info(
+        "Cache config loaded: backend=%s, key_builder=%s, checkpoints=%s, write_policy=%s",
+        config.backend.type,
+        config.key_builder.type,
+        [cp for cp in config.checkpoints if not cp.startswith("_")],
+        config.write_policy.type,
+    )
     return config
 
 
