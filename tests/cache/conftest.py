@@ -7,6 +7,7 @@ Orchestrator with the new per-checkpoint dict signatures.
 
 from __future__ import annotations
 
+import hashlib
 from types import SimpleNamespace
 from typing import Optional
 
@@ -19,7 +20,7 @@ from openpi.cache.components.gate import AlwaysSearchGate
 from openpi.cache.components.judge import ThresholdJudge
 from openpi.cache.components.key_builder import PlaceholderKeyBuilder
 from openpi.cache.orchestrator import CacheOrchestrator
-from openpi.cache.storage_types import CachePayload, QuerySpec
+from openpi.cache.storage_types import CacheEntry, CachePayload, QuerySpec
 from openpi.cache.timing import SystemTimer
 from openpi.cache.types import CheckpointID
 
@@ -39,6 +40,54 @@ class CountingStorage(CacheStorage):
     def fetch_payload(self, id: str) -> CachePayload:
         self.fetch_payload_call_count += 1
         return super().fetch_payload(id)
+
+
+# ---------------------------------------------------------------------------
+# Direct insertion helpers
+# ---------------------------------------------------------------------------
+
+
+def stable_hash(checkpoint_id: CheckpointID, query_keys: dict[str, torch.Tensor]) -> str:
+    """Deterministic id from checkpoint + query key bytes (test helper)."""
+    h = hashlib.sha256()
+    h.update(checkpoint_id.name.encode())
+    for name in sorted(query_keys.keys()):
+        h.update(name.encode())
+        h.update(query_keys[name].numpy().tobytes())
+    return h.hexdigest()[:32]
+
+
+def insert_entry(
+    storage: CacheStorage,
+    checkpoint_id: CheckpointID,
+    state: torch.Tensor,
+    payload: CachePayload,
+    *,
+    entry_id: Optional[str] = None,
+    step_idx: Optional[int] = None,
+    prev_ids: Optional[list[str]] = None,
+    next_ids: Optional[list[str]] = None,
+    trajectory_id: Optional[str] = None,
+) -> CacheEntry:
+    """Insert a CacheEntry directly into storage. Returns the entry.
+
+    PlaceholderKeyBuilder produces {"robot_state": state.squeeze(0)},
+    so this helper mimics that key extraction for test setup.
+    """
+    query_keys = {"robot_state": state.squeeze(0).cpu().float().contiguous()}
+    eid = entry_id or stable_hash(checkpoint_id, query_keys)
+    entry = CacheEntry(
+        id=eid,
+        checkpoint_id=checkpoint_id,
+        query_keys=query_keys,
+        payload=payload,
+        step_idx=step_idx,
+        prev_ids=prev_ids or [],
+        next_ids=next_ids or [],
+        trajectory_id=trajectory_id,
+    )
+    storage.insert(entry)
+    return entry
 
 
 # ---------------------------------------------------------------------------
@@ -86,6 +135,7 @@ def make_orchestrator(
     vector_dims: Optional[dict[str, int]] = None,
     gate=None,
     judge=None,
+    write_policy=None,
 ) -> tuple[CacheOrchestrator, InMemoryBackend, CacheStorage]:
     """Create orchestrator with InMemoryBackend + default components."""
     dims = vector_dims or {"robot_state": 32}
@@ -103,6 +153,7 @@ def make_orchestrator(
         judges=_wrap_per_checkpoint(j),
         search_strategies=_wrap_per_checkpoint(strategy),
         timer=timer,
+        write_policy=write_policy,
     )
     return orch, backend, storage
 

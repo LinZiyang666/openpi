@@ -177,6 +177,14 @@ class QdrantVectorStore(VectorStoreBackend):
         1 total chunk → direct query (no RRF overhead).
         >1 total chunks → RRF fusion across all prefetches.
         """
+        if (spec.trajectory_history is not None
+                and spec.trajectory_weights is not None
+                and len(spec.trajectory_weights) > 1):
+            raise NotImplementedError(
+                "Trajectory search (trajectory_depth > 1) is not supported in QdrantBackend. "
+                "Use InMemoryBackend for trajectory search, or set trajectory_depth=1."
+            )
+
         active_fields = sorted(
             f for f in spec.query_keys if f in self._config.vector_dims
         )
@@ -284,6 +292,13 @@ class QdrantVectorStore(VectorStoreBackend):
                 field_name, entry.query_keys[field_name]
             ):
                 vectors[chunk_name] = chunk_values
+        # NOTE: step_idx is NOT written to Qdrant payload here.
+        # step_filter=exact/window only works with collections pre-populated
+        # by external ingest scripts (e.g. qdrant_ingest_openpi.py) that
+        # write step_idx. Entries inserted at runtime via Orchestrator's
+        # episode write path will not have step_idx in Qdrant and will be
+        # excluded by step_range filters. This is acceptable because
+        # trajectory_depth > 1 is not supported with Qdrant backend.
         return PointStruct(
             id=entry.id,
             vector=vectors,
@@ -400,7 +415,6 @@ class QdrantVectorStore(VectorStoreBackend):
             "action_chunk": cls._tensor_to_b64(p.action_chunk),
             "intermediates": intermediates_b64,
             "denoising_num_steps": p.denoising_num_steps,
-            "next_action_chunk": cls._tensor_to_b64(p.next_action_chunk),
         }
 
     @classmethod
@@ -416,7 +430,6 @@ class QdrantVectorStore(VectorStoreBackend):
             action_chunk=cls._b64_to_tensor(raw.get("action_chunk")),
             intermediates=intermediates,
             denoising_num_steps=raw.get("denoising_num_steps"),
-            next_action_chunk=cls._b64_to_tensor(raw.get("next_action_chunk")),
             task_key=raw.get("task_key", raw.get("task", "")),
         )
 

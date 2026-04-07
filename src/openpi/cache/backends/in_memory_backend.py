@@ -99,6 +99,13 @@ class InMemoryBackend(VectorStoreBackend):
                 f"artifact={data['vector_dims']}, backend={self._dims}"
             )
         for entry in data["entries"]:
+            # Backfill trajectory fields for old artifacts that lack them.
+            if not hasattr(entry, "prev_ids"):
+                entry.prev_ids = []
+            if not hasattr(entry, "next_ids"):
+                entry.next_ids = []
+            if not hasattr(entry, "trajectory_id"):
+                entry.trajectory_id = None
             self._entries[entry.id] = entry
         logger.info("Loaded %d entries from %s", len(data["entries"]), path)
 
@@ -115,6 +122,13 @@ class InMemoryBackend(VectorStoreBackend):
         if not candidates:
             return []
 
+        # ── Trajectory search ──
+        if (spec.trajectory_history is not None
+                and spec.trajectory_weights is not None
+                and len(spec.trajectory_weights) > 1):
+            return self._search_with_trajectory(candidates, spec)
+
+        # ── Existing single-step search (unchanged) ──
         method = spec.fusion_method
         if method == "weighted_rrf":
             active = self._iter_active_fields(spec)
@@ -349,6 +363,206 @@ class InMemoryBackend(VectorStoreBackend):
                                  checkpoint_id=entry.checkpoint_id)
             )
         return results
+
+    # -------------------------------------------------------------------
+    # Trajectory search: two-pass recursive + batched per-level scoring
+    # -------------------------------------------------------------------
+
+    def _search_with_trajectory(
+        self,
+        candidates: list[CacheEntry],
+        spec: QuerySpec,
+    ) -> list[SearchResultLite]:
+        """Trajectory search: two-pass recursive + batched per-level scoring.
+
+        Reuses existing per-step fusion (RRF / score_sum) and adds cross-step
+        weighted fusion on top.
+
+        Phase A — collect: walk prev_ids to gather entry sets per depth level.
+        Phase B — score: batch-score each level using configured fusion_method.
+        Phase C — aggregate: walk same paths again, look up pre-computed scores,
+                  weighted sum across levels, take max over branching paths.
+
+        RRF note: when fusion_method="weighted_rrf", each level's RRF ranking
+        is scoped to that level's reachable entry set (per-level reachable-set
+        RRF score), which differs from single-step RRF semantics.
+        """
+        history = spec.trajectory_history   # newest-first
+        weights = spec.trajectory_weights   # newest-first
+        max_depth = len(weights) - 1
+
+        # Phase A: collect entry ids per depth level
+        level_entries: list[set[str]] = [set() for _ in range(len(weights))]
+        for entry in candidates:
+            self._collect_trajectory_entries(
+                entry_id=entry.id,
+                depth=max_depth,
+                max_depth=max_depth,
+                level_entries=level_entries,
+                query_history_len=len(history),
+                expected_checkpoint_id=spec.checkpoint_id,
+            )
+
+        # Phase B: batch-score each level
+        level_scores: list[dict[str, float]] = []
+        for idx in range(len(weights)):
+            entry_ids = level_entries[idx]
+            if not entry_ids:
+                level_scores.append({})
+                continue
+            entries_at_level = [self._entries[eid] for eid in entry_ids if eid in self._entries]
+            if not entries_at_level:
+                level_scores.append({})
+                continue
+            scores = self._batch_step_scores(entries_at_level, history[idx], spec)
+            level_scores.append(scores)
+
+        # Phase C: aggregate trajectory scores
+        scored: list[tuple[CacheEntry, float]] = []
+        for entry in candidates:
+            path_scores = self._score_trajectory(
+                entry_id=entry.id,
+                depth=max_depth,
+                max_depth=max_depth,
+                weights=weights,
+                accumulated_sim=0.0,
+                level_scores=level_scores,
+                query_history_len=len(history),
+                expected_checkpoint_id=spec.checkpoint_id,
+            )
+            traj_score = max(path_scores) if path_scores else 0.0
+            scored.append((entry, traj_score))
+
+        scored.sort(key=lambda x: x[1], reverse=True)
+        return [
+            SearchResultLite(id=e.id, score=s, checkpoint_id=e.checkpoint_id)
+            for e, s in scored[:spec.top_k]
+        ]
+
+    def _collect_trajectory_entries(
+        self,
+        entry_id: str,
+        depth: int,
+        max_depth: int,
+        level_entries: list[set[str]],
+        query_history_len: int,
+        expected_checkpoint_id=None,
+    ) -> None:
+        """First pass: collect entry ids that need scoring at each depth level.
+
+        Skips entries whose checkpoint_id doesn't match expected_checkpoint_id
+        (defensive check against cross-checkpoint pointer pollution).
+        """
+        entry = self._entries.get(entry_id)
+        if entry is None:
+            return
+        if expected_checkpoint_id is not None and entry.checkpoint_id != expected_checkpoint_id:
+            return
+
+        idx = max_depth - depth
+        if idx >= query_history_len:
+            return
+
+        level_entries[idx].add(entry_id)
+
+        if depth == 0 or not entry.prev_ids:
+            return
+        for prev_id in entry.prev_ids:
+            self._collect_trajectory_entries(
+                prev_id, depth - 1, max_depth,
+                level_entries, query_history_len,
+                expected_checkpoint_id,
+            )
+
+    def _batch_step_scores(
+        self,
+        entries: list[CacheEntry],
+        query_keys: dict[str, 'torch.Tensor'],
+        spec: QuerySpec,
+    ) -> dict[str, float]:
+        """Batch-score one level's entries using configured fusion method.
+
+        Builds a temporary QuerySpec with the level's query_keys, recomputes
+        active_fields for that level (historical queries may lack some fields),
+        then delegates to existing fusion methods.
+
+        Returns {entry_id: step_score}.
+        """
+        if not entries:
+            return {}
+
+        temp_spec = QuerySpec(
+            query_keys=query_keys,
+            top_k=len(entries),
+            checkpoint_id=spec.checkpoint_id,
+            fusion_weights=spec.fusion_weights,
+            fusion_method=spec.fusion_method,
+            field_similarity=spec.field_similarity,
+            score_normalization=spec.score_normalization,
+            backend_hints=spec.backend_hints,
+        )
+
+        level_active_fields = self._iter_active_fields(temp_spec)
+        if not level_active_fields:
+            return {}
+
+        if spec.fusion_method == "weighted_rrf":
+            results = self._search_weighted_rrf(entries, temp_spec, level_active_fields)
+        elif spec.fusion_method == "weighted_score_sum":
+            results = self._search_weighted_score_sum(entries, temp_spec, level_active_fields)
+        else:
+            results = self._search_single_field_cosine(entries, temp_spec)
+
+        return {r.id: r.score for r in results}
+
+    def _score_trajectory(
+        self,
+        entry_id: str,
+        depth: int,
+        max_depth: int,
+        weights: list[float],
+        accumulated_sim: float,
+        level_scores: list[dict[str, float]],
+        query_history_len: int,
+        expected_checkpoint_id=None,
+    ) -> list[float]:
+        """Second pass: look up pre-computed scores, weighted sum, handle branching.
+
+        Index mapping: idx = max_depth - depth.
+        Early termination when idx >= query_history_len (consistent with _collect).
+        Checkpoint guard: skips entries whose checkpoint_id doesn't match, preventing
+        dirty paths (e.g. CP1->CP3->CP1) from borrowing scores computed via other
+        valid paths in level_scores.
+        Returns list of accumulated scores for all complete paths.
+        """
+        entry = self._entries.get(entry_id)
+        if entry is None:
+            return [accumulated_sim]
+
+        if expected_checkpoint_id is not None and entry.checkpoint_id != expected_checkpoint_id:
+            return [accumulated_sim]
+
+        idx = max_depth - depth
+        if idx >= query_history_len:
+            return [accumulated_sim]
+        if idx >= len(level_scores):
+            return [accumulated_sim]
+
+        step_score = level_scores[idx].get(entry_id, 0.0)
+        accumulated_sim += weights[idx] * step_score
+
+        if depth == 0 or not entry.prev_ids:
+            return [accumulated_sim]
+
+        all_paths: list[float] = []
+        for prev_id in entry.prev_ids:
+            all_paths.extend(self._score_trajectory(
+                prev_id, depth - 1, max_depth,
+                weights, accumulated_sim, level_scores,
+                query_history_len,
+                expected_checkpoint_id,
+            ))
+        return all_paths
 
     # -------------------------------------------------------------------
     # Backward-compatible single-field cosine (fusion_method=None)

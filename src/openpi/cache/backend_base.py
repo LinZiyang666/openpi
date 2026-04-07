@@ -72,6 +72,11 @@ class VectorStoreBackend(ABC):
     def search(self, spec: QuerySpec) -> list[SearchResultLite]:
         """Return at most spec.top_k results ordered by descending score.
         Payload is NOT fetched here; use fetch_payload() for the winner(s).
+
+        Trajectory search: if spec.trajectory_history is not None and
+        len(spec.trajectory_weights) > 1, the backend should compute
+        trajectory-aware similarity in a single pass. Backends that do not
+        support this MUST raise NotImplementedError.
         """
 
     @abstractmethod

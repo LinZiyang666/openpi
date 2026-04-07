@@ -113,6 +113,9 @@ class SearchStrategyConfig:
     candidate_multiplier: int = 5
     field_similarity: Optional[dict[str, FieldSimilarityConfig]] = None
     score_normalization: Optional[ScoreNormalizationConfig] = None
+    # ── Trajectory search ──
+    trajectory_depth: int = 1        # 1 = single-step (no trajectory)
+    trajectory_weights: Optional[list[float]] = None  # newest-first, length = trajectory_depth
 
 
 @dataclass
@@ -159,6 +162,11 @@ class KeyBuilderConfig:
 
 
 @dataclass
+class WritePolicyConfig:
+    type: str = "on_any_miss"   # "on_any_miss" | "always" | "never"
+
+
+@dataclass
 class CacheConfig:
     """Top-level cache configuration. This is the root dataclass for cache.yaml."""
 
@@ -171,6 +179,7 @@ class CacheConfig:
         "cp3": CheckpointConfig(judge=JudgeConfig(threshold=0.95)),
     })
     backend: BackendConfig = field(default_factory=BackendConfig)
+    write_policy: WritePolicyConfig = field(default_factory=WritePolicyConfig)
 
 
 # ---------------------------------------------------------------------------
@@ -226,6 +235,7 @@ _CONFIG_TYPES: dict[str, type] = {
     "BackendConfig": BackendConfig,
     "TimerConfig": TimerConfig,
     "KeyBuilderConfig": KeyBuilderConfig,
+    "WritePolicyConfig": WritePolicyConfig,
     "CacheConfig": CacheConfig,
 }
 
@@ -492,6 +502,54 @@ def validate_cache_config(config: CacheConfig) -> None:
                 "in_memory backend with cp1_* key_builder requires backend.in_memory.preload_path"
             )
 
+    # ── Trajectory validation ──
+    for cp_name, cp_config in config.checkpoints.items():
+        if cp_name.startswith("_"):
+            continue
+        prefix = f"checkpoints.{cp_name}"
+        ss = cp_config.search_strategy
+
+        if ss.trajectory_depth < 1:
+            errors.append(
+                f"{prefix}.search_strategy: trajectory_depth must be >= 1, got {ss.trajectory_depth}"
+            )
+
+        if ss.trajectory_depth > 1:
+            if ss.trajectory_weights is None:
+                errors.append(
+                    f"{prefix}.search_strategy: trajectory_weights required "
+                    f"when trajectory_depth={ss.trajectory_depth}"
+                )
+            else:
+                if len(ss.trajectory_weights) != ss.trajectory_depth:
+                    errors.append(
+                        f"{prefix}.search_strategy: trajectory_weights length "
+                        f"({len(ss.trajectory_weights)}) != trajectory_depth ({ss.trajectory_depth})"
+                    )
+                if any(w < 0 for w in ss.trajectory_weights):
+                    errors.append(
+                        f"{prefix}.search_strategy: trajectory_weights must be non-negative"
+                    )
+                if sum(ss.trajectory_weights) <= 0:
+                    errors.append(
+                        f"{prefix}.search_strategy: trajectory_weights sum must be > 0"
+                    )
+
+            # Qdrant + trajectory_depth > 1 → fail-fast at config time
+            if config.backend.type == "qdrant":
+                errors.append(
+                    f"{prefix}: trajectory_depth > 1 is not supported with Qdrant backend. "
+                    f"Use InMemoryBackend or set trajectory_depth=1."
+                )
+
+    # ── Write policy validation ──
+    _valid_write_policy_types = frozenset({"on_any_miss", "always", "never"})
+    if config.write_policy.type not in _valid_write_policy_types:
+        errors.append(
+            f"write_policy.type '{config.write_policy.type}' unknown, "
+            f"valid: {sorted(_valid_write_policy_types)}"
+        )
+
     if errors:
         raise ConfigValidationError("\n\n".join(errors))
 
@@ -558,6 +616,8 @@ def build_per_connection_components(
             cp_config.search_strategy, shared_storage, fusion_weights
         )
 
+    write_policy = _build_write_policy(config.write_policy)
+
     return {
         "timer": timer,
         "storage": shared_storage,
@@ -565,6 +625,7 @@ def build_per_connection_components(
         "gates": gates,
         "judges": judges,
         "search_strategies": search_strategies,
+        "write_policy": write_policy,
     }
 
 
@@ -683,8 +744,31 @@ def _score_norm_to_dict(
     return d
 
 
+def _build_write_policy(cfg: WritePolicyConfig):
+    """Instantiate a WritePolicy from config."""
+    from openpi.cache.components.write_policy import (
+        AlwaysWritePolicy,
+        NeverWritePolicy,
+        OnAnyMissWritePolicy,
+    )
+
+    if cfg.type == "on_any_miss":
+        return OnAnyMissWritePolicy()
+    elif cfg.type == "always":
+        return AlwaysWritePolicy()
+    elif cfg.type == "never":
+        return NeverWritePolicy()
+    else:
+        raise ConfigValidationError(f"Unknown write_policy.type '{cfg.type}'")
+
+
 def _build_search_strategy(cfg: SearchStrategyConfig, storage, fusion_weights: dict[str, float]):
     """Instantiate a SearchStrategy from config."""
+    trajectory_kwargs = {
+        "trajectory_depth": cfg.trajectory_depth,
+        "trajectory_weights": cfg.trajectory_weights,
+    }
+
     if cfg.type == "qdrant_weighted_rrf_knn":
         from openpi.cache.components.search_strategy import QdrantWeightedRrfKnnStrategy
 
@@ -696,6 +780,7 @@ def _build_search_strategy(cfg: SearchStrategyConfig, storage, fusion_weights: d
             rrf_k=cfg.rrf_k,
             fusion_weights=fusion_weights if fusion_weights else None,
             candidate_multiplier=cfg.candidate_multiplier,
+            **trajectory_kwargs,
         )
     elif cfg.type == "weighted_rrf_knn":
         from openpi.cache.components.search_strategy import WeightedRrfKnnStrategy
@@ -708,6 +793,7 @@ def _build_search_strategy(cfg: SearchStrategyConfig, storage, fusion_weights: d
             fusion_weights=fusion_weights if fusion_weights else None,
             rrf_k=cfg.rrf_k,
             field_similarity=_field_similarity_to_dict(cfg.field_similarity),
+            **trajectory_kwargs,
         )
     elif cfg.type == "weighted_score_sum_knn":
         from openpi.cache.components.search_strategy import WeightedScoreSumKnnStrategy
@@ -720,6 +806,7 @@ def _build_search_strategy(cfg: SearchStrategyConfig, storage, fusion_weights: d
             fusion_weights=fusion_weights if fusion_weights else None,
             field_similarity=_field_similarity_to_dict(cfg.field_similarity),
             score_normalization=_score_norm_to_dict(cfg.score_normalization),
+            **trajectory_kwargs,
         )
     else:
         raise ConfigValidationError(

@@ -58,3 +58,17 @@ class AlwaysSearchGate:
         cached_data: dict[str, torch.Tensor],
     ) -> bool:
         return True
+
+    def on_episode_start(self) -> None:
+        """Clear internal history buffer. Called by Orchestrator at episode start.
+
+        Current: no-op. AlwaysSearchGate has no history state.
+        Future: trajectory-aware gate can clear cached_data history here.
+        """
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        """Receive Orchestrator-broadcast action. Pure local buffer op.
+
+        Current: no-op. AlwaysSearchGate does not use action data.
+        Future: trajectory-aware gate can buffer action history for drift detection.
+        """

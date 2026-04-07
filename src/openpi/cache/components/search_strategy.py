@@ -77,7 +77,64 @@ class SearchStrategy(Protocol):
         ...
 
 
-class QdrantWeightedRrfKnnStrategy:
+class TrajectoryMixin:
+    """Shared trajectory buffer logic, mixed into SearchStrategy implementations.
+
+    Provides:
+      - History buffer management (query_keys)
+      - on_episode_start() lifecycle
+      - record_action() broadcast receiver
+      - record_query_keys() for gate-skip path
+      - _build_trajectory_fields() for QuerySpec construction
+    """
+
+    def _init_trajectory(self, trajectory_depth: int, trajectory_weights: Optional[list[float]]) -> None:
+        """Call at the end of strategy __init__."""
+        self._trajectory_depth = trajectory_depth
+        self._trajectory_weights = trajectory_weights
+        self._query_history: list[dict[str, torch.Tensor]] = []
+        self._action_history: list[Optional[torch.Tensor]] = []
+
+    def on_episode_start(self) -> None:
+        """Clear history buffers. Called by Orchestrator at episode start."""
+        self._query_history.clear()
+        self._action_history.clear()
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        """Receive Orchestrator-broadcast action. Pure local buffer op."""
+        self._action_history.append(action_chunk)
+
+    def record_query_keys(self, query_keys: dict[str, torch.Tensor]) -> None:
+        """Buffer current step's query_keys into trajectory history.
+
+        Called by search() internally (normal path) and by Orchestrator
+        explicitly on gate skip (to keep trajectory history gap-free).
+        """
+        self._query_history.append(query_keys)
+
+    def _build_trajectory_fields(self) -> dict[str, Any]:
+        """Return trajectory fields for QuerySpec construction.
+
+        Returns empty dict when depth=1 or insufficient history,
+        causing QuerySpec fields to stay None (single-step fallback).
+        """
+        if self._trajectory_depth <= 1 or not self._trajectory_weights:
+            return {}
+
+        actual_depth = min(self._trajectory_depth, len(self._query_history))
+        if actual_depth <= 1:
+            return {}
+
+        history_newest_first = list(reversed(self._query_history[-actual_depth:]))
+        weights_newest_first = self._trajectory_weights[:actual_depth]
+
+        return {
+            "trajectory_history": history_newest_first,
+            "trajectory_weights": weights_newest_first,
+        }
+
+
+class QdrantWeightedRrfKnnStrategy(TrajectoryMixin):
     """Qdrant-only KNN search strategy for weighted RRF retrieval.
 
     Data flow: SearchContext -> QueryFilter + QuerySpec(fusion, backend_hints)
@@ -111,6 +168,8 @@ class QdrantWeightedRrfKnnStrategy:
         rrf_k: int = 60,
         fusion_weights: Optional[dict[str, float]] = None,
         candidate_multiplier: int = 5,
+        trajectory_depth: int = 1,
+        trajectory_weights: Optional[list[float]] = None,
     ) -> None:
         self._storage = storage
         self._top_k = top_k
@@ -119,16 +178,12 @@ class QdrantWeightedRrfKnnStrategy:
         self._rrf_k = rrf_k
         self._fusion_weights = fusion_weights
         self._candidate_multiplier = candidate_multiplier
+        self._init_trajectory(trajectory_depth, trajectory_weights)
 
     def search(self, ctx: SearchContext) -> list[SearchResultLite]:
-        """Execute KNN search with configured fusion parameters.
+        """Execute KNN search with configured fusion parameters."""
+        self.record_query_keys(ctx.query_keys)
 
-        Flow:
-          1. Build QueryFilter from step_filter + ctx.current_step (if applicable)
-          2. Construct QuerySpec with fusion_weights + backend_hints
-          3. Call self._storage.search(spec)
-          4. Return results (Judge decides hit/miss downstream)
-        """
         filters = self._build_filters(ctx)
         spec = QuerySpec(
             query_keys=ctx.query_keys,
@@ -140,6 +195,7 @@ class QdrantWeightedRrfKnnStrategy:
                 "rrf_k": self._rrf_k,
                 "candidate_multiplier": self._candidate_multiplier,
             },
+            **self._build_trajectory_fields(),
         )
         return self._storage.search(spec)
 
@@ -187,7 +243,7 @@ def _build_step_filters(
 # ---------------------------------------------------------------------------
 
 
-class WeightedRrfKnnStrategy:
+class WeightedRrfKnnStrategy(TrajectoryMixin):
     """In-memory weighted RRF search strategy.
 
     Sets fusion_method="weighted_rrf" in QuerySpec.
@@ -204,6 +260,8 @@ class WeightedRrfKnnStrategy:
         fusion_weights: Optional[dict[str, float]] = None,
         rrf_k: int = 60,
         field_similarity: Optional[dict[str, dict[str, Any]]] = None,
+        trajectory_depth: int = 1,
+        trajectory_weights: Optional[list[float]] = None,
     ) -> None:
         self._storage = storage
         self._top_k = top_k
@@ -212,8 +270,11 @@ class WeightedRrfKnnStrategy:
         self._fusion_weights = fusion_weights
         self._rrf_k = rrf_k
         self._field_similarity = field_similarity
+        self._init_trajectory(trajectory_depth, trajectory_weights)
 
     def search(self, ctx: SearchContext) -> list[SearchResultLite]:
+        self.record_query_keys(ctx.query_keys)
+
         filters = _build_step_filters(self._step_filter, self._step_window, ctx)
         spec = QuerySpec(
             query_keys=ctx.query_keys,
@@ -224,11 +285,12 @@ class WeightedRrfKnnStrategy:
             fusion_method="weighted_rrf",
             field_similarity=self._field_similarity,
             backend_hints={"rrf_k": self._rrf_k},
+            **self._build_trajectory_fields(),
         )
         return self._storage.search(spec)
 
 
-class WeightedScoreSumKnnStrategy:
+class WeightedScoreSumKnnStrategy(TrajectoryMixin):
     """In-memory weighted score sum search strategy.
 
     Sets fusion_method="weighted_score_sum" in QuerySpec.
@@ -245,6 +307,8 @@ class WeightedScoreSumKnnStrategy:
         fusion_weights: Optional[dict[str, float]] = None,
         field_similarity: Optional[dict[str, dict[str, Any]]] = None,
         score_normalization: Optional[dict[str, Any]] = None,
+        trajectory_depth: int = 1,
+        trajectory_weights: Optional[list[float]] = None,
     ) -> None:
         self._storage = storage
         self._top_k = top_k
@@ -253,8 +317,11 @@ class WeightedScoreSumKnnStrategy:
         self._fusion_weights = fusion_weights
         self._field_similarity = field_similarity
         self._score_normalization = score_normalization
+        self._init_trajectory(trajectory_depth, trajectory_weights)
 
     def search(self, ctx: SearchContext) -> list[SearchResultLite]:
+        self.record_query_keys(ctx.query_keys)
+
         filters = _build_step_filters(self._step_filter, self._step_window, ctx)
         spec = QuerySpec(
             query_keys=ctx.query_keys,
@@ -265,5 +332,6 @@ class WeightedScoreSumKnnStrategy:
             fusion_method="weighted_score_sum",
             field_similarity=self._field_similarity,
             score_normalization=self._score_normalization,
+            **self._build_trajectory_fields(),
         )
         return self._storage.search(spec)

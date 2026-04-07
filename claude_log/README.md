@@ -36,6 +36,13 @@ Implementation plans and development records. For project architecture docs, see
 | [key_dim_reduction_recommendations.log.md](key_dim_reduction_recommendations.log.md) | `Design Only` | Cache key 降维方法推荐：两层流水线（Token 池化 + 维度投影），含实施路径 |
 | [cache_experiment_plan.log.md](cache_experiment_plan.log.md) | `Plan` | Cache 实验方案组合：仅 CP1，Gate/Judge 固定 always-on，4 种降维 × 2 种跨模态融合（Weighted RRF / Weighted Score Sum） |
 
+## Trajectory Search
+
+| File | Status | Description |
+|------|--------|-------------|
+| [trajectory_search_requirements.log.md](trajectory_search_requirements.log.md) | `Plan` | 轨迹搜索需求：双向链表数据结构、query 历史暂存、三层 similarity 融合、YAML 配置扩展 |
+| [trajectory_search_impl_plan.log.md](trajectory_search_impl_plan.log.md) | `Plan` | 轨迹搜索实现计划：7 Phase 分步实现，文件变更清单、代码细节、验收标准 |
+
 ## Retrieval System
 
 | File | Status | Description |

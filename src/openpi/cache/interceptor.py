@@ -60,7 +60,6 @@ Limitations
 Coupling map:
   DEPENDS ON:  Policy (wrapped), SystemTimer (Step 2),
                CacheOrchestrator + CheckResult + HitType (Step 4, optional),
-               CachePayload (Step 3, for CP1 write),
                CheckpointID (types.py)
   CONSUMED BY: WebsocketPolicyServer (as BasePolicy drop-in)
   IF CHANGED:  Server sees no change (same BasePolicy interface)
@@ -68,7 +67,6 @@ Coupling map:
 
 from __future__ import annotations
 
-import concurrent.futures
 import logging
 from typing import Any, Callable, Optional
 
@@ -80,7 +78,6 @@ from typing_extensions import override
 
 from openpi.cache.components.judge import HitType
 from openpi.cache.orchestrator import CacheOrchestrator
-from openpi.cache.storage_types import CachePayload
 from openpi.cache.timing import SystemTimer, TaskLifecycle
 from openpi.cache.types import CheckpointID
 from openpi.models import model as _model
@@ -165,21 +162,13 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # from the robot's perspective.
         self._timer.register_probe("total_inference", backend="cpu")
 
-        # ---- CacheOrchestrator (Step 4) ----
+        # ---- CacheOrchestrator ----
         # When orchestrator=None, all cache code paths are skipped (zero overhead).
-        # Data flow: Interceptor -> Orchestrator -> CacheStorage facade (Step 3)
+        # Data flow: Interceptor -> Orchestrator -> CacheStorage facade
         self._orchestrator = orchestrator
-        self._write_executor: concurrent.futures.ThreadPoolExecutor | None = None
         if orchestrator is not None:
             self._timer.register_probe("cp1_sum", backend="cpu")
-            self._timer.register_probe("cp1_write", backend="cpu")
             self._timer.register_probe("cp3_sum", backend="cpu")
-            # Single-thread pool for non-blocking cache writes.
-            # One thread ensures writes are serialised (no concurrent upserts)
-            # while not blocking inference.
-            self._write_executor = concurrent.futures.ThreadPoolExecutor(
-                max_workers=1, thread_name_prefix="cache_write"
-            )
 
     # -----------------------------------------------------------------------
     # Compile-once helpers
@@ -240,32 +229,27 @@ class InferenceInterceptor(_base_policy.BasePolicy):
     def on_episode_start(self, experiment: str, task: str, episode_id: int) -> None:
         """Reset per-episode state. Called when simulator sends episode_start."""
         if self._orchestrator is not None:
-            self._orchestrator.on_episode_start()
+            self._orchestrator.on_episode_start(
+                task_key=task,
+                episode_id=str(episode_id),
+            )
 
     def on_episode_end(self, success: bool) -> None:
         """Finalise per-episode state. Called when simulator sends episode_end.
 
-        Prints timing summary for the completed episode, then resets the
-        timer window so the next episode starts with fresh statistics.
+        Triggers episode-end write (WritePolicy decides), then resets timer.
         """
+        if self._orchestrator is not None:
+            self._orchestrator.on_episode_end()
         self._timer.on_task_end()
         self._timer.on_task_begin()
 
     def on_task_end(self) -> None:
         """Finalise and report timing for the completed task.
 
-        Waits for any pending background writes to finish, then forwards
-        to ``SystemTimer.on_task_end()`` for summary printing.
-
+        Forwards to ``SystemTimer.on_task_end()`` for summary printing.
         Called when a client WebSocket connection closes.
         """
-        # Drain pending background writes before reporting timing.
-        if self._write_executor is not None:
-            self._write_executor.shutdown(wait=True)
-            # Recreate for next task.
-            self._write_executor = concurrent.futures.ThreadPoolExecutor(
-                max_workers=1, thread_name_prefix="cache_write"
-            )
         self._timer.on_task_end()
 
     # -----------------------------------------------------------------------
@@ -278,14 +262,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
         Pipeline:
         1. Input transforms (same as Policy.infer).
-        2. CP3 consume: check if previous cycle pre-scheduled an action (stub in Step 4).
-        3. Stage 1 (vision) -> CP1 check -> on HIT: early return cached action.
-        4. Stage 2 (LLM) -> Stage 3 (flow matching).
-        5. CP1 write: store state -> action for future lookups.
-        6. CP3 check: infrastructure validation (always MISS in Step 4).
-        7. Build outputs.
+        2. Stage 1 (vision) -> CP1 check -> on HIT: early return cached action.
+        3. Stage 2 (LLM) -> Stage 3 (flow matching).
+        4. CP3 check + broadcast_action + buffer_for_write.
+        5. Build outputs.
 
-        When orchestrator=None, steps 2/3-hit/5/6 are skipped — identical to Step 2.
+        When orchestrator=None, cache steps are skipped — identical to base Policy.
 
         Timing probes: total_inference (CPU), stage1/2/3 (CUDA), cp1_check/write, cp3_check (CPU).
 
@@ -313,28 +295,6 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             if start_noise.ndim == 2:
                 start_noise = start_noise[None, ...]
 
-        # ---- CP3 consume point (before any stage) ----
-        # Check if previous cycle pre-scheduled an action via CP3.
-        # Data flow: orchestrator._next_action_scheduled -> action (or None)
-        # Stub in Step 4: always None. Step 6 implements actual skip.
-        if self._orchestrator is not None:
-            scheduled_action = self._orchestrator.should_skip_inference()
-            if scheduled_action is not None:
-                # scheduled_action is CachePayload.next_action_chunk: CPU float32 [50, 32].
-                # inputs["state"] is a batched GPU tensor [1, state_dim].
-                # Strip batch dim from state only; action has no batch dim.
-                state_np = np.asarray(inputs["state"][0, ...].detach().cpu())
-                action_np = np.asarray(scheduled_action.detach().cpu()) \
-                    if isinstance(scheduled_action, torch.Tensor) \
-                    else np.asarray(scheduled_action)
-                outputs: dict[str, Any] = {
-                    "state": state_np,
-                    "actions": action_np,
-                }
-                outputs = self._output_transform(outputs)
-                self._orchestrator.clear()
-                return outputs
-
         # ---- 2. Staged inference with cache checks ----
         torch.compiler.cudagraph_mark_step_begin()
         with self._timer.measure("total_inference"):
@@ -349,9 +309,16 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                             CheckpointID.CP1, stage1=stage1
                         )
                     if cp1_result.hit_type == HitType.FULL_HIT:
+                        cached_action = cp1_result.payload.action_chunk
+                        # Broadcast action + buffer for trajectory write
+                        self._orchestrator.broadcast_action(cached_action)
+                        if cp1_result.query_keys is not None:
+                            self._orchestrator.buffer_for_write(
+                                cp1_result.query_keys, cached_action
+                            )
                         outputs = {
                             "state": inputs["state"],
-                            "actions": cp1_result.payload.action_chunk.to(
+                            "actions": cached_action.to(
                                 self._pytorch_device
                             )[None, ...],
                         }
@@ -376,13 +343,14 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                         CheckpointID.CP3, stage1=stage1, stage3=stage3
                     )
 
-                cp1_payload = CachePayload(
-                    action_chunk=stage3.action_chunk[0].detach().cpu().float().contiguous()
-                )
-                cp1_query_keys = self._orchestrator.build_keys(CheckpointID.CP1)
-                self._write_executor.submit(
-                    self._bg_write, CheckpointID.CP1, cp1_payload, cp1_query_keys
-                )
+                action_chunk_cpu = stage3.action_chunk[0].detach().cpu().float().contiguous()
+
+                # Broadcast action + buffer for trajectory write
+                self._orchestrator.broadcast_action(action_chunk_cpu)
+                if cp1_result.query_keys is not None:
+                    self._orchestrator.buffer_for_write(
+                        cp1_result.query_keys, action_chunk_cpu
+                    )
 
                 self._orchestrator.clear()
 
@@ -398,22 +366,6 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         )
         outputs = self._output_transform(outputs)
         return outputs
-
-    # -----------------------------------------------------------------------
-    # Background write helper
-    # -----------------------------------------------------------------------
-
-    def _bg_write(
-        self,
-        checkpoint_id: CheckpointID,
-        payload: CachePayload,
-        query_keys: dict[str, torch.Tensor],
-    ) -> None:
-        """Execute cache write in background thread. All tensors must be CPU."""
-        try:
-            self._orchestrator.write_with_keys(checkpoint_id, payload, query_keys)
-        except Exception:
-            logger.exception("Background cache write failed for %s", checkpoint_id.name)
 
     # -----------------------------------------------------------------------
     # BasePolicy metadata property

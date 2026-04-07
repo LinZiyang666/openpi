@@ -186,6 +186,7 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
             judges=components["judges"],
             search_strategies=components["search_strategies"],
             timer=components["timer"],
+            write_policy=components.get("write_policy"),
         )
         policy = InferenceInterceptor(
             policy,
@@ -226,6 +227,7 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
             judges=components["judges"],
             search_strategies=components["search_strategies"],
             timer=components["timer"],
+            write_policy=components.get("write_policy"),
         )
         policy = InferenceInterceptor(
             policy,

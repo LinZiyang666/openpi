@@ -1,29 +1,33 @@
 """CacheOrchestrator: coordinate cache check and write operations.
 
-Combines pluggable components (KeyBuilder, Gate, Judge, SearchStrategy)
-with CacheStorage. All storage interaction goes through CacheStorage
-facade -- never touches VectorStoreBackend directly.
+Combines pluggable components (KeyBuilder, Gate, Judge, SearchStrategy,
+WritePolicy) with CacheStorage. All storage interaction goes through
+CacheStorage facade -- never touches VectorStoreBackend directly.
 
 Data flow overview:
   check():  Interceptor -> collect -> gate -> build -> SearchContext
             -> search_strategy.search(ctx) -> judge -> CheckResult
-  write():  Interceptor -> collect -> build -> CacheEntry -> storage.insert
+  buffer_for_write() + on_episode_end():
+            Interceptor -> buffer steps -> episode end -> WritePolicy
+            -> build entry chain -> batch_insert
 
 Coupling map:
-  DEPENDS ON:  QueryKeyBuilder, GateFunction, SimilarityJudge, SearchStrategy (Step 4 components),
-               CacheStorage facade (Step 3) -- insert/fetch_payload (search delegated to SearchStrategy),
-               SystemTimer (Step 2) -- optional timing
-  CONSUMED BY: InferenceInterceptor (calls check/write at cache checkpoint slots)
+  DEPENDS ON:  QueryKeyBuilder, GateFunction, SimilarityJudge, SearchStrategy,
+               WritePolicy (components),
+               CacheStorage facade -- insert/fetch_payload/batch_insert,
+               SystemTimer -- optional timing
+  CONSUMED BY: InferenceInterceptor (calls check/buffer_for_write/broadcast_action/
+               on_episode_start/on_episode_end at cache checkpoint slots)
   DOES NOT depend on: VectorStoreBackend, Qdrant, or any specific backend
-  SHARES: CacheStorage instance with SearchStrategy (Orchestrator: insert/fetch, Strategy: search)
+  SHARES: CacheStorage instance with SearchStrategy
   IF CHANGED:  Interceptor's cache integration logic may need updating
 """
 
 from __future__ import annotations
 
-import hashlib
 import logging
-from dataclasses import dataclass
+import uuid
+from dataclasses import dataclass, field
 from typing import Optional
 
 import torch
@@ -33,7 +37,12 @@ from openpi.cache.components.gate import GateFunction
 from openpi.cache.components.judge import HitType, SimilarityJudge
 from openpi.cache.components.key_builder import QueryKeyBuilder
 from openpi.cache.components.search_strategy import SearchContext, SearchStrategy
-from openpi.cache.storage_types import CacheEntry, CachePayload
+from openpi.cache.storage_types import (
+    CacheEntry,
+    CachePayload,
+    EpisodeRecord,
+    StepRecord,
+)
 from openpi.cache.timing import SystemTimer
 from openpi.cache.types import CheckpointID
 
@@ -46,7 +55,8 @@ class CheckResult:
 
     Data flow: Orchestrator.check() -> CheckResult -> Interceptor (decision point)
     Coupling:
-      - CONSUMED BY: InferenceInterceptor (reads hit_type to decide stage skip)
+      - CONSUMED BY: InferenceInterceptor (reads hit_type to decide stage skip,
+                     reads query_keys for buffer_for_write)
       - CONTAINS: CachePayload from CacheStorage.fetch_payload() (Step 3 type)
     """
 
@@ -54,41 +64,21 @@ class CheckResult:
     payload: Optional[CachePayload] = None  # non-None only on FULL_HIT
     score: Optional[float] = None
     entry_id: Optional[str] = None
-
-
-def _stable_hash(checkpoint_id: CheckpointID, query_keys: dict[str, torch.Tensor]) -> str:
-    """Compute a deterministic id from checkpoint + query key bytes.
-
-    Same observation at the same checkpoint always maps to the same id,
-    so repeated writes are idempotent upserts.
-    """
-    h = hashlib.sha256()
-    h.update(checkpoint_id.name.encode())
-    for name in sorted(query_keys.keys()):
-        h.update(name.encode())
-        h.update(query_keys[name].numpy().tobytes())
-    return h.hexdigest()[:32]
+    query_keys: Optional[dict[str, torch.Tensor]] = None  # filled on all paths
 
 
 class CacheOrchestrator:
-    """Orchestrate cache check and write operations.
+    """Orchestrate cache check and episode-level write operations.
 
-    Combines pluggable components (KeyBuilder, Gate, Judge, SearchStrategy)
-    with CacheStorage. All storage interaction goes through CacheStorage
-    facade -- never touches VectorStoreBackend directly.
+    Combines pluggable components (KeyBuilder, Gate, Judge, SearchStrategy,
+    WritePolicy) with CacheStorage.
 
     Data flow overview:
       check():  Interceptor -> collect -> gate -> build -> SearchContext
                 -> search_strategy.search(ctx) -> judge -> CheckResult
-      write():  Interceptor -> collect -> build -> CacheEntry -> storage.insert
-
-    Coupling:
-      - DEPENDS ON: QueryKeyBuilder, GateFunction, SimilarityJudge, SearchStrategy (Step 4 components)
-      - DEPENDS ON: CacheStorage facade (Step 3) -- insert/fetch_payload (search delegated to SearchStrategy)
-      - CONSUMED BY: InferenceInterceptor (calls check/write at checkpoint slots)
-      - DOES NOT depend on: VectorStoreBackend, Qdrant, or any specific backend
-      - SHARES: CacheStorage instance with SearchStrategy (Orchestrator: insert/fetch, Strategy: search)
-      - IF CHANGED: Interceptor's cache integration logic may need updating
+      buffer_for_write() + on_episode_end():
+                Interceptor -> buffer steps -> episode end -> WritePolicy
+                -> build entry chain -> batch_insert
 
     Per-checkpoint dispatch:
       gates, judges, search_strategies are dict[CheckpointID, Component].
@@ -97,8 +87,7 @@ class CacheOrchestrator:
 
     Step counter:
       _step_counter tracks inference cycles within a task (client connection).
-      Reset by on_task_begin(), incremented by check() on CP1.
-      Passed to SearchStrategy via SearchContext for step_filter="exact"/"window" modes.
+      Reset by on_task_begin()/on_episode_start(), incremented by check() on CP1.
     """
 
     def __init__(
@@ -109,6 +98,7 @@ class CacheOrchestrator:
         judges: dict[CheckpointID, SimilarityJudge],
         search_strategies: dict[CheckpointID, SearchStrategy],
         timer: Optional[SystemTimer] = None,
+        write_policy=None,
     ) -> None:
         self._storage = storage
         self._key_builder = key_builder
@@ -116,38 +106,90 @@ class CacheOrchestrator:
         self._judges = judges
         self._search_strategies = search_strategies
         self._timer = timer if timer is not None else SystemTimer(enabled=False)
+        self._write_policy = write_policy
         self._step_counter: int = 0
+
+        # Episode-level buffers
+        self._episode_steps: list[StepRecord] = []
+        self._miss_by_checkpoint: dict[CheckpointID, int] = {}
+        self._current_task_key: str = ""
+        self._current_episode_id: str = ""
 
         # Register fine-grained probes for each checkpoint's sub-steps.
         for cp in ("cp1", "cp3"):
             for step in ("collect", "gate", "build", "search", "judge", "fetch"):
                 self._timer.register_probe(f"{cp}_{step}", backend="cpu")
 
-    def on_task_begin(self) -> None:
+    # ------------------------------------------------------------------
+    # Episode lifecycle
+    # ------------------------------------------------------------------
+
+    def on_task_begin(self, task_key: str = "") -> None:
         """Reset per-task state. Called when a client connection opens."""
         self._step_counter = 0
+        self._current_task_key = task_key
+        self._reset_episode_buffer()
+        self._broadcast_episode_start()
 
-    def on_episode_start(self) -> None:
+    def on_episode_start(self, task_key: str = "", episode_id: str = "") -> None:
         """Reset per-episode state. Called when simulator sends episode_start."""
         self._step_counter = 0
+        if task_key:
+            self._current_task_key = task_key
+        self._current_episode_id = episode_id
+        self._reset_episode_buffer()
+        self._broadcast_episode_start()
+
+    def _broadcast_episode_start(self) -> None:
+        """Notify all components to clear their history buffers."""
+        for strategy in self._search_strategies.values():
+            if hasattr(strategy, 'on_episode_start'):
+                strategy.on_episode_start()
+        for gate in self._gates.values():
+            if hasattr(gate, 'on_episode_start'):
+                gate.on_episode_start()
+        for judge in self._judges.values():
+            if hasattr(judge, 'on_episode_start'):
+                judge.on_episode_start()
+
+    def _reset_episode_buffer(self) -> None:
+        self._episode_steps.clear()
+        self._miss_by_checkpoint.clear()
+
+    # ------------------------------------------------------------------
+    # Action broadcast
+    # ------------------------------------------------------------------
+
+    def broadcast_action(self, action_chunk: torch.Tensor) -> None:
+        """Broadcast action to all components for trajectory history.
+
+        Called by Interceptor after action is produced (cache hit or inference).
+        Must be called after check() returns (all locks released).
+        """
+        for strategy in self._search_strategies.values():
+            if hasattr(strategy, 'record_action'):
+                strategy.record_action(action_chunk)
+        for gate in self._gates.values():
+            if hasattr(gate, 'record_action'):
+                gate.record_action(action_chunk)
+        for judge in self._judges.values():
+            if hasattr(judge, 'record_action'):
+                judge.record_action(action_chunk)
+
+    # ------------------------------------------------------------------
+    # Cache check pipeline
+    # ------------------------------------------------------------------
 
     def check(self, checkpoint_id: CheckpointID, **stage_outputs) -> CheckResult:
-        """Cache check pipeline: collect -> gate -> build -> ctx -> strategy.search() -> judge -> fetch.
+        """Cache check pipeline: collect -> gate -> build -> search -> judge -> fetch.
 
-        Flow:
-          1. key_builder.collect(checkpoint_id, **stage_outputs)
-          2. gates[checkpoint_id](checkpoint_id, cached_data) -> if False: MISS
-          3. key_builder.build(checkpoint_id) -> query_keys
-          4. Construct SearchContext(query_keys, checkpoint_id, current_step=_step_counter)
-          5. search_strategies[checkpoint_id].search(ctx) -> results
-          6. judges[checkpoint_id](results, checkpoint_id, cached_data) -> (hit_type, winner_id)
-          7. if FULL_HIT: storage.fetch_payload(winner_id) -> payload
-          8. _step_counter += 1 (only on CP1 check, to count inference cycles)
-          9. return CheckResult
+        Key change: build() executes before gate-skip return, so query_keys
+        are always available for trajectory history recording.
+        CheckResult.query_keys is filled on all return paths.
         """
         prefix = checkpoint_id.name.lower()
 
-        # If this checkpoint is not configured (e.g. disabled in YAML), skip gracefully.
+        # If this checkpoint is not configured, skip gracefully.
         if checkpoint_id not in self._gates:
             if checkpoint_id == CheckpointID.CP1:
                 self._step_counter += 1
@@ -163,19 +205,26 @@ class CacheOrchestrator:
         with self._timer.measure(f"{prefix}_gate"):
             should_search = gate(checkpoint_id, self._key_builder.cached_data)
         logger.info("[step %d] %s gate: %s", self._step_counter, prefix, "SEARCH" if should_search else "SKIP")
-        if not should_search:
-            if checkpoint_id == CheckpointID.CP1:
-                self._step_counter += 1
-            return CheckResult(hit_type=HitType.MISS)
 
+        # build() always executes (even on gate skip) for trajectory completeness
         with self._timer.measure(f"{prefix}_build"):
             query_keys = self._key_builder.build(checkpoint_id)
+
+        if not should_search:
+            # Gate skip: record query_keys to strategy history (trajectory gap-free)
+            if hasattr(strategy, 'record_query_keys'):
+                strategy.record_query_keys(query_keys)
+            self._miss_by_checkpoint[checkpoint_id] = self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
+            if checkpoint_id == CheckpointID.CP1:
+                self._step_counter += 1
+            return CheckResult(hit_type=HitType.MISS, query_keys=query_keys)
 
         with self._timer.measure(f"{prefix}_search"):
             ctx = SearchContext(
                 query_keys=query_keys,
                 checkpoint_id=checkpoint_id,
                 current_step=self._step_counter,
+                task_key=self._current_task_key or None,
             )
             results = strategy.search(ctx)
 
@@ -185,6 +234,9 @@ class CacheOrchestrator:
             )
         top_score = results[0].score if results else None
         logger.info("[step %d] %s judge: %s (top_score=%s, winner=%s)", self._step_counter, prefix, hit_type.name, top_score, winner_id)
+
+        if hit_type == HitType.MISS:
+            self._miss_by_checkpoint[checkpoint_id] = self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
 
         if checkpoint_id == CheckpointID.CP1:
             self._step_counter += 1
@@ -197,9 +249,10 @@ class CacheOrchestrator:
                 payload=payload,
                 score=results[0].score,
                 entry_id=winner_id,
+                query_keys=query_keys,
             )
 
-        return CheckResult(hit_type=HitType.MISS)
+        return CheckResult(hit_type=HitType.MISS, query_keys=query_keys)
 
     def build_keys(self, checkpoint_id: CheckpointID) -> dict[str, torch.Tensor]:
         """Build query keys from already-collected stage outputs.
@@ -209,68 +262,87 @@ class CacheOrchestrator:
         """
         return self._key_builder.build(checkpoint_id)
 
-    def write(
+    # ------------------------------------------------------------------
+    # Episode-level write path
+    # ------------------------------------------------------------------
+
+    def buffer_for_write(
         self,
-        checkpoint_id: CheckpointID,
-        payload: CachePayload,
-        **stage_outputs,
-    ) -> None:
-        """Write a cache entry (synchronous).
-
-        Flow:
-          1. key_builder.collect(...) [if not already collected this cycle]
-          2. key_builder.build(...) -> query_keys
-          3. Construct CacheEntry with stable_hash id
-          4. storage.insert(entry)
-
-        Caller must ensure payload tensors are CPU float32.
-        """
-        self._key_builder.collect(checkpoint_id, **stage_outputs)
-        query_keys = self._key_builder.build(checkpoint_id)
-
-        entry_id = _stable_hash(checkpoint_id, query_keys)
-        entry = CacheEntry(
-            id=entry_id,
-            checkpoint_id=checkpoint_id,
-            query_keys=query_keys,
-            payload=payload,
-        )
-        self._storage.insert(entry)
-
-    def write_with_keys(
-        self,
-        checkpoint_id: CheckpointID,
-        payload: CachePayload,
         query_keys: dict[str, torch.Tensor],
+        action_chunk: torch.Tensor,
     ) -> None:
-        """Write a cache entry with pre-built query keys. Thread-safe.
+        """Buffer current step for episode-end batch write.
 
-        All tensors must already be on CPU. Used by background write threads.
+        Called by Interceptor after action is produced (cache hit or inference).
+        Not called inside check() — action is not available at check time.
         """
-        entry_id = _stable_hash(checkpoint_id, query_keys)
-        entry = CacheEntry(
-            id=entry_id,
-            checkpoint_id=checkpoint_id,
+        self._episode_steps.append(StepRecord(
             query_keys=query_keys,
-            payload=payload,
+            action_chunk=action_chunk,
+        ))
+
+    def on_episode_end(self) -> None:
+        """Episode ended. Consult WritePolicy and optionally batch-write trajectory.
+
+        Write flow:
+          1. Build EpisodeRecord from accumulated buffers
+          2. WritePolicy.should_write() decides
+          3. If yes: build linked CacheEntry chain, batch_insert
+          4. Reset buffers
+        """
+        if not self._episode_steps:
+            self._reset_episode_buffer()
+            return
+
+        if self._write_policy is None:
+            self._reset_episode_buffer()
+            return
+
+        record = EpisodeRecord(
+            steps=self._episode_steps,
+            task_key=self._current_task_key,
+            miss_by_checkpoint=dict(self._miss_by_checkpoint),
+            total_steps=len(self._episode_steps),
         )
-        self._storage.insert(entry)
 
-    # ------------------------------------------------------------------
-    # CP3 stub interfaces -- real implementation in Step 6
-    # ------------------------------------------------------------------
+        if not self._write_policy.should_write(record):
+            self._reset_episode_buffer()
+            return
 
-    def schedule_next_action(self, action: torch.Tensor) -> None:
-        """CP3: schedule a cached action for the next inference cycle.
-        Stub in Step 4 -- does nothing. Step 6 implements with DeferredWriter.
-        """
-        pass
+        entries = self._build_entry_chain(record)
+        if entries:
+            self._storage.batch_insert(entries)
 
-    def should_skip_inference(self) -> Optional[torch.Tensor]:
-        """CP3: check if previous cycle scheduled an action for this cycle.
-        Stub in Step 4 -- always returns None (no skip). Step 6 implements.
-        """
-        return None
+        self._reset_episode_buffer()
+
+    def _build_entry_chain(self, record: EpisodeRecord) -> list[CacheEntry]:
+        """Convert EpisodeRecord to a linked list of CacheEntry objects."""
+        trajectory_id = str(uuid.uuid4())
+        entries: list[CacheEntry] = []
+
+        for step_idx, step in enumerate(record.steps):
+            entry_id = f"{trajectory_id}:{step_idx}"
+            entry = CacheEntry(
+                id=entry_id,
+                checkpoint_id=CheckpointID.CP1,
+                query_keys=step.query_keys,
+                payload=CachePayload(
+                    action_chunk=step.action_chunk,
+                    task_key=record.task_key,
+                ),
+                step_idx=step_idx,
+                trajectory_id=trajectory_id,
+            )
+            entries.append(entry)
+
+        # Link prev_ids / next_ids
+        for i in range(len(entries)):
+            if i > 0:
+                entries[i].prev_ids = [entries[i - 1].id]
+            if i < len(entries) - 1:
+                entries[i].next_ids = [entries[i + 1].id]
+
+        return entries
 
     def clear(self) -> None:
         """Release per-cycle state. Called at end of each inference cycle."""

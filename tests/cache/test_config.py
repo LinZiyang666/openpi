@@ -21,6 +21,7 @@ from openpi.cache.config import (
     KeysConfig,
     SearchStrategyConfig,
     TimerConfig,
+    WritePolicyConfig,
     _substitute_env_vars,
     build_cache_components,
     load_cache_config,
@@ -399,3 +400,156 @@ def test_disabled_checkpoint_orchestrator_returns_miss():
     state = torch.randn(1, 32)
     result = orch.check(CheckpointID.CP3, stage1=make_stage1(state))
     assert result.hit_type == HitType.MISS
+
+
+# ---------------------------------------------------------------------------
+# Trajectory config validation tests
+# ---------------------------------------------------------------------------
+
+
+def test_trajectory_depth_zero_rejected():
+    config = CacheConfig(
+        checkpoints={
+            "cp1": CheckpointConfig(
+                search_strategy=SearchStrategyConfig(trajectory_depth=0)
+            ),
+        },
+    )
+    with pytest.raises(ConfigValidationError, match="trajectory_depth must be >= 1"):
+        validate_cache_config(config)
+
+
+def test_trajectory_weights_required_when_depth_gt1():
+    config = CacheConfig(
+        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                search_strategy=SearchStrategyConfig(
+                    type="weighted_rrf_knn",
+                    trajectory_depth=3,
+                    trajectory_weights=None,
+                )
+            ),
+        },
+    )
+    with pytest.raises(ConfigValidationError, match="trajectory_weights required"):
+        validate_cache_config(config)
+
+
+def test_trajectory_weights_length_mismatch():
+    config = CacheConfig(
+        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                search_strategy=SearchStrategyConfig(
+                    type="weighted_rrf_knn",
+                    trajectory_depth=3,
+                    trajectory_weights=[0.5, 0.5],  # length=2, depth=3
+                )
+            ),
+        },
+    )
+    with pytest.raises(ConfigValidationError, match="trajectory_weights length"):
+        validate_cache_config(config)
+
+
+def test_trajectory_negative_weights_rejected():
+    config = CacheConfig(
+        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                search_strategy=SearchStrategyConfig(
+                    type="weighted_rrf_knn",
+                    trajectory_depth=2,
+                    trajectory_weights=[0.5, -0.1],
+                )
+            ),
+        },
+    )
+    with pytest.raises(ConfigValidationError, match="non-negative"):
+        validate_cache_config(config)
+
+
+def test_trajectory_zero_sum_weights_rejected():
+    config = CacheConfig(
+        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                search_strategy=SearchStrategyConfig(
+                    type="weighted_rrf_knn",
+                    trajectory_depth=2,
+                    trajectory_weights=[0.0, 0.0],
+                )
+            ),
+        },
+    )
+    with pytest.raises(ConfigValidationError, match="sum must be > 0"):
+        validate_cache_config(config)
+
+
+def test_qdrant_trajectory_depth_gt1_rejected():
+    config = CacheConfig(
+        backend=BackendConfig(type="qdrant", vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                search_strategy=SearchStrategyConfig(
+                    trajectory_depth=3,
+                    trajectory_weights=[0.5, 0.3, 0.2],
+                )
+            ),
+        },
+    )
+    with pytest.raises(ConfigValidationError, match="not supported with Qdrant"):
+        validate_cache_config(config)
+
+
+def test_trajectory_depth_1_no_weights_ok():
+    """depth=1 with no trajectory_weights should be valid."""
+    config = CacheConfig(
+        checkpoints={
+            "cp1": CheckpointConfig(
+                search_strategy=SearchStrategyConfig(trajectory_depth=1)
+            ),
+        },
+    )
+    # Should not raise
+    validate_cache_config(config)
+
+
+def test_in_memory_trajectory_depth_gt1_valid():
+    """in_memory + trajectory_depth > 1 with matching weights should pass."""
+    config = CacheConfig(
+        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                search_strategy=SearchStrategyConfig(
+                    type="weighted_rrf_knn",
+                    trajectory_depth=3,
+                    trajectory_weights=[0.5, 0.3, 0.2],
+                )
+            ),
+        },
+    )
+    # Should not raise
+    validate_cache_config(config)
+
+
+# ---------------------------------------------------------------------------
+# Write policy config validation tests
+# ---------------------------------------------------------------------------
+
+
+def test_write_policy_valid_types():
+    for wtype in ("on_any_miss", "always", "never"):
+        config = CacheConfig(
+            write_policy=WritePolicyConfig(type=wtype),
+        )
+        validate_cache_config(config)  # Should not raise
+
+
+def test_write_policy_invalid_type():
+    config = CacheConfig(
+        write_policy=WritePolicyConfig(type="invalid_policy"),
+    )
+    with pytest.raises(ConfigValidationError, match="write_policy.type"):
+        validate_cache_config(config)

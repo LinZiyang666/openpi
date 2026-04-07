@@ -40,6 +40,11 @@ checkpoints:
       step_window: 5      # only effective when step_filter=window
       rrf_k: 60           # Qdrant RRF fusion param
       candidate_multiplier: 5  # Qdrant prefetch = top_k * multiplier
+      # Trajectory search: depth=1 is single-step (no trajectory).
+      # To enable trajectory search, set depth > 1 and provide weights (newest-first).
+      # Only supported with in_memory backend; Qdrant will reject depth > 1.
+      trajectory_depth: 1
+      # trajectory_weights: [0.6, 0.3, 0.1]  # uncomment when trajectory_depth > 1
 
   cp1:
     <<: *cp_defaults
@@ -71,3 +76,10 @@ backend:
     prefer_grpc: false
     grpc_port: 6334
     request_timeout: 30
+
+# Write policy: controls whether trajectory data is written to cache at episode end.
+# "on_any_miss" = write if episode had any CP1 miss (default)
+# "always" = always write
+# "never" = read-only mode
+write_policy:
+  type: on_any_miss

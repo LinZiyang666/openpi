@@ -1,23 +1,25 @@
 """Experiment runner: sequentially execute cache experiment runs.
 
-Per-task granularity: each run is split into individual task executions.
-Progress is persisted after every task, so interrupted runs resume from
-the last completed task — not from scratch.
+Tasks within each run are batched by --num-workers and executed concurrently
+via main.py.  Progress is persisted after every batch, so interrupted runs
+resume from the last completed batch — not from scratch.
 
 Usage:
-    # Run all Phase 1 (4 workers per run)
     uv run exp/run_cache_experiments.py \
         --yaml-dir configs/cache_runs/phase1 \
-        --episodes-per-run 10 \
-        --num-workers 4 \
-        --host localhost --port 8000
+        --episodes-per-run 5 \
+        --num-workers 5 \
+        --host 155.98.36.13 --port 9000 \
+        --task-suite libero_spatial \
+        --seed 42 --conda-env libero_sim
 
-    # Resume from checkpoint (skips done runs, resumes interrupted runs per-task)
+    # Resume from checkpoint
     uv run exp/run_cache_experiments.py \
         --yaml-dir configs/cache_runs/phase1 \
-        --episodes-per-run 10 \
-        --num-workers 4 \
-        --host localhost --port 8000 \
+        --episodes-per-run 5 --num-workers 5 \
+        --host 155.98.36.13 --port 9000 \
+        --task-suite libero_spatial \
+        --seed 42 --conda-env libero_sim \
         --resume
 """
 
@@ -35,6 +37,8 @@ import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Optional
+
+import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -89,21 +93,21 @@ def _send_cache_config(server_url: str, yaml_path: str) -> None:
             resp = msgpack.unpackb(await ws.recv())
             if resp.get("__ack__") != "load_cache_config":
                 raise RuntimeError(f"Config switch failed: {resp}")
-            logger.info("Server switched to bundle v%s: %s", resp.get("version"), yaml_path)
+            logger.debug("Server switched to bundle v%s: %s", resp.get("version"), yaml_path)
 
     asyncio.run(_send())
 
 
 # ---------------------------------------------------------------------------
-# Single task execution
+# Task batch execution
 # ---------------------------------------------------------------------------
 
 
-_TASK_TIMEOUT = 3600  # 1 hour per task
+_TASK_TIMEOUT_PER_TASK = 3600  # 1 hour per task
 
 
-def _execute_task(
-    task_id: int,
+def _execute_tasks(
+    task_ids: list[int],
     episodes_per_task: int,
     num_workers: int,
     host: str,
@@ -113,34 +117,43 @@ def _execute_task(
     seed: int = 7,
     conda_env: str | None = None,
 ) -> dict:
-    """Execute a single task within a run.
+    """Execute a batch of tasks concurrently via main.py.
 
-    Calls main.py with --task-ids to run only this task.
+    Passes multiple --task-ids so main.py distributes them across workers.
     Appends output to the run's log file.
-    Kills subprocess after _TASK_TIMEOUT seconds (even if stdout is blocked).
     """
+    task_id_strs = [str(t) for t in task_ids]
     main_args = [
         "examples/libero/main.py",
         "--host", host,
         "--port", str(port),
-        "--task_suite_name", task_suite,
-        "--num_trials_per_task", str(episodes_per_task),
-        "--num_workers", str(num_workers),
-        "--task-ids", str(task_id),
+        "--task-suite-name", task_suite,
+        "--num-trials-per-task", str(episodes_per_task),
+        "--num-workers", str(num_workers),
+        "--task-ids", *task_id_strs,
         "--seed", str(seed),
     ]
     env = None
     if conda_env:
         cmd = ["conda", "run", "--no-capture-output", "-n", conda_env, "python", *main_args]
-        # Clean env: uv injects VIRTUAL_ENV / PYTHONPATH that override conda's paths.
+        # Clean env: uv injects VIRTUAL_ENV / PYTHONPATH / PATH that override conda's paths.
         env = {k: v for k, v in os.environ.items()
                if k not in ("VIRTUAL_ENV", "PYTHONPATH", "PYTHONHOME")}
+        # Remove .venv/bin from PATH so conda's python takes priority.
+        venv_bin = os.environ.get("VIRTUAL_ENV", "")
+        if venv_bin:
+            venv_bin = os.path.join(venv_bin, "bin")
+            env["PATH"] = os.pathsep.join(
+                p for p in env.get("PATH", "").split(os.pathsep) if p != venv_bin
+            )
+        env["MUJOCO_GL"] = "egl"
     else:
         cmd = ["uv", "run", *main_args]
 
+    batch_label = ",".join(task_id_strs)
     with open(log_path, "a") as log_file:
         log_file.write(f"\n{'='*60}\n")
-        log_file.write(f"TASK {task_id} started at {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+        log_file.write(f"TASKS [{batch_label}] started at {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
         log_file.write(f"CMD: {' '.join(cmd)}\n")
         log_file.write(f"{'='*60}\n")
         log_file.flush()
@@ -157,32 +170,25 @@ def _execute_task(
         stdout_lines: list[str] = []
 
         def _drain():
-            import sys
             for line in proc.stdout:
                 log_file.write(line)
                 log_file.flush()
                 stdout_lines.append(line)
-                # Only print key lines to terminal; skip tqdm progress bars.
-                s = line.strip()
-                if not s:
-                    continue
-                # Progress bars contain block chars or step counters like "60/220"
-                if "█" in s or "▏" in s or "▎" in s or "▍" in s or "▌" in s or "▋" in s or "▊" in s or "▉" in s:
-                    continue
-                sys.stdout.write(line)
-                sys.stdout.flush()
 
         reader = threading.Thread(target=_drain, daemon=True)
         reader.start()
 
         timed_out = False
+        # Tasks run concurrently in main.py, so timeout is per-task (not cumulative).
+        # Add 5 min margin for env init / teardown overhead.
+        batch_timeout = _TASK_TIMEOUT_PER_TASK + 300
         try:
-            proc.wait(timeout=_TASK_TIMEOUT)
+            proc.wait(timeout=batch_timeout)
         except subprocess.TimeoutExpired:
             proc.kill()
             proc.wait()
             timed_out = True
-            log_file.write(f"\nTIMEOUT: killed after {_TASK_TIMEOUT}s\n")
+            log_file.write(f"\nTIMEOUT: killed after {batch_timeout}s\n")
             log_file.flush()
 
         reader.join(timeout=5)
@@ -200,7 +206,7 @@ def _execute_task(
 
 
 def _parse_task_result(stdout: str) -> tuple[int, int]:
-    """Parse successes and total episodes from single-task main.py output.
+    """Parse successes and total episodes from main.py output.
 
     Looks for "Total success rate: XX.X% (S/T)" pattern.
     Falls back to counting "Success: True/False" lines.
@@ -266,11 +272,12 @@ def _remaining_tasks(state: RunState) -> list[int]:
 
 
 def _compute_aggregate_success_rate(state: RunState) -> Optional[float]:
-    """Compute overall success rate from per-task results."""
+    """Compute overall success rate from completed tasks only."""
     total_s, total_t = 0, 0
-    for counts in state.task_results.values():
-        total_s += counts[0]
-        total_t += counts[1]
+    for tid, status in state.task_progress.items():
+        if status == "done" and tid in state.task_results:
+            total_s += state.task_results[tid][0]
+            total_t += state.task_results[tid][1]
     if total_t == 0:
         return None
     return total_s / total_t
@@ -282,7 +289,7 @@ def _compute_aggregate_success_rate(state: RunState) -> Optional[float]:
 
 
 def main():
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
+    logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(levelname)s: %(message)s")
 
     parser = argparse.ArgumentParser(description="Run cache experiments")
     parser.add_argument("--yaml-dir", required=True, help="Directory with experiment YAMLs")
@@ -391,9 +398,20 @@ def main():
         ]
 
     run_filter = _parse_runs_filter(args.runs, len(states))
+    runs_to_do = [s for i, s in enumerate(states) if i in run_filter]
+    total_runs = len(runs_to_do)
 
+    # --- Progress tracking ---
+    total_episodes_all = 0  # across all runs
+    total_successes_all = 0
     completed = 0
     failed = 0
+
+    # Overall progress bar: one tick per completed run.
+    pbar = tqdm.tqdm(total=total_runs, desc="Experiment", unit="run",
+                     bar_format="{desc} |{bar}| {n}/{total} runs [{elapsed}<{remaining}] {postfix}")
+    pbar.set_postfix_str("sr=N/A")
+
     for idx, state in enumerate(states):
         if idx not in run_filter:
             continue
@@ -401,8 +419,15 @@ def main():
         _init_task_progress(state, task_id_list)
 
         if args.resume and state.status == "done":
-            logger.info("Skipping completed run %s", state.run_id)
+            # Count previously completed run's results into totals.
+            for tid, counts in state.task_results.items():
+                if state.task_progress.get(tid) == "done":
+                    total_successes_all += counts[0]
+                    total_episodes_all += counts[1]
             completed += 1
+            pbar.update(1)
+            agg_sr = f"{total_successes_all/total_episodes_all:.1%}" if total_episodes_all else "N/A"
+            pbar.set_postfix_str(f"agg={agg_sr} ({total_successes_all}/{total_episodes_all}), done={completed}, fail={failed}")
             continue
 
         remaining = _remaining_tasks(state)
@@ -410,14 +435,13 @@ def main():
             state.status = "done"
             state.success_rate = _compute_aggregate_success_rate(state)
             _save_state(state_path, states)
-            logger.info("Run %s already fully completed (all tasks done)", state.run_id)
             completed += 1
+            pbar.update(1)
             continue
 
         if args.resume and remaining:
-            done_count = num_tasks - len(remaining)
-            logger.info("Resuming run %s: %d/%d tasks done, %d remaining",
-                        state.run_id, done_count, num_tasks, len(remaining))
+            done_count = len(task_id_list) - len(remaining)
+            tqdm.tqdm.write(f"Resuming {state.run_id}: {done_count}/{len(task_id_list)} tasks done")
 
         state.status = "running"
         if state.start_time is None:
@@ -433,28 +457,42 @@ def main():
         state.log_path = str(log_path)
 
         # Switch server to this run's YAML (once per run, not per task).
-        logger.info("=== Run %d/%d: %s (%d tasks remaining) ===",
-                     idx + 1, len(states), state.run_id, len(remaining))
+        pbar.set_description(f"Run {idx+1}/{len(states)}: {state.run_id}")
         try:
             server_url = f"ws://{args.host}:{args.port}"
             _send_cache_config(server_url, state.yaml_path)
         except Exception as e:
             state.status = "failed"
             failed += 1
-            logger.error("Run %s: config switch failed: %s", state.run_id, e)
+            tqdm.tqdm.write(f"[FAIL] {state.run_id}: config switch failed: {e}")
             state.end_time = time.strftime("%Y-%m-%d %H:%M:%S")
             _save_state(state_path, states)
+            pbar.update(1)
+            agg_sr = f"{total_successes_all/total_episodes_all:.1%}" if total_episodes_all else "N/A"
+            pbar.set_postfix_str(f"agg={agg_sr} ({total_successes_all}/{total_episodes_all}), done={completed}, fail={failed}")
             continue
 
-        # Execute remaining tasks one by one.
+        # Execute remaining tasks in batches of num_workers.
+        # Initialize with previously completed task results (for resume).
         run_failed = False
-        for task_id in remaining:
-            logger.info("  Task %d (of %d total) for run %s", task_id, len(task_id_list), state.run_id)
+        run_successes = 0
+        run_total = 0
+        for tid, status in state.task_progress.items():
+            if status == "done" and tid in state.task_results:
+                run_successes += state.task_results[tid][0]
+                run_total += state.task_results[tid][1]
+        batch_size = max(args.num_workers, 1)
+        num_batches = (len(remaining) + batch_size - 1) // batch_size
+        for batch_idx, batch_start in enumerate(range(0, len(remaining), batch_size)):
+            batch = remaining[batch_start:batch_start + batch_size]
+            pbar.set_description(
+                f"Run {idx+1}/{len(states)}: {state.run_id} batch {batch_idx+1}/{num_batches}"
+            )
             try:
-                result = _execute_task(
-                    task_id=task_id,
+                result = _execute_tasks(
+                    task_ids=batch,
                     episodes_per_task=args.episodes_per_run,
-                    num_workers=args.num_workers,
+                    num_workers=min(args.num_workers, len(batch)),
                     host=args.host,
                     port=args.port,
                     task_suite=args.task_suite,
@@ -462,25 +500,45 @@ def main():
                     seed=args.seed,
                     conda_env=args.conda_env,
                 )
-                state.task_results[str(task_id)] = [result["successes"], result["total"]]
 
                 if result["exit_code"] == 0:
-                    state.task_progress[str(task_id)] = "done"
-                    logger.info("  Task %d done: %d/%d successes",
-                                task_id, result["successes"], result["total"])
+                    n = len(batch)
+                    per_task_s = result["successes"] // n
+                    per_task_t = result["total"] // n
+                    remainder_s = result["successes"] - per_task_s * n
+                    remainder_t = result["total"] - per_task_t * n
+                    for i, task_id in enumerate(batch):
+                        state.task_progress[str(task_id)] = "done"
+                        s = per_task_s + (1 if i < remainder_s else 0)
+                        t = per_task_t + (1 if i < remainder_t else 0)
+                        state.task_results[str(task_id)] = [s, t]
+                    run_successes += result["successes"]
+                    run_total += result["total"]
+                    total_successes_all += result["successes"]
+                    total_episodes_all += result["total"]
+                    run_sr = f"{run_successes/run_total:.1%}" if run_total else "N/A"
+                    agg_sr = f"{total_successes_all/total_episodes_all:.1%}" if total_episodes_all else "N/A"
+                    pbar.set_postfix_str(
+                        f"run_sr={run_sr} ({run_successes}/{run_total}), "
+                        f"agg={agg_sr}, done={completed}, fail={failed}"
+                    )
+                    tqdm.tqdm.write(
+                        f"  [{state.run_id}] batch {batch_idx+1}/{num_batches}: "
+                        f"{result['successes']}/{result['total']} successes"
+                    )
                 else:
-                    state.task_progress[str(task_id)] = "failed"
+                    for task_id in batch:
+                        state.task_progress[str(task_id)] = "failed"
                     run_failed = True
-                    # Show last 15 lines of output so errors are visible in terminal.
-                    tail = "\n".join(result["stdout"].splitlines()[-15:])
-                    logger.error("  Task %d failed (exit %d). Last output:\n%s",
-                                 task_id, result["exit_code"], tail)
+                    tail = "\n".join(result["stdout"].splitlines()[-5:])
+                    tqdm.tqdm.write(f"  [{state.run_id}] batch {batch_idx+1} FAILED (exit {result['exit_code']}): {tail}")
             except Exception as e:
-                state.task_progress[str(task_id)] = "failed"
+                for task_id in batch:
+                    state.task_progress[str(task_id)] = "failed"
                 run_failed = True
-                logger.error("  Task %d exception: %s", task_id, e)
+                tqdm.tqdm.write(f"  [{state.run_id}] batch {batch_idx+1} exception: {e}")
 
-            # Persist after every task — this is the core of per-task resume.
+            # Persist after every batch.
             state.success_rate = _compute_aggregate_success_rate(state)
             _save_state(state_path, states)
 
@@ -489,9 +547,12 @@ def main():
         if all_done:
             state.status = "done"
             completed += 1
+            run_sr = f"{run_successes/run_total:.1%}" if run_total else "N/A"
+            tqdm.tqdm.write(f"[DONE] {state.run_id}: {run_sr} ({run_successes}/{run_total})")
         elif run_failed:
             state.status = "failed"
             failed += 1
+            tqdm.tqdm.write(f"[FAIL] {state.run_id}")
         else:
             state.status = "done"
             completed += 1
@@ -499,8 +560,12 @@ def main():
         state.end_time = time.strftime("%Y-%m-%d %H:%M:%S")
         state.success_rate = _compute_aggregate_success_rate(state)
         _save_state(state_path, states)
+        pbar.update(1)
+        agg_sr = f"{total_successes_all/total_episodes_all:.1%}" if total_episodes_all else "N/A"
+        pbar.set_postfix_str(f"agg={agg_sr} ({total_successes_all}/{total_episodes_all}), done={completed}, fail={failed}")
 
-    print(f"\nDone: {completed} completed, {failed} failed, {len(states) - completed - failed} skipped")
+    pbar.close()
+    print(f"\nDone: {completed} completed, {failed} failed, {total_runs - completed - failed} skipped")
     print(f"State saved to {state_path}")
 
 

@@ -81,13 +81,11 @@ Step 3（存储层）+ Step 4（Orchestrator 骨架 + Config 配置系统）代�
 - 阈值基于 cosine similarity [-1, 1]，如果后端切换到 RRF 分数需要重新校准
 
 #### `orchestrator.py`
-- CP3 的 `schedule_next_action()` / `should_skip_inference()` 是空 stub
-- `_stable_hash` 使用 `.numpy().tobytes()`，要求 tensor 在 CPU 上（GPU tensor 会报错）
 - 单元测试使用 InMemoryBackend，与 Qdrant 行为可能有差异
+- episode write path (buffer_for_write + on_episode_end) 产生带 prev_ids/next_ids 的链式 entry
 
 #### `interceptor.py`
 - CP1 hit 早返回路径的 output 构建与正常路径重复（两处 `jax.tree.map + output_transform`）
-- CP3 consume 分支的 shape 处理（state strip batch / action 不 strip）仅在 FakeModel 下验证
 - `torch.compile` 路径未测试（测试用 eager mode）
 
 ---

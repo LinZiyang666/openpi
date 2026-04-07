@@ -88,6 +88,20 @@ class AlwaysHitJudge:
             return HitType.MISS, None
         return HitType.FULL_HIT, results[0].id
 
+    def on_episode_start(self) -> None:
+        """Clear internal history buffer. Called by Orchestrator at episode start.
+
+        Current: no-op. AlwaysHitJudge has no history state.
+        Future: trajectory-aware judge can clear score history here.
+        """
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        """Receive Orchestrator-broadcast action. Pure local buffer op.
+
+        Current: no-op. AlwaysHitJudge does not use action data.
+        Future: trajectory-aware judge can buffer action history for consistency checks.
+        """
+
 
 class ThresholdJudge:
     """Simple threshold-based judge: top-1 score > threshold -> FULL_HIT.
@@ -121,3 +135,17 @@ class ThresholdJudge:
         if top.score >= threshold:
             return HitType.FULL_HIT, top.id
         return HitType.MISS, None
+
+    def on_episode_start(self) -> None:
+        """Clear internal history buffer. Called by Orchestrator at episode start.
+
+        Current: no-op. ThresholdJudge uses single-step threshold, no history.
+        Future: trajectory-aware judge can clear score trend history here.
+        """
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        """Receive Orchestrator-broadcast action. Pure local buffer op.
+
+        Current: no-op. ThresholdJudge does not use action data.
+        Future: trajectory-aware judge can buffer action history for consistency checks.
+        """

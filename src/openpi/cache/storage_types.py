@@ -7,12 +7,13 @@ particular database stores it.
 Coupling map:
   DEPENDS ON:  types.py (CheckpointID)
   CONSUMED BY: KeyBuilder (CachePayload, CacheEntry construction),
-               Orchestrator (SearchResultLite, SearchResult, CachePayload),
+               Orchestrator (SearchResultLite, SearchResult, CachePayload,
+                             StepRecord, EpisodeRecord),
                SearchStrategy (QuerySpec construction),
                CacheStorage (all types), backends (all types)
   IF CHANGED:  SearchStrategy QuerySpec construction,
                Backend.search() fusion parameter reading,
-               Orchestrator write path (CacheEntry unchanged)
+               Orchestrator write path (CacheEntry, StepRecord, EpisodeRecord)
 
 Tensor contract
 ---------------
@@ -64,7 +65,6 @@ class CachePayload:
       CP1            : action_chunk required; everything else None.
       CP2 full hit   : action_chunk required; intermediates / denoising_num_steps None.
       CP2 warm start : action_chunk + intermediates + denoising_num_steps required.
-      CP3            : action_chunk + next_action_chunk required.
 
     intermediates keys
     ------------------
@@ -87,15 +87,12 @@ class CachePayload:
     action_chunk: torch.Tensor                          # [50, 32] CPU float32
     intermediates: Optional[dict[float, torch.Tensor]] = None   # {t: x_t}
     denoising_num_steps: Optional[int] = None
-    next_action_chunk: Optional[torch.Tensor] = None   # [50, 32] CPU float32
     task_key: str = ""
 
     def validate_for_checkpoint(self, checkpoint_id: CheckpointID) -> None:
         """Raise ValueError if CP-specific invariants are violated."""
         if self.action_chunk is None:
             raise ValueError("action_chunk is required for all checkpoints")
-        if checkpoint_id == CheckpointID.CP3 and self.next_action_chunk is None:
-            raise ValueError("next_action_chunk is required for CP3")
         if self.intermediates is not None and self.denoising_num_steps is None:
             raise ValueError(
                 "denoising_num_steps must be set when intermediates is provided"
@@ -134,6 +131,10 @@ class CacheEntry:
     payload: CachePayload
     step_idx: Optional[int] = None
     timestamp: float = field(default_factory=time.time)
+    # ── Trajectory linked-list fields ──
+    prev_ids: list[str] = field(default_factory=list)
+    next_ids: list[str] = field(default_factory=list)
+    trajectory_id: Optional[str] = None
 
     def validate(self) -> None:
         """Check CP-specific invariants.  Called automatically by CacheStorage.insert()."""
@@ -208,6 +209,16 @@ class QuerySpec:
     # {"type": "percentile",
     #  "fields": {"vision_0": {"p5": 0.82, "p95": 0.99}, ...}}
 
+    # ── Trajectory search fields ──
+    trajectory_history: Optional[list[dict[str, torch.Tensor]]] = None
+    # Query-side history key sequence, newest-first:
+    # [current_step_keys, t-1_keys, t-2_keys, ...]
+    # None → falls back to existing single-step search.
+
+    trajectory_weights: Optional[list[float]] = None
+    # Per-level weights, newest-first: [w_current, w_t-1, w_t-2, ...]
+    # Must be same length as trajectory_history. None → no trajectory fusion.
+
 
 # ---------------------------------------------------------------------------
 # Search results (two-phase)
@@ -269,3 +280,33 @@ class BatchInsertResult:
 
     inserted: int
     failed_ids: list[str]
+
+
+# ---------------------------------------------------------------------------
+# Episode-level records (trajectory write path)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class StepRecord:
+    """Per-step staging record for episode-end batch write.
+
+    Accumulated by Orchestrator.buffer_for_write() during an episode,
+    then consumed by on_episode_end() to build a linked CacheEntry chain.
+    """
+
+    query_keys: dict[str, torch.Tensor]   # CPU float32
+    action_chunk: torch.Tensor            # CPU float32, required
+
+
+@dataclass
+class EpisodeRecord:
+    """Entire episode staging record, passed to WritePolicy.should_write().
+
+    Constructed by Orchestrator.on_episode_end() from accumulated StepRecords.
+    """
+
+    steps: list[StepRecord]
+    task_key: str
+    miss_by_checkpoint: dict[CheckpointID, int]  # e.g. {CP1: 3}
+    total_steps: int

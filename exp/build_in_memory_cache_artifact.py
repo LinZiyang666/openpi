@@ -152,7 +152,19 @@ def build_artifact(
             if not success:
                 continue
 
-            step_names = sorted(k for k in f.keys() if k.startswith("step_"))
+            trajectory_id = h5_path.stem  # episode filename as trajectory_id
+            episode_entries: list[CacheEntry] = []
+            def _step_sort_key(name: str) -> tuple[bool, int, str]:
+                """Sort by parsed integer index, falling back to string."""
+                suffix = name.split("_", 1)[1] if "_" in name else ""
+                if suffix.isdigit():
+                    return (False, int(suffix), name)
+                return (True, 0, name)
+
+            step_names = sorted(
+                (k for k in f.keys() if k.startswith("step_")),
+                key=_step_sort_key,
+            )
             for step_name in step_names:
                 group = f[step_name]
 
@@ -161,12 +173,13 @@ def build_artifact(
                 query_keys = builder.build(cp_id)
                 builder.clear()
 
-                entry_id = f"{h5_path.stem}_{step_name}"
                 # Parse step index from name like "step_042"
                 step_idx = None
                 suffix = step_name.split("_", 1)[1] if "_" in step_name else ""
                 if suffix.isdigit():
                     step_idx = int(suffix)
+
+                entry_id = f"{trajectory_id}:{step_idx if step_idx is not None else step_name}"
 
                 action = torch.from_numpy(np.array(group["clean_action"])).float()
                 if action.dim() == 1:
@@ -179,8 +192,18 @@ def build_artifact(
                     query_keys=query_keys,
                     payload=payload,
                     step_idx=step_idx,
+                    trajectory_id=trajectory_id,
                 )
-                entries.append(entry)
+                episode_entries.append(entry)
+
+            # Link prev_ids / next_ids within episode
+            for i in range(len(episode_entries)):
+                if i > 0:
+                    episode_entries[i].prev_ids = [episode_entries[i - 1].id]
+                if i < len(episode_entries) - 1:
+                    episode_entries[i].next_ids = [episode_entries[i + 1].id]
+
+            entries.extend(episode_entries)
 
     logger.info("Built %d entries for %s from %s", len(entries), builder_type, data_dir)
     return {
