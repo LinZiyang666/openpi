@@ -19,9 +19,9 @@ timer:
 # task_key filtering: not yet implemented, requires task normalization pipeline.
 keys:
   vision_0:    { enabled: true,  weight: 1.0 }   # base_0_rgb, [256, emb_dim] flattened
-  vision_1:    { enabled: true,  weight: 1.0 }   # left_wrist_0_rgb, [256, emb_dim] flattened
-  vision_2:    { enabled: true,  weight: 1.0 }   # right_wrist_0_rgb, [256, emb_dim] flattened
-  prompt_emb:  { enabled: true,  weight: 1.0 }   # language tokens, [max_lang_tokens, emb_dim] padded+flattened
+  vision_1:    { enabled: false,  weight: 1.0 }   # left_wrist_0_rgb, [256, emb_dim] flattened
+  vision_2:    { enabled: false,  weight: 1.0 }   # right_wrist_0_rgb, [256, emb_dim] flattened
+  prompt_emb:  { enabled: false,  weight: 1.0 }   # language tokens, [max_lang_tokens, emb_dim] padded+flattened
   robot_state: { enabled: true,  weight: 1.0 }   # raw state vector [action_dim]
 
 key_builder:
