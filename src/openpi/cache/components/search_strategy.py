@@ -23,10 +23,13 @@ Coupling map:
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import Any, Optional, Protocol, runtime_checkable
 
 import torch
+
+logger = logging.getLogger(__name__)
 
 from openpi.cache.cache_storage import CacheStorage
 from openpi.cache.storage_types import QueryFilter, QuerySpec, SearchResultLite
@@ -123,6 +126,10 @@ class TrajectoryMixin:
 
         actual_depth = min(self._trajectory_depth, len(self._query_history))
         if actual_depth <= 1:
+            logger.debug(
+                "Trajectory: history=%d < 2, falling back to single-step",
+                len(self._query_history),
+            )
             return {}
 
         history_newest_first = list(reversed(self._query_history[-actual_depth:]))

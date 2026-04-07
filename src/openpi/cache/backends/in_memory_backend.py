@@ -126,6 +126,12 @@ class InMemoryBackend(VectorStoreBackend):
         if (spec.trajectory_history is not None
                 and spec.trajectory_weights is not None
                 and len(spec.trajectory_weights) > 1):
+            logger.info(
+                "Trajectory search: depth=%d, history_len=%d, candidates=%d",
+                len(spec.trajectory_weights),
+                len(spec.trajectory_history),
+                len(candidates),
+            )
             return self._search_with_trajectory(candidates, spec)
 
         # ── Existing single-step search (unchanged) ──
@@ -402,6 +408,8 @@ class InMemoryBackend(VectorStoreBackend):
                 query_history_len=len(history),
                 expected_checkpoint_id=spec.checkpoint_id,
             )
+        level_sizes = [len(s) for s in level_entries]
+        logger.info("  Phase A collect: level_sizes=%s (level 0=current)", level_sizes)
 
         # Phase B: batch-score each level
         level_scores: list[dict[str, float]] = []
@@ -434,6 +442,12 @@ class InMemoryBackend(VectorStoreBackend):
             scored.append((entry, traj_score))
 
         scored.sort(key=lambda x: x[1], reverse=True)
+        top = scored[0] if scored else None
+        if top:
+            logger.info(
+                "  Phase C result: winner=%s, traj_score=%.6f",
+                top[0].id, top[1],
+            )
         return [
             SearchResultLite(id=e.id, score=s, checkpoint_id=e.checkpoint_id)
             for e, s in scored[:spec.top_k]
