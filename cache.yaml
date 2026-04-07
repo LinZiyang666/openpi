@@ -14,19 +14,15 @@ timer:
 # Query vector field config.
 # enabled: whether the field participates in cache key building and search.
 # weight: fusion weight for SearchStrategy (higher = more important in RRF fusion).
-# Dimensions are raw flattened: vision = 256 tokens * emb_dim, prompt = max_lang_tokens * emb_dim.
-# Actual values depend on dataset (set by qdrant_ingest_openpi.py at collection creation).
-# task_key filtering: not yet implemented, requires task normalization pipeline.
 keys:
-  vision_0:    { enabled: true,  weight: 1.0 }   # base_0_rgb, [256, emb_dim] flattened
-  vision_1:    { enabled: false,  weight: 1.0 }   # left_wrist_0_rgb, [256, emb_dim] flattened
-  vision_2:    { enabled: false,  weight: 1.0 }   # right_wrist_0_rgb, [256, emb_dim] flattened
-  prompt_emb:  { enabled: false,  weight: 1.0 }   # language tokens, [max_lang_tokens, emb_dim] padded+flattened
-  robot_state: { enabled: true,  weight: 1.0 }   # raw state vector [action_dim]
+  vision_0:    { enabled: true,  weight: 1.0 }
+  vision_1:    { enabled: false, weight: 1.0 }
+  vision_2:    { enabled: false, weight: 1.0 }
+  prompt_emb:  { enabled: false, weight: 1.0 }
+  robot_state: { enabled: true,  weight: 1.0 }
 
 key_builder:
-  type: full_original       # "full_original" = raw flatten, matches collect hook output
-                            # "placeholder" = robot_state only (for testing)
+  type: cp1_mean_pool     # "cp1_mean_pool" | "cp1_spatial_pool_16" | "cp1_spatial_pool_64" | "cp1_max_pool" | "placeholder"
 
 # Per-checkpoint config: CP1 and CP3 can be configured independently.
 checkpoints:
@@ -34,52 +30,42 @@ checkpoints:
     gate:
       type: always_search
     search_strategy:
-      type: qdrant_weighted_rrf_knn
+      type: weighted_rrf_knn
       top_k: 1
       step_filter: all    # "all" | "exact" | "window"
-      step_window: 5      # only effective when step_filter=window
-      rrf_k: 60           # Qdrant RRF fusion param
-      candidate_multiplier: 5  # Qdrant prefetch = top_k * multiplier
+      step_window: 5
+      rrf_k: 60
       # Trajectory search: depth=1 is single-step (no trajectory).
-      # To enable trajectory search, set depth > 1 and provide weights (newest-first).
-      # Only supported with in_memory backend; Qdrant will reject depth > 1.
+      # To enable, set depth > 1 and provide weights (newest-first).
       trajectory_depth: 1
       # trajectory_weights: [0.6, 0.3, 0.1]  # uncomment when trajectory_depth > 1
 
   cp1:
     <<: *cp_defaults
-    enabled: true           # set false to disable CP1 cache check entirely
+    enabled: true
     judge:
       type: always_hit
 
   cp3:
     <<: *cp_defaults
-    enabled: true           # set false to disable CP3 cache check entirely
+    enabled: true
     judge:
       type: always_hit
 
 backend:
-  type: qdrant            # "in_memory" | "qdrant"
-  # vector_dims must match the Qdrant collection schema created by qdrant_ingest_openpi.py.
-  # These are full flattened dims; the backend handles Qdrant's 65535-dim chunk limit internally.
-  # To get actual values, run: python exp/qdrant_ingest_openpi.py --dry-run --data-dir <path>
-  # and read the dataset summary output.
+  type: in_memory
   vector_dims:
-    vision_0: 524288      # 256 * 2048 (SigLIP patch_size=14, 224/14=16, 16^2=256 tokens)
-    vision_1: 524288
-    vision_2: 524288
-    prompt_emb: 409600    # 200 (max_lang_tokens) * 2048 — must match Qdrant collection schema
-    robot_state: 32       # action_dim
-  qdrant:
-    url: ${QDRANT_URL:-http://155.98.36.13:6333}
-    collection_name: openpi_steps_named   # must match qdrant_ingest_openpi.py --named-collection
-    prefer_grpc: false
-    grpc_port: 6334
-    request_timeout: 30
+    vision_0: 2048        # cp1_mean_pool output dim
+    vision_1: 2048
+    vision_2: 2048
+    prompt_emb: 2048
+    robot_state: 32
+  in_memory:
+    preload_path: null    # set to artifact .pkl path, e.g. data/cache_artifacts/libero_spatial/cp1_mean_pool.pkl
 
 # Write policy: controls whether trajectory data is written to cache at episode end.
 # "on_any_miss" = write if episode had any CP1 miss (default)
 # "always" = always write
 # "never" = read-only mode
 write_policy:
-  type: on_any_miss
+  type: never
