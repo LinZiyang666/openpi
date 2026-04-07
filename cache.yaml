@@ -30,15 +30,13 @@ checkpoints:
     gate:
       type: always_search
     search_strategy:
-      type: weighted_rrf_knn
+      type: weighted_rrf_knn   # "weighted_rrf_knn" | "weighted_score_sum_knn" (in_memory only)
       top_k: 1
-      step_filter: all    # "all" | "exact" | "window"
-      step_window: 5
-      rrf_k: 60
-      # Trajectory search: depth=1 is single-step (no trajectory).
-      # To enable, set depth > 1 and provide weights (newest-first).
-      trajectory_depth: 1
-      # trajectory_weights: [0.6, 0.3, 0.1]  # uncomment when trajectory_depth > 1
+      step_filter: all         # "all" | "exact" | "window"
+      step_window: 5           # only used when step_filter=window
+      rrf_k: 60                # only used by weighted_rrf_knn
+      trajectory_depth: 3      # 1 = single-step; >1 enables trajectory search (in_memory only)
+      trajectory_weights: [0.6, 0.3, 0.1]  # newest-first, length must == trajectory_depth
 
   cp1:
     <<: *cp_defaults
