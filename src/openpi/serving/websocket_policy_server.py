@@ -155,19 +155,10 @@ class WebsocketPolicyServer:
         if self._concurrent:
             # Concurrent mode: create a fresh wrapper stack for this connection.
             try:
-                logger.info(
-                    "Creating per-connection policy for %s ...",
-                    websocket.remote_address,
-                )
                 conn_policy = self._connection_policy_factory(self._policy)
-                logger.info(
-                    "Per-connection policy created for %s: %s",
-                    websocket.remote_address,
-                    type(conn_policy).__name__,
-                )
             except Exception:
                 logger.exception(
-                    "connection_policy_factory FAILED for %s",
+                    "connection_policy_factory failed for %s",
                     websocket.remote_address,
                 )
                 await websocket.close(
@@ -197,18 +188,7 @@ class WebsocketPolicyServer:
         # InferenceInterceptor implements on_task_begin(); plain Policy does not.
         # The hasattr check keeps this server decoupled from cache internals.
         if hasattr(conn_policy, "on_task_begin"):
-            try:
-                conn_policy.on_task_begin()
-                logger.info("on_task_begin() OK for %s", websocket.remote_address)
-            except Exception:
-                logger.exception(
-                    "on_task_begin() FAILED for %s", websocket.remote_address,
-                )
-                await websocket.close(
-                    code=websockets.frames.CloseCode.INTERNAL_ERROR,
-                    reason="on_task_begin failed.",
-                )
-                return
+            conn_policy.on_task_begin()
 
         await websocket.send(packer.pack(self._metadata))
 
@@ -287,13 +267,7 @@ class WebsocketPolicyServer:
                 infer_time = time.monotonic()
                 # Run blocking inference in a thread so the asyncio event
                 # loop stays responsive for other connections and health checks.
-                try:
-                    action = await asyncio.to_thread(conn_policy.infer, obs)
-                except Exception:
-                    logger.exception(
-                        "infer() FAILED for %s", websocket.remote_address,
-                    )
-                    raise
+                action = await asyncio.to_thread(conn_policy.infer, obs)
                 infer_time = time.monotonic() - infer_time
 
                 # server_timing: wall-clock time spent in policy.infer(),

@@ -395,14 +395,31 @@ uv run exp/run_cache_experiments.py \
 不通过实验运行器，直接跑一个 task 验证环境：
 
 ```bash
-conda run --no-capture-output -n libero_sim python examples/libero/main.py \
+MUJOCO_GL=egl conda run --no-capture-output -n libero_sim python examples/libero/main.py \
     --host 155.98.36.13 \
     --port 9000 \
-    --task_suite_name libero_spatial \
-    --num_trials_per_task 2 \
-    --num_workers 1 \
+    --task-suite-name libero_spatial \
+    --num-trials-per-task 2 \
+    --num-workers 1 \
     --task-ids 0
 ```
+
+### 多 worker 手动测试
+
+验证 concurrent 模式下多个 worker 都能正常工作：
+
+```bash
+MUJOCO_GL=egl conda run --no-capture-output -n libero_sim python examples/libero/main.py \
+    --host 155.98.36.13 \
+    --port 9000 \
+    --task-suite-name libero_spatial \
+    --num-trials-per-task 2 \
+    --num-workers 5 \
+    --task-ids 0 1 2 3 4 \
+    --seed 42
+```
+
+> **注意**: `--num-workers` 不应超过 `--task-ids` 的数量，否则多余的 worker 会因队列为空立即退出（任务分配粒度是 task 级别，不是 episode 级别）。
 
 > **注意**: `main.py` 依赖 LIBERO 环境，必须用 `conda run -n libero_sim` 而非 `uv run`。
 > 实验运行器 `run_cache_experiments.py` 本身通过 `uv run` 启动（只需 `msgpack`/`websockets`），
