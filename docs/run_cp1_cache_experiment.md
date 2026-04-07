@@ -158,7 +158,8 @@ uv run exp/run_cache_experiments.py \
     --host 155.98.36.13 \
     --port 9000 \
     --task-suite libero_spatial \
-    --seed 42
+    --seed 42 \
+    --conda-env libero_sim
 ```
 
 参数说明：
@@ -167,6 +168,7 @@ uv run exp/run_cache_experiments.py \
 - `--num-workers 5`: 每个 task 开 5 个并发 worker（需要 `--concurrent` 服务器）
 - `--task-suite libero_spatial`: 10 个 task 的 suite
 - `--seed 42`: 固定随机种子（数据收集时用默认 seed=7，实验评估用不同种子避免过拟合）
+- `--conda-env libero_sim`: 使用 conda 环境运行 LIBERO 评估（`main.py` 需要 LIBERO 依赖，不在 uv 环境中）
 
 ### 5b. 只运行部分配置（调试用）
 
@@ -180,6 +182,7 @@ uv run exp/run_cache_experiments.py \
     --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
+    --conda-env libero_sim \
     --runs 1-8
 ```
 
@@ -196,6 +199,7 @@ uv run exp/run_cache_experiments.py \
     --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
+    --conda-env libero_sim \
     --resume
 ```
 
@@ -269,7 +273,8 @@ uv run exp/run_cache_experiments.py \
     --host 155.98.36.13 \
     --port 9000 \
     --task-suite libero_spatial \
-    --seed 42
+    --seed 42 \
+    --conda-env libero_sim
 ```
 
 断点续跑同理加 `--resume`。
@@ -311,7 +316,8 @@ uv run exp/run_cache_experiments.py \
     --host 155.98.36.13 \
     --port 9000 \
     --task-suite libero_spatial \
-    --seed 42
+    --seed 42 \
+    --conda-env libero_sim
 ```
 
 ---
@@ -380,6 +386,7 @@ uv run exp/run_cache_experiments.py \
     --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
+    --conda-env libero_sim \
     --resume
 ```
 
@@ -388,7 +395,7 @@ uv run exp/run_cache_experiments.py \
 不通过实验运行器，直接跑一个 task 验证环境：
 
 ```bash
-uv run examples/libero/main.py \
+conda run --no-capture-output -n libero_sim python examples/libero/main.py \
     --host 155.98.36.13 \
     --port 9000 \
     --task_suite_name libero_spatial \
@@ -396,6 +403,10 @@ uv run examples/libero/main.py \
     --num_workers 1 \
     --task-ids 0
 ```
+
+> **注意**: `main.py` 依赖 LIBERO 环境，必须用 `conda run -n libero_sim` 而非 `uv run`。
+> 实验运行器 `run_cache_experiments.py` 本身通过 `uv run` 启动（只需 `msgpack`/`websockets`），
+> 但内部通过 `--conda-env libero_sim` 参数用 conda 调用 `main.py`。
 
 ---
 

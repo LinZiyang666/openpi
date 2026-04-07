@@ -27,6 +27,7 @@ import argparse
 import asyncio
 import json
 import logging
+import os
 import re
 import subprocess
 import threading
@@ -128,8 +129,12 @@ def _execute_task(
         "--task-ids", str(task_id),
         "--seed", str(seed),
     ]
+    env = None
     if conda_env:
         cmd = ["conda", "run", "--no-capture-output", "-n", conda_env, "python", *main_args]
+        # Clean env: uv injects VIRTUAL_ENV / PYTHONPATH that override conda's paths.
+        env = {k: v for k, v in os.environ.items()
+               if k not in ("VIRTUAL_ENV", "PYTHONPATH", "PYTHONHOME")}
     else:
         cmd = ["uv", "run", *main_args]
 
@@ -142,6 +147,7 @@ def _execute_task(
 
         proc = subprocess.Popen(
             cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+            env=env,
         )
 
         # Read stdout in a daemon thread so the main thread can enforce timeout
@@ -151,10 +157,20 @@ def _execute_task(
         stdout_lines: list[str] = []
 
         def _drain():
+            import sys
             for line in proc.stdout:
                 log_file.write(line)
                 log_file.flush()
                 stdout_lines.append(line)
+                # Only print key lines to terminal; skip tqdm progress bars.
+                s = line.strip()
+                if not s:
+                    continue
+                # Progress bars contain block chars or step counters like "60/220"
+                if "█" in s or "▏" in s or "▎" in s or "▍" in s or "▌" in s or "▋" in s or "▊" in s or "▉" in s:
+                    continue
+                sys.stdout.write(line)
+                sys.stdout.flush()
 
         reader = threading.Thread(target=_drain, daemon=True)
         reader.start()
@@ -433,7 +449,7 @@ def main():
         # Execute remaining tasks one by one.
         run_failed = False
         for task_id in remaining:
-            logger.info("  Task %d/%d for run %s", task_id, num_tasks - 1, state.run_id)
+            logger.info("  Task %d (of %d total) for run %s", task_id, len(task_id_list), state.run_id)
             try:
                 result = _execute_task(
                     task_id=task_id,
@@ -455,7 +471,10 @@ def main():
                 else:
                     state.task_progress[str(task_id)] = "failed"
                     run_failed = True
-                    logger.error("  Task %d failed (exit %d)", task_id, result["exit_code"])
+                    # Show last 15 lines of output so errors are visible in terminal.
+                    tail = "\n".join(result["stdout"].splitlines()[-15:])
+                    logger.error("  Task %d failed (exit %d). Last output:\n%s",
+                                 task_id, result["exit_code"], tail)
             except Exception as e:
                 state.task_progress[str(task_id)] = "failed"
                 run_failed = True

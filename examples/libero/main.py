@@ -8,6 +8,7 @@ import queue
 import signal
 import threading
 import time
+from typing import Dict, List, Tuple
 
 import cv2
 import imageio
@@ -56,7 +57,7 @@ class Args:
     #################################################################################################################
     # Task selection
     #################################################################################################################
-    task_ids: tuple[int, ...] = ()  # If non-empty, run only these task IDs (0-indexed). Default: all tasks.
+    task_ids: Tuple[int, ...] = ()  # If non-empty, run only these task IDs (0-indexed). Default: all tasks.
 
     #################################################################################################################
     # Concurrency
@@ -158,7 +159,7 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
     return done, images, timestamps
 
 
-def _eval_serial(args: Args, task_suite, task_id_list: list[int], max_steps) -> None:
+def _eval_serial(args: Args, task_suite, task_id_list: List[int], max_steps) -> None:
     """Original serial evaluation path (num_workers=1)."""
     pathlib.Path(args.video_out_path).mkdir(parents=True, exist_ok=True)
 
@@ -213,7 +214,7 @@ def _eval_serial(args: Args, task_suite, task_id_list: list[int], max_steps) -> 
     logging.info(f"Total episodes: {total_episodes}")
 
 
-def _eval_concurrent(args: Args, task_suite, task_id_list: list[int], max_steps) -> None:
+def _eval_concurrent(args: Args, task_suite, task_id_list: List[int], max_steps) -> None:
     """Concurrent evaluation path (num_workers > 1)."""
     num_tasks_in_suite = len(task_id_list)
 
@@ -337,7 +338,7 @@ def _eval_concurrent(args: Args, task_suite, task_id_list: list[int], max_steps)
 
     # 5. Launch workers.
     stop_event = threading.Event()
-    threads: list[threading.Thread] = []
+    threads: List[threading.Thread] = []
     for i in range(args.num_workers):
         t = threading.Thread(target=worker, args=(i, stop_event), daemon=True)
         t.start()
@@ -486,4 +487,4 @@ def _quat2axisangle(quat):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    tyro.cli(eval_libero)
+    eval_libero(tyro.cli(Args))
