@@ -261,6 +261,12 @@ def build_artifact(
                 idx + 1, len(h5_paths), len(entries), skipped,
             )
 
+    # Prune vector_dims to only fields that actually appear in entries.
+    observed_fields: set[str] = set()
+    for entry in entries:
+        observed_fields.update(entry.query_keys.keys())
+    vector_dims = {k: v for k, v in vector_dims.items() if k in observed_fields}
+
     logger.info(
         "Built %d entries from %d files (%d skipped) for clip/%s/%s",
         len(entries), len(h5_paths), skipped, clip_model, clip_pretrained,
