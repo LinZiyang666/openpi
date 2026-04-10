@@ -220,7 +220,7 @@ episode_XXXX.h5
 
 ### Phase 3: 文档更新
 1. 更新 `docs/data_collection_guide.md`：HDF5 schema、新增字段说明、体积估算
-2. 更新 `claude_log/README.md` 索引
+2. 更新 `logs/README.md` 索引
 
 ### Phase 4: 验证
 1. 单元测试：`extract_valid_images()` 对 Libero（2 张）和 ALOHA（3 张）的 mask 过滤

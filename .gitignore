@@ -56,10 +56,10 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Ignore ad-hoc logs everywhere, but keep curated project logs under claude_log/.
+# Ignore ad-hoc logs everywhere, but keep curated project logs under logs/.
 *.log
-!claude_log/
-!claude_log/**
+!logs/
+!logs/**
 
 # Unit test / coverage reports
 htmlcov/

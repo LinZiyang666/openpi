@@ -1,9 +1,15 @@
-# Pi0.5 Inference Cache System - Architecture Specification
+# Pi0.5 Inference Cache System - Architecture Specification (中文版)
 
+> **⚠️ 本中文版未同步更新。** 最新架构规格请参阅英文版 [cache_system_architecture.md](cache_system_architecture.md)（2026-04-10 更新）。
+> 以下内容冻结在 2026-04-03 版本，仅供历史参考。主要差异：
+> - 英文版 §5 已更新为当前实现状态（KeyBuilder/SearchStrategy/WritePolicy/Trajectory）
+> - 英文版 §10-13（Configuration/File Structure/Roadmap）已删除，改为指向 tutorial 和 logs
+>
+> 原始版本信息：
 > Version: 0.3 (Step 1 已验证, Step 2 已验证, Step 3 ⚠️ 代码落地·高危)
 > Status: 实施阶段 — Step 0-2 已验证，Step 3 ⚠️ 不稳定（无测试覆盖，接口将频繁变动），CP2 搁置
 > Scope: PyTorch inference pipeline only (JAX path disabled)
-> Last updated: 2026-04-03
+> Last updated: 2026-04-03 (frozen)
 
 ---
 
@@ -292,7 +298,7 @@ class CacheOrchestrator:
 
 ### 5.2 CacheStorage — ⚠️ Step 3 已实现（不稳定）
 
-> **实现**：`src/openpi/cache/cache_storage.py` | **设计日志**：`claude_log/step3_cache.log`
+> **实现**：`src/openpi/cache/cache_storage.py` | **设计日志**：`logs/archive/step3_cache.log`
 > **状态**：⚠️ 代码已落地，无测试覆盖，接口将频繁变动。
 
 存储层门面。`CacheOrchestrator` 是唯一消费方。内含 `VectorStoreBackend`（ABC）和可选的 `MetadataDB`（预留，尚未实现）。
@@ -348,7 +354,7 @@ class CacheStorage:
 ### 5.3 VectorStoreBackend — ⚠️ Step 3 已实现（不稳定）
 
 > **实现**：`src/openpi/cache/backend_base.py` + `src/openpi/cache/backends/qdrant_backend.py`
-> **设计日志**：`claude_log/step3_cache.log`
+> **设计日志**：`logs/archive/step3_cache.log`
 > **状态**：⚠️ 代码已落地，无测试覆盖，接口将频繁变动。
 
 **向量数据库选型未定。** 当前用 Qdrant 做实验，但未来**一定会更换**（候选：FAISS、自研 TorchGPU store 或其他）。为将上层逻辑与选型决策隔离，Step 3 引入 `VectorStoreBackend` ABC 作为最小公约数接口。
@@ -599,7 +605,7 @@ class ThresholdJudge(SimilarityJudge):
 ### 5.7 Cache 数据模型 — ⚠️ Step 3 已实现（不稳定）
 
 > **实现**：`src/openpi/cache/storage_types.py` + `src/openpi/cache/types.py`
-> **设计日志**：`claude_log/step3_cache.log`
+> **设计日志**：`logs/archive/step3_cache.log`
 > **状态**：⚠️ 代码已落地，无测试覆盖，接口将频繁变动。
 
 Step 3 用更丰富的数据模型替换了原来的扁平 `CacheEntry`。与原设计的主要差异：`CachePayload` 是独立的嵌套 dataclass（非 `CacheEntry` 上的扁平字段），新增 `QueryFilter` 用于结构化过滤，搜索结果分为 `SearchResultLite`（轻量，用于阈值筛选）和 `SearchResult`（完整，含 payload）。
@@ -861,7 +867,7 @@ class CompositeEviction(EvictionPolicy):
 
 ## 9. 计时系统 — ✅ 已实现（Step 2）
 
-> 实现文件：`src/openpi/cache/timing.py` | 设计日志：`claude_log/step2.log`
+> 实现文件：`src/openpi/cache/timing.py` | 设计日志：`logs/archive/step2.log`
 
 计时系统采用 **基于 probe 的架构**：每个流水线组件在启动时注册一个命名 probe 并指定后端类型，`SystemTimer` 在热路径上提供零开销的 `measure()` 上下文管理器。
 
@@ -1036,7 +1042,7 @@ class CacheConfig:
 > **状态**：⚠️ 代码已落地，无测试覆盖，接口将频繁变动。
 > Step 3 包含两个子部分：数据收集（稳定的 observer 模式）和 cache 存储层（不稳定）。
 
-**Step 3a：数据收集**（`claude_log/step3_data_collection.log`）
+**Step 3a：数据收集**（`logs/archive/step3_data_collection.log`）
 
 | 文件 | 改动 | 类型 |
 |------|------|------|
@@ -1048,7 +1054,7 @@ class CacheConfig:
 | `openpi-client/websocket_client_policy.py` | 添加 `episode_start()` / `episode_end()` 方法 | **仅添加** |
 | `examples/libero/main.py` | 在 episode 循环前后插入 `client.episode_start/end()` 调用 | **修改** |
 
-**Step 3b：Cache 存储层**（`claude_log/step3_cache.log`）— ⚠️
+**Step 3b：Cache 存储层**（`logs/archive/step3_cache.log`）— ⚠️
 
 | 文件 | 改动 | 类型 |
 |------|------|------|
@@ -1130,14 +1136,14 @@ src/openpi/cache/
 
 ### Step 0: 认识现有推理管线 — ✅ 已融入 Step 1
 
-> Step 0 没有作为独立步骤执行。代码分析和基线理解在 Step 1 的规划阶段完成。详见 `claude_log/step1.log` 第一节，包含张量形状、阶段间数据流、Pi0 vs Pi0.5 架构对比等完整分析结果。
+> Step 0 没有作为独立步骤执行。代码分析和基线理解在 Step 1 的规划阶段完成。详见 `logs/archive/step1.log` 第一节，包含张量形状、阶段间数据流、Pi0 vs Pi0.5 架构对比等完整分析结果。
 
 ---
 
 ### Step 1: Staged Public API + Interceptor 骨架 — ✅ 已完成
 
 > **状态**：已验证 | **Commit**：`a6c9f43` on branch `Ziyang` | **日期**：2026-03-29
-> **日志**：`claude_log/step1.log`
+> **日志**：`logs/archive/step1.log`
 
 **目标**：在已有的私有 stage 方法之上添加公共类型化包装，并创建 `InferenceInterceptor` 骨架将推理路由到 staged API。
 
@@ -1204,7 +1210,7 @@ class Stage3Output:
 
 **目标**：实现 `SystemTimer`，为所有后续的性能量化提供基础设施。
 
-**实际实现**（完整细节见 `claude_log/step2.log`）：
+**实际实现**（完整细节见 `logs/archive/step2.log`）：
 
 2.1. `src/openpi/cache/timing.py`：
   - 基于 probe 的 `SystemTimer`，支持 `register_probe(name, backend="cuda"/"cpu", stream=None)`
@@ -1229,7 +1235,7 @@ class Stage3Output:
 ### Step 3: 数据收集 + Cache 存储层 — ⚠️ 已落地（高危）
 
 > **状态**：⚠️ 代码已落地，无测试覆盖，接口将频繁变动。
-> **日志**：`claude_log/step3_data_collection.log`（3a）、`claude_log/step3_cache.log`（3b）
+> **日志**：`logs/archive/step3_data_collection.log`（3a）、`logs/archive/step3_cache.log`（3b）
 > **日期**：2026-04-02
 
 **目标**：两个子部分——（3a）构建纯 observer 数据收集系统，将推理嵌入写入 HDF5；（3b）实现 cache 存储层抽象，使上层逻辑与具体向量数据库解耦。
@@ -1253,7 +1259,7 @@ class Stage3Output:
   - `src/openpi/cache/cache_storage.py`：`CacheStorage` 门面 — 线程安全（RLock）、维度校验、filter fail-fast、两段式搜索
   - `src/openpi/cache/backends/qdrant_backend.py`：`QdrantVectorStore` — Qdrant 实现，tensor 序列化（torch.save → base64），支持 filter：checkpoint_id/task_key/step_range
 
-**关键设计决策**（详见 `claude_log/step3_cache.log`）：
+**关键设计决策**（详见 `logs/archive/step3_cache.log`）：
 - `CachePayload` 是独立的嵌套 dataclass（非扁平字段），含 `validate_for_checkpoint()` 做 CP 级不变量校验
 - 两段式搜索：`search()` 返回 `SearchResultLite`（无 payload），`fetch_payload()` 按需取 — 避免传输无用 tensor 数据
 - `QueryFilter` + `supported_filters()` fail-fast — 不支持的 filter 抛出 `UnsupportedFilterError`，绝不静默忽略

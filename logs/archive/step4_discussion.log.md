@@ -1,7 +1,7 @@
 # Step 4 Discussion: Orchestrator Skeleton (CP1 + CP3)
 
 > This file keeps the design discussion and defense record only.
-> The full implementation plan was moved to `claude_log/step4_plan.log.md`.
+> The full implementation plan was moved to `logs/step4_plan.log.md`.
 
 ## 讨论 1: 组件稳定性分析
 
@@ -308,7 +308,7 @@ Orchestrator 级（细粒度）：`cp{1,3}_{collect, gate, build, search, judge,
 **依据**：
 - `src/openpi/cache/types.py`
 - `src/openpi/models_pytorch/pi0_pytorch.py`
-- `claude_log/step4_discussion.log.md`
+- `logs/step4_discussion.log.md`
 
 **答辩**：
 
@@ -374,7 +374,7 @@ Orchestrator 级（细粒度）：`cp{1,3}_{collect, gate, build, search, judge,
 **依据**：
 - `src/openpi/cache/interceptor.py`
 - `src/openpi/cache/storage_types.py`
-- `claude_log/step4_discussion.log.md`
+- `logs/step4_discussion.log.md`
 
 **答辩**：
 
@@ -403,7 +403,7 @@ Orchestrator 级（细粒度）：`cp{1,3}_{collect, gate, build, search, judge,
 
 **问题**：
 当前讨论主张：Step 4 的缓存子步骤全部使用 CPU backend 计时，包括 `KeyBuilder.build()` 这种带 GPU normalize / D2H 的路径。  
-但 `claude_log/step2.log` 里对未来缓存组件的计时设计写得很清楚：GPU 计算和 GPU<->CPU transfer 应支持 CUDA Event，CPU 逻辑才用 `perf_counter_ns`。  
+但 `logs/step2.log` 里对未来缓存组件的计时设计写得很清楚：GPU 计算和 GPU<->CPU transfer 应支持 CUDA Event，CPU 逻辑才用 `perf_counter_ns`。  
 如果 Step 4 一律使用 CPU probe，最后得到的究竟是壁钟时间，还是组件真实执行时间？这和 Step 2 的“精确计时”目标是否矛盾？
 
 **原因**：
@@ -411,9 +411,9 @@ Orchestrator 级（细粒度）：`cp{1,3}_{collect, gate, build, search, judge,
 - 计时语义如果不先说清楚，后面的性能分析会很难对齐。
 
 **依据**：
-- `claude_log/step2.log`
+- `logs/step2.log`
 - `src/openpi/cache/timing.py`
-- `claude_log/step4_discussion.log.md`
+- `logs/step4_discussion.log.md`
 
 **答辩**：
 
@@ -460,7 +460,7 @@ Step 2 log 第 214 行进一步说明：`CacheOrchestrator 的 cache_stream 通�
 
 **依据**：
 - `docs/cache_system_architecture_chinese.md`
-- `claude_log/step4_discussion.log.md`
+- `logs/step4_discussion.log.md`
 
 **答辩**：
 
@@ -496,7 +496,7 @@ Step 2 log 第 214 行进一步说明：`CacheOrchestrator 的 cache_stream 通�
 **依据**：
 - `src/openpi/cache/README.md`
 - `docs/cache_system_architecture_chinese.md`
-- `claude_log/step4_discussion.log.md`
+- `logs/step4_discussion.log.md`
 
 **答辩**：
 

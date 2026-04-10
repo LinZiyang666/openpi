@@ -13,7 +13,7 @@
 | **文档过长** | `cache_system_architecture.md`（英文1436行）与 `cache_system_architecture_chinese.md`（中文1450行）均过于冗长，需精简 |
 | **文件错放** | `exp/qdrant_exp.md`（768行）和 `exp/toy_server.log`（812行）是设计文档，不应放在实验代码目录 |
 | **内容冗余** | `toy_server.log` 的核心模式已被 `step3_data_collection.log` 覆盖；`faiss_uv_toolchain_plan.md`（785行）过于冗长 |
-| **职责不清** | `docs/` 混放了架构设计文档和使用指南；`claude_log/` 的 step3.log（165行）内容被 step1.log 和 step3_data_collection.log 覆盖 |
+| **职责不清** | `docs/` 混放了架构设计文档和使用指南；`logs/` 的 step3.log（165行）内容被 step1.log 和 step3_data_collection.log 覆盖 |
 | **索引过时** | `docs/md_log_index.md` 过于啰嗦（107行），且整理后需要重写 |
 
 ---
@@ -21,7 +21,7 @@
 ## 2. 整理原则
 
 - **`docs/`**: 项目宏观架构 + 使用指南。面向"想了解项目或使用项目的人"
-- **`claude_log/`**: 实现阶段的详细 plan 和代码修改记录。面向"参与开发的 agent 或开发者"
+- **`logs/`**: 实现阶段的详细 plan 和代码修改记录。面向"参与开发的 agent 或开发者"
 - **`exp/`**: 只放实验脚本和配置，不放设计文档
 - **语言策略**: 项目文档以英文为主。已有的中文文档保留不删除，中英文档保持协同（如 cache_system_architecture 的英文版和中文版并存）
 - 删除纯重复内容，精简啰嗦文档
@@ -34,16 +34,16 @@
 
 | 操作 | 文件 | 原因 |
 |------|------|------|
-| **删除** | `claude_log/step3.log` (165行) | 内容是 token 结构分析草稿，已被 step1.log（Pi0/Pi0.5 架构对比）和 step3_data_collection.log（embedding 维度）完全覆盖，无独立设计决策 |
+| **删除** | `logs/step3.log` (165行) | 内容是 token 结构分析草稿，已被 step1.log（Pi0/Pi0.5 架构对比）和 step3_data_collection.log（embedding 维度）完全覆盖，无独立设计决策 |
 | **删除** | `exp/toy_server.log` (812行) | 描述 toy 双服务器拆分方案，核心模式（hook 提取 embedding → 向量数据库）与 step3_data_collection.log 高度重叠，且实验脚本自身注释已足够说明用法 |
-| **删除** | `docs/md_log_index.md` (107行) | 整理后文件位置大量变动，索引完全过时，将由 docs/README.md + claude_log/README.md 替代 |
+| **删除** | `docs/md_log_index.md` (107行) | 整理后文件位置大量变动，索引完全过时，将由 docs/README.md + logs/README.md 替代 |
 
 ### Phase 2: 移动文件（归位）
 
 | 操作 | 源 | 目标 | 原因 |
 |------|---|------|------|
-| **移动** | `exp/qdrant_exp.md` | `claude_log/qdrant_design.log` | 这是设计文档不是实验代码，归入 claude_log |
-| **移动** | `docs/faiss_uv_toolchain_plan.md` | `claude_log/faiss_uv_toolchain_plan.log` | 这是实现计划不是用户指南，归入 claude_log |
+| **移动** | `exp/qdrant_exp.md` | `logs/qdrant_design.log` | 这是设计文档不是实验代码，归入 logs |
+| **移动** | `docs/faiss_uv_toolchain_plan.md` | `logs/faiss_uv_toolchain_plan.log` | 这是实现计划不是用户指南，归入 logs |
 
 ### Phase 3: 精简内容
 
@@ -51,18 +51,18 @@
 |------|------|------|
 | `docs/cache_system_architecture.md` (英文) | 精简到核心架构（三阶段模型 + 三个检查点 + 拦截器模式），删除过长的实现细节 | ~400行 |
 | `docs/cache_system_architecture_chinese.md` (中文) | 同步精简，与英文版保持内容一致 | ~400行 |
-| `claude_log/step2.log` | 精简，保留 CUDA Event 方案核心设计，删除冗余的问题分析过程 | ~200行 |
-| `claude_log/step3_data_collection.log` | 精简，保留 hook 方案 + HDF5 schema + wrapper 顺序，删除讨论过程 | ~200行 |
-| `claude_log/qdrant_step_knn_experiment_plan.log` | 精简，保留实验 spec + 配置 + 评分逻辑 | ~150行 |
-| `claude_log/qdrant_design.log`（从 exp/ 移来） | 精简，保留 collection schema + payload 设计 + 向量聚合策略 | ~300行 |
-| `claude_log/faiss_uv_toolchain_plan.log`（从 docs/ 移来） | 大幅精简，保留构建命令和关键路径 | ~100行 |
+| `logs/step2.log` | 精简，保留 CUDA Event 方案核心设计，删除冗余的问题分析过程 | ~200行 |
+| `logs/step3_data_collection.log` | 精简，保留 hook 方案 + HDF5 schema + wrapper 顺序，删除讨论过程 | ~200行 |
+| `logs/qdrant_step_knn_experiment_plan.log` | 精简，保留实验 spec + 配置 + 评分逻辑 | ~150行 |
+| `logs/qdrant_design.log`（从 exp/ 移来） | 精简，保留 collection schema + payload 设计 + 向量聚合策略 | ~300行 |
+| `logs/faiss_uv_toolchain_plan.log`（从 docs/ 移来） | 大幅精简，保留构建命令和关键路径 | ~100行 |
 
 ### Phase 4: 重写索引
 
 删除 `docs/md_log_index.md`，替换为两个简洁索引：
 
 1. **`docs/README.md`** — docs/ 目录的简洁目录（每个文件一行说明）
-2. **`claude_log/README.md`** — claude_log/ 目录的简洁目录（每个文件一行说明）
+2. **`logs/README.md`** — logs/ 目录的简洁目录（每个文件一行说明）
 
 ---
 
@@ -80,8 +80,8 @@ docs/
 ├── docker.md                          # Docker 使用说明（保留，上游文档）
 └── norm_stats.md                      # 归一化统计说明（保留，上游文档）
 
-claude_log/
-├── README.md                          # claude_log 目录索引（新建）
+logs/
+├── README.md                          # logs 目录索引（新建）
 ├── step1.log                          # Stage 1/2/3 公共接口设计与 Pi0 vs Pi0.5 对比
 ├── step2.log                          # CUDA Event 计时系统设计（精简）
 ├── step3_data_collection.log          # HDF5 数据采集 hook 方案（精简）
@@ -92,13 +92,13 @@ claude_log/
 ```
 
 移动的文件：
-- `docs/faiss_uv_toolchain_plan.md` → `claude_log/faiss_uv_toolchain_plan.log`
-- `exp/qdrant_exp.md` → `claude_log/qdrant_design.log`
+- `docs/faiss_uv_toolchain_plan.md` → `logs/faiss_uv_toolchain_plan.log`
+- `exp/qdrant_exp.md` → `logs/qdrant_design.log`
 
 删除的文件（需用户确认）：
-- `claude_log/step3.log`（内容被 step1.log + step3_data_collection.log 覆盖）
+- `logs/step3.log`（内容被 step1.log + step3_data_collection.log 覆盖）
 - `exp/toy_server.log`（核心模式被 step3_data_collection.log 覆盖）
-- `docs/md_log_index.md`（整理后由 docs/README.md + claude_log/README.md 替代）
+- `docs/md_log_index.md`（整理后由 docs/README.md + logs/README.md 替代）
 
 ---
 

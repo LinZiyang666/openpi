@@ -1,5 +1,7 @@
 # Data Collection Guide
 
+> **AGENT: READ FIRST** — This file is a registered subsystem rule document per [`constitution.md` §8](../constitution.md#8-subsystem-rules). It carries constitutional authority.
+
 ## Overview
 
 This data collection path records one HDF5 file per episode during remote inference.
@@ -211,7 +213,7 @@ with h5py.File(paths[-1], 'r') as f:
 PY
 ```
 
-## Notes YOU MAST READ IT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+## Important Notes
 
 - After you enable `--collect`, the first real simulator inference may trigger model compilation. This is especially noticeable when `--cache` is also enabled, but the first compiled inference can also happen on the normal PyTorch path.
 - During that first compile, the server may look completely stuck for a long time and may not print new progress messages. This is normal. Do not assume it crashed immediately.

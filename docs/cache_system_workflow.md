@@ -235,6 +235,7 @@ keys:
 
 key_builder:
   type: cp1_mean_pool            -->  CP1MeanPoolKeyBuilder
+  # type: clip                   -->  CLIPKeyBuilder (open_clip ViT-B-32)
 
 checkpoints:
   cp1:

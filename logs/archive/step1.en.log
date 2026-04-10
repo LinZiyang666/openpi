@@ -1,0 +1,218 @@
+# Step 1: Splitting the Inference Pipeline — Full Record
+
+> Status: **Completed and verified** (server runs normally with `--cache` flag)
+> commit: `a6c9f43` on branch `Ziyang`
+> Date: 2026-03-29
+
+---
+
+# I. Planning Phase
+
+> Goal: Provide typed public interfaces for the cache system's CP1/CP2/CP3 interception points, with **zero intrusion** into the existing inference path and timing system
+
+## 1. Current State Analysis (Code Reading Conclusions)
+
+### 1.1 Existing Private Stage Split
+
+`pi0_pytorch.py` already contains three private methods:
+
+```python
+_stage1_token_prep(observation)
+    → (state, prefix_embs, prefix_pad_masks, prefix_att_2d_masks_4d, prefix_position_ids)
+
+_stage2_llm_backbone(prefix_embs, prefix_pad_masks, prefix_att_2d_masks_4d, prefix_position_ids)
+    → past_key_values
+
+_stage3_action_expert(state, prefix_pad_masks, past_key_values, noise, num_steps=10)
+    → x_t  (action_chunk)
+```
+
+`sample_actions()` already chains execution through these three private methods; no need to rewrite its logic.
+
+`policy.py` already detects these via `hasattr(model, "_stage1_token_prep")` and uses the three private methods for **per-stage timing**, writing results to the `stage_timing` field.
+
+### 1.2 Existing Timing System
+
+Existing timing system in `policy.py`:
+- Uses `time.monotonic()` for timing (CPU time)
+- Calls `torch.cuda.synchronize()` after CUDA inference to synchronize GPU operations
+- Outputs `stage_timing = {token_prep_ms, llm_backbone_ms, action_expert_ms, total_ms}`
+
+**Step 1 must not modify this system**. Fine-grained timing for the cache system will be implemented in Step 2 (`SystemTimer`).
+
+### 1.3 Missing Components (To Be Added in Step 1)
+
+| Missing Component | Purpose |
+|-------------------|---------|
+| `Stage1Output` / `Stage2Output` / `Stage3Output` dataclasses | Pass data between stages, used by `InferenceInterceptor` |
+| `run_stage1()` / `run_stage2()` / `run_stage3()` public methods | Interception points for the cache system |
+| `run_stage3()` `return_intermediates` parameter | Save flow matching intermediate states x_t for Warm Start |
+| `run_stage3_from(start_x, start_t)` | Continue denoising from an intermediate state for Warm Start |
+
+---
+
+## 2. Key Differences Between Pi0 and Pi0.5
+
+### Stage 1 (Vision Encoding + Prefix Embedding)
+
+| Aspect | Pi0 (`pi05=False`) | Pi0.5 (`pi05=True`) |
+|--------|-------------------|---------------------|
+| State input | `state` is a continuous vector, processed in Stage 3's Suffix | `state` has been discretized into text tokens by the transform pipeline, encoded into `lang_tokens` |
+| Prefix content | Image tokens + language tokens | Image tokens + language tokens (which already contain discretized state) |
+| `Stage1Output.state` | Raw continuous vector, used for Stage 3's `state_proj` | Raw continuous vector, does **not** enter the model, only serves as a cache key |
+
+> Key point: Both models have identical `_stage1_token_prep` logic; differences are downstream (in the `embed_suffix` branch).
+
+### Stage 2 (LLM Backbone / KV Cache Fill)
+
+- **Both models have identical logic**: both call PaliGemma for forward pass and return `past_key_values`
+- In the PyTorch implementation, Pi0.5 does **not** have autoregressive subtask generation (JAX path is disabled)
+- `past_key_values` is a HuggingFace `DynamicCache` object, **must be passed by reference, cannot be cloned/reshaped**
+
+### Stage 3 (Action Expert / Flow Matching Denoising)
+
+| Aspect | Pi0 | Pi0.5 |
+|--------|-----|-------|
+| Suffix token count | 1 (state) + 50 (action) = 51 | 50 (action only) |
+| Timestep injection | Time embedding concatenated with action then passed through MLP | Time embedding passed through `time_mlp` then used as adaRMSNorm condition |
+| `adarms_cond` | `None` | Vector output from time MLP |
+
+> The denoising loop itself (Euler stepping) is identical for both models; all differences are inside `denoise_step -> embed_suffix` and do not affect Stage 3's interface design.
+
+---
+
+## 3. Implementation Plan
+
+### 3.1 File Change Scope
+
+| File | Changes | Intrusion Level |
+|------|---------|-----------------|
+| `src/openpi/models_pytorch/pi0_pytorch.py` | Add 3 dataclasses + 5 methods | **Addition only**, no modification to existing code |
+| `src/openpi/cache/__init__.py` | New module marker | New file |
+| `src/openpi/cache/interceptor.py` | New `InferenceInterceptor` | New file |
+| `scripts/serve_policy.py` | Add `--cache` argument | +13 lines |
+| `src/openpi/policies/policy.py` | **No changes** | Zero |
+| `src/openpi/models_pytorch/gemma_pytorch.py` | **No changes** | Zero |
+
+### 3.2 Tensor Shape Summary (B=1, gemma_2b)
+
+**Stage 1 Output**
+
+| Field | Shape | dtype |
+|-------|-------|-------|
+| `state` | `[B, 32]` | float32/bfloat16 |
+| `prefix_embs` | `[B, ~968, 2048]` | bfloat16 |
+| `prefix_pad_masks` | `[B, ~968]` | bool |
+| `prefix_att_2d_masks_4d` | `[B, 1, ~968, ~968]` | float32 |
+| `prefix_position_ids` | `[B, ~968]` | int64 |
+
+> Pi0.5 prefix_len ~ 968 (768 vision + 200 language); Pi0 ~ 816 (768 + 48)
+
+**Stage 2 Output**: `past_key_values` (DynamicCache, 18 layers, each layer k/v: `[B, num_kv_heads, prefix_len, head_dim]`)
+
+**Stage 3 Output**: `action_chunk` `[B, 50, 32]` float32; optional `intermediates[t]` same shape
+
+### 3.3 Key Considerations
+
+- `past_key_values` must not be cloned/deepcopied; pass by reference throughout
+- `run_stage*` methods do not add `@torch.no_grad()`; callers control the context
+- `torch.compile` only applies to `sample_actions()`; new methods are unaffected
+- `InferenceInterceptor` implements the `BasePolicy` interface for transparent replacement to the server
+
+---
+
+# II. Actual Code Changes (git diff Summary)
+
+## Commit Info
+
+```
+a6c9f43  Step 1: split inference pipeline into staged public API
+5 files changed, 947 insertions(+)
+```
+
+## File 1: `src/openpi/models_pytorch/pi0_pytorch.py` (+256 lines)
+
+**New imports**:
+```python
+from dataclasses import dataclass
+from typing import Any, Optional
+```
+
+**3 new dataclasses** (at file top, before `PI0Pytorch` class):
+
+- `Stage1Output`: contains `state`, `prefix_embs`, `prefix_pad_masks`, `prefix_att_2d_masks_4d`, `prefix_position_ids`
+- `Stage2Output`: contains `stage1: Stage1Output`, `past_key_values: Any`
+- `Stage3Output`: contains `action_chunk: Tensor`, `intermediates: Optional[dict[float, Tensor]]`
+
+**5 new methods** (inside `PI0Pytorch` class, between `_stage3_action_expert` and `sample_actions`):
+
+| Method | Lines | Description |
+|--------|-------|-------------|
+| `run_stage1(observation)` | ~15 | Calls `_stage1_token_prep`, returns `Stage1Output` |
+| `run_stage2(stage1)` | ~12 | Calls `_stage2_llm_backbone`, returns `Stage2Output` |
+| `run_stage3(stage2, *, noise, num_steps, return_intermediates, save_timesteps)` | ~45 | When `False`: zero-overhead delegation to `_stage3_action_expert`; when `True`: calls `_stage3_with_intermediates` |
+| `run_stage3_from(stage2, start_x, start_t, *, num_steps)` | ~35 | Warm Start: continues Euler stepping from `start_t` to 0 |
+| `_stage3_with_intermediates(state, prefix_pad_masks, past_key_values, noise, num_steps, save_timesteps)` | ~30 | Equivalent to `_stage3_action_expert`, additionally `.clone()` saves `x_t` at specified timesteps |
+
+**All existing code (`_stage1_token_prep`, `_stage2_llm_backbone`, `_stage3_action_expert`, `sample_actions`, `denoise_step`, etc.) has zero modifications.**
+
+## File 2: `src/openpi/cache/__init__.py` (new file, 2 lines)
+
+```python
+# Cache system for Pi0/Pi0.5 inference pipeline.
+# See docs/cache_system_architecture.md for the full design.
+```
+
+## File 3: `src/openpi/cache/interceptor.py` (new file, 137 lines)
+
+Implements `InferenceInterceptor(BasePolicy)`:
+
+- `__init__(policy)`: borrows `policy._model`, `_input_transform`, `_output_transform`, `_pytorch_device` (by reference, no copy)
+- `infer(obs, *, noise=None)`:
+  1. Reuses the original Policy's input transform pipeline
+  2. `with torch.no_grad()`: `run_stage1` -> `run_stage2` -> `run_stage3`, with `cuda.synchronize()` timing after each stage
+  3. Output format is fully consistent with `Policy.infer()` staged path: `actions`, `state`, `policy_timing`, `stage_timing`
+  4. `TODO(Step 4)` comments mark insertion points for CP1/CP2 cache checks
+- `metadata` property: forwards to original Policy
+
+## File 4: `scripts/serve_policy.py` (+13 lines)
+
+```python
+# New field in Args dataclass
+cache: bool = False
+
+# New wrapping logic in main()
+if args.cache:
+    from openpi.cache.interceptor import InferenceInterceptor
+    logging.info("Cache mode enabled: routing inference through InferenceInterceptor.")
+    policy = InferenceInterceptor(policy)
+```
+
+Usage:
+```bash
+uv run scripts/serve_policy.py --cache --port 8001 policy:checkpoint \
+    --policy.config=pi05_aloha_sim \
+    --policy.dir=<checkpoint_dir>
+```
+
+> Note: Top-level arguments like `--cache`, `--port` must be placed **before** the subcommand `policy:checkpoint` (tyro argument parsing rules)
+
+---
+
+# III. Verification Results
+
+| Verification Item | Result |
+|-------------------|--------|
+| AST syntax check (all new files) | PASS |
+| Server startup with `--cache` | PASS: `INFO: Cache mode enabled` + `listening on 0.0.0.0:8001` |
+| Existing timing system (`stage_timing` field) | PASS: interceptor outputs identical fields, server aggregation prints normally |
+| External interface consistency | PASS: WebsocketPolicyServer and clients require no modifications |
+
+---
+
+# IV. Remaining Items (For Subsequent Steps)
+
+- **Step 2**: Implement `SystemTimer` (CUDA event fine-grained timing), replace `time.monotonic()` in interceptor
+- **Step 3**: Implement `CacheStorage` (FAISS CPU VectorStore) + data structures (`CacheEntry`, `CacheResult`)
+- **Step 4**: Insert `CacheOrchestrator.check(CP1/CP2/CP3)` at `TODO(Step 4)` locations in `interceptor.py`
+- **Step 7**: Validate `run_stage3_from()` warm start accuracy vs. speed tradeoff

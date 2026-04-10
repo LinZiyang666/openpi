@@ -41,7 +41,7 @@
 | `tests/cache/conftest.py` | InMemoryBackend 改为 import 正式路径 |
 | `tests/cache/test_orchestrator.py` | 适配 Orchestrator 新签名 |
 | `tests/cache/test_interceptor.py` | 适配 Orchestrator 新签名 |
-| `claude_log/README.md` | 新增 plan 条目 |
+| `logs/README.md` | 新增 plan 条目 |
 
 ---
 
@@ -897,7 +897,7 @@ Phase 3  serve_policy.py 改造
 
 Phase 4  收尾
   4.1  uv run pytest 全量回归
-  4.2  更新 claude_log/README.md
+  4.2  更新 logs/README.md
   4.3  更新 src/openpi/cache/README.md
 ```
 

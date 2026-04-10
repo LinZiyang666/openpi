@@ -1,0 +1,164 @@
+# Step 3 Data Collection — Implementation Summary (Pure Observer)
+
+> Goal: Collect per-episode model intermediate embeddings via forward hooks on the PyTorch inference server, writing to HDF5.
+> Core principle: Zero intrusion into existing code. `policy.infer()` is the sole execution path; data collection is a pure side-channel observer.
+
+---
+
+## I. Data Collected Per Inference
+
+| Data Item | Source | Shape (batch=1) | dtype |
+|-----------|--------|------------------|-------|
+| `vision_0/1/2` | `multi_modal_projector` forward hook output | `[256, 2048]` | float16 |
+| `prompt_emb` | `embed_tokens` forward hook + sqrt scaling | `[num_lang_tokens, 2048]` | float16 |
+| `robot_state` | `"state"` field from `policy.infer()` return dict | `[32]` | float32 |
+| `noise_action_1`...`(N-1)` | `action_in_proj` hook, skip 1st call (pure Gaussian), take calls 2-N | `[50, 32]` | float32 |
+| `clean_action` | `action_in_captures[-1] + dt * action_out_captures[-1]`, dt = -1/N | `[50, 32]` | float32 |
+
+---
+
+## II. Four Forward Hooks
+
+| Hook | Attach Target | Trigger Timing | Captures |
+|------|---------------|----------------|----------|
+| `_vision_hook` | `model.paligemma_with_expert.paligemma.multi_modal_projector` | Stage 1, once per image | `out [B,256,2048]` |
+| `_lang_hook` | `model.paligemma_with_expert.paligemma.language_model.embed_tokens` | Stage 1, once (Stage 2/3 pass inputs_embeds, does not trigger) | `out*sqrt(dim) [B,N_lang,2048]` |
+| `_action_in_hook` | `model.action_in_proj` | Stage 3, once per denoise step, N times total | `inp[0]` (x_t) `[B,50,32]` |
+| `_action_out_hook` | `model.action_out_proj` | Stage 3, once per denoise step, N times total | `out` (v_t) `[B,50,32]` |
+
+Code verified: `action_in_proj`/`action_out_proj` are direct attributes of `PI0Pytorch`; not overridden by compile wrapper during inference; `embed_tokens` only triggers in Stage 1.
+
+### x_t / v_t Correspondence
+
+```
+step 1: call[0] → x_noise,  v_1  → x_1 = x_noise + dt*v_1
+step 2: call[1] → x_1,      v_2  → x_2 = x_1 + dt*v_2
+...
+step N: call[N-1] → x_{N-1}, v_N → x_0 = x_{N-1} + dt*v_N
+
+N = len(action_in_captures)    (dynamically inferred, default 10)
+dt = -1.0 / N                  (dynamically computed, not hardcoded)
+noise_action_i = action_in_captures[i], i=1..N-1 (skip [0] = pure Gaussian)
+clean_action   = action_in_captures[-1] + dt * action_out_captures[-1]
+```
+
+---
+
+## III. CollectionPolicy Behavior
+
+```
+--collect off:     CollectionPolicy does not exist, zero impact
+--collect on, _collecting=False (between episodes): pure delegation, no hooks, zero overhead
+--collect on, _collecting=True (during episode):
+  1. Register 4 temporary forward hooks
+  2. result = self._policy.infer(obs)   ← sole execution path
+  3. finally: remove all hooks (also removed on exception)
+  4. Build InferenceEmbeddings from captures
+  5. self._collector.record_inference(embs)
+  6. return result
+```
+
+### Wrapper Order (serve_policy.py)
+
+```python
+policy = create_policy(args)                              # original Policy
+if args.cache:  policy = InferenceInterceptor(policy)     # inner layer
+if args.record: policy = PolicyRecorder(policy)           # inner layer
+if args.collect: policy = CollectionPolicy(policy, collector)  # outermost layer
+```
+
+CollectionPolicy must be outermost: it only calls `self._policy.infer()` and does not care about inner layer types.
+InferenceInterceptor needs to directly wrap Policy to access private fields like `_model`.
+
+### Key Compatibility Handling
+
+- **noise kwarg**: `PolicyRecorder.infer(obs)` does not accept noise. CollectionPolicy passes `**{}` when `noise=None` to avoid TypeError.
+- **_find_inner_model()**: Traverses the wrapper chain to find the object exposing the `_model` attribute, obtains its PI0Pytorch instance for hook registration.
+- **Disconnect protection**: `on_task_end()` flushes incomplete episode buffers before forwarding.
+- **Server without --collect**: Control messages send unconditional acks; clients will not hang.
+
+---
+
+## IV. HDF5 Schema
+
+```
+/data/{experiment}/episode_{N:04d}_{YYYYMMDD_HHMMSS_ffffff}.h5
+├── attrs:
+│   ├── experiment_name: str
+│   ├── task:            str
+│   ├── episode_id:      int
+│   ├── num_steps:       int
+│   ├── timestamp:       str (ISO 8601)
+│   └── success:         bool
+├── step_0000/
+│   ├── vision_0        float16[256, 2048]   lzf
+│   ├── vision_1        float16[256, 2048]   lzf
+│   ├── vision_2        float16[256, 2048]   lzf
+│   ├── prompt_emb      float16[N_lang, 2048] lzf
+│   ├── robot_state     float32[32]
+│   ├── noise_action_1  float32[50, 32]
+│   │   ...
+│   ├── noise_action_9  float32[50, 32]
+│   └── clean_action    float32[50, 32]
+├── step_0001/ ...
+└── step_NNNN/
+```
+
+Storage: ~3.5 MB/infer, ~175 MB per 50-step episode. Writes use .h5.tmp -> rename atomic operation.
+
+---
+
+## V. Modified Files List
+
+### New Files
+1. `src/openpi/collect/__init__.py` — empty
+2. `src/openpi/collect/data_collector.py` — InferenceEmbeddings dataclass + EpisodeDataCollector (buffering + HDF5 writing)
+3. `src/openpi/collect/collection_policy.py` — CollectionPolicy wrapper
+
+### Modified Files
+4. `scripts/serve_policy.py` — Added `--collect` / `--collect_dir` arguments, outermost CollectionPolicy wrapping
+5. `src/openpi/serving/websocket_policy_server.py` — In-band control message recognition (`__ctrl__: episode_start/end`)
+6. `packages/openpi-client/src/openpi_client/websocket_client_policy.py` — Added `episode_start()` / `episode_end()` methods
+7. `examples/libero/main.py` — Inserted `client.episode_start/end()` calls before/after episode loop
+
+---
+
+## VI. In-Band Control Message Protocol
+
+Client sends msgpack messages containing a `__ctrl__` key; server recognizes them, calls policy lifecycle methods, and sends ack:
+
+```python
+# Client -> Server
+{"__ctrl__": "episode_start", "__experiment__": "...", "__task__": "...", "__episode_id__": N}
+{"__ctrl__": "episode_end", "__success__": bool}
+
+# Server -> Client (unconditional ack)
+{"__ack__": "episode_start"}
+{"__ack__": "episode_end"}
+```
+
+---
+
+## VII. Usage Example
+
+```bash
+# Server
+uv run scripts/serve_policy.py \
+    --env libero --policy.config pi05_libero \
+    --policy.dir checkpoints/pi05_libero/exp/10000 \
+    --collect --collect_dir /data/libero_experiments
+
+# Client (main.py internally calls episode_start/end)
+uv run examples/libero/main.py --host <server_ip> --task_suite_name libero_spatial
+```
+
+---
+
+## VIII. Compatibility Matrix
+
+| Component | --collect off | --collect on, outside episode | --collect on, during episode |
+|-----------|:---:|:---:|:---:|
+| pi0_pytorch.py | Zero changes | Zero changes | Zero changes |
+| Policy / InferenceInterceptor / PolicyRecorder | Zero changes | Zero changes | Zero changes |
+| JAX inference path | Unchanged | Unchanged | N/A |
+| Clients that did not send control messages | Unchanged | Unchanged | Unchanged |

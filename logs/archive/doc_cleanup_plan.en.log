@@ -1,0 +1,111 @@
+# Documentation Cleanup Plan
+> Date: 2026-04-02
+> Status: Pending execution
+
+---
+
+## 1. Problem Diagnosis
+
+The current documentation has the following issues:
+
+| Problem | Details |
+|---------|---------|
+| **Documents too long** | `cache_system_architecture.md` (English, 1436 lines) and `cache_system_architecture_chinese.md` (Chinese, 1450 lines) are both overly verbose and need trimming |
+| **Misplaced files** | `exp/qdrant_exp.md` (768 lines) and `exp/toy_server.log` (812 lines) are design documents and should not be in the experiment code directory |
+| **Redundant content** | Core patterns in `toy_server.log` are already covered by `step3_data_collection.log`; `faiss_uv_toolchain_plan.md` (785 lines) is overly verbose |
+| **Unclear responsibilities** | `docs/` mixes architecture design docs with usage guides; `logs/` step3.log (165 lines) content is superseded by step1.log and step3_data_collection.log |
+| **Outdated index** | `docs/md_log_index.md` is too verbose (107 lines) and will need rewriting after reorganization |
+
+---
+
+## 2. Cleanup Principles
+
+- **`docs/`**: Project-level architecture + usage guides. Targeted at "people wanting to understand or use the project"
+- **`logs/`**: Detailed plans and code change records from implementation phases. Targeted at "agents and developers working on the code"
+- **`exp/`**: Only experiment scripts and configs, no design documents
+- **Language strategy**: Project documentation is primarily in English. Existing Chinese documents are kept (not deleted); Chinese and English versions are maintained in sync (e.g., both versions of cache_system_architecture coexist)
+- Delete purely duplicated content; trim verbose documents
+
+---
+
+## 3. Specific Actions
+
+### Phase 1: Delete Redundant Files (Requires User Confirmation)
+
+| Action | File | Reason |
+|--------|------|--------|
+| **Delete** | `logs/step3.log` (165 lines) | Content is a token structure analysis draft, fully superseded by step1.log (Pi0/Pi0.5 architecture comparison) and step3_data_collection.log (embedding dimensions); no independent design decisions |
+| **Delete** | `exp/toy_server.log` (812 lines) | Describes toy dual-server split approach; core pattern (hook-based embedding extraction -> vector DB) heavily overlaps with step3_data_collection.log; experiment script comments are sufficient for usage |
+| **Delete** | `docs/md_log_index.md` (107 lines) | File locations will change extensively after cleanup; index completely outdated; will be replaced by docs/README.md + logs/README.md |
+
+### Phase 2: Move Files (Relocate)
+
+| Action | Source | Destination | Reason |
+|--------|--------|-------------|--------|
+| **Move** | `exp/qdrant_exp.md` | `logs/qdrant_design.log` | This is a design document, not experiment code; belongs in logs |
+| **Move** | `docs/faiss_uv_toolchain_plan.md` | `logs/faiss_uv_toolchain_plan.log` | This is an implementation plan, not a user guide; belongs in logs |
+
+### Phase 3: Trim Content
+
+| File | Action | Target |
+|------|--------|--------|
+| `docs/cache_system_architecture.md` (English) | Trim to core architecture (three-stage model + three checkpoints + interceptor pattern), remove lengthy implementation details | ~400 lines |
+| `docs/cache_system_architecture_chinese.md` (Chinese) | Trim in sync, keep content consistent with English version | ~400 lines |
+| `logs/step2.log` | Trim, retain core CUDA Event design, remove verbose problem analysis process | ~200 lines |
+| `logs/step3_data_collection.log` | Trim, retain hook approach + HDF5 schema + wrapper order, remove discussion process | ~200 lines |
+| `logs/qdrant_step_knn_experiment_plan.log` | Trim, retain experiment spec + config + scoring logic | ~150 lines |
+| `logs/qdrant_design.log` (moved from exp/) | Trim, retain collection schema + payload design + vector aggregation strategy | ~300 lines |
+| `logs/faiss_uv_toolchain_plan.log` (moved from docs/) | Significantly trim, retain build commands and critical paths | ~100 lines |
+
+### Phase 4: Rewrite Indexes
+
+Delete `docs/md_log_index.md`, replace with two concise indexes:
+
+1. **`docs/README.md`** — Concise directory for docs/ (one-line description per file)
+2. **`logs/README.md`** — Concise directory for logs/ (one-line description per file)
+
+---
+
+## 4. Target File Structure After Cleanup
+
+```
+docs/
+├── README.md                          # docs directory index (new)
+├── cache_system_architecture.md       # Core: three-stage cache architecture, English version (trimmed)
+├── cache_system_architecture_chinese.md # Core: three-stage cache architecture, Chinese version (trimmed, synced with English)
+├── data_collection_guide.md           # Data collection usage guide (kept)
+├── aloha_sim_remote.md                # ALOHA simulation remote inference guide (kept)
+├── libero_remote.md                   # LIBERO remote inference guide (kept)
+├── remote_inference.md                # General remote inference docs (kept, upstream)
+├── docker.md                          # Docker usage docs (kept, upstream)
+└── norm_stats.md                      # Normalization statistics docs (kept, upstream)
+
+logs/
+├── README.md                          # logs directory index (new)
+├── step1.log                          # Stage 1/2/3 public API design and Pi0 vs Pi0.5 comparison
+├── step2.log                          # CUDA Event timing system design (trimmed)
+├── step3_data_collection.log          # HDF5 data collection hook approach (trimmed)
+├── qdrant_design.log                  # Qdrant collection schema design (moved from exp/, trimmed)
+├── qdrant_step_knn_experiment_plan.log # Step-KNN retrieval experiment spec (trimmed)
+├── faiss_uv_toolchain_plan.log        # Faiss GPU build approach (moved from docs/, significantly trimmed)
+└── doc_cleanup_plan.log               # This plan file
+```
+
+Moved files:
+- `docs/faiss_uv_toolchain_plan.md` -> `logs/faiss_uv_toolchain_plan.log`
+- `exp/qdrant_exp.md` -> `logs/qdrant_design.log`
+
+Deleted files (requires user confirmation):
+- `logs/step3.log` (content superseded by step1.log + step3_data_collection.log)
+- `exp/toy_server.log` (core pattern superseded by step3_data_collection.log)
+- `docs/md_log_index.md` (replaced by docs/README.md + logs/README.md after cleanup)
+
+---
+
+## 5. Execution Order
+
+1. Phase 1: Delete redundant files
+2. Phase 2: Move misplaced files
+3. Phase 3: Trim file content
+4. Phase 4: Create new indexes
+5. Final check: Confirm all file references are consistent with no broken links

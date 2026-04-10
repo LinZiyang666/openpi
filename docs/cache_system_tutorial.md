@@ -1,6 +1,8 @@
 # OpenPI Inference Cache System — Complete Tutorial
 
 > For deep design rationale and checkpoint theory, see [cache_system_architecture.md](cache_system_architecture.md).
+>
+> **AGENT: READ FIRST** — This file is a registered subsystem rule document per [`constitution.md` §8](../constitution.md#8-subsystem-rules). Component isolation rules (§15) and testing patterns (§16) carry constitutional authority.
 
 This is a self-contained guide for developers who want to understand, configure, or extend the multi-level inference cache.
 
@@ -158,6 +160,7 @@ Entry chain format:
 | `cp1_spatial_pool_16` | `{vision_0: 32768, ...}` | 4×4 spatial pool | High resolution |
 | `cp1_spatial_pool_64` | `{vision_0: 8192, ...}` | 2×2 spatial pool | Medium |
 | `cp1_max_pool` | `{vision_0: 2048, ...}` | Max pool over tokens | Alternative to mean |
+| `clip` | `{vision_0: 512, ...}` (ViT-B-32) | CLIP image encoder on raw input images | External vision encoder; dim depends on CLIP model |
 | `full_original` | `{vision_0: 524288, ...}` | Raw flatten (Qdrant only) | Deprecated for in_memory |
 
 ---
@@ -293,7 +296,9 @@ keys:
 
 key_builder:
   type: cp1_mean_pool   # "cp1_mean_pool" | "cp1_spatial_pool_16" | "cp1_spatial_pool_64"
-                        # | "cp1_max_pool" | "placeholder"
+                        # | "cp1_max_pool" | "clip" | "placeholder"
+                        # Note: "clip" uses open_clip ViT-B-32 by default.
+                        # CLIP model variant is set at artifact build time, not in YAML.
 
 checkpoints:
   _defaults: &cp_defaults

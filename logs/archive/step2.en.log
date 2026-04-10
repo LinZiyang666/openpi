@@ -1,0 +1,215 @@
+# Step 2: Timing System Design and Implementation
+
+> Date: 2026-03-29 | Prerequisite: Step 1 (commit `a6c9f43`)
+
+---
+
+## 1. Core Problem
+
+The timing approach from Step 1 has fundamental flaws:
+
+| Problem | Description |
+|---------|-------------|
+| `time.monotonic()` for GPU | Measures wall time, not GPU compute time |
+| `cuda.synchronize()` global sync | Synchronizes all CUDA streams after each stage, blocking concurrency |
+| Timing logic scattered in `infer()` | Coupled with inference, not reusable or toggleable |
+| Aggregation logic in server | Server should not know the key format of `stage_timing` |
+| No statistical analysis / no file output | Only outputs mean to terminal, no p50/p95/p99, no post-hoc analysis |
+
+---
+
+## 2. Timing Strategy for Each Component
+
+### 2.1 Three Inference Stages (GPU) -> CUDA Event
+
+| Stage | Device |
+|-------|--------|
+| Stage 1: SigLIP + prefix embed | GPU default stream |
+| Stage 2: Gemma 2B prefill | GPU default stream |
+| Stage 3: 10x denoise_step | GPU default stream |
+
+CUDA Event advantage: `end_event.synchronize()` only waits for that event without blocking subsequent kernels;
+`start.elapsed_time(end)` returns precise GPU time (ms), excluding Python scheduling delays.
+
+### 2.2 Future Cache Components (CPU/GPU Mixed)
+
+| Component | Device | Timing Approach |
+|-----------|--------|-----------------|
+| Gate / Judge / FAISS CPU search | CPU | `time.perf_counter_ns` |
+| KeyBuilder / VectorStore GPU search | GPU (`cache_stream`) | CUDA Event |
+| GPU<->CPU transfer | CUDA `transfer_stream` | CUDA Event |
+
+-> The timing system must support both CUDA Event and CPU perf_counter backends, specified at probe registration time.
+
+### 2.3 Stream Isolation
+
+CUDA Events for Stage 1/2/3 are recorded on the default stream; CP search runs on cache_stream; they do not interfere with each other.
+
+---
+
+## 3. Design Goals
+
+| Goal | Requirement |
+|------|-------------|
+| Precise GPU timing | CUDA Event, not global synchronize |
+| Toggleable | When `enabled=False`, `measure()` is a no-op with zero overhead |
+| Pluggable | Each component registers probes in `__init__`; probe set grows/shrinks dynamically |
+| Task-level aggregation | `on_task_begin()` / `on_task_end()`; print summary at task end |
+| Memory-first | Ring buffer stores records; write to disk at task end |
+| No intrusion into inference code | Interceptor calls `timer.measure()`, no changes to `pi0_pytorch.py` |
+
+---
+
+## 4. File Structure
+
+```
+src/openpi/cache/
+├── timing.py          # New: SystemTimer, TimingRecord, TimingStats,
+│                      #   CudaEventBackend, PerfCounterBackend,
+│                      #   ResourceMonitor protocol, TaskLifecycle protocol
+├── interceptor.py     # Modified: remove manual timing, integrate SystemTimer
+├── __init__.py        # Updated: export SystemTimer, TaskLifecycle
+
+src/openpi/serving/websocket_policy_server.py  # Modified: remove old aggregation, add TaskLifecycle callbacks
+```
+
+---
+
+## 5. Core Class Design
+
+### 5.1 Data Classes
+
+```python
+@dataclass
+class TimingRecord:
+    name: str           # probe name, e.g., "stage1_vision"
+    elapsed_ms: float
+    timestamp: float    # wall time, used for CSV timeline
+
+@dataclass
+class TimingStats:
+    name: str
+    count: int
+    mean_ms: float
+    p50_ms: float
+    p95_ms: float
+    p99_ms: float
+    min_ms: float
+    max_ms: float
+```
+
+### 5.2 Backend Protocol
+
+```python
+class TimingBackend(Protocol):
+    def start(self) -> Any: ...       # returns timing handle
+    def stop(self, handle: Any) -> float: ...  # returns elapsed ms
+
+class CudaEventBackend:
+    # start() -> record start_event on stream
+    # stop()  -> record end_event, synchronize end_event, return elapsed_time
+    def __init__(self, stream: torch.cuda.Stream | None = None): ...
+
+class PerfCounterBackend:
+    # start() -> perf_counter_ns()
+    # stop()  -> (now - start) / 1e6
+```
+
+### 5.3 SystemTimer Main Class
+
+```python
+class SystemTimer:
+    def __init__(self, enabled=True, buffer_size=10000, output_csv_dir=None): ...
+    def register_probe(self, name, backend="cuda", stream=None): ...
+
+    @contextmanager
+    def measure(self, name: str) -> Iterator[None]:
+        # enabled=False -> yield + return (zero overhead)
+        # probe not registered -> default CudaEventBackend (lenient mode)
+
+    def on_task_begin(self): ...   # record current records offset
+    def on_task_end(self): ...     # print summary + optional CSV write + task_id++
+    def summary(self, task_only=True) -> dict[str, TimingStats]: ...
+    def export_csv(self, path: str): ...  # build all rows in memory, write to disk at once
+
+    # Reserved interfaces (stubs in Step 2)
+    def add_resource_monitor(self, monitor: ResourceMonitor): ...
+    def record_resource_snapshot(self, name: str): ...
+```
+
+### 5.4 TaskLifecycle Protocol
+
+```python
+@runtime_checkable
+class TaskLifecycle(Protocol):
+    def on_task_begin(self) -> None: ...
+    def on_task_end(self) -> None: ...
+```
+
+`InferenceInterceptor` implements this protocol and forwards to its internal `SystemTimer`.
+Server side uses `hasattr(policy, 'on_task_begin')` to check (avoiding hard dependency).
+
+---
+
+## 6. Key Implementation Decisions
+
+1. **CudaEventBackend handle design**: Returns `("cuda", start_evt, end_evt)` tuple with type tag, supporting concurrent/nested calls (no per-call state stored on the instance).
+
+2. **Auto-fallback when CUDA unavailable**: `CudaEventBackend` internally holds a `PerfCounterBackend`; returns `("cpu", ns)` handle when no GPU is present, so CI environments also work.
+
+3. **Task boundaries use monotonic counter**: `_total_appended` increments; `on_task_begin()` saves this value; slices from deque tail to get task-scoped records. Warning issued on ring buffer wrap.
+
+4. **Correct total (sum) row calculation**: Records from three stages are aligned in order, summed per-inference to get a per-inference total latency list, then compute p50/p95/p99 (not simply summing means).
+
+5. **`_DISPLAY_ORDER` constant** controls summary table row ordering; adding new probes only requires appending to this list.
+
+6. **Interceptor registers 4 probes**: `stage1_vision`/`stage2_llm`/`stage3_flow` (cuda backend) + `total_inference` (cpu backend). `infer()` uses nested `with timer.measure()` blocks.
+
+---
+
+## 7. Server-Side Changes
+
+```python
+# websocket_policy_server.py _handler()
+async def _handler(self, websocket):
+    if hasattr(self._policy, "on_task_begin"):
+        self._policy.on_task_begin()       # connection established
+    ...
+    except websockets.ConnectionClosed:
+        if hasattr(self._policy, "on_task_end"):
+            self._policy.on_task_end()     # connection closed -> print summary/write file
+```
+
+Removed: `stage_timing_records` collection, `action.pop("stage_timing")`, manual mean print (approx. -15 lines).
+`on_task_end()` is also called in the `except Exception` branch to ensure records are not lost on abnormal disconnect.
+
+---
+
+## 8. Verification Results
+
+Script: `scripts/verify_step2.py`
+
+All 12 items passed: syntax check, old code removal, CPU probe loop, enabled=False zero records,
+task boundary isolation, task_id auto-increment, unregistered probe warning, CSV correctness, auto CSV write,
+TaskLifecycle interface, summary format (including total sum row), invalid backend error.
+
+Sample summary output:
+```
+=== Inference Timing Summary (task #0, 4 inferences) ===
+  Probe                          N     mean      p50      p95      p99  ms
+  ------------------------------------------------------------------------
+  stage1_vision                  4      2.1      2.1      2.3      2.3
+  stage2_llm                     4      6.1      6.1      6.1      6.1
+  stage3_flow                    4      3.1      3.1      3.1      3.1
+  total_inference                4     11.3     11.3     11.5     11.5
+  ------------------------------------------------------------------------
+  total (sum)                    4     11.3     11.2     11.4     11.5
+```
+
+---
+
+## 9. Remaining Items
+
+- **Step 3**: Register `cp*_*` probes (cpu backend) to the same timer when implementing CacheStorage
+- **Step 4**: CacheOrchestrator's `cache_stream` connects via `register_probe(..., stream=cache_stream)`
+- **Step N**: Call `timer.add_resource_monitor()` after implementing `GpuVramMonitor` / `CpuRamMonitor`

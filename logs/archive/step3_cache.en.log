@@ -1,0 +1,1281 @@
+# Step 3: Cache Data Structures & Storage Layer — Design Discussion
+
+> Status: ⚠️ Tentatively complete · High risk
+> Date: 2026-04-02
+> Phase: Code landed, interfaces usable; no test coverage, torch lazy-import changes not regression-tested in uv environment. See `src/openpi/cache/README.md`.
+
+---
+
+## For Reviewers
+
+We are developing a multi-level cache for the Pi0.5 robot inference system (see `docs/cache_system_architecture.md` step3). The core idea is: at three key points during inference (after vision encoding, after LLM decoding, after action generation), check the historical cache — if the current scene is highly similar to a historical one, directly reuse the historical result, skip subsequent computation, and reduce inference latency.
+
+**The specific problem this log addresses**: The cache needs a vector database to store and retrieve historical embeddings. We currently use Qdrant for experiments, but are unsure which library to ultimately use (FAISS, a custom GPU store, etc. are all under consideration). This document records how to design a storage abstraction layer so that upper-level cache logic is decoupled from the specific underlying database — switching databases doesn't require changing business code.
+
+**This document contains**: Design goals, layered architecture, data model definitions, responsibility boundaries for each layer, and specific interface designs (code plan) for each file. Code has not been implemented yet; this is currently in the planning phase. Comments are welcome before implementation begins.
+
+---
+
+## Background
+
+The architecture document (`docs/cache_system_architecture.md`) has already defined the conceptual skeleton of `CacheStorage` and `VectorStore`, as well as how `CacheOrchestrator` calls `storage.search()` / `storage.insert()`. Step 3 is about turning these designs into real code, but there is one core problem that hasn't been solved:
+
+**We currently use Qdrant for experiments, but may switch to FAISS, a custom GPU store, or other vector libraries in the future. Upper-level logic (Orchestrator / CP Handlers) should not be aware of which DB is being used underneath.**
+
+The user's intuition is to borrow from Django ORM's approach: define abstract interfaces, and each DB inherits and implements them. This direction is correct, but vector databases are far more heterogeneous than relational databases, with several key challenges that need to be thought through first.
+
+---
+
+## Why Abstracting Vector DBs Is Harder Than SQL
+
+Django ORM can cleanly abstract MySQL / PostgreSQL / SQLite because they all speak SQL — differences are merely dialect. The differences between vector databases run much deeper:
+
+| Dimension | Qdrant | FAISS (local) | Custom TorchGPU Store |
+|-----------|--------|---------------|-----------------------|
+| Vector organization | named vectors (one point, multiple named vectors) | Single index, single vector | torch.Tensor, flat |
+| Metadata (payload) | Natively supported, filterable | Not supported, must maintain separately | Requires parallel dict |
+| Persistence | Server-side persistence | Local .index file | Process lifetime only |
+| Network | HTTP / gRPC remote calls | Local calls | Local CUDA stream |
+| Filtered queries | Native filter (step_idx, task, etc.) | Not supported | Not supported |
+| Latency characteristics | 10–100ms (network + service) | <1ms (local) | <0.1ms (GPU) |
+| Multivector | Supported (MAX_SIM) | Not supported | Can be implemented |
+
+This means: we cannot use an overly thin interface to completely hide underlying differences, but we also should not expose all underlying details to the upper layer.
+
+---
+
+## Design Goals
+
+1. **Upper-level logic (Orchestrator, CP Handler) only sees stable interfaces** — does not import any qdrant / faiss modules.
+2. **Unified data model**: `CacheEntry` (write unit), `QuerySpec` (query description), `SearchResult` (query result) are defined consistently across all backends.
+3. **Don't prematurely ossify interfaces**: At this stage, use ABC to define the least-common-denominator interface, allowing backends to expose extended capabilities, but upper-level code does not depend on extended capabilities.
+4. **Switching backend only requires changing config**, no business code modifications.
+5. **Keep it simple**: No plugin system, no registry — just ABC + concrete implementation classes.
+
+---
+
+## Layered Design
+
+```
+CacheOrchestrator
+      │
+      ▼
+ CacheStorage          ← Facade, the only external interface
+      │
+      ▼
+VectorStoreBackend     ← ABC, defines minimal interface
+      ├── QdrantVectorStore      (current experiment use)
+      ├── FaissVectorStore       (future, local offline)
+      └── TorchGPUVectorStore    (future, hot cache)
+```
+
+The value of `CacheStorage` as a Facade:
+- The architecture document already defines `CacheStorage` as a combination of `VectorDB + MetadataDB` — it's one level above `VectorStoreBackend`.
+- Upper layers only know `CacheStorage`, not `VectorStoreBackend`.
+- `CacheStorage` is responsible for translating upper-layer requests into backend calls, and also for concurrent writes to MetadataDB (if any).
+
+---
+
+## Data Model (unified, does not vary by backend)
+
+```python
+# src/openpi/cache/storage_types.py
+
+@dataclass
+class CachePayload:
+    """Payload of a cache entry. Strongly typed, shared by CP1/CP2/CP3, differences handled via Optional fields.
+
+    CP1: action_chunk required, intermediates is None, next_action_chunk is None
+    CP2: action_chunk required, intermediates optional (for warm start)
+    CP3: action_chunk required, next_action_chunk required (for predicting next cycle)
+    """
+    action_chunk: torch.Tensor                          # [horizon, action_dim]
+    intermediates: Optional[dict[float, torch.Tensor]] # {t: x_t}, for warm start
+    next_action_chunk: Optional[torch.Tensor]           # CP3: predicted next cycle action
+    task_prompt: str = ""
+    hit_count: int = 0
+    quality_score: float = 1.0
+
+
+@dataclass
+class CacheEntry:
+    """Complete unit written to storage. Backend is responsible for serializing it into its own format."""
+    id: str                          # Stable ID (hash of context)
+    checkpoint_id: CheckpointID      # CP1 / CP2 / CP3
+    query_key: torch.Tensor          # [dim] float32, normalized, used for retrieval
+    payload: CachePayload
+    timestamp: float = field(default_factory=time.time)
+
+
+@dataclass
+class QuerySpec:
+    """Query description. Backend receives it and decides how to search."""
+    query_key: torch.Tensor          # [dim] float32
+    top_k: int = 10
+    checkpoint_id: Optional[CheckpointID] = None   # Optional: only search entries of a specific CP
+    # Backend-specific parameters (Qdrant filter, FAISS nprobe, etc.) go in each backend's config, not here.
+
+
+@dataclass
+class SearchResult:
+    """Candidate entry returned by a query. Payload is deserialized to strongly typed, SimilarityJudge can use directly."""
+    id: str
+    score: float                     # Similarity score (higher = more similar, backend converts uniformly)
+    payload: CachePayload
+    checkpoint_id: CheckpointID
+```
+
+---
+
+## VectorStoreBackend ABC
+
+```python
+# src/openpi/cache/backend_base.py
+
+from abc import ABC, abstractmethod
+from openpi.cache.storage_types import CacheEntry, QuerySpec, SearchResult
+
+
+class VectorStoreBackend(ABC):
+    """Least-common-denominator interface for vector store backends.
+
+    Implementors must guarantee:
+    - insert() is idempotent (repeated insert with the same id doesn't error, latest wins)
+    - search() returns scores with unified semantics: higher = more similar (if internally distance, must convert)
+    - delete() doesn't error on non-existent ids
+    """
+
+    @abstractmethod
+    def insert(self, entry: CacheEntry) -> None:
+        """Write a cache entry."""
+        ...
+
+    @abstractmethod
+    def search(self, spec: QuerySpec) -> list[SearchResult]:
+        """Vector nearest-neighbor search, returns top-k results."""
+        ...
+
+    @abstractmethod
+    def delete(self, ids: list[str]) -> None:
+        """Delete entries by ID (for eviction)."""
+        ...
+
+    @abstractmethod
+    def count(self) -> int:
+        """Number of currently stored entries."""
+        ...
+
+    # --- Optional extensions (not abstract, have default implementations) ---
+
+    def batch_insert(self, entries: list[CacheEntry]) -> None:
+        """Batch write. Defaults to per-entry insert; backends can override for better efficiency."""
+        for e in entries:
+            self.insert(e)
+
+    def flush(self) -> None:
+        """Flush un-persisted data (meaningful for in-memory backends). Default no-op."""
+        pass
+
+    def close(self) -> None:
+        """Release connections/resources. Default no-op."""
+        pass
+```
+
+The interface is intentionally small. **Does not expose** collection name, named vector, multivector, filter syntax, etc. — all of these are handled in each backend's `__init__` config.
+
+---
+
+## QdrantVectorStore Implementation Approach (Current Phase)
+
+```python
+# src/openpi/cache/backends/qdrant_backend.py
+
+@dataclass
+class QdrantBackendConfig:
+    url: str = "http://localhost:6333"
+    collection_name: str = "openpi_cache"
+    vector_dim: int = 1024
+    distance: str = "Cosine"          # Qdrant distance metric
+    prefer_grpc: bool = False
+    timeout: int = 30
+
+
+class QdrantVectorStore(VectorStoreBackend):
+    def __init__(self, config: QdrantBackendConfig):
+        self.config = config
+        self._client = QdrantClient(url=config.url, prefer_grpc=config.prefer_grpc)
+        self._ensure_collection()
+
+    def insert(self, entry: CacheEntry) -> None:
+        # CacheEntry.query_key → Qdrant vector (flat [dim])
+        # CacheEntry.payload + checkpoint_id + timestamp → Qdrant payload
+        ...
+
+    def search(self, spec: QuerySpec) -> list[SearchResult]:
+        # spec.query_key → Qdrant search
+        # Optional filter: spec.checkpoint_id → Qdrant filter by payload["checkpoint_id"]
+        # On return, convert Qdrant distance to similarity score (1 - distance for Cosine)
+        ...
+```
+
+---
+
+## A Common Pitfall: Cache System Vectors vs HDF5 Experiment Vectors
+
+Currently, experiment scripts in `exp/` directly ingest **raw embeddings** (vision_0/1/2, each (256,2048), etc.) from HDF5 into Qdrant, using a named vector schema.
+
+The cache system stores **fused query vectors** generated by `QueryKeyBuilder.build()`, which are fixed-dimension flat `[1024]` float32 — a completely different schema.
+
+**These two must use different Qdrant collections and cannot be mixed.** This is not a design flaw — it just needs clear documentation to avoid confusion for future maintainers.
+
+`exp/` is a data analysis tool; the cache system is an inference component. They evolve in parallel with no code reuse relationship (different schemas).
+
+---
+
+## Confirmed Decisions (2026-04-02)
+
+| Issue | Decision |
+|-------|----------|
+| Payload type | **Strongly typed `CachePayload` dataclass**, Optional fields cover CP1/CP2/CP3 differences |
+| QuerySpec multi-vector | **Not pre-reserved**, multi-vector is a DB storage detail; upper layer only passes a single fused query vector |
+| MetadataDB | **Interface reserved**, `CacheStorage` keeps `metadata_db: Optional[MetadataStore]` parameter, not implemented yet |
+| Collection creation | **Manually maintained by operators**, backend does not auto-create |
+
+---
+
+## Core Question: How Does the Upper Layer Uniformly Handle Vastly Different Vector DBs?
+
+This is the most confusing part of this design — explained separately here.
+
+### Source of Confusion
+
+Qdrant supports named vectors, payload filter, gRPC; FAISS only has a flat index, no metadata; TorchGPU store is just torch.Tensor. The differences seem too large — how can one ABC unify them?
+
+### Answer: The Upper Layer Doesn't Need to Be Aware of These Differences, Because They're Not in Its Scope of Responsibility
+
+The upper layer (Orchestrator) only asks one thing: **"I have a [1024] query vector; give me the top-k most similar cache entries."**
+
+Every vector DB can do this — they just differ in internal implementation:
+- Qdrant: sends HTTP request, server-side search, returns scored points
+- FAISS: local index.search(), parallel metadata dict lookup
+- TorchGPU: torch.mm() + topk, parallel list lookup
+
+How different they are internally doesn't matter, because **those differences are encapsulated within each backend's `search()` implementation and never leak above the ABC boundary**.
+
+Analogy: your program only calls `file.read()` — it doesn't care whether the underlying storage is a local disk, NFS, S3 FUSE mount, or ramdisk. The filesystem differences are absorbed by the OS's VFS layer.
+
+### The Named Vector / Multivector Case
+
+Qdrant's named vectors are its storage detail: one point stores multiple named vectors, supporting multi-vector similarity.
+
+**The cache system doesn't need this**, because: `QueryKeyBuilder` already **fuses** multi-path embeddings (vision + state + prompt) into a single `[1024]` flat vector as the query key, and stores the same flat vector. The Qdrant backend internally is just an ordinary dense vector collection — named vectors are completely unused.
+
+If future experiments show that "not fusing, retrieving each embedding path separately then RRF-fusing" works better, that's a matter between `QueryKeyBuilder` and the backend internals. The `QuerySpec` interface doesn't need to change (or just add a `named_queries: Optional[dict]` field) — the Orchestrator is completely unaffected.
+
+### What About Capabilities That Truly Can't Be Unified?
+
+There indeed exist capabilities that FAISS / TorchGPU completely don't support (e.g., Qdrant's payload filter).
+
+**Approach**: These capabilities degrade to backend config parameters; the ABC interface does not expose them.
+
+For example: the Qdrant backend can configure `filter_by_checkpoint: bool = True` in `QdrantBackendConfig`, and internally does server-side filtering. The FAISS backend doesn't support server-side filtering, but it can do client-side filtering on returned results in its `search()` implementation — the result semantics are the same, performance differs, and the upper layer is unaware.
+
+**This is the same as Django's approach**: `QuerySet.filter()` uses SQL WHERE on MySQL and a different mechanism on SQLite — result semantics are identical, performance varies, and the upper layer doesn't care.
+
+### Summary in One Sentence
+
+> The ABC defines a **semantic contract** ("give me the top-k most similar"), not an **implementation contract** ("what protocol, what data structure"). Differences exist below the ABC boundary and never leak upward.
+
+---
+
+---
+
+## Relationship Between Upper Systems and the Storage Layer
+
+### Complete Call Relationship Diagram
+
+```
+InferenceInterceptor
+        │
+        ▼
+CacheOrchestrator          ← The only runtime component that directly uses CacheStorage
+   │    │    │
+   │    │    └── write_async() → background thread → storage.batch_insert()
+   │    │
+   │    └── check(CP1/CP2/CP3)
+   │              │
+   │              ├── storage.search(QuerySpec) → list[SearchResult]
+   │              │                                       │
+   │              └── judge.evaluate(results)  ←──────────┘
+   │                    reads result.payload.action_chunk
+   │                    reads result.payload.intermediates
+   │
+   └── evict() → storage.delete(ids)
+
+Offline tools (data pre-population)
+        │
+        └── storage.batch_insert(entries)   ← For cold-starting the cache
+```
+
+### SimilarityJudge Is Not a Storage Layer Component
+
+The Judge's responsibility is: given `list[SearchResult]`, decide "hit or miss, full hit or warm start." It only cares about `result.score` and `result.payload` — independent of the backend.
+
+The storage layer's responsibility ends when `search()` returns results. The Judge is an internal component of `CacheOrchestrator`, at the same level as `CacheStorage`, not subordinate to it.
+
+This has a direct constraint on `SearchResult` design: **`SearchResult.payload` must be the strongly typed `CachePayload`**. Because the Judge needs `.action_chunk` and `.intermediates` — if it were a `dict`, there would be no type checking and errors would be easy. The serialization/deserialization logic (storing `CachePayload` into Qdrant payload and restoring from Qdrant payload) is fully encapsulated within the backend — the Judge is unaware of it.
+
+### Summary of Each Layer's Responsibility Boundaries
+
+| Layer | Component | Responsible For | Not Responsible For |
+|-------|-----------|----------------|---------------------|
+| Inference layer | `InferenceInterceptor` | Calling Orchestrator, handling cache hit/miss branches | Any storage details |
+| Orchestration layer | `CacheOrchestrator` | Coordinating gate/search/judge/write flow | Knowing which DB is used |
+| Orchestration layer | `SimilarityJudge` | Determining hit type, reading payload fields | Any storage details |
+| Facade layer | `CacheStorage` | Combining backend + MetadataDB, exposing clean interface | DB internal implementation |
+| Abstraction layer | `VectorStoreBackend` | Defining semantic contract (insert/search/delete/count) | Implementation details |
+| Implementation layer | `QdrantVectorStore`, etc. | Serialization, network calls, score conversion | Business logic |
+
+---
+
+## Detailed Code Plan
+
+### File Structure
+
+```
+src/openpi/cache/
+├── __init__.py              # Already exists, append new symbol exports after Step 3
+├── timing.py                # Already exists, no changes
+├── interceptor.py           # Already exists, no changes
+│
+├── types.py                 # New: CheckpointID and other base enums, no business dependencies
+├── storage_types.py         # New: All data models (payload/entry/query/result)
+├── backend_base.py          # New: VectorStoreBackend ABC
+├── cache_storage.py         # New: CacheStorage facade (locks, validation, two-phase search)
+├── orchestrator.py          # New: CacheOrchestrator + SimilarityJudge + GateFunction
+│
+└── backends/
+    ├── __init__.py          # New: empty file
+    └── qdrant_backend.py    # New: QdrantVectorStore
+```
+
+No existing files are modified (`timing.py`, `interceptor.py`).
+
+---
+
+### types.py — Base Enums
+
+```python
+# src/openpi/cache/types.py
+from enum import Enum, auto
+
+
+class CheckpointID(Enum):
+    CP1 = auto()
+    CP2 = auto()
+    CP3 = auto()
+```
+
+Independent file, does not depend on any project modules. Both `timing.py` and `storage_types.py` import from here, avoiding circular dependencies.
+
+---
+
+### storage_types.py — Data Models
+
+```python
+# src/openpi/cache/storage_types.py
+from __future__ import annotations
+import time
+from dataclasses import dataclass, field
+from typing import Optional
+import torch
+from openpi.cache.types import CheckpointID
+
+
+class UnsupportedFilterError(Exception):
+    """Raised when QueryFilter contains fields unsupported by this backend."""
+
+
+@dataclass
+class CachePayload:
+    """Payload of a cache entry.
+
+    Tensor contract: All tensors must be CPU contiguous float32; the caller is responsible
+    for conversion before construction. Payloads returned by search() also guarantee
+    CPU float32; GPU transfer is the Orchestrator's responsibility.
+
+    CP1: action_chunk required, others are None.
+    CP2 full hit: action_chunk required, others are None.
+    CP2 warm start: action_chunk + intermediates + denoising_num_steps required.
+    CP3: action_chunk + next_action_chunk required.
+    """
+    action_chunk: torch.Tensor                          # [50, 32], required for all CPs
+    intermediates: Optional[dict[float, torch.Tensor]]  # {t: x_t}, keys aligned with save_timesteps literals
+    denoising_num_steps: Optional[int]                  # Required for warm start, passed to run_stage3_from()
+    next_action_chunk: Optional[torch.Tensor]           # [50, 32], required for CP3
+    task_key: str = ""                                  # Normalized task identifier, not raw prompt
+
+    def validate_for_checkpoint(self, checkpoint_id: CheckpointID) -> None:
+        if self.action_chunk is None:
+            raise ValueError("action_chunk must be non-None for all CPs")
+        if checkpoint_id == CheckpointID.CP3 and self.next_action_chunk is None:
+            raise ValueError("next_action_chunk must be non-None for CP3")
+        if self.intermediates is not None and self.denoising_num_steps is None:
+            raise ValueError("denoising_num_steps must be provided when intermediates is non-None")
+
+
+@dataclass
+class CacheEntry:
+    """Complete unit written to storage.
+
+    id semantics: stable_hash(checkpoint_id.name + ":" + query_key_bytes)
+    Only one record is kept for the same context + same CP (semantic dedup key).
+    Different CPs with the same query_key won't overwrite each other because checkpoint_id is part of the hash.
+    """
+    id: str
+    checkpoint_id: CheckpointID
+    query_key: torch.Tensor     # CPU float32 [dim], L2-normalized
+    payload: CachePayload
+    timestamp: float = field(default_factory=time.time)
+
+    def validate(self) -> None:
+        """Validate CP-specific invariants. Automatically called by CacheStorage.insert(); no manual trigger needed."""
+        self.payload.validate_for_checkpoint(self.checkpoint_id)
+
+
+@dataclass
+class QueryFilter:
+    """Per-query constraints that vary with each query.
+
+    Backends that don't support a given field must not list it in supported_filters();
+    CacheStorage will fail-fast before calling the backend, rather than silently ignoring.
+
+    task_key: Normalized task identifier (e.g., "libero_spatial_pick_up_the_black_bowl");
+              caller is responsible for normalization, do not pass raw prompt strings.
+    step_range: Restrict retrieval to episode step range [min, max] (inclusive on both ends).
+    """
+    task_key: Optional[str] = None
+    step_range: Optional[tuple[int, int]] = None
+
+
+@dataclass
+class QuerySpec:
+    query_key: torch.Tensor             # CPU float32 [dim]
+    top_k: int = 10
+    checkpoint_id: Optional[CheckpointID] = None
+    filters: Optional[QueryFilter] = None
+
+
+@dataclass
+class SearchResultLite:
+    """Lightweight search result without large tensor payload.
+
+    search() returns this type; judge uses score for threshold filtering.
+    Only call fetch_payload() for hit candidates to get full payload, avoiding transfer of unnecessary data.
+
+    Score contract: normalized cosine similarity in [-1, 1]; all backends must convert uniformly.
+    Thresholds can therefore be reused across backends.
+    """
+    id: str
+    score: float
+    checkpoint_id: CheckpointID
+
+
+@dataclass
+class SearchResult:
+    """Full search result with payload, populated by fetch_payload() or search_and_fetch()."""
+    id: str
+    score: float
+    payload: CachePayload
+    checkpoint_id: CheckpointID
+
+
+@dataclass
+class BatchInsertResult:
+    inserted: int
+    failed_ids: list[str]
+```
+
+---
+
+### backend_base.py — ABC
+
+```python
+# src/openpi/cache/backend_base.py
+from abc import ABC, abstractmethod
+from openpi.cache.storage_types import (
+    BatchInsertResult, CacheEntry, CachePayload, QuerySpec, SearchResultLite,
+)
+
+
+class VectorStoreBackend(ABC):
+    """Least-common-denominator interface for vector store backends.
+
+    Contract:
+    - insert() is idempotent: repeated writes with the same id use the latest, no error
+    - search() returns SearchResultLite (no payload), score is normalized cosine similarity in [-1, 1]
+    - search() returns "at most top_k" results; client-side filter may yield fewer than k, caller must handle this
+    - fetch_payload() retrieves full payload by id
+    - delete() tolerates non-existent ids
+    - Implementations do not guarantee thread safety; CacheStorage is responsible for locking
+    """
+
+    @property
+    @abstractmethod
+    def vector_dim(self) -> int:
+        """The vector dimension this backend expects; CacheStorage uses it for input validation."""
+        ...
+
+    @abstractmethod
+    def supported_filters(self) -> frozenset[str]:
+        """Return the set of QueryFilter field names this backend supports.
+        If an unsupported field is requested, CacheStorage will raise UnsupportedFilterError.
+        """
+        ...
+
+    @abstractmethod
+    def insert(self, entry: CacheEntry) -> None: ...
+
+    @abstractmethod
+    def search(self, spec: QuerySpec) -> list[SearchResultLite]: ...
+
+    @abstractmethod
+    def fetch_payload(self, id: str) -> CachePayload: ...
+
+    @abstractmethod
+    def delete(self, ids: list[str]) -> None: ...
+
+    @abstractmethod
+    def count(self) -> int: ...
+
+    def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult:
+        """Default per-entry insert; partial failures don't halt. Backend can override with native batch API."""
+        inserted = 0
+        failed_ids = []
+        for entry in entries:
+            try:
+                self.insert(entry)
+                inserted += 1
+            except Exception:
+                failed_ids.append(entry.id)
+        return BatchInsertResult(inserted=inserted, failed_ids=failed_ids)
+
+    def flush(self) -> None:
+        """Persist buffered data. Relevant for in-memory backends; default no-op for others."""
+
+    def close(self) -> None:
+        """Release connections/resources. Automatically calls flush() before close()."""
+        self.flush()
+```
+
+---
+
+### cache_storage.py — Facade
+
+```python
+# src/openpi/cache/cache_storage.py
+from __future__ import annotations
+import dataclasses
+import threading
+from typing import Optional
+from openpi.cache.backend_base import VectorStoreBackend
+from openpi.cache.storage_types import (
+    BatchInsertResult, CacheEntry, CachePayload, QuerySpec,
+    SearchResult, SearchResultLite, UnsupportedFilterError,
+)
+
+
+class CacheStorage:
+    """Storage layer facade. The sole storage entry point for CacheOrchestrator.
+
+    Responsibilities:
+    - Thread safety (RLock protects all backend calls)
+    - Dimension validation (checks query_key.shape on insert/search)
+    - Filter capability checking (fail-fast, no silent ignoring)
+    - CacheEntry validation (calls entry.validate())
+    - Two-phase search (search returns lite, fetch_payload retrieves full payload on demand)
+    - MetadataDB reserved (vector written first, metadata second, vector is source of truth)
+    """
+
+    def __init__(self, backend: VectorStoreBackend, metadata_db=None):
+        self._backend = backend
+        self._metadata_db = metadata_db   # Reserved, not yet used
+        self._dim = backend.vector_dim
+        self._lock = threading.RLock()
+
+    # --- Search (two-phase) ---
+
+    def search(self, spec: QuerySpec) -> list[SearchResultLite]:
+        """Vector search, returns lightweight results (no payload)."""
+        self._check_query_dim(spec.query_key)
+        self._check_filters(spec)
+        with self._lock:
+            return self._backend.search(spec)
+
+    def fetch_payload(self, id: str) -> CachePayload:
+        """Retrieve full payload by id; only called for hit candidates."""
+        with self._lock:
+            return self._backend.fetch_payload(id)
+
+    def search_and_fetch(self, spec: QuerySpec) -> list[SearchResult]:
+        """Convenience method: search then fetch payload for all lite results.
+        Usable when top_k is small; for large top_k, prefer manual search() + filter then fetch_payload().
+        """
+        lites = self.search(spec)
+        results = []
+        for lite in lites:
+            payload = self.fetch_payload(lite.id)
+            results.append(SearchResult(
+                id=lite.id, score=lite.score,
+                payload=payload, checkpoint_id=lite.checkpoint_id,
+            ))
+        return results
+
+    # --- Write ---
+
+    def insert(self, entry: CacheEntry) -> None:
+        self._check_entry_dim(entry)
+        entry.validate()
+        with self._lock:
+            self._backend.insert(entry)
+            # MetadataDB write comes after vector; vector is source of truth
+            # if self._metadata_db: self._metadata_db.insert(entry)
+
+    def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult:
+        for entry in entries:
+            self._check_entry_dim(entry)
+            entry.validate()
+        with self._lock:
+            return self._backend.batch_insert(entries)
+
+    # --- Management ---
+
+    def delete(self, ids: list[str]) -> None:
+        with self._lock:
+            self._backend.delete(ids)
+
+    def count(self) -> int:
+        with self._lock:
+            return self._backend.count()
+
+    def close(self) -> None:
+        """close() implicitly calls flush(), ensuring both DBs are persisted."""
+        with self._lock:
+            self._backend.close()   # backend.close() internally already calls flush()
+
+    # --- Internal validation ---
+
+    def _check_query_dim(self, query_key) -> None:
+        if query_key.shape != (self._dim,):
+            raise ValueError(f"query_key dimension mismatch: expected ({self._dim},), got {tuple(query_key.shape)}")
+
+    def _check_entry_dim(self, entry: CacheEntry) -> None:
+        if entry.query_key.shape != (self._dim,):
+            raise ValueError(f"entry.query_key dimension mismatch: expected ({self._dim},), got {tuple(entry.query_key.shape)}")
+
+    def _check_filters(self, spec: QuerySpec) -> None:
+        if spec.filters is None:
+            return
+        requested = {
+            k for k, v in dataclasses.asdict(spec.filters).items() if v is not None
+        }
+        unsupported = requested - self._backend.supported_filters()
+        if unsupported:
+            raise UnsupportedFilterError(
+                f"This backend does not support filter fields: {unsupported}. "
+                f"Supported fields: {self._backend.supported_filters()}"
+            )
+```
+
+---
+
+### backends/qdrant_backend.py — Qdrant Implementation
+
+```python
+# src/openpi/cache/backends/qdrant_backend.py
+from __future__ import annotations
+import base64
+import io
+import logging
+from dataclasses import dataclass
+from typing import Optional
+import torch
+from qdrant_client import QdrantClient
+from qdrant_client.models import (
+    Filter, FieldCondition, MatchValue, Range, PointStruct,
+)
+from openpi.cache.backend_base import VectorStoreBackend
+from openpi.cache.storage_types import (
+    BatchInsertResult, CacheEntry, CachePayload, QuerySpec, SearchResultLite,
+)
+from openpi.cache.types import CheckpointID
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class QdrantBackendConfig:
+    url: str = "http://localhost:6333"
+    collection_name: str = "openpi_cache"
+    vector_dim: int = 1024
+    prefer_grpc: bool = False
+    request_timeout: int = 30
+
+
+class QdrantVectorStore(VectorStoreBackend):
+    """Qdrant vector store backend.
+
+    Collection is pre-created by operators; this class does not auto-create.
+    Serialization: tensor -> torch.save bytes -> base64 string, stored in Qdrant JSON payload.
+    """
+
+    _SUPPORTED_FILTERS = frozenset({"checkpoint_id", "task_key", "step_range"})
+
+    def __init__(self, config: QdrantBackendConfig):
+        self._config = config
+        self._client = QdrantClient(
+            url=config.url,
+            prefer_grpc=config.prefer_grpc,
+            timeout=config.request_timeout,
+        )
+
+    @property
+    def vector_dim(self) -> int:
+        return self._config.vector_dim
+
+    def supported_filters(self) -> frozenset[str]:
+        return self._SUPPORTED_FILTERS
+
+    # --- Public interface ---
+
+    def insert(self, entry: CacheEntry) -> None:
+        self._client.upsert(
+            collection_name=self._config.collection_name,
+            points=[self._to_point(entry)],
+        )
+
+    def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult:
+        points = []
+        failed_ids = []
+        for entry in entries:
+            try:
+                points.append(self._to_point(entry))
+            except Exception as e:
+                logger.warning("Serialization failed, skipping entry %s: %s", entry.id, e)
+                failed_ids.append(entry.id)
+        if points:
+            self._client.upsert(
+                collection_name=self._config.collection_name,
+                points=points,
+            )
+        return BatchInsertResult(inserted=len(points), failed_ids=failed_ids)
+
+    def search(self, spec: QuerySpec) -> list[SearchResultLite]:
+        hits = self._client.search(
+            collection_name=self._config.collection_name,
+            query_vector=spec.query_key.float().cpu().numpy().tolist(),
+            limit=spec.top_k,
+            query_filter=self._make_filter(spec),
+            with_payload=False,   # Lightweight search, don't fetch payload
+            with_vectors=False,
+        )
+        return [
+            SearchResultLite(
+                id=str(h.id),
+                score=float(h.score),   # Qdrant Cosine is already [-1,1], use directly
+                checkpoint_id=CheckpointID[h.payload["checkpoint_id"]] if h.payload else spec.checkpoint_id,
+            )
+            for h in hits
+        ]
+
+    def fetch_payload(self, id: str) -> CachePayload:
+        results = self._client.retrieve(
+            collection_name=self._config.collection_name,
+            ids=[id],
+            with_payload=True,
+        )
+        if not results:
+            raise KeyError(f"id {id!r} does not exist in the collection")
+        return self._deserialize_payload(results[0].payload)
+
+    def delete(self, ids: list[str]) -> None:
+        self._client.delete(
+            collection_name=self._config.collection_name,
+            points_selector=ids,
+        )
+
+    def count(self) -> int:
+        return self._client.count(collection_name=self._config.collection_name).count
+
+    # --- Internal serialization ---
+
+    def _to_point(self, entry: CacheEntry) -> PointStruct:
+        return PointStruct(
+            id=entry.id,
+            vector=entry.query_key.float().cpu().numpy().tolist(),
+            payload={
+                "checkpoint_id": entry.checkpoint_id.name,
+                "timestamp": entry.timestamp,
+                **self._serialize_payload(entry.payload),
+            },
+        )
+
+    @staticmethod
+    def _serialize_payload(p: CachePayload) -> dict:
+        def t2b64(t: Optional[torch.Tensor]) -> Optional[str]:
+            if t is None:
+                return None
+            buf = io.BytesIO()
+            torch.save(t, buf)
+            return base64.b64encode(buf.getvalue()).decode()
+
+        intermediates_b64 = None
+        if p.intermediates:
+            # Use f"{t:.4f}" string keys to avoid JSON round-trip precision issues
+            intermediates_b64 = {f"{k:.4f}": t2b64(v) for k, v in p.intermediates.items()}
+
+        return {
+            "action_chunk": t2b64(p.action_chunk),
+            "intermediates": intermediates_b64,
+            "denoising_num_steps": p.denoising_num_steps,
+            "next_action_chunk": t2b64(p.next_action_chunk),
+            "task_key": p.task_key,
+        }
+
+    @staticmethod
+    def _deserialize_payload(p: dict) -> CachePayload:
+        def b642t(s: Optional[str]) -> Optional[torch.Tensor]:
+            if s is None:
+                return None
+            buf = io.BytesIO(base64.b64decode(s))
+            return torch.load(buf, weights_only=True)
+
+        intermediates = None
+        if p.get("intermediates"):
+            intermediates = {float(k): b642t(v) for k, v in p["intermediates"].items()}
+
+        return CachePayload(
+            action_chunk=b642t(p["action_chunk"]),
+            intermediates=intermediates,
+            denoising_num_steps=p.get("denoising_num_steps"),
+            next_action_chunk=b642t(p.get("next_action_chunk")),
+            task_key=p.get("task_key", ""),
+        )
+
+    @staticmethod
+    def _make_filter(spec: QuerySpec) -> Optional[Filter]:
+        conditions = []
+        if spec.checkpoint_id is not None:
+            conditions.append(
+                FieldCondition(key="checkpoint_id", match=MatchValue(value=spec.checkpoint_id.name))
+            )
+        if spec.filters:
+            if spec.filters.task_key is not None:
+                conditions.append(
+                    FieldCondition(key="task_key", match=MatchValue(value=spec.filters.task_key))
+                )
+            if spec.filters.step_range is not None:
+                lo, hi = spec.filters.step_range
+                conditions.append(
+                    FieldCondition(key="step_idx", range=Range(gte=lo, lte=hi))
+                )
+        return Filter(must=conditions) if conditions else None
+```
+
+---
+
+### __init__.py Appended Exports
+
+```python
+# src/openpi/cache/__init__.py (appended, do not delete existing content)
+from openpi.cache.types import CheckpointID
+from openpi.cache.storage_types import (
+    CachePayload, CacheEntry, QueryFilter, QuerySpec,
+    SearchResultLite, SearchResult, BatchInsertResult,
+    UnsupportedFilterError,
+)
+from openpi.cache.backend_base import VectorStoreBackend
+from openpi.cache.cache_storage import CacheStorage
+
+__all__ = [
+    "SystemTimer", "TaskLifecycle",          # existing
+    "CheckpointID",
+    "CachePayload", "CacheEntry",
+    "QueryFilter", "QuerySpec",
+    "SearchResultLite", "SearchResult", "BatchInsertResult",
+    "UnsupportedFilterError",
+    "VectorStoreBackend",
+    "CacheStorage",
+]
+```
+
+---
+
+## Implementation Priority
+
+| Order | File | Description |
+|-------|------|-------------|
+| 1 | `types.py` | CheckpointID enum, zero dependencies |
+| 2 | `storage_types.py` | All data models, depends on 1 |
+| 3 | `backend_base.py` | ABC, depends on 2 |
+| 4 | `cache_storage.py` | Facade + locks + validation, depends on 3 |
+| 5 | `backends/qdrant_backend.py` | Depends on 1/2/3, requires qdrant-client and Qdrant service |
+| 6 | `orchestrator.py` | Depends on 1/2/4, CP1 placeholder end-to-end integration |
+| 7 | `__init__.py` appended exports | Depends on all of the above |
+
+---
+
+## Review Feedback Responses (2026-04-02)
+
+### #1 CacheEntry.id: Physical Primary Key vs Semantic Dedup Key
+
+**Rejected**. The ID is intentionally a semantic dedup key.
+
+The same context (same query_key hash) should only keep one record — repeated writes are updates, not additions. This is the correct cache semantics. If the scene is slightly different, the hash is different, the ID is different, and it gets stored as a separate entry. "Allowing multiple exemplars for similar contexts" is solved via top-k search: search returns multiple similar candidates, and the judge selects from them — not via ID.
+
+### #2 CachePayload's CP-specific Invariants
+
+**Accepted**. Adding runtime validation in `CachePayload.__post_init__` is less costly than splitting into three subclasses and sufficient:
+
+```python
+def __post_init__(self):
+    if self.action_chunk is None:
+        raise ValueError("action_chunk must be non-None for all CPs")
+    # CP-specific validation is triggered by the caller at construction time; not enforced via checkpoint_id here
+```
+
+Note: `CachePayload` itself doesn't know which CP it belongs to (checkpoint_id is on `CacheEntry`), so it only validates "invariants shared by all CPs." The CP2 warm start requirement that intermediates is non-None is validated where `CacheEntry` is constructed (the Orchestrator's write-back path), not in the payload.
+
+### #3 QuerySpec's Dynamic Filter Extension
+
+**Accepted**. Added a `QueryFilter` dataclass to carry per-query constraints; backends choose server-side or client-side execution based on their capabilities:
+
+```python
+@dataclass
+class QueryFilter:
+    task_prompt: Optional[str] = None      # Only search entries of the same task
+    step_range: Optional[tuple[int, int]] = None  # [step_min, step_max]
+    # Extend as needed; new fields go here, QuerySpec doesn't change
+
+@dataclass
+class QuerySpec:
+    query_key: torch.Tensor
+    top_k: int = 10
+    checkpoint_id: Optional[CheckpointID] = None
+    filters: Optional[QueryFilter] = None   # New
+```
+
+Backends that don't support a given filter field ignore it and document the degradation (behavior degrades, no error).
+
+### #4 SearchResult.score Semantics Too Weak
+
+**Accepted**. Mandating normalized cosine similarity in [-1, 1]; all backends must convert before returning. This way the judge's threshold can be reused across backends. This contract is explicitly written in the ABC's docstring — not just "higher-is-better."
+
+### #5 Insufficient Results After Client-side Filtering
+
+**Accepted, choosing simple semantics**: The `search()` contract is "return **at most** top_k results," with no guarantee of exactly k. After client-side filtering, there may be fewer than k; the judge must handle empty/sparse input. Over-fetching adds complexity and latency, not worth it. This contract is clearly stated in the ABC docstring.
+
+### #6 Tensor Device and dtype Contract
+
+**Accepted**. Defined in the ABC docstring:
+- Before `insert()`, caller guarantees: `query_key` and all tensors in `CachePayload` are already converted to **CPU contiguous float32**
+- Tensors in `SearchResult.payload` returned by `search()` are guaranteed to be **CPU float32**
+- GPU transfer is the Orchestrator's responsibility, not handled in the storage layer
+
+### #7 Float Keys in intermediates
+
+**Accepted**. Float keys have round-trip precision issues. Changed to `dict[int, torch.Tensor]`, where the key is the flow matching **step index** (integer), which is more stable than floating-point timestamps:
+
+```python
+# Before
+intermediates: Optional[dict[float, torch.Tensor]]  # {0.3: x_t, ...}
+# After
+intermediates: Optional[dict[int, torch.Tensor]]    # {3: x_t, 5: x_t, 7: x_t}
+# Key meaning: which step in flow matching the intermediate state was at (total 10 steps, index 0-9)
+```
+
+### #8 hit_count / quality_score Have No Update Interface
+
+**Accepted, clarifying semantics**: These two fields are **statically written, not updated online**. If hit_count needs updating after a hit, it's done via re-insert (upsert) — fetch the entire entry, modify, write back. No `update()` interface on the ABC — too complex.
+
+In practice, these two fields are of little use for early-stage eviction strategies (LRU/LFU); LRU can use timestamp, doesn't need hit_count. Consider removing these two fields from `CachePayload` and adding them back when quality-based eviction is actually needed. **This is a pending question for user confirmation.**
+
+### #9 Search Returning Full Payload Is Too Heavy
+
+**Rejected for current phase, noted as extension point**.
+
+action_chunk size: `[10, 32] * 4 bytes = 1.3KB`, intermediates (3 intermediate states): `3 * 1.3KB ≈ 4KB`. With top_k=10, total is about 50KB, acceptable for a single inference.
+
+Two-phase search (first get id/score, then hydrate) adds one network round-trip, which may actually be slower given Qdrant's latency is already 10-100ms. If top_k grows or payload bloats in the future, adding a `fetch(ids) -> list[CacheEntry]` interface to `VectorStoreBackend` can upgrade without changing ABC semantics.
+
+### #10 torch.save -> base64 Serialization
+
+**Accepted criticism, but characterized as a backend implementation detail**. The ABC does not specify serialization format; each backend chooses its own.
+
+The current approach in `qdrant_backend.py` (torch.save -> base64) is tied to PyTorch version, and base64 inflates by about 33%. The implementation will be changed to use **numpy bytes**: `tensor.numpy().tobytes()` + shape/dtype as separate fields in the payload. Smaller size, no PyTorch version dependency, faster deserialization. This is a backend-internal implementation change that doesn't affect the ABC.
+
+### #11 Concurrency Semantics
+
+**Accepted**. Explicitly stated in ABC docstring: **Implementations do not guarantee thread safety; the caller is responsible for concurrency control**. The Orchestrator's write-back uses a single background thread for serial writes; search and write won't truly be concurrent in practice (Qdrant's server is thread-safe on its own; local backends are protected by the Orchestrator's guarantee of no concurrency).
+
+### #12 batch_insert Failure Semantics
+
+**Accepted**. Contract: **best-effort; partial failures are logged, remaining entries continue processing, no exception thrown**. Write-back is a non-critical path; cache miss is an acceptable degradation. The caller (background write thread) does no retry; failed entries are discarded. Stated clearly in the ABC docstring.
+
+### #13 Dimension Validation Location
+
+**Accepted**. Unified validation in `CacheStorage`, not repeated in each backend. `CacheStorage` is the sole entry point and the correct place for boundary validation:
+
+```python
+# cache_storage.py
+def insert(self, entry: CacheEntry) -> None:
+    if entry.query_key.shape != (self._dim,):
+        raise ValueError(f"query_key dim mismatch: expected {self._dim}, got {entry.query_key.shape}")
+    self._backend.insert(entry)
+```
+
+`self._dim` is read from the backend config at construction time.
+
+### #14 Boundary Between SearchResult and CacheResult
+
+**Rejected, existing boundary is correct**.
+
+- `SearchResult`: Storage layer output, contains id/score/payload, consumed by judge
+- `CacheResult`: Judge output, contains HitType (full/warm_start/miss) and fields for Orchestrator decision-making (cached_action / cached_x_t, etc.)
+
+The two have no overlapping fields, with clear responsibilities. `CacheResult` is constructed by the judge; the Orchestrator only reads, never constructs. This layering is correct and doesn't need merging.
+
+### #15 Which Module Should Own CheckpointID
+
+**Accepted**. `timing.py` should not be the source of base types, and `storage_types.py` should not depend back on `timing`.
+
+Added `src/openpi/cache/types.py` to hold `CheckpointID` and other base enums. Both `timing.py` and `storage_types.py` import from `types.py`. File structure updated as shown (see revised version in the file structure section).
+
+### #16 CacheStorage MetadataDB Consistency Strategy
+
+**Accepted, writing the contract first**, even though MetadataDB is not yet implemented:
+- Write order: write vector first (with full payload), then metadata
+- Source of truth on any failure: **vector DB** (payload is complete; metadata is an auxiliary index)
+- `close()` implicitly calls `flush()`; both DBs must flush
+
+---
+
+## Revised File Structure
+
+```
+src/openpi/cache/
+├── __init__.py
+├── timing.py              # Existing, no changes
+├── interceptor.py         # Existing, no changes
+│
+├── types.py               # New: CheckpointID and other base enums (#15)
+├── storage_types.py       # New: CachePayload / CacheEntry / QuerySpec / QueryFilter / SearchResult
+├── backend_base.py        # New: VectorStoreBackend ABC
+├── cache_storage.py       # New: CacheStorage facade (with dimension validation #13)
+├── orchestrator.py        # New: CacheOrchestrator + SimilarityJudge + GateFunction
+│
+└── backends/
+    ├── __init__.py
+    └── qdrant_backend.py  # New: serialization changed to numpy bytes (#10)
+```
+
+## Revised Core Data Models
+
+```python
+# types.py
+from enum import Enum, auto
+
+class CheckpointID(Enum):
+    CP1 = auto()
+    CP2 = auto()
+    CP3 = auto()
+
+
+# storage_types.py
+@dataclass
+class CachePayload:
+    action_chunk: torch.Tensor                         # CPU float32 [50,32], required for all CPs
+    intermediates: Optional[dict[float, torch.Tensor]] # Aligned with model API, key = float timestep
+    denoising_num_steps: Optional[int]                 # Warm start must match value at cache time, used with intermediates
+    next_action_chunk: Optional[torch.Tensor]          # Required for CP3
+    task_key: str = ""                                 # Normalized task identifier, not raw prompt
+
+    def validate_for_checkpoint(self, checkpoint_id: "CheckpointID") -> None:
+        if self.action_chunk is None:
+            raise ValueError("action_chunk must be non-None")
+        if checkpoint_id == CheckpointID.CP3 and self.next_action_chunk is None:
+            raise ValueError("next_action_chunk must be non-None for CP3")
+
+
+@dataclass
+class CacheEntry:
+    id: str                   # hash(checkpoint_id + query_key_bytes), semantic dedup key, includes checkpoint_id (#3)
+    checkpoint_id: CheckpointID
+    query_key: torch.Tensor   # CPU float32 [dim], L2-normalized
+    payload: CachePayload
+    timestamp: float = field(default_factory=time.time)
+
+    def validate(self) -> None:
+        self.payload.validate_for_checkpoint(self.checkpoint_id)
+
+
+@dataclass
+class QueryFilter:
+    task_key: Optional[str] = None              # Normalized task identifier, not raw prompt (#10)
+    step_range: Optional[tuple[int, int]] = None
+
+
+@dataclass
+class QuerySpec:
+    query_key: torch.Tensor        # CPU float32
+    top_k: int = 10
+    checkpoint_id: Optional[CheckpointID] = None
+    filters: Optional[QueryFilter] = None
+
+
+@dataclass
+class SearchResultLite:
+    """Lightweight search result without large tensor payload, used for judge candidate filtering."""
+    id: str
+    score: float               # Normalized cosine similarity in [-1, 1]
+    checkpoint_id: CheckpointID
+
+
+@dataclass
+class SearchResult:
+    """Full search result with payload, populated by fetch_payload()."""
+    id: str
+    score: float
+    payload: CachePayload
+    checkpoint_id: CheckpointID
+
+
+@dataclass
+class BatchInsertResult:
+    inserted: int
+    failed_ids: list[str]
+```
+
+---
+
+## Second Round Review Feedback Responses (2026-04-02)
+
+### #1 QueryFilter Silent Ignoring Leads to Incorrect Semantics
+
+**Accepted, changed to fail-fast**.
+
+Added `supported_filters()` abstract method to the `VectorStoreBackend` ABC; `CacheStorage` checks capabilities before calling the backend:
+
+```python
+# backend_base.py
+@abstractmethod
+def supported_filters(self) -> frozenset[str]:
+    """Return the set of QueryFilter field names this backend supports.
+    Fields not in the set will cause CacheStorage to raise UnsupportedFilterError if requested.
+    """
+    ...
+
+# cache_storage.py
+def search(self, spec: QuerySpec) -> list[SearchResultLite]:
+    if spec.filters:
+        requested = {k for k, v in dataclasses.asdict(spec.filters).items() if v is not None}
+        unsupported = requested - self._backend.supported_filters()
+        if unsupported:
+            raise UnsupportedFilterError(f"This backend does not support filter fields: {unsupported}")
+    return self._backend.search(spec)
+```
+
+Silent degradation would change cache semantics (searching the entire store vs. searching a subset) — unacceptable.
+
+### #2 intermediates Key Alignment with Warm-Start API
+
+**Accepted, keeping `dict[float, torch.Tensor]`, adding `denoising_num_steps`**.
+
+Code review (`pi0_pytorch.py:577`): `run_stage3_from(start_t: float, num_steps: int)` requires both, and `num_steps` must match the value at cache time. Using step index as key is ambiguous when num_steps is variable, while float keys align exactly with `save_timesteps=(0.7, 0.5, 0.3)` literals, with no precision issues (stored directly as Python float literals; serialized using `f"{t:.4f}"` string keys; deserialized with `float(k)` restoration).
+
+`CachePayload` gains `denoising_num_steps: Optional[int]`, required for CP2 warm start, validated by `validate_for_checkpoint()`.
+
+### #3 CacheEntry.id Composition
+
+**Accepted, explicitly defined**: `id = stable_hash(checkpoint_id.name + ":" + query_key_bytes)`.
+
+Must include `checkpoint_id`; otherwise CP1/CP2 with the same query key would overwrite each other. **Does not include** task/step information — task filtering is `QueryFilter`'s responsibility; for the same context (same query_key + checkpoint), regardless of task, it's semantically the same cache entry.
+
+### #4 Dimension Validation Interface
+
+**Accepted**, ABC gains an abstract property:
+
+```python
+@property
+@abstractmethod
+def vector_dim(self) -> int:
+    """The vector dimension this backend expects."""
+    ...
+```
+
+`CacheStorage.__init__` reads `backend.vector_dim` and stores it as `self._dim`; `insert()`/`search()` perform unified validation.
+
+### #5 Payload Size Recalculation
+
+**Accepted the reviewer's correction**. Correct numbers:
+
+- `action_chunk = [50, 32] × 4 bytes = 6.4 KB` (not the previously miscalculated 1.3 KB)
+- 3 intermediates = 3 × 6.4 KB = 19.2 KB
+- `SearchResult` with intermediates ≈ 25.6 KB per entry
+- With top_k=10: 256 KB per search
+
+256 KB is unacceptable for a latency-sensitive inference pipeline. **Position changed**: adding a two-phase search path:
+
+- `search()` changed to return `list[SearchResultLite]` (id/score/checkpoint_id, no payload)
+- ABC gains `fetch_payload(id: str) -> CachePayload`
+- `CacheStorage` exposes `search_and_fetch(spec) -> list[SearchResult]` as a convenience method (internally searches first, fetches payload for top-1 winner)
+
+The judge performs threshold filtering on lite results; only fetches full payload for hit candidates — in most cases, only one fetch is needed.
+
+### #6 Serialization Approach
+
+**Rejected the claim that "switching to numpy bytes reduces size," but made an explicit choice**.
+
+numpy bytes + base64 and torch.save + base64 have the same base64 inflation rate (both about 33%). numpy only saves the pickle header (for tensors like [50,32], that's <1%). Switching to numpy doesn't change the order of magnitude.
+
+**Actual choice**: Keep `torch.save + base64`, because it's the simplest implementation and already verified working. If size becomes a bottleneck in the future, optimize internally within `qdrant_backend.py` (switch to msgpack, named vector storage, etc.) without affecting the ABC.
+
+### #7 Unified CP Validation Entry Point
+
+**Accepted**. `CachePayload.validate_for_checkpoint(checkpoint_id)` is the sole validation entry point; `CacheEntry.validate()` calls it. `CacheStorage.insert()` calls `entry.validate()` before passing to the backend. Offline pre-population and test code that directly constructs `CacheEntry` will be automatically validated as long as they go through `CacheStorage.insert()` — no reliance on caller discipline.
+
+### #8 batch_insert Returns Structured Result
+
+**Accepted**. Returns `BatchInsertResult(inserted: int, failed_ids: list[str])`; ABC signature updated:
+
+```python
+def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult: ...
+```
+
+The background write thread, upon receiving the result, records `failed_ids` in `SystemTimer`'s statistics (lost write count) for monitoring, without retry.
+
+### #9 Concurrency Semantics
+
+**Accepted, lock placed at the CacheStorage layer**.
+
+```python
+class CacheStorage:
+    def __init__(self, backend, ...):
+        self._lock = threading.RLock()
+
+    def search(self, spec):
+        with self._lock:
+            return self._backend.search(spec)
+
+    def insert(self, entry):
+        with self._lock:
+            self._backend.insert(entry)
+```
+
+Rationale: All backends are not required to be thread-safe themselves (explicitly stated in ABC docstring); unified locking at CacheStorage is easier to audit. The lock overhead for Qdrant (remote) is negligible; local backends rely on this lock for safety.
+
+The earlier statement "concurrent access won't actually happen in practice" is retracted — a background write thread does exist, and assumptions cannot be relied upon.
+
+### #10 QueryFilter.task_prompt Changed to Normalized Task Key
+
+**Accepted**. Field changed to `task_key: Optional[str]`, meaning a normalized task identifier from the experiment config (e.g., `"libero_spatial_pick_up_the_black_bowl"`), not a raw prompt string. The caller is responsible for normalization (trimming whitespace, lowercasing, removing template differences) before constructing `QueryFilter`. This contract is written into `QueryFilter`'s docstring.

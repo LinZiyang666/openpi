@@ -106,7 +106,7 @@ uv run exp/calibrate_score_sum_stats.py \
 
 ## Step 3: 生成 Phase 1 实验 YAML 配置
 
-10 种组合 × 8 种权重 = 80 个 YAML 文件。
+共 10 种 combo（5 降维 × 2 融合），但当前 `SKIP_SCORE_SUM = True`（在 `generate_cache_run_yamls.py` 第 66 行），实际生成 **5 combo × 8 权重 = 40 个 YAML**。如需恢复 Score Sum 系列，将 `SKIP_SCORE_SUM` 改为 `False` 可生成全部 80 个。
 
 ```bash
 uv run exp/generate_cache_run_yamls.py \
@@ -122,10 +122,10 @@ configs/cache_runs/phase1/
 ├── phase1_run_001_a_rrf_w1.yaml
 ├── phase1_run_002_a_rrf_w2.yaml
 ├── ...
-├── phase1_run_064_c_sum_w8.yaml
-├── phase1_run_065_d_rrf_w1.yaml   # D: CLIP ViT-B-32
 ├── ...
-└── phase1_run_080_d_sum_w8.yaml   # 共 80 个文件
+└── phase1_run_040_d_rrf_w8.yaml   # D: CLIP ViT-B-32
+                                    # 共 40 个文件 (SKIP_SCORE_SUM=True)
+                                    # 若 SKIP_SCORE_SUM=False 则为 80 个
 ```
 
 **重要**: 生成的 YAML 中 `preload_path` 指向 `data/cache_artifacts/libero_spatial/` 的绝对路径。确保 GPU 服务器上的路径一致，或在生成后手动修改路径。如果两端路径不同，在 GPU 服务器端生成 YAML 或修改 `--artifact-dir` 使路径匹配 GPU 服务器的文件系统。
@@ -163,7 +163,7 @@ curl http://localhost:8000/healthz
 
 ## Step 5: 运行 Phase 1 实验（评估端）
 
-### 5a. 完整运行（80 个配置 × 10 task × 5 episodes = 4000 episodes）
+### 5a. 完整运行（当前 40 个配置 × 10 task × 5 episodes = 2000 episodes）
 
 ```bash
 uv run exp/run_cache_experiments.py \
@@ -253,7 +253,7 @@ uv run exp/analyze_cache_results.py \
 ```
 
 输出：
-- 排名表：所有 64 个配置按 success_rate 排序
+- 排名表：所有配置按 success_rate 排序
 - 每个 combo 的最优权重
 - **Top 3 combo**：进入 Phase 1.5 的候选
 
@@ -353,7 +353,7 @@ uv run exp/analyze_cache_results.py \
 
 | Phase | 配置数 | Task 数 | Episodes/Task | 总 Episodes | 预计时长 |
 |-------|--------|---------|---------------|-------------|---------|
-| 1     | 80     | 10      | 5             | 4,000       | 取决于单 episode 时间 |
+| 1     | 40 (SKIP_SCORE_SUM) / 80 (full) | 10 | 5 | 2,000 / 4,000 | 取决于单 episode 时间 |
 | 1.5   | ~45    | 10      | 5             | ~2,250      | — |
 | 2     | 3      | 10      | 5             | 150         | — |
 

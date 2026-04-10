@@ -7,7 +7,7 @@
 
 ## 目标
 
-基于 [cache_system_tutorial.md](/mnt/c/Users/lzy66/OneDrive%20-%20University%20of%20Illinois%20-%20Urbana/ai-gaming/openpi/docs/cache_system_tutorial.md) 和 [cache_experiment_plan.log.md](/mnt/c/Users/lzy66/OneDrive%20-%20University%20of%20Illinois%20-%20Urbana/ai-gaming/openpi/claude_log/cache_experiment_plan.log.md)，为当前大规模实验补齐 `CP1` 路径所需实现。
+基于 [cache_system_tutorial.md](/mnt/c/Users/lzy66/OneDrive%20-%20University%20of%20Illinois%20-%20Urbana/ai-gaming/openpi/docs/cache_system_tutorial.md) 和 [cache_experiment_plan.log.md](/mnt/c/Users/lzy66/OneDrive%20-%20University%20of%20Illinois%20-%20Urbana/ai-gaming/openpi/logs/cache_experiment_plan.log.md)，为当前大规模实验补齐 `CP1` 路径所需实现。
 
 本轮只服务于实验，不追求把整套系统一次性做成通用生产方案。
 

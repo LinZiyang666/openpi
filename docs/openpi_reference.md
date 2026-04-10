@@ -27,7 +27,23 @@ openpi/
 │   │
 │   ├── cache/                   # [Fork] Inference cache system
 │   │   ├── interceptor.py       #   InferenceInterceptor - cache-aware Policy wrapper
-│   │   └── timing.py            #   SystemTimer - CUDA Event / PerfCounter timing
+│   │   ├── orchestrator.py      #   CacheOrchestrator - CP1/CP3 end-to-end loop
+│   │   ├── config.py            #   CacheConfig / SearchConfig dataclass tree + YAML loading
+│   │   ├── timing.py            #   SystemTimer - CUDA Event / PerfCounter timing
+│   │   ├── types.py             #   CheckpointID, field name constants
+│   │   ├── storage_types.py     #   CacheEntry, CachePayload, QuerySpec
+│   │   ├── backend_base.py      #   VectorStoreBackend ABC
+│   │   ├── cache_storage.py     #   CacheStorage facade
+│   │   ├── backends/
+│   │   │   ├── in_memory_backend.py  # InMemoryBackend - pickle artifact, cosine/L2 search
+│   │   │   └── qdrant_backend.py     # QdrantBackend - Qdrant vector DB
+│   │   └── components/
+│   │       ├── key_builder.py   #   KeyBuilder ABC + MeanPool/SpatialPool reducers
+│   │       ├── clip_key_builder.py # CLIPKeyBuilder - open_clip vision encoder
+│   │       ├── search_strategy.py  # SearchStrategy ABC + WeightedRrfKnn/WeightedScoreSum
+│   │       ├── gate.py          #   Gate ABC + AlwaysSearch/ThresholdGate
+│   │       ├── judge.py         #   Judge ABC + AlwaysHit/ThresholdJudge
+│   │       └── write_policy.py  #   WritePolicy ABC + AlwaysWrite
 │   │
 │   ├── collect/                 # [Fork] Data collection via forward hooks
 │   │   ├── collection_policy.py #   CollectionPolicy - captures embeddings per inference
@@ -47,16 +63,23 @@ openpi/
 │   ├── serve_policy.py          # Policy server (supports --collect)
 │   └── compute_norm_stats.py
 │
-├── exp/                         # [Fork] Qdrant retrieval experiments
-│   ├── qdrant_ingest_openpi.py  #   Ingest HDF5 → Qdrant
-│   ├── qdrant_step_knn_experiment.py  # KNN retrieval benchmark
-│   ├── toy_stage1_server.py     #   Stage1-only server for retrieval experiments
-│   └── toy_qdrant_server.py     #   Qdrant query server
+├── exp/                         # [Fork] Experiment scripts
+│   ├── build_in_memory_cache_artifact.py  # Build InMemoryBackend pickle from HDF5 (mean/spatial pool)
+│   ├── build_clip_cache_artifact.py       # Build InMemoryBackend pickle from HDF5 (CLIP encoder)
+│   ├── generate_cache_run_yamls.py        # Generate YAML configs for cache experiment grid
+│   ├── run_cache_experiments.py           # Automated cache experiment runner (Phase 1/1.5/2)
+│   ├── analyze_cache_results.py           # Parse experiment results from state JSON
+│   ├── calibrate_robot_state_tau.py       # Calibrate L2→similarity tau for robot_state
+│   ├── calibrate_score_sum_stats.py       # Calibrate percentile stats for WeightedScoreSum
+│   ├── qdrant_ingest_openpi.py            # Ingest HDF5 → Qdrant
+│   ├── qdrant_step_knn_experiment.py      # KNN retrieval benchmark
+│   ├── toy_stage1_server.py               # Stage1-only server for retrieval experiments
+│   └── toy_qdrant_server.py               # Qdrant query server
 │
 ├── packages/openpi-client/      # Standalone client library (minimal deps)
 ├── examples/                    # Robot-specific examples (aloha, libero, droid, etc.)
 ├── docs/                        # Architecture & usage guides (see docs/README.md)
-└── claude_log/                  # Implementation logs (see claude_log/README.md)
+└── logs/                  # Implementation logs (see logs/README.md)
 ```
 
 ## Three Model Variants
@@ -130,7 +153,7 @@ Raw data -> repack -> data_transforms -> Normalize -> model_transforms
 
 ## Pi0.5 Hierarchical Inference (Paper Concept — Not in Current PyTorch Path)
 
-> **Note:** The paper describes a two-stage hierarchical inference. The current PyTorch implementation (`models_pytorch/pi0_pytorch.py`) does **not** include the high-level autoregressive subtask generation. Only low-level flow matching is implemented. See `claude_log/step1.log` for details.
+> **Note:** The paper describes a two-stage hierarchical inference. The current PyTorch implementation (`models_pytorch/pi0_pytorch.py`) does **not** include the high-level autoregressive subtask generation. Only low-level flow matching is implemented. See `logs/archive/step1.log` for details.
 
 As described in the paper, Pi0.5 would perform two-stage inference with the **same model**:
 1. **High-level:** Given observation + high-level prompt (e.g., "clean the kitchen"), auto-regressively predict a subtask (e.g., "pick up the plate")
