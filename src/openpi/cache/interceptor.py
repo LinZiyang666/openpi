@@ -119,6 +119,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         timer: Optional[SystemTimer] = None,
         orchestrator: Optional["CacheOrchestrator"] = None,
         eager: bool = False,
+        collect_images: bool = False,
     ) -> None:
         if not policy._is_pytorch_model:  # noqa: SLF001
             raise ValueError(
@@ -161,6 +162,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # overhead in addition to pure GPU time.  Useful as the "felt" latency
         # from the robot's perspective.
         self._timer.register_probe("total_inference", backend="cpu")
+
+        # ---- Image collection for cache key builders ----
+        self._collect_images = collect_images
 
         # ---- CacheOrchestrator ----
         # When orchestrator=None, all cache code paths are skipped (zero overhead).
@@ -281,6 +285,14 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # ---- 1. Input transforms (mirrors Policy.infer exactly) ----
         inputs = jax.tree.map(lambda x: x, obs)
         inputs = self._input_transform(inputs)
+
+        # Extract valid model-input images (CPU numpy) before GPU transfer.
+        # Passed through check() kwargs so KeyBuilder can optionally use them.
+        input_images: dict[str, np.ndarray] | None = None
+        if self._collect_images:
+            from openpi.shared.image_extract import extract_valid_images
+            input_images = extract_valid_images(inputs)
+
         inputs = jax.tree.map(
             lambda x: torch.from_numpy(np.array(x))
                            .to(self._pytorch_device)[None, ...],
@@ -304,9 +316,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
                 # CP1: check cache after Stage 1.
                 if self._orchestrator is not None:
+                    cp1_kwargs = {"stage1": stage1}
+                    if input_images is not None:
+                        cp1_kwargs["input_images"] = input_images
                     with self._timer.measure("cp1_sum"):
                         cp1_result = self._orchestrator.check(
-                            CheckpointID.CP1, stage1=stage1
+                            CheckpointID.CP1, **cp1_kwargs
                         )
                     if cp1_result.hit_type == HitType.FULL_HIT:
                         cached_action = cp1_result.payload.action_chunk
@@ -338,9 +353,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
             # Post-inference cache operations.
             if self._orchestrator is not None:
+                cp3_kwargs = {"stage1": stage1, "stage3": stage3}
+                if input_images is not None:
+                    cp3_kwargs["input_images"] = input_images
                 with self._timer.measure("cp3_sum"):
                     _cp3_result = self._orchestrator.check(
-                        CheckpointID.CP3, stage1=stage1, stage3=stage3
+                        CheckpointID.CP3, **cp3_kwargs
                     )
 
                 action_chunk_cpu = stage3.action_chunk[0].detach().cpu().float().contiguous()

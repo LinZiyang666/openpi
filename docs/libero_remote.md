@@ -310,7 +310,7 @@ pip install -e packages/openpi-client
 
 ## 4. Running
 
-> **Note:** This script uses `tyro` nested argument parsing. All runtime arguments must be prefixed with `--args.`, e.g., `--args.host`, `--args.port`, `--args.display`. Using `--host` directly will cause an `Unrecognized options` error.
+> **Note:** This script uses `tyro` nested argument parsing. All runtime arguments must be prefixed with `--`, e.g., `--host`, `--port`, `--display`. Using `--host` directly will cause an `Unrecognized options` error.
 
 ### Option A: Save Video Only (No Rendering Window, Most Stable)
 
@@ -320,9 +320,9 @@ conda activate libero_sim
 export PYTHONPATH=$PYTHONPATH:$PWD/third_party/libero
 
 MUJOCO_GL=egl python examples/libero/main.py \
-    --args.host 155.98.36.13 \
-    --args.port 9000 \
-    --args.task-suite-name libero_spatial
+    --host 155.98.36.13 \
+    --port 9000 \
+    --task-suite-name libero_spatial
 ```
 
 Videos are saved to: `data/libero/videos/rollout_<task>_<success|failure>.mp4`
@@ -331,10 +331,10 @@ Videos are saved to: `data/libero/videos/rollout_<task>_<success|failure>.mp4`
 
 ```bash
 MUJOCO_GL=egl python examples/libero/main.py \
-    --args.host 155.98.36.13 \
-    --args.port 9000 \
-    --args.task-suite-name libero_spatial \
-    --args.display
+    --host 155.98.36.13 \
+    --port 9000 \
+    --task-suite-name libero_spatial \
+    --display
 ```
 
 > **Check if WSLg is available:** Run `echo $DISPLAY`. If there is output (e.g., `:0`), WSLg is available. Windows 10 does not support WSLg — use Option A instead.
@@ -350,6 +350,7 @@ MUJOCO_GL=egl python examples/libero/main.py \
 | `--num-trials-per-task` | `50` | Number of episodes per task |
 | `--display` | `False` | Show real-time rendering window |
 | `--video-out-path` | `data/libero/videos` | Video output directory |
+| `--init-states-dir` | `""` (use LIBERO default) | Custom init states directory (see §7) |
 
 ---
 
@@ -374,3 +375,62 @@ Start the local simulator only after the server log shows `Listening on port 800
 | No real-time rendering | `--display` flag opens a cv2 window |
 
 The recording frame rate can be changed via `RECORD_FPS = 30` at the top of `main.py`.
+
+---
+
+## 7. Custom Init States
+
+By default, `main.py` loads init states from LIBERO's built-in `.pruned_init` files (50 states per task). You can override this with `--init-states-dir` to use your own init states.
+
+### LIBERO Default Init States
+
+LIBERO provides two types of init state files per task:
+
+| File type | Suffix | Description |
+|-----------|--------|-------------|
+| Full | `.init` | All collected init states (100 per task for most suites) |
+| Pruned | `.pruned_init` | Subset used for standard evaluation (50 per task) |
+
+| Suite | Tasks | `.init` per task | `.pruned_init` per task | State dim |
+|-------|-------|-----------------|------------------------|-----------|
+| libero_spatial | 10 | 100 | 50 | 92 |
+| libero_object | 10 | 50 | 50 | 110 |
+| libero_goal | 10 | N/A | 50 | 79 |
+| libero_10 | 10 | 100 | 50 | 45-123 |
+| libero_90 | 90 | 100 | 50 | 45-123 |
+
+Default files are located at: `{libero_package}/libero/init_files/{suite_name}/`
+
+### Using Custom Init States
+
+1. Create a directory with your init state files, named `{task_name}.pruned_init` or `{task_name}.init` (PyTorch tensors, shape `[N, state_dim]`).
+
+2. Run with `--init-states-dir`:
+
+```bash
+MUJOCO_GL=egl python examples/libero/main.py \
+    --host 155.98.36.13 \
+    --port 9000 \
+    --task-suite-name libero_spatial \
+    --init-states-dir /path/to/my/init_states/ \
+    --num-trials-per-task 100
+```
+
+File lookup order: `.pruned_init` first, then `.init`. Set `--num-trials-per-task` to match your init state count.
+
+### Generating New Init States
+
+You can generate custom init states by repeatedly resetting the environment:
+
+```python
+import torch
+from libero.libero.envs import OffScreenRenderEnv
+
+env = OffScreenRenderEnv(bddl_file_name="path/to/task.bddl", camera_heights=256, camera_widths=256)
+states = []
+for i in range(100):
+    env.seed(i)
+    env.reset()
+    states.append(env.env.sim.get_state().flatten())
+torch.save(torch.stack(states), "task_name.init")
+```

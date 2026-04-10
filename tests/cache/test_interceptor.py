@@ -148,22 +148,29 @@ def test_infer_with_orchestrator_cp1_miss_full_pipeline():
 
 
 def test_infer_with_orchestrator_cp1_hit_skips_stage2_3():
+    from openpi.cache.components.write_policy import AlwaysWritePolicy
+
     fixed_state = torch.randn(1, 32)
     fixed_action = torch.randn(1, 50, 32)
     model = FakeModel(fixed_state=fixed_state, fixed_action=fixed_action)
     policy = FakePolicy(model=model)
 
-    orch, _, _ = make_orchestrator()
+    orch, _, _ = make_orchestrator(write_policy=AlwaysWritePolicy())
     interceptor = InferenceInterceptor(
         policy, timer=SystemTimer(enabled=False), orchestrator=orch
     )
 
-    # First call: MISS -> writes CP1 entry to cache.
+    # First call: MISS -> buffers CP1 entry for write.
     obs = _make_obs()
+    interceptor.on_task_begin()
     interceptor.infer(obs)
     assert model.stage1_calls == 1
     assert model.stage2_calls == 1
     assert model.stage3_calls == 1
+
+    # Flush buffered data to storage via episode lifecycle.
+    interceptor.on_episode_end(success=True)
+    interceptor.on_episode_start("test", "test", 1)
 
     # Reset counters for second call.
     model.stage1_calls = 0

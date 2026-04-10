@@ -10,6 +10,7 @@ import torch
 from openpi_client import base_policy as _base_policy
 
 from openpi.collect.data_collector import EpisodeDataCollector, InferenceEmbeddings
+from openpi.shared.image_extract import extract_valid_images
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +86,7 @@ class CollectionPolicy(_base_policy.BasePolicy):
             model.action_in_proj.register_forward_hook(_action_in_hook),
             model.action_out_proj.register_forward_hook(_action_out_hook),
         ]
-        robot_state_np = self._extract_robot_state(obs)
+        robot_state_np, input_images = self._extract_obs_fields(obs)
         try:
             result = self._policy.infer(obs, **infer_kwargs)
         finally:
@@ -93,7 +94,7 @@ class CollectionPolicy(_base_policy.BasePolicy):
                 handle.remove()
 
         try:
-            self._record(robot_state_np, vision_captures, lang_capture[0], action_in_captures, action_out_captures)
+            self._record(robot_state_np, input_images, vision_captures, lang_capture[0], action_in_captures, action_out_captures)
         except Exception:
             logger.exception("CollectionPolicy: failed to record inference embeddings; skipping step.")
 
@@ -125,6 +126,7 @@ class CollectionPolicy(_base_policy.BasePolicy):
     def _record(
         self,
         robot_state_np: np.ndarray,
+        input_images: dict[str, np.ndarray],
         vision_captures: list[torch.Tensor],
         lang_emb: torch.Tensor | None,
         action_in_captures: list[torch.Tensor],
@@ -158,13 +160,16 @@ class CollectionPolicy(_base_policy.BasePolicy):
                 robot_state=robot_state_np,
                 noise_action_steps=noise_action_steps,
                 clean_action=clean_action_np,
+                input_images=input_images or None,
             )
         )
 
-    def _extract_robot_state(self, obs: dict) -> np.ndarray:
-        """Apply the wrapped policy's input transform and read normalized state."""
+    def _extract_obs_fields(self, obs: dict) -> tuple[np.ndarray, dict[str, np.ndarray]]:
+        """Single transform pass to extract both robot_state and valid input images."""
         inputs = jax.tree.map(lambda x: x, obs)
         inputs = self._input_transform(inputs)
         if "state" not in inputs:
             raise RuntimeError("CollectionPolicy: transformed inputs are missing the 'state' field.")
-        return np.asarray(inputs["state"], dtype=np.float32).flatten()
+        robot_state = np.asarray(inputs["state"], dtype=np.float32).flatten()
+        input_images = extract_valid_images(inputs)
+        return robot_state, input_images

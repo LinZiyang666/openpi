@@ -21,6 +21,9 @@ class InferenceEmbeddings:
     robot_state: np.ndarray
     noise_action_steps: list[np.ndarray]
     clean_action: np.ndarray
+    # Post-transform model input images, mask=True slots only.
+    # e.g. {"base_0_rgb": (224,224,3) uint8, "left_wrist_0_rgb": ...}
+    input_images: dict[str, np.ndarray] | None = None
 
 
 class EpisodeDataCollector:
@@ -86,6 +89,10 @@ class EpisodeDataCollector:
                     for i, noise_action in enumerate(embs.noise_action_steps, start=1):
                         grp.create_dataset(f"noise_action_{i}", data=noise_action)
                     grp.create_dataset("clean_action", data=embs.clean_action)
+                    if embs.input_images:
+                        img_grp = grp.create_group("input_images")
+                        for key, img in embs.input_images.items():
+                            img_grp.create_dataset(key, data=img, compression="lzf")
 
             tmp_path.rename(path)
             logger.info(

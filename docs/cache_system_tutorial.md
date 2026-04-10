@@ -1,9 +1,8 @@
 # OpenPI Inference Cache System — Complete Tutorial
 
-> **Replaces**: `adding_vector_store_backend.md`, `custom_cache_components.md`
 > For deep design rationale and checkpoint theory, see [cache_system_architecture.md](cache_system_architecture.md).
 
-This is a self-contained guide for developers who want to understand, configure, or extend the multi-level inference cache. No prior reading required, but the architecture doc provides deeper context.
+This is a self-contained guide for developers who want to understand, configure, or extend the multi-level inference cache.
 
 ---
 
@@ -21,9 +20,11 @@ This is a self-contained guide for developers who want to understand, configure,
 10. [YAML Config System](#10-yaml-config-system)
 11. [Orchestrator](#11-orchestrator)
 12. [Interceptor](#12-interceptor)
-13. [Component Isolation Rules](#13-component-isolation-rules)
-14. [Testing Patterns](#14-testing-patterns)
-15. [Current Validation Status](#15-current-validation-status)
+13. [Trajectory Search](#13-trajectory-search)
+14. [Episode Write Path](#14-episode-write-path)
+15. [Component Isolation Rules](#15-component-isolation-rules)
+16. [Testing Patterns](#16-testing-patterns)
+17. [Current Validation Status](#17-current-validation-status)
 
 ---
 
@@ -31,31 +32,23 @@ This is a self-contained guide for developers who want to understand, configure,
 
 | Term | Definition |
 |------|-----------|
-| **CheckpointID** | Enum (`CP1`, `CP2`, `CP3`). Three positions in the inference pipeline where cache checks occur. Defined in `types.py`. |
+| **CheckpointID** | Enum (`CP1`, `CP3`). Positions in inference pipeline where cache checks occur. Defined in `types.py`. |
 | **CP1** | After Stage 1 (vision + tokenisation). A hit skips Stage 2 + Stage 3. |
-| **CP2** | After Stage 2 (LLM backbone). **Suspended** — not implemented. |
-| **CP3** | After Stage 3 (flow matching). Schedules a cached action for the *next* inference cycle. |
-| **CACHE_QUERY_FIELDS** | The five canonical field names: `vision_0`, `vision_1`, `vision_2`, `prompt_emb`, `robot_state`. Defined as a `frozenset` in `types.py`. |
-| **CacheEntry** | A single unit written to the vector store. Contains `id`, `checkpoint_id`, `query_keys` dict, `CachePayload`, `timestamp`. |
-| **CachePayload** | The stored action data: `action_chunk` [50, 32] (always required), `next_action_chunk` (CP3 only), `intermediates` (CP2 only), `task_key`. |
-| **QuerySpec** | Everything a backend needs to execute one search: `query_keys`, `top_k`, `filters`, `fusion_weights`, `backend_hints`. Constructed **only** by SearchStrategy. |
-| **QueryFilter** | Dynamic per-query constraints: `task_key` (exact match), `step_range` (inclusive range on step index). |
-| **SearchResultLite** | Lightweight search result (no payload tensors): `id`, `score`, `checkpoint_id`. Phase 1 of two-phase search. |
-| **CheckResult** | Output of `Orchestrator.check()`: `hit_type`, optional `payload`, `score`, `entry_id`. |
+| **CP3** | After Stage 3 (flow matching). Currently for infrastructure validation only. |
+| **CACHE_QUERY_FIELDS** | Five canonical field names: `vision_0`, `vision_1`, `vision_2`, `prompt_emb`, `robot_state`. |
+| **CacheEntry** | A single unit written to the vector store. Contains `id`, `checkpoint_id`, `query_keys`, `CachePayload`, `prev_ids`, `next_ids`, `trajectory_id`. |
+| **CachePayload** | Stored action data: `action_chunk` [50, 32] (always required), `intermediates` (CP2 only), `task_key`. |
+| **QuerySpec** | Everything a backend needs for one search: `query_keys`, `top_k`, `filters`, `fusion_weights`, `backend_hints`, `trajectory_history`, `trajectory_weights`. Constructed **only** by SearchStrategy. |
+| **QueryFilter** | Dynamic per-query constraints: `task_key` (exact match), `step_range` (inclusive range). |
+| **SearchResultLite** | Lightweight search result (no payload): `id`, `score`, `checkpoint_id`. Phase 1 of two-phase search. |
+| **CheckResult** | Output of `Orchestrator.check()`: `hit_type`, optional `payload`, `score`, `entry_id`, `query_keys`. |
 | **HitType** | Enum: `MISS`, `FULL_HIT`. |
-| **KeyBuilder** | Extracts stage outputs (GPU) into query key vectors (CPU float32). The only D2H transfer point. |
-| **Gate** | Boolean predicate: should we search at all? Called before D2H transfer to avoid unnecessary work. |
-| **Judge** | Evaluates search results to decide hit/miss based on score thresholds. |
-| **SearchStrategy** | The single exit point for database queries. Constructs `QuerySpec` and calls `CacheStorage.search()`. |
-| **CacheStorage** | Thread-safe facade over `VectorStoreBackend`. Validates dimensions and filters, serialises calls with `RLock`. |
-| **VectorStoreBackend** | ABC that all vector database implementations extend. |
-| **Orchestrator** | Assembles components, runs the check/write pipeline: gate → build → search → judge → fetch. |
-| **Interceptor** | `InferenceInterceptor` — a `BasePolicy` drop-in that wraps the real policy and integrates cache checks into inference. |
-| **Two-phase search** | Phase 1: `search()` returns `SearchResultLite` (no payload). Phase 2: `fetch_payload()` called only for the winner. Avoids bulk tensor transfer. |
-| **RRF** | Reciprocal Rank Fusion — multi-field search combining results from multiple named vectors with weighted ranks. Used by Qdrant backend. |
-| **backend_hints** | Pass-through dict in `QuerySpec` for backend-specific parameters (e.g., `rrf_k`, `candidate_multiplier`). Ignored by backends that don't understand them. |
-| **Stable hash** | `SHA256(checkpoint_id.name + sorted_query_key_bytes)[:32]`. Same observation → same ID. Enables idempotent upserts. |
-| **Idempotent insert** | Reinserting the same ID overwrites the previous entry. No duplicates, no errors. |
+| **StepRecord** | Per-step staging record buffered during episode for trajectory write. |
+| **EpisodeRecord** | Entire episode staging record, passed to WritePolicy to decide write. |
+| **TrajectoryMixin** | Shared history buffer logic mixed into all SearchStrategy implementations. |
+| **WritePolicy** | Pluggable switch deciding whether to write trajectory at episode end. |
+| **RRF** | Reciprocal Rank Fusion — rank-based multi-field fusion. Score = `Σ w_f / (k + rank_f)`. |
+| **Weighted Score Sum** | Similarity-based multi-field fusion. Preserves score magnitudes for trajectory search. |
 
 ---
 
@@ -63,29 +56,28 @@ This is a self-contained guide for developers who want to understand, configure,
 
 ```
 InferenceInterceptor          ← BasePolicy drop-in, wraps real policy
-  └─ CacheOrchestrator        ← Assembles components, runs check/write
+  └─ CacheOrchestrator        ← Assembles components, runs check + episode write
        ├─ QueryKeyBuilder      ← GPU → CPU query vectors
        ├─ GateFunction         ← Should we search?
-       ├─ SearchStrategy       ← Builds QuerySpec, calls storage
+       ├─ SearchStrategy       ← Builds QuerySpec, calls storage (+ TrajectoryMixin)
+       │    └─ TrajectoryMixin ← History buffer for trajectory search
        ├─ SimilarityJudge      ← Hit or miss?
+       ├─ WritePolicy          ← Should we write this episode?
        └─ CacheStorage         ← Thread-safe facade
             └─ VectorStoreBackend ABC
-                 ├─ InMemoryBackend      (dev/test)
-                 └─ QdrantVectorStore    (production)
+                 └─ InMemoryBackend      (primary, supports trajectory search)
 ```
 
 **Layer responsibilities:**
 
 | Layer | File | Role |
 |-------|------|------|
-| Interceptor | `cache/interceptor.py` | Wraps policy, inserts CP1/CP3 checks into inference loop |
-| Orchestrator | `cache/orchestrator.py` | Coordinates gate → build → search → judge → fetch pipeline |
-| Components | `cache/components/*.py` | Pluggable protocols: KeyBuilder, Gate, Judge, SearchStrategy |
+| Interceptor | `cache/interceptor.py` | Wraps policy, inserts CP1/CP3 checks, episode lifecycle |
+| Orchestrator | `cache/orchestrator.py` | Coordinates gate → build → search → judge → fetch; episode write |
+| Components | `cache/components/*.py` | Pluggable protocols: KeyBuilder, Gate, Judge, SearchStrategy, WritePolicy |
 | Storage | `cache/cache_storage.py` | Thread safety, dimension validation, filter checking |
 | Backend | `cache/backend_base.py` + `cache/backends/` | Vector DB implementations |
 | Config | `cache/config.py` | YAML → dataclass → factory → component instances |
-
-For checkpoint design rationale (why CP1/CP2/CP3, compute savings per stage), see [cache_system_architecture.md](cache_system_architecture.md) Sections 2–3.
 
 ---
 
@@ -99,314 +91,143 @@ When `orchestrator.check(checkpoint_id, **stage_outputs)` is called:
 Step 1: key_builder.collect(checkpoint_id, stage1=...)
         └─ Hold GPU tensor references (no copy)
 
-Step 2: gate(checkpoint_id, key_builder.cached_data)
-        └─ If False → return CheckResult(MISS) immediately
+Step 2: key_builder.build(checkpoint_id)
+        └─ GPU → CPU float32 (THE ONLY D2H TRANSFER POINT)
 
-Step 3: key_builder.build(checkpoint_id)
-        └─ GPU → CPU float32, L2-normalise (impl-dependent)
-        └─ THIS IS THE ONLY D2H TRANSFER POINT
+Step 3: gate(checkpoint_id, key_builder.cached_data)
+        └─ If False → record miss, record_query_keys, return CheckResult(MISS)
 
 Step 4: Construct SearchContext(query_keys, checkpoint_id, current_step, task_key)
 
 Step 5: search_strategy.search(ctx)
+        └─ record_query_keys (TrajectoryMixin)
         └─ Build QueryFilter (step filtering)
-        └─ Build QuerySpec (fusion_weights, backend_hints)
+        └─ Build QuerySpec (fusion + trajectory fields)
         └─ CacheStorage.search(spec) → Backend.search(spec)
-        └─ Returns list[SearchResultLite] sorted descending by score
+        └─ Returns list[SearchResultLite] sorted descending
 
 Step 6: judge(results, checkpoint_id, cached_data)
         └─ Returns (HitType, winner_id)
-        └─ If MISS → return CheckResult(MISS)
+        └─ If MISS → increment miss counter, return CheckResult(MISS)
 
 Step 7: storage.fetch_payload(winner_id)
-        └─ Returns CachePayload (CPU tensors)
 
 Step 8: Increment step counter (CP1 only)
 
-Step 9: Return CheckResult(FULL_HIT, payload, score, entry_id)
+Step 9: Return CheckResult(FULL_HIT, payload, score, entry_id, query_keys)
 ```
 
-### 3.2 Write Pipeline
+**query_keys is returned on ALL paths** (hit, miss, gate skip) — needed by `buffer_for_write()`.
 
-When `orchestrator.write(checkpoint_id, payload, **stage_outputs)` is called:
+### 3.2 Episode Write Pipeline
+
+Replaces the old per-step `write()` method. Trajectory-aware:
 
 ```
-Step 1: key_builder.collect(checkpoint_id, stage1=...)
-Step 2: query_keys = key_builder.build(checkpoint_id)
-Step 3: entry_id = _stable_hash(checkpoint_id, query_keys)
-Step 4: entry = CacheEntry(id, checkpoint_id, query_keys, payload)
-Step 5: storage.insert(entry)  →  backend.insert(entry)
+During episode:
+  Interceptor calls orchestrator.broadcast_action(action)
+  Interceptor calls orchestrator.buffer_for_write(query_keys, action)
+    └─ Appends StepRecord to _episode_steps
+
+At episode end:
+  orchestrator.on_episode_end()
+    └─ Build EpisodeRecord from buffered steps + miss counts
+    └─ WritePolicy.should_write(episode_record)
+    └─ If yes: _build_entry_chain() → linked CacheEntry list → batch_insert
+    └─ Reset episode buffers
 ```
 
-In the Interceptor, CP1 writes happen in a **background thread** (`ThreadPoolExecutor(max_workers=1)`). The main thread materialises tensors to CPU via `build()`, then submits `write_with_keys()` to avoid blocking inference.
+Entry chain format:
+- Entry ID: `"{trajectory_id}:{step_idx}"`
+- `prev_ids`: points to previous step's entry
+- `next_ids`: points to next step's entry
+- All entries in a chain share the same `trajectory_id` (UUID)
 
 ---
 
 ## 4. Component: KeyBuilder
 
 **Source**: `src/openpi/cache/components/key_builder.py`
-**Pipeline position**: Steps 1 and 3 of check; Steps 1–2 of write
-
-### Protocol
-
-```python
-class QueryKeyBuilder(Protocol):
-    def collect(self, checkpoint_id: CheckpointID, **stage_outputs) -> None:
-        """Cache GPU tensor references from stage outputs. No copy."""
-
-    def build(self, checkpoint_id: CheckpointID) -> dict[str, torch.Tensor]:
-        """Build query vectors. Returns {field_name: [dim] CPU float32}.
-        This is the ONLY D2H transfer point."""
-
-    @property
-    def cached_data(self) -> dict[str, torch.Tensor]:
-        """Raw GPU tensors for Gate/Judge to read (before build)."""
-
-    def clear(self) -> None:
-        """Release cached references. Called at end of each cycle."""
-```
-
-### Input / Output
-
-| Method | Input | Output | Device |
-|--------|-------|--------|--------|
-| `collect()` | `stage1: Stage1Output` (`.state [B, 32]`, `.prefix_embs [B, prefix_len, emb_dim]`), optionally `stage3: Stage3Output` (`.action_chunk [B, 50, 32]`) | None (stores refs) | GPU |
-| `build()` | (reads internal cache) | `dict[str, Tensor]` — field → `[dim]` | CPU float32 |
-| `cached_data` | — | `dict[str, Tensor]` — raw GPU refs | GPU |
 
 ### Existing Implementations
 
-**PlaceholderKeyBuilder** — Simplest implementation. Uses only `stage1.state`:
-- `collect()`: stores `state [B, 32]` GPU reference
-- `build()`: `F.normalize(state[0], dim=0)` → `{robot_state: [32] L2-normalized CPU float32}`
-- Only supports `robot_state` field
-- CP1 and CP3 produce the same key (action concat deferred to Step 6)
-
-**FullOriginalKeyBuilder** — Multi-modal key builder. Splits `prefix_embs` back into original segments:
-- Token layout: `prefix_embs = [vision_0 (256 tokens) | vision_1 (256) | vision_2 (256) | prompt (variable)]`
-- Each segment is **flattened raw** (`reshape(-1)`) — no mean-pooling, no L2-normalisation
-- Prompt segment is zero-padded or truncated to match `vector_dims[PROMPT_EMB]`
-- Robot state output raw (no normalisation)
-- Constructor: `FullOriginalKeyBuilder(enabled_fields=["vision_0", "robot_state", ...], vector_dims={...})`
-- Output dims example: `{vision_0: 524288, vision_1: 524288, vision_2: 524288, prompt_emb: 409600, robot_state: 32}`
-
-### Registering a New KeyBuilder
-
-1. Create a class implementing the 4-method protocol
-2. Add your type string to `config.py` validation (line ~341): `if config.key_builder.type not in ("placeholder", "full_original", "your_type")`
-3. Add a factory branch in `_build_key_builder()` (line ~498)
-4. Add cross-validation rules if your builder only supports certain fields
+| Type | Output dims | Fields | Use case |
+|------|-------------|--------|----------|
+| `placeholder` | `{robot_state: 32}` | robot_state only | Testing |
+| `cp1_mean_pool` | `{vision_0: 2048, robot_state: 32, ...}` | Mean pool over 256 tokens → 2048d | **Recommended** |
+| `cp1_spatial_pool_16` | `{vision_0: 32768, ...}` | 4×4 spatial pool | High resolution |
+| `cp1_spatial_pool_64` | `{vision_0: 8192, ...}` | 2×2 spatial pool | Medium |
+| `cp1_max_pool` | `{vision_0: 2048, ...}` | Max pool over tokens | Alternative to mean |
+| `full_original` | `{vision_0: 524288, ...}` | Raw flatten (Qdrant only) | Deprecated for in_memory |
 
 ---
 
 ## 5. Component: Gate
 
 **Source**: `src/openpi/cache/components/gate.py`
-**Pipeline position**: Step 2 of check — called **before** D2H transfer
 
-### Protocol
+Current implementation: **AlwaysSearchGate** — always returns `True`.
 
-```python
-class GateFunction(Protocol):
-    def __call__(
-        self,
-        checkpoint_id: CheckpointID,
-        cached_data: dict[str, torch.Tensor],  # GPU tensors from KeyBuilder
-    ) -> bool:
-        """Return True to proceed with search, False to skip (return MISS)."""
-```
-
-### Input / Output
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `checkpoint_id` | `CheckpointID` | CP1 or CP3 |
-| `cached_data` | `dict[str, Tensor]` | Raw GPU tensors from `KeyBuilder.cached_data` (read-only) |
-| **Returns** | `bool` | `True` = search, `False` = skip |
-
-### Existing Implementation
-
-**AlwaysSearchGate** — Always returns `True`. No dependencies, no state. Suitable for initial development.
-
-### Example: StateChangeGate (sketch)
-
-```python
-class StateChangeGate:
-    def __init__(self, threshold: float = 0.01):
-        self._prev_state: Optional[torch.Tensor] = None
-        self._threshold = threshold
-
-    def __call__(self, checkpoint_id, cached_data):
-        state = cached_data.get("state")
-        if state is None or self._prev_state is None:
-            self._prev_state = state
-            return True
-        diff = (state - self._prev_state).norm().item()
-        self._prev_state = state
-        return diff > self._threshold  # skip search if state barely changed
-```
-
-### Constraints
-
-- **No storage access** — Gate is a predicate, not a query
-- **Do not call `.cpu()`** on `cached_data` tensors — they are GPU, avoid unnecessary transfers
-- **Stateful gates** must manage their own reset (Orchestrator does not reset gate state)
-
-### Registration
-
-1. Add type string to gate validation in `config.py` (line ~353)
-2. Add factory branch in `_build_gate()` (line ~512)
-3. Add config fields to `GateConfig` dataclass if your gate has parameters
+Gate also has lifecycle methods for trajectory support:
+- `on_episode_start()` — reset per-episode state
+- `record_action(action)` — receive broadcast action (currently no-op)
 
 ---
 
 ## 6. Component: Judge
 
 **Source**: `src/openpi/cache/components/judge.py`
-**Pipeline position**: Step 6 of check — after search results returned
 
-### Protocol
+| Type | Description |
+|------|-------------|
+| `threshold` | Hit if `score >= threshold`. Per-checkpoint thresholds. |
+| `always_hit` | Always returns FULL_HIT for top result. Good for testing. |
 
-```python
-class SimilarityJudge(Protocol):
-    def __call__(
-        self,
-        results: list[SearchResultLite],       # sorted descending by score
-        checkpoint_id: CheckpointID,
-        cached_data: dict[str, torch.Tensor],  # GPU tensors from KeyBuilder
-    ) -> tuple[HitType, Optional[str]]:
-        """Returns (hit_type, winner_id). winner_id is None for MISS."""
-```
+**Score semantics depend on fusion method:**
 
-### Input / Output
+| Fusion | Score range | Notes |
+|--------|-------------|-------|
+| Single-field cosine | [-1, 1] | `0.98` = very similar |
+| Weighted RRF | Small positives | Top-1 always = `Σ weights / (rrf_k + 1)` |
+| Weighted Score Sum | [0, max_weight_sum] | Preserves similarity magnitude |
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `results` | `list[SearchResultLite]` | Sorted descending by score. May be empty. |
-| `checkpoint_id` | `CheckpointID` | CP1 or CP3 |
-| `cached_data` | `dict[str, Tensor]` | Raw GPU tensors (for future re-scoring judges) |
-| **Returns** | `(HitType, Optional[str])` | `(FULL_HIT, entry_id)` or `(MISS, None)` |
-
-### Score Semantics
-
-**Thresholds must be calibrated to match the backend + key_builder combination:**
-
-| Mode | Score Range | Example |
-|------|-------------|---------|
-| Single-field cosine (InMemoryBackend) | [-1, 1] | 0.98 = very similar |
-| Multi-field RRF (Qdrant) | Small positive numbers | Scale depends on `rrf_k` and prefetch count |
-
-### Existing Implementations
-
-**ThresholdJudge** — Per-checkpoint threshold comparison:
-```python
-ThresholdJudge(cp1_threshold=0.98, cp3_threshold=0.95)
-```
-Logic: if `results[0].score >= threshold` → `FULL_HIT`, else `MISS`.
-
-**AlwaysHitJudge** — Returns `FULL_HIT` for top-1 result (if any). Useful for testing and calibration.
-
-### Constraints
-
-- Handle empty results (return MISS)
-- No storage access
-- Return exactly one `winner_id` (the entry whose payload will be fetched)
-- Recalibrate thresholds when switching backends, key builders, or fusion strategies
-
-### Registration
-
-1. Add type string to judge validation in `config.py`
-2. Add factory branch in `_build_judge()` (line ~522)
-3. Add config fields to `JudgeConfig` dataclass
+Judge also has `on_episode_start()` and `record_action()` lifecycle methods.
 
 ---
 
 ## 7. Component: SearchStrategy
 
 **Source**: `src/openpi/cache/components/search_strategy.py`
-**Pipeline position**: Step 5 of check — the **ONLY** place that constructs `QuerySpec` and calls `CacheStorage.search()`
 
-### Protocol
+### Available Strategies
 
-```python
-@dataclass
-class SearchContext:
-    query_keys: dict[str, torch.Tensor]   # from KeyBuilder.build(), CPU float32
-    checkpoint_id: CheckpointID
-    current_step: int = 0                 # inference cycle count within task
-    task_key: Optional[str] = None        # normalised task ID
+| Type | Backend | Description |
+|------|---------|-------------|
+| `weighted_rrf_knn` | in_memory | Rank-based fusion. Good for multi-field when magnitude doesn't matter. |
+| `weighted_score_sum_knn` | in_memory | Similarity-based fusion. Better for trajectory search (preserves magnitude). |
+| `qdrant_weighted_rrf_knn` | qdrant | Qdrant server-side RRF. Does NOT support trajectory search. |
 
-class SearchStrategy(Protocol):
-    def search(self, ctx: SearchContext) -> list[SearchResultLite]:
-        """Execute search. Returns results sorted descending by score."""
-```
+### TrajectoryMixin
 
-### Input / Output
+All strategies inherit `TrajectoryMixin`, providing:
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `ctx.query_keys` | `dict[str, Tensor]` | CPU float32 vectors from KeyBuilder |
-| `ctx.checkpoint_id` | `CheckpointID` | CP1 or CP3 |
-| `ctx.current_step` | `int` | Step counter for time-based filtering |
-| `ctx.task_key` | `Optional[str]` | Task filter (None = no filter) |
-| **Returns** | `list[SearchResultLite]` | Sorted descending by score |
+- **`record_query_keys(keys)`** — buffers current step's query keys into history
+- **`on_episode_start()`** — clears history buffers
+- **`record_action(action)`** — receives broadcast action
+- **`_build_trajectory_fields()`** — returns `{trajectory_history, trajectory_weights}` for QuerySpec when history is sufficient, else `{}` (single-step fallback)
 
-### QuerySpec Fields
-
-The SearchStrategy builds a `QuerySpec` to pass to `CacheStorage.search()`:
-
-```python
-QuerySpec(
-    query_keys=ctx.query_keys,          # vectors to search
-    top_k=1,                            # max results
-    checkpoint_id=ctx.checkpoint_id,    # for backend filtering
-    filters=QueryFilter(                # dynamic constraints
-        task_key="pick_up_cup",
-        step_range=(0, 10),
-    ),
-    fusion_weights={"vision_0": 1.0, "robot_state": 2.0},  # per-field RRF weights
-    backend_hints={"rrf_k": 60, "candidate_multiplier": 5},  # backend-specific
-)
-```
+History build-up:
+- Step 0: 1 entry → insufficient → single-step search
+- Step 1: 2 entries → depth=2 trajectory search
+- Step 2+: 3 entries → depth=3 trajectory search (if configured for depth=3)
 
 ### Step Filter Modes
 
-| Mode | QueryFilter | Description |
-|------|-------------|-------------|
-| `"all"` | `None` | No step filtering |
-| `"exact"` | `step_range=(step, step)` | Only entries at exact same step |
-| `"window"` | `step_range=(step - window, step + window)` | Entries within a time window |
-
-### Existing Implementation: QdrantWeightedRrfKnnStrategy
-
-```python
-QdrantWeightedRrfKnnStrategy(
-    storage=cache_storage,          # receives storage reference
-    top_k=1,
-    step_filter="all",              # "all" | "exact" | "window"
-    step_window=5,
-    rrf_k=60,                       # Qdrant RRF fusion param
-    fusion_weights={"vision_0": 1.0, ...},
-    candidate_multiplier=5,         # prefetch = top_k * multiplier
-)
-```
-
-This strategy is Qdrant-specific. It forwards weighted-RRF parameters via
-`QuerySpec.fusion_weights` and `QuerySpec.backend_hints`; actual fusion runs
-inside `QdrantVectorStore.search()`.
-
-### Constraints
-
-- **Must call `self._storage.search(spec)`** — never call backend directly
-- **Do not make hit/miss decisions** — that's the Judge's job
-- Do not re-sort results (storage returns them already sorted)
-- `backend_hints` are pass-through; backends that don't understand them will ignore them
-
-### Registration
-
-1. Add type string to search_strategy validation in `config.py`
-2. Add factory branch in `_build_search_strategy()` (line ~536)
-3. Note: the factory passes `storage` and `fusion_weights` to the constructor
+| Mode | Effect |
+|------|--------|
+| `"all"` | No step filtering |
+| `"exact"` | Only entries at same step index |
+| `"window"` | Entries within ±`step_window` of current step |
 
 ---
 
@@ -414,309 +235,85 @@ inside `QdrantVectorStore.search()`.
 
 **Source**: `src/openpi/cache/cache_storage.py`
 
-`CacheStorage` is a thread-safe facade over any `VectorStoreBackend`. Application code (Orchestrator, SearchStrategy) uses `CacheStorage`, never backends directly.
-
-### Responsibilities
-
-1. **Thread safety**: `RLock` serialises all backend calls
-2. **Dimension validation**: checks that `query_keys` shapes match `backend.vector_dims`
-3. **Entry validation**: calls `entry.validate()` before insert (CP-specific invariants)
-4. **Filter checking**: raises `UnsupportedFilterError` if backend doesn't support a requested filter
-5. **Two-phase search**: `search()` returns lightweight results; `fetch_payload()` fetches tensors only for winners
-
-### Key Methods
+`CacheStorage` is a thread-safe facade over any `VectorStoreBackend`.
 
 | Method | Description |
 |--------|-------------|
-| `search(spec: QuerySpec) → list[SearchResultLite]` | Phase 1: lightweight vector search |
-| `fetch_payload(id: str) → CachePayload` | Phase 2: fetch full tensors for winner |
-| `insert(entry: CacheEntry)` | Validate + upsert one entry |
+| `search(spec) → list[SearchResultLite]` | Phase 1: lightweight vector search |
+| `fetch_payload(id) → CachePayload` | Phase 2: fetch tensors for winner |
+| `insert(entry)` | Validate + upsert one entry |
 | `batch_insert(entries) → BatchInsertResult` | Bulk insert (partial failures tolerated) |
-| `count() → int` | Number of stored entries |
-| `close()` | Release resources |
 
 ---
 
 ## 9. Adding a Custom Vector DB Backend
 
-### 9.1 The VectorStoreBackend ABC
+### The VectorStoreBackend ABC
 
 **Source**: `src/openpi/cache/backend_base.py`
 
-```python
-class VectorStoreBackend(ABC):
+Required methods: `vector_dims`, `supported_filters()`, `insert()`, `search()`, `fetch_payload()`, `delete()`, `count()`
 
-    # --- Metadata ---
-    @property
-    @abstractmethod
-    def vector_dims(self) -> dict[str, int]:
-        """Field names → embedding dimensions.
-        Example: {"vision_0": 1024, "robot_state": 32}"""
+### Existing Backends
 
-    @abstractmethod
-    def supported_filters(self) -> frozenset[str]:
-        """Filter fields you support: e.g., frozenset({"checkpoint_id", "task_key"})"""
-
-    # --- Core CRUD ---
-    @abstractmethod
-    def insert(self, entry: CacheEntry) -> None:
-        """Upsert one entry. Same id → overwrite."""
-
-    @abstractmethod
-    def search(self, spec: QuerySpec) -> list[SearchResultLite]:
-        """Return at most spec.top_k results, descending by score."""
-
-    @abstractmethod
-    def fetch_payload(self, id: str) -> CachePayload:
-        """Fetch full payload. Raises KeyError if not found."""
-
-    @abstractmethod
-    def delete(self, ids: list[str]) -> None:
-        """Delete by id. Non-existent ids silently ignored."""
-
-    @abstractmethod
-    def count(self) -> int:
-        """Number of stored entries."""
-
-    # --- Optional overrides ---
-    def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult:
-        """Default: sequential inserts. Override for native bulk API."""
-
-    def flush(self) -> None:
-        """Persist buffered writes. No-op for remote stores."""
-
-    def close(self) -> None:
-        """Release resources. Calls flush() first."""
-```
-
-### 9.2 Data Types at the Boundary
-
-**CacheEntry** (what you receive in `insert()`):
-```python
-entry.id: str                              # stable hash, use as primary key
-entry.checkpoint_id: CheckpointID          # CP1 or CP3
-entry.query_keys: dict[str, torch.Tensor]  # {field: [dim] CPU float32}
-entry.payload: CachePayload                # action tensors to serialise
-entry.timestamp: float                     # time.time()
-```
-
-**QuerySpec** (what you receive in `search()`):
-```python
-spec.query_keys: dict[str, torch.Tensor]          # vectors to match
-spec.top_k: int                                    # max results
-spec.checkpoint_id: Optional[CheckpointID]         # filter by checkpoint
-spec.filters: Optional[QueryFilter]                # task_key, step_range
-spec.fusion_weights: Optional[dict[str, float]]    # per-field weights for RRF
-spec.backend_hints: Optional[dict[str, Any]]       # pass-through params
-```
-
-**Score contract**: `SearchResultLite.score` must be cosine similarity ∈ [-1, 1]. Higher = more similar. Convert your backend's native distance metric.
-
-| Backend distance | Conversion |
-|------------------|------------|
-| Cosine similarity | Already correct |
-| Cosine distance | `score = 1 - distance` |
-| L2 distance | `score = 1 - distance² / 2` (for L2-normalised vectors) |
-| Inner product | Already correct (for L2-normalised vectors) |
-
-### 9.3 Implementation Skeleton (FAISS Example)
-
-```python
-# src/openpi/cache/backends/faiss_backend.py
-
-import faiss
-import torch
-from openpi.cache.backend_base import VectorStoreBackend
-from openpi.cache.storage_types import (
-    CacheEntry, CachePayload, QuerySpec, SearchResultLite, BatchInsertResult,
-)
-from openpi.cache.types import CheckpointID
-
-class FaissVectorStore(VectorStoreBackend):
-
-    def __init__(self, vector_dims: dict[str, int]):
-        self._dims = vector_dims
-        # One FAISS index per field
-        self._indexes: dict[str, faiss.IndexFlatIP] = {
-            field: faiss.IndexFlatIP(dim) for field, dim in vector_dims.items()
-        }
-        self._entries: dict[str, CacheEntry] = {}  # id → entry
-        self._id_to_idx: dict[str, int] = {}       # id → FAISS row index
-
-    @property
-    def vector_dims(self) -> dict[str, int]:
-        return dict(self._dims)
-
-    def supported_filters(self) -> frozenset[str]:
-        return frozenset({"checkpoint_id"})  # declare what you support
-
-    def insert(self, entry: CacheEntry) -> None:
-        # Store entry and add vectors to FAISS indexes
-        self._entries[entry.id] = entry
-        idx = len(self._id_to_idx)
-        self._id_to_idx[entry.id] = idx
-        for field, vec in entry.query_keys.items():
-            if field in self._indexes:
-                self._indexes[field].add(vec.unsqueeze(0).numpy())
-
-    def search(self, spec: QuerySpec) -> list[SearchResultLite]:
-        # Search each field, combine scores
-        # ... (implement scoring logic)
-        pass
-
-    def fetch_payload(self, id: str) -> CachePayload:
-        if id not in self._entries:
-            raise KeyError(f"Entry {id} not found")
-        return self._entries[id].payload
-
-    def delete(self, ids: list[str]) -> None:
-        for id in ids:
-            self._entries.pop(id, None)
-
-    def count(self) -> int:
-        return len(self._entries)
-```
-
-### 9.4 Method-by-Method Guidance
-
-**`insert()`**: Extract vectors from `entry.query_keys` for fields in your `vector_dims`. Serialise `entry.payload` (CachePayload contains torch tensors — use `torch.save()` to bytes, then base64 or blob storage). Store `entry.checkpoint_id` and `entry.timestamp` as payload metadata.
-
-**`search()`**: Read `spec.query_keys`, compute similarity for fields you support. If multi-field: implement fusion (RRF or weighted average). Apply `spec.filters` if supported. Convert scores to cosine similarity range. Return sorted descending, at most `spec.top_k`.
-
-**`fetch_payload()`**: Deserialise and return `CachePayload`. Must reconstruct torch tensors on CPU.
-
-**`supported_filters()`**: Only declare fields you genuinely handle. `CacheStorage` will reject queries with unsupported filters before calling you.
-
-### 9.5 Wiring into the Config System
-
-1. Add backend type to `_build_backend()` in `config.py` (line ~476):
-```python
-elif cfg.type == "faiss":
-    from openpi.cache.backends.faiss_backend import FaissVectorStore
-    return FaissVectorStore(vector_dims=cfg.vector_dims)
-```
-
-2. Add config dataclass if needed (like `QdrantConfig`):
-```python
-@dataclass
-class FaissConfig:
-    nprobe: int = 16
-```
-
-3. Add validation in `validate_cache_config()` for the new type
-
-4. Update `cache.yaml`:
-```yaml
-backend:
-  type: faiss
-  vector_dims:
-    robot_state: 32
-```
-
-### 9.6 Existing Backends
-
-**InMemoryBackend** (`backends/in_memory_backend.py`, ~97 lines):
-- Python dict storage, brute-force cosine similarity
-- Single-field cosine only (ignores `fusion_weights` / `backend_hints`)
-- Supported filters: `{"checkpoint_id"}` only
-- Score range: [-1, 1]
-- O(n) search — suitable for < 10k entries
-- Use for: unit tests, integration tests, development
-
-**QdrantVectorStore** (`backends/qdrant_backend.py`, ~455 lines):
-- Named vectors: each field in `vector_dims` is a separate Qdrant named vector
-- **Chunking**: Qdrant limits 65,535 dims per vector. Large fields (e.g., vision_0 at 524,288 dims) are split into chunks `field__chunk_000`, `field__chunk_001`, etc.
-- **RRF fusion**: multiple chunks/fields combined via server-side Reciprocal Rank Fusion
-- Tensor serialisation: `torch.save()` → base64 strings stored as Qdrant payload
+**InMemoryBackend** (`backends/in_memory_backend.py`) — **Primary backend**:
+- Python dict storage, brute-force search
+- Multi-field fusion: `weighted_rrf` and `weighted_score_sum`
+- **Trajectory search**: two-pass recursive algorithm with cross-step weighted fusion
 - Supported filters: `{"checkpoint_id", "task_key", "step_range"}`
-- Requires external Qdrant server
+- Artifact loading from pickle files (with old artifact backward compat)
+- Suitable for < 50k entries
 
-### 9.7 Testing Checklist
+### Wiring into Config
 
-1. Insert one entry, count() returns 1
-2. Insert then search with identical vector → score close to 1.0
-3. Insert then fetch_payload → tensors match original
-4. Search with top_k > count → returns all entries (no error)
-5. Delete entry, count decreases, fetch_payload raises KeyError
-6. Duplicate insert (same id) → count stays 1, payload updated
-7. Search with supported filter → results filtered correctly
+1. Add backend type to `_build_backend()` in `config.py`
+2. Add config dataclass if needed
+3. Add validation in `validate_cache_config()`
 
 ---
 
 ## 10. YAML Config System
 
-### 10.1 Loading Pipeline
-
-```
-cache.yaml
-  → _substitute_env_vars()     # ${VAR} and ${VAR:-default}
-  → yaml.safe_load()           # Python dict
-  → _dict_to_dataclass()       # Recursive conversion to CacheConfig
-  → validate_cache_config()    # 7 cross-validation checks
-  → build_cache_components()   # Factory → component instances
-```
-
-Entry point: `load_cache_config(path) → CacheConfig`
-Factory: `build_cache_components(config) → dict` with keys: `timer`, `storage`, `key_builder`, `gates`, `judges`, `search_strategies`
-
-### 10.2 Environment Variable Substitution
-
-| Syntax | Behaviour |
-|--------|-----------|
-| `${QDRANT_URL}` | Read env var; error if unset |
-| `${QDRANT_URL:-http://localhost:6333}` | Read env var; use default if unset |
-
-Example from `cache.yaml`:
-```yaml
-url: ${QDRANT_URL:-http://155.98.36.13:6333}
-```
-
-### 10.3 Full Annotated Config Reference
+### Full Annotated Config Reference
 
 ```yaml
-# Root switch — set false to disable entire cache system
 enabled: true
 
-# Timing system
 timer:
-  enabled: true           # Enable per-component timing probes
-  buffer_size: 10000      # Circular buffer size for timing samples
-  output_csv_dir: null    # null = terminal only; path = write CSV files
+  enabled: true
+  buffer_size: 10000
+  output_csv_dir: null
 
-# Query vector field config
-# enabled: whether this field participates in key building and search
-# weight: fusion weight for SearchStrategy (higher = more important in RRF)
 keys:
-  vision_0:    { enabled: true,  weight: 1.0 }   # base_0_rgb [256 * emb_dim]
-  vision_1:    { enabled: true,  weight: 1.0 }   # left_wrist_0_rgb
-  vision_2:    { enabled: true,  weight: 1.0 }   # right_wrist_0_rgb
-  prompt_emb:  { enabled: true,  weight: 1.0 }   # language tokens [max_lang * emb_dim]
-  robot_state: { enabled: true,  weight: 1.0 }   # raw state vector [action_dim]
+  vision_0:    { enabled: true,  weight: 1.0 }
+  vision_1:    { enabled: false, weight: 1.0 }
+  vision_2:    { enabled: false, weight: 1.0 }
+  prompt_emb:  { enabled: false, weight: 1.0 }
+  robot_state: { enabled: true,  weight: 1.0 }
 
-# Key builder type
 key_builder:
-  type: full_original     # "full_original" = raw flatten (multi-modal)
-                          # "placeholder" = robot_state only (testing)
+  type: cp1_mean_pool   # "cp1_mean_pool" | "cp1_spatial_pool_16" | "cp1_spatial_pool_64"
+                        # | "cp1_max_pool" | "placeholder"
 
-# Per-checkpoint config (CP1 and CP3 independently)
 checkpoints:
-  _defaults: &cp_defaults          # YAML anchor for shared defaults
+  _defaults: &cp_defaults
     gate:
-      type: always_search          # Only type available currently
+      type: always_search
     search_strategy:
-      type: qdrant_weighted_rrf_knn
-      top_k: 1                     # Max results to return
+      type: weighted_rrf_knn       # "weighted_rrf_knn" | "weighted_score_sum_knn" (in_memory)
+      top_k: 1
       step_filter: all             # "all" | "exact" | "window"
-      step_window: 5               # Window size (only for step_filter=window)
-      rrf_k: 60                    # Qdrant RRF param
-      candidate_multiplier: 5      # Qdrant prefetch = top_k * multiplier
+      step_window: 5
+      rrf_k: 60                    # only for weighted_rrf_knn
+      trajectory_depth: 1          # 1 = single-step; >1 enables trajectory search
+      # trajectory_weights: [0.6, 0.3, 0.1]  # newest-first, length == trajectory_depth
 
   cp1:
-    <<: *cp_defaults               # Inherit defaults
-    enabled: true                  # Set false to disable CP1 entirely
+    <<: *cp_defaults
+    enabled: true
     judge:
       type: always_hit             # "always_hit" | "threshold"
-      # threshold: 0.98            # Only for type=threshold
+      # threshold: 0.98
 
   cp3:
     <<: *cp_defaults
@@ -724,55 +321,45 @@ checkpoints:
     judge:
       type: always_hit
 
-# Vector store backend
 backend:
-  type: qdrant                     # "in_memory" | "qdrant"
-  vector_dims:                     # Must match collection schema
-    vision_0: 524288               # 256 * 2048
-    vision_1: 524288
-    vision_2: 524288
-    prompt_emb: 409600             # 200 * 2048
+  type: in_memory                  # "in_memory" (primary)
+  vector_dims:
+    vision_0: 2048                 # must match artifact dims
+    vision_1: 2048
+    prompt_emb: 2048
     robot_state: 32
-  qdrant:                          # Only used when type=qdrant
-    url: ${QDRANT_URL:-http://155.98.36.13:6333}
-    collection_name: openpi_steps_named
-    prefer_grpc: false
-    grpc_port: 6334
-    request_timeout: 30
+  in_memory:
+    preload_path: null             # path to .pkl artifact
+
+# Episode-end write policy
+write_policy:
+  type: on_any_miss                # "on_any_miss" | "always" | "never"
 ```
 
-### 10.4 Cross-Validation Rules
+### Cross-Validation Rules
 
-`validate_cache_config()` checks these invariants:
+| Rule | Description |
+|------|-------------|
+| Enabled keys ⊆ vector_dims | Field must be declared in backend |
+| vector_dims keys ⊆ CACHE_QUERY_FIELDS | No unknown field names |
+| Valid checkpoint names | Only `cp1`, `cp3` |
+| key_builder type valid | Must be in supported set |
+| placeholder only supports robot_state | Cross-check with enabled keys |
+| cp1_* builders require vision_0 + robot_state | Cross-check |
+| trajectory_depth >= 1 | 0 is invalid |
+| trajectory_weights length == depth | When depth > 1 |
+| trajectory_weights non-negative, sum > 0 | Sanity check |
+| in_memory only for trajectory_depth > 1 | Qdrant rejected at config time |
+| write_policy.type valid | on_any_miss / always / never |
 
-| # | Rule | Error if violated |
-|---|------|-------------------|
-| 1 | Enabled keys must exist in `backend.vector_dims` | Missing field in vector_dims |
-| 2 | `vector_dims` keys must be subset of `CACHE_QUERY_FIELDS` | Unknown field name |
-| 3 | Checkpoint names must be `cp1` or `cp3` | Invalid checkpoint name |
-| 4 | `key_builder.type` must be valid | Unknown key_builder.type |
-| 5 | Gate/Judge/SearchStrategy types must be valid | Unknown component type |
-| 6 | `PlaceholderKeyBuilder` only supports `robot_state` | Unsupported fields for placeholder |
-| 7 | `step_filter` must be `all`, `exact`, or `window` | Invalid step_filter |
-
-### 10.5 Instantiation Order
-
-`build_cache_components()` creates instances in this order (order matters — SearchStrategy needs `storage`):
-
-```
-1. Timer
-2. Backend → CacheStorage(backend)
-3. KeyBuilder (receives enabled_fields, vector_dims)
-4. Per-checkpoint: Gate, Judge, SearchStrategy(storage, fusion_weights)
-```
-
-### 10.6 CLI Usage
+### CLI Usage
 
 ```bash
-# Serve with cache enabled
-uv run scripts/serve_policy.py --env aloha_sim --cache_config cache.yaml
+# Serve with cache
+uv run scripts/serve_policy.py --cache_config cache.yaml --env LIBERO
 
-# --cache_config overrides --cache and --timing_csv_dir flags
+# Concurrent mode (supports dynamic config switching)
+uv run scripts/serve_policy.py --concurrent --cache_config cache.yaml --env LIBERO
 ```
 
 ---
@@ -787,33 +374,28 @@ uv run scripts/serve_policy.py --env aloha_sim --cache_config cache.yaml
 CacheOrchestrator(
     storage: CacheStorage,
     key_builder: QueryKeyBuilder,
-    gates: dict[CheckpointID, GateFunction],          # per-checkpoint dispatch
+    gates: dict[CheckpointID, GateFunction],
     judges: dict[CheckpointID, SimilarityJudge],
     search_strategies: dict[CheckpointID, SearchStrategy],
     timer: Optional[SystemTimer] = None,
+    write_policy: Optional[WritePolicy] = None,
 )
 ```
 
-**Per-checkpoint dispatch**: Gates, Judges, and SearchStrategies are `dict[CheckpointID, Component]`. CP1 and CP3 can use different instances. If a checkpoint is not in the dict (disabled in YAML), `check()` returns MISS gracefully.
+### Episode Lifecycle
 
-**KeyBuilder is shared** across checkpoints (same data extraction logic).
+| Method | When | Effect |
+|--------|------|--------|
+| `on_task_begin(task_key)` | Connection opens | Reset step counter, episode buffers |
+| `on_episode_start(task_key, episode_id)` | Episode starts | Clear buffers, broadcast to components |
+| `broadcast_action(action)` | After inference | Propagate to strategies/gates/judges |
+| `buffer_for_write(query_keys, action)` | After inference | Accumulate StepRecord |
+| `on_episode_end()` | Episode ends | WritePolicy → build entry chain → batch_insert |
+| `clear()` | End of each cycle | Release KeyBuilder cache |
 
-### Step Counter
+### Miss Counting
 
-- `_step_counter`: inference cycle count within a task
-- Incremented after each CP1 check (not CP3)
-- Reset by `on_task_begin()` / `on_episode_start()`
-- Passed to SearchStrategy via `SearchContext.current_step`
-
-### Stable Hash
-
-`_stable_hash(checkpoint_id, query_keys)` → `SHA256(checkpoint_id.name + sorted_concat_of_key_bytes)[:32]`. Same observation at same checkpoint → same ID → idempotent upserts.
-
-### CP3 Stubs (Step 6)
-
-- `schedule_next_action(action)` — empty stub, `pass`
-- `should_skip_inference()` — always returns `None`
-- These will be implemented in Step 6 with a `DeferredWriter` pattern
+`_miss_by_checkpoint` tracks misses per checkpoint during an episode. Used by `OnAnyMissWritePolicy` to decide writes.
 
 ---
 
@@ -821,113 +403,182 @@ CacheOrchestrator(
 
 **Source**: `src/openpi/cache/interceptor.py`
 
-`InferenceInterceptor` wraps a `Policy` as a `BasePolicy` drop-in. The original policy's stage methods are compiled with `torch.compile(mode="max-autotune-no-cudagraphs")`.
+`InferenceInterceptor` wraps a `Policy` as a `BasePolicy` drop-in.
 
 ### Inference Flow
 
 ```
 infer(obs)
   ├─ Input transforms
-  ├─ CP3 consume: should_skip_inference() → if action, return early [STUB]
   ├─ Stage 1 (vision + tokenisation)
-  ├─ CP1 check → if FULL_HIT: return cached action, skip stages 2–3
+  ├─ CP1 check → if FULL_HIT: broadcast_action + buffer_for_write → return cached action
   ├─ Stage 2 (LLM backbone)
   ├─ Stage 3 (flow matching)
-  ├─ CP3 check → infrastructure validation [always MISS in Step 4]
-  ├─ CP1 write → background thread (ThreadPoolExecutor, max_workers=1)
+  ├─ CP3 check
+  ├─ broadcast_action + buffer_for_write
   └─ Output transforms → return actions
 ```
 
-### Background Write
+### Episode Lifecycle
 
-The main thread materialises tensors to CPU via `key_builder.build()`, then submits `write_with_keys()` to a background thread to avoid blocking inference.
-
-### Task Lifecycle
-
-| Method | When called | Effect |
-|--------|-------------|--------|
-| `on_task_begin()` | Client connection opens | Reset step counter |
-| `on_episode_start()` | Episode starts | Reset step counter |
-| `on_episode_end()` | Episode ends | (reserved) |
-| `on_task_end()` | Client disconnects | Print timing summary |
+| Method | When | Effect |
+|--------|------|--------|
+| `on_task_begin()` | Connection opens | Reset timer + orchestrator |
+| `on_episode_start(experiment, task, episode_id)` | Simulator sends episode_start | Forward to orchestrator |
+| `on_episode_end(success)` | Simulator sends episode_end | Trigger orchestrator.on_episode_end(), reset timer |
+| `on_task_end()` | Connection closes | Print timing summary |
 
 ---
 
-## 13. Component Isolation Rules
+## 13. Trajectory Search
+
+### Concept
+
+Single-step search matches the current observation against stored entries. Trajectory search additionally considers whether the **preceding steps** in the stored trajectory match the agent's recent history, favoring temporally coherent sequences.
+
+### Algorithm (InMemoryBackend)
+
+Two-pass recursive with batched per-level scoring:
+
+```
+Phase A — Collect:
+  For each candidate entry, walk prev_ids backwards up to trajectory_depth.
+  Collect entry sets per depth level.
+  Checkpoint guard: skip entries with wrong checkpoint_id.
+
+Phase B — Score:
+  Batch-score each level using configured fusion method (RRF / score_sum).
+  Query keys come from trajectory_history (newest-first).
+
+Phase C — Aggregate:
+  Walk same paths again, look up pre-computed scores.
+  trajectory_score = Σ weights[i] × step_score[i]
+  For branching paths (multiple prev_ids), take max.
+```
+
+### Configuration
+
+```yaml
+search_strategy:
+  trajectory_depth: 3              # look back 3 steps
+  trajectory_weights: [0.6, 0.3, 0.1]  # newest-first
+```
+
+### RRF vs Score Sum for Trajectory
+
+- **RRF**: Rank-based. Top-1 score is always `Σ weights / (k + 1)` regardless of actual similarity. Trajectory fusion degrades to binary "has chain or not".
+- **Score Sum**: Preserves similarity magnitude. Trajectory fusion reflects "this step matches well vs poorly". **Recommended for trajectory search.**
+
+### Limitations
+
+- Only InMemoryBackend supports trajectory_depth > 1
+- History buffer resets on `on_episode_start()`
+- First `trajectory_depth - 1` steps fall back to partial/single-step search
+
+---
+
+## 14. Episode Write Path
+
+### Overview
+
+Instead of per-step `write()`, the new path buffers all steps during an episode, then writes them as a linked chain at episode end.
+
+### WritePolicy
+
+| Type | Behavior |
+|------|----------|
+| `on_any_miss` | Write if episode had any CP1 cache miss (default) |
+| `always` | Always write, regardless of hit/miss |
+| `never` | Read-only mode, no writes |
+
+### Entry Chain Structure
+
+```
+Episode: [step_0] → [step_1] → [step_2] → [step_3]
+
+step_0: id="uuid:0", prev_ids=[], next_ids=["uuid:1"], trajectory_id="uuid"
+step_1: id="uuid:1", prev_ids=["uuid:0"], next_ids=["uuid:2"], trajectory_id="uuid"
+step_2: id="uuid:2", prev_ids=["uuid:1"], next_ids=["uuid:3"], trajectory_id="uuid"
+step_3: id="uuid:3", prev_ids=["uuid:2"], next_ids=[], trajectory_id="uuid"
+```
+
+### Building Artifacts
+
+```bash
+# Build from HDF5 demo data — produces artifact with trajectory links
+mkdir -p data/cache_artifacts/libero_spatial
+
+for bt in cp1_mean_pool cp1_spatial_pool_16 cp1_spatial_pool_64 cp1_max_pool; do
+    uv run exp/build_in_memory_cache_artifact.py \
+        --data-dir data/libero_spatial \
+        --builder-type $bt \
+        --output data/cache_artifacts/libero_spatial/${bt}.pkl
+done
+```
+
+Artifacts are backward compatible — old experiments work with new artifacts (trajectory fields have defaults).
+
+---
+
+## 15. Component Isolation Rules
 
 | Rule | Reason |
 |------|--------|
-| Components must **NOT** import `config.py` | Config is the factory layer; components are pure logic |
-| Gate / Judge must **NOT** call `CacheStorage` | Gate: predicate only. Judge: evaluator only. Neither does IO. |
-| Only `SearchStrategy` calls `storage.search()` | Single query construction point — ensures QuerySpec is built in one place |
-| Only `Orchestrator` calls `storage.insert()` / `storage.fetch_payload()` | Write and payload retrieval are not delegated to components |
+| Components must **NOT** import `config.py` | Config is factory layer; components are pure logic |
+| Gate / Judge must **NOT** call `CacheStorage` | Gate: predicate. Judge: evaluator. Neither does IO. |
+| Only `SearchStrategy` calls `storage.search()` | Single query construction point |
+| Only `Orchestrator` calls `storage.insert()` / `batch_insert()` | Write path centralized |
 
 ---
 
-## 14. Testing Patterns
+## 16. Testing Patterns
 
-### Gate Test
+### Direct Construction (bypass YAML)
 
-```python
-from openpi.cache.components.gate import AlwaysSearchGate
-from openpi.cache.types import CheckpointID
-
-gate = AlwaysSearchGate()
-assert gate(CheckpointID.CP1, {}) is True
-```
-
-### Judge Test
-
-```python
-from openpi.cache.components.judge import ThresholdJudge, HitType
-from openpi.cache.storage_types import SearchResultLite
-from openpi.cache.types import CheckpointID
-
-judge = ThresholdJudge(cp1_threshold=0.98)
-results = [SearchResultLite(id="abc", score=0.99, checkpoint_id=CheckpointID.CP1)]
-hit_type, winner = judge(results, CheckpointID.CP1, {})
-assert hit_type == HitType.FULL_HIT
-assert winner == "abc"
-```
-
-### SearchStrategy Test (with mocked CacheStorage)
-
-```python
-from unittest.mock import MagicMock
-
-from openpi.cache.cache_storage import CacheStorage
-from openpi.cache.components.search_strategy import QdrantWeightedRrfKnnStrategy, SearchContext
-
-storage = MagicMock(spec=CacheStorage)
-strategy = QdrantWeightedRrfKnnStrategy(storage, top_k=1)
-
-ctx = SearchContext(query_keys={"robot_state": query_vec}, checkpoint_id=CheckpointID.CP1)
-results = strategy.search(ctx)
-```
-
-### Backend Test
-
-Use the 7-test checklist from [Section 9.7](#97-testing-checklist). `InMemoryBackend` is the reference implementation for comparing behaviour.
-
-### Direct Construction
-
-For unit tests, bypass the YAML config and construct components directly:
 ```python
 orchestrator = CacheOrchestrator(
     storage=CacheStorage(InMemoryBackend({"robot_state": 32})),
     key_builder=PlaceholderKeyBuilder(),
     gates={CheckpointID.CP1: AlwaysSearchGate()},
     judges={CheckpointID.CP1: ThresholdJudge(cp1_threshold=0.95)},
-    search_strategies={CheckpointID.CP1: my_test_search_strategy},
+    search_strategies={CheckpointID.CP1: my_strategy},
+    write_policy=OnAnyMissWritePolicy(),
 )
 ```
 
+### Direct Entry Insertion (test helper)
+
+```python
+from tests.cache.conftest import insert_entry
+
+# Insert directly into storage for test setup
+entry = insert_entry(storage, CheckpointID.CP1, state_tensor, payload,
+                     prev_ids=["prev_id"], trajectory_id="traj_001")
+```
+
+### Test Organization
+
+| File | Coverage |
+|------|----------|
+| `test_orchestrator.py` | Check pipeline, query_keys return, broadcast, step counter |
+| `test_trajectory_search.py` | Rerank, chain breakage, checkpoint guard, weighted score, branching |
+| `test_episode_write.py` | WritePolicy, buffer, entry chain linking, episode lifecycle |
+| `test_search_strategy.py` | Strategy basics + TrajectoryMixin history/fields |
+| `test_config.py` | YAML loading, validation, trajectory/write_policy config |
+| `test_cache_storage.py` | Dimension checks |
+| `components/test_*.py` | Gate, Judge, KeyBuilder unit tests |
+
 ---
 
-## 15. Current Validation Status
+## 17. Current Validation Status
 
-| Checkpoint | Status | Details |
-|------------|--------|---------|
-| **CP1** | **Validated** | End-to-end validated with current `cache.yaml` on this repo. Full pipeline works: Stage 1 → CP1 check → cache hit returns action → stages 2–3 skipped. Background write confirmed. |
-| **CP3** | **Skeleton only** | Check infrastructure runs (`orchestrator.check(CP3)` executes gate → build → search → judge). No CP3 entries are written in the current write path, so CP3 always returns MISS. Next-cycle inference skip (`schedule_next_action` / `should_skip_inference`) are stubs — not attempted. |
-| **CP2** | **Suspended** | Not implemented. `HitType.WARM_START` commented out. |
+| Feature | Status | Details |
+|---------|--------|---------|
+| **CP1 check** | Validated | Full pipeline: Stage 1 → CP1 check → cache hit → skip stages 2–3 |
+| **CP3 check** | Infrastructure only | Runs but no CP3-specific entries written; always MISS |
+| **InMemory backend** | Primary | Multi-field fusion (RRF + score_sum), trajectory search, artifact loading |
+| **Trajectory search** | Validated | Two-pass recursive, depth=3 tested on LIBERO data |
+| **Episode write** | Implemented | buffer_for_write → on_episode_end → linked entry chain |
+| **WritePolicy** | Implemented | on_any_miss / always / never |
+| **Qdrant backend** | Deprecated | Not actively maintained; trajectory search not supported |
+| **CP2** | Suspended | Not implemented |

@@ -38,6 +38,7 @@ Project architecture and usage guides. For implementation logs, see [`claude_log
 | [cache_system_architecture.md](cache_system_architecture.md) | Cache system spec: 3-stage pipeline, CP1/CP2/CP3 checkpoints, interceptor pattern (English) |
 | [cache_system_architecture_chinese.md](cache_system_architecture_chinese.md) | Same as above, Chinese version |
 | [cache_system_tutorial.md](cache_system_tutorial.md) | Complete tutorial: glossary, all components (KeyBuilder/Gate/Judge/SearchStrategy/Backend), YAML config, registration, testing |
+| [cache_system_workflow.md](cache_system_workflow.md) | End-to-end workflow diagrams: startup, single inference with CP1/CP3, episode lifecycle, storage layer, YAML mapping, design principles |
 | [openpi_reference.md](openpi_reference.md) | Project structure, model architecture, Pi0 vs Pi0.5 differences, code paths, training configs, deployment, hardware |
 
 ## Usage Guides

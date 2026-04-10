@@ -53,6 +53,7 @@ class Args:
     video_out_path: str = "data/libero/videos"  # Path to save videos
 
     seed: int = 7  # Random Seed (for reproducibility)
+    init_states_dir: str = ""  # Custom init states directory. Expects {task_name}.pruned_init or .init files.
 
     #################################################################################################################
     # Task selection
@@ -169,7 +170,7 @@ def _eval_serial(args: Args, task_suite, task_id_list: List[int], max_steps) -> 
     global_episode_id = 0
     for task_id in tqdm.tqdm(task_id_list):
         task = task_suite.get_task(task_id)
-        initial_states = task_suite.get_task_init_states(task_id)
+        initial_states = _load_init_states(task, task_suite, task_id, args.init_states_dir)
         env, task_description = _get_libero_env(task, LIBERO_ENV_RESOLUTION, args.seed)
 
         task_episodes, task_successes = 0, 0
@@ -278,7 +279,7 @@ def _eval_concurrent(args: Args, task_suite, task_id_list: List[int], max_steps)
                     break
 
                 task = task_suite.get_task(task_id)
-                initial_states = task_suite.get_task_init_states(task_id)
+                initial_states = _load_init_states(task, task_suite, task_id, args.init_states_dir)
                 with init_lock:
                     env, task_description = _get_libero_env(task, LIBERO_ENV_RESOLUTION, args.seed)
                 short_desc = task_description[:30]
@@ -455,6 +456,25 @@ def _draw_latency(im: np.ndarray, latency_ms: float) -> np.ndarray:
     draw.text((x, y), text, fill=(255, 80, 80))
 
     return np.array(img)
+
+
+def _load_init_states(task, task_suite, task_id, init_states_dir: str):
+    """Load init states from custom directory if specified, otherwise use default."""
+    if not init_states_dir:
+        return task_suite.get_task_init_states(task_id)
+    base = pathlib.Path(init_states_dir)
+    pruned = base / f"{task.name}.pruned_init"
+    full = base / f"{task.name}.init"
+    if pruned.exists():
+        path = pruned
+    elif full.exists():
+        path = full
+    else:
+        raise FileNotFoundError(f"No init states found for {task.name} in {init_states_dir}")
+    import torch
+    states = torch.load(path, weights_only=False)
+    logging.info(f"Loaded {len(states)} init states from {path}")
+    return states
 
 
 def _get_libero_env(task, resolution, seed):

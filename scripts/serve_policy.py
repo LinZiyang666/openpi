@@ -57,6 +57,11 @@ class Args:
     # Root directory for collected episode files.
     collect_dir: str = "./data"
 
+    # Pass model-input images (post-transform, mask-filtered) through cache
+    # check() kwargs so that KeyBuilder implementations can optionally use them.
+    # Only takes effect when --cache or --cache_config is also set.
+    collect_images: bool = False
+
     # Enable the staged inference cache system.
     # When True, inference is routed through InferenceInterceptor (run_stage1/2/3).
     # External behavior (actions, timing fields) is identical to the default path.
@@ -193,6 +198,7 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
             timer=components["timer"],
             orchestrator=orchestrator,
             eager=eager,
+            collect_images=args.collect_images,
         )
     elif args.cache_config is not None:
         from openpi.cache.config import (
@@ -234,6 +240,7 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
             timer=components["timer"],
             orchestrator=orchestrator,
             eager=eager,
+            collect_images=args.collect_images,
         )
     elif args.cache:
         from openpi.cache.interceptor import InferenceInterceptor
@@ -241,7 +248,7 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
         timer = SystemTimer(enabled=True, output_csv_dir=args.timing_csv_dir, quiet=quiet)
         if args.timing_csv_dir:
             logging.info("Timing CSV output enabled: writing to %s", args.timing_csv_dir)
-        policy = InferenceInterceptor(policy, timer=timer, eager=eager)
+        policy = InferenceInterceptor(policy, timer=timer, eager=eager, collect_images=args.collect_images)
 
     if args.record:
         policy = _policy.PolicyRecorder(policy, "policy_records")

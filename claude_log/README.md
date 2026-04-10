@@ -57,6 +57,18 @@ Implementation plans and development records. For project architecture docs, see
 |------|--------|-------------|
 | [concurrent_inference_plan.log.md](concurrent_inference_plan.log.md) | `Implemented` | 并发推理方案：服务端多连接 + 客户端多 worker 线程池 |
 
+## LIBERO 环境分析
+
+| File | Status | Description |
+|------|--------|-------------|
+| [libero_env_init_analysis.log.md](libero_env_init_analysis.log.md) | `Design Only` | LIBERO 环境初始化分析：当前 main.py 仅用3个参数，大量可用选项未暴露；初始状态为预存固定集合 |
+
+## 原始图片收集
+
+| File | Status | Description |
+|------|--------|-------------|
+| [raw_image_collection_plan.log.md](raw_image_collection_plan.log.md) | `Plan` | 两套系统（--collect + Cache Sidecar）原始图片保存方案：解耦设计、image_mask 过滤、实施步骤 |
+
 ## Meta
 
 | File | Status | Description |
