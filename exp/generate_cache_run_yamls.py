@@ -37,11 +37,16 @@ import yaml
 
 @dataclass
 class ExperimentCombo:
-    builder_type: str          # "cp1_mean_pool", ...
-    builder_abbrev: str        # "a", "b1", "b2", "c"
+    builder_type: str          # "cp1_mean_pool", "clip", ...
+    builder_abbrev: str        # "a", "b1", "b2", "c", "d"
     strategy_type: str         # "weighted_rrf_knn" | "weighted_score_sum_knn"
     strategy_abbrev: str       # "rrf" | "sum"
     vector_dims: dict[str, int]
+    artifact_name: str = ""    # pkl filename stem; defaults to builder_type
+
+    def __post_init__(self):
+        if not self.artifact_name:
+            self.artifact_name = self.builder_type
 
 
 COMBOS = [
@@ -53,7 +58,12 @@ COMBOS = [
     ExperimentCombo("cp1_spatial_pool_64", "b2", "weighted_score_sum_knn", "sum", {"vision_0": 8192, "vision_1": 8192, "prompt_emb": 2048, "robot_state": 32}),
     ExperimentCombo("cp1_max_pool",        "c",  "weighted_rrf_knn",       "rrf", {"vision_0": 2048, "vision_1": 2048, "prompt_emb": 2048, "robot_state": 32}),
     ExperimentCombo("cp1_max_pool",        "c",  "weighted_score_sum_knn", "sum", {"vision_0": 2048, "vision_1": 2048, "prompt_emb": 2048, "robot_state": 32}),
+    ExperimentCombo("clip",                "d",  "weighted_rrf_knn",       "rrf", {"vision_0": 512, "vision_1": 512, "prompt_emb": 2048, "robot_state": 32}, artifact_name="clip_vit_b_32"),
+    ExperimentCombo("clip",                "d",  "weighted_score_sum_knn", "sum", {"vision_0": 512, "vision_1": 512, "prompt_emb": 2048, "robot_state": 32}, artifact_name="clip_vit_b_32"),
 ]
+
+# Set to True to skip all weighted_score_sum_knn combos (only generate RRF).
+SKIP_SCORE_SUM = True
 
 WEIGHT_GRID_PHASE1 = [
     {"vision_0": 1.0,  "vision_1": 0.0,  "robot_state": 0.0},   # W1: vision_0 only
@@ -132,7 +142,7 @@ def render_yaml(
 ) -> str:
     """Render a complete run YAML string."""
     full_weights = {"prompt_emb": 0.0, **weights}
-    preload_path = f"{artifact_dir}/{combo.builder_type}.pkl"
+    preload_path = f"{artifact_dir}/{combo.artifact_name}.pkl"
 
     search_strategy: dict = {
         "type": combo.strategy_type,
@@ -144,13 +154,13 @@ def render_yaml(
     if combo.strategy_type == "weighted_rrf_knn":
         search_strategy["rrf_k"] = 60
     elif combo.strategy_type == "weighted_score_sum_knn":
-        cal = calibration.get(combo.builder_type, {})
+        cal = calibration.get(combo.artifact_name, {})
         # Require calibration for all fields with weight > 0
         weighted_fields = [f for f, w in full_weights.items() if w > 0]
         missing = [f for f in weighted_fields if f not in cal]
         if missing:
             raise ValueError(
-                f"Calibration for {combo.builder_type} is missing stats for "
+                f"Calibration for {combo.artifact_name} is missing stats for "
                 f"weighted fields: {missing}. Re-run calibrate_score_sum_stats.py."
             )
         norm_fields = {}
@@ -196,10 +206,16 @@ def render_yaml(
 # ---------------------------------------------------------------------------
 
 
+def _active_combos() -> list[ExperimentCombo]:
+    if SKIP_SCORE_SUM:
+        return [c for c in COMBOS if c.strategy_type != "weighted_score_sum_knn"]
+    return list(COMBOS)
+
+
 def _generate_phase1(args, calibration: dict) -> None:
     run_idx = 0
     out_dir = Path(args.output_dir) / "phase1"
-    for combo in COMBOS:
+    for combo in _active_combos():
         for w_idx, weights in enumerate(WEIGHT_GRID_PHASE1):
             run_idx += 1
             filename = f"phase1_run_{run_idx:03d}_{combo.builder_abbrev}_{combo.strategy_abbrev}_w{w_idx + 1}.yaml"

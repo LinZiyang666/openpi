@@ -22,7 +22,9 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import pickle
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 import h5py
@@ -119,10 +121,79 @@ def _build_fake_stage1(group: h5py.Group) -> _FakeStage1:
 # ---------------------------------------------------------------------------
 
 
+def _process_episode(h5_path_str: str, builder_type: str, checkpoint_id_str: str) -> list | None:
+    """Process a single H5 file in a worker process. Returns list of CacheEntry or None."""
+    from openpi.cache.storage_types import CacheEntry, CachePayload
+    from openpi.cache.types import CheckpointID
+
+    h5_path = Path(h5_path_str)
+    cp_id = CheckpointID[checkpoint_id_str]
+    builder = _create_builder(builder_type)
+
+    with h5py.File(h5_path, "r") as f:
+        task = str(f.attrs.get("task", ""))
+        success = bool(f.attrs.get("success", False))
+        if not success:
+            return None
+
+        trajectory_id = h5_path.stem
+
+        def _step_sort_key(name: str) -> tuple[bool, int, str]:
+            suffix = name.split("_", 1)[1] if "_" in name else ""
+            if suffix.isdigit():
+                return (False, int(suffix), name)
+            return (True, 0, name)
+
+        step_names = sorted(
+            (k for k in f.keys() if k.startswith("step_")),
+            key=_step_sort_key,
+        )
+        episode_entries: list[CacheEntry] = []
+        for step_name in step_names:
+            group = f[step_name]
+
+            fake_stage1 = _build_fake_stage1(group)
+            builder.collect(cp_id, stage1=fake_stage1)
+            query_keys = builder.build(cp_id)
+            builder.clear()
+
+            step_idx = None
+            suffix = step_name.split("_", 1)[1] if "_" in step_name else ""
+            if suffix.isdigit():
+                step_idx = int(suffix)
+
+            entry_id = f"{trajectory_id}:{step_idx if step_idx is not None else step_name}"
+
+            action = torch.from_numpy(np.array(group["clean_action"])).float()
+            if action.dim() == 1:
+                action = action.unsqueeze(0)
+
+            payload = CachePayload(action_chunk=action, task_key=task)
+            entry = CacheEntry(
+                id=entry_id,
+                checkpoint_id=cp_id,
+                query_keys=query_keys,
+                payload=payload,
+                step_idx=step_idx,
+                trajectory_id=trajectory_id,
+            )
+            episode_entries.append(entry)
+
+        # Link prev_ids / next_ids within episode
+        for i in range(len(episode_entries)):
+            if i > 0:
+                episode_entries[i].prev_ids = [episode_entries[i - 1].id]
+            if i < len(episode_entries) - 1:
+                episode_entries[i].next_ids = [episode_entries[i + 1].id]
+
+        return episode_entries
+
+
 def build_artifact(
     data_dir: str,
     builder_type: str,
     checkpoint_id_str: str = "CP1",
+    workers: int = 0,
 ) -> dict:
     """Build artifact dict from HDF5 data.
 
@@ -130,12 +201,10 @@ def build_artifact(
     For each step: collect() -> build() -> CacheEntry.
     Entry id = "{episode_file_stem}_{step_name}" (deterministic, traceable).
     action_chunk keeps real horizon from data (no padding to [50,32]).
-    """
-    from openpi.cache.storage_types import CacheEntry, CachePayload
-    from openpi.cache.types import CheckpointID
 
-    cp_id = CheckpointID[checkpoint_id_str]
-    builder = _create_builder(builder_type)
+    Args:
+        workers: Number of parallel workers. 0 = all CPUs.
+    """
     vector_dims = _get_vector_dims(builder_type)
 
     h5_paths = sorted(Path(data_dir).rglob("*.h5"))
@@ -144,66 +213,23 @@ def build_artifact(
         return {"key_builder_type": builder_type, "checkpoint_id": checkpoint_id_str,
                 "vector_dims": vector_dims, "entries": []}
 
-    entries: list[CacheEntry] = []
-    for h5_path in h5_paths:
-        with h5py.File(h5_path, "r") as f:
-            task = str(f.attrs.get("task", ""))
-            success = bool(f.attrs.get("success", False))
-            if not success:
-                continue
+    num_workers = workers if workers > 0 else (os.cpu_count() or 1)
+    logger.info("Processing %d H5 files with %d workers", len(h5_paths), num_workers)
 
-            trajectory_id = h5_path.stem  # episode filename as trajectory_id
-            episode_entries: list[CacheEntry] = []
-            def _step_sort_key(name: str) -> tuple[bool, int, str]:
-                """Sort by parsed integer index, falling back to string."""
-                suffix = name.split("_", 1)[1] if "_" in name else ""
-                if suffix.isdigit():
-                    return (False, int(suffix), name)
-                return (True, 0, name)
-
-            step_names = sorted(
-                (k for k in f.keys() if k.startswith("step_")),
-                key=_step_sort_key,
-            )
-            for step_name in step_names:
-                group = f[step_name]
-
-                fake_stage1 = _build_fake_stage1(group)
-                builder.collect(cp_id, stage1=fake_stage1)
-                query_keys = builder.build(cp_id)
-                builder.clear()
-
-                # Parse step index from name like "step_042"
-                step_idx = None
-                suffix = step_name.split("_", 1)[1] if "_" in step_name else ""
-                if suffix.isdigit():
-                    step_idx = int(suffix)
-
-                entry_id = f"{trajectory_id}:{step_idx if step_idx is not None else step_name}"
-
-                action = torch.from_numpy(np.array(group["clean_action"])).float()
-                if action.dim() == 1:
-                    action = action.unsqueeze(0)  # [1, action_dim]
-
-                payload = CachePayload(action_chunk=action, task_key=task)
-                entry = CacheEntry(
-                    id=entry_id,
-                    checkpoint_id=cp_id,
-                    query_keys=query_keys,
-                    payload=payload,
-                    step_idx=step_idx,
-                    trajectory_id=trajectory_id,
-                )
-                episode_entries.append(entry)
-
-            # Link prev_ids / next_ids within episode
-            for i in range(len(episode_entries)):
-                if i > 0:
-                    episode_entries[i].prev_ids = [episode_entries[i - 1].id]
-                if i < len(episode_entries) - 1:
-                    episode_entries[i].next_ids = [episode_entries[i + 1].id]
-
-            entries.extend(episode_entries)
+    entries: list = []
+    with ProcessPoolExecutor(max_workers=num_workers) as pool:
+        futures = {
+            pool.submit(_process_episode, str(p), builder_type, checkpoint_id_str): p
+            for p in h5_paths
+        }
+        done_count = 0
+        for future in as_completed(futures):
+            done_count += 1
+            result = future.result()
+            if result is not None:
+                entries.extend(result)
+            if done_count % 10 == 0 or done_count == len(h5_paths):
+                logger.info("Progress: %d/%d files, %d entries", done_count, len(h5_paths), len(entries))
 
     logger.info("Built %d entries for %s from %s", len(entries), builder_type, data_dir)
     return {
@@ -227,9 +253,10 @@ def main():
     parser.add_argument("--builder-type", required=True, choices=list(_VECTOR_DIMS.keys()))
     parser.add_argument("--output", required=True, help="Output .pkl path")
     parser.add_argument("--checkpoint-id", default="CP1", choices=["CP1"])
+    parser.add_argument("--workers", type=int, default=0, help="Parallel workers (0 = all CPUs)")
     args = parser.parse_args()
 
-    artifact = build_artifact(args.data_dir, args.builder_type, args.checkpoint_id)
+    artifact = build_artifact(args.data_dir, args.builder_type, args.checkpoint_id, workers=args.workers)
 
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     with open(args.output, "wb") as f:

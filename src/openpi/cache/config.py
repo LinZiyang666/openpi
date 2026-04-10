@@ -403,6 +403,7 @@ def validate_cache_config(config: CacheConfig) -> None:
     _valid_key_builder_types = frozenset({
         "placeholder", "full_original",
         "cp1_mean_pool", "cp1_spatial_pool_16", "cp1_spatial_pool_64", "cp1_max_pool",
+        "clip",
     })
     if config.key_builder.type not in _valid_key_builder_types:
         errors.append(
@@ -503,11 +504,22 @@ def validate_cache_config(config: CacheConfig) -> None:
                     f"key_builder.type={config.key_builder.type} requires keys.{f}.enabled=true"
                 )
 
-    # in_memory backend + cp1_* builder requires preload_path.
-    if config.backend.type == "in_memory" and config.key_builder.type.startswith("cp1_"):
+    # clip builder requires at least vision_0 and robot_state.
+    if config.key_builder.type == "clip":
+        for f in ("vision_0", "robot_state"):
+            if f not in enabled_fields:
+                errors.append(
+                    f"key_builder.type=clip requires keys.{f}.enabled=true"
+                )
+
+    # in_memory backend + cp1_*/clip builder requires preload_path.
+    if config.backend.type == "in_memory" and (
+        config.key_builder.type.startswith("cp1_") or config.key_builder.type == "clip"
+    ):
         if not config.backend.in_memory.preload_path:
             errors.append(
-                "in_memory backend with cp1_* key_builder requires backend.in_memory.preload_path"
+                f"in_memory backend with {config.key_builder.type} key_builder requires "
+                "backend.in_memory.preload_path"
             )
 
     # ── Trajectory validation ──
@@ -693,11 +705,15 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
         from openpi.cache.components.key_builder import CP1MaxPoolKeyBuilder
 
         return CP1MaxPoolKeyBuilder(enabled_fields=enabled_fields)
+    elif cfg.type == "clip":
+        from openpi.cache.components.clip_key_builder import CLIPKeyBuilder
+
+        return CLIPKeyBuilder(enabled_fields=enabled_fields)
     else:
         raise ConfigValidationError(
             f"Unknown key_builder.type '{cfg.type}'. "
             f"Valid: ['placeholder', 'full_original', 'cp1_mean_pool', "
-            f"'cp1_spatial_pool_16', 'cp1_spatial_pool_64', 'cp1_max_pool']"
+            f"'cp1_spatial_pool_16', 'cp1_spatial_pool_64', 'cp1_max_pool', 'clip']"
         )
 
 

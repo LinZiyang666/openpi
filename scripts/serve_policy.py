@@ -184,6 +184,7 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
             bundle.shared_storage,
             quiet=True,
         )
+        need_images = args.collect_images or bundle.cache_config.key_builder.type == "clip"
         orchestrator = CacheOrchestrator(
             storage=components["storage"],
             key_builder=components["key_builder"],
@@ -198,7 +199,7 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
             timer=components["timer"],
             orchestrator=orchestrator,
             eager=eager,
-            collect_images=args.collect_images,
+            collect_images=need_images,
         )
     elif args.cache_config is not None:
         from openpi.cache.config import (
@@ -226,6 +227,9 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
                 components["timer"]._quiet = True
                 logging.getLogger("openpi.cache.orchestrator").setLevel(logging.WARNING)
 
+        # CLIP key builder requires input images for online encoding.
+        need_images = args.collect_images or cache_config.key_builder.type == "clip"
+
         orchestrator = CacheOrchestrator(
             storage=components["storage"],
             key_builder=components["key_builder"],
@@ -240,7 +244,7 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
             timer=components["timer"],
             orchestrator=orchestrator,
             eager=eager,
-            collect_images=args.collect_images,
+            collect_images=need_images,
         )
     elif args.cache:
         from openpi.cache.interceptor import InferenceInterceptor

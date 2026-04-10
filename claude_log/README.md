@@ -43,6 +43,12 @@ Implementation plans and development records. For project architecture docs, see
 | [trajectory_search_requirements.log.md](trajectory_search_requirements.log.md) | `Plan` | 轨迹搜索需求：双向链表数据结构、query 历史暂存、三层 similarity 融合、YAML 配置扩展 |
 | [trajectory_search_impl_plan.log.md](trajectory_search_impl_plan.log.md) | `Plan` | 轨迹搜索实现计划：7 Phase 分步实现，文件变更清单、代码细节、验收标准 |
 
+## CLIP KeyBuilder
+
+| File | Status | Description |
+|------|--------|-------------|
+| [clip_key_builder_plan.log.md](clip_key_builder_plan.log.md) | `Plan` | CLIP KeyBuilder 实现计划：open_clip 视觉编码器替代 SigLIP pooling 生成低维 cache key，YAML 可配置模型 |
+
 ## Retrieval System
 
 | File | Status | Description |

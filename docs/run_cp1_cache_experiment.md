@@ -25,7 +25,7 @@
 1. 两端已完成 `GIT_LFS_SKIP_SMUDGE=1 uv sync`
 2. GPU 服务器上有 Pi0.5 checkpoint（默认路径 `gs://openpi-assets/checkpoints/pi05_base`）
 3. 评估端上有 LIBERO benchmark 数据
-4. 已收集的 HDF5 演示数据在 `data/libero_spatial/`（50 个 episode）
+4. 已收集的 HDF5 演示数据在 `data/db/libero_cache/libero_spatial/`（50 个 episode）
 5. frp 隧道已配置：`155.98.36.13:9000` → GPU 服务器 `localhost:8000`
 
 ---
@@ -48,17 +48,28 @@ curl http://155.98.36.13:9000/healthz
 将 HDF5 演示数据转换为 4 种降维方式的 `.pkl` 向量索引文件。
 
 ```bash
-# 在有 data/libero_spatial/*.h5 的机器上运行
+# 在有 data/db/libero_cache/libero_spatial/*.h5 的机器上运行
 
 mkdir -p data/cache_artifacts/libero_spatial
 
+# CP1 系列 (从 stage1 prefix_embs 降维)
 for bt in cp1_mean_pool cp1_spatial_pool_16 cp1_spatial_pool_64 cp1_max_pool; do
     uv run exp/build_in_memory_cache_artifact.py \
-        --data-dir data/libero_spatial \
+        --data-dir data/db/libero_cache/libero_spatial \
         --builder-type $bt \
         --output data/cache_artifacts/libero_spatial/${bt}.pkl
     echo "Done: $bt"
 done
+
+# CLIP ViT-B-32 (从原始图片编码)
+uv run exp/build_clip_cache_artifact.py \
+    --data-dir data/db/libero_cache/libero_spatial \
+    --clip-model ViT-B-32 \
+    --clip-pretrained openai \
+    --output data/cache_artifacts/libero_spatial/clip_vit_b_32.pkl \
+    --device cuda \
+    --batch-size 64 \
+    --fields vision_0,vision_1,vision_2,prompt_emb,robot_state
 ```
 
 产物：
@@ -67,7 +78,8 @@ data/cache_artifacts/libero_spatial/
 ├── cp1_mean_pool.pkl          # A: mean pool → 2048d
 ├── cp1_spatial_pool_16.pkl    # B1: 4×4 spatial → 32768d
 ├── cp1_spatial_pool_64.pkl    # B2: 2×2 spatial → 8192d
-└── cp1_max_pool.pkl           # C: max pool → 2048d
+├── cp1_max_pool.pkl           # C: max pool → 2048d
+└── clip_vit_b_32.pkl          # D: CLIP ViT-B-32 → 512d
 ```
 
 **注意**: 这些 `.pkl` 文件需要在 GPU 服务器上可访问（因为 `serve_policy.py` 加载它们）。如果在评估端构建，需要 scp 到 GPU 服务器。
@@ -94,7 +106,7 @@ uv run exp/calibrate_score_sum_stats.py \
 
 ## Step 3: 生成 Phase 1 实验 YAML 配置
 
-8 种组合 × 8 种权重 = 64 个 YAML 文件。
+10 种组合 × 8 种权重 = 80 个 YAML 文件。
 
 ```bash
 uv run exp/generate_cache_run_yamls.py \
@@ -110,7 +122,10 @@ configs/cache_runs/phase1/
 ├── phase1_run_001_a_rrf_w1.yaml
 ├── phase1_run_002_a_rrf_w2.yaml
 ├── ...
-└── phase1_run_064_c_sum_w8.yaml   # 共 64 个文件
+├── phase1_run_064_c_sum_w8.yaml
+├── phase1_run_065_d_rrf_w1.yaml   # D: CLIP ViT-B-32
+├── ...
+└── phase1_run_080_d_sum_w8.yaml   # 共 80 个文件
 ```
 
 **重要**: 生成的 YAML 中 `preload_path` 指向 `data/cache_artifacts/libero_spatial/` 的绝对路径。确保 GPU 服务器上的路径一致，或在生成后手动修改路径。如果两端路径不同，在 GPU 服务器端生成 YAML 或修改 `--artifact-dir` 使路径匹配 GPU 服务器的文件系统。
@@ -148,7 +163,7 @@ curl http://localhost:8000/healthz
 
 ## Step 5: 运行 Phase 1 实验（评估端）
 
-### 5a. 完整运行（64 个配置 × 10 task × 5 episodes = 3200 episodes）
+### 5a. 完整运行（80 个配置 × 10 task × 5 episodes = 4000 episodes）
 
 ```bash
 uv run exp/run_cache_experiments.py \
@@ -338,7 +353,7 @@ uv run exp/analyze_cache_results.py \
 
 | Phase | 配置数 | Task 数 | Episodes/Task | 总 Episodes | 预计时长 |
 |-------|--------|---------|---------------|-------------|---------|
-| 1     | 64     | 10      | 5             | 3,200       | 取决于单 episode 时间 |
+| 1     | 80     | 10      | 5             | 4,000       | 取决于单 episode 时间 |
 | 1.5   | ~45    | 10      | 5             | ~2,250      | — |
 | 2     | 3      | 10      | 5             | 150         | — |
 
@@ -430,9 +445,11 @@ MUJOCO_GL=egl conda run --no-capture-output -n libero_sim python examples/libero
 ## 文件依赖关系总览
 
 ```
-data/libero_spatial/*.h5                          ← 原始 HDF5 演示数据
+data/db/libero_cache/libero_spatial/*.h5           ← 原始 HDF5 演示数据
     │
-    ▼ build_in_memory_cache_artifact.py
+    ├──▶ build_in_memory_cache_artifact.py         (CP1 系列: A/B1/B2/C)
+    ├──▶ build_clip_cache_artifact.py              (CLIP 系列: D)
+    ▼
 data/cache_artifacts/libero_spatial/*.pkl          ← 向量索引 artifact
     │
     ├──▶ calibrate_score_sum_stats.py
