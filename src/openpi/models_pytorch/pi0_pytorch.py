@@ -642,23 +642,28 @@ class PI0Pytorch(nn.Module):
         device = state.device
         bsize = state.shape[0]
         dt = torch.tensor(-1.0 / num_steps, dtype=torch.float32, device=device)
-        half_dt = 0.5 / num_steps  # tolerance for floating-point timestep matching
+
+        # Pre-compute which loop iterations need a snapshot.
+        # step 0 → t=1.0, step 1 → t=0.9, ..., step 9 → t=0.1 (for num_steps=10).
+        save_at: dict[int, float] = {}
+        for st in save_timesteps:
+            step_idx = round((1.0 - st) * num_steps)
+            save_at[step_idx] = st
 
         x_t = noise
         timestep = torch.tensor(1.0, dtype=torch.float32, device=device)
         intermediates: dict[float, torch.Tensor] = {}
 
+        step = 0
         while timestep >= -dt / 2:
-            t_val = timestep.item()
-            for st in save_timesteps:
-                if abs(t_val - st) < half_dt:
-                    intermediates[st] = x_t.clone()
-                    break
+            if step in save_at:
+                intermediates[save_at[step]] = x_t.clone()
 
             expanded_time = timestep.expand(bsize)
             v_t = self.denoise_step(state, prefix_pad_masks, past_key_values, x_t, expanded_time)
             x_t = x_t + dt * v_t
             timestep += dt
+            step += 1
 
         return x_t, intermediates
 

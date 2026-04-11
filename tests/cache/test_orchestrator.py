@@ -407,3 +407,88 @@ def test_on_task_begin_resets_step_counter():
 
     orch.on_task_begin("new_task")
     assert orch._step_counter == 0
+
+
+# ---------------------------------------------------------------------------
+# WARM_START tests
+# ---------------------------------------------------------------------------
+
+_WARM_TIERS = [
+    {"threshold": 0.95, "start_t": 0.3},
+    {"threshold": 0.90, "start_t": 0.5},
+]
+
+
+def _warm_judge():
+    return ThresholdJudge(cp1_threshold=0.98, cp3_threshold=0.95, warm_tiers=_WARM_TIERS)
+
+
+def test_warm_start_complete_payload():
+    """WARM_START with complete intermediates returns payload and start_t."""
+    orch, _, storage = make_orchestrator(judge=_warm_judge())
+
+    state = _unit_vector(32, 0)
+    payload = CachePayload(
+        action_chunk=torch.randn(50, 32),
+        intermediates={0.3: torch.randn(50, 32), 0.5: torch.randn(50, 32)},
+        denoising_num_steps=10,
+    )
+    insert_entry(storage, CheckpointID.CP1, state, payload)
+
+    query = _vector_with_known_cosine(state, 0.96)
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(query))
+    assert result.hit_type == HitType.WARM_START
+    assert result.payload is not None
+    assert result.start_t == 0.3
+    assert result.payload.intermediates is not None
+    assert 0.3 in result.payload.intermediates
+    orch.clear()
+
+
+def test_warm_start_missing_intermediates_downgrade():
+    """WARM_START with no intermediates downgrades to MISS."""
+    orch, _, storage = make_orchestrator(judge=_warm_judge())
+
+    state = _unit_vector(32, 0)
+    payload = CachePayload(action_chunk=torch.randn(50, 32))
+    insert_entry(storage, CheckpointID.CP1, state, payload)
+
+    query = _vector_with_known_cosine(state, 0.96)
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(query))
+    assert result.hit_type == HitType.MISS
+    assert result.score is not None
+    assert result.entry_id is not None
+    orch.clear()
+
+
+def test_warm_start_missing_start_t_key_downgrade():
+    """WARM_START with intermediates that lack the required start_t key downgrades to MISS."""
+    orch, _, storage = make_orchestrator(judge=_warm_judge())
+
+    state = _unit_vector(32, 0)
+    payload = CachePayload(
+        action_chunk=torch.randn(50, 32),
+        intermediates={0.5: torch.randn(50, 32)},
+        denoising_num_steps=10,
+    )
+    insert_entry(storage, CheckpointID.CP1, state, payload)
+
+    query = _vector_with_known_cosine(state, 0.96)
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(query))
+    # Judge wants start_t=0.3 but payload only has 0.5 → downgrade
+    assert result.hit_type == HitType.MISS
+    orch.clear()
+
+
+def test_warm_start_miss_count_incremented_on_downgrade():
+    """Downgraded WARM_START increments miss counter."""
+    orch, _, storage = make_orchestrator(judge=_warm_judge())
+
+    state = _unit_vector(32, 0)
+    payload = CachePayload(action_chunk=torch.randn(50, 32))
+    insert_entry(storage, CheckpointID.CP1, state, payload)
+
+    query = _vector_with_known_cosine(state, 0.96)
+    orch.check(CheckpointID.CP1, stage1=make_stage1(query))
+    assert orch._miss_by_checkpoint.get(CheckpointID.CP1, 0) >= 1
+    orch.clear()

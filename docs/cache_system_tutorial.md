@@ -39,12 +39,12 @@ This is a self-contained guide for developers who want to understand, configure,
 | **CP3** | After Stage 3 (flow matching). Currently for infrastructure validation only. |
 | **CACHE_QUERY_FIELDS** | Five canonical field names: `vision_0`, `vision_1`, `vision_2`, `prompt_emb`, `robot_state`. |
 | **CacheEntry** | A single unit written to the vector store. Contains `id`, `checkpoint_id`, `query_keys`, `CachePayload`, `prev_ids`, `next_ids`, `trajectory_id`. |
-| **CachePayload** | Stored action data: `action_chunk` [50, 32] (always required), `intermediates` (CP2 only), `task_key`. |
+| **CachePayload** | Stored action data: `action_chunk` [50, 32] (always required), `intermediates` (CP1 warm start, online: default 3 timesteps, offline: up to 9), `task_key`. |
 | **QuerySpec** | Everything a backend needs for one search: `query_keys`, `top_k`, `filters`, `fusion_weights`, `backend_hints`, `trajectory_history`, `trajectory_weights`. Constructed **only** by SearchStrategy. |
 | **QueryFilter** | Dynamic per-query constraints: `task_key` (exact match), `step_range` (inclusive range). |
 | **SearchResultLite** | Lightweight search result (no payload): `id`, `score`, `checkpoint_id`. Phase 1 of two-phase search. |
 | **CheckResult** | Output of `Orchestrator.check()`: `hit_type`, optional `payload`, `score`, `entry_id`, `query_keys`. |
-| **HitType** | Enum: `MISS`, `FULL_HIT`. |
+| **HitType** | Enum: `MISS`, `FULL_HIT`, `WARM_START`. |
 | **StepRecord** | Per-step staging record buffered during episode for trajectory write. |
 | **EpisodeRecord** | Entire episode staging record, passed to WritePolicy to decide write. |
 | **TrajectoryMixin** | Shared history buffer logic mixed into all SearchStrategy implementations. |
@@ -109,10 +109,11 @@ Step 5: search_strategy.search(ctx)
         └─ Returns list[SearchResultLite] sorted descending
 
 Step 6: judge(results, checkpoint_id, cached_data)
-        └─ Returns (HitType, winner_id)
+        └─ Returns JudgeResult(hit_type, winner_id, start_t)
         └─ If MISS → increment miss counter, return CheckResult(MISS)
 
 Step 7: storage.fetch_payload(winner_id)
+        └─ WARM_START: validate payload completeness, downgrade to MISS if incomplete
 
 Step 8: Increment step counter (CP1 only)
 
@@ -181,10 +182,26 @@ Gate also has lifecycle methods for trajectory support:
 
 **Source**: `src/openpi/cache/components/judge.py`
 
+Judge returns `JudgeResult(hit_type, winner_id, start_t)`.
+
 | Type | Description |
 |------|-------------|
-| `threshold` | Hit if `score >= threshold`. Per-checkpoint thresholds. |
+| `threshold` | FULL_HIT if `score >= threshold`. With `warm_tiers`, scores below the threshold are matched against descending tiers for WARM_START (CP1 only). |
 | `always_hit` | Always returns FULL_HIT for top result. Good for testing. |
+
+**Warm start configuration** (optional, CP1 only):
+
+```yaml
+judge:
+  type: threshold
+  threshold: 0.98
+  warm_tiers:
+    - {threshold: 0.95, start_t: 0.3}   # high similarity → skip 70% of Stage 3
+    - {threshold: 0.90, start_t: 0.5}   # medium → skip 50%
+    - {threshold: 0.85, start_t: 0.7}   # lower → skip 30%
+```
+
+Tiers must be strictly decreasing in threshold. `start_t` determines the flow matching resume point. When `warm_tiers` is omitted or null, warm start is disabled (backward compatible).
 
 **Score semantics depend on fusion method:**
 

@@ -1,7 +1,7 @@
 # Pi0.5 Inference Cache System - Architecture Specification
 
-> Version: 0.4
-> Status: Implemented — Steps 1-4 validated (45 tests passing), CP2 suspended, CP1 experiment running
+> Version: 0.5
+> Status: Implemented — CP1 three-level judgment (FULL_HIT / WARM_START / MISS), CP2 suspended (warm start migrated to CP1)
 > Scope: PyTorch inference pipeline only (JAX path disabled)
 > Last updated: 2026-04-10
 >
@@ -58,24 +58,19 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
 
 - **Trigger**: Stage 1 complete; prefix tokens and KV cache generated.
 - **Available information**: Vision embedding, prompt embedding, state embedding.
-- **Hit behavior**: Skip Stage 2 + Stage 3, directly output cached action chunk.
-- **Savings**: Maximum (skip LLM decoding + all flow matching).
-- **Risk**: Highest — skips subtask prediction. If the scene has changed subtly (e.g., an object was removed), the cached subtask may no longer be correct.
-- **Applicable scenario**: Highly repetitive operations (e.g., the same action on an assembly line).
+- **Three-level judgment** (configured via `warm_tiers`):
+  - **FULL_HIT**: Skip Stage 2 + Stage 3, directly output cached action chunk.
+  - **WARM_START**: Run Stage 2, then partial Stage 3 from cached intermediate `x_t` via `run_stage3_from()`. Judge decides `start_t` based on similarity score tiers.
+  - **MISS**: Run full Stage 2 + Stage 3 (with intermediates collection for future warm starts).
+- **Savings**: FULL_HIT is maximum; WARM_START saves a fraction of Stage 3 (e.g., start_t=0.3 saves 70%).
+- **Risk**: FULL_HIT is highest (skips subtask prediction); WARM_START is medium (subtask is fresh, only denoising is partial).
+- **Applicable scenario**: Highly repetitive operations (FULL_HIT) or similar scenes (WARM_START).
 
 ### CP2: After LLM Backbone — ⚠️ Suspended
 
-> **Why suspended**: The original design assumed Pi0.5's Stage 2 performs autoregressive subtask text generation, producing command tokens + command embedding that give CP2 its "same command → same action" semantic basis. However, Step 1 code analysis revealed that **the PyTorch implementation of Pi0.5's Stage 2 only fills the prefix KV cache — there is no autoregressive text generation** (JAX path is disabled). The only new information after Stage 2 is `past_key_values` (a HuggingFace DynamicCache, an opaque object), which cannot be directly used as a retrieval key. CP2's semantic premise does not hold. It is suspended until a suitable Stage 2 representation extraction approach is available (e.g., extracting embedding from the last-layer hidden state of the KV cache).
+> Warm start functionality has been migrated to CP1. CP2 remains suspended due to lack of usable retrieval key (Stage 2 produces only an opaque KV cache).
 
-- **Trigger**: Stage 2 complete; ~~low-level command (subtask text tokens) generated~~ KV cache filled.
-- **Available information**: All CP1 information + `past_key_values` (opaque KV cache, not directly usable as query key).
-- **Hit behavior (two modes)** *(design preserved, not implemented)*:
-  - **Full hit**: Skip all of Stage 3, directly output cached action chunk.
-  - **Partial hit (warm start)**: Use cached intermediate state `x_t` (t < 1.0) as flow matching starting point, skipping some denoising steps.
-- **Savings**: Medium (skip all or part of flow matching).
-- **Risk**: Medium — subtask was computed by the current inference; cached action has higher consistency with the current scene.
-- **Applicable scenario**: Reuse of the same subtask in similar scenes.
-- **Current status**: **Suspended** — no usable retrieval key; requires a new representation extraction approach.
+- **Current status**: **Suspended** — no usable retrieval key; warm start now handled at CP1.
 
 ### CP3: After Action Expert
 
@@ -264,8 +259,8 @@ CacheOrchestrator(
 2. `key_builder.build()` — GPU→CPU transfer (the only D2H copy)
 3. `gate()` — decide search or skip
 4. `search_strategy.search()` — build QuerySpec, call storage, return ranked results
-5. `judge()` — threshold → FULL_HIT or MISS
-6. On hit: `storage.fetch_payload()` → return cached action
+5. `judge()` — threshold → FULL_HIT, warm_tiers → WARM_START, or MISS (returns `JudgeResult`)
+6. On FULL_HIT/WARM_START: `storage.fetch_payload()` → return cached payload (WARM_START validated for intermediates completeness)
 
 **Episode lifecycle**:
 
@@ -468,18 +463,18 @@ Decides whether to search at a given checkpoint.
 
 > **Source**: `src/openpi/cache/components/judge.py`
 
-Determines whether search results constitute a valid hit. Returns `(HitType, winner_id)`.
+Determines whether search results constitute a valid hit. Returns `JudgeResult(hit_type, winner_id, start_t)`.
 
 **Implementations:**
 
 | Type | Behavior |
 |------|----------|
-| `threshold` | Hit if `score >= threshold`. Per-checkpoint thresholds via config. |
-| `always_hit` | Always returns FULL_HIT for top result. Used in current experiments (threshold calibration deferred). |
+| `threshold` | FULL_HIT if `score >= threshold`. With `warm_tiers` configured, scores below the threshold are matched against descending tiers for WARM_START (CP1 only). Returns `JudgeResult(hit_type, winner_id, start_t)`. |
+| `always_hit` | Always returns FULL_HIT for top result. Used in experiments (threshold calibration deferred). |
 
 Score semantics depend on fusion method — see [cache_system_tutorial.md §6](cache_system_tutorial.md#6-component-judge) for details.
 
-> **Design vs Implementation**: The original spec included CP2 warm start branching in the judge (`CacheResult.warm_start()`). This was removed — CP2 is suspended. Judge no longer holds a `CacheStorage` reference; payload fetch is done by the orchestrator after judge returns.
+> Judge returns `JudgeResult` (not a tuple). Payload fetch is done by the orchestrator after judge returns. On WARM_START, the orchestrator validates payload completeness (intermediates exist, start_t is a valid key) and downgrades to MISS if validation fails.
 
 ### 5.7 Cache Data Model
 
@@ -497,8 +492,8 @@ class CheckpointID(Enum):
 @dataclass
 class CachePayload:
     action_chunk: torch.Tensor                          # [action_horizon, action_dim]
-    intermediates: Optional[dict[float, torch.Tensor]]  # {t: x_t}, CP2 warm start (suspended)
-    denoising_num_steps: Optional[int]                  # for warm start (suspended)
+    intermediates: Optional[dict[float, torch.Tensor]]  # {t: x_t}, CP1 warm start
+    denoising_num_steps: Optional[int]                  # for warm start
     next_action_chunk: Optional[torch.Tensor]           # CP3 only
     task_key: str = ""
 

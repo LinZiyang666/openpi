@@ -62,16 +62,18 @@ class CachePayload:
     """The data stored alongside each cache entry.
 
     CP-specific field requirements:
-      CP1            : action_chunk required; everything else None.
-      CP2 full hit   : action_chunk required; intermediates / denoising_num_steps None.
-      CP2 warm start : action_chunk + intermediates + denoising_num_steps required.
+      CP1 FULL_HIT   : action_chunk required; intermediates / denoising_num_steps optional.
+      CP1 WARM_START : action_chunk + intermediates + denoising_num_steps required.
 
     intermediates keys
     ------------------
-    Keys are the *float timestep values* from save_timesteps=(0.7, 0.5, 0.3).
-    These are Python float literals — no precision issue when comparing against
-    the same literals later.  Backends must serialise keys as f"{t:.4f}" strings
-    to avoid JSON round-trip drift.
+    Keys are float timestep values.  Online path stores the default
+    save_timesteps (0.7, 0.5, 0.3); offline artifact path stores all 9
+    intermediates (0.9, 0.8, ..., 0.1).  Judge's warm_tiers.start_t must
+    exist in the payload's intermediates keys; Orchestrator validates this
+    and downgrades to MISS if the key is absent.
+    Backends must serialise keys as f"{t:.4f}" strings to avoid JSON
+    round-trip drift.
 
     denoising_num_steps
     -------------------
@@ -297,6 +299,8 @@ class StepRecord:
 
     query_keys: dict[str, torch.Tensor]   # CPU float32
     action_chunk: torch.Tensor            # CPU float32, required
+    intermediates: Optional[dict[float, torch.Tensor]] = None
+    denoising_num_steps: Optional[int] = None
 
 
 @dataclass

@@ -61,10 +61,11 @@ class CheckResult:
     """
 
     hit_type: HitType
-    payload: Optional[CachePayload] = None  # non-None only on FULL_HIT
+    payload: Optional[CachePayload] = None  # non-None on FULL_HIT or WARM_START
     score: Optional[float] = None
     entry_id: Optional[str] = None
     query_keys: Optional[dict[str, torch.Tensor]] = None  # filled on all paths
+    start_t: float | None = None  # Judge-decided start_t, only on WARM_START
 
 
 class CacheOrchestrator:
@@ -183,8 +184,11 @@ class CacheOrchestrator:
     def check(self, checkpoint_id: CheckpointID, **stage_outputs) -> CheckResult:
         """Cache check pipeline: collect -> gate -> build -> search -> judge -> fetch.
 
-        Key change: build() executes before gate-skip return, so query_keys
-        are always available for trajectory history recording.
+        For CP1, Judge returns JudgeResult with three possible outcomes:
+        FULL_HIT, WARM_START (with start_t), or MISS.  On WARM_START,
+        payload completeness is validated here; incomplete payloads are
+        downgraded to MISS.
+
         CheckResult.query_keys is filled on all return paths.
         """
         prefix = checkpoint_id.name.lower()
@@ -229,9 +233,12 @@ class CacheOrchestrator:
             results = strategy.search(ctx)
 
         with self._timer.measure(f"{prefix}_judge"):
-            hit_type, winner_id = judge(
+            judge_result = judge(
                 results, checkpoint_id, self._key_builder.cached_data
             )
+        hit_type = judge_result.hit_type
+        winner_id = judge_result.winner_id
+        start_t = judge_result.start_t
         top_score = results[0].score if results else None
         logger.info("[step %d] %s judge: %s (top_score=%s, winner=%s)", self._step_counter, prefix, hit_type.name, top_score, winner_id)
 
@@ -241,15 +248,31 @@ class CacheOrchestrator:
         if checkpoint_id == CheckpointID.CP1:
             self._step_counter += 1
 
-        if hit_type == HitType.FULL_HIT and winner_id is not None:
+        if hit_type in (HitType.FULL_HIT, HitType.WARM_START) and winner_id is not None:
             with self._timer.measure(f"{prefix}_fetch"):
                 payload = self._storage.fetch_payload(winner_id)
+
+            if hit_type == HitType.WARM_START:
+                if (not payload.intermediates
+                        or payload.denoising_num_steps is None
+                        or start_t not in payload.intermediates):
+                    logger.debug(
+                        "[step %d] WARM_START payload incomplete (start_t=%s, "
+                        "has_intermediates=%s), downgrade to MISS.",
+                        self._step_counter - 1, start_t,
+                        payload.intermediates is not None,
+                    )
+                    self._miss_by_checkpoint[checkpoint_id] = (
+                        self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
+                    )
+                    return CheckResult(
+                        hit_type=HitType.MISS, query_keys=query_keys,
+                        score=results[0].score, entry_id=winner_id,
+                    )
+
             return CheckResult(
-                hit_type=hit_type,
-                payload=payload,
-                score=results[0].score,
-                entry_id=winner_id,
-                query_keys=query_keys,
+                hit_type=hit_type, payload=payload, start_t=start_t,
+                score=results[0].score, entry_id=winner_id, query_keys=query_keys,
             )
 
         return CheckResult(hit_type=HitType.MISS, query_keys=query_keys)
@@ -270,6 +293,8 @@ class CacheOrchestrator:
         self,
         query_keys: dict[str, torch.Tensor],
         action_chunk: torch.Tensor,
+        intermediates: Optional[dict[float, torch.Tensor]] = None,
+        denoising_num_steps: Optional[int] = None,
     ) -> None:
         """Buffer current step for episode-end batch write.
 
@@ -279,6 +304,8 @@ class CacheOrchestrator:
         self._episode_steps.append(StepRecord(
             query_keys=query_keys,
             action_chunk=action_chunk,
+            intermediates=intermediates,
+            denoising_num_steps=denoising_num_steps,
         ))
 
     def on_episode_end(self) -> None:
@@ -329,6 +356,8 @@ class CacheOrchestrator:
                 payload=CachePayload(
                     action_chunk=step.action_chunk,
                     task_key=record.task_key,
+                    intermediates=step.intermediates,
+                    denoising_num_steps=step.denoising_num_steps,
                 ),
                 step_idx=step_idx,
                 trajectory_id=trajectory_id,

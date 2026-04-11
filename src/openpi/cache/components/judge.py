@@ -1,6 +1,6 @@
 """Judge: decide whether search results constitute a cache hit.
 
-Data flow: SearchResultLite.score (from CacheStorage) -> judge() -> (HitType, winner_id)
+Data flow: SearchResultLite.score (from CacheStorage) -> judge() -> JudgeResult
 
 Coupling map:
   DEPENDS ON:  SearchResultLite.score semantics (Step 3 backend-dependent)
@@ -15,6 +15,7 @@ Coupling map:
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Optional, Protocol, runtime_checkable
 
@@ -33,14 +34,27 @@ class HitType(Enum):
 
     MISS = auto()
     FULL_HIT = auto()
-    # WARM_START = auto()  # Step 7: flow matching warm start
+    WARM_START = auto()
+
+
+@dataclass
+class JudgeResult:
+    """Structured return type for SimilarityJudge.
+
+    FULL_HIT and WARM_START must include winner_id; Orchestrator skips
+    fetch when winner_id is None.
+    """
+
+    hit_type: HitType
+    winner_id: str | None = None
+    start_t: float | None = None
 
 
 @runtime_checkable
 class SimilarityJudge(Protocol):
     """Judge whether a search result constitutes a cache hit.
 
-    Data flow: SearchResultLite.score (from CacheStorage) -> judge() -> (HitType, winner_id)
+    Data flow: SearchResultLite.score (from CacheStorage) -> judge() -> JudgeResult
     Coupling:
       - DEPENDS ON: SearchResultLite.score semantics (Step 3 backend-dependent)
         * Single-field cosine: score in [-1, 1]
@@ -57,7 +71,7 @@ class SimilarityJudge(Protocol):
         results: list[SearchResultLite],
         checkpoint_id: CheckpointID,
         cached_data: dict[str, torch.Tensor],
-    ) -> tuple[HitType, Optional[str]]:
+    ) -> JudgeResult:
         """Judge the top search results.
 
         Args:
@@ -66,7 +80,7 @@ class SimilarityJudge(Protocol):
             cached_data: Raw tensors from KeyBuilder.cached_data.
 
         Returns:
-            (hit_type, winner_id): HitType and the id of the winning entry (None if MISS).
+            JudgeResult with hit_type, winner_id, and optional start_t.
         """
         ...
 
@@ -83,30 +97,22 @@ class AlwaysHitJudge:
         results: list[SearchResultLite],
         checkpoint_id: CheckpointID,
         cached_data: dict[str, torch.Tensor],
-    ) -> tuple[HitType, Optional[str]]:
+    ) -> JudgeResult:
         if not results:
-            return HitType.MISS, None
-        return HitType.FULL_HIT, results[0].id
+            return JudgeResult(HitType.MISS)
+        return JudgeResult(HitType.FULL_HIT, results[0].id)
 
     def on_episode_start(self) -> None:
-        """Clear internal history buffer. Called by Orchestrator at episode start.
-
-        Current: no-op. AlwaysHitJudge has no history state.
-        Future: trajectory-aware judge can clear score history here.
-        """
+        """Clear internal history buffer. Called by Orchestrator at episode start."""
 
     def record_action(self, action_chunk: torch.Tensor) -> None:
-        """Receive Orchestrator-broadcast action. Pure local buffer op.
-
-        Current: no-op. AlwaysHitJudge does not use action data.
-        Future: trajectory-aware judge can buffer action history for consistency checks.
-        """
+        """Receive Orchestrator-broadcast action. Pure local buffer op."""
 
 
 class ThresholdJudge:
-    """Simple threshold-based judge: top-1 score > threshold -> FULL_HIT.
+    """Multi-tier threshold judge: FULL_HIT / WARM_START / MISS.
 
-    Data flow: results[0].score -> compare threshold -> HitType
+    Data flow: results[0].score -> compare threshold -> compare warm_tiers -> JudgeResult
     Coupling:
       - DEPENDS ON: score range from CacheStorage backend (see SimilarityJudge docstring)
       - IF backend or key builder changes: threshold value likely needs recalibration
@@ -116,36 +122,34 @@ class ThresholdJudge:
         self,
         cp1_threshold: float = 0.98,
         cp3_threshold: float = 0.95,
+        warm_tiers: list[dict[str, float]] | None = None,
     ) -> None:
         self._thresholds = {
             CheckpointID.CP1: cp1_threshold,
             CheckpointID.CP3: cp3_threshold,
         }
+        self._warm_tiers = warm_tiers or []
 
     def __call__(
         self,
         results: list[SearchResultLite],
         checkpoint_id: CheckpointID,
         cached_data: dict[str, torch.Tensor],
-    ) -> tuple[HitType, Optional[str]]:
+    ) -> JudgeResult:
         if not results:
-            return HitType.MISS, None
+            return JudgeResult(HitType.MISS)
         top = results[0]
         threshold = self._thresholds.get(checkpoint_id, 0.98)
         if top.score >= threshold:
-            return HitType.FULL_HIT, top.id
-        return HitType.MISS, None
+            return JudgeResult(HitType.FULL_HIT, top.id)
+        if checkpoint_id == CheckpointID.CP1 and self._warm_tiers:
+            for tier in self._warm_tiers:
+                if top.score >= tier["threshold"]:
+                    return JudgeResult(HitType.WARM_START, top.id, start_t=tier["start_t"])
+        return JudgeResult(HitType.MISS)
 
     def on_episode_start(self) -> None:
-        """Clear internal history buffer. Called by Orchestrator at episode start.
-
-        Current: no-op. ThresholdJudge uses single-step threshold, no history.
-        Future: trajectory-aware judge can clear score trend history here.
-        """
+        """Clear internal history buffer. Called by Orchestrator at episode start."""
 
     def record_action(self, action_chunk: torch.Tensor) -> None:
-        """Receive Orchestrator-broadcast action. Pure local buffer op.
-
-        Current: no-op. ThresholdJudge does not use action data.
-        Future: trajectory-aware judge can buffer action history for consistency checks.
-        """
+        """Receive Orchestrator-broadcast action. Pure local buffer op."""

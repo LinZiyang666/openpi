@@ -168,7 +168,30 @@ def _process_episode(h5_path_str: str, builder_type: str, checkpoint_id_str: str
             if action.dim() == 1:
                 action = action.unsqueeze(0)
 
-            payload = CachePayload(action_chunk=action, task_key=task)
+            _NUM_STEPS = 10
+            intermediates = None
+            denoising_num_steps = None
+            noise_indices = []
+            for k in group.keys():
+                if k.startswith("noise_action_"):
+                    suffix = k.split("_")[-1]
+                    if suffix.isdigit():
+                        idx = int(suffix)
+                        if 1 <= idx < _NUM_STEPS:
+                            noise_indices.append(idx)
+            if noise_indices:
+                denoising_num_steps = _NUM_STEPS
+                intermediates = {}
+                for i in sorted(noise_indices):
+                    t = round(1.0 - i / _NUM_STEPS, 4)
+                    intermediates[t] = torch.from_numpy(np.array(group[f"noise_action_{i}"])).float()
+
+            payload = CachePayload(
+                action_chunk=action,
+                task_key=task,
+                intermediates=intermediates,
+                denoising_num_steps=denoising_num_steps,
+            )
             entry = CacheEntry(
                 id=entry_id,
                 checkpoint_id=cp_id,

@@ -55,14 +55,20 @@ class FakeModel:
         self.stage2_calls += 1
         return SimpleNamespace(kv_cache=None)
 
-    def run_stage3(self, stage2, noise=None):
+    def run_stage3(self, stage2, noise=None, num_steps=10, return_intermediates=False, save_timesteps=(0.7, 0.5, 0.3)):
         self.stage3_calls += 1
         action = (
             self._fixed_action.clone()
             if self._fixed_action is not None
             else torch.randn(1, 50, 32)
         )
-        return SimpleNamespace(action_chunk=action)
+        intermediates = None
+        if return_intermediates:
+            intermediates = {
+                st: torch.randn(1, 50, 32)
+                for st in save_timesteps
+            }
+        return SimpleNamespace(action_chunk=action, intermediates=intermediates)
 
 
 class FakePolicy:
@@ -201,3 +207,67 @@ def test_infer_cp3_consume_stub_does_not_skip():
     result = interceptor.infer(obs)
     assert "actions" in result
     assert policy._model.stage1_calls == 1
+
+
+# ---------------------------------------------------------------------------
+# T6.5: WARM_START runs stage2 + run_stage3_from, skips full stage3
+# ---------------------------------------------------------------------------
+
+
+def test_infer_warm_start_calls_stage3_from():
+    """WARM_START runs stage2 + run_stage3_from, skips full stage3."""
+    import math
+    import torch.nn.functional as F
+    from openpi.cache.components.judge import ThresholdJudge
+    from openpi.cache.storage_types import CachePayload
+    from openpi.cache.types import CheckpointID
+    from tests.cache.conftest import insert_entry
+
+    # Build two states with known cosine similarity = 0.96
+    stored_state = torch.zeros(1, 32)
+    stored_state[0, 0] = 1.0
+
+    target_cos = 0.96
+    sin_val = math.sqrt(1.0 - target_cos ** 2)
+    query_state = torch.zeros(1, 32)
+    query_state[0, 0] = target_cos
+    query_state[0, 1] = sin_val
+    query_state = F.normalize(query_state, dim=1)
+
+    fixed_action = torch.randn(1, 50, 32)
+    model = FakeModel(fixed_state=query_state, fixed_action=fixed_action)
+
+    stage3_from_calls = [0]
+
+    def fake_run_stage3_from(stage2, start_x, start_t, *, num_steps=10):
+        stage3_from_calls[0] += 1
+        return SimpleNamespace(action_chunk=fixed_action.clone())
+
+    model.run_stage3_from = fake_run_stage3_from
+
+    policy = FakePolicy(model=model)
+
+    warm_tiers = [{"threshold": 0.95, "start_t": 0.3}]
+    judge = ThresholdJudge(cp1_threshold=0.98, cp3_threshold=0.95, warm_tiers=warm_tiers)
+    orch, _, storage = make_orchestrator(judge=judge)
+    interceptor = InferenceInterceptor(
+        policy, timer=SystemTimer(enabled=False), orchestrator=orch
+    )
+
+    # Pre-populate storage with entry that has intermediates at start_t=0.3
+    payload = CachePayload(
+        action_chunk=torch.randn(50, 32),
+        intermediates={0.3: torch.randn(50, 32), 0.5: torch.randn(50, 32)},
+        denoising_num_steps=10,
+    )
+    insert_entry(storage, CheckpointID.CP1, stored_state, payload)
+
+    obs = _make_obs()
+    interceptor.on_task_begin()
+    result = interceptor.infer(obs)
+
+    assert "actions" in result
+    assert model.stage1_calls == 1
+    assert model.stage2_calls == 1
+    assert stage3_from_calls[0] == 1
+    assert model.stage3_calls == 0

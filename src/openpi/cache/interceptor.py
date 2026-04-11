@@ -8,28 +8,30 @@ WebSocket server.  When ``--cache`` is passed to ``serve_policy.py``, the
 server receives this interceptor instead of the raw ``Policy`` with zero
 changes to ``WebsocketPolicyServer`` or any client code.
 
-Current state (Step 4)
-----------------------
+Cache-aware inference
+---------------------
 The interceptor routes inference through the *staged* public API
-(``run_stage1`` / ``run_stage2`` / ``run_stage3``) introduced in Step 1,
-times each stage using ``SystemTimer`` with CUDA Event backends (Step 2),
-and optionally integrates ``CacheOrchestrator`` (Step 4) for cache check
-and write at CP1 and CP3 checkpoints.
+(``run_stage1`` / ``run_stage2`` / ``run_stage3``), times each stage
+using ``SystemTimer`` with CUDA Event backends, and optionally
+integrates ``CacheOrchestrator`` for cache check and write at CP1
+and CP3 checkpoints.
 
-When ``orchestrator`` is provided:
-* CP1 check after Stage 1: on FULL_HIT, skip Stage 2 + 3, return cached action.
-* CP1 write after normal inference: store state -> action mapping for future lookups.
-* CP3 consume at infer() entry: check for pre-scheduled action (stub in Step 4).
-* CP3 check after Stage 3: infrastructure validation only (always MISS in Step 4).
+When ``orchestrator`` is provided, CP1 supports three-level judgment:
+* FULL_HIT: skip Stage 2 + 3, return cached action.
+* WARM_START: run Stage 2, then partial Stage 3 from cached x_t via
+  ``run_stage3_from()``.
+* MISS: run full Stage 2 + Stage 3 (with intermediates collection for
+  future warm starts).
 
-When ``orchestrator=None``: behavior is identical to Step 2 (zero overhead).
+When ``orchestrator=None``: zero-overhead pass-through to compiled stages.
 
 Timing probes:
 * Stage 1 (vision + token prep)  -> probe ``"stage1_vision"`` (CUDA backend)
 * Stage 2 (LLM backbone)         -> probe ``"stage2_llm"``    (CUDA backend)
 * Stage 3 (flow matching)        -> probe ``"stage3_flow"``   (CUDA backend)
+* Stage 3 (warm start)           -> probe ``"stage3_warm"``   (CUDA backend)
 * End-to-end wall time           -> probe ``"total_inference"`` (CPU backend)
-* CP1 check/write, CP3 check     -> probes ``"cp1_check"`` etc. (CPU backend)
+* CP1/CP3 aggregate              -> probes ``"cp1_sum"`` / ``"cp3_sum"`` (CPU)
 
 Task lifecycle
 --------------
@@ -84,6 +86,8 @@ from openpi.models import model as _model
 from openpi.policies import policy as _policy
 
 logger = logging.getLogger(__name__)
+
+_NUM_STEPS = 10  # matches pi0_pytorch.run_stage3 default
 
 
 class InferenceInterceptor(_base_policy.BasePolicy):
@@ -173,6 +177,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         if orchestrator is not None:
             self._timer.register_probe("cp1_sum", backend="cpu")
             self._timer.register_probe("cp3_sum", backend="cpu")
+            self._timer.register_probe("stage3_warm", backend="cuda")
 
     # -----------------------------------------------------------------------
     # Compile-once helpers
@@ -348,8 +353,31 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 with self._timer.measure("stage2_llm"):
                     stage2 = self._stage2_fn(stage1)
 
-                with self._timer.measure("stage3_flow"):
-                    stage3 = self._stage3_fn(stage2, noise=start_noise)
+                # Stage 3: three-way branch
+                if (self._orchestrator is not None
+                        and cp1_result.hit_type == HitType.WARM_START):
+                    start_t = cp1_result.start_t
+                    start_x = cp1_result.payload.intermediates[start_t].to(
+                        self._pytorch_device
+                    )
+                    if start_x.ndim == 2:
+                        start_x = start_x[None, ...]
+                    with self._timer.measure("stage3_warm"):
+                        stage3 = self._model.run_stage3_from(
+                            stage2, start_x, start_t,
+                            num_steps=cp1_result.payload.denoising_num_steps,
+                        )
+                elif self._orchestrator is not None:
+                    # MISS: eager call with intermediates collection
+                    with self._timer.measure("stage3_flow"):
+                        stage3 = self._model.run_stage3(
+                            stage2, noise=start_noise,
+                            num_steps=_NUM_STEPS, return_intermediates=True,
+                        )
+                else:
+                    # No-cache mode: compiled call
+                    with self._timer.measure("stage3_flow"):
+                        stage3 = self._stage3_fn(stage2, noise=start_noise)
 
             # Post-inference cache operations.
             if self._orchestrator is not None:
@@ -363,11 +391,23 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
                 action_chunk_cpu = stage3.action_chunk[0].detach().cpu().float().contiguous()
 
+                # Prepare intermediates for write (MISS only; WARM_START has no valid intermediates)
+                intermediates_cpu = None
+                denoising_num_steps_val = None
+                if getattr(stage3, 'intermediates', None):
+                    intermediates_cpu = {
+                        t: x[0].detach().cpu().float().contiguous()
+                        for t, x in stage3.intermediates.items()
+                    }
+                    denoising_num_steps_val = _NUM_STEPS
+
                 # Broadcast action + buffer for trajectory write
                 self._orchestrator.broadcast_action(action_chunk_cpu)
                 if cp1_result.query_keys is not None:
                     self._orchestrator.buffer_for_write(
-                        cp1_result.query_keys, action_chunk_cpu
+                        cp1_result.query_keys, action_chunk_cpu,
+                        intermediates=intermediates_cpu,
+                        denoising_num_steps=denoising_num_steps_val,
                     )
 
                 self._orchestrator.clear()

@@ -51,7 +51,7 @@ from openpi.cache.cache_storage import CacheStorage
 # Step 4: Orchestrator + pluggable components
 from openpi.cache.components.key_builder import QueryKeyBuilder, PlaceholderKeyBuilder
 from openpi.cache.components.gate import GateFunction, AlwaysSearchGate
-from openpi.cache.components.judge import SimilarityJudge, ThresholdJudge, HitType
+from openpi.cache.components.judge import SimilarityJudge, ThresholdJudge, HitType, JudgeResult
 from openpi.cache.orchestrator import CacheOrchestrator, CheckResult
 
 __all__ = [
@@ -84,6 +84,7 @@ __all__ = [
     "SimilarityJudge",
     "ThresholdJudge",
     "HitType",
+    "JudgeResult",
     "CacheOrchestrator",
     "CheckResult",
 ]

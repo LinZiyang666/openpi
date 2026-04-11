@@ -36,6 +36,8 @@ logs/
 |------|--------|-------------|
 | [cache_experiment_plan.log.md](cache_experiment_plan.log.md) | `In Progress` | CP1 experiment: 5 reducers (incl. CLIP) x RRF fusion, Phase 1 running |
 | [cache_cp1_impl_plan.log.md](cache_cp1_impl_plan.log.md) | `Plan` | CP1 in-memory implementation plan for large-scale experiment |
+| [cp1_warm_start_investigation.log.md](cp1_warm_start_investigation.log.md) | `In Progress` | CP1 warm start: noise action 可用性调查，端到端链路分析 |
+| [cp1_warm_start_impl_plan.log.md](cp1_warm_start_impl_plan.log.md) | `Validated` | CP1 warm start 实现计划：4 Phase (性能修复→写入→判定+执行→文档) |
 
 ### Retrieval System
 

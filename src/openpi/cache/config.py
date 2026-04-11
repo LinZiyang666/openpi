@@ -87,6 +87,7 @@ class GateConfig:
 class JudgeConfig:
     type: str = "threshold"
     threshold: float = 0.98
+    warm_tiers: list[dict[str, float]] | None = None
 
 
 @dataclass
@@ -562,6 +563,50 @@ def validate_cache_config(config: CacheConfig) -> None:
                     f"Use InMemoryBackend or set trajectory_depth=1."
                 )
 
+    # ── warm_tiers validation ──
+    _canonical_timesteps = {round(1.0 - i / 10, 4) for i in range(1, 10)}
+    for cp_name, cp_config in config.checkpoints.items():
+        if cp_name.startswith("_"):
+            continue
+        prefix = f"checkpoints.{cp_name}"
+        wt = cp_config.judge.warm_tiers
+        if not wt:
+            continue
+
+        if cp_config.judge.type != "threshold":
+            errors.append(
+                f"{prefix}.judge: warm_tiers requires judge.type='threshold', "
+                f"got '{cp_config.judge.type}'"
+            )
+
+        if cp_name != "cp1":
+            errors.append(
+                f"{prefix}.judge: warm_tiers is only supported on CP1"
+            )
+
+        prev_threshold = cp_config.judge.threshold
+        for i, tier in enumerate(wt):
+            tp = f"{prefix}.judge.warm_tiers[{i}]"
+            if "threshold" not in tier or "start_t" not in tier:
+                errors.append(f"{tp}: each tier must have 'threshold' and 'start_t'")
+                continue
+
+            t_val = tier["threshold"]
+            if t_val >= prev_threshold:
+                errors.append(
+                    f"{tp}: threshold ({t_val}) must be < previous ({prev_threshold}); "
+                    "tiers must be strictly decreasing"
+                )
+            prev_threshold = t_val
+
+            st = round(tier["start_t"], 4)
+            if st not in _canonical_timesteps:
+                errors.append(
+                    f"{tp}: start_t={tier['start_t']} is not a valid timestep. "
+                    f"Valid: {sorted(_canonical_timesteps)}"
+                )
+            tier["start_t"] = st
+
     # ── Write policy validation ──
     _valid_write_policy_types = frozenset({"on_any_miss", "always", "never"})
     if config.write_policy.type not in _valid_write_policy_types:
@@ -732,7 +777,11 @@ def _build_judge(cfg: JudgeConfig):
     if cfg.type == "threshold":
         from openpi.cache.components.judge import ThresholdJudge
 
-        return ThresholdJudge(cp1_threshold=cfg.threshold, cp3_threshold=cfg.threshold)
+        return ThresholdJudge(
+            cp1_threshold=cfg.threshold,
+            cp3_threshold=cfg.threshold,
+            warm_tiers=cfg.warm_tiers,
+        )
     elif cfg.type == "always_hit":
         from openpi.cache.components.judge import AlwaysHitJudge
 

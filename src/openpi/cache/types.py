@@ -34,9 +34,11 @@ CACHE_QUERY_FIELDS: frozenset[str] = frozenset({
 class CheckpointID(Enum):
     """The three cache checkpoints in the Pi0.5 inference pipeline.
 
-    CP1 — after Stage 1 (vision + tokenisation).  A hit skips Stage 2 + Stage 3.
-    CP2 — after Stage 2 (LLM backbone).  A hit skips Stage 3 fully or partially
-          (warm-start).
+    CP1 — after Stage 1 (vision + tokenisation).  Three outcomes:
+          FULL_HIT skips Stage 2 + Stage 3.
+          WARM_START runs Stage 2 then partial Stage 3 from a cached x_t.
+          MISS runs full Stage 2 + Stage 3.
+    CP2 — after Stage 2 (LLM backbone).  Reserved; warm start migrated to CP1.
     CP3 — after Stage 3 (flow matching).  Schedules a cached action for the
           *next* inference cycle.
     """

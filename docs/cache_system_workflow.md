@@ -317,16 +317,18 @@ Timeline -->
        v
   [5] judge: SimilarityJudge(results, cp_id, cached_data)
        |        ThresholdJudge: top_score >= threshold -> FULL_HIT
-       |        Returns: (HitType, winner_id)
+       |                        warm_tiers matching -> WARM_START (CP1 only)
+       |        Returns: JudgeResult(hit_type, winner_id, start_t)
        |
        +--- MISS: return CheckResult(MISS, query_keys=keys)
        |
-       v (FULL_HIT)
+       v (FULL_HIT or WARM_START)
   [6] fetch: CacheStorage.fetch_payload(winner_id)
        |        Retrieve full CachePayload from vector store
-       |        (contains action_chunk tensor)
+       |        WARM_START: validate intermediates completeness,
+       |                    downgrade to MISS if incomplete
        v
-  return CheckResult(FULL_HIT, payload, score, entry_id, query_keys)
+  return CheckResult(hit_type, payload, score, entry_id, query_keys, start_t)
 
 
 8. Core Design Principles

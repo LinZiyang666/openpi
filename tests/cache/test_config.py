@@ -553,3 +553,84 @@ def test_write_policy_invalid_type():
     )
     with pytest.raises(ConfigValidationError, match="write_policy.type"):
         validate_cache_config(config)
+
+
+# ---------------------------------------------------------------------------
+# warm_tiers validation
+# ---------------------------------------------------------------------------
+
+
+def _config_with_warm_tiers(warm_tiers, cp_name="cp1", judge_type="threshold", threshold=0.98):
+    return CacheConfig(
+        enabled=True,
+        backend=BackendConfig(type="qdrant", vector_dims={"robot_state": 32}),
+        checkpoints={
+            cp_name: CheckpointConfig(
+                judge=JudgeConfig(type=judge_type, threshold=threshold, warm_tiers=warm_tiers),
+            ),
+        },
+    )
+
+
+def test_warm_tiers_valid():
+    tiers = [
+        {"threshold": 0.95, "start_t": 0.3},
+        {"threshold": 0.90, "start_t": 0.5},
+    ]
+    config = _config_with_warm_tiers(tiers)
+    validate_cache_config(config)
+
+
+def test_warm_tiers_threshold_not_decreasing():
+    tiers = [
+        {"threshold": 0.90, "start_t": 0.3},
+        {"threshold": 0.95, "start_t": 0.5},
+    ]
+    config = _config_with_warm_tiers(tiers)
+    with pytest.raises(ConfigValidationError, match="strictly decreasing"):
+        validate_cache_config(config)
+
+
+def test_warm_tiers_invalid_start_t():
+    tiers = [{"threshold": 0.95, "start_t": 0.35}]
+    config = _config_with_warm_tiers(tiers)
+    with pytest.raises(ConfigValidationError, match="not a valid timestep"):
+        validate_cache_config(config)
+
+
+def test_warm_tiers_cp3_rejected():
+    tiers = [{"threshold": 0.90, "start_t": 0.3}]
+    config = _config_with_warm_tiers(tiers, cp_name="cp3")
+    with pytest.raises(ConfigValidationError, match="only supported on CP1"):
+        validate_cache_config(config)
+
+
+def test_warm_tiers_always_hit_rejected():
+    tiers = [{"threshold": 0.90, "start_t": 0.3}]
+    config = _config_with_warm_tiers(tiers, judge_type="always_hit")
+    with pytest.raises(ConfigValidationError, match="requires judge.type='threshold'"):
+        validate_cache_config(config)
+
+
+def test_warm_tiers_first_tier_not_below_threshold():
+    tiers = [{"threshold": 0.99, "start_t": 0.3}]
+    config = _config_with_warm_tiers(tiers, threshold=0.98)
+    with pytest.raises(ConfigValidationError, match="strictly decreasing"):
+        validate_cache_config(config)
+
+
+def test_warm_tiers_none_passes():
+    config = _config_with_warm_tiers(None)
+    validate_cache_config(config)
+
+
+def test_warm_tiers_empty_list_passes():
+    config = _config_with_warm_tiers([])
+    validate_cache_config(config)
+
+
+def test_warm_tiers_start_t_canonicalized():
+    tiers = [{"threshold": 0.95, "start_t": 0.30000000000000004}]
+    config = _config_with_warm_tiers(tiers)
+    validate_cache_config(config)
+    assert config.checkpoints["cp1"].judge.warm_tiers[0]["start_t"] == 0.3
