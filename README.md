@@ -4,10 +4,10 @@ This repository is a fork of Physical Intelligence's `openpi` with additional wo
 
 ## Start Here
 
-> **AGENT: READ FIRST** — Load [`CLAUDE.md`](CLAUDE.md) for Agent Directive, then [`constitution.md`](constitution.md) for full project rules before any work.
+> **AGENT: READ FIRST** — Load [`CLAUDE.md`](CLAUDE.md) for the agent operating directive, then [`WORKING_AGREEMENT.md`](WORKING_AGREEMENT.md) for full project rules before any work.
 
-- [`constitution.md`](constitution.md): **Project constitution** — the single authoritative source of all rules
-- [`CLAUDE.md`](CLAUDE.md): AI agent entry point + Agent Directive
+- [`WORKING_AGREEMENT.md`](WORKING_AGREEMENT.md): **OpenPI Working Agreement** — the single authoritative source of all rules
+- [`CLAUDE.md`](CLAUDE.md): AI agent entry point + operating directive
 - [`docs/README.md`](docs/README.md): Architecture docs and usage guide index
 - [`logs/README.md`](logs/README.md): Implementation logs and design records index
 - [`UPSTREAM_README.md`](UPSTREAM_README.md): Preserved upstream README (background reference, may be outdated)

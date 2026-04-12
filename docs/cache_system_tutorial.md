@@ -2,7 +2,7 @@
 
 > For deep design rationale and checkpoint theory, see [cache_system_architecture.md](cache_system_architecture.md).
 >
-> **AGENT: READ FIRST** — This file is a registered subsystem rule document per [`constitution.md` §8](../constitution.md#8-subsystem-rules). Component isolation rules (§15) and testing patterns (§16) carry constitutional authority.
+> **AGENT: READ FIRST** — This file is a registered subsystem rule document per [`WORKING_AGREEMENT.md` §8](../WORKING_AGREEMENT.md#8-subsystem-rules). Component isolation rules (§15) and testing patterns (§16) carry Working Agreement authority.
 
 This is a self-contained guide for developers who want to understand, configure, or extend the multi-level inference cache.
 

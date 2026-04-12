@@ -158,7 +158,7 @@
 
 > 审查日期: 2026-04-10
 > 角色: reviewer only
-> 审查范围: `CLAUDE.md`、`constitution.md`、`docs/cache_system_architecture.md`、`docs/cache_system_tutorial.md`、`docs/data_collection_guide.md`、`src/openpi/cache/`、`src/openpi/collect/`、`exp/build_in_memory_cache_artifact.py`、`exp/build_clip_cache_artifact.py`
+> 审查范围: `CLAUDE.md`、`WORKING_AGREEMENT.md`、`docs/cache_system_architecture.md`、`docs/cache_system_tutorial.md`、`docs/data_collection_guide.md`、`src/openpi/cache/`、`src/openpi/collect/`、`exp/build_in_memory_cache_artifact.py`、`exp/build_clip_cache_artifact.py`
 
 ### 6.1 主要问题
 
@@ -167,7 +167,7 @@
 - 疑问:
   这篇教程是要讲“如何在本仓库内把 cache 接到别的模型上”，还是讲“如何把这套 cache 设计迁到你自己的外部项目里”？
 - 原因:
-  `constitution.md` 和 `docs/cache_system_architecture.md` 都把当前系统的正式范围写得很明确：这是 **PyTorch + Pi0.5 only** 的实现。现在写“迁移到其他模型”的教程，如果不先写清楚支持边界，读者会自然理解成“这套代码已经抽象到模型无关，只差几处适配”。
+  `WORKING_AGREEMENT.md` 和 `docs/cache_system_architecture.md` 都把当前系统的正式范围写得很明确：这是 **PyTorch + Pi0.5 only** 的实现。现在写“迁移到其他模型”的教程，如果不先写清楚支持边界，读者会自然理解成“这套代码已经抽象到模型无关，只差几处适配”。
 - 建议:
   在教程开头单独加一节“适用范围 / 非承诺范围”。
   明确写成：本教程是“基于当前 Pi0.5 实现提炼出的适配指南”，不是“本仓库已经对非 Pi0.5 模型提供开箱即用支持”。

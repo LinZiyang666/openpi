@@ -9,7 +9,7 @@
 > For YAML configuration, testing patterns, and hands-on tutorial, see [cache_system_tutorial.md](cache_system_tutorial.md).
 > For implementation history and step-by-step logs, see [logs/README.md](../logs/README.md).
 >
-> **AGENT: READ FIRST** — This file is a registered subsystem rule document per [`constitution.md` §8](../constitution.md#8-subsystem-rules). Design principles and component boundaries carry constitutional authority.
+> **AGENT: READ FIRST** — This file is a registered subsystem rule document per [`WORKING_AGREEMENT.md` §8](../WORKING_AGREEMENT.md#8-subsystem-rules). Design principles and component boundaries carry Working Agreement authority.
 
 ---
 

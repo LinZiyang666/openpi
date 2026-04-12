@@ -99,11 +99,10 @@ Completed and historical logs. See [`archive/`](archive/) for all files.
 
 | File | Status | Description |
 |------|--------|-------------|
-| [libero_remote_design.log.md](archive/libero_remote_design.log.md) | `Historical` | LIBERO remote inference: episode lifecycle, WSL2+GPU topology |
 | [doc_cleanup_plan.log](archive/doc_cleanup_plan.log) | `Historical` | Documentation cleanup plan |
 
 ---
 
 ## Maintenance Rules
 
-> **AGENT: READ FIRST** — Log status system and lifecycle rules are defined in [`constitution.md` §5 Log Management](../constitution.md#5-log-management). The constitution is authoritative.
+> **AGENT: READ FIRST** — Log status system and lifecycle rules are defined in [`WORKING_AGREEMENT.md` §5 Log Management](../WORKING_AGREEMENT.md#5-log-management). The Working Agreement is authoritative.

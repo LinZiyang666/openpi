@@ -2,13 +2,13 @@
 
 Project architecture and usage guides. For implementation logs, see [`logs/README.md`](../logs/README.md).
 
-> **AGENT: READ FIRST** — Project rules are in [`constitution.md`](../constitution.md) (workflow §2, documentation §4, subsystem rules §8). This file is a navigation index only — it does not define rules.
+> **AGENT: READ FIRST** — Project rules are in [`WORKING_AGREEMENT.md`](../WORKING_AGREEMENT.md) (workflow §2, documentation §4, subsystem rules §8). This file is a navigation index only — it does not define rules.
 
 ## Reading Paths
 
 ### First time in this fork
 
-1. Read [`../constitution.md`](../constitution.md) for project rules and development workflow.
+1. Read [`../WORKING_AGREEMENT.md`](../WORKING_AGREEMENT.md) for project rules and development workflow.
 2. Read [openpi_reference.md](openpi_reference.md) for project structure, model architecture, code paths, and deployment options.
 
 ### Working on the inference pipeline or cache system
@@ -34,6 +34,7 @@ Project architecture and usage guides. For implementation logs, see [`logs/READM
 2. Then read the relevant guide:
    - [remote_inference.md](remote_inference.md)
    - [aloha_sim_remote.md](aloha_sim_remote.md)
+   - [libero_remote.md](libero_remote.md)
    - [docker.md](docker.md)
    - [norm_stats.md](norm_stats.md)
 
@@ -56,6 +57,7 @@ Project architecture and usage guides. For implementation logs, see [`logs/READM
 | [data_collection_guide.md](data_collection_guide.md) | HDF5 data collection via `--collect` flag, schema and directory layout |
 | [run_cp1_cache_experiment.md](run_cp1_cache_experiment.md) | CP1 Cache experiment guide: artifact building, calibration, YAML generation, 3-phase experiment execution, result analysis |
 | [aloha_sim_remote.md](aloha_sim_remote.md) | ALOHA Sim remote inference (WSL2 client + remote GPU) |
+| [libero_remote.md](libero_remote.md) | LIBERO remote inference and simulator environment setup (WSL2 client + remote GPU) |
 
 ## Upstream Guides (from original openpi)
 

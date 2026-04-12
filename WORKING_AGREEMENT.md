@@ -1,10 +1,10 @@
-# OpenPI Project Constitution
+# OpenPI Working Agreement
 
-This document is the **sole authoritative source of rules** for this project. Every human developer and AI agent participating in this project **MUST** comply with this constitution. Ignorance is not an excuse. Violation is not tolerable.
+This document is the **sole authoritative source of rules** for this project. Every human developer and AI agent participating in this project **MUST** comply with this Working Agreement. Ignorance is not an excuse. Violation is not tolerable.
 
 > In case of conflict with any other document (CLAUDE.md, docs/, logs/README.md, etc.), **this file prevails. Always.**
 
-**Project Owner**: Ziyang Lin. Holds absolute authority over this constitution and all project matters. May override any process at will.
+**Project Owner**: Ziyang Lin. Holds absolute authority over this Working Agreement and all project matters. May override any process at will.
 
 ---
 
@@ -35,7 +35,7 @@ All work is classified into four levels. Each level dictates the required proces
 | **L2 Standard** | Feature modification or new component | New KeyBuilder, refactor SearchStrategy | Understand → Plan → **G1** → Code → **G2** → Verify |
 | **L3 Architectural** | Cross-module change or new subsystem | New checkpoint level, interface change | Understand → Plan → **G1** → Code → **G2** → Verify + architecture doc update |
 
-**Level is determined by the executor.** Disputes are resolved by the project owner. **Deliberately downgrading a level to skip gates is a constitutional violation.**
+**Level is determined by the executor.** Disputes are resolved by the project owner. **Deliberately downgrading a level to skip gates is a Working Agreement violation.**
 
 ### 2.2 Understand Before Coding (L1+)
 
@@ -217,7 +217,7 @@ Code formatting and linting are enforced automatically by the toolchain. Configu
 
 ## 8. Subsystem Rules
 
-Subsystem-specific architecture constraints and component rules are defined in their respective `docs/` files. Once approved and registered by the project owner, they carry **the same authority as this constitution**.
+Subsystem-specific architecture constraints and component rules are defined in their respective `docs/` files. Once approved and registered by the project owner, they carry **the same authority as this Working Agreement**.
 
 | Subsystem | Rule Documents |
 |-----------|---------------|
@@ -230,6 +230,6 @@ Subsystem-specific architecture constraints and component rules are defined in t
 
 ## 9. Amendment Process
 
-- **Proposal**: Any participant may propose amendments to this constitution.
+- **Proposal**: Any participant may propose amendments to this Working Agreement.
 - **Approval**: All amendments MUST be approved by the project owner (Ziyang Lin) before taking effect.
 - **Tracking**: Amendment history is tracked via git history. No separate change log is maintained.

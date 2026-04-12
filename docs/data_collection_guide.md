@@ -1,6 +1,6 @@
 # Data Collection Guide
 
-> **AGENT: READ FIRST** — This file is a registered subsystem rule document per [`constitution.md` §8](../constitution.md#8-subsystem-rules). It carries constitutional authority.
+> **AGENT: READ FIRST** — This file is a registered subsystem rule document per [`WORKING_AGREEMENT.md` §8](../WORKING_AGREEMENT.md#8-subsystem-rules). It carries Working Agreement authority.
 
 ## Overview
 
