@@ -21,6 +21,7 @@ Output: pickle file loadable by InMemoryBackend.load_artifact()
 from __future__ import annotations
 
 import argparse
+import gc
 import logging
 import os
 import pickle
@@ -290,6 +291,28 @@ def _process_episode(
         return episode_entries
 
 
+def _detach_entries(entries: list) -> None:
+    """Convert all torch tensors in entries to numpy arrays in-place.
+
+    Frees PyTorch allocator memory while keeping data intact for pickling.
+    InMemoryBackend.load_artifact() converts them back to torch on load.
+    """
+    for entry in entries:
+        if entry.query_keys:
+            entry.query_keys = {
+                k: v.numpy() if isinstance(v, torch.Tensor) else v
+                for k, v in entry.query_keys.items()
+            }
+        p = entry.payload
+        if p.action_chunk is not None and isinstance(p.action_chunk, torch.Tensor):
+            p.action_chunk = p.action_chunk.numpy()
+        if p.intermediates:
+            p.intermediates = {
+                k: v.numpy() if isinstance(v, torch.Tensor) else v
+                for k, v in p.intermediates.items()
+            }
+
+
 def build_artifact(
     data_dir: str,
     builder_type: str,
@@ -334,7 +357,10 @@ def build_artifact(
         for i, p in enumerate(h5_paths, 1):
             result = _process_episode(str(p), *_ep_args)
             if result is not None:
+                _detach_entries(result)
                 entries.extend(result)
+                del result
+            gc.collect()
             if i % 10 == 0 or i == len(h5_paths):
                 logger.info("Progress: %d/%d files, %d entries", i, len(h5_paths), len(entries))
     else:

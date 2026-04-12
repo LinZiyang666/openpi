@@ -25,6 +25,8 @@ Coupling map:
 from __future__ import annotations
 
 import logging
+
+import numpy as np
 from typing import Any
 
 import torch
@@ -106,6 +108,20 @@ class InMemoryBackend(VectorStoreBackend):
                 entry.next_ids = []
             if not hasattr(entry, "trajectory_id"):
                 entry.trajectory_id = None
+            # Convert numpy arrays back to torch tensors (memory-efficient artifacts)
+            if entry.query_keys:
+                entry.query_keys = {
+                    k: torch.from_numpy(v).float() if isinstance(v, np.ndarray) else v
+                    for k, v in entry.query_keys.items()
+                }
+            p = entry.payload
+            if p.action_chunk is not None and isinstance(p.action_chunk, np.ndarray):
+                p.action_chunk = torch.from_numpy(p.action_chunk).float()
+            if p.intermediates:
+                p.intermediates = {
+                    k: torch.from_numpy(v).float() if isinstance(v, np.ndarray) else v
+                    for k, v in p.intermediates.items()
+                }
             self._entries[entry.id] = entry
         logger.info("Loaded %d entries from %s", len(data["entries"]), path)
 
