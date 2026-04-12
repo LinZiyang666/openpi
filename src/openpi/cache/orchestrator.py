@@ -143,6 +143,8 @@ class CacheOrchestrator:
 
     def _broadcast_episode_start(self) -> None:
         """Notify all components to clear their history buffers."""
+        if hasattr(self._key_builder, 'on_episode_start'):
+            self._key_builder.on_episode_start()
         for strategy in self._search_strategies.values():
             if hasattr(strategy, 'on_episode_start'):
                 strategy.on_episode_start()

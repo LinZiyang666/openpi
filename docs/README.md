@@ -56,6 +56,7 @@ Project architecture and usage guides. For implementation logs, see [`logs/READM
 | [cache_migration_guide.en.md](cache_migration_guide.en.md) | Cache framework migration guide (English) |
 | [data_collection_guide.md](data_collection_guide.md) | HDF5 data collection via `--collect` flag, schema and directory layout |
 | [run_cp1_cache_experiment.md](run_cp1_cache_experiment.md) | CP1 Cache experiment guide: artifact building, calibration, YAML generation, 3-phase experiment execution, result analysis |
+| [temporal_prune_guide.md](temporal_prune_guide.md) | Temporal Prune KeyBuilder 使用指南：两步架构、参数配置、Reducer 选择、离线 Artifact 构建、生命周期 |
 | [aloha_sim_remote.md](aloha_sim_remote.md) | ALOHA Sim remote inference (WSL2 client + remote GPU) |
 | [libero_remote.md](libero_remote.md) | LIBERO remote inference and simulator environment setup (WSL2 client + remote GPU) |
 

@@ -17,6 +17,7 @@ from typing import Protocol, runtime_checkable
 import torch
 import torch.nn.functional as F
 
+from openpi.cache.components.token_reducer import PruneResult, TokenReducer
 from openpi.cache.types import (
     PROMPT_EMB,
     ROBOT_STATE,
@@ -437,4 +438,220 @@ class FullOriginalKeyBuilder:
         return self._cache
 
     def clear(self) -> None:
+        self._cache.clear()
+
+
+# ---------------------------------------------------------------------------
+# Vision history buffer for windowed temporal scoring
+# ---------------------------------------------------------------------------
+
+
+class _VisionHistoryBuffer:
+    """Per-image FIFO buffer for windowed temporal scoring.
+
+    Stores past W frames of vision tokens on the same device (GPU).
+    Lifetime: created once per KeyBuilder, reset on on_episode_start().
+    """
+
+    def __init__(self, window_size: int):
+        self._window_size = window_size
+        self._buffer: list[torch.Tensor] = []  # each [256, emb_dim]
+
+    def push(self, tokens: torch.Tensor) -> None:
+        """Append current frame. Evicts oldest if over window_size.
+
+        Clones the input so the buffer owns its storage independently of
+        the caller's stage output tensors, which may be reused or freed
+        across inference cycles.
+        """
+        self._buffer.append(tokens.detach().clone())
+        if len(self._buffer) > self._window_size:
+            self._buffer.pop(0)
+
+    def get_window(self) -> torch.Tensor:
+        """Return [len, 256, emb_dim], len <= window_size."""
+        return torch.stack(self._buffer)
+
+    @property
+    def ready(self) -> bool:
+        """True when buffer has enough frames for temporal scoring."""
+        return len(self._buffer) >= self._window_size
+
+    def reset(self) -> None:
+        self._buffer.clear()
+
+
+# ---------------------------------------------------------------------------
+# CP1 Temporal Prune key builder (Plan A)
+# ---------------------------------------------------------------------------
+
+
+class CP1TemporalPruneKeyBuilder:
+    """Two-step key builder: temporal pruning + pluggable token reduction.
+
+    Step 1 (prune): Remove redundant (temporally static) vision tokens.
+    Step 2 (reduce): Compress remaining tokens to fixed-dim key via TokenReducer.
+
+    Only vision modalities go through prune -> reduce.
+    prompt_emb -> mean pool -> [emb_dim] (unchanged from _CP1BaseKeyBuilder).
+    robot_state -> raw [state_dim] (unchanged).
+
+    Stateful: maintains per-image history buffers across inference steps.
+    Must call on_episode_start() at episode boundaries.
+
+    Data flow:
+      collect() -> push vision tokens into history buffers, cache state/prefix
+      build()   -> for each enabled vision field:
+                     get_window() -> _temporal_prune() -> PruneResult
+                     -> reducer.reduce(PruneResult) -> key vector
+                   for prompt_emb: mean pool
+                   for robot_state: raw
+                   all -> CPU float32
+      clear()   -> release per-cycle cache (history buffer NOT cleared)
+
+    Coupling:
+      DEPENDS ON:  Stage1Output field shapes (models_pytorch/pi0_pytorch.py),
+                   TokenReducer protocol (token_reducer.py),
+                   _slice_cp1_fields, _VISION_OFFSETS, _PROMPT_START (this file)
+      CONSUMED BY: CacheOrchestrator.check()
+      IF CHANGED:  Reducer output_dim must match backend vector_dims
+    """
+
+    def __init__(
+        self,
+        reducer: TokenReducer,
+        enabled_fields: list[str] | None = None,
+        prune_window_size: int = 4,
+        temporal_keep_ratio: float = 0.5,
+    ):
+        if prune_window_size < 2:
+            raise ValueError(
+                f"prune_window_size must be >= 2 (got {prune_window_size}); "
+                "temporal scoring needs at least 2 frames"
+            )
+        if not (0.0 < temporal_keep_ratio <= 1.0):
+            raise ValueError(
+                f"temporal_keep_ratio must be in (0, 1], got {temporal_keep_ratio}"
+            )
+        self._reducer = reducer
+        self._enabled = set(enabled_fields) if enabled_fields is not None else None
+        self._window_size = prune_window_size
+        self._keep_ratio = temporal_keep_ratio
+        self._cache: dict[str, torch.Tensor] = {}
+
+        # Per-image history buffers (only for enabled vision fields)
+        self._history: dict[str, _VisionHistoryBuffer] = {}
+        for field_name, _, _ in _VISION_OFFSETS:
+            if self._enabled is None or field_name in self._enabled:
+                self._history[field_name] = _VisionHistoryBuffer(prune_window_size)
+
+    def collect(self, checkpoint_id: CheckpointID, **stage_outputs) -> None:
+        self._cache.clear()
+        if "stage1" in stage_outputs:
+            s1 = stage_outputs["stage1"]
+            self._cache["state"] = s1.state
+            self._cache["prefix_embs"] = s1.prefix_embs
+
+            # Push vision tokens into history ONLY on CP1.
+            # Interceptor calls collect() for both CP1 and CP3 with the same
+            # stage1 -- pushing on both would double-count the same frame.
+            # CP3 reuses the same key but does not advance the history window.
+            if checkpoint_id == CheckpointID.CP1:
+                raw = _slice_cp1_fields(s1.prefix_embs, s1.state, self._enabled)
+                for field_name in self._history:
+                    if field_name in raw:
+                        self._history[field_name].push(raw[field_name])  # [256, D] GPU
+
+    def build(self, checkpoint_id: CheckpointID) -> dict[str, torch.Tensor]:
+        if checkpoint_id not in (CheckpointID.CP1, CheckpointID.CP3):
+            raise ValueError(f"Unsupported checkpoint_id: {checkpoint_id}")
+
+        raw = _slice_cp1_fields(
+            self._cache["prefix_embs"], self._cache["state"], self._enabled
+        )
+        keys: dict[str, torch.Tensor] = {}
+
+        # -- Vision fields: prune -> reduce --
+        for field_name in self._history:
+            if field_name not in raw:
+                continue
+            buf = self._history[field_name]
+            window = buf.get_window()  # [len, 256, D]
+
+            if buf.ready:
+                prune_result = self._temporal_prune(window)  # pruned=True
+            else:
+                # Degraded: window not full, skip pruning
+                prune_result = PruneResult(
+                    tokens=window,
+                    token_indices=torch.arange(
+                        window.shape[1], device=window.device
+                    ),
+                    pruned=False,
+                )
+
+            reduced = self._reducer.reduce(
+                prune_result,
+                prompt_emb=raw.get(PROMPT_EMB),
+            )  # [output_dim] GPU
+            keys[field_name] = _to_cpu_float32(reduced)
+
+        # -- prompt_emb: mean pool (unchanged) --
+        if PROMPT_EMB in raw:
+            keys[PROMPT_EMB] = _to_cpu_float32(_mean_pool_tokens(raw[PROMPT_EMB]))
+
+        # -- robot_state: raw (unchanged) --
+        if ROBOT_STATE in raw:
+            keys[ROBOT_STATE] = _to_cpu_float32(raw[ROBOT_STATE])
+
+        return keys
+
+    def _temporal_prune(self, window: torch.Tensor) -> PruneResult:
+        """Compute temporal change scores and keep top-K tokens.
+
+        Args:
+            window: [W, 256, emb_dim] vision tokens for one image across W frames.
+
+        Returns:
+            PruneResult with pruned=True, tokens [W, K, D], token_indices [K].
+        """
+        W, N, D = window.shape  # W=window_size, N=256, D=emb_dim
+
+        # 1. Cast to float32 for scoring stability (input may be bf16/fp16)
+        #    then L2 normalize each token
+        normed = F.normalize(window.float(), dim=-1)  # [W, N, D] float32
+
+        # 2. Cosine change between adjacent frames: 1 - cos(t, t+1)
+        #    -> [W-1, N], then mean over time -> [N]
+        cos_sim = (normed[:-1] * normed[1:]).sum(dim=-1)  # [W-1, N]
+        temporal_scores = (1.0 - cos_sim).mean(dim=0)  # [N]
+
+        # 3. Keep top-K by temporal score
+        K = max(1, int(N * self._keep_ratio))
+        topk = temporal_scores.topk(K)
+        keep_indices = topk.indices  # [K]
+        keep_scores = topk.values  # [K]
+
+        # 4. Gather selected tokens across all frames
+        #    window[:, keep_indices, :] -> [W, K, D]
+        selected = window[:, keep_indices, :]
+
+        return PruneResult(
+            tokens=selected,
+            token_indices=keep_indices,
+            pruned=True,
+            temporal_scores=keep_scores,
+        )
+
+    def on_episode_start(self) -> None:
+        """Reset history buffers. Called by Orchestrator at episode start."""
+        for buf in self._history.values():
+            buf.reset()
+
+    @property
+    def cached_data(self) -> dict[str, torch.Tensor]:
+        return self._cache
+
+    def clear(self) -> None:
+        """Release per-cycle cache. History buffers are NOT cleared."""
         self._cache.clear()

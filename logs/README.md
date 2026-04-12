@@ -53,6 +53,13 @@ logs/
 |------|--------|-------------|
 | [key_dim_reduction_recommendations.log.md](key_dim_reduction_recommendations.log.md) | `Design Only` | Two-layer pipeline (token pooling + dim projection), with implementation path |
 
+### Redundant Token Pruning
+
+| File | Status | Description |
+|------|--------|-------------|
+| [redundant_token_prune_plan.log.md](redundant_token_prune_plan.log.md) | `Implemented` | Plan A 冗余 token 剪枝：temporal scoring 两步 KeyBuilder，含 G2 审查记录。代码已合入，待实验验证 |
+| [redundant_token_prune_gpt.log.md](redundant_token_prune_gpt.log.md) | `Design Only` | GPT 初步方案讨论（不含项目实现细节） |
+
 ### LIBERO
 
 | File | Status | Description |

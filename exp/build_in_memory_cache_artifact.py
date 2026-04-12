@@ -45,8 +45,51 @@ _VECTOR_DIMS: dict[str, dict[str, int]] = {
 }
 
 
-def _get_vector_dims(builder_type: str) -> dict[str, int]:
-    return _VECTOR_DIMS[builder_type]
+def _build_artifact_reducer(
+    reducer_type: str,
+    output_tokens: int = 16,
+    select_k: int = 32,
+    temperature: float = 1.0,
+):
+    """Build a TokenReducer for artifact generation (no config.py dependency)."""
+    from openpi.cache.components.token_reducer import (
+        MaxPoolReducer,
+        MeanPoolReducer,
+        SpatialPoolReducer,
+        TaskScoringReducer,
+    )
+
+    if reducer_type == "mean_pool":
+        return MeanPoolReducer()
+    elif reducer_type == "max_pool":
+        return MaxPoolReducer()
+    elif reducer_type == "spatial_pool":
+        return SpatialPoolReducer(output_tokens=output_tokens)
+    elif reducer_type == "task_scoring":
+        return TaskScoringReducer(select_k=select_k, temperature=temperature)
+    else:
+        raise ValueError(f"Unknown reducer_type: {reducer_type}")
+
+
+# Builder types that use dynamic vector dims (not in _VECTOR_DIMS)
+_ALL_BUILDER_TYPES = list(_VECTOR_DIMS.keys()) + ["cp1_temporal_prune"]
+
+
+def _get_vector_dims(
+    builder_type: str,
+    reducer_type: str = "mean_pool",
+    output_tokens: int = 16,
+) -> dict[str, int]:
+    if builder_type in _VECTOR_DIMS:
+        return _VECTOR_DIMS[builder_type]
+    if builder_type == "cp1_temporal_prune":
+        reducer = _build_artifact_reducer(reducer_type, output_tokens)
+        vision_dim = reducer.output_dim
+        return {
+            "vision_0": vision_dim, "vision_1": vision_dim,
+            "prompt_emb": 2048, "robot_state": 32,
+        }
+    raise ValueError(f"Unknown builder_type: {builder_type}")
 
 
 # ---------------------------------------------------------------------------
@@ -54,7 +97,15 @@ def _get_vector_dims(builder_type: str) -> dict[str, int]:
 # ---------------------------------------------------------------------------
 
 
-def _create_builder(builder_type: str):
+def _create_builder(
+    builder_type: str,
+    reducer_type: str = "mean_pool",
+    output_tokens: int = 16,
+    prune_window_size: int = 4,
+    temporal_keep_ratio: float = 0.5,
+    select_k: int = 32,
+    temperature: float = 1.0,
+):
     from openpi.cache.components.key_builder import (
         CP1MaxPoolKeyBuilder,
         CP1MeanPoolKeyBuilder,
@@ -68,9 +119,18 @@ def _create_builder(builder_type: str):
         "cp1_spatial_pool_64": CP1SpatialPool64KeyBuilder,
         "cp1_max_pool": CP1MaxPoolKeyBuilder,
     }
-    if builder_type not in builders:
-        raise ValueError(f"Unknown builder_type: {builder_type}. Valid: {list(builders)}")
-    return builders[builder_type]()
+    if builder_type in builders:
+        return builders[builder_type]()
+    if builder_type == "cp1_temporal_prune":
+        from openpi.cache.components.key_builder import CP1TemporalPruneKeyBuilder
+
+        reducer = _build_artifact_reducer(reducer_type, output_tokens, select_k, temperature)
+        return CP1TemporalPruneKeyBuilder(
+            reducer=reducer,
+            prune_window_size=prune_window_size,
+            temporal_keep_ratio=temporal_keep_ratio,
+        )
+    raise ValueError(f"Unknown builder_type: {builder_type}. Valid: {_ALL_BUILDER_TYPES}")
 
 
 # ---------------------------------------------------------------------------
@@ -121,14 +181,28 @@ def _build_fake_stage1(group: h5py.Group) -> _FakeStage1:
 # ---------------------------------------------------------------------------
 
 
-def _process_episode(h5_path_str: str, builder_type: str, checkpoint_id_str: str) -> list | None:
+def _process_episode(
+    h5_path_str: str,
+    builder_type: str,
+    checkpoint_id_str: str,
+    reducer_type: str = "mean_pool",
+    output_tokens: int = 16,
+    prune_window_size: int = 4,
+    temporal_keep_ratio: float = 0.5,
+    select_k: int = 32,
+    temperature: float = 1.0,
+) -> list | None:
     """Process a single H5 file in a worker process. Returns list of CacheEntry or None."""
     from openpi.cache.storage_types import CacheEntry, CachePayload
     from openpi.cache.types import CheckpointID
 
     h5_path = Path(h5_path_str)
     cp_id = CheckpointID[checkpoint_id_str]
-    builder = _create_builder(builder_type)
+    builder = _create_builder(
+        builder_type, reducer_type, output_tokens,
+        prune_window_size, temporal_keep_ratio,
+        select_k, temperature,
+    )
 
     with h5py.File(h5_path, "r") as f:
         task = str(f.attrs.get("task", ""))
@@ -137,6 +211,10 @@ def _process_episode(h5_path_str: str, builder_type: str, checkpoint_id_str: str
             return None
 
         trajectory_id = h5_path.stem
+
+        # Notify stateful builders to reset history for this episode
+        if hasattr(builder, 'on_episode_start'):
+            builder.on_episode_start()
 
         def _step_sort_key(name: str) -> tuple[bool, int, str]:
             suffix = name.split("_", 1)[1] if "_" in name else ""
@@ -217,6 +295,12 @@ def build_artifact(
     builder_type: str,
     checkpoint_id_str: str = "CP1",
     workers: int = 0,
+    reducer_type: str = "mean_pool",
+    output_tokens: int = 16,
+    prune_window_size: int = 4,
+    temporal_keep_ratio: float = 0.5,
+    select_k: int = 32,
+    temperature: float = 1.0,
 ) -> dict:
     """Build artifact dict from HDF5 data.
 
@@ -228,7 +312,7 @@ def build_artifact(
     Args:
         workers: Number of parallel workers. 0 = all CPUs.
     """
-    vector_dims = _get_vector_dims(builder_type)
+    vector_dims = _get_vector_dims(builder_type, reducer_type, output_tokens)
 
     h5_paths = sorted(Path(data_dir).rglob("*.h5"))
     if not h5_paths:
@@ -236,31 +320,58 @@ def build_artifact(
         return {"key_builder_type": builder_type, "checkpoint_id": checkpoint_id_str,
                 "vector_dims": vector_dims, "entries": []}
 
-    num_workers = workers if workers > 0 else (os.cpu_count() or 1)
-    logger.info("Processing %d H5 files with %d workers", len(h5_paths), num_workers)
+    _ep_args = (
+        builder_type, checkpoint_id_str,
+        reducer_type, output_tokens, prune_window_size, temporal_keep_ratio,
+        select_k, temperature,
+    )
 
     entries: list = []
-    with ProcessPoolExecutor(max_workers=num_workers) as pool:
-        futures = {
-            pool.submit(_process_episode, str(p), builder_type, checkpoint_id_str): p
-            for p in h5_paths
-        }
-        done_count = 0
-        for future in as_completed(futures):
-            done_count += 1
-            result = future.result()
+
+    if workers == -1:
+        # Serial mode: run in main process (avoids fork overhead in tests)
+        logger.info("Processing %d H5 files in serial mode", len(h5_paths))
+        for i, p in enumerate(h5_paths, 1):
+            result = _process_episode(str(p), *_ep_args)
             if result is not None:
                 entries.extend(result)
-            if done_count % 10 == 0 or done_count == len(h5_paths):
-                logger.info("Progress: %d/%d files, %d entries", done_count, len(h5_paths), len(entries))
+            if i % 10 == 0 or i == len(h5_paths):
+                logger.info("Progress: %d/%d files, %d entries", i, len(h5_paths), len(entries))
+    else:
+        num_workers = workers if workers > 0 else (os.cpu_count() or 1)
+        logger.info("Processing %d H5 files with %d workers", len(h5_paths), num_workers)
+        with ProcessPoolExecutor(max_workers=num_workers) as pool:
+            futures = {
+                pool.submit(_process_episode, str(p), *_ep_args): p
+                for p in h5_paths
+            }
+            done_count = 0
+            for future in as_completed(futures):
+                done_count += 1
+                result = future.result()
+                if result is not None:
+                    entries.extend(result)
+                if done_count % 10 == 0 or done_count == len(h5_paths):
+                    logger.info("Progress: %d/%d files, %d entries", done_count, len(h5_paths), len(entries))
 
     logger.info("Built %d entries for %s from %s", len(entries), builder_type, data_dir)
-    return {
+    artifact = {
         "key_builder_type": builder_type,
         "checkpoint_id": checkpoint_id_str,
         "vector_dims": vector_dims,
         "entries": entries,
     }
+    # Record reducer params for traceability (offline/online consistency audit)
+    if builder_type == "cp1_temporal_prune":
+        artifact["reducer_params"] = {
+            "reducer_type": reducer_type,
+            "output_tokens": output_tokens,
+            "prune_window_size": prune_window_size,
+            "temporal_keep_ratio": temporal_keep_ratio,
+            "select_k": select_k,
+            "temperature": temperature,
+        }
+    return artifact
 
 
 # ---------------------------------------------------------------------------
@@ -273,13 +384,32 @@ def main():
 
     parser = argparse.ArgumentParser(description="Build InMemoryBackend artifact from HDF5 data")
     parser.add_argument("--data-dir", required=True, help="Directory with .h5 episode files")
-    parser.add_argument("--builder-type", required=True, choices=list(_VECTOR_DIMS.keys()))
+    parser.add_argument("--builder-type", required=True, choices=_ALL_BUILDER_TYPES)
     parser.add_argument("--output", required=True, help="Output .pkl path")
     parser.add_argument("--checkpoint-id", default="CP1", choices=["CP1"])
-    parser.add_argument("--workers", type=int, default=0, help="Parallel workers (0 = all CPUs)")
+    parser.add_argument("--workers", type=int, default=0, help="Parallel workers (0 = all CPUs, -1 = serial in main process)")
+    parser.add_argument("--reducer-type", default="mean_pool",
+                        choices=["mean_pool", "max_pool", "spatial_pool", "task_scoring"])
+    parser.add_argument("--output-tokens", type=int, default=16,
+                        help="SpatialPoolReducer output_tokens (must be perfect square)")
+    parser.add_argument("--prune-window-size", type=int, default=4)
+    parser.add_argument("--temporal-keep-ratio", type=float, default=0.5)
+    parser.add_argument("--select-k", type=int, default=32,
+                        help="TaskScoringReducer: number of top-k tokens to select")
+    parser.add_argument("--temperature", type=float, default=1.0,
+                        help="TaskScoringReducer: softmax temperature")
     args = parser.parse_args()
 
-    artifact = build_artifact(args.data_dir, args.builder_type, args.checkpoint_id, workers=args.workers)
+    artifact = build_artifact(
+        args.data_dir, args.builder_type, args.checkpoint_id,
+        workers=args.workers,
+        reducer_type=args.reducer_type,
+        output_tokens=args.output_tokens,
+        prune_window_size=args.prune_window_size,
+        temporal_keep_ratio=args.temporal_keep_ratio,
+        select_k=args.select_k,
+        temperature=args.temperature,
+    )
 
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     with open(args.output, "wb") as f:

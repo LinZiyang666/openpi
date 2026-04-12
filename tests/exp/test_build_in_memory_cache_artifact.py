@@ -45,7 +45,7 @@ def test_build_artifact_skips_failed_episodes_and_parses_step_idx(tmp_path):
     _write_episode(tmp_path / "ok.h5", success=True, task="task_ok", step_name="step_042")
     _write_episode(tmp_path / "bad.h5", success=False, task="task_bad")
 
-    artifact = build_artifact(str(tmp_path), "cp1_mean_pool")
+    artifact = build_artifact(str(tmp_path), "cp1_mean_pool", workers=-1)
 
     assert artifact["key_builder_type"] == "cp1_mean_pool"
     assert artifact["checkpoint_id"] == "CP1"
@@ -53,7 +53,7 @@ def test_build_artifact_skips_failed_episodes_and_parses_step_idx(tmp_path):
     assert len(artifact["entries"]) == 1
 
     entry = artifact["entries"][0]
-    assert entry.id == "ok_step_042"
+    assert entry.id == "ok:42"
     assert entry.step_idx == 42
     assert entry.payload.task_key == "task_ok"
     assert entry.payload.action_chunk.shape == (10, 32)
@@ -64,7 +64,7 @@ def test_build_artifact_skips_failed_episodes_and_parses_step_idx(tmp_path):
 def test_build_artifact_non_numeric_step_suffix_yields_none(tmp_path):
     _write_episode(tmp_path / "ok.h5", success=True, task="task_ok", step_name="step_warmup")
 
-    artifact = build_artifact(str(tmp_path), "cp1_mean_pool")
+    artifact = build_artifact(str(tmp_path), "cp1_mean_pool", workers=-1)
 
     assert len(artifact["entries"]) == 1
     assert artifact["entries"][0].step_idx is None

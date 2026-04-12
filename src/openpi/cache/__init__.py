@@ -49,7 +49,11 @@ from openpi.cache.backend_base import VectorStoreBackend
 from openpi.cache.cache_storage import CacheStorage
 
 # Step 4: Orchestrator + pluggable components
-from openpi.cache.components.key_builder import QueryKeyBuilder, PlaceholderKeyBuilder
+from openpi.cache.components.key_builder import QueryKeyBuilder, PlaceholderKeyBuilder, CP1TemporalPruneKeyBuilder
+from openpi.cache.components.token_reducer import (
+    PruneResult, TokenReducer, MeanPoolReducer, MaxPoolReducer,
+    SpatialPoolReducer, TaskScoringReducer,
+)
 from openpi.cache.components.gate import GateFunction, AlwaysSearchGate
 from openpi.cache.components.judge import SimilarityJudge, ThresholdJudge, HitType, JudgeResult
 from openpi.cache.orchestrator import CacheOrchestrator, CheckResult
@@ -79,6 +83,13 @@ __all__ = [
     # Step 4: orchestrator + components
     "QueryKeyBuilder",
     "PlaceholderKeyBuilder",
+    "CP1TemporalPruneKeyBuilder",
+    "PruneResult",
+    "TokenReducer",
+    "MeanPoolReducer",
+    "MaxPoolReducer",
+    "SpatialPoolReducer",
+    "TaskScoringReducer",
     "GateFunction",
     "AlwaysSearchGate",
     "SimilarityJudge",

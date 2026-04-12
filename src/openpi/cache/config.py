@@ -158,8 +158,20 @@ class TimerConfig:
 
 
 @dataclass
+class ReducerConfig:
+    type: str = "mean_pool"     # "mean_pool" | "max_pool" | "spatial_pool" | "task_scoring"
+    output_tokens: int = 16     # only for spatial_pool
+    select_k: int = 32          # only for task_scoring
+    temperature: float = 1.0    # only for task_scoring
+
+
+@dataclass
 class KeyBuilderConfig:
     type: str = "placeholder"
+    # -- temporal prune params (only for cp1_temporal_prune) --
+    prune_window_size: int = 4
+    temporal_keep_ratio: float = 0.5
+    reducer: ReducerConfig = field(default_factory=ReducerConfig)
 
 
 @dataclass
@@ -235,6 +247,7 @@ _CONFIG_TYPES: dict[str, type] = {
     "InMemoryConfig": InMemoryConfig,
     "BackendConfig": BackendConfig,
     "TimerConfig": TimerConfig,
+    "ReducerConfig": ReducerConfig,
     "KeyBuilderConfig": KeyBuilderConfig,
     "WritePolicyConfig": WritePolicyConfig,
     "CacheConfig": CacheConfig,
@@ -404,6 +417,7 @@ def validate_cache_config(config: CacheConfig) -> None:
     _valid_key_builder_types = frozenset({
         "placeholder", "full_original",
         "cp1_mean_pool", "cp1_spatial_pool_16", "cp1_spatial_pool_64", "cp1_max_pool",
+        "cp1_temporal_prune",
         "clip",
     })
     if config.key_builder.type not in _valid_key_builder_types:
@@ -504,6 +518,59 @@ def validate_cache_config(config: CacheConfig) -> None:
                 errors.append(
                     f"key_builder.type={config.key_builder.type} requires keys.{f}.enabled=true"
                 )
+
+    # cp1_temporal_prune additional validation.
+    if config.key_builder.type == "cp1_temporal_prune":
+        cp1_cfg = config.checkpoints.get("cp1")
+        if cp1_cfg is None or not cp1_cfg.enabled:
+            errors.append(
+                "key_builder.type=cp1_temporal_prune requires checkpoints.cp1.enabled=true"
+            )
+        if not (0.0 < config.key_builder.temporal_keep_ratio <= 1.0):
+            errors.append("temporal_keep_ratio must be in (0, 1]")
+        if config.key_builder.prune_window_size < 2:
+            errors.append("prune_window_size must be >= 2 (temporal scoring needs at least 2 frames)")
+        # reducer-specific validation
+        _valid_reducer_types = frozenset({"mean_pool", "max_pool", "spatial_pool", "task_scoring"})
+        if config.key_builder.reducer.type not in _valid_reducer_types:
+            errors.append(
+                f"reducer.type '{config.key_builder.reducer.type}' unknown, "
+                f"valid: {sorted(_valid_reducer_types)}"
+            )
+        if config.key_builder.reducer.type == "task_scoring":
+            if config.key_builder.reducer.select_k < 1:
+                errors.append("reducer.select_k must be >= 1")
+            if config.key_builder.reducer.temperature <= 0:
+                errors.append("reducer.temperature must be > 0")
+        if config.key_builder.reducer.type == "spatial_pool":
+            ot = config.key_builder.reducer.output_tokens
+            if ot < 1:
+                errors.append(
+                    f"reducer.output_tokens={ot} must be >= 1"
+                )
+            ps = int(ot**0.5) if ot >= 1 else 0
+            if ps * ps != ot:
+                errors.append(
+                    f"reducer.output_tokens={ot} must be a perfect square"
+                )
+        # Cross-check reducer output dim vs backend.vector_dims for vision fields
+        _reducer_vision_dim = {
+            "mean_pool": 2048,
+            "max_pool": 2048,
+            "task_scoring": 2048,
+            "spatial_pool": config.key_builder.reducer.output_tokens * 2048,
+        }
+        expected_dim = _reducer_vision_dim.get(config.key_builder.reducer.type)
+        if expected_dim is not None:
+            for vf in ("vision_0", "vision_1", "vision_2"):
+                if vf in enabled_fields and vf in config.backend.vector_dims:
+                    actual = config.backend.vector_dims[vf]
+                    if actual != expected_dim:
+                        errors.append(
+                            f"backend.vector_dims.{vf}={actual} does not match "
+                            f"reducer output dim {expected_dim} "
+                            f"(reducer.type={config.key_builder.reducer.type!r})"
+                        )
 
     # clip builder requires at least vision_0 and robot_state.
     if config.key_builder.type == "clip":
@@ -724,6 +791,27 @@ def _build_backend(cfg: BackendConfig):
         raise ConfigValidationError(f"Unknown backend.type '{cfg.type}'. Valid: ['in_memory', 'qdrant']")
 
 
+def _build_reducer(cfg: ReducerConfig):
+    """Instantiate a TokenReducer from config."""
+    from openpi.cache.components.token_reducer import (
+        MaxPoolReducer,
+        MeanPoolReducer,
+        SpatialPoolReducer,
+        TaskScoringReducer,
+    )
+
+    if cfg.type == "mean_pool":
+        return MeanPoolReducer()
+    elif cfg.type == "max_pool":
+        return MaxPoolReducer()
+    elif cfg.type == "spatial_pool":
+        return SpatialPoolReducer(output_tokens=cfg.output_tokens)
+    elif cfg.type == "task_scoring":
+        return TaskScoringReducer(select_k=cfg.select_k, temperature=cfg.temperature)
+    else:
+        raise ConfigValidationError(f"Unknown reducer.type '{cfg.type}'")
+
+
 def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_dims: dict[str, int]):
     """Instantiate a QueryKeyBuilder from config."""
     if cfg.type == "placeholder":
@@ -750,6 +838,16 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
         from openpi.cache.components.key_builder import CP1MaxPoolKeyBuilder
 
         return CP1MaxPoolKeyBuilder(enabled_fields=enabled_fields)
+    elif cfg.type == "cp1_temporal_prune":
+        from openpi.cache.components.key_builder import CP1TemporalPruneKeyBuilder
+
+        reducer = _build_reducer(cfg.reducer)
+        return CP1TemporalPruneKeyBuilder(
+            reducer=reducer,
+            enabled_fields=enabled_fields,
+            prune_window_size=cfg.prune_window_size,
+            temporal_keep_ratio=cfg.temporal_keep_ratio,
+        )
     elif cfg.type == "clip":
         from openpi.cache.components.clip_key_builder import CLIPKeyBuilder
 
@@ -758,7 +856,8 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
         raise ConfigValidationError(
             f"Unknown key_builder.type '{cfg.type}'. "
             f"Valid: ['placeholder', 'full_original', 'cp1_mean_pool', "
-            f"'cp1_spatial_pool_16', 'cp1_spatial_pool_64', 'cp1_max_pool', 'clip']"
+            f"'cp1_spatial_pool_16', 'cp1_spatial_pool_64', 'cp1_max_pool', "
+            f"'cp1_temporal_prune', 'clip']"
         )
 
 
