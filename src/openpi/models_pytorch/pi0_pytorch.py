@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import math
 from dataclasses import dataclass
@@ -45,6 +47,29 @@ class Stage1Output:
     prefix_position_ids: torch.Tensor
     """[B, prefix_len]  (int64)"""
 
+    def to(self, device: str | torch.device) -> Stage1Output:
+        """Move all tensors to the target device. No-op if already there."""
+        return Stage1Output(
+            state=self.state.to(device),
+            prefix_embs=self.prefix_embs.to(device),
+            prefix_pad_masks=self.prefix_pad_masks.to(device),
+            prefix_att_2d_masks_4d=self.prefix_att_2d_masks_4d.to(device),
+            prefix_position_ids=self.prefix_position_ids.to(device),
+        )
+
+
+def _move_kv_cache(
+    past_key_values: Any, device: str | torch.device
+) -> Any:
+    """Move KV cache to target device. Handles None, DynamicCache, and tuple formats."""
+    if past_key_values is None:
+        return None
+    if hasattr(past_key_values, "to"):
+        result = past_key_values.to(device)
+        return result if result is not None else past_key_values
+    # Fallback: tuple of (key, value) tuples
+    return tuple((k.to(device), v.to(device)) for k, v in past_key_values)
+
 
 @dataclass
 class Stage2Output:
@@ -57,6 +82,13 @@ class Stage2Output:
     stage1: Stage1Output
     past_key_values: Any
     """HuggingFace DynamicCache (or tuple-of-tuples).  Read-only during Stage 3."""
+
+    def to(self, device: str | torch.device) -> Stage2Output:
+        """Move stage1 outputs and KV cache to the target device."""
+        return Stage2Output(
+            stage1=self.stage1.to(device),
+            past_key_values=_move_kv_cache(self.past_key_values, device),
+        )
 
 
 @dataclass

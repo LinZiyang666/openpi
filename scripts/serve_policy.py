@@ -7,6 +7,10 @@ import socket
 
 import tyro
 
+from openpi.models_pytorch.stage_device_placement import (
+    StageDeviceConfig,
+    relocate_model_stages,
+)
 from openpi.policies import policy as _policy
 from openpi.policies import policy_config as _policy_config
 from openpi.serving import websocket_policy_server
@@ -89,6 +93,13 @@ class Args:
     # interleaved output.
     concurrent: bool = False
 
+    # Per-stage device placement. Default: None (no override, legacy behavior).
+    # Set all three to enable split-device or meta placement.
+    # Example: --stage1_device cuda:0 --stage2_device meta --stage3_device meta
+    stage1_device: str | None = None
+    stage2_device: str | None = None
+    stage3_device: str | None = None
+
     # Specifies how to load the policy. If not provided, the default policy for the environment will be used.
     policy: Checkpoint | Default = dataclasses.field(default_factory=Default)
 
@@ -114,24 +125,84 @@ DEFAULT_CHECKPOINT: dict[EnvMode, Checkpoint] = {
 }
 
 
-def create_default_policy(env: EnvMode, *, default_prompt: str | None = None) -> _policy.Policy:
+def create_default_policy(
+    env: EnvMode,
+    *,
+    default_prompt: str | None = None,
+    pytorch_device: str | None = None,
+) -> _policy.Policy:
     """Create a default policy for the given environment."""
     if checkpoint := DEFAULT_CHECKPOINT.get(env):
         return _policy_config.create_trained_policy(
-            _config.get_config(checkpoint.config), checkpoint.dir, default_prompt=default_prompt
+            _config.get_config(checkpoint.config),
+            checkpoint.dir,
+            default_prompt=default_prompt,
+            pytorch_device=pytorch_device,
         )
     raise ValueError(f"Unsupported environment mode: {env}")
 
 
+def _get_stage_device_config(args: Args) -> StageDeviceConfig:
+    """Build and validate StageDeviceConfig from CLI args."""
+    return StageDeviceConfig.create(
+        args.stage1_device, args.stage2_device, args.stage3_device,
+    )
+
+
 def create_policy(args: Args) -> _policy.Policy:
-    """Create a policy from the given arguments."""
+    """Create a policy with optional per-stage device placement.
+
+    Three-layer loading path:
+      1. Legacy Default: all stage devices None -> existing auto-select.
+      2. All Same Device: direct load to that device.
+      3. Split/Meta: load to CPU, then relocate per-stage.
+    """
+    stage_config = _get_stage_device_config(args)
+
+    # Startup guard: split/meta requires cache/interceptor path
+    if stage_config.needs_relocation and not (args.cache or args.cache_config):
+        raise ValueError(
+            "Split device placement requires --cache or --cache_config. "
+            "Without cache, Policy.infer() uses single-device staged path."
+        )
+    # Meta stages require --cache_config (not just --cache).
+    # --cache creates InferenceInterceptor without orchestrator, so CP1 never
+    # hits and stage2/3 always execute — meta stages would fail.
+    if stage_config.has_meta_stage and not args.cache_config:
+        raise ValueError(
+            "Meta stage placement requires --cache_config (not just --cache). "
+            "--cache creates an interceptor without orchestrator, so stage2/3 "
+            "always execute. Use --cache_config with always_hit judge."
+        )
+
+    # Determine pytorch_device for create_trained_policy()
+    if stage_config.is_all_same_device:
+        pytorch_device = stage_config.stage1
+    elif stage_config.needs_relocation:
+        pytorch_device = "cpu"
+    else:
+        pytorch_device = None  # legacy default
+
     match args.policy:
         case Checkpoint():
-            return _policy_config.create_trained_policy(
-                _config.get_config(args.policy.config), args.policy.dir, default_prompt=args.default_prompt
+            policy = _policy_config.create_trained_policy(
+                _config.get_config(args.policy.config),
+                args.policy.dir,
+                default_prompt=args.default_prompt,
+                pytorch_device=pytorch_device,
             )
         case Default():
-            return create_default_policy(args.env, default_prompt=args.default_prompt)
+            policy = create_default_policy(
+                args.env,
+                default_prompt=args.default_prompt,
+                pytorch_device=pytorch_device,
+            )
+
+    if stage_config.needs_relocation:
+        relocate_model_stages(policy._model, stage_config)  # noqa: SLF001
+        policy._pytorch_device = stage_config.primary_device  # noqa: SLF001
+
+    return policy
 
 
 def _configure_torchinductor_cache_dir() -> None:
@@ -148,7 +219,15 @@ def _configure_torchinductor_cache_dir() -> None:
     logging.info("TORCHINDUCTOR_CACHE_DIR=%s", cache_dir)
 
 
-def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = False, shared_cache=None):
+def _wrap_policy(
+    base_policy,
+    args: Args,
+    *,
+    quiet: bool = False,
+    eager: bool = False,
+    shared_cache=None,
+    stage_config: StageDeviceConfig | None = None,
+):
     """Build the wrapper chain around a base policy.
 
     Wrapper ordering matters:
@@ -200,6 +279,7 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
             orchestrator=orchestrator,
             eager=eager,
             collect_images=need_images,
+            stage_config=stage_config,
         )
     elif args.cache_config is not None:
         from openpi.cache.config import (
@@ -245,6 +325,7 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
             orchestrator=orchestrator,
             eager=eager,
             collect_images=need_images,
+            stage_config=stage_config,
         )
     elif args.cache:
         from openpi.cache.interceptor import InferenceInterceptor
@@ -252,7 +333,10 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
         timer = SystemTimer(enabled=True, output_csv_dir=args.timing_csv_dir, quiet=quiet)
         if args.timing_csv_dir:
             logging.info("Timing CSV output enabled: writing to %s", args.timing_csv_dir)
-        policy = InferenceInterceptor(policy, timer=timer, eager=eager, collect_images=args.collect_images)
+        policy = InferenceInterceptor(
+            policy, timer=timer, eager=eager,
+            collect_images=args.collect_images, stage_config=stage_config,
+        )
 
     if args.record:
         policy = _policy.PolicyRecorder(policy, "policy_records")
@@ -269,6 +353,7 @@ def _wrap_policy(base_policy, args: Args, *, quiet: bool = False, eager: bool = 
 
 def main(args: Args) -> None:
     _configure_torchinductor_cache_dir()
+    stage_config = _get_stage_device_config(args)
     base_policy = create_policy(args)
     policy_metadata = base_policy.metadata
 
@@ -290,7 +375,7 @@ def main(args: Args) -> None:
         def _connection_policy_factory(shared_base_policy):
             return _wrap_policy(
                 shared_base_policy, args, quiet=True, eager=True,
-                shared_cache=shared_cache,
+                shared_cache=shared_cache, stage_config=stage_config,
             )
 
         policy_metadata = {**policy_metadata, "concurrent": True}
@@ -306,7 +391,7 @@ def main(args: Args) -> None:
         )
     else:
         # Single-connection mode: wrap once at startup.
-        policy = _wrap_policy(base_policy, args, quiet=False)
+        policy = _wrap_policy(base_policy, args, quiet=False, stage_config=stage_config)
         if args.cache_config:
             logging.info("Cache mode enabled via config: %s", args.cache_config)
         elif args.cache:

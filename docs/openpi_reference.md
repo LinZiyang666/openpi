@@ -236,10 +236,32 @@ runtime.run()
 
 ## Hardware Requirements
 
-- **Inference:** 8GB+ VRAM
+- **Inference (full model):** 8GB+ VRAM
+- **Inference (stage1-only with cache):** ~2GB VRAM (stage2/3 on meta)
 - **LoRA fine-tuning:** 22.5GB+ VRAM
 - **Full fine-tuning:** 70GB+ VRAM (multi-GPU recommended)
 - **Multi-GPU:** JAX uses FSDP; PyTorch uses DDP via torchrun
+
+### Per-Stage Device Placement
+
+`serve_policy.py` supports assigning each inference stage to a different device:
+
+```bash
+# Stage1-only GPU (cache always-hit mode, ~2GB VRAM)
+uv run scripts/serve_policy.py \
+    --stage1_device cuda:0 --stage2_device meta --stage3_device meta \
+    --cache_config cache.yaml ...
+
+# Stage1 GPU + Stage2/3 CPU (low-speed fallback)
+uv run scripts/serve_policy.py \
+    --stage1_device cuda:0 --stage2_device cpu --stage3_device cpu \
+    --cache ...
+```
+
+Devices: `cuda:N`, `cpu`, `meta` (zero memory, not callable).
+Constraints: all three must be set together; `stage1` cannot be `meta`;
+split/meta requires `--cache` or `--cache_config`; meta requires `--cache_config`.
+See `StageDeviceConfig` in `src/openpi/models_pytorch/stage_device_placement.py`.
 
 ## Dependencies
 

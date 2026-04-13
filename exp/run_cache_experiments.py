@@ -31,6 +31,7 @@ import json
 import logging
 import os
 import re
+import shutil
 import subprocess
 import threading
 import time
@@ -567,6 +568,172 @@ def main():
     pbar.close()
     print(f"\nDone: {completed} completed, {failed} failed, {total_runs - completed - failed} skipped")
     print(f"State saved to {state_path}")
+
+    # --- Retry phase ---
+    if not args.resume:
+        _retry_failed_runs(
+            states=states,
+            state_path=state_path,
+            yaml_dir=yaml_dir,
+            args=args,
+            task_id_list=task_id_list,
+        )
+
+
+def _retry_failed_runs(
+    states: list[RunState],
+    state_path: Path,
+    yaml_dir: Path,
+    args,
+    task_id_list: list[int],
+    max_retries: int = 2,
+) -> None:
+    """Retry failed runs: copy YAMLs to retry/, run up to max_retries times.
+
+    On success: update original state JSON, delete YAML from retry/.
+    On failure after max_retries: leave YAML in retry/ for manual inspection.
+    """
+    failed_states = [s for s in states if s.status == "failed"]
+    if not failed_states:
+        return
+
+    retry_dir = yaml_dir / "retry"
+    retry_dir.mkdir(parents=True, exist_ok=True)
+
+    # Copy failed YAMLs to retry/
+    for s in failed_states:
+        src = Path(s.yaml_path)
+        dst = retry_dir / src.name
+        shutil.copy2(src, dst)
+
+    print(f"\n{'='*60}")
+    print(f"Retry phase: {len(failed_states)} failed runs copied to {retry_dir}")
+    print(f"{'='*60}")
+
+    for attempt in range(1, max_retries + 1):
+        retry_yamls = sorted(retry_dir.glob("*.yaml"))
+        if not retry_yamls:
+            print(f"Retry attempt {attempt}: no remaining retries, all recovered!")
+            break
+
+        print(f"\nRetry attempt {attempt}/{max_retries}: {len(retry_yamls)} runs")
+        pbar = tqdm.tqdm(
+            total=len(retry_yamls), desc=f"Retry {attempt}/{max_retries}",
+            unit="run", bar_format="{desc} |{bar}| {n}/{total} [{elapsed}<{remaining}]",
+        )
+
+        for yaml_path in retry_yamls:
+            run_id = yaml_path.stem
+            pbar.set_description(f"Retry {attempt}/{max_retries}: {run_id}")
+
+            # Find original state
+            orig_state = next((s for s in states if s.run_id == run_id), None)
+            if orig_state is None:
+                pbar.update(1)
+                continue
+
+            # Reset failed tasks to pending
+            failed_tasks = [
+                int(tid) for tid, status in orig_state.task_progress.items()
+                if status == "failed"
+            ]
+            if not failed_tasks:
+                # All tasks actually done, clean up
+                orig_state.status = "done"
+                yaml_path.unlink()
+                _save_state(state_path, states)
+                pbar.update(1)
+                continue
+
+            for tid in failed_tasks:
+                orig_state.task_progress[str(tid)] = "pending"
+
+            orig_state.status = "running"
+            orig_state.start_time = time.strftime("%Y-%m-%d %H:%M:%S")
+            _save_state(state_path, states)
+
+            # Switch server config
+            try:
+                server_url = f"ws://{args.host}:{args.port}"
+                _send_cache_config(server_url, str(yaml_path))
+            except Exception as e:
+                tqdm.tqdm.write(f"  [RETRY FAIL] {run_id}: config switch failed: {e}")
+                orig_state.status = "failed"
+                _save_state(state_path, states)
+                pbar.update(1)
+                continue
+
+            # Execute failed tasks
+            log_path = Path(args.log_dir) / f"{run_id}_retry{attempt}.log" if args.log_dir else yaml_path.with_suffix(f".retry{attempt}.log")
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+
+            retry_failed = False
+            batch_size = max(args.num_workers, 1)
+            for batch_start in range(0, len(failed_tasks), batch_size):
+                batch = failed_tasks[batch_start:batch_start + batch_size]
+                try:
+                    result = _execute_tasks(
+                        task_ids=batch,
+                        episodes_per_task=args.episodes_per_run,
+                        num_workers=min(args.num_workers, len(batch)),
+                        host=args.host,
+                        port=args.port,
+                        task_suite=args.task_suite,
+                        log_path=log_path,
+                        seed=args.seed,
+                        conda_env=args.conda_env,
+                    )
+                    if result["exit_code"] == 0:
+                        n = len(batch)
+                        per_task_s = result["successes"] // n
+                        per_task_t = result["total"] // n
+                        remainder_s = result["successes"] - per_task_s * n
+                        remainder_t = result["total"] - per_task_t * n
+                        for i, task_id in enumerate(batch):
+                            orig_state.task_progress[str(task_id)] = "done"
+                            s = per_task_s + (1 if i < remainder_s else 0)
+                            t = per_task_t + (1 if i < remainder_t else 0)
+                            orig_state.task_results[str(task_id)] = [s, t]
+                    else:
+                        for task_id in batch:
+                            orig_state.task_progress[str(task_id)] = "failed"
+                        retry_failed = True
+                except Exception as e:
+                    for task_id in batch:
+                        orig_state.task_progress[str(task_id)] = "failed"
+                    retry_failed = True
+                    tqdm.tqdm.write(f"  [RETRY] {run_id} batch exception: {e}")
+
+                orig_state.success_rate = _compute_aggregate_success_rate(orig_state)
+                _save_state(state_path, states)
+
+            # Determine retry result
+            all_done = all(v == "done" for v in orig_state.task_progress.values())
+            if all_done:
+                orig_state.status = "done"
+                orig_state.end_time = time.strftime("%Y-%m-%d %H:%M:%S")
+                orig_state.success_rate = _compute_aggregate_success_rate(orig_state)
+                yaml_path.unlink()  # Remove from retry/
+                tqdm.tqdm.write(f"  [RETRY OK] {run_id}: recovered on attempt {attempt}")
+            else:
+                orig_state.status = "failed"
+                orig_state.end_time = time.strftime("%Y-%m-%d %H:%M:%S")
+                if attempt == max_retries:
+                    tqdm.tqdm.write(f"  [RETRY GIVE UP] {run_id}: still failing after {max_retries} attempts")
+
+            _save_state(state_path, states)
+            pbar.update(1)
+
+        pbar.close()
+
+    # Summary
+    remaining_retries = list(retry_dir.glob("*.yaml"))
+    if remaining_retries:
+        print(f"\nRetry complete: {len(remaining_retries)} runs still failed in {retry_dir}")
+    else:
+        print("\nRetry complete: all failed runs recovered!")
+        # Clean up empty retry dir
+        retry_dir.rmdir()
 
 
 if __name__ == "__main__":

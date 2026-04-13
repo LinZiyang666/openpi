@@ -362,13 +362,23 @@ Timeline -->
      No usable retrieval key (no autoregressive text generation).
      Awaiting a suitable representation extraction approach.
 
-  6. Fully Pluggable Components
+  6. Per-Stage Device Placement
+     InferenceInterceptor accepts an optional StageDeviceConfig that
+     assigns each stage to cuda:N / cpu / meta independently.
+     - Meta stages are replaced with sentinel functions that raise
+       RuntimeError on call (require cache always_hit).
+     - Cross-device tensor transfers (Stage1Output.to / Stage2Output.to)
+       are inserted between stages only when needs_relocation is True.
+     - Timer probe backends are selected per-stage device (cuda or cpu).
+     See src/openpi/models_pytorch/stage_device_placement.py.
+
+  7. Fully Pluggable Components
      KeyBuilder / Gate / Judge / SearchStrategy / WritePolicy
      are all selected via YAML config type field.
      Each Checkpoint can be independently configured with
      different component combinations.
 
-  7. Timing System
+  8. Timing System
      Each stage and sub-step has an independent timing probe.
      GPU stages use CUDA Events; CPU stages use perf_counter.
      Per-probe summary is printed automatically at episode end.

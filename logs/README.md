@@ -60,6 +60,12 @@ logs/
 | [redundant_token_prune_plan.log.md](redundant_token_prune_plan.log.md) | `Implemented` | Plan A 冗余 token 剪枝：temporal scoring 两步 KeyBuilder，含 G2 审查记录。代码已合入，待实验验证 |
 | [redundant_token_prune_gpt.log.md](redundant_token_prune_gpt.log.md) | `Design Only` | GPT 初步方案讨论（不含项目实现细节） |
 
+### Stage Device Placement
+
+| File | Status | Description |
+|------|--------|-------------|
+| [stage_device_placement_plan.log.md](stage_device_placement_plan.log.md) | `In Progress` | L3: 按 Stage 分离 device placement，支持 cuda/cpu/meta 三种模式。G1 已通过 |
+
 ### LIBERO
 
 | File | Status | Description |

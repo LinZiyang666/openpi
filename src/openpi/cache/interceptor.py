@@ -83,11 +83,30 @@ from openpi.cache.orchestrator import CacheOrchestrator
 from openpi.cache.timing import SystemTimer, TaskLifecycle
 from openpi.cache.types import CheckpointID
 from openpi.models import model as _model
+from openpi.models_pytorch.stage_device_placement import StageDeviceConfig
 from openpi.policies import policy as _policy
 
 logger = logging.getLogger(__name__)
 
 _NUM_STEPS = 10  # matches pi0_pytorch.run_stage3 default
+
+
+def _probe_backend(device_str: str | torch.device | None) -> str:
+    """Select timer probe backend based on device string or torch.device."""
+    if device_str is None:
+        return "cpu"
+    return "cuda" if str(device_str).startswith("cuda") else "cpu"
+
+
+def _meta_guard(stage_name: str) -> Callable:
+    """Return a sentinel function that raises on call for meta-device stages."""
+    def _fn(*args: Any, **kwargs: Any) -> None:
+        raise RuntimeError(
+            f"{stage_name} is on meta device (not loaded). "
+            "Cannot execute forward pass. Check cache config — "
+            "meta stages require always_hit at the preceding checkpoint."
+        )
+    return _fn
 
 
 class InferenceInterceptor(_base_policy.BasePolicy):
@@ -124,6 +143,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         orchestrator: Optional["CacheOrchestrator"] = None,
         eager: bool = False,
         collect_images: bool = False,
+        stage_config: Optional[StageDeviceConfig] = None,
     ) -> None:
         if not policy._is_pytorch_model:  # noqa: SLF001
             raise ValueError(
@@ -138,7 +158,17 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         self._output_transform = policy._output_transform  # composed transform fn  # noqa: SLF001
         self._pytorch_device = policy._pytorch_device      # e.g. "cuda:0"          # noqa: SLF001
 
-        # ---- Stage functions (eager or compiled) ----
+        # ---- Stage device config ----
+        sc = stage_config
+        self._stage_config = sc
+        # Normalize per-stage device: explicit config overrides, otherwise
+        # fall back to the wrapped policy's pytorch_device (legacy default).
+        _dev = self._pytorch_device
+        self._stage1_device = sc.stage1 if sc and not sc.is_legacy_default else _dev
+        self._stage2_device = sc.stage2 if sc and not sc.is_legacy_default else _dev
+        self._stage3_device = sc.stage3 if sc and not sc.is_legacy_default else _dev
+
+        # ---- Stage functions (eager or compiled, with meta sentinel) ----
         if eager:
             self._stage1_fn = self._model.run_stage1
             self._stage2_fn = self._model.run_stage2
@@ -149,22 +179,23 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 self._get_or_compile_stages()
             )
 
+        # Meta sentinel: override compiled/eager functions at interceptor level.
+        # Sentinel is NOT cached on model — all interceptors share the same
+        # device layout (relocate is model-level, done at startup).
+        if sc and sc.stage2 == "meta":
+            self._stage2_fn = _meta_guard("stage2")
+        if sc and sc.stage3 == "meta":
+            self._stage3_fn = _meta_guard("stage3")
+
         # ---- SystemTimer setup ----
-        # Each probe corresponds to one pipeline component.  The backend
-        # ("cuda" vs "cpu") determines the timing method:
-        #   "cuda"  → torch.cuda.Event (accurate GPU execution time)
-        #   "cpu"   → time.perf_counter_ns (wall time, for CPU-only ops)
-        #
-        # When Step 4 adds cache checkpoints (CP1 / CP2 / CP3), their probes
-        # are registered here as well (using "cpu" or "cuda" as appropriate
-        # for the checkpoint's dominant compute location).
+        # Probe backend is derived from the normalized per-stage device,
+        # so legacy default (stage*=None → pytorch_device) keeps CUDA timing.
         self._timer: SystemTimer = timer if timer is not None else SystemTimer()
-        self._timer.register_probe("stage1_vision",   backend="cuda")
-        self._timer.register_probe("stage2_llm",      backend="cuda")
-        self._timer.register_probe("stage3_flow",     backend="cuda")
-        # CPU wall time wrapping all three stages; captures Python + sync
-        # overhead in addition to pure GPU time.  Useful as the "felt" latency
-        # from the robot's perspective.
+        self._timer.register_probe("stage1_vision",   backend=_probe_backend(self._stage1_device))
+        if self._stage2_device != "meta":
+            self._timer.register_probe("stage2_llm",  backend=_probe_backend(self._stage2_device))
+        if self._stage3_device != "meta":
+            self._timer.register_probe("stage3_flow", backend=_probe_backend(self._stage3_device))
         self._timer.register_probe("total_inference", backend="cpu")
 
         # ---- Image collection for cache key builders ----
@@ -177,7 +208,8 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         if orchestrator is not None:
             self._timer.register_probe("cp1_sum", backend="cpu")
             self._timer.register_probe("cp3_sum", backend="cpu")
-            self._timer.register_probe("stage3_warm", backend="cuda")
+            if self._stage3_device != "meta":
+                self._timer.register_probe("stage3_warm", backend=_probe_backend(self._stage3_device))
 
     # -----------------------------------------------------------------------
     # Compile-once helpers
@@ -306,9 +338,10 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         observation = _model.Observation.from_dict(inputs)
 
         # Optional noise forwarding (mirrors Policy.infer sample_kwargs).
+        # Noise goes to stage3 device for flow matching.
         start_noise: torch.Tensor | None = None
         if noise is not None:
-            start_noise = torch.from_numpy(noise).to(self._pytorch_device)
+            start_noise = torch.from_numpy(noise).to(self._stage3_device)
             if start_noise.ndim == 2:
                 start_noise = start_noise[None, ...]
 
@@ -350,15 +383,41 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                         self._orchestrator.clear()
                         return outputs
 
+                # Cross-device transfer (only when stage placement differs)
+                if self._stage_config is not None and self._stage_config.needs_relocation:
+                    stage1 = stage1.to(self._stage2_device)
+
+                # Meta guard: stage2=meta and not FULL_HIT -> clear error
+                if self._stage2_device == "meta":
+                    raise RuntimeError(
+                        "stage2 is on meta device (not loaded). "
+                        "Cannot execute forward pass. Cache CP1 did not return "
+                        "FULL_HIT — check cache config (meta stages require "
+                        "always_hit at the preceding checkpoint)."
+                    )
+
                 with self._timer.measure("stage2_llm"):
                     stage2 = self._stage2_fn(stage1)
+
+                # Meta guard: check before cross-device transfer to avoid
+                # moving KV cache to meta device unnecessarily.
+                if self._stage3_device == "meta":
+                    raise RuntimeError(
+                        "stage3 is on meta device (not loaded). "
+                        "Cannot execute forward pass. Cache CP1 did not return "
+                        "FULL_HIT — check cache config (meta stages require "
+                        "always_hit at the preceding checkpoint)."
+                    )
+
+                if self._stage_config is not None and self._stage_config.needs_relocation:
+                    stage2 = stage2.to(self._stage3_device)
 
                 # Stage 3: three-way branch
                 if (self._orchestrator is not None
                         and cp1_result.hit_type == HitType.WARM_START):
                     start_t = cp1_result.start_t
                     start_x = cp1_result.payload.intermediates[start_t].to(
-                        self._pytorch_device
+                        self._stage3_device
                     )
                     if start_x.ndim == 2:
                         start_x = start_x[None, ...]
