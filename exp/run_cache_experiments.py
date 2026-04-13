@@ -732,8 +732,8 @@ def _retry_failed_runs(
         print(f"\nRetry complete: {len(remaining_retries)} runs still failed in {retry_dir}")
     else:
         print("\nRetry complete: all failed runs recovered!")
-        # Clean up empty retry dir
-        retry_dir.rmdir()
+        # Clean up retry dir
+        shutil.rmtree(retry_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":

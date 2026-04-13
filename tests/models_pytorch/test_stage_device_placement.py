@@ -9,6 +9,7 @@ All tests run on CPU (no GPU required). GPU/model tests use @pytest.mark.manual.
 
 from __future__ import annotations
 
+import pathlib
 from types import SimpleNamespace
 from typing import Any
 
@@ -602,28 +603,131 @@ class TestServePolicyGuards:
 # ------------------------------------------------------------------
 
 
+_CHECKPOINT_CONFIG = "pi05_libero"
+_CHECKPOINT_DIR = str(
+    pathlib.Path.home()
+    / ".cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+)
+
+
+def _skip_if_no_weights():
+    """Skip test if model weights are not available."""
+    if not pathlib.Path(_CHECKPOINT_DIR).exists():
+        pytest.skip(f"Model weights not found at {_CHECKPOINT_DIR}")
+
+
+def _skip_if_no_cuda():
+    """Skip test if CUDA is not available."""
+    if not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+
+
 @pytest.mark.manual
 def test_named_modules_paths():
-    """Verify module mapping paths against real PI0Pytorch model.
+    """Verify module mapping paths against real PI0Pytorch model."""
+    _skip_if_no_weights()
 
-    Requires: GPU + model weights.
-    """
-    pytest.skip("Requires real model weights and GPU")
+    from openpi.models_pytorch.stage_device_placement import (
+        _STAGE1_MODULES,
+        _STAGE2_MODULES,
+        _STAGE3_MODULES_PI05,
+        _STAGE3_MODULES_REQUIRED,
+        _resolve_submodule,
+    )
+    from openpi.policies import policy_config as _policy_config
+    from openpi.training import config as _config
 
+    policy = _policy_config.create_trained_policy(
+        _config.get_config(_CHECKPOINT_CONFIG),
+        _CHECKPOINT_DIR,
+        pytorch_device="cpu",
+    )
+    model = policy._model
 
-@pytest.mark.manual
-def test_cpu_stage_inference():
-    """End-to-end CPU stage2/3 inference.
+    # All required modules must resolve
+    for path in _STAGE1_MODULES + _STAGE2_MODULES + _STAGE3_MODULES_REQUIRED:
+        sub = _resolve_submodule(model, path)
+        assert isinstance(sub, nn.Module), f"{path} resolved to {type(sub)}"
 
-    Requires: GPU for stage1 + model weights.
-    """
-    pytest.skip("Requires real model weights and GPU")
+    # Pi0.5-specific modules (this is a pi05 model)
+    assert model.pi05
+    for path in _STAGE3_MODULES_PI05:
+        sub = _resolve_submodule(model, path)
+        assert isinstance(sub, nn.Module), f"{path} resolved to {type(sub)}"
+
+    del policy, model
+    import gc; gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
 
 @pytest.mark.manual
 def test_full_stage1_only():
-    """Full stage1-only with stage2/3=meta.
+    """Full stage1-only: load model, relocate stage2/3 to meta, run stage1.
 
-    Requires: GPU + model weights + cache config.
+    Verifies:
+    - Model loads to CPU then relocates successfully
+    - Stage 1 executes on CUDA with correct output types
+    - Stage 2/3 params are on meta device (zero memory)
+    - tied weight is preserved after relocation
     """
-    pytest.skip("Requires real model weights and GPU")
+    _skip_if_no_weights()
+    _skip_if_no_cuda()
+
+    from openpi.policies import policy_config as _policy_config
+    from openpi.training import config as _config
+
+    # Load model to CPU (simulates the split/meta loading path)
+    policy = _policy_config.create_trained_policy(
+        _config.get_config(_CHECKPOINT_CONFIG),
+        _CHECKPOINT_DIR,
+        pytorch_device="cpu",
+    )
+    model = policy._model
+
+    # Relocate: stage1 -> cuda:0, stage2/3 -> meta
+    config = StageDeviceConfig(stage1="cuda:0", stage2="meta", stage3="meta")
+    relocate_model_stages(model, config)
+    policy._pytorch_device = "cuda:0"
+
+    # Verify stage1 params are on CUDA
+    vision = model.paligemma_with_expert.paligemma.model.vision_tower
+    for p in vision.parameters():
+        assert str(p.device).startswith("cuda"), f"stage1 param on {p.device}"
+        break  # just check first param
+
+    # Verify stage2 params are on meta
+    layers = model.paligemma_with_expert.paligemma.model.language_model.layers
+    for p in layers.parameters():
+        assert p.device == torch.device("meta"), f"stage2 param on {p.device}"
+        break
+
+    # Verify tied weight
+    paligemma = model.paligemma_with_expert.paligemma
+    assert paligemma.lm_head.weight is paligemma.model.language_model.embed_tokens.weight
+
+    # Run stage1 with a dummy observation
+    from openpi.models import model as _model
+    from openpi.policies.libero_policy import make_libero_example
+    import numpy as np
+    import jax
+
+    dummy_inputs = make_libero_example()
+    dummy_inputs = policy._input_transform(dummy_inputs)
+    dummy_inputs = jax.tree.map(
+        lambda x: torch.from_numpy(np.array(x)).to("cuda:0")[None, ...],
+        dummy_inputs,
+    )
+    observation = _model.Observation.from_dict(dummy_inputs)
+
+    with torch.no_grad():
+        stage1 = model.run_stage1(observation)
+
+    assert hasattr(stage1, "state")
+    assert hasattr(stage1, "prefix_embs")
+    assert str(stage1.state.device).startswith("cuda")
+
+    # Cleanup
+    del policy, model, stage1
+    import gc; gc.collect()
+    torch.cuda.empty_cache()

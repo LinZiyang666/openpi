@@ -38,6 +38,8 @@ logs/
 | [cache_cp1_impl_plan.log.md](cache_cp1_impl_plan.log.md) | `Plan` | CP1 in-memory implementation plan for large-scale experiment |
 | [cp1_warm_start_investigation.log.md](cp1_warm_start_investigation.log.md) | `In Progress` | CP1 warm start: noise action 可用性调查，端到端链路分析 |
 | [cp1_warm_start_impl_plan.log.md](cp1_warm_start_impl_plan.log.md) | `Validated` | CP1 warm start 实现计划：4 Phase (性能修复→写入→判定+执行→文档) |
+| [trajectory_deviation_experiment_plan.log.md](trajectory_deviation_experiment_plan.log.md) | `Plan` | Trajectory deviation 纠偏实验：3-Phase (离线诊断→信号分析→Oracle纠偏) |
+| [trajectory_deviation_corrective_experiment.log.md](trajectory_deviation_corrective_experiment.log.md) | `Plan` | Trajectory deviation 纠偏详细实验计划：GT收集→Deviate Score→Spawn纠偏，含 trajectory depth 预填充方案 |
 
 ### Retrieval System
 

@@ -119,6 +119,9 @@ uv run scripts/serve_policy.py \
     --cache_config cache.yaml \
     --env LIBERO \
     --port 8000 \
+    --stage1_device cuda:0 \
+    --stage2_device meta \
+    --stage3_device meta \
     policy:checkpoint \
     --policy.config pi05_libero \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
