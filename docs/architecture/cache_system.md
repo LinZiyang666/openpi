@@ -6,10 +6,10 @@
 > Last updated: 2026-04-10
 >
 > **Reading guide:** This document covers architecture principles and component design.
-> For YAML configuration, testing patterns, and hands-on tutorial, see [cache_system_tutorial.md](cache_system_tutorial.md).
-> For implementation history and step-by-step logs, see [logs/README.md](../logs/README.md).
+> For YAML configuration, testing patterns, and hands-on tutorial, see [../cache/tutorial.md](../cache/tutorial.md).
+> For implementation history and step-by-step logs, see [logs/README.md](../../logs/README.md).
 >
-> **AGENT: READ FIRST** — This file is a registered subsystem rule document per [`WORKING_AGREEMENT.md` §8](../WORKING_AGREEMENT.md#8-subsystem-rules). Design principles and component boundaries carry Working Agreement authority.
+> **AGENT: READ FIRST** — This file is a registered subsystem rule document per [`WORKING_AGREEMENT.md` §8](../../WORKING_AGREEMENT.md#8-subsystem-rules). Design principles and component boundaries carry Working Agreement authority.
 
 ---
 
@@ -472,7 +472,7 @@ Determines whether search results constitute a valid hit. Returns `JudgeResult(h
 | `threshold` | FULL_HIT if `score >= threshold`. With `warm_tiers` configured, scores below the threshold are matched against descending tiers for WARM_START (CP1 only). Returns `JudgeResult(hit_type, winner_id, start_t)`. |
 | `always_hit` | Always returns FULL_HIT for top result. Used in experiments (threshold calibration deferred). |
 
-Score semantics depend on fusion method — see [cache_system_tutorial.md §6](cache_system_tutorial.md#6-component-judge) for details.
+Score semantics depend on fusion method — see [../cache/tutorial.md §6](../cache/tutorial.md#6-component-judge) for details.
 
 > Judge returns `JudgeResult` (not a tuple). Payload fetch is done by the orchestrator after judge returns. On WARM_START, the orchestrator validates payload completeness (intermediates exist, start_t is a valid key) and downgrades to MISS if validation fails.
 
@@ -841,8 +841,8 @@ These sections have been moved to dedicated documents for maintainability:
 
 | Topic | Document |
 |-------|----------|
-| **YAML config system** (full annotated reference, cross-validation rules, CLI usage) | [cache_system_tutorial.md §10](cache_system_tutorial.md#10-yaml-config-system) |
-| **File structure** (current module tree) | [openpi_reference.md](openpi_reference.md) — Project Structure section |
-| **Component isolation rules and testing patterns** | [cache_system_tutorial.md §15-16](cache_system_tutorial.md#15-component-isolation-rules) |
-| **Implementation history** (step-by-step logs, modification boundaries) | [logs/README.md](../logs/README.md) — Cache System Implementation section |
-| **Development roadmap** (original step plan and current status) | [logs/README.md](../logs/README.md) |
+| **YAML config system** (full annotated reference, cross-validation rules, CLI usage) | [../cache/tutorial.md §10](../cache/tutorial.md#10-yaml-config-system) |
+| **File structure** (current module tree) | [../reference/openpi.md](../reference/openpi.md) — Project Structure section |
+| **Component isolation rules and testing patterns** | [../cache/tutorial.md §15-16](../cache/tutorial.md#15-component-isolation-rules) |
+| **Implementation history** (step-by-step logs, modification boundaries) | [logs/README.md](../../logs/README.md) — Cache System Implementation section |
+| **Development roadmap** (original step plan and current status) | [logs/README.md](../../logs/README.md) |

@@ -1,6 +1,6 @@
 # Pi0.5 Inference Cache System - Architecture Specification (中文版)
 
-> **⚠️ 本中文版未同步更新。** 最新架构规格请参阅英文版 [cache_system_architecture.md](cache_system_architecture.md)（2026-04-10 更新）。
+> **⚠️ 本中文版未同步更新。** 最新架构规格请参阅英文版 [cache_system.md](cache_system.md)（2026-04-10 更新）。
 > 以下内容冻结在 2026-04-03 版本，仅供历史参考。主要差异：
 > - 英文版 §5 已更新为当前实现状态（KeyBuilder/SearchStrategy/WritePolicy/Trajectory）
 > - 英文版 §10-13（Configuration/File Structure/Roadmap）已删除，改为指向 tutorial 和 logs

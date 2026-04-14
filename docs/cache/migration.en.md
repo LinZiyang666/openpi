@@ -4,9 +4,9 @@
 > **Status**: Initial release
 > **Last updated**: 2026-04-10
 >
-> **Design doc**: [cache_system_architecture.md](cache_system_architecture.md)
-> **Component tutorial**: [cache_system_tutorial.md](cache_system_tutorial.md)
-> **Workflow diagrams**: [cache_system_workflow.md](cache_system_workflow.md)
+> **Design doc**: [../architecture/cache_system.md](../architecture/cache_system.md)
+> **Component tutorial**: [tutorial.md](tutorial.md)
+> **Workflow diagrams**: [../architecture/cache_workflow.md](../architecture/cache_workflow.md)
 
 ---
 

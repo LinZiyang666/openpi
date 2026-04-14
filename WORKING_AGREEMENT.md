@@ -18,7 +18,7 @@ Agent behavioral rules and session initialization protocol are embedded in [`CLA
 
 This project is a fork of Physical-Intelligence/openpi, targeting **PyTorch + Pi0.5 only**. The JAX path is disabled.
 
-Technical details: [`docs/openpi_reference.md`](docs/openpi_reference.md).
+Technical details: [`docs/reference/openpi.md`](docs/reference/openpi.md).
 
 ---
 
@@ -221,8 +221,8 @@ Subsystem-specific architecture constraints and component rules are defined in t
 
 | Subsystem | Rule Documents |
 |-----------|---------------|
-| Cache System | [`docs/cache_system_architecture.md`](docs/cache_system_architecture.md), [`docs/cache_system_tutorial.md`](docs/cache_system_tutorial.md) |
-| Data Collection | [`docs/data_collection_guide.md`](docs/data_collection_guide.md) |
+| Cache System | [`docs/architecture/cache_system.md`](docs/architecture/cache_system.md), [`docs/cache/tutorial.md`](docs/cache/tutorial.md) |
+| Data Collection | [`docs/data_collection/guide.md`](docs/data_collection/guide.md) |
 
 **New subsystem rule documents MUST be approved by the project owner before registration in this table.**
 

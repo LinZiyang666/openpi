@@ -1,8 +1,8 @@
 # Temporal Prune 实验教程
 
 > **前置知识**:
-> - [temporal_prune_guide.md](temporal_prune_guide.md) — KeyBuilder 组件和参数说明
-> - [run_cp1_cache_experiment.md](run_cp1_cache_experiment.md) — 通用 CP1 实验流程
+> - [../cache/temporal_prune.md](../cache/temporal_prune.md) — KeyBuilder 组件和参数说明
+> - [cp1_cache.md](cp1_cache.md) — 通用 CP1 实验流程
 
 ---
 

@@ -1,8 +1,8 @@
 # Temporal Prune KeyBuilder 使用指南
 
-> **前置知识**: 阅读 [cache_system_tutorial.md](cache_system_tutorial.md) §4 了解 KeyBuilder 组件基础。
+> **前置知识**: 阅读 [tutorial.md](tutorial.md) §4 了解 KeyBuilder 组件基础。
 >
-> **设计文档**: 完整方案设计见 [`logs/archive/redundant_token_prune_plan.log.md`](../logs/archive/redundant_token_prune_plan.log.md)
+> **设计文档**: 完整方案设计见 [`logs/archive/redundant_token_prune_plan.log.md`](../../logs/archive/redundant_token_prune_plan.log.md)
 
 ---
 

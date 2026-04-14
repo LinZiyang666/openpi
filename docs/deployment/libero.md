@@ -2,7 +2,7 @@
 
 > **Status:** The code modifications described in this document have already been integrated into `examples/libero/main.py`. The current implementation includes episode lifecycle control (`episode_start`/`episode_end`), real-time display, and wall-clock video recording. **Do not replace main.py with the code below** — it is retained as a historical reference for the original design.
 >
-> **Current source of truth:** [`examples/libero/main.py`](../examples/libero/main.py)
+> **Current source of truth:** [`examples/libero/main.py`](../../examples/libero/main.py)
 
 The simulator runs on the local WSL2 machine, while model inference runs on a remote GPU server, communicating via WebSocket.
 

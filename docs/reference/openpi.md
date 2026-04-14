@@ -1,6 +1,6 @@
 # OpenPI Model & Training Reference
 
-Detailed reference for project structure, model architecture, training configs, and deployment. For development workflow see [CLAUDE.md](../CLAUDE.md).
+Detailed reference for project structure, model architecture, training configs, and deployment. For development workflow see [CLAUDE.md](../../CLAUDE.md).
 
 ---
 

@@ -1,5 +1,5 @@
 # Cache system for the Pi0/Pi0.5 inference pipeline.
-# See docs/cache_system_architecture.md for the full design and roadmap.
+# See docs/architecture/cache_system.md for the full design and roadmap.
 #
 # Public API:
 #

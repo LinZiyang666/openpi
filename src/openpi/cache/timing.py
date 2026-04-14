@@ -446,7 +446,7 @@ class SystemTimer:
 
         Args:
             name: Unique probe identifier.  Use the naming convention from
-                  ``docs/cache_system_architecture.md`` §9:
+                  ``docs/architecture/cache_system.md`` §9:
                   ``stage1_vision``, ``cp1_gate``, ``cp2_search``, etc.
             backend: ``"cuda"`` for GPU operations (default), ``"cpu"`` for
                      CPU-only operations.  Passing an invalid string raises

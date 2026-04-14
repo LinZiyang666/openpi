@@ -3,7 +3,7 @@
 > **Full project rules**: [`WORKING_AGREEMENT.md`](WORKING_AGREEMENT.md)
 > **Architecture docs**: [`docs/README.md`](docs/README.md)
 > **Implementation logs**: [`logs/README.md`](logs/README.md)
-> **Project reference**: [`docs/openpi_reference.md`](docs/openpi_reference.md)
+> **Project reference**: [`docs/reference/openpi.md`](docs/reference/openpi.md)
 
 ---
 

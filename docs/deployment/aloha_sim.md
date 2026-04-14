@@ -2,7 +2,7 @@
 
 > **Status:** The `--display` support described in Section 1 has already been integrated. No code modifications are needed.
 >
-> **Current source of truth:** [`examples/aloha_sim/env.py`](../examples/aloha_sim/env.py), [`examples/aloha_sim/main.py`](../examples/aloha_sim/main.py)
+> **Current source of truth:** [`examples/aloha_sim/env.py`](../../examples/aloha_sim/env.py), [`examples/aloha_sim/main.py`](../../examples/aloha_sim/main.py)
 
 The simulator runs on the local WSL2 machine, while model inference runs on a remote GPU server, communicating via WebSocket.
 

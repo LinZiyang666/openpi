@@ -1,8 +1,8 @@
 # OpenPI Inference Cache System — Complete Tutorial
 
-> For deep design rationale and checkpoint theory, see [cache_system_architecture.md](cache_system_architecture.md).
+> For deep design rationale and checkpoint theory, see [../architecture/cache_system.md](../architecture/cache_system.md).
 >
-> **AGENT: READ FIRST** — This file is a registered subsystem rule document per [`WORKING_AGREEMENT.md` §8](../WORKING_AGREEMENT.md#8-subsystem-rules). Component isolation rules (§15) and testing patterns (§16) carry Working Agreement authority.
+> **AGENT: READ FIRST** — This file is a registered subsystem rule document per [`WORKING_AGREEMENT.md` §8](../../WORKING_AGREEMENT.md#8-subsystem-rules). Component isolation rules (§15) and testing patterns (§16) carry Working Agreement authority.
 
 This is a self-contained guide for developers who want to understand, configure, or extend the multi-level inference cache.
 

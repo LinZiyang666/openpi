@@ -4,9 +4,9 @@
 > **状态**: 初始版本
 > **最后更新**: 2026-04-10
 >
-> **设计文档**: [cache_system_architecture.md](cache_system_architecture.md)
-> **组件教程**: [cache_system_tutorial.md](cache_system_tutorial.md)
-> **工作流图**: [cache_system_workflow.md](cache_system_workflow.md)
+> **设计文档**: [../architecture/cache_system.md](../architecture/cache_system.md)
+> **组件教程**: [tutorial.md](tutorial.md)
+> **工作流图**: [../architecture/cache_workflow.md](../architecture/cache_workflow.md)
 
 ---
 
