@@ -35,6 +35,11 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
+if __package__ in {None, ""}:
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from exp._cache_config_rpc import send_load_cache_config
 from exp._run_state_base import BaseRunState, UnitState
 
@@ -290,8 +295,106 @@ class _PhaseCommon:
         return WebsocketClientPolicy(host=self.host, port=self.port)
 
 
-class Phase1Runner(BaseRunState):
+class _PhaseRunner(BaseRunState):
+    """Shared scaffolding for Phase 1 / Phase 2 runners.
+
+    Subclasses declare four class-level attributes that differentiate the
+    two phases (filename prefix, experiment tag, whether the unit key
+    carries ``sample_idx``, and whether each episode fans out into M
+    samples). The actual body — GT load, episode bookkeeping, jsonl
+    append — lives here so ``execute_unit`` stays honest to the cleanup/07
+    contract: structure only, no lifecycle changes (F2 follow-up).
+    """
+
+    # Subclass overrides. ``USES_SAMPLE_IDX`` is the single switch that
+    # controls DeviateKey shape, task label, episode_id hashing, and the
+    # extra ``sample_idx`` field in the jsonl record.
+    FILE_PREFIX: str = ""
+    EXPERIMENT: str = ""
+    USES_SAMPLE_IDX: bool = False
+
+    def __init__(
+        self,
+        *,
+        state_path: Path,
+        common: _PhaseCommon,
+        max_retries: int = 2,
+    ) -> None:
+        super().__init__(state_path=state_path, max_retries=max_retries)
+        self.common = common
+
+    # Subclasses yield the sample_idx values to fan out per episode.
+    # Phase 1: range(M); Phase 2: a single None.
+    def _sample_idxs(self) -> List[Optional[int]]:
+        raise NotImplementedError
+
+    def build_units(self) -> List[UnitState]:
+        from exp._unit_key import DeviateKey
+
+        return [
+            UnitState(
+                unit_key=DeviateKey(
+                    cfg=self.common.config_id, ep=ep, sample_idx=s
+                ).encode()
+            )
+            for ep in self.common.episodes
+            for s in self._sample_idxs()
+        ]
+
+    def execute_unit(self, unit: UnitState) -> dict:
+        from exp._unit_key import DeviateKey
+
+        k = DeviateKey.decode(unit.unit_key)
+        cfg, ep, s = k.cfg, k.ep, k.sample_idx
+        # Explicit ValueError (not ``assert``) so the shape guard survives
+        # ``python -O`` — a corrupted unit key mixing Phase 1 / Phase 2
+        # schemas must always fail loudly, regardless of optimisation level.
+        if self.USES_SAMPLE_IDX and s is None:
+            raise ValueError(
+                f"{type(self).__name__} unit_key {unit.unit_key!r} must carry sample_idx"
+            )
+        if not self.USES_SAMPLE_IDX and s is not None:
+            raise ValueError(
+                f"{type(self).__name__} unit_key {unit.unit_key!r} must not carry sample_idx"
+            )
+        if self.USES_SAMPLE_IDX:
+            task_label = f"{cfg}_ep{ep}_s{s}"
+            ep_id = hash((ep, s)) & 0x7FFFFFFF
+        else:
+            task_label = f"{cfg}_ep{ep}"
+            ep_id = hash(ep) & 0x7FFFFFFF
+
+        obs_seq, _ = load_gt_episode(self.common.gt_dir, ep)
+        client = self.common.make_client()
+        # Unique episode_id per (episode[,sample]) so the server-side
+        # per-connection facade starts from a clean trajectory-history
+        # state (plan §18.A1.3 note: CP3 is also always_skip so no
+        # cross-sample contamination, but the episode_id still needs to be
+        # distinct for log/telemetry clarity).
+        client.episode_start(
+            experiment=self.EXPERIMENT,
+            task=task_label,
+            episode_id=ep_id,
+            episode_name="",
+        )
+        try:
+            chunks = _roll_out_episode(client, obs_seq)
+        finally:
+            client.episode_end(success=True)
+
+        record: dict = {"config": cfg, "episode": ep, "chunks": chunks.tolist()}
+        if self.USES_SAMPLE_IDX:
+            record["sample_idx"] = s
+        _append_jsonl(self.common.out_dir / f"{self.FILE_PREFIX}{cfg}.jsonl", record)
+        return {"T": int(chunks.shape[0])}
+
+
+class Phase1Runner(_PhaseRunner):
     """Phase 1 worker: M stochastic replays per episode under AlwaysSkipGate."""
+
+    FILE_PREFIX = "bg_"
+    EXPERIMENT = "deviate_score_phase1"
+    USES_SAMPLE_IDX = True
 
     def __init__(
         self,
@@ -301,93 +404,22 @@ class Phase1Runner(BaseRunState):
         M: int,
         max_retries: int = 2,
     ) -> None:
-        super().__init__(state_path=state_path, max_retries=max_retries)
-        self.common = common
+        super().__init__(state_path=state_path, common=common, max_retries=max_retries)
         self.M = M
 
-    def build_units(self) -> List[UnitState]:
-        return [
-            UnitState(unit_key=f"{self.common.config_id}:{ep}:{s}")
-            for ep in self.common.episodes
-            for s in range(self.M)
-        ]
-
-    def execute_unit(self, unit: UnitState) -> dict:
-        cfg, ep, s_str = unit.unit_key.split(":", maxsplit=2)
-        s = int(s_str)
-        obs_seq, _ = load_gt_episode(self.common.gt_dir, ep)
-        client = self.common.make_client()
-        # Unique episode_id per (episode, sample) so the server-side
-        # per-connection facade starts from a clean trajectory-history
-        # state (plan §18.A1.3 note: CP3 is also always_skip so no
-        # cross-sample contamination, but the episode_id still needs to be
-        # distinct for log/telemetry clarity).
-        client.episode_start(
-            experiment="deviate_score_phase1",
-            task=f"{cfg}_ep{ep}_s{s}",
-            episode_id=hash((ep, s)) & 0x7FFFFFFF,
-            episode_name="",
-        )
-        try:
-            chunks = _roll_out_episode(client, obs_seq)
-        finally:
-            client.episode_end(success=True)
-
-        _append_jsonl(
-            self.common.out_dir / f"bg_{cfg}.jsonl",
-            {
-                "config": cfg,
-                "episode": ep,
-                "sample_idx": s,
-                "chunks": chunks.tolist(),
-            },
-        )
-        return {"T": int(chunks.shape[0])}
+    def _sample_idxs(self) -> List[Optional[int]]:
+        return list(range(self.M))
 
 
-class Phase2Runner(BaseRunState):
+class Phase2Runner(_PhaseRunner):
     """Phase 2 worker: one cache-driven replay per episode."""
 
-    def __init__(
-        self,
-        *,
-        state_path: Path,
-        common: _PhaseCommon,
-        max_retries: int = 2,
-    ) -> None:
-        super().__init__(state_path=state_path, max_retries=max_retries)
-        self.common = common
+    FILE_PREFIX = "cache_"
+    EXPERIMENT = "deviate_score_phase2"
+    USES_SAMPLE_IDX = False
 
-    def build_units(self) -> List[UnitState]:
-        return [
-            UnitState(unit_key=f"{self.common.config_id}:{ep}")
-            for ep in self.common.episodes
-        ]
-
-    def execute_unit(self, unit: UnitState) -> dict:
-        cfg, ep = unit.unit_key.split(":", maxsplit=1)
-        obs_seq, _ = load_gt_episode(self.common.gt_dir, ep)
-        client = self.common.make_client()
-        client.episode_start(
-            experiment="deviate_score_phase2",
-            task=f"{cfg}_ep{ep}",
-            episode_id=hash(ep) & 0x7FFFFFFF,
-            episode_name="",
-        )
-        try:
-            chunks = _roll_out_episode(client, obs_seq)
-        finally:
-            client.episode_end(success=True)
-
-        _append_jsonl(
-            self.common.out_dir / f"cache_{cfg}.jsonl",
-            {
-                "config": cfg,
-                "episode": ep,
-                "chunks": chunks.tolist(),
-            },
-        )
-        return {"T": int(chunks.shape[0])}
+    def _sample_idxs(self) -> List[Optional[int]]:
+        return [None]
 
 
 # ---------------------------------------------------------------------------

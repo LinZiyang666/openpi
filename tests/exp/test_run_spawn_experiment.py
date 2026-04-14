@@ -557,6 +557,92 @@ def test_execute_spawn_unit_closes_resources_when_infer_raises(tmp_path: Path) -
 
 
 # ---------------------------------------------------------------------------
+# cleanup/05 G2 boundaries: make_client / env.close failure modes
+# ---------------------------------------------------------------------------
+
+
+def test_execute_spawn_unit_closes_env_when_make_client_raises(tmp_path: Path) -> None:
+    """``common.make_client()`` is called *after* ``env`` is constructed.
+    If client construction fails, the already-built env MUST still be
+    closed — otherwise a flaky server would leak MuJoCo handles in
+    parallel sweeps (cleanup/05 boundary 1)."""
+    chunk = np.full((10, 7), 0.25, dtype=np.float32)
+    env = _FakeEnv()
+
+    def _raising_client_factory(host: str, port: int):
+        raise RuntimeError("ws connect refused")
+
+    common = _make_common_with_hdf5(tmp_path, client=_FakeClient(chunk), env=env)
+    # Swap the factory to the raising one; the instance in common isn't
+    # used because make_client calls client_factory first.
+    common.client_factory = _raising_client_factory
+
+    with pytest.raises(RuntimeError, match="ws connect refused"):
+        spawn._execute_spawn_unit(common=common, ep="task_3/episode_0", s=2, n=3, k_idx=0)
+
+    # env was built, then client_factory raised — but env must still close.
+    assert len(env.set_init_state_calls) == 1
+    assert env.close_calls == 1
+
+
+def test_execute_spawn_unit_rollout_error_not_masked_by_env_close_error(
+    tmp_path: Path,
+) -> None:
+    """If ``env.close()`` raises during cleanup, the runner must log the
+    env-close failure but still propagate the *original* rollout exception
+    (cleanup/05 boundary 2 — defense against finally-block masking)."""
+    chunk = np.full((10, 7), 0.25, dtype=np.float32)
+    client = _FakeClient(chunk)
+    client.set_infer_raise(RuntimeError("server died"), after=1)
+    env = _FakeEnv()
+
+    original_close = env.close
+
+    def _close_and_raise() -> None:
+        original_close()
+        raise RuntimeError("env teardown exploded")
+
+    env.close = _close_and_raise  # type: ignore[method-assign]
+
+    common = _make_common_with_hdf5(tmp_path, client=client, env=env)
+
+    # Python rule: when the try-block raises and finally-block also
+    # raises, the finally exception replaces the try exception UNLESS the
+    # finally explicitly catches. Our _cleanup_spawn_resources catches
+    # env.close exceptions and just logs them, so the original RuntimeError
+    # from infer must be the one that propagates.
+    with pytest.raises(RuntimeError, match="server died"):
+        spawn._execute_spawn_unit(common=common, ep="task_3/episode_0", s=2, n=3, k_idx=0)
+
+    # env.close was still invoked (once) even though it threw.
+    assert env.close_calls == 1
+    assert client.close_calls == 1
+
+
+def test_run_rollout_budget_exceeded_returns_false(tmp_path: Path) -> None:
+    """cleanup/05 boundary 3: when neither ``info['success']`` nor
+    ``done`` triggers within ``budget`` steps, ``_run_rollout`` returns
+    ``(False, budget)``. Budget-exceeded must surface as
+    ``success=False`` + ``env_steps_executed==budget`` — not as an
+    error (BaseRunState would otherwise retry the unit forever)."""
+    chunk = np.full((10, 7), 0.25, dtype=np.float32)
+    client = _FakeClient(chunk)
+    env = _FakeEnv()  # never sets success, never sets done
+    common = _make_common_with_hdf5(tmp_path, client=client, env=env)
+    common.max_spawn_env_steps = 3  # tight budget
+
+    result = spawn._execute_spawn_unit(
+        common=common, ep="task_3/episode_0", s=2, n=3, k_idx=0
+    )
+
+    assert result["success"] is False
+    assert result["env_steps_executed"] == 3
+    assert len(env.step_calls) == 3
+    # episode_end records the final success value (False here).
+    assert client.episode_end_kwargs == {"success": False}
+
+
+# ---------------------------------------------------------------------------
 # G2 §26 MF-3: env-timestep budget axis + fallback warn
 # ---------------------------------------------------------------------------
 
@@ -770,3 +856,217 @@ def test_aggregate_spawn_results_emits_csv_with_done_units_only(tmp_path: Path) 
     # CSV file exists and contains exactly one data row.
     csv_text = (tmp_path / "spawn_aggregate.csv").read_text().strip().splitlines()
     assert len(csv_text) == 2  # header + 1 row
+
+
+# ---------------------------------------------------------------------------
+# cleanup/08 P1-5: _BaseSpawnRunner is abstract
+# ---------------------------------------------------------------------------
+
+
+def test_base_spawn_runner_cannot_be_instantiated_without_iter_targets(tmp_path):
+    """P1-5 lock: ``_BaseSpawnRunner`` must refuse direct instantiation so
+    future subclasses cannot accidentally inherit a runner that silently
+    produces zero units. The ``@abstractmethod`` decorator converts the
+    previously-silent ``NotImplementedError`` path into a clean TypeError
+    at construction time."""
+    from exp.run_spawn_experiment import _BaseSpawnRunner, _SpawnCommon
+
+    common = _SpawnCommon(
+        cfg="cfgA",
+        gt_dir=tmp_path / "gt",
+        collected_dir=tmp_path / "coll",
+        task_suite_name="libero_spatial",
+        D=4,
+        out_dir=tmp_path / "out",
+        host="127.0.0.1",
+        port=0,
+    )
+    with pytest.raises(TypeError, match="_iter_targets"):
+        _BaseSpawnRunner(
+            state_path=tmp_path / "s.json", common=common, strategy="top_k",
+        )
+
+
+# ---------------------------------------------------------------------------
+# cleanup/09 P1-4: spawn_state metadata sidecar
+# ---------------------------------------------------------------------------
+
+
+def _build_fake_common_for_sidecar(tmp_path: Path, cfg: str = "clip_w7_d4") -> "spawn._SpawnCommon":
+    return spawn._SpawnCommon(
+        cfg=cfg,
+        gt_dir=tmp_path / "gt",
+        collected_dir=tmp_path / "coll",
+        task_suite_name="libero_spatial",
+        D=4,
+        out_dir=tmp_path / "out",
+        host="127.0.0.1",
+        port=0,
+    )
+
+
+def test_spawn_runner_writes_meta_sidecar_on_construction(tmp_path: Path) -> None:
+    """P1-4 lock: ``SpawnRunner(...)`` emits ``{state}.meta.json`` with
+    ``strategy=top_k`` and the exact ``cfg`` from ``_SpawnCommon``."""
+    common = _build_fake_common_for_sidecar(tmp_path)
+    state_path = tmp_path / "spawn_state_clip_w7_d4.json"
+    spawn.SpawnRunner(state_path=state_path, common=common)
+
+    meta_path = state_path.with_suffix(".meta.json")
+    assert meta_path.exists()
+    meta = json.loads(meta_path.read_text())
+    assert meta == {"strategy": "top_k", "config": "clip_w7_d4"}
+
+
+def test_baseline_runner_writes_meta_sidecar_with_baseline_strategy(tmp_path: Path) -> None:
+    """Baselines bake ``strategy`` into both the state filename AND the
+    sidecar; the sidecar is the authoritative field aggregate reads."""
+    common = _build_fake_common_for_sidecar(tmp_path)
+    state_path = tmp_path / "spawn_state_random_clip_w7_d4.json"
+    spawn.BaselineRunner(state_path=state_path, common=common, strategy="random")
+
+    meta = json.loads(state_path.with_suffix(".meta.json").read_text())
+    assert meta == {"strategy": "random", "config": "clip_w7_d4"}
+
+
+def test_aggregate_prefers_sidecar_over_filename(tmp_path: Path) -> None:
+    """When a sidecar exists, aggregate must use its ``(strategy, config)``
+    instead of re-parsing the filename — this closes the pre-cleanup
+    ambiguity where ``spawn_state_random_clip_w7_d4.json`` could have been
+    interpreted as cfg=``random_clip_w7_d4`` by a naive filename parse."""
+    state_path = tmp_path / "spawn_state_random_clip_w7_d4.json"
+    state_path.write_text(json.dumps({
+        "clip_w7_d4:task_3/episode_0:s2:n3:k0": {
+            "unit_key": "clip_w7_d4:task_3/episode_0:s2:n3:k0",
+            "status": "done",
+            "result": {
+                "success": True, "s": 2, "n": 3, "k_idx": 0,
+                "episode": "task_3/episode_0", "env_steps_executed": 11,
+            },
+        },
+    }))
+    state_path.with_suffix(".meta.json").write_text(json.dumps({
+        "strategy": "random", "config": "clip_w7_d4",
+    }))
+
+    rows = spawn.aggregate_spawn_results(
+        out_dir=tmp_path, configs=[],
+        extra_state_files=[state_path],
+    )
+    assert len(rows) == 1
+    assert rows[0]["config"] == "clip_w7_d4"
+    assert rows[0]["strategy"] == "random"
+
+
+def test_aggregate_falls_back_with_warning_when_sidecar_missing(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Legacy state file lacks a sidecar — aggregate must warn AND still
+    recover ``(strategy, config)`` from the filename so pre-cleanup runs
+    remain aggregatable during the migration window."""
+    state_path = tmp_path / "spawn_state_clip_w7_d4.json"
+    state_path.write_text(json.dumps({
+        "clip_w7_d4:task_3/episode_0:s2:n3:k0": {
+            "status": "done",
+            "result": {
+                "success": True, "s": 2, "n": 3, "k_idx": 0,
+                "episode": "task_3/episode_0", "env_steps_executed": 7,
+            },
+        },
+    }))
+    # No meta.json sidecar on purpose.
+
+    with caplog.at_level("WARNING"):
+        rows = spawn.aggregate_spawn_results(
+            out_dir=tmp_path, configs=["clip_w7_d4"],
+        )
+    assert len(rows) == 1
+    assert rows[0]["strategy"] == "top_k"
+    assert rows[0]["config"] == "clip_w7_d4"
+    assert any("No .meta.json sidecar" in r.message for r in caplog.records)
+
+
+def test_meta_sidecar_idempotent_when_content_matches(tmp_path: Path) -> None:
+    """P1-4 lock: reconstructing the same SpawnRunner over an existing,
+    matching sidecar must be a no-op — resume flows build a fresh runner
+    object but the state+meta on disk are already correct."""
+    common = _build_fake_common_for_sidecar(tmp_path)
+    state_path = tmp_path / "spawn_state_clip_w7_d4.json"
+    spawn.SpawnRunner(state_path=state_path, common=common)
+    meta_path = state_path.with_suffix(".meta.json")
+    first_mtime = meta_path.stat().st_mtime_ns
+    first_content = meta_path.read_text()
+
+    # Second construction must not raise and must not rewrite the file.
+    spawn.SpawnRunner(state_path=state_path, common=common)
+    assert meta_path.read_text() == first_content
+    assert meta_path.stat().st_mtime_ns == first_mtime
+
+
+def test_meta_sidecar_raises_on_strategy_mismatch(tmp_path: Path) -> None:
+    """P1-4 lock: if the existing sidecar says strategy=top_k but a
+    BaselineRunner (strategy=random) is constructed over the same state
+    path, the runner MUST refuse rather than silently overwriting."""
+    common = _build_fake_common_for_sidecar(tmp_path)
+    state_path = tmp_path / "spawn_state_clip_w7_d4.json"
+    state_path.with_suffix(".meta.json").write_text(
+        json.dumps({"strategy": "top_k", "config": "clip_w7_d4"})
+    )
+
+    with pytest.raises(ValueError, match="sidecar mismatch"):
+        spawn.BaselineRunner(
+            state_path=state_path, common=common, strategy="random",
+        )
+
+
+def test_meta_sidecar_raises_on_config_mismatch(tmp_path: Path) -> None:
+    """P1-4 lock: same strategy, different cfg must also raise. Catches the
+    case where a state file was copied from another run and the operator
+    forgot to rename the sidecar."""
+    common = _build_fake_common_for_sidecar(tmp_path, cfg="clip_w7_d4")
+    state_path = tmp_path / "spawn_state_clip_w7_d4.json"
+    state_path.with_suffix(".meta.json").write_text(
+        json.dumps({"strategy": "top_k", "config": "OTHER"})
+    )
+
+    with pytest.raises(ValueError, match="sidecar mismatch"):
+        spawn.SpawnRunner(state_path=state_path, common=common)
+
+
+def test_meta_sidecar_raises_on_corrupt_existing_sidecar(tmp_path: Path) -> None:
+    """Unreadable JSON in the sidecar is as dangerous as a mismatched one —
+    we cannot verify content equality, so we must refuse rather than
+    overwriting and losing whatever invariant it encoded."""
+    common = _build_fake_common_for_sidecar(tmp_path)
+    state_path = tmp_path / "spawn_state_clip_w7_d4.json"
+    state_path.with_suffix(".meta.json").write_text("not-json{{")
+
+    with pytest.raises(RuntimeError, match="unreadable"):
+        spawn.SpawnRunner(state_path=state_path, common=common)
+
+
+def test_aggregate_falls_back_when_sidecar_is_corrupted(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Corrupt sidecar (unreadable JSON or missing keys) must not crash
+    aggregate — it should warn, treat the sidecar as missing, and fall
+    back to the filename parse."""
+    state_path = tmp_path / "spawn_state_clip_w7_d4.json"
+    state_path.write_text(json.dumps({
+        "clip_w7_d4:task_3/episode_0:s2:n3:k0": {
+            "status": "done",
+            "result": {
+                "success": True, "s": 2, "n": 3, "k_idx": 0,
+                "episode": "task_3/episode_0", "env_steps_executed": 2,
+            },
+        },
+    }))
+    state_path.with_suffix(".meta.json").write_text("not json at all")
+
+    with caplog.at_level("WARNING"):
+        rows = spawn.aggregate_spawn_results(
+            out_dir=tmp_path, configs=["clip_w7_d4"],
+        )
+    assert len(rows) == 1
+    assert rows[0]["config"] == "clip_w7_d4"
+    assert any("unreadable" in r.message for r in caplog.records)

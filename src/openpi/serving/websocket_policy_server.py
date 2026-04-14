@@ -225,29 +225,40 @@ class WebsocketPolicyServer:
                         await websocket.send(packer.pack({"__ack__": "episode_end"}))
                     elif ctrl == "prefill_trajectory":
                         # Only exposed when this connection's policy is cache-
-                        # wrapped (``InferenceInterceptor``). We return a string
-                        # (which the client treats as an error — see
-                        # ``WebsocketClientPolicy.prefill_trajectory``) rather
-                        # than an ignored ack, because a silent no-op would
-                        # mask missing cache configuration at worker start.
+                        # wrapped (``InferenceInterceptor``). Cleanup/10 unifies
+                        # the error path onto the msgpack ``{"__ack__": "error",
+                        # "msg": ...}`` shape used everywhere else in this
+                        # server — the pre-cleanup bare-string send broke the
+                        # client's unpack path and silently lost context for
+                        # any prefill exception raised on the worker thread.
                         if not hasattr(conn_policy, "prefill_trajectory"):
-                            await websocket.send(
-                                "prefill_trajectory requires a cache-wrapped policy "
-                                "(InferenceInterceptor); this connection's policy "
-                                "does not expose it."
-                            )
+                            await websocket.send(packer.pack({
+                                "__ack__": "error",
+                                "msg": (
+                                    "prefill_trajectory requires a cache-wrapped policy "
+                                    "(InferenceInterceptor); this connection's policy "
+                                    "does not expose it."
+                                ),
+                            }))
                             continue
                         # Run in a thread: the interceptor drives stage1 for
                         # every prefill step, so synchronous execution would
                         # block the asyncio event loop (health checks, other
                         # connections). Matches the dispatch of ``infer``.
-                        await asyncio.to_thread(
-                            conn_policy.prefill_trajectory,
-                            obs["observations"],
-                            obs["actions"],
-                            record=obs.get("record", False),
-                            on_miss=obs.get("on_miss", "error"),
-                        )
+                        try:
+                            await asyncio.to_thread(
+                                conn_policy.prefill_trajectory,
+                                obs["observations"],
+                                obs["actions"],
+                                record=obs.get("record", False),
+                                on_miss=obs.get("on_miss", "error"),
+                            )
+                        except Exception as exc:  # noqa: BLE001 — surface ANY error to client
+                            logger.exception("prefill_trajectory failed on worker thread")
+                            await websocket.send(packer.pack({
+                                "__ack__": "error", "msg": str(exc),
+                            }))
+                            continue
                         await websocket.send(packer.pack({"__ack__": "prefill_trajectory"}))
                     elif ctrl == "load_cache_config":
                         if not self._concurrent:

@@ -16,6 +16,8 @@ import json
 from pathlib import Path
 import threading
 
+from concurrent.futures import ThreadPoolExecutor
+
 from exp._run_state_base import BaseRunState
 from exp._run_state_base import UnitState
 
@@ -255,3 +257,152 @@ def test_unit_filter_also_scopes_retry_pass(tmp_path: Path) -> None:
     assert shard_b.executed == ["u1", "u1"]
     assert shard_b.units["u1"].status == "done"
     assert shard_b.units["u1"].retry_count == 1
+
+
+# ------------------------------------------------------------------
+# cleanup/06 §2 P1-1: retry save cadence is asymmetric serial vs parallel
+# ------------------------------------------------------------------
+
+
+def test_serial_retry_saves_per_unit_flip(tmp_path: Path) -> None:
+    """Plan §2 P1-1 lock: in serial ``run()``, every still-failed unit must
+    be flipped to ``pending`` AND persisted individually before its retry
+    runs. A crash between two retry flips should expose only the one unit
+    that was mid-transition, not all of them at once."""
+    state_path = tmp_path / "state.json"
+    runner = _Runner(
+        state_path=state_path,
+        unit_ids=("u0", "u1"),
+        # Both fail on primary + retry-1, succeed on retry-2.
+        fail_once=frozenset({"u0", "u1"}),
+    )
+
+    # Spy on save() and record (for each call) a snapshot of statuses and
+    # retry_counts. We only care about the first retry attempt here.
+    snapshots: list[dict[str, tuple[str, int]]] = []
+    real_save = runner.save
+
+    def _spy_save() -> None:
+        snapshots.append(
+            {k: (u.status, u.retry_count) for k, u in runner.units.items()}
+        )
+        real_save()
+
+    runner.save = _spy_save  # type: ignore[method-assign]
+    runner.run()
+
+    # Locate the first post-primary snapshot where u0 has flipped to
+    # ``pending`` for attempt=1 — at that exact save, u1 must still be
+    # ``failed`` (its per-unit flip-save comes later).
+    matched = False
+    for snap in snapshots:
+        if snap["u0"] == ("pending", 1) and snap["u1"] == ("failed", 0):
+            matched = True
+            break
+    assert matched, (
+        "serial retry must save u0's pending flip before touching u1; "
+        f"got snapshots={snapshots}"
+    )
+
+
+def test_parallel_retry_batch_flips_before_single_save(tmp_path: Path) -> None:
+    """Parallel mode flips ALL still-failed units to pending first, saves
+    once, then redispatches. The batch snapshot where both units are
+    ``pending`` simultaneously (and retry_count=1) must exist — serial mode
+    could never produce that snapshot."""
+    state_path = tmp_path / "state.json"
+    runner = _Runner(
+        state_path=state_path,
+        unit_ids=("u0", "u1"),
+        fail_once=frozenset({"u0", "u1"}),
+    )
+
+    snapshots: list[dict[str, tuple[str, int]]] = []
+    real_save = runner.save
+
+    def _spy_save() -> None:
+        snapshots.append(
+            {k: (u.status, u.retry_count) for k, u in runner.units.items()}
+        )
+        real_save()
+
+    runner.save = _spy_save  # type: ignore[method-assign]
+    runner.parallel_run(num_workers=2)
+
+    # The batch flip writes exactly one save where BOTH units are pending
+    # with retry_count=1. Serial mode cannot produce this snapshot.
+    assert any(
+        snap["u0"] == ("pending", 1) and snap["u1"] == ("pending", 1)
+        for snap in snapshots
+    ), f"parallel retry must show a batch-pending save; got snapshots={snapshots}"
+
+
+# ------------------------------------------------------------------
+# cleanup/06: parallel_run shares the same driver as run
+# ------------------------------------------------------------------
+
+
+def test_parallel_run_executes_all_units_via_executor(tmp_path: Path) -> None:
+    """Cleanup/06 lock: parallel_run submits every primary-pass unit through
+    the pool and waits for completion before returning."""
+    state_path = tmp_path / "state.json"
+    runner = _Runner(state_path=state_path, unit_ids=tuple(f"u{i}" for i in range(4)))
+    runner.parallel_run(num_workers=2)
+
+    assert set(runner.executed) == {"u0", "u1", "u2", "u3"}
+    assert all(runner.units[k].status == "done" for k in runner.unit_ids)
+
+
+def test_parallel_run_retries_fail_once_units(tmp_path: Path) -> None:
+    """Parallel retry path must flip failed units to ``pending`` and redispatch
+    them through the pool, just like the serial retry loop."""
+    state_path = tmp_path / "state.json"
+    runner = _Runner(
+        state_path=state_path,
+        unit_ids=("u0", "u1"),
+        fail_once=frozenset({"u0"}),
+    )
+    runner.parallel_run(num_workers=2)
+
+    assert runner.units["u0"].status == "done"
+    assert runner.units["u0"].retry_count == 1
+    assert runner.units["u1"].status == "done"
+    # u0 ran twice (primary fail + retry), u1 once.
+    assert runner.executed.count("u0") == 2
+    assert runner.executed.count("u1") == 1
+
+
+def test_dispatch_uses_executor_when_provided(tmp_path: Path) -> None:
+    """Structural lock: the private ``_dispatch`` helper goes through the
+    supplied ``ThreadPoolExecutor`` rather than calling ``_execute_one``
+    inline. We observe this by tracking how many distinct threads ran the
+    units — with ``max_workers=4`` and a small barrier inside ``execute_unit``
+    we expect ``>1`` worker thread to participate.
+    """
+    state_path = tmp_path / "state.json"
+
+    barrier = threading.Barrier(4, timeout=2.0)
+    seen_threads: set[int] = set()
+    lock = threading.Lock()
+
+    class _ParallelRunner(BaseRunState):
+        def __init__(self, path: Path) -> None:
+            super().__init__(path, max_retries=0)
+
+        def build_units(self):
+            return [UnitState(unit_key=f"u{i}") for i in range(4)]
+
+        def execute_unit(self, unit):
+            barrier.wait()
+            with lock:
+                seen_threads.add(threading.get_ident())
+            return {"ok": True}
+
+    runner = _ParallelRunner(state_path)
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        runner._run_impl(resume=False, unit_filter=None, executor=pool)
+
+    # All 4 units done, and the barrier only unblocks when 4 threads reach it —
+    # proving the executor actually parallelised execution.
+    assert all(u.status == "done" for u in runner.units.values())
+    assert len(seen_threads) == 4

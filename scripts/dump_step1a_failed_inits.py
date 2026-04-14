@@ -62,7 +62,11 @@ def _group_failed_by_task(rows: List[Dict[str, Any]]) -> Dict[int, List[int]]:
     """
     failed_by_task: Dict[int, set] = defaultdict(set)
     for r in rows:
-        if r.get("success"):
+        # P2-2: name the predicate explicitly — the condition is "episode
+        # failed", not "success is falsy", and conflating the two has bitten
+        # readers scanning this loop.
+        is_failed = not r.get("success", False)
+        if not is_failed:
             continue
         task_id = int(r["task_id"])
         orig = int(r.get("orig_init_state_idx", r["init_state_idx"]))

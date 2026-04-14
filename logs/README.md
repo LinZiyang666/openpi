@@ -41,6 +41,7 @@ logs/
 | [trajectory_deviation_experiment_plan.log.md](trajectory_deviation_experiment_plan.log.md) | `Plan` | Trajectory deviation 纠偏实验：3-Phase (离线诊断→信号分析→Oracle纠偏) |
 | [trajectory_deviation_corrective_experiment.log.md](trajectory_deviation_corrective_experiment.log.md) | `Plan` | Trajectory deviation 纠偏详细实验计划：GT收集→Deviate Score→Spawn纠偏，含 trajectory depth 预填充方案 |
 | [trajectory_deviation_corrective_implementation_review.log.md](trajectory_deviation_corrective_implementation_review.log.md) | `Plan/G2 Review/Verify` | Trajectory deviation 纠偏代码级实现计划与代码审查记录：G2 Layer A+D+E、Layer B、Layer C、Layer F APPROVE；Verify 离线部分（Phase 0 smoke 脚本 + 并发进度条修复）已落地，待真实 LIBERO smoke + 端到端 dry run |
+| [trajectory_deviation_corrective_cleanup_plan.log.md](trajectory_deviation_corrective_cleanup_plan.log.md) | `G1 Approved` | L2 post-hoc cleanup plan：三类妥协（大函数 / helper 重复 / 死参数）10 个 commit 分三波，G1 Round 2 APPROVE，待进入 Wave A Code |
 
 ### Retrieval System
 

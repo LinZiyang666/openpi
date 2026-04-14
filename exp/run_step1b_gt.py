@@ -42,6 +42,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+if __package__ in {None, ""}:
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from exp._cache_config_rpc import send_load_cache_config
 from exp._run_state_base import BaseRunState, UnitState
 
@@ -69,13 +74,19 @@ def build_unit_key(task_id: int, orig_init_state_idx: int) -> str:
     the subset position but we do not — the state file must survive a
     regenerated filter that keeps the same set of failures but in a
     different subset order.
+
+    Delegates to ``Step1bKey.encode`` so the format lives in one place.
     """
-    return f"{int(task_id)}:{int(orig_init_state_idx)}"
+    from exp._unit_key import Step1bKey
+
+    return Step1bKey(task_id=task_id, init_idx=orig_init_state_idx).encode()
 
 
 def parse_unit_key(key: str) -> Tuple[int, int]:
-    task_str, orig_str = key.split(":")
-    return int(task_str), int(orig_str)
+    from exp._unit_key import Step1bKey
+
+    k = Step1bKey.decode(key)
+    return k.task_id, k.init_idx
 
 
 # ---------------------------------------------------------------------------
@@ -229,23 +240,11 @@ class Step1bRunner(BaseRunState):
 def _build_subprocess_cmd(
     main_args: List[str], conda_env: Optional[str]
 ) -> Tuple[List[str], Optional[Dict[str, str]]]:
-    """Mirror the env / command shape used in ``run_cache_experiments.py``."""
-    if not conda_env:
-        return ["uv", "run", *main_args], None
+    """Thin wrapper around ``exp._subprocess.build_subprocess_cmd`` kept for
+    backward-compat with existing tests that target this symbol."""
+    from exp._subprocess import build_subprocess_cmd
 
-    cmd = ["conda", "run", "--no-capture-output", "-n", conda_env, "python", *main_args]
-    env = {
-        k: v for k, v in os.environ.items()
-        if k not in ("VIRTUAL_ENV", "PYTHONPATH", "PYTHONHOME")
-    }
-    venv_bin = os.environ.get("VIRTUAL_ENV", "")
-    if venv_bin:
-        venv_bin = os.path.join(venv_bin, "bin")
-        env["PATH"] = os.pathsep.join(
-            p for p in env.get("PATH", "").split(os.pathsep) if p != venv_bin
-        )
-    env["MUJOCO_GL"] = "egl"
-    return cmd, env
+    return build_subprocess_cmd(main_args, conda_env=conda_env)
 
 
 def _read_unit_result(

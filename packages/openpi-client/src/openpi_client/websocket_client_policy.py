@@ -123,8 +123,21 @@ class WebsocketClientPolicy(_base_policy.BasePolicy):
         )
         response = self._ws.recv()
         if isinstance(response, str):
+            # Legacy bare-string error path (pre-cleanup/10 servers). Log a
+            # warning so operators notice the stale server, then re-raise so
+            # callers still fail loudly.
+            logging.warning(
+                "Server sent a legacy bare-string prefill error. "
+                "Upgrade the server — new protocol uses msgpack "
+                "{__ack__: 'error', msg: ...}."
+            )
             raise RuntimeError(f"Error in inference server:\n{response}")
-        return msgpack_numpy.unpackb(response)
+        decoded = msgpack_numpy.unpackb(response)
+        if isinstance(decoded, dict) and decoded.get("__ack__") == "error":
+            raise RuntimeError(
+                f"Error in inference server:\n{decoded.get('msg', '(no message)')}"
+            )
+        return decoded
 
     @override
     def reset(self) -> None:

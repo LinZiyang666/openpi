@@ -171,35 +171,7 @@ class BaseRunState(ABC):
         run), which breaks resume/sharded execution. Always filter retries
         with the same predicate used for the primary pass.
         """
-        if resume:
-            self.load()
-        if not self.units:
-            for u in self.build_units():
-                self.units[u.unit_key] = u
-        self.save()
-
-        def _in_scope(u: UnitState) -> bool:
-            return unit_filter is None or unit_filter(u)
-
-        queue = [u for u in self.units.values() if u.status != "done" and _in_scope(u)]
-
-        # ---- Primary pass ----
-        for u in queue:
-            self._execute_one(u)
-
-        # ---- Retry pass ----
-        for attempt in range(1, self.max_retries + 1):
-            still_failed = [u for u in self.failed_units() if _in_scope(u)]
-            if not still_failed:
-                break
-            logger.info(
-                "[retry %d/%d] %d failed units", attempt, self.max_retries, len(still_failed)
-            )
-            for u in still_failed:
-                u.retry_count = attempt
-                u.status = "pending"
-                self.save()
-                self._execute_one(u)
+        self._run_impl(resume=resume, unit_filter=unit_filter, executor=None)
 
     def parallel_run(
         self,
@@ -220,6 +192,25 @@ class BaseRunState(ABC):
         pass flips any still-failed unit back to ``pending`` and re-submits
         it to the pool.
         """
+        with ThreadPoolExecutor(max_workers=max(1, num_workers)) as pool:
+            self._run_impl(resume=resume, unit_filter=unit_filter, executor=pool)
+
+    def _run_impl(
+        self,
+        *,
+        resume: bool,
+        unit_filter: Callable[[UnitState], bool] | None,
+        executor: ThreadPoolExecutor | None,
+    ) -> None:
+        """Shared driver for ``run`` / ``parallel_run``.
+
+        ``executor=None`` dispatches serially; a pool dispatches through it.
+        Retry save cadence is deliberately asymmetric between the two modes
+        (locked by plan §2 P1-1): serial flips-and-saves per unit so a crash
+        between two retry units only exposes the one currently being re-queued;
+        parallel flips all still-failed units, saves once, then redispatches
+        the pool batch.
+        """
         if resume:
             self.load()
         if not self.units:
@@ -231,28 +222,45 @@ class BaseRunState(ABC):
             return unit_filter is None or unit_filter(u)
 
         queue = [u for u in self.units.values() if u.status != "done" and _in_scope(u)]
-        if queue:
-            with ThreadPoolExecutor(max_workers=max(1, num_workers)) as pool:
-                futures = [pool.submit(self._execute_one, u) for u in queue]
-                for _ in as_completed(futures):
-                    pass  # _execute_one persists state on its own
+        self._dispatch(queue, executor)
 
         for attempt in range(1, self.max_retries + 1):
             still_failed = [u for u in self.failed_units() if _in_scope(u)]
             if not still_failed:
                 break
             logger.info(
-                "[parallel retry %d/%d] %d failed units",
+                "[%s %d/%d] %d failed units",
+                "retry" if executor is None else "parallel retry",
                 attempt, self.max_retries, len(still_failed),
             )
-            for u in still_failed:
-                u.retry_count = attempt
-                u.status = "pending"
-            self.save()
-            with ThreadPoolExecutor(max_workers=max(1, num_workers)) as pool:
-                futures = [pool.submit(self._execute_one, u) for u in still_failed]
-                for _ in as_completed(futures):
-                    pass
+            if executor is None:
+                for u in still_failed:
+                    u.retry_count = attempt
+                    u.status = "pending"
+                    self.save()
+                    self._execute_one(u)
+            else:
+                for u in still_failed:
+                    u.retry_count = attempt
+                    u.status = "pending"
+                self.save()
+                self._dispatch(still_failed, executor)
+
+    def _dispatch(
+        self,
+        units: list[UnitState],
+        executor: ThreadPoolExecutor | None,
+    ) -> None:
+        """Run ``_execute_one`` over each unit, serially or via executor."""
+        if not units:
+            return
+        if executor is None:
+            for u in units:
+                self._execute_one(u)
+            return
+        futures = [executor.submit(self._execute_one, u) for u in units]
+        for _ in as_completed(futures):
+            pass  # _execute_one persists state on its own
 
     def _execute_one(self, u: UnitState) -> None:
         u.status = "running"

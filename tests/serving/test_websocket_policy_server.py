@@ -207,14 +207,17 @@ def test_prefill_trajectory_dispatches_with_keyword_args() -> None:
 
 
 # ---------------------------------------------------------------------------
-# T15: prefill_trajectory on non-cache policy -> string error
+# T15: prefill_trajectory on non-cache policy -> msgpack error ack
 # ---------------------------------------------------------------------------
 
 
-def test_prefill_trajectory_on_non_cache_policy_sends_string_error() -> None:
-    """Must be a string (not ack) so the client's ``isinstance(response, str)``
-    check raises RuntimeError — otherwise the worker silently no-ops and
-    downstream results are meaningless (plan §22.4 MF-3)."""
+def test_prefill_trajectory_on_non_cache_policy_sends_error_ack() -> None:
+    """cleanup/10: the server now unifies the prefill error path onto the
+    msgpack ``{"__ack__": "error", "msg": ...}`` shape every other ctrl uses.
+    The client raises ``RuntimeError`` on either this dict OR the legacy bare
+    string — the dict is the new default because it round-trips through
+    ``msgpack_numpy.unpackb`` without tripping the worker's ``isinstance(
+    response, str)`` compat branch unnecessarily."""
     policy = _make_policy_with_lifecycle()  # no ``prefill_trajectory`` attr
     conn = _run_handler(
         policy,
@@ -229,11 +232,36 @@ def test_prefill_trajectory_on_non_cache_policy_sends_string_error() -> None:
         ],
     )
 
-    # First sent frame is metadata (bytes), the prefill response must be str.
-    responses_after_metadata = conn.sent[1:]
-    assert len(responses_after_metadata) == 1
-    assert isinstance(responses_after_metadata[0], str)
-    assert "prefill_trajectory requires a cache-wrapped policy" in responses_after_metadata[0]
+    acks = _ack_payloads(conn)
+    assert len(acks) == 1
+    assert acks[0]["__ack__"] == "error"
+    assert "prefill_trajectory requires a cache-wrapped policy" in acks[0]["msg"]
+
+
+def test_prefill_trajectory_worker_exception_surfaces_as_error_ack() -> None:
+    """cleanup/10 invariant: if the server-side ``prefill_trajectory`` raises,
+    the exception must NOT crash the connection. It must be wrapped into an
+    ``{"__ack__": "error", "msg": str(exc)}`` frame so the client sees the
+    failure as a regular protocol error."""
+    policy = _make_cache_policy()
+    policy.prefill_trajectory.side_effect = RuntimeError("synthetic prefill boom")
+    conn = _run_handler(
+        policy,
+        incoming=[
+            _pack(
+                {
+                    "__ctrl__": "prefill_trajectory",
+                    "observations": [{"x": 0}],
+                    "actions": [[1.0]],
+                }
+            )
+        ],
+    )
+
+    acks = _ack_payloads(conn)
+    assert len(acks) == 1
+    assert acks[0]["__ack__"] == "error"
+    assert "synthetic prefill boom" in acks[0]["msg"]
 
 
 # ---------------------------------------------------------------------------

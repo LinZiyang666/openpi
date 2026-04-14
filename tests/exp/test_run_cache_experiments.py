@@ -159,6 +159,101 @@ def test_aggregate_is_noop_on_missing_run_root(tmp_path: Path) -> None:
     assert not (tmp_path / "out.json").exists()
 
 
+def test_load_or_init_fresh_builds_states_from_yaml(tmp_path):
+    """cleanup/04 behavior lock: the non-resume path simply builds one
+    ``RunState`` per YAML in ``yaml_files`` order and does not read the
+    state file at all."""
+    from types import SimpleNamespace
+    from exp.run_cache_experiments import _load_or_init_states
+
+    yaml_dir = tmp_path / "yamls"
+    yaml_dir.mkdir()
+    (yaml_dir / "a.yaml").write_text("x")
+    (yaml_dir / "b.yaml").write_text("x")
+    args = SimpleNamespace(
+        resume=False, episodes_per_run=10, task_suite="libero_spatial",
+    )
+
+    states = _load_or_init_states(
+        args, sorted(yaml_dir.glob("*.yaml")), tmp_path / "state.json"
+    )
+
+    assert states is not None
+    assert [s.run_id for s in states] == ["a", "b"]
+    assert all(s.task_suite == "libero_spatial" for s in states)
+    assert all(s.episodes_per_task == 10 for s in states)
+
+
+def test_load_or_init_resume_rejects_task_suite_mismatch(tmp_path):
+    """cleanup/04 behavior lock: resume with a saved state whose
+    ``task_suite`` disagrees with the current CLI returns ``None``
+    (signalling ``main`` to bail)."""
+    from types import SimpleNamespace
+    from exp.run_cache_experiments import _load_or_init_states
+
+    yaml_dir = tmp_path / "yamls"
+    yaml_dir.mkdir()
+    (yaml_dir / "run_001.yaml").write_text("x")
+    state_path = tmp_path / "state.json"
+    state_path.write_text(json.dumps([{
+        "yaml_path": str(yaml_dir / "run_001.yaml"),
+        "run_id": "run_001",
+        "status": "pending",
+        "episodes_per_task": 10,
+        "task_suite": "libero_object",
+    }]))
+
+    args = SimpleNamespace(
+        resume=True, episodes_per_run=10, task_suite="libero_spatial",
+    )
+
+    states = _load_or_init_states(
+        args, sorted(yaml_dir.glob("*.yaml")), state_path
+    )
+
+    assert states is None
+
+
+def test_resume_with_task_ids_subset_does_not_expand_task_progress(tmp_path):
+    """cleanup/04 F3 lock: when ``--task-ids`` on resume specifies a
+    subset that differs from the saved ``task_progress`` keys, the runner
+    does **not** retroactively add/remove tasks from existing progress.
+    This documents the pre-cleanup behavior (``_init_task_progress`` only
+    fires when ``task_progress`` is empty) so future F3 work can change
+    it deliberately, not by accident."""
+    from exp.run_cache_experiments import _init_task_progress, RunState
+
+    state = RunState(
+        yaml_path="x.yaml", run_id="run_x",
+        # Saved progress: original run used 4 tasks.
+        task_progress={"0": "done", "1": "done", "2": "pending", "3": "pending"},
+        task_results={"0": [5, 5], "1": [4, 5]},
+    )
+
+    # CLI reruns with --task-ids=0,2 (subset). _init_task_progress must
+    # be a no-op — existing keys survive unchanged.
+    _init_task_progress(state, [0, 2])
+
+    assert state.task_progress == {
+        "0": "done", "1": "done", "2": "pending", "3": "pending",
+    }
+
+
+def test_run_stats_agg_postfix_str():
+    from exp.run_cache_experiments import _RunStats
+
+    s = _RunStats(total_episodes_all=0, total_successes_all=0, completed=0, failed=0)
+    assert "agg=N/A" in s.agg_postfix_str()
+    assert "done=0" in s.agg_postfix_str()
+
+    s = _RunStats(total_episodes_all=10, total_successes_all=3, completed=1, failed=2)
+    out = s.agg_postfix_str()
+    assert "agg=30.0%" in out
+    assert "(3/10)" in out
+    assert "done=1" in out
+    assert "fail=2" in out
+
+
 def test_resume_validation_requires_task_suite_for_incomplete_state(tmp_path):
     state_path = tmp_path / "state.json"
     yaml_dir = tmp_path / "yamls"

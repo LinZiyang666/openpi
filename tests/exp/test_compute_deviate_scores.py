@@ -274,6 +274,73 @@ def test_phase1_runner_writes_per_sample_jsonl(
     }]
 
 
+def test_phase_runners_share_execute_unit_call_sequence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """cleanup/07 lock: after merging Phase1Runner and Phase2Runner into a
+    shared ``_PhaseRunner`` body, the call sequence in ``execute_unit`` must
+    stay ``episode_start → infer×T → episode_end(success=True)`` for BOTH
+    phases. This is the structural invariant the plan asked to preserve
+    while deliberately NOT touching lifecycle (F2 follow-up)."""
+
+    class _SeqClient(_FakeClient):
+        def __init__(self, chunk: np.ndarray) -> None:
+            super().__init__(chunk)
+            self.seq: List[str] = []
+
+        def episode_start(self, *, experiment, task, episode_id, episode_name) -> None:
+            self.seq.append("start")
+            super().episode_start(
+                experiment=experiment, task=task,
+                episode_id=episode_id, episode_name=episode_name,
+            )
+
+        def episode_end(self, *, success: bool) -> None:
+            self.seq.append(f"end:{success}")
+            super().episode_end(success=success)
+
+        def infer(self, obs):
+            self.seq.append("infer")
+            return super().infer(obs)
+
+    chunk = np.full((3, 7), 0.5, dtype=np.float32)
+    fake_obs = [{"x": 0}, {"x": 1}]
+    monkeypatch.setattr(
+        cds, "load_gt_episode", lambda *a, **k: (fake_obs, np.zeros((2, 5, 7)))
+    )
+
+    # Phase 1 — single sample.
+    client1 = _SeqClient(chunk)
+    common1 = _fake_common(tmp_path / "p1", client1, episodes=["task_0/episode_0"])
+    r1 = cds.Phase1Runner(
+        state_path=tmp_path / "p1" / "state.json", common=common1, M=1, max_retries=0,
+    )
+    r1.units = {u.unit_key: u for u in r1.build_units()}
+    r1.execute_unit(next(iter(r1.units.values())))
+
+    assert client1.seq == ["start", "infer", "infer", "end:True"]
+    assert client1.episode_start_kwargs is not None
+    assert client1.episode_start_kwargs["experiment"] == "deviate_score_phase1"
+
+    # Phase 2 — same sequence, different experiment tag, no sample_idx.
+    client2 = _SeqClient(chunk)
+    common2 = _fake_common(tmp_path / "p2", client2, episodes=["task_0/episode_0"])
+    r2 = cds.Phase2Runner(
+        state_path=tmp_path / "p2" / "state.json", common=common2, max_retries=0,
+    )
+    r2.units = {u.unit_key: u for u in r2.build_units()}
+    r2.execute_unit(next(iter(r2.units.values())))
+
+    assert client2.seq == ["start", "infer", "infer", "end:True"]
+    assert client2.episode_start_kwargs is not None
+    assert client2.episode_start_kwargs["experiment"] == "deviate_score_phase2"
+
+    # Structural: both subclasses must route through the same `_PhaseRunner`
+    # body so a future change to execute_unit touches both phases at once.
+    assert isinstance(r1, cds._PhaseRunner)
+    assert isinstance(r2, cds._PhaseRunner)
+
+
 def test_phase2_runner_writes_cache_jsonl(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

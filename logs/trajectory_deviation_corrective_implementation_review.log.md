@@ -2757,3 +2757,85 @@ Layer F-1..F-6：**APPROVE**。
 - finally 里 `_close_env_quietly(env)` 主动 `close()` 并 `contextlib.redirect_stderr(devnull)` 压掉 robosuite atexit 的 `OpenGL.EGL._errors.EGLError` 刷屏。
 
 V-1 不回滚任何 Layer A–F 代码，只修订 smoke 脚本的验收语义和物理路径，§19.8 的原断言在 plan log 里保持不动（作为历史记录），以本节为准。
+
+### 28.6 Verify 发现 V-2：obs equivalence smoke 的 `np.array_equal` 断言不现实
+
+**现象**：`scripts/verify_restore_obs_equivalence.py` 在 `libero_sim` env 下跑 Step 1b 刚产出的 GT HDF5（Layer F 的 spawn 起点）：
+
+| HDF5 | cycle | `state_max_delta` | `agentview img_max_delta` | `wrist img_max_delta` |
+|---|---|---|---|---|
+| task_0/episode_0.h5 | 0 | 8.346e-05 | 177 | 193 |
+| task_0/episode_0.h5 | 1 | 7.028e-04 | 192 | 193 |
+| task_0/episode_0.h5 | 5 | 8.319e-04 | 194 | 65 |
+| task_0/episode_1.h5 | 0 | 1.635e-04 | 177 | 188 |
+| task_0/episode_1.h5 | 5 | 9.672e-04 | 192 | 67 |
+| task_0/episode_1.h5 | 10 | 2.493e-03 | 177 | 82 |
+| task_1/episode_0.h5 | 0 | 1.112e-04 | 155 | 193 |
+| task_1/episode_0.h5 | 5 | 8.383e-04 | 192 | 165 |
+| task_1/episode_0.h5 | 15 | 1.733e-03 | 176 | 68 |
+
+`img_max_delta` 接近 255 满量程，约 30%–60% pixel 不等；`state_max_delta` 则随 cycle 深度从 8e-5 升到 2.5e-3。
+
+**根因**：`env.reset() + env.set_init_state(sim_state)` 的组合不能 bit-restore 中途状态的视觉 obs。`sim_state` 向量复位了 MuJoCo 物理 qpos/qvel，但渲染管线会残留上一帧 framebuffer（"第一帧 stale"），且 `env.reset()` 本身会做 LIBERO 内部的 object-pose 随机化，这部分不在 `sim_state` 里。state 侧的漂移则和 V-1 是同一类 MuJoCo solver warm-start 噪声，cycle 越深越大。
+
+**Layer F 是否受影响**：不受。关键路径是 `exp/run_spawn_experiment.py:469` 的 `"observation/image": np.asarray(g["agentview_image"][...])`，首帧 start_obs 从 HDF5 直读，不让 env re-render。后续步走 `env.step()` 返回的新 render，render 本身是 `sim.step()` 后的 fresh 状态，和 teleport 的 stale 首帧无关。state 漂移也不影响 deviate score 的设计假设——score 用的是 HDF5 里存好的 obs / action，不是 env 重放结果。
+
+**决议**：采用用户裁决的 A 方案（2026-04-14）—— smoke 改为全 info-only。`state_atol` 参数保留 CLI 接口以向后兼容，但运行期不再用作断言阈值。smoke 的作用收敛为："确认 LIBERO 环境能从 GT HDF5 的 `sim_state` 成功 teleport，并打印 restore 后的 obs 偏差量级供运维参考"。
+
+V-2 同样不回滚任何 Layer A–F 代码。Layer F 的 start_obs-from-HDF5 设计（§19.B6）被实测数据反向验证为必须——如果 Layer F 去 re-render，会吃到 ~50% pixel 的 stale drift，污染 cache 命中判定和 deviate score。
+
+### 28.7 Verify 端到端 dry-run 结果（§28.4.2 第 2 项）
+
+在 `155.98.36.13:9000` 公网 server（pi05_libero, `clip_w7_d4.yaml` 作为 cache-eval 配置，`inference_clip_w7_d4.yaml` 作为 Phase 1/GT 的 always_skip 配置）上跑完 Step 1a → C → D → E → F → G 最小闭环。全链路规模刻意压缩到 1 config × 10 task × 5 trial（Step 1a）→ 3 failed-init units（dry-run subset）→ 3 GT episodes → 3 deviate-score jsons → 18 spawn units。每一步生成物落在 `data/deviation_experiment/`。
+
+| 步骤 | 脚本 | 规模 | 关键产物 | 结果 |
+|---|---|---|---|---|
+| Step 1a cache-eval | `exp/run_cache_experiments.py --yaml-dir data/deviation_experiment/step1a_runs --num-workers 5 --seed 42` | `libero_spatial`, 10 task × 5 trial, `clip_w7_d4.yaml` (`always_search + always_hit`) | `cache_eval_results.json` (34/50 success = 68%), `experiment_state.json`, per-batch episode_results | OK |
+| Step C failed-init | `scripts/dump_step1a_failed_inits.py` + 手工裁剪 filter | 16 failed units full + 3 units dry-run subset | `step1b_filter.json` (dry-run), `step1b_filter.full.json` (backup), 10 `.init_map.json` | OK |
+| Step D Step 1b GT | `exp/run_step1b_gt.py` (serial, conda `libero_sim`, `inference_clip_w7_d4.yaml`) | 3 episodes | `gt_trajectories/task_0/episode_0.h5` (16 cycles / 77 steps), `task_0/episode_1.h5` (15c/73s), `task_1/episode_0.h5` (23c/114s); attrs `success=True / num_steps_wait=10 / final_env_timestep` 全部写入 | OK |
+| Step E obs equivalence | `scripts/verify_restore_obs_equivalence.py` (info-only) | 9 payload × 3 episode | §28.6 表 | OK（info-only） |
+| Step F deviate scores | `exp/compute_deviate_scores.py --M 4 --num-workers 4` (RPC 切到 `inference_` 跑 Phase 1，再切回 `clip_w7_d4` 跑 Phase 2) | Phase 1 12 units + Phase 2 3 units | `deviate_score_clip_w7_d4.json`（16+15+23 cycles，score 范围 0.25–1.18），`phase1_state / phase2_state` 全 done | OK |
+| Step G F-6 spawn | `exp/run_spawn_experiment.py --configs clip_w7_d4 --n-grid 1 3 --k-grid 1 3 --num-workers 2` (conda `libero_sim`) | 18 units | `spawn_aggregate.csv` 18 行全 done；17 个真跑 rollout (env_steps 2–74), 1 个 budget-skip (`anchor_cycle=16 >= num_cycles=15`) | OK |
+
+Step G CSV 摘要（`config=clip_w7_d4, strategy=top_k`）：
+
+| episode | (s, n, k_idx) 样本 | env_steps 分布 | success 数 |
+|---|---|---|---|
+| task_0/episode_0 | 6 units, s∈{0,9,12}, n∈{1,3}, k∈{0,1,2} | 2, 12, 17, 27, 62, 72 | 0/6 |
+| task_0/episode_1 | 6 units, s∈{0,10,13}, n∈{1,3}, k∈{0,1,2} | 0 (budget), 2, 8, 18, 58, 68 | 0/6 |
+| task_1/episode_0 | 6 units, s∈{7,10,18}, n∈{1,3}, k∈{0,1,2} | 4, 19, 49, 59, 64, 74 | 0/6 |
+
+`success=0/18` 符合 dry-run 规模预期——只有 3 条 GT 且 GT 都偏短（15/16/23 cycles），top-k 采到的 s 多数本来就在失败边缘，teleport 后继续 rollout 失败属正常。重点在于：
+- env-step 预算 `final_env_timestep - anchor` 得到的执行步数全部落在 (0, 300] 区间且分布合理；
+- budget-skip 分支（`anchor_cycle >= num_cycles`）正确触发，没有伪装成功或跑超；
+- 无 libero/openpi_client/env close 类异常；
+- CSV schema `config,strategy,episode,s,n,k_idx,success,env_steps_executed` 与 F-6 plan §19.4 完全一致。
+
+### 28.8 Verify 发现 V-3：`OffScreenRenderEnv` 只给了 bddl 文件名
+
+**现象**：Step G 第一次 rerun（已装 conda `libero_sim`）时 40 units 中 17 个抛 `[error] pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate.bddl does not exist!`。文件在 `libero_sim` 的 site-packages 下确实存在，只是 `run_spawn_experiment.py` 传的是裸文件名。
+
+**根因**：`exp/run_spawn_experiment.py::_SpawnCommon.make_env`（L268）只写了 `bddl_file_name=task.bddl_file`，而 LIBERO 1.x 的 `OffScreenRenderEnv` 不会自己拼 `get_libero_path("bddl_files") / problem_folder`。`examples/libero/main.py::_get_libero_env` 和 `scripts/verify_env_save_restore.py / verify_restore_obs_equivalence.py` 都用的是拼好的绝对路径。
+
+**修复**：改为和 main.py 一致——
+```python
+from libero.libero import get_libero_path
+bddl_path = Path(get_libero_path("bddl_files")) / task.problem_folder / task.bddl_file
+return OffScreenRenderEnv(bddl_file_name=str(bddl_path), camera_heights=256, camera_widths=256)
+```
+
+修完后 Step G 18/18 done、0 error，结果见 §28.7。V-3 是 Layer F 代码真实 bug（不是验收语义修订），必须进 commit；不影响任何已有测试用例（它们都注入 `env_factory` mock 或只验证 import）。
+
+### 28.9 最终 APPROVE
+
+§28.1–§28.3 的三个 defect 全部处理、§28.4.2 两项前置（obs equivalence smoke + 端到端 dry-run）都跑完、V-1/V-2/V-3 三条 Verify 发现都有明确决议（V-1、V-2 只修订 smoke 语义、V-3 修 Layer F bug）。全链路产物齐全：
+
+- `data/deviation_experiment/step1a_runs/cache_eval_results.json`
+- `data/deviation_experiment/step1b_inits/step1b_filter.json` + `.full.json`
+- `data/deviation_experiment/gt_trajectories/task_{0,1}/episode_*.h5`（3 episodes）
+- `data/deviation_experiment/step2_deviate_scores/deviate_score_clip_w7_d4.json` + `phase1_state / phase2_state`
+- `data/deviation_experiment/spawn_dry_run/spawn_aggregate.csv` + `spawn_state_clip_w7_d4.json`
+- `logs/trajectory_deviation_corrective_implementation.log.md` + 本 review log
+- 测试: `pytest tests/exp/ tests/examples/test_libero_main.py tests/scripts/` → 121 passed
+
+L3 trajectory-deviation corrective experiment 的 Verify 阶段 **APPROVE**。可进入 G2 gate 并合 main（下一步：commit V-3 + §28.7–§28.9 日志，通知用户关掉 `155.98.36.13:9000` 服务器）。

@@ -41,6 +41,11 @@ from typing import Optional
 
 import tqdm
 
+if __package__ in {None, ""}:
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 logger = logging.getLogger(__name__)
 
 # LIBERO suite sizes (must match benchmark).
@@ -145,22 +150,9 @@ def _execute_tasks(
             "--save-episode-results",
             "--episode-results-path", str(episode_results_path),
         ]
-    env = None
-    if conda_env:
-        cmd = ["conda", "run", "--no-capture-output", "-n", conda_env, "python", *main_args]
-        # Clean env: uv injects VIRTUAL_ENV / PYTHONPATH / PATH that override conda's paths.
-        env = {k: v for k, v in os.environ.items()
-               if k not in ("VIRTUAL_ENV", "PYTHONPATH", "PYTHONHOME")}
-        # Remove .venv/bin from PATH so conda's python takes priority.
-        venv_bin = os.environ.get("VIRTUAL_ENV", "")
-        if venv_bin:
-            venv_bin = os.path.join(venv_bin, "bin")
-            env["PATH"] = os.pathsep.join(
-                p for p in env.get("PATH", "").split(os.pathsep) if p != venv_bin
-            )
-        env["MUJOCO_GL"] = "egl"
-    else:
-        cmd = ["uv", "run", *main_args]
+    from exp._subprocess import build_subprocess_cmd
+
+    cmd, env = build_subprocess_cmd(main_args, conda_env=conda_env)
 
     batch_label = ",".join(task_id_strs)
     with open(log_path, "a") as log_file:
@@ -300,9 +292,28 @@ def _compute_aggregate_success_rate(state: RunState) -> Optional[float]:
 # ---------------------------------------------------------------------------
 
 
-def main():
-    logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(levelname)s: %(message)s")
+@dataclass
+class _RunStats:
+    """Mutable aggregate counters shared across runs in one CLI invocation."""
 
+    total_episodes_all: int = 0
+    total_successes_all: int = 0
+    completed: int = 0
+    failed: int = 0
+
+    def agg_postfix_str(self) -> str:
+        if self.total_episodes_all:
+            agg_sr = f"{self.total_successes_all/self.total_episodes_all:.1%}"
+        else:
+            agg_sr = "N/A"
+        return (
+            f"agg={agg_sr} "
+            f"({self.total_successes_all}/{self.total_episodes_all}), "
+            f"done={self.completed}, fail={self.failed}"
+        )
+
+
+def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run cache experiments")
     parser.add_argument("--yaml-dir", required=True, help="Directory with experiment YAMLs")
     parser.add_argument("--episodes-per-run", type=int, default=10)
@@ -317,22 +328,346 @@ def main():
     parser.add_argument("--seed", type=int, default=7, help="Random seed passed to main.py (default: 7)")
     parser.add_argument("--task-ids", default=None, help="Only run these task IDs, e.g. '0' or '0,3,5' (default: all tasks in suite)")
     parser.add_argument("--conda-env", default=None, help="Use conda environment instead of uv to run main.py (e.g. 'libero')")
-    args = parser.parse_args()
+    return parser
+
+
+def _resolve_task_ids(args, num_tasks: int) -> Optional[list[int]]:
+    """Return the task-id list requested by the CLI, or ``None`` on error
+    (after printing a human-readable diagnostic)."""
+    if args.task_ids is None:
+        return list(range(num_tasks))
+    task_id_list = [int(x.strip()) for x in args.task_ids.split(",")]
+    for tid in task_id_list:
+        if tid < 0 or tid >= num_tasks:
+            print(
+                f"Invalid task ID {tid} for suite {args.task_suite} "
+                f"(valid: 0-{num_tasks-1})"
+            )
+            return None
+    return task_id_list
+
+
+def _validate_resumed_state(
+    s: "RunState", args, state_path: Path
+) -> bool:
+    """Return True if ``s`` is safe to resume under ``args``. Prints an
+    error and returns False otherwise. ``done`` runs are exempt — they
+    won't receive new results, so their saved parameters can't influence
+    anything."""
+    if s.status == "done":
+        return True
+    # Reject legacy state files that lack task_suite/episodes_per_task.
+    # These were written by an older version and cannot be safely resumed
+    # because we don't know what parameters produced the existing results.
+    if not s.task_suite:
+        print(
+            f"ERROR: run {s.run_id} has no task_suite in saved state "
+            f"(written by older version).\n"
+            f"Cannot safely resume — existing results may come from a "
+            f"different task suite.\n"
+            f"Fix: delete {state_path} and start fresh, or manually add "
+            f"\"task_suite\": \"{args.task_suite}\" to each entry after verification."
+        )
+        return False
+    if not s.episodes_per_task:
+        print(
+            f"ERROR: run {s.run_id} has no episodes_per_task in saved state "
+            f"(written by older version).\n"
+            f"Cannot safely resume — existing results may use a different trial count.\n"
+            f"Fix: delete {state_path} and start fresh, or manually add "
+            f"\"episodes_per_task\": {args.episodes_per_run} to each entry after verification."
+        )
+        return False
+    if s.episodes_per_task != args.episodes_per_run:
+        print(
+            f"ERROR: --resume conflict for run {s.run_id}: "
+            f"saved episodes_per_task={s.episodes_per_task}, "
+            f"current --episodes-per-run={args.episodes_per_run}.\n"
+            f"Mixing different trial counts would corrupt success_rate. "
+            f"Use the same --episodes-per-run or start fresh without --resume."
+        )
+        return False
+    if s.task_suite != args.task_suite:
+        print(
+            f"ERROR: --resume conflict for run {s.run_id}: "
+            f"saved task_suite={s.task_suite!r}, "
+            f"current --task-suite={args.task_suite!r}.\n"
+            f"Mixing different task suites would corrupt results. "
+            f"Use the same --task-suite or start fresh without --resume."
+        )
+        return False
+    return True
+
+
+def _load_or_init_states(
+    args, yaml_files: list[Path], state_path: Path
+) -> Optional[list["RunState"]]:
+    """Build the RunState list either from a resumed state file or fresh
+    from ``yaml_files``. Returns ``None`` on resume-validation failure
+    after printing the diagnostic."""
+    if not args.resume:
+        return [
+            RunState(
+                yaml_path=str(yf), run_id=yf.stem,
+                episodes_per_task=args.episodes_per_run,
+                task_suite=args.task_suite,
+            )
+            for yf in yaml_files
+        ]
+
+    states = _load_state(state_path)
+    for s in states:
+        if not _validate_resumed_state(s, args, state_path):
+            return None
+    existing = {s.yaml_path for s in states}
+    for yf in yaml_files:
+        if str(yf) not in existing:
+            states.append(RunState(
+                yaml_path=str(yf), run_id=yf.stem,
+                episodes_per_task=args.episodes_per_run,
+                task_suite=args.task_suite,
+            ))
+    return states
+
+
+def _resolve_log_path(args, state: "RunState") -> Path:
+    if args.log_dir:
+        log_path = Path(args.log_dir) / f"{state.run_id}.log"
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+    else:
+        log_path = Path(state.yaml_path).with_suffix(".log")
+    return log_path
+
+
+def _seed_run_totals_from_done_tasks(state: "RunState") -> tuple[int, int]:
+    """Sum up success/total counts for tasks already marked ``done`` — the
+    starting point for the per-run aggregate when resuming."""
+    run_successes = 0
+    run_total = 0
+    for tid, status in state.task_progress.items():
+        if status == "done" and tid in state.task_results:
+            run_successes += state.task_results[tid][0]
+            run_total += state.task_results[tid][1]
+    return run_successes, run_total
+
+
+def _execute_run_batches(
+    *,
+    state: "RunState",
+    remaining: list[int],
+    args,
+    log_path: Path,
+    state_path: Path,
+    states: list["RunState"],
+    idx: int,
+    num_states: int,
+    pbar: tqdm.tqdm,
+    stats: _RunStats,
+) -> tuple[int, int, bool]:
+    """Run ``remaining`` task IDs in batches of ``--num-workers``. Returns
+    ``(run_successes, run_total, run_failed)``. Mutates ``state`` and
+    ``stats`` in-place and saves after every batch."""
+    run_successes, run_total = _seed_run_totals_from_done_tasks(state)
+    run_failed = False
+
+    batch_size = max(args.num_workers, 1)
+    num_batches = (len(remaining) + batch_size - 1) // batch_size
+    for batch_idx, batch_start in enumerate(range(0, len(remaining), batch_size)):
+        batch = remaining[batch_start:batch_start + batch_size]
+        pbar.set_description(
+            f"Run {idx+1}/{num_states}: {state.run_id} batch {batch_idx+1}/{num_batches}"
+        )
+        try:
+            result = _execute_tasks(
+                task_ids=batch,
+                episodes_per_task=args.episodes_per_run,
+                num_workers=min(args.num_workers, len(batch)),
+                host=args.host,
+                port=args.port,
+                task_suite=args.task_suite,
+                log_path=log_path,
+                seed=args.seed,
+                conda_env=args.conda_env,
+                episode_results_path=_episode_results_path_for(
+                    log_path, batch_idx, num_batches
+                ),
+            )
+
+            if result["exit_code"] == 0:
+                n = len(batch)
+                per_task_s = result["successes"] // n
+                per_task_t = result["total"] // n
+                remainder_s = result["successes"] - per_task_s * n
+                remainder_t = result["total"] - per_task_t * n
+                for i, task_id in enumerate(batch):
+                    state.task_progress[str(task_id)] = "done"
+                    s = per_task_s + (1 if i < remainder_s else 0)
+                    t = per_task_t + (1 if i < remainder_t else 0)
+                    state.task_results[str(task_id)] = [s, t]
+                run_successes += result["successes"]
+                run_total += result["total"]
+                stats.total_successes_all += result["successes"]
+                stats.total_episodes_all += result["total"]
+                run_sr = f"{run_successes/run_total:.1%}" if run_total else "N/A"
+                if stats.total_episodes_all:
+                    agg_sr = f"{stats.total_successes_all/stats.total_episodes_all:.1%}"
+                else:
+                    agg_sr = "N/A"
+                pbar.set_postfix_str(
+                    f"run_sr={run_sr} ({run_successes}/{run_total}), "
+                    f"agg={agg_sr}, done={stats.completed}, fail={stats.failed}"
+                )
+                tqdm.tqdm.write(
+                    f"  [{state.run_id}] batch {batch_idx+1}/{num_batches}: "
+                    f"{result['successes']}/{result['total']} successes"
+                )
+            else:
+                for task_id in batch:
+                    state.task_progress[str(task_id)] = "failed"
+                run_failed = True
+                tail = "\n".join(result["stdout"].splitlines()[-5:])
+                tqdm.tqdm.write(f"  [{state.run_id}] batch {batch_idx+1} FAILED (exit {result['exit_code']}): {tail}")
+        except Exception as e:
+            for task_id in batch:
+                state.task_progress[str(task_id)] = "failed"
+            run_failed = True
+            tqdm.tqdm.write(f"  [{state.run_id}] batch {batch_idx+1} exception: {e}")
+
+        # Persist after every batch.
+        state.success_rate = _compute_aggregate_success_rate(state)
+        _save_state(state_path, states)
+
+    return run_successes, run_total, run_failed
+
+
+def _absorb_resumed_done_totals(state: "RunState", stats: _RunStats) -> None:
+    """A ``done`` run on resume still contributes to the aggregate totals,
+    even though we don't re-execute it."""
+    for tid, counts in state.task_results.items():
+        if state.task_progress.get(tid) == "done":
+            stats.total_successes_all += counts[0]
+            stats.total_episodes_all += counts[1]
+
+
+def _switch_server_config(
+    *, state: "RunState", args, states: list["RunState"],
+    state_path: Path, pbar: tqdm.tqdm, stats: _RunStats,
+) -> bool:
+    """Tell the server to load ``state.yaml_path``. On failure, mark the
+    run failed, save, advance the pbar, and return False."""
+    try:
+        server_url = f"ws://{args.host}:{args.port}"
+        _send_cache_config(server_url, state.yaml_path)
+        return True
+    except Exception as e:
+        state.status = "failed"
+        stats.failed += 1
+        tqdm.tqdm.write(f"[FAIL] {state.run_id}: config switch failed: {e}")
+        state.end_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        _save_state(state_path, states)
+        pbar.update(1)
+        pbar.set_postfix_str(stats.agg_postfix_str())
+        return False
+
+
+def _execute_one_run(
+    *,
+    idx: int,
+    state: "RunState",
+    states: list["RunState"],
+    args,
+    task_id_list: list[int],
+    state_path: Path,
+    pbar: tqdm.tqdm,
+    stats: _RunStats,
+) -> None:
+    """Execute one ``RunState``. Handles skip-if-done (resume), skip-if-
+    already-complete, server config switch, batch loop, and final status
+    bookkeeping. Mutates ``state`` + ``stats`` in place."""
+    _init_task_progress(state, task_id_list)
+
+    if args.resume and state.status == "done":
+        _absorb_resumed_done_totals(state, stats)
+        stats.completed += 1
+        pbar.update(1)
+        pbar.set_postfix_str(stats.agg_postfix_str())
+        return
+
+    remaining = _remaining_tasks(state)
+    if args.resume and not remaining:
+        state.status = "done"
+        state.success_rate = _compute_aggregate_success_rate(state)
+        _save_state(state_path, states)
+        stats.completed += 1
+        pbar.update(1)
+        return
+
+    if args.resume and remaining:
+        done_count = len(task_id_list) - len(remaining)
+        tqdm.tqdm.write(f"Resuming {state.run_id}: {done_count}/{len(task_id_list)} tasks done")
+
+    state.status = "running"
+    if state.start_time is None:
+        state.start_time = time.strftime("%Y-%m-%d %H:%M:%S")
+    _save_state(state_path, states)
+
+    log_path = _resolve_log_path(args, state)
+    state.log_path = str(log_path)
+
+    pbar.set_description(f"Run {idx+1}/{len(states)}: {state.run_id}")
+    if not _switch_server_config(
+        state=state, args=args, states=states,
+        state_path=state_path, pbar=pbar, stats=stats,
+    ):
+        return
+
+    run_successes, run_total, run_failed = _execute_run_batches(
+        state=state,
+        remaining=remaining,
+        args=args,
+        log_path=log_path,
+        state_path=state_path,
+        states=states,
+        idx=idx,
+        num_states=len(states),
+        pbar=pbar,
+        stats=stats,
+    )
+
+    # Determine final run status.
+    all_done = all(v == "done" for v in state.task_progress.values())
+    if all_done:
+        state.status = "done"
+        stats.completed += 1
+        run_sr = f"{run_successes/run_total:.1%}" if run_total else "N/A"
+        tqdm.tqdm.write(f"[DONE] {state.run_id}: {run_sr} ({run_successes}/{run_total})")
+    elif run_failed:
+        state.status = "failed"
+        stats.failed += 1
+        tqdm.tqdm.write(f"[FAIL] {state.run_id}")
+    else:
+        state.status = "done"
+        stats.completed += 1
+
+    state.end_time = time.strftime("%Y-%m-%d %H:%M:%S")
+    state.success_rate = _compute_aggregate_success_rate(state)
+    _save_state(state_path, states)
+    pbar.update(1)
+    pbar.set_postfix_str(stats.agg_postfix_str())
+
+
+def main():
+    logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(levelname)s: %(message)s")
+    args = _build_arg_parser().parse_args()
 
     num_tasks = _SUITE_NUM_TASKS.get(args.task_suite)
     if num_tasks is None:
         print(f"Unknown task suite: {args.task_suite}. Known: {list(_SUITE_NUM_TASKS)}")
         return
 
-    # Determine which task IDs to run.
-    if args.task_ids is not None:
-        task_id_list = [int(x.strip()) for x in args.task_ids.split(",")]
-        for tid in task_id_list:
-            if tid < 0 or tid >= num_tasks:
-                print(f"Invalid task ID {tid} for suite {args.task_suite} (valid: 0-{num_tasks-1})")
-                return
-    else:
-        task_id_list = list(range(num_tasks))
+    task_id_list = _resolve_task_ids(args, num_tasks)
+    if task_id_list is None:
+        return
 
     yaml_dir = Path(args.yaml_dir)
     yaml_files = sorted(yaml_dir.glob("*.yaml"))
@@ -342,84 +677,14 @@ def main():
 
     state_path = Path(args.state_path) if args.state_path else yaml_dir / "experiment_state.json"
 
-    if args.resume:
-        states = _load_state(state_path)
-        # Validate that resumed states are compatible with current CLI args.
-        # Incomplete runs (running/failed/pending) will have new tasks mixed in,
-        # so their saved parameters MUST match the current CLI.  Completed runs
-        # are read-only and won't receive new task results, so they are exempt.
-        for s in states:
-            if s.status == "done":
-                continue
-            # Reject legacy state files that lack task_suite/episodes_per_task.
-            # These were written by an older version and cannot be safely resumed
-            # because we don't know what parameters produced the existing results.
-            if not s.task_suite:
-                print(
-                    f"ERROR: run {s.run_id} has no task_suite in saved state "
-                    f"(written by older version).\n"
-                    f"Cannot safely resume — existing results may come from a "
-                    f"different task suite.\n"
-                    f"Fix: delete {state_path} and start fresh, or manually add "
-                    f"\"task_suite\": \"{args.task_suite}\" to each entry after verification."
-                )
-                return
-            if not s.episodes_per_task:
-                print(
-                    f"ERROR: run {s.run_id} has no episodes_per_task in saved state "
-                    f"(written by older version).\n"
-                    f"Cannot safely resume — existing results may use a different trial count.\n"
-                    f"Fix: delete {state_path} and start fresh, or manually add "
-                    f"\"episodes_per_task\": {args.episodes_per_run} to each entry after verification."
-                )
-                return
-            if s.episodes_per_task != args.episodes_per_run:
-                print(
-                    f"ERROR: --resume conflict for run {s.run_id}: "
-                    f"saved episodes_per_task={s.episodes_per_task}, "
-                    f"current --episodes-per-run={args.episodes_per_run}.\n"
-                    f"Mixing different trial counts would corrupt success_rate. "
-                    f"Use the same --episodes-per-run or start fresh without --resume."
-                )
-                return
-            if s.task_suite != args.task_suite:
-                print(
-                    f"ERROR: --resume conflict for run {s.run_id}: "
-                    f"saved task_suite={s.task_suite!r}, "
-                    f"current --task-suite={args.task_suite!r}.\n"
-                    f"Mixing different task suites would corrupt results. "
-                    f"Use the same --task-suite or start fresh without --resume."
-                )
-                return
-        existing = {s.yaml_path for s in states}
-        for yf in yaml_files:
-            if str(yf) not in existing:
-                states.append(RunState(
-                    yaml_path=str(yf), run_id=yf.stem,
-                    episodes_per_task=args.episodes_per_run,
-                    task_suite=args.task_suite,
-                ))
-    else:
-        states = [
-            RunState(
-                yaml_path=str(yf), run_id=yf.stem,
-                episodes_per_task=args.episodes_per_run,
-                task_suite=args.task_suite,
-            )
-            for yf in yaml_files
-        ]
+    states = _load_or_init_states(args, yaml_files, state_path)
+    if states is None:
+        return
 
     run_filter = _parse_runs_filter(args.runs, len(states))
-    runs_to_do = [s for i, s in enumerate(states) if i in run_filter]
-    total_runs = len(runs_to_do)
+    total_runs = sum(1 for i in range(len(states)) if i in run_filter)
 
-    # --- Progress tracking ---
-    total_episodes_all = 0  # across all runs
-    total_successes_all = 0
-    completed = 0
-    failed = 0
-
-    # Overall progress bar: one tick per completed run.
+    stats = _RunStats()
     pbar = tqdm.tqdm(total=total_runs, desc="Experiment", unit="run",
                      bar_format="{desc} |{bar}| {n}/{total} runs [{elapsed}<{remaining}] {postfix}")
     pbar.set_postfix_str("sr=N/A")
@@ -427,163 +692,22 @@ def main():
     for idx, state in enumerate(states):
         if idx not in run_filter:
             continue
-
-        _init_task_progress(state, task_id_list)
-
-        if args.resume and state.status == "done":
-            # Count previously completed run's results into totals.
-            for tid, counts in state.task_results.items():
-                if state.task_progress.get(tid) == "done":
-                    total_successes_all += counts[0]
-                    total_episodes_all += counts[1]
-            completed += 1
-            pbar.update(1)
-            agg_sr = f"{total_successes_all/total_episodes_all:.1%}" if total_episodes_all else "N/A"
-            pbar.set_postfix_str(f"agg={agg_sr} ({total_successes_all}/{total_episodes_all}), done={completed}, fail={failed}")
-            continue
-
-        remaining = _remaining_tasks(state)
-        if args.resume and not remaining:
-            state.status = "done"
-            state.success_rate = _compute_aggregate_success_rate(state)
-            _save_state(state_path, states)
-            completed += 1
-            pbar.update(1)
-            continue
-
-        if args.resume and remaining:
-            done_count = len(task_id_list) - len(remaining)
-            tqdm.tqdm.write(f"Resuming {state.run_id}: {done_count}/{len(task_id_list)} tasks done")
-
-        state.status = "running"
-        if state.start_time is None:
-            state.start_time = time.strftime("%Y-%m-%d %H:%M:%S")
-        _save_state(state_path, states)
-
-        # Determine log file path
-        if args.log_dir:
-            log_path = Path(args.log_dir) / f"{state.run_id}.log"
-            log_path.parent.mkdir(parents=True, exist_ok=True)
-        else:
-            log_path = Path(state.yaml_path).with_suffix(".log")
-        state.log_path = str(log_path)
-
-        # Switch server to this run's YAML (once per run, not per task).
-        pbar.set_description(f"Run {idx+1}/{len(states)}: {state.run_id}")
-        try:
-            server_url = f"ws://{args.host}:{args.port}"
-            _send_cache_config(server_url, state.yaml_path)
-        except Exception as e:
-            state.status = "failed"
-            failed += 1
-            tqdm.tqdm.write(f"[FAIL] {state.run_id}: config switch failed: {e}")
-            state.end_time = time.strftime("%Y-%m-%d %H:%M:%S")
-            _save_state(state_path, states)
-            pbar.update(1)
-            agg_sr = f"{total_successes_all/total_episodes_all:.1%}" if total_episodes_all else "N/A"
-            pbar.set_postfix_str(f"agg={agg_sr} ({total_successes_all}/{total_episodes_all}), done={completed}, fail={failed}")
-            continue
-
-        # Execute remaining tasks in batches of num_workers.
-        # Initialize with previously completed task results (for resume).
-        run_failed = False
-        run_successes = 0
-        run_total = 0
-        for tid, status in state.task_progress.items():
-            if status == "done" and tid in state.task_results:
-                run_successes += state.task_results[tid][0]
-                run_total += state.task_results[tid][1]
-        batch_size = max(args.num_workers, 1)
-        num_batches = (len(remaining) + batch_size - 1) // batch_size
-        for batch_idx, batch_start in enumerate(range(0, len(remaining), batch_size)):
-            batch = remaining[batch_start:batch_start + batch_size]
-            pbar.set_description(
-                f"Run {idx+1}/{len(states)}: {state.run_id} batch {batch_idx+1}/{num_batches}"
-            )
-            try:
-                result = _execute_tasks(
-                    task_ids=batch,
-                    episodes_per_task=args.episodes_per_run,
-                    num_workers=min(args.num_workers, len(batch)),
-                    host=args.host,
-                    port=args.port,
-                    task_suite=args.task_suite,
-                    log_path=log_path,
-                    seed=args.seed,
-                    conda_env=args.conda_env,
-                    episode_results_path=_episode_results_path_for(
-                        log_path, batch_idx, num_batches
-                    ),
-                )
-
-                if result["exit_code"] == 0:
-                    n = len(batch)
-                    per_task_s = result["successes"] // n
-                    per_task_t = result["total"] // n
-                    remainder_s = result["successes"] - per_task_s * n
-                    remainder_t = result["total"] - per_task_t * n
-                    for i, task_id in enumerate(batch):
-                        state.task_progress[str(task_id)] = "done"
-                        s = per_task_s + (1 if i < remainder_s else 0)
-                        t = per_task_t + (1 if i < remainder_t else 0)
-                        state.task_results[str(task_id)] = [s, t]
-                    run_successes += result["successes"]
-                    run_total += result["total"]
-                    total_successes_all += result["successes"]
-                    total_episodes_all += result["total"]
-                    run_sr = f"{run_successes/run_total:.1%}" if run_total else "N/A"
-                    agg_sr = f"{total_successes_all/total_episodes_all:.1%}" if total_episodes_all else "N/A"
-                    pbar.set_postfix_str(
-                        f"run_sr={run_sr} ({run_successes}/{run_total}), "
-                        f"agg={agg_sr}, done={completed}, fail={failed}"
-                    )
-                    tqdm.tqdm.write(
-                        f"  [{state.run_id}] batch {batch_idx+1}/{num_batches}: "
-                        f"{result['successes']}/{result['total']} successes"
-                    )
-                else:
-                    for task_id in batch:
-                        state.task_progress[str(task_id)] = "failed"
-                    run_failed = True
-                    tail = "\n".join(result["stdout"].splitlines()[-5:])
-                    tqdm.tqdm.write(f"  [{state.run_id}] batch {batch_idx+1} FAILED (exit {result['exit_code']}): {tail}")
-            except Exception as e:
-                for task_id in batch:
-                    state.task_progress[str(task_id)] = "failed"
-                run_failed = True
-                tqdm.tqdm.write(f"  [{state.run_id}] batch {batch_idx+1} exception: {e}")
-
-            # Persist after every batch.
-            state.success_rate = _compute_aggregate_success_rate(state)
-            _save_state(state_path, states)
-
-        # Determine final run status.
-        all_done = all(v == "done" for v in state.task_progress.values())
-        if all_done:
-            state.status = "done"
-            completed += 1
-            run_sr = f"{run_successes/run_total:.1%}" if run_total else "N/A"
-            tqdm.tqdm.write(f"[DONE] {state.run_id}: {run_sr} ({run_successes}/{run_total})")
-        elif run_failed:
-            state.status = "failed"
-            failed += 1
-            tqdm.tqdm.write(f"[FAIL] {state.run_id}")
-        else:
-            state.status = "done"
-            completed += 1
-
-        state.end_time = time.strftime("%Y-%m-%d %H:%M:%S")
-        state.success_rate = _compute_aggregate_success_rate(state)
-        _save_state(state_path, states)
-        pbar.update(1)
-        agg_sr = f"{total_successes_all/total_episodes_all:.1%}" if total_episodes_all else "N/A"
-        pbar.set_postfix_str(f"agg={agg_sr} ({total_successes_all}/{total_episodes_all}), done={completed}, fail={failed}")
+        _execute_one_run(
+            idx=idx,
+            state=state,
+            states=states,
+            args=args,
+            task_id_list=task_id_list,
+            state_path=state_path,
+            pbar=pbar,
+            stats=stats,
+        )
 
     pbar.close()
-    print(f"\nDone: {completed} completed, {failed} failed, {total_runs - completed - failed} skipped")
+    skipped = total_runs - stats.completed - stats.failed
+    print(f"\nDone: {stats.completed} completed, {stats.failed} failed, {skipped} skipped")
     print(f"State saved to {state_path}")
 
-    # --- Retry phase ---
     if not args.resume:
         _retry_failed_runs(
             states=states,

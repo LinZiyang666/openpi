@@ -53,30 +53,24 @@ import numpy as np
 
 
 def _build_env(task_suite: str, task_id: int, resolution: int):
-    """Imports are lazy so ``--help`` works without libero installed.
+    """Construct env + init_states. Imports are lazy so ``--help`` works
+    without libero installed.
 
-    Path resolution mirrors ``examples/libero/main.py::_get_libero_env``:
-    ``task.bddl_file`` is just a filename; the full path is
-    ``get_libero_path("bddl_files") / task.problem_folder / task.bddl_file``.
+    Env construction is delegated to ``exp._libero_env.build_libero_env`` so
+    all cleanup-range callsites share one path-resolution implementation.
+    ``init_states`` is fetched separately because it is only used here.
     """
-    import pathlib
+    import sys
+    from pathlib import Path
 
-    from libero.libero import get_libero_path
     from libero.libero.benchmark import get_benchmark_dict
-    from libero.libero.envs import OffScreenRenderEnv
 
+    # ``scripts/`` is not on sys.path by default when run as a script.
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from exp._libero_env import build_libero_env  # noqa: E402
+
+    env = build_libero_env(task_suite, task_id, resolution=resolution, seed=None)
     suite = get_benchmark_dict()[task_suite]()
-    task = suite.get_task(task_id)
-    bddl_path = (
-        pathlib.Path(get_libero_path("bddl_files"))
-        / task.problem_folder
-        / task.bddl_file
-    )
-    env = OffScreenRenderEnv(
-        bddl_file_name=str(bddl_path),
-        camera_heights=resolution,
-        camera_widths=resolution,
-    )
     init_states = suite.get_task_init_states(task_id)
     return env, init_states
 

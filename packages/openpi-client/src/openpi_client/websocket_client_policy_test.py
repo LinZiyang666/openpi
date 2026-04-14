@@ -143,14 +143,32 @@ def test_prefill_trajectory_sends_expected_ctrl_payload(
 
 def test_prefill_trajectory_raises_on_string_response(
     monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
-    """Mirrors ``infer``'s contract: a string response signals a server-side
-    error, so the client must surface it as ``RuntimeError`` rather than
-    attempting to unpack the string as msgpack bytes.
-    """
+    """Legacy bare-string error compat (pre-cleanup/10 servers): the client
+    must warn AND raise. The warning nudges operators to upgrade the server;
+    the raise keeps callers failing loudly on real errors."""
     client, _ = _make_client(monkeypatch, recv_after_metadata=["server blew up"])
 
-    with pytest.raises(RuntimeError, match="server blew up"):
+    with caplog.at_level("WARNING"):
+        with pytest.raises(RuntimeError, match="server blew up"):
+            client.prefill_trajectory([{}], [np.zeros(1, dtype=np.float32)])
+    assert any("legacy bare-string" in r.message for r in caplog.records)
+
+
+def test_prefill_trajectory_raises_on_msgpack_error_ack(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """cleanup/10 main path: server emits ``{"__ack__": "error", "msg": ...}``
+    as msgpack bytes; the client must recognise this shape and raise
+    ``RuntimeError`` carrying ``msg`` instead of returning the dict to the
+    caller (which would let prefill silently "succeed")."""
+    payload = msgpack_numpy.packb(
+        {"__ack__": "error", "msg": "worker crashed mid-prefill"}
+    )
+    client, _ = _make_client(monkeypatch, recv_after_metadata=[payload])
+
+    with pytest.raises(RuntimeError, match="worker crashed mid-prefill"):
         client.prefill_trajectory([{}], [np.zeros(1, dtype=np.float32)])
 
 
