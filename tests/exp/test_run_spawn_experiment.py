@@ -1,4 +1,4 @@
-"""Unit tests for ``exp/run_spawn_experiment.py`` (plan §11 + §18.A3.4 +
+"""Unit tests for ``exp/trajectory_deviation/run_spawn_experiment.py`` (plan §11 + §18.A3.4 +
 §19.4 + §20.R4).
 
 A real spawn run needs a LIBERO env + a websocket server + a collected
@@ -27,7 +27,7 @@ import h5py
 import numpy as np
 import pytest
 
-import exp.run_spawn_experiment as spawn
+import exp.trajectory_deviation.run_spawn_experiment as spawn
 
 
 # ---------------------------------------------------------------------------
@@ -751,7 +751,7 @@ def test_execute_spawn_unit_falls_back_to_num_steps_when_final_missing(
         env_factory=lambda tid, ts: env,
     )
 
-    with caplog.at_level("WARNING", logger="exp.run_spawn_experiment"):
+    with caplog.at_level("WARNING", logger="exp.trajectory_deviation.run_spawn_experiment"):
         spawn._execute_spawn_unit(common=common, ep=ep, s=0, n=1, k_idx=0)
 
     # Fallback: num_steps_wait(20) + num_steps(15) = 35. Anchor=5 ⇒ 30 steps.
@@ -869,7 +869,7 @@ def test_base_spawn_runner_cannot_be_instantiated_without_iter_targets(tmp_path)
     produces zero units. The ``@abstractmethod`` decorator converts the
     previously-silent ``NotImplementedError`` path into a clean TypeError
     at construction time."""
-    from exp.run_spawn_experiment import _BaseSpawnRunner, _SpawnCommon
+    from exp.trajectory_deviation.run_spawn_experiment import _BaseSpawnRunner, _SpawnCommon
 
     common = _SpawnCommon(
         cfg="cfgA",

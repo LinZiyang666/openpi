@@ -10,12 +10,12 @@ Total: 2 reducers × 4 windows × 3 kr × 2 weights = 48 YAMLs
 
 Usage:
     # Generate all 48 YAMLs
-    uv run exp/generate_temporal_prune_yamls.py \
+    uv run exp/temporal_prune/generate_temporal_prune_yamls.py \
         --artifact-dir data/cache_artifacts/libero_spatial/temporal_prune \
         --output-dir configs/cache_runs/temporal_prune
 
     # Dry run: print config count without writing
-    uv run exp/generate_temporal_prune_yamls.py \
+    uv run exp/temporal_prune/generate_temporal_prune_yamls.py \
         --artifact-dir data/cache_artifacts/libero_spatial/temporal_prune \
         --output-dir configs/cache_runs/temporal_prune \
         --dry-run
@@ -171,7 +171,7 @@ def print_artifact_commands(data_dir: str, artifact_dir: str) -> None:
             for kr in KEEP_RATIOS:
                 stem = artifact_stem(reducer, window, kr)
                 print(
-                    f"uv run python exp/build_in_memory_cache_artifact.py \\\n"
+                    f"uv run python exp/cache_experiment/build_in_memory_cache_artifact.py \\\n"
                     f"    --data-dir {data_dir} \\\n"
                     f"    --builder-type cp1_temporal_prune \\\n"
                     f"    --reducer-type {reducer} \\\n"

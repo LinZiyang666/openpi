@@ -9,18 +9,18 @@ from qdrant_client import models
 if __package__ in {None, ""}:
     import sys
 
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from exp.qdrant_openpi_common import CLEAN_ACTION_FIELD
-from exp.qdrant_openpi_common import NamedVectorChunk
-from exp.qdrant_openpi_common import PROMPT_FIELD
-from exp.qdrant_openpi_common import VISION_FIELDS
-from exp.qdrant_openpi_common import build_named_vectors
-from exp.qdrant_openpi_common import dataset_summary_lines
-from exp.qdrant_openpi_common import make_point_id
-from exp.qdrant_openpi_common import named_vector_chunks_map
-from exp.qdrant_openpi_common import scan_dataset
-from exp.qdrant_openpi_common import select_sample_record
+from exp.qdrant_step_knn.qdrant_openpi_common import CLEAN_ACTION_FIELD
+from exp.qdrant_step_knn.qdrant_openpi_common import NamedVectorChunk
+from exp.qdrant_step_knn.qdrant_openpi_common import PROMPT_FIELD
+from exp.qdrant_step_knn.qdrant_openpi_common import VISION_FIELDS
+from exp.qdrant_step_knn.qdrant_openpi_common import build_named_vectors
+from exp.qdrant_step_knn.qdrant_openpi_common import dataset_summary_lines
+from exp.qdrant_step_knn.qdrant_openpi_common import make_point_id
+from exp.qdrant_step_knn.qdrant_openpi_common import named_vector_chunks_map
+from exp.qdrant_step_knn.qdrant_openpi_common import scan_dataset
+from exp.qdrant_step_knn.qdrant_openpi_common import select_sample_record
 
 
 def parse_args() -> argparse.Namespace:

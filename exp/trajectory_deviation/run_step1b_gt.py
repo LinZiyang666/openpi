@@ -45,10 +45,10 @@ from typing import Any, Dict, List, Optional, Tuple
 if __package__ in {None, ""}:
     import sys
 
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from exp._cache_config_rpc import send_load_cache_config
-from exp._run_state_base import BaseRunState, UnitState
+from exp.common._cache_config_rpc import send_load_cache_config
+from exp.common._run_state_base import BaseRunState, UnitState
 
 logger = logging.getLogger(__name__)
 
@@ -77,13 +77,13 @@ def build_unit_key(task_id: int, orig_init_state_idx: int) -> str:
 
     Delegates to ``Step1bKey.encode`` so the format lives in one place.
     """
-    from exp._unit_key import Step1bKey
+    from exp.common._unit_key import Step1bKey
 
     return Step1bKey(task_id=task_id, init_idx=orig_init_state_idx).encode()
 
 
 def parse_unit_key(key: str) -> Tuple[int, int]:
-    from exp._unit_key import Step1bKey
+    from exp.common._unit_key import Step1bKey
 
     k = Step1bKey.decode(key)
     return k.task_id, k.init_idx
@@ -240,9 +240,9 @@ class Step1bRunner(BaseRunState):
 def _build_subprocess_cmd(
     main_args: List[str], conda_env: Optional[str]
 ) -> Tuple[List[str], Optional[Dict[str, str]]]:
-    """Thin wrapper around ``exp._subprocess.build_subprocess_cmd`` kept for
+    """Thin wrapper around ``exp.common._subprocess.build_subprocess_cmd`` kept for
     backward-compat with existing tests that target this symbol."""
-    from exp._subprocess import build_subprocess_cmd
+    from exp.common._subprocess import build_subprocess_cmd
 
     return build_subprocess_cmd(main_args, conda_env=conda_env)
 

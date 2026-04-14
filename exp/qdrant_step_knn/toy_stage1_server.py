@@ -11,7 +11,7 @@ Usage
 -----
 ::
 
-    uv run exp/toy_stage1_server.py \\
+    uv run exp/qdrant_step_knn/toy_stage1_server.py \\
         --env LIBERO \\
         --port 8000 \\
         --qdrant-server-url http://localhost:8100 \\

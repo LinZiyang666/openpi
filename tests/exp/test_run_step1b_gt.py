@@ -1,4 +1,4 @@
-"""Unit tests for ``exp/run_step1b_gt.py`` (plan §9.2 + §18.B4 + §19.B6).
+"""Unit tests for ``exp/trajectory_deviation/run_step1b_gt.py`` (plan §9.2 + §18.B4 + §19.B6).
 
 We cannot drive a real ``main.py`` subprocess in CI (no libero_sim / GPU /
 server), so these tests exercise:
@@ -25,7 +25,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from exp.run_step1b_gt import (
+from exp.trajectory_deviation.run_step1b_gt import (
     DEFAULT_INFERENCE_YAML,
     FilterEntry,
     Step1bRunner,

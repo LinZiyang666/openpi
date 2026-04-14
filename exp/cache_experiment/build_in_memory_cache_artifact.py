@@ -1,14 +1,14 @@
 """Build InMemoryBackend artifact from HDF5 episode data.
 
 Usage:
-    uv run exp/build_in_memory_cache_artifact.py \
+    uv run exp/cache_experiment/build_in_memory_cache_artifact.py \
         --data-dir data/libero_spatial \
         --builder-type cp1_mean_pool \
         --output data/cache_artifacts/libero_spatial/cp1_mean_pool.pkl
 
     # Build all 4 artifacts at once:
     for bt in cp1_mean_pool cp1_spatial_pool_16 cp1_spatial_pool_64 cp1_max_pool; do
-        uv run exp/build_in_memory_cache_artifact.py \
+        uv run exp/cache_experiment/build_in_memory_cache_artifact.py \
             --data-dir data/libero_spatial \
             --builder-type $bt \
             --output data/cache_artifacts/libero_spatial/${bt}.pkl

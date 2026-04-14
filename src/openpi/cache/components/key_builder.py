@@ -363,7 +363,7 @@ class FullOriginalKeyBuilder:
 
     Prompt padding:
       prompt token count varies per input. Qdrant requires fixed-dim vectors.
-      The ingest pipeline (exp/qdrant_openpi_common.py::pad_and_flatten_prompt)
+      The ingest pipeline (exp/qdrant_step_knn/qdrant_openpi_common.py::pad_and_flatten_prompt)
       zero-pads to (max_lang_tokens * emb_dim). This builder does the same:
       if vector_dims is provided, prompt_emb is zero-padded or truncated to
       vector_dims[PROMPT_EMB].
@@ -414,7 +414,7 @@ class FullOriginalKeyBuilder:
         # Prompt: slice remainder after vision tokens, flatten, pad/truncate to target dim.
         # Prompt token count varies per input but Qdrant needs fixed-dim vectors.
         # Zero-pad or truncate to match vector_dims[PROMPT_EMB], mirroring
-        # exp/qdrant_openpi_common.py::pad_and_flatten_prompt().
+        # exp/qdrant_step_knn/qdrant_openpi_common.py::pad_and_flatten_prompt().
         if self._is_enabled(PROMPT_EMB):
             prompt_segment = prefix[_PROMPT_START:]  # [num_prompt_tokens, emb_dim]
             flat = prompt_segment.reshape(-1).cpu().float().contiguous()

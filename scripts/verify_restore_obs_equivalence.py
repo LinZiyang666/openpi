@@ -71,13 +71,13 @@ def _close_env_quietly(env) -> None:
 
 def _import_deps():
     """Imports are lazy so ``--help`` works without libero installed."""
-    # Re-use the transform from exp/run_spawn_experiment and the shared
+    # Re-use the transform from exp/trajectory_deviation/run_spawn_experiment and the shared
     # env-construction helper so Layer F / this smoke / the other smoke all
     # share one libero-init code path.
     repo_root = Path(__file__).resolve().parent.parent
     sys.path.insert(0, str(repo_root))
-    from exp._libero_env import build_libero_env  # noqa: E402
-    from exp.run_spawn_experiment import _obs_env_to_policy  # noqa: E402
+    from exp.trajectory_deviation._libero_env import build_libero_env  # noqa: E402
+    from exp.trajectory_deviation.run_spawn_experiment import _obs_env_to_policy  # noqa: E402
     from examples.libero.main import LIBERO_ENV_RESOLUTION  # noqa: E402
 
     return (

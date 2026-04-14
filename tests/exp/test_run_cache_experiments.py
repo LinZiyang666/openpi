@@ -6,7 +6,7 @@ import pytest
 
 from pathlib import Path
 
-from exp.run_cache_experiments import (
+from exp.cache_experiment.run_cache_experiments import (
     RunState,
     _aggregate_episode_results,
     _compute_aggregate_success_rate,
@@ -164,7 +164,7 @@ def test_load_or_init_fresh_builds_states_from_yaml(tmp_path):
     ``RunState`` per YAML in ``yaml_files`` order and does not read the
     state file at all."""
     from types import SimpleNamespace
-    from exp.run_cache_experiments import _load_or_init_states
+    from exp.cache_experiment.run_cache_experiments import _load_or_init_states
 
     yaml_dir = tmp_path / "yamls"
     yaml_dir.mkdir()
@@ -189,7 +189,7 @@ def test_load_or_init_resume_rejects_task_suite_mismatch(tmp_path):
     ``task_suite`` disagrees with the current CLI returns ``None``
     (signalling ``main`` to bail)."""
     from types import SimpleNamespace
-    from exp.run_cache_experiments import _load_or_init_states
+    from exp.cache_experiment.run_cache_experiments import _load_or_init_states
 
     yaml_dir = tmp_path / "yamls"
     yaml_dir.mkdir()
@@ -221,7 +221,7 @@ def test_resume_with_task_ids_subset_does_not_expand_task_progress(tmp_path):
     This documents the pre-cleanup behavior (``_init_task_progress`` only
     fires when ``task_progress`` is empty) so future F3 work can change
     it deliberately, not by accident."""
-    from exp.run_cache_experiments import _init_task_progress, RunState
+    from exp.cache_experiment.run_cache_experiments import _init_task_progress, RunState
 
     state = RunState(
         yaml_path="x.yaml", run_id="run_x",
@@ -240,7 +240,7 @@ def test_resume_with_task_ids_subset_does_not_expand_task_progress(tmp_path):
 
 
 def test_run_stats_agg_postfix_str():
-    from exp.run_cache_experiments import _RunStats
+    from exp.cache_experiment.run_cache_experiments import _RunStats
 
     s = _RunStats(total_episodes_all=0, total_successes_all=0, completed=0, failed=0)
     assert "agg=N/A" in s.agg_postfix_str()
@@ -270,7 +270,7 @@ def test_resume_validation_requires_task_suite_for_incomplete_state(tmp_path):
     ]))
 
     import sys
-    import exp.run_cache_experiments as runner
+    import exp.cache_experiment.run_cache_experiments as runner
 
     argv = sys.argv[:]
     try:

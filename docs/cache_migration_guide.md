@@ -509,7 +509,7 @@ episode_NNNN/
 
 #### 6.3 Artifact 构建
 
-现有的 `exp/build_in_memory_cache_artifact.py` 和 `exp/build_clip_cache_artifact.py` 是面向 Pi0.5 HDF5 schema 的参考脚本。迁移时需参考其逻辑编写你自己的构建脚本。
+现有的 `exp/cache_experiment/build_in_memory_cache_artifact.py` 和 `exp/cache_experiment/build_clip_cache_artifact.py` 是面向 Pi0.5 HDF5 schema 的参考脚本。迁移时需参考其逻辑编写你自己的构建脚本。
 
 核心流程：
 
@@ -656,7 +656,7 @@ backend:
     robot_state: 32     # 仍需状态向量
 ```
 
-**Artifact 构建**: 使用 `exp/build_clip_cache_artifact.py` 作为参考。它从 HDF5 中读取原始图像，通过 CLIP 编码后构建 artifact。
+**Artifact 构建**: 使用 `exp/cache_experiment/build_clip_cache_artifact.py` 作为参考。它从 HDF5 中读取原始图像，通过 CLIP 编码后构建 artifact。
 
 ### 4.4 离线 Artifact 预构建
 

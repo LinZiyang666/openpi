@@ -1,4 +1,4 @@
-"""Unit tests for ``exp/_subprocess.py`` (cleanup/02, plan P0-4).
+"""Unit tests for ``exp/common/_subprocess.py`` (cleanup/02, plan P0-4).
 
 Five-plus cases per plan §2 P0-4 verification:
 - ``conda_env=None`` returns ``(["uv", "run", *main_args], None)``.
@@ -16,7 +16,7 @@ import os
 
 import pytest
 
-from exp._subprocess import build_subprocess_cmd
+from exp.common._subprocess import build_subprocess_cmd
 
 
 def test_conda_env_none_returns_uv_run_and_no_env_override():

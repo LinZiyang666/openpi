@@ -2,7 +2,7 @@
 
 > **前置知识**: 阅读 [cache_system_tutorial.md](cache_system_tutorial.md) §4 了解 KeyBuilder 组件基础。
 >
-> **设计文档**: 完整方案设计见 [`logs/redundant_token_prune_plan.log.md`](../logs/redundant_token_prune_plan.log.md)
+> **设计文档**: 完整方案设计见 [`logs/archive/redundant_token_prune_plan.log.md`](../logs/archive/redundant_token_prune_plan.log.md)
 
 ---
 
@@ -27,7 +27,7 @@
 ### 2.1 构建离线 Artifact
 
 ```bash
-uv run python exp/build_in_memory_cache_artifact.py \
+uv run python exp/cache_experiment/build_in_memory_cache_artifact.py \
     --data-dir data/db/libero_cache/libero_spatial \
     --builder-type cp1_temporal_prune \
     --reducer-type mean_pool \
@@ -165,7 +165,7 @@ Step 2 由 `TokenReducer` 协议定义，可自由替换实现：
 ## 6. 离线 Artifact Builder CLI 参考
 
 ```bash
-uv run python exp/build_in_memory_cache_artifact.py \
+uv run python exp/cache_experiment/build_in_memory_cache_artifact.py \
     --data-dir <HDF5 数据目录> \
     --builder-type cp1_temporal_prune \
     --output <输出 .pkl 路径> \
@@ -185,7 +185,7 @@ uv run python exp/build_in_memory_cache_artifact.py \
 ```bash
 # 对比不同 reducer
 for rt in mean_pool max_pool; do
-    uv run python exp/build_in_memory_cache_artifact.py \
+    uv run python exp/cache_experiment/build_in_memory_cache_artifact.py \
         --data-dir data/db/libero_cache/libero_spatial \
         --builder-type cp1_temporal_prune \
         --reducer-type $rt \
@@ -194,7 +194,7 @@ done
 
 # 对比不同 keep_ratio
 for kr in 0.25 0.5 0.75; do
-    uv run python exp/build_in_memory_cache_artifact.py \
+    uv run python exp/cache_experiment/build_in_memory_cache_artifact.py \
         --data-dir data/db/libero_cache/libero_spatial \
         --builder-type cp1_temporal_prune \
         --reducer-type mean_pool \
@@ -241,7 +241,7 @@ done
 | `src/openpi/cache/components/key_builder.py` | _VisionHistoryBuffer、CP1TemporalPruneKeyBuilder |
 | `src/openpi/cache/config.py` | ReducerConfig、KeyBuilderConfig 扩展、_build_reducer 工厂、校验规则 |
 | `src/openpi/cache/orchestrator.py` | on_episode_start 广播到 key_builder |
-| `exp/build_in_memory_cache_artifact.py` | 离线 artifact 构建（含 cp1_temporal_prune 支持） |
+| `exp/cache_experiment/build_in_memory_cache_artifact.py` | 离线 artifact 构建（含 cp1_temporal_prune 支持） |
 | `tests/cache/components/test_temporal_prune.py` | 46 个测试用例 |
 
 ---
@@ -262,7 +262,7 @@ temporal scoring 计算的是 **相邻帧之间** 的 cosine 变化。只有 1 �
 2. 在 `config.py` 的 `_build_reducer()` 工厂中添加分支
 3. 在 `config.py` 的 `validate_cache_config()` 中添加参数校验（如有新参数）
 4. 在 `_valid_reducer_types` 集合中注册
-5. 在 `exp/build_in_memory_cache_artifact.py` 的 `_build_artifact_reducer()` 中添加分支
+5. 在 `exp/cache_experiment/build_in_memory_cache_artifact.py` 的 `_build_artifact_reducer()` 中添加分支
 6. 编写测试
 
 ### Q: 离线和在线的 key 会不会不一致？

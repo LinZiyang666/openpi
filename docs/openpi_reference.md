@@ -63,18 +63,29 @@ openpi/
 │   ├── serve_policy.py          # Policy server (supports --collect)
 │   └── compute_norm_stats.py
 │
-├── exp/                         # [Fork] Experiment scripts
-│   ├── build_in_memory_cache_artifact.py  # Build InMemoryBackend pickle from HDF5 (mean/spatial pool)
-│   ├── build_clip_cache_artifact.py       # Build InMemoryBackend pickle from HDF5 (CLIP encoder)
-│   ├── generate_cache_run_yamls.py        # Generate YAML configs for cache experiment grid
-│   ├── run_cache_experiments.py           # Automated cache experiment runner (Phase 1/1.5/2)
-│   ├── analyze_cache_results.py           # Parse experiment results from state JSON
-│   ├── calibrate_robot_state_tau.py       # Calibrate L2→similarity tau for robot_state
-│   ├── calibrate_score_sum_stats.py       # Calibrate percentile stats for WeightedScoreSum
-│   ├── qdrant_ingest_openpi.py            # Ingest HDF5 → Qdrant
-│   ├── qdrant_step_knn_experiment.py      # KNN retrieval benchmark
-│   ├── toy_stage1_server.py               # Stage1-only server for retrieval experiments
-│   └── toy_qdrant_server.py               # Qdrant query server
+├── exp/                         # [Fork] Experiment scripts, grouped by experiment
+│   ├── common/                                   # Shared helpers (RPC, subprocess, run state, unit key)
+│   ├── cache_experiment/                         # CP1 cache experiment pipeline
+│   │   ├── build_in_memory_cache_artifact.py     # Build InMemoryBackend pickle from HDF5 (mean/spatial pool)
+│   │   ├── build_clip_cache_artifact.py          # Build InMemoryBackend pickle from HDF5 (CLIP encoder)
+│   │   ├── generate_cache_run_yamls.py           # Generate YAML configs for cache experiment grid
+│   │   ├── run_cache_experiments.py              # Automated cache experiment runner (Phase 1/1.5/2)
+│   │   ├── analyze_cache_results.py              # Parse experiment results from state JSON
+│   │   ├── calibrate_robot_state_tau.py          # Calibrate L2→similarity tau for robot_state
+│   │   └── calibrate_score_sum_stats.py          # Calibrate percentile stats for WeightedScoreSum
+│   ├── trajectory_deviation/                     # Trajectory deviation corrective experiment
+│   │   ├── run_step1b_gt.py                      # Step 1b: collect GT trajectories
+│   │   ├── compute_deviate_scores.py             # Step 2: compute per-cycle deviate scores
+│   │   ├── run_spawn_experiment.py               # Step 3: spawn from high-score cycles
+│   │   └── analyze_deviation_results.py          # Plot deviate-score analyses
+│   ├── temporal_prune/                           # Temporal prune experiment
+│   │   └── generate_temporal_prune_yamls.py      # Batch-generate temporal-prune YAML configs
+│   └── qdrant_step_knn/                          # Qdrant step-KNN retrieval experiment
+│       ├── qdrant_ingest_openpi.py               # Ingest HDF5 → Qdrant
+│       ├── qdrant_step_knn_experiment.py         # KNN retrieval benchmark
+│       ├── qdrant_verify_openpi.py               # Verify ingested collection self-query
+│       ├── toy_stage1_server.py                  # Stage1-only server for retrieval experiments
+│       └── toy_qdrant_server.py                  # Qdrant query server
 │
 ├── packages/openpi-client/      # Standalone client library (minimal deps)
 ├── examples/                    # Robot-specific examples (aloha, libero, droid, etc.)

@@ -1,4 +1,4 @@
-"""Unit tests for ``exp/_run_state_base.py``.
+"""Unit tests for ``exp/common/_run_state_base.py``.
 
 Covers:
 - Unit enumeration and persistence round-trip.
@@ -18,8 +18,8 @@ import threading
 
 from concurrent.futures import ThreadPoolExecutor
 
-from exp._run_state_base import BaseRunState
-from exp._run_state_base import UnitState
+from exp.common._run_state_base import BaseRunState
+from exp.common._run_state_base import UnitState
 
 # ------------------------------------------------------------------
 # Test fixtures

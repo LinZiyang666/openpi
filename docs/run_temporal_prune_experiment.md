@@ -39,7 +39,7 @@
 ### 2.1 一键生成构建命令
 
 ```bash
-uv run exp/generate_temporal_prune_yamls.py \
+uv run exp/temporal_prune/generate_temporal_prune_yamls.py \
     --print-artifact-commands \
     --data-dir data/db/libero_cache/libero_spatial \
     --artifact-dir data/cache_artifacts/libero_spatial/temporal_prune
@@ -52,7 +52,7 @@ uv run exp/generate_temporal_prune_yamls.py \
 将输出的命令保存为脚本并运行：
 
 ```bash
-uv run exp/generate_temporal_prune_yamls.py \
+uv run exp/temporal_prune/generate_temporal_prune_yamls.py \
     --print-artifact-commands \
     --data-dir data/db/libero_cache/libero_spatial \
     --artifact-dir data/cache_artifacts/libero_spatial/temporal_prune \
@@ -86,7 +86,7 @@ cp1_tp_mean_6w_075kr.pkl   cp1_tp_max_6w_075kr.pkl
 ## 3. Step 2: 生成 YAML 配置
 
 ```bash
-uv run exp/generate_temporal_prune_yamls.py \
+uv run exp/temporal_prune/generate_temporal_prune_yamls.py \
     --artifact-dir data/cache_artifacts/libero_spatial/temporal_prune \
     --output-dir configs/cache_runs/temporal_prune
 ```
@@ -136,7 +136,7 @@ uv run scripts/serve_policy.py \
 在评估端执行：
 
 ```bash
-uv run exp/run_cache_experiments.py \
+uv run exp/cache_experiment/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/temporal_prune \
     --episodes-per-run 5 \
     --num-workers 5 \
@@ -151,7 +151,7 @@ uv run exp/run_cache_experiments.py \
 实验支持断点续跑。如果中断，直接重新运行相同命令即可，已完成的 run 会自动跳过：
 
 ```bash
-uv run exp/run_cache_experiments.py \
+uv run exp/cache_experiment/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/temporal_prune \
     --resume \
     ...  # 其余参数同上
@@ -164,7 +164,7 @@ uv run exp/run_cache_experiments.py \
 ## 6. Step 5: 分析结果
 
 ```bash
-uv run exp/analyze_cache_results.py \
+uv run exp/cache_experiment/analyze_cache_results.py \
     --state-file configs/cache_runs/temporal_prune/experiment_state.json \
     --output configs/cache_runs/temporal_prune/analysis.json
 ```
@@ -181,9 +181,9 @@ uv run exp/analyze_cache_results.py \
 
 | 文件 | 用途 |
 |------|------|
-| `exp/generate_temporal_prune_yamls.py` | 生成 24 artifact 构建命令 + 48 YAML 配置 |
-| `exp/build_in_memory_cache_artifact.py` | 构建 .pkl artifact（已有） |
-| `exp/run_cache_experiments.py` | 执行实验（已有） |
-| `exp/analyze_cache_results.py` | 分析结果（已有） |
+| `exp/temporal_prune/generate_temporal_prune_yamls.py` | 生成 24 artifact 构建命令 + 48 YAML 配置 |
+| `exp/cache_experiment/build_in_memory_cache_artifact.py` | 构建 .pkl artifact（已有） |
+| `exp/cache_experiment/run_cache_experiments.py` | 执行实验（已有） |
+| `exp/cache_experiment/analyze_cache_results.py` | 分析结果（已有） |
 | `configs/cache_runs/temporal_prune/` | YAML 配置和实验状态 |
 | `data/cache_artifacts/libero_spatial/temporal_prune/` | .pkl artifact 文件 |

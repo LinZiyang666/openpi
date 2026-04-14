@@ -1,4 +1,4 @@
-"""Unit tests for ``exp/_cache_config_rpc.py``.
+"""Unit tests for ``exp/common/_cache_config_rpc.py``.
 
 Covers ``send_load_cache_config`` with a mock ``websockets.connect`` so no
 real server is required. Per plan §19.B7, ``prefill_begin``/``prefill_end``
@@ -16,7 +16,7 @@ from unittest.mock import AsyncMock
 import msgpack
 import pytest
 
-from exp import _cache_config_rpc
+from exp.common import _cache_config_rpc
 
 # ------------------------------------------------------------------
 # Fake websocket

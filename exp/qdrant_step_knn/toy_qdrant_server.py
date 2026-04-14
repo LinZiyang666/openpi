@@ -32,7 +32,7 @@ Usage
 -----
 ::
 
-    python exp/toy_qdrant_server.py \\
+    python exp/qdrant_step_knn/toy_qdrant_server.py \\
         --config exp/toy_qdrant_config.json \\
         --port 8100
 """
@@ -54,19 +54,19 @@ from qdrant_client import QdrantClient, models
 
 import sys
 
-_REPO_ROOT = str(Path(__file__).resolve().parents[1])
-_SRC_DIR = str(Path(__file__).resolve().parents[1] / "src")
+_REPO_ROOT = str(Path(__file__).resolve().parents[2])
+_SRC_DIR = str(Path(__file__).resolve().parents[2] / "src")
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 if _SRC_DIR not in sys.path:
     sys.path.insert(0, _SRC_DIR)
 
-from exp.qdrant_openpi_common import (
+from exp.qdrant_step_knn.qdrant_openpi_common import (
     StepRecord,
     named_vector_chunks_map,
     scan_dataset,
 )
-from exp.qdrant_step_knn_experiment import (
+from exp.qdrant_step_knn.qdrant_step_knn_experiment import (
     DBPointMeta,
     build_db_index,
     build_prefetches_for_collection,
@@ -370,7 +370,7 @@ class ToyQdrantQueryServer:
                 with_vectors=False,
             )
 
-        from exp.qdrant_step_knn_experiment import build_filter
+        from exp.qdrant_step_knn.qdrant_step_knn_experiment import build_filter
         step_filter = build_filter(self.step_filter_mode, step_idx, self.step_window)
         response = _query_points(step_filter)
         if not response.points and self.step_filter_mode != "all":

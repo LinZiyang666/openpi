@@ -63,10 +63,10 @@ import numpy as np
 if __package__ in {None, ""}:
     import sys
 
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from exp._cache_config_rpc import send_load_cache_config
-from exp._run_state_base import BaseRunState, UnitState
+from exp.common._cache_config_rpc import send_load_cache_config
+from exp.common._run_state_base import BaseRunState, UnitState
 
 logger = logging.getLogger(__name__)
 
@@ -87,14 +87,14 @@ _DEFAULT_RESIZE: int = 224
 
 def build_unit_key(cfg: str, ep: str, s: int, n: int, k_idx: int) -> str:
     """Canonical unit-key. Delegates to ``SpawnKey.encode`` so the format
-    lives in one place (``exp/_unit_key.py``)."""
-    from exp._unit_key import SpawnKey
+    lives in one place (``exp/common/_unit_key.py``)."""
+    from exp.common._unit_key import SpawnKey
 
     return SpawnKey(cfg=cfg, ep=ep, s=s, n=n, k_idx=k_idx).encode()
 
 
 def parse_unit_key(key: str) -> Tuple[str, str, int, int, int]:
-    from exp._unit_key import SpawnKey
+    from exp.common._unit_key import SpawnKey
 
     k = SpawnKey.decode(key)
     return (k.cfg, k.ep, k.s, k.n, k.k_idx)
@@ -256,7 +256,7 @@ class _SpawnCommon:
         # teleport-then-resize pipeline produces byte-identical obs to GT.
         # seed=None preserves pre-cleanup behavior (F1 follow-up tracks
         # whether spawn should start using GT seed).
-        from exp._libero_env import build_libero_env
+        from exp.trajectory_deviation._libero_env import build_libero_env
 
         return build_libero_env(task_suite, task_id, resolution=256, seed=None)
 
@@ -918,7 +918,7 @@ def main() -> None:
         if not scores_path.exists():
             raise FileNotFoundError(
                 f"{scores_path} not found — run Step 2 "
-                f"(exp/compute_deviate_scores.py) before Step 3."
+                f"(exp/trajectory_deviation/compute_deviate_scores.py) before Step 3."
             )
         D = args.D if args.D is not None else infer_d_from_cfg(cfg)
         scores = _load_scores(scores_path)

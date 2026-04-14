@@ -56,7 +56,7 @@ def _build_env(task_suite: str, task_id: int, resolution: int):
     """Construct env + init_states. Imports are lazy so ``--help`` works
     without libero installed.
 
-    Env construction is delegated to ``exp._libero_env.build_libero_env`` so
+    Env construction is delegated to ``exp.trajectory_deviation._libero_env.build_libero_env`` so
     all cleanup-range callsites share one path-resolution implementation.
     ``init_states`` is fetched separately because it is only used here.
     """
@@ -67,7 +67,7 @@ def _build_env(task_suite: str, task_id: int, resolution: int):
 
     # ``scripts/`` is not on sys.path by default when run as a script.
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from exp._libero_env import build_libero_env  # noqa: E402
+    from exp.trajectory_deviation._libero_env import build_libero_env  # noqa: E402
 
     env = build_libero_env(task_suite, task_id, resolution=resolution, seed=None)
     suite = get_benchmark_dict()[task_suite]()
@@ -86,7 +86,7 @@ def _replay_from_checkpoint(
 ):
     """Replicate Layer F teleport exactly, then run ``post_actions``.
 
-    Matches ``exp/run_spawn_experiment.py::_execute_spawn_unit`` (around
+    Matches ``exp/trajectory_deviation/run_spawn_experiment.py::_execute_spawn_unit`` (around
     line 509): ``env.reset() → env.set_init_state(sim_state) → inner.timestep
     = ... → inner.cur_time = ...``. Returns ``(eef_traj, success_traj)``.
     """
@@ -143,7 +143,7 @@ def run(
     try:
         # OffScreenRenderEnv is a wrapper: timestep/cur_time live on the
         # inner robosuite env at ``env.env`` (see examples/libero/main.py
-        # lines 206-207 and exp/run_spawn_experiment.py line 509).
+        # lines 206-207 and exp/trajectory_deviation/run_spawn_experiment.py line 509).
         inner = env.env
 
         env.reset()

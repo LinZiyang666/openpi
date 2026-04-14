@@ -1,4 +1,4 @@
-"""Unit tests for ``exp/_unit_key.py`` (cleanup/03a, plan P0-5).
+"""Unit tests for ``exp/common/_unit_key.py`` (cleanup/03a, plan P0-5).
 
 Two kinds of coverage:
 
@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import pytest
 
-from exp._unit_key import DeviateKey, SpawnKey, Step1bKey
+from exp.common._unit_key import DeviateKey, SpawnKey, Step1bKey
 
 
 # --- Step1bKey ----------------------------------------------------------

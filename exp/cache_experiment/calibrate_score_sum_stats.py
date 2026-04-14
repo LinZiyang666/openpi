@@ -1,7 +1,7 @@
 """Compute per-field p5/p95 statistics for weighted score sum normalization.
 
 Usage:
-    uv run exp/calibrate_score_sum_stats.py \
+    uv run exp/cache_experiment/calibrate_score_sum_stats.py \
         --artifact-dir data/cache_artifacts/libero_spatial \
         --output data/cache_artifacts/libero_spatial/calibration.json
 

@@ -15,19 +15,19 @@ from qdrant_client import models
 if __package__ in {None, ""}:
     import sys
 
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from exp.qdrant_openpi_common import PAYLOAD_INDEXES
-from exp.qdrant_openpi_common import build_named_vectors
-from exp.qdrant_openpi_common import build_named_vectors_config
-from exp.qdrant_openpi_common import build_payload
-from exp.qdrant_openpi_common import dataset_summary_lines
-from exp.qdrant_openpi_common import iter_step_locators
-from exp.qdrant_openpi_common import iter_step_records
-from exp.qdrant_openpi_common import load_step_record
-from exp.qdrant_openpi_common import make_point_id
-from exp.qdrant_openpi_common import scan_dataset
-from exp.qdrant_openpi_common import StepLocator
+from exp.qdrant_step_knn.qdrant_openpi_common import PAYLOAD_INDEXES
+from exp.qdrant_step_knn.qdrant_openpi_common import build_named_vectors
+from exp.qdrant_step_knn.qdrant_openpi_common import build_named_vectors_config
+from exp.qdrant_step_knn.qdrant_openpi_common import build_payload
+from exp.qdrant_step_knn.qdrant_openpi_common import dataset_summary_lines
+from exp.qdrant_step_knn.qdrant_openpi_common import iter_step_locators
+from exp.qdrant_step_knn.qdrant_openpi_common import iter_step_records
+from exp.qdrant_step_knn.qdrant_openpi_common import load_step_record
+from exp.qdrant_step_knn.qdrant_openpi_common import make_point_id
+from exp.qdrant_step_knn.qdrant_openpi_common import scan_dataset
+from exp.qdrant_step_knn.qdrant_openpi_common import StepLocator
 
 
 def parse_args() -> argparse.Namespace:

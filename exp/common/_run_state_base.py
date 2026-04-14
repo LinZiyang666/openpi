@@ -1,7 +1,7 @@
 """BaseRunState: persistent unit-of-work skeleton shared by experiment runners.
 
 This module extracts the state-tracking pattern previously inlined in
-``exp/run_cache_experiments.py`` (class ``RunState`` + ``_retry_failed_runs``)
+``exp/cache_experiment/run_cache_experiments.py`` (class ``RunState`` + ``_retry_failed_runs``)
 into a reusable base class. New Step 1b / Step 2 / Step 3 runners for the
 trajectory-deviation experiment subclass it instead of re-implementing load /
 save / resume / retry logic.

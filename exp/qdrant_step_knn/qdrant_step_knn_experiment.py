@@ -4,9 +4,9 @@ import sys
 from pathlib import Path
 
 # Ensure repo root is on sys.path so openpi and exp packages are importable
-# when running as `python -m exp.qdrant_step_knn_experiment` or directly.
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+# when running as `python -m exp.qdrant_step_knn.qdrant_step_knn_experiment` or directly.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import argparse
 import csv
@@ -31,15 +31,15 @@ from openpi.cache.storage_types import QueryFilter, QuerySpec
 from openpi.cache.cache_storage import CacheStorage
 from openpi.cache.backends.qdrant_backend import QdrantVectorStore, QdrantBackendConfig
 
-from exp.qdrant_openpi_common import build_named_vectors
-from exp.qdrant_openpi_common import load_step_record
-from exp.qdrant_openpi_common import make_point_id
-from exp.qdrant_openpi_common import named_vector_chunks_map
-from exp.qdrant_openpi_common import resolve_h5_paths
-from exp.qdrant_openpi_common import scan_dataset
-from exp.qdrant_openpi_common import StepLocator
-from exp.qdrant_openpi_common import StepRecord
-from exp.qdrant_openpi_common import VISION_FIELDS
+from exp.qdrant_step_knn.qdrant_openpi_common import build_named_vectors
+from exp.qdrant_step_knn.qdrant_openpi_common import load_step_record
+from exp.qdrant_step_knn.qdrant_openpi_common import make_point_id
+from exp.qdrant_step_knn.qdrant_openpi_common import named_vector_chunks_map
+from exp.qdrant_step_knn.qdrant_openpi_common import resolve_h5_paths
+from exp.qdrant_step_knn.qdrant_openpi_common import scan_dataset
+from exp.qdrant_step_knn.qdrant_openpi_common import StepLocator
+from exp.qdrant_step_knn.qdrant_openpi_common import StepRecord
+from exp.qdrant_step_knn.qdrant_openpi_common import VISION_FIELDS
 
 ALL_LOGICAL_KEYS = (
     "vision_0",
@@ -143,7 +143,7 @@ def make_named_storage(
     with dim > 65535) are not supported by the storage interface and are skipped
     with a warning; only single-vector fields are included.
     """
-    from exp.qdrant_openpi_common import named_vector_chunks_map
+    from exp.qdrant_step_knn.qdrant_openpi_common import named_vector_chunks_map
 
     qdrant_cfg = config.get("qdrant", {})
     experiment_cfg = config.get("experiment", {})
@@ -273,7 +273,7 @@ def build_query_filter(step_filter: str, query_step_idx: int, step_window: int) 
 
 def build_db_index(stats) -> dict[int, DBPointMeta]:
     index: dict[int, DBPointMeta] = {}
-    from exp.qdrant_openpi_common import iter_step_records
+    from exp.qdrant_step_knn.qdrant_openpi_common import iter_step_records
 
     log(f"Building local DB index for {stats.total_steps} steps...")
     for count, record in enumerate(iter_step_records(stats), start=1):

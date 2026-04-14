@@ -444,7 +444,7 @@ class QdrantVectorStore(VectorStoreBackend):
         # checkpoint_id is NOT used as a Qdrant filter.
         # It is carried in QuerySpec for downstream consumers (Judge, Orchestrator)
         # but the Qdrant collection may not have this payload field
-        # (e.g. data ingested via exp/qdrant_ingest_openpi.py).
+        # (e.g. data ingested via exp/qdrant_step_knn/qdrant_ingest_openpi.py).
 
         if spec.filters is not None:
             f = spec.filters

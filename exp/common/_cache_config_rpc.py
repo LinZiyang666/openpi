@@ -1,7 +1,7 @@
 """WebSocket control-message helpers for cache configuration.
 
 Extracts the ``_send_cache_config`` helper previously inlined in
-``exp/run_cache_experiments.py`` into a shared module.
+``exp/cache_experiment/run_cache_experiments.py`` into a shared module.
 
 Public interface
 ----------------

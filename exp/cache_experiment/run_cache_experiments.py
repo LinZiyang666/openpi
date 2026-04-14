@@ -5,7 +5,7 @@ via main.py.  Progress is persisted after every batch, so interrupted runs
 resume from the last completed batch — not from scratch.
 
 Usage:
-    uv run exp/run_cache_experiments.py \
+    uv run exp/cache_experiment/run_cache_experiments.py \
         --yaml-dir configs/cache_runs/phase1 \
         --episodes-per-run 5 \
         --num-workers 5 \
@@ -14,7 +14,7 @@ Usage:
         --seed 42 --conda-env libero_sim
 
     # Resume from checkpoint
-    uv run exp/run_cache_experiments.py \
+    uv run exp/cache_experiment/run_cache_experiments.py \
         --yaml-dir configs/cache_runs/phase1 \
         --episodes-per-run 5 --num-workers 5 \
         --host 155.98.36.13 --port 9000 \
@@ -44,7 +44,7 @@ import tqdm
 if __package__ in {None, ""}:
     import sys
 
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +150,7 @@ def _execute_tasks(
             "--save-episode-results",
             "--episode-results-path", str(episode_results_path),
         ]
-    from exp._subprocess import build_subprocess_cmd
+    from exp.common._subprocess import build_subprocess_cmd
 
     cmd, env = build_subprocess_cmd(main_args, conda_env=conda_env)
 

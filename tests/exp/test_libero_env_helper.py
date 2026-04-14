@@ -1,4 +1,4 @@
-"""Unit tests for ``exp/_libero_env.py`` (cleanup/01, plan P0-3).
+"""Unit tests for ``exp/trajectory_deviation/_libero_env.py`` (cleanup/01, plan P0-3).
 
 These tests must not depend on a real LIBERO install (G2 Watchpoint #1):
 ``libero.libero.*`` is stubbed via ``sys.modules`` patching before the
@@ -75,7 +75,7 @@ def libero_stubs(monkeypatch, tmp_path):
 
 
 def test_resolve_bddl_path(libero_stubs):
-    from exp._libero_env import resolve_bddl_path
+    from exp.trajectory_deviation._libero_env import resolve_bddl_path
 
     path = resolve_bddl_path("libero_10", 1)
 
@@ -84,7 +84,7 @@ def test_resolve_bddl_path(libero_stubs):
 
 
 def test_build_env_seed_none_does_not_call_env_seed(libero_stubs):
-    from exp._libero_env import build_libero_env
+    from exp.trajectory_deviation._libero_env import build_libero_env
 
     env = build_libero_env("libero_10", 1)
 
@@ -98,7 +98,7 @@ def test_build_env_seed_none_does_not_call_env_seed(libero_stubs):
 
 
 def test_build_env_seed_int_calls_env_seed_exactly_once(libero_stubs):
-    from exp._libero_env import build_libero_env
+    from exp.trajectory_deviation._libero_env import build_libero_env
 
     env = build_libero_env("libero_10", 1, seed=7)
 
@@ -106,7 +106,7 @@ def test_build_env_seed_int_calls_env_seed_exactly_once(libero_stubs):
 
 
 def test_build_env_resolution_passed_through(libero_stubs):
-    from exp._libero_env import build_libero_env
+    from exp.trajectory_deviation._libero_env import build_libero_env
 
     build_libero_env("libero_10", 1, resolution=128)
 
@@ -119,7 +119,7 @@ def test_build_env_default_resolution_is_256(libero_stubs):
     """Matches ``examples/libero/main.py::LIBERO_ENV_RESOLUTION`` and the
     current ``_SpawnCommon.make_env`` default. Regressing this would shift
     spawn obs byte-equality with GT HDF5."""
-    from exp._libero_env import build_libero_env
+    from exp.trajectory_deviation._libero_env import build_libero_env
 
     build_libero_env("libero_10", 1)
 

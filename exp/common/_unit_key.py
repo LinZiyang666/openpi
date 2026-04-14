@@ -39,7 +39,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Step1bKey:
-    """Key for ``exp/run_step1b_gt.py`` state JSON."""
+    """Key for ``exp/trajectory_deviation/run_step1b_gt.py`` state JSON."""
 
     task_id: int
     init_idx: int
@@ -60,7 +60,7 @@ class Step1bKey:
 
 @dataclass(frozen=True)
 class DeviateKey:
-    """Key for ``exp/compute_deviate_scores.py`` Phase1 / Phase2.
+    """Key for ``exp/trajectory_deviation/compute_deviate_scores.py`` Phase1 / Phase2.
 
     Phase1 carries a per-episode stochastic sample index; Phase2 has
     exactly one unit per episode and uses ``sample_idx=None``.
@@ -104,7 +104,7 @@ _SPAWN_KEY_RE = re.compile(
 
 @dataclass(frozen=True)
 class SpawnKey:
-    """Key for ``exp/run_spawn_experiment.py`` state JSON."""
+    """Key for ``exp/trajectory_deviation/run_spawn_experiment.py`` state JSON."""
 
     cfg: str
     ep: str

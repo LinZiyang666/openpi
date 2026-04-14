@@ -1,4 +1,4 @@
-"""Unit tests for ``exp/compute_deviate_scores.py`` (plan §10 + §18.B3).
+"""Unit tests for ``exp/trajectory_deviation/compute_deviate_scores.py`` (plan §10 + §18.B3).
 
 We cannot hit a real policy server in CI, so these tests cover:
 
@@ -22,7 +22,7 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
-import exp.compute_deviate_scores as cds
+import exp.trajectory_deviation.compute_deviate_scores as cds
 
 
 # ---------------------------------------------------------------------------
@@ -378,7 +378,7 @@ def test_base_run_state_supports_parallel_run(tmp_path: Path) -> None:
     """§10.1 explicitly adds ``parallel_run`` to BaseRunState so Phase 1/2
     can use a thread pool. Lock that the method still exists (the Phase
     runners would silently fall back to serial if a refactor removed it)."""
-    import exp._run_state_base as base
+    import exp.common._run_state_base as base
 
     assert hasattr(base.BaseRunState, "parallel_run")
 

@@ -2,9 +2,9 @@
 
 Takes two artifact families produced by earlier layers:
 
-- ``deviate_score_{cfg}.json`` (written by ``exp/compute_deviate_scores.py``)
+- ``deviate_score_{cfg}.json`` (written by ``exp/trajectory_deviation/compute_deviate_scores.py``)
   — per-episode per-cycle background/cache L2 + deviate_score.
-- ``spawn_aggregate.csv`` (written by ``exp/run_spawn_experiment.py``) —
+- ``spawn_aggregate.csv`` (written by ``exp/trajectory_deviation/run_spawn_experiment.py``) —
   one row per completed spawn unit with its (config, strategy, episode,
   s, n, k_idx, success, env_steps_executed).
 
@@ -26,7 +26,7 @@ Produces four plot families under ``<out-dir>/figures/``:
 The module keeps the pure math (grid aggregation, histogram binning, ROC
 curve) as standalone helpers that are test-friendly; ``matplotlib`` is
 imported lazily inside each plotting function so unit tests don't need
-an X/GL display. Run with ``uv run python -m exp.analyze_deviation_results
+an X/GL display. Run with ``uv run python -m exp.trajectory_deviation.analyze_deviation_results
 --help`` for the full CLI.
 """
 from __future__ import annotations

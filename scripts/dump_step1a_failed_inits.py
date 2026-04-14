@@ -1,7 +1,7 @@
 """Dump per-task Step-1a failed init-state subsets for Step 1b GT collection.
 
 Consumes the aggregated ``cache_eval_results.json`` produced by
-``exp/run_cache_experiments.py`` (plan §9.0 改动 2 + §19.B5) and, for every
+``exp/cache_experiment/run_cache_experiments.py`` (plan §9.0 改动 2 + §19.B5) and, for every
 ``task_id`` that has at least one failed episode, writes:
 
     {out_dir}/{task.name}.init
@@ -50,7 +50,7 @@ def _group_failed_by_task(rows: List[Dict[str, Any]]) -> Dict[int, List[int]]:
     """Group failed ``init_state_idx`` values per ``task_id``.
 
     ``rows`` is the (already-deduped) content of ``cache_eval_results.json``
-    written by ``exp/run_cache_experiments.py::_aggregate_episode_results``
+    written by ``exp/cache_experiment/run_cache_experiments.py::_aggregate_episode_results``
     (plan §19.B5). Retry-recovered episodes must have been flipped to
     ``success=True`` by the aggregate dedup, so we can filter on ``success``
     alone here.

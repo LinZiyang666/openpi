@@ -54,7 +54,7 @@ mkdir -p data/cache_artifacts/libero_spatial
 
 # CP1 系列 (从 stage1 prefix_embs 降维)
 for bt in cp1_mean_pool cp1_spatial_pool_16 cp1_spatial_pool_64 cp1_max_pool; do
-    uv run exp/build_in_memory_cache_artifact.py \
+    uv run exp/cache_experiment/build_in_memory_cache_artifact.py \
         --data-dir data/db/libero_cache/libero_spatial \
         --builder-type $bt \
         --output data/cache_artifacts/libero_spatial/${bt}.pkl
@@ -62,7 +62,7 @@ for bt in cp1_mean_pool cp1_spatial_pool_16 cp1_spatial_pool_64 cp1_max_pool; do
 done
 
 # CLIP ViT-B-32 (从原始图片编码)
-uv run exp/build_clip_cache_artifact.py \
+uv run exp/cache_experiment/build_clip_cache_artifact.py \
     --data-dir data/db/libero_cache/libero_spatial \
     --clip-model ViT-B-32 \
     --clip-pretrained openai \
@@ -91,7 +91,7 @@ data/cache_artifacts/libero_spatial/
 为 `weighted_score_sum` 融合策略计算每个字段的 p5/p95 百分位统计。
 
 ```bash
-uv run exp/calibrate_score_sum_stats.py \
+uv run exp/cache_experiment/calibrate_score_sum_stats.py \
     --artifact-dir data/cache_artifacts/libero_spatial \
     --output data/cache_artifacts/libero_spatial/calibration.json \
     --num-pairs 50000 \
@@ -109,7 +109,7 @@ uv run exp/calibrate_score_sum_stats.py \
 共 10 种 combo（5 降维 × 2 融合），但当前 `SKIP_SCORE_SUM = True`（在 `generate_cache_run_yamls.py` 第 66 行），实际生成 **5 combo × 8 权重 = 40 个 YAML**。如需恢复 Score Sum 系列，将 `SKIP_SCORE_SUM` 改为 `False` 可生成全部 80 个。
 
 ```bash
-uv run exp/generate_cache_run_yamls.py \
+uv run exp/cache_experiment/generate_cache_run_yamls.py \
     --phase 1 \
     --artifact-dir data/cache_artifacts/libero_spatial \
     --calibration-file data/cache_artifacts/libero_spatial/calibration.json \
@@ -166,7 +166,7 @@ curl http://localhost:8000/healthz
 ### 5a. 完整运行（当前 40 个配置 × 10 task × 5 episodes = 2000 episodes）
 
 ```bash
-uv run exp/run_cache_experiments.py \
+uv run exp/cache_experiment/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/phase1 \
     --episodes-per-run 5 \
     --num-workers 5 \
@@ -189,7 +189,7 @@ uv run exp/run_cache_experiments.py \
 
 ```bash
 # 只运行第 1~8 个配置（即第一个 combo 的所有权重）
-uv run exp/run_cache_experiments.py \
+uv run exp/cache_experiment/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/phase1 \
     --episodes-per-run 5 \
     --num-workers 5 \
@@ -206,7 +206,7 @@ uv run exp/run_cache_experiments.py \
 实验运行器在每个 task 完成后持久化进度。如果中断（Ctrl+C、崩溃、网络断开），用 `--resume` 从上次位置继续：
 
 ```bash
-uv run exp/run_cache_experiments.py \
+uv run exp/cache_experiment/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/phase1 \
     --episodes-per-run 5 \
     --num-workers 5 \
@@ -247,7 +247,7 @@ for s in states:
 ## Step 6: 分析 Phase 1 结果
 
 ```bash
-uv run exp/analyze_cache_results.py \
+uv run exp/cache_experiment/analyze_cache_results.py \
     --state-file configs/cache_runs/phase1/experiment_state.json \
     --output configs/cache_runs/phase1/analysis.json
 ```
@@ -266,7 +266,7 @@ uv run exp/analyze_cache_results.py \
 围绕 Phase 1 的 Top 3 combo 做细粒度权重搜索。
 
 ```bash
-uv run exp/generate_cache_run_yamls.py \
+uv run exp/cache_experiment/generate_cache_run_yamls.py \
     --phase 1.5 \
     --artifact-dir data/cache_artifacts/libero_spatial \
     --calibration-file data/cache_artifacts/libero_spatial/calibration.json \
@@ -281,7 +281,7 @@ uv run exp/generate_cache_run_yamls.py \
 ## Step 8: 运行 Phase 1.5 实验
 
 ```bash
-uv run exp/run_cache_experiments.py \
+uv run exp/cache_experiment/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/phase1_5 \
     --episodes-per-run 5 \
     --num-workers 5 \
@@ -299,7 +299,7 @@ uv run exp/run_cache_experiments.py \
 ## Step 9: 分析 Phase 1.5 结果
 
 ```bash
-uv run exp/analyze_cache_results.py \
+uv run exp/cache_experiment/analyze_cache_results.py \
     --state-file configs/cache_runs/phase1_5/experiment_state.json \
     --output configs/cache_runs/phase1_5/analysis.json
 ```
@@ -309,7 +309,7 @@ uv run exp/analyze_cache_results.py \
 ## Step 10: 生成 Phase 2 配置（加入 prompt_emb）
 
 ```bash
-uv run exp/generate_cache_run_yamls.py \
+uv run exp/cache_experiment/generate_cache_run_yamls.py \
     --phase 2 \
     --artifact-dir data/cache_artifacts/libero_spatial \
     --calibration-file data/cache_artifacts/libero_spatial/calibration.json \
@@ -324,7 +324,7 @@ uv run exp/generate_cache_run_yamls.py \
 ## Step 11: 运行 Phase 2 实验
 
 ```bash
-uv run exp/run_cache_experiments.py \
+uv run exp/cache_experiment/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/phase2 \
     --episodes-per-run 5 \
     --num-workers 5 \
@@ -340,7 +340,7 @@ uv run exp/run_cache_experiments.py \
 ## Step 12: 分析 Phase 2 最终结果
 
 ```bash
-uv run exp/analyze_cache_results.py \
+uv run exp/cache_experiment/analyze_cache_results.py \
     --state-file configs/cache_runs/phase2/experiment_state.json \
     --output configs/cache_runs/phase2/analysis.json
 ```
@@ -393,7 +393,7 @@ for s in states:
 "
 
 # 继续运行
-uv run exp/run_cache_experiments.py \
+uv run exp/cache_experiment/run_cache_experiments.py \
     --yaml-dir configs/cache_runs/phase1 \
     --episodes-per-run 5 \
     --num-workers 5 \

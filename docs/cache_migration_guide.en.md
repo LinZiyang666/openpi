@@ -511,7 +511,7 @@ episode_NNNN/
 
 #### 6.3 Artifact Building
 
-The existing `exp/build_in_memory_cache_artifact.py` and `exp/build_clip_cache_artifact.py` are reference scripts targeting the Pi0.5 HDF5 schema. When migrating, use their logic as reference to write your own build script.
+The existing `exp/cache_experiment/build_in_memory_cache_artifact.py` and `exp/cache_experiment/build_clip_cache_artifact.py` are reference scripts targeting the Pi0.5 HDF5 schema. When migrating, use their logic as reference to write your own build script.
 
 Core flow:
 
@@ -658,7 +658,7 @@ backend:
     robot_state: 32     # Still requires state vector
 ```
 
-**Artifact building**: Use `exp/build_clip_cache_artifact.py` as reference. It reads raw images from HDF5, encodes them via CLIP, and builds the artifact.
+**Artifact building**: Use `exp/cache_experiment/build_clip_cache_artifact.py` as reference. It reads raw images from HDF5, encodes them via CLIP, and builds the artifact.
 
 ### 4.4 Offline Artifact Experiments
 

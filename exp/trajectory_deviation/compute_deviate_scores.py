@@ -20,7 +20,7 @@ For each (cache-config, GT episode) we ask:
   inference off the ground-truth manifold.
 
 This module exposes its helpers (``load_gt_episode`` / ``aggregate``) as
-importable functions so ``exp/run_spawn_experiment.py`` (Step 3) can
+importable functions so ``exp/trajectory_deviation/run_spawn_experiment.py`` (Step 3) can
 reuse them and unit tests can exercise the math without needing a server.
 """
 from __future__ import annotations
@@ -38,10 +38,10 @@ import numpy as np
 if __package__ in {None, ""}:
     import sys
 
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from exp._cache_config_rpc import send_load_cache_config
-from exp._run_state_base import BaseRunState, UnitState
+from exp.common._cache_config_rpc import send_load_cache_config
+from exp.common._run_state_base import BaseRunState, UnitState
 
 logger = logging.getLogger(__name__)
 
@@ -329,7 +329,7 @@ class _PhaseRunner(BaseRunState):
         raise NotImplementedError
 
     def build_units(self) -> List[UnitState]:
-        from exp._unit_key import DeviateKey
+        from exp.common._unit_key import DeviateKey
 
         return [
             UnitState(
@@ -342,7 +342,7 @@ class _PhaseRunner(BaseRunState):
         ]
 
     def execute_unit(self, unit: UnitState) -> dict:
-        from exp._unit_key import DeviateKey
+        from exp.common._unit_key import DeviateKey
 
         k = DeviateKey.decode(unit.unit_key)
         cfg, ep, s = k.cfg, k.ep, k.sample_idx
