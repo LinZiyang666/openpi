@@ -267,8 +267,24 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         if self._orchestrator is not None:
             self._orchestrator.on_task_begin()
 
-    def on_episode_start(self, experiment: str, task: str, episode_id: int) -> None:
-        """Reset per-episode state. Called when simulator sends episode_start."""
+    def on_episode_start(
+        self,
+        experiment: str = "",
+        task: str = "",
+        episode_id: int = -1,
+        episode_name: str = "",
+    ) -> None:
+        """Reset per-episode state. Called when simulator sends episode_start.
+
+        ``experiment`` and ``episode_name`` are accepted for wrapper-signature
+        alignment (``CollectionPolicy`` forwards both as kwargs) but are not
+        propagated to the orchestrator: the orchestrator protocol is limited to
+        ``task_key`` / ``episode_id``, and widening it here would leak
+        collection-layer concerns into the cache layer. The default values keep
+        every argument optional so older callers (``experiment, task,
+        episode_id`` positional or kwarg) remain source-compatible.
+        """
+        del experiment, episode_name  # reserved; avoid unused-arg lint noise
         if self._orchestrator is not None:
             self._orchestrator.on_episode_start(
                 task_key=task,
@@ -292,6 +308,102 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         Called when a client WebSocket connection closes.
         """
         self._timer.on_task_end()
+
+    # -----------------------------------------------------------------------
+    # Prefill API (Step 3 trajectory-deviation spawn runner)
+    # -----------------------------------------------------------------------
+
+    def prefill_trajectory(
+        self,
+        observations: list[dict],
+        actions: list[np.ndarray] | None = None,
+        *,
+        record: bool = False,
+        on_miss: str = "error",
+    ) -> None:
+        """Drive the cache framework along ``(obs, action)`` pairs as if those
+        steps had really happened.
+
+        After the call every stateful component (key_builder vision buffer,
+        strategy trajectory buffer, orchestrator step_counter, gate/judge
+        hooks) is consistent with the supplied trajectory — ready for the
+        next "real" inference.
+
+        Implementation: for each step we temporarily enter prefill mode on
+        the cache storage facade (which returns a synthetic FULL_HIT
+        carrying the ground-truth action) and then call ``infer`` through
+        the normal path. The cache framework treats each step as a CP1
+        FULL_HIT, records trajectory state, and returns the GT action; the
+        caller discards the return value. See
+        ``logs/trajectory_deviation_corrective_implementation.log.md`` §7.
+
+        First version scope (other combinations raise ``NotImplementedError``):
+          - ``actions`` must be provided (pure cache self-query mode deferred).
+          - ``record`` must be False (HDF5 audit of prefill steps deferred).
+          - ``on_miss`` must be ``"error"`` (facade synthetic hit cannot miss).
+        """
+        if actions is None:
+            raise NotImplementedError(
+                "actions=None (cache self-query mode). Future: run real search "
+                "per step and use the cache's own returned actions as history."
+            )
+        if record:
+            raise NotImplementedError(
+                "record=True. Future: capture prefill steps into HDF5 tagged "
+                "as 'prefill' for audit. Requires CollectionPolicy to "
+                "distinguish prefill from real inference steps."
+            )
+        if on_miss != "error":
+            raise NotImplementedError(
+                f"on_miss={on_miss!r}. First version uses facade synthetic "
+                "hit; MISS cannot happen. Future: 'warn' / 'fallback_infer' "
+                "combined with actions=None mode."
+            )
+        if len(observations) != len(actions):
+            raise ValueError(
+                f"observations ({len(observations)}) and actions "
+                f"({len(actions)}) must have equal length"
+            )
+        if self._orchestrator is None:
+            raise RuntimeError(
+                "prefill_trajectory requires a cache orchestrator, but this "
+                "interceptor was constructed with orchestrator=None."
+            )
+
+        # Reach through the orchestrator to the per-connection facade. The
+        # private attribute is stable — the orchestrator owns its storage
+        # reference for the lifetime of the connection.
+        cache_storage = self._orchestrator._storage
+        for obs, action in zip(observations, actions, strict=True):
+            payload = self._build_prefill_payload(action)
+            cache_storage.enter_prefill_mode(payload)
+            try:
+                # Full pipeline: key_builder.collect + build, strategy.search
+                # (synthetic hit), judge, fetch_payload, broadcast_action —
+                # every side effect runs; the returned action is discarded.
+                self.infer(obs)
+            finally:
+                cache_storage.exit_prefill_mode()
+
+    @staticmethod
+    def _build_prefill_payload(action):
+        """Build a minimal ``CachePayload`` carrying only the GT action chunk.
+
+        ``task_key`` defaults to ``""`` and ``intermediates`` /
+        ``denoising_num_steps`` default to ``None`` — the prefill path does
+        not consult them (the caller discards the returned action, and
+        downstream write / warm-start logic is bypassed because the
+        orchestrator sees a CP1 FULL_HIT).
+        """
+        from openpi.cache.storage_types import CachePayload
+
+        if isinstance(action, np.ndarray):
+            action_t = torch.from_numpy(action)
+        elif isinstance(action, torch.Tensor):
+            action_t = action
+        else:
+            action_t = torch.as_tensor(action)
+        return CachePayload(action_chunk=action_t)
 
     # -----------------------------------------------------------------------
     # BasePolicy interface

@@ -53,6 +53,38 @@ class CacheStorage:
         self._backend = backend
         self._metadata_db = metadata_db
         self._dims: dict[str, int] = backend.vector_dims
+        # Prefill mode short-circuits search/fetch_payload to return a single
+        # synthetic hit carrying a caller-supplied payload. Used by the Step 3
+        # spawn runner to drive trajectory history from a ground-truth obs+action
+        # sequence without touching the real vector store. See
+        # logs/trajectory_deviation_corrective_implementation.log.md §6.
+        self._prefill_mode: bool = False
+        self._prefill_payload: Optional[CachePayload] = None
+
+    # ------------------------------------------------------------------
+    # Prefill mode (per-facade)
+    # ------------------------------------------------------------------
+
+    def enter_prefill_mode(self, payload: CachePayload) -> None:
+        """Enter prefill mode with the given payload.
+
+        While in prefill mode:
+          - search(spec) returns exactly one synthetic SearchResultLite
+            (score=1.0, id='__prefill__'), guaranteeing FULL_HIT under any
+            reasonable judge.
+          - fetch_payload(id) returns the stored payload regardless of id.
+          - insert()/batch_insert()/delete() still forward to the backend
+            (caller's responsibility not to mutate during prefill; not enforced).
+
+        Idempotent: calling while already in prefill replaces the payload.
+        """
+        self._prefill_mode = True
+        self._prefill_payload = payload
+
+    def exit_prefill_mode(self) -> None:
+        """Resume normal behaviour. No-op if not currently in prefill."""
+        self._prefill_mode = False
+        self._prefill_payload = None
 
     # ------------------------------------------------------------------
     # Search (two-phase)
@@ -66,10 +98,26 @@ class CacheStorage:
         """
         self._check_query_dims(spec)
         self._check_filters(spec)
+        if self._prefill_mode:
+            # Synthetic hit — a sentinel id short-circuits the downstream
+            # fetch_payload() to the stored prefill payload.
+            return [
+                SearchResultLite(
+                    id="__prefill__",
+                    score=1.0,
+                    checkpoint_id=spec.checkpoint_id,
+                )
+            ]
         return self._backend.search(spec)
 
     def fetch_payload(self, id: str) -> CachePayload:
         """Fetch the full payload for one candidate id."""
+        if self._prefill_mode:
+            # In prefill mode the stored payload is the answer regardless of id.
+            assert self._prefill_payload is not None, (
+                "prefill_mode is True but _prefill_payload is None"
+            )
+            return self._prefill_payload
         return self._backend.fetch_payload(id)
 
     def search_and_fetch(self, spec: QuerySpec) -> list[SearchResult]:

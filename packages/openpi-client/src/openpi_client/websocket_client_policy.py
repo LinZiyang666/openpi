@@ -53,7 +53,17 @@ class WebsocketClientPolicy(_base_policy.BasePolicy):
             raise RuntimeError(f"Error in inference server:\n{response}")
         return msgpack_numpy.unpackb(response)
 
-    def episode_start(self, experiment: str, task: str = "", episode_id: int = -1) -> Dict:
+    def episode_start(
+        self,
+        experiment: str,
+        task: str = "",
+        episode_id: int = -1,
+        episode_name: str = "",
+    ) -> Dict:
+        # ``episode_name`` is always sent on the wire. An empty string preserves the
+        # legacy server behaviour (server reads it with ``obs.get("__episode_name__", "")``
+        # and treats empty as "no override"); a non-empty value lets callers pick the
+        # HDF5 filename used by the collection data_collector (plan §3.1 / §3.4).
         self._ws.send(
             self._packer.pack(
                 {
@@ -61,6 +71,7 @@ class WebsocketClientPolicy(_base_policy.BasePolicy):
                     "__experiment__": experiment,
                     "__task__": task,
                     "__episode_id__": episode_id,
+                    "__episode_name__": episode_name,
                 }
             )
         )
@@ -76,6 +87,69 @@ class WebsocketClientPolicy(_base_policy.BasePolicy):
             raise RuntimeError(f"Error in inference server:\n{response}")
         return msgpack_numpy.unpackb(response)
 
+    def prefill_trajectory(
+        self,
+        observations: list,
+        actions: list,
+        *,
+        record: bool = False,
+        on_miss: str = "error",
+    ) -> Dict:
+        """Drive the server's cache framework through an (obs, action) sequence.
+
+        Each ``(observations[i], actions[i])`` pair is fed through the server-side
+        ``InferenceInterceptor.prefill_trajectory`` as if it were a real inference
+        step, so the per-connection cache facade records query keys and stores
+        payloads without actually running the model (see ``openpi.cache.interceptor``
+        for the in-process semantics). ``observations`` is ``list[Dict]`` and
+        ``actions`` is a list of numpy arrays — both travel via ``msgpack_numpy``
+        so arrays round-trip without explicit encoding.
+
+        This is the only prefill entry point in the first-version wire protocol;
+        standalone ``prefill_begin`` / ``prefill_end`` control messages are
+        intentionally not exposed here (plan §19.B7) because they would have to
+        share this connection to land on the correct per-connection facade.
+        """
+        self._ws.send(
+            self._packer.pack(
+                {
+                    "__ctrl__": "prefill_trajectory",
+                    "observations": observations,
+                    "actions": actions,
+                    "record": record,
+                    "on_miss": on_miss,
+                }
+            )
+        )
+        response = self._ws.recv()
+        if isinstance(response, str):
+            raise RuntimeError(f"Error in inference server:\n{response}")
+        return msgpack_numpy.unpackb(response)
+
     @override
     def reset(self) -> None:
         pass
+
+    # ------------------------------------------------------------------
+    # Lifecycle helpers (plan §19.B4)
+    #
+    # Phase-2/Phase-3 runners must drive this client inside a ``with`` block so
+    # that the per-connection cache facade is released as soon as the worker
+    # finishes; without that, the server-side backend reference count can
+    # outlive a config-bundle swap and cause stale facade reads.
+    # ------------------------------------------------------------------
+
+    def __enter__(self) -> "WebsocketClientPolicy":
+        return self
+
+    def __exit__(self, *exc) -> None:
+        # Swallow close errors: the websocket may already be half-closed by the
+        # server (for example, the bundle was swapped mid-episode). Propagating
+        # a close failure would mask the real exception from the ``with`` body.
+        try:
+            self._ws.close()
+        except Exception:
+            pass
+
+    def close(self) -> None:
+        self.__exit__(None, None, None)

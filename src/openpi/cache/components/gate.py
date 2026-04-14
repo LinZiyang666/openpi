@@ -72,3 +72,35 @@ class AlwaysSearchGate:
         Current: no-op. AlwaysSearchGate does not use action data.
         Future: trajectory-aware gate can buffer action history for drift detection.
         """
+
+
+class AlwaysSkipGate:
+    """Always skip search: orchestrator treats this as a gate-miss path.
+
+    Net effect: the orchestrator still records ``query_keys`` to the strategy
+    history (so trajectory buffers stay gap-free) and returns
+    ``HitType.MISS`` for every checkpoint query, forcing the interceptor to
+    fall through the full inference path. ``broadcast_action`` then feeds
+    the real inference output back into all components. The cache framework
+    is effectively transparent at this checkpoint while keeping trajectory
+    history semantics intact.
+
+    Use case: Step 2 of the trajectory-deviation experiment (background L2
+    sampling) where we need M independent full-inference rollouts over a
+    GT observation sequence with trajectory history preserved — see
+    ``logs/trajectory_deviation_corrective_experiment.log.md`` §13.4 and
+    ``logs/trajectory_deviation_corrective_implementation.log.md`` §8.1.
+    """
+
+    def __call__(
+        self,
+        checkpoint_id: CheckpointID,
+        cached_data: dict[str, torch.Tensor],
+    ) -> bool:
+        return False
+
+    def on_episode_start(self) -> None:
+        """No-op. Signature matches GateFunction protocol."""
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        """No-op. Signature matches GateFunction protocol."""

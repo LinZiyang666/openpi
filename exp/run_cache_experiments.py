@@ -117,11 +117,17 @@ def _execute_tasks(
     log_path: Path,
     seed: int = 7,
     conda_env: str | None = None,
+    episode_results_path: Path | None = None,
 ) -> dict:
     """Execute a batch of tasks concurrently via main.py.
 
     Passes multiple --task-ids so main.py distributes them across workers.
     Appends output to the run's log file.
+
+    If ``episode_results_path`` is given, forwards ``--save-episode-results
+    --episode-results-path`` to ``main.py`` so per-episode success rows are
+    written for later aggregation into ``cache_eval_results.json`` (plan §9.0
+    改动 2 / §19.B5).
     """
     task_id_strs = [str(t) for t in task_ids]
     main_args = [
@@ -134,6 +140,11 @@ def _execute_tasks(
         "--task-ids", *task_id_strs,
         "--seed", str(seed),
     ]
+    if episode_results_path is not None:
+        main_args += [
+            "--save-episode-results",
+            "--episode-results-path", str(episode_results_path),
+        ]
     env = None
     if conda_env:
         cmd = ["conda", "run", "--no-capture-output", "-n", conda_env, "python", *main_args]
@@ -500,6 +511,9 @@ def main():
                     log_path=log_path,
                     seed=args.seed,
                     conda_env=args.conda_env,
+                    episode_results_path=_episode_results_path_for(
+                        log_path, batch_idx, num_batches
+                    ),
                 )
 
                 if result["exit_code"] == 0:
@@ -578,6 +592,106 @@ def main():
             args=args,
             task_id_list=task_id_list,
         )
+
+    # --- Post-run aggregate (plan §9.0 改动 2 + §19.B5) ---
+    # Walk every *.episode_results.json produced by main.py (both first-pass
+    # and retry attempts) and dedup by (config_id, task_id, init_state_idx,
+    # seed), keeping the latest attempt. Output goes next to the YAMLs so
+    # ``scripts/dump_step1a_failed_inits.py`` can consume it.
+    aggregate_path = yaml_dir / "cache_eval_results.json"
+    _aggregate_episode_results(yaml_dir, aggregate_path)
+    print(f"Aggregated episode results → {aggregate_path}")
+
+
+def _episode_results_path_for(
+    log_path: Path, batch_idx: int, num_batches: int
+) -> Path:
+    """Pick a per-batch ``.episode_results.json`` path alongside ``log_path``.
+
+    Two subtleties matter for the §19.B5 aggregate:
+
+    - ``log_path`` may end in ``.log`` (first pass) or ``.retryN.log``
+      (retry pass). ``Path.with_suffix`` strips only the trailing ``.log``
+      so retry pass paths still carry ``.retryN`` as a stem component —
+      exactly what the aggregator's ``count('/retry/')`` attempt detection
+      wants.
+    - When a run is split across multiple batches, each batch invocation of
+      ``main.py`` overwrites ``--episode-results-path``; appending
+      ``.batchNofM`` disambiguates so nothing is lost. Single-batch runs
+      keep the plain ``.episode_results.json`` name for readability.
+    """
+    base = log_path.with_suffix(".episode_results.json")
+    if num_batches <= 1:
+        return base
+    # Insert ``.batchK`` before the final suffix set.
+    stem = base.name[: -len(".episode_results.json")]
+    return base.with_name(f"{stem}.batch{batch_idx}of{num_batches}.episode_results.json")
+
+
+def _infer_config_id_from_source(source: str) -> str:
+    """Derive a stable config_id from the per-batch results file path.
+
+    Removes the ``.episode_results.json`` tail, any ``.batchKofN`` batch
+    marker, any ``.retryN`` retry marker, and any leading ``retry/`` prefix.
+    The remainder is the YAML stem (``run_id``) — which is how every other
+    part of the pipeline identifies a cache config.
+    """
+    name = Path(source).name
+    if name.endswith(".episode_results.json"):
+        name = name[: -len(".episode_results.json")]
+    # Strip batch / retry markers in a loop — they can appear in either
+    # order (``.batch0of2.retry1`` or ``.retry1.batch0of2``) depending on
+    # whether a retry also needed to be split across batches.
+    while True:
+        new_name = re.sub(r"\.batch\d+of\d+$", "", name)
+        new_name = re.sub(r"\.retry\d+$", "", new_name)
+        if new_name == name:
+            return name
+        name = new_name
+
+
+def _aggregate_episode_results(run_root: Path, out_path: Path) -> None:
+    """Merge all per-batch ``*.episode_results.json`` into a single file.
+
+    Dedup key (plan §19.B5): ``(config_id, task_id, init_state_idx, seed)``.
+    Later attempts (higher ``/retry/`` depth in the path, then later batch)
+    override earlier attempts so a retry-recovered episode correctly reads
+    as a success.
+    """
+    if not run_root.exists():
+        return
+    rows: list[dict] = []
+    for p in sorted(run_root.rglob("*.episode_results.json")):
+        attempt = str(p).count("/retry/")
+        source = p.relative_to(run_root).as_posix()
+        try:
+            payload = json.loads(p.read_text())
+        except json.JSONDecodeError as e:
+            logger.warning("Skipping malformed %s: %s", p, e)
+            continue
+        config_id = _infer_config_id_from_source(source)
+        for r in payload:
+            enriched = dict(r)
+            enriched.setdefault("config_id", config_id)
+            enriched["attempt"] = attempt
+            enriched["source_path"] = source
+            rows.append(enriched)
+
+    def _key(r: dict) -> tuple:
+        return (
+            str(r.get("config_id", "")),
+            int(r["task_id"]),
+            int(r["init_state_idx"]),
+            int(r.get("seed", -1)),
+        )
+
+    # Stable sort by (key, attempt) then overwrite: last write wins.
+    rows.sort(key=lambda r: (_key(r), r["attempt"]))
+    deduped: dict[tuple, dict] = {}
+    for r in rows:
+        deduped[_key(r)] = r
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(list(deduped.values()), indent=2))
 
 
 def _retry_failed_runs(
@@ -682,6 +796,11 @@ def _retry_failed_runs(
                         log_path=log_path,
                         seed=args.seed,
                         conda_env=args.conda_env,
+                        episode_results_path=_episode_results_path_for(
+                            log_path,
+                            batch_start // batch_size,
+                            (len(failed_tasks) + batch_size - 1) // batch_size,
+                        ),
                     )
                     if result["exit_code"] == 0:
                         n = len(batch)

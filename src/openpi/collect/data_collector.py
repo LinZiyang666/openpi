@@ -5,6 +5,7 @@ import logging
 import pathlib
 import threading
 from dataclasses import dataclass
+from typing import Any
 
 import h5py
 import numpy as np
@@ -35,19 +36,47 @@ class EpisodeDataCollector:
         self._experiment = "unknown"
         self._task = ""
         self._episode_id = -1
+        # Optional client-provided filename stem (may contain subdirs such as
+        # "task_3/episode_7"). Empty falls back to legacy timestamp naming.
+        self._episode_name = ""
+        # Free-form per-episode HDF5 attrs (prompt, init_state_idx, ...).
+        # ``clear()`` in ``on_episode_start`` so the dict is reused, keeping
+        # any external reference valid; rebinding would break that.
+        self._episode_attrs: dict[str, Any] = {}
         self._lock = threading.Lock()
 
-    def on_episode_start(self, experiment: str, task: str, episode_id: int) -> None:
+    def on_episode_start(
+        self,
+        experiment: str,
+        task: str,
+        episode_id: int,
+        *,
+        episode_name: str = "",
+    ) -> None:
         with self._lock:
             self._buffer = []
             self._experiment = experiment
             self._task = task
             self._episode_id = episode_id
+            self._episode_name = episode_name
+            self._episode_attrs.clear()
         logger.info("EpisodeDataCollector: episode %d started (%s / %s)", episode_id, experiment, task)
 
     def record_inference(self, embs: InferenceEmbeddings) -> None:
         with self._lock:
             self._buffer.append(embs)
+
+    def set_episode_attr(self, key: str, value: Any) -> None:
+        """Record an HDF5-bound attribute for the current episode.
+
+        Calls before ``on_episode_start`` are accepted silently (the attr
+        dict survives across episodes until ``on_episode_start`` clears it),
+        which matches ``record_inference``'s tolerant contract. Overwriting
+        an existing key is intentional — callers may refine values mid-episode
+        (for example, extending a prompt string).
+        """
+        with self._lock:
+            self._episode_attrs[key] = value
 
     def has_pending_data(self) -> bool:
         with self._lock:
@@ -63,12 +92,32 @@ class EpisodeDataCollector:
             experiment = self._experiment
             task = self._task
             episode_id = self._episode_id
+            episode_name = self._episode_name
+            episode_attrs = dict(self._episode_attrs)  # snapshot under lock
             self._buffer = []
 
         out_dir = self._base_dir / experiment
         out_dir.mkdir(parents=True, exist_ok=True)
-        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-        path = out_dir / f"episode_{episode_id:04d}_{ts}.h5"
+        if episode_name:
+            # ``episode_name`` may embed subdirs ("task_3/episode_7"); resolve
+            # and assert containment so a hostile value like "../../etc/passwd"
+            # cannot escape ``out_dir``. This is belt-and-braces: the wire
+            # format is authenticated server-side, but path traversal is a
+            # one-line defense with zero legitimate cost.
+            candidate = (out_dir / f"{episode_name}.h5").resolve()
+            out_dir_resolved = out_dir.resolve()
+            if not candidate.is_relative_to(out_dir_resolved):
+                raise ValueError(
+                    f"episode_name {episode_name!r} escapes base directory "
+                    f"{out_dir_resolved}; refusing to write."
+                )
+            path = candidate
+            path.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+            path = out_dir / f"episode_{episode_id:04d}_{ts}.h5"
+        # ``with_suffix`` on a ``.h5`` path yields ``.h5.tmp`` cleanly even when
+        # ``path.name`` already ends in ``.h5``.
         tmp_path = path.with_suffix(".h5.tmp")
 
         try:
@@ -79,6 +128,13 @@ class EpisodeDataCollector:
                 f.attrs["num_steps"] = len(buffer)
                 f.attrs["timestamp"] = datetime.datetime.now().isoformat()
                 f.attrs["success"] = success
+                # Merge caller-supplied attrs (prompt, init_state_idx, ...).
+                # Standard keys above are written first so episode_attrs cannot
+                # accidentally shadow bookkeeping fields; any overlap is still
+                # allowed (last-write-wins) if an advanced caller really wants
+                # to override, e.g. a canonicalised ``task`` value.
+                for k, v in episode_attrs.items():
+                    f.attrs[k] = v
 
                 for step_idx, embs in enumerate(buffer):
                     grp = f.create_group(f"step_{step_idx:04d}")

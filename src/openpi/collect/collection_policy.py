@@ -46,6 +46,9 @@ class CollectionPolicy(_base_policy.BasePolicy):
         self._policy = policy
         self._collector = collector
         self._collecting = False
+        # Gates a one-shot ``obs["prompt"]`` capture per episode (plan §3.3 / §9.5).
+        # Reset in ``on_episode_start`` so every new episode re-captures.
+        self._prompt_captured = False
         self._inner_model = _find_inner_model(policy)
         self._input_transform = _find_wrapped_attr(policy, "_input_transform")
 
@@ -57,6 +60,15 @@ class CollectionPolicy(_base_policy.BasePolicy):
         infer_kwargs = {"noise": noise} if noise is not None else {}
         if not self._collecting:
             return self._policy.infer(obs, **infer_kwargs)
+
+        # One-shot per-episode capture of the raw language prompt so the HDF5
+        # artifact records what the client actually requested (the embedding
+        # alone is not round-trippable). Guarded by ``_prompt_captured`` to
+        # avoid redundant ``set_episode_attr`` calls on every step.
+        if not self._prompt_captured:
+            raw_prompt = obs.get("prompt", "")
+            self._collector.set_episode_attr("prompt", str(raw_prompt))
+            self._prompt_captured = True
 
         vision_captures: list[torch.Tensor] = []
         lang_capture: list[torch.Tensor | None] = [None]
@@ -100,13 +112,42 @@ class CollectionPolicy(_base_policy.BasePolicy):
 
         return result
 
-    def on_episode_start(self, experiment: str, task: str, episode_id: int) -> None:
-        self._collector.on_episode_start(experiment, task, episode_id)
+    def on_episode_start(
+        self,
+        experiment: str,
+        task: str,
+        episode_id: int,
+        episode_name: str = "",
+    ) -> None:
+        # Reset the one-shot prompt-capture gate before opening the collector;
+        # if forwarding to ``self._policy`` raises we still want the gate back
+        # to ``False`` so the next episode attempt re-captures.
+        self._prompt_captured = False
+        self._collector.on_episode_start(
+            experiment=experiment,
+            task=task,
+            episode_id=episode_id,
+            episode_name=episode_name,
+        )
         self._collecting = True
+        # Keyword-only forwarding to the inner wrapper chain. Plan §20.R2/§21
+        # requires that ``CollectionPolicy`` does not swallow lifecycle signals:
+        # without this block ``PolicyRecorder`` / ``InferenceInterceptor`` would
+        # never see ``episode_start`` and the cache orchestrator would stay in
+        # the previous episode's state.
+        if hasattr(self._policy, "on_episode_start"):
+            self._policy.on_episode_start(
+                experiment=experiment,
+                task=task,
+                episode_id=episode_id,
+                episode_name=episode_name,
+            )
 
     def on_episode_end(self, success: bool) -> None:
-        self._collector.on_episode_end(success)
+        self._collector.on_episode_end(success=success)
         self._collecting = False
+        if hasattr(self._policy, "on_episode_end"):
+            self._policy.on_episode_end(success=success)
 
     def on_task_begin(self) -> None:
         if hasattr(self._policy, "on_task_begin"):

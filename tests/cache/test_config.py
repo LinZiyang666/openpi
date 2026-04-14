@@ -634,3 +634,171 @@ def test_warm_tiers_start_t_canonicalized():
     config = _config_with_warm_tiers(tiers)
     validate_cache_config(config)
     assert config.checkpoints["cp1"].judge.warm_tiers[0]["start_t"] == 0.3
+
+
+# ---------------------------------------------------------------------------
+# AlwaysSkipGate: validation whitelist + _build_gate branch
+# ---------------------------------------------------------------------------
+
+
+def test_gate_always_skip_passes_validation():
+    """Whitelist in validate_cache_config must accept gate.type='always_skip'."""
+    config = CacheConfig(
+        enabled=True,
+        keys=KeysConfig(robot_state=KeyFieldConfig(enabled=True, weight=1.0)),
+        backend=BackendConfig(type="qdrant", vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                gate=GateConfig(type="always_skip"),
+                judge=JudgeConfig(threshold=0.98),
+            ),
+        },
+    )
+    # Should not raise.
+    validate_cache_config(config)
+
+
+def test_gate_unknown_type_rejected():
+    config = CacheConfig(
+        enabled=True,
+        keys=KeysConfig(robot_state=KeyFieldConfig(enabled=True, weight=1.0)),
+        backend=BackendConfig(type="qdrant", vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                gate=GateConfig(type="totally_bogus"),
+                judge=JudgeConfig(threshold=0.98),
+            ),
+        },
+    )
+    with pytest.raises(ConfigValidationError, match="gate.type 'totally_bogus'"):
+        validate_cache_config(config)
+
+
+def test_build_gate_constructs_always_skip():
+    """build_cache_components should instantiate AlwaysSkipGate for gate.type='always_skip'."""
+    from openpi.cache.components.gate import AlwaysSkipGate
+
+    config = CacheConfig(
+        enabled=True,
+        keys=KeysConfig(robot_state=KeyFieldConfig(enabled=True, weight=1.0)),
+        backend=BackendConfig(type="qdrant", vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                gate=GateConfig(type="always_skip"),
+                judge=JudgeConfig(threshold=0.98),
+            ),
+        },
+    )
+    validate_cache_config(config)
+    components = build_cache_components(config)
+    assert isinstance(components["gates"][CheckpointID.CP1], AlwaysSkipGate)
+
+
+# ---------------------------------------------------------------------------
+# Per-connection CacheStorage facade isolation
+# ---------------------------------------------------------------------------
+
+
+def test_per_connection_storage_is_fresh_facade_sharing_backend():
+    """Each call to build_per_connection_components produces an independent facade.
+
+    Prefill state (enter_prefill_mode) set on one connection's facade must not
+    bleed into another's. See trajectory-deviation implementation plan §5.
+    """
+    from openpi.cache.config import build_per_connection_components, build_shared_storage
+
+    config = CacheConfig(
+        enabled=True,
+        keys=KeysConfig(robot_state=KeyFieldConfig(enabled=True, weight=1.0)),
+        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                gate=GateConfig(type="always_search"),
+                judge=JudgeConfig(threshold=0.98),
+                search_strategy=SearchStrategyConfig(type="weighted_rrf_knn"),
+            ),
+        },
+    )
+    validate_cache_config(config)
+    shared = build_shared_storage(config)
+
+    conn_a = build_per_connection_components(config, shared, quiet=True)
+    conn_b = build_per_connection_components(config, shared, quiet=True)
+
+    # Two distinct facade instances …
+    assert conn_a["storage"] is not conn_b["storage"]
+    assert conn_a["storage"] is not shared
+    # … but all three share the same backend.
+    assert conn_a["storage"]._backend is shared._backend
+    assert conn_b["storage"]._backend is shared._backend
+
+
+def test_per_connection_prefill_state_is_isolated():
+    """Entering prefill mode on facade A must not affect facade B."""
+    from openpi.cache.config import build_per_connection_components, build_shared_storage
+    from openpi.cache.storage_types import CachePayload
+
+    config = CacheConfig(
+        enabled=True,
+        keys=KeysConfig(robot_state=KeyFieldConfig(enabled=True, weight=1.0)),
+        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                gate=GateConfig(type="always_search"),
+                judge=JudgeConfig(threshold=0.98),
+                search_strategy=SearchStrategyConfig(type="weighted_rrf_knn"),
+            ),
+        },
+    )
+    validate_cache_config(config)
+    shared = build_shared_storage(config)
+
+    conn_a = build_per_connection_components(config, shared, quiet=True)
+    conn_b = build_per_connection_components(config, shared, quiet=True)
+
+    payload = CachePayload(action_chunk=torch.zeros(50, 32))
+    conn_a["storage"].enter_prefill_mode(payload)
+
+    assert conn_a["storage"]._prefill_mode is True
+    assert conn_b["storage"]._prefill_mode is False
+    assert shared._prefill_mode is False
+
+
+def test_per_connection_search_strategy_uses_owning_facade():
+    """Each search_strategy must hold the *same* per-connection facade that
+    was returned under ``"storage"`` — otherwise prefill mode would enter on
+    facade A but the strategy would still search through ``shared``, bypassing
+    the synthetic hit. Directly asserts on ``_storage`` identity, the pathway
+    through which prefill short-circuits propagate.
+    """
+    from openpi.cache.cache_storage import CacheStorage
+    from openpi.cache.config import build_per_connection_components, build_shared_storage
+
+    config = CacheConfig(
+        enabled=True,
+        keys=KeysConfig(robot_state=KeyFieldConfig(enabled=True, weight=1.0)),
+        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                gate=GateConfig(type="always_search"),
+                judge=JudgeConfig(threshold=0.98),
+                search_strategy=SearchStrategyConfig(type="weighted_rrf_knn"),
+            ),
+        },
+    )
+    validate_cache_config(config)
+    shared = build_shared_storage(config)
+
+    conn_a = build_per_connection_components(config, shared, quiet=True)
+    conn_b = build_per_connection_components(config, shared, quiet=True)
+
+    cp1_id = next(iter(conn_a["search_strategies"].keys()))
+    strat_a = conn_a["search_strategies"][cp1_id]
+    strat_b = conn_b["search_strategies"][cp1_id]
+
+    # Strategy's storage MUST be its own connection's facade, not the shared one.
+    assert isinstance(strat_a._storage, CacheStorage)
+    assert strat_a._storage is conn_a["storage"]
+    assert strat_b._storage is conn_b["storage"]
+    assert strat_a._storage is not shared
+    assert strat_a._storage is not strat_b._storage

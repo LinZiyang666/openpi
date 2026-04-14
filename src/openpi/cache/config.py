@@ -435,8 +435,16 @@ def validate_cache_config(config: CacheConfig) -> None:
             continue
         prefix = f"checkpoints.{cp_name}"
 
-        if cp_config.gate.type not in ("always_search",):
-            errors.append(f"{prefix}.gate.type '{cp_config.gate.type}' is unknown. Valid: ['always_search']")
+        # ``always_skip`` is used by the trajectory-deviation Step 2 sampler:
+        # every CP1 query is treated as a miss so we get M full inferences
+        # over the same observation stream while trajectory history stays
+        # gap-free. See logs/trajectory_deviation_corrective_implementation.log.md §8.1.
+        _valid_gate_types = ("always_search", "always_skip")
+        if cp_config.gate.type not in _valid_gate_types:
+            errors.append(
+                f"{prefix}.gate.type '{cp_config.gate.type}' is unknown. "
+                f"Valid: {list(_valid_gate_types)}"
+            )
 
         if cp_config.judge.type not in ("threshold", "always_hit"):
             errors.append(f"{prefix}.judge.type '{cp_config.judge.type}' is unknown. Valid: ['threshold', 'always_hit']")
@@ -716,11 +724,16 @@ def build_per_connection_components(
     *,
     quiet: bool = False,
 ) -> dict[str, Any]:
-    """Build per-connection cache components, reusing only shared storage.
+    """Build per-connection cache components, reusing only the backend.
 
     key_builder has mutable per-cycle state (_cache) and MUST be per-connection.
-    storage (and its backend) is thread-safe and shared.
+    The backend (and its metadata DB) is thread-safe and shared across
+    connections; the ``CacheStorage`` facade is NOT shared — each connection
+    gets its own facade so Step-3 prefill mode (``enter_prefill_mode`` /
+    ``exit_prefill_mode``) stays isolated. See
+    ``logs/trajectory_deviation_corrective_implementation.log.md`` §5 / §6.
     """
+    from openpi.cache.cache_storage import CacheStorage
     from openpi.cache.timing import SystemTimer
 
     timer = SystemTimer(
@@ -728,6 +741,16 @@ def build_per_connection_components(
         buffer_size=config.timer.buffer_size,
         output_csv_dir=config.timer.output_csv_dir,
         quiet=quiet,
+    )
+
+    # Wrap the shared backend in a fresh facade for this connection. The
+    # facade only holds per-connection prefill state + a cheap dim cache, so
+    # copying it has no memory pressure. ``shared_storage`` must have been
+    # produced by ``build_shared_storage``; we reach through ``_backend`` to
+    # keep backend singleton semantics.
+    per_conn_storage = CacheStorage(
+        shared_storage._backend,
+        metadata_db=shared_storage._metadata_db,
     )
 
     enabled_fields = [name for name, kf in _keys_iter(config.keys) if kf.enabled]
@@ -745,14 +768,14 @@ def build_per_connection_components(
         gates[cp_id] = _build_gate(cp_config.gate)
         judges[cp_id] = _build_judge(cp_config.judge)
         search_strategies[cp_id] = _build_search_strategy(
-            cp_config.search_strategy, shared_storage, fusion_weights
+            cp_config.search_strategy, per_conn_storage, fusion_weights
         )
 
     write_policy = _build_write_policy(config.write_policy)
 
     return {
         "timer": timer,
-        "storage": shared_storage,
+        "storage": per_conn_storage,
         "key_builder": key_builder,
         "gates": gates,
         "judges": judges,
@@ -867,8 +890,13 @@ def _build_gate(cfg: GateConfig):
         from openpi.cache.components.gate import AlwaysSearchGate
 
         return AlwaysSearchGate()
-    else:
-        raise ConfigValidationError(f"Unknown gate.type '{cfg.type}'. Valid: ['always_search']")
+    if cfg.type == "always_skip":
+        from openpi.cache.components.gate import AlwaysSkipGate
+
+        return AlwaysSkipGate()
+    raise ConfigValidationError(
+        f"Unknown gate.type '{cfg.type}'. Valid: ['always_search', 'always_skip']"
+    )
 
 
 def _build_judge(cfg: JudgeConfig):

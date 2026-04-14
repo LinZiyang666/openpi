@@ -271,3 +271,192 @@ def test_infer_warm_start_calls_stage3_from():
     assert model.stage2_calls == 1
     assert stage3_from_calls[0] == 1
     assert model.stage3_calls == 0
+
+
+# ---------------------------------------------------------------------------
+# prefill_trajectory: Step 3 trajectory-deviation spawn runner
+# ---------------------------------------------------------------------------
+
+
+def _prefill_interceptor() -> tuple[InferenceInterceptor, FakeModel]:
+    """Build an orchestrator-wired interceptor usable for prefill tests."""
+    fixed_state = torch.randn(1, 32)
+    fixed_action = torch.randn(1, 50, 32)
+    model = FakeModel(fixed_state=fixed_state, fixed_action=fixed_action)
+    policy = FakePolicy(model=model)
+    orch, _, _ = make_orchestrator()
+    interceptor = InferenceInterceptor(
+        policy, timer=SystemTimer(enabled=False), orchestrator=orch
+    )
+    interceptor.on_task_begin()
+    interceptor.on_episode_start("exp", "task", 0)
+    return interceptor, model
+
+
+def test_prefill_trajectory_runs_stage1_once_per_step():
+    interceptor, model = _prefill_interceptor()
+
+    obs_seq = [_make_obs() for _ in range(3)]
+    act_seq = [np.random.randn(50, 32).astype(np.float32) for _ in range(3)]
+
+    interceptor.prefill_trajectory(obs_seq, actions=act_seq)
+
+    # Each prefill step goes through the full ``infer`` pipeline: stage1
+    # always runs (CP1 check happens after stage1), but the synthetic CP1
+    # FULL_HIT bypasses stage2 + stage3. So stage1 counts equal the number
+    # of prefill steps, stage2/3 counts stay at 0.
+    assert model.stage1_calls == 3
+    assert model.stage2_calls == 0
+    assert model.stage3_calls == 0
+
+
+def test_prefill_trajectory_exits_prefill_mode_after_each_step():
+    interceptor, _ = _prefill_interceptor()
+    storage = interceptor._orchestrator._storage
+
+    obs_seq = [_make_obs() for _ in range(2)]
+    act_seq = [np.random.randn(50, 32).astype(np.float32) for _ in range(2)]
+
+    interceptor.prefill_trajectory(obs_seq, actions=act_seq)
+
+    # After prefill completes the facade must be back to normal mode so a
+    # subsequent real ``infer`` hits the backend instead of returning a
+    # synthetic hit.
+    assert storage._prefill_mode is False
+    assert storage._prefill_payload is None
+
+
+def test_prefill_trajectory_rejects_mismatched_lengths():
+    interceptor, _ = _prefill_interceptor()
+    obs_seq = [_make_obs() for _ in range(3)]
+    act_seq = [np.random.randn(50, 32).astype(np.float32) for _ in range(2)]
+
+    import pytest
+
+    with pytest.raises(ValueError, match="equal length"):
+        interceptor.prefill_trajectory(obs_seq, actions=act_seq)
+
+
+def test_prefill_trajectory_rejects_deferred_modes():
+    interceptor, _ = _prefill_interceptor()
+    obs_seq = [_make_obs()]
+    act_seq = [np.random.randn(50, 32).astype(np.float32)]
+
+    import pytest
+
+    with pytest.raises(NotImplementedError, match="actions=None"):
+        interceptor.prefill_trajectory(obs_seq, actions=None)
+
+    with pytest.raises(NotImplementedError, match="record=True"):
+        interceptor.prefill_trajectory(obs_seq, actions=act_seq, record=True)
+
+    with pytest.raises(NotImplementedError, match="on_miss"):
+        interceptor.prefill_trajectory(obs_seq, actions=act_seq, on_miss="warn")
+
+
+def test_prefill_trajectory_requires_orchestrator():
+    """Without an orchestrator there is no per-connection storage facade."""
+    policy = FakePolicy()
+    interceptor = InferenceInterceptor(policy, timer=SystemTimer(enabled=False))
+
+    import pytest
+
+    with pytest.raises(RuntimeError, match="requires a cache orchestrator"):
+        interceptor.prefill_trajectory(
+            [_make_obs()], actions=[np.zeros((50, 32), dtype=np.float32)]
+        )
+
+
+def test_build_prefill_payload_wraps_numpy_action():
+    from openpi.cache.storage_types import CachePayload
+
+    action = np.arange(50 * 32, dtype=np.float32).reshape(50, 32)
+    payload = InferenceInterceptor._build_prefill_payload(action)
+
+    assert isinstance(payload, CachePayload)
+    assert torch.equal(payload.action_chunk, torch.from_numpy(action))
+    assert payload.intermediates is None
+    assert payload.denoising_num_steps is None
+
+
+def test_build_prefill_payload_accepts_tensor_action():
+    from openpi.cache.storage_types import CachePayload
+
+    action = torch.arange(50 * 32, dtype=torch.float32).reshape(50, 32)
+    payload = InferenceInterceptor._build_prefill_payload(action)
+
+    assert isinstance(payload, CachePayload)
+    # Tensor input is passed through without copy.
+    assert payload.action_chunk is action
+
+
+def test_prefill_trajectory_records_query_keys_into_strategy():
+    """Trajectory side effect: each prefill step must push the CP1 query_keys
+    into the strategy's trajectory history, not just skip stage2/stage3.
+
+    Without this, Step-3 spawn would emit a gap-free action chunk sequence
+    but the first post-prefill real ``infer`` would see an empty trajectory
+    and lose KNN context. This test guards the invariant at the strategy
+    level (where trajectory memory actually lives).
+    """
+    from openpi.cache.orchestrator import CheckpointID
+    from openpi.cache.storage_types import QuerySpec, SearchResultLite
+
+    class _RecordingStrategy:
+        """Strategy spy: captures both ``search`` and ``record_query_keys``
+        invocations so the test can tell side-effect pathways apart.
+        """
+
+        def __init__(self, storage):
+            self._storage = storage
+            self.query_history: list[dict[str, torch.Tensor]] = []
+            self.search_calls = 0
+
+        def search(self, ctx) -> list[SearchResultLite]:
+            self.search_calls += 1
+            # Production strategies (WeightedRRFKNNStrategy) record inside
+            # ``search`` before dispatching to storage — mirror that contract.
+            self.record_query_keys(ctx.query_keys)
+            return self._storage.search(
+                QuerySpec(
+                    query_keys=ctx.query_keys,
+                    top_k=1,
+                    checkpoint_id=ctx.checkpoint_id,
+                )
+            )
+
+        def record_query_keys(self, query_keys):
+            # Clone tensors so the recorded snapshot is not aliased to a
+            # later mutated buffer; tests then inspect the snapshot shapes.
+            self.query_history.append(
+                {k: v.detach().clone() for k, v in query_keys.items()}
+            )
+
+        def on_episode_start(self): ...
+        def on_episode_end(self): ...
+
+    # Build interceptor with the recording strategy swapped into CP1 slot.
+    fixed_state = torch.randn(1, 32)
+    fixed_action = torch.randn(1, 50, 32)
+    model = FakeModel(fixed_state=fixed_state, fixed_action=fixed_action)
+    policy = FakePolicy(model=model)
+    orch, _, storage = make_orchestrator()
+    recorder = _RecordingStrategy(storage)
+    orch._search_strategies[CheckpointID.CP1] = recorder
+
+    interceptor = InferenceInterceptor(
+        policy, timer=SystemTimer(enabled=False), orchestrator=orch
+    )
+    interceptor.on_task_begin()
+    interceptor.on_episode_start("exp", "task", 0)
+
+    obs_seq = [_make_obs() for _ in range(4)]
+    act_seq = [np.random.randn(50, 32).astype(np.float32) for _ in range(4)]
+    interceptor.prefill_trajectory(obs_seq, actions=act_seq)
+
+    # Search dispatched once per prefill step (gate=always_search by default).
+    assert recorder.search_calls == 4
+    # Trajectory history advanced by exactly one entry per prefill step.
+    assert len(recorder.query_history) == 4
+    # Each recorded entry must include ``robot_state`` (the configured key field).
+    assert all("robot_state" in entry for entry in recorder.query_history)

@@ -205,17 +205,50 @@ class WebsocketPolicyServer:
                 if "__ctrl__" in obs:
                     ctrl = obs["__ctrl__"]
                     if ctrl == "episode_start":
+                        # Keyword dispatch (plan §21.S1.3): wrappers such as
+                        # ``CollectionPolicy`` forward these kwargs through the
+                        # chain; positional calls would break any wrapper that
+                        # inserts an extra parameter (e.g. ``episode_name``).
                         if hasattr(conn_policy, "on_episode_start"):
                             conn_policy.on_episode_start(
-                                obs.get("__experiment__", "unknown"),
-                                obs.get("__task__", ""),
-                                obs.get("__episode_id__", -1),
+                                experiment=obs.get("__experiment__", "unknown"),
+                                task=obs.get("__task__", ""),
+                                episode_id=obs.get("__episode_id__", -1),
+                                episode_name=obs.get("__episode_name__", ""),
                             )
                         await websocket.send(packer.pack({"__ack__": "episode_start"}))
                     elif ctrl == "episode_end":
+                        # Keyword dispatch symmetric with ``episode_start``; see
+                        # plan §22.4 must-fix MF-2.
                         if hasattr(conn_policy, "on_episode_end"):
-                            conn_policy.on_episode_end(obs.get("__success__", False))
+                            conn_policy.on_episode_end(success=obs.get("__success__", False))
                         await websocket.send(packer.pack({"__ack__": "episode_end"}))
+                    elif ctrl == "prefill_trajectory":
+                        # Only exposed when this connection's policy is cache-
+                        # wrapped (``InferenceInterceptor``). We return a string
+                        # (which the client treats as an error — see
+                        # ``WebsocketClientPolicy.prefill_trajectory``) rather
+                        # than an ignored ack, because a silent no-op would
+                        # mask missing cache configuration at worker start.
+                        if not hasattr(conn_policy, "prefill_trajectory"):
+                            await websocket.send(
+                                "prefill_trajectory requires a cache-wrapped policy "
+                                "(InferenceInterceptor); this connection's policy "
+                                "does not expose it."
+                            )
+                            continue
+                        # Run in a thread: the interceptor drives stage1 for
+                        # every prefill step, so synchronous execution would
+                        # block the asyncio event loop (health checks, other
+                        # connections). Matches the dispatch of ``infer``.
+                        await asyncio.to_thread(
+                            conn_policy.prefill_trajectory,
+                            obs["observations"],
+                            obs["actions"],
+                            record=obs.get("record", False),
+                            on_miss=obs.get("on_miss", "error"),
+                        )
+                        await websocket.send(packer.pack({"__ack__": "prefill_trajectory"}))
                     elif ctrl == "load_cache_config":
                         if not self._concurrent:
                             msg = (

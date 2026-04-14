@@ -232,3 +232,47 @@ class PolicyRecorder(_base_policy.BasePolicy):
 
         np.save(output_path, np.asarray(data))
         return results
+
+    # ------------------------------------------------------------------
+    # Lifecycle passthrough (plan §20.R2)
+    #
+    # ``PolicyRecorder`` sits in the middle of wrapper chains such as
+    # ``CollectionPolicy(PolicyRecorder(InferenceInterceptor))``. Without the
+    # explicit forwarders below the ``on_*`` signals from the websocket server
+    # would stop at this wrapper and the inner ``InferenceInterceptor`` would
+    # never see ``episode_start`` / ``episode_end``, breaking cache semantics.
+    #
+    # The signatures below are *explicit and isomorphic* to the rest of the
+    # lifecycle chain (plan §21.S1.2 / §22.3). We deliberately avoid
+    # ``*args, **kwargs``: varargs would silently forward positional calls to
+    # the inner policy and re-introduce the keyword-vs-positional divergence
+    # that the S1 revision was written to eliminate. ``__getattr__`` is also
+    # intentionally not used — explicit forwarders keep the contract greppable.
+    # ------------------------------------------------------------------
+
+    def on_episode_start(
+        self,
+        experiment: str = "",
+        task: str = "",
+        episode_id: int = -1,
+        episode_name: str = "",
+    ) -> None:
+        if hasattr(self._policy, "on_episode_start"):
+            self._policy.on_episode_start(
+                experiment=experiment,
+                task=task,
+                episode_id=episode_id,
+                episode_name=episode_name,
+            )
+
+    def on_episode_end(self, success: bool = False) -> None:
+        if hasattr(self._policy, "on_episode_end"):
+            self._policy.on_episode_end(success=success)
+
+    def on_task_begin(self) -> None:
+        if hasattr(self._policy, "on_task_begin"):
+            self._policy.on_task_begin()
+
+    def on_task_end(self) -> None:
+        if hasattr(self._policy, "on_task_end"):
+            self._policy.on_task_end()
