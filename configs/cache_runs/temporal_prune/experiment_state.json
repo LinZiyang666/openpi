@@ -1,0 +1,3122 @@
+[
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_001_mean_3w_025kr_wa.yaml",
+    "run_id": "tp_run_001_mean_3w_025kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-12 22:36:08",
+    "end_time": "2026-04-12 22:46:56",
+    "success_rate": 0.42,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_001_mean_3w_025kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        3,
+        5
+      ],
+      "3": [
+        3,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_002_mean_3w_025kr_wb.yaml",
+    "run_id": "tp_run_002_mean_3w_025kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 08:33:10",
+    "end_time": "2026-04-13 08:38:29",
+    "success_rate": 0.6,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_002_mean_3w_025kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "5": [
+        3,
+        5
+      ],
+      "6": [
+        3,
+        5
+      ],
+      "7": [
+        3,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ],
+      "0": [
+        4,
+        5
+      ],
+      "1": [
+        4,
+        5
+      ],
+      "2": [
+        3,
+        5
+      ],
+      "3": [
+        3,
+        5
+      ],
+      "4": [
+        3,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_003_mean_3w_05kr_wa.yaml",
+    "run_id": "tp_run_003_mean_3w_05kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-12 22:55:28",
+    "end_time": "2026-04-12 23:08:26",
+    "success_rate": 0.34,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_003_mean_3w_05kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        1,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_004_mean_3w_05kr_wb.yaml",
+    "run_id": "tp_run_004_mean_3w_05kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-12 23:08:26",
+    "end_time": "2026-04-12 23:19:01",
+    "success_rate": 0.46,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_004_mean_3w_05kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        3,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_005_mean_3w_075kr_wa.yaml",
+    "run_id": "tp_run_005_mean_3w_075kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-12 23:19:01",
+    "end_time": "2026-04-12 23:29:43",
+    "success_rate": 0.4,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_005_mean_3w_075kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_006_mean_3w_075kr_wb.yaml",
+    "run_id": "tp_run_006_mean_3w_075kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-12 23:29:43",
+    "end_time": "2026-04-12 23:40:15",
+    "success_rate": 0.5,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_006_mean_3w_075kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        3,
+        5
+      ],
+      "3": [
+        3,
+        5
+      ],
+      "4": [
+        3,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_007_mean_4w_025kr_wa.yaml",
+    "run_id": "tp_run_007_mean_4w_025kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-12 23:40:15",
+    "end_time": "2026-04-12 23:51:03",
+    "success_rate": 0.36,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_007_mean_4w_025kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_008_mean_4w_025kr_wb.yaml",
+    "run_id": "tp_run_008_mean_4w_025kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-12 23:51:03",
+    "end_time": "2026-04-13 00:01:07",
+    "success_rate": 0.42,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_008_mean_4w_025kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        2,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        1,
+        5
+      ],
+      "5": [
+        3,
+        5
+      ],
+      "6": [
+        3,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_009_mean_4w_05kr_wa.yaml",
+    "run_id": "tp_run_009_mean_4w_05kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 00:01:07",
+    "end_time": "2026-04-13 00:14:21",
+    "success_rate": 0.38,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_009_mean_4w_05kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_010_mean_4w_05kr_wb.yaml",
+    "run_id": "tp_run_010_mean_4w_05kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 00:14:21",
+    "end_time": "2026-04-13 00:27:52",
+    "success_rate": 0.4,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_010_mean_4w_05kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        2,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_011_mean_4w_075kr_wa.yaml",
+    "run_id": "tp_run_011_mean_4w_075kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 00:27:52",
+    "end_time": "2026-04-13 00:41:22",
+    "success_rate": 0.36,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_011_mean_4w_075kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        3,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        1,
+        5
+      ],
+      "6": [
+        1,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_012_mean_4w_075kr_wb.yaml",
+    "run_id": "tp_run_012_mean_4w_075kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 00:41:22",
+    "end_time": "2026-04-13 00:55:13",
+    "success_rate": 0.38,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_012_mean_4w_075kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_013_mean_5w_025kr_wa.yaml",
+    "run_id": "tp_run_013_mean_5w_025kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 00:55:13",
+    "end_time": "2026-04-13 01:08:31",
+    "success_rate": 0.42,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_013_mean_5w_025kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_014_mean_5w_025kr_wb.yaml",
+    "run_id": "tp_run_014_mean_5w_025kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 01:08:31",
+    "end_time": "2026-04-13 01:20:54",
+    "success_rate": 0.38,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_014_mean_5w_025kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_015_mean_5w_05kr_wa.yaml",
+    "run_id": "tp_run_015_mean_5w_05kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 01:20:54",
+    "end_time": "2026-04-13 01:33:40",
+    "success_rate": 0.34,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_015_mean_5w_05kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        1,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_016_mean_5w_05kr_wb.yaml",
+    "run_id": "tp_run_016_mean_5w_05kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 01:33:40",
+    "end_time": "2026-04-13 01:46:28",
+    "success_rate": 0.32,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_016_mean_5w_05kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        1,
+        5
+      ],
+      "6": [
+        1,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        0,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_017_mean_5w_075kr_wa.yaml",
+    "run_id": "tp_run_017_mean_5w_075kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 01:46:28",
+    "end_time": "2026-04-13 01:59:40",
+    "success_rate": 0.3,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_017_mean_5w_075kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        1,
+        5
+      ],
+      "6": [
+        1,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        0,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_018_mean_5w_075kr_wb.yaml",
+    "run_id": "tp_run_018_mean_5w_075kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 01:59:40",
+    "end_time": "2026-04-13 02:12:10",
+    "success_rate": 0.38,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_018_mean_5w_075kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_019_mean_6w_025kr_wa.yaml",
+    "run_id": "tp_run_019_mean_6w_025kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 02:12:10",
+    "end_time": "2026-04-13 02:25:20",
+    "success_rate": 0.34,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_019_mean_6w_025kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        1,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_020_mean_6w_025kr_wb.yaml",
+    "run_id": "tp_run_020_mean_6w_025kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 02:25:20",
+    "end_time": "2026-04-13 02:38:03",
+    "success_rate": 0.36,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_020_mean_6w_025kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_021_mean_6w_05kr_wa.yaml",
+    "run_id": "tp_run_021_mean_6w_05kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 02:38:03",
+    "end_time": "2026-04-13 02:50:38",
+    "success_rate": 0.36,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_021_mean_6w_05kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_022_mean_6w_05kr_wb.yaml",
+    "run_id": "tp_run_022_mean_6w_05kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 02:50:38",
+    "end_time": "2026-04-13 03:03:40",
+    "success_rate": 0.32,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_022_mean_6w_05kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        3,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        1,
+        5
+      ],
+      "6": [
+        1,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        0,
+        5
+      ],
+      "9": [
+        0,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_023_mean_6w_075kr_wa.yaml",
+    "run_id": "tp_run_023_mean_6w_075kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 03:03:40",
+    "end_time": "2026-04-13 03:16:58",
+    "success_rate": 0.3,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_023_mean_6w_075kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        1,
+        5
+      ],
+      "6": [
+        1,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        0,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_024_mean_6w_075kr_wb.yaml",
+    "run_id": "tp_run_024_mean_6w_075kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 03:16:58",
+    "end_time": "2026-04-13 03:29:50",
+    "success_rate": 0.36,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_024_mean_6w_075kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        3,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        1,
+        5
+      ],
+      "6": [
+        1,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_025_max_3w_025kr_wa.yaml",
+    "run_id": "tp_run_025_max_3w_025kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 03:29:50",
+    "end_time": "2026-04-13 03:42:15",
+    "success_rate": 0.4,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_025_max_3w_025kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        2,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_026_max_3w_025kr_wb.yaml",
+    "run_id": "tp_run_026_max_3w_025kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 03:42:15",
+    "end_time": "2026-04-13 03:54:05",
+    "success_rate": 0.5,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_026_max_3w_025kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        3,
+        5
+      ],
+      "3": [
+        3,
+        5
+      ],
+      "4": [
+        3,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_027_max_3w_05kr_wa.yaml",
+    "run_id": "tp_run_027_max_3w_05kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 03:54:05",
+    "end_time": "2026-04-13 04:06:32",
+    "success_rate": 0.42,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_027_max_3w_05kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_028_max_3w_05kr_wb.yaml",
+    "run_id": "tp_run_028_max_3w_05kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 04:06:32",
+    "end_time": "2026-04-13 04:19:55",
+    "success_rate": 0.34,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_028_max_3w_05kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        1,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_029_max_3w_075kr_wa.yaml",
+    "run_id": "tp_run_029_max_3w_075kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 04:19:55",
+    "end_time": "2026-04-13 04:32:42",
+    "success_rate": 0.46,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_029_max_3w_075kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        3,
+        5
+      ],
+      "6": [
+        3,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_030_max_3w_075kr_wb.yaml",
+    "run_id": "tp_run_030_max_3w_075kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 04:32:42",
+    "end_time": "2026-04-13 04:45:06",
+    "success_rate": 0.54,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_030_max_3w_075kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        3,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        3,
+        5
+      ],
+      "6": [
+        3,
+        5
+      ],
+      "7": [
+        3,
+        5
+      ],
+      "8": [
+        3,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_031_max_4w_025kr_wa.yaml",
+    "run_id": "tp_run_031_max_4w_025kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 04:45:06",
+    "end_time": "2026-04-13 04:58:21",
+    "success_rate": 0.42,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_031_max_4w_025kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_032_max_4w_025kr_wb.yaml",
+    "run_id": "tp_run_032_max_4w_025kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 04:58:21",
+    "end_time": "2026-04-13 05:10:56",
+    "success_rate": 0.42,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_032_max_4w_025kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_033_max_4w_05kr_wa.yaml",
+    "run_id": "tp_run_033_max_4w_05kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 05:10:56",
+    "end_time": "2026-04-13 05:23:58",
+    "success_rate": 0.38,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_033_max_4w_05kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        2,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        1,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_034_max_4w_05kr_wb.yaml",
+    "run_id": "tp_run_034_max_4w_05kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 05:23:58",
+    "end_time": "2026-04-13 05:36:52",
+    "success_rate": 0.34,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_034_max_4w_05kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        3,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        1,
+        5
+      ],
+      "6": [
+        1,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        0,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_035_max_4w_075kr_wa.yaml",
+    "run_id": "tp_run_035_max_4w_075kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 05:36:52",
+    "end_time": "2026-04-13 05:49:37",
+    "success_rate": 0.42,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_035_max_4w_075kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_036_max_4w_075kr_wb.yaml",
+    "run_id": "tp_run_036_max_4w_075kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 05:49:37",
+    "end_time": "2026-04-13 06:02:31",
+    "success_rate": 0.38,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_036_max_4w_075kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_037_max_5w_025kr_wa.yaml",
+    "run_id": "tp_run_037_max_5w_025kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 06:02:31",
+    "end_time": "2026-04-13 06:14:51",
+    "success_rate": 0.52,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_037_max_5w_025kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        3,
+        5
+      ],
+      "3": [
+        3,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        3,
+        5
+      ],
+      "6": [
+        3,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_038_max_5w_025kr_wb.yaml",
+    "run_id": "tp_run_038_max_5w_025kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 06:14:51",
+    "end_time": "2026-04-13 06:27:10",
+    "success_rate": 0.38,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_038_max_5w_025kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_039_max_5w_05kr_wa.yaml",
+    "run_id": "tp_run_039_max_5w_05kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 06:27:10",
+    "end_time": "2026-04-13 06:40:07",
+    "success_rate": 0.42,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_039_max_5w_05kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_040_max_5w_05kr_wb.yaml",
+    "run_id": "tp_run_040_max_5w_05kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 06:40:07",
+    "end_time": "2026-04-13 06:53:37",
+    "success_rate": 0.28,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_040_max_5w_05kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        2,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        1,
+        5
+      ],
+      "6": [
+        1,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        0,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_041_max_5w_075kr_wa.yaml",
+    "run_id": "tp_run_041_max_5w_075kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 06:53:37",
+    "end_time": "2026-04-13 07:06:30",
+    "success_rate": 0.42,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_041_max_5w_075kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_042_max_5w_075kr_wb.yaml",
+    "run_id": "tp_run_042_max_5w_075kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 07:06:30",
+    "end_time": "2026-04-13 07:18:52",
+    "success_rate": 0.44,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_042_max_5w_075kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        3,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_043_max_6w_025kr_wa.yaml",
+    "run_id": "tp_run_043_max_6w_025kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 08:38:29",
+    "end_time": "2026-04-13 08:45:08",
+    "success_rate": 0.4,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_043_max_6w_025kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        3,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_044_max_6w_025kr_wb.yaml",
+    "run_id": "tp_run_044_max_6w_025kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 07:28:59",
+    "end_time": "2026-04-13 07:42:11",
+    "success_rate": 0.34,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_044_max_6w_025kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        2,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        1,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_045_max_6w_05kr_wa.yaml",
+    "run_id": "tp_run_045_max_6w_05kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 07:42:11",
+    "end_time": "2026-04-13 07:55:12",
+    "success_rate": 0.42,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_045_max_6w_05kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_046_max_6w_05kr_wb.yaml",
+    "run_id": "tp_run_046_max_6w_05kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 07:55:12",
+    "end_time": "2026-04-13 08:07:30",
+    "success_rate": 0.44,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_046_max_6w_05kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        3,
+        5
+      ],
+      "6": [
+        2,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_047_max_6w_075kr_wa.yaml",
+    "run_id": "tp_run_047_max_6w_075kr_wa",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 08:07:30",
+    "end_time": "2026-04-13 08:20:32",
+    "success_rate": 0.34,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_047_max_6w_075kr_wa.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        2,
+        5
+      ],
+      "6": [
+        1,
+        5
+      ],
+      "7": [
+        1,
+        5
+      ],
+      "8": [
+        1,
+        5
+      ],
+      "9": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "yaml_path": "configs/cache_runs/temporal_prune/tp_run_048_max_6w_075kr_wb.yaml",
+    "run_id": "tp_run_048_max_6w_075kr_wb",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-13 08:20:32",
+    "end_time": "2026-04-13 08:33:10",
+    "success_rate": 0.44,
+    "log_path": "configs/cache_runs/temporal_prune/tp_run_048_max_6w_075kr_wb.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        2,
+        5
+      ],
+      "1": [
+        2,
+        5
+      ],
+      "2": [
+        2,
+        5
+      ],
+      "3": [
+        2,
+        5
+      ],
+      "4": [
+        2,
+        5
+      ],
+      "5": [
+        3,
+        5
+      ],
+      "6": [
+        3,
+        5
+      ],
+      "7": [
+        2,
+        5
+      ],
+      "8": [
+        2,
+        5
+      ],
+      "9": [
+        2,
+        5
+      ]
+    }
+  }
+]
