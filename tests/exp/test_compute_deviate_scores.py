@@ -417,6 +417,51 @@ def test_phase2_runner_writes_cache_jsonl(
     }]
 
 
+def test_phase_runner_closes_client_when_episode_start_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A failed episode_start still owns an open websocket connection.
+
+    Step 2 creates one short-lived client per unit, so this edge case must
+    close the client or a flaky server can leak file descriptors until the
+    client process hits ``EMFILE``.
+    """
+
+    class _StartFailClient(_FakeClient):
+        def episode_start(self, *, experiment, task, episode_id, episode_name) -> None:
+            super().episode_start(
+                experiment=experiment,
+                task=task,
+                episode_id=episode_id,
+                episode_name=episode_name,
+            )
+            raise RuntimeError("start failed")
+
+    chunk = np.full((5, 7), 0.5, dtype=np.float32)
+    client = _StartFailClient(chunk)
+    common = _fake_common(tmp_path, client, episodes=["task_0/episode_0"])
+    monkeypatch.setattr(
+        cds,
+        "load_gt_episode",
+        lambda *a, **k: ([{"x": 0}], np.zeros((1, 5, 7))),
+    )
+
+    runner = cds.Phase1Runner(
+        state_path=tmp_path / "phase1_state.json",
+        common=common,
+        M=1,
+        max_retries=0,
+    )
+    runner.units = {u.unit_key: u for u in runner.build_units()}
+
+    with pytest.raises(RuntimeError, match="start failed"):
+        runner.execute_unit(next(iter(runner.units.values())))
+
+    assert client.closed is True
+    assert client.episode_end_kwargs is None
+    assert client.infer_calls == 0
+
+
 # ---------------------------------------------------------------------------
 # parallel_run smoke: BaseRunState must have it (locked by Layer A1 + §10.1)
 # ---------------------------------------------------------------------------

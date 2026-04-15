@@ -370,22 +370,25 @@ class _PhaseRunner(BaseRunState):
 
         obs_seq, _ = load_gt_episode(self.common.gt_dir, ep)
         client = self.common.make_client()
-        # Unique episode_id per (episode[,sample]) so the server-side
-        # per-connection facade starts from a clean trajectory-history
-        # state (plan §18.A1.3 note: CP3 is also always_skip so no
-        # cross-sample contamination, but the episode_id still needs to be
-        # distinct for log/telemetry clarity).
-        client.episode_start(
-            experiment=self.EXPERIMENT,
-            task=task_label,
-            episode_id=ep_id,
-            episode_name="",
-        )
+        episode_started = False
         try:
+            # Unique episode_id per (episode[,sample]) so the server-side
+            # per-connection facade starts from a clean trajectory-history
+            # state (plan §18.A1.3 note: CP3 is also always_skip so no
+            # cross-sample contamination, but the episode_id still needs to be
+            # distinct for log/telemetry clarity).
+            client.episode_start(
+                experiment=self.EXPERIMENT,
+                task=task_label,
+                episode_id=ep_id,
+                episode_name="",
+            )
+            episode_started = True
             chunks = _roll_out_episode(client, obs_seq)
         finally:
             try:
-                client.episode_end(success=True)
+                if episode_started:
+                    client.episode_end(success=True)
             finally:
                 close = getattr(client, "close", None)
                 if callable(close):
