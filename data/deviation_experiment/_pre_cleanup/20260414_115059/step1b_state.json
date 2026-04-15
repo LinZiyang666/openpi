@@ -1,0 +1,44 @@
+{
+  "0:1": {
+    "unit_key": "0:1",
+    "status": "done",
+    "start_time": "2026-04-14 10:30:59",
+    "end_time": "2026-04-14 10:31:27",
+    "retry_count": 0,
+    "result": {
+      "success": true,
+      "inference_failed": false,
+      "hdf5_path": "task_0/episode_0.h5",
+      "orig_init_state_idx": 1,
+      "seed": 42
+    }
+  },
+  "0:2": {
+    "unit_key": "0:2",
+    "status": "done",
+    "start_time": "2026-04-14 10:31:27",
+    "end_time": "2026-04-14 10:31:53",
+    "retry_count": 0,
+    "result": {
+      "success": true,
+      "inference_failed": false,
+      "hdf5_path": "task_0/episode_1.h5",
+      "orig_init_state_idx": 2,
+      "seed": 42
+    }
+  },
+  "1:2": {
+    "unit_key": "1:2",
+    "status": "done",
+    "start_time": "2026-04-14 10:31:53",
+    "end_time": "2026-04-14 10:32:27",
+    "retry_count": 0,
+    "result": {
+      "success": true,
+      "inference_failed": false,
+      "hdf5_path": "task_1/episode_0.h5",
+      "orig_init_state_idx": 2,
+      "seed": 42
+    }
+  }
+}

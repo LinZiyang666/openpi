@@ -100,6 +100,17 @@ def parse_unit_key(key: str) -> Tuple[str, str, int, int, int]:
     return (k.cfg, k.ep, k.s, k.n, k.k_idx)
 
 
+def _spawn_unit_filter(cfg: str, episodes: Sequence[str]) -> Callable[[UnitState], bool]:
+    """Scope resumed Step-3 state files to the active deviate-score episode set."""
+    allowed = set(episodes)
+
+    def _in_scope(unit: UnitState) -> bool:
+        unit_cfg, ep, _s, _n, _k_idx = parse_unit_key(unit.unit_key)
+        return unit_cfg == cfg and ep in allowed
+
+    return _in_scope
+
+
 # --- Point-selection strategies (SpawnRunner = top-k; Baselines = others)
 
 
@@ -791,6 +802,7 @@ def aggregate_spawn_results(
     *,
     out_csv: Optional[Path] = None,
     extra_state_files: Optional[Sequence[Path]] = None,
+    allowed_episodes_by_config: Optional[Dict[str, Sequence[str]]] = None,
 ) -> List[Dict[str, Any]]:
     """Scan every ``spawn_state_{cfg}.json`` and emit a long-form CSV row
     per *done* unit: ``config, strategy, episode, s, n, k_idx, success,
@@ -831,12 +843,19 @@ def aggregate_spawn_results(
         else:
             strategy, config = meta
         state = json.loads(path.read_text())
+        allowed = (
+            set(allowed_episodes_by_config[config])
+            if allowed_episodes_by_config is not None and config in allowed_episodes_by_config
+            else None
+        )
         for _key, u in state.items():
             if u.get("status") != "done":
                 continue
             r = u.get("result") or {}
             if "episode" not in r:
                 # Older/partial result — skip rather than crash the aggregate.
+                continue
+            if allowed is not None and r.get("episode", "") not in allowed:
                 continue
             rows.append({
                 "config": config,
@@ -912,6 +931,7 @@ def main() -> None:
     server_url = f"ws://{args.host}:{args.port}"
 
     extra_state_files: List[Path] = []
+    allowed_episodes_by_config: Dict[str, Sequence[str]] = {}
 
     for cfg in args.configs:
         scores_path = deviate_dir / f"deviate_score_{cfg}.json"
@@ -922,6 +942,7 @@ def main() -> None:
             )
         D = args.D if args.D is not None else infer_d_from_cfg(cfg)
         scores = _load_scores(scores_path)
+        allowed_episodes_by_config[cfg] = tuple(scores)
 
         common = _SpawnCommon(
             cfg=cfg,
@@ -949,7 +970,11 @@ def main() -> None:
             state_path=out_dir / f"spawn_state_{cfg}.json",
             common=common,
         )
-        runner.parallel_run(num_workers=args.num_workers, resume=args.resume)
+        runner.parallel_run(
+            num_workers=args.num_workers,
+            resume=args.resume,
+            unit_filter=_spawn_unit_filter(cfg, scores.keys()),
+        )
 
         for strategy in args.baselines:
             state_path = out_dir / f"spawn_state_{strategy}_{cfg}.json"
@@ -958,12 +983,17 @@ def main() -> None:
                 state_path=state_path,
                 common=common,
                 strategy=strategy,
-            ).parallel_run(num_workers=args.num_workers, resume=args.resume)
+            ).parallel_run(
+                num_workers=args.num_workers,
+                resume=args.resume,
+                unit_filter=_spawn_unit_filter(cfg, scores.keys()),
+            )
 
     aggregate_spawn_results(
         out_dir=out_dir,
         configs=args.configs,
         extra_state_files=extra_state_files,
+        allowed_episodes_by_config=allowed_episodes_by_config,
     )
 
 

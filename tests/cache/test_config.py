@@ -637,6 +637,84 @@ def test_warm_tiers_start_t_canonicalized():
 
 
 # ---------------------------------------------------------------------------
+# always_warm_start validation + _build_judge branch
+# ---------------------------------------------------------------------------
+
+
+def _config_with_always_warm_start(
+    start_t: float | None = 0.5,
+    cp_name: str = "cp1",
+    warm_tiers: list | None = None,
+):
+    return CacheConfig(
+        enabled=True,
+        keys=KeysConfig(robot_state=KeyFieldConfig(enabled=True, weight=1.0)),
+        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        checkpoints={
+            cp_name: CheckpointConfig(
+                gate=GateConfig(type="always_search"),
+                judge=JudgeConfig(
+                    type="always_warm_start",
+                    start_t=start_t,
+                    warm_tiers=warm_tiers,
+                ),
+                search_strategy=SearchStrategyConfig(type="weighted_rrf_knn"),
+            ),
+        },
+    )
+
+
+def test_always_warm_start_valid():
+    config = _config_with_always_warm_start(start_t=0.5)
+    validate_cache_config(config)
+
+
+def test_always_warm_start_missing_start_t_rejected():
+    config = _config_with_always_warm_start(start_t=None)
+    with pytest.raises(ConfigValidationError, match="requires 'start_t'"):
+        validate_cache_config(config)
+
+
+def test_always_warm_start_non_canonical_start_t_rejected():
+    config = _config_with_always_warm_start(start_t=0.35)
+    with pytest.raises(ConfigValidationError, match="not a valid timestep"):
+        validate_cache_config(config)
+
+
+def test_always_warm_start_cp3_rejected():
+    config = _config_with_always_warm_start(cp_name="cp3")
+    with pytest.raises(ConfigValidationError, match="only supported on CP1"):
+        validate_cache_config(config)
+
+
+def test_always_warm_start_with_warm_tiers_rejected():
+    tiers = [{"threshold": 0.9, "start_t": 0.3}]
+    config = _config_with_always_warm_start(start_t=0.5, warm_tiers=tiers)
+    with pytest.raises(ConfigValidationError, match="cannot be combined with warm_tiers"):
+        validate_cache_config(config)
+
+
+def test_always_warm_start_start_t_canonicalized():
+    config = _config_with_always_warm_start(start_t=0.30000000000000004)
+    validate_cache_config(config)
+    assert config.checkpoints["cp1"].judge.start_t == 0.3
+
+
+def test_always_warm_start_build_per_connection_returns_judge():
+    from openpi.cache.components.judge import AlwaysWarmStartJudge
+    from openpi.cache.config import build_per_connection_components, build_shared_storage
+
+    config = _config_with_always_warm_start(start_t=0.5)
+    validate_cache_config(config)
+    shared = build_shared_storage(config)
+    components = build_per_connection_components(config, shared, quiet=True)
+
+    judge = components["judges"][CheckpointID.CP1]
+    assert isinstance(judge, AlwaysWarmStartJudge)
+    assert judge._start_t == 0.5
+
+
+# ---------------------------------------------------------------------------
 # AlwaysSkipGate: validation whitelist + _build_gate branch
 # ---------------------------------------------------------------------------
 

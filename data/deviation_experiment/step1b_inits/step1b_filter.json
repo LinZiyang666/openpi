@@ -1,0 +1,17 @@
+[
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 1,
+    "subset_init_state_idx": 0
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 2,
+    "subset_init_state_idx": 1
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 2,
+    "subset_init_state_idx": 0
+  }
+]

@@ -149,6 +149,14 @@ def test_spawn_runner_skips_episodes_without_scores(tmp_path: Path) -> None:
     }
 
 
+def test_spawn_unit_filter_scopes_resumed_state_to_current_scores() -> None:
+    filt = spawn._spawn_unit_filter("cfgA", ["task_0/episode_0"])
+
+    assert filt(spawn.UnitState(unit_key="cfgA:task_0/episode_0:s2:n3:k0"))
+    assert not filt(spawn.UnitState(unit_key="cfgA:task_0/episode_1:s2:n3:k0"))
+    assert not filt(spawn.UnitState(unit_key="cfgB:task_0/episode_0:s2:n3:k0"))
+
+
 def test_baseline_runner_random_strategy_builds_reproducibly(tmp_path: Path) -> None:
     scores = {"task_0/episode_0": {"deviate_score": [0.1] * 20}}
     common = _make_common(tmp_path, scores, k_grid=(3,))
@@ -856,6 +864,39 @@ def test_aggregate_spawn_results_emits_csv_with_done_units_only(tmp_path: Path) 
     # CSV file exists and contains exactly one data row.
     csv_text = (tmp_path / "spawn_aggregate.csv").read_text().strip().splitlines()
     assert len(csv_text) == 2  # header + 1 row
+
+
+def test_aggregate_spawn_results_filters_stale_done_units_by_current_scores(
+    tmp_path: Path,
+) -> None:
+    state = {
+        "clip_w7_d4:task_3/episode_0:s2:n3:k0": {
+            "unit_key": "clip_w7_d4:task_3/episode_0:s2:n3:k0",
+            "status": "done",
+            "result": {
+                "success": True, "s": 2, "n": 3, "k_idx": 0,
+                "episode": "task_3/episode_0", "env_steps_executed": 4,
+            },
+        },
+        "clip_w7_d4:task_3/episode_1:s2:n3:k0": {
+            "unit_key": "clip_w7_d4:task_3/episode_1:s2:n3:k0",
+            "status": "done",
+            "result": {
+                "success": True, "s": 2, "n": 3, "k_idx": 0,
+                "episode": "task_3/episode_1", "env_steps_executed": 4,
+            },
+        },
+    }
+    (tmp_path / "spawn_state_clip_w7_d4.json").write_text(json.dumps(state))
+
+    rows = spawn.aggregate_spawn_results(
+        out_dir=tmp_path,
+        configs=["clip_w7_d4"],
+        allowed_episodes_by_config={"clip_w7_d4": ["task_3/episode_0"]},
+    )
+
+    assert len(rows) == 1
+    assert rows[0]["episode"] == "task_3/episode_0"
 
 
 # ---------------------------------------------------------------------------

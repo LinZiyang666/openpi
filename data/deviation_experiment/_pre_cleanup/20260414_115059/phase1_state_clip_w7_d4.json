@@ -1,0 +1,122 @@
+{
+  "clip_w7_d4:task_0/episode_0:0": {
+    "unit_key": "clip_w7_d4:task_0/episode_0:0",
+    "status": "done",
+    "start_time": "2026-04-14 10:50:08",
+    "end_time": "2026-04-14 10:50:29",
+    "retry_count": 0,
+    "result": {
+      "T": 16
+    }
+  },
+  "clip_w7_d4:task_0/episode_0:1": {
+    "unit_key": "clip_w7_d4:task_0/episode_0:1",
+    "status": "done",
+    "start_time": "2026-04-14 10:50:08",
+    "end_time": "2026-04-14 10:50:29",
+    "retry_count": 0,
+    "result": {
+      "T": 16
+    }
+  },
+  "clip_w7_d4:task_0/episode_0:2": {
+    "unit_key": "clip_w7_d4:task_0/episode_0:2",
+    "status": "done",
+    "start_time": "2026-04-14 10:50:08",
+    "end_time": "2026-04-14 10:50:30",
+    "retry_count": 0,
+    "result": {
+      "T": 16
+    }
+  },
+  "clip_w7_d4:task_0/episode_0:3": {
+    "unit_key": "clip_w7_d4:task_0/episode_0:3",
+    "status": "done",
+    "start_time": "2026-04-14 10:50:08",
+    "end_time": "2026-04-14 10:50:29",
+    "retry_count": 0,
+    "result": {
+      "T": 16
+    }
+  },
+  "clip_w7_d4:task_0/episode_1:0": {
+    "unit_key": "clip_w7_d4:task_0/episode_1:0",
+    "status": "done",
+    "start_time": "2026-04-14 10:50:29",
+    "end_time": "2026-04-14 10:50:50",
+    "retry_count": 0,
+    "result": {
+      "T": 15
+    }
+  },
+  "clip_w7_d4:task_0/episode_1:1": {
+    "unit_key": "clip_w7_d4:task_0/episode_1:1",
+    "status": "done",
+    "start_time": "2026-04-14 10:50:29",
+    "end_time": "2026-04-14 10:50:51",
+    "retry_count": 0,
+    "result": {
+      "T": 15
+    }
+  },
+  "clip_w7_d4:task_0/episode_1:2": {
+    "unit_key": "clip_w7_d4:task_0/episode_1:2",
+    "status": "done",
+    "start_time": "2026-04-14 10:50:29",
+    "end_time": "2026-04-14 10:50:50",
+    "retry_count": 0,
+    "result": {
+      "T": 15
+    }
+  },
+  "clip_w7_d4:task_0/episode_1:3": {
+    "unit_key": "clip_w7_d4:task_0/episode_1:3",
+    "status": "done",
+    "start_time": "2026-04-14 10:50:30",
+    "end_time": "2026-04-14 10:50:52",
+    "retry_count": 0,
+    "result": {
+      "T": 15
+    }
+  },
+  "clip_w7_d4:task_1/episode_0:0": {
+    "unit_key": "clip_w7_d4:task_1/episode_0:0",
+    "status": "done",
+    "start_time": "2026-04-14 10:50:50",
+    "end_time": "2026-04-14 10:51:21",
+    "retry_count": 0,
+    "result": {
+      "T": 23
+    }
+  },
+  "clip_w7_d4:task_1/episode_0:1": {
+    "unit_key": "clip_w7_d4:task_1/episode_0:1",
+    "status": "done",
+    "start_time": "2026-04-14 10:50:50",
+    "end_time": "2026-04-14 10:51:21",
+    "retry_count": 0,
+    "result": {
+      "T": 23
+    }
+  },
+  "clip_w7_d4:task_1/episode_0:2": {
+    "unit_key": "clip_w7_d4:task_1/episode_0:2",
+    "status": "done",
+    "start_time": "2026-04-14 10:50:51",
+    "end_time": "2026-04-14 10:51:22",
+    "retry_count": 0,
+    "result": {
+      "T": 23
+    }
+  },
+  "clip_w7_d4:task_1/episode_0:3": {
+    "unit_key": "clip_w7_d4:task_1/episode_0:3",
+    "status": "done",
+    "start_time": "2026-04-14 10:50:52",
+    "end_time": "2026-04-14 10:51:20",
+    "retry_count": 0,
+    "result": {
+      "T": 23
+    }
+  }
+}

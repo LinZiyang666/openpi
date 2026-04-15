@@ -1,0 +1,1387 @@
+[
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 1,
+    "subset_init_state_idx": 0
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 2,
+    "subset_init_state_idx": 1
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 4,
+    "subset_init_state_idx": 2
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 5,
+    "subset_init_state_idx": 3
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 7,
+    "subset_init_state_idx": 4
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 8,
+    "subset_init_state_idx": 5
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 11,
+    "subset_init_state_idx": 6
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 12,
+    "subset_init_state_idx": 7
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 13,
+    "subset_init_state_idx": 8
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 14,
+    "subset_init_state_idx": 9
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 15,
+    "subset_init_state_idx": 10
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 17,
+    "subset_init_state_idx": 11
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 18,
+    "subset_init_state_idx": 12
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 21,
+    "subset_init_state_idx": 13
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 22,
+    "subset_init_state_idx": 14
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 23,
+    "subset_init_state_idx": 15
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 24,
+    "subset_init_state_idx": 16
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 26,
+    "subset_init_state_idx": 17
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 27,
+    "subset_init_state_idx": 18
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 39,
+    "subset_init_state_idx": 19
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 45,
+    "subset_init_state_idx": 20
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 46,
+    "subset_init_state_idx": 21
+  },
+  {
+    "task_id": 0,
+    "orig_init_state_idx": 47,
+    "subset_init_state_idx": 22
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 1,
+    "subset_init_state_idx": 0
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 2,
+    "subset_init_state_idx": 1
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 3,
+    "subset_init_state_idx": 2
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 4,
+    "subset_init_state_idx": 3
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 10,
+    "subset_init_state_idx": 4
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 12,
+    "subset_init_state_idx": 5
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 13,
+    "subset_init_state_idx": 6
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 14,
+    "subset_init_state_idx": 7
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 16,
+    "subset_init_state_idx": 8
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 17,
+    "subset_init_state_idx": 9
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 20,
+    "subset_init_state_idx": 10
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 22,
+    "subset_init_state_idx": 11
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 24,
+    "subset_init_state_idx": 12
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 29,
+    "subset_init_state_idx": 13
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 30,
+    "subset_init_state_idx": 14
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 31,
+    "subset_init_state_idx": 15
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 32,
+    "subset_init_state_idx": 16
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 33,
+    "subset_init_state_idx": 17
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 34,
+    "subset_init_state_idx": 18
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 35,
+    "subset_init_state_idx": 19
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 36,
+    "subset_init_state_idx": 20
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 37,
+    "subset_init_state_idx": 21
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 38,
+    "subset_init_state_idx": 22
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 39,
+    "subset_init_state_idx": 23
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 41,
+    "subset_init_state_idx": 24
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 42,
+    "subset_init_state_idx": 25
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 43,
+    "subset_init_state_idx": 26
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 44,
+    "subset_init_state_idx": 27
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 45,
+    "subset_init_state_idx": 28
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 46,
+    "subset_init_state_idx": 29
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 47,
+    "subset_init_state_idx": 30
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 48,
+    "subset_init_state_idx": 31
+  },
+  {
+    "task_id": 1,
+    "orig_init_state_idx": 49,
+    "subset_init_state_idx": 32
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 0,
+    "subset_init_state_idx": 0
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 2,
+    "subset_init_state_idx": 1
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 4,
+    "subset_init_state_idx": 2
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 5,
+    "subset_init_state_idx": 3
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 8,
+    "subset_init_state_idx": 4
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 9,
+    "subset_init_state_idx": 5
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 11,
+    "subset_init_state_idx": 6
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 12,
+    "subset_init_state_idx": 7
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 14,
+    "subset_init_state_idx": 8
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 19,
+    "subset_init_state_idx": 9
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 20,
+    "subset_init_state_idx": 10
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 22,
+    "subset_init_state_idx": 11
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 24,
+    "subset_init_state_idx": 12
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 25,
+    "subset_init_state_idx": 13
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 26,
+    "subset_init_state_idx": 14
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 28,
+    "subset_init_state_idx": 15
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 33,
+    "subset_init_state_idx": 16
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 34,
+    "subset_init_state_idx": 17
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 35,
+    "subset_init_state_idx": 18
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 36,
+    "subset_init_state_idx": 19
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 41,
+    "subset_init_state_idx": 20
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 45,
+    "subset_init_state_idx": 21
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 47,
+    "subset_init_state_idx": 22
+  },
+  {
+    "task_id": 2,
+    "orig_init_state_idx": 48,
+    "subset_init_state_idx": 23
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 2,
+    "subset_init_state_idx": 0
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 5,
+    "subset_init_state_idx": 1
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 7,
+    "subset_init_state_idx": 2
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 9,
+    "subset_init_state_idx": 3
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 14,
+    "subset_init_state_idx": 4
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 17,
+    "subset_init_state_idx": 5
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 18,
+    "subset_init_state_idx": 6
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 19,
+    "subset_init_state_idx": 7
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 20,
+    "subset_init_state_idx": 8
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 24,
+    "subset_init_state_idx": 9
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 27,
+    "subset_init_state_idx": 10
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 28,
+    "subset_init_state_idx": 11
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 29,
+    "subset_init_state_idx": 12
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 35,
+    "subset_init_state_idx": 13
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 38,
+    "subset_init_state_idx": 14
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 42,
+    "subset_init_state_idx": 15
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 47,
+    "subset_init_state_idx": 16
+  },
+  {
+    "task_id": 3,
+    "orig_init_state_idx": 48,
+    "subset_init_state_idx": 17
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 0,
+    "subset_init_state_idx": 0
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 1,
+    "subset_init_state_idx": 1
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 3,
+    "subset_init_state_idx": 2
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 5,
+    "subset_init_state_idx": 3
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 7,
+    "subset_init_state_idx": 4
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 8,
+    "subset_init_state_idx": 5
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 10,
+    "subset_init_state_idx": 6
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 11,
+    "subset_init_state_idx": 7
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 12,
+    "subset_init_state_idx": 8
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 13,
+    "subset_init_state_idx": 9
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 15,
+    "subset_init_state_idx": 10
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 16,
+    "subset_init_state_idx": 11
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 17,
+    "subset_init_state_idx": 12
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 18,
+    "subset_init_state_idx": 13
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 20,
+    "subset_init_state_idx": 14
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 22,
+    "subset_init_state_idx": 15
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 23,
+    "subset_init_state_idx": 16
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 24,
+    "subset_init_state_idx": 17
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 25,
+    "subset_init_state_idx": 18
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 26,
+    "subset_init_state_idx": 19
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 27,
+    "subset_init_state_idx": 20
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 29,
+    "subset_init_state_idx": 21
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 30,
+    "subset_init_state_idx": 22
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 33,
+    "subset_init_state_idx": 23
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 35,
+    "subset_init_state_idx": 24
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 37,
+    "subset_init_state_idx": 25
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 38,
+    "subset_init_state_idx": 26
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 39,
+    "subset_init_state_idx": 27
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 40,
+    "subset_init_state_idx": 28
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 42,
+    "subset_init_state_idx": 29
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 45,
+    "subset_init_state_idx": 30
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 46,
+    "subset_init_state_idx": 31
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 47,
+    "subset_init_state_idx": 32
+  },
+  {
+    "task_id": 4,
+    "orig_init_state_idx": 48,
+    "subset_init_state_idx": 33
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 0,
+    "subset_init_state_idx": 0
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 1,
+    "subset_init_state_idx": 1
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 3,
+    "subset_init_state_idx": 2
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 4,
+    "subset_init_state_idx": 3
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 6,
+    "subset_init_state_idx": 4
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 9,
+    "subset_init_state_idx": 5
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 11,
+    "subset_init_state_idx": 6
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 12,
+    "subset_init_state_idx": 7
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 15,
+    "subset_init_state_idx": 8
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 17,
+    "subset_init_state_idx": 9
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 18,
+    "subset_init_state_idx": 10
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 19,
+    "subset_init_state_idx": 11
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 21,
+    "subset_init_state_idx": 12
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 22,
+    "subset_init_state_idx": 13
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 23,
+    "subset_init_state_idx": 14
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 24,
+    "subset_init_state_idx": 15
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 28,
+    "subset_init_state_idx": 16
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 30,
+    "subset_init_state_idx": 17
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 31,
+    "subset_init_state_idx": 18
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 32,
+    "subset_init_state_idx": 19
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 33,
+    "subset_init_state_idx": 20
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 35,
+    "subset_init_state_idx": 21
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 36,
+    "subset_init_state_idx": 22
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 41,
+    "subset_init_state_idx": 23
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 44,
+    "subset_init_state_idx": 24
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 45,
+    "subset_init_state_idx": 25
+  },
+  {
+    "task_id": 5,
+    "orig_init_state_idx": 49,
+    "subset_init_state_idx": 26
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 1,
+    "subset_init_state_idx": 0
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 2,
+    "subset_init_state_idx": 1
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 3,
+    "subset_init_state_idx": 2
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 4,
+    "subset_init_state_idx": 3
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 6,
+    "subset_init_state_idx": 4
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 7,
+    "subset_init_state_idx": 5
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 8,
+    "subset_init_state_idx": 6
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 9,
+    "subset_init_state_idx": 7
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 10,
+    "subset_init_state_idx": 8
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 14,
+    "subset_init_state_idx": 9
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 16,
+    "subset_init_state_idx": 10
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 17,
+    "subset_init_state_idx": 11
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 21,
+    "subset_init_state_idx": 12
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 22,
+    "subset_init_state_idx": 13
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 24,
+    "subset_init_state_idx": 14
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 25,
+    "subset_init_state_idx": 15
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 26,
+    "subset_init_state_idx": 16
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 27,
+    "subset_init_state_idx": 17
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 28,
+    "subset_init_state_idx": 18
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 31,
+    "subset_init_state_idx": 19
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 34,
+    "subset_init_state_idx": 20
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 35,
+    "subset_init_state_idx": 21
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 36,
+    "subset_init_state_idx": 22
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 44,
+    "subset_init_state_idx": 23
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 48,
+    "subset_init_state_idx": 24
+  },
+  {
+    "task_id": 6,
+    "orig_init_state_idx": 49,
+    "subset_init_state_idx": 25
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 2,
+    "subset_init_state_idx": 0
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 10,
+    "subset_init_state_idx": 1
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 11,
+    "subset_init_state_idx": 2
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 13,
+    "subset_init_state_idx": 3
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 15,
+    "subset_init_state_idx": 4
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 24,
+    "subset_init_state_idx": 5
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 26,
+    "subset_init_state_idx": 6
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 27,
+    "subset_init_state_idx": 7
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 31,
+    "subset_init_state_idx": 8
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 33,
+    "subset_init_state_idx": 9
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 35,
+    "subset_init_state_idx": 10
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 36,
+    "subset_init_state_idx": 11
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 37,
+    "subset_init_state_idx": 12
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 38,
+    "subset_init_state_idx": 13
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 39,
+    "subset_init_state_idx": 14
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 40,
+    "subset_init_state_idx": 15
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 41,
+    "subset_init_state_idx": 16
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 42,
+    "subset_init_state_idx": 17
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 43,
+    "subset_init_state_idx": 18
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 44,
+    "subset_init_state_idx": 19
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 45,
+    "subset_init_state_idx": 20
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 46,
+    "subset_init_state_idx": 21
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 47,
+    "subset_init_state_idx": 22
+  },
+  {
+    "task_id": 7,
+    "orig_init_state_idx": 49,
+    "subset_init_state_idx": 23
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 0,
+    "subset_init_state_idx": 0
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 1,
+    "subset_init_state_idx": 1
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 2,
+    "subset_init_state_idx": 2
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 3,
+    "subset_init_state_idx": 3
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 4,
+    "subset_init_state_idx": 4
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 5,
+    "subset_init_state_idx": 5
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 6,
+    "subset_init_state_idx": 6
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 9,
+    "subset_init_state_idx": 7
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 10,
+    "subset_init_state_idx": 8
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 12,
+    "subset_init_state_idx": 9
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 13,
+    "subset_init_state_idx": 10
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 16,
+    "subset_init_state_idx": 11
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 18,
+    "subset_init_state_idx": 12
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 21,
+    "subset_init_state_idx": 13
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 23,
+    "subset_init_state_idx": 14
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 25,
+    "subset_init_state_idx": 15
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 26,
+    "subset_init_state_idx": 16
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 29,
+    "subset_init_state_idx": 17
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 32,
+    "subset_init_state_idx": 18
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 33,
+    "subset_init_state_idx": 19
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 34,
+    "subset_init_state_idx": 20
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 35,
+    "subset_init_state_idx": 21
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 37,
+    "subset_init_state_idx": 22
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 39,
+    "subset_init_state_idx": 23
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 42,
+    "subset_init_state_idx": 24
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 43,
+    "subset_init_state_idx": 25
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 44,
+    "subset_init_state_idx": 26
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 46,
+    "subset_init_state_idx": 27
+  },
+  {
+    "task_id": 8,
+    "orig_init_state_idx": 49,
+    "subset_init_state_idx": 28
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 0,
+    "subset_init_state_idx": 0
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 1,
+    "subset_init_state_idx": 1
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 2,
+    "subset_init_state_idx": 2
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 3,
+    "subset_init_state_idx": 3
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 4,
+    "subset_init_state_idx": 4
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 5,
+    "subset_init_state_idx": 5
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 6,
+    "subset_init_state_idx": 6
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 8,
+    "subset_init_state_idx": 7
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 9,
+    "subset_init_state_idx": 8
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 10,
+    "subset_init_state_idx": 9
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 11,
+    "subset_init_state_idx": 10
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 12,
+    "subset_init_state_idx": 11
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 13,
+    "subset_init_state_idx": 12
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 14,
+    "subset_init_state_idx": 13
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 15,
+    "subset_init_state_idx": 14
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 17,
+    "subset_init_state_idx": 15
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 18,
+    "subset_init_state_idx": 16
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 19,
+    "subset_init_state_idx": 17
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 22,
+    "subset_init_state_idx": 18
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 23,
+    "subset_init_state_idx": 19
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 25,
+    "subset_init_state_idx": 20
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 28,
+    "subset_init_state_idx": 21
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 29,
+    "subset_init_state_idx": 22
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 32,
+    "subset_init_state_idx": 23
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 33,
+    "subset_init_state_idx": 24
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 34,
+    "subset_init_state_idx": 25
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 35,
+    "subset_init_state_idx": 26
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 36,
+    "subset_init_state_idx": 27
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 37,
+    "subset_init_state_idx": 28
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 39,
+    "subset_init_state_idx": 29
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 41,
+    "subset_init_state_idx": 30
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 42,
+    "subset_init_state_idx": 31
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 43,
+    "subset_init_state_idx": 32
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 44,
+    "subset_init_state_idx": 33
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 45,
+    "subset_init_state_idx": 34
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 46,
+    "subset_init_state_idx": 35
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 47,
+    "subset_init_state_idx": 36
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 48,
+    "subset_init_state_idx": 37
+  },
+  {
+    "task_id": 9,
+    "orig_init_state_idx": 49,
+    "subset_init_state_idx": 38
+  }
+]

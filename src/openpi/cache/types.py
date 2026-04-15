@@ -31,6 +31,20 @@ CACHE_QUERY_FIELDS: frozenset[str] = frozenset({
 })
 
 
+# ---------------------------------------------------------------------------
+# Canonical flow-matching denoise timesteps
+# ---------------------------------------------------------------------------
+#
+# Pi0.5 flow matching uses num_steps=10 with timesteps t_i = 1 - i/10 for
+# i = 1..9. Warm start payloads are keyed by these exact (rounded-to-4-dp)
+# values, and ThresholdJudge.warm_tiers / AlwaysWarmStartJudge both require
+# start_t to be one of them. Kept here (leaf module) so judge.py, config.py,
+# and any future consumer share one source of truth.
+CANONICAL_DENOISE_TIMESTEPS: frozenset[float] = frozenset(
+    round(1.0 - i / 10, 4) for i in range(1, 10)
+)  # {0.1, 0.2, ..., 0.9}
+
+
 class CheckpointID(Enum):
     """The three cache checkpoints in the Pi0.5 inference pipeline.
 

@@ -1,0 +1,67 @@
+[
+  {
+    "yaml_path": "data/deviation_experiment/step1a_runs/clip_w7_d4.yaml",
+    "run_id": "clip_w7_d4",
+    "status": "done",
+    "episodes_per_task": 5,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-14 10:19:36",
+    "end_time": "2026-04-14 10:29:23",
+    "success_rate": 0.68,
+    "log_path": "data/deviation_experiment/step1a_runs/clip_w7_d4.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        4,
+        5
+      ],
+      "1": [
+        4,
+        5
+      ],
+      "2": [
+        4,
+        5
+      ],
+      "3": [
+        3,
+        5
+      ],
+      "4": [
+        3,
+        5
+      ],
+      "5": [
+        4,
+        5
+      ],
+      "6": [
+        3,
+        5
+      ],
+      "7": [
+        3,
+        5
+      ],
+      "8": [
+        3,
+        5
+      ],
+      "9": [
+        3,
+        5
+      ]
+    }
+  }
+]

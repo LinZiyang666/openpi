@@ -258,7 +258,7 @@ class CacheOrchestrator:
                 if (not payload.intermediates
                         or payload.denoising_num_steps is None
                         or start_t not in payload.intermediates):
-                    logger.debug(
+                    logger.warning(
                         "[step %d] WARM_START payload incomplete (start_t=%s, "
                         "has_intermediates=%s), downgrade to MISS.",
                         self._step_counter - 1, start_t,

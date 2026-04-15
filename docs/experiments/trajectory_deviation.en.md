@@ -16,7 +16,7 @@ Full pipeline:
 ```
 Step 1a  baseline cache eval            → cache_eval_results.json (per-episode success)
 Step 1b-pre dump_step1a_failed_inits    → per-task .init + step1b_filter.json
-Step 1b  run_step1b_gt.py               → GT HDF5 (AlwaysSkip, locked to clip_w7_d4 bundle)
+Step 1b  run_step1b_gt.py               → GT HDF5 (AlwaysSkip, recommended max_pool inference bundle)
 Step 2   compute_deviate_scores         → deviate_score_{cfg}.json (Phase1 M× + Phase2 1× + Phase3 aggregate)
 Step 3   run_spawn_experiment           → spawn_state_{cfg}.json + spawn_aggregate.csv
 Step 4   analyze_deviation_results      → figures/*.png
@@ -45,7 +45,7 @@ Step 4   analyze_deviation_results      → figures/*.png
 |-------|--------------------|--------------------|-------|
 | Step 1a | task level (`run_cache_experiments.py --num-workers`) | different YAML runs serialise | workers share one server; server needs `--concurrent` |
 | Dump failed inits | — | single process | offline JSON → tensor slicing, seconds |
-| Step 1b GT collection | **not parallel** | each unit spawns its own `main.py` + libero env; runner uses serial `run()` (not `parallel_run()`) | parallel subprocesses would fight over GPU/RAM; bundle only switched once (`inference_clip_w7_d4.yaml`) |
+| Step 1b GT collection | **not parallel** | each unit spawns its own `main.py` + libero env; runner uses serial `run()` (not `parallel_run()`) | parallel subprocesses would fight over GPU/RAM; switch one AlwaysSkip bundle once (recommend `inference_max_pool_w3_d5.yaml` to avoid CLIP) |
 | Step 2 Phase 1 / Phase 2 | episode × sample (`--num-workers`) | configs serialise; inside one config Phase1 → Phase2 is sequential | driver issues `send_load_cache_config` between phases — concurrent drivers would race |
 | Step 2 Phase 3 (aggregate) | — | single process, pure numpy | one output per cfg |
 | Step 3 Spawn | episode × (s,n,k) (`--num-workers`) | configs serialise | SpawnRunner then BaselineRunner run sequentially inside the same cfg |
@@ -75,7 +75,7 @@ One server must survive the whole pipeline; pass every option up front. Each dow
 ```bash
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache_config configs/cache_runs/deviate_exp/inference_clip_w7_d4.yaml \
+    --cache_config configs/cache_runs/deviate_exp/inference_max_pool_w3_d5.yaml \
     --collect \
     --collect-dir data/deviation_experiment/collected \
     --collect-images \
@@ -91,9 +91,9 @@ Flag reference:
 | Flag | Meaning | Required here? |
 |------|---------|----------------|
 | `--concurrent` | Multi-connection mode; allows multi-worker clients **and** the `load_cache_config` control message | **Yes.** Step 2/3 `--num-workers>1` and dynamic bundle switching both depend on it |
-| `--cache_config` | Initial bundle at startup | Any of the 6 YAMLs works; preloading `inference_clip_w7_d4.yaml` lets Step 1b legally use `--skip-config-switch` |
+| `--cache_config` | Initial bundle at startup | Any AlwaysSkip YAML works; preloading the GT bundle (`inference_max_pool_w3_d5.yaml`) lets Step 1b use `--skip-config-switch` and avoids loading CLIP during GT collection |
 | `--collect` + `--collect-dir` | Write per-episode intermediates (incl. `clean_action`) to HDF5 | **Yes.** Step 3 prefill only reads the server-side `clean_action`; missing `--collect` will make Step 3 raise `FileNotFoundError` |
-| `--collect-images` | Also persist raw images (CLIP KeyBuilder needs them) | **Yes.** All 3 `deviate_exp/` bundles use `key_builder.type: clip`, so this must be on |
+| `--collect-images` | Also persist raw images (CLIP KeyBuilder needs them) | Keep it on if the server will ever switch to a `key_builder.type: clip` bundle; this experiment includes `clip_w7_d4`, so the safest setup is to enable it for the whole run |
 | `--env LIBERO` | Select env branch | Fixed |
 | `--port 8000` | Listener | Match the client's `--port`; if you tunnel via frp, clients hit the remapped external port (e.g. `9000`) |
 | `policy:checkpoint --policy.config pi05_libero --policy.dir <local>` | Use the local checkpoint instead of GCS | Strongly recommended |
@@ -172,7 +172,7 @@ Outputs:
 
 ## Step 1b — GT trajectory collection (**sequential, AlwaysSkip locked**)
 
-Plan §18.B4.3 pins the GT bundle to `inference_clip_w7_d4.yaml` — all three Step 2 configs must share the same GT or the deviate-score denominator stops being comparable. The runner switches the bundle once at startup and then serialises every unit through `main.py` (each unit is its own libero env subprocess).
+Step 1b only needs an **AlwaysSkip / pure-inference** bundle; all three Step 2 configs must share the same GT or the deviate-score denominator stops being comparable. Which `inference_*.yaml` you use does not change GT action semantics because the gate is `always_skip` and no cached action is read. Recommended: `inference_max_pool_w3_d5.yaml`, which avoids the CLIP key builder and does not spend VRAM on an unused CLIP model. The runner switches the bundle once at startup and then serialises every unit through `main.py` (each unit is its own libero env subprocess).
 
 ```bash
 uv run python -m exp.trajectory_deviation.run_step1b_gt \
@@ -180,6 +180,7 @@ uv run python -m exp.trajectory_deviation.run_step1b_gt \
     --out-dir data/deviation_experiment/gt \
     --task-suite libero_spatial \
     --host <server-host> --port <server-port> \
+    --inference-yaml configs/cache_runs/deviate_exp/inference_max_pool_w3_d5.yaml \
     --seed 7 \
     --conda-env libero_sim \
     --resume
@@ -195,7 +196,7 @@ Flag reference:
 | `--host / --port` | Server endpoint | frp mapped port on eval host; `localhost:8000` locally |
 | `--seed` | Seed forwarded to `main.py` | **Fix at 7** (plan §9.2 default); Phase 1 background noise estimation is built on this seed. Changing it would de-align the M samples from the GT distribution |
 | `--conda-env` | libero env | Fixed `libero_sim` |
-| `--inference-yaml` | GT bundle YAML path | **Do not change** from `inference_clip_w7_d4.yaml` — changing violates plan §18.B4.3 |
+| `--inference-yaml` | GT bundle YAML path | Must be a pure-inference bundle with `gate.type: always_skip`; recommended `configs/cache_runs/deviate_exp/inference_max_pool_w3_d5.yaml` to avoid CLIP. Do not use a real cache YAML such as `clip_w7_d4.yaml` or `max_pool_w3_d5.yaml` |
 | `--state-path` | Runner state file | Default `<inits-dir>/step1b_state.json`; pair with `--resume` |
 | `--resume` | Resume from state | Almost always on |
 | `--skip-config-switch` | Skip `load_cache_config` | Only when sharding across servers and you switched bundles by hand |
@@ -221,6 +222,7 @@ uv run python -m exp.trajectory_deviation.compute_deviate_scores \
     --num-workers 4 \
     --host <server-host> --port <server-port> \
     --floor 0.1 \
+    --config-fail-results data/deviation_experiment/cache_eval_results_cache_fail.json \
     --resume
 ```
 
@@ -244,6 +246,7 @@ Flag reference & tuning:
 | `--host / --port` | `localhost:8000` | Server endpoint | Match Step 0 |
 | `--floor` | 0.1 | Denominator floor: `max(bg_l2, floor)` — prevents division-by-tiny-bg | **Avoid changing** (plan §10.2 empirical value); if M is small and bg_l2 frequently drops below 0.1, experiment with 0.05 to inspect distribution |
 | `--config-yaml-dir` | `configs/cache_runs/deviate_exp` | YAML lookup root | Do not change unless relocating the experiment |
+| `--config-fail-results` | off | Optional Step-1a results JSON; when set, each cfg only runs `(task_id, orig_init_state_idx)` units that failed under that cfg | Recommended: `data/deviation_experiment/cache_eval_results_cache_fail.json`, so inits that already succeeded for the active cfg are not scored. Leave unset to evaluate all configs on the same successful GT set |
 | `--skip-config-switch` | off | Do not call `load_cache_config`, assume the server is already on the right bundle | Use when sharding: one server per cfg (each on its own port), each client with this flag |
 | `--include-failed-gt` | off | Keep `success=False` GT episodes | Default drops them (failed GTs carry no recovery signal); turn on for noise analysis |
 | `--include-unknown-gt` | off | Keep legacy HDF5 without a `success` attr | Compatibility shim; rerun Step 1b instead |
@@ -260,6 +263,12 @@ Common recipes:
 ---
 
 ## Step 3 — Spawn corrective experiment (parallel within a cfg, serial across cfgs)
+
+If Step 2 used `--config-fail-results`, Step 3 needs no extra flag:
+`run_spawn_experiment` builds spawn units only for episodes present in
+`deviate_score_{cfg}.json`. When reusing an old `--out-dir` with `--resume`,
+the runner and aggregate also filter stale state rows against the current
+score file; for formal runs, a clean spawn output directory is still clearer.
 
 ```bash
 uv run python -m exp.trajectory_deviation.run_spawn_experiment \
@@ -361,7 +370,7 @@ Ordered by "how core + how often you'd sweep", so you can decide what to vary du
 
 | Param | Value | Reason |
 |-------|-------|--------|
-| GT bundle | `inference_clip_w7_d4.yaml` | plan §18.B4.3: three cfgs share the same GT |
+| GT bundle | `inference_max_pool_w3_d5.yaml` | three cfgs share the same GT; any AlwaysSkip bundle is valid, and max-pool inference avoids CLIP |
 | `--floor` (deviate_score) | 0.1 | plan §10.2 empirical floor, prevents denominator blowup |
 | `--seed` (Step 1b) | 7 | plan §9.2 default; Phase 1 statistics are built on it |
 | `--seed` (Step 1a) | 42 | Distinct from data-collection seed=7 to avoid overfitting |
@@ -402,7 +411,7 @@ data/deviation_experiment/
 |---------|-------|-----|
 | Step 3 `FileNotFoundError: collected/.../clean_action` | Server started without `--collect` / `--collect-images` | Restart server with the full Step 0 flags; rerun failed units via `--resume` |
 | Step 2 deviate scores all ≈ 1.0 | Phase 1 and Phase 2 read the same bundle | Concurrent drivers raced on `load_cache_config`. Kill parallel drivers, run serially, or shard (one server per cfg + `--skip-config-switch`) |
-| Step 1b reports many `inference_failed=True` | Server dead or not on `inference_clip_w7_d4.yaml` | Check server health; if you used `--skip-config-switch`, preload the GT bundle by hand |
+| Step 1b reports many `inference_failed=True` | Server dead or not on the selected AlwaysSkip GT bundle | Check server health; if you used `--skip-config-switch`, preload `inference_max_pool_w3_d5.yaml` or an equivalent AlwaysSkip bundle by hand |
 | Step 4 coverage curve empty | No failure spawns within `n <= n_threshold` for this cfg | Raise `--n-threshold` or confirm Step 3 swept the full `n-grid` |
 | Step 1a `main.py` complains about `VIRTUAL_ENV` | uv env vars leaked into conda subprocess | `_build_subprocess_cmd` should strip them; audit any custom `--conda-env` wrapper |
 | `load_cache_config` errors | Server missing `--concurrent`; or YAML `preload_path` does not exist on the server | Restart with `--concurrent`; verify artifact paths on the GPU server |

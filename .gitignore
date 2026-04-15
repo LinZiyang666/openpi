@@ -1,7 +1,10 @@
 # Data directories.
 assets/
 checkpoints/
-data/
+data/**
+!data/**/
+!data/*.json
+!data/**/*.json
 wandb/
 
 # Model weights and large binary files.

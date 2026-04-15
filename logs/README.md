@@ -32,6 +32,12 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 
 ## Active Logs
 
+### Warm Start
+
+| File | Status | Description |
+|------|--------|-------------|
+| [warm_start_sweep_plan.log.md](warm_start_sweep_plan.log.md) | `Implemented` | Warm start 成功率扫描实验：3 keybuilder × 3 start_t (0.7/0.5/0.3) + always_skip/always_hit 对照；新增 AlwaysWarmStartJudge |
+
 ### Trajectory Deviation
 
 | File | Status | Description |

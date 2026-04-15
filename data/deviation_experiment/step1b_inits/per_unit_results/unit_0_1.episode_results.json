@@ -1,0 +1,10 @@
+[
+  {
+    "task_id": 0,
+    "init_state_idx": 0,
+    "orig_init_state_idx": 1,
+    "episode_id": 0,
+    "seed": 42,
+    "success": true
+  }
+]

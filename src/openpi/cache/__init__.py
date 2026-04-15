@@ -55,7 +55,14 @@ from openpi.cache.components.token_reducer import (
     SpatialPoolReducer, TaskScoringReducer,
 )
 from openpi.cache.components.gate import GateFunction, AlwaysSearchGate
-from openpi.cache.components.judge import SimilarityJudge, ThresholdJudge, HitType, JudgeResult
+from openpi.cache.components.judge import (
+    AlwaysHitJudge,
+    AlwaysWarmStartJudge,
+    HitType,
+    JudgeResult,
+    SimilarityJudge,
+    ThresholdJudge,
+)
 from openpi.cache.orchestrator import CacheOrchestrator, CheckResult
 
 __all__ = [
@@ -94,6 +101,8 @@ __all__ = [
     "AlwaysSearchGate",
     "SimilarityJudge",
     "ThresholdJudge",
+    "AlwaysHitJudge",
+    "AlwaysWarmStartJudge",
     "HitType",
     "JudgeResult",
     "CacheOrchestrator",

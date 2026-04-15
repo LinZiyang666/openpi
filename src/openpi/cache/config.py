@@ -44,7 +44,7 @@ from typing import Any, Iterator, Optional
 
 import yaml
 
-from openpi.cache.types import CACHE_QUERY_FIELDS, CheckpointID
+from openpi.cache.types import CACHE_QUERY_FIELDS, CANONICAL_DENOISE_TIMESTEPS, CheckpointID
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +88,9 @@ class JudgeConfig:
     type: str = "threshold"
     threshold: float = 0.98
     warm_tiers: list[dict[str, float]] | None = None
+    # Only for type="always_warm_start". Must round to one of
+    # openpi.cache.types.CANONICAL_DENOISE_TIMESTEPS ({0.1..0.9}).
+    start_t: float | None = None
 
 
 @dataclass
@@ -446,8 +449,12 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"Valid: {list(_valid_gate_types)}"
             )
 
-        if cp_config.judge.type not in ("threshold", "always_hit"):
-            errors.append(f"{prefix}.judge.type '{cp_config.judge.type}' is unknown. Valid: ['threshold', 'always_hit']")
+        _valid_judge_types = ("threshold", "always_hit", "always_warm_start")
+        if cp_config.judge.type not in _valid_judge_types:
+            errors.append(
+                f"{prefix}.judge.type '{cp_config.judge.type}' is unknown. "
+                f"Valid: {list(_valid_judge_types)}"
+            )
 
         ss = cp_config.search_strategy
         if ss.type not in _valid_strategy_types:
@@ -638,8 +645,42 @@ def validate_cache_config(config: CacheConfig) -> None:
                     f"Use InMemoryBackend or set trajectory_depth=1."
                 )
 
+    # ── always_warm_start validation ──
+    for cp_name, cp_config in config.checkpoints.items():
+        if cp_name.startswith("_"):
+            continue
+        prefix = f"checkpoints.{cp_name}"
+        if cp_config.judge.type != "always_warm_start":
+            continue
+
+        if cp_name != "cp1":
+            errors.append(
+                f"{prefix}.judge: always_warm_start is only supported on CP1 "
+                "(CP3 has no warm start payload)"
+            )
+        if cp_config.judge.warm_tiers:
+            errors.append(
+                f"{prefix}.judge: always_warm_start cannot be combined with warm_tiers "
+                "(semantics conflict)"
+            )
+        if cp_config.judge.start_t is None:
+            errors.append(
+                f"{prefix}.judge: always_warm_start requires 'start_t'. "
+                f"Valid: {sorted(CANONICAL_DENOISE_TIMESTEPS)}"
+            )
+        else:
+            st = round(cp_config.judge.start_t, 4)
+            if st not in CANONICAL_DENOISE_TIMESTEPS:
+                errors.append(
+                    f"{prefix}.judge.start_t={cp_config.judge.start_t} is not a "
+                    f"valid timestep. Valid: {sorted(CANONICAL_DENOISE_TIMESTEPS)}"
+                )
+            else:
+                # Normalize writeback: avoids YAML inputs like 0.30000000000000004
+                # mismatching payload.intermediates[start_t] at runtime.
+                cp_config.judge.start_t = st
+
     # ── warm_tiers validation ──
-    _canonical_timesteps = {round(1.0 - i / 10, 4) for i in range(1, 10)}
     for cp_name, cp_config in config.checkpoints.items():
         if cp_name.startswith("_"):
             continue
@@ -675,10 +716,10 @@ def validate_cache_config(config: CacheConfig) -> None:
             prev_threshold = t_val
 
             st = round(tier["start_t"], 4)
-            if st not in _canonical_timesteps:
+            if st not in CANONICAL_DENOISE_TIMESTEPS:
                 errors.append(
                     f"{tp}: start_t={tier['start_t']} is not a valid timestep. "
-                    f"Valid: {sorted(_canonical_timesteps)}"
+                    f"Valid: {sorted(CANONICAL_DENOISE_TIMESTEPS)}"
                 )
             tier["start_t"] = st
 
@@ -913,8 +954,15 @@ def _build_judge(cfg: JudgeConfig):
         from openpi.cache.components.judge import AlwaysHitJudge
 
         return AlwaysHitJudge()
+    elif cfg.type == "always_warm_start":
+        from openpi.cache.components.judge import AlwaysWarmStartJudge
+
+        return AlwaysWarmStartJudge(cfg.start_t)
     else:
-        raise ConfigValidationError(f"Unknown judge.type '{cfg.type}'. Valid: ['threshold', 'always_hit']")
+        raise ConfigValidationError(
+            f"Unknown judge.type '{cfg.type}'. "
+            "Valid: ['threshold', 'always_hit', 'always_warm_start']"
+        )
 
 
 def _field_similarity_to_dict(

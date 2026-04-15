@@ -1,8 +1,15 @@
-"""Tests for ThresholdJudge (T3.1–T3.9)."""
+"""Tests for ThresholdJudge (T3.1–T3.9) and AlwaysWarmStartJudge."""
 
+import pytest
 import torch
 
-from openpi.cache.components.judge import HitType, JudgeResult, SimilarityJudge, ThresholdJudge
+from openpi.cache.components.judge import (
+    AlwaysWarmStartJudge,
+    HitType,
+    JudgeResult,
+    SimilarityJudge,
+    ThresholdJudge,
+)
 from openpi.cache.storage_types import SearchResultLite
 from openpi.cache.types import CheckpointID
 
@@ -141,3 +148,48 @@ def test_warm_tiers_empty_list_backward_compatible():
     j = ThresholdJudge(cp1_threshold=0.98, warm_tiers=[])
     r = j([_result(score=0.96)], CheckpointID.CP1, {})
     assert r.hit_type == HitType.MISS
+
+
+# --- AlwaysWarmStartJudge ---
+
+
+def test_always_warm_start_empty_results_is_miss():
+    j = AlwaysWarmStartJudge(start_t=0.5)
+    r = j([], CheckpointID.CP1, {})
+    assert r.hit_type == HitType.MISS
+    assert r.winner_id is None
+    assert r.start_t is None
+
+
+def test_always_warm_start_cp1_emits_warm_start():
+    j = AlwaysWarmStartJudge(start_t=0.5)
+    r = j([_result(id="e42", score=0.01)], CheckpointID.CP1, {})
+    assert r.hit_type == HitType.WARM_START
+    assert r.winner_id == "e42"
+    assert r.start_t == 0.5
+
+
+def test_always_warm_start_cp3_defensive_full_hit():
+    # Defensive fallback: config validation rejects this combo, but if it
+    # somehow reaches runtime we fall back to FULL_HIT (observable) rather
+    # than silently crashing downstream.
+    j = AlwaysWarmStartJudge(start_t=0.5)
+    r = j([_result(id="e9", score=0.01, cp=CheckpointID.CP3)], CheckpointID.CP3, {})
+    assert r.hit_type == HitType.FULL_HIT
+    assert r.winner_id == "e9"
+
+
+def test_always_warm_start_non_canonical_start_t_raises():
+    with pytest.raises(ValueError, match="start_t"):
+        AlwaysWarmStartJudge(start_t=0.5001)
+
+
+def test_always_warm_start_canonical_rounding_normalized():
+    # Represents the 0.3 ≈ 0.30000000000000004 float-parsing case.
+    j = AlwaysWarmStartJudge(start_t=0.30000000000000004)
+    r = j([_result()], CheckpointID.CP1, {})
+    assert r.start_t == 0.3
+
+
+def test_always_warm_start_conforms_to_protocol():
+    assert isinstance(AlwaysWarmStartJudge(start_t=0.5), SimilarityJudge)

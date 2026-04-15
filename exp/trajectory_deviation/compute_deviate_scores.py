@@ -31,7 +31,7 @@ import logging
 import threading
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
@@ -194,6 +194,7 @@ def aggregate(
     gt_dir: Path,
     out_path: Path,
     *,
+    episodes: Optional[List[str]] = None,
     floor: float = _DEFAULT_FLOOR,
 ) -> Dict[str, Dict[str, List[float]]]:
     """Read Phase 1/2 jsonl dumps + GT HDF5 → per-episode deviate scores.
@@ -222,8 +223,11 @@ def aggregate(
         d = json.loads(line)
         cache_per_ep[str(d["episode"])] = np.asarray(d["chunks"], dtype=np.float32)
 
+    allowed = set(episodes) if episodes is not None else None
     out: Dict[str, Dict[str, List[float]]] = {}
     for ep, samples in bg_per_ep.items():
+        if allowed is not None and ep not in allowed:
+            continue
         if ep not in cache_per_ep:
             logger.warning("Episode %s has bg samples but no cache sample — skipping", ep)
             continue
@@ -481,6 +485,92 @@ def discover_episodes(
     return out
 
 
+FailedUnit = Tuple[int, int]
+
+
+def load_failed_units_by_config(results_path: Path) -> Dict[str, Set[FailedUnit]]:
+    """Load Step-1a failed units keyed by cache config.
+
+    The input can be either the already-filtered
+    ``cache_eval_results_cache_fail.json`` or the full
+    ``cache_eval_results.json``; rows with ``success=True`` are ignored.
+    Units are identified in the original LIBERO init-state namespace:
+    ``(task_id, orig_init_state_idx)``.
+    """
+    rows = json.loads(Path(results_path).read_text())
+    if not isinstance(rows, list):
+        raise ValueError(f"{results_path} must contain a JSON list of episode rows")
+
+    out: Dict[str, Set[FailedUnit]] = {}
+    for i, row in enumerate(rows):
+        if not isinstance(row, dict):
+            raise ValueError(f"{results_path}: row {i} is not an object")
+        if bool(row.get("success", False)):
+            continue
+        cfg = row.get("config_id") or row.get("config")
+        if cfg is None:
+            raise ValueError(f"{results_path}: failed row {i} missing config_id")
+        if "task_id" not in row:
+            raise ValueError(f"{results_path}: failed row {i} missing task_id")
+        init_key = "orig_init_state_idx" if "orig_init_state_idx" in row else "init_state_idx"
+        if init_key not in row:
+            raise ValueError(
+                f"{results_path}: failed row {i} missing orig_init_state_idx/init_state_idx"
+            )
+        out.setdefault(str(cfg), set()).add((int(row["task_id"]), int(row[init_key])))
+    return out
+
+
+def _gt_episode_failed_unit(gt_dir: Path, ep_name: str) -> FailedUnit:
+    """Read ``(task_id, orig_init_state_idx)`` attrs from one GT HDF5."""
+    import h5py  # type: ignore[import]
+
+    with h5py.File(Path(gt_dir) / f"{ep_name}.h5", "r") as f:
+        if "task_id" not in f.attrs:
+            raise KeyError("task_id")
+        if "orig_init_state_idx" in f.attrs:
+            init_idx = f.attrs["orig_init_state_idx"]
+        elif "init_state_idx" in f.attrs:
+            init_idx = f.attrs["init_state_idx"]
+        else:
+            raise KeyError("orig_init_state_idx/init_state_idx")
+        return int(f.attrs["task_id"]), int(init_idx)
+
+
+def filter_episodes_by_failed_units(
+    gt_dir: Path,
+    episodes: List[str],
+    failed_units: Set[FailedUnit],
+) -> List[str]:
+    """Keep only GT episodes whose original init failed for the active cfg."""
+    out: List[str] = []
+    for ep in episodes:
+        try:
+            unit = _gt_episode_failed_unit(gt_dir, ep)
+        except (OSError, KeyError, ValueError) as e:
+            logger.warning(
+                "filter_episodes_by_failed_units: could not read identity for %s (%s) — skipping",
+                ep,
+                e,
+            )
+            continue
+        if unit in failed_units:
+            out.append(ep)
+    return out
+
+
+def _episode_unit_filter(episodes: List[str]) -> Callable[[UnitState], bool]:
+    """Scope resumed state files to the current episode set."""
+    from exp.common._unit_key import DeviateKey
+
+    allowed = set(episodes)
+
+    def _in_scope(unit: UnitState) -> bool:
+        return DeviateKey.decode(unit.unit_key).ep in allowed
+
+    return _in_scope
+
+
 def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--gt-dir", required=True, help="Step 1b GT trajectory root")
@@ -496,6 +586,11 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--config-yaml-dir", default="configs/cache_runs/deviate_exp",
                     help="Directory holding inference_*.yaml + cache_*.yaml")
+    ap.add_argument("--config-fail-results", default=None,
+                    help="Optional Step-1a results JSON. When set, each cfg only runs GT "
+                         "episodes whose (task_id, orig_init_state_idx) failed for that cfg. "
+                         "Use data/deviation_experiment/cache_eval_results_cache_fail.json "
+                         "to filter out inits that already succeeded for the active cfg.")
     ap.add_argument("--skip-config-switch", action="store_true",
                     help="Do not call load_cache_config — assume the server is already correctly configured "
                     "(useful when sharding this driver across GPUs).")
@@ -532,11 +627,42 @@ def main() -> None:
     if not episodes:
         raise RuntimeError(f"No GT episodes found under {gt_dir}")
 
+    failed_by_config: Optional[Dict[str, Set[FailedUnit]]] = None
+    if args.config_fail_results:
+        fail_results_path = Path(args.config_fail_results)
+        failed_by_config = load_failed_units_by_config(fail_results_path)
+        logger.info(
+            "Loaded per-config failed-init filter from %s (%d configs)",
+            fail_results_path,
+            len(failed_by_config),
+        )
+
     server_url = f"ws://{args.host}:{args.port}"
 
     for cfg in args.configs:
+        cfg_episodes = episodes
+        if failed_by_config is not None:
+            if cfg not in failed_by_config:
+                raise RuntimeError(
+                    f"No failed Step-1a rows found for config {cfg!r} in "
+                    f"{args.config_fail_results}"
+                )
+            cfg_episodes = filter_episodes_by_failed_units(
+                gt_dir, episodes, failed_by_config[cfg]
+            )
+            logger.info(
+                "Config %s: kept %d/%d GT episodes after per-config failure filtering",
+                cfg,
+                len(cfg_episodes),
+                len(episodes),
+            )
+            if not cfg_episodes:
+                logger.warning("Config %s has no matching GT episodes; writing empty score file", cfg)
+                (out_dir / f"deviate_score_{cfg}.json").write_text("{}")
+                continue
+
         common = _PhaseCommon(
-            config_id=cfg, gt_dir=gt_dir, episodes=episodes, out_dir=out_dir,
+            config_id=cfg, gt_dir=gt_dir, episodes=cfg_episodes, out_dir=out_dir,
             host=args.host, port=args.port,
         )
 
@@ -550,7 +676,11 @@ def main() -> None:
             state_path=out_dir / f"phase1_state_{cfg}.json",
             common=common,
             M=args.M,
-        ).parallel_run(num_workers=args.num_workers, resume=args.resume)
+        ).parallel_run(
+            num_workers=args.num_workers,
+            resume=args.resume,
+            unit_filter=_episode_unit_filter(cfg_episodes),
+        )
 
         # Phase 2: real cache bundle.
         if not args.skip_config_switch:
@@ -561,7 +691,11 @@ def main() -> None:
         Phase2Runner(
             state_path=out_dir / f"phase2_state_{cfg}.json",
             common=common,
-        ).parallel_run(num_workers=args.num_workers, resume=args.resume)
+        ).parallel_run(
+            num_workers=args.num_workers,
+            resume=args.resume,
+            unit_filter=_episode_unit_filter(cfg_episodes),
+        )
 
         # Phase 3: offline aggregate.
         aggregate(
@@ -569,6 +703,7 @@ def main() -> None:
             cache_jsonl=out_dir / f"cache_{cfg}.jsonl",
             gt_dir=gt_dir,
             out_path=out_dir / f"deviate_score_{cfg}.json",
+            episodes=cfg_episodes,
             floor=args.floor,
         )
         logger.info("Wrote %s", out_dir / f"deviate_score_{cfg}.json")

@@ -22,7 +22,7 @@ from typing import Optional, Protocol, runtime_checkable
 import torch
 
 from openpi.cache.storage_types import SearchResultLite
-from openpi.cache.types import CheckpointID
+from openpi.cache.types import CANONICAL_DENOISE_TIMESTEPS, CheckpointID
 
 
 class HitType(Enum):
@@ -101,6 +101,50 @@ class AlwaysHitJudge:
         if not results:
             return JudgeResult(HitType.MISS)
         return JudgeResult(HitType.FULL_HIT, results[0].id)
+
+    def on_episode_start(self) -> None:
+        """Clear internal history buffer. Called by Orchestrator at episode start."""
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        """Receive Orchestrator-broadcast action. Pure local buffer op."""
+
+
+class AlwaysWarmStartJudge:
+    """Always returns WARM_START with a fixed start_t for the top-1 result.
+
+    Used to sweep the success_rate ~ start_t curve under a constant (forced)
+    warm-start regime, independent of similarity score. Empty result set
+    falls back to MISS (cache truly empty / first step of episode).
+
+    Restricted to CP1 — CP3 has no warm start support. Config-level
+    validation rejects CP3 usage; the runtime FULL_HIT fallback below is
+    defensive only and should be unreachable for validated configs.
+    """
+
+    def __init__(self, start_t: float) -> None:
+        st = round(start_t, 4)
+        if st not in CANONICAL_DENOISE_TIMESTEPS:
+            raise ValueError(
+                f"start_t must round to one of {sorted(CANONICAL_DENOISE_TIMESTEPS)}, "
+                f"got {start_t}"
+            )
+        self._start_t = st
+
+    def __call__(
+        self,
+        results: list[SearchResultLite],
+        checkpoint_id: CheckpointID,
+        cached_data: dict[str, torch.Tensor],
+    ) -> JudgeResult:
+        if not results:
+            return JudgeResult(HitType.MISS)
+        if checkpoint_id != CheckpointID.CP1:
+            # Defensive fallback — config validation rejects always_warm_start on
+            # non-CP1 checkpoints, so this branch should be unreachable in
+            # validated configs. Keeps behaviour observable if someone bypasses
+            # validation (e.g. direct instantiation in tests).
+            return JudgeResult(HitType.FULL_HIT, results[0].id)
+        return JudgeResult(HitType.WARM_START, results[0].id, start_t=self._start_t)
 
     def on_episode_start(self) -> None:
         """Clear internal history buffer. Called by Orchestrator at episode start."""

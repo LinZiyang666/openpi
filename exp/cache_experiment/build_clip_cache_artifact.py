@@ -191,7 +191,36 @@ def _process_episode(
             if action.dim() == 1:
                 action = action.unsqueeze(0)
 
-            payload = CachePayload(action_chunk=action, task_key=task)
+            # Mirror build_in_memory_cache_artifact.py:250-266 — read noise_action_*
+            # to populate payload.intermediates, so WARM_START judges can lift
+            # cached x_t from this artifact without hitting the Orchestrator
+            # "WARM_START payload incomplete" downgrade path.
+            _NUM_STEPS = 10
+            intermediates = None
+            denoising_num_steps = None
+            noise_indices = []
+            for k in group.keys():
+                if k.startswith("noise_action_"):
+                    suffix = k.split("_")[-1]
+                    if suffix.isdigit():
+                        idx = int(suffix)
+                        if 1 <= idx < _NUM_STEPS:
+                            noise_indices.append(idx)
+            if noise_indices:
+                denoising_num_steps = _NUM_STEPS
+                intermediates = {}
+                for nidx in sorted(noise_indices):
+                    t = round(1.0 - nidx / _NUM_STEPS, 4)
+                    intermediates[t] = torch.from_numpy(
+                        np.array(group[f"noise_action_{nidx}"])
+                    ).float()
+
+            payload = CachePayload(
+                action_chunk=action,
+                task_key=task,
+                intermediates=intermediates,
+                denoising_num_steps=denoising_num_steps,
+            )
             entry = CacheEntry(
                 id=entry_id,
                 checkpoint_id=cp_id,

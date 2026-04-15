@@ -164,6 +164,46 @@ def test_aggregate_reads_jsonl_and_writes_deviate_score_json(
     } or json.loads(out_path.read_text()) == out
 
 
+def test_aggregate_filters_stale_jsonl_rows_when_episode_list_is_given(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Per-config filtering must also constrain Phase 3 aggregation.
+
+    This prevents stale rows from an earlier wider run in the same out-dir
+    from leaking back into ``deviate_score_*.json``.
+    """
+    bg_path = tmp_path / "bg_cfgA.jsonl"
+    cache_path = tmp_path / "cache_cfgA.jsonl"
+    bg_records = [
+        {"config": "cfgA", "episode": "task_0/episode_0", "sample_idx": 0,
+         "chunks": [[[0.0, 0.0]]]},
+        {"config": "cfgA", "episode": "task_0/episode_1", "sample_idx": 0,
+         "chunks": [[[9.0, 9.0]]]},
+    ]
+    cache_records = [
+        {"config": "cfgA", "episode": "task_0/episode_0", "chunks": [[[0.0, 0.0]]]},
+        {"config": "cfgA", "episode": "task_0/episode_1", "chunks": [[[9.0, 9.0]]]},
+    ]
+    bg_path.write_text("\n".join(json.dumps(r) for r in bg_records) + "\n")
+    cache_path.write_text("\n".join(json.dumps(r) for r in cache_records) + "\n")
+
+    monkeypatch.setattr(
+        cds,
+        "load_gt_episode",
+        lambda *a, **k: ([], np.zeros((1, 2), dtype=np.float32)),
+    )
+
+    out = cds.aggregate(
+        bg_path,
+        cache_path,
+        gt_dir=tmp_path,
+        out_path=tmp_path / "out.json",
+        episodes=["task_0/episode_0"],
+    )
+
+    assert list(out) == ["task_0/episode_0"]
+
+
 def test_aggregate_skips_episodes_without_cache_sample(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
@@ -388,7 +428,14 @@ def test_base_run_state_supports_parallel_run(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _write_gt_stub(path: Path, *, success: bool | None) -> None:
+def _write_gt_stub(
+    path: Path,
+    *,
+    success: bool | None,
+    task_id: int | None = None,
+    init_state_idx: int | None = None,
+    orig_init_state_idx: int | None = None,
+) -> None:
     """Minimal HDF5 with just the attrs discover_episodes cares about."""
     import h5py  # type: ignore[import]
 
@@ -396,6 +443,12 @@ def _write_gt_stub(path: Path, *, success: bool | None) -> None:
     with h5py.File(path, "w") as f:
         if success is not None:
             f.attrs["success"] = bool(success)
+        if task_id is not None:
+            f.attrs["task_id"] = int(task_id)
+        if init_state_idx is not None:
+            f.attrs["init_state_idx"] = int(init_state_idx)
+        if orig_init_state_idx is not None:
+            f.attrs["orig_init_state_idx"] = int(orig_init_state_idx)
 
 
 def test_discover_episodes_skips_failed_gt_by_default(tmp_path: Path) -> None:
@@ -445,3 +498,51 @@ def test_discover_episodes_include_unknown_flag_keeps_legacy(
     # Even with include_unknown the warning still fires so the operator
     # notices the stale data.
     assert any("missing 'success'" in rec.message for rec in caplog.records)
+
+
+def test_load_failed_units_by_config_uses_only_failed_original_inits(tmp_path: Path) -> None:
+    path = tmp_path / "cache_eval_results.json"
+    path.write_text(json.dumps([
+        {"config_id": "cfgA", "task_id": 3, "init_state_idx": 0,
+         "orig_init_state_idx": 15, "success": False},
+        {"config_id": "cfgA", "task_id": 3, "init_state_idx": 1,
+         "orig_init_state_idx": 28, "success": True},
+        {"config_id": "cfgB", "task_id": 4, "init_state_idx": 9,
+         "success": False},
+    ]))
+
+    failed = cds.load_failed_units_by_config(path)
+
+    assert failed == {
+        "cfgA": {(3, 15)},
+        "cfgB": {(4, 9)},
+    }
+
+
+def test_filter_episodes_by_failed_units_matches_gt_original_init_attrs(tmp_path: Path) -> None:
+    _write_gt_stub(
+        tmp_path / "task_0" / "episode_0.h5",
+        success=True,
+        task_id=3,
+        init_state_idx=0,
+        orig_init_state_idx=15,
+    )
+    _write_gt_stub(
+        tmp_path / "task_0" / "episode_1.h5",
+        success=True,
+        task_id=3,
+        init_state_idx=1,
+        orig_init_state_idx=28,
+    )
+    _write_gt_stub(
+        tmp_path / "task_1" / "episode_0.h5",
+        success=True,
+        task_id=4,
+        init_state_idx=0,
+        orig_init_state_idx=2,
+    )
+
+    episodes = cds.discover_episodes(tmp_path)
+    filtered = cds.filter_episodes_by_failed_units(tmp_path, episodes, {(3, 15), (4, 9)})
+
+    assert filtered == ["task_0/episode_0"]

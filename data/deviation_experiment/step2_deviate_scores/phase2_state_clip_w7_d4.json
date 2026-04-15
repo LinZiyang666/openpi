@@ -1,0 +1,32 @@
+{
+  "clip_w7_d4:task_0/episode_0": {
+    "unit_key": "clip_w7_d4:task_0/episode_0",
+    "status": "done",
+    "start_time": "2026-04-14 10:51:23",
+    "end_time": "2026-04-14 10:51:39",
+    "retry_count": 0,
+    "result": {
+      "T": 16
+    }
+  },
+  "clip_w7_d4:task_0/episode_1": {
+    "unit_key": "clip_w7_d4:task_0/episode_1",
+    "status": "done",
+    "start_time": "2026-04-14 10:51:23",
+    "end_time": "2026-04-14 10:51:38",
+    "retry_count": 0,
+    "result": {
+      "T": 15
+    }
+  },
+  "clip_w7_d4:task_1/episode_0": {
+    "unit_key": "clip_w7_d4:task_1/episode_0",
+    "status": "done",
+    "start_time": "2026-04-14 10:51:23",
+    "end_time": "2026-04-14 10:51:43",
+    "retry_count": 0,
+    "result": {
+      "T": 23
+    }
+  }
+}
