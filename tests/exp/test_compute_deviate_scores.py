@@ -245,6 +245,7 @@ class _FakeClient:
         self.infer_calls = 0
         self.episode_start_kwargs: Optional[Dict[str, Any]] = None
         self.episode_end_kwargs: Optional[Dict[str, Any]] = None
+        self.closed = False
 
     def episode_start(self, *, experiment, task, episode_id, episode_name) -> None:
         self.episode_start_kwargs = dict(
@@ -258,6 +259,9 @@ class _FakeClient:
     def infer(self, obs: Dict[str, Any]) -> Dict[str, np.ndarray]:  # noqa: ARG002
         self.infer_calls += 1
         return {"actions": self._chunk.copy()}
+
+    def close(self) -> None:
+        self.closed = True
 
 
 def _fake_common(tmp_path: Path, client: _FakeClient, episodes: List[str]) -> cds._PhaseCommon:
@@ -303,6 +307,7 @@ def test_phase1_runner_writes_per_sample_jsonl(
     # episode_end must fire even though we return successfully — the try/finally
     # ensures Phase 1 cleans up the connection regardless.
     assert client.episode_end_kwargs == {"success": True}
+    assert client.closed is True
 
     rows = [
         json.loads(line)
@@ -359,6 +364,7 @@ def test_phase_runners_share_execute_unit_call_sequence(
     r1.execute_unit(next(iter(r1.units.values())))
 
     assert client1.seq == ["start", "infer", "infer", "end:True"]
+    assert client1.closed is True
     assert client1.episode_start_kwargs is not None
     assert client1.episode_start_kwargs["experiment"] == "deviate_score_phase1"
 
@@ -372,6 +378,7 @@ def test_phase_runners_share_execute_unit_call_sequence(
     r2.execute_unit(next(iter(r2.units.values())))
 
     assert client2.seq == ["start", "infer", "infer", "end:True"]
+    assert client2.closed is True
     assert client2.episode_start_kwargs is not None
     assert client2.episode_start_kwargs["experiment"] == "deviate_score_phase2"
 
@@ -399,6 +406,7 @@ def test_phase2_runner_writes_cache_jsonl(
     runner.units = {u.unit_key: u for u in runner.build_units()}
     result = runner.execute_unit(runner.units["cfgA:task_3/episode_1"])
     assert result == {"T": 1}
+    assert client.closed is True
     rows = [
         json.loads(line)
         for line in (common.out_dir / "cache_cfgA.jsonl").read_text().splitlines()

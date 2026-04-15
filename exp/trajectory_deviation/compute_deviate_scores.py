@@ -384,7 +384,12 @@ class _PhaseRunner(BaseRunState):
         try:
             chunks = _roll_out_episode(client, obs_seq)
         finally:
-            client.episode_end(success=True)
+            try:
+                client.episode_end(success=True)
+            finally:
+                close = getattr(client, "close", None)
+                if callable(close):
+                    close()
 
         record: dict = {"config": cfg, "episode": ep, "chunks": chunks.tolist()}
         if self.USES_SAMPLE_IDX:
