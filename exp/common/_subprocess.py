@@ -46,8 +46,9 @@ def build_subprocess_cmd(
             )
         return ["uv", "run", *main_args], None
 
+    env_flag = "-p" if ("/" in conda_env or os.path.isabs(conda_env)) else "-n"
     cmd = [
-        "conda", "run", "--no-capture-output", "-n", conda_env, "python",
+        "conda", "run", "--no-capture-output", env_flag, conda_env, "python",
         *main_args,
     ]
     env = {
