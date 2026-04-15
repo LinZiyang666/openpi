@@ -123,6 +123,7 @@ def _execute_tasks(
     seed: int = 7,
     conda_env: str | None = None,
     episode_results_path: Path | None = None,
+    cuda_visible_devices: str = "0",
 ) -> dict:
     """Execute a batch of tasks concurrently via main.py.
 
@@ -144,6 +145,7 @@ def _execute_tasks(
         "--num-workers", str(num_workers),
         "--task-ids", *task_id_strs,
         "--seed", str(seed),
+        "--cuda-visible-devices", cuda_visible_devices,
     ]
     if episode_results_path is not None:
         main_args += [
@@ -328,6 +330,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed", type=int, default=7, help="Random seed passed to main.py (default: 7)")
     parser.add_argument("--task-ids", default=None, help="Only run these task IDs, e.g. '0' or '0,3,5' (default: all tasks in suite)")
     parser.add_argument("--conda-env", default=None, help="Use conda environment instead of uv to run main.py (e.g. 'libero')")
+    parser.add_argument("--cuda", default="0", help="CUDA_VISIBLE_DEVICES value for all main.py workers (default: '0')")
     return parser
 
 
@@ -488,6 +491,7 @@ def _execute_run_batches(
                 log_path=log_path,
                 seed=args.seed,
                 conda_env=args.conda_env,
+                cuda_visible_devices=args.cuda,
                 episode_results_path=_episode_results_path_for(
                     log_path, batch_idx, num_batches
                 ),

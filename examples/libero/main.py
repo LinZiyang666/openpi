@@ -56,6 +56,7 @@ class Args:
 
     seed: int = 7  # Random Seed (for reproducibility)
     init_states_dir: str = ""  # Custom init states directory. Expects {task_name}.pruned_init or .init files.
+    cuda_visible_devices: str = "0"  # Value assigned to CUDA_VISIBLE_DEVICES before running.
 
     #################################################################################################################
     # Task selection
@@ -864,4 +865,6 @@ def _quat2axisangle(quat):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    eval_libero(tyro.cli(Args))
+    _args = tyro.cli(Args)
+    os.environ["CUDA_VISIBLE_DEVICES"] = _args.cuda_visible_devices
+    eval_libero(_args)
