@@ -35,12 +35,16 @@ class GateFunction(Protocol):
         self,
         checkpoint_id: CheckpointID,
         cached_data: dict[str, torch.Tensor],
+        request_context: dict | None = None,
     ) -> bool:
         """Return True if cache should be searched, False to skip.
 
         Args:
             checkpoint_id: CP1 or CP3.
             cached_data: Raw tensors from KeyBuilder.cached_data (on GPU).
+            request_context: Optional per-request dict forwarded by the
+                interceptor. Default gates ignore it; gates like
+                ``ClientControlledGate`` consume ``gate_decision``.
         """
         ...
 
@@ -56,6 +60,7 @@ class AlwaysSearchGate:
         self,
         checkpoint_id: CheckpointID,
         cached_data: dict[str, torch.Tensor],
+        request_context: dict | None = None,
     ) -> bool:
         return True
 
@@ -96,8 +101,56 @@ class AlwaysSkipGate:
         self,
         checkpoint_id: CheckpointID,
         cached_data: dict[str, torch.Tensor],
+        request_context: dict | None = None,
     ) -> bool:
         return False
+
+    def on_episode_start(self) -> None:
+        """No-op. Signature matches GateFunction protocol."""
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        """No-op. Signature matches GateFunction protocol."""
+
+
+class ClientControlledGate:
+    """Gate whose skip/search decision is driven by a per-request client signal.
+
+    The client injects ``{"__gate_decision__": "skip" | "search"}`` into each
+    obs. ``InferenceInterceptor.infer()`` pops that field before
+    ``_input_transform`` and forwards it as
+    ``request_context={"gate_decision": <value>}`` through
+    ``CacheOrchestrator.check()`` to this gate.
+
+    Coupling:
+      - REQUIRES: request_context with key "gate_decision".
+      - FAILS LOUD: raises ValueError on missing / unknown value.
+      - UNAFFECTED BY: cached_data.
+      - Skip path: orchestrator treats the return identically to
+        AlwaysSkipGate (record_query_keys + broadcast_action preserved).
+    """
+
+    def __call__(
+        self,
+        checkpoint_id: CheckpointID,
+        cached_data: dict[str, torch.Tensor],
+        request_context: dict | None = None,
+    ) -> bool:
+        if request_context is None or "gate_decision" not in request_context:
+            raise ValueError(
+                "ClientControlledGate requires request_context['gate_decision']. "
+                "Ensure obs carries '__gate_decision__' and that "
+                "InferenceInterceptor.infer() forwards it to orchestrator.check(). "
+                "Verify the cache YAML sets gate.type='client_controlled'."
+            )
+        decision = request_context["gate_decision"]
+        if decision == "skip":
+            return False
+        if decision == "search":
+            return True
+        raise ValueError(
+            f"ClientControlledGate: unknown gate_decision={decision!r}. "
+            "Expected 'skip' or 'search'."
+        )
 
     def on_episode_start(self) -> None:
         """No-op. Signature matches GateFunction protocol."""

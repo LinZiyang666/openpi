@@ -18,8 +18,8 @@ Step 1a  baseline cache eval            → cache_eval_results.json (per-episode
 Step 1b-pre dump_step1a_failed_inits    → per-task .init + step1b_filter.json
 Step 1b  run_step1b_gt.py               → GT HDF5 (AlwaysSkip, recommended max_pool inference bundle)
 Step 2   compute_deviate_scores         → deviate_score_{cfg}.json (Phase1 M× + Phase2 1× + Phase3 aggregate)
-Step 3   run_spawn_experiment           → spawn_state_{cfg}.json + spawn_aggregate.csv
-Step 4   analyze_deviation_results      → figures/*.png
+Step 3   run_step3_per_cycle_policy     → results.jsonl (one server + one client per cfg)
+         merge_step3_cfgs               → summary.csv (cross-cfg aggregate)
 ```
 
 ## Topology (same as CP1 cache experiment)
@@ -29,7 +29,7 @@ Step 4   analyze_deviation_results      → figures/*.png
 │  GPU server (no public) │ ◄──────────────────────────────│  LIBERO eval host       │
 │  serve_policy.py         │   155.98.36.13:9000             │  exp/trajectory_        │
 │  listens on :8000        │   → localhost:8000              │  deviation/*.py          │
-│  --concurrent --collect  │                                  │  examples/libero/main   │
+│  --concurrent            │                                  │  examples/libero/main   │
 └─────────────────────────┘                                  └────────────────────────┘
 ```
 
@@ -48,8 +48,7 @@ Step 4   analyze_deviation_results      → figures/*.png
 | Step 1b GT collection | **not parallel** | each unit spawns its own `main.py` + libero env; runner uses serial `run()` (not `parallel_run()`) | parallel subprocesses would fight over GPU/RAM; switch one AlwaysSkip bundle once (recommend `inference_max_pool_w3_d5.yaml` to avoid CLIP) |
 | Step 2 Phase 1 / Phase 2 | episode × sample (`--num-workers`) | configs serialise; inside one config Phase1 → Phase2 is sequential | driver issues `send_load_cache_config` between phases — concurrent drivers would race |
 | Step 2 Phase 3 (aggregate) | — | single process, pure numpy | one output per cfg |
-| Step 3 Spawn | episode × (s,n,k) (`--num-workers`) | configs serialise | SpawnRunner then BaselineRunner run sequentially inside the same cfg |
-| Step 4 analysis | — | single process matplotlib (`Agg`) | no X server required |
+| Step 3 per-cycle | episode × (τ, n) (`--num-workers` ≤ 5, MuJoCo EGL cap) | different cfgs serialise on one server | Recommended: 3 cfgs × 3 servers fully parallel; each client process binds a single `--cfg` |
 
 > **Turn on `--num-workers` wherever possible**; **do NOT fan out where the table says "sequential"** — parallel drivers race on `load_cache_config` (corrupting bundle state) or overwrite the same HDF5.
 
@@ -76,9 +75,6 @@ One server must survive the whole pipeline; pass every option up front. Each dow
 uv run scripts/serve_policy.py \
     --concurrent \
     --cache_config configs/cache_runs/deviate_exp/inference_max_pool_w3_d5.yaml \
-    --collect \
-    --collect-dir data/deviation_experiment/collected \
-    --collect-images \
     --env LIBERO \
     --port 8000 \
     policy:checkpoint \
@@ -92,8 +88,6 @@ Flag reference:
 |------|---------|----------------|
 | `--concurrent` | Multi-connection mode; allows multi-worker clients **and** the `load_cache_config` control message | **Yes.** Step 2/3 `--num-workers>1` and dynamic bundle switching both depend on it |
 | `--cache_config` | Initial bundle at startup | Any AlwaysSkip YAML works; preloading the GT bundle (`inference_max_pool_w3_d5.yaml`) lets Step 1b use `--skip-config-switch` and avoids loading CLIP during GT collection |
-| `--collect` + `--collect-dir` | Write per-episode intermediates (incl. `clean_action`) to HDF5 | **Yes.** Step 3 prefill only reads the server-side `clean_action`; missing `--collect` will make Step 3 raise `FileNotFoundError` |
-| `--collect-images` | Also persist raw images (CLIP KeyBuilder needs them) | Keep it on if the server will ever switch to a `key_builder.type: clip` bundle; this experiment includes `clip_w7_d4`, so the safest setup is to enable it for the whole run |
 | `--env LIBERO` | Select env branch | Fixed |
 | `--port 8000` | Listener | Match the client's `--port`; if you tunnel via frp, clients hit the remapped external port (e.g. `9000`) |
 | `policy:checkpoint --policy.config pi05_libero --policy.dir <local>` | Use the local checkpoint instead of GCS | Strongly recommended |
@@ -105,7 +99,7 @@ curl http://<server-host>:<server-port>/healthz
 # → OK
 ```
 
-> Step 0 is the same as `cp1_cache.md` Step 4 plus the three `--collect*` flags. If you have already run CP1, just restart with those extras.
+> Step 0 matches `cp1_cache.md` Step 4; if you already ran CP1, reuse the same server.
 
 ---
 
@@ -205,7 +199,7 @@ Tuning notes:
 
 - **Faster?** You can't — the runner is serial by design. Options are (a) raise `max_retries` only if units flake out, or (b) rewrite the runner around `parallel_run` + per-worker env, which plan doesn't authorise.
 - **One unit keeps failing?** Raise `max_retries` (default 2) or reproduce it manually by invoking `examples/libero/main.py` with that single `(task_id, orig_init)` for debugging.
-- Outputs: `gt/task_{id}/episode_{subset_idx}.h5`, mirrored to `collected/libero_spatial/task_{id}/episode_{subset_idx}.h5` on the server.
+- Outputs: `gt/task_{id}/episode_{subset_idx}.h5`.
 
 ---
 
@@ -262,29 +256,132 @@ Common recipes:
 
 ---
 
-## Step 3 — Spawn corrective experiment (parallel within a cfg, serial across cfgs)
+## Step 3 — Per-cycle policy (recommended: 3 cfgs × 3 servers fully parallel)
 
-If Step 2 used `--config-fail-results`, Step 3 needs no extra flag:
-`run_spawn_experiment` builds spawn units only for episodes present in
-`deviate_score_{cfg}.json`. When reusing an old `--out-dir` with `--resume`,
-the runner and aggregate also filter stale state rows against the current
-score file; for formal runs, a clean spawn output directory is still clearer.
+> `run_step3_per_cycle_policy` lets the client decide — per inference cycle — whether to bypass the cache, by injecting a `__gate_decision__` signal consumed by `ClientControlledGate`. Full redesign notes: [`logs/trajectory_deviation_step3_redesign.log.md`](../../logs/trajectory_deviation_step3_redesign.log.md).
+>
+> Authoritative episode source: keys of `deviate_score_{cfg}.json` (`task_X/episode_Y`, where `Y` is the Step 1b `subset_init_state_idx`). Those keys already are the per-cfg Step 1a failure subset, so Step 3 no longer takes `--cache-eval-results` / `--config-fail-results`.
+
+### Prerequisites
+
+1. Three Step 2 outputs available: `deviate_score_clip_w7_d4.json` / `deviate_score_spatial16_w8_d4.json` / `deviate_score_max_pool_w3_d5.json` (merged into `data/deviation_experiment/deviate_scores/` per the [Step 2 parallel runbook](../../logs/trajectory_deviation_step2_parallel_commands.log.md)).
+2. Step 1b pruned init states at `data/deviation_experiment/inits/`.
+3. `configs/cache_runs/deviate_exp/step3_{cfg}.yaml` present for all three cfgs; each sets `checkpoints.cp1.gate.type: client_controlled`, other fields mirror the corresponding `{cfg}.yaml`.
+4. Three servers reuse the Step 2 port map:
+
+    | config | server local port | frp external port |
+    |---|---:|---:|
+    | `clip_w7_d4` | `7998` | `8998` |
+    | `spatial16_w8_d4` | `7999` | `8999` |
+    | `max_pool_w3_d5` | `8000` | `9000` |
+
+    Public host: `155.98.36.13`
+
+### Server commands
+
+If the Step 2 servers are still running, **no restart needed** — `run_step3_per_cycle_policy` calls `send_load_cache_config` at startup to swap the bundle to `step3_{cfg}.yaml`. Otherwise launch them with the commands below (any `--cache-config` works; the client will switch it).
+
+#### Server A: clip, local port 7998
 
 ```bash
-uv run python -m exp.trajectory_deviation.run_spawn_experiment \
-    --gt-dir data/deviation_experiment/gt \
-    --collected-dir data/deviation_experiment/collected \
+uv run scripts/serve_policy.py \
+    --concurrent \
+    --cache-config configs/cache_runs/deviate_exp/step3_clip_w7_d4.yaml \
+    --env LIBERO \
+    --port 7998 \
+    policy:checkpoint \
+    --policy.config pi05_libero \
+    --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+```
+
+#### Server B: spatial16, local port 7999
+
+```bash
+uv run scripts/serve_policy.py \
+    --concurrent \
+    --cache-config configs/cache_runs/deviate_exp/step3_spatial16_w8_d4.yaml \
+    --env LIBERO \
+    --port 7999 \
+    policy:checkpoint \
+    --policy.config pi05_libero \
+    --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+```
+
+#### Server C: max_pool, local port 8000
+
+```bash
+uv run scripts/serve_policy.py \
+    --concurrent \
+    --cache-config configs/cache_runs/deviate_exp/step3_max_pool_w3_d5.yaml \
+    --env LIBERO \
+    --port 8000 \
+    policy:checkpoint \
+    --policy.config pi05_libero \
+    --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+```
+
+Health checks (from the eval host):
+
+```bash
+curl http://155.98.36.13:8998/healthz
+curl http://155.98.36.13:8999/healthz
+curl http://155.98.36.13:9000/healthz
+```
+
+Each should print `OK`.
+
+### Client commands
+
+Launch three client processes on the LIBERO eval host, one per terminal. Each binds a single cfg and server; `--num-workers 5` is the MuJoCo EGL cap; `--tau-grid` / `--n-grid` are comma-separated.
+
+#### Client 1: clip via frp port 8998
+
+```bash
+uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
+    --cfg clip_w7_d4 \
+    --host 155.98.36.13 --port 8998 \
+    --yaml configs/cache_runs/deviate_exp/step3_clip_w7_d4.yaml \
+    --deviate-score-json data/deviation_experiment/deviate_scores/deviate_score_clip_w7_d4.json \
+    --init-states-dir data/deviation_experiment/inits \
+    --out-dir data/deviation_experiment/step3/clip_w7_d4 \
     --task-suite-name libero_spatial \
-    --deviate-score-dir data/deviation_experiment/deviate_scores \
-    --out-dir data/deviation_experiment/spawn \
-    --configs clip_w7_d4 spatial16_w8_d4 max_pool_w3_d5 \
-    --n-grid 1 3 5 10 20 \
-    --k-grid 1 3 5 \
-    --max-spawn-env-steps 300 \
-    --num-workers 4 \
-    --baselines random equidistant \
-    --random-seed 0 \
-    --host <server-host> --port <server-port> \
+    --tau-grid 3,5,7,10 \
+    --n-grid 1,2,3,5,10 \
+    --num-workers 5 \
+    --resume
+```
+
+#### Client 2: spatial16 via frp port 8999
+
+```bash
+uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
+    --cfg spatial16_w8_d4 \
+    --host 155.98.36.13 --port 8999 \
+    --yaml configs/cache_runs/deviate_exp/step3_spatial16_w8_d4.yaml \
+    --deviate-score-json data/deviation_experiment/deviate_scores/deviate_score_spatial16_w8_d4.json \
+    --init-states-dir data/deviation_experiment/inits \
+    --out-dir data/deviation_experiment/step3/spatial16_w8_d4 \
+    --task-suite-name libero_spatial \
+    --tau-grid 3,5,7,10 \
+    --n-grid 1,2,3,5,10 \
+    --num-workers 5 \
+    --resume
+```
+
+#### Client 3: max_pool via frp port 9000
+
+```bash
+uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
+    --cfg max_pool_w3_d5 \
+    --host 155.98.36.13 --port 9000 \
+    --yaml configs/cache_runs/deviate_exp/step3_max_pool_w3_d5.yaml \
+    --deviate-score-json data/deviation_experiment/deviate_scores/deviate_score_max_pool_w3_d5.json \
+    --init-states-dir data/deviation_experiment/inits \
+    --out-dir data/deviation_experiment/step3/max_pool_w3_d5 \
+    --task-suite-name libero_spatial \
+    --tau-grid 3,5,7,10 \
+    --n-grid 1,2,3,5,10 \
+    --num-workers 5 \
     --resume
 ```
 
@@ -292,55 +389,53 @@ Flag reference & tuning:
 
 | Flag | Default | Meaning | Tuning guidance |
 |------|---------|---------|-----------------|
-| `--gt-dir` | — | Client-side GT HDF5 root (Step 1b output) | Required |
-| `--collected-dir` | — | **Server-side** `--collect-dir`; driver reads `clean_action` for prefill | Required. If the eval host and server don't share a filesystem, sync `collected/` over, or run the driver on the server |
-| `--task-suite-name` | — | Must equal Step 1a/1b value | Required |
-| `--deviate-score-dir` | — | Step 2 output root; driver reads `deviate_score_{cfg}.json` | Required |
-| `--out-dir` | — | Spawn state + aggregate CSV root | `data/deviation_experiment/spawn` |
-| `--configs` | — | cfg list (same as Step 2) | Usually all three |
-| `--D` | parsed from `_dN` in cfg name | Trajectory depth controlling how far back prefill reads | Leave unless you know the artifact depth diverges from the cfg name |
-| `--n-grid` | `1 3 5 10 20` | Cycles of GT rolled out before teleport | **Core knob.** Small n = teleport close to the crisis (strictest recovery test); large n = let GT carry the episode then hand off to cache. Coarse exploration: `1 5 20` |
-| `--k-grid` | `1 3 5` | Top-k highest-deviate points per episode (each is an independent spawn) | **Second core knob.** k=1 tests the single worst point; k=5 covers more. Ablation: `1 2 3 5 7` |
-| `--max-spawn-env-steps` | 300 | Per-unit env.step budget after teleport | libero episodes ≤220 steps; 300 leaves ~30% margin. Tight-resource runs can drop to 220 at the cost of boundary-case failures |
-| `--num-workers` | 4 | Within-cfg parallelism | Same as Step 2's rule of thumb |
-| `--baselines` | `[]` | Extra baseline strategies after SpawnRunner: `random`, `equidistant` | At least `random` to argue "top-k deviate is useful"; both for the full figure set |
-| `--random-seed` | 0 | Seed for the random baseline's k-selection | Keep fixed; sweep 0/1/2 for seed sensitivity if needed |
-| `--skip-config-switch` | off | Skip `load_cache_config` | Only when sharding |
-| `--config-yaml-dir` | `configs/cache_runs/deviate_exp` | YAML root | Leave as is |
-| `--resume` | off | Resume | Almost always on |
+| `--cfg` | — | Single cache-config id to run | Required; one client process, one cfg |
+| `--host / --port` | — | Server endpoint (eval host uses the frp external port) | Required; three clients must hit three different servers to avoid `load_cache_config` races |
+| `--yaml` | — | Step 3 cache YAML with `gate.type: client_controlled` | Required; the path must be resolvable on the server's filesystem |
+| `--deviate-score-json` | — | Step 2 `deviate_score_{cfg}.json`; its keys drive the Step 3 episode list | Required; an empty JSON aborts with `has no episodes` |
+| `--init-states-dir` | — | Step 1b-pre output dir (`{task}.init` / `{task}.init_map.json`) | Required |
+| `--out-dir` | — | Output root: `run_state.json` + `results.jsonl` | `data/deviation_experiment/step3/{cfg}` |
+| `--task-suite-name` | `libero_spatial` | Must equal earlier steps; drives `_MAX_STEPS_BY_SUITE` | Keep in sync with Step 1a/1b |
+| `--tau-grid` | `3,5,7,10` | deviate_score threshold grid (scalars, not burst lengths) | **Core knob.** Smaller τ → search triggers more often; larger τ → more skips |
+| `--n-grid` | `1,2,3,5,10` | Cycles of cache after a search fires (burst length) | **Second core knob.** Larger n lets cache carry a longer stretch after each search; n=1 re-evaluates every cycle |
+| `--replan-steps` | 5 | env.steps actually executed per inference cycle | Matches `examples/libero/main.py`; lower = higher control resolution but more server calls |
+| `--num-steps-wait` | 10 | No-op env.steps after reset (libero "object settle") | Matches libero main; rarely changed |
+| `--resize-size` | 224 | Policy input image resolution | Fixed |
+| `--num-workers` | 1 | Within-cfg LIBERO env concurrency | **Cap at 5** (MuJoCo EGL hard limit; runner aborts above that) |
+| `--max-cycles-safety` | 5 | Extra cycles beyond `ceil(max_env_steps/replan_steps)` as a runaway guard | Default is fine |
+| `--experiment-tag` | `trajectory_deviation_step3` | Forwarded to `client.episode_start(experiment=...)` | Useful to tag server-side logs |
+| `--skip-load-cache-config` | off | Skip the startup `send_load_cache_config` | Only when the server is already on the right bundle |
+| `--resume` | off | Resume from `run_state.json` | Almost always on |
 
-`(n, k)` combinations = `len(n-grid) × len(k-grid)` = 5×3=15 by default; multiplied by episodes × cfgs this is the slowest step. Recipes:
+`(τ, n)` combinations = `len(tau_grid) × len(n_grid)` = 4×5=20 by default; multiplied by episodes × 3 cfgs gives total unit count. Recipes:
 
-- **Smoke**: `--n-grid 1 5 --k-grid 1 3 --configs clip_w7_d4 --baselines ""` — 4 combos × single cfg, validates teleport + prefill plumbing end-to-end.
-- **Full run**: default 5×3 + all 3 cfgs + `random equidistant` baselines. Needed for plan §12's four figures.
-- **Out of GPU?** Drop `--num-workers` first; only then trim `--n-grid` / `--k-grid`.
+- **Smoke**: `--tau-grid 5 --n-grid 1,5 --cfg clip_w7_d4 --num-workers 1` — 2 combos × single cfg × single worker; verifies gate signal injection and success semantics.
+- **Full run**: default 4×5 + all 3 cfgs in parallel. Mirrors the Step 2 cadence of ~3h per server for ~150 episodes of inference-only feedback.
+- **Tight on GPU?** Lower `--num-workers` first (≤5), then trim `--tau-grid`.
 
-⚠️ Same rule: don't parallelise multiple `run_spawn_experiment` drivers against one server (bundle race, as in Step 2).
+⚠️ Do not stack multiple `run_step3_per_cycle_policy` processes on one server — concurrent `load_cache_config` calls would corrupt the bundle write ordering and drop gate signals. Each cfg needs its own server.
 
----
+### Merging cross-cfg results
 
-## Step 4 — Analysis and plots (single process, seconds)
+After all three clients finish, aggregate the JSONLs into a `(cfg, τ, n)`-level CSV with `merge_step3_cfgs`. The script dedupes by `(cfg, ep, τ, n)` (last write wins on retries).
 
 ```bash
-uv run python -m exp.trajectory_deviation.analyze_deviation_results \
-    --deviate-score-dir data/deviation_experiment/deviate_scores \
-    --spawn-csv data/deviation_experiment/spawn/spawn_aggregate.csv \
-    --out-dir data/deviation_experiment/figures \
-    --configs clip_w7_d4 spatial16_w8_d4 max_pool_w3_d5 \
-    --n-threshold 3
+uv run python -m exp.trajectory_deviation.merge_step3_cfgs \
+    --jsonl data/deviation_experiment/step3/clip_w7_d4/results.jsonl \
+    --jsonl data/deviation_experiment/step3/spatial16_w8_d4/results.jsonl \
+    --jsonl data/deviation_experiment/step3/max_pool_w3_d5/results.jsonl \
+    --out data/deviation_experiment/step3/summary.csv
 ```
 
-Flag reference:
+`summary.csv` fields: `cfg, tau, n, episodes, success_rate, mean_inference_ratio, std_inference_ratio` (population std, `ddof=0`).
 
-| Flag | Default | Meaning | Tuning guidance |
-|------|---------|---------|-----------------|
-| `--deviate-score-dir` | — | Step 2 output root | Required |
-| `--spawn-csv` | — | Step 3 aggregate CSV | Required |
-| `--out-dir` | — | Figure output dir | `data/deviation_experiment/figures` |
-| `--configs` | — | cfgs to plot (must exist in JSON/CSV) | Usually all three |
-| `--n-threshold` | 3 | Close-in spawn cutoff defining a "true failure cycle" — only spawns with `n ≤ threshold` that fail count | **ROC sensitivity knob.** Smaller = stricter (only near-crisis failures); curve becomes sparser. Default 3; raise to 5 for a more permissive coverage curve |
+### Quick verification
 
-Four figures per config: deviate-score histogram, top-k coverage (ROC-like), `(n, k_idx)` success-rate heatmap, and top-k vs random vs equidistant comparison at the best cell.
+```bash
+wc -l data/deviation_experiment/step3/*/results.jsonl
+```
+
+Per-cfg line count should be ≈ `len(episodes(cfg)) × |tau_grid| × |n_grid|` (e.g. clip_w7_d4 ≈ 159 × 4 × 5 = 3180; resume retries may inflate slightly — `merge_step3_cfgs` dedupes).
 
 ---
 
@@ -352,19 +447,17 @@ Ordered by "how core + how often you'd sweep", so you can decide what to vary du
 
 | Param | Step | Role | Typical values |
 |-------|------|------|----------------|
-| `--configs` | 2/3/4 | Cache configs to compare | `clip_w7_d4 spatial16_w8_d4 max_pool_w3_d5` (all) |
+| `--configs` | 2/3 | Cache configs to compare | `clip_w7_d4 spatial16_w8_d4 max_pool_w3_d5` (all) |
 | `--M` (Phase 1) | 2 | Background L2 noise sample count | 10 / 20 / 30 |
-| `--n-grid` | 3 | Cycles of GT before teleport | `1 3 5 10 20` (default) / `1 5 20` (coarse) |
-| `--k-grid` | 3 | Top-k deviate points per episode | `1 3 5` (default) / `1 2 3 5 7` (ablation) |
-| `--baselines` | 3 | Control strategies | `random equidistant` (full runs) |
-| `--n-threshold` | 4 | ROC "true failure" cutoff | 3 (default) / 5 (looser) |
+| `--tau-grid` | 3 | deviate_score threshold triggering search (comma-separated) | `3,5,7,10` (default) |
+| `--n-grid` | 3 | Burst length: cycles of cache after a search fires | `1,2,3,5,10` (default) |
 
 ### Concurrency / performance
 
 | Param | Step | Role | Guidance |
 |-------|------|------|----------|
-| `--num-workers` | 1a/2/3 | Within-cfg worker count | Bounded by server GPU; 4 safe, 8 possible |
-| `--max-spawn-env-steps` | 3 | Per-unit env.step budget | 300 default; libero's 220 + 30% margin |
+| `--num-workers` | 1a/2 | Within-cfg worker count | Bounded by server GPU; 4–5 safe |
+| `--num-workers` | 3 | Within-cfg LIBERO env concurrency | **Cap at 5** (MuJoCo EGL hard limit) |
 
 ### Plan-locked anchors (don't touch casually)
 
@@ -388,19 +481,23 @@ data/deviation_experiment/
 │   ├── <task>.init_map.json
 │   └── step1b_filter.json
 ├── gt/task_{id}/episode_{subset_idx}.h5   # client-side GT
-├── collected/libero_spatial/task_{id}/episode_{subset_idx}.h5  # server-side clean_action
 ├── deviate_scores/
 │   ├── bg_{cfg}.jsonl
 │   ├── cache_{cfg}.jsonl
 │   ├── phase1_state_{cfg}.json
 │   ├── phase2_state_{cfg}.json
 │   └── deviate_score_{cfg}.json
-├── spawn/
-│   ├── spawn_state_{cfg}.json
-│   ├── spawn_state_random_{cfg}.json
-│   ├── spawn_state_equidistant_{cfg}.json
-│   └── spawn_aggregate.csv
-└── figures/{hist,coverage,heatmap,strategy}_{cfg}.png
+└── step3/
+    ├── clip_w7_d4/
+    │   ├── run_state.json
+    │   └── results.jsonl
+    ├── spatial16_w8_d4/
+    │   ├── run_state.json
+    │   └── results.jsonl
+    ├── max_pool_w3_d5/
+    │   ├── run_state.json
+    │   └── results.jsonl
+    └── summary.csv                     # produced by merge_step3_cfgs
 ```
 
 ---
@@ -409,10 +506,10 @@ data/deviation_experiment/
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| Step 3 `FileNotFoundError: collected/.../clean_action` | Server started without `--collect` / `--collect-images` | Restart server with the full Step 0 flags; rerun failed units via `--resume` |
+| Step 3 aborts with `has no episodes` | `deviate_score_{cfg}.json` empty or wrong path | Confirm Step 2 outputs were merged into `data/deviation_experiment/deviate_scores/` and the filename `deviate_score_{cfg}.json` matches `--cfg` |
+| Step 3 fails with `--num-workers=N exceeds MuJoCo EGL cap` | Per-host libero env concurrency capped at 5 | Lower `--num-workers` to ≤5; for more throughput add another eval host |
 | Step 2 deviate scores all ≈ 1.0 | Phase 1 and Phase 2 read the same bundle | Concurrent drivers raced on `load_cache_config`. Kill parallel drivers, run serially, or shard (one server per cfg + `--skip-config-switch`) |
 | Step 1b reports many `inference_failed=True` | Server dead or not on the selected AlwaysSkip GT bundle | Check server health; if you used `--skip-config-switch`, preload `inference_max_pool_w3_d5.yaml` or an equivalent AlwaysSkip bundle by hand |
-| Step 4 coverage curve empty | No failure spawns within `n <= n_threshold` for this cfg | Raise `--n-threshold` or confirm Step 3 swept the full `n-grid` |
 | Step 1a `main.py` complains about `VIRTUAL_ENV` | uv env vars leaked into conda subprocess | `_build_subprocess_cmd` should strip them; audit any custom `--conda-env` wrapper |
 | `load_cache_config` errors | Server missing `--concurrent`; or YAML `preload_path` does not exist on the server | Restart with `--concurrent`; verify artifact paths on the GPU server |
 

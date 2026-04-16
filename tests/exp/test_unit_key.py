@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import pytest
 
-from exp.common._unit_key import DeviateKey, SpawnKey, Step1bKey
+from exp.common._unit_key import DeviateKey, SpawnKey, Step1bKey, Step3PerCycleKey
 
 
 # --- Step1bKey ----------------------------------------------------------
@@ -134,6 +134,46 @@ class TestSpawnKey:
             SpawnKey.decode("cfg:task_0/episode_0:s-1:n1:k0")
 
 
+# --- Step3PerCycleKey ---------------------------------------------------
+
+
+class TestStep3PerCycleKey:
+    def test_encode_golden(self):
+        k = Step3PerCycleKey(cfg="clip_w7_d4", ep="task_0/episode_1", tau=5, n=2)
+        assert k.encode() == "clip_w7_d4:task_0/episode_1:tau5:n2"
+
+    def test_encode_multi_digit_golden(self):
+        k = Step3PerCycleKey(cfg="max_pool_w3_d5", ep="task_9/episode_42", tau=10, n=10)
+        assert k.encode() == "max_pool_w3_d5:task_9/episode_42:tau10:n10"
+
+    def test_decode_golden(self):
+        assert Step3PerCycleKey.decode(
+            "clip_w7_d4:task_0/episode_1:tau5:n2"
+        ) == Step3PerCycleKey(cfg="clip_w7_d4", ep="task_0/episode_1", tau=5, n=2)
+
+    def test_roundtrip(self):
+        k = Step3PerCycleKey(cfg="spatial16_w8_d4", ep="task_7/episode_3", tau=3, n=1)
+        assert Step3PerCycleKey.decode(k.encode()) == k
+
+    def test_decode_rejects_missing_prefix(self):
+        # No tau / n prefixes.
+        with pytest.raises(ValueError, match="Step3PerCycleKey"):
+            Step3PerCycleKey.decode("cfg:task_0/episode_0:5:2")
+
+    def test_decode_rejects_wrong_prefix_order(self):
+        # ``n`` before ``tau`` must not match.
+        with pytest.raises(ValueError, match="Step3PerCycleKey"):
+            Step3PerCycleKey.decode("cfg:task_0/episode_0:n2:tau5")
+
+    def test_decode_rejects_negative(self):
+        with pytest.raises(ValueError, match="Step3PerCycleKey"):
+            Step3PerCycleKey.decode("cfg:task_0/episode_0:tau-1:n1")
+
+    def test_decode_rejects_malformed(self):
+        with pytest.raises(ValueError, match="Step3PerCycleKey"):
+            Step3PerCycleKey.decode("cfg:task_0/episode_0:tau5")  # missing n segment
+
+
 # --- Cross-schema: encoded strings do not collide ----------------------
 
 
@@ -144,15 +184,21 @@ def test_schemas_do_not_collide_on_concrete_samples():
     deviate_p1 = DeviateKey(cfg="c", ep="task_0/episode_0", sample_idx=5).encode()
     deviate_p2 = DeviateKey(cfg="c", ep="task_0/episode_0", sample_idx=None).encode()
     spawn = SpawnKey(cfg="c", ep="task_0/episode_0", s=1, n=2, k_idx=0).encode()
+    step3 = Step3PerCycleKey(cfg="c", ep="task_0/episode_0", tau=5, n=2).encode()
 
-    assert len({step1b, deviate_p1, deviate_p2, spawn}) == 4
+    assert len({step1b, deviate_p1, deviate_p2, spawn, step3}) == 5
 
-    # Step1bKey refuses to decode a DeviateKey / SpawnKey (different arity).
-    for foreign in (deviate_p1, deviate_p2, spawn):
+    # Step1bKey refuses to decode a DeviateKey / SpawnKey / Step3 (different arity).
+    for foreign in (deviate_p1, deviate_p2, spawn, step3):
         with pytest.raises(ValueError):
             Step1bKey.decode(foreign)
 
     # SpawnKey refuses anything lacking s/n/k prefixes.
-    for foreign in (step1b, deviate_p1, deviate_p2):
+    for foreign in (step1b, deviate_p1, deviate_p2, step3):
         with pytest.raises(ValueError):
             SpawnKey.decode(foreign)
+
+    # Step3PerCycleKey refuses anything lacking tau/n prefixes.
+    for foreign in (step1b, deviate_p1, deviate_p2, spawn):
+        with pytest.raises(ValueError):
+            Step3PerCycleKey.decode(foreign)

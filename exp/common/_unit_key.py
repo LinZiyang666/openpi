@@ -102,6 +102,41 @@ _SPAWN_KEY_RE = re.compile(
 )
 
 
+_STEP3_KEY_RE = re.compile(
+    r"^(?P<cfg>[^:]+):(?P<ep>[^:]+):tau(?P<tau>\d+):n(?P<n>\d+)$"
+)
+
+
+@dataclass(frozen=True)
+class Step3PerCycleKey:
+    """Key for ``exp/trajectory_deviation/run_step3_per_cycle_policy.py``.
+
+    Format: ``<cfg>:task_<task_id>/episode_<orig_init_idx>:tau<tau>:n<n>``.
+    ``tau`` / ``n`` are stored as non-negative integers (the plan's sweep
+    grid uses ``tau in {3, 5, 7, 10}`` and ``n in {1, 2, 3, 5, 10}``).
+    """
+
+    cfg: str
+    ep: str
+    tau: int
+    n: int
+
+    def encode(self) -> str:
+        return f"{self.cfg}:{self.ep}:tau{int(self.tau)}:n{int(self.n)}"
+
+    @classmethod
+    def decode(cls, key: str) -> "Step3PerCycleKey":
+        m = _STEP3_KEY_RE.match(key)
+        if not m:
+            raise ValueError(f"Malformed Step3PerCycleKey: {key!r}")
+        return cls(
+            cfg=m.group("cfg"),
+            ep=m.group("ep"),
+            tau=int(m.group("tau")),
+            n=int(m.group("n")),
+        )
+
+
 @dataclass(frozen=True)
 class SpawnKey:
     """Key for ``exp/trajectory_deviation/run_spawn_experiment.py`` state JSON."""

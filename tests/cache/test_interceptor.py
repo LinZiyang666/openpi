@@ -390,6 +390,158 @@ def test_build_prefill_payload_accepts_tensor_action():
     assert payload.action_chunk is action
 
 
+# ---------------------------------------------------------------------------
+# __gate_decision__ pop + fail-loud (Step 3 per-cycle policy integration)
+# ---------------------------------------------------------------------------
+
+
+def _make_client_gate_orchestrator():
+    """Orchestrator wired with ClientControlledGate at CP1 + CP3."""
+    from openpi.cache.backends.in_memory_backend import InMemoryBackend
+    from openpi.cache.cache_storage import CacheStorage
+    from openpi.cache.components.gate import ClientControlledGate
+    from openpi.cache.components.judge import ThresholdJudge
+    from openpi.cache.components.key_builder import PlaceholderKeyBuilder
+    from openpi.cache.orchestrator import CacheOrchestrator
+    from openpi.cache.timing import SystemTimer
+    from tests.cache.conftest import TestStorageSearchStrategy, _wrap_per_checkpoint
+
+    backend = InMemoryBackend({"robot_state": 32})
+    storage = CacheStorage(backend)
+    strategy = TestStorageSearchStrategy(storage, top_k=1)
+    return CacheOrchestrator(
+        storage,
+        PlaceholderKeyBuilder(),
+        gates=_wrap_per_checkpoint(ClientControlledGate()),
+        judges=_wrap_per_checkpoint(ThresholdJudge()),
+        search_strategies=_wrap_per_checkpoint(strategy),
+        timer=SystemTimer(enabled=False),
+    )
+
+
+def test_infer_pops_gate_decision_before_input_transform():
+    """The reserved '__gate_decision__' field must not reach ``_input_transform``.
+
+    The FakePolicy's identity transform would otherwise forward it into the
+    observation dict and fail ``Observation.from_dict`` because it's not a
+    known model field.
+    """
+    policy = FakePolicy()
+    # Tag transform input: if '__gate_decision__' leaks past the pop, the
+    # transform captures it and the test fails.
+    seen_keys: list[set[str]] = []
+
+    def spying_transform(obs):
+        seen_keys.append(set(obs.keys()))
+        return obs
+
+    policy._input_transform = spying_transform
+    orch = _make_client_gate_orchestrator()
+    interceptor = InferenceInterceptor(
+        policy, timer=SystemTimer(enabled=False), orchestrator=orch
+    )
+
+    obs = _make_obs()
+    obs["__gate_decision__"] = "skip"
+    interceptor.on_task_begin()
+    interceptor.infer(obs)
+
+    assert seen_keys, "input_transform was not called"
+    assert "__gate_decision__" not in seen_keys[0]
+    # The pop is in-place: caller's obs should no longer carry the signal.
+    assert "__gate_decision__" not in obs
+
+
+def test_infer_fails_loud_when_signal_without_client_gate():
+    """Sending '__gate_decision__' to a server without ClientControlledGate
+    must raise, not silently drop the signal."""
+    import pytest
+
+    policy = FakePolicy()
+    orch, _, _ = make_orchestrator()  # default: AlwaysSearchGate
+    interceptor = InferenceInterceptor(
+        policy, timer=SystemTimer(enabled=False), orchestrator=orch
+    )
+
+    obs = _make_obs()
+    obs["__gate_decision__"] = "skip"
+
+    with pytest.raises(ValueError, match="ClientControlledGate"):
+        interceptor.infer(obs)
+
+
+def test_infer_fails_loud_when_signal_without_orchestrator():
+    """Same fail-loud contract when no orchestrator is wired at all."""
+    import pytest
+
+    policy = FakePolicy()
+    interceptor = InferenceInterceptor(policy, timer=SystemTimer(enabled=False))
+
+    obs = _make_obs()
+    obs["__gate_decision__"] = "skip"
+
+    with pytest.raises(ValueError, match="ClientControlledGate"):
+        interceptor.infer(obs)
+
+
+def test_infer_no_signal_plus_client_gate_is_caller_error():
+    """ClientControlledGate configured but no '__gate_decision__' in obs:
+    orchestrator must raise from the gate — the interceptor passes
+    ``request_context=None`` and the gate rejects it."""
+    import pytest
+
+    policy = FakePolicy()
+    orch = _make_client_gate_orchestrator()
+    interceptor = InferenceInterceptor(
+        policy, timer=SystemTimer(enabled=False), orchestrator=orch
+    )
+    interceptor.on_task_begin()
+
+    with pytest.raises(ValueError, match="requires request_context"):
+        interceptor.infer(_make_obs())
+
+
+def test_infer_skip_signal_reaches_gate_and_bypasses_stage2_3():
+    """End-to-end: '__gate_decision__'='skip' propagates to the gate, which
+    reports MISS; but with identity-gate_skip alone stage2/3 still run
+    (orchestrator MISS falls through to full inference)."""
+    from openpi.cache.types import CheckpointID
+
+    policy = FakePolicy()
+    orch = _make_client_gate_orchestrator()
+    # Capture the request_context delivered to the CP1 gate.
+    original_gate = orch._gates[CheckpointID.CP1]
+    seen: list[dict | None] = []
+
+    def spying_call(checkpoint_id, cached_data, request_context=None):
+        seen.append(request_context)
+        return original_gate(checkpoint_id, cached_data, request_context)
+
+    orch._gates[CheckpointID.CP1].__class__.__call__  # touch to confirm attr
+    orch._gates[CheckpointID.CP1] = type(
+        "SpyGate", (), {
+            "__call__": lambda self, cid, cd, rc=None: spying_call(cid, cd, rc),
+            "on_episode_start": lambda self: None,
+            "record_action": lambda self, a: None,
+        }
+    )()
+
+    interceptor = InferenceInterceptor(
+        policy, timer=SystemTimer(enabled=False), orchestrator=orch
+    )
+    interceptor.on_task_begin()
+
+    obs = _make_obs()
+    obs["__gate_decision__"] = "skip"
+    interceptor.infer(obs)
+
+    # CP1 gate received request_context={'gate_decision': 'skip'}.
+    assert any(rc == {"gate_decision": "skip"} for rc in seen)
+    # MISS path: stage2 / stage3 still ran.
+    assert policy._model.stage2_calls == 1
+    assert policy._model.stage3_calls == 1
+
+
 def test_prefill_trajectory_records_query_keys_into_strategy():
     """Trajectory side effect: each prefill step must push the CP1 query_keys
     into the strategy's trajectory history, not just skip stage2/stage3.

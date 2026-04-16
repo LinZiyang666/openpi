@@ -432,6 +432,25 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             Dict with keys ``"actions"`` and ``"state"``.
         """
         # ---- 1. Input transforms (mirrors Policy.infer exactly) ----
+        # Strip the reserved '__gate_decision__' field BEFORE _input_transform
+        # so it never enters the model input pipeline. This is an in-place
+        # mutation on obs; the WebSocket path deserialises a fresh dict per
+        # call so sharing is not a concern there.
+        client_signal = obs.pop("__gate_decision__", None)
+        accepts_client_signal = (
+            self._orchestrator is not None
+            and self._orchestrator.accepts_client_signal
+        )
+        if client_signal is not None and not accepts_client_signal:
+            raise ValueError(
+                "obs carries '__gate_decision__' but no ClientControlledGate "
+                "is configured at CP1 or CP3. Remove the field from obs, or "
+                "load a cache config with gate.type='client_controlled'."
+            )
+        request_context: dict | None = (
+            {"gate_decision": client_signal} if client_signal is not None else None
+        )
+
         inputs = jax.tree.map(lambda x: x, obs)
         inputs = self._input_transform(inputs)
 
@@ -471,7 +490,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                         cp1_kwargs["input_images"] = input_images
                     with self._timer.measure("cp1_sum"):
                         cp1_result = self._orchestrator.check(
-                            CheckpointID.CP1, **cp1_kwargs
+                            CheckpointID.CP1,
+                            request_context=request_context,
+                            **cp1_kwargs,
                         )
                     if cp1_result.hit_type == HitType.FULL_HIT:
                         cached_action = cp1_result.payload.action_chunk
@@ -557,7 +578,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                     cp3_kwargs["input_images"] = input_images
                 with self._timer.measure("cp3_sum"):
                     _cp3_result = self._orchestrator.check(
-                        CheckpointID.CP3, **cp3_kwargs
+                        CheckpointID.CP3,
+                        request_context=request_context,
+                        **cp3_kwargs,
                     )
 
                 action_chunk_cpu = stage3.action_chunk[0].detach().cpu().float().contiguous()

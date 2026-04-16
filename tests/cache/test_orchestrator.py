@@ -2,9 +2,14 @@
 
 import math
 
+import pytest
 import torch
 import torch.nn.functional as F
 
+from openpi.cache.components.gate import (
+    AlwaysSearchGate,
+    ClientControlledGate,
+)
 from openpi.cache.components.judge import HitType, ThresholdJudge
 from openpi.cache.orchestrator import CacheOrchestrator
 from openpi.cache.storage_types import CachePayload
@@ -153,7 +158,7 @@ def test_judge_miss_does_not_fetch_payload():
 
 
 class NeverSearchGate:
-    def __call__(self, checkpoint_id, cached_data):
+    def __call__(self, checkpoint_id, cached_data, request_context=None):
         return False
 
 
@@ -491,4 +496,180 @@ def test_warm_start_miss_count_incremented_on_downgrade():
     query = _vector_with_known_cosine(state, 0.96)
     orch.check(CheckpointID.CP1, stage1=make_stage1(query))
     assert orch._miss_by_checkpoint.get(CheckpointID.CP1, 0) >= 1
+    orch.clear()
+
+
+# ---------------------------------------------------------------------------
+# request_context passthrough + accepts_client_signal flag
+# ---------------------------------------------------------------------------
+
+
+class _RecordingGate:
+    """Gate spy: records every (checkpoint_id, cached_data, request_context)
+    triple it receives and returns a caller-configurable decision."""
+
+    def __init__(self, decision: bool = True) -> None:
+        self.decision = decision
+        self.calls: list[tuple] = []
+
+    def __call__(self, checkpoint_id, cached_data, request_context=None):
+        self.calls.append((checkpoint_id, cached_data, request_context))
+        return self.decision
+
+
+def _make_orch_with_gate(gate):
+    dims = {"robot_state": 32}
+    backend = InMemoryBackend(dims)
+    from openpi.cache.cache_storage import CacheStorage
+    from openpi.cache.components.key_builder import PlaceholderKeyBuilder
+    from openpi.cache.timing import SystemTimer
+
+    storage = CacheStorage(backend)
+    strategy = TestStorageSearchStrategy(storage, top_k=1)
+    return CacheOrchestrator(
+        storage,
+        PlaceholderKeyBuilder(),
+        gates=_wrap_per_checkpoint(gate),
+        judges=_wrap_per_checkpoint(ThresholdJudge()),
+        search_strategies=_wrap_per_checkpoint(strategy),
+        timer=SystemTimer(enabled=False),
+    )
+
+
+def test_check_forwards_request_context_to_gate():
+    spy = _RecordingGate(decision=False)
+    orch = _make_orch_with_gate(spy)
+    state = torch.randn(1, 32)
+    ctx = {"gate_decision": "search", "extra": 123}
+
+    orch.check(CheckpointID.CP1, request_context=ctx, stage1=make_stage1(state))
+
+    assert len(spy.calls) == 1
+    _, _, received_ctx = spy.calls[0]
+    assert received_ctx is ctx
+    orch.clear()
+
+
+def test_check_defaults_request_context_to_none():
+    spy = _RecordingGate(decision=False)
+    orch = _make_orch_with_gate(spy)
+    state = torch.randn(1, 32)
+
+    orch.check(CheckpointID.CP1, stage1=make_stage1(state))
+
+    assert len(spy.calls) == 1
+    assert spy.calls[0][2] is None
+    orch.clear()
+
+
+def test_check_request_context_is_kwarg_only():
+    """``request_context`` must not appear in ``**stage_outputs`` passthrough.
+
+    The orchestrator declares it before ``**stage_outputs``, so passing it
+    positionally raises TypeError instead of silently leaking into
+    ``key_builder.collect`` stage kwargs.
+    """
+    spy = _RecordingGate(decision=False)
+    orch = _make_orch_with_gate(spy)
+    state = torch.randn(1, 32)
+
+    with pytest.raises(TypeError):
+        orch.check(CheckpointID.CP1, {"gate_decision": "skip"}, stage1=make_stage1(state))  # type: ignore[misc]
+    orch.clear()
+
+
+def test_accepts_client_signal_false_for_default_gates():
+    orch, _, _ = make_orchestrator()
+    assert orch.accepts_client_signal is False
+    orch.clear()
+
+
+def test_accepts_client_signal_true_when_any_checkpoint_uses_client_gate():
+    """Mirror the YAML case: CP1 uses ClientControlledGate, CP3 is unset."""
+    dims = {"robot_state": 32}
+    backend = InMemoryBackend(dims)
+    from openpi.cache.cache_storage import CacheStorage
+    from openpi.cache.components.key_builder import PlaceholderKeyBuilder
+    from openpi.cache.timing import SystemTimer
+
+    storage = CacheStorage(backend)
+    strategy = TestStorageSearchStrategy(storage, top_k=1)
+    orch = CacheOrchestrator(
+        storage,
+        PlaceholderKeyBuilder(),
+        gates={
+            CheckpointID.CP1: ClientControlledGate(),
+            CheckpointID.CP3: AlwaysSearchGate(),
+        },
+        judges=_wrap_per_checkpoint(ThresholdJudge()),
+        search_strategies=_wrap_per_checkpoint(strategy),
+        timer=SystemTimer(enabled=False),
+    )
+    assert orch.accepts_client_signal is True
+
+
+def test_client_controlled_gate_skip_through_orchestrator():
+    """End-to-end: request_context='skip' causes orchestrator to report MISS
+    and avoid dispatching a search."""
+    dims = {"robot_state": 32}
+    backend = InMemoryBackend(dims)
+    from openpi.cache.cache_storage import CacheStorage
+    from openpi.cache.components.key_builder import PlaceholderKeyBuilder
+    from openpi.cache.timing import SystemTimer
+
+    storage = CacheStorage(backend)
+    strategy = TestStorageSearchStrategy(storage, top_k=1)
+    orch = CacheOrchestrator(
+        storage,
+        PlaceholderKeyBuilder(),
+        gates=_wrap_per_checkpoint(ClientControlledGate()),
+        judges=_wrap_per_checkpoint(ThresholdJudge()),
+        search_strategies=_wrap_per_checkpoint(strategy),
+        timer=SystemTimer(enabled=False),
+    )
+
+    # Pre-populate so a non-skip path would produce a hit — proving the skip
+    # short-circuits at the gate, not at search.
+    state = _unit_vector(32, 0)
+    payload = CachePayload(action_chunk=torch.randn(50, 32))
+    insert_entry(storage, CheckpointID.CP1, state, payload)
+
+    result = orch.check(
+        CheckpointID.CP1,
+        request_context={"gate_decision": "skip"},
+        stage1=make_stage1(state),
+    )
+    assert result.hit_type == HitType.MISS
+    assert backend.search_call_count == 0
+    orch.clear()
+
+
+def test_client_controlled_gate_search_through_orchestrator():
+    dims = {"robot_state": 32}
+    backend = InMemoryBackend(dims)
+    from openpi.cache.cache_storage import CacheStorage
+    from openpi.cache.components.key_builder import PlaceholderKeyBuilder
+    from openpi.cache.timing import SystemTimer
+
+    storage = CacheStorage(backend)
+    strategy = TestStorageSearchStrategy(storage, top_k=1)
+    orch = CacheOrchestrator(
+        storage,
+        PlaceholderKeyBuilder(),
+        gates=_wrap_per_checkpoint(ClientControlledGate()),
+        judges=_wrap_per_checkpoint(ThresholdJudge()),
+        search_strategies=_wrap_per_checkpoint(strategy),
+        timer=SystemTimer(enabled=False),
+    )
+
+    state = _unit_vector(32, 0)
+    payload = CachePayload(action_chunk=torch.randn(50, 32))
+    insert_entry(storage, CheckpointID.CP1, state, payload)
+
+    result = orch.check(
+        CheckpointID.CP1,
+        request_context={"gate_decision": "search"},
+        stage1=make_stage1(state),
+    )
+    assert result.hit_type == HitType.FULL_HIT
     orch.clear()

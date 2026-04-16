@@ -442,7 +442,10 @@ def validate_cache_config(config: CacheConfig) -> None:
         # every CP1 query is treated as a miss so we get M full inferences
         # over the same observation stream while trajectory history stays
         # gap-free. See logs/trajectory_deviation_corrective_implementation.log.md §8.1.
-        _valid_gate_types = ("always_search", "always_skip")
+        # ``client_controlled`` reads the skip/search decision from a per-request
+        # signal injected by the client runner; see
+        # logs/trajectory_deviation_step3_redesign.log.md §5.2.
+        _valid_gate_types = ("always_search", "always_skip", "client_controlled")
         if cp_config.gate.type not in _valid_gate_types:
             errors.append(
                 f"{prefix}.gate.type '{cp_config.gate.type}' is unknown. "
@@ -935,8 +938,13 @@ def _build_gate(cfg: GateConfig):
         from openpi.cache.components.gate import AlwaysSkipGate
 
         return AlwaysSkipGate()
+    if cfg.type == "client_controlled":
+        from openpi.cache.components.gate import ClientControlledGate
+
+        return ClientControlledGate()
     raise ConfigValidationError(
-        f"Unknown gate.type '{cfg.type}'. Valid: ['always_search', 'always_skip']"
+        f"Unknown gate.type '{cfg.type}'. "
+        f"Valid: ['always_search', 'always_skip', 'client_controlled']"
     )
 
 

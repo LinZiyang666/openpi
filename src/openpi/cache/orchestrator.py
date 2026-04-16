@@ -33,7 +33,7 @@ from typing import Optional
 import torch
 
 from openpi.cache.cache_storage import CacheStorage
-from openpi.cache.components.gate import GateFunction
+from openpi.cache.components.gate import ClientControlledGate, GateFunction
 from openpi.cache.components.judge import HitType, SimilarityJudge
 from openpi.cache.components.key_builder import QueryKeyBuilder
 from openpi.cache.components.search_strategy import SearchContext, SearchStrategy
@@ -110,6 +110,13 @@ class CacheOrchestrator:
         self._write_policy = write_policy
         self._step_counter: int = 0
 
+        # True when at least one configured gate consumes the client-side
+        # gate_decision signal. Interceptor uses this flag to fail loud on
+        # config mismatch when obs carries '__gate_decision__'.
+        self.accepts_client_signal: bool = any(
+            isinstance(g, ClientControlledGate) for g in self._gates.values()
+        )
+
         # Episode-level buffers
         self._episode_steps: list[StepRecord] = []
         self._miss_by_checkpoint: dict[CheckpointID, int] = {}
@@ -183,13 +190,27 @@ class CacheOrchestrator:
     # Cache check pipeline
     # ------------------------------------------------------------------
 
-    def check(self, checkpoint_id: CheckpointID, **stage_outputs) -> CheckResult:
+    def check(
+        self,
+        checkpoint_id: CheckpointID,
+        *,
+        request_context: dict | None = None,
+        **stage_outputs,
+    ) -> CheckResult:
         """Cache check pipeline: collect -> gate -> build -> search -> judge -> fetch.
 
         For CP1, Judge returns JudgeResult with three possible outcomes:
         FULL_HIT, WARM_START (with start_t), or MISS.  On WARM_START,
         payload completeness is validated here; incomplete payloads are
         downgraded to MISS.
+
+        Args:
+            checkpoint_id: CP1 or CP3.
+            request_context: Optional per-request dict forwarded to the gate.
+                Default gates ignore it; ``ClientControlledGate`` consumes
+                ``gate_decision``. Kwarg-only to keep it out of the
+                ``**stage_outputs`` passthrough.
+            **stage_outputs: Stage tensors forwarded to ``KeyBuilder.collect``.
 
         CheckResult.query_keys is filled on all return paths.
         """
@@ -209,7 +230,9 @@ class CacheOrchestrator:
             self._key_builder.collect(checkpoint_id, **stage_outputs)
 
         with self._timer.measure(f"{prefix}_gate"):
-            should_search = gate(checkpoint_id, self._key_builder.cached_data)
+            should_search = gate(
+                checkpoint_id, self._key_builder.cached_data, request_context
+            )
         logger.info("[step %d] %s gate: %s", self._step_counter, prefix, "SEARCH" if should_search else "SKIP")
 
         # build() always executes (even on gate skip) for trajectory completeness
