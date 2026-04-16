@@ -325,7 +325,8 @@ MUJOCO_GL=egl python examples/libero/main.py \
     --task-suite-name libero_spatial
 ```
 
-Videos are saved to: `data/libero/videos/rollout_<task>_<success|failure>.mp4`
+Video recording is off by default. Add `--save-video` to write
+`data/libero/videos/rollout_<task>_<success|failure>.mp4`.
 
 ### Option B: Real-Time Rendering Window + Video (Requires WSLg, Windows 11 Only)
 
@@ -334,6 +335,7 @@ MUJOCO_GL=egl python examples/libero/main.py \
     --host 155.98.36.13 \
     --port 9000 \
     --task-suite-name libero_spatial \
+    --save-video \
     --display
 ```
 
@@ -349,6 +351,7 @@ MUJOCO_GL=egl python examples/libero/main.py \
 | `--replan-steps` | `5` | Re-infer every N steps |
 | `--num-trials-per-task` | `50` | Number of episodes per task |
 | `--display` | `False` | Show real-time rendering window |
+| `--save-video` | `False` | Save rollout videos in serial mode |
 | `--video-out-path` | `data/libero/videos` | Video output directory |
 | `--init-states-dir` | `""` (use LIBERO default) | Custom init states directory (see §7) |
 

@@ -52,6 +52,7 @@ class Args:
     # Utils
     #################################################################################################################
     display: bool = False  # Show real-time render window (requires WSLg / X11)
+    save_video: bool = False  # Save rollout videos in serial mode. Disabled by default to avoid evaluation I/O.
     video_out_path: str = "data/libero/videos"  # Path to save videos
 
     seed: int = 7  # Random Seed (for reproducibility)
@@ -401,7 +402,8 @@ def _write_episode_results_json(
 
 def _eval_serial(args: Args, task_suite, task_id_list: List[int], max_steps) -> None:
     """Original serial evaluation path (num_workers=1)."""
-    pathlib.Path(args.video_out_path).mkdir(parents=True, exist_ok=True)
+    if args.save_video:
+        pathlib.Path(args.video_out_path).mkdir(parents=True, exist_ok=True)
 
     client = _websocket_client_policy.WebsocketClientPolicy(args.host, args.port)
 
@@ -444,16 +446,17 @@ def _eval_serial(args: Args, task_suite, task_id_list: List[int], max_steps) -> 
             done, images, timestamps, traj_buffer, final_env_timestep = _run_episode(
                 env, client, initial_states[episode_idx],
                 task_description, args, max_steps,
-                record_video=True,
+                record_video=args.save_video,
             )
 
             if args.display:
                 cv2.destroyAllWindows()
 
-            suffix = "success" if done else "failure"
-            task_segment = task_description.replace(" ", "_")
-            out_path = pathlib.Path(args.video_out_path) / f"rollout_{task_segment}_{suffix}.mp4"
-            _save_video(images, timestamps, out_path)
+            if args.save_video:
+                suffix = "success" if done else "failure"
+                task_segment = task_description.replace(" ", "_")
+                out_path = pathlib.Path(args.video_out_path) / f"rollout_{task_segment}_{suffix}.mp4"
+                _save_video(images, timestamps, out_path)
             client.episode_end(success=done)
 
             if args.save_trajectory and traj_buffer is not None:
