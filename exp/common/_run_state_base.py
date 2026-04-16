@@ -276,5 +276,6 @@ class BaseRunState(ABC):
         except Exception as e:
             u.status = "failed"
             u.result = {"error": str(e)}
+            logger.warning("unit %s failed: %s", u.unit_key, e, exc_info=True)
         u.end_time = time.strftime("%Y-%m-%d %H:%M:%S")
         self.save()
