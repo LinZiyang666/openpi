@@ -5,6 +5,11 @@ data/**
 !data/**/
 !data/*.json
 !data/**/*.json
+# Step 1a-dump initial states (small torch pickles, ~25KB each, 10 tasks).
+# Tracked so secondary machines can pull them via git instead of scp;
+# they're the index source-of-truth shared by Step 1b/2/3.
+!data/deviation_experiment/inits/*.init
+!data/deviation_experiment/inits/*.pruned_init
 wandb/
 
 # Model weights and large binary files.
