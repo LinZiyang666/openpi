@@ -334,11 +334,14 @@ curl http://155.98.36.13:9000/healthz
 
 评估端 / LIBERO 主机上三个终端并行起三个 client 进程。每个 client 绑定一个 cfg 和对应 server，`--num-workers 5`（MuJoCo EGL 上限）；`--tau-grid` / `--n-grid` 逗号分隔。Client 侧可用 GPU `6–7`，按 cfg pin 一下避免互踩。
 
+> **Conda env 约定**：runner 直接 `import libero`，所以 client 进程必须跑在 LIBERO 的 conda env 里（与 `examples/libero/main.py` 同一套依赖）。这里采用与 `exp/cache_experiment/run_cache_experiments.py` 相同的 `conda run --no-capture-output -p <env>` 包裹方式（实现见 `exp/common/_subprocess.py::build_subprocess_cmd`），并强制 `MUJOCO_GL=egl` 走 EGL headless。下方 env 路径示例为 `/scratch/zixuans8/libero_sim`，按本机替换。
+
 #### Client 1：clip via frp port 8998（gpu 0）
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 \
-uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
+CUDA_VISIBLE_DEVICES=0 MUJOCO_GL=egl \
+conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
+python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg clip_w7_d4 \
     --host 155.98.36.13 --port 8998 \
     --yaml configs/cache_runs/deviate_exp/step3_clip_w7_d4.yaml \
@@ -355,8 +358,9 @@ uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
 #### Client 2：spatial16 via frp port 8999（gpu 1）
 
 ```bash
-CUDA_VISIBLE_DEVICES=1 \
-uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
+CUDA_VISIBLE_DEVICES=1 MUJOCO_GL=egl \
+conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
+python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg spatial16_w8_d4 \
     --host 155.98.36.13 --port 8999 \
     --yaml configs/cache_runs/deviate_exp/step3_spatial16_w8_d4.yaml \
@@ -373,8 +377,9 @@ uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
 #### Client 3：max_pool via frp port 9000（gpu 2）
 
 ```bash
-CUDA_VISIBLE_DEVICES=2 \
-uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
+CUDA_VISIBLE_DEVICES=2 MUJOCO_GL=egl \
+conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
+python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg max_pool_w3_d5 \
     --host 155.98.36.13 --port 9000 \
     --yaml configs/cache_runs/deviate_exp/step3_max_pool_w3_d5.yaml \
@@ -599,10 +604,13 @@ curl http://127.0.0.1:8000/healthz
 
 ### 附录·Client 命令（127.0.0.1 同机直连版）
 
+> 同主版一样必须 `conda run -p /scratch/zixuans8/libero_sim` + `MUJOCO_GL=egl`，理由见主版的 "Conda env 约定" 段落。
+
 ```bash
 # Client 1：clip → 127.0.0.1:7998 on gpu6
-CUDA_VISIBLE_DEVICES=6 \
-uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
+CUDA_VISIBLE_DEVICES=6 MUJOCO_GL=egl \
+conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
+python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg clip_w7_d4 \
     --host 127.0.0.1 --port 7998 \
     --yaml configs/cache_runs/deviate_exp/step3_clip_w7_d4.yaml \
@@ -614,8 +622,9 @@ uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --num-workers 5 --resume
 
 # Client 2：spatial16 → 127.0.0.1:7999 on gpu6
-CUDA_VISIBLE_DEVICES=6 \
-uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
+CUDA_VISIBLE_DEVICES=6 MUJOCO_GL=egl \
+conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
+python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg spatial16_w8_d4 \
     --host 127.0.0.1 --port 7999 \
     --yaml configs/cache_runs/deviate_exp/step3_spatial16_w8_d4.yaml \
@@ -627,8 +636,9 @@ uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --num-workers 5 --resume
 
 # Client 3：max_pool → 127.0.0.1:8000 on gpu7
-CUDA_VISIBLE_DEVICES=7 \
-uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
+CUDA_VISIBLE_DEVICES=7 MUJOCO_GL=egl \
+conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
+python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg max_pool_w3_d5 \
     --host 127.0.0.1 --port 8000 \
     --yaml configs/cache_runs/deviate_exp/step3_max_pool_w3_d5.yaml \
