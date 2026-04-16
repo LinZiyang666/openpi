@@ -332,11 +332,12 @@ curl http://155.98.36.13:9000/healthz
 
 ### Client 命令
 
-评估端 / LIBERO 主机上三个终端并行起三个 client 进程。每个 client 绑定一个 cfg 和对应 server，`--num-workers 5`（MuJoCo EGL 上限）；`--tau-grid` / `--n-grid` 逗号分隔。
+评估端 / LIBERO 主机上三个终端并行起三个 client 进程。每个 client 绑定一个 cfg 和对应 server，`--num-workers 5`（MuJoCo EGL 上限）；`--tau-grid` / `--n-grid` 逗号分隔。Client 侧可用 GPU `6–7`，按 cfg pin 一下避免互踩。
 
-#### Client 1：clip via frp port 8998
+#### Client 1：clip via frp port 8998（gpu 0）
 
 ```bash
+CUDA_VISIBLE_DEVICES=0 \
 uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg clip_w7_d4 \
     --host 155.98.36.13 --port 8998 \
@@ -351,9 +352,10 @@ uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --resume
 ```
 
-#### Client 2：spatial16 via frp port 8999
+#### Client 2：spatial16 via frp port 8999（gpu 1）
 
 ```bash
+CUDA_VISIBLE_DEVICES=1 \
 uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg spatial16_w8_d4 \
     --host 155.98.36.13 --port 8999 \
@@ -368,9 +370,10 @@ uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --resume
 ```
 
-#### Client 3：max_pool via frp port 9000
+#### Client 3：max_pool via frp port 9000（gpu 2）
 
 ```bash
+CUDA_VISIBLE_DEVICES=2 \
 uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg max_pool_w3_d5 \
     --host 155.98.36.13 --port 9000 \
@@ -521,3 +524,124 @@ data/deviation_experiment/
 - Cache 系统组件、YAML 字段含义：[../cache/tutorial.md](../cache/tutorial.md)
 - 远程推理的网络拓扑：[../deployment/libero.md](../deployment/libero.md)
 - 原始实验设计与评审：[../../logs/trajectory_deviation_experiment_plan.log.md](../../logs/trajectory_deviation_experiment_plan.log.md)、[../../logs/trajectory_deviation_corrective_experiment.log.md](../../logs/trajectory_deviation_corrective_experiment.log.md)
+
+---
+
+## 附录：单机 6+2 GPU 同机部署（实验性，待研究）
+
+> **状态：留档待研究，先别按这版跑。**
+>
+> 2026-04-16 在 `timan107` 上试过这套方案：把三台 server 全部塞进同一台 8 卡机（gpu 0–5 给 server，gpu 6–7 给 client），server 走 `serve_policy.py` 的 `--stage1_device / --stage2_device / --stage3_device` 做 Pi0.5 三阶段切分，client 直连 `127.0.0.1`。结果 `max_pool_w3_d5` 那条 client 在 `[parallel retry 1/2] 3000 failed units` 全跪，原因尚未排查（怀疑 MuJoCo EGL 与 server CUDA 上下文在同机互相挤压，或 init_states 路径 / Server C 启动状态的问题）。
+>
+> 下面的命令保留是为了后续复现/排查，不要直接当主流程跑。要跑也请先：
+>
+> 1. 确认三台 server 都拉起来了（`nvidia-smi` 看 gpu 0–5 全部有占用）；
+> 2. `curl http://127.0.0.1:7998/healthz` 三个端口都 OK；
+> 3. 先用 `--num-workers 1` 单 worker 跑 1 个 unit 验证通路，再逐步加并发。
+
+### 附录·GPU 分配
+
+| 角色 | 绑定 | 物理 GPU（`CUDA_VISIBLE_DEVICES`） | stage1 / stage2 / stage3 | 说明 |
+|---|---|:---:|:---:|---|
+| Server A | `clip_w7_d4` | `0,1` | `cuda:0` / `cuda:1` / `cuda:1` | stage1 独占物理 gpu0；stage2+3 合占物理 gpu1 |
+| Server B | `spatial16_w8_d4` | `2,3` | `cuda:0` / `cuda:1` / `cuda:1` | stage1 → 物理 gpu2；stage2+3 → 物理 gpu3 |
+| Server C | `max_pool_w3_d5` | `4,5` | `cuda:0` / `cuda:1` / `cuda:1` | stage1 → 物理 gpu4；stage2+3 → 物理 gpu5 |
+| Client 1 | clip → 127.0.0.1:7998 | `6` | — | 与 Client 2 共享 gpu6 |
+| Client 2 | spatial16 → 127.0.0.1:7999 | `6` | — | 与 Client 1 共享 gpu6 |
+| Client 3 | max_pool → 127.0.0.1:8000 | `7` | — | 独占 gpu7 |
+
+`scripts/serve_policy.py` 支持 `--stage{1,2,3}_device`（Pi0.5 三阶段切分：stage1 vision / stage2 LLM backbone / stage3 action head）。`CUDA_VISIBLE_DEVICES=N,N+1` 把物理两卡重映射为进程内的 `cuda:0`/`cuda:1`，所以三台 server 内部的 stage device 串完全一致。分阶段放置要求传入 `--cache_config`（已满足；否则 `serve_policy` 会拒启，见 `scripts/serve_policy.py:163-176`）。
+
+### 附录·Server 命令（GPU 切分版）
+
+```bash
+# Server A：clip，物理 gpu 0+1
+CUDA_VISIBLE_DEVICES=0,1 \
+uv run scripts/serve_policy.py \
+    --concurrent \
+    --cache-config configs/cache_runs/deviate_exp/step3_clip_w7_d4.yaml \
+    --env LIBERO --port 7998 \
+    --stage1_device cuda:0 --stage2_device cuda:1 --stage3_device cuda:1 \
+    policy:checkpoint \
+    --policy.config pi05_libero \
+    --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+
+# Server B：spatial16,物理 gpu 2+3
+CUDA_VISIBLE_DEVICES=2,3 \
+uv run scripts/serve_policy.py \
+    --concurrent \
+    --cache-config configs/cache_runs/deviate_exp/step3_spatial16_w8_d4.yaml \
+    --env LIBERO --port 7999 \
+    --stage1_device cuda:0 --stage2_device cuda:1 --stage3_device cuda:1 \
+    policy:checkpoint \
+    --policy.config pi05_libero \
+    --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+
+# Server C：max_pool，物理 gpu 4+5
+CUDA_VISIBLE_DEVICES=4,5 \
+uv run scripts/serve_policy.py \
+    --concurrent \
+    --cache-config configs/cache_runs/deviate_exp/step3_max_pool_w3_d5.yaml \
+    --env LIBERO --port 8000 \
+    --stage1_device cuda:0 --stage2_device cuda:1 --stage3_device cuda:1 \
+    policy:checkpoint \
+    --policy.config pi05_libero \
+    --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+```
+
+健康检查：
+
+```bash
+curl http://127.0.0.1:7998/healthz
+curl http://127.0.0.1:7999/healthz
+curl http://127.0.0.1:8000/healthz
+```
+
+### 附录·Client 命令（127.0.0.1 同机直连版）
+
+```bash
+# Client 1：clip → 127.0.0.1:7998 on gpu6
+CUDA_VISIBLE_DEVICES=6 \
+uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
+    --cfg clip_w7_d4 \
+    --host 127.0.0.1 --port 7998 \
+    --yaml configs/cache_runs/deviate_exp/step3_clip_w7_d4.yaml \
+    --deviate-score-json data/deviation_experiment/deviate_scores/deviate_score_clip_w7_d4.json \
+    --init-states-dir data/deviation_experiment/inits \
+    --out-dir data/deviation_experiment/step3/clip_w7_d4 \
+    --task-suite-name libero_spatial \
+    --tau-grid 3,5,7,10 --n-grid 1,2,3,5,10 \
+    --num-workers 5 --resume
+
+# Client 2：spatial16 → 127.0.0.1:7999 on gpu6
+CUDA_VISIBLE_DEVICES=6 \
+uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
+    --cfg spatial16_w8_d4 \
+    --host 127.0.0.1 --port 7999 \
+    --yaml configs/cache_runs/deviate_exp/step3_spatial16_w8_d4.yaml \
+    --deviate-score-json data/deviation_experiment/deviate_scores/deviate_score_spatial16_w8_d4.json \
+    --init-states-dir data/deviation_experiment/inits \
+    --out-dir data/deviation_experiment/step3/spatial16_w8_d4 \
+    --task-suite-name libero_spatial \
+    --tau-grid 3,5,7,10 --n-grid 1,2,3,5,10 \
+    --num-workers 5 --resume
+
+# Client 3：max_pool → 127.0.0.1:8000 on gpu7
+CUDA_VISIBLE_DEVICES=7 \
+uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
+    --cfg max_pool_w3_d5 \
+    --host 127.0.0.1 --port 8000 \
+    --yaml configs/cache_runs/deviate_exp/step3_max_pool_w3_d5.yaml \
+    --deviate-score-json data/deviation_experiment/deviate_scores/deviate_score_max_pool_w3_d5.json \
+    --init-states-dir data/deviation_experiment/inits \
+    --out-dir data/deviation_experiment/step3/max_pool_w3_d5 \
+    --task-suite-name libero_spatial \
+    --tau-grid 3,5,7,10 --n-grid 1,2,3,5,10 \
+    --num-workers 5 --resume
+```
+
+### 附录·已知问题（待排查）
+
+- 2026-04-16 timan107 实测：Client 3（max_pool）`[parallel retry 1/2] 3000 failed units` 全跪，时间窗约 5 分钟（`02:46:48 → 02:51:44`）。需查 `data/deviation_experiment/step3/max_pool_w3_d5/run_state.json` 里任一 failed unit 的 `result.error` 才能定性。
+- 同机 5 worker MuJoCo EGL + server CUDA 上下文是否互相挤压未验证。
+- Server C 当时是否真的起来、`curl /healthz` 是否过——日志缺失。

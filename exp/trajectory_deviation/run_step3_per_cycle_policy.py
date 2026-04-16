@@ -279,9 +279,19 @@ class Step3PerCycleRunner(BaseRunState):
             WebsocketClientPolicy,
         )
 
+        tname = threading.current_thread().name
+        logger.info("[%s] _get_client: waiting for _init_lock", tname)
         with self._init_lock:
+            logger.info(
+                "[%s] _get_client: connecting WebsocketClientPolicy(host=%s, port=%d)",
+                tname, self.runner_cfg.host, self.runner_cfg.port,
+            )
+            t0 = time.monotonic()
             client = WebsocketClientPolicy(
                 host=self.runner_cfg.host, port=self.runner_cfg.port
+            )
+            logger.info(
+                "[%s] _get_client: connected in %.2fs", tname, time.monotonic() - t0,
             )
         self._tls.client = client
         with self._resources_lock:
@@ -303,12 +313,24 @@ class Step3PerCycleRunner(BaseRunState):
                     self._all_envs.remove(env)
                 except ValueError:
                     pass
+        tname = threading.current_thread().name
+        logger.info(
+            "[%s] _get_env: waiting for _init_lock (task_id=%d, suite=%s)",
+            tname, task_id, self.runner_cfg.task_suite_name,
+        )
         with self._init_lock:
+            logger.info(
+                "[%s] _get_env: building LIBERO env (task_id=%d)", tname, task_id,
+            )
+            t0 = time.monotonic()
             new_env = build_libero_env(
                 self.runner_cfg.task_suite_name,
                 task_id,
                 resolution=_LIBERO_ENV_RESOLUTION,
                 seed=None,
+            )
+            logger.info(
+                "[%s] _get_env: built in %.2fs", tname, time.monotonic() - t0,
             )
         self._tls.env = new_env
         self._tls.task_id = task_id
@@ -321,6 +343,8 @@ class Step3PerCycleRunner(BaseRunState):
     # ------------------------------------------------------------------
 
     def execute_unit(self, unit: UnitState) -> dict:
+        tname = threading.current_thread().name
+        logger.info("[%s] execute_unit: %s", tname, unit.unit_key)
         key = Step3PerCycleKey.decode(unit.unit_key)
         if key.cfg != self.runner_cfg.cfg:
             raise ValueError(
@@ -406,7 +430,11 @@ class Step3PerCycleRunner(BaseRunState):
         episode_id = (
             (task_id * 100_000 + subset_idx) * 1000 + int(key.tau) * 10 + int(key.n)
         ) & 0x7FFFFFFF
+        tname = threading.current_thread().name
         episode_started = False
+        logger.info(
+            "[%s] episode_start unit=%s episode_id=%d", tname, key.encode(), episode_id,
+        )
         client.episode_start(
             experiment=cfg_local.experiment_tag,
             task=task_description,
@@ -414,6 +442,7 @@ class Step3PerCycleRunner(BaseRunState):
             episode_name="",
         )
         episode_started = True
+        logger.info("[%s] episode_started unit=%s", tname, key.encode())
 
         burst_remaining = 0
         burst_count = 0
@@ -446,7 +475,17 @@ class Step3PerCycleRunner(BaseRunState):
                     obs, task_description, resize=cfg_local.resize_size
                 )
                 policy_obs["__gate_decision__"] = decision
+                if cycle == 0:
+                    logger.info(
+                        "[%s] first infer unit=%s decision=%s",
+                        tname, key.encode(), decision,
+                    )
                 resp = client.infer(policy_obs)
+                if cycle == 0:
+                    logger.info(
+                        "[%s] first infer returned unit=%s actions=%d",
+                        tname, key.encode(), int(np.asarray(resp["actions"]).shape[0]),
+                    )
                 action_chunk = np.asarray(resp["actions"], dtype=np.float32)
                 if action_chunk.shape[0] < cfg_local.replan_steps:
                     raise RuntimeError(
