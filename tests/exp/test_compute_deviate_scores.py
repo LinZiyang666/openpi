@@ -462,6 +462,39 @@ def test_phase_runner_closes_client_when_episode_start_fails(
     assert client.infer_calls == 0
 
 
+def test_phase_runner_uses_gt_prompt_as_cache_task_key(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The websocket episode_start task becomes the server-side task_key.
+
+    Cache artifacts are keyed by the LIBERO task description, so Step 2 must
+    pass the GT prompt rather than a synthetic cfg/episode/sample label or the
+    in-memory backend will filter every candidate out.
+    """
+    chunk = np.full((5, 7), 0.5, dtype=np.float32)
+    client = _FakeClient(chunk)
+    common = _fake_common(tmp_path, client, episodes=["task_0/episode_0"])
+    prompt = "pick up the black bowl next to the plate and place it on the plate"
+    monkeypatch.setattr(
+        cds,
+        "load_gt_episode",
+        lambda *a, **k: ([{"prompt": prompt}], np.zeros((1, 5, 7))),
+    )
+
+    runner = cds.Phase1Runner(
+        state_path=tmp_path / "phase1_state.json",
+        common=common,
+        M=1,
+        max_retries=0,
+    )
+    runner.units = {u.unit_key: u for u in runner.build_units()}
+
+    runner.execute_unit(next(iter(runner.units.values())))
+
+    assert client.episode_start_kwargs is not None
+    assert client.episode_start_kwargs["task"] == prompt
+
+
 # ---------------------------------------------------------------------------
 # parallel_run smoke: BaseRunState must have it (locked by Layer A1 + §10.1)
 # ---------------------------------------------------------------------------

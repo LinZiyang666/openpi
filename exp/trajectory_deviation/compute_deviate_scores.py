@@ -361,14 +361,18 @@ class _PhaseRunner(BaseRunState):
             raise ValueError(
                 f"{type(self).__name__} unit_key {unit.unit_key!r} must not carry sample_idx"
             )
+        obs_seq, _ = load_gt_episode(self.common.gt_dir, ep)
+        # This string is forwarded by the server into CacheOrchestrator as
+        # task_key, and in-memory search filters candidates by exact task_key.
+        # It must therefore match the artifact's LIBERO task description, not
+        # a synthetic unit label.
+        task_label = str(obs_seq[0].get("prompt", "")) if obs_seq else ""
+        if not task_label:
+            task_label = ep
         if self.USES_SAMPLE_IDX:
-            task_label = f"{cfg}_ep{ep}_s{s}"
             ep_id = hash((ep, s)) & 0x7FFFFFFF
         else:
-            task_label = f"{cfg}_ep{ep}"
             ep_id = hash(ep) & 0x7FFFFFFF
-
-        obs_seq, _ = load_gt_episode(self.common.gt_dir, ep)
         client = self.common.make_client()
         episode_started = False
         try:
