@@ -1,0 +1,131 @@
+{
+  "clip_w7_d4": {
+    "episodes": 159,
+    "valid_episodes": 159,
+    "bad_episodes": [],
+    "cycles": 3467,
+    "cycle_per_episode_mean": 21.80503144654088,
+    "score_mean": 2.5622479509556717,
+    "score_median": 1.8614180386066437,
+    "score_p90": 4.402439534664154,
+    "score_p95": 5.602165222167969,
+    "score_p99": 20.273617219924926,
+    "score_max": 27.671949863433838,
+    "bands": [
+      {
+        "band": "<1",
+        "count": 657,
+        "pct": 18.950100951831555,
+        "per_episode_mean": 4.132075471698113,
+        "per_episode_median": 4.0
+      },
+      {
+        "band": "1-2",
+        "count": 1225,
+        "pct": 35.33314104413037,
+        "per_episode_mean": 7.70440251572327,
+        "per_episode_median": 8.0
+      },
+      {
+        "band": "2-5",
+        "count": 1353,
+        "pct": 39.02509374098644,
+        "per_episode_mean": 8.50943396226415,
+        "per_episode_median": 8.0
+      },
+      {
+        "band": ">=5",
+        "count": 232,
+        "pct": 6.691664263051629,
+        "per_episode_mean": 1.4591194968553458,
+        "per_episode_median": 1.0
+      }
+    ]
+  },
+  "spatial16_w8_d4": {
+    "episodes": 154,
+    "valid_episodes": 154,
+    "bad_episodes": [],
+    "cycles": 3301,
+    "cycle_per_episode_mean": 21.435064935064936,
+    "score_mean": 2.4520637186547907,
+    "score_median": 1.8197046220302582,
+    "score_p90": 4.159616827964783,
+    "score_p95": 5.371519327163696,
+    "score_p99": 20.10300636291504,
+    "score_max": 25.765550136566162,
+    "bands": [
+      {
+        "band": "<1",
+        "count": 668,
+        "pct": 20.23629203271736,
+        "per_episode_mean": 4.337662337662338,
+        "per_episode_median": 4.0
+      },
+      {
+        "band": "1-2",
+        "count": 1183,
+        "pct": 35.837624962132686,
+        "per_episode_mean": 7.681818181818182,
+        "per_episode_median": 8.0
+      },
+      {
+        "band": "2-5",
+        "count": 1244,
+        "pct": 37.685549833383824,
+        "per_episode_mean": 8.077922077922079,
+        "per_episode_median": 8.0
+      },
+      {
+        "band": ">=5",
+        "count": 206,
+        "pct": 6.240533171766131,
+        "per_episode_mean": 1.3376623376623376,
+        "per_episode_median": 1.0
+      }
+    ]
+  },
+  "max_pool_w3_d5": {
+    "episodes": 150,
+    "valid_episodes": 150,
+    "bad_episodes": [],
+    "cycles": 3292,
+    "cycle_per_episode_mean": 21.946666666666665,
+    "score_mean": 2.5438379491890997,
+    "score_median": 1.8282373710140236,
+    "score_p90": 4.337225884199143,
+    "score_p95": 5.6191160976886705,
+    "score_p99": 20.26257090568543,
+    "score_max": 27.4428653717041,
+    "bands": [
+      {
+        "band": "<1",
+        "count": 690,
+        "pct": 20.959902794653708,
+        "per_episode_mean": 4.6,
+        "per_episode_median": 4.0
+      },
+      {
+        "band": "1-2",
+        "count": 1136,
+        "pct": 34.50789793438639,
+        "per_episode_mean": 7.573333333333333,
+        "per_episode_median": 8.0
+      },
+      {
+        "band": "2-5",
+        "count": 1247,
+        "pct": 37.879708383961116,
+        "per_episode_mean": 8.313333333333333,
+        "per_episode_median": 8.0
+      },
+      {
+        "band": ">=5",
+        "count": 219,
+        "pct": 6.652490886998786,
+        "per_episode_mean": 1.46,
+        "per_episode_median": 1.0
+      }
+    ]
+  }
+}
