@@ -210,7 +210,7 @@ uv run python exp/cache_experiment/run_cache_experiments.py \
     --task-suite libero_spatial \
     --host 155.98.36.13 --port 9000 \
     --episodes-per-run 50 --num-workers 5 --seed 42 \
-    --conda-env libero_sim \
+    --conda-env /scratch/zixuans8/libero_sim \
     --state-path data/warm_start_exp/state_full_max_pool.json
 
 # Terminal 2 — spatial16 (frp 8999)
@@ -219,7 +219,7 @@ uv run python exp/cache_experiment/run_cache_experiments.py \
     --task-suite libero_spatial \
     --host 155.98.36.13 --port 8999 \
     --episodes-per-run 50 --num-workers 5 --seed 42 \
-    --conda-env libero_sim \
+    --conda-env /scratch/zixuans8/libero_sim \
     --state-path data/warm_start_exp/state_full_spatial16.json
 
 # Terminal 3 — clip (frp 8998)
@@ -228,7 +228,7 @@ uv run python exp/cache_experiment/run_cache_experiments.py \
     --task-suite libero_spatial \
     --host 155.98.36.13 --port 8998 \
     --episodes-per-run 50 --num-workers 5 --seed 42 \
-    --conda-env libero_sim \
+    --conda-env /scratch/zixuans8/libero_sim \
     --state-path data/warm_start_exp/state_full_clip.json
 ```
 
