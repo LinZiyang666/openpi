@@ -630,6 +630,7 @@ class SystemTimer:
             rows.append(row)
 
         header = ["timestamp", "task_id", "name", "elapsed_ms"] + resource_keys
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
         with open(path, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(header)
