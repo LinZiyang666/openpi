@@ -11,6 +11,9 @@ from openpi.training import config as _config
 from . import train
 
 
+@pytest.mark.env_dependent(
+    reason="Forces JAX_PLATFORMS=cpu but still compiles the full training graph; also pulls PaliGemma tokenizer from GCS. Needs sufficient host memory and network."
+)
 @pytest.mark.parametrize("config_name", ["debug"])
 def test_train(tmp_path: pathlib.Path, config_name: str):
     config = dataclasses.replace(

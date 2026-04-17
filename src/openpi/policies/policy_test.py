@@ -7,6 +7,9 @@ from openpi.training import config as _config
 
 
 @pytest.mark.manual
+@pytest.mark.env_dependent(
+    reason="Requires GCP credentials for checkpoint download; also, the JAX inference path is intentionally disabled in this fork (use a PyTorch checkpoint instead)."
+)
 def test_infer():
     config = _config.get_config("pi0_aloha_sim")
     policy = _policy_config.create_trained_policy(config, "gs://openpi-assets/checkpoints/pi0_aloha_sim")
@@ -18,6 +21,9 @@ def test_infer():
 
 
 @pytest.mark.manual
+@pytest.mark.env_dependent(
+    reason="Requires GCP credentials for checkpoint download; also, the JAX inference path is intentionally disabled in this fork (use a PyTorch checkpoint instead)."
+)
 def test_broker():
     config = _config.get_config("pi0_aloha_sim")
     policy = _policy_config.create_trained_policy(config, "gs://openpi-assets/checkpoints/pi0_aloha_sim")

@@ -137,6 +137,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
-markers = ["manual: should be run manually."]
+markers = [
+    "manual: should be run manually.",
+    "env_dependent: failure likely caused by local environment (GPU memory, GCP credentials, missing assets); not necessarily a code defect.",
+]
 testpaths = ["src", "scripts", "packages", "tests"]
 pythonpath = ["."]

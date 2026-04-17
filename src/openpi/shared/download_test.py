@@ -34,6 +34,7 @@ def test_download_gs_dir():
     assert new_local_path == local_path
 
 
+@pytest.mark.env_dependent(reason="Requires gsutil/gcsfs with GCP credentials to fetch gs://openpi-assets/testdata/.")
 def test_download_gs():
     remote_path = "gs://openpi-assets/testdata/random/random_512kb.bin"
 
@@ -44,6 +45,7 @@ def test_download_gs():
     assert new_local_path == local_path
 
 
+@pytest.mark.env_dependent(reason="Requires network access to anonymously fetch gs://big_vision/paligemma_tokenizer.model via fsspec.")
 def test_download_fsspec():
     remote_path = "gs://big_vision/paligemma_tokenizer.model"
 
