@@ -10,7 +10,7 @@ Under a forced-cache-hit regime (`gate: always_search` + `judge: always_warm_sta
 
 - 3 keybuilders × 3 start_t = **9 YAML × 500 ep = 4500 episodes** (or 6 × 500 = 3000 if CLIP is deferred).
 - **Baselines are reused, not rerun**: B0 (inference ceiling) and B1 (always-hit floor) come straight from [trajectory_deviation](trajectory_deviation.en.md) Step 1a (`exp/trajectory_deviation/data/cache_eval_results_*.json`).
-- Primary outputs: `exp/warm_start/data/results/cache_eval_results.json` (9 configs merged) + `exp/warm_start/data/timing/<cfg>/*.csv` latency probes.
+- Primary outputs: `exp/warm_start/data/<cfg>/cache_eval_results.json` (3 per-keybuilder files, 9 configs total) + `exp/warm_start/analysis/success_rate_sweep.png` produced by the Step 4 analyzer.
 
 Pipeline:
 
@@ -236,23 +236,7 @@ uv run python exp/common/run_cache_experiments.py \
 
 Before each warm YAML the driver sends `send_load_cache_config`, and the server calls `build_shared_storage` → `InMemoryBackend.load_artifact(preload_path)` again. Each YAML therefore re-pickles its artifact (max_pool < 1 s, spatial16 a few seconds, CLIP 1–2 s) — negligible versus the minute/hour-scale run time per 500 episodes.
 
-Archive afterwards (keeps the next run from overwriting):
-
-```bash
-mkdir -p exp/warm_start/data/results
-for cfg in max_pool spatial16 clip; do
-    src=exp/warm_start/config/$cfg/cache_eval_results.json
-    [ -f "$src" ] && cp "$src" exp/warm_start/data/results/cache_eval_results_${cfg}.json
-done
-uv run python - <<'PY'
-import json, glob
-out = []
-for fn in sorted(glob.glob("exp/warm_start/data/results/cache_eval_results_*.json")):
-    out.extend(json.load(open(fn)))
-json.dump(out, open("exp/warm_start/data/results/cache_eval_results.json","w"), indent=2)
-print("merged", len(out), "records")
-PY
-```
+After the run the 3 per-keybuilder results already sit at `exp/warm_start/data/{max_pool,spatial16,clip}/cache_eval_results.json`; Step 4's analyzer reads them directly, no merge needed.
 
 Expect 9 × 500 = **4500 records** (3000 if max_pool + spatial16 only). Retry records with `attempt > 1` indicate GPU/CPU pressure — filter them before sanity-checking success_rate.
 
@@ -260,7 +244,7 @@ Expect 9 × 500 = **4500 records** (3000 if max_pool + spatial16 only). Retry re
 
 ## Step 4: Analysis
 
-`exp/warm_start/analyze_warm_sweep.py` reads `exp/warm_start/data/results/cache_eval_results.json` + `exp/warm_start/data/baseline_failures.json` and emits:
+`exp/warm_start/analyze_warm_sweep.py` reads `exp/warm_start/data/{max_pool,spatial16,clip}/cache_eval_results.json` (warm runs) plus `exp/trajectory_deviation/data/cache_eval_results_{maxpool,spatial16,clip}.json` (B0/B1 baselines) and writes under `exp/warm_start/analysis/`:
 
 | Artifact | Meaning |
 |----------|---------|

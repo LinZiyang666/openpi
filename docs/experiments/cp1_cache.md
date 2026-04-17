@@ -113,8 +113,10 @@ uv run exp/common/generate_cache_run_yamls.py \
     --phase 1 \
     --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
     --calibration-file exp/common/data/cache_artifacts/libero_spatial/calibration.json \
-    --output-dir configs/cache_runs
+    --output-dir exp/common/config
 ```
+
+> `--output-dir` 是父目录；脚本按 `--phase` 自动追加 `phase1/` / `phase1_5/` / `phase2/`。上面的命令会把 YAML 写到 `exp/common/config/phase1/`。
 
 产物：
 ```
@@ -167,7 +169,8 @@ curl http://localhost:8000/healthz
 
 ```bash
 uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/phase1 \
+    --yaml-dir exp/common/config/phase1 \
+    --state-path exp/common/data/phase1/experiment_state.json \
     --episodes-per-run 5 \
     --num-workers 5 \
     --host 155.98.36.13 \
@@ -190,7 +193,8 @@ uv run exp/common/run_cache_experiments.py \
 ```bash
 # 只运行第 1~8 个配置（即第一个 combo 的所有权重）
 uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/phase1 \
+    --yaml-dir exp/common/config/phase1 \
+    --state-path exp/common/data/phase1/experiment_state.json \
     --episodes-per-run 5 \
     --num-workers 5 \
     --host 155.98.36.13 \
@@ -207,7 +211,8 @@ uv run exp/common/run_cache_experiments.py \
 
 ```bash
 uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/phase1 \
+    --yaml-dir exp/common/config/phase1 \
+    --state-path exp/common/data/phase1/experiment_state.json \
     --episodes-per-run 5 \
     --num-workers 5 \
     --host 155.98.36.13 \
@@ -249,7 +254,7 @@ for s in states:
 ```bash
 uv run exp/common/analyze_cache_results.py \
     --state-file exp/common/data/phase1/experiment_state.json \
-    --output exp/common/config/phase1/analysis.json
+    --output exp/common/data/phase1/analysis.json
 ```
 
 输出：
@@ -257,7 +262,7 @@ uv run exp/common/analyze_cache_results.py \
 - 每个 combo 的最优权重
 - **Top 3 combo**：进入 Phase 1.5 的候选
 
-检查 `exp/common/config/phase1/analysis.json` 中的 `top3` 字段。
+检查 `exp/common/data/phase1/analysis.json` 中的 `top3` 字段（Step 7 的 `--phase1-analysis` 会消费同一个文件）。
 
 ---
 
@@ -270,11 +275,11 @@ uv run exp/common/generate_cache_run_yamls.py \
     --phase 1.5 \
     --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
     --calibration-file exp/common/data/cache_artifacts/libero_spatial/calibration.json \
-    --phase1-analysis exp/common/config/phase1/analysis.json \
-    --output-dir configs/cache_runs
+    --phase1-analysis exp/common/data/phase1/analysis.json \
+    --output-dir exp/common/config
 ```
 
-产物：`exp/phase1_5/` 下约 45 个 YAML。
+产物：`exp/common/config/phase1_5/` 下约 45 个 YAML（`--output-dir` 的 `phase1_5/` 子目录由脚本追加）。
 
 ---
 
@@ -282,7 +287,8 @@ uv run exp/common/generate_cache_run_yamls.py \
 
 ```bash
 uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/phase1_5 \
+    --yaml-dir exp/common/config/phase1_5 \
+    --state-path exp/common/data/phase1_5/experiment_state.json \
     --episodes-per-run 5 \
     --num-workers 5 \
     --host 155.98.36.13 \
@@ -300,8 +306,8 @@ uv run exp/common/run_cache_experiments.py \
 
 ```bash
 uv run exp/common/analyze_cache_results.py \
-    --state-file exp/phase1_5/experiment_state.json \
-    --output exp/phase1_5/analysis.json
+    --state-file exp/common/data/phase1_5/experiment_state.json \
+    --output exp/common/data/phase1_5/analysis.json
 ```
 
 ---
@@ -313,11 +319,11 @@ uv run exp/common/generate_cache_run_yamls.py \
     --phase 2 \
     --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
     --calibration-file exp/common/data/cache_artifacts/libero_spatial/calibration.json \
-    --phase1-5-analysis exp/phase1_5/analysis.json \
-    --output-dir configs/cache_runs
+    --phase1-5-analysis exp/common/data/phase1_5/analysis.json \
+    --output-dir exp/common/config
 ```
 
-产物：`exp/phase2/` 下约 3 个 YAML（prompt_emb 权重 0.0 / 0.1 / 0.2）。
+产物：`exp/common/config/phase2/` 下约 3 个 YAML（prompt_emb 权重 0.0 / 0.1 / 0.2；`--output-dir` 的 `phase2/` 子目录由脚本追加）。
 
 ---
 
@@ -325,7 +331,8 @@ uv run exp/common/generate_cache_run_yamls.py \
 
 ```bash
 uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/phase2 \
+    --yaml-dir exp/common/config/phase2 \
+    --state-path exp/common/data/phase2/experiment_state.json \
     --episodes-per-run 5 \
     --num-workers 5 \
     --host 155.98.36.13 \
@@ -341,8 +348,8 @@ uv run exp/common/run_cache_experiments.py \
 
 ```bash
 uv run exp/common/analyze_cache_results.py \
-    --state-file exp/phase2/experiment_state.json \
-    --output exp/phase2/analysis.json
+    --state-file exp/common/data/phase2/experiment_state.json \
+    --output exp/common/data/phase2/analysis.json
 ```
 
 `analysis.json` 中的 `best` 字段即为最终最优配置。
@@ -394,7 +401,8 @@ for s in states:
 
 # 继续运行
 uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/phase1 \
+    --yaml-dir exp/common/config/phase1 \
+    --state-path exp/common/data/phase1/experiment_state.json \
     --episodes-per-run 5 \
     --num-workers 5 \
     --host 155.98.36.13 \
@@ -470,11 +478,11 @@ run_cache_experiments.py                           (评估端执行)
 experiment_state.json                              ← 实验进度+结果
     │
     ▼ analyze_cache_results.py
-analysis.json                                      ← 排名 + Top 3
+exp/common/data/phase1/analysis.json               ← 排名 + Top 3
     │
     ▼ generate_cache_run_yamls.py --phase 1.5
-exp/phase1_5/*.yaml → ... → analysis.json
+exp/common/config/phase1_5/*.yaml → ... → exp/common/data/phase1_5/analysis.json
     │
     ▼ generate_cache_run_yamls.py --phase 2
-exp/phase2/*.yaml → ... → analysis.json (最终结果)
+exp/common/config/phase2/*.yaml → ... → exp/common/data/phase2/analysis.json (最终结果)
 ```

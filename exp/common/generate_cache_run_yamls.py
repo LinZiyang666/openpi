@@ -1,28 +1,28 @@
 """Batch-generate CP1 experiment YAML configs.
 
 Usage:
-    # Phase 1: 8 combos x 8 weights = 64 YAMLs
+    # Phase 1: 8 combos x 8 weights = 64 YAMLs (written to <output-dir>/phase1/)
     uv run exp/common/generate_cache_run_yamls.py \
         --phase 1 \
         --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
         --calibration-file exp/common/data/cache_artifacts/libero_spatial/calibration.json \
-        --output-dir configs/cache_runs
+        --output-dir exp/common/config
 
-    # Phase 1.5: top 3 combos x ~15 fine weights = ~45 YAMLs
+    # Phase 1.5: top 3 combos x ~15 fine weights = ~45 YAMLs (-> <output-dir>/phase1_5/)
     uv run exp/common/generate_cache_run_yamls.py \
         --phase 1.5 \
         --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
         --calibration-file exp/common/data/cache_artifacts/libero_spatial/calibration.json \
-        --phase1-analysis exp/common/config/phase1/analysis.json \
-        --output-dir configs/cache_runs
+        --phase1-analysis exp/common/data/phase1/analysis.json \
+        --output-dir exp/common/config
 
-    # Phase 2: ~3 YAMLs with prompt_emb weight
+    # Phase 2: ~3 YAMLs with prompt_emb weight (-> <output-dir>/phase2/)
     uv run exp/common/generate_cache_run_yamls.py \
         --phase 2 \
         --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
         --calibration-file exp/common/data/cache_artifacts/libero_spatial/calibration.json \
-        --phase1-5-analysis exp/phase1_5/analysis.json \
-        --output-dir configs/cache_runs
+        --phase1-5-analysis exp/common/data/phase1_5/analysis.json \
+        --output-dir exp/common/config
 """
 
 from __future__ import annotations
@@ -273,7 +273,16 @@ def main():
     parser.add_argument("--phase", required=True, choices=["1", "1.5", "2"])
     parser.add_argument("--artifact-dir", required=True)
     parser.add_argument("--calibration-file", required=True)
-    parser.add_argument("--output-dir", default="configs/cache_runs")
+    parser.add_argument(
+        "--output-dir",
+        required=True,
+        help=(
+            "Parent directory for generated YAMLs. The script appends a per-phase "
+            "subdirectory (phase1/, phase1_5/, phase2/). Example: "
+            "--output-dir exp/common/config writes Phase 1 YAMLs to "
+            "exp/common/config/phase1/."
+        ),
+    )
     parser.add_argument("--phase1-analysis", default=None, help="Phase 1 analysis JSON (for phase 1.5)")
     parser.add_argument("--phase1-5-analysis", default=None, help="Phase 1.5 analysis JSON (for phase 2)")
     args = parser.parse_args()

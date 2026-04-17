@@ -33,7 +33,7 @@ By default, collected files are written under the current working directory:
 For LIBERO, `experiment_name` is usually the task suite name, for example:
 
 ```bash
-./data/libero_spatial/episode_0007_20260331_035410_446588.h5
+./exp/common/data/libero_spatial/episode_0007_20260331_035410_446588.h5
 ```
 
 You can override the root directory with `--collect_dir`.
@@ -202,7 +202,7 @@ Inspect the newest file:
 python - <<'PY'
 import glob
 import h5py
-paths = sorted(glob.glob('data/libero_spatial/*.h5'))
+paths = sorted(glob.glob('exp/common/data/libero_spatial/*.h5'))
 print("latest:", paths[-1])
 with h5py.File(paths[-1], 'r') as f:
     print("attrs:", dict(f.attrs))

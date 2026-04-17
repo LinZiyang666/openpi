@@ -227,7 +227,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--data-dir",
         type=Path,
-        default=Path("data/libero_spatial"),
+        default=Path("exp/common/data/libero_spatial"),
         help="Directory containing episode_*.h5 files",
     )
     parser.add_argument(

@@ -127,7 +127,7 @@ def plot_grouped_bar(data: dict, out: Path):
 # ── Main ──────────────────────────────────────────────────────────────────
 
 def main():
-    out_dir = Path("exp/warm_start/data/results")
+    out_dir = Path("exp/warm_start/analysis")
     out_dir.mkdir(parents=True, exist_ok=True)
 
     data = load_all()

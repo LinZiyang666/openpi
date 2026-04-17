@@ -3,7 +3,7 @@
 Usage:
     uv run exp/common/analyze_cache_results.py \
         --state-file exp/common/data/phase1/experiment_state.json \
-        --output exp/common/config/phase1/analysis.json
+        --output exp/common/data/phase1/analysis.json
 """
 
 from __future__ import annotations

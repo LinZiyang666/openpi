@@ -10,7 +10,7 @@
 
 - 3 个 keybuilder × 3 个 start_t = **9 YAML × 500 ep = 4500 episode**（首批不带 CLIP 时 6 × 500 = 3000）
 - **不重跑 baseline**：B0（inference 上界）/ B1（always_hit 下界）直接复用 [trajectory_deviation](trajectory_deviation.md) Step 1a 的 `exp/trajectory_deviation/data/cache_eval_results_*.json`。
-- 主输出：`exp/warm_start/data/results/cache_eval_results.json`（9 配置合并） + `exp/warm_start/data/timing/<cfg>/*.csv` 延迟指标。
+- 主输出：`exp/warm_start/data/<cfg>/cache_eval_results.json`（3 份 per-keybuilder，合计 9 配置） + `exp/warm_start/analysis/success_rate_sweep.png` 由 Step 4 分析脚本生成。
 
 流水线：
 
@@ -236,23 +236,7 @@ uv run python exp/common/run_cache_experiments.py \
 
 Driver 在每份 warm YAML 前发 `send_load_cache_config`，server 会重新 `build_shared_storage` → `InMemoryBackend.load_artifact(preload_path)`，等于每份 YAML 都会重新 pickle.load 一次 artifact（max_pool < 1s，spatial16 数秒，CLIP 1–2s；对分钟级的 500 ep 跑量可忽略）。
 
-跑完归档（防止被下一次覆盖）：
-
-```bash
-mkdir -p exp/warm_start/data/results
-for cfg in max_pool spatial16 clip; do
-    src=exp/warm_start/config/$cfg/cache_eval_results.json
-    [ -f "$src" ] && cp "$src" exp/warm_start/data/results/cache_eval_results_${cfg}.json
-done
-uv run python - <<'PY'
-import json, glob
-out = []
-for fn in sorted(glob.glob("exp/warm_start/data/results/cache_eval_results_*.json")):
-    out.extend(json.load(open(fn)))
-json.dump(out, open("exp/warm_start/data/results/cache_eval_results.json","w"), indent=2)
-print("merged", len(out), "records")
-PY
-```
+跑完后 3 份 per-keybuilder 结果分别落在 `exp/warm_start/data/{max_pool,spatial16,clip}/cache_eval_results.json`，Step 4 的分析脚本直接读这 3 份，不需要额外合并。
 
 9 × 500 = **4500 record**（只跑 max_pool + spatial16 时 3000）。若 `--num-workers` 撞 GPU/CPU 墙，结果里会出现 `attempt > 1` 的 retry record，sanity 时先过滤这些再看 success_rate。
 
@@ -260,7 +244,7 @@ PY
 
 ## Step 4：分析
 
-`exp/warm_start/analyze_warm_sweep.py` 读 `exp/warm_start/data/results/cache_eval_results.json` + `exp/warm_start/data/baseline_failures.json`，产出：
+`exp/warm_start/analyze_warm_sweep.py` 读 `exp/warm_start/data/{max_pool,spatial16,clip}/cache_eval_results.json`（warm 结果）+ `exp/trajectory_deviation/data/cache_eval_results_{maxpool,spatial16,clip}.json`（B0/B1 baseline），写到 `exp/warm_start/analysis/`，产出：
 
 | 产物 | 含义 |
 |------|-----|

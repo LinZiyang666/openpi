@@ -1,6 +1,6 @@
 {
-  "query_file": "data/libero_spatial_1/episode_0000_20260331_035016_586551.h5",
-  "db_data_dir": "data/libero_spatial",
+  "query_file": "exp/common/data/libero_spatial_1/episode_0000_20260331_035016_586551.h5",
+  "db_data_dir": "exp/common/data/libero_spatial",
   "output_dir": "exp/qdrant_step_knn/data/example",
   "cache": {
     "enabled": true,
