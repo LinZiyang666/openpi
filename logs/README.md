@@ -64,7 +64,7 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 | File | Status | Description |
 |------|--------|-------------|
 | [exp_reorg_plan.log.md](exp_reorg_plan.log.md) | `G2 Approved` | `exp/` 目录按实验重组：4 个实验子包 + `common/` 公用包；G2 复审已批准，可提交 |
-| [experiment_artifact_layout_plan.log.md](experiment_artifact_layout_plan.log.md) | `Plan/G1 APPROVED` | 实验脚本/配置/产物/数据全仓普查 + 统一布局（`exp/<exp>/{config,data,analysis}/`）；owner G1 R2 指示"纯位置重构、24 个 result JSON 保持 tracked 用 `git mv`"；8 phase / 51 step；G1 R3 APPROVED，可进入 Phase 0 |
+| [experiment_artifact_layout_plan.log.md](experiment_artifact_layout_plan.log.md) | `Implemented` | 实验脚本/配置/产物/数据全仓普查 + 统一布局（`exp/<exp>/{config,data,analysis}/`）；owner G1 R2 指示"纯位置重构、24 个 result JSON 保持 tracked 用 `git mv`"；8 phase / 51 step；Phase 0–8 执行完成；canonical 规则落在 [`docs/experiments/artifact_layout.md`](../docs/experiments/artifact_layout.md) |
 
 ---
 

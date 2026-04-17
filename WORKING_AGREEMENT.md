@@ -159,6 +159,7 @@ Subsystem-specific architecture constraints and component rules are defined in t
 |-----------|---------------|
 | Cache System | [`docs/architecture/cache_system.md`](docs/architecture/cache_system.md), [`docs/cache/tutorial.md`](docs/cache/tutorial.md) |
 | Data Collection | [`docs/data_collection/guide.md`](docs/data_collection/guide.md) |
+| Experiment Artifact Layout | [`docs/experiments/artifact_layout.md`](docs/experiments/artifact_layout.md) |
 
 **New subsystem rule documents MUST be approved by the project owner before registration in this table.**
 
