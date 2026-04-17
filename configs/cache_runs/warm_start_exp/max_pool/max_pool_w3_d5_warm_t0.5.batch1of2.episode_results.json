@@ -1,0 +1,2002 @@
+[
+  {
+    "task_id": 5,
+    "init_state_idx": 0,
+    "orig_init_state_idx": 0,
+    "episode_id": 250,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 1,
+    "orig_init_state_idx": 1,
+    "episode_id": 251,
+    "seed": 42,
+    "success": false
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 2,
+    "orig_init_state_idx": 2,
+    "episode_id": 252,
+    "seed": 42,
+    "success": false
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 3,
+    "orig_init_state_idx": 3,
+    "episode_id": 253,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 4,
+    "orig_init_state_idx": 4,
+    "episode_id": 254,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 5,
+    "orig_init_state_idx": 5,
+    "episode_id": 255,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 6,
+    "orig_init_state_idx": 6,
+    "episode_id": 256,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 7,
+    "orig_init_state_idx": 7,
+    "episode_id": 257,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 8,
+    "orig_init_state_idx": 8,
+    "episode_id": 258,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 9,
+    "orig_init_state_idx": 9,
+    "episode_id": 259,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 10,
+    "orig_init_state_idx": 10,
+    "episode_id": 260,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 11,
+    "orig_init_state_idx": 11,
+    "episode_id": 261,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 12,
+    "orig_init_state_idx": 12,
+    "episode_id": 262,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 13,
+    "orig_init_state_idx": 13,
+    "episode_id": 263,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 14,
+    "orig_init_state_idx": 14,
+    "episode_id": 264,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 15,
+    "orig_init_state_idx": 15,
+    "episode_id": 265,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 16,
+    "orig_init_state_idx": 16,
+    "episode_id": 266,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 17,
+    "orig_init_state_idx": 17,
+    "episode_id": 267,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 18,
+    "orig_init_state_idx": 18,
+    "episode_id": 268,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 19,
+    "orig_init_state_idx": 19,
+    "episode_id": 269,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 20,
+    "orig_init_state_idx": 20,
+    "episode_id": 270,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 21,
+    "orig_init_state_idx": 21,
+    "episode_id": 271,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 22,
+    "orig_init_state_idx": 22,
+    "episode_id": 272,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 23,
+    "orig_init_state_idx": 23,
+    "episode_id": 273,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 24,
+    "orig_init_state_idx": 24,
+    "episode_id": 274,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 25,
+    "orig_init_state_idx": 25,
+    "episode_id": 275,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 26,
+    "orig_init_state_idx": 26,
+    "episode_id": 276,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 27,
+    "orig_init_state_idx": 27,
+    "episode_id": 277,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 28,
+    "orig_init_state_idx": 28,
+    "episode_id": 278,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 29,
+    "orig_init_state_idx": 29,
+    "episode_id": 279,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 30,
+    "orig_init_state_idx": 30,
+    "episode_id": 280,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 31,
+    "orig_init_state_idx": 31,
+    "episode_id": 281,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 32,
+    "orig_init_state_idx": 32,
+    "episode_id": 282,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 33,
+    "orig_init_state_idx": 33,
+    "episode_id": 283,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 34,
+    "orig_init_state_idx": 34,
+    "episode_id": 284,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 35,
+    "orig_init_state_idx": 35,
+    "episode_id": 285,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 36,
+    "orig_init_state_idx": 36,
+    "episode_id": 286,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 37,
+    "orig_init_state_idx": 37,
+    "episode_id": 287,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 38,
+    "orig_init_state_idx": 38,
+    "episode_id": 288,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 39,
+    "orig_init_state_idx": 39,
+    "episode_id": 289,
+    "seed": 42,
+    "success": false
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 40,
+    "orig_init_state_idx": 40,
+    "episode_id": 290,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 41,
+    "orig_init_state_idx": 41,
+    "episode_id": 291,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 42,
+    "orig_init_state_idx": 42,
+    "episode_id": 292,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 43,
+    "orig_init_state_idx": 43,
+    "episode_id": 293,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 44,
+    "orig_init_state_idx": 44,
+    "episode_id": 294,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 45,
+    "orig_init_state_idx": 45,
+    "episode_id": 295,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 46,
+    "orig_init_state_idx": 46,
+    "episode_id": 296,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 47,
+    "orig_init_state_idx": 47,
+    "episode_id": 297,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 48,
+    "orig_init_state_idx": 48,
+    "episode_id": 298,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 5,
+    "init_state_idx": 49,
+    "orig_init_state_idx": 49,
+    "episode_id": 299,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 0,
+    "orig_init_state_idx": 0,
+    "episode_id": 300,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 1,
+    "orig_init_state_idx": 1,
+    "episode_id": 301,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 2,
+    "orig_init_state_idx": 2,
+    "episode_id": 302,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 3,
+    "orig_init_state_idx": 3,
+    "episode_id": 303,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 4,
+    "orig_init_state_idx": 4,
+    "episode_id": 304,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 5,
+    "orig_init_state_idx": 5,
+    "episode_id": 305,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 6,
+    "orig_init_state_idx": 6,
+    "episode_id": 306,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 7,
+    "orig_init_state_idx": 7,
+    "episode_id": 307,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 8,
+    "orig_init_state_idx": 8,
+    "episode_id": 308,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 9,
+    "orig_init_state_idx": 9,
+    "episode_id": 309,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 10,
+    "orig_init_state_idx": 10,
+    "episode_id": 310,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 11,
+    "orig_init_state_idx": 11,
+    "episode_id": 311,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 12,
+    "orig_init_state_idx": 12,
+    "episode_id": 312,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 13,
+    "orig_init_state_idx": 13,
+    "episode_id": 313,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 14,
+    "orig_init_state_idx": 14,
+    "episode_id": 314,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 15,
+    "orig_init_state_idx": 15,
+    "episode_id": 315,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 16,
+    "orig_init_state_idx": 16,
+    "episode_id": 316,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 17,
+    "orig_init_state_idx": 17,
+    "episode_id": 317,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 18,
+    "orig_init_state_idx": 18,
+    "episode_id": 318,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 19,
+    "orig_init_state_idx": 19,
+    "episode_id": 319,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 20,
+    "orig_init_state_idx": 20,
+    "episode_id": 320,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 21,
+    "orig_init_state_idx": 21,
+    "episode_id": 321,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 22,
+    "orig_init_state_idx": 22,
+    "episode_id": 322,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 23,
+    "orig_init_state_idx": 23,
+    "episode_id": 323,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 24,
+    "orig_init_state_idx": 24,
+    "episode_id": 324,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 25,
+    "orig_init_state_idx": 25,
+    "episode_id": 325,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 26,
+    "orig_init_state_idx": 26,
+    "episode_id": 326,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 27,
+    "orig_init_state_idx": 27,
+    "episode_id": 327,
+    "seed": 42,
+    "success": false
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 28,
+    "orig_init_state_idx": 28,
+    "episode_id": 328,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 29,
+    "orig_init_state_idx": 29,
+    "episode_id": 329,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 30,
+    "orig_init_state_idx": 30,
+    "episode_id": 330,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 31,
+    "orig_init_state_idx": 31,
+    "episode_id": 331,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 32,
+    "orig_init_state_idx": 32,
+    "episode_id": 332,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 33,
+    "orig_init_state_idx": 33,
+    "episode_id": 333,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 34,
+    "orig_init_state_idx": 34,
+    "episode_id": 334,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 35,
+    "orig_init_state_idx": 35,
+    "episode_id": 335,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 36,
+    "orig_init_state_idx": 36,
+    "episode_id": 336,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 37,
+    "orig_init_state_idx": 37,
+    "episode_id": 337,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 38,
+    "orig_init_state_idx": 38,
+    "episode_id": 338,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 39,
+    "orig_init_state_idx": 39,
+    "episode_id": 339,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 40,
+    "orig_init_state_idx": 40,
+    "episode_id": 340,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 41,
+    "orig_init_state_idx": 41,
+    "episode_id": 341,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 42,
+    "orig_init_state_idx": 42,
+    "episode_id": 342,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 43,
+    "orig_init_state_idx": 43,
+    "episode_id": 343,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 44,
+    "orig_init_state_idx": 44,
+    "episode_id": 344,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 45,
+    "orig_init_state_idx": 45,
+    "episode_id": 345,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 46,
+    "orig_init_state_idx": 46,
+    "episode_id": 346,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 47,
+    "orig_init_state_idx": 47,
+    "episode_id": 347,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 48,
+    "orig_init_state_idx": 48,
+    "episode_id": 348,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 6,
+    "init_state_idx": 49,
+    "orig_init_state_idx": 49,
+    "episode_id": 349,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 0,
+    "orig_init_state_idx": 0,
+    "episode_id": 350,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 1,
+    "orig_init_state_idx": 1,
+    "episode_id": 351,
+    "seed": 42,
+    "success": false
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 2,
+    "orig_init_state_idx": 2,
+    "episode_id": 352,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 3,
+    "orig_init_state_idx": 3,
+    "episode_id": 353,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 4,
+    "orig_init_state_idx": 4,
+    "episode_id": 354,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 5,
+    "orig_init_state_idx": 5,
+    "episode_id": 355,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 6,
+    "orig_init_state_idx": 6,
+    "episode_id": 356,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 7,
+    "orig_init_state_idx": 7,
+    "episode_id": 357,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 8,
+    "orig_init_state_idx": 8,
+    "episode_id": 358,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 9,
+    "orig_init_state_idx": 9,
+    "episode_id": 359,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 10,
+    "orig_init_state_idx": 10,
+    "episode_id": 360,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 11,
+    "orig_init_state_idx": 11,
+    "episode_id": 361,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 12,
+    "orig_init_state_idx": 12,
+    "episode_id": 362,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 13,
+    "orig_init_state_idx": 13,
+    "episode_id": 363,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 14,
+    "orig_init_state_idx": 14,
+    "episode_id": 364,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 15,
+    "orig_init_state_idx": 15,
+    "episode_id": 365,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 16,
+    "orig_init_state_idx": 16,
+    "episode_id": 366,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 17,
+    "orig_init_state_idx": 17,
+    "episode_id": 367,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 18,
+    "orig_init_state_idx": 18,
+    "episode_id": 368,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 19,
+    "orig_init_state_idx": 19,
+    "episode_id": 369,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 20,
+    "orig_init_state_idx": 20,
+    "episode_id": 370,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 21,
+    "orig_init_state_idx": 21,
+    "episode_id": 371,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 22,
+    "orig_init_state_idx": 22,
+    "episode_id": 372,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 23,
+    "orig_init_state_idx": 23,
+    "episode_id": 373,
+    "seed": 42,
+    "success": false
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 24,
+    "orig_init_state_idx": 24,
+    "episode_id": 374,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 25,
+    "orig_init_state_idx": 25,
+    "episode_id": 375,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 26,
+    "orig_init_state_idx": 26,
+    "episode_id": 376,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 27,
+    "orig_init_state_idx": 27,
+    "episode_id": 377,
+    "seed": 42,
+    "success": false
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 28,
+    "orig_init_state_idx": 28,
+    "episode_id": 378,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 29,
+    "orig_init_state_idx": 29,
+    "episode_id": 379,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 30,
+    "orig_init_state_idx": 30,
+    "episode_id": 380,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 31,
+    "orig_init_state_idx": 31,
+    "episode_id": 381,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 32,
+    "orig_init_state_idx": 32,
+    "episode_id": 382,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 33,
+    "orig_init_state_idx": 33,
+    "episode_id": 383,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 34,
+    "orig_init_state_idx": 34,
+    "episode_id": 384,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 35,
+    "orig_init_state_idx": 35,
+    "episode_id": 385,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 36,
+    "orig_init_state_idx": 36,
+    "episode_id": 386,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 37,
+    "orig_init_state_idx": 37,
+    "episode_id": 387,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 38,
+    "orig_init_state_idx": 38,
+    "episode_id": 388,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 39,
+    "orig_init_state_idx": 39,
+    "episode_id": 389,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 40,
+    "orig_init_state_idx": 40,
+    "episode_id": 390,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 41,
+    "orig_init_state_idx": 41,
+    "episode_id": 391,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 42,
+    "orig_init_state_idx": 42,
+    "episode_id": 392,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 43,
+    "orig_init_state_idx": 43,
+    "episode_id": 393,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 44,
+    "orig_init_state_idx": 44,
+    "episode_id": 394,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 45,
+    "orig_init_state_idx": 45,
+    "episode_id": 395,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 46,
+    "orig_init_state_idx": 46,
+    "episode_id": 396,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 47,
+    "orig_init_state_idx": 47,
+    "episode_id": 397,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 48,
+    "orig_init_state_idx": 48,
+    "episode_id": 398,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 7,
+    "init_state_idx": 49,
+    "orig_init_state_idx": 49,
+    "episode_id": 399,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 0,
+    "orig_init_state_idx": 0,
+    "episode_id": 400,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 1,
+    "orig_init_state_idx": 1,
+    "episode_id": 401,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 2,
+    "orig_init_state_idx": 2,
+    "episode_id": 402,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 3,
+    "orig_init_state_idx": 3,
+    "episode_id": 403,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 4,
+    "orig_init_state_idx": 4,
+    "episode_id": 404,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 5,
+    "orig_init_state_idx": 5,
+    "episode_id": 405,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 6,
+    "orig_init_state_idx": 6,
+    "episode_id": 406,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 7,
+    "orig_init_state_idx": 7,
+    "episode_id": 407,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 8,
+    "orig_init_state_idx": 8,
+    "episode_id": 408,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 9,
+    "orig_init_state_idx": 9,
+    "episode_id": 409,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 10,
+    "orig_init_state_idx": 10,
+    "episode_id": 410,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 11,
+    "orig_init_state_idx": 11,
+    "episode_id": 411,
+    "seed": 42,
+    "success": false
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 12,
+    "orig_init_state_idx": 12,
+    "episode_id": 412,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 13,
+    "orig_init_state_idx": 13,
+    "episode_id": 413,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 14,
+    "orig_init_state_idx": 14,
+    "episode_id": 414,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 15,
+    "orig_init_state_idx": 15,
+    "episode_id": 415,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 16,
+    "orig_init_state_idx": 16,
+    "episode_id": 416,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 17,
+    "orig_init_state_idx": 17,
+    "episode_id": 417,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 18,
+    "orig_init_state_idx": 18,
+    "episode_id": 418,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 19,
+    "orig_init_state_idx": 19,
+    "episode_id": 419,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 20,
+    "orig_init_state_idx": 20,
+    "episode_id": 420,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 21,
+    "orig_init_state_idx": 21,
+    "episode_id": 421,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 22,
+    "orig_init_state_idx": 22,
+    "episode_id": 422,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 23,
+    "orig_init_state_idx": 23,
+    "episode_id": 423,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 24,
+    "orig_init_state_idx": 24,
+    "episode_id": 424,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 25,
+    "orig_init_state_idx": 25,
+    "episode_id": 425,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 26,
+    "orig_init_state_idx": 26,
+    "episode_id": 426,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 27,
+    "orig_init_state_idx": 27,
+    "episode_id": 427,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 28,
+    "orig_init_state_idx": 28,
+    "episode_id": 428,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 29,
+    "orig_init_state_idx": 29,
+    "episode_id": 429,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 30,
+    "orig_init_state_idx": 30,
+    "episode_id": 430,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 31,
+    "orig_init_state_idx": 31,
+    "episode_id": 431,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 32,
+    "orig_init_state_idx": 32,
+    "episode_id": 432,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 33,
+    "orig_init_state_idx": 33,
+    "episode_id": 433,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 34,
+    "orig_init_state_idx": 34,
+    "episode_id": 434,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 35,
+    "orig_init_state_idx": 35,
+    "episode_id": 435,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 36,
+    "orig_init_state_idx": 36,
+    "episode_id": 436,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 37,
+    "orig_init_state_idx": 37,
+    "episode_id": 437,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 38,
+    "orig_init_state_idx": 38,
+    "episode_id": 438,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 39,
+    "orig_init_state_idx": 39,
+    "episode_id": 439,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 40,
+    "orig_init_state_idx": 40,
+    "episode_id": 440,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 41,
+    "orig_init_state_idx": 41,
+    "episode_id": 441,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 42,
+    "orig_init_state_idx": 42,
+    "episode_id": 442,
+    "seed": 42,
+    "success": false
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 43,
+    "orig_init_state_idx": 43,
+    "episode_id": 443,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 44,
+    "orig_init_state_idx": 44,
+    "episode_id": 444,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 45,
+    "orig_init_state_idx": 45,
+    "episode_id": 445,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 46,
+    "orig_init_state_idx": 46,
+    "episode_id": 446,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 47,
+    "orig_init_state_idx": 47,
+    "episode_id": 447,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 48,
+    "orig_init_state_idx": 48,
+    "episode_id": 448,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 8,
+    "init_state_idx": 49,
+    "orig_init_state_idx": 49,
+    "episode_id": 449,
+    "seed": 42,
+    "success": false
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 0,
+    "orig_init_state_idx": 0,
+    "episode_id": 450,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 1,
+    "orig_init_state_idx": 1,
+    "episode_id": 451,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 2,
+    "orig_init_state_idx": 2,
+    "episode_id": 452,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 3,
+    "orig_init_state_idx": 3,
+    "episode_id": 453,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 4,
+    "orig_init_state_idx": 4,
+    "episode_id": 454,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 5,
+    "orig_init_state_idx": 5,
+    "episode_id": 455,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 6,
+    "orig_init_state_idx": 6,
+    "episode_id": 456,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 7,
+    "orig_init_state_idx": 7,
+    "episode_id": 457,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 8,
+    "orig_init_state_idx": 8,
+    "episode_id": 458,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 9,
+    "orig_init_state_idx": 9,
+    "episode_id": 459,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 10,
+    "orig_init_state_idx": 10,
+    "episode_id": 460,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 11,
+    "orig_init_state_idx": 11,
+    "episode_id": 461,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 12,
+    "orig_init_state_idx": 12,
+    "episode_id": 462,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 13,
+    "orig_init_state_idx": 13,
+    "episode_id": 463,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 14,
+    "orig_init_state_idx": 14,
+    "episode_id": 464,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 15,
+    "orig_init_state_idx": 15,
+    "episode_id": 465,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 16,
+    "orig_init_state_idx": 16,
+    "episode_id": 466,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 17,
+    "orig_init_state_idx": 17,
+    "episode_id": 467,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 18,
+    "orig_init_state_idx": 18,
+    "episode_id": 468,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 19,
+    "orig_init_state_idx": 19,
+    "episode_id": 469,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 20,
+    "orig_init_state_idx": 20,
+    "episode_id": 470,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 21,
+    "orig_init_state_idx": 21,
+    "episode_id": 471,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 22,
+    "orig_init_state_idx": 22,
+    "episode_id": 472,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 23,
+    "orig_init_state_idx": 23,
+    "episode_id": 473,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 24,
+    "orig_init_state_idx": 24,
+    "episode_id": 474,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 25,
+    "orig_init_state_idx": 25,
+    "episode_id": 475,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 26,
+    "orig_init_state_idx": 26,
+    "episode_id": 476,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 27,
+    "orig_init_state_idx": 27,
+    "episode_id": 477,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 28,
+    "orig_init_state_idx": 28,
+    "episode_id": 478,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 29,
+    "orig_init_state_idx": 29,
+    "episode_id": 479,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 30,
+    "orig_init_state_idx": 30,
+    "episode_id": 480,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 31,
+    "orig_init_state_idx": 31,
+    "episode_id": 481,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 32,
+    "orig_init_state_idx": 32,
+    "episode_id": 482,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 33,
+    "orig_init_state_idx": 33,
+    "episode_id": 483,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 34,
+    "orig_init_state_idx": 34,
+    "episode_id": 484,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 35,
+    "orig_init_state_idx": 35,
+    "episode_id": 485,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 36,
+    "orig_init_state_idx": 36,
+    "episode_id": 486,
+    "seed": 42,
+    "success": false
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 37,
+    "orig_init_state_idx": 37,
+    "episode_id": 487,
+    "seed": 42,
+    "success": false
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 38,
+    "orig_init_state_idx": 38,
+    "episode_id": 488,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 39,
+    "orig_init_state_idx": 39,
+    "episode_id": 489,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 40,
+    "orig_init_state_idx": 40,
+    "episode_id": 490,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 41,
+    "orig_init_state_idx": 41,
+    "episode_id": 491,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 42,
+    "orig_init_state_idx": 42,
+    "episode_id": 492,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 43,
+    "orig_init_state_idx": 43,
+    "episode_id": 493,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 44,
+    "orig_init_state_idx": 44,
+    "episode_id": 494,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 45,
+    "orig_init_state_idx": 45,
+    "episode_id": 495,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 46,
+    "orig_init_state_idx": 46,
+    "episode_id": 496,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 47,
+    "orig_init_state_idx": 47,
+    "episode_id": 497,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 48,
+    "orig_init_state_idx": 48,
+    "episode_id": 498,
+    "seed": 42,
+    "success": true
+  },
+  {
+    "task_id": 9,
+    "init_state_idx": 49,
+    "orig_init_state_idx": 49,
+    "episode_id": 499,
+    "seed": 42,
+    "success": true
+  }
+]
