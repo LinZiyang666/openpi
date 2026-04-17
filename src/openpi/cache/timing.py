@@ -558,7 +558,7 @@ class SystemTimer:
         task_records = self._get_task_records()
         self._print_summary(task_records)
 
-        if self._output_csv_dir is not None:
+        if self._enabled and self._output_csv_dir is not None:
             ts = time.strftime("%Y%m%d_%H%M%S")
             path = os.path.join(
                 self._output_csv_dir,
