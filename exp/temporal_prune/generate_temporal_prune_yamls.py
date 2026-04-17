@@ -171,7 +171,7 @@ def print_artifact_commands(data_dir: str, artifact_dir: str) -> None:
             for kr in KEEP_RATIOS:
                 stem = artifact_stem(reducer, window, kr)
                 print(
-                    f"uv run python exp/cache_experiment/build_in_memory_cache_artifact.py \\\n"
+                    f"uv run python exp/common/build_in_memory_cache_artifact.py \\\n"
                     f"    --data-dir {data_dir} \\\n"
                     f"    --builder-type cp1_temporal_prune \\\n"
                     f"    --reducer-type {reducer} \\\n"

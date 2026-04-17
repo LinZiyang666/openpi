@@ -191,7 +191,7 @@ def _load_pruned_inits(init_states_dir: Path, task_name: str) -> np.ndarray:
                 return torch.load(path)
     raise FileNotFoundError(
         f"No init states for task {task_name!r} under {init_states_dir}. "
-        f"Run Step 1b first (scripts/dump_step1a_failed_inits.py)."
+        f"Run Step 1b first (exp/trajectory_deviation/dump_step1a_failed_inits.py)."
     )
 
 

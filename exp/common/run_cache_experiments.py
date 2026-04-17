@@ -5,7 +5,7 @@ via main.py.  Progress is persisted after every batch, so interrupted runs
 resume from the last completed batch — not from scratch.
 
 Usage:
-    uv run exp/cache_experiment/run_cache_experiments.py \
+    uv run exp/common/run_cache_experiments.py \
         --yaml-dir configs/cache_runs/phase1 \
         --episodes-per-run 5 \
         --num-workers 5 \
@@ -14,7 +14,7 @@ Usage:
         --seed 42 --conda-env libero_sim
 
     # Resume from checkpoint
-    uv run exp/cache_experiment/run_cache_experiments.py \
+    uv run exp/common/run_cache_experiments.py \
         --yaml-dir configs/cache_runs/phase1 \
         --episodes-per-run 5 --num-workers 5 \
         --host 155.98.36.13 --port 9000 \

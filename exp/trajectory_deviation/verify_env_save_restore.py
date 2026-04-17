@@ -36,7 +36,7 @@ What this script does:
 Run (libero_sim conda env)::
 
     /home/weiland/anaconda3/envs/libero_sim/bin/python \
-        scripts/verify_env_save_restore.py \
+        exp/trajectory_deviation/verify_env_save_restore.py \
         --task-suite libero_spatial --task-id 0
 
 Exit code 0 on pass; any assertion failure propagates as non-zero.
@@ -65,8 +65,8 @@ def _build_env(task_suite: str, task_id: int, resolution: int):
 
     from libero.libero.benchmark import get_benchmark_dict
 
-    # ``scripts/`` is not on sys.path by default when run as a script.
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    # Repo root is not on sys.path by default when run as a script from exp/<exp>/.
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from exp.trajectory_deviation._libero_env import build_libero_env  # noqa: E402
 
     env = build_libero_env(task_suite, task_id, resolution=resolution, seed=None)

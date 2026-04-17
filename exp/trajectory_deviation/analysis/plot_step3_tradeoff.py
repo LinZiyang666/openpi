@@ -12,7 +12,7 @@ A Pareto frontier (high Y, low X) is drawn per subplot to highlight the
 non-dominated cells.
 
 Usage:
-    uv run python -m exp.trajectory_deviation.plot_step3_tradeoff
+    uv run python -m exp.trajectory_deviation.analysis.plot_step3_tradeoff
 """
 
 from __future__ import annotations

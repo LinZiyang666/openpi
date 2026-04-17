@@ -1,7 +1,7 @@
 """Analyze cache experiment results and select top combos.
 
 Usage:
-    uv run exp/cache_experiment/analyze_cache_results.py \
+    uv run exp/common/analyze_cache_results.py \
         --state-file configs/cache_runs/phase1/experiment_state.json \
         --output configs/cache_runs/phase1/analysis.json
 """

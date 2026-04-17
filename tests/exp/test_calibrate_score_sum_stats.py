@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import torch
 
-from exp.cache_experiment.calibrate_score_sum_stats import compute_field_stats, sanity_check
+from exp.common.calibrate_score_sum_stats import compute_field_stats, sanity_check
 from openpi.cache.storage_types import CacheEntry, CachePayload
 from openpi.cache.types import CheckpointID
 

@@ -1,7 +1,7 @@
 """Phase 0 smoke: verify restored env obs == GT HDF5 obs.
 
 Referenced by ``logs/trajectory_deviation_corrective_implementation.log.md``
-§19.6. Complements ``scripts/verify_env_save_restore.py`` — not only must the
+§19.6. Complements ``exp/trajectory_deviation/verify_env_save_restore.py`` — not only must the
 env physics round-trip, but after ``env.set_init_state(sim_state)`` the
 observation the policy sees must match the one captured in the GT HDF5 at
 the same cycle. Otherwise the spawn rollout sees a different obs than GT at
@@ -27,7 +27,7 @@ What this script does, for one HDF5 cycle ``cycle_idx``:
 
 Run example::
 
-    uv run scripts/verify_restore_obs_equivalence.py \
+    uv run exp/trajectory_deviation/verify_restore_obs_equivalence.py \
         --gt-h5 data/deviation_experiment/gt_trajectories/task_3/episode_0.h5 \
         --task-suite libero_spatial --task-id 3 --cycle-idx 0
 """
@@ -74,7 +74,7 @@ def _import_deps():
     # Re-use the transform from exp/trajectory_deviation/run_spawn_experiment and the shared
     # env-construction helper so Layer F / this smoke / the other smoke all
     # share one libero-init code path.
-    repo_root = Path(__file__).resolve().parent.parent
+    repo_root = Path(__file__).resolve().parents[2]
     sys.path.insert(0, str(repo_root))
     from exp.trajectory_deviation._libero_env import build_libero_env  # noqa: E402
     from exp.trajectory_deviation.run_spawn_experiment import _obs_env_to_policy  # noqa: E402

@@ -6,8 +6,8 @@ get_libero_path("bddl_files") / task.problem_folder / task.bddl_file →
 OffScreenRenderEnv(...)`` sequence found at
 
 - ``exp/trajectory_deviation/run_spawn_experiment.py::_SpawnCommon.make_env``
-- ``scripts/verify_env_save_restore.py::_build_env``
-- ``scripts/verify_restore_obs_equivalence.py::verify`` (inline)
+- ``exp/trajectory_deviation/verify_env_save_restore.py::_build_env``
+- ``exp/trajectory_deviation/verify_restore_obs_equivalence.py::verify`` (inline)
 
 The V-3 regression (task_1 construction failure) happened because those
 three copies drifted apart: only the examples/ layer had been patched.

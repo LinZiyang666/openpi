@@ -1,7 +1,7 @@
 """Step 1b GT-trajectory runner (plan §9.2 + §18.B4 + §19.B6).
 
 This is a thin dispatcher on top of ``examples/libero/main.py``. It reads the
-filter written by ``scripts/dump_step1a_failed_inits.py`` — which enumerates
+filter written by ``exp/trajectory_deviation/dump_step1a_failed_inits.py`` — which enumerates
 every ``(task_id, orig_init_state_idx, subset_init_state_idx)`` failure from
 Step 1a — and, for each such unit, spawns a subprocess ``main.py`` call with
 
@@ -331,7 +331,7 @@ def main() -> None:
     if not filter_path.exists():
         raise FileNotFoundError(
             f"step1b_filter.json not found at {filter_path} — run "
-            f"scripts/dump_step1a_failed_inits.py first."
+            f"exp/trajectory_deviation/dump_step1a_failed_inits.py first."
         )
     entries = load_filter_entries(filter_path)
     if not entries:

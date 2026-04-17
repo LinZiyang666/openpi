@@ -8,7 +8,7 @@ results from the warm_start_sweep experiment, then produces:
    with B0/B1 horizontal reference bands.
 
 Usage:
-    uv run python exp/cache_experiment/analyze_warm_sweep.py
+    uv run python exp/warm_start/analyze_warm_sweep.py
 """
 
 from __future__ import annotations

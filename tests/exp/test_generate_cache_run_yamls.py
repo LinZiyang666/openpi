@@ -3,7 +3,7 @@ from __future__ import annotations
 import yaml
 import pytest
 
-from exp.cache_experiment.generate_cache_run_yamls import COMBOS, _generate_fine_grid, render_yaml
+from exp.common.generate_cache_run_yamls import COMBOS, _generate_fine_grid, render_yaml
 
 
 def _calibration() -> dict:

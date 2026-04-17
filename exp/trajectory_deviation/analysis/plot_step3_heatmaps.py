@@ -12,7 +12,7 @@ bar chart over the (tau, n) grid:
 Outputs one PNG per cfg to ``data/deviation_experiment/step3/plots/``.
 
 Usage:
-    uv run python -m exp.trajectory_deviation.plot_step3_heatmaps
+    uv run python -m exp.trajectory_deviation.analysis.plot_step3_heatmaps
 """
 
 from __future__ import annotations

@@ -7,14 +7,14 @@ Input:  HDF5 episode files with input_images, prompt_emb, robot_state fields.
 Output: pickle file loadable by InMemoryBackend.load_artifact().
 
 Usage:
-    uv run exp/cache_experiment/build_clip_cache_artifact.py \
+    uv run exp/common/build_clip_cache_artifact.py \
         --data-dir data/db/libero_cache/libero_spatial \
         --clip-model ViT-B-32 \
         --clip-pretrained openai \
         --output data/cache_artifacts/libero_spatial/clip_vit_b_32.pkl
 
     # Use ViT-L-14 instead:
-    uv run exp/cache_experiment/build_clip_cache_artifact.py \
+    uv run exp/common/build_clip_cache_artifact.py \
         --data-dir data/db/libero_cache/libero_spatial \
         --clip-model ViT-L-14 \
         --clip-pretrained openai \

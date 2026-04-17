@@ -14,7 +14,7 @@ Baselines are read from Step 1a per-cfg result dumps:
     data/deviation_experiment/cache_eval_results_<short>.json
 
 Usage:
-    uv run python -m exp.trajectory_deviation.plot_step3_tradeoff_total
+    uv run python -m exp.trajectory_deviation.analysis.plot_step3_tradeoff_total
 """
 
 from __future__ import annotations

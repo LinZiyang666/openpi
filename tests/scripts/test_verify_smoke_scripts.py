@@ -1,8 +1,8 @@
 """Offline guards for the Phase 0 smoke scripts.
 
 Full end-to-end behaviour of
-``scripts/verify_env_save_restore.py`` and
-``scripts/verify_restore_obs_equivalence.py`` can only be exercised on a
+``exp/trajectory_deviation/verify_env_save_restore.py`` and
+``exp/trajectory_deviation/verify_restore_obs_equivalence.py`` can only be exercised on a
 real LIBERO install (MuJoCo + EGL + bddl assets). These tests therefore
 only cover what is safe to run in CI:
 
@@ -24,7 +24,7 @@ from pathlib import Path
 
 import pytest
 
-_SCRIPTS_DIR = Path(__file__).resolve().parents[2] / "scripts"
+_SCRIPTS_DIR = Path(__file__).resolve().parents[2] / "exp" / "trajectory_deviation"
 
 
 @pytest.fixture

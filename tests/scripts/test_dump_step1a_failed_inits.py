@@ -1,4 +1,4 @@
-"""Unit tests for ``scripts/dump_step1a_failed_inits.py`` (plan §9.1 + §19.B6).
+"""Unit tests for ``exp/trajectory_deviation/dump_step1a_failed_inits.py`` (plan §9.1 + §19.B6).
 
 We can't import the LIBERO benchmark here (no ``libero_sim`` in the plain
 venv) so every test either exercises the pure helpers (``_group_failed_by_task``,
@@ -14,9 +14,9 @@ import json
 import sys
 from pathlib import Path
 
-_SCRIPTS_DIR = Path(__file__).resolve().parents[2] / "scripts"
-# Load the module by file path — ``scripts/`` is not a regular package in
-# the venv so a normal ``import scripts.dump_step1a_failed_inits`` would fail.
+_SCRIPTS_DIR = Path(__file__).resolve().parents[2] / "exp" / "trajectory_deviation"
+# Load the module by file path — loading by path avoids requiring the
+# full ``exp.trajectory_deviation`` package (which pulls LIBERO in ``__init__``).
 _SPEC = importlib.util.spec_from_file_location(
     "dump_step1a_failed_inits",
     _SCRIPTS_DIR / "dump_step1a_failed_inits.py",

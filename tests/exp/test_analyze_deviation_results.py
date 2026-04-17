@@ -1,4 +1,4 @@
-"""Unit tests for ``exp/trajectory_deviation/analyze_deviation_results.py`` (plan §12).
+"""Unit tests for ``exp/trajectory_deviation/analysis/analyze_deviation_results.py`` (plan §12).
 
 The plotting wrappers can't be exercised headlessly in this environment
 (matplotlib may not be installed in CI), so these tests focus on the pure
@@ -23,7 +23,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-import exp.trajectory_deviation.analyze_deviation_results as ana
+import exp.trajectory_deviation.analysis.analyze_deviation_results as ana
 
 
 # ---------------------------------------------------------------------------

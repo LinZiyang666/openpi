@@ -1,7 +1,7 @@
 """Step 2 verification script.
 
 Run with:
-    uv run scripts/verify_step2.py
+    uv run exp/trajectory_deviation/verify_step2.py
 
 Tests performed (no GPU or model weights required):
     1. Syntax check — all modified files parse without error.

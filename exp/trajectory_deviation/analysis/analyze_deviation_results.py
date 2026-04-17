@@ -26,7 +26,7 @@ Produces four plot families under ``<out-dir>/figures/``:
 The module keeps the pure math (grid aggregation, histogram binning, ROC
 curve) as standalone helpers that are test-friendly; ``matplotlib`` is
 imported lazily inside each plotting function so unit tests don't need
-an X/GL display. Run with ``uv run python -m exp.trajectory_deviation.analyze_deviation_results
+an X/GL display. Run with ``uv run python -m exp.trajectory_deviation.analysis.analyze_deviation_results
 --help`` for the full CLI.
 """
 from __future__ import annotations

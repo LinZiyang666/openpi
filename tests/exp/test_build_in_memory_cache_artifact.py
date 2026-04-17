@@ -4,7 +4,7 @@ import h5py
 import numpy as np
 import torch
 
-from exp.cache_experiment.build_in_memory_cache_artifact import _build_fake_stage1, build_artifact
+from exp.common.build_in_memory_cache_artifact import _build_fake_stage1, build_artifact
 
 
 def _write_episode(

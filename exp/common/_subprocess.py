@@ -4,7 +4,7 @@ Consolidates the two pre-cleanup copies of the "run main.py either under
 uv or under conda, stripping uv's env injections so conda's interpreter
 wins, and setting MUJOCO_GL=egl" recipe found at
 
-- ``exp/cache_experiment/run_cache_experiments.py`` (inline inside ``_execute_task_batch``)
+- ``exp/common/run_cache_experiments.py`` (inline inside ``_execute_task_batch``)
 - ``exp/trajectory_deviation/run_step1b_gt.py::_build_subprocess_cmd``
 
 ``conda_env`` defaults to ``None`` — matching both runners' pre-cleanup
