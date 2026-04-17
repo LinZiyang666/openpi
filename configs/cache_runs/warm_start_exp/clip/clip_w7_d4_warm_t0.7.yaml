@@ -1,6 +1,6 @@
 enabled: true
 timer:
-  enabled: true
+  enabled: false
   buffer_size: 10000
   output_csv_dir: data/warm_start_exp/timing/clip_w7_d4_warm_t0.7
 keys:

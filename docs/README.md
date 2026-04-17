@@ -18,6 +18,7 @@ docs/
 ├── experiments/      # Experiment run-books (CP1, temporal prune, trajectory deviation)
 ├── data_collection/  # Data collection (HDF5 schema, --collect flag)
 ├── deployment/       # Deployment / simulator setup (ALOHA, LIBERO)
+├── papers/           # Related-work bibliographies (inference cache literature, etc.)
 └── upstream/         # Original upstream openpi docs (remote inference, docker, norm stats)
 ```
 
@@ -98,6 +99,14 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 |------|-------------|
 | [deployment/aloha_sim.md](deployment/aloha_sim.md) | ALOHA Sim remote inference (WSL2 client + remote GPU) |
 | [deployment/libero.md](deployment/libero.md) | LIBERO remote inference and simulator environment setup (WSL2 client + remote GPU) |
+
+### [papers/](papers/)
+
+| File | Description |
+|------|-------------|
+| [papers/inference_cache_related_work.md](papers/inference_cache_related_work.md) | Related-work bibliography for inference caching / retrieval-augmented control in robotics, organized by proximity to our cache system (RT-Cache, VINN, VLA-Cache, BAC, RTC, Behavior Retrieval, etc.) |
+| [papers/cloud_edge_deployment.md](papers/cloud_edge_deployment.md) | Cloud/edge deployment, brain-cerebellum split, fleet serving, compute/energy efficiency — deployment-context motivation for inference cache |
+| [papers/paper_workbench.md](papers/paper_workbench.md) | Paper workbench: idea → method → story → experiments, living document |
 
 ### [upstream/](upstream/) — Original upstream openpi docs
 

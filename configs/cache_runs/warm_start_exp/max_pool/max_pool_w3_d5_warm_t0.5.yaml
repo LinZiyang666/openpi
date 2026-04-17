@@ -1,6 +1,6 @@
 enabled: true
 timer:
-  enabled: true
+  enabled: false
   buffer_size: 10000
   output_csv_dir: data/warm_start_exp/timing/max_pool_w3_d5_warm_t0.5
 keys:

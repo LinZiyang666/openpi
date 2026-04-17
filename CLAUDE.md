@@ -24,7 +24,6 @@ Every new conversation MUST:
    ```
 5. Wait for user confirmation before proceeding.
 6. Update status card at every stage transition.
-7. For L2+, spawn a dedicated review sub-agent at G1 and G2 gates.
 
 ### Operating Rules
 
