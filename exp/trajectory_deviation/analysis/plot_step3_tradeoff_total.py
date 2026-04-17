@@ -11,7 +11,7 @@ baseline, this makes each point a (cost-over-failures, total success rate)
 trade-off; the Pareto front now reflects the full-population picture.
 
 Baselines are read from Step 1a per-cfg result dumps:
-    data/deviation_experiment/cache_eval_results_<short>.json
+    exp/trajectory_deviation/data/cache_eval_results_<short>.json
 
 Usage:
     uv run python -m exp.trajectory_deviation.analysis.plot_step3_tradeoff_total
@@ -27,7 +27,7 @@ import numpy as np
 from matplotlib import cm
 from matplotlib.lines import Line2D
 
-STEP3_ROOT = Path("data/deviation_experiment/step3")
+STEP3_ROOT = Path("exp/trajectory_deviation/data/step3")
 CFGS = ["clip_w7_d4", "spatial16_w8_d4", "max_pool_w3_d5"]
 TAUS = [3, 5, 7, 10]
 NS = [1, 2, 3, 5, 10]

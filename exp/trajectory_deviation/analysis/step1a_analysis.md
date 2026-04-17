@@ -1,6 +1,6 @@
 # Step 1a Cache Builder Failure Analysis
 
-Data source: `data/deviation_experiment/cache_eval_results.json`.
+Data source: `exp/trajectory_deviation/data/cache_eval_results.json`.
 
 Scope: only the three cache-builder configs are included:
 

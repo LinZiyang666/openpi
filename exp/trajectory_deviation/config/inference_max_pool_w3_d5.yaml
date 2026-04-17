@@ -60,7 +60,7 @@ backend:
     prompt_emb: 2048
     robot_state: 32
   in_memory:
-    preload_path: data/cache_artifacts/libero_spatial/cp1_max_pool.pkl
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_max_pool.pkl
     index_type: brute_force
 # Inference-side companion of max_pool_w3_d5.yaml: gate is always_skip so the
 # orchestrator records query_keys into the trajectory but never reads from the

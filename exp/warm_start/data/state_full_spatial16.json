@@ -1,6 +1,6 @@
 [
   {
-    "yaml_path": "configs/cache_runs/warm_start_exp/spatial16/spatial16_w8_d4_warm_t0.3.yaml",
+    "yaml_path": "exp/warm_start/config/spatial16/spatial16_w8_d4_warm_t0.3.yaml",
     "run_id": "spatial16_w8_d4_warm_t0.3",
     "status": "done",
     "episodes_per_task": 50,
@@ -8,7 +8,7 @@
     "start_time": "2026-04-16 20:56:03",
     "end_time": "2026-04-16 21:52:05",
     "success_rate": 0.942,
-    "log_path": "configs/cache_runs/warm_start_exp/spatial16/spatial16_w8_d4_warm_t0.3.log",
+    "log_path": "exp/warm_start/data/spatial16/spatial16_w8_d4_warm_t0.3.log",
     "task_progress": {
       "0": "done",
       "1": "done",
@@ -65,7 +65,7 @@
     }
   },
   {
-    "yaml_path": "configs/cache_runs/warm_start_exp/spatial16/spatial16_w8_d4_warm_t0.5.yaml",
+    "yaml_path": "exp/warm_start/config/spatial16/spatial16_w8_d4_warm_t0.5.yaml",
     "run_id": "spatial16_w8_d4_warm_t0.5",
     "status": "done",
     "episodes_per_task": 50,
@@ -73,7 +73,7 @@
     "start_time": "2026-04-16 21:52:05",
     "end_time": "2026-04-16 22:54:17",
     "success_rate": 0.952,
-    "log_path": "configs/cache_runs/warm_start_exp/spatial16/spatial16_w8_d4_warm_t0.5.log",
+    "log_path": "exp/warm_start/data/spatial16/spatial16_w8_d4_warm_t0.5.log",
     "task_progress": {
       "0": "done",
       "1": "done",
@@ -130,7 +130,7 @@
     }
   },
   {
-    "yaml_path": "configs/cache_runs/warm_start_exp/spatial16/spatial16_w8_d4_warm_t0.7.yaml",
+    "yaml_path": "exp/warm_start/config/spatial16/spatial16_w8_d4_warm_t0.7.yaml",
     "run_id": "spatial16_w8_d4_warm_t0.7",
     "status": "done",
     "episodes_per_task": 50,
@@ -138,7 +138,7 @@
     "start_time": "2026-04-16 22:54:17",
     "end_time": "2026-04-16 23:59:52",
     "success_rate": 0.976,
-    "log_path": "configs/cache_runs/warm_start_exp/spatial16/spatial16_w8_d4_warm_t0.7.log",
+    "log_path": "exp/warm_start/data/spatial16/spatial16_w8_d4_warm_t0.7.log",
     "task_progress": {
       "0": "done",
       "1": "done",

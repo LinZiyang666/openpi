@@ -8,17 +8,17 @@ Output: pickle file loadable by InMemoryBackend.load_artifact().
 
 Usage:
     uv run exp/common/build_clip_cache_artifact.py \
-        --data-dir data/db/libero_cache/libero_spatial \
+        --data-dir exp/common/data/db/libero_cache/libero_spatial \
         --clip-model ViT-B-32 \
         --clip-pretrained openai \
-        --output data/cache_artifacts/libero_spatial/clip_vit_b_32.pkl
+        --output exp/common/data/cache_artifacts/libero_spatial/clip_vit_b_32.pkl
 
     # Use ViT-L-14 instead:
     uv run exp/common/build_clip_cache_artifact.py \
-        --data-dir data/db/libero_cache/libero_spatial \
+        --data-dir exp/common/data/db/libero_cache/libero_spatial \
         --clip-model ViT-L-14 \
         --clip-pretrained openai \
-        --output data/cache_artifacts/libero_spatial/clip_vit_l_14.pkl
+        --output exp/common/data/cache_artifacts/libero_spatial/clip_vit_l_14.pkl
 """
 
 from __future__ import annotations

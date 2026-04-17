@@ -60,5 +60,5 @@ backend:
     prompt_emb: 2048
     robot_state: 32
   in_memory:
-    preload_path: data/cache_artifacts/libero_spatial/clip_vit_b_32.pkl
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/clip_vit_b_32.pkl
     index_type: brute_force

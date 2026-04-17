@@ -109,7 +109,7 @@ MUJOCO_GL=egl python examples/aloha_sim/main.py \
     --args.port 9000
 ```
 
-Video output path: `data/aloha_sim/videos/out_0.mp4`
+Video output path: `exp/common/data/aloha_sim/videos/out_0.mp4`
 
 ### Option B: Real-Time Rendering Window (Requires WSLg, Windows 11 Only)
 

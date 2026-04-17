@@ -1,6 +1,6 @@
 [
   {
-    "yaml_path": "configs/cache_runs/deviate_exp/max_pool/inference_max_pool_w3_d5.yaml",
+    "yaml_path": "exp/trajectory_deviation/config/max_pool/inference_max_pool_w3_d5.yaml",
     "run_id": "inference_max_pool_w3_d5",
     "status": "done",
     "episodes_per_task": 50,
@@ -8,7 +8,7 @@
     "start_time": "2026-04-14 21:01:36",
     "end_time": "2026-04-14 22:19:01",
     "success_rate": 0.984,
-    "log_path": "configs/cache_runs/deviate_exp/max_pool/inference_max_pool_w3_d5.log",
+    "log_path": "exp/trajectory_deviation/config/max_pool/inference_max_pool_w3_d5.log",
     "task_progress": {
       "0": "done",
       "1": "done",
@@ -65,7 +65,7 @@
     }
   },
   {
-    "yaml_path": "configs/cache_runs/deviate_exp/max_pool/max_pool_w3_d5.yaml",
+    "yaml_path": "exp/trajectory_deviation/config/max_pool/max_pool_w3_d5.yaml",
     "run_id": "max_pool_w3_d5",
     "status": "done",
     "episodes_per_task": 50,
@@ -73,7 +73,7 @@
     "start_time": "2026-04-14 22:19:01",
     "end_time": "2026-04-14 23:03:25",
     "success_rate": 0.696,
-    "log_path": "configs/cache_runs/deviate_exp/max_pool/max_pool_w3_d5.log",
+    "log_path": "exp/trajectory_deviation/config/max_pool/max_pool_w3_d5.log",
     "task_progress": {
       "0": "done",
       "1": "done",

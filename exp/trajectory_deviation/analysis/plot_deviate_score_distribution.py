@@ -252,7 +252,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--score-dir",
-        default="data/deviation_experiment/deviate_scores",
+        default="exp/trajectory_deviation/data/deviate_scores",
         help="Directory containing deviate_score_{cfg}.json files.",
     )
     parser.add_argument(

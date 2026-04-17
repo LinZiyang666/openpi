@@ -908,7 +908,7 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--skip-config-switch", action="store_true",
                     help="Skip load_cache_config (caller already switched)")
-    ap.add_argument("--config-yaml-dir", default="configs/cache_runs/deviate_exp")
+    ap.add_argument("--config-yaml-dir", default="exp/deviate_exp")
     ap.add_argument("--baselines", nargs="*", default=[], choices=["random", "equidistant"],
                     help="Additional baseline runners to execute after SpawnRunner")
     ap.add_argument("--random-seed", type=int, default=0,

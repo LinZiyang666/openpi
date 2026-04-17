@@ -6,7 +6,7 @@ resume from the last completed batch — not from scratch.
 
 Usage:
     uv run exp/common/run_cache_experiments.py \
-        --yaml-dir configs/cache_runs/phase1 \
+        --yaml-dir exp/phase1 \
         --episodes-per-run 5 \
         --num-workers 5 \
         --host 155.98.36.13 --port 9000 \
@@ -15,7 +15,7 @@ Usage:
 
     # Resume from checkpoint
     uv run exp/common/run_cache_experiments.py \
-        --yaml-dir configs/cache_runs/phase1 \
+        --yaml-dir exp/phase1 \
         --episodes-per-run 5 --num-workers 5 \
         --host 155.98.36.13 --port 9000 \
         --task-suite libero_spatial \
@@ -725,7 +725,7 @@ def main():
     # Walk every *.episode_results.json produced by main.py (both first-pass
     # and retry attempts) and dedup by (config_id, task_id, init_state_idx,
     # seed), keeping the latest attempt. Output goes next to the YAMLs so
-    # ``scripts/dump_step1a_failed_inits.py`` can consume it.
+    # ``exp/trajectory_deviation/dump_step1a_failed_inits.py`` can consume it.
     aggregate_path = yaml_dir / "cache_eval_results.json"
     _aggregate_episode_results(yaml_dir, aggregate_path)
     print(f"Aggregated episode results → {aggregate_path}")

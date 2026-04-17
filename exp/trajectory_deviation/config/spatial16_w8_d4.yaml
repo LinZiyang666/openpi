@@ -59,7 +59,7 @@ backend:
     prompt_emb: 2048
     robot_state: 32
   in_memory:
-    preload_path: data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl
     index_type: brute_force
 # Trajectory-deviation experiments are read-only: the artifact is the source
 # of truth and must not be mutated during Step 1b replay / Step 2 sampling /

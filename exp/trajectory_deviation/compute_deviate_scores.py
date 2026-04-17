@@ -596,12 +596,12 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--floor", type=float, default=_DEFAULT_FLOOR)
     ap.add_argument("--resume", action="store_true")
-    ap.add_argument("--config-yaml-dir", default="configs/cache_runs/deviate_exp",
+    ap.add_argument("--config-yaml-dir", default="exp/deviate_exp",
                     help="Directory holding inference_*.yaml + cache_*.yaml")
     ap.add_argument("--config-fail-results", default=None,
                     help="Optional Step-1a results JSON. When set, each cfg only runs GT "
                          "episodes whose (task_id, orig_init_state_idx) failed for that cfg. "
-                         "Use data/deviation_experiment/cache_eval_results_cache_fail.json "
+                         "Use exp/trajectory_deviation/data/cache_eval_results_cache_fail.json "
                          "to filter out inits that already succeeded for the active cfg.")
     ap.add_argument("--skip-config-switch", action="store_true",
                     help="Do not call load_cache_config — assume the server is already correctly configured "

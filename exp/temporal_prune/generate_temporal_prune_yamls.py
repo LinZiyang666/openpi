@@ -11,13 +11,13 @@ Total: 2 reducers × 4 windows × 3 kr × 2 weights = 48 YAMLs
 Usage:
     # Generate all 48 YAMLs
     uv run exp/temporal_prune/generate_temporal_prune_yamls.py \
-        --artifact-dir data/cache_artifacts/libero_spatial/temporal_prune \
-        --output-dir configs/cache_runs/temporal_prune
+        --artifact-dir exp/common/data/cache_artifacts/libero_spatial/temporal_prune \
+        --output-dir exp/temporal_prune
 
     # Dry run: print config count without writing
     uv run exp/temporal_prune/generate_temporal_prune_yamls.py \
-        --artifact-dir data/cache_artifacts/libero_spatial/temporal_prune \
-        --output-dir configs/cache_runs/temporal_prune \
+        --artifact-dir exp/common/data/cache_artifacts/libero_spatial/temporal_prune \
+        --output-dir exp/temporal_prune \
         --dry-run
 """
 
@@ -196,7 +196,7 @@ def main():
         help="Directory containing temporal prune .pkl artifacts"
     )
     parser.add_argument(
-        "--output-dir", default="configs/cache_runs/temporal_prune",
+        "--output-dir", default="exp/temporal_prune",
         help="Output directory for YAML files"
     )
     parser.add_argument(
@@ -208,7 +208,7 @@ def main():
         help="Print shell commands to build all 24 artifacts"
     )
     parser.add_argument(
-        "--data-dir", default="data/db/libero_cache/libero_spatial",
+        "--data-dir", default="exp/common/data/db/libero_cache/libero_spatial",
         help="HDF5 data directory (for --print-artifact-commands)"
     )
     args = parser.parse_args()

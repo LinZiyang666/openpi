@@ -58,5 +58,5 @@ backend:
     prompt_emb: 2048
     robot_state: 32
   in_memory:
-    preload_path: data/cache_artifacts/libero_spatial/temporal_prune/cp1_tp_mean_5w_05kr.pkl
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/temporal_prune/cp1_tp_mean_5w_05kr.pkl
     index_type: brute_force

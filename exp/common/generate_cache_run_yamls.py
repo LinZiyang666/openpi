@@ -4,24 +4,24 @@ Usage:
     # Phase 1: 8 combos x 8 weights = 64 YAMLs
     uv run exp/common/generate_cache_run_yamls.py \
         --phase 1 \
-        --artifact-dir data/cache_artifacts/libero_spatial \
-        --calibration-file data/cache_artifacts/libero_spatial/calibration.json \
+        --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
+        --calibration-file exp/common/data/cache_artifacts/libero_spatial/calibration.json \
         --output-dir configs/cache_runs
 
     # Phase 1.5: top 3 combos x ~15 fine weights = ~45 YAMLs
     uv run exp/common/generate_cache_run_yamls.py \
         --phase 1.5 \
-        --artifact-dir data/cache_artifacts/libero_spatial \
-        --calibration-file data/cache_artifacts/libero_spatial/calibration.json \
-        --phase1-analysis configs/cache_runs/phase1/analysis.json \
+        --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
+        --calibration-file exp/common/data/cache_artifacts/libero_spatial/calibration.json \
+        --phase1-analysis exp/common/config/phase1/analysis.json \
         --output-dir configs/cache_runs
 
     # Phase 2: ~3 YAMLs with prompt_emb weight
     uv run exp/common/generate_cache_run_yamls.py \
         --phase 2 \
-        --artifact-dir data/cache_artifacts/libero_spatial \
-        --calibration-file data/cache_artifacts/libero_spatial/calibration.json \
-        --phase1-5-analysis configs/cache_runs/phase1_5/analysis.json \
+        --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
+        --calibration-file exp/common/data/cache_artifacts/libero_spatial/calibration.json \
+        --phase1-5-analysis exp/phase1_5/analysis.json \
         --output-dir configs/cache_runs
 """
 

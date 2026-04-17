@@ -2,8 +2,8 @@
 
 Usage:
     uv run exp/common/analyze_cache_results.py \
-        --state-file configs/cache_runs/phase1/experiment_state.json \
-        --output configs/cache_runs/phase1/analysis.json
+        --state-file exp/common/data/phase1/experiment_state.json \
+        --output exp/common/config/phase1/analysis.json
 """
 
 from __future__ import annotations

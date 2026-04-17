@@ -26,7 +26,7 @@ import numpy as np
 from matplotlib import cm
 from matplotlib.lines import Line2D
 
-STEP3_ROOT = Path("data/deviation_experiment/step3")
+STEP3_ROOT = Path("exp/trajectory_deviation/data/step3")
 CFGS = ["clip_w7_d4", "spatial16_w8_d4", "max_pool_w3_d5"]
 TAUS = [3, 5, 7, 10]
 NS = [1, 2, 3, 5, 10]

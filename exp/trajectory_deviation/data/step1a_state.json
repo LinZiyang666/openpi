@@ -1,6 +1,6 @@
 [
   {
-    "yaml_path": "configs/cache_runs/deviate_exp/clip/clip_w7_d4.yaml",
+    "yaml_path": "exp/trajectory_deviation/config/clip/clip_w7_d4.yaml",
     "run_id": "clip_w7_d4",
     "status": "done",
     "episodes_per_task": 50,
@@ -8,7 +8,7 @@
     "start_time": "2026-04-14 21:00:51",
     "end_time": "2026-04-14 21:48:40",
     "success_rate": 0.674,
-    "log_path": "configs/cache_runs/deviate_exp/clip/clip_w7_d4.log",
+    "log_path": "exp/trajectory_deviation/config/clip/clip_w7_d4.log",
     "task_progress": {
       "0": "done",
       "1": "done",
@@ -65,7 +65,7 @@
     }
   },
   {
-    "yaml_path": "configs/cache_runs/deviate_exp/clip/inference_clip_w7_d4.yaml",
+    "yaml_path": "exp/trajectory_deviation/config/clip/inference_clip_w7_d4.yaml",
     "run_id": "inference_clip_w7_d4",
     "status": "done",
     "episodes_per_task": 50,
@@ -73,7 +73,7 @@
     "start_time": "2026-04-14 21:48:40",
     "end_time": "2026-04-14 23:04:31",
     "success_rate": 0.992,
-    "log_path": "configs/cache_runs/deviate_exp/clip/inference_clip_w7_d4.log",
+    "log_path": "exp/trajectory_deviation/config/clip/inference_clip_w7_d4.log",
     "task_progress": {
       "0": "done",
       "1": "done",
@@ -130,7 +130,7 @@
     }
   },
   {
-    "yaml_path": "configs/cache_runs/deviate_exp/max_pool/inference_max_pool_w3_d5.yaml",
+    "yaml_path": "exp/trajectory_deviation/config/max_pool/inference_max_pool_w3_d5.yaml",
     "run_id": "inference_max_pool_w3_d5",
     "status": "done",
     "episodes_per_task": 50,
@@ -138,7 +138,7 @@
     "start_time": "2026-04-14 21:01:36",
     "end_time": "2026-04-14 22:19:01",
     "success_rate": 0.984,
-    "log_path": "configs/cache_runs/deviate_exp/max_pool/inference_max_pool_w3_d5.log",
+    "log_path": "exp/trajectory_deviation/config/max_pool/inference_max_pool_w3_d5.log",
     "task_progress": {
       "0": "done",
       "1": "done",
@@ -195,7 +195,7 @@
     }
   },
   {
-    "yaml_path": "configs/cache_runs/deviate_exp/max_pool/max_pool_w3_d5.yaml",
+    "yaml_path": "exp/trajectory_deviation/config/max_pool/max_pool_w3_d5.yaml",
     "run_id": "max_pool_w3_d5",
     "status": "done",
     "episodes_per_task": 50,
@@ -203,7 +203,7 @@
     "start_time": "2026-04-14 22:19:01",
     "end_time": "2026-04-14 23:03:25",
     "success_rate": 0.696,
-    "log_path": "configs/cache_runs/deviate_exp/max_pool/max_pool_w3_d5.log",
+    "log_path": "exp/trajectory_deviation/config/max_pool/max_pool_w3_d5.log",
     "task_progress": {
       "0": "done",
       "1": "done",
@@ -260,7 +260,7 @@
     }
   },
   {
-    "yaml_path": "configs/cache_runs/deviate_exp/spatial16/inference_spatial16_w8_d4.yaml",
+    "yaml_path": "exp/trajectory_deviation/config/spatial16/inference_spatial16_w8_d4.yaml",
     "run_id": "inference_spatial16_w8_d4",
     "status": "done",
     "episodes_per_task": 50,
@@ -268,7 +268,7 @@
     "start_time": "2026-04-14 21:02:01",
     "end_time": "2026-04-14 22:18:29",
     "success_rate": 0.984,
-    "log_path": "configs/cache_runs/deviate_exp/spatial16/inference_spatial16_w8_d4.log",
+    "log_path": "exp/trajectory_deviation/config/spatial16/inference_spatial16_w8_d4.log",
     "task_progress": {
       "0": "done",
       "1": "done",
@@ -325,7 +325,7 @@
     }
   },
   {
-    "yaml_path": "configs/cache_runs/deviate_exp/spatial16/spatial16_w8_d4.yaml",
+    "yaml_path": "exp/trajectory_deviation/config/spatial16/spatial16_w8_d4.yaml",
     "run_id": "spatial16_w8_d4",
     "status": "done",
     "episodes_per_task": 50,
@@ -333,7 +333,7 @@
     "start_time": "2026-04-14 22:18:29",
     "end_time": "2026-04-14 23:04:52",
     "success_rate": 0.692,
-    "log_path": "configs/cache_runs/deviate_exp/spatial16/spatial16_w8_d4.log",
+    "log_path": "exp/trajectory_deviation/config/spatial16/spatial16_w8_d4.log",
     "task_progress": {
       "0": "done",
       "1": "done",

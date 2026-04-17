@@ -13,10 +13,10 @@ in the group (so resume-triggered duplicate rows collapse cleanly).
 Reference CLI:
 
     uv run exp/trajectory_deviation/merge_step3_cfgs.py \\
-        --jsonl data/deviation_experiment/step3/clip_w7_d4/results.jsonl \\
-        --jsonl data/deviation_experiment/step3/spatial16_w8_d4/results.jsonl \\
-        --jsonl data/deviation_experiment/step3/max_pool_w3_d5/results.jsonl \\
-        --out data/deviation_experiment/step3/summary.csv
+        --jsonl exp/trajectory_deviation/data/step3/clip_w7_d4/results.jsonl \\
+        --jsonl exp/trajectory_deviation/data/step3/spatial16_w8_d4/results.jsonl \\
+        --jsonl exp/trajectory_deviation/data/step3/max_pool_w3_d5/results.jsonl \\
+        --out exp/trajectory_deviation/data/step3/summary.csv
 """
 
 from __future__ import annotations

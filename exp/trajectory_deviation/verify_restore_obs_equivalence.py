@@ -28,7 +28,7 @@ What this script does, for one HDF5 cycle ``cycle_idx``:
 Run example::
 
     uv run exp/trajectory_deviation/verify_restore_obs_equivalence.py \
-        --gt-h5 data/deviation_experiment/gt_trajectories/task_3/episode_0.h5 \
+        --gt-h5 exp/trajectory_deviation/data/gt_trajectories/task_3/episode_0.h5 \
         --task-suite libero_spatial --task-id 3 --cycle-idx 0
 """
 

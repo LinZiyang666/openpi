@@ -1,15 +1,41 @@
 # Data directories.
 assets/
 checkpoints/
-data/**
-!data/**/
-!data/*.json
-!data/**/*.json
-# Step 1a-dump initial states (small torch pickles, ~25KB each, 10 tasks).
-# Tracked so secondary machines can pull them via git instead of scp;
-# they're the index source-of-truth shared by Step 1b/2/3.
-!data/deviation_experiment/inits/*.init
-!data/deviation_experiment/inits/*.pruned_init
+
+# Experiment run-produced artifacts: ignored by default.
+exp/**/data/**
+!exp/**/data/                                            # keep directory stubs
+
+# Tracked source-of-truth exceptions (cross-machine scp avoidance, shared across step1a/1b/2/3).
+!exp/trajectory_deviation/data/inits/
+!exp/trajectory_deviation/data/inits/*.init
+!exp/trajectory_deviation/data/inits/*.pruned_init
+!exp/trajectory_deviation/data/inits/per_unit_filters/
+!exp/trajectory_deviation/data/inits/per_unit_filters/*.json
+
+# Tracked cache calibration metadata (small JSON, needed for reproducible runs).
+!exp/common/data/cache_artifacts/
+!exp/common/data/cache_artifacts/**/
+!exp/common/data/cache_artifacts/**/calibration.json
+
+# Tracked experiment result JSONs (owner G1 R2 directive: synced across machines via git).
+!exp/common/data/phase1/
+!exp/common/data/phase1/experiment_state.json
+!exp/common/data/trajectory/
+!exp/common/data/trajectory/experiment_state.json
+!exp/temporal_prune/data/
+!exp/temporal_prune/data/experiment_state.json
+!exp/warm_start/data/
+!exp/warm_start/data/clip/
+!exp/warm_start/data/clip/cache_eval_results.json
+!exp/warm_start/data/clip/*.episode_results.json
+!exp/warm_start/data/max_pool/
+!exp/warm_start/data/max_pool/cache_eval_results.json
+!exp/warm_start/data/max_pool/*.episode_results.json
+!exp/warm_start/data/spatial16/
+!exp/warm_start/data/spatial16/cache_eval_results.json
+!exp/warm_start/data/spatial16/*.episode_results.json
+
 wandb/
 
 # Model weights and large binary files.
@@ -195,9 +221,7 @@ cython_debug/
 #.idea/
 
 faiss.wiki
-exp_outputs
+# exp_outputs removed — tree deleted in Phase 6.
 .codex
-configs/**/*.log
-configs/**/*.png
-configs/**/*.pdf
+# configs/ rules removed — tree empties after cache_runs/ migration and the configs/ directory is deleted in Phase 4.
 .vscode/

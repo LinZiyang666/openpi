@@ -29,10 +29,10 @@ own server):
     uv run exp/trajectory_deviation/run_step3_per_cycle_policy.py \\
         --cfg clip_w7_d4 \\
         --host host_a --port 8001 \\
-        --yaml configs/cache_runs/deviate_exp/step3_clip_w7_d4.yaml \\
-        --deviate-score-json data/deviation_experiment/step2_deviate_scores/deviate_score_clip_w7_d4.json \\
-        --init-states-dir data/deviation_experiment/step1b_inits \\
-        --out-dir data/deviation_experiment/step3/clip_w7_d4 \\
+        --yaml exp/trajectory_deviation/config/step3_clip_w7_d4.yaml \\
+        --deviate-score-json exp/trajectory_deviation/data/step2_deviate_scores/deviate_score_clip_w7_d4.json \\
+        --init-states-dir exp/trajectory_deviation/data/step1b_inits \\
+        --out-dir exp/trajectory_deviation/data/step3/clip_w7_d4 \\
         --num-workers 5
 """
 

@@ -9,7 +9,7 @@ bar chart over the (tau, n) grid:
 - Bar color: mean inference_ratio on that (tau, n) cell, mapped with the
   bwr colormap clamped to [0, 1] — 0 = pure blue, 1 = pure red.
 
-Outputs one PNG per cfg to ``data/deviation_experiment/step3/plots/``.
+Outputs one PNG per cfg to ``exp/trajectory_deviation/analysis/step3_plots/``.
 
 Usage:
     uv run python -m exp.trajectory_deviation.analysis.plot_step3_heatmaps
@@ -28,7 +28,7 @@ from matplotlib import cm
 from matplotlib.colors import Normalize
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401  (register 3d projection)
 
-STEP3_ROOT = Path("data/deviation_experiment/step3")
+STEP3_ROOT = Path("exp/trajectory_deviation/data/step3")
 CFGS = ["clip_w7_d4", "spatial16_w8_d4", "max_pool_w3_d5"]
 TAUS = [3, 5, 7, 10]
 NS = [1, 2, 3, 5, 10]

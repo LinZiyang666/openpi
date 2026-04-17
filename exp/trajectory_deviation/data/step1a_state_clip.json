@@ -1,6 +1,6 @@
 [
   {
-    "yaml_path": "configs/cache_runs/deviate_exp/clip/clip_w7_d4.yaml",
+    "yaml_path": "exp/trajectory_deviation/config/clip/clip_w7_d4.yaml",
     "run_id": "clip_w7_d4",
     "status": "done",
     "episodes_per_task": 50,
@@ -8,7 +8,7 @@
     "start_time": "2026-04-14 21:00:51",
     "end_time": "2026-04-14 21:48:40",
     "success_rate": 0.674,
-    "log_path": "configs/cache_runs/deviate_exp/clip/clip_w7_d4.log",
+    "log_path": "exp/trajectory_deviation/config/clip/clip_w7_d4.log",
     "task_progress": {
       "0": "done",
       "1": "done",
@@ -65,7 +65,7 @@
     }
   },
   {
-    "yaml_path": "configs/cache_runs/deviate_exp/clip/inference_clip_w7_d4.yaml",
+    "yaml_path": "exp/trajectory_deviation/config/clip/inference_clip_w7_d4.yaml",
     "run_id": "inference_clip_w7_d4",
     "status": "done",
     "episodes_per_task": 50,
@@ -73,7 +73,7 @@
     "start_time": "2026-04-14 21:48:40",
     "end_time": "2026-04-14 23:04:31",
     "success_rate": 0.992,
-    "log_path": "configs/cache_runs/deviate_exp/clip/inference_clip_w7_d4.log",
+    "log_path": "exp/trajectory_deviation/config/clip/inference_clip_w7_d4.log",
     "task_progress": {
       "0": "done",
       "1": "done",

@@ -28,7 +28,7 @@ Usage
 .. code-block:: bash
 
     python exp/trajectory_deviation/dump_step1a_failed_inits.py \\
-        --step1a-results data/deviation_experiment/cache_eval_results.json \\
+        --step1a-results exp/trajectory_deviation/data/cache_eval_results.json \\
         --task-suite libero_spatial \\
         --out-dir data/step1b_inits/libero_spatial
 

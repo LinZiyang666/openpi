@@ -25,7 +25,7 @@
 1. 两端已完成 `GIT_LFS_SKIP_SMUDGE=1 uv sync`
 2. GPU 服务器上有 Pi0.5 checkpoint（默认路径 `gs://openpi-assets/checkpoints/pi05_base`）
 3. 评估端上有 LIBERO benchmark 数据
-4. 已收集的 HDF5 演示数据在 `data/db/libero_cache/libero_spatial/`（50 个 episode）
+4. 已收集的 HDF5 演示数据在 `exp/common/data/db/libero_cache/libero_spatial/`（50 个 episode）
 5. frp 隧道已配置：`155.98.36.13:9000` → GPU 服务器 `localhost:8000`
 
 ---
@@ -48,25 +48,25 @@ curl http://155.98.36.13:9000/healthz
 将 HDF5 演示数据转换为 4 种降维方式的 `.pkl` 向量索引文件。
 
 ```bash
-# 在有 data/db/libero_cache/libero_spatial/*.h5 的机器上运行
+# 在有 exp/common/data/db/libero_cache/libero_spatial/*.h5 的机器上运行
 
-mkdir -p data/cache_artifacts/libero_spatial
+mkdir -p exp/common/data/cache_artifacts/libero_spatial
 
 # CP1 系列 (从 stage1 prefix_embs 降维)
 for bt in cp1_mean_pool cp1_spatial_pool_16 cp1_spatial_pool_64 cp1_max_pool; do
-    uv run exp/cache_experiment/build_in_memory_cache_artifact.py \
-        --data-dir data/db/libero_cache/libero_spatial \
+    uv run exp/common/build_in_memory_cache_artifact.py \
+        --data-dir exp/common/data/db/libero_cache/libero_spatial \
         --builder-type $bt \
-        --output data/cache_artifacts/libero_spatial/${bt}.pkl
+        --output exp/common/data/cache_artifacts/libero_spatial/${bt}.pkl
     echo "Done: $bt"
 done
 
 # CLIP ViT-B-32 (从原始图片编码)
-uv run exp/cache_experiment/build_clip_cache_artifact.py \
-    --data-dir data/db/libero_cache/libero_spatial \
+uv run exp/common/build_clip_cache_artifact.py \
+    --data-dir exp/common/data/db/libero_cache/libero_spatial \
     --clip-model ViT-B-32 \
     --clip-pretrained openai \
-    --output data/cache_artifacts/libero_spatial/clip_vit_b_32.pkl \
+    --output exp/common/data/cache_artifacts/libero_spatial/clip_vit_b_32.pkl \
     --device cuda \
     --batch-size 64 \
     --fields vision_0,vision_1,vision_2,prompt_emb,robot_state
@@ -74,7 +74,7 @@ uv run exp/cache_experiment/build_clip_cache_artifact.py \
 
 产物：
 ```
-data/cache_artifacts/libero_spatial/
+exp/common/data/cache_artifacts/libero_spatial/
 ├── cp1_mean_pool.pkl          # A: mean pool → 2048d
 ├── cp1_spatial_pool_16.pkl    # B1: 4×4 spatial → 32768d
 ├── cp1_spatial_pool_64.pkl    # B2: 2×2 spatial → 8192d
@@ -91,14 +91,14 @@ data/cache_artifacts/libero_spatial/
 为 `weighted_score_sum` 融合策略计算每个字段的 p5/p95 百分位统计。
 
 ```bash
-uv run exp/cache_experiment/calibrate_score_sum_stats.py \
-    --artifact-dir data/cache_artifacts/libero_spatial \
-    --output data/cache_artifacts/libero_spatial/calibration.json \
+uv run exp/common/calibrate_score_sum_stats.py \
+    --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
+    --output exp/common/data/cache_artifacts/libero_spatial/calibration.json \
     --num-pairs 50000 \
     --seed 42
 ```
 
-产物：`data/cache_artifacts/libero_spatial/calibration.json`
+产物：`exp/common/data/cache_artifacts/libero_spatial/calibration.json`
 
 检查输出中的 separation 警告——如果某个字段的 same-task vs cross-task 分离度 < 0.05，该字段区分度差。
 
@@ -109,16 +109,16 @@ uv run exp/cache_experiment/calibrate_score_sum_stats.py \
 共 10 种 combo（5 降维 × 2 融合），但当前 `SKIP_SCORE_SUM = True`（在 `generate_cache_run_yamls.py` 第 66 行），实际生成 **5 combo × 8 权重 = 40 个 YAML**。如需恢复 Score Sum 系列，将 `SKIP_SCORE_SUM` 改为 `False` 可生成全部 80 个。
 
 ```bash
-uv run exp/cache_experiment/generate_cache_run_yamls.py \
+uv run exp/common/generate_cache_run_yamls.py \
     --phase 1 \
-    --artifact-dir data/cache_artifacts/libero_spatial \
-    --calibration-file data/cache_artifacts/libero_spatial/calibration.json \
+    --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
+    --calibration-file exp/common/data/cache_artifacts/libero_spatial/calibration.json \
     --output-dir configs/cache_runs
 ```
 
 产物：
 ```
-configs/cache_runs/phase1/
+exp/common/config/phase1/
 ├── phase1_run_001_a_rrf_w1.yaml
 ├── phase1_run_002_a_rrf_w2.yaml
 ├── ...
@@ -128,7 +128,7 @@ configs/cache_runs/phase1/
                                     # 若 SKIP_SCORE_SUM=False 则为 80 个
 ```
 
-**重要**: 生成的 YAML 中 `preload_path` 指向 `data/cache_artifacts/libero_spatial/` 的绝对路径。确保 GPU 服务器上的路径一致，或在生成后手动修改路径。如果两端路径不同，在 GPU 服务器端生成 YAML 或修改 `--artifact-dir` 使路径匹配 GPU 服务器的文件系统。
+**重要**: 生成的 YAML 中 `preload_path` 指向 `exp/common/data/cache_artifacts/libero_spatial/` 的绝对路径。确保 GPU 服务器上的路径一致，或在生成后手动修改路径。如果两端路径不同，在 GPU 服务器端生成 YAML 或修改 `--artifact-dir` 使路径匹配 GPU 服务器的文件系统。
 
 ---
 
@@ -166,8 +166,8 @@ curl http://localhost:8000/healthz
 ### 5a. 完整运行（当前 40 个配置 × 10 task × 5 episodes = 2000 episodes）
 
 ```bash
-uv run exp/cache_experiment/run_cache_experiments.py \
-    --yaml-dir configs/cache_runs/phase1 \
+uv run exp/common/run_cache_experiments.py \
+    --yaml-dir exp/phase1 \
     --episodes-per-run 5 \
     --num-workers 5 \
     --host 155.98.36.13 \
@@ -189,8 +189,8 @@ uv run exp/cache_experiment/run_cache_experiments.py \
 
 ```bash
 # 只运行第 1~8 个配置（即第一个 combo 的所有权重）
-uv run exp/cache_experiment/run_cache_experiments.py \
-    --yaml-dir configs/cache_runs/phase1 \
+uv run exp/common/run_cache_experiments.py \
+    --yaml-dir exp/phase1 \
     --episodes-per-run 5 \
     --num-workers 5 \
     --host 155.98.36.13 \
@@ -206,8 +206,8 @@ uv run exp/cache_experiment/run_cache_experiments.py \
 实验运行器在每个 task 完成后持久化进度。如果中断（Ctrl+C、崩溃、网络断开），用 `--resume` 从上次位置继续：
 
 ```bash
-uv run exp/cache_experiment/run_cache_experiments.py \
-    --yaml-dir configs/cache_runs/phase1 \
+uv run exp/common/run_cache_experiments.py \
+    --yaml-dir exp/phase1 \
     --episodes-per-run 5 \
     --num-workers 5 \
     --host 155.98.36.13 \
@@ -222,13 +222,13 @@ uv run exp/cache_experiment/run_cache_experiments.py \
 
 ### 5d. 运行状态
 
-进度保存在 `configs/cache_runs/phase1/experiment_state.json`。可以直接查看：
+进度保存在 `exp/common/data/phase1/experiment_state.json`。可以直接查看：
 
 ```bash
 # 查看当前进度概要
 python3 -c "
 import json
-states = json.load(open('configs/cache_runs/phase1/experiment_state.json'))
+states = json.load(open('exp/common/data/phase1/experiment_state.json'))
 done = sum(1 for s in states if s['status'] == 'done')
 running = sum(1 for s in states if s['status'] == 'running')
 failed = sum(1 for s in states if s['status'] == 'failed')
@@ -240,16 +240,16 @@ for s in states:
 "
 ```
 
-每个 run 的详细日志在 `configs/cache_runs/phase1/<run_id>.log`。
+每个 run 的详细日志在 `exp/common/config/phase1/<run_id>.log`。
 
 ---
 
 ## Step 6: 分析 Phase 1 结果
 
 ```bash
-uv run exp/cache_experiment/analyze_cache_results.py \
-    --state-file configs/cache_runs/phase1/experiment_state.json \
-    --output configs/cache_runs/phase1/analysis.json
+uv run exp/common/analyze_cache_results.py \
+    --state-file exp/common/data/phase1/experiment_state.json \
+    --output exp/common/config/phase1/analysis.json
 ```
 
 输出：
@@ -257,7 +257,7 @@ uv run exp/cache_experiment/analyze_cache_results.py \
 - 每个 combo 的最优权重
 - **Top 3 combo**：进入 Phase 1.5 的候选
 
-检查 `configs/cache_runs/phase1/analysis.json` 中的 `top3` 字段。
+检查 `exp/common/config/phase1/analysis.json` 中的 `top3` 字段。
 
 ---
 
@@ -266,23 +266,23 @@ uv run exp/cache_experiment/analyze_cache_results.py \
 围绕 Phase 1 的 Top 3 combo 做细粒度权重搜索。
 
 ```bash
-uv run exp/cache_experiment/generate_cache_run_yamls.py \
+uv run exp/common/generate_cache_run_yamls.py \
     --phase 1.5 \
-    --artifact-dir data/cache_artifacts/libero_spatial \
-    --calibration-file data/cache_artifacts/libero_spatial/calibration.json \
-    --phase1-analysis configs/cache_runs/phase1/analysis.json \
+    --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
+    --calibration-file exp/common/data/cache_artifacts/libero_spatial/calibration.json \
+    --phase1-analysis exp/common/config/phase1/analysis.json \
     --output-dir configs/cache_runs
 ```
 
-产物：`configs/cache_runs/phase1_5/` 下约 45 个 YAML。
+产物：`exp/phase1_5/` 下约 45 个 YAML。
 
 ---
 
 ## Step 8: 运行 Phase 1.5 实验
 
 ```bash
-uv run exp/cache_experiment/run_cache_experiments.py \
-    --yaml-dir configs/cache_runs/phase1_5 \
+uv run exp/common/run_cache_experiments.py \
+    --yaml-dir exp/phase1_5 \
     --episodes-per-run 5 \
     --num-workers 5 \
     --host 155.98.36.13 \
@@ -299,9 +299,9 @@ uv run exp/cache_experiment/run_cache_experiments.py \
 ## Step 9: 分析 Phase 1.5 结果
 
 ```bash
-uv run exp/cache_experiment/analyze_cache_results.py \
-    --state-file configs/cache_runs/phase1_5/experiment_state.json \
-    --output configs/cache_runs/phase1_5/analysis.json
+uv run exp/common/analyze_cache_results.py \
+    --state-file exp/phase1_5/experiment_state.json \
+    --output exp/phase1_5/analysis.json
 ```
 
 ---
@@ -309,23 +309,23 @@ uv run exp/cache_experiment/analyze_cache_results.py \
 ## Step 10: 生成 Phase 2 配置（加入 prompt_emb）
 
 ```bash
-uv run exp/cache_experiment/generate_cache_run_yamls.py \
+uv run exp/common/generate_cache_run_yamls.py \
     --phase 2 \
-    --artifact-dir data/cache_artifacts/libero_spatial \
-    --calibration-file data/cache_artifacts/libero_spatial/calibration.json \
-    --phase1-5-analysis configs/cache_runs/phase1_5/analysis.json \
+    --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
+    --calibration-file exp/common/data/cache_artifacts/libero_spatial/calibration.json \
+    --phase1-5-analysis exp/phase1_5/analysis.json \
     --output-dir configs/cache_runs
 ```
 
-产物：`configs/cache_runs/phase2/` 下约 3 个 YAML（prompt_emb 权重 0.0 / 0.1 / 0.2）。
+产物：`exp/phase2/` 下约 3 个 YAML（prompt_emb 权重 0.0 / 0.1 / 0.2）。
 
 ---
 
 ## Step 11: 运行 Phase 2 实验
 
 ```bash
-uv run exp/cache_experiment/run_cache_experiments.py \
-    --yaml-dir configs/cache_runs/phase2 \
+uv run exp/common/run_cache_experiments.py \
+    --yaml-dir exp/phase2 \
     --episodes-per-run 5 \
     --num-workers 5 \
     --host 155.98.36.13 \
@@ -340,9 +340,9 @@ uv run exp/cache_experiment/run_cache_experiments.py \
 ## Step 12: 分析 Phase 2 最终结果
 
 ```bash
-uv run exp/cache_experiment/analyze_cache_results.py \
-    --state-file configs/cache_runs/phase2/experiment_state.json \
-    --output configs/cache_runs/phase2/analysis.json
+uv run exp/common/analyze_cache_results.py \
+    --state-file exp/phase2/experiment_state.json \
+    --output exp/phase2/analysis.json
 ```
 
 `analysis.json` 中的 `best` 字段即为最终最优配置。
@@ -385,7 +385,7 @@ curl http://localhost:8000/healthz
 # 查看哪些 run 没完成
 python3 -c "
 import json
-states = json.load(open('configs/cache_runs/phase1/experiment_state.json'))
+states = json.load(open('exp/common/data/phase1/experiment_state.json'))
 for s in states:
     if s['status'] != 'done':
         remaining = sum(1 for v in s['task_progress'].values() if v != 'done')
@@ -393,8 +393,8 @@ for s in states:
 "
 
 # 继续运行
-uv run exp/cache_experiment/run_cache_experiments.py \
-    --yaml-dir configs/cache_runs/phase1 \
+uv run exp/common/run_cache_experiments.py \
+    --yaml-dir exp/phase1 \
     --episodes-per-run 5 \
     --num-workers 5 \
     --host 155.98.36.13 \
@@ -445,12 +445,12 @@ MUJOCO_GL=egl conda run --no-capture-output -n libero_sim python examples/libero
 ## 文件依赖关系总览
 
 ```
-data/db/libero_cache/libero_spatial/*.h5           ← 原始 HDF5 演示数据
+exp/common/data/db/libero_cache/libero_spatial/*.h5           ← 原始 HDF5 演示数据
     │
     ├──▶ build_in_memory_cache_artifact.py         (CP1 系列: A/B1/B2/C)
     ├──▶ build_clip_cache_artifact.py              (CLIP 系列: D)
     ▼
-data/cache_artifacts/libero_spatial/*.pkl          ← 向量索引 artifact
+exp/common/data/cache_artifacts/libero_spatial/*.pkl          ← 向量索引 artifact
     │
     ├──▶ calibrate_score_sum_stats.py
     │       ▼
@@ -460,7 +460,7 @@ data/cache_artifacts/libero_spatial/*.pkl          ← 向量索引 artifact
     ▼       ▼
 generate_cache_run_yamls.py --phase 1
     ▼
-configs/cache_runs/phase1/*.yaml                   ← 64 个实验配置
+exp/common/config/phase1/*.yaml                   ← 64 个实验配置
     │
     ├──▶ serve_policy.py --concurrent              (GPU 服务器加载 artifact + YAML)
     │
@@ -473,8 +473,8 @@ experiment_state.json                              ← 实验进度+结果
 analysis.json                                      ← 排名 + Top 3
     │
     ▼ generate_cache_run_yamls.py --phase 1.5
-configs/cache_runs/phase1_5/*.yaml → ... → analysis.json
+exp/phase1_5/*.yaml → ... → analysis.json
     │
     ▼ generate_cache_run_yamls.py --phase 2
-configs/cache_runs/phase2/*.yaml → ... → analysis.json (最终结果)
+exp/phase2/*.yaml → ... → analysis.json (最终结果)
 ```

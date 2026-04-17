@@ -165,7 +165,7 @@ def main() -> None:
     parser.add_argument(
         "--results",
         type=Path,
-        default=repo_root / "data/deviation_experiment/cache_eval_results.json",
+        default=repo_root / "exp/trajectory_deviation/data/cache_eval_results.json",
         help="Path to cache_eval_results.json.",
     )
     parser.add_argument(

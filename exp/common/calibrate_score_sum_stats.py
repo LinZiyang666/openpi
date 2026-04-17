@@ -2,8 +2,8 @@
 
 Usage:
     uv run exp/common/calibrate_score_sum_stats.py \
-        --artifact-dir data/cache_artifacts/libero_spatial \
-        --output data/cache_artifacts/libero_spatial/calibration.json
+        --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
+        --output exp/common/data/cache_artifacts/libero_spatial/calibration.json
 
 Output JSON format:
     {

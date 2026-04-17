@@ -60,7 +60,7 @@ class Args:
     num_trials_per_task: int = 50
 
     display: bool = False        # Whether to show a real-time rendering window (requires WSLg / X11)
-    video_out_path: str = "data/libero/videos"
+    video_out_path: str = "exp/common/data/libero/videos"
     seed: int = 7
 
 
@@ -326,7 +326,7 @@ MUJOCO_GL=egl python examples/libero/main.py \
 ```
 
 Video recording is off by default. Add `--save-video` to write
-`data/libero/videos/rollout_<task>_<success|failure>.mp4`.
+`exp/common/data/libero/videos/rollout_<task>_<success|failure>.mp4`.
 
 ### Option B: Real-Time Rendering Window + Video (Requires WSLg, Windows 11 Only)
 
@@ -352,7 +352,7 @@ MUJOCO_GL=egl python examples/libero/main.py \
 | `--num-trials-per-task` | `50` | Number of episodes per task |
 | `--display` | `False` | Show real-time rendering window |
 | `--save-video` | `False` | Save rollout videos in serial mode |
-| `--video-out-path` | `data/libero/videos` | Video output directory |
+| `--video-out-path` | `exp/common/data/libero/videos` | Video output directory |
 | `--init-states-dir` | `""` (use LIBERO default) | Custom init states directory (see §7) |
 
 ---

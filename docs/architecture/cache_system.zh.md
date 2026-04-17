@@ -1226,7 +1226,7 @@ class Stage3Output:
 
 2.4. `websocket_policy_server.py`：移除旧 `stage_timing_records` 聚合（约 -15 行），在连接建立/关闭时添加 `TaskLifecycle` 回调。
 
-2.5. 验证：`scripts/verify_step2.py` 全部 12 项测试通过。
+2.5. 验证：`exp/trajectory_deviation/verify_step2.py` 全部 12 项测试通过。
 
 **产出**：`timing.py` + 集成到 interceptor 的计时 + server 侧生命周期回调。
 

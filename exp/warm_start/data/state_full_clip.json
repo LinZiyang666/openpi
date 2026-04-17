@@ -1,6 +1,6 @@
 [
   {
-    "yaml_path": "configs/cache_runs/warm_start_exp/clip/clip_w7_d4_warm_t0.3.yaml",
+    "yaml_path": "exp/warm_start/config/clip/clip_w7_d4_warm_t0.3.yaml",
     "run_id": "clip_w7_d4_warm_t0.3",
     "status": "done",
     "episodes_per_task": 50,
@@ -8,7 +8,7 @@
     "start_time": "2026-04-16 20:56:06",
     "end_time": "2026-04-16 21:50:09",
     "success_rate": 0.94,
-    "log_path": "configs/cache_runs/warm_start_exp/clip/clip_w7_d4_warm_t0.3.log",
+    "log_path": "exp/warm_start/data/clip/clip_w7_d4_warm_t0.3.log",
     "task_progress": {
       "0": "done",
       "1": "done",
@@ -65,7 +65,7 @@
     }
   },
   {
-    "yaml_path": "configs/cache_runs/warm_start_exp/clip/clip_w7_d4_warm_t0.5.yaml",
+    "yaml_path": "exp/warm_start/config/clip/clip_w7_d4_warm_t0.5.yaml",
     "run_id": "clip_w7_d4_warm_t0.5",
     "status": "done",
     "episodes_per_task": 50,
@@ -73,7 +73,7 @@
     "start_time": "2026-04-16 21:50:09",
     "end_time": "2026-04-16 22:49:47",
     "success_rate": 0.96,
-    "log_path": "configs/cache_runs/warm_start_exp/clip/clip_w7_d4_warm_t0.5.log",
+    "log_path": "exp/warm_start/data/clip/clip_w7_d4_warm_t0.5.log",
     "task_progress": {
       "0": "done",
       "1": "done",
@@ -130,7 +130,7 @@
     }
   },
   {
-    "yaml_path": "configs/cache_runs/warm_start_exp/clip/clip_w7_d4_warm_t0.7.yaml",
+    "yaml_path": "exp/warm_start/config/clip/clip_w7_d4_warm_t0.7.yaml",
     "run_id": "clip_w7_d4_warm_t0.7",
     "status": "done",
     "episodes_per_task": 50,
@@ -138,7 +138,7 @@
     "start_time": "2026-04-16 22:49:47",
     "end_time": "2026-04-16 23:54:36",
     "success_rate": 0.98,
-    "log_path": "configs/cache_runs/warm_start_exp/clip/clip_w7_d4_warm_t0.7.log",
+    "log_path": "exp/warm_start/data/clip/clip_w7_d4_warm_t0.7.log",
     "task_progress": {
       "0": "done",
       "1": "done",

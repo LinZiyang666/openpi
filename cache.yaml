@@ -59,7 +59,7 @@ backend:
     prompt_emb: 2048
     robot_state: 32
   in_memory:
-    preload_path: data/cache_artifacts/libero_spatial/cp1_mean_pool.pkl    # set to artifact .pkl path, e.g. data/cache_artifacts/libero_spatial/cp1_mean_pool.pkl
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool.pkl    # set to artifact .pkl path, e.g. exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool.pkl
 
 # Write policy: controls whether trajectory data is written to cache at episode end.
 # "on_any_miss" = write if episode had any CP1 miss (default)

@@ -63,7 +63,7 @@ Step 3   run_step3_per_cycle_policy → results.jsonl（每个 cfg 一个服务�
    - CLIP 对应 `clip_vit_b_32.pkl`（`clip_w7_d4.yaml` / `inference_clip_w7_d4.yaml` 引用）
    - Spatial-pool-16 对应 `cp1_spatial_pool_16.pkl`（`spatial16_w8_d4.yaml` / `inference_spatial16_w8_d4.yaml`）
    - Max-pool 对应 `cp1_max_pool.pkl`（`max_pool_w3_d5.yaml` / `inference_max_pool_w3_d5.yaml`）
-5. `configs/cache_runs/deviate_exp/` 下 6 个 YAML（3 对 `inference_*.yaml` + 真实 cache YAML）已就位，`preload_path` 指向 GPU 服务器文件系统上的 artifact。
+5. `exp/trajectory_deviation/config/` 下 6 个 YAML（3 对 `inference_*.yaml` + 真实 cache YAML）已就位，`preload_path` 指向 GPU 服务器文件系统上的 artifact。
 
 ---
 
@@ -74,7 +74,7 @@ Step 3   run_step3_per_cycle_policy → results.jsonl（每个 cfg 一个服务�
 ```bash
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache_config configs/cache_runs/deviate_exp/inference_max_pool_w3_d5.yaml \
+    --cache_config exp/trajectory_deviation/config/inference_max_pool_w3_d5.yaml \
     --env LIBERO \
     --port 8000 \
     policy:checkpoint \
@@ -108,22 +108,22 @@ curl http://<server-host>:<server-port>/healthz
 目的：拿到 per-episode 的 `success` flag，定位"cache 失败"的 episode。
 
 ```bash
-uv run exp/cache_experiment/run_cache_experiments.py \
-    --yaml-dir configs/cache_runs/deviate_exp \
+uv run exp/common/run_cache_experiments.py \
+    --yaml-dir exp/deviate_exp \
     --task-suite libero_spatial \
     --host <server-host> --port <server-port> \
     --episodes-per-run 50 \
     --num-workers 5 \
     --seed 42 \
     --conda-env libero_sim \
-    --state-path data/deviation_experiment/step1a_state.json
+    --state-path exp/trajectory_deviation/data/step1a_state.json
 ```
 
 参数说明与调节建议：
 
 | Flag | 含义 | 调节建议 |
 |------|-----|---------|
-| `--yaml-dir` | 要跑的 YAML 集合。driver 会对 dir 下每个 `*.yaml` 顺序起一次 run | 用 `configs/cache_runs/deviate_exp`（6 个 YAML；3 个 `inference_*` 其实是 AlwaysSkip 对照，评估端跑它们也没问题，只是全部 success_rate 会很接近 pure inference） |
+| `--yaml-dir` | 要跑的 YAML 集合。driver 会对 dir 下每个 `*.yaml` 顺序起一次 run | 用 `exp/deviate_exp`（6 个 YAML；3 个 `inference_*` 其实是 AlwaysSkip 对照，评估端跑它们也没问题，只是全部 success_rate 会很接近 pure inference） |
 | `--episodes-per-run` | 每个 task 跑多少 episode。LIBERO 每个 task 有 50 个 init，默认全跑 | 想要更干净的失败集就 50；只想快速过流程可以 10 |
 | `--num-workers` | 每个 run 内部的 task 级并行度。workers 共用一个 server | server `--concurrent` 打开后 4 比较安全；卡多、显存宽松可以调到 8 |
 | `--seed` | 传给 `main.py` 的随机种子，控制 libero env 的随机性 | 固定 42 便于复现；和数据采集的 seed=7 区分，避免过拟合 |
@@ -133,8 +133,8 @@ uv run exp/cache_experiment/run_cache_experiments.py \
 产物：默认写到 `<yaml-dir>/cache_eval_results.json`。把它拷到或软链到实验根目录，供 Step 1b-pre 读取：
 
 ```bash
-cp configs/cache_runs/deviate_exp/cache_eval_results.json \
-   data/deviation_experiment/cache_eval_results.json
+cp exp/trajectory_deviation/config/cache_eval_results.json \
+   exp/trajectory_deviation/data/cache_eval_results.json
 ```
 
 ---
@@ -142,10 +142,10 @@ cp configs/cache_runs/deviate_exp/cache_eval_results.json \
 ## Step 1b-pre：Dump Failed Inits（离线单进程，秒级）
 
 ```bash
-uv run python scripts/dump_step1a_failed_inits.py \
-    --step1a-results data/deviation_experiment/cache_eval_results.json \
+uv run python exp/trajectory_deviation/dump_step1a_failed_inits.py \
+    --step1a-results exp/trajectory_deviation/data/cache_eval_results.json \
     --task-suite libero_spatial \
-    --out-dir data/deviation_experiment/inits
+    --out-dir exp/trajectory_deviation/data/inits
 ```
 
 参数说明：
@@ -154,7 +154,7 @@ uv run python scripts/dump_step1a_failed_inits.py \
 |------|-----|---------|
 | `--step1a-results` | Step 1a 聚合 JSON | 必须是经过 `_aggregate_episode_results` 去重后的版本（`cache_eval_results.json`），不要用单个 run 的 episode 日志 |
 | `--task-suite` | LIBERO suite 名，用于查 task.name 与 init states | 与 Step 1a 保持一致 |
-| `--out-dir` | 产物目录 | 建议放实验根 `data/deviation_experiment/inits`，后续几步都引用它 |
+| `--out-dir` | 产物目录 | 建议放实验根 `exp/trajectory_deviation/data/inits`，后续几步都引用它 |
 | `--no-torch` | 跳过写 `.init` tensor，仅写 JSON | CI smoke 用；正常运行不要加 |
 
 产物：
@@ -170,11 +170,11 @@ Step 1b 只需要一个 **AlwaysSkip / pure inference** bundle；Step 2 的三�
 
 ```bash
 uv run python -m exp.trajectory_deviation.run_step1b_gt \
-    --inits-dir data/deviation_experiment/inits \
-    --out-dir data/deviation_experiment/gt \
+    --inits-dir exp/trajectory_deviation/data/inits \
+    --out-dir exp/trajectory_deviation/data/gt \
     --task-suite libero_spatial \
     --host <server-host> --port <server-port> \
-    --inference-yaml configs/cache_runs/deviate_exp/inference_max_pool_w3_d5.yaml \
+    --inference-yaml exp/trajectory_deviation/config/inference_max_pool_w3_d5.yaml \
     --seed 7 \
     --conda-env libero_sim \
     --resume
@@ -185,12 +185,12 @@ uv run python -m exp.trajectory_deviation.run_step1b_gt \
 | Flag | 含义 | 调节建议 |
 |------|-----|---------|
 | `--inits-dir` | Step 1b-pre 的产物目录 | 必填；driver 会读 `step1b_filter.json` |
-| `--out-dir` | GT HDF5 根目录（传给 `main.py --save-trajectory-dir`） | 与 Step 2 `--gt-dir` 保持一致；一般 `data/deviation_experiment/gt` |
+| `--out-dir` | GT HDF5 根目录（传给 `main.py --save-trajectory-dir`） | 与 Step 2 `--gt-dir` 保持一致；一般 `exp/trajectory_deviation/data/gt` |
 | `--task-suite` | LIBERO suite 名 | 与 Step 1a/1b-pre 一致 |
 | `--host / --port` | server 地址 | 评估端这里填 frp 外网端口；server 本机则 `localhost:8000` |
 | `--seed` | 传给 `main.py` 的 seed | **固定 7**（plan §9.2 默认值），Step 2 background 噪声建模默认此 seed；换 seed 会让 Phase 1 的 M 次采样与 GT 分布错位 |
 | `--conda-env` | libero conda 环境 | 固定 `libero_sim` |
-| `--inference-yaml` | GT bundle YAML 路径 | 必须是 `gate.type: always_skip` 的 pure inference bundle；建议 `configs/cache_runs/deviate_exp/inference_max_pool_w3_d5.yaml`，避免加载 CLIP。不要换成真实 cache YAML（如 `clip_w7_d4.yaml` / `max_pool_w3_d5.yaml`） |
+| `--inference-yaml` | GT bundle YAML 路径 | 必须是 `gate.type: always_skip` 的 pure inference bundle；建议 `exp/trajectory_deviation/config/inference_max_pool_w3_d5.yaml`，避免加载 CLIP。不要换成真实 cache YAML（如 `clip_w7_d4.yaml` / `max_pool_w3_d5.yaml`） |
 | `--state-path` | runner 状态文件 | 默认 `<inits-dir>/step1b_state.json`；断点续跑配合 `--resume` |
 | `--resume` | 断点续跑 | 调 runner 时几乎必开 |
 | `--skip-config-switch` | 不调 `load_cache_config`，假定 server 已经在正确 bundle | 多 GPU 分片、手动切过 bundle 时才用；默认留着让 runner 自己切 |
@@ -210,13 +210,13 @@ uv run python -m exp.trajectory_deviation.run_step1b_gt \
 ```bash
 uv run python -m exp.trajectory_deviation.compute_deviate_scores \
     --configs clip_w7_d4 spatial16_w8_d4 max_pool_w3_d5 \
-    --gt-dir data/deviation_experiment/gt \
-    --out-dir data/deviation_experiment/deviate_scores \
+    --gt-dir exp/trajectory_deviation/data/gt \
+    --out-dir exp/trajectory_deviation/data/deviate_scores \
     --M 5 \
     --num-workers 5 \
     --host <server-host> --port <server-port> \
     --floor 0.1 \
-    --config-fail-results data/deviation_experiment/cache_eval_results_cache_fail.json \
+    --config-fail-results exp/trajectory_deviation/data/cache_eval_results_cache_fail.json \
     --resume
 ```
 
@@ -234,13 +234,13 @@ offline Phase3 aggregate                                              → deviat
 |------|------|-----|---------|
 | `--configs` | — | 要跑的 cache 配置 ID 列表（不带 `.yaml` 后缀，driver 自己拼 `inference_{cfg}.yaml` / `{cfg}.yaml`） | 三者全跑，对比才有意义；调试可以只传一个 |
 | `--gt-dir` | — | Step 1b 产物根 | 必须与 Step 1b `--out-dir` 一致 |
-| `--out-dir` | — | 所有 jsonl + state + `deviate_score_*.json` 的根 | 固定 `data/deviation_experiment/deviate_scores` |
+| `--out-dir` | — | 所有 jsonl + state + `deviate_score_*.json` 的根 | 固定 `exp/trajectory_deviation/data/deviate_scores` |
 | `--M` | 20 | Phase 1 的随机采样次数，用于估计 "背景 L2 噪声" | **这是 deviate_score 的信噪比旋钮**。M 越大 background L2 估计越稳但 Phase 1 时间线性增长。plan §10.2 参考 20；快速过流程用 10；想锁定统计显著性可以 30 |
 | `--num-workers` | 4 | 同 cfg 内 worker 数（server 端必须 `--concurrent`） | 受 server GPU 容量限制；4 通常安全；卡够大可以 8 |
 | `--host / --port` | `localhost` / `8000` | server 连接 | 与 Step 0 对齐 |
 | `--floor` | 0.1 | deviate_score 的分母下限 `max(bg_l2, floor)`，防止除零放大 | **不建议改**（plan §10.2 凭经验定死）；若 M 很小且 bg_l2 常常低于 0.1，可以调到 0.05 观察分布变化 |
-| `--config-yaml-dir` | `configs/cache_runs/deviate_exp` | YAML 解析根 | 除非要换实验，否则不动 |
-| `--config-fail-results` | off | 可选 Step 1a 结果 JSON；开启后每个 cfg 只跑该 cfg 自己失败过的 `(task_id, orig_init_state_idx)` | 推荐填 `data/deviation_experiment/cache_eval_results_cache_fail.json`，避免把已经成功的 init 也拿去算 deviate score；不填则三个 cfg 共用完整成功 GT 集 |
+| `--config-yaml-dir` | `exp/deviate_exp` | YAML 解析根 | 除非要换实验，否则不动 |
+| `--config-fail-results` | off | 可选 Step 1a 结果 JSON；开启后每个 cfg 只跑该 cfg 自己失败过的 `(task_id, orig_init_state_idx)` | 推荐填 `exp/trajectory_deviation/data/cache_eval_results_cache_fail.json`，避免把已经成功的 init 也拿去算 deviate score；不填则三个 cfg 共用完整成功 GT 集 |
 | `--skip-config-switch` | off | 不调 `load_cache_config`，假定 server 已正确 | 多 server 分片时用（一台 server 跑 clip，一台跑 spatial16，三个 client 指向各自 server，每个都加此 flag） |
 | `--include-failed-gt` | off | 保留 `success=False` 的 GT episode | 默认剔除（Step 1b 里推不到目标的 episode 不携带 recovery 信号）；仅在做噪声分析时开 |
 | `--include-unknown-gt` | off | 保留旧版无 `success` attr 的 HDF5 | 仅兼容归档数据；重跑 Step 1b 即可避免 |
@@ -264,9 +264,9 @@ offline Phase3 aggregate                                              → deviat
 
 ### 前置条件
 
-1. 已有三份 Step 2 产物：`deviate_score_clip_w7_d4.json` / `deviate_score_spatial16_w8_d4.json` / `deviate_score_max_pool_w3_d5.json`（按 [Step 2 并行流程](../../logs/trajectory_deviation_step2_parallel_commands.log.md) 合入 `data/deviation_experiment/deviate_scores/`）。
-2. 已有 Step 1b pruned init states：`data/deviation_experiment/inits/`。
-3. `configs/cache_runs/deviate_exp/step3_{cfg}.yaml` 已就位；三份 YAML 的 `checkpoints.cp1.gate.type: client_controlled`，其他字段与对应 `{cfg}.yaml` 一致。
+1. 已有三份 Step 2 产物：`deviate_score_clip_w7_d4.json` / `deviate_score_spatial16_w8_d4.json` / `deviate_score_max_pool_w3_d5.json`（按 [Step 2 并行流程](../../logs/trajectory_deviation_step2_parallel_commands.log.md) 合入 `exp/trajectory_deviation/data/deviate_scores/`）。
+2. 已有 Step 1b pruned init states：`exp/trajectory_deviation/data/inits/`。
+3. `exp/trajectory_deviation/config/step3_{cfg}.yaml` 已就位；三份 YAML 的 `checkpoints.cp1.gate.type: client_controlled`，其他字段与对应 `{cfg}.yaml` 一致。
 4. 三个 server 沿用 Step 2 的端口映射：
 
     | config | server 本机端口 | frp 外网端口 |
@@ -286,7 +286,7 @@ offline Phase3 aggregate                                              → deviat
 ```bash
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config configs/cache_runs/deviate_exp/step3_clip_w7_d4.yaml \
+    --cache-config exp/trajectory_deviation/config/step3_clip_w7_d4.yaml \
     --env LIBERO \
     --port 7998 \
     policy:checkpoint \
@@ -299,7 +299,7 @@ uv run scripts/serve_policy.py \
 ```bash
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config configs/cache_runs/deviate_exp/step3_spatial16_w8_d4.yaml \
+    --cache-config exp/trajectory_deviation/config/step3_spatial16_w8_d4.yaml \
     --env LIBERO \
     --port 7999 \
     policy:checkpoint \
@@ -312,7 +312,7 @@ uv run scripts/serve_policy.py \
 ```bash
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config configs/cache_runs/deviate_exp/step3_max_pool_w3_d5.yaml \
+    --cache-config exp/trajectory_deviation/config/step3_max_pool_w3_d5.yaml \
     --env LIBERO \
     --port 8000 \
     policy:checkpoint \
@@ -334,7 +334,7 @@ curl http://155.98.36.13:9000/healthz
 
 评估端 / LIBERO 主机上三个终端并行起三个 client 进程。每个 client 绑定一个 cfg 和对应 server，`--num-workers 5`（MuJoCo EGL 上限）；`--tau-grid` / `--n-grid` 逗号分隔。Client 侧可用 GPU `6–7`，按 cfg pin 一下避免互踩。
 
-> **Conda env 约定**：runner 直接 `import libero`，所以 client 进程必须跑在 LIBERO 的 conda env 里（与 `examples/libero/main.py` 同一套依赖）。这里采用与 `exp/cache_experiment/run_cache_experiments.py` 相同的 `conda run --no-capture-output -p <env>` 包裹方式（实现见 `exp/common/_subprocess.py::build_subprocess_cmd`），并强制 `MUJOCO_GL=egl` 走 EGL headless。下方 env 路径示例为 `/scratch/zixuans8/libero_sim`，按本机替换。
+> **Conda env 约定**：runner 直接 `import libero`，所以 client 进程必须跑在 LIBERO 的 conda env 里（与 `examples/libero/main.py` 同一套依赖）。这里采用与 `exp/common/run_cache_experiments.py` 相同的 `conda run --no-capture-output -p <env>` 包裹方式（实现见 `exp/common/_subprocess.py::build_subprocess_cmd`），并强制 `MUJOCO_GL=egl` 走 EGL headless。下方 env 路径示例为 `/scratch/zixuans8/libero_sim`，按本机替换。
 
 #### Client 1：clip via frp port 8998（gpu 0）
 
@@ -344,10 +344,10 @@ conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
 python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg clip_w7_d4 \
     --host 155.98.36.13 --port 8998 \
-    --yaml configs/cache_runs/deviate_exp/step3_clip_w7_d4.yaml \
-    --deviate-score-json data/deviation_experiment/deviate_scores/deviate_score_clip_w7_d4.json \
-    --init-states-dir data/deviation_experiment/inits \
-    --out-dir data/deviation_experiment/step3/clip_w7_d4 \
+    --yaml exp/trajectory_deviation/config/step3_clip_w7_d4.yaml \
+    --deviate-score-json exp/trajectory_deviation/data/deviate_scores/deviate_score_clip_w7_d4.json \
+    --init-states-dir exp/trajectory_deviation/data/inits \
+    --out-dir exp/trajectory_deviation/data/step3/clip_w7_d4 \
     --task-suite-name libero_spatial \
     --tau-grid 3,5,7,10 \
     --n-grid 1,2,3,5,10 \
@@ -363,10 +363,10 @@ conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
 python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg spatial16_w8_d4 \
     --host 155.98.36.13 --port 8999 \
-    --yaml configs/cache_runs/deviate_exp/step3_spatial16_w8_d4.yaml \
-    --deviate-score-json data/deviation_experiment/deviate_scores/deviate_score_spatial16_w8_d4.json \
-    --init-states-dir data/deviation_experiment/inits \
-    --out-dir data/deviation_experiment/step3/spatial16_w8_d4 \
+    --yaml exp/trajectory_deviation/config/step3_spatial16_w8_d4.yaml \
+    --deviate-score-json exp/trajectory_deviation/data/deviate_scores/deviate_score_spatial16_w8_d4.json \
+    --init-states-dir exp/trajectory_deviation/data/inits \
+    --out-dir exp/trajectory_deviation/data/step3/spatial16_w8_d4 \
     --task-suite-name libero_spatial \
     --tau-grid 3,5,7,10 \
     --n-grid 1,2,3,5,10 \
@@ -382,10 +382,10 @@ conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
 python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg max_pool_w3_d5 \
     --host 155.98.36.13 --port 9000 \
-    --yaml configs/cache_runs/deviate_exp/step3_max_pool_w3_d5.yaml \
-    --deviate-score-json data/deviation_experiment/deviate_scores/deviate_score_max_pool_w3_d5.json \
-    --init-states-dir data/deviation_experiment/inits \
-    --out-dir data/deviation_experiment/step3/max_pool_w3_d5 \
+    --yaml exp/trajectory_deviation/config/step3_max_pool_w3_d5.yaml \
+    --deviate-score-json exp/trajectory_deviation/data/deviate_scores/deviate_score_max_pool_w3_d5.json \
+    --init-states-dir exp/trajectory_deviation/data/inits \
+    --out-dir exp/trajectory_deviation/data/step3/max_pool_w3_d5 \
     --task-suite-name libero_spatial \
     --tau-grid 3,5,7,10 \
     --n-grid 1,2,3,5,10 \
@@ -402,7 +402,7 @@ python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
 | `--yaml` | — | Step 3 cache YAML，`gate.type: client_controlled` | 必填；路径必须在 server 端文件系统可见 |
 | `--deviate-score-json` | — | Step 2 的 `deviate_score_{cfg}.json`，其 keys 即 Step 3 的 episode 列表 | 必填；空 JSON 会报 `has no episodes` |
 | `--init-states-dir` | — | Step 1b-pre 产物目录（含 `{task}.init` / `{task}.init_map.json`） | 必填 |
-| `--out-dir` | — | 输出根：`run_state.json` + `results.jsonl` | 一般 `data/deviation_experiment/step3/{cfg}` |
+| `--out-dir` | — | 输出根：`run_state.json` + `results.jsonl` | 一般 `exp/trajectory_deviation/data/step3/{cfg}` |
 | `--task-suite-name` | `libero_spatial` | 与 Step 1a/1b 保持一致；决定 `_MAX_STEPS_BY_SUITE` | 与前面的 step 保持一致 |
 | `--tau-grid` | `3,5,7,10` | deviate_score 阈值网格（标量，非 burst 长度） | **核心旋钮之一**：τ 小 = 触发更频繁的 search；τ 大 = 更多 skip |
 | `--n-grid` | `1,2,3,5,10` | 首次触发 search 后连续走 cache 的 cycle 数（burst 长度） | **另一核心旋钮**：n 大 = search 后让 cache "吃一段"再复位；n=1 = 每次都重新判断 |
@@ -429,10 +429,10 @@ python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
 
 ```bash
 uv run python -m exp.trajectory_deviation.merge_step3_cfgs \
-    --jsonl data/deviation_experiment/step3/clip_w7_d4/results.jsonl \
-    --jsonl data/deviation_experiment/step3/spatial16_w8_d4/results.jsonl \
-    --jsonl data/deviation_experiment/step3/max_pool_w3_d5/results.jsonl \
-    --out data/deviation_experiment/step3/summary.csv
+    --jsonl exp/trajectory_deviation/data/step3/clip_w7_d4/results.jsonl \
+    --jsonl exp/trajectory_deviation/data/step3/spatial16_w8_d4/results.jsonl \
+    --jsonl exp/trajectory_deviation/data/step3/max_pool_w3_d5/results.jsonl \
+    --out exp/trajectory_deviation/data/step3/summary.csv
 ```
 
 产物 `summary.csv` 字段：`cfg, tau, n, episodes, success_rate, mean_inference_ratio, std_inference_ratio`（`std` 为总体标准差 `ddof=0`）。
@@ -440,7 +440,7 @@ uv run python -m exp.trajectory_deviation.merge_step3_cfgs \
 ### 快速验证
 
 ```bash
-wc -l data/deviation_experiment/step3/*/results.jsonl
+wc -l exp/trajectory_deviation/data/step3/*/results.jsonl
 ```
 
 每个 cfg 的行数应 ≈ `len(episodes(cfg)) × |τ_grid| × |n_grid|`（例：clip_w7_d4 ≈ 159 × 4 × 5 = 3180 行；含 resume retry 时略多，由 merge 去重）。
@@ -482,7 +482,7 @@ wc -l data/deviation_experiment/step3/*/results.jsonl
 ## 典型目录布局
 
 ```
-data/deviation_experiment/
+exp/trajectory_deviation/data/
 ├── cache_eval_results.json                # Step 1a 聚合
 ├── inits/
 │   ├── <task>.init
@@ -514,7 +514,7 @@ data/deviation_experiment/
 
 | 症状 | 原因 | 处理 |
 |------|------|------|
-| Step 3 报 `has no episodes` | `deviate_score_{cfg}.json` 为空或路径写错 | 确认 Step 2 产物已复制到 `data/deviation_experiment/deviate_scores/`，文件名 `deviate_score_{cfg}.json` 与 `--cfg` 对齐 |
+| Step 3 报 `has no episodes` | `deviate_score_{cfg}.json` 为空或路径写错 | 确认 Step 2 产物已复制到 `exp/trajectory_deviation/data/deviate_scores/`，文件名 `deviate_score_{cfg}.json` 与 `--cfg` 对齐 |
 | Step 3 起不来：`--num-workers=N exceeds MuJoCo EGL cap` | 评估端单进程 libero env 上限 5 | 把 `--num-workers` 降到 ≤5；想更高并发只能再开一台评估主机 |
 | Step 2 deviate_score 全部 ≈ 1.0 | Phase 1 / Phase 2 读到了同一个 bundle | 多进程抢了 `send_load_cache_config`；停掉并行 driver，单进程跑；或每 cfg 独立 server + `--skip-config-switch` |
 | Step 1b 大量 `inference_failed=True` | server 挂了 / 不在指定的 AlwaysSkip GT bundle | 检查 server 进程；若你加了 `--skip-config-switch`，确认已手动 `load_cache_config` 到 `inference_max_pool_w3_d5.yaml` 或等价 AlwaysSkip bundle |
@@ -564,7 +564,7 @@ data/deviation_experiment/
 CUDA_VISIBLE_DEVICES=0,1 \
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config configs/cache_runs/deviate_exp/step3_clip_w7_d4.yaml \
+    --cache-config exp/trajectory_deviation/config/step3_clip_w7_d4.yaml \
     --env LIBERO --port 7998 \
     --stage1_device cuda:0 --stage2_device cuda:1 --stage3_device cuda:1 \
     policy:checkpoint \
@@ -575,7 +575,7 @@ uv run scripts/serve_policy.py \
 CUDA_VISIBLE_DEVICES=2,3 \
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config configs/cache_runs/deviate_exp/step3_spatial16_w8_d4.yaml \
+    --cache-config exp/trajectory_deviation/config/step3_spatial16_w8_d4.yaml \
     --env LIBERO --port 7999 \
     --stage1_device cuda:0 --stage2_device cuda:1 --stage3_device cuda:1 \
     policy:checkpoint \
@@ -586,7 +586,7 @@ uv run scripts/serve_policy.py \
 CUDA_VISIBLE_DEVICES=4,5 \
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config configs/cache_runs/deviate_exp/step3_max_pool_w3_d5.yaml \
+    --cache-config exp/trajectory_deviation/config/step3_max_pool_w3_d5.yaml \
     --env LIBERO --port 8000 \
     --stage1_device cuda:0 --stage2_device cuda:1 --stage3_device cuda:1 \
     policy:checkpoint \
@@ -613,10 +613,10 @@ conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
 python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg clip_w7_d4 \
     --host 127.0.0.1 --port 7998 \
-    --yaml configs/cache_runs/deviate_exp/step3_clip_w7_d4.yaml \
-    --deviate-score-json data/deviation_experiment/deviate_scores/deviate_score_clip_w7_d4.json \
-    --init-states-dir data/deviation_experiment/inits \
-    --out-dir data/deviation_experiment/step3/clip_w7_d4 \
+    --yaml exp/trajectory_deviation/config/step3_clip_w7_d4.yaml \
+    --deviate-score-json exp/trajectory_deviation/data/deviate_scores/deviate_score_clip_w7_d4.json \
+    --init-states-dir exp/trajectory_deviation/data/inits \
+    --out-dir exp/trajectory_deviation/data/step3/clip_w7_d4 \
     --task-suite-name libero_spatial \
     --tau-grid 3,5,7,10 --n-grid 1,2,3,5,10 \
     --num-workers 5 --resume
@@ -627,10 +627,10 @@ conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
 python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg spatial16_w8_d4 \
     --host 127.0.0.1 --port 7999 \
-    --yaml configs/cache_runs/deviate_exp/step3_spatial16_w8_d4.yaml \
-    --deviate-score-json data/deviation_experiment/deviate_scores/deviate_score_spatial16_w8_d4.json \
-    --init-states-dir data/deviation_experiment/inits \
-    --out-dir data/deviation_experiment/step3/spatial16_w8_d4 \
+    --yaml exp/trajectory_deviation/config/step3_spatial16_w8_d4.yaml \
+    --deviate-score-json exp/trajectory_deviation/data/deviate_scores/deviate_score_spatial16_w8_d4.json \
+    --init-states-dir exp/trajectory_deviation/data/inits \
+    --out-dir exp/trajectory_deviation/data/step3/spatial16_w8_d4 \
     --task-suite-name libero_spatial \
     --tau-grid 3,5,7,10 --n-grid 1,2,3,5,10 \
     --num-workers 5 --resume
@@ -641,10 +641,10 @@ conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
 python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg max_pool_w3_d5 \
     --host 127.0.0.1 --port 8000 \
-    --yaml configs/cache_runs/deviate_exp/step3_max_pool_w3_d5.yaml \
-    --deviate-score-json data/deviation_experiment/deviate_scores/deviate_score_max_pool_w3_d5.json \
-    --init-states-dir data/deviation_experiment/inits \
-    --out-dir data/deviation_experiment/step3/max_pool_w3_d5 \
+    --yaml exp/trajectory_deviation/config/step3_max_pool_w3_d5.yaml \
+    --deviate-score-json exp/trajectory_deviation/data/deviate_scores/deviate_score_max_pool_w3_d5.json \
+    --init-states-dir exp/trajectory_deviation/data/inits \
+    --out-dir exp/trajectory_deviation/data/step3/max_pool_w3_d5 \
     --task-suite-name libero_spatial \
     --tau-grid 3,5,7,10 --n-grid 1,2,3,5,10 \
     --num-workers 5 --resume
@@ -652,6 +652,6 @@ python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
 
 ### 附录·已知问题（待排查）
 
-- 2026-04-16 timan107 实测：Client 3（max_pool）`[parallel retry 1/2] 3000 failed units` 全跪，时间窗约 5 分钟（`02:46:48 → 02:51:44`）。需查 `data/deviation_experiment/step3/max_pool_w3_d5/run_state.json` 里任一 failed unit 的 `result.error` 才能定性。
+- 2026-04-16 timan107 实测：Client 3（max_pool）`[parallel retry 1/2] 3000 failed units` 全跪，时间窗约 5 分钟（`02:46:48 → 02:51:44`）。需查 `exp/trajectory_deviation/data/step3/max_pool_w3_d5/run_state.json` 里任一 failed unit 的 `result.error` 才能定性。
 - 同机 5 worker MuJoCo EGL + server CUDA 上下文是否互相挤压未验证。
 - Server C 当时是否真的起来、`curl /healthz` 是否过——日志缺失。

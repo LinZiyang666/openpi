@@ -25,15 +25,15 @@ BUILDERS = ["max_pool", "spatial16", "clip"]
 START_TS = [0.3, 0.5, 0.7]
 
 BASELINE_FILES = {
-    "max_pool": "data/deviation_experiment/cache_eval_results_maxpool.json",
-    "spatial16": "data/deviation_experiment/cache_eval_results_spatial16.json",
-    "clip": "data/deviation_experiment/cache_eval_results_clip.json",
+    "max_pool": "exp/trajectory_deviation/data/cache_eval_results_maxpool.json",
+    "spatial16": "exp/trajectory_deviation/data/cache_eval_results_spatial16.json",
+    "clip": "exp/trajectory_deviation/data/cache_eval_results_clip.json",
 }
 
 WARM_FILES = {
-    "max_pool": "configs/cache_runs/warm_start_exp/max_pool/cache_eval_results.json",
-    "spatial16": "configs/cache_runs/warm_start_exp/spatial16/cache_eval_results.json",
-    "clip": "configs/cache_runs/warm_start_exp/clip/cache_eval_results.json",
+    "max_pool": "exp/warm_start/data/max_pool/cache_eval_results.json",
+    "spatial16": "exp/warm_start/data/spatial16/cache_eval_results.json",
+    "clip": "exp/warm_start/data/clip/cache_eval_results.json",
 }
 
 WARM_CONFIG_IDS = {
@@ -127,7 +127,7 @@ def plot_grouped_bar(data: dict, out: Path):
 # ── Main ──────────────────────────────────────────────────────────────────
 
 def main():
-    out_dir = Path("data/warm_start_exp/results")
+    out_dir = Path("exp/warm_start/data/results")
     out_dir.mkdir(parents=True, exist_ok=True)
 
     data = load_all()

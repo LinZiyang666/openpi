@@ -27,8 +27,8 @@ driver — Step 1b does not manage the server process. Reference command:
 
     uv run scripts/serve_policy.py \\
         --config pi05_libero \\
-        --cache_config configs/cache_runs/deviate_exp/inference_clip_w7_d4.yaml \\
-        --collect --collect-dir data/deviation_experiment/collected
+        --cache_config exp/trajectory_deviation/config/inference_clip_w7_d4.yaml \\
+        --collect --collect-dir exp/trajectory_deviation/data/collected
 """
 from __future__ import annotations
 
@@ -53,7 +53,7 @@ from exp.common._run_state_base import BaseRunState, UnitState
 logger = logging.getLogger(__name__)
 
 # Default clip GT bundle (plan §18.B4.3 decision).
-DEFAULT_INFERENCE_YAML = "configs/cache_runs/deviate_exp/inference_clip_w7_d4.yaml"
+DEFAULT_INFERENCE_YAML = "exp/trajectory_deviation/config/inference_clip_w7_d4.yaml"
 
 # Per-unit subprocess timeout. Mirrors run_cache_experiments.py's per-task
 # budget — an individual GT episode is 1 task × 1 init, comfortably inside
