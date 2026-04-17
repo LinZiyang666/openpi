@@ -1,6 +1,8 @@
 # CLAUDE.md — Agent Entry Point
 
 > **Full project rules**: [`WORKING_AGREEMENT.md`](WORKING_AGREEMENT.md)
+> **Executor law** (Execution only, never read the other): [`protocols/execution_authority.md`](protocols/execution_authority.md)
+> **Reviewer law** (Review only, never read the other): [`protocols/review_authority.md`](protocols/review_authority.md)
 > **Architecture docs**: [`docs/README.md`](docs/README.md)
 > **Implementation logs**: [`logs/README.md`](logs/README.md)
 > **Project reference**: [`docs/reference/openpi.md`](docs/reference/openpi.md)
@@ -15,15 +17,16 @@
 
 Every new conversation MUST:
 1. Read [`WORKING_AGREEMENT.md`](WORKING_AGREEMENT.md) to load project rules.
-2. Assess work level (L0–L3) from git status, recent commits, and user's first message.
-3. Determine workflow stage (Understand / Plan / G1 / Code / G2 / Verify).
-4. Present a status card showing: task description, level, and each stage's status (done/in-progress/pending). Example format:
+2. **Declare Authority (WA §9.2)**: `Execution` (default) or `Review` (only on explicit user instruction). **Immediately read the matching law and ONLY that law** — Execution → [`protocols/execution_authority.md`](protocols/execution_authority.md); Review → [`protocols/review_authority.md`](protocols/review_authority.md). Reading the opposite law is a violation. Re-check your authority before each major action; agents tend to forget mid-run.
+3. Assess work level (L0–L3) from git status, recent commits, and user's first message.
+4. Determine workflow stage (Understand / Plan / G1 / Code / G2 / Verify).
+5. Present a status card showing: authority, task description, level, and each stage's status (done/in-progress/pending). Example format:
    ```
-   WORKFLOW STATUS | Task: ... | Level: L2
+   WORKFLOW STATUS | Authority: Execution | Task: ... | Level: L2
    Understand ✅ → Plan ✅ → G1 ✅ → Code 🔄 → G2 ⬚ → Verify ⬚
    ```
-5. Wait for user confirmation before proceeding.
-6. Update status card at every stage transition.
+6. Wait for user confirmation before proceeding.
+7. Update status card at every stage transition.
 
 ### Operating Rules
 
