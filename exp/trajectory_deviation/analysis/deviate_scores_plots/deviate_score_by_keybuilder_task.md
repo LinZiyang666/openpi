@@ -1,0 +1,32 @@
+| config | task | episodes | cycles | >=5 count | >=5 % cycles | >=5 / ep mean | zero episodes | mean score | median score | dominant >=5 position |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| clip_w7_d4 | task_0 | 13 | 207 | 20 | 9.7 | 1.54 | 2 | 2.92 | 2.19 | middle |
+| clip_w7_d4 | task_1 | 12 | 275 | 17 | 6.2 | 1.42 | 0 | 2.32 | 1.44 | middle |
+| clip_w7_d4 | task_2 | 14 | 272 | 8 | 2.9 | 0.57 | 8 | 2.10 | 1.62 | early |
+| clip_w7_d4 | task_3 | 9 | 162 | 14 | 8.6 | 1.56 | 1 | 2.78 | 2.24 | late |
+| clip_w7_d4 | task_4 | 18 | 478 | 40 | 8.4 | 2.22 | 3 | 2.72 | 1.94 | middle |
+| clip_w7_d4 | task_5 | 17 | 333 | 15 | 4.5 | 0.88 | 10 | 2.23 | 1.63 | middle |
+| clip_w7_d4 | task_6 | 13 | 271 | 18 | 6.6 | 1.38 | 1 | 2.61 | 1.76 | middle |
+| clip_w7_d4 | task_7 | 18 | 447 | 19 | 4.3 | 1.06 | 4 | 2.39 | 1.70 | early |
+| clip_w7_d4 | task_8 | 13 | 255 | 26 | 10.2 | 2.00 | 2 | 3.07 | 2.24 | late |
+| clip_w7_d4 | task_9 | 32 | 767 | 55 | 7.2 | 1.72 | 9 | 2.63 | 1.98 | middle |
+| spatial16_w8_d4 | task_0 | 15 | 241 | 21 | 8.7 | 1.40 | 4 | 2.79 | 2.16 | late |
+| spatial16_w8_d4 | task_1 | 19 | 423 | 24 | 5.7 | 1.26 | 4 | 2.06 | 1.52 | middle |
+| spatial16_w8_d4 | task_2 | 10 | 196 | 7 | 3.6 | 0.70 | 5 | 2.16 | 1.70 | middle |
+| spatial16_w8_d4 | task_3 | 12 | 211 | 7 | 3.3 | 0.58 | 7 | 2.17 | 1.78 | late |
+| spatial16_w8_d4 | task_4 | 19 | 491 | 24 | 4.9 | 1.26 | 8 | 2.46 | 1.91 | middle |
+| spatial16_w8_d4 | task_5 | 13 | 248 | 22 | 8.9 | 1.69 | 4 | 2.67 | 1.93 | early |
+| spatial16_w8_d4 | task_6 | 11 | 224 | 14 | 6.2 | 1.27 | 1 | 2.29 | 1.80 | middle |
+| spatial16_w8_d4 | task_7 | 16 | 398 | 22 | 5.5 | 1.38 | 3 | 2.35 | 1.72 | early |
+| spatial16_w8_d4 | task_8 | 19 | 397 | 46 | 11.6 | 2.42 | 2 | 3.31 | 2.10 | late |
+| spatial16_w8_d4 | task_9 | 20 | 472 | 19 | 4.0 | 0.95 | 7 | 2.20 | 1.80 | early |
+| max_pool_w3_d5 | task_0 | 9 | 147 | 17 | 11.6 | 1.89 | 0 | 3.09 | 2.23 | late |
+| max_pool_w3_d5 | task_1 | 24 | 552 | 30 | 5.4 | 1.25 | 6 | 2.26 | 1.57 | middle |
+| max_pool_w3_d5 | task_2 | 9 | 180 | 8 | 4.4 | 0.89 | 4 | 2.09 | 1.59 | middle |
+| max_pool_w3_d5 | task_3 | 11 | 193 | 9 | 4.7 | 0.82 | 4 | 2.45 | 1.72 | late |
+| max_pool_w3_d5 | task_4 | 23 | 601 | 32 | 5.3 | 1.39 | 9 | 2.56 | 1.99 | middle |
+| max_pool_w3_d5 | task_5 | 17 | 317 | 24 | 7.6 | 1.41 | 2 | 2.52 | 1.92 | early |
+| max_pool_w3_d5 | task_6 | 14 | 292 | 12 | 4.1 | 0.86 | 5 | 2.19 | 1.70 | middle |
+| max_pool_w3_d5 | task_7 | 16 | 397 | 24 | 6.0 | 1.50 | 2 | 2.44 | 1.69 | early |
+| max_pool_w3_d5 | task_8 | 13 | 277 | 48 | 17.3 | 3.69 | 0 | 3.83 | 2.17 | late |
+| max_pool_w3_d5 | task_9 | 14 | 336 | 15 | 4.5 | 1.07 | 6 | 2.42 | 1.88 | middle |
