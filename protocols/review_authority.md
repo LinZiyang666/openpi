@@ -37,7 +37,7 @@ Review Authority is the sole authority empowered to execute Working Agreement §
 **Required actions**:
 
 - Read the target material in full (plan file for G1; diff + changed files for G2; target scope for Audit).
-- For G2, read the plan file as well — including its `## Review Log` section in full — so that the present round builds on, rather than duplicates, the prior G1 exchange.
+- For G2, read the polished plan file. The G1 Review Log was deleted at the Post-G1 polish (`execution_authority.md` §3.1) and is NOT available — the polished plan body is the sole record of the agreed G1 design. Any prior G2 rounds in `## Review Log` MUST be read in full so the present round builds on, rather than duplicates, prior G2 exchange.
 - For iterative rounds (Round N≥2), read the executor's responses appended since the last Review Authority session, and use `git diff` (working tree vs the prior reviewer-staged index) to surface every plan/code change the executor introduced this round. Round 1 has no prior staged baseline; read the working tree as-is. The current round MUST address any executor rejections the reviewer still disagrees with, not silently drop them.
 - Read the referenced upstream: the approved plan (for G2), task description, relevant subsystem charters (Working Agreement §8), and `docs/` / `logs/` files referenced by the target.
 - Read any §4 advisory test output the executor attached. Note that the procedural §6 Verify run has not yet occurred at G2; the reviewer's "tests passing" judgment rests on this advisory output combined with the reviewer's own §3.1 independent runs.
@@ -76,7 +76,7 @@ The G2 reviewer holds standing authority to design and run independent tests as 
   - **G2** (Working Agreement §2.6): consistency with approved plan, test coverage and passing, docs & indexes updated, no regressions.
   - **Audit**: the scope fixed at Intake.
 - Each checklist item MUST receive an explicit answer with reasoning grounded in material read in §3.
-- Formulate, for each failing item, one or more concrete Review Log entries of the form `- [Concern|Question|Suggestion] <statement> — reasoning: <why>`. These feed §5.
+- Formulate, for each failing item, one or more concrete Review Log entries of the form `- [Blocking|Non-blocking] [Concern|Question|Suggestion] <statement> — reasoning: <why>`. **Blocking** items preclude `APPROVED`; **Non-blocking** items are advisory and do not gate the verdict. These feed §5.
 - Working-Agreement or subordinate-regulation breaches discovered during assessment MUST be recorded for the Violation section of the report in §5.
 
 **Prohibitions**:
@@ -99,16 +99,17 @@ The G2 reviewer holds standing authority to design and run independent tests as 
 
 **Required actions**:
 
-- **Append to the plan file's `## Review Log` section** a new reviewer round block, headed `### <G1|G2> Round N — Reviewer`, containing every Review Log entry formulated in §4. This is the authoritative channel for iterative discussion with the executor; the round number MUST be one higher than the most recent round present.
+- **Append to the plan file's `## Review Log` section** a new reviewer round block, headed `### <G1|G2> Round N — Reviewer — <APPROVED|REJECTED|NEEDS REVISION> — <YYYY-MM-DD HH:MM TZ>`, containing every Review Log entry formulated in §4. At G2 Round 1, the `## Review Log` section is absent (removed by the Post-G1 polish per `execution_authority.md` §3.1); the reviewer MUST create it afresh before appending. This is the authoritative channel for iterative discussion with the executor; the round number MUST be one higher than the most recent round present within the current gate.
 - **Stage every change touched in this round** with `git add` — the modified plan file (now containing the new Review Log block) and any source files the executor altered since the last round, but explicitly **excluding** anything under `tests/review_tests/` (see §3.1). The git index then holds this round's shareable snapshot, so the next reviewer round reads the executor's response delta directly via `git diff` (working tree vs index).
 - **Compose a structured report for the user**, with, in order:
-  1. `Constitutional Violation` section (if any) at the top, listing every breach found in §4.
-  2. Checklist with per-item verdict and reasoning.
-  3. Final verdict line — exactly one of:
+  1. Opening line, exactly: `Verdict: <APPROVED|REJECTED|NEEDS REVISION> — Time: <YYYY-MM-DD HH:MM TZ>`.
+  2. `Constitutional Violation` section (if any), listing every breach found in §4.
+  3. Checklist with per-item verdict and reasoning.
+  4. Final verdict line — exactly one of:
      - `APPROVED`
      - `REJECTED: <specific items>`
      - `NEEDS REVISION: <specific items>`
-  4. (If `REJECTED` or `NEEDS REVISION`) A pointer to the Review Log round just appended, for executor action.
+  5. (If `REJECTED` or `NEEDS REVISION`) A pointer to the Review Log round just appended, for executor action.
 - Deliver the structured report to the user.
 
 **Prohibitions**:

@@ -54,7 +54,17 @@ Applies to L2+. Per Working Agreement §2.4.
 
 **Exit condition**:
 
-- `APPROVED` G1 verdict received; proceed to §4 Code.
+- `APPROVED` G1 verdict received AND Post-G1 polish (§3.1) completed; proceed to §4 Code.
+
+### 3.1 Post-G1 Polish
+
+Before leaving §3 G1 and entering §4 Code:
+
+1. Polish the plan body: resolve remaining TBDs, finalize language, ensure the plan reads as a clean, coherent record of the design to be implemented.
+2. Delete the entire `## Review Log` section — every G1 reviewer entry, every G1 executor response, every G1 round header.
+3. Stage the polished plan file as part of the change set.
+
+G2 later opens a fresh `## Review Log` section on the polished plan and its contents persist in the plan file after G2 APPROVED — there is no post-G2 polish.
 
 ## 4. Code
 
@@ -118,13 +128,13 @@ Applies to L2+. Per Working Agreement §2.6.
 **Prohibitions**:
 
 - Satisfying G2 by self-review or by a sub-agent (Working Agreement §9.3).
-- Advancing to §6 Verify without an `APPROVED` G2 verdict AND completion of the final polish in §10.
+- Advancing to §6 Verify without an `APPROVED` G2 verdict.
 
 **On non-APPROVED verdict**: see §10 Review Process.
 
 **Exit condition**:
 
-- `APPROVED` G2 verdict received AND final polish (§10) performed; proceed to §6 Verify.
+- `APPROVED` G2 verdict received; proceed to §6 Verify.
 
 ## 6. Verify
 
@@ -255,25 +265,18 @@ Shared protocol invoked by §3 G1 and §5 G2.
 ### 10.1 Review Log conventions
 
 - The plan file's `## Review Log` section is the sole channel for iterative review discussion and the sole part of the plan file the reviewer may write.
-- The Log is append-only until the final polish (§10.3). Deleting, rewriting, or reordering existing entries — whether reviewer or executor — is a violation.
-- Entries are grouped under round headers of the form `### <G1|G2> Round N — <Reviewer|Executor>`, with N monotonically increasing.
+- The Log is append-only within each gate's rounds. Deleting, rewriting, or reordering existing entries is a violation — with one exception: the Post-G1 polish (§3.1) deletes the entire G1 Review Log section en bloc before §4 Code begins.
+- G2 opens a fresh `## Review Log` section on the polished plan, appends G2 rounds there, and that section is NOT deleted at G2 APPROVED; it persists as a permanent record of the code-review exchange.
+- Entries are grouped under round headers of the form `### <G1|G2> Round N — <Reviewer|Executor>`, with N monotonically increasing within each gate.
 
 ### 10.2 Iteration (on non-APPROVED verdict)
 
 1. Read every reviewer entry appended since the last handoff.
-2. For each item (question, concern, suggestion, reasoning), evaluate with project-specific expertise. The executor is the authoritative voice on project substance; the reviewer challenges and probes, not dictates.
+2. For each item — factual or judgmental — evaluate the substance with project-specific expertise. Dismissing reasoning as "mere opinion" without engagement is a violation. The executor holds final authority on project substance; the reviewer challenges and probes, not dictates — but that does not license ignoring sound reasoning.
 3. If well-founded: modify the plan body (G1) or the code (G2) accordingly, and append `- Accepted — <summary of change>` under a new `### <G1|G2> Round N — Executor` header.
 4. If not well-founded: append `- Rejected — <explicit reasoning grounded in project facts>`. Silent or unreasoned rejection is a violation.
 5. Every reviewer item MUST receive exactly one executor response; skipping items is a violation.
 6. Re-enter the corresponding gate (§3 or §5) with the updated artifact and the appended response round.
-
-### 10.3 Final polish (after `APPROVED` G2)
-
-Before leaving §5 G2 and entering §6 Verify:
-
-1. Polish the plan body: resolve remaining TBDs, finalize language, ensure the plan reads as a clean, coherent record of what was built.
-2. Delete the entire `## Review Log` section — every reviewer entry, every executor response, every round header across G1 and G2.
-3. Stage the polished plan file as part of the change set.
 
 ## 11. Violation Consequences
 
