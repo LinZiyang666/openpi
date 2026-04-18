@@ -4,3 +4,6 @@
 [submodule "third_party/libero"]
 	path = third_party/libero
 	url = https://github.com/Lifelong-Robot-Learning/LIBERO.git
+[submodule "third_party/VLA-Adapter"]
+	path = third_party/VLA-Adapter
+	url = https://github.com/OpenHelix-Team/VLA-Adapter.git
