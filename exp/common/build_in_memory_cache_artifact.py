@@ -288,6 +288,10 @@ def _process_episode(
             if i < len(episode_entries) - 1:
                 episode_entries[i].next_ids = [episode_entries[i + 1].id]
 
+        # Convert tensors before crossing process boundaries. Returning raw
+        # torch.Tensor objects from ProcessPool workers can fail when Python
+        # reconstructs shared-memory file descriptors in the parent process.
+        _detach_entries(episode_entries)
         return episode_entries
 
 
@@ -357,7 +361,6 @@ def build_artifact(
         for i, p in enumerate(h5_paths, 1):
             result = _process_episode(str(p), *_ep_args)
             if result is not None:
-                _detach_entries(result)
                 entries.extend(result)
                 del result
             gc.collect()
