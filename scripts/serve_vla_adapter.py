@@ -74,19 +74,16 @@ class VLAAdapterPolicy(_base_policy.BasePolicy):
         original_predict = self.action_head.predict_action
         
         def patched_predict_action(hidden_states, proprio=None, proprio_projector=None, **kwargs):
-            # Fix 1: Restore the True Multi-Layer Brain
             if hasattr(self, '_last_hidden_states_tuple'):
                 hs_tuple = self._last_hidden_states_tuple
                 if len(hs_tuple) > 1:
                     hidden_states = torch.stack(hs_tuple, dim=1)
                 
-            # Fix 2: Re-inject dropped proprioception state
             if proprio is None and hasattr(self, "_current_proprio"):
                 proprio = self._current_proprio
             elif proprio is None:
                 proprio = torch.zeros((1, 8), dtype=torch.bfloat16, device=hidden_states.device)
 
-            # Fix 3: Mock the projector if missing
             proj = proprio_projector if proprio_projector is not None else self.proprio_projector
             if proj is None:
                 dim = hidden_states.shape[-1]
@@ -96,6 +93,27 @@ class VLAAdapterPolicy(_base_policy.BasePolicy):
             
         self.action_head.predict_action = patched_predict_action
         
+        original_process_vision = self.model._process_vision_features
+        
+        # Vision Embedding Fixes
+        #----------------------
+        # What: Make copies of the vision embeddings 
+        # Why: VLA-Adapter trashes the vision embeddings, so we pull them out miduse
+        #-------------------------------------------------------------------
+
+        def patched_process_vision(pixel_values, language_embeddings=None, use_film=False):
+            # 1. Run the original function to compute the vision embeddings
+            vision_embs = original_process_vision(pixel_values, language_embeddings, use_film)
+            
+            # 2. Save clones of the tensors to the model object memory
+            self.model._last_vision_embs = vision_embs.detach().clone()
+            if language_embeddings is not None:
+                self.model._last_prompt_embs = language_embeddings.detach().clone()
+                
+            return vision_embs
+            
+        self.model._process_vision_features = patched_process_vision
+
         logging.info("VLA-Adapter initialized successfully with True Hidden States Patch.")
 
     def infer(self, obs: dict, *, noise: np.ndarray | None = None) -> dict:
@@ -173,9 +191,13 @@ class VLACollectionPolicy:
             state = np.array(obs.get("observation/state", []), dtype=np.float32).flatten()
             actions = np.array(result["actions"], dtype=np.float32)
 
+            #pull straight from the live program before it is discarded and cast to float16 
+            v_emb = self._policy.model._last_vision_embs.cpu().to(torch.float16).numpy()
+            p_emb = self._policy.model._last_prompt_embs.cpu().to(torch.float16).numpy()
+
             embs = InferenceEmbeddings(
-                vision_embs=[np.zeros((1, 2048), dtype=np.float16)],
-                prompt_emb=np.zeros((1, 2048), dtype=np.float16),
+                vision_embs=[v_emb[0]],  
+                prompt_emb=p_emb[0],     
                 robot_state=state,
                 noise_action_steps=[],
                 clean_action=actions
