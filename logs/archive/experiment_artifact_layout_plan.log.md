@@ -1,6 +1,6 @@
 # Experiment Artifact Layout Plan
 
-**Status**: `Plan`
+**Status**: `Implemented`
 **Level**: L2 (process + cross-directory reorganization)
 **Authority**: Execution
 **Author**: @LinZiyang666 / assistant

@@ -392,7 +392,16 @@ class _PhaseRunner(BaseRunState):
         finally:
             try:
                 if episode_started:
-                    client.episode_end(success=True)
+                    try:
+                        client.episode_end(success=True)
+                    except Exception as e:  # pragma: no cover - defensive
+                        # Never let episode_end mask the primary exception
+                        # (if any) from the outer try; mirror the defensive
+                        # pattern used in run_step3_per_cycle_policy.
+                        logger.warning(
+                            "episode_end raised for episode=%s sample_idx=%s: %s",
+                            ep, s, e, exc_info=True,
+                        )
             finally:
                 close = getattr(client, "close", None)
                 if callable(close):

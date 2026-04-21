@@ -178,6 +178,20 @@ class CacheStorage:
             self._metadata_db.close()
 
     # ------------------------------------------------------------------
+    # Facade construction
+    # ------------------------------------------------------------------
+
+    def per_connection_facade(self) -> "CacheStorage":
+        """Build a new CacheStorage sharing this instance's backend and
+        metadata_db but owning its own prefill state.
+
+        Used when a single shared storage fans out one facade per client
+        connection: backend / metadata_db stay singleton, while the prefill
+        mode flag is isolated per connection.
+        """
+        return CacheStorage(self._backend, metadata_db=self._metadata_db)
+
+    # ------------------------------------------------------------------
     # Internal validation helpers
     # ------------------------------------------------------------------
 
