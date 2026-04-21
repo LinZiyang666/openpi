@@ -1,6 +1,6 @@
 # `exp/` Directory Reorganization — Plan
 
-- Status: `Implemented — G2 Approved`
+- Status: `Implemented`
 - Level: **L2**（跨文件结构重构：改变 `exp.*` import 路径，影响 tests / scripts / docs；不改任何功能语义）
 - Scope: 把 `exp/` 下平铺的 24 个脚本按实验分类到 4 个实验子目录 + 1 个 `common/` 公用目录
 - 起草日期：2026-04-14

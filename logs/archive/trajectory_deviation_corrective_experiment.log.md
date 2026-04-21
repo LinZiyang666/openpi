@@ -1,6 +1,6 @@
 # Trajectory Deviation 纠偏实验 — 详细实验计划
 
-> Status: Plan
+> Status: Historical (旧 Step 3 方案，由 `trajectory_deviation_step3_redesign.log.md` 明确废弃)
 > Date: 2026-04-13
 > Task: 验证 cache 轨迹偏差的局部性假设，量化 inference 纠偏效果
 > 关联文档: [trajectory_deviation_experiment_plan.log.md](trajectory_deviation_experiment_plan.log.md)

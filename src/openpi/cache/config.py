@@ -211,6 +211,13 @@ _VALID_CHECKPOINTS = frozenset({"cp1", "cp3"})
 # Valid step_filter values.
 _VALID_STEP_FILTERS = frozenset({"all", "exact", "window"})
 
+# Single source of truth for gate / judge type strings. Any new type must be
+# added here so validator (validate_cache_config) and builder (_build_gate /
+# _build_judge) stay in lockstep; otherwise a missing entry silently downgrades
+# to a "Unknown ... type" error at build time despite passing validation.
+_GATE_TYPES = frozenset({"always_search", "always_skip", "client_controlled"})
+_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start"})
+
 
 def _keys_iter(keys: KeysConfig) -> Iterator[tuple[str, KeyFieldConfig]]:
     """Iterate over (field_name, KeyFieldConfig) pairs."""
@@ -445,18 +452,16 @@ def validate_cache_config(config: CacheConfig) -> None:
         # ``client_controlled`` reads the skip/search decision from a per-request
         # signal injected by the client runner; see
         # logs/trajectory_deviation_step3_redesign.log.md §5.2.
-        _valid_gate_types = ("always_search", "always_skip", "client_controlled")
-        if cp_config.gate.type not in _valid_gate_types:
+        if cp_config.gate.type not in _GATE_TYPES:
             errors.append(
                 f"{prefix}.gate.type '{cp_config.gate.type}' is unknown. "
-                f"Valid: {list(_valid_gate_types)}"
+                f"Valid: {sorted(_GATE_TYPES)}"
             )
 
-        _valid_judge_types = ("threshold", "always_hit", "always_warm_start")
-        if cp_config.judge.type not in _valid_judge_types:
+        if cp_config.judge.type not in _JUDGE_TYPES:
             errors.append(
                 f"{prefix}.judge.type '{cp_config.judge.type}' is unknown. "
-                f"Valid: {list(_valid_judge_types)}"
+                f"Valid: {sorted(_JUDGE_TYPES)}"
             )
 
         ss = cp_config.search_strategy
@@ -777,7 +782,6 @@ def build_per_connection_components(
     ``exit_prefill_mode``) stays isolated. See
     ``logs/trajectory_deviation_corrective_implementation.log.md`` §5 / §6.
     """
-    from openpi.cache.cache_storage import CacheStorage
     from openpi.cache.timing import SystemTimer
 
     timer = SystemTimer(
@@ -788,14 +792,9 @@ def build_per_connection_components(
     )
 
     # Wrap the shared backend in a fresh facade for this connection. The
-    # facade only holds per-connection prefill state + a cheap dim cache, so
-    # copying it has no memory pressure. ``shared_storage`` must have been
-    # produced by ``build_shared_storage``; we reach through ``_backend`` to
-    # keep backend singleton semantics.
-    per_conn_storage = CacheStorage(
-        shared_storage._backend,
-        metadata_db=shared_storage._metadata_db,
-    )
+    # facade shares backend + metadata_db (singleton semantics) but owns
+    # its own prefill state. See ``CacheStorage.per_connection_facade``.
+    per_conn_storage = shared_storage.per_connection_facade()
 
     enabled_fields = [name for name, kf in _keys_iter(config.keys) if kf.enabled]
     key_builder = _build_key_builder(config.key_builder, enabled_fields, config.backend.vector_dims)
@@ -943,8 +942,7 @@ def _build_gate(cfg: GateConfig):
 
         return ClientControlledGate()
     raise ConfigValidationError(
-        f"Unknown gate.type '{cfg.type}'. "
-        f"Valid: ['always_search', 'always_skip', 'client_controlled']"
+        f"Unknown gate.type '{cfg.type}'. Valid: {sorted(_GATE_TYPES)}"
     )
 
 
@@ -968,8 +966,7 @@ def _build_judge(cfg: JudgeConfig):
         return AlwaysWarmStartJudge(cfg.start_t)
     else:
         raise ConfigValidationError(
-            f"Unknown judge.type '{cfg.type}'. "
-            "Valid: ['threshold', 'always_hit', 'always_warm_start']"
+            f"Unknown judge.type '{cfg.type}'. Valid: {sorted(_JUDGE_TYPES)}"
         )
 
 

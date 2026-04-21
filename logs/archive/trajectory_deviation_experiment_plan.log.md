@@ -1,6 +1,6 @@
 # Trajectory Deviation 纠偏实验方案
 
-> Status: Plan
+> Status: Historical (superseded by `trajectory_deviation_step3_redesign.log.md`)
 > Date: 2026-04-13
 > Task: 验证 cache 轨迹偏差的局部性假设，设计 inference/warm start 纠偏实验
 

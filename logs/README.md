@@ -32,39 +32,35 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 
 ## Active Logs
 
-### Warm Start
-
-| File | Status | Description |
-|------|--------|-------------|
-| [warm_start_sweep_plan.log.md](warm_start_sweep_plan.log.md) | `Implemented` | Warm start 成功率扫描实验：3 keybuilder × 3 start_t (0.7/0.5/0.3) + always_skip/always_hit 对照；新增 AlwaysWarmStartJudge |
-
-### Trajectory Deviation
-
-| File | Status | Description |
-|------|--------|-------------|
-| [trajectory_deviation_experiment_plan.log.md](trajectory_deviation_experiment_plan.log.md) | `Plan` | Trajectory deviation 纠偏实验：3-Phase (离线诊断→信号分析→Oracle 纠偏) |
-| [trajectory_deviation_corrective_experiment.log.md](trajectory_deviation_corrective_experiment.log.md) | `Plan` | 纠偏详细实验计划：GT 收集→Deviate Score→Spawn 纠偏，含 trajectory depth 预填充方案 |
-| [trajectory_deviation_corrective_implementation.log.md](trajectory_deviation_corrective_implementation.log.md) | `In Progress` | 纠偏代码级实施跟踪记录（被 `src/openpi/cache/` 多处引用作为规范脚注） |
-| [trajectory_deviation_corrective_implementation_review.log.md](trajectory_deviation_corrective_implementation_review.log.md) | `Plan/G2 Review/Verify` | 代码审查记录：Layer A+D+E、Layer B、Layer C、Layer F APPROVE；Verify 离线部分已落地，待端到端 dry run |
-
 ### Stage Device Placement
 
 | File | Status | Description |
 |------|--------|-------------|
-| [stage_device_placement_plan.log.md](stage_device_placement_plan.log.md) | `In Progress` | L3: 按 Stage 分离 device placement，支持 cuda/cpu/meta 三种模式。G1 已通过 |
+| [stage_device_placement_plan.log.md](stage_device_placement_plan.log.md) | `In Progress` | L3: split device placement by Stage, supporting cuda/cpu/meta modes. G1 approved |
 
 ### Redundant Token Pruning
 
 | File | Status | Description |
 |------|--------|-------------|
-| [redundant_token_prune_gpt.log.md](redundant_token_prune_gpt.log.md) | `Design Only` | GPT 初步方案讨论（不含项目实现细节） |
+| [redundant_token_prune_gpt.log.md](redundant_token_prune_gpt.log.md) | `Design Only` | GPT-drafted preliminary proposal discussion (no project-specific implementation details) |
 
-### Code Organization
+### Pi0.5 High-Level Autoregressive Decode
 
 | File | Status | Description |
 |------|--------|-------------|
-| [exp_reorg_plan.log.md](exp_reorg_plan.log.md) | `G2 Approved` | `exp/` 目录按实验重组：4 个实验子包 + `common/` 公用包；G2 复审已批准，可提交 |
-| [experiment_artifact_layout_plan.log.md](experiment_artifact_layout_plan.log.md) | `Implemented` | 实验脚本/配置/产物/数据全仓普查 + 统一布局（`exp/<exp>/{config,data,analysis}/`）；owner G1 R2 指示"纯位置重构、24 个 result JSON 保持 tracked 用 `git mv`"；8 phase / 51 step；Phase 0–8 执行完成；canonical 规则落在 [`docs/experiments/artifact_layout.md`](../docs/experiments/artifact_layout.md) |
+| [pi05_hl_ar_decode_plan.log.md](pi05_hl_ar_decode_plan.log.md) | `Plan` | L2: add optional HL autoregressive decode (`lm_head` + incremental KV) to the inference path; Phase B integration decided after the Phase A probe gate |
+
+### Data Artifact Build
+
+| File | Status | Description |
+|------|--------|-------------|
+| [libero_10_cache_artifact_build_plan.log.md](libero_10_cache_artifact_build_plan.log.md) | `Plan` | L1: 用 `exp/common/data/db_init/libero_cache/libero_10` 采样 init 驱动 LIBERO 推理，h5 落到 `exp/common/data/db/libero_cache/libero_10/`（与 `libero_spatial` 同约定），再 build 6 份 InMemoryBackend pkl artifact（4 pool + CLIP ViT-B-32 + ViT-L-14）到 `exp/common/data/cache_artifacts/libero_10/` |
+
+### Phase1 Experiments
+
+| File | Status | Description |
+|------|--------|-------------|
+| [phase1_libero_10_run_commands.log.md](phase1_libero_10_run_commands.log.md) | `Plan` | L1: `exp/common/config/phase1/libero_10/batch{1,2,3}/` 共 60 个 run 的执行命令清单（server + runner），含 prompt_emb 验证组；附 init-state 不匹配 caveat |
 
 ---
 
@@ -85,6 +81,7 @@ Completed and historical logs. See [`archive/`](archive/) for all files.
 | [step4_test_plan.log.md](archive/step4_test_plan.log.md) \[[EN](archive/step4_test_plan.en.log.md)\] | `Validated` | Step 4 test plan: 6 files, 45 test cases passed |
 | [step4_config_discussion.log.md](archive/step4_config_discussion.log.md) \[[EN](archive/step4_config_discussion.en.log.md)\] | `Validated` | SearchStrategy abstraction, YAML format, decoupling principles |
 | [step4_config_plan.log.md](archive/step4_config_plan.log.md) \[[EN](archive/step4_config_plan.en.log.md)\] | `Implemented` | Config dataclass tree + YAML loading + serve_policy.py integration |
+| [cache_private_access_plan.log.md](archive/cache_private_access_plan.log.md) | `Implemented` | L2: `CacheStorage.per_connection_facade()` + `CacheOrchestrator.prefill_mode()` context manager; collapses private-attribute reach-through in config.py / interceptor.py, with tests-layer white-box assertions explicitly exempted |
 
 ### Cache Experiment / CP1
 
@@ -92,8 +89,9 @@ Completed and historical logs. See [`archive/`](archive/) for all files.
 |------|--------|-------------|
 | [cache_experiment_plan.log.md](archive/cache_experiment_plan.log.md) \[[EN](archive/cache_experiment_plan.en.log.md)\] | `Implemented` | CP1 experiment: 5 reducers (incl. CLIP) x RRF fusion |
 | [cache_cp1_impl_plan.log.md](archive/cache_cp1_impl_plan.log.md) \[[EN](archive/cache_cp1_impl_plan.en.log.md)\] | `Implemented` | CP1 in-memory implementation plan for large-scale experiment |
-| [cp1_warm_start_impl_plan.log.md](archive/cp1_warm_start_impl_plan.log.md) | `Validated` | CP1 warm start 实现计划：4 Phase (性能修复→写入→判定+执行→文档) |
-| [cp1_warm_start_investigation.log.md](archive/cp1_warm_start_investigation.log.md) | `Historical` | CP1 warm start 可用性调查，产出转为 impl plan |
+| [cp1_warm_start_impl_plan.log.md](archive/cp1_warm_start_impl_plan.log.md) | `Validated` | CP1 warm start implementation plan: 4 phases (performance fix → write → judge + execute → docs) |
+| [cp1_warm_start_investigation.log.md](archive/cp1_warm_start_investigation.log.md) | `Historical` | CP1 warm start feasibility investigation; output folded into the impl plan |
+| [warm_start_sweep_plan.log.md](archive/warm_start_sweep_plan.log.md) | `Implemented` | Warm start success-rate sweep: 3 keybuilders × 3 start_t (0.7/0.5/0.3) + always_skip/always_hit controls; adds AlwaysWarmStartJudge |
 
 ### Retrieval System
 
@@ -112,16 +110,29 @@ Completed and historical logs. See [`archive/`](archive/) for all files.
 | [clip_key_builder_plan.log.md](archive/clip_key_builder_plan.log.md) \[[EN](archive/clip_key_builder_plan.en.log.md)\] | `Implemented` | CLIP KeyBuilder: open_clip ViT-B-32 for cache keys |
 | [cache_migration_guide_plan.log.md](archive/cache_migration_guide_plan.log.md) | `Implemented` | Cache framework migration tutorial plan: coupling analysis, 7-step guide, review |
 | [concurrent_inference_plan.log.md](archive/concurrent_inference_plan.log.md) | `Implemented` | Server multi-connection + client multi-worker thread pool |
-| [redundant_token_prune_plan.log.md](archive/redundant_token_prune_plan.log.md) | `Implemented` | Plan A 冗余 token 剪枝：temporal scoring 两步 KeyBuilder，含 G2 审查记录 |
+| [redundant_token_prune_plan.log.md](archive/redundant_token_prune_plan.log.md) | `Implemented` | Plan A redundant-token pruning: two-stage KeyBuilder via temporal scoring; includes G2 review record |
 | [raw_image_collection_plan.log.md](archive/raw_image_collection_plan.log.md) \[[EN](archive/raw_image_collection_plan.en.log.md)\] | `Implemented` | Two-system (--collect + Cache Sidecar) raw image saving plan |
-| [trajectory_deviation_corrective_cleanup_plan.log.md](archive/trajectory_deviation_corrective_cleanup_plan.log.md) | `Validated` | L2 post-hoc cleanup：三类妥协 10 commits 三波落地（squashed into 633acd8），Verify V1/V2/V3 全绿 |
+| [exp_reorg_plan.log.md](archive/exp_reorg_plan.log.md) | `Implemented` | Reorganize `exp/` directory by experiment: 4 experiment subpackages + `common/` shared package; G2 review approved and merged |
+| [experiment_artifact_layout_plan.log.md](archive/experiment_artifact_layout_plan.log.md) | `Implemented` | Repo-wide audit of experiment scripts / configs / artifacts / data + unified layout (`exp/<exp>/{config,data,analysis}/`); 8 phases / 51 steps; Phases 0–8 executed; canonical rules live in [`docs/experiments/artifact_layout.md`](../docs/experiments/artifact_layout.md) |
+
+### Trajectory Deviation
+
+| File | Status | Description |
+|------|--------|-------------|
+| [trajectory_deviation_experiment_plan.log.md](archive/trajectory_deviation_experiment_plan.log.md) | `Historical` | 顶层 3-phase 纠偏方案 (offline diagnosis → signal analysis → Oracle correction)；由 step3_redesign 取代 |
+| [trajectory_deviation_corrective_experiment.log.md](archive/trajectory_deviation_corrective_experiment.log.md) | `Historical` | 旧 Step 3 方案 (GT teleport + prefill + pure-cache rollout)；被 step3_redesign §1.2 明确废弃 |
+| [trajectory_deviation_corrective_implementation.log.md](archive/trajectory_deviation_corrective_implementation.log.md) | `Implemented` | 代码级 implementation plan：每处改动锚点到文件 + 行号；落地后由 cleanup_plan 收尾 |
+| [trajectory_deviation_corrective_implementation_review.log.md](archive/trajectory_deviation_corrective_implementation_review.log.md) | `Implemented` | G1 审查记录：Layer A+D+E / B / C / F APPROVED；审查意见已在实现中修正 |
+| [trajectory_deviation_step2_parallel_commands.log.md](archive/trajectory_deviation_step2_parallel_commands.log.md) | `Historical` | Step 2 三服务器 / 三客户端并行 deviate-score 计算命令 |
+| [trajectory_deviation_step3_redesign.log.md](archive/trajectory_deviation_step3_redesign.log.md) | `Validated` | Step 3 重设计：per-cycle policy selection，按预计算 deviate flag 在真实 env 中测纠偏效果 |
+| [trajectory_deviation_corrective_cleanup_plan.log.md](archive/trajectory_deviation_corrective_cleanup_plan.log.md) | `Validated` | L2 post-hoc cleanup: three classes of compromise landed as 10 commits across three waves (squashed into 633acd8); Verify V1/V2/V3 all green |
 
 ### Design Only / Background Analysis
 
 | File | Status | Description |
 |------|--------|-------------|
-| [key_dim_reduction_recommendations.log.md](archive/key_dim_reduction_recommendations.log.md) \[[EN](archive/key_dim_reduction_recommendations.en.log.md)\] | `Historical` | Two-layer pipeline (token pooling + dim projection) recommendations, 未进入实现路径 |
-| [libero_env_init_analysis.log.md](archive/libero_env_init_analysis.log.md) \[[EN](archive/libero_env_init_analysis.en.log.md)\] | `Historical` | LIBERO env init analysis: main.py 仅使用 3 params，初始状态为预存固定集 |
+| [key_dim_reduction_recommendations.log.md](archive/key_dim_reduction_recommendations.log.md) \[[EN](archive/key_dim_reduction_recommendations.en.log.md)\] | `Historical` | Two-layer pipeline (token pooling + dim projection) recommendations; did not enter the implementation path |
+| [libero_env_init_analysis.log.md](archive/libero_env_init_analysis.log.md) \[[EN](archive/libero_env_init_analysis.en.log.md)\] | `Historical` | LIBERO env init analysis: main.py only uses 3 params; initial state comes from a pre-stored fixed set |
 
 ### Historical
 

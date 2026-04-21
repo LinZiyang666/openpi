@@ -2,6 +2,7 @@
 name: warm_start_sweep_plan
 description: Warm Start 成功率扫描实验计划：3 keybuilder × 3 start_t，对照 always_skip / always_hit
 type: project
+status: Implemented
 ---
 
 # Warm Start 成功率扫描实验计划

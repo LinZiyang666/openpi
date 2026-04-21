@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import logging
 import uuid
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -127,6 +128,29 @@ class CacheOrchestrator:
         for cp in ("cp1", "cp3"):
             for step in ("collect", "gate", "build", "search", "judge", "fetch"):
                 self._timer.register_probe(f"{cp}_{step}", backend="cpu")
+
+    # ------------------------------------------------------------------
+    # Prefill mode (delegated to the underlying storage)
+    # ------------------------------------------------------------------
+
+    @contextmanager
+    def prefill_mode(self, payload: CachePayload):
+        """Scope storage prefill mode to a ``with`` block.
+
+        While the block is active, the underlying CacheStorage returns a
+        synthetic FULL_HIT carrying ``payload`` for any search, regardless
+        of the actual vector store. Used by
+        ``InferenceInterceptor.prefill_trajectory`` to drive history from
+        ground-truth obs+action pairs.
+
+        Exit is unconditional — even if the enclosed block raises, storage
+        leaves prefill mode before the exception propagates.
+        """
+        self._storage.enter_prefill_mode(payload)
+        try:
+            yield
+        finally:
+            self._storage.exit_prefill_mode()
 
     # ------------------------------------------------------------------
     # Episode lifecycle

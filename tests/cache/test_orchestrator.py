@@ -673,3 +673,30 @@ def test_client_controlled_gate_search_through_orchestrator():
     )
     assert result.hit_type == HitType.FULL_HIT
     orch.clear()
+
+
+def test_prefill_mode_context_manager_enters_and_exits():
+    orchestrator, _backend, storage = make_orchestrator()
+    payload = CachePayload(action_chunk=torch.zeros(50, 32))
+
+    assert storage._prefill_mode is False
+
+    with orchestrator.prefill_mode(payload):
+        assert storage._prefill_mode is True
+        assert storage._prefill_payload is payload
+
+    assert storage._prefill_mode is False
+    assert storage._prefill_payload is None
+
+
+def test_prefill_mode_context_manager_exits_on_exception():
+    orchestrator, _backend, storage = make_orchestrator()
+    payload = CachePayload(action_chunk=torch.zeros(50, 32))
+
+    with pytest.raises(RuntimeError, match="boom"):
+        with orchestrator.prefill_mode(payload):
+            raise RuntimeError("boom")
+
+    # finally branch ran — storage must be back to normal mode.
+    assert storage._prefill_mode is False
+    assert storage._prefill_payload is None

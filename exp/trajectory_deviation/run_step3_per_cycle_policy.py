@@ -429,7 +429,12 @@ class Step3PerCycleRunner(BaseRunState):
                 break
 
         # Unique episode id per unit so the server's per-connection facade
-        # starts from a clean trajectory-history state.
+        # starts from a clean trajectory-history state. The bit-packing below
+        # reserves 5 decimal digits for subset_idx, 2 for tau, and 1 for n;
+        # guard against silent collisions if any factor outgrows its slot.
+        assert 0 <= subset_idx < 100_000, f"subset_idx={subset_idx} overflows episode_id layout"
+        assert 0 <= int(key.tau) < 100, f"tau={key.tau} overflows episode_id layout"
+        assert 0 <= int(key.n) < 10, f"n={key.n} overflows episode_id layout"
         episode_id = (
             (task_id * 100_000 + subset_idx) * 1000 + int(key.tau) * 10 + int(key.n)
         ) & 0x7FFFFFFF

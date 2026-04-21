@@ -1,6 +1,7 @@
 # Trajectory Deviation Step 2 Parallel Commands
 
-Date: 2026-04-15
+> Status: Historical
+> Date: 2026-04-15
 
 Goal: run Step 2 deviate-score computation in parallel with three independent
 policy servers and three client processes.

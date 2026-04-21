@@ -145,3 +145,23 @@ def test_prefill_mode_validation_still_runs():
     bad_spec = _query_spec(dim=64)  # backend expects 32
     with pytest.raises(ValueError, match="shape mismatch"):
         storage.search(bad_spec)
+
+
+def test_per_connection_facade_shares_backend_and_metadata_db():
+    backend = InMemoryBackend({"robot_state": 32})
+    metadata_db = object()  # sentinel — CacheStorage only holds the reference
+    original = CacheStorage(backend, metadata_db=metadata_db)
+    original.enter_prefill_mode(
+        CachePayload(action_chunk=torch.zeros(50, 32))
+    )
+
+    facade = original.per_connection_facade()
+
+    # Fresh facade, shared backing components.
+    assert facade is not original
+    assert facade._backend is original._backend
+    assert facade._metadata_db is original._metadata_db
+
+    # Prefill state is per-facade, not inherited.
+    assert facade._prefill_mode is False
+    assert facade._prefill_payload is None

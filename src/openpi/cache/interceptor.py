@@ -370,20 +370,13 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 "interceptor was constructed with orchestrator=None."
             )
 
-        # Reach through the orchestrator to the per-connection facade. The
-        # private attribute is stable — the orchestrator owns its storage
-        # reference for the lifetime of the connection.
-        cache_storage = self._orchestrator._storage
         for obs, action in zip(observations, actions, strict=True):
             payload = self._build_prefill_payload(action)
-            cache_storage.enter_prefill_mode(payload)
-            try:
+            with self._orchestrator.prefill_mode(payload):
                 # Full pipeline: key_builder.collect + build, strategy.search
                 # (synthetic hit), judge, fetch_payload, broadcast_action —
                 # every side effect runs; the returned action is discarded.
                 self.infer(obs)
-            finally:
-                cache_storage.exit_prefill_mode()
 
     @staticmethod
     def _build_prefill_payload(action):
