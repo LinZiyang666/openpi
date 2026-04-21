@@ -1,9 +1,9 @@
 # Trajectory Deviation 纠偏实现计划 — G1 审查结论与讨论
 
-> Status: Plan
+> Status: Implemented
 > Date: 2026-04-14
-> Review target: `logs/trajectory_deviation_corrective_implementation.log.md`
-> Base plan: `logs/trajectory_deviation_corrective_experiment.log.md`
+> Review target: `archive/trajectory_deviation_corrective_implementation.log.md`
+> Base plan: `archive/trajectory_deviation_corrective_experiment.log.md`
 > Reviewer role: G1 plan reviewer
 
 ---

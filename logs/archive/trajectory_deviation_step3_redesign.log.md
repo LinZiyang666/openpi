@@ -1,6 +1,6 @@
 # Trajectory Deviation Step 3 Plan — Per-cycle Policy 刻舟求剑
 
-> Status: G1 Approved (2026-04-16)
+> Status: Validated
 > Task: 废弃旧 Step 3 的 "GT teleport + prefill + pure-cache rollout" 设计，改为 per-cycle policy selection 实验。按 Step 2 pre-computed 的 deviate flag 驱动每次 inference cycle 选择 cache 或 inference，直接在真实 env 中测纠偏效果。
 > 关联文档：
 > - [trajectory_deviation_experiment_plan.log.md](trajectory_deviation_experiment_plan.log.md)（Phase A/B/C 原始方案）

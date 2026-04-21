@@ -1,6 +1,6 @@
 # Trajectory Deviation 纠偏实验 — 代码级实现计划
 
-> Status: Implementation Plan (code-level expansion)
+> Status: Implemented
 > Date: 2026-04-13
 > Companion to: [`trajectory_deviation_corrective_experiment.log.md`](trajectory_deviation_corrective_experiment.log.md)
 > Scope: 把 experiment plan 中散落的"新建/修改 X 文件"条目展开为真正可以动手写代码的详细步骤 —— 每一处改动都标注**锚点文件 + 行号 + 插入/替换片段 + 数据结构**。
