@@ -1,0 +1,1302 @@
+[
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_001_a_rrf_w1.yaml",
+    "run_id": "phase1_run_001_a_rrf_w1",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 14:38:55",
+    "end_time": "2026-04-21 15:05:57",
+    "success_rate": 0.18,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_001_a_rrf_w1.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        1,
+        10
+      ],
+      "1": [
+        1,
+        10
+      ],
+      "2": [
+        1,
+        10
+      ],
+      "3": [
+        1,
+        10
+      ],
+      "4": [
+        1,
+        10
+      ],
+      "5": [
+        3,
+        10
+      ],
+      "6": [
+        3,
+        10
+      ],
+      "7": [
+        3,
+        10
+      ],
+      "8": [
+        2,
+        10
+      ],
+      "9": [
+        2,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_002_a_rrf_w2.yaml",
+    "run_id": "phase1_run_002_a_rrf_w2",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 15:05:57",
+    "end_time": "2026-04-21 15:32:18",
+    "success_rate": 0.27,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_002_a_rrf_w2.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        10
+      ],
+      "1": [
+        3,
+        10
+      ],
+      "2": [
+        2,
+        10
+      ],
+      "3": [
+        2,
+        10
+      ],
+      "4": [
+        2,
+        10
+      ],
+      "5": [
+        3,
+        10
+      ],
+      "6": [
+        3,
+        10
+      ],
+      "7": [
+        3,
+        10
+      ],
+      "8": [
+        3,
+        10
+      ],
+      "9": [
+        3,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_003_a_rrf_w3.yaml",
+    "run_id": "phase1_run_003_a_rrf_w3",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 15:32:18",
+    "end_time": "2026-04-21 15:56:15",
+    "success_rate": 0.39,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_003_a_rrf_w3.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        5,
+        10
+      ],
+      "1": [
+        4,
+        10
+      ],
+      "2": [
+        4,
+        10
+      ],
+      "3": [
+        4,
+        10
+      ],
+      "4": [
+        4,
+        10
+      ],
+      "5": [
+        4,
+        10
+      ],
+      "6": [
+        4,
+        10
+      ],
+      "7": [
+        4,
+        10
+      ],
+      "8": [
+        3,
+        10
+      ],
+      "9": [
+        3,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_004_a_rrf_w4.yaml",
+    "run_id": "phase1_run_004_a_rrf_w4",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 15:56:15",
+    "end_time": "2026-04-21 16:20:17",
+    "success_rate": 0.33,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_004_a_rrf_w4.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        4,
+        10
+      ],
+      "1": [
+        3,
+        10
+      ],
+      "2": [
+        3,
+        10
+      ],
+      "3": [
+        3,
+        10
+      ],
+      "4": [
+        3,
+        10
+      ],
+      "5": [
+        4,
+        10
+      ],
+      "6": [
+        4,
+        10
+      ],
+      "7": [
+        3,
+        10
+      ],
+      "8": [
+        3,
+        10
+      ],
+      "9": [
+        3,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_005_a_rrf_w5.yaml",
+    "run_id": "phase1_run_005_a_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 16:20:17",
+    "end_time": "2026-04-21 16:43:21",
+    "success_rate": 0.44,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_005_a_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        5,
+        10
+      ],
+      "1": [
+        5,
+        10
+      ],
+      "2": [
+        4,
+        10
+      ],
+      "3": [
+        4,
+        10
+      ],
+      "4": [
+        4,
+        10
+      ],
+      "5": [
+        5,
+        10
+      ],
+      "6": [
+        5,
+        10
+      ],
+      "7": [
+        4,
+        10
+      ],
+      "8": [
+        4,
+        10
+      ],
+      "9": [
+        4,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_006_a_rrf_w6.yaml",
+    "run_id": "phase1_run_006_a_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 16:43:21",
+    "end_time": "2026-04-21 17:08:08",
+    "success_rate": 0.37,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_006_a_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        4,
+        10
+      ],
+      "1": [
+        4,
+        10
+      ],
+      "2": [
+        4,
+        10
+      ],
+      "3": [
+        4,
+        10
+      ],
+      "4": [
+        4,
+        10
+      ],
+      "5": [
+        4,
+        10
+      ],
+      "6": [
+        4,
+        10
+      ],
+      "7": [
+        3,
+        10
+      ],
+      "8": [
+        3,
+        10
+      ],
+      "9": [
+        3,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_007_a_rrf_w7.yaml",
+    "run_id": "phase1_run_007_a_rrf_w7",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 17:08:08",
+    "end_time": "2026-04-21 17:33:02",
+    "success_rate": 0.35,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_007_a_rrf_w7.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        4,
+        10
+      ],
+      "1": [
+        4,
+        10
+      ],
+      "2": [
+        3,
+        10
+      ],
+      "3": [
+        3,
+        10
+      ],
+      "4": [
+        3,
+        10
+      ],
+      "5": [
+        4,
+        10
+      ],
+      "6": [
+        4,
+        10
+      ],
+      "7": [
+        4,
+        10
+      ],
+      "8": [
+        3,
+        10
+      ],
+      "9": [
+        3,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_008_a_rrf_w8.yaml",
+    "run_id": "phase1_run_008_a_rrf_w8",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 17:33:02",
+    "end_time": "2026-04-21 17:55:57",
+    "success_rate": 0.44,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_008_a_rrf_w8.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        6,
+        10
+      ],
+      "1": [
+        5,
+        10
+      ],
+      "2": [
+        5,
+        10
+      ],
+      "3": [
+        5,
+        10
+      ],
+      "4": [
+        5,
+        10
+      ],
+      "5": [
+        4,
+        10
+      ],
+      "6": [
+        4,
+        10
+      ],
+      "7": [
+        4,
+        10
+      ],
+      "8": [
+        3,
+        10
+      ],
+      "9": [
+        3,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_009_b1_rrf_w1.yaml",
+    "run_id": "phase1_run_009_b1_rrf_w1",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 17:55:57",
+    "end_time": "2026-04-21 18:26:59",
+    "success_rate": 0.25,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_009_b1_rrf_w1.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        2,
+        10
+      ],
+      "1": [
+        2,
+        10
+      ],
+      "2": [
+        2,
+        10
+      ],
+      "3": [
+        2,
+        10
+      ],
+      "4": [
+        2,
+        10
+      ],
+      "5": [
+        3,
+        10
+      ],
+      "6": [
+        3,
+        10
+      ],
+      "7": [
+        3,
+        10
+      ],
+      "8": [
+        3,
+        10
+      ],
+      "9": [
+        3,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_010_b1_rrf_w2.yaml",
+    "run_id": "phase1_run_010_b1_rrf_w2",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 18:26:59",
+    "end_time": "2026-04-21 19:15:30",
+    "success_rate": 0.32,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_010_b1_rrf_w2.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        4,
+        10
+      ],
+      "1": [
+        4,
+        10
+      ],
+      "2": [
+        4,
+        10
+      ],
+      "3": [
+        3,
+        10
+      ],
+      "4": [
+        3,
+        10
+      ],
+      "5": [
+        3,
+        10
+      ],
+      "6": [
+        3,
+        10
+      ],
+      "7": [
+        3,
+        10
+      ],
+      "8": [
+        3,
+        10
+      ],
+      "9": [
+        2,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_011_b1_rrf_w3.yaml",
+    "run_id": "phase1_run_011_b1_rrf_w3",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 19:15:30",
+    "end_time": "2026-04-21 19:41:03",
+    "success_rate": 0.47,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_011_b1_rrf_w3.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        6,
+        10
+      ],
+      "1": [
+        5,
+        10
+      ],
+      "2": [
+        5,
+        10
+      ],
+      "3": [
+        5,
+        10
+      ],
+      "4": [
+        5,
+        10
+      ],
+      "5": [
+        5,
+        10
+      ],
+      "6": [
+        4,
+        10
+      ],
+      "7": [
+        4,
+        10
+      ],
+      "8": [
+        4,
+        10
+      ],
+      "9": [
+        4,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_012_b1_rrf_w4.yaml",
+    "run_id": "phase1_run_012_b1_rrf_w4",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 19:41:03",
+    "end_time": "2026-04-21 20:05:31",
+    "success_rate": 0.36,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_012_b1_rrf_w4.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        5,
+        10
+      ],
+      "1": [
+        4,
+        10
+      ],
+      "2": [
+        4,
+        10
+      ],
+      "3": [
+        4,
+        10
+      ],
+      "4": [
+        4,
+        10
+      ],
+      "5": [
+        3,
+        10
+      ],
+      "6": [
+        3,
+        10
+      ],
+      "7": [
+        3,
+        10
+      ],
+      "8": [
+        3,
+        10
+      ],
+      "9": [
+        3,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_013_b1_rrf_w5.yaml",
+    "run_id": "phase1_run_013_b1_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 20:05:31",
+    "end_time": "2026-04-21 20:29:12",
+    "success_rate": 0.51,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_013_b1_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        6,
+        10
+      ],
+      "1": [
+        6,
+        10
+      ],
+      "2": [
+        5,
+        10
+      ],
+      "3": [
+        5,
+        10
+      ],
+      "4": [
+        5,
+        10
+      ],
+      "5": [
+        5,
+        10
+      ],
+      "6": [
+        5,
+        10
+      ],
+      "7": [
+        5,
+        10
+      ],
+      "8": [
+        5,
+        10
+      ],
+      "9": [
+        4,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_014_b1_rrf_w6.yaml",
+    "run_id": "phase1_run_014_b1_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 20:29:12",
+    "end_time": "2026-04-21 20:55:56",
+    "success_rate": 0.39,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_014_b1_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        4,
+        10
+      ],
+      "1": [
+        4,
+        10
+      ],
+      "2": [
+        4,
+        10
+      ],
+      "3": [
+        4,
+        10
+      ],
+      "4": [
+        4,
+        10
+      ],
+      "5": [
+        4,
+        10
+      ],
+      "6": [
+        4,
+        10
+      ],
+      "7": [
+        4,
+        10
+      ],
+      "8": [
+        4,
+        10
+      ],
+      "9": [
+        3,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_015_b1_rrf_w7.yaml",
+    "run_id": "phase1_run_015_b1_rrf_w7",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 20:55:56",
+    "end_time": "2026-04-21 21:23:13",
+    "success_rate": 0.35,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_015_b1_rrf_w7.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        10
+      ],
+      "1": [
+        3,
+        10
+      ],
+      "2": [
+        3,
+        10
+      ],
+      "3": [
+        3,
+        10
+      ],
+      "4": [
+        3,
+        10
+      ],
+      "5": [
+        4,
+        10
+      ],
+      "6": [
+        4,
+        10
+      ],
+      "7": [
+        4,
+        10
+      ],
+      "8": [
+        4,
+        10
+      ],
+      "9": [
+        4,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_016_b1_rrf_w8.yaml",
+    "run_id": "phase1_run_016_b1_rrf_w8",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 21:23:13",
+    "end_time": "2026-04-21 21:49:04",
+    "success_rate": 0.45,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_016_b1_rrf_w8.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        5,
+        10
+      ],
+      "1": [
+        4,
+        10
+      ],
+      "2": [
+        4,
+        10
+      ],
+      "3": [
+        4,
+        10
+      ],
+      "4": [
+        4,
+        10
+      ],
+      "5": [
+        5,
+        10
+      ],
+      "6": [
+        5,
+        10
+      ],
+      "7": [
+        5,
+        10
+      ],
+      "8": [
+        5,
+        10
+      ],
+      "9": [
+        4,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_017_b2_rrf_w1.yaml",
+    "run_id": "phase1_run_017_b2_rrf_w1",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 21:49:04",
+    "end_time": "2026-04-21 22:14:15",
+    "success_rate": 0.22,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_017_b2_rrf_w1.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        2,
+        10
+      ],
+      "1": [
+        2,
+        10
+      ],
+      "2": [
+        2,
+        10
+      ],
+      "3": [
+        2,
+        10
+      ],
+      "4": [
+        1,
+        10
+      ],
+      "5": [
+        3,
+        10
+      ],
+      "6": [
+        3,
+        10
+      ],
+      "7": [
+        3,
+        10
+      ],
+      "8": [
+        2,
+        10
+      ],
+      "9": [
+        2,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_018_b2_rrf_w2.yaml",
+    "run_id": "phase1_run_018_b2_rrf_w2",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 22:14:15",
+    "end_time": "2026-04-21 22:39:14",
+    "success_rate": 0.27,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_018_b2_rrf_w2.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        3,
+        10
+      ],
+      "1": [
+        3,
+        10
+      ],
+      "2": [
+        3,
+        10
+      ],
+      "3": [
+        3,
+        10
+      ],
+      "4": [
+        2,
+        10
+      ],
+      "5": [
+        3,
+        10
+      ],
+      "6": [
+        3,
+        10
+      ],
+      "7": [
+        3,
+        10
+      ],
+      "8": [
+        2,
+        10
+      ],
+      "9": [
+        2,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_019_b2_rrf_w3.yaml",
+    "run_id": "phase1_run_019_b2_rrf_w3",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 22:39:14",
+    "end_time": "2026-04-21 23:03:09",
+    "success_rate": 0.43,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_019_b2_rrf_w3.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        5,
+        10
+      ],
+      "1": [
+        5,
+        10
+      ],
+      "2": [
+        5,
+        10
+      ],
+      "3": [
+        5,
+        10
+      ],
+      "4": [
+        4,
+        10
+      ],
+      "5": [
+        4,
+        10
+      ],
+      "6": [
+        4,
+        10
+      ],
+      "7": [
+        4,
+        10
+      ],
+      "8": [
+        4,
+        10
+      ],
+      "9": [
+        3,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_020_b2_rrf_w4.yaml",
+    "run_id": "phase1_run_020_b2_rrf_w4",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_10",
+    "start_time": "2026-04-21 23:03:09",
+    "end_time": "2026-04-21 23:28:02",
+    "success_rate": 0.37,
+    "log_path": "exp/common/config/phase1/libero_10/batch1/phase1_run_020_b2_rrf_w4.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        4,
+        10
+      ],
+      "1": [
+        4,
+        10
+      ],
+      "2": [
+        4,
+        10
+      ],
+      "3": [
+        4,
+        10
+      ],
+      "4": [
+        4,
+        10
+      ],
+      "5": [
+        4,
+        10
+      ],
+      "6": [
+        4,
+        10
+      ],
+      "7": [
+        3,
+        10
+      ],
+      "8": [
+        3,
+        10
+      ],
+      "9": [
+        3,
+        10
+      ]
+    }
+  }
+]
