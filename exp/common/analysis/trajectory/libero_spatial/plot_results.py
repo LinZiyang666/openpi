@@ -17,13 +17,24 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+from exp.common.analysis.plot_common import (
+    BAR_COLORS,
+    KB_COLORS,
+    KEY_BUILDER_LABELS,
+    KEY_BUILDER_ORDER,
+    ROLE_LABELS,
+    ROLE_MARKERS,
+    WEIGHT_LABELS,
+)
+
 # ------------------------------------------------------------------
 # Config
 # ------------------------------------------------------------------
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-STATE_FILE = SCRIPT_DIR / "experiment_state.json"
-PHASE1_STATE_FILE = SCRIPT_DIR.parent / "phase1" / "experiment_state.json"
+COMMON_DIR = SCRIPT_DIR.parents[2]  # exp/common/
+STATE_FILE = COMMON_DIR / "data" / "trajectory" / "libero_spatial" / "experiment_state.json"
+PHASE1_STATE_FILE = COMMON_DIR / "data" / "phase1" / "libero_spatial" / "experiment_state.json"
 
 OUTPUT_LINE_PNG = SCRIPT_DIR / "trajectory_results.png"
 OUTPUT_LINE_PDF = SCRIPT_DIR / "trajectory_results.pdf"
@@ -31,47 +42,6 @@ OUTPUT_FACET_PNG = SCRIPT_DIR / "trajectory_results_facets.png"
 OUTPUT_FACET_PDF = SCRIPT_DIR / "trajectory_results_facets.pdf"
 
 DEPTHS = [1, 3, 4, 5, 6]  # 1 = phase1 baseline (single-step, no trajectory)
-
-KEY_BUILDER_ORDER = ["a", "b1", "b2", "c", "d"]
-KEY_BUILDER_LABELS = {
-    "a": "cp1_mean_pool",
-    "b1": "cp1_spatial_pool_16",
-    "b2": "cp1_spatial_pool_64",
-    "c": "cp1_max_pool",
-    "d": "clip",
-}
-
-WEIGHT_LABELS = {
-    "w1": "v0=1.0",
-    "w2": "rs=1.0",
-    "w3": "v0=.5 rs=.5",
-    "w4": "v0=.25 rs=.75",
-    "w5": "v0=.25 v1=.25 rs=.5",
-    "w6": "v0=.15 v1=.1 rs=.75",
-    "w7": "v0=.1 v1=.1 rs=.8",
-    "w8": "v0=.5 v1=.25 rs=.25",
-}
-
-# Color by key_builder (one consistent color per kb across both figures).
-KB_COLORS = {
-    kb: c
-    for kb, c in zip(KEY_BUILDER_ORDER, plt.cm.tab10(np.linspace(0, 1, 10)))
-}
-
-# Markers encode the role of each weight in the phase1 ranking:
-#   top1       -> star      (best phase1 result for that kb)
-#   top2       -> square    (second-best phase1 result)
-#   2nd_worst  -> circle    (second-worst phase1 result)
-ROLE_MARKERS = {"top1": "*", "top2": "s", "2nd_worst": "o"}
-ROLE_LABELS = {
-    "top1": "phase1 top-1",
-    "top2": "phase1 top-2",
-    "2nd_worst": "phase1 2nd-worst",
-}
-
-# Bar colors for the facet plot — one color per weight id, consistent across
-# facets so that the legend line up with the phase1 chart conceptually.
-BAR_COLORS = plt.cm.tab10(np.linspace(0, 1, 10))[:8]
 
 RUN_ID_PATTERN = re.compile(r"traj_d(\d+)_\d+_(.+)_rrf_(w\d+)")
 PHASE1_RUN_ID_PATTERN = re.compile(r"phase1_run_\d+_(.+)_rrf_(w\d+)")

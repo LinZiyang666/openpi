@@ -99,6 +99,8 @@ uv run scripts/serve_policy.py \
 
 ## 2. 客户端 Runner 命令（LIBERO eval 主机，三终端）
 
+`libero` 不在 uv venv 里，必须通过 `--conda-env` 走 conda（绝对路径时 runner 自动用 `conda run -p`）。下面以 `/scratch/zixuans8/libero_sim` 为例；按名字装的 env 改成 `--conda-env libero_sim` 即可。
+
 ### Client 1: batch1 via frp port 8998
 
 ```bash
@@ -109,6 +111,7 @@ uv run exp/common/run_cache_experiments.py \
     --host 155.98.36.13 --port 8998 \
     --task-suite libero_10 \
     --seed 42 \
+    --conda-env /scratch/zixuans8/libero_sim \
     --resume
 ```
 
@@ -122,6 +125,7 @@ uv run exp/common/run_cache_experiments.py \
     --host 155.98.36.13 --port 8999 \
     --task-suite libero_10 \
     --seed 42 \
+    --conda-env /scratch/zixuans8/libero_sim \
     --resume
 ```
 
@@ -135,6 +139,7 @@ uv run exp/common/run_cache_experiments.py \
     --host 155.98.36.13 --port 9000 \
     --task-suite libero_10 \
     --seed 42 \
+    --conda-env /scratch/zixuans8/libero_sim \
     --resume
 ```
 

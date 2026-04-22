@@ -14,39 +14,23 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+from exp.common.analysis.plot_common import (
+    BAR_COLORS as COLORS,
+    KEY_BUILDER_LABELS,
+    KEY_BUILDER_ORDER,
+    WEIGHT_IDS,
+    WEIGHT_LABELS,
+)
+
 # ------------------------------------------------------------------
 # Config
 # ------------------------------------------------------------------
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-STATE_FILE = SCRIPT_DIR / "experiment_state.json"
+COMMON_DIR = SCRIPT_DIR.parents[2]  # exp/common/
+STATE_FILE = COMMON_DIR / "data" / "phase1" / "libero_spatial" / "experiment_state.json"
 OUTPUT_PNG = SCRIPT_DIR / "phase1_results.png"
 OUTPUT_PDF = SCRIPT_DIR / "phase1_results.pdf"
-
-KEY_BUILDER_ORDER = ["a", "b1", "b2", "c", "d"]
-KEY_BUILDER_LABELS = {
-    "a": "cp1_mean_pool",
-    "b1": "cp1_spatial_pool_16",
-    "b2": "cp1_spatial_pool_64",
-    "c": "cp1_max_pool",
-    "d": "clip",
-}
-WEIGHT_IDS = [f"w{i}" for i in range(1, 9)]
-
-# Weight descriptions: (v0, v1, prompt_emb, robot_state)
-# vision_2 is always disabled
-WEIGHT_LABELS = {
-    "w1": "v0=1.0",
-    "w2": "rs=1.0",
-    "w3": "v0=.5 rs=.5",
-    "w4": "v0=.25 rs=.75",
-    "w5": "v0=.25 v1=.25 rs=.5",
-    "w6": "v0=.15 v1=.1 rs=.75",
-    "w7": "v0=.1 v1=.1 rs=.8",
-    "w8": "v0=.5 v1=.25 rs=.25",
-}
-
-COLORS = plt.cm.tab10(np.linspace(0, 1, 10))[:8]
 
 # ------------------------------------------------------------------
 # Data loading
