@@ -67,6 +67,7 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 | File | Status | Description |
 |------|--------|-------------|
 | [trajectory_libero10_split_plan.log.md](trajectory_libero10_split_plan.log.md) | `Plan` | L1: 把 `config/trajectory`、`data/{phase1,trajectory}`、`analysis/{phase1,trajectory}` 全部按子实验（libero_spatial / libero_10）重组，抽公共 `plot_common.py`；libero_10 trajectory YAML 留待 Phase1 libero_10 出榜后另起 L1 任务生成 |
+| [trajectory_libero_10_run_commands.log.md](trajectory_libero_10_run_commands.log.md) | `Plan` | L1: `exp/common/config/trajectory/libero_10/batch{1,2,3}/` 共 60 个 run 的执行命令清单（server + runner），一个 depth 一个 batch（d=4/5/6），`--state-path` / `--log-dir` 显式指向 `data/` 以避免结果写回 `config/` |
 
 ---
 
