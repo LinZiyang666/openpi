@@ -177,6 +177,7 @@ Applies to L1+.
 
 - Adding `Co-Authored-By` lines (Working Agreement §7).
 - Committing without explicit user instruction.
+- Executing any of these high-risk git operations without explicit, per-invocation user consent: `git stash` with `-u`/`--include-untracked`/`-a`/`--all`; `git clean -fd`/`-fdx`/`-x`; `git restore .`; `git checkout -- .`; `git reset --hard`; `git commit --amend`; `git rebase` (any form); `git push --force` / `--force-with-lease` (any branch); `git branch -D`/`-d` of unmerged; `git submodule` add/deinit; modification of `.gitignore`/`.gitattributes`; `git checkout -b` / `git worktree add`.
 
 **Deliverable**:
 
