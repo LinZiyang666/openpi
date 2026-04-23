@@ -211,6 +211,15 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             if self._stage3_device != "meta":
                 self._timer.register_probe("stage3_warm", backend=_probe_backend(self._stage3_device))
 
+            # Optional model attachment for KeyBuilders that need a slice of
+            # the model (e.g. `cp1_llm_layer_extract` borrows
+            # `paligemma.language_model.layers[0..N]` to run a partial forward
+            # inside `build()`). Soft-probe via hasattr so other KeyBuilders
+            # remain unaffected.
+            kb = orchestrator.key_builder
+            if hasattr(kb, "attach_model"):
+                kb.attach_model(self._model)
+
     # -----------------------------------------------------------------------
     # Compile-once helpers
     # -----------------------------------------------------------------------

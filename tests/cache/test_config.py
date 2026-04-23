@@ -880,3 +880,134 @@ def test_per_connection_search_strategy_uses_owning_facade():
     assert strat_b._storage is conn_b["storage"]
     assert strat_a._storage is not shared
     assert strat_a._storage is not strat_b._storage
+
+
+# ---------------------------------------------------------------------------
+# cp1_llm_layer_extract — KeyBuilderConfig + PrefixReducerConfig + factory
+# ---------------------------------------------------------------------------
+
+
+def _llm_layer_extract_config(
+    *,
+    extract_layer: int = 0,
+    prefix_reducer_type: str = "prefix_mean_pool",
+    enabled: dict[str, bool] | None = None,
+    vector_dims: dict[str, int] | None = None,
+) -> CacheConfig:
+    """Helper: minimal valid cp1_llm_layer_extract config for in_memory backend."""
+    from openpi.cache.config import PrefixReducerConfig
+
+    enabled = enabled or {"vision_0": True, "robot_state": True}
+    vector_dims = vector_dims or {"vision_0": 2048, "robot_state": 32}
+    return CacheConfig(
+        enabled=True,
+        keys=KeysConfig(
+            vision_0=KeyFieldConfig(enabled=enabled.get("vision_0", False)),
+            vision_1=KeyFieldConfig(enabled=enabled.get("vision_1", False)),
+            vision_2=KeyFieldConfig(enabled=enabled.get("vision_2", False)),
+            prompt_emb=KeyFieldConfig(enabled=enabled.get("prompt_emb", False)),
+            robot_state=KeyFieldConfig(enabled=enabled.get("robot_state", True)),
+        ),
+        backend=BackendConfig(
+            type="in_memory",
+            vector_dims=vector_dims,
+            in_memory=__import__("openpi.cache.config", fromlist=["InMemoryConfig"])
+                .InMemoryConfig(preload_path="dummy.pkl"),
+        ),
+        key_builder=KeyBuilderConfig(
+            type="cp1_llm_layer_extract",
+            extract_layer=extract_layer,
+            prefix_reducer=PrefixReducerConfig(type=prefix_reducer_type),
+        ),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                gate=GateConfig(type="always_search"),
+                judge=JudgeConfig(threshold=0.98),
+                search_strategy=SearchStrategyConfig(type="weighted_rrf_knn"),
+            ),
+        },
+    )
+
+
+def test_llm_layer_extract_valid_prefix_mean_pool():
+    config = _llm_layer_extract_config()
+    validate_cache_config(config)
+
+
+def test_llm_layer_extract_valid_per_modality_pool():
+    config = _llm_layer_extract_config(
+        prefix_reducer_type="per_modality_pool",
+        enabled={"vision_0": True, "vision_1": True, "vision_2": True,
+                 "prompt_emb": True, "robot_state": True},
+        vector_dims={"vision_0": 2048, "vision_1": 2048, "vision_2": 2048,
+                     "prompt_emb": 2048, "robot_state": 32},
+    )
+    validate_cache_config(config)
+
+
+def test_llm_layer_extract_layer_out_of_range():
+    config = _llm_layer_extract_config(extract_layer=18)
+    with pytest.raises(ConfigValidationError, match="extract_layer=18 out of range"):
+        validate_cache_config(config)
+
+
+def test_llm_layer_extract_layer_negative():
+    config = _llm_layer_extract_config(extract_layer=-1)
+    with pytest.raises(ConfigValidationError, match="extract_layer=-1 out of range"):
+        validate_cache_config(config)
+
+
+def test_llm_layer_extract_unknown_prefix_reducer_type():
+    config = _llm_layer_extract_config(prefix_reducer_type="bogus")
+    with pytest.raises(ConfigValidationError, match="prefix_reducer.type 'bogus' unknown"):
+        validate_cache_config(config)
+
+
+def test_llm_layer_extract_prefix_mean_pool_rejects_extra_vision_field():
+    """prefix_mean_pool only emits vision_0; enabling vision_1 must fail loudly."""
+    config = _llm_layer_extract_config(
+        prefix_reducer_type="prefix_mean_pool",
+        enabled={"vision_0": True, "vision_1": True, "robot_state": True},
+        vector_dims={"vision_0": 2048, "vision_1": 2048, "robot_state": 32},
+    )
+    with pytest.raises(ConfigValidationError, match="would never be"):
+        validate_cache_config(config)
+
+
+def test_llm_layer_extract_prefix_mean_pool_rejects_prompt_emb():
+    config = _llm_layer_extract_config(
+        prefix_reducer_type="prefix_mean_pool",
+        enabled={"vision_0": True, "prompt_emb": True, "robot_state": True},
+        vector_dims={"vision_0": 2048, "prompt_emb": 2048, "robot_state": 32},
+    )
+    with pytest.raises(ConfigValidationError, match="would never be"):
+        validate_cache_config(config)
+
+
+def test_llm_layer_extract_dim_mismatch_rejected():
+    """vector_dims.vision_0 must equal 2048 (gemma_2b width)."""
+    config = _llm_layer_extract_config(
+        vector_dims={"vision_0": 999, "robot_state": 32},
+    )
+    with pytest.raises(ConfigValidationError, match="does not match prefix_reducer output dim 2048"):
+        validate_cache_config(config)
+
+
+def test_llm_layer_extract_factory_returns_correct_class():
+    """build_cache_components produces CP1LLMLayerExtractKeyBuilder."""
+    from openpi.cache.components.llm_layer_key_builder import (
+        CP1LLMLayerExtractKeyBuilder,
+    )
+
+    config = _llm_layer_extract_config()
+    # Override backend to qdrant so we don't need a real artifact file for build.
+    config.backend = BackendConfig(
+        type="qdrant", vector_dims={"vision_0": 2048, "robot_state": 32},
+    )
+    # qdrant requires its own search strategy.
+    config.checkpoints["cp1"].search_strategy = SearchStrategyConfig(
+        type="qdrant_weighted_rrf_knn",
+    )
+    validate_cache_config(config)
+    components = build_cache_components(config)
+    assert isinstance(components["key_builder"], CP1LLMLayerExtractKeyBuilder)

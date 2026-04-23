@@ -77,6 +77,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 | [cache/tutorial.md](cache/tutorial.md) | Complete tutorial: glossary, all components (KeyBuilder/Gate/Judge/SearchStrategy/Backend), YAML config, registration, testing |
 | [cache/migration.md](cache/migration.md) \[[EN](cache/migration.en.md)\] | Cache framework migration guide: how to adapt the cache system for non-Pi0.5 models |
 | [cache/temporal_prune.md](cache/temporal_prune.md) | Temporal Prune KeyBuilder 使用指南：两步架构、参数配置、Reducer 选择、离线 Artifact 构建、生命周期 |
+| [cache/llm_layer_extract.md](cache/llm_layer_extract.md) | CP1 LLM Layer Extract KeyBuilder 使用指南：两步架构（LayerExtractor + PrefixReducer）、attach_model 注入、离线 Stage 1 重建契约（重 tokenize + tokenizer self-check）、在线/离线 parity test |
 
 ### [experiments/](experiments/)
 
@@ -85,6 +86,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 | [experiments/artifact_layout.md](experiments/artifact_layout.md) | Canonical `exp/<experiment>/{config,data,analysis}/` layout rules — where new files go, tracking policy, `.gitignore` exceptions |
 | [experiments/cp1_cache.md](experiments/cp1_cache.md) | CP1 Cache experiment guide: artifact building, calibration, YAML generation, 3-phase experiment execution, result analysis |
 | [experiments/temporal_prune.md](experiments/temporal_prune.md) | Temporal Prune experiment pipeline |
+| [experiments/llm_layer_extract.md](experiments/llm_layer_extract.md) | CP1 LLM Layer Extract 端到端 runbook：数据采集 → Step 2 build pkl（带 tokenizer self-check）→ YAML 模板（A/B 两种 reducer）→ run_cache_experiments → 结果分析 → manual parity verify |
 | [experiments/trajectory_deviation.md](experiments/trajectory_deviation.md) \[[EN](experiments/trajectory_deviation.en.md)\] | Trajectory Deviation experiment runbook: Step 1a→1b→2→3→4 pipeline, parallelism rules, tunables |
 | [experiments/warm_start_sweep.md](experiments/warm_start_sweep.md) \[[EN](experiments/warm_start_sweep.en.md)\] | Warm Start sweep runbook: 3 keybuilder × 3 start_t under always-hit + always_warm_start, artifact rebuild, 3-server parallel run, recovery/loss analysis |
 

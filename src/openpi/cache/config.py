@@ -169,12 +169,25 @@ class ReducerConfig:
 
 
 @dataclass
+class PrefixReducerConfig:
+    """Reducer for cp1_llm_layer_extract (post-LLM-layer-N hidden states).
+
+    Independent from `ReducerConfig` (which is for SigLIP token reduction)
+    because the inputs and emit semantics differ — see `prefix_reducer.py`.
+    """
+    type: str = "prefix_mean_pool"   # "prefix_mean_pool" | "per_modality_pool"
+
+
+@dataclass
 class KeyBuilderConfig:
     type: str = "placeholder"
     # -- temporal prune params (only for cp1_temporal_prune) --
     prune_window_size: int = 4
     temporal_keep_ratio: float = 0.5
     reducer: ReducerConfig = field(default_factory=ReducerConfig)
+    # -- llm layer extract params (only for cp1_llm_layer_extract) --
+    extract_layer: int = 0
+    prefix_reducer: PrefixReducerConfig = field(default_factory=PrefixReducerConfig)
 
 
 @dataclass
@@ -258,6 +271,7 @@ _CONFIG_TYPES: dict[str, type] = {
     "BackendConfig": BackendConfig,
     "TimerConfig": TimerConfig,
     "ReducerConfig": ReducerConfig,
+    "PrefixReducerConfig": PrefixReducerConfig,
     "KeyBuilderConfig": KeyBuilderConfig,
     "WritePolicyConfig": WritePolicyConfig,
     "CacheConfig": CacheConfig,
@@ -428,6 +442,7 @@ def validate_cache_config(config: CacheConfig) -> None:
         "placeholder", "full_original",
         "cp1_mean_pool", "cp1_spatial_pool_16", "cp1_spatial_pool_64", "cp1_max_pool",
         "cp1_temporal_prune",
+        "cp1_llm_layer_extract",
         "clip",
     })
     if config.key_builder.type not in _valid_key_builder_types:
@@ -594,6 +609,66 @@ def validate_cache_config(config: CacheConfig) -> None:
                             f"reducer output dim {expected_dim} "
                             f"(reducer.type={config.key_builder.reducer.type!r})"
                         )
+
+    # cp1_llm_layer_extract additional validation.
+    if config.key_builder.type == "cp1_llm_layer_extract":
+        cp1_cfg = config.checkpoints.get("cp1")
+        if cp1_cfg is None or not cp1_cfg.enabled:
+            errors.append(
+                "key_builder.type=cp1_llm_layer_extract requires checkpoints.cp1.enabled=true"
+            )
+
+        # gemma_2b depth=18 (models/gemma.py:81). Hardcoded since this is the
+        # only PaliGemma backbone variant in scope; if a smaller variant lands
+        # the bound moves to the variant config.
+        _GEMMA_2B_DEPTH = 18
+        el = config.key_builder.extract_layer
+        if not (0 <= el < _GEMMA_2B_DEPTH):
+            errors.append(
+                f"key_builder.extract_layer={el} out of range; "
+                f"valid: 0..{_GEMMA_2B_DEPTH - 1} (gemma_2b depth)"
+            )
+
+        _valid_prefix_reducer_types = frozenset({"prefix_mean_pool", "per_modality_pool"})
+        pr_type = config.key_builder.prefix_reducer.type
+        if pr_type not in _valid_prefix_reducer_types:
+            errors.append(
+                f"prefix_reducer.type '{pr_type}' unknown, "
+                f"valid: {sorted(_valid_prefix_reducer_types)}"
+            )
+
+        # Per-reducer field/dim cross-validation.
+        # Both reducers emit 2048-d vectors (gemma_2b width); enabled vision/
+        # prompt fields must subset the reducer's emitted_fields and match
+        # backend.vector_dims.
+        _GEMMA_2B_WIDTH = 2048
+        if pr_type == "prefix_mean_pool":
+            # Single global key carried in vision_0 slot. Other vision and
+            # prompt slots must be disabled to avoid silently emitting nothing.
+            forbidden = [f for f in enabled_fields
+                         if f in ("vision_1", "vision_2", "prompt_emb")]
+            if forbidden:
+                errors.append(
+                    f"prefix_reducer=prefix_mean_pool only emits vision_0 "
+                    f"(unified key); these enabled fields would never be "
+                    f"populated: {forbidden}. Either disable them or switch "
+                    f"to prefix_reducer=per_modality_pool."
+                )
+            emitted = {"vision_0"}
+        elif pr_type == "per_modality_pool":
+            emitted = {"vision_0", "vision_1", "vision_2", "prompt_emb"}
+        else:
+            emitted = set()
+
+        for f in emitted:
+            if f in enabled_fields and f in config.backend.vector_dims:
+                actual = config.backend.vector_dims[f]
+                if actual != _GEMMA_2B_WIDTH:
+                    errors.append(
+                        f"backend.vector_dims.{f}={actual} does not match "
+                        f"prefix_reducer output dim {_GEMMA_2B_WIDTH} "
+                        f"(prefix_reducer.type={pr_type!r})"
+                    )
 
     # clip builder requires at least vision_0 and robot_state.
     if config.key_builder.type == "clip":
@@ -878,6 +953,20 @@ def _build_reducer(cfg: ReducerConfig):
         raise ConfigValidationError(f"Unknown reducer.type '{cfg.type}'")
 
 
+def _build_prefix_reducer(cfg: PrefixReducerConfig):
+    """Instantiate a PrefixReducer (cp1_llm_layer_extract Step B)."""
+    from openpi.cache.components.prefix_reducer import (
+        PerModalityPoolReducer,
+        PrefixMeanPoolReducer,
+    )
+
+    if cfg.type == "prefix_mean_pool":
+        return PrefixMeanPoolReducer()
+    if cfg.type == "per_modality_pool":
+        return PerModalityPoolReducer()
+    raise ConfigValidationError(f"Unknown prefix_reducer.type '{cfg.type}'")
+
+
 def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_dims: dict[str, int]):
     """Instantiate a QueryKeyBuilder from config."""
     if cfg.type == "placeholder":
@@ -914,6 +1003,17 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
             prune_window_size=cfg.prune_window_size,
             temporal_keep_ratio=cfg.temporal_keep_ratio,
         )
+    elif cfg.type == "cp1_llm_layer_extract":
+        from openpi.cache.components.llm_layer_key_builder import (
+            CP1LLMLayerExtractKeyBuilder,
+        )
+
+        prefix_reducer = _build_prefix_reducer(cfg.prefix_reducer)
+        return CP1LLMLayerExtractKeyBuilder(
+            reducer=prefix_reducer,
+            extract_layer=cfg.extract_layer,
+            enabled_fields=enabled_fields,
+        )
     elif cfg.type == "clip":
         from openpi.cache.components.clip_key_builder import CLIPKeyBuilder
 
@@ -923,7 +1023,7 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
             f"Unknown key_builder.type '{cfg.type}'. "
             f"Valid: ['placeholder', 'full_original', 'cp1_mean_pool', "
             f"'cp1_spatial_pool_16', 'cp1_spatial_pool_64', 'cp1_max_pool', "
-            f"'cp1_temporal_prune', 'clip']"
+            f"'cp1_temporal_prune', 'cp1_llm_layer_extract', 'clip']"
         )
 
 

@@ -130,6 +130,22 @@ class CacheOrchestrator:
                 self._timer.register_probe(f"{cp}_{step}", backend="cpu")
 
     # ------------------------------------------------------------------
+    # Public accessors
+    # ------------------------------------------------------------------
+
+    @property
+    def key_builder(self) -> QueryKeyBuilder:
+        """Public accessor for the bound KeyBuilder instance.
+
+        Used by InferenceInterceptor to perform optional `attach_model`
+        hook on type-specific builders (e.g. cp1_llm_layer_extract). The
+        underlying reference is set once in __init__ and immutable;
+        exposing it as a property keeps the interceptor → builder wiring
+        explicit and unit-testable.
+        """
+        return self._key_builder
+
+    # ------------------------------------------------------------------
     # Prefill mode (delegated to the underlying storage)
     # ------------------------------------------------------------------
 

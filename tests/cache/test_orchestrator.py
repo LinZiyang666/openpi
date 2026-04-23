@@ -250,6 +250,14 @@ def test_clear_resets_key_builder():
     assert orch._key_builder.cached_data == {}
 
 
+def test_key_builder_property_returns_constructor_arg():
+    """Public `key_builder` accessor (added for cp1_llm_layer_extract hook)
+    must return the exact instance passed at construction so the
+    InferenceInterceptor can call type-specific hooks like attach_model."""
+    orch, _, _ = make_orchestrator()
+    assert orch.key_builder is orch._key_builder
+
+
 # ---------------------------------------------------------------------------
 # T4.13: check returns score and entry_id on hit
 # ---------------------------------------------------------------------------

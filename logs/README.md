@@ -50,6 +50,12 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 |------|--------|-------------|
 | [pi05_hl_ar_decode_plan.log.md](pi05_hl_ar_decode_plan.log.md) | `Plan` | L2: add optional HL autoregressive decode (`lm_head` + incremental KV) to the inference path; Phase B integration decided after the Phase A probe gate |
 
+### LLM Layer Extract KeyBuilder
+
+| File | Status | Description |
+|------|--------|-------------|
+| [cp1_llm_layer_extract_key_builder_plan.log.md](cp1_llm_layer_extract_key_builder_plan.log.md) | `Plan` | L2: 新 `cp1_llm_layer_extract` KeyBuilder — 在 KeyBuilder 内部独立跑 PaliGemma 第 N 层 forward (借引用, 不改 Stage 2)，两步可插拔架构 (`LLMLayerExtractor` + 新 `PrefixReducer` 协议)，首版 `prefix_mean_pool` / `per_modality_pool` 两个 reducer |
+
 ### Data Artifact Build
 
 | File | Status | Description |
