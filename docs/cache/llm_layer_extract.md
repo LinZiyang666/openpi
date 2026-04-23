@@ -18,7 +18,7 @@ prefix_embs [1, 968, 2048]                        │      → LLMLayerExtractRe
 prefix_pad_masks / prefix_position_ids /          │
   prefix_att_2d_masks_4d                          ▼
                                               ┌─ Step B: PrefixReducer (可插拔)
-                                              │      prefix_mean_pool / per_modality_pool
+                                              │      prefix_mean_pool / per_modality_mean_pool
                                               │      → {field: [2048]}
                                               ▼
                                           {vision_0: …, robot_state: …} → CPU float32
@@ -62,7 +62,7 @@ key_builder:
   type: cp1_llm_layer_extract
   extract_layer: 0                  # gemma_2b: 0..17
   prefix_reducer:
-    type: prefix_mean_pool          # 或 per_modality_pool
+    type: prefix_mean_pool          # 或 per_modality_mean_pool
 
 keys:
   vision_0: { enabled: true, weight: 1.0 }
@@ -144,7 +144,10 @@ uv run python scripts/serve_policy.py \
 | Reducer | 输入 | 输出 | 用途 |
 |---------|------|------|------|
 | `prefix_mean_pool` | `LLMLayerExtractResult` | `{vision_0: 2048}` | 教授原意 baseline。全 prefix masked mean，单 key。 |
-| `per_modality_pool` | 同上 | `{vision_0/1/2: 2048, prompt_emb: 2048}` | 保留模态消融。每段 masked mean，相机缺失时该段 omit。 |
+| `per_modality_mean_pool` | 同上 | `{vision_0/1/2: 2048, prompt_emb: 2048}` | 保留模态消融。每段 masked mean，相机缺失时该段 omit。 |
+| `per_modality_max_pool` | 同上 | `{vision_0/1/2: 2048, prompt_emb: 2048}` | 每段 masked max pool（padding 置 -inf）；对显著激活更敏感。|
+| `per_modality_spatial_pool_16` | 同上 | `{vision_0/1/2: 32768, prompt_emb: 2048}` | vision 段重排为 16×16 grid 做 adaptive_avg_pool 到 4×4 = 16 tokens；prompt 段变长，fallback masked mean。对齐 legacy `cp1_spatial_pool_16`。|
+| `per_modality_spatial_pool_4` | 同上 | `{vision_0/1/2: 8192, prompt_emb: 2048}` | 同上但 pool 到 2×2 = 4 tokens，激进下采样。对齐 legacy `cp1_spatial_pool_4`（又名 `cp1_spatial_pool_64`）。|
 
 **关键约束**：
 - 必须做 masked mean（`pad_mask=False` 位置不进入 pool）。lang 段 60%+ 通常是 padding。
@@ -166,7 +169,7 @@ uv run python scripts/serve_policy.py \
 
 | 参数 | 类型 | 默认 | 说明 |
 |------|------|------|------|
-| `type` | str | `prefix_mean_pool` | `prefix_mean_pool` / `per_modality_pool` |
+| `type` | str | `prefix_mean_pool` | 五选一：`prefix_mean_pool` / `per_modality_mean_pool` / `per_modality_max_pool` / `per_modality_spatial_pool_16` / `per_modality_spatial_pool_4` |
 
 ### 4.3 vector_dims 与 reducer 的对应关系
 
@@ -175,7 +178,10 @@ uv run python scripts/serve_policy.py \
 | reducer.type | 必须 enabled 的 vision/prompt | vector_dims 字段 |
 |--------------|---------------------------------|------------------|
 | `prefix_mean_pool` | 仅 `vision_0`（其他 vision/prompt 必须 disabled） | `vision_0: 2048` |
-| `per_modality_pool` | `vision_0/1/2`、`prompt_emb` 任意子集 | 每个 enabled 字段都 = 2048 |
+| `per_modality_mean_pool` | `vision_0/1/2`、`prompt_emb` 任意子集 | 每个 enabled 字段都 = 2048 |
+| `per_modality_max_pool` | 同上 | 每个 enabled 字段都 = 2048 |
+| `per_modality_spatial_pool_16` | 同上 | vision 字段 = 32768，`prompt_emb` = 2048 |
+| `per_modality_spatial_pool_4` | 同上 | vision 字段 = 8192，`prompt_emb` = 2048 |
 
 `robot_state` 走原 raw 路径（不进 layer N），可独立 enable，维度由 model 决定（Pi0.5 是 32）。
 
@@ -189,7 +195,7 @@ uv run python exp/common/build_in_memory_cache_artifact.py \
     --builder-type cp1_llm_layer_extract \
     --output <输出 .pkl 路径> \
     --extract-layer <int>             # 默认 0 \
-    --prefix-reducer-type <prefix_mean_pool|per_modality_pool> \
+    --prefix-reducer-type <prefix_mean_pool|per_modality_mean_pool|per_modality_max_pool|per_modality_spatial_pool_16|per_modality_spatial_pool_4> \
     --checkpoint-dir <PI0Pytorch 权重目录, 含 model.safetensors> \
     --config-name <TrainConfig 名, 例 pi05_libero> \
     --device <cuda|cpu>               # 默认 cuda \
@@ -262,7 +268,7 @@ uv run pytest tests/cache/test_llm_layer_extract_parity.py -m manual -v
 | 有状态 | 否 | 是（FIFO 历史） | 否 |
 | 在线代价 | < 0.1 ms | < 0.5 ms | 0.5–2 ms (1 层 Gemma 2B forward) |
 | 离线代价 | 快（多进程） | 快（多进程） | 慢（必须 serial + GPU） |
-| 单字段 vs 多字段 | 多字段 | 多字段 | 取决于 reducer (`prefix_mean_pool` 单，`per_modality_pool` 多) |
+| 单字段 vs 多字段 | 多字段 | 多字段 | 取决于 reducer (`prefix_mean_pool` 单，`per_modality_mean_pool` 多) |
 
 ---
 
@@ -270,7 +276,7 @@ uv run pytest tests/cache/test_llm_layer_extract_parity.py -m manual -v
 
 | 文件 | 内容 |
 |------|------|
-| `src/openpi/cache/components/prefix_reducer.py` | `LLMLayerExtractResult`、`PrefixReducer` Protocol、两个 reducer 实现 |
+| `src/openpi/cache/components/prefix_reducer.py` | `LLMLayerExtractResult`、`PrefixReducer` Protocol、5 个 reducer 实现（mean/max/spatial×2 按模态 + 全局 mean） |
 | `src/openpi/cache/components/llm_layer_key_builder.py` | `CP1LLMLayerExtractKeyBuilder`（含 `attach_model`） |
 | `src/openpi/cache/orchestrator.py` | 公开 `key_builder` property（供 Interceptor 调 `attach_model`） |
 | `src/openpi/cache/interceptor.py` | `__init__` 末尾自动 hook `attach_model`（`hasattr` 软探测） |

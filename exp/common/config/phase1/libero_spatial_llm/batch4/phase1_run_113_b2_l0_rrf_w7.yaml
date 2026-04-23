@@ -1,0 +1,61 @@
+enabled: true
+timer:
+  enabled: true
+  buffer_size: 10000
+  output_csv_dir: null
+keys:
+  vision_0:
+    enabled: true
+    weight: 0.1
+  vision_1:
+    enabled: true
+    weight: 0.1
+  vision_2:
+    enabled: false
+    weight: 0.0
+  prompt_emb:
+    enabled: true
+    weight: 0.0
+  robot_state:
+    enabled: true
+    weight: 0.8
+key_builder:
+  type: cp1_llm_layer_extract
+  extract_layer: 0
+  prefix_reducer:
+    type: per_modality_spatial_pool_4
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: always_hit
+    search_strategy:
+      type: weighted_rrf_knn
+      top_k: 1
+      step_filter: all
+      field_similarity:
+        vision_0:
+          type: cosine
+        vision_1:
+          type: cosine
+        prompt_emb:
+          type: cosine
+        robot_state:
+          type: l2
+          to_similarity:
+            type: exp
+            tau: 0.334717
+      rrf_k: 60
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 8192
+    vision_1: 8192
+    vision_2: 8192
+    prompt_emb: 2048
+    robot_state: 32
+  in_memory:
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/llm_layer_extract/cp1_llm_l0_per_modality_spatial_pool_4.pkl
+    index_type: brute_force

@@ -315,9 +315,14 @@ class CP1SpatialPool16KeyBuilder(_CP1BaseKeyBuilder):
         return _mean_pool_tokens(tokens)
 
 
-class CP1SpatialPool64KeyBuilder(_CP1BaseKeyBuilder):
-    """Group B2: Spatial Pool 2x2 (64x compression).
+class CP1SpatialPool4KeyBuilder(_CP1BaseKeyBuilder):
+    """Group B2: Spatial Pool 2x2 -> 4 output tokens (was 64x compression).
     Output: vision_*=[4*2048=8192], prompt_emb=[2048] (mean pool), robot_state=[32].
+
+    Renamed from CP1SpatialPool64KeyBuilder: the `_64` in the old class name
+    referred to the 256->4 compression ratio; the canonical naming across the
+    codebase is now `output_tokens` (4 here). CP1SpatialPool64KeyBuilder is
+    kept below as a backward-compat alias.
     """
 
     _GRID_SIZE = 16
@@ -328,6 +333,10 @@ class CP1SpatialPool64KeyBuilder(_CP1BaseKeyBuilder):
 
     def _reduce_prompt(self, tokens: torch.Tensor) -> torch.Tensor:
         return _mean_pool_tokens(tokens)
+
+
+# Backward-compat alias; legacy configs / imports use CP1SpatialPool64KeyBuilder.
+CP1SpatialPool64KeyBuilder = CP1SpatialPool4KeyBuilder
 
 
 class CP1MaxPoolKeyBuilder(_CP1BaseKeyBuilder):

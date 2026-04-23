@@ -153,7 +153,7 @@ uv run python exp/common/build_in_memory_cache_artifact.py \
 |------|------|------|
 | `--builder-type` | `cp1_llm_layer_extract` | 选本 builder（区别于 SigLIP-only 的 cp1_mean_pool 等） |
 | `--extract-layer` | `0..17` | gemma_2b layer 索引；首版 baseline 选 0；sweep 多份 yaml |
-| `--prefix-reducer-type` | `prefix_mean_pool` / `per_modality_pool` | A=单 key 教授原意；B=四模态独立 key |
+| `--prefix-reducer-type` | `prefix_mean_pool` / `per_modality_mean_pool` / `per_modality_max_pool` / `per_modality_spatial_pool_16` / `per_modality_spatial_pool_4` | A=单 key 教授原意；B=四模态独立 key (mean / max / 16-token 4×4 spatial / 4-token 2×2 spatial)。两档 spatial 对齐 legacy `cp1_spatial_pool_{16,4}`。详见 [`../cache/llm_layer_extract.md §3.2`](../cache/llm_layer_extract.md)|
 | `--checkpoint-dir` | PI0Pytorch 权重目录 | 必须**与采集 HDF5 时同 checkpoint**，否则 self-check fail |
 | `--config-name` | `pi05_libero`（或类似） | 用于加载 TrainConfig |
 | `--device` | `cuda`（默认） | CPU 模式仅供 smoke test |
@@ -178,7 +178,7 @@ mkdir -p $ART_DIR
 
 # Layer sweep × reducer 矩阵
 for L in 0 2 5; do
-  for R in prefix_mean_pool per_modality_pool; do
+  for R in prefix_mean_pool per_modality_mean_pool; do
     uv run python exp/common/build_in_memory_cache_artifact.py \
         --data-dir exp/common/data/db/libero_cache/$TASK \
         --builder-type cp1_llm_layer_extract \
@@ -275,7 +275,7 @@ write_policy:
   type: never                     # 实验阶段只读，不让本次推理污染 artifact
 ```
 
-### 3.2 模板 B — `per_modality_pool`（保留模态消融）
+### 3.2 模板 B — `per_modality_mean_pool`（保留模态消融）
 
 差异只在 `key_builder` / `keys` / `backend.vector_dims` / `preload_path`：
 
@@ -284,7 +284,7 @@ key_builder:
   type: cp1_llm_layer_extract
   extract_layer: 0
   prefix_reducer:
-    type: per_modality_pool
+    type: per_modality_mean_pool
 
 keys:
   vision_0:    { enabled: true,  weight: 1.0 }
@@ -301,7 +301,7 @@ backend:
     prompt_emb:  2048
     robot_state: 32
   in_memory:
-    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_llm_l0_per_modality_pool.pkl
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_llm_l0_per_modality_mean_pool.pkl
 ```
 
 ### 3.3 Config 校验规则（启动失败的常见原因）
@@ -311,9 +311,9 @@ backend:
 | 校验 | 错误现象 | 修复 |
 |------|---------|------|
 | `extract_layer` ∈ [0, 17] | `extract_layer=18 out of range` | 改 layer |
-| `prefix_reducer.type` 合法 | `prefix_reducer.type 'X' unknown` | 用 `prefix_mean_pool` 或 `per_modality_pool` |
+| `prefix_reducer.type` 合法 | `prefix_reducer.type 'X' unknown` | 五选一 |
 | `prefix_mean_pool` + 启用 vision_1/2/prompt_emb | `... would never be populated` | 关掉这些字段 |
-| `vector_dims.<f>` ≠ 2048 | `does not match prefix_reducer output dim 2048` | 改 vector_dims |
+| `vector_dims.<f>` 与 reducer 输出维不匹配 | `does not match prefix_reducer output dim N` | 按 reducer 修改：mean/max → 2048；spatial_16 vision → 32768；spatial_4 vision → 8192；spatial_* prompt → 2048 |
 | `cp1.enabled = true` | `requires checkpoints.cp1.enabled=true` | 启用 cp1 |
 | `in_memory.preload_path` 缺 | `requires backend.in_memory.preload_path` | 指向 Step 2 产物 |
 

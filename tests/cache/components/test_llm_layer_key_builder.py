@@ -9,7 +9,7 @@ Covers:
   - Output contract: dtype=float32, device=cpu, contiguous, expected fields
   - extract_layer=0 vs extract_layer=2 produce different outputs
   - robot_state passthrough gated by enabled_fields
-  - PerModalityPoolReducer wiring (multi-field output)
+  - PerModalityMeanPoolReducer wiring (multi-field output)
   - QueryKeyBuilder runtime_checkable protocol compliance
 
 Note: Interceptor → attach_model auto-hook tests live with Phase 5
@@ -29,7 +29,7 @@ from openpi.cache.components.llm_layer_key_builder import (
     CP1LLMLayerExtractKeyBuilder,
 )
 from openpi.cache.components.prefix_reducer import (
-    PerModalityPoolReducer,
+    PerModalityMeanPoolReducer,
     PrefixMeanPoolReducer,
 )
 from openpi.cache.types import (
@@ -243,7 +243,7 @@ def test_build_emits_reducer_fields_plus_robot_state():
 
 
 def test_build_per_modality_emits_four_vision_plus_robot_state():
-    builder = _make_builder(reducer=PerModalityPoolReducer())
+    builder = _make_builder(reducer=PerModalityMeanPoolReducer())
     builder.collect(CheckpointID.CP1, stage1=_make_fake_stage1())
     keys = builder.build(CheckpointID.CP1)
     assert set(keys.keys()) == {VISION_0, VISION_1, VISION_2, PROMPT_EMB, ROBOT_STATE}

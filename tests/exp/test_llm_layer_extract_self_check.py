@@ -60,11 +60,12 @@ class _MockEmbedder:
         return out
 
 
-def _make_mock_model(hidden_size: int = 2048):
+def _make_mock_model(hidden_size: int = 2048, discrete_state_input: bool = True):
     return SimpleNamespace(
         paligemma_with_expert=SimpleNamespace(
             embed_language_tokens=_MockEmbedder(hidden_size),
-        )
+        ),
+        config=SimpleNamespace(discrete_state_input=discrete_state_input),
     )
 
 
@@ -82,8 +83,9 @@ def _write_hdf5(
     if state is None:
         state = np.zeros(32, dtype=np.float32)
     if prompt_emb is None:
-        # Match what _MockEmbedder produces for the mock tokenizer's tokens
-        # post `embed_prefix` scaling (× sqrt(hidden_size)).
+        # Match what _MockEmbedder produces for the mock tokenizer's tokens,
+        # scaled by sqrt(hidden_size) — matches how `collection_policy.py`
+        # captures prompt_emb (hook body applies the scale before store).
         prompt_emb = np.zeros((max_len, hidden_size), dtype=np.float16)
         scale = math.sqrt(hidden_size)
         prompt_emb[:real_len] = scale  # tokens id=7 -> ones * sqrt(D)
@@ -130,8 +132,8 @@ def test_self_check_ignores_padding_positions(tmp_path):
     h5 = tmp_path / "step.h5"
     prompt = np.zeros((200, 2048), dtype=np.float16)
     scale = math.sqrt(2048)
-    prompt[:30] = scale          # real positions: aligned
-    prompt[30:] = 1234.0          # padding positions: garbage
+    prompt[:30] = scale           # real positions: aligned (post-scale)
+    prompt[30:] = 1234.0           # padding positions: garbage
     _write_hdf5(h5, prompt_emb=prompt)
 
     model = _make_mock_model()

@@ -13,9 +13,15 @@ post-LLM hidden states):
   Step B (this module):
       LLMLayerExtractResult -> dict[str, GPU tensor] -> KeyBuilder handles CPU transfer
 
-Two reducers ship in the first version:
-  - PrefixMeanPoolReducer:  masked mean over the entire prefix -> {vision_0: 2048}
-  - PerModalityPoolReducer: per-segment masked mean -> up to 4 fields, each [2048]
+Reducers currently shipped:
+  - PrefixMeanPoolReducer:        masked mean over the entire prefix -> {vision_0: 2048}
+  - PerModalityMeanPoolReducer:       per-segment masked mean -> up to 4 fields, each [2048]
+  - PerModalityMaxPoolReducer:    per-segment masked max  -> up to 4 fields, each [2048]
+  - PerModalitySpatialPoolReducer: vision segments spatial-avg-pool on the
+    16x16 SigLIP grid (output_tokens square), prompt_emb falls back to
+    masked mean because the lang segment is variable-length and not square.
+    Canonical output_tokens values (aligned with legacy cp1_spatial_pool_*):
+    4 -> vision [8192] (2x2 pool), 16 -> vision [32768] (4x4 pool)
 
 Coupling map:
   DEPENDS ON:  nothing (leaf module; only torch + stdlib)
@@ -29,6 +35,7 @@ from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
 import torch
+import torch.nn.functional as F
 
 from openpi.cache.types import PROMPT_EMB, VISION_0, VISION_1, VISION_2
 
@@ -40,6 +47,10 @@ from openpi.cache.types import PROMPT_EMB, VISION_0, VISION_1, VISION_2
 # Layer-N hidden states keep this width since each decoder layer is a
 # residual block: in_dim == out_dim == hidden_size.
 _GEMMA_2B_WIDTH = 2048
+
+# Expected vision-segment length for spatial pool. SigLIP emits 256 tokens
+# per camera (16x16 grid); anything else means the prefix layout drifted.
+_VISION_GRID_TOKENS = 256
 
 
 # ----------------------------------------------------------------------
@@ -140,6 +151,42 @@ def _masked_mean(hidden: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
     return total / count
 
 
+def _masked_max(hidden: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    """[L, D] + [L] bool -> [D].
+
+    Per-dim max over unmasked positions. Padding positions are replaced by
+    -inf so they can never win the max; float32 promotion mirrors
+    `_masked_mean` to keep numerical behaviour consistent.
+
+    Caller must guarantee `mask.any()` is True.
+    """
+    h = hidden.float()
+    neg_inf = torch.finfo(h.dtype).min
+    filled = h.masked_fill(~mask.unsqueeze(-1), neg_inf)
+    return filled.max(dim=0).values
+
+
+def _spatial_avg_pool_vision(hidden: torch.Tensor, pool_size: int) -> torch.Tensor:
+    """[256, D] -> [pool_size*pool_size * D].
+
+    Interpret the 256 SigLIP vision tokens as a 16x16 spatial grid (row-major
+    exactly as the vision encoder emits them), run adaptive avg pool to
+    `[pool_size, pool_size]`, then flatten.
+
+    Vision segments have no intra-segment padding (a camera is either present
+    in full or absent in full, decided by the outer `pad_mask.any()` check),
+    so no masking is needed inside this helper.
+    """
+    h = hidden.float()
+    D = h.shape[-1]
+    grid_side = int(_VISION_GRID_TOKENS**0.5)   # 16
+    # [256, D] -> [16, 16, D] -> [1, D, 16, 16] (NCHW for adaptive_avg_pool2d).
+    grid = h.reshape(grid_side, grid_side, D).permute(2, 0, 1).unsqueeze(0)
+    pooled = F.adaptive_avg_pool2d(grid, (pool_size, pool_size))
+    # [1, D, pool, pool] -> [pool, pool, D] -> [pool*pool*D]
+    return pooled.squeeze(0).permute(1, 2, 0).reshape(-1)
+
+
 # ----------------------------------------------------------------------
 # PrefixMeanPoolReducer
 # ----------------------------------------------------------------------
@@ -176,7 +223,7 @@ class PrefixMeanPoolReducer:
 
 
 # ----------------------------------------------------------------------
-# PerModalityPoolReducer
+# PerModalityMeanPoolReducer
 # ----------------------------------------------------------------------
 
 
@@ -186,7 +233,7 @@ class PrefixMeanPoolReducer:
 _MODALITY_FIELDS = (VISION_0, VISION_1, VISION_2, PROMPT_EMB)
 
 
-class PerModalityPoolReducer:
+class PerModalityMeanPoolReducer:
     """Per-modality masked mean. Skips empty segments.
 
     Output: up to 4 fields, each `[2048]`. Each field is the masked mean of
@@ -221,4 +268,125 @@ class PerModalityPoolReducer:
                 continue
             seg_hidden = result.hidden_states[start:end]
             out[field] = _masked_mean(seg_hidden, seg_mask)
+        return out
+
+
+# ----------------------------------------------------------------------
+# PerModalityMaxPoolReducer
+# ----------------------------------------------------------------------
+
+
+_VISION_ONLY_FIELDS = (VISION_0, VISION_1, VISION_2)
+
+
+class PerModalityMaxPoolReducer:
+    """Per-modality masked max pool. Same emission semantics as
+    `PerModalityMeanPoolReducer` (skip segments whose pad_mask is entirely
+    False), but the aggregator is `_masked_max` instead of `_masked_mean`.
+
+    Output: up to 4 fields, each `[2048]`. Per-dim max is less smooth than
+    mean pool and more sensitive to outlier tokens, which is sometimes
+    desirable when the key needs to latch onto salient activations.
+    """
+
+    @property
+    def output_dims(self) -> dict[str, int]:
+        return {field: _GEMMA_2B_WIDTH for field in _MODALITY_FIELDS}
+
+    @property
+    def emitted_fields(self) -> frozenset[str]:
+        return frozenset(_MODALITY_FIELDS)
+
+    def reduce(self, result: LLMLayerExtractResult) -> dict[str, torch.Tensor]:
+        out: dict[str, torch.Tensor] = {}
+        for field in _MODALITY_FIELDS:
+            offsets = result.segment_offsets.get(field)
+            if offsets is None:
+                continue
+            start, end = offsets
+            seg_mask = result.pad_mask[start:end]
+            if not bool(seg_mask.any()):
+                continue
+            seg_hidden = result.hidden_states[start:end]
+            out[field] = _masked_max(seg_hidden, seg_mask)
+        return out
+
+
+# ----------------------------------------------------------------------
+# PerModalitySpatialPoolReducer
+# ----------------------------------------------------------------------
+
+
+class PerModalitySpatialPoolReducer:
+    """Vision segments -> spatial avg pool on the 16x16 SigLIP grid; prompt
+    segment -> masked mean (it is variable-length and not square-shaped).
+
+    `output_tokens` must be a perfect square (e.g. 16 -> 4x4, 64 -> 8x8).
+    Vision output dim = `output_tokens * 2048`; prompt output dim = 2048.
+
+    Skip semantics match `PerModalityMeanPoolReducer`: a vision field whose
+    segment pad_mask is entirely False is omitted (not zero-filled), matching
+    the online "masked camera" behaviour. The vision-segment length must be
+    exactly 256; any other length is treated as a prefix-layout drift and
+    raises.
+    """
+
+    def __init__(self, output_tokens: int):
+        if output_tokens < 1:
+            raise ValueError(f"output_tokens must be >= 1, got {output_tokens}")
+        pool_size = int(output_tokens**0.5)
+        if pool_size**2 != output_tokens:
+            raise ValueError(
+                f"output_tokens must be a perfect square, got {output_tokens}"
+            )
+        self._output_tokens = output_tokens
+        self._pool_size = pool_size
+
+    @property
+    def output_dims(self) -> dict[str, int]:
+        vision_dim = self._output_tokens * _GEMMA_2B_WIDTH
+        return {
+            VISION_0:   vision_dim,
+            VISION_1:   vision_dim,
+            VISION_2:   vision_dim,
+            PROMPT_EMB: _GEMMA_2B_WIDTH,
+        }
+
+    @property
+    def emitted_fields(self) -> frozenset[str]:
+        return frozenset(_MODALITY_FIELDS)
+
+    def reduce(self, result: LLMLayerExtractResult) -> dict[str, torch.Tensor]:
+        out: dict[str, torch.Tensor] = {}
+
+        # Vision segments: spatial avg pool on the 16x16 grid.
+        for field in _VISION_ONLY_FIELDS:
+            offsets = result.segment_offsets.get(field)
+            if offsets is None:
+                continue
+            start, end = offsets
+            seg_mask = result.pad_mask[start:end]
+            if not bool(seg_mask.any()):
+                continue
+            seg_len = end - start
+            if seg_len != _VISION_GRID_TOKENS:
+                raise ValueError(
+                    f"Vision segment {field} has length {seg_len}, "
+                    f"expected {_VISION_GRID_TOKENS} (16x16 SigLIP grid). "
+                    f"prefix layout drift — cannot spatial pool."
+                )
+            out[field] = _spatial_avg_pool_vision(
+                result.hidden_states[start:end], self._pool_size
+            )
+
+        # Prompt segment: fall back to masked mean (variable-length padding).
+        offsets = result.segment_offsets.get(PROMPT_EMB)
+        if offsets is not None:
+            start, end = offsets
+            seg_mask = result.pad_mask[start:end]
+            if bool(seg_mask.any()):
+                out[PROMPT_EMB] = _masked_mean(
+                    result.hidden_states[start:end], seg_mask
+                )
+
         return out

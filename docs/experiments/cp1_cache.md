@@ -53,7 +53,7 @@ curl http://155.98.36.13:9000/healthz
 mkdir -p exp/common/data/cache_artifacts/libero_spatial
 
 # CP1 系列 (从 stage1 prefix_embs 降维)
-for bt in cp1_mean_pool cp1_spatial_pool_16 cp1_spatial_pool_64 cp1_max_pool; do
+for bt in cp1_mean_pool cp1_spatial_pool_16 cp1_spatial_pool_4 cp1_max_pool; do
     uv run exp/common/build_in_memory_cache_artifact.py \
         --data-dir exp/common/data/db/libero_cache/libero_spatial \
         --builder-type $bt \

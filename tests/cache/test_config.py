@@ -934,9 +934,9 @@ def test_llm_layer_extract_valid_prefix_mean_pool():
     validate_cache_config(config)
 
 
-def test_llm_layer_extract_valid_per_modality_pool():
+def test_llm_layer_extract_valid_per_modality_mean_pool():
     config = _llm_layer_extract_config(
-        prefix_reducer_type="per_modality_pool",
+        prefix_reducer_type="per_modality_mean_pool",
         enabled={"vision_0": True, "vision_1": True, "vision_2": True,
                  "prompt_emb": True, "robot_state": True},
         vector_dims={"vision_0": 2048, "vision_1": 2048, "vision_2": 2048,
@@ -1011,3 +1011,128 @@ def test_llm_layer_extract_factory_returns_correct_class():
     validate_cache_config(config)
     components = build_cache_components(config)
     assert isinstance(components["key_builder"], CP1LLMLayerExtractKeyBuilder)
+
+
+# ---- New per_modality reducers: max_pool / spatial_pool_16 / spatial_pool_4 ----
+
+def test_llm_layer_extract_valid_per_modality_max_pool():
+    config = _llm_layer_extract_config(
+        prefix_reducer_type="per_modality_max_pool",
+        enabled={"vision_0": True, "vision_1": True, "vision_2": True,
+                 "prompt_emb": True, "robot_state": True},
+        vector_dims={"vision_0": 2048, "vision_1": 2048, "vision_2": 2048,
+                     "prompt_emb": 2048, "robot_state": 32},
+    )
+    validate_cache_config(config)  # should not raise
+
+
+def test_llm_layer_extract_valid_per_modality_spatial_pool_16():
+    config = _llm_layer_extract_config(
+        prefix_reducer_type="per_modality_spatial_pool_16",
+        enabled={"vision_0": True, "vision_1": True, "vision_2": True,
+                 "prompt_emb": True, "robot_state": True},
+        vector_dims={"vision_0": 32768, "vision_1": 32768, "vision_2": 32768,
+                     "prompt_emb": 2048, "robot_state": 32},
+    )
+    validate_cache_config(config)
+
+
+def test_llm_layer_extract_valid_per_modality_spatial_pool_4():
+    config = _llm_layer_extract_config(
+        prefix_reducer_type="per_modality_spatial_pool_4",
+        enabled={"vision_0": True, "vision_1": True, "vision_2": True,
+                 "prompt_emb": True, "robot_state": True},
+        vector_dims={"vision_0": 8192, "vision_1": 8192, "vision_2": 8192,
+                     "prompt_emb": 2048, "robot_state": 32},
+    )
+    validate_cache_config(config)
+
+
+def test_llm_layer_extract_spatial_pool_16_rejects_wrong_vision_dim():
+    """vision dim must be 32768 for spatial_pool_16 (16 * 2048); reject 2048."""
+    config = _llm_layer_extract_config(
+        prefix_reducer_type="per_modality_spatial_pool_16",
+        enabled={"vision_0": True, "prompt_emb": True, "robot_state": True},
+        vector_dims={"vision_0": 2048, "prompt_emb": 2048, "robot_state": 32},
+    )
+    with pytest.raises(ConfigValidationError, match="does not match prefix_reducer output dim 32768"):
+        validate_cache_config(config)
+
+
+def test_llm_layer_extract_spatial_pool_4_rejects_wrong_vision_dim():
+    config = _llm_layer_extract_config(
+        prefix_reducer_type="per_modality_spatial_pool_4",
+        enabled={"vision_0": True, "prompt_emb": True, "robot_state": True},
+        vector_dims={"vision_0": 32768, "prompt_emb": 2048, "robot_state": 32},
+    )
+    with pytest.raises(ConfigValidationError, match="does not match prefix_reducer output dim 8192"):
+        validate_cache_config(config)
+
+
+def test_llm_layer_extract_spatial_pool_16_rejects_wrong_prompt_dim():
+    """prompt_emb falls back to masked mean (2048); reject 32768."""
+    config = _llm_layer_extract_config(
+        prefix_reducer_type="per_modality_spatial_pool_16",
+        enabled={"vision_0": True, "prompt_emb": True, "robot_state": True},
+        vector_dims={"vision_0": 32768, "prompt_emb": 32768, "robot_state": 32},
+    )
+    with pytest.raises(ConfigValidationError, match="does not match prefix_reducer output dim 2048"):
+        validate_cache_config(config)
+
+
+def test_llm_layer_extract_factory_max_pool_returns_correct_reducer():
+    from openpi.cache.components.prefix_reducer import PerModalityMaxPoolReducer
+    from openpi.cache.config import PrefixReducerConfig, _build_prefix_reducer
+
+    reducer = _build_prefix_reducer(PrefixReducerConfig(type="per_modality_max_pool"))
+    assert isinstance(reducer, PerModalityMaxPoolReducer)
+
+
+def test_llm_layer_extract_factory_spatial_pool_16_returns_correct_reducer():
+    from openpi.cache.components.prefix_reducer import PerModalitySpatialPoolReducer
+    from openpi.cache.config import PrefixReducerConfig, _build_prefix_reducer
+
+    reducer = _build_prefix_reducer(
+        PrefixReducerConfig(type="per_modality_spatial_pool_16"),
+    )
+    assert isinstance(reducer, PerModalitySpatialPoolReducer)
+    assert reducer.output_dims["vision_0"] == 32768
+    assert reducer.output_dims["prompt_emb"] == 2048
+
+
+def test_llm_layer_extract_factory_spatial_pool_4_returns_correct_reducer():
+    from openpi.cache.components.prefix_reducer import PerModalitySpatialPoolReducer
+    from openpi.cache.config import PrefixReducerConfig, _build_prefix_reducer
+
+    reducer = _build_prefix_reducer(
+        PrefixReducerConfig(type="per_modality_spatial_pool_4"),
+    )
+    assert isinstance(reducer, PerModalitySpatialPoolReducer)
+    assert reducer.output_dims["vision_0"] == 8192
+
+
+# ---------------------------------------------------------------------------
+# cp1_spatial_pool_4 canonical name / cp1_spatial_pool_64 backward-compat alias
+# ---------------------------------------------------------------------------
+
+
+def test_cp1_spatial_pool_4_and_64_resolve_to_same_class():
+    """The legacy `cp1_spatial_pool_64` (64x compression ratio naming) and the
+    canonical `cp1_spatial_pool_4` (4 output tokens) must instantiate the same
+    key builder class — the rename only affects the public type string."""
+    from openpi.cache.components.key_builder import (
+        CP1SpatialPool4KeyBuilder,
+        CP1SpatialPool64KeyBuilder,
+    )
+    from openpi.cache.config import _build_key_builder
+
+    assert CP1SpatialPool4KeyBuilder is CP1SpatialPool64KeyBuilder
+    enabled_fields = ["vision_0", "robot_state"]
+    vector_dims = {"vision_0": 8192, "robot_state": 32}
+    a = _build_key_builder(
+        KeyBuilderConfig(type="cp1_spatial_pool_4"), enabled_fields, vector_dims,
+    )
+    b = _build_key_builder(
+        KeyBuilderConfig(type="cp1_spatial_pool_64"), enabled_fields, vector_dims,
+    )
+    assert type(a) is type(b) is CP1SpatialPool4KeyBuilder

@@ -159,7 +159,7 @@ Entry chain format:
 | `placeholder` | `{robot_state: 32}` | robot_state only | Testing |
 | `cp1_mean_pool` | `{vision_0: 2048, robot_state: 32, ...}` | Mean pool over 256 tokens → 2048d | **Recommended** |
 | `cp1_spatial_pool_16` | `{vision_0: 32768, ...}` | 4×4 spatial pool | High resolution |
-| `cp1_spatial_pool_64` | `{vision_0: 8192, ...}` | 2×2 spatial pool | Medium |
+| `cp1_spatial_pool_4` | `{vision_0: 8192, ...}` | 2×2 spatial pool = 4 tokens. Legacy alias: `cp1_spatial_pool_64` (named after 64× compression). | Medium |
 | `cp1_max_pool` | `{vision_0: 2048, ...}` | Max pool over tokens | Alternative to mean |
 | `clip` | `{vision_0: 512, ...}` (ViT-B-32) | CLIP image encoder on raw input images | External vision encoder; dim depends on CLIP model |
 | `full_original` | `{vision_0: 524288, ...}` | Raw flatten (Qdrant only) | Deprecated for in_memory |
@@ -312,7 +312,7 @@ keys:
   robot_state: { enabled: true,  weight: 1.0 }
 
 key_builder:
-  type: cp1_mean_pool   # "cp1_mean_pool" | "cp1_spatial_pool_16" | "cp1_spatial_pool_64"
+  type: cp1_mean_pool   # "cp1_mean_pool" | "cp1_spatial_pool_16" | "cp1_spatial_pool_4" (alias "cp1_spatial_pool_64")
                         # | "cp1_max_pool" | "clip" | "placeholder"
                         # Note: "clip" uses open_clip ViT-B-32 by default.
                         # CLIP model variant is set at artifact build time, not in YAML.
@@ -530,7 +530,7 @@ step_3: id="uuid:3", prev_ids=["uuid:2"], next_ids=[], trajectory_id="uuid"
 # Build from HDF5 demo data — produces artifact with trajectory links
 mkdir -p exp/common/data/cache_artifacts/libero_spatial
 
-for bt in cp1_mean_pool cp1_spatial_pool_16 cp1_spatial_pool_64 cp1_max_pool; do
+for bt in cp1_mean_pool cp1_spatial_pool_16 cp1_spatial_pool_4 cp1_max_pool; do
     uv run exp/common/build_in_memory_cache_artifact.py \
         --data-dir exp/common/data/libero_spatial \
         --builder-type $bt \

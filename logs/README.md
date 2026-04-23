@@ -67,6 +67,7 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 | File | Status | Description |
 |------|--------|-------------|
 | [phase1_libero_10_run_commands.log.md](phase1_libero_10_run_commands.log.md) | `Plan` | L1: `exp/common/config/phase1/libero_10/batch{1,2,3}/` 共 60 个 run 的执行命令清单（server + runner），含 prompt_emb 验证组；附 init-state 不匹配 caveat |
+| [phase1_libero_spatial_llm_run_commands.log.md](phase1_libero_spatial_llm_run_commands.log.md) | `Plan` | L1: `exp/common/config/phase1/libero_spatial_llm/batch{1..6}/` 共 196 个 run 的执行命令清单（6 server + 6 client 经 frp 端口 8998–9003）；5 LLM reducer × 4 extract_layer × 12 weight sweep + prefix_mean_pool 单字段 baseline 4 份 |
 
 ### Trajectory Experiments
 

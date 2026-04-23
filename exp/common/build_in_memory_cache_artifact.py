@@ -41,17 +41,32 @@ logger = logging.getLogger(__name__)
 _VECTOR_DIMS: dict[str, dict[str, int]] = {
     "cp1_mean_pool":       {"vision_0": 2048, "vision_1": 2048, "prompt_emb": 2048, "robot_state": 32},
     "cp1_spatial_pool_16": {"vision_0": 32768, "vision_1": 32768, "prompt_emb": 2048, "robot_state": 32},
+    # cp1_spatial_pool_4: canonical name (4 output tokens, 2x2 pool).
+    "cp1_spatial_pool_4":  {"vision_0": 8192, "vision_1": 8192, "prompt_emb": 2048, "robot_state": 32},
+    # Backward-compat alias of cp1_spatial_pool_4 (old `_64` = 64x compression).
     "cp1_spatial_pool_64": {"vision_0": 8192, "vision_1": 8192, "prompt_emb": 2048, "robot_state": 32},
     "cp1_max_pool":        {"vision_0": 2048, "vision_1": 2048, "prompt_emb": 2048, "robot_state": 32},
 }
 
-# cp1_llm_layer_extract dims depend on prefix_reducer (both reducers emit
-# 2048-d, but per_modality_pool fans out to 4 vision/prompt slots).
+# cp1_llm_layer_extract dims depend on prefix_reducer. Vision dim varies
+# per reducer; prompt_emb is always 2048 (mean-pooled fallback because the
+# lang segment is variable-length and not square-shaped).
 _LLM_LAYER_EXTRACT_DIMS: dict[str, dict[str, int]] = {
     "prefix_mean_pool":  {"vision_0": 2048, "robot_state": 32},
-    "per_modality_pool": {"vision_0": 2048, "vision_1": 2048,
+    "per_modality_mean_pool": {"vision_0": 2048, "vision_1": 2048,
                            "vision_2": 2048, "prompt_emb": 2048,
                            "robot_state": 32},
+    "per_modality_max_pool": {"vision_0": 2048, "vision_1": 2048,
+                               "vision_2": 2048, "prompt_emb": 2048,
+                               "robot_state": 32},
+    # vision: 16 tokens (4x4) * 2048 = 32768; prompt_emb: 2048 (masked mean fallback).
+    "per_modality_spatial_pool_16": {"vision_0": 32768, "vision_1": 32768,
+                                      "vision_2": 32768, "prompt_emb": 2048,
+                                      "robot_state": 32},
+    # vision: 4 tokens (2x2) * 2048 = 8192; prompt_emb: 2048.
+    "per_modality_spatial_pool_4":  {"vision_0": 8192, "vision_1": 8192,
+                                      "vision_2": 8192, "prompt_emb": 2048,
+                                      "robot_state": 32},
 }
 
 
@@ -155,18 +170,26 @@ def _create_builder(
             CP1LLMLayerExtractKeyBuilder,
         )
         from openpi.cache.components.prefix_reducer import (
-            PerModalityPoolReducer,
+            PerModalityMaxPoolReducer,
+            PerModalityMeanPoolReducer,
+            PerModalitySpatialPoolReducer,
             PrefixMeanPoolReducer,
         )
 
         if prefix_reducer_type == "prefix_mean_pool":
             prefix_reducer = PrefixMeanPoolReducer()
-        elif prefix_reducer_type == "per_modality_pool":
-            prefix_reducer = PerModalityPoolReducer()
+        elif prefix_reducer_type == "per_modality_mean_pool":
+            prefix_reducer = PerModalityMeanPoolReducer()
+        elif prefix_reducer_type == "per_modality_max_pool":
+            prefix_reducer = PerModalityMaxPoolReducer()
+        elif prefix_reducer_type == "per_modality_spatial_pool_16":
+            prefix_reducer = PerModalitySpatialPoolReducer(output_tokens=16)
+        elif prefix_reducer_type == "per_modality_spatial_pool_4":
+            prefix_reducer = PerModalitySpatialPoolReducer(output_tokens=4)
         else:
             raise ValueError(
                 f"Unknown prefix_reducer_type: {prefix_reducer_type}. "
-                f"Valid: ['prefix_mean_pool', 'per_modality_pool']"
+                f"Valid: {sorted(_LLM_LAYER_EXTRACT_DIMS.keys())}"
             )
         # Caller must invoke `attach_model(model)` before the first build().
         return CP1LLMLayerExtractKeyBuilder(
@@ -295,7 +318,10 @@ def _build_fake_stage1_with_masks(
             parts.append(torch.zeros(_TOKENS_PER_IMAGE, emb_dim))
             present_cameras.append(False)
 
-    # prompt_emb is already padded to max_token_len at collect time.
+    # prompt_emb is padded to max_token_len at collect time and captured via
+    # a hook that already applies the `× sqrt(emb_dim)` scale in-place before
+    # store (`collection_policy.py:82-84`), so HDF5 prompt_emb is already what
+    # `embed_prefix` would feed to layer 0. No extra scaling needed here.
     prompt = torch.from_numpy(np.array(group["prompt_emb"])).float()
     parts.append(prompt)
 
@@ -307,8 +333,14 @@ def _build_fake_stage1_with_masks(
         state = state.unsqueeze(0)
     state = state.to(device)
 
-    # Re-tokenize (deterministic from task + state per PaligemmaTokenizer.tokenize).
-    _, lang_mask_np = tokenizer.tokenize(task_str, state=state_np)
+    # Re-tokenize deterministically. Whether `state` is folded into the discrete
+    # prompt depends on `Pi0Config.discrete_state_input`: for Pi0.5 variants
+    # where it is False (e.g. `pi05_libero`), prompt is `task + "\n"` only;
+    # state goes through the continuous action-expert path, not the prompt.
+    # Must match the collector: `TokenizePrompt` in `transforms.py:252-266`
+    # reads the same flag to decide whether to pass `state`.
+    tok_state = state_np if model.config.discrete_state_input else None
+    _, lang_mask_np = tokenizer.tokenize(task_str, state=tok_state)
     lang_mask = torch.from_numpy(lang_mask_np).bool()
 
     # Vision pad mask: True for present cameras, False for absent ones (the
@@ -350,6 +382,14 @@ def _self_check_tokenizer_consistency(
     and asserts the result matches the stored `prompt_emb` at non-padding
     positions (bf16 tolerance). Raises with a clear pointer if data and
     model came from different builds.
+
+    HDF5 `prompt_emb` is captured via a hook on `language_model.embed_tokens`
+    that already multiplies by `sqrt(emb_dim)` in-place before storing
+    (`collection_policy.py:82-84`). The re-computed embedding here therefore
+    also applies the same scale to match the stored representation.
+
+    Whether `state` is folded into the discrete prompt follows the same rule
+    as the collector: it is keyed off `Pi0Config.discrete_state_input`.
     """
     import math
 
@@ -362,11 +402,11 @@ def _self_check_tokenizer_consistency(
         state_np = np.array(group["robot_state"], dtype=np.float32)
         hdf5_prompt = torch.from_numpy(np.array(group["prompt_emb"])).float()  # [200, 2048]
 
-    lang_tokens_np, lang_mask_np = tokenizer.tokenize(task_str, state=state_np)
+    tok_state = state_np if model.config.discrete_state_input else None
+    lang_tokens_np, lang_mask_np = tokenizer.tokenize(task_str, state=tok_state)
     lang_tokens = torch.from_numpy(lang_tokens_np).long().unsqueeze(0).to(device)
     with torch.no_grad():
         lang_emb = model.paligemma_with_expert.embed_language_tokens(lang_tokens)
-        # `embed_prefix` scales by sqrt(emb_dim) (`pi0_pytorch.py:312-314`).
         lang_emb = lang_emb * math.sqrt(lang_emb.shape[-1])
     lang_emb = lang_emb[0].float().cpu()                    # [200, 2048]
     mask = torch.from_numpy(lang_mask_np).bool()
@@ -815,7 +855,7 @@ def main():
     parser.add_argument("--extract-layer", type=int, default=0,
                         help="cp1_llm_layer_extract: PaliGemma layer index to extract (0..17)")
     parser.add_argument("--prefix-reducer-type", default="prefix_mean_pool",
-                        choices=["prefix_mean_pool", "per_modality_pool"],
+                        choices=sorted(_LLM_LAYER_EXTRACT_DIMS.keys()),
                         help="cp1_llm_layer_extract: how to pool layer-N hidden states")
     parser.add_argument("--checkpoint-dir", default=None,
                         help="cp1_llm_layer_extract: PI0Pytorch checkpoint dir (model.safetensors)")

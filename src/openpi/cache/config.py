@@ -175,7 +175,9 @@ class PrefixReducerConfig:
     Independent from `ReducerConfig` (which is for SigLIP token reduction)
     because the inputs and emit semantics differ — see `prefix_reducer.py`.
     """
-    type: str = "prefix_mean_pool"   # "prefix_mean_pool" | "per_modality_pool"
+    # One of: "prefix_mean_pool" | "per_modality_mean_pool" | "per_modality_max_pool"
+    #       | "per_modality_spatial_pool_16" | "per_modality_spatial_pool_4"
+    type: str = "prefix_mean_pool"
 
 
 @dataclass
@@ -440,7 +442,9 @@ def validate_cache_config(config: CacheConfig) -> None:
     # 4. key_builder type.
     _valid_key_builder_types = frozenset({
         "placeholder", "full_original",
-        "cp1_mean_pool", "cp1_spatial_pool_16", "cp1_spatial_pool_64", "cp1_max_pool",
+        "cp1_mean_pool", "cp1_spatial_pool_16", "cp1_spatial_pool_4",
+        "cp1_spatial_pool_64",  # legacy alias of cp1_spatial_pool_4
+        "cp1_max_pool",
         "cp1_temporal_prune",
         "cp1_llm_layer_extract",
         "clip",
@@ -629,7 +633,13 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"valid: 0..{_GEMMA_2B_DEPTH - 1} (gemma_2b depth)"
             )
 
-        _valid_prefix_reducer_types = frozenset({"prefix_mean_pool", "per_modality_pool"})
+        _valid_prefix_reducer_types = frozenset({
+            "prefix_mean_pool",
+            "per_modality_mean_pool",
+            "per_modality_max_pool",
+            "per_modality_spatial_pool_16",
+            "per_modality_spatial_pool_4",
+        })
         pr_type = config.key_builder.prefix_reducer.type
         if pr_type not in _valid_prefix_reducer_types:
             errors.append(
@@ -638,10 +648,12 @@ def validate_cache_config(config: CacheConfig) -> None:
             )
 
         # Per-reducer field/dim cross-validation.
-        # Both reducers emit 2048-d vectors (gemma_2b width); enabled vision/
-        # prompt fields must subset the reducer's emitted_fields and match
+        # Different reducers emit different per-field dims; resolve the
+        # expected dim per-field (vision vs prompt) and compare to
         # backend.vector_dims.
         _GEMMA_2B_WIDTH = 2048
+        # default: None -> emitted==set(), skip the per-field check
+        expected_dim_by_field: dict[str, int] = {}
         if pr_type == "prefix_mean_pool":
             # Single global key carried in vision_0 slot. Other vision and
             # prompt slots must be disabled to avoid silently emitting nothing.
@@ -652,21 +664,36 @@ def validate_cache_config(config: CacheConfig) -> None:
                     f"prefix_reducer=prefix_mean_pool only emits vision_0 "
                     f"(unified key); these enabled fields would never be "
                     f"populated: {forbidden}. Either disable them or switch "
-                    f"to prefix_reducer=per_modality_pool."
+                    f"to a per_modality_* reducer."
                 )
-            emitted = {"vision_0"}
-        elif pr_type == "per_modality_pool":
-            emitted = {"vision_0", "vision_1", "vision_2", "prompt_emb"}
-        else:
-            emitted = set()
+            expected_dim_by_field = {"vision_0": _GEMMA_2B_WIDTH}
+        elif pr_type in ("per_modality_mean_pool", "per_modality_max_pool"):
+            expected_dim_by_field = {
+                f: _GEMMA_2B_WIDTH
+                for f in ("vision_0", "vision_1", "vision_2", "prompt_emb")
+            }
+        elif pr_type in (
+            "per_modality_spatial_pool_16",
+            "per_modality_spatial_pool_4",
+        ):
+            # output_tokens encoded in the suffix; vision dim = tokens * 2048,
+            # prompt falls back to masked mean (2048).
+            output_tokens = int(pr_type.rsplit("_", 1)[-1])
+            vision_dim = output_tokens * _GEMMA_2B_WIDTH
+            expected_dim_by_field = {
+                "vision_0":   vision_dim,
+                "vision_1":   vision_dim,
+                "vision_2":   vision_dim,
+                "prompt_emb": _GEMMA_2B_WIDTH,
+            }
 
-        for f in emitted:
+        for f, expected_dim in expected_dim_by_field.items():
             if f in enabled_fields and f in config.backend.vector_dims:
                 actual = config.backend.vector_dims[f]
-                if actual != _GEMMA_2B_WIDTH:
+                if actual != expected_dim:
                     errors.append(
                         f"backend.vector_dims.{f}={actual} does not match "
-                        f"prefix_reducer output dim {_GEMMA_2B_WIDTH} "
+                        f"prefix_reducer output dim {expected_dim} "
                         f"(prefix_reducer.type={pr_type!r})"
                     )
 
@@ -956,14 +983,22 @@ def _build_reducer(cfg: ReducerConfig):
 def _build_prefix_reducer(cfg: PrefixReducerConfig):
     """Instantiate a PrefixReducer (cp1_llm_layer_extract Step B)."""
     from openpi.cache.components.prefix_reducer import (
-        PerModalityPoolReducer,
+        PerModalityMaxPoolReducer,
+        PerModalityMeanPoolReducer,
+        PerModalitySpatialPoolReducer,
         PrefixMeanPoolReducer,
     )
 
     if cfg.type == "prefix_mean_pool":
         return PrefixMeanPoolReducer()
-    if cfg.type == "per_modality_pool":
-        return PerModalityPoolReducer()
+    if cfg.type == "per_modality_mean_pool":
+        return PerModalityMeanPoolReducer()
+    if cfg.type == "per_modality_max_pool":
+        return PerModalityMaxPoolReducer()
+    if cfg.type == "per_modality_spatial_pool_16":
+        return PerModalitySpatialPoolReducer(output_tokens=16)
+    if cfg.type == "per_modality_spatial_pool_4":
+        return PerModalitySpatialPoolReducer(output_tokens=4)
     raise ConfigValidationError(f"Unknown prefix_reducer.type '{cfg.type}'")
 
 
@@ -985,10 +1020,13 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
         from openpi.cache.components.key_builder import CP1SpatialPool16KeyBuilder
 
         return CP1SpatialPool16KeyBuilder(enabled_fields=enabled_fields)
-    elif cfg.type == "cp1_spatial_pool_64":
-        from openpi.cache.components.key_builder import CP1SpatialPool64KeyBuilder
+    elif cfg.type in ("cp1_spatial_pool_4", "cp1_spatial_pool_64"):
+        # `cp1_spatial_pool_4` is the canonical name (4 output tokens, 2x2 grid);
+        # `cp1_spatial_pool_64` is a backward-compat alias from the legacy naming
+        # convention where `_64` referred to the 64x compression ratio (256->4).
+        from openpi.cache.components.key_builder import CP1SpatialPool4KeyBuilder
 
-        return CP1SpatialPool64KeyBuilder(enabled_fields=enabled_fields)
+        return CP1SpatialPool4KeyBuilder(enabled_fields=enabled_fields)
     elif cfg.type == "cp1_max_pool":
         from openpi.cache.components.key_builder import CP1MaxPoolKeyBuilder
 
@@ -1022,7 +1060,7 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
         raise ConfigValidationError(
             f"Unknown key_builder.type '{cfg.type}'. "
             f"Valid: ['placeholder', 'full_original', 'cp1_mean_pool', "
-            f"'cp1_spatial_pool_16', 'cp1_spatial_pool_64', 'cp1_max_pool', "
+            f"'cp1_spatial_pool_16', 'cp1_spatial_pool_4' (alias 'cp1_spatial_pool_64'), 'cp1_max_pool', "
             f"'cp1_temporal_prune', 'cp1_llm_layer_extract', 'clip']"
         )
 

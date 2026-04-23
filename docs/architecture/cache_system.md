@@ -440,7 +440,7 @@ Converts stage outputs into named query vectors (`dict[str, torch.Tensor]`). Two
 | `placeholder` | `key_builder.py` | — | robot_state only (for testing) |
 | `cp1_mean_pool` | `key_builder.py` | 2048 | Mean pool over 256 vision tokens |
 | `cp1_spatial_pool_16` | `key_builder.py` | 32768 | 4×4 spatial grid → 16 tokens × 2048 |
-| `cp1_spatial_pool_64` | `key_builder.py` | 8192 | 2×2 spatial grid → 4 tokens × 2048 |
+| `cp1_spatial_pool_4` (alias `cp1_spatial_pool_64`) | `key_builder.py` | 8192 | 2×2 spatial grid → 4 tokens × 2048 |
 | `cp1_max_pool` | `key_builder.py` | 2048 | Per-dimension max over tokens |
 | `clip` | `clip_key_builder.py` | 512 (ViT-B-32) | CLIP image encoder on raw input images |
 | `full_original` | `key_builder.py` | 524288 | Raw flatten (Qdrant only, deprecated) |
