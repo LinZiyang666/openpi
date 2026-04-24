@@ -1,0 +1,2082 @@
+[
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_065_a_l0_rrf_w5.yaml",
+    "run_id": "phase1_run_065_a_l0_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 17:23:36",
+    "end_time": "2026-04-23 17:35:27",
+    "success_rate": 0.59,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_065_a_l0_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        6,
+        10
+      ],
+      "1": [
+        6,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        5,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_066_a_l0_rrf_w6.yaml",
+    "run_id": "phase1_run_066_a_l0_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 17:35:27",
+    "end_time": "2026-04-23 17:47:57",
+    "success_rate": 0.63,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_066_a_l0_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        7,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        5,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_067_a_l1_rrf_w5.yaml",
+    "run_id": "phase1_run_067_a_l1_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 17:47:57",
+    "end_time": "2026-04-23 18:00:59",
+    "success_rate": 0.61,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_067_a_l1_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        5,
+        10
+      ],
+      "9": [
+        5,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_068_a_l1_rrf_w6.yaml",
+    "run_id": "phase1_run_068_a_l1_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 18:00:59",
+    "end_time": "2026-04-23 18:12:56",
+    "success_rate": 0.67,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_068_a_l1_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        8,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        7,
+        10
+      ],
+      "4": [
+        7,
+        10
+      ],
+      "5": [
+        7,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_069_a_l2_rrf_w5.yaml",
+    "run_id": "phase1_run_069_a_l2_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 18:12:56",
+    "end_time": "2026-04-23 18:25:29",
+    "success_rate": 0.62,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_069_a_l2_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        6,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        7,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_070_a_l2_rrf_w6.yaml",
+    "run_id": "phase1_run_070_a_l2_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 18:25:29",
+    "end_time": "2026-04-23 18:37:40",
+    "success_rate": 0.66,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_070_a_l2_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        7,
+        10
+      ],
+      "4": [
+        7,
+        10
+      ],
+      "5": [
+        7,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_071_a_l3_rrf_w5.yaml",
+    "run_id": "phase1_run_071_a_l3_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 18:37:40",
+    "end_time": "2026-04-23 18:50:17",
+    "success_rate": 0.62,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_071_a_l3_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        7,
+        10
+      ],
+      "4": [
+        7,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        5,
+        10
+      ],
+      "8": [
+        5,
+        10
+      ],
+      "9": [
+        5,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_072_a_l3_rrf_w6.yaml",
+    "run_id": "phase1_run_072_a_l3_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 18:50:17",
+    "end_time": "2026-04-23 19:02:40",
+    "success_rate": 0.65,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_072_a_l3_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        7,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        7,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_073_b1_l0_rrf_w5.yaml",
+    "run_id": "phase1_run_073_b1_l0_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 19:02:40",
+    "end_time": "2026-04-23 19:15:38",
+    "success_rate": 0.65,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_073_b1_l0_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        7,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        7,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_074_b1_l0_rrf_w6.yaml",
+    "run_id": "phase1_run_074_b1_l0_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 19:15:38",
+    "end_time": "2026-04-23 19:28:47",
+    "success_rate": 0.61,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_074_b1_l0_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        7,
+        10
+      ],
+      "4": [
+        7,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        5,
+        10
+      ],
+      "7": [
+        5,
+        10
+      ],
+      "8": [
+        5,
+        10
+      ],
+      "9": [
+        5,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_075_b1_l1_rrf_w5.yaml",
+    "run_id": "phase1_run_075_b1_l1_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 19:28:47",
+    "end_time": "2026-04-23 19:42:27",
+    "success_rate": 0.54,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_075_b1_l1_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        6,
+        10
+      ],
+      "1": [
+        6,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        5,
+        10
+      ],
+      "5": [
+        5,
+        10
+      ],
+      "6": [
+        5,
+        10
+      ],
+      "7": [
+        5,
+        10
+      ],
+      "8": [
+        5,
+        10
+      ],
+      "9": [
+        5,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_076_b1_l1_rrf_w6.yaml",
+    "run_id": "phase1_run_076_b1_l1_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 19:42:27",
+    "end_time": "2026-04-23 19:56:00",
+    "success_rate": 0.58,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_076_b1_l1_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        6,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        5,
+        10
+      ],
+      "8": [
+        5,
+        10
+      ],
+      "9": [
+        5,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_077_b1_l2_rrf_w5.yaml",
+    "run_id": "phase1_run_077_b1_l2_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 19:56:00",
+    "end_time": "2026-04-23 20:09:18",
+    "success_rate": 0.6,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_077_b1_l2_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        6,
+        10
+      ],
+      "1": [
+        6,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_078_b1_l2_rrf_w6.yaml",
+    "run_id": "phase1_run_078_b1_l2_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 20:09:18",
+    "end_time": "2026-04-23 20:22:26",
+    "success_rate": 0.62,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_078_b1_l2_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_079_b1_l3_rrf_w5.yaml",
+    "run_id": "phase1_run_079_b1_l3_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 20:22:26",
+    "end_time": "2026-04-23 20:35:26",
+    "success_rate": 0.64,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_079_b1_l3_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        7,
+        10
+      ],
+      "6": [
+        7,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_080_b1_l3_rrf_w6.yaml",
+    "run_id": "phase1_run_080_b1_l3_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 20:35:26",
+    "end_time": "2026-04-23 20:48:47",
+    "success_rate": 0.6,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_080_b1_l3_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        5,
+        10
+      ],
+      "8": [
+        5,
+        10
+      ],
+      "9": [
+        5,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_081_b2_l0_rrf_w5.yaml",
+    "run_id": "phase1_run_081_b2_l0_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 20:48:47",
+    "end_time": "2026-04-23 21:01:49",
+    "success_rate": 0.61,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_081_b2_l0_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        5,
+        10
+      ],
+      "9": [
+        5,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_082_b2_l0_rrf_w6.yaml",
+    "run_id": "phase1_run_082_b2_l0_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 21:01:49",
+    "end_time": "2026-04-23 21:14:28",
+    "success_rate": 0.64,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_082_b2_l0_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        7,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_083_b2_l1_rrf_w5.yaml",
+    "run_id": "phase1_run_083_b2_l1_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 21:14:28",
+    "end_time": "2026-04-23 21:27:07",
+    "success_rate": 0.63,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_083_b2_l1_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_084_b2_l1_rrf_w6.yaml",
+    "run_id": "phase1_run_084_b2_l1_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 21:27:07",
+    "end_time": "2026-04-23 21:40:23",
+    "success_rate": 0.62,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_084_b2_l1_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        5,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_085_b2_l2_rrf_w5.yaml",
+    "run_id": "phase1_run_085_b2_l2_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 21:40:23",
+    "end_time": "2026-04-23 21:53:25",
+    "success_rate": 0.61,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_085_b2_l2_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        6,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_086_b2_l2_rrf_w6.yaml",
+    "run_id": "phase1_run_086_b2_l2_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 21:53:25",
+    "end_time": "2026-04-23 22:07:34",
+    "success_rate": 0.62,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_086_b2_l2_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        8,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        7,
+        10
+      ],
+      "4": [
+        7,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        5,
+        10
+      ],
+      "7": [
+        5,
+        10
+      ],
+      "8": [
+        5,
+        10
+      ],
+      "9": [
+        5,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_087_b2_l3_rrf_w5.yaml",
+    "run_id": "phase1_run_087_b2_l3_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 22:07:34",
+    "end_time": "2026-04-23 22:19:59",
+    "success_rate": 0.67,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_087_b2_l3_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        8,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        7,
+        10
+      ],
+      "4": [
+        7,
+        10
+      ],
+      "5": [
+        7,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_088_b2_l3_rrf_w6.yaml",
+    "run_id": "phase1_run_088_b2_l3_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 22:19:59",
+    "end_time": "2026-04-23 22:32:40",
+    "success_rate": 0.65,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_088_b2_l3_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        7,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        7,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_089_c_l0_rrf_w5.yaml",
+    "run_id": "phase1_run_089_c_l0_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 22:32:40",
+    "end_time": "2026-04-23 22:44:59",
+    "success_rate": 0.65,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_089_c_l0_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        6,
+        10
+      ],
+      "1": [
+        6,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        5,
+        10
+      ],
+      "5": [
+        8,
+        10
+      ],
+      "6": [
+        7,
+        10
+      ],
+      "7": [
+        7,
+        10
+      ],
+      "8": [
+        7,
+        10
+      ],
+      "9": [
+        7,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_090_c_l0_rrf_w6.yaml",
+    "run_id": "phase1_run_090_c_l0_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 22:44:59",
+    "end_time": "2026-04-23 22:57:34",
+    "success_rate": 0.63,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_090_c_l0_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        7,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_091_c_l1_rrf_w5.yaml",
+    "run_id": "phase1_run_091_c_l1_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 22:57:34",
+    "end_time": "2026-04-23 23:10:11",
+    "success_rate": 0.63,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_091_c_l1_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        7,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_092_c_l1_rrf_w6.yaml",
+    "run_id": "phase1_run_092_c_l1_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 23:10:11",
+    "end_time": "2026-04-23 23:22:38",
+    "success_rate": 0.63,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_092_c_l1_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        7,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_093_c_l2_rrf_w5.yaml",
+    "run_id": "phase1_run_093_c_l2_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 23:22:38",
+    "end_time": "2026-04-23 23:35:23",
+    "success_rate": 0.63,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_093_c_l2_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        7,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        5,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_094_c_l2_rrf_w6.yaml",
+    "run_id": "phase1_run_094_c_l2_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 23:35:23",
+    "end_time": "2026-04-23 23:48:43",
+    "success_rate": 0.56,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_094_c_l2_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        6,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        5,
+        10
+      ],
+      "6": [
+        5,
+        10
+      ],
+      "7": [
+        5,
+        10
+      ],
+      "8": [
+        5,
+        10
+      ],
+      "9": [
+        4,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_095_c_l3_rrf_w5.yaml",
+    "run_id": "phase1_run_095_c_l3_rrf_w5",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-23 23:48:43",
+    "end_time": "2026-04-24 00:01:47",
+    "success_rate": 0.63,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_095_c_l3_rrf_w5.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        7,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        6,
+        10
+      ],
+      "6": [
+        6,
+        10
+      ],
+      "7": [
+        6,
+        10
+      ],
+      "8": [
+        6,
+        10
+      ],
+      "9": [
+        5,
+        10
+      ]
+    }
+  },
+  {
+    "yaml_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_096_c_l3_rrf_w6.yaml",
+    "run_id": "phase1_run_096_c_l3_rrf_w6",
+    "status": "done",
+    "episodes_per_task": 10,
+    "task_suite": "libero_spatial",
+    "start_time": "2026-04-24 00:01:47",
+    "end_time": "2026-04-24 00:15:11",
+    "success_rate": 0.57,
+    "log_path": "exp/common/config/phase1/libero_spatial_llm/batch3/phase1_run_096_c_l3_rrf_w6.log",
+    "task_progress": {
+      "0": "done",
+      "1": "done",
+      "2": "done",
+      "3": "done",
+      "4": "done",
+      "5": "done",
+      "6": "done",
+      "7": "done",
+      "8": "done",
+      "9": "done"
+    },
+    "task_results": {
+      "0": [
+        7,
+        10
+      ],
+      "1": [
+        7,
+        10
+      ],
+      "2": [
+        7,
+        10
+      ],
+      "3": [
+        6,
+        10
+      ],
+      "4": [
+        6,
+        10
+      ],
+      "5": [
+        5,
+        10
+      ],
+      "6": [
+        5,
+        10
+      ],
+      "7": [
+        5,
+        10
+      ],
+      "8": [
+        5,
+        10
+      ],
+      "9": [
+        4,
+        10
+      ]
+    }
+  }
+]
