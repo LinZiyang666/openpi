@@ -28,11 +28,11 @@ Runner 通过 WebSocket `load_cache_config` 为每个 run 热切换 cache bundle
 | `batch1` | `7998` | `8998` | `phase1_run_001_a_l0_rrf_w1.yaml` |
 | `batch2` | `7999` | `8999` | `phase1_run_033_a_l0_rrf_w3.yaml` |
 | `batch3` | `8000` | `9000` | `phase1_run_065_a_l0_rrf_w5.yaml` |
-| `batch4` | `8001` | `9001` | `phase1_run_097_a_l0_rrf_w7.yaml` |
+| `batch4` | `8004` | `9004` | `phase1_run_097_a_l0_rrf_w7.yaml` |
 | `batch5` | `8002` | `9002` | `phase1_run_129_a_l0_rrf_p1.yaml` |
 | `batch6` | `8003` | `9003` | `phase1_run_161_a_l0_rrf_p3.yaml` |
 
-公网 host：`155.98.36.13`。若 frp 上 9001–9003 未开，提前让运维或本人在 frp config 里加 6 条 tcp 映射。
+公网 host：`155.98.36.13`。若 frp 上 9004–9003 未开，提前让运维或本人在 frp config 里加 6 条 tcp 映射。
 
 ---
 
@@ -41,7 +41,7 @@ Runner 通过 WebSocket `load_cache_config` 为每个 run 热切换 cache bundle
 客户端机器确认六个入口健康：
 
 ```bash
-for p in 8998 8999 9000 9001 9002 9003; do
+for p in 8998 8999 9000 9004 9002 9003; do
     printf 'port %s: ' "$p"
     curl -s "http://155.98.36.13:${p}/healthz" || echo
 done
@@ -101,14 +101,14 @@ uv run scripts/serve_policy.py \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 ```
 
-### Server D: batch4, local port 8001
+### Server D: batch4, local port 8004
 
 ```bash
 uv run scripts/serve_policy.py \
     --concurrent \
     --cache-config exp/common/config/phase1/libero_spatial_llm/batch4/phase1_run_097_a_l0_rrf_w7.yaml \
     --env LIBERO \
-    --port 8001 \
+    --port 8004 \
     policy:checkpoint \
     --policy.config pi05_libero \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
@@ -190,21 +190,22 @@ uv run exp/common/run_cache_experiments.py \
     --resume
 ```
 
-### Client 4: batch4 via frp port 9001
+### Client 4: batch4 via frp port 9004 on gpu1
 
 ```bash
 uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/common/config/phase1/libero_spatial_llm/batch4 \
     --episodes-per-run 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 9001 \
+    --host 155.98.36.13 --port 9004 \
     --task-suite libero_spatial \
     --seed 42 \
+    --cuda '1' \
     --conda-env /scratch/zixuans8/libero_sim \
     --resume
 ```
 
-### Client 5: batch5 via frp port 9002
+### Client 5: batch5 via frp port 9002 on gpu1
 
 ```bash
 uv run exp/common/run_cache_experiments.py \
@@ -214,11 +215,12 @@ uv run exp/common/run_cache_experiments.py \
     --host 155.98.36.13 --port 9002 \
     --task-suite libero_spatial \
     --seed 42 \
+    --cuda '1' \
     --conda-env /scratch/zixuans8/libero_sim \
     --resume
 ```
 
-### Client 6: batch6 via frp port 9003
+### Client 6: batch6 via frp port 9003 on gpu1
 
 ```bash
 uv run exp/common/run_cache_experiments.py \
@@ -228,6 +230,7 @@ uv run exp/common/run_cache_experiments.py \
     --host 155.98.36.13 --port 9003 \
     --task-suite libero_spatial \
     --seed 42 \
+    --cuda '1' \
     --conda-env /scratch/zixuans8/libero_sim \
     --resume
 ```
@@ -303,7 +306,7 @@ Client 1–5 各跑 32 run × 10 task × 10 episode = 3200 episodes；Client 6 �
 
 ### 5.6 frp 端口准备
 
-batch4–6 使用公网 9001–9003，若 frp 服务端尚未开这三个 tcp 映射，server 启动后客户端会收到连接拒绝。确认 `frpc.toml` / `frps.toml` 里 `[tcp-9001] ... remote_port=9001` 等配置齐全后再开始。
+batch4–6 使用公网 9004–9003，若 frp 服务端尚未开这三个 tcp 映射，server 启动后客户端会收到连接拒绝。确认 `frpc.toml` / `frps.toml` 里 `[tcp-9004] ... remote_port=9004` 等配置齐全后再开始。
 
 ---
 

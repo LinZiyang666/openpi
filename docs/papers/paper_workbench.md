@@ -51,7 +51,7 @@ LLM serving faced a structurally similar problem — many queries are semantical
 
 ### P5 — Our contribution
 
-We introduce [System Name], an inference cache system for VLA robot policies. By caching intermediate model representations and retrieving them for visually similar observations, the system skips expensive forward passes at inference time. The approach is deployment-agnostic:
+We introduce ENGRAM, an inference cache system for VLA robot policies. By caching intermediate model representations and retrieving them for visually similar observations, the system skips expensive forward passes at inference time. The approach is deployment-agnostic:
 
 - **On cloud servers**: cache hits free GPU cycles, increasing throughput — fewer GPUs serve more robots, reducing cost and energy.
 - **On edge devices**: cache hits bypass model inference entirely, cutting latency and raising control frequency.
@@ -61,7 +61,7 @@ The system is model-agnostic, training-free, and plugs into existing VLA serving
 ### Contribution bullets (draft)
 
 1. We identify the structural observation redundancy in robot policy serving and formalize the inference caching problem for VLA models.
-2. We propose [System Name], a modular cache architecture featuring: (a) cascaded KeyBuilder gating — a lightweight CLIP check intercepts before the model runs, a precise vision-token check intercepts after Stage 1, yielding per-request adaptive caching depth from full skip to full inference; (b) graduated compute reuse across cache levels (CP1 / warm-start / CP3); (c) quality-aware decision pipeline (Gate → Search → Judge → WritePolicy).
+2. We propose ENGRAM, a modular cache architecture featuring: (a) cascaded KeyBuilder gating — a lightweight CLIP check intercepts before the model runs, a precise vision-token check intercepts after Stage 1, yielding per-request adaptive caching depth from full skip to full inference; (b) graduated compute reuse across cache levels (CP1 / warm-start / CP3); (c) quality-aware decision pipeline (Gate → Search → Judge → WritePolicy).
 3. We demonstrate that on [benchmark], the system achieves [X]% cache hit rate with negligible task success degradation, yielding [Y]× latency reduction (edge) and [Z]× throughput improvement (cloud).
 
 
@@ -355,7 +355,7 @@ Core question: *Why does stage-level caching work at this boundary and not other
 | B | When is reuse safe? | High (math + experiments) | Theoretical + empirical | The solution is principled |
 | C | Why cache at this boundary? | Medium (ablation experiments) | Empirical insight | The design is well-motivated |
 
-Pursuing any one of these would elevate the paper from systems contribution to scientific contribution. A+C together is likely the most practical combination for a NeurIPS submission.
+Pursuing any one of these would elevate the paper from systems contribution to scientific contribution. A+C together is likely the most practical combination for an ICLR submission (the current primary target as of 2026-04-23).
 
 ### Venue recommendations
 
@@ -392,9 +392,9 @@ Assuming work cannot be completed before end of June 2026. Deadlines marked (est
 | Target | Deadline | Feasibility |
 |--------|----------|-------------|
 | ~~CoRL 2026~~ | ~~May 29, 2026~~ | **X — 6 weeks, user confirmed not ready by end of June.** |
-| ICRA 2027 | ~Sep 2026 | **Best target** — 5 months to complete system + experiments. |
-| ICLR 2027 | ~Oct 2026 | Stretch goal — needs Direction A or C on top of system work. |
-| IROS 2027 | ~Mar 2027 | Safe fallback if ICRA doesn't work out. |
+| **ICLR 2027** | ~Oct 2026 | **Primary target (set 2026-04-23).** Requires scientific-insight contribution (Direction A/B/C) in addition to the system. 9-page main text + appendix. |
+| ICRA 2027 | ~Sep 2026 | Secondary / robotics-venue option. 6 pages, system contribution suffices but ICLR-version skeleton must be re-scoped if rerouted here. |
+| IROS 2027 | ~Mar 2027 | Safe fallback if ICLR & ICRA both miss. |
 
 ### Other risks
 
@@ -409,7 +409,7 @@ Assuming work cannot be completed before end of June 2026. Deadlines marked (est
 - [ ] Warm-start feasibility: does cross-trajectory $x_t$ actually produce valid flow matching continuations?
 - [ ] Which of Direction A/B/C to pursue for NeurIPS-level framing?
 - [ ] Primary deployment story: cloud throughput or edge latency?
-- [ ] System name — [System Name] placeholder needs a real name
+- [x] System name — working codename **ENGRAM** set 2026-04-23 (Owner sovereign-authority pick from Agent-brainstormed shortlist; final naming and paper title still open)
 - [ ] Benchmark selection for evaluation
 
 

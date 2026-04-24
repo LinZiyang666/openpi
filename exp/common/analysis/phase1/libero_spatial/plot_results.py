@@ -94,6 +94,33 @@ def plot(data):
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     ax.grid(axis="y", alpha=0.3)
 
+    # Horizontal reference line at the tallest bar across all (kb, weight).
+    all_cells = [
+        (kb, wid, data.get((kb, wid), 0))
+        for kb in KEY_BUILDER_ORDER
+        for wid in WEIGHT_IDS
+    ]
+    max_kb, max_wid, max_val = max(all_cells, key=lambda c: c[2])
+    if max_val > 0:
+        ax.axhline(
+            max_val,
+            color="crimson",
+            linestyle="--",
+            linewidth=1.1,
+            alpha=0.8,
+            zorder=4,
+        )
+        ax.text(
+            0.99,
+            max_val + 0.015,
+            f"max = {max_val:.0%}  ({max_kb}/{max_wid})",
+            transform=ax.get_yaxis_transform(),
+            ha="right",
+            va="bottom",
+            fontsize=9,
+            color="crimson",
+        )
+
     # ------------------------------------------------------------------
     # Legend: weight allocation table below the chart
     # ------------------------------------------------------------------
