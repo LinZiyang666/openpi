@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
+import numpy as np
 import torch
 
 from openpi.cache.types import CheckpointID
@@ -107,6 +108,132 @@ class AlwaysSkipGate:
 
     def on_episode_start(self) -> None:
         """No-op. Signature matches GateFunction protocol."""
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        """No-op. Signature matches GateFunction protocol."""
+
+
+class RandomGate:
+    """Server-side random-skip gate with per-connection RNG determinism.
+
+    Each gate call samples an independent Bernoulli draw: with probability
+    ``p_inference`` the gate returns False (skip cache -> fall-through to
+    real inference); otherwise returns True (search cache).
+
+    Reproducibility scope (intentional, per plan §5.3):
+      - Constructed with ``seed``; at every ``on_episode_start()`` an
+        internal ``ep_idx`` counter is incremented and the RNG is
+        re-seeded with ``seed * 10_000 + ep_idx``.
+      - Cache connections each get their own gate instance via
+        ``build_per_connection_components``, so the stream is deterministic
+        **per-connection** (same connection, same N-th episode => same
+        stream). It is NOT deterministic across worker reassignment or
+        resume — only the aggregate stochasticity across the 500-ep
+        sweep is the metric of interest.
+
+    Coupling:
+      - UNAFFECTED BY: request_context, cached_data.
+      - CONSUMED BY: CacheOrchestrator.check() — same skip semantics as
+        AlwaysSkipGate.
+    """
+
+    def __init__(self, p_inference: float, seed: int) -> None:
+        # bool is a subclass of int; reject it explicitly so ``seed=True``
+        # does not silently degrade to seed=1.
+        if isinstance(p_inference, bool) or not isinstance(p_inference, (int, float)):
+            raise TypeError(
+                f"RandomGate p_inference must be a real number, "
+                f"got {type(p_inference).__name__}"
+            )
+        if not (0.0 <= p_inference <= 1.0):
+            raise ValueError(
+                f"RandomGate p_inference must be in [0, 1], got {p_inference}"
+            )
+        if isinstance(seed, bool) or not isinstance(seed, int):
+            raise TypeError(
+                f"RandomGate seed must be a non-negative int, "
+                f"got {type(seed).__name__}"
+            )
+        if seed < 0:
+            raise ValueError(f"RandomGate seed must be >= 0, got {seed}")
+        self._p_inference = float(p_inference)
+        self._seed = int(seed)
+        self._ep_idx = 0
+        self._rng = np.random.default_rng(self._seed)
+
+    def __call__(
+        self,
+        checkpoint_id: CheckpointID,
+        cached_data: dict[str, torch.Tensor],
+        request_context: dict | None = None,
+    ) -> bool:
+        # Skip (run inference) with probability p_inference; otherwise search.
+        return bool(self._rng.random() >= self._p_inference)
+
+    def on_episode_start(self) -> None:
+        """Advance ep_idx and re-seed RNG for per-connection determinism."""
+        self._ep_idx += 1
+        self._rng = np.random.default_rng(self._seed * 10_000 + self._ep_idx)
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        """No-op. Signature matches GateFunction protocol."""
+
+
+class PeriodicGate:
+    """Server-side periodic-skip gate.
+
+    Each episode begins with ``cache_len`` cache searches, followed by
+    ``inference_len`` forced skips; the cycle repeats until the episode
+    ends. ``on_episode_start`` resets the counter so every episode
+    starts with a cache block.
+
+    Cost metric derivation:
+      - The decision at cycle ``c`` is exactly
+        ``c % (cache_len + inference_len) < cache_len``. Given
+        ``total_cycles`` (known to the runner), the runner derives
+        ``num_inference_cycles`` via the same closed-form formula;
+        no server-side stat transport is required.
+
+    Coupling:
+      - UNAFFECTED BY: request_context, cached_data.
+      - CONSUMED BY: CacheOrchestrator.check() — same skip semantics as
+        AlwaysSkipGate.
+    """
+
+    def __init__(self, cache_len: int, inference_len: int) -> None:
+        if isinstance(cache_len, bool) or not isinstance(cache_len, int):
+            raise TypeError(
+                f"PeriodicGate cache_len must be an int >= 1, "
+                f"got {type(cache_len).__name__}"
+            )
+        if isinstance(inference_len, bool) or not isinstance(inference_len, int):
+            raise TypeError(
+                f"PeriodicGate inference_len must be an int >= 1, "
+                f"got {type(inference_len).__name__}"
+            )
+        if cache_len < 1 or inference_len < 1:
+            raise ValueError(
+                "PeriodicGate requires cache_len >= 1 and inference_len >= 1, "
+                f"got cache_len={cache_len}, inference_len={inference_len}"
+            )
+        self._cache_len = int(cache_len)
+        self._inference_len = int(inference_len)
+        self._period = self._cache_len + self._inference_len
+        self._counter = 0
+
+    def __call__(
+        self,
+        checkpoint_id: CheckpointID,
+        cached_data: dict[str, torch.Tensor],
+        request_context: dict | None = None,
+    ) -> bool:
+        pos = self._counter % self._period
+        self._counter += 1
+        return pos < self._cache_len   # True first k positions, False next n
+
+    def on_episode_start(self) -> None:
+        """Reset the cycle counter so the next episode starts with cache."""
+        self._counter = 0
 
     def record_action(self, action_chunk: torch.Tensor) -> None:
         """No-op. Signature matches GateFunction protocol."""

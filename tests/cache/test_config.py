@@ -1136,3 +1136,217 @@ def test_cp1_spatial_pool_4_and_64_resolve_to_same_class():
         KeyBuilderConfig(type="cp1_spatial_pool_64"), enabled_fields, vector_dims,
     )
     assert type(a) is type(b) is CP1SpatialPool4KeyBuilder
+
+
+# ---------------------------------------------------------------------------
+# RandomGate / PeriodicGate dispatch + validation
+# Plan: logs/random_periodic_gate_plan.log.md §5.2 / §5.4
+# ---------------------------------------------------------------------------
+
+
+def _minimal_cache_config_with_gate(gate_cfg: GateConfig) -> CacheConfig:
+    """Build a minimal CacheConfig that only exercises gate validation.
+
+    keys.robot_state enabled + placeholder key_builder + in_memory backend
+    with matching vector_dims is the smallest passing skeleton; only the
+    gate block is varied across tests.
+    """
+    return CacheConfig(
+        enabled=True,
+        keys=KeysConfig(robot_state=KeyFieldConfig(enabled=True, weight=1.0)),
+        key_builder=KeyBuilderConfig(type="placeholder"),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                enabled=True,
+                gate=gate_cfg,
+                judge=JudgeConfig(type="always_hit"),
+                search_strategy=SearchStrategyConfig(type="qdrant_weighted_rrf_knn"),
+            ),
+        },
+        backend=BackendConfig(type="qdrant", vector_dims={"robot_state": 32}),
+    )
+
+
+def test_random_gate_valid_config_passes():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="random", p_inference=0.3, seed=0)
+    )
+    validate_cache_config(cfg)  # must not raise
+
+
+def test_random_gate_missing_p_inference_rejected():
+    cfg = _minimal_cache_config_with_gate(GateConfig(type="random", seed=0))
+    with pytest.raises(ConfigValidationError, match="requires 'p_inference'"):
+        validate_cache_config(cfg)
+
+
+def test_random_gate_missing_seed_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="random", p_inference=0.3)
+    )
+    with pytest.raises(ConfigValidationError, match="requires 'seed'"):
+        validate_cache_config(cfg)
+
+
+def test_random_gate_out_of_range_p_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="random", p_inference=1.5, seed=0)
+    )
+    with pytest.raises(ConfigValidationError, match="p_inference=1.5"):
+        validate_cache_config(cfg)
+
+
+def test_random_gate_negative_seed_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="random", p_inference=0.3, seed=-1)
+    )
+    with pytest.raises(ConfigValidationError, match="seed=-1"):
+        validate_cache_config(cfg)
+
+
+def test_random_gate_rejects_periodic_fields():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="random", p_inference=0.3, seed=0, cache_len=5)
+    )
+    with pytest.raises(ConfigValidationError, match="cannot set.*cache_len"):
+        validate_cache_config(cfg)
+
+
+def test_periodic_gate_valid_config_passes():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="periodic", cache_len=5, inference_len=2)
+    )
+    validate_cache_config(cfg)
+
+
+def test_periodic_gate_missing_cache_len_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="periodic", inference_len=2)
+    )
+    with pytest.raises(ConfigValidationError, match="requires 'cache_len'"):
+        validate_cache_config(cfg)
+
+
+def test_periodic_gate_missing_inference_len_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="periodic", cache_len=5)
+    )
+    with pytest.raises(ConfigValidationError, match="requires 'inference_len'"):
+        validate_cache_config(cfg)
+
+
+def test_periodic_gate_zero_cache_len_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="periodic", cache_len=0, inference_len=2)
+    )
+    with pytest.raises(ConfigValidationError, match="cache_len=0"):
+        validate_cache_config(cfg)
+
+
+def test_periodic_gate_zero_inference_len_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="periodic", cache_len=5, inference_len=0)
+    )
+    with pytest.raises(ConfigValidationError, match="inference_len=0"):
+        validate_cache_config(cfg)
+
+
+def test_periodic_gate_rejects_random_fields():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="periodic", cache_len=5, inference_len=2, p_inference=0.3)
+    )
+    with pytest.raises(ConfigValidationError, match="cannot set.*p_inference"):
+        validate_cache_config(cfg)
+
+
+def test_legacy_always_search_gate_rejects_new_fields():
+    # Regression: existing 3 gate types must not silently accept new param fields.
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="always_search", p_inference=0.3)
+    )
+    with pytest.raises(ConfigValidationError, match="type='always_search'.*cannot set"):
+        validate_cache_config(cfg)
+
+
+def test_legacy_always_search_gate_without_new_fields_passes():
+    cfg = _minimal_cache_config_with_gate(GateConfig(type="always_search"))
+    validate_cache_config(cfg)
+
+
+def test_legacy_always_skip_gate_without_new_fields_passes():
+    cfg = _minimal_cache_config_with_gate(GateConfig(type="always_skip"))
+    validate_cache_config(cfg)
+
+
+def test_legacy_client_controlled_gate_without_new_fields_passes():
+    cfg = _minimal_cache_config_with_gate(GateConfig(type="client_controlled"))
+    validate_cache_config(cfg)
+
+
+def test_build_gate_constructs_random_gate():
+    from openpi.cache.components.gate import RandomGate
+    from openpi.cache.config import _build_gate
+
+    g = _build_gate(GateConfig(type="random", p_inference=0.25, seed=1))
+    assert isinstance(g, RandomGate)
+
+
+def test_build_gate_constructs_periodic_gate():
+    from openpi.cache.components.gate import PeriodicGate
+    from openpi.cache.config import _build_gate
+
+    g = _build_gate(GateConfig(type="periodic", cache_len=3, inference_len=2))
+    assert isinstance(g, PeriodicGate)
+
+
+# ---------------------------------------------------------------------------
+# Integer-typed gate field regressions (G2 Round 1 Blocking #2).
+# ---------------------------------------------------------------------------
+
+
+def test_random_gate_rejects_fractional_seed():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="random", p_inference=0.3, seed=0.5)
+    )
+    with pytest.raises(ConfigValidationError, match="seed must be a non-negative int"):
+        validate_cache_config(cfg)
+
+
+def test_random_gate_rejects_bool_seed():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="random", p_inference=0.3, seed=True)
+    )
+    with pytest.raises(ConfigValidationError, match="seed must be a non-negative int"):
+        validate_cache_config(cfg)
+
+
+def test_random_gate_rejects_non_numeric_p_inference():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="random", p_inference="0.3", seed=0)
+    )
+    with pytest.raises(ConfigValidationError, match="p_inference must be a real number"):
+        validate_cache_config(cfg)
+
+
+def test_periodic_gate_rejects_fractional_cache_len():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="periodic", cache_len=1.5, inference_len=2)
+    )
+    with pytest.raises(ConfigValidationError, match="cache_len must be an int"):
+        validate_cache_config(cfg)
+
+
+def test_periodic_gate_rejects_fractional_inference_len():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="periodic", cache_len=1, inference_len=2.5)
+    )
+    with pytest.raises(ConfigValidationError, match="inference_len must be an int"):
+        validate_cache_config(cfg)
+
+
+def test_periodic_gate_rejects_bool_cache_len():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="periodic", cache_len=True, inference_len=1)
+    )
+    with pytest.raises(ConfigValidationError, match="cache_len must be an int"):
+        validate_cache_config(cfg)

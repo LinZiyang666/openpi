@@ -81,6 +81,12 @@ class KeysConfig:
 @dataclass
 class GateConfig:
     type: str = "always_search"
+    # Only for type="random" (validated by validate_cache_config)
+    p_inference: float | None = None
+    seed: int | None = None
+    # Only for type="periodic" (validated by validate_cache_config)
+    cache_len: int | None = None
+    inference_len: int | None = None
 
 
 @dataclass
@@ -230,7 +236,7 @@ _VALID_STEP_FILTERS = frozenset({"all", "exact", "window"})
 # added here so validator (validate_cache_config) and builder (_build_gate /
 # _build_judge) stay in lockstep; otherwise a missing entry silently downgrades
 # to a "Unknown ... type" error at build time despite passing validation.
-_GATE_TYPES = frozenset({"always_search", "always_skip", "client_controlled"})
+_GATE_TYPES = frozenset({"always_search", "always_skip", "client_controlled", "random", "periodic"})
 _JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start"})
 
 
@@ -476,6 +482,90 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"{prefix}.gate.type '{cp_config.gate.type}' is unknown. "
                 f"Valid: {sorted(_GATE_TYPES)}"
             )
+
+        # ------------------------------------------------------------------
+        # Per-gate parameter validation + cross-field misconfiguration guard.
+        # Plan: logs/random_periodic_gate_plan.log.md §5.2.
+        # ------------------------------------------------------------------
+        _gate_random_fields = {"p_inference", "seed"}
+        _gate_periodic_fields = {"cache_len", "inference_len"}
+        _gate_all_param_fields = _gate_random_fields | _gate_periodic_fields
+        gate_set_fields = {
+            name for name in _gate_all_param_fields
+            if getattr(cp_config.gate, name) is not None
+        }
+
+        # bool is an int subclass in Python; explicitly disallow so that
+        # ``seed=True`` or ``cache_len=False`` do not sneak through via
+        # isinstance(..., int).
+        def _is_strict_int(v) -> bool:
+            return isinstance(v, int) and not isinstance(v, bool)
+
+        if cp_config.gate.type == "random":
+            p = cp_config.gate.p_inference
+            s = cp_config.gate.seed
+            if p is None:
+                errors.append(f"{prefix}.gate: type='random' requires 'p_inference'")
+            elif not isinstance(p, (int, float)) or isinstance(p, bool):
+                errors.append(
+                    f"{prefix}.gate.p_inference must be a real number, "
+                    f"got {type(p).__name__}={p!r}"
+                )
+            elif not (0.0 <= p <= 1.0):
+                errors.append(
+                    f"{prefix}.gate.p_inference={p} must be in [0, 1]"
+                )
+            if s is None:
+                errors.append(f"{prefix}.gate: type='random' requires 'seed'")
+            elif not _is_strict_int(s):
+                errors.append(
+                    f"{prefix}.gate.seed must be a non-negative int, "
+                    f"got {type(s).__name__}={s!r}"
+                )
+            elif s < 0:
+                errors.append(f"{prefix}.gate.seed={s} must be >= 0")
+            stray = gate_set_fields - _gate_random_fields
+            if stray:
+                errors.append(
+                    f"{prefix}.gate: type='random' cannot set {sorted(stray)}; "
+                    f"these belong to type='periodic'"
+                )
+        elif cp_config.gate.type == "periodic":
+            k = cp_config.gate.cache_len
+            n = cp_config.gate.inference_len
+            if k is None:
+                errors.append(f"{prefix}.gate: type='periodic' requires 'cache_len'")
+            elif not _is_strict_int(k):
+                errors.append(
+                    f"{prefix}.gate.cache_len must be an int >= 1, "
+                    f"got {type(k).__name__}={k!r}"
+                )
+            elif k < 1:
+                errors.append(f"{prefix}.gate.cache_len={k} must be >= 1")
+            if n is None:
+                errors.append(f"{prefix}.gate: type='periodic' requires 'inference_len'")
+            elif not _is_strict_int(n):
+                errors.append(
+                    f"{prefix}.gate.inference_len must be an int >= 1, "
+                    f"got {type(n).__name__}={n!r}"
+                )
+            elif n < 1:
+                errors.append(f"{prefix}.gate.inference_len={n} must be >= 1")
+            stray = gate_set_fields - _gate_periodic_fields
+            if stray:
+                errors.append(
+                    f"{prefix}.gate: type='periodic' cannot set {sorted(stray)}; "
+                    f"these belong to type='random'"
+                )
+        else:
+            # Legacy 3 gate types (always_search / always_skip / client_controlled)
+            # must not carry any of the new parameter fields.
+            if gate_set_fields:
+                errors.append(
+                    f"{prefix}.gate: type={cp_config.gate.type!r} cannot set "
+                    f"{sorted(gate_set_fields)}; those fields belong to "
+                    f"type='random' or type='periodic'"
+                )
 
         if cp_config.judge.type not in _JUDGE_TYPES:
             errors.append(
@@ -1079,6 +1169,17 @@ def _build_gate(cfg: GateConfig):
         from openpi.cache.components.gate import ClientControlledGate
 
         return ClientControlledGate()
+    if cfg.type == "random":
+        from openpi.cache.components.gate import RandomGate
+
+        # Required fields already enforced by validate_cache_config.
+        assert cfg.p_inference is not None and cfg.seed is not None
+        return RandomGate(p_inference=cfg.p_inference, seed=cfg.seed)
+    if cfg.type == "periodic":
+        from openpi.cache.components.gate import PeriodicGate
+
+        assert cfg.cache_len is not None and cfg.inference_len is not None
+        return PeriodicGate(cache_len=cfg.cache_len, inference_len=cfg.inference_len)
     raise ConfigValidationError(
         f"Unknown gate.type '{cfg.type}'. Valid: {sorted(_GATE_TYPES)}"
     )
