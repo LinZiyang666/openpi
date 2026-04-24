@@ -58,6 +58,7 @@ backend:
   vector_dims:
     vision_0: 512
     vision_1: 512
+    vision_2: 512
     prompt_emb: 2048
     robot_state: 32
   in_memory:
