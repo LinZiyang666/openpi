@@ -41,12 +41,12 @@ def test_grid_slugs_are_unique_and_sorted():
     assert slugs == sorted(slugs), "grid must be sorted by slug"
 
 
-def test_split_into_batches_19_19():
-    grid = gb.build_grid_for_cfg("clip_w7_d4")
-    first, second = gb.split_into_batches(grid)
-    assert len(first) == 19
-    assert len(second) == 19
-    assert first + second == grid
+def test_batch_index_for_cfg_mapping():
+    # Plan §4 binds cfg 0 -> batch1 (clip), cfg 1 -> batch2 (spatial16),
+    # cfg 2 -> batch3 (max_pool).
+    assert gb.batch_index_for_cfg(0) == 1
+    assert gb.batch_index_for_cfg(1) == 2
+    assert gb.batch_index_for_cfg(2) == 3
 
 
 def test_periodic_slug_format():
@@ -76,11 +76,6 @@ def test_random_slug_edge_cases():
     assert gp_high.slug == "random_p0p70_s2"
 
 
-def test_batch_indices_for_cfg_mapping():
-    # Plan §4 binds cfg 0 -> batch1/2, cfg 1 -> batch3/4, cfg 2 -> batch5/6.
-    assert gb.batch_indices_for_cfg(0) == (1, 2)
-    assert gb.batch_indices_for_cfg(1) == (3, 4)
-    assert gb.batch_indices_for_cfg(2) == (5, 6)
 
 
 # ---------------------------------------------------------------------------
@@ -151,7 +146,7 @@ def test_render_dict_periodic_sets_k_and_n():
 # ---------------------------------------------------------------------------
 
 
-def test_generate_all_writes_114_files_in_six_batches(monkeypatch, tmp_path):
+def test_generate_all_writes_114_files_in_three_batches(monkeypatch, tmp_path):
     """Redirect output roots into tmp_path and run the full pipeline."""
     # Base YAMLs still live under the real repo root; only the batch
     # directories get redirected so we can inspect them in isolation.
@@ -175,7 +170,7 @@ def test_generate_all_writes_114_files_in_six_batches(monkeypatch, tmp_path):
     for p in written:
         per_batch.setdefault(p.parent.name, 0)
         per_batch[p.parent.name] += 1
-    assert per_batch == {f"batch{i}": 19 for i in range(1, 7)}
+    assert per_batch == {f"batch{i}": 38 for i in range(1, 4)}
 
 
 def test_generate_all_is_byte_identical_on_second_run(monkeypatch, tmp_path):
@@ -202,9 +197,11 @@ def test_rendered_yaml_roundtrip_matches_base_except_gate():
     base_path = real_root / "exp" / "random_periodic_gate" / "config" / "base_clip_w7_d4.yaml"
     base = yaml.safe_load(base_path.read_text(encoding="utf-8"))
 
-    # batch1 starts (by dict order) with the 20 periodic slugs; the first
-    # slug is periodic_k10_n1. If the user hasn't generated the batches yet
-    # this test is skipped.
+    # batch1 holds the full 38 clip_w7_d4 slugs (both periodic and random).
+    # Pick one of each to exercise the render contract.
+    if not (real_root / "exp" / "random_periodic_gate" / "config" / "batch1").exists():
+        pytest.skip("real batch files not present; run generate_batches first")
+
     sample = (
         real_root
         / "exp"
@@ -213,9 +210,6 @@ def test_rendered_yaml_roundtrip_matches_base_except_gate():
         / "batch1"
         / "periodic_k10_n1.yaml"
     )
-    if not sample.exists():
-        pytest.skip("real batch files not present; run generate_batches first")
-
     rendered = yaml.safe_load(sample.read_text(encoding="utf-8"))
     base_mod = copy.deepcopy(base)
     base_mod["checkpoints"]["cp1"]["gate"] = rendered["checkpoints"]["cp1"]["gate"]
@@ -225,13 +219,12 @@ def test_rendered_yaml_roundtrip_matches_base_except_gate():
         "type": "periodic", "cache_len": 10, "inference_len": 1,
     }
 
-    # Second sample: a random slug landed in batch2 (the second half).
     sample_random = (
         real_root
         / "exp"
         / "random_periodic_gate"
         / "config"
-        / "batch2"
+        / "batch1"
         / "random_p0p30_s0.yaml"
     )
     rendered_r = yaml.safe_load(sample_random.read_text(encoding="utf-8"))

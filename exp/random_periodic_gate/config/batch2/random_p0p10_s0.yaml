@@ -6,10 +6,10 @@ timer:
 keys:
   vision_0:
     enabled: true
-    weight: 0.1
+    weight: 0.5
   vision_1:
     enabled: true
-    weight: 0.1
+    weight: 0.25
   vision_2:
     enabled: false
     weight: 0.0
@@ -18,9 +18,9 @@ keys:
     weight: 0.0
   robot_state:
     enabled: true
-    weight: 0.8
+    weight: 0.25
 key_builder:
-  type: clip
+  type: cp1_spatial_pool_16
 checkpoints:
   cp1:
     enabled: true
@@ -56,12 +56,12 @@ checkpoints:
 backend:
   type: in_memory
   vector_dims:
-    vision_0: 512
-    vision_1: 512
+    vision_0: 32768
+    vision_1: 32768
     prompt_emb: 2048
     robot_state: 32
   in_memory:
-    preload_path: exp/common/data/cache_artifacts/libero_spatial/clip_vit_b_32.pkl
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl
     index_type: brute_force
 write_policy:
   type: never

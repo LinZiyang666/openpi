@@ -4,14 +4,11 @@
 
 # Random & Periodic Gate Sweep 执行命令清单
 
-114 个 yaml 分 6 个 batch，六服务器 / 六客户端并行（batch ↔ server 一一绑定）：
+114 个 yaml 分 3 个 batch（每 cfg 一个 batch，每 batch 38 份），三服务器 / 三客户端并行（batch ↔ cfg 一一绑定）：
 
-- `exp/random_periodic_gate/config/batch1/` — 19 份（`clip_w7_d4`，slug 字典序前半）
-- `exp/random_periodic_gate/config/batch2/` — 19 份（`clip_w7_d4`，slug 字典序后半）
-- `exp/random_periodic_gate/config/batch3/` — 19 份（`spatial16_w8_d4`，前半）
-- `exp/random_periodic_gate/config/batch4/` — 19 份（`spatial16_w8_d4`，后半）
-- `exp/random_periodic_gate/config/batch5/` — 19 份（`max_pool_w3_d5`，前半）
-- `exp/random_periodic_gate/config/batch6/` — 19 份（`max_pool_w3_d5`，后半）
+- `exp/random_periodic_gate/config/batch1/` — 38 份（`clip_w7_d4`，20 periodic + 18 random）
+- `exp/random_periodic_gate/config/batch2/` — 38 份（`spatial16_w8_d4`）
+- `exp/random_periodic_gate/config/batch3/` — 38 份（`max_pool_w3_d5`）
 
 每 batch 内 runner 按**字典序**扫 yaml；每个 yaml 跑完 libero_spatial 全量 500 ep 再切下一个。Runner 通过 WebSocket `load_cache_config` 为每个 yaml 热切换 cache bundle；server 启动时 `--cache-config` 只是种子。
 
@@ -21,33 +18,30 @@ Plan：[`logs/random_periodic_gate_plan.log.md`](random_periodic_gate_plan.log.m
 
 ## 端口映射
 
-沿用 `phase1_libero_spatial_llm_run_commands.log.md` 的约定：server 本地端口 + 1000 = frp 公网端口（`155.98.36.13`）。**复用同一组 frp tcp 映射 `8998–9004`**；若 frp 配置已在，无须额外申请。
+沿用 `phase1_libero_spatial_llm_run_commands.log.md` 的约定：server 本地端口 + 1000 = frp 公网端口（`155.98.36.13`）。**复用前三个 frp tcp 映射 `8998 / 8999 / 9000`**；若 frp 配置已在（phase1 跑过），无须额外申请。
 
 | batch | Cfg | Server 本地端口 | frp 公网端口 | 种子 yaml（字典序首） |
 |---|---|---:|---:|---|
 | `batch1` | `clip_w7_d4` | `7998` | `8998` | `periodic_k10_n1.yaml` |
-| `batch2` | `clip_w7_d4` | `7999` | `8999` | `periodic_k5_n5.yaml` |
-| `batch3` | `spatial16_w8_d4` | `8000` | `9000` | `periodic_k10_n1.yaml` |
-| `batch4` | `spatial16_w8_d4` | `8004` | `9004` | `periodic_k5_n5.yaml` |
-| `batch5` | `max_pool_w3_d5` | `8002` | `9002` | `periodic_k10_n1.yaml` |
-| `batch6` | `max_pool_w3_d5` | `8003` | `9003` | `periodic_k5_n5.yaml` |
+| `batch2` | `spatial16_w8_d4` | `7999` | `8999` | `periodic_k10_n1.yaml` |
+| `batch3` | `max_pool_w3_d5` | `8000` | `9000` | `periodic_k10_n1.yaml` |
 
-公网 host：`155.98.36.13`。六个 frp 端口与 phase1_libero_spatial_llm 共享，跑此实验前请确认 phase1 对应 batch 的 server 已关闭，不要端口互撞。
+公网 host：`155.98.36.13`。三个 frp 端口与 phase1_libero_spatial_llm 共享，跑此实验前请确认 phase1 对应 server 已关闭，不要端口互撞。
 
 ---
 
 ## 前置检查
 
-客户端机器确认六个入口健康：
+客户端机器确认三个入口健康：
 
 ```bash
-for p in 8998 8999 9000 9004 9002 9003; do
+for p in 8998 8999 9000; do
     printf 'port %s: ' "$p"
     curl -s "http://155.98.36.13:${p}/healthz" || echo
 done
 ```
 
-六个都应返回：`OK`
+三个都应返回：`OK`
 
 确认 pkl 齐全（远程 GPU 服务器 home 下）：
 
@@ -60,16 +54,16 @@ ls exp/common/data/cache_artifacts/libero_spatial/{clip_vit_b_32,cp1_spatial_poo
 
 ```bash
 uv run python -m exp.random_periodic_gate.generate_batches --validate
-# 期望："validated 114 rendered YAMLs" + "generated 114 YAML files across 6 batches"
+# 期望："validated 114 rendered YAMLs" + "generated 114 YAML files across 3 batches"
 ```
 
 ---
 
-## 1. 服务器命令（GPU 服务器侧，六终端）
+## 1. 服务器命令（GPU 服务器侧，三终端）
 
-每个 batch 一个独立 server；`--cache-config` 传该 batch 的**字典序第一份** yaml 作种子（runner 后续会 WebSocket 热切换到其余 18 份）。
+每个 batch 一个独立 server；`--cache-config` 传该 batch 的**字典序第一份** yaml 作种子（runner 后续会 WebSocket 热切换到其余 37 份）。三个 batch 的字典序首份均为 `periodic_k10_n1.yaml`。
 
-### Server 1: batch1, local port 7998
+### Server 1: batch1 (clip_w7_d4), local port 7998
 
 ```bash
 uv run scripts/serve_policy.py \
@@ -82,12 +76,12 @@ uv run scripts/serve_policy.py \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 ```
 
-### Server 2: batch2, local port 7999
+### Server 2: batch2 (spatial16_w8_d4), local port 7999
 
 ```bash
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config exp/random_periodic_gate/config/batch2/periodic_k5_n5.yaml \
+    --cache-config exp/random_periodic_gate/config/batch2/periodic_k10_n1.yaml \
     --env LIBERO \
     --port 7999 \
     policy:checkpoint \
@@ -95,7 +89,7 @@ uv run scripts/serve_policy.py \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 ```
 
-### Server 3: batch3, local port 8000
+### Server 3: batch3 (max_pool_w3_d5), local port 8000
 
 ```bash
 uv run scripts/serve_policy.py \
@@ -108,50 +102,11 @@ uv run scripts/serve_policy.py \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 ```
 
-### Server 4: batch4, local port 8004
-
-```bash
-uv run scripts/serve_policy.py \
-    --concurrent \
-    --cache-config exp/random_periodic_gate/config/batch4/periodic_k5_n5.yaml \
-    --env LIBERO \
-    --port 8004 \
-    policy:checkpoint \
-    --policy.config pi05_libero \
-    --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
-```
-
-### Server 5: batch5, local port 8002
-
-```bash
-uv run scripts/serve_policy.py \
-    --concurrent \
-    --cache-config exp/random_periodic_gate/config/batch5/periodic_k10_n1.yaml \
-    --env LIBERO \
-    --port 8002 \
-    policy:checkpoint \
-    --policy.config pi05_libero \
-    --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
-```
-
-### Server 6: batch6, local port 8003
-
-```bash
-uv run scripts/serve_policy.py \
-    --concurrent \
-    --cache-config exp/random_periodic_gate/config/batch6/periodic_k5_n5.yaml \
-    --env LIBERO \
-    --port 8003 \
-    policy:checkpoint \
-    --policy.config pi05_libero \
-    --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
-```
-
-> 每个 client 只能指向一个独立 server（`load_cache_config` 不能跨 batch 并发），所以六个 batch 的 client 必须各自对应一台 server，不要复用端口。
+> 每个 client 只能指向一个独立 server（`load_cache_config` 不能跨 batch 并发），所以三个 batch 的 client 必须各自对应一台 server，不要复用端口。
 
 ---
 
-## 2. 客户端 Runner 命令（LIBERO eval 主机，六终端）
+## 2. 客户端 Runner 命令（LIBERO eval 主机，三终端）
 
 `libero` 依赖 MuJoCo 物理引擎，**必须**在 `libero_sim` conda env 中跑；直接 `uv run` 无 libero。使用 `conda run -p /scratch/zixuans8/libero_sim`（绝对路径；按名字装的 env 改成 `-n libero_sim`）。
 
@@ -191,43 +146,7 @@ conda run -p /scratch/zixuans8/libero_sim \
     --resume
 ```
 
-### Client 4: batch4 via frp port 9004
-
-```bash
-conda run -p /scratch/zixuans8/libero_sim \
-    python -m exp.random_periodic_gate.run_gate_sweep \
-    --batch-dir exp/random_periodic_gate/config/batch4 \
-    --host 155.98.36.13 --port 9004 \
-    --task-suite-name libero_spatial \
-    --num-workers 5 \
-    --resume
-```
-
-### Client 5: batch5 via frp port 9002
-
-```bash
-conda run -p /scratch/zixuans8/libero_sim \
-    python -m exp.random_periodic_gate.run_gate_sweep \
-    --batch-dir exp/random_periodic_gate/config/batch5 \
-    --host 155.98.36.13 --port 9002 \
-    --task-suite-name libero_spatial \
-    --num-workers 5 \
-    --resume
-```
-
-### Client 6: batch6 via frp port 9003
-
-```bash
-conda run -p /scratch/zixuans8/libero_sim \
-    python -m exp.random_periodic_gate.run_gate_sweep \
-    --batch-dir exp/random_periodic_gate/config/batch6 \
-    --host 155.98.36.13 --port 9003 \
-    --task-suite-name libero_spatial \
-    --num-workers 5 \
-    --resume
-```
-
-每个 client 跑 19 yaml × 500 ep = 9,500 episodes；单 episode ≈ 5–10 s × 5 worker 并行 ≈ 3–5 小时 / client。六 client 全并行，总耗时 ≈ 同一值。
+每个 client 跑 38 yaml × 500 ep = 19,000 episodes；单 episode ≈ 5–10 s × 5 worker 并行 ≈ 6–10 小时 / client。三 client 全并行，总耗时 ≈ 同一值。
 
 ---
 
@@ -276,7 +195,7 @@ uv run python -m exp.random_periodic_gate.analysis.analyze_gate_sweep \
 
 ### 5.1 YAML 字典序与种子
 
-runner 用 `sorted(batch_dir.glob("*.yaml"))` 迭代，字典序第一份 yaml 在 batch1/3/5 都是 `periodic_k10_n1.yaml`；batch2/4/6 是 `periodic_k5_n5.yaml`（第 20 个 periodic slug + 18 random slug 的起点）。**server `--cache-config` 必须用该字典序首份**，否则首轮 `send_load_cache_config` 切换时 bundle version 不递增，runner 会 fail-loud。
+runner 用 `sorted(batch_dir.glob("*.yaml"))` 迭代；三个 batch 的字典序首份都是 `periodic_k10_n1.yaml`。**server `--cache-config` 必须用该字典序首份**，否则首轮 `send_load_cache_config` 切换时 bundle version 不递增，runner 会 fail-loud。
 
 ### 5.2 Server `--concurrent` 必选
 
@@ -284,7 +203,7 @@ runner 用 `sorted(batch_dir.glob("*.yaml"))` 迭代，字典序第一份 yaml �
 
 ### 5.3 端口与 phase1 共用
 
-本实验端口映射 `8998/8999/9000/9004/9002/9003` 与 `phase1_libero_spatial_llm` 完全相同。不要在 phase1 还在跑的时候启动本实验 server；反之亦然。若需同时跑，向运维申请新增 6 条 tcp 映射并改 §端口映射表。
+本实验端口映射 `8998 / 8999 / 9000` 与 `phase1_libero_spatial_llm` 前三条共享。不要在 phase1 还在跑的时候启动本实验 server；反之亦然。若需同时跑，向运维申请新增 tcp 映射并改 §端口映射表。
 
 ### 5.4 RandomGate 成本字段语义
 
@@ -292,7 +211,7 @@ JSONL 里 RandomGate 行的 `inference_ratio = p_inference`（字段 `inference_
 
 ### 5.5 断点续跑粒度
 
-BaseRunState unit key = `(yaml_basename, task_id, init_idx)`；resume 粒度到单个 episode。`--resume` 应**常开**，避免机器重启后 9,500 ep 全部重跑。state JSON 按 yaml 独立（`run_state_<slug>.json`），不会跨 yaml 污染。
+BaseRunState unit key = `(yaml_basename, task_id, init_idx)`；resume 粒度到单个 episode。`--resume` 应**常开**，避免机器重启后 19,000 ep 全部重跑。state JSON 按 yaml 独立（`run_state_<slug>.json`），不会跨 yaml 污染。
 
 ### 5.6 init-state 对齐 baseline
 
@@ -302,8 +221,8 @@ BaseRunState unit key = `(yaml_basename, task_id, init_idx)`；resume 粒度到�
 
 ## 6. 执行次序（推荐）
 
-1. 客户端 host 先跑前置 `curl` 健康检查六端口（不通则调 frp）。
-2. GPU 服务器开六个 tmux / screen 面板，同时起 6 个 `serve_policy.py`（§1）。
-3. 客户端 host 开六个 tmux / screen 面板，同时起 6 个 `run_gate_sweep.py`（§2）。
-4. 监控：每个 yaml ~500 ep × 5–10s ÷ 5 worker ≈ 10–17 min；19 yaml × ≈ 3.5–5.5 小时 / client，六 client 全并行。
+1. 客户端 host 先跑前置 `curl` 健康检查三端口（不通则调 frp）。
+2. GPU 服务器开三个 tmux / screen 面板，同时起 3 个 `serve_policy.py`（§1）。
+3. 客户端 host 开三个 tmux / screen 面板，同时起 3 个 `run_gate_sweep.py`（§2）。
+4. 监控：每个 yaml ~500 ep × 5–10s ÷ 5 worker ≈ 10–17 min；38 yaml × ≈ 6–10 小时 / client，三 client 全并行。
 5. 所有 client 结束后，运行 §4 `analyze_gate_sweep.py` 出 Pareto + heatmap。

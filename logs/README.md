@@ -73,8 +73,8 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 
 | File | Status | Description |
 |------|--------|-------------|
-| [random_periodic_gate_plan.log.md](random_periodic_gate_plan.log.md) | `In Progress` | L2: 独立 gate baseline 实验 — 新增 `RandomGate(p_inference, seed)` + `PeriodicGate(cache_len, inference_len)` 两个 server-side 自包含 gate；复用 trajectory_deviation 的 3 套 keybuilder 权重 + `AlwaysHitJudge`，libero_spatial 全量 500 ep 扫参；baseline 从 `cache_eval_results.json` 对应行 join；6 batch × 19 YAML 预生成；G1 / G2 均 APPROVED |
-| [random_periodic_gate_run_commands.log.md](random_periodic_gate_run_commands.log.md) | `Plan` | L1: `exp/random_periodic_gate/config/batch{1..6}/` 共 114 个 YAML 的执行命令清单（6 server + 6 client 经 frp 端口 8998–9004；sweep 对应 plan §4） |
+| [random_periodic_gate_plan.log.md](random_periodic_gate_plan.log.md) | `In Progress` | L2: 独立 gate baseline 实验 — 新增 `RandomGate(p_inference, seed)` + `PeriodicGate(cache_len, inference_len)` 两个 server-side 自包含 gate；复用 trajectory_deviation 的 3 套 keybuilder 权重 + `AlwaysHitJudge`，libero_spatial 全量 500 ep 扫参；baseline 从 `cache_eval_results.json` 对应行 join；3 batch × 38 YAML 预生成（每 cfg 一个 batch）；G1 / G2 均 APPROVED |
+| [random_periodic_gate_run_commands.log.md](random_periodic_gate_run_commands.log.md) | `Plan` | L1: `exp/random_periodic_gate/config/batch{1..3}/` 共 114 个 YAML 的执行命令清单（3 server + 3 client 经 frp 端口 8998 / 8999 / 9000；sweep 对应 plan §4） |
 
 ### Trajectory Experiments
 

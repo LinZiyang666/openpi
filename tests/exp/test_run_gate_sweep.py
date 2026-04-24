@@ -117,18 +117,15 @@ def test_estimated_random_num_inference_endpoints():
 
 def test_infer_cfg_from_batch_mapping():
     assert rgs._infer_cfg_from_batch(Path("batch1")) == "clip_w7_d4"
-    assert rgs._infer_cfg_from_batch(Path("batch2")) == "clip_w7_d4"
-    assert rgs._infer_cfg_from_batch(Path("batch3")) == "spatial16_w8_d4"
-    assert rgs._infer_cfg_from_batch(Path("batch4")) == "spatial16_w8_d4"
-    assert rgs._infer_cfg_from_batch(Path("batch5")) == "max_pool_w3_d5"
-    assert rgs._infer_cfg_from_batch(Path("batch6")) == "max_pool_w3_d5"
+    assert rgs._infer_cfg_from_batch(Path("batch2")) == "spatial16_w8_d4"
+    assert rgs._infer_cfg_from_batch(Path("batch3")) == "max_pool_w3_d5"
 
 
 def test_infer_cfg_from_batch_rejects_unknown_name():
     with pytest.raises(ValueError, match="batch<N>"):
         rgs._infer_cfg_from_batch(Path("results"))
     with pytest.raises(ValueError, match="unexpected batch index"):
-        rgs._infer_cfg_from_batch(Path("batch7"))
+        rgs._infer_cfg_from_batch(Path("batch4"))
 
 
 # ---------------------------------------------------------------------------

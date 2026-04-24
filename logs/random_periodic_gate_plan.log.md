@@ -21,7 +21,7 @@ judge 统一用 `AlwaysHitJudge`，LIBERO `libero_spatial` 全量 500 ep（10 ta
 | PeriodicGate | `cache_len ∈ {1, 2, 5, 10}` × `inference_len ∈ {1, 2, 3, 5, 10}` | 20 |
 | RandomGate | `p_inference ∈ {0.05, 0.10, 0.20, 0.30, 0.50, 0.70}` × `seed ∈ {0, 1, 2}` | 18 |
 
-**3 cfg × 38 组 × 500 ep ≈ 57,000 ep**（6 server × 5 worker 完全并行，batch ↔ server 一一绑定，单 batch 预计 ~3–5h）。
+**3 cfg × 38 组 × 500 ep ≈ 57,000 ep**（3 server × 5 worker 完全并行，batch ↔ cfg 一一绑定，单 batch 预计 ~6–10h）。
 
 Baseline `AlwaysSearchGate` / `AlwaysSkipGate` 端点不重跑，**直接从 `exp/trajectory_deviation/data/cache_eval_results.json` 中对应 cache 行与 `inference_*` 行读取 success 列做 join**，不消费 Step 1b `gt/` trajectory 目录。
 
@@ -130,26 +130,23 @@ Join key：本实验 `ep_key = task_{task_id}/init_{orig_init_state_idx}`，与�
 
 ## 4. 并行布局
 
-硬件：**6 server × 每 server 1 client × 每 client 5 worker**（batch 数 = server 数；MuJoCo EGL 5-worker 上限沿用 Step 3 约束）。
+硬件：**3 server × 每 server 1 client × 每 client 5 worker**（batch 数 = server 数；MuJoCo EGL 5-worker 上限沿用 Step 3 约束）。
 
-**YAML 批次化（Round 2 owner 指示）**：所有 114 个最终 YAML（3 cfg × 38 gate 组合）**离线预生成并 git 追踪**，按 6 个 batch 切分写入 `exp/random_periodic_gate/config/batch{1..6}/`，batch ↔ server 一一绑定：
+**YAML 批次化**：所有 114 个最终 YAML（3 cfg × 38 gate 组合）**离线预生成并 git 追踪**，按 3 个 batch 切分（每 cfg 一个 batch）写入 `exp/random_periodic_gate/config/batch{1..3}/`，batch ↔ cfg 一一绑定：
 
-| Batch | Cfg | Slug 切分（字典序） | YAML 数 | Server | Client Workers |
-|-------|-----|-------------------|--------|--------|---------------|
-| batch1 | `clip_w7_d4` | 前 19 个 slug | 19 | host_1:8001 | 5 |
-| batch2 | `clip_w7_d4` | 后 19 个 slug | 19 | host_2:8001 | 5 |
-| batch3 | `spatial16_w8_d4` | 前 19 个 slug | 19 | host_3:8001 | 5 |
-| batch4 | `spatial16_w8_d4` | 后 19 个 slug | 19 | host_4:8001 | 5 |
-| batch5 | `max_pool_w3_d5` | 前 19 个 slug | 19 | host_5:8001 | 5 |
-| batch6 | `max_pool_w3_d5` | 后 19 个 slug | 19 | host_6:8001 | 5 |
+| Batch | Cfg | YAML 数 | Server | Client Workers |
+|-------|-----|--------|--------|---------------|
+| batch1 | `clip_w7_d4` | 38 | host_1:8001 | 5 |
+| batch2 | `spatial16_w8_d4` | 38 | host_2:8001 | 5 |
+| batch3 | `max_pool_w3_d5` | 38 | host_3:8001 | 5 |
 
-38 = 20 periodic + 18 random，按 slug 字典序排序后取中点 19/19 切分；slug 命名规则见 §5.5。6 batch 各 19 × 500 = 9,500 ep，6 server 完全并行，估时 ~3–5h / server（按每 ep 约 6s、5 worker 共享）。
+38 = 20 periodic + 18 random（见 §5.5 slug 命名规则）。3 batch 各 38 × 500 = 19,000 ep，3 server 完全并行，估时 ~6–10h / server（按每 ep 约 6s、5 worker 共享）。
 
 **执行流**（每 server 独立，互不通信）：
-1. `exp/random_periodic_gate/generate_batches.py` 离线产出 6 个 batch 目录下的全部 YAML，并 commit 到仓库（CI 可选 dry-run 校验所有 YAML 都能通过 `validate_cache_config`）；
+1. `exp/random_periodic_gate/generate_batches.py` 离线产出 3 个 batch 目录下的全部 YAML，并 commit 到仓库（CI 可选 dry-run 校验所有 YAML 都能通过 `validate_cache_config`）；
 2. 每个 server 对应一个 runner 进程，通过 `--batch-dir exp/random_periodic_gate/config/batchN/` 指定本次跑的 batch + `--host host_N --port 8001` 指定对端 server；
 3. runner 内循环 iterate 目录下 YAML（字典序）：每个 YAML → `send_load_cache_config(server_url, path)` → 500 ep rollout（5 worker 并发）→ 下一个 YAML；
-4. 6 个 batch 互相独立，可同时启动也可顺序启动；断点续跑粒度 `(yaml_basename, task_id, init_idx)`，state JSON 按 batch 独立存于 `exp/random_periodic_gate/data/batchN/run_state.json`。
+4. 3 个 batch 互相独立，可同时启动也可顺序启动；断点续跑粒度 `(yaml_basename, task_id, init_idx)`，state JSON 按 batch 独立存于 `exp/random_periodic_gate/data/batchN/run_state.json`。
 
 ## 5. 实现
 
@@ -160,17 +157,17 @@ Join key：本实验 `ep_key = task_{task_id}/init_{orig_init_state_idx}`，与�
 | `src/openpi/cache/components/gate.py` | 修改 | 新增 `RandomGate` / `PeriodicGate` 两个类；**`GateFunction` 协议保持不变**（依然 `on_episode_start(self) -> None` 无参、无 `episode_stats`），两个新 gate 也按无参 `on_episode_start` 实现 |
 | `src/openpi/cache/config.py` | 修改 | `GateConfig` 加 4 个可选字段（`p_inference` / `seed` / `cache_len` / `inference_len`，默认 `None`）；`_GATE_TYPES` 加 `random` / `periodic`；`_build_gate` 加两个分支；`validate_cache_config` 校验参数范围 + 禁止错配字段（旧 3 种 gate_type 未带新字段必须通过） |
 | `exp/random_periodic_gate/__init__.py` | 新建 | 模块 docstring |
-| `exp/random_periodic_gate/generate_batches.py` | 新建 | 离线脚本：读 3 份 base YAML + 38 gate 组合 → 展开写入 `config/batch{1..6}/<slug>.yaml`；可选 `--validate` flag 逐个 `load_cache_config` 以 CI fail-loud |
+| `exp/random_periodic_gate/generate_batches.py` | 新建 | 离线脚本：读 3 份 base YAML + 38 gate 组合 → 展开写入 `config/batch{1..3}/<slug>.yaml`；可选 `--validate` flag 逐个 `load_cache_config` 以 CI fail-loud |
 | `exp/random_periodic_gate/run_gate_sweep.py` | 新建 | 主 runner（结构借鉴 `exp/trajectory_deviation/run_step3_per_cycle_policy.py`，但不注入 `__gate_decision__`、不依赖 deviate_score_json、不依赖任何扩展的 framework 接口）；`--batch-dir` 驱动 |
 | `exp/random_periodic_gate/config/base_clip_w7_d4.yaml` | 新建 | Generator 输入：复制 `exp/trajectory_deviation/config/clip_w7_d4.yaml`，`gate.type: always_search` 占位使其独立可 validate；generator 覆盖 `checkpoints.cp1.gate` 子树后写到 `batch{1,2}/` |
 | `exp/random_periodic_gate/config/base_spatial16_w8_d4.yaml` | 新建 | 同上，对应 batch3/4 |
 | `exp/random_periodic_gate/config/base_max_pool_w3_d5.yaml` | 新建 | 同上，对应 batch5/6 |
-| `exp/random_periodic_gate/config/batch{1..6}/<slug>.yaml` | 新建 | `generate_batches.py` 产出的 114 个最终 YAML（每 batch 19 份），git 追踪；runner 直接消费，不再运行时渲染；现有 `.gitignore` 规则 `exp/**/data/**` 只 ignore `data/`，config 下 YAML 天然 tracked，无需修改 `.gitignore` |
+| `exp/random_periodic_gate/config/batch{1..3}/<slug>.yaml` | 新建 | `generate_batches.py` 产出的 114 个最终 YAML（每 batch 38 份），git 追踪；runner 直接消费，不再运行时渲染；现有 `.gitignore` 规则 `exp/**/data/**` 只 ignore `data/`，config 下 YAML 天然 tracked，无需修改 `.gitignore` |
 | `exp/random_periodic_gate/analysis/analyze_gate_sweep.py` | 新建 | JSONL → CSV 聚合 + Pareto / heatmap 绘图，附 baseline 端点 join 逻辑（读 `cache_eval_results.json`） |
 | `tests/cache/components/test_gate.py` | 修改 | 补 `RandomGate` / `PeriodicGate` 单测；不触及现有 3 gate 的接口 |
 | `tests/cache/test_config.py` | 修改 | 补 `gate.type=random` / `periodic` 参数校验 + dispatch；加旧 3 种 gate_type regression（不带新字段必须仍通过） |
 | `tests/exp/test_run_gate_sweep.py` | 新建 | runner 单测（fake ws client，无 env 依赖） |
-| `tests/exp/test_generate_batches.py` | 新建 | generator 单测：展开 38 组 → 19/19 切分 → batch 目录布局；每个产物 load 后 dict 等式（只差 gate 子树） |
+| `tests/exp/test_generate_batches.py` | 新建 | generator 单测：展开 38 组 → 按 cfg 分发到 3 batch 目录（每 batch 38 份）；每个产物 load 后 dict 等式（只差 gate 子树） |
 
 **显式不改动（Round 2 owner 红线）**：
 - `src/openpi/cache/orchestrator.py` — `on_episode_start` / `on_episode_end` 签名、调用链 L191-203 均保持原样；不引入 stats 收集路径。
@@ -325,7 +322,7 @@ class PeriodicGate:
 - `write_policy.type: never`（不污染 artifact）；
 - 注释写明这是"generator 输入，不直接 serve"。
 
-**Generator (`generate_batches.py`)**：纯 Python（`yaml.safe_load` + 覆盖 `checkpoints.cp1.gate` 子树 + `yaml.safe_dump`），输入 3 份 base YAML + 38 个 gate 组合，输出到 `config/batch{1..6}/<slug>.yaml`。
+**Generator (`generate_batches.py`)**：纯 Python（`yaml.safe_load` + 覆盖 `checkpoints.cp1.gate` 子树 + `yaml.safe_dump`），输入 3 份 base YAML + 38 个 gate 组合，输出到 `config/batch{1..3}/<slug>.yaml`（每 cfg 独占一个 batch 目录）。
 
 Slug 命名规则：
 - `random_p0p20_s1` → `{"p_inference": 0.20, "seed": 1}`（小数点用 `p` 代替）
@@ -423,7 +420,7 @@ def main():
 ### 5.7 产物 Schema
 
 - Per-ep JSONL（见 §2.3；按 batch 存 `data/batchN/results.jsonl`）
-- Per-grid-point CSV aggregate（`analysis/analyze_gate_sweep.py` 合并 6 个 batch 产出）：
+- Per-grid-point CSV aggregate（`analysis/analyze_gate_sweep.py` 合并 3 个 batch 产出）：
 
 ```csv
 cfg,gate_type,param_slug,p_inference,seed,cache_len,inference_len,episodes,success_rate,mean_inference_ratio,inference_ratio_source
@@ -474,7 +471,7 @@ clip_w7_d4,random,p0p20_s1,0.20,1,,,500,0.34,0.20,expected
 ### 6.4 Generator 测试（`tests/exp/test_generate_batches.py`）
 
 - 38 组 slug 展开：20 periodic + 18 random（6 p_inference × 3 seed）；slug 命名唯一、稳定字典序。
-- 19/19 切分：每 cfg 38 slug 按字典序切前后半，各 batch 恰好 19 份。
+- 3-batch 布局：每 cfg 独占一个 batch 目录，各 batch 恰好 38 份。
 - 每份产物 dict 等式：`yaml.safe_load(rendered) == yaml.safe_load(base)` 仅 `checkpoints.cp1.gate` 子树差异；rendered gate 子树与 slug 参数对齐（p_inference / seed / cache_len / inference_len 逐字段 assert）。
 - `--validate` flag：所有 114 份 YAML 都能 `openpi.cache.config.load_cache_config` 成功。
 - 幂等性：连跑两次 `generate_batches.py` 所有输出文件 byte-identical（纯 `yaml.safe_dump` 输出稳定）。
@@ -504,7 +501,7 @@ clip_w7_d4,random,p0p20_s1,0.20,1,,,500,0.34,0.20,expected
 | RandomGate 跨 worker / resume 复现性有限 | 同一 (seed, cfg, ep_key) 在不同 worker / 不同次 resume 抽样序列不一致 | 本实验 owner 指示接受 per-connection 级确定性：`seed * 10000 + ep_idx` 派生 RNG；跨 worker 抽样序列差异被 500 ep × 3 seed aggregate 稀释，success rate 方差留给 analysis 里的 error bar 表达 |
 | `validate_cache_config` 误伤旧 `always_search` / `always_skip` / `client_controlled` YAML | 现有 YAML 全部挂掉 | 只在"参数非 None 且 type 不匹配"时 raise；None 默认保持兼容；`tests/cache/test_config.py` 加 regression：旧 3 种 gate_type YAML 不带新参数字段必须通过 |
 | 114 份 YAML 提交进 git 引入大量文件 | 仓库噪声 | generator 脚本幂等 (`generate_batches.py --validate`)，可多次重跑 byte-identical；评审时只用看 generator 逻辑 + 抽 1-2 个 rendered 做 golden check |
-| 57,000 ep 跑太久 | 实验周期长 | 6 server × 5 worker 完全并行（6 batch ↔ 6 server 绑定，batch 间互不 block），单 batch ~3-5h；初版先跑 batch1 冒烟 |
+| 57,000 ep 跑太久 | 实验周期长 | 3 server × 5 worker 完全并行（3 batch ↔ 3 server 绑定，batch 间互不 block），单 batch ~6-10h；初版先跑 batch1 冒烟 |
 | baseline 端点读错 `cache_eval_results.json` | analysis 不完整或混 index 空间 | 固定从 `exp/trajectory_deviation/data/cache_eval_results.json` 读；`ep_key` join 用 `(config_id.removeprefix("inference_"), orig_init_state_idx)` 显式映射；analysis 脚本 fail-loud 提示具体路径与缺失 cfg |
 | LIBERO env seed 默认不稳定 | 跨 run 结果不完全复现 | env seed 不稳定是 `trajectory_deviation` F1 follow-up；本 plan 不尝试解决，在 analysis 里写 caveat |
 

@@ -535,20 +535,20 @@ def task_init_states(task_suite_name: str, task_id: int):
 
 
 def _infer_cfg_from_batch(batch_dir: Path) -> str:
-    """Map batch directory name (batch1..batch6) to its keybuilder cfg.
+    """Map batch directory name (batch1..batch3) to its keybuilder cfg.
 
-    batch1/2 -> clip_w7_d4; batch3/4 -> spatial16_w8_d4; batch5/6 -> max_pool_w3_d5.
+    batch1 -> clip_w7_d4; batch2 -> spatial16_w8_d4; batch3 -> max_pool_w3_d5.
     """
     name = batch_dir.name
     m = re.match(r"^batch(\d+)$", name)
     if not m:
         raise ValueError(f"batch dir {batch_dir!r} does not match batch<N>")
     n = int(m.group(1))
-    if n in (1, 2):
+    if n == 1:
         return "clip_w7_d4"
-    if n in (3, 4):
+    if n == 2:
         return "spatial16_w8_d4"
-    if n in (5, 6):
+    if n == 3:
         return "max_pool_w3_d5"
     raise ValueError(f"unexpected batch index: {n}")
 

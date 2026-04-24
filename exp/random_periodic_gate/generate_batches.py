@@ -4,9 +4,8 @@ Reads the three ``base_<cfg>.yaml`` templates and expands them across a
 fixed 38-slug grid per cfg (20 PeriodicGate combinations + 18 RandomGate
 combinations). Every generated YAML overrides exactly the
 ``checkpoints.cp1.gate`` subtree and preserves the rest of the template
-byte-for-byte at the dict-equality level. Output is split into six batch
-directories (two per cfg, 19 slugs each, split by dictionary order) under
-``config/batch{1..6}/``.
+byte-for-byte at the dict-equality level. Output is one batch per cfg
+(38 slugs each, dictionary-sorted) under ``config/batch{1..3}/``.
 
 The generator is idempotent (``yaml.safe_dump`` is deterministic on pure
 Python scalars / dicts / lists); running it twice produces byte-identical
@@ -100,10 +99,14 @@ def build_grid_for_cfg(cfg: str) -> list[GridPoint]:
     return points
 
 
-def split_into_batches(points: Sequence[GridPoint]) -> tuple[list[GridPoint], list[GridPoint]]:
-    """Split a per-cfg grid at the dict-sort midpoint (19/19 for the 38-grid)."""
-    mid = len(points) // 2
-    return list(points[:mid]), list(points[mid:])
+def batch_index_for_cfg(cfg_index: int) -> int:
+    """Return the 1-based batch index owned by ``cfg_index`` (0..2).
+
+    cfg 0 -> 1 (clip_w7_d4)
+    cfg 1 -> 2 (spatial16_w8_d4)
+    cfg 2 -> 3 (max_pool_w3_d5)
+    """
+    return cfg_index + 1
 
 
 # ---------------------------------------------------------------------------
@@ -131,14 +134,6 @@ def render_dict(base: dict[str, Any], point: GridPoint) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def batch_indices_for_cfg(cfg_index: int) -> tuple[int, int]:
-    """Return the pair of 1-based batch indices owned by ``cfg_index`` (0..2).
-
-    cfg 0 -> (1, 2)
-    cfg 1 -> (3, 4)
-    cfg 2 -> (5, 6)
-    """
-    return (cfg_index * 2 + 1, cfg_index * 2 + 2)
 
 
 # ---------------------------------------------------------------------------
@@ -180,16 +175,14 @@ def generate_all(validate: bool = False) -> list[Path]:
         base_path = _base_yaml_path(cfg)
         base = yaml.safe_load(base_path.read_text(encoding="utf-8"))
         grid = build_grid_for_cfg(cfg)
-        first, second = split_into_batches(grid)
-        first_idx, second_idx = batch_indices_for_cfg(cfg_idx)
-        for batch_idx, batch_points in ((first_idx, first), (second_idx, second)):
-            out_dir = _batch_dir(batch_idx)
-            for point in batch_points:
-                rendered = render_dict(base, point)
-                out_path = out_dir / f"{point.slug}.yaml"
-                _write_yaml(out_path, rendered)
-                written.append(out_path)
-                logger.debug("wrote %s", out_path)
+        batch_idx = batch_index_for_cfg(cfg_idx)
+        out_dir = _batch_dir(batch_idx)
+        for point in grid:
+            rendered = render_dict(base, point)
+            out_path = out_dir / f"{point.slug}.yaml"
+            _write_yaml(out_path, rendered)
+            written.append(out_path)
+            logger.debug("wrote %s", out_path)
 
     if validate:
         # Late import so static generation does not require the full runtime.
@@ -224,7 +217,7 @@ def main(argv: Iterable[str] | None = None) -> None:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
     written = generate_all(validate=args.validate)
-    logger.info("generated %d YAML files across 6 batches", len(written))
+    logger.info("generated %d YAML files across 3 batches", len(written))
 
 
 if __name__ == "__main__":
