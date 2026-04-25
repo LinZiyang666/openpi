@@ -535,21 +535,24 @@ def task_init_states(task_suite_name: str, task_id: int):
 
 
 def _infer_cfg_from_batch(batch_dir: Path) -> str:
-    """Map batch directory name (batch1..batch3) to its keybuilder cfg.
+    """Map batch directory name to its keybuilder cfg.
 
-    batch1 -> clip_w7_d4; batch2 -> spatial16_w8_d4; batch3 -> max_pool_w3_d5.
+    batch1 / batch4 -> clip_w7_d4;
+    batch2 / batch5 -> spatial16_w8_d4;
+    batch3 / batch6 -> max_pool_w3_d5.
+
+    batch{4,5,6} hold each cfg's dictionary-order late half (the random_p0p10..p0p70
+    slugs) after the 6-batch manual layout; the cfg identity is preserved across
+    the split so the mapping doubles up by `(n - 1) % 3`.
     """
     name = batch_dir.name
     m = re.match(r"^batch(\d+)$", name)
     if not m:
         raise ValueError(f"batch dir {batch_dir!r} does not match batch<N>")
     n = int(m.group(1))
-    if n == 1:
-        return "clip_w7_d4"
-    if n == 2:
-        return "spatial16_w8_d4"
-    if n == 3:
-        return "max_pool_w3_d5"
+    cfg_by_mod = {0: "clip_w7_d4", 1: "spatial16_w8_d4", 2: "max_pool_w3_d5"}
+    if 1 <= n <= 6:
+        return cfg_by_mod[(n - 1) % 3]
     raise ValueError(f"unexpected batch index: {n}")
 
 

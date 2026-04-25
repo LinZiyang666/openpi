@@ -190,10 +190,12 @@ conda run -p /scratch/zixuans8/libero_sim \
     --resume
 ```
 
-### Client 4: batch4 via new server
+> Client 4/5/6 绑 **CUDA 1**（`CUDA_VISIBLE_DEVICES=1`）；Client 1/2/3 用默认（CUDA 0）。MuJoCo EGL 在当前可见 device 中看到 idx 0，无需另设 `MUJOCO_EGL_DEVICE_ID`。
+
+### Client 4: batch4 via new server (CUDA 1)
 
 ```bash
-conda run -p /scratch/zixuans8/libero_sim \
+CUDA_VISIBLE_DEVICES=1 conda run -p /scratch/zixuans8/libero_sim \
     python -m exp.random_periodic_gate.run_gate_sweep \
     --batch-dir exp/random_periodic_gate/config/batch4 \
     --host 149.165.151.106 --port 8001 \
@@ -202,10 +204,10 @@ conda run -p /scratch/zixuans8/libero_sim \
     --resume
 ```
 
-### Client 5: batch5 via new server
+### Client 5: batch5 via new server (CUDA 1)
 
 ```bash
-conda run -p /scratch/zixuans8/libero_sim \
+CUDA_VISIBLE_DEVICES=1 conda run -p /scratch/zixuans8/libero_sim \
     python -m exp.random_periodic_gate.run_gate_sweep \
     --batch-dir exp/random_periodic_gate/config/batch5 \
     --host 149.165.151.106 --port 8002 \
@@ -214,10 +216,10 @@ conda run -p /scratch/zixuans8/libero_sim \
     --resume
 ```
 
-### Client 6: batch6 via new server
+### Client 6: batch6 via new server (CUDA 1)
 
 ```bash
-conda run -p /scratch/zixuans8/libero_sim \
+CUDA_VISIBLE_DEVICES=1 conda run -p /scratch/zixuans8/libero_sim \
     python -m exp.random_periodic_gate.run_gate_sweep \
     --batch-dir exp/random_periodic_gate/config/batch6 \
     --host 149.165.151.106 --port 8003 \
