@@ -126,3 +126,25 @@ class VectorStoreBackend(ABC):
     def close(self) -> None:
         """Release resources.  Calls flush() first."""
         self.flush()
+
+    # ------------------------------------------------------------------
+    # Optional search-session memo capability
+    # ------------------------------------------------------------------
+
+    def open_search_session(self, session_id: str) -> None:
+        """Register an active per-strategy search session.
+
+        Default no-op. Backends that maintain per-session in-memory caches
+        (e.g. InMemoryBackend's per-step score memo) override this to track
+        the session in their active set, so that mutation guards and cache
+        lookups behave correctly. Backends without internal cache leave the
+        default and incur zero cost.
+        """
+
+    def close_search_session(self, session_id: str) -> None:
+        """Release a previously-opened search session.
+
+        Default no-op. Override symmetrically with `open_search_session` to
+        drop session-scoped buckets and remove the session from the active set.
+        Idempotent: closing an unknown session_id is a safe no-op.
+        """

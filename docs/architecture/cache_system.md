@@ -380,6 +380,13 @@ class VectorStoreBackend(ABC):
     def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult: ...
     def flush(self) -> None: ...
     def close(self) -> None: ...
+
+    # --- Cache session capability (§5.10) ---
+    # Default no-op. A backend that implements a cross-step score cache
+    # (e.g. InMemoryBackend) overrides these to register / clear the
+    # per-strategy active session.
+    def open_search_session(self, session_id: str) -> None: ...
+    def close_search_session(self, session_id: str) -> None: ...
 ```
 
 **Current backend — QdrantVectorStore** (`src/openpi/cache/backends/qdrant_backend.py`):
@@ -519,6 +526,12 @@ class QuerySpec:
     fusion_weights: Optional[dict[str, float]] = None    # per-field fusion weights
     trajectory_history: Optional[list[dict[str, torch.Tensor]]] = None  # newest-first
     trajectory_weights: Optional[list[float]] = None
+    # Opt-in cross-step score memo (see §5.10 "Search Session — Cross-Step Score Memo").
+    # Both fields appear together: a non-None search_session_id activates
+    # the per-(field, query_id) score cache; trajectory_query_ids carries
+    # the strategy-minted monotonic ids matching `trajectory_history`.
+    search_session_id: Optional[str] = None
+    trajectory_query_ids: Optional[list[int]] = None
 
 @dataclass
 class SearchResultLite:
@@ -560,6 +573,92 @@ Controls whether an episode's data is written to the cache at episode end.
 | `never` | Read-only mode |
 
 > **Design vs Implementation**: The original spec had write logic in `CacheOrchestrator.write_async()` with per-step writes. Implementation switched to episode-level batch writes with a `WritePolicy` decision gate, which better supports trajectory-linked entry chains.
+
+### 5.10 Search Session — Cross-Step Score Memo — Cross-Step Score Cache
+
+> **Source**: `logs/trajectory_search_optimization_plan.log.md`
+> Added by the trajectory-search rewrite to amortise per-field cosine
+> similarity across the steps of a single episode. The capability is
+> opt-in: callers that do not engage the cache observe trunk behavior
+> exactly.
+
+**Why a session, not a process-wide cache.**
+A trajectory search at step *t* re-uses the same query vectors that
+appeared at steps *t-1, t-2, …*. Computing those cosines once per
+`(field, query_id)` slot and reusing them across the trajectory layers
+removes the dominant cost of multi-layer search. Because every
+SearchStrategy mints a fresh `search_session_id` per episode, the cache
+is naturally bounded and per-episode disjoint — there is no eviction
+policy and no global LRU.
+
+**Mutation contract (runtime invariant).**
+The cache is correct only if existing score slots cannot be invalidated
+silently. While any session is active, mutations that could invalidate
+cached scores raise `SearchSessionActiveError`:
+
+| Operation | Active session | Idle |
+|-----------|---------------|------|
+| `insert(brand-new id)` | ✅ allowed (no slot affected) | ✅ allowed |
+| `insert(existing id)` (upsert) | ❌ raises | ✅ allowed |
+| `delete(ids)` | ❌ raises | ✅ allowed |
+| `load_artifact(path)` | ❌ raises | ✅ allowed |
+
+This matches the deployment contract: serving inserts new entries
+freely; upsert / delete / artifact loading are offline-only operations.
+
+**Session lifecycle (orchestrator-side, single helper per phase).**
+Two helpers in `CacheOrchestrator` are the *only* paths allowed to
+mutate `_current_strategy_session_ids`:
+
+  1. `_broadcast_episode_start()` — invoked from both `on_task_begin`
+     and `on_episode_start`. It atomically performs:
+       (a) `_close_current_search_sessions()` to release any stale
+           strategy sids left over from a previous episode,
+       (b) broadcasts `on_episode_start` to every component (each
+           SearchStrategy mints its own `uuid4().hex` sid and stashes
+           it on itself),
+       (c) collects each non-None sid via
+           `strategy.get_search_session_id()` and registers it with the
+           backend through `storage.open_search_session(sid)` *before*
+           the first `search()` runs.
+  2. `_close_current_search_sessions()` — the single cleanup helper
+     called from `on_episode_end` (inside `try/finally` so that
+     `_episode_steps` empty / `_write_policy is None` /
+     `should_write()` declines all still release the sids),
+     `on_task_end`, and step (a) above.
+
+`InferenceInterceptor.on_task_end` forwards to
+`CacheOrchestrator.on_task_end`, which gives WebSocket disconnects a
+guaranteed cleanup path even when the simulator never produces a clean
+`on_episode_end`.
+
+**Active-session detection — independent set.**
+`InMemoryBackend._active_search_sessions: set[str]` is populated by
+`open_search_session` *before* the first cache bucket exists, so the
+mutation guard fires from the moment the session is registered, not
+from the moment a bucket is created. The score cache itself
+(`_score_memo: dict[sid, dict[(field, query_id, sim_type), dict[entry_id, float]]]`)
+is created lazily on first miss and dropped on `close_search_session`.
+
+**Defensive layer for unregistered sids.**
+`_batch_field_scores` checks `sid in self._active_search_sessions` and falls
+back to the uncached path with a warning if a search arrives carrying
+a sid that was never opened. This prevents an upstream lifecycle bug
+from creating an orphan bucket; the search still returns correct
+results because the uncached path is the legacy code path.
+
+**Thread-safety contract (lock-free).**
+The capability does NOT introduce any explicit lock. Lock-freedom is
+preserved because:
+  - `_active_search_sessions` and per-sid `_score_memo` buckets are mutated
+    only through dict/set single-step operations (atomic under the GIL);
+  - sids are per-strategy uuid4, so concurrent strategies write to
+    disjoint outer keys and disjoint inner slots;
+  - the mutation contract guarantees that no slot a worker reads can
+    be evicted by another thread mid-search.
+
+The detailed lock-free derivation lives in
+`logs/trajectory_search_optimization_plan.log.md` §4.3 / §6.
 
 ---
 

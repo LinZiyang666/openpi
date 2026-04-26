@@ -25,6 +25,7 @@ Coupling map:
 
 from __future__ import annotations
 
+import inspect
 import logging
 import uuid
 from contextlib import contextmanager
@@ -124,6 +125,13 @@ class CacheOrchestrator:
         self._current_task_key: str = ""
         self._current_episode_id: str = ""
 
+        # Per-strategy search session ids registered with the backend in the
+        # current episode. Populated by `_broadcast_episode_start` after each
+        # strategy mints its own sid; drained by `_close_current_search_sessions`
+        # on episode_end / task_end / stale clear. NEVER mutated outside those
+        # two helpers.
+        self._current_strategy_session_ids: list[str] = []
+
         # Register fine-grained probes for each checkpoint's sub-steps.
         for cp in ("cp1", "cp3"):
             for step in ("collect", "gate", "build", "search", "judge", "fetch"):
@@ -189,18 +197,70 @@ class CacheOrchestrator:
         self._broadcast_episode_start()
 
     def _broadcast_episode_start(self) -> None:
-        """Notify all components to clear their history buffers."""
-        if hasattr(self._key_builder, 'on_episode_start'):
-            self._key_builder.on_episode_start()
+        """Lifecycle entry point shared by on_task_begin and on_episode_start.
+
+        Atomically performs three steps so all broadcast paths obtain the
+        same session-register guarantee:
+          (1) close any stale strategy sessions left over from a previous
+              episode (defensive — handles repeated task_begin or skipped
+              episode_end);
+          (2) broadcast on_episode_start to every component (each strategy
+              mints its own per-episode search session id);
+          (3) collect each strategy's freshly-minted sid via
+              get_search_session_id() and register it with the backend
+              through `storage.open_search_session(sid)` so the backend's
+              mutation guard activates *before* any search runs.
+        """
+        # (1) Close any stale sessions (idempotent).
+        self._close_current_search_sessions()
+
+        # (2) Broadcast lifecycle to all components.
+        self._safe_call_lifecycle(self._key_builder, "on_episode_start")
         for strategy in self._search_strategies.values():
-            if hasattr(strategy, 'on_episode_start'):
-                strategy.on_episode_start()
+            self._safe_call_lifecycle(strategy, "on_episode_start")
         for gate in self._gates.values():
-            if hasattr(gate, 'on_episode_start'):
-                gate.on_episode_start()
+            self._safe_call_lifecycle(gate, "on_episode_start")
         for judge in self._judges.values():
-            if hasattr(judge, 'on_episode_start'):
-                judge.on_episode_start()
+            self._safe_call_lifecycle(judge, "on_episode_start")
+
+        # (3) Collect strategy-minted sids and register with the backend.
+        # Sequential single-thread loop here; no contention with concurrent
+        # search because no search is in flight inside lifecycle hooks.
+        for strategy in self._search_strategies.values():
+            getter = getattr(strategy, "get_search_session_id", None)
+            if getter is None:
+                continue
+            sid = getter()
+            if sid is None:
+                continue
+            self._storage.open_search_session(sid)
+            self._current_strategy_session_ids.append(sid)
+
+    def _close_current_search_sessions(self) -> None:
+        """Close all currently-registered strategy search sessions.
+
+        Idempotent. The single cleanup entry point — on_episode_end (via
+        finally), on_task_end, and `_broadcast_episode_start` step (1) all
+        funnel through here. NO other path may mutate
+        `_current_strategy_session_ids` directly.
+        """
+        for sid in self._current_strategy_session_ids:
+            self._storage.close_search_session(sid)
+        self._current_strategy_session_ids = []
+
+    @staticmethod
+    def _safe_call_lifecycle(component, method_name: str, **kwargs) -> None:
+        """Call component.method_name(**kwargs) passing only kwargs the
+        callee actually accepts. Older lifecycle implementations without the
+        new kwargs continue to work unchanged.
+        """
+        method = getattr(component, method_name, None)
+        if method is None:
+            return
+        if kwargs:
+            sig = inspect.signature(method)
+            kwargs = {k: v for k, v in kwargs.items() if k in sig.parameters}
+        method(**kwargs)
 
     def _reset_episode_buffer(self) -> None:
         self._episode_steps.clear()
@@ -381,31 +441,48 @@ class CacheOrchestrator:
           2. WritePolicy.should_write() decides
           3. If yes: build linked CacheEntry chain, batch_insert
           4. Reset buffers
+
+        Cache sessions are closed in `finally` so that early-return branches
+        (no steps / no write_policy / write_policy declines) still release
+        every registered sid; otherwise the backend mutation guard would stay
+        raised after the episode has ended.
         """
-        if not self._episode_steps:
+        try:
+            if not self._episode_steps:
+                self._reset_episode_buffer()
+                return
+
+            if self._write_policy is None:
+                self._reset_episode_buffer()
+                return
+
+            record = EpisodeRecord(
+                steps=self._episode_steps,
+                task_key=self._current_task_key,
+                miss_by_checkpoint=dict(self._miss_by_checkpoint),
+                total_steps=len(self._episode_steps),
+            )
+
+            if not self._write_policy.should_write(record):
+                self._reset_episode_buffer()
+                return
+
+            entries = self._build_entry_chain(record)
+            if entries:
+                self._storage.batch_insert(entries)
+
             self._reset_episode_buffer()
-            return
+        finally:
+            self._close_current_search_sessions()
 
-        if self._write_policy is None:
-            self._reset_episode_buffer()
-            return
+    def on_task_end(self) -> None:
+        """Connection close / abnormal-exit cleanup.
 
-        record = EpisodeRecord(
-            steps=self._episode_steps,
-            task_key=self._current_task_key,
-            miss_by_checkpoint=dict(self._miss_by_checkpoint),
-            total_steps=len(self._episode_steps),
-        )
-
-        if not self._write_policy.should_write(record):
-            self._reset_episode_buffer()
-            return
-
-        entries = self._build_entry_chain(record)
-        if entries:
-            self._storage.batch_insert(entries)
-
-        self._reset_episode_buffer()
+        Idempotent bottom guard for paths where on_episode_end may not fire
+        (e.g. WebSocket disconnect mid-episode). Forwarded to from
+        InferenceInterceptor.on_task_end().
+        """
+        self._close_current_search_sessions()
 
     def _build_entry_chain(self, record: EpisodeRecord) -> list[CacheEntry]:
         """Convert EpisodeRecord to a linked list of CacheEntry objects."""

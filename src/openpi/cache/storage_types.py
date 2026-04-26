@@ -221,6 +221,17 @@ class QuerySpec:
     # Per-level weights, newest-first: [w_current, w_t-1, w_t-2, ...]
     # Must be same length as trajectory_history. None → no trajectory fusion.
 
+    # ── Cross-step score memo fields (opt-in; None → uncached path) ──
+    search_session_id: Optional[str] = None
+    # Per-strategy-per-episode search session id (uuid4 hex). When None, the
+    # backend takes the trunk uncached path. Minted by TrajectoryMixin in
+    # on_episode_start and registered with the backend by CacheOrchestrator.
+
+    trajectory_query_ids: Optional[list[int]] = None
+    # Session-scoped monotonic query identifiers, parallel to
+    # trajectory_history (newest-first). Same query tensor keeps the same id
+    # across steps, enabling cross-step cosine reuse. None → uncached path.
+
 
 # ---------------------------------------------------------------------------
 # Search results (two-phase)

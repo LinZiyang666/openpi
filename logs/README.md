@@ -32,6 +32,12 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 
 ## Active Logs
 
+### Cache System
+
+| File | Status | Description |
+|------|--------|-------------|
+| [trajectory_search_optimization_plan.log.md](trajectory_search_optimization_plan.log.md) | `In Progress` | L3: 优化 InMemoryBackend trajectory search — 单链假设主路径重写 + 跨 step `(search_session_id, query_id)` 双层身份 score memo；**per-strategy sid**（每 SearchStrategy 自己 uuid4 颁发）；orchestrator 用单一 `_broadcast_episode_start()` helper 集中 close-stale + broadcast + collect-and-register（覆盖 task_begin / episode_start 两路径），单一 `_close_current_search_sessions()` helper 集中 cleanup（episode_end 用 try/finally 保 early-return 也清理）；backend `_active_search_sessions: set` 独立于 `_score_memo` 桶；`_batch_field_scores` 加未注册 sid 防御层 + 命中分支批量 `index_put_` 向量化（plan §4.3 实现修正）；mutation contract（运行时只 insert 新 id，upsert/delete/load_artifact raise）；`VectorStoreBackend` 加 default no-op `open_search_session` + `close_search_session`；KeyBuilder / Gate / Judge / 其它 backend / 其它 strategy 子类 0 改动；P2 拆出；G1 Round 1-6 APPROVED；Code 完成（7 src + 4 测试文件 27 tests + 2 docs 更新 + `exp/trajectory_search_benchmark/` 新增 P1 benchmark）；rename cache_*→search_*/_score_memo（避免与 cache system 总语义重叠）；G2 Round 1→2→3 NEEDS REVISION 已逐项修复 → Round 4 等审 |
+
 ### Stage Device Placement
 
 | File | Status | Description |

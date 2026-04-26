@@ -313,10 +313,16 @@ class InferenceInterceptor(_base_policy.BasePolicy):
     def on_task_end(self) -> None:
         """Finalise and report timing for the completed task.
 
-        Forwards to ``SystemTimer.on_task_end()`` for summary printing.
+        Forwards to ``SystemTimer.on_task_end()`` for summary printing and to
+        ``CacheOrchestrator.on_task_end()`` so any search sessions registered
+        by strategies (in `_broadcast_episode_start`) are released even when
+        the connection closes without a clean ``episode_end``.
+
         Called when a client WebSocket connection closes.
         """
         self._timer.on_task_end()
+        if self._orchestrator is not None:
+            self._orchestrator.on_task_end()
 
     # -----------------------------------------------------------------------
     # Prefill API (Step 3 trajectory-deviation spawn runner)

@@ -171,6 +171,23 @@ class CacheStorage:
     def count(self) -> int:
         return self._backend.count()
 
+    def open_search_session(self, session_id: str) -> None:
+        """Forward to the backend's optional search-session memo capability.
+
+        Backends that do not implement per-session cache simply inherit the
+        ABC default no-op. Used by CacheOrchestrator to register strategy-
+        minted session ids before any search runs.
+        """
+        self._backend.open_search_session(session_id)
+
+    def close_search_session(self, session_id: str) -> None:
+        """Forward to the backend's optional search-session memo capability.
+
+        Idempotent at the backend level. Called from CacheOrchestrator's
+        cleanup paths (on_episode_end / on_task_end / stale clear).
+        """
+        self._backend.close_search_session(session_id)
+
     def close(self) -> None:
         """Flush and release resources for both vector store and metadata store."""
         self._backend.close()

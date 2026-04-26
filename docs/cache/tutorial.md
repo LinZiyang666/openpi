@@ -231,15 +231,81 @@ Judge also has `on_episode_start()` and `record_action()` lifecycle methods.
 
 All strategies inherit `TrajectoryMixin`, providing:
 
-- **`record_query_keys(keys)`** — buffers current step's query keys into history
-- **`on_episode_start()`** — clears history buffers
+- **`record_query_keys(keys)`** — buffers current step's query keys into history and assigns it a monotonic `query_id` (used by the search session below)
+- **`on_episode_start()`** — clears history buffers and mints a fresh per-strategy `search_session_id` (`uuid.uuid4().hex`); orchestrator collects this via `get_search_session_id()` and registers it with the backend
+- **`get_search_session_id() → Optional[str]`** — exposes the active sid to `CacheOrchestrator._broadcast_episode_start`
 - **`record_action(action)`** — receives broadcast action
-- **`_build_trajectory_fields()`** — returns `{trajectory_history, trajectory_weights}` for QuerySpec when history is sufficient, else `{}` (single-step fallback)
+- **`_build_trajectory_fields()`** — returns `{trajectory_history, trajectory_weights}` for QuerySpec when history is sufficient (else `{}`); when a session is active also adds `search_session_id` and `trajectory_query_ids` to engage the cross-step score memo
 
 History build-up:
 - Step 0: 1 entry → insufficient → single-step search
 - Step 1: 2 entries → depth=2 trajectory search
 - Step 2+: 3 entries → depth=3 trajectory search (if configured for depth=3)
+
+### Search Session — Cross-Step Score Memo
+
+Trajectory searches at successive steps share most of their per-field
+cosine work — the same query vector appears at depth-1 in step *t* and
+at depth-2 in step *t+1*. The "search session" capability removes that
+redundant work by storing per-`(field, query_id)` similarity scores
+inside `InMemoryBackend` for the lifetime of a single episode.
+
+**Engagement is opt-in.** A SearchStrategy that does not inherit
+`TrajectoryMixin` (or whose configuration leaves `trajectory_depth=1`)
+emits no search_session_id, and the backend takes the trunk path with
+zero overhead.
+
+**Lifecycle in normal usage** (driven by the simulator → interceptor →
+orchestrator chain):
+
+1. `on_task_begin` *or* `on_episode_start` → orchestrator runs
+   `_broadcast_episode_start()`, which (a) closes any stale strategy
+   sids from a previous episode, (b) broadcasts `on_episode_start` so
+   each strategy mints its own sid, (c) collects each non-None sid via
+   `strategy.get_search_session_id()` and calls
+   `storage.open_search_session(sid)`. From this point on, the backend
+   refuses upsert / delete / `load_artifact` until the sid is closed.
+2. Search calls flow through `SearchStrategy.search()`, which packages
+   `search_session_id` + `trajectory_query_ids` into the `QuerySpec`.
+   `InMemoryBackend._batch_field_scores` looks up cached scores by
+   `(sid, field, query_id, sim_type)` and only computes the missing
+   slots.
+3. `on_episode_end` → orchestrator runs `_close_current_search_sessions()`
+   inside a `try/finally` so all early-return branches still release
+   the sids. `on_task_end` is a redundant safety net for connection
+   close paths.
+
+**Mutation contract you should know about.** While *any* strategy sid
+is registered on the backend:
+
+| Operation | Result |
+|-----------|--------|
+| `insert(brand-new id)` | ✅ allowed |
+| `insert(existing id)` (upsert) | ❌ raises `SearchSessionActiveError` |
+| `delete(ids)` | ❌ raises `SearchSessionActiveError` |
+| `load_artifact(path)` | ❌ raises `SearchSessionActiveError` |
+
+If you need to upsert / delete / load_artifact at runtime (e.g. a
+maintenance script), wait for the connection to close so on_task_end
+fires, or call `backend.close_search_session(sid)` for every active sid
+first.
+
+**Manual usage** (tests, ad-hoc scripts):
+
+```python
+backend = InMemoryBackend({"robot_state": 32})
+backend.insert(...)                       # offline insertion: free
+
+backend.open_search_session("my-sid")
+spec = QuerySpec(..., search_session_id="my-sid", trajectory_query_ids=[5,4,3])
+backend.search(spec)                      # populates cache bucket
+backend.search(spec)                      # bucket hit — no recompute
+backend.close_search_session("my-sid")     # bucket dropped, mutations unlocked
+```
+
+For deterministic parity testing the backend exposes a context manager
+`backend.force_legacy_path()` that forces the legacy DAG path
+regardless of the new fast path; cache state is not affected.
 
 ### Step Filter Modes
 

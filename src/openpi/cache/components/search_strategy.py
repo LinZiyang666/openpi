@@ -24,6 +24,7 @@ Coupling map:
 from __future__ import annotations
 
 import logging
+import uuid
 from dataclasses import dataclass
 from typing import Any, Optional, Protocol, runtime_checkable
 
@@ -97,11 +98,34 @@ class TrajectoryMixin:
         self._trajectory_weights = trajectory_weights
         self._query_history: list[dict[str, torch.Tensor]] = []
         self._action_history: list[Optional[torch.Tensor]] = []
+        # Per-strategy search session state (opt-in score memo).
+        # Sid is minted in on_episode_start; orchestrator collects it via
+        # get_search_session_id() and registers it with the backend.
+        self._search_session_id: Optional[str] = None
+        self._query_id_counter: int = 0
+        self._query_id_history: list[int] = []
 
     def on_episode_start(self) -> None:
-        """Clear history buffers. Called by Orchestrator at episode start."""
+        """Clear history buffers and mint a fresh per-strategy search session.
+
+        Called by Orchestrator at episode start. The minted session id is
+        exposed to the orchestrator via `get_search_session_id()` so it can
+        be registered with the backend through `storage.open_search_session`.
+        """
         self._query_history.clear()
         self._action_history.clear()
+        self._query_id_history.clear()
+        self._query_id_counter = 0
+        self._search_session_id = uuid.uuid4().hex
+
+    def get_search_session_id(self) -> Optional[str]:
+        """Return the current per-strategy search session id (or None).
+
+        CacheOrchestrator reads this after broadcasting on_episode_start to
+        every strategy and forwards each non-None sid to the backend via
+        `storage.open_search_session(sid)`.
+        """
+        return self._search_session_id
 
     def record_action(self, action_chunk: torch.Tensor) -> None:
         """Receive Orchestrator-broadcast action. Pure local buffer op."""
@@ -112,14 +136,21 @@ class TrajectoryMixin:
 
         Called by search() internally (normal path) and by Orchestrator
         explicitly on gate skip (to keep trajectory history gap-free).
+        Maintains a parallel monotonic query_id list used by the backend
+        score memo (key includes the query_id rather than the layer).
         """
         self._query_history.append(query_keys)
+        qid = self._query_id_counter
+        self._query_id_counter += 1
+        self._query_id_history.append(qid)
 
     def _build_trajectory_fields(self) -> dict[str, Any]:
         """Return trajectory fields for QuerySpec construction.
 
         Returns empty dict when depth=1 or insufficient history,
         causing QuerySpec fields to stay None (single-step fallback).
+        Includes search_session_id + trajectory_query_ids when a session is
+        active, enabling cross-step cosine reuse in the backend.
         """
         if self._trajectory_depth <= 1 or not self._trajectory_weights:
             return {}
@@ -135,10 +166,15 @@ class TrajectoryMixin:
         history_newest_first = list(reversed(self._query_history[-actual_depth:]))
         weights_newest_first = self._trajectory_weights[:actual_depth]
 
-        return {
+        fields: dict[str, Any] = {
             "trajectory_history": history_newest_first,
             "trajectory_weights": weights_newest_first,
         }
+        if self._search_session_id is not None:
+            qids_newest_first = list(reversed(self._query_id_history[-actual_depth:]))
+            fields["search_session_id"] = self._search_session_id
+            fields["trajectory_query_ids"] = qids_newest_first
+        return fields
 
 
 class QdrantWeightedRrfKnnStrategy(TrajectoryMixin):
