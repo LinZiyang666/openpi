@@ -225,3 +225,10 @@ faiss.wiki
 .codex
 # configs/ rules removed — tree empties after cache_runs/ migration and the configs/ directory is deleted in Phase 4.
 .vscode/
+
+# factor_explorer.py emits a self-contained HTML with embedded factor data;
+# the generated HTML + videos symlink are reproducible from the script and
+# the cache_artifacts pkl, so we do not track them.
+exp/common/analysis/factor_explorer.html
+exp/common/analysis/index.html
+exp/common/analysis/videos
