@@ -55,33 +55,39 @@ ls exp/warm_start/data/baseline_failures.json \
 # 期望：4 行均输出
 ```
 
-yaml 输出目录（client 机器侧 — 跑前为空，phase script 写完后填）：
+yaml 输出目录（client 机器侧）：
 
 ```bash
-ls exp/verdict_factor_judge/config/{clip,max_pool,spatial16}/ 2>/dev/null
+# 期望：每 cfg phase0 dir 有 1 yaml，phase1 dir 有 8 yaml；总 27
+for cfg in clip max_pool spatial16; do
+    for ph in phase0 phase1; do
+        n=$(ls exp/verdict_factor_judge/config/$cfg/$ph/*.yaml 2>/dev/null | wc -l)
+        printf "  %s/%s : %d yaml\n" "$cfg" "$ph" "$n"
+    done
+done
 mkdir -p exp/verdict_factor_judge/data/{calibration,phase0,phase1}
 ```
 
 ---
 
-## §0 Yaml 生成（执行 Phase 0 / Phase 1 前必做）
+## §0 Yaml 生成
 
-`exp/verdict_factor_judge/generate_yamls.py` 是 invariant helper（`write_yaml` + `check_yaml_invariant`），不是 phase generator。需要写两个 phase-spec 脚本，落 27 个 yaml：
+`exp/verdict_factor_judge/generate_yamls.py` 是 invariant helper（`write_yaml` + `check_yaml_invariant`）；phase-spec 落地：
 
-| 脚本（待写）| 目标目录 | 输出 yaml 数 |
-|---|---|---|
-| `exp/verdict_factor_judge/phase0_spec.py` | `exp/verdict_factor_judge/config/{clip,max_pool,spatial16}/` | 3（每 cfg 1） |
-| `exp/verdict_factor_judge/phase1_spec.py` | 同上 | 24（每 cfg 8） |
+| Phase | 生成方式 | 目标目录 | 输出 yaml 数 |
+|---|---|---|---|
+| Phase 0 | 手工写入（无 spec 脚本，3 yaml 静态文件已在 repo）| `exp/verdict_factor_judge/config/{clip,max_pool,spatial16}/*_phase0_*.yaml` | 3（commit `c6af989`）|
+| Phase 1 | `uv run python -m exp.verdict_factor_judge.phase1_spec`（笛卡尔展开 3 cfg × 8 descriptor）| 同上 `*_phase1_*.yaml` | 24 |
 
-两 spec 脚本笛卡尔展开 yaml dict 后调 `generate_yamls.write_yaml(path, content)`。invariant：Phase 0 yaml 含 `judge.dump.config_id`，由 `write_yaml` pin 成 stem；Phase 1 yaml 无 `dump` block，invariant no-op（`check_yaml_invariant` 直接 return）。
+invariant：Phase 0 yaml 含 `judge.dump.config_id`，由 `write_yaml` pin 成 stem；Phase 1 yaml 无 `dump` block，`check_yaml_invariant` no-op 直接 return。
 
 ### Phase 0 yaml 列表（3）
 
 | Server | yaml 路径 | 内容要点 |
 |---|---|---|
-| S1 | `exp/verdict_factor_judge/config/clip/clip_w7_d4_phase0_always_hit_dump.yaml` | judge=`always_hit` + dump（5 因子全开），`search_strategy.top_k=5` |
-| S2 | `exp/verdict_factor_judge/config/max_pool/max_pool_w3_d5_phase0_always_hit_dump.yaml` | 同上，KeyBuilder/字段权重换 max_pool |
-| S3 | `exp/verdict_factor_judge/config/spatial16/spatial16_w8_d4_phase0_always_hit_dump.yaml` | 同上，KeyBuilder/字段权重换 spatial16 |
+| S1 | `exp/verdict_factor_judge/config/clip/phase0/clip_w7_d4_phase0_always_hit_dump.yaml` | judge=`always_hit` + dump（5 因子全开），`search_strategy.top_k=5` |
+| S2 | `exp/verdict_factor_judge/config/max_pool/phase0/max_pool_w3_d5_phase0_always_hit_dump.yaml` | 同上，KeyBuilder/字段权重换 max_pool |
+| S3 | `exp/verdict_factor_judge/config/spatial16/phase0/spatial16_w8_d4_phase0_always_hit_dump.yaml` | 同上，KeyBuilder/字段权重换 spatial16 |
 
 3 yaml 公共结构（plan §3.7 + §4 Phase 0）：
 
@@ -140,7 +146,7 @@ write_policy: { type: never }
 | 7 | `f_min_a_d_jerk_t_full` | F-MIN-A | **D-JERK**（仅 `f1a_a_jerk`） | T-FULL | C-WS |
 | 8 | `f_min_cons_d_all_t_full` | F-MIN-CONS (`f2`) | n/a | T-FULL | C-WS |
 
-Phase 1 yaml 公共结构（plan §3.4b + §4 Phase 1）：
+Phase 1 yaml 公共结构（实际由 `phase1_spec.py` 生成，schema 与 src `ComposerConfig` / `NormalizerConfig` / `JudgeConfig` 对齐）：
 
 ```yaml
 enabled: true
@@ -152,30 +158,36 @@ checkpoints:
     gate: { type: always_search }
     judge:
       type: composite
-      composer: { type: weighted_sum, threshold: 0.5 }
-      tier:
-        - { type: full_hit }                          # T-FULL；T-DUAL_07 yaml 在此后追加 { type: warm_start, start_t: 0.7 }
+      factors:                                          # 按 yaml descriptor 选 1-5 个 factor
+        - { type: f1a_a, params: {window_k: 3, descriptors: [jerk, dir, curv_radius, cum_disp]} }
+      composer:
+        type: weighted_sum
+        weights:                                        # uniform 1.0 across the factor's emitted keys
+          f1a_a_jerk: 1.0
+          f1a_a_dir: 1.0
+          f1a_a_curv_radius: 1.0
+          f1a_a_cum_disp: 1.0
+        tier_thresholds:
+          full_hit: 0.5                                 # T-FULL：仅此一档；T-DUAL_07 yaml 多写 warm_start: 0.3
+        # T-DUAL_07 only: warm_start_t: 0.7（plan §3.4b N-PCT，validator §5d 校验 warm_start < full_hit）
+        directions:                                     # 仅 non_monotonic 描述子需要 (plan §3.4b N-PCT)
+          f1a_a_curv_radius: "range:[0.3, 0.7]"        # str；composer/_apply_direction 解析
+          f1a_a_cum_disp: "high"
       normalizer:
         type: percentile_rolling
-        window: 200
+        window_size: 200
         cold_start_strategy: force_miss
-      factors:
-        - { type: f1a_a }                              # 按 yaml descriptor 调整因子集 / windows
-      directions:                                      # plan §3.4b N-PCT 表（仅 non_monotonic 描述子需要）
-        f1a_a_curv_radius: { type: range, low: 0.3, high: 0.7 }
-        f1a_a_cum_disp:    { type: high }
-        # F1b 系列每窗口镜像；D-JERK / D-DIR yaml 不含 non_monotonic 描述子，可省 directions
     search_strategy:
       type: weighted_rrf_knn
-      top_k: 1                                         # CompositeJudge 由 min_top_k_hint 自动撑到 5
-      ...                                              # 同 Phase 0 公共字段
-backend: { ... }                                       # 同 Phase 0
+      top_k: 1                                          # CompositeJudge 由 min_top_k_hint 自动撑到 F2 K=5
+      # ... 同 Phase 0 公共字段
+backend: { ... }                                        # 同 Phase 0
 write_policy: { type: never }
 ```
 
 > **F1b 窗口锁定 W-MIX = `(0,3)(1,1)(3,0)(0,5)(5,0)`**（plan §3.3 / §3.3b B-3）。`(5,5)` `(7,7)` 在 Phase 1 默认禁用。
 
-> **directions 配置**：D-JERK / D-DIR 单描述子 yaml 仅含 `jerk` 或 `dir`（orientation = risky / safe），不需要 `directions` block。D-ALL yaml 含 `curv_radius` / `cum_disp` 必须显式给 `range:[0.3,0.7]` / `high`，否则 validator 拒收（plan §3.4b）。
+> **directions 配置**：D-JERK / D-DIR 单描述子 yaml 仅含 `jerk` 或 `dir`（orientation = risky / safe），`phase1_spec.py:_directions_for` 对应不写 `directions` block。D-ALL yaml 含 `curv_radius` / `cum_disp` 必须给 `range:[0.3,0.7]` / `high`，否则 validator §3 拒收。
 
 ### 生成后验
 
@@ -191,12 +203,15 @@ print('phase0 invariant OK')
 
 # Phase 0/1：static composite validator 全过
 uv run python -c "
-import yaml, pathlib
-from openpi.cache.config import build_cache_config
+import pathlib
+from openpi.cache.config import load_cache_config, validate_cache_config
+n=0
 for p in sorted(pathlib.Path('exp/verdict_factor_judge/config').rglob('*.yaml')):
-    cfg = build_cache_config(yaml.safe_load(p.read_text()))
-    print('OK', p)
+    validate_cache_config(load_cache_config(p))
+    n+=1
+print(f'{n} yamls validated')
 "
+# 期望: 27 yamls validated
 ```
 
 ---
@@ -210,7 +225,7 @@ for p in sorted(pathlib.Path('exp/verdict_factor_judge/config').rglob('*.yaml'))
 ```bash
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config exp/verdict_factor_judge/config/clip/clip_w7_d4_phase0_always_hit_dump.yaml \
+    --cache-config exp/verdict_factor_judge/config/clip/phase0/clip_w7_d4_phase0_always_hit_dump.yaml \
     --env LIBERO \
     --port 7998 \
     policy:checkpoint \
@@ -223,7 +238,7 @@ uv run scripts/serve_policy.py \
 ```bash
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config exp/verdict_factor_judge/config/max_pool/max_pool_w3_d5_phase0_always_hit_dump.yaml \
+    --cache-config exp/verdict_factor_judge/config/max_pool/phase0/max_pool_w3_d5_phase0_always_hit_dump.yaml \
     --env LIBERO \
     --port 7999 \
     policy:checkpoint \
@@ -236,7 +251,7 @@ uv run scripts/serve_policy.py \
 ```bash
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config exp/verdict_factor_judge/config/spatial16/spatial16_w8_d4_phase0_always_hit_dump.yaml \
+    --cache-config exp/verdict_factor_judge/config/spatial16/phase0/spatial16_w8_d4_phase0_always_hit_dump.yaml \
     --env LIBERO \
     --port 8000 \
     policy:checkpoint \
@@ -252,8 +267,7 @@ uv run scripts/serve_policy.py \
 
 ```bash
 uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/clip \
-    --runs 1 \
+    --yaml-dir exp/verdict_factor_judge/config/clip/phase0 \
     --episodes-per-run 10 \
     --num-workers 5 \
     --host 155.98.36.13 --port 8998 \
@@ -269,8 +283,7 @@ uv run exp/common/run_cache_experiments.py \
 
 ```bash
 uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/max_pool \
-    --runs 1 \
+    --yaml-dir exp/verdict_factor_judge/config/max_pool/phase0 \
     --episodes-per-run 10 \
     --num-workers 5 \
     --host 155.98.36.13 --port 8999 \
@@ -286,8 +299,7 @@ uv run exp/common/run_cache_experiments.py \
 
 ```bash
 uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/spatial16 \
-    --runs 1 \
+    --yaml-dir exp/verdict_factor_judge/config/spatial16/phase0 \
     --episodes-per-run 10 \
     --num-workers 5 \
     --host 155.98.36.13 --port 9000 \
@@ -346,7 +358,7 @@ for cfg in ['clip', 'max_pool', 'spatial16']:
 # S1 重启（如需）
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config exp/verdict_factor_judge/config/clip/clip_w7_d4_phase1_f_f1a_t_only_d_all_t_full.yaml \
+    --cache-config exp/verdict_factor_judge/config/clip/phase1/clip_w7_d4_phase1_f_f1a_t_only_d_all_t_full.yaml \
     --env LIBERO --port 7998 \
     policy:checkpoint \
     --policy.config pi05_libero \
@@ -355,7 +367,7 @@ uv run scripts/serve_policy.py \
 # S2 重启（如需）
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config exp/verdict_factor_judge/config/max_pool/max_pool_w3_d5_phase1_f_f1a_t_only_d_all_t_full.yaml \
+    --cache-config exp/verdict_factor_judge/config/max_pool/phase1/max_pool_w3_d5_phase1_f_f1a_t_only_d_all_t_full.yaml \
     --env LIBERO --port 7999 \
     policy:checkpoint \
     --policy.config pi05_libero \
@@ -364,7 +376,7 @@ uv run scripts/serve_policy.py \
 # S3 重启（如需）
 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config exp/verdict_factor_judge/config/spatial16/spatial16_w8_d4_phase1_f_f1a_t_only_d_all_t_full.yaml \
+    --cache-config exp/verdict_factor_judge/config/spatial16/phase1/spatial16_w8_d4_phase1_f_f1a_t_only_d_all_t_full.yaml \
     --env LIBERO --port 8000 \
     policy:checkpoint \
     --policy.config pi05_libero \
@@ -373,13 +385,15 @@ uv run scripts/serve_policy.py \
 
 ### §2.2 客户端 Runner 命令（3 client，1 per server）
 
-每 cfg 1 client，5 worker，runner 按 lex 序 sequential 跑 dir 内全部 8 yaml。**不能用 --runs 切片把多个 client 同时打到一个 server 上** — `_current_bundle` 是 server module-level global，并发 `load_cache_config` 会互相覆盖（详见 §4.4）。
+每 cfg 1 client，5 worker，runner 按 lex 序 sequential 跑 `phase1/` 子目录内全部 8 yaml。`--yaml-dir` 指 `<cfg>/phase1/` 即可，phase 间天然隔离不需要 `--runs` 切。
+
+> **不能用 --runs 切片把多个 client 同时打到一个 server 上** — `_current_bundle` 是 server module-level global，并发 `load_cache_config` 会互相覆盖（详见 §4.4）。
 
 #### Client → S1 (clip)
 
 ```bash
 uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/clip \
+    --yaml-dir exp/verdict_factor_judge/config/clip/phase1 \
     --episodes-per-run 10 --num-workers 5 \
     --host 155.98.36.13 --port 8998 \
     --task-suite libero_spatial --seed 42 \
@@ -393,7 +407,7 @@ uv run exp/common/run_cache_experiments.py \
 
 ```bash
 uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/max_pool \
+    --yaml-dir exp/verdict_factor_judge/config/max_pool/phase1 \
     --episodes-per-run 10 --num-workers 5 \
     --host 155.98.36.13 --port 8999 \
     --task-suite libero_spatial --seed 42 \
@@ -407,7 +421,7 @@ uv run exp/common/run_cache_experiments.py \
 
 ```bash
 uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/spatial16 \
+    --yaml-dir exp/verdict_factor_judge/config/spatial16/phase1 \
     --episodes-per-run 10 --num-workers 5 \
     --host 155.98.36.13 --port 9000 \
     --task-suite libero_spatial --seed 42 \
