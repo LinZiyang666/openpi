@@ -52,6 +52,7 @@ class EpisodeDataCollector:
         episode_id: int,
         *,
         episode_name: str = "",
+        extra_metadata: dict | None = None,  # noqa: ARG002 — accepted for keyword-call compat with cache lifecycle
     ) -> None:
         with self._lock:
             self._buffer = []

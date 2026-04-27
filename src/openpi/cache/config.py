@@ -131,6 +131,23 @@ class NormalizerConfig:
 
 
 @dataclass
+class DumpConfig:
+    """Per-verdict factor dump configuration for `JudgeConfig.dump`.
+
+    When a `JudgeConfig` carries a non-None `dump`, `_build_judge` wraps the
+    constructed inner judge in a `DumpingJudge` that side-channels factor
+    descriptors to JSONL for offline calibration. `config_id` is the
+    JSONL-row identifier and must match `cache_eval_results.json.config_id`
+    (the runner uses `yaml stem`); the YAML generator enforces
+    `dump.config_id == yaml stem`.
+    """
+
+    path: str = ""
+    config_id: str = ""
+    factors: list[FactorConfig] = field(default_factory=list)
+
+
+@dataclass
 class JudgeConfig:
     type: str = "threshold"
     threshold: float = 0.98
@@ -145,6 +162,14 @@ class JudgeConfig:
     factors: Optional[list[FactorConfig]] = None
     composer: Optional[ComposerConfig] = None
     normalizer: Optional[NormalizerConfig] = None
+    # ── Verdict-factor dump (server-side calibration logging) ──
+    # Optional. When set, `_build_judge` wraps the inner judge in a
+    # `DumpingJudge` that writes per-verdict factor rows to `dump.path`.
+    # The wrapper is transparent to verdict behaviour; it adds JSONL output
+    # and merges its own factor list's `required_top_k` into the search
+    # strategy's `min_top_k_hint` so dump-side factors (e.g. F2) get enough
+    # candidates even when the inner judge does not request widening.
+    dump: Optional[DumpConfig] = None
 
 
 @dataclass
@@ -318,6 +343,7 @@ _CONFIG_TYPES: dict[str, type] = {
     "KeysConfig": KeysConfig,
     "GateConfig": GateConfig,
     "JudgeConfig": JudgeConfig,
+    "DumpConfig": DumpConfig,
     "FactorConfig": FactorConfig,
     "ComposerConfig": ComposerConfig,
     "NormalizerConfig": NormalizerConfig,
@@ -486,6 +512,66 @@ def load_cache_config(path: str | Path) -> CacheConfig:
         config.write_policy.type,
     )
     return config
+
+
+def _validate_dump_static(
+    prefix: str,
+    dump: "DumpConfig",
+    config: "CacheConfig",
+    errors: list[str],
+) -> None:
+    """Static checks for `JudgeConfig.dump`.
+
+    Verifies path parent exists, `config_id` non-empty, every dump factor
+    is in the registry, and dump-side capability flags are compatible with
+    the configured backend. The `dump.config_id == yaml stem` invariant is
+    enforced in the YAML generator (`exp/verdict_factor_judge/generate_yamls.py`),
+    not here, since the validator does not receive the YAML path.
+    """
+    import os
+
+    from openpi.cache.components.factors import registry
+
+    # path parent exists (allow path itself to not exist — DumpingJudge
+    # appends, so the file may be created on first verdict)
+    parent = os.path.dirname(dump.path) or "."
+    if not dump.path:
+        errors.append(f"{prefix}.judge.dump.path is required (non-empty string)")
+    elif not os.path.isdir(parent):
+        errors.append(
+            f"{prefix}.judge.dump.path parent directory does not exist: {parent!r}"
+        )
+
+    # config_id non-empty (required for Phase 5 outcome join)
+    if not dump.config_id:
+        errors.append(
+            f"{prefix}.judge.dump.config_id is required (non-empty string); "
+            f"yaml-generator must enforce config_id == yaml stem so it matches "
+            f"runner-produced cache_eval_results.json.config_id"
+        )
+
+    # factors must be registered + capability flags vs backend
+    known = registry.known()
+    backend_type = config.backend.type
+    for i, fcfg in enumerate(dump.factors):
+        item_prefix = f"{prefix}.judge.dump.factors[{i}]"
+        if fcfg.type not in known:
+            errors.append(
+                f"{item_prefix}.type '{fcfg.type}' is not registered. "
+                f"Known: {sorted(known)}"
+            )
+            continue
+        cls = registry.get_class(fcfg.type)
+        if getattr(cls, "requires_library_stats", False) and backend_type != "in_memory":
+            errors.append(
+                f"{item_prefix} '{fcfg.type}' requires library_stats; "
+                f"backend.type must be 'in_memory' (got {backend_type!r})"
+            )
+        if getattr(cls, "requires_chain_walk", False) and backend_type != "in_memory":
+            errors.append(
+                f"{item_prefix} '{fcfg.type}' requires chain walk via fetch_entry; "
+                f"backend.type must be 'in_memory' (got {backend_type!r})"
+            )
 
 
 def _validate_composite_judge_static(
@@ -814,6 +900,11 @@ def validate_cache_config(config: CacheConfig) -> None:
             _validate_composite_judge_static(
                 prefix, cp_config.judge, config, errors, cp_name=cp_name,
             )
+
+        # JudgeConfig.dump validator (G1 R6+). Independent of judge.type;
+        # any judge can be wrapped by DumpingJudge for calibration logging.
+        if cp_config.judge.dump is not None:
+            _validate_dump_static(prefix, cp_config.judge.dump, config, errors)
 
         ss = cp_config.search_strategy
         if ss.type not in _valid_strategy_types:
@@ -1512,7 +1603,20 @@ def _build_judge(cfg: JudgeConfig, library_stats=None):
     that declare `requires_library_stats=True` (currently F1a / F1b).
     Static validation guarantees the required value is non-None before
     this builder is invoked for a composite judge.
+
+    When `cfg.dump` is set, the constructed judge is wrapped in a
+    `DumpingJudge` that side-channels per-verdict factor descriptors to
+    JSONL for offline calibration; the wrapper preserves the inner
+    judge's verdict surface byte-identically.
     """
+    inner = _build_inner_judge(cfg, library_stats=library_stats)
+    if cfg.dump is None:
+        return inner
+    return _wrap_with_dumping_judge(inner, cfg.dump, library_stats=library_stats)
+
+
+def _build_inner_judge(cfg: JudgeConfig, library_stats=None):
+    """Build the unwrapped judge instance based on `cfg.type` only."""
     if cfg.type == "threshold":
         from openpi.cache.components.judge import ThresholdJudge
 
@@ -1568,6 +1672,38 @@ def _build_judge(cfg: JudgeConfig, library_stats=None):
         )
 
 
+def _build_dump_extractors(dump_cfg: "DumpConfig", library_stats=None) -> list:
+    """Instantiate dump-side OnlineExtractor list from `JudgeConfig.dump.factors`.
+
+    Mirrors composite-judge factor wiring: `requires_library_stats=True`
+    factors (F1a / F1b) get `library_stats` injected; pure-runtime factors
+    (F2) construct without it.
+    """
+    from openpi.cache.components.factors.registry import get_class
+
+    extractors = []
+    for fcfg in dump_cfg.factors:
+        cls = get_class(fcfg.type)
+        kwargs = dict(fcfg.params)
+        if getattr(cls, "requires_library_stats", False):
+            kwargs["library_stats"] = library_stats
+        extractors.append(cls(**kwargs))
+    return extractors
+
+
+def _wrap_with_dumping_judge(inner, dump_cfg: "DumpConfig", library_stats=None):
+    """Wrap `inner` in a DumpingJudge using `dump_cfg`."""
+    from openpi.cache.components.judge import DumpingJudge
+
+    extractors = _build_dump_extractors(dump_cfg, library_stats=library_stats)
+    return DumpingJudge(
+        inner=inner,
+        dump_extractors=extractors,
+        dump_path=dump_cfg.path,
+        config_id=dump_cfg.config_id,
+    )
+
+
 def _build_composer(cfg: ComposerConfig):
     """Instantiate a Composer from a ComposerConfig."""
     from openpi.cache.components.factors.composers import (
@@ -1600,6 +1736,7 @@ def _build_composer(cfg: ComposerConfig):
         return AndGateComposer(
             per_factor_thresholds=cfg.per_factor_thresholds,
             warm_start_t=cfg.warm_start_t,
+            directions=cfg.directions,
         )
     if cfg.type == "or":
         if cfg.per_factor_thresholds is None:
@@ -1609,6 +1746,7 @@ def _build_composer(cfg: ComposerConfig):
         return OrGateComposer(
             per_factor_thresholds=cfg.per_factor_thresholds,
             warm_start_t=cfg.warm_start_t,
+            directions=cfg.directions,
         )
     raise ConfigValidationError(
         f"Unknown composer.type '{cfg.type}'. Valid: ['weighted_sum', 'and', 'or']"

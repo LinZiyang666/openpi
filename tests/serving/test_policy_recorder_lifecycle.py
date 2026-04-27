@@ -30,8 +30,25 @@ def test_on_episode_start_forwards_kwargs(tmp_path: Path) -> None:
     rec.on_episode_start(
         experiment="exp", task="task", episode_id=1, episode_name="task_0/ep_0"
     )
+    # extra_metadata defaults to None when caller omits it (5-field contract).
     inner.on_episode_start.assert_called_once_with(
-        experiment="exp", task="task", episode_id=1, episode_name="task_0/ep_0"
+        experiment="exp", task="task", episode_id=1, episode_name="task_0/ep_0",
+        extra_metadata=None,
+    )
+
+
+def test_on_episode_start_forwards_extra_metadata(tmp_path: Path) -> None:
+    """Non-empty extra_metadata must reach the inner policy unchanged."""
+    rec, inner = _make_recorder(
+        tmp_path, inner_spec=["on_episode_start", "on_episode_end", "infer"]
+    )
+    rec.on_episode_start(
+        experiment="exp", task="task", episode_id=1, episode_name="task_0/ep_0",
+        extra_metadata={"task_id": 3, "orig_init_state_idx": 7},
+    )
+    inner.on_episode_start.assert_called_once_with(
+        experiment="exp", task="task", episode_id=1, episode_name="task_0/ep_0",
+        extra_metadata={"task_id": 3, "orig_init_state_idx": 7},
     )
 
 
@@ -79,11 +96,16 @@ def test_lifecycle_signatures_are_explicit_no_varargs() -> None:
     """
     _VAR = {inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD}
 
-    # on_episode_start: explicit 4-arg signature + no varargs.
+    # on_episode_start: explicit 5-arg signature + no varargs. The
+    # ``extra_metadata`` kwarg was added for verdict-factor calibration
+    # logging (DumpingJudge identity injection) but the explicit-only
+    # contract still holds — no varargs allowed.
     sig = inspect.signature(PolicyRecorder.on_episode_start)
     names = [p.name for p in sig.parameters.values() if p.name != "self"]
     kinds = {p.kind for p in sig.parameters.values() if p.name != "self"}
-    assert names == ["experiment", "task", "episode_id", "episode_name"], names
+    assert names == [
+        "experiment", "task", "episode_id", "episode_name", "extra_metadata",
+    ], names
     assert not (kinds & _VAR), f"on_episode_start must not use *args/**kwargs, got {kinds}"
 
     # on_episode_end: explicit ``success`` only.

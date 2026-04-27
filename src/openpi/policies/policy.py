@@ -256,6 +256,7 @@ class PolicyRecorder(_base_policy.BasePolicy):
         task: str = "",
         episode_id: int = -1,
         episode_name: str = "",
+        extra_metadata: dict | None = None,
     ) -> None:
         if hasattr(self._policy, "on_episode_start"):
             self._policy.on_episode_start(
@@ -263,6 +264,7 @@ class PolicyRecorder(_base_policy.BasePolicy):
                 task=task,
                 episode_id=episode_id,
                 episode_name=episode_name,
+                extra_metadata=extra_metadata,
             )
 
     def on_episode_end(self, success: bool = False) -> None:

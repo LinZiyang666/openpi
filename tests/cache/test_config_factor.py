@@ -167,6 +167,41 @@ def test_build_composer_unknown_type():
         _build_composer(cfg)
 
 
+# ------------------------------------------------------------------
+# directions wiring through builder (and / or branches)
+# ------------------------------------------------------------------
+
+
+def test_build_composer_and_forwards_directions():
+    """AndGate must receive `directions` so non_monotonic key bind succeeds."""
+    cfg = ComposerConfig(
+        type="and",
+        per_factor_thresholds={"k": 0.5},
+        directions={"k": "high"},
+    )
+    composer = _build_composer(cfg)
+    composer.bind_orientations({"k": "non_monotonic"})  # would raise without directions
+
+
+def test_build_composer_or_forwards_directions():
+    """OrGate must receive `directions` so non_monotonic key bind succeeds."""
+    cfg = ComposerConfig(
+        type="or",
+        per_factor_thresholds={"k": 0.5},
+        directions={"k": "range:[0.3,0.7]"},
+    )
+    composer = _build_composer(cfg)
+    composer.bind_orientations({"k": "non_monotonic"})  # would raise without directions
+
+
+def test_build_composer_and_missing_direction_raises_at_bind_time():
+    """AndGate without directions for non_monotonic key still raises at bind."""
+    cfg = ComposerConfig(type="and", per_factor_thresholds={"k": 0.5})
+    composer = _build_composer(cfg)
+    with pytest.raises(ValueError, match="missing `directions`"):
+        composer.bind_orientations({"k": "non_monotonic"})
+
+
 def test_build_composer_weighted_sum_succeeds():
     cfg = ComposerConfig(
         type="weighted_sum",

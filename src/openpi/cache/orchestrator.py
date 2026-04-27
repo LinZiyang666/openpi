@@ -135,6 +135,11 @@ class CacheOrchestrator:
         self._miss_by_checkpoint: dict[CheckpointID, int] = {}
         self._current_task_key: str = ""
         self._current_episode_id: str = ""
+        # Per-episode identity payload from `episode_start.extra_metadata`
+        # (e.g. {"task_id": int, "orig_init_state_idx": int}). Cleared on
+        # episode_end so cross-episode bleed is impossible. Read by
+        # DumpingJudge through the lifecycle broadcast below.
+        self._current_episode_extra: dict = {}
 
         # B1 — verdict-factor history buffers. Populated by broadcast_action
         # (actions) and check() at the anchor checkpoint (states); read by
@@ -216,13 +221,29 @@ class CacheOrchestrator:
         self._reset_episode_buffer()
         self._broadcast_episode_start()
 
-    def on_episode_start(self, task_key: str = "", episode_id: str = "") -> None:
-        """Reset per-episode state. Called when simulator sends episode_start."""
+    def on_episode_start(
+        self,
+        task_key: str = "",
+        episode_id: str = "",
+        extra_metadata: dict | None = None,
+    ) -> None:
+        """Reset per-episode state. Called when simulator sends episode_start.
+
+        ``extra_metadata`` carries episode-level identity injected through the
+        wire-level ``episode_start.__extra__`` channel (see
+        ``InferenceInterceptor.on_episode_start``); it is stashed on
+        ``self._current_episode_extra`` and broadcast to lifecycle-aware
+        components (currently only ``DumpingJudge``) via the existing
+        ``_safe_call_lifecycle`` filtering path.
+        """
         self._step_counter = 0
         if task_key:
             self._current_task_key = task_key
         self._current_episode_id = episode_id
+        # Reset first (clears stale extra from previous episode), then set
+        # the new identity so it survives the broadcast below.
         self._reset_episode_buffer()
+        self._current_episode_extra = dict(extra_metadata or {})
         self._broadcast_episode_start()
 
     def _broadcast_episode_start(self) -> None:
@@ -244,13 +265,20 @@ class CacheOrchestrator:
         self._close_current_search_sessions()
 
         # (2) Broadcast lifecycle to all components.
+        # Pass `extra_metadata` only to judges (DumpingJudge consumes it for
+        # JSONL identity); _safe_call_lifecycle filters via inspect.signature
+        # so existing kwargs-free judges (AlwaysHit / AlwaysWarmStart /
+        # Threshold / CompositeJudge) silently swallow the kwarg.
         self._safe_call_lifecycle(self._key_builder, "on_episode_start")
         for strategy in self._search_strategies.values():
             self._safe_call_lifecycle(strategy, "on_episode_start")
         for gate in self._gates.values():
             self._safe_call_lifecycle(gate, "on_episode_start")
         for judge in self._judges.values():
-            self._safe_call_lifecycle(judge, "on_episode_start")
+            self._safe_call_lifecycle(
+                judge, "on_episode_start",
+                extra_metadata=self._current_episode_extra,
+            )
 
         # (3) Collect strategy-minted sids and register with the backend.
         # Sequential single-thread loop here; no contention with concurrent
@@ -299,6 +327,11 @@ class CacheOrchestrator:
         # action / state lists, not bleed across episode boundaries).
         self._action_history.clear()
         self._state_history.clear()
+        # Identity payload from `episode_start.extra_metadata` is also
+        # cleared here so any stray verdict between on_episode_end and the
+        # next on_episode_start (defensive) sees an empty dict rather than
+        # last episode's identity.
+        self._current_episode_extra = {}
 
     # ------------------------------------------------------------------
     # Action broadcast

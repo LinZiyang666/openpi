@@ -357,3 +357,186 @@ class CompositeJudge:
         # action / state history is owned by Orchestrator and injected
         # via HistoryView at verdict time.
         return None
+
+
+# ---------------------------------------------------------------------------
+# DumpingJudge — transparent wrapper that side-channels per-verdict factor
+# logs to JSONL for offline calibration without altering verdict behaviour
+# ---------------------------------------------------------------------------
+
+
+class DumpingJudge:
+    """Transparent wrapper that logs per-verdict factor descriptors to JSONL.
+
+    Pipeline per verdict:
+      1. Forward `(results, checkpoint_id, cached_data, view, history)` to the
+         inner judge and capture its `JudgeResult`.
+      2. Run the configured dump-side `OnlineExtractor` list on the same args
+         to collect raw factor values + a per-key NaN flag map.
+      3. Append one JSONL row containing `config_id, task_id, orig_init_state_idx,
+         step_idx, winner_id, cp1_score, factor_raw, factor_nan` to `dump_path`.
+      4. Return the inner `JudgeResult` unchanged — verdict behaviour is
+         byte-identical to the inner judge.
+
+    Identity (`task_id`, `orig_init_state_idx`) reaches the wrapper through
+    `on_episode_start(extra_metadata=...)`, which the orchestrator broadcasts
+    via `_safe_call_lifecycle` (signature filtering keeps existing kwargs-free
+    judges unaffected).
+
+    Surface contract preserved from the inner judge:
+      - `min_required_top_k` is `max(inner_hint, max(dump-extractor required_top_k))`,
+        so cache search returns enough candidates for both the inner verdict
+        and dump-side factors (e.g. F2 needs K=5).
+      - `on_episode_start` and `record_action` forward to the inner judge —
+        the former through filtered dispatch (inner may not accept
+        `extra_metadata`), the latter directly (4 existing judges share the
+        same `(self, action_chunk)` signature).
+      - Any other attribute access falls through to the inner judge via
+        `__getattr__`, so future surface additions work without re-wrapping.
+
+    Coupling map:
+      DEPENDS ON:  any SimilarityJudge instance + a list of OnlineExtractor.
+      CONSUMED BY: `_build_judge` when the YAML carries a `judge.dump` block.
+      IF CHANGED:  recheck `Orchestrator._safe_call_lifecycle` filtering and
+                   the JSONL column names referenced by Phase 5 calibration.
+    """
+
+    def __init__(
+        self,
+        inner: "SimilarityJudge",
+        dump_extractors: list,
+        dump_path: str,
+        config_id: str,
+    ) -> None:
+        # Set the four attributes via object.__setattr__ so __getattr__ never
+        # has a chance to recurse into the inner judge while __init__ is still
+        # running and the instance dict is incomplete.
+        object.__setattr__(self, "_inner", inner)
+        object.__setattr__(self, "_dump_extractors", list(dump_extractors))
+        object.__setattr__(self, "_dump_path", str(dump_path))
+        object.__setattr__(self, "_config_id", str(config_id))
+        object.__setattr__(self, "_current_extra", {})
+        object.__setattr__(self, "_step_idx", 0)
+
+    # ------------------------------------------------------------------
+    # Surface preserved from the inner judge
+    # ------------------------------------------------------------------
+
+    @property
+    def min_required_top_k(self) -> int:
+        """Combine inner hint with dump-side extractor top-k requirements."""
+        inner_hint = int(getattr(self._inner, "min_required_top_k", 0))
+        dump_hint = max(
+            (int(getattr(ext, "required_top_k", 0)) for ext in self._dump_extractors),
+            default=0,
+        )
+        return max(inner_hint, dump_hint)
+
+    def __getattr__(self, name: str):
+        # __getattr__ runs only on normal-attribute miss, so the
+        # object.__setattr__ stash in __init__ keeps this from recursing.
+        return getattr(self._inner, name)
+
+    # ------------------------------------------------------------------
+    # Lifecycle hooks
+    # ------------------------------------------------------------------
+
+    def on_episode_start(self, *, extra_metadata: Optional[dict] = None) -> None:
+        """Stash identity metadata + reset per-episode counters; forward to inner."""
+        self._current_extra = dict(extra_metadata or {})
+        self._step_idx = 0
+        # Filtered forwarding — inner judge may not accept `extra_metadata`,
+        # so use the same `inspect.signature` filtering as Orchestrator.
+        # Local import avoids module-load cycle (orchestrator imports judge).
+        from openpi.cache.orchestrator import CacheOrchestrator
+        CacheOrchestrator._safe_call_lifecycle(
+            self._inner, "on_episode_start", extra_metadata=extra_metadata,
+        )
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        """Forward action broadcast to the inner judge.
+
+        All four existing judges share `record_action(self, action_chunk)`,
+        so a direct call is safe; wrap behind `_safe_call_lifecycle` only
+        when the inner-judge surface widens here.
+        """
+        hook = getattr(self._inner, "record_action", None)
+        if hook is not None:
+            hook(action_chunk)
+
+    # ------------------------------------------------------------------
+    # Verdict path
+    # ------------------------------------------------------------------
+
+    def __call__(
+        self,
+        results: list[SearchResultLite],
+        checkpoint_id: CheckpointID,
+        cached_data: dict[str, torch.Tensor],
+        *,
+        view: Optional["PayloadView"] = None,
+        history: Optional["HistoryView"] = None,
+    ) -> JudgeResult:
+        # 1) Forward verdict to inner — verdict behaviour byte-identical.
+        judge_result = self._inner(
+            results, checkpoint_id, cached_data, view=view, history=history,
+        )
+
+        # 2) Best-effort dump. Any extractor failure must not pollute the
+        # verdict path; trap exceptions and write NaN rows instead.
+        try:
+            self._write_dump_row(results, view, history, cached_data)
+        except Exception:  # noqa: BLE001
+            # Log path failure is recoverable from the verdict's perspective;
+            # surfacing here would corrupt experiment runs for an analysis
+            # side-channel. Swallowing here is the documented contract.
+            pass
+        finally:
+            self._step_idx += 1
+
+        return judge_result
+
+    # ------------------------------------------------------------------
+    # Internal: JSONL row assembly
+    # ------------------------------------------------------------------
+
+    def _write_dump_row(
+        self,
+        results,
+        view,
+        history,
+        cached_data,
+    ) -> None:
+        factor_raw: dict[str, float] = {}
+        factor_nan: dict[str, bool] = {}
+        for ext in self._dump_extractors:
+            try:
+                out = ext.extract(results, view, history, cached_data)
+            except Exception:  # noqa: BLE001
+                # Per-extractor isolation: declared keys go to NaN.
+                declared = getattr(ext, "descriptor_orientations", {}) or {}
+                for k in declared:
+                    factor_raw[k] = float("nan")
+                    factor_nan[k] = True
+                continue
+            for k, v in out.items():
+                fv = float(v)
+                factor_raw[k] = fv
+                factor_nan[k] = math.isnan(fv)
+
+        winner = results[0] if results else None
+        row = {
+            "config_id": self._config_id,
+            "task_id": self._current_extra.get("task_id"),
+            "orig_init_state_idx": self._current_extra.get("orig_init_state_idx"),
+            "step_idx": self._step_idx,
+            "winner_id": winner.id if winner is not None else None,
+            "cp1_score": float(winner.score) if winner is not None else None,
+            "factor_raw": factor_raw,
+            "factor_nan": factor_nan,
+        }
+
+        # Append-only write. JSONL by line.
+        import json
+        with open(self._dump_path, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(row) + "\n")

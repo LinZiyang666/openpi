@@ -123,11 +123,41 @@ def test_episode_start_dispatched_with_keyword_args() -> None:
         ],
     )
 
+    # extra_metadata defaults to {} when client omits __extra__ on the wire
+    # (5-field contract introduced for verdict_factor_judge calibration logging).
     policy.on_episode_start.assert_called_once_with(
         experiment="exp",
         task="task",
         episode_id=7,
         episode_name="task_3/episode_2",
+        extra_metadata={},
+    )
+
+
+def test_episode_start_forwards_extra_metadata_when_set() -> None:
+    """Non-empty __extra__ on the wire must reach the policy as extra_metadata."""
+    policy = _make_policy_with_lifecycle()
+    _run_handler(
+        policy,
+        incoming=[
+            _pack(
+                {
+                    "__ctrl__": "episode_start",
+                    "__experiment__": "exp",
+                    "__task__": "task",
+                    "__episode_id__": 7,
+                    "__episode_name__": "task_3/episode_2",
+                    "__extra__": {"task_id": 3, "orig_init_state_idx": 7},
+                }
+            )
+        ],
+    )
+    policy.on_episode_start.assert_called_once_with(
+        experiment="exp",
+        task="task",
+        episode_id=7,
+        episode_name="task_3/episode_2",
+        extra_metadata={"task_id": 3, "orig_init_state_idx": 7},
     )
 
 
@@ -153,6 +183,7 @@ def test_episode_start_defaults_episode_name_to_empty_string() -> None:
         task="task",
         episode_id=7,
         episode_name="",
+        extra_metadata={},
     )
 
 

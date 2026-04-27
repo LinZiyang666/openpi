@@ -215,6 +215,7 @@ class WebsocketPolicyServer:
                                 task=obs.get("__task__", ""),
                                 episode_id=obs.get("__episode_id__", -1),
                                 episode_name=obs.get("__episode_name__", ""),
+                                extra_metadata=obs.get("__extra__", {}),
                             )
                         await websocket.send(packer.pack({"__ack__": "episode_start"}))
                     elif ctrl == "episode_end":

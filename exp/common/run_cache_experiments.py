@@ -124,6 +124,7 @@ def _execute_tasks(
     conda_env: str | None = None,
     episode_results_path: Path | None = None,
     cuda_visible_devices: str = "0",
+    episode_filter: str | None = None,
 ) -> dict:
     """Execute a batch of tasks concurrently via main.py.
 
@@ -134,6 +135,10 @@ def _execute_tasks(
     --episode-results-path`` to ``main.py`` so per-episode success rows are
     written for later aggregation into ``cache_eval_results.json`` (plan §9.0
     改动 2 / §19.B5).
+
+    If ``episode_filter`` is given, forwards ``--episode-filter PATH`` to
+    ``main.py`` so only matching ``(task_id, subset_init_state_idx)`` pairs
+    are executed (plan §6.2 — verdict_factor_judge fixed-init subset).
     """
     task_id_strs = [str(t) for t in task_ids]
     main_args = [
@@ -152,6 +157,8 @@ def _execute_tasks(
             "--save-episode-results",
             "--episode-results-path", str(episode_results_path),
         ]
+    if episode_filter:
+        main_args += ["--episode-filter", str(episode_filter)]
     from exp.common._subprocess import build_subprocess_cmd
 
     cmd, env = build_subprocess_cmd(main_args, conda_env=conda_env)
@@ -331,6 +338,12 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--task-ids", default=None, help="Only run these task IDs, e.g. '0' or '0,3,5' (default: all tasks in suite)")
     parser.add_argument("--conda-env", default=None, help="Use conda environment instead of uv to run main.py (e.g. 'libero')")
     parser.add_argument("--cuda", default="0", help="CUDA_VISIBLE_DEVICES value for all main.py workers (default: '0')")
+    parser.add_argument(
+        "--episode-filter", default=None,
+        help=("JSON path forwarded to main.py --episode-filter. Limits each run to "
+              "matching (task_id, subset_init_state_idx) pairs; used by the "
+              "verdict_factor_judge experiment for fixed 100-ep init subset."),
+    )
     return parser
 
 
@@ -495,6 +508,7 @@ def _execute_run_batches(
                 episode_results_path=_episode_results_path_for(
                     log_path, batch_idx, num_batches
                 ),
+                episode_filter=args.episode_filter,
             )
 
             if result["exit_code"] == 0:
@@ -929,6 +943,7 @@ def _retry_failed_runs(
                             batch_start // batch_size,
                             (len(failed_tasks) + batch_size - 1) // batch_size,
                         ),
+                        episode_filter=args.episode_filter,
                     )
                     if result["exit_code"] == 0:
                         n = len(batch)

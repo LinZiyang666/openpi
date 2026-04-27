@@ -59,22 +59,26 @@ class WebsocketClientPolicy(_base_policy.BasePolicy):
         task: str = "",
         episode_id: int = -1,
         episode_name: str = "",
+        extra_metadata: Optional[Dict] = None,
     ) -> Dict:
         # ``episode_name`` is always sent on the wire. An empty string preserves the
         # legacy server behaviour (server reads it with ``obs.get("__episode_name__", "")``
         # and treats empty as "no override"); a non-empty value lets callers pick the
         # HDF5 filename used by the collection data_collector (plan §3.1 / §3.4).
-        self._ws.send(
-            self._packer.pack(
-                {
-                    "__ctrl__": "episode_start",
-                    "__experiment__": experiment,
-                    "__task__": task,
-                    "__episode_id__": episode_id,
-                    "__episode_name__": episode_name,
-                }
-            )
-        )
+        # ``extra_metadata`` carries episode-level identity (e.g. {"task_id": int,
+        # "orig_init_state_idx": int}) for server-side calibration loggers like
+        # DumpingJudge. Empty dict is omitted from the wire to preserve byte-level
+        # backward compatibility for clients that never opt in.
+        msg = {
+            "__ctrl__": "episode_start",
+            "__experiment__": experiment,
+            "__task__": task,
+            "__episode_id__": episode_id,
+            "__episode_name__": episode_name,
+        }
+        if extra_metadata:
+            msg["__extra__"] = dict(extra_metadata)
+        self._ws.send(self._packer.pack(msg))
         response = self._ws.recv()
         if isinstance(response, str):
             raise RuntimeError(f"Error in inference server:\n{response}")

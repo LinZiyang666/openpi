@@ -282,22 +282,24 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         task: str = "",
         episode_id: int = -1,
         episode_name: str = "",
+        extra_metadata: dict | None = None,
     ) -> None:
         """Reset per-episode state. Called when simulator sends episode_start.
 
         ``experiment`` and ``episode_name`` are accepted for wrapper-signature
         alignment (``CollectionPolicy`` forwards both as kwargs) but are not
-        propagated to the orchestrator: the orchestrator protocol is limited to
-        ``task_key`` / ``episode_id``, and widening it here would leak
-        collection-layer concerns into the cache layer. The default values keep
-        every argument optional so older callers (``experiment, task,
-        episode_id`` positional or kwarg) remain source-compatible.
+        propagated to the orchestrator. ``extra_metadata`` carries
+        episode-level identity (e.g. ``{"task_id": int,
+        "orig_init_state_idx": int}``) for server-side calibration loggers
+        such as ``DumpingJudge``; the orchestrator stashes it for
+        per-verdict consumption.
         """
         del experiment, episode_name  # reserved; avoid unused-arg lint noise
         if self._orchestrator is not None:
             self._orchestrator.on_episode_start(
                 task_key=task,
                 episode_id=str(episode_id),
+                extra_metadata=extra_metadata,
             )
 
     def on_episode_end(self, success: bool) -> None:

@@ -118,6 +118,7 @@ class CollectionPolicy(_base_policy.BasePolicy):
         task: str,
         episode_id: int,
         episode_name: str = "",
+        extra_metadata: dict | None = None,
     ) -> None:
         # Reset the one-shot prompt-capture gate before opening the collector;
         # if forwarding to ``self._policy`` raises we still want the gate back
@@ -128,6 +129,7 @@ class CollectionPolicy(_base_policy.BasePolicy):
             task=task,
             episode_id=episode_id,
             episode_name=episode_name,
+            extra_metadata=extra_metadata,
         )
         self._collecting = True
         # Keyword-only forwarding to the inner wrapper chain. Plan §20.R2/§21
@@ -141,6 +143,7 @@ class CollectionPolicy(_base_policy.BasePolicy):
                 task=task,
                 episode_id=episode_id,
                 episode_name=episode_name,
+                extra_metadata=extra_metadata,
             )
 
     def on_episode_end(self, success: bool) -> None:

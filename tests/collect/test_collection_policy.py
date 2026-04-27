@@ -42,14 +42,36 @@ def test_on_episode_start_forwards_to_collector_and_inner_policy() -> None:
 
     cp.on_episode_start("exp", "task", 3, episode_name="task_0/ep_0")
 
+    # extra_metadata defaults to None when caller omits it (5-field contract).
     collector.on_episode_start.assert_called_once_with(
-        experiment="exp", task="task", episode_id=3, episode_name="task_0/ep_0"
+        experiment="exp", task="task", episode_id=3, episode_name="task_0/ep_0",
+        extra_metadata=None,
     )
     inner.on_episode_start.assert_called_once_with(
-        experiment="exp", task="task", episode_id=3, episode_name="task_0/ep_0"
+        experiment="exp", task="task", episode_id=3, episode_name="task_0/ep_0",
+        extra_metadata=None,
     )
     assert cp._collecting is True
     assert cp._prompt_captured is False  # reset, not yet captured
+
+
+def test_on_episode_start_forwards_extra_metadata() -> None:
+    """Non-empty extra_metadata must reach both collector and inner policy."""
+    cp, inner, collector = _make_policy()
+
+    cp.on_episode_start(
+        "exp", "task", 3, episode_name="task_0/ep_0",
+        extra_metadata={"task_id": 3, "orig_init_state_idx": 7},
+    )
+
+    collector.on_episode_start.assert_called_once_with(
+        experiment="exp", task="task", episode_id=3, episode_name="task_0/ep_0",
+        extra_metadata={"task_id": 3, "orig_init_state_idx": 7},
+    )
+    inner.on_episode_start.assert_called_once_with(
+        experiment="exp", task="task", episode_id=3, episode_name="task_0/ep_0",
+        extra_metadata={"task_id": 3, "orig_init_state_idx": 7},
+    )
 
 
 def test_on_episode_start_resets_prompt_captured_flag() -> None:
@@ -76,10 +98,12 @@ def test_on_episode_start_default_episode_name_is_empty_string() -> None:
     cp, inner, collector = _make_policy()
     cp.on_episode_start("exp", "task", 3)
     collector.on_episode_start.assert_called_once_with(
-        experiment="exp", task="task", episode_id=3, episode_name=""
+        experiment="exp", task="task", episode_id=3, episode_name="",
+        extra_metadata=None,
     )
     inner.on_episode_start.assert_called_once_with(
-        experiment="exp", task="task", episode_id=3, episode_name=""
+        experiment="exp", task="task", episode_id=3, episode_name="",
+        extra_metadata=None,
     )
 
 

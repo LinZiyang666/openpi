@@ -441,6 +441,10 @@ def _eval_serial(args: Args, task_suite, task_id_list: List[int], max_steps) -> 
                 task=str(task_description),
                 episode_id=global_episode_id,
                 episode_name=episode_name,
+                extra_metadata={
+                    "task_id": int(task_id),
+                    "orig_init_state_idx": int(orig_init_state_idx),
+                },
             )
 
             done, images, timestamps, traj_buffer, final_env_timestep = _run_episode(
@@ -628,6 +632,10 @@ def _eval_concurrent(args: Args, task_suite, task_id_list: List[int], max_steps)
                             task=str(task_description),
                             episode_id=global_episode_id,
                             episode_name=episode_name,
+                            extra_metadata={
+                                "task_id": int(task_id),
+                                "orig_init_state_idx": int(orig_init_state_idx),
+                            },
                         )
 
                         done, _, _, traj_buffer, final_env_timestep = _run_episode(
