@@ -70,6 +70,7 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 | File | Status | Description |
 |------|--------|-------------|
 | [libero_10_cache_artifact_build_plan.log.md](libero_10_cache_artifact_build_plan.log.md) | `Plan` | L1: 用 `exp/common/data/db_init/libero_cache/libero_10` 采样 init 驱动 LIBERO 推理，h5 落到 `exp/common/data/db/libero_cache/libero_10/`（与 `libero_spatial` 同约定），再 build 6 份 InMemoryBackend pkl artifact（4 pool + CLIP ViT-B-32 + ViT-L-14）到 `exp/common/data/cache_artifacts/libero_10/` |
+| [libero_spatial_factor_artifact_rebuild.log.md](libero_spatial_factor_artifact_rebuild.log.md) | `Implemented` | L1: 用 B1+B2 已落地的 `--factors-yaml` CLI 重建 `exp/common/data/cache_artifacts/libero_spatial/` 下 6 个 pkl（4 pool + ViT-B-32 + ViT-L-14），每个 entry 168 keys（F1b-A + F1b-T × 4 描述子 × 21 窗口 pure-future / pure-past / symmetric, k=1..7），`libero_spatial_warm/` 已删；3 个 builder 加 sys.path 注入修复 sibling import；smoke + 6/6 acceptance pass |
 
 ### Phase1 Experiments
 

@@ -350,7 +350,12 @@ def main():
     )
 
     # B2 — verdict-factor enrichment (see exp/common/factor_postprocess.py).
-    from exp.common.factor_postprocess import (
+    # sys.path injection mirrors build_llm_layer_matrix.py:50 pattern.
+    import sys as _sys
+    _here = str(Path(__file__).parent.resolve())
+    if _here not in _sys.path:
+        _sys.path.insert(0, _here)
+    from factor_postprocess import (
         _load_offline_writers_from_yaml,
         enrich_artifact_with_factors,
     )

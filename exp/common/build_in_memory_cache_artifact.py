@@ -900,7 +900,13 @@ def main():
     # _detach_entries (subprocess path keeps tensors numpy in memory for
     # IPC efficiency); enrich_artifact_with_factors / LibraryStats /
     # OfflineWriter all bridge numpy via torch.as_tensor.
-    from exp.common.factor_postprocess import (
+    # sys.path injection mirrors build_llm_layer_matrix.py:50 — exp/ is
+    # not on the package path when invoked as `uv run python exp/...`.
+    import sys as _sys
+    _here = str(Path(__file__).parent.resolve())
+    if _here not in _sys.path:
+        _sys.path.insert(0, _here)
+    from factor_postprocess import (
         _load_offline_writers_from_yaml,
         enrich_artifact_with_factors,
     )

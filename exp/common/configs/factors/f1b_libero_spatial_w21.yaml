@@ -1,0 +1,66 @@
+# F1b-A + F1b-T over 21 windows for the libero_spatial 6-pkl rebuild.
+# Window families:
+#   pure-future (0, k)  k=1..7    -> 7
+#   pure-past   (k, 0)  k=1..7    -> 7
+#   symmetric   (k, k)  k=1..7    -> 7
+# Total = 21 windows; (0, 0) is intentionally excluded (no signal).
+#
+# Each entry receives 4 descriptors x 21 windows x 2 factor families = 168
+# floats (~700 bytes), negligible vs. action_chunk [50, 32] payload.
+#
+# See logs/libero_spatial_factor_artifact_rebuild.log.md for the full plan.
+
+factors:
+  - type: f1b_a
+    params:
+      windows:
+        - {past: 0, future: 1}
+        - {past: 0, future: 2}
+        - {past: 0, future: 3}
+        - {past: 0, future: 4}
+        - {past: 0, future: 5}
+        - {past: 0, future: 6}
+        - {past: 0, future: 7}
+        - {past: 1, future: 0}
+        - {past: 2, future: 0}
+        - {past: 3, future: 0}
+        - {past: 4, future: 0}
+        - {past: 5, future: 0}
+        - {past: 6, future: 0}
+        - {past: 7, future: 0}
+        - {past: 1, future: 1}
+        - {past: 2, future: 2}
+        - {past: 3, future: 3}
+        - {past: 4, future: 4}
+        - {past: 5, future: 5}
+        - {past: 6, future: 6}
+        - {past: 7, future: 7}
+      descriptors: [jerk, dir, curv_radius, cum_disp]
+      active_eps: 0.01
+
+  - type: f1b_t
+    params:
+      windows:
+        - {past: 0, future: 1}
+        - {past: 0, future: 2}
+        - {past: 0, future: 3}
+        - {past: 0, future: 4}
+        - {past: 0, future: 5}
+        - {past: 0, future: 6}
+        - {past: 0, future: 7}
+        - {past: 1, future: 0}
+        - {past: 2, future: 0}
+        - {past: 3, future: 0}
+        - {past: 4, future: 0}
+        - {past: 5, future: 0}
+        - {past: 6, future: 0}
+        - {past: 7, future: 0}
+        - {past: 1, future: 1}
+        - {past: 2, future: 2}
+        - {past: 3, future: 3}
+        - {past: 4, future: 4}
+        - {past: 5, future: 5}
+        - {past: 6, future: 6}
+        - {past: 7, future: 7}
+      descriptors: [jerk, dir, curv_radius, cum_disp]
+      active_eps: 0.01

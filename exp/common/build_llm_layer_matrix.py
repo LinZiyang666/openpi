@@ -336,10 +336,11 @@ def _save_artifact(
     _detach_entries(entries)
 
     # B2 — verdict-factor enrichment runs AFTER detach. Helper internals
-    # bridge numpy through torch.as_tensor.
+    # bridge numpy through torch.as_tensor. _THIS_DIR is already on
+    # sys.path (line 50) so the sibling import works directly.
     library_stats = None
     if entries:
-        from exp.common.factor_postprocess import (
+        from factor_postprocess import (
             _load_offline_writers_from_yaml,
             enrich_artifact_with_factors,
         )
