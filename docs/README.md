@@ -67,7 +67,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 
 | File | Description |
 |------|-------------|
-| [architecture/cache_system.md](architecture/cache_system.md) \[[ZH](architecture/cache_system.zh.md)\] | Cache system spec: 3-stage pipeline, CP1/CP2/CP3 checkpoints, interceptor pattern, component design; §5.10 Search Session — Cross-Step Score Memo (opt-in per-episode score memoization, mutation contract, lock-free derivation). Chinese companion frozen at 2026-04-03 |
+| [architecture/cache_system.md](architecture/cache_system.md) \[[ZH](architecture/cache_system.zh.md)\] | Cache system spec: 3-stage pipeline, CP1/CP2/CP3 checkpoints, interceptor pattern, component design; §5.6 SimilarityJudge purity contract refinement (no write to storage; read-only via PayloadView allowed); §5.10 Search Session — Cross-Step Score Memo (opt-in per-episode score memoization, mutation contract, lock-free derivation); §5.11 PayloadView (read-only Judge-side facade + ForkPolicy); §5.12 Verdict Factor System (OnlineExtractor / OfflineWriter protocols + factor registry + CompositeJudge pipeline + LibraryStats + payload.factors schema). Chinese companion frozen at 2026-04-03 |
 | [architecture/cache_workflow.md](architecture/cache_workflow.md) | End-to-end workflow diagrams: startup, single inference with CP1/CP3, episode lifecycle, storage layer, YAML mapping, design principles |
 
 ### [cache/](cache/)
@@ -78,6 +78,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 | [cache/migration.md](cache/migration.md) \[[EN](cache/migration.en.md)\] | Cache framework migration guide: how to adapt the cache system for non-Pi0.5 models |
 | [cache/temporal_prune.md](cache/temporal_prune.md) | Temporal Prune KeyBuilder 使用指南：两步架构、参数配置、Reducer 选择、离线 Artifact 构建、生命周期 |
 | [cache/llm_layer_extract.md](cache/llm_layer_extract.md) | CP1 LLM Layer Extract KeyBuilder 使用指南：两步架构（LayerExtractor + PrefixReducer）、attach_model 注入、离线 Stage 1 重建契约（重 tokenize + tokenizer self-check）、在线/离线 parity test |
+| [cache/verdict_factor_judge.md](cache/verdict_factor_judge.md) \[[EN](cache/verdict_factor_judge.en.md)\] | Verdict Factor Judge 全周期使用指南：5 因子 (F1a-A / F1a-T / F1b-A / F1b-T / F2) 概览 + build pkl + YAML 配置 + 6 项 composite 静态校验 + Orchestrator 注入路径 + 跑实验对比 + 自定义 OnlineExtractor / OfflineWriter / Composer / Normalizer 扩展指南；每章标注 B0/B1/B2 status |
 
 ### [experiments/](experiments/)
 

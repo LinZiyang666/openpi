@@ -84,12 +84,23 @@ class CachePayload:
     --------
     Canonical task identifier, e.g. "libero_spatial_pick_up_the_black_bowl".
     NOT the raw language prompt — callers must normalise before storing.
+
+    factors
+    -------
+    Optional dict of pre-computed verdict-factor descriptor values populated
+    by the offline-write path of the verdict factor system (e.g. F1b
+    SourceWindowSmoothness). Keys follow the per-factor templated form
+    documented in `cache_system.md` §5.12. Online OnlineExtractor
+    implementations read this dict on cache hits. Old entries (pre-feature)
+    leave this as None — extractors handle missing factors per the
+    NaN-propagation rule documented in the verdict factor plan.
     """
 
     action_chunk: torch.Tensor                          # [50, 32] CPU float32
     intermediates: Optional[dict[float, torch.Tensor]] = None   # {t: x_t}
     denoising_num_steps: Optional[int] = None
     task_key: str = ""
+    factors: Optional[dict[str, float]] = None
 
     def validate_for_checkpoint(self, checkpoint_id: CheckpointID) -> None:
         """Raise ValueError if CP-specific invariants are violated."""

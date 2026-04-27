@@ -76,6 +76,12 @@ class InMemoryBackend(VectorStoreBackend):
         self.search_call_count: int = 0
         self.fetch_payload_call_count: int = 0
 
+        # Library-level statistics for verdict-factor F1b normalization.
+        # Populated by `load_artifact` (from artifact dict, or computed
+        # lazily as fallback when an old artifact lacks the field). None
+        # otherwise. Read by CacheStorage.library_stats facade accessor.
+        self.library_stats = None
+
         # Cross-step score memo.
         # Outer key: search_session_id (per-strategy-per-episode uuid4 hex).
         # Inner key: (field_name, query_id, sim_type).
@@ -157,6 +163,20 @@ class InMemoryBackend(VectorStoreBackend):
         if id not in self._entries:
             raise KeyError(id)
         return self._entries[id].payload
+
+    def fetch_entry(self, id: str) -> CacheEntry:
+        """Return the full CacheEntry by id. O(1) dict lookup.
+
+        Capability used by `CacheStorage.fetch_entry` (duck-typed facade
+        method) to support PayloadView chain walks. The Backend ABC does
+        not declare this method — it is an InMemoryBackend-specific
+        capability that the facade exposes via getattr, so backends that
+        cannot keep full entries in memory (e.g. Qdrant) simply do not
+        provide it.
+        """
+        if id not in self._entries:
+            raise KeyError(id)
+        return self._entries[id]
 
     def delete(self, ids: list[str]) -> None:
         if self._has_active_search_sessions():

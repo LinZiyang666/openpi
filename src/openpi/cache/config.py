@@ -90,6 +90,47 @@ class GateConfig:
 
 
 @dataclass
+class FactorConfig:
+    """One verdict-factor instance for a composite judge.
+
+    `type` is the registry name (e.g. "f1a_a", "f1b_a", "f2"); `params`
+    is forwarded as kwargs into the factor class constructor. The
+    composite-judge config validator (B1+) verifies `type` is registered
+    and that `params` is acceptable.
+    """
+
+    type: str = ""
+    params: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class ComposerConfig:
+    """Composer config for composite judge.
+
+    `type` selects WeightedSumComposer / AndGateComposer / OrGateComposer.
+    The remaining fields are read selectively based on `type`; B1+ adds
+    the cross-field validation rules (warm-start pairwise / tier
+    ordering / non_monotonic directions coverage).
+    """
+
+    type: str = "weighted_sum"
+    weights: Optional[dict[str, float]] = None
+    tier_thresholds: Optional[dict[str, float]] = None
+    per_factor_thresholds: Optional[dict[str, float]] = None
+    warm_start_t: Optional[float] = None
+    directions: Optional[dict[str, str]] = None
+
+
+@dataclass
+class NormalizerConfig:
+    """Normalizer config for composite judge."""
+
+    type: str = "percentile_rolling"
+    window_size: int = 200
+    cold_start_strategy: str = "force_miss"
+
+
+@dataclass
 class JudgeConfig:
     type: str = "threshold"
     threshold: float = 0.98
@@ -97,6 +138,13 @@ class JudgeConfig:
     # Only for type="always_warm_start". Must round to one of
     # openpi.cache.types.CANONICAL_DENOISE_TIMESTEPS ({0.1..0.9}).
     start_t: float | None = None
+    # ── Composite judge fields (only when type="composite", B1+) ──
+    # B0 ships the dataclass + parser support but `_JUDGE_TYPES` excludes
+    # "composite" so the validator rejects composite YAML at config load
+    # rather than at the first verdict.
+    factors: Optional[list[FactorConfig]] = None
+    composer: Optional[ComposerConfig] = None
+    normalizer: Optional[NormalizerConfig] = None
 
 
 @dataclass
@@ -270,6 +318,9 @@ _CONFIG_TYPES: dict[str, type] = {
     "KeysConfig": KeysConfig,
     "GateConfig": GateConfig,
     "JudgeConfig": JudgeConfig,
+    "FactorConfig": FactorConfig,
+    "ComposerConfig": ComposerConfig,
+    "NormalizerConfig": NormalizerConfig,
     "FieldSimilarityConfig": FieldSimilarityConfig,
     "ScoreNormalizationConfig": ScoreNormalizationConfig,
     "SearchStrategyConfig": SearchStrategyConfig,
@@ -305,6 +356,40 @@ def _resolve_type(type_hint: str | type) -> type:
     if m and m.group(1) in _CONFIG_TYPES:
         return _CONFIG_TYPES[m.group(1)]
     return type_hint  # type: ignore[return-value]
+
+
+def _list_inner_dataclass(type_hint) -> Optional[type]:
+    """Return the inner dataclass type when `type_hint` annotates a list
+    of registered dataclasses, e.g. `list[FactorConfig]`,
+    `Optional[list[FactorConfig]]`, or `list[FactorConfig] | None`.
+
+    Returns None for any other shape. With `from __future__ import
+    annotations` in effect, dataclass field types arrive here as strings;
+    this helper does string-level pattern matching against
+    `_CONFIG_TYPES` so list fields of dataclass elements participate in
+    the recursive `_dict_to_dataclass` walk instead of being stored as
+    plain `list[dict]`.
+    """
+    import dataclasses as _dc
+
+    if isinstance(type_hint, type):
+        return None
+    clean = str(type_hint).replace("'", "").strip()
+    # Strip Optional wrapper (both forms).
+    m = re.match(r"Optional\[(.+)\]$", clean)
+    if m:
+        clean = m.group(1).strip()
+    m = re.match(r"(.+?)\s*\|\s*None$", clean)
+    if m:
+        clean = m.group(1).strip()
+    m = re.match(r"list\[(\w+)\]$", clean)
+    if not m:
+        return None
+    inner_name = m.group(1)
+    inner_cls = _CONFIG_TYPES.get(inner_name)
+    if inner_cls is None or not _dc.is_dataclass(inner_cls):
+        return None
+    return inner_cls
 
 
 def _dict_to_dataclass(cls: type, data: dict[str, Any]) -> Any:
@@ -354,7 +439,14 @@ def _dict_to_dataclass(cls: type, data: dict[str, Any]) -> Any:
         elif isinstance(value, dict) and isinstance(field_type, type) and dataclasses.is_dataclass(field_type):
             kwargs[key] = _dict_to_dataclass(field_type, value)
         else:
-            kwargs[key] = value
+            list_inner = _list_inner_dataclass(field_types[key])
+            if list_inner is not None and isinstance(value, list):
+                kwargs[key] = [
+                    _dict_to_dataclass(list_inner, item) if isinstance(item, dict) else item
+                    for item in value
+                ]
+            else:
+                kwargs[key] = value
 
     return cls(**kwargs)
 
@@ -568,10 +660,23 @@ def validate_cache_config(config: CacheConfig) -> None:
                 )
 
         if cp_config.judge.type not in _JUDGE_TYPES:
-            errors.append(
-                f"{prefix}.judge.type '{cp_config.judge.type}' is unknown. "
-                f"Valid: {sorted(_JUDGE_TYPES)}"
-            )
+            if cp_config.judge.type == "composite":
+                # Special-case fail-fast: B0 ships the metadata + builder
+                # surface for composite judges but not the algorithm
+                # bodies. Rejecting the YAML at config load (rather than
+                # at the first verdict) gives users a clean error message
+                # instead of a NotImplementedError surfacing mid-episode.
+                # B1 lifts this gate when extractor / composer /
+                # normalizer algorithms land.
+                errors.append(
+                    f"{prefix}.judge.type='composite' is not yet enabled "
+                    "in B0; available in B1+ when CompositeJudge algorithms land."
+                )
+            else:
+                errors.append(
+                    f"{prefix}.judge.type '{cp_config.judge.type}' is unknown. "
+                    f"Valid: {sorted(_JUDGE_TYPES)}"
+                )
 
         ss = cp_config.search_strategy
         if ss.type not in _valid_strategy_types:
@@ -1185,8 +1290,14 @@ def _build_gate(cfg: GateConfig):
     )
 
 
-def _build_judge(cfg: JudgeConfig):
-    """Instantiate a SimilarityJudge from config."""
+def _build_judge(cfg: JudgeConfig, library_stats=None):
+    """Instantiate a SimilarityJudge from config.
+
+    `library_stats` is forwarded into composite-judge factor extractors
+    that declare `requires_library_stats=True` (currently F1a / F1b).
+    Static validation guarantees the required value is non-None before
+    this builder is invoked for a composite judge.
+    """
     if cfg.type == "threshold":
         from openpi.cache.components.judge import ThresholdJudge
 
@@ -1203,10 +1314,106 @@ def _build_judge(cfg: JudgeConfig):
         from openpi.cache.components.judge import AlwaysWarmStartJudge
 
         return AlwaysWarmStartJudge(cfg.start_t)
+    elif cfg.type == "composite":
+        # B0 ships the composite branch but `_JUDGE_TYPES` excludes the
+        # name, so `validate_cache_config` rejects composite YAML before
+        # this branch runs in the normal flow. The branch is reachable
+        # via direct `_build_judge` calls (tests / B1+ wiring) and lands
+        # the actual extractor / composer / normalizer wiring.
+        from openpi.cache.components.factors.registry import get_class
+        from openpi.cache.components.judge import CompositeJudge
+
+        if not cfg.factors:
+            raise ConfigValidationError(
+                "composite judge requires at least one factor in `factors`"
+            )
+        if cfg.composer is None:
+            raise ConfigValidationError(
+                "composite judge requires a `composer` config"
+            )
+        extractors = []
+        for fcfg in cfg.factors:
+            cls = get_class(fcfg.type)
+            kwargs = dict(fcfg.params)
+            if getattr(cls, "requires_library_stats", False):
+                kwargs["library_stats"] = library_stats
+            extractors.append(cls(**kwargs))
+        composer = _build_composer(cfg.composer)
+        normalizer = (
+            _build_normalizer(cfg.normalizer) if cfg.normalizer is not None else None
+        )
+        return CompositeJudge(
+            extractors=extractors,
+            composer=composer,
+            normalizer=normalizer,
+        )
     else:
         raise ConfigValidationError(
             f"Unknown judge.type '{cfg.type}'. Valid: {sorted(_JUDGE_TYPES)}"
         )
+
+
+def _build_composer(cfg: ComposerConfig):
+    """Instantiate a Composer from a ComposerConfig."""
+    from openpi.cache.components.factors.composers import (
+        AndGateComposer,
+        OrGateComposer,
+        WeightedSumComposer,
+    )
+
+    if cfg.type == "weighted_sum":
+        if cfg.weights is None:
+            raise ConfigValidationError(
+                "composer.type='weighted_sum' requires 'weights'"
+            )
+        if cfg.tier_thresholds is None or "full_hit" not in cfg.tier_thresholds:
+            raise ConfigValidationError(
+                "composer.type='weighted_sum' requires tier_thresholds.full_hit"
+            )
+        return WeightedSumComposer(
+            weights=cfg.weights,
+            full_hit_threshold=cfg.tier_thresholds["full_hit"],
+            warm_start_threshold=cfg.tier_thresholds.get("warm_start"),
+            warm_start_t=cfg.warm_start_t,
+            directions=cfg.directions,
+        )
+    if cfg.type == "and":
+        if cfg.per_factor_thresholds is None:
+            raise ConfigValidationError(
+                "composer.type='and' requires 'per_factor_thresholds'"
+            )
+        return AndGateComposer(
+            per_factor_thresholds=cfg.per_factor_thresholds,
+            warm_start_t=cfg.warm_start_t,
+        )
+    if cfg.type == "or":
+        if cfg.per_factor_thresholds is None:
+            raise ConfigValidationError(
+                "composer.type='or' requires 'per_factor_thresholds'"
+            )
+        return OrGateComposer(
+            per_factor_thresholds=cfg.per_factor_thresholds,
+            warm_start_t=cfg.warm_start_t,
+        )
+    raise ConfigValidationError(
+        f"Unknown composer.type '{cfg.type}'. Valid: ['weighted_sum', 'and', 'or']"
+    )
+
+
+def _build_normalizer(cfg: NormalizerConfig):
+    """Instantiate a Normalizer from a NormalizerConfig."""
+    from openpi.cache.components.factors.normalizers import (
+        PercentileRollingNormalizer,
+    )
+
+    if cfg.type == "percentile_rolling":
+        return PercentileRollingNormalizer(
+            window_size=cfg.window_size,
+            cold_start_strategy=cfg.cold_start_strategy,
+        )
+    raise ConfigValidationError(
+        f"Unknown normalizer.type '{cfg.type}'. Valid: ['percentile_rolling']"
+    )
 
 
 def _field_similarity_to_dict(

@@ -9,20 +9,35 @@ Coupling map:
                * IF backend changes: thresholds MUST be recalibrated
   MAY DEPEND ON: KeyBuilder.cached_data (for future re-scoring judges)
   CONSUMED BY: CacheOrchestrator.check()
-  DOES NOT call: CacheStorage or fetch_payload (pure judgment, no side effects)
+  Purity contract:
+    A judge MUST NOT write to CacheStorage. Read-only access via the
+    optional `view` (PayloadView) parameter is permitted at verdict time
+    so composite judges can compute factor descriptors over candidate
+    payloads + neighbor entries. See `cache_system.md` §5.6 / §5.11 for
+    the contract refinement.
   IF CHANGED:  Only affects hit/miss decision, no downstream structural impact
 """
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 
 import torch
 
 from openpi.cache.storage_types import SearchResultLite
 from openpi.cache.types import CANONICAL_DENOISE_TIMESTEPS, CheckpointID
+
+if TYPE_CHECKING:
+    from openpi.cache.components.factors.base import (
+        HistoryView,
+        OnlineExtractor,
+    )
+    from openpi.cache.components.factors.composers import Composer
+    from openpi.cache.components.factors.normalizers import Normalizer
+    from openpi.cache.components.payload_view import PayloadView
 
 
 class HitType(Enum):
@@ -62,8 +77,13 @@ class SimilarityJudge(Protocol):
         * IF backend changes: thresholds MUST be recalibrated
       - MAY DEPEND ON: KeyBuilder.cached_data (for future re-scoring judges)
       - CONSUMED BY: CacheOrchestrator.check()
-      - DOES NOT call: CacheStorage or fetch_payload (pure judgment, no side effects)
+      - Purity contract: read-only via `view`; never writes storage.
       - IF CHANGED: Only affects hit/miss decision, no downstream structural impact
+
+    The `view` and `history` keyword-only parameters carry verdict-time
+    facade objects injected by Orchestrator. Existing judges that do not
+    need them accept and ignore both via `**kwargs`; Orchestrator only
+    builds and injects the facades from B1 onward (CompositeJudge land).
     """
 
     def __call__(
@@ -71,6 +91,9 @@ class SimilarityJudge(Protocol):
         results: list[SearchResultLite],
         checkpoint_id: CheckpointID,
         cached_data: dict[str, torch.Tensor],
+        *,
+        view: Optional["PayloadView"] = None,
+        history: Optional["HistoryView"] = None,
     ) -> JudgeResult:
         """Judge the top search results.
 
@@ -78,6 +101,9 @@ class SimilarityJudge(Protocol):
             results: Search results sorted by descending score (from CacheStorage).
             checkpoint_id: CP1 or CP3.
             cached_data: Raw tensors from KeyBuilder.cached_data.
+            view: Read-only facade over CacheStorage (B1+ injection;
+                None for the B0 path and for legacy judges).
+            history: Per-episode action / state snapshot (B1+ injection).
 
         Returns:
             JudgeResult with hit_type, winner_id, and optional start_t.
@@ -97,6 +123,7 @@ class AlwaysHitJudge:
         results: list[SearchResultLite],
         checkpoint_id: CheckpointID,
         cached_data: dict[str, torch.Tensor],
+        **kwargs,
     ) -> JudgeResult:
         if not results:
             return JudgeResult(HitType.MISS)
@@ -135,6 +162,7 @@ class AlwaysWarmStartJudge:
         results: list[SearchResultLite],
         checkpoint_id: CheckpointID,
         cached_data: dict[str, torch.Tensor],
+        **kwargs,
     ) -> JudgeResult:
         if not results:
             return JudgeResult(HitType.MISS)
@@ -179,6 +207,7 @@ class ThresholdJudge:
         results: list[SearchResultLite],
         checkpoint_id: CheckpointID,
         cached_data: dict[str, torch.Tensor],
+        **kwargs,
     ) -> JudgeResult:
         if not results:
             return JudgeResult(HitType.MISS)
@@ -197,3 +226,134 @@ class ThresholdJudge:
 
     def record_action(self, action_chunk: torch.Tensor) -> None:
         """Receive Orchestrator-broadcast action. Pure local buffer op."""
+
+
+# ---------------------------------------------------------------------------
+# CompositeJudge — verdict factor pipeline
+# ---------------------------------------------------------------------------
+
+
+class CompositeJudge:
+    """Aggregate multiple verdict-factor extractors into a hit decision.
+
+    Pipeline:
+      1. Each `OnlineExtractor` returns a `dict[str, float]` — the keys
+         it declared up front via `descriptor_orientations`.
+      2. CompositeJudge unions all keys and asserts each extractor's
+         runtime output matches its declared key set (key contract).
+      3. Optional `Normalizer` maps raw values into a normalized space
+         (typically [0, 1] percentile rank). When the normalizer is in
+         cold-start `force_miss` mode and returns all-NaN, CompositeJudge
+         short-circuits to MISS without invoking the Composer.
+      4. `Composer` aggregates the normalized dict into a `JudgeResult`.
+
+    The B0 ship is a structural skeleton: extractors / composer /
+    normalizer all raise NotImplementedError in their algorithm bodies,
+    and `_JUDGE_TYPES` excludes "composite" so user YAMLs are rejected at
+    config-load time — preventing first-verdict NotImplementedError. B1
+    flips the gate and lands the algorithm bodies.
+
+    Coupling map:
+      DEPENDS ON: components/factors/base.py (OnlineExtractor),
+                  components/factors/composers (Composer),
+                  components/factors/normalizers (Normalizer).
+      CONSUMED BY: CacheOrchestrator.check (B1+ injection of view + history).
+    """
+
+    def __init__(
+        self,
+        extractors: list["OnlineExtractor"],
+        composer: "Composer",
+        normalizer: Optional["Normalizer"] = None,
+    ) -> None:
+        if not extractors:
+            raise ValueError(
+                "CompositeJudge requires at least one OnlineExtractor"
+            )
+        self._extractors = list(extractors)
+        self._composer = composer
+        self._normalizer = normalizer
+        self.min_required_top_k = max(
+            (getattr(e, "required_top_k", 0) for e in self._extractors),
+            default=0,
+        )
+
+        # Collect static metadata: union of extractor descriptor_orientations.
+        # A key claimed by two extractors with conflicting orientations is a
+        # config bug — surface it loudly at construction time, not silently
+        # at the first verdict.
+        all_orientations: dict[str, str] = {}
+        for ext in self._extractors:
+            ext_orientations = getattr(ext, "descriptor_orientations", None)
+            if ext_orientations is None:
+                raise ValueError(
+                    f"Extractor {type(ext).__name__} is missing "
+                    "descriptor_orientations attribute"
+                )
+            for k, ori in ext_orientations.items():
+                existing = all_orientations.get(k)
+                if existing is not None and existing != ori:
+                    raise ValueError(
+                        f"Composite judge factor key {k!r} has conflicting "
+                        f"orientations: {existing!r} vs {ori!r}"
+                    )
+                all_orientations[k] = ori
+        self._all_orientations = all_orientations
+
+        # Bind metadata into composer / normalizer. Composer cross-checks
+        # `directions` config against non_monotonic keys (B1+); normalizer
+        # uses the key list to pre-allocate per-key state.
+        composer.bind_orientations(dict(all_orientations))
+        if normalizer is not None:
+            normalizer.bind_keys(list(all_orientations.keys()))
+
+    def __call__(
+        self,
+        results: list[SearchResultLite],
+        checkpoint_id: CheckpointID,
+        cached_data: dict[str, torch.Tensor],
+        *,
+        view: Optional["PayloadView"] = None,
+        history: Optional["HistoryView"] = None,
+    ) -> JudgeResult:
+        if not results:
+            return JudgeResult(HitType.MISS)
+
+        raw: dict[str, float] = {}
+        for ext in self._extractors:
+            out = ext.extract(results, view, history, cached_data)
+            # Key contract enforcement: an extractor's runtime keys MUST
+            # equal its declared `descriptor_orientations.keys()`. Drift
+            # would silently desync Normalizer state, Composer weights,
+            # and orientation lookup, so we fail loud at the boundary.
+            expected = set(ext.descriptor_orientations.keys())
+            actual = set(out.keys())
+            if actual != expected:
+                raise RuntimeError(
+                    f"Extractor {type(ext).__name__} key contract violation: "
+                    f"declared {sorted(expected)}, returned {sorted(actual)} "
+                    f"(missing: {sorted(expected - actual)}, "
+                    f"extra: {sorted(actual - expected)})"
+                )
+            raw.update(out)
+
+        norm = self._normalizer(raw) if self._normalizer is not None else raw
+
+        # Cold-start sentinel: all-NaN normalized output means the
+        # normalizer signaled "not enough samples / force_miss". Short-
+        # circuit to MISS rather than letting each Composer reinvent the
+        # all-NaN handling rule.
+        if norm and all(math.isnan(v) for v in norm.values()):
+            return JudgeResult(HitType.MISS)
+
+        return self._composer.compose(norm, winner_id=results[0].id)
+
+    def on_episode_start(self) -> None:
+        if self._normalizer is not None:
+            self._normalizer.on_episode_start()
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        # CompositeJudge holds no per-episode action buffer of its own;
+        # action / state history is owned by Orchestrator and injected
+        # via HistoryView at verdict time.
+        return None

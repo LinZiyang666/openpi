@@ -478,10 +478,22 @@ Determines whether search results constitute a valid hit. Returns `JudgeResult(h
 |------|----------|
 | `threshold` | FULL_HIT if `score >= threshold`. With `warm_tiers` configured, scores below the threshold are matched against descending tiers for WARM_START (CP1 only). Returns `JudgeResult(hit_type, winner_id, start_t)`. |
 | `always_hit` | Always returns FULL_HIT for top result. Used in experiments (threshold calibration deferred). |
+| `always_warm_start` | Always returns WARM_START with a fixed `start_t` for the top result (CP1 only). Used to sweep success-rate vs `start_t` curves under a forced warm-start regime. |
+| `composite` | Aggregates pluggable verdict factors (statistical / kinematic descriptors) through a Composer + optional Normalizer pipeline. See §5.12 (Verdict Factor System) for the architecture. **Available B1+; B0 ships the metadata + skeleton only and rejects `composite` YAML at config-load time.** |
 
 Score semantics depend on fusion method — see [../cache/tutorial.md §6](../cache/tutorial.md#6-component-judge) for details.
 
 > Judge returns `JudgeResult` (not a tuple). Payload fetch is done by the orchestrator after judge returns. On WARM_START, the orchestrator validates payload completeness (intermediates exist, start_t is a valid key) and downgrades to MISS if validation fails.
+
+#### Purity contract
+
+A judge MUST NOT write to `CacheStorage`. The original phrasing "DOES NOT call CacheStorage" is refined to: **no write to storage; read-only access via the optional `PayloadView` parameter is permitted at verdict time** so composite judges can compute factor descriptors over candidate payloads + neighbor entries. The contract preserves the no-side-effects spirit while admitting the read-only fetch path required by §5.12 verdict factors.
+
+The `__call__` signature accepts two keyword-only parameters that orchestrator may inject:
+- `view: PayloadView | None` — read-only facade described in §5.11.
+- `history: HistoryView | None` — per-episode action / state snapshot.
+
+Legacy judges (`ThresholdJudge` / `AlwaysHitJudge` / `AlwaysWarmStartJudge`) accept and ignore both via `**kwargs`; only `CompositeJudge` consumes them. Orchestrator builds and injects the facades from B1+; in B0 both arrive as None.
 
 ### 5.7 Cache Data Model
 
@@ -503,6 +515,12 @@ class CachePayload:
     denoising_num_steps: Optional[int]                  # for warm start
     next_action_chunk: Optional[torch.Tensor]           # CP3 only
     task_key: str = ""
+    factors: Optional[dict[str, float]] = None
+    # Pre-computed verdict factor descriptors populated by the offline-write
+    # path of the verdict factor system (e.g. F1b SourceWindowSmoothness).
+    # OnlineExtractor implementations read this dict on cache hits. Old
+    # entries leave it as None — extractors propagate NaN for missing keys.
+    # Key naming follows per-factor templates documented in §5.12.
 
 @dataclass
 class CacheEntry:
@@ -659,6 +677,110 @@ preserved because:
 
 The detailed lock-free derivation lives in
 `logs/trajectory_search_optimization_plan.log.md` §4.3 / §6.
+
+### 5.11 PayloadView (Read-Only Judge-Side Facade)
+
+> **Source**: `src/openpi/cache/components/payload_view.py`
+> **Lifetime**: Per `Orchestrator.check()` call (a fresh instance is constructed per verdict; memo dictionaries do not leak across calls).
+
+`PayloadView` wraps `CacheStorage` to give a judge read-only access to candidate payloads + neighbor entries without exposing the storage handle. The default implementation `StoragePayloadView` memoizes both `(entry_id -> payload)` and `(entry_id -> entry)` for the verdict's lifetime, so multiple extractors that touch the same entry ids fetch from the backend at most once.
+
+**Protocol surface**:
+
+```python
+class PayloadView(Protocol):
+    def get(self, entry_id: str) -> CachePayload: ...
+    def get_entry(self, entry_id: str) -> CacheEntry: ...
+    def get_many(self, entry_ids: list[str]) -> list[CachePayload]: ...
+
+    def walk_prev(
+        self, entry_id: str, k: int, *,
+        fork_policy: ForkPolicy = ForkPolicy.TRAJECTORY,
+        cross_trajectory: bool = False,
+    ) -> list[CacheEntry]: ...
+
+    def walk_next(
+        self, entry_id: str, k: int, *,
+        fork_policy: ForkPolicy = ForkPolicy.TRAJECTORY,
+        cross_trajectory: bool = False,
+    ) -> list[CacheEntry]: ...
+```
+
+**ForkPolicy values** (signature-only in B0 — only `TRAJECTORY` is supported; the others raise `NotImplementedError`):
+
+| Value | Intended semantics |
+|---|---|
+| `TRAJECTORY` | Stay on the chain whose `trajectory_id` matches the anchor entry. Default. |
+| `FIRST` | Pick `prev_ids[0]` / `next_ids[0]` deterministically. |
+| `STOP` | Stop on the first fork; return what was collected. |
+| `ALL_BRANCHES` | Walk every branch (returns `list[list[CacheEntry]]`). |
+| `SCORE` | Pick the branch with highest similarity to the anchor query. |
+
+In B0 the chain shape produced by the write path has `len(prev_ids) <= 1` and `len(next_ids) <= 1` per entry (no real fork yet). The walk implementation raises `NotImplementedError` immediately if a node with multiple neighbors is encountered, instead of silently picking one — a real fork should be a deliberate, observable design event.
+
+**Backend capability dependency**: `walk_prev` / `walk_next` rely on `CacheStorage.fetch_entry`, which duck-types the backend's optional `fetch_entry(id) -> CacheEntry` capability. `InMemoryBackend` exposes it as a plain public method; the Backend ABC is unchanged. Backends without the capability raise `NotImplementedError` on the facade call. Composite judges that require chain walks (currently F1a-T) are config-gated to backends that support `fetch_entry` — `validate_cache_config` rejects mismatched configurations at load time.
+
+### 5.12 Verdict Factor System
+
+> **Source**: `src/openpi/cache/components/factors/`
+> **Status**: B0 ships protocol surface + factor metadata + Composer / Normalizer skeletons + CompositeJudge structural shell. B1 lands runtime continuity + consensus algorithms; B2 lands source-window smoothness + library statistics + offline writer wiring.
+
+The verdict factor system replaces the single-threshold cosine judge with a three-stage pipeline: extract per-factor descriptors → normalize → compose into a `JudgeResult`. Each stage is a plug point.
+
+**Pipeline (CompositeJudge)**:
+
+```
+SearchResultLite[]  ─┐
+PayloadView (view)   ├──► OnlineExtractor*  ──► raw: dict[str, float]
+HistoryView          │            (key contract: keys MUST equal
+cached_data         ─┘             extractor.descriptor_orientations.keys())
+                                      │
+                                      ▼
+                              Normalizer (optional)
+                                      │
+                              norm: dict[str, float]
+                              (all-NaN → MISS short-circuit)
+                                      │
+                                      ▼
+                                  Composer ──► JudgeResult
+```
+
+**Two-tier metadata model on `OnlineExtractor`**:
+
+- *Class-level capability flags* — read by the validator BEFORE instantiation:
+  - `required_top_k: int` — minimum top-K this factor needs (CompositeJudge feeds the max into `SearchStrategy.min_top_k_hint` in B1+).
+  - `requires_library_stats: bool` — whether the constructor takes `library_stats` (True for F1a / F1b z-score factors; False for F2).
+  - `requires_chain_walk: bool` — whether `extract()` calls `view.walk_prev` / `view.walk_next` (True for F1a-T).
+- *Instance-level metadata* — set in `__init__` from params:
+  - `descriptor_orientations: dict[str, str]` — `{key -> "safe"|"risky"|"non_monotonic"}` for every key this instance will produce.
+- *Static introspection* — classmethod for the validator:
+  - `describe(cls, params) -> dict[str, str]` — same map computable from params alone, without `library_stats` or any runtime context. The validator uses this to cross-check `Composer.directions` coverage for non-monotonic keys without instantiating the factor.
+
+**Currently registered factors** (B0 ships full metadata + register; algorithm bodies raise `NotImplementedError` until B1 / B2):
+
+| Registry name | Class | Source | requires_library_stats | requires_chain_walk | Algorithm batch |
+|---|---|---|---|---|---|
+| `f1a_a` | `RuntimeContinuityAction` | action | True | False | B1 |
+| `f1a_t` | `RuntimeContinuityState` | state | True | True | B1 |
+| `f1b_a` | `SourceWindowSmoothnessAction` | action | True | False | B2 |
+| `f1b_t` | `SourceWindowSmoothnessState` | state | True | False | B2 |
+| `f2` | `TopKActionConsensus` | — | False | False | B1 |
+
+Action / state are bound by class identity (thin subclasses of a shared algorithm base) — `source` is NOT a YAML parameter; the registry name selects the subclass.
+
+**`payload.factors` schema**: `Optional[dict[str, float]]` field on `CachePayload`. Old entries leave it as None; OfflineWriter implementations populate it during the artifact-build / Orchestrator episode-end path. Key naming follows per-factor templates, where `<key_initial>` is `"a"` for action-side factors and `"t"` for state-side factors — matching the registered factor names (`f1a_a` / `f1a_t` / `f1b_a` / `f1b_t`) so YAML `composer.weights` / `directions` keys align with extractor output:
+
+- F1a (single-window): `f1a_<key_initial>_<descriptor>` (e.g. `f1a_a_jerk`, `f1a_t_jerk`).
+- F1b (multi-window): `f1b_<key_initial>_<descriptor>__p<past>_f<future>` (e.g. `f1b_a_jerk__p0_f5`, `f1b_t_dir__p5_f10`).
+- F2: `f2_var` (single key regardless of K).
+
+**Library-level metadata** (`LibraryStats`, populated B2): per-DOF `action_sigma` + `action_active_mask` and `state_sigma` + `state_active_mask` over the artifact's entry pool. Stored as a top-level field on the artifact pickle; `InMemoryBackend.load_artifact` falls back to `LibraryStats.compute_from_entries` for old artifacts that lack the field. F1a / F1b z-score against this metadata; F2 (variance over candidate pool) does not need it.
+
+**Cold-start signal**: Normalizers in `force_miss` mode return all-NaN dicts when the rolling window is not yet ready. CompositeJudge detects all-NaN and returns `HitType.MISS` directly without invoking the Composer — the cold-start path is representable through the existing `dict[str, float]` interface, no status channel needed.
+
+**Coupling boundary**: factor implementations import only from `storage_types`, `payload_view`, and the registry. They do NOT depend on `CacheStorage` directly. `CompositeJudge.bind` semantics are stable across all extractor implementations: a Composer / Normalizer that satisfies the Protocol works with any registered factor.
+
+The detailed plan with batch sequencing, validator rules, and risk register lives in `logs/verdict_factor_judge.log.md`.
 
 ---
 

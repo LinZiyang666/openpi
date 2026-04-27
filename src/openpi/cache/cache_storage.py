@@ -120,6 +120,42 @@ class CacheStorage:
             return self._prefill_payload
         return self._backend.fetch_payload(id)
 
+    def fetch_entry(self, id: str) -> CacheEntry:
+        """Fetch the full CacheEntry by id (duck-typed backend capability).
+
+        Backends that store full entries in process (currently
+        InMemoryBackend) expose a `fetch_entry(id)` method; the facade
+        forwards to it. Backends without the capability raise
+        NotImplementedError, with a config-friendly message naming the
+        backend type so users know exactly what to switch.
+
+        Used by PayloadView chain walks. Composite judges that need
+        chain walking are config-gated to backends that support
+        fetch_entry — see `validate_cache_config`.
+        """
+        fn = getattr(self._backend, "fetch_entry", None)
+        if fn is None:
+            raise NotImplementedError(
+                f"Backend {type(self._backend).__name__} does not expose "
+                "fetch_entry; composite judges that use chain-walking "
+                "factors (e.g. F1a-T) require InMemoryBackend or another "
+                "backend that implements `fetch_entry(id) -> CacheEntry`."
+            )
+        return fn(id)
+
+    @property
+    def library_stats(self):
+        """Backend's library-level statistics, or None.
+
+        Same duck-typing pattern as `fetch_entry`: backends that compute
+        / persist library statistics (currently InMemoryBackend, populated
+        by `load_artifact`) expose a `library_stats` attribute; backends
+        without it return None. Component builders read this through the
+        facade and pass it into composite judge construction; this avoids
+        private reach-through into `self._backend`.
+        """
+        return getattr(self._backend, "library_stats", None)
+
     def search_and_fetch(self, spec: QuerySpec) -> list[SearchResult]:
         """Convenience: search then fetch payload for every result.
 
