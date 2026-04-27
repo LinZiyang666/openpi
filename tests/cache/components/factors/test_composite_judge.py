@@ -218,3 +218,135 @@ def test_legacy_always_hit_judge_accepts_kwargs():
         [_result()], CheckpointID.CP1, {}, view=object(), history=object()
     )
     assert res.hit_type is HitType.FULL_HIT
+
+
+# ------------------------------------------------------------------
+# B1 end-to-end: CompositeJudge wired with real Composer + Normalizer
+# ------------------------------------------------------------------
+
+
+import math  # noqa: E402
+
+from openpi.cache.components.factors.composers import (  # noqa: E402
+    AndGateComposer,
+    OrGateComposer,
+    WeightedSumComposer,
+)
+from openpi.cache.components.factors.normalizers import (  # noqa: E402
+    PercentileRollingNormalizer,
+)
+from openpi.cache.components.judge import HitType  # noqa: E402
+from openpi.cache.storage_types import SearchResultLite  # noqa: E402
+from openpi.cache.types import CheckpointID  # noqa: E402
+
+
+def _result_lite(eid: str = "winner") -> SearchResultLite:
+    return SearchResultLite(id=eid, score=1.0, checkpoint_id=CheckpointID.CP1)
+
+
+def test_composite_full_hit_e2e():
+    # Stub extractor producing a single 'safe' descriptor; passthrough
+    # normalizer keeps the value as-is so we can land it above the
+    # full_hit threshold deterministically.
+    e = _StubExtractor({"k": "safe"}, {"k": 0.9})
+    composer = WeightedSumComposer(weights={"k": 1.0}, full_hit_threshold=0.5)
+    normalizer = PercentileRollingNormalizer(
+        window_size=1, cold_start_strategy="passthrough",
+    )
+    cj = CompositeJudge(extractors=[e], composer=composer, normalizer=normalizer)
+
+    out = cj([_result_lite()], CheckpointID.CP1, {})
+
+    assert out.hit_type is HitType.FULL_HIT
+    assert out.winner_id == "winner"
+
+
+def test_composite_warm_start_e2e():
+    e = _StubExtractor({"k": "safe"}, {"k": 0.6})
+    composer = WeightedSumComposer(
+        weights={"k": 1.0},
+        full_hit_threshold=0.9,
+        warm_start_threshold=0.5,
+        warm_start_t=0.3,
+    )
+    normalizer = PercentileRollingNormalizer(
+        window_size=1, cold_start_strategy="passthrough",
+    )
+    cj = CompositeJudge(extractors=[e], composer=composer, normalizer=normalizer)
+
+    out = cj([_result_lite()], CheckpointID.CP1, {})
+
+    assert out.hit_type is HitType.WARM_START
+    assert out.start_t == 0.3
+
+
+def test_composite_miss_e2e():
+    e = _StubExtractor({"k": "safe"}, {"k": 0.1})
+    composer = WeightedSumComposer(weights={"k": 1.0}, full_hit_threshold=0.5)
+    normalizer = PercentileRollingNormalizer(
+        window_size=1, cold_start_strategy="passthrough",
+    )
+    cj = CompositeJudge(extractors=[e], composer=composer, normalizer=normalizer)
+
+    out = cj([_result_lite()], CheckpointID.CP1, {})
+
+    assert out.hit_type is HitType.MISS
+
+
+def test_composite_cold_start_short_circuits_to_miss():
+    # force_miss normalizer with a window_size larger than what's been
+    # seen → returns all-NaN → CompositeJudge short-circuits to MISS
+    # without invoking Composer.
+    e = _StubExtractor({"k": "safe"}, {"k": 0.9})
+    composer = _StubComposer(JudgeResult(HitType.MISS))        # would crash if compose() is hit
+    normalizer = PercentileRollingNormalizer(
+        window_size=100, cold_start_strategy="force_miss",
+    )
+    cj = CompositeJudge(extractors=[e], composer=composer, normalizer=normalizer)
+
+    out = cj([_result_lite()], CheckpointID.CP1, {})
+
+    assert out.hit_type is HitType.MISS
+    assert composer.calls == []            # composer never invoked
+
+
+def test_composite_key_contract_violation_raises_runtime_error():
+    # Extractor declares {'k'} but actually returns {'k', 'rogue'}
+    e = _StubExtractor({"k": "safe"}, {"k": 0.5, "rogue": 0.5})
+    composer = _StubComposer(JudgeResult(HitType.MISS))
+    normalizer = PercentileRollingNormalizer(
+        window_size=1, cold_start_strategy="passthrough",
+    )
+    cj = CompositeJudge(extractors=[e], composer=composer, normalizer=normalizer)
+
+    with pytest.raises(RuntimeError, match="key contract violation"):
+        cj([_result_lite()], CheckpointID.CP1, {})
+
+
+def test_composite_andgate_e2e_all_pass():
+    e1 = _StubExtractor({"a": "safe"}, {"a": 0.7})
+    e2 = _StubExtractor({"b": "safe"}, {"b": 0.8})
+    composer = AndGateComposer(per_factor_thresholds={"a": 0.5, "b": 0.5})
+    cj = CompositeJudge(extractors=[e1, e2], composer=composer)
+    out = cj([_result_lite()], CheckpointID.CP1, {})
+    assert out.hit_type is HitType.FULL_HIT
+
+
+def test_composite_orgate_e2e_one_passes():
+    e1 = _StubExtractor({"a": "safe"}, {"a": 0.1})
+    e2 = _StubExtractor({"b": "safe"}, {"b": 0.9})
+    composer = OrGateComposer(per_factor_thresholds={"a": 0.5, "b": 0.5})
+    cj = CompositeJudge(extractors=[e1, e2], composer=composer)
+    out = cj([_result_lite()], CheckpointID.CP1, {})
+    assert out.hit_type is HitType.FULL_HIT
+
+
+def test_composite_empty_results_skips_extractors():
+    # Empty results → CompositeJudge short-circuits to MISS without
+    # calling extract / composer (per the early `if not results` guard).
+    e = _StubExtractor({"k": "safe"}, {"k": 0.9})
+    composer = _StubComposer(JudgeResult(HitType.MISS))
+    cj = CompositeJudge(extractors=[e], composer=composer)
+    out = cj([], CheckpointID.CP1, {})
+    assert out.hit_type is HitType.MISS
+    assert composer.calls == []

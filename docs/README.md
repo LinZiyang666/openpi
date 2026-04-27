@@ -78,13 +78,13 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 | [cache/migration.md](cache/migration.md) \[[EN](cache/migration.en.md)\] | Cache framework migration guide: how to adapt the cache system for non-Pi0.5 models |
 | [cache/temporal_prune.md](cache/temporal_prune.md) | Temporal Prune KeyBuilder 使用指南：两步架构、参数配置、Reducer 选择、离线 Artifact 构建、生命周期 |
 | [cache/llm_layer_extract.md](cache/llm_layer_extract.md) | CP1 LLM Layer Extract KeyBuilder 使用指南：两步架构（LayerExtractor + PrefixReducer）、attach_model 注入、离线 Stage 1 重建契约（重 tokenize + tokenizer self-check）、在线/离线 parity test |
-| [cache/verdict_factor_judge.md](cache/verdict_factor_judge.md) \[[EN](cache/verdict_factor_judge.en.md)\] | Verdict Factor Judge 全周期使用指南：5 因子 (F1a-A / F1a-T / F1b-A / F1b-T / F2) 概览 + build pkl + YAML 配置 + 6 项 composite 静态校验 + Orchestrator 注入路径 + 跑实验对比 + 自定义 OnlineExtractor / OfflineWriter / Composer / Normalizer 扩展指南；每章标注 B0/B1/B2 status |
+| [cache/verdict_factor_judge.md](cache/verdict_factor_judge.md) \[[EN](cache/verdict_factor_judge.en.md)\] | Verdict Factor Judge 全周期使用指南：5 因子 (F1a-A / F1a-T / F1b-A / F1b-T / F2) 概览 + build pkl + YAML 配置 + 7 项 composite 静态校验 + Orchestrator 注入路径 + 跑实验对比 + 自定义 OnlineExtractor / OfflineWriter / Composer / Normalizer 扩展指南；F2 用 candidate-local active mask（保持 `requires_library_stats=False`）；B1 已 land 全部 online 算法 + Orchestrator B1 wiring，B2 上 offline writer + library_stats |
 
 ### [experiments/](experiments/)
 
 | File | Description |
 |------|-------------|
-| [experiments/artifact_layout.md](experiments/artifact_layout.md) | Canonical `exp/<experiment>/{config,data,analysis}/` layout rules — where new files go, tracking policy, `.gitignore` exceptions |
+| [experiments/artifact_layout.md](experiments/artifact_layout.md) | Canonical `exp/<experiment>/{config,data,analysis}/` layout rules — where new files go, tracking policy, `.gitignore` exceptions; §7 verdict-factor enrichment (B2 `--factors-yaml` flag, `library_stats` field, legacy fallback) |
 | [experiments/cp1_cache.md](experiments/cp1_cache.md) | CP1 Cache experiment guide: artifact building, calibration, YAML generation, 3-phase experiment execution, result analysis |
 | [experiments/temporal_prune.md](experiments/temporal_prune.md) | Temporal Prune experiment pipeline |
 | [experiments/llm_layer_extract.md](experiments/llm_layer_extract.md) | CP1 LLM Layer Extract 端到端 runbook：数据采集 → Step 2 build pkl（带 tokenizer self-check）→ YAML 模板（A/B 两种 reducer）→ run_cache_experiments → 结果分析 → manual parity verify |

@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import time
 from typing import Any, Optional
 
 import numpy as np
@@ -195,9 +196,16 @@ class InMemoryBackend(VectorStoreBackend):
 
         Artifact format (dict):
           {"key_builder_type": str, "checkpoint_id": str,
-           "vector_dims": dict[str, int], "entries": list[CacheEntry]}
+           "vector_dims": dict[str, int], "entries": list[CacheEntry],
+           "library_stats": LibraryStats (optional, B2 onwards)}
 
         Validates that artifact vector_dims matches self._dims.
+
+        `library_stats` is optional: when missing (legacy artifacts) the
+        backend computes it lazily from the loaded entries so verdict
+        factors that depend on `LibraryStats` (F1a / F1b) still have a
+        normalization basis. Recompute logs a warning so users notice
+        and can rebuild the artifact with the new pipeline.
 
         Raises SearchSessionActiveError if any search session is active —
         load_artifact replaces backend contents and would invalidate all
@@ -241,6 +249,28 @@ class InMemoryBackend(VectorStoreBackend):
                 }
             self._entries[entry.id] = entry
         logger.info("Loaded %d entries from %s", len(data["entries"]), path)
+
+        # ---- library_stats: load from artifact OR fallback recompute ----
+        # Distinguish "missing key" (legacy artifact, fallback) from
+        # "explicitly None" (build pipeline ran without OfflineWriters
+        # configured but didn't compute stats either — same fallback).
+        # Either way, recompute lazily from the entries we just loaded.
+        ls = data.get("library_stats")
+        if ls is None:
+            from openpi.cache.components.factors.base import LibraryStats
+
+            t0 = time.time()
+            logger.warning(
+                "Artifact %s lacks `library_stats`; computing from %d "
+                "entries (one-time fallback — rebuild with the B2 pipeline "
+                "to skip this).",
+                path, len(self._entries),
+            )
+            ls = LibraryStats.compute_from_entries(list(self._entries.values()))
+            logger.warning(
+                "library_stats fallback compute finished in %.2fs", time.time() - t0,
+            )
+        self.library_stats = ls
 
     # -------------------------------------------------------------------
     # Search dispatch

@@ -20,9 +20,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    import torch
+import torch
 
+if TYPE_CHECKING:
     from openpi.cache.components.payload_view import PayloadView
     from openpi.cache.storage_types import CacheEntry, SearchResultLite
 
@@ -62,11 +62,60 @@ class LibraryStats:
         """Stack `payload.action_chunk[0]` + `query_keys['robot_state']`
         across entries and derive per-DOF std + active masks.
 
-        B2 will fill in the body. B0 ships the signature so config /
-        backend wiring can refer to the symbol; calling it raises.
+        Tolerates both torch.Tensor and numpy.ndarray entry payloads
+        via `torch.as_tensor` — the primary builder path runs
+        `_detach_entries` inside the ProcessPool subprocess, so by the
+        time enrichment runs in the main process the tensors are numpy.
+
+        Empty entries / state-missing entries: see plan §4.2 — `state_dim`
+        falls back to length 0 with a zero-length sigma + mask, and
+        F1a-T / F1b-T detect `state_active_mask.sum() == 0` upfront and
+        return all-NaN factor dicts.
         """
-        raise NotImplementedError(
-            "LibraryStats.compute_from_entries: B2 algorithm"
+        if not entries:
+            return cls(
+                action_sigma=torch.zeros(0, dtype=torch.float32),
+                action_active_mask=torch.zeros(0, dtype=torch.bool),
+                state_sigma=torch.zeros(0, dtype=torch.float32),
+                state_active_mask=torch.zeros(0, dtype=torch.bool),
+            )
+
+        # ---- Action side ----
+        actions = torch.stack(
+            [
+                torch.as_tensor(e.payload.action_chunk[0], dtype=torch.float32)
+                for e in entries
+            ],
+            dim=0,
+        )                                                # [N, A]
+        action_sigma = actions.std(dim=0, unbiased=False)
+        action_active_mask = action_sigma >= active_eps_action
+
+        # ---- State side ----
+        states_list: list[torch.Tensor] = []
+        for e in entries:
+            rs = e.query_keys.get("robot_state")
+            if rs is not None:
+                states_list.append(torch.as_tensor(rs, dtype=torch.float32))
+
+        if states_list:
+            states = torch.stack(states_list, dim=0)     # [N', S]
+            state_sigma = states.std(dim=0, unbiased=False)
+            state_active_mask = state_sigma >= active_eps_state
+        else:
+            # No entry carries robot_state — placeholder zero-length
+            # tensors. Down-stream state-side factors detect the empty
+            # mask via the `state_active_mask.sum() == 0` guard at the
+            # head of `extract` / `compute_for_episode` and emit all-NaN
+            # without touching state.
+            state_sigma = torch.zeros(0, dtype=torch.float32)
+            state_active_mask = torch.zeros(0, dtype=torch.bool)
+
+        return cls(
+            action_sigma=action_sigma,
+            action_active_mask=action_active_mask,
+            state_sigma=state_sigma,
+            state_active_mask=state_active_mask,
         )
 
 

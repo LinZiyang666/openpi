@@ -14,6 +14,11 @@ Usage:
             --output exp/common/data/cache_artifacts/libero_spatial/${bt}.pkl
     done
 
+    # B2: enrich with verdict-factor `payload.factors` + top-level
+    # `library_stats` by passing a minimal YAML listing F1b factors to
+    # --factors-yaml. See `enrich_artifact_with_factors` in
+    # exp/common/factor_postprocess.py for the YAML shape.
+
 Input: HDF5 episode files with vision_0/1/2, prompt_emb, robot_state fields
 Output: pickle file loadable by InMemoryBackend.load_artifact()
 """
@@ -864,6 +869,15 @@ def main():
     parser.add_argument("--device", default="cuda",
                         help="cp1_llm_layer_extract: torch device for the model "
                              "(default: cuda; use cpu only for tiny smoke tests)")
+    # B2 verdict-factor enrichment.
+    parser.add_argument(
+        "--factors-yaml", default=None,
+        help="Path to a minimal YAML listing OfflineWriter-capable factors "
+             "(F1b-A / F1b-T). When set, the artifact is enriched with per-entry "
+             "`payload.factors` and a top-level `library_stats` field. When unset, "
+             "only an empty `library_stats` placeholder is computed (still safe "
+             "to load — InMemoryBackend will fall back to recompute at startup)."
+    )
     args = parser.parse_args()
 
     artifact = build_artifact(
@@ -881,6 +895,22 @@ def main():
         config_name=args.config_name,
         device=args.device,
     )
+
+    # B2 — enrich with verdict-factor fields. Runs AFTER build_artifact's
+    # _detach_entries (subprocess path keeps tensors numpy in memory for
+    # IPC efficiency); enrich_artifact_with_factors / LibraryStats /
+    # OfflineWriter all bridge numpy via torch.as_tensor.
+    from exp.common.factor_postprocess import (
+        _load_offline_writers_from_yaml,
+        enrich_artifact_with_factors,
+    )
+    offline_writers = (
+        _load_offline_writers_from_yaml(args.factors_yaml)
+        if args.factors_yaml else []
+    )
+    if artifact["entries"]:
+        library_stats = enrich_artifact_with_factors(artifact["entries"], offline_writers)
+        artifact["library_stats"] = library_stats
 
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     with open(args.output, "wb") as f:

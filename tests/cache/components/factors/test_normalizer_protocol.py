@@ -27,13 +27,6 @@ def test_bind_keys_stores_keys():
     assert n._keys == keys
 
 
-def test_call_b0_stub_raises():
-    n = PercentileRollingNormalizer()
-    n.bind_keys(["f2_var"])
-    with pytest.raises(NotImplementedError, match="B1"):
-        n({"f2_var": 0.5})
-
-
 def test_on_episode_start_is_noop():
     n = PercentileRollingNormalizer()
     # Should not raise; no return value contract.

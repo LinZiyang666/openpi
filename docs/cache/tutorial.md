@@ -189,7 +189,7 @@ Judge returns `JudgeResult(hit_type, winner_id, start_t)`.
 | `threshold` | FULL_HIT if `score >= threshold`. With `warm_tiers`, scores below the threshold are matched against descending tiers for WARM_START (CP1 only). |
 | `always_hit` | Always returns FULL_HIT for top result. Good for testing. |
 | `always_warm_start` | Always emits WARM_START with a fixed `start_t` for the top result (CP1 only). Used to sweep success-rate vs `start_t` curves. |
-| `composite` | Aggregates pluggable verdict factors (statistical / kinematic descriptors: jerk, dir, curv_radius, cum_disp, top-K consensus) through a Composer + optional Normalizer pipeline. **B0 ships shell only and rejects this YAML at config load; B1+ enables it.** Full lifecycle (build pkl → YAML → run experiment → custom factor extension) lives in [verdict_factor_judge.md](verdict_factor_judge.md). |
+| `composite` | Aggregates pluggable verdict factors (statistical / kinematic descriptors: jerk, dir, curv_radius, cum_disp, top-K consensus) through a Composer + optional Normalizer pipeline. F1a / F2 + Composers + Normalizer enabled in B1; F1b OnlineExtractor + OfflineWriter + LibraryStats land in B2. Full lifecycle (build pkl → YAML → run experiment → custom factor extension) lives in [verdict_factor_judge.md](verdict_factor_judge.md). |
 
 **Warm start configuration** (optional, CP1 only):
 

@@ -4,7 +4,7 @@
 >
 > **设计文档**：完整方案设计与决策见 [`logs/verdict_factor_judge.log.md`](../../logs/verdict_factor_judge.log.md)（Plan，G1 / G2 APPROVED）。
 >
-> **状态说明（2026-04-26）**：B0 已 land —— 协议层、5 个因子的元数据骨架、CompositeJudge / Composer / Normalizer 类骨架、PayloadView、`payload.factors` schema、duck-typed facade、config dataclass 与 fail-fast validator、单元测试。**算法 body 与 orchestrator wiring 未实现**：B1 land RuntimeContinuity / TopKActionConsensus 的 `extract` + Orchestrator 注入 view+history；B2 land SourceWindowSmoothness `extract` + `compute_for_episode` + LibraryStats + offline build pkl 工具。本文以"目标可用形态"撰写，每章末用 `> **批次状态**：B0/B1/B2` 标注实际可执行性。
+> **状态说明（2026-04-26）**：B1 + B2 全部 land。B1 = F1a-A / F1a-T / F2 `extract` body、3 Composer 算法、`PercentileRollingNormalizer`、Orchestrator view+history 注入、`_state_history` / anchor checkpoint policy / `on_task_end` leak fix、`_JUDGE_TYPES` 解禁 `composite`、validator 7 项 composite-specific 校验（含 5a-5d warm_start：CP1-only / canonical timestep / pairwise / tier 排序）、`min_top_k_hint` 反向喂回 strategy。B2 = F1b OnlineExtractor + OfflineWriter、`LibraryStats.compute_from_entries`、Orchestrator `__init__` 收 `offline_writers` / `library_stats` 且 `_build_entry_chain` 落地 merge loop、`build_per_connection_components` 收集 writer / library_stats 并通过 `scripts/serve_policy.py` 两条 production assembly 路径喂给 Orchestrator、Backend `load_artifact` library_stats 加载 / fallback、三 build_*.py `--factors-yaml` CLI、`exp/common/factor_postprocess.py` 写入 helper。端到端 composite judge 与完整离线 build 链路均可跑。
 
 ---
 
@@ -41,7 +41,7 @@ cached_data         ─┘
 | 跨 episode 的运动平滑度作为 hit 质量参考 | `composite` + F1b-A / F1b-T（需 build pkl 时算 LibraryStats） |
 | 多维度组合（典型 B2 后默认） | `composite` + F1b-A + F1b-T + F2，weighted_sum |
 
-> **批次状态**：CompositeJudge 类骨架与 5 因子注册 = B0 已 land。算法 body = B1 / B2。
+> **批次状态**：B0 = CompositeJudge 类骨架 + 5 因子注册 + describe + capability flags。B1 = F1a / F2 在线 extract、3 Composer 与 PercentileRollingNormalizer 算法、Orchestrator view+history 注入、`composite` YAML 解禁、validator 7 项 composite 校验。B2 = F1b 在线 extract + 离线 OfflineWriter、`LibraryStats.compute_from_entries`、Backend `load_artifact` library_stats 加载/fallback、artifact 写入 helper。
 
 ---
 
@@ -78,7 +78,315 @@ cached_data         ─┘
 
 ---
 
-## 3. 全周期流程
+## 3. 因子的精确数学表达式
+
+> 本章定义所有因子的运算契约（B1 / B2 实现 body 时按此公式落地）；上一章只给了直觉描述。GitHub 渲染数学公式：行内 `$...$`、单行 `$$...$$`。本地编辑器若不渲染，源代码中的 LaTeX 仍可读。
+
+### 3.1 通用记号
+
+| 符号 | 含义 | 形状 / 范围 |
+|---|---|---|
+| $a_t \in \mathbb{R}^A$ | 第 $t$ 步的 action 向量（已 input-transform / pre-output-transform） | Pi0.5: $A = 32$（universal action space） |
+| $s_t \in \mathbb{R}^S$ | 第 $t$ 步的 robot_state（post-input-transform） | Pi0.5: $S = 32$（universal state space） |
+| $\sigma \in \mathbb{R}^D$ | per-DOF std（$D = A$ 或 $S$） | 来自 `LibraryStats.{action,state}_sigma`（B2 算） |
+| $M \in \{0,1\}^D$ | active mask（True iff $\sigma_d \geq \varepsilon_{\text{active}}$） | `LibraryStats.{action,state}_active_mask`，default $\varepsilon_{\text{active}} = 0.01$ |
+| $D_{\text{act}} = \sum_{d=1}^{D} M_d$ | active 维数 | LIBERO 实测：action 7 / state 8（$D=32$ 中余下 24 维为 universal-32 零填充） |
+| $\varepsilon$ | clamp_min epsilon（避免除零） | $10^{-8}$（实现层硬编码） |
+
+**Per-DOF z-score**（动作侧示例，state 同理用 `state_sigma`）：
+
+$$
+\tilde{a}_{t,d} \;=\; \frac{a_{t,d}}{\max(\sigma_d,\;\varepsilon)}
+\qquad d = 1, 2, \ldots, D
+$$
+
+**Active 子空间限制**：所有后续算子在 $D_{\text{act}}$ 维子空间内做。下面公式中的 $\tilde{a}_t$ 默认已经是 $\tilde{a}_t[M] \in \mathbb{R}^{D_{\text{act}}}$。
+
+**速度与近似 jerk**（z-score 后空间内）：
+
+$$
+v_t \;=\; \tilde{a}_{t+1} - \tilde{a}_t \;\in\; \mathbb{R}^{D_{\text{act}}}
+\qquad\text{(一阶差分)}
+$$
+
+$$
+j_t \;=\; \tilde{a}_{t+1} - 2\,\tilde{a}_t + \tilde{a}_{t-1} \;\in\; \mathbb{R}^{D_{\text{act}}}
+\qquad\text{(二阶差分，近似 jerk)}
+$$
+
+注：物理 jerk 是三阶导数；这里 $j_t$ 是离散二阶差分（在 z-score 空间内），命名沿用 plan / 文献俗称。
+
+**窗口表示**：$W = (p, f)$ 表示窗口跨过 $[k - p,\; k + f]$（共 $|W| = p + f + 1$ 个采样点），其中 $k$ 是 anchor 时刻。F1a 用 `window_k = K`（自动转成 $(K, K)$ 或类似）；F1b 用 YAML 显式给出 `windows: [(p_1, f_1), ...]`。
+
+---
+
+### 3.2 通用描述子的精确数学
+
+设窗口 $W$ 内的 active-子空间序列为
+
+$$
+\mathrm{pts} \;=\; \bigl[\tilde{a}_{k-p},\; \tilde{a}_{k-p+1},\; \ldots,\; \tilde{a}_{k+f}\bigr] \;\in\; \mathbb{R}^{|W| \times D_{\text{act}}}
+$$
+
+对应的速度与 jerk：$v_W \in \mathbb{R}^{(|W|-1) \times D_{\text{act}}}$、$j_W \in \mathbb{R}^{(|W|-2) \times D_{\text{act}}}$。
+
+#### 3.2.1 `jerk` — 加速度幅值（risky）
+
+$$
+\boxed{\;
+\mathrm{jerk}(W) \;=\; \frac{1}{D_{\text{act}}} \sum_{d=1}^{D_{\text{act}}} \;\operatorname*{median}_{0 \leq t \leq |W|-3} \bigl|\,j_W[t, d]\,\bigr|
+\;}
+$$
+
+伪代码（与实际实现一致）：
+
+```python
+jerk_factor = j_W.abs().median(dim=0).values.mean()
+# j_W: [|W|-2, D_act]
+# .median(dim=0).values : [D_act]   per-DOF time-median
+# .mean()              : scalar     average over DOF
+```
+
+**为什么 median over time, mean over DOF**：median 抑制 gripper 单帧脉冲（双稳态切换瞬间）；mean over DOF 让所有 active 维等权贡献。high jerk → retrieval 拼接处出现了 inference 通常不会产生的速度跳变 → risky。
+
+#### 3.2.2 `dir` — 方向一致性（safe）
+
+把每个时刻的 active 速度向量整体 normalize 后求相邻时刻余弦：
+
+$$
+\boxed{\;
+\mathrm{dir}(W) \;=\; \frac{1}{|W| - 2} \sum_{i=0}^{|W|-3} \frac{\langle v_W[i],\; v_W[i+1]\rangle}{\lVert v_W[i] \rVert_2 \,\cdot\, \lVert v_W[i+1] \rVert_2}
+\;}
+$$
+
+伪代码：
+
+```python
+v1, v2 = v_W[:-1], v_W[1:]                       # each: [|W|-2, D_act]
+cos    = F.cosine_similarity(v1, v2, dim=-1)     # [|W|-2]
+dir_factor = cos.mean()
+```
+
+**为什么不是 per-DOF cos**：`dir` 测的是 active 子空间内运动方向的连贯性 —— 一个 $D_{\text{act}}$ 维向量整体的转向；per-DOF 余弦会被零分量主导。**值域**：$[-1, 1]$，1 = 严格同向，$-1$ = 反向。
+
+#### 3.2.3 `curv_radius` — 窗口几何弥散度（non-monotonic）
+
+$$
+\bar{c}_W \;=\; \frac{1}{|W|} \sum_{t=0}^{|W|-1} \mathrm{pts}[t] \;\in\; \mathbb{R}^{D_{\text{act}}}
+\qquad\text{(窗口质心)}
+$$
+
+$$
+\boxed{\;
+\mathrm{curv\_radius}(W) \;=\; \frac{1}{|W|} \sum_{t=0}^{|W|-1} \bigl\lVert \mathrm{pts}[t] - \bar{c}_W \bigr\rVert_2
+\;}
+$$
+
+伪代码：
+
+```python
+centroid = pts.mean(dim=0, keepdim=True)         # [1, D_act]
+curv_rad = (pts - centroid).norm(dim=-1).mean()
+```
+
+**几何含义**：在 z-score 后的 $D_{\text{act}}$ 维空间里，窗口内点云对中心的平均欧氏距离。停滞 $\to$ 几乎零；圆弧 $\to$ 中等；大幅直线 $\to$ 大。**取向 non-monotonic**：YAML 必须显式 `direction: range:[lo, hi]` 才能进 weighted_sum。
+
+#### 3.2.4 `cum_disp` — 累积路径长度（non-monotonic）
+
+$$
+\boxed{\;
+\mathrm{cum\_disp}(W) \;=\; \sum_{t=0}^{|W|-2} \bigl\lVert \mathrm{pts}[t+1] - \mathrm{pts}[t] \bigr\rVert_2
+\;}
+$$
+
+伪代码：
+
+```python
+cum_disp = (pts[1:] - pts[:-1]).norm(dim=-1).sum()
+```
+
+**几何含义**：active 子空间里相邻点之间步长之和。停滞 $\to$ 接近 0；快速移动 $\to$ 大。与 `curv_radius` 组合可分辨"快速直线 / 缓慢直线 / 停滞 / 圆弧 / 微抖"五种 regime。
+
+---
+
+### 3.3 F1a-A / F1a-T — 拼接窗口（Splice Window）数学
+
+F1a 测的是"如果不用 cache，inference 会给我一个与现在多接近的 action / state？"—— 把**已执行历史**与**候选未来**拼接成一个序列，然后跑 §3.2 的描述子。
+
+#### 3.3.1 F1a-A 序列拼接
+
+记 $K = \mathtt{window\_k}$（YAML 字段），`history.actions` 末尾 $K$ 个 action 已在执行（pre-output-transform domain），winner candidate 的 `payload.action_chunk[0]` 是 cache 给出的下一步建议 action：
+
+$$
+\mathrm{splice}_a \;=\; \bigl[\,a_{-K},\; a_{-K+1},\; \ldots,\; a_{-1},\; a_0^{\text{cand}}\,\bigr] \;\in\; \mathbb{R}^{(K+1) \times A}
+$$
+
+随后：
+
+1. Per-DOF z-score（用 `library_stats.action_sigma`）：$\mathrm{splice}_a \to \widetilde{\mathrm{splice}}_a$
+2. Active 子空间限制（用 `library_stats.action_active_mask`）：$\widetilde{\mathrm{splice}}_a \in \mathbb{R}^{(K+1) \times A_{\text{act}}}$
+3. 设 $\mathrm{pts} = \widetilde{\mathrm{splice}}_a$，$v_W = \mathrm{pts}[1:] - \mathrm{pts}[:-1]$，$j_W = \mathrm{pts}[2:] - 2\,\mathrm{pts}[1:-1] + \mathrm{pts}[:-2]$
+4. 套 §3.2.{1..4} 计算 4 个描述子，写入 `payload.factors`：
+
+$$
+\begin{aligned}
+\texttt{f1a\_a\_jerk}        &= \mathrm{jerk}(\mathrm{splice}_a) \\
+\texttt{f1a\_a\_dir}         &= \mathrm{dir}(\mathrm{splice}_a) \\
+\texttt{f1a\_a\_curv\_radius}&= \mathrm{curv\_radius}(\mathrm{splice}_a) \\
+\texttt{f1a\_a\_cum\_disp}   &= \mathrm{cum\_disp}(\mathrm{splice}_a)
+\end{aligned}
+$$
+
+**边界**：history 长度 $< K$ 时（episode 早期）→ 全部描述子返回 $\mathrm{nan}$；CompositeJudge 的 cold-start sentinel 会让早期 verdict 走 MISS（与 inference 拼接最自然）。
+
+#### 3.3.2 F1a-T 序列拼接
+
+state 侧需要"未来一段"才能算窗口；cache 没有"未来 state"，但可以从下游 entry 链取：
+
+$$
+\mathrm{splice}_s \;=\; \bigl[\,\underbrace{s_{-K},\;\ldots,\;s_{-1}}_{\text{history.states 末 } K \text{ 项}},\; \underbrace{s_0^{\text{cand}}}_{\text{winner robot\_state}},\; \underbrace{s_1^{\text{cand}},\;\ldots,\;s_K^{\text{cand}}}_{\texttt{view.walk\_next}(K)}\,\bigr] \;\in\; \mathbb{R}^{(2K+1) \times S}
+$$
+
+后续 z-score / active-mask / 描述子流程同 F1a-A，只是用 `state_sigma` / `state_active_mask`，写入 key `f1a_t_*`。
+
+**chain walk 失败时（trajectory boundary / fork）**：`view.walk_next` 返回 list 长度 $< K$，splice 序列变短；F1a-T 实现按"长度 $< (K+1)$ → 描述子置 $\mathrm{nan}$"处理（与 history 不足同规则）。
+
+---
+
+### 3.4 F1b-A / F1b-T — 链上窗口（Chain Window）数学
+
+F1b 在 **offline build pkl** 阶段对每个 episode 的整条 entry 链跑窗口扫描，把每个 entry 在每个窗口的描述子值写入它自己的 `payload.factors`。online verdict 只读不算。
+
+#### 3.4.1 序列与 z-score
+
+设 episode 有 $T$ 个 entries $[e_0, e_1, \ldots, e_{T-1}]$（按 `prev_ids/next_ids` 链单调）。源序列：
+
+- F1b-A: $x_t = \mathtt{entries}[t].\mathtt{payload.action\_chunk}[0] \in \mathbb{R}^A$（pre-output-transform 的 normalized 第一步 action）
+- F1b-T: $x_t = \mathtt{entries}[t].\mathtt{query\_keys["robot\_state"]} \in \mathbb{R}^S$（post-input-transform 的 normalized state）
+
+Per-DOF z-score 与 active-mask（用对应的 sigma / mask）：
+
+$$
+\tilde{x}_t \;=\; \frac{x_t}{\max(\sigma,\;\varepsilon)}
+\qquad
+\tilde{x}_t^{\text{act}} \;=\; \tilde{x}_t[M] \;\in\; \mathbb{R}^{D_{\text{act}}}
+$$
+
+#### 3.4.2 窗口扫描
+
+对 YAML `windows = [(p_1, f_1), (p_2, f_2), ...]` 中的每个 $(p, f)$，对每个 entry 索引 $k = 0, 1, \ldots, T-1$：
+
+$$
+W_{k,(p,f)} \;=\; \bigl[\tilde{x}_{k-p}^{\text{act}},\; \tilde{x}_{k-p+1}^{\text{act}},\; \ldots,\; \tilde{x}_{k+f}^{\text{act}}\bigr] \;\in\; \mathbb{R}^{(p+f+1) \times D_{\text{act}}}
+$$
+
+记 $\mathrm{pts} = W_{k,(p,f)}$，套 §3.2 公式：
+
+$$
+\begin{aligned}
+\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_jerk\_\_p}p\texttt{\_f}f\bigr]        &\leftarrow \mathrm{jerk}(W_{k,(p,f)}) \\
+\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_dir\_\_p}p\texttt{\_f}f\bigr]         &\leftarrow \mathrm{dir}(W_{k,(p,f)}) \\
+\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_curv\_radius\_\_p}p\texttt{\_f}f\bigr] &\leftarrow \mathrm{curv\_radius}(W_{k,(p,f)}) \\
+\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_cum\_disp\_\_p}p\texttt{\_f}f\bigr]    &\leftarrow \mathrm{cum\_disp}(W_{k,(p,f)})
+\end{aligned}
+$$
+
+`<key_initial>` = `"a"`（F1b-A）或 `"t"`（F1b-T）。
+
+**边界**：$k < p$ 或 $k + f \geq T$ → 该窗口所有描述子写入 $\mathrm{nan}$（不抛错；CompositeJudge 收到 NaN 后按 §11 FAQ 的 NaN 规则处理）。
+
+**单 entry 的 factors 维度**：4 描述子 × $N_{\text{windows}} \approx 12\text{-}24$ 个 float（per side），双侧 $24\text{-}48$ float $\approx 200$ 字节，相对 `action_chunk [10, 32]` 的 $1.3$ KB 可忽略。
+
+#### 3.4.3 在线侧仅读
+
+F1b 的 OnlineExtractor 实现：
+
+```python
+def extract(self, results, view, history, cached_data):
+    winner = view.get(results[0].id)
+    out = {}
+    for key in self.descriptor_orientations:                # 类内 describe() 算出
+        if winner.factors is None or key not in winner.factors:
+            out[key] = float("nan")                         # 老 entry / 缺字段 → NaN
+        else:
+            out[key] = winner.factors[key]
+    return out
+```
+
+零计算开销；所有数值在 build pkl 时已固化。
+
+---
+
+### 3.5 F2 — Top-K 候选共识方差
+
+F2 测的是 cache 的 top-K 候选在"下一步该做什么"上是否达成一致；分歧大 → retrieval 在猜 → risky。
+
+#### 3.5.1 取数
+
+设 $\mathrm{ids} = \{r.id : r \in \mathtt{results}[:K]\}$，
+
+$$
+X \;=\; \begin{bmatrix} \mathtt{view.get(id_1).action\_chunk[0]} \\ \vdots \\ \mathtt{view.get(id_K).action\_chunk[0]} \end{bmatrix} \;\in\; \mathbb{R}^{K \times A}
+$$
+
+**Active mask**：F2 用 **candidate-local** active mask（不是 `library_stats.action_active_mask`），保持 `requires_library_stats=False` 自洽：
+
+$$
+M^{\text{local}} \;=\; \bigl\{ d : \mathrm{var}_d > \varepsilon \bigr\}
+\qquad (\varepsilon = 10^{-8})
+$$
+
+$$
+X_{\text{act}} \;=\; X[:,\, M^{\text{local}}] \;\in\; \mathbb{R}^{K \times |M^{\text{local}}|}
+$$
+
+理由：pi05 padded DOF 在所有候选上常数 0 → per-DOF 候选方差天然为 0 → candidate-local mask 在 pi05 deployment 下与 library mask 行为等价，但**不依赖** `LibraryStats`，validator 不需要要求 `backend.type=in_memory`。
+
+$K$ 是 YAML `params.K`（默认 5）；F2 通过 `min_top_k_hint` 自动让 SearchStrategy 多取 $K$ 个候选。
+
+#### 3.5.2 方差
+
+per-DOF 方差（$K$ 维上的 population 方差），再聚合为标量：
+
+$$
+m_d \;=\; \frac{1}{K} \sum_{k=1}^{K} X_{\text{act}}[k, d]
+\qquad
+\mathrm{var}_d \;=\; \frac{1}{K} \sum_{k=1}^{K} \bigl(X_{\text{act}}[k, d] - m_d\bigr)^{2}
+$$
+
+$$
+\boxed{\;
+\mathtt{f2\_var} \;=\; \frac{1}{A_{\text{act}}} \sum_{d=1}^{A_{\text{act}}} \mathrm{var}_d
+\;}
+$$
+
+伪代码（B1 实装）：
+
+```python
+chunk0 = stack([view.get(r.id).action_chunk[0] for r in results[:K_eff]])  # [K_eff, A]
+var_d  = chunk0.var(dim=0, unbiased=False)                                 # [A] population
+active = var_d > 1e-8                                                       # candidate-local
+if not active.any():
+    return {"f2_var": float("nan")}        # 全候选完美一致 — NaN 而非 0
+f2_var = float(var_d[active].mean())
+```
+
+**为什么不归一化到 sigma**：F2 在 candidate 池内做相对方差，scale-invariant —— 同一 episode chunk 的几个候选会自然落在 sigma 的同一量级，归一化反而抹掉信息。这就是 `requires_library_stats=False` 的根因。
+
+**写入**：`{"f2_var": float(f2_var)}`，orientation `"risky"`。
+
+**边界**：
+- $\mathtt{len(results)} < K$ 时（cache 几乎空 / cold-start）→ $K_{\text{eff}} = \min(K, \mathtt{len(results)})$
+- $K_{\text{eff}} < 2$（单候选 / 空池）→ 返回 NaN（无 consensus 信号）
+- 所有 DOF 候选完美一致（$M^{\text{local}}$ 为空）→ 返回 NaN（避免与 "高方差 → MISS" 翻转后误判为 hard hit）
+
+---
+
+> **批次状态**：F1a-A / F1a-T / F2 / Composer / Normalizer 算法 body 已在 B1 落地；F1b OnlineExtractor + OfflineWriter 算法 body 在 B2 落地（`docs/architecture/cache_system.md` §5.12）。`describe()` 与 capability flags 在 B0 已 ship。
+
+---
+
+## 4. 全周期流程
 
 ```
        ┌─────────────────────────────────────────────────────────────┐
@@ -119,19 +427,19 @@ cached_data         ─┘
 
 ---
 
-## 4. Step 1: 构建带 factors 的离线 Artifact（B2）
+## 5. Step 1: 构建带 factors 的离线 Artifact（B2）
 
-### 4.1 命令
+### 5.1 命令
 
 ```bash
 uv run python exp/common/build_in_memory_cache_artifact.py \
     --data-dir exp/common/data/db/libero_cache/libero_spatial \
     --builder-type cp1_mean_pool \
     --output exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool_with_factors.pkl \
-    --factor-config-yaml exp/common/configs/factors/f1b_default.yaml
+    --factors-yaml exp/common/configs/factors/f1b_default.yaml
 ```
 
-`--factor-config-yaml` 指向描述哪些 OfflineWriter 应跑 + 用什么参数的 YAML（与在线 YAML 中 composite judge 的 `factors` 字段同结构；只关心实现 `OfflineWriter` Protocol 的因子，即 F1b-A / F1b-T）。例：
+`--factors-yaml` 指向描述哪些 OfflineWriter 应跑 + 用什么参数的 YAML（与在线 YAML 中 composite judge 的 `factors` 字段同结构；只关心实现 `OfflineWriter` Protocol 的因子，即 F1b-A / F1b-T）。`build_clip_cache_artifact.py` / `build_llm_layer_matrix.py` 同样支持该 flag。例：
 
 ```yaml
 # exp/common/configs/factors/f1b_default.yaml
@@ -148,7 +456,7 @@ factors:
       active_eps: 0.01
 ```
 
-### 4.2 流程内部步骤
+### 5.2 流程内部步骤
 
 1. `build_in_memory_cache_artifact.py` 用 KeyBuilder 跑完所有 entry 写入 `entries: list[CacheEntry]`
 2. `enrich_artifact_with_factors(entries, offline_writers)` helper（位于 `exp/common/factor_postprocess.py`）：
@@ -167,7 +475,7 @@ factors:
 }
 ```
 
-### 4.3 老 artifact 兼容
+### 5.3 老 artifact 兼容
 
 未带 `library_stats` 字段的旧 artifact，`InMemoryBackend.load_artifact` 会自动 fallback：
 
@@ -184,7 +492,7 @@ if self.library_stats is None:
 
 ---
 
-## 5. Step 2: 写 YAML
+## 6. Step 2: 写 YAML
 
 ```yaml
 # exp/cp1_cache/configs/composite_judge_demo.yaml
@@ -275,7 +583,7 @@ checkpoints:
   - `"low"`  —— 数值越低越偏 hit
   - `"range:[lo,hi]"` —— 落在 [lo, hi] 区间内偏 hit
 
-### 5.1 6 项 composite-specific 静态校验（B1+ 激活）
+### 6.1 6 项 composite-specific 静态校验（B1+ 激活）
 
 `validate_cache_config` 在 config-load 阶段会跑下面 6 类校验，全部通过才能进入 builder：
 
@@ -294,7 +602,7 @@ checkpoints:
 
 ---
 
-## 6. Step 3: 启动推理
+## 7. Step 3: 启动推理
 
 ```bash
 uv run python scripts/serve_policy.py \
@@ -362,7 +670,7 @@ if hit_type in (FULL_HIT, WARM_START):
 
 ---
 
-## 7. Step 4: 跑实验对比 ThresholdJudge vs CompositeJudge
+## 8. Step 4: 跑实验对比 ThresholdJudge vs CompositeJudge
 
 ```bash
 # Phase 1: 用 ThresholdJudge baseline 跑
@@ -395,9 +703,9 @@ uv run python exp/cp1_cache/analysis/compare_judges.py \
 
 ---
 
-## 8. 自定义因子：扩展 OnlineExtractor / OfflineWriter
+## 9. 自定义因子：扩展 OnlineExtractor / OfflineWriter
 
-### 8.1 写一个新的 OnlineExtractor
+### 9.1 写一个新的 OnlineExtractor
 
 最小实现（无 OfflineWriter，无 library_stats，无 chain walk）：
 
@@ -443,7 +751,7 @@ factors:
       threshold: 0.5
 ```
 
-### 8.2 写一个需要 library_stats 的因子
+### 9.2 写一个需要 library_stats 的因子
 
 ```python
 @register("my_normed_factor")
@@ -466,7 +774,7 @@ class MyNormedFactor:
 
 `requires_library_stats=True` 自动让 validator 强制 `backend.type=in_memory`（library_stats 仅 InMemoryBackend 暴露），并让 `_build_judge` 在构造时注入 `library_stats=library_stats` kwarg。
 
-### 8.3 写一个走 chain walk 的因子
+### 9.3 写一个走 chain walk 的因子
 
 ```python
 @register("my_chain_factor")
@@ -492,7 +800,7 @@ class MyChainFactor:
         ...
 ```
 
-### 8.4 写一个 OfflineWriter（B2 模式）
+### 9.4 写一个 OfflineWriter（B2 模式）
 
 `OfflineWriter` 在 build pkl 时被 `enrich_artifact_with_factors` helper 调，回填 `entry.payload.factors`：
 
@@ -531,7 +839,7 @@ class MyOfflineFactor:
         return [{"my_offline_score": ...} for _ in entries]
 ```
 
-### 8.5 写一个新 Composer
+### 9.5 写一个新 Composer
 
 ```python
 # src/openpi/cache/components/factors/composers/my_composer.py
@@ -564,7 +872,7 @@ elif cfg.type == "my_composer":
 
 > **未来工作**：Composer 与 Normalizer 也可以做成 registry 模式（与 factor 同），目前 plan 没有这一步。
 
-### 8.6 写一个新 Normalizer
+### 9.6 写一个新 Normalizer
 
 ```python
 class MyNormalizer:
@@ -590,7 +898,7 @@ class MyNormalizer:
 
 ---
 
-## 9. 模块文件一览
+## 10. 模块文件一览
 
 | 路径 | 作用 |
 |---|---|
@@ -614,7 +922,7 @@ class MyNormalizer:
 
 ---
 
-## 10. 常见问题
+## 11. 常见问题
 
 ### Q: 为什么 `f1a_t` 的 key 是 `f1a_t_jerk` 而不是 `f1a_s_jerk`？
 
@@ -646,9 +954,9 @@ F1b 的 OnlineExtractor.extract 会返回 NaN，Composer 按取向规则跳过�
 
 具体取值由数据定标得到（B2 后可加 calibration 脚本扫 percentile 给推荐值）。
 
-### Q: 现在（B0）能跑 composite YAML 吗？
+### Q: 现在能跑 composite YAML 吗？
 
-不能。B0 ships shell 但 `_JUDGE_TYPES` 不含 `composite`，validator 在 config-load 阶段直接 raise `judge.type='composite' is not yet enabled in B0; available in B1+ when CompositeJudge algorithms land.`。这是有意的 fail-fast：避免 stub composer 跑到第一次 verdict 才报 NotImplementedError。
+可以（B1 起）。`_JUDGE_TYPES` 已含 `composite`；validator 接受 `judge.type=composite` 并按 §6.1 跑 7 项 composite-specific 静态校验。F1a-A / F1a-T / F2 + 3 Composer + PercentileRollingNormalizer 全部已实现，端到端 verdict 可跑。F1b 因子若配进 YAML，需 backend 加载的 artifact pkl 含 `library_stats` 字段（B2 build pipeline 自动写入；老 artifact 启动时 fallback 现算）。
 
 B0 阶段可以做的：
 - 写自定义 factor 的 `describe()` / 构造单元测试

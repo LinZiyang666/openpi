@@ -1,20 +1,29 @@
 """Composer Protocol + concrete S1 / S2 / S3 classes.
 
 A Composer aggregates a normalized factor dict into a `JudgeResult`.
-Three implementations ship as B0 skeletons (constructor + signature +
-`bind_orientations` stub); the actual scoring algorithms land in B1+.
+Algorithms (orientation flip + tier mapping + NaN handling) live here;
+CompositeJudge owns the pipeline (extractor outputs -> normalizer ->
+composer.compose).
 
 Coupling map:
-  DEPENDS ON:  components/judge.py (JudgeResult)
+  DEPENDS ON:  components/judge.py (JudgeResult, HitType)
   CONSUMED BY: CompositeJudge (composer dependency injection)
   IF CHANGED:  CompositeJudge composition pipeline
 """
 
 from __future__ import annotations
 
+import math
 from typing import Optional, Protocol, runtime_checkable
 
-from openpi.cache.components.judge import JudgeResult
+from openpi.cache.components.judge import HitType, JudgeResult
+
+
+# Orientation kinds — kept in sync with `_DESCRIPTOR_ORIENTATIONS` in
+# `factors/source_window.py` (the single source of truth).
+_SAFE = "safe"
+_RISKY = "risky"
+_NON_MONOTONIC = "non_monotonic"
 
 
 @runtime_checkable
@@ -78,9 +87,23 @@ class WeightedSumComposer:
         self._orientations: dict[str, str] = {}
 
     def bind_orientations(self, orientations: dict[str, str]) -> None:
-        # B0 simply stores; B1+ cross-checks `directions` coverage for
-        # non_monotonic keys with non-zero weight.
+        # Cross-check `directions` coverage for non_monotonic keys whose
+        # weight is non-zero — fail loud at bind time so invalid YAML
+        # never silently aggregates wrong sign.
         self._orientations = dict(orientations)
+        missing: list[str] = []
+        for k, ori in self._orientations.items():
+            if ori != _NON_MONOTONIC:
+                continue
+            if self._weights.get(k, 0.0) == 0.0:
+                continue
+            if k not in self._directions:
+                missing.append(k)
+        if missing:
+            raise ValueError(
+                f"WeightedSumComposer: non_monotonic keys with non-zero weight "
+                f"are missing `directions`: {sorted(missing)}"
+            )
 
     def compose(
         self,
@@ -88,9 +111,50 @@ class WeightedSumComposer:
         *,
         winner_id: str,
     ) -> JudgeResult:
-        raise NotImplementedError(
-            "WeightedSumComposer.compose: B1+ algorithm"
-        )
+        # NaN-tolerant weighted average. Normalizer is expected to map
+        # raw factors into [0, 1]; safe orientation contributes the
+        # value directly, risky orientation flips (1 - value), and
+        # non_monotonic uses the configured direction rule.
+        total_w = 0.0
+        score = 0.0
+        for k, v in factors.items():
+            if math.isnan(v):
+                continue                                # missing-signal NaN
+            w = self._weights.get(k, 0.0)
+            if w == 0.0:
+                continue
+            ori = self._orientations.get(k)
+            if ori == _SAFE:
+                contrib = v
+            elif ori == _RISKY:
+                contrib = 1.0 - v
+            elif ori == _NON_MONOTONIC:
+                contrib = _apply_direction(self._directions[k], v)
+            else:
+                raise ValueError(
+                    f"WeightedSumComposer: unknown orientation {ori!r} for key {k!r}"
+                )
+            score += w * contrib
+            total_w += w
+        if total_w == 0.0:
+            return JudgeResult(HitType.MISS)
+        s = score / total_w
+        if s >= self._full_hit_threshold:
+            if self._warm_start_t is not None:
+                # Caller wired this composer for warm-start emission rather
+                # than full-hit — treat the threshold pass as WARM_START.
+                return JudgeResult(
+                    HitType.WARM_START, winner_id=winner_id, start_t=self._warm_start_t,
+                )
+            return JudgeResult(HitType.FULL_HIT, winner_id=winner_id)
+        if (
+            self._warm_start_threshold is not None
+            and s >= self._warm_start_threshold
+        ):
+            return JudgeResult(
+                HitType.WARM_START, winner_id=winner_id, start_t=self._warm_start_t,
+            )
+        return JudgeResult(HitType.MISS)
 
 
 # ------------------------------------------------------------------
@@ -99,22 +163,33 @@ class WeightedSumComposer:
 
 
 class AndGateComposer:
-    """S2: every key (per `per_factor_thresholds`) must pass its threshold.
-
-    B0 stub. Algorithm body lands in B1+.
+    """S2: every key in `per_factor_thresholds` must pass its threshold
+    in the orientation-aware direction (safe: v >= thr, risky: v <= thr,
+    non_monotonic: per-direction). NaN counts as not-passed.
     """
 
     def __init__(
         self,
         per_factor_thresholds: dict[str, float],
         warm_start_t: Optional[float] = None,
+        directions: Optional[dict[str, str]] = None,
     ) -> None:
         self._thresholds = dict(per_factor_thresholds)
         self._warm_start_t = warm_start_t
+        self._directions = dict(directions) if directions else {}
         self._orientations: dict[str, str] = {}
 
     def bind_orientations(self, orientations: dict[str, str]) -> None:
         self._orientations = dict(orientations)
+        missing = [
+            k for k in self._thresholds
+            if self._orientations.get(k) == _NON_MONOTONIC and k not in self._directions
+        ]
+        if missing:
+            raise ValueError(
+                f"AndGateComposer: non_monotonic keys are missing `directions`: "
+                f"{sorted(missing)}"
+            )
 
     def compose(
         self,
@@ -122,9 +197,17 @@ class AndGateComposer:
         *,
         winner_id: str,
     ) -> JudgeResult:
-        raise NotImplementedError(
-            "AndGateComposer.compose: B1+ algorithm"
-        )
+        for k, thr in self._thresholds.items():
+            v = factors.get(k, float("nan"))
+            if math.isnan(v):
+                return JudgeResult(HitType.MISS)        # NaN = not passed
+            if not _passes_threshold(self._orientations.get(k), v, thr, self._directions.get(k)):
+                return JudgeResult(HitType.MISS)
+        if self._warm_start_t is not None:
+            return JudgeResult(
+                HitType.WARM_START, winner_id=winner_id, start_t=self._warm_start_t,
+            )
+        return JudgeResult(HitType.FULL_HIT, winner_id=winner_id)
 
 
 # ------------------------------------------------------------------
@@ -133,22 +216,32 @@ class AndGateComposer:
 
 
 class OrGateComposer:
-    """S3: any key passing its threshold emits a hit.
-
-    B0 stub. Algorithm body lands in B1+.
+    """S3: any key passing its threshold (orientation-aware) emits hit.
+    NaN keys are skipped (let other keys decide).
     """
 
     def __init__(
         self,
         per_factor_thresholds: dict[str, float],
         warm_start_t: Optional[float] = None,
+        directions: Optional[dict[str, str]] = None,
     ) -> None:
         self._thresholds = dict(per_factor_thresholds)
         self._warm_start_t = warm_start_t
+        self._directions = dict(directions) if directions else {}
         self._orientations: dict[str, str] = {}
 
     def bind_orientations(self, orientations: dict[str, str]) -> None:
         self._orientations = dict(orientations)
+        missing = [
+            k for k in self._thresholds
+            if self._orientations.get(k) == _NON_MONOTONIC and k not in self._directions
+        ]
+        if missing:
+            raise ValueError(
+                f"OrGateComposer: non_monotonic keys are missing `directions`: "
+                f"{sorted(missing)}"
+            )
 
     def compose(
         self,
@@ -156,6 +249,64 @@ class OrGateComposer:
         *,
         winner_id: str,
     ) -> JudgeResult:
-        raise NotImplementedError(
-            "OrGateComposer.compose: B1+ algorithm"
-        )
+        for k, thr in self._thresholds.items():
+            v = factors.get(k, float("nan"))
+            if math.isnan(v):
+                continue                                # NaN skipped per §2.8.8
+            if _passes_threshold(self._orientations.get(k), v, thr, self._directions.get(k)):
+                if self._warm_start_t is not None:
+                    return JudgeResult(
+                        HitType.WARM_START, winner_id=winner_id, start_t=self._warm_start_t,
+                    )
+                return JudgeResult(HitType.FULL_HIT, winner_id=winner_id)
+        return JudgeResult(HitType.MISS)
+
+
+# ------------------------------------------------------------------
+# Direction helpers (non_monotonic descriptors)
+# ------------------------------------------------------------------
+
+
+def _apply_direction(direction: str, v: float) -> float:
+    """Return the scoring contribution for a non_monotonic key under the
+    configured direction rule. Output is in [0, 1] for `range:[lo,hi]`
+    (binary 0/1) and for `low` / `high` it mirrors safe / risky.
+    """
+    if direction == "high":
+        return v
+    if direction == "low":
+        return 1.0 - v
+    if direction.startswith("range:"):
+        lo, hi = _parse_range(direction)
+        return 1.0 if lo <= v <= hi else 0.0
+    raise ValueError(f"Unknown direction {direction!r}; expected 'high' | 'low' | 'range:[lo,hi]'")
+
+
+def _passes_threshold(
+    orientation: Optional[str], v: float, thr: float, direction: Optional[str],
+) -> bool:
+    if orientation == _SAFE:
+        return v >= thr
+    if orientation == _RISKY:
+        return v <= thr
+    if orientation == _NON_MONOTONIC:
+        if direction is None:
+            raise ValueError("non_monotonic key requires a direction; bind_orientations should have caught this")
+        if direction == "high":
+            return v >= thr
+        if direction == "low":
+            return v <= thr
+        if direction.startswith("range:"):
+            lo, hi = _parse_range(direction)
+            return lo <= v <= hi
+        raise ValueError(f"Unknown direction {direction!r}")
+    raise ValueError(f"Unknown orientation {orientation!r}")
+
+
+def _parse_range(direction: str) -> tuple[float, float]:
+    # Accept "range:[lo,hi]" or "range:lo,hi"; whitespace tolerant.
+    body = direction[len("range:"):].strip()
+    if body.startswith("[") and body.endswith("]"):
+        body = body[1:-1]
+    lo_s, hi_s = body.split(",")
+    return float(lo_s.strip()), float(hi_s.strip())

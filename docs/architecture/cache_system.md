@@ -479,7 +479,7 @@ Determines whether search results constitute a valid hit. Returns `JudgeResult(h
 | `threshold` | FULL_HIT if `score >= threshold`. With `warm_tiers` configured, scores below the threshold are matched against descending tiers for WARM_START (CP1 only). Returns `JudgeResult(hit_type, winner_id, start_t)`. |
 | `always_hit` | Always returns FULL_HIT for top result. Used in experiments (threshold calibration deferred). |
 | `always_warm_start` | Always returns WARM_START with a fixed `start_t` for the top result (CP1 only). Used to sweep success-rate vs `start_t` curves under a forced warm-start regime. |
-| `composite` | Aggregates pluggable verdict factors (statistical / kinematic descriptors) through a Composer + optional Normalizer pipeline. See §5.12 (Verdict Factor System) for the architecture. **Available B1+; B0 ships the metadata + skeleton only and rejects `composite` YAML at config-load time.** |
+| `composite` | Aggregates pluggable verdict factors (statistical / kinematic descriptors) through a Composer + optional Normalizer pipeline. See §5.12 (Verdict Factor System) for the architecture. F1a-A / F1a-T / F2 + Composers + Normalizer enabled in B1; F1b OnlineExtractor + OfflineWriter + `LibraryStats` land in B2. |
 
 Score semantics depend on fusion method — see [../cache/tutorial.md §6](../cache/tutorial.md#6-component-judge) for details.
 
@@ -723,7 +723,7 @@ In B0 the chain shape produced by the write path has `len(prev_ids) <= 1` and `l
 ### 5.12 Verdict Factor System
 
 > **Source**: `src/openpi/cache/components/factors/`
-> **Status**: B0 ships protocol surface + factor metadata + Composer / Normalizer skeletons + CompositeJudge structural shell. B1 lands runtime continuity + consensus algorithms; B2 lands source-window smoothness + library statistics + offline writer wiring.
+> **Status**: B1 has landed — F1a-A / F1a-T / F2 `extract` algorithms, three Composers, `PercentileRollingNormalizer`, Orchestrator view+history injection, `composite` YAML enabled, validator's seven composite-specific checks, `min_top_k_hint` plumbing. B2 lands the offline path: `SourceWindowSmoothness.extract` + `compute_for_episode` + `LibraryStats.compute_from_entries` + Backend `load_artifact` library_stats / fallback + the `--factors-yaml` build helper.
 
 The verdict factor system replaces the single-threshold cosine judge with a three-stage pipeline: extract per-factor descriptors → normalize → compose into a `JudgeResult`. Each stage is a plug point.
 
@@ -756,7 +756,7 @@ cached_data         ─┘             extractor.descriptor_orientations.keys())
 - *Static introspection* — classmethod for the validator:
   - `describe(cls, params) -> dict[str, str]` — same map computable from params alone, without `library_stats` or any runtime context. The validator uses this to cross-check `Composer.directions` coverage for non-monotonic keys without instantiating the factor.
 
-**Currently registered factors** (B0 ships full metadata + register; algorithm bodies raise `NotImplementedError` until B1 / B2):
+**Currently registered factors** (B0 shipped metadata + register; B1 lands F1a / F2 algorithm bodies; B2 lands F1b algorithm bodies):
 
 | Registry name | Class | Source | requires_library_stats | requires_chain_walk | Algorithm batch |
 |---|---|---|---|---|---|
@@ -774,7 +774,9 @@ Action / state are bound by class identity (thin subclasses of a shared algorith
 - F1b (multi-window): `f1b_<key_initial>_<descriptor>__p<past>_f<future>` (e.g. `f1b_a_jerk__p0_f5`, `f1b_t_dir__p5_f10`).
 - F2: `f2_var` (single key regardless of K).
 
-**Library-level metadata** (`LibraryStats`, populated B2): per-DOF `action_sigma` + `action_active_mask` and `state_sigma` + `state_active_mask` over the artifact's entry pool. Stored as a top-level field on the artifact pickle; `InMemoryBackend.load_artifact` falls back to `LibraryStats.compute_from_entries` for old artifacts that lack the field. F1a / F1b z-score against this metadata; F2 (variance over candidate pool) does not need it.
+**Library-level metadata** (`LibraryStats`, populated B2): per-DOF `action_sigma` + `action_active_mask` and `state_sigma` + `state_active_mask` over the artifact's entry pool. Stored as a top-level `library_stats` field on the artifact pickle; `InMemoryBackend.load_artifact` falls back to `LibraryStats.compute_from_entries` for legacy artifacts that lack the field (or set it explicitly to None). F1a / F1b z-score against this metadata; F2 uses a candidate-LOCAL active mask instead and stays `requires_library_stats=False`. State-side factors (F1a-T / F1b-T) carry a three-layer fail-safe so an empty state library / per-entry missing state never crashes — they emit all-NaN dicts that the cold-start sentinel routes to MISS.
+
+**Artifact build pipeline** (B2): `exp/common/factor_postprocess.py:enrich_artifact_with_factors` runs after each builder finishes its per-episode entry list. It computes `LibraryStats` from the full pool, then invokes each OfflineWriter per trajectory (sorted by `step_idx`, `step_idx is None` entries appended in collection order with a warning) and merges the resulting per-entry factor dicts into `payload.factors`. The helper bridges numpy / torch via `torch.as_tensor` so the primary builder's ProcessPool detach is left unchanged. Writers are loaded from a minimal YAML via `--factors-yaml` on each `build_*.py` CLI; the loader fail-fasts if a YAML lists an online-only factor (F1a / F2) under the OfflineWriter slot.
 
 **Cold-start signal**: Normalizers in `force_miss` mode return all-NaN dicts when the rolling window is not yet ready. CompositeJudge detects all-NaN and returns `HitType.MISS` directly without invoking the Composer — the cold-start path is representable through the existing `dict[str, float]` interface, no status channel needed.
 

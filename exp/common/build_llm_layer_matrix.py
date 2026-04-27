@@ -330,15 +330,30 @@ def _save_artifact(
     reducer_type: str,
     checkpoint_dir: str,
     config_name: str,
+    factors_yaml: str | None = None,
 ) -> None:
     # Convert torch.Tensor fields to numpy in-place (matches single-config path).
     _detach_entries(entries)
+
+    # B2 — verdict-factor enrichment runs AFTER detach. Helper internals
+    # bridge numpy through torch.as_tensor.
+    library_stats = None
+    if entries:
+        from exp.common.factor_postprocess import (
+            _load_offline_writers_from_yaml,
+            enrich_artifact_with_factors,
+        )
+        offline_writers = (
+            _load_offline_writers_from_yaml(factors_yaml) if factors_yaml else []
+        )
+        library_stats = enrich_artifact_with_factors(entries, offline_writers)
 
     artifact = {
         "key_builder_type": "cp1_llm_layer_extract",
         "checkpoint_id": "CP1",
         "vector_dims": _vector_dims_for_reducer(reducer_type),
         "entries": entries,
+        "library_stats": library_stats,
         "reducer_params": {
             "extract_layer": extract_layer,
             "prefix_reducer_type": reducer_type,
@@ -371,6 +386,7 @@ def build_matrix(
     layers: list[int],
     reducer_types: list[str],
     skip_existing: bool = True,
+    factors_yaml: str | None = None,
 ) -> None:
     target_layers = set(layers)
     for r in reducer_types:
@@ -486,6 +502,7 @@ def build_matrix(
             reducer_type=r,
             checkpoint_dir=checkpoint_dir,
             config_name=config_name,
+            factors_yaml=factors_yaml,
         )
         size_mb = out_path.stat().st_size / 1024 / 1024
         logger.info("  saved %s  (%d entries, %.1f MB)", out_path.name, len(bucket), size_mb)
@@ -525,6 +542,13 @@ def main() -> None:
     )
     parser.add_argument("--no-skip-existing", action="store_true",
                         help="Rebuild even if the output pkl already exists.")
+    parser.add_argument(
+        "--factors-yaml", default=None,
+        help="Path to a YAML listing OfflineWriter-capable factors "
+             "(F1b-A / F1b-T) — see exp/common/factor_postprocess.py. "
+             "Each (layer, reducer) artifact gets per-entry "
+             "`payload.factors` + a top-level `library_stats` field."
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
@@ -538,6 +562,7 @@ def main() -> None:
         layers=_parse_layers(args.layers),
         reducer_types=_parse_list(args.reducers),
         skip_existing=not args.no_skip_existing,
+        factors_yaml=args.factors_yaml,
     )
 
 

@@ -4,7 +4,7 @@
 >
 > **Design document**: full design and decision history is in [`logs/verdict_factor_judge.log.md`](../../logs/verdict_factor_judge.log.md) (Plan, G1 / G2 APPROVED).
 >
-> **Status (2026-04-26)**: B0 has landed — protocol layer, metadata skeletons for the 5 factors, `CompositeJudge` / `Composer` / `Normalizer` class shells, `PayloadView`, the `payload.factors` schema, the duck-typed facade, the config dataclass + fail-fast validator, and the unit tests. **Algorithm bodies and orchestrator wiring are not implemented yet**: B1 lands the `extract` bodies for `RuntimeContinuity` / `TopKActionConsensus` plus orchestrator view+history injection; B2 lands `SourceWindowSmoothness.extract` + `compute_for_episode` + `LibraryStats` + offline-build-pkl tooling. This guide is written against the *target* usable shape; each section ends with a `> **Batch status**: B0/B1/B2` marker calling out what actually executes today.
+> **Status (2026-04-26)**: B1 + B2 have both landed. B1 = F1a-A / F1a-T / F2 `extract` bodies, three Composer algorithms, `PercentileRollingNormalizer`, Orchestrator view+history injection, `_state_history` / anchor checkpoint policy / `on_task_end` leak fix, `_JUDGE_TYPES` opens `composite`, validator runs all 7 composite-specific checks (including the 5a-5d warm-start sub-rules: CP1-only, canonical denoise timestep, pairwise tier/composer warm config, tier ordering), `min_top_k_hint` plumbing. B2 = F1b OnlineExtractor + OfflineWriter, `LibraryStats.compute_from_entries`, Orchestrator `__init__` accepts `offline_writers` / `library_stats` and `_build_entry_chain` invokes them at episode end, `build_per_connection_components` collects writers + library_stats from composite judges and `scripts/serve_policy.py` forwards both to the Orchestrator on every production-assembly path, Backend `load_artifact` library_stats load + fallback, build-pkl `--factors-yaml` CLI on all three builders, `exp/common/factor_postprocess.py` enrichment helper. End-to-end composite judges and full offline build pipeline are now usable.
 
 ---
 
@@ -41,7 +41,7 @@ cached_data         ─┘    extractor's descriptor_orientations.keys())
 | Want cross-episode motion smoothness as a hit-quality signal | `composite` + F1b-A / F1b-T (requires LibraryStats at build time) |
 | Multi-dimensional combination (the typical post-B2 default) | `composite` + F1b-A + F1b-T + F2, weighted_sum |
 
-> **Batch status**: CompositeJudge class shell + 5 factor registrations land in B0. Algorithm bodies = B1 / B2.
+> **Batch status**: B0 = CompositeJudge class shell + 5 factor registrations + describe + capability flags. B1 = F1a / F2 online extract, three Composers + PercentileRollingNormalizer algorithms, Orchestrator view+history injection, `composite` YAML enabled, validator's 7 composite-specific checks. B2 = F1b online extract + offline OfflineWriter, `LibraryStats.compute_from_entries`, Backend `load_artifact` library_stats load/fallback, artifact-build helper.
 
 ---
 
@@ -78,7 +78,315 @@ cached_data         ─┘    extractor's descriptor_orientations.keys())
 
 ---
 
-## 3. Full lifecycle
+## 3. Precise mathematical formulation of every factor
+
+> This section defines the operational contract for all factors (B1 / B2 implementations land bodies against these formulas); the previous section only gave intuition. GitHub renders math: inline `$...$`, block `$$...$$`. Local editors that don't render still see readable LaTeX in the source.
+
+### 3.1 Notation
+
+| Symbol | Meaning | Shape / range |
+|---|---|---|
+| $a_t \in \mathbb{R}^A$ | Action vector at step $t$ (already input-transformed / pre-output-transform) | Pi0.5: $A = 32$ (universal action space) |
+| $s_t \in \mathbb{R}^S$ | `robot_state` at step $t$ (post-input-transform) | Pi0.5: $S = 32$ (universal state space) |
+| $\sigma \in \mathbb{R}^D$ | Per-DOF std ($D = A$ or $S$) | From `LibraryStats.{action,state}_sigma` (computed in B2) |
+| $M \in \{0,1\}^D$ | Active mask (True iff $\sigma_d \geq \varepsilon_{\text{active}}$) | `LibraryStats.{action,state}_active_mask`, default $\varepsilon_{\text{active}} = 0.01$ |
+| $D_{\text{act}} = \sum_{d=1}^{D} M_d$ | Active dimensionality | LIBERO measured: action 7 / state 8 (the remaining 24 of $D=32$ are universal-32 zero padding) |
+| $\varepsilon$ | clamp_min epsilon (avoid division by zero) | $10^{-8}$ (hard-coded at the implementation layer) |
+
+**Per-DOF z-score** (action side shown; state side mirrors it with `state_sigma`):
+
+$$
+\tilde{a}_{t,d} \;=\; \frac{a_{t,d}}{\max(\sigma_d,\;\varepsilon)}
+\qquad d = 1, 2, \ldots, D
+$$
+
+**Active subspace restriction**: every subsequent operator runs in the $D_{\text{act}}$-dim subspace. In the formulas below, $\tilde{a}_t$ is implicitly $\tilde{a}_t[M] \in \mathbb{R}^{D_{\text{act}}}$.
+
+**Velocity and approximate jerk** (in the z-scored space):
+
+$$
+v_t \;=\; \tilde{a}_{t+1} - \tilde{a}_t \;\in\; \mathbb{R}^{D_{\text{act}}}
+\qquad\text{(first difference)}
+$$
+
+$$
+j_t \;=\; \tilde{a}_{t+1} - 2\,\tilde{a}_t + \tilde{a}_{t-1} \;\in\; \mathbb{R}^{D_{\text{act}}}
+\qquad\text{(second difference, approximate jerk)}
+$$
+
+Note: physical jerk is the third derivative; here $j_t$ is a discrete second difference (in the z-scored space). The name follows the plan / literature convention.
+
+**Window notation**: $W = (p, f)$ spans $[k - p,\; k + f]$ (a total of $|W| = p + f + 1$ samples), where $k$ is the anchor timestep. F1a uses `window_k = K` (translated to a $(K, K)$-style splice); F1b takes `windows: [(p_1, f_1), ...]` from YAML.
+
+---
+
+### 3.2 Precise math for the shared descriptors
+
+Let the active-subspace sequence inside window $W$ be
+
+$$
+\mathrm{pts} \;=\; \bigl[\tilde{a}_{k-p},\; \tilde{a}_{k-p+1},\; \ldots,\; \tilde{a}_{k+f}\bigr] \;\in\; \mathbb{R}^{|W| \times D_{\text{act}}}
+$$
+
+with corresponding velocity $v_W \in \mathbb{R}^{(|W|-1) \times D_{\text{act}}}$ and jerk $j_W \in \mathbb{R}^{(|W|-2) \times D_{\text{act}}}$.
+
+#### 3.2.1 `jerk` — acceleration magnitude (risky)
+
+$$
+\boxed{\;
+\mathrm{jerk}(W) \;=\; \frac{1}{D_{\text{act}}} \sum_{d=1}^{D_{\text{act}}} \;\operatorname*{median}_{0 \leq t \leq |W|-3} \bigl|\,j_W[t, d]\,\bigr|
+\;}
+$$
+
+Pseudo-code (matches the actual implementation):
+
+```python
+jerk_factor = j_W.abs().median(dim=0).values.mean()
+# j_W: [|W|-2, D_act]
+# .median(dim=0).values : [D_act]   per-DOF time-median
+# .mean()              : scalar     average over DOF
+```
+
+**Why median over time, mean over DOF**: median absorbs single-frame gripper pulses (bistable transitions); mean over DOF lets all active dimensions contribute equally. High jerk → the retrieval splice introduced a velocity jump that inference would not have produced → risky.
+
+#### 3.2.2 `dir` — direction consistency (safe)
+
+Cosine of consecutive active-velocity vectors as whole-vector unit:
+
+$$
+\boxed{\;
+\mathrm{dir}(W) \;=\; \frac{1}{|W| - 2} \sum_{i=0}^{|W|-3} \frac{\langle v_W[i],\; v_W[i+1]\rangle}{\lVert v_W[i] \rVert_2 \,\cdot\, \lVert v_W[i+1] \rVert_2}
+\;}
+$$
+
+Pseudo-code:
+
+```python
+v1, v2 = v_W[:-1], v_W[1:]                       # each: [|W|-2, D_act]
+cos    = F.cosine_similarity(v1, v2, dim=-1)     # [|W|-2]
+dir_factor = cos.mean()
+```
+
+**Why not per-DOF cosine**: `dir` measures the coherence of the motion direction in the active subspace — the turning of a single $D_{\text{act}}$-dim vector; a per-DOF cosine would be dominated by zero components. **Range**: $[-1, 1]$, $1 =$ strictly aligned, $-1 =$ reversed.
+
+#### 3.2.3 `curv_radius` — window geometric dispersion (non-monotonic)
+
+$$
+\bar{c}_W \;=\; \frac{1}{|W|} \sum_{t=0}^{|W|-1} \mathrm{pts}[t] \;\in\; \mathbb{R}^{D_{\text{act}}}
+\qquad\text{(window centroid)}
+$$
+
+$$
+\boxed{\;
+\mathrm{curv\_radius}(W) \;=\; \frac{1}{|W|} \sum_{t=0}^{|W|-1} \bigl\lVert \mathrm{pts}[t] - \bar{c}_W \bigr\rVert_2
+\;}
+$$
+
+Pseudo-code:
+
+```python
+centroid = pts.mean(dim=0, keepdim=True)         # [1, D_act]
+curv_rad = (pts - centroid).norm(dim=-1).mean()
+```
+
+**Geometric meaning**: in the z-scored $D_{\text{act}}$-dim space, the average Euclidean distance from window points to their centroid. Stationary $\to$ near zero; arc $\to$ medium; long straight $\to$ large. **Orientation non-monotonic**: YAML must explicitly supply `direction: range:[lo, hi]` to enter weighted_sum.
+
+#### 3.2.4 `cum_disp` — cumulative path length (non-monotonic)
+
+$$
+\boxed{\;
+\mathrm{cum\_disp}(W) \;=\; \sum_{t=0}^{|W|-2} \bigl\lVert \mathrm{pts}[t+1] - \mathrm{pts}[t] \bigr\rVert_2
+\;}
+$$
+
+Pseudo-code:
+
+```python
+cum_disp = (pts[1:] - pts[:-1]).norm(dim=-1).sum()
+```
+
+**Geometric meaning**: the sum of step lengths in the active subspace. Stationary $\to$ near 0; fast motion $\to$ large. Combined with `curv_radius` it discriminates the five regimes "fast straight / slow straight / stationary / arc / micro-jitter".
+
+---
+
+### 3.3 F1a-A / F1a-T — Splice-window math
+
+F1a measures "if we did NOT use the cache, how close would the inference output be to what we have now?" — by splicing the **executed history** with the **candidate future** into a single sequence and running the §3.2 descriptors on it.
+
+#### 3.3.1 F1a-A sequence splicing
+
+Let $K = \mathtt{window\_k}$ (the YAML field). The last $K$ entries of `history.actions` are already executed (pre-output-transform domain); the winner candidate's `payload.action_chunk[0]` is the cache's recommended next-step action:
+
+$$
+\mathrm{splice}_a \;=\; \bigl[\,a_{-K},\; a_{-K+1},\; \ldots,\; a_{-1},\; a_0^{\text{cand}}\,\bigr] \;\in\; \mathbb{R}^{(K+1) \times A}
+$$
+
+Then:
+
+1. Per-DOF z-score (using `library_stats.action_sigma`): $\mathrm{splice}_a \to \widetilde{\mathrm{splice}}_a$.
+2. Active subspace restriction (using `library_stats.action_active_mask`): $\widetilde{\mathrm{splice}}_a \in \mathbb{R}^{(K+1) \times A_{\text{act}}}$.
+3. Set $\mathrm{pts} = \widetilde{\mathrm{splice}}_a$, $v_W = \mathrm{pts}[1:] - \mathrm{pts}[:-1]$, $j_W = \mathrm{pts}[2:] - 2\,\mathrm{pts}[1:-1] + \mathrm{pts}[:-2]$.
+4. Apply §3.2.{1..4} to compute the four descriptors and write them into `payload.factors`:
+
+$$
+\begin{aligned}
+\texttt{f1a\_a\_jerk}        &= \mathrm{jerk}(\mathrm{splice}_a) \\
+\texttt{f1a\_a\_dir}         &= \mathrm{dir}(\mathrm{splice}_a) \\
+\texttt{f1a\_a\_curv\_radius}&= \mathrm{curv\_radius}(\mathrm{splice}_a) \\
+\texttt{f1a\_a\_cum\_disp}   &= \mathrm{cum\_disp}(\mathrm{splice}_a)
+\end{aligned}
+$$
+
+**Boundary**: when `len(history.actions)` $< K$ (early in the episode), every descriptor returns $\mathrm{nan}$; CompositeJudge's cold-start sentinel routes the early verdicts to MISS (the most natural way to splice with inference).
+
+#### 3.3.2 F1a-T sequence splicing
+
+The state side needs a "future segment" to compute a window; the cache has no native "future state", but the downstream entry chain provides it:
+
+$$
+\mathrm{splice}_s \;=\; \bigl[\,\underbrace{s_{-K},\;\ldots,\;s_{-1}}_{\text{last } K \text{ of history.states}},\; \underbrace{s_0^{\text{cand}}}_{\text{winner robot\_state}},\; \underbrace{s_1^{\text{cand}},\;\ldots,\;s_K^{\text{cand}}}_{\texttt{view.walk\_next}(K)}\,\bigr] \;\in\; \mathbb{R}^{(2K+1) \times S}
+$$
+
+The remaining z-score / active-mask / descriptor flow matches F1a-A, only using `state_sigma` / `state_active_mask` and writing keys `f1a_t_*`.
+
+**When chain walk fails (trajectory boundary / fork)**: `view.walk_next` returns a list shorter than $K$, the splice sequence shrinks; F1a-T treats "length $< (K+1)$ → descriptors $= \mathrm{nan}$" the same way it treats insufficient history.
+
+---
+
+### 3.4 F1b-A / F1b-T — Chain-window math
+
+F1b runs window scans over the entire entry chain of every episode at **offline build-pkl time**, writing each entry's per-window descriptor values into its own `payload.factors`. The online verdict only reads — it does not compute.
+
+#### 3.4.1 Sequence and z-score
+
+Let an episode have $T$ entries $[e_0, e_1, \ldots, e_{T-1}]$ (monotonic by `prev_ids/next_ids`). Source sequence:
+
+- F1b-A: $x_t = \mathtt{entries}[t].\mathtt{payload.action\_chunk}[0] \in \mathbb{R}^A$ (pre-output-transform normalized first action of the chunk).
+- F1b-T: $x_t = \mathtt{entries}[t].\mathtt{query\_keys["robot\_state"]} \in \mathbb{R}^S$ (post-input-transform normalized state).
+
+Per-DOF z-score and active-mask (using the corresponding sigma / mask):
+
+$$
+\tilde{x}_t \;=\; \frac{x_t}{\max(\sigma,\;\varepsilon)}
+\qquad
+\tilde{x}_t^{\text{act}} \;=\; \tilde{x}_t[M] \;\in\; \mathbb{R}^{D_{\text{act}}}
+$$
+
+#### 3.4.2 Window scan
+
+For every $(p, f)$ in YAML `windows = [(p_1, f_1), (p_2, f_2), ...]` and every entry index $k = 0, 1, \ldots, T-1$:
+
+$$
+W_{k,(p,f)} \;=\; \bigl[\tilde{x}_{k-p}^{\text{act}},\; \tilde{x}_{k-p+1}^{\text{act}},\; \ldots,\; \tilde{x}_{k+f}^{\text{act}}\bigr] \;\in\; \mathbb{R}^{(p+f+1) \times D_{\text{act}}}
+$$
+
+Set $\mathrm{pts} = W_{k,(p,f)}$ and apply §3.2:
+
+$$
+\begin{aligned}
+\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_jerk\_\_p}p\texttt{\_f}f\bigr]        &\leftarrow \mathrm{jerk}(W_{k,(p,f)}) \\
+\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_dir\_\_p}p\texttt{\_f}f\bigr]         &\leftarrow \mathrm{dir}(W_{k,(p,f)}) \\
+\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_curv\_radius\_\_p}p\texttt{\_f}f\bigr] &\leftarrow \mathrm{curv\_radius}(W_{k,(p,f)}) \\
+\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_cum\_disp\_\_p}p\texttt{\_f}f\bigr]    &\leftarrow \mathrm{cum\_disp}(W_{k,(p,f)})
+\end{aligned}
+$$
+
+`<key_initial>` is `"a"` (F1b-A) or `"t"` (F1b-T).
+
+**Boundary**: $k < p$ or $k + f \geq T$ → every descriptor of that window is written as $\mathrm{nan}$ (no exception raised; CompositeJudge handles the NaN per the rule in §11 FAQ).
+
+**Per-entry factor footprint**: 4 descriptors $\times$ $N_{\text{windows}} \approx 12\text{-}24$ floats per side, both sides $\approx 200$ bytes — negligible relative to `action_chunk [10, 32]` ($\approx 1.3$ KB).
+
+#### 3.4.3 Online side: read-only
+
+F1b's OnlineExtractor:
+
+```python
+def extract(self, results, view, history, cached_data):
+    winner = view.get(results[0].id)
+    out = {}
+    for key in self.descriptor_orientations:                # computed by class describe()
+        if winner.factors is None or key not in winner.factors:
+            out[key] = float("nan")                         # old entry / missing key → NaN
+        else:
+            out[key] = winner.factors[key]
+    return out
+```
+
+Zero computational cost; every value is materialized at build-pkl time.
+
+---
+
+### 3.5 F2 — Top-K candidate consensus variance
+
+F2 measures whether the top-K cache candidates agree on "what to do next"; high disagreement → retrieval is guessing → risky.
+
+#### 3.5.1 Data fetching
+
+Let $\mathrm{ids} = \{r.id : r \in \mathtt{results}[:K]\}$. Then
+
+$$
+X \;=\; \begin{bmatrix} \mathtt{view.get(id_1).action\_chunk[0]} \\ \vdots \\ \mathtt{view.get(id_K).action\_chunk[0]} \end{bmatrix} \;\in\; \mathbb{R}^{K \times A}
+$$
+
+**Active mask**: F2 uses a **candidate-local** active mask (NOT `library_stats.action_active_mask`), keeping `requires_library_stats=False` self-consistent:
+
+$$
+M^{\text{local}} \;=\; \bigl\{ d : \mathrm{var}_d > \varepsilon \bigr\}
+\qquad (\varepsilon = 10^{-8})
+$$
+
+$$
+X_{\text{act}} \;=\; X[:,\, M^{\text{local}}] \;\in\; \mathbb{R}^{K \times |M^{\text{local}}|}
+$$
+
+Why: Pi0.5 padded DOFs are exactly 0 across all candidates → per-DOF candidate variance is exactly 0 there → the candidate-local mask is behaviorally equivalent to the library mask on Pi0.5 deployments, but it does **not** depend on `LibraryStats`. The validator therefore does not require `backend.type=in_memory` for F2.
+
+$K$ is YAML `params.K` (default 5); F2 transparently bumps SearchStrategy via `min_top_k_hint` to fetch $K$ candidates.
+
+#### 3.5.2 Variance
+
+Per-DOF population variance over the $K$ candidates, then aggregate to a scalar:
+
+$$
+m_d \;=\; \frac{1}{K} \sum_{k=1}^{K} X_{\text{act}}[k, d]
+\qquad
+\mathrm{var}_d \;=\; \frac{1}{K} \sum_{k=1}^{K} \bigl(X_{\text{act}}[k, d] - m_d\bigr)^{2}
+$$
+
+$$
+\boxed{\;
+\mathtt{f2\_var} \;=\; \frac{1}{A_{\text{act}}} \sum_{d=1}^{A_{\text{act}}} \mathrm{var}_d
+\;}
+$$
+
+Pseudo-code (B1 implementation):
+
+```python
+chunk0 = stack([view.get(r.id).action_chunk[0] for r in results[:K_eff]])  # [K_eff, A]
+var_d  = chunk0.var(dim=0, unbiased=False)                                 # [A] population
+active = var_d > 1e-8                                                       # candidate-local
+if not active.any():
+    return {"f2_var": float("nan")}        # full pool agreement — NaN, not 0
+f2_var = float(var_d[active].mean())
+```
+
+**Why no normalization to sigma**: F2 computes relative variance within the candidate pool, scale-invariant — a few candidates from the same episode chunk naturally land on the same sigma scale; normalizing would erase information. That is why `requires_library_stats=False`.
+
+**Write**: `{"f2_var": float(f2_var)}`, orientation `"risky"`.
+
+**Boundary**:
+- $\mathtt{len(results)} < K$ (cache nearly empty / cold-start) → $K_{\text{eff}} = \min(K, \mathtt{len(results)})$
+- $K_{\text{eff}} < 2$ (single candidate / empty pool) → return NaN (no consensus signal)
+- All DOFs in perfect agreement ($M^{\text{local}}$ empty) → return NaN (avoid the post-flip "high variance → MISS" misclassifying perfect agreement as a hard hit)
+
+---
+
+> **Batch status**: F1a-A / F1a-T / F2 / Composer / Normalizer algorithm bodies land in B1; F1b OnlineExtractor + OfflineWriter algorithms land in B2 (`docs/architecture/cache_system.md` §5.12). `describe()` and capability flags shipped in B0.
+
+---
+
+## 4. Full lifecycle
 
 ```
        ┌─────────────────────────────────────────────────────────────┐
@@ -120,19 +428,19 @@ cached_data         ─┘    extractor's descriptor_orientations.keys())
 
 ---
 
-## 4. Step 1: Build an offline artifact with factors (B2)
+## 5. Step 1: Build an offline artifact with factors (B2)
 
-### 4.1 Command
+### 5.1 Command
 
 ```bash
 uv run python exp/common/build_in_memory_cache_artifact.py \
     --data-dir exp/common/data/db/libero_cache/libero_spatial \
     --builder-type cp1_mean_pool \
     --output exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool_with_factors.pkl \
-    --factor-config-yaml exp/common/configs/factors/f1b_default.yaml
+    --factors-yaml exp/common/configs/factors/f1b_default.yaml
 ```
 
-`--factor-config-yaml` points at a YAML describing which OfflineWriters to run with what parameters (same shape as the `factors` block in the online judge YAML; only factors that implement the `OfflineWriter` Protocol matter — F1b-A / F1b-T). Example:
+`--factors-yaml` points at a YAML describing which OfflineWriters to run with what parameters (same shape as the `factors` block in the online judge YAML; only factors that implement the `OfflineWriter` Protocol matter — F1b-A / F1b-T). Example:
 
 ```yaml
 # exp/common/configs/factors/f1b_default.yaml
@@ -149,7 +457,7 @@ factors:
       active_eps: 0.01
 ```
 
-### 4.2 Internal flow
+### 5.2 Internal flow
 
 1. `build_in_memory_cache_artifact.py` runs the KeyBuilder over all entries and produces `entries: list[CacheEntry]`.
 2. The `enrich_artifact_with_factors(entries, offline_writers)` helper (lives in `exp/common/factor_postprocess.py`):
@@ -168,7 +476,7 @@ factors:
 }
 ```
 
-### 4.3 Backwards compatibility for old artifacts
+### 5.3 Backwards compatibility for old artifacts
 
 Artifacts that lack a `library_stats` field still load — `InMemoryBackend.load_artifact` falls back automatically:
 
@@ -185,7 +493,7 @@ The compute happens once at startup; the verdict hot path never recomputes. Old 
 
 ---
 
-## 5. Step 2: Write the YAML
+## 6. Step 2: Write the YAML
 
 ```yaml
 # exp/cp1_cache/configs/composite_judge_demo.yaml
@@ -276,7 +584,7 @@ checkpoints:
   - `"low"`  — lower value is more hit-leaning
   - `"range:[lo,hi]"` — values in [lo, hi] are more hit-leaning
 
-### 5.1 The 6 static composite-specific checks (activated B1+)
+### 6.1 The 6 static composite-specific checks (activated B1+)
 
 `validate_cache_config` runs these 6 rules at config-load time; all must pass before the builder runs:
 
@@ -295,7 +603,7 @@ checkpoints:
 
 ---
 
-## 6. Step 3: Start inference
+## 7. Step 3: Start inference
 
 ```bash
 uv run python scripts/serve_policy.py \
@@ -363,7 +671,7 @@ if hit_type in (FULL_HIT, WARM_START):
 
 ---
 
-## 7. Step 4: Run experiments comparing ThresholdJudge vs CompositeJudge
+## 8. Step 4: Run experiments comparing ThresholdJudge vs CompositeJudge
 
 ```bash
 # Phase 1: Baseline run with ThresholdJudge
@@ -396,9 +704,9 @@ Key metrics to watch:
 
 ---
 
-## 8. Custom factors: extending OnlineExtractor / OfflineWriter
+## 9. Custom factors: extending OnlineExtractor / OfflineWriter
 
-### 8.1 Write a new OnlineExtractor
+### 9.1 Write a new OnlineExtractor
 
 Minimal implementation (no OfflineWriter, no library_stats, no chain walk):
 
@@ -445,7 +753,7 @@ factors:
       threshold: 0.5
 ```
 
-### 8.2 A factor that needs library_stats
+### 9.2 A factor that needs library_stats
 
 ```python
 @register("my_normed_factor")
@@ -468,7 +776,7 @@ class MyNormedFactor:
 
 `requires_library_stats=True` forces the validator to require `backend.type=in_memory` (only InMemoryBackend exposes `library_stats`) and makes `_build_judge` inject `library_stats=library_stats` at construction time.
 
-### 8.3 A factor that walks the chain
+### 9.3 A factor that walks the chain
 
 ```python
 @register("my_chain_factor")
@@ -494,7 +802,7 @@ class MyChainFactor:
         ...
 ```
 
-### 8.4 An OfflineWriter (the B2 model)
+### 9.4 An OfflineWriter (the B2 model)
 
 `OfflineWriter` is invoked at build-pkl time by the `enrich_artifact_with_factors` helper to populate `entry.payload.factors`:
 
@@ -533,7 +841,7 @@ class MyOfflineFactor:
         return [{"my_offline_score": ...} for _ in entries]
 ```
 
-### 8.5 Write a new Composer
+### 9.5 Write a new Composer
 
 ```python
 # src/openpi/cache/components/factors/composers/my_composer.py
@@ -566,7 +874,7 @@ elif cfg.type == "my_composer":
 
 > **Future work**: Composer and Normalizer could also use the registry pattern (like factors do); not in the current plan.
 
-### 8.6 Write a new Normalizer
+### 9.6 Write a new Normalizer
 
 ```python
 class MyNormalizer:
@@ -592,7 +900,7 @@ Register in the `_build_normalizer` if-elif tree.
 
 ---
 
-## 9. Module file map
+## 10. Module file map
 
 | Path | Role |
 |---|---|
@@ -616,7 +924,7 @@ Register in the `_build_normalizer` if-elif tree.
 
 ---
 
-## 10. FAQ
+## 11. FAQ
 
 ### Q: Why is the `f1a_t` key namespaced as `f1a_t_jerk` rather than `f1a_s_jerk`?
 
@@ -648,9 +956,9 @@ No. CompositeJudge collects `min_required_top_k = max(extractor.required_top_k f
 
 Concrete values come from data calibration (B2+ may add a percentile-scanning calibration script suggesting recommended values).
 
-### Q: Can I run a composite YAML in B0?
+### Q: Can I run a composite YAML now?
 
-No. B0 ships the shell, but `_JUDGE_TYPES` excludes `composite`, so the validator raises directly at config load: `judge.type='composite' is not yet enabled in B0; available in B1+ when CompositeJudge algorithms land.` This is intentional fail-fast: it avoids stub composers running until the first verdict before reporting NotImplementedError.
+Yes (since B1). `_JUDGE_TYPES` includes `composite`; the validator accepts `judge.type=composite` and runs all seven composite-specific static checks (§6.1). F1a-A / F1a-T / F2 plus the three Composers and `PercentileRollingNormalizer` are fully implemented, end-to-end verdicts run. F1b factors require the loaded artifact pkl to carry the `library_stats` field (B2 build pipeline writes it automatically; legacy artifacts trigger an in-memory fallback recompute at server start).
 
 What you can do in B0:
 - Write `describe()` / construction unit tests for custom factors.

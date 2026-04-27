@@ -31,13 +31,17 @@ Coupling map:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Iterable, Optional
 
+import torch
+
+from openpi.cache.components.factors._descriptor_kernel import (
+    all_nan_for,
+    compute_descriptors,
+)
 from openpi.cache.components.factors.registry import register
 
 if TYPE_CHECKING:
-    import torch
-
     from openpi.cache.components.factors.base import HistoryView, LibraryStats
     from openpi.cache.components.payload_view import PayloadView
     from openpi.cache.storage_types import CacheEntry, SearchResultLite
@@ -120,8 +124,14 @@ class _SourceWindowSmoothnessBase:
         windows,
         descriptors: list[str],
         active_eps: float,
-        library_stats: "LibraryStats",
+        library_stats: Optional["LibraryStats"] = None,
     ) -> None:
+        # `library_stats` is Optional so the offline build path can
+        # construct writers via `registry.build(...)` without yet having
+        # the LibraryStats instance. Online (CompositeJudge) construction
+        # always supplies it through `_build_judge`'s capability-flag
+        # injection. OfflineWriter callers pass library_stats per-call
+        # via `compute_for_episode(entries, library_stats)`.
         self._windows: list[tuple[int, int]] = _normalize_windows(windows)
         self._descriptors = list(descriptors)
         self._active_eps = active_eps
@@ -159,13 +169,19 @@ class _SourceWindowSmoothnessBase:
         results: list["SearchResultLite"],
         view: "PayloadView",
         history: "HistoryView",
-        cached_data: dict[str, "torch.Tensor"],
+        cached_data: dict[str, torch.Tensor],
     ) -> dict[str, float]:
-        # B2 reads keys from `view.get(winner_id).factors` and propagates
-        # NaN for missing keys per the verdict-factor NaN handling rule.
-        raise NotImplementedError(
-            "SourceWindowSmoothness.extract: B2 algorithm"
-        )
+        # F1b online path is read-only: descriptor values are pre-computed
+        # by the offline path and live in `payload.factors`. Missing
+        # keys (legacy artifact / writer skipped) → NaN.
+        keys = list(self.descriptor_orientations.keys())
+        if not results:
+            return all_nan_for(keys)
+        winner = view.get(results[0].id)
+        factors = winner.factors
+        if factors is None:
+            return all_nan_for(keys)
+        return {k: float(factors.get(k, float("nan"))) for k in keys}
 
     # ---- OfflineWriter surface ----
 
@@ -179,11 +195,103 @@ class _SourceWindowSmoothnessBase:
         entries: list["CacheEntry"],
         library_stats: "LibraryStats",
     ) -> list[dict[str, float]]:
-        # B2 ships z-score / active_mask / per-window descriptor pass per
-        # `verdict_factor_judge.log.md` §2.8.4.
-        raise NotImplementedError(
-            "SourceWindowSmoothness.compute_for_episode: B2 algorithm"
-        )
+        # Per docs §3.4: per-entry sliding-window descriptor pass over the
+        # full episode chain. Returns one factor dict per entry; entries
+        # outside any window get all-NaN per-window descriptors.
+        keys = list(self.descriptor_orientations.keys())
+        T = len(entries)
+        if T == 0:
+            return []
+
+        sigma, active_mask = self._select_library_arrays(library_stats)
+
+        # State-side fail-safe (a / b): empty library or zero active mask
+        # → bail before any state key access / z-score division. Returns
+        # one all-NaN dict per entry so the writer's schema (per-entry
+        # factor map) stays consistent with online reads.
+        if sigma.numel() == 0 or bool(active_mask.sum() == 0):
+            return [all_nan_for(keys) for _ in entries]
+
+        # State-side per-entry presence check (c): if any entry is missing
+        # the state field, bail for the whole episode. Window descriptors
+        # have neighbor dependencies, so dropping one entry corrupts
+        # adjacent windows; cleaner to mark the whole chain NaN and let
+        # the cold-start sentinel route those verdicts to MISS.
+        if self.source == "state":
+            for e in entries:
+                if e.query_keys.get("robot_state") is None:
+                    return [all_nan_for(keys) for _ in entries]
+
+        seq = self._extract_episode_seq(entries)         # [T, D]
+
+        # z-score then active subspace (per docs §3.4)
+        eps = self._active_eps
+        denom = sigma.clamp_min(eps)
+        seq_norm = seq / denom                           # [T, D]
+        pts_full = seq_norm[..., active_mask]            # [T, D_act]
+        if pts_full.shape[-1] == 0:
+            return [all_nan_for(keys) for _ in entries]
+
+        out: list[dict[str, float]] = []
+        for k_idx in range(T):
+            per_entry: dict[str, float] = {}
+            for (p, f) in self._windows:
+                lo = k_idx - p
+                hi = k_idx + f                          # inclusive end
+                if lo < 0 or hi >= T:
+                    # Boundary: window pokes past the episode. Per docs
+                    # §3.4 boundary rule, all descriptors for this window
+                    # are NaN.
+                    for d in self._descriptors:
+                        per_entry[self._key(d, p, f)] = float("nan")
+                    continue
+                pts = pts_full[lo:hi + 1]                # [W, D_act]
+                v = pts[1:] - pts[:-1]                   # [W-1, D_act]
+                j = pts[2:] - 2 * pts[1:-1] + pts[:-2]   # [W-2, D_act]
+                raw = compute_descriptors(self._descriptors, pts, v, j)
+                for d in self._descriptors:
+                    per_entry[self._key(d, p, f)] = raw[d]
+            out.append(per_entry)
+        return out
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    def _key(self, descriptor: str, p: int, f: int) -> str:
+        return f"f1b_{self.key_initial}_{descriptor}__p{p}_f{f}"
+
+    def _select_library_arrays(
+        self, library_stats: "LibraryStats",
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        if self.source == "action":
+            return library_stats.action_sigma, library_stats.action_active_mask
+        if self.source == "state":
+            return library_stats.state_sigma, library_stats.state_active_mask
+        raise ValueError(f"Unknown source: {self.source}")
+
+    def _extract_episode_seq(self, entries: list["CacheEntry"]) -> torch.Tensor:
+        # PRECONDITION: caller already passed the state-side fail-safe and
+        # per-entry presence guards above; here we can dereference safely.
+        # `torch.as_tensor` bridges numpy entries (post-_detach_entries
+        # subprocess output) and torch entries (in-memory tests).
+        if self.source == "action":
+            return torch.stack(
+                [
+                    torch.as_tensor(e.payload.action_chunk[0], dtype=torch.float32)
+                    for e in entries
+                ],
+                dim=0,
+            )
+        if self.source == "state":
+            return torch.stack(
+                [
+                    torch.as_tensor(e.query_keys["robot_state"], dtype=torch.float32)
+                    for e in entries
+                ],
+                dim=0,
+            )
+        raise ValueError(f"Unknown source: {self.source}")
 
 
 @register("f1b_a")

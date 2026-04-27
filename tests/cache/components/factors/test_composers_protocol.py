@@ -7,8 +7,6 @@ typing are exercised here. Algorithm-level behavior is covered in B1.
 
 from __future__ import annotations
 
-import pytest
-
 from openpi.cache.components.factors.composers import (
     AndGateComposer,
     Composer,
@@ -47,32 +45,6 @@ def test_bind_orientations_stores():
     orient = {"a": "safe", "b": "risky"}
     c.bind_orientations(orient)
     assert c._orientations == orient
-
-
-# ------------------------------------------------------------------
-# compose body raises NotImplementedError in B0
-# ------------------------------------------------------------------
-
-
-def test_weighted_sum_compose_b0_stub():
-    c = WeightedSumComposer(weights={"a": 1.0}, full_hit_threshold=0.5)
-    c.bind_orientations({"a": "safe"})
-    with pytest.raises(NotImplementedError, match="B1"):
-        c.compose({"a": 0.7}, winner_id="winner")
-
-
-def test_and_gate_compose_b0_stub():
-    c = AndGateComposer(per_factor_thresholds={"a": 0.5})
-    c.bind_orientations({"a": "safe"})
-    with pytest.raises(NotImplementedError, match="B1"):
-        c.compose({"a": 0.7}, winner_id="winner")
-
-
-def test_or_gate_compose_b0_stub():
-    c = OrGateComposer(per_factor_thresholds={"a": 0.5})
-    c.bind_orientations({"a": "safe"})
-    with pytest.raises(NotImplementedError, match="B1"):
-        c.compose({"a": 0.7}, winner_id="winner")
 
 
 # ------------------------------------------------------------------

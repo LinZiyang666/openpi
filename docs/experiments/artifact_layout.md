@@ -101,3 +101,22 @@ as a `!exp/<exp>/data/...` line, not by hand-adding via `git add -f`.
 - `scripts/` hosts framework-agnostic CLIs (`serve_policy.py`,
   `compute_norm_stats.py`, `train*.py`). Experiment-owned verify / dump
   scripts live in `exp/<exp>/` alongside their experiment code.
+
+## 7. Verdict-factor enrichment in cache artifacts (B2)
+
+`exp/common/build_in_memory_cache_artifact.py`,
+`build_clip_cache_artifact.py`, and `build_llm_layer_matrix.py` accept an
+optional `--factors-yaml` flag pointing at a minimal YAML (see
+`docs/cache/verdict_factor_judge.md` §5) listing F1b OfflineWriter
+factors. When set, the builder runs
+`exp.common.factor_postprocess.enrich_artifact_with_factors` over the
+finalized entry list, writes per-entry `payload.factors`, and stores the
+artifact-level `LibraryStats` under the top-level `library_stats` key.
+Without the flag, builders still compute `library_stats` from the entry
+pool but write no factor descriptors — the resulting artifact is
+backward-compatible with non-composite YAMLs.
+
+Legacy artifacts that lack `library_stats` still load:
+`InMemoryBackend.load_artifact` falls back to
+`LibraryStats.compute_from_entries` at startup and logs a warning so
+users notice and can rebuild with the new pipeline.

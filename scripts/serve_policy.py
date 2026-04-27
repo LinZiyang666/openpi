@@ -272,6 +272,8 @@ def _wrap_policy(
             search_strategies=components["search_strategies"],
             timer=components["timer"],
             write_policy=components.get("write_policy"),
+            offline_writers=components.get("offline_writers", ()),
+            library_stats=components.get("library_stats"),
         )
         policy = InferenceInterceptor(
             policy,
@@ -318,6 +320,8 @@ def _wrap_policy(
             search_strategies=components["search_strategies"],
             timer=components["timer"],
             write_policy=components.get("write_policy"),
+            offline_writers=components.get("offline_writers", ()),
+            library_stats=components.get("library_stats"),
         )
         policy = InferenceInterceptor(
             policy,

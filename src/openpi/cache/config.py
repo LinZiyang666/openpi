@@ -285,7 +285,7 @@ _VALID_STEP_FILTERS = frozenset({"all", "exact", "window"})
 # _build_judge) stay in lockstep; otherwise a missing entry silently downgrades
 # to a "Unknown ... type" error at build time despite passing validation.
 _GATE_TYPES = frozenset({"always_search", "always_skip", "client_controlled", "random", "periodic"})
-_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start"})
+_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start", "composite"})
 
 
 def _keys_iter(keys: KeysConfig) -> Iterator[tuple[str, KeyFieldConfig]]:
@@ -488,6 +488,148 @@ def load_cache_config(path: str | Path) -> CacheConfig:
     return config
 
 
+def _validate_composite_judge_static(
+    prefix: str,
+    judge: "JudgeConfig",
+    config: "CacheConfig",
+    errors: list[str],
+    cp_name: str | None = None,
+) -> None:
+    """Composite-judge static checks: factor types are registered, capability
+    flags align with the chosen backend, every emitted descriptor key has a
+    direction or weight covering it, and warm-start tier ordering is sound.
+
+    Runtime-dependent checks (state library presence) live in the
+    per-connection builder where `library_stats` is materialized.
+    """
+    from openpi.cache.components.factors import registry
+
+    # (1) factors / composer required
+    if not judge.factors:
+        errors.append(
+            f"{prefix}.judge.composite requires at least one entry in `factors`"
+        )
+        return
+    if judge.composer is None:
+        errors.append(
+            f"{prefix}.judge.composite requires a `composer` config"
+        )
+        return
+
+    # (2) factor type must be registered
+    known = registry.known()
+    factor_classes: list[type] = []
+    for fcfg in judge.factors:
+        if fcfg.type not in known:
+            errors.append(
+                f"{prefix}.judge.factors[].type {fcfg.type!r} is not a registered "
+                f"factor name. Known: {sorted(known)}"
+            )
+            return
+        factor_classes.append(registry.get_class(fcfg.type))
+
+    backend_type = config.backend.type
+
+    # (3) requires_library_stats=True factor + non-in_memory backend → reject
+    for cls, fcfg in zip(factor_classes, judge.factors, strict=True):
+        if getattr(cls, "requires_library_stats", False) and backend_type != "in_memory":
+            errors.append(
+                f"{prefix}.judge.factors[type={fcfg.type!r}] requires backend.type="
+                f"'in_memory' (uses library_stats); current backend.type={backend_type!r}"
+            )
+
+    # (4) requires_chain_walk=True factor + non-in_memory backend → reject
+    for cls, fcfg in zip(factor_classes, judge.factors, strict=True):
+        if getattr(cls, "requires_chain_walk", False) and backend_type != "in_memory":
+            errors.append(
+                f"{prefix}.judge.factors[type={fcfg.type!r}] requires backend.type="
+                f"'in_memory' (uses chain walk via fetch_entry); current "
+                f"backend.type={backend_type!r}"
+            )
+
+    # (5) describe-based directions coverage: each non_monotonic descriptor
+    # key with a non-zero weight in the composer must appear in `directions`.
+    composer = judge.composer
+    weights = composer.weights or {}
+    directions = composer.directions or {}
+    for cls, fcfg in zip(factor_classes, judge.factors, strict=True):
+        try:
+            orient_map = cls.describe(dict(fcfg.params))
+        except Exception as exc:
+            errors.append(
+                f"{prefix}.judge.factors[type={fcfg.type!r}].params: describe() "
+                f"rejected the params: {exc}"
+            )
+            continue
+        for key, ori in orient_map.items():
+            if ori != "non_monotonic":
+                continue
+            w = weights.get(key, 0.0)
+            if w == 0.0:
+                continue
+            if key not in directions:
+                errors.append(
+                    f"{prefix}.judge.composer.directions: non_monotonic key {key!r} "
+                    f"has non-zero weight ({w}) but is missing a direction"
+                )
+
+    # (5a-5d) Warm-start tier rules (per plan §3.6, mirroring the existing
+    # ThresholdJudge / AlwaysWarmStartJudge constraints):
+    #   5a — warm_start_t must be a CANONICAL_DENOISE_TIMESTEPS value
+    #        (so payload.intermediates[start_t] always lands on a key the
+    #        denoising loop actually populates)
+    #   5b — pairwise rule: weighted_sum's `tier_thresholds.warm_start`
+    #        and `composer.warm_start_t` are co-required (one without
+    #        the other has no defined runtime meaning)
+    #   5c — warm-start emission is CP1-only (CP3 has no intermediates
+    #        payload to resume from)
+    #   5d — tier ordering: weighted_sum's `tier_thresholds.warm_start`
+    #        must be strictly below `tier_thresholds.full_hit`
+    warm_start_t = composer.warm_start_t
+    if warm_start_t is not None:
+        st = round(warm_start_t, 4)
+        if st not in CANONICAL_DENOISE_TIMESTEPS:
+            errors.append(
+                f"{prefix}.judge.composer.warm_start_t={warm_start_t} is not a "
+                f"canonical denoise timestep. Valid: {sorted(CANONICAL_DENOISE_TIMESTEPS)}"
+            )
+        else:
+            composer.warm_start_t = st                  # normalize float drift
+        if cp_name is not None and cp_name != "cp1":
+            errors.append(
+                f"{prefix}.judge.composer: warm_start_t is only supported on CP1 "
+                "(CP3 has no warm-start payload)"
+            )
+
+    if composer.type == "weighted_sum":
+        tt = composer.tier_thresholds or {}
+        full = tt.get("full_hit")
+        warm = tt.get("warm_start")
+        if full is None:
+            errors.append(
+                f"{prefix}.judge.composer.tier_thresholds: weighted_sum requires "
+                f"'full_hit' (and optionally 'warm_start')"
+            )
+        # 5d ordering
+        if warm is not None and full is not None and warm >= full:
+            errors.append(
+                f"{prefix}.judge.composer.tier_thresholds: 'warm_start' ({warm}) "
+                f"must be strictly less than 'full_hit' ({full})"
+            )
+        # 5b pairwise: warm tier threshold without warm_start_t (or vice
+        # versa) leaves runtime ambiguous about whether to emit WARM_START.
+        if warm is not None and warm_start_t is None:
+            errors.append(
+                f"{prefix}.judge.composer: tier_thresholds.warm_start is set but "
+                f"composer.warm_start_t is missing — both are required to emit WARM_START"
+            )
+        if warm_start_t is not None and warm is None:
+            errors.append(
+                f"{prefix}.judge.composer: warm_start_t is set but "
+                f"tier_thresholds.warm_start is missing — both are required to emit WARM_START"
+            )
+
+
 def validate_cache_config(config: CacheConfig) -> None:
     """Cross-validate cache config consistency. Called once at startup.
 
@@ -660,23 +802,18 @@ def validate_cache_config(config: CacheConfig) -> None:
                 )
 
         if cp_config.judge.type not in _JUDGE_TYPES:
-            if cp_config.judge.type == "composite":
-                # Special-case fail-fast: B0 ships the metadata + builder
-                # surface for composite judges but not the algorithm
-                # bodies. Rejecting the YAML at config load (rather than
-                # at the first verdict) gives users a clean error message
-                # instead of a NotImplementedError surfacing mid-episode.
-                # B1 lifts this gate when extractor / composer /
-                # normalizer algorithms land.
-                errors.append(
-                    f"{prefix}.judge.type='composite' is not yet enabled "
-                    "in B0; available in B1+ when CompositeJudge algorithms land."
-                )
-            else:
-                errors.append(
-                    f"{prefix}.judge.type '{cp_config.judge.type}' is unknown. "
-                    f"Valid: {sorted(_JUDGE_TYPES)}"
-                )
+            errors.append(
+                f"{prefix}.judge.type '{cp_config.judge.type}' is unknown. "
+                f"Valid: {sorted(_JUDGE_TYPES)}"
+            )
+
+        # Composite-judge-specific checks (B1+). Static — purely on the
+        # config tree, no library_stats lookup at this layer (see step 7
+        # state-library check below for the runtime-dependent piece).
+        if cp_config.judge.type == "composite":
+            _validate_composite_judge_static(
+                prefix, cp_config.judge, config, errors, cp_name=cp_name,
+            )
 
         ss = cp_config.search_strategy
         if ss.type not in _valid_strategy_types:
@@ -1101,15 +1238,42 @@ def build_per_connection_components(
     judges: dict[CheckpointID, Any] = {}
     search_strategies: dict[CheckpointID, Any] = {}
 
+    # Library stats — facade duck-types the underlying backend's optional
+    # `library_stats` attribute. None for backends that don't expose one
+    # (e.g. Qdrant) or for in-memory backends that haven't loaded an
+    # artifact yet. Used (a) as a check against state-side composite
+    # factors and (b) injected into Orchestrator + factor extractors.
+    library_stats = per_conn_storage.library_stats
+
     for cp_name, cp_config in config.checkpoints.items():
         if cp_name.startswith("_") or not cp_config.enabled:
             continue
         cp_id = CheckpointID[cp_name.upper()]
         gates[cp_id] = _build_gate(cp_config.gate)
-        judges[cp_id] = _build_judge(cp_config.judge)
+        # (7) State-library check: composite judge using f1a_t / f1b_t
+        # requires a non-empty state_active_mask in library_stats.
+        if cp_config.judge.type == "composite":
+            _validate_composite_judge_state_library(
+                cp_name, cp_config.judge, library_stats,
+            )
+        judges[cp_id] = _build_judge(cp_config.judge, library_stats=library_stats)
+        # Forward the judge's min_required_top_k hint into the strategy so
+        # F2 (and any future top-k-hungry factor) gets enough candidates.
+        # `getattr` keeps backward compatibility with non-CompositeJudge
+        # judges that don't expose this attribute.
+        min_top_k_hint = getattr(judges[cp_id], "min_required_top_k", 0)
         search_strategies[cp_id] = _build_search_strategy(
-            cp_config.search_strategy, per_conn_storage, fusion_weights
+            cp_config.search_strategy,
+            per_conn_storage,
+            fusion_weights,
+            min_top_k_hint=min_top_k_hint,
         )
+
+    # Collect OfflineWriters from composite judges so the Orchestrator can
+    # invoke them at episode-end (B2 wiring path). De-duplicated by id() so
+    # a writer instance referenced by both CP1 and CP3 runs once per
+    # episode.
+    offline_writers = _collect_offline_writers_from_judges(judges)
 
     write_policy = _build_write_policy(config.write_policy)
 
@@ -1121,7 +1285,58 @@ def build_per_connection_components(
         "judges": judges,
         "search_strategies": search_strategies,
         "write_policy": write_policy,
+        "offline_writers": offline_writers,
+        "library_stats": library_stats,
     }
+
+
+def _validate_composite_judge_state_library(
+    cp_name: str,
+    judge: "JudgeConfig",
+    library_stats,
+) -> None:
+    """Reject composite YAMLs that reference state-side factors when the
+    library has no state dimension. Runs at per-connection build time
+    because library_stats is materialized then (after artifact load /
+    fallback compute).
+    """
+    state_factors = [f for f in (judge.factors or []) if f.type in {"f1a_t", "f1b_t"}]
+    if not state_factors:
+        return
+    if library_stats is None:
+        raise ConfigValidationError(
+            f"checkpoints.{cp_name}.judge.composite uses state-side factor "
+            f"({state_factors[0].type!r}) but the backend exposes no "
+            f"library_stats — choose backend.type='in_memory' with a preloaded "
+            f"artifact, or remove the state-side factor."
+        )
+    state_mask = getattr(library_stats, "state_active_mask", None)
+    if state_mask is None or state_mask.numel() == 0:
+        raise ConfigValidationError(
+            f"checkpoints.{cp_name}.judge.composite uses state-side factor "
+            f"({state_factors[0].type!r}) but library_stats.state_active_mask "
+            f"is empty (no entries in the artifact carry 'robot_state')."
+        )
+
+
+def _collect_offline_writers_from_judges(
+    judges: dict[CheckpointID, Any],
+) -> list[Any]:
+    """Walk per-CP judges, extract any factor extractors that also expose
+    `compute_for_episode` (the OfflineWriter capability). Order is
+    CheckpointID enum order, then extractor order within each judge;
+    duplicates (same instance referenced from multiple CPs) are kept once.
+    """
+    seen: set[int] = set()
+    out: list[Any] = []
+    for cp_id in sorted(judges.keys(), key=lambda c: c.value):
+        judge = judges[cp_id]
+        extractors = getattr(judge, "_extractors", ())
+        for ext in extractors:
+            if hasattr(ext, "compute_for_episode") and id(ext) not in seen:
+                out.append(ext)
+                seen.add(id(ext))
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -1461,8 +1676,23 @@ def _build_write_policy(cfg: WritePolicyConfig):
         raise ConfigValidationError(f"Unknown write_policy.type '{cfg.type}'")
 
 
-def _build_search_strategy(cfg: SearchStrategyConfig, storage, fusion_weights: dict[str, float]):
-    """Instantiate a SearchStrategy from config."""
+def _build_search_strategy(
+    cfg: SearchStrategyConfig,
+    storage,
+    fusion_weights: dict[str, float],
+    *,
+    min_top_k_hint: int = 0,
+):
+    """Instantiate a SearchStrategy from config.
+
+    `min_top_k_hint` carries the verdict-factor's top-k requirement back
+    into the strategy: F2 needs >= K candidates to compute consensus
+    variance. The strategy uses `max(top_k, min_top_k_hint)` as its
+    effective fetch count so old YAMLs (no composite judge → hint=0)
+    behave byte-identically.
+    """
+    effective_top_k = max(cfg.top_k, min_top_k_hint)
+
     trajectory_kwargs = {
         "trajectory_depth": cfg.trajectory_depth,
         "trajectory_weights": cfg.trajectory_weights,
@@ -1473,7 +1703,7 @@ def _build_search_strategy(cfg: SearchStrategyConfig, storage, fusion_weights: d
 
         return QdrantWeightedRrfKnnStrategy(
             storage,
-            top_k=cfg.top_k,
+            top_k=effective_top_k,
             step_filter=cfg.step_filter,
             step_window=cfg.step_window,
             rrf_k=cfg.rrf_k,
@@ -1486,7 +1716,7 @@ def _build_search_strategy(cfg: SearchStrategyConfig, storage, fusion_weights: d
 
         return WeightedRrfKnnStrategy(
             storage,
-            top_k=cfg.top_k,
+            top_k=effective_top_k,
             step_filter=cfg.step_filter,
             step_window=cfg.step_window,
             fusion_weights=fusion_weights if fusion_weights else None,
@@ -1499,7 +1729,7 @@ def _build_search_strategy(cfg: SearchStrategyConfig, storage, fusion_weights: d
 
         return WeightedScoreSumKnnStrategy(
             storage,
-            top_k=cfg.top_k,
+            top_k=effective_top_k,
             step_filter=cfg.step_filter,
             step_window=cfg.step_window,
             fusion_weights=fusion_weights if fusion_weights else None,

@@ -328,6 +328,13 @@ def main():
         "--fields", default="vision_0,robot_state",
         help="Comma-separated enabled fields (default: vision_0,robot_state)",
     )
+    parser.add_argument(
+        "--factors-yaml", default=None,
+        help="Path to a YAML listing OfflineWriter-capable factors "
+             "(F1b-A / F1b-T) — see exp/common/factor_postprocess.py. "
+             "When set, the artifact is enriched with per-entry "
+             "`payload.factors` and a top-level `library_stats` field."
+    )
     args = parser.parse_args()
 
     enabled_fields = [f.strip() for f in args.fields.split(",")]
@@ -341,6 +348,19 @@ def main():
         checkpoint_id_str=args.checkpoint_id,
         batch_size=args.batch_size,
     )
+
+    # B2 — verdict-factor enrichment (see exp/common/factor_postprocess.py).
+    from exp.common.factor_postprocess import (
+        _load_offline_writers_from_yaml,
+        enrich_artifact_with_factors,
+    )
+    offline_writers = (
+        _load_offline_writers_from_yaml(args.factors_yaml)
+        if args.factors_yaml else []
+    )
+    if artifact["entries"]:
+        library_stats = enrich_artifact_with_factors(artifact["entries"], offline_writers)
+        artifact["library_stats"] = library_stats
 
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     with open(args.output, "wb") as f:

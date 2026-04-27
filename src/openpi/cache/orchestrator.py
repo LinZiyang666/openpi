@@ -35,9 +35,11 @@ from typing import Optional
 import torch
 
 from openpi.cache.cache_storage import CacheStorage
+from openpi.cache.components.factors.base import HistoryView, LibraryStats, OfflineWriter
 from openpi.cache.components.gate import ClientControlledGate, GateFunction
 from openpi.cache.components.judge import HitType, SimilarityJudge
 from openpi.cache.components.key_builder import QueryKeyBuilder
+from openpi.cache.components.payload_view import StoragePayloadView
 from openpi.cache.components.search_strategy import SearchContext, SearchStrategy
 from openpi.cache.storage_types import (
     CacheEntry,
@@ -102,6 +104,8 @@ class CacheOrchestrator:
         search_strategies: dict[CheckpointID, SearchStrategy],
         timer: Optional[SystemTimer] = None,
         write_policy=None,
+        offline_writers: tuple["OfflineWriter", ...] = (),
+        library_stats: Optional["LibraryStats"] = None,
     ) -> None:
         self._storage = storage
         self._key_builder = key_builder
@@ -111,6 +115,13 @@ class CacheOrchestrator:
         self._timer = timer if timer is not None else SystemTimer(enabled=False)
         self._write_policy = write_policy
         self._step_counter: int = 0
+
+        # B2 wiring — populated by config builder when composite judges
+        # include OfflineWriter-capable factors (currently F1b-A / F1b-T).
+        # Empty default keeps backward compatibility: episode-end fast-paths
+        # via the merge loop's `if self._offline_writers and ...` guard.
+        self._offline_writers: tuple["OfflineWriter", ...] = tuple(offline_writers)
+        self._library_stats: Optional["LibraryStats"] = library_stats
 
         # True when at least one configured gate consumes the client-side
         # gate_decision signal. Interceptor uses this flag to fail loud on
@@ -124,6 +135,24 @@ class CacheOrchestrator:
         self._miss_by_checkpoint: dict[CheckpointID, int] = {}
         self._current_task_key: str = ""
         self._current_episode_id: str = ""
+
+        # B1 — verdict-factor history buffers. Populated by broadcast_action
+        # (actions) and check() at the anchor checkpoint (states); read by
+        # CompositeJudge factor extractors via HistoryView. Cleared by
+        # _reset_episode_buffer (covers on_task_begin / on_episode_start /
+        # on_episode_end / on_task_end leak fix).
+        self._action_history: list[torch.Tensor] = []
+        self._state_history: list[torch.Tensor] = []
+        # State append happens at the lowest-value enabled checkpoint so
+        # multi-checkpoint configs (CP1 + CP3) record state exactly once
+        # per inference cycle. Falls back to None when no gates are wired
+        # (e.g. unit tests that only exercise lifecycle helpers).
+        if self._gates:
+            self._state_history_anchor_cp: Optional[CheckpointID] = min(
+                self._gates.keys(), key=lambda cp: cp.value
+            )
+        else:
+            self._state_history_anchor_cp = None
 
         # Per-strategy search session ids registered with the backend in the
         # current episode. Populated by `_broadcast_episode_start` after each
@@ -265,6 +294,11 @@ class CacheOrchestrator:
     def _reset_episode_buffer(self) -> None:
         self._episode_steps.clear()
         self._miss_by_checkpoint.clear()
+        # B1 — clear verdict-factor history. Required by HistoryView's
+        # gap-free semantics (next episode should start with empty
+        # action / state lists, not bleed across episode boundaries).
+        self._action_history.clear()
+        self._state_history.clear()
 
     # ------------------------------------------------------------------
     # Action broadcast
@@ -285,6 +319,10 @@ class CacheOrchestrator:
         for judge in self._judges.values():
             if hasattr(judge, 'record_action'):
                 judge.record_action(action_chunk)
+        # B1 — record into the orchestrator-owned action history (read by
+        # CompositeJudge factors via HistoryView). Detaches the chunk so
+        # the buffer never holds onto autograd state from inference.
+        self._action_history.append(action_chunk.detach().cpu())
 
     # ------------------------------------------------------------------
     # Cache check pipeline
@@ -339,6 +377,18 @@ class CacheOrchestrator:
         with self._timer.measure(f"{prefix}_build"):
             query_keys = self._key_builder.build(checkpoint_id)
 
+        # B1 — record state history at the anchor checkpoint.
+        # Anchor = lowest-value enabled checkpoint, so multi-CP configs
+        # (CP1+CP3) only append once per inference cycle. Fires regardless
+        # of gate / hit-type outcome so the history stays gap-free across
+        # the episode (verdict factors use windowed scans that need
+        # contiguous samples).
+        if (
+            checkpoint_id == self._state_history_anchor_cp
+            and "robot_state" in query_keys
+        ):
+            self._state_history.append(query_keys["robot_state"].detach().cpu())
+
         if not should_search:
             # Gate skip: record query_keys to strategy history (trajectory gap-free)
             if hasattr(strategy, 'record_query_keys'):
@@ -357,9 +407,20 @@ class CacheOrchestrator:
             )
             results = strategy.search(ctx)
 
+        # B1 — build PayloadView + HistoryView and inject into the judge.
+        # PayloadView is per-check() so its memo (entry_id -> payload) gets
+        # GC'd when this call returns. HistoryView snapshots the current
+        # buffers (no aliasing — list copies; tensors stay shared).
+        view = StoragePayloadView(self._storage)
+        history = HistoryView(
+            actions=list(self._action_history),
+            states=list(self._state_history),
+        )
+
         with self._timer.measure(f"{prefix}_judge"):
             judge_result = judge(
-                results, checkpoint_id, self._key_builder.cached_data
+                results, checkpoint_id, self._key_builder.cached_data,
+                view=view, history=history,
             )
         hit_type = judge_result.hit_type
         winner_id = judge_result.winner_id
@@ -375,7 +436,11 @@ class CacheOrchestrator:
 
         if hit_type in (HitType.FULL_HIT, HitType.WARM_START) and winner_id is not None:
             with self._timer.measure(f"{prefix}_fetch"):
-                payload = self._storage.fetch_payload(winner_id)
+                # Route through PayloadView so a Judge that already
+                # fetched the winner during extract (e.g. F1a-T touched
+                # winner.query_keys, F1b read winner.factors) doesn't
+                # incur a duplicate storage roundtrip.
+                payload = view.get(winner_id)
 
             if hit_type == HitType.WARM_START:
                 if (not payload.intermediates
@@ -481,8 +546,15 @@ class CacheOrchestrator:
         Idempotent bottom guard for paths where on_episode_end may not fire
         (e.g. WebSocket disconnect mid-episode). Forwarded to from
         InferenceInterceptor.on_task_end().
+
+        B1 — also clears the per-episode buffers (action / state history,
+        episode steps, miss counters). Pre-existing behavior left these
+        live until the next on_task_begin / on_episode_start, which leaks
+        across reconnects. Cleared here so verdict-factor history can't
+        bleed from one connection's tail into the next connection's head.
         """
         self._close_current_search_sessions()
+        self._reset_episode_buffer()
 
     def _build_entry_chain(self, record: EpisodeRecord) -> list[CacheEntry]:
         """Convert EpisodeRecord to a linked list of CacheEntry objects."""
@@ -512,6 +584,20 @@ class CacheOrchestrator:
                 entries[i].prev_ids = [entries[i - 1].id]
             if i < len(entries) - 1:
                 entries[i].next_ids = [entries[i + 1].id]
+
+        # B2 — invoke each OfflineWriter once over the freshly built chain
+        # and merge per-entry factor dicts into payload.factors. Skipped
+        # in the default (no-writer) configuration so existing call sites
+        # see byte-identical behavior.
+        if self._offline_writers and self._library_stats is not None:
+            for writer in self._offline_writers:
+                per_entry_factors = writer.compute_for_episode(
+                    entries, self._library_stats,
+                )
+                for entry, factors in zip(entries, per_entry_factors, strict=True):
+                    if entry.payload.factors is None:
+                        entry.payload.factors = {}
+                    entry.payload.factors.update(factors)
 
         return entries
 
