@@ -355,7 +355,16 @@ class CacheOrchestrator:
         # B1 — record into the orchestrator-owned action history (read by
         # CompositeJudge factors via HistoryView). Detaches the chunk so
         # the buffer never holds onto autograd state from inference.
-        self._action_history.append(action_chunk.detach().cpu())
+        # Pi05 broadcasts the full action_chunk [chunk_len, A] per inference,
+        # but F1a-A's `_build_action_splice` and the test contract in
+        # tests/cache/components/factors/test_runtime_continuity.py both
+        # expect per-step [A]-shaped tensors that mirror _state_history's
+        # single-state-per-step convention. Reduce to action_chunk[0] (the
+        # first action, which is what the LIBERO eval loop pops and
+        # env.step()s next from this cycle's chunk).
+        chunk_cpu = action_chunk.detach().cpu()
+        first_action = chunk_cpu[0] if chunk_cpu.dim() >= 2 else chunk_cpu
+        self._action_history.append(first_action)
 
     # ------------------------------------------------------------------
     # Cache check pipeline

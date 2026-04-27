@@ -129,6 +129,36 @@ def test_broadcast_action_appends_to_action_history():
     assert o._action_history[0].device.type == "cpu"
 
 
+def test_broadcast_action_reduces_chunk_to_first_action():
+    """F1a-A's `_build_action_splice` and the unit-test contract in
+    test_runtime_continuity.py both expect history.actions[-K:] to be a
+    list of single-action [A]-shaped tensors (mirroring _state_history's
+    per-step robot_state). Pi05 broadcasts the full [chunk_len, A] chunk
+    per inference, so the orchestrator must reduce to action_chunk[0]
+    before appending. Regression for the bug where the entire chunk was
+    appended verbatim, causing torch.stack in _build_action_splice to
+    raise on shape mismatch and DumpingJudge to swallow the error into
+    100% NaN for all f1a_a_* keys.
+    """
+    o = _make_orch([CheckpointID.CP1])
+    o.broadcast_action(torch.zeros(50, 32))
+    o.broadcast_action(torch.ones(50, 32))
+    assert o._action_history[0].shape == (32,)
+    assert o._action_history[1].shape == (32,)
+    # Verify contents — first row of each chunk, not the whole chunk.
+    assert torch.equal(o._action_history[0], torch.zeros(32))
+    assert torch.equal(o._action_history[1], torch.ones(32))
+
+
+def test_broadcast_action_passes_through_already_1d_action():
+    """Defensive: if a caller (legacy or test) hands a 1-D [A] tensor in,
+    the orchestrator should not index into a non-existent leading dim."""
+    o = _make_orch([CheckpointID.CP1])
+    o.broadcast_action(torch.full((32,), 7.0))
+    assert o._action_history[0].shape == (32,)
+    assert torch.equal(o._action_history[0], torch.full((32,), 7.0))
+
+
 # ------------------------------------------------------------------
 # Lifecycle: reset clears histories
 # ------------------------------------------------------------------
