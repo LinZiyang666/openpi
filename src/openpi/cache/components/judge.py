@@ -20,7 +20,9 @@ Coupling map:
 
 from __future__ import annotations
 
+import logging
 import math
+import os
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
@@ -29,6 +31,13 @@ import torch
 
 from openpi.cache.storage_types import SearchResultLite
 from openpi.cache.types import CANONICAL_DENOISE_TIMESTEPS, CheckpointID
+
+# Verdict-pipeline debug instrumentation. Gated on env var so production
+# runs pay zero cost. Toggle from server shell:
+#   OPENPI_CACHE_VERDICT_DEBUG=1 uv run scripts/serve_policy.py ... |& tee /tmp/vd.log
+# then `grep '\[vd ' /tmp/vd.log` inspects per-verdict structured lines.
+_VERDICT_DEBUG = os.environ.get("OPENPI_CACHE_VERDICT_DEBUG") == "1"
+_verdict_logger = logging.getLogger("openpi.cache.verdict_debug")
 
 if TYPE_CHECKING:
     from openpi.cache.components.factors.base import (
@@ -265,14 +274,41 @@ class CompositeJudge:
         extractors: list["OnlineExtractor"],
         composer: "Composer",
         normalizer: Optional["Normalizer"] = None,
+        all_nan_fallback: str = "miss",
+        all_nan_fallback_start_t: float | None = None,
     ) -> None:
         if not extractors:
             raise ValueError(
                 "CompositeJudge requires at least one OnlineExtractor"
             )
+        if all_nan_fallback not in {"miss", "warm_start"}:
+            raise ValueError(
+                "CompositeJudge all_nan_fallback must be 'miss' or "
+                f"'warm_start', got {all_nan_fallback!r}"
+            )
+        if all_nan_fallback == "warm_start":
+            if all_nan_fallback_start_t is None:
+                raise ValueError(
+                    "CompositeJudge all_nan_fallback='warm_start' requires "
+                    "all_nan_fallback_start_t"
+                )
+            st = round(float(all_nan_fallback_start_t), 4)
+            if st not in CANONICAL_DENOISE_TIMESTEPS:
+                raise ValueError(
+                    f"all_nan_fallback_start_t must round to one of "
+                    f"{sorted(CANONICAL_DENOISE_TIMESTEPS)}, got "
+                    f"{all_nan_fallback_start_t}"
+                )
+            all_nan_fallback_start_t = st
         self._extractors = list(extractors)
         self._composer = composer
         self._normalizer = normalizer
+        self._all_nan_fallback = all_nan_fallback
+        self._all_nan_fallback_start_t = all_nan_fallback_start_t
+        # Per-instance verdict counter for debug log correlation. Increments
+        # on every __call__ regardless of hit/miss. Survives across episodes
+        # within one CompositeJudge lifetime (rebuilt on `load_cache_config`).
+        self._vd_step = 0
         self.min_required_top_k = max(
             (getattr(e, "required_top_k", 0) for e in self._extractors),
             default=0,
@@ -320,6 +356,8 @@ class CompositeJudge:
             return JudgeResult(HitType.MISS)
 
         raw: dict[str, float] = {}
+        # Per-extractor key bookkeeping for debug log. Empty unless debug on.
+        per_ext_keys: dict[str, list[str]] = {}
         for ext in self._extractors:
             out = ext.extract(results, view, history, cached_data)
             # Key contract enforcement: an extractor's runtime keys MUST
@@ -335,18 +373,83 @@ class CompositeJudge:
                     f"(missing: {sorted(expected - actual)}, "
                     f"extra: {sorted(actual - expected)})"
                 )
+            if _VERDICT_DEBUG:
+                per_ext_keys[type(ext).__name__] = sorted(out.keys())
             raw.update(out)
 
         norm = self._normalizer(raw) if self._normalizer is not None else raw
 
         # Cold-start sentinel: all-NaN normalized output means the
         # normalizer signaled "not enough samples / force_miss". Short-
-        # circuit to MISS rather than letting each Composer reinvent the
-        # all-NaN handling rule.
+        # circuit according to the configured bootstrap fallback rather
+        # than letting each Composer reinvent the all-NaN handling rule.
         if norm and all(math.isnan(v) for v in norm.values()):
-            return JudgeResult(HitType.MISS)
+            if (
+                self._all_nan_fallback == "warm_start"
+                and checkpoint_id == CheckpointID.CP1
+            ):
+                result = JudgeResult(
+                    HitType.WARM_START,
+                    winner_id=results[0].id,
+                    start_t=self._all_nan_fallback_start_t,
+                )
+                sentinel_path = "all_nan_warm_fallback"
+            else:
+                result = JudgeResult(HitType.MISS)
+                sentinel_path = "all_nan_miss"
+            if _VERDICT_DEBUG:
+                self._vd_step += 1
+                self._emit_vd(
+                    checkpoint_id, raw, norm, result,
+                    per_ext_keys=per_ext_keys, sentinel=sentinel_path,
+                )
+            return result
 
-        return self._composer.compose(norm, winner_id=results[0].id)
+        result = self._composer.compose(norm, winner_id=results[0].id)
+        if _VERDICT_DEBUG:
+            self._vd_step += 1
+            self._emit_vd(
+                checkpoint_id, raw, norm, result,
+                per_ext_keys=per_ext_keys, sentinel=None,
+            )
+        return result
+
+    def _emit_vd(
+        self,
+        checkpoint_id: CheckpointID,
+        raw: dict[str, float],
+        norm: dict[str, float],
+        result: "JudgeResult",
+        *,
+        per_ext_keys: dict[str, list[str]],
+        sentinel: Optional[str],
+    ) -> None:
+        """Single per-verdict debug line. Counts NaNs by extractor family
+        and surfaces the final hit decision so a tail/grep on server stdout
+        immediately shows whether the dead-loop hypothesis matches reality.
+        """
+        # Per-extractor NaN tally on the RAW values (pre-normalizer). Tells
+        # us whether the failure is in the extractor (NaN raw) or in the
+        # normalizer's cold-start gate (NaN after normalize but valid raw).
+        raw_nan_summary = []
+        for ext_name, keys in per_ext_keys.items():
+            n = len(keys)
+            n_nan = sum(1 for k in keys if math.isnan(raw.get(k, float("nan"))))
+            raw_nan_summary.append(f"{ext_name}={n_nan}/{n}")
+        # Normalizer pass-through tally — cold = raw was finite but norm is NaN.
+        norm_nan = sum(1 for v in norm.values() if math.isnan(v))
+        cold = sum(
+            1 for k, v in norm.items()
+            if math.isnan(v) and not math.isnan(raw.get(k, float("nan")))
+        )
+        valid = len(norm) - norm_nan
+        sentinel_str = f" sentinel={sentinel}" if sentinel else ""
+        _verdict_logger.info(
+            "[vd step=%d cp=%s] raw_nan: %s | norm valid=%d nan=%d cold=%d%s | hit=%s start_t=%s winner=%s",
+            self._vd_step, checkpoint_id.name, " ".join(raw_nan_summary),
+            valid, norm_nan, cold, sentinel_str,
+            result.hit_type.name, result.start_t, result.winner_id,
+        )
 
     def on_episode_start(self) -> None:
         if self._normalizer is not None:

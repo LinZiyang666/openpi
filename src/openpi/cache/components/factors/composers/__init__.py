@@ -13,10 +13,17 @@ Coupling map:
 
 from __future__ import annotations
 
+import logging
 import math
+import os
 from typing import Optional, Protocol, runtime_checkable
 
 from openpi.cache.components.judge import HitType, JudgeResult
+
+# Mirror of judge.py's debug gate so composers can emit a per-compose
+# diagnostic line under the same env var. Pays zero cost when not set.
+_VERDICT_DEBUG = os.environ.get("OPENPI_CACHE_VERDICT_DEBUG") == "1"
+_verdict_logger = logging.getLogger("openpi.cache.verdict_debug")
 
 
 # Orientation kinds — kept in sync with `_DESCRIPTOR_ORIENTATIONS` in
@@ -137,22 +144,47 @@ class WeightedSumComposer:
             score += w * contrib
             total_w += w
         if total_w == 0.0:
+            if _VERDICT_DEBUG:
+                _verdict_logger.info(
+                    "[vd composer] total_w=0 (every key NaN-skipped) -> MISS"
+                )
             return JudgeResult(HitType.MISS)
         s = score / total_w
         if s >= self._full_hit_threshold:
             if self._warm_start_t is not None:
                 # Caller wired this composer for warm-start emission rather
                 # than full-hit — treat the threshold pass as WARM_START.
+                if _VERDICT_DEBUG:
+                    _verdict_logger.info(
+                        "[vd composer] score=%.4f >= full_hit=%.2f (warm_start_t set -> WARM_START)",
+                        s, self._full_hit_threshold,
+                    )
                 return JudgeResult(
                     HitType.WARM_START, winner_id=winner_id, start_t=self._warm_start_t,
+                )
+            if _VERDICT_DEBUG:
+                _verdict_logger.info(
+                    "[vd composer] score=%.4f >= full_hit=%.2f -> FULL_HIT",
+                    s, self._full_hit_threshold,
                 )
             return JudgeResult(HitType.FULL_HIT, winner_id=winner_id)
         if (
             self._warm_start_threshold is not None
             and s >= self._warm_start_threshold
         ):
+            if _VERDICT_DEBUG:
+                _verdict_logger.info(
+                    "[vd composer] score=%.4f >= warm_start=%.2f (< full_hit=%.2f) -> WARM_START",
+                    s, self._warm_start_threshold, self._full_hit_threshold,
+                )
             return JudgeResult(
                 HitType.WARM_START, winner_id=winner_id, start_t=self._warm_start_t,
+            )
+        if _VERDICT_DEBUG:
+            _verdict_logger.info(
+                "[vd composer] score=%.4f < %.2f%s -> MISS",
+                s, self._full_hit_threshold,
+                f" (warm_start={self._warm_start_threshold:.2f})" if self._warm_start_threshold is not None else "",
             )
         return JudgeResult(HitType.MISS)
 

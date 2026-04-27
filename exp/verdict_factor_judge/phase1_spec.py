@@ -16,6 +16,7 @@ descriptors per cfg, in lex order (controls runner --runs index), are:
 Key design constants (plan-locked, see plan log for derivation):
 - Composer = WeightedSum, uniform weights = 1.0, full_hit threshold = 0.5
 - T-DUAL_07 yaml adds warm_start threshold 0.3 + warm_start_t 0.7
+- all-NaN bootstrap fallback = WARM_START at start_t 0.7
 - W-MIX windows = [(0,3) (1,1) (3,0) (0,5) (5,0)] - plan SS3.3 / SS3.3b B-3
 - N-PCT directions for non_monotonic: curv_radius range:[0.3,0.7], cum_disp high
 - F1a-A / F1a-T: window_k = 3 (matches Phase 0 dump factors)
@@ -255,6 +256,10 @@ def build_yaml(cfg_id: str, descriptor_stem: str) -> dict:
             "type": "percentile_rolling",
             "window_size": 200,
             "cold_start_strategy": "force_miss",
+        },
+        "all_nan_fallback": {
+            "type": "warm_start",
+            "start_t": 0.7,
         },
     }
     return {

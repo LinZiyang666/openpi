@@ -28,6 +28,16 @@ Coupling map:
 
 from __future__ import annotations
 
+import logging
+import os
+
+# Same env-gated debug channel as judge.py / composers; surfaces extractor
+# bail-out reasons so a `grep '\[vd f1a_t' /tmp/server.log` immediately
+# shows whether dead-loop NaNs come from boundary, walk_next, or state
+# missing. Zero cost when env var is unset.
+_VERDICT_DEBUG = os.environ.get("OPENPI_CACHE_VERDICT_DEBUG") == "1"
+_verdict_logger = logging.getLogger("openpi.cache.verdict_debug")
+
 from typing import TYPE_CHECKING
 
 import torch
@@ -240,10 +250,19 @@ class _RuntimeContinuityBase:
         # Boundary handling and state-presence guards are bundled here so
         # extract() doesn't have to duplicate the logic for state.
         if len(history.states) < K:
+            if _VERDICT_DEBUG:
+                _verdict_logger.info(
+                    "[vd f1a_t bail] history.states=%d < K=%d (episode boundary)",
+                    len(history.states), K,
+                )
             return None
         winner_entry = view.get_entry(winner_id)
         winner_state = winner_entry.query_keys.get("robot_state")
         if winner_state is None:
+            if _VERDICT_DEBUG:
+                _verdict_logger.info(
+                    "[vd f1a_t bail] winner.robot_state missing winner=%s", winner_id,
+                )
             return None
         # walk_next may raise NotImplementedError on real forks (TRAJECTORY
         # policy not implemented for branching chains in B0); caller
@@ -251,11 +270,20 @@ class _RuntimeContinuityBase:
         forward_entries = view.walk_next(winner_id, k=K)
         if len(forward_entries) < K:
             # Trajectory boundary — chain ran out before K forward steps.
+            if _VERDICT_DEBUG:
+                _verdict_logger.info(
+                    "[vd f1a_t bail] walk_next returned %d < K=%d (winner near tail) winner=%s",
+                    len(forward_entries), K, winner_id,
+                )
             return None
         forward_states_raw: list = []
         for e in forward_entries:
             rs = e.query_keys.get("robot_state")
             if rs is None:
+                if _VERDICT_DEBUG:
+                    _verdict_logger.info(
+                        "[vd f1a_t bail] forward entry %s missing robot_state", e.id,
+                    )
                 return None
             forward_states_raw.append(rs)
 

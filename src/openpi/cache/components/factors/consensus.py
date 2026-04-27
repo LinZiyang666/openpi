@@ -17,11 +17,20 @@ Coupling map:
 
 from __future__ import annotations
 
+import logging
+import os
 from typing import TYPE_CHECKING, Optional
 
 import torch
 
 from openpi.cache.components.factors.registry import register
+
+# Same env-gated debug channel as judge.py / composers; surfaces F2
+# bail-out reasons (insufficient candidates vs candidate-pool agreement)
+# so `grep '\[vd f2' /tmp/server.log` distinguishes wiring failure from
+# dead-loop convergence on the same cluster. Zero cost when env unset.
+_VERDICT_DEBUG = os.environ.get("OPENPI_CACHE_VERDICT_DEBUG") == "1"
+_verdict_logger = logging.getLogger("openpi.cache.verdict_debug")
 
 if TYPE_CHECKING:
     from openpi.cache.components.factors.base import HistoryView
@@ -86,6 +95,13 @@ class TopKActionConsensus:
         if K_eff < 2:
             # Single candidate (or empty): no consensus signal — propagate
             # NaN so Composer treats it as missing-signal per §2.8.8.
+            if _VERDICT_DEBUG:
+                _verdict_logger.info(
+                    "[vd f2 bail] K_eff=%d < 2 (results=%d, requested K=%d) — "
+                    "search strategy did not return enough candidates; "
+                    "min_top_k_hint may not have propagated",
+                    K_eff, len(results), self.K,
+                )
             return {"f2_var": float("nan")}
         ids = [r.id for r in results[:K_eff]]
         payloads = view.get_many(ids)               # PayloadView memoizes
@@ -103,5 +119,13 @@ class TopKActionConsensus:
             # "perfect consensus" (which would naively give 0 and look
             # like a hard FULL_HIT signal) from "no useful active dims".
             # Return NaN to defer the decision to other factors.
+            if _VERDICT_DEBUG:
+                # Log the top-3 winner ids so we can see if retrieval is
+                # repeatedly returning the same cluster (dead-loop signature).
+                _verdict_logger.info(
+                    "[vd f2 bail] candidate pool agreement (max var=%.6e <= eps=%.0e); "
+                    "top ids=%s",
+                    float(var_d.max()), _F2_CANDIDATE_LOCAL_EPS, ids[:3],
+                )
             return {"f2_var": float("nan")}
         return {"f2_var": float(var_d[active].mean())}

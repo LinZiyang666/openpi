@@ -172,6 +172,42 @@ def test_cold_start_all_nan_short_circuits_miss():
     assert composer.calls == []
 
 
+def test_all_nan_fallback_can_emit_warm_start_for_cp1():
+    e1 = _StubExtractor({"a": "safe"}, {"a": 0.1})
+    composer = _StubComposer(JudgeResult(HitType.FULL_HIT, "winner"))
+    norm = _StubNormalizer(lambda r: {k: float("nan") for k in r})
+    cj = CompositeJudge(
+        extractors=[e1],
+        composer=composer,
+        normalizer=norm,
+        all_nan_fallback="warm_start",
+        all_nan_fallback_start_t=0.7,
+    )
+
+    res = cj([_result()], CheckpointID.CP1, {})
+    assert res.hit_type is HitType.WARM_START
+    assert res.winner_id == "e1"
+    assert res.start_t == pytest.approx(0.7)
+    assert composer.calls == []
+
+
+def test_all_nan_warm_start_fallback_is_cp1_only_defensively():
+    e1 = _StubExtractor({"a": "safe"}, {"a": 0.1})
+    composer = _StubComposer(JudgeResult(HitType.FULL_HIT, "winner"))
+    norm = _StubNormalizer(lambda r: {k: float("nan") for k in r})
+    cj = CompositeJudge(
+        extractors=[e1],
+        composer=composer,
+        normalizer=norm,
+        all_nan_fallback="warm_start",
+        all_nan_fallback_start_t=0.7,
+    )
+
+    res = cj([_result()], CheckpointID.CP3, {})
+    assert res.hit_type is HitType.MISS
+    assert composer.calls == []
+
+
 def test_partial_nan_does_not_short_circuit():
     e1 = _StubExtractor({"a": "safe", "b": "risky"}, {"a": 0.1, "b": 0.2})
     composer = _StubComposer(JudgeResult(HitType.FULL_HIT, "winner"))

@@ -509,3 +509,119 @@ warm_start yaml 原指 `libero_spatial_warm/`（已删）。本实验用 `libero
 5. **Phase 0 analysis**（§3）：跑 `phase0_calibration_summary.py` 出 winner-conditional NaN% + 跨 cfg 一致性。
 6. **跑 Phase 1**（§2.2）：复用同 server（runner ws 切 bundle，无需重启），3 client（1/server，各 5 worker），cfg 内 8 yaml sequential。
 7. **Phase 1 analysis**（§3）：跑 `phase1_factor_ablation_summary.py` 出 Pareto 决策表 → 决定 Phase 2 因子集 carry-forward 范围。
+
+---
+
+## §6 Verdict-pipeline 实时 debug
+
+诊断 dead-loop 现象时（success ≈ Floor 怀疑全 MISS）用这套环境变量 + grep 流程。**生产跑零开销**（env 不开就完全跳过 log 分支）。
+
+### 6.1 启用条件
+
+3 处 instrumentation 由 **`OPENPI_CACHE_VERDICT_DEBUG=1`** 统一控制：
+
+| 文件 | 触发点 | log 行前缀 |
+|---|---|---|
+| `src/openpi/cache/components/judge.py` | 每 verdict CompositeJudge.__call__ 末尾 | `[vd step=N cp=cp1]` |
+| `src/openpi/cache/components/factors/composers/__init__.py` | WeightedSumComposer.compose 每次评分 | `[vd composer]` |
+| `src/openpi/cache/components/factors/runtime_continuity.py` | F1a-T `_build_state_splice` 每个 NaN 出口 | `[vd f1a_t bail]` |
+| `src/openpi/cache/components/factors/consensus.py` | F2 extract 每个 NaN 出口 | `[vd f2 bail]` |
+
+### 6.2 启动 server（带 debug + stdout 持久化）
+
+```bash
+# server 机器
+cd <openpi root>
+pkill -f 'serve_policy.py.*--port 7998' && sleep 2
+
+OPENPI_CACHE_VERDICT_DEBUG=1 \
+uv run scripts/serve_policy.py \
+    --concurrent \
+    --cache-config exp/verdict_factor_judge/config/clip/phase1/clip_w7_d4_phase1_f_full_d_all_t_dual_07.yaml \
+    --env LIBERO --port 7998 \
+    policy:checkpoint --policy.config pi05_libero \
+    --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch" \
+    |& tee /tmp/vd_idx4.log
+```
+
+> 现在 server stdout 会按每个 verdict 多打 1-3 行 `[vd ...]` log。LIBERO 一次 eval 100 ep × ~29 verdict ≈ 2900 verdict → debug log ~10000 行，几 MB，可控。
+
+### 6.3 client 跑单个 yaml
+
+```bash
+# client 机器
+cd /scratch/zixuans8/openpi
+rm -f /tmp/idx4_only.json
+
+uv run exp/common/run_cache_experiments.py \
+    --yaml-dir exp/verdict_factor_judge/config/clip/phase1 \
+    --runs 4 \
+    --episodes-per-run 10 --num-workers 5 \
+    --host 155.98.36.13 --port 8998 \
+    --task-suite libero_spatial --seed 42 \
+    --conda-env /scratch/zixuans8/libero_sim \
+    --state-path /tmp/idx4_only.json \
+    --log-dir /tmp/idx4_only_logs
+```
+
+### 6.4 4 步诊断（server 端）
+
+#### Step 1 — hit_type 总分布
+
+```bash
+grep -oE "hit=(FULL_HIT|MISS|WARM_START)" /tmp/vd_idx4.log | sort | uniq -c
+```
+
+期望（idx 4 = F-FULL × T-DUAL_07）：
+- WARM_START 占绝大多数 → P0 fallback 救活
+- 全 MISS 仍占绝大多数 → fallback 没生效（要 debug all_nan_fallback wiring）
+
+#### Step 2 — sentinel 触发比例
+
+```bash
+grep -oE "sentinel=(all_nan_warm_fallback|all_nan_miss)" /tmp/vd_idx4.log | sort | uniq -c
+```
+
+- 大量 `all_nan_warm_fallback` → 因子全 NaN，dead loop 在 normalizer/extractor 层（看 step 3）
+- 大量 `all_nan_miss` → fallback config 没传到 CompositeJudge（去 yaml 验 `all_nan_fallback` 字段）
+- 数量很少 → composer 走通，去 step 4 看 score
+
+#### Step 3 — 哪个 extractor 全 NaN？
+
+```bash
+# 看每 verdict 的 raw_nan tally：F1a-A=N/4 / F1a-T=N/4 / F1b-A=N/20 / F1b-T=N/20 / F2=N/1
+grep "raw_nan" /tmp/vd_idx4.log | head -30
+
+# F1a-T bail 原因分布（boundary / walk_next / state missing）
+grep "vd f1a_t bail" /tmp/vd_idx4.log | awk -F"]" '{print $2}' | sort | uniq -c
+
+# F2 bail 原因分布（K_eff < 2 / candidate pool agreement）
+grep "vd f2 bail" /tmp/vd_idx4.log | awk -F"]" '{print $2}' | head -20
+```
+
+预期 dead-loop 现象：
+- `f1a_t bail walk_next returned 0 < K=3` 占多数 → winner 系统偏 trajectory tail
+- `f2 bail candidate pool agreement` 占多数 → top-5 retrieval 收敛到同一小簇
+- `raw_nan: ... f2=1/1 ...` 多见 → F2 也 NaN，确认 dead loop
+
+#### Step 4 — composer score 分布
+
+```bash
+# 提取 score 数值看分布
+grep -oE "score=[0-9.]+" /tmp/vd_idx4.log | awk -F'=' '{print $2}' | sort -n | \
+    awk 'BEGIN{c=0} {a[c++]=$1} END{print "min="a[0], "P25="a[int(c/4)], "P50="a[int(c/2)], "P75="a[int(c*3/4)], "max="a[c-1], "n="c}'
+```
+
+- P50 < 0.3 → composer 永远过不了 warm_start 阈值，**threshold 太高**（plan-level 改动）
+- P50 >= 0.5 → 大量 FULL_HIT/WARM_START，正常工作
+- 几乎没数据 → composer 没被调用（sentinel 把所有 verdict 都吃了，回 step 2）
+
+### 6.5 关闭 debug
+
+```bash
+# 重启 server 不带 env var
+unset OPENPI_CACHE_VERDICT_DEBUG
+# 或者起新 shell 重启 server
+```
+
+env var 不设时，所有 `_VERDICT_DEBUG` 分支跳过，runtime 开销 = 0。

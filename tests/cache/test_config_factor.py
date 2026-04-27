@@ -20,6 +20,7 @@ import pytest
 
 from openpi.cache.components.judge import CompositeJudge
 from openpi.cache.config import (
+    AllNanFallbackConfig,
     ComposerConfig,
     ConfigValidationError,
     FactorConfig,
@@ -49,6 +50,7 @@ def test_judge_config_factors_parses_as_list_of_dataclass():
         ],
         "composer": {"type": "weighted_sum", "weights": {"f2_var": 1.0}, "tier_thresholds": {"full_hit": 0.5}},
         "normalizer": {"type": "percentile_rolling"},
+        "all_nan_fallback": {"type": "warm_start", "start_t": 0.7},
     }
     cfg = _dict_to_dataclass(JudgeConfig, data)
     assert isinstance(cfg.factors, list)
@@ -57,6 +59,9 @@ def test_judge_config_factors_parses_as_list_of_dataclass():
     assert cfg.factors[0].params == {"K": 5}
     assert isinstance(cfg.composer, ComposerConfig)
     assert isinstance(cfg.normalizer, NormalizerConfig)
+    assert isinstance(cfg.all_nan_fallback, AllNanFallbackConfig)
+    assert cfg.all_nan_fallback.type == "warm_start"
+    assert cfg.all_nan_fallback.start_t == 0.7
 
 
 def test_judge_config_factors_optional_default_none():
@@ -64,6 +69,7 @@ def test_judge_config_factors_optional_default_none():
     assert cfg.factors is None
     assert cfg.composer is None
     assert cfg.normalizer is None
+    assert cfg.all_nan_fallback is None
 
 
 # ------------------------------------------------------------------
@@ -250,6 +256,24 @@ def test_build_judge_composite_with_f2_only():
     assert judge.min_required_top_k == 4
 
 
+def test_build_judge_composite_forwards_all_nan_fallback():
+    cfg = JudgeConfig(
+        type="composite",
+        factors=[FactorConfig(type="f2", params={"K": 2})],
+        composer=ComposerConfig(
+            type="weighted_sum",
+            weights={"f2_var": 1.0},
+            tier_thresholds={"full_hit": 0.5},
+        ),
+        normalizer=NormalizerConfig(type="percentile_rolling"),
+        all_nan_fallback=AllNanFallbackConfig(type="warm_start", start_t=0.7),
+    )
+    judge = _build_judge(cfg, library_stats=None)
+    assert isinstance(judge, CompositeJudge)
+    assert judge._all_nan_fallback == "warm_start"
+    assert judge._all_nan_fallback_start_t == 0.7
+
+
 def test_build_judge_composite_missing_factors_raises():
     cfg = JudgeConfig(type="composite", composer=ComposerConfig(
         type="weighted_sum", weights={"a": 1.0}, tier_thresholds={"full_hit": 0.5},
@@ -363,6 +387,75 @@ def test_validator_warm_start_below_full_hit(tmp_path):
         """)
     p = _write(tmp_path, body)
     with pytest.raises(ConfigValidationError, match="strictly less than"):
+        load_cache_config(str(p))
+
+
+def test_validator_all_nan_warm_start_fallback_accepts_cp1(tmp_path):
+    body = _minimal_yaml_with_judge("""type: composite
+              all_nan_fallback: {type: warm_start, start_t: 0.7}
+              factors: [{type: f2, params: {K: 3}}]
+              composer:
+                type: weighted_sum
+                weights: {f2_var: 1.0}
+                tier_thresholds: {full_hit: 0.5}
+        """)
+    p = _write(tmp_path, body)
+    cfg = load_cache_config(str(p))
+    fallback = cfg.checkpoints["cp1"].judge.all_nan_fallback
+    assert fallback is not None
+    assert fallback.type == "warm_start"
+    assert fallback.start_t == 0.7
+
+
+def test_validator_all_nan_warm_start_fallback_requires_start_t(tmp_path):
+    body = _minimal_yaml_with_judge("""type: composite
+              all_nan_fallback: {type: warm_start}
+              factors: [{type: f2, params: {K: 3}}]
+              composer:
+                type: weighted_sum
+                weights: {f2_var: 1.0}
+                tier_thresholds: {full_hit: 0.5}
+        """)
+    p = _write(tmp_path, body)
+    with pytest.raises(ConfigValidationError, match="requires 'start_t'"):
+        load_cache_config(str(p))
+
+
+def test_validator_all_nan_warm_start_fallback_rejects_cp3(tmp_path):
+    body = textwrap.dedent("""
+        backend: {type: in_memory}
+        keys:
+          robot_state: {enabled: true, weight: 1.0}
+        key_builder: {type: placeholder}
+        checkpoints:
+          cp3:
+            enabled: true
+            judge:
+              type: composite
+              all_nan_fallback: {type: warm_start, start_t: 0.7}
+              factors: [{type: f2, params: {K: 3}}]
+              composer:
+                type: weighted_sum
+                weights: {f2_var: 1.0}
+                tier_thresholds: {full_hit: 0.5}
+            search_strategy: {type: weighted_rrf_knn}
+        """)
+    p = _write(tmp_path, body)
+    with pytest.raises(ConfigValidationError, match="only supported on CP1"):
+        load_cache_config(str(p))
+
+
+def test_validator_all_nan_fallback_rejects_unknown_type(tmp_path):
+    body = _minimal_yaml_with_judge("""type: composite
+              all_nan_fallback: {type: full_hit}
+              factors: [{type: f2, params: {K: 3}}]
+              composer:
+                type: weighted_sum
+                weights: {f2_var: 1.0}
+                tier_thresholds: {full_hit: 0.5}
+        """)
+    p = _write(tmp_path, body)
+    with pytest.raises(ConfigValidationError, match="all_nan_fallback.type"):
         load_cache_config(str(p))
 
 

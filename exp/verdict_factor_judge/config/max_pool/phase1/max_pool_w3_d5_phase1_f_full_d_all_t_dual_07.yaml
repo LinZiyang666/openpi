@@ -149,6 +149,9 @@ checkpoints:
         type: percentile_rolling
         window_size: 200
         cold_start_strategy: force_miss
+      all_nan_fallback:
+        type: warm_start
+        start_t: 0.7
     search_strategy:
       type: weighted_rrf_knn
       top_k: 1

@@ -131,6 +131,19 @@ class NormalizerConfig:
 
 
 @dataclass
+class AllNanFallbackConfig:
+    """CompositeJudge fallback when every normalized factor is NaN.
+
+    Default behaviour is preserved by leaving this field unset. Setting
+    ``type: warm_start`` turns the cold-start / all-missing-factor sentinel
+    into a CP1 WARM_START at ``start_t``.
+    """
+
+    type: str = "miss"
+    start_t: float | None = None
+
+
+@dataclass
 class DumpConfig:
     """Per-verdict factor dump configuration for `JudgeConfig.dump`.
 
@@ -162,6 +175,7 @@ class JudgeConfig:
     factors: Optional[list[FactorConfig]] = None
     composer: Optional[ComposerConfig] = None
     normalizer: Optional[NormalizerConfig] = None
+    all_nan_fallback: Optional[AllNanFallbackConfig] = None
     # ── Verdict-factor dump (server-side calibration logging) ──
     # Optional. When set, `_build_judge` wraps the inner judge in a
     # `DumpingJudge` that writes per-verdict factor rows to `dump.path`.
@@ -347,6 +361,7 @@ _CONFIG_TYPES: dict[str, type] = {
     "FactorConfig": FactorConfig,
     "ComposerConfig": ComposerConfig,
     "NormalizerConfig": NormalizerConfig,
+    "AllNanFallbackConfig": AllNanFallbackConfig,
     "FieldSimilarityConfig": FieldSimilarityConfig,
     "ScoreNormalizationConfig": ScoreNormalizationConfig,
     "SearchStrategyConfig": SearchStrategyConfig,
@@ -713,6 +728,43 @@ def _validate_composite_judge_static(
             errors.append(
                 f"{prefix}.judge.composer: warm_start_t is set but "
                 f"tier_thresholds.warm_start is missing — both are required to emit WARM_START"
+            )
+
+    # (6) all-NaN bootstrap fallback. Default/unset preserves the legacy
+    # sentinel path (all normalized factors NaN -> MISS). WARM_START fallback
+    # is CP1-only because CP3 has no warm-start payload to resume from.
+    fallback = judge.all_nan_fallback
+    if fallback is not None:
+        if fallback.type not in {"miss", "warm_start"}:
+            errors.append(
+                f"{prefix}.judge.all_nan_fallback.type={fallback.type!r} is "
+                "unknown. Valid: ['miss', 'warm_start']"
+            )
+        elif fallback.type == "warm_start":
+            if cp_name is not None and cp_name != "cp1":
+                errors.append(
+                    f"{prefix}.judge.all_nan_fallback: warm_start is only "
+                    "supported on CP1 (CP3 has no warm-start payload)"
+                )
+            if fallback.start_t is None:
+                errors.append(
+                    f"{prefix}.judge.all_nan_fallback: type='warm_start' "
+                    f"requires 'start_t'. Valid: {sorted(CANONICAL_DENOISE_TIMESTEPS)}"
+                )
+            else:
+                st = round(fallback.start_t, 4)
+                if st not in CANONICAL_DENOISE_TIMESTEPS:
+                    errors.append(
+                        f"{prefix}.judge.all_nan_fallback.start_t={fallback.start_t} "
+                        f"is not a canonical denoise timestep. Valid: "
+                        f"{sorted(CANONICAL_DENOISE_TIMESTEPS)}"
+                    )
+                else:
+                    fallback.start_t = st
+        elif fallback.start_t is not None:
+            errors.append(
+                f"{prefix}.judge.all_nan_fallback.start_t is only valid when "
+                "type='warm_start'"
             )
 
 
@@ -1661,10 +1713,18 @@ def _build_inner_judge(cfg: JudgeConfig, library_stats=None):
         normalizer = (
             _build_normalizer(cfg.normalizer) if cfg.normalizer is not None else None
         )
+        all_nan_fallback = (
+            cfg.all_nan_fallback.type if cfg.all_nan_fallback is not None else "miss"
+        )
+        all_nan_fallback_start_t = (
+            cfg.all_nan_fallback.start_t if cfg.all_nan_fallback is not None else None
+        )
         return CompositeJudge(
             extractors=extractors,
             composer=composer,
             normalizer=normalizer,
+            all_nan_fallback=all_nan_fallback,
+            all_nan_fallback_start_t=all_nan_fallback_start_t,
         )
     else:
         raise ConfigValidationError(
