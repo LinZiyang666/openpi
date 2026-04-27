@@ -147,7 +147,7 @@ checkpoints:
         warm_start_t: 0.7
       normalizer:
         type: percentile_rolling
-        window_size: 200
+        window_size: 50
         cold_start_strategy: force_miss
       all_nan_fallback:
         type: warm_start

@@ -86,7 +86,7 @@ checkpoints:
           f1b_t_cum_disp__p5_f0: high
       normalizer:
         type: percentile_rolling
-        window_size: 200
+        window_size: 50
         cold_start_strategy: force_miss
       all_nan_fallback:
         type: warm_start

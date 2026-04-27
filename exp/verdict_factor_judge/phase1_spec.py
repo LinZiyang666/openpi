@@ -254,7 +254,17 @@ def build_yaml(cfg_id: str, descriptor_stem: str) -> dict:
         "composer": _composer_block(keys, tier),
         "normalizer": {
             "type": "percentile_rolling",
-            "window_size": 200,
+            # window_size=50 (down from plan-default 200) is an empirical fix
+            # for the multi-worker cold-start amplification observed on the
+            # F-FULL T-DUAL_07 dead-loop run: with --num-workers 5, each
+            # worker holds its own normalizer instance that needs window_size
+            # valid samples per key before composer can run; the slowest F1b
+            # window has ~44% NaN, so 200 / (1 - 0.44) ≈ 357 verdicts/worker
+            # are cold (85% of the worker's ~420-verdict budget). Dropping to
+            # 50 cuts cold-start to ~21% per worker (P0 fallback covers the
+            # rest), at the cost of percentile resolution 0.5% -> 2%.
+            # Re-evaluate in Phase 4 N-PCT-LEN ablation.
+            "window_size": 50,
             "cold_start_strategy": "force_miss",
         },
         "all_nan_fallback": {

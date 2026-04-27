@@ -512,13 +512,15 @@ warm_start yaml 原指 `libero_spatial_warm/`（已删）。本实验用 `libero
 
 ---
 
-## §6 Verdict-pipeline 实时 debug
+## §6 Verdict-pipeline debug — server capture + 本地分析
 
-诊断 dead-loop 现象时（success ≈ Floor 怀疑全 MISS）用这套环境变量 + grep 流程。**生产跑零开销**（env 不开就完全跳过 log 分支）。
+诊断 dead-loop 时用这套流程：server 端只负责跑 + capture stdout，client 在本地（`/home/weiland/projects/openpi/`）直接连 frp 打到 server，server stdout log 打成 tar 发到 Windows，本地 `phase1_debug_analyze.py` 一键出诊断结论。
+
+**生产跑零开销**（env 不开就完全跳过 log 分支）。
 
 ### 6.1 启用条件
 
-3 处 instrumentation 由 **`OPENPI_CACHE_VERDICT_DEBUG=1`** 统一控制：
+4 处 instrumentation 由 **`OPENPI_CACHE_VERDICT_DEBUG=1`** 统一控制：
 
 | 文件 | 触发点 | log 行前缀 |
 |---|---|---|
@@ -527,11 +529,12 @@ warm_start yaml 原指 `libero_spatial_warm/`（已删）。本实验用 `libero
 | `src/openpi/cache/components/factors/runtime_continuity.py` | F1a-T `_build_state_splice` 每个 NaN 出口 | `[vd f1a_t bail]` |
 | `src/openpi/cache/components/factors/consensus.py` | F2 extract 每个 NaN 出口 | `[vd f2 bail]` |
 
-### 6.2 启动 server（带 debug + stdout 持久化）
+### 6.2 Server 端（你的事）— 带 debug 启动 + 持久化 stdout
 
 ```bash
-# server 机器
+# server 机器（GPU 那台）
 cd <openpi root>
+git pull origin Ziyang
 pkill -f 'serve_policy.py.*--port 7998' && sleep 2
 
 OPENPI_CACHE_VERDICT_DEBUG=1 \
@@ -544,84 +547,55 @@ uv run scripts/serve_policy.py \
     |& tee /tmp/vd_idx4.log
 ```
 
-> 现在 server stdout 会按每个 verdict 多打 1-3 行 `[vd ...]` log。LIBERO 一次 eval 100 ep × ~29 verdict ≈ 2900 verdict → debug log ~10000 行，几 MB，可控。
+> 调试一次 yaml ≈ 100 ep × ~29 verdict ≈ 2900 verdict → debug log ~10000 行，几 MB，可控。
 
-### 6.3 client 跑单个 yaml
+### 6.3 Client 端（本地，我跑）— 直连 frp 打 verdict
+
+我在 `/home/weiland/projects/openpi/` 跑：
 
 ```bash
-# client 机器
-cd /scratch/zixuans8/openpi
+cd /home/weiland/projects/openpi
 rm -f /tmp/idx4_only.json
 
+CONDA_ENV=/home/weiland/anaconda3/envs/libero_sim \
 uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/verdict_factor_judge/config/clip/phase1 \
     --runs 4 \
     --episodes-per-run 10 --num-workers 5 \
     --host 155.98.36.13 --port 8998 \
     --task-suite libero_spatial --seed 42 \
-    --conda-env /scratch/zixuans8/libero_sim \
+    --conda-env /home/weiland/anaconda3/envs/libero_sim \
     --state-path /tmp/idx4_only.json \
     --log-dir /tmp/idx4_only_logs
 ```
 
-### 6.4 4 步诊断（server 端）
+ws 经 frp 8998 → server 7998。client 输出全部留在我本地（`/tmp/idx4_only_logs/` + `/tmp/idx4_only.json` + `exp/verdict_factor_judge/config/clip/phase1/cache_eval_results.json`）。
 
-#### Step 1 — hit_type 总分布
-
-```bash
-grep -oE "hit=(FULL_HIT|MISS|WARM_START)" /tmp/vd_idx4.log | sort | uniq -c
-```
-
-期望（idx 4 = F-FULL × T-DUAL_07）：
-- WARM_START 占绝大多数 → P0 fallback 救活
-- 全 MISS 仍占绝大多数 → fallback 没生效（要 debug all_nan_fallback wiring）
-
-#### Step 2 — sentinel 触发比例
+### 6.4 Server log 打 tar 发 Windows（你做完跑后）
 
 ```bash
-grep -oE "sentinel=(all_nan_warm_fallback|all_nan_miss)" /tmp/vd_idx4.log | sort | uniq -c
+# server 机器
+tar -cf ~/vd_idx4.tar -C /tmp vd_idx4.log
+# 或者直接 scp 到本地
+# scp /tmp/vd_idx4.log 用户名@windows-host:/path/
 ```
 
-- 大量 `all_nan_warm_fallback` → 因子全 NaN，dead loop 在 normalizer/extractor 层（看 step 3）
-- 大量 `all_nan_miss` → fallback config 没传到 CompositeJudge（去 yaml 验 `all_nan_fallback` 字段）
-- 数量很少 → composer 走通，去 step 4 看 score
+把 `vd_idx4.tar`（或 .log 文件）放到 `C:\Users\lzy66\Downloads\` 或 `C:\Users\lzy66\Desktop\fsdownload\`，告诉我后我立刻拉过去解 + 分析。
 
-#### Step 3 — 哪个 extractor 全 NaN？
+### 6.5 我本地一键分析
 
 ```bash
-# 看每 verdict 的 raw_nan tally：F1a-A=N/4 / F1a-T=N/4 / F1b-A=N/20 / F1b-T=N/20 / F2=N/1
-grep "raw_nan" /tmp/vd_idx4.log | head -30
+# 我跑（用 Bash tool）— 解 tar + 跑 analyzer
+tar -xf /mnt/c/Users/lzy66/Downloads/vd_idx4.tar -C /tmp/
 
-# F1a-T bail 原因分布（boundary / walk_next / state missing）
-grep "vd f1a_t bail" /tmp/vd_idx4.log | awk -F"]" '{print $2}' | sort | uniq -c
-
-# F2 bail 原因分布（K_eff < 2 / candidate pool agreement）
-grep "vd f2 bail" /tmp/vd_idx4.log | awk -F"]" '{print $2}' | head -20
+uv run python -m exp.verdict_factor_judge.phase1_debug_analyze \
+    --server-log /tmp/vd_idx4.log \
+    --client-dir /tmp/idx4_only_logs \
+    --client-aggregate exp/verdict_factor_judge/config/clip/phase1/cache_eval_results.json
 ```
 
-预期 dead-loop 现象：
-- `f1a_t bail walk_next returned 0 < K=3` 占多数 → winner 系统偏 trajectory tail
-- `f2 bail candidate pool agreement` 占多数 → top-5 retrieval 收敛到同一小簇
-- `raw_nan: ... f2=1/1 ...` 多见 → F2 也 NaN，确认 dead loop
+`phase1_debug_analyze.py` 输出 4 段诊断（hit_type 分布 / sentinel 占比 / extractor NaN 原因 / composer score 分布）+ 跟 success rate 互证 + 给出"哪一层是 bottleneck"的结论。
 
-#### Step 4 — composer score 分布
+### 6.6 关闭 debug
 
-```bash
-# 提取 score 数值看分布
-grep -oE "score=[0-9.]+" /tmp/vd_idx4.log | awk -F'=' '{print $2}' | sort -n | \
-    awk 'BEGIN{c=0} {a[c++]=$1} END{print "min="a[0], "P25="a[int(c/4)], "P50="a[int(c/2)], "P75="a[int(c*3/4)], "max="a[c-1], "n="c}'
-```
-
-- P50 < 0.3 → composer 永远过不了 warm_start 阈值，**threshold 太高**（plan-level 改动）
-- P50 >= 0.5 → 大量 FULL_HIT/WARM_START，正常工作
-- 几乎没数据 → composer 没被调用（sentinel 把所有 verdict 都吃了，回 step 2）
-
-### 6.5 关闭 debug
-
-```bash
-# 重启 server 不带 env var
-unset OPENPI_CACHE_VERDICT_DEBUG
-# 或者起新 shell 重启 server
-```
-
-env var 不设时，所有 `_VERDICT_DEBUG` 分支跳过，runtime 开销 = 0。
+env var 不设就 OK。重启 server 时不带 `OPENPI_CACHE_VERDICT_DEBUG=1` 就完全跳过所有 `[vd ...]` log 分支，runtime 开销 = 0。
