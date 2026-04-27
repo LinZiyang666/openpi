@@ -6,12 +6,12 @@
 
 Plan：[`logs/verdict_factor_judge_experiment_plan.log.md`](verdict_factor_judge_experiment_plan.log.md)。
 
-**算力**：3 GPU server × 3 client (5 worker each)。Phase 0 用 **3 client**（每 server 1，避 dump JSONL 多进程并发写撕裂行）；Phase 1 用 **9 client**（每 server 3，`--runs` 切片 8 yaml = 3 / 3 / 2）。
+**算力**：3 GPU server × **1 client (5 worker)**= 3 client 总。Phase 0 / Phase 1 同款 1-client-per-server 拓扑，runner sequential 跑 cfg dir 内全部 yaml — 因为 server 的 `_current_bundle` 是 module-level global（`websocket_policy_server.py:82-83`），同 server 上多 client 并发 `load_cache_config` 会全局覆盖 bundle、污染其他 client 的下一个 task。Phase 0 额外有 dump JSONL 单 writer 约束（PIPE_BUF 撕裂），已被同款拓扑覆盖。
 
 | Phase | yaml 数 | episode 数 | client 数 | 阻断点 |
 |---|---|---|---|---|
-| 0 | 3 (3 cfg × 1 yaml) | 300 | 3 (1/server) | dump JSONL 单 client per server |
-| 1 | 24 (3 cfg × 8 yaml) | 2,400 | 9 (3/server) | 各 client 独立 `--state-path` |
+| 0 | 3 (3 cfg × 1 yaml) | 300 | 3 (1/server) | dump JSONL 单 writer + bundle global |
+| 1 | 24 (3 cfg × 8 yaml) | 2,400 | 3 (1/server) | bundle global → 单 client sequential 8 yaml/cfg |
 
 ---
 
@@ -127,7 +127,7 @@ write_policy: { type: never }
 
 ### Phase 1 yaml 列表（24，按 lex 序）
 
-每 cfg 8 yaml，stem 形如 `<cfg_run_id>_phase1_<descriptor>.yaml`。lex 排序后的 8 个 descriptor 决定 `--runs` 切片：
+每 cfg 8 yaml，stem 形如 `<cfg_run_id>_phase1_<descriptor>.yaml`。runner 按 lex 序 sequential 跑：
 
 | lex idx | descriptor | 因子集 | 描述子启用 | tier | composer |
 |---:|---|---|---|---|---|
@@ -251,8 +251,7 @@ uv run scripts/serve_policy.py \
 #### Client A → S1 (clip)
 
 ```bash
-conda run -p /scratch/zixuans8/libero_sim \
-    uv run exp/common/run_cache_experiments.py \
+uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/verdict_factor_judge/config/clip \
     --runs 1 \
     --episodes-per-run 10 \
@@ -260,7 +259,7 @@ conda run -p /scratch/zixuans8/libero_sim \
     --host 155.98.36.13 --port 8998 \
     --task-suite libero_spatial \
     --seed 42 \
-    --conda-env libero_sim \
+    --conda-env /scratch/zixuans8/libero_sim \
     --state-path exp/verdict_factor_judge/data/phase0/clip/run_state.json \
     --log-dir exp/verdict_factor_judge/data/phase0/clip/logs \
     --resume
@@ -269,8 +268,7 @@ conda run -p /scratch/zixuans8/libero_sim \
 #### Client B → S2 (max_pool)
 
 ```bash
-conda run -p /scratch/zixuans8/libero_sim \
-    uv run exp/common/run_cache_experiments.py \
+uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/verdict_factor_judge/config/max_pool \
     --runs 1 \
     --episodes-per-run 10 \
@@ -278,7 +276,7 @@ conda run -p /scratch/zixuans8/libero_sim \
     --host 155.98.36.13 --port 8999 \
     --task-suite libero_spatial \
     --seed 42 \
-    --conda-env libero_sim \
+    --conda-env /scratch/zixuans8/libero_sim \
     --state-path exp/verdict_factor_judge/data/phase0/max_pool/run_state.json \
     --log-dir exp/verdict_factor_judge/data/phase0/max_pool/logs \
     --resume
@@ -287,8 +285,7 @@ conda run -p /scratch/zixuans8/libero_sim \
 #### Client C → S3 (spatial16)
 
 ```bash
-conda run -p /scratch/zixuans8/libero_sim \
-    uv run exp/common/run_cache_experiments.py \
+uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/verdict_factor_judge/config/spatial16 \
     --runs 1 \
     --episodes-per-run 10 \
@@ -296,7 +293,7 @@ conda run -p /scratch/zixuans8/libero_sim \
     --host 155.98.36.13 --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
-    --conda-env libero_sim \
+    --conda-env /scratch/zixuans8/libero_sim \
     --state-path exp/verdict_factor_judge/data/phase0/spatial16/run_state.json \
     --log-dir exp/verdict_factor_judge/data/phase0/spatial16/logs \
     --resume
@@ -341,9 +338,9 @@ for cfg in ['clip', 'max_pool', 'spatial16']:
 
 ## Phase 1 — 单因子 Ablation（24 yaml × 100 ep = 2,400 ep）
 
-### §2.1 服务器命令（3 server）
+### §2.1 服务器命令（3 server，复用 Phase 0 实例）
 
-**复用 Phase 0 server 实例**（runner WebSocket `load_cache_config` 会切换到 Phase 1 yaml）。如果 Phase 0 server 已被 ctrl-C，按下方重启（`--cache-config` 用各 cfg 的 phase1 lex-序首份 yaml 作种子）：
+**复用 Phase 0 server 实例不需重启**（runner WebSocket `load_cache_config` 会切到 Phase 1 yaml，bundle global 在 1 client/server 拓扑下不冲突）。如果 Phase 0 server 已被 ctrl-C，按下方重启（`--cache-config` 用各 cfg 的 phase1 lex-序首份 yaml 作种子）：
 
 ```bash
 # S1 重启（如需）
@@ -374,139 +371,61 @@ uv run scripts/serve_policy.py \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 ```
 
-### §2.2 客户端 Runner 命令（9 client，3 per server）
+### §2.2 客户端 Runner 命令（3 client，1 per server）
 
-每 cfg 8 yaml 切成 **3 / 3 / 2** 三段（lex 序），每段 1 client 5 worker 跑。`--runs N-M` 1-based 闭区间 → 0-based 索引集。`--state-path` 必须各 client 独立，否则 state file race。
+每 cfg 1 client，5 worker，runner 按 lex 序 sequential 跑 dir 内全部 8 yaml。**不能用 --runs 切片把多个 client 同时打到一个 server 上** — `_current_bundle` 是 server module-level global，并发 `load_cache_config` 会互相覆盖（详见 §4.4）。
 
-#### S1 (clip) — 3 clients
+#### Client → S1 (clip)
 
 ```bash
-# Client A1 — clip yaml 1-3
-conda run -p /scratch/zixuans8/libero_sim \
-    uv run exp/common/run_cache_experiments.py \
+uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/verdict_factor_judge/config/clip \
-    --runs 1-3 \
     --episodes-per-run 10 --num-workers 5 \
     --host 155.98.36.13 --port 8998 \
-    --task-suite libero_spatial --seed 42 --conda-env libero_sim \
-    --state-path exp/verdict_factor_judge/data/phase1/clip/run_state_clientA.json \
-    --log-dir   exp/verdict_factor_judge/data/phase1/clip/logs \
-    --resume
-
-# Client A2 — clip yaml 4-6
-conda run -p /scratch/zixuans8/libero_sim \
-    uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/clip \
-    --runs 4-6 \
-    --episodes-per-run 10 --num-workers 5 \
-    --host 155.98.36.13 --port 8998 \
-    --task-suite libero_spatial --seed 42 --conda-env libero_sim \
-    --state-path exp/verdict_factor_judge/data/phase1/clip/run_state_clientB.json \
-    --log-dir   exp/verdict_factor_judge/data/phase1/clip/logs \
-    --resume
-
-# Client A3 — clip yaml 7-8
-conda run -p /scratch/zixuans8/libero_sim \
-    uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/clip \
-    --runs 7-8 \
-    --episodes-per-run 10 --num-workers 5 \
-    --host 155.98.36.13 --port 8998 \
-    --task-suite libero_spatial --seed 42 --conda-env libero_sim \
-    --state-path exp/verdict_factor_judge/data/phase1/clip/run_state_clientC.json \
+    --task-suite libero_spatial --seed 42 \
+    --conda-env /scratch/zixuans8/libero_sim \
+    --state-path exp/verdict_factor_judge/data/phase1/clip/run_state.json \
     --log-dir   exp/verdict_factor_judge/data/phase1/clip/logs \
     --resume
 ```
 
-#### S2 (max_pool) — 3 clients
+#### Client → S2 (max_pool)
 
 ```bash
-# Client B1 — max_pool yaml 1-3
-conda run -p /scratch/zixuans8/libero_sim \
-    uv run exp/common/run_cache_experiments.py \
+uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/verdict_factor_judge/config/max_pool \
-    --runs 1-3 \
     --episodes-per-run 10 --num-workers 5 \
     --host 155.98.36.13 --port 8999 \
-    --task-suite libero_spatial --seed 42 --conda-env libero_sim \
-    --state-path exp/verdict_factor_judge/data/phase1/max_pool/run_state_clientA.json \
-    --log-dir   exp/verdict_factor_judge/data/phase1/max_pool/logs \
-    --resume
-
-# Client B2 — max_pool yaml 4-6
-conda run -p /scratch/zixuans8/libero_sim \
-    uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/max_pool \
-    --runs 4-6 \
-    --episodes-per-run 10 --num-workers 5 \
-    --host 155.98.36.13 --port 8999 \
-    --task-suite libero_spatial --seed 42 --conda-env libero_sim \
-    --state-path exp/verdict_factor_judge/data/phase1/max_pool/run_state_clientB.json \
-    --log-dir   exp/verdict_factor_judge/data/phase1/max_pool/logs \
-    --resume
-
-# Client B3 — max_pool yaml 7-8
-conda run -p /scratch/zixuans8/libero_sim \
-    uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/max_pool \
-    --runs 7-8 \
-    --episodes-per-run 10 --num-workers 5 \
-    --host 155.98.36.13 --port 8999 \
-    --task-suite libero_spatial --seed 42 --conda-env libero_sim \
-    --state-path exp/verdict_factor_judge/data/phase1/max_pool/run_state_clientC.json \
+    --task-suite libero_spatial --seed 42 \
+    --conda-env /scratch/zixuans8/libero_sim \
+    --state-path exp/verdict_factor_judge/data/phase1/max_pool/run_state.json \
     --log-dir   exp/verdict_factor_judge/data/phase1/max_pool/logs \
     --resume
 ```
 
-#### S3 (spatial16) — 3 clients
+#### Client → S3 (spatial16)
 
 ```bash
-# Client C1 — spatial16 yaml 1-3
-conda run -p /scratch/zixuans8/libero_sim \
-    uv run exp/common/run_cache_experiments.py \
+uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/verdict_factor_judge/config/spatial16 \
-    --runs 1-3 \
     --episodes-per-run 10 --num-workers 5 \
     --host 155.98.36.13 --port 9000 \
-    --task-suite libero_spatial --seed 42 --conda-env libero_sim \
-    --state-path exp/verdict_factor_judge/data/phase1/spatial16/run_state_clientA.json \
-    --log-dir   exp/verdict_factor_judge/data/phase1/spatial16/logs \
-    --resume
-
-# Client C2 — spatial16 yaml 4-6
-conda run -p /scratch/zixuans8/libero_sim \
-    uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/spatial16 \
-    --runs 4-6 \
-    --episodes-per-run 10 --num-workers 5 \
-    --host 155.98.36.13 --port 9000 \
-    --task-suite libero_spatial --seed 42 --conda-env libero_sim \
-    --state-path exp/verdict_factor_judge/data/phase1/spatial16/run_state_clientB.json \
-    --log-dir   exp/verdict_factor_judge/data/phase1/spatial16/logs \
-    --resume
-
-# Client C3 — spatial16 yaml 7-8
-conda run -p /scratch/zixuans8/libero_sim \
-    uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/spatial16 \
-    --runs 7-8 \
-    --episodes-per-run 10 --num-workers 5 \
-    --host 155.98.36.13 --port 9000 \
-    --task-suite libero_spatial --seed 42 --conda-env libero_sim \
-    --state-path exp/verdict_factor_judge/data/phase1/spatial16/run_state_clientC.json \
+    --task-suite libero_spatial --seed 42 \
+    --conda-env /scratch/zixuans8/libero_sim \
+    --state-path exp/verdict_factor_judge/data/phase1/spatial16/run_state.json \
     --log-dir   exp/verdict_factor_judge/data/phase1/spatial16/logs \
     --resume
 ```
+
+> 3 cfg 完全并行（3 client 各自打到独立 server），cfg 内 8 yaml sequential。
 
 ### §2.3 Phase 1 输出位置
 
 | 文件 | 写入方 | 用途 |
 |---|---|---|
-| `exp/verdict_factor_judge/data/phase1/<cfg>/cache_eval_results.json` | runner（合并 3 client）| per-episode success；analysis paired McNemar 主源 |
-| `exp/verdict_factor_judge/data/phase1/<cfg>/run_state_client{A,B,C}.json` | runner | resume，3 client 各自独立 |
+| `exp/verdict_factor_judge/data/phase1/<cfg>/cache_eval_results.json` | runner | per-episode success；analysis paired McNemar 主源 |
+| `exp/verdict_factor_judge/data/phase1/<cfg>/run_state.json` | runner | resume，per-yaml task progress |
 | `exp/verdict_factor_judge/data/phase1/<cfg>/logs/<run_id>.log` | runner | per-yaml 日志 |
-
-> **Phase 1 不写 dump JSONL**（CompositeJudge 无 `dump` block），因此 9 client 并发安全。
 
 ---
 
@@ -539,7 +458,7 @@ uv run python -m exp.verdict_factor_judge.analysis.phase1_factor_ablation_summar
 
 ### 4.1 Phase 0 dump JSONL 必须 1 client per server
 
-`DumpingJudge` 用 `open(path, "a")` 直接写 JSON 行（`src/openpi/cache/components/judge.py:541`）。POSIX 仅在 write < `PIPE_BUF`（Linux 4096B）时保证 `O_APPEND` 原子；Phase 0 单行含 5 因子 × 多窗口 + factor_nan，可能 > 4 KB → **多进程并发写会撕裂**。Phase 0 严格 1 client per server；Phase 1 无 dump，9 client 并发安全。
+`DumpingJudge` 用 `open(path, "a")` 直接写 JSON 行（`src/openpi/cache/components/judge.py:541`）。POSIX 仅在 write < `PIPE_BUF`（Linux 4096B）时保证 `O_APPEND` 原子；Phase 0 单行含 5 因子 × 多窗口 + factor_nan，可能 > 4 KB → **多进程并发写会撕裂**。Phase 0 严格 1 client per server。Phase 1 无 dump，但 §4.4 的 bundle global 约束同样限定 1 client per server。
 
 ### 4.2 `search_strategy.top_k` 语义 — Phase 0 必填 5
 
@@ -549,23 +468,19 @@ uv run python -m exp.verdict_factor_judge.analysis.phase1_factor_ablation_summar
 
 `generate_yamls.write_yaml` 自动 pin `dump.config_id` 成文件 stem。Phase 0 如果 spec dict 显式给了不同的 `config_id`，会 raise `InvariantError`。**Phase 5 的三方 join key (`config_id, task_id, orig_init_state_idx`) 依赖此不变量** —— 直接手编 yaml 改名前必须同步改 `dump.config_id`，或 rename 文件让 stem 跟着变。
 
-### 4.4 多 client 并发命中同 server
+### 4.4 Server `_current_bundle` 是 global — 同 server 严禁多 client 并发
 
-Phase 1 每 server 3 client 各自开 ws connection。Server 端 `build_per_connection_components` 给每个 connection 一份独立的 Orchestrator + per-conn judge / cache state；`load_cache_config` 是 per-connection scope。同 cfg 下 3 client 切的 yaml 共用 `backend.in_memory.preload_path` → pkl 只加载一次（server 启动时），ws 切 bundle 不触发 pkl reload。
+`websocket_policy_server.py:82-83` 把 `_current_bundle` / `_bundle_version` 存成 module-level global，`load_cache_config` 全 server 共享一份；`websocket_policy_server.py:289-298` 任何 connection 一旦发 `load_cache_config`，全局 `_current_bundle` 立即被替换。这是 server-wide 状态，**不是 per-connection**。
 
-### 4.5 `--state-path` 必须各 client 独立
+后果：若同 server 上跑 2 个 client，Client A 切到 yaml-1（version N）启动一组 main.py task；Client B 紧接着切到 yaml-4（version N+1）；Client A 已经在跑的那组 task 用的还是 N（task 启动时绑定的 components），但 Client A 的下一个 task 一启动就拿 N+1 的 components → 跑错 yaml。前期写的 "per-connection scope" 是误判，已修正。
 
-默认 `experiment_state.json` 在 `--yaml-dir` 下，3 client 同 dir 会 race。各 client 显式给 `--state-path data/phase1/<cfg>/run_state_client{A,B,C}.json`，且与 `--runs` 切片对应（不同切片用不同 state file，`--resume` 才不会跨切片错乱）。
+**结论锁定 1 client per server**。要并行 9 yaml 同时跑，唯一正确路径是开 9 个 server 进程（不同端口、各自一份 bundle、各 1 client），不在本 runbook 覆盖。
 
-### 4.6 Phase 1 复用 Phase 0 server，不需重启
-
-runner 通过 ws 控制信号 `load_cache_config` 切 bundle。Phase 0 跑完后 Phase 1 9 client 可以直接命中同一 server 实例。仅当 server 进程被 ctrl-C 后才需要重启（用 §2.1 命令）。
-
-### 4.7 Pkl 路径迁移
+### 4.5 Pkl 路径迁移
 
 warm_start yaml 原指 `libero_spatial_warm/`（已删）。本实验用 `libero_spatial/{clip_vit_b_32, cp1_max_pool, cp1_spatial_pool_16}.pkl`（commit `66a341f` 重建，含 168 keys F1b 因子）。**所有 yaml 的 `backend.in_memory.preload_path` 必须用新路径**，否则 server 加载失败。
 
-### 4.8 端口冲突
+### 4.6 端口冲突
 
 `8998 / 8999 / 9000` 与 `random_periodic_gate` / `phase1_libero_spatial_llm` 共享。跑本实验前确认那两个实验的 server 已关。
 
@@ -578,5 +493,5 @@ warm_start yaml 原指 `libero_spatial_warm/`（已删）。本实验用 `libero
 3. **启 3 server**（§1.1）：3 GPU server 各 1 tmux 终端。
 4. **跑 Phase 0**（§1.2）：3 client（1/server）。等 calibration JSONL + cache_eval_results.json 完成。验证 §1.4。
 5. **Phase 0 analysis**（§3）：跑 `phase0_calibration_summary.py` 出 winner-conditional NaN% + 跨 cfg 一致性。
-6. **跑 Phase 1**（§2.2）：复用同 server，9 client（3/server，各 5 worker）。
+6. **跑 Phase 1**（§2.2）：复用同 server（runner ws 切 bundle，无需重启），3 client（1/server，各 5 worker），cfg 内 8 yaml sequential。
 7. **Phase 1 analysis**（§3）：跑 `phase1_factor_ablation_summary.py` 出 Pareto 决策表 → 决定 Phase 2 因子集 carry-forward 范围。
