@@ -279,10 +279,38 @@ directions:
 
 | 代号 | Normalizer | 已实现？ | 用途 |
 |---|---|---|---|
-| N-PCT | `PercentileRollingNormalizer(window=200, force_miss)` | ✅ | 默认 |
+| **N-PCT** | `PercentileRollingNormalizer(window=50, force_miss)` | ✅ | **默认**（window 200→50 是 Phase 1 实证修正，见 §3.4b）|
 | N-PCT-LEN | 同上 cold_start_strategy=`lenient` | ✅（参数） | 减少 cold-start MISS |
 | N-PASS | passthrough（不归一化）| ✅（参数） | 直接用 raw 值 — 看 raw scale 自身是否可用 |
 | N-PRELOAD | **新**：用 build 时已知的 entry-level factor 分布预填 buffer | ❌ | 消除冷启动；Phase 4 实现 |
+
+### 3.4b ⚠ Multi-worker normalizer cold-start 放大（Phase 1 实证）
+
+**事实**：Server 端 `build_per_connection_components` 给每个 ws connection 一份独立的 `CompositeJudge` + 独立的 normalizer。LIBERO eval 的 `--num-workers N` 开 N 个 main.py 子进程 → N 个独立 ws → N 个独立 normalizer。**buffer 不跨 worker 共享**，每个 worker 都要自己暖一遍。
+
+**实测（idx 4 = F-FULL × T-DUAL_07，100 ep × `--num-workers=5`，window_size=200）**：
+
+```
+per-worker verdict 预算   = 100 ep / 5 workers × ~21 verdict/ep ≈ 420
+最慢 key NaN 率（F1b）   ≈ 44%   → buffer 填满速率 56%
+per-worker cold-start    = 200 / 0.56 ≈ 357 verdict (85% 浪费)
+5-worker 总 sentinel firing ≈ 1785 / 2100 = 89.5%
+```
+
+没 P0 `all_nan_fallback=warm_start` 救援的话，这 89.5% 全是 MISS → success 接近 Floor → 整个 Phase 1 8 个 yaml 都看不到因子作用。**这是 Phase 1 单因子 yaml "全 MISS" 现象的真因**（不是 plan §8 风险登记里假设的 "winner-tail dead loop"）。
+
+**修法**（按改动量）：
+1. **N-PCT window 200→50**（已应用于全部 24 Phase 1 yaml）：cold-start 降到 21%，percentile 分辨率 0.5%→2%，是 Phase 1 默认。
+2. `--num-workers 1`：cold-start 占比降到 ~17%（单 worker 拿全 100 ep 预算），但 wall-clock × 5。
+3. **N-PRELOAD**：用 Phase 0 calibration JSONL 预填 buffer，**0 cold-start**，Phase 4 实施。
+
+**自检**（任何新 cache 实验 plan 都必看）：跑前确认
+
+```
+per_worker_verdict_budget × (1 - max_factor_nan_rate)  >  window_size
+```
+
+否则 normalizer 永远暖不完。verdict_factor_judge Phase 1 的实证教训也写入 `docs/architecture/cache_system.md` §5.12，做为通用 cache 实验的 operational gotcha。
 
 ### 3.5 Tier 维度（3 候选）
 

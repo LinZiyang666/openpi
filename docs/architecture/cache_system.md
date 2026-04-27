@@ -778,7 +778,28 @@ Action / state are bound by class identity (thin subclasses of a shared algorith
 
 **Artifact build pipeline** (B2): `exp/common/factor_postprocess.py:enrich_artifact_with_factors` runs after each builder finishes its per-episode entry list. It computes `LibraryStats` from the full pool, then invokes each OfflineWriter per trajectory (sorted by `step_idx`, `step_idx is None` entries appended in collection order with a warning) and merges the resulting per-entry factor dicts into `payload.factors`. The helper bridges numpy / torch via `torch.as_tensor` so the primary builder's ProcessPool detach is left unchanged. Writers are loaded from a minimal YAML via `--factors-yaml` on each `build_*.py` CLI; the loader fail-fasts if a YAML lists an online-only factor (F1a / F2) under the OfflineWriter slot.
 
-**Cold-start signal**: Normalizers in `force_miss` mode return all-NaN dicts when the rolling window is not yet ready. CompositeJudge detects all-NaN and returns `HitType.MISS` directly without invoking the Composer — the cold-start path is representable through the existing `dict[str, float]` interface, no status channel needed.
+**Cold-start signal**: Normalizers in `force_miss` mode return all-NaN dicts when the rolling window is not yet ready. CompositeJudge detects all-NaN and routes the verdict through `all_nan_fallback` (default `MISS`; opt-in `WARM_START` at a canonical denoise t to break the bootstrap dead loop documented below).
+
+**⚠ Multi-worker cold-start amplification — operational gotcha**: Per-connection components are built by `build_per_connection_components`, so each `--num-workers N` from the LIBERO eval loop spawns its own ws connection → its own `CompositeJudge` → **its own normalizer with its own per-key rolling buffer**. There is no cross-worker buffer sharing. Each worker therefore re-pays the cold-start cost on its own verdict count.
+
+Empirical example (verdict_factor_judge Phase 1 idx 4, F-FULL × T-DUAL_07, 100 ep × `--num-workers=5`):
+
+```
+per-worker verdict budget   = 100 ep / 5 workers × ~21 verdict/ep ≈ 420
+slowest-key NaN rate (F1b)  ≈ 44%   → buffer fills at 56% of verdicts
+window_size                 = 200 (plan-default)
+per-worker cold-start span  = 200 / 0.56 ≈ 357 verdicts (85% of worker's budget)
+5-worker total sentinel firing ≈ 85% of 2100 verdicts ≈ 1785
+```
+
+Without `all_nan_fallback=warm_start`, those 1785 sentinel firings become MISSes, the trajectory drifts under pure inference, and even after individual workers warm up the composer never sees in-distribution factor signal. With the fallback, the cold-start window emits WARM_START and success rate matches `Ceiling-W` (AlwaysWarmStart-baseline) almost exactly — but the composer still ran on only ~10% of verdicts, so factor-level ablation is starved of evidence.
+
+**Mitigations** (pick by experiment context):
+- Reduce `normalizer.window_size` (verdict_factor_judge Phase 1 dropped 200→50 → cold-start to ~21% per worker).
+- Reduce `--num-workers` to 1 (slower wall-clock, but each worker gets the full ep budget).
+- N-PRELOAD: pre-fill the rolling buffer at construction from a Phase 0 `DumpingJudge` JSONL (plan §3.4 Phase 4 ablation; not yet implemented).
+
+The gotcha bites any future cache experiment that (a) uses `CompositeJudge` with a high-NaN factor family and (b) runs LIBERO eval with `--num-workers > 1`. Always sanity-check `per_worker_verdict_budget × (1 - max_factor_nan_rate) > window_size` before launching.
 
 **Coupling boundary**: factor implementations import only from `storage_types`, `payload_view`, and the registry. They do NOT depend on `CacheStorage` directly. `CompositeJudge.bind` semantics are stable across all extractor implementations: a Composer / Normalizer that satisfies the Protocol works with any registered factor.
 
