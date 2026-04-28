@@ -126,6 +126,15 @@ class Args:
     # libs. Empty preserves main.py's own default ("0").
     cuda_visible_devices: str = ""
 
+    # Conda env that owns the LIBERO sim install (``libero``, ``robosuite``,
+    # MuJoCo). Mirrors ``run_cache_experiments.py --conda-env``: when set,
+    # the spawned ``examples.libero.main`` runs under
+    # ``conda run -p/-n <env> python ...`` with VIRTUAL_ENV / PYTHONPATH /
+    # PYTHONHOME stripped so the conda interpreter wins. Empty falls back
+    # to ``uv run``, which only works when LIBERO is installed in the
+    # current uv venv (typical only on the WSL2 client host).
+    conda_env: str = ""
+
     # Debug shortcut — skip the warmup phase entirely (used while iterating
     # on the eval yaml without re-collecting in-distribution factor values).
     skip_warmup: bool = False
@@ -187,15 +196,21 @@ def _build_libero_argv(
     yaml_id: str,
     phase: str,
     num_trials_per_task: int,
-) -> list[str]:
-    """Assemble the ``examples.libero.main`` argv for one subprocess.
+) -> tuple[list[str], dict | None]:
+    """Assemble the ``examples.libero.main`` ``(cmd, env)`` for one subprocess.
+
+    Returns the same ``(cmd, env)`` tuple shape as
+    ``exp.common._subprocess.build_subprocess_cmd`` so the caller can pass
+    ``env`` straight into ``subprocess.run`` — this is the one place that
+    knows whether to wrap the spawn in ``conda run`` (LIBERO host) or
+    plain ``uv run`` (WSL2 client with libero in the uv venv).
 
     ``tyro`` accepts ``--task-ids 0 1 2`` for tuples and ``--task-ids ''``
     has no clean spelling, so when ``args.task_ids`` is empty we omit the
     flag entirely (the script's default ``()`` matches "all tasks").
     """
-    cmd: list[str] = [
-        "uv", "run", "python", "-m", "examples.libero.main",
+    main_args: list[str] = [
+        "examples/libero/main.py",
         "--host", str(args.host),
         "--port", str(args.port),
         "--task-suite-name", str(args.task_suite),
@@ -205,17 +220,20 @@ def _build_libero_argv(
         "--phase", phase,
     ]
     if args.per_step_log_dir:
-        cmd += ["--per-step-log-dir", args.per_step_log_dir]
+        main_args += ["--per-step-log-dir", args.per_step_log_dir]
     if args.task_ids:
-        cmd.append("--task-ids")
-        cmd += [str(t) for t in args.task_ids]
+        main_args.append("--task-ids")
+        main_args += [str(t) for t in args.task_ids]
     if args.init_states_dir:
-        cmd += ["--init-states-dir", args.init_states_dir]
+        main_args += ["--init-states-dir", args.init_states_dir]
     if args.episode_filter:
-        cmd += ["--episode-filter", args.episode_filter]
+        main_args += ["--episode-filter", args.episode_filter]
     if args.cuda_visible_devices:
-        cmd += ["--cuda-visible-devices", args.cuda_visible_devices]
-    return cmd
+        main_args += ["--cuda-visible-devices", args.cuda_visible_devices]
+
+    from exp.common._subprocess import build_subprocess_cmd
+
+    return build_subprocess_cmd(main_args, conda_env=args.conda_env or None)
 
 
 def _summarize_per_step_log(per_step_log_dir: str, eval_yaml_id: str) -> dict:
@@ -294,7 +312,7 @@ def _run_one_yaml(args: Args, eval_path: Path) -> dict:
         # ── 2. spawn workers for warmup ───────────────────────────────────
         logger.info("[%s] Step 2/7: warmup workers (%d trials/task)",
                     eval_yaml_id, args.warmup_trials)
-        warmup_cmd = _build_libero_argv(
+        warmup_cmd, warmup_env = _build_libero_argv(
             args=args,
             yaml_id=warmup_yaml_id,
             phase="warmup",
@@ -303,7 +321,7 @@ def _run_one_yaml(args: Args, eval_path: Path) -> dict:
         # check=True → CalledProcessError surfaces on non-zero exit so the
         # outer loop counts this yaml as failed (rather than silently
         # producing a half-warmed buffer).
-        subprocess.run(warmup_cmd, check=True)
+        subprocess.run(warmup_cmd, env=warmup_env, check=True)
 
         # ── 3. fetch the dump file ────────────────────────────────────────
         logger.info("[%s] Step 3/7: fetch warmup dump", eval_yaml_id)
@@ -337,13 +355,13 @@ def _run_one_yaml(args: Args, eval_path: Path) -> dict:
     # ── 7. spawn workers for eval ────────────────────────────────────────
     logger.info("[%s] Step 7/7: eval workers (%d trials/task)",
                 eval_yaml_id, args.eval_trials)
-    eval_cmd = _build_libero_argv(
+    eval_cmd, eval_env = _build_libero_argv(
         args=args,
         yaml_id=eval_yaml_id,
         phase="eval",
         num_trials_per_task=args.eval_trials,
     )
-    subprocess.run(eval_cmd, check=True)
+    subprocess.run(eval_cmd, env=eval_env, check=True)
 
     # ── 8. unload pool + delete warmup file ──────────────────────────────
     if not args.skip_warmup:
