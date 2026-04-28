@@ -233,7 +233,20 @@ def _build_libero_argv(
 
     from exp.common._subprocess import build_subprocess_cmd
 
-    return build_subprocess_cmd(main_args, conda_env=args.conda_env or None)
+    extra_env: Optional[dict] = None
+    if args.conda_env:
+        # ``build_subprocess_cmd`` strips PYTHONPATH so the conda interpreter
+        # finds its own packages without uv-venv interference. main.py's
+        # lazy ``from exp.verdict_factor_judge.per_step_log_writer import ...``
+        # fires when --per-step-log-dir is set; for that import to resolve
+        # we need the repo root back on PYTHONPATH (the conda interpreter
+        # otherwise only sees ``examples/libero/`` from sys.argv[0]).
+        repo_root = str(Path(__file__).resolve().parents[2])
+        extra_env = {"PYTHONPATH": repo_root}
+
+    return build_subprocess_cmd(
+        main_args, conda_env=args.conda_env or None, extra_env=extra_env,
+    )
 
 
 def _summarize_per_step_log(per_step_log_dir: str, eval_yaml_id: str) -> dict:

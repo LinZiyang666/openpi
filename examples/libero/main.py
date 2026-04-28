@@ -1,3 +1,12 @@
+from __future__ import annotations  # PEP 563: defer all annotations so the
+# B1.2 ``Optional[PerStepWriterPool]`` parameter annotations do not require
+# the import at module load time. The real import is lazy inside
+# ``eval_libero`` so this script keeps working under conda envs whose
+# ``PYTHONPATH`` was stripped (e.g. ``conda run -p libero_sim``) and the
+# repo root is not on ``sys.path``. The B1.2 observability hook is opt-in
+# via ``--per-step-log-dir``, so non-verdict_factor runners never trigger
+# the import either.
+
 import collections
 import dataclasses
 import json
@@ -23,16 +32,6 @@ from openpi_client import websocket_client_policy as _websocket_client_policy
 from PIL import Image, ImageDraw
 import tqdm
 import tyro
-
-# verdict_factor_judge B1.2: per-step JSONL writer for ``__hit_meta__``
-# observability. Import is direct so the runner shim's ``python -m
-# examples.libero.main`` invocation (cwd = repo root) resolves it; if the
-# import ever fails the runner will fail loudly rather than silently skip
-# observability.
-from exp.verdict_factor_judge.per_step_log_writer import (  # noqa: E402
-    PerStepWriter,
-    PerStepWriterPool,
-)
 
 LIBERO_DUMMY_ACTION = [0.0] * 6 + [-1.0]
 LIBERO_ENV_RESOLUTION = 256  # resolution used to render training data
@@ -900,6 +899,15 @@ def eval_libero(args: Args) -> None:
     if args.per_step_log_dir:
         if not args.yaml_id:
             raise ValueError("--per-step-log-dir requires --yaml-id")
+        # Lazy import: the per-step writer lives under ``exp/`` which may
+        # not be on ``sys.path`` when this script is launched via
+        # ``conda run -p <env> python examples/libero/main.py`` (the
+        # ``_subprocess`` helper deliberately strips PYTHONPATH). Defer
+        # the import so non-verdict_factor runners never need ``exp.*``.
+        from exp.verdict_factor_judge.per_step_log_writer import (  # noqa: PLC0415
+            PerStepWriterPool,
+        )
+
         per_step_pool = PerStepWriterPool(
             pathlib.Path(args.per_step_log_dir),
             yaml_id=args.yaml_id,
