@@ -9,6 +9,51 @@
 
 ---
 
+## §inf_ratio — Inference-ratio 计算公式（项目唯一约定）
+
+> **此公式所有 Pareto 分析、画图脚本、决策门必须严格遵守。改这个段落必须同步更新 `exp/verdict_factor_judge/analysis/plot_pareto.py` 头部 docstring。**
+
+每 verdict 的 inference 成本贡献：
+
+| verdict 类型 | inference_ratio 单次贡献 |
+|---|---|
+| `MISS` | `1.0` （full denoising path, t=1→0）|
+| `FULL_HIT` | `0.0` （cache verbatim, no denoising）|
+| `WARM_START @ start_t = t` | **`1 - 0.5 × (1 - t)`** |
+
+flow matching 约定（`src/openpi/models/pi0.py` line 273 注释明确）：**t=1 是 noise，t=0 是 target**。`dt = -1/num_steps` 从 1 降到 0。`start_t = t` 表示从 noise level t 开始降，跑 (1-t) 比例的 denoising 步数。warm-start 的 0.5 系数 = action expert 大约是 full inference 的一半（KV cache 复用 + 不重跑 vision/language expert），所以 warm 单次成本 = 1 − 0.5×(1−t)。
+
+具体值：
+
+| start_t | warm 单次 inf 贡献 |
+|---|---|
+| 0.7 | **0.85** |
+| 0.5 | **0.75** |
+| 0.3 | **0.65** |
+
+跨 yaml 聚合：
+
+```
+inf_ratio_yaml = (n_full_hit*0.0 + n_warm*warm_cost(t) + n_miss*1.0) / n_total
+```
+
+> **常踩坑（不要写）**：
+> - ❌ `inf = 1 - start_t`
+> - ❌ `inf = start_t`
+> - ✅ `inf = 1 - 0.5 * (1 - start_t)`
+
+baseline always-WARM @ start_t 直接 = 同 inf 行的 SR（每 verdict 都是 warm@t）：
+
+| cfg | warm@0.3 (inf=0.65) | warm@0.5 (inf=0.75) | warm@0.7 (inf=0.85) |
+|---|---|---|---|
+| clip | 0.940 | 0.960 | 0.980 |
+| max_pool | 0.946 | 0.966 | 0.964 |
+| spatial16 | 0.942 | 0.952 | 0.976 |
+
+Phase 2 Layer 1 yaml 的 warm 全部 fire 在 `start_t=0.7`（all_nan_fallback 默认值），所以每 warm verdict 贡献 **0.85** 到 inf_ratio。
+
+---
+
 ## 0. TL;DR
 
 CompositeJudge 框架（5 因子 + 3 composer + 1 normalizer）已经上线，但**没有任何"实战配置"被验证过**。本 plan 把所有候选 judge 设计方向收敛成 **7 个实验阶段**（Phase 0–5 + Phase 7；Phase 6 cross-keybuilder 取消，已内嵌每 phase × 3 cfg），按"先建对照、再单因子、再组合、再 composer 类型、再 calibration、再跨任务"的顺序推进；早期阶段决定后续阶段是否值得做。
@@ -506,17 +551,87 @@ write_policy: { type: never }
   - 决策用 §2.4 协议：Wilson CI + paired McNemar，不用 raw delta。
   - 若 F-MIN-A × D-JERK ≥ F-MIN-A × D-ALL（McNemar 不显著差）→ "单 jerk 足够"信号成立，Phase 4 必须扫描描述子启用集；反之描述子启用集维度可在 Phase 4 砍。
 
-### Phase 2 — 因子组合 Ablation（cfg ×3）
+### Phase 2 — 双层探索：因子内部 + 因子组合（cfg ×3，Pareto-first redesign）
 
-- **目标**：跑 F-SPLICE / F-INTRINSIC / F-A-ONLY / F-FULL 4 组，确定 Phase 3+ 默认因子集。
-- **维度切片**：
-  - Composer = C-WS（uniform weights，先不调）
-  - 因子集 ∈ {F-SPLICE, F-INTRINSIC, F-A-ONLY, F-FULL}
-  - 窗口 = W-MIX
-  - Normalizer = N-PCT
-  - Tier = T-FULL
-- **配置数**：4 yaml × 3 cfg × 2 tier (T-FULL + T-DUAL_07) × 100 ep = 2,400 ep — Phase 2 并跑两 tier，避免 FULL_HIT-only 剪枝 carry forward 到 Phase 3。
-- **决策点**：选 3 cfg 平均最佳因子集 → 后续 Phase 用它做 default。
+> **注意**：原始 Phase 2 设计是"4 yaml 组合 ablation"，但 Phase 1 数据揭示 (a) 没破 Pareto 前沿，(b) 5 个候选因子的内部 descriptor / window 结构未充分探索（Phase 1 只跑 F1a-A 3 个 desc，其他因子内部全是 all-4 × W-MIX 单点）。Phase 2 重设计为双层：**Layer 1 内部探索 → Layer 2 组合 + tier 升级 → Layer 3 winner 大样本**。优化目标改为 (SR, inf_ratio) **Pareto 前沿外推**，单 SR 不够。
+
+#### Phase 2 Layer 1 — 因子内部 descriptor / window 探索（已完成）
+
+- **状态**：✅ Implemented + Validated（2026-04-28 跑完，6-server 并跑）
+- **数据**：`exp/verdict_factor_judge/data/phase2_layer1/{cfg}/`（78 yaml × 100 ep × 3 cfg）
+- **分析**：[`exp/verdict_factor_judge/analysis/phase2_layer1_results.md`](../exp/verdict_factor_judge/analysis/phase2_layer1_results.md) + [Pareto 图](../exp/verdict_factor_judge/analysis/phase2_layer1_pareto.png)
+
+**26 yaml stem × 3 cfg = 78 unique runs**（split 13/13 进 `phase2_layer1_a/b` 给 6-server batch1-6）：
+
+| 子层 | yaml 数 | 内容 |
+|---|---:|---|
+| 1.A | 3 | F1a-A close-out: curv / cum 单 desc + jerk+curv pair |
+| 1.B | 5 | F1a-T desc sweep: 4 单 desc + jerk+dir pair |
+| 1.C | 7 | F1b-A × {W-SHORT/PAST/FUT/SYM-S × all-4} + W-SHORT × 单 desc |
+| 1.D | 7 | F1b-T 同 1.C 结构 |
+| 1.E | 4 | W-LONG-RISK ((5,5)+(7,7)) × {F1b-A, F1b-T} × {all, jerk} |
+
+全 T-FULL，warm 仅来自 `all_nan_fallback@0.7`。
+
+**Layer 1 实测 winner**（跨 ≥ 2 cfg strict-Pareto-positive vs random_periodic + always-WARM 全 baseline）：
+
+| yaml | clip / max_pool / spatial16 | 主信号 |
+|---|---|---|
+| **f1b_t_w_long_risk_d_jerk** | ★/★/★ (跨 3 cfg) | NaN-fallback warm + jerk-driven hit, SR 0.96-0.98 @ inf 0.67 |
+| f1b_a_w_long_risk_d_jerk | ★ / / ★ | 同上，state→action |
+| f1b_t_w_fut_d_all | / / ★ | spatial16 上 SR 0.98 @ inf 0.60，**接近纯 inference 质量** |
+| f1b_t_w_short_d_jerk | ★ / / ★ | 短窗 jerk |
+| f1a_t_d_jerk_only | ★ / ★ / | F1a-T jerk 单 desc |
+
+Layer 2 直接复用这些 winner。已被淘汰的方向：F1a-A 三个 close-out yaml 全 dominated；W-PAST / W-SYM-S 单独价值有限。
+
+#### Phase 2 Layer 2 — 跨因子组合 + tier 升级（next，待 Layer 1 winner 确认后生成）
+
+- **目标**：用 Layer 1 winner 做组合 + 切到 **T-DUAL_07** 让 composer 主动产 warm tier（Layer 1 全 T-FULL，warm 全靠 NaN fallback；T-DUAL 让 composer 用因子分数 [0.3, 0.5) 主动判 warm）。
+- **设计原则**：每 yaml 必含 ≤ 3 因子（避免 F-FULL 33-key 稀释问题），每因子用 Layer 1 选出的 winner desc / window。
+- **6 候选 yaml**（每 yaml × 3 cfg × 100 ep）：
+
+| Layer 2.A yaml stem | 因子组合 | tier | 假设 |
+|---|---|---|---|
+| `f1bt_LR_jerk_t_dual_07` | F1b-T × W-LONG-RISK × jerk | T-DUAL_07 | 跨 3 cfg winner + 主动 warm |
+| `f1bt_LR_jerk_t_dual_05` | 同上 | T-DUAL_05 (start_t=0.5) | warm 单次成本 0.85→0.75 |
+| `f1bt_w_fut_jerk_t_dual_07` | F1b-T × W-FUT × jerk | T-DUAL_07 | spatial16 信号 + jerk 单 desc |
+| `splice_jerk_t_dual_07` | F1a-T.jerk + F1b-T.W-LONG-RISK.jerk | T-DUAL_07 | 双 state 因子互补 |
+| `intrinsic_jerk_t_dual_07` | F1b-A.W-LONG-RISK.jerk + F1b-T.W-LONG-RISK.jerk | T-DUAL_07 | A+T 互补 |
+| `full_lite_t_dual_07` | F1a-T.jerk + F1b-T.W-LONG-RISK.jerk + F2 | T-DUAL_07 | 3 因子精简组合 |
+
+- **配置数**：6 yaml × 3 cfg × 100 ep = **1,800 ep ≈ 30 min wall-clock（6 server 并跑）**。
+- **生成方式**：写 `phase2_layer2_spec.py`（mirror `phase2_spec.py`），落到 `config/{cfg}/phase2_layer2/`。
+- **决策点（Pareto-first）**：每 yaml 算 (SR, inf_ratio) → 看是否在某 inf 段 strict-positive vs Layer 1 winner + 全 baseline。**至少 2 cfg 同时 strict-positive 才能进 Layer 3**。
+- **失败兜底**：若 Layer 2.A 全部被 dominated → 启发权重路径（每个因子按 Layer 1 单 desc SR 反推 weight ∈ {0.5, 1.0, 1.5}），再 6 yaml × 3 cfg = 1,800 ep。
+
+#### Phase 2 Layer 3 — Winner 大样本 stat power（破噪声）
+
+- **目标**：100 ep 标准误 ±2-3pp 把所有 SR Δ ≤ 3pp 的"看似 strict-positive"全 cover 掉。Layer 3 用 1000 ep × 1 seed 把噪声压到 ±1pp，下真正的 Pareto 结论。
+- **候选**：Layer 2 选 **3 个不同 inf 段的 strict-positive winner**（低 inf / 中 inf / 高 SR 各 1 个）。
+- **配置数**：3 winner × 3 cfg × 1000 ep × 1 seed = **9,000 ep ≈ 1.5 h（6 server 并跑）**。
+- **决策点**：哪个 winner 在 1000 ep 上仍 strict-positive vs full baseline → 进 Phase 3 当 default 因子集。
+- **可选 Layer 3.B**：若 1 seed 的 SR 仍跌进 baseline 区间 → 再做 3 seed × 500 ep 看 seed-variance（成本同 Layer 3）。
+
+#### Phase 2 总成本汇总
+
+| 子层 | 状态 | yaml × cfg × ep | 总 ep | wall-clock (6 server) |
+|---|---|---|---:|---|
+| Layer 1 | ✅ done | 78 × 100 | 7,800 | ~2 h |
+| Layer 2.A | next | 18 × 100 | 1,800 | ~30 min |
+| Layer 2.B (兜底，可能不跑) | conditional | 18 × 100 | 1,800 | ~30 min |
+| Layer 3 | after L2 | 9 × 1000 | 9,000 | ~1.5 h |
+| **Phase 2 v2 总** | | | **18,600-20,400** | **~4-4.5 h** |
+
+vs 原始 Phase 2 设计 = 2,400 ep — Phase 2 v2 多 ~8x 但能真正回答 "什么因子组合 + tier + start_t 能突破 Pareto 前沿"。
+
+#### Phase 2 v2 → Phase 3 carry-forward
+
+- 因子集 default = Layer 3 winner（最大概率是 `f1b_t_w_long_risk_d_jerk` 单因子或某个 splice/intrinsic 双因子组合）
+- 描述子启用集 default = `[jerk]`（Layer 1 全部维度都证实 jerk 是主信号）
+- 窗口 default = `W-LONG-RISK` 或 `W-FUT`（看 Layer 2 哪个 winner 进 Layer 3）
+- Tier default = T-DUAL_07（Layer 2 主推方向，让 composer 三档判决）
+- start_t default = 0.7 vs 0.5（待 Layer 2 `t_dual_05` 数据决定）
 
 ### Phase 3 — Composer 类型 Ablation（cfg ×3）
 

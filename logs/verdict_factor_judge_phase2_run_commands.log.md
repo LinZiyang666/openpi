@@ -115,16 +115,21 @@ Layer 0 (F2 500 ep 复测) **已合并到 Layer 1**：F2 单 yaml 在 inf_ratio�
 
 ### §1.1 服务器命令（6 server，每 server 1 终端）
 
-服务器 bootstrap 用各自 cfg 的 phase0 yaml（任意有效 yaml 都行，server 在 client 调 `load_cache_config` 时会替换 bundle）。GPU 分配按机器实际可用调整，下方 `CUDA_VISIBLE_DEVICES=N` 仅示例。
+服务器 bootstrap 用各自 cfg 的 **phase2 layer1_a 任一 eval yaml**（不是 phase0；phase0 yaml 的 `judge.dump.path` 父目录强校验会要求 `data/calibration` 存在，phase2 eval yaml 用 composite judge 没这个限制）。
+
+**所有 6 个 server 必须带 `--warmup-dump-root`**：B2 wire 的 `fetch_dump` / `unload_warmup_buffer` ctrl + `dump.deferred` 解析全部依赖此 root；不加则 `run_phase.py` 第 1 步切 warmup yaml 时立刻报 `load_cache_config: server was started without --warmup-dump-root`（已踩坑）。每 server 用独立 root 后缀（`_s1` ~ `_s6`），同 host 多 server 也能跑（`.resolve()` allowlist 防 traversal），但隔离更稳。
+
+**所有 6 个 server 都用 `CUDA_VISIBLE_DEVICES=0`** —— 服务进程只占用本机的 GPU 0；client 端的 LIBERO sim 渲染才需要分卡（前 3 client GPU 0、后 3 client GPU 1）。
 
 #### Machine 1 — 走 frp（timan107，frp → 155.98.36.13）
 
-##### Server S1 — clip, local port 7998 (GPU 0)
+##### Server S1 — clip, local port 7998
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config exp/verdict_factor_judge/config/clip/phase0/clip_w7_d4_phase0_always_hit_dump.yaml \
+    --cache-config exp/verdict_factor_judge/config/clip/phase2_layer1_a/clip_w7_d4_phase2_f1a_a_d_cum_only_t_full.yaml \
+    --warmup-dump-root /tmp/openpi_warmup_s1 \
     --env LIBERO \
     --port 7998 \
     policy:checkpoint \
@@ -132,12 +137,13 @@ CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 ```
 
-##### Server S2 — clip, local port 7999 (GPU 1)
+##### Server S2 — clip, local port 7999
 
 ```bash
-CUDA_VISIBLE_DEVICES=1 uv run scripts/serve_policy.py \
+CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config exp/verdict_factor_judge/config/clip/phase0/clip_w7_d4_phase0_always_hit_dump.yaml \
+    --cache-config exp/verdict_factor_judge/config/clip/phase2_layer1_a/clip_w7_d4_phase2_f1a_a_d_cum_only_t_full.yaml \
+    --warmup-dump-root /tmp/openpi_warmup_s2 \
     --env LIBERO \
     --port 7999 \
     policy:checkpoint \
@@ -145,12 +151,13 @@ CUDA_VISIBLE_DEVICES=1 uv run scripts/serve_policy.py \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 ```
 
-##### Server S3 — max_pool, local port 8000 (GPU 2)
+##### Server S3 — max_pool, local port 8000
 
 ```bash
-CUDA_VISIBLE_DEVICES=2 uv run scripts/serve_policy.py \
+CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config exp/verdict_factor_judge/config/max_pool/phase0/max_pool_w3_d5_phase0_always_hit_dump.yaml \
+    --cache-config exp/verdict_factor_judge/config/max_pool/phase2_layer1_a/max_pool_w3_d5_phase2_f1a_a_d_cum_only_t_full.yaml \
+    --warmup-dump-root /tmp/openpi_warmup_s3 \
     --env LIBERO \
     --port 8000 \
     policy:checkpoint \
@@ -160,12 +167,13 @@ CUDA_VISIBLE_DEVICES=2 uv run scripts/serve_policy.py \
 
 #### Machine 2 — 直连（149.165.151.106，port = 公网 port）
 
-##### Server S4 — max_pool, port 8001 (GPU 0)
+##### Server S4 — max_pool, port 8001
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config exp/verdict_factor_judge/config/max_pool/phase0/max_pool_w3_d5_phase0_always_hit_dump.yaml \
+    --cache-config exp/verdict_factor_judge/config/max_pool/phase2_layer1_a/max_pool_w3_d5_phase2_f1a_a_d_cum_only_t_full.yaml \
+    --warmup-dump-root /tmp/openpi_warmup_s4 \
     --env LIBERO \
     --port 8001 \
     policy:checkpoint \
@@ -173,12 +181,13 @@ CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 ```
 
-##### Server S5 — spatial16, port 8002 (GPU 1)
+##### Server S5 — spatial16, port 8002
 
 ```bash
-CUDA_VISIBLE_DEVICES=1 uv run scripts/serve_policy.py \
+CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config exp/verdict_factor_judge/config/spatial16/phase0/spatial16_w8_d4_phase0_always_hit_dump.yaml \
+    --cache-config exp/verdict_factor_judge/config/spatial16/phase2_layer1_a/spatial16_w8_d4_phase2_f1a_a_d_cum_only_t_full.yaml \
+    --warmup-dump-root /tmp/openpi_warmup_s5 \
     --env LIBERO \
     --port 8002 \
     policy:checkpoint \
@@ -186,12 +195,13 @@ CUDA_VISIBLE_DEVICES=1 uv run scripts/serve_policy.py \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 ```
 
-##### Server S6 — spatial16, port 8003 (GPU 2)
+##### Server S6 — spatial16, port 8003
 
 ```bash
-CUDA_VISIBLE_DEVICES=2 uv run scripts/serve_policy.py \
+CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
     --concurrent \
-    --cache-config exp/verdict_factor_judge/config/spatial16/phase0/spatial16_w8_d4_phase0_always_hit_dump.yaml \
+    --cache-config exp/verdict_factor_judge/config/spatial16/phase2_layer1_a/spatial16_w8_d4_phase2_f1a_a_d_cum_only_t_full.yaml \
+    --warmup-dump-root /tmp/openpi_warmup_s6 \
     --env LIBERO \
     --port 8003 \
     policy:checkpoint \
@@ -203,7 +213,7 @@ CUDA_VISIBLE_DEVICES=2 uv run scripts/serve_policy.py \
 
 server 启动完毕后再上 client。每 client 一个终端，6 条**同时启动**。
 
-### batch1 → S1 (clip half-A)
+### batch1 → S1 (clip half-A, client GPU 0)
 
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
@@ -211,7 +221,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --host 155.98.36.13 --port 8998 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
-    --cuda-visible-devices 4 \
+    --cuda-visible-devices 0 \
     --conda-env /scratch/zixuans8/libero_sim \
     --per-step-log-dir exp/verdict_factor_judge/data/phase2_layer1/clip/per_step \
     --episode-results-dir exp/verdict_factor_judge/data/phase2_layer1/clip/episode_results \
@@ -219,7 +229,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --resume
 ```
 
-### batch2 → S2 (clip half-B)
+### batch2 → S2 (clip half-B, client GPU 0)
 
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
@@ -227,7 +237,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --host 155.98.36.13 --port 8999 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
-    --cuda-visible-devices 4 \
+    --cuda-visible-devices 0 \
     --conda-env /scratch/zixuans8/libero_sim \
     --per-step-log-dir exp/verdict_factor_judge/data/phase2_layer1/clip/per_step \
     --episode-results-dir exp/verdict_factor_judge/data/phase2_layer1/clip/episode_results \
@@ -235,7 +245,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --resume
 ```
 
-### batch3 → S3 (max_pool half-A)
+### batch3 → S3 (max_pool half-A, client GPU 0)
 
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
@@ -243,7 +253,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --host 155.98.36.13 --port 9000 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
-    --cuda-visible-devices 4 \
+    --cuda-visible-devices 0 \
     --conda-env /scratch/zixuans8/libero_sim \
     --per-step-log-dir exp/verdict_factor_judge/data/phase2_layer1/max_pool/per_step \
     --episode-results-dir exp/verdict_factor_judge/data/phase2_layer1/max_pool/episode_results \
@@ -251,7 +261,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --resume
 ```
 
-### batch4 → S4 (max_pool half-B, 直连 149.165.151.106:8001)
+### batch4 → S4 (max_pool half-B, 直连 149.165.151.106:8001, client GPU 1)
 
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
@@ -259,7 +269,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --host 149.165.151.106 --port 8001 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
-    --cuda-visible-devices 4 \
+    --cuda-visible-devices 1 \
     --conda-env /scratch/zixuans8/libero_sim \
     --per-step-log-dir exp/verdict_factor_judge/data/phase2_layer1/max_pool/per_step \
     --episode-results-dir exp/verdict_factor_judge/data/phase2_layer1/max_pool/episode_results \
@@ -267,7 +277,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --resume
 ```
 
-### batch5 → S5 (spatial16 half-A, 直连 149.165.151.106:8002)
+### batch5 → S5 (spatial16 half-A, 直连 149.165.151.106:8002, client GPU 1)
 
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
@@ -275,7 +285,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --host 149.165.151.106 --port 8002 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
-    --cuda-visible-devices 4 \
+    --cuda-visible-devices 1 \
     --conda-env /scratch/zixuans8/libero_sim \
     --per-step-log-dir exp/verdict_factor_judge/data/phase2_layer1/spatial16/per_step \
     --episode-results-dir exp/verdict_factor_judge/data/phase2_layer1/spatial16/episode_results \
@@ -283,7 +293,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --resume
 ```
 
-### batch6 → S6 (spatial16 half-B, 直连 149.165.151.106:8003)
+### batch6 → S6 (spatial16 half-B, 直连 149.165.151.106:8003, client GPU 1)
 
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
@@ -291,7 +301,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --host 149.165.151.106 --port 8003 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
-    --cuda-visible-devices 4 \
+    --cuda-visible-devices 1 \
     --conda-env /scratch/zixuans8/libero_sim \
     --per-step-log-dir exp/verdict_factor_judge/data/phase2_layer1/spatial16/per_step \
     --episode-results-dir exp/verdict_factor_judge/data/phase2_layer1/spatial16/episode_results \
