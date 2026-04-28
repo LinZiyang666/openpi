@@ -159,10 +159,10 @@ class WebsocketClientPolicy(_base_policy.BasePolicy):
 
     def load_cache_config(
         self,
-        yaml_path: str | None = None,
-        yaml_content: str | None = None,
+        yaml_path: Optional[str] = None,
+        yaml_content: Optional[str] = None,
         *,
-        yaml_id: str | None = None,
+        yaml_id: Optional[str] = None,
     ) -> Dict:
         """Switch the server's cache bundle to the supplied yaml.
 
