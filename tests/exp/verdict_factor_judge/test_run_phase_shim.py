@@ -363,3 +363,191 @@ def test_phase_loop_skips_warmup_yaml_files(tmp_path: Path) -> None:
     for p in found:
         assert p.parent == phase_dir
         assert not p.stem.endswith("__warmup")
+
+
+# ---------------------------------------------------------------------------
+# SR forwarding + resume helpers (added with --resume / --episode-results-dir)
+# ---------------------------------------------------------------------------
+
+
+def test_aggregate_sr_from_episode_json_counts_success_true(tmp_path: Path) -> None:
+    """``_aggregate_sr_from_episode_json`` must count ``success: True`` rows."""
+    p = tmp_path / "episode_results.json"
+    p.write_text(json.dumps([
+        {"task_id": 0, "episode_id": 0, "success": True},
+        {"task_id": 0, "episode_id": 1, "success": False},
+        {"task_id": 1, "episode_id": 0, "success": True},
+        {"task_id": 1, "episode_id": 1, "success": True},
+    ]))
+    assert run_phase._aggregate_sr_from_episode_json(p) == 0.75
+
+
+def test_aggregate_sr_from_episode_json_handles_missing_or_empty(tmp_path: Path) -> None:
+    """Missing / empty / malformed inputs must return ``None`` (no crash)."""
+    missing = tmp_path / "nope.json"
+    assert run_phase._aggregate_sr_from_episode_json(missing) is None
+
+    empty = tmp_path / "empty.json"
+    empty.write_text("[]")
+    assert run_phase._aggregate_sr_from_episode_json(empty) is None
+
+    bad = tmp_path / "bad.json"
+    bad.write_text("not json {")
+    assert run_phase._aggregate_sr_from_episode_json(bad) is None
+
+
+def test_load_done_yaml_ids_collects_yaml_id_field(tmp_path: Path) -> None:
+    """``_load_done_yaml_ids`` returns the set of ``yaml_id`` values from
+    a JSONL summary, tolerating blank / malformed lines."""
+    p = tmp_path / "summary.jsonl"
+    p.write_text(
+        json.dumps({"yaml_id": "alpha", "success_rate": 0.9}) + "\n"
+        + "\n"  # blank line
+        + "garbage{\n"
+        + json.dumps({"yaml_id": "beta", "success_rate": None}) + "\n"
+        + json.dumps({"no_yaml": "xx"}) + "\n"  # missing yaml_id
+    )
+    assert run_phase._load_done_yaml_ids(p) == {"alpha", "beta"}
+
+    # Missing file → empty set, not error.
+    assert run_phase._load_done_yaml_ids(tmp_path / "nope.jsonl") == set()
+
+
+def test_resolve_episode_results_dir_explicit_wins(tmp_path: Path) -> None:
+    """Explicit ``--episode-results-dir`` overrides the per_step_log_dir fallback."""
+    args = _default_args(tmp_path)
+    args = replace(
+        args,
+        per_step_log_dir=str(tmp_path / "per_step"),
+        episode_results_dir=str(tmp_path / "explicit"),
+    )
+    assert run_phase._resolve_episode_results_dir(args) == tmp_path / "explicit"
+
+
+def test_resolve_episode_results_dir_fallback_to_per_step_sibling(tmp_path: Path) -> None:
+    """When only ``--per-step-log-dir`` is set we put SR JSONs at its sibling."""
+    args = _default_args(tmp_path)
+    args = replace(args, per_step_log_dir=str(tmp_path / "data" / "cfg" / "per_step"))
+    assert run_phase._resolve_episode_results_dir(args) == tmp_path / "data" / "cfg" / "episode_results"
+
+
+def test_resolve_episode_results_dir_disabled_when_neither_set(tmp_path: Path) -> None:
+    """No per_step_log_dir + no episode_results_dir → SR forwarding off."""
+    args = _default_args(tmp_path)
+    assert run_phase._resolve_episode_results_dir(args) is None
+
+
+def test_build_libero_argv_forwards_save_episode_results_only_on_eval(tmp_path: Path) -> None:
+    """``--save-episode-results`` MUST be forwarded only when ``phase=='eval'``;
+    warmup phase uses AlwaysWarmStart so its SR is not the metric."""
+    args = _default_args(tmp_path)
+    target = tmp_path / "episode_results" / "yaml_alpha.json"
+
+    # eval phase → flag present
+    eval_cmd, _ = run_phase._build_libero_argv(
+        args=args, yaml_id="yaml_alpha", phase="eval",
+        num_trials_per_task=1, episode_results_path=target,
+    )
+    assert "--save-episode-results" in eval_cmd
+    assert str(target) in eval_cmd
+
+    # warmup phase → flag absent even when path is given
+    warmup_cmd, _ = run_phase._build_libero_argv(
+        args=args, yaml_id="yaml_alpha", phase="warmup",
+        num_trials_per_task=1, episode_results_path=target,
+    )
+    assert "--save-episode-results" not in warmup_cmd
+
+    # No path → no flag regardless of phase
+    no_path_cmd, _ = run_phase._build_libero_argv(
+        args=args, yaml_id="yaml_alpha", phase="eval",
+        num_trials_per_task=1, episode_results_path=None,
+    )
+    assert "--save-episode-results" not in no_path_cmd
+
+
+def test_main_resume_skips_already_done_yamls(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """``main(--resume)`` with an existing summary must skip done yamls and
+    run only the missing ones, appending (not truncating)."""
+    phase_dir = tmp_path / "phase1"
+    phase_dir.mkdir()
+    # Three eval yamls + their warmup siblings (loop expects siblings).
+    for name in ("a", "b", "c"):
+        _write_yaml(phase_dir / f"{name}.yaml")
+        _write_yaml(phase_dir / f"{name}__warmup.yaml")
+
+    summary_path = tmp_path / "summary.jsonl"
+    # Pre-seed: yaml "a" is already done.
+    summary_path.write_text(
+        json.dumps({"yaml_id": "a", "success_rate": 0.5, "n_full_hit": 1,
+                    "n_warm_start": 0, "n_miss": 0, "n_eval_verdicts": 1,
+                    "n_warmup_buffer_keys": 0,
+                    "warmup_yaml_id": "a__warmup"}) + "\n"
+    )
+
+    # Stub _run_one_yaml so we don't touch ws/subprocess; record which ran.
+    ran: list[str] = []
+
+    def _fake_run_one_yaml(_args: run_phase.Args, eval_path: Path) -> dict:
+        ran.append(eval_path.stem)
+        return {
+            "yaml_id": eval_path.stem,
+            "warmup_yaml_id": f"{eval_path.stem}__warmup",
+            "n_warmup_buffer_keys": 0,
+            "success_rate": 0.42,
+            "n_eval_verdicts": 0,
+            "n_full_hit": 0,
+            "n_warm_start": 0,
+            "n_miss": 0,
+        }
+
+    monkeypatch.setattr(run_phase, "_run_one_yaml", _fake_run_one_yaml)
+
+    args = replace(
+        _default_args(tmp_path),
+        phase_dir=str(phase_dir),
+        summary_out=str(summary_path),
+        resume=True,
+    )
+    rc = run_phase.main(args)
+    assert rc == 0
+    # Only b and c should have run — a was already in summary.
+    assert ran == ["b", "c"]
+
+    # Summary file should now contain a (preserved) + b + c (appended).
+    rows = [json.loads(line) for line in summary_path.read_text().splitlines() if line.strip()]
+    assert [r["yaml_id"] for r in rows] == ["a", "b", "c"]
+    # Pre-existing row's SR is preserved unchanged.
+    assert rows[0]["success_rate"] == 0.5
+
+
+def test_main_without_resume_truncates_summary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Legacy behaviour: no ``--resume`` truncates summary on start so
+    re-runs don't double rows."""
+    phase_dir = tmp_path / "phase1"
+    phase_dir.mkdir()
+    _write_yaml(phase_dir / "x.yaml")
+    _write_yaml(phase_dir / "x__warmup.yaml")
+
+    summary_path = tmp_path / "summary.jsonl"
+    summary_path.write_text(json.dumps({"yaml_id": "x", "stale": True}) + "\n")
+
+    def _fake_run_one_yaml(_args: run_phase.Args, eval_path: Path) -> dict:
+        return {"yaml_id": eval_path.stem, "warmup_yaml_id": f"{eval_path.stem}__warmup",
+                "n_warmup_buffer_keys": 0, "success_rate": 1.0,
+                "n_eval_verdicts": 0, "n_full_hit": 0, "n_warm_start": 0, "n_miss": 0}
+
+    monkeypatch.setattr(run_phase, "_run_one_yaml", _fake_run_one_yaml)
+    args = replace(
+        _default_args(tmp_path),
+        phase_dir=str(phase_dir),
+        summary_out=str(summary_path),
+        resume=False,
+    )
+    rc = run_phase.main(args)
+    assert rc == 0
+    rows = [json.loads(line) for line in summary_path.read_text().splitlines() if line.strip()]
+    # Stale row gone; only the freshly produced row remains.
+    assert len(rows) == 1
+    assert rows[0]["yaml_id"] == "x"
+    assert rows[0].get("stale") is None

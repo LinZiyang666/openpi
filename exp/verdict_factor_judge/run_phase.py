@@ -116,6 +116,22 @@ class Args:
     # Per-yaml summary output (JSONL). One row per eval yaml; empty disables.
     summary_out: str = ""
 
+    # Where ``examples.libero.main --save-episode-results`` writes the
+    # per-episode success JSON. One file per eval yaml at
+    # ``<dir>/<yaml_id>.json``. Empty disables SR forwarding (the summary's
+    # ``success_rate`` field stays ``null`` like the legacy behaviour).
+    # When ``--per-step-log-dir`` is set and this is empty, defaults to
+    # ``<per_step_log_dir>/../episode_results``.
+    episode_results_dir: str = ""
+
+    # Resume mode: if ``--summary-out`` already exists, load completed
+    # ``yaml_id`` set from it and skip those yamls (re-running them would
+    # duplicate rows since each yaml is atomic — server warmup buffer is
+    # in-memory and lost on restart, so per-yaml granularity is the right
+    # checkpoint level). Without ``--resume`` the summary file is truncated
+    # on start (legacy behaviour).
+    resume: bool = False
+
     # Forwarded as-is to ``examples.libero.main`` when set.
     init_states_dir: str = ""
     episode_filter: str = ""
@@ -196,6 +212,7 @@ def _build_libero_argv(
     yaml_id: str,
     phase: str,
     num_trials_per_task: int,
+    episode_results_path: Optional[Path] = None,
 ) -> tuple[list[str], dict | None]:
     """Assemble the ``examples.libero.main`` ``(cmd, env)`` for one subprocess.
 
@@ -230,6 +247,13 @@ def _build_libero_argv(
         main_args += ["--episode-filter", args.episode_filter]
     if args.cuda_visible_devices:
         main_args += ["--cuda-visible-devices", args.cuda_visible_devices]
+    # Forward per-episode SR JSON only on eval; warmup uses AlwaysWarmStart
+    # so its "success rate" is not the metric of interest.
+    if episode_results_path is not None and phase == "eval":
+        main_args += [
+            "--save-episode-results",
+            "--episode-results-path", str(episode_results_path),
+        ]
 
     from exp.common._subprocess import build_subprocess_cmd
 
@@ -247,6 +271,68 @@ def _build_libero_argv(
     return build_subprocess_cmd(
         main_args, conda_env=args.conda_env or None, extra_env=extra_env,
     )
+
+
+def _resolve_episode_results_dir(args: Args) -> Optional[Path]:
+    """Return the directory that holds per-yaml ``episode_results.json``
+    files, or ``None`` when SR forwarding is disabled.
+
+    Explicit ``--episode-results-dir`` wins. Otherwise falls back to
+    ``<per_step_log_dir>/../episode_results`` so the SR files sit next to
+    ``per_step/`` under the same cfg data dir. When neither is available we
+    return ``None`` and ``success_rate`` stays ``null`` (legacy behaviour).
+    """
+    if args.episode_results_dir:
+        return Path(args.episode_results_dir)
+    if args.per_step_log_dir:
+        return Path(args.per_step_log_dir).parent / "episode_results"
+    return None
+
+
+def _aggregate_sr_from_episode_json(path: Path) -> Optional[float]:
+    """Compute success_rate from main.py's ``--save-episode-results`` JSON.
+
+    The schema is a list of dicts with a ``success: bool`` field per
+    episode (see ``examples/libero/main.py:_write_episode_results_json``).
+    Returns ``None`` when the file is missing / empty / malformed so the
+    caller can leave the summary's SR field null without crashing the run.
+    """
+    if not path.exists():
+        return None
+    try:
+        rows = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        logger.warning("Failed to parse episode results JSON: %s", path)
+        return None
+    if not isinstance(rows, list) or not rows:
+        return None
+    successes = sum(1 for r in rows if isinstance(r, dict) and r.get("success") is True)
+    return successes / len(rows)
+
+
+def _load_done_yaml_ids(summary_path: Path) -> set[str]:
+    """Read ``summary_out`` to find which yaml_ids already have a row.
+
+    Used by ``--resume`` to skip already-completed yamls. A row counts as
+    "done" purely by presence — partial / failed rows aren't written by the
+    main loop (failures hit the ``except`` branch and skip the write), so
+    every persisted row corresponds to a successful eval.
+    """
+    if not summary_path.exists():
+        return set()
+    done: set[str] = set()
+    for line in summary_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        yid = row.get("yaml_id")
+        if isinstance(yid, str):
+            done.add(yid)
+    return done
 
 
 def _summarize_per_step_log(per_step_log_dir: str, eval_yaml_id: str) -> dict:
@@ -368,11 +454,17 @@ def _run_one_yaml(args: Args, eval_path: Path) -> dict:
     # ── 7. spawn workers for eval ────────────────────────────────────────
     logger.info("[%s] Step 7/7: eval workers (%d trials/task)",
                 eval_yaml_id, args.eval_trials)
+    episode_results_dir = _resolve_episode_results_dir(args)
+    episode_results_path: Optional[Path] = None
+    if episode_results_dir is not None:
+        episode_results_dir.mkdir(parents=True, exist_ok=True)
+        episode_results_path = episode_results_dir / f"{eval_yaml_id}.json"
     eval_cmd, eval_env = _build_libero_argv(
         args=args,
         yaml_id=eval_yaml_id,
         phase="eval",
         num_trials_per_task=args.eval_trials,
+        episode_results_path=episode_results_path,
     )
     subprocess.run(eval_cmd, env=eval_env, check=True)
 
@@ -384,14 +476,14 @@ def _run_one_yaml(args: Args, eval_path: Path) -> dict:
 
     # ── 9. summarize ─────────────────────────────────────────────────────
     counts = _summarize_per_step_log(args.per_step_log_dir, eval_yaml_id)
+    success_rate: Optional[float] = None
+    if episode_results_path is not None:
+        success_rate = _aggregate_sr_from_episode_json(episode_results_path)
     summary = {
         "yaml_id": eval_yaml_id,
         "warmup_yaml_id": warmup_yaml_id if not args.skip_warmup else None,
         "n_warmup_buffer_keys": n_warmup_keys,
-        # ``success_rate`` requires examples.libero.main to be invoked with
-        # ``--save-episode-results`` to have a real value; we leave it null
-        # here and let the analysis script join on cache_eval_results.json.
-        "success_rate": None,
+        "success_rate": success_rate,
         **counts,
     }
     return summary
@@ -430,14 +522,28 @@ def main(args: Args) -> int:
     logger.info("Discovered %d eval yamls under %s", len(eval_yamls), phase_dir)
 
     summary_path: Optional[Path] = Path(args.summary_out) if args.summary_out else None
+    done_ids: set[str] = set()
     if summary_path is not None:
         summary_path.parent.mkdir(parents=True, exist_ok=True)
-        # Truncate the summary file on each run so re-runs don't double rows.
-        summary_path.write_text("", encoding="utf-8")
+        if args.resume:
+            # Keep existing rows and skip yamls that already have a row.
+            done_ids = _load_done_yaml_ids(summary_path)
+            logger.info(
+                "Resume mode: %d/%d yamls already complete in %s",
+                len(done_ids), len(eval_yamls), summary_path,
+            )
+        else:
+            # Legacy behaviour: truncate so re-runs don't duplicate rows.
+            summary_path.write_text("", encoding="utf-8")
 
     n_ok = 0
     n_fail = 0
+    n_skip = 0
     for eval_path in eval_yamls:
+        if eval_path.stem in done_ids:
+            n_skip += 1
+            logger.info("[%s] SKIP — already in summary (resume)", eval_path.stem)
+            continue
         try:
             summary = _run_one_yaml(args, eval_path)
             n_ok += 1
@@ -456,8 +562,8 @@ def main(args: Args) -> int:
             )
             continue
 
-    logger.info("Phase complete: %d ok, %d failed (out of %d)",
-                n_ok, n_fail, len(eval_yamls))
+    logger.info("Phase complete: %d ok, %d failed, %d skipped (out of %d)",
+                n_ok, n_fail, n_skip, len(eval_yamls))
     return 0 if n_fail == 0 else 1
 
 
