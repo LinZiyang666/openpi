@@ -270,6 +270,7 @@ uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/verdict_factor_judge/config/clip/phase0 \
     --episodes-per-run 10 \
     --num-workers 5 \
+    --cuda 4 \
     --host 155.98.36.13 --port 8998 \
     --task-suite libero_spatial \
     --seed 42 \
@@ -286,6 +287,7 @@ uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/verdict_factor_judge/config/max_pool/phase0 \
     --episodes-per-run 10 \
     --num-workers 5 \
+    --cuda 4 \
     --host 155.98.36.13 --port 8999 \
     --task-suite libero_spatial \
     --seed 42 \
@@ -302,6 +304,7 @@ uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/verdict_factor_judge/config/spatial16/phase0 \
     --episodes-per-run 10 \
     --num-workers 5 \
+    --cuda 4 \
     --host 155.98.36.13 --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
@@ -406,6 +409,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --host 155.98.36.13 --port 8998 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
+    --cuda-visible-devices 4 \
     --per-step-log-dir exp/verdict_factor_judge/data/phase1/clip/per_step \
     --summary-out      exp/verdict_factor_judge/data/phase1/clip/per_yaml_summary.jsonl
 ```
@@ -418,6 +422,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --host 155.98.36.13 --port 8999 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
+    --cuda-visible-devices 4 \
     --per-step-log-dir exp/verdict_factor_judge/data/phase1/max_pool/per_step \
     --summary-out      exp/verdict_factor_judge/data/phase1/max_pool/per_yaml_summary.jsonl
 ```
@@ -430,6 +435,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
     --host 155.98.36.13 --port 9000 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
+    --cuda-visible-devices 4 \
     --per-step-log-dir exp/verdict_factor_judge/data/phase1/spatial16/per_step \
     --summary-out      exp/verdict_factor_judge/data/phase1/spatial16/per_yaml_summary.jsonl
 ```

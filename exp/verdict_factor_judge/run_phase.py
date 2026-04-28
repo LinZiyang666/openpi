@@ -120,6 +120,12 @@ class Args:
     init_states_dir: str = ""
     episode_filter: str = ""
 
+    # Pin the LIBERO sim / MuJoCo EGL renderer to a specific GPU. Forwarded
+    # to ``examples.libero.main --cuda-visible-devices`` which sets
+    # ``os.environ["CUDA_VISIBLE_DEVICES"]`` before importing CUDA-touching
+    # libs. Empty preserves main.py's own default ("0").
+    cuda_visible_devices: str = ""
+
     # Debug shortcut — skip the warmup phase entirely (used while iterating
     # on the eval yaml without re-collecting in-distribution factor values).
     skip_warmup: bool = False
@@ -207,6 +213,8 @@ def _build_libero_argv(
         cmd += ["--init-states-dir", args.init_states_dir]
     if args.episode_filter:
         cmd += ["--episode-filter", args.episode_filter]
+    if args.cuda_visible_devices:
+        cmd += ["--cuda-visible-devices", args.cuda_visible_devices]
     return cmd
 
 
