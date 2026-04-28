@@ -245,6 +245,101 @@ def _composer_block(keys: list[str], tier: str) -> dict:
     return composer
 
 
+def build_warmup_yaml(cfg_id: str, descriptor_stem: str) -> dict:
+    """Build the sibling warmup yaml dict for the (cfg_id, descriptor_stem) cell.
+
+    The warmup yaml is loaded by ``run_phase.py`` BEFORE the matching eval yaml
+    so that ``DumpingJudge`` can collect in-distribution factor raw values that
+    later seed the eval normalizer's percentile buffer (plan B2 §3.4 / §3.5).
+
+    Why the choices below:
+
+    * ``judge.type = always_warm_start`` + ``start_t = 0.7`` — bypasses the
+      composite judge so we never touch the (uninitialised) normalizer during
+      warmup; every verdict short-circuits to WARM_START at t=0.7 just like
+      the P0 fallback (this lets the policy actually advance and gives the
+      dump factors meaningful per-step input).
+    * ``judge.dump.factors`` = the SAME 5 factors as the eval composite uses
+      so the dumped raw keys exactly match the keys the eval normalizer will
+      preload from. (Phase 1 single-factor ablations also reuse this — the
+      dump intentionally over-collects so warmup never has to be re-run when
+      switching descriptor variants within the same cell.)
+    * ``judge.dump.deferred = True`` + omitted ``path`` — the path is filled by
+      the server's ``load_cache_config`` ctrl handler from
+      ``<warmup_dump_root>/<warmup_yaml_id>.jsonl``; this lets
+      ``validate_cache_config`` pass on CI / offline hosts where
+      ``/tmp/openpi_warmup`` does not exist (plan R3-G1R4).
+    * ``search_strategy.top_k = 5`` — the F2 dump extractor looks at the top-5
+      KNN candidates' score variance; even though ``AlwaysWarmStartJudge``
+      itself does not need search, we widen ``top_k`` so DumpingJudge's F2
+      extractor sees the full neighborhood it expects.
+
+    The returned dict carries ``dump.config_id`` set to the warmup id; the
+    ``write_yaml`` invariant check pins ``config_id == file stem``, so the
+    file the caller writes MUST be named ``<warmup_yaml_id>.yaml``.
+    """
+    cfg = CFG_SPECS[cfg_id]
+    eval_yaml_id = f"{cfg_id}_phase1_{descriptor_stem}"
+    warmup_yaml_id = f"{eval_yaml_id}__warmup"
+
+    # Reuse the eval composite's full 5-factor list — DumpingJudge collects
+    # raw per-step values across ALL factors regardless of whether the eval
+    # yaml's composite weights any one of them, so over-collecting here is
+    # intentional (lets us share one warmup dump across ablation siblings).
+    full_factors = [
+        _f1a_factor("f1a_a", ALL_DESC),
+        _f1a_factor("f1a_t", ALL_DESC),
+        _f1b_factor("f1b_a", ALL_DESC),
+        _f1b_factor("f1b_t", ALL_DESC),
+        _f2_factor(),
+    ]
+
+    judge = {
+        "type": "always_warm_start",
+        "start_t": 0.7,
+        "dump": {
+            # ``deferred=True`` tells the server's ``load_cache_config`` ctrl
+            # handler to populate ``path`` from
+            # ``<warmup_dump_root>/<config_id>.jsonl`` before validation runs;
+            # we deliberately omit the ``path`` field entirely so its absence
+            # is unambiguous (and the offline validator's `path == ""` branch
+            # is exercised).
+            "deferred": True,
+            "config_id": warmup_yaml_id,
+            "factors": full_factors,
+        },
+    }
+    search_strategy = _shared_search_strategy(cfg)
+    # F2 DumpExtractor inspects the top-K candidates' score spread; widen
+    # ``top_k`` so the dump captures the same neighbourhood structure the
+    # F-FULL eval composite expects (top_k=5).
+    search_strategy["top_k"] = 5
+
+    return {
+        "enabled": True,
+        "timer": {"enabled": False, "buffer_size": 10000, "output_csv_dir": None},
+        "keys": _shared_keys_block(cfg),
+        "key_builder": {"type": cfg["key_builder_type"]},
+        "checkpoints": {
+            "cp1": {
+                "enabled": True,
+                "gate": {"type": "always_search"},
+                "judge": judge,
+                "search_strategy": search_strategy,
+            },
+        },
+        "backend": {
+            "type": "in_memory",
+            "vector_dims": dict(cfg["vector_dims"]),
+            "in_memory": {
+                "preload_path": cfg["preload_pkl"],
+                "index_type": "brute_force",
+            },
+        },
+        "write_policy": {"type": "never"},
+    }
+
+
 def build_yaml(cfg_id: str, descriptor_stem: str) -> dict:
     cfg = CFG_SPECS[cfg_id]
     factors, keys, tier = DESCRIPTORS[descriptor_stem]
@@ -306,11 +401,23 @@ def main() -> None:
             # Phase-segregated layout: <cfg>/phase1/ keeps Phase 1 yamls
             # isolated from Phase 0 so client `--yaml-dir` points at one
             # phase only (no need for `--runs N-M` to skip cross-phase).
-            path = config_root / cfg["subdir"] / "phase1" / yaml_name
+            phase_dir = config_root / cfg["subdir"] / "phase1"
+            path = phase_dir / yaml_name
             content = build_yaml(cfg_id, stem)
             write_yaml(path, content)
             written.append(path)
-    print(f"Wrote {len(written)} Phase 1 yamls under {config_root}/")
+
+            # B2.5 sibling: emit ``<eval_yaml_id>__warmup.yaml`` next to the
+            # eval yaml so ``run_phase.py`` can load both from the same dir.
+            # The naming contract (warmup id = eval id + "__warmup") is the
+            # ONLY mechanism tying these two files together; renaming either
+            # would silently break the runner.
+            warmup_name = f"{cfg_id}_phase1_{stem}__warmup.yaml"
+            warmup_path = phase_dir / warmup_name
+            warmup_content = build_warmup_yaml(cfg_id, stem)
+            write_yaml(warmup_path, warmup_content)
+            written.append(warmup_path)
+    print(f"Wrote {len(written)} Phase 1 yamls (eval + sibling warmup) under {config_root}/")
     for p in written:
         print(f"  {p}")
 

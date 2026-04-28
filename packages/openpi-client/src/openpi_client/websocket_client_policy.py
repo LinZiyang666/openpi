@@ -148,6 +148,110 @@ class WebsocketClientPolicy(_base_policy.BasePolicy):
         pass
 
     # ------------------------------------------------------------------
+    # verdict_factor_judge B2 — warmup ctrl helpers
+    #
+    # Each helper is a one-shot request/response over the existing socket;
+    # the strict double-yaml_id field naming (``warmup_yaml_id`` for
+    # ``fetch_dump`` vs ``eval_yaml_id`` for preload/unload) mirrors the
+    # server's wire schema and is the contract that prevents the G1R3
+    # name-conflation regression.
+    # ------------------------------------------------------------------
+
+    def load_cache_config(
+        self,
+        yaml_path: str | None = None,
+        yaml_content: str | None = None,
+        *,
+        yaml_id: str | None = None,
+    ) -> Dict:
+        """Switch the server's cache bundle to the supplied yaml.
+
+        Pass either ``yaml_path`` (server reads from disk) or
+        ``yaml_content`` (raw text shipped over the wire). ``yaml_id`` is
+        optional but REQUIRED when the yaml carries a ``dump.deferred=True``
+        block or when a downstream ``preload_normalizer_buffer`` will key
+        on the same id. Returns the server's ack dict including the new
+        bundle version.
+        """
+        if not yaml_path and not yaml_content:
+            raise ValueError("load_cache_config requires yaml_path or yaml_content")
+        msg: Dict = {"__ctrl__": "load_cache_config"}
+        if yaml_path is not None:
+            msg["yaml_path"] = yaml_path
+        if yaml_content is not None:
+            msg["yaml_content"] = yaml_content
+        if yaml_id is not None:
+            msg["yaml_id"] = yaml_id
+        return self._send_ctrl(msg, expected_ack="load_cache_config")
+
+    def fetch_dump(self, warmup_yaml_id: str) -> bytes:
+        """Fetch the server-stored warmup dump file's raw bytes.
+
+        Returns the JSONL payload so the caller can split per line and
+        aggregate raw factor values into the ``preload_normalizer_buffer``
+        dict. Raises ``RuntimeError`` if the server rejects the request
+        (invalid id, traversal, file missing, root not configured).
+        """
+        msg = {"__ctrl__": "fetch_dump", "warmup_yaml_id": warmup_yaml_id}
+        ack = self._send_ctrl(msg, expected_ack="fetch_dump")
+        return ack["content"]
+
+    def preload_normalizer_buffer(
+        self, eval_yaml_id: str, buffer: Dict[str, list]
+    ) -> Dict:
+        """Stash a per-key raw factor buffer in the server's WarmupPool.
+
+        ``buffer`` MUST be a flat ``{factor_descriptor_key: list[float]}``;
+        the server coerces values via ``float()`` so int / float lists are
+        both accepted. Returns the ack including ``n_keys`` so the caller
+        can sanity-check the count survived round-trip.
+        """
+        msg = {
+            "__ctrl__": "preload_normalizer_buffer",
+            "eval_yaml_id": eval_yaml_id,
+            "buffer": buffer,
+        }
+        return self._send_ctrl(msg, expected_ack="preload_normalizer_buffer")
+
+    def unload_warmup_buffer(self, eval_yaml_id: str) -> Dict:
+        """Drop the WarmupPool entry AND delete the warmup dump file.
+
+        The wire never carries the warmup file's name — the server derives
+        ``<eval_yaml_id>__warmup.jsonl`` from the eval id. This is the
+        defense against the G1R3 conflation hole where one yaml_id field
+        could ambiguously refer to either the eval or the warmup id.
+        """
+        msg = {"__ctrl__": "unload_warmup_buffer", "eval_yaml_id": eval_yaml_id}
+        return self._send_ctrl(msg, expected_ack="unload_warmup_buffer")
+
+    # ------------------------------------------------------------------
+    # Internal: msgpack request/response helper
+    # ------------------------------------------------------------------
+
+    def _send_ctrl(self, msg: Dict, *, expected_ack: str) -> Dict:
+        """Send a ``__ctrl__`` payload and validate the ack.
+
+        Bare-string responses signal a server-side traceback (existing
+        legacy convention from ``infer``); ``__ack__: error`` payloads
+        carry the structured error message.
+        """
+        self._ws.send(self._packer.pack(msg))
+        response = self._ws.recv()
+        if isinstance(response, str):
+            raise RuntimeError(f"Error in inference server:\n{response}")
+        decoded = msgpack_numpy.unpackb(response)
+        if isinstance(decoded, dict) and decoded.get("__ack__") == "error":
+            raise RuntimeError(
+                f"Server rejected {msg.get('__ctrl__')!r}: "
+                f"{decoded.get('msg', '(no message)')}"
+            )
+        if isinstance(decoded, dict) and decoded.get("__ack__") != expected_ack:
+            raise RuntimeError(
+                f"Unexpected server ack for {msg.get('__ctrl__')!r}: {decoded}"
+            )
+        return decoded
+
+    # ------------------------------------------------------------------
     # Lifecycle helpers (plan §19.B4)
     #
     # Phase-2/Phase-3 runners must drive this client inside a ``with`` block so

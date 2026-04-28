@@ -9,7 +9,7 @@ import queue
 import signal
 import threading
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import cv2
 import h5py
@@ -23,6 +23,16 @@ from openpi_client import websocket_client_policy as _websocket_client_policy
 from PIL import Image, ImageDraw
 import tqdm
 import tyro
+
+# verdict_factor_judge B1.2: per-step JSONL writer for ``__hit_meta__``
+# observability. Import is direct so the runner shim's ``python -m
+# examples.libero.main`` invocation (cwd = repo root) resolves it; if the
+# import ever fails the runner will fail loudly rather than silently skip
+# observability.
+from exp.verdict_factor_judge.per_step_log_writer import (  # noqa: E402
+    PerStepWriter,
+    PerStepWriterPool,
+)
 
 LIBERO_DUMMY_ACTION = [0.0] * 6 + [-1.0]
 LIBERO_ENV_RESOLUTION = 256  # resolution used to render training data
@@ -89,6 +99,19 @@ class Args:
     # executed. ``episode_idx`` inside the loop is the *subset* position.
     episode_filter: str = ""
 
+    #################################################################################################################
+    # verdict_factor_judge per-step observability (plan §7)
+    #################################################################################################################
+    # When set, every client.infer() result's __hit_meta__ is appended to a
+    # per-worker JSONL temp file; eval_libero merges them into
+    # ``<per_step_log_dir>/<yaml_id>.jsonl`` on exit. Empty disables.
+    per_step_log_dir: str = ""
+    # Identifies the yaml under evaluation; used as the merged file's stem
+    # and in every row. Required when per_step_log_dir is set.
+    yaml_id: str = ""
+    # Tags every row (analysis filters on this to separate warmup from eval).
+    phase: str = "eval"
+
 
 def _get_max_steps(task_suite_name: str) -> int:
     """Return the maximum episode length for the given task suite."""
@@ -105,12 +128,21 @@ def _get_max_steps(task_suite_name: str) -> int:
 
 
 def _run_episode(env, client, initial_state, task_description, args, max_steps,
-                 *, record_video: bool = False, step_callback=None) -> tuple:
+                 *, record_video: bool = False, step_callback=None,
+                 infer_recorder: Optional[Callable[[int, dict], None]] = None) -> tuple:
     """Run a single episode.
 
     Args:
         step_callback: Optional callable(step_number) invoked each sim step
                        for live progress display.
+        infer_recorder: Optional callable ``(step_idx, hit_meta) -> None``
+                       invoked once per ``client.infer()`` call. ``step_idx``
+                       is the per-episode physical step index (resets to 0
+                       on the first real verdict, after ``num_steps_wait``);
+                       ``hit_meta`` is the ``__hit_meta__`` dict attached by
+                       ``InferenceInterceptor`` (B1.1 — plan §3.2). Caller
+                       owns identity context; this function only forwards
+                       the verdict-local fields.
 
     Returns:
         ``(success, images, timestamps, traj_buffer, final_env_timestep)``.
@@ -190,7 +222,20 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
                     "observation/state": robot_state,
                     "prompt": str(task_description),
                 }
-                action_chunk = client.infer(element)["actions"]
+                # Capture the full result so the optional recorder sees
+                # ``__hit_meta__`` (B1.2 — plan §7.2). The action path stays
+                # byte-identical to the pre-B1 behaviour.
+                _infer_result = client.infer(element)
+                action_chunk = _infer_result["actions"]
+                if infer_recorder is not None:
+                    hit_meta = _infer_result.get("__hit_meta__")
+                    if hit_meta is not None:
+                        # ``t - args.num_steps_wait`` resets to 0 on the first
+                        # real verdict per episode (plan §7.2 "episode 内的
+                        # 物理 step"). Wait-phase replays never trigger an
+                        # infer call so this branch only runs once t >=
+                        # num_steps_wait.
+                        infer_recorder(t - args.num_steps_wait, hit_meta)
                 assert (
                     len(action_chunk) >= args.replan_steps
                 ), f"We want to replan every {args.replan_steps} steps, but policy only predicts {len(action_chunk)} steps."
@@ -400,8 +445,20 @@ def _write_episode_results_json(
     return out
 
 
-def _eval_serial(args: Args, task_suite, task_id_list: List[int], max_steps) -> None:
-    """Original serial evaluation path (num_workers=1)."""
+def _eval_serial(
+    args: Args,
+    task_suite,
+    task_id_list: List[int],
+    max_steps,
+    *,
+    per_step_pool: Optional[PerStepWriterPool] = None,
+) -> None:
+    """Original serial evaluation path (num_workers=1).
+
+    ``per_step_pool`` (B1.2): when non-None, each ``client.infer()`` verdict
+    is appended to worker slot 0 with full identity context. Caller owns
+    pool lifetime + finalize.
+    """
     if args.save_video:
         pathlib.Path(args.video_out_path).mkdir(parents=True, exist_ok=True)
 
@@ -447,10 +504,34 @@ def _eval_serial(args: Args, task_suite, task_id_list: List[int], max_steps) -> 
                 },
             )
 
+            # B1.2 per-step recorder closure: identity stays in this caller
+            # frame; ``_run_episode`` only owns ``(step_idx, hit_meta)``.
+            # Default-arg binding pins identity values at closure creation
+            # so the late-binding loop variables don't bleed across episodes.
+            if per_step_pool is not None:
+                writer = per_step_pool.writer_for(0)
+
+                def _rec(step_idx, hit_meta, _t=task_id, _s=episode_idx,
+                         _o=orig_init_state_idx, _e=global_episode_id):
+                    writer.write_row({
+                        "yaml_id": args.yaml_id,
+                        "task_id": int(_t),
+                        "subset_init_state_idx": int(_s),
+                        "orig_init_state_idx": int(_o),
+                        "episode_id": int(_e),
+                        "step_idx": int(step_idx),
+                        "phase": args.phase,
+                        **hit_meta,
+                    })
+                recorder = _rec
+            else:
+                recorder = None
+
             done, images, timestamps, traj_buffer, final_env_timestep = _run_episode(
                 env, client, initial_states[episode_idx],
                 task_description, args, max_steps,
                 record_video=args.save_video,
+                infer_recorder=recorder,
             )
 
             if args.display:
@@ -516,8 +597,21 @@ def _eval_serial(args: Args, task_suite, task_id_list: List[int], max_steps) -> 
         logging.info(f"Wrote per-episode results to {out} ({len(per_episode_log)} rows)")
 
 
-def _eval_concurrent(args: Args, task_suite, task_id_list: List[int], max_steps) -> None:
-    """Concurrent evaluation path (num_workers > 1)."""
+def _eval_concurrent(
+    args: Args,
+    task_suite,
+    task_id_list: List[int],
+    max_steps,
+    *,
+    per_step_pool: Optional[PerStepWriterPool] = None,
+) -> None:
+    """Concurrent evaluation path (num_workers > 1).
+
+    ``per_step_pool`` (B1.2): when non-None, each worker pulls its own
+    :class:`PerStepWriter` slot keyed on ``worker_id`` so per-thread file
+    handles never contend for a lock. ``eval_libero`` calls
+    ``per_step_pool.finalize()`` after both eval paths return.
+    """
     # 1. Check server supports concurrent mode.
     probe_client = _websocket_client_policy.WebsocketClientPolicy(args.host, args.port)
     server_meta = probe_client.get_server_metadata()
@@ -638,11 +732,36 @@ def _eval_concurrent(args: Args, task_suite, task_id_list: List[int], max_steps)
                             },
                         )
 
+                        # B1.2 per-step recorder closure: per-worker writer
+                        # slot avoids any cross-thread lock; identity is pinned
+                        # via default-arg binding so late-binding loop vars do
+                        # not leak across episodes.
+                        if per_step_pool is not None:
+                            writer = per_step_pool.writer_for(worker_id)
+
+                            def _rec(step_idx, hit_meta, _t=task_id, _s=episode_idx,
+                                     _o=orig_init_state_idx, _e=global_episode_id,
+                                     _w=writer):
+                                _w.write_row({
+                                    "yaml_id": args.yaml_id,
+                                    "task_id": int(_t),
+                                    "subset_init_state_idx": int(_s),
+                                    "orig_init_state_idx": int(_o),
+                                    "episode_id": int(_e),
+                                    "step_idx": int(step_idx),
+                                    "phase": args.phase,
+                                    **hit_meta,
+                                })
+                            recorder = _rec
+                        else:
+                            recorder = None
+
                         done, _, _, traj_buffer, final_env_timestep = _run_episode(
                             env, client, initial_states[episode_idx],
                             task_description, args, max_steps,
                             record_video=False,
                             step_callback=step_cb,
+                            infer_recorder=recorder,
                         )
                         total_steps[0] += wbar.n
                         client.episode_end(success=done)
@@ -773,10 +892,37 @@ def eval_libero(args: Args) -> None:
         logging.warning("num_workers capped at 5 (MuJoCo EGL context limit). Using 5.")
         args.num_workers = 5
 
-    if args.num_workers > 1:
-        _eval_concurrent(args, task_suite, task_id_list, max_steps)
-    else:
-        _eval_serial(args, task_suite, task_id_list, max_steps)
+    # B1.2: build the per-step writer pool *before* dispatch so SIGINT inside
+    # the eval path still hits the ``finally`` finalize. ``yaml_id`` is
+    # required so the merged file has a deterministic stem the runner shim
+    # can locate after spawn.
+    per_step_pool: Optional[PerStepWriterPool] = None
+    if args.per_step_log_dir:
+        if not args.yaml_id:
+            raise ValueError("--per-step-log-dir requires --yaml-id")
+        per_step_pool = PerStepWriterPool(
+            pathlib.Path(args.per_step_log_dir),
+            yaml_id=args.yaml_id,
+            num_workers=max(1, args.num_workers),
+        )
+
+    try:
+        if args.num_workers > 1:
+            _eval_concurrent(
+                args, task_suite, task_id_list, max_steps,
+                per_step_pool=per_step_pool,
+            )
+        else:
+            _eval_serial(
+                args, task_suite, task_id_list, max_steps,
+                per_step_pool=per_step_pool,
+            )
+    finally:
+        # Even on KeyboardInterrupt / RuntimeError the partial rows already
+        # flushed by ``buffering=1`` (plan §7.3) get merged into the final
+        # ``<yaml_id>.jsonl`` so analysis can still inspect what ran.
+        if per_step_pool is not None:
+            per_step_pool.finalize()
 
 
 def _record_step(obs, images, timestamps, display):

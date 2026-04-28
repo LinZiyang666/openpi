@@ -416,6 +416,35 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         return CachePayload(action_chunk=action_t)
 
     # -----------------------------------------------------------------------
+    # Observability hook
+    # -----------------------------------------------------------------------
+
+    @staticmethod
+    def _build_hit_meta(cp1_result) -> dict:
+        """Build the ``__hit_meta__`` payload surfaced via the WebSocket response.
+
+        The verdict_factor_judge per-step writer (B1) consumes this on the
+        client side to persist per-verdict ``(hit_type, start_t, winner_id,
+        cp1_score)`` to JSONL. When ``cp1_result`` is ``None`` (orchestrator
+        disabled or never executed) we emit a MISS placeholder so cache-off
+        responses share the wire schema with cold-start MISSes; downstream
+        analysis code does not need a parallel "no-cache" branch.
+        """
+        if cp1_result is None:
+            return {
+                "hit_type": "MISS",
+                "start_t": None,
+                "winner_id": None,
+                "cp1_score": None,
+            }
+        return {
+            "hit_type": cp1_result.hit_type.name,
+            "start_t": cp1_result.start_t,
+            "winner_id": cp1_result.entry_id,
+            "cp1_score": cp1_result.score,
+        }
+
+    # -----------------------------------------------------------------------
     # BasePolicy interface
     # -----------------------------------------------------------------------
 
@@ -523,6 +552,10 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                             outputs,
                         )
                         outputs = self._output_transform(outputs)
+                        # Attach observability meta after output_transform so
+                        # the transform chain (jax.tree.map applied inside) is
+                        # not invoked on this nested dict.
+                        outputs["__hit_meta__"] = self._build_hit_meta(cp1_result)
                         self._orchestrator.clear()
                         return outputs
 
@@ -627,6 +660,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             lambda x: np.asarray(x[0, ...].detach().cpu()), outputs
         )
         outputs = self._output_transform(outputs)
+        # cp1_result is unbound when orchestrator is None (cache disabled);
+        # the helper returns a MISS placeholder so cache-off responses share
+        # the wire schema with cold-start MISSes.
+        outputs["__hit_meta__"] = self._build_hit_meta(
+            cp1_result if self._orchestrator is not None else None
+        )
         return outputs
 
     # -----------------------------------------------------------------------

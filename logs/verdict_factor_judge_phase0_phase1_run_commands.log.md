@@ -350,88 +350,93 @@ for cfg in ['clip', 'max_pool', 'spatial16']:
 
 ## Phase 1 — 单因子 Ablation（24 yaml × 100 ep = 2,400 ep）
 
-### §2.1 服务器命令（3 server，复用 Phase 0 实例）
+### §2.1 服务器命令（3 server，复用 Phase 0 实例 + 加 `--warmup-dump-root`）
 
-**复用 Phase 0 server 实例不需重启**（runner WebSocket `load_cache_config` 会切到 Phase 1 yaml，bundle global 在 1 client/server 拓扑下不冲突）。如果 Phase 0 server 已被 ctrl-C，按下方重启（`--cache-config` 用各 cfg 的 phase1 lex-序首份 yaml 作种子）：
+**verdict_factor_judge B2 wire 上线后必须加 `--warmup-dump-root`**（`fetch_dump` / `unload_warmup_buffer` ctrl + `dump.deferred` 解析全部依赖此 root；不加则 `run_phase.py` 第 1 步切 warmup yaml 时立刻报 `load_cache_config: server was started without --warmup-dump-root`）。Server 启动时 `mkdir(mode=0o700)` + uid/mode self-check（不与他人共用 root）。
+
+**复用 Phase 0 server 实例不需重启**（runner WebSocket `load_cache_config` 会切 yaml，bundle global 在 1 client/server 拓扑下不冲突）。如果 Phase 0 server 没带 `--warmup-dump-root`，必须重启重新拉起。重启命令（`--cache-config` 用各 cfg 的 phase1 lex-序首份 eval yaml 作种子，server 启动后由 `run_phase.py` 通过 `load_cache_config` 切 warmup/eval yaml）：
 
 ```bash
-# S1 重启（如需）
+# S1 重启
 uv run scripts/serve_policy.py \
     --concurrent \
     --cache-config exp/verdict_factor_judge/config/clip/phase1/clip_w7_d4_phase1_f_f1a_t_only_d_all_t_full.yaml \
+    --warmup-dump-root /tmp/openpi_warmup_s1 \
     --env LIBERO --port 7998 \
     policy:checkpoint \
     --policy.config pi05_libero \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 
-# S2 重启（如需）
+# S2 重启
 uv run scripts/serve_policy.py \
     --concurrent \
     --cache-config exp/verdict_factor_judge/config/max_pool/phase1/max_pool_w3_d5_phase1_f_f1a_t_only_d_all_t_full.yaml \
+    --warmup-dump-root /tmp/openpi_warmup_s2 \
     --env LIBERO --port 7999 \
     policy:checkpoint \
     --policy.config pi05_libero \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 
-# S3 重启（如需）
+# S3 重启
 uv run scripts/serve_policy.py \
     --concurrent \
     --cache-config exp/verdict_factor_judge/config/spatial16/phase1/spatial16_w8_d4_phase1_f_f1a_t_only_d_all_t_full.yaml \
+    --warmup-dump-root /tmp/openpi_warmup_s3 \
     --env LIBERO --port 8000 \
     policy:checkpoint \
     --policy.config pi05_libero \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 ```
 
-### §2.2 客户端 Runner 命令（3 client，1 per server）
+> 3 server 用独立 root（`s1/s2/s3` 后缀）避免万一 frpc 路由到错 server 时 `unload_warmup_buffer` 删错文件；同 host 多 server 共用一个 root 也能跑（双 .resolve() allowlist 防 traversal），但建议隔离。
 
-每 cfg 1 client，5 worker，runner 按 lex 序 sequential 跑 `phase1/` 子目录内全部 8 yaml。`--yaml-dir` 指 `<cfg>/phase1/` 即可，phase 间天然隔离不需要 `--runs` 切。
+### §2.2 客户端 Runner 命令（3 client，1 per server，B2 dedicated `run_phase.py`）
 
-> **不能用 --runs 切片把多个 client 同时打到一个 server 上** — `_current_bundle` 是 server module-level global，并发 `load_cache_config` 会互相覆盖（详见 §4.4）。
+verdict_factor_judge B2 dedicated runner `exp/verdict_factor_judge/run_phase.py` 替换原通用 `run_cache_experiments.py`：每 eval yaml 自动跑 `warmup → fetch_dump → preload_normalizer_buffer → eval → unload_warmup_buffer` 7 步，`__warmup.yaml` sibling 由 `phase1_spec.main()` 自动生成（与 eval yaml 同目录）。
+
+**前置**：先 `uv run python -m exp.verdict_factor_judge.phase1_spec` 生成 24 eval + 24 sibling warmup yaml（共 48 文件 in `<cfg>/phase1/`）。
+
+> 仍只能 1 client/server（`_current_bundle` global，并发 `load_cache_config` / `preload_normalizer_buffer` 互相覆盖）。3 cfg 并行通过 3 client × 3 server 并行实现。runner 内自动跳过 `*__warmup.yaml`，无需 `--task-ids` 切片。
 
 #### Client → S1 (clip)
 
 ```bash
-uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/clip/phase1 \
-    --episodes-per-run 10 --num-workers 5 \
+uv run python -m exp.verdict_factor_judge.run_phase \
+    --phase-dir exp/verdict_factor_judge/config/clip/phase1 \
     --host 155.98.36.13 --port 8998 \
-    --task-suite libero_spatial --seed 42 \
-    --conda-env /scratch/zixuans8/libero_sim \
-    --state-path exp/verdict_factor_judge/data/phase1/clip/run_state.json \
-    --log-dir   exp/verdict_factor_judge/data/phase1/clip/logs \
-    --resume
+    --task-suite libero_spatial \
+    --num-workers 5 --warmup-trials 2 --eval-trials 10 \
+    --per-step-log-dir exp/verdict_factor_judge/data/phase1/clip/per_step \
+    --summary-out      exp/verdict_factor_judge/data/phase1/clip/per_yaml_summary.jsonl
 ```
 
 #### Client → S2 (max_pool)
 
 ```bash
-uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/max_pool/phase1 \
-    --episodes-per-run 10 --num-workers 5 \
+uv run python -m exp.verdict_factor_judge.run_phase \
+    --phase-dir exp/verdict_factor_judge/config/max_pool/phase1 \
     --host 155.98.36.13 --port 8999 \
-    --task-suite libero_spatial --seed 42 \
-    --conda-env /scratch/zixuans8/libero_sim \
-    --state-path exp/verdict_factor_judge/data/phase1/max_pool/run_state.json \
-    --log-dir   exp/verdict_factor_judge/data/phase1/max_pool/logs \
-    --resume
+    --task-suite libero_spatial \
+    --num-workers 5 --warmup-trials 2 --eval-trials 10 \
+    --per-step-log-dir exp/verdict_factor_judge/data/phase1/max_pool/per_step \
+    --summary-out      exp/verdict_factor_judge/data/phase1/max_pool/per_yaml_summary.jsonl
 ```
 
 #### Client → S3 (spatial16)
 
 ```bash
-uv run exp/common/run_cache_experiments.py \
-    --yaml-dir exp/verdict_factor_judge/config/spatial16/phase1 \
-    --episodes-per-run 10 --num-workers 5 \
+uv run python -m exp.verdict_factor_judge.run_phase \
+    --phase-dir exp/verdict_factor_judge/config/spatial16/phase1 \
     --host 155.98.36.13 --port 9000 \
-    --task-suite libero_spatial --seed 42 \
-    --conda-env /scratch/zixuans8/libero_sim \
-    --state-path exp/verdict_factor_judge/data/phase1/spatial16/run_state.json \
-    --log-dir   exp/verdict_factor_judge/data/phase1/spatial16/logs \
-    --resume
+    --task-suite libero_spatial \
+    --num-workers 5 --warmup-trials 2 --eval-trials 10 \
+    --per-step-log-dir exp/verdict_factor_judge/data/phase1/spatial16/per_step \
+    --summary-out      exp/verdict_factor_judge/data/phase1/spatial16/per_yaml_summary.jsonl
 ```
 
-> 3 cfg 完全并行（3 client 各自打到独立 server），cfg 内 8 yaml sequential。
+> 单 yaml 失败 `run_phase.main()` 跳过该 yaml 继续下一份（log full traceback），整 phase 退出码 = 全成功 0 / 任一失败 1。需 resume 时手工 `--task-ids` 收窄 phase-dir 或用 `--skip-warmup` 跳过 warmup 直接 eval。
+>
+> 3 cfg 完全并行（3 client 各自打到独立 server），cfg 内 8 eval yaml × (warmup + eval) sequential，每 yaml 共 ~12 trial × 10 task = 120 ep × ~21 verdict + ack 编排开销。
 
 ### §2.3 Phase 1 输出位置
 

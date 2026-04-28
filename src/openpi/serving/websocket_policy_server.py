@@ -48,10 +48,12 @@ are implemented.
 import asyncio
 import http
 import logging
+import os
 import threading
 import time
 import traceback
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable, Optional
 
 from openpi_client import base_policy as _base_policy
@@ -71,12 +73,19 @@ class CurrentCacheBundle:
 
     Atomically replaced by load_cache_config control messages.
     Same-run worker connections share the same shared_storage.
+
+    ``yaml_id`` records the eval-yaml stem that the verdict_factor_judge
+    runner shim sent in the ``load_cache_config`` payload. Persists into
+    ``build_per_connection_components(..., yaml_id=...)`` so the WarmupPool
+    preload path can locate the matching buffer; ``None`` means the legacy
+    code path runs unchanged.
     """
 
     config_path: str
     cache_config: object        # CacheConfig
     shared_storage: object      # CacheStorage
     version: int
+    yaml_id: Optional[str] = None
 
 
 _bundle_lock = threading.Lock()
@@ -89,7 +98,174 @@ def get_current_cache_bundle() -> Optional[CurrentCacheBundle]:
     with _bundle_lock:
         return _current_bundle
 
+
+# ---------------------------------------------------------------------------
+# Warmup dump root (verdict_factor_judge B2)
+#
+# Set once at server startup by ``scripts/serve_policy.py`` after creating
+# the directory with mode 0o700 + ownership/mode self-check. The 3 new
+# warmup ctrl handlers (`fetch_dump`, `unload_warmup_buffer`) refuse to run
+# when this is None — that is the only safe failure mode for an experiment
+# accidentally started without the flag.
+# ---------------------------------------------------------------------------
+
+
+_warmup_dump_root: Optional[Path] = None
+
+
+def set_warmup_dump_root(path: Optional[Path]) -> None:
+    """Install the resolved warmup dump root for the running server.
+
+    Pass ``None`` to disable (the default state). The path MUST already be a
+    real directory; this setter does not create it. Called once at startup.
+    """
+    global _warmup_dump_root
+    _warmup_dump_root = Path(path).resolve() if path is not None else None
+
+
+def get_warmup_dump_root() -> Optional[Path]:
+    """Return the configured warmup dump root, or ``None`` if disabled."""
+    return _warmup_dump_root
+
+
+def _safe_resolve_under_root(name: str, root: Path) -> Optional[Path]:
+    """Resolve ``<root>/<name>.jsonl`` and confirm it stays under ``root``.
+
+    Returns ``None`` when traversal is detected (so the caller can reject
+    with a uniform error ack). ``root`` MUST already be ``.resolve()``-d so
+    symlink-following on the candidate side cannot escape it.
+    """
+    if not name or "/" in name or ".." in name:
+        return None
+    candidate = (root / f"{name}.jsonl").resolve()
+    if not candidate.is_relative_to(root):
+        return None
+    return candidate
+
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# verdict_factor_judge warmup ctrl helpers
+#
+# Sit at module scope so the dispatcher in ``_handler`` reads as a small
+# router. Each returns the dict the dispatcher should pack and send.
+# ---------------------------------------------------------------------------
+
+
+def _fill_deferred_dump_paths(cache_config, yaml_id: Optional[str]) -> None:
+    """Resolve every ``dump.deferred=True`` path under the configured root.
+
+    Raises ``ValueError`` when a deferred dump exists but ``yaml_id`` is
+    missing, or when no warmup dump root is configured. Mutates
+    ``cache_config`` in place; non-deferred dumps are untouched.
+    """
+    has_deferred = any(
+        cp.judge.dump is not None and getattr(cp.judge.dump, "deferred", False)
+        for cp in cache_config.checkpoints.values()
+    )
+    if not has_deferred:
+        return
+    if not yaml_id:
+        raise ValueError(
+            "load_cache_config: yaml_id is required when the yaml carries a "
+            "dump.deferred=True checkpoint"
+        )
+    root = get_warmup_dump_root()
+    if root is None:
+        raise ValueError(
+            "load_cache_config: server was started without --warmup-dump-root, "
+            "deferred dumps cannot be resolved"
+        )
+    candidate = _safe_resolve_under_root(yaml_id, root)
+    if candidate is None:
+        raise ValueError(
+            f"load_cache_config: yaml_id {yaml_id!r} fails the "
+            "warmup_dump_root allowlist (contains '/', '..', or escapes via symlink)"
+        )
+    for cp in cache_config.checkpoints.values():
+        dump = cp.judge.dump
+        if dump is not None and getattr(dump, "deferred", False):
+            dump.path = str(candidate)
+            dump.deferred = False  # downstream builders see a normal dump
+
+
+def _handle_fetch_dump(warmup_yaml_id: str) -> dict:
+    """Read a warmup dump file and return its bytes wrapped in an ack."""
+    if not isinstance(warmup_yaml_id, str):
+        return {"__ack__": "error", "msg": "warmup_yaml_id must be str"}
+    root = get_warmup_dump_root()
+    if root is None:
+        return {"__ack__": "error", "msg": "warmup_dump_root not configured"}
+    candidate = _safe_resolve_under_root(warmup_yaml_id, root)
+    if candidate is None:
+        return {"__ack__": "error", "msg": "invalid warmup_yaml_id"}
+    if not candidate.exists():
+        return {"__ack__": "error", "msg": "dump not found"}
+    return {
+        "__ack__": "fetch_dump",
+        "warmup_yaml_id": warmup_yaml_id,
+        "content": candidate.read_bytes(),
+    }
+
+
+def _handle_preload_normalizer_buffer(eval_yaml_id: str, buffer) -> dict:
+    """Stash a per-key raw factor buffer in the WarmupPool keyed by eval yaml."""
+    if not isinstance(eval_yaml_id, str) or not eval_yaml_id:
+        return {"__ack__": "error", "msg": "eval_yaml_id must be a non-empty str"}
+    if "/" in eval_yaml_id or ".." in eval_yaml_id:
+        return {"__ack__": "error", "msg": "invalid eval_yaml_id"}
+    if not isinstance(buffer, dict):
+        return {"__ack__": "error", "msg": "buffer must be a dict"}
+    # msgpack may decode list values as ndarray; coerce to plain Python lists
+    # of floats so the WarmupPool's deep-copy semantics produce the same
+    # representation regardless of what the wire delivered.
+    coerced: dict[str, list[float]] = {}
+    for k, v in buffer.items():
+        if not isinstance(k, str):
+            return {"__ack__": "error", "msg": "buffer keys must be str"}
+        try:
+            coerced[k] = [float(x) for x in v]
+        except (TypeError, ValueError) as e:
+            return {"__ack__": "error", "msg": f"buffer[{k!r}] not numeric: {e}"}
+    from openpi.cache.warmup_pool import get_global_pool
+
+    get_global_pool().set(eval_yaml_id, coerced)
+    return {
+        "__ack__": "preload_normalizer_buffer",
+        "eval_yaml_id": eval_yaml_id,
+        "n_keys": len(coerced),
+    }
+
+
+def _handle_unload_warmup_buffer(eval_yaml_id: str) -> dict:
+    """Drop the WarmupPool entry AND delete the warmup dump file on disk."""
+    if not isinstance(eval_yaml_id, str) or not eval_yaml_id:
+        return {"__ack__": "error", "msg": "eval_yaml_id must be a non-empty str"}
+    if "/" in eval_yaml_id or ".." in eval_yaml_id:
+        return {"__ack__": "error", "msg": "invalid eval_yaml_id"}
+    from openpi.cache.warmup_pool import get_global_pool
+
+    get_global_pool().pop(eval_yaml_id)
+    root = get_warmup_dump_root()
+    deleted = False
+    if root is not None:
+        # Server derives the warmup name; the wire never carries it. This
+        # closes the G1R3 name-conflation hole where a single yaml_id field
+        # could be either the eval id or the warmup id.
+        warmup_yaml_id = f"{eval_yaml_id}__warmup"
+        candidate = _safe_resolve_under_root(warmup_yaml_id, root)
+        if candidate is not None and candidate.exists():
+            try:
+                candidate.unlink()
+                deleted = True
+            except OSError as e:
+                logger.warning("unload_warmup_buffer: failed to delete %s: %s", candidate, e)
+    return {
+        "__ack__": "unload_warmup_buffer",
+        "eval_yaml_id": eval_yaml_id,
+        "deleted_dump_file": deleted,
+    }
 
 
 class WebsocketPolicyServer:
@@ -273,6 +449,12 @@ class WebsocketPolicyServer:
                             continue
                         yaml_path = obs.get("yaml_path", "")
                         yaml_content = obs.get("yaml_content", "")
+                        # verdict_factor_judge B2: optional yaml_id is the
+                        # eval/warmup yaml stem the runner registers so that
+                        # (a) deferred dumps can be filled and (b) the
+                        # WarmupPool preload finds its entry. Empty string
+                        # preserves the legacy bundle.yaml_id=None semantic.
+                        msg_yaml_id = obs.get("yaml_id", "") or None
                         if not yaml_path and not yaml_content:
                             await websocket.send(packer.pack({"__ack__": "error", "msg": "missing yaml_path or yaml_content"}))
                         else:
@@ -285,6 +467,13 @@ class WebsocketPolicyServer:
                                         tmp.write(yaml_content)
                                         yaml_path = tmp.name
                                 cache_config = load_cache_config(yaml_path)
+                                # Fill deferred dump.path slots from the
+                                # configured warmup dump root. The validator
+                                # already passed (deferred=True bypasses path
+                                # checks); now make the path concrete so the
+                                # DumpingJudge built later sees a real file
+                                # location.
+                                _fill_deferred_dump_paths(cache_config, msg_yaml_id)
                                 shared_storage = build_shared_storage(cache_config)
                                 global _current_bundle, _bundle_version
                                 with _bundle_lock:
@@ -294,9 +483,10 @@ class WebsocketPolicyServer:
                                         cache_config=cache_config,
                                         shared_storage=shared_storage,
                                         version=_bundle_version,
+                                        yaml_id=msg_yaml_id,
                                     )
                                 version = _bundle_version
-                                logger.info("Cache bundle updated to v%d: %s", version, yaml_path)
+                                logger.info("Cache bundle updated to v%d: %s (yaml_id=%s)", version, yaml_path, msg_yaml_id)
                                 await websocket.send(packer.pack({
                                     "__ack__": "load_cache_config",
                                     "yaml_path": yaml_path,
@@ -305,6 +495,36 @@ class WebsocketPolicyServer:
                             except Exception as e:
                                 logger.error("Failed to load cache config %s: %s", yaml_path, e)
                                 await websocket.send(packer.pack({"__ack__": "error", "msg": str(e)}))
+                    elif ctrl == "fetch_dump":
+                        # verdict_factor_judge B2: serve a previously-emitted
+                        # warmup dump file back to the runner so it can derive
+                        # per-key buffers for `preload_normalizer_buffer`. Path
+                        # MUST stay under the configured root after .resolve()
+                        # to defeat symlink-based traversal.
+                        await websocket.send(packer.pack(
+                            _handle_fetch_dump(obs.get("warmup_yaml_id", ""))
+                        ))
+                    elif ctrl == "preload_normalizer_buffer":
+                        # verdict_factor_judge B2: stash the runner-derived
+                        # raw factor buffers in the WarmupPool so that the
+                        # next eval-yaml `build_per_connection_components`
+                        # call preloads each composite normalizer.
+                        await websocket.send(packer.pack(
+                            _handle_preload_normalizer_buffer(
+                                obs.get("eval_yaml_id", ""),
+                                obs.get("buffer", {}),
+                            )
+                        ))
+                    elif ctrl == "unload_warmup_buffer":
+                        # verdict_factor_judge B2: clear the WarmupPool entry
+                        # for this eval yaml AND delete the corresponding
+                        # warmup dump file. Server derives the warmup name
+                        # from the eval yaml id so the wire never carries the
+                        # filesystem name (defense-in-depth against the
+                        # name-conflation bug from G1R3).
+                        await websocket.send(packer.pack(
+                            _handle_unload_warmup_buffer(obs.get("eval_yaml_id", ""))
+                        ))
                     else:
                         await websocket.send(packer.pack({"__ack__": "ignored"}))
                     continue

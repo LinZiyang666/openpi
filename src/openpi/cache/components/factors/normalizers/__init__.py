@@ -150,3 +150,40 @@ class PercentileRollingNormalizer:
         # stats are stable. Override in subclasses if per-episode reset
         # semantics are desired.
         return None
+
+    def preload_buffer(self, values: dict[str, list[float]]) -> None:
+        """Pre-fill rolling buffers with externally-collected raw factor values.
+
+        Used by the warmup -> preload workflow: a sibling "warmup" yaml first
+        runs against the same task distribution while a ``DumpingJudge`` writes
+        per-verdict raw factor values to JSONL; the runner aggregates those
+        into per-key lists and pushes them here so the eval yaml's normalizer
+        skips its cold-start sentinel window.
+
+        Behavior:
+        - Keys MUST already be bound via ``bind_keys``; preloading an unbound
+          key is a programming error and raises ``KeyError``.
+        - For each bound key, append every non-NaN value from ``values[key]``
+          to its deque in order. NaN entries are silently skipped to mirror
+          ``__call__``'s enqueue policy.
+        - Keys absent from ``values`` are left untouched (caller may preload
+          a subset).
+        - The deque's existing ``maxlen=window_size`` naturally truncates from
+          the left when overfilled.
+        - Calling twice with the same payload simply appends twice; callers
+          are responsible for de-dup.
+        """
+        for key, samples in values.items():
+            buf = self._buffers.get(key)
+            if buf is None:
+                # Fail loud rather than silently auto-binding: a typo in the
+                # warmup-aggregation step would otherwise just drop preloaded
+                # data and re-introduce the cold-start NaN we are trying to
+                # eliminate.
+                raise KeyError(
+                    f"preload_buffer: key {key!r} is not bound; call bind_keys "
+                    f"with the full key set before preloading."
+                )
+            for v in samples:
+                if not math.isnan(v):
+                    buf.append(v)

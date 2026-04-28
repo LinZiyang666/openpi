@@ -805,6 +805,110 @@ The gotcha bites any future cache experiment that (a) uses `CompositeJudge` with
 
 The detailed plan with batch sequencing, validator rules, and risk register lives in `logs/verdict_factor_judge.log.md`.
 
+### 5.13 Wire-Level Observability + Warmup Preload Protocol
+
+> **Source**: `src/openpi/cache/interceptor.py`, `src/openpi/serving/websocket_policy_server.py`, `src/openpi/cache/warmup_pool.py`, `src/openpi/cache/components/factors/normalizers/__init__.py`, `scripts/serve_policy.py`, `packages/openpi-client/src/openpi_client/websocket_client_policy.py`, `exp/verdict_factor_judge/run_phase.py`.
+> **Status**: B1 (observability) + B2 (warmup preload) landed by the verdict_factor_judge dedicated runner work. All additions are opt-in; legacy paths are byte-equivalent.
+
+This section is the wire / protocol companion to §5.12. The verdict factor system has two operational gaps that §5.12 documents but does not solve:
+
+1. **Per-verdict observability is server-stdout only** — re-analysing any historical yaml requires re-running it, because hit_type / start_t / winner_id / cp1_score live in transient logs.
+2. **Per-connection cold-start amplification** — each worker connection builds its own `CompositeJudge` → its own `PercentileRollingNormalizer` → its own rolling buffer that must accumulate ~`window_size` valid samples before normalization activates. With high-NaN factor families the cold-start window can swallow the majority of an experiment's verdict budget.
+
+§5.13 documents the wire-level protocol that closes both gaps.
+
+#### 5.13.1 `__hit_meta__` response field (B1)
+
+`InferenceInterceptor.infer` attaches `result["__hit_meta__"]` after every CP1 verdict. The dict is the SAME schema regardless of return path so client analysis tools branch on `hit_type` only:
+
+```json
+{
+  "hit_type": "FULL_HIT" | "WARM_START" | "MISS",
+  "start_t":  float | null,        // populated only on WARM_START
+  "winner_id": str | null,          // CheckResult.entry_id
+  "cp1_score": float | null         // CheckResult.score
+}
+```
+
+When the orchestrator is disabled (`--cache_config` absent and no dynamic bundle) the helper still emits a placeholder with `hit_type="MISS"` and three null fields — cache-off responses share the wire schema with cold-start MISSes so post-hoc analysis does not need a parallel "no-cache" branch.
+
+`WebsocketPolicyServer` does not strip the field; it is opaque on the wire. Backward compat: clients that never read `__hit_meta__` are unaffected (msgpack discards unknown keys at the consumer's discretion). The LIBERO eval runner (`examples/libero/main.py` — see §B1.2 in the runner plan) consumes the field and writes per-verdict JSONL via the per-worker `PerStepWriterPool`.
+
+#### 5.13.2 New WebSocket ctrl messages (B2)
+
+Three new ctrls plus one extension to the existing `load_cache_config`. All are opt-in; absent fields preserve legacy behaviour.
+
+| ctrl | direction | payload | ack | semantics |
+|---|---|---|---|---|
+| `load_cache_config` (extended) | client→server | `{yaml_path \| yaml_content, yaml_id?}` | `{__ack__: load_cache_config, version}` | Existing ctrl; new optional `yaml_id` is stored on `CurrentCacheBundle.yaml_id` and used to (a) fill `dump.deferred=True` paths, (b) key the WarmupPool preload at the next per-connection build. Absent yaml_id → `bundle.yaml_id = None` → legacy code path. |
+| `fetch_dump` | client→server | `{warmup_yaml_id: str}` | `{__ack__: fetch_dump, warmup_yaml_id, content: bytes}` or `{__ack__: error, msg}` | Returns the raw bytes of `<warmup_dump_root>/<warmup_yaml_id>.jsonl`. `warmup_yaml_id` containing `/` or `..` is rejected; the resolved candidate must stay under the root after both root and candidate are `.resolve()`-ed (defeats symlink-based traversal). |
+| `preload_normalizer_buffer` | client→server | `{eval_yaml_id: str, buffer: dict[str, list[float]]}` | `{__ack__: preload_normalizer_buffer, eval_yaml_id, n_keys}` | Stashes `buffer` in the `WarmupPool` keyed by `eval_yaml_id`. Per-connection builds for the matching yaml then preload each composite judge's normalizer from this buffer. |
+| `unload_warmup_buffer` | client→server | `{eval_yaml_id: str}` | `{__ack__: unload_warmup_buffer, eval_yaml_id, deleted_dump_file: bool}` | Drops the WarmupPool entry AND deletes `<eval_yaml_id>__warmup.jsonl` from the warmup dump root. The wire never carries the warmup file name — the server derives it. This closes the G1R3 conflation where one ambiguous `yaml_id` could refer to either the eval or warmup id. |
+
+Field naming is strict: `fetch_dump` MUST use `warmup_yaml_id`; `preload`/`unload` MUST use `eval_yaml_id`. Sending the wrong field name is treated as missing → server returns an error ack.
+
+#### 5.13.3 `CurrentCacheBundle.yaml_id`
+
+`CurrentCacheBundle` (the dynamic bundle the WS server carries between `--cache_config` runs) gained an optional `yaml_id: Optional[str]` field. The dynamic-bundle branch in `scripts/serve_policy.py` propagates it:
+
+```python
+components = build_per_connection_components(
+    bundle.cache_config, bundle.shared_storage,
+    yaml_id=bundle.yaml_id, quiet=True,
+)
+```
+
+When `yaml_id` is None the new keyword falls back to the legacy code path (no preload). When set, `_preload_normalizer_from_warmup_pool(judges, yaml_id)` runs after every composite judge is built but before the orchestrator is wired up — so the first verdict on the new connection sees a warm normalizer.
+
+#### 5.13.4 `WarmupPool` lifecycle
+
+`src/openpi/cache/warmup_pool.py` is a process-wide LRU `dict[eval_yaml_id, dict[factor_key, list[float]]]` with `threading.Lock` around all mutations and deep-copy semantics on get/pop. Default capacity is 100 entries; `set()` evicts the LRU entry on overflow.
+
+```
+runner shim (run_phase.py)               WS server                    new worker conn
+─────────────────────────────             ────────────                  ───────────────
+load_cache_config(warmup_yaml)  ─────►  bundle.yaml_id = warmup_id
+spawn warmup workers           ─────►  per-conn build (warmup yaml,
+                                        DumpingJudge writes per-verdict
+                                        raw factor values to dump file)
+fetch_dump(warmup_id)           ─────►  read dump file → bytes
+                                ◄─────  bytes
+parse + aggregate per-key
+load_cache_config(eval_yaml,
+                  yaml_id=eval_id) ────►  bundle.yaml_id = eval_id
+preload_normalizer_buffer(eval_id,
+                          buffer)  ───►  WarmupPool[eval_id] = buffer
+spawn eval workers              ─────►  per-conn build (eval yaml)
+                                          → _preload_normalizer_from_warmup_pool
+                                            drills past DumpingJudge wrapper,
+                                            calls normalizer.preload_buffer
+                                          → first verdict skips cold-start
+unload_warmup_buffer(eval_id)   ─────►  WarmupPool.pop(eval_id)
+                                        delete <eval_id>__warmup.jsonl
+```
+
+Per-connection isolation from §5.12 still holds: the WarmupPool is the only piece of warmup state that crosses the per-conn boundary, and it is read-only after `set()` from the runner side. The pool's deep-copy on `get` ensures one worker's normalizer cannot see another worker's appends.
+
+#### 5.13.5 Server-owned warmup dump root
+
+`scripts/serve_policy.py --warmup-dump-root <dir>` selects the filesystem root that hosts `<warmup_yaml_id>.jsonl` files written by `DumpingJudge`. At startup the server:
+
+1. `mkdir(mode=0o700, exist_ok=True)`
+2. Validates owner uid + mode mask (refuses if group/world-accessible).
+3. Calls `websocket_policy_server.set_warmup_dump_root(resolved_path)`.
+
+`fetch_dump` and `unload_warmup_buffer` refuse when the root is not configured — there is no implicit `/tmp/openpi_warmup` default at the WS layer. All path lookups go through `_safe_resolve_under_root(name, root)` which `.resolve()`s both sides and confirms `candidate.is_relative_to(root)` so a symlink dropped into the directory after start cannot redirect a fetch outside the root.
+
+Deferred dump resolution (`DumpConfig.deferred=True` → server fills `dump.path`) shares the same allowlist via `_fill_deferred_dump_paths`. Any deferred dump in a yaml that lacks `yaml_id` or arrives before `set_warmup_dump_root` errors out at `load_cache_config` time, not later when the DumpingJudge tries to write.
+
+#### 5.13.6 Relationship with §5.6 / §5.12
+
+- **§5.6 SimilarityJudge purity contract** is preserved: judges still do not write to `CacheStorage`. The WarmupPool sits OUTSIDE the judge — `_preload_normalizer_from_warmup_pool` calls `normalizer.preload_buffer(...)` on a normalizer instance owned by the per-connection `CompositeJudge`. The judge's own `__call__` is unchanged.
+- **§5.12 cold-start amplification** is the operational gap this protocol closes. With preload sized at `≥ window_size` per key, the normalizer enters the eval phase already past its cold-start window — sentinel firing drops to ~0 and the composer evaluates every verdict instead of ~10%.
+- **DumpingJudge** (the wrapper around `AlwaysWarmStartJudge` in the warmup yaml) is unchanged. The warmup yaml structure (sibling `<eval>__warmup.yaml` with `dump.deferred=true`) is plan-emitted per cell by `exp/verdict_factor_judge/phase1_spec.py`; the verdict-level mechanics do not need to know about the runner shim.
+
+The detailed runner plan (B1/B2 step breakdown, test surface, risk register) lives at `logs/verdict_factor_judge_dedicated_runner_plan.log.md`.
+
 ---
 
 ## 6. Data Flow and Timing

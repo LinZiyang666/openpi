@@ -61,15 +61,31 @@ async def _send_ctrl(server_url: str, msg: dict, *, ack: str) -> dict:
 # ------------------------------------------------------------------
 
 
-def send_load_cache_config(server_url: str, yaml_path: str | Path) -> int:
+def send_load_cache_config(
+    server_url: str,
+    yaml_path: str | Path,
+    *,
+    yaml_id: str | None = None,
+) -> int:
     """Switch the server cache bundle to the YAML at ``yaml_path``.
 
     Returns the new bundle version reported by the server (monotonic
     counter). Callers use the version to confirm the bundle actually
     changed (a silently idle server keeps the old version).
+
+    ``yaml_id`` is optional and forwarded to the server (see
+    ``CurrentCacheBundle.yaml_id``). Required when the yaml carries a
+    ``dump.deferred=True`` block or when a follow-up
+    ``preload_normalizer_buffer`` ctrl will key on the same id; legacy
+    callers that omit it preserve the ``bundle.yaml_id=None`` semantic.
     """
     yaml_content = Path(yaml_path).read_text()
-    msg = {"__ctrl__": "load_cache_config", "yaml_content": yaml_content}
+    msg: dict = {"__ctrl__": "load_cache_config", "yaml_content": yaml_content}
+    if yaml_id is not None:
+        msg["yaml_id"] = yaml_id
     resp = asyncio.run(_send_ctrl(server_url, msg, ack="load_cache_config"))
-    logger.info("Switched server to bundle v%s: %s", resp.get("version"), yaml_path)
+    logger.info(
+        "Switched server to bundle v%s: %s (yaml_id=%s)",
+        resp.get("version"), yaml_path, yaml_id,
+    )
     return int(resp.get("version", -1))

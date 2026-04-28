@@ -153,11 +153,20 @@ class DumpConfig:
     JSONL-row identifier and must match `cache_eval_results.json.config_id`
     (the runner uses `yaml stem`); the YAML generator enforces
     `dump.config_id == yaml stem`.
+
+    `deferred=True` defers `path` resolution to the WebSocket server's
+    `load_cache_config` ctrl handler — used by verdict_factor_judge sibling
+    "warmup" yaml files emitted by `phase1_spec.py`. Static validators must
+    treat `path=""` + `deferred=True` as a pass (the server fills the path
+    from `<warmup_dump_root>/<yaml_id>.jsonl` before invoking
+    `validate_cache_config`), so CI / offline tools can validate the yaml
+    without depending on the server's dump root existing.
     """
 
     path: str = ""
     config_id: str = ""
     factors: list[FactorConfig] = field(default_factory=list)
+    deferred: bool = False
 
 
 @dataclass
@@ -547,15 +556,20 @@ def _validate_dump_static(
 
     from openpi.cache.components.factors import registry
 
-    # path parent exists (allow path itself to not exist — DumpingJudge
-    # appends, so the file may be created on first verdict)
-    parent = os.path.dirname(dump.path) or "."
-    if not dump.path:
-        errors.append(f"{prefix}.judge.dump.path is required (non-empty string)")
-    elif not os.path.isdir(parent):
-        errors.append(
-            f"{prefix}.judge.dump.path parent directory does not exist: {parent!r}"
-        )
+    # `deferred=True` defers path resolution to the WebSocket server's
+    # `load_cache_config` ctrl handler (verdict_factor_judge sibling warmup
+    # yamls); skip path checks but keep `config_id` + factors validation
+    # below so a malformed deferred dump is still rejected statically.
+    if not dump.deferred:
+        # path parent exists (allow path itself to not exist — DumpingJudge
+        # appends, so the file may be created on first verdict)
+        parent = os.path.dirname(dump.path) or "."
+        if not dump.path:
+            errors.append(f"{prefix}.judge.dump.path is required (non-empty string)")
+        elif not os.path.isdir(parent):
+            errors.append(
+                f"{prefix}.judge.dump.path parent directory does not exist: {parent!r}"
+            )
 
     # config_id non-empty (required for Phase 5 outcome join)
     if not dump.config_id:
@@ -1344,10 +1358,43 @@ def build_cache_components(config: CacheConfig) -> dict[str, Any]:
     return build_per_connection_components(config, storage)
 
 
+def _preload_normalizer_from_warmup_pool(judges: dict, yaml_id: str) -> int:
+    """Preload every composite judge's normalizer from the WarmupPool.
+
+    Returns the number of normalizers that received a non-empty buffer (used
+    by the caller for diagnostic logging). When the pool has no entry for
+    ``yaml_id`` or a judge does not expose ``_normalizer``, the call is a
+    no-op so this function is safe on every connection regardless of yaml.
+    """
+    from openpi.cache.warmup_pool import get_global_pool
+
+    buffer = get_global_pool().get(yaml_id)
+    if not buffer:
+        return 0
+    preloaded = 0
+    for judge in judges.values():
+        # DumpingJudge is a transparent wrapper around the inner judge; drill
+        # one level so the normalizer is found whether or not dump is on.
+        target = getattr(judge, "_inner", judge)
+        normalizer = getattr(target, "_normalizer", None)
+        if normalizer is None or not hasattr(normalizer, "preload_buffer"):
+            continue
+        # Only forward keys the normalizer actually has bound — protects
+        # against schema drift between warmup and eval yamls.
+        bound = set(getattr(normalizer, "_buffers", {}).keys())
+        filtered = {k: v for k, v in buffer.items() if k in bound}
+        if not filtered:
+            continue
+        normalizer.preload_buffer(filtered)
+        preloaded += 1
+    return preloaded
+
+
 def build_per_connection_components(
     config: CacheConfig,
     shared_storage,
     *,
+    yaml_id: Optional[str] = None,
     quiet: bool = False,
 ) -> dict[str, Any]:
     """Build per-connection cache components, reusing only the backend.
@@ -1358,6 +1405,13 @@ def build_per_connection_components(
     gets its own facade so Step-3 prefill mode (``enter_prefill_mode`` /
     ``exit_prefill_mode``) stays isolated. See
     ``logs/trajectory_deviation_corrective_implementation.log.md`` §5 / §6.
+
+    ``yaml_id`` is the eval-yaml stem registered by the WebSocket
+    ``load_cache_config`` ctrl handler (verdict_factor_judge B2 wire). When
+    set and a matching ``WarmupPool`` entry exists, every composite judge's
+    normalizer is pre-filled from that buffer so cold-start sentinel firing
+    drops to ~0 on the first verdict; absent yaml_id or absent pool entry is
+    a no-op (preserves the legacy code path).
     """
     from openpi.cache.timing import SystemTimer
 
@@ -1411,6 +1465,18 @@ def build_per_connection_components(
             fusion_weights,
             min_top_k_hint=min_top_k_hint,
         )
+
+    # WarmupPool preload (verdict_factor_judge B2). The judge tree is fully
+    # built (CompositeJudge.__init__ calls bind_keys), so the normalizer's
+    # rolling buffers are sized + ready to receive the warmup-collected raw
+    # values.
+    if yaml_id:
+        preloaded = _preload_normalizer_from_warmup_pool(judges, yaml_id)
+        if preloaded and not quiet:
+            logger.info(
+                "WarmupPool preloaded %d normalizer(s) for yaml_id=%s",
+                preloaded, yaml_id,
+            )
 
     # Collect OfflineWriters from composite judges so the Orchestrator can
     # invoke them at episode-end (B2 wiring path). De-duplicated by id() so

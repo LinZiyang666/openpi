@@ -100,6 +100,15 @@ class Args:
     stage2_device: str | None = None
     stage3_device: str | None = None
 
+    # verdict_factor_judge B2: filesystem root for warmup dump JSONL files.
+    # When set, the WebSocket server creates the directory with mode 0o700 +
+    # ownership self-check at startup, registers it with
+    # ``websocket_policy_server.set_warmup_dump_root``, and accepts the
+    # ``fetch_dump`` / ``preload_normalizer_buffer`` / ``unload_warmup_buffer``
+    # ctrl messages plus ``dump.deferred=true`` resolution in
+    # ``load_cache_config``. Leave None on production / non-warmup runs.
+    warmup_dump_root: str | None = None
+
     # Specifies how to load the policy. If not provided, the default policy for the environment will be used.
     policy: Checkpoint | Default = dataclasses.field(default_factory=Default)
 
@@ -261,6 +270,7 @@ def _wrap_policy(
         components = build_per_connection_components(
             bundle.cache_config,
             bundle.shared_storage,
+            yaml_id=bundle.yaml_id,
             quiet=True,
         )
         need_images = args.collect_images or bundle.cache_config.key_builder.type == "clip"
@@ -355,8 +365,35 @@ def _wrap_policy(
     return policy
 
 
+def _setup_warmup_dump_root(raw_path: str | None) -> None:
+    """Create the warmup dump directory + register it with the WS module.
+
+    No-op when ``raw_path`` is None. Enforces mode 0o700 + same-uid
+    ownership so a multi-user host cannot drop a symlink into the directory
+    after server start; the resolved path is stored on the WS module so the
+    ``fetch_dump`` / ``unload_warmup_buffer`` ctrl handlers can range-check
+    against it.
+    """
+    if not raw_path:
+        return
+    root = Path(raw_path).expanduser().resolve()
+    root.mkdir(mode=0o700, exist_ok=True)
+    st = root.stat()
+    if st.st_uid != os.getuid():
+        raise RuntimeError(
+            f"warmup_dump_root {root} is not owned by uid={os.getuid()}: refusing"
+        )
+    if st.st_mode & 0o077:
+        raise RuntimeError(
+            f"warmup_dump_root {root} is group/world accessible (mode={oct(st.st_mode)}): refusing"
+        )
+    websocket_policy_server.set_warmup_dump_root(root)
+    logging.info("verdict_factor_judge warmup dump root configured: %s", root)
+
+
 def main(args: Args) -> None:
     _configure_torchinductor_cache_dir()
+    _setup_warmup_dump_root(args.warmup_dump_root)
     stage_config = _get_stage_device_config(args)
     base_policy = create_policy(args)
     policy_metadata = base_policy.metadata
