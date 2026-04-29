@@ -143,20 +143,54 @@ def test_pool_handles_zero_rows(tmp_path: pathlib.Path) -> None:
     assert merged.read_text(encoding="utf-8") == ""
 
 
-def test_writer_buffering_flushes_per_line(tmp_path: pathlib.Path) -> None:
-    """Each row hits disk before close() — proves buffering=1 line-buffering."""
+def test_writer_buffers_until_flush_episode(tmp_path: pathlib.Path) -> None:
+    """write_row buffers in memory; flush_episode commits the batch atomically.
+
+    Episode-batched semantics replaced the old line-buffered mode so that the
+    diagnostic ``factor_outputs`` payload (~1 KB / row) does not thrash the
+    OS write path on every verdict; the trade-off is that an in-flight
+    episode's rows are not durable until ``client.episode_end`` triggers
+    ``flush_episode``. This test pins both halves of the contract.
+    """
     path = tmp_path / "live.jsonl"
+    writer = PerStepWriter(path)
+    row_a = _make_row(0, 0, 0, 0)
+    row_b = _make_row(0, 0, 0, 1)
+    writer.write_row(row_a)
+    writer.write_row(row_b)
+
+    # Buffered: nothing on disk yet (a separate read handle sees an empty
+    # file even though two rows were "written").
+    with open(path, "r", encoding="utf-8") as fh:
+        assert fh.read() == ""
+
+    # Episode boundary commits both rows in one batch.
+    n = writer.flush_episode()
+    assert n == 2
+    with open(path, "r", encoding="utf-8") as fh:
+        content = fh.read()
+    lines = [ln for ln in content.split("\n") if ln]
+    assert [json.loads(ln) for ln in lines] == [row_a, row_b]
+
+    # flush_episode is a no-op when buffer is empty.
+    assert writer.flush_episode() == 0
+
+    writer.close()
+
+
+def test_writer_close_flushes_residual_buffer(tmp_path: pathlib.Path) -> None:
+    """close() flushes any unflushed buffer so process-exit between episodes
+    still commits the trailing batch (only mid-episode crashes lose data).
+    """
+    path = tmp_path / "tail.jsonl"
     writer = PerStepWriter(path)
     row = _make_row(0, 0, 0, 0)
     writer.write_row(row)
-
-    # Open via a separate handle without closing the writer first.
-    with open(path, "r", encoding="utf-8") as fh:
-        content = fh.read()
-    assert content.endswith("\n")
-    assert json.loads(content.strip()) == row
-
+    # No flush_episode — simulate "process about to exit" between episodes.
     writer.close()
+
+    text = path.read_text(encoding="utf-8")
+    assert json.loads(text.strip()) == row
 
 
 def test_install_atexit_registers_callback(

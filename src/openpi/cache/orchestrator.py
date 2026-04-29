@@ -70,6 +70,11 @@ class CheckResult:
     entry_id: Optional[str] = None
     query_keys: Optional[dict[str, torch.Tensor]] = None  # filled on all paths
     start_t: float | None = None  # Judge-decided start_t, only on WARM_START
+    # Diagnostic per-step factor dump forwarded from the inner JudgeResult.
+    # Populated only when the configured judge is a CompositeJudge with
+    # ``export_factor_outputs: true``; otherwise None and Interceptor skips
+    # the hit_meta side-channel.
+    factor_outputs: Optional[dict] = None
 
 
 class CacheOrchestrator:
@@ -467,6 +472,11 @@ class CacheOrchestrator:
         hit_type = judge_result.hit_type
         winner_id = judge_result.winner_id
         start_t = judge_result.start_t
+        # Forward the optional CompositeJudge diagnostic dump on every exit
+        # path below (FULL_HIT / WARM_START / WARM_START-downgrade-to-MISS /
+        # post-judge MISS). Early gate / cache-disabled returns above never
+        # touched a judge and stay None.
+        factor_outputs = getattr(judge_result, "factor_outputs", None)
         top_score = results[0].score if results else None
         logger.info("[step %d] %s judge: %s (top_score=%s, winner=%s)", self._step_counter, prefix, hit_type.name, top_score, winner_id)
 
@@ -500,14 +510,19 @@ class CacheOrchestrator:
                     return CheckResult(
                         hit_type=HitType.MISS, query_keys=query_keys,
                         score=results[0].score, entry_id=winner_id,
+                        factor_outputs=factor_outputs,
                     )
 
             return CheckResult(
                 hit_type=hit_type, payload=payload, start_t=start_t,
                 score=results[0].score, entry_id=winner_id, query_keys=query_keys,
+                factor_outputs=factor_outputs,
             )
 
-        return CheckResult(hit_type=HitType.MISS, query_keys=query_keys)
+        return CheckResult(
+            hit_type=HitType.MISS, query_keys=query_keys,
+            factor_outputs=factor_outputs,
+        )
 
     def build_keys(self, checkpoint_id: CheckpointID) -> dict[str, torch.Tensor]:
         """Build query keys from already-collected stage outputs.

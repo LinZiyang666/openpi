@@ -67,11 +67,22 @@ class JudgeResult:
 
     FULL_HIT and WARM_START must include winner_id; Orchestrator skips
     fetch when winner_id is None.
+
+    ``factor_outputs`` is an optional diagnostic payload populated only by
+    CompositeJudge when its config carries ``export_factor_outputs: true``.
+    Schema: ``{"raw": dict[str, float|None], "norm": dict[str, float|None],
+    "score": float|None, "sentinel": str|None}``. NaN values are pre-converted
+    to ``None`` so the dict round-trips through strict JSON parsers (jq,
+    pandas) without relying on Python's lax ``allow_nan=True``. Orchestrator
+    forwards this on ``CheckResult``; Interceptor surfaces it through
+    ``__hit_meta__`` for client-side per-step logging.
     """
 
     hit_type: HitType
     winner_id: str | None = None
     start_t: float | None = None
+    composer_score: Optional[float] = None
+    factor_outputs: Optional[dict] = None
 
 
 @runtime_checkable
@@ -238,6 +249,46 @@ class ThresholdJudge:
 
 
 # ---------------------------------------------------------------------------
+# Diagnostic factor-output helpers (used by CompositeJudge when
+# export_factor_outputs=True). Pre-converts NaN to None so the dict
+# round-trips through strict JSON parsers (jq, pandas) without relying on
+# the producer's `allow_nan=True`.
+# ---------------------------------------------------------------------------
+
+
+def _nan_to_none(d: dict[str, float]) -> dict[str, Optional[float]]:
+    out: dict[str, Optional[float]] = {}
+    for k, v in d.items():
+        if v is None:
+            out[k] = None
+            continue
+        f = float(v)
+        out[k] = None if math.isnan(f) else f
+    return out
+
+
+def _build_factor_outputs(
+    raw: dict[str, float],
+    norm: dict[str, float],
+    *,
+    composer_score: Optional[float],
+    sentinel: Optional[str],
+) -> dict:
+    score: Optional[float]
+    if composer_score is None:
+        score = None
+    else:
+        s = float(composer_score)
+        score = None if math.isnan(s) else s
+    return {
+        "raw":  _nan_to_none(raw),
+        "norm": _nan_to_none(norm),
+        "score": score,
+        "sentinel": sentinel,
+    }
+
+
+# ---------------------------------------------------------------------------
 # CompositeJudge — verdict factor pipeline
 # ---------------------------------------------------------------------------
 
@@ -276,6 +327,7 @@ class CompositeJudge:
         normalizer: Optional["Normalizer"] = None,
         all_nan_fallback: str = "miss",
         all_nan_fallback_start_t: float | None = None,
+        export_factor_outputs: bool = False,
     ) -> None:
         if not extractors:
             raise ValueError(
@@ -305,6 +357,7 @@ class CompositeJudge:
         self._normalizer = normalizer
         self._all_nan_fallback = all_nan_fallback
         self._all_nan_fallback_start_t = all_nan_fallback_start_t
+        self._export_factor_outputs = bool(export_factor_outputs)
         # Per-instance verdict counter for debug log correlation. Increments
         # on every __call__ regardless of hit/miss. Survives across episodes
         # within one CompositeJudge lifetime (rebuilt on `load_cache_config`).
@@ -397,6 +450,10 @@ class CompositeJudge:
             else:
                 result = JudgeResult(HitType.MISS)
                 sentinel_path = "all_nan_miss"
+            if self._export_factor_outputs:
+                result.factor_outputs = _build_factor_outputs(
+                    raw, norm, composer_score=None, sentinel=sentinel_path,
+                )
             if _VERDICT_DEBUG:
                 self._vd_step += 1
                 self._emit_vd(
@@ -406,6 +463,12 @@ class CompositeJudge:
             return result
 
         result = self._composer.compose(norm, winner_id=results[0].id)
+        if self._export_factor_outputs:
+            result.factor_outputs = _build_factor_outputs(
+                raw, norm,
+                composer_score=result.composer_score,
+                sentinel=None,
+            )
         if _VERDICT_DEBUG:
             self._vd_step += 1
             self._emit_vd(

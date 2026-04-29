@@ -525,6 +525,7 @@ def _eval_serial(
                 recorder = _rec
             else:
                 recorder = None
+                writer = None
 
             done, images, timestamps, traj_buffer, final_env_timestep = _run_episode(
                 env, client, initial_states[episode_idx],
@@ -542,6 +543,12 @@ def _eval_serial(
                 out_path = pathlib.Path(args.video_out_path) / f"rollout_{task_segment}_{suffix}.mp4"
                 _save_video(images, timestamps, out_path)
             client.episode_end(success=done)
+            # Episode boundary: commit the in-memory per-step buffer to disk
+            # in one batched write. The buffered model trades line-by-line
+            # crash-safety for clean episode boundaries (~250 rows / write
+            # call) — required when factor_outputs payloads inflate row size.
+            if writer is not None:
+                writer.flush_episode()
 
             if args.save_trajectory and traj_buffer is not None:
                 _flush_trajectory_h5(
@@ -754,6 +761,7 @@ def _eval_concurrent(
                             recorder = _rec
                         else:
                             recorder = None
+                            writer = None
 
                         done, _, _, traj_buffer, final_env_timestep = _run_episode(
                             env, client, initial_states[episode_idx],
@@ -764,6 +772,13 @@ def _eval_concurrent(
                         )
                         total_steps[0] += wbar.n
                         client.episode_end(success=done)
+                        # Episode boundary: flush this worker's per-step
+                        # buffer in one batched write. Per-worker writer
+                        # isolation means no lock is needed even though many
+                        # workers run concurrently — each writes its own
+                        # temp file that ``finalize`` later merges.
+                        if writer is not None:
+                            writer.flush_episode()
 
                         if args.save_trajectory and traj_buffer is not None:
                             # HDF5 write is per-episode and targets a

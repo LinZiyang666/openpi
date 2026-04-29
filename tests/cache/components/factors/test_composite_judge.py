@@ -329,6 +329,114 @@ def test_composite_miss_e2e():
     assert out.hit_type is HitType.MISS
 
 
+# ------------------------------------------------------------------
+# export_factor_outputs diagnostic side-channel (CompositeJudge)
+# ------------------------------------------------------------------
+
+
+def test_factor_outputs_disabled_by_default():
+    """Default flag off → JudgeResult.factor_outputs stays None on every path."""
+    e = _StubExtractor({"k": "safe"}, {"k": 0.9})
+    composer = WeightedSumComposer(weights={"k": 1.0}, full_hit_threshold=0.5)
+    normalizer = PercentileRollingNormalizer(
+        window_size=1, cold_start_strategy="passthrough",
+    )
+    cj = CompositeJudge(extractors=[e], composer=composer, normalizer=normalizer)
+
+    out = cj([_result_lite()], CheckpointID.CP1, {})
+    assert out.factor_outputs is None
+
+
+def test_factor_outputs_normal_compose_path_payload_shape():
+    """Normal compose → factor_outputs has raw, norm, score, sentinel=None."""
+    e = _StubExtractor({"k": "safe"}, {"k": 0.9})
+    composer = WeightedSumComposer(weights={"k": 1.0}, full_hit_threshold=0.5)
+    normalizer = PercentileRollingNormalizer(
+        window_size=1, cold_start_strategy="passthrough",
+    )
+    cj = CompositeJudge(
+        extractors=[e], composer=composer, normalizer=normalizer,
+        export_factor_outputs=True,
+    )
+
+    out = cj([_result_lite()], CheckpointID.CP1, {})
+    assert out.hit_type is HitType.FULL_HIT
+    fo = out.factor_outputs
+    assert fo is not None
+    assert set(fo.keys()) == {"raw", "norm", "score", "sentinel"}
+    assert fo["raw"] == {"k": pytest.approx(0.9)}
+    assert fo["norm"]["k"] == pytest.approx(0.9)
+    assert fo["score"] == pytest.approx(0.9)
+    assert fo["sentinel"] is None
+
+
+def test_factor_outputs_all_nan_warm_fallback_payload():
+    """All-NaN warm fallback → sentinel set, raw/norm NaN values become None,
+    composer score absent (None)."""
+    e = _StubExtractor({"k": "safe"}, {"k": float("nan")})
+    composer = WeightedSumComposer(weights={"k": 1.0}, full_hit_threshold=0.5)
+    norm = _StubNormalizer(lambda r: {k: float("nan") for k in r})
+    cj = CompositeJudge(
+        extractors=[e], composer=composer, normalizer=norm,
+        all_nan_fallback="warm_start", all_nan_fallback_start_t=0.7,
+        export_factor_outputs=True,
+    )
+
+    out = cj([_result_lite()], CheckpointID.CP1, {})
+    assert out.hit_type is HitType.WARM_START
+    fo = out.factor_outputs
+    assert fo is not None
+    assert fo["sentinel"] == "all_nan_warm_fallback"
+    assert fo["raw"] == {"k": None}        # NaN → None
+    assert fo["norm"] == {"k": None}
+    assert fo["score"] is None             # composer was not invoked
+
+
+def test_factor_outputs_all_nan_miss_payload():
+    """All-NaN with fallback=miss → sentinel='all_nan_miss', score=None."""
+    e = _StubExtractor({"k": "safe"}, {"k": float("nan")})
+    composer = WeightedSumComposer(weights={"k": 1.0}, full_hit_threshold=0.5)
+    norm = _StubNormalizer(lambda r: {k: float("nan") for k in r})
+    cj = CompositeJudge(
+        extractors=[e], composer=composer, normalizer=norm,
+        export_factor_outputs=True,
+    )
+
+    out = cj([_result_lite()], CheckpointID.CP1, {})
+    assert out.hit_type is HitType.MISS
+    fo = out.factor_outputs
+    assert fo is not None
+    assert fo["sentinel"] == "all_nan_miss"
+    assert fo["score"] is None
+
+
+def test_factor_outputs_json_strict_serialisable():
+    """factor_outputs payload must round-trip through strict JSON (no NaN
+    literals leak from CompositeJudge — the producer is the one place that
+    converts NaN to None)."""
+    import json as _json
+
+    e = _StubExtractor({"k": "safe", "j": "risky"}, {"k": float("nan"), "j": 0.3})
+    composer = WeightedSumComposer(
+        weights={"k": 1.0, "j": 1.0}, full_hit_threshold=0.5,
+    )
+    # Normalizer leaves the NaN in 'k' alone, returns valid 'j'.
+    norm = _StubNormalizer(lambda r: {"k": float("nan"), "j": 0.3})
+    cj = CompositeJudge(
+        extractors=[e], composer=composer, normalizer=norm,
+        export_factor_outputs=True,
+    )
+
+    out = cj([_result_lite()], CheckpointID.CP1, {})
+    assert out.factor_outputs is not None
+    # ``allow_nan=False`` is the strict-JSON gate every downstream reader
+    # (jq, pandas, web-clients) imposes; CompositeJudge must satisfy it.
+    s = _json.dumps(out.factor_outputs, allow_nan=False)
+    assert "NaN" not in s
+    parsed = _json.loads(s)
+    assert parsed["raw"] == {"k": None, "j": pytest.approx(0.3)}
+
+
 def test_composite_cold_start_short_circuits_to_miss():
     # force_miss normalizer with a window_size larger than what's been
     # seen → returns all-NaN → CompositeJudge short-circuits to MISS

@@ -193,6 +193,14 @@ class JudgeConfig:
     # strategy's `min_top_k_hint` so dump-side factors (e.g. F2) get enough
     # candidates even when the inner judge does not request widening.
     dump: Optional[DumpConfig] = None
+    # ── Diagnostic per-step factor output side-channel (CompositeJudge only) ──
+    # When True, CompositeJudge attaches `factor_outputs` (raw + normalized
+    # values + composer score + cold-start sentinel) to every JudgeResult.
+    # Orchestrator forwards it via CheckResult; Interceptor surfaces it on
+    # `__hit_meta__`; client-side PerStepWriter records it episode-batched.
+    # Default False keeps the wire / per_step jsonl schema unchanged for
+    # production yamls.
+    export_factor_outputs: bool = False
 
 
 @dataclass
@@ -1791,6 +1799,7 @@ def _build_inner_judge(cfg: JudgeConfig, library_stats=None):
             normalizer=normalizer,
             all_nan_fallback=all_nan_fallback,
             all_nan_fallback_start_t=all_nan_fallback_start_t,
+            export_factor_outputs=bool(cfg.export_factor_outputs),
         )
     else:
         raise ConfigValidationError(

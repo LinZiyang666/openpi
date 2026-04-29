@@ -437,12 +437,21 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 "winner_id": None,
                 "cp1_score": None,
             }
-        return {
+        meta = {
             "hit_type": cp1_result.hit_type.name,
             "start_t": cp1_result.start_t,
             "winner_id": cp1_result.entry_id,
             "cp1_score": cp1_result.score,
         }
+        # Optional diagnostic side-channel: per-step raw + normalized factor
+        # values + composer score + cold-start sentinel. Only populated when
+        # the active CompositeJudge was built with `export_factor_outputs:
+        # true`; old yamls and non-composite judges leave it None and the
+        # field is omitted so the wire schema stays unchanged for them.
+        factor_outputs = getattr(cp1_result, "factor_outputs", None)
+        if factor_outputs is not None:
+            meta["factor_outputs"] = factor_outputs
+        return meta
 
     # -----------------------------------------------------------------------
     # BasePolicy interface

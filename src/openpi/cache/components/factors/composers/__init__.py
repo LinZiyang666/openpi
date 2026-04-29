@@ -148,7 +148,7 @@ class WeightedSumComposer:
                 _verdict_logger.info(
                     "[vd composer] total_w=0 (every key NaN-skipped) -> MISS"
                 )
-            return JudgeResult(HitType.MISS)
+            return JudgeResult(HitType.MISS, composer_score=None)
         s = score / total_w
         if s >= self._full_hit_threshold:
             if self._warm_start_t is not None:
@@ -161,13 +161,16 @@ class WeightedSumComposer:
                     )
                 return JudgeResult(
                     HitType.WARM_START, winner_id=winner_id, start_t=self._warm_start_t,
+                    composer_score=s,
                 )
             if _VERDICT_DEBUG:
                 _verdict_logger.info(
                     "[vd composer] score=%.4f >= full_hit=%.2f -> FULL_HIT",
                     s, self._full_hit_threshold,
                 )
-            return JudgeResult(HitType.FULL_HIT, winner_id=winner_id)
+            return JudgeResult(
+                HitType.FULL_HIT, winner_id=winner_id, composer_score=s,
+            )
         if (
             self._warm_start_threshold is not None
             and s >= self._warm_start_threshold
@@ -179,6 +182,7 @@ class WeightedSumComposer:
                 )
             return JudgeResult(
                 HitType.WARM_START, winner_id=winner_id, start_t=self._warm_start_t,
+                composer_score=s,
             )
         if _VERDICT_DEBUG:
             _verdict_logger.info(
@@ -186,7 +190,7 @@ class WeightedSumComposer:
                 s, self._full_hit_threshold,
                 f" (warm_start={self._warm_start_threshold:.2f})" if self._warm_start_threshold is not None else "",
             )
-        return JudgeResult(HitType.MISS)
+        return JudgeResult(HitType.MISS, composer_score=s)
 
 
 # ------------------------------------------------------------------

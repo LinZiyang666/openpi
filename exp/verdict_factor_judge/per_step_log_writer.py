@@ -3,9 +3,12 @@
 This module owns the client-side observability path described in
 ``logs/verdict_factor_judge_dedicated_runner_plan.log.md`` §7. It exposes:
 
-* :class:`PerStepWriter` — append-only line-buffered JSONL writer pinned to a
-  single worker thread, so concurrent writes from N workers never need a
-  shared lock.
+* :class:`PerStepWriter` — episode-batched JSONL writer pinned to a single
+  worker thread. ``write_row`` only appends to an in-memory buffer; the
+  caller MUST invoke :meth:`PerStepWriter.flush_episode` after each
+  ``client.episode_end`` to commit one batch atomically. Per-worker file
+  isolation removes lock contention; ``close``/``finalize`` flush any
+  residual buffer so a crash mid-episode at most loses the in-flight one.
 * :class:`PerStepWriterPool` — registry that allocates one writer per worker
   and merges all temp files into a single sorted ``<yaml_id>.jsonl`` on
   :meth:`PerStepWriterPool.finalize`.
@@ -22,7 +25,15 @@ field names)::
       "orig_init_state_idx": int, "episode_id": int, "step_idx": int,
       "phase": "warmup"|"eval",
       "hit_type": str, "start_t": float|null,
-      "winner_id": str|null, "cp1_score": float|null
+      "winner_id": str|null, "cp1_score": float|null,
+      // optional — present only when the active CompositeJudge yaml carries
+      // `judge.export_factor_outputs: true`. Absent for production yamls.
+      "factor_outputs": {
+        "raw":      {<factor_key>: float|null, ...},
+        "norm":     {<factor_key>: float|null, ...},
+        "score":    float|null,         // composer-computed weighted score
+        "sentinel": str|null            // e.g. "all_nan_warm_fallback"
+      }
     }
 """
 
@@ -41,25 +52,30 @@ _SORT_KEYS = ("task_id", "subset_init_state_idx", "episode_id", "step_idx")
 
 
 class PerStepWriter:
-    """Append-only line-buffered JSONL writer owned by a single worker thread.
+    """Episode-batched JSONL writer owned by a single worker thread.
 
-    Per-worker file isolation removes lock contention; ``buffering=1`` flushes
-    on every newline so a crash mid-episode preserves all completed rows
-    (plan §7.3).
+    Per-worker file isolation removes lock contention. ``write_row`` only
+    appends to an in-memory list; ``flush_episode`` is the single point that
+    commits a batch to disk in one ``write`` call. ``close`` flushes any
+    residual buffer so a crash between two episodes loses at most the
+    in-flight one.
+
+    Buffer footprint: ~250 step/episode × ~1 KB/row ≈ 250 KB resident per
+    worker — negligible against simulator memory.
     """
 
     def __init__(self, path: pathlib.Path) -> None:
-        """Open ``path`` in append mode with line buffering.
+        """Open ``path`` in append mode (no per-line OS flush).
 
         Caller is responsible for ensuring the parent directory exists; the
         owning :class:`PerStepWriterPool` mkdirs ahead of time.
         """
         self._path = pathlib.Path(path)
-        # buffering=1 → line-buffered text mode; every ``\n`` flushes to the
-        # OS. Combined with a worker-private file this gives crash-safety
-        # without an explicit fsync per row.
-        self._fh = open(self._path, "a", buffering=1, encoding="utf-8")
+        # Default block buffering. ``flush_episode`` and ``close`` are the
+        # only commit points, both of which call ``flush`` explicitly.
+        self._fh = open(self._path, "a", encoding="utf-8")
         self._closed = False
+        self._buffer: list[dict] = []
 
     @property
     def path(self) -> pathlib.Path:
@@ -67,22 +83,66 @@ class PerStepWriter:
         return self._path
 
     def write_row(self, row: dict) -> None:
-        """Serialise ``row`` to JSON and append one line.
+        """Append ``row`` to the in-memory episode buffer.
+
+        Does not touch disk — the caller MUST invoke ``flush_episode`` after
+        ``client.episode_end`` to commit. Buffering at episode granularity
+        keeps the diagnostic ``factor_outputs`` payload (~1 KB / step) from
+        thrashing the OS write path on every verdict.
+        """
+        if self._closed:
+            raise RuntimeError(f"PerStepWriter for {self._path} is closed")
+        self._buffer.append(row)
+
+    def flush_episode(self) -> int:
+        """Serialize the current buffer in one batch and ``write`` to disk.
 
         ``ensure_ascii=False`` keeps task descriptions readable when the
         merged file is grepped manually; ``sort_keys=True`` keeps line bytes
         deterministic so two reruns of the same episode produce diff-able
-        artefacts.
+        artefacts. ``allow_nan=False`` is intentionally NOT set — the
+        producer (CompositeJudge) pre-converts NaN to None, so any residual
+        NaN here is a contract violation worth surfacing rather than
+        silently emitting non-standard ``NaN`` literals.
+
+        Returns the number of rows committed (zero is a no-op safe to call
+        idempotently between flushes).
         """
         if self._closed:
             raise RuntimeError(f"PerStepWriter for {self._path} is closed")
-        self._fh.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+        if not self._buffer:
+            return 0
+        chunk = "".join(
+            json.dumps(row, ensure_ascii=False, sort_keys=True, allow_nan=False) + "\n"
+            for row in self._buffer
+        )
+        n = len(self._buffer)
+        self._buffer.clear()
+        self._fh.write(chunk)
+        self._fh.flush()
+        return n
 
     def close(self) -> None:
-        """Flush + close the underlying file. Idempotent."""
+        """Flush residual buffer + close the underlying file. Idempotent.
+
+        Tail-flushing here means a process exit between two episodes still
+        commits the final batch; only a crash mid-episode (between
+        ``write_row`` calls within one episode) can lose data, and that
+        window is bounded by a single episode's verdicts.
+        """
         if self._closed:
             return
         try:
+            if self._buffer:
+                # Best-effort tail flush; caller never expected it but the
+                # trailing batch is more valuable than the crash-window
+                # nicety of dropping it.
+                try:
+                    self.flush_episode()
+                except Exception:  # noqa: BLE001
+                    # Swallow — close() is invoked from finalize / atexit
+                    # paths where raising would mask the original error.
+                    pass
             self._fh.flush()
         finally:
             self._fh.close()
