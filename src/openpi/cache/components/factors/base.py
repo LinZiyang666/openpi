@@ -1,16 +1,17 @@
 """Factor protocols and shared library-level statistics.
 
-A factor may implement OnlineExtractor (verdict-time, on cache hit
-candidates), OfflineWriter (artifact-build / episode-end, populates
-`payload.factors`), or both. The two protocols are separate so a factor
-can declare exactly the surface it provides; CompositeJudge consumes
-OnlineExtractors only, while the artifact-build / Orchestrator
-write-path collects OfflineWriters.
+A factor implements ``Factor`` (verdict-time ``extract(ctx)`` over a
+``FactorContext``) plus, optionally, ``OfflineWriter`` (artifact-build /
+episode-end ``compute_for_episode(entries, library_stats)`` that
+populates ``payload.factors``). The two protocols are separate so a
+factor can declare exactly the surface it provides; ``CompositeJudge``
+consumes ``Factor`` instances at verdict time, while the artifact-build /
+Orchestrator write-path collects ``OfflineWriter`` instances.
 
 Coupling map:
   DEPENDS ON:  storage_types.py (CacheEntry, SearchResultLite),
                components/payload_view.py (PayloadView)
-  CONSUMED BY: CompositeJudge (OnlineExtractor),
+  CONSUMED BY: CompositeJudge (Factor),
                CacheOrchestrator._build_entry_chain + offline build pkl
                tooling (OfflineWriter)
 """
@@ -144,90 +145,6 @@ class HistoryView:
 
 
 @runtime_checkable
-class OnlineExtractor(Protocol):
-    """Verdict-time factor extraction. Pure function (no I/O side effect).
-
-    Two-tier metadata model:
-
-    Class-level capability flags (read by validator BEFORE instantiation,
-    no params needed):
-      - required_top_k:           default minimum top_k this factor type
-                                  needs; CompositeJudge feeds the max of
-                                  these into the search strategy via
-                                  `min_top_k_hint`. May be overridden per
-                                  instance via `params`.
-      - requires_library_stats:   whether the constructor needs a
-                                  `library_stats` kwarg from the config
-                                  builder. True for F1a / F1b (z-score
-                                  against library sigma); False for F2
-                                  (candidate-pool variance is scale
-                                  invariant).
-      - requires_chain_walk:      whether `extract()` calls
-                                  `view.walk_prev` / `view.walk_next`.
-                                  True for F1a-T (reads downstream state);
-                                  used by validator to fail-fast against
-                                  backends that lack `fetch_entry`.
-
-    Instance-level metadata (set in __init__ from params, read by
-    CompositeJudge after instantiation):
-      - descriptor_orientations:  {key -> "safe"|"risky"|"non_monotonic"}
-                                  for every key this *instance* will
-                                  produce. Keys depend on params (e.g.
-                                  F1b keys encode descriptors x windows
-                                  x source), so they cannot be class
-                                  level. Instance __init__ should call
-                                  `self.descriptor_orientations =
-                                  self.__class__.describe(params)`.
-
-    Static key introspection (for validator, before instantiation):
-      - describe(params):         classmethod that returns the same
-                                  key->orientation map from params alone,
-                                  without touching library_stats or any
-                                  runtime context. Validator uses this
-                                  to cross-check ComposerConfig.directions
-                                  coverage for non_monotonic keys without
-                                  needing to construct the factor (which
-                                  would require library_stats for F1b
-                                  before the backend exists).
-    """
-
-    required_top_k: int
-    requires_library_stats: bool
-    requires_chain_walk: bool
-    descriptor_orientations: dict[str, str]
-
-    @classmethod
-    def describe(cls, params: dict) -> dict[str, str]:
-        """Return the {key -> orientation} map an instance built with
-        `params` will produce. Pure function — no library_stats, no I/O.
-        The classmethod and __init__ MUST agree:
-        `instance.descriptor_orientations == cls.describe(params)`.
-        """
-        ...
-
-    def extract(
-        self,
-        results: list["SearchResultLite"],
-        view: "PayloadView",
-        history: "HistoryView",
-        cached_data: dict[str, "torch.Tensor"],
-    ) -> dict[str, float]:
-        """Return {key: value} factor descriptors for this verdict.
-
-        Returned dict's key set MUST equal
-        `self.descriptor_orientations.keys()`. CompositeJudge enforces
-        this (key contract assertion); drift would silently desynchronize
-        Normalizer state, Composer weights, and orientation lookup, so
-        we fail loud at the boundary.
-
-        Values may be NaN to signal a missing or invalid measurement
-        (e.g. boundary windows, missing payload.factors); Composer is
-        responsible for the orientation-aware NaN handling rule.
-        """
-        ...
-
-
-@runtime_checkable
 class OfflineWriter(Protocol):
     """Artifact-build / episode-end factor computation.
 
@@ -252,3 +169,146 @@ class OfflineWriter(Protocol):
         Caller merges into `entries[i].payload.factors`.
         """
         ...
+
+
+# ------------------------------------------------------------------
+# Refactor B1+: Layer 3 calibration samples + Factor verdict context
+# ------------------------------------------------------------------
+
+
+@dataclass
+class CalibrationSamples:
+    """Layer 3 Calibration startup data: per-key historical raw factor values.
+
+    Loaded from one of two sources at server startup (yaml field
+    ``calibration.samples_source.type``):
+      - ``offline``: read from a JSONL / pkl file on disk
+        (``samples_source.offline.path`` + ``format``).
+      - ``warmup``: read from the per-yaml ``WarmupPool`` entry, which
+        the warmup yaml's DumpingJudge populated by running the eval
+        task distribution while logging raw factor values.
+
+    Calibration subclasses inspect ``samples`` at ``bind_keys`` time and
+    fail-fast if any bound key has fewer non-NaN samples than the
+    configured window size. This guarantees every Layer 3 buffer is
+    saturated before the first verdict — no cold-start state.
+    """
+
+    samples: dict[str, list[float]]
+
+
+@dataclass
+class FactorContext:
+    """Per-verdict input dataclass for Layer 2 ``Factor.extract``.
+
+    Single dataclass entry point so Factor subclasses do not have to
+    juggle four positional arguments. Constructed by ``CompositeJudge.__call__``
+    once per verdict and passed unchanged to every active factor.
+
+    Coupling map:
+      DEPENDS ON:  storage_types.SearchResultLite, components/payload_view.PayloadView,
+                   HistoryView (above), normalization.Normalization (Layer 1).
+      CONSUMED BY: components/factors/online.py, offline.py, topk.py.
+    """
+
+    results: list["SearchResultLite"]
+    view: "PayloadView"
+    history: HistoryView
+    # Layer 1 instance — Factor subclasses call ``ctx.normalization.normalize_action(seq)``
+    # / ``normalize_state(seq)`` when they need z-scored data. Typed as ``object``
+    # here to avoid a hard import cycle with ``factors/normalization`` (which
+    # depends on this module's ``LibraryStats``).
+    normalization: object
+
+
+@runtime_checkable
+class Factor(Protocol):
+    """Layer 2 verdict-factor protocol.
+
+    The ``extract(ctx)`` contract collapses verdict-time inputs into a
+    single ``FactorContext`` dataclass (``results / view / history /
+    normalization``) so subclasses never juggle multiple positional args
+    and never persist their own ``library_stats`` (Layer 1 owns
+    z-score and is injected as ``ctx.normalization``).
+
+    Class-level capability flags (read by validator BEFORE instantiation):
+      - required_top_k:        instance hint upper-bounded by the constructor
+                               (e.g. TopkActionVariance sets ``self.required_top_k = K``);
+                               CompositeJudge picks the max across factors and
+                               feeds search-strategy ``min_top_k_hint``.
+      - requires_chain_walk:   ``True`` for any factor whose ``extract`` calls
+                               ``ctx.view.walk_prev`` / ``walk_next``. The 8
+                               online factors set this True (per plan §6.6 the
+                               online splice walks the chain on both action
+                               and state channels). The validator uses it to
+                               fail-fast against backends without ``fetch_entry``.
+
+    Instance-level metadata:
+      - descriptor_orientations: ``{key -> "safe"|"risky"|"non_monotonic"}``
+                                 for every key this instance produces. Keys
+                                 depend on construction params (windows etc.),
+                                 so the map is built in ``__init__`` via
+                                 ``self.descriptor_orientations = self.__class__.describe(params)``.
+
+    Static introspection:
+      - ``describe(cls, params)`` classmethod: pure mapping from params to
+        ``{key -> orientation}``, no runtime context. The validator uses it
+        to compute the union of factor keys at yaml-load time and cross-check
+        ``Composer.declared_dependencies``.
+    """
+
+    required_top_k: int
+    requires_chain_walk: bool
+    descriptor_orientations: dict[str, str]
+
+    @classmethod
+    def describe(cls, params: dict) -> dict[str, str]:
+        """Return the ``{key -> orientation}`` map an instance built with
+        ``params`` will produce. Pure — no I/O, no library_stats. The
+        classmethod and ``__init__`` MUST agree:
+        ``instance.descriptor_orientations == cls.describe(params)``.
+        """
+        ...
+
+    def extract(self, ctx: FactorContext) -> dict[str, float]:
+        """Return ``{key: float}`` factor descriptors for this verdict.
+
+        Returned dict's key set MUST equal
+        ``self.descriptor_orientations.keys()``. CompositeJudge enforces
+        this (key contract assertion); drift silently desynchronizes
+        Layer 3 buffer state, Composer weights, and orientation lookup, so
+        we fail loud at the boundary.
+
+        Values may be NaN to signal a missing / invalid measurement
+        (boundary windows, missing payload.factors, fork detected,
+        zero-norm denominator). NaN propagates straight through Layer 3
+        and into Composer; the Composer subclass owns NaN handling.
+        """
+        ...
+
+
+# ------------------------------------------------------------------
+# Shared yaml helper — window list normalization
+# ------------------------------------------------------------------
+
+
+def normalize_windows(raw) -> list[tuple[int, int]]:
+    """Normalize a yaml ``windows`` block to ``list[tuple[int, int]]``.
+
+    Accepts either ``[{"past": int, "future": int}, ...]`` (yaml shape) or
+    already-normalized ``[(P, F), ...]``. Used by every Layer 2 Factor's
+    ``describe`` classmethod and ``__init__`` so the validator and the
+    runtime see identical window keys.
+
+    Lives in base.py so both online.py and offline.py can import it
+    without creating a sibling-module circular import (registry needs to
+    import both at @register time).
+    """
+    out: list[tuple[int, int]] = []
+    for w in raw:
+        if isinstance(w, dict):
+            out.append((int(w["past"]), int(w["future"])))
+        else:
+            p, f = w
+            out.append((int(p), int(f)))
+    return out

@@ -1,977 +1,1088 @@
 # Verdict Factor Judge — User Guide
 
-> **Prerequisites**: Read [tutorial.md](tutorial.md) §6 for the Judge component basics and §10 for YAML configuration; read [../architecture/cache_system.md](../architecture/cache_system.md) §5.6 / §5.11 / §5.12 for the verdict-factor architecture contract.
+> ⚠️ **2026-05-07 — Refactor (G1 APPROVED Round 4 / G2 APPROVED Round 3) has landed**:
 >
-> **Design document**: full design and decision history is in [`logs/verdict_factor_judge.log.md`](../../logs/verdict_factor_judge.log.md) (Plan, G1 / G2 APPROVED).
+> - **5 → 17 factors flat layout**: `f1a_a / f1a_t / f1b_a / f1b_t / f2`
+>   are **all gone**; new names follow `<descriptor>_<source>_<channel>`:
+>   - 4 descriptors: `jerk` / `direction` (was `dir`) / `dispersion`
+>     (was `curv_radius`) / `path_length` (was `cum_disp`)
+>   - 4 variants = 2 sources × 2 channels: `online | offline` ×
+>     `action | state` → 16; plus `topk_action_variance` = 17.
+> - **4-layer judge architecture**: Normalization → Factor → Calibration
+>   → Composer; each layer is independently pluggable via yaml.
+> - **No cold-start**: Layer 1 + Layer 3 require pre-loaded calibration
+>   data at startup; the legacy `cold_start_strategy: force_miss /
+>   passthrough / lenient` + `all_nan_fallback` +
+>   `JudgeResult.factor_outputs.sentinel` fields are removed.
+> - **Diagnostic schema_version=2**: `factor_outputs.{raw, calibrated,
+>   composer_score}` (legacy `norm` / `score` / `sentinel` removed).
 >
-> **Status (2026-04-26)**: B1 + B2 have both landed. B1 = F1a-A / F1a-T / F2 `extract` bodies, three Composer algorithms, `PercentileRollingNormalizer`, Orchestrator view+history injection, `_state_history` / anchor checkpoint policy / `on_task_end` leak fix, `_JUDGE_TYPES` opens `composite`, validator runs all 7 composite-specific checks (including the 5a-5d warm-start sub-rules: CP1-only, canonical denoise timestep, pairwise tier/composer warm config, tier ordering), `min_top_k_hint` plumbing. B2 = F1b OnlineExtractor + OfflineWriter, `LibraryStats.compute_from_entries`, Orchestrator `__init__` accepts `offline_writers` / `library_stats` and `_build_entry_chain` invokes them at episode end, `build_per_connection_components` collects writers + library_stats from composite judges and `scripts/serve_policy.py` forwards both to the Orchestrator on every production-assembly path, Backend `load_artifact` library_stats load + fallback, build-pkl `--factors-yaml` CLI on all three builders, `exp/common/factor_postprocess.py` enrichment helper. End-to-end composite judges and full offline build pipeline are now usable.
+> Authoritative reference (Chinese): [`verdict_factor_judge.md`](verdict_factor_judge.md).
+> Full design + decision history: [`logs/verdict_factor_judge_refactor.log.md`](../../logs/verdict_factor_judge_refactor.log.md).
+> Pre-refactor design docs: `logs/old_verdict_factor_*.log.md` (8 archived files).
+
+> **Prerequisites**: read [tutorial.md](tutorial.md) §6 for the Judge
+> component basics and §10 for YAML config; read
+> [../architecture/cache_system.md](../architecture/cache_system.md)
+> §5.12 / §5.13 for the verdict-factor architecture contract.
 
 ---
 
-## 1. Overview
+## 1. Overview (refactored 4-layer architecture)
 
-`CompositeJudge` replaces the single-threshold cosine match with a **"factor vector → Normalizer → Composer → JudgeResult"** three-stage pipeline. Multiple statistical / kinematic descriptors (jerk, direction consistency, curvature radius, cumulative displacement, top-K action variance) cooperate on the hit decision.
+`CompositeJudge` splits the hit decision into **four orthogonal,
+pluggable layers**. Each layer is independently swappable through the
+yaml `judge` block; the layers are orthogonal — a layer never holds a
+reference to another layer's instance, only to an interface contract.
 
 ```
-SearchResultLite[]  ─┐
-PayloadView (view)   ├──► OnlineExtractor*  ──► raw: dict[str, float]
-HistoryView          │   (key contract: keys MUST equal that
-cached_data         ─┘    extractor's descriptor_orientations.keys())
-                                      │
-                                      ▼
-                              Normalizer (optional, e.g. PercentileRollingNormalizer)
-                                      │
-                              norm: dict[str, float]
-                              (all-NaN → CompositeJudge short-circuits to MISS)
-                                      │
-                                      ▼
-                                  Composer (WeightedSum / AndGate / OrGate)
-                                      │
-                                      ▼
-                                JudgeResult(hit_type, winner_id, start_t)
+                    ┌──────────────────────────────────────┐
+raw action / state  │ Layer 1   Normalization              │
+─────────────────►  │   ZScoreNormalization                │
+                    │   stats_source: offline (LibraryStats)│
+                    └──────────────┬───────────────────────┘
+                                   │ normalized data injected via FactorContext
+                                   ▼
+SearchResultLite[]  ┌──────────────────────────────────────┐
+PayloadView      ──►│ Layer 2   17 Factors                  │
+HistoryView         │   `<descriptor>_<source>_<channel>`   │
+                    │   + topk_action_variance              │
+                    └──────────────┬───────────────────────┘
+                                   │ raw factor dict[str, float]
+                                   ▼
+                    ┌──────────────────────────────────────┐
+                    │ Layer 3   Calibration (per key)       │
+                    │   PercentileRollingCalibration        │
+                    │   samples_source: offline | warmup    │
+                    │   bind_keys() fail-fast at startup    │
+                    └──────────────┬───────────────────────┘
+                                   │ calibrated dict in [0, 1]
+                                   ▼
+                    ┌──────────────────────────────────────┐
+                    │ Layer 4   Composer                    │
+                    │   declared_dependencies (instance)    │
+                    │   compose(calibrated, *, winner_id)   │
+                    │   subclass owns NaN handling          │
+                    └──────────────┬───────────────────────┘
+                                   │
+                                   ▼
+                    JudgeResult(hit_type, winner_id, start_t,
+                                factor_outputs={schema_version=2,
+                                                raw, calibrated,
+                                                composer_score})
 ```
 
-**When to choose `composite` vs `ThresholdJudge`**:
+**Key invariants**:
 
-| Situation | Recommended |
-|---|---|
-| Cosine score distribution is already well-behaved; want a quick deployment | `ThresholdJudge` |
-| Want to fold "retrieval-induced action discontinuity" risk into the verdict | `composite` + F1a-A |
-| Need candidate-pool consistency as a guard | `composite` + F2 |
-| Want cross-episode motion smoothness as a hit-quality signal | `composite` + F1b-A / F1b-T (requires LibraryStats at build time) |
-| Multi-dimensional combination (the typical post-B2 default) | `composite` + F1b-A + F1b-T + F2, weighted_sum |
-
-> **Batch status**: B0 = CompositeJudge class shell + 5 factor registrations + describe + capability flags. B1 = F1a / F2 online extract, three Composers + PercentileRollingNormalizer algorithms, Orchestrator view+history injection, `composite` YAML enabled, validator's 7 composite-specific checks. B2 = F1b online extract + offline OfflineWriter, `LibraryStats.compute_from_entries`, Backend `load_artifact` library_stats load/fallback, artifact-build helper.
+- Each layer's Protocol is unaware of the others' implementations (layers communicate only through agreed dataclasses / dicts).
+- The only legitimate NaN sources are factor physical edges (`history` < P, `walk_next` runs out, missing winner data); **not** Layer 3 cold-start (buffers are full at startup) and **not** missing Layer 1 σ (startup fail-fast).
+- Empty `results` → `CompositeJudge` returns `JudgeResult(MISS)` directly (the composer is never invoked with `winner_id=None`).
+- Composer subclasses **own** NaN handling: `WeightedSumWithWarmFallbackComposer` returns WARM_START when every non-zero-weight key is NaN (this is how the legacy `all_nan_fallback` semantics are preserved).
 
 ---
 
-## 2. The five factors at a glance
+## 2. The 17 Flat Factors
 
-| Registry name | Class | Data source | requires_library_stats | requires_chain_walk | Algorithm batch |
-|---|---|---|---|---|---|
-| `f1a_a` | `RuntimeContinuityAction` | winner `payload.action_chunk[0]` + `history.actions` | True | False | B1 |
-| `f1a_t` | `RuntimeContinuityState`  | winner `query_keys["robot_state"]` + `view.walk_next(winner_id, k)` | True | True | B1 |
-| `f1b_a` | `SourceWindowSmoothnessAction` | OfflineWriter reads `entries[i].payload.action_chunk[0]` along the chain; OnlineExtractor reads `payload.factors` only | True | False | B2 |
-| `f1b_t` | `SourceWindowSmoothnessState`  | OfflineWriter reads `entries[i].query_keys["robot_state"]` along the chain; OnlineExtractor reads `payload.factors` only | True | False | B2 |
-| `f2`    | `TopKActionConsensus` | top-K `payload.action_chunk` via `view.get_many` | False | False | B1 |
+Each `<descriptor>_<source>_<channel>` is its own registered factor identity. The 4-axis Cartesian gives 16 + 1 topk = 17.
 
-**`source` vs `key_initial` decoupling**:
+**4 kinematic descriptors (formula unchanged from pre-refactor; some renamed)**:
 
-- `source: "action" | "state"` — semantic name of the data the factor consumes.
-- `key_initial: "a" | "t"` — namespace for the keys the factor writes into `payload.factors`. Aligned with the registry name suffix so YAML configs that reference `f1a_t_jerk` find an extractor that actually produces that key (rather than `f1a_s_jerk` from a naive `source[0]` derivation).
-- Factors with `requires_library_stats=True` require `backend.type=in_memory` (currently the only backend exposing `library_stats`).
-- `requires_chain_walk=True` (only F1a-T today) requires a backend that exposes the `fetch_entry` capability (currently only InMemoryBackend).
-- These capability-vs-backend constraints are enforced at config-load time by `validate_cache_config` (rules #3 / #4 of the 6 static composite checks added in B1+).
+| New name | Old name | Orientation | Formula | Meaning |
+|---|---|---|---|---|
+| `jerk` | `jerk` | risky | `median \|Δ²a\|` (z-scored, active-DOF, time-median then DOF-mean) | Acceleration variation; high → not smooth |
+| `direction` | `dir` | safe | `mean cos(v[t], v[t+1])` | Velocity-direction consistency; high → smooth |
+| `dispersion` | `curv_radius` | non_monotonic | `mean ‖p[t] − centroid‖` | Window geometric spread (medium = arc; very small = stuck; very large = long straight) |
+| `path_length` | `cum_disp` | non_monotonic | `sum ‖p[t+1] − p[t]‖` | Cumulative path length (small + low jerk = stationary; large = fast motion) |
 
-**Descriptor set (shared by F1a + F1b)**:
+**4 variant axes** (each descriptor × 4 = 16 standalone factors):
 
-| Descriptor | Orientation | Formula | Meaning |
-|---|---|---|---|
-| `jerk` | risky | `median \|Δ²a / σ\|` (over active DOFs) | Acceleration-change magnitude; high → not smooth |
-| `dir`  | safe  | `mean cos(v[t], v[t+1])` | Direction consistency; high → smooth |
-| `curv_radius` | non_monotonic | `mean ‖p[t] − centroid‖` | Window geometric dispersion (medium = arc, very small = stuck, very large = long straight) |
-| `cum_disp`    | non_monotonic | `sum ‖p[t+1] − p[t]‖` | Cumulative path length (small + low jerk = stationary; large = fast motion) |
-
-`risky` / `safe` orientations let the Composer auto-flip score signs; `non_monotonic` keys MUST get an explicit `composer.directions` entry of `"high"` / `"low"` / `"range:[lo,hi]"` — otherwise the validator rejects the config (preventing accidental force-fitting of non-monotonic descriptors into a monotone aggregation).
-
-> **Batch status**: All 5 factors' metadata (capability flags + describe + register) lands in B0. `extract` / `compute_for_episode` algorithm bodies: F1a / F2 = B1, F1b = B2.
-
----
-
-## 3. Precise mathematical formulation of every factor
-
-> This section defines the operational contract for all factors (B1 / B2 implementations land bodies against these formulas); the previous section only gave intuition. GitHub renders math: inline `$...$`, block `$$...$$`. Local editors that don't render still see readable LaTeX in the source.
-
-### 3.1 Notation
-
-| Symbol | Meaning | Shape / range |
+| Axis | Values | Semantics |
 |---|---|---|
-| $a_t \in \mathbb{R}^A$ | Action vector at step $t$ (already input-transformed / pre-output-transform) | Pi0.5: $A = 32$ (universal action space) |
-| $s_t \in \mathbb{R}^S$ | `robot_state` at step $t$ (post-input-transform) | Pi0.5: $S = 32$ (universal state space) |
-| $\sigma \in \mathbb{R}^D$ | Per-DOF std ($D = A$ or $S$) | From `LibraryStats.{action,state}_sigma` (computed in B2) |
-| $M \in \{0,1\}^D$ | Active mask (True iff $\sigma_d \geq \varepsilon_{\text{active}}$) | `LibraryStats.{action,state}_active_mask`, default $\varepsilon_{\text{active}} = 0.01$ |
-| $D_{\text{act}} = \sum_{d=1}^{D} M_d$ | Active dimensionality | LIBERO measured: action 7 / state 8 (the remaining 24 of $D=32$ are universal-32 zero padding) |
-| $\varepsilon$ | clamp_min epsilon (avoid division by zero) | $10^{-8}$ (hard-coded at the implementation layer) |
+| source | `online` | Computed at verdict time (build splice from `[history[-P:], winner, walk_next(F)]` and call `ctx.normalization.normalize_*`) |
+| source | `offline` | Computed at artifact build by `OfflineWriter.compute_for_episode`, stored in `payload.factors`; verdict-time reads `winner.payload.factors` |
+| channel | `action` | Operates on chain `payload.action_chunk[0]` sequence |
+| channel | `state` | Operates on chain `query_keys["robot_state"]` sequence |
 
-**Per-DOF z-score** (action side shown; state side mirrors it with `state_sigma`):
+**The 17th factor**:
 
-$$
-\tilde{a}_{t,d} \;=\; \frac{a_{t,d}}{\max(\sigma_d,\;\varepsilon)}
-\qquad d = 1, 2, \ldots, D
-$$
+| Registered name | Class | Source | requires_chain_walk | required_top_k |
+|---|---|---|---|---|
+| `topk_action_variance` | `TopkActionVariance` | per-DOF variance of top-K candidates' `action_chunk[0]` (candidate-local active mask) | False | K |
 
-**Active subspace restriction**: every subsequent operator runs in the $D_{\text{act}}$-dim subspace. In the formulas below, $\tilde{a}_t$ is implicitly $\tilde{a}_t[M] \in \mathbb{R}^{D_{\text{act}}}$.
+**Online factors share a unified splice** (`<descriptor>_online_<channel>`, 8 total, `requires_chain_walk=True`):
 
-**Velocity and approximate jerk** (in the z-scored space):
+```
+splice = [history[-P:],   winner,   walk_next(F).<channel>]
+              ^               ^         ^
+              past            anchor    future
+              P executed steps  winner   F downstream chain steps
+```
 
-$$
-v_t \;=\; \tilde{a}_{t+1} - \tilde{a}_t \;\in\; \mathbb{R}^{D_{\text{act}}}
-\qquad\text{(first difference)}
-$$
+- `online_action`: `history.actions[-P:]` + `winner.action_chunk[0]` + `walk_next(F).payload.action_chunk[0]`
+- `online_state`:  `history.states[-P:]`  + `winner.query_keys["robot_state"]` + `walk_next(F).query_keys["robot_state"]`
+- splice step `t`'s state and action come from the **same inference quote** (entry t's `query_keys` + `payload`).
 
-$$
-j_t \;=\; \tilde{a}_{t+1} - 2\,\tilde{a}_t + \tilde{a}_{t-1} \;\in\; \mathbb{R}^{D_{\text{act}}}
-\qquad\text{(second difference, approximate jerk)}
-$$
+**Offline factors** (`<descriptor>_offline_<channel>`, 8 total, `requires_chain_walk=False`):
 
-Note: physical jerk is the third derivative; here $j_t$ is a discrete second difference (in the z-scored space). The name follows the plan / literature convention.
+- `OfflineWriter.compute_for_episode(entries, library_stats)` performs a sliding-window descriptor pass at artifact-build time, writing `entry.payload.factors[<key>]`.
+- At verdict time, only `winner.payload.factors[<key>]` is read; no chain walk.
+- key template: `<descriptor>_offline_<channel>__p<P>_f<F>`.
 
-**Window notation**: $W = (p, f)$ spans $[k - p,\; k + f]$ (a total of $|W| = p + f + 1$ samples), where $k$ is the anchor timestep. F1a uses `window_k = K` (translated to a $(K, K)$-style splice); F1b takes `windows: [(p_1, f_1), ...]` from YAML.
+**Backend capability**: any yaml containing a `requires_chain_walk=True` factor → `backend.type` must == `"in_memory"` (the only backend exposing `fetch_entry`). Static yaml-load validator.
+
+`risky` / `safe` composer auto-flips contributions by orientation; `non_monotonic` keys MUST appear under `composer.directions` with `"high"` / `"low"` / `"range:[lo, hi]"`, otherwise yaml load is rejected.
 
 ---
 
-### 3.2 Precise math for the shared descriptors
-
-Let the active-subspace sequence inside window $W$ be
-
-$$
-\mathrm{pts} \;=\; \bigl[\tilde{a}_{k-p},\; \tilde{a}_{k-p+1},\; \ldots,\; \tilde{a}_{k+f}\bigr] \;\in\; \mathbb{R}^{|W| \times D_{\text{act}}}
-$$
-
-with corresponding velocity $v_W \in \mathbb{R}^{(|W|-1) \times D_{\text{act}}}$ and jerk $j_W \in \mathbb{R}^{(|W|-2) \times D_{\text{act}}}$.
-
-#### 3.2.1 `jerk` — acceleration magnitude (risky)
-
-$$
-\boxed{\;
-\mathrm{jerk}(W) \;=\; \frac{1}{D_{\text{act}}} \sum_{d=1}^{D_{\text{act}}} \;\operatorname*{median}_{0 \leq t \leq |W|-3} \bigl|\,j_W[t, d]\,\bigr|
-\;}
-$$
-
-Pseudo-code (matches the actual implementation):
-
-```python
-jerk_factor = j_W.abs().median(dim=0).values.mean()
-# j_W: [|W|-2, D_act]
-# .median(dim=0).values : [D_act]   per-DOF time-median
-# .mean()              : scalar     average over DOF
-```
-
-**Why median over time, mean over DOF**: median absorbs single-frame gripper pulses (bistable transitions); mean over DOF lets all active dimensions contribute equally. High jerk → the retrieval splice introduced a velocity jump that inference would not have produced → risky.
-
-#### 3.2.2 `dir` — direction consistency (safe)
-
-Cosine of consecutive active-velocity vectors as whole-vector unit:
-
-$$
-\boxed{\;
-\mathrm{dir}(W) \;=\; \frac{1}{|W| - 2} \sum_{i=0}^{|W|-3} \frac{\langle v_W[i],\; v_W[i+1]\rangle}{\lVert v_W[i] \rVert_2 \,\cdot\, \lVert v_W[i+1] \rVert_2}
-\;}
-$$
-
-Pseudo-code:
-
-```python
-v1, v2 = v_W[:-1], v_W[1:]                       # each: [|W|-2, D_act]
-cos    = F.cosine_similarity(v1, v2, dim=-1)     # [|W|-2]
-dir_factor = cos.mean()
-```
-
-**Why not per-DOF cosine**: `dir` measures the coherence of the motion direction in the active subspace — the turning of a single $D_{\text{act}}$-dim vector; a per-DOF cosine would be dominated by zero components. **Range**: $[-1, 1]$, $1 =$ strictly aligned, $-1 =$ reversed.
-
-#### 3.2.3 `curv_radius` — window geometric dispersion (non-monotonic)
-
-$$
-\bar{c}_W \;=\; \frac{1}{|W|} \sum_{t=0}^{|W|-1} \mathrm{pts}[t] \;\in\; \mathbb{R}^{D_{\text{act}}}
-\qquad\text{(window centroid)}
-$$
-
-$$
-\boxed{\;
-\mathrm{curv\_radius}(W) \;=\; \frac{1}{|W|} \sum_{t=0}^{|W|-1} \bigl\lVert \mathrm{pts}[t] - \bar{c}_W \bigr\rVert_2
-\;}
-$$
-
-Pseudo-code:
-
-```python
-centroid = pts.mean(dim=0, keepdim=True)         # [1, D_act]
-curv_rad = (pts - centroid).norm(dim=-1).mean()
-```
-
-**Geometric meaning**: in the z-scored $D_{\text{act}}$-dim space, the average Euclidean distance from window points to their centroid. Stationary $\to$ near zero; arc $\to$ medium; long straight $\to$ large. **Orientation non-monotonic**: YAML must explicitly supply `direction: range:[lo, hi]` to enter weighted_sum.
-
-#### 3.2.4 `cum_disp` — cumulative path length (non-monotonic)
-
-$$
-\boxed{\;
-\mathrm{cum\_disp}(W) \;=\; \sum_{t=0}^{|W|-2} \bigl\lVert \mathrm{pts}[t+1] - \mathrm{pts}[t] \bigr\rVert_2
-\;}
-$$
-
-Pseudo-code:
-
-```python
-cum_disp = (pts[1:] - pts[:-1]).norm(dim=-1).sum()
-```
-
-**Geometric meaning**: the sum of step lengths in the active subspace. Stationary $\to$ near 0; fast motion $\to$ large. Combined with `curv_radius` it discriminates the five regimes "fast straight / slow straight / stationary / arc / micro-jitter".
-
----
-
-### 3.3 F1a-A / F1a-T — Splice-window math
-
-F1a measures "if we did NOT use the cache, how close would the inference output be to what we have now?" — by splicing the **executed history** with the **candidate future** into a single sequence and running the §3.2 descriptors on it.
-
-#### 3.3.1 F1a-A sequence splicing
-
-Let $K = \mathtt{window\_k}$ (the YAML field). The last $K$ entries of `history.actions` are already executed (pre-output-transform domain); the winner candidate's `payload.action_chunk[0]` is the cache's recommended next-step action:
-
-$$
-\mathrm{splice}_a \;=\; \bigl[\,a_{-K},\; a_{-K+1},\; \ldots,\; a_{-1},\; a_0^{\text{cand}}\,\bigr] \;\in\; \mathbb{R}^{(K+1) \times A}
-$$
-
-Then:
-
-1. Per-DOF z-score (using `library_stats.action_sigma`): $\mathrm{splice}_a \to \widetilde{\mathrm{splice}}_a$.
-2. Active subspace restriction (using `library_stats.action_active_mask`): $\widetilde{\mathrm{splice}}_a \in \mathbb{R}^{(K+1) \times A_{\text{act}}}$.
-3. Set $\mathrm{pts} = \widetilde{\mathrm{splice}}_a$, $v_W = \mathrm{pts}[1:] - \mathrm{pts}[:-1]$, $j_W = \mathrm{pts}[2:] - 2\,\mathrm{pts}[1:-1] + \mathrm{pts}[:-2]$.
-4. Apply §3.2.{1..4} to compute the four descriptors and write them into `payload.factors`:
-
-$$
-\begin{aligned}
-\texttt{f1a\_a\_jerk}        &= \mathrm{jerk}(\mathrm{splice}_a) \\
-\texttt{f1a\_a\_dir}         &= \mathrm{dir}(\mathrm{splice}_a) \\
-\texttt{f1a\_a\_curv\_radius}&= \mathrm{curv\_radius}(\mathrm{splice}_a) \\
-\texttt{f1a\_a\_cum\_disp}   &= \mathrm{cum\_disp}(\mathrm{splice}_a)
-\end{aligned}
-$$
-
-**Boundary**: when `len(history.actions)` $< K$ (early in the episode), every descriptor returns $\mathrm{nan}$; CompositeJudge's cold-start sentinel routes the early verdicts to MISS (the most natural way to splice with inference).
-
-#### 3.3.2 F1a-T sequence splicing
-
-The state side needs a "future segment" to compute a window; the cache has no native "future state", but the downstream entry chain provides it:
-
-$$
-\mathrm{splice}_s \;=\; \bigl[\,\underbrace{s_{-K},\;\ldots,\;s_{-1}}_{\text{last } K \text{ of history.states}},\; \underbrace{s_0^{\text{cand}}}_{\text{winner robot\_state}},\; \underbrace{s_1^{\text{cand}},\;\ldots,\;s_K^{\text{cand}}}_{\texttt{view.walk\_next}(K)}\,\bigr] \;\in\; \mathbb{R}^{(2K+1) \times S}
-$$
-
-The remaining z-score / active-mask / descriptor flow matches F1a-A, only using `state_sigma` / `state_active_mask` and writing keys `f1a_t_*`.
-
-**When chain walk fails (trajectory boundary / fork)**: `view.walk_next` returns a list shorter than $K$, the splice sequence shrinks; F1a-T treats "length $< (K+1)$ → descriptors $= \mathrm{nan}$" the same way it treats insufficient history.
-
----
-
-### 3.4 F1b-A / F1b-T — Chain-window math
-
-F1b runs window scans over the entire entry chain of every episode at **offline build-pkl time**, writing each entry's per-window descriptor values into its own `payload.factors`. The online verdict only reads — it does not compute.
-
-#### 3.4.1 Sequence and z-score
-
-Let an episode have $T$ entries $[e_0, e_1, \ldots, e_{T-1}]$ (monotonic by `prev_ids/next_ids`). Source sequence:
-
-- F1b-A: $x_t = \mathtt{entries}[t].\mathtt{payload.action\_chunk}[0] \in \mathbb{R}^A$ (pre-output-transform normalized first action of the chunk).
-- F1b-T: $x_t = \mathtt{entries}[t].\mathtt{query\_keys["robot\_state"]} \in \mathbb{R}^S$ (post-input-transform normalized state).
-
-Per-DOF z-score and active-mask (using the corresponding sigma / mask):
-
-$$
-\tilde{x}_t \;=\; \frac{x_t}{\max(\sigma,\;\varepsilon)}
-\qquad
-\tilde{x}_t^{\text{act}} \;=\; \tilde{x}_t[M] \;\in\; \mathbb{R}^{D_{\text{act}}}
-$$
-
-#### 3.4.2 Window scan
-
-For every $(p, f)$ in YAML `windows = [(p_1, f_1), (p_2, f_2), ...]` and every entry index $k = 0, 1, \ldots, T-1$:
-
-$$
-W_{k,(p,f)} \;=\; \bigl[\tilde{x}_{k-p}^{\text{act}},\; \tilde{x}_{k-p+1}^{\text{act}},\; \ldots,\; \tilde{x}_{k+f}^{\text{act}}\bigr] \;\in\; \mathbb{R}^{(p+f+1) \times D_{\text{act}}}
-$$
-
-Set $\mathrm{pts} = W_{k,(p,f)}$ and apply §3.2:
-
-$$
-\begin{aligned}
-\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_jerk\_\_p}p\texttt{\_f}f\bigr]        &\leftarrow \mathrm{jerk}(W_{k,(p,f)}) \\
-\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_dir\_\_p}p\texttt{\_f}f\bigr]         &\leftarrow \mathrm{dir}(W_{k,(p,f)}) \\
-\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_curv\_radius\_\_p}p\texttt{\_f}f\bigr] &\leftarrow \mathrm{curv\_radius}(W_{k,(p,f)}) \\
-\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_cum\_disp\_\_p}p\texttt{\_f}f\bigr]    &\leftarrow \mathrm{cum\_disp}(W_{k,(p,f)})
-\end{aligned}
-$$
-
-`<key_initial>` is `"a"` (F1b-A) or `"t"` (F1b-T).
-
-**Boundary**: $k < p$ or $k + f \geq T$ → every descriptor of that window is written as $\mathrm{nan}$ (no exception raised; CompositeJudge handles the NaN per the rule in §11 FAQ).
-
-**Per-entry factor footprint**: 4 descriptors $\times$ $N_{\text{windows}} \approx 12\text{-}24$ floats per side, both sides $\approx 200$ bytes — negligible relative to `action_chunk [10, 32]` ($\approx 1.3$ KB).
-
-#### 3.4.3 Online side: read-only
-
-F1b's OnlineExtractor:
-
-```python
-def extract(self, results, view, history, cached_data):
-    winner = view.get(results[0].id)
-    out = {}
-    for key in self.descriptor_orientations:                # computed by class describe()
-        if winner.factors is None or key not in winner.factors:
-            out[key] = float("nan")                         # old entry / missing key → NaN
-        else:
-            out[key] = winner.factors[key]
-    return out
-```
-
-Zero computational cost; every value is materialized at build-pkl time.
-
----
-
-### 3.5 F2 — Top-K candidate consensus variance
-
-F2 measures whether the top-K cache candidates agree on "what to do next"; high disagreement → retrieval is guessing → risky.
-
-#### 3.5.1 Data fetching
-
-Let $\mathrm{ids} = \{r.id : r \in \mathtt{results}[:K]\}$. Then
-
-$$
-X \;=\; \begin{bmatrix} \mathtt{view.get(id_1).action\_chunk[0]} \\ \vdots \\ \mathtt{view.get(id_K).action\_chunk[0]} \end{bmatrix} \;\in\; \mathbb{R}^{K \times A}
-$$
-
-**Active mask**: F2 uses a **candidate-local** active mask (NOT `library_stats.action_active_mask`), keeping `requires_library_stats=False` self-consistent:
-
-$$
-M^{\text{local}} \;=\; \bigl\{ d : \mathrm{var}_d > \varepsilon \bigr\}
-\qquad (\varepsilon = 10^{-8})
-$$
-
-$$
-X_{\text{act}} \;=\; X[:,\, M^{\text{local}}] \;\in\; \mathbb{R}^{K \times |M^{\text{local}}|}
-$$
-
-Why: Pi0.5 padded DOFs are exactly 0 across all candidates → per-DOF candidate variance is exactly 0 there → the candidate-local mask is behaviorally equivalent to the library mask on Pi0.5 deployments, but it does **not** depend on `LibraryStats`. The validator therefore does not require `backend.type=in_memory` for F2.
-
-$K$ is YAML `params.K` (default 5); F2 transparently bumps SearchStrategy via `min_top_k_hint` to fetch $K$ candidates.
-
-#### 3.5.2 Variance
-
-Per-DOF population variance over the $K$ candidates, then aggregate to a scalar:
-
-$$
-m_d \;=\; \frac{1}{K} \sum_{k=1}^{K} X_{\text{act}}[k, d]
-\qquad
-\mathrm{var}_d \;=\; \frac{1}{K} \sum_{k=1}^{K} \bigl(X_{\text{act}}[k, d] - m_d\bigr)^{2}
-$$
-
-$$
-\boxed{\;
-\mathtt{f2\_var} \;=\; \frac{1}{A_{\text{act}}} \sum_{d=1}^{A_{\text{act}}} \mathrm{var}_d
-\;}
-$$
-
-Pseudo-code (B1 implementation):
-
-```python
-chunk0 = stack([view.get(r.id).action_chunk[0] for r in results[:K_eff]])  # [K_eff, A]
-var_d  = chunk0.var(dim=0, unbiased=False)                                 # [A] population
-active = var_d > 1e-8                                                       # candidate-local
-if not active.any():
-    return {"f2_var": float("nan")}        # full pool agreement — NaN, not 0
-f2_var = float(var_d[active].mean())
-```
-
-**Why no normalization to sigma**: F2 computes relative variance within the candidate pool, scale-invariant — a few candidates from the same episode chunk naturally land on the same sigma scale; normalizing would erase information. That is why `requires_library_stats=False`.
-
-**Write**: `{"f2_var": float(f2_var)}`, orientation `"risky"`.
-
-**Boundary**:
-- $\mathtt{len(results)} < K$ (cache nearly empty / cold-start) → $K_{\text{eff}} = \min(K, \mathtt{len(results)})$
-- $K_{\text{eff}} < 2$ (single candidate / empty pool) → return NaN (no consensus signal)
-- All DOFs in perfect agreement ($M^{\text{local}}$ empty) → return NaN (avoid the post-flip "high variance → MISS" misclassifying perfect agreement as a hard hit)
-
----
-
-> **Batch status**: F1a-A / F1a-T / F2 / Composer / Normalizer algorithm bodies land in B1; F1b OnlineExtractor + OfflineWriter algorithms land in B2 (`docs/architecture/cache_system.md` §5.12). `describe()` and capability flags shipped in B0.
-
----
-
-## 4. Full lifecycle
-
-```
-       ┌─────────────────────────────────────────────────────────────┐
-       │  Required for B2; skipped in B0/B1: build pkl + write       │
-       │  LibraryStats + write payload.factors                       │
-[Step1]│  exp/common/build_in_memory_cache_artifact.py +             │
-       │  factor_postprocess.py                                       │
-       └─────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-       ┌─────────────────────────────────────────────────────────────┐
-       │  Write YAML (type: composite + factors / composer /          │
-[Step2]│  normalizer)                                                 │
-       │  cache_composite_judge.yaml                                  │
-       └─────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-       ┌─────────────────────────────────────────────────────────────┐
-       │  validate_cache_config → 6 static composite checks           │
-[Step3]│  build_per_connection_components → CompositeJudge wiring     │
-       └─────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-       ┌─────────────────────────────────────────────────────────────┐
-       │  scripts/serve_policy.py --cache_config xxx.yaml            │
-[Step4]│  Online inference: each verdict runs view+history → extract │
-       │  → norm → compose → JudgeResult                             │
-       └─────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-       ┌─────────────────────────────────────────────────────────────┐
-       │  Run experiments (exp/cp1_cache + analysis scripts);         │
-[Step5]│  compare threshold judge vs composite judge on               │
-       │  success_rate / hit rate / mean start_t                      │
-       └─────────────────────────────────────────────────────────────┘
-```
-
-> **Batch status**: The full 5-step walk only becomes meaningful after B2 lands. In B0, you can exercise Step 2-3 to verify the fail-fast behavior (the YAML is rejected at config load and never reaches Step 4).
-
----
-
-## 5. Step 1: Build an offline artifact with factors (B2)
-
-### 5.1 Command
-
-```bash
-uv run python exp/common/build_in_memory_cache_artifact.py \
-    --data-dir exp/common/data/db/libero_cache/libero_spatial \
-    --builder-type cp1_mean_pool \
-    --output exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool_with_factors.pkl \
-    --factors-yaml exp/common/configs/factors/f1b_default.yaml
-```
-
-`--factors-yaml` points at a YAML describing which OfflineWriters to run with what parameters (same shape as the `factors` block in the online judge YAML; only factors that implement the `OfflineWriter` Protocol matter — F1b-A / F1b-T). Example:
+## 3. yaml configuration example (refactored 4-layer schema)
 
 ```yaml
-# exp/common/configs/factors/f1b_default.yaml
-factors:
-  - type: f1b_a
-    params:
-      windows: [{past: 0, future: 5}, {past: 0, future: 10}, {past: 5, future: 5}]
-      descriptors: [jerk, dir, curv_radius, cum_disp]
-      active_eps: 0.01
-  - type: f1b_t
-    params:
-      windows: [{past: 0, future: 5}, {past: 0, future: 10}, {past: 5, future: 5}]
-      descriptors: [jerk, dir, curv_radius, cum_disp]
-      active_eps: 0.01
-```
-
-### 5.2 Internal flow
-
-1. `build_in_memory_cache_artifact.py` runs the KeyBuilder over all entries and produces `entries: list[CacheEntry]`.
-2. The `enrich_artifact_with_factors(entries, offline_writers)` helper (lives in `exp/common/factor_postprocess.py`):
-   - Calls `LibraryStats.compute_from_entries(entries, active_eps_action, active_eps_state)`.
-   - Splits episodes by `entry.trajectory_id`; for each OfflineWriter calls `writer.compute_for_episode(per_episode_entries, library_stats)`.
-   - Merges the returned `list[dict[str, float]]` into `entries[i].payload.factors`.
-3. Writes the artifact pkl:
-
-```python
-{
-    "key_builder_type": "cp1_mean_pool",
-    "checkpoint_id": "CP1",
-    "vector_dims": {...},
-    "entries": [...],            # entry.payload.factors filled in
-    "library_stats": LibraryStats(...),  # new field
-}
-```
-
-### 5.3 Backwards compatibility for old artifacts
-
-Artifacts that lack a `library_stats` field still load — `InMemoryBackend.load_artifact` falls back automatically:
-
-```python
-self.library_stats = data.get("library_stats")
-if self.library_stats is None:
-    logger.info("Artifact missing library_stats; computing from %d entries", len(self._entries))
-    self.library_stats = LibraryStats.compute_from_entries(list(self._entries.values()))
-```
-
-The compute happens once at startup; the verdict hot path never recomputes. Old entries with `payload.factors is None` cause F1b's `OnlineExtractor` to return NaN, and the Composer skips the factor per its orientation rule.
-
-> **Batch status**: The build-pkl tool, helper, `LibraryStats.compute_from_entries` algorithm, and `SourceWindowSmoothness.compute_for_episode` are the full B2 set. In B0, calling either method raises NotImplementedError.
-
----
-
-## 6. Step 2: Write the YAML
-
-```yaml
-# exp/cp1_cache/configs/composite_judge_demo.yaml
-enabled: true
-
-key_builder:
-  type: cp1_mean_pool
-
-keys:
-  vision_0: { enabled: true, weight: 1.0 }
-  vision_1: { enabled: true, weight: 1.0 }
-  robot_state: { enabled: true, weight: 0.5 }
-
-backend:
-  type: in_memory                      # composite + F1a/F1b require in_memory
-  vector_dims:
-    vision_0: 2048
-    vision_1: 2048
-    robot_state: 32
-  in_memory:
-    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool_with_factors.pkl
-
 checkpoints:
   cp1:
     enabled: true
+    gate: { type: always_search }
+
     judge:
-      type: composite                  # In B0 this is rejected at config load (fail-fast)
+      type: composite
+
+      # ── Layer 1 ──
+      normalization:
+        type: zscore                                  # registered Normalization subclass
+        params: {}                                    # ZScoreNormalization has no params
+        stats_source:
+          type: offline                               # only allowed value (warmup deferred)
+          # offline: σ + active_mask read from backend.load_artifact's library_stats field
+
+      # ── Layer 2 ── (any subset of the 17 factors)
       factors:
-        - type: f1a_a
+        - type: jerk_online_state
           params:
-            window_k: 5
-            descriptors: [jerk, dir, curv_radius, cum_disp]
-        - type: f1b_a
+            windows:
+              - { past: 5, future: 5 }
+              - { past: 7, future: 7 }
+        - type: dispersion_offline_state
           params:
-            windows: [{past: 0, future: 5}, {past: 5, future: 5}]
-            descriptors: [jerk, dir, curv_radius, cum_disp]
-            active_eps: 0.01
-        - type: f1b_t
-          params:
-            windows: [{past: 0, future: 5}, {past: 5, future: 5}]
-            descriptors: [jerk, dir, curv_radius, cum_disp]
-            active_eps: 0.01
-        - type: f2
-          params:
-            K: 5
-      composer:
-        type: weighted_sum
-        weights:
-          f1a_a_jerk:                      0.10
-          f1a_a_dir:                       0.10
-          f1b_a_jerk__p0_f5:               0.10
-          f1b_a_dir__p0_f5:                0.10
-          f1b_t_jerk__p0_f5:               0.10
-          f1b_t_dir__p0_f5:                0.10
-          f1b_a_curv_radius__p5_f5:        0.10
-          f1b_a_cum_disp__p5_f5:           0.10
-          f1b_t_curv_radius__p5_f5:        0.05
-          f1b_t_cum_disp__p5_f5:           0.05
-          f2_var:                          0.10
-        tier_thresholds:
-          full_hit:   0.80
-          warm_start: 0.60
-        warm_start_t: 0.5            # Must be in CANONICAL_DENOISE_TIMESTEPS
-        directions:
-          # Required for every non_monotonic key with non-zero weight; validator rejects otherwise
-          f1b_a_curv_radius__p5_f5:  range:[0.3, 1.0]
-          f1b_a_cum_disp__p5_f5:     high
-          f1b_t_curv_radius__p5_f5:  range:[0.3, 1.0]
-          f1b_t_cum_disp__p5_f5:     high
-      normalizer:
+            windows: [{ past: 5, future: 5 }]
+        - type: topk_action_variance
+          params: { K: 5 }
+
+      # ── Layer 3 ──
+      calibration:
         type: percentile_rolling
-        window_size: 200
-        cold_start_strategy: force_miss   # Default: first 200 verdicts forced to MISS via all-NaN sentinel
-    search_strategy:
-      type: weighted_rrf_knn
-      top_k: 1                           # F2 transparently bumps this to 5 via min_top_k_hint
-  cp3:
-    enabled: false
+        params: { window_size: 50 }
+        samples_source:
+          type: warmup                                 # | offline
+          # warmup: read from WarmupPool[eval_yaml_id] (sibling warmup yaml must run first)
+          # offline alt:
+          # offline: { path: data/calibration/spatial16_v2.jsonl, format: jsonl }
+
+      # ── Layer 4 ──
+      # ComposerConfig is FLAT — `weights` / `tier_thresholds` /
+      # `warm_start_t` / `warm_fallback_start_t` / `directions` /
+      # `per_factor_thresholds` sit directly under `composer:`,
+      # **not** nested under `composer.params:`.
+      composer:
+        type: weighted_sum_with_warm_fallback           # | weighted_sum / and / or
+        weights:
+          jerk_online_state__p5_f5:        1.0
+          jerk_online_state__p7_f7:        1.0
+          dispersion_offline_state__p5_f5: 1.0
+          topk_action_variance:            0.5
+        tier_thresholds:
+          full_hit:    0.30
+          warm_start:  0.10                             # optional; triggers regular warm tier
+        warm_start_t: 0.7                               # paired with tier_thresholds.warm_start
+        warm_fallback_start_t: 0.7                      # all-NaN fallback (legacy all_nan_fallback equivalent)
+        directions:                                     # required for non_monotonic keys
+          dispersion_offline_state__p5_f5: "range:[0.3, 0.7]"
+
+      export_factor_outputs: true                       # default false; true emits schema_version=2
 ```
 
-**Field-level notes**:
+**Key validator rules** (`config.py` runs at yaml load time):
 
-- Keys in `composer.weights` MUST match what extractor `describe()` actually produces — typos are silently treated as missing keys (B1+ adds stricter coverage validation).
-- `composer.tier_thresholds.full_hit` and `warm_start` are normalized scores in [0, 1]; `warm_start` must be `< full_hit_threshold` (otherwise the warm-start tier is unreachable — caught by validator rule 5d).
-- `warm_start_t` must lie in `CANONICAL_DENOISE_TIMESTEPS = {0.1, 0.2, ..., 0.9}` (same rule as `always_warm_start.start_t`); CP3 does not support warm_start.
-- `directions` only applies to `non_monotonic` factors. Three forms:
-  - `"high"` — higher value is more hit-leaning
-  - `"low"`  — lower value is more hit-leaning
-  - `"range:[lo,hi]"` — values in [lo, hi] are more hit-leaning
-
-### 6.1 The 6 static composite-specific checks (activated B1+)
-
-`validate_cache_config` runs these 6 rules at config-load time; all must pass before the builder runs:
-
-1. `factors` and `composer` MUST be present when `type=composite`.
-2. Every `FactorConfig.type` MUST be in `factors.registry.known()`.
-3. Factors with `requires_library_stats=True` require `backend.type == "in_memory"`.
-4. Factors with `requires_chain_walk=True` (F1a-T) require `backend.type == "in_memory"` (the only backend exposing `fetch_entry`).
-5. Composite warm-start checks (4 sub-rules):
-   - 5a `composer.warm_start_t` only allowed on CP1.
-   - 5b `warm_start_t` MUST be in `CANONICAL_DENOISE_TIMESTEPS` (the normalized value is written back).
-   - 5c Pairwise rule: `tier_thresholds.warm_start` and `composer.warm_start_t` MUST be both present or both absent (and / or composer do not support warm_start; setting the timestep raises).
-   - 5d Tier ordering: `tier_thresholds.warm_start < tier_thresholds.full_hit` (only weighted_sum).
-6. `directions` coverage: every key with `non_monotonic` orientation reported by `cls.describe(params)` whose `composer.weights[key] != 0` MUST have a valid `composer.directions[key]` entry.
-
-> **Batch status**: YAML schema parsing + B0 fail-fast (`_JUDGE_TYPES` excludes `composite` → rejected at config load) lands in B0; the 6 static checks + algorithm bodies land in B1. Running the YAML above in B0 produces: `judge.type='composite' is not yet enabled in B0; available in B1+ when CompositeJudge algorithms land.`
+1. `judge.type=="composite"` requires all four blocks `normalization` / `factors` / `calibration` / `composer`.
+2. Every `factors[].type` must be one of the 17 registered names. Legacy 5 names (`f1a_a` / `f1a_t` / `f1b_a` / `f1b_t` / `f2`) load with `Unknown factor name`.
+3. The composer's `declared_dependencies` (instance attribute) must ⊆ Layer 2 union key set.
+4. Any `requires_chain_walk=True` factor → `backend.type=="in_memory"` is required.
+5. Non_monotonic keys consumed by the composer must appear in `composer.directions`.
+6. `normalization.stats_source.type` must be `"offline"`; `calibration.samples_source.type` ∈ `{"offline", "warmup"}`.
+7. Legacy fields `judge.normalizer` / `judge.all_nan_fallback` / `judge.cold_start_strategy` in yaml → load fails with "legacy schema, rewrite to 4-layer".
 
 ---
 
-## 7. Step 3: Start inference
+## 3.1 Multi-factor / online+offline yaml combinations
 
-```bash
-uv run python scripts/serve_policy.py \
-    --env LIBERO \
-    --cache_config exp/cp1_cache/configs/composite_judge_demo.yaml
-```
+The 17 factors are **flat**: every `<descriptor>_<source>_<channel>` is an independent registered name. Any subset can be combined in the same yaml's `factors:` list, as long as each entry occupies its own list element AND the composer's `weights` (or `per_factor_thresholds`) reference all the keys derivable from those factors' `describe(params)`.
 
-Startup sequence (B1+):
+**Key contracts**:
 
-```
-load_cache_config(yaml)
-  ├─ _dict_to_dataclass → CacheConfig (incl. JudgeConfig.factors: list[FactorConfig])
-  └─ validate_cache_config → 6 composite-specific checks pass
+- `factors:` is a list; each element is `{type: <registry-name>, params: {...}}`.
+- Even the online + offline variants of the same descriptor are **two independent entries** (different registry names, mutually independent).
+- Multi-window for one factor type goes under a single entry's `params.windows: [...]` (every one of the 17 factors natively supports multi-window).
+- Composer `weights` / `per_factor_thresholds` must reference every key produced by these factors' `describe(params)` (multi-window → multiple keys, one per window).
 
-build_cache_components(config)
-  └─ build_per_connection_components(config, storage)
-      ├─ _build_backend → InMemoryBackend (.library_stats from artifact)
-      ├─ per-CP loop:
-      │    ├─ library_stats = per_conn_storage.library_stats   # facade duck-types backend
-      │    ├─ judges[cp_id] = _build_judge(judge_cfg, library_stats)
-      │    │     └─ if type == "composite":
-      │    │          ├─ extractors = [
-      │    │          │     cls(**dict(f.params),
-      │    │          │         library_stats=library_stats if cls.requires_library_stats else ...)
-      │    │          │     for f in cfg.factors
-      │    │          │  ]
-      │    │          ├─ composer  = _build_composer(cfg.composer)
-      │    │          ├─ normalizer = _build_normalizer(cfg.normalizer)
-      │    │          └─ CompositeJudge(extractors, composer, normalizer)
-      │    │              # constructor auto-collects every descriptor_orientations
-      │    │              # and calls composer.bind_orientations + normalizer.bind_keys
-      │    ├─ min_hint = judges[cp_id].min_required_top_k
-      │    └─ strategies[cp_id] = _build_search_strategy(ss_cfg, ..., min_top_k_hint=min_hint)
-      ├─ offline_writers = collect_offline_writers_from_judges(judges)
-      └─ Orchestrator(..., offline_writers=ow, library_stats=library_stats)
-```
+### 3.1.1 Multiple descriptors (single source × channel)
 
-**Single verdict path** (B1+, runs once per `Orchestrator.check()`):
-
-```python
-view    = StoragePayloadView(self._storage)              # per-check lifetime, internal memo
-history = HistoryView(actions=list(self._action_history),
-                      states =list(self._state_history))
-
-judge_result = judge(
-    results, checkpoint_id, self._key_builder.cached_data,
-    view=view, history=history,
-)
-# Inside CompositeJudge:
-#   raw = {}
-#   for ext in extractors:
-#       out = ext.extract(results, view, history, cached_data)
-#       assert out.keys() == ext.descriptor_orientations.keys()  # key contract
-#       raw.update(out)
-#   norm = normalizer(raw)
-#   if norm and all(isnan(v) for v in norm.values()):
-#       return JudgeResult(MISS)        # cold-start sentinel
-#   return composer.compose(norm, winner_id=results[0].id)
-
-if hit_type in (FULL_HIT, WARM_START):
-    payload = view.get(winner_id)        # memo shared with extractors
-```
-
-> **Batch status**: Orchestrator view+history injection + winner fetch rewire + state_history anchor-checkpoint policy = B1. In B0, `Orchestrator.check()` does not inject anything; legacy judges absorb the new kwargs via `**kwargs` and behave bit-identically.
-
----
-
-## 8. Step 4: Run experiments comparing ThresholdJudge vs CompositeJudge
-
-```bash
-# Phase 1: Baseline run with ThresholdJudge
-uv run python exp/cp1_cache/run_cache_experiments.py \
-    --config exp/cp1_cache/configs/threshold_baseline.yaml \
-    --env LIBERO --num-episodes 50
-
-# Phase 2: Run with CompositeJudge on the same artifact
-uv run python exp/cp1_cache/run_cache_experiments.py \
-    --config exp/cp1_cache/configs/composite_judge_demo.yaml \
-    --env LIBERO --num-episodes 50
-
-# Phase 3: Compare
-uv run python exp/cp1_cache/analysis/compare_judges.py \
-    --baseline-dir exp/cp1_cache/runs/threshold_baseline \
-    --composite-dir exp/cp1_cache/runs/composite_judge_demo
-```
-
-Key metrics to watch:
-
-| Metric | Expected comparison |
-|---|---|
-| `success_rate` | composite ≥ threshold (better hit quality) |
-| `cp1_full_hit_rate` | composite may decrease (more conservative); tunable via weights |
-| `cp1_warm_start_rate` | composite increases (extra tier) |
-| `mean_start_t` | composite stays at the configured `warm_start_t` |
-| `composite_factor_log` | per-verdict factor values (logger added in B1+) — used to retune weights |
-
-> **Batch status**: The experiment runner and analysis scripts themselves are B0+ (tooling already exists). CompositeJudge actually participating = B1+; F1b factors usable = B2.
-
----
-
-## 9. Custom factors: extending OnlineExtractor / OfflineWriter
-
-### 9.1 Write a new OnlineExtractor
-
-Minimal implementation (no OfflineWriter, no library_stats, no chain walk):
-
-```python
-# src/openpi/cache/components/factors/my_factor.py
-from openpi.cache.components.factors.registry import register
-
-
-@register("my_factor")
-class MyFactor:
-    # ---- Required class-level capability flags ----
-    required_top_k: int = 0
-    requires_library_stats: bool = False
-    requires_chain_walk: bool = False
-
-    def __init__(self, threshold: float):
-        self._threshold = threshold
-        # Instance-level orientation map MUST come from the classmethod so the
-        # validator can fetch the same key list without instantiating.
-        self.descriptor_orientations = self.__class__.describe(
-            {"threshold": threshold}
-        )
-
-    @classmethod
-    def describe(cls, params: dict) -> dict[str, str]:
-        # Pure function: only reads params, no library_stats / no I/O
-        return {"my_factor_score": "safe"}
-
-    def extract(self, results, view, history, cached_data) -> dict[str, float]:
-        # Returned dict's keys MUST equal self.descriptor_orientations.keys();
-        # otherwise CompositeJudge raises RuntimeError("key contract violation")
-        # at verdict time.
-        winner_payload = view.get(results[0].id)
-        score = float(winner_payload.action_chunk[0].abs().mean().item())
-        return {"my_factor_score": score}
-```
-
-Once registered, you can use it directly in YAML:
+Example: state channel, online source, two descriptors (jerk + direction), one window each.
 
 ```yaml
 factors:
-  - type: my_factor
+  - type: jerk_online_state
     params:
-      threshold: 0.5
+      windows: [{past: 5, future: 5}]
+  - type: direction_online_state
+    params:
+      windows: [{past: 5, future: 5}]
+
+composer:
+  type: weighted_sum
+  weights:
+    jerk_online_state__p5_f5:      1.0      # risky → composer auto 1-v
+    direction_online_state__p5_f5: 1.0      # safe  → composer uses v directly
+  tier_thresholds: { full_hit: 0.5 }
 ```
 
-### 9.2 A factor that needs library_stats
+### 3.1.2 Same descriptor, both online and offline
+
+Example: jerk on state channel, simultaneously enabling online (verdict-time splice + walk_next) and offline (artifact-build chain pass) — these are **two independent factor entries** that **cannot be merged** into one.
+
+```yaml
+factors:
+  - type: jerk_online_state              # verdict-time splice [history[-5:], winner, walk_next(5)]
+    params:
+      windows: [{past: 5, future: 5}]
+  - type: jerk_offline_state             # offline build sliding window into payload.factors
+    params:
+      windows: [{past: 5, future: 5}]
+
+composer:
+  type: weighted_sum_with_warm_fallback
+  weights:
+    jerk_online_state__p5_f5:  1.0
+    jerk_offline_state__p5_f5: 1.0       # same window as online but different source → different key
+  tier_thresholds: { full_hit: 0.5 }
+  warm_fallback_start_t: 0.7             # all NaN (chain ran out + offline never wrote) → WARM_START
+```
+
+> Physical meaning of the two keys: `jerk_online_state__p5_f5` is "jerk of the splice built at verdict time from history + walk_next"; `jerk_offline_state__p5_f5` is "jerk this entry observed in its own chain at the (P=5, F=5) window during artifact build". They are **two estimates of the same physical quantity**; calibration uses independent percentile buckets for each.
+
+### 3.1.3 Same factor multi-window + all 17 factors enabled
+
+Example: 4 desc × 2 source × 2 channel = 16 + topk = 17 enabled, full-space sweep on spatial16.
+
+```yaml
+factors:
+  # 8 online factors, 2 windows each
+  - { type: jerk_online_action,        params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: jerk_online_state,         params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: direction_online_action,   params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: direction_online_state,    params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: dispersion_online_action,  params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: dispersion_online_state,   params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: path_length_online_action, params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: path_length_online_state,  params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  # 8 offline factors, same windows
+  - { type: jerk_offline_action,        params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: jerk_offline_state,         params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: direction_offline_action,   params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: direction_offline_state,    params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: dispersion_offline_action,  params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: dispersion_offline_state,   params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: path_length_offline_action, params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: path_length_offline_state,  params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  # 17th: top-K candidate consensus variance (no windows, single key)
+  - { type: topk_action_variance, params: { K: 5 } }
+
+composer:
+  type: weighted_sum
+  weights:
+    # 16 desc factors × 2 windows = 32 keys (uniform 1.0) + topk separate weight
+    jerk_online_action__p5_f5:        1.0
+    jerk_online_action__p7_f7:        1.0
+    jerk_online_state__p5_f5:         1.0
+    jerk_online_state__p7_f7:         1.0
+    # ... (omitting the remaining 28 desc keys — same pattern, uniform 1.0) ...
+    topk_action_variance:             0.5   # different weight is fine
+  tier_thresholds: { full_hit: 0.30 }
+  directions:                                 # non_monotonic keys (dispersion / path_length) need a direction
+    dispersion_online_state__p5_f5:  "range:[0.3, 0.7]"
+    path_length_online_state__p5_f5: "high"
+    # ... every non_monotonic key must appear ...
+```
+
+### 3.1.4 Multi-factor with AndGate / OrGate
+
+`weighted_sum` uses `weights`; `and` / `or` use `per_factor_thresholds`, judging each key independently.
+
+```yaml
+factors:
+  - { type: jerk_online_state,        params: { windows: [{past: 5, future: 5}] } }
+  - { type: dispersion_offline_state, params: { windows: [{past: 5, future: 5}] } }
+
+composer:
+  type: and          # both keys must pass their threshold for FULL_HIT
+  per_factor_thresholds:
+    jerk_online_state__p5_f5:        0.3   # risky → v <= 0.3
+    dispersion_offline_state__p5_f5: 0.5   # non_monotonic → directions block decides pass condition
+  directions:
+    dispersion_offline_state__p5_f5: "range:[0.3, 0.7]"
+  warm_start_t: 0.7    # optional: emit WARM_START on pass (CP1-only)
+```
+
+### 3.1.5 The warmup yaml MUST over-collect every key above
+
+Each eval yaml needs a sibling warmup yaml to fill the Layer 3 calibration rolling buffers. The warmup's `judge.dump.factors` must **at minimum** cover every key the eval composite consumes (otherwise eval `bind_keys` fails fast):
+
+```yaml
+# <eval_yaml_id>__warmup.yaml (the generator usually produces this; manual shape below)
+checkpoints:
+  cp1:
+    judge:
+      type: always_warm_start
+      start_t: 0.7
+      dump:
+        deferred: true
+        config_id: <eval_yaml_id>__warmup
+        factors:
+          # ⚠ Must cover every key the eval factors will produce — either
+          #    mirror the eval factors list 1-to-1, or just over-collect
+          #    the full 17 factors (recommended: switching eval factor mix
+          #    later won't require re-running warmup).
+          - { type: jerk_online_state,        params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+          - { type: jerk_offline_state,       params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+          # ... (the other 15 factors) ...
+          - { type: topk_action_variance, params: { K: 5 } }
+```
+
+In practice you don't write warmup yamls by hand —
+`exp/verdict_factor_judge/v2_spec.py:build_warmup_yaml(cfg_id, eval_yaml_id, eval_factors=...)`
+takes the eval factor list and auto-unions the dump factor superset
+(per `(descriptor, source, channel)` group, eval windows ∪
+`_W_UNION_DEFAULT`).
+
+---
+
+## 4. Factor formulas (precise)
+
+> The 4 descriptor formulas are **identical** to the pre-refactor versions; only renamed and flattened. Formula source: `src/openpi/cache/components/factors/_descriptor_kernel.py`.
+
+### 4.1 Notation
+
+| Symbol | Meaning |
+|---|---|
+| `seq` | Single window's z-scored, active-subspace points; shape `[W, D_act]` |
+| `v[t]` | `seq[t+1] - seq[t]` (first difference); shape `[W-1, D_act]` |
+| `j[t]` | `seq[t+1] - 2 seq[t] + seq[t-1]` (second difference); shape `[W-2, D_act]` |
+| `D_act` | Number of dims True in `LibraryStats` active mask (z-score drops padded DOFs) |
+
+z-score: Layer 1 Normalization computes `seq / sigma.clamp_min(eps=0.01)` then selects the active mask; the factor layer only sees an already-normalized `seq`.
+
+### 4.2 Four descriptor formulas
+
+#### `jerk` (risky)
+```
+jerk = mean_DOF(   median_t(|j[t]|)   )
+```
+Time-axis median (absorbs gripper single-frame spikes), then DOF-axis mean. NaN when `j` is empty (W < 3).
+
+#### `direction` (safe)
+```
+direction = mean_t(  cos(v[t], v[t+1])  )    // only over pairs whose endpoints have positive norm
+```
+Mean cosine between consecutive velocity vectors. NaN when `v.shape[0] < 2` (W < 3) or every adjacent velocity pair has at least one zero-norm endpoint.
+
+#### `dispersion` (non_monotonic)
+```
+dispersion = mean_t(  ‖seq[t] - centroid(seq)‖  )
+```
+Window geometric spread (mean distance from points to centroid). NaN when W < 2.
+
+#### `path_length` (non_monotonic)
+```
+path_length = sum_t(  ‖seq[t+1] - seq[t]‖  )
+```
+Cumulative step-length sum. NaN when W < 2.
+
+### 4.3 Splice shape per factor
+
+#### Online (8 factors)
+```
+seq = [history[-P:], winner, walk_next(F).<channel>]      # length P + 1 + F
+```
+- channel = `action`: `history.actions[-P:]` + `winner.action_chunk[0]` + chain `walk_next` `payload.action_chunk[0]`
+- channel = `state`:  `history.states[-P:]`  + `winner.query_keys["robot_state"]` + chain `walk_next` `query_keys["robot_state"]`
+
+NaN physical edges:
+- `len(history) < P` (early in episode)
+- `walk_next` returns < F entries (chain end / fork detected)
+- winner missing `robot_state` (state channel)
+
+#### Offline (8 factors)
+At verdict time, simply read `winner.payload.factors[<key>]` (offline build wrote this).
+- Offline build: scan the entire chain, for each entry × each `(P, F)` window run a sliding descriptor pass; result lands in `entry.payload.factors`.
+- Boundary: any `(entry, window)` whose window pokes past the chain ends gets NaN.
+
+#### `topk_action_variance` (the 17th)
+```
+var = mean(  per_DOF_var(  [r.payload.action_chunk[0] for r in results[:K]]  )  )
+                                                                ↑
+                                                  candidate-local active mask
+                                                  (per-DOF var > 1e-8)
+```
+NaN when `len(results) < K` (search did not return enough candidates) or when every per-DOF variance is below the active-mask epsilon (the candidate pool agrees on every dim).
+
+Does NOT consult Layer 1 normalization: the variable is candidate-pool variance, scale-invariant; Pi0.5 padded DOFs are exactly 0 across the whole library, so candidate-local variance is exactly 0 there and they drop out of the active mask automatically.
+
+---
+
+## 5. End-to-end pipeline
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Step 1   Build artifact (one-off, GPU heavy)                 │
+│   build_in_memory_cache_artifact.py: HDF5 → .pkl            │
+│   Contains entries + LibraryStats (σ + active_mask)         │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+┌────────────────────┴────────────────────────────────────────┐
+│ Step 2   Enrich pkl with offline factors (seconds, smoke)    │
+│   build_in_memory_cache_artifact.py enrich-existing-pkl     │
+│   --input old.pkl --factors-yaml factors.yaml --output new.pkl│
+│   ↑ Adds 17-factor keys to payload.factors; does NOT recompute σ│
+└────────────────────┬────────────────────────────────────────┘
+                     │
+┌────────────────────┴────────────────────────────────────────┐
+│ Step 3   Warmup yaml run (collect calibration samples)       │
+│   <eval>__warmup.yaml + DumpingJudge                         │
+│   → JSONL of factor raw values                               │
+│   → preload_normalizer_buffer ctrl → WarmupPool[eval_yaml_id]│
+└────────────────────┬────────────────────────────────────────┘
+                     │
+┌────────────────────┴────────────────────────────────────────┐
+│ Step 4   Eval yaml run                                       │
+│   load_cache_config: validator + _build_calibration pulls    │
+│      from WarmupPool[eval_yaml_id] / offline jsonl, fills    │
+│      buffers → bind_keys fail-fast on undersized samples     │
+│   Per verdict: Layer 1 → Factor → Calibration → Composer    │
+│   Optional export_factor_outputs writes schema_v=2 jsonl     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 6. Step 1+2: build / enrich artifact
+
+### 6.1 Build from HDF5 (first time)
+```bash
+uv run python -m exp.common.build_in_memory_cache_artifact \
+  --data-dir exp/common/data/db_init/libero_cache/libero_spatial \
+  --builder-type cp1_spatial_pool_16 \
+  --output exp/warm_start/data/spatial16/cp1_spatial_pool_16.pkl \
+  --workers -1 \
+  --factors-yaml my_factors.yaml             # also enrich 17-factor keys in this pass
+```
+
+### 6.2 Incremental factor add to an existing pkl (seconds, smoke)
+```bash
+uv run python -m exp.common.build_in_memory_cache_artifact enrich-existing-pkl \
+  --input  exp/warm_start/data/spatial16/cp1_spatial_pool_16.pkl \
+  --factors-yaml my_factors.yaml \
+  --output exp/warm_start/data/spatial16/cp1_spatial_pool_16_v2.pkl
+```
+Key points (plan §16 B6.5):
+- Reuses input pkl's `library_stats` (does **NOT** recompute σ); smoke completes in seconds.
+- Pre-existing `payload.factors` keys are preserved (additive merge); new 17-factor keys are added.
+- The new pkl is a sibling of the input; the input file is untouched (rollback friendly).
+
+### 6.3 `factors.yaml` shape (offline factors only)
+```yaml
+factors:
+  - type: jerk_offline_action
+    params:
+      windows:
+        - {past: 1, future: 1}
+        - {past: 5, future: 5}
+  - type: dispersion_offline_state
+    params:
+      windows: [{past: 5, future: 5}]
+```
+Only the 8 offline factors (`<descriptor>_offline_<channel>`) are accepted; online + topk lack the `compute_for_episode` surface and `_load_offline_writers_from_yaml` rejects them explicitly.
+
+---
+
+## 7. Step 3+4: yaml configuration + run inference
+
+The full 4-layer yaml is shown in §3. This section enumerates per-field details.
+
+### 7.1 Layer 1 Normalization
+```yaml
+normalization:
+  type: zscore                  # only registered type
+  params: {}                    # ZScoreNormalization has no params
+  stats_source:
+    type: offline               # only allowed value; warmup channel deferred
+```
+Startup check: `backend.library_stats` must be reachable (`backend.type == "in_memory"`).
+
+### 7.2 Layer 2 Factors
+One entry per factor, `{type, params}`. Typical params:
+- 8 online + 8 offline: `windows: [{past, future}, ...]`
+- `topk_action_variance`: `K: int >= 2`
+
+### 7.3 Layer 3 Calibration
+```yaml
+calibration:
+  type: percentile_rolling      # only registered type
+  params:
+    window_size: 50             # rolling buffer size
+  samples_source:
+    type: warmup                # | offline
+    # warmup: pulled from WarmupPool[eval_yaml_id] (sibling warmup yaml must run first)
+    # offline alt:
+    # offline:
+    #   path: data/calib/spatial16_v2.jsonl
+    #   format: jsonl           # | pkl
+```
+At `bind_keys`: every Layer 2 union key must have ≥ window_size non-NaN samples in `samples`, otherwise yaml load fails.
+
+### 7.4 Layer 4 Composer
+
+> **Schema shape**: `ComposerConfig` is **flat** — every key field (`weights` / `tier_thresholds` / `per_factor_thresholds` / `warm_start_t` / `warm_fallback_start_t` / `directions`) sits directly under `composer:`, **not** under `composer.params:`. The yaml parser silently warns and ignores any `composer.params.*`; the validator then likely rejects the config because a required field (e.g. `tier_thresholds.full_hit`) is missing.
+
+The 4 registered subclasses:
+
+| type | Top-level fields | Hit conditions |
+|---|---|---|
+| `weighted_sum` | `weights` / `tier_thresholds: {full_hit, warm_start?}` / `warm_start_t` | Orientation-flipped weighted sum ≥ full_hit → FULL_HIT; ≥ warm_start → WARM_START (CP1-only) |
+| `weighted_sum_with_warm_fallback` | Above + `warm_fallback_start_t` | Same; when every non-zero-weight key is NaN → WARM_START @ `warm_fallback_start_t` (legacy `all_nan_fallback` equivalent). **`warm_fallback_start_t` is a WARM_START emission path too — like `warm_start_t`, it is CP1-only.** |
+| `and` | `per_factor_thresholds` / `warm_start_t?` | Every key must pass its threshold → FULL_HIT (or WARM_START if `warm_start_t` is set; CP1-only) |
+| `or` | Same | Any key passing its threshold → FULL_HIT / WARM_START |
+
+`directions`: any `non_monotonic` orientation key must declare a direction (`"high"` / `"low"` / `"range:[lo, hi]"`); otherwise yaml load is rejected.
+
+> **CP3 restriction** (plan §3.6 / validator §13.3 rule 5c): CP3 has no `intermediates` payload to resume from, so **any** WARM_START emission path is rejected by the yaml validator on CP3 — this includes `warm_start_t` (regular warm tier) AND `weighted_sum_with_warm_fallback`'s `warm_fallback_start_t` (all-NaN fallback). On CP3, composite judges must omit both fields.
+
+### 7.5 Diagnostic field `factor_outputs` (schema_version=2)
+
+When `judge.export_factor_outputs: true`, every verdict writes the following on `JudgeResult.factor_outputs`:
+```python
+{
+  "schema_version": 2,
+  "raw":             {key: float | None},     # Layer 2 raw
+  "calibrated":      {key: float | None},     # Layer 3 output
+  "composer_score":  float | None,            # Layer 4 internal aggregate
+}
+```
+NaN is converted to None on the wire (JSON-strict compatible). `hit_type / winner_id / start_t` remain at the top level of `JudgeResult` (not inside `factor_outputs`).
+
+---
+
+## 8. Custom extensions (writing your own factor / Calibration / Composer)
+
+> This section is a step-by-step tutorial: write code → register → reference in yaml → unit test → start server. Each subsection's yaml fragment can be pasted directly into the §3 full 4-layer yaml template.
+
+### 8.1 Adding a Layer 2 Factor
+
+#### Step 1: Decide the factor's capabilities and naming
+
+| Decision | Rule | Effect |
+|---|---|---|
+| Naming | Recommended to follow `<descriptor>_<source>_<channel>` (see §2); custom factors can use any name but avoid the 17 reserved factor names. | Registered name is the literal value of `factors[].type` in yaml. |
+| `requires_chain_walk` | True iff `extract` calls `ctx.view.walk_prev / walk_next`. | Yaml load is rejected if the backend lacks `fetch_entry`. |
+| `required_top_k` | Minimum top-K candidates the factor needs; 0 if not applicable. | CompositeJudge takes the max over all factors and feeds search-strategy `min_top_k_hint`. |
+| Descriptor key + orientation | `"safe"` (high = good) / `"risky"` (high = bad) / `"non_monotonic"` (must be declared in composer `directions`). | Composer auto-flips by orientation (safe → use v directly; risky → use `1-v`). |
+
+#### Step 2: Implement the class
+
+Place the file in a module that `factors/registry.py` imports (simplest: append to `factors/online.py`, or create `factors/my_pack.py` and add an import to `registry.py`). Full skeleton:
 
 ```python
-@register("my_normed_factor")
-class MyNormedFactor:
-    required_top_k: int = 0
-    requires_library_stats: bool = True   # builder will inject the library_stats kwarg
-    requires_chain_walk: bool = False
+# src/openpi/cache/components/factors/my_pack.py
 
-    def __init__(self, library_stats: "LibraryStats"):
-        self._sigma = library_stats.action_sigma
-        self.descriptor_orientations = self.__class__.describe({})
+"""My custom factor — describe what physical signal this captures."""
 
+from __future__ import annotations
+
+import math
+
+import torch
+
+from openpi.cache.components.factors.base import FactorContext
+from openpi.cache.components.factors.registry import register
+
+
+@register("my_action_burstiness")
+class MyActionBurstiness:
+    """Mean burst-ratio over the last K executed actions.
+
+    Returns a single risky-orientation key:
+        my_action_burstiness__k<K>: float in [0, 1]   (or NaN at boundary)
+    """
+
+    # ---- class-level capability flags ----
+    requires_chain_walk: bool = False     # only reads history.actions
+    required_top_k:      int = 0          # not a candidate-pool factor
+
+    # ---- constructor ----
+    def __init__(self, *, K: int) -> None:
+        if K < 2:
+            raise ValueError(f"MyActionBurstiness K must be >= 2, got {K}")
+        self.K = int(K)
+        self.descriptor_orientations = self.__class__.describe({"K": K})
+
+    # ---- pure metadata classmethod (validator calls this WITHOUT instantiating) ----
     @classmethod
     def describe(cls, params: dict) -> dict[str, str]:
-        return {"my_normed_score": "risky"}
+        K = int(params["K"])
+        return {f"my_action_burstiness__k{K}": "risky"}
 
-    def extract(self, results, view, history, cached_data):
-        ...
+    # ---- per-verdict extraction ----
+    def extract(self, ctx: FactorContext) -> dict[str, float]:
+        key = next(iter(self.descriptor_orientations))
+        if len(ctx.history.actions) < self.K:
+            return {key: float("nan")}                       # boundary
+
+        # Pull last K actions, normalize via Layer 1 (z-score).
+        seq = torch.stack(
+            [torch.as_tensor(a, dtype=torch.float32) for a in ctx.history.actions[-self.K:]],
+            dim=0,
+        )                                                    # [K, A]
+        normed = ctx.normalization.normalize_action(seq)     # [K, A_active]
+        if normed.shape[-1] == 0:
+            return {key: float("nan")}                       # empty active mask
+
+        # Burst ratio = fraction of consecutive-step diffs whose magnitude
+        # exceeds the median diff magnitude. Risky: high = bursty.
+        diffs = (normed[1:] - normed[:-1]).norm(dim=-1)      # [K-1]
+        if diffs.numel() < 2:
+            return {key: float("nan")}
+        median = float(diffs.median())
+        ratio = float((diffs > median).float().mean())
+        return {key: ratio}
 ```
 
-`requires_library_stats=True` forces the validator to require `backend.type=in_memory` (only InMemoryBackend exposes `library_stats`) and makes `_build_judge` inject `library_stats=library_stats` at construction time.
+#### Step 3: Have registry import the module on load
 
-### 9.3 A factor that walks the chain
+Append a single line to `factors/registry.py`:
 
 ```python
-@register("my_chain_factor")
-class MyChainFactor:
-    required_top_k: int = 0
-    requires_library_stats: bool = False
-    requires_chain_walk: bool = True   # validator forces backend to expose fetch_entry
-
-    def __init__(self, walk_depth: int):
-        self._walk_depth = walk_depth
-        self.descriptor_orientations = self.__class__.describe(
-            {"walk_depth": walk_depth}
-        )
-
-    @classmethod
-    def describe(cls, params: dict) -> dict[str, str]:
-        return {"my_chain_drift": "risky"}
-
-    def extract(self, results, view, history, cached_data):
-        winner_id = results[0].id
-        # In B0, PayloadView only supports ForkPolicy.TRAJECTORY; raises on real forks
-        forward_entries = view.walk_next(winner_id, k=self._walk_depth)
-        ...
+from openpi.cache.components.factors import my_pack  # noqa: F401
 ```
 
-### 9.4 An OfflineWriter (the B2 model)
+Any `from openpi.cache.components.factors import registry` triggers this import, and the `@register` side effect immediately registers the factor in the global registry.
 
-`OfflineWriter` is invoked at build-pkl time by the `enrich_artifact_with_factors` helper to populate `entry.payload.factors`:
+#### Step 4: Reference in yaml
 
-```python
-@register("my_offline_factor")
-class MyOfflineFactor:
-    # ---- OnlineExtractor surface ----
-    required_top_k: int = 0
-    requires_library_stats: bool = False
-    requires_chain_walk: bool = False
-
-    def __init__(self, ...):
-        self.descriptor_orientations = self.__class__.describe({...})
-
-    @classmethod
-    def describe(cls, params):
-        return {"my_offline_score": "safe"}
-
-    def extract(self, results, view, history, cached_data):
-        # Online side reads the value the offline writer pre-computed
-        winner_payload = view.get(results[0].id)
-        if winner_payload.factors is None or "my_offline_score" not in winner_payload.factors:
-            return {"my_offline_score": float("nan")}     # Old entries / missing keys → NaN
-        return {"my_offline_score": winner_payload.factors["my_offline_score"]}
-
-    # ---- OfflineWriter surface ----
-    def required_payload_fields(self) -> set[str]:
-        return set()      # No extra raw payload tensors needed
-
-    def compute_for_episode(
-        self,
-        entries: list["CacheEntry"],
-        library_stats: "LibraryStats",
-    ) -> list[dict[str, float]]:
-        # Returned list length MUST equal len(entries); parallel to entries
-        return [{"my_offline_score": ...} for _ in entries]
+```yaml
+checkpoints:
+  cp1:
+    judge:
+      type: composite
+      normalization: { type: zscore, params: {}, stats_source: { type: offline } }
+      factors:
+        - type: my_action_burstiness
+          params: { K: 5 }
+      calibration:
+        type: percentile_rolling
+        params: { window_size: 50 }
+        samples_source:
+          type: warmup            # warmup yaml MUST over-collect this key
+      composer:
+        type: weighted_sum
+        weights: { my_action_burstiness__k5: 1.0 }
+        tier_thresholds: { full_hit: 0.7 }   # high burst-ratio = miss → high (1-v) = full_hit
 ```
 
-### 9.5 Write a new Composer
+#### Step 5: Unit test
 
 ```python
-# src/openpi/cache/components/factors/composers/my_composer.py
+# tests/cache/components/factors/test_my_action_burstiness.py
+import math
+import pytest
+import torch
+
+from openpi.cache.components.factors.base import FactorContext, HistoryView, LibraryStats
+from openpi.cache.components.factors.my_pack import MyActionBurstiness
+from openpi.cache.components.factors.normalization import ZScoreNormalization
+from openpi.cache.storage_types import SearchResultLite
+from openpi.cache.types import CheckpointID
+
+def _ctx(history_actions):
+    a = torch.ones(2, dtype=torch.float32)
+    s = torch.ones(2, dtype=torch.float32)
+    ls = LibraryStats(
+        action_sigma=a, action_active_mask=torch.ones(2, dtype=torch.bool),
+        state_sigma=s, state_active_mask=torch.ones(2, dtype=torch.bool),
+    )
+    return FactorContext(
+        results=[SearchResultLite(id="w", score=1.0, checkpoint_id=CheckpointID.CP1)],
+        view=None, normalization=ZScoreNormalization(ls),
+        history=HistoryView(
+            actions=[torch.tensor(a, dtype=torch.float32) for a in history_actions],
+            states=[],
+        ),
+    )
+
+def test_K_below_2_rejected():
+    with pytest.raises(ValueError, match=">= 2"):
+        MyActionBurstiness(K=1)
+
+def test_history_too_short_emits_nan():
+    f = MyActionBurstiness(K=5)
+    out = f.extract(_ctx([[0.0, 0.0]] * 3))
+    assert math.isnan(out["my_action_burstiness__k5"])
+
+def test_describe_classmethod_is_pure():
+    """Validator calls describe() WITHOUT instantiating — the map must be derivable from params alone."""
+    out = MyActionBurstiness.describe({"K": 5})
+    assert out == {"my_action_burstiness__k5": "risky"}
+```
+
+#### 8.1 Key contracts (fail-loud list)
+
+- The `extract` return dict's key set MUST equal `self.descriptor_orientations.keys()` — CompositeJudge `__call__` enforces this with a key contract assertion (it raises rather than silently NaN-ing).
+- `describe(params)` is a classmethod the validator calls **without instantiating**, so it MUST NOT rely on `self`, do I/O, or query `library_stats`.
+- Any physical edge (history too short / walk runs out / degenerate denominator) → return `float("nan")`; do **NOT** raise. The composer subclass owns NaN handling.
+- Do NOT z-score inside the factor; use `ctx.normalization.normalize_action / normalize_state` (Layer 1 owns z-score).
+
+---
+
+### 8.2 Adding a Layer 3 Calibration
+
+Implement the `Calibration` Protocol (`factors/calibrations/base.py`): `__init__(samples) / bind_keys(keys) / __call__(raw) / on_episode_start()`.
+
+```python
+# src/openpi/cache/components/factors/calibrations/my_zscore.py
+
+"""Z-score-on-factors calibration: per-key (v - μ) / σ over the warmup
+samples. Demonstration of an alternative to PercentileRollingCalibration."""
+
+from __future__ import annotations
+
+import math
+
+from openpi.cache.components.factors.base import CalibrationSamples
+
+
+class ZScoreOnFactorsCalibration:
+    """Each verdict's factor value is mapped to its z-score against the
+    bound key's warmup-sample distribution. NaN inputs propagate."""
+
+    def __init__(self, samples: CalibrationSamples) -> None:
+        if samples is None:
+            raise ValueError("ZScoreOnFactorsCalibration requires CalibrationSamples")
+        self._samples = samples
+        self._stats: dict[str, tuple[float, float]] = {}   # key -> (mu, sigma)
+
+    def bind_keys(self, keys: list[str]) -> None:
+        # bind_keys is the FAIL-FAST hook (plan §6.3): every Layer-2 union
+        # key must have enough non-NaN samples here, otherwise raise.
+        for k in keys:
+            samples = self._samples.samples.get(k)
+            if samples is None:
+                raise KeyError(f"calibration source missing key {k!r}")
+            non_nan = [v for v in samples if not math.isnan(v)]
+            if len(non_nan) < 30:
+                raise ValueError(
+                    f"key {k!r}: only {len(non_nan)} samples, need >= 30"
+                )
+            n = len(non_nan)
+            mu = sum(non_nan) / n
+            var = sum((x - mu) ** 2 for x in non_nan) / n
+            sigma = max(var ** 0.5, 1e-6)
+            self._stats[k] = (mu, sigma)
+
+    def __call__(self, raw: dict[str, float]) -> dict[str, float]:
+        out: dict[str, float] = {}
+        for k, v in raw.items():
+            if math.isnan(v) or k not in self._stats:
+                out[k] = float("nan")
+                continue
+            mu, sigma = self._stats[k]
+            out[k] = (float(v) - mu) / sigma
+        return out
+
+    def on_episode_start(self) -> None:
+        return None     # stats are immutable post-bind_keys
+```
+
+Register (top of subclass + add to `calibrations/__init__.py`):
+
+```python
+# src/openpi/cache/components/factors/calibrations/__init__.py
+from openpi.cache.components.factors.calibrations.my_zscore import (
+    ZScoreOnFactorsCalibration,
+)
+```
+
+`_build_calibration` adds a branch (`config.py`):
+
+```python
+if cfg.type == "z_score_on_factors":
+    return ZScoreOnFactorsCalibration(samples, **dict(cfg.params))
+```
+
+Yaml reference:
+
+```yaml
+calibration:
+  type: z_score_on_factors
+  params: {}                         # forwarded as kwargs (this class has none)
+  samples_source:
+    type: warmup                     # warmup pool fills CalibrationSamples
+```
+
+⚠ Key contracts: `bind_keys` is the **only** fail-fast hook (called at startup); `__call__` receiving an unknown key MUST return NaN (do NOT raise — CompositeJudge has already done key-contract validation upstream). Plan §6.3 / §6.5 rule 3 strictly enforces no cold-start state.
+
+---
+
+### 8.3 Adding a Layer 4 Composer
+
+Implement the `Composer` Protocol (`composers/base.py`): compute `self.declared_dependencies` (instance attribute) at construction, implement `bind_orientations(orientations)` and `compose(calibrated, *, winner_id)`.
+
+```python
+# src/openpi/cache/components/factors/composers/my_max.py
+
+"""Max-only composer: max calibrated value across all weighted keys.
+Useful when any single high-signal factor should suffice for hit."""
+
+from __future__ import annotations
+
+import math
+from typing import Optional
+
 from openpi.cache.components.judge import HitType, JudgeResult
 
 
-class MyComposer:
-    def __init__(self, threshold: float):
-        self._threshold = threshold
+class MaxComposer:
+    """JudgeResult based on max(calibrated[k] for non-zero-weight keys).
+
+    safe key: contributes calibrated[k]
+    risky key: contributes 1 - calibrated[k]
+    non_monotonic: requires `directions[k]` per orientation contract.
+    """
+
+    declared_dependencies: set[str]
+
+    def __init__(
+        self,
+        *,
+        weights: dict[str, float],
+        full_hit_threshold: float,
+        warm_start_threshold: Optional[float] = None,
+        warm_start_t: Optional[float] = None,
+        directions: Optional[dict[str, str]] = None,
+    ) -> None:
+        self._weights = dict(weights)
+        self._full = float(full_hit_threshold)
+        self._warm = warm_start_threshold
+        self._warm_t = warm_start_t
+        self._directions = dict(directions or {})
         self._orientations: dict[str, str] = {}
+        # Layer 4 contract — declare what factor keys we need
+        self.declared_dependencies = {k for k, w in self._weights.items() if w != 0.0}
 
     def bind_orientations(self, orientations: dict[str, str]) -> None:
-        # Called once by CompositeJudge.__init__; validate / store as needed
         self._orientations = dict(orientations)
+        missing = [
+            k for k, ori in self._orientations.items()
+            if ori == "non_monotonic" and self._weights.get(k, 0.0) != 0.0
+            and k not in self._directions
+        ]
+        if missing:
+            raise ValueError(f"non_monotonic keys missing directions: {sorted(missing)}")
 
-    def compose(self, factors: dict[str, float], *, winner_id: str) -> JudgeResult:
-        # `factors` is already Normalizer-processed; Composer chooses how to handle NaN
-        if all(v >= self._threshold for v in factors.values() if not (v != v)):
-            return JudgeResult(HitType.FULL_HIT, winner_id)
-        return JudgeResult(HitType.MISS)
+    def compose(
+        self,
+        calibrated: dict[str, float],
+        *,
+        winner_id: str,
+    ) -> JudgeResult:
+        contribs = []
+        for k, w in self._weights.items():
+            if w == 0.0:
+                continue
+            v = calibrated.get(k, float("nan"))
+            if math.isnan(v):
+                continue
+            ori = self._orientations.get(k)
+            if ori == "safe":
+                contribs.append(v)
+            elif ori == "risky":
+                contribs.append(1.0 - v)
+            else:
+                # non_monotonic — handle per direction (omitted for brevity)
+                contribs.append(v)
+        if not contribs:
+            return JudgeResult(HitType.MISS, composer_score=None)
+        score = max(contribs)
+        if score >= self._full:
+            return JudgeResult(HitType.FULL_HIT, winner_id=winner_id, composer_score=score)
+        if self._warm is not None and self._warm_t is not None and score >= self._warm:
+            return JudgeResult(
+                HitType.WARM_START, winner_id=winner_id,
+                start_t=self._warm_t, composer_score=score,
+            )
+        return JudgeResult(HitType.MISS, composer_score=score)
 ```
 
-Register in `_build_composer` — currently an explicit if-elif tree:
+Register in `composers/__init__.py` re-export table + add a branch to `_build_composer`:
 
 ```python
-# src/openpi/cache/config.py _build_composer
-elif cfg.type == "my_composer":
-    return MyComposer(threshold=cfg.tier_thresholds["full_hit"])
+# composers/__init__.py
+from openpi.cache.components.factors.composers.my_max import MaxComposer
+
+# config.py _build_composer
+if cfg.type == "max":
+    return MaxComposer(
+        weights=cfg.weights,
+        full_hit_threshold=cfg.tier_thresholds["full_hit"],
+        warm_start_threshold=cfg.tier_thresholds.get("warm_start"),
+        warm_start_t=cfg.warm_start_t,
+        directions=cfg.directions,
+    )
 ```
 
-> **Future work**: Composer and Normalizer could also use the registry pattern (like factors do); not in the current plan.
+Yaml reference:
 
-### 9.6 Write a new Normalizer
-
-```python
-class MyNormalizer:
-    def __init__(self, ...):
-        self._keys: list[str] = []
-
-    def bind_keys(self, keys: list[str]) -> None:
-        self._keys = list(keys)
-
-    def __call__(self, raw: dict[str, float]) -> dict[str, float]:
-        # Returned dict MUST contain the same keys as `raw`
-        # To trigger cold-start MISS: return an all-NaN dict (CompositeJudge short-circuits)
-        ...
-
-    def on_episode_start(self) -> None:
-        # Default no-op; override only if per-episode rolling-window reset is desired
-        return None
+```yaml
+composer:
+  type: max
+  weights:
+    jerk_online_state__p5_f5: 1.0
+    direction_online_state__p5_f5: 1.0
+  tier_thresholds: { full_hit: 0.7, warm_start: 0.4 }
+  warm_start_t: 0.7
 ```
 
-Register in the `_build_normalizer` if-elif tree.
-
-> **Batch status**: The API surface for adding custom factor / Composer / Normalizer is B0-ready, but CompositeJudge cannot actually run until B1 lands. In B0 you can still unit-test custom factors' `describe` + class construction (see the stub-test pattern in `tests/cache/components/factors/test_registry.py`).
+⚠ Key contracts:
+- `declared_dependencies` is an **instance attribute** (not a classmethod), computed at construction. CompositeJudge `__init__` statically asserts `composer.declared_dependencies ⊆ Layer 2 union key set`.
+- All WARM_START emission paths are bound by plan §3.6 / §13.3 rule 5c **CP1-only** — any composer subclass that outputs `HitType.WARM_START` cannot be configured under cp3 (validator rejects `warm_start_t` on cp3).
+- Empty `calibrated` / all-NaN: it is recommended to return `JudgeResult(HitType.MISS)`. If your composer wants to return WARM_START in that scenario, see `WeightedSumWithWarmFallbackComposer` for the implementation pattern (also gated CP1-only via `composer.warm_fallback_start_t`).
 
 ---
 
-## 10. Module file map
+### 8.4 Adding an OfflineWriter (so an offline factor can write artifact)
 
-| Path | Role |
-|---|---|
-| `src/openpi/cache/components/factors/base.py` | OnlineExtractor / OfflineWriter Protocol + LibraryStats + HistoryView |
-| `src/openpi/cache/components/factors/registry.py` | `register / get_class / build / known` |
-| `src/openpi/cache/components/factors/runtime_continuity.py` | F1a-A / F1a-T thin subclasses |
-| `src/openpi/cache/components/factors/source_window.py` | F1b-A / F1b-T thin subclasses + `_DESCRIPTOR_ORIENTATIONS` + `_normalize_windows` |
-| `src/openpi/cache/components/factors/consensus.py` | F2 |
-| `src/openpi/cache/components/factors/composers/__init__.py` | Composer Protocol + WeightedSum / AndGate / OrGate |
-| `src/openpi/cache/components/factors/normalizers/__init__.py` | Normalizer Protocol + PercentileRollingNormalizer |
-| `src/openpi/cache/components/payload_view.py` | PayloadView Protocol + StoragePayloadView + ForkPolicy |
-| `src/openpi/cache/components/judge.py` | `CompositeJudge` (alongside ThresholdJudge / AlwaysHit / AlwaysWarmStart) |
-| `src/openpi/cache/storage_types.py` | `CachePayload.factors` Optional field |
-| `src/openpi/cache/cache_storage.py` | `fetch_entry` + `library_stats` duck-typed facade |
-| `src/openpi/cache/backends/in_memory_backend.py` | `fetch_entry` public method + `library_stats` attribute |
-| `src/openpi/cache/config.py` | `FactorConfig / ComposerConfig / NormalizerConfig` + `_build_composer / _build_normalizer / _build_judge` composite branch + B0 `_JUDGE_TYPES` excludes `composite` (fail-fast at load) |
-| `tests/cache/components/factors/` | factor metadata + Composer / Normalizer protocol + CompositeJudge unit tests |
-| `tests/cache/test_payload_view.py` | StoragePayloadView unit tests |
-| `tests/cache/test_cache_storage_factor_facade.py` | fetch_entry / library_stats facade tests |
-| `tests/cache/test_config_factor.py` | FactorConfig / ComposerConfig parsing + B0 rejection tests |
+A `Factor` subclass that ALSO implements `required_payload_fields()` + `compute_for_episode(entries, library_stats)` automatically satisfies the `OfflineWriter` Protocol (duck typing). `exp/common/factor_postprocess.py:_load_offline_writers_from_yaml` discovers it via `hasattr(cls, 'compute_for_episode')`.
+
+Full skeleton (a demo writing per-entry mean velocity magnitude over a chain `(P, F)` window):
+
+```python
+# src/openpi/cache/components/factors/my_pack.py (extends 8.1)
+
+@register("mean_speed_offline_action")
+class MeanSpeedOfflineAction:
+    """Per-entry mean velocity magnitude over a (P, F) chain window."""
+
+    requires_chain_walk: bool = False     # online path reads payload.factors
+    required_top_k:      int = 0
+
+    def __init__(self, *, windows: list[dict]) -> None:
+        from openpi.cache.components.factors.base import normalize_windows
+        self._windows = normalize_windows(windows)
+        self.descriptor_orientations = self.__class__.describe({"windows": windows})
+
+    @classmethod
+    def describe(cls, params: dict) -> dict[str, str]:
+        from openpi.cache.components.factors.base import normalize_windows
+        return {
+            f"mean_speed_offline_action__p{p}_f{f}": "non_monotonic"
+            for (p, f) in normalize_windows(params["windows"])
+        }
+
+    # ---- ONLINE path: read what the OfflineWriter wrote ----
+    def extract(self, ctx) -> dict[str, float]:
+        keys = list(self.descriptor_orientations)
+        if not ctx.results:
+            return {k: float("nan") for k in keys}
+        winner = ctx.view.get(ctx.results[0].id)
+        if winner.factors is None:
+            return {k: float("nan") for k in keys}
+        return {k: float(winner.factors.get(k, float("nan"))) for k in keys}
+
+    # ---- OFFLINE path: writer surface ----
+    def required_payload_fields(self) -> set[str]:
+        return set()                                    # uses existing schema
+
+    def compute_for_episode(
+        self, entries, library_stats,
+    ) -> list[dict[str, float]]:
+        import torch
+        keys = list(self.descriptor_orientations)
+        T = len(entries)
+        if T == 0:
+            return []
+        seq = torch.stack(
+            [torch.as_tensor(e.payload.action_chunk[0], dtype=torch.float32) for e in entries],
+            dim=0,
+        )                                               # [T, A]
+        sigma = library_stats.action_sigma.clamp_min(0.01)
+        seq_norm = seq / sigma                          # [T, A]
+        active = library_stats.action_active_mask
+        pts = seq_norm[..., active]                     # [T, A_active]
+        out: list[dict[str, float]] = []
+        for k_idx in range(T):
+            row: dict[str, float] = {}
+            for (P, F) in self._windows:
+                lo, hi = k_idx - P, k_idx + F
+                if lo < 0 or hi >= T:
+                    row[f"mean_speed_offline_action__p{P}_f{F}"] = float("nan")
+                    continue
+                w = pts[lo:hi + 1]
+                v = (w[1:] - w[:-1]).norm(dim=-1)       # [W-1]
+                row[f"mean_speed_offline_action__p{P}_f{F}"] = (
+                    float(v.mean()) if v.numel() else float("nan")
+                )
+            out.append(row)
+        return out
+```
+
+How `exp/common/factor_postprocess.py` finds this class: through `_load_offline_writers_from_yaml` going to the registry and checking `hasattr(cls, 'compute_for_episode')`, so **no second registration site** is needed.
+
+**Write the artifact**:
+
+```bash
+uv run python -m exp.common.build_in_memory_cache_artifact enrich-existing-pkl \
+  --input  exp/warm_start/data/spatial16/cp1_spatial_pool_16.pkl \
+  --factors-yaml my_factors.yaml \
+  --output exp/warm_start/data/spatial16/cp1_spatial_pool_16_v2.pkl
+
+# my_factors.yaml
+factors:
+  - type: mean_speed_offline_action
+    params:
+      windows: [{past: 1, future: 1}, {past: 5, future: 5}]
+```
+
+The CLI only accepts the 8 offline factors (registry name + `hasattr(compute_for_episode)`); using an online factor or topk fails immediately. Full e2e smoke test: `tests/exp/common/test_build_enrich_existing_pkl.py`.
 
 ---
 
-## 11. FAQ
+### 8.5 Authoring checklist (the five-step recipe)
 
-### Q: Why is the `f1a_t` key namespaced as `f1a_t_jerk` rather than `f1a_s_jerk`?
+1. **Be clear about physical meaning** — what signal does the factor capture? safe / risky / non_monotonic? does it need chain walk? does it need top-K?
+2. **Write the class + `@register("name")`** — three methods (`__init__` / `describe(params)` / `extract(ctx)`) + capability flags.
+3. **Add the import** — append `from . import my_pack` to `factors/registry.py` so the `@register` side effect runs when the registry module loads.
+4. **Write the yaml + smoke** — copy the §3 full yaml template, swap `factors` / `calibration` / `composer` to point at the new names; run `load_cache_config` locally to confirm validator passes.
+5. **Write tests** — at least: happy path + physical edge (NaN exit) + the classmethod `describe(params)` returning a value consistent with the instance's `descriptor_orientations`.
 
-`source` is the factor's semantic field (`"action"` / `"state"`); `key_initial` is the `payload.factors` namespace (`"a"` / `"t"`), aligned with the registry name suffix. This way YAML configs that reference `f1a_t_jerk` perfectly match the extractor's actual output, avoiding silent weight misalignment (decided in G2 Round 1 → Round 2).
+---
 
-### Q: What happens with old entries (`payload.factors is None`)?
+## 9. Refactor delta cheat-sheet (old → new)
 
-F1b's `OnlineExtractor.extract` returns NaN, and the Composer skips that factor per its orientation rule (weighted_sum: not counted into the sum or weight total; and-gate: treated as a fail; or-gate: treated as pass-but-ignored). NaN is the legal expression of "signal missing"; it never crashes the verdict.
+| Dimension | Old | New |
+|---|---|---|
+| Number of factors | 5 (`f1a_a/f1a_t/f1b_a/f1b_t/f2`) | 17 (`<desc>_<source>_<channel>` × 16 + `topk_action_variance`) |
+| Descriptor names | `jerk / dir / curv_radius / cum_disp` | `jerk / direction / dispersion / path_length` |
+| Architecture | Factor + Normalizer + Composer + framework-level fallback | 4 orthogonal layers (Normalization / Factor / Calibration / Composer) |
+| Cold-start | `cold_start_strategy: force_miss/passthrough/lenient` | **Removed** — startup fail-fast |
+| `all_nan_fallback` yaml | `{type: warm_start, start_t}` | **Removed** — handled by `WeightedSumWithWarmFallbackComposer` subclass |
+| `factor_outputs` fields | `{raw, norm, score, sentinel}` | `{raw, calibrated, composer_score, schema_version=2}` |
+| `OfflineWriter` signature | `compute_for_episode(entries, library_stats)` | Unchanged |
+| `OnlineExtractor` Protocol | Multi-arg `extract(results, view, history, cached_data)` | Single-arg `Factor.extract(ctx: FactorContext)` |
+| Composer dependency check | classmethod `declared_dependencies(params)` | Instance attribute `composer.declared_dependencies` |
+| Wire protocol | `__hit_meta__["factor_outputs"]` same | `schema_version=2`; legacy clients see field-absent = v1 |
 
-### Q: What happens during cold-start (rolling window not yet full)?
-
-`PercentileRollingNormalizer(cold_start_strategy="force_miss")` returns an **all-NaN dict** while the window is still filling; CompositeJudge detects `all(isnan(v))` and **short-circuits to MISS**, never invoking the Composer. This guarantees that during cold-start the cache routes through the inference path and never issues an aggressive hit based on unreliable percentile.
-
-Other strategies: `"passthrough"` (use raw values directly) and `"lenient"` (compute percentile from partial samples; below 10 falls back to force_miss).
-
-### Q: Doesn't F2's `K=5` break the strategy's `top_k=1` semantics?
-
-No. CompositeJudge collects `min_required_top_k = max(extractor.required_top_k for extractor)` and feeds it into `SearchStrategy`'s new `min_top_k_hint` kwarg; `SearchStrategy` uses `max(yaml_top_k, min_top_k_hint)` as the actual fetch count. The YAML's `top_k: 1` retains its semantics ("the strategy needs 1") while F2 transparently bumps it to 5 in the background. In-memory backend benchmarks show topk(5) vs topk(1) cost is negligible.
-
-### Q: What if I configure `f1a_t` against a Qdrant backend?
-
-`validate_cache_config` raises at config-load time: factors with `requires_chain_walk=True` require `backend.type=in_memory` (only InMemoryBackend exposes `fetch_entry`). Fail-fast at load — never reaches the inference path.
-
-### Q: How do I pick `direction` for a `non_monotonic` factor?
-
-- `"high"` — higher value is better (e.g. large `cum_disp` = strong sustained motion)
-- `"low"`  — lower value is better
-- `"range:[lo, hi]"` — falls inside [lo, hi] is better (e.g. `curv_radius` range:[0.3, 1.0] expresses "prefer medium dispersion: stationary or long straight motion are both penalized")
-
-Concrete values come from data calibration (B2+ may add a percentile-scanning calibration script suggesting recommended values).
-
-### Q: Can I run a composite YAML now?
-
-Yes (since B1). `_JUDGE_TYPES` includes `composite`; the validator accepts `judge.type=composite` and runs all seven composite-specific static checks (§6.1). F1a-A / F1a-T / F2 plus the three Composers and `PercentileRollingNormalizer` are fully implemented, end-to-end verdicts run. F1b factors require the loaded artifact pkl to carry the `library_stats` field (B2 build pipeline writes it automatically; legacy artifacts trigger an in-memory fallback recompute at server start).
-
-What you can do in B0:
-- Write `describe()` / construction unit tests for custom factors.
-- Construct `CompositeJudge` directly via `_build_judge(cfg, library_stats=None)` and exercise its collect+bind+key contract+cold-start sentinel paths.
-- Review the schema / config validation chain to confirm it matches expectations.
-
-### Q: How do I debug a verdict failure?
-
-1. CompositeJudge raises `ValueError("conflicting orientations")` at `__init__` — two extractors declare the same key with different orientations; check both factors' `descriptor_orientations`.
-2. CompositeJudge raises `RuntimeError(... key contract violation)` at verdict time — the keys returned by `extract()` differ from what was declared; check the extract implementation.
-3. Composer reports a missing weight key — extractor did not produce it / the key namespace is wrong (F1a-T is `f1a_t_*`, not `f1a_s_*`).
-4. Validator reports `directions[K] missing for non_monotonic factor with non-zero weight` — explicitly add it to YAML `composer.directions`.
-
-### Q: Can I skip the Normalizer and feed raw factor values directly to the Composer?
-
-Yes. Omit the `normalizer:` field in YAML or have `_build_normalizer` return None, and CompositeJudge passes the raw dict straight to the Composer. But then `tier_thresholds` must be calibrated to the raw scale (no longer [0, 1] percentile rank), which is usually harder. Recommended: keep at least PercentileRollingNormalizer to standardize scores.
+Full design + decision history: [`logs/verdict_factor_judge_refactor.log.md`](../../logs/verdict_factor_judge_refactor.log.md) (G1 APPROVED Round 4 / G2 APPROVED Round 3, 2026-05-07).

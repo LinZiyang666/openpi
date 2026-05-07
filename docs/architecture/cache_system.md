@@ -718,198 +718,125 @@ class PayloadView(Protocol):
 
 In B0 the chain shape produced by the write path has `len(prev_ids) <= 1` and `len(next_ids) <= 1` per entry (no real fork yet). The walk implementation raises `NotImplementedError` immediately if a node with multiple neighbors is encountered, instead of silently picking one — a real fork should be a deliberate, observable design event.
 
-**Backend capability dependency**: `walk_prev` / `walk_next` rely on `CacheStorage.fetch_entry`, which duck-types the backend's optional `fetch_entry(id) -> CacheEntry` capability. `InMemoryBackend` exposes it as a plain public method; the Backend ABC is unchanged. Backends without the capability raise `NotImplementedError` on the facade call. Composite judges that require chain walks (currently F1a-T) are config-gated to backends that support `fetch_entry` — `validate_cache_config` rejects mismatched configurations at load time.
+**Backend capability dependency**: `walk_prev` / `walk_next` rely on `CacheStorage.fetch_entry`, which duck-types the backend's optional `fetch_entry(id) -> CacheEntry` capability. `InMemoryBackend` exposes it as a plain public method; the Backend ABC is unchanged. Backends without the capability raise `NotImplementedError` on the facade call. Composite judges that require chain walks (the 8 online factors in the refactor — see §5.12) are config-gated to backends that support `fetch_entry`; `validate_cache_config` rejects mismatched configurations at load time.
 
-### 5.12 Verdict Factor System
+### 5.12 Verdict Factor System (4-layer architecture)
 
-> **Source**: `src/openpi/cache/components/factors/`
-> **Status**: B1 has landed — F1a-A / F1a-T / F2 `extract` algorithms, three Composers, `PercentileRollingNormalizer`, Orchestrator view+history injection, `composite` YAML enabled, validator's seven composite-specific checks, `min_top_k_hint` plumbing. B2 lands the offline path: `SourceWindowSmoothness.extract` + `compute_for_episode` + `LibraryStats.compute_from_entries` + Backend `load_artifact` library_stats / fallback + the `--factors-yaml` build helper.
+> **Source**: `src/openpi/cache/components/factors/` (Layer 1 / 2 / 3) + `src/openpi/cache/components/{composite,dumping}_judge.py` (Layer 4 + assembly).
+> **Status**: Refactored 2026-05-07 (G1 APPROVED Round 4). The pre-refactor 5-factor family (`f1a_a` / `f1a_t` / `f1b_a` / `f1b_t` / `f2`) and the legacy `Normalizer` / `all_nan_fallback` / `cold_start_strategy` apparatus have been removed.
 
-The verdict factor system replaces the single-threshold cosine judge with a three-stage pipeline: extract per-factor descriptors → normalize → compose into a `JudgeResult`. Each stage is a plug point.
-
-**Pipeline (CompositeJudge)**:
+The CompositeJudge replaces a single-threshold cosine match with a four-layer pipeline. Each layer is independently pluggable through the yaml `judge` config; the layers are orthogonal — a layer never holds a reference to another layer's instance, only to an interface contract.
 
 ```
-SearchResultLite[]  ─┐
-PayloadView (view)   ├──► OnlineExtractor*  ──► raw: dict[str, float]
-HistoryView          │            (key contract: keys MUST equal
-cached_data         ─┘             extractor.descriptor_orientations.keys())
-                                      │
-                                      ▼
-                              Normalizer (optional)
-                                      │
-                              norm: dict[str, float]
-                              (all-NaN → MISS short-circuit)
-                                      │
-                                      ▼
-                                  Composer ──► JudgeResult
+                    ┌──────────────────────────────────────┐
+raw action / state │ Layer 1   Normalization              │
+─────────────────► │   stats_source: offline (LibraryStats)│
+                    └──────────────┬───────────────────────┘
+                                   │ normalized data injected via FactorContext
+                                   ▼
+SearchResultLite[]  ┌──────────────────────────────────────┐
+PayloadView      ──►│ Layer 2   17 Factors                  │
+HistoryView         │   `<descriptor>_<source>_<channel>`   │
+                    │   + topk_action_variance              │
+                    └──────────────┬───────────────────────┘
+                                   │ raw factor dict[str, float]
+                                   ▼
+                    ┌──────────────────────────────────────┐
+                    │ Layer 3   Calibration (per key)       │
+                    │   PercentileRollingCalibration        │
+                    │   samples_source: offline | warmup    │
+                    │   bind_keys() fail-fast at startup    │
+                    └──────────────┬───────────────────────┘
+                                   │ calibrated dict in [0, 1]
+                                   ▼
+                    ┌──────────────────────────────────────┐
+                    │ Layer 4   Composer                    │
+                    │   declared_dependencies (instance)    │
+                    │   compose(calibrated, *, winner_id)   │
+                    │   subclass owns NaN handling          │
+                    └──────────────┬───────────────────────┘
+                                   │
+                                   ▼
+                    JudgeResult(hit_type, winner_id, start_t,
+                                factor_outputs={schema_version=2,
+                                                raw, calibrated,
+                                                composer_score})
 ```
 
-**Two-tier metadata model on `OnlineExtractor`**:
+**17 factors** = 4 descriptors (`jerk` / `direction` / `dispersion` / `path_length`) × 2 sources (`online` / `offline`) × 2 channels (`action` / `state`) + `topk_action_variance`. Factor naming: `<descriptor>_<source>_<channel>`. Key template (with windows): `<descriptor>_<source>_<channel>__p<P>_f<F>`.
 
-- *Class-level capability flags* — read by the validator BEFORE instantiation:
-  - `required_top_k: int` — minimum top-K this factor needs (CompositeJudge feeds the max into `SearchStrategy.min_top_k_hint` in B1+).
-  - `requires_library_stats: bool` — whether the constructor takes `library_stats` (True for F1a / F1b z-score factors; False for F2).
-  - `requires_chain_walk: bool` — whether `extract()` calls `view.walk_prev` / `view.walk_next` (True for F1a-T).
-- *Instance-level metadata* — set in `__init__` from params:
-  - `descriptor_orientations: dict[str, str]` — `{key -> "safe"|"risky"|"non_monotonic"}` for every key this instance will produce.
-- *Static introspection* — classmethod for the validator:
-  - `describe(cls, params) -> dict[str, str]` — same map computable from params alone, without `library_stats` or any runtime context. The validator uses this to cross-check `Composer.directions` coverage for non-monotonic keys without instantiating the factor.
+**Online factors share a unified splice** `[history[-P:], winner, walk_next(F)]` (length `P + 1 + F`). On the action channel, every cell is `payload.action_chunk[0]`; on the state channel, every cell is `query_keys["robot_state"]`. The two channels are physically aligned (cell t at history / winner / chain step k always comes from the same inference quote).
 
-**Currently registered factors** (B0 shipped metadata + register; B1 lands F1a / F2 algorithm bodies; B2 lands F1b algorithm bodies):
+**Offline factors** read precomputed values from `payload.factors[<key>]` at verdict time; the `OfflineWriter.compute_for_episode(entries, library_stats)` path produces those values during artifact build (`exp/common/factor_postprocess.py:enrich_artifact_with_factors`). Offline factors do not require chain walk at verdict time.
 
-| Registry name | Class | Source | requires_library_stats | requires_chain_walk | Algorithm batch |
-|---|---|---|---|---|---|
-| `f1a_a` | `RuntimeContinuityAction` | action | True | False | B1 |
-| `f1a_t` | `RuntimeContinuityState` | state | True | True | B1 |
-| `f1b_a` | `SourceWindowSmoothnessAction` | action | True | False | B2 |
-| `f1b_t` | `SourceWindowSmoothnessState` | state | True | False | B2 |
-| `f2` | `TopKActionConsensus` | — | False | False | B1 |
+**No cold-start state**:
 
-Action / state are bound by class identity (thin subclasses of a shared algorithm base) — `source` is NOT a YAML parameter; the registry name selects the subclass.
+- Layer 1 reads `library_stats` (per-DOF σ + active mask) from `backend.load_artifact` at startup. There is no warmup-σ channel in this refactor (see plan §6.3 / §6.11 #10); attempting `stats_source.type=warmup` is a yaml-load error.
+- Layer 3's `bind_keys` fails fast if any factor key has fewer non-NaN samples than `window_size`; both `samples_source.type=offline` (file-on-disk) and `=warmup` (per-yaml `WarmupPool` entry populated by sibling warmup yaml) must be saturated before the first verdict.
+- The legacy `cold_start_strategy: force_miss/passthrough/lenient`, `all_nan_fallback: warm_start@t`, and `JudgeResult.factor_outputs.sentinel` fields are removed. WARM_START on all-NaN is now a property of specific Composer subclasses (e.g. `WeightedSumWithWarmFallbackComposer`).
 
-**`payload.factors` schema**: `Optional[dict[str, float]]` field on `CachePayload`. Old entries leave it as None; OfflineWriter implementations populate it during the artifact-build / Orchestrator episode-end path. Key naming follows per-factor templates, where `<key_initial>` is `"a"` for action-side factors and `"t"` for state-side factors — matching the registered factor names (`f1a_a` / `f1a_t` / `f1b_a` / `f1b_t`) so YAML `composer.weights` / `directions` keys align with extractor output:
+**Empty-results short-circuit**: `CompositeJudge` returns `JudgeResult(MISS)` immediately when `results == []`; the Composer is not invoked with a `winner_id=None`.
 
-- F1a (single-window): `f1a_<key_initial>_<descriptor>` (e.g. `f1a_a_jerk`, `f1a_t_jerk`).
-- F1b (multi-window): `f1b_<key_initial>_<descriptor>__p<past>_f<future>` (e.g. `f1b_a_jerk__p0_f5`, `f1b_t_dir__p5_f10`).
-- F2: `f2_var` (single key regardless of K).
+**`min_required_top_k` plumbing**: each `Factor` may set `required_top_k`; CompositeJudge takes the max and exposes it as `min_required_top_k`; `build_per_connection_components` forwards it as `min_top_k_hint` to the search strategy so factors like `topk_action_variance` get enough candidates without the yaml widening `top_k`.
 
-**Library-level metadata** (`LibraryStats`, populated B2): per-DOF `action_sigma` + `action_active_mask` and `state_sigma` + `state_active_mask` over the artifact's entry pool. Stored as a top-level `library_stats` field on the artifact pickle; `InMemoryBackend.load_artifact` falls back to `LibraryStats.compute_from_entries` for legacy artifacts that lack the field (or set it explicitly to None). F1a / F1b z-score against this metadata; F2 uses a candidate-LOCAL active mask instead and stays `requires_library_stats=False`. State-side factors (F1a-T / F1b-T) carry a three-layer fail-safe so an empty state library / per-entry missing state never crashes — they emit all-NaN dicts that the cold-start sentinel routes to MISS.
+**`DumpingJudge`** (refactor §6.9 mode b) wraps any `SimilarityJudge` and side-channels per-verdict factor raw values to JSONL. It owns its own Layer 1 Normalization replica (config validator forces `dump.normalization.stats_source` == `judge.normalization.stats_source` so dump-factor raw values stay wire-comparable to inner factor raw). The independent dump-factor list lets a single warmup yaml over-collect every factor a downstream eval yaml family might use, while individual eval yamls each pick a subset.
 
-**Artifact build pipeline** (B2): `exp/common/factor_postprocess.py:enrich_artifact_with_factors` runs after each builder finishes its per-episode entry list. It computes `LibraryStats` from the full pool, then invokes each OfflineWriter per trajectory (sorted by `step_idx`, `step_idx is None` entries appended in collection order with a warning) and merges the resulting per-entry factor dicts into `payload.factors`. The helper bridges numpy / torch via `torch.as_tensor` so the primary builder's ProcessPool detach is left unchanged. Writers are loaded from a minimal YAML via `--factors-yaml` on each `build_*.py` CLI; the loader fail-fasts if a YAML lists an online-only factor (F1a / F2) under the OfflineWriter slot.
-
-**Cold-start signal**: Normalizers in `force_miss` mode return all-NaN dicts when the rolling window is not yet ready. CompositeJudge detects all-NaN and routes the verdict through `all_nan_fallback` (default `MISS`; opt-in `WARM_START` at a canonical denoise t to break the bootstrap dead loop documented below).
-
-**⚠ Multi-worker cold-start amplification — operational gotcha**: Per-connection components are built by `build_per_connection_components`, so each `--num-workers N` from the LIBERO eval loop spawns its own ws connection → its own `CompositeJudge` → **its own normalizer with its own per-key rolling buffer**. There is no cross-worker buffer sharing. Each worker therefore re-pays the cold-start cost on its own verdict count.
-
-Empirical example (verdict_factor_judge Phase 1 idx 4, F-FULL × T-DUAL_07, 100 ep × `--num-workers=5`):
-
-```
-per-worker verdict budget   = 100 ep / 5 workers × ~21 verdict/ep ≈ 420
-slowest-key NaN rate (F1b)  ≈ 44%   → buffer fills at 56% of verdicts
-window_size                 = 200 (plan-default)
-per-worker cold-start span  = 200 / 0.56 ≈ 357 verdicts (85% of worker's budget)
-5-worker total sentinel firing ≈ 85% of 2100 verdicts ≈ 1785
-```
-
-Without `all_nan_fallback=warm_start`, those 1785 sentinel firings become MISSes, the trajectory drifts under pure inference, and even after individual workers warm up the composer never sees in-distribution factor signal. With the fallback, the cold-start window emits WARM_START and success rate matches `Ceiling-W` (AlwaysWarmStart-baseline) almost exactly — but the composer still ran on only ~10% of verdicts, so factor-level ablation is starved of evidence.
-
-**Mitigations** (pick by experiment context):
-- Reduce `normalizer.window_size` (verdict_factor_judge Phase 1 dropped 200→50 → cold-start to ~21% per worker).
-- Reduce `--num-workers` to 1 (slower wall-clock, but each worker gets the full ep budget).
-- N-PRELOAD: pre-fill the rolling buffer at construction from a Phase 0 `DumpingJudge` JSONL (plan §3.4 Phase 4 ablation; not yet implemented).
-
-The gotcha bites any future cache experiment that (a) uses `CompositeJudge` with a high-NaN factor family and (b) runs LIBERO eval with `--num-workers > 1`. Always sanity-check `per_worker_verdict_budget × (1 - max_factor_nan_rate) > window_size` before launching.
-
-**Coupling boundary**: factor implementations import only from `storage_types`, `payload_view`, and the registry. They do NOT depend on `CacheStorage` directly. `CompositeJudge.bind` semantics are stable across all extractor implementations: a Composer / Normalizer that satisfies the Protocol works with any registered factor.
-
-The detailed plan with batch sequencing, validator rules, and risk register lives in `logs/verdict_factor_judge.log.md`.
+For full per-layer Protocol signatures, factor implementation matrix, yaml schema, and 12+3 validator rules see `docs/cache/verdict_factor_judge.md` and the design log `logs/verdict_factor_judge_refactor.log.md` §6 / §11 / §13.
 
 ### 5.13 Wire-Level Observability + Warmup Preload Protocol
 
-> **Source**: `src/openpi/cache/interceptor.py`, `src/openpi/serving/websocket_policy_server.py`, `src/openpi/cache/warmup_pool.py`, `src/openpi/cache/components/factors/normalizers/__init__.py`, `scripts/serve_policy.py`, `packages/openpi-client/src/openpi_client/websocket_client_policy.py`, `exp/verdict_factor_judge/run_phase.py`.
-> **Status**: B1 (observability) + B2 (warmup preload) landed by the verdict_factor_judge dedicated runner work. All additions are opt-in; legacy paths are byte-equivalent.
+> **Source**: `src/openpi/cache/interceptor.py`, `src/openpi/serving/websocket_policy_server.py`, `src/openpi/cache/warmup_pool.py`, `src/openpi/cache/components/factors/calibrations/percentile_rolling.py`, `scripts/serve_policy.py`, `packages/openpi-client/src/openpi_client/websocket_client_policy.py`, `exp/verdict_factor_judge/run_phase.py`.
+> **Status**: Refactored 2026-05-07 alongside §5.12. The wire schema is `schema_version=2`; the warmup channel that previously fed `PercentileRollingNormalizer.preload_buffer` now feeds Layer 3 `PercentileRollingCalibration` directly through `_build_calibration` (no separate post-build preload step).
 
-This section is the wire / protocol companion to §5.12. The verdict factor system has two operational gaps that §5.12 documents but does not solve:
+Two operational gaps the verdict factor system needs to solve:
 
-1. **Per-verdict observability is server-stdout only** — re-analysing any historical yaml requires re-running it, because hit_type / start_t / winner_id / cp1_score live in transient logs.
-2. **Per-connection cold-start amplification** — each worker connection builds its own `CompositeJudge` → its own `PercentileRollingNormalizer` → its own rolling buffer that must accumulate ~`window_size` valid samples before normalization activates. With high-NaN factor families the cold-start window can swallow the majority of an experiment's verdict budget.
+1. **Per-verdict observability is server-stdout only by default** — re-analysing any historical yaml requires re-running it because hit_type / start_t / winner_id / cp1_score live in transient logs. Mitigation: `judge.export_factor_outputs: true` + interceptor `__hit_meta__` wiring + client per-step jsonl recorder.
+2. **Per-connection cold-start amplification** — each worker connection independently builds its own `CompositeJudge`, including its own Layer 3 calibration buffer. With high-NaN factor families a fresh buffer would either short-circuit verdicts or miscalibrate during the warmup phase. Mitigation: yaml-pair `<eval>__warmup.yaml` → `DumpingJudge` writes raw factor jsonl → runner `preload_normalizer_buffer` ctrl pushes per-key list into the per-process `WarmupPool` → eval yaml `_build_calibration` pulls from the pool at `bind_keys` time and fails fast if undersized.
 
-§5.13 documents the wire-level protocol that closes both gaps.
+#### Wire schema (`__hit_meta__["factor_outputs"]`, schema_version=2)
 
-#### 5.13.1 `__hit_meta__` response field (B1)
-
-`InferenceInterceptor.infer` attaches `result["__hit_meta__"]` after every CP1 verdict. The dict is the SAME schema regardless of return path so client analysis tools branch on `hit_type` only:
-
-```json
+```python
 {
-  "hit_type": "FULL_HIT" | "WARM_START" | "MISS",
-  "start_t":  float | null,        // populated only on WARM_START
-  "winner_id": str | null,          // CheckResult.entry_id
-  "cp1_score": float | null         // CheckResult.score
+  "schema_version": 2,
+  "raw":             {key: float | None},     # Layer 2 raw factor dict (NaN -> None)
+  "calibrated":      {key: float | None},     # Layer 3 percentile rank dict
+  "composer_score":  float | None,            # Layer 4 internal aggregate
 }
 ```
 
-When the orchestrator is disabled (`--cache_config` absent and no dynamic bundle) the helper still emits a placeholder with `hit_type="MISS"` and three null fields — cache-off responses share the wire schema with cold-start MISSes so post-hoc analysis does not need a parallel "no-cache" branch.
+`hit_type` / `winner_id` / `start_t` / `cp1_score` remain at the top level of `__hit_meta__` (not inside `factor_outputs`). Legacy clients (pre-refactor) read `__hit_meta__["factor_outputs"]` via `dict.get("schema_version", 1)` — the missing field implicitly tags v1 (`{raw, norm, score, sentinel}`) and the client falls back to its v1 reader.
 
-`WebsocketPolicyServer` does not strip the field; it is opaque on the wire. Backward compat: clients that never read `__hit_meta__` are unaffected (msgpack discards unknown keys at the consumer's discretion). The LIBERO eval runner (`examples/libero/main.py` — see §B1.2 in the runner plan) consumes the field and writes per-verdict JSONL via the per-worker `PerStepWriterPool`.
-
-#### 5.13.2 New WebSocket ctrl messages (B2)
-
-Three new ctrls plus one extension to the existing `load_cache_config`. All are opt-in; absent fields preserve legacy behaviour.
-
-| ctrl | direction | payload | ack | semantics |
-|---|---|---|---|---|
-| `load_cache_config` (extended) | client→server | `{yaml_path \| yaml_content, yaml_id?}` | `{__ack__: load_cache_config, version}` | Existing ctrl; new optional `yaml_id` is stored on `CurrentCacheBundle.yaml_id` and used to (a) fill `dump.deferred=True` paths, (b) key the WarmupPool preload at the next per-connection build. Absent yaml_id → `bundle.yaml_id = None` → legacy code path. |
-| `fetch_dump` | client→server | `{warmup_yaml_id: str}` | `{__ack__: fetch_dump, warmup_yaml_id, content: bytes}` or `{__ack__: error, msg}` | Returns the raw bytes of `<warmup_dump_root>/<warmup_yaml_id>.jsonl`. `warmup_yaml_id` containing `/` or `..` is rejected; the resolved candidate must stay under the root after both root and candidate are `.resolve()`-ed (defeats symlink-based traversal). |
-| `preload_normalizer_buffer` | client→server | `{eval_yaml_id: str, buffer: dict[str, list[float]]}` | `{__ack__: preload_normalizer_buffer, eval_yaml_id, n_keys}` | Stashes `buffer` in the `WarmupPool` keyed by `eval_yaml_id`. Per-connection builds for the matching yaml then preload each composite judge's normalizer from this buffer. |
-| `unload_warmup_buffer` | client→server | `{eval_yaml_id: str}` | `{__ack__: unload_warmup_buffer, eval_yaml_id, deleted_dump_file: bool}` | Drops the WarmupPool entry AND deletes `<eval_yaml_id>__warmup.jsonl` from the warmup dump root. The wire never carries the warmup file name — the server derives it. This closes the G1R3 conflation where one ambiguous `yaml_id` could refer to either the eval or warmup id. |
-
-Field naming is strict: `fetch_dump` MUST use `warmup_yaml_id`; `preload`/`unload` MUST use `eval_yaml_id`. Sending the wrong field name is treated as missing → server returns an error ack.
-
-#### 5.13.3 `CurrentCacheBundle.yaml_id`
-
-`CurrentCacheBundle` (the dynamic bundle the WS server carries between `--cache_config` runs) gained an optional `yaml_id: Optional[str]` field. The dynamic-bundle branch in `scripts/serve_policy.py` propagates it:
-
-```python
-components = build_per_connection_components(
-    bundle.cache_config, bundle.shared_storage,
-    yaml_id=bundle.yaml_id, quiet=True,
-)
-```
-
-When `yaml_id` is None the new keyword falls back to the legacy code path (no preload). When set, `_preload_normalizer_from_warmup_pool(judges, yaml_id)` runs after every composite judge is built but before the orchestrator is wired up — so the first verdict on the new connection sees a warm normalizer.
-
-#### 5.13.4 `WarmupPool` lifecycle
-
-`src/openpi/cache/warmup_pool.py` is a process-wide LRU `dict[eval_yaml_id, dict[factor_key, list[float]]]` with `threading.Lock` around all mutations and deep-copy semantics on get/pop. Default capacity is 100 entries; `set()` evicts the LRU entry on overflow.
+#### Warmup → eval handshake (Layer 3 Calibration only)
 
 ```
-runner shim (run_phase.py)               WS server                    new worker conn
-─────────────────────────────             ────────────                  ───────────────
-load_cache_config(warmup_yaml)  ─────►  bundle.yaml_id = warmup_id
-spawn warmup workers           ─────►  per-conn build (warmup yaml,
-                                        DumpingJudge writes per-verdict
-                                        raw factor values to dump file)
-fetch_dump(warmup_id)           ─────►  read dump file → bytes
-                                ◄─────  bytes
-parse + aggregate per-key
-load_cache_config(eval_yaml,
-                  yaml_id=eval_id) ────►  bundle.yaml_id = eval_id
-preload_normalizer_buffer(eval_id,
-                          buffer)  ───►  WarmupPool[eval_id] = buffer
-spawn eval workers              ─────►  per-conn build (eval yaml)
-                                          → _preload_normalizer_from_warmup_pool
-                                            drills past DumpingJudge wrapper,
-                                            calls normalizer.preload_buffer
-                                          → first verdict skips cold-start
-unload_warmup_buffer(eval_id)   ─────►  WarmupPool.pop(eval_id)
-                                        delete <eval_id>__warmup.jsonl
+   warmup yaml run                                         eval yaml run
+       │                                                       │
+       │  inner = AlwaysWarmStartJudge                          │
+       │  judge.dump = {factors: 17-factor superset}            │
+       │       ↓ verdicts emit JSONL rows of raw factor values  │
+       │       ↓                                                 │
+   exp/.../run_phase.py                                          │
+   reads JSONL → aggregates per-key list                         │
+       │                                                       │
+       ▼                                                       │
+   ctrl `preload_normalizer_buffer`                              │
+   server WarmupPool[eval_yaml_id] = {key: list[float]}          │
+       │                                                       │
+       └──────────────────► load_cache_config(eval_yaml) ──────►│
+                                                               │
+                            _build_calibration                  │
+                            samples_source.type == warmup      │
+                              → WarmupPool.get(eval_yaml_id)    │
+                              → CalibrationSamples              │
+                              → PercentileRollingCalibration    │
+                                .bind_keys(union)               │
+                                  fails if any key < window_size│
+       │                                                       │
+       ▼                                                       │
+   `unload_warmup_buffer` ctrl drops the entry + the disk dump after the eval yaml is done.
 ```
 
-Per-connection isolation from §5.12 still holds: the WarmupPool is the only piece of warmup state that crosses the per-conn boundary, and it is read-only after `set()` from the runner side. The pool's deep-copy on `get` ensures one worker's normalizer cannot see another worker's appends.
-
-#### 5.13.5 Server-owned warmup dump root
-
-`scripts/serve_policy.py --warmup-dump-root <dir>` selects the filesystem root that hosts `<warmup_yaml_id>.jsonl` files written by `DumpingJudge`. At startup the server:
-
-1. `mkdir(mode=0o700, exist_ok=True)`
-2. Validates owner uid + mode mask (refuses if group/world-accessible).
-3. Calls `websocket_policy_server.set_warmup_dump_root(resolved_path)`.
-
-`fetch_dump` and `unload_warmup_buffer` refuse when the root is not configured — there is no implicit `/tmp/openpi_warmup` default at the WS layer. All path lookups go through `_safe_resolve_under_root(name, root)` which `.resolve()`s both sides and confirms `candidate.is_relative_to(root)` so a symlink dropped into the directory after start cannot redirect a fetch outside the root.
-
-Deferred dump resolution (`DumpConfig.deferred=True` → server fills `dump.path`) shares the same allowlist via `_fill_deferred_dump_paths`. Any deferred dump in a yaml that lacks `yaml_id` or arrives before `set_warmup_dump_root` errors out at `load_cache_config` time, not later when the DumpingJudge tries to write.
-
-#### 5.13.6 Relationship with §5.6 / §5.12
-
-- **§5.6 SimilarityJudge purity contract** is preserved: judges still do not write to `CacheStorage`. The WarmupPool sits OUTSIDE the judge — `_preload_normalizer_from_warmup_pool` calls `normalizer.preload_buffer(...)` on a normalizer instance owned by the per-connection `CompositeJudge`. The judge's own `__call__` is unchanged.
-- **§5.12 cold-start amplification** is the operational gap this protocol closes. With preload sized at `≥ window_size` per key, the normalizer enters the eval phase already past its cold-start window — sentinel firing drops to ~0 and the composer evaluates every verdict instead of ~10%.
-- **DumpingJudge** (the wrapper around `AlwaysWarmStartJudge` in the warmup yaml) is unchanged. The warmup yaml structure (sibling `<eval>__warmup.yaml` with `dump.deferred=true`) is plan-emitted per cell by `exp/verdict_factor_judge/phase1_spec.py`; the verdict-level mechanics do not need to know about the runner shim.
-
-The detailed runner plan (B1/B2 step breakdown, test surface, risk register) lives at `logs/verdict_factor_judge_dedicated_runner_plan.log.md`.
-
----
+The Layer 1 Normalization side does **not** participate in the warmup channel in this refactor: σ + active_mask come exclusively from `backend.load_artifact`'s `library_stats` field (deferred per plan §6.3 / §6.11 #10). The wire ctrl messages and `WarmupPool` schema are unchanged.
 
 ## 6. Data Flow and Timing
 

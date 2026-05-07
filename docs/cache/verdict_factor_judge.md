@@ -1,975 +1,1065 @@
 # Verdict Factor Judge 使用指南
 
-> **前置知识**：阅读 [tutorial.md](tutorial.md) §6 了解 Judge 组件基础，§10 了解 YAML 配置；阅读 [../architecture/cache_system.md](../architecture/cache_system.md) §5.6 / §5.11 / §5.12 了解 verdict factor 系统的架构契约。
+> ⚠️ **2026-05-07 — 重构 (G1 APPROVED Round 4) 已 land**：
 >
-> **设计文档**：完整方案设计与决策见 [`logs/verdict_factor_judge.log.md`](../../logs/verdict_factor_judge.log.md)（Plan，G1 / G2 APPROVED）。
->
-> **状态说明（2026-04-26）**：B1 + B2 全部 land。B1 = F1a-A / F1a-T / F2 `extract` body、3 Composer 算法、`PercentileRollingNormalizer`、Orchestrator view+history 注入、`_state_history` / anchor checkpoint policy / `on_task_end` leak fix、`_JUDGE_TYPES` 解禁 `composite`、validator 7 项 composite-specific 校验（含 5a-5d warm_start：CP1-only / canonical timestep / pairwise / tier 排序）、`min_top_k_hint` 反向喂回 strategy。B2 = F1b OnlineExtractor + OfflineWriter、`LibraryStats.compute_from_entries`、Orchestrator `__init__` 收 `offline_writers` / `library_stats` 且 `_build_entry_chain` 落地 merge loop、`build_per_connection_components` 收集 writer / library_stats 并通过 `scripts/serve_policy.py` 两条 production assembly 路径喂给 Orchestrator、Backend `load_artifact` library_stats 加载 / fallback、三 build_*.py `--factors-yaml` CLI、`exp/common/factor_postprocess.py` 写入 helper。端到端 composite judge 与完整离线 build 链路均可跑。
+> - **5 → 17 因子扁平化**：`f1a_a / f1a_t / f1b_a / f1b_t / f2` **全部废除**；新名 `<descriptor>_<source>_<channel>`：
+>   - 4 descriptor：`jerk` / `direction` (旧 `dir`) / `dispersion` (旧 `curv_radius`) / `path_length` (旧 `cum_disp`)
+>   - 4 变体 = 2 source × 2 channel：`online | offline` × `action | state` → 16 个；外加 `topk_action_variance`
+> - **Judge 4 层正交架构**：Normalization → Factor → Calibration → Composer，每层 yaml 独立可插拔
+> - **No cold-start**：第 1 / 第 3 层启动时校准数据**必备**，缺失即 fail-fast；旧 `cold_start_strategy: force_miss/passthrough/lenient` + `all_nan_fallback` + `JudgeResult.factor_outputs.sentinel` 全部移除
+> - **诊断 schema_version=2**：`factor_outputs.{raw, calibrated, composer_score}`（旧 `norm` / `score` / `sentinel` 字段废除）
+> - 完整设计 + 决策见 [`logs/verdict_factor_judge_refactor.log.md`](../../logs/verdict_factor_judge_refactor.log.md)（G1 APPROVED Round 4，2026-05-07）。
+> - 历史设计文档（重构前）见 `logs/old_verdict_factor_*.log.md` 8 份归档。
+
+> **前置知识**：阅读 [tutorial.md](tutorial.md) §6 了解 Judge 组件基础，§10 了解 YAML 配置；阅读 [../architecture/cache_system.md](../architecture/cache_system.md) §5.12 / §5.13 了解 verdict factor 系统的架构契约。
 
 ---
 
-## 1. 概述
+## 1. 概述（refactor 4 层架构）
 
-`CompositeJudge` 把"单阈值 cosine 命中"替换为**"因子向量 → Normalizer → Composer → JudgeResult"** 三段式判定，让多个统计 / 运动学描述子（jerk、direction consistency、curvature radius、cumulative displacement、top-K action variance）共同参与命中决策。
+`CompositeJudge` 把命中决策拆成 **4 个正交、可插拔的层**：
 
 ```
-SearchResultLite[]  ─┐
-PayloadView (view)   ├──► OnlineExtractor*  ──► raw: dict[str, float]
-HistoryView          │   （key 必须 = 该 extractor 自己声明的 descriptor_orientations.keys()）
-cached_data         ─┘
-                                      │
-                                      ▼
-                              Normalizer (可选，例 PercentileRollingNormalizer)
-                                      │
-                              norm: dict[str, float]
-                              （all-NaN → CompositeJudge 短路 MISS）
-                                      │
-                                      ▼
-                                  Composer (WeightedSum / AndGate / OrGate)
-                                      │
-                                      ▼
-                                JudgeResult(hit_type, winner_id, start_t)
+                    ┌──────────────────────────────────────┐
+原始 action / state │ 第 1 层  Normalization               │
+─────────────────►  │   ZScoreNormalization                │
+                    │   stats_source: offline (LibraryStats)│
+                    └──────────────┬───────────────────────┘
+                                   │ normalized data 注入
+                                   ▼
+SearchResultLite[]  ┌──────────────────────────────────────┐
+PayloadView         │ 第 2 层  17 个 Factor                │
+HistoryView      ──►│   每因子 Factor.extract(ctx) -> raw   │
+                    │   FactorContext = {results, view,    │
+                    │     history, normalization}          │
+                    └──────────────┬───────────────────────┘
+                                   │ raw factor dict
+                                   ▼
+                    ┌──────────────────────────────────────┐
+                    │ 第 3 层  Calibration (per-key)        │
+                    │   PercentileRollingCalibration       │
+                    │   samples_source: offline | warmup   │
+                    │   bind_keys() 启动时 fail-fast        │
+                    └──────────────┬───────────────────────┘
+                                   │ calibrated dict in [0, 1]
+                                   ▼
+                    ┌──────────────────────────────────────┐
+                    │ 第 4 层  Composer                     │
+                    │   declared_dependencies 实例属性     │
+                    │   compose(calibrated, *, winner_id)  │
+                    │   子类自带 fallback 逻辑             │
+                    └──────────────┬───────────────────────┘
+                                   │
+                                   ▼
+                    JudgeResult(hit_type, winner_id, start_t,
+                                factor_outputs={schema_version:2,
+                                                raw, calibrated,
+                                                composer_score})
 ```
 
-**与 ThresholdJudge 选用建议**：
-
-| 情景 | 推荐 |
-|---|---|
-| 单一 cosine 分布形状已经良好，需要快速上线 | `ThresholdJudge` |
-| 想要把 retrieval 的"动作不连续"风险纳入判定 | `composite` + F1a-A |
-| 需要 candidate 池一致性约束 | `composite` + F2 |
-| 跨 episode 的运动平滑度作为 hit 质量参考 | `composite` + F1b-A / F1b-T（需 build pkl 时算 LibraryStats） |
-| 多维度组合（典型 B2 后默认） | `composite` + F1b-A + F1b-T + F2，weighted_sum |
-
-> **批次状态**：B0 = CompositeJudge 类骨架 + 5 因子注册 + describe + capability flags。B1 = F1a / F2 在线 extract、3 Composer 与 PercentileRollingNormalizer 算法、Orchestrator view+history 注入、`composite` YAML 解禁、validator 7 项 composite 校验。B2 = F1b 在线 extract + 离线 OfflineWriter、`LibraryStats.compute_from_entries`、Backend `load_artifact` library_stats 加载/fallback、artifact 写入 helper。
+**关键不变量**：
+- 每层互不知道彼此实现（只通过约定 dataclass 通讯）。
+- NaN 唯一合法来源 = 因子物理边界（`history` 不够 P 步、`walk_next` 走完 < F 步、winner 数据缺失）；**不**来自 calibration cold-start（启动时 buffer 必满）+ 不来自 normalization σ 缺失（启动 fail-fast）。
+- 空 `results` → CompositeJudge **直接** MISS（不交给 composer，避免 winner_id=None + WARM_START 的歧义）。
+- composer 子类**自决** NaN 处理：`WeightedSumWithWarmFallbackComposer` 在所有非零权重 key 都 NaN 时 → WARM_START（承接旧 `all_nan_fallback` 语义）。
 
 ---
 
-## 2. 五个因子总览
+## 2. 17 因子扁平化总览
 
-| 注册名 | 类 | 数据源 | requires_library_stats | requires_chain_walk | 算法批次 |
-|---|---|---|---|---|---|
-| `f1a_a` | `RuntimeContinuityAction` | winner `payload.action_chunk[0]` + `history.actions` | True | False | B1 |
-| `f1a_t` | `RuntimeContinuityState`  | winner `query_keys["robot_state"]` + `view.walk_next(winner_id, k)` | True | True | B1 |
-| `f1b_a` | `SourceWindowSmoothnessAction` | OfflineWriter 读链上 `entries[i].payload.action_chunk[0]` 序列；OnlineExtractor 仅读 `payload.factors` | True | False | B2 |
-| `f1b_t` | `SourceWindowSmoothnessState`  | OfflineWriter 读链上 `entries[i].query_keys["robot_state"]` 序列；OnlineExtractor 仅读 `payload.factors` | True | False | B2 |
-| `f2`    | `TopKActionConsensus` | top-K 个 `payload.action_chunk` via `view.get_many` | False | False | B1 |
+每个因子是一个独立 registry 名；按 4 维笛卡尔 `descriptor × source × channel` 展开 16 + 1 个 topk = 17。
 
-**两类 capability flags 与 source / key_initial 解耦**：
+**4 个运动学描述子（公式不变，名字部分改）**：
 
-- `source: "action" | "state"` —— 因子消费的数据语义。
-- `key_initial: "a" | "t"` —— 写入 `payload.factors` 的 key 命名空间，与 registry 名后缀一致（避免 YAML config 引用 `f1a_t_jerk` 但 extractor 实际产 `f1a_s_jerk` 这种失配）。
-- `requires_library_stats=True` 的因子必须搭配 `backend.type=in_memory`（当前唯一暴露 `library_stats` 的 backend）。
-- `requires_chain_walk=True`（仅 F1a-T）必须搭配实现 `fetch_entry` capability 的 backend（当前唯一是 InMemoryBackend）。
-- 上述 capability vs backend 约束由 `validate_cache_config` 在 config-load 阶段强制（B1+ 6 项静态校验中的 #3 / #4）。
+| 新描述子 | 旧描述子 | 取向 | 公式 | 含义 |
+|---|---|---|---|---|
+| `jerk` | `jerk` | risky | `median \|Δ²a\|`（z-score 后 active-DOF 上 median，再 mean） | 加速度变化幅度，高 → 不平滑 |
+| `direction` | `dir` | safe  | `mean cos(v[t], v[t+1])` | 方向一致性，高 → 平滑 |
+| `dispersion` | `curv_radius` | non_monotonic | `mean ‖p[t] − centroid‖` | 窗口几何弥散度（中等 = 圆弧，极小 = 停滞，极大 = 大幅直线） |
+| `path_length` | `cum_disp` | non_monotonic | `sum ‖p[t+1] − p[t]‖` | 累积路径长度（小 + 低 jerk = 静止；大 = 快速移动） |
 
-**描述子集（F1a + F1b 共享）**：
+**4 个变体维度（每 descriptor × 4 = 16 个独立 factor）**：
 
-| 描述子 | 取向 | 公式 | 含义 |
-|---|---|---|---|
-| `jerk` | risky | `median \|Δ²a / σ\|`（active-DOF 上） | 加速度变化幅度，高 → 不平滑 |
-| `dir`  | safe  | `mean cos(v[t], v[t+1])` | 方向一致性，高 → 平滑 |
-| `curv_radius` | non_monotonic | `mean ‖p[t] − centroid‖` | 窗口几何弥散度（中等 = 圆弧，极小 = 停滞，极大 = 大幅直线） |
-| `cum_disp`    | non_monotonic | `sum ‖p[t+1] − p[t]‖` | 累积路径长度（小 + 低 jerk = 静止；大 = 快速移动） |
-
-`risky` / `safe` Composer 自动按取向 flip score；`non_monotonic` 必须在 `composer.directions` 显式指定 `"high"` / `"low"` / `"range:[lo,hi]"`，否则 validator 拒收（避免无任务先验 force-fit 进单调聚合）。
-
-> **批次状态**：5 因子的 metadata（capability flags + describe + register）= B0 已 land。`extract` / `compute_for_episode` body：F1a / F2 = B1，F1b = B2。
-
----
-
-## 3. 因子的精确数学表达式
-
-> 本章定义所有因子的运算契约（B1 / B2 实现 body 时按此公式落地）；上一章只给了直觉描述。GitHub 渲染数学公式：行内 `$...$`、单行 `$$...$$`。本地编辑器若不渲染，源代码中的 LaTeX 仍可读。
-
-### 3.1 通用记号
-
-| 符号 | 含义 | 形状 / 范围 |
+| 维度 | 取值 | 含义 |
 |---|---|---|
-| $a_t \in \mathbb{R}^A$ | 第 $t$ 步的 action 向量（已 input-transform / pre-output-transform） | Pi0.5: $A = 32$（universal action space） |
-| $s_t \in \mathbb{R}^S$ | 第 $t$ 步的 robot_state（post-input-transform） | Pi0.5: $S = 32$（universal state space） |
-| $\sigma \in \mathbb{R}^D$ | per-DOF std（$D = A$ 或 $S$） | 来自 `LibraryStats.{action,state}_sigma`（B2 算） |
-| $M \in \{0,1\}^D$ | active mask（True iff $\sigma_d \geq \varepsilon_{\text{active}}$） | `LibraryStats.{action,state}_active_mask`，default $\varepsilon_{\text{active}} = 0.01$ |
-| $D_{\text{act}} = \sum_{d=1}^{D} M_d$ | active 维数 | LIBERO 实测：action 7 / state 8（$D=32$ 中余下 24 维为 universal-32 零填充） |
-| $\varepsilon$ | clamp_min epsilon（避免除零） | $10^{-8}$（实现层硬编码） |
+| source | `online` | verdict 时算（拼 `[history[-P:], winner, walk_next(F)]` splice + 调 `ctx.normalization.normalize_*`） |
+| source | `offline` | artifact build 时由 `OfflineWriter.compute_for_episode` 离线算并写入 `payload.factors`；online verdict 时直接读 `winner.payload.factors` |
+| channel | `action` | 取链上 `payload.action_chunk[0]` 序列 |
+| channel | `state` | 取链上 `query_keys["robot_state"]` 序列 |
 
-**Per-DOF z-score**（动作侧示例，state 同理用 `state_sigma`）：
+**第 17 个因子**：
 
-$$
-\tilde{a}_{t,d} \;=\; \frac{a_{t,d}}{\max(\sigma_d,\;\varepsilon)}
-\qquad d = 1, 2, \ldots, D
-$$
+| 注册名 | 类 | 数据源 | requires_chain_walk | required_top_k |
+|---|---|---|---|---|
+| `topk_action_variance` | `TopkActionVariance` | top-K 候选的 `action_chunk[0]` per-DOF 方差（candidate-local active mask） | False | K |
 
-**Active 子空间限制**：所有后续算子在 $D_{\text{act}}$ 维子空间内做。下面公式中的 $\tilde{a}_t$ 默认已经是 $\tilde{a}_t[M] \in \mathbb{R}^{D_{\text{act}}}$。
+**Online 因子统一 splice**（`<descriptor>_online_<channel>`，共 8 个，`requires_chain_walk=True`）：
 
-**速度与近似 jerk**（z-score 后空间内）：
+```
+splice = [history[-P:],   winner,   walk_next(F).<channel>]
+              ^               ^         ^
+              past            anchor    future
+              P 个执行点       winner    F 个沿 chain 下游
+```
 
-$$
-v_t \;=\; \tilde{a}_{t+1} - \tilde{a}_t \;\in\; \mathbb{R}^{D_{\text{act}}}
-\qquad\text{(一阶差分)}
-$$
+- `online_action`：history.actions[-P:] + winner.action_chunk[0] + walk_next(F).payload.action_chunk[0]
+- `online_state`： history.states[-P:]  + winner.query_keys["robot_state"] + walk_next(F).query_keys["robot_state"]
+- splice 第 t 步的 state 与 action 来自**同一次推理**（chain entry t 的 query_keys + payload）。
 
-$$
-j_t \;=\; \tilde{a}_{t+1} - 2\,\tilde{a}_t + \tilde{a}_{t-1} \;\in\; \mathbb{R}^{D_{\text{act}}}
-\qquad\text{(二阶差分，近似 jerk)}
-$$
+**Offline 因子**（`<descriptor>_offline_<channel>`，共 8 个，`requires_chain_walk=False`）：
 
-注：物理 jerk 是三阶导数；这里 $j_t$ 是离散二阶差分（在 z-score 空间内），命名沿用 plan / 文献俗称。
+- `OfflineWriter.compute_for_episode(entries, library_stats)` 在 artifact build 时滑窗算每 entry 的描述子，写入 `entry.payload.factors[<key>]`。
+- Verdict 时只读 `winner.payload.factors[<key>]`，没有 chain walk。
+- key 模板：`<descriptor>_offline_<channel>__p<P>_f<F>`。
 
-**窗口表示**：$W = (p, f)$ 表示窗口跨过 $[k - p,\; k + f]$（共 $|W| = p + f + 1$ 个采样点），其中 $k$ 是 anchor 时刻。F1a 用 `window_k = K`（自动转成 $(K, K)$ 或类似）；F1b 用 YAML 显式给出 `windows: [(p_1, f_1), ...]`。
+**capability 约束**：含任意 `requires_chain_walk=True` 因子的 yaml → `backend.type` 必须 == `"in_memory"`（唯一暴露 `fetch_entry` 的 backend）。yaml load 时静态校验。
+
+`risky` / `safe` Composer 自动按取向 flip 贡献分；`non_monotonic` 必须在 `composer.directions` 显式指定 `"high"` / `"low"` / `"range:[lo,hi]"`，否则 validator 拒收。
 
 ---
 
-### 3.2 通用描述子的精确数学
-
-设窗口 $W$ 内的 active-子空间序列为
-
-$$
-\mathrm{pts} \;=\; \bigl[\tilde{a}_{k-p},\; \tilde{a}_{k-p+1},\; \ldots,\; \tilde{a}_{k+f}\bigr] \;\in\; \mathbb{R}^{|W| \times D_{\text{act}}}
-$$
-
-对应的速度与 jerk：$v_W \in \mathbb{R}^{(|W|-1) \times D_{\text{act}}}$、$j_W \in \mathbb{R}^{(|W|-2) \times D_{\text{act}}}$。
-
-#### 3.2.1 `jerk` — 加速度幅值（risky）
-
-$$
-\boxed{\;
-\mathrm{jerk}(W) \;=\; \frac{1}{D_{\text{act}}} \sum_{d=1}^{D_{\text{act}}} \;\operatorname*{median}_{0 \leq t \leq |W|-3} \bigl|\,j_W[t, d]\,\bigr|
-\;}
-$$
-
-伪代码（与实际实现一致）：
-
-```python
-jerk_factor = j_W.abs().median(dim=0).values.mean()
-# j_W: [|W|-2, D_act]
-# .median(dim=0).values : [D_act]   per-DOF time-median
-# .mean()              : scalar     average over DOF
-```
-
-**为什么 median over time, mean over DOF**：median 抑制 gripper 单帧脉冲（双稳态切换瞬间）；mean over DOF 让所有 active 维等权贡献。high jerk → retrieval 拼接处出现了 inference 通常不会产生的速度跳变 → risky。
-
-#### 3.2.2 `dir` — 方向一致性（safe）
-
-把每个时刻的 active 速度向量整体 normalize 后求相邻时刻余弦：
-
-$$
-\boxed{\;
-\mathrm{dir}(W) \;=\; \frac{1}{|W| - 2} \sum_{i=0}^{|W|-3} \frac{\langle v_W[i],\; v_W[i+1]\rangle}{\lVert v_W[i] \rVert_2 \,\cdot\, \lVert v_W[i+1] \rVert_2}
-\;}
-$$
-
-伪代码：
-
-```python
-v1, v2 = v_W[:-1], v_W[1:]                       # each: [|W|-2, D_act]
-cos    = F.cosine_similarity(v1, v2, dim=-1)     # [|W|-2]
-dir_factor = cos.mean()
-```
-
-**为什么不是 per-DOF cos**：`dir` 测的是 active 子空间内运动方向的连贯性 —— 一个 $D_{\text{act}}$ 维向量整体的转向；per-DOF 余弦会被零分量主导。**值域**：$[-1, 1]$，1 = 严格同向，$-1$ = 反向。
-
-#### 3.2.3 `curv_radius` — 窗口几何弥散度（non-monotonic）
-
-$$
-\bar{c}_W \;=\; \frac{1}{|W|} \sum_{t=0}^{|W|-1} \mathrm{pts}[t] \;\in\; \mathbb{R}^{D_{\text{act}}}
-\qquad\text{(窗口质心)}
-$$
-
-$$
-\boxed{\;
-\mathrm{curv\_radius}(W) \;=\; \frac{1}{|W|} \sum_{t=0}^{|W|-1} \bigl\lVert \mathrm{pts}[t] - \bar{c}_W \bigr\rVert_2
-\;}
-$$
-
-伪代码：
-
-```python
-centroid = pts.mean(dim=0, keepdim=True)         # [1, D_act]
-curv_rad = (pts - centroid).norm(dim=-1).mean()
-```
-
-**几何含义**：在 z-score 后的 $D_{\text{act}}$ 维空间里，窗口内点云对中心的平均欧氏距离。停滞 $\to$ 几乎零；圆弧 $\to$ 中等；大幅直线 $\to$ 大。**取向 non-monotonic**：YAML 必须显式 `direction: range:[lo, hi]` 才能进 weighted_sum。
-
-#### 3.2.4 `cum_disp` — 累积路径长度（non-monotonic）
-
-$$
-\boxed{\;
-\mathrm{cum\_disp}(W) \;=\; \sum_{t=0}^{|W|-2} \bigl\lVert \mathrm{pts}[t+1] - \mathrm{pts}[t] \bigr\rVert_2
-\;}
-$$
-
-伪代码：
-
-```python
-cum_disp = (pts[1:] - pts[:-1]).norm(dim=-1).sum()
-```
-
-**几何含义**：active 子空间里相邻点之间步长之和。停滞 $\to$ 接近 0；快速移动 $\to$ 大。与 `curv_radius` 组合可分辨"快速直线 / 缓慢直线 / 停滞 / 圆弧 / 微抖"五种 regime。
-
----
-
-### 3.3 F1a-A / F1a-T — 拼接窗口（Splice Window）数学
-
-F1a 测的是"如果不用 cache，inference 会给我一个与现在多接近的 action / state？"—— 把**已执行历史**与**候选未来**拼接成一个序列，然后跑 §3.2 的描述子。
-
-#### 3.3.1 F1a-A 序列拼接
-
-记 $K = \mathtt{window\_k}$（YAML 字段），`history.actions` 末尾 $K$ 个 action 已在执行（pre-output-transform domain），winner candidate 的 `payload.action_chunk[0]` 是 cache 给出的下一步建议 action：
-
-$$
-\mathrm{splice}_a \;=\; \bigl[\,a_{-K},\; a_{-K+1},\; \ldots,\; a_{-1},\; a_0^{\text{cand}}\,\bigr] \;\in\; \mathbb{R}^{(K+1) \times A}
-$$
-
-随后：
-
-1. Per-DOF z-score（用 `library_stats.action_sigma`）：$\mathrm{splice}_a \to \widetilde{\mathrm{splice}}_a$
-2. Active 子空间限制（用 `library_stats.action_active_mask`）：$\widetilde{\mathrm{splice}}_a \in \mathbb{R}^{(K+1) \times A_{\text{act}}}$
-3. 设 $\mathrm{pts} = \widetilde{\mathrm{splice}}_a$，$v_W = \mathrm{pts}[1:] - \mathrm{pts}[:-1]$，$j_W = \mathrm{pts}[2:] - 2\,\mathrm{pts}[1:-1] + \mathrm{pts}[:-2]$
-4. 套 §3.2.{1..4} 计算 4 个描述子，写入 `payload.factors`：
-
-$$
-\begin{aligned}
-\texttt{f1a\_a\_jerk}        &= \mathrm{jerk}(\mathrm{splice}_a) \\
-\texttt{f1a\_a\_dir}         &= \mathrm{dir}(\mathrm{splice}_a) \\
-\texttt{f1a\_a\_curv\_radius}&= \mathrm{curv\_radius}(\mathrm{splice}_a) \\
-\texttt{f1a\_a\_cum\_disp}   &= \mathrm{cum\_disp}(\mathrm{splice}_a)
-\end{aligned}
-$$
-
-**边界**：history 长度 $< K$ 时（episode 早期）→ 全部描述子返回 $\mathrm{nan}$；CompositeJudge 的 cold-start sentinel 会让早期 verdict 走 MISS（与 inference 拼接最自然）。
-
-#### 3.3.2 F1a-T 序列拼接
-
-state 侧需要"未来一段"才能算窗口；cache 没有"未来 state"，但可以从下游 entry 链取：
-
-$$
-\mathrm{splice}_s \;=\; \bigl[\,\underbrace{s_{-K},\;\ldots,\;s_{-1}}_{\text{history.states 末 } K \text{ 项}},\; \underbrace{s_0^{\text{cand}}}_{\text{winner robot\_state}},\; \underbrace{s_1^{\text{cand}},\;\ldots,\;s_K^{\text{cand}}}_{\texttt{view.walk\_next}(K)}\,\bigr] \;\in\; \mathbb{R}^{(2K+1) \times S}
-$$
-
-后续 z-score / active-mask / 描述子流程同 F1a-A，只是用 `state_sigma` / `state_active_mask`，写入 key `f1a_t_*`。
-
-**chain walk 失败时（trajectory boundary / fork）**：`view.walk_next` 返回 list 长度 $< K$，splice 序列变短；F1a-T 实现按"长度 $< (K+1)$ → 描述子置 $\mathrm{nan}$"处理（与 history 不足同规则）。
-
----
-
-### 3.4 F1b-A / F1b-T — 链上窗口（Chain Window）数学
-
-F1b 在 **offline build pkl** 阶段对每个 episode 的整条 entry 链跑窗口扫描，把每个 entry 在每个窗口的描述子值写入它自己的 `payload.factors`。online verdict 只读不算。
-
-#### 3.4.1 序列与 z-score
-
-设 episode 有 $T$ 个 entries $[e_0, e_1, \ldots, e_{T-1}]$（按 `prev_ids/next_ids` 链单调）。源序列：
-
-- F1b-A: $x_t = \mathtt{entries}[t].\mathtt{payload.action\_chunk}[0] \in \mathbb{R}^A$（pre-output-transform 的 normalized 第一步 action）
-- F1b-T: $x_t = \mathtt{entries}[t].\mathtt{query\_keys["robot\_state"]} \in \mathbb{R}^S$（post-input-transform 的 normalized state）
-
-Per-DOF z-score 与 active-mask（用对应的 sigma / mask）：
-
-$$
-\tilde{x}_t \;=\; \frac{x_t}{\max(\sigma,\;\varepsilon)}
-\qquad
-\tilde{x}_t^{\text{act}} \;=\; \tilde{x}_t[M] \;\in\; \mathbb{R}^{D_{\text{act}}}
-$$
-
-#### 3.4.2 窗口扫描
-
-对 YAML `windows = [(p_1, f_1), (p_2, f_2), ...]` 中的每个 $(p, f)$，对每个 entry 索引 $k = 0, 1, \ldots, T-1$：
-
-$$
-W_{k,(p,f)} \;=\; \bigl[\tilde{x}_{k-p}^{\text{act}},\; \tilde{x}_{k-p+1}^{\text{act}},\; \ldots,\; \tilde{x}_{k+f}^{\text{act}}\bigr] \;\in\; \mathbb{R}^{(p+f+1) \times D_{\text{act}}}
-$$
-
-记 $\mathrm{pts} = W_{k,(p,f)}$，套 §3.2 公式：
-
-$$
-\begin{aligned}
-\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_jerk\_\_p}p\texttt{\_f}f\bigr]        &\leftarrow \mathrm{jerk}(W_{k,(p,f)}) \\
-\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_dir\_\_p}p\texttt{\_f}f\bigr]         &\leftarrow \mathrm{dir}(W_{k,(p,f)}) \\
-\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_curv\_radius\_\_p}p\texttt{\_f}f\bigr] &\leftarrow \mathrm{curv\_radius}(W_{k,(p,f)}) \\
-\mathtt{factors}\bigl[\texttt{f1b\_<key\_initial>\_cum\_disp\_\_p}p\texttt{\_f}f\bigr]    &\leftarrow \mathrm{cum\_disp}(W_{k,(p,f)})
-\end{aligned}
-$$
-
-`<key_initial>` = `"a"`（F1b-A）或 `"t"`（F1b-T）。
-
-**边界**：$k < p$ 或 $k + f \geq T$ → 该窗口所有描述子写入 $\mathrm{nan}$（不抛错；CompositeJudge 收到 NaN 后按 §11 FAQ 的 NaN 规则处理）。
-
-**单 entry 的 factors 维度**：4 描述子 × $N_{\text{windows}} \approx 12\text{-}24$ 个 float（per side），双侧 $24\text{-}48$ float $\approx 200$ 字节，相对 `action_chunk [10, 32]` 的 $1.3$ KB 可忽略。
-
-#### 3.4.3 在线侧仅读
-
-F1b 的 OnlineExtractor 实现：
-
-```python
-def extract(self, results, view, history, cached_data):
-    winner = view.get(results[0].id)
-    out = {}
-    for key in self.descriptor_orientations:                # 类内 describe() 算出
-        if winner.factors is None or key not in winner.factors:
-            out[key] = float("nan")                         # 老 entry / 缺字段 → NaN
-        else:
-            out[key] = winner.factors[key]
-    return out
-```
-
-零计算开销；所有数值在 build pkl 时已固化。
-
----
-
-### 3.5 F2 — Top-K 候选共识方差
-
-F2 测的是 cache 的 top-K 候选在"下一步该做什么"上是否达成一致；分歧大 → retrieval 在猜 → risky。
-
-#### 3.5.1 取数
-
-设 $\mathrm{ids} = \{r.id : r \in \mathtt{results}[:K]\}$，
-
-$$
-X \;=\; \begin{bmatrix} \mathtt{view.get(id_1).action\_chunk[0]} \\ \vdots \\ \mathtt{view.get(id_K).action\_chunk[0]} \end{bmatrix} \;\in\; \mathbb{R}^{K \times A}
-$$
-
-**Active mask**：F2 用 **candidate-local** active mask（不是 `library_stats.action_active_mask`），保持 `requires_library_stats=False` 自洽：
-
-$$
-M^{\text{local}} \;=\; \bigl\{ d : \mathrm{var}_d > \varepsilon \bigr\}
-\qquad (\varepsilon = 10^{-8})
-$$
-
-$$
-X_{\text{act}} \;=\; X[:,\, M^{\text{local}}] \;\in\; \mathbb{R}^{K \times |M^{\text{local}}|}
-$$
-
-理由：pi05 padded DOF 在所有候选上常数 0 → per-DOF 候选方差天然为 0 → candidate-local mask 在 pi05 deployment 下与 library mask 行为等价，但**不依赖** `LibraryStats`，validator 不需要要求 `backend.type=in_memory`。
-
-$K$ 是 YAML `params.K`（默认 5）；F2 通过 `min_top_k_hint` 自动让 SearchStrategy 多取 $K$ 个候选。
-
-#### 3.5.2 方差
-
-per-DOF 方差（$K$ 维上的 population 方差），再聚合为标量：
-
-$$
-m_d \;=\; \frac{1}{K} \sum_{k=1}^{K} X_{\text{act}}[k, d]
-\qquad
-\mathrm{var}_d \;=\; \frac{1}{K} \sum_{k=1}^{K} \bigl(X_{\text{act}}[k, d] - m_d\bigr)^{2}
-$$
-
-$$
-\boxed{\;
-\mathtt{f2\_var} \;=\; \frac{1}{A_{\text{act}}} \sum_{d=1}^{A_{\text{act}}} \mathrm{var}_d
-\;}
-$$
-
-伪代码（B1 实装）：
-
-```python
-chunk0 = stack([view.get(r.id).action_chunk[0] for r in results[:K_eff]])  # [K_eff, A]
-var_d  = chunk0.var(dim=0, unbiased=False)                                 # [A] population
-active = var_d > 1e-8                                                       # candidate-local
-if not active.any():
-    return {"f2_var": float("nan")}        # 全候选完美一致 — NaN 而非 0
-f2_var = float(var_d[active].mean())
-```
-
-**为什么不归一化到 sigma**：F2 在 candidate 池内做相对方差，scale-invariant —— 同一 episode chunk 的几个候选会自然落在 sigma 的同一量级，归一化反而抹掉信息。这就是 `requires_library_stats=False` 的根因。
-
-**写入**：`{"f2_var": float(f2_var)}`，orientation `"risky"`。
-
-**边界**：
-- $\mathtt{len(results)} < K$ 时（cache 几乎空 / cold-start）→ $K_{\text{eff}} = \min(K, \mathtt{len(results)})$
-- $K_{\text{eff}} < 2$（单候选 / 空池）→ 返回 NaN（无 consensus 信号）
-- 所有 DOF 候选完美一致（$M^{\text{local}}$ 为空）→ 返回 NaN（避免与 "高方差 → MISS" 翻转后误判为 hard hit）
-
----
-
-> **批次状态**：F1a-A / F1a-T / F2 / Composer / Normalizer 算法 body 已在 B1 落地；F1b OnlineExtractor + OfflineWriter 算法 body 在 B2 落地（`docs/architecture/cache_system.md` §5.12）。`describe()` 与 capability flags 在 B0 已 ship。
-
----
-
-## 4. 全周期流程
-
-```
-       ┌─────────────────────────────────────────────────────────────┐
-       │  B2 必须，B0/B1 跳过：build pkl + 写 LibraryStats + 写       │
-       │  payload.factors                                             │
-[Step1]│  exp/common/build_in_memory_cache_artifact.py + factor_     │
-       │  postprocess.py                                              │
-       └─────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-       ┌─────────────────────────────────────────────────────────────┐
-       │  写 YAML（type: composite + factors / composer / normalizer）│
-[Step2]│  cache_composite_judge.yaml                                  │
-       └─────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-       ┌─────────────────────────────────────────────────────────────┐
-       │  validate_cache_config → 6 项 composite 静态校验             │
-[Step3]│  build_per_connection_components → CompositeJudge wiring     │
-       └─────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-       ┌─────────────────────────────────────────────────────────────┐
-       │  scripts/serve_policy.py --cache_config xxx.yaml            │
-[Step4]│  在线推理：每个 verdict 走 view+history → extract → norm    │
-       │  → compose → JudgeResult                                    │
-       └─────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-       ┌─────────────────────────────────────────────────────────────┐
-       │  跑 experiment（exp/cp1_cache + analysis 脚本），对比         │
-[Step5]│  threshold judge 与 composite judge 的 success_rate / hit    │
-       │  rate / mean start_t                                         │
-       └─────────────────────────────────────────────────────────────┘
-```
-
-> **批次状态**：完整 5 步走通 = B2 land 后才有意义。B0 阶段可走 Step 2-3 验证 fail-fast 错误（YAML 在 config-load 被拒收，不会进入 Step 4）。
-
----
-
-## 5. Step 1: 构建带 factors 的离线 Artifact（B2）
-
-### 5.1 命令
-
-```bash
-uv run python exp/common/build_in_memory_cache_artifact.py \
-    --data-dir exp/common/data/db/libero_cache/libero_spatial \
-    --builder-type cp1_mean_pool \
-    --output exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool_with_factors.pkl \
-    --factors-yaml exp/common/configs/factors/f1b_default.yaml
-```
-
-`--factors-yaml` 指向描述哪些 OfflineWriter 应跑 + 用什么参数的 YAML（与在线 YAML 中 composite judge 的 `factors` 字段同结构；只关心实现 `OfflineWriter` Protocol 的因子，即 F1b-A / F1b-T）。`build_clip_cache_artifact.py` / `build_llm_layer_matrix.py` 同样支持该 flag。例：
+## 3. yaml 配置示例（refactor 4 层 schema）
 
 ```yaml
-# exp/common/configs/factors/f1b_default.yaml
-factors:
-  - type: f1b_a
-    params:
-      windows: [{past: 0, future: 5}, {past: 0, future: 10}, {past: 5, future: 5}]
-      descriptors: [jerk, dir, curv_radius, cum_disp]
-      active_eps: 0.01
-  - type: f1b_t
-    params:
-      windows: [{past: 0, future: 5}, {past: 0, future: 10}, {past: 5, future: 5}]
-      descriptors: [jerk, dir, curv_radius, cum_disp]
-      active_eps: 0.01
-```
-
-### 5.2 流程内部步骤
-
-1. `build_in_memory_cache_artifact.py` 用 KeyBuilder 跑完所有 entry 写入 `entries: list[CacheEntry]`
-2. `enrich_artifact_with_factors(entries, offline_writers)` helper（位于 `exp/common/factor_postprocess.py`）：
-   - `LibraryStats.compute_from_entries(entries, active_eps_action, active_eps_state)`
-   - 按 `entry.trajectory_id` 切分 episode，对每个 OfflineWriter 调 `writer.compute_for_episode(per_episode_entries, library_stats)`
-   - 把返回的 `list[dict[str, float]]` 合入 `entries[i].payload.factors`
-3. 写 artifact pkl：
-
-```python
-{
-    "key_builder_type": "cp1_mean_pool",
-    "checkpoint_id": "CP1",
-    "vector_dims": {...},
-    "entries": [...],            # entry.payload.factors 已填好
-    "library_stats": LibraryStats(...),  # 新增字段
-}
-```
-
-### 5.3 老 artifact 兼容
-
-未带 `library_stats` 字段的旧 artifact，`InMemoryBackend.load_artifact` 会自动 fallback：
-
-```python
-self.library_stats = data.get("library_stats")
-if self.library_stats is None:
-    logger.info("Artifact missing library_stats; computing from %d entries", len(self._entries))
-    self.library_stats = LibraryStats.compute_from_entries(list(self._entries.values()))
-```
-
-启动时一次性 compute，后续推理热路径不重复算。`payload.factors is None` 的旧 entry 会让 F1b 的 OnlineExtractor 返回 NaN，Composer 按取向规则跳过。
-
-> **批次状态**：build pkl 工具与 helper、LibraryStats compute 算法、SourceWindowSmoothness compute_for_episode = B2 全套；B0 阶段调 `compute_from_entries` / `compute_for_episode` 都会 raise NotImplementedError。
-
----
-
-## 6. Step 2: 写 YAML
-
-```yaml
-# exp/cp1_cache/configs/composite_judge_demo.yaml
-enabled: true
-
-key_builder:
-  type: cp1_mean_pool
-
-keys:
-  vision_0: { enabled: true, weight: 1.0 }
-  vision_1: { enabled: true, weight: 1.0 }
-  robot_state: { enabled: true, weight: 0.5 }
-
-backend:
-  type: in_memory                      # composite + F1a/F1b 必须 in_memory
-  vector_dims:
-    vision_0: 2048
-    vision_1: 2048
-    robot_state: 32
-  in_memory:
-    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool_with_factors.pkl
-
 checkpoints:
   cp1:
     enabled: true
+    gate: { type: always_search }
+
     judge:
-      type: composite                  # B0 阶段 validator 拒收（fail-fast at load）
+      type: composite
+
+      # ── 第 1 层 ──
+      normalization:
+        type: zscore
+        params: {}
+        stats_source:
+          type: offline                                 # 当前唯一可选；warmup 通道未实现
+          # offline 模式：σ + active_mask 自动从 backend.load_artifact 的 library_stats 读
+
+      # ── 第 2 层 ──（17 因子任意子集）
       factors:
-        - type: f1a_a
+        - type: jerk_online_state
           params:
-            window_k: 5
-            descriptors: [jerk, dir, curv_radius, cum_disp]
-        - type: f1b_a
+            windows:
+              - { past: 5, future: 5 }
+              - { past: 7, future: 7 }
+        - type: dispersion_offline_state
           params:
-            windows: [{past: 0, future: 5}, {past: 5, future: 5}]
-            descriptors: [jerk, dir, curv_radius, cum_disp]
-            active_eps: 0.01
-        - type: f1b_t
-          params:
-            windows: [{past: 0, future: 5}, {past: 5, future: 5}]
-            descriptors: [jerk, dir, curv_radius, cum_disp]
-            active_eps: 0.01
-        - type: f2
-          params:
-            K: 5
-      composer:
-        type: weighted_sum
-        weights:
-          f1a_a_jerk:                      0.10
-          f1a_a_dir:                       0.10
-          f1b_a_jerk__p0_f5:               0.10
-          f1b_a_dir__p0_f5:                0.10
-          f1b_t_jerk__p0_f5:               0.10
-          f1b_t_dir__p0_f5:                0.10
-          f1b_a_curv_radius__p5_f5:        0.10
-          f1b_a_cum_disp__p5_f5:           0.10
-          f1b_t_curv_radius__p5_f5:        0.05
-          f1b_t_cum_disp__p5_f5:           0.05
-          f2_var:                          0.10
-        tier_thresholds:
-          full_hit:   0.80
-          warm_start: 0.60
-        warm_start_t: 0.5            # 必须 ∈ CANONICAL_DENOISE_TIMESTEPS
-        directions:
-          # 所有 non_monotonic key 在 weight ≠ 0 时必填，否则 validator 拒收
-          f1b_a_curv_radius__p5_f5:  range:[0.3, 1.0]
-          f1b_a_cum_disp__p5_f5:     high
-          f1b_t_curv_radius__p5_f5:  range:[0.3, 1.0]
-          f1b_t_cum_disp__p5_f5:     high
-      normalizer:
+            windows: [{ past: 5, future: 5 }]
+        - type: topk_action_variance
+          params: { K: 5 }
+
+      # ── 第 3 层 ──
+      calibration:
         type: percentile_rolling
-        window_size: 200
-        cold_start_strategy: force_miss   # 默认；前 200 verdict 强制 MISS（all-NaN sentinel）
-    search_strategy:
-      type: weighted_rrf_knn
-      top_k: 1                           # F2 通过 min_top_k_hint 自动撑到 5（不破坏 top_k 语义）
-  cp3:
-    enabled: false
+        params: { window_size: 50 }
+        samples_source:
+          type: warmup                                   # | offline
+          # warmup: 从 WarmupPool[eval_yaml_id] 读（sibling warmup yaml 必须先跑过）
+          # offline 替代：
+          # offline: { path: data/calibration/spatial16_v2.jsonl, format: jsonl }
+
+      # ── 第 4 层 ──
+      # ComposerConfig 是扁平 schema —— ``weights`` / ``tier_thresholds`` /
+      # ``warm_start_t`` / ``warm_fallback_start_t`` / ``directions`` /
+      # ``per_factor_thresholds`` 直接挂在 composer 顶层，**不在** ``params`` 下面。
+      composer:
+        type: weighted_sum_with_warm_fallback           # | weighted_sum / and / or
+        weights:
+          jerk_online_state__p5_f5:        1.0
+          jerk_online_state__p7_f7:        1.0
+          dispersion_offline_state__p5_f5: 1.0
+          topk_action_variance:            0.5
+        tier_thresholds:
+          full_hit:    0.30
+          warm_start:  0.10                             # 可选；触发常规 warm tier
+        warm_start_t: 0.7                               # 与 tier_thresholds.warm_start 配对
+        warm_fallback_start_t: 0.7                      # 子类内部 fallback (旧 all_nan_fallback 等价)
+        directions:                                     # non_monotonic key 必填
+          dispersion_offline_state__p5_f5: "range:[0.3, 0.7]"
+
+      export_factor_outputs: true                       # 默认 false；true 时 schema_version=2
 ```
 
-**字段语义提示**：
+**关键 validator 规则**（`config.py` 在 yaml load 时执行）：
 
-- `composer.weights` 的 key 必须是 extractor `describe()` 实际会产生的 key —— 拼错会被 Composer 当 weight=0 的不存在 key 处理（B1+ 加更严格的覆盖率校验）。
-- `composer.tier_thresholds.full_hit` 与 `warm_start` 都是 0..1 范围的 normalized score；`warm_start_threshold` 必须 < `full_hit_threshold`，否则 warm_start tier 不可达（validator 5d）。
-- `warm_start_t` 必须出现在 `CANONICAL_DENOISE_TIMESTEPS = {0.1, 0.2, ..., 0.9}`（与 `always_warm_start.start_t` 同规则）；CP3 不支持 warm_start。
-- `directions` 仅对 `non_monotonic` 因子有效，三种形式：
-  - `"high"` —— 数值越高越偏 hit
-  - `"low"`  —— 数值越低越偏 hit
-  - `"range:[lo,hi]"` —— 落在 [lo, hi] 区间内偏 hit
-
-### 6.1 6 项 composite-specific 静态校验（B1+ 激活）
-
-`validate_cache_config` 在 config-load 阶段会跑下面 6 类校验，全部通过才能进入 builder：
-
-1. `factors` 与 `composer` 必须存在（type=composite 时）
-2. 每个 `FactorConfig.type` 必须在 `factors.registry.known()` 中
-3. `requires_library_stats=True` 的因子要求 `backend.type == "in_memory"`
-4. `requires_chain_walk=True` 的因子（F1a-T）要求 `backend.type == "in_memory"`（exposes `fetch_entry`）
-5. composite warm-start 完整校验（4 子规则）：
-   - 5a `composer.warm_start_t` 仅 CP1 允许
-   - 5b `warm_start_t` 必须 ∈ `CANONICAL_DENOISE_TIMESTEPS`（写回归一化值）
-   - 5c pairwise rule：`tier_thresholds.warm_start` 与 `composer.warm_start_t` 必须同时存在或同时缺失（and / or composer 不支持 warm_start，置 → raise）
-   - 5d tier ordering：`tier_thresholds.warm_start < tier_thresholds.full_hit`（仅 weighted_sum）
-6. `directions` 覆盖率：`cls.describe(params)` 算出的所有 `non_monotonic` key，若 `composer.weights[key] != 0` 则 `composer.directions[key]` 必填且形式合法
-
-> **批次状态**：YAML schema parse + B0 fail-fast（`_JUDGE_TYPES` 不含 `composite` → 在 config-load 被拒收）= B0 已 land；6 项静态校验 + algorithm body = B1。当前 B0 跑此 YAML 会报 `judge.type='composite' is not yet enabled in B0; available in B1+ when CompositeJudge algorithms land.`。
+1. `judge.type=="composite"` 必须含 `normalization` / `factors` / `calibration` / `composer` 四块。
+2. 每个 `factors[].type` 必须 ∈ 17 注册名。旧 5 名 (`f1a_a`/`f1a_t`/`f1b_a`/`f1b_t`/`f2`) 加载时 `Unknown factor name` reject。
+3. composer 实例的 `declared_dependencies` 必须 ⊆ Layer 2 union key 集合。
+4. 含 `requires_chain_walk=True` 因子时，`backend.type=="in_memory"` 必须成立。
+5. non_monotonic key 进 composer 时 `composer.params.directions` 必须显式覆盖。
+6. `normalization.stats_source.type` 当前必须 == `"offline"`；`calibration.samples_source.type ∈ {"offline", "warmup"}`。
+7. 旧字段 `judge.normalizer` / `judge.all_nan_fallback` / `judge.cold_start_strategy` 在 yaml 中出现 → load 时报错并提示"legacy schema, rewrite to 4-layer"。
 
 ---
 
-## 7. Step 3: 启动推理
+## 3.1 多因子 / Online+Offline 组合 yaml
 
-```bash
-uv run python scripts/serve_policy.py \
-    --env LIBERO \
-    --cache_config exp/cp1_cache/configs/composite_judge_demo.yaml
-```
+17 因子是**扁平**的：每个 `<descriptor>_<source>_<channel>` 是一个独立 registry 名。任何子集都可以在同一份 yaml 的 `factors:` 列表里组合，只要每条 entry 各占一行 + 在 `composer.weights`（或 `per_factor_thresholds`）里给对应的 `__p<P>_f<F>` key 分配权重。
 
-启动序列（B1+ 流程）：
+**关键合同**：
 
-```
-load_cache_config(yaml)
-  ├─ _dict_to_dataclass → CacheConfig (含 JudgeConfig.factors: list[FactorConfig])
-  └─ validate_cache_config → 通过 6 项 composite-specific 校验
+- `factors:` 是个列表，每条元素 `{type: <registry-name>, params: {...}}`
+- 即便是同一个 descriptor 的 online + offline 版本也是**两条独立 entry**（registry 名不同，互相独立）
+- 同一类型的多窗口可以放在**一条** entry 的 `params.windows: [...]` 里（17 因子的每一个原生支持多窗口）
+- composer 的 `weights` / `per_factor_thresholds` 必须 reference 由这些 factor 的 `describe(params)` 推出来的所有 key（多窗口 → 多 key，每窗口一条）
 
-build_cache_components(config)
-  └─ build_per_connection_components(config, storage)
-      ├─ _build_backend → InMemoryBackend (.library_stats 从 artifact 加载)
-      ├─ per-CP loop:
-      │    ├─ library_stats = per_conn_storage.library_stats   # facade duck-types backend
-      │    ├─ judges[cp_id] = _build_judge(judge_cfg, library_stats)
-      │    │     └─ if type == "composite":
-      │    │          ├─ extractors = [
-      │    │          │     cls(**dict(f.params),
-      │    │          │         library_stats=library_stats if cls.requires_library_stats else ...)
-      │    │          │     for f in cfg.factors
-      │    │          │  ]
-      │    │          ├─ composer  = _build_composer(cfg.composer)
-      │    │          ├─ normalizer = _build_normalizer(cfg.normalizer)
-      │    │          └─ CompositeJudge(extractors, composer, normalizer)
-      │    │              # constructor 自动 collect 全部 descriptor_orientations + 调
-      │    │              # composer.bind_orientations + normalizer.bind_keys
-      │    ├─ min_hint = judges[cp_id].min_required_top_k
-      │    └─ strategies[cp_id] = _build_search_strategy(ss_cfg, ..., min_top_k_hint=min_hint)
-      ├─ offline_writers = collect_offline_writers_from_judges(judges)
-      └─ Orchestrator(..., offline_writers=ow, library_stats=library_stats)
-```
+### 3.1.1 多 descriptor 组合（单一 source × channel）
 
-**单次 verdict 路径**（B1+，每次 `Orchestrator.check()` 跑一遍）：
-
-```python
-view    = StoragePayloadView(self._storage)              # per-check 生命周期，内部 memo
-history = HistoryView(actions=list(self._action_history),
-                      states =list(self._state_history))
-
-judge_result = judge(
-    results, checkpoint_id, self._key_builder.cached_data,
-    view=view, history=history,
-)
-# CompositeJudge 内部：
-#   raw = {}
-#   for ext in extractors:
-#       out = ext.extract(results, view, history, cached_data)
-#       assert out.keys() == ext.descriptor_orientations.keys()  # key contract
-#       raw.update(out)
-#   norm = normalizer(raw)
-#   if norm and all(isnan(v) for v in norm.values()):
-#       return JudgeResult(MISS)        # cold-start sentinel
-#   return composer.compose(norm, winner_id=results[0].id)
-
-if hit_type in (FULL_HIT, WARM_START):
-    payload = view.get(winner_id)        # memo 与 extractor 共享
-```
-
-> **批次状态**：Orchestrator view+history 注入 + winner fetch rewire + state_history anchor checkpoint policy = B1。B0 阶段 Orchestrator `check()` 不注入，老 Judge 通过 `**kwargs` 吃掉新参数，行为字节级不变。
-
----
-
-## 8. Step 4: 跑实验对比 ThresholdJudge vs CompositeJudge
-
-```bash
-# Phase 1: 用 ThresholdJudge baseline 跑
-uv run python exp/cp1_cache/run_cache_experiments.py \
-    --config exp/cp1_cache/configs/threshold_baseline.yaml \
-    --env LIBERO --num-episodes 50
-
-# Phase 2: 用 CompositeJudge 跑同一 artifact
-uv run python exp/cp1_cache/run_cache_experiments.py \
-    --config exp/cp1_cache/configs/composite_judge_demo.yaml \
-    --env LIBERO --num-episodes 50
-
-# Phase 3: 分析
-uv run python exp/cp1_cache/analysis/compare_judges.py \
-    --baseline-dir exp/cp1_cache/runs/threshold_baseline \
-    --composite-dir exp/cp1_cache/runs/composite_judge_demo
-```
-
-关键观察指标：
-
-| 指标 | 期望对比 |
-|---|---|
-| `success_rate` | composite ≥ threshold（命中质量 ↑） |
-| `cp1_full_hit_rate` | composite 可能 ↓（更保守），由 weights 调） |
-| `cp1_warm_start_rate` | composite 提升（多了 tier） |
-| `mean_start_t` | composite 应稳定在配置的 `warm_start_t` |
-| `composite_factor_log` | 每 verdict 各 factor 值（B1+ 加 logger）—— 用来调权重 |
-
-> **批次状态**：跑 experiment 与 analysis 脚本本身 = B0+（tooling 早就有）；CompositeJudge 真正参与 = B1+；F1b 因子能用 = B2。
-
----
-
-## 9. 自定义因子：扩展 OnlineExtractor / OfflineWriter
-
-### 9.1 写一个新的 OnlineExtractor
-
-最小实现（无 OfflineWriter，无 library_stats，无 chain walk）：
-
-```python
-# src/openpi/cache/components/factors/my_factor.py
-from openpi.cache.components.factors.registry import register
-
-
-@register("my_factor")
-class MyFactor:
-    # ---- 必填 class-level capability flags ----
-    required_top_k: int = 0
-    requires_library_stats: bool = False
-    requires_chain_walk: bool = False
-
-    def __init__(self, threshold: float):
-        self._threshold = threshold
-        # 实例级 orientation map 必须用 classmethod 算（保证 validator
-        # 能在不实例化的情况下拿到同一份 key 列表）
-        self.descriptor_orientations = self.__class__.describe(
-            {"threshold": threshold}
-        )
-
-    @classmethod
-    def describe(cls, params: dict) -> dict[str, str]:
-        # 必须是纯函数：只看 params，不读 library_stats / 不做 I/O
-        return {"my_factor_score": "safe"}
-
-    def extract(self, results, view, history, cached_data) -> dict[str, float]:
-        # 返回 dict 的 keys 必须 == self.descriptor_orientations.keys()
-        # 否则 CompositeJudge 在 verdict 时抛 RuntimeError(key contract violation)
-        winner_payload = view.get(results[0].id)
-        score = float(winner_payload.action_chunk[0].abs().mean().item())
-        return {"my_factor_score": score}
-```
-
-注册后立即可在 YAML 用：
+例：state 通道、online 来源，同时启用 jerk + direction 两个 descriptor，每个一个窗口。
 
 ```yaml
 factors:
-  - type: my_factor
+  - type: jerk_online_state
     params:
-      threshold: 0.5
+      windows: [{past: 5, future: 5}]
+  - type: direction_online_state
+    params:
+      windows: [{past: 5, future: 5}]
+
+composer:
+  type: weighted_sum
+  weights:
+    jerk_online_state__p5_f5:      1.0      # risky → 自动 1-v
+    direction_online_state__p5_f5: 1.0      # safe  → 直接 v
+  tier_thresholds: { full_hit: 0.5 }
 ```
 
-### 9.2 写一个需要 library_stats 的因子
+### 3.1.2 同一 descriptor 同时用 online + offline
+
+例：jerk 在 state 通道上同时启用 online（运行时拼 splice 算）+ offline（artifact build 时按 chain 算好读出来）—— 两者是两个独立 factor entry，**不能合并**到一条。
+
+```yaml
+factors:
+  - type: jerk_online_state              # 运行时 splice [history[-5:], winner, walk_next(5)]
+    params:
+      windows: [{past: 5, future: 5}]
+  - type: jerk_offline_state             # 离线 build 时按 chain 滑窗写 payload.factors
+    params:
+      windows: [{past: 5, future: 5}]
+
+composer:
+  type: weighted_sum_with_warm_fallback
+  weights:
+    jerk_online_state__p5_f5:  1.0
+    jerk_offline_state__p5_f5: 1.0       # 与 online key 同窗口但 source 不同 → 不同 key
+  tier_thresholds: { full_hit: 0.5 }
+  warm_fallback_start_t: 0.7             # 全 NaN（chain 走完 + offline 没写）→ WARM_START
+```
+
+> 两个 key 的物理含义：`jerk_online_state__p5_f5` 是"verdict 时拼 history+walk_next 算的 jerk"；`jerk_offline_state__p5_f5` 是"artifact build 时这个 entry 在它自己 chain 上 (P=5, F=5) 窗口的 jerk"。它们对应**同一物理量的两种估计**，calibration 会用各自独立的 percentile 桶。
+
+### 3.1.3 同一 factor 多窗口 + 多 factor 多 source × channel 全开
+
+例：4 desc × 2 source × 2 channel = 16 + topk = 17 全开，spatial16 上跑全空间扫描。
+
+```yaml
+factors:
+  # 8 个 online 因子，每个 2 个窗口
+  - { type: jerk_online_action,        params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: jerk_online_state,         params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: direction_online_action,   params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: direction_online_state,    params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: dispersion_online_action,  params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: dispersion_online_state,   params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: path_length_online_action, params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: path_length_online_state,  params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  # 8 个 offline 因子，同窗口
+  - { type: jerk_offline_action,        params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: jerk_offline_state,         params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: direction_offline_action,   params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: direction_offline_state,    params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: dispersion_offline_action,  params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: dispersion_offline_state,   params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: path_length_offline_action, params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  - { type: path_length_offline_state,  params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+  # 第 17 个：top-K 候选共识方差（无窗口、单 key）
+  - { type: topk_action_variance, params: { K: 5 } }
+
+composer:
+  type: weighted_sum
+  weights:
+    # 16 desc 因子 × 2 窗口 = 32 个 key（uniform 1.0）+ topk 单独权重
+    jerk_online_action__p5_f5:        1.0
+    jerk_online_action__p7_f7:        1.0
+    jerk_online_state__p5_f5:         1.0
+    jerk_online_state__p7_f7:         1.0
+    # ... (省略其余 28 个 desc key，写法同上 uniform 1.0) ...
+    topk_action_variance:             0.5   # 不同权重也 OK
+  tier_thresholds: { full_hit: 0.30 }
+  directions:                                 # non_monotonic key (dispersion / path_length) 必须给方向
+    dispersion_online_state__p5_f5:  "range:[0.3, 0.7]"
+    path_length_online_state__p5_f5: "high"
+    # ... 所有 non_monotonic key 都要列 ...
+```
+
+### 3.1.4 多 factor 走 AndGate / OrGate
+
+`weighted_sum` 用 `weights`；`and` / `or` 用 `per_factor_thresholds`，每 key 独立判定通过。
+
+```yaml
+factors:
+  - { type: jerk_online_state,        params: { windows: [{past: 5, future: 5}] } }
+  - { type: dispersion_offline_state, params: { windows: [{past: 5, future: 5}] } }
+
+composer:
+  type: and          # 两个 key 都要过自己的阈值才 FULL_HIT
+  per_factor_thresholds:
+    jerk_online_state__p5_f5:        0.3   # risky → v <= 0.3
+    dispersion_offline_state__p5_f5: 0.5   # non_monotonic → 用 directions 决定通过条件
+  directions:
+    dispersion_offline_state__p5_f5: "range:[0.3, 0.7]"
+  warm_start_t: 0.7    # 可选：通过即 WARM_START（CP1-only）
+```
+
+### 3.1.5 Warmup yaml 必须 over-collect 上述所有 key
+
+每个 eval yaml 都需要一份 sibling warmup yaml 来填 Layer 3 calibration 的 rolling buffer。warmup 的 `judge.dump.factors` 必须**至少**覆盖 eval composite 用到的所有 key 集合（否则 eval `bind_keys` fail-fast）：
+
+```yaml
+# <eval_yaml_id>__warmup.yaml 中（generator 通常自动产；手写见下）
+checkpoints:
+  cp1:
+    judge:
+      type: always_warm_start
+      start_t: 0.7
+      dump:
+        deferred: true
+        config_id: <eval_yaml_id>__warmup
+        factors:
+          # ⚠ 必须覆盖 eval factors 的全部 key —— 一对一镜像 eval 的 factors 列表，
+          #    或者直接 over-collect 17 因子全集（推荐：之后切换 eval 因子组合无需重跑 warmup）
+          - { type: jerk_online_state,        params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+          - { type: jerk_offline_state,       params: { windows: [{past: 5, future: 5}, {past: 7, future: 7}] } }
+          # ... (其余 15 个) ...
+          - { type: topk_action_variance, params: { K: 5 } }
+```
+
+实际写 warmup 不用手动维护—— `exp/verdict_factor_judge/v2_spec.py:build_warmup_yaml(cfg_id, eval_yaml_id, eval_factors=...)` 接受 eval factors 列表，自动 union 出 dump factor superset（每 (descriptor, source, channel) 把 eval 的窗口 + `_W_UNION_DEFAULT` 默认窗口都收进去）。
+
+---
+
+## 4. 因子精确数学表达式
+
+> 4 个 descriptor 公式与重构前完全一致；只重命名 + 扁平化。formula source: `src/openpi/cache/components/factors/_descriptor_kernel.py`。
+
+### 4.1 通用记号
+
+| 符号 | 含义 |
+|---|---|
+| `seq` | 单窗口在 active subspace 上的 z-scored 点序列，shape `[W, D_act]` |
+| `v[t]` | `seq[t+1] - seq[t]`（一阶差分），shape `[W-1, D_act]` |
+| `j[t]` | `seq[t+1] - 2 seq[t] + seq[t-1]`（二阶差分），shape `[W-2, D_act]` |
+| `D_act` | LibraryStats 的 active mask 上为 True 的维度数（z-score 后剔除 padded DOF） |
+
+z-score：第 1 层 Normalization 做 `seq / sigma.clamp_min(eps=0.01)` 然后选 active mask；factor 层只看 `seq` 已经 normalized。
+
+### 4.2 4 个 descriptor 公式
+
+#### `jerk` (risky)
+```
+jerk = mean_DOF(   median_t(|j[t]|)   )
+```
+按时间维取 median（吸收 gripper 的单帧 spike）后按 DOF 取 mean。NaN 条件：`j` 为空（W < 3）。
+
+#### `direction` (safe)
+```
+direction = mean_t(  cos(v[t], v[t+1])  )    // 仅在两端 norm > 0 的项上
+```
+相邻速度向量的余弦均值。NaN 条件：`v` 长度 < 2（W < 3）；所有相邻速度对至少有一端为零。
+
+#### `dispersion` (non_monotonic)
+```
+dispersion = mean_t(  ‖seq[t] - centroid(seq)‖  )
+```
+窗口几何弥散度（点到质心的平均距离）。NaN 条件：W < 2。
+
+#### `path_length` (non_monotonic)
+```
+path_length = sum_t(  ‖seq[t+1] - seq[t]‖  )
+```
+累积步长。NaN 条件：W < 2。
+
+### 4.3 17 因子各自的 splice 形状
+
+#### Online (8 因子)
+```
+seq = [history[-P:], winner, walk_next(F).<channel>]      # 长度 P + 1 + F
+```
+- channel = `action`：history.actions[-P:] + winner.action_chunk[0] + walk_next 链上 action_chunk[0]
+- channel = `state`： history.states[-P:]  + winner.query_keys["robot_state"] + walk_next 链上 robot_state
+
+NaN 物理边界：
+- `len(history) < P`（episode 早期）
+- `walk_next` 走完 < F 个（chain 末端 / fork detected）
+- winner 缺 robot_state（state 通道）
+
+#### Offline (8 因子)
+verdict 时直接读 `winner.payload.factors[<key>]`（artifact build 时已写）。
+- 离线 build 时：扫整个 chain，对每 entry × 每 (P, F) 窗口在 chain 上做滑窗算 descriptor，结果写入 `entry.payload.factors`。
+- 边界：窗口超出 chain 两端时该 (entry, 窗口) 的 key 写 NaN。
+
+#### `topk_action_variance`（第 17 个）
+```
+var = mean(  per_DOF_var(  [r.payload.action_chunk[0] for r in results[:K]]  )  )
+                                                                ↑
+                                                  candidate-local active mask
+                                                  (per-DOF var > 1e-8)
+```
+NaN 条件：`results < K`（搜索没返回足够候选）；候选池每 DOF 都一致（pool 完全同意 → 没有 active dim）。
+
+不调 Layer 1 Normalization：变量是 candidate-pool 方差，scale-invariant；Pi0.5 padded DOF 全 0 自动通过 candidate-local mask 剔除。
+
+---
+
+## 5. 全周期流程
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Step 1   Build artifact (one-off, GPU 重活)                  │
+│   build_in_memory_cache_artifact.py: HDF5 → .pkl            │
+│   含 entries + LibraryStats（σ + active_mask）              │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+┌────────────────────┴────────────────────────────────────────┐
+│ Step 2   Enrich pkl with offline factors (秒级 smoke)        │
+│   build_in_memory_cache_artifact.py enrich-existing-pkl     │
+│   --input old.pkl --factors-yaml factors.yaml --output new.pkl│
+│   ↑ 新增 17 因子 keys 进 payload.factors，不重算 σ          │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+┌────────────────────┴────────────────────────────────────────┐
+│ Step 3   Warmup yaml run (collect calibration samples)       │
+│   <eval>__warmup.yaml + DumpingJudge                         │
+│   → JSONL of factor raw values                               │
+│   → preload_normalizer_buffer ctrl → WarmupPool[eval_yaml_id]│
+└────────────────────┬────────────────────────────────────────┘
+                     │
+┌────────────────────┴────────────────────────────────────────┐
+│ Step 4   Eval yaml run                                       │
+│   load_cache_config: validator + _build_calibration 拉      │
+│      WarmupPool[eval_yaml_id] / offline jsonl 灌满 buffer    │
+│      → bind_keys fail-fast 校验每 key 样本数 ≥ window_size   │
+│   每 verdict: Layer 1 → Factor → Calibration → Composer     │
+│   每 verdict: 可选 export_factor_outputs 写 schema_v=2 jsonl │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 6. Step 1+2: 构建 / 增强 Artifact
+
+### 6.1 从 HDF5 build（首次）
+```bash
+uv run python -m exp.common.build_in_memory_cache_artifact \
+  --data-dir exp/common/data/db_init/libero_cache/libero_spatial \
+  --builder-type cp1_spatial_pool_16 \
+  --output exp/warm_start/data/spatial16/cp1_spatial_pool_16.pkl \
+  --workers -1 \
+  --factors-yaml my_factors.yaml             # 同时 enrich 17 因子 keys
+```
+
+### 6.2 已有 pkl 增量加因子（秒级 smoke）
+```bash
+uv run python -m exp.common.build_in_memory_cache_artifact enrich-existing-pkl \
+  --input  exp/warm_start/data/spatial16/cp1_spatial_pool_16.pkl \
+  --factors-yaml my_factors.yaml \
+  --output exp/warm_start/data/spatial16/cp1_spatial_pool_16_v2.pkl
+```
+关键点（plan §16 B6.5）：
+- 复用 input pkl 的 `library_stats`（**不重算 σ**），smoke 几秒完成
+- 旧 `payload.factors` keys 保留（additive merge），新 17 因子 keys 加入
+- 新 pkl 与 input pkl 平行存在，input 不被覆盖（rollback friendly）
+
+### 6.3 `factors.yaml` 形状（offline 因子专用）
+```yaml
+factors:
+  - type: jerk_offline_action
+    params:
+      windows:
+        - {past: 1, future: 1}
+        - {past: 5, future: 5}
+  - type: dispersion_offline_state
+    params:
+      windows: [{past: 5, future: 5}]
+```
+仅接受 8 个 offline 因子（`<descriptor>_offline_<channel>`）；online + topk 没 `compute_for_episode` 接口，传它们会被 `_load_offline_writers_from_yaml` 显式 reject。
+
+---
+
+## 7. Step 3+4: yaml 配置 + 跑推理
+
+完整 4 层 yaml 已在 §3 给出。本节列字段细节。
+
+### 7.1 第 1 层 Normalization
+```yaml
+normalization:
+  type: zscore                  # 唯一注册 type
+  params: {}                    # ZScoreNormalization 当前无 param
+  stats_source:
+    type: offline               # 唯一可选；warmup 通道 deferred
+```
+启动校验：`backend.library_stats` 必须可达（`backend.type == "in_memory"`）。
+
+### 7.2 第 2 层 Factors
+每 factor 一项 `{type, params}`。typical params：
+- 8 online + 8 offline：`windows: [{past, future}, ...]`
+- `topk_action_variance`：`K: int >= 2`
+
+### 7.3 第 3 层 Calibration
+```yaml
+calibration:
+  type: percentile_rolling      # 唯一注册 type
+  params:
+    window_size: 50             # rolling buffer 大小
+  samples_source:
+    type: warmup                # | offline
+    # warmup: 从 WarmupPool[eval_yaml_id] 拉（sibling warmup yaml 必须先跑）
+    # offline 替代：
+    # offline:
+    #   path: data/calib/spatial16_v2.jsonl
+    #   format: jsonl           # | pkl
+```
+`bind_keys` 时 fail-fast 检查：每个第 2 层 union key 必须在 samples 中有 ≥ window_size 个非 NaN 样本，否则 yaml load 失败。
+
+### 7.4 第 4 层 Composer
+
+> **schema 形状**：`ComposerConfig` 是扁平结构 —— 所有关键字段（`weights` / `tier_thresholds` / `per_factor_thresholds` / `warm_start_t` / `warm_fallback_start_t` / `directions`）直接挂在 `composer:` 顶层，**不在** `composer.params:` 下面。yaml parser 会忽略并 warning 任何 `composer.params.*`，validator 随后多半会因为缺 `tier_thresholds.full_hit` 等必填字段而 reject。
+
+注册的 4 个子类：
+
+| type | 关键字段（顶层） | hit 条件 |
+|---|---|---|
+| `weighted_sum` | `weights` / `tier_thresholds: {full_hit, warm_start?}` / `warm_start_t` | 加权（取向 flip 后）求和 ≥ full_hit → FULL_HIT；≥ warm_start → WARM_START（CP1-only） |
+| `weighted_sum_with_warm_fallback` | 上述 + `warm_fallback_start_t` | 同上；当所有非零权重 key 都 NaN → WARM_START @ warm_fallback_start_t（承接旧 `all_nan_fallback`）。**`warm_fallback_start_t` 也是 WARM_START 发射路径，与 `warm_start_t` 一样仅 CP1 支持** |
+| `and` | `per_factor_thresholds` / `warm_start_t?` | 每 key 都过阈值 → FULL_HIT（或 WARM_START 如配 `warm_start_t`，CP1-only）|
+| `or` | 同上 | 任一 key 过阈值 → FULL_HIT / WARM_START |
+
+`directions` 字段：`non_monotonic` orientation 的 key 必须在 `directions` 中显式给 `"high"` / `"low"` / `"range:[lo, hi]"`，否则 yaml load 时 reject。
+
+> **CP3 限制**（plan §3.6 / validator §13.3 规则 5c）：CP3 没有 `intermediates` payload 可以 resume，所以**任何** WARM_START 发射路径在 CP3 上都被 yaml validator reject —— 这包括 `warm_start_t`（常规 warm tier）以及 `weighted_sum_with_warm_fallback` 子类的 `warm_fallback_start_t`（all-NaN fallback）。CP3 上的 composite judge 必须省略这两个字段。
+
+### 7.5 诊断字段 `factor_outputs` (schema_version=2)
+
+YAML 顶层 `judge.export_factor_outputs: true` 时，每 verdict 在 `JudgeResult.factor_outputs` 写：
+```python
+{
+  "schema_version": 2,
+  "raw":             {key: float | None},     # Layer 2 raw
+  "calibrated":      {key: float | None},     # Layer 3 输出
+  "composer_score":  float | None,            # Layer 4 内部分数
+}
+```
+NaN 在 wire 上转 None（JSON-strict 兼容）。`hit_type / winner_id / start_t` 仍在 `JudgeResult` 顶层（不进 `factor_outputs`）。
+
+---
+
+## 8. 自定义扩展（如何编写自己的因子 / Calibration / Composer）
+
+> 本节是 step-by-step 教程：从写代码 → 注册 → yaml 引用 → 单元测试 → 启动 server。每一节末尾的 yaml 片段直接可粘贴到 §3 的完整 4 层 yaml 模板里。
+
+### 8.1 新增第 2 层 Factor
+
+#### 第 1 步：决定因子的 capability 与命名
+
+| 决策点 | 取值规则 | 影响 |
+|---|---|---|
+| 命名 | 推荐沿用 `<descriptor>_<source>_<channel>` 模式（见 §2），自定义因子可自由命名但要避开 17 因子保留名 | 注册名也是 yaml `factors[].type` 的字面量 |
+| `requires_chain_walk` | 调用 `ctx.view.walk_prev / walk_next` 即 True | yaml load 时若 backend 不支持 `fetch_entry` 即 reject |
+| `required_top_k` | 因子至少需要的 top-K 候选数；不需要就 0 | CompositeJudge 取所有 factor 的 max 反向喂给 search strategy 的 `min_top_k_hint` |
+| 描述子 key 与取向 | `"safe"`（高 = 好）/ `"risky"`（高 = 坏）/ `"non_monotonic"`（必须在 composer 配 `directions`） | composer 自动按取向 flip（safe → 直接用，risky → `1-v`） |
+
+#### 第 2 步：实现类
+
+放在一个会被 `factors/registry.py` import 的模块下（最简：直接放 `factors/online.py` 末尾，或新建 `factors/my_pack.py` 然后在 `registry.py` 加一行 import）。完整骨架：
 
 ```python
-@register("my_normed_factor")
-class MyNormedFactor:
-    required_top_k: int = 0
-    requires_library_stats: bool = True   # 让 builder 自动注入 library_stats kwarg
-    requires_chain_walk: bool = False
+# src/openpi/cache/components/factors/my_pack.py
 
-    def __init__(self, library_stats: "LibraryStats"):
-        self._sigma = library_stats.action_sigma
-        self.descriptor_orientations = self.__class__.describe({})
+"""My custom factor — describe what physical signal this captures."""
 
+from __future__ import annotations
+
+import math
+
+import torch
+
+from openpi.cache.components.factors.base import FactorContext
+from openpi.cache.components.factors.registry import register
+
+
+@register("my_action_burstiness")
+class MyActionBurstiness:
+    """Mean burst-ratio over the last K executed actions.
+
+    Returns a single risky-orientation key:
+        my_action_burstiness__k<K>: float in [0, 1]   (or NaN at boundary)
+    """
+
+    # ---- class-level capability flags ----
+    requires_chain_walk: bool = False     # only reads history.actions
+    required_top_k:      int = 0          # not a candidate-pool factor
+
+    # ---- constructor ----
+    def __init__(self, *, K: int) -> None:
+        if K < 2:
+            raise ValueError(f"MyActionBurstiness K must be >= 2, got {K}")
+        self.K = int(K)
+        self.descriptor_orientations = self.__class__.describe({"K": K})
+
+    # ---- pure metadata classmethod (validator calls this WITHOUT instantiating) ----
     @classmethod
     def describe(cls, params: dict) -> dict[str, str]:
-        return {"my_normed_score": "risky"}
+        K = int(params["K"])
+        return {f"my_action_burstiness__k{K}": "risky"}
 
-    def extract(self, results, view, history, cached_data):
-        ...
+    # ---- per-verdict extraction ----
+    def extract(self, ctx: FactorContext) -> dict[str, float]:
+        key = next(iter(self.descriptor_orientations))
+        if len(ctx.history.actions) < self.K:
+            return {key: float("nan")}                       # boundary
+
+        # Pull last K actions, normalize via Layer 1 (z-score).
+        seq = torch.stack(
+            [torch.as_tensor(a, dtype=torch.float32) for a in ctx.history.actions[-self.K:]],
+            dim=0,
+        )                                                    # [K, A]
+        normed = ctx.normalization.normalize_action(seq)     # [K, A_active]
+        if normed.shape[-1] == 0:
+            return {key: float("nan")}                       # empty active mask
+
+        # Burst ratio = fraction of consecutive-step diffs whose magnitude
+        # exceeds the median diff magnitude. Risky: high = bursty.
+        diffs = (normed[1:] - normed[:-1]).norm(dim=-1)      # [K-1]
+        if diffs.numel() < 2:
+            return {key: float("nan")}
+        median = float(diffs.median())
+        ratio = float((diffs > median).float().mean())
+        return {key: ratio}
 ```
 
-`requires_library_stats=True` 自动让 validator 强制 `backend.type=in_memory`（library_stats 仅 InMemoryBackend 暴露），并让 `_build_judge` 在构造时注入 `library_stats=library_stats` kwarg。
+#### 第 3 步：让 registry 在 import 时拿到它
 
-### 9.3 写一个走 chain walk 的因子
+在 `factors/registry.py` 末尾加一行 import：
 
 ```python
-@register("my_chain_factor")
-class MyChainFactor:
-    required_top_k: int = 0
-    requires_library_stats: bool = False
-    requires_chain_walk: bool = True   # validator 强制 backend 提供 fetch_entry
-
-    def __init__(self, walk_depth: int):
-        self._walk_depth = walk_depth
-        self.descriptor_orientations = self.__class__.describe(
-            {"walk_depth": walk_depth}
-        )
-
-    @classmethod
-    def describe(cls, params: dict) -> dict[str, str]:
-        return {"my_chain_drift": "risky"}
-
-    def extract(self, results, view, history, cached_data):
-        winner_id = results[0].id
-        # PayloadView 在 B0 仅支持 ForkPolicy.TRAJECTORY；遇 fork raise
-        forward_entries = view.walk_next(winner_id, k=self._walk_depth)
-        ...
+from openpi.cache.components.factors import my_pack  # noqa: F401
 ```
 
-### 9.4 写一个 OfflineWriter（B2 模式）
+任何 `from openpi.cache.components.factors import registry` 都会触发这行 import，`@register` 副作用立即把因子注册到全局 registry。
 
-`OfflineWriter` 在 build pkl 时被 `enrich_artifact_with_factors` helper 调，回填 `entry.payload.factors`：
+#### 第 4 步：yaml 中引用
 
-```python
-@register("my_offline_factor")
-class MyOfflineFactor:
-    # ---- OnlineExtractor surface ----
-    required_top_k: int = 0
-    requires_library_stats: bool = False
-    requires_chain_walk: bool = False
-
-    def __init__(self, ...):
-        self.descriptor_orientations = self.__class__.describe({...})
-
-    @classmethod
-    def describe(cls, params):
-        return {"my_offline_score": "safe"}
-
-    def extract(self, results, view, history, cached_data):
-        # 在线侧从 payload.factors 读 offline 写好的值
-        winner_payload = view.get(results[0].id)
-        if winner_payload.factors is None or "my_offline_score" not in winner_payload.factors:
-            return {"my_offline_score": float("nan")}     # 老 entry / 缺字段都返回 NaN
-        return {"my_offline_score": winner_payload.factors["my_offline_score"]}
-
-    # ---- OfflineWriter surface ----
-    def required_payload_fields(self) -> set[str]:
-        return set()      # 不需要新 raw payload tensor
-
-    def compute_for_episode(
-        self,
-        entries: list["CacheEntry"],
-        library_stats: "LibraryStats",
-    ) -> list[dict[str, float]]:
-        # 返回 list 长度 == len(entries)，与 entries 平行
-        return [{"my_offline_score": ...} for _ in entries]
+```yaml
+checkpoints:
+  cp1:
+    judge:
+      type: composite
+      normalization: { type: zscore, params: {}, stats_source: { type: offline } }
+      factors:
+        - type: my_action_burstiness
+          params: { K: 5 }
+      calibration:
+        type: percentile_rolling
+        params: { window_size: 50 }
+        samples_source:
+          type: warmup            # warmup yaml 必须 over-collect 这个 key
+      composer:
+        type: weighted_sum
+        weights: { my_action_burstiness__k5: 1.0 }
+        tier_thresholds: { full_hit: 0.7 }   # 高 burst-ratio = miss → 高 1-v = full_hit
 ```
 
-### 9.5 写一个新 Composer
+#### 第 5 步：单元测试
 
 ```python
-# src/openpi/cache/components/factors/composers/my_composer.py
+# tests/cache/components/factors/test_my_action_burstiness.py
+import math
+import pytest
+import torch
+
+from openpi.cache.components.factors.base import FactorContext, HistoryView, LibraryStats
+from openpi.cache.components.factors.my_pack import MyActionBurstiness
+from openpi.cache.components.factors.normalization import ZScoreNormalization
+from openpi.cache.storage_types import SearchResultLite
+from openpi.cache.types import CheckpointID
+
+def _ctx(history_actions):
+    a = torch.ones(2, dtype=torch.float32)
+    s = torch.ones(2, dtype=torch.float32)
+    ls = LibraryStats(
+        action_sigma=a, action_active_mask=torch.ones(2, dtype=torch.bool),
+        state_sigma=s, state_active_mask=torch.ones(2, dtype=torch.bool),
+    )
+    return FactorContext(
+        results=[SearchResultLite(id="w", score=1.0, checkpoint_id=CheckpointID.CP1)],
+        view=None, normalization=ZScoreNormalization(ls),
+        history=HistoryView(
+            actions=[torch.tensor(a, dtype=torch.float32) for a in history_actions],
+            states=[],
+        ),
+    )
+
+def test_K_below_2_rejected():
+    with pytest.raises(ValueError, match=">= 2"):
+        MyActionBurstiness(K=1)
+
+def test_history_too_short_emits_nan():
+    f = MyActionBurstiness(K=5)
+    out = f.extract(_ctx([[0.0, 0.0]] * 3))
+    assert math.isnan(out["my_action_burstiness__k5"])
+
+def test_describe_classmethod_is_pure():
+    """Validator calls describe() WITHOUT instantiating — the map must be derivable from params alone."""
+    out = MyActionBurstiness.describe({"K": 5})
+    assert out == {"my_action_burstiness__k5": "risky"}
+```
+
+#### 8.1 关键合同（fail-loud 列表）
+
+- `extract` 返回 dict 的 key 集合必须 == `self.descriptor_orientations.keys()` —— CompositeJudge `__call__` 内做 key contract assertion，不一致即 raise（不是悄悄 NaN）
+- `describe(params)` 是 classmethod，validator 在 yaml load 时**不实例化**就调它，所以**不能**依赖 `self`、不能 IO、不能查 library_stats
+- 任何物理边界（history 不够 / walk 走完 / 退化退化分母）→ 返回 `float("nan")`，**不要** raise；composer 子类负责 NaN 处理
+- 不要在 factor 内自己做 z-score；用 `ctx.normalization.normalize_action / normalize_state`（Layer 1 owns z-score）
+
+---
+
+### 8.2 新增第 3 层 Calibration
+
+继承 `Calibration` Protocol（`factors/calibrations/base.py`）：实现 `__init__(samples) / bind_keys(keys) / __call__(raw) / on_episode_start()`。
+
+```python
+# src/openpi/cache/components/factors/calibrations/my_zscore.py
+
+"""Z-score-on-factors calibration: per-key (v - μ) / σ over the warmup
+samples. Demonstration of an alternative to PercentileRollingCalibration."""
+
+from __future__ import annotations
+
+import math
+
+from openpi.cache.components.factors.base import CalibrationSamples
+
+
+class ZScoreOnFactorsCalibration:
+    """Each verdict's factor value is mapped to its z-score against the
+    bound key's warmup-sample distribution. NaN inputs propagate."""
+
+    def __init__(self, samples: CalibrationSamples) -> None:
+        if samples is None:
+            raise ValueError("ZScoreOnFactorsCalibration requires CalibrationSamples")
+        self._samples = samples
+        self._stats: dict[str, tuple[float, float]] = {}   # key -> (mu, sigma)
+
+    def bind_keys(self, keys: list[str]) -> None:
+        # bind_keys is the FAIL-FAST hook (plan §6.3): every Layer-2 union
+        # key must have enough non-NaN samples here, otherwise raise.
+        for k in keys:
+            samples = self._samples.samples.get(k)
+            if samples is None:
+                raise KeyError(f"calibration source missing key {k!r}")
+            non_nan = [v for v in samples if not math.isnan(v)]
+            if len(non_nan) < 30:
+                raise ValueError(
+                    f"key {k!r}: only {len(non_nan)} samples, need >= 30"
+                )
+            n = len(non_nan)
+            mu = sum(non_nan) / n
+            var = sum((x - mu) ** 2 for x in non_nan) / n
+            sigma = max(var ** 0.5, 1e-6)
+            self._stats[k] = (mu, sigma)
+
+    def __call__(self, raw: dict[str, float]) -> dict[str, float]:
+        out: dict[str, float] = {}
+        for k, v in raw.items():
+            if math.isnan(v) or k not in self._stats:
+                out[k] = float("nan")
+                continue
+            mu, sigma = self._stats[k]
+            out[k] = (float(v) - mu) / sigma
+        return out
+
+    def on_episode_start(self) -> None:
+        return None     # stats are immutable post-bind_keys
+```
+
+注册（写在子类上方，加到 `calibrations/__init__.py`）：
+
+```python
+# src/openpi/cache/components/factors/calibrations/__init__.py
+from openpi.cache.components.factors.calibrations.my_zscore import (
+    ZScoreOnFactorsCalibration,
+)
+```
+
+`_build_calibration` 加一个分支（`config.py`）：
+
+```python
+if cfg.type == "z_score_on_factors":
+    return ZScoreOnFactorsCalibration(samples, **dict(cfg.params))
+```
+
+yaml 引用：
+
+```yaml
+calibration:
+  type: z_score_on_factors
+  params: {}                         # forwarded as kwargs (this class has none)
+  samples_source:
+    type: warmup                     # warmup pool fills CalibrationSamples
+```
+
+⚠ 关键合同：`bind_keys` 是**唯一**的 fail-fast 入口（startup 时调）；`__call__` 接到未知 key 必须返回 NaN（不要 raise，CompositeJudge 上游已做 key contract 校验）。Plan §6.3 / §6.5 原则 3 严守 no cold-start。
+
+---
+
+### 8.3 新增第 4 层 Composer
+
+继承 `Composer` Protocol（`composers/base.py`）：构造时计算 `self.declared_dependencies` 实例属性、实现 `bind_orientations(orientations)` 和 `compose(calibrated, *, winner_id)`。
+
+```python
+# src/openpi/cache/components/factors/composers/my_max.py
+
+"""Max-only composer: max calibrated value across all weighted keys.
+Useful when any single high-signal factor should suffice for hit."""
+
+from __future__ import annotations
+
+import math
+from typing import Optional
+
 from openpi.cache.components.judge import HitType, JudgeResult
 
 
-class MyComposer:
-    def __init__(self, threshold: float):
-        self._threshold = threshold
+class MaxComposer:
+    """JudgeResult based on max(calibrated[k] for non-zero-weight keys).
+
+    safe key: contributes calibrated[k]
+    risky key: contributes 1 - calibrated[k]
+    non_monotonic: requires `directions[k]` per orientation contract.
+    """
+
+    declared_dependencies: set[str]
+
+    def __init__(
+        self,
+        *,
+        weights: dict[str, float],
+        full_hit_threshold: float,
+        warm_start_threshold: Optional[float] = None,
+        warm_start_t: Optional[float] = None,
+        directions: Optional[dict[str, str]] = None,
+    ) -> None:
+        self._weights = dict(weights)
+        self._full = float(full_hit_threshold)
+        self._warm = warm_start_threshold
+        self._warm_t = warm_start_t
+        self._directions = dict(directions or {})
         self._orientations: dict[str, str] = {}
+        # Layer 4 contract — declare what factor keys we need
+        self.declared_dependencies = {k for k, w in self._weights.items() if w != 0.0}
 
     def bind_orientations(self, orientations: dict[str, str]) -> None:
-        # CompositeJudge.__init__ 调一次；此处校验 / 储存即可
         self._orientations = dict(orientations)
+        missing = [
+            k for k, ori in self._orientations.items()
+            if ori == "non_monotonic" and self._weights.get(k, 0.0) != 0.0
+            and k not in self._directions
+        ]
+        if missing:
+            raise ValueError(f"non_monotonic keys missing directions: {sorted(missing)}")
 
-    def compose(self, factors: dict[str, float], *, winner_id: str) -> JudgeResult:
-        # factors 已被 Normalizer 处理（NaN 由 Composer 自己决定如何处理）
-        if all(v >= self._threshold for v in factors.values() if not (v != v)):
-            return JudgeResult(HitType.FULL_HIT, winner_id)
-        return JudgeResult(HitType.MISS)
+    def compose(
+        self,
+        calibrated: dict[str, float],
+        *,
+        winner_id: str,
+    ) -> JudgeResult:
+        contribs = []
+        for k, w in self._weights.items():
+            if w == 0.0:
+                continue
+            v = calibrated.get(k, float("nan"))
+            if math.isnan(v):
+                continue
+            ori = self._orientations.get(k)
+            if ori == "safe":
+                contribs.append(v)
+            elif ori == "risky":
+                contribs.append(1.0 - v)
+            else:
+                # non_monotonic — handle per direction (omitted for brevity)
+                contribs.append(v)
+        if not contribs:
+            return JudgeResult(HitType.MISS, composer_score=None)
+        score = max(contribs)
+        if score >= self._full:
+            return JudgeResult(HitType.FULL_HIT, winner_id=winner_id, composer_score=score)
+        if self._warm is not None and self._warm_t is not None and score >= self._warm:
+            return JudgeResult(
+                HitType.WARM_START, winner_id=winner_id,
+                start_t=self._warm_t, composer_score=score,
+            )
+        return JudgeResult(HitType.MISS, composer_score=score)
 ```
 
-注册到 `_build_composer` —— 当前 builder 还是显式 if-elif 树：
+注册到 `composers/__init__.py` 的 re-export 表 + `_build_composer` 加分支：
 
 ```python
-# src/openpi/cache/config.py _build_composer
-elif cfg.type == "my_composer":
-    return MyComposer(threshold=cfg.tier_thresholds["full_hit"])
+# composers/__init__.py
+from openpi.cache.components.factors.composers.my_max import MaxComposer
+
+# config.py _build_composer
+if cfg.type == "max":
+    return MaxComposer(
+        weights=cfg.weights,
+        full_hit_threshold=cfg.tier_thresholds["full_hit"],
+        warm_start_threshold=cfg.tier_thresholds.get("warm_start"),
+        warm_start_t=cfg.warm_start_t,
+        directions=cfg.directions,
+    )
 ```
 
-> **未来工作**：Composer 与 Normalizer 也可以做成 registry 模式（与 factor 同），目前 plan 没有这一步。
+yaml 引用：
 
-### 9.6 写一个新 Normalizer
-
-```python
-class MyNormalizer:
-    def __init__(self, ...):
-        self._keys: list[str] = []
-
-    def bind_keys(self, keys: list[str]) -> None:
-        self._keys = list(keys)
-
-    def __call__(self, raw: dict[str, float]) -> dict[str, float]:
-        # 返回 dict 必须包含与 raw 相同的 keys
-        # 如要触发 cold-start MISS：返回全 NaN dict（CompositeJudge 短路）
-        ...
-
-    def on_episode_start(self) -> None:
-        # 默认 no-op；想 per-episode reset rolling window 才覆盖
-        return None
+```yaml
+composer:
+  type: max
+  weights:
+    jerk_online_state__p5_f5: 1.0
+    direction_online_state__p5_f5: 1.0
+  tier_thresholds: { full_hit: 0.7, warm_start: 0.4 }
+  warm_start_t: 0.7
 ```
 
-注册到 `_build_normalizer` 的 if-elif 树。
-
-> **批次状态**：扩展自定义因子 / Composer / Normalizer 的 API surface = B0 已 land；但 CompositeJudge 真正能跑要等 B1。B0 阶段也可单独单元测试自定义因子的 `describe` + 类构造（参见 `tests/cache/components/factors/test_registry.py` 的 stub 测试模式）。
+⚠ 关键合同：
+- `declared_dependencies` 是**实例属性**（不是 classmethod），构造时算出。CompositeJudge `__init__` 静态校验 `composer.declared_dependencies ⊆ Layer 2 union key 集`
+- WARM_START 发射路径都受 plan §3.6 / §13.3 规则 5c **CP1-only** 约束 —— 任何输出 `HitType.WARM_START` 的 composer 子类，其 yaml 配置都不能挂在 cp3 下（validator 会 reject `warm_start_t` 在 cp3）
+- 空 `calibrated` / 全 NaN 时建议返回 `JudgeResult(HitType.MISS)`；如果你的 composer 想在那种情况下走 WARM_START 路径，参考 `WeightedSumWithWarmFallbackComposer` 的实现 + 走 `composer.warm_fallback_start_t` yaml 字段（也是 CP1-only）
 
 ---
 
-## 10. 模块文件一览
+### 8.4 新增 OfflineWriter（让 offline 因子能写 artifact）
 
-| 路径 | 作用 |
-|---|---|
-| `src/openpi/cache/components/factors/base.py` | OnlineExtractor / OfflineWriter Protocol + LibraryStats + HistoryView |
-| `src/openpi/cache/components/factors/registry.py` | `register / get_class / build / known` |
-| `src/openpi/cache/components/factors/runtime_continuity.py` | F1a-A / F1a-T thin subclass |
-| `src/openpi/cache/components/factors/source_window.py` | F1b-A / F1b-T thin subclass + `_DESCRIPTOR_ORIENTATIONS` + `_normalize_windows` |
-| `src/openpi/cache/components/factors/consensus.py` | F2 |
-| `src/openpi/cache/components/factors/composers/__init__.py` | Composer Protocol + WeightedSum / AndGate / OrGate |
-| `src/openpi/cache/components/factors/normalizers/__init__.py` | Normalizer Protocol + PercentileRollingNormalizer |
-| `src/openpi/cache/components/payload_view.py` | PayloadView Protocol + StoragePayloadView + ForkPolicy |
-| `src/openpi/cache/components/judge.py` | `CompositeJudge`（与 ThresholdJudge / AlwaysHit / AlwaysWarmStart 同文件） |
-| `src/openpi/cache/storage_types.py` | `CachePayload.factors` Optional 字段 |
-| `src/openpi/cache/cache_storage.py` | `fetch_entry` + `library_stats` duck-typed facade |
-| `src/openpi/cache/backends/in_memory_backend.py` | `fetch_entry` 公共方法 + `library_stats` attr |
-| `src/openpi/cache/config.py` | `FactorConfig / ComposerConfig / NormalizerConfig` + `_build_composer / _build_normalizer / _build_judge` composite 分支 + B0 `_JUDGE_TYPES` 不含 `composite`（fail-fast at load） |
-| `tests/cache/components/factors/` | factor metadata + Composer / Normalizer protocol + CompositeJudge 单元测试 |
-| `tests/cache/test_payload_view.py` | StoragePayloadView 单元测试 |
-| `tests/cache/test_cache_storage_factor_facade.py` | fetch_entry / library_stats facade 测试 |
-| `tests/cache/test_config_factor.py` | FactorConfig / ComposerConfig 解析 + B0 拒收测试 |
+`Factor` 子类同时实现 `required_payload_fields()` + `compute_for_episode(entries, library_stats)` 即满足 `OfflineWriter` Protocol（duck typing）。`exp/common/factor_postprocess.py:_load_offline_writers_from_yaml` 通过 `hasattr(cls, 'compute_for_episode')` 自动发现。
+
+完整骨架（一个写 entry-chain 上 action 平均速度的 demo）：
+
+```python
+# src/openpi/cache/components/factors/my_pack.py (extends 8.1)
+
+@register("mean_speed_offline_action")
+class MeanSpeedOfflineAction:
+    """Per-entry mean velocity magnitude over a (P, F) chain window."""
+
+    requires_chain_walk: bool = False     # online path reads payload.factors
+    required_top_k:      int = 0
+
+    def __init__(self, *, windows: list[dict]) -> None:
+        from openpi.cache.components.factors.base import normalize_windows
+        self._windows = normalize_windows(windows)
+        self.descriptor_orientations = self.__class__.describe({"windows": windows})
+
+    @classmethod
+    def describe(cls, params: dict) -> dict[str, str]:
+        from openpi.cache.components.factors.base import normalize_windows
+        return {
+            f"mean_speed_offline_action__p{p}_f{f}": "non_monotonic"
+            for (p, f) in normalize_windows(params["windows"])
+        }
+
+    # ---- ONLINE path: read what the OfflineWriter wrote ----
+    def extract(self, ctx) -> dict[str, float]:
+        keys = list(self.descriptor_orientations)
+        if not ctx.results:
+            return {k: float("nan") for k in keys}
+        winner = ctx.view.get(ctx.results[0].id)
+        if winner.factors is None:
+            return {k: float("nan") for k in keys}
+        return {k: float(winner.factors.get(k, float("nan"))) for k in keys}
+
+    # ---- OFFLINE path: writer surface ----
+    def required_payload_fields(self) -> set[str]:
+        return set()                                    # uses existing schema
+
+    def compute_for_episode(
+        self, entries, library_stats,
+    ) -> list[dict[str, float]]:
+        import torch
+        keys = list(self.descriptor_orientations)
+        T = len(entries)
+        if T == 0:
+            return []
+        seq = torch.stack(
+            [torch.as_tensor(e.payload.action_chunk[0], dtype=torch.float32) for e in entries],
+            dim=0,
+        )                                               # [T, A]
+        sigma = library_stats.action_sigma.clamp_min(0.01)
+        seq_norm = seq / sigma                          # [T, A]
+        active = library_stats.action_active_mask
+        pts = seq_norm[..., active]                     # [T, A_active]
+        out: list[dict[str, float]] = []
+        for k_idx in range(T):
+            row: dict[str, float] = {}
+            for (P, F) in self._windows:
+                lo, hi = k_idx - P, k_idx + F
+                if lo < 0 or hi >= T:
+                    row[f"mean_speed_offline_action__p{P}_f{F}"] = float("nan")
+                    continue
+                w = pts[lo:hi + 1]
+                v = (w[1:] - w[:-1]).norm(dim=-1)       # [W-1]
+                row[f"mean_speed_offline_action__p{P}_f{F}"] = (
+                    float(v.mean()) if v.numel() else float("nan")
+                )
+            out.append(row)
+        return out
+```
+
+`exp/common/factor_postprocess.py` 找到这个类的方式：通过 `_load_offline_writers_from_yaml` 走 registry，检查 `hasattr(cls, 'compute_for_episode')`，所以**无需注册**第二处。
+
+**写 artifact**：
+
+```bash
+uv run python -m exp.common.build_in_memory_cache_artifact enrich-existing-pkl \
+  --input  exp/warm_start/data/spatial16/cp1_spatial_pool_16.pkl \
+  --factors-yaml my_factors.yaml \
+  --output exp/warm_start/data/spatial16/cp1_spatial_pool_16_v2.pkl
+
+# my_factors.yaml
+factors:
+  - type: mean_speed_offline_action
+    params:
+      windows: [{past: 1, future: 1}, {past: 5, future: 5}]
+```
+
+CLI 内部只接受 8 个 offline 因子（registry name + `hasattr(compute_for_episode)`）；尝试用 online 因子或 topk 立刻 reject。完整 e2e smoke 测试见 `tests/exp/common/test_build_enrich_existing_pkl.py`。
 
 ---
 
-## 11. 常见问题
+### 8.5 编写流程 checklist（五步法）
 
-### Q: 为什么 `f1a_t` 的 key 是 `f1a_t_jerk` 而不是 `f1a_s_jerk`？
+1. **想清楚物理含义** —— 因子捕捉哪个信号？safe / risky / non_monotonic？需要 chain walk 吗？需要 top-K 吗？
+2. **写类 + `@register("name")`** —— `__init__` / `describe(params)` / `extract(ctx)` 三个 method，外加 capability flags
+3. **加 import** —— `factors/registry.py` 末尾加一行 `from . import my_pack` 让 `@register` side-effect 在 registry 模块加载时触发
+4. **写 yaml + smoke** —— 复制 §3 完整 yaml 模板，把 `factors` / `calibration` / `composer` 改成新名字；本地跑 `load_cache_config` 看是否过 validator
+5. **写测试** —— 至少覆盖 happy path + 物理边界（NaN 出口）+ classmethod `describe(params)` 返回值与实例 `descriptor_orientations` 一致
 
-`source` 是因子语义字段（`"action"` / `"state"`），`key_initial` 是 payload.factors 的命名空间（`"a"` / `"t"`），与 registry 名后缀对齐。这样 YAML config 中引用的 `f1a_t_jerk` 就跟 extractor 实际产出的 key 完全一致，避免 weights 静默失配（G2 Round 1 → Round 2 修订）。
+---
 
-### Q: 老 entry（`payload.factors is None`）会怎样？
+## 9. 与重构前差异速查
 
-F1b 的 OnlineExtractor.extract 会返回 NaN，Composer 按取向规则跳过该因子（weighted_sum 不计入和与权重和；and-gate 视为不通过；or-gate 视为通过被忽略）。NaN 是"信号缺失"的合法表达，不会让 verdict 报错。
+| 维度 | 旧 | 新 |
+|---|---|---|
+| 因子数 | 5 (`f1a_a/f1a_t/f1b_a/f1b_t/f2`) | 17 (`<desc>_<source>_<channel>` × 16 + `topk_action_variance`) |
+| descriptor 名 | `jerk / dir / curv_radius / cum_disp` | `jerk / direction / dispersion / path_length` |
+| 架构 | 因子 + Normalizer + Composer + 框架级 fallback | 4 层正交 (Normalization / Factor / Calibration / Composer) |
+| Cold-start | `cold_start_strategy: force_miss/passthrough/lenient` | **删除** — 启动 fail-fast |
+| `all_nan_fallback` yaml | `{type: warm_start, start_t}` | **删除** — 由 `WeightedSumWithWarmFallbackComposer` 子类承接 |
+| `factor_outputs` 字段 | `{raw, norm, score, sentinel}` | `{raw, calibrated, composer_score, schema_version=2}` |
+| OfflineWriter 签名 | `compute_for_episode(entries, library_stats)` | 不变 |
+| OnlineExtractor Protocol | 多参数 `extract(results, view, history, cached_data)` | 改 `Factor.extract(ctx: FactorContext)` 单参数 dataclass |
+| Composer dependency check | classmethod `declared_dependencies(params)` | 实例属性 `composer.declared_dependencies` |
+| 旧 wire 协议 | `__hit_meta__["factor_outputs"]` 同 | schema_version=2，旧 client 见到字段缺失 = v1 |
 
-### Q: 冷启动（rolling window 还没填满）会发生什么？
-
-`PercentileRollingNormalizer(cold_start_strategy="force_miss")` 在 window 未满时返回 **all-NaN dict**；CompositeJudge 检测到 `all(isnan(v))` 后**短路 MISS**，不调 Composer。这保证 cold-start 期间 cache 走 inference 路径，不会基于不可靠 percentile 给出激进 hit。
-
-其它策略：`"passthrough"`（直接用原始 raw）、`"lenient"`（用已积累样本，N<10 同 force_miss）。
-
-### Q: F2 的 `K=5` 会不会破坏 strategy 的 `top_k=1` 语义？
-
-不会。CompositeJudge 收 `min_required_top_k = max(extractor.required_top_k for extractor)` 喂给 SearchStrategy 的新 `min_top_k_hint` kwarg，`SearchStrategy` 内部用 `max(yaml_top_k, min_top_k_hint)` 决定真实 fetch 数量。YAML 里 `top_k: 1` 的语义保留（"我策略需要 1"），F2 在背后把它撑到 5。in-memory backend 实测 topk(5) vs topk(1) 性能差异忽略。
-
-### Q: 如果我把 `f1a_t` 配进 Qdrant backend 会发生什么？
-
-`validate_cache_config` 在 config-load 阶段 raise：`requires_chain_walk=True` 的因子要求 `backend.type=in_memory`（仅 InMemoryBackend 暴露 `fetch_entry`）。Fail-fast at load，不会进入推理路径。
-
-### Q: `non_monotonic` 的 `direction` 怎么选？
-
-- `"high"` —— 数值越大越好（如 `cum_disp` 大 = 大幅运动）
-- `"low"`  —— 数值越小越好
-- `"range:[lo, hi]"` —— 落在区间内偏 hit（如 `curv_radius` range:[0.3, 1.0] 表示喜欢中等弥散度，停滞 / 直线大幅都不偏 hit）
-
-具体取值由数据定标得到（B2 后可加 calibration 脚本扫 percentile 给推荐值）。
-
-### Q: 现在能跑 composite YAML 吗？
-
-可以（B1 起）。`_JUDGE_TYPES` 已含 `composite`；validator 接受 `judge.type=composite` 并按 §6.1 跑 7 项 composite-specific 静态校验。F1a-A / F1a-T / F2 + 3 Composer + PercentileRollingNormalizer 全部已实现，端到端 verdict 可跑。F1b 因子若配进 YAML，需 backend 加载的 artifact pkl 含 `library_stats` 字段（B2 build pipeline 自动写入；老 artifact 启动时 fallback 现算）。
-
-B0 阶段可以做的：
-- 写自定义 factor 的 `describe()` / 构造单元测试
-- 用 `_build_judge(cfg, library_stats=None)` 直接构造 CompositeJudge 测它的 collect+bind+key contract+cold-start sentinel
-- review schema / config 校验链路是否符合预期
-
-### Q: 如何调试 verdict 失败？
-
-1. CompositeJudge 在 `__init__` 阶段抛 `ValueError("conflicting orientations")` —— 两个 extractor 声明同 key 但 orientation 不同，检查两个 factor 的 `descriptor_orientations` 是否冲突
-2. CompositeJudge 在 verdict 时抛 `RuntimeError(... key contract violation)` —— extractor.extract() 返回的 keys 与声明不一致，检查 extract 实现
-3. Composer 报 weight key 不存在 —— extractor 没产 / 拼错 key namespace（F1a-T 是 `f1a_t_*`，不是 `f1a_s_*`）
-4. validator 报 `directions[K] missing for non_monotonic factor with non-zero weight` —— 在 YAML composer.directions 显式补上
-
-### Q: 我能不能不用 Normalizer 直接用 raw factor 喂 Composer？
-
-可以，YAML 不写 `normalizer:` 字段或 `_build_normalizer` 返回 None，CompositeJudge 把 raw dict 直接传给 Composer。但 Composer 的 `tier_thresholds` 阈值要按 raw scale 调（不再是 [0,1] percentile rank），通常更难调。推荐至少配 PercentileRollingNormalizer 让 score 标准化。
+完整设计 + 决策史见 [`logs/verdict_factor_judge_refactor.log.md`](../../logs/verdict_factor_judge_refactor.log.md)（G1 APPROVED Round 4，2026-05-07）。

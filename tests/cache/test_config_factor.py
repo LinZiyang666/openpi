@@ -1,767 +1,205 @@
-"""Tests for verdict-factor config dataclasses + B0 fail-fast composite
-rejection.
-
-Covers:
-  - FactorConfig / ComposerConfig / NormalizerConfig dataclass parsing
-  - JudgeConfig.factors deserializes as list[FactorConfig], not list[dict]
-  - _list_inner_dataclass helper
-  - validate_cache_config rejects type=composite at config load (B0 gate)
-  - _build_composer / _build_normalizer error paths
-  - _build_judge composite branch (B0 ships the wiring; validator gates it
-    in the normal flow but it is reachable via direct call).
-"""
+"""4-layer composite judge yaml end-to-end validator tests (refactor)."""
 
 from __future__ import annotations
 
+import json
+import pickle
 import textwrap
 from pathlib import Path
 
 import pytest
+import torch
 
-from openpi.cache.components.judge import CompositeJudge
-from openpi.cache.config import (
-    AllNanFallbackConfig,
-    ComposerConfig,
-    ConfigValidationError,
-    FactorConfig,
-    JudgeConfig,
-    NormalizerConfig,
-    _build_composer,
-    _build_judge,
-    _build_normalizer,
-    _dict_to_dataclass,
-    _JUDGE_TYPES,
-    _list_inner_dataclass,
-    load_cache_config,
-)
+from openpi.cache.components.factors.base import LibraryStats
+from openpi.cache.config import ConfigValidationError, load_cache_config
+from openpi.cache.storage_types import CacheEntry, CachePayload
+from openpi.cache.types import CheckpointID
 
 
-# ------------------------------------------------------------------
-# Dataclass round-trip
-# ------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Fixtures
+# ----------------------------------------------------------------------
 
 
-def test_judge_config_factors_parses_as_list_of_dataclass():
-    data = {
-        "type": "composite",
-        "factors": [
-            {"type": "f2", "params": {"K": 5}},
-            {"type": "f1a_a", "params": {"window_k": 3, "descriptors": ["jerk"]}},
-        ],
-        "composer": {"type": "weighted_sum", "weights": {"f2_var": 1.0}, "tier_thresholds": {"full_hit": 0.5}},
-        "normalizer": {"type": "percentile_rolling"},
-        "all_nan_fallback": {"type": "warm_start", "start_t": 0.7},
-    }
-    cfg = _dict_to_dataclass(JudgeConfig, data)
-    assert isinstance(cfg.factors, list)
-    assert all(isinstance(f, FactorConfig) for f in cfg.factors)
-    assert cfg.factors[0].type == "f2"
-    assert cfg.factors[0].params == {"K": 5}
-    assert isinstance(cfg.composer, ComposerConfig)
-    assert isinstance(cfg.normalizer, NormalizerConfig)
-    assert isinstance(cfg.all_nan_fallback, AllNanFallbackConfig)
-    assert cfg.all_nan_fallback.type == "warm_start"
-    assert cfg.all_nan_fallback.start_t == 0.7
-
-
-def test_judge_config_factors_optional_default_none():
-    cfg = _dict_to_dataclass(JudgeConfig, {"type": "threshold", "threshold": 0.9})
-    assert cfg.factors is None
-    assert cfg.composer is None
-    assert cfg.normalizer is None
-    assert cfg.all_nan_fallback is None
-
-
-# ------------------------------------------------------------------
-# _list_inner_dataclass helper
-# ------------------------------------------------------------------
-
-
-def test_list_inner_dataclass_recognizes_optional_form():
-    assert _list_inner_dataclass("Optional[list[FactorConfig]]") is FactorConfig
-
-
-def test_list_inner_dataclass_recognizes_pep604_form():
-    assert _list_inner_dataclass("list[FactorConfig] | None") is FactorConfig
-
-
-def test_list_inner_dataclass_recognizes_bare_form():
-    assert _list_inner_dataclass("list[FactorConfig]") is FactorConfig
-
-
-def test_list_inner_dataclass_returns_none_for_non_dataclass_inner():
-    assert _list_inner_dataclass("list[float]") is None
-    assert _list_inner_dataclass("list[dict[str, float]]") is None
-
-
-def test_list_inner_dataclass_returns_none_for_unknown_name():
-    assert _list_inner_dataclass("list[CompletelyMadeUp]") is None
-
-
-# ------------------------------------------------------------------
-# Composite enabled in B1+ (formerly fail-fast in B0)
-# ------------------------------------------------------------------
-
-
-def test_b1_judge_types_includes_composite():
-    assert "composite" in _JUDGE_TYPES
-
-
-def _write(tmp: Path, body: str) -> Path:
-    p = tmp / "cache.yaml"
-    p.write_text(textwrap.dedent(body), encoding="utf-8")
+@pytest.fixture
+def library_pkl(tmp_path: Path) -> Path:
+    """Tiny in-memory backend artifact carrying library_stats + 4 entries."""
+    a_sigma = torch.ones(2, dtype=torch.float32)
+    s_sigma = torch.ones(2, dtype=torch.float32)
+    library_stats = LibraryStats(
+        action_sigma=a_sigma,
+        action_active_mask=torch.ones(2, dtype=torch.bool),
+        state_sigma=s_sigma,
+        state_active_mask=torch.ones(2, dtype=torch.bool),
+    )
+    entries = [
+        CacheEntry(
+            id=f"e{i}",
+            checkpoint_id=CheckpointID.CP1,
+            query_keys={
+                "robot_state": torch.tensor([float(i), 0.0], dtype=torch.float32),
+            },
+            payload=CachePayload(
+                action_chunk=torch.tensor([[float(i), 0.0]], dtype=torch.float32),
+            ),
+            trajectory_id="traj-fix",
+            step_idx=i,
+        )
+        for i in range(4)
+    ]
+    art = {"entries": entries, "library_stats": library_stats}
+    p = tmp_path / "fix.pkl"
+    with open(p, "wb") as fh:
+        pickle.dump(art, fh)
     return p
 
 
-def test_composite_yaml_loads_in_b1(tmp_path):
-    # F2-only composite — no library_stats requirement, no chain walk.
-    yaml_body = """
-        backend: {type: in_memory}
-        keys:
-          robot_state: {enabled: true, weight: 1.0}
-        key_builder: {type: placeholder}
-        checkpoints:
-          cp1:
-            enabled: true
-            judge:
-              type: composite
-              factors: [{type: f2, params: {K: 3}}]
-              composer:
-                type: weighted_sum
-                weights: {f2_var: 1.0}
-                tier_thresholds: {full_hit: 0.5}
-            search_strategy: {type: weighted_rrf_knn}
-        """
-    p = _write(tmp_path, yaml_body)
-    # Should not raise
-    cfg = load_cache_config(str(p))
-    assert cfg.checkpoints["cp1"].judge.type == "composite"
+@pytest.fixture
+def calib_jsonl(tmp_path: Path) -> Path:
+    """JSONL with 60 samples per key (≥ window_size=50)."""
+    p = tmp_path / "calib.jsonl"
+    with p.open("w") as fh:
+        for i in range(60):
+            fh.write(json.dumps({"factor_raw": {
+                "jerk_online_action__p1_f1": float(i) / 60.0,
+            }}) + "\n")
+    return p
+
+
+def _yaml(library_pkl: Path, calib_path: Path, *, replace: dict[str, str] | None = None) -> str:
+    """Build a minimum valid 4-layer composite yaml.
+
+    ``replace`` substitutes substrings to construct invalid variants.
+    """
+    body = textwrap.dedent(f"""\
+    enabled: true
+    keys:
+      robot_state: {{enabled: true, weight: 1.0}}
+    key_builder:
+      type: placeholder
+    backend:
+      type: in_memory
+      vector_dims: {{robot_state: 2}}
+      in_memory:
+        preload_path: {library_pkl}
+        index_type: brute_force
+    checkpoints:
+      cp1:
+        gate: {{type: always_search}}
+        search_strategy:
+          type: weighted_rrf_knn
+          rrf_k: 60
+          top_k: 1
+        judge:
+          type: composite
+          normalization:
+            type: zscore
+            params: {{}}
+            stats_source: {{type: offline}}
+          factors:
+            - type: jerk_online_action
+              params:
+                windows:
+                  - {{past: 1, future: 1}}
+          calibration:
+            type: percentile_rolling
+            params: {{window_size: 50}}
+            samples_source:
+              type: offline
+              offline:
+                path: {calib_path}
+                format: jsonl
+          composer:
+            type: weighted_sum
+            weights: {{jerk_online_action__p1_f1: 1.0}}
+            tier_thresholds: {{full_hit: 0.5}}
+    """)
+    if replace:
+        for old, new in replace.items():
+            body = body.replace(old, new)
+    return body
+
+
+# ----------------------------------------------------------------------
+# Happy path
+# ----------------------------------------------------------------------
+
+
+def test_load_valid_4_layer_composite_yaml(
+    tmp_path: Path, library_pkl: Path, calib_jsonl: Path,
+) -> None:
+    p = tmp_path / "ok.yaml"
+    p.write_text(_yaml(library_pkl, calib_jsonl))
+    cfg = load_cache_config(p)
+    j = cfg.checkpoints["cp1"].judge
+    assert j.type == "composite"
+    assert j.normalization is not None
+    assert j.calibration is not None
+    assert j.composer is not None
+    assert len(j.factors) == 1
+
+
+# ----------------------------------------------------------------------
+# Validator regressions (plan §13.3)
+# ----------------------------------------------------------------------
+
+
+def test_legacy_factor_name_rejected(
+    tmp_path: Path, library_pkl: Path, calib_jsonl: Path,
+) -> None:
+    """Rule 3 — registry no longer registers `f1a_a`."""
+    p = tmp_path / "bad.yaml"
+    p.write_text(_yaml(library_pkl, calib_jsonl, replace={
+        "jerk_online_action": "f1a_a",
+    }))
+    with pytest.raises(ConfigValidationError, match="not a registered factor name"):
+        load_cache_config(p)
+
 
-
-# ------------------------------------------------------------------
-# _build_composer / _build_normalizer
-# ------------------------------------------------------------------
-
-
-def test_build_composer_weighted_sum_requires_weights():
-    cfg = ComposerConfig(type="weighted_sum")
-    with pytest.raises(ConfigValidationError, match="weights"):
-        _build_composer(cfg)
-
-
-def test_build_composer_weighted_sum_requires_tier_full_hit():
-    cfg = ComposerConfig(type="weighted_sum", weights={"a": 1.0})
-    with pytest.raises(ConfigValidationError, match="full_hit"):
-        _build_composer(cfg)
-
-
-def test_build_composer_and_requires_per_factor_thresholds():
-    cfg = ComposerConfig(type="and")
-    with pytest.raises(ConfigValidationError, match="per_factor_thresholds"):
-        _build_composer(cfg)
-
-
-def test_build_composer_or_requires_per_factor_thresholds():
-    cfg = ComposerConfig(type="or")
-    with pytest.raises(ConfigValidationError, match="per_factor_thresholds"):
-        _build_composer(cfg)
-
-
-def test_build_composer_unknown_type():
-    cfg = ComposerConfig(type="nonexistent")
-    with pytest.raises(ConfigValidationError, match="Unknown composer.type"):
-        _build_composer(cfg)
-
-
-# ------------------------------------------------------------------
-# directions wiring through builder (and / or branches)
-# ------------------------------------------------------------------
-
-
-def test_build_composer_and_forwards_directions():
-    """AndGate must receive `directions` so non_monotonic key bind succeeds."""
-    cfg = ComposerConfig(
-        type="and",
-        per_factor_thresholds={"k": 0.5},
-        directions={"k": "high"},
-    )
-    composer = _build_composer(cfg)
-    composer.bind_orientations({"k": "non_monotonic"})  # would raise without directions
-
-
-def test_build_composer_or_forwards_directions():
-    """OrGate must receive `directions` so non_monotonic key bind succeeds."""
-    cfg = ComposerConfig(
-        type="or",
-        per_factor_thresholds={"k": 0.5},
-        directions={"k": "range:[0.3,0.7]"},
-    )
-    composer = _build_composer(cfg)
-    composer.bind_orientations({"k": "non_monotonic"})  # would raise without directions
-
-
-def test_build_composer_and_missing_direction_raises_at_bind_time():
-    """AndGate without directions for non_monotonic key still raises at bind."""
-    cfg = ComposerConfig(type="and", per_factor_thresholds={"k": 0.5})
-    composer = _build_composer(cfg)
-    with pytest.raises(ValueError, match="missing `directions`"):
-        composer.bind_orientations({"k": "non_monotonic"})
-
-
-def test_build_composer_weighted_sum_succeeds():
-    cfg = ComposerConfig(
-        type="weighted_sum",
-        weights={"f2_var": 1.0},
-        tier_thresholds={"full_hit": 0.5, "warm_start": 0.3},
-        warm_start_t=0.5,
-    )
-    c = _build_composer(cfg)
-    # Stub still raises on compose; we only verify it constructs cleanly.
-    assert c._full_hit_threshold == 0.5
-    assert c._warm_start_threshold == 0.3
-    assert c._warm_start_t == 0.5
-
-
-def test_build_normalizer_percentile_rolling():
-    cfg = NormalizerConfig(type="percentile_rolling", window_size=50)
-    n = _build_normalizer(cfg)
-    assert n._window_size == 50
-
-
-def test_build_normalizer_unknown_type():
-    cfg = NormalizerConfig(type="nope")
-    with pytest.raises(ConfigValidationError, match="Unknown normalizer.type"):
-        _build_normalizer(cfg)
-
-
-# ------------------------------------------------------------------
-# _build_judge composite branch (direct call bypassing validator)
-# ------------------------------------------------------------------
-
-
-def test_build_judge_composite_with_f2_only():
-    # F2 has requires_library_stats=False so library_stats=None is fine.
-    cfg = JudgeConfig(
-        type="composite",
-        factors=[FactorConfig(type="f2", params={"K": 4})],
-        composer=ComposerConfig(
-            type="weighted_sum",
-            weights={"f2_var": 1.0},
-            tier_thresholds={"full_hit": 0.5},
-        ),
-        normalizer=NormalizerConfig(type="percentile_rolling"),
-    )
-    judge = _build_judge(cfg, library_stats=None)
-    assert isinstance(judge, CompositeJudge)
-    assert judge.min_required_top_k == 4
-
-
-def test_build_judge_composite_forwards_all_nan_fallback():
-    cfg = JudgeConfig(
-        type="composite",
-        factors=[FactorConfig(type="f2", params={"K": 2})],
-        composer=ComposerConfig(
-            type="weighted_sum",
-            weights={"f2_var": 1.0},
-            tier_thresholds={"full_hit": 0.5},
-        ),
-        normalizer=NormalizerConfig(type="percentile_rolling"),
-        all_nan_fallback=AllNanFallbackConfig(type="warm_start", start_t=0.7),
-    )
-    judge = _build_judge(cfg, library_stats=None)
-    assert isinstance(judge, CompositeJudge)
-    assert judge._all_nan_fallback == "warm_start"
-    assert judge._all_nan_fallback_start_t == 0.7
-
-
-def test_build_judge_composite_missing_factors_raises():
-    cfg = JudgeConfig(type="composite", composer=ComposerConfig(
-        type="weighted_sum", weights={"a": 1.0}, tier_thresholds={"full_hit": 0.5},
-    ))
-    with pytest.raises(ConfigValidationError, match="at least one factor"):
-        _build_judge(cfg, library_stats=None)
-
-
-def test_build_judge_composite_missing_composer_raises():
-    cfg = JudgeConfig(
-        type="composite",
-        factors=[FactorConfig(type="f2", params={"K": 1})],
-    )
-    with pytest.raises(ConfigValidationError, match="composer"):
-        _build_judge(cfg, library_stats=None)
-
-
-# ------------------------------------------------------------------
-# B1 composite-specific validator (7 checks)
-# ------------------------------------------------------------------
-
-
-def _minimal_yaml_with_judge(judge_block: str) -> str:
-    return textwrap.dedent(f"""
-        backend: {{type: in_memory}}
-        keys:
-          robot_state: {{enabled: true, weight: 1.0}}
-        key_builder: {{type: placeholder}}
-        checkpoints:
-          cp1:
-            enabled: true
-            judge:
-              {judge_block}
-            search_strategy: {{type: weighted_rrf_knn}}
-        """)
-
-
-def test_validator_rejects_unknown_factor_type(tmp_path):
-    body = _minimal_yaml_with_judge("""type: composite
-              factors: [{type: not_a_real_factor, params: {}}]
-              composer: {type: weighted_sum, weights: {}, tier_thresholds: {full_hit: 0.5}}
-        """)
-    p = _write(tmp_path, body)
-    with pytest.raises(ConfigValidationError, match="not a registered factor"):
-        load_cache_config(str(p))
-
-
-def test_validator_rejects_library_stats_factor_with_qdrant(tmp_path):
-    body = textwrap.dedent("""
-        backend:
-          type: qdrant
-          qdrant: {url: "http://localhost:6333", collection_name: "x"}
-          vector_dims: {robot_state: 32}
-        keys:
-          robot_state: {enabled: true, weight: 1.0}
-        key_builder: {type: placeholder}
-        checkpoints:
-          cp1:
-            enabled: true
-            judge:
-              type: composite
-              factors:
-                - type: f1a_a
-                  params: {window_k: 3, descriptors: [jerk, dir]}
-              composer:
-                type: weighted_sum
-                weights: {f1a_a_jerk: 1.0, f1a_a_dir: 1.0}
-                tier_thresholds: {full_hit: 0.5}
-            search_strategy: {type: qdrant_weighted_rrf_knn}
-        """)
-    p = _write(tmp_path, body)
-    with pytest.raises(ConfigValidationError, match="requires backend.type='in_memory'"):
-        load_cache_config(str(p))
-
-
-def test_validator_rejects_chain_walk_factor_with_qdrant(tmp_path):
-    body = textwrap.dedent("""
-        backend:
-          type: qdrant
-          qdrant: {url: "http://localhost:6333", collection_name: "x"}
-          vector_dims: {robot_state: 32}
-        keys:
-          robot_state: {enabled: true, weight: 1.0}
-        key_builder: {type: placeholder}
-        checkpoints:
-          cp1:
-            enabled: true
-            judge:
-              type: composite
-              factors:
-                - type: f1a_t
-                  params: {window_k: 3, descriptors: [jerk]}
-              composer:
-                type: weighted_sum
-                weights: {f1a_t_jerk: 1.0}
-                tier_thresholds: {full_hit: 0.5}
-            search_strategy: {type: qdrant_weighted_rrf_knn}
-        """)
-    p = _write(tmp_path, body)
-    with pytest.raises(ConfigValidationError, match="requires backend.type='in_memory'"):
-        load_cache_config(str(p))
-
-
-def test_validator_warm_start_below_full_hit(tmp_path):
-    body = _minimal_yaml_with_judge("""type: composite
-              factors: [{type: f2, params: {K: 3}}]
-              composer:
-                type: weighted_sum
-                weights: {f2_var: 1.0}
-                tier_thresholds: {full_hit: 0.5, warm_start: 0.7}
-        """)
-    p = _write(tmp_path, body)
-    with pytest.raises(ConfigValidationError, match="strictly less than"):
-        load_cache_config(str(p))
-
-
-def test_validator_all_nan_warm_start_fallback_accepts_cp1(tmp_path):
-    body = _minimal_yaml_with_judge("""type: composite
-              all_nan_fallback: {type: warm_start, start_t: 0.7}
-              factors: [{type: f2, params: {K: 3}}]
-              composer:
-                type: weighted_sum
-                weights: {f2_var: 1.0}
-                tier_thresholds: {full_hit: 0.5}
-        """)
-    p = _write(tmp_path, body)
-    cfg = load_cache_config(str(p))
-    fallback = cfg.checkpoints["cp1"].judge.all_nan_fallback
-    assert fallback is not None
-    assert fallback.type == "warm_start"
-    assert fallback.start_t == 0.7
-
-
-def test_validator_all_nan_warm_start_fallback_requires_start_t(tmp_path):
-    body = _minimal_yaml_with_judge("""type: composite
-              all_nan_fallback: {type: warm_start}
-              factors: [{type: f2, params: {K: 3}}]
-              composer:
-                type: weighted_sum
-                weights: {f2_var: 1.0}
-                tier_thresholds: {full_hit: 0.5}
-        """)
-    p = _write(tmp_path, body)
-    with pytest.raises(ConfigValidationError, match="requires 'start_t'"):
-        load_cache_config(str(p))
-
-
-def test_validator_all_nan_warm_start_fallback_rejects_cp3(tmp_path):
-    body = textwrap.dedent("""
-        backend: {type: in_memory}
-        keys:
-          robot_state: {enabled: true, weight: 1.0}
-        key_builder: {type: placeholder}
-        checkpoints:
-          cp3:
-            enabled: true
-            judge:
-              type: composite
-              all_nan_fallback: {type: warm_start, start_t: 0.7}
-              factors: [{type: f2, params: {K: 3}}]
-              composer:
-                type: weighted_sum
-                weights: {f2_var: 1.0}
-                tier_thresholds: {full_hit: 0.5}
-            search_strategy: {type: weighted_rrf_knn}
-        """)
-    p = _write(tmp_path, body)
-    with pytest.raises(ConfigValidationError, match="only supported on CP1"):
-        load_cache_config(str(p))
-
-
-def test_validator_all_nan_fallback_rejects_unknown_type(tmp_path):
-    body = _minimal_yaml_with_judge("""type: composite
-              all_nan_fallback: {type: full_hit}
-              factors: [{type: f2, params: {K: 3}}]
-              composer:
-                type: weighted_sum
-                weights: {f2_var: 1.0}
-                tier_thresholds: {full_hit: 0.5}
-        """)
-    p = _write(tmp_path, body)
-    with pytest.raises(ConfigValidationError, match="all_nan_fallback.type"):
-        load_cache_config(str(p))
-
-
-def test_validator_non_monotonic_directions_required(tmp_path):
-    # f1b_a with curv_radius (non_monotonic) under non-zero weight → must
-    # appear in directions or validator rejects the YAML.
-    body = _minimal_yaml_with_judge("""type: composite
-              factors:
-                - type: f1b_a
-                  params:
-                    windows: [{past: 0, future: 5}]
-                    descriptors: [curv_radius]
-                    active_eps: 0.01
-              composer:
-                type: weighted_sum
-                weights: {f1b_a_curv_radius__p0_f5: 1.0}
-                tier_thresholds: {full_hit: 0.5}
-        """)
-    p = _write(tmp_path, body)
-    with pytest.raises(ConfigValidationError, match="missing a direction"):
-        load_cache_config(str(p))
-
-
-def test_validator_full_hit_threshold_required(tmp_path):
-    body = _minimal_yaml_with_judge("""type: composite
-              factors: [{type: f2, params: {K: 3}}]
-              composer:
-                type: weighted_sum
-                weights: {f2_var: 1.0}
-                tier_thresholds: {warm_start: 0.3}
-        """)
-    p = _write(tmp_path, body)
-    with pytest.raises(ConfigValidationError, match="full_hit"):
-        load_cache_config(str(p))
-
-
-# ------------------------------------------------------------------
-# B2 collect_offline_writers_from_judges
-# ------------------------------------------------------------------
-
-
-def test_collect_offline_writers_picks_writer_capable_extractors():
-    """collect_offline_writers walks per-CP composite judges, pulling
-    extractors that expose `compute_for_episode` (the OfflineWriter
-    capability). F1a/F2 (online-only) are skipped; F1b is included."""
-    from openpi.cache.components.factors.consensus import TopKActionConsensus
-    from openpi.cache.components.factors.runtime_continuity import (
-        RuntimeContinuityAction,
-    )
-    from openpi.cache.components.factors.source_window import (
-        SourceWindowSmoothnessAction,
-    )
-    from openpi.cache.components.judge import CompositeJudge
-    from openpi.cache.components.factors.composers import WeightedSumComposer
-    from openpi.cache.config import _collect_offline_writers_from_judges
-    from openpi.cache.types import CheckpointID
-    import torch as torch_
-
-    ls = type(
-        "FakeLS", (),
-        {
-            "action_sigma": torch_.ones(2),
-            "action_active_mask": torch_.ones(2, dtype=torch_.bool),
-            "state_sigma": torch_.ones(2),
-            "state_active_mask": torch_.ones(2, dtype=torch_.bool),
-        },
-    )()
-
-    f1a = RuntimeContinuityAction(
-        window_k=2, descriptors=["jerk"], library_stats=ls,
-    )
-    f1b = SourceWindowSmoothnessAction(
-        windows=[(0, 2)], descriptors=["jerk"], active_eps=0.01, library_stats=ls,
-    )
-    f2 = TopKActionConsensus(K=3)
-
-    composer = WeightedSumComposer(
-        weights={"f1a_a_jerk": 1.0, "f1b_a_jerk__p0_f2": 1.0, "f2_var": 1.0},
-        full_hit_threshold=0.5,
-    )
-    judge = CompositeJudge(extractors=[f1a, f1b, f2], composer=composer)
-
-    out = _collect_offline_writers_from_judges({CheckpointID.CP1: judge})
-
-    # Only f1b has compute_for_episode
-    assert out == [f1b]
-
-
-def test_collect_offline_writers_dedups_across_checkpoints():
-    """Same writer instance referenced from CP1 and CP3 should appear
-    only once (id() de-dup)."""
-    from openpi.cache.components.factors.composers import WeightedSumComposer
-    from openpi.cache.components.factors.source_window import (
-        SourceWindowSmoothnessAction,
-    )
-    from openpi.cache.components.judge import CompositeJudge
-    from openpi.cache.config import _collect_offline_writers_from_judges
-    from openpi.cache.types import CheckpointID
-    import torch as torch_
-
-    ls = type(
-        "FakeLS", (),
-        {
-            "action_sigma": torch_.ones(2),
-            "action_active_mask": torch_.ones(2, dtype=torch_.bool),
-            "state_sigma": torch_.ones(2),
-            "state_active_mask": torch_.ones(2, dtype=torch_.bool),
-        },
-    )()
-    shared = SourceWindowSmoothnessAction(
-        windows=[(0, 2)], descriptors=["jerk"], active_eps=0.01, library_stats=ls,
-    )
-    composer = WeightedSumComposer(
-        weights={"f1b_a_jerk__p0_f2": 1.0}, full_hit_threshold=0.5,
-    )
-    j1 = CompositeJudge(extractors=[shared], composer=composer)
-    composer2 = WeightedSumComposer(
-        weights={"f1b_a_jerk__p0_f2": 1.0}, full_hit_threshold=0.5,
-    )
-    j2 = CompositeJudge(extractors=[shared], composer=composer2)
-
-    out = _collect_offline_writers_from_judges({
-        CheckpointID.CP1: j1, CheckpointID.CP3: j2,
-    })
-
-    assert len(out) == 1
-    assert out[0] is shared
-
-
-def test_collect_offline_writers_empty_judges_returns_empty():
-    from openpi.cache.config import _collect_offline_writers_from_judges
-    assert _collect_offline_writers_from_judges({}) == []
-
-
-def test_collect_offline_writers_skips_non_composite_judges():
-    """Threshold / always_hit judges have no `_extractors` attribute —
-    helper must skip them gracefully without raising."""
-    from openpi.cache.components.judge import ThresholdJudge
-    from openpi.cache.config import _collect_offline_writers_from_judges
-    from openpi.cache.types import CheckpointID
-
-    out = _collect_offline_writers_from_judges({
-        CheckpointID.CP1: ThresholdJudge(cp1_threshold=0.5),
-    })
-    assert out == []
-
-
-# ------------------------------------------------------------------
-# Composite warm-start validator (5a-5d)
-# ------------------------------------------------------------------
-
-
-def _composite_warm_start_yaml(
-    *,
-    cp: str = "cp1",
-    tier_warm: float | None = 0.4,
-    warm_start_t: float | None = 0.3,
-) -> str:
-    tier_block = "{full_hit: 0.8"
-    if tier_warm is not None:
-        tier_block += f", warm_start: {tier_warm}"
-    tier_block += "}"
-    warm_t_line = f"\n                warm_start_t: {warm_start_t}" if warm_start_t is not None else ""
-    return textwrap.dedent(f"""
-        backend: {{type: in_memory}}
-        keys:
-          robot_state: {{enabled: true, weight: 1.0}}
-        key_builder: {{type: placeholder}}
-        checkpoints:
-          {cp}:
-            enabled: true
-            judge:
-              type: composite
-              factors: [{{type: f2, params: {{K: 3}}}}]
-              composer:
-                type: weighted_sum
-                weights: {{f2_var: 1.0}}
-                tier_thresholds: {tier_block}{warm_t_line}
-            search_strategy: {{type: weighted_rrf_knn}}
-        """)
-
-
-def test_validator_5a_warm_start_t_must_be_canonical(tmp_path):
-    body = _composite_warm_start_yaml(tier_warm=0.4, warm_start_t=0.55)
-    p = _write(tmp_path, body)
-    with pytest.raises(ConfigValidationError, match="canonical denoise timestep"):
-        load_cache_config(str(p))
-
-
-def test_validator_5a_warm_start_t_canonical_value_accepted(tmp_path):
-    body = _composite_warm_start_yaml(tier_warm=0.4, warm_start_t=0.3)
-    p = _write(tmp_path, body)
-    cfg = load_cache_config(str(p))                    # no raise
-    # Normalized writeback (no float drift)
-    assert cfg.checkpoints["cp1"].judge.composer.warm_start_t == 0.3
-
-
-def test_validator_5b_pairwise_tier_warm_without_warm_start_t(tmp_path):
-    body = _composite_warm_start_yaml(tier_warm=0.4, warm_start_t=None)
-    p = _write(tmp_path, body)
-    with pytest.raises(ConfigValidationError, match="warm_start_t is missing"):
-        load_cache_config(str(p))
-
-
-def test_validator_5b_pairwise_warm_start_t_without_tier_warm(tmp_path):
-    body = _composite_warm_start_yaml(tier_warm=None, warm_start_t=0.3)
-    p = _write(tmp_path, body)
-    with pytest.raises(ConfigValidationError, match="tier_thresholds.warm_start is missing"):
-        load_cache_config(str(p))
-
-
-def test_validator_5c_warm_start_only_on_cp1(tmp_path):
-    body = _composite_warm_start_yaml(cp="cp3", tier_warm=0.4, warm_start_t=0.3)
-    p = _write(tmp_path, body)
-    with pytest.raises(ConfigValidationError, match="only supported on CP1"):
-        load_cache_config(str(p))
-
-
-# ------------------------------------------------------------------
-# B2 production assembly: build_per_connection_components feeds
-# offline_writers + library_stats through to CacheOrchestrator
-# ------------------------------------------------------------------
-
-
-def test_production_assembly_passes_offline_writers_and_library_stats(tmp_path):
-    """Smoke check that build_per_connection_components dict carries the
-    new B2 keys (`offline_writers`, `library_stats`) so production
-    assembly (scripts/serve_policy.py) can forward them to the
-    Orchestrator. Without this, episode-end factor enrichment would
-    silently no-op even though composite F1b is configured."""
-    import pickle
-    import torch as torch_
-
-    from openpi.cache.backends.in_memory_backend import InMemoryBackend
-    from openpi.cache.cache_storage import CacheStorage
-    from openpi.cache.components.factors.base import LibraryStats
-    from openpi.cache.config import build_per_connection_components, load_cache_config
-    from openpi.cache.storage_types import CacheEntry, CachePayload
-    from openpi.cache.types import CheckpointID as CP
-
-    # Build a tiny artifact pkl so the in_memory backend can preload it
-    # (so library_stats is populated).
-    entries = [
-        CacheEntry(
-            id=f"e{t}", checkpoint_id=CP.CP1,
-            query_keys={"robot_state": torch_.tensor([float(t), 0.0])},
-            payload=CachePayload(action_chunk=torch_.tensor([[float(t), 0.0]])),
-            step_idx=t, trajectory_id="traj-0",
-        )
-        for t in range(3)
-    ]
-    pre_built = LibraryStats(
-        action_sigma=torch_.ones(2),
-        action_active_mask=torch_.ones(2, dtype=torch_.bool),
-        state_sigma=torch_.ones(2),
-        state_active_mask=torch_.ones(2, dtype=torch_.bool),
-    )
-    artifact = {
-        "key_builder_type": "placeholder",
-        "checkpoint_id": "CP1",
-        "vector_dims": {"robot_state": 2},
-        "entries": entries,
-        "library_stats": pre_built,
-    }
-    artifact_path = tmp_path / "art.pkl"
-    artifact_path.write_bytes(pickle.dumps(artifact))
-
-    yaml_body = textwrap.dedent(f"""
-        backend:
-          type: in_memory
-          vector_dims: {{robot_state: 2}}
-          in_memory: {{preload_path: {artifact_path}}}
-        keys:
-          robot_state: {{enabled: true, weight: 1.0}}
-        key_builder: {{type: placeholder}}
-        checkpoints:
-          cp1:
-            enabled: true
-            judge:
-              type: composite
-              factors:
-                - type: f1b_a
-                  params:
-                    windows: [{{past: 1, future: 1}}]
-                    descriptors: [jerk]
-                    active_eps: 0.01
-              composer:
-                type: weighted_sum
-                weights: {{f1b_a_jerk__p1_f1: 1.0}}
-                tier_thresholds: {{full_hit: 0.5}}
-            search_strategy: {{type: weighted_rrf_knn}}
-        """)
-    yml = tmp_path / "cache.yaml"
-    yml.write_text(yaml_body)
-
-    cfg = load_cache_config(str(yml))
-    backend = InMemoryBackend({"robot_state": 2})
-    backend.load_artifact(str(artifact_path))
-    storage = CacheStorage(backend)
-    components = build_per_connection_components(cfg, storage)
-
-    # The B2 keys must be present and populated.
-    assert "offline_writers" in components
-    assert "library_stats" in components
-    # F1b-A is OfflineWriter-capable and must show up
-    assert len(components["offline_writers"]) == 1
-    assert hasattr(components["offline_writers"][0], "compute_for_episode")
-    # library_stats came from the in-memory backend's loaded artifact
-    assert components["library_stats"] is not None
+def test_zero_zero_window_rejected(
+    tmp_path: Path, library_pkl: Path, calib_jsonl: Path,
+) -> None:
+    """Rule 10 — (P, F) = (0, 0) → splice length 1 → reject."""
+    p = tmp_path / "bad.yaml"
+    p.write_text(_yaml(library_pkl, calib_jsonl, replace={
+        "{past: 1, future: 1}": "{past: 0, future: 0}",
+    }))
+    with pytest.raises(ConfigValidationError, match=r"\(0,0\)"):
+        load_cache_config(p)
+
+
+def test_unknown_calibration_format_rejected(
+    tmp_path: Path, library_pkl: Path, calib_jsonl: Path,
+) -> None:
+    """Rule 8 — samples_source.offline.format ∈ {jsonl, pkl}."""
+    p = tmp_path / "bad.yaml"
+    p.write_text(_yaml(library_pkl, calib_jsonl, replace={
+        "format: jsonl": "format: csv",
+    }))
+    with pytest.raises(ConfigValidationError, match=r"format.*csv"):
+        load_cache_config(p)
+
+
+def test_unsupported_warmup_stats_source_rejected(
+    tmp_path: Path, library_pkl: Path, calib_jsonl: Path,
+) -> None:
+    """Rule 7 — Layer 1 stats_source.type must be 'offline'."""
+    p = tmp_path / "bad.yaml"
+    p.write_text(_yaml(library_pkl, calib_jsonl, replace={
+        "stats_source: {type: offline}": "stats_source: {type: warmup}",
+    }))
+    with pytest.raises(ConfigValidationError, match="stats_source.type='warmup'"):
+        load_cache_config(p)
+
+
+def test_composer_unknown_factor_key_rejected(
+    tmp_path: Path, library_pkl: Path, calib_jsonl: Path,
+) -> None:
+    """Rule 4 — composer.weights references a key not produced by Layer 2."""
+    p = tmp_path / "bad.yaml"
+    p.write_text(_yaml(library_pkl, calib_jsonl, replace={
+        "weights: {jerk_online_action__p1_f1: 1.0}":
+            "weights: {nonexistent_factor__p9_f9: 1.0}",
+    }))
+    with pytest.raises(ConfigValidationError):
+        load_cache_config(p)

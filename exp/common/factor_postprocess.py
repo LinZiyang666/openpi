@@ -44,12 +44,19 @@ def enrich_artifact_with_factors(
     entries: list[Any],
     offline_writers: list[Any],
     *,
+    library_stats: LibraryStats | None = None,
     active_eps_action: float = 0.01,
     active_eps_state: float = 0.01,
 ) -> LibraryStats:
     """In-place: write per-entry `payload.factors` (per writer) + compute
     `LibraryStats` from the entry pool. Returns LibraryStats so the caller
     can attach it to the artifact dict's `library_stats` field.
+
+    G1 R3 Item 4 / plan §16 B6.5: ``library_stats`` may be passed in to
+    skip the recompute (used by the ``enrich-existing-pkl`` smoke
+    sub-command which reads stats from the input pkl and saves a 30+min
+    recompute on every run). Default ``None`` preserves the legacy
+    HDF5 build path: stats are computed from the entry pool.
 
     Per-episode segmentation: writers receive per-trajectory entry slices
     keyed by `entry.trajectory_id`, sorted by `entry.step_idx` (the
@@ -63,11 +70,12 @@ def enrich_artifact_with_factors(
     use `torch.as_tensor(...)` internally. Safe to call after
     `_detach_entries` has run.
     """
-    library_stats = LibraryStats.compute_from_entries(
-        entries,
-        active_eps_action=active_eps_action,
-        active_eps_state=active_eps_state,
-    )
+    if library_stats is None:
+        library_stats = LibraryStats.compute_from_entries(
+            entries,
+            active_eps_action=active_eps_action,
+            active_eps_state=active_eps_state,
+        )
     if not offline_writers:
         return library_stats
 
@@ -103,28 +111,20 @@ def enrich_artifact_with_factors(
 def _load_offline_writers_from_yaml(yaml_path: str) -> list[Any]:
     """Read a minimal YAML and return list of OfflineWriter instances.
 
-    Validates that each `type` is registered AND has `compute_for_episode`
-    (i.e. is a real OfflineWriter, not an OnlineExtractor-only factor).
-    Online-only factors (F1a, F2) raise ConfigValidationError to make
-    misconfiguration loud.
+    Validates that each ``type`` is registered AND has
+    ``compute_for_episode`` (i.e. is one of the 8 offline factors:
+    ``jerk_offline_action`` / ``jerk_offline_state`` / ... /
+    ``path_length_offline_state``). Online-only factors (8 online + topk)
+    raise ConfigValidationError to make misconfiguration loud.
 
-    YAML shape (matches plan §4.5.2):
+    YAML shape (refactor):
 
       factors:
-        - type: f1b_a
+        - type: jerk_offline_action
           params:
             windows: [{past: 0, future: 5}, {past: 5, future: 5}]
-            descriptors: [jerk, dir, curv_radius, cum_disp]
-            active_eps: 0.01
-        - type: f1b_t
+        - type: dispersion_offline_state
           params: { ... }
-
-    Note: builders that load this YAML construct writers without the
-    LibraryStats kwarg — F1b base accepts `library_stats=None` via the
-    Optional default, and OfflineWriter callers (this helper) pass
-    library_stats per-call to `compute_for_episode`. Online-side
-    construction goes through `_build_judge` and DOES inject
-    library_stats per the capability flag.
     """
     with open(yaml_path) as f:
         data = yaml.safe_load(f) or {}
@@ -135,8 +135,8 @@ def _load_offline_writers_from_yaml(yaml_path: str) -> list[Any]:
         if not hasattr(cls, "compute_for_episode"):
             raise ConfigValidationError(
                 f"factor type {type_name!r} has no compute_for_episode "
-                f"(F1a / F2 only run online; cannot be used as OfflineWriter "
-                f"in the build-pkl path)"
+                "(only the 8 offline factors implement the OfflineWriter surface; "
+                "online + topk_action_variance run only at verdict time)"
             )
         out.append(registry.build(type_name, **entry.get("params", {})))
     return out

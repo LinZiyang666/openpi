@@ -78,7 +78,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 | [cache/migration.md](cache/migration.md) \[[EN](cache/migration.en.md)\] | Cache framework migration guide: how to adapt the cache system for non-Pi0.5 models |
 | [cache/temporal_prune.md](cache/temporal_prune.md) | Temporal Prune KeyBuilder 使用指南：两步架构、参数配置、Reducer 选择、离线 Artifact 构建、生命周期 |
 | [cache/llm_layer_extract.md](cache/llm_layer_extract.md) | CP1 LLM Layer Extract KeyBuilder 使用指南：两步架构（LayerExtractor + PrefixReducer）、attach_model 注入、离线 Stage 1 重建契约（重 tokenize + tokenizer self-check）、在线/离线 parity test |
-| [cache/verdict_factor_judge.md](cache/verdict_factor_judge.md) \[[EN](cache/verdict_factor_judge.en.md)\] | Verdict Factor Judge 全周期使用指南：5 因子 (F1a-A / F1a-T / F1b-A / F1b-T / F2) 概览 + build pkl + YAML 配置 + 7 项 composite 静态校验 + Orchestrator 注入路径 + 跑实验对比 + 自定义 OnlineExtractor / OfflineWriter / Composer / Normalizer 扩展指南；F2 用 candidate-local active mask（保持 `requires_library_stats=False`）；B1 已 land 全部 online 算法 + Orchestrator B1 wiring，B2 上 offline writer + library_stats |
+| [cache/verdict_factor_judge.md](cache/verdict_factor_judge.md) \[[EN](cache/verdict_factor_judge.en.md)\] | **2026-05-07 重构 G1 APPROVED**：5 因子 → **17 因子扁平化** (`<descriptor>_<source>_<channel>` + `topk_action_variance`)；4 desc 改名 (`dir→direction`, `curv_radius→dispersion`, `cum_disp→path_length`)；judge **4 层正交架构** (Normalization → Factor → Calibration → Composer)；**no cold-start** (启动 fail-fast，废除 `cold_start_strategy` / `all_nan_fallback` / `sentinel`)；wire schema_version=2 (`factor_outputs.{raw, calibrated, composer_score}`)；详细方案见 [`logs/verdict_factor_judge_refactor.log.md`](../logs/verdict_factor_judge_refactor.log.md) |
 
 ### [experiments/](experiments/)
 

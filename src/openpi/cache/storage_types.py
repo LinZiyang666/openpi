@@ -88,12 +88,14 @@ class CachePayload:
     factors
     -------
     Optional dict of pre-computed verdict-factor descriptor values populated
-    by the offline-write path of the verdict factor system (e.g. F1b
-    SourceWindowSmoothness). Keys follow the per-factor templated form
-    documented in `cache_system.md` §5.12. Online OnlineExtractor
-    implementations read this dict on cache hits. Old entries (pre-feature)
-    leave this as None — extractors handle missing factors per the
-    NaN-propagation rule documented in the verdict factor plan.
+    by the offline-write path of the verdict factor system (the 8 offline
+    factors in ``factors/offline.py`` — ``jerk_offline_action`` etc.).
+    Keys follow the per-factor templated form
+    ``<descriptor>_offline_<channel>__p<P>_f<F>`` documented in
+    ``cache_system.md`` §5.12 / ``cache/verdict_factor_judge.md``.
+    Layer 2 ``Factor.extract`` reads this dict on cache hits for offline
+    factors; missing keys propagate NaN per the verdict-factor missing-
+    signal contract.
     """
 
     action_chunk: torch.Tensor                          # [50, 32] CPU float32

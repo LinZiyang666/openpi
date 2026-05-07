@@ -1,10 +1,15 @@
-"""Single-window descriptor kernel: jerk / dir / curv_radius / cum_disp.
+"""Single-window descriptor kernel: jerk / direction / dispersion / path_length.
 
-Pure functions. F1a (RuntimeContinuity) and F1b (SourceWindowSmoothness)
-both call this kernel on a single z-scored, active-DOF-restricted window
-so the four shipped descriptors are computed once and used by both
-factor families. Algorithms are defined in
-`docs/cache/verdict_factor_judge.md` §3.2 and were frozen at G1 review.
+Pure functions. The 8 online factors (``factors/online.py``) and the 8
+offline factors (``factors/offline.py``) both call this kernel on a
+single z-scored, active-DOF-restricted window so the four shipped
+descriptors are computed once and used by both factor families.
+Algorithms are defined in ``docs/cache/verdict_factor_judge.md`` §3.2.
+
+Descriptor naming: the kernel accepts both the refactored names
+(``jerk`` / ``direction`` / ``dispersion`` / ``path_length``) and the
+legacy aliases (``jerk`` / ``dir`` / ``curv_radius`` / ``cum_disp``);
+they dispatch to the same per-descriptor helper functions below.
 
 Public surface:
 
@@ -35,15 +40,47 @@ import math
 import torch
 import torch.nn.functional as F
 
-# Symbolic key constants — keep in sync with `_DESCRIPTOR_ORIENTATIONS`
-# in source_window.py (the orientation table is the single source of
-# truth for the descriptor name set).
+# Symbolic key constants. The orientation table below is the single
+# source of truth for the descriptor name set.
+#
+# Refactor B2: each formula now has both a legacy name (used by the B1-B6
+# legacy factor classes that stay alive for old-yaml compatibility) and a
+# refactored name. The new names ship with the 17-factor flat layout in
+# online.py / offline.py / topk.py:
+#     dir         -> direction
+#     curv_radius -> dispersion
+#     cum_disp    -> path_length
+#     jerk        -> jerk          (unchanged)
+# The dispatch table maps every accepted alias to one helper; the formula
+# is identical regardless of which alias the caller used.
 _JERK = "jerk"
-_DIR = "dir"
-_CURV_RADIUS = "curv_radius"
-_CUM_DISP = "cum_disp"
+_DIR = "dir"                # legacy alias
+_DIRECTION = "direction"
+_CURV_RADIUS = "curv_radius"  # legacy alias
+_DISPERSION = "dispersion"
+_CUM_DISP = "cum_disp"      # legacy alias
+_PATH_LENGTH = "path_length"
 
-_KNOWN: frozenset[str] = frozenset({_JERK, _DIR, _CURV_RADIUS, _CUM_DISP})
+_LEGACY_NAMES: frozenset[str] = frozenset({_JERK, _DIR, _CURV_RADIUS, _CUM_DISP})
+_NEW_NAMES: frozenset[str] = frozenset({_JERK, _DIRECTION, _DISPERSION, _PATH_LENGTH})
+_KNOWN: frozenset[str] = _LEGACY_NAMES | _NEW_NAMES
+
+# Public orientation table — single source of truth across factors layer
+# (B2 refactor migrated this here from source_window.py to break the
+# lazy-import cycle that runtime_continuity.py used to need). Both the
+# legacy 4 names and the refactored 4 names are listed; the legacy entries
+# stay alive for the B1-B6 backward-compat path.
+_DESCRIPTOR_ORIENTATIONS: dict[str, str] = {
+    # Refactored names (used by the 17-factor flat layout)
+    _JERK:        "risky",
+    _DIRECTION:   "safe",
+    _DISPERSION:  "non_monotonic",
+    _PATH_LENGTH: "non_monotonic",
+    # Legacy aliases (kept until B7 cut-over)
+    _DIR:         "safe",
+    _CURV_RADIUS: "non_monotonic",
+    _CUM_DISP:    "non_monotonic",
+}
 
 # ----------------------------------------------------------------------
 # Public entrypoint
@@ -79,11 +116,11 @@ def compute_descriptors(
             )
         if d == _JERK:
             out[d] = _jerk(j)
-        elif d == _DIR:
+        elif d in (_DIR, _DIRECTION):
             out[d] = _dir(v)
-        elif d == _CURV_RADIUS:
+        elif d in (_CURV_RADIUS, _DISPERSION):
             out[d] = _curv_radius(pts)
-        elif d == _CUM_DISP:
+        elif d in (_CUM_DISP, _PATH_LENGTH):
             out[d] = _cum_disp(pts)
     return out
 

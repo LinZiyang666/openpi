@@ -1,17 +1,18 @@
 """Process-wide warmup buffer pool keyed by eval yaml id.
 
-A WarmupPool holds, per `eval_yaml_id`, a `dict[factor_key, list[float]]` of
-raw factor values previously collected by a sibling "<eval_yaml_id>__warmup"
-run. The verdict_factor_judge runner sets this from outside the cache system
-via the `preload_normalizer_buffer` WebSocket control message; the
-`build_per_connection_components` factory then reads it to pre-fill each new
-worker connection's `PercentileRollingNormalizer` so eval-side verdicts skip
-their cold-start sentinel window.
+A WarmupPool holds, per ``eval_yaml_id``, a ``dict[factor_key, list[float]]``
+of raw factor values previously collected by a sibling
+``<eval_yaml_id>__warmup`` run. The verdict_factor_judge runner sets this
+from outside the cache system via the ``preload_normalizer_buffer``
+WebSocket control message; ``cache.config._load_calibration_samples``
+reads it inside ``_build_calibration`` so each new connection's Layer 3
+``PercentileRollingCalibration`` pre-fills its rolling buffer at
+``bind_keys`` time (no cold-start state — plan §6.3).
 
 Coupling map:
-  WRITTEN BY: WebsocketPolicyServer._handle_preload_normalizer_buffer (B2.3)
-  READ BY:    cache.config.build_per_connection_components (B2.3)
-  CLEARED BY: WebsocketPolicyServer._handle_unload_warmup_buffer (B2.3)
+  WRITTEN BY: WebsocketPolicyServer._handle_preload_normalizer_buffer
+  READ BY:    cache.config._load_calibration_samples (samples_source=warmup)
+  CLEARED BY: WebsocketPolicyServer._handle_unload_warmup_buffer
   MUTATION:   thread-safe (multiple worker connections may build per-conn
               components concurrently while a control thread mutates the pool)
 """

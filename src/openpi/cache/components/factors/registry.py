@@ -64,13 +64,12 @@ def known() -> set[str]:
 
 # ------------------------------------------------------------------
 # Force submodule imports so @register decorators run.
-# Submodules ship in B0 as importable modules with full metadata; only
-# their algorithm bodies (extract / compute_for_episode) raise
-# NotImplementedError.
+# 17 factors live in online / offline / topk; importing this module
+# triggers them via the explicit import below.
 # ------------------------------------------------------------------
 
 from openpi.cache.components.factors import (  # noqa: E402, F401
-    consensus,
-    runtime_continuity,
-    source_window,
+    offline,              # 8 offline factors
+    online,               # 8 online factors
+    topk,                 # topk_action_variance
 )

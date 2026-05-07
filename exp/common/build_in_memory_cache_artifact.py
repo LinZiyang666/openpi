@@ -837,8 +837,83 @@ def build_artifact(
 # ---------------------------------------------------------------------------
 
 
+def _enrich_existing_pkl_main(argv: list[str]) -> None:
+    """``enrich-existing-pkl`` sub-command: read an existing pkl, run new
+    OfflineWriter list, write a new pkl with merged factors.
+
+    Plan §16 B6 / B6.5: this is the smoke acceptance gate for the
+    refactor. Reuses the input pkl's ``library_stats`` so the smoke run
+    completes in seconds rather than re-computing per-DOF sigma over
+    every entry (30+ min on libero_spatial).
+    """
+    parser = argparse.ArgumentParser(
+        prog="enrich-existing-pkl",
+        description=(
+            "Read an existing InMemoryBackend pkl artifact, run the new "
+            "17-factor OfflineWriter list against its entries, and write "
+            "a new pkl with merged payload.factors. Reuses the input pkl's "
+            "library_stats — does NOT recompute per-DOF sigma."
+        ),
+    )
+    parser.add_argument("--input", required=True, help="Source pkl path (read-only)")
+    parser.add_argument("--factors-yaml", required=True, help="Factor spec yaml")
+    parser.add_argument("--output", required=True, help="Destination pkl path")
+    args = parser.parse_args(argv)
+
+    in_path = Path(args.input)
+    out_path = Path(args.output)
+    if not in_path.is_file():
+        raise SystemExit(f"--input pkl not found: {in_path}")
+
+    logger.info("Loading source artifact from %s", in_path)
+    with open(in_path, "rb") as fh:
+        artifact = pickle.load(fh)
+    if "entries" not in artifact:
+        raise SystemExit(f"--input pkl {in_path} missing 'entries' field")
+    library_stats = artifact.get("library_stats")
+    if library_stats is None:
+        logger.warning(
+            "input pkl has no library_stats; will compute_from_entries (slow)"
+        )
+
+    # sys.path injection mirrors the legacy build path so
+    # ``from factor_postprocess import ...`` works when invoked as
+    # ``uv run python -m exp.common.build_in_memory_cache_artifact ...``.
+    import sys as _sys
+    _here = str(Path(__file__).parent.resolve())
+    if _here not in _sys.path:
+        _sys.path.insert(0, _here)
+    from factor_postprocess import (
+        _load_offline_writers_from_yaml,
+        enrich_artifact_with_factors,
+    )
+
+    offline_writers = _load_offline_writers_from_yaml(args.factors_yaml)
+    new_library_stats = enrich_artifact_with_factors(
+        artifact["entries"],
+        offline_writers,
+        library_stats=library_stats,   # G1 R3 Item 4: skip recompute when present
+    )
+    artifact["library_stats"] = new_library_stats
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_path, "wb") as fh:
+        pickle.dump(artifact, fh)
+    logger.info(
+        "wrote enriched pkl: %d entries, %d offline writers applied → %s",
+        len(artifact["entries"]), len(offline_writers), out_path,
+    )
+
+
 def main():
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    # B6 refactor: dispatch on first positional ``argv`` token. The legacy
+    # build-from-HDF5 path runs unchanged when no sub-command is given.
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "enrich-existing-pkl":
+        _enrich_existing_pkl_main(sys.argv[2:])
+        return
 
     parser = argparse.ArgumentParser(description="Build InMemoryBackend artifact from HDF5 data")
     parser.add_argument("--data-dir", required=True, help="Directory with .h5 episode files")

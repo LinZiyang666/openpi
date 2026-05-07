@@ -180,6 +180,19 @@ Gate also has lifecycle methods for trajectory support:
 
 ## 6. Component: Judge
 
+> ⚠️ **2026-05-07 — Verdict Factor Judge refactor (G1 APPROVED Round 4)**:
+> the `composite` judge has been rewritten as a 4-layer architecture
+> (Normalization → Factor → Calibration → Composer) with a flat
+> 17-factor naming scheme (`<descriptor>_<source>_<channel>` +
+> `topk_action_variance`). The legacy 5 factor names +
+> `cold_start_strategy` + `all_nan_fallback` yaml fields are removed.
+> The `ThresholdJudge` / `AlwaysHitJudge` / `AlwaysWarmStartJudge` paths
+> described below are unchanged. For `composite` configuration, see
+> [`verdict_factor_judge.md`](verdict_factor_judge.md) (refactored
+> 2026-05-07) and
+> [`logs/verdict_factor_judge_refactor.log.md`](../../logs/verdict_factor_judge_refactor.log.md)
+> §6 / §11 / §13.
+
 **Source**: `src/openpi/cache/components/judge.py`
 
 Judge returns `JudgeResult(hit_type, winner_id, start_t)`.
@@ -189,7 +202,7 @@ Judge returns `JudgeResult(hit_type, winner_id, start_t)`.
 | `threshold` | FULL_HIT if `score >= threshold`. With `warm_tiers`, scores below the threshold are matched against descending tiers for WARM_START (CP1 only). |
 | `always_hit` | Always returns FULL_HIT for top result. Good for testing. |
 | `always_warm_start` | Always emits WARM_START with a fixed `start_t` for the top result (CP1 only). Used to sweep success-rate vs `start_t` curves. |
-| `composite` | Aggregates pluggable verdict factors (statistical / kinematic descriptors: jerk, dir, curv_radius, cum_disp, top-K consensus) through a Composer + optional Normalizer pipeline. F1a / F2 + Composers + Normalizer enabled in B1; F1b OnlineExtractor + OfflineWriter + LibraryStats land in B2. Full lifecycle (build pkl → YAML → run experiment → custom factor extension) lives in [verdict_factor_judge.md](verdict_factor_judge.md). |
+| `composite` | 4-layer pluggable verdict pipeline (Normalization → Factor → Calibration → Composer). 17 registered factors: 4 descriptors (`jerk` / `direction` / `dispersion` / `path_length`) × 2 sources (`online` / `offline`) × 2 channels (`action` / `state`) + `topk_action_variance`. Calibration is per-key rolling-window percentile rank with no cold-start state (samples preloaded from offline file or per-yaml `WarmupPool`). Composer subclasses (weighted_sum / and / or / weighted_sum_with_warm_fallback) own NaN handling. Full lifecycle (build pkl → enrich-existing-pkl → warmup → eval → custom extension) lives in [verdict_factor_judge.md](verdict_factor_judge.md). |
 
 **Warm start configuration** (optional, CP1 only):
 

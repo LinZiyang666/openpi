@@ -92,6 +92,13 @@ class WeightedSumComposer:
         self._warm_start_t = warm_start_t
         self._directions = dict(directions) if directions else {}
         self._orientations: dict[str, str] = {}
+        # Layer 4 contract (B4 refactor): declare required factor keys
+        # so the static yaml validator can fail-fast on missing factors.
+        # A zero-weight key has no influence on the score, so it is not
+        # a true dependency.
+        self.declared_dependencies: set[str] = {
+            k for k, w in self._weights.items() if w != 0.0
+        }
 
     def bind_orientations(self, orientations: dict[str, str]) -> None:
         # Cross-check `directions` coverage for non_monotonic keys whose
@@ -194,6 +201,75 @@ class WeightedSumComposer:
 
 
 # ------------------------------------------------------------------
+# S1b: WeightedSum + warm-start fallback when every weighted key is NaN.
+# ------------------------------------------------------------------
+# Plan §6.5 #2: the framework does not short-circuit on the all-NaN case.
+# This subclass implements WARM_START on all-NaN at the *composer* level:
+# when every non-zero-weight key is NaN (factor physical edge case), emit
+# WARM_START with the configured ``warm_fallback_start_t`` instead of MISS.
+
+
+class WeightedSumWithWarmFallbackComposer(WeightedSumComposer):
+    """WeightedSum + WARM_START fallback on all-NaN weighted dependencies.
+
+    Behaves identically to ``WeightedSumComposer`` except: when every
+    declared (non-zero-weight) key in ``calibrated`` is NaN, return
+    ``JudgeResult(WARM_START, winner_id, start_t=warm_fallback_start_t)``
+    instead of MISS. Useful for factor recipes whose dominant signal can
+    NaN out at episode boundaries (e.g. long F1b windows on chains
+    shorter than 2P+2F+1).
+
+    Construction params extend the base class with one extra:
+        warm_fallback_start_t: float — the ``start_t`` to attach when
+        the NaN-fallback path triggers.
+    """
+
+    def __init__(
+        self,
+        weights: dict[str, float],
+        full_hit_threshold: float,
+        warm_fallback_start_t: float,
+        warm_start_threshold: Optional[float] = None,
+        warm_start_t: Optional[float] = None,
+        directions: Optional[dict[str, str]] = None,
+    ) -> None:
+        super().__init__(
+            weights=weights,
+            full_hit_threshold=full_hit_threshold,
+            warm_start_threshold=warm_start_threshold,
+            warm_start_t=warm_start_t,
+            directions=directions,
+        )
+        self._warm_fallback_start_t = float(warm_fallback_start_t)
+
+    def compose(
+        self,
+        factors: dict[str, float],
+        *,
+        winner_id: str,
+    ) -> JudgeResult:
+        # All-NaN check covers only the keys that actually weigh in (zero
+        # weights have no influence, so their NaN-ness is irrelevant).
+        weighted_keys = [k for k, w in self._weights.items() if w != 0.0]
+        if weighted_keys and all(
+            math.isnan(factors.get(k, float("nan"))) for k in weighted_keys
+        ):
+            if _VERDICT_DEBUG:
+                _verdict_logger.info(
+                    "[vd composer] all weighted keys NaN -> WARM_START fallback @ t=%.2f",
+                    self._warm_fallback_start_t,
+                )
+            return JudgeResult(
+                HitType.WARM_START,
+                winner_id=winner_id,
+                start_t=self._warm_fallback_start_t,
+                composer_score=None,
+            )
+        # Otherwise delegate to the base class scoring path.
+        return super().compose(factors, winner_id=winner_id)
+
+
+# ------------------------------------------------------------------
 # S2: Conjunctive per-factor thresholds
 # ------------------------------------------------------------------
 
@@ -214,6 +290,8 @@ class AndGateComposer:
         self._warm_start_t = warm_start_t
         self._directions = dict(directions) if directions else {}
         self._orientations: dict[str, str] = {}
+        # Layer 4 contract (B4 refactor): every threshold key is required.
+        self.declared_dependencies: set[str] = set(self._thresholds.keys())
 
     def bind_orientations(self, orientations: dict[str, str]) -> None:
         self._orientations = dict(orientations)
@@ -266,6 +344,8 @@ class OrGateComposer:
         self._warm_start_t = warm_start_t
         self._directions = dict(directions) if directions else {}
         self._orientations: dict[str, str] = {}
+        # Layer 4 contract (B4 refactor): every threshold key is required.
+        self.declared_dependencies: set[str] = set(self._thresholds.keys())
 
     def bind_orientations(self, orientations: dict[str, str]) -> None:
         self._orientations = dict(orientations)

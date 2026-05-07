@@ -93,9 +93,9 @@ class GateConfig:
 class FactorConfig:
     """One verdict-factor instance for a composite judge.
 
-    `type` is the registry name (e.g. "f1a_a", "f1b_a", "f2"); `params`
-    is forwarded as kwargs into the factor class constructor. The
-    composite-judge config validator (B1+) verifies `type` is registered
+    `type` is the registry name (one of the 17 refactor names:
+    ``jerk_online_action`` / ... / ``topk_action_variance``). The
+    composite-judge config validator verifies `type` is registered
     and that `params` is acceptable.
     """
 
@@ -105,12 +105,21 @@ class FactorConfig:
 
 @dataclass
 class ComposerConfig:
-    """Composer config for composite judge.
+    """Layer 4 Composer config for composite judge.
 
-    `type` selects WeightedSumComposer / AndGateComposer / OrGateComposer.
-    The remaining fields are read selectively based on `type`; B1+ adds
-    the cross-field validation rules (warm-start pairwise / tier
-    ordering / non_monotonic directions coverage).
+    ``type`` selects one of four registered subclasses:
+
+      - ``weighted_sum`` — `WeightedSumComposer` (uses `weights` + `tier_thresholds`)
+      - ``weighted_sum_with_warm_fallback`` — `WeightedSumWithWarmFallbackComposer`
+        (extends weighted_sum; emits WARM_START with ``warm_fallback_start_t``
+        when every non-zero-weight key is NaN)
+      - ``and`` — `AndGateComposer` (uses `per_factor_thresholds`)
+      - ``or`` — `OrGateComposer` (uses `per_factor_thresholds`)
+
+    Field selection per ``type`` is enforced by ``_build_composer``;
+    cross-field validator rules (warm-start pairwise / tier ordering /
+    non_monotonic directions coverage) live in
+    ``_validate_composite_judge_static``.
     """
 
     type: str = "weighted_sum"
@@ -118,29 +127,102 @@ class ComposerConfig:
     tier_thresholds: Optional[dict[str, float]] = None
     per_factor_thresholds: Optional[dict[str, float]] = None
     warm_start_t: Optional[float] = None
+    # Required when ``type == "weighted_sum_with_warm_fallback"``: the
+    # ``start_t`` attached to the WARM_START result emitted on the all-NaN
+    # weighted-keys path. Ignored for other composer types.
+    warm_fallback_start_t: Optional[float] = None
     directions: Optional[dict[str, str]] = None
 
 
-@dataclass
-class NormalizerConfig:
-    """Normalizer config for composite judge."""
-
-    type: str = "percentile_rolling"
-    window_size: int = 200
-    cold_start_strategy: str = "force_miss"
+# ----------------------------------------------------------------------
+# Layer 1 Normalization config (refactor: per-DOF z-score over raw
+# action / robot_state, fed by backend.library_stats)
+# ----------------------------------------------------------------------
 
 
 @dataclass
-class AllNanFallbackConfig:
-    """CompositeJudge fallback when every normalized factor is NaN.
+class StatsSourceOfflineConfig:
+    """Reserved for future per-yaml σ overrides — currently no fields.
 
-    Default behaviour is preserved by leaving this field unset. Setting
-    ``type: warm_start`` turns the cold-start / all-missing-factor sentinel
-    into a CP1 WARM_START at ``start_t``.
+    Layer 1 reads σ + active_mask directly from the backend's
+    ``library_stats`` (pkl artifact) when ``stats_source.type == "offline"``.
+    Keeping the dataclass lets yaml writers explicitly set
+    ``stats_source.offline: {}`` if desired.
     """
 
-    type: str = "miss"
-    start_t: float | None = None
+
+@dataclass
+class StatsSourceConfig:
+    """Layer 1 Normalization stats source.
+
+    Plan §6.3 / §6.11 #10: only ``"offline"`` is supported; ``"warmup"``
+    is reserved for future when the warmup channel grows raw action/state
+    accumulation. Validator enforces the restriction.
+    """
+
+    type: str = "offline"
+    offline: Optional[StatsSourceOfflineConfig] = None
+
+
+@dataclass
+class NormalizationConfig:
+    """Layer 1 Normalization config.
+
+    ``type`` selects a registered Normalization subclass (only ``"zscore"``
+    today). ``params`` is forwarded as kwargs to the constructor;
+    ``stats_source`` declares where σ + active_mask come from.
+    """
+
+    type: str = "zscore"
+    params: dict[str, Any] = field(default_factory=dict)
+    stats_source: StatsSourceConfig = field(default_factory=StatsSourceConfig)
+
+
+# ----------------------------------------------------------------------
+# Layer 3 Calibration config (refactor: per-key rolling-window percentile
+# rank, no cold-start, samples pre-loaded at startup from offline / warmup)
+# ----------------------------------------------------------------------
+
+
+@dataclass
+class SamplesSourceOfflineConfig:
+    """Layer 3 Calibration offline samples source.
+
+    ``path`` is read at server startup; ``format`` selects the loader
+    (``"jsonl"`` reuses the warmup JSONL row schema; ``"pkl"`` for
+    pre-bucketed pickle).
+    """
+
+    path: str = ""
+    format: str = "jsonl"   # "jsonl" | "pkl"
+
+
+@dataclass
+class SamplesSourceConfig:
+    """Layer 3 Calibration samples source — offline file or warmup pool.
+
+    Two-source design (plan §6.3): ``"offline"`` reads from a file on
+    disk via the ``offline`` sub-config; ``"warmup"`` reads from the
+    per-yaml ``WarmupPool`` entry populated by a sibling warmup yaml.
+    """
+
+    type: str = "warmup"   # "offline" | "warmup"
+    offline: Optional[SamplesSourceOfflineConfig] = None
+
+
+@dataclass
+class CalibrationConfig:
+    """Layer 3 Calibration config.
+
+    ``type`` selects a registered Calibration subclass (only
+    ``"percentile_rolling"`` today). ``params`` is forwarded as kwargs;
+    ``samples_source`` declares the per-key historical samples used to
+    pre-fill the rolling buffer at ``bind_keys`` time.
+    """
+
+    type: str = "percentile_rolling"
+    params: dict[str, Any] = field(default_factory=dict)
+    samples_source: SamplesSourceConfig = field(default_factory=SamplesSourceConfig)
 
 
 @dataclass
@@ -167,6 +249,12 @@ class DumpConfig:
     config_id: str = ""
     factors: list[FactorConfig] = field(default_factory=list)
     deferred: bool = False
+    # Optional Layer 1 Normalization replica config for the dump-side path.
+    # When unset, ``_wrap_with_dumping_judge`` constructs a default
+    # ZScoreNormalization from ``library_stats``. Validator rule 11
+    # enforces ``dump.normalization.stats_source`` matches the inner
+    # composite's ``judge.normalization.stats_source`` when both are set.
+    normalization: Optional[NormalizationConfig] = None
 
 
 @dataclass
@@ -177,14 +265,15 @@ class JudgeConfig:
     # Only for type="always_warm_start". Must round to one of
     # openpi.cache.types.CANONICAL_DENOISE_TIMESTEPS ({0.1..0.9}).
     start_t: float | None = None
-    # ── Composite judge fields (only when type="composite", B1+) ──
-    # B0 ships the dataclass + parser support but `_JUDGE_TYPES` excludes
-    # "composite" so the validator rejects composite YAML at config load
-    # rather than at the first verdict.
+    # ── 4-layer composite judge fields (only when type="composite") ──
+    # Layer 1 / Layer 2 / Layer 3 / Layer 4. All four MUST be present
+    # for type="composite"; the legacy ``normalizer`` + ``all_nan_fallback``
+    # fields have been removed (legacy yamls fail at parse time with a
+    # missing-key error pointing at the new schema).
+    normalization: Optional[NormalizationConfig] = None
     factors: Optional[list[FactorConfig]] = None
+    calibration: Optional[CalibrationConfig] = None
     composer: Optional[ComposerConfig] = None
-    normalizer: Optional[NormalizerConfig] = None
-    all_nan_fallback: Optional[AllNanFallbackConfig] = None
     # ── Verdict-factor dump (server-side calibration logging) ──
     # Optional. When set, `_build_judge` wraps the inner judge in a
     # `DumpingJudge` that writes per-verdict factor rows to `dump.path`.
@@ -377,8 +466,12 @@ _CONFIG_TYPES: dict[str, type] = {
     "DumpConfig": DumpConfig,
     "FactorConfig": FactorConfig,
     "ComposerConfig": ComposerConfig,
-    "NormalizerConfig": NormalizerConfig,
-    "AllNanFallbackConfig": AllNanFallbackConfig,
+    "NormalizationConfig": NormalizationConfig,
+    "StatsSourceConfig": StatsSourceConfig,
+    "StatsSourceOfflineConfig": StatsSourceOfflineConfig,
+    "CalibrationConfig": CalibrationConfig,
+    "SamplesSourceConfig": SamplesSourceConfig,
+    "SamplesSourceOfflineConfig": SamplesSourceOfflineConfig,
     "FieldSimilarityConfig": FieldSimilarityConfig,
     "ScoreNormalizationConfig": ScoreNormalizationConfig,
     "SearchStrategyConfig": SearchStrategyConfig,
@@ -627,15 +720,31 @@ def _validate_composite_judge_static(
     """
     from openpi.cache.components.factors import registry
 
-    # (1) factors / composer required
+    # (1) all 4 layers required (4-layer refactor; legacy yamls that lack
+    # `normalization` or `calibration` get a clear "rewrite to 4-layer"
+    # hint here rather than failing later inside `_build_composite_judge`).
+    if judge.normalization is None:
+        errors.append(
+            f"{prefix}.judge.composite is missing `normalization` (Layer 1). "
+            "If this looks like a legacy schema, see "
+            "logs/verdict_factor_judge_refactor.log.md §6 / §13 for the new "
+            "4-layer yaml shape."
+        )
     if not judge.factors:
         errors.append(
-            f"{prefix}.judge.composite requires at least one entry in `factors`"
+            f"{prefix}.judge.composite requires at least one entry in `factors` (Layer 2)"
         )
         return
+    if judge.calibration is None:
+        errors.append(
+            f"{prefix}.judge.composite is missing `calibration` (Layer 3). "
+            "If this looks like a legacy schema (`normalizer` or "
+            "`all_nan_fallback` field present), rewrite to the 4-layer shape "
+            "documented in logs/verdict_factor_judge_refactor.log.md §13."
+        )
     if judge.composer is None:
         errors.append(
-            f"{prefix}.judge.composite requires a `composer` config"
+            f"{prefix}.judge.composite requires a `composer` config (Layer 4)"
         )
         return
 
@@ -670,11 +779,13 @@ def _validate_composite_judge_static(
                 f"backend.type={backend_type!r}"
             )
 
-    # (5) describe-based directions coverage: each non_monotonic descriptor
-    # key with a non-zero weight in the composer must appear in `directions`.
+    # (4 + 5) Layer 2 union key collection + composer dependency / direction checks.
     composer = judge.composer
     weights = composer.weights or {}
+    per_factor_thresholds = composer.per_factor_thresholds or {}
     directions = composer.directions or {}
+
+    union_keys: set[str] = set()
     for cls, fcfg in zip(factor_classes, judge.factors, strict=True):
         try:
             orient_map = cls.describe(dict(fcfg.params))
@@ -684,6 +795,8 @@ def _validate_composite_judge_static(
                 f"rejected the params: {exc}"
             )
             continue
+        union_keys.update(orient_map.keys())
+        # (5) non_monotonic key with non-zero weight needs a direction
         for key, ori in orient_map.items():
             if ori != "non_monotonic":
                 continue
@@ -695,6 +808,25 @@ def _validate_composite_judge_static(
                     f"{prefix}.judge.composer.directions: non_monotonic key {key!r} "
                     f"has non-zero weight ({w}) but is missing a direction"
                 )
+
+    # (4) Composer's declared dependencies must ⊆ Layer 2 union key set.
+    # Composer.declared_dependencies is an instance attribute but the same
+    # set is recoverable from the yaml: weighted_sum draws on `weights`,
+    # and / or gates draw on `per_factor_thresholds`.
+    composer_keys: set[str]
+    if composer.type in {"weighted_sum", "weighted_sum_with_warm_fallback"}:
+        composer_keys = {k for k, w in weights.items() if w != 0.0}
+    elif composer.type in {"and", "or"}:
+        composer_keys = set(per_factor_thresholds.keys())
+    else:
+        composer_keys = set()
+    missing = composer_keys - union_keys
+    if missing:
+        errors.append(
+            f"{prefix}.judge.composer references factor keys not produced by the "
+            f"configured Layer 2 factors: {sorted(missing)}. Add the corresponding "
+            "factors / windows or remove the keys from the composer."
+        )
 
     # (5a-5d) Warm-start tier rules (per plan §3.6, mirroring the existing
     # ThresholdJudge / AlwaysWarmStartJudge constraints):
@@ -724,15 +856,42 @@ def _validate_composite_judge_static(
                 "(CP3 has no warm-start payload)"
             )
 
-    if composer.type == "weighted_sum":
+    if composer.type in {"weighted_sum", "weighted_sum_with_warm_fallback"}:
         tt = composer.tier_thresholds or {}
         full = tt.get("full_hit")
         warm = tt.get("warm_start")
         if full is None:
             errors.append(
-                f"{prefix}.judge.composer.tier_thresholds: weighted_sum requires "
+                f"{prefix}.judge.composer.tier_thresholds: {composer.type!r} requires "
                 f"'full_hit' (and optionally 'warm_start')"
             )
+        # warm-fallback start_t must be a canonical denoise timestep AND
+        # is a WARM_START emission path itself, so the same CP1-only rule
+        # that applies to ``warm_start_t`` (see plan §3.6 / §13.3 rule 5c)
+        # applies here too — CP3 has no intermediates payload to resume
+        # from regardless of which path emits the WARM_START.
+        if composer.type == "weighted_sum_with_warm_fallback":
+            wfst = composer.warm_fallback_start_t
+            if wfst is None:
+                errors.append(
+                    f"{prefix}.judge.composer.warm_fallback_start_t is required for "
+                    "type='weighted_sum_with_warm_fallback'"
+                )
+            else:
+                st = round(float(wfst), 4)
+                if st not in CANONICAL_DENOISE_TIMESTEPS:
+                    errors.append(
+                        f"{prefix}.judge.composer.warm_fallback_start_t={wfst} is not a "
+                        f"canonical denoise timestep. Valid: {sorted(CANONICAL_DENOISE_TIMESTEPS)}"
+                    )
+                else:
+                    composer.warm_fallback_start_t = st
+                if cp_name is not None and cp_name != "cp1":
+                    errors.append(
+                        f"{prefix}.judge.composer: warm_fallback_start_t is only "
+                        "supported on CP1 (CP3 has no warm-start payload to resume "
+                        "from). Use composer.type='weighted_sum' on CP3."
+                    )
         # 5d ordering
         if warm is not None and full is not None and warm >= full:
             errors.append(
@@ -752,42 +911,87 @@ def _validate_composite_judge_static(
                 f"tier_thresholds.warm_start is missing — both are required to emit WARM_START"
             )
 
-    # (6) all-NaN bootstrap fallback. Default/unset preserves the legacy
-    # sentinel path (all normalized factors NaN -> MISS). WARM_START fallback
-    # is CP1-only because CP3 has no warm-start payload to resume from.
-    fallback = judge.all_nan_fallback
-    if fallback is not None:
-        if fallback.type not in {"miss", "warm_start"}:
+    # (6) all-NaN bootstrap fallback has been removed in the refactor:
+    # the framework no longer short-circuits on all-NaN. Equivalent
+    # behaviour now lives in composer subclasses — use
+    # ``WeightedSumWithWarmFallbackComposer`` if WARM_START on all-NaN
+    # is desired (plan §6.5 / §6.11 #2).
+
+    # (7) Layer 1 stats_source: only "offline" is currently supported.
+    if judge.normalization is not None:
+        ssrc = judge.normalization.stats_source
+        if ssrc.type != "offline":
             errors.append(
-                f"{prefix}.judge.all_nan_fallback.type={fallback.type!r} is "
-                "unknown. Valid: ['miss', 'warm_start']"
+                f"{prefix}.judge.normalization.stats_source.type={ssrc.type!r} is "
+                "not supported; only 'offline' is implemented in this refactor "
+                "(plan §6.3 / §6.11 #10 — warmup σ channel deferred)."
             )
-        elif fallback.type == "warm_start":
-            if cp_name is not None and cp_name != "cp1":
+
+    # (7') Layer 3 samples_source: type ∈ {offline, warmup}; if offline,
+    # require a `path` and a recognised `format`.
+    if judge.calibration is not None:
+        smps = judge.calibration.samples_source
+        if smps.type not in {"offline", "warmup"}:
+            errors.append(
+                f"{prefix}.judge.calibration.samples_source.type={smps.type!r} is "
+                "unknown. Valid: ['offline', 'warmup']."
+            )
+        elif smps.type == "offline":
+            if smps.offline is None or not smps.offline.path:
                 errors.append(
-                    f"{prefix}.judge.all_nan_fallback: warm_start is only "
-                    "supported on CP1 (CP3 has no warm-start payload)"
+                    f"{prefix}.judge.calibration.samples_source.offline.path is "
+                    "required when type='offline'."
                 )
-            if fallback.start_t is None:
+            elif smps.offline.format not in {"jsonl", "pkl"}:
                 errors.append(
-                    f"{prefix}.judge.all_nan_fallback: type='warm_start' "
-                    f"requires 'start_t'. Valid: {sorted(CANONICAL_DENOISE_TIMESTEPS)}"
+                    f"{prefix}.judge.calibration.samples_source.offline.format="
+                    f"{smps.offline.format!r} is unknown. Valid: ['jsonl', 'pkl']."
                 )
+
+    # (10) Window shape sanity for any factor that takes a `windows` param:
+    # every (past, future) pair must be non-negative integers, and (0, 0) is
+    # rejected (splice length 1 makes the descriptor undefined).
+    for fcfg in judge.factors:
+        windows = fcfg.params.get("windows")
+        if windows is None:
+            continue
+        for i, w in enumerate(windows):
+            if isinstance(w, dict):
+                p, f = int(w.get("past", -1)), int(w.get("future", -1))
             else:
-                st = round(fallback.start_t, 4)
-                if st not in CANONICAL_DENOISE_TIMESTEPS:
+                try:
+                    p, f = int(w[0]), int(w[1])
+                except (TypeError, IndexError, ValueError):
                     errors.append(
-                        f"{prefix}.judge.all_nan_fallback.start_t={fallback.start_t} "
-                        f"is not a canonical denoise timestep. Valid: "
-                        f"{sorted(CANONICAL_DENOISE_TIMESTEPS)}"
+                        f"{prefix}.judge.factors[type={fcfg.type!r}].params.windows[{i}] "
+                        f"has malformed shape {w!r}; expected {{past:int,future:int}} "
+                        "or (P, F)."
                     )
-                else:
-                    fallback.start_t = st
-        elif fallback.start_t is not None:
-            errors.append(
-                f"{prefix}.judge.all_nan_fallback.start_t is only valid when "
-                "type='warm_start'"
-            )
+                    continue
+            if p < 0 or f < 0:
+                errors.append(
+                    f"{prefix}.judge.factors[type={fcfg.type!r}].params.windows[{i}]="
+                    f"({p},{f}) has a negative dimension; both past and future must be ≥ 0."
+                )
+            if p == 0 and f == 0:
+                errors.append(
+                    f"{prefix}.judge.factors[type={fcfg.type!r}].params.windows[{i}]=(0,0) "
+                    "is rejected (splice length 1 → descriptor is undefined)."
+                )
+
+    # (11) Dump-side Normalization replica MUST match inner.normalization.stats_source
+    # so dump-factor raw values are wire-comparable to inner factor raw values.
+    if judge.dump is not None and judge.dump.factors and judge.normalization is not None:
+        dump_norm = judge.dump.normalization
+        if dump_norm is not None:
+            if dump_norm.stats_source.type != judge.normalization.stats_source.type:
+                errors.append(
+                    f"{prefix}.judge.dump.normalization.stats_source.type="
+                    f"{dump_norm.stats_source.type!r} must match "
+                    f"judge.normalization.stats_source.type="
+                    f"{judge.normalization.stats_source.type!r} so dump-factor raw "
+                    "values stay wire-comparable to inner factor raw values."
+                )
 
 
 def validate_cache_config(config: CacheConfig) -> None:
@@ -1366,36 +1570,6 @@ def build_cache_components(config: CacheConfig) -> dict[str, Any]:
     return build_per_connection_components(config, storage)
 
 
-def _preload_normalizer_from_warmup_pool(judges: dict, yaml_id: str) -> int:
-    """Preload every composite judge's normalizer from the WarmupPool.
-
-    Returns the number of normalizers that received a non-empty buffer (used
-    by the caller for diagnostic logging). When the pool has no entry for
-    ``yaml_id`` or a judge does not expose ``_normalizer``, the call is a
-    no-op so this function is safe on every connection regardless of yaml.
-    """
-    from openpi.cache.warmup_pool import get_global_pool
-
-    buffer = get_global_pool().get(yaml_id)
-    if not buffer:
-        return 0
-    preloaded = 0
-    for judge in judges.values():
-        # DumpingJudge is a transparent wrapper around the inner judge; drill
-        # one level so the normalizer is found whether or not dump is on.
-        target = getattr(judge, "_inner", judge)
-        normalizer = getattr(target, "_normalizer", None)
-        if normalizer is None or not hasattr(normalizer, "preload_buffer"):
-            continue
-        # Only forward keys the normalizer actually has bound — protects
-        # against schema drift between warmup and eval yamls.
-        bound = set(getattr(normalizer, "_buffers", {}).keys())
-        filtered = {k: v for k, v in buffer.items() if k in bound}
-        if not filtered:
-            continue
-        normalizer.preload_buffer(filtered)
-        preloaded += 1
-    return preloaded
 
 
 def build_per_connection_components(
@@ -1455,13 +1629,16 @@ def build_per_connection_components(
             continue
         cp_id = CheckpointID[cp_name.upper()]
         gates[cp_id] = _build_gate(cp_config.gate)
-        # (7) State-library check: composite judge using f1a_t / f1b_t
-        # requires a non-empty state_active_mask in library_stats.
+        # State-library check: any composite judge using a state-channel
+        # factor (any registered name ending in `_state`) requires a
+        # non-empty `state_active_mask` in `library_stats`.
         if cp_config.judge.type == "composite":
             _validate_composite_judge_state_library(
                 cp_name, cp_config.judge, library_stats,
             )
-        judges[cp_id] = _build_judge(cp_config.judge, library_stats=library_stats)
+        judges[cp_id] = _build_judge(
+            cp_config.judge, library_stats=library_stats, yaml_id=yaml_id,
+        )
         # Forward the judge's min_required_top_k hint into the strategy so
         # F2 (and any future top-k-hungry factor) gets enough candidates.
         # `getattr` keeps backward compatibility with non-CompositeJudge
@@ -1476,15 +1653,11 @@ def build_per_connection_components(
 
     # WarmupPool preload (verdict_factor_judge B2). The judge tree is fully
     # built (CompositeJudge.__init__ calls bind_keys), so the normalizer's
-    # rolling buffers are sized + ready to receive the warmup-collected raw
-    # values.
-    if yaml_id:
-        preloaded = _preload_normalizer_from_warmup_pool(judges, yaml_id)
-        if preloaded and not quiet:
-            logger.info(
-                "WarmupPool preloaded %d normalizer(s) for yaml_id=%s",
-                preloaded, yaml_id,
-            )
+    # WarmupPool preload is now done inside ``_build_calibration`` via the
+    # yaml_id-aware ``_build_judge`` chain (refactor 2026-05-07): when
+    # ``calibration.samples_source.type == "warmup"`` the calibration loads
+    # samples directly from the per-yaml pool entry. There is no post-build
+    # preload step.
 
     # Collect OfflineWriters from composite judges so the Orchestrator can
     # invoke them at episode-end (B2 wiring path). De-duplicated by id() so
@@ -1517,7 +1690,12 @@ def _validate_composite_judge_state_library(
     because library_stats is materialized then (after artifact load /
     fallback compute).
     """
-    state_factors = [f for f in (judge.factors or []) if f.type in {"f1a_t", "f1b_t"}]
+    # Refactor: state-channel factors are the 8 names ending in `_state`
+    # (4 desc × {online, offline}). The legacy 5-name set is gone.
+    state_factors = [
+        f for f in (judge.factors or [])
+        if f.type.endswith("_state")
+    ]
     if not state_factors:
         return
     if library_stats is None:
@@ -1722,26 +1900,29 @@ def _build_gate(cfg: GateConfig):
     )
 
 
-def _build_judge(cfg: JudgeConfig, library_stats=None):
+def _build_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optional[str] = None):
     """Instantiate a SimilarityJudge from config.
 
-    `library_stats` is forwarded into composite-judge factor extractors
-    that declare `requires_library_stats=True` (currently F1a / F1b).
-    Static validation guarantees the required value is non-None before
-    this builder is invoked for a composite judge.
+    ``library_stats`` is forwarded into the 4-layer composite Layer 1
+    Normalization (and into the legacy threshold / always_hit /
+    always_warm_start branches as a no-op).
 
-    When `cfg.dump` is set, the constructed judge is wrapped in a
-    `DumpingJudge` that side-channels per-verdict factor descriptors to
+    ``yaml_id`` lets Layer 3 Calibration pull samples directly from the
+    per-yaml ``WarmupPool`` entry when ``samples_source.type == "warmup"``;
+    yaml load fails fast if the entry is absent or undersized.
+
+    When ``cfg.dump`` is set, the constructed judge is wrapped in a
+    ``DumpingJudge`` that side-channels per-verdict factor descriptors to
     JSONL for offline calibration; the wrapper preserves the inner
     judge's verdict surface byte-identically.
     """
-    inner = _build_inner_judge(cfg, library_stats=library_stats)
+    inner = _build_inner_judge(cfg, library_stats=library_stats, yaml_id=yaml_id)
     if cfg.dump is None:
         return inner
     return _wrap_with_dumping_judge(inner, cfg.dump, library_stats=library_stats)
 
 
-def _build_inner_judge(cfg: JudgeConfig, library_stats=None):
+def _build_inner_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optional[str] = None):
     """Build the unwrapped judge instance based on `cfg.type` only."""
     if cfg.type == "threshold":
         from openpi.cache.components.judge import ThresholdJudge
@@ -1764,97 +1945,258 @@ def _build_inner_judge(cfg: JudgeConfig, library_stats=None):
         # name, so `validate_cache_config` rejects composite YAML before
         # this branch runs in the normal flow. The branch is reachable
         # via direct `_build_judge` calls (tests / B1+ wiring) and lands
-        # the actual extractor / composer / normalizer wiring.
-        from openpi.cache.components.factors.registry import get_class
-        from openpi.cache.components.judge import CompositeJudge
-
-        if not cfg.factors:
-            raise ConfigValidationError(
-                "composite judge requires at least one factor in `factors`"
-            )
-        if cfg.composer is None:
-            raise ConfigValidationError(
-                "composite judge requires a `composer` config"
-            )
-        extractors = []
-        for fcfg in cfg.factors:
-            cls = get_class(fcfg.type)
-            kwargs = dict(fcfg.params)
-            if getattr(cls, "requires_library_stats", False):
-                kwargs["library_stats"] = library_stats
-            extractors.append(cls(**kwargs))
-        composer = _build_composer(cfg.composer)
-        normalizer = (
-            _build_normalizer(cfg.normalizer) if cfg.normalizer is not None else None
-        )
-        all_nan_fallback = (
-            cfg.all_nan_fallback.type if cfg.all_nan_fallback is not None else "miss"
-        )
-        all_nan_fallback_start_t = (
-            cfg.all_nan_fallback.start_t if cfg.all_nan_fallback is not None else None
-        )
-        return CompositeJudge(
-            extractors=extractors,
-            composer=composer,
-            normalizer=normalizer,
-            all_nan_fallback=all_nan_fallback,
-            all_nan_fallback_start_t=all_nan_fallback_start_t,
-            export_factor_outputs=bool(cfg.export_factor_outputs),
-        )
+        # 4-layer composite refactor: instantiate Layer 1 / 2 / 3 / 4
+        # from yaml schema and assemble via the new CompositeJudge.
+        return _build_composite_judge(cfg, library_stats=library_stats, yaml_id=yaml_id)
     else:
         raise ConfigValidationError(
             f"Unknown judge.type '{cfg.type}'. Valid: {sorted(_JUDGE_TYPES)}"
         )
 
 
-def _build_dump_extractors(dump_cfg: "DumpConfig", library_stats=None) -> list:
-    """Instantiate dump-side OnlineExtractor list from `JudgeConfig.dump.factors`.
+def _build_composite_judge(
+    cfg: JudgeConfig,
+    *,
+    library_stats=None,
+    yaml_id: Optional[str] = None,
+):
+    """Assemble the 4-layer CompositeJudge from a JudgeConfig.
 
-    Mirrors composite-judge factor wiring: `requires_library_stats=True`
-    factors (F1a / F1b) get `library_stats` injected; pure-runtime factors
-    (F2) construct without it.
+    Layer 1 reads ``library_stats`` (the only currently supported source);
+    Layer 3 reads ``CalibrationSamples`` from offline file or per-yaml
+    WarmupPool entry (``yaml_id`` required when source is ``warmup``).
+    Layer 2 factors register via their classmethod; the Layer 4 composer
+    is built by ``_build_composer``.
     """
+    from openpi.cache.components.composite_judge import CompositeJudge
     from openpi.cache.components.factors.registry import get_class
 
-    extractors = []
-    for fcfg in dump_cfg.factors:
+    # Required: all 4 layers + factors.
+    if cfg.normalization is None:
+        raise ConfigValidationError(
+            "composite judge requires a `normalization` config (Layer 1)"
+        )
+    if not cfg.factors:
+        raise ConfigValidationError(
+            "composite judge requires at least one entry in `factors` (Layer 2)"
+        )
+    if cfg.calibration is None:
+        raise ConfigValidationError(
+            "composite judge requires a `calibration` config (Layer 3)"
+        )
+    if cfg.composer is None:
+        raise ConfigValidationError(
+            "composite judge requires a `composer` config (Layer 4)"
+        )
+
+    normalization = _build_normalization(cfg.normalization, library_stats=library_stats)
+    factors = []
+    for fcfg in cfg.factors:
         cls = get_class(fcfg.type)
-        kwargs = dict(fcfg.params)
-        if getattr(cls, "requires_library_stats", False):
-            kwargs["library_stats"] = library_stats
-        extractors.append(cls(**kwargs))
-    return extractors
+        factors.append(cls(**dict(fcfg.params)))
+    calibration = _build_calibration(cfg.calibration, yaml_id=yaml_id)
+    composer = _build_composer(cfg.composer)
+    return CompositeJudge(
+        normalization=normalization,
+        factors=factors,
+        calibration=calibration,
+        composer=composer,
+        export_factor_outputs=bool(cfg.export_factor_outputs),
+    )
 
 
-def _wrap_with_dumping_judge(inner, dump_cfg: "DumpConfig", library_stats=None):
-    """Wrap `inner` in a DumpingJudge using `dump_cfg`."""
-    from openpi.cache.components.judge import DumpingJudge
+def _build_normalization(cfg: NormalizationConfig, *, library_stats=None):
+    """Instantiate Layer 1 Normalization from yaml config + library_stats."""
+    from openpi.cache.components.factors.normalization import ZScoreNormalization
 
-    extractors = _build_dump_extractors(dump_cfg, library_stats=library_stats)
+    if cfg.stats_source.type != "offline":
+        raise ConfigValidationError(
+            f"normalization.stats_source.type must be 'offline' (got "
+            f"{cfg.stats_source.type!r}); 'warmup' is reserved for future"
+        )
+    if library_stats is None:
+        raise ConfigValidationError(
+            "normalization.stats_source.type='offline' requires the active "
+            "backend to expose `library_stats` — use backend.type='in_memory' "
+            "with a preloaded artifact carrying the LibraryStats field."
+        )
+    if cfg.type == "zscore":
+        return ZScoreNormalization(library_stats, **dict(cfg.params))
+    raise ConfigValidationError(
+        f"Unknown normalization.type {cfg.type!r}. Valid: ['zscore']"
+    )
+
+
+def _build_calibration(cfg: CalibrationConfig, *, yaml_id: Optional[str] = None):
+    """Instantiate Layer 3 Calibration; load CalibrationSamples from source."""
+    from openpi.cache.components.factors.calibrations import (
+        PercentileRollingCalibration,
+    )
+
+    samples = _load_calibration_samples(cfg.samples_source, yaml_id=yaml_id)
+    if cfg.type == "percentile_rolling":
+        return PercentileRollingCalibration(samples, **dict(cfg.params))
+    raise ConfigValidationError(
+        f"Unknown calibration.type {cfg.type!r}. Valid: ['percentile_rolling']"
+    )
+
+
+def _load_calibration_samples(
+    src: SamplesSourceConfig,
+    *,
+    yaml_id: Optional[str] = None,
+):
+    """Load per-key historical samples per ``samples_source`` directive.
+
+    ``offline`` reads from file (jsonl or pkl); ``warmup`` reads from the
+    per-yaml WarmupPool entry. The warmup pool entry MUST already be
+    populated by the time this function runs (warmup yaml ran, dumped
+    raw factor JSONL, runner pushed values into the pool); otherwise we
+    fail-fast — no cold-start state exists in the refactor.
+    """
+    from openpi.cache.components.factors.base import CalibrationSamples
+
+    if src.type == "offline":
+        if src.offline is None or not src.offline.path:
+            raise ConfigValidationError(
+                "calibration.samples_source.type='offline' requires "
+                "samples_source.offline.path to be set"
+            )
+        return _load_calibration_samples_offline(src.offline)
+    if src.type == "warmup":
+        if not yaml_id:
+            raise ConfigValidationError(
+                "calibration.samples_source.type='warmup' requires the eval "
+                "yaml_id to be passed through (build_per_connection_components "
+                "must forward yaml_id into _build_judge)."
+            )
+        from openpi.cache.warmup_pool import get_global_pool
+
+        buffer = get_global_pool().get(yaml_id)
+        if not buffer:
+            raise ConfigValidationError(
+                f"calibration.samples_source.type='warmup' but WarmupPool "
+                f"has no entry for yaml_id={yaml_id!r}; the sibling warmup "
+                "yaml must run before this eval yaml loads."
+            )
+        return CalibrationSamples({str(k): list(v) for k, v in buffer.items()})
+    raise ConfigValidationError(
+        f"Unknown calibration.samples_source.type {src.type!r}. "
+        "Valid: ['offline', 'warmup']"
+    )
+
+
+def _load_calibration_samples_offline(off: SamplesSourceOfflineConfig):
+    """Read CalibrationSamples from the configured offline file."""
+    import json
+    import pickle
+    from pathlib import Path
+
+    from openpi.cache.components.factors.base import CalibrationSamples
+
+    path = Path(off.path)
+    if not path.is_file():
+        raise ConfigValidationError(
+            f"calibration.samples_source.offline.path={off.path!r} not found"
+        )
+    if off.format == "pkl":
+        with path.open("rb") as fh:
+            data = pickle.load(fh)
+        if isinstance(data, CalibrationSamples):
+            return data
+        if isinstance(data, dict):
+            return CalibrationSamples({str(k): list(v) for k, v in data.items()})
+        raise ConfigValidationError(
+            f"calibration offline pkl {off.path!r}: unexpected payload type "
+            f"{type(data).__name__}; expected CalibrationSamples or dict"
+        )
+    if off.format == "jsonl":
+        # JSONL: one row per verdict with at least factor_raw: dict[str, float].
+        # Aggregate per-key list (drop NaN — Calibration handles them).
+        per_key: dict[str, list[float]] = {}
+        with path.open("r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                row = json.loads(line)
+                raw = row.get("factor_raw") or {}
+                for k, v in raw.items():
+                    per_key.setdefault(k, []).append(float(v))
+        return CalibrationSamples(per_key)
+    raise ConfigValidationError(
+        f"Unknown calibration.samples_source.offline.format {off.format!r}. "
+        "Valid: ['jsonl', 'pkl']"
+    )
+
+
+def _build_dump_factors(dump_cfg: "DumpConfig") -> list:
+    """Instantiate dump-side Layer 2 factors from `JudgeConfig.dump.factors`."""
+    from openpi.cache.components.factors.registry import get_class
+
+    return [get_class(fcfg.type)(**dict(fcfg.params)) for fcfg in dump_cfg.factors]
+
+
+def _wrap_with_dumping_judge(inner, dump_cfg: "DumpConfig", *, library_stats=None):
+    """Wrap `inner` in a DumpingJudge using ``dump_cfg``.
+
+    The dump side runs an independent factor list with its own Layer 1
+    Normalization 副本 (matching the inner judge's Layer 1 config). When
+    ``library_stats`` is missing the dump-side Normalization cannot be
+    constructed; we fail-fast so callers cannot silently produce
+    unnormalized factor raw rows.
+    """
+    from openpi.cache.components.dumping_judge import DumpingJudge
+    from openpi.cache.components.factors.normalization import ZScoreNormalization
+
+    if library_stats is None:
+        raise ConfigValidationError(
+            "judge.dump requires `library_stats` from the backend to construct "
+            "the dump-side Layer 1 Normalization replica."
+        )
+    factors = _build_dump_factors(dump_cfg)
+    dump_normalization = ZScoreNormalization(library_stats)
     return DumpingJudge(
         inner=inner,
-        dump_extractors=extractors,
+        dump_normalization=dump_normalization,
+        dump_factors=factors,
         dump_path=dump_cfg.path,
         config_id=dump_cfg.config_id,
     )
 
 
 def _build_composer(cfg: ComposerConfig):
-    """Instantiate a Composer from a ComposerConfig."""
+    """Instantiate a Layer 4 Composer from ComposerConfig."""
     from openpi.cache.components.factors.composers import (
         AndGateComposer,
         OrGateComposer,
         WeightedSumComposer,
+        WeightedSumWithWarmFallbackComposer,
     )
 
-    if cfg.type == "weighted_sum":
+    if cfg.type in {"weighted_sum", "weighted_sum_with_warm_fallback"}:
         if cfg.weights is None:
             raise ConfigValidationError(
-                "composer.type='weighted_sum' requires 'weights'"
+                f"composer.type={cfg.type!r} requires 'weights'"
             )
         if cfg.tier_thresholds is None or "full_hit" not in cfg.tier_thresholds:
             raise ConfigValidationError(
-                "composer.type='weighted_sum' requires tier_thresholds.full_hit"
+                f"composer.type={cfg.type!r} requires tier_thresholds.full_hit"
+            )
+        if cfg.type == "weighted_sum_with_warm_fallback":
+            if cfg.warm_fallback_start_t is None:
+                raise ConfigValidationError(
+                    "composer.type='weighted_sum_with_warm_fallback' requires "
+                    "'warm_fallback_start_t' (the start_t emitted on the all-NaN "
+                    "weighted-keys fallback path)"
+                )
+            return WeightedSumWithWarmFallbackComposer(
+                weights=cfg.weights,
+                full_hit_threshold=cfg.tier_thresholds["full_hit"],
+                warm_fallback_start_t=cfg.warm_fallback_start_t,
+                warm_start_threshold=cfg.tier_thresholds.get("warm_start"),
+                warm_start_t=cfg.warm_start_t,
+                directions=cfg.directions,
             )
         return WeightedSumComposer(
             weights=cfg.weights,
@@ -1884,23 +2226,8 @@ def _build_composer(cfg: ComposerConfig):
             directions=cfg.directions,
         )
     raise ConfigValidationError(
-        f"Unknown composer.type '{cfg.type}'. Valid: ['weighted_sum', 'and', 'or']"
-    )
-
-
-def _build_normalizer(cfg: NormalizerConfig):
-    """Instantiate a Normalizer from a NormalizerConfig."""
-    from openpi.cache.components.factors.normalizers import (
-        PercentileRollingNormalizer,
-    )
-
-    if cfg.type == "percentile_rolling":
-        return PercentileRollingNormalizer(
-            window_size=cfg.window_size,
-            cold_start_strategy=cfg.cold_start_strategy,
-        )
-    raise ConfigValidationError(
-        f"Unknown normalizer.type '{cfg.type}'. Valid: ['percentile_rolling']"
+        f"Unknown composer.type {cfg.type!r}. Valid: "
+        "['weighted_sum', 'weighted_sum_with_warm_fallback', 'and', 'or']"
     )
 
 
