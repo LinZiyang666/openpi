@@ -159,7 +159,144 @@ Layer 3：从 Layer 2 选 3 个不同 inf 段的 winner × 3 cfg × 1000 ep = 9,
 
 ---
 
-## 7. 文件索引
+## 7. spatial16 视角因子配置解读
+
+### 7.1 实验 5 大维度笛卡尔展开（spatial16 一共 26 yaml × 100 ep = 2600 ep）
+
+KeyBuilder = `cp1_spatial_pool_16`（vision_0/1 = 32768 维空间池化）+ `weighted_rrf_knn` rrf_k=60 / top_k=1 / trajectory_depth=4。所有 yaml 共用：`weighted_sum` composer、uniform 权重 1.0、tier T-FULL（`full_hit=0.5`，无主动 warm tier）、`PercentileRollingNormalizer(window_size=50, cold_start=force_miss)`、`all_nan_fallback=warm_start@0.7`（每次 NaN 兜底 inf=0.85）。生成器：[`exp/verdict_factor_judge/phase2_spec.py`](../phase2_spec.py)。
+
+| Layer | yaml 数 | 探索维度 |
+|---|---:|---|
+| **1.A** F1a-A close-out | 3 | 单 desc：curv_radius / cum_disp + jerk+curv pair |
+| **1.B** F1a-T desc sweep | 5 | 4 个单 desc + jerk+dir pair |
+| **1.C** F1b-A 窗口 × desc | 7 | 4 窗口形状 × all-4 desc + W-SHORT × 3 单 desc |
+| **1.D** F1b-T 窗口 × desc | 7 | 同 1.C 镜像（state 域） |
+| **1.E** W-LONG-RISK 探针 | 4 | (5,5)(7,7) 长窗 × {F1b-A, F1b-T} × {all, jerk} |
+
+窗口形状字典：
+
+```
+W-SHORT      = (0,3)(1,1)(3,0)        短窗 3 个
+W-PAST       = (3,0)(5,0)             纯过去 2 个
+W-FUT        = (0,3)(0,5)             纯未来 2 个
+W-SYM-S      = (1,1)(2,2)(3,3)        对称小窗 3 个
+W-LONG-RISK  = (5,5)(7,7)             长对称窗 (T median=21 → ~50%/~67% NaN)
+```
+
+### 7.2 五个候选因子的语义（这次 Layer 1 动了 4 个：F1a-A / F1a-T / F1b-A / F1b-T；F2 没在 Layer 1 出现）
+
+| Factor | 物理含义 | 数据来源 |
+|---|---|---|
+| **F1a-A** RuntimeContinuityAction | "若执行 cache hit，过去 K 步 action + winner.action_chunk[0] 拼起来还连续吗" | `history.actions[-K:] ∪ winner action`，online 计算 |
+| **F1a-T** RuntimeContinuityState | 同上但用 state，且向未来 walk K 步取链上 state | `history.states[-K:] ∪ winner.robot_state ∪ chain walk_next(K)` |
+| **F1b-A** SourceWindowSmoothnessAction | 离线建库时算每 entry "在自己 (p, f) 窗口内的 action 平滑度"，online 只读不算 | entry chain 上 `payload.action_chunk[0]` 序列，window 扫描 |
+| **F1b-T** SourceWindowSmoothnessState | 同上用 state | entry chain 上 `query_keys["robot_state"]` |
+| **F2** TopKActionConsensus | top-K 候选 action 的方差（一致性）| online 计算，本 Layer 未启用 |
+
+四个描述子（F1a / F1b 共用，z-score → active subspace 后计算）：
+- `jerk` (risky)：|Δ²a| 的 per-DOF 时序中位数再 DOF 平均；越高 → 不平滑
+- `dir`  (safe)：相邻速度向量余弦；越高 → 方向越连贯
+- `curv_radius` (non_monotonic, `range:[0.3, 0.7]`)：窗口质心半径
+- `cum_disp` (non_monotonic, `high`)：累积路径长度
+
+### 7.3 spatial16 全 26 yaml 主表（实测 hit/warm/miss%）
+
+inf 公式：`(0·n_hit + 0.85·n_warm + 1·n_miss) / n_eval_verdicts`。来源：`data/phase2_layer1/spatial16/per_yaml_summary.jsonl`。
+
+```
+yaml_stem                         SR     inf    hit/warm/miss%
+─────────────────────────────────────────────────────────────
+f1a_a_d_cum_only                 0.88   0.52    46/12/41
+f1a_a_d_curv_only                0.94   0.62    36/13/51
+f1a_a_d_jerk_curv_pair           0.96   0.62    36/13/51
+f1a_t_d_cum_only                 0.91   0.58    38/27/35
+f1a_t_d_curv_only                0.95   0.66    30/25/45
+f1a_t_d_dir_only                 0.90   0.57    39/25/36
+f1a_t_d_jerk_dir_pair            0.96   0.56    40/25/35
+f1a_t_d_jerk_only                0.93   0.59    38/25/38
+f1b_a_w_fut_d_all                0.94   0.62    36/17/48
+f1b_a_w_long_risk_d_all          0.95   0.71    21/48/30
+f1b_a_w_long_risk_d_jerk         0.96   0.67    26/47/27   ★
+f1b_a_w_past_d_all               0.91   0.61    37/12/50
+f1b_a_w_short_d_all              0.88   0.57    43/ 0/57
+f1b_a_w_short_d_curv             0.87   0.57    43/ 0/57
+f1b_a_w_short_d_dir              0.84   0.44    56/ 0/44
+f1b_a_w_short_d_jerk             0.88   0.52    48/ 0/52
+f1b_a_w_sym_s_d_all              0.91   0.62    36/13/50
+f1b_t_w_fut_d_all                0.98   0.60    37/17/46   ★★ 突破
+f1b_t_w_long_risk_d_all          0.98   0.72    21/47/31   ★
+f1b_t_w_long_risk_d_jerk         0.98   0.67    26/49/25   ★ 跨 3 cfg 冠军
+f1b_t_w_past_d_all               0.87   0.58    40/12/48
+f1b_t_w_short_d_all              0.92   0.58    42/ 0/58
+f1b_t_w_short_d_curv             0.92   0.57    43/ 0/57
+f1b_t_w_short_d_dir              0.93   0.49    51/ 0/49
+f1b_t_w_short_d_jerk             0.97   0.52    48/ 0/52   ★
+f1b_t_w_sym_s_d_all              0.94   0.61    37/11/52
+```
+
+### 7.4 spatial16 突破金圈 yaml 的因子配置详解
+
+4 个 SR=0.97-0.98、inf=0.52-0.72 的 strict-Pareto-positive yaml（对应 §4.2）的具体因子拆解：
+
+| yaml | 因子 | 窗口 | 描述子 | 机制 |
+|---|---|---|---|---|
+| **`f1b_t_w_fut_d_all`** SR 0.98 / inf 0.60 | F1b-T 单因子 | (0,3) + (0,5) 纯未来窗 | jerk + dir + curv_radius + cum_disp 全 4 个 | 离线扫 entry chain 的"未来 state 平滑度"打分；spatial16 32768 维视觉 retrieval 命中 entry 落在 chain 平滑段的概率高 → 主动 hit/warm/miss = 37/17/46 |
+| **`f1b_t_w_long_risk_d_jerk`** SR 0.98 / inf 0.67 | F1b-T 单因子 | (5,5) + (7,7) 长对称窗 | 仅 jerk | (7,7) 在 T median=21 的 chain 上 ~67% NaN，触发 `all_nan_fallback@0.7`(贡献 inf=0.85)；剩下 ~50% 有效采样里 jerk 单 desc 给 hit/warm/miss = 26/49/25。**本质是 "~50% baseline-warm + 25% jerk-hit + 25% jerk-miss"** |
+| **`f1b_t_w_long_risk_d_all`** SR 0.98 / inf 0.72 | F1b-T 单因子 | (5,5) + (7,7) | 全 4 desc | 同上但描述子全开，inf 比 jerk-only 还高（0.72 vs 0.67），因为 4 desc 一致命中阈值的概率低，hit 率掉到 21% |
+| **`f1b_t_w_short_d_jerk`** SR 0.97 / inf 0.52 | F1b-T 单因子 | (0,3) + (1,1) + (3,0) 短窗 3 个 | 仅 jerk | 短窗 NaN 极少（0% warm），factor 实打实在 hit/miss 间二分；inf 0.52 是这次 spatial16 winner 里**最低**的（最省推理） |
+
+跨 3 cfg 都进 strict-Pareto-positive 的最稳冠军：**`f1b_t_w_long_risk_d_jerk`**（clip 0.96/0.67、max_pool 0.98/0.68、spatial16 0.98/0.67）。
+
+### 7.5 spatial16 视角的方向性结论 + 置信度
+
+1. **F1b-T 在 spatial16 上独占金圈**：4 个 SR≥0.97 的 yaml 全是 F1b-T，没有 F1a / F1b-A。猜测原因：spatial pool 16 的 32k 维视觉 embedding 保留了更细的 state 几何信息，让 percentile 标准化后能锁出可信 cache hit。
+2. **jerk 是 spatial16 上最强的 single descriptor**：W-SHORT × jerk (SR 0.97/inf 0.52)、W-LONG-RISK × jerk (SR 0.98/inf 0.67) 都进金圈；dir / curv / cum 单 desc 在 spatial16 上 SR 都没破 0.95 + inf 0.55 这条线。
+3. **W-LONG-RISK 不是真正的"风险窗"，是 NaN 概率退化**：(5,5)+(7,7) 在 spatial16 上有 47-49% warm 全部来自 NaN-fallback 而非主动 composer 决策；Layer 2.A 必须切 **T-DUAL_07** 让 composer 真正主动产 warm tier。
+4. **W-FUT > W-PAST > W-SYM-S > W-SHORT(单 desc)**：spatial16 上 W-FUT × all-4 desc 是唯一一个**没靠 NaN-fallback** 就能 SR=0.98 / inf=0.60 的配置（warm 17% 来自 percentile 标准化中 cold-start 阶段），是本次实验最干净的突破点。
+5. **F1a-A / F1a-T close-out 全部被 dominated**：spatial16 上 F1a-A close-out 3 个 yaml SR 0.88-0.96 / inf 0.52-0.62 没出现在金圈；F1a-T 5 个 desc sweep 最高 SR 0.96 / inf 0.56（jerk+dir pair）也只是贴 baseline 前沿。
+
+⚠ **置信度提醒**：100 ep / yaml 的 SR 标准误约 ±2-3pp，`f1b_t_w_fut_d_all` 等 SR=0.98 的真实 95% 区间是 [0.96, 1.00]——和 plain inference 0.984 在统计上**未必有真差距**。Layer 3 计划用 1000 ep × 1 seed 在 winner 上复测把噪声压到 ±1pp 才能下"真正接近 pure inference"的结论。当前结论：**spatial16 这几个金圈 yaml 是非常强的 Layer 2 候选，但还不是最终判定**。
+
+### 7.6 F2 在线共识因子（RRF top-K action 方差）— Phase 1 数据，Layer 1 未复测
+
+F2 = `TopKActionConsensus`：在 RRF 融合（`weighted_rrf_knn` rrf_k=60）排序的 top-5 候选上算 `action_chunk[0]` 的 per-DOF 方差均值（`f2_var`，risky 方向）；候选越散 → 检索"在猜" → 风险越高。要点：
+
+- **K=5**：通过 `min_top_k_hint` 自动把 search 的 top_k 从 1 透传升到 5，不破坏 yaml 的 `top_k: 1` 语义。
+- **不依赖 LibraryStats**：用 candidate-local active mask（`var_d > 1e-8`），所以 spatial pool 16 padding DOF 自动被剔除。
+- **scale-invariant**：候选都在同一 chunk 邻域，方差天然同 sigma 量级，不做 z-score。
+
+Phase 2 Layer 1 **没有重测 F2**（plan §1 明确说 "Layer 0 F2 500 ep 复测已合并到 Layer 1：F2 单 yaml 在 inf_ratio≈0.50 处，即便锁噪声到 0.94 也只是贴 random_periodic 前沿，不可能单独突破 Pareto；其真值在 Layer 3 winner 1000 ep 复测时一并锁定"）。所以 F2 的 spatial16 真值仍然来自 **Phase 1 `f_min_cons` yaml**（[`config/spatial16/phase1/spatial16_w8_d4_phase1_f_min_cons_d_all_t_full.yaml`](../config/spatial16/phase1/spatial16_w8_d4_phase1_f_min_cons_d_all_t_full.yaml)）：
+
+| 指标 | spatial16 | clip | max_pool |
+|---|---:|---:|---:|
+| SR | 0.93 | 0.94 | 0.88 |
+| inf_ratio | 0.50 | 0.50 | 0.50 |
+| hit / warm / miss % | 50 / 0 / 50 | 50 / 0 / 50 | 50 / 0 / 50 |
+
+配置摘要（spatial16）：
+
+```yaml
+factors:
+  - type: f2
+    params: { K: 5 }
+composer:
+  type: weighted_sum
+  weights: { f2_var: 1.0 }
+  tier_thresholds: { full_hit: 0.5 }
+normalizer: { type: percentile_rolling, window_size: 50, cold_start_strategy: force_miss }
+all_nan_fallback: { type: warm_start, start_t: 0.7 }
+search_strategy: { type: weighted_rrf_knn, top_k: 1, rrf_k: 60, ... }   # F2 自动升到 top_k=5
+```
+
+**结论**：F2 单因子 spatial16 上 SR 0.93 / inf 0.50，在 random_periodic Pareto 前沿上下，**不突破**——和 Layer 1 4 个金圈 yaml（SR 0.97-0.98 / inf 0.52-0.72）相比有显著差距。Phase 2 / Layer 2 的角色定位：
+
+- F2 不再单独充当主分量（Phase 2 Layer 1 已通过"不放进 ablation"间接淘汰 F2 单因子方案）。
+- Layer 2.A 候选 `full_lite_t_dual_07`（F1a-T.jerk + F1b-T.W-LONG-RISK.jerk + **F2**）保留 F2 作为补充共识信号，看跨因子组合能否压低 F1b-T 主分量的误判。
+- 真值落锤在 Layer 3 1000 ep × 1 seed 的复测上。
+
+---
+
+## 8. 文件索引
 
 ```
 exp/verdict_factor_judge/
