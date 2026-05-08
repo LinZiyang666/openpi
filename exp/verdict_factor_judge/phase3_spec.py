@@ -340,7 +340,7 @@ def build_eval_yaml_for_cell(
     return {
         "enabled": True,
         "timer": {"enabled": False, "buffer_size": 10000, "output_csv_dir": None},
-        "keys": {k: {"enabled": True, "weight": 1.0} for k in cfg["vector_dims"]},
+        "keys": dict(cfg["keys"]),
         "key_builder": {"type": cfg["key_builder_type"]},
         "checkpoints": {
             "cp1": {

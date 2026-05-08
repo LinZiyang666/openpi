@@ -95,16 +95,98 @@ cp exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl \
    exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pre_phase3.bak.pkl
 
 # 准备 8 offline factor × 8 windows = 64 keys 的 yaml
+# 注意 YAML flow-mapping `:` 后必须有空格，否则 PyYAML 把 `past:0` 当 plain scalar，
+# 解析为 {"past:0": None}，后续 `int(w["past"])` 报 KeyError: 'past'
 cat > /tmp/phase3_offline_factors.yaml <<'YAML'
 factors:
-  - {type: jerk_offline_action,        params: {windows: [{past:0,future:3},{past:0,future:5},{past:1,future:1},{past:2,future:2},{past:3,future:3},{past:5,future:5},{past:7,future:7},{past:3,future:0}]}}
-  - {type: jerk_offline_state,         params: {windows: [{past:0,future:3},{past:0,future:5},{past:1,future:1},{past:2,future:2},{past:3,future:3},{past:5,future:5},{past:7,future:7},{past:3,future:0}]}}
-  - {type: direction_offline_action,   params: {windows: [{past:0,future:3},{past:0,future:5},{past:1,future:1},{past:2,future:2},{past:3,future:3},{past:5,future:5},{past:7,future:7},{past:3,future:0}]}}
-  - {type: direction_offline_state,    params: {windows: [{past:0,future:3},{past:0,future:5},{past:1,future:1},{past:2,future:2},{past:3,future:3},{past:5,future:5},{past:7,future:7},{past:3,future:0}]}}
-  - {type: dispersion_offline_action,  params: {windows: [{past:0,future:3},{past:0,future:5},{past:1,future:1},{past:2,future:2},{past:3,future:3},{past:5,future:5},{past:7,future:7},{past:3,future:0}]}}
-  - {type: dispersion_offline_state,   params: {windows: [{past:0,future:3},{past:0,future:5},{past:1,future:1},{past:2,future:2},{past:3,future:3},{past:5,future:5},{past:7,future:7},{past:3,future:0}]}}
-  - {type: path_length_offline_action, params: {windows: [{past:0,future:3},{past:0,future:5},{past:1,future:1},{past:2,future:2},{past:3,future:3},{past:5,future:5},{past:7,future:7},{past:3,future:0}]}}
-  - {type: path_length_offline_state,  params: {windows: [{past:0,future:3},{past:0,future:5},{past:1,future:1},{past:2,future:2},{past:3,future:3},{past:5,future:5},{past:7,future:7},{past:3,future:0}]}}
+  - type: jerk_offline_action
+    params:
+      windows:
+        - {past: 0, future: 3}
+        - {past: 0, future: 5}
+        - {past: 1, future: 1}
+        - {past: 2, future: 2}
+        - {past: 3, future: 3}
+        - {past: 5, future: 5}
+        - {past: 7, future: 7}
+        - {past: 3, future: 0}
+  - type: jerk_offline_state
+    params:
+      windows:
+        - {past: 0, future: 3}
+        - {past: 0, future: 5}
+        - {past: 1, future: 1}
+        - {past: 2, future: 2}
+        - {past: 3, future: 3}
+        - {past: 5, future: 5}
+        - {past: 7, future: 7}
+        - {past: 3, future: 0}
+  - type: direction_offline_action
+    params:
+      windows:
+        - {past: 0, future: 3}
+        - {past: 0, future: 5}
+        - {past: 1, future: 1}
+        - {past: 2, future: 2}
+        - {past: 3, future: 3}
+        - {past: 5, future: 5}
+        - {past: 7, future: 7}
+        - {past: 3, future: 0}
+  - type: direction_offline_state
+    params:
+      windows:
+        - {past: 0, future: 3}
+        - {past: 0, future: 5}
+        - {past: 1, future: 1}
+        - {past: 2, future: 2}
+        - {past: 3, future: 3}
+        - {past: 5, future: 5}
+        - {past: 7, future: 7}
+        - {past: 3, future: 0}
+  - type: dispersion_offline_action
+    params:
+      windows:
+        - {past: 0, future: 3}
+        - {past: 0, future: 5}
+        - {past: 1, future: 1}
+        - {past: 2, future: 2}
+        - {past: 3, future: 3}
+        - {past: 5, future: 5}
+        - {past: 7, future: 7}
+        - {past: 3, future: 0}
+  - type: dispersion_offline_state
+    params:
+      windows:
+        - {past: 0, future: 3}
+        - {past: 0, future: 5}
+        - {past: 1, future: 1}
+        - {past: 2, future: 2}
+        - {past: 3, future: 3}
+        - {past: 5, future: 5}
+        - {past: 7, future: 7}
+        - {past: 3, future: 0}
+  - type: path_length_offline_action
+    params:
+      windows:
+        - {past: 0, future: 3}
+        - {past: 0, future: 5}
+        - {past: 1, future: 1}
+        - {past: 2, future: 2}
+        - {past: 3, future: 3}
+        - {past: 5, future: 5}
+        - {past: 7, future: 7}
+        - {past: 3, future: 0}
+  - type: path_length_offline_state
+    params:
+      windows:
+        - {past: 0, future: 3}
+        - {past: 0, future: 5}
+        - {past: 1, future: 1}
+        - {past: 2, future: 2}
+        - {past: 3, future: 3}
+        - {past: 5, future: 5}
+        - {past: 7, future: 7}
+        - {past: 3, future: 0}
 YAML
 
 # 跑 enrich (in-place overwrite, ~2-5 min CPU only)

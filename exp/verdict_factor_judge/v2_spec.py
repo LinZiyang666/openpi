@@ -42,14 +42,41 @@ def _exp_decay_weights(depth: int, *, decay: float = 0.7) -> list[float]:
     return [decay ** i for i in range(depth)]
 
 
+# vector_dims, keys-fusion weights, and field_similarity must match the
+# canonical spatial16 phase2 layer1 yaml shape so the artifact load_artifact
+# check passes (4-key declared vs 4-key in pkl) AND so search retrieval
+# behaviour mirrors the Phase 2 frozen baseline (per plan §1 "factor configs
+# 完全冻结, with Phase 2 Layer 1 verbatim"). prompt_emb has weight=0 — its
+# vector still travels as a search field but contributes nothing to fusion.
+_FIELD_SIM_DEFAULT = {
+    "vision_0":   {"type": "cosine"},
+    "vision_1":   {"type": "cosine"},
+    "prompt_emb": {"type": "cosine"},
+    "robot_state": {
+        "type": "l2",
+        "to_similarity": {"type": "exp", "tau": 0.334717},
+    },
+}
+
+_KEYS_DEFAULT = {
+    "vision_0":   {"enabled": True,  "weight": 0.5},
+    "vision_1":   {"enabled": True,  "weight": 0.25},
+    "vision_2":   {"enabled": False, "weight": 0.0},
+    "prompt_emb": {"enabled": True,  "weight": 0.0},
+    "robot_state": {"enabled": True, "weight": 0.25},
+}
+
+
 CFG_SPECS: dict[str, dict[str, Any]] = {
     "spatial16_w8_d4": {
         "key_builder_type": "cp1_spatial_pool_16",
         "vector_dims": {
             "vision_0": 32768,
             "vision_1": 32768,
+            "prompt_emb": 2048,
             "robot_state": 32,
         },
+        "keys": _KEYS_DEFAULT,
         "preload_pkl": "exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl",
         # SearchStrategyConfig has no ``weights`` field — fusion weights come
         # from yaml top-level ``keys.<name>.weight``. trajectory_weights is
@@ -60,6 +87,7 @@ CFG_SPECS: dict[str, dict[str, Any]] = {
             "top_k": 1,
             "trajectory_depth": 4,
             "trajectory_weights": _exp_decay_weights(4),
+            "field_similarity": _FIELD_SIM_DEFAULT,
         },
     },
     "max_pool_w3_d5": {
@@ -67,8 +95,10 @@ CFG_SPECS: dict[str, dict[str, Any]] = {
         "vector_dims": {
             "vision_0": 2048,
             "vision_1": 2048,
+            "prompt_emb": 2048,
             "robot_state": 32,
         },
+        "keys": _KEYS_DEFAULT,
         "preload_pkl": "exp/common/data/cache_artifacts/libero_spatial/cp1_max_pool.pkl",
         "search_strategy": {
             "type": "weighted_rrf_knn",
@@ -76,6 +106,7 @@ CFG_SPECS: dict[str, dict[str, Any]] = {
             "top_k": 1,
             "trajectory_depth": 5,
             "trajectory_weights": _exp_decay_weights(5),
+            "field_similarity": _FIELD_SIM_DEFAULT,
         },
     },
     "clip_w7_d4": {
@@ -83,8 +114,10 @@ CFG_SPECS: dict[str, dict[str, Any]] = {
         "vector_dims": {
             "vision_0": 512,
             "vision_1": 512,
+            "prompt_emb": 2048,
             "robot_state": 32,
         },
+        "keys": _KEYS_DEFAULT,
         "preload_pkl": "exp/common/data/cache_artifacts/libero_spatial/clip_vit_b_32.pkl",
         "search_strategy": {
             "type": "weighted_rrf_knn",
@@ -92,6 +125,7 @@ CFG_SPECS: dict[str, dict[str, Any]] = {
             "top_k": 1,
             "trajectory_depth": 4,
             "trajectory_weights": _exp_decay_weights(4),
+            "field_similarity": _FIELD_SIM_DEFAULT,
         },
     },
 }
@@ -317,7 +351,7 @@ def build_eval_yaml(
     return {
         "enabled": True,
         "timer": {"enabled": False, "buffer_size": 10000, "output_csv_dir": None},
-        "keys": {k: {"enabled": True, "weight": 1.0} for k in cfg["vector_dims"]},
+        "keys": dict(cfg["keys"]),
         "key_builder": {"type": cfg["key_builder_type"]},
         "checkpoints": {
             "cp1": {
@@ -375,7 +409,7 @@ def build_warmup_yaml(
     return {
         "enabled": True,
         "timer": {"enabled": False, "buffer_size": 10000, "output_csv_dir": None},
-        "keys": {k: {"enabled": True, "weight": 1.0} for k in cfg["vector_dims"]},
+        "keys": dict(cfg["keys"]),
         "key_builder": {"type": cfg["key_builder_type"]},
         "checkpoints": {
             "cp1": {
