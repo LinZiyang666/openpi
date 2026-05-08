@@ -328,14 +328,22 @@ def _run_one_recipe(
         eval_yaml_path = eval_yaml_dir / f"{eval_yaml_id}.yaml"
         write_yaml(eval_yaml_path, eval_yaml_dict)
 
-        # Server load + preload buffer (matches run_phase.py step 5+6).
+        # Phase 3 ordering: preload BEFORE load_cache_config — the eval
+        # yaml's calibration uses ``samples_source.type=warmup`` which on
+        # load_cache_config calls ``_load_calibration_samples(yaml_id=
+        # eval_yaml_id)`` against the WarmupPool. WarmupPool is a module-
+        # level dict keyed by eval_yaml_id; preload populates that entry,
+        # so it MUST run before load_cache_config or load fails with
+        # "WarmupPool has no entry for yaml_id=...".
+        # (Differs from phase2's run_phase.py where the legacy yaml uses
+        #  ``cold_start_strategy: force_miss`` and never reads WarmupPool.)
         with WebsocketClientPolicy(host=args.host, port=args.port) as ctl:
+            ack = ctl.preload_normalizer_buffer(eval_yaml_id, buffer)
+            n_warmup_keys = ack.get("n_keys", n_warmup_keys)
             ctl.load_cache_config(
                 yaml_content=eval_yaml_path.read_text(encoding="utf-8"),
                 yaml_id=eval_yaml_id,
             )
-            ack = ctl.preload_normalizer_buffer(eval_yaml_id, buffer)
-            n_warmup_keys = ack.get("n_keys", n_warmup_keys)
 
         # Eval workers.
         episode_results_path = (
