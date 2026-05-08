@@ -11,7 +11,10 @@ import json
 from pathlib import Path
 
 from exp.verdict_factor_judge.phase3_spec import GRID
-from exp.verdict_factor_judge.run_phase3 import _write_na_summary_rows
+from exp.verdict_factor_judge.run_phase3 import (
+    _recipe_end_cleanup,
+    _write_na_summary_rows,
+)
 
 
 # ----------------------------------------------------------------------
@@ -93,6 +96,153 @@ def test_write_na_summary_rows_yaml_id_marks_NA(tmp_path: Path) -> None:
         grid=[(0.2, 0.3)],
     )
     assert rows[0]["yaml_id"] == "spatial16_w8_d4_phase3_g4_f1b_t_w_short_d_jerk__fh0.2_ws0.3__NA"
+
+
+def _make_warmup_yaml(tmp_path: Path) -> Path:
+    p = tmp_path / "warmup.yaml"
+    p.write_text("enabled: true\n")    # content irrelevant — read as text only
+    return p
+
+
+class _RecordingCtl:
+    """Mock WebsocketClientPolicy that records (method, kwargs) call order."""
+
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, dict]] = []
+
+    def load_cache_config(self, *, yaml_content: str, yaml_id: str) -> dict:
+        self.calls.append(("load_cache_config", {"yaml_id": yaml_id}))
+        return {"__ack__": "load_cache_config"}
+
+    def unload_warmup_buffer(self, eval_yaml_id: str) -> dict:
+        self.calls.append(("unload_warmup_buffer", {"eval_yaml_id": eval_yaml_id}))
+        return {"__ack__": "unload_warmup_buffer"}
+
+
+# ----------------------------------------------------------------------
+# G2 R1 (post-deployment): bundle race fix — recipe-end cleanup ordering
+# ----------------------------------------------------------------------
+
+
+def test_recipe_end_cleanup_resets_bundle_first_then_unloads(tmp_path: Path) -> None:
+    """ORDER MATTERS: load_cache_config(warmup_yaml) MUST run before any
+    unload_warmup_buffer call. Otherwise the server's _current_bundle
+    stays at the previous cell's eval yaml (samples_source=warmup), and
+    the next recipe's first connect-time build_per_connection_components
+    fails with "WarmupPool has no entry for yaml_id=...".
+    """
+    warmup_yaml_path = _make_warmup_yaml(tmp_path)
+    ctl = _RecordingCtl()
+    grid = [(0.2, 0.2), (0.3, 0.3), (0.5, 0.5)]
+    _recipe_end_cleanup(
+        ctl,
+        recipe_id="g4_test",
+        warmup_yaml_path=warmup_yaml_path,
+        warmup_yaml_id="spatial16_phase3_g4_test__warmup",
+        warmup_eval_yaml_id="spatial16_phase3_g4_test",
+        grid=grid,
+    )
+    # First call MUST be the bundle-reset load_cache_config.
+    assert ctl.calls[0] == (
+        "load_cache_config",
+        {"yaml_id": "spatial16_phase3_g4_test__warmup"},
+    )
+    # Then 3 cell unloads.
+    assert ctl.calls[1] == (
+        "unload_warmup_buffer",
+        {"eval_yaml_id": "spatial16_phase3_g4_test__fh0.2_ws0.2"},
+    )
+    assert ctl.calls[2] == (
+        "unload_warmup_buffer",
+        {"eval_yaml_id": "spatial16_phase3_g4_test__fh0.3_ws0.3"},
+    )
+    assert ctl.calls[3] == (
+        "unload_warmup_buffer",
+        {"eval_yaml_id": "spatial16_phase3_g4_test__fh0.5_ws0.5"},
+    )
+    # Last call: warmup_eval_yaml_id unload (server-side deletes disk dump).
+    assert ctl.calls[4] == (
+        "unload_warmup_buffer",
+        {"eval_yaml_id": "spatial16_phase3_g4_test"},
+    )
+
+
+def test_recipe_end_cleanup_full_grid_yields_18_calls(tmp_path: Path) -> None:
+    """Full 16-cell grid: 1 load + 16 cell unloads + 1 warmup unload = 18 RPCs."""
+    warmup_yaml_path = _make_warmup_yaml(tmp_path)
+    ctl = _RecordingCtl()
+    _recipe_end_cleanup(
+        ctl,
+        recipe_id="g1_test",
+        warmup_yaml_path=warmup_yaml_path,
+        warmup_yaml_id="spatial16_phase3_g1_test__warmup",
+        warmup_eval_yaml_id="spatial16_phase3_g1_test",
+        grid=list(GRID),
+    )
+    assert len(ctl.calls) == 1 + 16 + 1
+    # Method tally
+    method_counts = {"load_cache_config": 0, "unload_warmup_buffer": 0}
+    for m, _ in ctl.calls:
+        method_counts[m] += 1
+    assert method_counts == {"load_cache_config": 1, "unload_warmup_buffer": 17}
+
+
+def test_recipe_end_cleanup_tolerates_unload_errors_continues(tmp_path: Path) -> None:
+    """A single cell unload raising must not abort the cleanup — the
+    remaining unloads (and the final warmup_eval unload) must still run.
+    Otherwise a server-side glitch on cell 5 would leak entries 6-15.
+    """
+    warmup_yaml_path = _make_warmup_yaml(tmp_path)
+
+    class FlakyCtl(_RecordingCtl):
+        def unload_warmup_buffer(self, eval_yaml_id: str) -> dict:
+            self.calls.append(("unload_warmup_buffer", {"eval_yaml_id": eval_yaml_id}))
+            if "fh0.3_ws0.3" in eval_yaml_id:
+                raise RuntimeError("simulated wire glitch")
+            return {"__ack__": "unload_warmup_buffer"}
+
+    ctl = FlakyCtl()
+    _recipe_end_cleanup(
+        ctl,
+        recipe_id="g4_test",
+        warmup_yaml_path=warmup_yaml_path,
+        warmup_yaml_id="spatial16_phase3_g4_test__warmup",
+        warmup_eval_yaml_id="spatial16_phase3_g4_test",
+        grid=[(0.2, 0.2), (0.3, 0.3), (0.5, 0.5)],
+    )
+    # All 3 cell unloads attempted + 1 final warmup_eval unload + 1 load.
+    assert len(ctl.calls) == 1 + 3 + 1
+    # Final unload reached.
+    assert ctl.calls[-1] == (
+        "unload_warmup_buffer",
+        {"eval_yaml_id": "spatial16_phase3_g4_test"},
+    )
+
+
+def test_no_intercell_unload_in_cell_loop_source() -> None:
+    """Source-level invariant: the cell loop in _run_one_recipe must NOT
+    contain a per-cell ``ctl.unload_warmup_buffer(eval_yaml_id)`` call.
+
+    Why: a per-cell unload pops WarmupPool[eval_yaml_id] while server
+    ``_current_bundle`` still references that yaml, so the next cell's
+    connect-time build_per_connection_components fails. Keep entries
+    until recipe end.
+    """
+    import inspect
+    from exp.verdict_factor_judge.run_phase3 import _run_one_recipe
+    src = inspect.getsource(_run_one_recipe)
+    # Locate the cell loop body — between "for fh_ratio, ws_ratio in GRID:"
+    # and "Recipe-end cleanup".
+    cell_loop_marker = "for fh_ratio, ws_ratio in GRID:"
+    recipe_end_marker = "Recipe-end cleanup"
+    assert cell_loop_marker in src and recipe_end_marker in src
+    cell_loop_body = src.split(cell_loop_marker, 1)[1].split(recipe_end_marker, 1)[0]
+    # The cell loop body must not contain any unload_warmup_buffer call.
+    assert "unload_warmup_buffer" not in cell_loop_body, (
+        "_run_one_recipe cell loop must not call unload_warmup_buffer per cell; "
+        "it was the source of the inter-cell connect-time race. Move it to "
+        "_recipe_end_cleanup."
+    )
 
 
 def test_write_na_summary_rows_summary_path_none_returns_rows_no_io(tmp_path: Path) -> None:

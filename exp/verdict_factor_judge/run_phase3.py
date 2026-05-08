@@ -135,6 +135,45 @@ def _save_dump_jsonl(content: bytes, out_path: Path) -> Path:
     return out_path
 
 
+def _recipe_end_cleanup(
+    ctl,
+    *,
+    recipe_id: str,
+    warmup_yaml_path: Path,
+    warmup_yaml_id: str,
+    warmup_eval_yaml_id: str,
+    grid: list[tuple[float, float]],
+) -> None:
+    """Reset server bundle + drop every WarmupPool entry of this recipe.
+
+    ORDER MATTERS:
+      1. ``load_cache_config(warmup_yaml)`` — switches ``_current_bundle``
+         to a yaml whose ``AlwaysWarmStartJudge`` has no calibration source,
+         so any future connect-time ``build_per_connection_components`` is
+         independent of WarmupPool state.
+      2. Unload all 16 cell-level entries.
+      3. Unload ``warmup_eval_yaml_id`` — server also deletes disk dump.
+
+    The reset must precede the unloads because future connections build
+    per-conn against ``_current_bundle`` BEFORE any client RPC has a
+    chance to reset it.
+    """
+    ctl.load_cache_config(
+        yaml_content=warmup_yaml_path.read_text(encoding="utf-8"),
+        yaml_id=warmup_yaml_id,
+    )
+    for fh_ratio, ws_ratio in grid:
+        cell_eval_id = f"{warmup_eval_yaml_id}__fh{fh_ratio}_ws{ws_ratio}"
+        try:
+            ctl.unload_warmup_buffer(cell_eval_id)
+        except Exception as exc:  # noqa: BLE001
+            logger.debug(
+                "[%s] unload_warmup_buffer(%s) raised: %r",
+                recipe_id, cell_eval_id, exc,
+            )
+    ctl.unload_warmup_buffer(warmup_eval_yaml_id)
+
+
 def _write_na_summary_rows(
     summary_path: Optional[Path],
     *,
@@ -359,33 +398,23 @@ def _run_one_recipe(
         )
         subprocess.run(eval_cmd, env=eval_env, check=True)
 
-        # Cell-end cleanup: unload this cell's WarmupPool entry, then RESET
-        # the server bundle to the recipe's warmup yaml (AlwaysWarmStartJudge,
-        # no WarmupPool dependency).
+        # NO inter-cell unload. WarmupPool entries from earlier cells stay
+        # populated until recipe-end cleanup. Reasoning: a new client
+        # connection triggers ``_connection_policy_factory`` which builds
+        # per-conn components against ``_current_bundle`` BEFORE the client
+        # can send any ctrl command. The bundle is whatever was set by the
+        # previous load_cache_config — i.e. the last cell's eval yaml,
+        # which references samples_source=warmup. If we unload that cell's
+        # WarmupPool entry between cells, the next connection's build
+        # fails with "WarmupPool has no entry for yaml_id=..." before any
+        # reset can happen. Letting the entry persist means the next
+        # cell's connect-time build still finds the entry and proceeds;
+        # the cell then preloads its own entry and load_cache_config
+        # switches the bundle to the new cell.
         #
-        # Why the reset is required: a new client connection triggers
-        # ``_connection_policy_factory(self._policy)`` on the server which
-        # calls ``build_per_connection_components(_current_bundle)`` BEFORE
-        # the client can send any ctrl command. If ``_current_bundle`` is
-        # this cell's eval yaml (samples_source=warmup) and we just popped
-        # its WarmupPool entry, that build fails with
-        # "WarmupPool has no entry for yaml_id=...; the sibling warmup yaml
-        # must run before this eval yaml loads." — and the next cell's
-        # WebsocketClientPolicy(...) connect raises 1011 internal error
-        # before it can preload + reload.
-        #
-        # Rolling the bundle back to the warmup yaml between cells keeps
-        # every connection-time build_per_connection_components against an
-        # AlwaysWarmStartJudge config, which has no calibration source and
-        # therefore no WarmupPool lookup. The next cell then preloads its
-        # buffer and load_cache_config(eval_yaml_id) switches the bundle
-        # back to the cell's eval state for the actual eval rollout.
-        with WebsocketClientPolicy(host=args.host, port=args.port) as ctl:
-            ctl.unload_warmup_buffer(eval_yaml_id)
-            ctl.load_cache_config(
-                yaml_content=warmup_yaml_path.read_text(encoding="utf-8"),
-                yaml_id=warmup_yaml_id,
-            )
+        # Memory cost: 16 cells × ~17 factor keys × ~420 floats ≈ 110 KB
+        # per recipe — negligible. All entries are dropped at recipe end
+        # AFTER the bundle has been rolled back to a no-WarmupPool yaml.
 
         # Summarize.
         counts = _summarize_per_step_log(args.per_step_log_dir, eval_yaml_id)
@@ -409,19 +438,34 @@ def _run_one_recipe(
             with summary_path.open("a") as fh:
                 fh.write(json.dumps(summary) + "\n")
 
-    # G2 R1 B5 fix: recipe-level cleanup. The per-cell unload above only
-    # frees each eval yaml's WarmupPool entry; the shared warmup yaml's
-    # own pool entry + dump file are released here, after every cell of
-    # this recipe has finished.
+    # Recipe-end cleanup. ORDER MATTERS:
+    #   1. Reset server bundle to the warmup yaml FIRST. The warmup yaml's
+    #      AlwaysWarmStartJudge has no calibration source, so any future
+    #      connect-time build_per_connection_components against this
+    #      bundle is independent of WarmupPool state. This ensures the
+    #      next recipe's first connection succeeds regardless of which
+    #      WarmupPool entries we drop next.
+    #   2. Unload all 16 cell-level WarmupPool entries accumulated during
+    #      the cell loop.
+    #   3. Unload warmup_eval_yaml_id — server-side this also deletes the
+    #      disk dump file under --warmup-dump-root.
     if not args.skip_warmup:
-        logger.info("[%s] recipe done: unload warmup buffer", recipe_id)
+        logger.info("[%s] recipe done: reset bundle + unload all entries", recipe_id)
         try:
             with WebsocketClientPolicy(host=args.host, port=args.port) as ctl:
-                ctl.unload_warmup_buffer(warmup_eval_yaml_id)
+                _recipe_end_cleanup(
+                    ctl,
+                    recipe_id=recipe_id,
+                    warmup_yaml_path=warmup_yaml_path,
+                    warmup_yaml_id=warmup_yaml_id,
+                    warmup_eval_yaml_id=warmup_eval_yaml_id,
+                    grid=list(GRID),
+                )
         except Exception as exc:  # noqa: BLE001
             logger.warning(
-                "[%s] recipe-level unload_warmup_buffer raised: %r — leaving "
-                "the warmup pool entry in place (server cleanup will catch it)",
+                "[%s] recipe-end cleanup raised: %r — leaving server state "
+                "in place (next recipe's first connection may need a server "
+                "restart if the bundle did not reset)",
                 recipe_id, exc,
             )
 
