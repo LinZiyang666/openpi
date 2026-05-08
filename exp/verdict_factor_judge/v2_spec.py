@@ -50,7 +50,7 @@ CFG_SPECS: dict[str, dict[str, Any]] = {
             "vision_1": 32768,
             "robot_state": 32,
         },
-        "preload_pkl": "exp/warm_start/data/spatial16/cp1_spatial_pool_16.pkl",
+        "preload_pkl": "exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl",
         # SearchStrategyConfig has no ``weights`` field — fusion weights come
         # from yaml top-level ``keys.<name>.weight``. trajectory_weights is
         # required when trajectory_depth > 1; newest-first exp decay.
@@ -69,7 +69,7 @@ CFG_SPECS: dict[str, dict[str, Any]] = {
             "vision_1": 2048,
             "robot_state": 32,
         },
-        "preload_pkl": "exp/warm_start/data/max_pool/cp1_max_pool.pkl",
+        "preload_pkl": "exp/common/data/cache_artifacts/libero_spatial/cp1_max_pool.pkl",
         "search_strategy": {
             "type": "weighted_rrf_knn",
             "rrf_k": 60,
@@ -85,7 +85,7 @@ CFG_SPECS: dict[str, dict[str, Any]] = {
             "vision_1": 512,
             "robot_state": 32,
         },
-        "preload_pkl": "exp/warm_start/data/clip/clip_vit_b_32.pkl",
+        "preload_pkl": "exp/common/data/cache_artifacts/libero_spatial/clip_vit_b_32.pkl",
         "search_strategy": {
             "type": "weighted_rrf_knn",
             "rrf_k": 60,

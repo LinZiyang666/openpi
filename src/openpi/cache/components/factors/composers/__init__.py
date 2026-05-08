@@ -270,6 +270,143 @@ class WeightedSumWithWarmFallbackComposer(WeightedSumComposer):
 
 
 # ------------------------------------------------------------------
+# S1c: WeightedSum with NaN→0 (Phase 3 threshold-sweep composer)
+# ------------------------------------------------------------------
+# Phase 3 plan §2: equal-weight sum where NaN keys contribute 0 (still
+# counted in the denominator), with a fixed two-tier inclusive cascade
+# (s >= FH_thr -> FULL_HIT; s >= WS_thr -> WARM_START; else MISS).
+# Distinct from WeightedSumComposer (NaN-skip denominator) and
+# WeightedSumWithWarmFallbackComposer (all-NaN warm fallback).
+
+
+class WeightedSumZeroNanComposer:
+    """Equal-weight sum, NaN -> 0 (still counted), two-tier thresholds.
+
+    Phase 3 sweep composer. The denominator is the count of declared
+    dependencies (= keys with non-zero weight), constant per recipe.
+    NaN raw values contribute 0 to the numerator without changing the
+    denominator (in contrast to WeightedSumComposer which NaN-skips both).
+
+    Decision cascade (inclusive on both bounds):
+        s >= full_hit_threshold     -> FULL_HIT
+        s >= warm_start_threshold   -> WARM_START(start_t=warm_start_t)
+        else                        -> MISS
+
+    Validator (config.py) enforces ``warm_start_threshold <=
+    full_hit_threshold`` so the cascade is well-formed.
+    """
+
+    def __init__(
+        self,
+        weights: dict[str, float],
+        full_hit_threshold: float,
+        warm_start_threshold: float,
+        warm_start_t: float = 0.5,
+        directions: Optional[dict[str, str]] = None,
+    ) -> None:
+        self._weights = dict(weights)
+        self._full_hit_threshold = float(full_hit_threshold)
+        self._warm_start_threshold = float(warm_start_threshold)
+        self._warm_start_t = float(warm_start_t)
+        self._directions = dict(directions) if directions else {}
+        self._orientations: dict[str, str] = {}
+        # Layer 4 contract: declared dependencies = non-zero-weight keys.
+        self.declared_dependencies: set[str] = {
+            k for k, w in self._weights.items() if w != 0.0
+        }
+
+    def bind_orientations(self, orientations: dict[str, str]) -> None:
+        # Same fail-loud check as WeightedSumComposer for non_monotonic
+        # keys with non-zero weight that lack a `directions` entry.
+        self._orientations = dict(orientations)
+        missing: list[str] = []
+        for k, ori in self._orientations.items():
+            if ori != _NON_MONOTONIC:
+                continue
+            if self._weights.get(k, 0.0) == 0.0:
+                continue
+            if k not in self._directions:
+                missing.append(k)
+        if missing:
+            raise ValueError(
+                f"WeightedSumZeroNanComposer: non_monotonic keys with non-zero weight "
+                f"are missing `directions`: {sorted(missing)}"
+            )
+
+    def _score_only(self, factors: dict[str, float]) -> float:
+        """Pure score path used by the offline solver.
+
+        Returns the equal-weight average over the composer's declared
+        dependencies (keys with non-zero weight). NaN raw values
+        contribute 0 without changing the denominator. Returns NaN only
+        on the degenerate all-zero-weight construction.
+        """
+        keys = [k for k, w in self._weights.items() if w != 0.0]
+        if not keys:
+            return float("nan")
+        total = 0.0
+        for k in keys:
+            v = factors.get(k, float("nan"))
+            if math.isnan(v):
+                # NaN raw -> contrib 0; still in the denominator.
+                continue
+            ori = self._orientations.get(k)
+            if ori == _SAFE:
+                total += v
+            elif ori == _RISKY:
+                total += 1.0 - v
+            elif ori == _NON_MONOTONIC:
+                total += _apply_direction(self._directions[k], v)
+            else:
+                raise ValueError(
+                    f"WeightedSumZeroNanComposer: unknown orientation "
+                    f"{ori!r} for key {k!r}"
+                )
+        return total / len(keys)
+
+    def compose(
+        self,
+        factors: dict[str, float],
+        *,
+        winner_id: str,
+    ) -> JudgeResult:
+        s = self._score_only(factors)
+        if math.isnan(s):
+            # Only happens if declared_dependencies is empty (no
+            # non-zero weights). Emit MISS — the recipe is degenerate.
+            if _VERDICT_DEBUG:
+                _verdict_logger.info(
+                    "[vd composer] zero-nan: degenerate (no non-zero weights) -> MISS"
+                )
+            return JudgeResult(HitType.MISS, composer_score=None)
+        if s >= self._full_hit_threshold:
+            if _VERDICT_DEBUG:
+                _verdict_logger.info(
+                    "[vd composer] zero-nan: s=%.4f >= FH=%.2f -> FULL_HIT",
+                    s, self._full_hit_threshold,
+                )
+            return JudgeResult(
+                HitType.FULL_HIT, winner_id=winner_id, composer_score=s,
+            )
+        if s >= self._warm_start_threshold:
+            if _VERDICT_DEBUG:
+                _verdict_logger.info(
+                    "[vd composer] zero-nan: s=%.4f >= WS=%.2f -> WARM_START @ t=%.2f",
+                    s, self._warm_start_threshold, self._warm_start_t,
+                )
+            return JudgeResult(
+                HitType.WARM_START, winner_id=winner_id,
+                start_t=self._warm_start_t, composer_score=s,
+            )
+        if _VERDICT_DEBUG:
+            _verdict_logger.info(
+                "[vd composer] zero-nan: s=%.4f < WS=%.2f -> MISS",
+                s, self._warm_start_threshold,
+            )
+        return JudgeResult(HitType.MISS, composer_score=s)
+
+
+# ------------------------------------------------------------------
 # S2: Conjunctive per-factor thresholds
 # ------------------------------------------------------------------
 

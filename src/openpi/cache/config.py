@@ -107,12 +107,17 @@ class FactorConfig:
 class ComposerConfig:
     """Layer 4 Composer config for composite judge.
 
-    ``type`` selects one of four registered subclasses:
+    ``type`` selects one of five registered subclasses:
 
       - ``weighted_sum`` — `WeightedSumComposer` (uses `weights` + `tier_thresholds`)
       - ``weighted_sum_with_warm_fallback`` — `WeightedSumWithWarmFallbackComposer`
         (extends weighted_sum; emits WARM_START with ``warm_fallback_start_t``
         when every non-zero-weight key is NaN)
+      - ``weighted_sum_zero_nan`` — `WeightedSumZeroNanComposer` (Phase 3
+        sweep composer: equal-weight, NaN keys contribute 0 with fixed
+        denominator, mandatory two-tier inclusive cascade FH/WS, no
+        all-NaN warm fallback; uses `weights` + `tier_thresholds.full_hit`
+        + `tier_thresholds.warm_start` + `warm_start_t`)
       - ``and`` — `AndGateComposer` (uses `per_factor_thresholds`)
       - ``or`` — `OrGateComposer` (uses `per_factor_thresholds`)
 
@@ -814,7 +819,11 @@ def _validate_composite_judge_static(
     # set is recoverable from the yaml: weighted_sum draws on `weights`,
     # and / or gates draw on `per_factor_thresholds`.
     composer_keys: set[str]
-    if composer.type in {"weighted_sum", "weighted_sum_with_warm_fallback"}:
+    if composer.type in {
+        "weighted_sum",
+        "weighted_sum_with_warm_fallback",
+        "weighted_sum_zero_nan",
+    }:
         composer_keys = {k for k, w in weights.items() if w != 0.0}
     elif composer.type in {"and", "or"}:
         composer_keys = set(per_factor_thresholds.keys())
@@ -909,6 +918,46 @@ def _validate_composite_judge_static(
             errors.append(
                 f"{prefix}.judge.composer: warm_start_t is set but "
                 f"tier_thresholds.warm_start is missing — both are required to emit WARM_START"
+            )
+
+    # (5e) weighted_sum_zero_nan composer rules (Phase 3 sweep):
+    #   - both tier thresholds mandatory (fixed two-tier inclusive cascade)
+    #   - warm_start <= full_hit (equality allowed; degenerates WS path
+    #     to never-emitted but well-formed, per plan §3.2)
+    #   - warm_start_t mandatory (fixed for the WS emission path)
+    #   - non-empty declared dependencies (at least one non-zero weight)
+    #   - inherits CP1-only rule on warm_start_t via the (5a-5c) block
+    #     above (warm_start_t already validated there)
+    if composer.type == "weighted_sum_zero_nan":
+        tt = composer.tier_thresholds or {}
+        full_zn = tt.get("full_hit")
+        warm_zn = tt.get("warm_start")
+        if full_zn is None:
+            errors.append(
+                f"{prefix}.judge.composer.tier_thresholds: "
+                "'weighted_sum_zero_nan' requires 'full_hit'"
+            )
+        if warm_zn is None:
+            errors.append(
+                f"{prefix}.judge.composer.tier_thresholds: "
+                "'weighted_sum_zero_nan' requires 'warm_start'"
+            )
+        if full_zn is not None and warm_zn is not None and warm_zn > full_zn:
+            errors.append(
+                f"{prefix}.judge.composer.tier_thresholds: "
+                f"'warm_start' ({warm_zn}) must be <= 'full_hit' ({full_zn})"
+            )
+        if composer.warm_start_t is None:
+            errors.append(
+                f"{prefix}.judge.composer.warm_start_t is required for "
+                "type='weighted_sum_zero_nan' (composer always emits a WARM_START "
+                "path; warm_start_t must be set)"
+            )
+        non_zero_weights = {k: w for k, w in weights.items() if w != 0.0}
+        if not non_zero_weights:
+            errors.append(
+                f"{prefix}.judge.composer: 'weighted_sum_zero_nan' requires at "
+                "least one non-zero weight (declared dependencies cannot be empty)"
             )
 
     # (6) all-NaN bootstrap fallback has been removed in the refactor:
@@ -2172,6 +2221,7 @@ def _build_composer(cfg: ComposerConfig):
         OrGateComposer,
         WeightedSumComposer,
         WeightedSumWithWarmFallbackComposer,
+        WeightedSumZeroNanComposer,
     )
 
     if cfg.type in {"weighted_sum", "weighted_sum_with_warm_fallback"}:
@@ -2205,6 +2255,18 @@ def _build_composer(cfg: ComposerConfig):
             warm_start_t=cfg.warm_start_t,
             directions=cfg.directions,
         )
+    if cfg.type == "weighted_sum_zero_nan":
+        # Phase 3 sweep composer: equal-weight, NaN -> 0 (still counted),
+        # mandatory two-tier thresholds, fixed warm_start_t (no all-NaN
+        # fallback). Validator (see _validate_composite_judge) enforces
+        # presence + ordering of tier_thresholds and warm_start_t.
+        return WeightedSumZeroNanComposer(
+            weights=cfg.weights,
+            full_hit_threshold=cfg.tier_thresholds["full_hit"],
+            warm_start_threshold=cfg.tier_thresholds["warm_start"],
+            warm_start_t=cfg.warm_start_t,
+            directions=cfg.directions,
+        )
     if cfg.type == "and":
         if cfg.per_factor_thresholds is None:
             raise ConfigValidationError(
@@ -2227,7 +2289,8 @@ def _build_composer(cfg: ComposerConfig):
         )
     raise ConfigValidationError(
         f"Unknown composer.type {cfg.type!r}. Valid: "
-        "['weighted_sum', 'weighted_sum_with_warm_fallback', 'and', 'or']"
+        "['weighted_sum', 'weighted_sum_with_warm_fallback', "
+        "'weighted_sum_zero_nan', 'and', 'or']"
     )
 
 

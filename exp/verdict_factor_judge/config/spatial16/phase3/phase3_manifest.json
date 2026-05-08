@@ -1,0 +1,126 @@
+{
+  "cfg_id": "spatial16_w8_d4",
+  "recipes": [
+    {
+      "recipe_id": "g1_f1b_t_w_fut_d_all",
+      "warmup_yaml_id": "spatial16_w8_d4_phase3_g1_f1b_t_w_fut_d_all__warmup",
+      "warmup_yaml_path": "config/spatial16/phase3/warmup/spatial16_w8_d4_phase3_g1_f1b_t_w_fut_d_all__warmup.yaml"
+    },
+    {
+      "recipe_id": "g2_f1b_t_w_long_risk_d_jerk",
+      "warmup_yaml_id": "spatial16_w8_d4_phase3_g2_f1b_t_w_long_risk_d_jerk__warmup",
+      "warmup_yaml_path": "config/spatial16/phase3/warmup/spatial16_w8_d4_phase3_g2_f1b_t_w_long_risk_d_jerk__warmup.yaml"
+    },
+    {
+      "recipe_id": "g3_f1b_t_w_long_risk_d_all",
+      "warmup_yaml_id": "spatial16_w8_d4_phase3_g3_f1b_t_w_long_risk_d_all__warmup",
+      "warmup_yaml_path": "config/spatial16/phase3/warmup/spatial16_w8_d4_phase3_g3_f1b_t_w_long_risk_d_all__warmup.yaml"
+    },
+    {
+      "recipe_id": "g4_f1b_t_w_short_d_jerk",
+      "warmup_yaml_id": "spatial16_w8_d4_phase3_g4_f1b_t_w_short_d_jerk__warmup",
+      "warmup_yaml_path": "config/spatial16/phase3/warmup/spatial16_w8_d4_phase3_g4_f1b_t_w_short_d_jerk__warmup.yaml"
+    },
+    {
+      "recipe_id": "g5_f1a_t_d_jerk_dir_pair",
+      "warmup_yaml_id": "spatial16_w8_d4_phase3_g5_f1a_t_d_jerk_dir_pair__warmup",
+      "warmup_yaml_path": "config/spatial16/phase3/warmup/spatial16_w8_d4_phase3_g5_f1a_t_d_jerk_dir_pair__warmup.yaml"
+    },
+    {
+      "recipe_id": "g6_f1a_a_d_jerk_curv_pair",
+      "warmup_yaml_id": "spatial16_w8_d4_phase3_g6_f1a_a_d_jerk_curv_pair__warmup",
+      "warmup_yaml_path": "config/spatial16/phase3/warmup/spatial16_w8_d4_phase3_g6_f1a_a_d_jerk_curv_pair__warmup.yaml"
+    },
+    {
+      "recipe_id": "g7_f1b_a_w_long_risk_d_jerk",
+      "warmup_yaml_id": "spatial16_w8_d4_phase3_g7_f1b_a_w_long_risk_d_jerk__warmup",
+      "warmup_yaml_path": "config/spatial16/phase3/warmup/spatial16_w8_d4_phase3_g7_f1b_a_w_long_risk_d_jerk__warmup.yaml"
+    },
+    {
+      "recipe_id": "g8_f1a_t_d_curv_only",
+      "warmup_yaml_id": "spatial16_w8_d4_phase3_g8_f1a_t_d_curv_only__warmup",
+      "warmup_yaml_path": "config/spatial16/phase3/warmup/spatial16_w8_d4_phase3_g8_f1a_t_d_curv_only__warmup.yaml"
+    },
+    {
+      "recipe_id": "g9_f1b_t_w_sym_s_d_all",
+      "warmup_yaml_id": "spatial16_w8_d4_phase3_g9_f1b_t_w_sym_s_d_all__warmup",
+      "warmup_yaml_path": "config/spatial16/phase3/warmup/spatial16_w8_d4_phase3_g9_f1b_t_w_sym_s_d_all__warmup.yaml"
+    },
+    {
+      "recipe_id": "g10_f1b_a_w_fut_d_all",
+      "warmup_yaml_id": "spatial16_w8_d4_phase3_g10_f1b_a_w_fut_d_all__warmup",
+      "warmup_yaml_path": "config/spatial16/phase3/warmup/spatial16_w8_d4_phase3_g10_f1b_a_w_fut_d_all__warmup.yaml"
+    },
+    {
+      "recipe_id": "g11_f1a_a_d_curv_only",
+      "warmup_yaml_id": "spatial16_w8_d4_phase3_g11_f1a_a_d_curv_only__warmup",
+      "warmup_yaml_path": "config/spatial16/phase3/warmup/spatial16_w8_d4_phase3_g11_f1a_a_d_curv_only__warmup.yaml"
+    }
+  ],
+  "grid": [
+    [
+      0.2,
+      0.2
+    ],
+    [
+      0.2,
+      0.3
+    ],
+    [
+      0.2,
+      0.4
+    ],
+    [
+      0.2,
+      0.5
+    ],
+    [
+      0.3,
+      0.2
+    ],
+    [
+      0.3,
+      0.3
+    ],
+    [
+      0.3,
+      0.4
+    ],
+    [
+      0.3,
+      0.5
+    ],
+    [
+      0.4,
+      0.2
+    ],
+    [
+      0.4,
+      0.3
+    ],
+    [
+      0.4,
+      0.4
+    ],
+    [
+      0.4,
+      0.5
+    ],
+    [
+      0.5,
+      0.2
+    ],
+    [
+      0.5,
+      0.3
+    ],
+    [
+      0.5,
+      0.4
+    ],
+    [
+      0.5,
+      0.5
+    ]
+  ]
+}
