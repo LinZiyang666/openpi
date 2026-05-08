@@ -359,14 +359,33 @@ def _run_one_recipe(
         )
         subprocess.run(eval_cmd, env=eval_env, check=True)
 
-        # Cleanup eval yaml's per-conn pool (warmup buffer is shared across
-        # cells so we DON'T unload here — only after the recipe's last cell).
-        # The server's WarmupPool uses eval_yaml_id as key; preload_normalizer_buffer
-        # populated a per-yaml entry. unload_warmup_buffer per cell is the
-        # symmetric tear-down so multiple cells running on one server don't
-        # accumulate stale entries.
+        # Cell-end cleanup: unload this cell's WarmupPool entry, then RESET
+        # the server bundle to the recipe's warmup yaml (AlwaysWarmStartJudge,
+        # no WarmupPool dependency).
+        #
+        # Why the reset is required: a new client connection triggers
+        # ``_connection_policy_factory(self._policy)`` on the server which
+        # calls ``build_per_connection_components(_current_bundle)`` BEFORE
+        # the client can send any ctrl command. If ``_current_bundle`` is
+        # this cell's eval yaml (samples_source=warmup) and we just popped
+        # its WarmupPool entry, that build fails with
+        # "WarmupPool has no entry for yaml_id=...; the sibling warmup yaml
+        # must run before this eval yaml loads." — and the next cell's
+        # WebsocketClientPolicy(...) connect raises 1011 internal error
+        # before it can preload + reload.
+        #
+        # Rolling the bundle back to the warmup yaml between cells keeps
+        # every connection-time build_per_connection_components against an
+        # AlwaysWarmStartJudge config, which has no calibration source and
+        # therefore no WarmupPool lookup. The next cell then preloads its
+        # buffer and load_cache_config(eval_yaml_id) switches the bundle
+        # back to the cell's eval state for the actual eval rollout.
         with WebsocketClientPolicy(host=args.host, port=args.port) as ctl:
             ctl.unload_warmup_buffer(eval_yaml_id)
+            ctl.load_cache_config(
+                yaml_content=warmup_yaml_path.read_text(encoding="utf-8"),
+                yaml_id=warmup_yaml_id,
+            )
 
         # Summarize.
         counts = _summarize_per_step_log(args.per_step_log_dir, eval_yaml_id)
