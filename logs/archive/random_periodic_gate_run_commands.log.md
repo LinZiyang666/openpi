@@ -24,13 +24,13 @@ Plan：[`logs/random_periodic_gate_plan.log.md`](random_periodic_gate_plan.log.m
 
 ## 端口映射
 
-前 3 batch 沿用 phase1 约定 frp `155.98.36.13:{8998,8999,9000}`（server 本地端口 `7998/7999/8000`）；**batch4/5/6 用新 server 的公网入口直连**，需填 `<SERVER_N_HOST>` / `<SERVER_N_PORT>`。
+前 3 batch 沿用 phase1 约定 frp `155.98.36.32:{8998,8999,9000}`（server 本地端口 `7998/7999/8000`）；**batch4/5/6 用新 server 的公网入口直连**，需填 `<SERVER_N_HOST>` / `<SERVER_N_PORT>`。
 
 | batch | Cfg | Server 入口 | Server 本地端口 | 种子 yaml（字典序首） |
 |---|---|---|---:|---|
-| `batch1` | `clip_w7_d4` | `155.98.36.13:8998` | `7998` | `periodic_k10_n1.yaml` |
-| `batch2` | `spatial16_w8_d4` | `155.98.36.13:8999` | `7999` | `periodic_k10_n1.yaml` |
-| `batch3` | `max_pool_w3_d5` | `155.98.36.13:9000` | `8000` | `periodic_k10_n1.yaml` |
+| `batch1` | `clip_w7_d4` | `155.98.36.32:8998` | `7998` | `periodic_k10_n1.yaml` |
+| `batch2` | `spatial16_w8_d4` | `155.98.36.32:8999` | `7999` | `periodic_k10_n1.yaml` |
+| `batch3` | `max_pool_w3_d5` | `155.98.36.32:9000` | `8000` | `periodic_k10_n1.yaml` |
 | `batch4` | `clip_w7_d4` | `149.165.151.106:8001` | `8001` | `random_p0p10_s0.yaml` |
 | `batch5` | `spatial16_w8_d4` | `149.165.151.106:8002` | `8002` | `random_p0p10_s0.yaml` |
 | `batch6` | `max_pool_w3_d5` | `149.165.151.106:8003` | `8003` | `random_p0p10_s0.yaml` |
@@ -46,7 +46,7 @@ Plan：[`logs/random_periodic_gate_plan.log.md`](random_periodic_gate_plan.log.m
 ```bash
 for p in 8998 8999 9000; do
     printf 'port %s: ' "$p"
-    curl -s "http://155.98.36.13:${p}/healthz" || echo
+    curl -s "http://155.98.36.32:${p}/healthz" || echo
 done
 ```
 
@@ -160,7 +160,7 @@ uv run scripts/serve_policy.py \
 conda run -p /scratch/zixuans8/libero_sim \
     python -m exp.random_periodic_gate.run_gate_sweep \
     --batch-dir exp/random_periodic_gate/config/batch1 \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --task-suite-name libero_spatial \
     --num-workers 5 \
     --resume
@@ -172,7 +172,7 @@ conda run -p /scratch/zixuans8/libero_sim \
 conda run -p /scratch/zixuans8/libero_sim \
     python -m exp.random_periodic_gate.run_gate_sweep \
     --batch-dir exp/random_periodic_gate/config/batch2 \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --task-suite-name libero_spatial \
     --num-workers 5 \
     --resume
@@ -184,7 +184,7 @@ conda run -p /scratch/zixuans8/libero_sim \
 conda run -p /scratch/zixuans8/libero_sim \
     python -m exp.random_periodic_gate.run_gate_sweep \
     --batch-dir exp/random_periodic_gate/config/batch3 \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --task-suite-name libero_spatial \
     --num-workers 5 \
     --resume

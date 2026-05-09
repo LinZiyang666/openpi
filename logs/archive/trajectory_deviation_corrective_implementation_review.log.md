@@ -2786,7 +2786,7 @@ V-2 同样不回滚任何 Layer A–F 代码。Layer F 的 start_obs-from-HDF5 �
 
 ### 28.7 Verify 端到端 dry-run 结果（§28.4.2 第 2 项）
 
-在 `155.98.36.13:9000` 公网 server（pi05_libero, `clip_w7_d4.yaml` 作为 cache-eval 配置，`inference_clip_w7_d4.yaml` 作为 Phase 1/GT 的 always_skip 配置）上跑完 Step 1a → C → D → E → F → G 最小闭环。全链路规模刻意压缩到 1 config × 10 task × 5 trial（Step 1a）→ 3 failed-init units（dry-run subset）→ 3 GT episodes → 3 deviate-score jsons → 18 spawn units。每一步生成物落在 `data/deviation_experiment/`。
+在 `155.98.36.32:9000` 公网 server（pi05_libero, `clip_w7_d4.yaml` 作为 cache-eval 配置，`inference_clip_w7_d4.yaml` 作为 Phase 1/GT 的 always_skip 配置）上跑完 Step 1a → C → D → E → F → G 最小闭环。全链路规模刻意压缩到 1 config × 10 task × 5 trial（Step 1a）→ 3 failed-init units（dry-run subset）→ 3 GT episodes → 3 deviate-score jsons → 18 spawn units。每一步生成物落在 `data/deviation_experiment/`。
 
 | 步骤 | 脚本 | 规模 | 关键产物 | 结果 |
 |---|---|---|---|---|
@@ -2838,4 +2838,4 @@ return OffScreenRenderEnv(bddl_file_name=str(bddl_path), camera_heights=256, cam
 - `logs/trajectory_deviation_corrective_implementation.log.md` + 本 review log
 - 测试: `pytest tests/exp/ tests/examples/test_libero_main.py tests/scripts/` → 121 passed
 
-L3 trajectory-deviation corrective experiment 的 Verify 阶段 **APPROVE**。可进入 G2 gate 并合 main（下一步：commit V-3 + §28.7–§28.9 日志，通知用户关掉 `155.98.36.13:9000` 服务器）。
+L3 trajectory-deviation corrective experiment 的 Verify 阶段 **APPROVE**。可进入 G2 gate 并合 main（下一步：commit V-3 + §28.7–§28.9 日志，通知用户关掉 `155.98.36.32:9000` 服务器）。

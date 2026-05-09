@@ -96,9 +96,9 @@ CUDA_VISIBLE_DEVICES=2 uv run scripts/serve_policy.py \
 健康检查（frp 外网）：
 
 ```bash
-curl http://155.98.36.13:9000/healthz   # max_pool
-curl http://155.98.36.13:8999/healthz   # spatial16
-curl http://155.98.36.13:8998/healthz   # clip
+curl http://155.98.36.32:9000/healthz   # max_pool
+curl http://155.98.36.32:8999/healthz   # spatial16
+curl http://155.98.36.32:8998/healthz   # clip
 ```
 
 三条都返回 `OK` 才能进入 Step 1。
@@ -175,7 +175,7 @@ uv run python exp/common/run_cache_experiments.py \
     --runs 2 \
     --task-ids 0 \
     --task-suite libero_spatial \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --episodes-per-run 5 \
     --num-workers 1 \
     --seed 42 \
@@ -208,7 +208,7 @@ uv run python exp/common/run_cache_experiments.py \
 uv run python exp/common/run_cache_experiments.py \
     --yaml-dir exp/warm_start/config/max_pool \
     --task-suite libero_spatial \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --episodes-per-run 50 --num-workers 5 --seed 42 \
     --conda-env /scratch/zixuans8/libero_sim \
     --state-path exp/warm_start/data/state_full_max_pool.json
@@ -217,7 +217,7 @@ uv run python exp/common/run_cache_experiments.py \
 uv run python exp/common/run_cache_experiments.py \
     --yaml-dir exp/warm_start/config/spatial16 \
     --task-suite libero_spatial \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --episodes-per-run 50 --num-workers 5 --seed 42 \
     --conda-env /scratch/zixuans8/libero_sim \
     --state-path exp/warm_start/data/state_full_spatial16.json
@@ -226,7 +226,7 @@ uv run python exp/common/run_cache_experiments.py \
 uv run python exp/common/run_cache_experiments.py \
     --yaml-dir exp/warm_start/config/clip \
     --task-suite libero_spatial \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --episodes-per-run 50 --num-workers 5 --seed 42 \
     --conda-env /scratch/zixuans8/libero_sim \
     --state-path exp/warm_start/data/state_full_clip.json

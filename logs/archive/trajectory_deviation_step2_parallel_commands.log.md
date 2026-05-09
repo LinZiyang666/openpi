@@ -30,7 +30,7 @@ Assumed port mapping:
 | `spatial16_w8_d4` | `7999` | `8999` |
 | `max_pool_w3_d5` | `8000` | `9000` |
 
-Public host used by clients: `155.98.36.13`
+Public host used by clients: `155.98.36.32`
 
 ## Server Commands
 
@@ -78,9 +78,9 @@ uv run scripts/serve_policy.py \
 Health checks from the client/eval host:
 
 ```bash
-curl http://155.98.36.13:8998/healthz
-curl http://155.98.36.13:8999/healthz
-curl http://155.98.36.13:9000/healthz
+curl http://155.98.36.32:8998/healthz
+curl http://155.98.36.32:8999/healthz
+curl http://155.98.36.32:9000/healthz
 ```
 
 Expected output for each:
@@ -115,7 +115,7 @@ uv run python -m exp.trajectory_deviation.compute_deviate_scores \
     --out-dir data/deviation_experiment/deviate_scores_clip \
     --M 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --floor 0.1 \
     --config-yaml-dir configs/cache_runs/deviate_exp \
     --config-fail-results data/deviation_experiment/cache_eval_results_cache_fail.json \
@@ -131,7 +131,7 @@ uv run python -m exp.trajectory_deviation.compute_deviate_scores \
     --out-dir data/deviation_experiment/deviate_scores_spatial16 \
     --M 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --floor 0.1 \
     --config-yaml-dir configs/cache_runs/deviate_exp \
     --config-fail-results data/deviation_experiment/cache_eval_results_cache_fail.json \
@@ -147,7 +147,7 @@ uv run python -m exp.trajectory_deviation.compute_deviate_scores \
     --out-dir data/deviation_experiment/deviate_scores_maxpool \
     --M 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --floor 0.1 \
     --config-yaml-dir configs/cache_runs/deviate_exp \
     --config-fail-results data/deviation_experiment/cache_eval_results_cache_fail.json \

@@ -51,9 +51,9 @@ git pull
 
 | 批次 | server | machine | 入口 | yaml dir |
 |---|---|---|---|---|
-| **batch1** | S1 | Mach1 (timan107, frp) | `155.98.36.13:8998` | `config/spatial16/phase2_layer2_b1/` |
-| **batch2** | S2 | Mach1 (timan107, frp) | `155.98.36.13:8999` | `config/spatial16/phase2_layer2_b2/` |
-| **batch3** | S3 | Mach1 (timan107, frp) | `155.98.36.13:9000` | `config/spatial16/phase2_layer2_b3/` |
+| **batch1** | S1 | Mach1 (timan107, frp) | `155.98.36.32:8998` | `config/spatial16/phase2_layer2_b1/` |
+| **batch2** | S2 | Mach1 (timan107, frp) | `155.98.36.32:8999` | `config/spatial16/phase2_layer2_b2/` |
+| **batch3** | S3 | Mach1 (timan107, frp) | `155.98.36.32:9000` | `config/spatial16/phase2_layer2_b3/` |
 | **batch4** | S4 | Mach2 (149.165.151.106, 直连) | `149.165.151.106:8001` | `config/spatial16/phase2_layer2_b4/` |
 | **batch5** | S5 | Mach2 (149.165.151.106, 直连) | `149.165.151.106:8002` | `config/spatial16/phase2_layer2_b5/` |
 | **batch6** | S6 | Mach2 (149.165.151.106, 直连) | `149.165.151.106:8003` | `config/spatial16/phase2_layer2_b6/` |
@@ -109,7 +109,7 @@ print(f'{ok}/{n} validated')
 
 bootstrap yaml = batch1 第一个 Phase A eval yaml（`f1bt_lr_jerk_t_full_h20`，最简单的 single-factor T-FULL cell，最小 schema 风险）。**6 server 全用 `CUDA_VISIBLE_DEVICES=0`**，必须带 `--warmup-dump-root`。
 
-### Machine 1 — frp（timan107，frp → 155.98.36.13）
+### Machine 1 — frp（timan107，frp → 155.98.36.32）
 
 #### Server S1 — local port 7998
 
@@ -202,7 +202,7 @@ server 全部启起来后，6 个 client 终端**同时启动**。每 batch 40 y
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
     --phase-dir exp/verdict_factor_judge/config/spatial16/phase2_layer2_b1 \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
     --cuda-visible-devices 0 \
@@ -218,7 +218,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
     --phase-dir exp/verdict_factor_judge/config/spatial16/phase2_layer2_b2 \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
     --cuda-visible-devices 0 \
@@ -234,7 +234,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
     --phase-dir exp/verdict_factor_judge/config/spatial16/phase2_layer2_b3 \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
     --cuda-visible-devices 0 \

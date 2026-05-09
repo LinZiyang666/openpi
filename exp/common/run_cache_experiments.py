@@ -9,7 +9,7 @@ Usage:
         --yaml-dir exp/phase1 \
         --episodes-per-run 5 \
         --num-workers 5 \
-        --host 155.98.36.13 --port 9000 \
+        --host 155.98.36.32 --port 9000 \
         --task-suite libero_spatial \
         --seed 42 --conda-env libero_sim
 
@@ -17,7 +17,7 @@ Usage:
     uv run exp/common/run_cache_experiments.py \
         --yaml-dir exp/phase1 \
         --episodes-per-run 5 --num-workers 5 \
-        --host 155.98.36.13 --port 9000 \
+        --host 155.98.36.32 --port 9000 \
         --task-suite libero_spatial \
         --seed 42 --conda-env libero_sim \
         --resume

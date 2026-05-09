@@ -96,9 +96,9 @@ If a single GPU cannot host all three servers, fall back to Plan B: run only two
 Health probe (frp external):
 
 ```bash
-curl http://155.98.36.13:9000/healthz   # max_pool
-curl http://155.98.36.13:8999/healthz   # spatial16
-curl http://155.98.36.13:8998/healthz   # clip
+curl http://155.98.36.32:9000/healthz   # max_pool
+curl http://155.98.36.32:8999/healthz   # spatial16
+curl http://155.98.36.32:8998/healthz   # clip
 ```
 
 All three must return `OK` before Step 1.
@@ -175,7 +175,7 @@ uv run python exp/common/run_cache_experiments.py \
     --runs 2 \
     --task-ids 0 \
     --task-suite libero_spatial \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --episodes-per-run 5 \
     --num-workers 1 \
     --seed 42 \
@@ -208,7 +208,7 @@ Three terminals, each client pinned to one server that serves one keybuilder's t
 uv run python exp/common/run_cache_experiments.py \
     --yaml-dir exp/warm_start/config/max_pool \
     --task-suite libero_spatial \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --episodes-per-run 50 --num-workers 5 --seed 42 \
     --conda-env libero_sim \
     --state-path exp/warm_start/data/state_full_max_pool.json
@@ -217,7 +217,7 @@ uv run python exp/common/run_cache_experiments.py \
 uv run python exp/common/run_cache_experiments.py \
     --yaml-dir exp/warm_start/config/spatial16 \
     --task-suite libero_spatial \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --episodes-per-run 50 --num-workers 5 --seed 42 \
     --conda-env libero_sim \
     --state-path exp/warm_start/data/state_full_spatial16.json
@@ -226,7 +226,7 @@ uv run python exp/common/run_cache_experiments.py \
 uv run python exp/common/run_cache_experiments.py \
     --yaml-dir exp/warm_start/config/clip \
     --task-suite libero_spatial \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --episodes-per-run 50 --num-workers 5 --seed 42 \
     --conda-env libero_sim \
     --state-path exp/warm_start/data/state_full_clip.json

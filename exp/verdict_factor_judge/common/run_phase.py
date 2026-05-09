@@ -25,7 +25,7 @@ CLI invocation::
 
     uv run python -m exp.verdict_factor_judge.common.run_phase \\
         --phase-dir exp/verdict_factor_judge/config/clip/phase1 \\
-        --host 155.98.36.13 --port 9000 \\
+        --host 155.98.36.32 --port 9000 \\
         --num-workers 5 --warmup-trials 2 --eval-trials 10 \\
         --task-suite libero_spatial \\
         --per-step-log-dir exp/verdict_factor_judge/data/phase1/clip/per_step \\
@@ -84,8 +84,8 @@ class Args:
 
     # Server endpoint. Default points at the public frpc relay used by the
     # remote inference server (per project memory: openpi front door is
-    # 155.98.36.13:9000 → server 0.0.0.0:8000).
-    host: str = "155.98.36.13"
+    # 155.98.36.32:9000 → server 0.0.0.0:8000).
+    host: str = "155.98.36.32"
     port: int = 9000
 
     # LIBERO task suite name forwarded to ``examples.libero.main``.

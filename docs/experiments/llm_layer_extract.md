@@ -17,7 +17,7 @@
 ```
 ┌───────────────────────────┐         frp 隧道           ┌───────────────────────────┐
 │  GPU 服务器 (无公网IP)      │ ◄─────────────────────── │  LIBERO 评估端              │
-│  serve_policy.py            │   155.98.36.13:9000       │  run_cache_experiments.py    │
+│  serve_policy.py            │   155.98.36.32:9000       │  run_cache_experiments.py    │
 │  监听 0.0.0.0:8000          │   → localhost:8000         │  examples/libero/main.py     │
 └───────────────────────────┘                            └───────────────────────────┘
 ```
@@ -25,7 +25,7 @@
 - **GPU 服务器**：跑 PI0Pytorch 推理，必须有 ≥ 16 GB VRAM
 - **评估端**：跑 LIBERO benchmark + 实验控制器
 - 两端都需本仓库代码 + `uv` 环境
-- 公网入口写 `155.98.36.13:9000`，**别默认 localhost**
+- 公网入口写 `155.98.36.32:9000`，**别默认 localhost**
 
 ---
 
@@ -36,7 +36,7 @@
 | Pi0.5 checkpoint（含 `model.safetensors`） | 默认 `$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch` |
 | `uv sync` 完成（两端） | `GIT_LFS_SKIP_SMUDGE=1 uv sync` |
 | LIBERO benchmark 数据（评估端） | 见 [`../deployment/libero.md`](../deployment/libero.md) |
-| frp 隧道工作 | `curl http://155.98.36.13:9000/healthz` |
+| frp 隧道工作 | `curl http://155.98.36.32:9000/healthz` |
 
 > **GPU VRAM**：服务器需要 5–10 GB 用于 model；artifact build 期间额外 ~3 GB 用于 layer-N forward 激活；推理期间 KeyBuilder 单步层 forward ~1–2 ms（A100/4090 bf16）。
 
@@ -349,7 +349,7 @@ uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/<your_exp>/config \
     --episodes-per-run 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
     --conda-env libero_sim \
@@ -370,7 +370,7 @@ uv run exp/common/run_cache_experiments.py \
 
 ```bash
 uv run examples/libero/main.py \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --task-suite-name libero_spatial \
     --num-trials-per-task 1 \
     --task-ids 0 \

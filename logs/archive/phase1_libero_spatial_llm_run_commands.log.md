@@ -21,7 +21,7 @@ Runner 通过 WebSocket `load_cache_config` 为每个 run 热切换 cache bundle
 
 ## 端口映射
 
-沿用 phase1_libero_10 的约定：server 本地端口 + 1000 = frp 公网端口（`155.98.36.13`）。
+沿用 phase1_libero_10 的约定：server 本地端口 + 1000 = frp 公网端口（`155.98.36.32`）。
 
 | batch | server 本地端口 | frp 公网端口 | 种子 yaml |
 |---|---:|---:|---|
@@ -32,7 +32,7 @@ Runner 通过 WebSocket `load_cache_config` 为每个 run 热切换 cache bundle
 | `batch5` | `8002` | `9002` | `phase1_run_129_a_l0_rrf_p1.yaml` |
 | `batch6` | `8003` | `9003` | `phase1_run_161_a_l0_rrf_p3.yaml` |
 
-公网 host：`155.98.36.13`。若 frp 上 9004–9003 未开，提前让运维或本人在 frp config 里加 6 条 tcp 映射。
+公网 host：`155.98.36.32`。若 frp 上 9004–9003 未开，提前让运维或本人在 frp config 里加 6 条 tcp 映射。
 
 ---
 
@@ -43,7 +43,7 @@ Runner 通过 WebSocket `load_cache_config` 为每个 run 热切换 cache bundle
 ```bash
 for p in 8998 8999 9000 9004 9002 9003; do
     printf 'port %s: ' "$p"
-    curl -s "http://155.98.36.13:${p}/healthz" || echo
+    curl -s "http://155.98.36.32:${p}/healthz" || echo
 done
 ```
 
@@ -155,7 +155,7 @@ uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/common/config/phase1/libero_spatial_llm/batch1 \
     --episodes-per-run 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --task-suite libero_spatial \
     --seed 42 \
     --conda-env /scratch/zixuans8/libero_sim \
@@ -169,7 +169,7 @@ uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/common/config/phase1/libero_spatial_llm/batch2 \
     --episodes-per-run 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --task-suite libero_spatial \
     --seed 42 \
     --conda-env /scratch/zixuans8/libero_sim \
@@ -183,7 +183,7 @@ uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/common/config/phase1/libero_spatial_llm/batch3 \
     --episodes-per-run 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
     --conda-env /scratch/zixuans8/libero_sim \
@@ -197,7 +197,7 @@ uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/common/config/phase1/libero_spatial_llm/batch4 \
     --episodes-per-run 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 9004 \
+    --host 155.98.36.32 --port 9004 \
     --task-suite libero_spatial \
     --seed 42 \
     --cuda '1' \
@@ -212,7 +212,7 @@ uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/common/config/phase1/libero_spatial_llm/batch5 \
     --episodes-per-run 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 9002 \
+    --host 155.98.36.32 --port 9002 \
     --task-suite libero_spatial \
     --seed 42 \
     --cuda '1' \
@@ -227,7 +227,7 @@ uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/common/config/phase1/libero_spatial_llm/batch6 \
     --episodes-per-run 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 9003 \
+    --host 155.98.36.32 --port 9003 \
     --task-suite libero_spatial \
     --seed 42 \
     --cuda '1' \

@@ -74,7 +74,7 @@ uv run scripts/serve_policy.py \
 ```
 
 - Server 绑 `0.0.0.0:8000`（`scripts/serve_policy.py:56, 386-387` — host 固定 `0.0.0.0`，port 本计划显式声明 8000，对齐 frp 内网映射）。
-- 外部通过 frp 暴露在 `155.98.36.13:9000` → 内网 `:8000`（见 [`docs/deployment/libero.md`](../docs/deployment/libero.md) 拓扑图）。
+- 外部通过 frp 暴露在 `155.98.36.32:9000` → 内网 `:8000`（见 [`docs/deployment/libero.md`](../docs/deployment/libero.md) 拓扑图）。
 - `--collect_dir` 的最终 h5 路径为 `<collect_dir>/<experiment_name>/episode_*.h5`（[`docs/data_collection/guide.md` §Output Location](../docs/data_collection/guide.md)）。本计划里 `experiment_name = args.task_suite_name = "libero_10"`，所以 h5 落到 `exp/common/data/db/libero_cache/libero_10/`。
 - 首次推理会触发模型编译，服务端可能长时间无输出（Risk §R1）。
 
@@ -85,13 +85,13 @@ uv run examples/libero/main.py \
   --task-suite-name libero_10 \
   --init-states-dir exp/common/data/db_init/libero_cache/libero_10 \
   --num-trials-per-task 5 \
-  --host 155.98.36.13 --port 9000 \
+  --host 155.98.36.32 --port 9000 \
   --display
 ```
 
 - `examples/libero/main.py:871` 用 `tyro.cli(Args)` 把 `Args` 字段直接平铺到顶层，故 CLI flag 是 `--task-suite-name`（横杠）而非 `--args.task_suite_name`；下划线形式会被 tyro 拒绝为 "Unrecognized options"。
-- `155.98.36.13:9000` 为本项目常用的 frp 公网入口（`docs/deployment/libero.md` / `docs/deployment/aloha_sim.md` / `exp/common/run_cache_experiments.py:12, 20`）；frp 内部转发到 server 的 `0.0.0.0:8000`。
-- 客户端启动前用 `nc -zv 155.98.36.13 9000` 或 `curl http://155.98.36.13:9000/healthz` 确认通路可达（[`docs/deployment/libero.md` §Connectivity Check](../docs/deployment/libero.md)）。
+- `155.98.36.32:9000` 为本项目常用的 frp 公网入口（`docs/deployment/libero.md` / `docs/deployment/aloha_sim.md` / `exp/common/run_cache_experiments.py:12, 20`）；frp 内部转发到 server 的 `0.0.0.0:8000`。
+- 客户端启动前用 `nc -zv 155.98.36.32 9000` 或 `curl http://155.98.36.32:9000/healthz` 确认通路可达（[`docs/deployment/libero.md` §Connectivity Check](../docs/deployment/libero.md)）。
 
 - 预期 11 task × 5 init = 55 episode。
 - 客户端必须在 `episode_start` 传 `experiment=args.task_suite_name`、`task=str(task_description)`、`episode_id=global_episode_id`（[`docs/data_collection/guide.md` §Minimal Simulator Changes](../docs/data_collection/guide.md) 强制要求的全局计数器）。执行前完成 Risk §R2 的 pre-check。

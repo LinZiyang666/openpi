@@ -27,7 +27,7 @@ Step 3   run_step3_per_cycle_policy     → results.jsonl (one server + one clie
 ```
 ┌─────────────────────────┐        frp tunnel / LAN         ┌────────────────────────┐
 │  GPU server (no public) │ ◄──────────────────────────────│  LIBERO eval host       │
-│  serve_policy.py         │   155.98.36.13:9000             │  exp/trajectory_        │
+│  serve_policy.py         │   155.98.36.32:9000             │  exp/trajectory_        │
 │  listens on :8000        │   → localhost:8000              │  deviation/*.py          │
 │  --concurrent            │                                  │  examples/libero/main   │
 └─────────────────────────┘                                  └────────────────────────┘
@@ -275,7 +275,7 @@ Common recipes:
     | `spatial16_w8_d4` | `7999` | `8999` |
     | `max_pool_w3_d5` | `8000` | `9000` |
 
-    Public host: `155.98.36.13`
+    Public host: `155.98.36.32`
 
 ### Server commands
 
@@ -323,9 +323,9 @@ uv run scripts/serve_policy.py \
 Health checks (from the eval host):
 
 ```bash
-curl http://155.98.36.13:8998/healthz
-curl http://155.98.36.13:8999/healthz
-curl http://155.98.36.13:9000/healthz
+curl http://155.98.36.32:8998/healthz
+curl http://155.98.36.32:8999/healthz
+curl http://155.98.36.32:9000/healthz
 ```
 
 Each should print `OK`.
@@ -339,7 +339,7 @@ Launch three client processes on the LIBERO eval host, one per terminal. Each bi
 ```bash
 uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg clip_w7_d4 \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --yaml exp/trajectory_deviation/config/step3_clip_w7_d4.yaml \
     --deviate-score-json exp/trajectory_deviation/data/deviate_scores/deviate_score_clip_w7_d4.json \
     --init-states-dir exp/trajectory_deviation/data/inits \
@@ -356,7 +356,7 @@ uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
 ```bash
 uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg spatial16_w8_d4 \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --yaml exp/trajectory_deviation/config/step3_spatial16_w8_d4.yaml \
     --deviate-score-json exp/trajectory_deviation/data/deviate_scores/deviate_score_spatial16_w8_d4.json \
     --init-states-dir exp/trajectory_deviation/data/inits \
@@ -373,7 +373,7 @@ uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
 ```bash
 uv run python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg max_pool_w3_d5 \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --yaml exp/trajectory_deviation/config/step3_max_pool_w3_d5.yaml \
     --deviate-score-json exp/trajectory_deviation/data/deviate_scores/deviate_score_max_pool_w3_d5.json \
     --init-states-dir exp/trajectory_deviation/data/inits \

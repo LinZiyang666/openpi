@@ -65,9 +65,9 @@ Stage 2 = R2 offline 4-desc 相对权重 sweep。R1 锁定 α=1.0（offline 完�
 
 | 批次 | server | recipe（`--recipe`） | pattern 子集（`--cell-ids`） | cells | 公网入口 | client GPU |
 |---|---|---|---|---:|---|---:|
-| **batch1** | S1-sp16 | `p1_state_fut_online_act` | `off-uniform off-jerk-heavy off-dir-heavy` | 3 | `155.98.36.13:8998` (frp) | 0 |
-| **batch2** | S2-sp16 | `p1_state_fut_online_act` | `off-disp-heavy off-path-heavy off-jerk-only` | 3 | `155.98.36.13:8999` (frp) | 0 |
-| **batch3** | S3-sp16 | `p1_state_fut_online_act` | `off-dir-only off-disp-only off-path-only` | 3 | `155.98.36.13:9000` (frp) | 0 |
+| **batch1** | S1-sp16 | `p1_state_fut_online_act` | `off-uniform off-jerk-heavy off-dir-heavy` | 3 | `155.98.36.32:8998` (frp) | 0 |
+| **batch2** | S2-sp16 | `p1_state_fut_online_act` | `off-disp-heavy off-path-heavy off-jerk-only` | 3 | `155.98.36.32:8999` (frp) | 0 |
+| **batch3** | S3-sp16 | `p1_state_fut_online_act` | `off-dir-only off-disp-only off-path-only` | 3 | `155.98.36.32:9000` (frp) | 0 |
 | **batch4** | S4-sp16 | `p2_action_fut_online_act` | `off-uniform off-jerk-heavy off-dir-heavy` | 3 | `149.165.151.106:8001` (直连) | 1 |
 | **batch5** | S5-sp16 | `p2_action_fut_online_act` | `off-disp-heavy off-path-heavy off-jerk-only` | 3 | `149.165.151.106:8002` (直连) | 1 |
 | **batch6** | S6-sp16 | `p2_action_fut_online_act` | `off-dir-only off-disp-only off-path-only` | 3 | `149.165.151.106:8003` (直连) | 1 |
@@ -201,9 +201,9 @@ CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
 
 | Server | 机器 | local port | 公网入口 | warmup-dump-root |
 |---|---|---|---|---|
-| S1 | timan107 (frp) | 7998 | 155.98.36.13:8998 | /tmp/openpi_warmup_phase4_s1 |
-| S2 | timan107 (frp) | 7999 | 155.98.36.13:8999 | /tmp/openpi_warmup_phase4_s2 |
-| S3 | timan107 (frp) | 8000 | 155.98.36.13:9000 | /tmp/openpi_warmup_phase4_s3 |
+| S1 | timan107 (frp) | 7998 | 155.98.36.32:8998 | /tmp/openpi_warmup_phase4_s1 |
+| S2 | timan107 (frp) | 7999 | 155.98.36.32:8999 | /tmp/openpi_warmup_phase4_s2 |
+| S3 | timan107 (frp) | 8000 | 155.98.36.32:9000 | /tmp/openpi_warmup_phase4_s3 |
 | S4 | 直连 149.165.151.106 | 8001 | 同 | /tmp/openpi_warmup_phase4_s4 |
 | S5 | 直连 149.165.151.106 | 8002 | 同 | /tmp/openpi_warmup_phase4_s5 |
 | S6 | 直连 149.165.151.106 | 8003 | 同 | /tmp/openpi_warmup_phase4_s6 |
@@ -226,7 +226,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --alpha-star "$ALPHA_STAR" \
     --recipe p1_state_fut_online_act \
     --cell-ids off-uniform off-jerk-heavy off-dir-heavy \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --task-suite libero_spatial \
     --num-workers 5 --eval-trials 10 \
     --cuda-visible-devices 0 \
@@ -248,7 +248,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --alpha-star "$ALPHA_STAR" \
     --recipe p1_state_fut_online_act \
     --cell-ids off-disp-heavy off-path-heavy off-jerk-only \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --task-suite libero_spatial \
     --num-workers 5 --eval-trials 10 \
     --cuda-visible-devices 0 \
@@ -270,7 +270,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --alpha-star "$ALPHA_STAR" \
     --recipe p1_state_fut_online_act \
     --cell-ids off-dir-only off-disp-only off-path-only \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --task-suite libero_spatial \
     --num-workers 5 --eval-trials 10 \
     --cuda-visible-devices 0 \

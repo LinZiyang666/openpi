@@ -161,9 +161,9 @@ ls exp/verdict_factor_judge/config/spatial16/phase3/eval/spatial16_w8_d4_phase3_
 
 | Server | 机器 | local port | 公网入口 | warmup-dump-root | bootstrap yaml |
 |---|---|---:|---|---|---|
-| S1 | timan107 (frp) | 7998 | 155.98.36.13:8998 | /tmp/openpi_warmup_phase5_s1 | phase3 g1 warmup |
-| S2 | timan107 (frp) | 7999 | 155.98.36.13:8999 | /tmp/openpi_warmup_phase5_s2 | phase4 p1 warmup |
-| S3 | timan107 (frp) | 8000 | 155.98.36.13:9000 | /tmp/openpi_warmup_phase5_s3 | phase4 p2 warmup |
+| S1 | timan107 (frp) | 7998 | 155.98.36.32:8998 | /tmp/openpi_warmup_phase5_s1 | phase3 g1 warmup |
+| S2 | timan107 (frp) | 7999 | 155.98.36.32:8999 | /tmp/openpi_warmup_phase5_s2 | phase4 p1 warmup |
+| S3 | timan107 (frp) | 8000 | 155.98.36.32:9000 | /tmp/openpi_warmup_phase5_s3 | phase4 p2 warmup |
 | S4 | 直连 | 8001 | 149.165.151.106:8001 | /tmp/openpi_warmup_phase5_s4 | phase4 p1 warmup |
 | S5 | 直连 | 8002 | 149.165.151.106:8002 | /tmp/openpi_warmup_phase5_s5 | phase4 p1 warmup |
 | S6 | 直连 | 8003 | 149.165.151.106:8003 | /tmp/openpi_warmup_phase5_s6 | phase3 g6 warmup |
@@ -204,7 +204,7 @@ uv run python -m exp.verdict_factor_judge.run_phase3 \
     --cfg-id spatial16_w8_d4 \
     --recipe-ids g1_f1b_t_w_fut_d_all g10_f1b_a_w_fut_d_all \
     --cell-ids fh0.5_ws0.5 fh0.3_ws0.5 fh0.4_ws0.5 fh0.5_ws0.4 \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 50 \
     --skip-warmup \
@@ -234,7 +234,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --alpha-star "$ALPHA_STAR" \
     --recipe p1_state_fut_online_act \
     --cell-ids off-uniform off-jerk-heavy off-dir-heavy off-disp-heavy off-path-heavy off-jerk-only off-dir-only off-path-only \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --task-suite libero_spatial \
     --num-workers 5 --eval-trials 50 \
     --cuda-visible-devices 0 \
@@ -259,7 +259,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --alpha-star "$ALPHA_STAR" \
     --recipe p2_action_fut_online_act \
     --cell-ids off-uniform off-jerk-heavy off-dir-heavy off-disp-heavy off-path-heavy off-jerk-only off-dir-only off-path-only \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --task-suite libero_spatial \
     --num-workers 5 --eval-trials 50 \
     --cuda-visible-devices 0 \

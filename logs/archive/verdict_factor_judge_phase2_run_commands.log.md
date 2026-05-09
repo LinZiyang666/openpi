@@ -35,13 +35,13 @@ Phase 2 v2 必须让 judge 根据因子信号**三档决策**（hit / warm / mis
 
 ## 端口映射（6 server 拓扑）
 
-S1-S3 沿用 Phase 1 frp（本地端口 + 1000 = `155.98.36.13` 公网入口）。S4-S6 在另一台机器上有**直连公网 IP `149.165.151.106`**，不走 frp，端口直接从 8001 开始。
+S1-S3 沿用 Phase 1 frp（本地端口 + 1000 = `155.98.36.32` 公网入口）。S4-S6 在另一台机器上有**直连公网 IP `149.165.151.106`**，不走 frp，端口直接从 8001 开始。
 
 | 批次 | server 名 | cfg | 公网入口 | yaml dir |
 |---|---|---|---|---|
-| **batch1** | S1-clip-A | `clip` | `155.98.36.13:8998` (frp) | `config/clip/phase2_layer1_a/` |
-| **batch2** | S2-clip-B | `clip` | `155.98.36.13:8999` (frp) | `config/clip/phase2_layer1_b/` |
-| **batch3** | S3-mxp-A | `max_pool` | `155.98.36.13:9000` (frp) | `config/max_pool/phase2_layer1_a/` |
+| **batch1** | S1-clip-A | `clip` | `155.98.36.32:8998` (frp) | `config/clip/phase2_layer1_a/` |
+| **batch2** | S2-clip-B | `clip` | `155.98.36.32:8999` (frp) | `config/clip/phase2_layer1_b/` |
+| **batch3** | S3-mxp-A | `max_pool` | `155.98.36.32:9000` (frp) | `config/max_pool/phase2_layer1_a/` |
 | **batch4** | S4-mxp-B | `max_pool` | `149.165.151.106:8001` (直连) | `config/max_pool/phase2_layer1_b/` |
 | **batch5** | S5-sp16-A | `spatial16` | `149.165.151.106:8002` (直连) | `config/spatial16/phase2_layer1_a/` |
 | **batch6** | S6-sp16-B | `spatial16` | `149.165.151.106:8003` (直连) | `config/spatial16/phase2_layer1_b/` |
@@ -121,7 +121,7 @@ Layer 0 (F2 500 ep 复测) **已合并到 Layer 1**：F2 单 yaml 在 inf_ratio�
 
 **所有 6 个 server 都用 `CUDA_VISIBLE_DEVICES=0`** —— 服务进程只占用本机的 GPU 0；client 端的 LIBERO sim 渲染才需要分卡（前 3 client GPU 0、后 3 client GPU 1）。
 
-#### Machine 1 — 走 frp（timan107，frp → 155.98.36.13）
+#### Machine 1 — 走 frp（timan107，frp → 155.98.36.32）
 
 ##### Server S1 — clip, local port 7998
 
@@ -218,7 +218,7 @@ server 启动完毕后再上 client。每 client 一个终端，6 条**同时启
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
     --phase-dir exp/verdict_factor_judge/config/clip/phase2_layer1_a \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
     --cuda-visible-devices 0 \
@@ -234,7 +234,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
     --phase-dir exp/verdict_factor_judge/config/clip/phase2_layer1_b \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
     --cuda-visible-devices 0 \
@@ -250,7 +250,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
     --phase-dir exp/verdict_factor_judge/config/max_pool/phase2_layer1_a \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
     --cuda-visible-devices 0 \

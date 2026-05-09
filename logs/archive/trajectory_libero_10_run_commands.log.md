@@ -34,7 +34,7 @@
 | `batch2` | 5 | `7999` | `8999` | `traj_d5_021_a_rrf_w5.yaml` |
 | `batch3` | 6 | `8000` | `9000` | `traj_d6_041_a_rrf_w5.yaml` |
 
-公网 host：`155.98.36.13`。
+公网 host：`155.98.36.32`。
 
 ---
 
@@ -43,9 +43,9 @@
 客户端机器确认三个入口健康：
 
 ```bash
-curl http://155.98.36.13:8998/healthz
-curl http://155.98.36.13:8999/healthz
-curl http://155.98.36.13:9000/healthz
+curl http://155.98.36.32:8998/healthz
+curl http://155.98.36.32:8999/healthz
+curl http://155.98.36.32:9000/healthz
 ```
 
 三个都应返回：`OK`
@@ -130,7 +130,7 @@ uv run exp/common/run_cache_experiments.py \
     --log-dir exp/common/data/trajectory/libero_10/batch1 \
     --episodes-per-run 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --task-suite libero_10 \
     --seed 42 \
     --conda-env /scratch/zixuans8/libero_sim \
@@ -146,7 +146,7 @@ uv run exp/common/run_cache_experiments.py \
     --log-dir exp/common/data/trajectory/libero_10/batch2 \
     --episodes-per-run 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --task-suite libero_10 \
     --seed 42 \
     --conda-env /scratch/zixuans8/libero_sim \
@@ -162,7 +162,7 @@ uv run exp/common/run_cache_experiments.py \
     --log-dir exp/common/data/trajectory/libero_10/batch3 \
     --episodes-per-run 10 \
     --num-workers 5 \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --task-suite libero_10 \
     --seed 42 \
     --conda-env /scratch/zixuans8/libero_sim \

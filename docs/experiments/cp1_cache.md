@@ -9,13 +9,13 @@
 ```
 ┌─────────────────────────┐         frp 隧道          ┌────────────────────────┐
 │  GPU 服务器 (无公网IP)    │ ◄─────────────────────── │  LIBERO 评估端          │
-│  serve_policy.py         │   155.98.36.13:9000       │  run_cache_experiments  │
+│  serve_policy.py         │   155.98.36.32:9000       │  run_cache_experiments  │
 │  监听 localhost:8000     │   → localhost:8000        │  examples/libero/main   │
 └─────────────────────────┘                           └────────────────────────┘
 ```
 
 - **GPU 服务器**: 运行模型推理，监听 `0.0.0.0:8000`
-- **评估端**: 运行 LIBERO 环境 + 实验控制器，通过 frp 连接 `155.98.36.13:9000`
+- **评估端**: 运行 LIBERO 环境 + 实验控制器，通过 frp 连接 `155.98.36.32:9000`
 - 两端都需要本仓库代码和 `uv` 环境
 
 ---
@@ -26,7 +26,7 @@
 2. GPU 服务器上有 Pi0.5 checkpoint（默认路径 `gs://openpi-assets/checkpoints/pi05_base`）
 3. 评估端上有 LIBERO benchmark 数据
 4. 已收集的 HDF5 演示数据在 `exp/common/data/db/libero_cache/libero_spatial/`（50 个 episode）
-5. frp 隧道已配置：`155.98.36.13:9000` → GPU 服务器 `localhost:8000`
+5. frp 隧道已配置：`155.98.36.32:9000` → GPU 服务器 `localhost:8000`
 
 ---
 
@@ -35,7 +35,7 @@
 在评估端运行：
 
 ```bash
-curl http://155.98.36.13:9000/healthz
+curl http://155.98.36.32:9000/healthz
 # 预期输出: OK
 ```
 
@@ -173,7 +173,7 @@ uv run exp/common/run_cache_experiments.py \
     --state-path exp/common/data/phase1/experiment_state.json \
     --episodes-per-run 5 \
     --num-workers 5 \
-    --host 155.98.36.13 \
+    --host 155.98.36.32 \
     --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
@@ -181,7 +181,7 @@ uv run exp/common/run_cache_experiments.py \
 ```
 
 参数说明：
-- `--host 155.98.36.13 --port 9000`: 通过 frp 隧道连接 GPU 服务器
+- `--host 155.98.36.32 --port 9000`: 通过 frp 隧道连接 GPU 服务器
 - `--episodes-per-run 5`: 每个 task 跑 5 个 episode（与数据收集时一致）
 - `--num-workers 5`: 每个 task 开 5 个并发 worker（需要 `--concurrent` 服务器）
 - `--task-suite libero_spatial`: 10 个 task 的 suite
@@ -197,7 +197,7 @@ uv run exp/common/run_cache_experiments.py \
     --state-path exp/common/data/phase1/experiment_state.json \
     --episodes-per-run 5 \
     --num-workers 5 \
-    --host 155.98.36.13 \
+    --host 155.98.36.32 \
     --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
@@ -215,7 +215,7 @@ uv run exp/common/run_cache_experiments.py \
     --state-path exp/common/data/phase1/experiment_state.json \
     --episodes-per-run 5 \
     --num-workers 5 \
-    --host 155.98.36.13 \
+    --host 155.98.36.32 \
     --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
@@ -291,7 +291,7 @@ uv run exp/common/run_cache_experiments.py \
     --state-path exp/common/data/phase1_5/experiment_state.json \
     --episodes-per-run 5 \
     --num-workers 5 \
-    --host 155.98.36.13 \
+    --host 155.98.36.32 \
     --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
@@ -335,7 +335,7 @@ uv run exp/common/run_cache_experiments.py \
     --state-path exp/common/data/phase2/experiment_state.json \
     --episodes-per-run 5 \
     --num-workers 5 \
-    --host 155.98.36.13 \
+    --host 155.98.36.32 \
     --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
@@ -374,7 +374,7 @@ uv run exp/common/analyze_cache_results.py \
 
 ```bash
 # 检查 frp 隧道
-curl http://155.98.36.13:9000/healthz
+curl http://155.98.36.32:9000/healthz
 
 # 检查 GPU 服务器本地
 curl http://localhost:8000/healthz
@@ -405,7 +405,7 @@ uv run exp/common/run_cache_experiments.py \
     --state-path exp/common/data/phase1/experiment_state.json \
     --episodes-per-run 5 \
     --num-workers 5 \
-    --host 155.98.36.13 \
+    --host 155.98.36.32 \
     --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
@@ -419,7 +419,7 @@ uv run exp/common/run_cache_experiments.py \
 
 ```bash
 MUJOCO_GL=egl conda run --no-capture-output -n libero_sim python examples/libero/main.py \
-    --host 155.98.36.13 \
+    --host 155.98.36.32 \
     --port 9000 \
     --task-suite-name libero_spatial \
     --num-trials-per-task 2 \
@@ -433,7 +433,7 @@ MUJOCO_GL=egl conda run --no-capture-output -n libero_sim python examples/libero
 
 ```bash
 MUJOCO_GL=egl conda run --no-capture-output -n libero_sim python examples/libero/main.py \
-    --host 155.98.36.13 \
+    --host 155.98.36.32 \
     --port 9000 \
     --task-suite-name libero_spatial \
     --num-trials-per-task 2 \

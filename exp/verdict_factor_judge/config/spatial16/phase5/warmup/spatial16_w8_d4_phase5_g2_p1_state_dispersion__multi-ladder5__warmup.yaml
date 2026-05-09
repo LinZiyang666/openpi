@@ -1,0 +1,246 @@
+enabled: true
+timer:
+  enabled: false
+  buffer_size: 10000
+  output_csv_dir: null
+keys:
+  vision_0:
+    enabled: true
+    weight: 0.5
+  vision_1:
+    enabled: true
+    weight: 0.25
+  vision_2:
+    enabled: false
+    weight: 0.0
+  prompt_emb:
+    enabled: true
+    weight: 0.0
+  robot_state:
+    enabled: true
+    weight: 0.25
+key_builder:
+  type: cp1_spatial_pool_16
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: always_warm_start
+      start_t: 0.7
+      dump:
+        deferred: true
+        config_id: spatial16_w8_d4_phase5_g2_p1_state_dispersion__multi-ladder5__warmup
+        factors:
+        - type: jerk_online_action
+          params:
+            windows:
+            - &id001
+              past: 0
+              future: 3
+            - &id002
+              past: 0
+              future: 5
+            - &id003
+              past: 1
+              future: 1
+            - &id004
+              past: 3
+              future: 0
+            - &id005
+              past: 3
+              future: 3
+            - &id006
+              past: 5
+              future: 5
+            - &id007
+              past: 7
+              future: 7
+        - type: jerk_online_state
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: jerk_offline_action
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: jerk_offline_state
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: direction_online_action
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: direction_online_state
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: direction_offline_action
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: direction_offline_state
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: dispersion_online_action
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: dispersion_online_state
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: dispersion_offline_action
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: dispersion_offline_state
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: path_length_online_action
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: path_length_online_state
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: path_length_offline_action
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: path_length_offline_state
+          params:
+            windows:
+            - *id001
+            - *id002
+            - *id003
+            - *id004
+            - *id005
+            - *id006
+            - *id007
+        - type: topk_action_variance
+          params:
+            K: 5
+    search_strategy:
+      type: weighted_rrf_knn
+      rrf_k: 60
+      top_k: 5
+      trajectory_depth: 4
+      trajectory_weights:
+      - 1.0
+      - 0.7
+      - 0.48999999999999994
+      - 0.3429999999999999
+      field_similarity:
+        vision_0:
+          type: cosine
+        vision_1:
+          type: cosine
+        prompt_emb:
+          type: cosine
+        robot_state:
+          type: l2
+          to_similarity:
+            type: exp
+            tau: 0.334717
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 32768
+    vision_1: 32768
+    prompt_emb: 2048
+    robot_state: 32
+  in_memory:
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl
+    index_type: brute_force
+write_policy:
+  type: never

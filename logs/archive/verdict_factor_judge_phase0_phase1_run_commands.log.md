@@ -17,15 +17,15 @@ Plan：[`logs/verdict_factor_judge_experiment_plan.log.md`](verdict_factor_judge
 
 ## 端口映射
 
-沿用 random_periodic_gate / phase1_libero_spatial_llm 的 frp 约定：server 本地端口 + 1000 = frp 公网端口（`155.98.36.13`）。
+沿用 random_periodic_gate / phase1_libero_spatial_llm 的 frp 约定：server 本地端口 + 1000 = frp 公网端口（`155.98.36.32`）。
 
 | Server | cfg | KeyBuilder run_id | local port | frp 公网入口 | preload pkl |
 |---|---|---|---:|---|---|
-| **S1** | `clip` | `clip_w7_d4` | `7998` | `155.98.36.13:8998` | `exp/common/data/cache_artifacts/libero_spatial/clip_vit_b_32.pkl` |
-| **S2** | `max_pool` | `max_pool_w3_d5` | `7999` | `155.98.36.13:8999` | `exp/common/data/cache_artifacts/libero_spatial/cp1_max_pool.pkl` |
-| **S3** | `spatial16` | `spatial16_w8_d4` | `8000` | `155.98.36.13:9000` | `exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl` |
+| **S1** | `clip` | `clip_w7_d4` | `7998` | `155.98.36.32:8998` | `exp/common/data/cache_artifacts/libero_spatial/clip_vit_b_32.pkl` |
+| **S2** | `max_pool` | `max_pool_w3_d5` | `7999` | `155.98.36.32:8999` | `exp/common/data/cache_artifacts/libero_spatial/cp1_max_pool.pkl` |
+| **S3** | `spatial16` | `spatial16_w8_d4` | `8000` | `155.98.36.32:9000` | `exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl` |
 
-> **Frp 检查**：本机 `~/.config/frp/frpc.toml` 需要同时映射 8998 / 8999 / 9000；若 `155.98.36.13` 默认只挂 9000（单 server 部署），先在 frpc.toml 加另两条 tcp 映射并 `frpc reload`。
+> **Frp 检查**：本机 `~/.config/frp/frpc.toml` 需要同时映射 8998 / 8999 / 9000；若 `155.98.36.32` 默认只挂 9000（单 server 部署），先在 frpc.toml 加另两条 tcp 映射并 `frpc reload`。
 
 ---
 
@@ -36,7 +36,7 @@ Plan：[`logs/verdict_factor_judge_experiment_plan.log.md`](verdict_factor_judge
 ```bash
 for p in 8998 8999 9000; do
     printf 'port %s: ' "$p"
-    curl -s "http://155.98.36.13:${p}/healthz" || echo
+    curl -s "http://155.98.36.32:${p}/healthz" || echo
 done
 ```
 
@@ -271,7 +271,7 @@ uv run exp/common/run_cache_experiments.py \
     --episodes-per-run 10 \
     --num-workers 5 \
     --cuda 4 \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --task-suite libero_spatial \
     --seed 42 \
     --conda-env /scratch/zixuans8/libero_sim \
@@ -288,7 +288,7 @@ uv run exp/common/run_cache_experiments.py \
     --episodes-per-run 10 \
     --num-workers 5 \
     --cuda 4 \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --task-suite libero_spatial \
     --seed 42 \
     --conda-env /scratch/zixuans8/libero_sim \
@@ -305,7 +305,7 @@ uv run exp/common/run_cache_experiments.py \
     --episodes-per-run 10 \
     --num-workers 5 \
     --cuda 4 \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --task-suite libero_spatial \
     --seed 42 \
     --conda-env /scratch/zixuans8/libero_sim \
@@ -406,7 +406,7 @@ verdict_factor_judge B2 dedicated runner `exp/verdict_factor_judge/run_phase.py`
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
     --phase-dir exp/verdict_factor_judge/config/clip/phase1 \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
     --cuda-visible-devices 4 \
@@ -420,7 +420,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
     --phase-dir exp/verdict_factor_judge/config/max_pool/phase1 \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
     --cuda-visible-devices 4 \
@@ -434,7 +434,7 @@ uv run python -m exp.verdict_factor_judge.run_phase \
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase \
     --phase-dir exp/verdict_factor_judge/config/spatial16/phase1 \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
     --cuda-visible-devices 4 \
@@ -576,7 +576,7 @@ uv run exp/common/run_cache_experiments.py \
     --yaml-dir exp/verdict_factor_judge/config/clip/phase1 \
     --runs 4 \
     --episodes-per-run 10 --num-workers 5 \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --task-suite libero_spatial --seed 42 \
     --conda-env /home/weiland/anaconda3/envs/libero_sim \
     --state-path /tmp/idx4_only.json \

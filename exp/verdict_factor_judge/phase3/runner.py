@@ -26,7 +26,7 @@ CLI invocation::
 
     uv run python -m exp.verdict_factor_judge.phase3.runner \\
         --cfg-id spatial16_w8_d4 \\
-        --host 155.98.36.13 --port 9000 \\
+        --host 155.98.36.32 --port 9000 \\
         --num-workers 5 --warmup-trials 2 --eval-trials 10 \\
         --task-suite libero_spatial \\
         --per-step-log-dir exp/verdict_factor_judge/data/phase3/per_step \\
@@ -99,7 +99,7 @@ class Args:
     cell_ids: tuple[str, ...] = ()
 
     # Server endpoint (frpc default — see run_phase.Args).
-    host: str = "155.98.36.13"
+    host: str = "155.98.36.32"
     port: int = 9000
 
     task_suite: str = "libero_spatial"

@@ -48,9 +48,9 @@ s < WS_thr           → MISS
 
 | 批次 | server | recipe（`--recipe`） | α 子集（`--cell-ids`） | cells | 公网入口 | client GPU |
 |---|---|---|---|---:|---|---:|
-| **batch1** | S1-sp16 | `p1_state_fut_online_act` | `a0.0 a0.2` | 2 | `155.98.36.13:8998` (frp) | 0 |
-| **batch2** | S2-sp16 | `p1_state_fut_online_act` | `a0.4 a0.5` | 2 | `155.98.36.13:8999` (frp) | 0 |
-| **batch3** | S3-sp16 | `p1_state_fut_online_act` | `a0.6 a0.8 a1.0` | 3 | `155.98.36.13:9000` (frp) | 0 |
+| **batch1** | S1-sp16 | `p1_state_fut_online_act` | `a0.0 a0.2` | 2 | `155.98.36.32:8998` (frp) | 0 |
+| **batch2** | S2-sp16 | `p1_state_fut_online_act` | `a0.4 a0.5` | 2 | `155.98.36.32:8999` (frp) | 0 |
+| **batch3** | S3-sp16 | `p1_state_fut_online_act` | `a0.6 a0.8 a1.0` | 3 | `155.98.36.32:9000` (frp) | 0 |
 | **batch4** | S4-sp16 | `p2_action_fut_online_act` | `a0.0 a0.2` | 2 | `149.165.151.106:8001` (直连) | 1 |
 | **batch5** | S5-sp16 | `p2_action_fut_online_act` | `a0.4 a0.5` | 2 | `149.165.151.106:8002` (直连) | 1 |
 | **batch6** | S6-sp16 | `p2_action_fut_online_act` | `a0.6 a0.8 a1.0` | 3 | `149.165.151.106:8003` (直连) | 1 |
@@ -159,7 +159,7 @@ print(f'{ok}/{n} validated')
 
 Warmup 只需 1 server 跑（生成 `data/phase4/warmup_factor_raw/<recipe>.jsonl` 缓存供后续 6 batch run-eval 共享）。最简：用 S1（同 batch1 用的 server），warmup 跑完后保留这个 server 进 §3 eval。
 
-### §2.1 启 S1 server (timan107，frp 7998 → 155.98.36.13:8998)
+### §2.1 启 S1 server (timan107，frp 7998 → 155.98.36.32:8998)
 
 bootstrap 用任一 phase4 warmup yaml 即可（`run_phase4.py` 会按 recipe 切片逐个 `load_cache_config`）：
 
@@ -180,7 +180,7 @@ CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase4 \
     --mode run-warmup --round 1 \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 \
     --cuda-visible-devices 0 \
@@ -270,7 +270,7 @@ S1 已经在跑（§2.1）。再启 S2-S6 五个 server（5 个独立终端）�
 
 #### Machine 1 — frp（timan107）
 
-##### Server S2 — local port 7999（frp → 155.98.36.13:8999）
+##### Server S2 — local port 7999（frp → 155.98.36.32:8999）
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
@@ -284,7 +284,7 @@ CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
     --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 ```
 
-##### Server S3 — local port 8000（frp → 155.98.36.13:9000）
+##### Server S3 — local port 8000（frp → 155.98.36.32:9000）
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
@@ -355,7 +355,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --mode run-eval --round 1 \
     --recipe p1_state_fut_online_act \
     --cell-ids a0.0 a0.2 \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --task-suite libero_spatial \
     --num-workers 5 --eval-trials 10 \
     --cuda-visible-devices 0 \
@@ -374,7 +374,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --mode run-eval --round 1 \
     --recipe p1_state_fut_online_act \
     --cell-ids a0.4 a0.5 \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --task-suite libero_spatial \
     --num-workers 5 --eval-trials 10 \
     --cuda-visible-devices 0 \
@@ -393,7 +393,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --mode run-eval --round 1 \
     --recipe p1_state_fut_online_act \
     --cell-ids a0.6 a0.8 a1.0 \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --task-suite libero_spatial \
     --num-workers 5 --eval-trials 10 \
     --cuda-visible-devices 0 \

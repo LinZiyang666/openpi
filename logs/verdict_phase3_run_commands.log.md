@@ -43,13 +43,13 @@ s < WS_thr        → MISS
 
 ## 端口映射（6 server 拓扑，与 Phase 2 同款）
 
-S1-S3 沿用 frp（本地端口 + 1000 = `155.98.36.13` 公网入口）。S4-S6 在另一台机器上有**直连公网 IP `149.165.151.106`**，端口直接从 8001 开始。
+S1-S3 沿用 frp（本地端口 + 1000 = `155.98.36.32` 公网入口）。S4-S6 在另一台机器上有**直连公网 IP `149.165.151.106`**，端口直接从 8001 开始。
 
 | 批次 | server 名 | recipe 切片 | 公网入口 | client GPU |
 |---|---|---|---|---|
-| **batch1** | S1-sp16 | g1, g2 | `155.98.36.13:8998` (frp) | 0 |
-| **batch2** | S2-sp16 | g3, g4 | `155.98.36.13:8999` (frp) | 0 |
-| **batch3** | S3-sp16 | g5, g6 | `155.98.36.13:9000` (frp) | 0 |
+| **batch1** | S1-sp16 | g1, g2 | `155.98.36.32:8998` (frp) | 0 |
+| **batch2** | S2-sp16 | g3, g4 | `155.98.36.32:8999` (frp) | 0 |
+| **batch3** | S3-sp16 | g5, g6 | `155.98.36.32:9000` (frp) | 0 |
 | **batch4** | S4-sp16 | g7, g8 | `149.165.151.106:8001` (直连) | 1 |
 | **batch5** | S5-sp16 | g9, g10 | `149.165.151.106:8002` (直连) | 1 |
 | **batch6** | S6-sp16 | g11 | `149.165.151.106:8003` (直连) | 1 |
@@ -280,7 +280,7 @@ mkdir -p exp/verdict_factor_judge/config/spatial16/phase3/eval
 
 **所有 6 个 server 都用 `CUDA_VISIBLE_DEVICES=0`** —— 服务进程只占用本机 GPU 0；client 端 LIBERO sim 渲染才需要分卡（前 3 client GPU 0、后 3 client GPU 1）。
 
-#### Machine 1 — 走 frp（timan107，frp → 155.98.36.13）
+#### Machine 1 — 走 frp（timan107，frp → 155.98.36.32）
 
 ##### Server S1 — spatial16, local port 7998
 
@@ -382,7 +382,7 @@ server 启动完毕后再上 client。每 client 一个终端，6 条**同时启
 uv run python -m exp.verdict_factor_judge.run_phase3 \
     --cfg-id spatial16_w8_d4 \
     --recipe-ids g1_f1b_t_w_fut_d_all g2_f1b_t_w_long_risk_d_jerk \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
     --cuda-visible-devices 0 \
@@ -403,7 +403,7 @@ uv run python -m exp.verdict_factor_judge.run_phase3 \
 uv run python -m exp.verdict_factor_judge.run_phase3 \
     --cfg-id spatial16_w8_d4 \
     --recipe-ids g3_f1b_t_w_long_risk_d_all g4_f1b_t_w_short_d_jerk \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
     --cuda-visible-devices 0 \
@@ -424,7 +424,7 @@ uv run python -m exp.verdict_factor_judge.run_phase3 \
 uv run python -m exp.verdict_factor_judge.run_phase3 \
     --cfg-id spatial16_w8_d4 \
     --recipe-ids g5_f1a_t_d_jerk_dir_pair g6_f1a_a_d_jerk_curv_pair \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --task-suite libero_spatial \
     --num-workers 5 --warmup-trials 2 --eval-trials 10 \
     --cuda-visible-devices 0 \

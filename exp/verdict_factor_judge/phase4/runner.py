@@ -32,7 +32,7 @@ CLI invocation (R1 example, full pipeline)::
     # 2. Run warmup (writes data/phase4/warmup_factor_raw/<rid>.jsonl).
     uv run python -m exp.verdict_factor_judge.phase4.runner \\
         --mode run-warmup --round 1 \\
-        --host 155.98.36.13 --port 9000
+        --host 155.98.36.32 --port 9000
 
     # 3. Emit R1 eval yamls (14 cells: 2 recipe x 7 alpha).
     uv run python -m exp.verdict_factor_judge.phase4.runner \\
@@ -41,7 +41,7 @@ CLI invocation (R1 example, full pipeline)::
     # 4. Run R1 eval cells.
     uv run python -m exp.verdict_factor_judge.phase4.runner \\
         --mode run-eval --round 1 \\
-        --host 155.98.36.13 --port 9000
+        --host 155.98.36.32 --port 9000
 
     # 5. Inspect decision gate.
     cat exp/verdict_factor_judge/data/phase4/r1_alpha/decision_gate.json | jq .next_args_suggestion
@@ -125,7 +125,7 @@ class Args:
     online_pattern: Optional[str] = None
     recipe: Optional[str] = None
     cell_ids: tuple[str, ...] = ()
-    host: str = "155.98.36.13"
+    host: str = "155.98.36.32"
     port: int = 9000
     cfg_id: str = "spatial16_w8_d4"
     task_suite: str = "libero_spatial"
@@ -167,7 +167,7 @@ def _parse_args(argv: Optional[list[str]] = None) -> Args:
     # operator parity with the plan's published commands.
     p.add_argument(
         "--host", "--serve-host", dest="host",
-        type=str, default="155.98.36.13",
+        type=str, default="155.98.36.32",
     )
     p.add_argument(
         "--port", "--serve-port", dest="port",

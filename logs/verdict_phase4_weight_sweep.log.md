@@ -610,7 +610,7 @@ parser.add_argument("--online-pattern", type=str, default=None,
 parser.add_argument("--recipe", type=str, default=None,
                     help="Optional: restrict to one recipe id (e.g. 'p1_state_fut_online_act'). "
                          "Useful when only one recipe needs that round (e.g. R4 conditional trigger fires for one recipe only).")
-parser.add_argument("--serve-host", default="155.98.36.13",
+parser.add_argument("--serve-host", default="155.98.36.32",
                     help="Required when mode in {run-warmup, run-eval}.")
 parser.add_argument("--serve-port", type=int, default=9000,
                     help="Required when mode in {run-warmup, run-eval}.")

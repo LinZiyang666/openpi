@@ -27,7 +27,7 @@ Step 3   run_step3_per_cycle_policy → results.jsonl（每个 cfg 一个服务�
 ```
 ┌─────────────────────────┐        frp 隧道/内网         ┌────────────────────────┐
 │  GPU 服务器 (无公网IP)    │ ◄──────────────────────────│  LIBERO 评估端          │
-│  serve_policy.py         │   155.98.36.13:9000         │  exp/trajectory_       │
+│  serve_policy.py         │   155.98.36.32:9000         │  exp/trajectory_       │
 │  监听 localhost:8000     │   → localhost:8000          │  deviation/*.py         │
 │  --concurrent           │                              │  examples/libero/main   │
 └─────────────────────────┘                              └────────────────────────┘
@@ -275,7 +275,7 @@ offline Phase3 aggregate                                              → deviat
     | `spatial16_w8_d4` | `7999` | `8999` |
     | `max_pool_w3_d5` | `8000` | `9000` |
 
-    Public host：`155.98.36.13`
+    Public host：`155.98.36.32`
 
 ### Server 命令
 
@@ -323,9 +323,9 @@ uv run scripts/serve_policy.py \
 健康检查（在评估端）：
 
 ```bash
-curl http://155.98.36.13:8998/healthz
-curl http://155.98.36.13:8999/healthz
-curl http://155.98.36.13:9000/healthz
+curl http://155.98.36.32:8998/healthz
+curl http://155.98.36.32:8999/healthz
+curl http://155.98.36.32:9000/healthz
 ```
 
 每个应输出 `OK`。
@@ -343,7 +343,7 @@ CUDA_VISIBLE_DEVICES=0 MUJOCO_GL=egl \
 conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
 python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg clip_w7_d4 \
-    --host 155.98.36.13 --port 8998 \
+    --host 155.98.36.32 --port 8998 \
     --yaml exp/trajectory_deviation/config/step3_clip_w7_d4.yaml \
     --deviate-score-json exp/trajectory_deviation/data/deviate_scores/deviate_score_clip_w7_d4.json \
     --init-states-dir exp/trajectory_deviation/data/inits \
@@ -362,7 +362,7 @@ CUDA_VISIBLE_DEVICES=1 MUJOCO_GL=egl \
 conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
 python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg spatial16_w8_d4 \
-    --host 155.98.36.13 --port 8999 \
+    --host 155.98.36.32 --port 8999 \
     --yaml exp/trajectory_deviation/config/step3_spatial16_w8_d4.yaml \
     --deviate-score-json exp/trajectory_deviation/data/deviate_scores/deviate_score_spatial16_w8_d4.json \
     --init-states-dir exp/trajectory_deviation/data/inits \
@@ -381,7 +381,7 @@ CUDA_VISIBLE_DEVICES=2 MUJOCO_GL=egl \
 conda run --no-capture-output -p /scratch/zixuans8/libero_sim \
 python -m exp.trajectory_deviation.run_step3_per_cycle_policy \
     --cfg max_pool_w3_d5 \
-    --host 155.98.36.13 --port 9000 \
+    --host 155.98.36.32 --port 9000 \
     --yaml exp/trajectory_deviation/config/step3_max_pool_w3_d5.yaml \
     --deviate-score-json exp/trajectory_deviation/data/deviate_scores/deviate_score_max_pool_w3_d5.json \
     --init-states-dir exp/trajectory_deviation/data/inits \
