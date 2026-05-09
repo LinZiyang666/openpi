@@ -653,6 +653,26 @@ def _resolve_episode_results_dir(args: Args) -> Optional[Path]:
     return _round_data_dir(args.round) / "episode_results"
 
 
+def _read_thresholds_from_yaml(yaml_path: Path) -> tuple[float, float]:
+    """Extract (fh_thr, ws_thr) baked into a phase4 eval yaml.
+
+    ``--mode emit-eval-yamls`` solves thresholds from the cached warmup
+    factor_raw and writes them into ``composer.tier_thresholds``. The
+    ``--mode run-eval`` path then re-builds Cell objects through
+    ``_build_cell_list``, which initializes ``cell.fh_thr`` /
+    ``cell.ws_thr`` to ``None`` (no solver call). Without this helper,
+    the per-yaml summary row would carry ``None`` for both threshold
+    fields even though the actual run used the correct values from the
+    yaml file. Reading the yaml here back-fills the summary so downstream
+    analysis (Pareto plots, decision-gate diagnostics, R2/R3 reasoning)
+    has the threshold trail intact.
+    """
+    import yaml as _yaml_mod
+    cfg = _yaml_mod.safe_load(yaml_path.read_text(encoding="utf-8"))
+    tt = cfg["checkpoints"]["cp1"]["judge"]["composer"]["tier_thresholds"]
+    return float(tt["full_hit"]), float(tt["warm_start"])
+
+
 def _run_one_cell(
     ctl, cell: Cell, args: Args, summary_path: Path,
 ) -> dict:
@@ -660,8 +680,17 @@ def _run_one_cell(
     1) preload_normalizer_buffer(cell.yaml_id, buffer)   (phase3 invariant)
     2) load_cache_config(eval_yaml_text, yaml_id)
     3) launch libero workers
-    4) summarize + append summary row
+    4) summarize + append summary row (incl. thr back-filled from yaml)
     """
+    # Back-fill thresholds from the eval yaml so the summary row records
+    # the same values that actually drove server-side gating. Without
+    # this, `cell.fh_thr` / `cell.ws_thr` are still the None placeholders
+    # set by `_build_cell_list` (the solver runs only in emit-eval-yamls
+    # mode, not run-eval).
+    if cell.fh_thr is None or cell.ws_thr is None:
+        fh_thr, ws_thr = _read_thresholds_from_yaml(cell.yaml_path)
+        cell = replace(cell, fh_thr=fh_thr, ws_thr=ws_thr)
+
     raw_path = _warmup_raw_dir() / f"{cell.recipe_id}.jsonl"
     declared_keys = list(RECIPES_PHASE4[cell.recipe_id]["declared_keys"])
     buffer = load_per_key_finite_history(raw_path, declared_keys)

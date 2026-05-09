@@ -625,6 +625,130 @@ def test_cell_ids_no_match_yields_empty() -> None:
     assert cells == []
 
 
+def test_run_one_cell_backfills_thr_from_yaml(tmp_path: Path, monkeypatch) -> None:
+    """Stage1 bug regression: in --mode run-eval, _build_cell_list leaves
+    cell.fh_thr / cell.ws_thr as None (solver only runs in emit-eval-yamls
+    mode). _run_one_cell must read tier_thresholds from the eval yaml and
+    back-fill the summary row, otherwise downstream analysis loses the
+    threshold trail."""
+    from exp.verdict_factor_judge.run_phase4 import _run_one_cell, Cell, Args
+    from exp.verdict_factor_judge.phase4_spec import cell_id_r1, RECIPES_PHASE4
+
+    rid = "p1_state_fut_online_act"
+    declared = list(RECIPES_PHASE4[rid]["declared_keys"])
+
+    raw_dir = tmp_path / "warmup_factor_raw"
+    raw_dir.mkdir()
+    raw_path = raw_dir / f"{rid}.jsonl"
+    rows = [{"factor_raw": {k: float(i) / 100.0 for k in declared}} for i in range(50)]
+    raw_path.write_text("\n".join(json.dumps(r) for r in rows))
+    monkeypatch.setattr(
+        "exp.verdict_factor_judge.run_phase4._warmup_raw_dir", lambda: raw_dir,
+    )
+
+    # Eval yaml carrying tier_thresholds = (0.4321, 0.1234) baked in by
+    # emit-eval-yamls. The Cell constructed by _build_cell_list has
+    # fh_thr=None, ws_thr=None — _run_one_cell must back-fill from yaml.
+    eval_yaml = tmp_path / f"{cell_id_r1('c', rid, 0.5)}.yaml"
+    eval_yaml.write_text(
+        "checkpoints:\n"
+        "  cp1:\n"
+        "    judge:\n"
+        "      composer:\n"
+        "        tier_thresholds:\n"
+        "          full_hit: 0.4321\n"
+        "          warm_start: 0.1234\n"
+    )
+    cell = Cell(
+        yaml_id=cell_id_r1("c", rid, 0.5),
+        yaml_path=eval_yaml,
+        recipe_id=rid, round_id=1, pattern_label="a0.5",
+        weights={k: 0.1 for k in declared},
+        fh_thr=None, ws_thr=None,                     # the None case the bug exposed
+        fh_ratio=0.5, ws_ratio=0.5, alpha=0.5,
+        offline_pattern_name=None, online_pattern_name=None, window_pattern_name=None,
+    )
+
+    monkeypatch.setattr(
+        "exp.verdict_factor_judge.run_phase4.subprocess.run", lambda *a, **kw: None,
+    )
+    monkeypatch.setattr(
+        "exp.verdict_factor_judge.run_phase4._build_libero_argv", lambda **kw: ([], {}),
+    )
+    monkeypatch.setattr(
+        "exp.verdict_factor_judge.run_phase4._summarize_per_step_log",
+        lambda *a, **kw: {"n_eval_verdicts": 0, "n_full_hit": 0, "n_warm_start": 0, "n_miss": 0},
+    )
+    monkeypatch.setattr(
+        "exp.verdict_factor_judge.run_phase4._aggregate_sr_from_episode_json",
+        lambda *a, **kw: None,
+    )
+
+    args = Args(mode="run-eval", round=1, per_step_log_dir=str(tmp_path))
+    summary_path = tmp_path / "summary.jsonl"
+    summary = _run_one_cell(_RecordingCtl(), cell, args, summary_path)
+
+    assert summary["fh_thr"] == pytest.approx(0.4321)
+    assert summary["ws_thr"] == pytest.approx(0.1234)
+    on_disk = json.loads(summary_path.read_text().strip())
+    assert on_disk["fh_thr"] == pytest.approx(0.4321)
+    assert on_disk["ws_thr"] == pytest.approx(0.1234)
+
+
+def test_run_one_cell_keeps_explicit_thr_when_present(tmp_path: Path, monkeypatch) -> None:
+    """If the Cell already carries fh_thr / ws_thr (e.g. emit-eval-yamls
+    pre-fills them in-process before run-eval re-uses the same Cell),
+    _run_one_cell must NOT overwrite them with the yaml values. Reading
+    from yaml is a back-fill, not a forced refresh."""
+    from exp.verdict_factor_judge.run_phase4 import _run_one_cell, Cell, Args
+    from exp.verdict_factor_judge.phase4_spec import cell_id_r1, RECIPES_PHASE4
+
+    rid = "p1_state_fut_online_act"
+    declared = list(RECIPES_PHASE4[rid]["declared_keys"])
+    raw_dir = tmp_path / "warmup_factor_raw"
+    raw_dir.mkdir()
+    raw_path = raw_dir / f"{rid}.jsonl"
+    rows = [{"factor_raw": {k: float(i) / 100.0 for k in declared}} for i in range(50)]
+    raw_path.write_text("\n".join(json.dumps(r) for r in rows))
+    monkeypatch.setattr(
+        "exp.verdict_factor_judge.run_phase4._warmup_raw_dir", lambda: raw_dir,
+    )
+
+    eval_yaml = tmp_path / f"{cell_id_r1('c', rid, 0.5)}.yaml"
+    # Yaml carries different values than the Cell — Cell wins.
+    eval_yaml.write_text(
+        "checkpoints:\n  cp1:\n    judge:\n      composer:\n"
+        "        tier_thresholds:\n          full_hit: 0.9999\n          warm_start: 0.8888\n"
+    )
+    cell = Cell(
+        yaml_id=cell_id_r1("c", rid, 0.5),
+        yaml_path=eval_yaml,
+        recipe_id=rid, round_id=1, pattern_label="a0.5",
+        weights={k: 0.1 for k in declared},
+        fh_thr=0.5000, ws_thr=0.3000,
+        fh_ratio=0.5, ws_ratio=0.5, alpha=0.5,
+        offline_pattern_name=None, online_pattern_name=None, window_pattern_name=None,
+    )
+    monkeypatch.setattr("exp.verdict_factor_judge.run_phase4.subprocess.run", lambda *a, **kw: None)
+    monkeypatch.setattr("exp.verdict_factor_judge.run_phase4._build_libero_argv", lambda **kw: ([], {}))
+    monkeypatch.setattr(
+        "exp.verdict_factor_judge.run_phase4._summarize_per_step_log",
+        lambda *a, **kw: {"n_eval_verdicts": 0, "n_full_hit": 0, "n_warm_start": 0, "n_miss": 0},
+    )
+    monkeypatch.setattr(
+        "exp.verdict_factor_judge.run_phase4._aggregate_sr_from_episode_json", lambda *a, **kw: None,
+    )
+
+    summary = _run_one_cell(
+        _RecordingCtl(), cell,
+        Args(mode="run-eval", round=1, per_step_log_dir=str(tmp_path)),
+        tmp_path / "summary.jsonl",
+    )
+    # Cell-supplied values win; yaml values ignored.
+    assert summary["fh_thr"] == pytest.approx(0.5000)
+    assert summary["ws_thr"] == pytest.approx(0.3000)
+
+
 def test_serve_host_serve_port_aliases_accepted() -> None:
     """G2 R1 NB1: argparse accepts both --host/--port and the plan-doc
     spelling --serve-host/--serve-port."""
