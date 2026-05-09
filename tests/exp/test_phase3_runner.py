@@ -245,6 +245,29 @@ def test_no_intercell_unload_in_cell_loop_source() -> None:
     )
 
 
+def test_cell_ids_substring_filter_in_phase3_runner_source() -> None:
+    """Stage 5 6-server sharding requires phase3 runner to skip cells
+    whose ``eval_yaml_id`` does not match any of ``args.cell_ids``
+    substrings (mirrors phase4 commit fbadea3's --cell-ids filter).
+
+    Source-level invariant: the cell loop body must contain a substring
+    allowlist check that uses ``args.cell_ids`` and ``eval_yaml_id``.
+    """
+    import inspect
+    from exp.verdict_factor_judge.run_phase3 import _run_one_recipe, Args
+    src = inspect.getsource(_run_one_recipe)
+    cell_loop_marker = "for fh_ratio, ws_ratio in GRID:"
+    recipe_end_marker = "Recipe-end cleanup"
+    cell_loop_body = src.split(cell_loop_marker, 1)[1].split(recipe_end_marker, 1)[0]
+    assert "args.cell_ids" in cell_loop_body, (
+        "phase3 runner cell loop must consult args.cell_ids substring allowlist"
+    )
+    assert "eval_yaml_id" in cell_loop_body
+    # Args dataclass must declare cell_ids tuple field.
+    fields = {f.name: f.type for f in __import__("dataclasses").fields(Args)}
+    assert "cell_ids" in fields
+
+
 def test_write_na_summary_rows_summary_path_none_returns_rows_no_io(tmp_path: Path) -> None:
     """Allows main() to call with summary_path=None when --summary-out is empty;
     rows still returned for in-memory aggregation by the caller.

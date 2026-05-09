@@ -92,6 +92,12 @@ class Args:
     # sharded across multiple servers.
     recipe_ids: tuple[str, ...] = ()
 
+    # Optional yaml_id substring allowlist for sharding cells across
+    # multiple parallel run invocations (e.g. stage 5 6-server split).
+    # A cell survives iff any of these substrings appears in its
+    # ``eval_yaml_id``. Empty = no filter (default).
+    cell_ids: tuple[str, ...] = ()
+
     # Server endpoint (frpc default — see run_phase.Args).
     host: str = "155.98.36.13"
     port: int = 9000
@@ -355,6 +361,10 @@ def _run_one_recipe(
     for fh_ratio, ws_ratio in GRID:
         cell_key = f"fh{fh_ratio}_ws{ws_ratio}"
         eval_yaml_id = f"{warmup_eval_yaml_id}__{cell_key}"
+        if args.cell_ids and not any(sub in eval_yaml_id for sub in args.cell_ids):
+            # Substring allowlist (multi-server sharding): skip cells
+            # whose yaml_id does not match any allowed substring.
+            continue
         if eval_yaml_id in done_ids:
             logger.info("[%s] resume: %s already done — skipping", recipe_id, eval_yaml_id)
             continue
