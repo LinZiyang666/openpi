@@ -318,9 +318,12 @@ def _run_one_warmup(ctl, cell: Cell, args: Args) -> None:
         return
 
     if not wpath.exists():
-        raise FileNotFoundError(
-            f"warmup yaml missing: {wpath}. Run `--mode emit-warmup-yamls` first."
-        )
+        # Lazy emit: write the warmup yaml on demand so callers don't
+        # have to gate on a separate `--mode emit-warmup-yamls` run.
+        yaml_dict = build_warmup_yaml_for_cell(args.cfg_id, cell)
+        wpath.parent.mkdir(parents=True, exist_ok=True)
+        write_yaml(wpath, yaml_dict)
+        logger.info("[run-warmup] lazy-emit warmup yaml %s", wid)
 
     logger.info("[run-warmup] %s", wid)
     ctl.load_cache_config(yaml_content=wpath.read_text(encoding="utf-8"), yaml_id=wid)
@@ -467,7 +470,49 @@ def _run_one_cell_phase5(
     return summary
 
 
+def _ensure_warmup_for_cell(ctl, cell: Cell, args: Args) -> None:
+    """Lazy: run the cell's warmup yaml if its factor_raw jsonl is missing.
+
+    G5 cells are skipped — their raw is historical (phase3 g6 / phase4
+    p1+p2) and not produced by phase5 own warmup. If a G5 raw is missing
+    when the eval needs it, the downstream solver call surfaces a clear
+    FileNotFoundError; we don't try to re-create historical data here.
+    """
+    if cell.group == "g5":
+        return
+    raw_path = warmup_raw_path_for_cell(
+        cell,
+        phase5_warmup_dir=_phase5_warmup_raw_dir(args),
+        phase3_warmup_dir=_phase3_warmup_dir(args),
+        phase4_warmup_raw_dir=_phase4_warmup_raw_dir(args),
+    )
+    if raw_path.exists() and raw_path.stat().st_size > 0:
+        return   # already cached
+    _run_one_warmup(ctl, cell, args)
+
+
+def _ensure_eval_yaml_for_cell(cell: Cell, args: Args) -> None:
+    """Lazy: solve thresholds + write eval yaml if missing on disk."""
+    eval_yaml_path = _eval_yaml_dir(args) / f"{cell.yaml_id}.yaml"
+    if eval_yaml_path.exists() and eval_yaml_path.stat().st_size > 0:
+        return
+    fh_thr, ws_thr = _solve_thresholds_phase5(cell, args)
+    yaml_dict = build_eval_yaml_for_cell(args.cfg_id, cell, fh_thr, ws_thr)
+    eval_yaml_path.parent.mkdir(parents=True, exist_ok=True)
+    write_yaml(eval_yaml_path, yaml_dict)
+    logger.info("[run-eval] lazy-emit eval yaml %s (fh=%.4f ws=%.4f)",
+                cell.yaml_id, fh_thr, ws_thr)
+
+
 def _mode_run_eval(args: Args) -> None:
+    """Per-cell pipeline: ensure warmup raw → solve+emit eval yaml → eval.
+
+    Each cell is fully self-contained: the server runs whatever warmup it
+    needs (skipping if already cached), then solves thresholds, then runs
+    the LIBERO eval workers. No separate `run-warmup` / `emit-eval-yamls`
+    step is required up-front for G1-G4 — those modes remain available
+    as standalone helpers but `run-eval` will lazy-trigger them per cell.
+    """
     if WebsocketClientPolicy is None:
         raise RuntimeError("openpi_client is not installed; cannot run eval")
     cells = _resolve_cells(args)
@@ -479,6 +524,8 @@ def _mode_run_eval(args: Args) -> None:
     for cell in pending:
         with WebsocketClientPolicy(host=args.host, port=args.port) as ctl:
             try:
+                _ensure_warmup_for_cell(ctl, cell, args)
+                _ensure_eval_yaml_for_cell(cell, args)
                 _run_one_cell_phase5(ctl, cell, args, summary_path)
             except Exception:   # noqa: BLE001 — log + continue
                 import traceback
@@ -649,6 +696,8 @@ __all__ = [
     "VALID_MODES",
     "WARM_COST",
     "_dump_decision_gate_table_phase5",
+    "_ensure_eval_yaml_for_cell",
+    "_ensure_warmup_for_cell",
     "_mode_emit_eval_yamls",
     "_mode_emit_warmup_yamls",
     "_mode_run_eval",

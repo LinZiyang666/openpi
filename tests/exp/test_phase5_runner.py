@@ -376,6 +376,118 @@ def test_decision_gate_g5_pareto_frontier(tmp_path: Path) -> None:
     assert isinstance(p1_meta["frontier"], list)
 
 
+# ----------------------------------------------------------------------
+# Lazy run-eval pipeline (per-cell auto warmup + emit eval yaml)
+# ----------------------------------------------------------------------
+
+
+def test_ensure_warmup_skips_g5(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """G5 cells must NOT trigger phase5 own warmup — their raw is historical."""
+    cell = next(c for c in generate_g5_cells() if c.base_recipe == "g6")
+    args = r._parse_args([
+        "--mode", "run-eval",
+        "--warmup-jsonl-dir", str(tmp_path / "phase5_raw"),
+    ])
+    called = []
+    monkeypatch.setattr(r, "_run_one_warmup", lambda *a, **kw: called.append(1))
+    r._ensure_warmup_for_cell(_MockCtl(), cell, args)
+    assert called == []
+
+
+def test_ensure_warmup_skips_when_raw_exists(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    cell = generate_g1_cells()[0]
+    raw_dir = tmp_path / "warmup_factor_raw"
+    raw_dir.mkdir()
+    (raw_dir / f"{cell.warmup_yaml_id}.jsonl").write_text('{"factor_raw": {}}\n')
+    args = r._parse_args([
+        "--mode", "run-eval",
+        "--warmup-jsonl-dir", str(raw_dir),
+    ])
+    called = []
+    monkeypatch.setattr(r, "_run_one_warmup", lambda *a, **kw: called.append(1))
+    r._ensure_warmup_for_cell(_MockCtl(), cell, args)
+    assert called == []
+
+
+def test_ensure_warmup_runs_when_raw_missing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    cell = generate_g1_cells()[0]
+    args = r._parse_args([
+        "--mode", "run-eval",
+        "--warmup-jsonl-dir", str(tmp_path / "warmup_factor_raw"),
+    ])
+    called = []
+    monkeypatch.setattr(r, "_run_one_warmup", lambda *a, **kw: called.append(cell.yaml_id))
+    r._ensure_warmup_for_cell(_MockCtl(), cell, args)
+    assert called == [cell.yaml_id]
+
+
+def test_run_one_warmup_lazy_emits_warmup_yaml(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """If warmup yaml file is missing, _run_one_warmup writes it on demand."""
+    cell = generate_g1_cells()[0]
+    warmup_yaml_dir = tmp_path / "warmup_yamls"
+    raw_dir = tmp_path / "warmup_factor_raw"
+    args = r._parse_args([
+        "--mode", "run-eval",
+        "--warmup-yaml-dir", str(warmup_yaml_dir),
+        "--warmup-jsonl-dir", str(raw_dir),
+    ])
+
+    class _Ctl:
+        def load_cache_config(self, **kw): pass
+        def fetch_dump(self, *a): return b'{"factor_raw": {}}\n'
+
+    monkeypatch.setattr(r.subprocess, "run", lambda *a, **kw: None)
+    monkeypatch.setattr(r, "_build_libero_argv", lambda **kw: ([], {}))
+    r._run_one_warmup(_Ctl(), cell, args)
+    assert (warmup_yaml_dir / f"{cell.warmup_yaml_id}.yaml").exists()
+
+
+def test_ensure_eval_yaml_skips_when_present(tmp_path: Path) -> None:
+    cell = generate_g1_cells()[0]
+    eval_dir = tmp_path / "eval_yamls"
+    eval_dir.mkdir()
+    target = eval_dir / f"{cell.yaml_id}.yaml"
+    target.write_text("dummy: 1\n")
+    args = r._parse_args([
+        "--mode", "run-eval",
+        "--eval-yaml-dir", str(eval_dir),
+    ])
+    r._ensure_eval_yaml_for_cell(cell, args)
+    # File untouched (still our dummy content)
+    assert target.read_text() == "dummy: 1\n"
+
+
+def test_ensure_eval_yaml_solves_and_writes_when_missing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    cell = generate_g1_cells()[0]
+    eval_dir = tmp_path / "eval_yamls"
+    raw_dir = tmp_path / "warmup_factor_raw"
+    raw_dir.mkdir()
+    _write_synth_warmup_jsonl(raw_dir / f"{cell.warmup_yaml_id}.jsonl",
+                              list(cell.declared_keys), n=80)
+    args = r._parse_args([
+        "--mode", "run-eval",
+        "--warmup-jsonl-dir", str(raw_dir),
+        "--eval-yaml-dir", str(eval_dir),
+    ])
+    r._ensure_eval_yaml_for_cell(cell, args)
+    out = eval_dir / f"{cell.yaml_id}.yaml"
+    assert out.exists()
+    import yaml as _y
+    yaml_dict = _y.safe_load(out.read_text())
+    composer = yaml_dict["checkpoints"]["cp1"]["judge"]["composer"]
+    assert composer["type"] == "weighted_sum_zero_nan"
+    # solver-derived thresholds should be finite floats
+    assert isinstance(composer["tier_thresholds"]["full_hit"], float)
+
+
 def test_decision_gate_writes_5_per_group_files(tmp_path: Path) -> None:
     """Plan §4.1..§4.5: 5 separate decision files (g1..g5_decision.json).
 

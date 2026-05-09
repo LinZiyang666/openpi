@@ -81,54 +81,33 @@ mkdir -p exp/verdict_factor_judge/data/phase5_systematic/{per_step,episode_resul
 
 ---
 
-## 3. §1 Yaml 准备（一次性，单 server 即可）
+## 3. §1 Yaml 准备（lazy — run-eval 自动按需 emit + warmup）
 
-### §1.1 emit warmup yamls（148 个 phase5 own warmup）
+> **重大简化**：commit `036eb36` 起 `run-eval` 是 **lazy per-cell pipeline**：
+> 每个 cell 在 eval 前会自动检查 (a) warmup factor_raw jsonl 是否存在，
+> 不存在就在本 server 跑 warmup yaml + fetch dump + extract raw；
+> (b) eval yaml 是否存在，不存在就 solve thresholds + write yaml。
+>
+> 因此**不需要先单独跑 emit-warmup-yamls / run-warmup / emit-eval-yamls 三个 mode**。每个 server 直接跑 `run-eval` 即可，server 自己处理它分配到的 cells 的 warmup + emit + eval。
+>
+> 已落盘的 yaml + raw 全部跳过（idempotent）。中途断了重跑命令仍能从 summary 续。
+>
+> 已 pre-emit（commit `036eb36` 已 push 云端）：148 warmup yaml + 48 G5 eval yaml；剩余 192 G1-G4 eval yaml 由各 server 在跑自己 cell 时 lazy emit。
 
-任一 client 节点（不一定要 timan107，本地 WSL2 也可）：
+如需单独提前 emit / run warmup（debug 用）：
 
 ```bash
+# Optional debug: emit all 148 warmup yamls (no server)
 uv run python -m exp.verdict_factor_judge.phase5.runner \
-    --mode emit-warmup-yamls \
-    --warmup-yaml-dir exp/verdict_factor_judge/config/spatial16/phase5/warmup
-# 期望: "[emit-warmup-yamls] 148 warmup yamls -> ..."
-```
+    --mode emit-warmup-yamls
 
-### §1.2 emit eval yamls（240 个）
-
-> ⚠️ emit-eval-yamls **必须在 warmup factor_raw 落盘之后**：solver 会读 raw jsonl 算 thresholds。如果 G5 raw 不在 phase3/phase4 的现有路径，后面会 skip 这些 cell 的 yaml emit。
-
-实际两步：先 §3.1 跑完 warmup，所有 phase5 own raw 落盘后，再回这里 emit eval。
-
-```bash
+# Optional debug: pre-run all warmups on one server (server required)
 uv run python -m exp.verdict_factor_judge.phase5.runner \
-    --mode emit-eval-yamls \
-    --warmup-jsonl-dir exp/verdict_factor_judge/data/phase5_systematic/warmup_factor_raw \
-    --phase3-warmup-dir exp/verdict_factor_judge/data/phase3/warmup \
-    --phase4-warmup-raw-dir exp/verdict_factor_judge/data/phase4/warmup_factor_raw \
-    --eval-yaml-dir exp/verdict_factor_judge/config/spatial16/phase5/eval
-# 期望: "[emit-eval-yamls] 240 ok, 0 skipped -> ..."
+    --mode run-warmup \
+    --host 155.98.36.32 --port 9000 ...
 ```
 
-### §1.3 yaml sanity
-
-```bash
-ls exp/verdict_factor_judge/config/spatial16/phase5/warmup/*.yaml | wc -l
-# 期望: 148
-
-ls exp/verdict_factor_judge/config/spatial16/phase5/eval/*.yaml | wc -l
-# 期望: 240
-```
-
-### §1.4 commit + push（pre-emit yamls）
-
-让云端 server pull 时直接拿到 emit 好的 yamls，避免 server 端要 re-emit：
-
-```bash
-git add exp/verdict_factor_judge/config/spatial16/phase5/{warmup,eval}/*.yaml
-git commit -m "phase5 systematic sweep: pre-emit 148 warmup + 240 eval yamls"
-git push origin Ziyang
-```
+但**正常流程跳过 §1 整段**，直接进 §2 / §4 / §5。
 
 ---
 
@@ -161,29 +140,24 @@ CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
 
 ---
 
-## 5. §3 跑 warmup（148 个 phase5 own warmup yamls）
+## 5. §3 ~~跑 warmup~~（已并入 run-eval lazy pipeline，正常流程跳过）
 
-> 注意：G5 cell **不**触发新 warmup（复用 phase3 g6 + phase4 p1/p2 历史 jsonl，0 新 warmup）；G3 共享 warmup（4 个 yaml 给 12×2×2=48 个 cells）；G1/G2/G4 各 cell 独立 warmup。
+> 现在每 server 跑 `run-eval` 时会按需自动 warmup 自己分配的 cells（per-cell lazy）。
+> 想 debug 单独跑 warmup 见 §1 末尾的 optional 块。
 
-简化策略：**所有 warmup 由 timan107 (S3 端口 9000) 串行跑**（最快，不用切 server）。runner 在 phase5 own raw jsonl 已存在时自动 skip，所以可以重跑无副作用。
+预算变更：每 server warmup 时间分摊到自己 cell 数；瓶颈不再是单 server 串跑全 148。
 
-```bash
-uv run python -m exp.verdict_factor_judge.phase5.runner \
-    --mode run-warmup \
-    --host 155.98.36.32 --port 9000 \
-    --task-suite libero_spatial \
-    --num-workers 5 --warmup-trials 2 \
-    --cuda-visible-devices 0 \
-    --conda-env /scratch/zixuans8/libero_sim \
-    --warmup-yaml-dir       exp/verdict_factor_judge/config/spatial16/phase5/warmup \
-    --warmup-jsonl-dir      exp/verdict_factor_judge/data/phase5_systematic/warmup_factor_raw
-# 期望: 148 warmup yamls 顺序跑完，每个 ~0.5 min × 5 worker，总 ~25 min。
-# G5 不在此运行（数据已在 phase3/phase4 dir）。
-```
+| Server | cells | est. warmup ep | est. warmup time | est. eval time | total wall-clock |
+|---|---:|---:|---:|---:|---:|
+| S1 | 48 (G1-4 cells) | ~960 ep | ~1.5h | ~4h | ~5.5h |
+| S2 | 48 | ~960 | ~1.5h | ~4h | ~5.5h |
+| S3 | 45 | ~900 | ~1.4h | ~3.8h | ~5.2h |
+| S4 | 33 | ~660 | ~1h | ~2.75h | ~3.75h |
+| S5 | 33 | ~660 | ~1h | ~2.75h | ~3.75h |
+| S6 | 33 | ~660 | ~1h | ~2.75h | ~3.75h |
 
-跑完后 `data/phase5_systematic/warmup_factor_raw/` 含 148 个 jsonl。
-
-跑完后回到 §1.2 emit eval yamls（必须在 warmup raw 全落盘后才能 solver 求 thresholds）。
+> G5 cell 不触发 warmup (复用历史 raw)，所以 S1-S6 中含 G5 cell 的 server warmup 时间会更短。
+> 6 server 并行 → 瓶颈 S1/S2 ≈ 5.5h wall-clock total。
 
 ---
 
@@ -469,23 +443,19 @@ exp/verdict_factor_judge/analysis/phase5/
 
 ---
 
-## 11. §9 节点检查总单
+## 11. §9 节点检查总单（lazy run-eval pipeline）
 
 | # | 步骤 | 命令位置 | 预期产出 |
 |---:|---|---|---|
-| 1 | git pull | §0.1 | 同步 phase5 commit |
-| 2 | sanity test | §0.2 | 154+ passed |
+| 1 | git pull | §0.1 | 同步 phase5 commit (含 196 pre-emit yaml) |
+| 2 | sanity test | §0.2 | 100+ passed |
 | 3 | mkdir 输出目录 | §0.3 | 4 子目录建好 |
-| 4 | emit warmup yamls | §1.1 | 148 个 yaml |
-| 5 | 6 server bootstrap | §2 | 6 server listen on 8998-9000 / 8001-8003 |
-| 6 | run warmup（148 个）| §3 | 148 个 raw jsonl |
-| 7 | emit eval yamls | §1.2 (post-§3) | 240 个 yaml + 0 skipped |
-| 8 | yaml commit + push | §1.4 | 云端 pull 直接拿 |
-| 9 | dump per-server cell list | §4 | 6 个 .txt files |
-| 10 | 6 batch run-eval | §5 (batch1..6) | 6 个 batch summary |
-| 11 | merge summary | §6.1 | 240 行 master |
-| 12 | dump decision gate | §6.2 | 5 个 g{N}_decision.json |
-| 13 | 分组 sanity | §6.3 | per-group counts |
-| 14 | 绘图 | §6.4 | pareto.png + heatmaps.png |
-| 15 | 打包下载 | §6.5 | tar.gz |
-| 16 | 本地分析 + results.md | (out-of-runbook) | results.md |
+| 4 | 6 server bootstrap | §2 | 6 server listen on 8998-9000 / 8001-8003 |
+| 5 | dump per-server cell list | §4 | 6 个 .txt files |
+| 6 | 6 batch run-eval（自动 warmup+emit+eval）| §5 (batch1..6) | 6 个 batch summary + lazy-emit 192 G1-G4 eval yaml + 148 raw jsonl |
+| 7 | merge summary | §6.1 | 240 行 master |
+| 8 | dump decision gate | §6.2 | 5 个 g{N}_decision.json |
+| 9 | 分组 sanity | §6.3 | per-group counts |
+| 10 | 绘图 | §6.4 | pareto.png + heatmaps.png |
+| 11 | 打包下载 | §6.5 | tar.gz |
+| 12 | 本地分析 + results.md | (out-of-runbook) | results.md |
