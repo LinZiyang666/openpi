@@ -582,6 +582,49 @@ def test_decision_gate_r3_next_args_only_triggered_recipes(tmp_path: Path) -> No
     assert "--round 4" in (suggestion["cli_command"] or "")
 
 
+def test_cell_ids_substring_allowlist_filters_cells() -> None:
+    """Multi-server sharding: --cell-ids "a0.0 a0.2" keeps only those R1
+    cells whose yaml_id contains either substring (OR semantics)."""
+    cells_full = _build_cell_list(Args(mode="emit-eval-yamls", round=1))
+    assert len(cells_full) == 14
+
+    cells_subset = _build_cell_list(Args(
+        mode="emit-eval-yamls", round=1, cell_ids=("a0.0", "a0.2"),
+    ))
+    # 2 alphas x 2 recipes = 4 cells.
+    assert len(cells_subset) == 4
+    yaml_ids = {c.yaml_id for c in cells_subset}
+    assert all("a0.0" in y or "a0.2" in y for y in yaml_ids)
+
+
+def test_cell_ids_combined_with_recipe_filter() -> None:
+    """--cell-ids and --recipe compose: --recipe restricts to one recipe,
+    --cell-ids further filters within that recipe's cells."""
+    cells = _build_cell_list(Args(
+        mode="emit-eval-yamls", round=1,
+        recipe="p1_state_fut_online_act",
+        cell_ids=("a0.6", "a0.8", "a1.0"),
+    ))
+    assert len(cells) == 3
+    assert all(c.recipe_id == "p1_state_fut_online_act" for c in cells)
+    assert all(any(s in c.yaml_id for s in ("a0.6", "a0.8", "a1.0")) for c in cells)
+
+
+def test_cell_ids_empty_yields_full_list() -> None:
+    """Empty cell_ids tuple = no filter (default)."""
+    cells = _build_cell_list(Args(mode="emit-eval-yamls", round=1, cell_ids=()))
+    assert len(cells) == 14
+
+
+def test_cell_ids_no_match_yields_empty() -> None:
+    """Non-matching substrings produce an empty cell list (operator must
+    notice — no silent fallback to full list)."""
+    cells = _build_cell_list(Args(
+        mode="emit-eval-yamls", round=1, cell_ids=("nonexistent",),
+    ))
+    assert cells == []
+
+
 def test_serve_host_serve_port_aliases_accepted() -> None:
     """G2 R1 NB1: argparse accepts both --host/--port and the plan-doc
     spelling --serve-host/--serve-port."""

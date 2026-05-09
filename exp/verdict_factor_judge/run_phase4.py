@@ -124,6 +124,7 @@ class Args:
     offline_pattern: Optional[str] = None
     online_pattern: Optional[str] = None
     recipe: Optional[str] = None
+    cell_ids: tuple[str, ...] = ()
     host: str = "155.98.36.13"
     port: int = 9000
     cfg_id: str = "spatial16_w8_d4"
@@ -152,6 +153,15 @@ def _parse_args(argv: Optional[list[str]] = None) -> Args:
     p.add_argument("--offline-pattern", type=str, default=None)
     p.add_argument("--online-pattern", type=str, default=None)
     p.add_argument("--recipe", type=str, default=None)
+    p.add_argument(
+        "--cell-ids", nargs="*", default=[],
+        help=(
+            "Optional yaml_id substring allowlist for sharding cells across "
+            "multiple parallel run-eval invocations (e.g. 6 GPU servers split "
+            "the 14-cell R1 sweep). A cell is kept iff any of its substrings "
+            "appears in the cell yaml_id. Empty = no filter."
+        ),
+    )
     # Both --host/--port (phase3 spelling) and --serve-host/--serve-port
     # (plan §5 / earlier docs) are accepted; the latter is an alias for
     # operator parity with the plan's published commands.
@@ -187,6 +197,7 @@ def _parse_args(argv: Optional[list[str]] = None) -> Args:
         mode=a.mode, round=a.round,
         alpha_star=a.alpha_star, offline_pattern=a.offline_pattern,
         online_pattern=a.online_pattern, recipe=a.recipe,
+        cell_ids=tuple(a.cell_ids or ()),
         host=a.host, port=a.port, cfg_id=a.cfg_id,
         task_suite=a.task_suite, num_workers=a.num_workers,
         warmup_trials=a.warmup_trials, eval_trials=a.eval_trials,
@@ -470,6 +481,11 @@ def _build_cell_list(args: Args) -> list[Cell]:
                     online_pattern_name=on_pat_name,
                     window_pattern_name=win_pat_name,
                 ))
+    if args.cell_ids:
+        # Substring allowlist for multi-server sharding. A cell survives
+        # iff any of args.cell_ids appears in its yaml_id (OR semantics).
+        allow = tuple(args.cell_ids)
+        cells = [c for c in cells if any(sub in c.yaml_id for sub in allow)]
     return cells
 
 
