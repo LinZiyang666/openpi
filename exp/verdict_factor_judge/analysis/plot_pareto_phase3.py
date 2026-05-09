@@ -40,6 +40,7 @@ import matplotlib
 
 matplotlib.use("Agg")  # noqa: E402  headless / no Qt
 import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib.ticker import MultipleLocator  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -148,20 +149,22 @@ def main() -> None:
         raise SystemExit(f"phase3 summary not found: {summary_path}")
     rows = _load_phase3(summary_path)
 
-    fig, ax = plt.subplots(1, 1, figsize=(9, 7))
+    fig, ax = plt.subplots(1, 1, figsize=(22, 14))
     fig.suptitle(
-        "Phase 3 — Data-driven Threshold Sweep (spatial16, 11 recipes x 16 cells)",
-        fontsize=13, fontweight="bold",
+        f"Phase 3 — Data-driven Threshold Sweep "
+        f"(spatial16, 11 recipes × 16 cells = {len(rows)} eval points; "
+        f"warm cost = 0.75 @ start_t=0.5)",
+        fontsize=15, fontweight="bold",
     )
 
     # random / periodic cloud + frontier
     rx, ry = (zip(*rp_pts) if rp_pts else ([], []))
-    ax.scatter(rx, ry, s=24, c="lightgray", marker="o", alpha=0.75,
-               label="random / periodic", zorder=1)
+    ax.scatter(rx, ry, s=32, c="lightgray", marker="o", alpha=0.7,
+               label=f"random / periodic ({len(rp_pts)} pts)", zorder=1)
     rp_front = pareto_upper_frontier(rp_pts)
     if rp_front:
         fx, fy = zip(*rp_front)
-        ax.plot(fx, fy, "-", color="gray", alpha=0.55, linewidth=1.2,
+        ax.plot(fx, fy, "-", color="gray", alpha=0.55, linewidth=1.5,
                 label="r/p Pareto frontier", zorder=2)
 
     # always-WARM baselines
@@ -170,43 +173,78 @@ def main() -> None:
     ]
     wx = [p[0] for p in warm_pts]
     wy = [p[1] for p in warm_pts]
-    ax.scatter(wx, wy, s=240, c="red", marker="*", edgecolors="darkred",
-               linewidths=1.4, label="always-WARM (start_t)", zorder=4)
+    ax.scatter(wx, wy, s=380, c="red", marker="*", edgecolors="darkred",
+               linewidths=1.6, label="always-WARM (start_t)", zorder=4)
     for (x, y), t in zip(warm_pts, (0.30, 0.50, 0.70)):
-        ax.annotate(f" t={t}", (x, y), xytext=(7, -3),
-                    textcoords="offset points", fontsize=9, color="darkred")
-    ax.plot(wx, wy, "--", color="red", alpha=0.4, linewidth=1.0, zorder=3)
+        ax.annotate(f" t={t}", (x, y), xytext=(8, -4),
+                    textcoords="offset points", fontsize=11, color="darkred",
+                    fontweight="bold")
+    ax.plot(wx, wy, "--", color="red", alpha=0.45, linewidth=1.2, zorder=3)
 
     # Phase 3 cells colored by recipe.
     cmap = plt.get_cmap("tab20")
-    recipe_ids = sorted({r["recipe_id"] for r in rows})
+    recipe_ids = sorted({r["recipe_id"] for r in rows},
+                        key=lambda s: int(s.split("_", 1)[0][1:]))    # g1, g2, ..., g11
     color_for = {rid: cmap(i % 20) for i, rid in enumerate(recipe_ids)}
     for rid in recipe_ids:
         cells = [r for r in rows if r["recipe_id"] == rid]
         cx = [r["inf"] for r in cells]
         cy = [r["sr"] for r in cells]
-        ax.scatter(cx, cy, s=45, color=color_for[rid], marker="o",
-                   edgecolors="navy", linewidths=0.6, alpha=0.85,
+        ax.scatter(cx, cy, s=70, color=color_for[rid], marker="o",
+                   edgecolors="navy", linewidths=0.7, alpha=0.85,
                    label=rid, zorder=3)
 
     # gold-circle strict-Pareto-positives vs r/p + always-WARM
     all_base = list(rp_pts) + warm_pts
+    gold_rows: list[dict] = []
     for r in rows:
         if not is_pareto_dominated(r["inf"], r["sr"], all_base):
-            ax.scatter([r["inf"]], [r["sr"]], s=170, facecolors="none",
-                       edgecolors="gold", linewidths=2.2, zorder=5)
+            ax.scatter([r["inf"]], [r["sr"]], s=240, facecolors="none",
+                       edgecolors="gold", linewidths=2.6, zorder=5)
+            gold_rows.append(r)
+    # Annotate only high-SR gold cells (>= 0.95) to keep the plot legible
+    # under the 70+ gold count Phase 3 produces. Lower-SR gold cells stay
+    # as rings only — operators can cross-reference per_yaml_summary.jsonl
+    # for their (recipe, fh_ratio, ws_ratio) identity.
+    n_gold = len(gold_rows)
+    n_annotated = 0
+    for r in gold_rows:
+        if r["sr"] < 0.95:
+            continue
+        ax.annotate(
+            f"{r['recipe_id'].split('_', 1)[0]} fh{r['fh_ratio']}/ws{r['ws_ratio']}",
+            (r["inf"], r["sr"]),
+            xytext=(7, 7), textcoords="offset points",
+            fontsize=8, color="darkorange", fontweight="bold",
+        )
+        n_annotated += 1
 
-    ax.set_xlabel("inference_ratio  (lower = more cache reuse)")
-    ax.set_ylabel("success_rate")
+    ax.set_xlabel("inference_ratio  (lower = more cache reuse)", fontsize=12)
+    ax.set_ylabel("success_rate", fontsize=12)
     ax.set_xlim(-0.02, 1.02)
-    ax.set_ylim(0.6, 1.02)
-    ax.grid(True, alpha=0.3)
-    ax.legend(loc="lower right", fontsize=7, framealpha=0.95, ncol=2)
+    ax.set_ylim(0.55, 1.02)
+
+    # Tick density. Y axis gets the finer scale because phase3's high-SR
+    # Pareto band (~0.93-1.00) is where most readable detail lives.
+    ax.yaxis.set_major_locator(MultipleLocator(0.05))
+    ax.yaxis.set_minor_locator(MultipleLocator(0.01))
+    ax.xaxis.set_major_locator(MultipleLocator(0.1))
+    ax.xaxis.set_minor_locator(MultipleLocator(0.05))
+    ax.grid(which="major", alpha=0.4, linewidth=0.7)
+    ax.grid(which="minor", alpha=0.18, linewidth=0.4)
+    ax.tick_params(axis="both", which="major", labelsize=11)
+    ax.tick_params(axis="y", which="minor", length=3)
+    ax.legend(
+        loc="lower right", fontsize=9, framealpha=0.95, ncol=2,
+        title=f"gold-circle = strict Pareto positive ({n_gold}/{len(rows)})",
+        title_fontsize=10,
+    )
 
     plt.tight_layout()
     out = repo / "exp/verdict_factor_judge/analysis/phase3_pareto.png"
-    plt.savefig(out, dpi=140, bbox_inches="tight")
-    print(f"saved -> {out}  size: {out.stat().st_size / 1024:.1f} KB")
+    plt.savefig(out, dpi=160, bbox_inches="tight")
+    print(f"saved -> {out}  size: {out.stat().st_size / 1024:.1f} KB"
+          f"  ({n_gold}/{len(rows)} gold)")
 
 
 if __name__ == "__main__":
