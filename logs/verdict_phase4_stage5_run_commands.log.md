@@ -190,6 +190,13 @@ CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
 
 每 batch 独立 `--summary-out` 文件避免并发写冲突；最后 §4 合并。
 
+> **resume 语义差异（两 runner 行为不同，命令也不同）**：
+>
+> - **phase3 batches (batch1, batch6)** 用 `run_phase3.py`，**必须显式传 `--resume`** 否则 main 会 `summary_path.write_text("")` 把已跑数据 truncate。stage 5 首次启动时 summary 为空，`--resume` 为 no-op；中途挂掉重启时 `--resume` 跳过已 done 的 cell — safety net。**所有 phase3 batches 都带 `--resume`**。
+> - **phase4 batches (batch2-5)** 用 `run_phase4.py`，**无 `--resume` flag**：runner 总是 `_load_done_yaml_ids(summary_path) if summary_path.exists() else set()`，自动 resume，不需要 flag。如果想强制重跑（fresh start），手动 `rm <summary-out>` 文件后再启动。
+>
+> 不要 copy-paste 时把 `--resume` 加到 phase4 命令（argparse 会报 unknown argument）；也不要从 phase3 命令删掉 `--resume`（中途挂的话会丢数据）。
+
 ### batch1 → S1 (Group A, 8 phase3 cells, frp 8998, GPU 0)
 
 ```bash
@@ -237,6 +244,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --eval-yaml-dir          exp/verdict_factor_judge/config/spatial16/phase4/eval \
     --warmup-yaml-dir        exp/verdict_factor_judge/config/spatial16/phase4/warmup \
     --summary-out            exp/verdict_factor_judge/data/phase5/per_yaml_summary_batch2.jsonl
+# (no --resume: run_phase4.py auto-reads done set from summary_out file)
 ```
 
 > `off-disp-only` 故意**不在** `--cell-ids` 内（disp-only 退化 verify 不在 stage 5 这次跑，可作为后续 2-cell follow-up）。
@@ -261,6 +269,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --eval-yaml-dir          exp/verdict_factor_judge/config/spatial16/phase4/eval \
     --warmup-yaml-dir        exp/verdict_factor_judge/config/spatial16/phase4/warmup \
     --summary-out            exp/verdict_factor_judge/data/phase5/per_yaml_summary_batch3.jsonl
+# (no --resume: run_phase4.py auto-reads done set from summary_out file)
 ```
 
 ### batch4 → S4 (Group D, 8 phase4 R1 α cells, 直连 8001, GPU 1)
@@ -279,6 +288,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --eval-yaml-dir          exp/verdict_factor_judge/config/spatial16/phase4/eval \
     --warmup-yaml-dir        exp/verdict_factor_judge/config/spatial16/phase4/warmup \
     --summary-out            exp/verdict_factor_judge/data/phase5/per_yaml_summary_batch4.jsonl
+# (no --resume: run_phase4.py auto-reads done set from summary_out file)
 ```
 
 > R1 不需要 `--alpha-star`（α 是 sweep 维度）。`--cell-ids` 4 子串 × 2 recipe = 8 cells。
@@ -304,6 +314,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --eval-yaml-dir          exp/verdict_factor_judge/config/spatial16/phase4/eval \
     --warmup-yaml-dir        exp/verdict_factor_judge/config/spatial16/phase4/warmup \
     --summary-out            exp/verdict_factor_judge/data/phase5/per_yaml_summary_batch5.jsonl
+# (no --resume: run_phase4.py auto-reads done set from summary_out file)
 ```
 
 > R4 `win-uniform` 排除（= R2 uniform 已在 batch2/3 跑过）。`--cell-ids` 4 win 子串 × 2 recipe = 8 cells。
