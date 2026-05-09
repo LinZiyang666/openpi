@@ -48,7 +48,7 @@ s < WS_thr           → MISS
 | **C** | S3 (frp 9000) | 8 | phase4 p2 R2 8 patterns（去 disp-only） | desc 权重在 p2，验证 dir-only winner |
 | **D** | S4 (直连 8001) | 8 | phase4 R1 α 端点+中点 (4×p1+4×p2) | α 信号 vs noise |
 | **E** | S5 (直连 8002) | 8 | phase4 R4 W-FUT 双窗 (4×p1 + 4×p2) | 窗权重首次实测 |
-| **F** | S6 (直连 8003) | 8 | mixed: 6 phase3 旁系 + 2 phase4 disp-only verify | 退化 + outlier + baseline |
+| **F** | S6 (直连 8003) | 8 | phase3 g6 × 4 + g4/g8/g9/g11 × 1 = 8 | 退化 verify + 旁系 anchor + g6 (pure online) baseline |
 
 ---
 
@@ -148,11 +148,7 @@ ls exp/verdict_factor_judge/config/spatial16/phase4/eval/*__r1_a*.yaml | wc -l
 ls exp/verdict_factor_judge/config/spatial16/phase4/eval/*__r4_a*.yaml | wc -l
 # 期望: 10 (commit 6a64488)
 
-# Group F phase4 disp-only (2 cells, 在上面 R2 yaml 总数中)
-ls exp/verdict_factor_judge/config/spatial16/phase4/eval/*__r2_a*off-disp-only.yaml | wc -l
-# 期望: 2
-
-# Group F phase3 旁系 (g6 4 cell + g4/g8/g9/g11 各 1 cell = 8)
+# Group F phase3 (g6 4 cell + g4/g8/g9/g11 各 1 cell = 8)
 ls exp/verdict_factor_judge/config/spatial16/phase3/eval/spatial16_w8_d4_phase3_{g6_f1a_a_d_jerk_curv_pair__fh{0.3,0.4,0.5}_ws{0.4,0.5},g8_f1a_t_d_curv_only__fh0.5_ws0.5,g11_f1a_a_d_curv_only__fh0.5_ws0.5,g4_f1b_t_w_short_d_jerk__fh0.5_ws0.5,g9_f1b_t_w_sym_s_d_all__fh0.5_ws0.5}.yaml 2>/dev/null | wc -l
 # 期望: ≥ 8
 ```
@@ -243,7 +239,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --summary-out            exp/verdict_factor_judge/data/phase5/per_yaml_summary_batch2.jsonl
 ```
 
-> `off-disp-only` 故意**不在** `--cell-ids` 内（disp-only 移到 Group F batch6）。
+> `off-disp-only` 故意**不在** `--cell-ids` 内（disp-only 退化 verify 不在 stage 5 这次跑，可作为后续 2-cell follow-up）。
 
 ### batch3 → S3 (Group C, 8 phase4 p2 R2 patterns, frp 9000, GPU 0)
 
@@ -312,9 +308,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
 
 > R4 `win-uniform` 排除（= R2 uniform 已在 batch2/3 跑过）。`--cell-ids` 4 win 子串 × 2 recipe = 8 cells。
 
-### batch6 → S6 (Group F, mixed 6 phase3 + 2 phase4, 直连 8003, GPU 1) — **两步执行**
-
-#### Step 6A: 6 phase3 cells (g6 × 4 + g4/g8/g9/g11 × 1)
+### batch6 → S6 (Group F, 8 phase3 cells, 直连 8003, GPU 1)
 
 ```bash
 uv run python -m exp.verdict_factor_judge.run_phase3 \
@@ -341,52 +335,30 @@ uv run python -m exp.verdict_factor_judge.run_phase3 \
     --thresholds-dir         exp/verdict_factor_judge/data/phase5/thresholds \
     --eval-yaml-dir          exp/verdict_factor_judge/config/spatial16/phase3/eval \
     --warmup-yaml-dir        exp/verdict_factor_judge/config/spatial16/phase3/warmup \
-    --summary-out            exp/verdict_factor_judge/data/phase5/per_yaml_summary_batch6_phase3.jsonl \
+    --summary-out            exp/verdict_factor_judge/data/phase5/per_yaml_summary_batch6.jsonl \
     --resume
 ```
 
-#### Step 6B: 2 phase4 disp-only cells（接 6A 跑完后启动）
-
-```bash
-ALPHA_STAR='p1_state_fut_online_act=1.0,p2_action_fut_online_act=1.0'
-
-uv run python -m exp.verdict_factor_judge.run_phase4 \
-    --mode run-eval --round 2 \
-    --alpha-star "$ALPHA_STAR" \
-    --cell-ids off-disp-only \
-    --host 149.165.151.106 --port 8003 \
-    --task-suite libero_spatial \
-    --num-workers 5 --eval-trials 50 \
-    --cuda-visible-devices 1 \
-    --conda-env /scratch/zixuans8/libero_sim \
-    --per-step-log-dir       exp/verdict_factor_judge/data/phase5/per_step \
-    --episode-results-dir    exp/verdict_factor_judge/data/phase5/episode_results \
-    --eval-yaml-dir          exp/verdict_factor_judge/config/spatial16/phase4/eval \
-    --warmup-yaml-dir        exp/verdict_factor_judge/config/spatial16/phase4/warmup \
-    --summary-out            exp/verdict_factor_judge/data/phase5/per_yaml_summary_batch6_phase4.jsonl
-```
-
-> 不限 `--recipe`，`--cell-ids "off-disp-only"` 自动 match p1 + p2 R2 disp-only = 2 cells。
+> Batch 6 全 phase3（8 cells，单一 runner）。phase4 R2 disp-only verify 暂不在 stage 5 跑（如需可在 stage 5 完成后单独跑 2 cell follow-up）。
 
 ---
 
 ## §4 数据回收 + 分析
 
-### §4.1 合并 7 个 batch summary（注意 batch6 拆 2 个文件）
+### §4.1 合并 6 batch summary
 
 ```bash
-cat exp/verdict_factor_judge/data/phase5/per_yaml_summary_batch{1,2,3,4,5,6_phase3,6_phase4}.jsonl \
+cat exp/verdict_factor_judge/data/phase5/per_yaml_summary_batch{1,2,3,4,5,6}.jsonl \
     > exp/verdict_factor_judge/data/phase5/per_yaml_summary.jsonl
 
 wc -l exp/verdict_factor_judge/data/phase5/per_yaml_summary.jsonl
 # 期望: 48 行
 
-# Sanity: 每 (recipe / phase / cell-id-suffix) 都齐
+# Sanity: 每 (phase / round) 都齐
 uv run python -c "
 import json
 rows = [json.loads(l) for l in open('exp/verdict_factor_judge/data/phase5/per_yaml_summary.jsonl')]
 print(f'total rows: {len(rows)} (expect 48)')
-# 列各 group 计数
 from collections import Counter
 phases = Counter()
 for r in rows:
@@ -399,8 +371,8 @@ for r in rows:
 for k, v in sorted(phases.items()):
     print(f'  {k}: {v}')
 "
-# 期望: phase3 14 (Group A 8 + Group F 6), phase4_r1 8 (D), phase4_r2 18 (B 8 + C 8 + F 2), phase4_r4 8 (E)
-# 合计 14 + 8 + 18 + 8 = 48 ✓
+# 期望: phase3 16 (Group A 8 + Group F 8), phase4_r1 8 (D), phase4_r2 16 (B 8 + C 8), phase4_r4 8 (E)
+# 合计 16 + 8 + 16 + 8 = 48 ✓
 ```
 
 ### §4.2 关键对照表（自动出报告）
@@ -417,10 +389,11 @@ for k, v in sorted(phases.items()):
    - p1/p2 R1 α 端点 + 中点 SR 在 500ep 下是否仍噪声内
 4. **W-FUT 双窗权重首次实测**（Group E）：
    - p1/p2 R4 4 patterns 是否比 R2 uniform / R2 dir-only 高
-5. **退化 + outlier verify**（Group F）：
-   - p1 R2 path-only outlier 0.83 是否 reproducible
-   - phase4 disp-only 退化 (inf=0.41) reproducibility
-   - phase3 g8/g11 退化 reproducibility
+5. **退化 + outlier verify**（Group F + Group B/C path-only）：
+   - p1 R2 path-only outlier 0.83 是否 reproducible（Group B 含）
+   - phase3 g8/g11 退化 reproducibility（Group F 含）
+   - phase3 g6 (pure online) baseline 真值（Group F 4 cells）
+   - g4 / g9 旁系 anchor（W-SHORT jerk / W-SYM-S all）
 6. **inf 偏移 follow-up**（Group A 真值 vs Group B/C R2 uniform）：
    - phase3 g1 (0.5, 0.5) SR vs phase4 p1 R2 uniform SR：差距是 noise 还是系统性
    - 如果 phase3 SR > phase4 SR + 2pp → phase4 thr +0.05 偏移是真 bug
@@ -459,7 +432,7 @@ exp/verdict_factor_judge/data/phase5/
 ├── per_step/<yaml_id>.jsonl                              # 48 个，每 cell 500 ep × ~30 verdict/ep
 ├── episode_results/<yaml_id>.json                        # 48 个
 ├── thresholds/                                           # phase3 cells 的 thresholds.json (cached)
-├── per_yaml_summary_batch{1..5,6_phase3,6_phase4}.jsonl  # 7 个 batch summary
+├── per_yaml_summary_batch{1..6}.jsonl                    # 6 个 batch summary（每 server 一个）
 └── per_yaml_summary.jsonl                                # §4.1 merge 后 48 行 master
 ```
 
@@ -475,7 +448,7 @@ exp/verdict_factor_judge/data/phase5/
 | 4 | 输出目录 | §0.4 | mkdir 完成 |
 | 5 | yaml 总数 sanity | §1.3 | A 8 + B/C/F 各 ≥ 8 + D 8 + E 8 |
 | 6 | 启 6 server | §2 | 6 server listen on 7998-8003/8001-8003 |
-| 7 | 6 batch run-eval（batch6 拆 2 步） | §3 | 7 summary file |
+| 7 | 6 batch run-eval（每 server 1 batch / 8 cells） | §3 | 6 summary file |
 | 8 | merge summary | §4.1 | 48 行 |
 | 9 | 打包下载 | §4.4 | tar.gz |
 | 10 | 本地分析 | §4.2 | stage 5 results.md |
