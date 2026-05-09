@@ -56,13 +56,13 @@ s < WS_thr           → MISS
 
 ### §0.1 git pull（同步 stage 5 准备）
 
-stage 5 需要 commit `<stage5_commit>`（含 phase3 runner `--cell-ids` + 10 个新 phase4 R4 yaml）：
+stage 5 需要 commit `6a64488`（含 phase3 runner `--cell-ids` + 10 个新 phase4 R4 yaml）：
 
 ```bash
 cd /scratch/zixuans8/openpi
 git fetch origin
 git log --oneline -3 origin/Ziyang
-# 期望最新: <stage5_commit>
+# 期望最新: 6a64488
 
 # 如有 untracked phase4 yaml 冲突, 先 mv 到 /tmp 再 pull (同 stage1/2 流程)
 TS=$(date +%s)
@@ -117,7 +117,7 @@ stage 5 phase3 cells 用现有的 phase3 yaml（stage1 时已 commit + 跑过）
 
 ### §1.2 phase4 R4 yaml（Group E）
 
-10 个 R4 yaml 已在 commit `<stage5_commit>` 中 pre-emit + commit。**无需本地重 emit**。如果想重 emit（自检验证）：
+10 个 R4 yaml 已在 commit `6a64488` 中 pre-emit + commit。**无需本地重 emit**。如果想重 emit（自检验证）：
 
 ```bash
 ALPHA='p1_state_fut_online_act=1.0,p2_action_fut_online_act=1.0'
@@ -146,7 +146,7 @@ ls exp/verdict_factor_judge/config/spatial16/phase4/eval/*__r1_a*.yaml | wc -l
 
 # Group E R4 yaml (10 个，stage 5 跑 8 个: 4 patterns × 2 recipe)
 ls exp/verdict_factor_judge/config/spatial16/phase4/eval/*__r4_a*.yaml | wc -l
-# 期望: 10 (commit <stage5_commit>)
+# 期望: 10 (commit 6a64488)
 
 # Group F phase4 disp-only (2 cells, 在上面 R2 yaml 总数中)
 ls exp/verdict_factor_judge/config/spatial16/phase4/eval/*__r2_a*off-disp-only.yaml | wc -l
