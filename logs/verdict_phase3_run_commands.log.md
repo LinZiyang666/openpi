@@ -558,7 +558,7 @@ baseline 同 Phase 2：
 ### 4.4 出图
 
 ```bash
-MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.plot_pareto_phase3
+MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.phase3.plot_pareto
 # 输出: exp/verdict_factor_judge/analysis/phase3_pareto.png
 ```
 

@@ -11,7 +11,7 @@ Designed to be invoked locally after:
     json under --yaml-dir.
 
 Usage:
-  uv run python -m exp.verdict_factor_judge.phase1_debug_analyze \
+  uv run python -m exp.verdict_factor_judge.phase1.debug_analyze \
       --server-log /path/to/vd_idx4.log \
       --client-aggregate /path/to/cache_eval_results.json
       [--client-dir /path/to/log-dir]    # optional, for episode_results sanity

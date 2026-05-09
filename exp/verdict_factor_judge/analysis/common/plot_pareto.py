@@ -46,9 +46,9 @@ The corresponding aggregation across n verdicts:
 
 Usage::
 
-    MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.plot_pareto
+    MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.common.plot_pareto
 
-Output: ``exp/verdict_factor_judge/analysis/phase2_layer1_pareto.png``.
+Output: ``exp/verdict_factor_judge/analysis/phase2/pareto.png``.
 
 Inputs (relative to repo root):
 
@@ -195,7 +195,7 @@ def is_pareto_dominated(inf: float, sr: float, baseline_pts: list[tuple[float, f
 
 
 def main() -> None:
-    repo = Path(__file__).resolve().parents[3]
+    repo = Path(__file__).resolve().parents[4]
     rp = _load_random_periodic(repo / "exp/random_periodic_gate/analysis/aggregate.csv")
     p2 = _load_phase2_layer1(repo / "exp/verdict_factor_judge/data/phase2_layer1")
 
@@ -263,7 +263,7 @@ def main() -> None:
         ax.legend(loc="lower right", fontsize=8, framealpha=0.95)
 
     plt.tight_layout()
-    out = repo / "exp/verdict_factor_judge/analysis/phase2_layer1_pareto.png"
+    out = repo / "exp/verdict_factor_judge/analysis/phase2/pareto.png"
     plt.savefig(out, dpi=140, bbox_inches="tight")
     print(f"saved -> {out}  size: {out.stat().st_size / 1024:.1f} KB")
 

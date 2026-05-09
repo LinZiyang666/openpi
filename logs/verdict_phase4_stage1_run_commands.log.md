@@ -521,7 +521,7 @@ print('next_args_suggestion:', json.dumps(out['next_args_suggestion'], indent=2)
 ### §6.3 R1 α 曲线图
 
 ```bash
-MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.plot_alpha_sweep_phase4 \
+MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.phase4.stage1.plot_alpha_sweep \
     --summary exp/verdict_factor_judge/data/phase4/r1_alpha/per_yaml_summary.jsonl \
     --out     exp/verdict_factor_judge/analysis/phase4_alpha_sweep.png
 ```

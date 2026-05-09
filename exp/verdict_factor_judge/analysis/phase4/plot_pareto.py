@@ -12,7 +12,7 @@ Inputs:
   * exp/verdict_factor_judge/data/phase4/r{1,2,3}_*/per_yaml_summary.jsonl
   * exp/random_periodic_gate/analysis/aggregate.csv
 
-Output: exp/verdict_factor_judge/analysis/phase4_pareto.png
+Output: exp/verdict_factor_judge/analysis/phase4/pareto.png
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ matplotlib.use("Agg")  # noqa: E402  headless / no Qt
 import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.ticker import MultipleLocator  # noqa: E402
 
-from exp.verdict_factor_judge.analysis.plot_pareto_phase3 import (  # noqa: E402
+from exp.verdict_factor_judge.analysis.phase3.plot_pareto import (  # noqa: E402
     _load_phase3,
     _load_random_periodic,
     is_pareto_dominated,
@@ -70,7 +70,7 @@ def _load_phase4_round(summary_path: Path) -> list[dict]:
 
 
 def main() -> None:
-    repo = Path(__file__).resolve().parents[3]
+    repo = Path(__file__).resolve().parents[4]
     rp_pts = _load_random_periodic(
         repo / "exp/random_periodic_gate/analysis/aggregate.csv"
     )
@@ -180,7 +180,7 @@ def main() -> None:
     )
 
     plt.tight_layout(rect=(0.0, 0.0, 1.0, 0.97))
-    out = repo / "exp/verdict_factor_judge/analysis/phase4_pareto.png"
+    out = repo / "exp/verdict_factor_judge/analysis/phase4/pareto.png"
     out.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(out, dpi=160, bbox_inches="tight")
     print(

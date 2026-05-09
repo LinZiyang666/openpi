@@ -18,7 +18,7 @@ Output: exp/verdict_factor_judge/analysis/phase3_3d_bars.png
 
 Usage::
 
-    MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.plot_3d_bars_phase3
+    MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.phase3.plot_3d_bars
 """
 
 from __future__ import annotations
@@ -82,11 +82,11 @@ def _short_label(rid: str) -> str:
 
 
 def main() -> None:
-    repo = Path(__file__).resolve().parents[3]
+    repo = Path(__file__).resolve().parents[4]
     summary_path = (
         repo / "exp/verdict_factor_judge/data/phase3/per_yaml_summary.jsonl"
     )
-    out_path = repo / "exp/verdict_factor_judge/analysis/phase3_3d_bars.png"
+    out_path = repo / "exp/verdict_factor_judge/analysis/phase3/3d_bars.png"
 
     if not summary_path.exists():
         raise SystemExit(f"phase3 summary not found: {summary_path}")

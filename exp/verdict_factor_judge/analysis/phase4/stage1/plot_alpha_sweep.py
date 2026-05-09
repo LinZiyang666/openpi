@@ -5,7 +5,7 @@ Inputs:
   exp/verdict_factor_judge/data/phase4/r1_alpha/per_yaml_summary.jsonl
 
 Output:
-  exp/verdict_factor_judge/analysis/phase4_alpha_sweep.png
+  exp/verdict_factor_judge/analysis/phase4/stage1/alpha_sweep.png
 
 Each subplot includes a horizontal anchor line at the recipe's phase 3
 SR anchor (p1=0.95, p2=0.96). For G_R1 the operator inspects whether
@@ -14,7 +14,7 @@ within 2pp of the anchor (continue rule §3.1).
 
 Usage::
 
-    MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.plot_alpha_sweep_phase4
+    MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.phase4.stage1.plot_alpha_sweep
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ import matplotlib
 matplotlib.use("Agg")  # noqa: E402  headless / no Qt
 import matplotlib.pyplot as plt  # noqa: E402
 
-from exp.verdict_factor_judge.phase4_spec import ANCHOR_SR  # noqa: E402
+from exp.verdict_factor_judge.phase4.spec import ANCHOR_SR  # noqa: E402
 
 
 WARM_COST = 0.75
@@ -130,7 +130,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--out",
-        default="exp/verdict_factor_judge/analysis/phase4_alpha_sweep.png",
+        default="exp/verdict_factor_judge/analysis/phase4/stage1/alpha_sweep.png",
     )
     args = parser.parse_args()
 

@@ -1429,7 +1429,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
     --serve-host <IP> --serve-port <PORT>
 
 # Step 6: 画 α 曲线 + 看 decision_gate.json 选 α*
-MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.plot_alpha_sweep_phase4 --round 1
+MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.phase4.stage1.plot_alpha_sweep --round 1
 cat exp/verdict_factor_judge/data/phase4/r1_alpha/decision_gate.json | jq .next_args_suggestion
 # Output e.g.:
 # {"alpha-star": "p1_state_fut_online_act=0.4,p2_action_fut_online_act=0.6", "offline-pattern": null, "online-pattern": null}
@@ -1489,7 +1489,7 @@ uv run python -m exp.verdict_factor_judge.run_phase4 \
 ### §5.6 终轮 Pareto
 
 ```bash
-MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.plot_pareto_phase4
+MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.phase4.plot_pareto
 ```
 
 ---

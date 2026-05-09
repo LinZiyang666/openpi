@@ -23,11 +23,11 @@ Inputs:
   * ``exp/random_periodic_gate/analysis/aggregate.csv`` — random / periodic
     baseline cloud (filtered to ``cfg = spatial16_w8_d4``).
 
-Output: ``exp/verdict_factor_judge/analysis/phase3_pareto.png``.
+Output: ``exp/verdict_factor_judge/analysis/phase3/pareto.png``.
 
 Usage::
 
-    MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.plot_pareto_phase3
+    MPLBACKEND=Agg uv run python -m exp.verdict_factor_judge.analysis.phase3.plot_pareto
 """
 
 from __future__ import annotations
@@ -138,7 +138,7 @@ def is_pareto_dominated(
 
 
 def main() -> None:
-    repo = Path(__file__).resolve().parents[3]
+    repo = Path(__file__).resolve().parents[4]
     rp_pts = _load_random_periodic(
         repo / "exp/random_periodic_gate/analysis/aggregate.csv"
     )
@@ -241,7 +241,7 @@ def main() -> None:
     )
 
     plt.tight_layout()
-    out = repo / "exp/verdict_factor_judge/analysis/phase3_pareto.png"
+    out = repo / "exp/verdict_factor_judge/analysis/phase3/pareto.png"
     plt.savefig(out, dpi=160, bbox_inches="tight")
     print(f"saved -> {out}  size: {out.stat().st_size / 1024:.1f} KB"
           f"  ({n_gold}/{len(rows)} gold)")
