@@ -394,3 +394,75 @@ def test_warmup_pool_buffer_matches_solver_last_50(tmp_path: Path) -> None:
     solver_last_50 = solver_non_nan[-50:]
 
     assert runner_last_50 == solver_last_50
+
+
+# ----------------------------------------------------------------------
+# Phase 4: composer_weights passthrough
+# ----------------------------------------------------------------------
+#
+# Pre-phase4: reconstruct_scores hardcoded weights = {k: 1.0 for k}.
+# Post-phase4: keyword-only ``composer_weights`` kwarg forwards a custom
+# weight dict to WeightedSumZeroNanComposer; None reproduces phase3
+# behavior. These tests lock the passthrough contract that Phase 4 R1
+# (alpha sweep) and R2/R3 (heavy/only patterns) rely on for offline
+# threshold solving.
+
+
+def test_reconstruct_scores_default_uses_uniform_weights(tmp_path: Path) -> None:
+    """composer_weights=None reproduces phase3 behavior exactly.
+
+    Verified by comparing scores from the default call with scores from
+    explicit uniform weights {k: 1.0}; both must match element-wise.
+    """
+    rows = [_row({"a": i / 100.0, "b": (99 - i) / 100.0}) for i in range(100)]
+    p = _write_jsonl(tmp_path / "uniform.jsonl", rows)
+
+    s_default = reconstruct_scores(p, _safe_recipe("a", "b"))
+    s_explicit_uniform = reconstruct_scores(
+        p, _safe_recipe("a", "b"), composer_weights={"a": 1.0, "b": 1.0}
+    )
+    assert s_default == s_explicit_uniform
+
+
+def test_reconstruct_scores_passthrough_changes_score(tmp_path: Path) -> None:
+    """Different weight dicts on identical history produce different
+    score series. The phase4 composer is a true weighted sum, so e.g.
+    {a:2.0, b:1.0} weights key 'a' twice as heavily as 'b'; on rows
+    where the calibrated values for 'a' and 'b' diverge the produced
+    score must differ from the uniform-weight score.
+    """
+    rows = [_row({"a": i / 100.0, "b": (99 - i) / 100.0}) for i in range(100)]
+    p = _write_jsonl(tmp_path / "diverge.jsonl", rows)
+
+    s_uniform = reconstruct_scores(
+        p, _safe_recipe("a", "b"), composer_weights={"a": 1.0, "b": 1.0}
+    )
+    s_a_heavy = reconstruct_scores(
+        p, _safe_recipe("a", "b"), composer_weights={"a": 2.0, "b": 1.0}
+    )
+
+    assert len(s_uniform) == len(s_a_heavy) == 100
+    # At least one row must show a meaningful divergence (>1e-3); without
+    # the kwarg's effect being honored the two arrays would be identical.
+    max_abs_delta = max(abs(a - b) for a, b in zip(s_uniform, s_a_heavy))
+    assert max_abs_delta > 1e-3
+
+
+def test_reconstruct_scores_zero_weight_excludes_key_from_score(tmp_path: Path) -> None:
+    """Setting weight=0 for a key drops it from both numerator and
+    denominator: scores must equal those obtained from a recipe declaring
+    only the remaining keys.
+    """
+    rows = [_row({"a": i / 100.0, "b": (99 - i) / 100.0}) for i in range(100)]
+    p = _write_jsonl(tmp_path / "zero_weight.jsonl", rows)
+
+    # Two-key recipe with b zeroed out via weights.
+    s_zero_b = reconstruct_scores(
+        p, _safe_recipe("a", "b"), composer_weights={"a": 1.0, "b": 0.0}
+    )
+    # One-key recipe over 'a' alone — must produce the same scores.
+    s_a_only = reconstruct_scores(p, _safe_recipe("a"))
+
+    assert len(s_zero_b) == len(s_a_only) == 100
+    for x, y in zip(s_zero_b, s_a_only):
+        assert math.isclose(x, y, rel_tol=1e-9, abs_tol=1e-9)

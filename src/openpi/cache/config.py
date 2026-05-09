@@ -113,11 +113,13 @@ class ComposerConfig:
       - ``weighted_sum_with_warm_fallback`` — `WeightedSumWithWarmFallbackComposer`
         (extends weighted_sum; emits WARM_START with ``warm_fallback_start_t``
         when every non-zero-weight key is NaN)
-      - ``weighted_sum_zero_nan`` — `WeightedSumZeroNanComposer` (Phase 3
-        sweep composer: equal-weight, NaN keys contribute 0 with fixed
-        denominator, mandatory two-tier inclusive cascade FH/WS, no
-        all-NaN warm fallback; uses `weights` + `tier_thresholds.full_hit`
-        + `tier_thresholds.warm_start` + `warm_start_t`)
+      - ``weighted_sum_zero_nan`` — `WeightedSumZeroNanComposer` (Phase 3/4
+        sweep composer: weighted sum Sum(w_k * contrib_k) / Sum(w_k) over
+        keys with non-zero weight; NaN raw contributes 0 to the numerator
+        but retains its weight in the denominator. Mandatory two-tier
+        inclusive cascade FH/WS, no all-NaN warm fallback; uses `weights`
+        + `tier_thresholds.full_hit` + `tier_thresholds.warm_start` +
+        `warm_start_t`)
       - ``and`` — `AndGateComposer` (uses `per_factor_thresholds`)
       - ``or`` — `OrGateComposer` (uses `per_factor_thresholds`)
 
@@ -2256,9 +2258,11 @@ def _build_composer(cfg: ComposerConfig):
             directions=cfg.directions,
         )
     if cfg.type == "weighted_sum_zero_nan":
-        # Phase 3 sweep composer: equal-weight, NaN -> 0 (still counted),
-        # mandatory two-tier thresholds, fixed warm_start_t (no all-NaN
-        # fallback). Validator (see _validate_composite_judge) enforces
+        # Phase 3/4 sweep composer: weighted sum Sum(w_k * contrib_k) /
+        # Sum(w_k), NaN raw -> 0 numerator with weight retained in the
+        # denominator (zero-NaN), mandatory two-tier thresholds, fixed
+        # warm_start_t (no all-NaN fallback). Validator (see
+        # _validate_composite_judge) enforces
         # presence + ordering of tier_thresholds and warm_start_t.
         return WeightedSumZeroNanComposer(
             weights=cfg.weights,

@@ -270,22 +270,30 @@ class WeightedSumWithWarmFallbackComposer(WeightedSumComposer):
 
 
 # ------------------------------------------------------------------
-# S1c: WeightedSum with NaN→0 (Phase 3 threshold-sweep composer)
+# S1c: WeightedSum with NaN→0 (Phase 3/4 threshold-sweep composer)
 # ------------------------------------------------------------------
-# Phase 3 plan §2: equal-weight sum where NaN keys contribute 0 (still
-# counted in the denominator), with a fixed two-tier inclusive cascade
-# (s >= FH_thr -> FULL_HIT; s >= WS_thr -> WARM_START; else MISS).
+# Weighted sum (Sum w_k * contrib_k / Sum w_k) over declared keys, where
+# NaN raw values contribute 0 to the numerator but keep their weight in
+# the denominator (zero-NaN semantics). Two-tier inclusive cascade:
+# s >= FH_thr -> FULL_HIT; s >= WS_thr -> WARM_START; else MISS.
 # Distinct from WeightedSumComposer (NaN-skip denominator) and
 # WeightedSumWithWarmFallbackComposer (all-NaN warm fallback).
+#
+# Phase 4 turned _score_only into a true weighted sum so per-key float
+# weights (alpha sweeps, heavy/only patterns) actually move the score.
+# Pre-phase4 implementation collapsed all non-zero weights to an equal
+# average; Phase 4 backward compat: when all non-zero weights are equal,
+# the new formula reduces numerically to the old equal average.
 
 
 class WeightedSumZeroNanComposer:
-    """Equal-weight sum, NaN -> 0 (still counted), two-tier thresholds.
+    """Weighted sum (Sum w_k * contrib_k / Sum w_k), NaN -> 0 in numerator,
+    weight retained in denominator, two-tier thresholds.
 
-    Phase 3 sweep composer. The denominator is the count of declared
-    dependencies (= keys with non-zero weight), constant per recipe.
-    NaN raw values contribute 0 to the numerator without changing the
-    denominator (in contrast to WeightedSumComposer which NaN-skips both).
+    Phase 3/4 sweep composer. Denominator = sum of weights over keys with
+    non-zero weight (constant per recipe; NaN raw values do NOT shrink it,
+    in contrast to WeightedSumComposer which NaN-skips both numerator and
+    denominator).
 
     Decision cascade (inclusive on both bounds):
         s >= full_hit_threshold     -> FULL_HIT
@@ -334,35 +342,44 @@ class WeightedSumZeroNanComposer:
             )
 
     def _score_only(self, factors: dict[str, float]) -> float:
-        """Pure score path used by the offline solver.
+        """Pure score path used by the offline solver and compose().
 
-        Returns the equal-weight average over the composer's declared
-        dependencies (keys with non-zero weight). NaN raw values
-        contribute 0 without changing the denominator. Returns NaN only
-        on the degenerate all-zero-weight construction.
+        Returns Sum_k(w_k * contrib_k) / Sum_k(w_k) over keys with
+        non-zero weight, where contrib_k applies the orientation
+        transform (safe -> v; risky -> 1-v; non_monotonic -> direction-
+        specific kernel). NaN raw values contribute 0 to the numerator
+        but their weight is retained in the denominator (zero-NaN
+        semantics). Returns NaN only on the degenerate all-zero-weight
+        construction.
         """
-        keys = [k for k, w in self._weights.items() if w != 0.0]
-        if not keys:
+        # Iterate non-zero-weight keys only; zero-weight keys are excluded
+        # from both numerator and denominator (consistent with the layer-4
+        # contract that declared_dependencies = non-zero-weight keys).
+        active = [(k, w) for k, w in self._weights.items() if w != 0.0]
+        if not active:
             return float("nan")
-        total = 0.0
-        for k in keys:
+        weighted_sum = 0.0
+        weight_total = 0.0
+        for k, w in active:
+            weight_total += w
             v = factors.get(k, float("nan"))
             if math.isnan(v):
-                # NaN raw -> contrib 0; still in the denominator.
+                # NaN raw -> contrib 0; weight still in the denominator.
                 continue
             ori = self._orientations.get(k)
             if ori == _SAFE:
-                total += v
+                contrib = v
             elif ori == _RISKY:
-                total += 1.0 - v
+                contrib = 1.0 - v
             elif ori == _NON_MONOTONIC:
-                total += _apply_direction(self._directions[k], v)
+                contrib = _apply_direction(self._directions[k], v)
             else:
                 raise ValueError(
                     f"WeightedSumZeroNanComposer: unknown orientation "
                     f"{ori!r} for key {k!r}"
                 )
-        return total / len(keys)
+            weighted_sum += w * contrib
+        return weighted_sum / weight_total
 
     def compose(
         self,

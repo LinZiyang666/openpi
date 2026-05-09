@@ -112,7 +112,12 @@ def load_per_key_finite_history(
     return out
 
 
-def reconstruct_scores(jsonl_path: Path, recipe: Recipe) -> list[float]:
+def reconstruct_scores(
+    jsonl_path: Path,
+    recipe: Recipe,
+    *,
+    composer_weights: dict[str, float] | None = None,
+) -> list[float]:
     """Replay warmup verdicts through saturated-buffer calibration + composer.
 
     Returns one score per JSONL row, in row order. The score is the
@@ -120,6 +125,15 @@ def reconstruct_scores(jsonl_path: Path, recipe: Recipe) -> list[float]:
     raw row has been passed through ``PercentileRollingCalibration``.
     The buffer is saturated from the first row onward (calibration is
     initialized from the same warmup column it then replays).
+
+    ``composer_weights`` (Phase 4 entry point):
+        - ``None`` reproduces the Phase 3 behavior: weights default to
+          ``{k: 1.0 for k in recipe.declared_keys}``, which under the
+          post-phase4 weighted-sum formula collapses to the equal
+          average and matches Phase 3 numerics exactly.
+        - When a dict is given, it is forwarded verbatim to the
+          composer; Phase 4 uses this to evaluate (alpha, heavy/only)
+          weight patterns offline before emitting eval yamls.
 
     Raises ``ValueError`` if any declared key has fewer than
     ``window_size = 50`` non-NaN samples (propagated from
@@ -140,8 +154,13 @@ def reconstruct_scores(jsonl_path: Path, recipe: Recipe) -> list[float]:
     cal.bind_keys(list(recipe.declared_keys))
 
     # 3) Composer with placeholder thresholds — only _score_only used.
+    weights = (
+        dict(composer_weights)
+        if composer_weights is not None
+        else {k: 1.0 for k in recipe.declared_keys}
+    )
     composer = WeightedSumZeroNanComposer(
-        weights={k: 1.0 for k in recipe.declared_keys},
+        weights=weights,
         full_hit_threshold=0.0,
         warm_start_threshold=0.0,
         warm_start_t=0.5,
