@@ -124,8 +124,10 @@ def test_infer_cfg_from_batch_mapping():
 def test_infer_cfg_from_batch_rejects_unknown_name():
     with pytest.raises(ValueError, match="batch<N>"):
         rgs._infer_cfg_from_batch(Path("results"))
+    # batch4/5/6 are now valid (cfg-by-mod doubles up); only out-of-range
+    # batch indices should raise "unexpected batch index".
     with pytest.raises(ValueError, match="unexpected batch index"):
-        rgs._infer_cfg_from_batch(Path("batch4"))
+        rgs._infer_cfg_from_batch(Path("batch99"))
 
 
 # ---------------------------------------------------------------------------

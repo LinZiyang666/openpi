@@ -338,8 +338,10 @@ def build_eval_yaml(
     *,
     export_factor_outputs: bool = True,
     calibration_window_size: int = 50,
+    preload_pkl_override: str | None = None,
 ) -> dict:
     cfg = CFG_SPECS[cfg_id]
+    preload_path = preload_pkl_override if preload_pkl_override is not None else cfg["preload_pkl"]
     judge: dict[str, Any] = {
         "type": "composite",
         "normalization": normalization_offline(),
@@ -365,7 +367,7 @@ def build_eval_yaml(
             "type": "in_memory",
             "vector_dims": dict(cfg["vector_dims"]),
             "in_memory": {
-                "preload_path": cfg["preload_pkl"],
+                "preload_path": preload_path,
                 "index_type": "brute_force",
             },
         },
@@ -378,6 +380,7 @@ def build_warmup_yaml(
     eval_yaml_id: str,
     *,
     eval_factors: list[dict] | None = None,
+    preload_pkl_override: str | None = None,
 ) -> dict:
     """Sibling warmup yaml: AlwaysWarmStartJudge + DumpingJudge dumping a
     descriptor-key superset of the eval yaml(s) the warmup will serve.
@@ -390,6 +393,7 @@ def build_warmup_yaml(
     of them can be served by a single warmup run).
     """
     cfg = CFG_SPECS[cfg_id]
+    preload_path = preload_pkl_override if preload_pkl_override is not None else cfg["preload_pkl"]
     warmup_yaml_id = f"{eval_yaml_id}__warmup"
 
     full_factors = _build_dump_factor_superset(eval_factors)
@@ -423,7 +427,7 @@ def build_warmup_yaml(
             "type": "in_memory",
             "vector_dims": dict(cfg["vector_dims"]),
             "in_memory": {
-                "preload_path": cfg["preload_pkl"],
+                "preload_path": preload_path,
                 "index_type": "brute_force",
             },
         },

@@ -578,12 +578,21 @@ def allocate_to_servers(
 # ----------------------------------------------------------------------
 
 
-def build_warmup_yaml_for_cell(cfg_id: str, cell: Cell) -> dict:
-    """Per-cell (or per-shared-group, see G3) warmup yaml."""
+def build_warmup_yaml_for_cell(
+    cfg_id: str, cell: Cell, *, preload_pkl_override: str | None = None,
+) -> dict:
+    """Per-cell (or per-shared-group, see G3) warmup yaml.
+
+    ``preload_pkl_override`` is forwarded to ``v2_spec.build_warmup_yaml`` so
+    callers (e.g. the phase5 runner driving a libero_10 sweep) can redirect
+    ``backend.in_memory.preload_path`` away from the default libero_spatial
+    pkl baked into ``CFG_SPECS``. ``None`` keeps the historical behavior.
+    """
     return v2_build_warmup_yaml(
         cfg_id=cfg_id,
         eval_yaml_id=cell.warmup_yaml_id.removesuffix("__warmup"),
         eval_factors=list(cell.factors),
+        preload_pkl_override=preload_pkl_override,
     )
 
 
@@ -600,8 +609,21 @@ def _build_composer(cell: Cell, fh_thr: float, ws_thr: float) -> dict[str, Any]:
     return composer
 
 
-def build_eval_yaml_for_cell(cfg_id: str, cell: Cell, fh_thr: float, ws_thr: float) -> dict:
-    """Phase 5 eval yaml with thresholds patched in by the solver."""
+def build_eval_yaml_for_cell(
+    cfg_id: str,
+    cell: Cell,
+    fh_thr: float,
+    ws_thr: float,
+    *,
+    preload_pkl_override: str | None = None,
+) -> dict:
+    """Phase 5 eval yaml with thresholds patched in by the solver.
+
+    ``preload_pkl_override`` is forwarded to ``v2_spec.build_eval_yaml`` so
+    callers can redirect ``backend.in_memory.preload_path`` away from the
+    default libero_spatial pkl (see ``build_warmup_yaml_for_cell`` for the
+    same parameter). ``None`` keeps the historical behavior.
+    """
     composer = _build_composer(cell, fh_thr, ws_thr)
     return v2_build_eval_yaml(
         cfg_id=cfg_id,
@@ -609,6 +631,7 @@ def build_eval_yaml_for_cell(cfg_id: str, cell: Cell, fh_thr: float, ws_thr: flo
         composer=composer,
         export_factor_outputs=True,
         calibration_window_size=50,
+        preload_pkl_override=preload_pkl_override,
     )
 
 

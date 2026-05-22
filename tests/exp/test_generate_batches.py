@@ -197,7 +197,8 @@ def test_rendered_yaml_roundtrip_matches_base_except_gate():
     base_path = real_root / "exp" / "random_periodic_gate" / "config" / "base_clip_w7_d4.yaml"
     base = yaml.safe_load(base_path.read_text(encoding="utf-8"))
 
-    # batch1 holds the full 38 clip_w7_d4 slugs (both periodic and random).
+    # batch1 holds the clip_w7_d4 periodic slugs + 3 random_p0p05 seeds;
+    # batch4 holds the remaining clip_w7_d4 random_* slugs (e.g. p0p30).
     # Pick one of each to exercise the render contract.
     if not (real_root / "exp" / "random_periodic_gate" / "config" / "batch1").exists():
         pytest.skip("real batch files not present; run generate_batches first")
@@ -224,7 +225,7 @@ def test_rendered_yaml_roundtrip_matches_base_except_gate():
         / "exp"
         / "random_periodic_gate"
         / "config"
-        / "batch1"
+        / "batch4"
         / "random_p0p30_s0.yaml"
     )
     rendered_r = yaml.safe_load(sample_random.read_text(encoding="utf-8"))

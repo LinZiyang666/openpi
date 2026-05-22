@@ -101,6 +101,7 @@ class Args:
     episode_filter: str = ""
     cuda_visible_devices: str = ""
     conda_env: str = ""
+    preload_pkl_override: str = ""
 
 
 def _parse_args(argv: Optional[list[str]] = None) -> Args:
@@ -140,6 +141,13 @@ def _parse_args(argv: Optional[list[str]] = None) -> Args:
     p.add_argument("--episode-filter", default="")
     p.add_argument("--cuda-visible-devices", default="")
     p.add_argument("--conda-env", default="")
+    p.add_argument(
+        "--preload-pkl-override", default="",
+        help="Override backend.in_memory.preload_path in every emitted "
+             "warmup/eval yaml (default: empty = use v2_spec CFG_SPECS "
+             "default, currently libero_spatial pkl). Set this to a "
+             "libero_10 pkl path when sweeping libero_10.",
+    )
     a = p.parse_args(argv)
 
     groups = tuple(g.strip() for g in a.groups.split(",") if g.strip())
@@ -161,6 +169,7 @@ def _parse_args(argv: Optional[list[str]] = None) -> Args:
         eval_yaml_dir=a.eval_yaml_dir, init_states_dir=a.init_states_dir,
         episode_filter=a.episode_filter,
         cuda_visible_devices=a.cuda_visible_devices, conda_env=a.conda_env,
+        preload_pkl_override=a.preload_pkl_override,
     )
 
 
@@ -279,7 +288,10 @@ def _mode_emit_warmup_yamls(args: Args) -> None:
         if cell.warmup_yaml_id in seen:
             continue
         seen.add(cell.warmup_yaml_id)
-        yaml_dict = build_warmup_yaml_for_cell(args.cfg_id, cell)
+        yaml_dict = build_warmup_yaml_for_cell(
+            args.cfg_id, cell,
+            preload_pkl_override=args.preload_pkl_override or None,
+        )
         path = out_dir / f"{cell.warmup_yaml_id}.yaml"
         write_yaml(path, yaml_dict)
         logger.info("[emit-warmup-yamls] %s", cell.warmup_yaml_id)
@@ -320,7 +332,10 @@ def _run_one_warmup(ctl, cell: Cell, args: Args) -> None:
     if not wpath.exists():
         # Lazy emit: write the warmup yaml on demand so callers don't
         # have to gate on a separate `--mode emit-warmup-yamls` run.
-        yaml_dict = build_warmup_yaml_for_cell(args.cfg_id, cell)
+        yaml_dict = build_warmup_yaml_for_cell(
+            args.cfg_id, cell,
+            preload_pkl_override=args.preload_pkl_override or None,
+        )
         wpath.parent.mkdir(parents=True, exist_ok=True)
         write_yaml(wpath, yaml_dict)
         logger.info("[run-warmup] lazy-emit warmup yaml %s", wid)
@@ -384,7 +399,10 @@ def _mode_emit_eval_yamls(args: Args) -> None:
                            cell.yaml_id, e)
             n_skip += 1
             continue
-        yaml_dict = build_eval_yaml_for_cell(args.cfg_id, cell, fh_thr, ws_thr)
+        yaml_dict = build_eval_yaml_for_cell(
+            args.cfg_id, cell, fh_thr, ws_thr,
+            preload_pkl_override=args.preload_pkl_override or None,
+        )
         write_yaml(path, yaml_dict)
         n_ok += 1
     print(f"[emit-eval-yamls] {n_ok} ok, {n_skip} skipped -> {out_dir}")
@@ -497,7 +515,10 @@ def _ensure_eval_yaml_for_cell(cell: Cell, args: Args) -> None:
     if eval_yaml_path.exists() and eval_yaml_path.stat().st_size > 0:
         return
     fh_thr, ws_thr = _solve_thresholds_phase5(cell, args)
-    yaml_dict = build_eval_yaml_for_cell(args.cfg_id, cell, fh_thr, ws_thr)
+    yaml_dict = build_eval_yaml_for_cell(
+        args.cfg_id, cell, fh_thr, ws_thr,
+        preload_pkl_override=args.preload_pkl_override or None,
+    )
     eval_yaml_path.parent.mkdir(parents=True, exist_ok=True)
     write_yaml(eval_yaml_path, yaml_dict)
     logger.info("[run-eval] lazy-emit eval yaml %s (fh=%.4f ws=%.4f)",
