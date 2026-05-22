@@ -428,6 +428,22 @@ def test_driver_run_one_historical_warmup_smoke(
     assert rows[1]["factor_raw"]["k_b"] == 3.0
 
 
+def test_driver_build_runner_args_threads_conda_env() -> None:
+    """--conda-env on the driver CLI must land on RunnerArgs.conda_env, so
+    _build_libero_argv wraps the LIBERO worker as `conda run -p ...`.
+    """
+    class _CLI:
+        host = "h"
+        port = 1
+        task_suite = "libero_10"
+        num_workers = 5
+        warmup_trials = 2
+        conda_env = "/scratch/zixuans8/libero_sim"
+
+    args = drv._build_runner_args(_CLI())
+    assert args.conda_env == "/scratch/zixuans8/libero_sim"
+
+
 def test_driver_build_runner_args_has_libero_argv_fields() -> None:
     """_build_libero_argv (common.run_phase) reads six optional attrs beyond
     host/port/task_suite/num_workers/warmup_trials/eval_trials:

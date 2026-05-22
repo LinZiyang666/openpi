@@ -168,6 +168,7 @@ def _build_runner_args(cli) -> RunnerArgs:
         num_workers=cli.num_workers,
         warmup_trials=cli.warmup_trials,
         eval_trials=0,
+        conda_env=getattr(cli, "conda_env", "") or "",
         # remaining optional fields take their dataclass defaults (empty)
     )
 
@@ -265,6 +266,15 @@ def _parse_cli(argv: list[str] | None = None):
              "(one of the three entries in _HISTORICAL_WARMUPS). Empty = "
              "run all three serially. Used to fan three warmups across "
              "three tmux sessions / three inference servers.",
+    )
+    p.add_argument(
+        "--conda-env", default="",
+        help="Optional conda env name or absolute prefix path. When set, "
+             "the LIBERO worker subprocess is wrapped as "
+             "'conda run -n/-p <env> python ...' via "
+             "exp.common._subprocess.build_subprocess_cmd. Default empty "
+             "= uv-run inside the driver's caller venv (only safe when "
+             "the caller venv has libero installed).",
     )
     return p.parse_args(argv)
 
