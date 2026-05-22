@@ -272,10 +272,12 @@ def _draw_pareto(
     step3_rows: list[dict[str, float]],
     tau_colors: dict[int, Any],
     k_colors: dict[int, Any],
+    *,
+    include_step3: bool = True,
 ) -> None:
     """Render one Pareto subplot on the given axis with Step 3 overlay.
 
-    Two Pareto fronts are drawn:
+    Two Pareto fronts are drawn (only when ``include_step3`` is True for Step 3):
       - Step 3 front (gray dashed) — only Step 3 points, mirroring
         plot_step3_tradeoff_total.py.
       - RPG front (red dashed) — only random_periodic_gate points
@@ -292,19 +294,19 @@ def _draw_pareto(
     # tau/n encoding from the source figure stops competing with the
     # Periodic gate encoding for visual attention.
     # ------------------------------------------------------------------
-    step3_pts: list[tuple[float, float]] = [(r["x"], r["y"]) for r in step3_rows]
-    if step3_pts:
-        sx = [p[0] for p in step3_pts]
-        sy = [p[1] for p in step3_pts]
-        ax.scatter(
-            sx, sy, s=55, marker="^", color="#2ca02c",
-            edgecolor="black", linewidth=0.4, alpha=0.85, zorder=3,
-        )
-    if step3_pts:
-        front_idx = _pareto_front(step3_pts)
-        fx = [step3_pts[i][0] for i in front_idx]
-        fy = [step3_pts[i][1] for i in front_idx]
-        ax.plot(fx, fy, linestyle="--", color="#555555", linewidth=1.0, zorder=2)
+    if include_step3:
+        step3_pts: list[tuple[float, float]] = [(r["x"], r["y"]) for r in step3_rows]
+        if step3_pts:
+            sx = [p[0] for p in step3_pts]
+            sy = [p[1] for p in step3_pts]
+            ax.scatter(
+                sx, sy, s=55, marker="^", color="#2ca02c",
+                edgecolor="black", linewidth=0.4, alpha=0.85, zorder=3,
+            )
+            front_idx = _pareto_front(step3_pts)
+            fx = [step3_pts[i][0] for i in front_idx]
+            fy = [step3_pts[i][1] for i in front_idx]
+            ax.plot(fx, fy, linestyle="--", color="#555555", linewidth=1.0, zorder=2)
 
     # ------------------------------------------------------------------
     # RPG Periodic scatter — shape by n (shared with Step 3), color by k.
@@ -364,6 +366,8 @@ def _make_pareto_legend(
     fig,
     tau_colors: dict[int, Any],  # noqa: ARG001 — kept for signature stability
     k_colors: dict[int, Any],
+    *,
+    include_step3: bool = True,
 ) -> None:
     """Build a single combined legend below the figure."""
     from matplotlib.lines import Line2D
@@ -390,12 +394,18 @@ def _make_pareto_legend(
         [0], [0], marker="x", linestyle="", markersize=8,
         color="#ff7f0e", markeredgewidth=1.5, label="Random gate",
     )
-    line_handles = [
-        Line2D([0], [0], linestyle="--", color="#555555", label="Trajectory Deviation Pareto front"),
+    line_handles: list[Line2D] = []
+    if include_step3:
+        line_handles.append(
+            Line2D([0], [0], linestyle="--", color="#555555",
+                   label="Trajectory Deviation Pareto front")
+        )
+    line_handles.extend([
         Line2D([0], [0], linestyle="--", color="red", label="RPG Pareto front"),
         Line2D([0], [0], linestyle=":", color="#b23a48", label="pure-cache baseline"),
-    ]
-    handles = [td_handle] + k_handles + n_handles + [random_handle] + line_handles
+    ])
+    head = [td_handle] if include_step3 else []
+    handles = head + k_handles + n_handles + [random_handle] + line_handles
     fig.legend(
         handles=handles,
         loc="lower center", bbox_to_anchor=(0.5, 0.0),
@@ -453,6 +463,8 @@ def _plot_pareto_combined(
     endpoints: list[dict[str, Any]],
     step3_by_cfg: dict[str, list[dict[str, float]]],
     out_path: Path,
+    *,
+    include_step3: bool = True,
 ) -> None:
     """One figure with three side-by-side Pareto subplots, one per cfg."""
     try:
@@ -477,8 +489,8 @@ def _plot_pareto_combined(
     fig, axes = plt.subplots(1, len(CFG_NAMES), figsize=(6 * len(CFG_NAMES), 7.4))
     for ax, cfg in zip(axes, CFG_NAMES):
         _draw_pareto(ax, cfg, agg, endpoints, step3_by_cfg.get(cfg, []),
-                     tau_colors, k_colors)
-    _make_pareto_legend(fig, tau_colors, k_colors)
+                     tau_colors, k_colors, include_step3=include_step3)
+    _make_pareto_legend(fig, tau_colors, k_colors, include_step3=include_step3)
     # Bottom band layout: subplots top, legend middle-bottom, caption very bottom.
     fig.tight_layout(rect=(0, 0.32, 1, 1))
     caption = textwrap.fill(
@@ -554,6 +566,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=Path("exp/random_periodic_gate/analysis"),
     )
+    p.add_argument(
+        "--no-step3",
+        action="store_true",
+        help="Skip the Trajectory Deviation (Step 3) overlay and emit "
+             "pareto_no_step3.png instead of pareto_all.png.",
+    )
     p.add_argument("--log-level", default="INFO")
     return p.parse_args(argv)
 
@@ -581,8 +599,16 @@ def main(argv: list[str] | None = None) -> None:
         ep["cfg"]: ep["success_rate"]
         for ep in baseline if ep["endpoint"] == "cache"
     }
-    step3_by_cfg = load_step3_overlay(STEP3_SUMMARY_PATH, cache_baselines)
-    _plot_pareto_combined(agg, baseline, step3_by_cfg, args.out_dir / "pareto_all.png")
+    step3_by_cfg = (
+        {cfg: [] for cfg in CFG_NAMES}
+        if args.no_step3
+        else load_step3_overlay(STEP3_SUMMARY_PATH, cache_baselines)
+    )
+    pareto_name = "pareto_no_step3.png" if args.no_step3 else "pareto_all.png"
+    _plot_pareto_combined(
+        agg, baseline, step3_by_cfg, args.out_dir / pareto_name,
+        include_step3=not args.no_step3,
+    )
     _plot_heatmap_combined(agg, args.out_dir / "heatmap_all_periodic.png")
 
 

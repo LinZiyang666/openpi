@@ -1,0 +1,138 @@
+enabled: true
+timer:
+  enabled: false
+  buffer_size: 10000
+  output_csv_dir: null
+keys:
+  vision_0:
+    enabled: true
+    weight: 0.5
+  vision_1:
+    enabled: true
+    weight: 0.25
+  vision_2:
+    enabled: false
+    weight: 0.0
+  prompt_emb:
+    enabled: true
+    weight: 0.0
+  robot_state:
+    enabled: true
+    weight: 0.25
+key_builder:
+  type: cp1_spatial_pool_16
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: composite
+      normalization:
+        type: zscore
+        params: {}
+        stats_source:
+          type: offline
+      factors:
+      - type: jerk_offline_state
+        params:
+          windows:
+          - past: 0
+            future: 3
+          - past: 0
+            future: 5
+      - type: direction_offline_state
+        params:
+          windows:
+          - past: 0
+            future: 3
+          - past: 0
+            future: 5
+      - type: dispersion_offline_state
+        params:
+          windows:
+          - past: 0
+            future: 3
+          - past: 0
+            future: 5
+      - type: path_length_offline_state
+        params:
+          windows:
+          - past: 0
+            future: 3
+          - past: 0
+            future: 5
+      - type: jerk_online_state
+        params:
+          windows:
+          - past: 3
+            future: 3
+      - type: dispersion_online_state
+        params:
+          windows:
+          - past: 3
+            future: 3
+      calibration:
+        type: percentile_rolling
+        params:
+          window_size: 50
+        samples_source:
+          type: warmup
+      composer:
+        type: weighted_sum_zero_nan
+        weights:
+          jerk_offline_state__p0_f3: 0.0625
+          jerk_offline_state__p0_f5: 0.0625
+          direction_offline_state__p0_f3: 0.0625
+          direction_offline_state__p0_f5: 0.0625
+          dispersion_offline_state__p0_f3: 0.0625
+          dispersion_offline_state__p0_f5: 0.0625
+          path_length_offline_state__p0_f3: 0.0625
+          path_length_offline_state__p0_f5: 0.0625
+          jerk_online_state__p3_f3: 0.3
+          dispersion_online_state__p3_f3: 0.2
+        tier_thresholds:
+          full_hit: 0.42900000000000005
+          warm_start: 0.04225
+        warm_start_t: 0.5
+        directions:
+          dispersion_offline_state__p0_f3: range:[0.3, 0.7]
+          dispersion_offline_state__p0_f5: range:[0.3, 0.7]
+          path_length_offline_state__p0_f3: high
+          path_length_offline_state__p0_f5: high
+          dispersion_online_state__p3_f3: range:[0.3, 0.7]
+      export_factor_outputs: true
+    search_strategy:
+      type: weighted_rrf_knn
+      rrf_k: 60
+      top_k: 1
+      trajectory_depth: 4
+      trajectory_weights:
+      - 1.0
+      - 0.7
+      - 0.48999999999999994
+      - 0.3429999999999999
+      field_similarity:
+        vision_0:
+          type: cosine
+        vision_1:
+          type: cosine
+        prompt_emb:
+          type: cosine
+        robot_state:
+          type: l2
+          to_similarity:
+            type: exp
+            tau: 0.334717
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 32768
+    vision_1: 32768
+    prompt_emb: 2048
+    robot_state: 32
+  in_memory:
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl
+    index_type: brute_force
+write_policy:
+  type: never

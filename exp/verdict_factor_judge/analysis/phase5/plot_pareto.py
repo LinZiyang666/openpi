@@ -79,6 +79,12 @@ def main() -> None:
     phase5_path = repo / "exp/verdict_factor_judge/data/phase5_systematic/per_yaml_summary.jsonl"
     phase5_rows = _load_phase5(phase5_path)
 
+    # Filter out inference_ratio == 0 (always-FULL_HIT degenerate cells)
+    rp_pts = [p for p in rp_pts if p[0] > 0]
+    phase3_rows = [r for r in phase3_rows if r.get("inf", 0) > 0]
+    stage5_rows = [r for r in stage5_rows if r.get("inf", 0) > 0]
+    phase5_rows = [r for r in phase5_rows if r.get("inf", 0) > 0]
+
     fig, ax = plt.subplots(1, 1, figsize=(20, 12))
     fig.suptitle(
         "Phase 5 systematic sweep — 240 cell × 100ep on Pareto plane "
@@ -86,10 +92,15 @@ def main() -> None:
         fontsize=14, fontweight="bold",
     )
 
-    # 1) random / periodic cloud
+    # 1) random / periodic cloud + frontier line
     rx, ry = (zip(*rp_pts) if rp_pts else ([], []))
     ax.scatter(rx, ry, s=22, c="lightgray", marker="o", alpha=0.55,
                label=f"random/periodic ({len(rp_pts)} pts)", zorder=1)
+    rp_front = pareto_upper_frontier(list(rp_pts)) if rp_pts else []
+    if rp_front:
+        fx, fy = zip(*rp_front)
+        ax.plot(fx, fy, "--", color="#555555", alpha=0.95, linewidth=3.0,
+                label=f"random/periodic frontier ({len(rp_front)} pts)", zorder=2)
 
     # 2) always-WARM
     warm_pts = [(warm_cost(t), WARM_SR_SPATIAL16[t]) for t in (0.30, 0.50, 0.70)]
@@ -99,17 +110,27 @@ def main() -> None:
                linewidths=1.4, label="always-WARM", zorder=4)
     ax.plot(wx, wy, "--", color="red", alpha=0.4, linewidth=1.0, zorder=3)
 
-    # 3) phase 3 100ep cells (faded gray)
+    # 3) phase 3 100ep cells (faded gray) + frontier line
     if phase3_rows:
         ax.scatter([r["inf"] for r in phase3_rows], [r["sr"] for r in phase3_rows],
                    s=20, c="silver", alpha=0.35, marker="o",
                    label=f"phase3 100ep ({len(phase3_rows)} cells)", zorder=2)
+        p3_front = pareto_upper_frontier([(r["inf"], r["sr"]) for r in phase3_rows])
+        if p3_front:
+            fx, fy = zip(*p3_front)
+            ax.plot(fx, fy, "-.", color="#1f77b4", alpha=0.95, linewidth=3.0,
+                    label=f"phase3 frontier ({len(p3_front)} pts)", zorder=3)
 
-    # 4) phase4 stage5 500ep cells (small black)
+    # 4) phase4 stage5 500ep cells (black ×) + frontier line
     if stage5_rows:
         ax.scatter([r["inf"] for r in stage5_rows], [r["sr"] for r in stage5_rows],
                    s=28, c="black", alpha=0.55, marker="x",
                    label=f"phase4 stage5 500ep ({len(stage5_rows)} cells)", zorder=3)
+        p4_front = pareto_upper_frontier([(r["inf"], r["sr"]) for r in stage5_rows])
+        if p4_front:
+            fx, fy = zip(*p4_front)
+            ax.plot(fx, fy, ":", color="#ff7f00", alpha=1.0, linewidth=3.5,
+                    label=f"phase4 stage5 frontier ({len(p4_front)} pts)", zorder=4)
 
     # 5) phase 5 cells per group
     group_color = {
@@ -124,8 +145,8 @@ def main() -> None:
         if not sub:
             continue
         ax.scatter([r["inf"] for r in sub], [r["sr"] for r in sub],
-                   s=120, color=color, marker=marker, edgecolors="black",
-                   linewidths=0.9, alpha=0.92,
+                   s=55, color=color, marker=marker, edgecolors="black",
+                   linewidths=0.6, alpha=0.92,
                    label=f"{label} ({len(sub)})", zorder=5)
 
     # 6) gold-circle Pareto positives vs r/p + warm
@@ -133,16 +154,16 @@ def main() -> None:
     n_gold = 0
     for r in phase5_rows:
         if not is_pareto_dominated(r["inf"], r["sr"], all_base):
-            ax.scatter([r["inf"]], [r["sr"]], s=260, facecolors="none",
-                       edgecolors="gold", linewidths=2.4, zorder=6)
+            ax.scatter([r["inf"]], [r["sr"]], s=110, facecolors="none",
+                       edgecolors="gold", linewidths=1.3, zorder=6)
             n_gold += 1
 
     # 7) phase5 own Pareto frontier line
     p5_front = pareto_upper_frontier([(r["inf"], r["sr"]) for r in phase5_rows])
     if p5_front:
         fx, fy = zip(*p5_front)
-        ax.plot(fx, fy, "-", color="black", alpha=0.6, linewidth=1.5,
-                label=f"phase5 frontier ({len(p5_front)} pts)", zorder=4)
+        ax.plot(fx, fy, "-", color="#d62728", alpha=1.0, linewidth=3.5,
+                label=f"phase5 frontier ({len(p5_front)} pts)", zorder=7)
 
     ax.set_xlabel("inference_ratio", fontsize=12)
     ax.set_ylabel("success_rate", fontsize=12)
