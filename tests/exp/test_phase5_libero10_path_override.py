@@ -242,6 +242,46 @@ def test_driver_declared_keys_map_phase3_g6() -> None:
     assert set(keys) == {"jerk_online_action__p3_f3", "dispersion_online_action__p3_f3"}
 
 
+def test_driver_only_stem_filter_valid(monkeypatch: pytest.MonkeyPatch) -> None:
+    """--only-stem narrows to a single warmup_yaml_id and skips the rest."""
+    invoked: list[str] = []
+
+    def fake_run(ctl, *, yaml_stem, kind, **kwargs):
+        invoked.append(yaml_stem)
+
+    monkeypatch.setattr(drv, "WebsocketClientPolicy", lambda *a, **kw: MagicMock(
+        __enter__=lambda self: MagicMock(),
+        __exit__=lambda self, *a: None,
+    ))
+    monkeypatch.setattr(drv, "_run_one_historical_warmup", fake_run)
+
+    target = "spatial16_w8_d4_phase4_p1_state_fut_online_act__warmup"
+    real_repo = Path(__file__).resolve().parents[2]
+    drv.main([
+        "--preload-pkl", _LIBERO10_PKL,
+        "--phase3-warmup-in", str(real_repo / "exp/verdict_factor_judge/config/spatial16/phase3/warmup"),
+        "--phase4-warmup-in", str(real_repo / "exp/verdict_factor_judge/config/spatial16/phase4/warmup"),
+        "--phase3-warmup-out", "/tmp",
+        "--phase4-warmup-out", "/tmp",
+        "--only-stem", target,
+    ])
+    assert invoked == [target], f"expected 1 invocation of {target!r}, got {invoked}"
+
+
+def test_driver_only_stem_filter_unknown_raises(monkeypatch: pytest.MonkeyPatch) -> None:
+    """--only-stem with a yaml_stem not in _HISTORICAL_WARMUPS must raise."""
+    monkeypatch.setattr(drv, "WebsocketClientPolicy", object())
+    with pytest.raises(KeyError, match="--only-stem"):
+        drv.main([
+            "--preload-pkl", _LIBERO10_PKL,
+            "--phase3-warmup-in", "/tmp",
+            "--phase4-warmup-in", "/tmp",
+            "--phase3-warmup-out", "/tmp",
+            "--phase4-warmup-out", "/tmp",
+            "--only-stem", "bogus_stem__warmup",
+        ])
+
+
 def test_driver_unknown_stem_raises(monkeypatch: pytest.MonkeyPatch) -> None:
     """If a stem in _HISTORICAL_WARMUPS doesn't appear in
     generate_g5_cells() (e.g. phase3/4 renamed something), main() must

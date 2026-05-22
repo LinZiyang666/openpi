@@ -259,6 +259,13 @@ def _parse_cli(argv: list[str] | None = None):
         "--phase4-warmup-out", required=True, type=Path,
         help="Output dir for phase4 p1/p2 finite factor_raw jsonls.",
     )
+    p.add_argument(
+        "--only-stem", default="",
+        help="Optional: narrow this run to a single warmup_yaml_id stem "
+             "(one of the three entries in _HISTORICAL_WARMUPS). Empty = "
+             "run all three serially. Used to fan three warmups across "
+             "three tmux sessions / three inference servers.",
+    )
     return p.parse_args(argv)
 
 
@@ -320,9 +327,21 @@ def main(argv: list[str] | None = None) -> int:
                 "(would extract the wrong factor_raw key set)."
             )
 
+    # Apply --only-stem narrow filter (empty string = run all three).
+    if cli.only_stem:
+        known_stems = [s for s, _ in _HISTORICAL_WARMUPS]
+        if cli.only_stem not in known_stems:
+            raise KeyError(
+                f"--only-stem {cli.only_stem!r} not in _HISTORICAL_WARMUPS "
+                f"(valid: {known_stems})"
+            )
+        targets = tuple((s, k) for (s, k) in _HISTORICAL_WARMUPS if s == cli.only_stem)
+    else:
+        targets = _HISTORICAL_WARMUPS
+
     runner_args = _build_runner_args(cli)
 
-    for yaml_stem, kind in _HISTORICAL_WARMUPS:
+    for yaml_stem, kind in targets:
         src_yaml = _resolve_input_path(yaml_stem, kind, cli)
         if not src_yaml.exists():
             raise FileNotFoundError(
@@ -343,8 +362,8 @@ def main(argv: list[str] | None = None) -> int:
             )
 
     print(
-        f"[g5_warmup_libero10_driver] all {len(_HISTORICAL_WARMUPS)} "
-        "historical warmups finished."
+        f"[g5_warmup_libero10_driver] {len(targets)} of "
+        f"{len(_HISTORICAL_WARMUPS)} historical warmups finished."
     )
     return 0
 
