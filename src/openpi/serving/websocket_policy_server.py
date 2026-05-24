@@ -92,11 +92,34 @@ _bundle_lock = threading.Lock()
 _current_bundle: Optional[CurrentCacheBundle] = None
 _bundle_version: int = 0
 
+# M2 multi-bundle support (Phase 3): single-server hosts multiple yamls
+# simultaneously, addressed by bundle_id. The legacy single-latest
+# ``_current_bundle`` is preserved as the default-bundle slot and as the
+# "current" pointer for callers that do not declare a bundle_id (backward
+# compat for old clients).
+_bundles: dict[str, "CurrentCacheBundle"] = {}
+_DEFAULT_BUNDLE_ID = "default"
 
-def get_current_cache_bundle() -> Optional[CurrentCacheBundle]:
-    """Return current cache bundle snapshot (if any). Thread-safe."""
+
+def get_current_cache_bundle(bundle_id: Optional[str] = None) -> Optional[CurrentCacheBundle]:
+    """Return a cache bundle snapshot, looked up by bundle_id when given.
+
+    Lookup order:
+      - explicit ``bundle_id``: returns ``_bundles[bundle_id]`` or ``None``;
+      - ``bundle_id is None``: returns the legacy single-latest bundle
+        (``_current_bundle``) — backward compat for callers that don't yet
+        understand bundle ids (old client code paths and ``_wrap_policy``).
+    """
     with _bundle_lock:
+        if bundle_id is not None:
+            return _bundles.get(bundle_id)
         return _current_bundle
+
+
+def get_cache_bundle_ids() -> list[str]:
+    """Return the list of currently-loaded bundle ids (snapshot)."""
+    with _bundle_lock:
+        return list(_bundles.keys())
 
 
 # ---------------------------------------------------------------------------
@@ -299,7 +322,7 @@ class WebsocketPolicyServer:
         port: int | None = None,
         metadata: dict | None = None,
         concurrent: bool = False,
-        connection_policy_factory: Optional[Callable[[_base_policy.BasePolicy], _base_policy.BasePolicy]] = None,
+        connection_policy_factory: Optional[Callable[..., _base_policy.BasePolicy]] = None,
     ) -> None:
         self._policy = policy
         self._host = host
@@ -328,21 +351,16 @@ class WebsocketPolicyServer:
         # ------------------------------------------------------------------
         # Determine per-connection policy
         # ------------------------------------------------------------------
-        if self._concurrent:
-            # Concurrent mode: create a fresh wrapper stack for this connection.
-            try:
-                conn_policy = self._connection_policy_factory(self._policy)
-            except Exception:
-                logger.exception(
-                    "connection_policy_factory failed for %s",
-                    websocket.remote_address,
-                )
-                await websocket.close(
-                    code=websockets.frames.CloseCode.INTERNAL_ERROR,
-                    reason="Failed to create per-connection policy.",
-                )
-                return
-        else:
+        # M2 (Phase 3, G2 R1 Item 2) — lazy lifecycle for concurrent mode:
+        # the per-connection wrapper stack is no longer created at handler
+        # entry. We wait for the first ``__ctrl__`` ``select_bundle`` or
+        # ``episode_start{bundle_id}`` so the factory receives the correct
+        # ``bundle_id`` (M2). Old clients that omit ``bundle_id`` fall back
+        # to ``_DEFAULT_BUNDLE_ID`` so the LIBERO main.py worker that has not
+        # been upgraded still works end-to-end.
+        conn_policy = None
+        bound_bundle_id: Optional[str] = None
+        if not self._concurrent:
             # Single-connection mode: reject if another connection is active.
             if self._has_active_connection:
                 logger.warning(
@@ -360,10 +378,30 @@ class WebsocketPolicyServer:
         logger.info(f"Connection from {websocket.remote_address} opened")
         packer = msgpack_numpy.Packer()
 
-        # Notify the policy that a new task (connection) is starting.
-        # InferenceInterceptor implements on_task_begin(); plain Policy does not.
-        # The hasattr check keeps this server decoupled from cache internals.
-        if hasattr(conn_policy, "on_task_begin"):
+        def _bind_bundle(bundle_id: str) -> None:
+            """Lazy factory call: create wrapper stack bound to ``bundle_id``
+            and fire ``on_task_begin``. Idempotent — first call binds, later
+            calls with the same id are no-ops; a different id swaps the
+            wrapper (on_task_end on the old stack, then re-bind).
+            """
+            nonlocal conn_policy, bound_bundle_id
+            if conn_policy is not None and bound_bundle_id == bundle_id:
+                return
+            if conn_policy is not None and hasattr(conn_policy, "on_task_end"):
+                try:
+                    conn_policy.on_task_end()
+                except Exception:  # noqa: BLE001
+                    logger.exception("on_task_end failed during bundle switch")
+            new_policy = self._connection_policy_factory(self._policy, bundle_id)
+            if hasattr(new_policy, "on_task_begin"):
+                new_policy.on_task_begin()
+            conn_policy = new_policy
+            bound_bundle_id = bundle_id
+            logger.info("connection %s bound to bundle %r",
+                        websocket.remote_address, bundle_id)
+
+        # Non-concurrent mode keeps its on_task_begin behaviour (C1 preserved).
+        if not self._concurrent and hasattr(conn_policy, "on_task_begin"):
             conn_policy.on_task_begin()
 
         await websocket.send(packer.pack(self._metadata))
@@ -381,6 +419,23 @@ class WebsocketPolicyServer:
                 if "__ctrl__" in obs:
                     ctrl = obs["__ctrl__"]
                     if ctrl == "episode_start":
+                        # M2 (lazy lifecycle, G2 R1 Item 2): the very first
+                        # ``episode_start`` from a concurrent connection binds
+                        # the wrapper stack if no ``select_bundle`` came in
+                        # first. Old clients that never send ``select_bundle``
+                        # land here with whatever ``bundle_id`` they declare
+                        # (or the ``"default"`` slot).
+                        if self._concurrent and conn_policy is None:
+                            bundle_id = obs.get("bundle_id", _DEFAULT_BUNDLE_ID)
+                            try:
+                                _bind_bundle(bundle_id)
+                            except Exception as exc:  # noqa: BLE001
+                                logger.exception("episode_start bundle bind failed")
+                                await websocket.send(packer.pack({
+                                    "__ack__": "error",
+                                    "msg": f"episode_start bundle bind failed: {exc}",
+                                }))
+                                continue
                         # Keyword dispatch (plan §21.S1.3): wrappers such as
                         # ``CollectionPolicy`` forward these kwargs through the
                         # chain; positional calls would break any wrapper that
@@ -455,6 +510,10 @@ class WebsocketPolicyServer:
                         # WarmupPool preload finds its entry. Empty string
                         # preserves the legacy bundle.yaml_id=None semantic.
                         msg_yaml_id = obs.get("yaml_id", "") or None
+                        # M2 (Phase 3): optional bundle_id field; falls back to
+                        # yaml_id, then to "default" for legacy clients that do
+                        # not yet declare a bundle_id.
+                        msg_bundle_id = obs.get("bundle_id", "") or msg_yaml_id or _DEFAULT_BUNDLE_ID
                         if not yaml_path and not yaml_content:
                             await websocket.send(packer.pack({"__ack__": "error", "msg": "missing yaml_path or yaml_content"}))
                         else:
@@ -467,6 +526,34 @@ class WebsocketPolicyServer:
                                         tmp.write(yaml_content)
                                         yaml_path = tmp.name
                                 cache_config = load_cache_config(yaml_path)
+                                # Runtime write-frozen contract (C2, M4.5):
+                                # override write_policy to 'never' for any
+                                # config arriving via ``load_cache_config``
+                                # ctrl msg, matching the same enforcement
+                                # applied at server start. Avoid silent
+                                # `batch_insert` attempts on frozen backends.
+                                try:
+                                    from scripts.serve_policy import (
+                                        _enforce_runtime_write_policy,
+                                    )
+
+                                    cache_config = _enforce_runtime_write_policy(cache_config)
+                                except ImportError:
+                                    # Fallback: inline enforcement when scripts/ isn't on the
+                                    # import path (e.g. embedded test harness). Keeps the
+                                    # contract enforced regardless of entry point.
+                                    from openpi.cache.config import WritePolicyConfig
+                                    import dataclasses as _dc
+                                    if cache_config.write_policy.type != "never":
+                                        logger.warning(
+                                            "load_cache_config: write_policy %r "
+                                            "auto-overridden to 'never' (C2 runtime).",
+                                            cache_config.write_policy.type,
+                                        )
+                                        cache_config = _dc.replace(
+                                            cache_config,
+                                            write_policy=WritePolicyConfig(type="never"),
+                                        )
                                 # Fill deferred dump.path slots from the
                                 # configured warmup dump root. The validator
                                 # already passed (deferred=True bypasses path
@@ -478,23 +565,64 @@ class WebsocketPolicyServer:
                                 global _current_bundle, _bundle_version
                                 with _bundle_lock:
                                     _bundle_version += 1
-                                    _current_bundle = CurrentCacheBundle(
+                                    new_bundle = CurrentCacheBundle(
                                         config_path=yaml_path,
                                         cache_config=cache_config,
                                         shared_storage=shared_storage,
                                         version=_bundle_version,
                                         yaml_id=msg_yaml_id,
                                     )
+                                    # M2 (Phase 3): index by bundle_id AND keep
+                                    # the legacy single-latest pointer so old
+                                    # consumers (``_wrap_policy`` via
+                                    # ``get_current_cache_bundle()`` without args)
+                                    # still see the most-recent bundle.
+                                    _bundles[msg_bundle_id] = new_bundle
+                                    _current_bundle = new_bundle
                                 version = _bundle_version
-                                logger.info("Cache bundle updated to v%d: %s (yaml_id=%s)", version, yaml_path, msg_yaml_id)
+                                logger.info(
+                                    "Cache bundle updated to v%d: %s (yaml_id=%s, bundle_id=%s)",
+                                    version, yaml_path, msg_yaml_id, msg_bundle_id,
+                                )
                                 await websocket.send(packer.pack({
                                     "__ack__": "load_cache_config",
                                     "yaml_path": yaml_path,
                                     "version": version,
+                                    "bundle_id": msg_bundle_id,
                                 }))
                             except Exception as e:
                                 logger.error("Failed to load cache config %s: %s", yaml_path, e)
                                 await websocket.send(packer.pack({"__ack__": "error", "msg": str(e)}))
+                    elif ctrl == "select_bundle":
+                        # M2 (Phase 3, G2 R1 Item 2): client declares which
+                        # bundle this connection binds to. Lazy lifecycle:
+                        # the per-connection wrapper stack is created here
+                        # (or replaced if the connection re-selects later).
+                        sb_bundle_id = obs.get("bundle_id", _DEFAULT_BUNDLE_ID)
+                        with _bundle_lock:
+                            known = sb_bundle_id in _bundles
+                        if not known and sb_bundle_id != _DEFAULT_BUNDLE_ID:
+                            await websocket.send(packer.pack({
+                                "__ack__": "error",
+                                "msg": (
+                                    f"select_bundle: unknown bundle_id {sb_bundle_id!r}. "
+                                    f"Load it with __ctrl__=load_cache_config first."
+                                ),
+                            }))
+                            continue
+                        if self._concurrent:
+                            try:
+                                _bind_bundle(sb_bundle_id)
+                            except Exception as exc:  # noqa: BLE001
+                                logger.exception("select_bundle bind failed")
+                                await websocket.send(packer.pack({
+                                    "__ack__": "error",
+                                    "msg": f"select_bundle bind failed: {exc}",
+                                }))
+                                continue
+                        await websocket.send(packer.pack({
+                            "__ack__": "select_bundle", "bundle_id": sb_bundle_id,
+                        }))
                     elif ctrl == "fetch_dump":
                         # verdict_factor_judge B2: serve a previously-emitted
                         # warmup dump file back to the runner so it can derive
@@ -528,6 +656,26 @@ class WebsocketPolicyServer:
                     else:
                         await websocket.send(packer.pack({"__ack__": "ignored"}))
                     continue
+
+                # M2 (lazy lifecycle, G2 R1 Item 2): concurrent connections
+                # must declare their bundle (via ``select_bundle`` or the
+                # ``bundle_id`` field on the first ``episode_start``) before
+                # any inference. If the wrapper stack is not yet bound, fall
+                # back to the ``"default"`` slot for backward-compat with
+                # clients that never send either ctrl.
+                if self._concurrent and conn_policy is None:
+                    try:
+                        _bind_bundle(_DEFAULT_BUNDLE_ID)
+                    except Exception as exc:  # noqa: BLE001
+                        logger.exception("default bundle bind failed")
+                        await websocket.send(packer.pack({
+                            "__ack__": "error",
+                            "msg": (
+                                f"select_bundle or episode_start{{bundle_id}} required "
+                                f"before infer; default-bind failed: {exc}"
+                            ),
+                        }))
+                        continue
 
                 infer_time = time.monotonic()
                 # Run blocking inference in a thread so the asyncio event

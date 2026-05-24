@@ -1,0 +1,34 @@
+# Mode 2 — Request frequency sweep.
+# Fixed 8 workers; sweeps per-worker request rate from sparse to max-rate.
+
+mode: freq_sweep
+server:
+  host: 127.0.0.1
+  port: 8000
+duration_s: 30
+warmup_s: 2
+cells:
+  - id: hz0p5
+    num_workers: 8
+    request_hz: 0.5
+    bundle_id: default
+  - id: hz1
+    num_workers: 8
+    request_hz: 1.0
+    bundle_id: default
+  - id: hz2
+    num_workers: 8
+    request_hz: 2.0
+    bundle_id: default
+  - id: hz5
+    num_workers: 8
+    request_hz: 5.0
+    bundle_id: default
+  - id: hz10
+    num_workers: 8
+    request_hz: 10.0
+    bundle_id: default
+  - id: hzmax
+    num_workers: 8
+    request_hz: 0.0   # 0 = back-to-back, max-rate
+    bundle_id: default

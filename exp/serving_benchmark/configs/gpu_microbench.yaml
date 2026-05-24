@@ -1,0 +1,6 @@
+# Mode 0 — GPU-direct microbenchmark (audit §B.3 #4).
+# Consumed by ``gpu_microbench.py``; no client / server involved.
+
+batch_sizes: [1, 2, 4, 8, 16, 32]
+warmup: 10
+iters: 100

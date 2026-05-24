@@ -148,12 +148,16 @@ class QdrantVectorStore(VectorStoreBackend):
     # ------------------------------------------------------------------
 
     def insert(self, entry: CacheEntry) -> None:
+        # Runtime write-frozen contract (C2): refuse mutation post-freeze.
+        self._check_frozen("insert")
         self._client.upsert(
             collection_name=self._config.collection_name,
             points=[self._to_point(entry)],
         )
 
     def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult:
+        # Runtime write-frozen contract (C2): refuse mutation post-freeze.
+        self._check_frozen("batch_insert")
         points: list[PointStruct] = []
         failed_ids: list[str] = []
         for entry in entries:
@@ -269,6 +273,8 @@ class QdrantVectorStore(VectorStoreBackend):
         return self._deserialize_payload(results[0].payload)
 
     def delete(self, ids: list[str]) -> None:
+        # Runtime write-frozen contract (C2): refuse mutation post-freeze.
+        self._check_frozen("delete")
         self._client.delete(
             collection_name=self._config.collection_name,
             points_selector=[self._parse_point_id(i) for i in ids],

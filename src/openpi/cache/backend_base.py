@@ -9,10 +9,20 @@ Coupling map:
   IF CHANGED:  CacheStorage internal calls, all concrete backend implementations
   NOTE:        Application code (Orchestrator, Interceptor) must NEVER import this
 
-Threading
----------
-Backends are NOT required to be thread-safe.  CacheStorage serialises all
-calls with an RLock.
+Runtime write-frozen contract (C2)
+-----------------------------------
+Server runtime forbids modifying database content. Backends transition to a
+read-only state after `freeze()` is called (typically right after
+`load_artifact()` in the BackendPool). Once frozen, any mutation entry
+(`insert` / `batch_insert` / `delete` / `upsert` / `load_artifact`) raises
+`BackendFrozenError`. Read methods (`search` / `fetch_payload` / `fetch_entry`
+/ `count`) and derived state mutation (`open_search_session` /
+`close_search_session` + per-session in-memory caches) remain allowed —
+these are search-path caches, not database content.
+
+With this contract, GIL atomicity of dict lookup is sufficient for concurrent
+read safety; no RLock is required. Offline artifact build / enrich must
+happen before freeze (e.g. via offline tooling, not through the live server).
 
 Score convention
 ----------------
@@ -30,6 +40,17 @@ from openpi.cache.storage_types import (
     QuerySpec,
     SearchResultLite,
 )
+
+
+class BackendFrozenError(RuntimeError):
+    """Raised when a mutation entry is called on a frozen backend (C2).
+
+    Mutation entries: insert / batch_insert / delete / upsert / load_artifact.
+    Read entries (search / fetch_payload / fetch_entry / count) and derived
+    state mutation (open_search_session / close_search_session and per-session
+    in-memory caches like `_score_memo`) are NOT considered mutations of
+    database content — those remain allowed after freeze.
+    """
 
 
 class VectorStoreBackend(ABC):
@@ -148,3 +169,36 @@ class VectorStoreBackend(ABC):
         drop session-scoped buckets and remove the session from the active set.
         Idempotent: closing an unknown session_id is a safe no-op.
         """
+
+    # ------------------------------------------------------------------
+    # Runtime write-frozen lifecycle (C2)
+    # ------------------------------------------------------------------
+
+    def freeze(self) -> None:
+        """Transition this backend to runtime read-only mode (C2).
+
+        After freeze, every mutation entry (insert / batch_insert / delete /
+        upsert / load_artifact) must raise BackendFrozenError. Default
+        implementation flips a private flag; concrete backends are expected
+        to call `self._check_frozen(op)` at the head of each mutation entry.
+
+        Idempotent: calling freeze() repeatedly is safe.
+        """
+        self._is_frozen = True
+
+    @property
+    def is_frozen(self) -> bool:
+        """True iff freeze() has been called."""
+        return getattr(self, "_is_frozen", False)
+
+    def _check_frozen(self, op_name: str) -> None:
+        """Raise BackendFrozenError if this backend has been frozen.
+
+        Concrete backends call this at the head of every mutation entry.
+        """
+        if self.is_frozen:
+            raise BackendFrozenError(
+                f"Backend is frozen (runtime write-frozen contract, C2). "
+                f"Cannot perform {op_name!r}. "
+                "All mutations must happen before freeze() or in offline tooling."
+            )

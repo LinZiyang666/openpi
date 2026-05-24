@@ -437,3 +437,23 @@ for i in range(100):
     states.append(env.env.sim.get_state().flatten())
 torch.save(torch.stack(states), "task_name.init")
 ```
+
+## Concurrent vs Non-concurrent serving (Phase 5 / M6)
+
+``scripts/serve_policy.py`` now defaults to ``--concurrent``. Multiple
+LIBERO workers share one server process; each connection binds to a
+bundle by sending ``__ctrl__: select_bundle`` (or relying on the
+``"default"`` bundle, the legacy fallback). ``__ctrl__: load_cache_config``
+accepts an optional ``bundle_id`` field — the runner loads one bundle per
+yaml, then dispatches workers to the right bundle.
+
+Switch back to single-connection extreme-speed baseline with
+``--non-concurrent`` (or ``--no-concurrent``). This path stays
+bit-identical to the pre-Phase-5 behaviour (hard constraint C1: no
+``BatchingCoordinator``, no lazy lifecycle, no bundle indirection).
+
+The runtime is write-frozen (hard constraint C2): cache backends refuse
+``insert / batch_insert / delete / upsert / load_artifact`` after server
+start, and ``write_policy`` is auto-overridden to ``"never"`` on every
+``load_cache_config`` ctrl. Episode-end writes are no-ops; rebuild
+artifacts with offline tooling (`exp/common/factor_postprocess.py`).

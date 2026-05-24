@@ -33,8 +33,9 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from openpi.cache.backend_base import VectorStoreBackend
+from openpi.cache.backend_base import BackendFrozenError, VectorStoreBackend
 from openpi.cache.storage_types import (
+    BatchInsertResult,
     CacheEntry,
     CachePayload,
     QuerySpec,
@@ -73,6 +74,8 @@ class InMemoryBackend(VectorStoreBackend):
     def __init__(self, vector_dims: dict[str, int]) -> None:
         self._dims = vector_dims
         self._entries: dict[str, CacheEntry] = {}
+        # Runtime write-frozen contract (C2): flipped True by freeze().
+        self._is_frozen: bool = False
         # Counters for call tracking in tests.
         self.search_call_count: int = 0
         self.fetch_payload_call_count: int = 0
@@ -148,6 +151,8 @@ class InMemoryBackend(VectorStoreBackend):
     # ------------------------------------------------------------------
 
     def insert(self, entry: CacheEntry) -> None:
+        # Runtime write-frozen contract (C2): refuse mutation post-freeze.
+        self._check_frozen("insert")
         # Active-session mutation contract: upsert of existing id is forbidden
         # while any search session is active (would invalidate cached scores).
         # Insert of a brand-new id is always safe (does not touch existing slots).
@@ -158,6 +163,12 @@ class InMemoryBackend(VectorStoreBackend):
                 "Close all sessions before mutation (offline-only operation)."
             )
         self._entries[entry.id] = entry
+
+    def batch_insert(self, entries: list[CacheEntry]) -> BatchInsertResult:
+        # Guard the batch entry directly so frozen backends fail fast on the
+        # first call, rather than per-entry through the inherited insert().
+        self._check_frozen("batch_insert")
+        return super().batch_insert(entries)
 
     def fetch_payload(self, id: str) -> CachePayload:
         self.fetch_payload_call_count += 1
@@ -180,6 +191,8 @@ class InMemoryBackend(VectorStoreBackend):
         return self._entries[id]
 
     def delete(self, ids: list[str]) -> None:
+        # Runtime write-frozen contract (C2): refuse mutation post-freeze.
+        self._check_frozen("delete")
         if self._has_active_search_sessions():
             raise SearchSessionActiveError(
                 "Cannot delete entries while search sessions are active. "
@@ -210,7 +223,13 @@ class InMemoryBackend(VectorStoreBackend):
         Raises SearchSessionActiveError if any search session is active —
         load_artifact replaces backend contents and would invalidate all
         cached scores. Must be called offline (server idle).
+
+        Also raises BackendFrozenError post-freeze (runtime write-frozen
+        contract, C2): re-loading an artifact is a database content mutation
+        and must happen before freeze() or in offline tooling.
         """
+        # Runtime write-frozen contract (C2): refuse mutation post-freeze.
+        self._check_frozen("load_artifact")
         if self._has_active_search_sessions():
             raise SearchSessionActiveError(
                 "Cannot load_artifact while search sessions are active. "

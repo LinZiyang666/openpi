@@ -1,0 +1,39 @@
+# Mode 4 — Batch window tuning.
+# Holds the workload constant (16 workers, max-rate) and exercises a
+# range of (max_batch_size, max_wait_ms) coordinator configurations.
+# Apply the configuration server-side before each cell (the driver does
+# not change coordinator parameters; this YAML is the operator's
+# checklist of what to set on the server between cells).
+
+mode: batch_window
+server:
+  host: 127.0.0.1
+  port: 8000
+duration_s: 30
+warmup_s: 2
+cells:
+  # Operator: BatchingCoordinator(max_batch_size=4,  max_wait_ms=5)
+  - id: K4_W5
+    num_workers: 16
+    request_hz: 0.0
+    bundle_id: default
+  # Operator: BatchingCoordinator(max_batch_size=8,  max_wait_ms=10)  ← plan default
+  - id: K8_W10
+    num_workers: 16
+    request_hz: 0.0
+    bundle_id: default
+  # Operator: BatchingCoordinator(max_batch_size=8,  max_wait_ms=20)
+  - id: K8_W20
+    num_workers: 16
+    request_hz: 0.0
+    bundle_id: default
+  # Operator: BatchingCoordinator(max_batch_size=16, max_wait_ms=20)
+  - id: K16_W20
+    num_workers: 16
+    request_hz: 0.0
+    bundle_id: default
+  # Operator: BatchingCoordinator(max_batch_size=16, max_wait_ms=50)
+  - id: K16_W50
+    num_workers: 16
+    request_hz: 0.0
+    bundle_id: default

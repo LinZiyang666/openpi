@@ -163,6 +163,7 @@ class WebsocketClientPolicy(_base_policy.BasePolicy):
         yaml_content: Optional[str] = None,
         *,
         yaml_id: Optional[str] = None,
+        bundle_id: Optional[str] = None,
     ) -> Dict:
         """Switch the server's cache bundle to the supplied yaml.
 
@@ -170,8 +171,11 @@ class WebsocketClientPolicy(_base_policy.BasePolicy):
         ``yaml_content`` (raw text shipped over the wire). ``yaml_id`` is
         optional but REQUIRED when the yaml carries a ``dump.deferred=True``
         block or when a downstream ``preload_normalizer_buffer`` will key
-        on the same id. Returns the server's ack dict including the new
-        bundle version.
+        on the same id. ``bundle_id`` (M2 multi-bundle) labels this slot in
+        the server's ``_bundles`` registry — connections later call
+        ``select_bundle`` with the same id. When omitted the server falls
+        back to ``yaml_id`` (or ``"default"``) preserving legacy behaviour.
+        Returns the server's ack dict including the new bundle version.
         """
         if not yaml_path and not yaml_content:
             raise ValueError("load_cache_config requires yaml_path or yaml_content")
@@ -182,7 +186,24 @@ class WebsocketClientPolicy(_base_policy.BasePolicy):
             msg["yaml_content"] = yaml_content
         if yaml_id is not None:
             msg["yaml_id"] = yaml_id
+        if bundle_id is not None:
+            msg["bundle_id"] = bundle_id
         return self._send_ctrl(msg, expected_ack="load_cache_config")
+
+    def select_bundle(self, bundle_id: str) -> Dict:
+        """Bind this connection to a loaded bundle (M2 BundleDispatcher).
+
+        Must be called before ``infer`` in concurrent server mode, or the
+        server will fall back to the ``"default"`` slot. The first
+        ``select_bundle`` triggers the server's lazy wrapper-stack factory
+        for this connection; subsequent calls with a different ``bundle_id``
+        swap the wrapper (the server calls ``on_task_end`` on the old stack
+        and ``on_task_begin`` on the new one).
+        """
+        return self._send_ctrl(
+            {"__ctrl__": "select_bundle", "bundle_id": bundle_id},
+            expected_ack="select_bundle",
+        )
 
     def fetch_dump(self, warmup_yaml_id: str) -> bytes:
         """Fetch the server-stored warmup dump file's raw bytes.

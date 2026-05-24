@@ -1,0 +1,34 @@
+# Mode 1 — Sparse to Dense worker scan.
+# Holds request rate constant at 2 Hz / worker; sweeps worker count.
+
+mode: sparse_to_dense
+server:
+  host: 127.0.0.1
+  port: 8000
+duration_s: 30
+warmup_s: 2
+cells:
+  - id: w1
+    num_workers: 1
+    request_hz: 2.0
+    bundle_id: default
+  - id: w2
+    num_workers: 2
+    request_hz: 2.0
+    bundle_id: default
+  - id: w4
+    num_workers: 4
+    request_hz: 2.0
+    bundle_id: default
+  - id: w8
+    num_workers: 8
+    request_hz: 2.0
+    bundle_id: default
+  - id: w16
+    num_workers: 16
+    request_hz: 2.0
+    bundle_id: default
+  - id: w32
+    num_workers: 32
+    request_hz: 2.0
+    bundle_id: default

@@ -90,6 +90,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 | [experiments/llm_layer_extract.md](experiments/llm_layer_extract.md) | CP1 LLM Layer Extract 端到端 runbook：数据采集 → Step 2 build pkl（带 tokenizer self-check）→ YAML 模板（A/B 两种 reducer）→ run_cache_experiments → 结果分析 → manual parity verify |
 | [experiments/trajectory_deviation.md](experiments/trajectory_deviation.md) \[[EN](experiments/trajectory_deviation.en.md)\] | Trajectory Deviation experiment runbook: Step 1a→1b→2→3→4 pipeline, parallelism rules, tunables |
 | [experiments/warm_start_sweep.md](experiments/warm_start_sweep.md) \[[EN](experiments/warm_start_sweep.en.md)\] | Warm Start sweep runbook: 3 keybuilder × 3 start_t under always-hit + always_warm_start, artifact rebuild, 3-server parallel run, recovery/loss analysis |
+| [experiments/serving_benchmark.md](experiments/serving_benchmark.md) | Throughput/latency benchmark runbook (Phase 6 M7 of `logs/concurrent_serving_optimization_plan.log.md`): 5 modes (GPU microbench / sparse→dense / freq sweep / yaml density / batch window), driver/sweep/collect/plot tooling under `exp/serving_benchmark/` |
 
 ### [data_collection/](data_collection/)
 
@@ -103,6 +104,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 |------|-------------|
 | [deployment/aloha_sim.md](deployment/aloha_sim.md) | ALOHA Sim remote inference (WSL2 client + remote GPU) |
 | [deployment/libero.md](deployment/libero.md) | LIBERO remote inference and simulator environment setup (WSL2 client + remote GPU) |
+| [deployment/concurrent_serving.md](deployment/concurrent_serving.md) | Concurrent serving operator guide — `--concurrent` BatchingCoordinator + multi-bundle (`load_cache_config` + `select_bundle`) workflow, C1/C2 hard-constraint reference, M7 benchmark + tuning, troubleshooting, multi-server → 1-server×N-bundle migration checklist |
 
 ### [papers/](papers/)
 

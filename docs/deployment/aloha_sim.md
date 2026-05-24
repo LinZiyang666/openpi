@@ -134,3 +134,19 @@ nc -zv 155.98.36.32 9000
 ```
 
 Start the local simulator only after the server log shows `Listening on port 8000`.
+
+## 6. Concurrent vs Non-concurrent serving (Phase 5 / M6)
+
+Since the serving optimization plan landed, ``scripts/serve_policy.py``
+defaults to ``--concurrent`` (per-connection wrapper stack, multi-bundle
+support via ``load_cache_config`` + ``select_bundle``). The legacy
+single-connection baseline path is reachable via ``--non-concurrent`` (or
+``--no-concurrent``) and remains bit-identical to the pre-Phase-5
+behaviour (hard constraint C1). Pick:
+
+* `--concurrent` (default) — multi-client sweep workflows; backend pool
+  shares artifact memory across bundles; runtime is write-frozen (C2) so
+  ``write_policy`` in the yaml is auto-overridden to ``"never"``.
+* `--non-concurrent` — measure pure throughput / latency of a single
+  client (e.g. extreme-speed baselines). Cache backends are still frozen
+  for C2 uniformity.

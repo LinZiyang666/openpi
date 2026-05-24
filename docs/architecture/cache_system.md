@@ -1110,6 +1110,77 @@ class TaskLifecycle(Protocol):
 
 ---
 
+## 9.X Concurrent serving runtime — C1 / C2 contracts, BackendPool, BatchingCoordinator
+
+The concurrent serving optimization plan
+([`logs/concurrent_serving_optimization_plan.log.md`](../../logs/concurrent_serving_optimization_plan.log.md))
+adds five runtime modules outside the request-side cache pipeline. The
+storage / orchestrator / judge boundaries described above are unchanged;
+what follows is a one-stop reference for how the cache system sits inside
+the new concurrent serving fabric.
+
+### Hard constraints
+
+* **C1 — Non-`--concurrent` baseline preserved.** ``Policy.infer`` and
+  ``InferenceInterceptor.infer`` on the single-connection path run their
+  legacy stage1/2/3 + post-stage3 CP3 sequence without any new wrapper or
+  coordinator. Phase 5 flips ``--concurrent`` to the default, but the
+  baseline path remains reachable via ``--non-concurrent``.
+* **C2 — Runtime write-frozen.** All in-memory backends are ``freeze()``'d
+  immediately after ``load_artifact`` (or after construction for backends
+  without artifacts). Any subsequent ``insert / batch_insert / delete /
+  upsert / load_artifact`` call raises ``BackendFrozenError``. Derived
+  state mutation — per-session score memos, active-session sets, sample
+  counters — remains allowed; these are search-path caches, not database
+  content. ``scripts/serve_policy._enforce_runtime_write_policy`` auto-
+  overrides ``write_policy`` to ``"never"`` at server start and on every
+  ``load_cache_config`` ctrl, so legacy yamls keep working under C2.
+
+### BackendPool (M3)
+
+Process-local singleton mapping ``BackendFingerprint(backend_type,
+resolved_preload_path, vector_dims, index_type) → frozen Backend``. The
+pool ensures identical fingerprints share one in-memory backend even when
+multiple yamls (or multiple ``load_cache_config`` ctrls) reference the
+same artifact pkl. Qdrant and empty-preload paths bypass the pool.
+Per-fingerprint locks + double-check pattern guarantee exactly one
+``load_artifact`` call per distinct fingerprint under concurrent first-load
+races.
+
+### BundleDispatcher (M2)
+
+``WebsocketPolicyServer`` stores active bundles in a module-level
+``_bundles: dict[bundle_id, CurrentCacheBundle]`` registry, addressed by
+``load_cache_config`` (which accepts ``bundle_id``) and selected by a new
+``select_bundle`` ctrl. Old clients that omit ``bundle_id`` fall back to a
+``"default"`` slot; the legacy single-latest ``_current_bundle`` pointer
+is kept synchronized for callers that read it without an id (``_wrap_policy``,
+test fixtures).
+
+### BatchingCoordinator (M1)
+
+Three stage queues (one per stage1/stage2/stage3) drive dynamic batching
+in concurrent mode. A request's per-connection thread keeps full
+responsibility for transform + CP1/CP3 + payload assembly; the coordinator
+only owns the GPU forward. Stage 3 sub-buckets requests by
+``(mode, start_t, num_steps)`` so MISS (``run_stage3``) and WARM_START
+(``run_stage3_from``, no noise arg) never mix in the same forward. CP3
+remains post-stage3 and next-cycle predictive only.
+
+### Wire-level protocol additions
+
+* ``__ctrl__: select_bundle`` — client signals which loaded ``bundle_id``
+  the connection binds to. Wrapper-stack creation is deferred until this
+  ctrl (or first ``episode_start`` with ``bundle_id``) so the factory can
+  receive the correct ``bundle_id``.
+* ``__ctrl__: load_cache_config`` now carries optional ``bundle_id``;
+  servers also auto-override ``write_policy`` to ``"never"`` on receipt.
+
+For the implementation plan, files touched, and per-module test layout,
+see [`logs/concurrent_serving_optimization_plan.log.md`](../../logs/concurrent_serving_optimization_plan.log.md).
+
+---
+
 ## 10. Configuration, File Structure, and Implementation History
 
 These sections have been moved to dedicated documents for maintainability:

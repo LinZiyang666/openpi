@@ -144,6 +144,8 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         eager: bool = False,
         collect_images: bool = False,
         stage_config: Optional[StageDeviceConfig] = None,
+        coordinator: Optional[Any] = None,
+        bundle_id: str = "default",
     ) -> None:
         if not policy._is_pytorch_model:  # noqa: SLF001
             raise ValueError(
@@ -186,6 +188,52 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             self._stage2_fn = _meta_guard("stage2")
         if sc and sc.stage3 == "meta":
             self._stage3_fn = _meta_guard("stage3")
+
+        # ---- BatchingCoordinator wiring (M1, Phase 4) ----
+        # When set, stage1/2/3 forward calls are routed through the
+        # coordinator so concurrent connections share batched GPU forwards.
+        # ``coordinator is None`` is the C1 non-concurrent path — every
+        # stage call goes through the original ``self._stageN_fn`` direct
+        # binding above. This binding is monkey-patched only when the
+        # coordinator is wired in (preserving the eager / compiled / meta
+        # sentinel decisions made earlier).
+        self._coordinator = coordinator
+        self._bundle_id = bundle_id
+        if coordinator is not None:
+            from openpi.serving import batching_coordinator as _bc
+
+            def _stage1_via_coordinator(observation):
+                return coordinator.submit_to_stage(1, bundle_id, observation)
+
+            def _stage2_via_coordinator(stage1):
+                return coordinator.submit_to_stage(2, bundle_id, stage1)
+
+            def _stage3_via_coordinator(stage2, *, noise=None, num_steps=10,
+                                        return_intermediates=False, save_timesteps=None):
+                # The interceptor always asks for intermediates on MISS;
+                # the coordinator's MISS bucket already passes
+                # ``return_intermediates=True``. ``save_timesteps`` is
+                # accepted for signature parity but unused (the coordinator
+                # uses the model's default save_timesteps).
+                payload = _bc.Stage3MissPayload(
+                    stage2_out=stage2,
+                    noise=noise.squeeze(0) if (noise is not None and noise.dim() == 3) else noise,
+                    num_steps=num_steps,
+                )
+                return coordinator.submit_to_stage(3, bundle_id, payload)
+
+            self._stage1_fn = _stage1_via_coordinator
+            self._stage2_fn = _stage2_via_coordinator
+            self._stage3_fn = _stage3_via_coordinator
+            # ``run_stage3_from`` is routed via a separate hook below
+            # because the WARM_START path uses a different payload type.
+            self._stage3_from_fn = self._make_warm_start_via_coordinator(coordinator, bundle_id)
+            logger.info(
+                "InferenceInterceptor: routing stage1/2/3 through "
+                "BatchingCoordinator (bundle_id=%s).", bundle_id,
+            )
+        else:
+            self._stage3_from_fn = None  # legacy code path uses model.run_stage3_from directly
 
         # ---- SystemTimer setup ----
         # Probe backend is derived from the normalized per-stage device,
@@ -457,7 +505,62 @@ class InferenceInterceptor(_base_policy.BasePolicy):
     # BasePolicy interface
     # -----------------------------------------------------------------------
 
-    @override
+    def _unbatch_outputs(self, state, action_chunk) -> dict:
+        """Build the ``{state, actions}`` output dict matching Policy.infer.
+
+        Legacy path: ``state`` is ``[1, S]`` and ``action_chunk`` is
+        ``[1, AH, AD]`` — strip ``[0, ...]`` from both.
+
+        Coordinator path (G2 R2 Item 1, G2 R3 Item 1 fix): ``state`` is
+        already unbatched ``[S]`` while ``action_chunk`` keeps the unit
+        batch dim from ``split_stage1_output`` — only strip ``action_chunk``.
+
+        The detection looks at the actual state dimensionality rather than
+        the ``self._coordinator`` flag so the helper stays robust if a
+        future caller swaps either path in / out.
+        """
+        # Legacy: state is [1, S]  (ndim=2), action_chunk is [1, AH, AD] (ndim=3)
+        #   → state.ndim == action_chunk.ndim - 1  ✓ strip both
+        # Coordinator: state is [S] (ndim=1), action_chunk is [1, AH, AD] (ndim=3)
+        #   → state.ndim != action_chunk.ndim - 1  → only strip action
+        if (
+            state.ndim >= 1
+            and state.shape[0] == 1
+            and state.ndim == action_chunk.ndim - 1
+        ):
+            return {
+                "state":   np.asarray(state[0, ...].detach().cpu()),
+                "actions": np.asarray(action_chunk[0, ...].detach().cpu()),
+            }
+        # Coordinator path: state is unbatched; only action carries the
+        # leading B=1. Strip only the action.
+        return {
+            "state":   np.asarray(state.detach().cpu()),
+            "actions": np.asarray(action_chunk[0, ...].detach().cpu()),
+        }
+
+    @staticmethod
+    def _make_warm_start_via_coordinator(coordinator, bundle_id: str):
+        """Build the WARM_START stage3 entry routed through the coordinator.
+
+        ``run_stage3_from`` requires (stage2, start_x, start_t, num_steps) —
+        the coordinator's ``Stage3WarmStartPayload`` carries the same fields
+        and groups requests by ``(start_t, num_steps)`` so disparate warm-
+        start parameters do not collide in one forward.
+        """
+        from openpi.serving import batching_coordinator as _bc
+
+        def _stage3_from_via_coordinator(stage2, start_x, start_t, *, num_steps=10):
+            payload = _bc.Stage3WarmStartPayload(
+                stage2_out=stage2,
+                start_x=start_x.squeeze(0) if start_x.dim() == 3 else start_x,
+                start_t=start_t,
+                num_steps=num_steps,
+            )
+            return coordinator.submit_to_stage(3, bundle_id, payload)
+
+        return _stage3_from_via_coordinator
+
     def infer(self, obs: dict, *, noise: np.ndarray | None = None) -> dict:  # type: ignore[misc]
         """Cache-aware inference through the staged API.
 
@@ -509,12 +612,27 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             from openpi.shared.image_extract import extract_valid_images
             input_images = extract_valid_images(inputs)
 
-        inputs = jax.tree.map(
-            lambda x: torch.from_numpy(np.array(x))
-                           .to(self._pytorch_device)[None, ...],
-            inputs,
-        )
-        observation = _model.Observation.from_dict(inputs)
+        if self._coordinator is None:
+            # Legacy / non-coordinator path: add the B=1 batch dim here so
+            # ``run_stage1`` receives a properly shaped Observation. This is
+            # what every pre-Phase-4 code path expected.
+            inputs = jax.tree.map(
+                lambda x: torch.from_numpy(np.array(x))
+                               .to(self._pytorch_device)[None, ...],
+                inputs,
+            )
+            observation = _model.Observation.from_dict(inputs)
+        else:
+            # Coordinator path (G2 R2 Item 1): per-request leaves stay
+            # unbatched + on CPU; ``stack_observation`` inside the coordinator
+            # is the single point that adds the batch dim and pushes the
+            # stack to device. Sending a B=1 observation here would re-create
+            # the double batch dim bug.
+            inputs = jax.tree.map(
+                lambda x: torch.from_numpy(np.array(x)) if not torch.is_tensor(x) else x,
+                inputs,
+            )
+            observation = inputs  # raw dict; coordinator does Observation.from_dict
 
         # Optional noise forwarding (mirrors Policy.infer sample_kwargs).
         # Noise goes to stage3 device for flow matching.
@@ -550,15 +668,18 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                             self._orchestrator.buffer_for_write(
                                 cp1_result.query_keys, cached_action
                             )
-                        outputs = {
-                            "state": inputs["state"],
-                            "actions": cached_action.to(
-                                self._pytorch_device
-                            )[None, ...],
-                        }
-                        outputs = jax.tree.map(
-                            lambda x: np.asarray(x[0, ...].detach().cpu()),
-                            outputs,
+                        # FULL_HIT short-circuit: skip stage2/3, return the
+                        # cached action immediately. ``cached_action`` from
+                        # the payload is unbatched; under the legacy path
+                        # ``inputs["state"]`` is ``[1, S]`` so we add a
+                        # synthetic batch dim to action and strip both;
+                        # under the coordinator path ``inputs["state"]`` is
+                        # already unbatched, so reuse the same helper as the
+                        # main MISS/WS exit (G2 R3 Item 1) instead of the
+                        # legacy ``[0, ...]`` map.
+                        outputs = self._unbatch_outputs(
+                            inputs["state"],
+                            cached_action.to(self._pytorch_device)[None, ...],
                         )
                         outputs = self._output_transform(outputs)
                         # Attach observability meta after output_transform so
@@ -606,21 +727,62 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                     )
                     if start_x.ndim == 2:
                         start_x = start_x[None, ...]
+                    # Route through coordinator when wired (Phase 4 M1);
+                    # otherwise fall back to the model directly.
+                    _run_stage3_from = self._stage3_from_fn or self._model.run_stage3_from
                     with self._timer.measure("stage3_warm"):
-                        stage3 = self._model.run_stage3_from(
+                        stage3 = _run_stage3_from(
                             stage2, start_x, start_t,
                             num_steps=cp1_result.payload.denoising_num_steps,
                         )
                 elif self._orchestrator is not None:
-                    # MISS: eager call with intermediates collection
+                    # MISS: eager call with intermediates collection. When the
+                    # coordinator is wired, ``self._stage3_fn`` already returns
+                    # intermediates (the MISS sub-bucket sets
+                    # return_intermediates=True). Without the coordinator we
+                    # call the model directly to keep the legacy MISS path
+                    # untouched.
                     with self._timer.measure("stage3_flow"):
-                        stage3 = self._model.run_stage3(
-                            stage2, noise=start_noise,
-                            num_steps=_NUM_STEPS, return_intermediates=True,
-                        )
+                        if self._coordinator is not None:
+                            # G2 R2 Item 2: ``model.run_stage3`` accepts
+                            # ``noise=None`` and samples per-request; the
+                            # coordinator MISS bucket cannot — it must
+                            # ``torch.stack`` per-request noise tensors. Pull
+                            # a fresh sample of the right shape here so the
+                            # payload always carries a real tensor.
+                            stage3_noise = start_noise
+                            if stage3_noise is None:
+                                shape = (
+                                    1,
+                                    self._model.config.action_horizon,
+                                    self._model.config.action_dim,
+                                )
+                                stage3_noise = self._model.sample_noise(
+                                    shape, self._stage3_device,
+                                )
+                            stage3 = self._stage3_fn(
+                                stage2, noise=stage3_noise,
+                                num_steps=_NUM_STEPS, return_intermediates=True,
+                            )
+                        else:
+                            stage3 = self._model.run_stage3(
+                                stage2, noise=start_noise,
+                                num_steps=_NUM_STEPS, return_intermediates=True,
+                            )
                 else:
                     # No-cache mode: compiled call
                     with self._timer.measure("stage3_flow"):
+                        if self._coordinator is not None and start_noise is None:
+                            # G2 R2 Item 2: coordinator MISS bucket needs a
+                            # concrete per-request noise tensor.
+                            shape = (
+                                1,
+                                self._model.config.action_horizon,
+                                self._model.config.action_dim,
+                            )
+                            start_noise = self._model.sample_noise(
+                                shape, self._stage3_device,
+                            )
                         stage3 = self._stage3_fn(stage2, noise=start_noise)
 
             # Post-inference cache operations.
@@ -660,14 +822,13 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
         # ---- 3. Build outputs ----
         # Output format matches Policy.infer so the server and client require
-        # no changes.  Timing is reported by SystemTimer at task end.
-        outputs = {
-            "state":   inputs["state"],
-            "actions": stage3.action_chunk,
-        }
-        outputs = jax.tree.map(
-            lambda x: np.asarray(x[0, ...].detach().cpu()), outputs
-        )
+        # no changes. Under the coordinator path (G2 R2 Item 1), per-request
+        # ``inputs["state"]`` is already unbatched (shape ``(S,)``) while
+        # ``stage3.action_chunk`` keeps a unit batch dim ``[1, AH, AD]`` from
+        # ``split_stage1_output``. Stripping ``[0, ...]`` from both — as the
+        # legacy code does — collapses state to a 0-D scalar and breaks any
+        # output transform that indexes into it (G2 R3 Item 1).
+        outputs = self._unbatch_outputs(inputs["state"], stage3.action_chunk)
         outputs = self._output_transform(outputs)
         # cp1_result is unbound when orchestrator is None (cache disabled);
         # the helper returns a MISS placeholder so cache-off responses share

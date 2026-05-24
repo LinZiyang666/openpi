@@ -144,6 +144,15 @@ class CacheStorage:
         return fn(id)
 
     @property
+    def is_frozen(self) -> bool:
+        """Forward backend's runtime write-frozen flag (C2).
+
+        Backends without explicit freeze support fall back to False via
+        the ABC default property.
+        """
+        return getattr(self._backend, "is_frozen", False)
+
+    @property
     def library_stats(self):
         """Backend's library-level statistics, or None.
 

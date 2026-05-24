@@ -1768,20 +1768,26 @@ def _validate_composite_judge_state_library(
 def _collect_offline_writers_from_judges(
     judges: dict[CheckpointID, Any],
 ) -> list[Any]:
-    """Walk per-CP judges, extract any factor extractors that also expose
+    """Walk per-CP judges, extract any factors that also expose
     `compute_for_episode` (the OfflineWriter capability). Order is
-    CheckpointID enum order, then extractor order within each judge;
+    CheckpointID enum order, then factor order within each judge;
     duplicates (same instance referenced from multiple CPs) are kept once.
+
+    The refactor 2026-05-07 renamed CompositeJudge's internal list from
+    `_extractors` to `_factors`; this collector queries `_factors` to stay
+    in sync. Each factor is checked for `compute_for_episode` (duck-typed
+    OfflineWriter check via hasattr — the Protocol is runtime_checkable
+    but we keep the hasattr form to avoid importing OfflineWriter here).
     """
     seen: set[int] = set()
     out: list[Any] = []
     for cp_id in sorted(judges.keys(), key=lambda c: c.value):
         judge = judges[cp_id]
-        extractors = getattr(judge, "_extractors", ())
-        for ext in extractors:
-            if hasattr(ext, "compute_for_episode") and id(ext) not in seen:
-                out.append(ext)
-                seen.add(id(ext))
+        factors = getattr(judge, "_factors", ())
+        for f in factors:
+            if hasattr(f, "compute_for_episode") and id(f) not in seen:
+                out.append(f)
+                seen.add(id(f))
     return out
 
 
@@ -1791,28 +1797,24 @@ def _collect_offline_writers_from_judges(
 
 
 def _build_backend(cfg: BackendConfig):
-    """Instantiate a VectorStoreBackend from config."""
-    if cfg.type == "in_memory":
-        from openpi.cache.backends.in_memory_backend import InMemoryBackend
+    """Instantiate a VectorStoreBackend from config, routed through BackendPool.
 
-        backend = InMemoryBackend(vector_dims=cfg.vector_dims)
-        if cfg.in_memory.preload_path:
-            backend.load_artifact(cfg.in_memory.preload_path)
-        return backend
-    elif cfg.type == "qdrant":
-        from openpi.cache.backends.qdrant_backend import QdrantBackendConfig, QdrantVectorStore
+    Pool sharing semantics (M3, A6 sub-optimization):
+      - Multiple yamls referencing the same artifact pkl + matching vector_dims
+        / index_type share one in-memory backend instance (76 MB pkl loaded once).
+      - Qdrant and empty-preload in_memory backends bypass the pool entirely.
+      - Every backend returned here is already ``freeze()``'d (C2 contract).
 
-        qdrant_config = QdrantBackendConfig(
-            url=cfg.qdrant.url,
-            collection_name=cfg.qdrant.collection_name,
-            vector_dims=cfg.vector_dims,
-            prefer_grpc=cfg.qdrant.prefer_grpc,
-            grpc_port=cfg.qdrant.grpc_port,
-            request_timeout=cfg.qdrant.request_timeout,
+    Validity check (Qdrant / Unknown type) is delegated to the pool helpers
+    so failure modes stay consistent across direct + pool paths.
+    """
+    if cfg.type not in {"in_memory", "qdrant"}:
+        raise ConfigValidationError(
+            f"Unknown backend.type '{cfg.type}'. Valid: ['in_memory', 'qdrant']"
         )
-        return QdrantVectorStore(config=qdrant_config)
-    else:
-        raise ConfigValidationError(f"Unknown backend.type '{cfg.type}'. Valid: ['in_memory', 'qdrant']")
+    from openpi.cache.backend_pool import BackendPool
+
+    return BackendPool.get().get_or_load(cfg)
 
 
 def _build_reducer(cfg: ReducerConfig):

@@ -4,6 +4,7 @@ import logging
 import os
 from pathlib import Path
 import socket
+from typing import TYPE_CHECKING
 
 import tyro
 
@@ -15,6 +16,45 @@ from openpi.policies import policy as _policy
 from openpi.policies import policy_config as _policy_config
 from openpi.serving import websocket_policy_server
 from openpi.training import config as _config
+
+if TYPE_CHECKING:
+    from openpi.cache.config import CacheConfig
+
+
+# ------------------------------------------------------------------
+# Runtime write-frozen contract (C2) — M4.5
+# ------------------------------------------------------------------
+
+def _enforce_runtime_write_policy(cache_config: "CacheConfig") -> "CacheConfig":
+    """Server runtime contract (C2): backend is read-only; write_policy must be 'never'.
+
+    Existing yaml configs default to ``on_any_miss`` so sweep workflows can
+    keep using their unmodified yamls. At server runtime, however, the
+    backend is frozen (no insert/batch_insert/delete) and any write attempt
+    raises ``BackendFrozenError``. We therefore auto-override the policy to
+    ``"never"`` with a single warning per server start, rather than
+    fail-fast on the first MISS episode. Offline tools (artifact build /
+    enrich) do not go through this entry point and keep their configured
+    write policy.
+    """
+    from openpi.cache.config import WritePolicyConfig
+
+    if cache_config.write_policy.type == "never":
+        return cache_config
+
+    original_type = cache_config.write_policy.type
+    overridden = dataclasses.replace(
+        cache_config,
+        write_policy=WritePolicyConfig(type="never"),
+    )
+    logging.warning(
+        "write_policy %r auto-overridden to 'never' for runtime serving (hard "
+        "constraint C2: runtime backend is write-frozen). To write cache "
+        "artifacts, use offline tools (e.g. exp/common/factor_postprocess.py). "
+        "This override is applied per server start; the source yaml is unchanged.",
+        original_type,
+    )
+    return overridden
 
 
 class EnvMode(enum.Enum):
@@ -86,12 +126,24 @@ class Args:
     # Example: --cache_config cache.yaml
     cache_config: str | None = None
 
-    # Enable concurrent multi-client mode.  When True, each WebSocket
+    # Enable concurrent multi-client mode (default).  When True, each WebSocket
     # connection gets its own InferenceInterceptor / CacheOrchestrator / Timer
     # wrapper stack while sharing the same base policy (GPU model).  Timing
     # summary prints and orchestrator info logs are suppressed to avoid
     # interleaved output.
-    concurrent: bool = False
+    #
+    # Phase 5 (M6) flipped this default to True so sweep workflows naturally
+    # run as 1-server × N-bundle. Pass ``--non-concurrent`` (mapped below) or
+    # ``--no-concurrent`` (tyro's negation) to opt back into the single-
+    # connection baseline path. Hard constraint C1 guarantees the single-
+    # connection path stays bit-identical to pre-Phase-5 behavior.
+    concurrent: bool = True
+
+    # Opt-out flag for the single-connection (a.k.a. baseline / C1) path.
+    # When True, overrides ``concurrent=True`` to ``False``. Provided as a
+    # discoverable user-facing CLI argument since flipping ``concurrent``'s
+    # default would otherwise hide the opt-out behind tyro's ``--no-`` prefix.
+    non_concurrent: bool = False
 
     # Per-stage device placement. Default: None (no override, legacy behavior).
     # Set all three to enable split-device or meta placement.
@@ -236,6 +288,7 @@ def _wrap_policy(
     eager: bool = False,
     shared_cache=None,
     stage_config: StageDeviceConfig | None = None,
+    bundle_id: str = "default",
 ):
     """Build the wrapper chain around a base policy.
 
@@ -253,15 +306,31 @@ def _wrap_policy(
         shared_cache: Pre-built cache components from build_cache_components().
                When provided, only storage is reused (thread-safe);
                key_builder/timer/gates/judges/strategies are created fresh per call.
+               In concurrent mode this dict also carries the shared
+               ``BatchingCoordinator`` instance under ``"coordinator"`` so
+               every connection's InferenceInterceptor batches stage1/2/3
+               forwards across connections.
+        bundle_id: The bundle identifier this connection's wrapper stack is
+               bound to (M2 BundleDispatcher). Selects which loaded bundle
+               feeds the cache wrapper and is forwarded to the
+               InferenceInterceptor so the coordinator can keep bundle-level
+               request bookkeeping.
     """
     policy = base_policy
+    coordinator = (shared_cache or {}).get("coordinator")
 
     # Dynamic bundle from load_cache_config control message (highest priority).
     # Must be checked before args.cache_config so that server started without
     # --cache_config can still pick up bundles injected at runtime.
+    #
+    # M2 (Phase 3): when a concrete ``bundle_id`` is selected (via
+    # ``__ctrl__: select_bundle`` or the first ``episode_start`` carrying a
+    # bundle id) the WebsocketPolicyServer factory passes it in here so we
+    # bind to that specific bundle instead of the legacy single-latest
+    # pointer.
     from openpi.serving.websocket_policy_server import get_current_cache_bundle
 
-    bundle = get_current_cache_bundle()
+    bundle = get_current_cache_bundle(bundle_id) or get_current_cache_bundle()
     if bundle is not None:
         from openpi.cache.config import build_per_connection_components
         from openpi.cache.interceptor import InferenceInterceptor
@@ -292,6 +361,8 @@ def _wrap_policy(
             eager=eager,
             collect_images=need_images,
             stage_config=stage_config,
+            coordinator=coordinator,
+            bundle_id=bundle_id,
         )
     elif args.cache_config is not None:
         from openpi.cache.config import (
@@ -306,14 +377,18 @@ def _wrap_policy(
             logging.warning("--cache_config overrides --cache. Ignoring --cache flag.")
 
         if shared_cache is not None:
-            cache_config = load_cache_config(args.cache_config)
+            cache_config = _enforce_runtime_write_policy(
+                load_cache_config(args.cache_config)
+            )
             components = build_per_connection_components(
                 cache_config,
                 shared_cache["storage"],
                 quiet=True,
             )
         else:
-            cache_config = load_cache_config(args.cache_config)
+            cache_config = _enforce_runtime_write_policy(
+                load_cache_config(args.cache_config)
+            )
             components = build_cache_components(cache_config)
             if quiet:
                 components["timer"]._quiet = True
@@ -340,6 +415,8 @@ def _wrap_policy(
             eager=eager,
             collect_images=need_images,
             stage_config=stage_config,
+            coordinator=coordinator,
+            bundle_id=bundle_id,
         )
     elif args.cache:
         from openpi.cache.interceptor import InferenceInterceptor
@@ -350,6 +427,8 @@ def _wrap_policy(
         policy = InferenceInterceptor(
             policy, timer=timer, eager=eager,
             collect_images=args.collect_images, stage_config=stage_config,
+            coordinator=coordinator,
+            bundle_id=bundle_id,
         )
 
     if args.record:
@@ -392,6 +471,10 @@ def _setup_warmup_dump_root(raw_path: str | None) -> None:
 
 
 def main(args: Args) -> None:
+    # M6 (Phase 5): ``--non-concurrent`` overrides the new default concurrent
+    # mode to provide the single-connection baseline path (hard constraint C1).
+    if args.non_concurrent:
+        args = dataclasses.replace(args, concurrent=False, non_concurrent=False)
     _configure_torchinductor_cache_dir()
     _setup_warmup_dump_root(args.warmup_dump_root)
     stage_config = _get_stage_device_config(args)
@@ -407,16 +490,34 @@ def main(args: Args) -> None:
         # Each connection gets its own wrapper stack via the factory.
         # Only storage is shared (Qdrant client is thread-safe);
         # key_builder/timer/gates/judges/strategies are per-connection (have mutable state).
-        shared_cache = None
+        shared_cache: dict | None = None
         if args.cache_config is not None:
             from openpi.cache.config import build_shared_storage, load_cache_config
-            cache_config = load_cache_config(args.cache_config)
+            cache_config = _enforce_runtime_write_policy(
+                load_cache_config(args.cache_config)
+            )
             shared_cache = {"storage": build_shared_storage(cache_config)}
 
-        def _connection_policy_factory(shared_base_policy):
+        # Phase 4 M1: spawn the BatchingCoordinator once per server process
+        # and share across all per-connection InferenceInterceptor instances.
+        # The coordinator owns three background threads (one per stage); the
+        # connection-side InferenceInterceptor enqueues per-request payloads
+        # and blocks on the reply event. Hard constraint C1 ensures
+        # ``--non-concurrent`` skips this entire wiring.
+        from openpi.serving.batching_coordinator import BatchingCoordinator
+
+        _coordinator = BatchingCoordinator(base_policy._model)
+        _coordinator.start()
+        if shared_cache is None:
+            shared_cache = {}
+        shared_cache["coordinator"] = _coordinator
+        logging.info("BatchingCoordinator started for concurrent serving.")
+
+        def _connection_policy_factory(shared_base_policy, bundle_id="default"):
             return _wrap_policy(
                 shared_base_policy, args, quiet=True, eager=True,
                 shared_cache=shared_cache, stage_config=stage_config,
+                bundle_id=bundle_id,
             )
 
         policy_metadata = {**policy_metadata, "concurrent": True}

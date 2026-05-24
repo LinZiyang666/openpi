@@ -1,0 +1,27 @@
+# Mode 3 — Multi-bundle density (M2 + M3 pool verification).
+# Fixed 8 workers; vary how many distinct bundles the server holds.
+# Workers fan out across bundles to verify shared-backend memory savings.
+
+mode: yaml_density
+server:
+  host: 127.0.0.1
+  port: 8000
+duration_s: 30
+warmup_s: 2
+cells:
+  - id: y1
+    num_workers: 8
+    request_hz: 2.0
+    bundle_id: bundle_0
+  - id: y2
+    num_workers: 8
+    request_hz: 2.0
+    bundle_id: bundle_0   # cell 2: 2 bundles loaded server-side (operator pre-loads)
+  - id: y4
+    num_workers: 8
+    request_hz: 2.0
+    bundle_id: bundle_0
+  - id: y6
+    num_workers: 8
+    request_hz: 2.0
+    bundle_id: bundle_0
