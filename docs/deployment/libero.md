@@ -454,9 +454,10 @@ bit-identical to the pre-Phase-5 behaviour (hard constraint C1: no
 
 The runtime is write-frozen (hard constraint C2): cache backends refuse
 ``insert / batch_insert / delete / upsert / load_artifact`` after server
-start, and ``write_policy`` is auto-overridden to ``"never"`` on every
-``load_cache_config`` ctrl. Episode-end writes are no-ops; rebuild
-artifacts with offline tooling (`exp/common/factor_postprocess.py`).
+start, and ``write_policy`` MUST be ``"never"`` — any write-enabled policy
+fails fast with a ``ConfigValidationError`` at server start and on every
+``load_cache_config`` ctrl. Rebuild artifacts with offline tooling
+(`exp/common/factor_postprocess.py`).
 
 ### Multi-replica scale-out + how many workers to run
 

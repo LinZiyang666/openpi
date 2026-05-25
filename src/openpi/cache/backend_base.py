@@ -31,6 +31,7 @@ Higher is more similar.  Convert your backend's native distance metric before
 returning (e.g. for Qdrant Cosine the score is already in this range).
 """
 
+import functools
 from abc import ABC, abstractmethod
 
 from openpi.cache.storage_types import (
@@ -53,7 +54,62 @@ class BackendFrozenError(RuntimeError):
     """
 
 
+def _make_frozen_guarded(op_name, fn):
+    """Wrap a backend mutation method so it enforces the C2 frozen flag first.
+
+    The returned wrapper calls ``self._check_frozen(op_name)`` before delegating
+    to the original method. Applied automatically to every subclass mutation
+    method by ``VectorStoreBackend.__init_subclass__`` — concrete backends never
+    call ``_check_frozen`` themselves.
+
+    No "already guarded" marker is set on the wrapper: ``functools.wraps`` copies
+    a wrapped function's ``__dict__``, so any such marker would leak onto an
+    unrelated ``@functools.wraps(Parent.insert)`` override and could cause a
+    genuinely-unguarded method to be skipped (G2 R1).
+    """
+    @functools.wraps(fn)
+    def _guarded(self, *args, **kwargs):
+        self._check_frozen(op_name)
+        return fn(self, *args, **kwargs)
+
+    return _guarded
+
+
 class VectorStoreBackend(ABC):
+
+    # ------------------------------------------------------------------
+    # Runtime write-frozen auto-guard (C2)
+    # ------------------------------------------------------------------
+    # Mutation entry names auto-wrapped with the frozen-guard on every
+    # subclass. A subclass that adds another mutation method can extend this
+    # tuple (in its own class body) to have that method guarded too.
+    _MUTATION_METHODS: tuple[str, ...] = (
+        "insert", "batch_insert", "delete", "upsert", "load_artifact",
+    )
+
+    def __init_subclass__(cls, **kwargs) -> None:
+        """Auto-wrap each subclass-defined mutation method with the C2 guard.
+
+        Makes the runtime write-frozen contract interface-side: any
+        ``VectorStoreBackend`` subclass gets ``BackendFrozenError`` on its
+        mutation entries after ``freeze()`` without writing a single
+        ``_check_frozen`` call.
+
+        ``cls.__dict__.get`` only returns methods defined directly on ``cls``
+        (never inherited, already-wrapped ones), so each method is wrapped
+        exactly once per class that defines it. We deliberately do NOT skip
+        wrapping based on any marker attribute: ``functools.wraps`` copies a
+        wrapped function's ``__dict__``, so a subclass override decorated with
+        ``@functools.wraps(Parent.insert)`` would inherit a "guarded" marker and
+        be skipped while actually unguarded (G2 R1). Always wrapping is safe — a
+        method that chains via ``super()`` just re-checks the idempotent flag.
+        """
+        super().__init_subclass__(**kwargs)
+        for name in cls._MUTATION_METHODS:
+            fn = cls.__dict__.get(name)
+            if fn is None or not callable(fn):
+                continue
+            setattr(cls, name, _make_frozen_guarded(name, fn))
 
     # ------------------------------------------------------------------
     # Metadata
@@ -125,6 +181,11 @@ class VectorStoreBackend(ABC):
         Partial failures are tolerated: failed entries are logged and skipped,
         successful ones are committed.  The caller must not assume atomicity.
         """
+        # C2 fail-fast at the batch entry. ``__init_subclass__`` cannot wrap this
+        # default impl (it lives on the base, not a subclass), so this single
+        # interface-level guard covers subclasses that do not override
+        # batch_insert; overriding subclasses are auto-wrapped instead.
+        self._check_frozen("batch_insert")
         import logging
         logger = logging.getLogger(__name__)
 
@@ -178,9 +239,10 @@ class VectorStoreBackend(ABC):
         """Transition this backend to runtime read-only mode (C2).
 
         After freeze, every mutation entry (insert / batch_insert / delete /
-        upsert / load_artifact) must raise BackendFrozenError. Default
-        implementation flips a private flag; concrete backends are expected
-        to call `self._check_frozen(op)` at the head of each mutation entry.
+        upsert / load_artifact) raises BackendFrozenError. Flips a private
+        flag; enforcement is interface-side — ``__init_subclass__`` auto-wraps
+        each subclass mutation method with the frozen-guard, so concrete
+        backends never call `_check_frozen` themselves.
 
         Idempotent: calling freeze() repeatedly is safe.
         """
@@ -194,7 +256,9 @@ class VectorStoreBackend(ABC):
     def _check_frozen(self, op_name: str) -> None:
         """Raise BackendFrozenError if this backend has been frozen.
 
-        Concrete backends call this at the head of every mutation entry.
+        Called by the ``__init_subclass__`` auto-guard wrapper at the head of
+        each subclass mutation entry (and by the base ``batch_insert`` default).
+        Concrete backends do not call this directly.
         """
         if self.is_frozen:
             raise BackendFrozenError(

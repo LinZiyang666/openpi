@@ -701,11 +701,11 @@ class WebsocketPolicyServer:
                                         yaml_path = tmp.name
                                 cache_config = load_cache_config(yaml_path)
                                 # Runtime write-frozen contract (C2, M4.5):
-                                # override write_policy to 'never' for any
-                                # config arriving via ``load_cache_config``
-                                # ctrl msg, matching the same enforcement
-                                # applied at server start. Avoid silent
-                                # `batch_insert` attempts on frozen backends.
+                                # fail fast on any write-enabled config arriving
+                                # via ``load_cache_config`` ctrl msg, matching the
+                                # same enforcement applied at server start. The
+                                # raised error is surfaced to the client as an
+                                # error ack by the enclosing ``except`` below.
                                 try:
                                     from scripts.serve_policy import _enforce_runtime_write_policy
 
@@ -714,19 +714,14 @@ class WebsocketPolicyServer:
                                     # Fallback: inline enforcement when scripts/ isn't on the
                                     # import path (e.g. embedded test harness). Keeps the
                                     # contract enforced regardless of entry point.
-                                    import dataclasses as _dc
-
-                                    from openpi.cache.config import WritePolicyConfig
+                                    from openpi.cache.config import ConfigValidationError
                                     if cache_config.write_policy.type != "never":
-                                        logger.warning(
-                                            "load_cache_config: write_policy %r "
-                                            "auto-overridden to 'never' (C2 runtime).",
-                                            cache_config.write_policy.type,
-                                        )
-                                        cache_config = _dc.replace(
-                                            cache_config,
-                                            write_policy=WritePolicyConfig(type="never"),
-                                        )
+                                        raise ConfigValidationError(
+                                            "load_cache_config: write_policy "
+                                            f"{cache_config.write_policy.type!r} is not allowed at "
+                                            "server runtime (C2 write-frozen). Set write_policy: "
+                                            "{type: never} and build cache artifacts offline."
+                                        ) from None
                                 # Fill deferred dump.path slots from the
                                 # configured warmup dump root. The validator
                                 # already passed (deferred=True bypasses path

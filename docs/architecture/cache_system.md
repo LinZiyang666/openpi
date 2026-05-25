@@ -1129,12 +1129,18 @@ the new concurrent serving fabric.
 * **C2 — Runtime write-frozen.** All in-memory backends are ``freeze()``'d
   immediately after ``load_artifact`` (or after construction for backends
   without artifacts). Any subsequent ``insert / batch_insert / delete /
-  upsert / load_artifact`` call raises ``BackendFrozenError``. Derived
-  state mutation — per-session score memos, active-session sets, sample
-  counters — remains allowed; these are search-path caches, not database
-  content. ``scripts/serve_policy._enforce_runtime_write_policy`` auto-
-  overrides ``write_policy`` to ``"never"`` at server start and on every
-  ``load_cache_config`` ctrl, so legacy yamls keep working under C2.
+  upsert / load_artifact`` call raises ``BackendFrozenError``. Enforcement is
+  **interface-side**: ``VectorStoreBackend.__init_subclass__`` auto-wraps every
+  subclass mutation method with the frozen-guard, so the contract holds for any
+  pluggable backend (including ones outside this repo) with zero per-backend
+  ``_check_frozen`` boilerplate — concrete backends just define their mutation
+  methods normally. Derived state mutation — per-session score memos,
+  active-session sets, sample counters — remains allowed; these are search-path
+  caches, not database content. ``scripts/serve_policy._enforce_runtime_write_policy``
+  enforces ``write_policy`` **fail-fast**: any non-``"never"`` policy raises
+  ``ConfigValidationError`` at server start and on every ``load_cache_config``
+  ctrl, so a write-enabled config is surfaced loudly instead of silently
+  neutralised under C2.
 
 ### BackendPool (M3)
 

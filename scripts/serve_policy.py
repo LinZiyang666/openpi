@@ -24,35 +24,28 @@ if TYPE_CHECKING:
 # ------------------------------------------------------------------
 
 def _enforce_runtime_write_policy(cache_config: "CacheConfig") -> "CacheConfig":
-    """Server runtime contract (C2): backend is read-only; write_policy must be 'never'.
+    """Server runtime contract (C2): backend is read-only; write_policy MUST be 'never'.
 
-    Existing yaml configs default to ``on_any_miss`` so sweep workflows can
-    keep using their unmodified yamls. At server runtime, however, the
-    backend is frozen (no insert/batch_insert/delete) and any write attempt
-    raises ``BackendFrozenError``. We therefore auto-override the policy to
-    ``"never"`` with a single warning per server start, rather than
-    fail-fast on the first MISS episode. Offline tools (artifact build /
-    enrich) do not go through this entry point and keep their configured
-    write policy.
+    At server runtime the backend is frozen (no insert/batch_insert/delete) and
+    any write attempt raises ``BackendFrozenError``. Rather than silently
+    neutralising a write-enabled config, this entry point fails fast: any
+    non-``"never"`` write_policy raises ``ConfigValidationError`` at server
+    start (and on ``load_cache_config``). Set ``write_policy: {type: never}``
+    explicitly in the cache config, and build / enrich cache artifacts with
+    offline tools (e.g. ``exp/common/factor_postprocess.py``) — those do not go
+    through this entry point and keep their configured write policy.
     """
-    from openpi.cache.config import WritePolicyConfig
+    from openpi.cache.config import ConfigValidationError
 
     if cache_config.write_policy.type == "never":
         return cache_config
 
-    original_type = cache_config.write_policy.type
-    overridden = dataclasses.replace(
-        cache_config,
-        write_policy=WritePolicyConfig(type="never"),
+    raise ConfigValidationError(
+        f"write_policy.type {cache_config.write_policy.type!r} is not allowed at "
+        "server runtime (hard constraint C2: the runtime backend is write-frozen). "
+        "Set write_policy: {type: never} in the cache config and build cache "
+        "artifacts offline (e.g. exp/common/factor_postprocess.py)."
     )
-    logging.warning(
-        "write_policy %r auto-overridden to 'never' for runtime serving (hard "
-        "constraint C2: runtime backend is write-frozen). To write cache "
-        "artifacts, use offline tools (e.g. exp/common/factor_postprocess.py). "
-        "This override is applied per server start; the source yaml is unchanged.",
-        original_type,
-    )
-    return overridden
 
 
 class EnvMode(enum.Enum):

@@ -40,9 +40,11 @@ python scripts/serve_policy.py policy:checkpoint \
   injected later via the `__ctrl__: load_cache_config` wire ctrl.
 * Backends are **frozen** at server start (hard constraint C2). Any
   attempt to `insert / batch_insert / delete / upsert / load_artifact` at
-  runtime raises `BackendFrozenError`. `write_policy` in your YAML is
-  auto-overridden to `"never"` for the duration of the server run; a
-  warning is logged so you know the override fired.
+  runtime raises `BackendFrozenError`. `write_policy` in your YAML **must be
+  `"never"`** — if it declares any write-enabled policy the server **fails
+  fast** with a `ConfigValidationError` at startup (and on every
+  `load_cache_config`), instead of silently neutralising it. Set it
+  explicitly and build cache artifacts offline.
 
 ### 1.2 `--non-concurrent` (baseline / extreme-speed)
 
@@ -63,8 +65,9 @@ python scripts/serve_policy.py policy:checkpoint \
   artifacts. Use this mode to measure the upper bound of a single
   client's request latency (hard constraint C1).
 * C2 frozen-runtime still applies. Backends are still frozen after load
-  and `write_policy` is still overridden to `"never"`. If you need to
-  populate or rebuild artifacts, do it offline (`exp/common/factor_postprocess.py`).
+  and a non-`"never"` `write_policy` still **fails fast** with a
+  `ConfigValidationError`. If you need to populate or rebuild artifacts, do
+  it offline (`exp/common/factor_postprocess.py`).
 
 ### 1.3 `--replicas N` (multi-process scale-out, single public port)
 
@@ -202,7 +205,7 @@ Notes:
 |----------|--------|
 | `examples/libero/main.py` (default LIBERO) | None. Lazy default bundle. |
 | `exp/verdict_factor_judge/run_phase{3,4,5}.py` | None. They `load_cache_config` once per cell; server falls back to using `yaml_id` as the bundle_id, then `episode_start` (no bundle_id) → server binds to the latest bundle automatically. |
-| Anything that depended on runtime `batch_insert` to cache | **Behaviour change**: writes are silently dropped (auto-`write_policy: never`). Rebuild artifacts offline. |
+| Anything that depended on runtime `batch_insert` to cache | **Behaviour change**: a non-`never` `write_policy` now **fails fast** (`ConfigValidationError`) at server start / `load_cache_config`. Set `write_policy: never` and rebuild artifacts offline. |
 | Multi-server topologies (e.g. phase5 6-server) | Either keep starting 6 servers (still works), or migrate to 1 server × 6 bundles using `load_cache_config` + `select_bundle` for substantially less GPU memory. |
 
 ### 2.4 Worker count — how many clients to drive a server
@@ -364,10 +367,12 @@ latency ceilings without coordinator overhead.
 
 `Backend.insert / batch_insert / delete / upsert / load_artifact` all
 raise `BackendFrozenError` after the server's startup load completes.
-Cache artifact creation MUST happen offline. The auto-override of
-`write_policy → "never"` exists because most legacy sweep YAMLs ship
-with `write_policy: on_any_miss` and would otherwise crash on the first
-MISS episode.
+Cache artifact creation MUST happen offline. `write_policy` MUST be
+`"never"`: the server **fails fast** with a `ConfigValidationError` at
+startup (and on every `load_cache_config`) if a config declares any
+write-enabled policy, instead of silently neutralising it. Legacy sweep
+YAMLs that ship with `write_policy: on_any_miss` must set
+`write_policy: never` explicitly.
 
 ---
 
@@ -378,8 +383,10 @@ MISS episode.
 Something is trying to write to the backend at runtime. Common causes:
 1. Custom code calling `storage.batch_insert(...)` directly — move that
    into an offline pipeline.
-2. A `WritePolicy` that bypasses the auto-override (rare; check that
-   `_enforce_runtime_write_policy` actually ran — it warns on override).
+2. A `write_policy` other than `never` slipped past startup validation
+   (rare — `_enforce_runtime_write_policy` should have failed fast at load;
+   check the server start / `load_cache_config` logs for a
+   `ConfigValidationError`).
 3. A second `load_cache_config` on the same fingerprint — that's
    blocked because `load_artifact` is also a mutation. The pool's
    `get_or_load` cache hit returns the existing frozen backend instead;

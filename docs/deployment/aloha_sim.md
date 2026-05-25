@@ -146,7 +146,8 @@ behaviour (hard constraint C1). Pick:
 
 * `--concurrent` (default) — multi-client sweep workflows; backend pool
   shares artifact memory across bundles; runtime is write-frozen (C2) so
-  ``write_policy`` in the yaml is auto-overridden to ``"never"``.
+  ``write_policy`` in the yaml MUST be ``"never"`` — any write-enabled
+  policy fails fast with a ``ConfigValidationError`` at load.
 * `--non-concurrent` — measure pure throughput / latency of a single
   client (e.g. extreme-speed baselines). Cache backends are still frozen
   for C2 uniformity.
