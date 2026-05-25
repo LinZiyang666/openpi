@@ -11,11 +11,11 @@ parameters.
 ```
 exp/serving_benchmark/
 ├── driver.py            # WebSocket client driver
-├── sweep.py             # Cell-grid runner (consumes configs/*.yaml)
+├── sweep.py             # Cell-grid runner (consumes config/*.yaml)
 ├── collect.py           # GPU / CPU sampling + post-sweep collation
 ├── plot.py              # Pareto / batch-size figure helpers
 ├── gpu_microbench.py    # Mode 0 — direct model.sample_actions sweep
-├── configs/*.yaml       # sweep grids (one per mode)
+├── config/*.yaml       # sweep grids (one per mode)
 ├── data/<run_id>/       # CSV + log artifacts
 └── analysis/<run_id>/   # rendered PNGs
 ```
@@ -44,7 +44,7 @@ exp/serving_benchmark/
 3. In a third shell, kick off the sweep:
    ```bash
    python -m exp.serving_benchmark.sweep \
-       --config exp/serving_benchmark/configs/sparse_to_dense.yaml \
+       --config exp/serving_benchmark/config/sparse_to_dense.yaml \
        --run-id 2026-05-23_baseline
    ```
 4. After the sweep finishes, stop the sampler (`touch

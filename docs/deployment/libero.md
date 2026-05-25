@@ -457,3 +457,41 @@ The runtime is write-frozen (hard constraint C2): cache backends refuse
 start, and ``write_policy`` is auto-overridden to ``"never"`` on every
 ``load_cache_config`` ctrl. Episode-end writes are no-ops; rebuild
 artifacts with offline tooling (`exp/common/factor_postprocess.py`).
+
+### Multi-replica scale-out + how many workers to run
+
+One concurrent server is capped by the GIL-serialized CUDA kernel-launch path
+(~12 inf/s on an A100). ``scripts/serve_policy.py --replicas N`` runs N server
+processes behind one public port (a connection-sticky router) for ~N× the
+throughput. On a memory-constrained host (jupyter, 32 GB host-RAM cgroup) add
+``--replica-spawn-batch 2`` so the N model loads are staggered and don't OOM.
+
+```bash
+# a100 (exclusive, 40 GB): 3 replicas
+BATCHING_MAX_WAIT_MS=25 BATCHING_MAX_BATCH_SIZE=32 \
+python scripts/serve_policy.py --replicas 3 --port 8000 \
+    --cache-config <yaml> policy:checkpoint --policy.config=pi05_libero --policy.dir=<dir>
+
+# jupyter (H200, shared, 32 GB host RAM): 3 replicas, staggered
+BATCHING_MAX_WAIT_MS=25 BATCHING_MAX_BATCH_SIZE=32 \
+python scripts/serve_policy.py --replicas 3 --replica-spawn-batch 2 --port 8000 \
+    --cache-config <yaml> policy:checkpoint --policy.config=pi05_libero --policy.dir=<dir>
+```
+
+LIBERO is closed-loop and ``--num-workers`` is capped at 15 per process (MuJoCo
+EGL), so to drive a server with **N concurrent connections, launch N separate
+``main.py`` processes** (``--num-workers 1`` each), one per tmux session. The
+single public port fans connections across replicas automatically — the client
+needs no replica/port awareness.
+
+**Auto-tuned optimal worker counts** (pi05_libero, phase5 cache mix):
+
+| Server | replicas | client worker processes | `max_wait_ms` | throughput |
+|--------|:--------:|:-----------------------:|:-------------:|:----------:|
+| a100 (A100-40GB)  | 3 | **48** (clean, low backlog) | 25 | ~24 inf/s |
+| jupyter (H200)    | 3 | **48** | 25 | ~31 inf/s |
+| a100 + jupyter    | 3+3 | **48 + 48** from one sim host | 25 | ~48-51 inf/s |
+
+Full operator reference (router internals, control-plane broadcast, metrics
+aggregation, the `autotune_workers.py` re-tuning tool): see
+[`docs/deployment/concurrent_serving.md`](concurrent_serving.md) §1.3, §2.4, §3.3.

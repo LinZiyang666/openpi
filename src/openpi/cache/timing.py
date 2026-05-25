@@ -82,17 +82,18 @@ Usage example::
 
 from __future__ import annotations
 
+from collections import deque
+from collections.abc import Iterator
+from contextlib import contextmanager
 import csv
+from dataclasses import dataclass
+from dataclasses import field
 import os
 import time
-from collections import deque
-from contextlib import contextmanager
-from dataclasses import dataclass, field
-from typing import Any, Dict, Iterator, List, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 import numpy as np
 import torch
-
 
 # ---------------------------------------------------------------------------
 # Data classes
@@ -120,7 +121,7 @@ class TimingRecord:
     task_id: int
     """Identifier of the task (connection) this record belongs to."""
 
-    resources: Optional[Dict[str, float]] = field(default=None, compare=False)
+    resources: dict[str, float] | None = field(default=None, compare=False)
     """Reserved for future resource monitors.  Keys are metric names,
     e.g. ``{"gpu_alloc_mb": 4096.0}``.  Do not read this field in Step 2."""
 
@@ -139,7 +140,7 @@ class TimingStats:
     max_ms: float
 
     @classmethod
-    def from_records(cls, name: str, records: List[TimingRecord]) -> "TimingStats":
+    def from_records(cls, name: str, records: list[TimingRecord]) -> TimingStats:
         """Compute statistics from a list of records for the same probe.
 
         Args:
@@ -217,7 +218,7 @@ class CudaEventBackend:
         It is the preferred method for Stage 1 / 2 / 3 timing.
     """
 
-    def __init__(self, stream: Optional[torch.cuda.Stream] = None) -> None:
+    def __init__(self, stream: torch.cuda.Stream | None = None) -> None:
         self._stream = stream
         self._fallback = PerfCounterBackend()
 
@@ -307,7 +308,7 @@ class ResourceMonitor(Protocol):
     name: str
     """Unique identifier for this monitor, used as key prefix in CSV."""
 
-    def sample(self) -> Dict[str, float]:
+    def sample(self) -> dict[str, float]:
         """Capture current resource metrics.
 
         Returns:
@@ -379,31 +380,70 @@ class SystemTimer:
     Args:
         enabled: When ``False``, ``measure()`` is a zero-overhead no-op.
                  Use ``False`` in production when timing data is not needed.
+                 NOTE: when the server-wide ``OPENPI_MONITOR_LEVEL`` is
+                 ``OFF`` the timer is force-disabled regardless of this
+                 argument (the env var is the master switch — §monitor.py).
         buffer_size: Maximum number of ``TimingRecord`` objects kept in memory.
                      Older records are dropped (ring buffer) when the limit is
                      reached.  10 000 is ample for a typical robot episode
                      (< 1 000 inferences × 5 probes = 5 000 records).
-        output_csv_dir: If set, ``on_task_end()`` writes a CSV file to this
-                        directory containing all records from the completed
-                        task.  The file is written in a single batch at task
-                        end to avoid per-record disk IO.
-                        Set to ``None`` (default) to disable CSV output.
+        output_csv_dir: When non-None and ``auto_flush_csv=True``,
+                        ``on_task_end()`` writes a CSV file here per task.
+                        With ``auto_flush_csv=False`` (the new default), this
+                        is just the target directory used by an *explicit*
+                        ``flush_to_disk()`` call — task end keeps the data in
+                        memory only.
         quiet: When ``True``, suppress the timing summary printed to stdout
                at task end.  Timing data is still collected and CSV output
                (if configured) is unaffected.  Used in concurrent server
                mode to avoid interleaved output from multiple connections.
+        auto_flush_csv: Legacy behaviour switch. ``False`` (default) keeps
+                        all timing records in memory + pushes a bulk copy
+                        into the process-wide ``MetricsRecorder``; ``True``
+                        additionally writes one CSV per task at task end
+                        (pre-2026-05-24 behaviour).
     """
 
     def __init__(
         self,
         enabled: bool = True,
         buffer_size: int = 10_000,
-        output_csv_dir: Optional[str] = None,
+        output_csv_dir: str | None = None,
         quiet: bool = False,
+        auto_flush_csv: bool = False,
     ) -> None:
+        # Master switch (§monitor.py). OPENPI_MONITOR_LEVEL gates two things
+        # independently:
+        #   - OFF       → timer is a full no-op (enabled=False).
+        #   - BASIC+    → timer RECORDS into the in-memory MetricsRecorder.
+        #   - SNAPSHOT+ → per-measure() CUDA-event probes are allowed.
+        # CUDA-event ``stop()`` calls ``end_event.synchronize()`` — a GPU sync
+        # on EVERY ``measure()`` block (stage1/2/3 + cache probes). Under
+        # concurrent serving with N connections that fires ~5×N GPU syncs/s,
+        # serialising the device and capping GPU utilisation (Phase-7 throughput
+        # finding). So below SNAPSHOT we keep the timer RECORDING but route every
+        # probe to the CPU ``PerfCounterBackend`` (no GPU sync) via
+        # ``_gpu_probes_enabled``. Nothing is lost for throughput benchmarking;
+        # only the GPU-accurate per-stage latency is coarser.
+        self._gpu_probes_enabled = True
+        try:
+            from openpi.serving import monitor as _monitor
+            level = _monitor.get_monitor_level()
+            if level < _monitor.MonitorLevel.BASIC:
+                enabled = False
+            self._gpu_probes_enabled = level >= _monitor.MonitorLevel.SNAPSHOT
+            self._recorder = (
+                _monitor.get_recorder()
+                if level >= _monitor.MonitorLevel.BASIC
+                else None
+            )
+        except Exception:
+            self._recorder = None
+
         self._enabled = enabled
         self._output_csv_dir = output_csv_dir
         self._quiet = quiet
+        self._auto_flush_csv = auto_flush_csv
 
         # Ring buffer: holds TimingRecord objects.  deque.append is atomic
         # under CPython's GIL, safe for concurrent probe writes from threads.
@@ -422,11 +462,22 @@ class SystemTimer:
 
         # Maps probe name → backend instance.
         # Populated by register_probe(); read-only in the hot path.
-        self._probes: Dict[str, TimingBackend] = {}
+        self._probes: dict[str, TimingBackend] = {}
 
-        # Resource monitors.  Empty in Step 2; populated by
-        # add_resource_monitor() in future steps.
-        self._resource_monitors: List[ResourceMonitor] = []
+        # Resource monitors. Auto-registered only at SNAPSHOT+ (gpu-probes
+        # level): every measure() block then also samples per-process CPU% /
+        # RSS / GPU util% / GPU mem via psutil + NVML. At BASIC we deliberately
+        # leave this empty so the hot path records lightweight timing rows only
+        # (no per-probe psutil/NVML sampling); whole-process util still comes
+        # from the coordinator's 1 Hz sampler. Users can register additional
+        # monitors via ``add_resource_monitor``.
+        self._resource_monitors: list[ResourceMonitor] = []
+        if self._enabled and self._gpu_probes_enabled:
+            try:
+                self._resource_monitors.append(CpuMonitor())
+                self._resource_monitors.append(GpuMonitor())
+            except Exception:
+                pass
 
     # -----------------------------------------------------------------------
     # Probe registration  (called once at component __init__, not hot path)
@@ -436,7 +487,7 @@ class SystemTimer:
         self,
         name: str,
         backend: str = "cuda",
-        stream: Optional[torch.cuda.Stream] = None,
+        stream: torch.cuda.Stream | None = None,
     ) -> None:
         """Register a named timing probe.
 
@@ -457,7 +508,13 @@ class SystemTimer:
                     (Step 4+).  Ignored when ``backend="cpu"``.
         """
         if backend == "cuda":
-            self._probes[name] = CudaEventBackend(stream=stream)
+            # Below SNAPSHOT level the per-measure GPU sync is suppressed: a
+            # "cuda" probe falls back to CPU timing (no synchronize()), so
+            # recording still works at BASIC without the throughput hit.
+            if self._gpu_probes_enabled:
+                self._probes[name] = CudaEventBackend(stream=stream)
+            else:
+                self._probes[name] = PerfCounterBackend()
         elif backend == "cpu":
             self._probes[name] = PerfCounterBackend()
         else:
@@ -505,7 +562,10 @@ class SystemTimer:
                 RuntimeWarning,
                 stacklevel=2,
             )
-            backend = CudaEventBackend()
+            backend = (
+                CudaEventBackend() if self._gpu_probes_enabled
+                else PerfCounterBackend()
+            )
             self._probes[name] = backend  # cache for future calls
 
         handle = backend.start()
@@ -521,6 +581,8 @@ class SystemTimer:
             )
             self._records.append(record)
             self._total_appended += 1
+            if self._resource_monitors:
+                self.record_resource_snapshot(name)
 
     # -----------------------------------------------------------------------
     # Task lifecycle  (called by WebsocketPolicyServer via TaskLifecycle)
@@ -545,9 +607,15 @@ class SystemTimer:
         1. Compute per-probe statistics for records collected since
            ``on_task_begin()``.
         2. Print a formatted summary table to the terminal (stdout).
-        3. If ``output_csv_dir`` was set, write all task records to a CSV
-           file in a single batch write (no per-record IO).
-        4. Increment ``task_id`` for the next connection.
+        3. Push all task records into the process-wide ``MetricsRecorder``
+           (in-memory only — no disk IO). The records remain available via
+           ``dump_metrics`` ctrl until cleared or evicted by the ring buffer.
+        4. If both ``output_csv_dir`` and ``auto_flush_csv=True`` were
+           passed at construction time, ALSO write a CSV file in one batch
+           write. ``auto_flush_csv=False`` (the new default) keeps task end
+           free of disk writes; persistent storage is opt-in via
+           ``flush_to_disk()`` or the WebSocket ``dump_metrics`` handler.
+        5. Increment ``task_id`` for the next connection.
 
         Note: Records are *not* cleared from the ring buffer; they remain
         accessible (up to ``buffer_size``) for post-hoc inspection.
@@ -558,7 +626,38 @@ class SystemTimer:
         task_records = self._get_task_records()
         self._print_summary(task_records)
 
-        if self._enabled and self._output_csv_dir is not None:
+        # Push the just-completed task's rows into the process-wide
+        # recorder so a single ``dump_metrics`` ctrl returns timing for
+        # every connection that ever ran. The recorder ring-buffer caps
+        # the total at ``timing_capacity`` (default 200k rows) to keep
+        # long-lived servers from leaking memory.
+        if self._enabled and task_records and self._recorder is not None:
+            rows = [
+                {
+                    "timestamp": r.timestamp,
+                    "task_id": r.task_id,
+                    "name": r.name,
+                    "elapsed_ms": r.elapsed_ms,
+                    **({} if not r.resources else dict(r.resources)),
+                }
+                for r in task_records
+            ]
+            try:
+                self._recorder.record_timing_bulk(rows)
+            except Exception:
+                import warnings
+                warnings.warn(
+                    "SystemTimer: failed to push records to MetricsRecorder; "
+                    "in-memory aggregation disabled for this task.",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
+
+        if (
+            self._enabled
+            and self._auto_flush_csv
+            and self._output_csv_dir is not None
+        ):
             ts = time.strftime("%Y%m%d_%H%M%S")
             path = os.path.join(
                 self._output_csv_dir,
@@ -568,11 +667,46 @@ class SystemTimer:
 
         self._task_id += 1
 
+    def flush_to_disk(
+        self,
+        path: str | None = None,
+        *,
+        task_only: bool = False,
+    ) -> str:
+        """Explicit bulk CSV flush — call from an operator script when you
+        actually want disk persistence.
+
+        Args:
+            path: Output file path. Defaults to
+                ``<output_csv_dir>/timing_flush_<ts>.csv``. ``output_csv_dir``
+                must be set (constructor arg) when ``path`` is None.
+            task_only: When True, only flush records from the current /
+                latest task (matches ``on_task_end`` scope). When False
+                (default), flush every record still in the ring buffer.
+
+        Returns the path that was written.
+        """
+        if path is None:
+            if self._output_csv_dir is None:
+                raise ValueError(
+                    "flush_to_disk(): no path given and output_csv_dir is None"
+                )
+            ts = time.strftime("%Y%m%d_%H%M%S")
+            path = os.path.join(
+                self._output_csv_dir,
+                f"timing_flush_{ts}.csv",
+            )
+        records = (
+            self._get_task_records() if task_only else list(self._records)
+        )
+        self.export_csv(path, records=records)
+        return path
+
     # -----------------------------------------------------------------------
     # Statistics and export
     # -----------------------------------------------------------------------
 
-    def summary(self, task_only: bool = True) -> Dict[str, TimingStats]:
+    def summary(self, task_only: bool = True) -> dict[str, TimingStats]:
         """Compute per-probe statistics.
 
         Args:
@@ -591,7 +725,7 @@ class SystemTimer:
     def export_csv(
         self,
         path: str,
-        records: Optional[List[TimingRecord]] = None,
+        records: list[TimingRecord] | None = None,
     ) -> None:
         """Write timing records to a CSV file in a single batch write.
 
@@ -615,16 +749,16 @@ class SystemTimer:
             records = self._get_task_records()
 
         # Determine resource columns (present only if any record has resources).
-        resource_keys: List[str] = []
+        resource_keys: list[str] = []
         for r in records:
             if r.resources:
                 resource_keys = sorted(r.resources.keys())
                 break
 
         # Build all rows in memory first, then write once.
-        rows: List[List[Any]] = []
+        rows: list[list[Any]] = []
         for r in records:
-            row: List[Any] = [r.timestamp, r.task_id, r.name, r.elapsed_ms]
+            row: list[Any] = [r.timestamp, r.task_id, r.name, r.elapsed_ms]
             for k in resource_keys:
                 row.append(r.resources.get(k, "") if r.resources else "")
             rows.append(row)
@@ -660,25 +794,42 @@ class SystemTimer:
         """Sample all registered monitors and attach results to the most
         recent ``TimingRecord`` whose ``name`` matches.
 
-        Intended call site: immediately after a ``measure()`` block, before
-        the next stage starts.
-
-        This method is a stub in Step 2.  When resource monitors are added,
-        implement by iterating ``self._resource_monitors``, calling
-        ``monitor.sample()``, and merging the results into the matching
-        record's ``resources`` dict.
+        Iterates over ``self._resource_monitors`` (added via
+        ``add_resource_monitor``), calls each ``.sample()``, and merges
+        the returned ``{key: float}`` dict into the matching record's
+        ``resources`` field. Keys are prefixed with the monitor's
+        ``name`` so different monitors do not collide.
 
         Args:
             name: Probe name identifying which record to annotate.
         """
-        # TODO(Step N): implement once ResourceMonitor subclasses exist.
-        pass
+        if not self._enabled or not self._resource_monitors:
+            return
+        # Find the most recent record matching `name`. Records are appended in
+        # order so scanning the tail of the deque is cheap.
+        target: TimingRecord | None = None
+        for r in reversed(self._records):
+            if r.name == name:
+                target = r
+                break
+        if target is None:
+            return
+        if target.resources is None:
+            target.resources = {}
+        for monitor in self._resource_monitors:
+            try:
+                snap = monitor.sample()
+            except Exception:
+                continue
+            prefix = getattr(monitor, "name", monitor.__class__.__name__)
+            for k, v in snap.items():
+                target.resources[f"{prefix}.{k}"] = float(v)
 
     # -----------------------------------------------------------------------
     # Internal helpers
     # -----------------------------------------------------------------------
 
-    def _get_task_records(self) -> List[TimingRecord]:
+    def _get_task_records(self) -> list[TimingRecord]:
         """Return records appended since the last ``on_task_begin()`` call.
 
         Uses the monotonic ``_total_appended`` counter to compute how many
@@ -707,7 +858,7 @@ class SystemTimer:
 
         return all_records[-task_count:]
 
-    def _print_summary(self, task_records: List[TimingRecord]) -> None:
+    def _print_summary(self, task_records: list[TimingRecord]) -> None:
         """Print a formatted timing summary table to stdout.
 
         The table shows per-probe statistics (count, mean, p50, p95, p99) in
@@ -773,7 +924,7 @@ class SystemTimer:
             counts = [stats[n].count for n in stage_names]
             if len(set(counts)) == 1:  # all three have identical call counts
                 # Reconstruct per-call totals from the raw records.
-                per_probe: Dict[str, List[float]] = {
+                per_probe: dict[str, list[float]] = {
                     n: [] for n in stage_names
                 }
                 for r in task_records:
@@ -807,13 +958,13 @@ class SystemTimer:
 # Module-level helpers
 # ---------------------------------------------------------------------------
 
-def _compute_stats(records: List[TimingRecord]) -> Dict[str, TimingStats]:
+def _compute_stats(records: list[TimingRecord]) -> dict[str, TimingStats]:
     """Group ``records`` by probe name and compute ``TimingStats`` for each.
 
     Records with zero elapsed time are included (they indicate fast/cached
     paths and should not be silently dropped).
     """
-    grouped: Dict[str, List[TimingRecord]] = {}
+    grouped: dict[str, list[TimingRecord]] = {}
     for r in records:
         grouped.setdefault(r.name, []).append(r)
 
@@ -821,3 +972,78 @@ def _compute_stats(records: List[TimingRecord]) -> Dict[str, TimingStats]:
         name: TimingStats.from_records(name, recs)
         for name, recs in grouped.items()
     }
+
+
+# ---------------------------------------------------------------------------
+# ResourceMonitor implementations (concrete classes for the Protocol above)
+# ---------------------------------------------------------------------------
+
+
+class CpuMonitor:
+    """Per-process CPU% and RSS (MB) via psutil.
+
+    ``cpu%`` is the proportion of one CPU core used by this process since
+    the last sample (psutil semantics). ``rss_mb`` is resident memory in
+    megabytes.
+    """
+
+    name = "cpu"
+
+    def __init__(self) -> None:
+        try:
+            import psutil
+
+            self._proc = psutil.Process(os.getpid())
+            self._proc.cpu_percent(interval=None)  # prime
+        except ImportError:
+            self._proc = None
+
+    def sample(self) -> dict[str, float]:
+        if self._proc is None:
+            return {}
+        try:
+            return {
+                "proc_pct": float(self._proc.cpu_percent(interval=None)),
+                "rss_mb": float(self._proc.memory_info().rss) / (1024 * 1024),
+            }
+        except Exception:
+            return {}
+
+
+class GpuMonitor:
+    """Per-GPU utilisation% and memory.used (MB) via pynvml.
+
+    Reads the device pinned by ``CUDA_VISIBLE_DEVICES[0]`` so the numbers
+    match what the server process is actually using.
+    """
+
+    name = "gpu"
+
+    def __init__(self) -> None:
+        self._handle = None
+        try:
+            import pynvml
+
+            pynvml.nvmlInit()
+            visible = os.environ.get("CUDA_VISIBLE_DEVICES", "0").split(",")[0]
+            try:
+                idx = int(visible) if visible.strip() else 0
+            except ValueError:
+                idx = 0
+            self._handle = pynvml.nvmlDeviceGetHandleByIndex(idx)
+            self._pynvml = pynvml
+        except Exception:
+            pass
+
+    def sample(self) -> dict[str, float]:
+        if self._handle is None:
+            return {}
+        try:
+            util = self._pynvml.nvmlDeviceGetUtilizationRates(self._handle)
+            mem = self._pynvml.nvmlDeviceGetMemoryInfo(self._handle)
+            return {
+                "util_pct": float(util.gpu),
+                "mem_used_mb": float(mem.used) / (1024 * 1024),
+            }
+        except Exception:
+            return {}

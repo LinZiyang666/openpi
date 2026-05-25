@@ -6,7 +6,7 @@ aggregate ``sweep_summary.csv`` row is appended after each cell completes.
 
 Usage:
     python -m exp.serving_benchmark.sweep \
-        --config configs/sparse_to_dense.yaml \
+        --config config/sparse_to_dense.yaml \
         --run-id 2026-05-23_baseline
 
 YAML schema (minimal):
@@ -48,7 +48,7 @@ def _percentile(xs: list[float], p: float) -> float:
     return s[idx]
 
 
-def run_sweep(config_yaml: str, run_id: str, data_root: str = "data") -> str:
+def run_sweep(config_yaml: str, run_id: str, data_root: str = "exp/serving_benchmark/data") -> str:
     cfg = yaml.safe_load(Path(config_yaml).read_text())
     server = cfg.get("server", {})
     duration_s = float(cfg.get("duration_s", 30))
@@ -97,7 +97,7 @@ def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
     p.add_argument("--config", required=True, help="Path to sweep YAML")
     p.add_argument("--run-id", required=True)
-    p.add_argument("--data-root", default="data")
+    p.add_argument("--data-root", default="exp/serving_benchmark/data")
     return p.parse_args()
 
 

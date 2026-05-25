@@ -20,6 +20,7 @@ import dataclasses
 import pickle
 import threading
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
@@ -42,6 +43,9 @@ from openpi.cache.config import (
 )
 from openpi.cache.storage_types import CacheEntry, CachePayload
 from openpi.cache.types import CheckpointID
+
+if TYPE_CHECKING:  # annotation-only; the runtime import stays lazy inside the helper
+    from openpi.models_pytorch.pi0_pytorch import Stage1Output
 
 
 # ==================================================================
@@ -803,7 +807,7 @@ def test_sweep_yaml_schema_round_trip(tmp_path):
     """Each shipped sweep config must parse and contain the documented keys."""
     import yaml
 
-    configs_dir = Path("exp/serving_benchmark/configs")
+    configs_dir = Path("exp/serving_benchmark/config")
     expected = {
         "sparse_to_dense.yaml",
         "freq_sweep.yaml",

@@ -1318,11 +1318,11 @@ exp/serving_benchmark/
 | `exp/serving_benchmark/collect.py` | M7 | 200 |
 | `exp/serving_benchmark/plot.py` | M7 | 250 |
 | `exp/serving_benchmark/gpu_microbench.py` | M7 (Mode 0, G1 R1 Item 8) | 150 |
-| `exp/serving_benchmark/configs/sparse_to_dense.yaml` | M7 | 30 |
-| `exp/serving_benchmark/configs/freq_sweep.yaml` | M7 | 30 |
-| `exp/serving_benchmark/configs/yaml_density.yaml` | M7 | 30 |
-| `exp/serving_benchmark/configs/batch_window.yaml` | M7 | 30 |
-| `exp/serving_benchmark/configs/gpu_microbench.yaml` | M7 (Mode 0) | 20 |
+| `exp/serving_benchmark/config/sparse_to_dense.yaml` | M7 | 30 |
+| `exp/serving_benchmark/config/freq_sweep.yaml` | M7 | 30 |
+| `exp/serving_benchmark/config/yaml_density.yaml` | M7 | 30 |
+| `exp/serving_benchmark/config/batch_window.yaml` | M7 | 30 |
+| `exp/serving_benchmark/config/gpu_microbench.yaml` | M7 (Mode 0) | 20 |
 | `tests/test_serving_benchmark_driver.py` | M7 | 150 |
 
 ### 5.2 Modified Files

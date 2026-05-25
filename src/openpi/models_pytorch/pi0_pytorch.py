@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 import logging
 import math
-from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 import torch
 from torch import Tensor
@@ -13,7 +13,6 @@ import torch.nn.functional as F  # noqa: N812
 import openpi.models.gemma as _gemma
 from openpi.models_pytorch.gemma_pytorch import PaliGemmaWithExpertModel
 import openpi.models_pytorch.preprocessing_pytorch as _preprocessing
-
 
 # ---------------------------------------------------------------------------
 # Inter-stage data structures for the cache system
@@ -98,7 +97,7 @@ class Stage3Output:
     action_chunk: torch.Tensor
     """[B, action_horizon, action_dim]  (float32)"""
 
-    intermediates: Optional[dict[float, torch.Tensor]] = None
+    intermediates: dict[float, torch.Tensor] | None = None
     """Populated only when run_stage3(return_intermediates=True).
     Key = timestep value (e.g. 0.7, 0.5, 0.3).
     Value = x_t *before* the denoise_step at that timestep, shape [B, action_horizon, action_dim].
@@ -178,6 +177,22 @@ def make_att_2d_masks(pad_masks, att_masks):
     return att_2d_masks & pad_2d_masks
 
 
+def _warm_start_num_steps(start_t: float, num_steps: int) -> int:
+    """Euler steps to run when resuming flow-matching from ``start_t``.
+
+    Exactly reproduces the original GPU-tensor loop
+    ``while timestep >= -dt/2`` (dt = -1/num_steps, timestep starting at
+    start_t), which ran ``floor(start_t * num_steps + 0.5)`` iterations.
+    Computing it as a plain Python int avoids the per-step GPU->CPU sync of a
+    tensor while-condition. NOTE: ``round()`` is wrong here — Python's
+    banker's rounding diverges on half-integer boundaries (e.g. start_t=0.25,
+    num_steps=10 -> round()=2, but the loop ran 3), silently dropping/adding a
+    denoise step for non-canonical start_t. ``floor(x + 0.5)`` matches the loop
+    for every start_t, canonical or not.
+    """
+    return math.floor(start_t * num_steps + 0.5)
+
+
 class PI0Pytorch(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -193,6 +208,16 @@ class PI0Pytorch(nn.Module):
             use_adarms=[False, True] if self.pi05 else [False, False],
             precision=config.dtype,
         )
+
+        # Set the attention implementation ONCE at construction (Phase-7
+        # throughput finding + external review): the staged inference path
+        # previously mutated ``config._attn_implementation`` on every
+        # ``_stage2_llm_backbone`` / ``denoise_step`` call, which is a data
+        # race once multiple coordinator worker threads share this model
+        # instance. SDPA is the chosen backend (chunks attention, avoids
+        # materialising the full softmax matrix — see _prepare_attention_masks_4d).
+        self.paligemma_with_expert.paligemma.language_model.config._attn_implementation = "sdpa"  # noqa: SLF001
+        self.paligemma_with_expert.gemma_expert.model.config._attn_implementation = "sdpa"  # noqa: SLF001
 
         self.action_in_proj = nn.Linear(config.action_dim, action_expert_config.width)
         self.action_out_proj = nn.Linear(action_expert_config.width, config.action_dim)
@@ -252,9 +277,25 @@ class PI0Pytorch(nn.Module):
         return func(*args, **kwargs)
 
     def _prepare_attention_masks_4d(self, att_2d_masks):
-        """Helper method to prepare 4D attention masks for transformer."""
+        """Helper method to prepare 4D attention masks for transformer.
+
+        Returns the additive 4D mask in ``bfloat16`` so the SDPA backend's
+        ``torch.nn.functional.scaled_dot_product_attention`` accepts it as
+        bias (SDPA enforces bias.dtype == query.dtype). pi0.5 runs every
+        attention in bf16 (GemmaRMSNorm.forward returns ``type_as(x)``, q_proj
+        weights are bf16, so query is bf16). ``-2.3819763e38`` is bf16's
+        ``-FLT_MAX/2`` sentinel for "block this position".
+
+        Note: hard-coded bf16 (not derived from ``self.parameters()``),
+        because ``paligemma_with_expert.parameters()`` enumerates
+        ``vision_tower.vision_model.embeddings.patch_embedding.weight``
+        first — and that param is explicitly kept in fp32 by
+        ``to_bfloat16_for_selected_params`` (``params_to_keep_float32``
+        white-list in ``gemma_pytorch.py``). Using ``next(parameters()).dtype``
+        therefore yields fp32 and breaks the SDPA check.
+        """
         att_2d_masks_4d = att_2d_masks[:, None, :, :]
-        return torch.where(att_2d_masks_4d, 0.0, -2.3819763e38)
+        return torch.where(att_2d_masks_4d, 0.0, -2.3819763e38).to(torch.bfloat16)
 
     def _preprocess_observation(self, observation, *, train=True):
         """Helper method to preprocess observation."""
@@ -480,8 +521,12 @@ class PI0Pytorch(nn.Module):
         return state, prefix_embs, prefix_pad_masks, prefix_att_2d_masks_4d, prefix_position_ids
 
     def _stage2_llm_backbone(self, prefix_embs, prefix_pad_masks, prefix_att_2d_masks_4d, prefix_position_ids):
-        """Stage 2 (timing): fill KV cache using the LLM backbone."""
-        self.paligemma_with_expert.paligemma.language_model.config._attn_implementation = "eager"  # noqa: SLF001
+        """Stage 2 (timing): fill KV cache using the LLM backbone.
+
+        Attention backend (``sdpa``) is configured once in ``__init__`` — not
+        mutated here — so concurrent coordinator worker threads sharing this
+        model instance do not race on ``config._attn_implementation``.
+        """
         _, past_key_values = self.paligemma_with_expert.forward(
             attention_mask=prefix_att_2d_masks_4d,
             position_ids=prefix_position_ids,
@@ -492,17 +537,26 @@ class PI0Pytorch(nn.Module):
         return past_key_values
 
     def _stage3_action_expert(self, state, prefix_pad_masks, past_key_values, noise, num_steps=10):
-        """Stage 3 (timing): denoising loop using the action expert."""
+        """Stage 3 (timing): denoising loop using the action expert.
+
+        Loop control uses a Python ``range(num_steps)`` rather than a GPU
+        tensor comparison ``while timestep >= -dt/2``. The tensor form forced
+        a GPU→CPU sync (implicit ``.item()``) on every iteration to evaluate
+        the Python ``while`` bool, flushing the CUDA pipeline and creating a
+        GPU bubble each step (Phase-7 throughput finding: this capped GPU
+        utilisation at ~33 %). Iterating a Python int keeps timestep math on
+        the GPU with no per-step host sync; result is bit-identical.
+        """
         device = state.device
         bsize = state.shape[0]
         dt = torch.tensor(-1.0 / num_steps, dtype=torch.float32, device=device)
         x_t = noise
         timestep = torch.tensor(1.0, dtype=torch.float32, device=device)
-        while timestep >= -dt / 2:
+        for _ in range(num_steps):
             expanded_time = timestep.expand(bsize)
             v_t = self.denoise_step(state, prefix_pad_masks, past_key_values, x_t, expanded_time)
             x_t = x_t + dt * v_t
-            timestep += dt
+            timestep = timestep + dt
         return x_t
 
     # ------------------------------------------------------------------
@@ -546,7 +600,7 @@ class PI0Pytorch(nn.Module):
         self,
         stage2: Stage2Output,
         *,
-        noise: Optional[torch.Tensor] = None,
+        noise: torch.Tensor | None = None,
         num_steps: int = 10,
         return_intermediates: bool = False,
         save_timesteps: tuple = (0.7, 0.5, 0.3),
@@ -614,7 +668,8 @@ class PI0Pytorch(nn.Module):
 
         Uses the same dt = -1/num_steps as the full denoising loop, stepping
         from start_t down to 0.  The number of steps executed equals
-        round(start_t * num_steps), e.g.:
+        ``floor(start_t * num_steps + 0.5)`` (see ``_warm_start_num_steps``),
+        which reproduces the original tensor while-loop for every start_t, e.g.:
           - start_t=0.3, num_steps=10  →  3 steps  (saves 70% of Stage 3)
           - start_t=0.5, num_steps=10  →  5 steps  (saves 50%)
           - start_t=0.7, num_steps=10  →  7 steps  (saves 30%)
@@ -639,7 +694,11 @@ class PI0Pytorch(nn.Module):
         x_t = start_x
         timestep = torch.tensor(start_t, dtype=torch.float32, device=device)
 
-        while timestep >= -dt / 2:
+        # Fixed Python-int step count, exactly matching the old tensor
+        # while-loop without its per-step GPU->CPU sync. See
+        # _warm_start_num_steps for why round() would be wrong here.
+        n_steps = _warm_start_num_steps(start_t, num_steps)
+        for _ in range(n_steps):
             expanded_time = timestep.expand(bsize)
             v_t = self.denoise_step(
                 stage1.state,
@@ -649,7 +708,7 @@ class PI0Pytorch(nn.Module):
                 expanded_time,
             )
             x_t = x_t + dt * v_t
-            timestep += dt
+            timestep = timestep + dt
 
         return Stage3Output(action_chunk=x_t)
 
@@ -686,16 +745,16 @@ class PI0Pytorch(nn.Module):
         timestep = torch.tensor(1.0, dtype=torch.float32, device=device)
         intermediates: dict[float, torch.Tensor] = {}
 
-        step = 0
-        while timestep >= -dt / 2:
+        # Python-int loop (== old ``while timestep >= -dt/2``) — avoids the
+        # per-step GPU→CPU sync. See _stage3_action_expert docstring.
+        for step in range(num_steps):
             if step in save_at:
                 intermediates[save_at[step]] = x_t.clone()
 
             expanded_time = timestep.expand(bsize)
             v_t = self.denoise_step(state, prefix_pad_masks, past_key_values, x_t, expanded_time)
             x_t = x_t + dt * v_t
-            timestep += dt
-            step += 1
+            timestep = timestep + dt
 
         return x_t, intermediates
 
@@ -737,9 +796,9 @@ class PI0Pytorch(nn.Module):
         prefix_offsets = torch.sum(prefix_pad_masks, dim=-1)[:, None]
         position_ids = prefix_offsets + torch.cumsum(suffix_pad_masks, dim=1) - 1
 
-        # Prepare attention masks
+        # Prepare attention masks. Attention backend (sdpa) set once in
+        # __init__ — not mutated here (avoids multi-thread config race).
         full_att_2d_masks_4d = self._prepare_attention_masks_4d(full_att_2d_masks)
-        self.paligemma_with_expert.gemma_expert.model.config._attn_implementation = "eager"  # noqa: SLF001
 
         outputs_embeds, _ = self.paligemma_with_expert.forward(
             attention_mask=full_att_2d_masks_4d,

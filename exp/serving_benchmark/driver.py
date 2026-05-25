@@ -22,12 +22,12 @@ from __future__ import annotations
 
 import argparse
 import csv
+from dataclasses import dataclass
 import logging
 import os
+from pathlib import Path
 import threading
 import time
-from dataclasses import dataclass
-from pathlib import Path
 
 logger = logging.getLogger("serving_benchmark.driver")
 
@@ -46,13 +46,14 @@ class DriverConfig:
 
 def _make_dummy_obs() -> dict:
     """Construct a minimal LIBERO-shaped obs dict (zeros). Server only times
-    the round-trip; values are irrelevant. Adjust fields to match deployed
-    policy when running against non-LIBERO checkpoints."""
+    the round-trip; values are irrelevant. Keys must match
+    ``examples/libero/main.py`` so the data transforms find them."""
     import numpy as np
 
     return {
-        "state": np.zeros(8, dtype=np.float32),
-        "image": np.zeros((224, 224, 3), dtype=np.uint8),
+        "observation/state": np.zeros(8, dtype=np.float32),
+        "observation/image": np.zeros((224, 224, 3), dtype=np.uint8),
+        "observation/wrist_image": np.zeros((224, 224, 3), dtype=np.uint8),
         "prompt": "benchmark dummy",
     }
 
@@ -91,7 +92,7 @@ def _worker_loop(
             client.infer(obs)
             latency_ms = (time.perf_counter() - t0) * 1000.0
             row = (worker_id, time.time(), latency_ms, "ok")
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             latency_ms = (time.perf_counter() - t0) * 1000.0
             row = (worker_id, time.time(), latency_ms, f"err:{exc}")
         with rows_lock:
@@ -111,7 +112,7 @@ def run_driver(cfg: DriverConfig) -> dict:
     stop_event = threading.Event()
 
     start = time.monotonic()
-    warmup_deadline = start + cfg.warmup_s
+    start_wall = time.time()  # epoch clock, to match per-row time.time() stamps
     end_deadline = start + cfg.warmup_s + cfg.duration_s
 
     threads = [
@@ -135,12 +136,12 @@ def run_driver(cfg: DriverConfig) -> dict:
         for t in threads:
             t.join(timeout=5.0)
 
-    # Drop warm-up rows from the summary.
-    measured = [r for r in rows if r[1] >= warmup_deadline + (start - time.monotonic() + (time.time() - 0)) * 0 + (warmup_deadline - start)]
-    # Simpler: filter on ts > start + warmup_s.
-    warmup_cutoff_ts = (rows[0][1] - (rows[0][1] - rows[0][1])) if rows else 0.0
-    # Above ad-hoc filter is fragile; just trust ordering and ratio.
-    measured = rows[len(rows) * int(cfg.warmup_s) // max(1, int(cfg.warmup_s + cfg.duration_s)):]
+    # Drop warm-up rows by TIMESTAMP: keep only requests that completed after
+    # the warmup deadline (row[1] is the epoch completion time). Robust to
+    # non-integer windows, startup jitter, max-rate mode, request errors, and
+    # any warmup-vs-measurement rate shift — unlike a count-ratio slice.
+    warmup_cutoff = start_wall + cfg.warmup_s
+    measured = [r for r in rows if r[1] >= warmup_cutoff]
 
     if cfg.latency_csv:
         out = Path(cfg.latency_csv)

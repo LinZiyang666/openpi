@@ -61,7 +61,7 @@ def sample_cpu_loop(output_csv: str | Path, stop_path: str | Path, interval_s: f
             f.flush()
 
 
-def collate(run_id: str, data_root: str = "data") -> None:
+def collate(run_id: str, data_root: str = "exp/serving_benchmark/data") -> None:
     """Merge per-cell latency.csv files into a master ``cell_metrics.csv``."""
     root = Path(data_root) / run_id
     summary = root / "sweep_summary.csv"
@@ -98,12 +98,12 @@ def _parse_args() -> argparse.Namespace:
 
     s = sub.add_parser("sample", help="Start GPU/CPU sampling (long-lived)")
     s.add_argument("--run-id", required=True)
-    s.add_argument("--data-root", default="data")
+    s.add_argument("--data-root", default="exp/serving_benchmark/data")
     s.add_argument("--stop-file", default=".sb_stop")
 
     c = sub.add_parser("collate", help="Merge per-cell metrics after sweep")
     c.add_argument("--run-id", required=True)
-    c.add_argument("--data-root", default="data")
+    c.add_argument("--data-root", default="exp/serving_benchmark/data")
     return p.parse_args()
 
 

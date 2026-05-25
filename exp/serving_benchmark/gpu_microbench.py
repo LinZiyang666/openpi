@@ -22,31 +22,44 @@ from __future__ import annotations
 import argparse
 import csv
 import logging
-import time
 from pathlib import Path
+import time
 
 logger = logging.getLogger("serving_benchmark.gpu_microbench")
 
 
 def _build_dummy_obs(batch_size: int, device, model) -> tuple:
-    """Build (batched_obs, noise) for the model's ``sample_actions`` signature.
+    """Build (Observation, noise) for the model's ``sample_actions`` signature.
 
     Shapes are derived from ``model.config`` so the same script works across
-    Pi0 / Pi0.5 / future variants.
+    Pi0 / Pi0.5 / future variants. Images are uint8 (B, H, W, C) so that
+    ``Observation.from_dict`` runs the standard permute + normalize path.
     """
     import torch
+
+    from openpi.models.model import IMAGE_KEYS
+    from openpi.models.model import IMAGE_RESOLUTION
+    from openpi.models.model import Observation
 
     action_horizon = model.config.action_horizon
     action_dim = model.config.action_dim
     state_dim = action_dim  # pi0_pytorch states are action_dim-sized
-    prefix_len = 200  # typical short prefix; mock for shape only
+    prefix_len = model.config.max_token_len
+    h, w = IMAGE_RESOLUTION
 
-    obs = {
+    raw = {
         "state": torch.zeros(batch_size, state_dim, device=device),
-        "image": torch.zeros(batch_size, 3, 224, 224, device=device),
+        "image": {
+            k: torch.zeros(batch_size, h, w, 3, dtype=torch.uint8, device=device)
+            for k in IMAGE_KEYS
+        },
+        "image_mask": {
+            k: torch.ones(batch_size, dtype=torch.bool, device=device) for k in IMAGE_KEYS
+        },
         "tokenized_prompt": torch.zeros(batch_size, prefix_len, dtype=torch.int64, device=device),
         "tokenized_prompt_mask": torch.zeros(batch_size, prefix_len, dtype=torch.bool, device=device),
     }
+    obs = Observation.from_dict(raw)
     noise = torch.zeros(batch_size, action_horizon, action_dim, device=device)
     return obs, noise
 

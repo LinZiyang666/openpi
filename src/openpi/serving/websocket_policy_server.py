@@ -46,21 +46,19 @@ are implemented.
 """
 
 import asyncio
+from collections.abc import Callable
+from dataclasses import dataclass
 import http
 import logging
-import os
+from pathlib import Path
 import threading
 import time
 import traceback
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Callable, Optional
 
 from openpi_client import base_policy as _base_policy
 from openpi_client import msgpack_numpy
 import websockets.asyncio.server as _server
 import websockets.frames
-
 
 # ---------------------------------------------------------------------------
 # Global cache bundle (for dynamic YAML switching in experiments)
@@ -85,11 +83,11 @@ class CurrentCacheBundle:
     cache_config: object        # CacheConfig
     shared_storage: object      # CacheStorage
     version: int
-    yaml_id: Optional[str] = None
+    yaml_id: str | None = None
 
 
 _bundle_lock = threading.Lock()
-_current_bundle: Optional[CurrentCacheBundle] = None
+_current_bundle: CurrentCacheBundle | None = None
 _bundle_version: int = 0
 
 # M2 multi-bundle support (Phase 3): single-server hosts multiple yamls
@@ -101,7 +99,7 @@ _bundles: dict[str, "CurrentCacheBundle"] = {}
 _DEFAULT_BUNDLE_ID = "default"
 
 
-def get_current_cache_bundle(bundle_id: Optional[str] = None) -> Optional[CurrentCacheBundle]:
+def get_current_cache_bundle(bundle_id: str | None = None) -> CurrentCacheBundle | None:
     """Return a cache bundle snapshot, looked up by bundle_id when given.
 
     Lookup order:
@@ -133,10 +131,10 @@ def get_cache_bundle_ids() -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-_warmup_dump_root: Optional[Path] = None
+_warmup_dump_root: Path | None = None
 
 
-def set_warmup_dump_root(path: Optional[Path]) -> None:
+def set_warmup_dump_root(path: Path | None) -> None:
     """Install the resolved warmup dump root for the running server.
 
     Pass ``None`` to disable (the default state). The path MUST already be a
@@ -146,12 +144,12 @@ def set_warmup_dump_root(path: Optional[Path]) -> None:
     _warmup_dump_root = Path(path).resolve() if path is not None else None
 
 
-def get_warmup_dump_root() -> Optional[Path]:
+def get_warmup_dump_root() -> Path | None:
     """Return the configured warmup dump root, or ``None`` if disabled."""
     return _warmup_dump_root
 
 
-def _safe_resolve_under_root(name: str, root: Path) -> Optional[Path]:
+def _safe_resolve_under_root(name: str, root: Path) -> Path | None:
     """Resolve ``<root>/<name>.jsonl`` and confirm it stays under ``root``.
 
     Returns ``None`` when traversal is detected (so the caller can reject
@@ -176,7 +174,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 
-def _fill_deferred_dump_paths(cache_config, yaml_id: Optional[str]) -> None:
+def _fill_deferred_dump_paths(cache_config, yaml_id: str | None) -> None:
     """Resolve every ``dump.deferred=True`` path under the configured root.
 
     Raises ``ValueError`` when a deferred dump exists but ``yaml_id`` is
@@ -261,6 +259,154 @@ def _handle_preload_normalizer_buffer(eval_yaml_id: str, buffer) -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# Memory-monitoring ctrl helpers (Phase 7: GPU mem attribution)
+#
+# All four handlers gate on ``OPENPI_MONITOR_LEVEL`` (resolved at server
+# startup) so a single env var is the master switch. The recorder lives in
+# ``openpi.serving.monitor`` and holds everything in-memory until a
+# ``dump_metrics`` ctrl pulls the whole timeline back to the client.
+# ---------------------------------------------------------------------------
+
+
+def _handle_dump_metrics(payload: dict) -> dict:
+    """Return the in-memory metrics buffers (util / batch / timing / mem).
+
+    The ``mem_snapshots`` entries each carry a ``snapshot`` Python object
+    that msgpack cannot serialise directly (segment dicts contain str
+    keys but no tensors, so normally fine — we still pickle each snapshot
+    per-entry as ``snapshot_pickle`` bytes to defeat future schema drift).
+
+    Optional payload keys (all bool, all default True):
+        include_util, include_batch, include_mem, include_timing
+        clear: if True, ALSO clear the buffers after dumping (so the next
+               sweep iteration starts fresh).
+    """
+    from openpi.serving import monitor as _monitor
+
+    level = _monitor.get_monitor_level()
+    if level <= _monitor.MonitorLevel.OFF:
+        return {
+            "__ack__": "error",
+            "msg": f"dump_metrics requires OPENPI_MONITOR_LEVEL >= BASIC (current: {level.name})",
+        }
+    rec = _monitor.get_recorder()
+    inc_util = payload.get("include_util", True)
+    inc_batch = payload.get("include_batch", True)
+    inc_mem = payload.get("include_mem", True)
+    inc_timing = payload.get("include_timing", True)
+    do_clear = payload.get("clear", False)
+    out = rec.dump_all(
+        include_util=inc_util,
+        include_batch=inc_batch,
+        include_mem=inc_mem,
+        include_timing=inc_timing,
+    )
+    # Pickle each snapshot tree separately so a partial decode failure on
+    # the client side never corrupts the rest of the payload.
+    if "mem_snapshots" in out:
+        import pickle
+        repacked = []
+        for entry in out["mem_snapshots"]:
+            e = dict(entry)
+            snap = e.pop("snapshot", None)
+            try:
+                e["snapshot_pickle"] = pickle.dumps(snap, protocol=4)
+            except Exception as exc:
+                logger.warning("dump_metrics: snapshot pickle failed: %s", exc)
+                e["snapshot_pickle"] = b""
+            repacked.append(e)
+        out["mem_snapshots"] = repacked
+    out["stats"] = rec.stats()
+    out["level"] = level.name
+    if do_clear:
+        out["cleared"] = rec.clear(
+            util=inc_util, batch=inc_batch, mem=inc_mem, timing=inc_timing,
+        )
+    return {"__ack__": "dump_metrics", **out}
+
+
+def _handle_snapshot_mem(payload: dict) -> dict:
+    """Capture ``torch.cuda.memory_snapshot()`` + ``memory_summary()`` at
+    the current moment and stash in the recorder under ``label``.
+
+    Payload: {"label": str}. ``label`` defaults to a timestamp-based slug.
+    """
+    from openpi.serving import monitor as _monitor
+
+    level = _monitor.get_monitor_level()
+    if level < _monitor.MonitorLevel.SNAPSHOT:
+        return {
+            "__ack__": "error",
+            "msg": (
+                f"snapshot_mem requires OPENPI_MONITOR_LEVEL >= SNAPSHOT "
+                f"(current: {level.name})"
+            ),
+        }
+    label = payload.get("label") or f"snap_{time.strftime('%Y%m%d_%H%M%S')}"
+    result = _monitor.take_memory_snapshot(label)
+    if not result.get("ok"):
+        return {"__ack__": "error", "msg": result.get("reason", "unknown")}
+    return {"__ack__": "snapshot_mem", **result}
+
+
+def _handle_mem_history_start(payload: dict) -> dict:
+    """Turn on ``_record_memory_history``. Requires level=HISTORY."""
+    from openpi.serving import monitor as _monitor
+
+    max_entries = int(payload.get("max_entries", 100_000))
+    context = payload.get("context", "python")
+    stacks = payload.get("stacks", "python")
+    result = _monitor.enable_memory_history(
+        max_entries=max_entries, context=context, stacks=stacks,
+    )
+    if not result.get("ok"):
+        return {"__ack__": "error", "msg": result.get("reason", "unknown"), **result}
+    return {"__ack__": "mem_history_start", **result}
+
+
+def _handle_mem_history_stop(payload: dict) -> dict:
+    """Turn off ``_record_memory_history``."""
+    from openpi.serving import monitor as _monitor
+
+    result = _monitor.disable_memory_history()
+    if not result.get("ok"):
+        return {"__ack__": "error", "msg": result.get("reason", "unknown"), **result}
+    return {"__ack__": "mem_history_stop", **result}
+
+
+def _handle_set_batch_params(payload: dict) -> dict:
+    """Hot-mutate the coordinator's max_batch_size / max_wait_ms without
+    restarting the server. Useful for sweeping param grids in benchmarks.
+    """
+    from openpi.serving.batching_coordinator import get_active_coordinator
+    coord = get_active_coordinator()
+    if coord is None:
+        return {"__ack__": "error", "msg": "no active coordinator (single-connection mode?)"}
+    res = coord.update_batch_params(
+        max_batch_size=payload.get("max_batch_size"),
+        max_wait_ms=payload.get("max_wait_ms"),
+    )
+    return {"__ack__": "set_batch_params", **res}
+
+
+def _handle_throughput_summary(payload: dict) -> dict:
+    """Compute throughput / batching / GPU util stats from the current
+    in-memory buffers. Optionally clear buffers after (``clear=True``).
+    """
+    from openpi.serving import monitor as _monitor
+
+    level = _monitor.get_monitor_level()
+    if level <= _monitor.MonitorLevel.OFF:
+        return {"__ack__": "error", "msg": "OPENPI_MONITOR_LEVEL=off"}
+    rec = _monitor.get_recorder()
+    summary = rec.throughput_summary()
+    if payload.get("clear", False):
+        cleared = rec.clear(util=True, batch=True, timing=False, mem=False)
+        summary["cleared"] = cleared
+    return {"__ack__": "throughput_summary", **summary}
+
+
 def _handle_unload_warmup_buffer(eval_yaml_id: str) -> dict:
     """Drop the WarmupPool entry AND delete the warmup dump file on disk."""
     if not isinstance(eval_yaml_id, str) or not eval_yaml_id:
@@ -322,7 +468,8 @@ class WebsocketPolicyServer:
         port: int | None = None,
         metadata: dict | None = None,
         concurrent: bool = False,
-        connection_policy_factory: Optional[Callable[..., _base_policy.BasePolicy]] = None,
+        connection_policy_factory: Callable[..., _base_policy.BasePolicy] | None = None,
+        ready_callback: Callable[[], None] | None = None,
     ) -> None:
         self._policy = policy
         self._host = host
@@ -331,6 +478,10 @@ class WebsocketPolicyServer:
         self._concurrent = concurrent
         self._connection_policy_factory = connection_policy_factory
         self._has_active_connection = False  # for single-connection mode
+        # Fired exactly once, after the listen socket is bound — lets a
+        # supervisor (replica scale-out) wait for "actually serving" rather
+        # than racing the bind.
+        self._ready_callback = ready_callback
         logging.getLogger("websockets.server").setLevel(logging.INFO)
 
     def serve_forever(self) -> None:
@@ -345,6 +496,8 @@ class WebsocketPolicyServer:
             max_size=None,
             process_request=_health_check,
         ) as server:
+            if self._ready_callback is not None:
+                self._ready_callback()
             await server.serve_forever()
 
     async def _handler(self, websocket: _server.ServerConnection):
@@ -359,7 +512,7 @@ class WebsocketPolicyServer:
         # to ``_DEFAULT_BUNDLE_ID`` so the LIBERO main.py worker that has not
         # been upgraded still works end-to-end.
         conn_policy = None
-        bound_bundle_id: Optional[str] = None
+        bound_bundle_id: str | None = None
         if not self._concurrent:
             # Single-connection mode: reject if another connection is active.
             if self._has_active_connection:
@@ -376,6 +529,17 @@ class WebsocketPolicyServer:
             conn_policy = self._policy
 
         logger.info(f"Connection from {websocket.remote_address} opened")
+        # Event-driven monitor hook: on connection open, bump the
+        # process-wide active-connection counter AND ask the monitor to
+        # take a snapshot labelled with the new count. At level<SNAPSHOT
+        # this is a no-op so basic mode is unaffected. The snapshot
+        # captures the moment ALL prior connections are still alive
+        # alongside this brand-new one — peak per-conn observation.
+        from openpi.serving import monitor as _server_monitor
+        _conn_count_after_open = _server_monitor.increment_connection()
+        _server_monitor.fire_event(
+            "conn_open", payload={"conn_count": _conn_count_after_open},
+        )
         packer = msgpack_numpy.Packer()
 
         def _bind_bundle(bundle_id: str) -> None:
@@ -390,7 +554,7 @@ class WebsocketPolicyServer:
             if conn_policy is not None and hasattr(conn_policy, "on_task_end"):
                 try:
                     conn_policy.on_task_end()
-                except Exception:  # noqa: BLE001
+                except Exception:
                     logger.exception("on_task_end failed during bundle switch")
             new_policy = self._connection_policy_factory(self._policy, bundle_id)
             if hasattr(new_policy, "on_task_begin"):
@@ -429,7 +593,7 @@ class WebsocketPolicyServer:
                             bundle_id = obs.get("bundle_id", _DEFAULT_BUNDLE_ID)
                             try:
                                 _bind_bundle(bundle_id)
-                            except Exception as exc:  # noqa: BLE001
+                            except Exception as exc:
                                 logger.exception("episode_start bundle bind failed")
                                 await websocket.send(packer.pack({
                                     "__ack__": "error",
@@ -454,6 +618,15 @@ class WebsocketPolicyServer:
                         # plan §22.4 must-fix MF-2.
                         if hasattr(conn_policy, "on_episode_end"):
                             conn_policy.on_episode_end(success=obs.get("__success__", False))
+                        # Event-driven snapshot + autoflush at episode boundary.
+                        # Cooldown (15s in monitor.py) prevents flush storms when
+                        # episodes are short. No-op at level<SNAPSHOT.
+                        from openpi.serving import monitor as _server_monitor
+                        _ep_n = _server_monitor.current_connection_count()
+                        _server_monitor.fire_event(
+                            "episode_end",
+                            payload={"conn_count": _ep_n, "success": obs.get("__success__", False)},
+                        )
                         await websocket.send(packer.pack({"__ack__": "episode_end"}))
                     elif ctrl == "prefill_trajectory":
                         # Only exposed when this connection's policy is cache-
@@ -485,7 +658,7 @@ class WebsocketPolicyServer:
                                 record=obs.get("record", False),
                                 on_miss=obs.get("on_miss", "error"),
                             )
-                        except Exception as exc:  # noqa: BLE001 — surface ANY error to client
+                        except Exception as exc:
                             logger.exception("prefill_trajectory failed on worker thread")
                             await websocket.send(packer.pack({
                                 "__ack__": "error", "msg": str(exc),
@@ -518,7 +691,8 @@ class WebsocketPolicyServer:
                             await websocket.send(packer.pack({"__ack__": "error", "msg": "missing yaml_path or yaml_content"}))
                         else:
                             try:
-                                from openpi.cache.config import build_shared_storage, load_cache_config
+                                from openpi.cache.config import build_shared_storage
+                                from openpi.cache.config import load_cache_config
 
                                 if yaml_content:
                                     import tempfile
@@ -533,17 +707,16 @@ class WebsocketPolicyServer:
                                 # applied at server start. Avoid silent
                                 # `batch_insert` attempts on frozen backends.
                                 try:
-                                    from scripts.serve_policy import (
-                                        _enforce_runtime_write_policy,
-                                    )
+                                    from scripts.serve_policy import _enforce_runtime_write_policy
 
                                     cache_config = _enforce_runtime_write_policy(cache_config)
                                 except ImportError:
                                     # Fallback: inline enforcement when scripts/ isn't on the
                                     # import path (e.g. embedded test harness). Keeps the
                                     # contract enforced regardless of entry point.
-                                    from openpi.cache.config import WritePolicyConfig
                                     import dataclasses as _dc
+
+                                    from openpi.cache.config import WritePolicyConfig
                                     if cache_config.write_policy.type != "never":
                                         logger.warning(
                                             "load_cache_config: write_policy %r "
@@ -613,7 +786,7 @@ class WebsocketPolicyServer:
                         if self._concurrent:
                             try:
                                 _bind_bundle(sb_bundle_id)
-                            except Exception as exc:  # noqa: BLE001
+                            except Exception as exc:
                                 logger.exception("select_bundle bind failed")
                                 await websocket.send(packer.pack({
                                     "__ack__": "error",
@@ -653,6 +826,43 @@ class WebsocketPolicyServer:
                         await websocket.send(packer.pack(
                             _handle_unload_warmup_buffer(obs.get("eval_yaml_id", ""))
                         ))
+                    elif ctrl == "dump_metrics":
+                        # Phase 7 mem-attribution: returns the in-memory
+                        # ring buffers (util / batch / timing / mem
+                        # snapshots) so the operator can pull the whole
+                        # timeline back without grepping log files.
+                        await websocket.send(packer.pack(
+                            _handle_dump_metrics(obs)
+                        ))
+                    elif ctrl == "snapshot_mem":
+                        # On-demand torch.cuda.memory_snapshot() capture.
+                        # Requires OPENPI_MONITOR_LEVEL >= SNAPSHOT.
+                        await websocket.send(packer.pack(
+                            _handle_snapshot_mem(obs)
+                        ))
+                    elif ctrl == "mem_history_start":
+                        # Enable torch.cuda.memory._record_memory_history;
+                        # requires OPENPI_MONITOR_LEVEL = HISTORY.
+                        await websocket.send(packer.pack(
+                            _handle_mem_history_start(obs)
+                        ))
+                    elif ctrl == "mem_history_stop":
+                        await websocket.send(packer.pack(
+                            _handle_mem_history_stop(obs)
+                        ))
+                    elif ctrl == "set_batch_params":
+                        # Hot-mutate coordinator batch params. Payload:
+                        # {"max_batch_size": int, "max_wait_ms": float}
+                        await websocket.send(packer.pack(
+                            _handle_set_batch_params(obs)
+                        ))
+                    elif ctrl == "throughput_summary":
+                        # Compute + return throughput / batching / GPU util
+                        # rollup from in-memory buffers. Optional clear=True
+                        # to wipe util/batch buffers for next-ramp baseline.
+                        await websocket.send(packer.pack(
+                            _handle_throughput_summary(obs)
+                        ))
                     else:
                         await websocket.send(packer.pack({"__ack__": "ignored"}))
                     continue
@@ -666,7 +876,7 @@ class WebsocketPolicyServer:
                 if self._concurrent and conn_policy is None:
                     try:
                         _bind_bundle(_DEFAULT_BUNDLE_ID)
-                    except Exception as exc:  # noqa: BLE001
+                    except Exception as exc:
                         logger.exception("default bundle bind failed")
                         await websocket.send(packer.pack({
                             "__ack__": "error",
@@ -705,6 +915,29 @@ class WebsocketPolicyServer:
                     conn_policy.on_task_end()
                 if not self._concurrent:
                     self._has_active_connection = False
+                # Drop per-connection wrapper + free CUDA cached memory so
+                # subsequent connections start from a clean GPU-side state.
+                # Without this, KV cache + stage intermediates accumulate
+                # linearly with connection count (~1 GB / connection observed
+                # on pi05_libero), triggering OOM at moderate N (15+).
+                conn_policy = None
+                try:
+                    import gc as _gc
+                    _gc.collect()
+                    import torch as _torch
+                    if _torch.cuda.is_available():
+                        _torch.cuda.empty_cache()
+                except Exception:
+                    pass
+                # Event-driven monitor: decrement + snapshot AFTER cleanup
+                # finishes. The snapshot then captures the genuine "K-1
+                # connections retained" state, including what cleanup did
+                # not release. This is the per-conn-leak detector.
+                from openpi.serving import monitor as _server_monitor
+                _n_after_close = _server_monitor.decrement_connection()
+                _server_monitor.fire_event(
+                    "conn_close", payload={"conn_count": _n_after_close},
+                )
                 break
 
             except Exception:
@@ -721,6 +954,27 @@ class WebsocketPolicyServer:
                     conn_policy.on_task_end()
                 if not self._concurrent:
                     self._has_active_connection = False
+                # Mirror the ConnectionClosed cleanup so leaked wrapper state
+                # / KV cache from an abnormal exit (e.g. worker SIGKILL) is
+                # released. Without this the GPU memory grows monotonically
+                # under load even after all clients disconnect.
+                conn_policy = None
+                try:
+                    import gc as _gc
+                    _gc.collect()
+                    import torch as _torch
+                    if _torch.cuda.is_available():
+                        _torch.cuda.empty_cache()
+                except Exception:
+                    pass
+                # Same monitor hook as the normal close path so abnormal
+                # exits also produce a labelled snapshot for diagnostics.
+                from openpi.serving import monitor as _server_monitor
+                _n_after_err = _server_monitor.decrement_connection()
+                _server_monitor.fire_event(
+                    "conn_close",
+                    payload={"conn_count": _n_after_err, "abnormal": True},
+                )
                 raise
 
 

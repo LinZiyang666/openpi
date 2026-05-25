@@ -232,3 +232,9 @@ faiss.wiki
 exp/common/analysis/factor_explorer.html
 exp/common/analysis/index.html
 exp/common/analysis/videos
+
+# Guard (WA §5): logs/ holds design/decision records only, never experiment
+# binaries. Experiment data/artifacts live under exp/**/data/ (ignored above).
+# This catch-all (placed after the `!logs/**` un-ignore) keeps stray binary
+# dumps out of logs/ by accident.
+logs/**/*.pkl

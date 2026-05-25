@@ -1,13 +1,15 @@
 from __future__ import annotations  # PEP 563: defer all annotations so the
-# B1.2 ``Optional[PerStepWriterPool]`` parameter annotations do not require
-# the import at module load time. The real import is lazy inside
-# ``eval_libero`` so this script keeps working under conda envs whose
-# ``PYTHONPATH`` was stripped (e.g. ``conda run -p libero_sim``) and the
-# repo root is not on ``sys.path``. The B1.2 observability hook is opt-in
-# via ``--per-step-log-dir``, so non-verdict_factor runners never trigger
-# the import either.
 
+# B1.2 ``PerStepWriterPool`` parameter annotations do not require the import at
+# module load time: ``from __future__ import annotations`` keeps them as strings
+# and the real import is lazy inside ``eval_libero`` so this script keeps working
+# under conda envs whose ``PYTHONPATH`` was stripped (e.g. ``conda run -p
+# libero_sim``) and the repo root is not on ``sys.path``. The B1.2 observability
+# hook is opt-in via ``--per-step-log-dir``, so non-verdict_factor runners never
+# trigger the import. The ``TYPE_CHECKING`` guard below resolves the annotation
+# name for linters/type-checkers (ruff F821) without importing at runtime.
 import collections
+from collections.abc import Callable
 import dataclasses
 import json
 import logging
@@ -18,7 +20,8 @@ import queue
 import signal
 import threading
 import time
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING
+from typing import Any
 
 import cv2
 import h5py
@@ -29,9 +32,13 @@ from libero.libero.envs import OffScreenRenderEnv
 import numpy as np
 from openpi_client import image_tools
 from openpi_client import websocket_client_policy as _websocket_client_policy
-from PIL import Image, ImageDraw
+from PIL import Image
+from PIL import ImageDraw
 import tqdm
 import tyro
+
+if TYPE_CHECKING:  # resolves annotation names for linters only; no runtime import
+    from exp.verdict_factor_judge.per_step_log_writer import PerStepWriterPool
 
 LIBERO_DUMMY_ACTION = [0.0] * 6 + [-1.0]
 LIBERO_ENV_RESOLUTION = 256  # resolution used to render training data
@@ -71,7 +78,7 @@ class Args:
     #################################################################################################################
     # Task selection
     #################################################################################################################
-    task_ids: Tuple[int, ...] = ()  # If non-empty, run only these task IDs (0-indexed). Default: all tasks.
+    task_ids: tuple[int, ...] = ()  # If non-empty, run only these task IDs (0-indexed). Default: all tasks.
 
     #################################################################################################################
     # Concurrency
@@ -126,9 +133,45 @@ def _get_max_steps(task_suite_name: str) -> int:
     return limits[task_suite_name]
 
 
+def _log_client_timing(worker_id, task_id, episode_idx, ct: dict) -> None:
+    """Emit one parseable ``[client.timing]`` line for an episode.
+
+    Splits the closed-loop wall-clock into env.step / image-prep / infer
+    round-trip, and reports infer pacing signals. ``infer_ms_max`` is the
+    slowest single round-trip (a server queue/contention spike). ``send_gap``
+    is the send-to-send PERIOD between consecutive infer() calls — it already
+    includes the previous round-trip plus the intervening env.steps, so a large
+    gap is expected, not a stall. What flags hidden bunching is a large gap-max
+    relative to gap-avg, or an infer_ms_max far above the per-call mean — both
+    invisible in the aggregate inf/s number.
+    """
+    st = ct.get("steps", 0)
+    inf = ct.get("infers", 0)
+    em = ct.get("env_ms", 0.0)
+    im = ct.get("img_ms", 0.0)
+    fm = ct.get("infer_ms", 0.0)
+    fmax = ct.get("infer_ms_max", 0.0)
+    gsum = ct.get("gap_ms_sum", 0.0)
+    gmax = ct.get("gap_ms_max", 0.0)
+    gn = ct.get("gap_n", 0)
+    gap_avg = gsum / gn if gn else 0.0
+    send_hz = (1000.0 / gap_avg) if gap_avg > 0 else 0.0
+    logging.info(
+        "[client.timing] worker=%d task=%d ep=%d steps=%d infers=%d "
+        "env_ms=%.0f img_ms=%.0f infer_ms=%.0f infer_ms_max=%.0f "
+        "infer_ms_per_call=%.1f env_ms_per_step=%.1f "
+        "send_gap_avg_ms=%.1f send_gap_max_ms=%.1f send_hz=%.2f",
+        worker_id, int(task_id), int(episode_idx), st, inf,
+        em, im, fm, fmax,
+        fm / max(inf, 1), em / max(st, 1),
+        gap_avg, gmax, send_hz,
+    )
+
+
 def _run_episode(env, client, initial_state, task_description, args, max_steps,
                  *, record_video: bool = False, step_callback=None,
-                 infer_recorder: Optional[Callable[[int, dict], None]] = None) -> tuple:
+                 infer_recorder: Callable[[int, dict], None] | None = None,
+                 client_timing: dict | None = None) -> tuple:
     """Run a single episode.
 
     Args:
@@ -169,19 +212,39 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
     images = []
     timestamps = []
 
-    traj_buffer: Optional[List[Dict[str, Any]]] = [] if args.save_trajectory else None
+    traj_buffer: list[dict[str, Any]] | None = [] if args.save_trajectory else None
     # Actions popped from ``action_plan`` since the last infer() call. Flushed
     # into ``traj_buffer[-1]["executed_actions"]`` on the next infer() boundary
     # and on end-of-loop (see §20.R1.1).
-    _pending_executed: List[np.ndarray] = []
+    _pending_executed: list[np.ndarray] = []
 
     t = 0
     done = False
 
+    # Client-side wall-clock breakdown (closed-loop bottleneck attribution).
+    # Accumulated only when ``client_timing`` is provided; near-zero overhead.
+    _ct_env = 0.0   # time in env.step() (sim physics + render)
+    _ct_img = 0.0   # time in obs image flip/resize/uint8
+    _ct_infer = 0.0  # time blocked on client.infer() round-trip (net + server)
+    _ct_infer_max = 0.0  # slowest single round-trip (server queue/backpressure spike)
+    _ct_steps = 0
+    _ct_infers = 0
+    # Inter-send gap: send-to-send period between consecutive infer() calls
+    # (already includes the prior round-trip + intervening env.steps). A high
+    # gap-max relative to gap-avg flags bursty/uneven request pacing — not
+    # necessarily a client stall.
+    _gap_sum = 0.0
+    _gap_max = 0.0
+    _gap_n = 0
+    _last_send_t = None
+
     while t < max_steps + args.num_steps_wait:
         try:
             if t < args.num_steps_wait:
+                _t0 = time.perf_counter()
                 obs, reward, done, info = env.step(LIBERO_DUMMY_ACTION)
+                _ct_env += time.perf_counter() - _t0
+                _ct_steps += 1  # count wait-phase steps so env_ms/step stays consistent
                 if record_video:
                     _record_step(obs, images, timestamps, args.display)
                 t += 1
@@ -190,6 +253,7 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
             if step_callback is not None:
                 step_callback(t - args.num_steps_wait)
 
+            _t0 = time.perf_counter()
             img = np.ascontiguousarray(obs["agentview_image"][::-1, ::-1])
             wrist_img = np.ascontiguousarray(obs["robot0_eye_in_hand_image"][::-1, ::-1])
             img = image_tools.convert_to_uint8(
@@ -198,6 +262,7 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
             wrist_img = image_tools.convert_to_uint8(
                 image_tools.resize_with_pad(wrist_img, args.resize_size, args.resize_size)
             )
+            _ct_img += time.perf_counter() - _t0
 
             if not action_plan:
                 # Replan boundary: finalise the previous cycle's executed_actions
@@ -224,15 +289,26 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
                 # Capture the full result so the optional recorder sees
                 # ``__hit_meta__`` (B1.2 — plan §7.2). The action path stays
                 # byte-identical to the pre-B1 behaviour.
+                _t0 = time.perf_counter()
+                if _last_send_t is not None:
+                    _g = _t0 - _last_send_t
+                    _gap_sum += _g
+                    _gap_n += 1
+                    _gap_max = max(_gap_max, _g)
+                _last_send_t = _t0
                 _infer_result = client.infer(element)
+                _dt = time.perf_counter() - _t0
+                _ct_infer += _dt
+                _ct_infer_max = max(_ct_infer_max, _dt)
+                _ct_infers += 1
                 action_chunk = _infer_result["actions"]
                 if infer_recorder is not None:
                     hit_meta = _infer_result.get("__hit_meta__")
                     if hit_meta is not None:
                         # ``t - args.num_steps_wait`` resets to 0 on the first
-                        # real verdict per episode (plan §7.2 "episode 内的
-                        # 物理 step"). Wait-phase replays never trigger an
-                        # infer call so this branch only runs once t >=
+                        # real verdict per episode (plan §7.2 "physical step
+                        # within an episode"). Wait-phase replays never trigger
+                        # an infer call so this branch only runs once t >=
                         # num_steps_wait.
                         infer_recorder(t - args.num_steps_wait, hit_meta)
                 assert (
@@ -262,7 +338,10 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
 
             action = action_plan.popleft()
             action_np = np.asarray(action, dtype=np.float32)
+            _t0 = time.perf_counter()
             obs, reward, done, info = env.step(action.tolist())
+            _ct_env += time.perf_counter() - _t0
+            _ct_steps += 1
             if record_video:
                 _record_step(obs, images, timestamps, args.display)
 
@@ -299,6 +378,17 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
     inner = getattr(env, "env", None)
     final_env_timestep = int(getattr(inner, "timestep", t)) if inner is not None else int(t)
 
+    if client_timing is not None:
+        client_timing["env_ms"] = client_timing.get("env_ms", 0.0) + _ct_env * 1000.0
+        client_timing["img_ms"] = client_timing.get("img_ms", 0.0) + _ct_img * 1000.0
+        client_timing["infer_ms"] = client_timing.get("infer_ms", 0.0) + _ct_infer * 1000.0
+        client_timing["infer_ms_max"] = max(client_timing.get("infer_ms_max", 0.0), _ct_infer_max * 1000.0)
+        client_timing["gap_ms_sum"] = client_timing.get("gap_ms_sum", 0.0) + _gap_sum * 1000.0
+        client_timing["gap_ms_max"] = max(client_timing.get("gap_ms_max", 0.0), _gap_max * 1000.0)
+        client_timing["gap_n"] = client_timing.get("gap_n", 0) + _gap_n
+        client_timing["steps"] = client_timing.get("steps", 0) + _ct_steps
+        client_timing["infers"] = client_timing.get("infers", 0) + _ct_infers
+
     return done, images, timestamps, traj_buffer, final_env_timestep
 
 
@@ -316,8 +406,8 @@ def _compute_global_episode_id(task_id: int, episode_idx: int, num_trials_per_ta
 
 
 def _count_filtered_episodes(
-    filter_pairs: Optional[set],
-    task_id_list: List[int],
+    filter_pairs: set | None,
+    task_id_list: list[int],
     num_trials_per_task: int,
 ) -> int:
     """Compute expected episode count for the concurrent progress bar.
@@ -339,7 +429,7 @@ def _count_filtered_episodes(
 
 def _load_episode_filter(
     path: str,
-) -> Tuple[Optional[set], Dict[Tuple[int, int], int]]:
+) -> tuple[set | None, dict[tuple[int, int], int]]:
     """Load a ``step1b_filter.json`` (plan §19.B6) into two lookup structures.
 
     Returns:
@@ -374,8 +464,8 @@ def _flush_trajectory_h5(
     replan_steps: int,
     num_steps_wait: int,
     final_env_timestep: int,
-    traj_buffer: List[Dict[str, Any]],
-) -> Optional[pathlib.Path]:
+    traj_buffer: list[dict[str, Any]],
+) -> pathlib.Path | None:
     """Write one episode's ``traj_buffer`` to HDF5 (plan §20.R1.2 schema).
 
     Returns the written path, or ``None`` if ``traj_buffer`` is empty (no
@@ -429,9 +519,9 @@ def _flush_trajectory_h5(
 def _write_episode_results_json(
     path: str,
     task_suite_name: str,
-    rows: List[Dict[str, Any]],
+    rows: list[dict[str, Any]],
 ) -> pathlib.Path:
-    """Write the per-episode success JSON (plan §4 改动 5).
+    """Write the per-episode success JSON (plan §4 change 5).
 
     When ``path`` is empty, defaults to ``{task_suite_name}_episode_results.json``
     in the current directory. Rows are written as-is so callers control the
@@ -447,10 +537,10 @@ def _write_episode_results_json(
 def _eval_serial(
     args: Args,
     task_suite,
-    task_id_list: List[int],
+    task_id_list: list[int],
     max_steps,
     *,
-    per_step_pool: Optional[PerStepWriterPool] = None,
+    per_step_pool: PerStepWriterPool | None = None,
 ) -> None:
     """Original serial evaluation path (num_workers=1).
 
@@ -466,7 +556,7 @@ def _eval_serial(
     # Plan §19.B6: episode_filter selects which (task_id, subset_init_state_idx)
     # pairs to run and remembers their original indices for HDF5 attrs.
     filter_pairs, orig_map = _load_episode_filter(args.episode_filter)
-    per_episode_log: List[Dict[str, Any]] = []
+    per_episode_log: list[dict[str, Any]] = []
 
     total_episodes, total_successes = 0, 0
     for task_id in tqdm.tqdm(task_id_list):
@@ -484,7 +574,7 @@ def _eval_serial(
             )
 
             logging.info(f"\nTask: {task_description}")
-            # Plan §20.R1 / §4 改动 4: when saving trajectories, name the HDF5
+            # Plan §20.R1 / §4 change 4: when saving trajectories, name the HDF5
             # artefacts by (task, subset-episode) so the Layer-B-4 collector
             # mirrors the naming scheme on the policy side.
             episode_name = (
@@ -527,12 +617,15 @@ def _eval_serial(
                 recorder = None
                 writer = None
 
+            _ctiming: dict = {}
             done, images, timestamps, traj_buffer, final_env_timestep = _run_episode(
                 env, client, initial_states[episode_idx],
                 task_description, args, max_steps,
                 record_video=args.save_video,
                 infer_recorder=recorder,
+                client_timing=_ctiming,
             )
+            _log_client_timing(0, task_id, episode_idx, _ctiming)
 
             if args.display:
                 cv2.destroyAllWindows()
@@ -606,10 +699,10 @@ def _eval_serial(
 def _eval_concurrent(
     args: Args,
     task_suite,
-    task_id_list: List[int],
+    task_id_list: list[int],
     max_steps,
     *,
-    per_step_pool: Optional[PerStepWriterPool] = None,
+    per_step_pool: PerStepWriterPool | None = None,
 ) -> None:
     """Concurrent evaluation path (num_workers > 1).
 
@@ -669,7 +762,7 @@ def _eval_concurrent(
                         bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [total:{postfix}]")
         bar.set_postfix_str("0")
         worker_bars.append(bar)
-    per_episode_log: List[Dict[str, Any]] = []
+    per_episode_log: list[dict[str, Any]] = []
 
     # 4. Worker function.
     init_lock = threading.Lock()  # Serialize env creation + server connection
@@ -763,14 +856,17 @@ def _eval_concurrent(
                             recorder = None
                             writer = None
 
+                        _ctiming: dict = {}
                         done, _, _, traj_buffer, final_env_timestep = _run_episode(
                             env, client, initial_states[episode_idx],
                             task_description, args, max_steps,
                             record_video=False,
                             step_callback=step_cb,
                             infer_recorder=recorder,
+                            client_timing=_ctiming,
                         )
                         total_steps[0] += wbar.n
+                        _log_client_timing(worker_id, task_id, episode_idx, _ctiming)
                         client.episode_end(success=done)
                         # Episode boundary: flush this worker's per-step
                         # buffer in one batched write. Per-worker writer
@@ -830,7 +926,7 @@ def _eval_concurrent(
 
     # 5. Launch workers.
     stop_event = threading.Event()
-    threads: List[threading.Thread] = []
+    threads: list[threading.Thread] = []
     for i in range(args.num_workers):
         t = threading.Thread(target=worker, args=(i, stop_event), daemon=True)
         t.start()
@@ -902,15 +998,15 @@ def eval_libero(args: Args) -> None:
 
     max_steps = _get_max_steps(args.task_suite_name)
 
-    if args.num_workers > 5:
-        logging.warning("num_workers capped at 5 (MuJoCo EGL context limit). Using 5.")
-        args.num_workers = 5
+    if args.num_workers > 15:
+        logging.warning("num_workers capped at 15 (MuJoCo EGL context limit per GPU). Using 15.")
+        args.num_workers = 15
 
     # B1.2: build the per-step writer pool *before* dispatch so SIGINT inside
     # the eval path still hits the ``finally`` finalize. ``yaml_id`` is
     # required so the merged file has a deterministic stem the runner shim
     # can locate after spawn.
-    per_step_pool: Optional[PerStepWriterPool] = None
+    per_step_pool: PerStepWriterPool | None = None
     if args.per_step_log_dir:
         if not args.yaml_id:
             raise ValueError("--per-step-log-dir requires --yaml-id")
@@ -919,9 +1015,7 @@ def eval_libero(args: Args) -> None:
         # ``conda run -p <env> python examples/libero/main.py`` (the
         # ``_subprocess`` helper deliberately strips PYTHONPATH). Defer
         # the import so non-verdict_factor runners never need ``exp.*``.
-        from exp.verdict_factor_judge.per_step_log_writer import (  # noqa: PLC0415
-            PerStepWriterPool,
-        )
+        from exp.verdict_factor_judge.per_step_log_writer import PerStepWriterPool  # noqa: PLC0415
 
         per_step_pool = PerStepWriterPool(
             pathlib.Path(args.per_step_log_dir),

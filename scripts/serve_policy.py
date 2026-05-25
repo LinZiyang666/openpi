@@ -8,10 +8,8 @@ from typing import TYPE_CHECKING
 
 import tyro
 
-from openpi.models_pytorch.stage_device_placement import (
-    StageDeviceConfig,
-    relocate_model_stages,
-)
+from openpi.models_pytorch.stage_device_placement import StageDeviceConfig
+from openpi.models_pytorch.stage_device_placement import relocate_model_stages
 from openpi.policies import policy as _policy
 from openpi.policies import policy_config as _policy_config
 from openpi.serving import websocket_policy_server
@@ -94,6 +92,25 @@ class Args:
 
     # Port to serve the policy on.
     port: int = 8000
+
+    # Number of serving replicas (separate processes) to run behind a single
+    # public ``port``. ``1`` (default) is the ordinary single-process server.
+    # ``>1`` runs a supervisor: it spawns R child servers on internal loopback
+    # ports ``port+1 .. port+R`` and fronts them with an in-process
+    # connection-sticky router (``openpi.serving.replica_proxy``). Scale-out is
+    # process-level because the single-process ceiling is the GIL-serialized
+    # CUDA kernel-launch path; each child has its own interpreter. Requires
+    # concurrent mode (incompatible with --non-concurrent).
+    replicas: int = 1
+
+    # Replica spawn batching (only used when replicas>1). Spawn this many child
+    # processes concurrently, wait for that batch to finish loading + binding,
+    # then spawn the next batch. ``0`` (default) spawns all at once. Use a small
+    # value (e.g. 2) on hosts where N simultaneous model loads would spike host
+    # RAM past a cgroup limit (jupyter: 32GB) — stagger so peak load RAM stays
+    # bounded.
+    replica_spawn_batch: int = 0
+
     # Record the policy's behavior for debugging.
     record: bool = False
     # Enable per-episode embedding collection to HDF5.
@@ -186,6 +203,21 @@ DEFAULT_CHECKPOINT: dict[EnvMode, Checkpoint] = {
 }
 
 
+def _disable_compile_for_serving(train_config: "_config.TrainConfig") -> "_config.TrainConfig":
+    """Force eager execution for the serving runtime.
+
+    Serving runs the model through the batching coordinator's worker threads
+    (and, with a cache config, the interceptor's own staged compile). The
+    model-level ``torch.compile`` of ``sample_actions`` is unused by that path
+    and only costs multi-minute autotune compilation per replica at startup, so
+    the serving entrypoint loads the model eager (``pytorch_compile_mode=None``).
+    """
+    model = train_config.model
+    if hasattr(model, "pytorch_compile_mode"):
+        model = dataclasses.replace(model, pytorch_compile_mode=None)
+    return dataclasses.replace(train_config, model=model)
+
+
 def create_default_policy(
     env: EnvMode,
     *,
@@ -195,7 +227,7 @@ def create_default_policy(
     """Create a default policy for the given environment."""
     if checkpoint := DEFAULT_CHECKPOINT.get(env):
         return _policy_config.create_trained_policy(
-            _config.get_config(checkpoint.config),
+            _disable_compile_for_serving(_config.get_config(checkpoint.config)),
             checkpoint.dir,
             default_prompt=default_prompt,
             pytorch_device=pytorch_device,
@@ -247,7 +279,7 @@ def create_policy(args: Args) -> _policy.Policy:
     match args.policy:
         case Checkpoint():
             policy = _policy_config.create_trained_policy(
-                _config.get_config(args.policy.config),
+                _disable_compile_for_serving(_config.get_config(args.policy.config)),
                 args.policy.dir,
                 default_prompt=args.default_prompt,
                 pytorch_device=pytorch_device,
@@ -365,11 +397,9 @@ def _wrap_policy(
             bundle_id=bundle_id,
         )
     elif args.cache_config is not None:
-        from openpi.cache.config import (
-            build_cache_components,
-            build_per_connection_components,
-            load_cache_config,
-        )
+        from openpi.cache.config import build_cache_components
+        from openpi.cache.config import build_per_connection_components
+        from openpi.cache.config import load_cache_config
         from openpi.cache.interceptor import InferenceInterceptor
         from openpi.cache.orchestrator import CacheOrchestrator
 
@@ -470,11 +500,141 @@ def _setup_warmup_dump_root(raw_path: str | None) -> None:
     logging.info("verdict_factor_judge warmup dump root configured: %s", root)
 
 
+def _configure_monitor_level() -> None:
+    """Resolve OPENPI_MONITOR_LEVEL and prime PyTorch memory history if asked.
+
+    Reads the env var once at startup and (for HISTORY level) flips on
+    ``torch.cuda.memory._record_memory_history`` *before* any model weight
+    is loaded so the recorded trace covers the entire process lifecycle.
+    Cheaper levels (OFF / BASIC / SNAPSHOT) just log the choice.
+    """
+    from openpi.serving import monitor as _monitor
+
+    level = _monitor.get_monitor_level()
+    logging.info("OPENPI_MONITOR_LEVEL=%s", level.name)
+    if level >= _monitor.MonitorLevel.HISTORY:
+        result = _monitor.enable_memory_history()
+        if result.get("ok"):
+            logging.info("torch memory history recording enabled at startup")
+        else:
+            logging.warning(
+                "torch memory history recording requested but failed: %s",
+                result.get("reason", "unknown"),
+            )
+
+
 def main(args: Args) -> None:
+    if args.replicas > 1:
+        _run_supervisor(args)
+    else:
+        _serve_single(args)
+
+
+def _serve_replica(args: "Args", ready_event) -> None:
+    """Child entry point for one replica (spawned by the supervisor).
+
+    Binds loopback-only: children must be reachable ONLY through the router on
+    the public port, never directly — a direct connection to an internal port
+    would bypass sticky routing, control-plane broadcast, and metric aggregation.
+    """
+    logging.basicConfig(level=logging.INFO, force=True)
+    _serve_single(args, ready_callback=ready_event.set, bind_host="127.0.0.1")
+
+
+def _run_supervisor(args: Args) -> None:
+    """Spawn R replica processes on internal ports + front them with the router.
+
+    Children bind ``port+1 .. port+R`` on loopback (not exposed); only the
+    public ``port`` is served, by the in-process connection-sticky router.
+    """
+    import multiprocessing as mp
+    import threading
+
+    if args.non_concurrent:
+        raise ValueError("--replicas>1 requires concurrent mode (remove --non-concurrent)")
+
+    # CUDA requires the 'spawn' start method (fork after CUDA init is unsafe).
+    ctx = mp.get_context("spawn")
+
+    internal_ports = [args.port + 1 + i for i in range(args.replicas)]
+    batch = args.replica_spawn_batch if args.replica_spawn_batch > 0 else args.replicas
+    procs: list = []
+    stop_watchdog = threading.Event()
+
+    def _terminate_all() -> None:
+        for p in procs:
+            if p.is_alive():
+                p.terminate()
+        for p in procs:
+            p.join(timeout=10)
+
+    try:
+        # Spawn in batches: start `batch` children, wait for that batch to load
+        # + bind, then start the next. Bounds peak host-RAM from concurrent
+        # model loads on memory-constrained hosts.
+        for start in range(0, args.replicas, batch):
+            group = []
+            for ip in internal_ports[start:start + batch]:
+                ev = ctx.Event()
+                child_args = dataclasses.replace(args, port=ip, replicas=1)
+                p = ctx.Process(target=_serve_replica, args=(child_args, ev), daemon=False)
+                p.start()
+                procs.append(p)
+                group.append((ip, ev, p))
+                logging.info("Spawned replica pid=%d on internal port %d", p.pid, ip)
+            for ip, ev, p in group:
+                # Fail fast: poll readiness in 5s ticks (180 × 5s = 900s budget)
+                # and abort immediately if the child exits during load instead
+                # of blocking the full timeout.
+                ready = False
+                for _ in range(180):
+                    if ev.wait(timeout=5.0):
+                        ready = True
+                        break
+                    if not p.is_alive():
+                        raise RuntimeError(
+                            f"replica on port {ip} (pid {p.pid}) exited during load "
+                            f"(exitcode={p.exitcode}) — aborting supervisor"
+                        )
+                if not ready:
+                    raise RuntimeError(f"replica on port {ip} did not become ready within 900s")
+                logging.info("Replica on internal port %d READY", ip)
+
+        # Liveness watchdog: run_proxy() below blocks forever, so a replica that
+        # crashes AFTER becoming ready (e.g. CUDA OOM mid-run) would otherwise go
+        # unnoticed — the router would keep routing sticky connections to a dead
+        # loopback port, and the crashed child's GPU memory would never be
+        # reclaimed. The watchdog tears the whole supervisor down (terminate
+        # siblings, exit non-zero) the moment any replica dies.
+        def _watchdog() -> None:
+            while not stop_watchdog.wait(5.0):
+                dead = [(ip, p) for ip, p in zip(internal_ports, procs) if not p.is_alive()]
+                if dead:
+                    logging.error(
+                        "replica(s) died: ports=%s exitcodes=%s — shutting down supervisor",
+                        [ip for ip, _ in dead], [p.exitcode for _, p in dead],
+                    )
+                    _terminate_all()
+                    os._exit(1)
+
+        threading.Thread(target=_watchdog, name="replica-watchdog", daemon=True).start()
+
+        from openpi.serving.replica_proxy import run_proxy
+
+        logging.info("All %d replicas ready; starting router on public port %d -> %s",
+                     args.replicas, args.port, internal_ports)
+        run_proxy(public_port=args.port, backend_ports=internal_ports)
+    finally:
+        stop_watchdog.set()
+        _terminate_all()
+
+
+def _serve_single(args: Args, ready_callback=None, bind_host: str = "0.0.0.0") -> None:
     # M6 (Phase 5): ``--non-concurrent`` overrides the new default concurrent
     # mode to provide the single-connection baseline path (hard constraint C1).
     if args.non_concurrent:
         args = dataclasses.replace(args, concurrent=False, non_concurrent=False)
+    _configure_monitor_level()
     _configure_torchinductor_cache_dir()
     _setup_warmup_dump_root(args.warmup_dump_root)
     stage_config = _get_stage_device_config(args)
@@ -492,7 +652,8 @@ def main(args: Args) -> None:
         # key_builder/timer/gates/judges/strategies are per-connection (have mutable state).
         shared_cache: dict | None = None
         if args.cache_config is not None:
-            from openpi.cache.config import build_shared_storage, load_cache_config
+            from openpi.cache.config import build_shared_storage
+            from openpi.cache.config import load_cache_config
             cache_config = _enforce_runtime_write_policy(
                 load_cache_config(args.cache_config)
             )
@@ -504,10 +665,24 @@ def main(args: Args) -> None:
         # connection-side InferenceInterceptor enqueues per-request payloads
         # and blocks on the reply event. Hard constraint C1 ensures
         # ``--non-concurrent`` skips this entire wiring.
-        from openpi.serving.batching_coordinator import BatchingCoordinator
+        # Allow runtime sweep of coordinator params via env vars without
+        # touching the yaml — useful for finding the right window for the
+        # current worker count (M7 sweep). Defaults match the plan defaults.
+        import os as _os_bc
 
-        _coordinator = BatchingCoordinator(base_policy._model)
+        from openpi.serving.batching_coordinator import BatchingCoordinator
+        _max_wait_ms = float(_os_bc.environ.get("BATCHING_MAX_WAIT_MS", "10"))
+        _max_batch_size = int(_os_bc.environ.get("BATCHING_MAX_BATCH_SIZE", "8"))
+        _coordinator = BatchingCoordinator(
+            base_policy._model,
+            max_batch_size=_max_batch_size,
+            max_wait_ms=_max_wait_ms,
+        )
         _coordinator.start()
+        logging.info(
+            "BatchingCoordinator params: max_batch_size=%d max_wait_ms=%.1f",
+            _max_batch_size, _max_wait_ms,
+        )
         if shared_cache is None:
             shared_cache = {}
         shared_cache["coordinator"] = _coordinator
@@ -525,11 +700,12 @@ def main(args: Args) -> None:
 
         server = websocket_policy_server.WebsocketPolicyServer(
             policy=base_policy,
-            host="0.0.0.0",
+            host=bind_host,
             port=args.port,
             metadata=policy_metadata,
             concurrent=True,
             connection_policy_factory=_connection_policy_factory,
+            ready_callback=ready_callback,
         )
     else:
         # Single-connection mode: wrap once at startup.
@@ -541,9 +717,10 @@ def main(args: Args) -> None:
 
         server = websocket_policy_server.WebsocketPolicyServer(
             policy=policy,
-            host="0.0.0.0",
+            host=bind_host,
             port=args.port,
             metadata=policy_metadata,
+            ready_callback=ready_callback,
         )
 
     server.serve_forever()

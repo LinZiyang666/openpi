@@ -90,8 +90,8 @@ def plot_gpu_microbench(csv_path: Path, out_png: Path) -> None:
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
     p.add_argument("--run-id", required=True)
-    p.add_argument("--data-root", default="data")
-    p.add_argument("--out-root", default="analysis")
+    p.add_argument("--data-root", default="exp/serving_benchmark/data")
+    p.add_argument("--out-root", default="exp/serving_benchmark/analysis")
     p.add_argument("--mode", default="pareto", choices=["pareto", "gpu_microbench"])
     return p.parse_args()
 
