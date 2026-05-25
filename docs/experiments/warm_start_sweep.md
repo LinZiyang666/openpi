@@ -1,5 +1,7 @@
 # Warm Start 成功率扫描实验运行指南
 
+> **⚙ Client 编排新方向**：下方的多 worker / 多 terminal client 启动（`--num-workers` / `run_cache_experiments.py` / 多 `main.py` 进程）是**迁移完成前的遗留方式**。新实验请改用[实验编排框架](conductor_tutorial.md)——写一个 `ExperimentStrategy` + 通用 driver 统一调度（episode 级无空隙、跨卡/跨机、断点续跑、重试、监控）；旧命令在对应入口迁移完成前仍可运行。
+
 > 基于 [`logs/warm_start_sweep_plan.log.md`](../../logs/warm_start_sweep_plan.log.md)，对应 `exp/warm_start/config/`、`src/openpi/cache/components/judge.py::AlwaysWarmStartJudge`、`exp/common/build_clip_cache_artifact.py`。英文版：[warm_start_sweep.en.md](warm_start_sweep.en.md)。
 
 ---

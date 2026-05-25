@@ -485,6 +485,8 @@ EGL), so to drive a server with **N concurrent connections, launch N separate
 single public port fans connections across replicas automatically — the client
 needs no replica/port awareness.
 
+> **大规模实验改用新编排框架（推荐）**：上面"N 个 `main.py` 进程 + `replica_proxy` 单端口" 是遗留 client 编排。新的 **conductor 框架**（[教程](../experiments/conductor_tutorial.md) / [架构](../architecture/experiment_conductor.md)）由一个 driver 统一做 episode 级无空隙调度、按 server 分配 worker（48+48）、断点续跑/重试/监控。server 端点可为 **`--replicas N` 单公共端口**（`replica_proxy` 的 `fetch_dump` 已改为 aggregate——fan-out 到所有 child + 拼接各 replica 的 warmup dump 切片，warmup→eval 经 router 完整，driver 只注册一个端点）**或**多个独立单进程端点（各占一端口、按 server 细粒度分配 worker）。`--num-workers` 单进程多线程方式在迁移完成前仍可用于单机小规模实验。
+
 **Auto-tuned optimal worker counts** (pi05_libero, phase5 cache mix):
 
 | Server | replicas | client worker processes | `max_wait_ms` | throughput |
@@ -493,6 +495,6 @@ needs no replica/port awareness.
 | jupyter (H200)    | 3 | **48** | 25 | ~31 inf/s |
 | a100 + jupyter    | 3+3 | **48 + 48** from one sim host | 25 | ~48-51 inf/s |
 
-Full operator reference (router internals, control-plane broadcast, metrics
-aggregation, the `autotune_workers.py` re-tuning tool): see
-[`docs/deployment/concurrent_serving.md`](concurrent_serving.md) §1.3, §2.4, §3.3.
+并发 server 起法、调优、C1/C2、troubleshooting、`autotune_workers.py` re-tuning，
+连同 client 编排（写 driver 策略），见端到端教程
+[`docs/experiments/conductor_tutorial.md`](../experiments/conductor_tutorial.md)（§1 起 server / §8 调优 / §11 troubleshooting）。

@@ -61,6 +61,17 @@ Terminal window 2:
 uv run scripts/serve_policy.py --env LIBERO
 ```
 
+## 大规模 / 跨机实验编排（conductor）
+
+上面的 `python examples/libero/main.py` 是**单机快速验证**入口（进程内多线程，单卡 ≤15 worker）。
+
+对**大规模评测**（跨卡 / 跨机 / 多 server / warmup→eval / 断点续跑 / 重试 / 监控），改用新的**实验编排框架**：你只写一个 `ExperimentStrategy`（实验剧本），由通用 driver 做 episode 级无空隙调度，LIBERO 执行内核复用 [`episode_runner.py`](episode_runner.py)，worker 进程入口为 [`worker_entry.py`](worker_entry.py)（由 `WorkerAgent` 在各机 fork、直连 driver pull 端口）。
+
+- **上手教程（重点：如何编写 driver 策略）**：[`docs/experiments/conductor_tutorial.md`](../../docs/experiments/conductor_tutorial.md)
+- 架构与设计：[`docs/architecture/experiment_conductor.md`](../../docs/architecture/experiment_conductor.md)
+
+> 旧的 `--num-workers N` 单进程多线程方式仅适合单机小规模；它无法跨卡（单进程钉一个 `CUDA_VISIBLE_DEVICES`）且单卡 ≤15 worker。跨卡/跨机一律用 conductor。
+
 ## Results
 
 If you want to reproduce the following numbers, you can evaluate the checkpoint at `gs://openpi-assets/checkpoints/pi05_libero/`. This

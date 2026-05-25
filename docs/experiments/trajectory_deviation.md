@@ -1,5 +1,7 @@
 # Trajectory Deviation 实验运行指南
 
+> **⚙ Client 编排新方向**：下方的多 worker / 多 terminal client 启动（`--num-workers` / `run_step3_*` / 多 `main.py` 进程）是**迁移完成前的遗留方式**。新实验请改用[实验编排框架](conductor_tutorial.md)——写一个 `ExperimentStrategy` + 通用 driver 统一调度（episode 级无空隙、跨卡/跨机、断点续跑、重试、监控）；旧命令在对应入口迁移完成前仍可运行。
+
 > 基于 `logs/trajectory_deviation_experiment_plan.log.md` 与 `logs/trajectory_deviation_corrective_experiment.log.md`，对齐当前 `exp/trajectory_deviation/` 重构后的脚本路径与 CLI。英文版：[trajectory_deviation.en.md](trajectory_deviation.en.md)。
 
 ---

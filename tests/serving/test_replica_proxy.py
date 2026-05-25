@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 
 from openpi_client import msgpack_numpy
 from websockets.asyncio.client import connect as ws_connect
 from websockets.asyncio.server import serve as ws_serve
 
+from openpi.serving.replica_proxy import FETCH_DUMP_NOT_FOUND_MSG
 from openpi.serving.replica_proxy import ReplicaProxy
 from openpi.serving.replica_proxy import classify
+from openpi.serving.replica_proxy import merge_dump_replies
 from openpi.serving.replica_proxy import merge_metrics
 from openpi.serving.replica_proxy import merge_throughput_summary
 
@@ -25,7 +28,7 @@ def test_classify_infer_obs_is_sticky():
 
 def test_classify_per_connection_ctrls_are_sticky():
     for ctrl in ("episode_start", "episode_end", "select_bundle",
-                 "prefill_trajectory", "reset", "fetch_dump"):
+                 "prefill_trajectory", "reset"):
         kind, name = classify(_pack({"__ctrl__": ctrl}))
         assert kind == "sticky", ctrl
         assert name == ctrl
@@ -39,7 +42,7 @@ def test_classify_broadcast_ctrls():
 
 
 def test_classify_aggregate_ctrls():
-    for ctrl in ("dump_metrics", "throughput_summary", "snapshot_mem"):
+    for ctrl in ("dump_metrics", "throughput_summary", "snapshot_mem", "fetch_dump"):
         assert classify(_pack({"__ctrl__": ctrl})) == ("aggregate", ctrl)
 
 
@@ -47,6 +50,75 @@ def test_classify_non_dict_and_garbage_are_sticky():
     assert classify(_pack([1, 2, 3])) == ("sticky", None)
     assert classify(_pack(42)) == ("sticky", None)
     assert classify(b"\xff\xff not msgpack \x00") == ("sticky", None)
+
+
+def test_merge_dump_replies_concatenates_slices():
+    # Each replica's DumpingJudge wrote only the episodes routed to it; the full
+    # host dump is their byte-concatenation (JSONL lines append cleanly).
+    a = {"__ack__": "fetch_dump", "warmup_yaml_id": "yA", "content": b'{"ep":0}\n'}
+    b = {"__ack__": "fetch_dump", "warmup_yaml_id": "yA", "content": b'{"ep":1}\n'}
+    merged = merge_dump_replies([a, b], n_expected=2)
+    assert merged["__ack__"] == "fetch_dump"
+    assert merged["warmup_yaml_id"] == "yA"
+    assert merged["content"] == b'{"ep":0}\n{"ep":1}\n'
+
+
+def test_merge_dump_replies_skips_benign_missing_replicas():
+    # A replica that never saw a warmup episode returns the benign missing marker;
+    # it must be skipped (not abort the merge), survivors kept in order.
+    miss = {"__ack__": "error", "msg": FETCH_DUMP_NOT_FOUND_MSG}
+    have = {"__ack__": "fetch_dump", "warmup_yaml_id": "yA", "content": b'{"ep":0}\n'}
+    merged = merge_dump_replies([miss, have, miss], n_expected=3)
+    assert merged["__ack__"] == "fetch_dump"
+    assert merged["content"] == b'{"ep":0}\n'
+    assert merged["warmup_yaml_id"] == "yA"
+
+
+def test_merge_dump_replies_all_benign_missing_surfaces_error():
+    # No replica produced a dump -> error, not a fake empty success.
+    miss = {"__ack__": "error", "msg": FETCH_DUMP_NOT_FOUND_MSG}
+    merged = merge_dump_replies([miss, miss], n_expected=2)
+    assert merged["__ack__"] == "error"
+
+
+def test_merge_dump_replies_fatal_error_is_not_skipped():
+    # G2R6: a NON-missing child error (e.g. root not configured) alongside a good
+    # slice must surface as error — returning the survivor only would be a silent
+    # partial calibration buffer (the exact bug the owner override targets).
+    fatal = {"__ack__": "error", "msg": "warmup_dump_root not configured"}
+    have = {"__ack__": "fetch_dump", "warmup_yaml_id": "yA", "content": b'{"ep":0}\n'}
+    merged = merge_dump_replies([fatal, have], n_expected=2)
+    assert merged["__ack__"] == "error"
+    assert "warmup_dump_root not configured" in merged["msg"]
+
+
+def test_merge_dump_replies_dropped_backend_is_partial_error():
+    # G2R6: a backend threw/disconnected during fan-out, so its decoded reply never
+    # arrived (fewer replies than n_expected). The survivor slice alone is partial.
+    have = {"__ack__": "fetch_dump", "warmup_yaml_id": "yA", "content": b'{"ep":0}\n'}
+    merged = merge_dump_replies([have], n_expected=2)
+    assert merged["__ack__"] == "error"
+    assert "dropped" in merged["msg"] or "unreachable" in merged["msg"]
+
+
+def test_merge_dump_replies_malformed_reply_is_error():
+    # A non-dict / malformed reply can't be trusted as a slice -> error, never a
+    # silently-shorter dump.
+    have = {"__ack__": "fetch_dump", "warmup_yaml_id": "yA", "content": b'{"ep":0}\n'}
+    merged = merge_dump_replies([have, b"garbage"], n_expected=2)
+    assert merged["__ack__"] == "error"
+
+
+def test_fetch_dump_not_found_msg_matches_server_contract():
+    # The router's benign-missing skip depends on the server returning this exact
+    # msg ONLY when a replica has no routed warmup episode. Guard the cross-process
+    # string contract so a server-side rename can't silently flip missing-skip into
+    # fatal-surface (or vice versa).
+    # local import: avoid pulling the torch-heavy server module at test-module load
+    from openpi.serving import websocket_policy_server as wps  # noqa: PLC0415
+
+    src = inspect.getsource(wps._handle_fetch_dump)  # noqa: SLF001 (contract guard)
+    assert FETCH_DUMP_NOT_FOUND_MSG in src, "server no longer uses the benign-missing marker"
 
 
 def test_merge_metrics_empty():
@@ -114,6 +186,10 @@ async def _start_fake_backend(*, fail_lcc: bool = False):
                     await ws.send(_pack({"__ack__": "error", "msg": "simulated load failure"}))
                 else:
                     await ws.send(_pack({"__ack__": "load_cache_config", "port": holder["port"]}))
+            elif ctrl == "fetch_dump":
+                # each replica returns only its own slice of the warmup dump
+                await ws.send(_pack({"__ack__": "fetch_dump", "warmup_yaml_id": "yA",
+                                     "content": f'{{"port":{holder["port"]}}}\n'.encode()}))
             else:  # infer / per-connection ctrl -> echo + tag serving backend
                 await ws.send(_pack({"echo": obj, "port": holder["port"]}))
 
@@ -165,6 +241,16 @@ async def _scenario():
             ack = _unpack(await cd.recv())
             assert ack["__ack__"] == "load_cache_config"
         assert h0["lcc"] == 1 and h1["lcc"] == 1, (h0["lcc"], h1["lcc"])
+
+        # E) fetch_dump is fanned out and concatenated into the whole-host dump
+        async with ws_connect(uri, max_size=None, compression=None) as ce:
+            await ce.recv()
+            await ce.send(_pack({"__ctrl__": "fetch_dump", "warmup_yaml_id": "yA"}))
+            dump = _unpack(await ce.recv())
+            assert dump["__ack__"] == "fetch_dump", dump
+            assert dump["warmup_yaml_id"] == "yA"
+            # both replicas' slices present (one JSONL line each)
+            assert len(dump["content"].decode().splitlines()) == 2, dump["content"]
     finally:
         pserver.close()
         s0.close()
@@ -176,6 +262,34 @@ async def _scenario():
 
 def test_proxy_end_to_end_routing():
     asyncio.run(_scenario())
+
+
+async def _scenario_fetch_dump_dropped_backend():
+    """G2R6: if a backend is down during fetch_dump fan-out, the router returns an
+    error (the survivor slice alone is a partial dump), not a fake success."""
+    s0, h0 = await _start_fake_backend()
+    s1, h1 = await _start_fake_backend()
+    proxy = ReplicaProxy("127.0.0.1", [h0["port"], h1["port"]])
+    await proxy.prime_metadata()
+    pserver = await ws_serve(proxy.handle, "127.0.0.1", 0, max_size=None, compression=None)
+    uri = f"ws://127.0.0.1:{pserver.sockets[0].getsockname()[1]}"
+    s1.close()
+    await s1.wait_closed()  # one backend down -> its dump slice is lost
+    try:
+        async with ws_connect(uri, max_size=None, compression=None) as c:
+            await c.recv()
+            await c.send(_pack({"__ctrl__": "fetch_dump", "warmup_yaml_id": "yA"}))
+            resp = _unpack(await c.recv())
+            assert resp["__ack__"] == "error", resp
+    finally:
+        pserver.close()
+        s0.close()
+        await pserver.wait_closed()
+        await s0.wait_closed()
+
+
+def test_proxy_fetch_dump_dropped_backend_is_error():
+    asyncio.run(_scenario_fetch_dump_dropped_backend())
 
 
 # --- failure-mode coverage --------------------------------------------------

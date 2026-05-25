@@ -1,0 +1,67 @@
+"""Worker process entry point (plan §3/§4.2): one GPU/EGL slot, one server.
+
+Launched by ``WorkerAgent`` as ``python -m examples.libero.worker_entry ...``.
+Builds a ``LiberoEpisodeRunner`` (real WebSocket client + LIBERO env) and drives
+a ``WorkerLoop`` that pulls episodes from the driver and reports results.
+
+This is GPU/LIBERO-only (manual): it lazily imports LIBERO so the module stays
+importable in CI, but ``main()`` requires a real environment + a running driver.
+"""
+
+from __future__ import annotations
+
+import argparse
+import socket
+
+from openpi.conductor.worker import WorkerLoop
+
+
+def _build_episode_setup(args, seed: int, init_states_dir: str):
+    """Build the (env, initial_state, task_description, max_steps) provider.
+
+    Uses the existing helpers in ``examples.libero.main`` and the standard
+    LIBERO benchmark API (``main.py`` imports ``from libero.libero import
+    benchmark``). Lazy so importing this module needs no LIBERO/CUDA.
+    """
+    from libero.libero import benchmark
+
+    from examples.libero import main as m
+
+    task_suite = benchmark.get_benchmark_dict()[args.task_suite_name]()
+
+    def setup(task):
+        libero_task = task_suite.get_task(task.task_id)
+        env, task_description = m._get_libero_env(libero_task, m.LIBERO_ENV_RESOLUTION, seed)  # noqa: SLF001
+        init_states = m._load_init_states(libero_task, task_suite, task.task_id, init_states_dir)  # noqa: SLF001
+        initial_state = init_states[task.orig_init_state_idx]
+        max_steps = m._get_max_steps(task.experiment)  # noqa: SLF001
+        return env, initial_state, task_description, max_steps
+
+    return setup
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="conductor LIBERO worker")
+    ap.add_argument("--worker-id", required=True)
+    ap.add_argument("--server-key", required=True, help='bound server endpoint "host:port"')
+    ap.add_argument("--driver-host", required=True)
+    ap.add_argument("--driver-port", type=int, required=True)
+    ap.add_argument("--task-suite-name", default="libero_spatial")
+    ap.add_argument("--init-states-dir", default="")
+    ap.add_argument("--seed", type=int, default=7)
+    a = ap.parse_args()
+
+    from examples.libero import main as m
+    from examples.libero.episode_runner import LiberoEpisodeRunner
+
+    args = m.Args(task_suite_name=a.task_suite_name, seed=a.seed)
+    runner = LiberoEpisodeRunner(args, _build_episode_setup(a, a.seed, a.init_states_dir))
+
+    def connect():
+        return socket.create_connection((a.driver_host, a.driver_port))
+
+    WorkerLoop(a.worker_id, a.server_key, runner, connect=connect).run_forever()
+
+
+if __name__ == "__main__":
+    main()

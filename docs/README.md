@@ -69,6 +69,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 |------|-------------|
 | [architecture/cache_system.md](architecture/cache_system.md) \[[ZH](architecture/cache_system.zh.md)\] | Cache system spec: 3-stage pipeline, CP1/CP2/CP3 checkpoints, interceptor pattern, component design; §5.6 SimilarityJudge purity contract refinement (no write to storage; read-only via PayloadView allowed); §5.10 Search Session — Cross-Step Score Memo (opt-in per-episode score memoization, mutation contract, lock-free derivation); §5.11 PayloadView (read-only Judge-side facade + ForkPolicy); §5.12 Verdict Factor System (OnlineExtractor / OfflineWriter protocols + factor registry + CompositeJudge pipeline + LibraryStats + payload.factors schema + `all_nan_fallback` bootstrap + ⚠ multi-worker normalizer cold-start amplification operational gotcha — pre-launch self-check `per_worker_verdict_budget × (1 - max_factor_nan_rate) > window_size`); §5.13 Wire-Level Observability + Warmup Preload Protocol (`__hit_meta__` response field, `fetch_dump` / `preload_normalizer_buffer` / `unload_warmup_buffer` ctrls + `load_cache_config.yaml_id`, `CurrentCacheBundle.yaml_id`, `WarmupPool` lifecycle, server-owned warmup dump root with `.resolve()` allowlist, relation to §5.6 purity + §5.12 cold-start amplification). Chinese companion frozen at 2026-04-03 |
 | [architecture/cache_workflow.md](architecture/cache_workflow.md) | End-to-end workflow diagrams: startup, single inference with CP1/CP3, episode lifecycle, storage layer, YAML mapping, design principles |
+| [architecture/experiment_conductor.md](architecture/experiment_conductor.md) | 两层实验编排框架（worker/agent/driver + 机制/策略分离）：episode 级中央队列 + worker pull 消除等待泡沫；yaml 亲和（warmup 放松 / eval 收紧）/ 永不空转 / warmup→eval barrier；账本断点续跑 + server 自愈；重试分类 / agent 监督 / 聚合监控；按 server 分配 worker；server 端点支持 --replicas 公共端口（router 已对 fetch_dump fan-out + 拼接）/ 多独立端点、server 协议不动。设计见 [`logs/client_conductor_two_layer_refactor.log.md`](../logs/client_conductor_two_layer_refactor.log.md) |
 
 ### [cache/](cache/)
 
@@ -85,6 +86,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 | File | Description |
 |------|-------------|
 | [experiments/artifact_layout.md](experiments/artifact_layout.md) | Canonical `exp/<experiment>/{config,data,analysis}/` layout rules — where new files go, tracking policy, `.gitignore` exceptions; §7 verdict-factor enrichment (B2 `--factors-yaml` flag, `library_stats` field, legacy fallback) |
+| [experiments/conductor_tutorial.md](experiments/conductor_tutorial.md) | **实验编排教程（重点：如何编写 driver 策略）**：用新 conductor 框架跑大规模评测 — 编写 `ExperimentStrategy`、复用/自写 `EpisodeRunner`、`ConductorDriver` + `WorkerAgent` 启动（按 server 分配 worker / 断点续跑 / 重试 / 监控）、调度语义、常见模式、测试。取代旧 `main.py --num-workers` / `run_phase` 编排 |
 | [experiments/cp1_cache.md](experiments/cp1_cache.md) | CP1 Cache experiment guide: artifact building, calibration, YAML generation, 3-phase experiment execution, result analysis |
 | [experiments/temporal_prune.md](experiments/temporal_prune.md) | Temporal Prune experiment pipeline |
 | [experiments/llm_layer_extract.md](experiments/llm_layer_extract.md) | CP1 LLM Layer Extract 端到端 runbook：数据采集 → Step 2 build pkl（带 tokenizer self-check）→ YAML 模板（A/B 两种 reducer）→ run_cache_experiments → 结果分析 → manual parity verify |
@@ -104,7 +106,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 |------|-------------|
 | [deployment/aloha_sim.md](deployment/aloha_sim.md) | ALOHA Sim remote inference (WSL2 client + remote GPU) |
 | [deployment/libero.md](deployment/libero.md) | LIBERO remote inference and simulator environment setup (WSL2 client + remote GPU) |
-| [deployment/concurrent_serving.md](deployment/concurrent_serving.md) | Concurrent serving operator guide — `--concurrent` BatchingCoordinator + multi-bundle (`load_cache_config` + `select_bundle`) workflow, C1/C2 hard-constraint reference, M7 benchmark + tuning, troubleshooting, multi-server → 1-server×N-bundle migration checklist |
+| → [experiments/conductor_tutorial.md](experiments/conductor_tutorial.md) | 并发 server 起法（`--concurrent` / `--replicas` 公共端口 / 多独立端点）+ 调优 + C1/C2 + troubleshooting **已并入**该端到端教程（原 `concurrent_serving.md`）；与 client 编排（写 driver 策略）合为一篇 |
 
 ### [papers/](papers/)
 

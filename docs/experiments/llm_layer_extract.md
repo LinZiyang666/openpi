@@ -1,5 +1,7 @@
 # CP1 LLM Layer Extract 实验运行指南
 
+> **⚙ Client 编排新方向**：下方的多 worker / 多 terminal client 启动（`--num-workers` / `run_cache_experiments.py` / 多 `main.py` 进程）是**迁移完成前的遗留方式**。新实验请改用[实验编排框架](conductor_tutorial.md)——写一个 `ExperimentStrategy` + 通用 driver 统一调度（episode 级无空隙、跨卡/跨机、断点续跑、重试、监控）；旧命令在对应入口迁移完成前仍可运行。
+
 > **本文档**：端到端 experiment runbook —— 数据采集 → artifact build → YAML 编写 → 跑实验 → 分析。
 >
 > **组件 API 参考**：[`../cache/llm_layer_extract.md`](../cache/llm_layer_extract.md)（KeyBuilder 类、reducer 选择、YAML 字段语义）

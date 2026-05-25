@@ -19,9 +19,8 @@ connection is pinned to one backend for its whole life.
 Three frame classes (decided from the connection's first client frame):
 
 * **sticky** — ``infer`` and per-connection ctrls (``episode_start`` /
-  ``episode_end`` / ``select_bundle`` / ``prefill_trajectory`` / ``reset`` /
-  ``fetch_dump``). Pinned to one least-connections backend; frames are then piped
-  raw.
+  ``episode_end`` / ``select_bundle`` / ``prefill_trajectory`` / ``reset``).
+  Pinned to one least-connections backend; frames are then piped raw.
 * **broadcast** — ctrls that load shared bundle/runtime state on *every* replica
   (``load_cache_config`` / ``preload_normalizer_buffer`` /
   ``unload_warmup_buffer`` / ``set_batch_params`` / ``mem_history_start`` /
@@ -29,8 +28,10 @@ Three frame classes (decided from the connection's first client frame):
   This is why ``preload_phase5.py`` works unchanged through the public port: the
   router replicates the bundle to all backends automatically.
 * **aggregate** — metrics queries (``dump_metrics`` / ``throughput_summary`` /
-  ``snapshot_mem``). Sent to all backends and merged (see :func:`merge_metrics`)
-  so a single query returns whole-host numbers.
+  ``snapshot_mem``) **and** ``fetch_dump``. Sent to all backends and merged
+  (metrics via :func:`merge_metrics`; the warmup dump via
+  :func:`merge_dump_replies`, which concatenates each replica's slice) so a
+  single query returns whole-host data.
 
 The server sends its metadata frame first and the client receives it before
 sending anything (``WebsocketClientPolicy._wait_for_server``). The router
@@ -63,9 +64,13 @@ CTRL_AGGREGATE = frozenset({
     "dump_metrics",
     "throughput_summary",
     "snapshot_mem",
+    # warmup dump is split across replicas (each child's DumpingJudge writes only
+    # the episodes routed to it), so fetch_dump must fan out + concatenate — a
+    # sticky single-replica fetch returns a partial buffer.
+    "fetch_dump",
 })
 # Everything else (raw infer, episode_start/end, select_bundle, prefill,
-# reset, fetch_dump) is per-connection and routed sticky.
+# reset) is per-connection and routed sticky.
 
 
 def classify(frame: bytes | str) -> tuple[str, str | None]:
@@ -86,6 +91,61 @@ def classify(frame: bytes | str) -> tuple[str, str | None]:
     if ctrl in CTRL_AGGREGATE:
         return ("aggregate", ctrl)
     return ("sticky", ctrl)
+
+
+# The server's `_handle_fetch_dump` (websocket_policy_server.py) returns an error
+# with this EXACT msg only for the benign case: a replica has no dump file for the
+# requested warmup id because no warmup episode was connection-routed to that child.
+# Every other error (root not configured / invalid id / bad request) is a real
+# failure. This is the server<->router contract; a test asserts the two stay in sync.
+FETCH_DUMP_NOT_FOUND_MSG = "dump not found"
+
+
+def merge_dump_replies(replies: list[dict], *, n_expected: int) -> dict:
+    """Concatenate the warmup dump bytes fetched from every replica.
+
+    Each child server's ``DumpingJudge`` writes only the warmup episodes that were
+    routed (connection-sticky) to it, so the whole-host dump is the byte
+    concatenation of all replicas' slices. Two reply shapes are safe to fold into
+    that concatenation: a successful slice, and the *benign* "no warmup episode was
+    routed here" case (server error whose msg is :data:`FETCH_DUMP_NOT_FOUND_MSG`).
+
+    Anything else makes a success reply UNSAFE, because the client cannot tell a
+    whole-host dump from one missing a slice — returning survivors only would be a
+    silent partial calibration buffer (the exact bug the owner override targets).
+    The merge therefore surfaces an error when it sees a fatal child error (root not
+    configured / invalid id / bad request), a malformed reply, or a *dropped*
+    backend (an exception/disconnect during fan-out yields fewer decoded replies
+    than ``n_expected``, so that replica's slice is lost).
+    """
+    chunks: list[bytes] = []
+    warmup_yaml_id = None
+    fatal: list[str] = []
+    for r in replies:
+        if not isinstance(r, dict):
+            fatal.append(f"malformed reply ({type(r).__name__})")
+            continue
+        if r.get("__ack__") == "error":
+            if r.get("msg") == FETCH_DUMP_NOT_FOUND_MSG:
+                continue  # benign: this replica had no routed warmup episode
+            fatal.append(str(r.get("msg", "unknown error")))
+            continue
+        content = r.get("content")
+        if not isinstance(content, (bytes, bytearray)):
+            fatal.append("success reply without bytes content")
+            continue
+        if r.get("warmup_yaml_id") is not None:
+            warmup_yaml_id = r["warmup_yaml_id"]
+        chunks.append(bytes(content))
+    n_dropped = n_expected - len(replies)
+    if n_dropped > 0:
+        fatal.append(f"{n_dropped} replica(s) unreachable/dropped during fan-out")
+    if fatal:
+        return {"__ack__": "error", "msg": "fetch_dump would be a partial dump: " + "; ".join(fatal)}
+    if not chunks:
+        # every replica was benign-missing -> the warmup genuinely produced no dump
+        return {"__ack__": "error", "msg": "fetch_dump: no dump on any replica"}
+    return {"__ack__": "fetch_dump", "warmup_yaml_id": warmup_yaml_id, "content": b"".join(chunks)}
 
 
 def merge_metrics(replies: list[dict]) -> dict:
@@ -427,7 +487,13 @@ class ReplicaProxy:
         # Use a dedicated summer so the public response reports whole-host
         # throughput rather than one replica's slice.
         _, ctrl = classify(frame)
-        if ctrl == "throughput_summary":
+        if ctrl == "fetch_dump":
+            # Warmup dump is split across replicas — concatenate each replica's
+            # slice into the whole-host dump. Pass the expected replica count so a
+            # dropped/errored backend surfaces as an error instead of a silently
+            # partial dump (G2R6).
+            merged = merge_dump_replies(dicts, n_expected=len(self._backends))
+        elif ctrl == "throughput_summary":
             # Pass the expected replica count so missing/errored replicas (whose
             # responses never reached `dicts`) are surfaced as partial, not
             # silently aggregated over the survivors only.
