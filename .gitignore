@@ -36,6 +36,13 @@ exp/**/data/**
 !exp/warm_start/data/spatial16/cache_eval_results.json
 !exp/warm_start/data/spatial16/*.episode_results.json
 
+# Tracked weighted_sum Phase-1 calibration + init-map leak-guard source-of-truth
+# (small JSON; reproduction-critical; weighted_sum_two_layer_refactor plan §5.5).
+!exp/weighted_sum/data/calibration_normalizers.json
+!exp/common/data/db/
+!exp/common/data/db/libero_cache/
+!exp/common/data/db/libero_cache/libero_spatial_init_map.json
+
 wandb/
 
 # Model weights and large binary files.

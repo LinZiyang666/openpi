@@ -93,6 +93,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 | [experiments/trajectory_deviation.md](experiments/trajectory_deviation.md) \[[EN](experiments/trajectory_deviation.en.md)\] | Trajectory Deviation experiment runbook: Step 1a→1b→2→3→4 pipeline, parallelism rules, tunables |
 | [experiments/warm_start_sweep.md](experiments/warm_start_sweep.md) \[[EN](experiments/warm_start_sweep.en.md)\] | Warm Start sweep runbook: 3 keybuilder × 3 start_t under always-hit + always_warm_start, artifact rebuild, 3-server parallel run, recovery/loss analysis |
 | [experiments/serving_benchmark.md](experiments/serving_benchmark.md) | Throughput/latency benchmark runbook (Phase 6 M7 of `logs/concurrent_serving_optimization_plan.log.md`): 5 modes (GPU microbench / sparse→dense / freq sweep / yaml density / batch window), driver/sweep/collect/plot tooling under `exp/serving_benchmark/` |
+| [experiments/weighted_sum.md](experiments/weighted_sum.md) | Weighted-sum two-layer calibration + weight-search runbook: Phase 1 offline picks the Layer-1 normalizer method+params per (keybuilder, modality) from the real LOEO query×library distribution (J = mag_sep + β·intra_spread − λ·sat shortlist); Phase 2 conductor pure-eval (always_hit) finds useful modalities + searches weights with the init-state leak guard; prompt_emb dropped |
 
 ### [data_collection/](data_collection/)
 

@@ -578,6 +578,18 @@ All strategies inherit `TrajectoryMixin`, providing history buffer management (`
 
 > **Design vs Implementation**: The original spec had fusion logic inside the backend (`VectorStoreBackend.search()` was the "black box" that fused multiple fields). Implementation moved fusion control to `SearchStrategy` while keeping the actual computation in `InMemoryBackend`. This separation allows experimenting with different fusion strategies without changing the backend.
 
+#### 5.8.1 Layer-1 Score Normalization (`weighted_score_sum`)
+
+> **Source**: `src/openpi/cache/components/score_normalizers.py`
+
+`weighted_score_sum` is a two-layer search. **Layer 1** maps each modality's raw geometric similarity (cosine value or L2 distance from `_batch_field_scores`) to a bounded, comparable scalar via a per-field `ScoreNormalizer`; **Layer 2** takes the magnitude-faithful weighted sum and returns top-k. The normalizers live in `score_normalizers.py` and are constructed at search time by `build_field_normalizers` from `QuerySpec.score_normalization`; `InMemoryBackend._search_weighted_score_sum` (and the trajectory paths, which build the normalizers once at entry and thread them through every chain layer) only apply them and sum.
+
+**Design contract** — each normalizer is monotone non-decreasing in similarity (strictly increasing on its unsaturated interval); candidate normalizers all emit `[0,1]` so neither the weighted sum nor offline method selection is dominated by output scale; and **no empirical-CDF / rank equalization** (that would discard magnitude and collapse the sum into rank fusion ≈ weighted RRF).
+
+**Candidate normalizers** (offline-selectable): `affine_clip`, `zscore` (mandatory bounded tanh squash), `logit`, `neg_log_one_minus`, `power` (the last three cosine-only, for near-1 cosine saturation), `exp_l2` (l2-only). **Back-compat only** (not selectable): `legacy_percentile` (reproduces the old `score_normalization.type: percentile` exactly — note the old p5/p95 live in the post-`(cos+1)/2` / `exp(-d/τ)` space, not raw cosine) and `direction_unify` (the old `type: none` path; backend/spec-level only — `weighted_score_sum_knn` config validation still rejects `type:none`).
+
+`score_normalization` schema (`type: per_field`): `{"fields": {"vision_0": {"method": "logit", "params": {...}}, ...}}`. Parameters are fit offline against the real query-vs-library distribution by `exp/common/calibrate_score_normalizers.py` (see the [weighted_sum runbook](../experiments/weighted_sum.md)).
+
 ### 5.9 WritePolicy (Pluggable) — Not in Original Design
 
 > **Source**: `src/openpi/cache/components/write_policy.py`

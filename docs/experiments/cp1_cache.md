@@ -90,7 +90,9 @@ exp/common/data/cache_artifacts/libero_spatial/
 
 ## Step 2: 校准 Score Sum 统计量（评估端或 GPU 服务器）
 
-为 `weighted_score_sum` 融合策略计算每个字段的 p5/p95 百分位统计。
+为 `weighted_score_sum` 融合策略计算每个字段的 p5/p95 百分位统计（**legacy percentile 路线**）。
+
+> 两层重构后，`weighted_score_sum` 的 Layer-1 归一化改用 `exp/common/calibrate_score_normalizers.py`（真实 query×全库分布 + 多候选方法），见 [weighted_sum runbook](weighted_sum.md)。下面的 percentile 校准仅用于加载旧 YAML。
 
 ```bash
 uv run exp/common/calibrate_score_sum_stats.py \

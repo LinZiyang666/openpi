@@ -220,9 +220,13 @@ class QuerySpec:
     #  "robot_state": {"type": "l2", "to_similarity": {"type": "exp", "tau": 0.334717}}}
 
     score_normalization: Optional[dict[str, Any]] = None
-    # Only for weighted_score_sum, e.g.:
-    # {"type": "percentile",
-    #  "fields": {"vision_0": {"p5": 0.82, "p95": 0.99}, ...}}
+    # Only for weighted_score_sum. Consumed by score_normalizers.build_field_normalizers.
+    #   per_field (Layer-1 normalizers):
+    #     {"type": "per_field",
+    #      "fields": {"vision_0": {"method": "logit", "params": {"lo": .., "hi": ..}}, ...}}
+    #   percentile (legacy):
+    #     {"type": "percentile", "fields": {"vision_0": {"p5": 0.82, "p95": 0.99}, ...}}
+    #   none (backend/spec-level back-compat: direction-unify only; not a valid YAML)
 
     # ── Trajectory search fields ──
     trajectory_history: Optional[list[dict[str, torch.Tensor]]] = None

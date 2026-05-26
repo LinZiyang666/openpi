@@ -234,6 +234,94 @@ class TestWeightedScoreSum:
         assert results[0].score > results[1].score
 
 
+class TestWeightedScoreSumPerField:
+    """per_field Layer-1 normalization in the two-layer weighted-sum path."""
+
+    def test_per_field_affine_orders_by_similarity_and_bounded(self):
+        backend = InMemoryBackend({"vision_0": 2})
+        backend.insert(_make_entry("A", {"vision_0": torch.tensor([1.0, 0.0])}))
+        backend.insert(_make_entry("B", {"vision_0": torch.tensor([0.0, 1.0])}))
+        query = {"vision_0": torch.tensor([1.0, 0.0])}
+        spec = _make_spec(
+            query, fusion_method="weighted_score_sum",
+            fusion_weights={"vision_0": 1.0},
+            field_similarity={"vision_0": {"type": "cosine"}},
+            score_normalization={
+                "type": "per_field",
+                "fields": {
+                    "vision_0": {"method": "affine_clip", "params": {"lo": -1.0, "hi": 1.0}}
+                },
+            },
+        )
+        results = backend.search(spec)
+        assert results[0].id == "A"  # cos=1 -> 1.0 ; B cos=0 -> 0.5
+        assert results[0].score > results[1].score
+        assert all(0.0 <= r.score <= 1.0 + 1e-6 for r in results)
+
+    def test_per_field_exp_l2_robot_state(self):
+        backend = InMemoryBackend({"robot_state": 2})
+        backend.insert(_make_entry("near", {"robot_state": torch.tensor([0.0, 0.0])}))
+        backend.insert(_make_entry("far", {"robot_state": torch.tensor([3.0, 4.0])}))  # dist 5
+        query = {"robot_state": torch.tensor([0.0, 0.0])}
+        spec = _make_spec(
+            query, fusion_method="weighted_score_sum",
+            fusion_weights={"robot_state": 1.0},
+            field_similarity={"robot_state": {"type": "l2", "to_similarity": {"tau": 1.0}}},
+            score_normalization={
+                "type": "per_field",
+                "fields": {"robot_state": {"method": "exp_l2", "params": {"tau": 1.0}}},
+            },
+        )
+        results = backend.search(spec)
+        assert results[0].id == "near"
+        assert results[0].score == pytest.approx(1.0, abs=1e-5)  # exp(-0/tau)=1
+
+    def test_partial_prebuilt_normalizers_filled_no_keyerror(self):
+        # Guards the trajectory-threading case where a layer's active field is
+        # absent from the entry-built normalizer dict: must be filled, not raise.
+        backend = InMemoryBackend({"vision_0": 2})
+        backend.insert(_make_entry("A", {"vision_0": torch.tensor([1.0, 0.0])}))
+        spec = _make_spec(
+            {"vision_0": torch.tensor([1.0, 0.0])},
+            fusion_method="weighted_score_sum",
+            fusion_weights={"vision_0": 1.0},
+            field_similarity={"vision_0": {"type": "cosine"}},
+            score_normalization={
+                "type": "per_field",
+                "fields": {
+                    "vision_0": {"method": "affine_clip", "params": {"lo": -1.0, "hi": 1.0}}
+                },
+            },
+        )
+        active = backend._iter_active_fields(spec)
+        results = backend._search_weighted_score_sum(
+            backend._filter_entries(spec), spec, active, normalizers={},
+        )
+        assert results and results[0].id == "A"
+
+    def test_compute_level_scores_per_field(self):
+        # Trajectory layer scoring must use the per_field normalizers too.
+        backend = InMemoryBackend({"vision_0": 2})
+        e1 = _make_entry("A", {"vision_0": torch.tensor([1.0, 0.0])})
+        e2 = _make_entry("B", {"vision_0": torch.tensor([0.0, 1.0])})
+        backend.insert(e1)
+        backend.insert(e2)
+        spec = _make_spec(
+            {"vision_0": torch.tensor([1.0, 0.0])},
+            fusion_method="weighted_score_sum",
+            fusion_weights={"vision_0": 1.0},
+            field_similarity={"vision_0": {"type": "cosine"}},
+            score_normalization={
+                "type": "per_field",
+                "fields": {
+                    "vision_0": {"method": "affine_clip", "params": {"lo": -1.0, "hi": 1.0}}
+                },
+            },
+        )
+        scores = backend._compute_level_scores([e1, e2], spec.query_keys, spec)
+        assert scores["A"] > scores["B"]  # query matches A
+
+
 # ---------------------------------------------------------------------------
 # TestFiltering
 # ---------------------------------------------------------------------------

@@ -14,11 +14,13 @@ from openpi.cache.config import (
     CacheConfig,
     CheckpointConfig,
     ConfigValidationError,
+    FieldSimilarityConfig,
     GateConfig,
     JudgeConfig,
     KeyBuilderConfig,
     KeyFieldConfig,
     KeysConfig,
+    ScoreNormalizationConfig,
     SearchStrategyConfig,
     TimerConfig,
     WritePolicyConfig,
@@ -1349,4 +1351,117 @@ def test_periodic_gate_rejects_bool_cache_len():
         GateConfig(type="periodic", cache_len=True, inference_len=1)
     )
     with pytest.raises(ConfigValidationError, match="cache_len must be an int"):
+        validate_cache_config(cfg)
+
+
+# ---------------------------------------------------------------------------
+# weighted_score_sum_knn per_field score_normalization validation
+# ---------------------------------------------------------------------------
+
+
+def _score_sum_config(score_normalization, field_similarity=None):
+    return CacheConfig(
+        enabled=True,
+        keys=KeysConfig(robot_state=KeyFieldConfig(enabled=True, weight=1.0)),
+        backend=BackendConfig(type="in_memory", vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                search_strategy=SearchStrategyConfig(
+                    type="weighted_score_sum_knn",
+                    field_similarity=field_similarity,
+                    score_normalization=score_normalization,
+                ),
+            ),
+        },
+    )
+
+
+def test_score_sum_per_field_valid():
+    cfg = _score_sum_config(
+        ScoreNormalizationConfig(
+            type="per_field",
+            fields={"robot_state": {"method": "exp_l2", "params": {"tau": 0.33}}},
+        ),
+        field_similarity={
+            "robot_state": FieldSimilarityConfig(type="l2", to_similarity={"tau": 0.33})
+        },
+    )
+    validate_cache_config(cfg)  # must not raise
+
+
+def test_score_sum_rejects_type_none():
+    cfg = _score_sum_config(ScoreNormalizationConfig(type="none"))
+    with pytest.raises(ConfigValidationError, match="requires score_normalization"):
+        validate_cache_config(cfg)
+
+
+def test_score_sum_rejects_unknown_type():
+    # A typo'd type must fail fast, not silently fall back to no-normalization.
+    cfg = _score_sum_config(
+        ScoreNormalizationConfig(
+            type="typo",
+            fields={"robot_state": {"method": "exp_l2", "params": {"tau": 0.33}}},
+        ),
+        field_similarity={
+            "robot_state": FieldSimilarityConfig(type="l2", to_similarity={"tau": 0.33})
+        },
+    )
+    with pytest.raises(ConfigValidationError, match="unknown score_normalization.type"):
+        validate_cache_config(cfg)
+
+
+def test_score_sum_per_field_unknown_method():
+    cfg = _score_sum_config(
+        ScoreNormalizationConfig(
+            type="per_field",
+            fields={"robot_state": {"method": "bogus", "params": {}}},
+        ),
+        field_similarity={
+            "robot_state": FieldSimilarityConfig(type="l2", to_similarity={"tau": 0.33})
+        },
+    )
+    with pytest.raises(ConfigValidationError, match="unknown or ineligible"):
+        validate_cache_config(cfg)
+
+
+def test_score_sum_per_field_sim_type_incompatible():
+    # logit is cosine-only; robot_state is l2 -> must be rejected.
+    cfg = _score_sum_config(
+        ScoreNormalizationConfig(
+            type="per_field",
+            fields={"robot_state": {"method": "logit", "params": {"lo": 0.0, "hi": 1.0}}},
+        ),
+        field_similarity={
+            "robot_state": FieldSimilarityConfig(type="l2", to_similarity={"tau": 0.33})
+        },
+    )
+    with pytest.raises(ConfigValidationError, match="incompatible with sim_type"):
+        validate_cache_config(cfg)
+
+
+def test_score_sum_per_field_rejects_back_compat_method():
+    # legacy_percentile / direction_unify are reachable only via type:percentile
+    # / type:none, never as a per_field method.
+    cfg = _score_sum_config(
+        ScoreNormalizationConfig(
+            type="per_field",
+            fields={"robot_state": {"method": "direction_unify", "params": {}}},
+        ),
+        field_similarity={
+            "robot_state": FieldSimilarityConfig(type="l2", to_similarity={"tau": 0.33})
+        },
+    )
+    with pytest.raises(ConfigValidationError, match="ineligible"):
+        validate_cache_config(cfg)
+
+
+def test_score_sum_per_field_missing_coverage():
+    # robot_state is weighted but absent from fields -> coverage error.
+    cfg = _score_sum_config(
+        ScoreNormalizationConfig(
+            type="per_field",
+            fields={"vision_0": {"method": "affine_clip", "params": {"lo": 0.0, "hi": 1.0}}},
+        ),
+    )
+    with pytest.raises(ConfigValidationError, match="missing"):
         validate_cache_config(cfg)

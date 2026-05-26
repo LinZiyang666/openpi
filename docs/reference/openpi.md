@@ -72,7 +72,8 @@ openpi/
 │   │   ├── run_cache_experiments.py              # Automated cache experiment runner (Phase 1/1.5/2)
 │   │   ├── analyze_cache_results.py              # Parse experiment results from state JSON
 │   │   ├── calibrate_robot_state_tau.py          # Calibrate L2→similarity tau for robot_state
-│   │   └── calibrate_score_sum_stats.py          # Calibrate percentile stats for WeightedScoreSum
+│   │   ├── calibrate_score_sum_stats.py          # (legacy percentile stats for WeightedScoreSum)
+│   │   └── calibrate_score_normalizers.py        # Layer-1 normalizer calibration (two-layer weighted_sum); see experiments/weighted_sum.md
 │   ├── trajectory_deviation/                     # Trajectory deviation corrective experiment
 │   │   ├── run_step1b_gt.py                      # Step 1b: collect GT trajectories
 │   │   ├── compute_deviate_scores.py             # Step 2: compute per-cycle deviate scores

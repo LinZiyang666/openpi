@@ -34,6 +34,10 @@ import torch
 import torch.nn.functional as F
 
 from openpi.cache.backend_base import VectorStoreBackend
+from openpi.cache.components.score_normalizers import (
+    ScoreNormalizer,
+    build_field_normalizers,
+)
 from openpi.cache.storage_types import (
     CacheEntry,
     CachePayload,
@@ -557,64 +561,62 @@ class InMemoryBackend(VectorStoreBackend):
     # Weighted Score Sum fusion
     # -------------------------------------------------------------------
 
+    def _ensure_normalizers(
+        self,
+        normalizers: Optional[dict[str, ScoreNormalizer]],
+        active_fields: list[tuple[str, float, dict[str, Any]]],
+        spec: QuerySpec,
+    ) -> dict[str, ScoreNormalizer]:
+        """Return a normalizer dict covering every active field.
+
+        Builds the full set when none was threaded in. When a prebuilt set was
+        threaded from a trajectory entry point, fills any field it does not
+        cover — a history layer may carry a field the current step's set lacks
+        (build cost is incurred only for the missing fields).
+        """
+        if normalizers is None:
+            return build_field_normalizers(
+                active_fields, spec.score_normalization, spec.field_similarity,
+            )
+        missing = [af for af in active_fields if af[0] not in normalizers]
+        if missing:
+            return {
+                **normalizers,
+                **build_field_normalizers(
+                    missing, spec.score_normalization, spec.field_similarity,
+                ),
+            }
+        return normalizers
+
     def _search_weighted_score_sum(
         self,
         candidates: list[CacheEntry],
         spec: QuerySpec,
         active_fields: list[tuple[str, float, dict[str, Any]]],
+        normalizers: Optional[dict[str, ScoreNormalizer]] = None,
     ) -> list[SearchResultLite]:
-        """Weighted Score Sum with normalization (batched).
+        """Two-layer weighted score sum (batched).
 
-        1. Per-field batched raw score (cosine or L2)
-        2. Convert to [0,1] similarity:
-           - cosine: (cos + 1) / 2
-           - L2: exp(-d / tau)
-        3. Percentile normalization: clip((s - p5) / (p95 - p5), 0, 1)
-        4. Weighted sum: Score(x) = sum_f w_f * s_hat_f(x)
-        5. Sort descending, return top_k
+        Layer 1 (normalization): each field's raw score (cosine value or L2
+        distance from `_batch_field_scores`) is mapped to a bounded, comparable
+        scalar by a per-field `ScoreNormalizer` (built from spec config).
+        Layer 2 (fusion): Score(x) = sum_f w_f * s_hat_f(x), then top_k.
+
+        `normalizers` may be supplied by the trajectory entry points so they are
+        constructed once per search rather than once per chain layer.
         """
-        norm_config = spec.score_normalization or {}
-        norm_type = norm_config.get("type", "none")
-        norm_fields = norm_config.get("fields", {})
-
-        if norm_type == "percentile":
-            missing = [fn for fn, _, _ in active_fields if fn not in norm_fields]
-            if missing:
-                raise ValueError(
-                    f"Percentile normalization missing stats for active fields: {missing}. "
-                    f"Available: {list(norm_fields)}. Re-run calibration."
-                )
+        normalizers = self._ensure_normalizers(normalizers, active_fields, spec)
 
         n = len(candidates)
         final_scores = torch.zeros(n)
 
         for field_name, weight, sim_cfg in active_fields:
-            sim_type = sim_cfg.get("type", "cosine")
             raw, mask = self._batch_field_scores(
                 spec.query_keys[field_name], candidates, field_name, sim_cfg,
             )
-
-            # Convert to [0, 1] similarity
-            if sim_type == "cosine":
-                s = (raw + 1.0) / 2.0
-            elif sim_type == "l2":
-                to_sim = sim_cfg.get("to_similarity", {})
-                tau = to_sim.get("tau", 1.0)
-                s = torch.exp(-raw / tau)
-            else:
-                s = raw
-
-            # Percentile normalization
-            if norm_type == "percentile":
-                p5 = norm_fields[field_name]["p5"]
-                p95 = norm_fields[field_name]["p95"]
-                denom = p95 - p5
-                if denom > 0:
-                    s = ((s - p5) / denom).clamp(0.0, 1.0)
-                else:
-                    s = torch.full_like(s, 0.5)
-
-            # Only accumulate for entries that have this field.
+            # Layer 1: raw similarity -> bounded normalized score.
+            s = normalizers[field_name](raw)
+            # Layer 2: only accumulate for entries that have this field.
             final_scores += weight * s * mask
 
         top_k = min(spec.top_k, n)
@@ -670,6 +672,17 @@ class InMemoryBackend(VectorStoreBackend):
         if L <= 0:
             return []
 
+        # Build per-field normalizers once (params are query-independent), shared
+        # across all chain layers. Only weighted_score_sum uses them — building
+        # for the RRF path would be wasted work and could raise on a stray type.
+        traj_normalizers = (
+            build_field_normalizers(
+                self._iter_active_fields(spec), spec.score_normalization, spec.field_similarity,
+            )
+            if spec.fusion_method == "weighted_score_sum"
+            else None
+        )
+
         # (1) Flatten ancestors. ancestor_ids[i][l] is candidate i's ancestor
         # l steps back (None when chain ends earlier than L).
         ancestor_ids = self._walk_chain(candidates, depth=L,
@@ -696,6 +709,7 @@ class InMemoryBackend(VectorStoreBackend):
             qid = qids[layer_idx] if qids is not None else None
             level_scores.append(self._compute_level_scores(
                 layer_entries, history[layer_idx], spec, sid=sid, qid=qid,
+                normalizers=traj_normalizers,
             ))
 
         # (3) Accumulate per-candidate trajectory score.
@@ -764,6 +778,7 @@ class InMemoryBackend(VectorStoreBackend):
         spec: QuerySpec,
         sid: Optional[str] = None,
         qid: Optional[int] = None,
+        normalizers: Optional[dict[str, ScoreNormalizer]] = None,
     ) -> dict[str, float]:
         """Per-layer fusion -> {entry_id: layer_score}.
 
@@ -824,35 +839,11 @@ class InMemoryBackend(VectorStoreBackend):
             return {entries[i].id: float(rrf_scores[i]) for i in range(n)}
 
         if method == "weighted_score_sum":
-            norm_config = spec.score_normalization or {}
-            norm_type = norm_config.get("type", "none")
-            norm_fields = norm_config.get("fields", {})
-            if norm_type == "percentile":
-                missing = [fn for fn, _, _ in active_fields if fn not in norm_fields]
-                if missing:
-                    raise ValueError(
-                        f"Percentile normalization missing stats for active fields: "
-                        f"{missing}. Available: {list(norm_fields)}. Re-run calibration."
-                    )
+            normalizers = self._ensure_normalizers(normalizers, active_fields, spec)
             final_scores = torch.zeros(n)
             for field_name, weight, sim_cfg, raw, mask in per_field_scores:
-                sim_type = sim_cfg.get("type", "cosine")
-                if sim_type == "cosine":
-                    s = (raw + 1.0) / 2.0
-                elif sim_type == "l2":
-                    to_sim = sim_cfg.get("to_similarity", {})
-                    tau = to_sim.get("tau", 1.0)
-                    s = torch.exp(-raw / tau)
-                else:
-                    s = raw
-                if norm_type == "percentile":
-                    p5 = norm_fields[field_name]["p5"]
-                    p95 = norm_fields[field_name]["p95"]
-                    denom = p95 - p5
-                    if denom > 0:
-                        s = ((s - p5) / denom).clamp(0.0, 1.0)
-                    else:
-                        s = torch.full_like(s, 0.5)
+                # Layer 1: per-field bounded normalization (shared with single-step).
+                s = normalizers[field_name](raw)
                 final_scores += weight * s * mask
             return {entries[i].id: float(final_scores[i]) for i in range(n)}
 
@@ -940,6 +931,16 @@ class InMemoryBackend(VectorStoreBackend):
         level_sizes = [len(s) for s in level_entries]
         logger.info("  Phase A collect: level_sizes=%s (level 0=current)", level_sizes)
 
+        # Build per-field normalizers once, shared across all depth levels; only
+        # the weighted_score_sum path consumes them.
+        traj_normalizers = (
+            build_field_normalizers(
+                self._iter_active_fields(spec), spec.score_normalization, spec.field_similarity,
+            )
+            if spec.fusion_method == "weighted_score_sum"
+            else None
+        )
+
         # Phase B: batch-score each level
         level_scores: list[dict[str, float]] = []
         for idx in range(len(weights)):
@@ -951,7 +952,9 @@ class InMemoryBackend(VectorStoreBackend):
             if not entries_at_level:
                 level_scores.append({})
                 continue
-            scores = self._batch_step_scores(entries_at_level, history[idx], spec)
+            scores = self._batch_step_scores(
+                entries_at_level, history[idx], spec, normalizers=traj_normalizers,
+            )
             level_scores.append(scores)
 
         # Phase C: aggregate trajectory scores
@@ -1022,6 +1025,7 @@ class InMemoryBackend(VectorStoreBackend):
         entries: list[CacheEntry],
         query_keys: dict[str, 'torch.Tensor'],
         spec: QuerySpec,
+        normalizers: Optional[dict[str, ScoreNormalizer]] = None,
     ) -> dict[str, float]:
         """Batch-score one level's entries using configured fusion method.
 
@@ -1052,7 +1056,9 @@ class InMemoryBackend(VectorStoreBackend):
         if spec.fusion_method == "weighted_rrf":
             results = self._search_weighted_rrf(entries, temp_spec, level_active_fields)
         elif spec.fusion_method == "weighted_score_sum":
-            results = self._search_weighted_score_sum(entries, temp_spec, level_active_fields)
+            results = self._search_weighted_score_sum(
+                entries, temp_spec, level_active_fields, normalizers=normalizers,
+            )
         else:
             results = self._search_single_field_cosine(entries, temp_spec)
 

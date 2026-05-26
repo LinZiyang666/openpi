@@ -11,5 +11,6 @@ Experiment run-books: step-by-step pipelines for each experiment family.
 | [trajectory_deviation.md](trajectory_deviation.md) \[[EN](trajectory_deviation.en.md)\] | Trajectory Deviation experiment runbook: Step 1a→1b→2→3→4 pipeline, parallelism rules, tunables |
 | [warm_start_sweep.md](warm_start_sweep.md) \[[EN](warm_start_sweep.en.md)\] | Warm Start sweep runbook: 3 keybuilder × 3 start_t under always-hit + always_warm_start, artifact rebuild, 3-server parallel run, recovery/loss analysis |
 | [serving_benchmark.md](serving_benchmark.md) | Serving throughput/latency benchmark runbook (Phase 6 M7 from `logs/concurrent_serving_optimization_plan.log.md`): 5 modes (GPU microbench / sparse→dense / freq sweep / yaml density / batch window) + driver/sweep/collect/plot tooling |
+| [weighted_sum.md](weighted_sum.md) | Weighted-sum 两层检索校准 + 权重搜索 runbook：Phase 1 离线为每 (keybuilder, 模态) 选 Layer-1 归一化方法+参数（LOEO query×全库分布，J=mag_sep+β·intra_spread−λ·sat 出 shortlist）；Phase 2 conductor 纯-eval（always_hit）找有用模态+搜权重，含 init-state 防泄漏硬门；prompt_emb 已退出 |
 
 Back to [docs index](../README.md).

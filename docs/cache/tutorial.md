@@ -239,8 +239,24 @@ Judge also has `on_episode_start()` and `record_action()` lifecycle methods.
 | Type | Backend | Description |
 |------|---------|-------------|
 | `weighted_rrf_knn` | in_memory | Rank-based fusion. Good for multi-field when magnitude doesn't matter. |
-| `weighted_score_sum_knn` | in_memory | Similarity-based fusion. Better for trajectory search (preserves magnitude). |
+| `weighted_score_sum_knn` | in_memory | Two-layer similarity fusion (Layer-1 normalize → Layer-2 weighted sum). Preserves magnitude. Requires `score_normalization`. |
 | `qdrant_weighted_rrf_knn` | qdrant | Qdrant server-side RRF. Does NOT support trajectory search. |
+
+`weighted_score_sum_knn` requires `score_normalization` (config rejects `type:none`). Two forms:
+
+```yaml
+search_strategy:
+  type: weighted_score_sum_knn
+  field_similarity: { vision_0: {type: cosine}, robot_state: {type: l2, to_similarity: {type: exp, tau: 0.33}} }
+  score_normalization:
+    type: per_field          # Layer-1 normalizers, params fit by calibrate_score_normalizers.py
+    fields:
+      vision_0:    { method: logit,  params: { lo: 0.9, hi: 0.999, eps: 1.0e-4 } }
+      robot_state: { method: exp_l2, params: { tau: 0.33 } }
+    # legacy form: type: percentile, fields: { vision_0: { p5: .., p95: .. } }
+```
+
+Method registry + design contract (monotone, bounded `[0,1]`, no rank equalization) live in `src/openpi/cache/components/score_normalizers.py` and [`cache_system.md` §5.8.1](../architecture/cache_system.md); the calibration + weight-search workflow is the [weighted_sum runbook](../experiments/weighted_sum.md).
 
 ### TrajectoryMixin
 

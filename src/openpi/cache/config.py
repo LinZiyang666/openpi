@@ -308,9 +308,10 @@ class FieldSimilarityConfig:
 
 @dataclass
 class ScoreNormalizationConfig:
-    type: str = "none"             # "none" | "percentile"
-    fields: Optional[dict[str, dict[str, float]]] = None
-    # Only for percentile, e.g.: {"vision_0": {"p5": 0.82, "p95": 0.99}}
+    type: str = "none"             # "none" | "percentile" | "per_field"
+    fields: Optional[dict[str, dict[str, Any]]] = None
+    # percentile: {"vision_0": {"p5": 0.82, "p95": 0.99}}
+    # per_field:  {"vision_0": {"method": "logit", "params": {"lo": .., "hi": ..}}}
 
 
 @dataclass
@@ -1279,8 +1280,73 @@ def validate_cache_config(config: CacheConfig) -> None:
                             f"{prefix}.search_strategy: percentile normalization missing "
                             f"stats for weighted fields: {sorted(missing)}.\n"
                             f"  Calibration must cover all enabled fields with weight > 0.\n"
-                            f"  Fix: re-run calibrate_score_sum_stats.py or add entries for {sorted(missing)}"
+                            f"  Fix: re-run calibration (calibrate_score_sum_stats.py for "
+                            f"percentile) or add entries for {sorted(missing)}"
                         )
+            elif ss.score_normalization.type == "per_field":
+                # per_field: each weighted field carries {method, params}; the
+                # normalizer (Layer 1) owns its full mapping. Validate coverage,
+                # method registration, sim_type compatibility, and params.
+                fields = ss.score_normalization.fields
+                if not fields:
+                    errors.append(
+                        f"{prefix}.search_strategy: per_field normalization requires fields"
+                    )
+                else:
+                    from openpi.cache.components.score_normalizers import (
+                        CANDIDATE_NORMALIZERS,
+                        SCORE_NORMALIZER_REGISTRY,
+                    )
+
+                    weighted_fields = {
+                        name for name, kf in _keys_iter(config.keys)
+                        if kf.enabled and kf.weight > 0
+                    }
+                    missing = weighted_fields - set(fields)
+                    if missing:
+                        errors.append(
+                            f"{prefix}.search_strategy: per_field normalization missing "
+                            f"entries for weighted fields: {sorted(missing)}.\n"
+                            f"  Fix: re-run calibration or add entries for {sorted(missing)}"
+                        )
+                    fs_cfg = ss.field_similarity or {}
+                    for fname, entry in fields.items():
+                        method = entry.get("method") if isinstance(entry, dict) else None
+                        # Only candidate (selectable) methods are valid in a
+                        # production per_field YAML; the back-compat normalizers
+                        # (legacy_percentile / direction_unify) are reachable only
+                        # via type:percentile / type:none, not per_field.
+                        if method not in CANDIDATE_NORMALIZERS:
+                            errors.append(
+                                f"{prefix}.search_strategy: per_field field {fname!r} has "
+                                f"unknown or ineligible method {method!r}. "
+                                f"Valid: {sorted(CANDIDATE_NORMALIZERS)}"
+                            )
+                            continue
+                        cls = SCORE_NORMALIZER_REGISTRY[method]
+                        sim_type = "cosine"
+                        if fname in fs_cfg and fs_cfg[fname] is not None:
+                            sim_type = fs_cfg[fname].type
+                        if sim_type not in cls.supported_sim_types:
+                            errors.append(
+                                f"{prefix}.search_strategy: per_field field {fname!r} method "
+                                f"{method!r} incompatible with sim_type {sim_type!r} "
+                                f"(supported: {sorted(cls.supported_sim_types)})"
+                            )
+                            continue
+                        try:
+                            cls.from_params_dict(entry.get("params", {}), sim_type)
+                        except Exception as exc:  # noqa: BLE001 - surface as config error
+                            errors.append(
+                                f"{prefix}.search_strategy: per_field field {fname!r} method "
+                                f"{method!r} has invalid params: {exc}"
+                            )
+            else:
+                errors.append(
+                    f"{prefix}.search_strategy: unknown score_normalization.type "
+                    f"{ss.score_normalization.type!r}; valid: 'per_field' | 'percentile' "
+                    f"(weighted_score_sum_knn rejects 'none')"
+                )
 
         if ss.step_filter not in _VALID_STEP_FILTERS:
             errors.append(
