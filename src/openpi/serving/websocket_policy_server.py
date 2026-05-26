@@ -910,11 +910,10 @@ class WebsocketPolicyServer:
                     conn_policy.on_task_end()
                 if not self._concurrent:
                     self._has_active_connection = False
-                # Drop per-connection wrapper + free CUDA cached memory so
-                # subsequent connections start from a clean GPU-side state.
-                # Without this, KV cache + stage intermediates accumulate
-                # linearly with connection count (~1 GB / connection observed
-                # on pi05_libero), triggering OOM at moderate N (15+).
+                # Drop per-connection wrapper state. In the serving entrypoint
+                # torch.cuda.empty_cache() is normally patched to a no-op so
+                # freed CUDA blocks stay reserved by this process from the
+                # system's perspective while remaining reusable internally.
                 conn_policy = None
                 try:
                     import gc as _gc
@@ -951,8 +950,8 @@ class WebsocketPolicyServer:
                     self._has_active_connection = False
                 # Mirror the ConnectionClosed cleanup so leaked wrapper state
                 # / KV cache from an abnormal exit (e.g. worker SIGKILL) is
-                # released. Without this the GPU memory grows monotonically
-                # under load even after all clients disconnect.
+                # released internally. The serving entrypoint normally keeps
+                # CUDA cached blocks reserved by suppressing empty_cache().
                 conn_policy = None
                 try:
                     import gc as _gc

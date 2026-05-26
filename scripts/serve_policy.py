@@ -305,6 +305,56 @@ def _configure_torchinductor_cache_dir() -> None:
     logging.info("TORCHINDUCTOR_CACHE_DIR=%s", cache_dir)
 
 
+def _configure_server_gpu_memory_lock() -> None:
+    """Keep CUDA allocator reservations owned by the server process.
+
+    PyTorch can free tensors internally without returning its cached CUDA blocks
+    to the driver. That is the behaviour we want for long-running experiment
+    servers: the process may reuse memory normally, but from ``nvidia-smi`` the
+    server's VRAM footprint should not drop and then let another process take
+    the gap. Existing cleanup paths still run ``gc.collect()`` and delete wrapper
+    state; this only suppresses ``torch.cuda.empty_cache()``, which is the call
+    that hands unused cached blocks back to the system.
+
+    Set ``OPENPI_SERVER_GPU_MEMORY_LOCK=0`` to restore the old release-to-driver
+    behaviour for debugging or one-off local runs.
+    """
+    raw = os.environ.get("OPENPI_SERVER_GPU_MEMORY_LOCK", "1").strip().lower()
+    if raw in {"0", "false", "no", "off"}:
+        logging.info("OPENPI_SERVER_GPU_MEMORY_LOCK=0; torch.cuda.empty_cache() unchanged")
+        return
+
+    try:
+        import torch
+    except Exception as exc:  # pragma: no cover - torch is always present here.
+        logging.warning("GPU memory lock requested but torch import failed: %s", exc)
+        return
+
+    cuda = getattr(torch, "cuda", None)
+    if cuda is None or not hasattr(cuda, "empty_cache"):
+        logging.info("GPU memory lock requested but torch.cuda.empty_cache is unavailable")
+        return
+
+    current = cuda.empty_cache
+    if getattr(current, "_openpi_gpu_memory_lock_noop", False):
+        return
+
+    def _locked_empty_cache(*_args, **_kwargs) -> None:
+        logging.debug(
+            "Suppressed torch.cuda.empty_cache(); server GPU memory lock keeps "
+            "cached CUDA blocks reserved by this process."
+        )
+
+    _locked_empty_cache._openpi_gpu_memory_lock_noop = True  # type: ignore[attr-defined]
+    _locked_empty_cache._openpi_original_empty_cache = current  # type: ignore[attr-defined]
+    cuda.empty_cache = _locked_empty_cache
+    logging.info(
+        "Server GPU memory lock enabled: torch.cuda.empty_cache() is suppressed; "
+        "unused CUDA blocks remain reserved for this process. Set "
+        "OPENPI_SERVER_GPU_MEMORY_LOCK=0 to opt out."
+    )
+
+
 def _wrap_policy(
     base_policy,
     args: Args,
@@ -627,6 +677,7 @@ def _serve_single(args: Args, ready_callback=None, bind_host: str = "0.0.0.0") -
     # mode to provide the single-connection baseline path (hard constraint C1).
     if args.non_concurrent:
         args = dataclasses.replace(args, concurrent=False, non_concurrent=False)
+    _configure_server_gpu_memory_lock()
     _configure_monitor_level()
     _configure_torchinductor_cache_dir()
     _setup_warmup_dump_root(args.warmup_dump_root)

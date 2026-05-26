@@ -728,10 +728,11 @@ class BatchingCoordinator:
             for req in batch:
                 req.payload = None
             batch.clear()
-            # Free PyTorch's CUDA cache periodically. empty_cache only releases
-            # *cached* (unused) GPU memory; it does NOT free live tensors, so
-            # this is safe and cheap. Without it stage1/2 intermediates remain
-            # reserved indefinitely under sustained load.
+            # Periodic allocator cleanup hook. In the serving entrypoint
+            # torch.cuda.empty_cache() is normally patched to a no-op: request
+            # payload tensors are still released and cached CUDA blocks are
+            # reusable internally, but the process keeps its VRAM reservation
+            # from the system's perspective.
             self._batches_since_clear += 1
             if self._batches_since_clear >= 32:
                 self._batches_since_clear = 0
