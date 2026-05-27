@@ -145,8 +145,11 @@ class Args:
     # Phase 5 (M6) flipped this default to True so sweep workflows naturally
     # run as 1-server × N-bundle. Pass ``--non-concurrent`` (mapped below) or
     # ``--no-concurrent`` (tyro's negation) to opt back into the single-
-    # connection baseline path. Hard constraint C1 guarantees the single-
-    # connection path stays bit-identical to pre-Phase-5 behavior.
+    # connection baseline path. Hard constraint C1 keeps that path structurally
+    # the raw single-connection Policy (no coordinator / bundle / interceptor);
+    # its numerics match the current model, which runs sdpa attention (set once
+    # in PI0Pytorch.__init__) — NOT the pre-Phase-5 eager baseline. See
+    # logs/full_repo_audit_2026-05-26.log.md §3.2.
     concurrent: bool = True
 
     # Opt-out flag for the single-connection (a.k.a. baseline / C1) path.

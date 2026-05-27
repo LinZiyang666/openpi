@@ -62,7 +62,7 @@ def test_compute_aggregate_success_rate_sums_completed_tasks_only():
 
 
 # ---------------------------------------------------------------------------
-# §9.0 改动 2 + §19.B5: per-episode aggregation / dedup
+# §9.0 change 2 + §19.B5: per-episode aggregation / dedup
 # ---------------------------------------------------------------------------
 
 

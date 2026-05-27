@@ -77,8 +77,9 @@ def test_default_spawn_conda_env_builds_conda_cmd(monkeypatch):
 
     captured: dict = {}
 
-    def fake_popen(cmd, env=None):
+    def fake_popen(cmd, env=None, **kwargs):
         captured["cmd"], captured["env"] = cmd, env
+        captured["start_new_session"] = kwargs.get("start_new_session")
         return FakeHandle()
 
     monkeypatch.setattr(agent_mod.subprocess, "Popen", fake_popen)
@@ -99,6 +100,9 @@ def test_default_spawn_conda_env_builds_conda_cmd(monkeypatch):
     assert agent_mod._SRC_DIR in env["PYTHONPATH"]
     assert agent_mod._REPO_ROOT in env["PYTHONPATH"]
     assert "/uv/inject" not in env["PYTHONPATH"]  # uv PYTHONPATH not inherited
+    # Spawn into a new session/process group so stop() can signal the whole
+    # group (the conda wrapper + the real grandchild worker).
+    assert captured["start_new_session"] is True
 
 
 def test_default_spawn_no_conda_uses_plain_python(monkeypatch):
@@ -106,8 +110,9 @@ def test_default_spawn_no_conda_uses_plain_python(monkeypatch):
 
     captured: dict = {}
 
-    def fake_popen(cmd, env=None):
+    def fake_popen(cmd, env=None, **kwargs):
         captured["cmd"], captured["env"] = cmd, env
+        captured["start_new_session"] = kwargs.get("start_new_session")
         return FakeHandle()
 
     monkeypatch.setattr(agent_mod.subprocess, "Popen", fake_popen)

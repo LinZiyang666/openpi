@@ -2,7 +2,7 @@
 
 Covers:
   - Constructor argument validation (extract_layer, apply_final_norm)
-  - attach_model: layer ref grab, eager-attention force, idempotence,
+  - attach_model: layer ref grab, no shared-config mutation, idempotence,
     out-of-range and model-mismatch errors
   - build() preconditions (must call attach_model and collect first)
   - collect / build / clear full cycle with mock paligemma layers
@@ -174,12 +174,15 @@ def test_attach_model_grabs_layer_refs():
     assert builder._depth == DEPTH
 
 
-def test_attach_model_forces_eager_attention():
+def test_attach_model_does_not_mutate_shared_attn_impl():
     model = _make_mock_model()
     cfg = model.paligemma_with_expert.paligemma.language_model.config
     assert cfg._attn_implementation == "sdpa"
     _make_builder(attach=False).attach_model(model)
-    assert cfg._attn_implementation == "eager"
+    # attach_model must NOT mutate the shared model's attention backend: doing
+    # so would race concurrent Stage 2 forwards and silently revert them to
+    # eager. The layer-N replay runs under the model's existing backend.
+    assert cfg._attn_implementation == "sdpa"
 
 
 def test_attach_model_extract_layer_out_of_range_raises():

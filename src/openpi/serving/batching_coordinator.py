@@ -66,6 +66,13 @@ logger = logging.getLogger(__name__)
 # benchmark grid).
 _ACTIVE_COORDINATOR: BatchingCoordinator | None = None
 
+# Finite backstop for submit_to_stage callers that pass no timeout (the
+# interceptor passes None): if a stage worker thread ever dies, callers would
+# otherwise wait on reply_event forever. A wedged/dead stage then surfaces as a
+# TimeoutError instead of hanging every connection. Far above any real
+# batched-inference time (~seconds).
+_DEFAULT_SUBMIT_TIMEOUT_S = 300.0
+
 
 def get_active_coordinator() -> BatchingCoordinator | None:
     """Return the currently-started coordinator, or None when serving is in
@@ -125,7 +132,7 @@ class StageRequest:
     #   3: payload = Stage3MissPayload | Stage3WarmStartPayload
     payload: Any
     reply_event: threading.Event
-    reply_slot: list = None  # list-of-len-1 used as a mutable slot; None until worker writes
+    reply_slot: list | None = None  # list-of-len-1 used as a mutable slot; None until worker writes
     error: BaseException | None = None
     enqueue_t: float = 0.0  # time.monotonic() at submit — for wait_ms instrumentation
 
@@ -471,8 +478,10 @@ class BatchingCoordinator:
             enqueue_t=time.monotonic(),
         )
         self._queues[stage_id].put(req)
-        # Block until the worker signals completion.
-        if not req.reply_event.wait(timeout=timeout):
+        # Block until the worker signals completion. None -> finite backstop so a
+        # dead stage worker thread cannot hang the caller forever.
+        effective_timeout = _DEFAULT_SUBMIT_TIMEOUT_S if timeout is None else timeout
+        if not req.reply_event.wait(timeout=effective_timeout):
             raise TimeoutError(
                 f"BatchingCoordinator.submit_to_stage(stage_id={stage_id}) timed out"
             )
@@ -674,51 +683,60 @@ class BatchingCoordinator:
                     req.reply_event.set()
             else:
                 if metrics_on:
-                    run_ms = (time.monotonic() - t_dispatch) * 1000.0
-                    # Per-request wait: how long EACH request sat in the
-                    # queue from its own enqueue to dispatch. wait_first_ms
-                    # (the head of the batch) is the worst case; wait_last
-                    # is best case; avg is the typical experience. Together
-                    # with batch size this gives the wait-vs-batching
-                    # tradeoff cleanly.
-                    waits = [(t_dispatch - r.enqueue_t) * 1000.0 for r in batch]
-                    wait_avg_ms = sum(waits) / len(waits)
-                    wait_max_ms = max(waits)
-                    wait_min_ms = min(waits)
-                    # enqueue_spread_ms: arrival spread of all reqs in batch
-                    enq_times = [r.enqueue_t for r in batch]
-                    enqueue_spread_ms = (max(enq_times) - min(enq_times)) * 1000.0
-                    # arrival_offsets_ms: each req's arrival time relative
-                    # to first req in batch, sorted. Lets analysers see
-                    # whether requests arrived in a tight burst or scattered.
-                    t0 = min(enq_times)
-                    arrival_offsets_ms = sorted(
-                        (t - t0) * 1000.0 for t in enq_times
-                    )
-                    logger.info(
-                        "[batch_done] stage=%d size=%d wait_avg=%.1f wait_max=%.1f run_ms=%.1f q=%d spread=%.1f",
-                        stage_id, len(batch), wait_avg_ms, wait_max_ms,
-                        run_ms, q_depth_snapshot, enqueue_spread_ms,
-                    )
-                    self._recorder.record_batch({
-                        "stage": stage_id,
-                        "size": len(batch),
-                        # Keep wait_ms as alias for wait_first (head) for
-                        # backward compat with prior summary code.
-                        "wait_ms": wait_max_ms,
-                        "wait_avg_ms": wait_avg_ms,
-                        "wait_max_ms": wait_max_ms,
-                        "wait_min_ms": wait_min_ms,
-                        "run_ms": run_ms,
-                        # Thread-local: _run_batch ran on THIS stage worker
-                        # thread, so these are this batch's own assemble/forward
-                        # split — not another concurrently-running stage's.
-                        "assemble_ms": getattr(self._tls, "assemble_ms", 0.0),
-                        "forward_ms": getattr(self._tls, "forward_ms", 0.0),
-                        "q_depth": q_depth_snapshot,
-                        "enqueue_spread_ms": enqueue_spread_ms,
-                        "arrival_offsets_ms": arrival_offsets_ms,
-                    })
+                    # Instrumentation must never kill the stage worker thread:
+                    # a dead worker would hang every future submit_to_stage
+                    # caller, since they wait on reply_event with no timeout.
+                    try:
+                        run_ms = (time.monotonic() - t_dispatch) * 1000.0
+                        # Per-request wait: how long EACH request sat in the
+                        # queue from its own enqueue to dispatch. wait_first_ms
+                        # (the head of the batch) is the worst case; wait_last
+                        # is best case; avg is the typical experience. Together
+                        # with batch size this gives the wait-vs-batching
+                        # tradeoff cleanly.
+                        waits = [(t_dispatch - r.enqueue_t) * 1000.0 for r in batch]
+                        wait_avg_ms = sum(waits) / len(waits)
+                        wait_max_ms = max(waits)
+                        wait_min_ms = min(waits)
+                        # enqueue_spread_ms: arrival spread of all reqs in batch
+                        enq_times = [r.enqueue_t for r in batch]
+                        enqueue_spread_ms = (max(enq_times) - min(enq_times)) * 1000.0
+                        # arrival_offsets_ms: each req's arrival time relative
+                        # to first req in batch, sorted. Lets analysers see
+                        # whether requests arrived in a tight burst or scattered.
+                        t0 = min(enq_times)
+                        arrival_offsets_ms = sorted(
+                            (t - t0) * 1000.0 for t in enq_times
+                        )
+                        logger.info(
+                            "[batch_done] stage=%d size=%d wait_avg=%.1f wait_max=%.1f run_ms=%.1f q=%d spread=%.1f",
+                            stage_id, len(batch), wait_avg_ms, wait_max_ms,
+                            run_ms, q_depth_snapshot, enqueue_spread_ms,
+                        )
+                        self._recorder.record_batch({
+                            "stage": stage_id,
+                            "size": len(batch),
+                            # Keep wait_ms as alias for wait_first (head) for
+                            # backward compat with prior summary code.
+                            "wait_ms": wait_max_ms,
+                            "wait_avg_ms": wait_avg_ms,
+                            "wait_max_ms": wait_max_ms,
+                            "wait_min_ms": wait_min_ms,
+                            "run_ms": run_ms,
+                            # Thread-local: _run_batch ran on THIS stage worker
+                            # thread, so these are this batch's own assemble/forward
+                            # split — not another concurrently-running stage's.
+                            "assemble_ms": getattr(self._tls, "assemble_ms", 0.0),
+                            "forward_ms": getattr(self._tls, "forward_ms", 0.0),
+                            "q_depth": q_depth_snapshot,
+                            "enqueue_spread_ms": enqueue_spread_ms,
+                            "arrival_offsets_ms": arrival_offsets_ms,
+                        })
+                    except Exception:
+                        logger.exception(
+                            "BatchingCoordinator stage %d: batch metrics/record failed (non-fatal)",
+                            stage_id,
+                        )
             # KV-cache leak guard: drop per-request payload reference now that
             # the caller has read reply_slot. payload often holds Stage2Output
             # (DynamicCache with per-layer K/V tensors, ~400 MB / batch at

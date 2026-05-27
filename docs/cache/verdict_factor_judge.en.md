@@ -18,7 +18,7 @@
 >   composer_score}` (legacy `norm` / `score` / `sentinel` removed).
 >
 > Authoritative reference (Chinese): [`verdict_factor_judge.md`](verdict_factor_judge.md).
-> Full design + decision history: [`logs/verdict_factor_judge_refactor.log.md`](../../logs/verdict_factor_judge_refactor.log.md).
+> Full design + decision history: [`logs/verdict_factor_judge_refactor.log.md`](../../logs/archive/verdict_factor_judge_refactor.log.md).
 > Pre-refactor design docs: `logs/old_verdict_factor_*.log.md` (8 archived files).
 
 > **Prerequisites**: read [tutorial.md](tutorial.md) §6 for the Judge
@@ -1085,4 +1085,4 @@ The CLI only accepts the 8 offline factors (registry name + `hasattr(compute_for
 | Composer dependency check | classmethod `declared_dependencies(params)` | Instance attribute `composer.declared_dependencies` |
 | Wire protocol | `__hit_meta__["factor_outputs"]` same | `schema_version=2`; legacy clients see field-absent = v1 |
 
-Full design + decision history: [`logs/verdict_factor_judge_refactor.log.md`](../../logs/verdict_factor_judge_refactor.log.md) (G1 APPROVED Round 4 / G2 APPROVED Round 3, 2026-05-07).
+Full design + decision history: [`logs/verdict_factor_judge_refactor.log.md`](../../logs/archive/verdict_factor_judge_refactor.log.md) (G1 APPROVED Round 4 / G2 APPROVED Round 3, 2026-05-07).

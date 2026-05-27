@@ -29,8 +29,8 @@ matching first/second differences `v` (`[W-1, D_act]`) and `j`
 
 Coupling map:
   DEPENDS ON:  nothing internal (stdlib + torch)
-  CONSUMED BY: components/factors/runtime_continuity.py (F1a-A, F1a-T)
-               components/factors/source_window.py     (F1b-A, F1b-T)
+  CONSUMED BY: components/factors/online.py  (online descriptor extractors)
+               components/factors/offline.py (offline descriptor writers)
 """
 
 from __future__ import annotations
@@ -66,8 +66,8 @@ _NEW_NAMES: frozenset[str] = frozenset({_JERK, _DIRECTION, _DISPERSION, _PATH_LE
 _KNOWN: frozenset[str] = _LEGACY_NAMES | _NEW_NAMES
 
 # Public orientation table — single source of truth across factors layer
-# (B2 refactor migrated this here from source_window.py to break the
-# lazy-import cycle that runtime_continuity.py used to need). Both the
+# (B2 refactor migrated this here from the per-factor modules to break the
+# lazy-import cycle the online/offline extractors used to need). Both the
 # legacy 4 names and the refactored 4 names are listed; the legacy entries
 # stay alive for the B1-B6 backward-compat path.
 _DESCRIPTOR_ORIENTATIONS: dict[str, str] = {

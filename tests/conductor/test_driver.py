@@ -159,8 +159,10 @@ def _pump(d, server_key, max_iters=100):
     for _ in range(max_iters):
         d.drive_stages_once()
         while True:
-            _, pl = d.handle_pull(server_key)
-            if pl.get("none"):
+            mt, pl = d.handle_pull(server_key)
+            # Mirror the real _handle_conn consumer: stop on an idle (none)
+            # assignment OR an all-done MSG_SHUTDOWN.
+            if mt == P.MSG_SHUTDOWN or pl.get("none"):
                 break
             task = P.task_from_wire(pl["task"])
             d.handle_result(P.result_to_wire(T.EpisodeResult(task.task_uid, success=True, n_steps=1)))
@@ -283,8 +285,8 @@ def test_calibration_fanout_across_servers(tmp_path):
         d.drive_stages_once()
         for key in (S1.key, S2.key):
             while True:
-                _, pl = d.handle_pull(key)
-                if pl.get("none"):
+                mt, pl = d.handle_pull(key)
+                if mt == P.MSG_SHUTDOWN or pl.get("none"):
                     break
                 task = P.task_from_wire(pl["task"])
                 d.handle_result(P.result_to_wire(T.EpisodeResult(task.task_uid, success=True, n_steps=1)))

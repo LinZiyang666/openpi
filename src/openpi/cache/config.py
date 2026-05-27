@@ -1257,6 +1257,31 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"  Current backend.type: {config.backend.type!r}"
             )
 
+        # Numeric search params must be in valid ranges, else they surface only
+        # as cryptic empty-result / division / slicing errors deep in the backend
+        # at first query rather than a clear startup error.
+        if ss.top_k < 1:
+            errors.append(f"{prefix}.search_strategy.top_k must be >= 1 (got {ss.top_k})")
+        if ss.rrf_k < 1:
+            errors.append(f"{prefix}.search_strategy.rrf_k must be >= 1 (got {ss.rrf_k})")
+        if ss.candidate_multiplier < 1:
+            errors.append(
+                f"{prefix}.search_strategy.candidate_multiplier must be >= 1 "
+                f"(got {ss.candidate_multiplier})"
+            )
+        if ss.step_window < 0:
+            errors.append(
+                f"{prefix}.search_strategy.step_window must be >= 0 (got {ss.step_window})"
+            )
+        # field_similarity.type must be a known similarity; an unknown value
+        # otherwise only raises deep in the backend at the first search.
+        for fname, fcfg in (ss.field_similarity or {}).items():
+            if fcfg is not None and fcfg.type not in ("cosine", "l2"):
+                errors.append(
+                    f"{prefix}.search_strategy.field_similarity[{fname!r}].type "
+                    f"{fcfg.type!r} invalid; valid: 'cosine' | 'l2'"
+                )
+
         # weighted_score_sum_knn requires score_normalization.
         if ss.type == "weighted_score_sum_knn":
             if ss.score_normalization is None or ss.score_normalization.type == "none":
@@ -1283,6 +1308,14 @@ def validate_cache_config(config: CacheConfig) -> None:
                             f"  Fix: re-run calibration (calibrate_score_sum_stats.py for "
                             f"percentile) or add entries for {sorted(missing)}"
                         )
+                    # Each percentile entry must carry p5/p95, else the normalizer
+                    # raises a bare KeyError at the first search rather than here.
+                    for fname, entry in ss.score_normalization.fields.items():
+                        if not isinstance(entry, dict) or "p5" not in entry or "p95" not in entry:
+                            errors.append(
+                                f"{prefix}.search_strategy: percentile field {fname!r} "
+                                f"must provide 'p5' and 'p95' (got {entry!r})"
+                            )
             elif ss.score_normalization.type == "per_field":
                 # per_field: each weighted field carries {method, params}; the
                 # normalizer (Layer 1) owns its full mapping. Validate coverage,
@@ -2260,7 +2293,7 @@ def _wrap_with_dumping_judge(inner, dump_cfg: "DumpConfig", *, library_stats=Non
     """Wrap `inner` in a DumpingJudge using ``dump_cfg``.
 
     The dump side runs an independent factor list with its own Layer 1
-    Normalization 副本 (matching the inner judge's Layer 1 config). When
+    Normalization replica (matching the inner judge's Layer 1 config). When
     ``library_stats`` is missing the dump-side Normalization cannot be
     constructed; we fail-fast so callers cannot silently produce
     unnormalized factor raw rows.

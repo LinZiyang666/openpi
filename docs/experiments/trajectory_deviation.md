@@ -260,13 +260,13 @@ offline Phase3 aggregate                                              → deviat
 
 ## Step 3：Per-Cycle Policy（推荐三 cfg 三 server 完全并行）
 
-> `run_step3_per_cycle_policy` 把"每个推理 cycle 是否绕过 cache"的决定交给 client，通过 `__gate_decision__` 信号驱动 `ClientControlledGate`。详细重构记录见 [`logs/trajectory_deviation_step3_redesign.log.md`](../../logs/trajectory_deviation_step3_redesign.log.md)。
+> `run_step3_per_cycle_policy` 把"每个推理 cycle 是否绕过 cache"的决定交给 client，通过 `__gate_decision__` 信号驱动 `ClientControlledGate`。详细重构记录见 [`logs/trajectory_deviation_step3_redesign.log.md`](../../logs/archive/trajectory_deviation_step3_redesign.log.md)。
 >
 > Episode 列表权威来源：`deviate_score_{cfg}.json` 的 keys（`task_X/episode_Y`，其中 `Y` 是 Step 1b 的 subset_init_state_idx）。这些 key 本身就是该 cfg 在 Step 1a 下的失败子集，Step 3 不再需要 `--cache-eval-results` / `--config-fail-results`。
 
 ### 前置条件
 
-1. 已有三份 Step 2 产物：`deviate_score_clip_w7_d4.json` / `deviate_score_spatial16_w8_d4.json` / `deviate_score_max_pool_w3_d5.json`（按 [Step 2 并行流程](../../logs/trajectory_deviation_step2_parallel_commands.log.md) 合入 `exp/trajectory_deviation/data/deviate_scores/`）。
+1. 已有三份 Step 2 产物：`deviate_score_clip_w7_d4.json` / `deviate_score_spatial16_w8_d4.json` / `deviate_score_max_pool_w3_d5.json`（按 [Step 2 并行流程](../../logs/archive/trajectory_deviation_step2_parallel_commands.log.md) 合入 `exp/trajectory_deviation/data/deviate_scores/`）。
 2. 已有 Step 1b pruned init states：`exp/trajectory_deviation/data/inits/`。
 3. `exp/trajectory_deviation/config/step3_{cfg}.yaml` 已就位；三份 YAML 的 `checkpoints.cp1.gate.type: client_controlled`，其他字段与对应 `{cfg}.yaml` 一致。
 4. 三个 server 沿用 Step 2 的端口映射：
@@ -530,7 +530,7 @@ exp/trajectory_deviation/data/
 - Server 启动的更多上下文、artifact 构建、CP1 实验：[cp1_cache.md](cp1_cache.md)
 - Cache 系统组件、YAML 字段含义：[../cache/tutorial.md](../cache/tutorial.md)
 - 远程推理的网络拓扑：[../deployment/libero.md](../deployment/libero.md)
-- 原始实验设计与评审：[../../logs/trajectory_deviation_experiment_plan.log.md](../../logs/trajectory_deviation_experiment_plan.log.md)、[../../logs/trajectory_deviation_corrective_experiment.log.md](../../logs/trajectory_deviation_corrective_experiment.log.md)
+- 原始实验设计与评审：[../../logs/trajectory_deviation_experiment_plan.log.md](../../logs/archive/trajectory_deviation_experiment_plan.log.md)、[../../logs/trajectory_deviation_corrective_experiment.log.md](../../logs/archive/trajectory_deviation_corrective_experiment.log.md)
 
 ---
 

@@ -493,7 +493,11 @@ class WebsocketPolicyServer:
             self._host,
             self._port,
             compression=None,
-            max_size=None,
+            # 256 MB cap (was None): bound inbound frame size so an
+            # unauthenticated client on the public ingress cannot OOM the server
+            # with a multi-GB frame. Far above any legitimate obs / prefill
+            # payload (a few MB at most).
+            max_size=256 * 1024 * 1024,
             process_request=_health_check,
         ) as server:
             if self._ready_callback is not None:
@@ -551,24 +555,48 @@ class WebsocketPolicyServer:
             nonlocal conn_policy, bound_bundle_id
             if conn_policy is not None and bound_bundle_id == bundle_id:
                 return
+            # Build the new stack first so a factory failure leaves the old
+            # binding intact rather than half torn down.
+            new_policy = self._connection_policy_factory(self._policy, bundle_id)
             if conn_policy is not None and hasattr(conn_policy, "on_task_end"):
                 try:
                     conn_policy.on_task_end()
                 except Exception:
                     logger.exception("on_task_end failed during bundle switch")
-            new_policy = self._connection_policy_factory(self._policy, bundle_id)
-            if hasattr(new_policy, "on_task_begin"):
-                new_policy.on_task_begin()
+            # Commit the swap BEFORE on_task_begin: if on_task_begin raises,
+            # conn_policy must reference the new (current) stack, never the
+            # old one that was just on_task_end'd — otherwise later infer/close
+            # would run against an already-ended policy.
             conn_policy = new_policy
             bound_bundle_id = bundle_id
+            if hasattr(new_policy, "on_task_begin"):
+                new_policy.on_task_begin()
             logger.info("connection %s bound to bundle %r",
                         websocket.remote_address, bundle_id)
 
         # Non-concurrent mode keeps its on_task_begin behaviour (C1 preserved).
-        if not self._concurrent and hasattr(conn_policy, "on_task_begin"):
-            conn_policy.on_task_begin()
-
-        await websocket.send(packer.pack(self._metadata))
+        # on_task_begin and the metadata send both run BEFORE the request
+        # loop's try/except, so a failure here (client dropped mid-handshake,
+        # or on_task_begin raised) would otherwise escape _handler without
+        # decrementing the active-connection counter — leaking the count and,
+        # in single-connection mode, permanently rejecting all future clients.
+        try:
+            if not self._concurrent and hasattr(conn_policy, "on_task_begin"):
+                conn_policy.on_task_begin()
+            await websocket.send(packer.pack(self._metadata))
+        except Exception:
+            # Mirror the in-loop teardown: close a half-run on_task_begin (flush
+            # timing CSV etc.) rather than leaking a half-begun policy.
+            if hasattr(conn_policy, "on_task_end"):
+                try:
+                    conn_policy.on_task_end()
+                except Exception:
+                    logger.exception("on_task_end failed during handshake teardown")
+            if not self._concurrent:
+                self._has_active_connection = False
+            from openpi.serving import monitor as _server_monitor
+            _server_monitor.decrement_connection()
+            raise
 
         # prev_total_time tracks total round-trip time of the *previous*
         # request (infer + send) so it can be reported in the *next* response.
@@ -729,7 +757,13 @@ class WebsocketPolicyServer:
                                 # DumpingJudge built later sees a real file
                                 # location.
                                 _fill_deferred_dump_paths(cache_config, msg_yaml_id)
-                                shared_storage = build_shared_storage(cache_config)
+                                # build_shared_storage performs the artifact
+                                # pickle.load (tens of MB); run it off the event
+                                # loop so a large/slow load does not block every
+                                # other connection (and /healthz) meanwhile.
+                                shared_storage = await asyncio.to_thread(
+                                    build_shared_storage, cache_config
+                                )
                                 global _current_bundle, _bundle_version
                                 with _bundle_lock:
                                     _bundle_version += 1

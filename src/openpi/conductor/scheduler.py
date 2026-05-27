@@ -263,8 +263,10 @@ class EpisodeScheduler:
         ``attempt`` (set on worker-reported results) fences a stale result from a
         superseded dispatch: a timed-out + requeued task is re-dispatched at a
         higher generation, so the old worker's late result (lower attempt) is
-        rejected (G2R3). Driver-initiated requeues (timeout / disconnect) pass
-        ``attempt=None`` — they act on whatever the current dispatch is.
+        rejected (G2R3). The timeout requeue passes ``attempt=None`` (it scans
+        the live ``_dispatch_ts`` so it always targets the current dispatch); the
+        disconnect requeue passes the generation the dropped connection held, so
+        a late drop cannot invalidate a newer dispatch re-assigned elsewhere.
 
         - success or fatal failure: count terminal.
         - retriable warmup failure: invalidate the whole stage (re-pending,

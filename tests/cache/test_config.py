@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import textwrap
 from pathlib import Path
 
@@ -22,7 +21,6 @@ from openpi.cache.config import (
     KeysConfig,
     ScoreNormalizationConfig,
     SearchStrategyConfig,
-    TimerConfig,
     WritePolicyConfig,
     _substitute_env_vars,
     build_cache_components,
@@ -418,6 +416,34 @@ def test_trajectory_depth_zero_rejected():
         },
     )
     with pytest.raises(ConfigValidationError, match="trajectory_depth must be >= 1"):
+        validate_cache_config(config)
+
+
+def test_search_top_k_zero_rejected():
+    config = CacheConfig(
+        checkpoints={
+            "cp1": CheckpointConfig(
+                search_strategy=SearchStrategyConfig(top_k=0)
+            ),
+        },
+    )
+    with pytest.raises(ConfigValidationError, match="top_k must be >= 1"):
+        validate_cache_config(config)
+
+
+def test_field_similarity_invalid_type_rejected():
+    from openpi.cache.config import FieldSimilarityConfig
+
+    config = CacheConfig(
+        checkpoints={
+            "cp1": CheckpointConfig(
+                search_strategy=SearchStrategyConfig(
+                    field_similarity={"robot_state": FieldSimilarityConfig(type="cosin")},
+                )
+            ),
+        },
+    )
+    with pytest.raises(ConfigValidationError, match=r"field_similarity.*invalid"):
         validate_cache_config(config)
 
 

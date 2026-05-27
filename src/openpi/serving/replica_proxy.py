@@ -50,6 +50,11 @@ from websockets.asyncio.server import serve as ws_serve
 from websockets.exceptions import ConnectionClosed
 from websockets.exceptions import WebSocketException
 
+# Per-replica fan-out (broadcast/aggregate) recv timeout: a wedged backend that
+# accepts the connection but never replies would otherwise stall the whole ctrl
+# (and the client) forever, since asyncio.gather waits on every recv.
+_FANOUT_TIMEOUT_S = 30.0
+
 # Ctrls that mutate shared per-replica state -> must reach every backend.
 CTRL_BROADCAST = frozenset({
     "load_cache_config",
@@ -429,7 +434,7 @@ class ReplicaProxy:
             ws = await self._open_backend(backend, swallow_metadata=True)
             try:
                 await ws.send(frame)
-                return await ws.recv()
+                return await asyncio.wait_for(ws.recv(), timeout=_FANOUT_TIMEOUT_S)
             finally:
                 await ws.close()
 
@@ -470,7 +475,7 @@ class ReplicaProxy:
             ws = await self._open_backend(backend, swallow_metadata=True)
             try:
                 await ws.send(frame)
-                return await ws.recv()
+                return await asyncio.wait_for(ws.recv(), timeout=_FANOUT_TIMEOUT_S)
             finally:
                 await ws.close()
 

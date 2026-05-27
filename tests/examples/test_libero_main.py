@@ -71,10 +71,8 @@ def test_compute_global_episode_id_is_deterministic_from_task_and_subset() -> No
     for task_id in (0, 3, 9):
         for idx in (0, 1, 49):
             assert fn(task_id, idx, 50) == task_id * 50 + idx
-    # Subset reproduces same IDs as full sweep (no counter drift).
-    full = [fn(t, i, 50) for t in (0, 1, 2, 3) for i in range(5)]
-    subset = [fn(t, i, 50) for t in (1, 3) for i in (0, 2, 4)]
-    # Every subset id must appear in the full list with the same value.
+    # Every subset id must reproduce the full-sweep value (no counter drift
+    # between full and subset runs).
     for t, i in ((1, 0), (1, 2), (1, 4), (3, 0), (3, 2), (3, 4)):
         assert fn(t, i, 50) == t * 50 + i
 
@@ -318,12 +316,10 @@ class _FakeEnv:
         self.env.timestep += 1
         self.env.cur_time += 0.02
         # Decide whether this step fires done. ``done_at_step`` counts the
-        # post-``num_steps_wait`` step index (0-indexed).
-        is_dummy = False
+        # post-``num_steps_wait`` step index (0-indexed). We don't track dummy
+        # wait vs. real step here — the harness picks done_at_step
+        # conservatively, so we simply count every step.
         done = False
-        # Track dummy wait vs. real step by looking at the action length? No —
-        # the test harness picks done_at_step conservatively so we simply
-        # start counting once we've seen at least one post-wait step.
         self._step_count += 1
         if self._done_at_step is not None and self._step_count == self._done_at_step:
             done = True
@@ -442,7 +438,7 @@ def test_run_episode_mid_chunk_done_finalises_partial_executed(
 
 def test_run_episode_no_save_trajectory_returns_none() -> None:
     """When ``save_trajectory`` is False the traj slot must be None (the
-    Layer-B client naming fallback also depends on this — plan §4 改动 4)."""
+    Layer-B client naming fallback also depends on this — plan §4 change 4)."""
     env = _FakeEnv(done_at_step=None)
     client = _FakeClient(np.zeros((50, 7), dtype=np.float32))
 

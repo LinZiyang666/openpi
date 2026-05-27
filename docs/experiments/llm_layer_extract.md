@@ -6,7 +6,7 @@
 >
 > **组件 API 参考**：[`../cache/llm_layer_extract.md`](../cache/llm_layer_extract.md)（KeyBuilder 类、reducer 选择、YAML 字段语义）
 >
-> **设计文档**：[`../../logs/cp1_llm_layer_extract_key_builder_plan.log.md`](../../logs/cp1_llm_layer_extract_key_builder_plan.log.md)
+> **设计文档**：[`../../logs/cp1_llm_layer_extract_key_builder_plan.log.md`](../../logs/archive/cp1_llm_layer_extract_key_builder_plan.log.md)
 >
 > **artifact 布局规则**：[`artifact_layout.md`](artifact_layout.md)
 
@@ -479,7 +479,7 @@ A100 / 4090 bf16 上单步 0.5–2 ms（layer 0）。Pi0.5 总推理 ~50 ms，�
 | 文件 | 作用 |
 |------|------|
 | [`../cache/llm_layer_extract.md`](../cache/llm_layer_extract.md) | 组件 API / YAML 字段语义 |
-| [`../../logs/cp1_llm_layer_extract_key_builder_plan.log.md`](../../logs/cp1_llm_layer_extract_key_builder_plan.log.md) | 设计文档（含 G1/G2 review 历史） |
+| [`../../logs/cp1_llm_layer_extract_key_builder_plan.log.md`](../../logs/archive/cp1_llm_layer_extract_key_builder_plan.log.md) | 设计文档（含 G1/G2 review 历史） |
 | `exp/common/build_in_memory_cache_artifact.py` | Step 2 builder 入口 |
 | `exp/common/run_cache_experiments.py` | Step 4 实验驱动 |
 | `exp/common/analyze_cache_results.py` | Step 5 结果聚合 |

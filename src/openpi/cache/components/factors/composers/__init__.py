@@ -27,7 +27,7 @@ _verdict_logger = logging.getLogger("openpi.cache.verdict_debug")
 
 
 # Orientation kinds — kept in sync with `_DESCRIPTOR_ORIENTATIONS` in
-# `factors/source_window.py` (the single source of truth).
+# `factors/_descriptor_kernel.py` (the single source of truth).
 _SAFE = "safe"
 _RISKY = "risky"
 _NON_MONOTONIC = "non_monotonic"
@@ -69,10 +69,10 @@ class Composer(Protocol):
 class WeightedSumComposer:
     """S1: orientation-aware weighted percentile sum + tier thresholds.
 
-    B0 stub: stores constructor params + records the orientations from
-    `bind_orientations`. The actual score aggregation, NaN handling,
-    orientation flipping, and tier mapping land in B1+ when CompositeJudge
-    is enabled.
+    Aggregates calibrated factor values into a single score via an
+    orientation-aware weighted mean (safe -> v; risky -> 1-v; non_monotonic ->
+    direction kernel), then maps that score to FULL_HIT / WARM_START / MISS
+    tiers. See ``compose`` for the NaN handling and threshold logic.
     """
 
     def __init__(
@@ -349,8 +349,9 @@ class WeightedSumZeroNanComposer:
         transform (safe -> v; risky -> 1-v; non_monotonic -> direction-
         specific kernel). NaN raw values contribute 0 to the numerator
         but their weight is retained in the denominator (zero-NaN
-        semantics). Returns NaN only on the degenerate all-zero-weight
-        construction.
+        semantics). Returns NaN on degenerate constructions where the
+        active weights sum to zero — either no non-zero weights, or
+        non-zero weights that cancel (e.g. +w and -w).
         """
         # Iterate non-zero-weight keys only; zero-weight keys are excluded
         # from both numerator and denominator (consistent with the layer-4
@@ -379,6 +380,11 @@ class WeightedSumZeroNanComposer:
                     f"{ori!r} for key {k!r}"
                 )
             weighted_sum += w * contrib
+        if weight_total == 0.0:
+            # Non-zero weights can still sum to zero (e.g. +w and -w cancel);
+            # the weighted mean is undefined -> NaN routes compose() to MISS,
+            # mirroring the WeightedSumComposer.compose total-zero guard.
+            return float("nan")
         return weighted_sum / weight_total
 
     def compose(
@@ -389,8 +395,8 @@ class WeightedSumZeroNanComposer:
     ) -> JudgeResult:
         s = self._score_only(factors)
         if math.isnan(s):
-            # Only happens if declared_dependencies is empty (no
-            # non-zero weights). Emit MISS — the recipe is degenerate.
+            # Degenerate recipe: no non-zero weights, or non-zero weights
+            # that sum to zero. Emit MISS rather than dividing by zero.
             if _VERDICT_DEBUG:
                 _verdict_logger.info(
                     "[vd composer] zero-nan: degenerate (no non-zero weights) -> MISS"

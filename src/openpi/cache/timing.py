@@ -41,9 +41,9 @@ Extensibility
 * **Custom CUDA streams**: pass ``stream=your_stream`` to ``register_probe``
   so cache-stream operations are timed on the correct stream (Step 4+).
 * **Resource monitors**: the ``ResourceMonitor`` protocol and
-  ``add_resource_monitor`` / ``record_resource_snapshot`` interfaces are
-  reserved for future GPU VRAM / CPU RAM tracking.  They are stubs in this
-  version (Step 2) and will be implemented when profiling needs arise.
+  ``add_resource_monitor`` / ``record_resource_snapshot`` interfaces track
+  GPU VRAM / CPU RAM. ``CpuMonitor`` / ``GpuMonitor`` are auto-registered at
+  construction and sampled on every ``measure()`` block at SNAPSHOT level+.
 
 Thread safety
 -------------
@@ -103,9 +103,10 @@ import torch
 class TimingRecord:
     """A single timing measurement captured by one ``timer.measure()`` call.
 
-    ``resources`` is reserved for future resource-usage snapshots (GPU VRAM,
-    CPU RAM, etc.) attached to the same measurement point.  It is ``None`` in
-    Step 2; ``record_resource_snapshot()`` will populate it in a later step.
+    ``resources`` holds resource-usage snapshots (GPU VRAM, CPU RAM, etc.)
+    attached to the same measurement point. It is ``None`` unless resource
+    monitors are active (SNAPSHOT level+), in which case
+    ``record_resource_snapshot()`` populates it.
     """
 
     name: str
@@ -122,8 +123,8 @@ class TimingRecord:
     """Identifier of the task (connection) this record belongs to."""
 
     resources: dict[str, float] | None = field(default=None, compare=False)
-    """Reserved for future resource monitors.  Keys are metric names,
-    e.g. ``{"gpu_alloc_mb": 4096.0}``.  Do not read this field in Step 2."""
+    """Resource-monitor snapshot. Keys are metric names,
+    e.g. ``{"gpu_alloc_mb": 4096.0}``; ``None`` when no monitor is active."""
 
 
 @dataclass
@@ -270,39 +271,27 @@ class PerfCounterBackend:
 
 
 # ---------------------------------------------------------------------------
-# Resource monitor protocol (reserved for future use)
+# Resource monitor protocol + CPU/GPU implementations
 # ---------------------------------------------------------------------------
 
 @runtime_checkable
 class ResourceMonitor(Protocol):
     """Protocol for pluggable resource-usage monitors.
 
-    Implementations are **not** required in Step 2.  This protocol defines the
-    interface so that ``SystemTimer.add_resource_monitor`` and
-    ``record_resource_snapshot`` can be called without changes when concrete
-    monitors are added (e.g. ``GpuVramMonitor``, ``CpuRamMonitor``).
+    Concrete ``CpuMonitor`` / ``GpuMonitor`` implementations live at the bottom
+    of this module and are auto-registered by ``SystemTimer`` at SNAPSHOT level
+    and above. ``add_resource_monitor`` registers additional monitors;
+    ``record_resource_snapshot`` samples every registered monitor and merges the
+    result into the current ``TimingRecord.resources``.
 
-    Planned implementations (future steps):
-        - ``GpuVramMonitor``: reads ``torch.cuda.memory_stats()`` to report
-          allocated and peak VRAM in MB.
-        - ``CpuRamMonitor``: reads ``psutil.virtual_memory()`` to report RSS.
+    A monitor exposes ``name`` (CSV key prefix) and
+    ``sample() -> dict[str, float]``, e.g.::
 
-    Usage when implemented::
-
-        class GpuVramMonitor:
-            name = "gpu_vram"
+        class GpuMonitor:
+            name = "gpu"
             def sample(self) -> dict[str, float]:
                 stats = torch.cuda.memory_stats()
-                return {
-                    "alloc_mb": stats["allocated_bytes.all.current"] / 1e6,
-                    "peak_mb":  stats["allocated_bytes.all.peak"]    / 1e6,
-                }
-
-        timer.add_resource_monitor(GpuVramMonitor())
-        with timer.measure("stage1_vision"):
-            ...
-        # The TimingRecord for "stage1_vision" will have resources populated
-        # after record_resource_snapshot() is called (Step N).
+                return {"alloc_mb": stats["allocated_bytes.all.current"] / 1e6}
     """
 
     name: str
@@ -771,23 +760,20 @@ class SystemTimer:
             writer.writerows(rows)  # single batch write
 
     # -----------------------------------------------------------------------
-    # Resource monitor interface  (stubs — implemented in future steps)
+    # Resource monitor interface
     # -----------------------------------------------------------------------
 
     def add_resource_monitor(self, monitor: ResourceMonitor) -> None:
         """Register a resource-usage monitor.
 
-        Registered monitors will be sampled when ``record_resource_snapshot``
-        is called.  Multiple monitors can be registered; each contributes its
-        own keys to ``TimingRecord.resources``.
-
-        This method is a stub in Step 2.  It stores the monitor but
-        ``record_resource_snapshot`` does not yet call it.
+        Registered monitors are sampled by ``record_resource_snapshot`` (called
+        automatically after each ``measure()`` block at SNAPSHOT level+).
+        Multiple monitors can be registered; each contributes its own keys to
+        ``TimingRecord.resources``.
 
         Args:
             monitor: Any object implementing the ``ResourceMonitor`` protocol.
         """
-        # TODO(Step N): activate monitors once profiling needs arise.
         self._resource_monitors.append(monitor)
 
     def record_resource_snapshot(self, name: str) -> None:

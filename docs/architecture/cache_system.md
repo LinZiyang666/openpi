@@ -604,7 +604,7 @@ Controls whether an episode's data is written to the cache at episode end.
 
 > **Design vs Implementation**: The original spec had write logic in `CacheOrchestrator.write_async()` with per-step writes. Implementation switched to episode-level batch writes with a `WritePolicy` decision gate, which better supports trajectory-linked entry chains.
 
-### 5.10 Search Session — Cross-Step Score Memo — Cross-Step Score Cache
+### 5.10 Search Session — Cross-Step Score Memo
 
 > **Source**: `logs/trajectory_search_optimization_plan.log.md`
 > Added by the trajectory-search rewrite to amortise per-field cosine

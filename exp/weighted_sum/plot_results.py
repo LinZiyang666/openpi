@@ -1,11 +1,14 @@
-"""weighted_sum 结果可视化（纯 matplotlib，无 mpltern 依赖）。
+"""weighted_sum result visualization (pure matplotlib, no mpltern dependency).
 
-读 all_results.csv（列 stage,keybuilder,v0,v1,rs,normalizer,n,success_rate）出三张图：
-  fig1_ternary.png   —— 三元热力图，每个 keybuilder 一个三角 panel（权重单纯形 v0/v1/rs，颜色=SR）
-  fig2_keybuilder_box.png —— SR 按 keybuilder 的箱线图 + 各自最优点散点
-  fig3_crossgpu.png  —— top10 跨 GPU 配对斜线（jupyter H200 vs a100 A100），需 top10_compare.csv（缺则跳过）
+Reads all_results.csv (columns stage,keybuilder,v0,v1,rs,normalizer,n,success_rate)
+and produces three figures:
+  fig1_ternary.png   -- ternary heatmap, one triangle panel per keybuilder
+                        (weight simplex v0/v1/rs, color = SR)
+  fig2_keybuilder_box.png -- SR boxplot by keybuilder + per-keybuilder best-point scatter
+  fig3_crossgpu.png  -- top10 cross-GPU paired slopes (jupyter H200 vs a100 A100);
+                        needs top10_compare.csv (skipped if absent)
 
-用法（timan107，ephemeral 装 matplotlib，不改 .venv）：
+Usage (timan107, ephemeral matplotlib install, does not touch .venv):
   uv run --with matplotlib python exp/weighted_sum/plot_results.py \
       --all-results exp/weighted_sum/data/phase2/all_results.csv \
       --compare exp/weighted_sum/data/phase2/top10_compare.csv \
@@ -25,7 +28,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 
-# 三角顶点：v0=左下(0,0)，v1=右下(1,0)，rs=顶(0.5, √3/2)
+# Triangle vertices: v0=bottom-left (0,0), v1=bottom-right (1,0), rs=top (0.5, sqrt(3)/2)
 _RS_Y = math.sqrt(3) / 2.0
 
 
@@ -65,9 +68,9 @@ def _tri_border(ax):
 
 
 def fig_ternary(rows, outpath):
-    # 每个 keybuilder 一个 panel；权重点投影到三角，SR 着色（tricontourf 平滑 + 散点）。
+    # One panel per keybuilder; weight points projected onto the triangle, SR-colored (tricontourf smoothing + scatter).
     kbs = sorted({r["keybuilder"] for r in rows})
-    # 把已知 4 个排前，SR 高的 keybuilder 居左
+    # Put the 4 known keybuilders first, higher-SR keybuilders to the left
     order = ["cp1_max_pool", "cp1_spatial_pool_16", "cp1_spatial_pool_64", "cp1_mean_pool"]
     kbs = [k for k in order if k in kbs] + [k for k in kbs if k not in order]
     n = len(kbs)
@@ -83,7 +86,9 @@ def fig_ternary(rows, outpath):
         xs, ys, srs = [], [], []
         for r in pts:
             x, y = _proj(r["v0"], r["v1"], r["rs"])
-            xs.append(x); ys.append(y); srs.append(r["success_rate"] * 100)
+            xs.append(x)
+            ys.append(y)
+            srs.append(r["success_rate"] * 100)
         _tri_border(ax)
         if len(xs) >= 3:
             try:
@@ -93,7 +98,7 @@ def fig_ternary(rows, outpath):
                 pass
         sc = ax.scatter(xs, ys, c=srs, cmap="viridis", vmin=vmin, vmax=vmax,
                         s=28, edgecolors="white", linewidths=0.4, zorder=5)
-        # 标最优点
+        # Mark the best point
         if srs:
             bi = max(range(len(srs)), key=lambda j: srs[j])
             ax.scatter([xs[bi]], [ys[bi]], marker="*", s=240, c="red", edgecolors="black", zorder=6)
@@ -153,7 +158,8 @@ def fig_crossgpu(compare_path, outpath):
         color = "tab:red" if abs(jsr - asr) >= 5 else "tab:gray"
         ax.plot([0, 1], [jsr, asr], "-o", color=color, alpha=0.8)
         ax.text(-0.03, jsr, y.split("__", 1)[-1][:22], ha="right", va="center", fontsize=7)
-    ax.set_xticks([0, 1]); ax.set_xticklabels(["jupyter (H200)", "a100 (A100)"])
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(["jupyter (H200)", "a100 (A100)"])
     ax.set_ylabel("Success Rate (%)")
     ax.set_title("Top-10 configs: cross-GPU SR (H200 vs A100)\nred = |diff|>=5pp; same held-out 100ep/config")
     ax.grid(axis="y", alpha=0.3)

@@ -117,10 +117,13 @@ class CP1LLMLayerExtractKeyBuilder:
         Idempotent: re-attaching the same model is a no-op; attaching a
         different model raises. Called once by InferenceInterceptor.__init__.
 
-        Side effect: forces `language_model.config._attn_implementation = "eager"`
-        to match `_stage2_llm_backbone()` (which sets the same flag at every
-        Stage 2 call). This guarantees layer-0 attention numerics here are
-        bit-identical to what Stage 2 produces.
+        Does NOT mutate the shared model's attention implementation. The
+        partial layer-N replay in `build()` runs under whatever backend the
+        model was constructed with (`sdpa`, set once in `PI0Pytorch.__init__`).
+        Stage 2 uses that same backend, so the layer-N numerics here stay
+        consistent with Stage 2 without a cross-thread write to the shared
+        `language_model.config` (which would race concurrent Stage 2 forwards
+        and silently revert Stage 2 to eager).
         """
         language_model = model.paligemma_with_expert.paligemma.language_model
         layers = language_model.layers
@@ -141,9 +144,6 @@ class CP1LLMLayerExtractKeyBuilder:
         self._rotary_emb = language_model.rotary_emb
         self._depth = depth
 
-        # Mirror Stage 2's forced eager attention so the layer-N output here
-        # matches the layer-N output that Stage 2 would produce.
-        language_model.config._attn_implementation = "eager"  # noqa: SLF001
         logger.info(
             "CP1LLMLayerExtractKeyBuilder: attached to model (depth=%d, extract_layer=%d)",
             depth,

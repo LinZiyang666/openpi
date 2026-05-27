@@ -781,6 +781,46 @@ def test_coordinator_propagates_exception_to_submitter():
             )
 
 
+def test_coordinator_submit_timeout_backstop_no_eternal_hang():
+    """A no-timeout submit must surface as TimeoutError if the stage worker
+    does not reply, instead of hanging forever (None -> finite backstop). Guards
+    the regression where a dead stage thread would block every caller.
+    """
+    import time
+
+    from openpi.serving import batching_coordinator as bcmod
+    from openpi.serving.batching_coordinator import BatchingCoordinator
+
+    class _SlowStub(_StubModel):
+        def run_stage1(self, obs):
+            time.sleep(1.0)  # far longer than the patched backstop below
+            return super().run_stage1(obs)
+
+    stub = _SlowStub()
+    # Shrink the no-timeout backstop so the test does not wait the real 300s.
+    with patch.object(bcmod, "_DEFAULT_SUBMIT_TIMEOUT_S", 0.15):
+        with BatchingCoordinator(stub, device="cpu", max_batch_size=1, max_wait_ms=5.0) as bc:
+            with pytest.raises(TimeoutError):
+                # No explicit timeout -> resolves to the finite backstop, not None.
+                bc.submit_to_stage(
+                    1, "default",
+                    {"state": torch.zeros(4), "tokens": torch.zeros(2, dtype=torch.int64)},
+                    request_id="r0",
+                )
+
+
+def test_coordinator_stage3_unknown_payload_type_raises():
+    """An unrecognized Stage 3 payload must fail the request (TypeError), not be
+    silently dropped — and the failure must not kill the stage worker thread.
+    """
+    from openpi.serving.batching_coordinator import BatchingCoordinator
+
+    stub = _StubModel()
+    with BatchingCoordinator(stub, device="cpu", max_batch_size=1, max_wait_ms=5.0) as bc:
+        with pytest.raises(TypeError):
+            bc.submit_to_stage(3, "default", 42, request_id="r0")  # not a Stage3*Payload
+
+
 # ==================================================================
 # M7 Benchmark — sweep helpers (driver/sweep/plot zero-IO smoke tests)
 # ==================================================================
@@ -864,7 +904,6 @@ def test_interceptor_stage_fns_route_through_coordinator():
     from openpi.cache.interceptor import InferenceInterceptor
     from openpi.serving.batching_coordinator import (
         BatchingCoordinator,
-        Stage3MissPayload,
     )
 
     class _FakeStage1:
@@ -1339,7 +1378,6 @@ def test_infer_coordinator_output_survives_state_indexing_transform():
     # Substitute a transform that mimics the AbsoluteActions failure mode:
     # it slices ``state[..., :dims]`` and asserts shape, surfacing 0-D
     # regression as IndexError instead of a silent scalar.
-    import numpy as np
 
     captured: dict = {}
 

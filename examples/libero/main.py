@@ -953,6 +953,15 @@ def _eval_concurrent(
         # Give workers a moment to notice stop_event, then force exit
         for t in threads:
             t.join(timeout=2.0)
+        # os._exit() below hard-exits the process and bypasses eval_libero's
+        # ``finally`` that merges the per-step logs. Merge here too, or the rows
+        # written this run are lost (a rerun truncates the per-worker temp files
+        # at pool construction).
+        if per_step_pool is not None:
+            try:
+                per_step_pool.finalize()
+            except Exception:
+                logging.exception("per-step log finalize failed during interrupt")
         os._exit(0)
 
     for bar in worker_bars:
@@ -1035,9 +1044,9 @@ def eval_libero(args: Args) -> None:
                 per_step_pool=per_step_pool,
             )
     finally:
-        # Even on KeyboardInterrupt / RuntimeError the partial rows already
-        # flushed by ``buffering=1`` (plan §7.3) get merged into the final
-        # ``<yaml_id>.jsonl`` so analysis can still inspect what ran.
+        # Even on KeyboardInterrupt / RuntimeError the rows committed at each
+        # episode boundary (PerStepWriter.flush_episode) get merged into the
+        # final ``<yaml_id>.jsonl`` so analysis can still inspect what ran.
         if per_step_pool is not None:
             per_step_pool.finalize()
 

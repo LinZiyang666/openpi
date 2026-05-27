@@ -258,13 +258,13 @@ Common recipes:
 
 ## Step 3 — Per-cycle policy (recommended: 3 cfgs × 3 servers fully parallel)
 
-> `run_step3_per_cycle_policy` lets the client decide — per inference cycle — whether to bypass the cache, by injecting a `__gate_decision__` signal consumed by `ClientControlledGate`. Full redesign notes: [`logs/trajectory_deviation_step3_redesign.log.md`](../../logs/trajectory_deviation_step3_redesign.log.md).
+> `run_step3_per_cycle_policy` lets the client decide — per inference cycle — whether to bypass the cache, by injecting a `__gate_decision__` signal consumed by `ClientControlledGate`. Full redesign notes: [`logs/trajectory_deviation_step3_redesign.log.md`](../../logs/archive/trajectory_deviation_step3_redesign.log.md).
 >
 > Authoritative episode source: keys of `deviate_score_{cfg}.json` (`task_X/episode_Y`, where `Y` is the Step 1b `subset_init_state_idx`). Those keys already are the per-cfg Step 1a failure subset, so Step 3 no longer takes `--cache-eval-results` / `--config-fail-results`.
 
 ### Prerequisites
 
-1. Three Step 2 outputs available: `deviate_score_clip_w7_d4.json` / `deviate_score_spatial16_w8_d4.json` / `deviate_score_max_pool_w3_d5.json` (merged into `exp/trajectory_deviation/data/deviate_scores/` per the [Step 2 parallel runbook](../../logs/trajectory_deviation_step2_parallel_commands.log.md)).
+1. Three Step 2 outputs available: `deviate_score_clip_w7_d4.json` / `deviate_score_spatial16_w8_d4.json` / `deviate_score_max_pool_w3_d5.json` (merged into `exp/trajectory_deviation/data/deviate_scores/` per the [Step 2 parallel runbook](../../logs/archive/trajectory_deviation_step2_parallel_commands.log.md)).
 2. Step 1b pruned init states at `exp/trajectory_deviation/data/inits/`.
 3. `exp/trajectory_deviation/config/step3_{cfg}.yaml` present for all three cfgs; each sets `checkpoints.cp1.gate.type: client_controlled`, other fields mirror the corresponding `{cfg}.yaml`.
 4. Three servers reuse the Step 2 port map:
@@ -520,4 +520,4 @@ exp/trajectory_deviation/data/
 - Server startup context, artifact building, CP1 experiment: [cp1_cache.md](cp1_cache.md)
 - Cache-system components, YAML fields: [../cache/tutorial.md](../cache/tutorial.md)
 - Remote inference topology: [../deployment/libero.md](../deployment/libero.md)
-- Original plan and reviews: [../../logs/trajectory_deviation_experiment_plan.log.md](../../logs/trajectory_deviation_experiment_plan.log.md), [../../logs/trajectory_deviation_corrective_experiment.log.md](../../logs/trajectory_deviation_corrective_experiment.log.md)
+- Original plan and reviews: [../../logs/trajectory_deviation_experiment_plan.log.md](../../logs/archive/trajectory_deviation_experiment_plan.log.md), [../../logs/trajectory_deviation_corrective_experiment.log.md](../../logs/archive/trajectory_deviation_corrective_experiment.log.md)

@@ -2,7 +2,7 @@
 
 > **前置知识**：阅读 [tutorial.md](tutorial.md) §4 了解 KeyBuilder 组件基础，§10 了解 YAML 配置。
 >
-> **设计文档**：完整方案设计与决策见 [`logs/cp1_llm_layer_extract_key_builder_plan.log.md`](../../logs/cp1_llm_layer_extract_key_builder_plan.log.md)（Plan，G1 APPROVED）。
+> **设计文档**：完整方案设计与决策见 [`logs/cp1_llm_layer_extract_key_builder_plan.log.md`](../../logs/archive/cp1_llm_layer_extract_key_builder_plan.log.md)（Plan，G1 APPROVED）。
 
 ---
 

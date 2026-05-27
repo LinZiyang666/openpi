@@ -8,15 +8,17 @@ from openpi.conductor.journal import Journal
 def test_record_and_replay(tmp_path):
     j = Journal(tmp_path / "j.jsonl")
     j.record(task_uid="u1", yaml_id="y", phase="eval", status="done", success=True)
-    j.record(task_uid="u2", yaml_id="y", phase="eval", status="done", success=False)
+    j.record(task_uid="u2", yaml_id="y", phase="eval", status="failed", success=False)
     assert j.replay_done_uids() == {"u1", "u2"}
 
 
-def test_failed_status_removes_from_done(tmp_path):
+def test_failed_status_is_terminal(tmp_path):
     j = Journal(tmp_path / "j.jsonl")
     j.record(task_uid="u1", yaml_id="y", phase="eval", status="done", success=True)
     j.record(task_uid="u1", yaml_id="y", phase="eval", status="failed", success=False)
-    assert j.replay_done_uids() == set()  # last-writer-wins
+    # done OR failed are both terminal: a non-retriable failed record keeps the
+    # uid in the resume-skip set so it is not re-run (anti-livelock fix).
+    assert j.replay_done_uids() == {"u1"}
 
 
 def test_replay_missing_file_is_empty(tmp_path):

@@ -190,7 +190,7 @@ Gate also has lifecycle methods for trajectory support:
 > described below are unchanged. For `composite` configuration, see
 > [`verdict_factor_judge.md`](verdict_factor_judge.md) (refactored
 > 2026-05-07) and
-> [`logs/verdict_factor_judge_refactor.log.md`](../../logs/verdict_factor_judge_refactor.log.md)
+> [`logs/verdict_factor_judge_refactor.log.md`](../../logs/archive/verdict_factor_judge_refactor.log.md)
 > §6 / §11 / §13.
 
 **Source**: `src/openpi/cache/components/judge.py`

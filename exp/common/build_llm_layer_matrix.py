@@ -429,7 +429,11 @@ def build_matrix(
     language_model = model.paligemma_with_expert.paligemma.language_model
     model_layers = language_model.layers
     rotary_emb = language_model.rotary_emb
-    language_model.config._attn_implementation = "eager"  # noqa: SLF001
+    # Use sdpa to match the online CP1LLMLayerExtractKeyBuilder replay (which
+    # runs under the model's sdpa backend since attach_model no longer forces
+    # eager); forcing eager here would make the offline artifact's layer-N keys
+    # diverge from the online query keys.
+    language_model.config._attn_implementation = "sdpa"  # noqa: SLF001
     depth = len(model_layers)
     for L in target_layers:
         if not (0 <= L < depth):

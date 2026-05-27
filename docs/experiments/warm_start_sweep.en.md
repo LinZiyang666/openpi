@@ -1,6 +1,6 @@
 # Warm Start Success-Rate Sweep — Runbook
 
-> Derived from [`logs/warm_start_sweep_plan.log.md`](../../logs/warm_start_sweep_plan.log.md). Companions: `exp/warm_start/config/`, `src/openpi/cache/components/judge.py::AlwaysWarmStartJudge`, `exp/common/build_clip_cache_artifact.py`. Chinese version: [warm_start_sweep.md](warm_start_sweep.md).
+> Derived from [`logs/warm_start_sweep_plan.log.md`](../../logs/archive/warm_start_sweep_plan.log.md). Companions: `exp/warm_start/config/`, `src/openpi/cache/components/judge.py::AlwaysWarmStartJudge`, `exp/common/build_clip_cache_artifact.py`. Chinese version: [warm_start_sweep.md](warm_start_sweep.md).
 
 ---
 

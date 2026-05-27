@@ -46,7 +46,7 @@ def _exp_decay_weights(depth: int, *, decay: float = 0.7) -> list[float]:
 # canonical spatial16 phase2 layer1 yaml shape so the artifact load_artifact
 # check passes (4-key declared vs 4-key in pkl) AND so search retrieval
 # behaviour mirrors the Phase 2 frozen baseline (per plan §1 "factor configs
-# 完全冻结, with Phase 2 Layer 1 verbatim"). prompt_emb has weight=0 — its
+# fully frozen, with Phase 2 Layer 1 verbatim"). prompt_emb has weight=0 — its
 # vector still travels as a search field but contributes nothing to fusion.
 _FIELD_SIM_DEFAULT = {
     "vision_0":   {"type": "cosine"},

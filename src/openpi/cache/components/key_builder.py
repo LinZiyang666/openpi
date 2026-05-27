@@ -144,7 +144,7 @@ _VISION_OFFSETS = [
     (VISION_1, _TOKENS_PER_IMAGE, 2 * _TOKENS_PER_IMAGE),
     (VISION_2, 2 * _TOKENS_PER_IMAGE, 3 * _TOKENS_PER_IMAGE),
 ]
-_PROMPT_START = _NUM_IMAGES * _TOKENS_PER_IMAGE  # 588
+_PROMPT_START = _NUM_IMAGES * _TOKENS_PER_IMAGE  # 768
 
 
 # ---------------------------------------------------------------------------
@@ -413,11 +413,11 @@ class FullOriginalKeyBuilder:
         keys: dict[str, torch.Tensor] = {}
         prefix = self._cache["prefix_embs"][0]  # [prefix_len, emb_dim]
 
-        # Vision fields: slice at fixed 196-token boundaries, flatten raw.
+        # Vision fields: slice at fixed 256-token boundaries, flatten raw.
         for field_name, start, end in _VISION_OFFSETS:
             if not self._is_enabled(field_name):
                 continue
-            segment = prefix[start:end]  # [196, emb_dim]
+            segment = prefix[start:end]  # [256, emb_dim]
             keys[field_name] = segment.reshape(-1).cpu().float().contiguous()
 
         # Prompt: slice remainder after vision tokens, flatten, pad/truncate to target dim.

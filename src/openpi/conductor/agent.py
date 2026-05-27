@@ -24,6 +24,7 @@ import contextlib
 import dataclasses
 import logging
 import os
+import signal
 import subprocess
 import threading
 from typing import Protocol
@@ -108,7 +109,10 @@ def _default_spawn(spec: WorkerSpec, driver_host: str, driver_port: int) -> Work
         env = dict(os.environ)
         cmd = base_cmd
     env["CUDA_VISIBLE_DEVICES"] = spec.gpu_id
-    return subprocess.Popen(cmd, env=env)
+    # start_new_session=True puts the worker (and, under `conda run`, the real
+    # grandchild process) in its own process group so stop() can signal the
+    # whole group rather than only the wrapper.
+    return subprocess.Popen(cmd, env=env, start_new_session=True)
 
 
 class WorkerAgent:
@@ -147,6 +151,13 @@ class WorkerAgent:
         for spec in self._specs:
             handle = self._handles.get(spec.worker_id)
             if handle is None or handle.poll() is not None:
+                if handle is not None:
+                    # Reap the exited process so it does not linger as a zombie
+                    # (poll() already saw it exit, so wait() returns at once).
+                    wait_fn = getattr(handle, "wait", None)
+                    if wait_fn is not None:
+                        with contextlib.suppress(Exception):
+                            wait_fn(timeout=5)
                 self._restart_counts[spec.worker_id] = self._restart_counts.get(spec.worker_id, 0) + 1
                 logger.warning(
                     "agent: worker %s died; restart #%d", spec.worker_id, self._restart_counts[spec.worker_id]
@@ -163,6 +174,14 @@ class WorkerAgent:
     def stop(self) -> None:
         self._stop.set()
         for handle in self._handles.values():
+            # Workers are spawned with start_new_session=True, so signalling the
+            # process group also reaches the real worker behind a `conda run`
+            # wrapper; terminate() alone would only hit the wrapper and orphan
+            # the grandchild that holds the GPU/EGL slot.
+            pid = getattr(handle, "pid", None)
+            if isinstance(pid, int):
+                with contextlib.suppress(Exception):
+                    os.killpg(os.getpgid(pid), signal.SIGTERM)
             with contextlib.suppress(Exception):
                 handle.terminate()
 

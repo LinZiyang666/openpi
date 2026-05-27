@@ -1,15 +1,16 @@
-"""合并 baseline + round_1/2/3 的 summarize 结果 json → all_results.csv。
+"""Merge the summarize result jsons of baseline + round_1/2/3 -> all_results.csv.
 
-每个输入 json 形如 {yaml_id: {"success_rate":..,"n":..,"n_success":..}}。
-yaml_id 形如 "{keybuilder}__{cfg}"，cfg 里权重编码：
+Each input json looks like {yaml_id: {"success_rate":..,"n":..,"n_success":..}}.
+yaml_id looks like "{keybuilder}__{cfg}", where cfg encodes the weights:
   grid3_vision_0@25_vision_1@37_robot_state@37  -> v0=.25 v1=.37 rs=.37
   grid_vision_0@50_robot_state@50               -> v0=.50 v1=0  rs=.50
-  iso_vision_0 / iso_vision_1 / iso_robot_state -> 该模态=1.0
-  末尾可带 __norm2（normalizer 用 shortlist 第二候选）
+  iso_vision_0 / iso_vision_1 / iso_robot_state -> that modality = 1.0
+  an optional __norm2 suffix (normalizer uses the shortlist's 2nd candidate)
 
-输出列：stage,keybuilder,yaml_id,v0,v1,rs,normalizer,n,success_rate（按 success_rate 降序）。
+Output columns: stage,keybuilder,yaml_id,v0,v1,rs,normalizer,n,success_rate
+(sorted by success_rate descending).
 
-用法:
+Usage:
   python build_all_results.py --out all_results.csv \
       baseline=baseline_jup_results.json r1=round_1_results.json r2=... r3=...
 """
@@ -35,7 +36,7 @@ def parse_weights(yaml_id: str):
             v1 = int(m1.group(1)) / 100.0
         if mr:
             rs = int(mr.group(1)) / 100.0
-    else:  # iso_* 无 @，纯单模态权重 1.0
+    else:  # iso_* has no @; pure single-modality weight 1.0
         if "iso_vision_0" in cfg:
             v0 = 1.0
         elif "iso_vision_1" in cfg:

@@ -213,6 +213,12 @@ class ConductorDriver:
         """
         task = self._scheduler.next_task(server_key)
         if task is None:
+            # No ready task. If the whole run is finished, tell the worker to
+            # shut down cleanly rather than idle-backing-off forever; otherwise
+            # it keeps retrying until the driver closes its socket and then
+            # orphans (retry-with-backoff against a dead port).
+            if self._scheduler.all_done():
+                return _proto.MSG_SHUTDOWN, {}
             return _proto.MSG_ASSIGN, {"none": True, "backoff_ms": 200}
         return _proto.MSG_ASSIGN, {"task": _proto.task_to_wire(task)}
 
@@ -254,7 +260,11 @@ class ConductorDriver:
     def _handle_conn(self, conn: socket.socket, stop: Callable[[], bool]) -> None:
         # Track episodes dispatched on this connection but not yet reported, so a
         # worker crash (connection drop) requeues them (plan §9.2).
-        inflight: set[str] = set()
+        # uid -> dispatch generation (attempt) handed to THIS connection. A late
+        # disconnect requeue is fenced to the generation it actually held so it
+        # cannot invalidate a newer dispatch already re-assigned elsewhere after
+        # a prior timeout requeue.
+        inflight: dict[str, int | None] = {}
         try:
             while not stop():
                 try:
@@ -263,23 +273,29 @@ class ConductorDriver:
                     break
                 if msg_type == _proto.MSG_PULL:
                     key = payload.get("server_host", "")
-                    # Reuse handle_pull so the assign/none/backoff logic lives in one place.
-                    _, assign_payload = self.handle_pull(key)
+                    # Reuse handle_pull so the assign/none/shutdown/backoff logic
+                    # lives in one place; honour the returned message type so an
+                    # all-done run can hand the worker a clean MSG_SHUTDOWN.
+                    out_type, assign_payload = self.handle_pull(key)
                     if "task" in assign_payload:
-                        inflight.add(assign_payload["task"]["task_uid"])
-                    _proto.send_message(conn, _proto.MSG_ASSIGN, assign_payload)
+                        task = assign_payload["task"]
+                        inflight[task["task_uid"]] = task.get("attempt")
+                    _proto.send_message(conn, out_type, assign_payload)
                 elif msg_type == _proto.MSG_REPORT_RESULT:
                     # Record first, then drop from inflight: if handle_result
                     # raises (malformed payload), the uid stays inflight and is
                     # requeued by the finally block rather than silently lost.
                     self.handle_result(payload)
-                    inflight.discard(payload.get("task_uid", ""))
+                    inflight.pop(payload.get("task_uid", ""), None)
                 elif msg_type == _proto.MSG_REPORT_PROGRESS:
                     self.handle_progress(payload)
         finally:
-            for uid in inflight:
+            for uid, attempt in inflight.items():
                 # Crashed mid-episode: requeue (eval) / invalidate warmup stage.
-                self._scheduler.mark_result(uid, success=False, retriable=True)
+                # Pass the generation this connection held so the scheduler fence
+                # drops it if the episode was already re-dispatched at a higher
+                # generation elsewhere.
+                self._scheduler.mark_result(uid, success=False, retriable=True, attempt=attempt)
             with contextlib.suppress(OSError):
                 conn.close()
 

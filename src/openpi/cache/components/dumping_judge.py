@@ -15,13 +15,13 @@ channels per-verdict factor raw values to a JSONL file:
 Plan §6.9 (option b):
   - Independent dump factor list lets warmup yamls over-collect across
     all 17 factors while different eval yamls each pick subsets.
-  - Self-owned Normalization副 (副本 of the same config as inner) avoids
+  - Self-owned Normalization (a replica of the same config as inner) avoids
     reaching into inner's internal state; z-score is cheap so duplication
     is fine.
 
 Coupling map:
   DEPENDS ON: components/factors/base.py (Factor, FactorContext, HistoryView),
-              components/factors/normalization (Layer 1 副本),
+              components/factors/normalization (Layer 1 replica),
               components/judge.py (SimilarityJudge contract).
   CONSUMED BY: cache/config.py (`_build_judge` wraps when yaml has `dump`).
 """
@@ -37,7 +37,7 @@ from typing import TYPE_CHECKING, Optional
 import torch
 
 from openpi.cache.components.factors.base import Factor, FactorContext, HistoryView
-from openpi.cache.components.judge import HitType, JudgeResult
+from openpi.cache.components.judge import JudgeResult
 from openpi.cache.storage_types import SearchResultLite
 from openpi.cache.types import CheckpointID
 
@@ -55,8 +55,8 @@ class DumpingJudge:
     Construction:
         DumpingJudge(
             inner=<SimilarityJudge>,
-            dump_normalization=<Normalization>,    # 自己的 Layer 1 副本
-            dump_factors=[<Factor>, ...],          # Layer 2 子集 (任意 17 因子组合)
+            dump_normalization=<Normalization>,    # self-owned Layer 1 replica
+            dump_factors=[<Factor>, ...],          # Layer 2 subset (any combination of the 17 factors)
             dump_path="/tmp/<config_id>.jsonl",
             config_id="<yaml stem>",
         )

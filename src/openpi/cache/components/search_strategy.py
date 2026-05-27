@@ -30,11 +30,11 @@ from typing import Any, Optional, Protocol, runtime_checkable
 
 import torch
 
-logger = logging.getLogger(__name__)
-
 from openpi.cache.cache_storage import CacheStorage
 from openpi.cache.storage_types import QueryFilter, QuerySpec, SearchResultLite
 from openpi.cache.types import CheckpointID
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass

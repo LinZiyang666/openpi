@@ -265,6 +265,7 @@ uv run scripts/serve_policy.py \
 
 - Uses the `pi05_libero` config and explicitly loads the converted PyTorch checkpoint at `~/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch`
 - Listens on `0.0.0.0:8000` by default — make sure port 8000 is open in the firewall
+- ⚠ **Security**: the server has no authentication, and in `--concurrent` mode (the default) the `load_cache_config` control message accepts a client-supplied cache YAML whose `preload_path` is loaded via `pickle.load` with no path confinement — i.e. any client that can reach the port can achieve remote code execution as the server user. Only expose this port on a trusted network (not the public internet); treat the frp ingress as trusted-LAN-only. See [`logs/full_repo_audit_2026-05-26.log.md`](../../logs/full_repo_audit_2026-05-26.log.md) §3.1 for the accepted-risk record and the recommended allowlist fix.
 
 ---
 

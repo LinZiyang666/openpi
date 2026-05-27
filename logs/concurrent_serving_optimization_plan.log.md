@@ -1,5 +1,5 @@
 <!-- ---
-status: Implemented (G1 APPROVED R3 + G2 APPROVED R4 — 2026-05-23 19:17 CDT; full pytest 1441 pass / 0 regression; operator guide at docs/deployment/concurrent_serving.md)
+status: Implemented (G1 APPROVED R3 + G2 APPROVED R4 — 2026-05-23 19:17 CDT; full pytest 1441 pass / 0 regression; operator guide at docs/experiments/conductor_tutorial.md)
 level: L3
 date: 2026-05-23
 author: Ziyang Lin (executor)

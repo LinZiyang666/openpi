@@ -8,7 +8,7 @@
 > - **Judge 4 层正交架构**：Normalization → Factor → Calibration → Composer，每层 yaml 独立可插拔
 > - **No cold-start**：第 1 / 第 3 层启动时校准数据**必备**，缺失即 fail-fast；旧 `cold_start_strategy: force_miss/passthrough/lenient` + `all_nan_fallback` + `JudgeResult.factor_outputs.sentinel` 全部移除
 > - **诊断 schema_version=2**：`factor_outputs.{raw, calibrated, composer_score}`（旧 `norm` / `score` / `sentinel` 字段废除）
-> - 完整设计 + 决策见 [`logs/verdict_factor_judge_refactor.log.md`](../../logs/verdict_factor_judge_refactor.log.md)（G1 APPROVED Round 4，2026-05-07）。
+> - 完整设计 + 决策见 [`logs/verdict_factor_judge_refactor.log.md`](../../logs/archive/verdict_factor_judge_refactor.log.md)（G1 APPROVED Round 4，2026-05-07）。
 > - 历史设计文档（重构前）见 `logs/old_verdict_factor_*.log.md` 8 份归档。
 
 > **前置知识**：阅读 [tutorial.md](tutorial.md) §6 了解 Judge 组件基础，§10 了解 YAML 配置；阅读 [../architecture/cache_system.md](../architecture/cache_system.md) §5.12 / §5.13 了解 verdict factor 系统的架构契约。
@@ -1062,4 +1062,4 @@ CLI 内部只接受 8 个 offline 因子（registry name + `hasattr(compute_for_
 | Composer dependency check | classmethod `declared_dependencies(params)` | 实例属性 `composer.declared_dependencies` |
 | 旧 wire 协议 | `__hit_meta__["factor_outputs"]` 同 | schema_version=2，旧 client 见到字段缺失 = v1 |
 
-完整设计 + 决策史见 [`logs/verdict_factor_judge_refactor.log.md`](../../logs/verdict_factor_judge_refactor.log.md)（G1 APPROVED Round 4，2026-05-07）。
+完整设计 + 决策史见 [`logs/verdict_factor_judge_refactor.log.md`](../../logs/archive/verdict_factor_judge_refactor.log.md)（G1 APPROVED Round 4，2026-05-07）。

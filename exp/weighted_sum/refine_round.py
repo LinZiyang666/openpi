@@ -62,7 +62,12 @@ def _parse_weights(yaml_id: str) -> dict[str, float]:
 
 
 def _cid(weights: dict[str, float]) -> str:
-    parts = [f"{f}@{int(round(weights[f] * 100))}" for f in _FIELDS3 if weights.get(f, 0) > 0]
+    # Use the SAME percent truncation as emit_yamls.py (``int(x * 100)``), not
+    # rounding: emit_yamls generated the baseline yaml stems and the data CSVs
+    # are keyed by those stems, so a value like 0.375 must encode to "37" here
+    # exactly as it did there ("38" under round() would break the join and the
+    # center-mode reuse of baseline optima).
+    parts = [f"{f}@{int(weights[f] * 100)}" for f in _FIELDS3 if weights.get(f, 0) > 0]
     return "grid_" + "_".join(parts) if len(parts) == 2 else "grid3_" + "_".join(parts)
 
 

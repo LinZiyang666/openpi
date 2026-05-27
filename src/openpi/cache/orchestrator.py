@@ -29,7 +29,7 @@ import inspect
 import logging
 import uuid
 from contextlib import contextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 import torch
@@ -523,14 +523,6 @@ class CacheOrchestrator:
             hit_type=HitType.MISS, query_keys=query_keys,
             factor_outputs=factor_outputs,
         )
-
-    def build_keys(self, checkpoint_id: CheckpointID) -> dict[str, torch.Tensor]:
-        """Build query keys from already-collected stage outputs.
-
-        Must be called in the main thread (accesses GPU tensors via key_builder).
-        Returns CPU tensors safe for cross-thread use.
-        """
-        return self._key_builder.build(checkpoint_id)
 
     # ------------------------------------------------------------------
     # Episode-level write path
