@@ -595,29 +595,34 @@ class BatchingCoordinator:
                 req.reply_event.set()
         else:
             if metrics_on:
-                run_ms = (time.monotonic() - t_dispatch) * 1000.0
-                waits = [(t_dispatch - r.enqueue_t) * 1000.0 for r in bucket]
-                p0 = bucket[0].payload
-                mode = "miss" if isinstance(p0, Stage3MissPayload) else "warm_start"
-                self._recorder.record_batch({
-                    "stage": 3,
-                    "size": len(bucket),
-                    "wait_ms": max(waits),
-                    "wait_avg_ms": sum(waits) / len(waits),
-                    "wait_max_ms": max(waits),
-                    "wait_min_ms": min(waits),
-                    "run_ms": run_ms,
-                    "assemble_ms": 0.0,
-                    "forward_ms": run_ms,
-                    "q_depth": 0,
-                    "enqueue_spread_ms": 0.0,
-                })
-                self._recorder.record_batch({
-                    "stage": "3bucket", "mode": mode,
-                    "start_t": getattr(p0, "start_t", -1.0) if getattr(p0, "start_t", None) is not None else -1.0,
-                    "num_steps": getattr(p0, "num_steps", -1),
-                    "size": len(bucket), "forward_ms": run_ms,
-                })
+                try:
+                    run_ms = (time.monotonic() - t_dispatch) * 1000.0
+                    waits = [(t_dispatch - r.enqueue_t) * 1000.0 for r in bucket]
+                    p0 = bucket[0].payload
+                    mode = "miss" if isinstance(p0, Stage3MissPayload) else "warm_start"
+                    self._recorder.record_batch({
+                        "stage": 3,
+                        "size": len(bucket),
+                        "wait_ms": max(waits),
+                        "wait_avg_ms": sum(waits) / len(waits),
+                        "wait_max_ms": max(waits),
+                        "wait_min_ms": min(waits),
+                        "run_ms": run_ms,
+                        "assemble_ms": 0.0,
+                        "forward_ms": run_ms,
+                        "q_depth": 0,
+                        "enqueue_spread_ms": 0.0,
+                    })
+                    self._recorder.record_batch({
+                        "stage": "3bucket", "mode": mode,
+                        "start_t": getattr(p0, "start_t", -1.0) if getattr(p0, "start_t", None) is not None else -1.0,
+                        "num_steps": getattr(p0, "num_steps", -1),
+                        "size": len(bucket), "forward_ms": run_ms,
+                    })
+                except Exception:
+                    logger.exception(
+                        "BatchingCoordinator stage3 bucket-first metrics/record failed (non-fatal)"
+                    )
         # KV-cache leak guard (mirror the generic loop).
         for req in bucket:
             req.payload = None
@@ -840,17 +845,22 @@ class BatchingCoordinator:
             _bt = time.monotonic()
             self._run_stage3_bucket(bucket)
             if self._recorder is not None and bucket:
-                p0 = bucket[0].payload
-                mode = "miss" if isinstance(p0, Stage3MissPayload) else "warm_start"
-                start_t = getattr(p0, "start_t", None)
-                self._recorder.record_batch({
-                    "stage": "3bucket",
-                    "mode": mode,
-                    "start_t": start_t if start_t is not None else -1.0,
-                    "num_steps": getattr(p0, "num_steps", -1),
-                    "size": len(bucket),
-                    "forward_ms": (time.monotonic() - _bt) * 1000.0,
-                })
+                try:
+                    p0 = bucket[0].payload
+                    mode = "miss" if isinstance(p0, Stage3MissPayload) else "warm_start"
+                    start_t = getattr(p0, "start_t", None)
+                    self._recorder.record_batch({
+                        "stage": "3bucket",
+                        "mode": mode,
+                        "start_t": start_t if start_t is not None else -1.0,
+                        "num_steps": getattr(p0, "num_steps", -1),
+                        "size": len(bucket),
+                        "forward_ms": (time.monotonic() - _bt) * 1000.0,
+                    })
+                except Exception:
+                    logger.exception(
+                        "BatchingCoordinator stage3 sub-bucket metrics/record failed (non-fatal)"
+                    )
         self._tls.forward_ms = (time.monotonic() - _t_f) * 1000.0
 
     @staticmethod

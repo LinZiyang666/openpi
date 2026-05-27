@@ -86,7 +86,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 | File | Description |
 |------|-------------|
 | [experiments/artifact_layout.md](experiments/artifact_layout.md) | Canonical `exp/<experiment>/{config,data,analysis}/` layout rules — where new files go, tracking policy, `.gitignore` exceptions; §7 verdict-factor enrichment (B2 `--factors-yaml` flag, `library_stats` field, legacy fallback) |
-| [experiments/conductor_tutorial.md](experiments/conductor_tutorial.md) | **实验编排教程（重点：如何编写 driver 策略）**：用新 conductor 框架跑大规模评测 — 编写 `ExperimentStrategy`、复用/自写 `EpisodeRunner`、`ConductorDriver` + `WorkerAgent` 启动（按 server 分配 worker / 断点续跑 / 重试 / 监控）、调度语义、常见模式、测试。取代旧 `main.py --num-workers` / `run_phase` 编排 |
+| [experiments/conductor_tutorial.md](experiments/conductor_tutorial.md) | **实验编排教程（重点：如何编写 driver 策略）**：用新 conductor 框架跑大规模评测 — 编写 `ExperimentStrategy`、复用/自写 `EpisodeRunner`、`ConductorDriver` + `WorkerAgent` 启动（按 server 分配 worker / 断点续跑 / 重试 / 监控）、调度语义、常见模式、测试；C1 `--non-concurrent` 保留原始单连接结构但当前为 sdpa 数值。取代旧 `main.py --num-workers` / `run_phase` 编排 |
 | [experiments/cp1_cache.md](experiments/cp1_cache.md) | CP1 Cache experiment guide: artifact building, calibration, YAML generation, 3-phase experiment execution, result analysis |
 | [experiments/temporal_prune.md](experiments/temporal_prune.md) | Temporal Prune experiment pipeline |
 | [experiments/llm_layer_extract.md](experiments/llm_layer_extract.md) | CP1 LLM Layer Extract 端到端 runbook：数据采集 → Step 2 build pkl（带 tokenizer self-check）→ YAML 模板（A/B 两种 reducer）→ run_cache_experiments → 结果分析 → manual parity verify |
@@ -105,8 +105,8 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 
 | File | Description |
 |------|-------------|
-| [deployment/aloha_sim.md](deployment/aloha_sim.md) | ALOHA Sim remote inference (WSL2 client + remote GPU) |
-| [deployment/libero.md](deployment/libero.md) | LIBERO remote inference and simulator environment setup (WSL2 client + remote GPU) |
+| [deployment/aloha_sim.md](deployment/aloha_sim.md) | ALOHA Sim remote inference (WSL2 client + remote GPU); concurrent vs non-concurrent modes, with C1 described as raw single-connection structure under current sdpa numerics |
+| [deployment/libero.md](deployment/libero.md) | LIBERO remote inference and simulator environment setup (WSL2 client + remote GPU); concurrent vs non-concurrent modes, with C1 described as raw single-connection structure under current sdpa numerics |
 | → [experiments/conductor_tutorial.md](experiments/conductor_tutorial.md) | 并发 server 起法（`--concurrent` / `--replicas` 公共端口 / 多独立端点）+ 调优 + C1/C2 + troubleshooting **已并入**该端到端教程（原 `concurrent_serving.md`）；与 client 编排（写 driver 策略）合为一篇 |
 
 ### [papers/](papers/)

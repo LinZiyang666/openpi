@@ -19,7 +19,6 @@ Trigger:
 
 from __future__ import annotations
 
-import math
 import os
 from pathlib import Path
 
@@ -308,7 +307,8 @@ def test_layer0_partial_replay_matches_full_forward_hidden_states(
 
     # Path B: HF full forward with output_hidden_states=True; index [1] is
     # the output of layer 0 (index [0] is `inputs_embeds` pre-layer-0).
-    language_model.config._attn_implementation = "eager"  # mirror Stage 2
+    # Mirror the current model backend. Stage 2 configures sdpa once in
+    # PI0Pytorch.__init__; the keybuilder no longer mutates shared config.
     with torch.no_grad():
         full_output = language_model.forward(
             inputs_embeds=stage1.prefix_embs,

@@ -6,6 +6,7 @@ import asyncio
 import inspect
 
 from openpi_client import msgpack_numpy
+import pytest
 from websockets.asyncio.client import connect as ws_connect
 from websockets.asyncio.server import serve as ws_serve
 
@@ -18,6 +19,44 @@ from openpi.serving.replica_proxy import merge_throughput_summary
 
 _pack = msgpack_numpy.Packer().pack
 _unpack = msgpack_numpy.unpackb
+
+
+def test_proxy_public_server_uses_finite_frame_cap(monkeypatch):
+    """The public multi-replica ingress must inherit the WS frame cap."""
+    import openpi.serving.replica_proxy as proxy_mod
+
+    captured: dict = {}
+
+    async def fake_prime_metadata(self):
+        self._metadata = {"ready": True}
+
+    class StopServing(Exception):
+        pass
+
+    class _FakeServer:
+        async def serve_forever(self):
+            raise StopServing
+
+    class _FakeServeContext:
+        async def __aenter__(self):
+            return _FakeServer()
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+    def fake_ws_serve(*args, **kwargs):
+        del args
+        captured.update(kwargs)
+        return _FakeServeContext()
+
+    monkeypatch.setattr(ReplicaProxy, "prime_metadata", fake_prime_metadata)
+    monkeypatch.setattr(proxy_mod, "ws_serve", fake_ws_serve)
+
+    proxy = ReplicaProxy("127.0.0.1", [9001])
+    with pytest.raises(StopServing):
+        asyncio.run(proxy.serve(9000))
+
+    assert captured["max_size"] == 256 * 1024 * 1024
 
 
 def test_classify_infer_obs_is_sticky():
@@ -449,8 +488,10 @@ def test_merge_throughput_summary_dropped_reply_is_error():
 
 
 def test_merge_throughput_summary_aggregates_cleared_totals():
-    s0 = _summary(10.0, 5, 40, 100.0, 8, 50.0, 200.0); s0["cleared"] = {"util": 3, "batch": 2}
-    s1 = _summary(12.0, 5, 60, 200.0, 16, 60.0, 220.0); s1["cleared"] = {"util": 4, "batch": 5}
+    s0 = _summary(10.0, 5, 40, 100.0, 8, 50.0, 200.0)
+    s0["cleared"] = {"util": 3, "batch": 2}
+    s1 = _summary(12.0, 5, 60, 200.0, 16, 60.0, 220.0)
+    s1["cleared"] = {"util": 4, "batch": 5}
     m = merge_throughput_summary([s0, s1], n_expected=2)
     assert m["cleared"] == {"util": 7, "batch": 7}  # summed per-buffer across replicas
 

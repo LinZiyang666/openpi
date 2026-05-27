@@ -42,7 +42,7 @@ python scripts/serve_policy.py policy:checkpoint \
 python scripts/serve_policy.py ... --non-concurrent --cache_config <yaml>
 ```
 
-- 单连接 server（后续连接被拒，WS 1013）。无 `BatchingCoordinator`，跑 pre-Phase-5 的 `Policy.infer` 链（含 `torch.compile`）——bit-identical（硬约束 C1）。用于量单连接延迟上界。C2 仍生效。
+- 单连接 server（后续连接被拒，WS 1013）。无 `BatchingCoordinator` / lazy lifecycle / bundle indirection，保留 C1 原始单连接结构；数值匹配当前 sdpa 模型，不等同于历史 pre-Phase-5 eager baseline。用于量单连接延迟上界。C2 仍生效。
 
 ### 1.3 多副本：`--replicas N` 单公共端口，或多个独立 `--concurrent` 端点
 
@@ -291,7 +291,7 @@ cache 搜索路径（`InMemoryBackend.search` 的 `cosine_similarity`）释放 G
 
 ## 10. 硬约束与部署约束（不可违反）
 
-- **C1 — non-concurrent 模式 bit-identical**：`--non-concurrent` 路径无 coordinator/bundle/lazy，保持 pre-Phase-5 行为（用于量延迟上界）。
+- **C1 — non-concurrent 原始单连接结构**：`--non-concurrent` 路径无 coordinator/bundle/lazy；数值匹配当前 sdpa 模型，不与历史 eager baseline 直接 bit-identical（用于量延迟上界）。
 - **C2 — runtime write-frozen**：backend 启动后冻结，`write_policy` 必须 `"never"`（否则启动 fail-fast `ConfigValidationError`）；cache artifact 离线构建（`exp/common/factor_postprocess.py`）。
 - **server 端点 = `--replicas` 公共端口 或 独立 `--concurrent` 端点**（§1.3）：`replica_proxy` 的 `fetch_dump` 已 fan-out + 拼接各 replica 切片（`merge_dump_replies`），warmup→eval dump 经 router 完整，故两种都受支持。
 - **单卡 ≤15 worker**（MuJoCo EGL 上下文上限）：`WorkerAgent` 按 (机器, 卡) 配额 fork。
@@ -368,7 +368,7 @@ cache 搜索路径（`InMemoryBackend.search` 的 `cosine_similarity`）释放 G
 | `--port` | `8000` | 监听端口 |
 | `--replicas` | `1` | 单公共端口后的并发副本进程数（`>1` 启 `replica_proxy` router，per-connection 路由 + broadcast bundle/preload + aggregate fetch_dump）|
 | `--replica-spawn-batch` | `0` | `replicas>1` 时分批 spawn：每批并发起这么多子进程、等其加载+bind 完再起下一批（`0`=一次性全起；大库分批防同时加载撑爆）|
-| `--concurrent` / `--non-concurrent` | `True` | 并发多 client + 动态 bundle 热切（默认）；`--non-concurrent`=C1 bit-identical 极速基线（无 coordinator/bundle/lazy）|
+| `--concurrent` / `--non-concurrent` | `True` | 并发多 client + 动态 bundle 热切（默认）；`--non-concurrent`=C1 原始单连接极速基线（无 coordinator/bundle/lazy；当前 sdpa 数值）|
 | `--cache-config` | `None` | 启动时加载的 cache yaml |
 | `--record` / `--collect` / `--collect-dir` / `--collect-images` / `--cache` | … | 录制 / 采集建库相关（采集即生成 h5：`collection_policy` 抽 vision/prompt embedding 存 float16）|
 

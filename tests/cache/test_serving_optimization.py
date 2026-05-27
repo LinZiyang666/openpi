@@ -821,6 +821,47 @@ def test_coordinator_stage3_unknown_payload_type_raises():
             bc.submit_to_stage(3, "default", 42, request_id="r0")  # not a Stage3*Payload
 
 
+def test_stage3_bucket_first_metrics_failure_does_not_kill_worker(monkeypatch):
+    """Bucket-first stage3 instrumentation errors are non-fatal."""
+    import time
+
+    from openpi.serving import monitor
+    from openpi.serving.batching_coordinator import BatchingCoordinator
+    from openpi.serving.batching_coordinator import Stage3MissPayload
+
+    class _BadRecorder:
+        def record_batch(self, event):
+            del event
+            raise RuntimeError("recorder boom")
+
+        def record_util(self, event):
+            del event
+
+    monkeypatch.setenv("OPENPI_STAGE3_BUCKET_FIRST", "1")
+    monkeypatch.setattr(monitor, "_LEVEL", monitor.MonitorLevel.BASIC, raising=False)
+    monkeypatch.setattr(monitor, "_RECORDER", _BadRecorder(), raising=False)
+
+    stub = _StubModel()
+    stage1 = stub.run_stage1({
+        "state": torch.zeros(1, 4),
+        "tokens": torch.zeros(1, 2, dtype=torch.int64),
+    })
+    stage2 = stub.run_stage2(stage1)
+    payload = Stage3MissPayload(stage2, torch.zeros(50, 32))
+
+    with BatchingCoordinator(stub, device="cpu", max_batch_size=1, max_wait_ms=1.0) as bc:
+        out = bc.submit_to_stage(3, "default", payload, request_id="first", timeout=1.0)
+        assert tuple(out.action_chunk.shape) == (1, 50, 32)
+
+        time.sleep(0.2)
+        stage3_threads = [t for t in bc._stage_threads if "stage3" in t.name]
+        assert stage3_threads
+        assert all(t.is_alive() for t in stage3_threads)
+
+        out2 = bc.submit_to_stage(3, "default", payload, request_id="second", timeout=1.0)
+        assert tuple(out2.action_chunk.shape) == (1, 50, 32)
+
+
 # ==================================================================
 # M7 Benchmark — sweep helpers (driver/sweep/plot zero-IO smoke tests)
 # ==================================================================
@@ -1194,8 +1235,6 @@ def test_infer_coordinator_stage1_payload_is_unbatched():
     axis — a B=1 leaf at submit time produces ``[N, 1, ...]`` instead of
     ``[N, ...]`` after stacking, recreating the G1 R2 double-batch-dim bug.
     """
-    coordinator = None  # placeholder before we build the interceptor
-
     class _Capturing(_RecordingCoordinator):
         def __init__(self):
             pass

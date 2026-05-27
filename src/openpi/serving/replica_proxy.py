@@ -55,6 +55,11 @@ from websockets.exceptions import WebSocketException
 # (and the client) forever, since asyncio.gather waits on every recv.
 _FANOUT_TIMEOUT_S = 30.0
 
+# Match WebsocketPolicyServer's public ingress cap: large enough for legitimate
+# obs / control payloads, finite so the multi-replica router cannot be OOM'd by
+# an unauthenticated multi-GB frame before forwarding to a capped backend.
+_MAX_WS_FRAME_BYTES = 256 * 1024 * 1024
+
 # Ctrls that mutate shared per-replica state -> must reach every backend.
 CTRL_BROADCAST = frozenset({
     "load_cache_config",
@@ -510,7 +515,7 @@ class ReplicaProxy:
     async def serve(self, public_port: int) -> None:
         await self.prime_metadata()
         async with ws_serve(self.handle, "0.0.0.0", public_port,
-                            max_size=None, compression=None) as server:
+                            max_size=_MAX_WS_FRAME_BYTES, compression=None) as server:
             logging.info("replica_proxy listening on 0.0.0.0:%d -> %s",
                          public_port, [p for _, p in self._backends])
             await server.serve_forever()

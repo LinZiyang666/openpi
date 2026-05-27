@@ -141,8 +141,9 @@ Since the serving optimization plan landed, ``scripts/serve_policy.py``
 defaults to ``--concurrent`` (per-connection wrapper stack, multi-bundle
 support via ``load_cache_config`` + ``select_bundle``). The legacy
 single-connection baseline path is reachable via ``--non-concurrent`` (or
-``--no-concurrent``) and remains bit-identical to the pre-Phase-5
-behaviour (hard constraint C1). Pick:
+``--no-concurrent``). It keeps the raw C1 single-connection structure, but its
+numerics match the current sdpa model rather than the historical pre-Phase-5
+eager baseline. Pick:
 
 * `--concurrent` (default) — multi-client sweep workflows; backend pool
   shares artifact memory across bundles; runtime is write-frozen (C2) so

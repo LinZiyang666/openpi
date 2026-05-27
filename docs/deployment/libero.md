@@ -449,9 +449,10 @@ accepts an optional ``bundle_id`` field — the runner loads one bundle per
 yaml, then dispatches workers to the right bundle.
 
 Switch back to single-connection extreme-speed baseline with
-``--non-concurrent`` (or ``--no-concurrent``). This path stays
-bit-identical to the pre-Phase-5 behaviour (hard constraint C1: no
-``BatchingCoordinator``, no lazy lifecycle, no bundle indirection).
+``--non-concurrent`` (or ``--no-concurrent``). This path keeps the raw
+single-connection structure (hard constraint C1: no ``BatchingCoordinator``,
+no lazy lifecycle, no bundle indirection). Its numerics match the current sdpa
+model, not the historical pre-Phase-5 eager baseline.
 
 The runtime is write-frozen (hard constraint C2): cache backends refuse
 ``insert / batch_insert / delete / upsert / load_artifact`` after server
