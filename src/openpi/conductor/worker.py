@@ -17,7 +17,10 @@ Coupling map:
 from __future__ import annotations
 
 import abc
-from collections.abc import Callable
+# NOTE: ProgressCallback below is a module-level alias evaluated at import time.
+# The LIBERO worker env is python 3.8 where collections.abc.Callable is not
+# subscriptable; typing.Callable is. Use typing here so worker import succeeds.
+from typing import Callable
 import contextlib
 import dataclasses
 import logging

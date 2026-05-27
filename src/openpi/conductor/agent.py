@@ -39,6 +39,11 @@ class WorkerSpec:
     server_key: str  # bound ServerEndpoint key "host:port"
     gpu_id: str  # value for CUDA_VISIBLE_DEVICES (EGL slot binding)
     worker_module: str = "examples.libero.worker_entry"  # python -m target
+    # When set, the worker runs via ``conda run -p <conda_env>`` so it uses a
+    # separate interpreter (e.g. the LIBERO sim env that has libero +
+    # openpi_client) while the driver keeps its own (uv) interpreter. Empty =
+    # spawn with the agent's own ``python`` (backward-compatible default).
+    conda_env: str = ""
 
 
 class WorkerHandle(Protocol):
@@ -48,26 +53,62 @@ class WorkerHandle(Protocol):
     def terminate(self) -> None: ...
 
 
+# Repo layout: this file is <root>/src/openpi/conductor/agent.py. A worker that
+# runs in a separate conda env (the LIBERO sim env has libero + openpi_client but
+# NOT openpi) needs the repo's src + root on PYTHONPATH to import openpi.conductor
+# and examples.libero.
+_SRC_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_REPO_ROOT = os.path.dirname(_SRC_DIR)
+
+
 def _default_spawn(spec: WorkerSpec, driver_host: str, driver_port: int) -> WorkerHandle:
-    """Launch a worker as a subprocess pinned to one GPU (EGL slot)."""
-    env = dict(os.environ)
+    """Launch a worker as a subprocess pinned to one GPU (EGL slot).
+
+    When ``spec.conda_env`` is set, the worker runs via ``conda run -p <env>``
+    (mirroring the legacy ``run_phase.py --conda-env`` path) and the repo src +
+    root are injected onto PYTHONPATH so the conda interpreter can import
+    openpi.conductor + examples.libero even though openpi is not installed there.
+    """
+    base_cmd = [
+        "python",
+        "-m",
+        spec.worker_module,
+        "--worker-id",
+        spec.worker_id,
+        "--server-key",
+        spec.server_key,
+        "--driver-host",
+        driver_host,
+        "--driver-port",
+        str(driver_port),
+    ]
+    if spec.conda_env:
+        # Mirror legacy build_subprocess_cmd: strip the driver's uv-venv env
+        # injections (VIRTUAL_ENV / PYTHONPATH / PYTHONHOME) and drop the uv venv
+        # bin from PATH so the conda interpreter's own deps win; set MUJOCO_GL=egl
+        # for headless LIBERO rendering; put repo root + src on PYTHONPATH so the
+        # conda interpreter imports openpi.conductor + examples.libero (libero +
+        # openpi_client come from the conda env's own site-packages).
+        env = {
+            k: v
+            for k, v in os.environ.items()
+            if k not in ("VIRTUAL_ENV", "PYTHONPATH", "PYTHONHOME")
+        }
+        venv = os.environ.get("VIRTUAL_ENV", "")
+        if venv:
+            venv_bin = os.path.join(venv, "bin")
+            env["PATH"] = os.pathsep.join(
+                p for p in env.get("PATH", "").split(os.pathsep) if p != venv_bin
+            )
+        env["MUJOCO_GL"] = "egl"
+        env["PYTHONPATH"] = os.pathsep.join((_REPO_ROOT, _SRC_DIR))
+        env_flag = "-p" if ("/" in spec.conda_env or os.path.isabs(spec.conda_env)) else "-n"
+        cmd = ["conda", "run", "--no-capture-output", env_flag, spec.conda_env, *base_cmd]
+    else:
+        env = dict(os.environ)
+        cmd = base_cmd
     env["CUDA_VISIBLE_DEVICES"] = spec.gpu_id
-    return subprocess.Popen(
-        [
-            "python",
-            "-m",
-            spec.worker_module,
-            "--worker-id",
-            spec.worker_id,
-            "--server-key",
-            spec.server_key,
-            "--driver-host",
-            driver_host,
-            "--driver-port",
-            str(driver_port),
-        ],
-        env=env,
-    )
+    return subprocess.Popen(cmd, env=env)
 
 
 class WorkerAgent:

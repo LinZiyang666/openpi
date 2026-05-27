@@ -20,18 +20,42 @@ from pathlib import Path
 
 
 def summarize_journal(journal_path: str | Path) -> dict[str, dict]:
-    """Collapse eval/done journal records into per-yaml success rates."""
-    done: dict[str, list[bool]] = defaultdict(list)
+    """Collapse eval terminal journal records into per-yaml success rates.
+
+    ``driver.py`` writes ``status="done"`` for a solved episode and
+    ``status="failed"`` for an unsolved one (``status = "done" if success else
+    "failed"``); both are terminal eval episodes and BOTH count toward the
+    denominator — an unsolved rollout is a real data point, not an error. (A
+    retriable transport error is NOT journaled; it is requeued.) Counting only
+    ``done`` rows would make every yaml's success_rate identically 1.0, since a
+    ``done`` row's ``success`` is always True.
+
+    A timeout-requeued task can emit more than one terminal row for the same
+    ``task_uid`` (e.g. a late ``failed`` then a retried ``done``); we collapse
+    per ``task_uid`` to the latest record by ``ts`` so each episode is counted
+    once at its final outcome.
+    """
+    # task_uid -> (ts, success, yaml_id) of the latest terminal record seen.
+    final: dict[str, tuple[float, bool, str]] = {}
     for raw in Path(journal_path).read_text(encoding="utf-8").splitlines():
         line = raw.strip()
         if not line:
             continue
         rec = json.loads(line)
-        if rec.get("phase") != "eval" or rec.get("status") != "done":
+        if rec.get("phase") != "eval" or rec.get("status") not in ("done", "failed"):
             continue
-        done[rec["yaml_id"]].append(bool(rec.get("success")))
+        uid = rec["task_uid"]
+        ts = float(rec.get("ts", 0.0))
+        prev = final.get(uid)
+        if prev is None or ts >= prev[0]:
+            final[uid] = (ts, bool(rec.get("success")), rec["yaml_id"])
+
+    by_yaml: dict[str, list[bool]] = defaultdict(list)
+    for _ts, success, yaml_id in final.values():
+        by_yaml[yaml_id].append(success)
+
     out: dict[str, dict] = {}
-    for yaml_id, successes in done.items():
+    for yaml_id, successes in by_yaml.items():
         n = len(successes)
         n_success = sum(successes)
         out[yaml_id] = {

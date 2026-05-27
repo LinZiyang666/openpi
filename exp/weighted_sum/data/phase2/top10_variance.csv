@@ -1,0 +1,11 @@
+yaml,a100_r1,a100_r2,a100_r3,a100_mean,a100_range,jup_exp,jup_v1,jup_v2,jup_mean,jup_range,cross_diff
+cp1_spatial_pool_16__grid3_vision_0@6_vision_1@44_robot_state@50,63,63,64,63.3,1,74,74,74,74.0,0,-10.7
+cp1_spatial_pool_16__grid3_vision_0@6_vision_1@50_robot_state@44,65,65,65,65.0,0,74,74,74,74.0,0,-9.0
+cp1_spatial_pool_16__grid3_vision_0@31_vision_1@38_robot_state@31,72,72,72,72.0,0,74,73,73,73.3,1,-1.3
+cp1_max_pool__grid3_vision_0@31_vision_1@25_robot_state@44,55,55,54,54.7,1,73,73,73,73.0,0,-18.3
+cp1_max_pool__grid3_vision_0@6_vision_1@25_robot_state@69,60,62,60,60.7,2,73,73,73,73.0,0,-12.3
+cp1_spatial_pool_16__grid3_vision_0@19_vision_1@31_robot_state@50,70,71,70,70.3,1,73,73,73,73.0,0,-2.7
+cp1_spatial_pool_16__grid3_vision_0@25_vision_1@44_robot_state@31,71,71,71,71.0,0,73,73,73,73.0,0,-2.0
+cp1_spatial_pool_16__grid3_vision_0@31_vision_1@44_robot_state@25,76,76,76,76.0,0,73,73,73,73.0,0,+3.0
+cp1_spatial_pool_16__grid3_vision_0@12_vision_1@37_robot_state@50,61,61,61,61.0,0,72,72,72,72.0,0,-11.0
+cp1_spatial_pool_16__grid3_vision_0@25_vision_1@37_robot_state@37,72,73,72,72.3,1,72,72,72,72.0,0,+0.3

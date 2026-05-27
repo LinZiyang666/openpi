@@ -14,9 +14,12 @@ Example:
 from __future__ import annotations
 
 import argparse
+import logging
+import threading
+import time
 from pathlib import Path
 
-from openpi.conductor import ConductorDriver, ServerEndpoint
+from openpi.conductor import ConductorDriver, ServerEndpoint, WorkerAgent, WorkerSpec
 
 from exp.weighted_sum.init_holdout import held_out_inits
 from exp.weighted_sum.weight_search_strategy import WeightSearchStrategy
@@ -31,6 +34,14 @@ def _parse_ids(spec: str) -> list[int]:
 
 
 def main():
+    # Surface driver/scheduler INFO (stage activation, dispatch, results) — the
+    # conductor modules log via module loggers; without basicConfig only WARNING+
+    # shows, which hides the whole scheduling trace.
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+        force=True,
+    )
     ap = argparse.ArgumentParser(description="Run Phase-2 weighted-sum weight search")
     ap.add_argument("--yaml-dir", required=True)
     ap.add_argument("--init-map", required=True, help="libero_spatial_init_map.json (leak guard)")
@@ -41,6 +52,20 @@ def main():
     ap.add_argument("--task-suite", default="libero_spatial")
     ap.add_argument("--total-inits", type=int, default=50)
     ap.add_argument("--episode-timeout-s", type=int, default=1800)
+    ap.add_argument("--workers", type=int, default=48, help="worker processes on this client machine")
+    ap.add_argument("--gpus", type=int, default=8, help="GPUs to round-robin workers across (EGL slots)")
+    ap.add_argument(
+        "--conda-env", default="",
+        help="conda prefix/name for the worker env (e.g. /scratch/zixuans8/libero_sim); "
+        "empty = spawn with the agent's own python",
+    )
+    ap.add_argument("--bind-host", default="127.0.0.1", help="driver pull-server bind host (workers connect here)")
+    ap.add_argument(
+        "--eval-concurrency", type=int, default=2,
+        help="max eval yamls a server activates simultaneously (scheduler). 1=tightest (least GPU mem, "
+        "but end-of-yaml straggler bubble idles workers); 2=fills the bubble (same-keybuilder yamls share "
+        "the backend via BackendPool, so ~no extra mem). See docs/experiments/conductor_tutorial.md §12.1.",
+    )
     args = ap.parse_args()
 
     yaml_dir = Path(args.yaml_dir)
@@ -73,8 +98,43 @@ def main():
         journal_path=args.journal,
         ctl_factory=default_client_factory,
         episode_timeout_s=args.episode_timeout_s,
+        bind_host=args.bind_host,
+        scheduler_kwargs={"eval_concurrency": args.eval_concurrency},
     )
-    driver.run()
+
+    # Single-client-machine launch: the driver's pull server + stage loop run on
+    # a background thread while the main thread owns the WorkerAgent. Driver,
+    # agent, and all workers live on this host; only the worker->server infer
+    # calls go to the remote inference server(s).
+    driver_thread = threading.Thread(target=driver.run, daemon=True)
+    driver_thread.start()
+    while driver.port is None:
+        time.sleep(0.05)
+    print(f"[run_phase2] driver pull port = {driver.port}", flush=True)
+
+    specs = [
+        WorkerSpec(
+            worker_id=f"w{i}",
+            server_key=servers[i % len(servers)].key,
+            gpu_id=str(i % args.gpus),
+            conda_env=args.conda_env,
+        )
+        for i in range(args.workers)
+    ]
+    agent = WorkerAgent(specs, driver_host=args.bind_host, driver_port=driver.port)
+    agent_thread = threading.Thread(target=agent.run, daemon=True)
+    agent_thread.start()
+    print(
+        f"[run_phase2] spawned {len(specs)} workers "
+        f"(conda_env={args.conda_env or 'none'}, gpus={args.gpus}, server={servers[0].key})",
+        flush=True,
+    )
+
+    try:
+        driver_thread.join()  # returns when all stages are done
+    finally:
+        agent.stop()
+    print("[run_phase2] all stages done", flush=True)
 
 
 if __name__ == "__main__":

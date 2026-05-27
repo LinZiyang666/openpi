@@ -8,9 +8,12 @@ may activate*.
 
 Key behaviours:
   - never idle: if a server has any ready episode, ``next_task`` returns it.
-  - yaml affinity: per server, activation is capped per phase — warmup relaxed
-    (default 2 concurrent warmup yamls to fill barrier bubbles), eval tight
-    (default 1) so eval honours "fewest concurrent yamls" (memory pressure).
+  - yaml affinity: per server, activation is capped per phase. Both warmup and
+    eval default to 2 concurrent yamls to fill barrier/straggler bubbles (the
+    2nd yaml activates only when the 1st's ready episodes are exhausted and
+    workers are idle; same-keybuilder yamls share one backend via BackendPool,
+    so the extra yaml adds ~no GPU memory). Set ``eval_concurrency=1`` for the
+    tightest memory footprint at the cost of an end-of-yaml idle bubble.
   - warmup atomicity: a retriable warmup failure invalidates the *whole* stage
     (episodes re-pending, stage back to SETUP_PENDING) — never per-episode
     (would duplicate the appended server dump). Eval retries per-episode.
@@ -78,7 +81,7 @@ class EpisodeScheduler:
         graph: _task.TaskGraph,
         *,
         warmup_concurrency: int = 2,
-        eval_concurrency: int = 1,
+        eval_concurrency: int = 2,
         max_episode_retries: int = 3,
         max_warmup_stage_retries: int = 3,
         max_setup_retries: int = 3,

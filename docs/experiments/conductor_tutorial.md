@@ -231,7 +231,7 @@ WorkerAgent(specs, driver_host="driver.host", driver_port=9000).run()  # 每台 
 
 引擎替你保证（写策略时可依赖）：
 
-- **永不空转 + yaml 亲和**：worker 做完立刻领下一个；同 server 优先维持"激活 yaml 集合最小"（warmup 放松 ≤2 并行填 barrier 空隙，eval 收紧 ≤1 省显存）。**subtask/yaml 间无等待泡沫**。
+- **永不空转 + yaml 亲和**：worker 做完立刻领下一个；同 server 优先维持"激活 yaml 集合最小"（warmup 与 eval **默认均 ≤2 并行**填 barrier/straggler 空隙——第 2 个 yaml 仅在第 1 个 ready episode 取尽且 worker 空闲时激活；同 keybuilder yaml 经 BackendPool 共享 backend，几乎不增显存。设 `eval_concurrency=1` 可换最省显存但末尾有空转气泡）。**subtask/yaml 间无等待泡沫**。
 - **warmup→eval barrier**：eval episode 在其 warmup stage 全 done + 你的 `on_stage_complete` 返回前不会被派发。
 - **warmup 原子**：warmup 失败/超时 → 整 stage 作废重跑（不会 episode 级重跑而重复污染 server dump）；eval 失败 → 单 episode 回队。
 - **retry 分类**：网络/超时/crash → 可重试；`ConfigValidationError` 等致命 → 不重试、标 stage FAILED 并级联下游。
@@ -304,6 +304,89 @@ cache 搜索路径（`InMemoryBackend.search` 的 `cosine_similarity`）释放 G
 - **`select_bundle: unknown bundle_id`**：`select_bundle("foo")` 前没 `load_cache_config(..., bundle_id="foo")`。先 load，或用 `"default"`（最近一次 `load_cache_config` 隐式填充）。
 - **`select_bundle or episode_start{bundle_id} required before infer`**：infer 前没绑 bundle 且无 `"default"` slot。先发 `select_bundle` 或带 `bundle_id` 的 `episode_start`。
 - **吞吐低于 Mode 0 baseline**：CPU 线程过订阅（§8.2）；误传 `--non-concurrent`；worker 请求率太稀疏（coordinator 只能 batch 它在 `max_wait_ms` 内看到的）；大 pkl 的 CP1 搜索慢（用 M7 driver 看 `cp1_search` 计时列）。
+
+---
+
+## 12. 参数全集（Parameter Reference）
+
+> 之前散落在源码 docstring 里、用户文档未收录的参数。批量调优/排查时对照本表。Batch 参数详见 §8.1，调度语义见 §6。
+
+### 12.1 调度器 `EpisodeScheduler`（经 `ConductorDriver(scheduler_kwargs={...})` 传）
+
+| 参数 | 默认 | 含义 |
+|---|---|---|
+| `eval_concurrency` | `2` | 每 server 同时**激活**的 eval yaml 数上限。`2`（默认，2026-05-26 起；原为 1）让当前 yaml 末尾 straggler 收尾时下一个 yaml 提前激活、空闲 worker 立刻领活，**消除 barrier 气泡**（实测 util 从末尾掉 0–10% 变为持平 98–100%）——同 keybuilder 相邻 yaml 共享 backend（BackendPool fingerprint），库不重复加载、几乎不增显存。设 `1` 换最省显存（eval 长连接 + KV 是显存主源），代价是末尾空转气泡 |
+| `warmup_concurrency` | `2` | 每 server 同时激活的 warmup yaml 数上限。warmup episode 远少于 worker（如 2 vs 48），放宽填 barrier 空隙换利用率 |
+| `max_episode_retries` | `3` | 单个 eval episode 可重试次数（网络/超时/crash 类可重试错误）|
+| `max_warmup_stage_retries` | `3` | warmup stage **整体**重试次数（warmup 原子：失败先 `unload_warmup_buffer` 再整段重跑，不做 episode 级）|
+| `max_setup_retries` | `3` | `on_stage_begin`/`on_stage_complete` hook 重试次数；超限或致命（`ConfigValidationError`）→ 标 stage FAILED 并级联下游 |
+
+### 12.2 `ConductorDriver`
+
+| 参数 | 默认 | 含义 |
+|---|---|---|
+| `episode_timeout_s` | `1800.0` | episode 墙钟超时；卡在 infer 不退的 worker 的 in-flight episode 被回收（eval 回队 / warmup 整 stage 作废）|
+| `bind_host` | `"127.0.0.1"` | driver pull-server 绑定 host（worker 连这里取任务）|
+| `bind_port` | `0` | `0`=随机端口 |
+| `scheduler_kwargs` | `None` | 透传给 `EpisodeScheduler`（设 §12.1）|
+| `colocation` | `None` | `{yaml_id: server_key}` 强制归属（co-location）|
+| `poll_s`（`run()` 参数）| `0.05` | 主循环 poll 间隔（秒）|
+
+### 12.3 `WorkerAgent` / `WorkerSpec`
+
+| 参数 | 默认 | 含义 |
+|---|---|---|
+| `poll_s`（WorkerAgent）| `1.0` | worker 监管轮询间隔（检测并重启死 worker）|
+| `conda_env`（WorkerSpec）| `""` | 设则 worker 经 `conda run -p <env>` 启（隔离解释器，如有 libero+openpi_client 的 LIBERO sim env）；空=用 driver 自己的 python |
+| `worker_module` | `examples.libero.worker_entry` | worker `python -m` 目标模块 |
+| `gpu_id` | — | 该 worker 的 `CUDA_VISIBLE_DEVICES`（EGL slot 绑定）|
+
+### 12.4 `run_phase2` CLI（weighted_sum 实验入口，作为一个 driver 范例）
+
+| flag | 默认 | 含义 |
+|---|---|---|
+| `--yaml-dir` | （必填）| 一批 cache yaml 的目录 |
+| `--init-map` | （必填）| `libero_*_init_map.json`（held-out 防泄漏）|
+| `--journal` | （必填）| 续跑账本 jsonl |
+| `--servers` | （必填）| 逗号分隔 `host:port` 端点 |
+| `--task-ids` | `0-9` | LIBERO task 选择 |
+| `--eval-trials` | `20` | 每 task 的 held-out trial 数 |
+| `--task-suite` | `libero_spatial` | task suite |
+| `--total-inits` | `50` | 全集 init 数（held-out 计算用）|
+| `--episode-timeout-s` | `1800` | → driver `episode_timeout_s` |
+| `--workers` | `48` | 本机 worker 进程数 |
+| `--gpus` | `8` | round-robin worker 的 GPU 数（EGL slot；单卡 ≤15 worker，§10）|
+| `--conda-env` | `""` | → `WorkerSpec.conda_env` |
+| `--bind-host` | `127.0.0.1` | → driver `bind_host` |
+
+> ⚠ `run_phase2` 暂未暴露 `eval_concurrency` 等 `scheduler_kwargs`（用默认 1/2）。要调需在代码里给 `ConductorDriver` 传 `scheduler_kwargs={"eval_concurrency": 2}`，或加一个 CLI flag。
+
+### 12.5 `serve_policy.py` CLI
+
+| flag | 默认 | 含义 |
+|---|---|---|
+| `--port` | `8000` | 监听端口 |
+| `--replicas` | `1` | 单公共端口后的并发副本进程数（`>1` 启 `replica_proxy` router，per-connection 路由 + broadcast bundle/preload + aggregate fetch_dump）|
+| `--replica-spawn-batch` | `0` | `replicas>1` 时分批 spawn：每批并发起这么多子进程、等其加载+bind 完再起下一批（`0`=一次性全起；大库分批防同时加载撑爆）|
+| `--concurrent` / `--non-concurrent` | `True` | 并发多 client + 动态 bundle 热切（默认）；`--non-concurrent`=C1 bit-identical 极速基线（无 coordinator/bundle/lazy）|
+| `--cache-config` | `None` | 启动时加载的 cache yaml |
+| `--record` / `--collect` / `--collect-dir` / `--collect-images` / `--cache` | … | 录制 / 采集建库相关（采集即生成 h5：`collection_policy` 抽 vision/prompt embedding 存 float16）|
+
+### 12.6 Server 环境变量
+
+| env | 默认 | 含义 |
+|---|---|---|
+| `OPENPI_SERVER_GPU_MEMORY_LOCK` | `1` | `1`=锁住已 reserve 的 GPU 显存块不还系统（防共享机被抢/防碎片）；`0`=旧的 release-to-driver 行为 |
+| `PYTORCH_CUDA_ALLOC_CONF` | — | torch CUDA 分配器配置；常用 `expandable_segments:True` 减碎片 |
+| `BATCHING_MAX_BATCH_SIZE` | `8` | coordinator 一个 stage batch 的 episode 上限（§8.1）|
+| `BATCHING_MAX_WAIT_MS` | `10` | 凑批超时；LIBERO 闭环很少填满，长=纯延迟税，实测 sweet spot `25`（§8.1）|
+| `BATCHING_STAGE1/2/3_WORKERS` | `1` | 各 stage 的 batching worker 线程数（stage3 可多线程 + 多 CUDA stream 并发 denoise 提吞吐）|
+| `OPENPI_DISABLE_STAGE_STREAMS` | （空）| `=1` 关 per-stage CUDA stream（stage 间走 interceptor host-side CP 逻辑会强制 sync，stream 收益有限时可关）|
+| `OPENPI_STAGE3_BUCKET_FIRST` | （空）| `=1` 用 stage3 先分桶循环；默认 generic pull-then-group（实测 a100 吞吐更好）|
+| `OPENPI_MONITOR_LEVEL` | （空）| 监控埋点级别（见 `serving/monitor.py`）|
+| `OPENPI_MONITOR_AUTOFLUSH_DIR` | `""` | 监控指标自动 flush 目录 |
+| `TORCHINDUCTOR_CACHE_DIR` | — | torch.compile inductor 编译缓存目录 |
+| `OMP_NUM_THREADS` / `MKL_NUM_THREADS` | — | BLAS 线程数；多并发 worker 防 CPU 过订阅，设 `cpu_count() // 并发 worker 数`（§8.2）|
 
 ---
 

@@ -67,3 +67,52 @@ def test_agent_stop_terminates_handles():
     agent.start()
     agent.stop()
     assert all(h.terminated for h in handles)
+
+
+# ----------------------------------------------------------------------
+# _default_spawn: conda_env path (LIBERO sim env) vs plain python
+# ----------------------------------------------------------------------
+def test_default_spawn_conda_env_builds_conda_cmd(monkeypatch):
+    import openpi.conductor.agent as agent_mod
+
+    captured: dict = {}
+
+    def fake_popen(cmd, env=None):
+        captured["cmd"], captured["env"] = cmd, env
+        return FakeHandle()
+
+    monkeypatch.setattr(agent_mod.subprocess, "Popen", fake_popen)
+    monkeypatch.setenv("VIRTUAL_ENV", "/some/uv/venv")
+    monkeypatch.setenv("PYTHONPATH", "/uv/inject")
+
+    spec = WorkerSpec("w0", "host:8000", "3", conda_env="/scratch/zixuans8/libero_sim")
+    agent_mod._default_spawn(spec, "dh", 9000)
+    cmd, env = captured["cmd"], captured["env"]
+
+    # conda run -p <abs prefix> python -m worker_entry ...
+    assert cmd[:5] == ["conda", "run", "--no-capture-output", "-p", "/scratch/zixuans8/libero_sim"]
+    assert "examples.libero.worker_entry" in cmd
+    # env hardening: uv-venv injections stripped, headless GL, GPU pin, repo paths
+    assert "VIRTUAL_ENV" not in env
+    assert env["MUJOCO_GL"] == "egl"
+    assert env["CUDA_VISIBLE_DEVICES"] == "3"
+    assert agent_mod._SRC_DIR in env["PYTHONPATH"]
+    assert agent_mod._REPO_ROOT in env["PYTHONPATH"]
+    assert "/uv/inject" not in env["PYTHONPATH"]  # uv PYTHONPATH not inherited
+
+
+def test_default_spawn_no_conda_uses_plain_python(monkeypatch):
+    import openpi.conductor.agent as agent_mod
+
+    captured: dict = {}
+
+    def fake_popen(cmd, env=None):
+        captured["cmd"], captured["env"] = cmd, env
+        return FakeHandle()
+
+    monkeypatch.setattr(agent_mod.subprocess, "Popen", fake_popen)
+    spec = WorkerSpec("w0", "host:8000", "0")  # no conda_env (default)
+    agent_mod._default_spawn(spec, "dh", 9000)
+    assert captured["cmd"][0] == "python"
+    assert "conda" not in captured["cmd"]
+    assert captured["env"]["CUDA_VISIBLE_DEVICES"] == "0"

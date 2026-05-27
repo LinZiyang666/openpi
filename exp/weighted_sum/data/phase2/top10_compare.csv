@@ -1,0 +1,11 @@
+yaml,jupyter_sr,a100_sr,diff
+cp1_spatial_pool_16__grid3_vision_0@31_vision_1@38_robot_state@31,0.740,0.720,-0.020
+cp1_spatial_pool_16__grid3_vision_0@6_vision_1@44_robot_state@50,0.740,0.630,-0.110
+cp1_spatial_pool_16__grid3_vision_0@6_vision_1@50_robot_state@44,0.740,0.650,-0.090
+cp1_max_pool__grid3_vision_0@31_vision_1@25_robot_state@44,0.730,0.550,-0.180
+cp1_max_pool__grid3_vision_0@6_vision_1@25_robot_state@69,0.730,0.600,-0.130
+cp1_spatial_pool_16__grid3_vision_0@19_vision_1@31_robot_state@50,0.730,0.700,-0.030
+cp1_spatial_pool_16__grid3_vision_0@25_vision_1@44_robot_state@31,0.730,0.710,-0.020
+cp1_spatial_pool_16__grid3_vision_0@31_vision_1@44_robot_state@25,0.730,0.760,+0.030
+cp1_spatial_pool_16__grid3_vision_0@12_vision_1@37_robot_state@50,0.720,0.610,-0.110
+cp1_spatial_pool_16__grid3_vision_0@25_vision_1@37_robot_state@37,0.720,0.720,+0.000

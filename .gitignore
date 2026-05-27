@@ -6,6 +6,11 @@ checkpoints/
 exp/**/data/**
 !exp/**/data/                                            # keep directory stubs
 
+# weighted_sum: generated cache-config YAMLs (emit_yamls / refine_round 产物, 数百个,
+# 可由脚本复现 + 本机已留底), 不入 git。
+exp/weighted_sum/config/**
+!exp/weighted_sum/config/                                # keep directory stub
+
 # Tracked source-of-truth exceptions (cross-machine scp avoidance, shared across step1a/1b/2/3).
 !exp/trajectory_deviation/data/inits/
 !exp/trajectory_deviation/data/inits/*.init

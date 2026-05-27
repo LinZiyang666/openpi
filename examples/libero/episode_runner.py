@@ -19,7 +19,10 @@ Coupling map:
 
 from __future__ import annotations
 
-from collections.abc import Callable
+# typing.Callable (subscriptable in py3.8 LIBERO worker env); the EpisodeSetup
+# alias below is module-level and evaluated at import, unlike the function
+# annotations which are deferred by `from __future__ import annotations`.
+from typing import Callable
 import contextlib
 import time
 from typing import Any

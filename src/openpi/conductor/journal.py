@@ -59,10 +59,15 @@ class Journal:
             fh.flush()
 
     def replay_done_uids(self) -> set[str]:
-        """Return the set of task_uids recorded with status ``done``.
+        """Return task_uids with any TERMINAL record (``done`` OR ``failed``).
 
-        Last-writer-wins: a uid later recorded ``failed`` (e.g. retried then
-        gave up) is removed from the done set.
+        Both are completed episodes that must NOT be re-run on resume:
+        ``done`` = solved, ``failed`` = unsolved but NON-RETRIABLE terminal
+        (driver journals ``failed`` only when ``not retriable``; retriable
+        transport errors are never journaled, they are requeued in-memory).
+        Previously only ``done`` was skipped, so every ``failed`` episode was
+        re-run on resume — deterministic rollouts just fail again, inflating
+        the journal while distinct/full100 never advances (a resume livelock).
         """
         if not self._path.exists():
             return set()
@@ -79,8 +84,6 @@ class Journal:
                 uid = rec.get("task_uid")
                 if uid is None:
                     continue
-                if rec.get("status") == "done":
+                if rec.get("status") in ("done", "failed"):
                     done.add(uid)
-                else:
-                    done.discard(uid)
         return done

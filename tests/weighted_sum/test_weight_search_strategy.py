@@ -112,6 +112,23 @@ def test_build_eval_config_c2_and_prompt_emb_masked():
     assert ss["field_similarity"]["robot_state"]["to_similarity"]["tau"] == 0.33
 
 
+def test_build_eval_config_backend_dims_match_full_artifact_field_set():
+    # backend.vector_dims must equal the library artifact's full field set, even
+    # when only some fields are weighted (load_artifact enforces equality; a
+    # subset raises "vector_dims mismatch" at server load).
+    cfg = build_eval_config(
+        builder_type="cp1_mean_pool",
+        vector_dims={"vision_0": 2048, "vision_1": 2048, "prompt_emb": 2048, "robot_state": 32},
+        preload_path="x.pkl",
+        weights={"robot_state": 1.0},  # isolation: only robot_state weighted
+        fields_calib={
+            "robot_state": {"sim_type": "l2", "selected": {"method": "exp_l2", "params": {"tau": 0.33}}}
+        },
+    )
+    assert set(cfg["backend"]["vector_dims"]) == {"vision_0", "vision_1", "prompt_emb", "robot_state"}
+    assert cfg["keys"]["prompt_emb"]["enabled"] is False  # carried in dims, masked from search
+
+
 def test_build_eval_config_rejects_uncalibrated_field():
     with pytest.raises(ValueError, match="no Phase-1 calibration"):
         build_eval_config(
@@ -164,6 +181,27 @@ def test_weight_config_generators():
     assert any(set(w) == {"vision_0", "robot_state"} for w in grid.values())
 
 
+def test_grid2_default_seven_levels():
+    # ~3x scale-up: 2-field grid now defaults to 7 levels.
+    g = grid_weight_configs(["vision_0", "vision_1", "robot_state"])
+    assert len(g) == 21  # C(3,2)=3 pairs x 7 levels
+    for w in g.values():
+        assert len(w) == 2
+        assert abs(sum(w.values()) - 1.0) < 1e-9
+
+
+def test_grid3_rs_dominant_simplex():
+    from exp.weighted_sum.emit_yamls import grid3_weight_configs
+
+    g = grid3_weight_configs(["vision_0", "vision_1", "robot_state"])
+    assert len(g) == 10  # step 0.125, rs>=0.375 simplex
+    for w in g.values():
+        assert set(w) == {"vision_0", "vision_1", "robot_state"}
+        assert abs(sum(w.values()) - 1.0) < 1e-9
+        assert w["robot_state"] >= 0.375 - 1e-9
+        assert w["vision_0"] > 0 and w["vision_1"] > 0
+
+
 # ------------------------------------------------------------------
 # init_holdout
 # ------------------------------------------------------------------
@@ -191,20 +229,32 @@ def test_load_used_inits_missing_fails_fast(tmp_path):
 # ------------------------------------------------------------------
 # summarize (journal -> per-yaml success rate)
 # ------------------------------------------------------------------
-def test_summarize_journal_eval_done_only(tmp_path):
+def test_summarize_counts_failed_as_unsolved(tmp_path):
+    # driver writes status="done" for a solved episode and "failed" for an
+    # unsolved one (success=False). BOTH are terminal eval episodes and must
+    # count toward the denominator; counting only "done" rows would force every
+    # success_rate to 1.0. A warmup row is ignored, and a timeout-requeued
+    # task_uid (failed then a retried done) collapses to its latest outcome.
     from exp.weighted_sum.summarize import summarize_journal
 
     rows = [
-        {"yaml_id": "y__iso_vision_0", "phase": "eval", "status": "done", "success": True},
-        {"yaml_id": "y__iso_vision_0", "phase": "eval", "status": "done", "success": False},
-        {"yaml_id": "y__iso_vision_0", "phase": "warmup", "status": "done", "success": True},
-        {"yaml_id": "y__iso_robot_state", "phase": "eval", "status": "failed", "success": False},
-        {"yaml_id": "y__iso_robot_state", "phase": "eval", "status": "done", "success": True},
+        # y__a: 2 solved + 2 unsolved out of 4 terminal episodes -> 0.5
+        {"task_uid": "y__a:eval:0:0", "yaml_id": "y__a", "phase": "eval", "status": "done", "success": True, "ts": 1.0},
+        {"task_uid": "y__a:eval:0:1", "yaml_id": "y__a", "phase": "eval", "status": "done", "success": True, "ts": 1.0},
+        {"task_uid": "y__a:eval:0:2", "yaml_id": "y__a", "phase": "eval", "status": "failed", "success": False, "ts": 1.0},
+        {"task_uid": "y__a:eval:0:3", "yaml_id": "y__a", "phase": "eval", "status": "failed", "success": False, "ts": 1.0},
+        # warmup row ignored (not an eval episode)
+        {"task_uid": "y__a:warmup:0:0", "yaml_id": "y__a", "phase": "warmup", "status": "done", "success": True, "ts": 1.0},
+        # y__b: same uid requeued — late failed (ts=1) then retried done (ts=2);
+        # collapses to the latest outcome (solved), counted once.
+        {"task_uid": "y__b:eval:0:0", "yaml_id": "y__b", "phase": "eval", "status": "failed", "success": False, "ts": 1.0},
+        {"task_uid": "y__b:eval:0:0", "yaml_id": "y__b", "phase": "eval", "status": "done", "success": True, "ts": 2.0},
     ]
     j = tmp_path / "journal.jsonl"
     j.write_text("\n".join(json.dumps(r) for r in rows))
     res = summarize_journal(j)
-    assert res["y__iso_vision_0"]["success_rate"] == 0.5  # warmup row ignored
-    assert res["y__iso_vision_0"]["n"] == 2
-    assert res["y__iso_robot_state"]["success_rate"] == 1.0  # failed row ignored
-    assert res["y__iso_robot_state"]["n"] == 1
+    assert res["y__a"]["success_rate"] == 0.5  # 2 solved / (2 solved + 2 unsolved)
+    assert res["y__a"]["n"] == 4  # failed rows counted in denominator
+    assert res["y__a"]["n_success"] == 2
+    assert res["y__b"]["success_rate"] == 1.0  # requeue collapses to latest (done)
+    assert res["y__b"]["n"] == 1  # counted once despite two terminal rows

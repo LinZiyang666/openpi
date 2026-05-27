@@ -1,0 +1,728 @@
+{
+  "clip_vit_b_32": {
+    "builder_type": "clip",
+    "vector_dims": {
+      "vision_0": 512,
+      "vision_1": 512,
+      "prompt_emb": 2048,
+      "robot_state": 32
+    },
+    "fields": {
+      "vision_0": {
+        "sim_type": "cosine",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": 0.9387066237684992,
+              "sigma": 0.022398482708827515,
+              "squash": "tanh"
+            },
+            "J": 0.3315376192331314,
+            "mag_sep": 0.1798449158668518,
+            "intra_spread": 0.3033854067325592,
+            "sat": 0.0
+          },
+          {
+            "method": "power",
+            "params": {
+              "lo": 0.872145676612854,
+              "hi": 0.978966784477234,
+              "gamma": 1.6215965494370113
+            },
+            "J": 0.2738197926811565,
+            "mag_sep": 0.16423723101615906,
+            "intra_spread": 0.23916933685541153,
+            "sat": 0.02000421352541659
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": 0.9387066237684992,
+            "sigma": 0.022398482708827515,
+            "squash": "tanh"
+          }
+        }
+      },
+      "vision_1": {
+        "sim_type": "cosine",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": 0.8863975747442536,
+              "sigma": 0.03606527281543282,
+              "squash": "tanh"
+            },
+            "J": 0.2695024162530899,
+            "mag_sep": 0.1110171377658844,
+            "intra_spread": 0.316970556974411,
+            "sat": 0.0
+          },
+          {
+            "method": "neg_log_one_minus",
+            "params": {
+              "v_lo": 1.5883830938956334,
+              "v_hi": 3.258226439188986,
+              "eps": 0.0001
+            },
+            "J": 0.19737887783725014,
+            "mag_sep": 0.0964091420173645,
+            "intra_spread": 0.22194702923297882,
+            "sat": 0.02000755759320753
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": 0.8863975747442536,
+            "sigma": 0.03606527281543282,
+            "squash": "tanh"
+          }
+        }
+      },
+      "robot_state": {
+        "sim_type": "l2",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": -1.8386447616925707,
+              "sigma": 1.0028004065559903,
+              "squash": "tanh"
+            },
+            "J": 0.23096531629562378,
+            "mag_sep": 0.047591209411621094,
+            "intra_spread": 0.36674821376800537,
+            "sat": 0.0
+          },
+          {
+            "method": "affine_clip",
+            "params": {
+              "lo": -3.1763554763793946,
+              "hi": -0.11683747053146293
+            },
+            "J": 0.2210644256703247,
+            "mag_sep": 0.0615006685256958,
+            "intra_spread": 0.3391317278146744,
+            "sat": 0.02000421352541659
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": -1.8386447616925707,
+            "sigma": 1.0028004065559903,
+            "squash": "tanh"
+          }
+        }
+      }
+    }
+  },
+  "clip_vit_l_14": {
+    "builder_type": "clip",
+    "vector_dims": {
+      "vision_0": 768,
+      "vision_1": 768,
+      "prompt_emb": 2048,
+      "robot_state": 32
+    },
+    "fields": {
+      "vision_0": {
+        "sim_type": "cosine",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": 0.9197087261117946,
+              "sigma": 0.03494336770527253,
+              "squash": "tanh"
+            },
+            "J": 0.32888616621494293,
+            "mag_sep": 0.17262470722198486,
+            "intra_spread": 0.31252291798591614,
+            "sat": 0.0
+          },
+          {
+            "method": "power",
+            "params": {
+              "lo": 0.8171956753730774,
+              "hi": 0.9772079515457154,
+              "gamma": 1.7662426885061207
+            },
+            "J": 0.29167993395406955,
+            "mag_sep": 0.1715288758277893,
+            "intra_spread": 0.260309673845768,
+            "sat": 0.02000755759320753
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": 0.9197087261117946,
+            "sigma": 0.03494336770527253,
+            "squash": "tanh"
+          }
+        }
+      },
+      "vision_1": {
+        "sim_type": "cosine",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": 0.90656225582509,
+              "sigma": 0.033745818415141966,
+              "squash": "tanh"
+            },
+            "J": 0.2885092422366142,
+            "mag_sep": 0.13455700874328613,
+            "intra_spread": 0.3079044669866562,
+            "sat": 0.0
+          },
+          {
+            "method": "power",
+            "params": {
+              "lo": 0.8174829435348511,
+              "hi": 0.9732875728607178,
+              "gamma": 1.3038348811156382
+            },
+            "J": 0.21624723105509033,
+            "mag_sep": 0.1116398274898529,
+            "intra_spread": 0.2292223647236824,
+            "sat": 0.02000755759320753
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": 0.90656225582509,
+            "sigma": 0.033745818415141966,
+            "squash": "tanh"
+          }
+        }
+      },
+      "robot_state": {
+        "sim_type": "l2",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": -1.8386447616925707,
+              "sigma": 1.0028004065559903,
+              "squash": "tanh"
+            },
+            "J": 0.23096531629562378,
+            "mag_sep": 0.047591209411621094,
+            "intra_spread": 0.36674821376800537,
+            "sat": 0.0
+          },
+          {
+            "method": "affine_clip",
+            "params": {
+              "lo": -3.1763554763793946,
+              "hi": -0.11683747053146293
+            },
+            "J": 0.2210644256703247,
+            "mag_sep": 0.0615006685256958,
+            "intra_spread": 0.3391317278146744,
+            "sat": 0.02000421352541659
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": -1.8386447616925707,
+            "sigma": 1.0028004065559903,
+            "squash": "tanh"
+          }
+        }
+      }
+    }
+  },
+  "cp1_max_pool": {
+    "builder_type": "cp1_max_pool",
+    "vector_dims": {
+      "vision_0": 2048,
+      "vision_1": 2048,
+      "prompt_emb": 2048,
+      "robot_state": 32
+    },
+    "fields": {
+      "vision_0": {
+        "sim_type": "cosine",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": 0.9796495050429628,
+              "sigma": 0.005097738400290575,
+              "squash": "tanh"
+            },
+            "J": 0.3111589401960373,
+            "mag_sep": 0.15250557661056519,
+            "intra_spread": 0.3173067271709442,
+            "sat": 0.0
+          },
+          {
+            "method": "neg_log_one_minus",
+            "params": {
+              "v_lo": 3.4264980941920364,
+              "v_hi": 4.7921618907628645,
+              "eps": 0.0001
+            },
+            "J": 0.2321329982572574,
+            "mag_sep": 0.13202014565467834,
+            "intra_spread": 0.22023139148950577,
+            "sat": 0.020005686284347665
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": 0.9796495050429628,
+            "sigma": 0.005097738400290575,
+            "squash": "tanh"
+          }
+        }
+      },
+      "vision_1": {
+        "sim_type": "cosine",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": 0.9752232735184486,
+              "sigma": 0.005338793800281035,
+              "squash": "tanh"
+            },
+            "J": 0.2364376038312912,
+            "mag_sep": 0.07940798997879028,
+            "intra_spread": 0.31405922770500183,
+            "sat": 0.0
+          },
+          {
+            "method": "neg_log_one_minus",
+            "params": {
+              "v_lo": 3.308999346300309,
+              "v_hi": 4.507044426863697,
+              "eps": 0.0001
+            },
+            "J": 0.1678472132974643,
+            "mag_sep": 0.07095354795455933,
+            "intra_spread": 0.21379301697015762,
+            "sat": 0.020005686284347665
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": 0.9752232735184486,
+            "sigma": 0.005338793800281035,
+            "squash": "tanh"
+          }
+        }
+      },
+      "robot_state": {
+        "sim_type": "l2",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": -1.8497997507487964,
+              "sigma": 1.0007936301376472,
+              "squash": "tanh"
+            },
+            "J": 0.23043540865182877,
+            "mag_sep": 0.04663848876953125,
+            "intra_spread": 0.36759383976459503,
+            "sat": 0.0
+          },
+          {
+            "method": "affine_clip",
+            "params": {
+              "lo": -3.1903403282165526,
+              "hi": -0.1352392238378533
+            },
+            "J": 0.22209188431439583,
+            "mag_sep": 0.062201499938964844,
+            "intra_spread": 0.33978645503520966,
+            "sat": 0.020005686284347665
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": -1.8497997507487964,
+            "sigma": 1.0007936301376472,
+            "squash": "tanh"
+          }
+        }
+      }
+    }
+  },
+  "cp1_mean_pool": {
+    "builder_type": "cp1_mean_pool",
+    "vector_dims": {
+      "vision_0": 2048,
+      "vision_1": 2048,
+      "prompt_emb": 2048,
+      "robot_state": 32
+    },
+    "fields": {
+      "vision_0": {
+        "sim_type": "cosine",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": 0.9893910423349395,
+              "sigma": 0.0038869346940528537,
+              "squash": "tanh"
+            },
+            "J": 0.2945880889892578,
+            "mag_sep": 0.13574248552322388,
+            "intra_spread": 0.31769120693206787,
+            "sat": 0.0
+          },
+          {
+            "method": "neg_log_one_minus",
+            "params": {
+              "v_lo": 3.8741970136103454,
+              "v_hi": 5.856822707450023,
+              "eps": 0.0001
+            },
+            "J": 0.22441594805696713,
+            "mag_sep": 0.12246760725975037,
+            "intra_spread": 0.22390517592430115,
+            "sat": 0.020008494329867604
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": 0.9893910423349395,
+            "sigma": 0.0038869346940528537,
+            "squash": "tanh"
+          }
+        }
+      },
+      "vision_1": {
+        "sim_type": "cosine",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": 0.983791535446267,
+              "sigma": 0.005390584773913787,
+              "squash": "tanh"
+            },
+            "J": 0.23225204646587372,
+            "mag_sep": 0.07493507862091064,
+            "intra_spread": 0.31463393568992615,
+            "sat": 0.0
+          },
+          {
+            "method": "power",
+            "params": {
+              "lo": 0.9700457906723022,
+              "hi": 0.9949803304672241,
+              "gamma": 1.223299620419052
+            },
+            "J": 0.16940186621449682,
+            "mag_sep": 0.0646439790725708,
+            "intra_spread": 0.22952092438936234,
+            "sat": 0.020005150105510277
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": 0.983791535446267,
+            "sigma": 0.005390584773913787,
+            "squash": "tanh"
+          }
+        }
+      },
+      "robot_state": {
+        "sim_type": "l2",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": -1.8490731322833645,
+              "sigma": 0.9955931021405758,
+              "squash": "tanh"
+            },
+            "J": 0.2370113953948021,
+            "mag_sep": 0.0534633994102478,
+            "intra_spread": 0.3670959919691086,
+            "sat": 0.0
+          },
+          {
+            "method": "affine_clip",
+            "params": {
+              "lo": -3.186876058578491,
+              "hi": -0.1338328832387942
+            },
+            "J": 0.22761513050773846,
+            "mag_sep": 0.06844690442085266,
+            "intra_spread": 0.3383449465036392,
+            "sat": 0.020008494329867604
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": -1.8490731322833645,
+            "sigma": 0.9955931021405758,
+            "squash": "tanh"
+          }
+        }
+      }
+    }
+  },
+  "cp1_spatial_pool_16": {
+    "builder_type": "cp1_spatial_pool_16",
+    "vector_dims": {
+      "vision_0": 32768,
+      "vision_1": 32768,
+      "prompt_emb": 2048,
+      "robot_state": 32
+    },
+    "fields": {
+      "vision_0": {
+        "sim_type": "cosine",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": 0.977693693699334,
+              "sigma": 0.00699373921570407,
+              "squash": "tanh"
+            },
+            "J": 0.35327988117933273,
+            "mag_sep": 0.1954389214515686,
+            "intra_spread": 0.31568191945552826,
+            "sat": 0.0
+          },
+          {
+            "method": "neg_log_one_minus",
+            "params": {
+              "v_lo": 3.2760030248739453,
+              "v_hi": 5.076011190477872,
+              "eps": 0.0001
+            },
+            "J": 0.26846647165070964,
+            "mag_sep": 0.16601544618606567,
+            "intra_spread": 0.22491195052862167,
+            "sat": 0.020009899599333785
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": 0.977693693699334,
+            "sigma": 0.00699373921570407,
+            "squash": "tanh"
+          }
+        }
+      },
+      "vision_1": {
+        "sim_type": "cosine",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": 0.9691840492031897,
+              "sigma": 0.007853951498497307,
+              "squash": "tanh"
+            },
+            "J": 0.25416622310876846,
+            "mag_sep": 0.09725502133369446,
+            "intra_spread": 0.313822403550148,
+            "sat": 0.0
+          },
+          {
+            "method": "neg_log_one_minus",
+            "params": {
+              "v_lo": 3.0171232451536785,
+              "v_hi": 4.5210761342787364,
+              "eps": 0.0001
+            },
+            "J": 0.18262249836321598,
+            "mag_sep": 0.0866619348526001,
+            "intra_spread": 0.21192768216133118,
+            "sat": 0.020006555140099396
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": 0.9691840492031897,
+            "sigma": 0.007853951498497307,
+            "squash": "tanh"
+          }
+        }
+      },
+      "robot_state": {
+        "sim_type": "l2",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": -1.8439531429434792,
+              "sigma": 1.0018373754826044,
+              "squash": "tanh"
+            },
+            "J": 0.23010647296905518,
+            "mag_sep": 0.046456217765808105,
+            "intra_spread": 0.36730051040649414,
+            "sat": 0.0
+          },
+          {
+            "method": "affine_clip",
+            "params": {
+              "lo": -3.184857361316681,
+              "hi": -0.1187811052799226
+            },
+            "J": 0.22068261630188415,
+            "mag_sep": 0.061390042304992676,
+            "intra_spread": 0.33859504759311676,
+            "sat": 0.020009899599333785
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": -1.8439531429434792,
+            "sigma": 1.0018373754826044,
+            "squash": "tanh"
+          }
+        }
+      }
+    }
+  },
+  "cp1_spatial_pool_64": {
+    "builder_type": "cp1_spatial_pool_64",
+    "vector_dims": {
+      "vision_0": 8192,
+      "vision_1": 8192,
+      "prompt_emb": 2048,
+      "robot_state": 32
+    },
+    "fields": {
+      "vision_0": {
+        "sim_type": "cosine",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": 0.9840347087772372,
+              "sigma": 0.0053713840063177205,
+              "squash": "tanh"
+            },
+            "J": 0.3304247483611107,
+            "mag_sep": 0.17095312476158142,
+            "intra_spread": 0.31894324719905853,
+            "sat": 0.0
+          },
+          {
+            "method": "neg_log_one_minus",
+            "params": {
+              "v_lo": 3.55598480899499,
+              "v_hi": 5.438739149341125,
+              "eps": 0.0001
+            },
+            "J": 0.2522481412277274,
+            "mag_sep": 0.14872285723686218,
+            "intra_spread": 0.22705478221178055,
+            "sat": 0.020004214230050135
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": 0.9840347087772372,
+            "sigma": 0.0053713840063177205,
+            "squash": "tanh"
+          }
+        }
+      },
+      "vision_1": {
+        "sim_type": "cosine",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": 0.9771123306217306,
+              "sigma": 0.006533454300270601,
+              "squash": "tanh"
+            },
+            "J": 0.25642113387584686,
+            "mag_sep": 0.09955620765686035,
+            "intra_spread": 0.313729852437973,
+            "sat": 0.0
+          },
+          {
+            "method": "neg_log_one_minus",
+            "params": {
+              "v_lo": 3.2455082171542524,
+              "v_hi": 4.87299494284532,
+              "eps": 0.0001
+            },
+            "J": 0.18360993569946812,
+            "mag_sep": 0.0872652530670166,
+            "intra_spread": 0.21269357949495316,
+            "sat": 0.020004214230050135
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": 0.9771123306217306,
+            "sigma": 0.006533454300270601,
+            "squash": "tanh"
+          }
+        }
+      },
+      "robot_state": {
+        "sim_type": "l2",
+        "shortlist": [
+          {
+            "method": "zscore",
+            "params": {
+              "mu": -1.846875310335115,
+              "sigma": 1.0040905357862269,
+              "squash": "tanh"
+            },
+            "J": 0.2334994673728943,
+            "mag_sep": 0.049352794885635376,
+            "intra_spread": 0.3682933449745178,
+            "sat": 0.0
+          },
+          {
+            "method": "affine_clip",
+            "params": {
+              "lo": -3.1917028331756594,
+              "hi": -0.1303116437792772
+            },
+            "J": 0.22458211263871716,
+            "mag_sep": 0.06443947553634644,
+            "intra_spread": 0.34028948843479156,
+            "sat": 0.020004214230050135
+          }
+        ],
+        "selected": {
+          "method": "zscore",
+          "params": {
+            "mu": -1.846875310335115,
+            "sigma": 1.0040905357862269,
+            "squash": "tanh"
+          }
+        }
+      }
+    }
+  }
+}

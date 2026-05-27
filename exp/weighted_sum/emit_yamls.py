@@ -43,7 +43,11 @@ def build_eval_config(
 ) -> dict:
     """Build one eval cache-config dict (validated downstream by the loader)."""
     keys = {f: {"enabled": False, "weight": 0.0} for f in _ALL_KEY_FIELDS}
-    vdims: dict[str, int] = {}
+    # backend.vector_dims must equal the artifact's FULL field set — load_artifact
+    # rejects a subset (ValueError: vector_dims mismatch). prompt_emb stays in the
+    # backend dims (the artifact carries it) but is masked from search via
+    # keys.prompt_emb.enabled=False; weight-0 fields likewise stay dimensioned.
+    vdims: dict[str, int] = {k: int(v) for k, v in vector_dims.items()}
     field_similarity: dict[str, dict] = {}
     sn_fields: dict[str, dict] = {}
 
@@ -56,7 +60,6 @@ def build_eval_config(
         if field not in fields_calib:
             raise ValueError(f"{builder_type}: field {field!r} has no Phase-1 calibration")
         keys[field] = {"enabled": True, "weight": w}
-        vdims[field] = int(vector_dims[field])
         sim_type = fields_calib[field]["sim_type"]
         selected = fields_calib[field]["selected"]
         if sim_type == "l2":
@@ -78,7 +81,6 @@ def build_eval_config(
             if req not in vector_dims:
                 raise ValueError(f"{builder_type}: required field {req!r} missing vector dim")
             keys[req] = {"enabled": True, "weight": 0.0}
-            vdims[req] = int(vector_dims[req])
 
     search_strategy = {
         "type": "weighted_score_sum_knn",
@@ -119,8 +121,13 @@ def isolation_weight_configs(fields: list[str]) -> dict[str, dict[str, float]]:
     return {f"iso_{f}": {f: 1.0} for f in fields}
 
 
-def grid_weight_configs(fields: list[str], levels=(0.25, 0.5, 0.75)) -> dict[str, dict[str, float]]:
-    """Coarse normalized weight grid over the given fields (2-field combos)."""
+# 2-field grid density (owner 2026-05-25: ~3x scale-up). 7 levels la in
+# {0.125..0.875}, lb = 1 - la.
+_GRID2_LEVELS = (0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875)
+
+
+def grid_weight_configs(fields: list[str], levels=_GRID2_LEVELS) -> dict[str, dict[str, float]]:
+    """Normalized 2-field weight grid (every pair, each `levels` split)."""
     configs: dict[str, dict[str, float]] = {}
     for i, fa in enumerate(fields):
         for fb in fields[i + 1:]:
@@ -128,6 +135,38 @@ def grid_weight_configs(fields: list[str], levels=(0.25, 0.5, 0.75)) -> dict[str
                 lb = round(1.0 - la, 4)
                 cid = f"grid_{fa}@{int(la * 100)}_{fb}@{int(lb * 100)}"
                 configs[cid] = {fa: la, fb: lb}
+    return configs
+
+
+def grid3_weight_configs(
+    fields: list[str],
+    *,
+    dominant: str = "robot_state",
+    step: float = 0.125,
+    dom_min: float = 0.375,
+) -> dict[str, dict[str, float]]:
+    """robot_state-dominant 3-field simplex grid (weights sum to 1, all > 0).
+
+    For each 3-field combination containing `dominant`, enumerate weight triples
+    on a `step`-spaced simplex with the dominant field >= `dom_min` and the other
+    two each >= one step. Aligns with the phase1 rs-heavy optimum (w5/w6/w7).
+    """
+    from itertools import combinations
+
+    configs: dict[str, dict[str, float]] = {}
+    n = round(1.0 / step)                       # total units summing to 1.0
+    dom_units_min = round(dom_min / step)
+    for combo in combinations(fields, 3):
+        if dominant not in combo:
+            continue
+        fa, fb = (f for f in combo if f != dominant)
+        for dom_u in range(dom_units_min, n - 1):   # leave >= 1 unit each to fa, fb
+            rem = n - dom_u
+            for ua in range(1, rem):                # ua, ub >= 1
+                ub = rem - ua
+                wa, wb, wd = round(ua * step, 4), round(ub * step, 4), round(dom_u * step, 4)
+                cid = f"grid3_{fa}@{int(wa * 100)}_{fb}@{int(wb * 100)}_{dominant}@{int(wd * 100)}"
+                configs[cid] = {fa: wa, fb: wb, dominant: wd}
     return configs
 
 
@@ -154,6 +193,7 @@ def main():
         configs.update(isolation_weight_configs(useful))
     if args.mode in ("grid", "both"):
         configs.update(grid_weight_configs(useful))
+        configs.update(grid3_weight_configs(useful))
 
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)

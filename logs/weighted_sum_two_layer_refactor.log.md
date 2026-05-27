@@ -1,6 +1,7 @@
 # Weighted-Sum 两层重构 + 两阶段校准/权重搜索实验
 
 > **Status**: `G2 APPROVED` (2026-05-25 / weighted_sum two-layer refactor code review)
+> **Post-G2 revision (2026-05-25, owner)**: Phase-2 规模锁定 100 ep/yaml（10/subtask）+ 权重网格 ×3（每 kb ~36 配置，6 库 ~216 YAML / ~21,600 episode）。仅实验参数（§7），不改已审查的两层架构 / config schema / backend 契约；落地需同步扩 `emit_yamls.grid_weight_configs`（L1）。
 > **Level**: L3（新增搜索层归一化子系统 + config schema 变更 + 新实验管线 + conductor 策略，跨模块）
 > **Authority**: Execution
 > **关联**: [`docs/architecture/cache_system.md`](../docs/architecture/cache_system.md) §5.x search/normalization、[`docs/experiments/conductor_tutorial.md`](../docs/experiments/conductor_tutorial.md)、[`docs/experiments/artifact_layout.md`](../docs/experiments/artifact_layout.md)、现有 phase1 weight-grid 模板 `exp/common/analysis/phase1/libero_spatial/`
@@ -192,12 +193,12 @@ exp/weighted_sum/
 - **Judge = always_hit**（纯 cache replay，隔离检索质量，与 phase1 weight-grid 模板一致），`search_strategy.type = weighted_score_sum_knn` + 校准好的 per_field normalizer。
 - **C2 write-frozen**：emit 的每个 eval YAML 必须含 `write_policy: {type: never}`（默认 `on_any_miss` 会在 server load/`load_cache_config` fail-fast，`config.py:403`）。strategy/config 测试覆盖。
 - **候选模态**：`{vision_0, vision_1, robot_state}`（+CP1 可选 vision_2）；**prompt_emb 经 `keys.prompt_emb.enabled:false` 屏蔽**。
-- **2a 模态隔离 + 方法定档**：每次只给一个模态非零权重，并对该模态 Phase 1 **shortlist 各候选 method** 各跑一次 eval → 同时定"有用模态集合"与"每模态最终 normalizer 方法"；与 Phase 1 `mag_sep` 先验交叉验证。
-- **2b 权重搜索**：在有用模态（各自已定档方法）上做权重网格（粗→细），找最优分配。
+- **2a 模态隔离 + 方法定档**：每次只给一个模态非零权重（`emit_yamls.isolation_weight_configs` 用 Phase 1 `selected` best 方法），共 K 个隔离配置 → 定"有用模态集合"，与 Phase 1 `mag_sep` 先验交叉验证。（可选 robustness：对 shortlist 第二候选补跑同一模态。）
+- **2b 权重搜索（规模 ×3，owner 2026-05-25 决定）**：在有用模态上做权重网格，较初版（每 keybuilder 12 配置）扩大约 3 倍至**每 keybuilder ~36 配置** —— 2-field 加密网格（C(K,2) 对 × 7 档 `la∈{0.125…0.875}`、`lb=1−la`）+ 3-field rs-dominant 单纯形网格（对齐 phase1 w5/w6/w7 最优区）；粗→细搜最优分配。需同步扩 `emit_yamls.grid_weight_configs`（L1 exp 脚本改动，不触碰两层架构/config/backend 契约）。
 - **⚠ 防 init-state 泄漏（硬约束）**：Phase 2 eval 的 `orig_init_state_idx` **必须与建库 50 episode 所用的集合不相交**（建库每任务仅用 ~5/50 init，剩 ~45/任务可用）。否则 live rollout 从同 init 起会与库内孪生 episode 早期逐帧近同 → 平凡命中、SR 虚高。`emit_yamls.py`/episode 列表从 `libero_spatial_init_map.json` 读出已用 `orig_init_state_idx` 并排除。
 - **先代理后 eval**：用 Phase 1.5 离线检索质量代理（§6.8）预排序权重/模态组合，只对前排候选跑 GPU eval，省预算。
 - 编排：`WeightSearchStrategy` 为**纯 eval 模式**（`consumes_calib_id=None`、不建 warmup stage，参照 `WarmupEvalStrategy(skip_warmup=True)`）；`EpisodeRunner` 直接复用 `examples/libero/episode_runner.py`；server 用 `serve_policy.py --concurrent`（或 `--replicas N`）；driver/agent/journal/retry/monitor 全复用 conductor。
-- **运维**：固定 `--seed`；server 拓扑参 `reference_device_topology`（单 server ≤3 replica）；**预算估算**：设 K 个有用模态、每模态 shortlist≤2 方法、2a 隔离 ~ (K×2) 配置、2b 网格粗扫 ~ O(数十) 配置，每配置取 held-out init 子集（如每任务 20 ep × 10 = 200 ep）→ 量级随确认的网格在 Code 前补精确 wall-clock。
+- **运维**：固定 `--seed`；server 拓扑参 `reference_device_topology`（单 server ≤3 replica）。**规模锁定（owner 2026-05-25）**：每 YAML = 10 task × 10 ep = **100 episode**（held-out 实测 45/任务 ≥ 10，安全）。**预算（实测 K=3 = `vision_0/vision_1/robot_state`，prompt_emb 排除、vision_2 休眠）**：每 keybuilder ~36 YAML（isolation 3 + 2-field 21 + 3-field ~12）→ 6 库全跑 **~216 YAML × 100 ep ≈ 21,600 episode**；若按 phase1 建议精简至 4 库（drop `spatial_64`/`max_pool`）≈ 144 YAML / 14,400 episode。
 - 分析：`plot_phase2_results.py` 出 success_rate × 权重配置（按 keybuilder 分组），对齐 `exp/common/analysis/phase1/libero_spatial/` 风格。
 
 ---
