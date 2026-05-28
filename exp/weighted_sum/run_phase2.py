@@ -14,6 +14,7 @@ Example:
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import threading
 import time
@@ -60,6 +61,12 @@ def main():
         "empty = spawn with the agent's own python",
     )
     ap.add_argument("--bind-host", default="127.0.0.1", help="driver pull-server bind host (workers connect here)")
+    ap.add_argument(
+        "--per-step-out", default="",
+        help="if set, write driver.per_step_rows (per-step hit_type / cp1_score) to this JSONL "
+        "after the run — needed for the threshold-pareto inference_ratio summary and warmup score "
+        "collection. Empty = skip (default; episode SR journal unaffected).",
+    )
     ap.add_argument(
         "--eval-concurrency", type=int, default=2,
         help="max eval yamls a server activates simultaneously (scheduler). 1=tightest (least GPU mem, "
@@ -135,6 +142,15 @@ def main():
     finally:
         agent.stop()
     print("[run_phase2] all stages done", flush=True)
+
+    if args.per_step_out:
+        rows = driver.per_step_rows
+        out = Path(args.per_step_out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        with out.open("w", encoding="utf-8") as f:
+            for r in rows:
+                f.write(json.dumps(r) + "\n")
+        print(f"[run_phase2] wrote {len(rows)} per-step rows to {out}", flush=True)
 
 
 if __name__ == "__main__":

@@ -82,14 +82,50 @@ uv run exp/weighted_sum/analysis/plot_phase2_results.py \
 
 按 keybuilder 分组画 success_rate × 权重配置（对齐 `exp/common/analysis/phase1/libero_spatial` 风格）。2a 隔离结果与 Phase-1 `mag_sep` 先验交叉验证定"有用模态集合 + 每模态最终方法"；2b 在有用模态上 粗→细 网格搜最优权重。
 
-## 3. 文件
+## 3. Trajectory 扩展（depth>1 多步检索）
+
+在 Phase-2 选出的最优配置之上叠加 trajectory search（多步 query 历史聚合），方法学对照老
+trajectory 实验对 Phase 1 的做法。设计与决策见 [`logs/weighted_sum_trajectory_search.log.md`](../../logs/weighted_sum_trajectory_search.log.md)。
+
+**Base 选取（18 个，去重）**：① per-keybuilder（4 个 CP1 keybuilder 各取 top1+top2+倒数第二，
+倒数第二取正规权重网格、同 `zscore`，排除 `__norm2`/`iso_`）；② 全实验 top10。两组重叠 4 个
+（spatial_16/max_pool 的 top1+top2 都在 top10），并集 18。depth ∈ {3,4,5,6}，`trajectory_weights`
+复用老递减方案；depth-1 基线复用现有 `data/phase2/all_results.csv` 的 SR（同 jupyter 机可比）。
+
+```bash
+# 1) 生成 72 份 trajectory yaml（18 base × 4 depth），自带去重断言 + schema 自检
+PYTHONPATH=. uv run exp/weighted_sum/emit_trajectory_yamls.py
+#    → exp/weighted_sum/config/trajectory/<base_id>__d{depth}.yaml
+
+# 2) 起 server（jupyter，--replicas + HOME 见 devices.md / 上方 §2.2）+ tether expose
+# 3) 跑评测（timan107，每 yaml 100 ep = 10 task × --eval-trials 10）
+PYTHONPATH=. uv run exp/weighted_sum/run_phase2.py \
+    --yaml-dir exp/weighted_sum/config/trajectory \
+    --init-map exp/common/data/db/libero_cache/libero_spatial_init_map.json \
+    --journal  exp/weighted_sum/data/trajectory/journal.jsonl \
+    --servers <host>:<port> --task-ids 0-9 --eval-trials 10 --workers 48 --gpus 8
+
+# 4) 聚合 + 分析（合并 depth-1 基线 + depth 3/4/5/6，算 Δ vs 单步）
+uv run exp/weighted_sum/summarize.py \
+    --journal exp/weighted_sum/data/trajectory/journal.jsonl \
+    --out     exp/weighted_sum/data/trajectory/results.json
+PYTHONPATH=. uv run exp/weighted_sum/analysis/plot_trajectory_results.py \
+    --results  exp/weighted_sum/data/trajectory/results.json \
+    --baseline exp/weighted_sum/data/phase2/all_results.csv
+```
+
+> trajectory 只支持 `InMemoryBackend`；`run_phase2` / conductor / 并发 server 对 trajectory 透明，
+> 零改动。`emit_trajectory_yamls.py` 复用 `emit_yamls.build_eval_config`（已含 trajectory 形参）。
+
+## 4. 文件
 
 | 路径 | 作用 |
 |------|------|
 | `exp/common/calibrate_score_normalizers.py` | Phase 1 离线校准 |
 | `exp/weighted_sum/emit_yamls.py` | Phase 2 eval YAML 生成（C2/per_field/prompt_emb mask）|
+| `exp/weighted_sum/emit_trajectory_yamls.py` | Trajectory 扩展：18 base × depth 生成（复用 `build_eval_config`）|
 | `exp/weighted_sum/init_holdout.py` | held-out init 防泄漏 |
 | `exp/weighted_sum/weight_search_strategy.py` | conductor 纯-eval 策略 |
-| `exp/weighted_sum/run_phase2.py` | Phase 2 入口 |
+| `exp/weighted_sum/run_phase2.py` | Phase 2 / Trajectory 评测入口（通用 yaml-dir runner）|
 | `exp/weighted_sum/summarize.py` | journal → per-yaml success_rate JSON |
-| `exp/weighted_sum/analysis/` | Phase 1/2 绘图 |
+| `exp/weighted_sum/analysis/` | Phase 1/2 + trajectory 绘图（`plot_trajectory_results.py`）|
