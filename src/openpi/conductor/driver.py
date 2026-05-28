@@ -51,14 +51,18 @@ def assign_servers(
     yaml_weights: dict[str, int],
     servers: list[_task.ServerEndpoint],
     colocation: dict[str, str] | None = None,
+    capacities: dict[str, int] | None = None,
 ) -> dict[str, _task.ServerEndpoint]:
     """Greedily place yamls onto servers, balancing by episode weight while
     keeping co-located yamls (those sharing a calibration source) together.
 
     ``colocation`` maps ``yaml_id -> group_key``; yamls in the same group are
     assigned to the same server (so a shared WarmupPool stays on one process).
-    Balances by total group weight onto the least-loaded server (fewest yamls
-    naturally follows from one group landing on one server).
+    ``capacities`` maps ``server.key -> relative capacity`` (e.g. the worker
+    count bound to that endpoint); placement balances ``weight / capacity`` so a
+    higher-capacity server absorbs proportionally more episodes (16 vs 48 workers
+    -> ~1:3 yaml split). Omitted/uniform capacity reproduces the legacy even
+    balance.
     """
     if not servers:
         raise ValueError("no servers to assign to")
@@ -69,12 +73,16 @@ def assign_servers(
         gkey = colocation.get(yaml_id, yaml_id)
         groups.setdefault(gkey, []).append(yaml_id)
 
+    caps = {s.key: 1 for s in servers}
+    if capacities:
+        caps.update({k: max(1, int(v)) for k, v in capacities.items() if k in caps})
     load = {s.key: 0 for s in servers}
     by_key = {s.key: s for s in servers}
     assignment: dict[str, _task.ServerEndpoint] = {}
-    # Heaviest groups first for a better balance.
+    # Heaviest groups first; "least loaded" is weight/capacity so a higher-capacity
+    # server (more bound workers) absorbs proportionally more before being skipped.
     for gkey in sorted(groups, key=lambda g: -sum(yaml_weights[y] for y in groups[g])):
-        target_key = min(load, key=lambda k: load[k])
+        target_key = min(load, key=lambda k: load[k] / caps[k])
         for yaml_id in groups[gkey]:
             assignment[yaml_id] = by_key[target_key]
             load[target_key] += yaml_weights[yaml_id]
@@ -115,9 +123,11 @@ class ConductorDriver:
         bind_host: str = "127.0.0.1",
         bind_port: int = 0,
         episode_timeout_s: float = 1800.0,
+        server_capacities: dict[str, int] | None = None,
+        per_step_writer: Callable[[str, list[dict[str, Any]]], None] | None = None,
     ) -> None:
         self._strategy = strategy
-        self._assignment = assign_servers(yaml_weights, servers, colocation)
+        self._assignment = assign_servers(yaml_weights, servers, colocation, server_capacities)
         self._graph = strategy.plan(sorted(yaml_weights), self._assignment)
         self._scheduler = _sched.EpisodeScheduler(self._graph, **(scheduler_kwargs or {}))
         self._journal = Journal(journal_path)
@@ -140,6 +150,13 @@ class ConductorDriver:
         self._per_step_rows: list[dict[str, Any]] = []
         self._rows_lock = threading.Lock()
         self._actual_port: int | None = None
+        # Optional per-stage incremental writer (kinematic phase5 plan §4.1):
+        # called from _complete_stage to drain rows for a finished yaml so a
+        # mid-run crash does not lose already-eval'd cells' inf_ratio data.
+        # RLock chosen (not Lock) so the flush path is safe even if a future
+        # writer callback ends up re-entering driver internals.
+        self._per_step_writer = per_step_writer
+        self._per_step_lock = threading.RLock()
 
     # -- ctl connection pool --
 
@@ -174,7 +191,49 @@ class ConductorDriver:
         self._scheduler.mark_complete_running(stage.stage_id)
         ctl = self._ctl(stage.server)
         self._strategy.on_stage_complete(stage, ctl, self._ctx)
+        # Drain per-step rows for this completed eval yaml so a downstream
+        # crash does not lose them (plan §4.1). Strategy hook signature is
+        # NOT modified — flush is driver-internal (G1 R2 B1 mandate: keeps
+        # the 5 existing 3-arg on_stage_complete overrides compatible).
+        if stage.phase == "eval" and self._per_step_writer is not None:
+            self._flush_per_step_for_stage(stage.yaml_id)
         self._scheduler.mark_complete_done(stage.stage_id)
+
+    def _flush_per_step_for_stage(self, yaml_id: str) -> None:
+        """Drain accumulated per_step rows for ``yaml_id`` to the writer.
+
+        Called by ``_complete_stage`` at end-of-eval for one yaml. Filters
+        ``self._per_step_rows`` by ``yaml_id``, invokes the injected writer
+        (typically writing a per-yaml jsonl), then removes the flushed
+        rows from the in-memory list. On writer failure the rows are
+        retained so the run() finalizer can still dump them.
+
+        Thread safety: ``self._per_step_lock`` (RLock) guards the
+        read-then-modify cycle. ``self._rows_lock`` (the existing append
+        lock) is acquired briefly around the slice + filter to stay
+        consistent with concurrent ``handle_result`` appends.
+        """
+        if self._per_step_writer is None:
+            return
+        with self._per_step_lock:
+            with self._rows_lock:
+                this_yaml_rows = [
+                    r for r in self._per_step_rows if r.get("yaml_id") == yaml_id
+                ]
+            if not this_yaml_rows:
+                return
+            try:
+                self._per_step_writer(yaml_id, this_yaml_rows)
+            except Exception:
+                logger.exception(
+                    "per_step_writer failed for yaml_id=%s; rows retained for final dump",
+                    yaml_id,
+                )
+                return
+            with self._rows_lock:
+                self._per_step_rows = [
+                    r for r in self._per_step_rows if r.get("yaml_id") != yaml_id
+                ]
 
     def drive_stages_once(self) -> None:
         """Run one pass of stage setup/complete (also a test/driver entry point)."""

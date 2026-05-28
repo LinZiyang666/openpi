@@ -53,6 +53,8 @@ python scripts/serve_policy.py ... --non-concurrent --cache_config <yaml>
 > **B) 多个独立 `--concurrent` 单进程端点**：各占一个端口（同 GPU 多进程 / 多 GPU / 多机），作为**多个独立 `ServerEndpoint`** 注册给 driver，由 driver 的 worker→server 分配调度。适合需要按 server 细粒度分配 worker（如 server1→48 worker、server2→48 worker）的场景。
 >
 > 两者可混用（如 2 台机各 `--replicas 3`，注册 2 个公共端点）。
+>
+> **跨 server 非均分 worker（如 16/48）**：两台 server 算力/显存不对等时（如一台被别的任务占着），用 `run_phase2 --server-workers "16,48"` 把 16 个 worker 绑到 `servers[0]`、48 个绑到 `servers[1]`（长度须等于 `--servers` 端点数，和覆盖 `--workers`）。同一比例同时作为 `server_capacities` 传给 `ConductorDriver`；`assign_servers` 按 `weight / capacity` 放置 yaml（16:48 → ~1:3 的 episode 落到各 server），使两台**同时收工**，不让 worker 少的那台成瓶颈。worker 是**严格亲和**的（绑某端点的 worker 只跑分到该端点的 yaml），所以 worker 分配与 yaml 放置必须按同一比例，二者由该参数一并设好。留空 = 均匀轮询 + 等容量（旧行为，对应上面 B 的 48/48 对等例子）。
 
 GPU 显存 ≈ `进程数 × ~7.5 GB`（每进程一份权重）；40 GB A100 上每 GPU ≤3 进程（再多 per-GPU 算力饱和，见 §8.3）。
 

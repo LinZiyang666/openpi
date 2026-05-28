@@ -128,6 +128,74 @@ CFG_SPECS: dict[str, dict[str, Any]] = {
             "field_similarity": _FIELD_SIM_DEFAULT,
         },
     },
+    # ------------------------------------------------------------------
+    # spatial16_ws_d1_best — weighted_sum series d1 best yaml as kinematic
+    # base. Used by exp/weighted_sum/kinematic/ (phase5 replication on
+    # weighted_score_sum_knn d1 retrieval). Fields verbatim from
+    # exp/weighted_sum/config/trajectory_wsweep/
+    # cp1_spatial_pool_16__grid3_vision_0@6_vision_1@50_robot_state@43__d1.yaml
+    # (wsweep d1 best: SR 74%). trajectory_depth omitted (defaults to 1
+    # in WeightedScoreSumKnnStrategy — d1 single-step retrieval).
+    # ------------------------------------------------------------------
+    "spatial16_ws_d1_best": {
+        "key_builder_type": "cp1_spatial_pool_16",
+        "vector_dims": {
+            "vision_0": 32768,
+            "vision_1": 32768,
+            "prompt_emb": 2048,
+            "robot_state": 32,
+        },
+        "keys": {
+            "vision_0":   {"enabled": True,  "weight": 0.0625},
+            "vision_1":   {"enabled": True,  "weight": 0.5},
+            "vision_2":   {"enabled": False, "weight": 0.0},
+            "prompt_emb": {"enabled": False, "weight": 0.0},
+            "robot_state": {"enabled": True, "weight": 0.4375},
+        },
+        "preload_pkl": "exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl",
+        "search_strategy": {
+            "type": "weighted_score_sum_knn",
+            "top_k": 1,
+            "step_filter": "all",
+            "field_similarity": {
+                "vision_0": {"type": "cosine"},
+                "vision_1": {"type": "cosine"},
+                "robot_state": {
+                    "type": "l2",
+                    "to_similarity": {"type": "exp", "tau": 1.0},
+                },
+            },
+            "score_normalization": {
+                "type": "per_field",
+                "fields": {
+                    "vision_0":   {
+                        "method": "zscore",
+                        "params": {
+                            "mu": 0.977693693699334,
+                            "sigma": 0.00699373921570407,
+                            "squash": "tanh",
+                        },
+                    },
+                    "vision_1":   {
+                        "method": "zscore",
+                        "params": {
+                            "mu": 0.9691840492031897,
+                            "sigma": 0.007853951498497307,
+                            "squash": "tanh",
+                        },
+                    },
+                    "robot_state": {
+                        "method": "zscore",
+                        "params": {
+                            "mu": -1.8439531429434792,
+                            "sigma": 1.0018373754826044,
+                            "squash": "tanh",
+                        },
+                    },
+                },
+            },
+        },
+    },
 }
 
 

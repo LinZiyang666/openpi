@@ -73,6 +73,24 @@ def main():
         "but end-of-yaml straggler bubble idles workers); 2=fills the bubble (same-keybuilder yamls share "
         "the backend via BackendPool, so ~no extra mem). See docs/experiments/conductor_tutorial.md §12.1.",
     )
+    ap.add_argument(
+        "--server-workers", default="",
+        help="comma worker counts per --servers endpoint, e.g. '16,48' = 16 workers bound to "
+        "servers[0] and 48 to servers[1] (length must match --servers). The same ratio is passed "
+        "as server_capacities so the driver's yaml->server placement is proportional (16:48 -> ~1:3 "
+        "of the episodes land on each), keeping both servers busy. Sum overrides --workers. "
+        "Empty = even round-robin across servers + uniform capacity (legacy).",
+    )
+    ap.add_argument(
+        "--strategy",
+        choices=("weight", "kinematic"),
+        default="weight",
+        help="weight = WeightSearchStrategy (default, legacy wsweep / threshold_pareto). "
+        "kinematic = KinematicSearchStrategy (phase5-on-weighted_sum replication; "
+        "wires per_step_writer into ConductorDriver so per-yaml jsonl is flushed at "
+        "stage completion, surviving mid-run crashes — see logs/weighted_sum_"
+        "kinematic_phase5_replication.log.md §4.3).",
+    )
     args = ap.parse_args()
 
     yaml_dir = Path(args.yaml_dir)
@@ -83,18 +101,55 @@ def main():
     task_ids = _parse_ids(args.task_ids)
     holdout = held_out_inits(args.init_map, task_ids, total_inits_per_task=args.total_inits)
 
-    strategy = WeightSearchStrategy(
-        task_ids=task_ids,
-        eval_trials=args.eval_trials,
-        task_suite_name=args.task_suite,
-        yaml_dir=str(yaml_dir),
-        held_out_inits=holdout,
-    )
+    # Strategy + per_step_writer wiring (plan §4.3 G1 R2 B2 fix).
+    # weight strategy: per_step_writer stays None → driver's incremental
+    # flush is a no-op → legacy behavior unchanged. kinematic strategy:
+    # bind its _write_per_step method as the driver's writer so each yaml
+    # is flushed at _complete_stage end (survives crashes).
+    per_step_writer = None
+    if args.strategy == "kinematic":
+        from exp.weighted_sum.kinematic.strategy import KinematicSearchStrategy
+
+        per_step_dir = (
+            Path(args.per_step_out).parent / "per_step" if args.per_step_out else None
+        )
+        strategy = KinematicSearchStrategy(
+            task_ids=task_ids,
+            eval_trials=args.eval_trials,
+            task_suite_name=args.task_suite,
+            yaml_dir=str(yaml_dir),
+            held_out_inits=holdout,
+            per_step_out_dir=per_step_dir,
+        )
+        per_step_writer = strategy._write_per_step
+    else:
+        strategy = WeightSearchStrategy(
+            task_ids=task_ids,
+            eval_trials=args.eval_trials,
+            task_suite_name=args.task_suite,
+            yaml_dir=str(yaml_dir),
+            held_out_inits=holdout,
+        )
 
     servers = []
     for spec in args.servers.split(","):
         host, port = spec.rsplit(":", 1)
         servers.append(ServerEndpoint(host, int(port)))
+
+    # Per-server worker allocation. --server-workers "16,48" binds 16 workers to
+    # servers[0] and 48 to servers[1]; the same counts become server_capacities so
+    # the driver places ~1:3 of the yamls onto each (proportional load, both servers
+    # stay busy). Empty -> even round-robin + uniform capacity (legacy).
+    if args.server_workers:
+        counts = [int(x) for x in args.server_workers.split(",")]
+        if len(counts) != len(servers):
+            raise SystemExit(f"--server-workers has {len(counts)} entries but --servers has {len(servers)}")
+        worker_server_keys = [s.key for s, c in zip(servers, counts) for _ in range(c)]
+        server_capacities = {s.key: c for s, c in zip(servers, counts)}
+    else:
+        worker_server_keys = [servers[i % len(servers)].key for i in range(args.workers)]
+        server_capacities = None
+    n_workers = len(worker_server_keys)
 
     from examples.libero.episode_runner import default_client_factory
 
@@ -107,6 +162,8 @@ def main():
         episode_timeout_s=args.episode_timeout_s,
         bind_host=args.bind_host,
         scheduler_kwargs={"eval_concurrency": args.eval_concurrency},
+        server_capacities=server_capacities,
+        per_step_writer=per_step_writer,
     )
 
     # Single-client-machine launch: the driver's pull server + stage loop run on
@@ -122,11 +179,11 @@ def main():
     specs = [
         WorkerSpec(
             worker_id=f"w{i}",
-            server_key=servers[i % len(servers)].key,
+            server_key=worker_server_keys[i],
             gpu_id=str(i % args.gpus),
             conda_env=args.conda_env,
         )
-        for i in range(args.workers)
+        for i in range(n_workers)
     ]
     agent = WorkerAgent(specs, driver_host=args.bind_host, driver_port=driver.port)
     agent_thread = threading.Thread(target=agent.run, daemon=True)

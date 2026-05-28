@@ -521,6 +521,7 @@ class CacheOrchestrator:
 
         return CheckResult(
             hit_type=HitType.MISS, query_keys=query_keys,
+            score=top_score, entry_id=winner_id,
             factor_outputs=factor_outputs,
         )
 
