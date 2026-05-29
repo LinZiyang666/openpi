@@ -220,6 +220,7 @@ def build_eval_yaml_for_cell(
     *,
     super_raw_relpath: str = SUPER_WARMUP_RAW_RELPATH,
     cfg_id: str = CFG_ID_DEFAULT,
+    preload_pkl_override: str | None = None,
 ) -> dict[str, Any]:
     """Per-cell eval yaml using offline calibration source.
 
@@ -250,6 +251,7 @@ def build_eval_yaml_for_cell(
     from exp.verdict_factor_judge.phase5.spec import _build_composer
 
     cfg = CFG_SPECS[cfg_id]
+    preload_path = preload_pkl_override if preload_pkl_override is not None else cfg["preload_pkl"]
     composer = _build_composer(cell, fh_thr, ws_thr)
     judge: dict[str, Any] = {
         "type": "composite",
@@ -290,7 +292,7 @@ def build_eval_yaml_for_cell(
             "type": "in_memory",
             "vector_dims": dict(cfg["vector_dims"]),
             "in_memory": {
-                "preload_path": cfg["preload_pkl"],
+                "preload_path": preload_path,
                 "index_type": "brute_force",
             },
         },

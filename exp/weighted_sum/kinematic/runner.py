@@ -93,7 +93,10 @@ def _mode_emit_warmup(args: argparse.Namespace) -> None:
 
     out_path = Path(args.warmup_yaml) if args.warmup_yaml else DEFAULT_YAML_PATH
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    yaml_dict = build_super_warmup_yaml()
+    yaml_dict = build_super_warmup_yaml(
+        preload_pkl_override=args.preload_pkl_override or None,
+        cfg_id=args.cfg_id,
+    )
     write_yaml(out_path, yaml_dict)
     n_factors = len(yaml_dict["checkpoints"]["cp1"]["judge"]["dump"]["factors"])
     logger.info(
@@ -246,6 +249,8 @@ def _mode_emit_eval_yamls(args: argparse.Namespace) -> None:
             fh_thr,
             ws_thr,
             super_raw_relpath=args.super_raw_relpath,
+            cfg_id=args.cfg_id,
+            preload_pkl_override=args.preload_pkl_override or None,
         )
         write_yaml(eval_dir / f"{cell.yaml_id}.yaml", yaml_dict)
 
@@ -280,11 +285,17 @@ def _mode_emit_eval_yamls(args: argparse.Namespace) -> None:
 # ----------------------------------------------------------------------
 
 
-def _build_always_warm_yaml(start_t: float) -> dict[str, Any]:
+def _build_always_warm_yaml(
+    start_t: float,
+    *,
+    preload_pkl_override: str | None = None,
+    cfg_id: str = "spatial16_ws_d1_best",
+) -> dict[str, Any]:
     """Drop-in always-warm yaml on d1 base for self-measured SR ceiling."""
     from exp.verdict_factor_judge.common.v2_spec import CFG_SPECS
 
-    cfg = CFG_SPECS["spatial16_ws_d1_best"]
+    cfg = CFG_SPECS[cfg_id]
+    preload_path = preload_pkl_override if preload_pkl_override is not None else cfg["preload_pkl"]
     return {
         "enabled": True,
         "timer": {"enabled": False, "buffer_size": 10000, "output_csv_dir": None},
@@ -305,7 +316,7 @@ def _build_always_warm_yaml(start_t: float) -> dict[str, Any]:
             "type": "in_memory",
             "vector_dims": dict(cfg["vector_dims"]),
             "in_memory": {
-                "preload_path": cfg["preload_pkl"],
+                "preload_path": preload_path,
                 "index_type": "brute_force",
             },
         },
@@ -327,7 +338,11 @@ def _mode_run_always_warm(args: argparse.Namespace) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     for start_t in (0.3, 0.5, 0.7):
         yid = f"ws_d1_kin_always_warm_t{start_t}"
-        y = _build_always_warm_yaml(start_t)
+        y = _build_always_warm_yaml(
+            start_t,
+            preload_pkl_override=args.preload_pkl_override or None,
+            cfg_id=args.cfg_id,
+        )
         write_yaml(out_dir / f"{yid}.yaml", y)
         logger.info("[always-warm] emitted %s (start_t=%.2f)", yid, start_t)
     logger.info(
@@ -349,21 +364,37 @@ def _mode_run_eval(args: argparse.Namespace) -> None:
     to live on the client machine (timan107) with EGL slots + conda env,
     not on this driver host.
     """
+    # G2 R1 Item1: the 237-cell + always-WARM comparison is a 5pp decision; per
+    # plan §2.3 it MUST run on a single server (cross-GPU drift ~7pp would
+    # reorder cells). Refuse to echo a multi-endpoint command — the CLI default
+    # --servers is dual, so this fails fast unless the operator passes one.
+    if "," in args.servers:
+        raise SystemExit(
+            "Stage 4 eval is a single-server decision (plan §2.3): the 237-cell "
+            "5pp comparison must not split across GPUs. Pass --servers with ONE "
+            f"endpoint (got {args.servers!r})."
+        )
     eval_dir = Path(args.eval_dir) if args.eval_dir else DEFAULT_EVAL_YAML_DIR
-    print("# Run from client (timan107):")
+    data_dir = Path(args.data_dir) if args.data_dir else DEFAULT_DATA_DIR
+    init_map = f"exp/common/data/db/libero_cache/{args.task_suite}_init_map.json"
+    print("# Run from client (timan107).")
+    print("# NOTE (plan §2.3): the 237-cell + always-WARM internal comparison is a")
+    print("#   5pp decision — keep --servers to a SINGLE endpoint so cross-GPU drift")
+    print("#   (~7pp) cannot reorder cells. Use one server, --server-workers <N>.")
     print(
         "PYTHONPATH=. /shared/nas/data/m1/zixuans8/miniconda3/bin/uv run "
         f"exp/weighted_sum/run_phase2.py \\\n"
         f"  --strategy kinematic \\\n"
         f"  --yaml-dir {eval_dir} \\\n"
-        f"  --init-map exp/common/data/db/libero_cache/libero_spatial_init_map.json \\\n"
-        f"  --journal exp/weighted_sum/data/kinematic_phase5/journal.jsonl \\\n"
+        f"  --init-map {init_map} \\\n"
+        f"  --task-suite {args.task_suite} \\\n"
+        f"  --journal {data_dir}/journal.jsonl \\\n"
         f"  --servers {args.servers} \\\n"
         f"  --task-ids 0-9 --eval-trials 10 \\\n"
-        f"  --workers 64 --server-workers 16,48 \\\n"
+        f"  --workers 48 --server-workers 48 \\\n"
         f"  --gpus 8 --conda-env /scratch/zixuans8/libero_sim \\\n"
         f"  --eval-concurrency 2 \\\n"
-        f"  --per-step-out exp/weighted_sum/data/kinematic_phase5/per_step.jsonl"
+        f"  --per-step-out {data_dir}/per_step.jsonl"
     )
 
 
@@ -728,6 +759,12 @@ def _parse(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--cuda-visible-devices", default="")
     p.add_argument("--conda-env", default="")
     p.add_argument("--preload-pkl-override", default="")
+    p.add_argument(
+        "--cfg-id",
+        default="spatial16_ws_d1_best",
+        help="v2_spec CFG_SPECS key for the kinematic base "
+        "(libero_10 Option B run: spatial16_ws_d1_best_libero10)",
+    )
 
     p.add_argument("--warmup-yaml", default="", help="super warmup yaml path")
     p.add_argument("--super-raw", default="", help="super warmup raw jsonl path")

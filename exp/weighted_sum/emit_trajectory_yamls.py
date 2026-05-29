@@ -59,9 +59,13 @@ DEPTH_WEIGHTS: dict[int, list[float]] = {
 _KEYBUILDERS = ("cp1_spatial_pool_16", "cp1_max_pool", "cp1_mean_pool", "cp1_spatial_pool_64")
 _WEIGHT_FIELDS = ("vision_0", "vision_1", "vision_2", "robot_state")
 
-# Expected dedup invariants (asserted at emit time; owner-reviewed in the plan).
-_EXPECT_BASE = 18
-_EXPECT_OVERLAP = 4
+# Reference invariants for the libero_spatial run only. The base-union size and
+# the group1/top10 overlap are arithmetic facts of a SPECIFIC results table, not
+# a cross-suite invariant: on libero_10 the overlap is almost never 4 and N_base
+# is therefore data-dependent (see plan §3.1 / §6a). Kept for documentation; the
+# emit-time check below uses suite-agnostic bounds, not these exact values.
+_LIBERO_SPATIAL_BASE = 18
+_LIBERO_SPATIAL_OVERLAP = 4
 
 
 # ----------------------------------------------------------------------
@@ -82,11 +86,13 @@ def _parse_weights(yaml_id: str) -> dict[str, float]:
 def select_base_configs(results_csv: Path, top10_dir: Path) -> tuple[
     list[tuple[str, str, str, float]], set[str], set[str]
 ]:
-    """Recompute the 18-base union from the results CSV + top10 dir.
+    """Recompute the (data-dependent) base union from the results CSV + top10 dir.
 
     Returns ``(group1, top10_ids, base_ids)`` where ``group1`` is a list of
-    ``(keybuilder, role, yaml_id, mean_sr)`` (12 logical entries) and
-    ``base_ids`` is the deduplicated union of group1 + top10 (expected 18).
+    ``(keybuilder, role, yaml_id, mean_sr)`` (up to 4 keybuilders x 3 roles) and
+    ``base_ids`` is the deduplicated union of group1 + top10. The union size
+    ``N_base`` is suite-dependent (the libero_spatial run happened to give 18
+    with overlap 4 — not a cross-suite invariant; see plan §3.1).
     """
     rows = list(csv.DictReader(results_csv.open()))
     agg: dict[tuple[str, str], list[float]] = collections.defaultdict(list)
@@ -95,6 +101,14 @@ def select_base_configs(results_csv: Path, top10_dir: Path) -> tuple[
     mean_sr = {k: statistics.mean(v) for k, v in agg.items()}
 
     top10_ids = {p.stem for p in top10_dir.glob("*.yaml")}
+    # Option A invariant (G1 R3 / G2 R1 Item2): the top10 dir must hold EXACTLY
+    # 10 yamls. emit_top10.py guarantees this; assert here so a stale / short /
+    # miscounted dir can't silently change N_base downstream.
+    if len(top10_ids) != 10:
+        raise ValueError(
+            f"top10 dir must contain exactly 10 yamls (Option A), found "
+            f"{len(top10_ids)} under {top10_dir} — re-run emit_top10.py"
+        )
 
     group1: list[tuple[str, str, str, float]] = []
     for kb in _KEYBUILDERS:
@@ -151,8 +165,12 @@ def main():
     print(f"  deduplicated base union: {len(base_ids)}")
     for kb, role, y, sr in group1:
         print(f"    {kb:22} {role:10} {sr * 100:4.0f}%  {'[DUP]' if y in top10_ids else '[NEW]'}  {y}")
-    assert len(base_ids) == _EXPECT_BASE, f"base union {len(base_ids)} != {_EXPECT_BASE}"
-    assert len(overlap) == _EXPECT_OVERLAP, f"top10 overlap {len(overlap)} != {_EXPECT_OVERLAP}"
+    # Suite-agnostic sanity bounds (G1 R2 Item3): N_base is data-dependent
+    # (the libero_spatial run gave 18 / overlap 4 — NOT a cross-suite invariant).
+    # top10 is pinned to EXACTLY 10 inside select_base_configs (G2 R1 Item2);
+    # group1 contributes up to 4 keybuilders x 3 roles distinct ids.
+    assert len(group1_ids) <= 4 * 3, f"group1 distinct ids {len(group1_ids)} > 12 (4kb x 3roles)"
+    print(f"  -> N_base = {len(base_ids)} (libero_spatial was {_LIBERO_SPATIAL_BASE}; suite-dependent)")
 
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)

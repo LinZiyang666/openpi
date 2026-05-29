@@ -196,6 +196,66 @@ CFG_SPECS: dict[str, dict[str, Any]] = {
             },
         },
     },
+    # ------------------------------------------------------------------
+    # spatial16_ws_d1_best_libero10 — Option B base for the libero_10
+    # kinematic replication (logs/weighted_sum_libero10_replication.log.md
+    # §8.3). Structure mirrors spatial16_ws_d1_best; ONLY preload_pkl points
+    # at the libero_10 artifact. The keys.weight values and the
+    # score_normalization mu/sigma here are PLACEHOLDERS copied from the
+    # libero_spatial winner — they MUST be overwritten with libero_10's own
+    # Stage-1 spatial_16 d1 winner weights + libero_10 calibration mu/sigma
+    # once Stage 1 completes (that value-fill is a separate change that
+    # re-enters G2 per the plan §8.3).
+    # ------------------------------------------------------------------
+    "spatial16_ws_d1_best_libero10": {
+        "key_builder_type": "cp1_spatial_pool_16",
+        "vector_dims": {
+            "vision_0": 32768,
+            "vision_1": 32768,
+            "prompt_emb": 2048,
+            "robot_state": 32,
+        },
+        "keys": {
+            # TODO(Stage1-libero10): replace with libero_10 spatial_16 d1 winner weights.
+            "vision_0":   {"enabled": True,  "weight": 0.0625},
+            "vision_1":   {"enabled": True,  "weight": 0.5},
+            "vision_2":   {"enabled": False, "weight": 0.0},
+            "prompt_emb": {"enabled": False, "weight": 0.0},
+            "robot_state": {"enabled": True, "weight": 0.4375},
+        },
+        "preload_pkl": "exp/common/data/cache_artifacts/libero_10/cp1_spatial_pool_16.pkl",
+        "search_strategy": {
+            "type": "weighted_score_sum_knn",
+            "top_k": 1,
+            "step_filter": "all",
+            "field_similarity": {
+                "vision_0": {"type": "cosine"},
+                "vision_1": {"type": "cosine"},
+                "robot_state": {
+                    "type": "l2",
+                    "to_similarity": {"type": "exp", "tau": 1.0},
+                },
+            },
+            "score_normalization": {
+                "type": "per_field",
+                "fields": {
+                    # TODO(Stage1-libero10): replace mu/sigma with libero_10 calibration values.
+                    "vision_0":   {
+                        "method": "zscore",
+                        "params": {"mu": 0.977693693699334, "sigma": 0.00699373921570407, "squash": "tanh"},
+                    },
+                    "vision_1":   {
+                        "method": "zscore",
+                        "params": {"mu": 0.9691840492031897, "sigma": 0.007853951498497307, "squash": "tanh"},
+                    },
+                    "robot_state": {
+                        "method": "zscore",
+                        "params": {"mu": -1.8439531429434792, "sigma": 1.0018373754826044, "squash": "tanh"},
+                    },
+                },
+            },
+        },
+    },
 }
 
 

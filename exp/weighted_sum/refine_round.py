@@ -53,6 +53,30 @@ def pick_best_keybuilder(results: dict) -> tuple[str, list[tuple[float, str, dic
     return best_stem, sorted(by_kb[best_stem], reverse=True)
 
 
+def rank_keybuilder(results: dict, stem: str) -> list[tuple[float, str, dict]]:
+    """Return sorted ``[(sr, yaml_id, weights)]`` for a SPECIFIC keybuilder stem.
+
+    Companion to :func:`pick_best_keybuilder` for the winner-tie case: when
+    Stage 1's top-2 keybuilders tie within 1 SE the plan refines BOTH, forcing
+    each via ``--stem``. ``main`` must then center / norm2 on the forced stem's
+    OWN ranked list. Without this, ``main`` keeps the global-best stem's ranked
+    list even when ``--stem`` forces a different keybuilder, refining the wrong
+    neighborhood and applying norm2 to the wrong keybuilder's top weights
+    (plan §5 / §9, G1 R2 Item1).
+    """
+    ranked = sorted(
+        (
+            (v["success_rate"], yid, _parse_weights(yid))
+            for yid, v in results.items()
+            if v.get("n", 0) >= 50 and yid.split("__")[0] == stem
+        ),
+        reverse=True,
+    )
+    if not ranked:
+        raise ValueError(f"no configs (n>=50) for stem {stem!r} in results")
+    return ranked
+
+
 def _parse_weights(yaml_id: str) -> dict[str, float]:
     w: dict[str, float] = {}
     cfg = yaml_id.split("__", 1)[1] if "__" in yaml_id else yaml_id
@@ -162,14 +186,20 @@ def main():
     results = json.loads(Path(args.results).read_text())
     calib = json.loads(Path(args.calibration).read_text())
 
-    best_stem, ranked = pick_best_keybuilder(results)
-    stem = args.stem or best_stem
+    if args.stem:
+        # Forced stem (winner-tie dual refine): rank THAT stem's own configs so
+        # center/norm2 below operate on the forced keybuilder's optimum, not the
+        # global-best stem's (G1 R2 Item1).
+        stem = args.stem
+        ranked = rank_keybuilder(results, stem)
+    else:
+        stem, ranked = pick_best_keybuilder(results)
     entry = calib[stem]
     builder_type, vector_dims = entry["builder_type"], entry["vector_dims"]
     fc_sel = _fields_calib(entry, variant=False)
     fc_v2 = _fields_calib(entry, variant=True)
 
-    print(f"[refine] round={args.round} best_keybuilder={best_stem} -> using stem={stem}")
+    print(f"[refine] round={args.round} using stem={stem} ({'forced --stem' if args.stem else 'best-of-results'})")
     print(f"[refine] top baseline configs of {stem}:")
     for sr, yid, w in ranked[:5]:
         print(f"  {100*sr:.0f}%  {yid.split('__',1)[1]}")

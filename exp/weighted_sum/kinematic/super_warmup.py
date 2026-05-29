@@ -123,7 +123,11 @@ def _group_keys_to_factor_blocks(keys: set[str]) -> list[dict[str, Any]]:
     return factors
 
 
-def build_super_warmup_yaml() -> dict[str, Any]:
+def build_super_warmup_yaml(
+    *,
+    preload_pkl_override: str | None = None,
+    cfg_id: str = CFG_ID_DEFAULT,
+) -> dict[str, Any]:
     """Single warmup yaml that dumps all 237 cells' declared keys.
 
     Uses ``always_warm_start(start_t=0.7)`` as the inner judge (every
@@ -134,7 +138,8 @@ def build_super_warmup_yaml() -> dict[str, Any]:
     ``required_top_k`` hint (phase5 convention; harmless for cosine
     score which only reads ``results[0].score`` regardless).
     """
-    cfg = CFG_SPECS[CFG_ID_DEFAULT]
+    cfg = CFG_SPECS[cfg_id]
+    preload_path = preload_pkl_override if preload_pkl_override is not None else cfg["preload_pkl"]
     needed_keys = super_warmup_declared_keys()
     factors = _group_keys_to_factor_blocks(needed_keys)
 
@@ -170,7 +175,7 @@ def build_super_warmup_yaml() -> dict[str, Any]:
             "type": "in_memory",
             "vector_dims": dict(cfg["vector_dims"]),
             "in_memory": {
-                "preload_path": cfg["preload_pkl"],
+                "preload_path": preload_path,
                 "index_type": "brute_force",
             },
         },
