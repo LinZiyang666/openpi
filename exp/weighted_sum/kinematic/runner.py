@@ -1,6 +1,6 @@
 """CLI entrypoint for kinematic phase5 replication.
 
-7 modes (mirror phase5/runner.py + always-warm self-ceiling):
+8 modes (mirror phase5/runner.py + always-warm self-ceiling + summary aggregator):
 
   emit-warmup        Write super_warmup.yaml (no server).
   run-warmup         Run super warmup on a server, fetch_dump, extract finite raw.
@@ -12,6 +12,12 @@
                      for self-ceiling anchor (replaces phase5 d4 rrf reused values).
   run-eval           Dispatch to exp/weighted_sum/run_phase2.py with
                      --strategy=kinematic over the 237 emitted cells.
+  aggregate-summary  Rebuild per_yaml_summary.jsonl + always_warm_results.json
+                     from raw journal + per_step + cell registry. weighted_sum's
+                     run_phase2 writes journal+per_step but not the phase5-style
+                     per_yaml_summary that ``analyze`` consumes — this mode
+                     bridges the gap so the analyze pipeline is reproducible
+                     end-to-end without inline scripting.
   analyze            decision-gate dump + 4-frontier Pareto overlay.
 
 Coupling map:
@@ -59,6 +65,7 @@ VALID_MODES = (
     "emit-eval-yamls",
     "run-always-warm",
     "run-eval",
+    "aggregate-summary",
     "analyze",
 )
 
@@ -361,6 +368,186 @@ def _mode_run_eval(args: argparse.Namespace) -> None:
 
 
 # ----------------------------------------------------------------------
+# aggregate-summary — rebuild per_yaml_summary.jsonl + always_warm_results.json
+# ----------------------------------------------------------------------
+#
+# weighted_sum/run_phase2.py writes ``journal.jsonl`` (one row per episode
+# terminal state) and ``per_step/<yaml_id>.jsonl`` (one row per cache verdict).
+# It does NOT write the phase5-style ``per_yaml_summary.jsonl`` (one row per
+# yaml) that ``_mode_analyze`` consumes. This mode bridges the gap by reading
+# the two raw artifacts + the cell registry from spec.py and producing both
+# ``per_yaml_summary.jsonl`` (237 rows) and ``always_warm_results.json``
+# (3 anchor entries) at server-side relative paths matching the analyze
+# default. The status filter ``{done, failed}`` covers both terminal cases so
+# the denominator is the full episode count rather than only successful ones.
+
+
+def _aggregate_per_yaml_summary(
+    cells: dict[str, Any],
+    journal_path: Path,
+    per_step_dir: Path,
+) -> list[dict[str, Any]]:
+    """Build per-yaml summary rows from raw journal + per_step.
+
+    Each row carries the schema ``_mode_analyze`` and the plot script expect:
+    ``yaml_id, group, base_recipe, axis_tag, fh_ratio, ws_ratio,
+    n_episodes, n_success, success_rate, n_eval_verdicts,
+    n_full_hit, n_warm_start, n_miss``.
+    """
+    from collections import Counter as _Counter
+
+    ok: _Counter = _Counter()
+    total: _Counter = _Counter()
+    with journal_path.open(encoding="utf-8") as fh:
+        for line in fh:
+            r = json.loads(line)
+            if r.get("phase") != "eval":
+                continue
+            if r.get("status") not in ("done", "failed"):
+                continue
+            yid = r["yaml_id"]
+            total[yid] += 1
+            if r.get("success"):
+                ok[yid] += 1
+
+    rows: list[dict[str, Any]] = []
+    for yid, cell in cells.items():
+        t = total.get(yid, 0)
+        if t == 0:
+            continue
+        counts: _Counter = _Counter()
+        per_step = per_step_dir / f"{yid}.jsonl"
+        if per_step.exists():
+            with per_step.open(encoding="utf-8") as fh:
+                for line in fh:
+                    if not line.strip():
+                        continue
+                    r = json.loads(line)
+                    counts[r.get("hit_type") or "UNKNOWN"] += 1
+        n_verdicts = sum(counts.values())
+        rows.append(
+            {
+                "yaml_id": yid,
+                "group": cell.group,
+                "base_recipe": cell.base_recipe,
+                "axis_tag": cell.axis_tag,
+                "fh_ratio": cell.fh_ratio,
+                "ws_ratio": cell.ws_ratio,
+                "n_episodes": t,
+                "n_success": ok.get(yid, 0),
+                "success_rate": ok.get(yid, 0) / t,
+                "n_eval_verdicts": n_verdicts,
+                "n_full_hit": counts.get("FULL_HIT", 0),
+                "n_warm_start": counts.get("WARM_START", 0),
+                "n_miss": counts.get("MISS", 0),
+            }
+        )
+    return rows
+
+
+def _aggregate_always_warm(journal_path: Path) -> dict[str, dict[str, Any]]:
+    """Build {start_t_<t>: {success_rate, inf, n_episodes, n_success}}.
+
+    ``always_warm_start`` judge marks every step as ``WARM_START``, so the
+    per-episode inference ratio is the **per-step warm cost**
+    ``cost_WS(t) = 1 - 0.5*(1 - t) = 0.5 + 0.5*t`` (see
+    ``exp/weighted_sum/summarize_inf_ratio.py:_warm_cost``). Earlier
+    revisions used the constant 0.75 here — that is only correct at
+    ``start_t = 0.5`` and produced two coincident anchors on the Pareto plot
+    (``t0.5`` and ``t0.7`` both falling at ``(0.75, 0.99)``). The three
+    anchors should be at ``inf ∈ {0.65, 0.75, 0.85}`` for
+    ``start_t ∈ {0.3, 0.5, 0.7}`` respectively, giving the three distinct
+    points the ceiling sweep was designed to produce.
+
+    There is no per_step file for the Stage 6 anchors — Stage 6 uses
+    ``--strategy weight`` (per_step_writer=None), and the
+    ``always_warm_start`` judge has no per-step branching anyway, so the
+    closed-form ``_warm_cost(start_t)`` is the exact value.
+
+    Schema matches what ``plot_pareto_overlay._load_self_always_warm``
+    expects.
+    """
+    from collections import Counter as _Counter
+
+    def _warm_cost(start_t: float) -> float:
+        return 0.5 + 0.5 * start_t
+
+    ok: _Counter = _Counter()
+    total: _Counter = _Counter()
+    with journal_path.open(encoding="utf-8") as fh:
+        for line in fh:
+            r = json.loads(line)
+            if r.get("phase") != "eval":
+                continue
+            if r.get("status") not in ("done", "failed"):
+                continue
+            yid = r["yaml_id"]
+            total[yid] += 1
+            if r.get("success"):
+                ok[yid] += 1
+
+    out: dict[str, dict[str, Any]] = {}
+    for yid in (
+        "ws_d1_kin_always_warm_t0.3",
+        "ws_d1_kin_always_warm_t0.5",
+        "ws_d1_kin_always_warm_t0.7",
+    ):
+        t = total.get(yid, 0)
+        start_t = float(yid.split("_t")[-1])
+        out[f"start_t_{start_t}"] = {
+            "success_rate": ok.get(yid, 0) / t if t else 0.0,
+            "inf": _warm_cost(start_t),
+            "n_episodes": t,
+            "n_success": ok.get(yid, 0),
+        }
+    return out
+
+
+def _mode_aggregate_summary(args: argparse.Namespace) -> None:
+    """Rebuild per_yaml_summary.jsonl + always_warm_results.json."""
+    data_dir = Path(args.data_dir) if args.data_dir else DEFAULT_DATA_DIR
+    journal_path = (
+        Path(args.journal) if args.journal else data_dir / "journal.jsonl"
+    )
+    per_step_dir = (
+        Path(args.per_step_dir) if args.per_step_dir else data_dir / "per_step"
+    )
+    aw_journal_path = (
+        Path(args.always_warm_journal)
+        if args.always_warm_journal
+        else data_dir / "always_warm_journal.jsonl"
+    )
+    summary_out = (
+        Path(args.summary) if args.summary else data_dir / "per_yaml_summary.jsonl"
+    )
+    aw_out_path = data_dir / "always_warm_results.json"
+
+    cells = {c.yaml_id: c for c in generate_all_cells()}
+    logger.info("[aggregate] loaded %d cells from registry", len(cells))
+
+    if not journal_path.exists():
+        raise SystemExit(f"[aggregate] journal not found: {journal_path}")
+    rows = _aggregate_per_yaml_summary(cells, journal_path, per_step_dir)
+    summary_out.parent.mkdir(parents=True, exist_ok=True)
+    summary_out.write_text(
+        "\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8"
+    )
+    logger.info("[aggregate] wrote %s (%d rows)", summary_out, len(rows))
+
+    if aw_journal_path.exists():
+        aw = _aggregate_always_warm(aw_journal_path)
+        aw_out_path.write_text(
+            json.dumps(aw, indent=2) + "\n", encoding="utf-8"
+        )
+        logger.info("[aggregate] wrote %s (%d anchors)", aw_out_path, len(aw))
+    else:
+        logger.warning(
+            "[aggregate] skipped always_warm_results — journal missing at %s",
+            aw_journal_path,
+        )
+
+
+# ----------------------------------------------------------------------
 # analyze — decision-gate + 4-frontier overlay
 # ----------------------------------------------------------------------
 
@@ -555,6 +742,14 @@ def _parse(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--summary", default="")
     p.add_argument("--servers", default="weiland.top:14000,weiland.top:14001",
                    help="comma-separated host:port for run-eval delegate command")
+    p.add_argument("--data-dir", default="",
+                   help="aggregate-summary: data dir holding journal + per_step (default: exp/weighted_sum/data/kinematic_phase5)")
+    p.add_argument("--journal", default="",
+                   help="aggregate-summary: per-episode eval journal path (default: <data_dir>/journal.jsonl)")
+    p.add_argument("--per-step-dir", default="",
+                   help="aggregate-summary: per-yaml verdict log dir (default: <data_dir>/per_step)")
+    p.add_argument("--always-warm-journal", default="",
+                   help="aggregate-summary: Stage 6 always-warm journal (default: <data_dir>/always_warm_journal.jsonl)")
     return p.parse_args(argv)
 
 
@@ -565,6 +760,7 @@ _DISPATCH = {
     "emit-eval-yamls": _mode_emit_eval_yamls,
     "run-always-warm": _mode_run_always_warm,
     "run-eval": _mode_run_eval,
+    "aggregate-summary": _mode_aggregate_summary,
     "analyze": _mode_analyze,
 }
 

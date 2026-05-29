@@ -217,7 +217,7 @@ def main(*, summary_path: Path | None = None, out_dir: Path | None = None) -> Pa
     # ------------------------------------------------------------------
     fig, ax = plt.subplots(figsize=(12, 8))
 
-    # r/p baseline
+    # baseline
     rp_front = _pareto_upper_frontier(rp_pts) if rp_pts else []
     if rp_front:
         fx, fy = zip(*rp_front)
@@ -228,11 +228,11 @@ def main(*, summary_path: Path | None = None, out_dir: Path | None = None) -> Pa
             color="#888888",
             lw=2.0,
             alpha=0.85,
-            label=f"r/p baseline ({len(rp_front)} pts)",
+            label=f"baseline ({len(rp_front)} pts)",
             zorder=2,
         )
 
-    # threshold_pareto d1 envelope
+    # weighted sum search + threshold verdict (cp1_score threshold cuts)
     th_d1_front = _pareto_upper_frontier(th_d1_pts) if th_d1_pts else []
     if th_d1_front:
         fx, fy = zip(*th_d1_front)
@@ -243,11 +243,11 @@ def main(*, summary_path: Path | None = None, out_dir: Path | None = None) -> Pa
             color="#0f766e",
             lw=2.5,
             alpha=0.95,
-            label=f"threshold_pareto d1 cp1_score ({len(th_d1_front)} pts)",
+            label=f"weighted sum + threshold verdict ({len(th_d1_front)} pts)",
             zorder=3,
         )
 
-    # phase5 d4 reference (cross-retrieval — labeled as such)
+    # RRF search + kinematic verdict (phase5 d4 native; cross-retrieval reference)
     p5_front = _pareto_upper_frontier(p5_pts) if p5_pts else []
     if p5_front:
         fx, fy = zip(*p5_front)
@@ -258,7 +258,7 @@ def main(*, summary_path: Path | None = None, out_dir: Path | None = None) -> Pa
             color="#7e3eb5",
             lw=2.0,
             alpha=0.80,
-            label=f"phase5 d4 ref (different retrieval; {len(p5_front)} pts)",
+            label=f"RRF + kinematic verdict ({len(p5_front)} pts; different search)",
             zorder=3,
         )
 
@@ -285,16 +285,15 @@ def main(*, summary_path: Path | None = None, out_dir: Path | None = None) -> Pa
         ax.plot(
             fx,
             fy,
-            "-o",
+            "-",
             color="#d62728",
             lw=2.8,
-            ms=5,
             alpha=1.0,
-            label=f"kinematic-on-ws-d1 frontier ({len(this_front)} pts)",
+            label=f"weighted sum + kinematic verdict ({len(this_front)} pts)",
             zorder=6,
         )
 
-    # Self-measured always-WARM anchors (red stars)
+    # weighted sum + always-warm verdict (red stars)
     if self_warm:
         ax.scatter(
             [p[0] for p in self_warm],
@@ -305,7 +304,7 @@ def main(*, summary_path: Path | None = None, out_dir: Path | None = None) -> Pa
             edgecolor="darkred",
             linewidths=1.2,
             zorder=7,
-            label=f"self always-WARM d1 ({len(self_warm)} anchors)",
+            label=f"weighted sum + always-warm verdict ({len(self_warm)} anchors)",
         )
 
     # ------------------------------------------------------------------
@@ -314,8 +313,8 @@ def main(*, summary_path: Path | None = None, out_dir: Path | None = None) -> Pa
     ax.set_xlabel("inference_ratio (lower = more cache reuse / less compute)", fontsize=12)
     ax.set_ylabel("success_rate", fontsize=12)
     ax.set_title(
-        "kinematic-on-weighted_sum d1 (237 cell) vs r/p / threshold_pareto / phase5 d4\n"
-        "★ = self-measured always-WARM ceiling (phase5 d4 anchors NOT reused — cross-retrieval invalid)",
+        "Pareto frontiers — search × verdict comparison on libero_spatial d1\n"
+        "★ = self-measured weighted-sum + always-warm ceiling (RRF anchors NOT reused — cross-search invalid)",
         fontsize=11,
     )
     ax.set_xlim(-0.02, 1.02)
@@ -334,6 +333,122 @@ def main(*, summary_path: Path | None = None, out_dir: Path | None = None) -> Pa
 
 
 # ----------------------------------------------------------------------
+# Frontiers-only variant — 4 Pareto curves + always-WARM stars, no scatter
+# ----------------------------------------------------------------------
+
+
+def main_frontiers_only(
+    *, summary_path: Path | None = None, out_dir: Path | None = None
+) -> Path:
+    """Plot only the 4 Pareto frontiers + always-WARM star anchors.
+
+    Same data sources as ``main`` but drops the 237-cell per-group scatter
+    so the curve comparison is uncluttered. Saves to
+    ``out_dir/pareto_frontiers_only.{png,pdf}``.
+    """
+    repo = Path(__file__).resolve().parents[4]
+    summary_path = summary_path or (
+        repo / "exp/weighted_sum/data/kinematic_phase5/per_yaml_summary.jsonl"
+    )
+    out_dir = out_dir or summary_path.parent
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    rp_pts = _load_random_periodic_csv(
+        repo / "exp/random_periodic_gate/analysis/aggregate.csv"
+    )
+    rp_pts = [p for p in rp_pts if p[0] > 0]
+    th_d1_pts = _load_threshold_pareto_d1(repo)
+    p5_pts = _load_phase5_d4_native(repo)
+    self_warm = _load_self_always_warm(out_dir)
+
+    this_rows = _load_jsonl(summary_path)
+    this_pts: list[tuple[float, float]] = []
+    for r in this_rows:
+        if not r.get("n_eval_verdicts"):
+            continue
+        inf = _compute_inf(r)
+        sr = r.get("success_rate", 0.0)
+        if inf <= 0:
+            continue
+        this_pts.append((inf, sr))
+
+    fig, ax = plt.subplots(figsize=(11, 7))
+
+    rp_front = _pareto_upper_frontier(rp_pts) if rp_pts else []
+    if rp_front:
+        fx, fy = zip(*rp_front)
+        ax.plot(
+            fx, fy, "--", color="#888888", lw=2.0, alpha=0.85,
+            label=f"baseline ({len(rp_front)} pts)", zorder=2,
+        )
+
+    th_d1_front = _pareto_upper_frontier(th_d1_pts) if th_d1_pts else []
+    if th_d1_front:
+        fx, fy = zip(*th_d1_front)
+        ax.plot(
+            fx, fy, "-", color="#0f766e", lw=2.6, alpha=0.95,
+            label=f"weighted sum + threshold verdict ({len(th_d1_front)} pts)",
+            zorder=3,
+        )
+
+    p5_front = _pareto_upper_frontier(p5_pts) if p5_pts else []
+    if p5_front:
+        fx, fy = zip(*p5_front)
+        ax.plot(
+            fx, fy, ":", color="#7e3eb5", lw=2.2, alpha=0.85,
+            label=f"RRF + kinematic verdict ({len(p5_front)} pts; different search)",
+            zorder=3,
+        )
+
+    this_front = _pareto_upper_frontier(this_pts) if this_pts else []
+    if this_front:
+        fx, fy = zip(*this_front)
+        ax.plot(
+            fx, fy, "-", color="#d62728", lw=2.8, alpha=1.0,
+            label=f"weighted sum + kinematic verdict ({len(this_front)} pts)",
+            zorder=6,
+        )
+
+    if self_warm:
+        ax.scatter(
+            [p[0] for p in self_warm],
+            [p[1] for p in self_warm],
+            marker="*", s=320, color="red", edgecolor="darkred",
+            linewidths=1.4, zorder=7,
+            label=f"weighted sum + always-warm verdict ({len(self_warm)} anchors)",
+        )
+        # annotate each star with its start_t
+        for (inf, sr) in self_warm:
+            t = round((inf - 0.5) * 2.0, 2)  # invert _warm_cost
+            ax.annotate(
+                f"t={t}", xy=(inf, sr),
+                xytext=(8, 6), textcoords="offset points",
+                fontsize=9, color="darkred",
+            )
+
+    ax.set_xlabel("inference_ratio (lower = more cache reuse / less compute)", fontsize=12)
+    ax.set_ylabel("success_rate", fontsize=12)
+    ax.set_title(
+        "Pareto frontiers — search × verdict comparison on libero_spatial d1\n"
+        "★ = self-measured weighted-sum + always-warm ceiling (RRF anchors NOT reused — cross-search invalid)",
+        fontsize=11,
+    )
+    ax.set_xlim(-0.02, 1.02)
+    ax.set_ylim(0.55, 1.02)
+    ax.yaxis.set_major_locator(MultipleLocator(0.05))
+    ax.xaxis.set_major_locator(MultipleLocator(0.1))
+    ax.grid(alpha=0.4, linewidth=0.7)
+    ax.legend(loc="lower right", fontsize=9, framealpha=0.95)
+
+    fig.tight_layout()
+    out_path = out_dir / "pareto_frontiers_only.png"
+    fig.savefig(out_path, dpi=180, bbox_inches="tight")
+    fig.savefig(out_dir / "pareto_frontiers_only.pdf", bbox_inches="tight")
+    logger.info("[plot] saved %s (%.1f KB)", out_path, out_path.stat().st_size / 1024)
+    return out_path
+
+
+# ----------------------------------------------------------------------
 # CLI
 # ----------------------------------------------------------------------
 
@@ -342,9 +457,15 @@ def _cli() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--summary", default="")
     p.add_argument("--out-dir", default="")
+    p.add_argument(
+        "--frontiers-only",
+        action="store_true",
+        help="Plot only the 4 frontiers + always-WARM stars (no per-group scatter).",
+    )
     args = p.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    main(
+    fn = main_frontiers_only if args.frontiers_only else main
+    fn(
         summary_path=Path(args.summary) if args.summary else None,
         out_dir=Path(args.out_dir) if args.out_dir else None,
     )
