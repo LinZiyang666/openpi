@@ -182,6 +182,7 @@ def main():
             server_key=worker_server_keys[i],
             gpu_id=str(i % args.gpus),
             conda_env=args.conda_env,
+            task_suite_name=args.task_suite,
         )
         for i in range(n_workers)
     ]

@@ -1,623 +1,525 @@
-# SESSION HANDOFF — kinematic phase5 Stage 5 主跑中（compact 前最新版）
+# SESSION HANDOFF — weighted_sum libero_10 复刻（实验运行中，全量恢复手册）
 
-> compact 后**先读本文件**即可恢复全部上下文。
-> 最后更新：2026-05-28 ~14:14 本机时（CST）。
-> 当前状态：**Stage 5 dual-server 16/48 主跑刚启动 (started 14:11)**，progress 315/23700 (1.3%)，已 91% SR；ETA ~1-3h；3 件套监控全活。
-
----
-
-## 0. 一句话现状
-
-我（Claude，Execution Authority）在 openpi `Ziyang` 分支跑 **kinematic phase5 实验**。Stage 0-4 全完成；**Stage 5 dual-server 16/48 主跑刚启动**（timan107 tmux `kin_eval`），237 cell × 100 ep = 23700 ep 在跑。Monitor `bc5fxrjwp` + cron `f6892b6c` + agentchat watcher 三件套监控。owner 在 chat 待命。下个事件 = Monitor 触发 25% (done≥5925) 或 ALERT。
+> ⚠ **compact 后第一件事：从头读完本文件全文**，再读 plan `logs/weighted_sum_libero10_replication.log.md` §14。
+> 假设你对之前对话**零记忆**——本文件 = 你的全部上下文。最后全量重写：**2026-05-30 ~17:00 CST**。
+> **当前核心**：Stage 2 在 timan107 上跑（双 server ziyang10:14000 + **xuanle:14002**，**80 worker 40,40 + MALLOC**（2026-05-30 17:57 从 96 缩：96w RAM 累积冲 197G/avail 21G 危险→滚动重启泄压+缩 80→稳态 106G/avail 112G），~67%）。监控 5 层 + cron 挂着。集群不稳（jupyter pod ~1h 掉一次，已 3 次，恢复 SOP 见 §6）。**无人值守 mandate 生效**（owner 授权全自主 + server 错误自动重启；commit 仍需 owner 明确发话）。
+> compact 后：① §0 验身份/git ② §5 逐项 pgrep 验监控 ③ §1 命令验活，绝不重启在跑的 eval（journal resume）④ §13 验全栈 ⑤ 等 L2 报 STAGE2 DONE → §7 收尾 → Stage 3 → Stage 4(需 owner G2)。
 
 ---
 
-## 1. 身份 / 权限 / 工作协议
-
-- **Authority = Execution**（默认）。只读 `protocols/execution_authority.md`，**绝不读** review_authority.md。
-- 项目宪法：`WORKING_AGREEMENT.md`。L2/L3 必走 Understand→Plan→**G1**→Code→**G2**→Verify。
-- **本次实验 plan**: `logs/weighted_sum_kinematic_phase5_replication.log.md`
-  - **G1 APPROVED R4** (2026-05-28 12:42 CDT) / §3.1 polish 完成
-  - **G2 APPROVED R2** (2026-05-28 13:07 CDT)
-  - **§6 Verify** pass 1742/1752（10 fail 全 pre-existing GCS/JAX-on-CPU infra，不是 regression）
-  - **§7 Commit** `099f491` author=LinZiyang666 无 Co-Authored-By
-  - **§8 Push** `250292a..099f491 Ziyang -> Ziyang`
-- **commit/push 纪律**：**绝不擅自 `git add`/commit/push**。owner 偏好**一次 commit 提交所有文件**（[[feedback_single_commit_preference]]），非 plan §8 多 commit 拆分。commit message 英文，无 Co-Authored-By Claude。
-- **语言**：对话/注释/plan 用**中文**；代码注释**英文**；commit message **英文**。
-- **⚠ 未提交改动（实验过程发现 + patch）**：
-  - `exp/weighted_sum/kinematic/super_warmup.py`：(a) `DEFAULT_YAML_PATH` 从 `super_warmup.yaml` 改 `ws_d1_kin_super_warmup.yaml`（generate_yamls stem invariant 修复）；(b) verify check #2 改读 raw_dump 而非 finite raw（finite raw 故意 strip cp1_score）；(c) verify check #7 加 G3 extreme pattern 例外（0.20 gate + warning 不 fail）。**本机源已改 + base64 patch 到 timan107 已生效**，**等 owner 指示 commit**（owner 偏好单 commit）。
-
----
-
-## 2. 实验状态总览
-
-| # | 实验 | plan / results | 状态 |
-|---|---|---|---|
-| 1 | trajectory search | `logs/weighted_sum_trajectory_search.log.md` | ✅ 完成 |
-| 2 | wsweep | `logs/weighted_sum_trajectory_weight_research.log.md` | ✅ 完成（d1 ceiling 74%）|
-| 3 | threshold-pareto | `exp/weighted_sum/analysis/threshold_pareto_results.md` | ✅ 完成 + 英文报告（4 base × 83 cell × 100 ep = 33200 ep）|
-| 4 | **kinematic phase5** | `logs/weighted_sum_kinematic_phase5_replication.log.md` | 🔄 **Stage 5 主跑 1.3%** |
+## 目录
+- §0 身份 / 权限 / git 纪律 / 无人值守 mandate
+- §1 ★ 现在正在跑什么（命令 verbatim + 验活 + 重启）
+- §2 ★ Stage 1 已完成产出（winner / top10 / all_results）
+- §3 ★ 走过的坑 + 修复（全量）
+- §4 ★ worker / RAM 调优史 + MALLOC（重点）
+- §5 ★ 监控架构（5 层 + cron，全量 id + 重挂）
+- §6 ★ 集群不稳 + 故障恢复 SOP（已用 3 次）
+- §7 ★ Stage 2 跑完后流程 + Stage 3/4
+- §8 数据资产 + 路径
+- §9 设备拓扑 + RAM 铁律
+- §10 agentchat
+- §11 tether 避坑（全踩过）
+- §12 未提交改动（diff，等 owner commit）
+- §13 命令速查（copy-paste）
+- §14 红线 + 恢复 checklist
+- §15 实测数据值
 
 ---
 
-## 3. 设备拓扑（**当前运行配置**）
+## §0 身份 / 权限 / git 纪律 / 无人值守 mandate
 
-| 角色 | 节点 | 关键状态 |
-|---|---|---|
-| **server 1 (warmup + 1/4 eval)** | `jupyter-ziyang10` | H200 NVL；HOME=`/home/ziyang10`；repo=`/home/ziyang10/openpi`（HEAD=099f491）；tmux=`srv0`；1 replica；**`--warmup_dump_root /home/ziyang10/.warmup_dumps`** ✓；公网 `weiland.top:14000` (expose name=`ziyang-srv`) ✓ UP；GPU ~125/144 GiB used |
-| **server 2 (3/4 eval)** | `jupyter-xuanlel2` | 另一块 H200 NVL（**不同物理 GPU**）；HOME=`/home/xuanlel2`；repo=`/home/xuanlel2/openpi`；tmux=`srv`（**使用 `/home/xuanlel2/miniforge3/bin/tmux`，无系统 tmux**）；3 replica spawn-batch=2，**全 ready** (`replica_proxy listening on 8000 -> [8001, 8002, 8003]`)；**`--warmup_dump_root /tmp/xl_warmup_dumps`**（**xuanle 的 `~/.warmup_dumps` 不能用，NFS home mkdir 后 owner=nobody 触发 `_setup_warmup_dump_root` UID 校验失败**）；公网 `weiland.top:14001` (expose name=`xl-srv`) ✓ UP；GPU 127.8/143.7 used (15.4 free) |
-| **client** | `timan107` | 8×GTX1080 EGL slot + 48 logical CPU + 220GiB；repo=`/scratch/zixuans8/openpi`（HEAD=099f491 ✓ + **in-place super_warmup.py patch**）；uv=`/shared/nas/data/m1/zixuans8/miniconda3/bin/uv`；conda_env=`/scratch/zixuans8/libero_sim`(py3.8)；tmux=`kin_eval`（Stage 5 主跑）；**stash@{0}** 保留 timan107 pre-099f491 本地未提交工作 |
-| broker | `pc732` (weiland.top → 155.98.36.32) | tether broker |
-| `a100` | OFFLINE | 未用 |
-
-**git 状态**：本机 weiland HEAD=`099f491` (committed/pushed)，working tree **有 in-flight 改动 `super_warmup.py`**（实验中修的 3 个 bug，未 commit）。timan107 same HEAD + 同 in-place patch + stash@{0} 待审。
+- **Authority = Execution**（默认）。只读 `protocols/execution_authority.md`，**绝不读** `protocols/review_authority.md`（读对方=违规）。
+- 项目宪法：`WORKING_AGREEMENT.md` + `CLAUDE.md`（auto-loaded）。L2 走 Understand→Plan→G1→G2→Verify→Commit。
+- 本任务 plan = `logs/weighted_sum_libero10_replication.log.md`：**L2，G1 APPROVED R3 + G2 APPROVED R2**；代码已 commit `9519a79` + push `Ziyang`；§14 = 执行日志。
+- **git 纪律（owner 红线）**：**绝不擅自 `git add`/commit/push/stash/reset/rebase/force-push**；commit 仅 owner 明确发话、**英文、无 Co-Authored-By Claude、author=`LinZiyang666 <3177267975@qq.com>`、owner 偏好一次结构化大 commit**。
+- **语言**：对话/plan/handoff 中文；代码注释/docstring 英文（0 汉字）；commit message 英文。
+- **无人值守 mandate 生效中**（owner 2026-05-30 原文授权）：可自主改任何脚本/跑任何命令；不弹终端阻塞窗口（AskUserQuestion/EnterPlanMode）；所有沟通走 agentchat libero10 房间；owner 任何消息必回。**例外仍需 owner 房间显式发话**：commit/push/git stash/reset 等写历史高危 op。
+- **owner 额外授权**：server 因错误崩溃可自主重启（前提节点可达）。
+- 当前 working tree **未提交改动**（见 §12）：`src/openpi/conductor/agent.py`（task_suite fix + MALLOC 默认）、`exp/weighted_sum/run_phase2.py`（task_suite fix）、`logs/session_handoff.md`（本文件）。**别 revert！等 owner 发话 commit。**
 
 ---
 
-## 4. tether 操作（**含本会话全部新踩坑**）
+## §1 ★ 现在正在跑什么（compact 后逐项验活，绝不重启在跑的 eval）
 
-详见 **`/home/weiland/projects/dist_experiment_control/docs/usage.md`**（**不在 openpi repo 内**，是独立项目）。
+### 1.1 ★ Stage 2 eval —— client = timan107，tmux `s2eval`（当前主跑）
+**合并 2a+2b = 372 yaml × (10 task × 10 trial) = 37,200 episode。双 server。96 worker。约 61.5% @ 16:55。**
 
-### 常用命令
+**验活：**
 ```bash
-tether node ls -a
-tether ps -a                                  # 看 EXPOSURES
-tether exec <nid> -- bash -lc '...'           # 远程命令（**xuanle 必须 bash -lc 才 source .bashrc 拿 conda init**）
-# 跨节点传输：local-only API，必须经 driver 本机中转
-tether pull <nid>:<remote> <local>            # remote → local
-tether push <local> <nid>:<remote>            # local → remote
-# ★ 跨 remote 拷文件：先 pull→local 再 push→target（不能直接 remoteA:path → remoteB:path）
-tether expose <nid> --local <port> --name <name>  # 反向暴露
+tether exec timan107 -- bash -lc 'export HOME=/home/zixuans8; bash /tmp/stage2_libero10_health.sh'
+#   → [HH:MM:SS] progress=N/37200 (P%) success=K cond=3 s1=UP s2=UP err=0
+tether exec timan107 -- bash -lc 'P=run_phase; echo "driver:$(pgrep -f "${P}2"|wc -l)"; W=worker_ent; echo "workers:$(pgrep -f "${W}ry"|wc -l)(=80x2=160)"; tmux ls 2>&1|grep s2eval'
 ```
 
-### ⚠ 避坑铁律（**本会话全部踩过**）
-
-1. **HOME 陷阱**：`tether exec` 默认 HOME 是 `~/.tether-agent`，必 `export HOME=/home/<user>`。
-2. **allow_roots（push/pull 白名单）**：
-   - ziyang10: `/home/ziyang10`, `/tmp`
-   - timan107: `/tmp`, `/home`, `/users`, `/srv`（**/scratch 不在！**→ 先 cp scratch→/tmp 再 push/pull）
-   - xuanle: `/home/xuanlel2`, `/tmp`
-3. **broker 瞬时超时** —— 重试即可。
-4. **`tether expose ls` 不存在** —— `tether ps -a` 看 EXPOSURES。
-5. **`pkill -f` 自匹配**：char-class `[r]un_phase2` + 拆 kill 与 launch 为两条 exec。
-6. **expose yamux keepalive timeout**（~10h 闲掉线）→ `tether expose <node> --local <port> --name <fresh>` 重做。
-7. **eval 运行期间不重启 agent**（红线 §16.8 — worker_entry 不自动重连）。
-8. **跨 jupyter pod 不能直连**（k8s NetworkPolicy）→ 必经 broker。
-9. **xuanle 没系统 tmux**：`tether run jupyter-xuanlel2 tmux ls` 直接报 command not found。修法：`tether run jupyter-xuanlel2 -- bash -lc "tmux ls"` 或全路径 `/home/xuanlel2/miniforge3/bin/tmux`。
-10. **xuanle `~/.warmup_dumps` mkdir 后 owner=nobody**（NFS uid 映射）→ `_setup_warmup_dump_root` UID 校验 fail。**修法：用 `/tmp/<unique>_warmup_dumps`**（/tmp tmpfs，正确 uid）。
-11. **xuanle 的 cache_config 文件名与 ziyang10 不一致**：ziyang10 long-name (`cp1_spatial_pool_16__grid3_vision_0@6_vision_1@50_robot_state@43__d1__warmup.yaml`)，xuanle 只有 short-name (`d1_warmup.yaml`)。boot-time `--cache_config` 只占位，运行时 `ctl.load_cache_config` 切换，**随便给本机存在的就行**。
-12. **`generate_yamls.write_yaml` stem invariant**：yaml 文件名 stem 必须 == `dump.config_id`，否则 `InvariantError`。本会话 plan v1 path = `super_warmup.yaml` 但 config_id = `ws_d1_kin_super_warmup` → fail。**修法**：`super_warmup.py:DEFAULT_YAML_PATH` 改 `ws_d1_kin_super_warmup.yaml`。
-13. **Monitor milestone bash 字符串 `!=` 比较 bug**：lower bucket re-trigger。**修法**：numeric `high=$mile` 单调递增 sticky 比较。
-14. **`tether push remoteA:path remoteB:path` 不工作**（push 第一参数必须 local file）：**修法**：先 `tether pull A:path local`，再 `tether push local B:path`。
-15. **timan107 上 pre-commit 本地 untracked files 与 origin/Ziyang tracked 冲突** → `git stash -u`（owner explicit consent per 红线 §16.9）+ `git pull --ff-only`。
-16. **`_extract_finite_factor_raw` 故意 strip cp1_score**：finite raw 只 keep `{factor_raw: {k: v}}` 给 solver；verify check #2 要查 cp1_score 必读 `raw_dump.jsonl`，**不能查 finite raw**。
-17. **`pgrep -fc "[l]ibero_sim/.*main\.py"` pattern miss**：实际 worker 命令是 `python examples/libero/main.py` (conda env path)，正则没匹配。健康脚本告警逻辑用 `cond + done` 不依赖 workers count，所以 alert 不假阳/假阴；workers 显示 0 是 cosmetic。
-
-### 跨机传文件三种姿势
-- **A. tether pull→local→push** (大文件主路径)：
-  ```bash
-  tether pull timan107:/tmp/super_raw.jsonl /tmp/super_raw_local.jsonl
-  tether push /tmp/super_raw_local.jsonl jupyter-ziyang10:/tmp/super_raw.jsonl
-  tether exec jupyter-ziyang10 -- bash -lc 'mv /tmp/super_raw.jsonl /home/.../target.jsonl'
-  ```
-- **B. base64-via-exec** (小文件 < 100KB 或 push 禁用)：
-  ```bash
-  b64=$(base64 -w0 local); tether exec <node> -- bash -lc "echo $b64 | base64 -d > /remote"
-  ```
-- **C. HTTP 桥** (大文件 + push 禁用)：源起 `python3 -m http.server`，`tether expose`，目标 curl。
-
----
-
-## 5. agentchat 聊天室（**必读 — 唯一 owner 沟通通道**）
-
-### 5.1 身份与房间
-- **Skill**: `agentchat-user`（已自动加载到 session）。
-- **账号**: `agent1` (role=user, online)；token 存 `~/.agentchat/cli.toml`。
-- **房间 trajectory**: `019e6a2b-9a62-71e3-a72b-57547d4d4ab3`（已 subscribed）。**唯一**与 owner 沟通的通道。
-- **agentchat watcher**: pid 52007 (`agentchat watch state --json | jq`) + 52036 (`agentchat watch state --json`) — **cross-compact 活**。
-- **判 watcher 存活**: `pgrep -af "agentchat watch state"`（必有 2 个 pid）。
-
-### 5.2 操作命令
-```bash
-agentchat read 019e6a2b-9a62-71e3-a72b-57547d4d4ab3 --json
-agentchat send 019e6a2b-9a62-71e3-a72b-57547d4d4ab3 --file - <<'EOF'
-消息体（heredoc 单引号 'EOF' 禁 bash 展开 — 含反引号/$var 全部原样发出）
-EOF
-agentchat whoami --json
-```
-
-### 5.3 通知规约（plan §10 #11 + 红线 §16.3）
-
-| 触发 | 是否发 agentchat |
-|---|---|
-| owner 任何消息 | **必回**（红线 §16.3）|
-| 起 server 前 | **必通知**（红线 §16.4）|
-| Stage 0 重启 server | **必通知** |
-| Stage milestone 25/50/75/100% | 发 |
-| Stage failed / hard-gate fail | 发 |
-| server DOWN / expose 掉线 | 发 |
-| 平时 routine 健康 OK | **不发**（cron 主会话记一行）|
-| Stage DONE | 发 |
-| 完整实验结束 + 附图 | 发 |
-
-### 5.4 ⚠ 反引号坑（**踩过多次**）
-`agentchat send "包含反引号的内容"` 中反引号被 bash 当命令替换执行 → 内容被吃。**一律 heredoc `<<'EOF'` 单引号定界**（`'EOF'` 而非 `EOF`）。
-
-### 5.5 附件 / 优先级
-```bash
-agentchat send <room> --attach /path/img.png --file - <<'EOF'
-看图
-EOF
-agentchat send <room> --priority urgent --file - <<'EOF'
-server OOM
-EOF
-```
-
----
-
-## 6. server 运行模板（**当前运行配置，含 --warmup_dump_root**）
-
-### ⚠ tyro 顺序
-`--warmup_dump_root` / `--replicas` / `--replica-spawn-batch` / `--port` / `--cache_config` 全是**顶层参数，必须在 `policy:checkpoint` 之前**。
-
-### ziyang10 1-replica（**当前运行**）
-```bash
-tether exec jupyter-ziyang10 -- bash -lc '
-export HOME=/home/ziyang10
-mkdir -p /home/ziyang10/.warmup_dumps; chmod 700 /home/ziyang10/.warmup_dumps
-tmux kill-session -t srv0 2>/dev/null; fuser -k 8000/tcp 2>/dev/null; sleep 4
-'
-tether exec jupyter-ziyang10 -- bash -lc '
-export HOME=/home/ziyang10; cd /home/ziyang10/openpi
-CFG=exp/weighted_sum/config/threshold_pareto/warmup/cp1_spatial_pool_16__grid3_vision_0@6_vision_1@50_robot_state@43__d1__warmup.yaml
-tmux new -s srv0 -d "cd /home/ziyang10/openpi && export HOME=/home/ziyang10 && export OPENPI_SERVER_GPU_MEMORY_LOCK=0 && /home/ziyang10/.local/bin/uv run scripts/serve_policy.py --replicas 1 --replica-spawn-batch 1 --port 8000 --warmup_dump_root /home/ziyang10/.warmup_dumps --cache_config $CFG policy:checkpoint --policy.config=pi05_libero --policy.dir=/home/ziyang10/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch 2>&1 | tee /tmp/kin_srv.log"
-'
-tether expose jupyter-ziyang10 --local 8000 --name ziyang-srv
-```
-
-### xuanle 3-replica（**当前运行；/tmp warmup_dump_root + short-name cache_config**）
-```bash
-tether exec jupyter-xuanlel2 -- bash -lc '
-export HOME=/home/xuanlel2
-rm -rf /tmp/xl_warmup_dumps
-mkdir -p /tmp/xl_warmup_dumps; chmod 700 /tmp/xl_warmup_dumps
-TMUX=/home/xuanlel2/miniforge3/bin/tmux
-$TMUX kill-session -t srv 2>/dev/null; fuser -k 8000/tcp 2>/dev/null; sleep 4
-'
-tether exec jupyter-xuanlel2 -- bash -lc '
-export HOME=/home/xuanlel2; cd /home/xuanlel2/openpi
-TMUX=/home/xuanlel2/miniforge3/bin/tmux
-CFG=exp/weighted_sum/config/threshold_pareto/warmup/d1_warmup.yaml   # short name on xuanle
-$TMUX new -s srv -d "cd /home/xuanlel2/openpi && export HOME=/home/xuanlel2 && export OPENPI_SERVER_GPU_MEMORY_LOCK=0 && /home/xuanlel2/.local/bin/uv run scripts/serve_policy.py --replicas 3 --replica-spawn-batch 2 --port 8000 --warmup_dump_root /tmp/xl_warmup_dumps --cache_config $CFG policy:checkpoint --policy.config=pi05_libero --policy.dir=/home/xuanlel2/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch 2>&1 | tee /tmp/xl_kin_srv.log"
-'
-tether expose jupyter-xuanlel2 --local 8000 --name xl-srv
-```
-
-### 就绪 watcher（一次性）
-```bash
-tether exec <node> -- bash -lc '
-for i in $(seq 1 90); do
-  grep -q "replica_proxy listening on\|server listening on" /tmp/<log> && { echo READY; exit 0; }
-  grep -qiE "out of memory|Traceback|RuntimeError|Address already in use|Killed" /tmp/<log> && { echo FAILED; tail -25 /tmp/<log>; exit 1; }
-  sleep 4
-done; echo TIMEOUT; tail -15 /tmp/<log>'
-```
-
-### transformers_replace overlay
-新部署 venv 必须做（ziyang10 / xuanle 已配）：
-```bash
-cd <repo> && cp -r src/openpi/models_pytorch/transformers_replace/* .venv/lib/python3.11/site-packages/transformers/
-```
-
----
-
-## 7. kinematic phase5 — 当前运行命令
-
-### 7.1 Stage 5 dual-server 主跑（**当前正在跑，tmux `kin_eval` on timan107**）
-
+**★完整启动命令实体（死了才重发；保留 journal 会 resume；HOME + MALLOC + 14002 缺一不可）：**
 ```bash
 tether exec timan107 -- bash -lc '
-cd /scratch/zixuans8/openpi
-mkdir -p /scratch/zixuans8/openpi/exp/weighted_sum/data/kinematic_phase5/per_step
-tmux new -s kin_eval -d "cd /scratch/zixuans8/openpi && PYTHONPATH=. /shared/nas/data/m1/zixuans8/miniconda3/bin/uv run exp/weighted_sum/run_phase2.py \
-  --strategy kinematic \
-  --yaml-dir exp/weighted_sum/config/kinematic_phase5/eval \
-  --init-map exp/common/data/db/libero_cache/libero_spatial_init_map.json \
-  --journal exp/weighted_sum/data/kinematic_phase5/journal.jsonl \
-  --servers weiland.top:14000,weiland.top:14001 \
-  --task-ids 0-9 --eval-trials 10 \
-  --workers 64 --server-workers 16,48 \
-  --gpus 8 --conda-env /scratch/zixuans8/libero_sim \
-  --eval-concurrency 2 \
-  --per-step-out exp/weighted_sum/data/kinematic_phase5/per_step.jsonl \
-  2>&1 | tee /tmp/kin_eval.log"
+  export HOME=/home/zixuans8
+  tmux new -s s2eval -d "cd /scratch/zixuans8/openpi && export HOME=/home/zixuans8 && export PYTHONPATH=/scratch/zixuans8/openpi && export MALLOC_ARENA_MAX=2 && export MALLOC_TRIM_THRESHOLD_=134217728 && /shared/nas/data/m1/zixuans8/miniconda3/bin/uv run exp/weighted_sum/run_phase2.py --yaml-dir /tmp/stage2_libero10_yamls --init-map /tmp/libero_10_init_map.json --journal /tmp/stage2_libero10/journal.jsonl --servers weiland.top:14000,weiland.top:14002 --task-ids 0-9 --eval-trials 10 --task-suite libero_10 --server-workers 40,40 --gpus 8 --conda-env /scratch/zixuans8/libero_sim --eval-concurrency 2 2>&1 | tee -a /tmp/stage2_libero10/run.log"
 '
 ```
+- **`export HOME=/home/zixuans8` 必带**（§3-A：否则 libero 首次 import input() → EOFError，worker 全起不来）。
+- **`export MALLOC_ARENA_MAX=2 && export MALLOC_TRIM_THRESHOLD_=134217728` 必带**（§4：经 agent.py os.environ 透传 worker，把 per-worker RAM 从 3.4G 压到 1.6G，防 OOM）。agent.py `_default_spawn` 现也有这俩默认，但 launch export 保险。
+- **`--servers weiland.top:14000,weiland.top:14002`**（xuanle 是 14002 不是 14001！§3-C）。
+- **`--server-workers 40,40`（=80 worker）**。⚠ **2026-05-30 17:57 从 96 缩到 80**：96w 长跑后 RAM 累积冲 197G/avail 21G(危险，单 worker 升 4G)→滚动重启泄压(kill 后 197G→14G 全归还 OS)+缩 80→稳态 **106G/avail 112G 安全**。RAM 是**累积型**(深检索 worker 时间累积，MALLOC 压不住工作集累积)，深检索末期若再逼近 → 再缩 64(32,32) 或滚动重启泄压。
+- **`PYTHONPATH=/scratch/zixuans8/openpi` 必带**（否则 `ModuleNotFoundError: No module named 'exp'`）。
+- journal = `/tmp/stage2_libero10/journal.jsonl`（断点续跑源，**别删**；重启同路径会 skip 已 done）。run.log = `/tmp/stage2_libero10/run.log`。
+- 数据已在 timan107:/tmp：`/tmp/stage2_libero10_yamls/`（372 yaml）、`/tmp/libero_10_init_map.json`。
+- **清残留 worker（重启前；变量法防 pkill 自杀，见 §3-H）：**
+```bash
+tether exec timan107 -- bash -lc 'export HOME=/home/zixuans8; tmux kill-session -t s2eval 2>/dev/null; P=run_phase; pkill -9 -f "${P}2" 2>/dev/null; W=worker_ent; pkill -9 -f "${W}ry" 2>/dev/null; sleep 5; rm -f /tmp/stage2_libero10/run.log; echo "driver:$(pgrep -f "${P}2"|wc -l) wkr:$(pgrep -f "${W}ry"|wc -l) journal:$(wc -l < /tmp/stage2_libero10/journal.jsonl)"'
+```
 
-- 237 cell × 100 ep = 23700 ep target
-- **`--server-workers 16,48`** — 1:3 split owner-confirmed
-- **`--strategy kinematic`** — 触发 driver `_flush_per_step_for_stage` 内部增量 flush per_step
-- **`per_step_out`** parent / "per_step" = `exp/weighted_sum/data/kinematic_phase5/per_step/<yaml_id>.jsonl` (driver-internal flush)
+### 1.2 Server #1 —— jupyter-ziyang10（tmux `srv0`，3 replica，@9519a79，→14000）
+**验活：**
+```bash
+tether exec jupyter-ziyang10 -- bash -lc 'export HOME=/home/ziyang10; tmux ls 2>&1|grep srv0; tail -3 /tmp/srv0.log; git -C /home/ziyang10/openpi rev-parse --short HEAD'
+nc -zv weiland.top 14000 2>&1 | tail -1
+```
+**★完整启动命令（pod 重启后 serve 没了/placeholder 没了 才重发；placeholder 现放 NFS home 持久）：**
+```bash
+tether exec jupyter-ziyang10 -- bash -lc '
+  export HOME=/home/ziyang10; cd /home/ziyang10/openpi
+  tmux kill-session -t srv0 2>/dev/null
+  tmux new -s srv0 -d "cd /home/ziyang10/openpi && export HOME=/home/ziyang10 && export OPENPI_SERVER_GPU_MEMORY_LOCK=0 && /home/ziyang10/.local/bin/uv run scripts/serve_policy.py --replicas 3 --replica-spawn-batch 2 --port 8000 --cache_config /home/ziyang10/stage1_placeholder.yaml policy:checkpoint --policy.config=pi05_libero --policy.dir=/home/ziyang10/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch 2>&1 | tee /tmp/srv0.log"
+'
+```
+**expose（pod 重启后隧道死，换新 name 重做；broker 可能给新端口！见 §3-C）：**
+```bash
+tether expose jupyter-ziyang10 --local 8000 --name ws6-zy   # 看输出实际端口，期望 14000
+```
+- ready 签名（log 出现即就绪）：`replica_proxy listening on 0.0.0.0:8000 -> [8001, 8002, 8003]`。
+- placeholder 缺失则重建：`tether push <local 任一 stage2 spatial_16 d1 yaml> jupyter-ziyang10:/home/ziyang10/stage1_placeholder.yaml`。
 
-### 7.2 模式速查（`kinematic/runner.py`）
+### 1.3 Server #2 —— jupyter-xuanlel2（tmux `srv0`，**3 replica（owner 指令，原 2）**，→14002）
+**⚠ xuanle 无系统 tmux/fuser → 用全路径 `/home/xuanlel2/miniforge3/bin/tmux`；NFS uid 坑（dump root 用 /tmp）。**
+**验活：**
+```bash
+tether exec jupyter-xuanlel2 -- bash -lc 'export HOME=/home/xuanlel2; /home/xuanlel2/miniforge3/bin/tmux ls 2>&1|grep srv0; tail -3 /tmp/srv0.log'
+nc -zv weiland.top 14002 2>&1 | tail -1
+```
+**★完整启动命令（3 replica）：**
+```bash
+tether exec jupyter-xuanlel2 -- bash -lc '
+  export HOME=/home/xuanlel2; cd /home/xuanlel2/openpi
+  TMUX=/home/xuanlel2/miniforge3/bin/tmux
+  $TMUX kill-session -t srv0 2>/dev/null
+  $TMUX new -s srv0 -d "cd /home/xuanlel2/openpi && export HOME=/home/xuanlel2 && export OPENPI_SERVER_GPU_MEMORY_LOCK=0 && /home/xuanlel2/.local/bin/uv run scripts/serve_policy.py --replicas 3 --replica-spawn-batch 2 --port 8000 --cache_config /home/xuanlel2/stage1_placeholder.yaml policy:checkpoint --policy.config=pi05_libero --policy.dir=/home/xuanlel2/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch 2>&1 | tee /tmp/srv0.log"
+'
+```
+**expose（xuanle agent state_write_failed 偶发，重试即成，broker 给的端口可能不是 14001！见 §3-C）：**
+```bash
+for i in 1 2 3; do tether expose jupyter-xuanlel2 --local 8000 --name ws7-xl-$i 2>&1 | tail -1 | grep -q exposed && break; sleep 4; done
+# 看输出实际端口；若不是 14001/14002，改 health s2 探针 + conductor --servers
+```
+- ready 签名：`All 3 replicas ready; ... replica_proxy listening on 0.0.0.0:8000 -> [8001, 8002, 8003]`。
+- xuanle 3 replica 稳态 host RAM ~26G（cgroup 32G，紧但 fit，无 OOM）。
+- placeholder：`tether push <yaml> jupyter-xuanlel2:/home/xuanlel2/stage1_placeholder.yaml`（NFS home 持久）。
 
-| `--mode` | 用途 | 阶段 | 状态 |
-|---|---|---|---|
-| `emit-warmup` | 写 super_warmup.yaml | (lazy in Stage 2) | done |
-| `run-warmup` | server 跑 + fetch_dump + extract finite raw | **Stage 2** | ✅ |
-| `verify-raw` | 7-check hard gate | **Stage 3** | ✅ 7/7 PASS |
-| `emit-eval-yamls` | 237 cell × reconstruct_scores + derive_thresholds + write yaml | **Stage 4** | ✅ 237/237 emit, 0 skip |
-| `run-always-warm` | emit 3 always-warm yaml | **Stage 6** | pending |
-| `run-eval` | 打印 `run_phase2 --strategy kinematic` 命令 | (info only) | — |
-| `analyze` | decision-gate + 4-frontier overlay + results | **Stage 7** | pending |
-
-### 7.3 Stage 5 数据落点
-
-| 文件 | 路径 |
-|---|---|
-| journal | `/scratch/zixuans8/openpi/exp/weighted_sum/data/kinematic_phase5/journal.jsonl` |
-| per_step 增量 | `/scratch/zixuans8/openpi/exp/weighted_sum/data/kinematic_phase5/per_step/<yaml_id>.jsonl` |
-| per_step driver final | `/scratch/zixuans8/openpi/exp/weighted_sum/data/kinematic_phase5/per_step.jsonl` (smoke 证 0 行 = 设计预期) |
-| log | `/tmp/kin_eval.log` on timan107 |
-
-### 7.4 关键 server-side 数据（**双 server 已就位**）
-
-| File | ziyang10 | xuanle |
-|---|---|---|
-| `super_warmup_raw.jsonl` (3191 rows) | `/home/ziyang10/openpi/exp/weighted_sum/data/kinematic_phase5/super_warmup_raw.jsonl` ✓ | `/home/xuanlel2/openpi/exp/weighted_sum/data/kinematic_phase5/super_warmup_raw.jsonl` ✓ |
-| Eval yaml 引用相对路径 | `exp/weighted_sum/data/kinematic_phase5/super_warmup_raw.jsonl` (`samples_source.type=offline + format=jsonl`) | 同 |
+### 1.4 监控 5 层 + cron（见 §5 全量；compact 后必逐项 pgrep 验，死了重挂）
+一键验全栈：
+```bash
+echo "L2:$(pgrep -fc 'M25=|STALL_THRESHOLD') L5:$(pgrep -fc 'tail -F /tmp/srv0.log') L4:$(pgrep -fc 'agentchat watch state') RAMv2:$(pgrep -fc 'RAM WARNING|10G thresh')"
+# L2≥1(bf3l56qkb), L5≥2(b4dfwbxii), L4≥1, RAMv2≥1(b0v974yde)；CronList 看 b4cf0ba2
+```
 
 ---
 
-## 8. 监控 5 层架构（**当前运行**）
+## §2 ★ Stage 1 已完成产出（winner / top10 / all_results）
 
-### L1 健康脚本（Stage 5 当前用）
+- **base eval**：136 yaml(4 keybuilder × 34 权重) × 100 ep = 13,600，mean SR 33.9%，零 MISS。
+- **refine 只跑 1 轮**（owner 砍 round2/3）：104 yaml(spatial_16 + mean_pool 平局双链，各 52 yaml) × 100 = 10,400，没超过 base 的 52%。
+- **★winner = `cp1_spatial_pool_16` d1-best = 52.0%**。两个 52% 并列（都 vision-only，rs=0，zscore）：
+  - `v0=0.50 v1=0.50 rs=0.00`（baseline）
+  - `v0=0.12 v1=0.87 rs=0.00`（baseline）
+  - per-kb max：spatial_16=52% > mean_pool=48% > spatial_64=47% > max_pool=46%。
+- **all_results.csv** = `exp/weighted_sum/data/phase2/libero_10/all_results.csv`（240 config = base 136 + r1 104）。列：stage,keybuilder,yaml_id,v0,v1,rs,normalizer,n,success_rate。
+- **top10** = `exp/weighted_sum/config/top10/libero_10/`（10 yaml + top10_manifest.json）。mean SR 排序：
+  ```
+   1. 52% spatial_16 0.12/0.87/0    2. 52% spatial_16 0.50/0.50/0   3. 51% spatial_16 0.62/0.37/0
+   4. 48% mean_pool 0.18/0.31/0.50  5. 48% mean_pool 0.25/0.37/0.37 6. 47% spatial_16 0.87/0/0.12
+   7. 47% spatial_64 0.12/0.50/0.37 8. 46% max_pool 0.37/0.62/0      9. 46% max_pool 0.75/0/0.25
+  10. 46% mean_pool 0.12/0.31/0.56
+  ```
+- journal/results 本地：`exp/weighted_sum/data/phase2/libero_10/{journal.jsonl,results.json}`、`exp/weighted_sum/data/round_1/libero_10/{journal.jsonl,results.json}`。
+- **产出 → 下阶段（plan §3.2）**：top10 → Stage 2a base；winner kb d1-best → Stage 4 base；全实验 mean SR 最高 → Stage 3 base。
 
-**`/tmp/kin_eval_health.sh` on timan107**:
+---
+
+## §3 ★ 走过的坑 + 修复（全量，别重犯）
+
+### 3-A ★★ HOME 修复（libero input() EOFError，最坑，铁律）
+- **症状**：timan107 launch worker 时 `File ".../libero/libero/__init__.py", line 104: answer = input(...)` → `EOFError: EOF when reading a line`，worker 全起不来 journal 空。
+- **根因**：tether 默认 HOME=`/srv/local/zixuans8/tether-home`（无 `.libero/config.yaml`）；libero 首次 import 在 config 不存在时交互式 `input()`，非交互 stdin 直接 EOF。config 实际在 `/home/zixuans8/.libero/config.yaml`。
+- **修复（铁律）**：**所有** run_phase2/smoke launch（含 tmux 内层命令）必须 `export HOME=/home/zixuans8`。base eval 当年也是这么跑通的，旧 handoff §1.1 漏写。
+
+### 3-B placeholder 移到 NFS home（pod 重启 /tmp 被清）
+- **症状**：pod 重启后 `/tmp/stage1_placeholder.yaml` 没了 → serve_policy `--cache_config` 找不到。
+- **修复**：placeholder 放 **NFS home** `/home/<user>/stage1_placeholder.yaml`（pod 重启持久）。内容用任一 stage2 spatial_16 d1 yaml（合法 cache config，conductor per-eval 热swap，boot 配置无所谓；preload pkl 相对路径在 server cwd 下可解析）。重建：`tether push <local yaml> <node>:/home/<user>/stage1_placeholder.yaml`。
+
+### 3-C ★★ expose 端口会变（broker 重分配）
+- **症状**：pod/隧道掉重新 expose 后，broker 给了**新端口**（ziyang10 还回 14000，但 xuanle 给了 **14002** 而不是 14001——旧 ws3b-xl 死隧道还占着 14001）。
+- **影响**：① health 脚本 s2 探针硬编码端口 → 探错端口显示 DOWN。② conductor `--servers` 用错端口 → worker 连不上。
+- **修复**：re-expose 后看实际分配端口，然后 ① 改 health 脚本：`sed -i "s#/dev/tcp/weiland.top/<旧>#/dev/tcp/weiland.top/<新>#" /tmp/stage2_libero10_health.sh` ② conductor `--servers` 用新端口重启。**当前 xuanle = 14002。**
+- xuanle expose 偶报 `agent_rejected:state_write_failed`（agent state.json 写 race），**重试 1-2 次即成**。
+
+### 3-D ★★ RAM 增长 = MuJoCo worker 时间累积（见 §4 详）
+- 简版：每 LIBERO sim worker（MuJoCo+robosuite+离屏渲染）随 episode 累积 RAM，pre-MALLOC ~3.4G/worker 一路爬，60 worker 冲 214G 近 OOM。**MALLOC 调优修复（§4）**：ARENA_MAX=2 → ~1.6G/worker plateau。
+
+### 3-E ★★ 全 MISS bug（task_suite 没转发，已修，fix 未提交）
+- **症状**：server log 全 `cp1 judge: MISS (top_score=None)`，检索 0 候选退化纯 live 推理。
+- **根因**：`agent.py:_default_spawn` 构造 worker 命令没转发 `--task-suite-name`，worker 默认 libero_spatial，task_key 与库的 libero_10 裸 prompt 不匹配 → `_filter_entries`(in_memory_backend line348 精确匹配) 全过滤。
+- **修复（3 行，未提交，见 §12）**：agent.py WorkerSpec 加 `task_suite_name` 字段 + _default_spawn base_cmd 加 `--task-suite-name`；run_phase2 WorkerSpec(...) 加 `task_suite_name=args.task_suite`。验证：server log `FULL_HIT`。
+
+### 3-F ★★ 80 worker OOM → 早期估算（已被 MALLOC 改写，见 §4）
+- pre-MALLOC：80 worker OOM（280G>220G）；曾用 50(30,20)。MALLOC 后 per-worker 减半，现 96 worker。
+
+### 3-G init_map / calibration（Stage 0，已完成）
+- init_map：plan §4.1 的 map 子命令对本数据坏（非 task-major + uv env 无 libero）。改用本地 libero_sim conda env + LIBERO 权威 task 序 + cache-subset↔full np.isclose 匹配，emit `exp/common/data/db/libero_cache/libero_10_init_map.json`（50 records，held_out 45/task，total_inits=50）。
+- calibration：排除 CLIP（符号链接临时目录只含 4 cp1 pkl），全 zscore。`exp/weighted_sum/data/phase1/libero_10/calibration_normalizers.json`。
+- §4-B 已验证：built-in libero_10 init-states 与 db_init 完全不相交 → 无泄漏，eval 有效（protocol A，同 libero_spatial）。
+
+### 3-H ★ pkill 自杀（踩过 3 次）
+- `pkill -f <pattern>` 匹配自己 shell argv。**铁律**：(a) 变量拼接 `P=run_phase; pkill -9 -f "${P}2"`、`W=worker_ent; pkill -9 -f "${W}ry"`、`P=serve; pkill -9 -f "${P}_policy"`；(b) **echo/同 shell 不得出现字面词** run_phase2/worker_entry/serve_policy；(c) **kill 与 launch 拆两条独立 exec**。
+
+### 3-I L5 monitor 脆断 → 自动重连（见 §5）；L2 曾静默死 → L3 cron 升级 monitor-of-monitors。
+
+### 3-J 流程反模式（已铸成，今后改）：跳过 §3.11 smoke 直接大跑 → 全MISS/OOM 拖到大跑才暴露。今后先 smoke 再大跑。
+
+### 3-L d6 看似停滞 = 调度排尾非卡死（2026-05-30 诊断，会自然消解）
+- **症状**：Stage 2 中段 d6 进度长时间停在 700/1500（其他 depth 在涨）。
+- **真相**：d6 已完成的 7 个是 **mean_pool/max_pool** 的 d6 yaml(各 100ep)；剩 8 个全是 **spatial_16/64** 的 d6。conductor 按 yaml 字典序展开 cell 队列，`spatial_pool_16` 的 d6 排在**巨量 spatial_16 wsweep(2b 312 个 d1-d5)** 之后 → 要等 spatial_16 的 d1-d5 跑完才轮到 → 落 Stage 2 最末尾。**全 37200 cell 都在队列，conductor 不退出就会跑完，不漏**。别误判卡死、别重启。验证：`grep -oE "[A-Za-z0-9_@]+__d6:eval" journal|sort|uniq -c` 看完成的 d6 yaml 是不是只有 mean/max。
+
+### 3-K ★ keepalive ping timeout = 良性自愈噪音（别误判 fatal！2026-05-30 诊断）
+- **症状**：health `err` 从 0 跳到上千；run.log 大量 `websockets ConnectionClosedError: 1011 keepalive ping timeout` + Traceback（`_send_ctrl`/`select_bundle` 栈）。
+- **根因**：**depth-5 重检索**（candidates 284-399）单次推理+search 偶尔 >20s，超 websockets 默认 ping timeout → worker ws 连接被服务端关。worker 随即被 agent 重启、episode 被 driver requeue、journal-resume 续上 → **零数据损失**。
+- **判定良性的证据**（cron/会话见 err 暴涨先查这些，全满足=良性不干预）：① conductor etime 无异常重启 ② keepalive 密度稳定(~3.5%，`tail -2000 run.log|grep -c keepalive` 占比不飙升) ③ worker 满额(160=80×2) ④ journal 持续涨 ⑤ 两 server FULL_HIT 无 OOM/crash ⑥ 隧道通。
+- **决定**：**不重启 server(没崩，重启无益)、不降 worker、不改代码**——系统正确自愈。吞吐因 d5 重检索 ~31/min(低于 d1 标称 40，正常)。
+- **可选优化(暂不做)**：调大 `packages/openpi-client/.../websocket_client_policy.py` 的 ws ping_timeout(如 60s)+重启 conductor(journal 不丢) → 消除断连、吞吐回 ~40。有改动风险，owner 发话才做。
+- **health err 不触发 L2 ALERT**（L2 只在 health 输出含 "ALERT"/"EVAL DONE" 时 emit；health 仅 server 双 DOWN 或 cond=0 才打 ALERT）→ err 数字大不会误报警，但 cron 人工判断时按上面 6 证据归类良性。
+
+---
+
+## §4 ★ worker / RAM 调优史 + MALLOC（重点章节）
+
+### 4.1 调优历程（owner 全程参与）
+- 起始 50 worker(30,20)：27.6 ep/min。
+- 加 worker：50→66(33,33)：37.8/min（+37%，6 replica 喂满）。但 pre-MALLOC RAM 冲 214G/3G avail 近 OOM。
+- 反复缩/加：66→56→60→… 每次 RAM 撞 10G 看护器就缩。**关键认知：pre-MALLOC RAM 不 plateau，随时间一路爬撞顶**。
+- **MALLOC 调优（根治）**：见 4.2。
+- 96 worker(48,48) 跑了一段（owner 指令）→ **2026-05-30 17:57 缩到 80 worker(40,40)**：深检索期 RAM 累积冲 197G/avail 21G 危险，滚动重启泄压(197G→14G)+缩 80→稳态 106G/avail 112G。**当前 80 worker(40,40)**。RAM 累积型，末期可能再缩 64。
+
+### 4.2 ★★ MALLOC 调优（根因 + 修复 + 验证）
+- **根因**：MuJoCo/robosuite worker 的 env 是每 task 创建、跑完该 task 所有 trial 后 `close()`（main.py:786 建 / 923 close，episode 间复用）。close 后渲染上下文 + sim data 没完全归还 OS，且 **glibc 多线程 malloc arena 囤积**（MuJoCo 渲染多线程狂开 arena），freed 内存留在 arena 不还 OS → 看着像内存一路涨。
+- **修复（零正确性风险，纯内存管理）**：
+  - `MALLOC_ARENA_MAX=2`：限制 glibc 每进程 arena 数（默认 8×核），治本。
+  - `MALLOC_TRIM_THRESHOLD_=134217728`(128M)：freed 块超阈值归还 OS。
+  - 经 `agent.py:_default_spawn` 的 `env`（os.environ 透传，只 strip VIRTUAL_ENV/PYTHONPATH/PYTHONHOME）传到 worker。**已写进 agent.py 成默认（setdefault，caller 可覆盖）+ launch export 双保险**。
+- **验证（60 worker 16min 测试）**：t0=17G → t4=86G → t8=98G → t12=94G（**98→94 降了，TRIM 在归还**）→ plateau ~95G。对比 pre-MALLOC 同期 174G→冲 214G。**per-worker RAM 3.4G → ~1.6G，减半多**。吞吐 ~33/min 不变（没变慢）。
+- **96 worker 预期**：96×1.6 ≈ 154G / ~66G avail，安全。warmup 期盯峰值确认。
+- **owner 指令**：上 96 worker + **时刻监视内存**（RAM 看护器 v2 守 10G，破线立马缩）。
+
+---
+
+## §5 ★ 监控架构（5 层 + cron，全量 id + 重挂）
+
+| 层 | 数据源 | id | 职责 | 验活 | 重挂 |
+|---|---|---|---|---|---|
+| **L1** health | journal+TCP探针+pgrep | `/tmp/stage2_libero10_health.sh`(timan107，**s2 探针=14002**) + symlink `/tmp/current_run_health.sh`→它 | 一行总览 | `tether exec timan107 -- bash -lc 'bash /tmp/stage2_libero10_health.sh'` | 见下脚本 |
+| **L2** 条件 Monitor | poll L1 | task `bf3l56qkb`(high=50,TOTAL=37200) | milestone75/100 / ALERT / STALL / **STAGE2 DONE→exit0** | `pgrep -fc 'M25=\|STALL_THRESHOLD'`≥1 | 见 §13 |
+| **L3** cron | L1+pgrep | `b4cf0ba2`(每10min 2,12,..52) | **通用 monitor-of-monitors**，查 current_run_health + L2/L5/L4 存活 | `CronList` | CronCreate |
+| **L4** agentchat watcher | daemon push | (§0 起的，跨 compact 存活) | owner 房间消息 | `pgrep -fc 'agentchat watch state'`≥1 | §10 模板 |
+| **L5** server-log Monitor | tail -F 两 server log | `b4dfwbxii`(自动重连) | 真 fatal 秒推 | `pgrep -fc 'tail -F /tmp/srv0.log'`=2 | §13 |
+| **RAM v2** Monitor | poll free RAM | `b0v974yde`(15s) | **avail<10G WARNING→滚动重启/缩；<5G或run.log Killed CRITICAL** | `pgrep -fc 'RAM WARNING\|10G thresh'`≥1 | 见下 |
+
+**L1 health script 全文（`/tmp/stage2_libero10_health.sh`，s2=14002）：**
 ```bash
 #!/bin/bash
-J=/scratch/zixuans8/openpi/exp/weighted_sum/data/kinematic_phase5/journal.jsonl
-LOG=/tmp/kin_eval.log
-TOTAL=23700
+JOURNAL=/tmp/stage2_libero10/journal.jsonl
+LOG=/tmp/stage2_libero10/run.log
+TOTAL=37200
 TS=$(date "+%H:%M:%S")
-if [ -f "$J" ]; then
-  done=$(grep -cE "\"status\"" "$J")
-  ok=$(grep -cE "\"success\": ?true" "$J")
-else
-  done=0; ok=0
-fi
-cond=$(pgrep -f "[r]un_phase2.py.*strategy.*kinematic" 2>/dev/null | wc -l)
-workers=$(pgrep -f "[l]ibero_sim/.*main\.py" 2>/dev/null | wc -l)   # ⚠ pattern miss, cosmetic only
+if [ -f "$JOURNAL" ]; then done=$(grep -cE "\"status\"" "$JOURNAL"); ok=$(grep -cE "\"success\": ?true" "$JOURNAL"); else done=0; ok=0; fi
+cond=$(pgrep -f "[r]un_phase2" 2>/dev/null | wc -l)
 s1=$(timeout 3 bash -c "echo > /dev/tcp/weiland.top/14000" 2>/dev/null && echo UP || echo DOWN)
-s2=$(timeout 3 bash -c "echo > /dev/tcp/weiland.top/14001" 2>/dev/null && echo UP || echo DOWN)
-err=$(grep -ciE "traceback|connection refused|out of memory|EGL|CUDA error|FATAL" "$LOG" 2>/dev/null)
-[ -z "$err" ] && err=0
+s2=$(timeout 3 bash -c "echo > /dev/tcp/weiland.top/14002" 2>/dev/null && echo UP || echo DOWN)
+err=$(grep -ciE "traceback|connection refused|out of memory|CUDA error|FATAL|Killed" "$LOG" 2>/dev/null); [ -z "$err" ] && err=0
 pct=$(awk "BEGIN{printf \"%.1f\", $done*100.0/$TOTAL}")
-echo "[$TS] progress=$done/$TOTAL (${pct}%) success=$ok cond=$cond workers=$workers ziyang=$s1 xuanle=$s2 err=$err"
+echo "[$TS] progress=$done/$TOTAL (${pct}%) success=$ok cond=$cond s1=$s1 s2=$s2 err=$err"
 [ "$done" -ge "$TOTAL" ] && echo "EVAL DONE"
-[ "$s1" = "DOWN" ] && [ "$s2" = "DOWN" ] && echo "ALERT both servers DOWN"
+[ "$s1" = "DOWN" ] && [ "$s2" = "DOWN" ] && echo "ALERT all servers DOWN"
 [ "$cond" -eq 0 ] && [ "$done" -gt 0 ] && [ "$done" -lt "$TOTAL" ] && echo "ALERT conductor dead at $done"
 ```
 
-⚠ `workers` count pattern miss（实际 worker 命令 `python examples/libero/main.py`，conda path），告警逻辑用 `cond + done` 不依赖 workers，alert 不假阳/假阴。
-
-### L2 条件 Monitor（**当前 task=bc5fxrjwp, persistent, Stage 5 专属**）
-
+**L2 Monitor 全文（persistent，timeout 3600000）：**
 ```bash
-prev=-1; stall=0; high=0
+prev=-1; stall=0; high=50; INTERVAL=180; STALL_THRESHOLD=8; TOTAL=37200
+M25=$((TOTAL/4)); M50=$((TOTAL/2)); M75=$((TOTAL*3/4))
 while true; do
-  line=$(tether exec timan107 -- bash -lc 'bash /tmp/kin_eval_health.sh' 2>/dev/null)
-  [ -z "$line" ] && { sleep 60; continue; }
-  done_n=$(echo "$line" | grep -oE 'progress=[0-9]+' | head -1 | cut -d= -f2); done_n=${done_n:-0}
-  mile=0
-  if [ "$done_n" -ge 23700 ]; then mile=100
-  elif [ "$done_n" -ge 17775 ]; then mile=75
-  elif [ "$done_n" -ge 11850 ]; then mile=50
-  elif [ "$done_n" -ge 5925 ]; then mile=25; fi
-  emit=""
-  echo "$line" | grep -qE "EVAL DONE|ALERT" && emit="$line"
-  if [ "$mile" -gt "$high" ]; then emit="[~${mile}%] $line"; high=$mile; fi
-  if [ "$done_n" = "$prev" ] && [ "$done_n" -gt 0 ]; then stall=$((stall+1)); else stall=0; fi
-  if [ "$stall" -ge 6 ]; then emit="STALL frozen done=$done_n | $line"; stall=0; fi
+  line=$(tether exec timan107 -- bash -lc 'bash /tmp/stage2_libero10_health.sh' 2>/dev/null | head -4)
+  [ -z "$line" ] && { sleep "$INTERVAL"; continue; }
+  done_n=$(echo "$line" | grep -oE 'progress=[0-9]+' | head -1 | cut -d= -f2); case "$done_n" in ''|*[!0-9]*) done_n=0;; esac
+  mile=0; if [ "$done_n" -ge "$TOTAL" ]; then mile=100; elif [ "$done_n" -ge "$M75" ]; then mile=75; elif [ "$done_n" -ge "$M50" ]; then mile=50; elif [ "$done_n" -ge "$M25" ]; then mile=25; fi
+  emit=""; echo "$line" | grep -qE "EVAL DONE|ALERT" && emit="$line"
+  if [ "$mile" -gt "$high" ]; then emit="[s2 ~${mile}%] $(echo "$line"|head -1)"; high=$mile; fi
+  if [ "$done_n" = "$prev" ] && [ "$done_n" -gt 0 ] && [ "$done_n" -lt "$TOTAL" ]; then stall=$((stall+1)); else stall=0; fi
+  if [ "$stall" -ge "$STALL_THRESHOLD" ]; then emit="STALL frozen done=$done_n | $(echo "$line"|head -1)"; stall=0; fi
   [ -n "$emit" ] && echo "$emit"
-  if echo "$line" | grep -qE "EVAL DONE"; then echo "=== EVAL DONE -> Stage 6 always-WARM ==="; exit 0; fi
-  prev=$done_n
-  sleep 180
+  if echo "$line" | grep -qE "EVAL DONE"; then echo "=== STAGE2 DONE -> summarize + Stage 3 ==="; exit 0; fi
+  prev=$done_n; sleep "$INTERVAL"
 done
 ```
 
-**条件触发**（非周期）：180s 轮询 L1，但 `[ -n "$emit" ] && echo` 只在 **milestone 跨越 / ALERT / STALL / EVAL DONE** 才 push。
-
-⚠ **Bug 防注**：milestone tracking 必须用 `numeric high sticky`（`if mile > high: emit; high=mile`），不能用字符串 `!=` 比较 — 否则 lower bucket re-trigger。
-
-### L3 cron 静默（**当前 id=f6892b6c, session-only**）
-```
-3,13,23,33,43,53 * * * *
-[kin_eval cron 静默巡检] 运行 `tether exec timan107 -- bash -lc "bash /tmp/kin_eval_health.sh"`。健康只主会话记一行不发房间；仅 ALERT (server DOWN / conductor dead) / err 暴涨 / 长 stall 时 heredoc 发 trajectory 房间报警；progress=23700 时主会话标记并 CronDelete 自停（done 由 Monitor 触发 Stage 6）。不弹任何阻塞窗口。
-```
-
-### L4 agentchat watcher（pid 52007/52036, cross-compact 活）
-owner 任何消息 push 给我；红线 §16.3 必回。
-
-### L5 ad-hoc `tether exec` 直接探（按需）
-
-### ⚠ TaskList 不跟踪 Monitor 类后台任务！
-- 判 Monitor 存活：从 task notification 看；或 TaskStop 时返回内容含 task_id 即活。
-- 判 cron 存活：`CronList` tool。
-- 判 agentchat watcher：`pgrep -af "agentchat watch state"`。
-
-### Stage 切换时刷新监控
-| Stage 切换 | L2 动作 | L3 动作 |
-|---|---|---|
-| Stage 2 → 3 | ✅ 已 Monitor `buzqqhmw5` TaskStop + cron `01f5ce91` CronDelete | done |
-| **Stage 5 → 6** | Monitor `bc5fxrjwp` 自 break on EVAL DONE | progress=23700 自删 |
-| Stage 5 → 6 | 起新 Monitor 跟 always_warm（10 min 短跑）| 起新 cron 巡检 always_warm（可选）|
-| Stage 6 → 7 | 跑 analyze 是 fast offline，无需 Monitor | — |
-| Stage 7 done | TaskStop 所有 Monitor + 通知 owner | 自删 |
-
----
-
-## 9. 关键机制（kinematic phase5 特有）
-
-### 9.1 super warmup 必须 `--warmup_dump_root` 启动 server
-`scripts/serve_policy.py:_setup_warmup_dump_root` 严格校验：
-- `dump.deferred=True` + `warmup_dump_root=None` → 拒（_fill_deferred_dump_paths raise）
-- root dir 必须 owner=server uid + mode 0o700
-- ⚠ **xuanle NFS home mkdir 后 owner=nobody**：用 `/tmp/<unique>_warmup_dumps`
-
-### 9.2 eval calibration 走 offline mode（**绕开 WarmupPool**）
-`eval yaml: calibration.samples_source.type=offline + path="exp/weighted_sum/data/kinematic_phase5/super_warmup_raw.jsonl"`。server 启动时每个 worker 连接自己读盘构 CalibrationSamples，**完全绕开 WarmupPool LRU**（100 entries vs 237 cell 会驱逐 44%）。
-
-→ super_warmup_raw.jsonl **必须**在 ziyang10 + xuanle 同样的 server-side 相对路径下（已 push 就位）。
-
-### 9.3 per_step driver-internal flush（**G1 R2 B1 mandate**）
-`ConductorDriver._complete_stage` 末尾自动 call `_flush_per_step_for_stage(stage.yaml_id)`，strategy hook 签名 0 改动。`run_phase2.py --strategy kinematic` 把 `strategy._write_per_step` 注入 `ConductorDriver(per_step_writer=...)`。
-- **mid-run crash → 已 done yaml 的 per_step jsonl 已落盘**（不丢 inf_ratio）
-- weight strategy 路径 `per_step_writer=None` → 既有 wsweep/threshold_pareto 行为不变
-- ⚠ **driver final dump 0 rows = 设计预期**（strategy 增量 flush 已把 rows 从 driver._per_step_rows 清出）
-
-### 9.4 判分入口
-`CompositeJudge` 的 `weighted_sum_zero_nan` composer + `tier_thresholds={full_hit: T_fh, warm_start: T_ws}`。本项目无 `ThresholdJudge` class。**cp1_score 不参与 verdict 判决**（只是 retrieve quality 副产品；verify check #2 检 raw_dump 作为 retrieve pipeline sanity）。
-
-### 9.5 G5 grid filter
-`fh + ws ≤ 0.9`（与 threshold_pareto 对齐）→ 15 pairs/recipe × 3 recipe = 45 G5 cell；总 = 48*4 + 45 = **237 cell**（不是 240）。仅 (0.5, 0.5) 被排除；边界 (0.4, 0.5) 和 (0.5, 0.4) 保留。
-
-### 9.6 phase5 module 不能 monkey-patch（G1 R1 B3）
-`kinematic/spec.py:_generate_g5_cells_local()` 用 phase5 pure helper，不修改 `phase5.spec.G5_THRESHOLD_GRID`。test `test_phase5_orig_spec_still_works_REGARDLESS_OF_ORDER` 检测这条 invariant。
-
-### 9.7 generate_yamls invariant
-`exp/verdict_factor_judge/common/generate_yamls.py:117` 强制 yaml 文件名 stem == `dump.config_id`，否则 InvariantError。
-
-### 9.8 `_extract_finite_factor_raw` 故意 strip cp1_score
-finite raw 只保留 `{factor_raw: {k: v}}` 给 solver；cp1_score / winner_id / hit_type 等元数据保留在 `super_warmup_raw_dump.jsonl`。**verify check #2 必须读 raw_dump**，不能读 finite raw。
-
----
-
-## 10. 必读文件（**compact 后按此顺序读**）
-
-> ⚠ **重要**：你要做好你**记不起来所有东西**的准备。假设零记忆，本文件 + 下列文件就是全部上下文。
-
-**Tier 0（最先读，恢复 session）**：
-- 本文件 `logs/session_handoff.md`（你现在读的）— 含所有当前 server / 监控 / 进度 / 命令模板 / 历史踩坑
-- 实验 plan `logs/weighted_sum_kinematic_phase5_replication.log.md`（G1+G2 APPROVED，含 §11 R1 自审响应表）
-
-**Tier 1（按需读）**：
-- **协议**：`WORKING_AGREEMENT.md`、`protocols/execution_authority.md`、`CLAUDE.md`
-- **tether 操作手册**：`/home/weiland/projects/dist_experiment_control/docs/usage.md`（独立项目）
-- **历史 plans**：
-  - `logs/weighted_sum_threshold_pareto.log.md`（实验 3）
-  - `logs/weighted_sum_trajectory_search.log.md`（实验 1）
-  - `logs/weighted_sum_trajectory_weight_research.log.md`（实验 2）
-- **历史实验报告**：
-  - `exp/weighted_sum/analysis/threshold_pareto_results.md`（英文，36 frontier 点全配置）
-  - `exp/verdict_factor_judge/analysis/phase5/results.md`（phase5 native 参考）
-- **本会话新增代码**（已 commit 在 099f491，**super_warmup.py 有未提交 in-place 改动**）：
-  - `exp/verdict_factor_judge/common/v2_spec.py`（+CFG_SPECS["spatial16_ws_d1_best"]）
-  - `exp/weighted_sum/kinematic/{__init__,spec,super_warmup,strategy,runner}.py`
-  - `exp/weighted_sum/kinematic/analysis/{__init__,plot_pareto_overlay}.py`
-  - `exp/weighted_sum/run_phase2.py`（+`--strategy` switch + `per_step_writer` wire）
-  - `src/openpi/conductor/driver.py`（+`per_step_writer` ctor + `_flush_per_step_for_stage`）
-  - `src/openpi/cache/orchestrator.py`（fix: top score + entry_id on post-judge MISS）
-  - `tests/test_kinematic_super_warmup.py`（14 unit tests + 2 manual）
-- **关键 src 锚点**：
-  - `src/openpi/cache/orchestrator.py:480/522`（top_score / MISS-score fix）
-  - `src/openpi/cache/components/composite_judge.py:149-188`
-  - `src/openpi/cache/components/factors/calibrations/percentile_rolling.py:31, 86`（"extras silently ignored"）
-  - `src/openpi/conductor/driver.py:_complete_stage / _flush_per_step_for_stage`
-  - `scripts/serve_policy.py:174 (warmup_dump_root) / :523-545 (_setup_warmup_dump_root uid check)`
-  - `src/openpi/serving/websocket_policy_server.py:177-211 (_fill_deferred_dump_paths)`
-  - `exp/verdict_factor_judge/phase3/threshold_solver.py:79-210`（reconstruct_scores + derive_thresholds）
-  - `exp/verdict_factor_judge/phase5/runner.py:_extract_finite_factor_raw` (strips cp1_score by design)
-  - `exp/verdict_factor_judge/common/generate_yamls.py:117`（stem invariant）
-
----
-
-## 11. kinematic phase5 实验进度（**precision timeline**）
-
-### 跑参
-- d1 base yaml: `cp1_spatial_pool_16__grid3_vision_0@6_vision_1@50_robot_state@43__d1`（wsweep SR=74%）
-- 237 cells: G1=48 + G2=48 + G3=48 + G4=48 + G5=45（fh+ws ≤ 0.9）
-- super warmup: trials_per_task=15 → 150 ep × 21.3 verdict/ep = **3191 finite verdict** (raw_dump 14.9MB / finite raw 7.8MB)
-- eval: 100 ep/cell × 237 cell = **23700 ep**, dual-server 16/48 (1:3)
-- super factor union: 50 keys (8 desc-source-channel × 8 online_windows + 4 desc-source-channel × 3 offline_windows = 50)
-- factor blocks emitted: 12
-
-### Stage 时序
-
-| Stage | 内容 | 状态 | 备注 |
-|---|---|---|---|
-| 0 | ziyang10 重启 `--warmup_dump_root` + xuanle 同 + timan107 git pull origin/Ziyang | ✅ done | xuanle 用 `/tmp/xl_warmup_dumps` |
-| 1 | emit super_warmup.yaml | ✅ (lazy in Stage 2) | yaml stem 必须 == `ws_d1_kin_super_warmup` |
-| 2 | run super warmup on ziyang10 (150 ep, 8 worker) | ✅ done | 3191 finite rows, libero SR 98% |
-| 3 | verify-raw 7-check hard gate | ✅ **7/7 PASS** | check 2 改读 raw_dump（finite raw strip cp1_score）; check 7 G3 disp-only WARN 0.176 |
-| 4 | emit 237 eval yamls + push raw 到双 server + 1-cell smoke | ✅ done | 237/237 emit 0 skip; smoke 6/6 ep PASS; 132 rows incremental flush ✓ |
-| **5** | **dual-server 16/48 跑 237×100ep (~3h)** | 🔄 **started 14:11 ~ progress 315/23700 (1.3%)** | conductor live, 64 worker spawned, 91% early SR |
-| 6 | always-WARM 3-cell on ziyang10 single (~10 min) | ⬚ pending | 3 yaml × 100 ep, start_t ∈ {0.3, 0.5, 0.7} |
-| 7 | analyze + 4-frontier overlay + results.md | ⬚ pending | 5 decision JSONs + Pareto + always-WARM anchors |
-
-### Stage 3 verify 7 checks（HARD GATE — **All PASS**）
-1. row count ≥ 2500 → 3191 ✓
-2. cp1_score non-null ≥ 99% → 3191/3191 raw_dump (改读 raw_dump) ✓
-3. 每 declared key ≥ 50 finite → all 50 keys ✓
-4. 5 group sample reconstruct_scores → 5/5 ✓
-5. derive_thresholds monotone (T_ws ≤ T_fh) → 5 ratios ✓
-6. **ALL 237 cells bind_keys** → 237/237 ✓
-7. bootstrap CI quantile stability (T_fh CI < 0.15) → g3 disp-only 0.176 WARN ≤ 0.20 ✓
-
-### Stage 5 milestone targets
-- 25% = done ≥ 5925
-- 50% = done ≥ 11850
-- 75% = done ≥ 17775
-- 100% = done ≥ 23700
-
----
-
-## 12. 实时状态快照（compact 触发时点）
-
-- **Stage 5 progress 315/23700 (1.3%) success=287 (91%)**：5925 → 25% milestone 触发 Monitor agentchat push
-- **ziyang10 srv0**: 1-replica + `--warmup_dump_root /home/ziyang10/.warmup_dumps`，weiland.top:14000 ✓
-- **xuanle srv**: 3-replica + `--warmup_dump_root /tmp/xl_warmup_dumps` (3 replicas all listening on 8001/8002/8003)，weiland.top:14001 ✓
-- **timan107 kin_eval tmux**: run_phase2 conductor + 64 worker + 1:3 server-workers
-- **Monitor v2 `bc5fxrjwp` (Stage 5 专属)** + cron `f6892b6c` + agentchat watcher 全活
-- **git**：本机 + timan107 HEAD=099f491；**未提交改动 `exp/weighted_sum/kinematic/super_warmup.py` 含 3 个 in-experiment bug fixes**（DEFAULT_YAML_PATH / verify check #2 raw_dump / verify check #7 G3 extreme gate）；timan107 stash@{0} 含 pre-099f491 本地工作
-- **agentchat 通知历史**：Stage 2 25/50/75/100% + Stage 3 PASS + Stage 4 emit/push/smoke + Stage 5 launch 都发过
-
----
-
-## 13. 待办 / 下一步（按时序）
-
-1. **等 Stage 5 主跑完**（Monitor `bc5fxrjwp` 触发 EVAL DONE，ETA ~1-3h，乐观 ~50 min throughput limit）
-2. **Stage 5 milestone push**（25%/50%/75%/100% 自动 agentchat 通知）
-3. **Stage 6 always-WARM** 3 yaml × 100 ep（emit 3 yaml + 单 server 跑 ~10 min）：
-   ```bash
-   PYTHONPATH=. uv run exp/weighted_sum/kinematic/runner.py --mode run-always-warm
-   # 然后用 run_phase2 --strategy=weight 跑那个 dir
-   ```
-4. **Stage 7 analyze**：
-   ```bash
-   PYTHONPATH=. uv run exp/weighted_sum/kinematic/runner.py --mode analyze
-   # 产 5 decision JSONs + pareto_overlay.{png,pdf} + results.md
-   ```
-5. **owner 指示 commit**：含未提交的 `super_warmup.py` 3 个 fixes + Stage 5/6/7 产物（per_yaml_summary.jsonl + decision JSONs + figures + results.md）。**一次大 commit**（[[feedback_single_commit_preference]]）。
-
----
-
-## 14. 风险 / 担忧
-
-- **跨 GPU 不可比**：ziyang10 + xuanle H200 NVL 不同物理；offline calibration 吸收大部分（红线 §16.6 报告中注明）
-- **公用 GPU 显存波动**：外部用户占用 → free 突变（实测 xuanle 38.7 GiB free at boot）
-- **expose 长闲掉线** → re-expose
-- **agent restart 炸 worker**（红线 §16.8 不重启）
-- **context 膨胀**：compact 后**先读本文件**恢复
-- **timan107 stash@{0}** 含 pre-099f491 本地工作；owner 后续决定 pop/drop
-- **conductor mid-run crash**：driver-internal `_flush_per_step_for_stage` 保 per_step 已增量落盘 (plan §9.3) → resume 不丢 inf_ratio；但 journal-resume 时 worker_entry 不会 auto-reconnect → 红线 §16.8 不重启 agent
-- **未提交 in-place bug fixes**：本机 + timan107 都改了 `super_warmup.py`，未 commit → 实验结束 owner 指示后一起 commit
-
----
-
-## 15. 历史踩坑（按时间序，最新在底）
-
-1. tyro 参数顺序错（顶层 args 必在 `policy:checkpoint` 之前）
-2. server startup --cache_config 文件不存在 → FileNotFoundError
-3. server 崩：反复 kill/重启端口竞争（fuser -k 8000/tcp）
-4. `pkill -f` 自匹配（多次）→ char-class + 拆 kill 与 launch 两条 exec
-5. `agentchat send "..."` 反引号被 bash 命令替换 → heredoc `<<'EOF'`
-6. 健康脚本 `grep -c '"success": ?true'` BRE，`?` 字面 → `-cE`
-7. cron Permission denied → `bash xxx.sh` 调用 + chmod +x
-8. `find /` 全盘扫描慢 → 用精确路径
-9. **TaskList 不跟踪 Monitor** → `pgrep -af` / CronList / task notification 判存活
-10. 48 worker force-MISS warmup → server OOM。降到 8 worker / 1 replica
-11. **orchestrator MISS-score bug** → 已修 commit 099f491
-12. **conductor mid-run 杀 = per_step 丢内存** → driver-internal `_flush_per_step_for_stage` 解决
-13. **xuanle push 禁用** → agent.yaml allow_roots 加 `/home/xuanlel2, /tmp`
-14. **跨 jupyter pod 不能直连** → 必经 broker
-15. **expose yamux keepalive timeout**（long-idle）→ re-expose
-16. **agent restart 炸 worker_entry**（eval 期间不重启 agent，红线 §16.8）
-17. **`tether expose ls` 不存在** → `tether ps -a`
-18. xuanle 没系统 tmux → `bash -lc` 或全路径 miniforge tmux
-19. **transformers_replace overlay** 新部署 venv 必跑
-20. **dual-server 16/48 需 capacity-aware** → driver.assign_servers + run_phase2 `--server-workers`
-21. **xuanle `~/.warmup_dumps` mkdir 后 owner=nobody**（NFS uid 映射）→ 用 `/tmp/<unique>_warmup_dumps`
-22. **xuanle 上 cache_config 文件名 short-name (`d1_warmup.yaml`)** 与 ziyang10 long-name 不同 — boot-time 占位，运行时切换
-23. **`generate_yamls.write_yaml` stem invariant**：yaml 文件名 stem 必须 == `dump.config_id`，否则 InvariantError
-24. **Monitor milestone bash `!=` 字符串比较 bug** → numeric `high=$mile` sticky
-25. **timan107 上 untracked 与 origin/Ziyang tracked 冲突** → `git stash -u` (consent) + ff-only pull
-26. **timan107 thresh_eval workers 残留** → 清理时 pkill char-class 拆 kill/launch
-27. **tether push `remoteA:path` 不可作 source** → 必须先 `pull → local → push`
-28. **`_extract_finite_factor_raw` 故意 strip cp1_score** → verify check #2 必须读 raw_dump，不能查 finite raw
-29. **健康脚本 `pgrep -fc "[l]ibero_sim/.*main\.py"` pattern miss**（worker 命令实际是 conda env python path → libero/main.py）→ 告警逻辑用 `cond + done` 不依赖 workers count；workers=0 cosmetic
-30. **G3 jerk-only/disp-only pattern**（weights 极端）的 bootstrap CI 宽是设计预期 → verify check #7 加 0.20 gate + warning 不 fail
-
----
-
-## 16. owner 红线规则
-
-1. **实验完成不关 server**（链式给下一个实验）
-2. **完全自主 + 零阻塞** owner 授权；**禁任何终端阻塞式权限/选择请求**
-3. **agentchat trajectory 房间**沟通；**owner 任何消息必回**
-4. **起 server 前喊 owner 释放显存**（公用机）
-5. **不擅自 `git add`/commit/push**；commit 仅 owner 指示，英文 message，**无 Co-Authored-By Claude**，author 字段只能 `LinZiyang666 <3177267975@qq.com>`。**owner 偏好一次 commit 提交所有文件**（[[feedback_single_commit_preference]]）
-6. **单机锁定可放宽**：本次接受 dual-server H200 NVL（同型号，跨物理 GPU caveat 注明）
-7. **G1/G2 由 owner 在 chat 批准**（WA §7 override）
-8. **eval 运行中不重启 agent**（worker_entry 不自动重连，会丢全部 in-flight workers）
-9. **高危 git ops 需 explicit per-invocation consent**：`git stash -u/-a` / `git clean -fd/-fdx` / `git reset --hard` / `git rebase` / `git push --force` / `git checkout -- .`
-
----
-
-## 17. tether / 设备 / 实验框架文档（**必读**）
-
-### 17.1 tether 操作手册（**dist_experiment_control 项目**）
-
-**`/home/weiland/projects/dist_experiment_control/docs/`**（**不在 openpi repo 内**，是独立项目）。
-
-| 文件 | 内容 | 何时读 |
-|---|---|---|
-| **`usage.md`** | tether 全量操作手册（exec/run/expose/push/pull/ps 等所有子命令 + agent.yaml §3.2 + file_transfer.allow_roots §5.10 + 反向隧道 + 错误码）| 第一次部署 + 任何 tether 报错时 |
-| **`devices.md`** | 设备清单（hostname / uid / allow_roots）| 添加新节点时 |
-| **`architecture.md`** | broker (pc732 / weiland.top) + agent + ctl + NATS + frpc 架构图 | 整体了解 |
-| **`requirements.md`** | 需求 spec | 设计扩展时 |
-
-⚠ **agent.yaml 改动后必须 setsid 脱离式重启**（本会话用过）：
+**RAM 看护器 v2 全文（persistent，10G 阈值，owner 设定）：**
 ```bash
-tether exec <node> -- bash -lc '
-OLDPID=$(pgrep -f "[t]ether agent --session lab" | head -1)
-setsid bash -c "sleep 3; kill $OLDPID 2>/dev/null; sleep 4; HOME=/<user>/.tether-agent nohup /<user>/.tether-agent/bin/tether agent --session lab --nid <nid> >> <agent.log> 2>&1 < /dev/null &" < /dev/null > /dev/null 2>&1 &
-'
+while true; do
+  line=$(tether exec timan107 -- bash -lc "free -g | awk '/Mem:/{print \$3,\$4,\$7}'" 2>/dev/null)
+  used=$(echo "$line"|awk '{print $1}'); free_g=$(echo "$line"|awk '{print $2}'); avail=$(echo "$line"|awk '{print $3}')
+  case "$avail" in ''|*[!0-9]*) sleep 15; continue;; esac
+  killed=$(tether exec timan107 -- bash -lc 'grep -c -iE "Killed process|out of memory|oom-kill" /tmp/stage2_libero10/run.log 2>/dev/null' 2>/dev/null | tr -d '[:space:]')
+  if [ "${killed:-0}" -gt 0 ]; then echo "RAM CRITICAL: OOM/Killed (count=$killed) avail=${avail}G used=${used}G — SHRINK NOW"; fi
+  if [ "$avail" -lt 5 ]; then echo "RAM CRITICAL: avail=${avail}G free=${free_g}G used=${used}G <5G — SHRINK NOW"
+  elif [ "$avail" -lt 10 ]; then echo "RAM WARNING(10G thresh): avail=${avail}G free=${free_g}G used=${used}G"; fi
+  sleep 15
+done
 ```
-
-### 17.2 openpi 侧 doc
-
-| 文件 | 内容 |
-|---|---|
-| `docs/experiments/weighted_sum.md` | 实验 1/2 trajectory + capacity-aware §1.3 |
-| `docs/experiments/conductor_tutorial.md` | conductor + `--strategy` switch + `--server-workers` |
-| `docs/architecture/cache_system.md` | gate / judge / search / backend |
-| `docs/reference/openpi.md` | openpi 整体参考 |
-| `docs/experiments/artifact_layout.md` | data / config / analysis / logs commit 边界 |
-
-### 17.3 agentchat 文档（已含本文件 §5）
-
-skill `agentchat-user` 描述在 `/home/weiland/.claude/skills/agentchat-user/SKILL.md`。
+- **RAM 看护器报 WARNING/CRITICAL 的处理**：96 worker + MALLOC 预期稳态 ~154G/66G avail 不会触发；若意外破 10G → **先滚动重启 conductor（kill+relaunch 重置 RAM，journal-resume，保 worker 数）**；若 MALLOC 失效或仍破 → 缩 worker（48,48→40,40→…）。
+- **L3 cron 通用版**（指向 `/tmp/current_run_health.sh` symlink，跨轮/跨 Stage 复用）：全健康只主会话记一行不发房间；monitor 死立即重挂+报房间；server 错误崩溃自主重启(辨真死→恢复 SOP §6)；DONE 由 L2 触发不自删。
 
 ---
 
-> **恢复工作的零记忆 checklist**：
-> 1. 读本文件全部 17 节
-> 2. 读 plan `logs/weighted_sum_kinematic_phase5_replication.log.md`
-> 3. `tether node ls -a` 验节点在线
-> 4. 检查监控存活：
->    - `pgrep -af "agentchat watch state"` (L4，必有 2 个 pid)
->    - `CronList` (L3，应见 `f6892b6c` 跑 Stage 5)
->    - L2 Monitor `bc5fxrjwp`：从 task notification 看；如不见可重启（不影响旧的）
-> 5. 跑 `tether exec timan107 -- bash -lc "bash /tmp/kin_eval_health.sh"` 拿当前 stage / progress
-> 6. 根据 §13 待办决定下一步在哪个 Stage
->
-> **核心红线再强调**：
-> - 实验跑完【**不关 server**】，链式给下一个实验
-> - 【**不擅自 git add/commit/push**】；commit 仅 owner 指示，一次性大 commit（[[feedback_single_commit_preference]]），英文 message，无 Co-Authored-By
-> - agentchat trajectory 房间 **owner 任何消息必回**
-> - 起 server 前喊 owner 释放显存（公用 GPU）
-> - eval 期间**不重启 agent**（worker_entry 不 auto-reconnect）
-> - pkill 用 char-class + 拆 kill/launch 两条 exec
-> - high-risk git ops 需 explicit per-invocation consent
-> - **未提交改动 `super_warmup.py` 含 3 个 bug fixes** — owner 指示后一起 commit
+## §6 ★ 集群不稳 + 故障恢复 SOP（已用 3 次，2026-05-30 下午）
+
+**现象**：jupyter-ziyang10 / jupyter-xuanlel2 的 tether agent **~1 小时掉一次**（pod 容器重启 or pod↔broker 网络中断）。timan107 + broker(pc732) 一直正常。
+- node STALE→OFFLINE：agent 心跳断，**exec 不进节点**（node_offline）。隧道随之死（nc 端口 refused）。
+- 也可能节点 ONLINE 但隧道单独断（nc refused 但 node ls 显 ONLINE）= 隧道掉，re-expose 即可。
+
+**恢复 SOP（节点回 ONLINE 后自动执行）：**
+1. `tether node ls -a | grep -E "ziyang10|xuanlel2"` 看 ONLINE/OFFLINE；`nc -zv weiland.top 14000/14002` 看隧道。
+2. 若节点 OFFLINE → 够不到，**urgent 喊 owner 手动重启 pod/agent**（agent 离线我无法自主重启）。等节点回 ONLINE。
+3. 节点 ONLINE 但 serve 没了（pod 重启）→ 验 `git rev-parse`(应 9519a79)/ckpt/4pkl 都在(NFS home 持久)、清残留 serve（变量法）、placeholder 在不在(NFS home，不在则 push)。
+4. 起 serve_policy（§1.2/§1.3，**ziyang10 3rep / xuanle 3rep**，spawn-batch 2），后台 ready-waiter 等 `replica_proxy listening`。
+5. re-expose（新 name；**broker 可能给新端口** → 记下实际端口，改 health s2 探针 + conductor --servers，见 §3-C）。
+6. kill 旧 conductor + 清 run.log（保 journal！）+ 重启 conductor（§1.1，新端口，journal 从断点 resume，**零数据损失**）。
+7. 重挂 L2（§13）；确认 progress 上涨。
+8. 房间报"已恢复"。
+- **journal-resume 是核心**：conductor 死/重启不丢 episode（已 done 的跳过，in-flight retry）。**实测多次 0 数据损失。**
+- 两节点恢复探测器模板（监测任一回 ONLINE）：见 §13。
+
+---
+
+## §7 ★ Stage 2 跑完后流程（L2 报 STAGE2 DONE 触发）
+
+### 7.1 拉回 + summarize + 拆 2a/2b 分析
+```bash
+# 1. pull journal
+mkdir -p exp/weighted_sum/data/stage2/libero_10
+tether pull timan107:/tmp/stage2_libero10/journal.jsonl exp/weighted_sum/data/stage2/libero_10/journal.jsonl
+# 2. summarize（per-yaml SR）
+uv run exp/weighted_sum/summarize.py --journal exp/weighted_sum/data/stage2/libero_10/journal.jsonl --out exp/weighted_sum/data/stage2/libero_10/results.json
+# 3. 按 yaml_id 来源拆开分析：
+#    2a(trajectory) = 15 base × depth{3,4,5,6}=60 yaml，id 形如 <base_id>__d{depth}
+#    2b(weight sweep) = spatial_16 78权重 × depth{1,3,4,5}=312 yaml
+#    dedup_manifest 在 config/stage2/libero_10/dedup_manifest.json（0 dup 记录）
+```
+- emit 命令（重做用，**module 模式 + libero_10 override**）：
+```bash
+# 2a:
+uv run python -m exp.weighted_sum.emit_trajectory_yamls --calibration exp/weighted_sum/data/phase1/libero_10/calibration_normalizers.json --artifact-dir exp/common/data/cache_artifacts/libero_10 --results-csv exp/weighted_sum/data/phase2/libero_10/all_results.csv --top10-dir exp/weighted_sum/config/top10/libero_10 --output-dir exp/weighted_sum/config/trajectory/libero_10 --depths 3,4,5,6
+# 2b:
+uv run python -m exp.weighted_sum.emit_trajectory_weight_sweep --calibration exp/weighted_sum/data/phase1/libero_10/calibration_normalizers.json --artifact-dir exp/common/data/cache_artifacts/libero_10 --output-dir exp/weighted_sum/config/trajectory_wsweep/libero_10 --depths 1,3,4,5
+# 合并去重到 config/stage2/libero_10（内容签名：keybuilder+非零权重+trajectory_depth）
+```
+
+### 7.2 Stage 3 / Stage 4（plan §3.1 + handoff §14 旧版）
+- **Stage 3 threshold-pareto**：⚠ **owner 2026-05-30 改设计 = per-depth base**（非原 plan 单 base）。base = **spatial_16 在 depth{1,3,4,5} 各自的 SR 最优 yaml = 4 个 base**（owner 进无人值守前下放细节，agent 采纳建议默认：**(a) 固定 keybuilder=spatial_16**（与 Stage 4 一致，不跨 kb）；**(b) d1 候选池含 Stage 1 全部 spatial_16 d1**——winner spatial_16 d1-best 52% 在内）。d6 不做（owner 只要 1/3/4/5）。
+  - 每 base 独立走 `emit_threshold_yamls`(warmup→`solve_thresholds`→eval grid fh+ws≤0.9，**11×5 网格−6 退化=49 cell** 满格，owner "不用调网格")+anchor；`run_phase2 --per-step-out`；`summarize_inf_ratio`。
+  - **预算 = 4 base × ~49 cell ≈ 196 cell ≈ 20,800 ep**（vs 原单 base 5,200）。双 server 可承受。
+  - **安全阀（无人值守）**：Stage 2 DONE→summarize 后，按规则选出 4 个 base（depth 分组 argmax SR），**先房间通报"选出的 4 base=[...]"给 owner 异步否决窗口，然后继续跑不等**（不阻塞）。若数据异常（如固定 spatial_16 某 depth SR 远低于跨-kb best）→ 房间标注+仍按规则跑，owner 可否决。
+- **Stage 4 kinematic 复刻**：base=winner-kb(spatial_16) d1-best；`kinematic/runner.py` 8 mode；237 cell ~24,000 ep；**§8.6 全套路径 override 到 kinematic_phase5/libero_10/**。
+  - ★ **Stage 4 必须 owner 回来**：要填 CFG_SPECS 真值(winner 权重+μσ)进 `v2_spec.py` = 代码改动 → **独立 Review session 过 G2**（我 Execution 不能自审，WA 高于用户指令，即使 owner 授权也不能跳 G2）。我最多做到前置(emit-warmup/run-warmup/verify-raw 不涉代码)+代码改好待审。
+  - Stage 4 决策点（owner 定）：单 vs 双 server fail-fast；winner≠spatial_16 怎么办(本例 winner=spatial_16 故无碍)；protocol A/B。
+- 全程双 server，每 config 100 ep。
+
+---
+
+## §8 数据资产 + 路径
+
+| 资产 | 路径 | 状态 |
+|---|---|---|
+| 6 CP1 库 pkl | `exp/common/data/cache_artifacts/libero_10/`（本地 + ziyang10 + xuanle 各一份）| mean/max/sp16/sp64 + 2 CLIP(不用) |
+| init_map | `exp/common/data/db/libero_cache/libero_10_init_map.json` | 50 records，held_out 45/task |
+| calibration | `exp/weighted_sum/data/phase1/libero_10/calibration_normalizers.json` | 4 cp1 全 zscore |
+| Stage1 base/r1 yaml | `exp/weighted_sum/config/{phase2,round_1}/libero_10/` | base 136 + r1 104 |
+| Stage1 all_results | `exp/weighted_sum/data/phase2/libero_10/all_results.csv` | 240 config |
+| top10 | `exp/weighted_sum/config/top10/libero_10/` | 10 yaml + manifest |
+| Stage2 yaml | `exp/weighted_sum/config/stage2/libero_10/`(372) + timan107:`/tmp/stage2_libero10_yamls` | 2a60+2b312，0dup |
+| Stage2 journal | timan107:`/tmp/stage2_libero10/journal.jsonl` | TOTAL 37200，跑中 |
+| placeholder | `/home/ziyang10/stage1_placeholder.yaml`、`/home/xuanlel2/stage1_placeholder.yaml` | NFS home 持久 |
+- **gitignore**：`exp/**/data/**` + `exp/weighted_sum/config/**` ignored（yaml/journal/pkl 不入库）；只 code + analysis + plan log + README 入库。
+
+---
+
+## §9 设备拓扑 + RAM 铁律
+
+| 角色 | 节点 | 关键 |
+|---|---|---|
+| server#1 | jupyter-ziyang10 | H200 NVL/cc9.0；HOME=/home/ziyang10；repo=/home/ziyang10/openpi；uv=/home/ziyang10/.local/bin/uv；ckpt=~/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch；tmux=srv0；3 replica；NAT→**weiland.top:14000** |
+| server#2 | jupyter-xuanlel2 | 另块 H200 NVL(同构)；HOME=/home/xuanlel2；**无系统tmux/fuser**(用 /home/xuanlel2/miniforge3/bin/tmux + `pkill -9 -f "[s]erve_policy"`+`ss`)；**NFS uid 坑**(dump root /tmp)；cgroup 32G(3rep~26G紧但fit)；3 replica；NAT→**weiland.top:14002** |
+| client | timan107 | Intel Xeon E5-2650 v4@2.2GHz/48 逻辑核/**220G DDR4**/8×GTX1080(8G/卡 EGL渲染)；repo=/scratch/zixuans8/openpi；uv=/shared/nas/data/m1/zixuans8/miniconda3/bin/uv；conda_env=/scratch/zixuans8/libero_sim(py3.8)；**HOME 必 export /home/zixuans8**；**allow_roots 不含 /scratch**(传文件走 /tmp 中转) |
+| broker | pc732(weiland.top→155.98.36.32) | tether broker；公网端口段 14000-14999 |
+| a100 | **OFFLINE** | 公网 149.165.152.105；failover 需 owner 恢复 + 数据双 sync(本例没用) |
+
+**★ RAM 铁律**：MALLOC 后 per-worker ~1.6G（pre-MALLOC 3.4G）。96 worker ≈ 154G/66G avail 安全。**RAM 是增长型**(MuJoCo 累积)，靠 MALLOC 压住 + 看护器守 10G + 必要时滚动重启/缩 worker。
+
+---
+
+## §10 agentchat（唯一 owner 异步通道）
+
+- 账号 `agent1`(role=user, online)；token 在 `~/.agentchat/cli.toml`。**token 是密钥：勿 echo/log/commit/贴房间。**
+- **房间 libero10 = `019e749f-c5f4-7ce0-9666-4b9a5d8e9af3`**（已 subscribed；唯一沟通房间）。
+- 读：`agentchat read 019e749f-c5f4-7ce0-9666-4b9a5d8e9af3 --json`。发（必 heredoc 单引号定界）：
+```bash
+agentchat send 019e749f-c5f4-7ce0-9666-4b9a5d8e9af3 --file - <<'EOF'
+消息体
+EOF
+```
+- urgent：加 `--priority urgent`。watcher 重挂（先 pgrep 验存活）：`agentchat watch state --json | jq --unbuffered -c '([.rooms[]?|select(.name=="libero10")|.unread]|add//0) as $l10|select($l10>0 or (.totals.mentions//0)>0)'` 放 Monitor persistent。
+- **通知规约（owner 2026-05-30 强化：聊天室只发重要事务，别刷屏）**：聊天室**只发** ①需 owner 决策 ②ALERT/危险(OOM/server 崩/数据风险) ③Stage milestone(75%)/DONE ④server 起关。**不主动发**：routine 进度/吞吐补报/诊断细节/处置过程细节（这些只主会话记，owner 问才答）。owner 房间消息**仍必回**（但简短）。〔教训：曾发"80w 吞吐 30.8/min"被 owner 指为不重要〕
+
+---
+
+## §11 tether 避坑（全踩过）
+1. **HOME 陷阱**：默认 HOME=`~/.tether-agent`(timan107=/srv/local/zixuans8/tether-home)；ziyang10/xuanle 程序找 ~/.cache 必 `export HOME=/home/<user>`；timan107 worker 找 .libero 必 `export HOME=/home/zixuans8`(§3-A)。
+2. **allow_roots**：ziyang10=/home/ziyang10,/tmp；xuanle=/home/xuanlel2,/tmp；timan107=/tmp,/home,/users,/srv(**/scratch 不在**→先 push /tmp 再 cp 进 repo；push 目标必带 `<node>:` 前缀)。
+3. **跨 remote 拷文件**：push 首参须 local → 先 pull A→local 再 push local→B。
+4. **pkill 自杀**：§3-H 变量法 + echo 不含字面 + 拆 exec。
+5. **expose 隧道~10h 闲掉线 / pod 重启隧道死**：换新 name 重 expose；**broker 可能给新端口**(§3-C)→改 health 探针 + conductor --servers。
+6. **eval 期间不重启 tether agent**(worker_entry 不 auto-reconnect)。
+7. **跨 jupyter pod 不能直连**(k8s NetworkPolicy)→必经 broker。
+8. **xuanle 无系统 tmux/fuser** → 全路径 `/home/xuanlel2/miniforge3/bin/tmux` + `pkill -9 -f "[s]erve_policy"` + `ss`。
+9. **xuanle expose state_write_failed** 偶发 → 重试 1-2 次即成。
+10. **server tyro 顺序**：`--replicas`/`--replica-spawn-batch`/`--port`/`--cache_config` 等顶层 flag **必在 `policy:checkpoint` 之前**。
+11. **裸 TCP 探针副作用**：health 的 /dev/tcp 探针让 server 记良性 InvalidMessage Traceback——L5 已改只匹配真 fatal。
+
+---
+
+## §12 未提交改动（diff，等 owner commit；timan107 re-sync 会丢，丢了照此重打）
+
+**文件 1：`src/openpi/conductor/agent.py`** —— 两处改动：
+1. `WorkerSpec` dataclass 加字段（task_suite fix）：
+```python
+    conda_env: str = ""
+    # LIBERO benchmark suite ... callers (run_phase2) forward their --task-suite here.
+    task_suite_name: str = "libero_spatial"
+```
+2. `_default_spawn` base_cmd 末尾加（task_suite fix）：
+```python
+        "--driver-port", str(driver_port),
+        "--task-suite-name", spec.task_suite_name,
+    ]
+```
+3. `_default_spawn` 在 `env["CUDA_VISIBLE_DEVICES"] = spec.gpu_id` 之后加（MALLOC 默认）：
+```python
+    env["CUDA_VISIBLE_DEVICES"] = spec.gpu_id
+    # glibc malloc tuning ... setdefault so an explicit caller export still wins.
+    env.setdefault("MALLOC_ARENA_MAX", "2")
+    env.setdefault("MALLOC_TRIM_THRESHOLD_", "134217728")
+```
+
+**文件 2：`exp/weighted_sum/run_phase2.py`** —— WorkerSpec(...) 加 kwarg（task_suite fix）：
+```python
+        WorkerSpec(worker_id=f"w{i}", server_key=worker_server_keys[i], gpu_id=str(i % args.gpus),
+                   conda_env=args.conda_env, task_suite_name=args.task_suite)
+```
+- 推 timan107（allow_roots 无 /scratch → /tmp 中转）：`tether push src/openpi/conductor/agent.py timan107:/tmp/agent_x.py && tether push exp/weighted_sum/run_phase2.py timan107:/tmp/rp2_x.py && tether exec timan107 -- bash -lc 'cp /tmp/agent_x.py /scratch/zixuans8/openpi/src/openpi/conductor/agent.py; cp /tmp/rp2_x.py /scratch/zixuans8/openpi/exp/weighted_sum/run_phase2.py'`
+- **agent.py + run_phase2 已在 timan107 应用**（含 MALLOC）。server 端不需要这些 fix。
+- 其它已 commit 改动(@9519a79+)：emit_trajectory_yamls/emit_trajectory_weight_sweep/refine_round/emit_top10/build_all_results/summarize/kinematic/* + v2_spec CFG_SPECS 占位 + tests。
+
+---
+
+## §13 命令速查（copy-paste）
+
+**全栈一键验活：**
+```bash
+echo "=== nodes ==="; tether node ls -a | grep -E "ziyang10|xuanlel2|timan107"
+echo "=== eval health ==="; tether exec timan107 -- bash -lc 'bash /tmp/stage2_libero10_health.sh'
+echo "=== monitors ==="; echo "L2:$(pgrep -fc 'M25=|STALL_THRESHOLD') L5:$(pgrep -fc 'tail -F /tmp/srv0.log') L4:$(pgrep -fc 'agentchat watch state') RAMv2:$(pgrep -fc 'RAM WARNING|10G thresh')"
+echo "=== RAM ==="; tether exec timan107 -- bash -lc 'free -g | awk "/Mem:/{print \"used=\"\$3\"G avail=\"\$7\"G\"}"'
+echo "=== links ==="; nc -zv weiland.top 14000 2>&1|tail -1; nc -zv weiland.top 14002 2>&1|tail -1
+echo "=== room ==="; agentchat read 019e749f-c5f4-7ce0-9666-4b9a5d8e9af3 --json | head -20
+```
+**server ready watcher（重启 server 后等就绪，background bash run_in_background）：**
+```bash
+for i in $(seq 1 80); do tether exec jupyter-ziyang10 -- bash -lc 'grep -qE "replica_proxy listening on" /tmp/srv0.log' 2>/dev/null && { echo READY; break; }; sleep 15; done
+```
+**节点恢复探测器（任一回 ONLINE，Monitor persistent）：**
+```bash
+while true; do st=$(tether node ls -a 2>/dev/null | grep -E "ziyang10|xuanlel2"); zy=$(echo "$st"|grep ziyang10|awk '{print $2}'); xl=$(echo "$st"|grep xuanlel2|awk '{print $2}'); if [ "$zy" = "ONLINE" ] || [ "$xl" = "ONLINE" ]; then echo "NODE RECOVERY zy=$zy xl=$xl"; exit 0; fi; sleep 90; done
+```
+**smoke test（refine/Stage 前必跑，1 yaml 验链路，HOME 必带）：**
+```bash
+tether exec timan107 -- bash -lc 'export HOME=/home/zixuans8; rm -rf /tmp/smoke_y && mkdir -p /tmp/smoke_y && cp $(ls /tmp/stage2_libero10_yamls/cp1_spatial_pool_16__*__d3.yaml|head -1) /tmp/smoke_y/; cd /scratch/zixuans8/openpi && export PYTHONPATH=/scratch/zixuans8/openpi && timeout 280 /shared/nas/data/m1/zixuans8/miniconda3/bin/uv run exp/weighted_sum/run_phase2.py --yaml-dir /tmp/smoke_y --init-map /tmp/libero_10_init_map.json --journal /tmp/smoke/journal.jsonl --servers weiland.top:14000 --task-ids 0 --eval-trials 2 --task-suite libero_10 --workers 4 --gpus 4 --conda-env /scratch/zixuans8/libero_sim --eval-concurrency 1 2>&1 | tail -6'
+# 期望 "all stages done" + journal done=2；任何 EOFError/MISS(top_score=None)/Traceback → 排错
+```
+**滚动重启（RAM 看护器报 10G 时，保 worker 数，重置 RAM）：** = §1.1 清残留 + 重启同命令（journal-resume）。
+
+---
+
+## §14 红线 + 恢复 checklist（零记忆）
+
+**恢复 checklist：**
+1. 读本文件全文 + plan §14。
+2. `git -C /home/weiland/projects/openpi log -1 --oneline`(应 9519a79) + `git status`(**会看到 agent.py/run_phase2.py modified = §12 fix，别 revert！** + session_handoff.md)。
+3. `tether node ls -a`(ziyang10/xuanlel2/timan107 ONLINE；a100 OFFLINE)。集群不稳，可能某节点 OFFLINE → §6 恢复。
+4. **逐项 pgrep 验 §5 监控存活**（L2 bf3l56qkb / L5 b4dfwbxii / L4 / RAM v2 b0v974yde；CronList 看 b4cf0ba2）；死的重挂 + 报房间。
+5. §13 全栈验活；`agentchat read` 看 owner 有无新指令（有必回）。
+6. eval 没跑完 → **别重跑**（journal resume），等 L2 报 STAGE2 DONE；跑完 → §7。
+7. RAM 盯着（96 worker，看护器守 10G）；RAM 看护器报警 → 滚动重启或缩 worker。
+
+**红线（最重要）：**
+1. **不擅自 git add/commit/push/stash/reset**——§12 的 agent.py(task_suite+MALLOC)/run_phase2 fix 等 owner 明确发话才 commit（英文/无 Co-Authored-By/author=LinZiyang666/单大 commit）。
+2. **owner 房间任何消息必回**；无人值守 mandate 生效，不弹终端阻塞窗口。
+3. **起/关 server 必通知房间**；server 错误崩溃可自主重启(owner 授权，§6 SOP)；隧道瞬断不重启(re-expose)。
+4. **monitor 存活必 pgrep 实证、不假设**（L3 cron 自动兜底）。
+5. **timan107 worker 用 MALLOC + 当前 80(40,40)**（96 长跑 RAM 累积冲 197G 危险已缩 80，稳态 106G/avail 112G）；RAM 累积型，深检索末期再逼近 → 滚动重启泄压(kill 全归还 OS)或再缩 64(32,32)；看护器破 10G 立马处理。
+6. **pkill 必变量法 + echo 不含字面 + kill/launch 拆 exec**。
+7. **eval 在跑别重启**（journal resume）；要重启走清残留→同命令(HOME+MALLOC+14002)。
+8. **Stage 4 CFG_SPECS 填真值需 owner 开独立 Review session 过 G2**（我不能自审，WA 高于用户授权）。
+9. **决策可比性**：双 server 仅因两台同构 H200；只声称 libero_10 内部可比。
+10. **HOME=/home/zixuans8 / placeholder NFS home / xuanle=14002 / server 3rep+3rep** —— 这 4 个是本 session 的新铁律，旧正文/旧 handoff 不含。
+
+---
+
+## §15 实测数据值（验证/复现用）
+
+- **Stage 1 winner**：spatial_16 52%（v0/v1/rs = 0.50/0.50/0 与 0.12/0.87/0 并列）。per-kb max 52/48/47/46。
+- **MALLOC 效果**：60 worker，pre-MALLOC 15→174G@10min→214G撞顶(3.4G/worker)；MALLOC 后 17→86→98→94G plateau(~1.6G/worker)；吞吐 ~33/min 不变。
+- **吞吐**：50w 27.6/min、66w 37.8/min、60w ~33/min（瓶颈本是闭环推理延迟 ~1767ms/step，replica 数是大杠杆，6 replica 已满）。
+- **RAM 上限**：220G；MALLOC 后 96w≈154G/66G avail 安全。
+- **init_map used-inits（每 task 5 个，eval held-out 排除）**：
+  ```
+  t0=[19,22,23,42,47] t1=[0,6,11,25,38] t2=[23,38,42,46,48] t3=[0,1,5,7,41] t4=[12,18,22,28,32]
+  t5=[0,3,6,13,48] t6=[3,10,13,15,47] t7=[3,20,33,48,49] t8=[6,25,29,32,47] t9=[10,13,14,44,47]
+  ```
+- **LIBERO libero_10 task 序（task_key=language）**：0 tomato_sauce / 1 cream_cheese+butter / 2 turn_on_stove_moka / 3 black_bowl_drawer / 4 white_mug / 5 book_caddy / 6 white_mug+chocolate / 7 alphabet_soup+cream_cheese / 8 both_moka_stove / 9 yellow_white_mug_microwave。
+- **当前进度快照**：~61.5%(22893/37200) @16:55；96 worker warmup 中 RAM 125G→~154G；s1/s2 UP。**恢复时以 §13 实时 health 为准。**
+
+---
+
+---
+
+## §16 当前未决事项 / 待办（compact 后接着做）
+
+1. **Stage 2 跑完**（L2 报 STAGE2 DONE）→ §7.1 pull journal→summarize→拆 2a/2b 分析→**Stage 3（⚠ per-depth：见 §7.2 改后设计，4 base=spatial_16 d{1,3,4,5}-best，196 cell，先房间通报 4 base 再跑）**。这是主线，无需 owner（仅入口通报，不阻塞）。
+2. **96 worker RAM 持续盯**：MALLOC 后 96w 稳态 ~130-154G（实测 16:55=130G/88G avail，可能再爬向 ~154G）。owner 要"时刻监视"。RAM 看护器 b0v974yde 守 10G；若意外破线 → 滚动重启(保 worker)优先，再不行缩。
+3. **commit（等 owner 发话）**：§12 的 agent.py(task_suite + MALLOC) + run_phase2(task_suite)。owner 偏好一次结构化大 commit、英文、无 Co-Authored-By、author=LinZiyang666。**绝不擅自 commit。**
+4. **Stage 4 需 owner 回来开独立 Review session 过 G2**（CFG_SPECS 填 winner 真值=代码改动，我 Execution 不能自审）。我可先做 Stage4 前置(emit-warmup/run-warmup/verify-raw)。
+5. **集群随时可能再掉**（已 3 次，~1h 一次）→ §6 SOP；节点 OFFLINE 够不到则 urgent 喊 owner。
+6. **owner 最近关注点**：worker 规模/RAM 优化（MALLOC 已解决）、吞吐（96w=40.2/min 最快）。owner 高频参与，房间消息必回。
+7. **可选优化（owner 没要，备忘）**：若想再快，bottleneck 是闭环推理延迟非 worker；replica 已 3+3=6 满。再加 worker 边际递减（96 已接近）。
+
+---
+
+> 本文件 ≥500 行全量恢复手册。compact 后：读全文 → §14 checklist → §13 验活 → 集群掉了走 §6 → 等 L2 STAGE2 DONE → §7 → Stage 3 → Stage 4(owner G2)。**HOME=/home/zixuans8 / MALLOC_ARENA_MAX=2+TRIM=128M / xuanle=14002 / server 3rep+3rep / 当前 80 worker(40,40)(96 因 RAM 累积冲 197G 危险已缩 80，稳态 106G/avail 112G) 是本 session 新铁律，务必用。** 实测：96w=40.2 ep/min 但长跑 RAM 累积到 197G 不可持续；80w 稳态 106G 安全。MALLOC 压 glibc 囤积但压不住深检索工作集累积，靠滚动重启泄压(kill 全归还 OS)。

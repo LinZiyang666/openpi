@@ -569,7 +569,37 @@ def _configure_monitor_level() -> None:
             )
 
 
+def _validate_collect_isolation(args: Args) -> None:
+    """Reject --collect combined with concurrent or multi-replica serving.
+
+    Embedding collection (``openpi.collect.CollectionPolicy``) attaches forward
+    hooks to the shared base model on every ``infer()`` call. Those hooks are
+    module-global, so under concurrent connections — or the batching
+    coordinator's worker threads — one connection's forward fires another
+    connection's hook and the captured tensors cross-contaminate, leaving the
+    recorded HDF5 silently corrupt or empty. Multiple replicas would
+    additionally race on identical ``collect_dir`` filenames across processes.
+    Collection is only correct on the single-connection C1 path with one
+    replica, so fail fast here instead of writing bad data.
+    """
+    if not args.collect:
+        return
+    if args.replicas > 1:
+        raise ValueError(
+            f"--collect requires a single replica (got --replicas {args.replicas}). "
+            "Embedding hooks cannot be isolated across replica processes; "
+            "use --replicas 1 --non-concurrent."
+        )
+    if args.concurrent and not args.non_concurrent:
+        raise ValueError(
+            "--collect requires the non-concurrent single-connection path; "
+            "concurrent forward hooks cross-contaminate captured embeddings. "
+            "Pass --non-concurrent (concurrent mode is the default)."
+        )
+
+
 def main(args: Args) -> None:
+    _validate_collect_isolation(args)
     if args.replicas > 1:
         _run_supervisor(args)
     else:

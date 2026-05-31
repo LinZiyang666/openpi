@@ -45,6 +45,12 @@ class WorkerSpec:
     # openpi_client) while the driver keeps its own (uv) interpreter. Empty =
     # spawn with the agent's own ``python`` (backward-compatible default).
     conda_env: str = ""
+    # LIBERO benchmark suite the worker's env loads. MUST match the library /
+    # strategy suite, otherwise the worker runs the wrong tasks and every cache
+    # query's task_key mismatches the library (0 candidates -> all MISS). The
+    # default preserves backward-compat with the original libero_spatial runs;
+    # callers (run_phase2) forward their --task-suite here.
+    task_suite_name: str = "libero_spatial"
 
 
 class WorkerHandle(Protocol):
@@ -82,6 +88,8 @@ def _default_spawn(spec: WorkerSpec, driver_host: str, driver_port: int) -> Work
         driver_host,
         "--driver-port",
         str(driver_port),
+        "--task-suite-name",
+        spec.task_suite_name,
     ]
     if spec.conda_env:
         # Mirror legacy build_subprocess_cmd: strip the driver's uv-venv env
@@ -109,6 +117,15 @@ def _default_spawn(spec: WorkerSpec, driver_host: str, driver_port: int) -> Work
         env = dict(os.environ)
         cmd = base_cmd
     env["CUDA_VISIBLE_DEVICES"] = spec.gpu_id
+    # glibc malloc tuning for the LIBERO/MuJoCo sim workers: cap per-thread
+    # arenas and return freed memory to the OS past a threshold. MuJoCo render
+    # workers otherwise hoard freed RAM in glibc's per-thread arenas, so a
+    # worker's resident set climbs ~3.4G over a run; with these it plateaus at
+    # ~1.6G (measured libero_10 Stage 2). Pure memory management -- no effect on
+    # the simulation computation or eval correctness. setdefault so an explicit
+    # caller export still wins.
+    env.setdefault("MALLOC_ARENA_MAX", "2")
+    env.setdefault("MALLOC_TRIM_THRESHOLD_", "134217728")
     # start_new_session=True puts the worker (and, under `conda run`, the real
     # grandchild process) in its own process group so stop() can signal the
     # whole group rather than only the wrapper.

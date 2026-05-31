@@ -413,6 +413,59 @@ super warmup ~150 ep + 237×100 = 23,700 ep + always-WARM 3×100 = **~24,000 ep*
 
 ---
 
+## 14. Stage 0 Execution Log（2026-05-29，真实实验开始）
+
+> 实验正式开始。owner 设 /goal「严格按 plan + experiment skill 跑完整个实验，不做完不停」。owner 补充三条运行参数：① ziyang10 = 3 replica / 48 worker、xuanlel2 = 2 replica / 32 worker；② 多 server 独立阶段任务分配 **3:2**；③ **不用 CLIP**（2 个 clip pkl 不参与任何阶段）。
+
+### 14.1 init_map（✅ 完成 + 全验证）— ★ 偏离 §4.1 的方法（已记录理由）
+- **§4.1 的 `replay...map` 方式对本 libero_10 数据是坏的**：实测 `--num-trials-per-task 5` 的位置式 `episode//5` task 分配**不成立**——H5 按 episode 号 //5 分桶后 bucket 0/2/3 各含多个不同 prompt（采集非 task-major、交错），且本地与 ziyang10 的 openpi uv env **都没有 `libero` 模块** → map fallback 用裸 prompt 匹配 scene-前缀 init 文件名，全部 50 条 unresolved / `orig=None` → leak-guard 空集 = 泄漏。
+- **改用的正确法**（在本地 `libero_sim` conda env，含 libero+torch+h5py）：① 用 LIBERO benchmark 取权威 `task_id↔name`（10 prompt 与 10 task language 一一对应）；② 对每 task，把 cache-子集 init（`db_init/libero_cache/<name>.init`，5 行）逐行在 full init（`db_init/libero/<name>.init`，50 行）中 `np.isclose` 唯一匹配 → `orig_init_state_idx`；③ emit 50 records（5 子集行 × 10 task）。这是 trajectory-无关的 used-set ground truth（docstring 定义："library 从每 task 一小 subset init 建"），绕开坏的位置式。
+- **决策：本地生成（非 §4.1 远端）**。owner「走远端」前提（ziyang10 上有 repo+pkl+**init-states**）已破裂：ziyang10 **整个 `db_init` 缺失** + repo 落后 1 commit（8275c9f，且 replay 脚本两 SHA 间未改）；两边都无 libero → 产物字节等价 → 本地生成最简、无 GPU、可逆。
+- **验证**：`init_holdout` 回读 → 全 10 task used=5 / held_out=**45** ≥ eval-trials 10 ✓；`orig_init_state_idx` 全 int 无 None；H5 交叉验证每 task 恰 5 轨迹、共 50、**无未映射 prompt**；**`total_inits_per_task=50`**（全 task 一致）→ run_phase2 **无需 `--total-inits` 覆盖**。
+- 产物：`exp/common/data/db/libero_cache/libero_10_init_map.json`（50 records，gitignored）。
+
+### 14.2 calibration（✅ 完成）
+- 命令偏离：`--artifact-dir` 用只含 4 个 cp1 pkl 的符号链接临时目录（`/tmp/cal_libero10_cp1`），以**排除 CLIP**（脚本 `glob("*.pkl")` 否则会算 2 个 clip）。`--max-queries 300`。
+- 产物 `exp/weighted_sum/data/phase1/libero_10/calibration_normalizers.json`：4 stem（mean/max/spatial16/spatial64），每个 3 字段 vision_0(cosine)/vision_1(cosine)/robot_state(l2)，**全选 zscore**，sat=0、J 为正（健康分离）。注：cp1 的 `vector_dims` 不含 vision_2（与 libero_spatial 设计一致，检索只用这 3 字段 + prompt_emb 被 `_EXCLUDED_FIELDS` 排除）。
+
+### 14.3 §4.0 server 数据同步（部分完成）
+- **三方 sha256**：ziyang10 的 cp1_mean/max/spatial64 与本地**逐字节相同**；**spatial_16 sha 不同**（local de51731d vs ziyang10 f13517ad，差 8B，别的实验独立 enrich）。
+- **关键判定**：local 与 ziyang10 的 spatial_16 **query_keys content-hash 完全相同**（`ae88008207b6…`，2640 entries）→ 差异**只在 factors（Stage 4 用）**，Stage 1 检索（只用 query_keys）在 ziyang10 现有 pkl 上**逐字节等价** → **Stage 1 无需推 1.1GB、不覆盖他人文件**。spatial_16 factor canonical 同步**推迟到 Stage 4 前**（届时覆盖 ziyang10 需先备份 + 与 owner 确认）。
+- **xuanlel2**：repo 旧（250292a）+ 4 cp1 pkl **全缺** → Stage 2/独立阶段前须 git 同步 + 推全 4 pkl（+ 验 sha）。不挡 Stage 1（单 server 钉死 ziyang10）。
+
+### 14.4 Stage 1 base yaml（✅ emit）
+- `exp/weighted_sum/config/phase2/libero_10/` = **136 yaml**（每 stem 34 = iso3+grid2×21+grid3×10）。preload-path baked = libero_10 cp1 pkl 相对路径。
+
+### 14.5 ★ Stage 1 改为**双 server**（owner WA §7 决策，2026-05-29，证据支撑——修正 §3.4）
+- **§3.4「决策阶段单 server 钉死」的前提被证伪**：RESULTS.md §7 的 ~7pp 漂移**专指 H200(Hopper) vs A100(Ampere) 跨架构** bf16 累加差异；**同 GPU run-to-run 噪声仅 0–0.6pp**（基本确定性）。
+- 实测两台 server **完全同构**：`NVIDIA H200 NVL` / 驱动 `570.211.01` / compute_cap `9.0`（逐项相同）→ 不存在跨架构漂移 → 同一 yaml 的 SR 与落哪台 H200 无关 → **winner 选取不会被翻转**。owner 据此拍板（WA §7）：Stage 1 用**两台 H200 并行**，~2× 吞吐。
+- ⚠ 但「双 server 有效」**额外要求两台服务端代码逐字节一致**（否则代码差异引入非-GPU 混淆）。
+
+### 14.6 ★ 三台设备代码同步到 canonical `9519a79`（skill §3.1，2026-05-29）
+- 发现三台都跑**旧代码**且彼此不一致：ziyang10 `8275c9f`（落后 7 commit，早于 weighted_sum 基线 + 全部 audit 修复）、xuanlel2 `250292a`、timan107 `099f491`。`src/openpi` 服务端差异大（cache/config、search_strategy、key_builder、serving/batching_coordinator+192、websocket_policy_server、gemma_pytorch、orchestrator…）→ 直接影响检索打分/推理。
+- **已 `git stash -u`（保留可恢复）+ `git pull --ff-only origin Ziyang` 把三台全部同步到 `9519a79`**（owner 明确指示 git pull 同步）。stash 内容：ziyang10=untracked data/configs/tar、xuanle=`M orchestrator.py`、timan107=`M super_warmup.py`+untracked kinematic md（均在各机 `git stash list` 可恢复）。
+- `transformers_replace` overlay 两区间**未变** → 旧 venv overlay 仍有效，无需重做。
+- ignored 的 pkl 不受 stash 影响（保留）。**两台 server 现均 @9519a79、代码逐字节一致**。
+
+### 14.7 Stage 1 eval 拓扑（双 server）
+- **server**：ziyang10（3 replica，48 worker）+ xuanlel2（2 replica，32 worker），均 @9519a79，`OPENPI_SERVER_GPU_MEMORY_LOCK=0`，`--cache_config /tmp/stage1_placeholder.yaml` 占位、conductor 逐 yaml 热切。
+- **数据同步**：4 cp1 pkl —— ziyang10 原有（mean/max/sp64 与本地逐字节同；spatial_16 query_keys 与本地同，factor 异不影响 Stage1）；xuanlel2 已推本地 4 pkl（sha 校验）。init_map+136 yaml 在 timan107:/tmp。
+- **client**：timan107 @9519a79，`--servers ziyang:14000,xuanle:<port> --server-workers 48,32`（3:2 owner 指定，sum 80 worker；timan107 48 CPU 超额订阅但 worker 多为等推理 I/O-bound，监控 OOM/throttle），`--gpus 8 --conda-env libero_sim --eval-trials 10 --task-suite libero_10 --eval-concurrency 2`，tmux 内跑 + tee + journal 落 /tmp 后拉回 summarize。
+
+---
+
+### 14.8 ★ BUG 发现 + 修复：worker 未收到 task_suite（2026-05-29，run 期间 hotfix）
+- **症状**：首次双 server eval，server log 全 `cp1 judge: MISS (top_score=None, winner=None)` → 检索返回 0 候选，退化成纯 live 推理，Stage 1 SR 无意义（journal 仍 success:true，但那是 libero_spatial 的 live 推理结果，对本实验全错）。
+- **诊断**：server 端临时加 `DBGEMPTY` 日志实测 → `candidates=0`，`live_tk='pick up the black bowl between the plate and the ramekin and place it on the plate'`（= **libero_spatial task0**）≠ 库的 libero_10 裸 prompt（checkpoint CP1==CP1 ✓、qfields ✓）→ task_key 精确匹配失败（`in_memory_backend._filter_entries` line 348 `entry.payload.task_key != spec.filters.task_key`）。
+- **根因**：`src/openpi/conductor/agent.py:_default_spawn` 构造 worker 命令时**从不转发 `--task-suite-name`**；`examples/libero/worker_entry.py:49` 默认 `libero_spatial`。run_phase2 的 `task_suite_name=args.task_suite` 只喂 strategy（生成 episode 的 task_id），没进 WorkerSpec → worker 一直跑 libero_spatial 任务。libero_spatial 实验时该默认恰好对 → **潜伏 infra bug，到 libero_10 才暴露**。
+- **修复（3 行，client 侧）**：(a) `agent.py` `WorkerSpec` 加 `task_suite_name: str="libero_spatial"`；(b) `_default_spawn` base_cmd 加 `--task-suite-name spec.task_suite_name`；(c) `run_phase2.py` WorkerSpec 传 `task_suite_name=args.task_suite`。
+- ⚠ **改了 `src/openpi/conductor/agent.py`（共享 conductor infra）+ `exp/weighted_sum/run_phase2.py`**——run 期间 hotfix，**需提交 + 理应补 G1/G2 review**（owner 待定是否补正式 gate）。
+- **验证**：修复后微型 test（libero_10 task0/1ep）→ ziyang10 judge 全 `FULL_HIT`（top_score 0.94，winner=库轨迹 `episode_0001_*:57`），0 新 DBGEMPTY → 检索正常命中。
+- **已应用位置**：本地 canonical（agent.py + run_phase2.py，**未提交**）+ timan107 repo（已 cp 进 `/scratch/zixuans8/openpi/`）。server 端（ziyang10/xuanle）无需此 fix（不跑 agent/run_phase2）。`--init-states-dir` 仍用 `""`（LIBERO 内建全集，沿用 libero_spatial 先例，orig_init_state_idx 0-49 一致）。
+- **附带**：诊断期临时给 ziyang10 的 `in_memory_backend.py` 加过 DBGEMPTY 日志，已 `git checkout` revert（ziyang10 @9519a79 clean）。
+
+---
+
 ## Review Log
 
 ### G2 Round 1 — Reviewer — NEEDS REVISION — 2026-05-29
