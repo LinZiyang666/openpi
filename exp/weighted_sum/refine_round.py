@@ -19,8 +19,8 @@ Strategy (round 1, but parameters generalize to rounds 2-5):
 
 Usage:
     python -m exp.weighted_sum.refine_round \
-        --results exp/weighted_sum/data/phase2/results_preview.json \
-        --calibration exp/weighted_sum/data/calibration_normalizers.json \
+        --results exp/weighted_sum/data/libero_spatial/phase2/results_preview.json \
+        --calibration exp/weighted_sum/data/libero_spatial/phase1/calibration_normalizers.json \
         --preload-path exp/common/data/cache_artifacts/libero_spatial/cp1_max_pool.pkl \
         --output-dir exp/weighted_sum/config/round_1 \
         --round 1

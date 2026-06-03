@@ -59,7 +59,7 @@ SUPER_WARMUP_ID = "ws_d1_kin_super_warmup"
 # calibration source. The driver pushes super_warmup_raw.jsonl here via
 # tether to both ziyang10 and xuanle (mirroring the repo layout).
 SUPER_WARMUP_RAW_RELPATH = (
-    "exp/weighted_sum/data/kinematic_phase5/super_warmup_raw.jsonl"
+    "exp/weighted_sum/data/libero_spatial/kinematic_phase5/d1/super_warmup_raw.jsonl"
 )
 
 # Phase5 G5 originally uses three recipes (p1 / p2 / g6). We inherit

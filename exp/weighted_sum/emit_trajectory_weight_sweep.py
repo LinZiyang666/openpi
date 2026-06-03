@@ -36,11 +36,17 @@ _FIELDS = ("vision_0", "vision_1", "robot_state")
 def main():
     repo = Path(__file__).resolve().parents[2]
     ap = argparse.ArgumentParser(description="Emit spatial_16 weight-sweep × depth trajectory YAMLs")
-    ap.add_argument("--calibration", default=str(repo / "exp/weighted_sum/data/calibration_normalizers.json"))
+    ap.add_argument(
+        "--calibration",
+        default=str(repo / "exp/weighted_sum/data/libero_spatial/phase1/calibration_normalizers.json"),
+    )
     ap.add_argument("--artifact-dir", default="exp/common/data/cache_artifacts/libero_spatial",
                     help="relative — server resolves against its own CWD")
     ap.add_argument("--stem", default=_STEM)
-    ap.add_argument("--output-dir", default=str(repo / "exp/weighted_sum/config/trajectory_wsweep"))
+    ap.add_argument(
+        "--output-dir",
+        default=str(repo / "exp/weighted_sum/config/trajectory_wsweep/libero_spatial"),
+    )
     ap.add_argument("--depths", default="1,3,4,5")
     ap.add_argument("--step", type=float, default=0.0625, help="simplex grid step (1/16 default)")
     ap.add_argument("--dom-min", type=float, default=0.1875, help="robot_state lower bound on the grid")

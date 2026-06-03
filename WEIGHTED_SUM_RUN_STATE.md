@@ -7,9 +7,9 @@
 
 1. **基线**：136 配置 × 100ep = 13600（jupyter 单机 H200，可信）。SR 62.1%，最优 72%。
 2. **3 轮调优**（用户决定做完 3 轮就停）：两个 keybuilder（cp1_max_pool + cp1_spatial_pool_16）都细化。SR 天花板 **~74% 全程收敛**（r1=r2=r3）。
-3. **完整分析**：`RESULTS.md` §1–§7（一份连贯分析，非分阶段）+ `data/phase2/all_results.csv`（418 配置）。
+3. **完整分析**：`RESULTS.md` §1–§7（一份连贯分析，非分阶段）+ `data/libero_spatial/phase2/all_results.csv`（418 配置）。
 4. **2 张图**（`exp/weighted_sum/figures/`，已发聊天室）：fig1 三元热力图（各 keybuilder 权重单纯形 SR）+ fig2 keybuilder 箱线图。不含 a100。
-5. **top10 跨 GPU 对比**（`RESULTS.md §7` + `data/phase2/top10_compare.csv`）：top10 在 a100(A100, 3rep) vs jupyter(H200)，a100 平均低 **6.6pp**、最大 18pp、8/10 偏低 → 干净验证跨架构 SR 不可比（印证固定单 GPU 的必要性）。
+5. **top10 跨 GPU 对比**（`RESULTS.md §7` + `data/libero_spatial/phase2/top10_compare.csv`）：top10 在 a100(A100, 3rep) vs jupyter(H200)，a100 平均低 **6.6pp**、最大 18pp、8/10 偏低 → 干净验证跨架构 SR 不可比（印证固定单 GPU 的必要性）。
 
 ## 核心结论
 
@@ -22,7 +22,7 @@
 ## 拓扑（最终）
 
 - **jupyter-ziyang10** = H200 server（weiland.top:14000），跑了全部 jupyter 实验。
-- **timan107** = driver/client。**本机** /home/weiland/projects/openpi = 留底（config/round_*、data/phase2/*.csv/json、figures/）。
+- **timan107** = driver/client。**本机** /home/weiland/projects/openpi = 留底（config/round_*、data/libero_spatial/phase2/*.csv/json、figures/）。
 - **a100** = 新机（149.165.152.105, A100-40GB, vla-cache），旧 a100(149.165.151.106) 已退役替换（见 devices.md §2.3）。仅 top10 跨 GPU 对比用过，已停 server。
 - broker = pc732（weiland.top）。
 

@@ -10,9 +10,9 @@ and produces three figures:
 
 Usage (timan107, ephemeral matplotlib install, does not touch .venv):
   uv run --with matplotlib python exp/weighted_sum/plot_results.py \
-      --all-results exp/weighted_sum/data/phase2/all_results.csv \
-      --compare exp/weighted_sum/data/phase2/top10_compare.csv \
-      --outdir exp/weighted_sum/figures
+      --all-results exp/weighted_sum/data/libero_spatial/phase2/all_results.csv \
+      --compare exp/weighted_sum/data/libero_spatial/phase2/top10_compare.csv \
+      --outdir exp/weighted_sum/analysis/libero_spatial/phase2
 """
 from __future__ import annotations
 

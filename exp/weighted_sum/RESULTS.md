@@ -136,7 +136,7 @@ CP1 系列把 SigLIP 的 256 个 patch token（16×16 网格，每 token emb_dim
 
 > ⚠ spatial_16(72%) 与 max_pool(71%) 仅差 1 episode，**在 n=100 的 SR 标准误（≈±4.5%）内打平**，不能据此断定孰优。故 5 轮调优**两个 keybuilder 都细化**（用户决策），不靠噪声丢弃任一。
 
-### 3 轮调优（围绕最优区 center 加密；完整数据见 `data/phase2/all_results.csv`，418 配置）
+### 3 轮调优（围绕最优区 center 加密；完整数据见 `data/libero_spatial/phase2/all_results.csv`，418 配置）
 
 调优在两个 top keybuilder（max_pool + spatial_16）的最优区逐轮加密。**各轮最优演化**：
 
@@ -150,15 +150,15 @@ CP1 系列把 SigLIP 的 256 个 patch token（16×16 网格，每 token emb_dim
 **全实验最优区（SR 73–74%，跨轮一致复现）**：
 - `cp1_spatial_pool_16` · grid3 **v0@0.06 v1@0.44–0.50 rs@0.44–0.50** · zscore → **74%**
 - `cp1_max_pool` · grid3 **v0@0.06–0.31 v1@0.25–0.44 rs@0.44–0.50** · zscore → **73%**
-- 全实验 SR Top-10：8 个 `cp1_spatial_pool_16` + 2 个 `cp1_max_pool`（见 `config/top10/`）。
+- 全实验 SR Top-10：8 个 `cp1_spatial_pool_16` + 2 个 `cp1_max_pool`（见 `config/top10/libero_spatial/`）。
 
-> 第 1 轮起即触及 ~74% 天花板，第 2·3 轮加密无提升 → **已收敛**。`__norm2`（shortlist 第二 normalizer）对照未超过 zscore。完整逐配置 SR 见 all_results.csv。
+> 第 1 轮起即触及 ~74% 天花板，第 2·3 轮加密无提升 → **已收敛**。`__norm2`（shortlist 第二 normalizer）对照未超过 zscore。完整逐配置 SR 见 `data/libero_spatial/phase2/all_results.csv`。
 
 ---
 
 ## 四、发现的参数设置哲学
 
-> 基于基线 + 3 轮调优共 418 配置（`data/phase2/all_results.csv`）的完整归纳。jupyter 单机 H200、`always_hit` 纯检索、每配置 100 held-out ep。
+> 基于基线 + 3 轮调优共 418 配置（`data/libero_spatial/phase2/all_results.csv`）的完整归纳。jupyter 单机 H200、`always_hit` 纯检索、每配置 100 held-out ep。
 
 **1. SR 天花板 ~74%，全程稳定收敛。** 基线全局最优 72% → 第 1 轮升到 74% → 第 2·3 轮加密无提升（持平 74%）。`always_hit` 纯检索在当前库密度（每任务约千条目）下的 SR 上限就是 ~74%；继续在最优区加密只在 ±4.5% 标准误（n=100）内波动。（旧的 87% 是双 server 混跑污染/彩票值，已作废——见 §6 可复现性。）
 
@@ -195,7 +195,7 @@ CP1 系列把 SigLIP 的 256 个 patch token（16×16 网格，每 token emb_dim
 
 ## 七、跨 GPU 波动对比（top10：H200 vs A100，2026-05-26）
 
-取全实验 SR 前 10 配置（8 spatial_pool_16 + 2 max_pool），**两个 GPU 各跑 3 次**（a100：run1/2/3；jupyter：实验首次 + 重跑 v1/v2；同 held-out init、同 100ep/配置），同时测**各自 run-to-run 波动**（噪声 floor）与**跨架构均值差**。数据：`data/phase2/top10_variance.csv`（逐次 SR）。
+取全实验 SR 前 10 配置（8 spatial_pool_16 + 2 max_pool），**两个 GPU 各跑 3 次**（a100：run1/2/3；jupyter：实验首次 + 重跑 v1/v2；同 held-out init、同 100ep/配置），同时测**各自 run-to-run 波动**（噪声 floor）与**跨架构均值差**。数据：`data/libero_spatial/phase2/top10_variance.csv`（逐次 SR）。
 
 | 配置（grid3 v0/v1/rs） | a100 r1/r2/r3（均值,极差）| jupyter exp/v1/v2（均值,极差）| cross (a100−jup) |
 |---|---|---|---|

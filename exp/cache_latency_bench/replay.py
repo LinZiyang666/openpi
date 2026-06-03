@@ -242,7 +242,10 @@ class ReplayHarness:
     forward replaced by HDF5 replay, recording per-step CP1 segment latency.
     """
 
-    def __init__(self, cache_config_path: str, *, device: str = "cpu") -> None:
+    def __init__(self, cache_config_path: str, *, device: str = "cpu", components_hook=None) -> None:
+        # components_hook: optional callable(components) applied after build and before
+        # the orchestrator binds them — used by exp-side backend optimizations (e.g.
+        # ROUND-1 PrebuiltMatrixBackend injection). None = stock server-identical path.
         if device != "cpu":
             raise NotImplementedError(
                 f"device={device!r} not supported; only CPU (plan D1). GPU mode "
@@ -263,6 +266,8 @@ class ReplayHarness:
         _validate_artifact_enrichment(config)
 
         components = build_cache_components(config)  # same source as the server
+        if components_hook is not None:
+            components_hook(components)
         self._orchestrator = CacheOrchestrator(**components)
         self._timer = components["timer"]  # same instance the orchestrator times on
         self._judge_reads_action_history = _judge_consumes_action_history(config)

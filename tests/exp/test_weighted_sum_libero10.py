@@ -13,6 +13,7 @@ Covers the gated code added for the libero_10 port:
 - ``emit_top10`` picks exactly 10 deterministically + manifest;
 - ``emit_trajectory_yamls`` base union no longer pinned to 18 / overlap 4.
 """
+
 from __future__ import annotations
 
 import json
@@ -53,7 +54,12 @@ def test_cfg_specs_libero10_entry_structure() -> None:
     assert "libero_10" in cfg["preload_pkl"]
     ss = cfg["search_strategy"]
     assert ss["type"] == "weighted_score_sum_knn"
-    assert "trajectory_depth" not in ss  # d1 single-step retrieval
+    # Stage 4 inherits the Stage-3 Pareto-winner's depth (owner 2026-05-31 override
+    # per WA line 7: use the winner's depth). Placeholder = 1; set to winner depth
+    # once Stage 3 names the Pareto winner. weighted_score_sum_knn already supports
+    # depth>1 (Stage 2 d3/d4/d5), so this is a data field not a backend change.
+    assert ss["trajectory_depth"] >= 1
+    assert len(ss["trajectory_weights"]) == ss["trajectory_depth"]
     assert ss["score_normalization"]["type"] == "per_field"
     for f in ("vision_0", "vision_1", "robot_state"):
         assert cfg["keys"][f]["enabled"] is True
@@ -89,13 +95,18 @@ def test_build_eval_yaml_for_cell_cfg_id_libero10() -> None:
 
 
 def test_build_super_warmup_yaml_override_used() -> None:
-    out = ksw.build_super_warmup_yaml(preload_pkl_override=_LIBERO10_PKL)
+    out = ksw.build_super_warmup_yaml(
+        cfg_id=_SPATIAL_CFG, preload_pkl_override=_LIBERO10_PKL
+    )
     assert out["backend"]["in_memory"]["preload_path"] == _LIBERO10_PKL
 
 
-def test_build_super_warmup_yaml_default_unchanged() -> None:
-    out = ksw.build_super_warmup_yaml()
-    assert out["backend"]["in_memory"]["preload_path"] == _spatial_pkl()
+def test_build_super_warmup_yaml_requires_cfg_id() -> None:
+    # cfg_id is mandatory — no silent fallback to a default CFG. A missing
+    # cfg_id once loaded libero_spatial's pkl on a libero_10 run, producing an
+    # all-NaN factor dump (Stage 4 root cause). Refuse to build, fail loudly.
+    with pytest.raises(TypeError):
+        ksw.build_super_warmup_yaml(preload_pkl_override=_LIBERO10_PKL)
 
 
 def test_build_super_warmup_yaml_cfg_id_libero10() -> None:
@@ -147,12 +158,18 @@ def test_emit_warmup_mode_threads_override(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     captured = _capture_write_yaml(monkeypatch)
-    args = krun._parse([
-        "--mode", "emit-warmup",
-        "--warmup-yaml", str(tmp_path / "sw.yaml"),
-        "--preload-pkl-override", _LIBERO10_PKL,
-        "--cfg-id", _LIBERO10_CFG,
-    ])
+    args = krun._parse(
+        [
+            "--mode",
+            "emit-warmup",
+            "--warmup-yaml",
+            str(tmp_path / "sw.yaml"),
+            "--preload-pkl-override",
+            _LIBERO10_PKL,
+            "--cfg-id",
+            _LIBERO10_CFG,
+        ]
+    )
     krun._mode_emit_warmup(args)
     assert captured
     for data in captured.values():
@@ -163,12 +180,18 @@ def test_run_always_warm_mode_threads_override(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     captured = _capture_write_yaml(monkeypatch)
-    args = krun._parse([
-        "--mode", "run-always-warm",
-        "--always-warm-dir", str(tmp_path),
-        "--preload-pkl-override", _LIBERO10_PKL,
-        "--cfg-id", _LIBERO10_CFG,
-    ])
+    args = krun._parse(
+        [
+            "--mode",
+            "run-always-warm",
+            "--always-warm-dir",
+            str(tmp_path),
+            "--preload-pkl-override",
+            _LIBERO10_PKL,
+            "--cfg-id",
+            _LIBERO10_CFG,
+        ]
+    )
     krun._mode_run_always_warm(args)
     assert len(captured) == 3  # start_t 0.3 / 0.5 / 0.7
     for data in captured.values():
@@ -191,14 +214,22 @@ def test_emit_eval_yamls_mode_threads_override(
     super_raw = tmp_path / "super_raw.jsonl"
     super_raw.write_text("")  # only existence is checked before the mocked solver
 
-    args = krun._parse([
-        "--mode", "emit-eval-yamls",
-        "--super-raw", str(super_raw),
-        "--eval-dir", str(tmp_path / "eval"),
-        "--thresholds-dir", str(tmp_path / "thr"),
-        "--preload-pkl-override", _LIBERO10_PKL,
-        "--cfg-id", _LIBERO10_CFG,
-    ])
+    args = krun._parse(
+        [
+            "--mode",
+            "emit-eval-yamls",
+            "--super-raw",
+            str(super_raw),
+            "--eval-dir",
+            str(tmp_path / "eval"),
+            "--thresholds-dir",
+            str(tmp_path / "thr"),
+            "--preload-pkl-override",
+            _LIBERO10_PKL,
+            "--cfg-id",
+            _LIBERO10_CFG,
+        ]
+    )
     krun._mode_emit_eval_yamls(args)
 
     assert captured, "expected at least one eval yaml emitted"
@@ -216,10 +247,22 @@ def test_emit_eval_yamls_mode_threads_override(
 def _fake_results() -> dict:
     # kbA clearly best; kbB present with its own ordering.
     return {
-        "cp1_spatial_pool_16__grid3_vision_0@6_vision_1@50_robot_state@44": {"success_rate": 0.74, "n": 100},
-        "cp1_spatial_pool_16__grid3_vision_0@12_vision_1@44_robot_state@44": {"success_rate": 0.70, "n": 100},
-        "cp1_max_pool__grid3_vision_0@31_vision_1@25_robot_state@44": {"success_rate": 0.66, "n": 100},
-        "cp1_max_pool__grid3_vision_0@6_vision_1@25_robot_state@69": {"success_rate": 0.60, "n": 100},
+        "cp1_spatial_pool_16__grid3_vision_0@6_vision_1@50_robot_state@44": {
+            "success_rate": 0.74,
+            "n": 100,
+        },
+        "cp1_spatial_pool_16__grid3_vision_0@12_vision_1@44_robot_state@44": {
+            "success_rate": 0.70,
+            "n": 100,
+        },
+        "cp1_max_pool__grid3_vision_0@31_vision_1@25_robot_state@44": {
+            "success_rate": 0.66,
+            "n": 100,
+        },
+        "cp1_max_pool__grid3_vision_0@6_vision_1@25_robot_state@69": {
+            "success_rate": 0.60,
+            "n": 100,
+        },
     }
 
 
@@ -258,7 +301,9 @@ def _write_results_csv(path: Path, n_configs: int) -> list[str]:
         yid = f"cp1_spatial_pool_16__grid3_vision_0@{i:02d}_vision_1@50_robot_state@44"
         sr = 0.80 - 0.01 * i  # strictly descending
         yids.append(yid)
-        lines.append(f"baseline,cp1_spatial_pool_16,{yid},0.0,0.5,0.44,zscore,100,{sr:.4f}\n")
+        lines.append(
+            f"baseline,cp1_spatial_pool_16,{yid},0.0,0.5,0.44,zscore,100,{sr:.4f}\n"
+        )
     path.write_text("".join(lines))
     return yids
 
@@ -299,12 +344,19 @@ def test_emit_top10_main_stages_yamls_and_manifest(
     for y in yids:
         (src / f"{y}.yaml").write_text("enabled: true\n")
     out_dir = tmp_path / "top10"
-    monkeypatch.setattr(sys, "argv", [
-        "emit_top10.py",
-        "--results-csv", str(csv_path),
-        "--src-config-dirs", str(src),
-        "--out-dir", str(out_dir),
-    ])
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "emit_top10.py",
+            "--results-csv",
+            str(csv_path),
+            "--src-config-dirs",
+            str(src),
+            "--out-dir",
+            str(out_dir),
+        ],
+    )
     emit_top10.main()
     staged = sorted(p.name for p in out_dir.glob("*.yaml"))
     assert len(staged) == 10
@@ -326,18 +378,28 @@ def test_select_base_configs_overlap_not_four_ok(tmp_path: Path) -> None:
     csv_path = tmp_path / "all_results.csv"
     header = "stage,keybuilder,yaml_id,v0,v1,rs,normalizer,n,success_rate\n"
     rows = [header]
-    kbs = ("cp1_spatial_pool_16", "cp1_max_pool", "cp1_mean_pool", "cp1_spatial_pool_64")
+    kbs = (
+        "cp1_spatial_pool_16",
+        "cp1_max_pool",
+        "cp1_mean_pool",
+        "cp1_spatial_pool_64",
+    )
     for kb in kbs:
         for i in range(4):  # >=3 regular-grid configs per kb (A criterion)
             yid = f"{kb}__grid3_vision_0@{i:02d}_vision_1@50_robot_state@44"
-            rows.append(f"baseline,{kb},{yid},0.0,0.5,0.44,zscore,100,{0.7 - 0.01 * i:.4f}\n")
+            rows.append(
+                f"baseline,{kb},{yid},0.0,0.5,0.44,zscore,100,{0.7 - 0.01 * i:.4f}\n"
+            )
     csv_path.write_text("".join(rows))
 
     top10_dir = tmp_path / "top10"
     top10_dir.mkdir()
     # 10 top10 ids that do NOT overlap group1 at all (overlap == 0, not 4).
     for i in range(10):
-        (top10_dir / f"cp1_spatial_pool_16__grid3_vision_0@9{i}_vision_1@5_robot_state@5.yaml").write_text("x")
+        (
+            top10_dir
+            / f"cp1_spatial_pool_16__grid3_vision_0@9{i}_vision_1@5_robot_state@5.yaml"
+        ).write_text("x")
 
     group1, top10_ids, base_ids = etj.select_base_configs(csv_path, top10_dir)
     group1_ids = {g[2] for g in group1}
@@ -349,16 +411,25 @@ def test_select_base_configs_overlap_not_four_ok(tmp_path: Path) -> None:
 def _write_group1_csv(path: Path) -> None:
     header = "stage,keybuilder,yaml_id,v0,v1,rs,normalizer,n,success_rate\n"
     rows = [header]
-    kbs = ("cp1_spatial_pool_16", "cp1_max_pool", "cp1_mean_pool", "cp1_spatial_pool_64")
+    kbs = (
+        "cp1_spatial_pool_16",
+        "cp1_max_pool",
+        "cp1_mean_pool",
+        "cp1_spatial_pool_64",
+    )
     for kb in kbs:
         for i in range(4):
             yid = f"{kb}__grid3_vision_0@{i:02d}_vision_1@50_robot_state@44"
-            rows.append(f"baseline,{kb},{yid},0.0,0.5,0.44,zscore,100,{0.7 - 0.01 * i:.4f}\n")
+            rows.append(
+                f"baseline,{kb},{yid},0.0,0.5,0.44,zscore,100,{0.7 - 0.01 * i:.4f}\n"
+            )
     path.write_text("".join(rows))
 
 
 @pytest.mark.parametrize("n_top10", [9, 11])
-def test_select_base_configs_top10_miscount_raises(tmp_path: Path, n_top10: int) -> None:
+def test_select_base_configs_top10_miscount_raises(
+    tmp_path: Path, n_top10: int
+) -> None:
     # G2 R1 Item2: a stale / short / over-full top10 dir must fail loudly, not
     # silently change N_base.
     csv_path = tmp_path / "all_results.csv"
@@ -366,7 +437,10 @@ def test_select_base_configs_top10_miscount_raises(tmp_path: Path, n_top10: int)
     top10_dir = tmp_path / "top10"
     top10_dir.mkdir()
     for i in range(n_top10):
-        (top10_dir / f"cp1_spatial_pool_16__grid3_vision_0@9{i}_vision_1@5_robot_state@5.yaml").write_text("x")
+        (
+            top10_dir
+            / f"cp1_spatial_pool_16__grid3_vision_0@9{i}_vision_1@5_robot_state@5.yaml"
+        ).write_text("x")
     with pytest.raises(ValueError):
         etj.select_base_configs(csv_path, top10_dir)
 
@@ -376,15 +450,33 @@ def test_select_base_configs_top10_miscount_raises(tmp_path: Path, n_top10: int)
 # ======================================================================
 
 
-def test_run_eval_rejects_dual_server() -> None:
-    args = krun._parse(["--mode", "run-eval"])  # CLI default --servers is dual
-    assert "," in args.servers  # precondition
-    with pytest.raises(SystemExit):
-        krun._mode_run_eval(args)
+def test_run_eval_accepts_dual_server(capsys: pytest.CaptureFixture) -> None:
+    # Owner override (2026-05-31, WA line 7): dual-server eval is allowed
+    # (Stage 1/2/3 parity). The single-server guard is retired; both endpoints
+    # and the per-server worker split must appear in the echoed command.
+    args = krun._parse(
+        ["--mode", "run-eval", "--num-workers", "80", "--server-workers", "40,40"]
+    )
+    assert "," in args.servers  # CLI default --servers is dual
+    krun._mode_run_eval(args)
+    out = capsys.readouterr().out
+    assert "weiland.top:14001" in out  # both endpoints echoed (no guard raise)
+    assert "--server-workers 40,40" in out
 
 
 def test_run_eval_single_server_ok(capsys: pytest.CaptureFixture) -> None:
-    args = krun._parse(["--mode", "run-eval", "--servers", "weiland.top:14000"])
+    args = krun._parse(
+        [
+            "--mode",
+            "run-eval",
+            "--servers",
+            "weiland.top:14000",
+            "--num-workers",
+            "48",
+            "--server-workers",
+            "48",
+        ]
+    )
     krun._mode_run_eval(args)
     out = capsys.readouterr().out
     assert "--servers weiland.top:14000" in out
@@ -404,12 +496,19 @@ def test_emit_top10_idempotent_clears_stale(
     out_dir = tmp_path / "top10"
     out_dir.mkdir()
     (out_dir / "STALE__old_config.yaml").write_text("stale\n")  # pre-existing junk
-    monkeypatch.setattr(sys, "argv", [
-        "emit_top10.py",
-        "--results-csv", str(csv_path),
-        "--src-config-dirs", str(src),
-        "--out-dir", str(out_dir),
-    ])
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "emit_top10.py",
+            "--results-csv",
+            str(csv_path),
+            "--src-config-dirs",
+            str(src),
+            "--out-dir",
+            str(out_dir),
+        ],
+    )
     emit_top10.main()
     staged = sorted(p.name for p in out_dir.glob("*.yaml"))
     assert len(staged) == 10

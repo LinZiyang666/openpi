@@ -37,11 +37,26 @@ def _compute_inf(row):
     return (row.get("n_full_hit", 0) * 0.0 + row.get("n_warm_start", 0) * WARM_COST + row.get("n_miss", 0) * 1.0) / n
 
 
+def _load_threshold_maps(repo: Path):
+    root = repo / "exp/weighted_sum/data/libero_spatial/threshold_pareto"
+    combined_sr = root / "eval_results.json"
+    combined_inf = root / "eval_inf_ratio.json"
+    if combined_sr.exists() and combined_inf.exists():
+        return json.loads(combined_sr.read_text()), json.loads(combined_inf.read_text())
+
+    sr = {}
+    inf = {}
+    for depth in (1, 3, 4, 5):
+        droot = root / f"d{depth}"
+        sr.update(json.loads((droot / "results.json").read_text()))
+        inf.update(json.loads((droot / "inf_ratio.json").read_text()))
+    return sr, inf
+
+
 def main():
     repo = Path(__file__).resolve().parents[3]
     # threshold-pareto: all 4 bases combined into one envelope
-    sr = json.loads((repo / "exp/weighted_sum/data/threshold_pareto/eval_results.json").read_text())
-    inf = json.loads((repo / "exp/weighted_sum/data/threshold_pareto/eval_inf_ratio.json").read_text())
+    sr, inf = _load_threshold_maps(repo)
     by_base = defaultdict(list)
     all_threshold = []
     for yid in sr:
@@ -111,7 +126,8 @@ def main():
     ax.grid(alpha=0.4, linewidth=0.7)
     ax.legend(loc="lower right", fontsize=9, ncol=1, framealpha=0.95)
     fig.tight_layout()
-    out = Path(__file__).resolve().parent
+    out = repo / "exp/weighted_sum/analysis/libero_spatial/threshold_pareto"
+    out.mkdir(parents=True, exist_ok=True)
     for ext in ("png", "pdf"):
         fig.savefig(out / f"pareto_combined.{ext}", dpi=180, bbox_inches="tight")
     print(f"saved combined Pareto (3-line) to {out}/pareto_combined.{{png,pdf}}")

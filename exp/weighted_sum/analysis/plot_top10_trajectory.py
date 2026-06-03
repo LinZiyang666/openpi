@@ -26,10 +26,14 @@ _DEPTH_RE = re.compile(r"__d(\d+)$")
 def main():
     repo = Path(__file__).resolve().parents[3]
     ap = argparse.ArgumentParser()
-    ap.add_argument("--results", default=str(repo / "exp/weighted_sum/data/trajectory/results.json"))
-    ap.add_argument("--baseline", default=str(repo / "exp/weighted_sum/data/phase2/all_results.csv"))
-    ap.add_argument("--top10-dir", default=str(repo / "exp/weighted_sum/config/top10"))
-    ap.add_argument("--out", default=str(Path(__file__).resolve().parent / "top10_trajectory.png"))
+    ap.add_argument("--results", default=str(repo / "exp/weighted_sum/data/libero_spatial/trajectory/results.json"))
+    ap.add_argument("--baseline", default=str(repo / "exp/weighted_sum/data/libero_spatial/phase2/all_results.csv"))
+    ap.add_argument("--top10-dir", default=str(repo / "exp/weighted_sum/config/top10/libero_spatial"))
+    ap.add_argument("--suite-label", default="libero_spatial")
+    ap.add_argument(
+        "--out",
+        default=str(Path(__file__).resolve().parent / "libero_spatial" / "trajectory" / "top10_trajectory.png"),
+    )
     args = ap.parse_args()
 
     top10 = sorted(p.stem for p in Path(args.top10_dir).glob("*.yaml"))
@@ -66,7 +70,7 @@ def main():
     ax.plot(x, [d1_mean] + [statistics.mean(perdepth[d]) for d in depths], color="k", lw=3, marker="s",
             label=f"TOP-10 MEAN (mean Δbest={statistics.mean(deltas):+.1f}pp)", zorder=10)
     ax.axhline(d1_mean, color="gray", ls=":", lw=1)
-    ax.set_title("Top-10 weighted_sum configs under trajectory search (libero_spatial, always_hit)")
+    ax.set_title(f"Top-10 weighted_sum configs under trajectory search ({args.suite_label}, always_hit)")
     ax.set_xlabel("trajectory depth (1 = weighted_sum baseline)")
     ax.set_ylabel("success rate (%)")
     ax.set_xticks(x)

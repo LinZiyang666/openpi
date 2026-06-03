@@ -16,7 +16,7 @@ Data reuses the 6 library artifacts already at `exp/common/data/cache_artifacts/
 ```bash
 uv run exp/common/calibrate_score_normalizers.py \
     --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
-    --output exp/weighted_sum/data/calibration_normalizers.json \
+    --output exp/weighted_sum/data/libero_spatial/phase1/calibration_normalizers.json \
     --max-queries 300
 ```
 
@@ -28,7 +28,7 @@ Diagnostic plot:
 
 ```bash
 uv run exp/weighted_sum/analysis/plot_phase1_calibration.py \
-    --calibration exp/weighted_sum/data/calibration_normalizers.json
+    --calibration exp/weighted_sum/data/libero_spatial/phase1/calibration_normalizers.json
 ```
 
 > The final method is **not** decided by J alone — the shortlist is handed to Phase 2 for real-task success-rate ranking.
@@ -39,10 +39,10 @@ uv run exp/weighted_sum/analysis/plot_phase1_calibration.py \
 
 ```bash
 uv run exp/weighted_sum/emit_yamls.py \
-    --calibration exp/weighted_sum/data/calibration_normalizers.json \
+    --calibration exp/weighted_sum/data/libero_spatial/phase1/calibration_normalizers.json \
     --stem cp1_spatial_pool_16 \
     --preload-path exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl \
-    --output-dir exp/weighted_sum/config/phase2 --mode both
+    --output-dir exp/weighted_sum/config/phase2/libero_spatial --mode both
 ```
 
 Each YAML: `weighted_score_sum_knn` + Phase-1-selected `score_normalization.type: per_field`, `judge.type: always_hit` (pure replay to isolate retrieval quality), `keys.prompt_emb.enabled: false`, **`write_policy.type: never`** (C2 write-frozen, otherwise server load fails fast). `--mode`: `isolation` (single-modality → find useful modalities) / `grid` (weight grid over useful modalities) / `both`.
@@ -52,16 +52,16 @@ Each YAML: `weighted_score_sum_knn` + Phase-1-selected `score_normalization.type
 ```bash
 CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py policy:checkpoint \
     --policy.config=pi05_libero --policy.dir=<ckpt> --port 8001 \
-    --cache_config exp/weighted_sum/config/phase2/<any>.yaml
+    --cache_config exp/weighted_sum/config/phase2/libero_spatial/<any>.yaml
 ```
 
 ### 2.3 Run evaluation (init-state leakage guard)
 
 ```bash
 uv run exp/weighted_sum/run_phase2.py \
-    --yaml-dir exp/weighted_sum/config/phase2 \
+    --yaml-dir exp/weighted_sum/config/phase2/libero_spatial \
     --init-map exp/common/data/db/libero_cache/libero_spatial_init_map.json \
-    --journal exp/weighted_sum/data/phase2/journal.jsonl \
+    --journal exp/weighted_sum/data/libero_spatial/phase2/journal.jsonl \
     --servers <host>:8001 --task-ids 0-9 --eval-trials 20
 ```
 
@@ -73,11 +73,11 @@ First aggregate the conductor journal into per-yaml success_rate, then plot:
 
 ```bash
 uv run exp/weighted_sum/summarize.py \
-    --journal exp/weighted_sum/data/phase2/journal.jsonl \
-    --out exp/weighted_sum/data/phase2/results.json
+    --journal exp/weighted_sum/data/libero_spatial/phase2/journal.jsonl \
+    --out exp/weighted_sum/data/libero_spatial/phase2/results.json
 
 uv run exp/weighted_sum/analysis/plot_phase2_results.py \
-    --results exp/weighted_sum/data/phase2/results.json
+    --results exp/weighted_sum/data/libero_spatial/phase2/results.json
 ```
 
 Group by keybuilder and plot success_rate × weight configuration (aligned with the `exp/common/analysis/phase1/libero_spatial` style). 2a isolation results are cross-validated with the Phase-1 `mag_sep` prior to lock down "the set of useful modalities + per-modality final method"; 2b runs a coarse→fine grid over useful modalities for the optimal weights.
@@ -86,7 +86,7 @@ Group by keybuilder and plot success_rate × weight configuration (aligned with 
 
 Layer trajectory search (multi-step query history aggregation) on top of Phase-2's best configuration, methodologically aligned with the old trajectory experiment over Phase 1. Design and decisions: [`logs/weighted_sum_trajectory_search.log.md`](../../logs/weighted_sum_trajectory_search.log.md).
 
-**Base selection (18, deduped)**: ① per-keybuilder (each of the 4 CP1 keybuilders contributes top1+top2+second-to-last; second-to-last taken from the regular weight grid with the same `zscore`, excluding `__norm2`/`iso_`); ② the full-experiment top10. The two sets overlap by 4 (spatial_16/max_pool's top1+top2 are all in top10), union 18. depth ∈ {3,4,5,6}; `trajectory_weights` reuses the old decreasing scheme; the depth-1 baseline reuses the existing SR from `data/phase2/all_results.csv` (comparable on the same jupyter machine).
+**Base selection (18, deduped)**: ① per-keybuilder (each of the 4 CP1 keybuilders contributes top1+top2+second-to-last; second-to-last taken from the regular weight grid with the same `zscore`, excluding `__norm2`/`iso_`); ② the full-experiment top10. The two sets overlap by 4 (spatial_16/max_pool's top1+top2 are all in top10), union 18. depth ∈ {3,4,5,6}; `trajectory_weights` reuses the old decreasing scheme; the depth-1 baseline reuses the existing SR from `data/libero_spatial/phase2/all_results.csv` (comparable on the same jupyter machine).
 
 ```bash
 # 1) Emit 72 trajectory yamls (18 base × 4 depth), with built-in dedup assertion + schema self-check
@@ -96,18 +96,18 @@ PYTHONPATH=. uv run exp/weighted_sum/emit_trajectory_yamls.py
 # 2) Launch server (jupyter, --replicas + HOME — see devices.md / §2.2 above) + tether expose
 # 3) Run eval (timan107, each yaml 100 ep = 10 task × --eval-trials 10)
 PYTHONPATH=. uv run exp/weighted_sum/run_phase2.py \
-    --yaml-dir exp/weighted_sum/config/trajectory \
+    --yaml-dir exp/weighted_sum/config/trajectory/libero_spatial \
     --init-map exp/common/data/db/libero_cache/libero_spatial_init_map.json \
-    --journal  exp/weighted_sum/data/trajectory/journal.jsonl \
+    --journal  exp/weighted_sum/data/libero_spatial/trajectory/journal.jsonl \
     --servers <host>:<port> --task-ids 0-9 --eval-trials 10 --workers 48 --gpus 8
 
 # 4) Aggregate + analyze (merge depth-1 baseline + depth 3/4/5/6, compute Δ vs single-step)
 uv run exp/weighted_sum/summarize.py \
-    --journal exp/weighted_sum/data/trajectory/journal.jsonl \
-    --out     exp/weighted_sum/data/trajectory/results.json
+    --journal exp/weighted_sum/data/libero_spatial/trajectory/journal.jsonl \
+    --out     exp/weighted_sum/data/libero_spatial/trajectory/results.json
 PYTHONPATH=. uv run exp/weighted_sum/analysis/plot_trajectory_results.py \
-    --results  exp/weighted_sum/data/trajectory/results.json \
-    --baseline exp/weighted_sum/data/phase2/all_results.csv
+    --results  exp/weighted_sum/data/libero_spatial/trajectory/results.json \
+    --baseline exp/weighted_sum/data/libero_spatial/phase2/all_results.csv
 ```
 
 > Trajectory only supports `InMemoryBackend`; `run_phase2` / conductor / concurrent server are transparent to trajectory — zero change. `emit_trajectory_yamls.py` reuses `emit_yamls.build_eval_config` (which already accepts trajectory params).

@@ -41,7 +41,6 @@ import numpy as np
 
 from exp.verdict_factor_judge.common.v2_spec import CFG_SPECS, factor
 from exp.weighted_sum.kinematic.spec import (
-    CFG_ID_DEFAULT,
     SUPER_WARMUP_ID,
     cell_to_solver_recipe,
     generate_all_cells,
@@ -65,9 +64,9 @@ DEFAULT_YAML_PATH = Path(
     # Stem MUST equal SUPER_WARMUP_ID: generate_yamls.write_yaml enforces
     # ``yaml stem == dump.config_id`` and raises InvariantError otherwise
     # (see common/generate_yamls.py:117).
-    "exp/weighted_sum/config/kinematic_phase5/ws_d1_kin_super_warmup.yaml"
+    "exp/weighted_sum/config/kinematic_phase5/libero_spatial/d1/ws_d1_kin_super_warmup.yaml"
 )
-DEFAULT_RAW_DIR = Path("exp/weighted_sum/data/kinematic_phase5")
+DEFAULT_RAW_DIR = Path("exp/weighted_sum/data/libero_spatial/kinematic_phase5/d1")
 DEFAULT_RAW_PATH = DEFAULT_RAW_DIR / "super_warmup_raw.jsonl"
 DEFAULT_RAW_DUMP_PATH = DEFAULT_RAW_DIR / "super_warmup_raw_dump.jsonl"
 
@@ -115,9 +114,7 @@ def _group_keys_to_factor_blocks(keys: set[str]) -> list[dict[str, Any]]:
         factors.append(
             factor(
                 type_name,
-                windows=[
-                    {"past": p, "future": f} for (p, f) in windows_sorted
-                ],
+                windows=[{"past": p, "future": f} for (p, f) in windows_sorted],
             )
         )
     return factors
@@ -125,8 +122,8 @@ def _group_keys_to_factor_blocks(keys: set[str]) -> list[dict[str, Any]]:
 
 def build_super_warmup_yaml(
     *,
+    cfg_id: str,
     preload_pkl_override: str | None = None,
-    cfg_id: str = CFG_ID_DEFAULT,
 ) -> dict[str, Any]:
     """Single warmup yaml that dumps all 237 cells' declared keys.
 
@@ -139,7 +136,9 @@ def build_super_warmup_yaml(
     score which only reads ``results[0].score`` regardless).
     """
     cfg = CFG_SPECS[cfg_id]
-    preload_path = preload_pkl_override if preload_pkl_override is not None else cfg["preload_pkl"]
+    preload_path = (
+        preload_pkl_override if preload_pkl_override is not None else cfg["preload_pkl"]
+    )
     needed_keys = super_warmup_declared_keys()
     factors = _group_keys_to_factor_blocks(needed_keys)
 
@@ -205,11 +204,13 @@ def run_super_warmup(
     *,
     host: str,
     port: int,
+    cfg_id: str,
     trials_per_task: int = 15,
     yaml_path: Path = DEFAULT_YAML_PATH,
     raw_path: Path = DEFAULT_RAW_PATH,
     raw_dump_path: Path = DEFAULT_RAW_DUMP_PATH,
     libero_args: dict[str, Any] | None = None,
+    preload_pkl_override: str | None = None,
 ) -> Path:
     """Run super warmup once on a single server.
 
@@ -228,9 +229,7 @@ def run_super_warmup(
     responsible for setting these to match its environment.
     """
     if WebsocketClientPolicy is None:
-        raise RuntimeError(
-            "openpi_client is not installed; cannot run super warmup"
-        )
+        raise RuntimeError("openpi_client is not installed; cannot run super warmup")
 
     # ------------------------------------------------------------------
     # Local imports of phase5 internals (avoid top-level import — these
@@ -246,8 +245,13 @@ def run_super_warmup(
     yaml_path.parent.mkdir(parents=True, exist_ok=True)
     raw_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Emit yaml (always rewrite — cheap and reproducible).
-    yaml_dict = build_super_warmup_yaml()
+    # Emit yaml (always rewrite — cheap and reproducible). cfg_id + preload
+    # override MUST be threaded through so the server loads the correct task
+    # suite's pkl; a silent fallback to the default CFG loaded libero_spatial
+    # entries on a libero_10 run and produced an all-NaN factor dump.
+    yaml_dict = build_super_warmup_yaml(
+        cfg_id=cfg_id, preload_pkl_override=preload_pkl_override
+    )
     write_yaml(yaml_path, yaml_dict)
     logger.info("[super_warmup] emitted yaml -> %s", yaml_path)
 
@@ -354,17 +358,13 @@ def verify(raw_path: Path) -> None:
     )
 
     rows = [
-        json.loads(line)
-        for line in raw_path.read_text().splitlines()
-        if line.strip()
+        json.loads(line) for line in raw_path.read_text().splitlines() if line.strip()
     ]
 
     # ------------------------------------------------------------------
     # Check 1: row count >= RAW_ROW_FLOOR
     # ------------------------------------------------------------------
-    assert (
-        len(rows) >= RAW_ROW_FLOOR
-    ), f"too few rows: {len(rows)} < {RAW_ROW_FLOOR}"
+    assert len(rows) >= RAW_ROW_FLOOR, f"too few rows: {len(rows)} < {RAW_ROW_FLOOR}"
     logger.info("[verify] check 1 OK: %d rows", len(rows))
 
     # ------------------------------------------------------------------
@@ -389,9 +389,9 @@ def verify(raw_path: Path) -> None:
                     n_null += 1
         assert n_dump > 0, f"raw_dump empty: {raw_dump_path}"
         null_rate = n_null / n_dump
-        assert (
-            null_rate < 0.01
-        ), f"cp1_score null rate in raw_dump too high: {n_null}/{n_dump} = {null_rate:.4f}"
+        assert null_rate < 0.01, (
+            f"cp1_score null rate in raw_dump too high: {n_null}/{n_dump} = {null_rate:.4f}"
+        )
         logger.info(
             "[verify] check 2 OK: cp1_score null rate %.4f over %d raw_dump rows",
             null_rate,
@@ -436,7 +436,11 @@ def verify(raw_path: Path) -> None:
         f"{len(bad)} keys have < {FINITE_PER_KEY_FLOOR} finite samples "
         f"(rerun super warmup with more trials_per_task)"
     )
-    logger.info("[verify] check 3 OK: all %d keys >= %d finite", len(needed), FINITE_PER_KEY_FLOOR)
+    logger.info(
+        "[verify] check 3 OK: all %d keys >= %d finite",
+        len(needed),
+        FINITE_PER_KEY_FLOOR,
+    )
 
     # ------------------------------------------------------------------
     # Check 4: per-group sample reconstruct_scores succeeds
@@ -449,9 +453,7 @@ def verify(raw_path: Path) -> None:
             continue
         try:
             recipe = cell_to_solver_recipe(c)
-            scores = reconstruct_scores(
-                raw_path, recipe, composer_weights=c.weights
-            )
+            scores = reconstruct_scores(raw_path, recipe, composer_weights=c.weights)
             finite = [s for s in scores if not (s is None or math.isnan(s))]
             assert len(finite) >= 500, f"{c.yaml_id}: only {len(finite)} finite scores"
         except Exception as e:  # noqa: BLE001
@@ -464,29 +466,30 @@ def verify(raw_path: Path) -> None:
     # ------------------------------------------------------------------
     from exp.weighted_sum.kinematic.spec import _g5_grid_filtered
 
-    g5_p1 = next(
-        c for c in all_cells if c.group == "g5" and c.base_recipe == "p1"
-    )
+    g5_p1 = next(c for c in all_cells if c.group == "g5" and c.base_recipe == "p1")
     scores_g5 = reconstruct_scores(
         raw_path, cell_to_solver_recipe(g5_p1), composer_weights=g5_p1.weights
     )
     scores_g5_finite = [s for s in scores_g5 if not math.isnan(s)]
     min_score = min(scores_g5_finite)
     sample_pairs = _g5_grid_filtered()[:5]
-    for (fh, ws) in sample_pairs:
+    for fh, ws in sample_pairs:
         t_fh, t_ws = derive_thresholds(scores_g5_finite, fh, ws)
         # R1A MAJOR: allow equality (sample plateau tie), only strict
         # less-than would false-positive on tie-breaks (G1 R1 R3 R1A-M3).
-        assert (
-            0.0 <= t_ws <= t_fh <= 1.0
-        ), f"({fh},{ws}): bad order t_fh={t_fh}, t_ws={t_ws}"
+        assert 0.0 <= t_ws <= t_fh <= 1.0, (
+            f"({fh},{ws}): bad order t_fh={t_fh}, t_ws={t_ws}"
+        )
         # Non-degenerate (R1B DESIGN-CRITICAL): only fh+ws==1.0 forces
         # T_ws = min; our grid filter excludes that, so T_ws > min.
         if fh + ws < 1.0 - 1e-9:
-            assert (
-                t_ws > min_score + 1e-9
-            ), f"({fh},{ws}): T_ws={t_ws} degenerate to min={min_score}"
-    logger.info("[verify] check 5 OK: derive_thresholds monotone for %d ratios", len(sample_pairs))
+            assert t_ws > min_score + 1e-9, (
+                f"({fh},{ws}): T_ws={t_ws} degenerate to min={min_score}"
+            )
+    logger.info(
+        "[verify] check 5 OK: derive_thresholds monotone for %d ratios",
+        len(sample_pairs),
+    )
 
     # ------------------------------------------------------------------
     # Check 6: ALL 237 cells bind_keys passes (G5 declared ⊆ super raw)
@@ -554,9 +557,10 @@ def verify(raw_path: Path) -> None:
         # bootstrap CI naturally wider; widen the gate to 0.20 and log a
         # WARNING (rather than fail) when the cell is a known-extreme G3
         # pattern. For other groups the 0.15 floor stays a hard gate.
-        is_extreme_g3 = (
-            c.group == "g3" and ("pat-0-" in c.yaml_id or "pat--0" in c.yaml_id
-                                 or c.yaml_id.endswith("pat-1-0"))
+        is_extreme_g3 = c.group == "g3" and (
+            "pat-0-" in c.yaml_id
+            or "pat--0" in c.yaml_id
+            or c.yaml_id.endswith("pat-1-0")
         )
         gate = 0.20 if is_extreme_g3 else 0.15
         if width_fh >= gate:

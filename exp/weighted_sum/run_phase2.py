@@ -7,7 +7,7 @@ Example:
     uv run exp/weighted_sum/run_phase2.py \
         --yaml-dir exp/weighted_sum/config/phase2_grid \
         --init-map exp/common/data/db/libero_cache/libero_spatial_init_map.json \
-        --journal exp/weighted_sum/data/phase2/journal.jsonl \
+        --journal exp/weighted_sum/data/libero_spatial/phase2/journal.jsonl \
         --servers host:8001,host:8002 --task-ids 0-9 --eval-trials 20
 """
 

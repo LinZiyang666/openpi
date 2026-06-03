@@ -41,9 +41,22 @@ exp/weighted_sum/config/**
 !exp/warm_start/data/spatial16/cache_eval_results.json
 !exp/warm_start/data/spatial16/*.episode_results.json
 
-# Tracked weighted_sum Phase-1 calibration + init-map leak-guard source-of-truth
-# (small JSON; reproduction-critical; weighted_sum_two_layer_refactor plan §5.5).
-!exp/weighted_sum/data/calibration_normalizers.json
+# Tracked weighted_sum source-of-truth summaries after suite-first layout.
+# Keep large journals/per-step artifacts ignored; only small reproducibility
+# summaries and calibration files are eligible for git.
+!exp/weighted_sum/data/
+!exp/weighted_sum/data/libero_spatial/
+!exp/weighted_sum/data/libero_spatial/phase1/
+!exp/weighted_sum/data/libero_spatial/phase1/calibration_normalizers.json
+!exp/weighted_sum/data/libero_spatial/phase2/
+!exp/weighted_sum/data/libero_spatial/phase2/all_results.csv
+!exp/weighted_sum/data/libero_spatial/phase2/top10_compare.csv
+!exp/weighted_sum/data/libero_spatial/phase2/top10_variance.csv
+!exp/weighted_sum/data/libero_10/
+!exp/weighted_sum/data/libero_10/phase1/
+!exp/weighted_sum/data/libero_10/phase1/calibration_normalizers.json
+!exp/weighted_sum/data/libero_10/phase2/
+!exp/weighted_sum/data/libero_10/phase2/all_results.csv
 !exp/common/data/db/
 !exp/common/data/db/libero_cache/
 !exp/common/data/db/libero_cache/libero_spatial_init_map.json

@@ -19,9 +19,10 @@ in the top-10); the union is 18 distinct base configs. Each (base, depth) is
 emitted exactly once; the 4 dual-role configs are referenced by both group
 lenses at analysis time without rerunning episodes.
 
-The base selection is recomputed programmatically from
-``data/phase2/all_results.csv`` (not a hand-written list) and cross-checked
-against ``config/top10/`` so the dedup stays reproducible despite tied SRs.
+The base selection is recomputed programmatically from the suite-specific
+``data/<suite>/phase2/all_results.csv`` (not a hand-written list) and
+cross-checked against ``config/top10/<suite>/`` so the dedup stays reproducible
+despite tied SRs.
 
 Each YAML reuses :func:`exp.weighted_sum.emit_yamls.build_eval_config` (the
 validated weighted-sum builder, unchanged) with ``trajectory_depth`` /
@@ -133,14 +134,20 @@ def select_base_configs(results_csv: Path, top10_dir: Path) -> tuple[
 def main():
     repo = Path(__file__).resolve().parents[2]
     ap = argparse.ArgumentParser(description="Emit trajectory eval YAMLs over weighted-sum best configs")
-    ap.add_argument("--calibration", default=str(repo / "exp/weighted_sum/data/calibration_normalizers.json"))
+    ap.add_argument(
+        "--calibration",
+        default=str(repo / "exp/weighted_sum/data/libero_spatial/phase1/calibration_normalizers.json"),
+    )
     # Relative on purpose: the server resolves preload_path against its own CWD
     # (the openpi repo root on each machine), so the YAMLs stay portable across
     # client/server hosts. Matches the existing top10/round YAML convention.
     ap.add_argument("--artifact-dir", default="exp/common/data/cache_artifacts/libero_spatial")
-    ap.add_argument("--results-csv", default=str(repo / "exp/weighted_sum/data/phase2/all_results.csv"))
-    ap.add_argument("--top10-dir", default=str(repo / "exp/weighted_sum/config/top10"))
-    ap.add_argument("--output-dir", default=str(repo / "exp/weighted_sum/config/trajectory"))
+    ap.add_argument(
+        "--results-csv",
+        default=str(repo / "exp/weighted_sum/data/libero_spatial/phase2/all_results.csv"),
+    )
+    ap.add_argument("--top10-dir", default=str(repo / "exp/weighted_sum/config/top10/libero_spatial"))
+    ap.add_argument("--output-dir", default=str(repo / "exp/weighted_sum/config/trajectory/libero_spatial"))
     ap.add_argument("--depths", default="3,4,5,6", help="comma-separated trajectory depths")
     args = ap.parse_args()
 

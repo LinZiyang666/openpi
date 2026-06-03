@@ -16,7 +16,7 @@
 ```bash
 uv run exp/common/calibrate_score_normalizers.py \
     --artifact-dir exp/common/data/cache_artifacts/libero_spatial \
-    --output exp/weighted_sum/data/calibration_normalizers.json \
+    --output exp/weighted_sum/data/libero_spatial/phase1/calibration_normalizers.json \
     --max-queries 300
 ```
 
@@ -28,7 +28,7 @@ uv run exp/common/calibrate_score_normalizers.py \
 
 ```bash
 uv run exp/weighted_sum/analysis/plot_phase1_calibration.py \
-    --calibration exp/weighted_sum/data/calibration_normalizers.json
+    --calibration exp/weighted_sum/data/libero_spatial/phase1/calibration_normalizers.json
 ```
 
 > 最终方法**不**由 J 单独裁决——shortlist 交给 Phase 2 用真实任务成功率定档。
@@ -39,10 +39,10 @@ uv run exp/weighted_sum/analysis/plot_phase1_calibration.py \
 
 ```bash
 uv run exp/weighted_sum/emit_yamls.py \
-    --calibration exp/weighted_sum/data/calibration_normalizers.json \
+    --calibration exp/weighted_sum/data/libero_spatial/phase1/calibration_normalizers.json \
     --stem cp1_spatial_pool_16 \
     --preload-path exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl \
-    --output-dir exp/weighted_sum/config/phase2 --mode both
+    --output-dir exp/weighted_sum/config/phase2/libero_spatial --mode both
 ```
 
 每个 YAML：`weighted_score_sum_knn` + Phase-1 选定的 `score_normalization.type: per_field`、`judge.type: always_hit`（纯回放隔离检索质量）、`keys.prompt_emb.enabled: false`、**`write_policy.type: never`**（C2 write-frozen，否则 server load fail-fast）。`--mode`：`isolation`（单模态找有用模态）/ `grid`（有用模态权重网格）/ `both`。
@@ -52,16 +52,16 @@ uv run exp/weighted_sum/emit_yamls.py \
 ```bash
 CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py policy:checkpoint \
     --policy.config=pi05_libero --policy.dir=<ckpt> --port 8001 \
-    --cache_config exp/weighted_sum/config/phase2/<any>.yaml
+    --cache_config exp/weighted_sum/config/phase2/libero_spatial/<any>.yaml
 ```
 
 ### 2.3 跑评测（防 init-state 泄漏）
 
 ```bash
 uv run exp/weighted_sum/run_phase2.py \
-    --yaml-dir exp/weighted_sum/config/phase2 \
+    --yaml-dir exp/weighted_sum/config/phase2/libero_spatial \
     --init-map exp/common/data/db/libero_cache/libero_spatial_init_map.json \
-    --journal exp/weighted_sum/data/phase2/journal.jsonl \
+    --journal exp/weighted_sum/data/libero_spatial/phase2/journal.jsonl \
     --servers <host>:8001 --task-ids 0-9 --eval-trials 20
 ```
 
@@ -73,11 +73,11 @@ uv run exp/weighted_sum/run_phase2.py \
 
 ```bash
 uv run exp/weighted_sum/summarize.py \
-    --journal exp/weighted_sum/data/phase2/journal.jsonl \
-    --out exp/weighted_sum/data/phase2/results.json
+    --journal exp/weighted_sum/data/libero_spatial/phase2/journal.jsonl \
+    --out exp/weighted_sum/data/libero_spatial/phase2/results.json
 
 uv run exp/weighted_sum/analysis/plot_phase2_results.py \
-    --results exp/weighted_sum/data/phase2/results.json
+    --results exp/weighted_sum/data/libero_spatial/phase2/results.json
 ```
 
 按 keybuilder 分组画 success_rate × 权重配置（对齐 `exp/common/analysis/phase1/libero_spatial` 风格）。2a 隔离结果与 Phase-1 `mag_sep` 先验交叉验证定"有用模态集合 + 每模态最终方法"；2b 在有用模态上 粗→细 网格搜最优权重。
@@ -90,7 +90,7 @@ trajectory 实验对 Phase 1 的做法。设计与决策见 [`logs/weighted_sum_
 **Base 选取（18 个，去重）**：① per-keybuilder（4 个 CP1 keybuilder 各取 top1+top2+倒数第二，
 倒数第二取正规权重网格、同 `zscore`，排除 `__norm2`/`iso_`）；② 全实验 top10。两组重叠 4 个
 （spatial_16/max_pool 的 top1+top2 都在 top10），并集 18。depth ∈ {3,4,5,6}，`trajectory_weights`
-复用老递减方案；depth-1 基线复用现有 `data/phase2/all_results.csv` 的 SR（同 jupyter 机可比）。
+复用老递减方案；depth-1 基线复用现有 `data/libero_spatial/phase2/all_results.csv` 的 SR（同 jupyter 机可比）。
 
 ```bash
 # 1) 生成 72 份 trajectory yaml（18 base × 4 depth），自带去重断言 + schema 自检
@@ -100,18 +100,18 @@ PYTHONPATH=. uv run exp/weighted_sum/emit_trajectory_yamls.py
 # 2) 起 server（jupyter，--replicas + HOME 见 devices.md / 上方 §2.2）+ tether expose
 # 3) 跑评测（timan107，每 yaml 100 ep = 10 task × --eval-trials 10）
 PYTHONPATH=. uv run exp/weighted_sum/run_phase2.py \
-    --yaml-dir exp/weighted_sum/config/trajectory \
+    --yaml-dir exp/weighted_sum/config/trajectory/libero_spatial \
     --init-map exp/common/data/db/libero_cache/libero_spatial_init_map.json \
-    --journal  exp/weighted_sum/data/trajectory/journal.jsonl \
+    --journal  exp/weighted_sum/data/libero_spatial/trajectory/journal.jsonl \
     --servers <host>:<port> --task-ids 0-9 --eval-trials 10 --workers 48 --gpus 8
 
 # 4) 聚合 + 分析（合并 depth-1 基线 + depth 3/4/5/6，算 Δ vs 单步）
 uv run exp/weighted_sum/summarize.py \
-    --journal exp/weighted_sum/data/trajectory/journal.jsonl \
-    --out     exp/weighted_sum/data/trajectory/results.json
+    --journal exp/weighted_sum/data/libero_spatial/trajectory/journal.jsonl \
+    --out     exp/weighted_sum/data/libero_spatial/trajectory/results.json
 PYTHONPATH=. uv run exp/weighted_sum/analysis/plot_trajectory_results.py \
-    --results  exp/weighted_sum/data/trajectory/results.json \
-    --baseline exp/weighted_sum/data/phase2/all_results.csv
+    --results  exp/weighted_sum/data/libero_spatial/trajectory/results.json \
+    --baseline exp/weighted_sum/data/libero_spatial/phase2/all_results.csv
 ```
 
 > trajectory 只支持 `InMemoryBackend`；`run_phase2` / conductor / 并发 server 对 trajectory 透明，

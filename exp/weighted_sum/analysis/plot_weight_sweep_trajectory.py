@@ -37,8 +37,14 @@ def _parse(yaml_id):
 def main():
     repo = Path(__file__).resolve().parents[3]
     ap = argparse.ArgumentParser()
-    ap.add_argument("--results", default=str(repo / "exp/weighted_sum/data/trajectory_wsweep/results.json"))
-    ap.add_argument("--out-dir", default=str(Path(__file__).resolve().parent))
+    ap.add_argument(
+        "--results",
+        default=str(repo / "exp/weighted_sum/data/libero_spatial/trajectory_wsweep/results.json"),
+    )
+    ap.add_argument(
+        "--out-dir",
+        default=str(Path(__file__).resolve().parent / "libero_spatial" / "trajectory_wsweep"),
+    )
     ap.add_argument("--d1-ceiling", type=float, default=74.0, help="reference d1 ceiling from weighted_sum")
     args = ap.parse_args()
 

@@ -16,8 +16,8 @@ Also prints a markdown SR table (rows = base config, cols = d1..d6, best depth,
 
 Usage:
     uv run exp/weighted_sum/analysis/plot_trajectory_results.py \
-        --results  exp/weighted_sum/data/trajectory/results.json \
-        --baseline exp/weighted_sum/data/phase2/all_results.csv
+        --results  exp/weighted_sum/data/libero_spatial/trajectory/results.json \
+        --baseline exp/weighted_sum/data/libero_spatial/phase2/all_results.csv
 """
 
 from __future__ import annotations
@@ -83,11 +83,11 @@ def _role_map(group1, top10_ids: set[str]) -> dict[str, tuple[str, str]]:
 def main():
     repo = Path(__file__).resolve().parents[3]
     ap = argparse.ArgumentParser(description="Plot trajectory results over weighted-sum bases")
-    ap.add_argument("--results", default=str(repo / "exp/weighted_sum/data/trajectory/results.json"))
-    ap.add_argument("--baseline", default=str(repo / "exp/weighted_sum/data/phase2/all_results.csv"))
-    ap.add_argument("--results-csv", default=str(repo / "exp/weighted_sum/data/phase2/all_results.csv"))
-    ap.add_argument("--top10-dir", default=str(repo / "exp/weighted_sum/config/top10"))
-    ap.add_argument("--out-dir", default=str(Path(__file__).resolve().parent))
+    ap.add_argument("--results", default=str(repo / "exp/weighted_sum/data/libero_spatial/trajectory/results.json"))
+    ap.add_argument("--baseline", default=str(repo / "exp/weighted_sum/data/libero_spatial/phase2/all_results.csv"))
+    ap.add_argument("--results-csv", default=str(repo / "exp/weighted_sum/data/libero_spatial/phase2/all_results.csv"))
+    ap.add_argument("--top10-dir", default=str(repo / "exp/weighted_sum/config/top10/libero_spatial"))
+    ap.add_argument("--out-dir", default=str(Path(__file__).resolve().parent / "libero_spatial" / "trajectory"))
     args = ap.parse_args()
 
     baseline = _baseline_sr(Path(args.baseline))
@@ -131,15 +131,18 @@ def main():
 
     # ── Figure 1: per-keybuilder SR vs depth ──
     kbs = sorted({kb for kb, _ in roles.values()})
-    fig, axes = plt.subplots(len(kbs), 1, figsize=(9, 3 * len(kbs)), squeeze=False)
+    fig, axes = plt.subplots(1, len(kbs), figsize=(4.5 * len(kbs), 4.5), squeeze=False)
     x = [1] + depths
-    for ax, kb in zip(axes[:, 0], kbs):
+    for ax, kb in zip(axes[0, :], kbs):
         for base_id in sorted(b for b in traj if roles.get(b, ("", ""))[0] == kb):
             _, role = roles[base_id]
+            # The spatial_pool_16 panel omits the top-10-only configs to stay legible.
+            if kb == "cp1_spatial_pool_16" and role == "top10-only":
+                continue
             marker, ls = _ROLE_STYLE.get(role, ("x", "-"))
             d1 = baseline.get(base_id)
             ys = [d1 * 100 if d1 is not None else None] + [traj[base_id].get(d, None) and traj[base_id][d] * 100 for d in depths]
-            label = f"{role} · {base_id.split('__', 1)[1][:28]}"
+            label = role
             ax.plot(x, ys, marker=marker, ls=ls, label=label, markersize=5)
         ax.set_title(kb)
         ax.set_xlabel("trajectory depth (1 = weighted-sum baseline)")

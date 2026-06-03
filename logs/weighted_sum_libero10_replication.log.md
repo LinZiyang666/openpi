@@ -152,7 +152,7 @@ tether pull jupyter-ziyang10:/home/ziyang10/openpi/exp/common/data/db/libero_cac
 ```bash
 uv run exp/common/calibrate_score_normalizers.py \
   --artifact-dir exp/common/data/cache_artifacts/libero_10 \
-  --output exp/weighted_sum/data/phase1/libero_10/calibration_normalizers.json \
+  --output exp/weighted_sum/data/libero_10/phase1/calibration_normalizers.json \
   --max-queries 300
 ```
 - 产出按 stem 分组的 `{sim_type, shortlist(top2), selected}`。可本地跑（pkl 已在本地）或远端跑。
@@ -179,7 +179,7 @@ uv run exp/common/calibrate_score_normalizers.py \
 # emit 136 base yaml（4 keybuilder 各跑一次）
 for stem in cp1_mean_pool cp1_max_pool cp1_spatial_pool_16 cp1_spatial_pool_64; do
   uv run exp/weighted_sum/emit_yamls.py \
-    --calibration exp/weighted_sum/data/phase1/libero_10/calibration_normalizers.json \
+    --calibration exp/weighted_sum/data/libero_10/phase1/calibration_normalizers.json \
     --stem $stem \
     --preload-path exp/common/data/cache_artifacts/libero_10/${stem}.pkl \
     --output-dir exp/weighted_sum/config/phase2/libero_10 --mode both
@@ -190,14 +190,14 @@ done
 PYTHONPATH=. <uv> run exp/weighted_sum/run_phase2.py \
   --yaml-dir exp/weighted_sum/config/phase2/libero_10 \
   --init-map exp/common/data/db/libero_cache/libero_10_init_map.json \
-  --journal  exp/weighted_sum/data/phase2/libero_10/journal.jsonl \
+  --journal  exp/weighted_sum/data/libero_10/phase2/journal.jsonl \
   --servers <xl-srv>:<port> \
   --task-ids 0-9 --task-suite libero_10 --eval-trials 10 \
   --workers <N> --server-workers <N>      # 单 endpoint；N = 该 server 实际 worker 数（如 xuanlel2 r3=48）
 # ⚠ 另一台 server（ziyang10）本阶段绝不并入此 journal——只可跑独立阶段或与选取无关的吞吐复制
 
 # 聚合本轮 → results.json（summarize.py 只产 per-yaml SR JSON，不产 csv）
-uv run exp/weighted_sum/summarize.py --journal .../phase2/libero_10/journal.jsonl --out .../phase2/libero_10/results.json
+uv run exp/weighted_sum/summarize.py --journal .../libero_10/phase2/journal.jsonl --out .../libero_10/phase2/results.json
 ```
 
 - **3 轮 refine（串行循环，自审 E4-M2）**：`refine_round.pick_best_keybuilder` 吃上一轮 `results.json`，每轮 **emit → run（单 server）→ summarize → 喂下一轮**：base→…→R3。围绕 winner keybuilder 最优区加密。
@@ -207,15 +207,15 @@ uv run exp/weighted_sum/summarize.py --journal .../phase2/libero_10/journal.json
   - **下游纳入两 kb**：top10 从合并 csv 取（自然含两 kb）；Stage2 `select_base_configs` 本就 per-keybuilder；Stage4 base 取**两 kb 中 d1-SR 最高的单个**（或 owner 按 §3.1 (a)/(b)）。
 - **`all_results.csv` 由 `build_all_results.py` 合并各轮 results.json 产出（不是 `summarize.py`）**（自审 E4-M2 关键修正）：
 ```bash
-uv run exp/weighted_sum/build_all_results.py --out exp/weighted_sum/data/phase2/libero_10/all_results.csv \
-  baseline=.../phase2/libero_10/results.json r1=.../round_1/libero_10/results.json \
-  r2=.../round_2/libero_10/results.json r3=.../round_3/libero_10/results.json
+uv run exp/weighted_sum/build_all_results.py --out exp/weighted_sum/data/libero_10/phase2/all_results.csv \
+  baseline=.../libero_10/phase2/results.json r1=.../libero_10/phase2/round_1_results.json \
+  r2=.../libero_10/phase2/round_2_results.json r3=.../libero_10/phase2/round_3_results.json
 ```
 此 csv 是 Stage 2 `select_base_configs` 的输入；缺它 Stage 2 无法选 base 集。
 - **top10 生成（可复现命令，G1 R1 Item4；恰好 10，G1 R2 Item2 选 Option A）**：libero_spatial 的 `config/top10/` 是人工挑的、无脚本 → **新增小脚本 `exp/weighted_sum/emit_top10.py`**（纳入 §9 gated code + 测试），把"人工挑"收敛为确定性命令：
 ```bash
 uv run exp/weighted_sum/emit_top10.py \
-  --results-csv exp/weighted_sum/data/phase2/libero_10/all_results.csv \
+  --results-csv exp/weighted_sum/data/libero_10/phase2/all_results.csv \
   --src-config-dirs exp/weighted_sum/config/{phase2,round_1,round_2,round_3}/libero_10 \
   --out-dir exp/weighted_sum/config/top10/libero_10
 ```
@@ -233,9 +233,9 @@ uv run exp/weighted_sum/emit_top10.py \
 `emit_trajectory_yamls.py` 的 `select_base_configs()` 从 `--results-csv` 动态推导 base（per-kb top1+top2+倒数第二 ∪ top10）。⚠ **`_EXPECT_BASE=18`/`_EXPECT_OVERLAP=4` 是 libero_spatial 常量，须先按 §1.3② 放宽**（否则 libero_10 overlap≠4 直接 AssertionError）；放宽后把 `--results-csv` / `--artifact-dir` / `--top10-dir` 指向 libero_10：
 ```bash
 uv run exp/weighted_sum/emit_trajectory_yamls.py \
-  --calibration exp/weighted_sum/data/phase1/libero_10/calibration_normalizers.json \
+  --calibration exp/weighted_sum/data/libero_10/phase1/calibration_normalizers.json \
   --artifact-dir exp/common/data/cache_artifacts/libero_10 \
-  --results-csv  exp/weighted_sum/data/phase2/libero_10/all_results.csv \
+  --results-csv  exp/weighted_sum/data/libero_10/phase2/all_results.csv \
   --top10-dir    exp/weighted_sum/config/top10/libero_10 \
   --output-dir   exp/weighted_sum/config/trajectory/libero_10 --depths 3,4,5,6
 # run_phase2 同 §5：★ §2.3 单 server 钉死 + 必须用与 Stage1 d1 基线同一台 GPU
@@ -307,7 +307,12 @@ libero_spatial 版 kinematic 用 `CFG_SPECS["spatial16_ws_d1_best"]`（权重 v0
 - **Option B（忠实复刻，推荐）**：在 `v2_spec.py` 新增 `CFG_SPECS["spatial16_ws_d1_best_libero10"]`，其 `keys.weight` = Stage1 libero_10 spatial_16 d1 winner 权重、`score_normalization` = libero_10 calibration 的 spatial_16 selected μ/σ、`preload_pkl` = libero_10 pkl；kinematic 用 `--cfg-id`/改默认指向它。**Stage 4 因此依赖 Stage 1 winner**。
 
 > **owner 确认走 Option B**（检索层忠实"在 libero_10 重做"；kinematic factor 仪器仍移植自 phase5，见 §1.1 caveat）。
-> ⚠ **gate-vs-runtime 拆分（自审 E4）**：CFG_SPECS 新条目的**结构**（key 存在、`weighted_score_sum_knn`、无 `trajectory_depth`、字段齐全）在 §4 Code/G1 时落地，但**权重 + μ/σ 真值**要等 Stage 1 winner 出来才中期填入——故条目**先以占位值入库过 G1/G2，真值 mid-run 填**；真值填入是再一次代码改动，**需重过 G2**（或 owner 按 WA §7 waive）。这点须在 G1 明示。
+> ⚠ **gate-vs-runtime 拆分（自审 E4）**：CFG_SPECS 新条目的**结构**（key 存在、`weighted_score_sum_knn`、无 `trajectory_depth`、字段齐全）在 §4 Code/G1 时落地，但**权重 + μ/σ 真值**要等 Stage 1 winner 出来才中期填入——故条目**先以占位值入库过 G1/G2，真值 mid-run 填**。
+> **〔2026-05-31 OWNER OVERRIDE — 依 WA line 7「Project Owner: Ziyang Lin. Holds absolute authority over this Working Agreement and all project matters. May override any process at will.」〕** 原表述"真值填入是再一次代码改动、**需重过独立 G2**"的强制要求，由 owner 行使 WA line 7 的保留 override 权**予以免除**（删除）。**替代核验机制 =「有条件的预决策」（owner 2026-05-31 定）**：
+> 1. **决策条件化于 Stage 3 客观结果**：Stage 3 跑完 d1/d3/d4/d5 四 base 的 threshold-pareto → 各算 per-cell (inference_ratio, SR)（`summarize_inf_ratio.py` FH→0/WS@t→1−0.5(1−t)/MISS→1 + `summarize.py` SR）→ 画 4 条 Pareto 前沿。
+> 2. **winner 选取规则**：在 inference_ratio(x) 整轴扫描，取「SR(y) 高于其他三条前沿的 **x-区间最长**」的那条 = winner base（owner 预判大概率 d1——SR 最高 0.520 + 检索分窄=早停多=低 x 端强）。
+> 3. **Stage 4 base 导出（owner 2026-05-31 纠正：用赢家的 depth，改代码实现）**：取 winner base 的**完整检索配置** = `keys.weight`(v0/v1/robot_state) + **winner 的 `trajectory_depth`** + libero_10 calibration 的 spatial_16 selected μ/σ → 填 `CFG_SPECS["spatial16_ws_d1_best_libero10"]`。理由：**depth 与 kinematic verdict 正交**（depth 是检索层、verdict 是判定层，candidate 的运动学 factor 不随检索看几步历史而变），故 Stage 4 继承 winner 的 depth 不冲突、且忠实复刻 winner。**当前 CFG_SPECS 的 `search_strategy` 是单步 `weighted_score_sum_knn`（无 `trajectory_depth` 字段）→ 若 winner 非 d1，需改代码让该结构支持 winner 的 trajectory_depth**（owner 原话："如果 CFG 那个参数只支持 depth=1 那就是他的问题，我们修改代码实现"）。⚠ **此代码改动（加 trajectory_depth 支持）大于"填 9 个值"——其核验/把关方式待 owner 确认，agent 不自行决定。**
+> 4. **结构性核验（替代 G2 的防错保证）**：这 9 个根值**非手填**，而是程序化从 `winner_yaml.keys.weight` + `calibration_normalizers.json` 读出后 `assert CFG_SPECS.weight == winner_yaml.weight` 且 `μ/σ == calibration` → 把 G2 本要防的「手填错值/取错来源/对应错」静默错误在导出+断言流程里结构性消除。执行时落一个小校验脚本打印这 9 个值的来源与等式，附在 Stage 4 启动记录里供事后追溯。
 > §8.2(I) override 透传仍做（灵活性 + 测试覆盖；与 (II) cfg_id 正交）。
 
 ### 8.4 pkl factors 验证（不是假设）
@@ -316,7 +321,7 @@ libero_10/cp1_spatial_pool_16.pkl 已为 verdict phase5 enrich 64 keys。**须�
 ### 8.6 ★ 路径/suite override 全集（自审 E4-VR — 防覆盖 libero_spatial Stage4 产物）
 runner 默认全部烘焙 `kinematic_phase5`（data/config/`--super-raw-relpath`，runner.py:78-82/736）+ `--task-suite libero_spatial`（:721）+ always-warm echo 里硬编码 `libero_spatial_init_map.json`（:359）。libero_10 跑必须**全套 override 到独立目录**，否则覆盖/误读既有 libero_spatial Stage4 raw/journal：
 - `--task-suite libero_10`、`--init-map .../libero_10_init_map.json`、`--task-ids 0-9`
-- `--data-dir .../data/kinematic_phase5/libero_10/`、`--eval-dir .../config/kinematic_phase5/libero_10/eval`、`--thresholds-dir`/`--always-warm-dir`/`--journal`/`--per-step-dir`/`--summary` 全指 `kinematic_phase5/libero_10/`
+- `--data-dir .../data/libero_10/kinematic_phase5/`、`--eval-dir .../config/kinematic_phase5/libero_10/eval`、`--thresholds-dir`/`--always-warm-dir`/`--journal`/`--per-step-dir`/`--summary` 按 data/config 各自指向 `data/libero_10/kinematic_phase5/` 或 `config/kinematic_phase5/libero_10/`
 - `--super-raw-relpath` 用 libero_10 专属相对路径（**server 端两 suite 的 super raw 不可同路径相撞**）
 - `--cfg-id spatial16_ws_d1_best_libero10`、`--preload-pkl-override .../libero_10/cp1_spatial_pool_16.pkl`
 
@@ -426,7 +431,7 @@ super warmup ~150 ep + 237×100 = 23,700 ep + always-WARM 3×100 = **~24,000 ep*
 
 ### 14.2 calibration（✅ 完成）
 - 命令偏离：`--artifact-dir` 用只含 4 个 cp1 pkl 的符号链接临时目录（`/tmp/cal_libero10_cp1`），以**排除 CLIP**（脚本 `glob("*.pkl")` 否则会算 2 个 clip）。`--max-queries 300`。
-- 产物 `exp/weighted_sum/data/phase1/libero_10/calibration_normalizers.json`：4 stem（mean/max/spatial16/spatial64），每个 3 字段 vision_0(cosine)/vision_1(cosine)/robot_state(l2)，**全选 zscore**，sat=0、J 为正（健康分离）。注：cp1 的 `vector_dims` 不含 vision_2（与 libero_spatial 设计一致，检索只用这 3 字段 + prompt_emb 被 `_EXCLUDED_FIELDS` 排除）。
+- 产物 `exp/weighted_sum/data/libero_10/phase1/calibration_normalizers.json`：4 stem（mean/max/spatial16/spatial64），每个 3 字段 vision_0(cosine)/vision_1(cosine)/robot_state(l2)，**全选 zscore**，sat=0、J 为正（健康分离）。注：cp1 的 `vector_dims` 不含 vision_2（与 libero_spatial 设计一致，检索只用这 3 字段 + prompt_emb 被 `_EXCLUDED_FIELDS` 排除）。
 
 ### 14.3 §4.0 server 数据同步（部分完成）
 - **三方 sha256**：ziyang10 的 cp1_mean/max/spatial64 与本地**逐字节相同**；**spatial_16 sha 不同**（local de51731d vs ziyang10 f13517ad，差 8B，别的实验独立 enrich）。

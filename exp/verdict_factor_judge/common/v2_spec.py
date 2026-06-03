@@ -216,18 +216,30 @@ CFG_SPECS: dict[str, dict[str, Any]] = {
             "robot_state": 32,
         },
         "keys": {
-            # TODO(Stage1-libero10): replace with libero_10 spatial_16 d1 winner weights.
-            "vision_0":   {"enabled": True,  "weight": 0.0625},
-            "vision_1":   {"enabled": True,  "weight": 0.5},
+            # Stage 1/3 d1 winner (grid3_v0@56_v1@25_rs@18) weights, owner-selected 2026-05-31
+            # (d1 arm of the Stage 4 d1+d3 comparison; has robot_state).
+            "vision_0":   {"enabled": True,  "weight": 0.5625},
+            "vision_1":   {"enabled": True,  "weight": 0.25},
             "vision_2":   {"enabled": False, "weight": 0.0},
             "prompt_emb": {"enabled": False, "weight": 0.0},
-            "robot_state": {"enabled": True, "weight": 0.4375},
+            "robot_state": {"enabled": True, "weight": 0.1875},
         },
         "preload_pkl": "exp/common/data/cache_artifacts/libero_10/cp1_spatial_pool_16.pkl",
         "search_strategy": {
             "type": "weighted_score_sum_knn",
             "top_k": 1,
             "step_filter": "all",
+            # Stage 4 inherits the Stage-3 Pareto-winner's trajectory_depth
+            # (owner 2026-05-31: use the winner's depth). The weighted_score_sum_knn
+            # backend (WeightSearchStrategy) + kinematic search_strategy passthrough
+            # (spec.py:288 / runner.py:312) + super-warmup history loading ALL already
+            # support depth>1 (Stage 2 d3/d4/d5 verified) -- so parameterizing depth
+            # here is a DATA field, not a backend change. Placeholder = 1 (single-step,
+            # equivalent to the no-field default). Once Stage 3 names the Pareto winner,
+            # set trajectory_depth = winner depth and trajectory_weights =
+            # _exp_decay_weights(depth), filled together with the keys.weight + mu/sigma.
+            "trajectory_depth": 1,
+            "trajectory_weights": _exp_decay_weights(1),
             "field_similarity": {
                 "vision_0": {"type": "cosine"},
                 "vision_1": {"type": "cosine"},
@@ -239,18 +251,69 @@ CFG_SPECS: dict[str, dict[str, Any]] = {
             "score_normalization": {
                 "type": "per_field",
                 "fields": {
-                    # TODO(Stage1-libero10): replace mu/sigma with libero_10 calibration values.
+                    # Stage 1/3 d1 winner score_normalization (copied from winner yaml
+                    # cp1_spatial_pool_16__grid3_v0@56_v1@25_rs@18__d1), owner-selected 2026-05-31.
                     "vision_0":   {
                         "method": "zscore",
-                        "params": {"mu": 0.977693693699334, "sigma": 0.00699373921570407, "squash": "tanh"},
+                        "params": {"mu": 0.9739899923664463, "sigma": 0.0061831533438692935, "squash": "tanh"},
                     },
                     "vision_1":   {
                         "method": "zscore",
-                        "params": {"mu": 0.9691840492031897, "sigma": 0.007853951498497307, "squash": "tanh"},
+                        "params": {"mu": 0.9659078322399228, "sigma": 0.006527797454113087, "squash": "tanh"},
                     },
                     "robot_state": {
                         "method": "zscore",
-                        "params": {"mu": -1.8439531429434792, "sigma": 1.0018373754826044, "squash": "tanh"},
+                        "params": {"mu": -1.9584325681212513, "sigma": 0.7484941685797242, "squash": "tanh"},
+                    },
+                },
+            },
+        },
+    },
+    # ------------------------------------------------------------------
+    # spatial16_ws_d3_best_libero10 — d3 arm of the Stage 4 d1+d3 comparison
+    # (owner-selected 2026-05-31, Stage 3 Pareto winner). Values exported from
+    # the Stage 3 d3 winner yaml
+    # cp1_spatial_pool_16__grid_vision_0@62_vision_1@37__d3: NO robot_state
+    # (weight 0, dropped from field_similarity + score_normalization),
+    # trajectory_depth=3, trajectory_weights=[0.5, 0.3, 0.2] (winner yaml
+    # literal, NOT _exp_decay_weights(3)).
+    # ------------------------------------------------------------------
+    "spatial16_ws_d3_best_libero10": {
+        "key_builder_type": "cp1_spatial_pool_16",
+        "vector_dims": {
+            "vision_0": 32768,
+            "vision_1": 32768,
+            "prompt_emb": 2048,
+            "robot_state": 32,
+        },
+        "keys": {
+            "vision_0":   {"enabled": True,  "weight": 0.62},
+            "vision_1":   {"enabled": True,  "weight": 0.37},
+            "vision_2":   {"enabled": False, "weight": 0.0},
+            "prompt_emb": {"enabled": False, "weight": 0.0},
+            "robot_state": {"enabled": True, "weight": 0.0},
+        },
+        "preload_pkl": "exp/common/data/cache_artifacts/libero_10/cp1_spatial_pool_16.pkl",
+        "search_strategy": {
+            "type": "weighted_score_sum_knn",
+            "top_k": 1,
+            "step_filter": "all",
+            "trajectory_depth": 3,
+            "trajectory_weights": [0.5, 0.3, 0.2],
+            "field_similarity": {
+                "vision_0": {"type": "cosine"},
+                "vision_1": {"type": "cosine"},
+            },
+            "score_normalization": {
+                "type": "per_field",
+                "fields": {
+                    "vision_0":   {
+                        "method": "zscore",
+                        "params": {"mu": 0.9739899923664463, "sigma": 0.0061831533438692935, "squash": "tanh"},
+                    },
+                    "vision_1":   {
+                        "method": "zscore",
+                        "params": {"mu": 0.9659078322399228, "sigma": 0.006527797454113087, "squash": "tanh"},
                     },
                 },
             },

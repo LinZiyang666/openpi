@@ -21,7 +21,7 @@ Outputs:
 
 Usage:
     uv run exp/weighted_sum/emit_top10.py \
-        --results-csv exp/weighted_sum/data/phase2/libero_10/all_results.csv \
+        --results-csv exp/weighted_sum/data/libero_10/phase2/all_results.csv \
         --src-config-dirs exp/weighted_sum/config/phase2/libero_10 \
                           exp/weighted_sum/config/round_1/libero_10 \
                           exp/weighted_sum/config/round_2/libero_10 \

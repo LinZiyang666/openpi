@@ -34,7 +34,6 @@ import argparse
 import json
 import logging
 import math
-import subprocess
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -75,11 +74,11 @@ VALID_MODES = (
 # ----------------------------------------------------------------------
 
 
-DEFAULT_EVAL_YAML_DIR = Path("exp/weighted_sum/config/kinematic_phase5/eval")
+DEFAULT_EVAL_YAML_DIR = Path("exp/weighted_sum/config/kinematic_phase5/libero_spatial/d1/eval")
 DEFAULT_ALWAYS_WARM_YAML_DIR = Path(
-    "exp/weighted_sum/config/kinematic_phase5/always_warm"
+    "exp/weighted_sum/config/kinematic_phase5/libero_spatial/d1/always_warm"
 )
-DEFAULT_DATA_DIR = Path("exp/weighted_sum/data/kinematic_phase5")
+DEFAULT_DATA_DIR = Path("exp/weighted_sum/data/libero_spatial/kinematic_phase5/d1")
 DEFAULT_THRESHOLDS_DIR = DEFAULT_DATA_DIR / "thresholds"
 
 
@@ -161,10 +160,12 @@ def _mode_run_warmup(args: argparse.Namespace) -> None:
     raw_path = run_super_warmup(
         host=args.host,
         port=args.port,
+        cfg_id=args.cfg_id,
         trials_per_task=args.trials_per_task,
         yaml_path=Path(args.warmup_yaml) if args.warmup_yaml else DEFAULT_YAML_PATH,
         raw_path=Path(args.super_raw) if args.super_raw else DEFAULT_RAW_PATH,
         libero_args=_build_libero_args_from_cli(args),
+        preload_pkl_override=args.preload_pkl_override or None,
     )
     logger.info("[run-warmup] super warmup raw at %s", raw_path)
 
@@ -213,9 +214,7 @@ def _mode_emit_eval_yamls(args: argparse.Namespace) -> None:
             scores = reconstruct_scores(
                 super_raw, recipe, composer_weights=cell.weights
             )
-            fh_thr, ws_thr = derive_thresholds(
-                scores, cell.fh_ratio, cell.ws_ratio
-            )
+            fh_thr, ws_thr = derive_thresholds(scores, cell.fh_ratio, cell.ws_ratio)
         except (ValueError, RuntimeError, KeyError) as e:
             # G1 R1 R3 R1A B4 mandate: skip-not-crash on per-cell solver failure.
             fails.append((cell.yaml_id, repr(e)))
@@ -229,7 +228,9 @@ def _mode_emit_eval_yamls(args: argparse.Namespace) -> None:
         # Tie-break corner: T_fh == T_ws would be rejected server-side by
         # ThresholdJudge's strict warm_tier < judge.threshold check.
         if not (fh_thr > ws_thr):
-            fails.append((cell.yaml_id, f"threshold tie: fh_thr={fh_thr}, ws_thr={ws_thr}"))
+            fails.append(
+                (cell.yaml_id, f"threshold tie: fh_thr={fh_thr}, ws_thr={ws_thr}")
+            )
             n_skip += 1
             (thresholds_dir / f"{cell.yaml_id}__SKIP.json").write_text(
                 json.dumps(
@@ -239,7 +240,8 @@ def _mode_emit_eval_yamls(args: argparse.Namespace) -> None:
                         "fh_thr": fh_thr,
                         "ws_thr": ws_thr,
                     }
-                ) + "\n",
+                )
+                + "\n",
                 encoding="utf-8",
             )
             continue
@@ -267,7 +269,8 @@ def _mode_emit_eval_yamls(args: argparse.Namespace) -> None:
                     "ws_thr": ws_thr,
                     "n_finite_scores": n_finite,
                 }
-            ) + "\n",
+            )
+            + "\n",
             encoding="utf-8",
         )
         n_ok += 1
@@ -295,7 +298,9 @@ def _build_always_warm_yaml(
     from exp.verdict_factor_judge.common.v2_spec import CFG_SPECS
 
     cfg = CFG_SPECS[cfg_id]
-    preload_path = preload_pkl_override if preload_pkl_override is not None else cfg["preload_pkl"]
+    preload_path = (
+        preload_pkl_override if preload_pkl_override is not None else cfg["preload_pkl"]
+    )
     return {
         "enabled": True,
         "timer": {"enabled": False, "buffer_size": 10000, "output_csv_dir": None},
@@ -364,23 +369,17 @@ def _mode_run_eval(args: argparse.Namespace) -> None:
     to live on the client machine (timan107) with EGL slots + conda env,
     not on this driver host.
     """
-    # G2 R1 Item1: the 237-cell + always-WARM comparison is a 5pp decision; per
-    # plan §2.3 it MUST run on a single server (cross-GPU drift ~7pp would
-    # reorder cells). Refuse to echo a multi-endpoint command — the CLI default
-    # --servers is dual, so this fails fast unless the operator passes one.
-    if "," in args.servers:
-        raise SystemExit(
-            "Stage 4 eval is a single-server decision (plan §2.3): the 237-cell "
-            "5pp comparison must not split across GPUs. Pass --servers with ONE "
-            f"endpoint (got {args.servers!r})."
-        )
+    # Owner override (2026-05-31, WA line 7): Stage 4 eval runs on DUAL servers
+    # (e.g. 40+40 workers), consistent with Stage 1/2/3 which produced the
+    # winners on dual-server Pareto comparisons. The earlier single-server guard
+    # (plan §2.3) is retired by owner decision; --servers / --server-workers are
+    # threaded through verbatim so the operator picks the topology.
     eval_dir = Path(args.eval_dir) if args.eval_dir else DEFAULT_EVAL_YAML_DIR
     data_dir = Path(args.data_dir) if args.data_dir else DEFAULT_DATA_DIR
     init_map = f"exp/common/data/db/libero_cache/{args.task_suite}_init_map.json"
     print("# Run from client (timan107).")
-    print("# NOTE (plan §2.3): the 237-cell + always-WARM internal comparison is a")
-    print("#   5pp decision — keep --servers to a SINGLE endpoint so cross-GPU drift")
-    print("#   (~7pp) cannot reorder cells. Use one server, --server-workers <N>.")
+    print("# NOTE: dual-server eval (owner 2026-05-31). --servers host:p1,host:p2")
+    print("#   and --server-workers n1,n2 (e.g. 40,40); consistent with Stage 1/2/3.")
     print(
         "PYTHONPATH=. /shared/nas/data/m1/zixuans8/miniconda3/bin/uv run "
         f"exp/weighted_sum/run_phase2.py \\\n"
@@ -391,7 +390,7 @@ def _mode_run_eval(args: argparse.Namespace) -> None:
         f"  --journal {data_dir}/journal.jsonl \\\n"
         f"  --servers {args.servers} \\\n"
         f"  --task-ids 0-9 --eval-trials 10 \\\n"
-        f"  --workers 48 --server-workers 48 \\\n"
+        f"  --workers {args.num_workers} --server-workers {args.server_workers} \\\n"
         f"  --gpus 8 --conda-env /scratch/zixuans8/libero_sim \\\n"
         f"  --eval-concurrency 2 \\\n"
         f"  --per-step-out {data_dir}/per_step.jsonl"
@@ -537,9 +536,7 @@ def _aggregate_always_warm(journal_path: Path) -> dict[str, dict[str, Any]]:
 def _mode_aggregate_summary(args: argparse.Namespace) -> None:
     """Rebuild per_yaml_summary.jsonl + always_warm_results.json."""
     data_dir = Path(args.data_dir) if args.data_dir else DEFAULT_DATA_DIR
-    journal_path = (
-        Path(args.journal) if args.journal else data_dir / "journal.jsonl"
-    )
+    journal_path = Path(args.journal) if args.journal else data_dir / "journal.jsonl"
     per_step_dir = (
         Path(args.per_step_dir) if args.per_step_dir else data_dir / "per_step"
     )
@@ -567,9 +564,7 @@ def _mode_aggregate_summary(args: argparse.Namespace) -> None:
 
     if aw_journal_path.exists():
         aw = _aggregate_always_warm(aw_journal_path)
-        aw_out_path.write_text(
-            json.dumps(aw, indent=2) + "\n", encoding="utf-8"
-        )
+        aw_out_path.write_text(json.dumps(aw, indent=2) + "\n", encoding="utf-8")
         logger.info("[aggregate] wrote %s (%d anchors)", aw_out_path, len(aw))
     else:
         logger.warning(
@@ -657,7 +652,11 @@ def _pareto_frontier(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def _mode_analyze(args: argparse.Namespace) -> None:
     """Read per_yaml_summary.jsonl, write 5 decision JSONs + Pareto figure."""
-    summary_path = Path(args.summary) if args.summary else DEFAULT_DATA_DIR / "per_yaml_summary.jsonl"
+    summary_path = (
+        Path(args.summary)
+        if args.summary
+        else DEFAULT_DATA_DIR / "per_yaml_summary.jsonl"
+    )
     if not summary_path.exists():
         raise SystemExit(f"per_yaml_summary not found: {summary_path}")
 
@@ -700,9 +699,7 @@ def _mode_analyze(args: argparse.Namespace) -> None:
             sub = [r for r in g5 if r.get("base_recipe") == recipe_short]
             if not sub:
                 continue
-            ranked = sorted(
-                sub, key=lambda r: -(r.get("success_rate") or 0.0)
-            )
+            ranked = sorted(sub, key=lambda r: -(r.get("success_rate") or 0.0))
             cheap_above = sorted(
                 [r for r in sub if (r.get("success_rate") or 0.0) >= 0.85],
                 key=lambda r: _compute_inf(
@@ -714,7 +711,9 @@ def _mode_analyze(args: argparse.Namespace) -> None:
             per_recipe[recipe_short] = {
                 "best_sr_yaml": ranked[0]["yaml_id"],
                 "best_sr": ranked[0].get("success_rate"),
-                "cheapest_above_0.85_yaml": cheap_above[0]["yaml_id"] if cheap_above else None,
+                "cheapest_above_0.85_yaml": cheap_above[0]["yaml_id"]
+                if cheap_above
+                else None,
                 "frontier": _pareto_frontier(sub),
             }
         gate["g5"] = per_recipe
@@ -744,11 +743,27 @@ def _mode_analyze(args: argparse.Namespace) -> None:
 def _parse(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(prog="kinematic_runner")
     p.add_argument("--mode", required=True, choices=VALID_MODES)
-    p.add_argument("--host", default="weiland.top", help="server host (default: weiland.top)")
-    p.add_argument("--port", type=int, default=14000, help="server port (default: 14000 → ziyang10)")
-    p.add_argument("--trials-per-task", type=int, default=15,
-                   help="super warmup trials per task (15 → ~150 ep ≈ 3250 verdict)")
+    p.add_argument(
+        "--host", default="weiland.top", help="server host (default: weiland.top)"
+    )
+    p.add_argument(
+        "--port",
+        type=int,
+        default=14000,
+        help="server port (default: 14000 → ziyang10)",
+    )
+    p.add_argument(
+        "--trials-per-task",
+        type=int,
+        default=15,
+        help="super warmup trials per task (15 → ~150 ep ≈ 3250 verdict)",
+    )
     p.add_argument("--num-workers", type=int, default=8)
+    p.add_argument(
+        "--server-workers",
+        default="",
+        help="run-eval per-server worker split, e.g. 40,40 for dual server",
+    )
     p.add_argument("--task-suite", default="libero_spatial")
     p.add_argument("--warmup-trials", type=int, default=15)
     p.add_argument("--eval-trials", type=int, default=10)
@@ -777,16 +792,32 @@ def _parse(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--always-warm-dir", default="")
     p.add_argument("--thresholds-dir", default="")
     p.add_argument("--summary", default="")
-    p.add_argument("--servers", default="weiland.top:14000,weiland.top:14001",
-                   help="comma-separated host:port for run-eval delegate command")
-    p.add_argument("--data-dir", default="",
-                   help="aggregate-summary: data dir holding journal + per_step (default: exp/weighted_sum/data/kinematic_phase5)")
-    p.add_argument("--journal", default="",
-                   help="aggregate-summary: per-episode eval journal path (default: <data_dir>/journal.jsonl)")
-    p.add_argument("--per-step-dir", default="",
-                   help="aggregate-summary: per-yaml verdict log dir (default: <data_dir>/per_step)")
-    p.add_argument("--always-warm-journal", default="",
-                   help="aggregate-summary: Stage 6 always-warm journal (default: <data_dir>/always_warm_journal.jsonl)")
+    p.add_argument(
+        "--servers",
+        default="weiland.top:14000,weiland.top:14001",
+        help="comma-separated host:port for run-eval delegate command",
+    )
+    p.add_argument(
+        "--data-dir",
+        default="",
+        help="aggregate-summary: data dir holding journal + per_step "
+        "(default: exp/weighted_sum/data/libero_spatial/kinematic_phase5/d1)",
+    )
+    p.add_argument(
+        "--journal",
+        default="",
+        help="aggregate-summary: per-episode eval journal path (default: <data_dir>/journal.jsonl)",
+    )
+    p.add_argument(
+        "--per-step-dir",
+        default="",
+        help="aggregate-summary: per-yaml verdict log dir (default: <data_dir>/per_step)",
+    )
+    p.add_argument(
+        "--always-warm-journal",
+        default="",
+        help="aggregate-summary: Stage 6 always-warm journal (default: <data_dir>/always_warm_journal.jsonl)",
+    )
     return p.parse_args(argv)
 
 

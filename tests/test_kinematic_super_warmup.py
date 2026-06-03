@@ -215,11 +215,19 @@ def test_phase5_orig_cfg_untouched():
 
 def test_super_warmup_yaml_structure():
     """Built super warmup yaml must be schema-correct (without server load)."""
+    from exp.weighted_sum.kinematic.spec import CFG_ID_DEFAULT
     from exp.weighted_sum.kinematic.super_warmup import build_super_warmup_yaml
 
-    y = build_super_warmup_yaml()
+    y = build_super_warmup_yaml(cfg_id=CFG_ID_DEFAULT)
     # Required top-level shape (cache.config schema)
-    for k in ("enabled", "keys", "key_builder", "checkpoints", "backend", "write_policy"):
+    for k in (
+        "enabled",
+        "keys",
+        "key_builder",
+        "checkpoints",
+        "backend",
+        "write_policy",
+    ):
         assert k in y, f"missing top-level {k!r}"
 
     cp1 = y["checkpoints"]["cp1"]
@@ -246,9 +254,10 @@ def test_super_warmup_factors_match_declared_union():
     confirms equality with ``super_warmup_declared_keys()``.
     """
     from exp.weighted_sum.kinematic.spec import super_warmup_declared_keys
+    from exp.weighted_sum.kinematic.spec import CFG_ID_DEFAULT
     from exp.weighted_sum.kinematic.super_warmup import build_super_warmup_yaml
 
-    y = build_super_warmup_yaml()
+    y = build_super_warmup_yaml(cfg_id=CFG_ID_DEFAULT)
     factors = y["checkpoints"]["cp1"]["judge"]["dump"]["factors"]
 
     emitted_keys: set[str] = set()
@@ -260,10 +269,14 @@ def test_super_warmup_factors_match_declared_union():
     needed = super_warmup_declared_keys()
     missing = needed - emitted_keys
     extras = emitted_keys - needed
-    assert not missing, f"super warmup missing {len(missing)} keys: {sorted(missing)[:5]}"
+    assert not missing, (
+        f"super warmup missing {len(missing)} keys: {sorted(missing)[:5]}"
+    )
     # Extras are forbidden — every emitted key should correspond to a real cell
     # declared key (otherwise we're wasting extraction time per verdict).
-    assert not extras, f"super warmup has {len(extras)} extra keys: {sorted(extras)[:5]}"
+    assert not extras, (
+        f"super warmup has {len(extras)} extra keys: {sorted(extras)[:5]}"
+    )
 
 
 # ----------------------------------------------------------------------
@@ -365,7 +378,17 @@ def test_runner_libero_args_emits_well_formed_task_ids():
     else:
         tokens = []
     assert tokens == [
-        "--task-ids", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+        "--task-ids",
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
     ], tokens
     # Negative: confirm passing a raw string WOULD break (regression sentinel).
     bad_tokens = ["--task-ids"] + [str(t) for t in "0,1,2,3,4,5,6,7,8,9"]
@@ -387,9 +410,10 @@ def test_super_warmup_yaml_validates_against_config(tmp_path: Path):
     """
     import yaml as _yaml
     from openpi.cache.config import load_cache_config
+    from exp.weighted_sum.kinematic.spec import CFG_ID_DEFAULT
     from exp.weighted_sum.kinematic.super_warmup import build_super_warmup_yaml
 
-    yaml_dict = build_super_warmup_yaml()
+    yaml_dict = build_super_warmup_yaml(cfg_id=CFG_ID_DEFAULT)
     yaml_path = tmp_path / "super_warmup.yaml"
     yaml_path.write_text(_yaml.safe_dump(yaml_dict))
     cfg = load_cache_config(yaml_path)
@@ -408,7 +432,9 @@ def test_eval_yaml_validates_against_config(tmp_path: Path):
 
     cell = next(c for c in generate_all_cells() if c.group == "g5")
     yaml_dict = build_eval_yaml_for_cell(
-        cell, fh_thr=0.5, ws_thr=0.1,
+        cell,
+        fh_thr=0.5,
+        ws_thr=0.1,
     )
     yaml_path = tmp_path / "eval.yaml"
     yaml_path.write_text(_yaml.safe_dump(yaml_dict))

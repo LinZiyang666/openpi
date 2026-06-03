@@ -17,8 +17,8 @@ on why cross-retrieval ceiling reuse is invalid.
 
 Usage:
     PYTHONPATH=. uv run exp/weighted_sum/kinematic/analysis/plot_pareto_overlay.py \\
-        --summary exp/weighted_sum/data/kinematic_phase5/per_yaml_summary.jsonl \\
-        --out-dir exp/weighted_sum/data/kinematic_phase5
+        --summary exp/weighted_sum/data/libero_spatial/kinematic_phase5/d1/per_yaml_summary.jsonl \\
+        --out-dir exp/weighted_sum/data/libero_spatial/kinematic_phase5/d1
 """
 
 from __future__ import annotations
@@ -118,7 +118,7 @@ def _load_random_periodic_csv(path: Path) -> list[tuple[float, float]]:
 
 def _load_threshold_pareto_d1(repo: Path) -> list[tuple[float, float]]:
     """Load threshold_pareto d1 (inf, SR) pairs from existing csv if present."""
-    csv_path = repo / "exp/weighted_sum/analysis/threshold_pareto_per_yaml.csv"
+    csv_path = repo / "exp/weighted_sum/analysis/libero_spatial/threshold_pareto/threshold_pareto_per_yaml.csv"
     if not csv_path.exists():
         return []
     import csv
@@ -182,7 +182,7 @@ def main(*, summary_path: Path | None = None, out_dir: Path | None = None) -> Pa
     """Build the 4-frontier overlay and save it to out_dir/pareto_overlay.png."""
     repo = Path(__file__).resolve().parents[4]
     summary_path = summary_path or (
-        repo / "exp/weighted_sum/data/kinematic_phase5/per_yaml_summary.jsonl"
+        repo / "exp/weighted_sum/data/libero_spatial/kinematic_phase5/d1/per_yaml_summary.jsonl"
     )
     out_dir = out_dir or summary_path.parent
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -196,7 +196,7 @@ def main(*, summary_path: Path | None = None, out_dir: Path | None = None) -> Pa
     rp_pts = [p for p in rp_pts if p[0] > 0]
     th_d1_pts = _load_threshold_pareto_d1(repo)
     p5_pts = _load_phase5_d4_native(repo)
-    self_warm = _load_self_always_warm(out_dir)
+    self_warm = _load_self_always_warm(summary_path.parent)
 
     # This experiment: 237-cell summary
     this_rows = _load_jsonl(summary_path)
@@ -262,21 +262,18 @@ def main(*, summary_path: Path | None = None, out_dir: Path | None = None) -> Pa
             zorder=3,
         )
 
-    # This experiment — per-group scatter + overall frontier
-    for g, (color, marker, label) in _GROUP_COLOR.items():
-        sub = by_group.get(g, [])
-        if not sub:
-            continue
+    # This experiment — all kinematic cells as one visual class. Group labels are
+    # intentionally not encoded here; this plot is about frontier comparison.
+    if this_pts:
         ax.scatter(
-            [p[0] for p in sub],
-            [p[1] for p in sub],
-            s=22,
-            color=color,
-            marker=marker,
-            alpha=0.6,
-            edgecolors="black",
-            linewidths=0.4,
-            label=f"{label} ({len(sub)})",
+            [p[0] for p in this_pts],
+            [p[1] for p in this_pts],
+            s=16,
+            color="#d62728",
+            marker="o",
+            alpha=0.32,
+            edgecolors="none",
+            label=f"weighted sum + kinematic cells ({len(this_pts)})",
             zorder=4,
         )
     this_front = _pareto_upper_frontier(this_pts) if this_pts else []
@@ -348,7 +345,7 @@ def main_frontiers_only(
     """
     repo = Path(__file__).resolve().parents[4]
     summary_path = summary_path or (
-        repo / "exp/weighted_sum/data/kinematic_phase5/per_yaml_summary.jsonl"
+        repo / "exp/weighted_sum/data/libero_spatial/kinematic_phase5/d1/per_yaml_summary.jsonl"
     )
     out_dir = out_dir or summary_path.parent
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -359,7 +356,7 @@ def main_frontiers_only(
     rp_pts = [p for p in rp_pts if p[0] > 0]
     th_d1_pts = _load_threshold_pareto_d1(repo)
     p5_pts = _load_phase5_d4_native(repo)
-    self_warm = _load_self_always_warm(out_dir)
+    self_warm = _load_self_always_warm(summary_path.parent)
 
     this_rows = _load_jsonl(summary_path)
     this_pts: list[tuple[float, float]] = []

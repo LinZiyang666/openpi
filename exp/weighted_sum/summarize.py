@@ -7,8 +7,8 @@ journal into ``{yaml_id: {success_rate, n, n_success}}`` — the JSON consumed b
 
 Usage:
     uv run exp/weighted_sum/summarize.py \
-        --journal exp/weighted_sum/data/phase2/journal.jsonl \
-        --out exp/weighted_sum/data/phase2/results.json
+        --journal exp/weighted_sum/data/libero_spatial/phase2/journal.jsonl \
+        --out exp/weighted_sum/data/libero_spatial/phase2/results.json
 """
 
 from __future__ import annotations
