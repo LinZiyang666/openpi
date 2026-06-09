@@ -1,7 +1,7 @@
 # Research Log — CP1 六段延迟 ~ trajectory_depth 受控扫描（**weighted_rrf × kinematic judge**, libero_spatial）
 
 > **Authority**: Execution · **Type**: 派生延迟扫描（复用 `exp/cache_latency_bench/` 基础设施，零改 src/infra） · **Status**: 完成
-> **基础设施**: [`cache_latency_bench_plan.log.md`](cache_latency_bench_plan.log.md) · **同款 score_sum 扫描**: [`cache_latency_bench_depth_study.log.md`](cache_latency_bench_depth_study.log.md)
+> **基础设施**: [`cache_latency_bench_plan.log.md`](../../../logs/cache_latency_bench_plan.log.md) · **同款 score_sum 扫描**: [`cache_latency_bench_depth_study.log.md`](cache_latency_bench_depth_study.log.md)
 
 所有延迟单位 **毫秒 (ms)**，每段 `median (p95)`。
 

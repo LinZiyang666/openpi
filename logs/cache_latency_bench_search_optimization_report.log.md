@@ -2,7 +2,7 @@
 
 > **Authority**: Execution · **类型**: 研究 / 优化研究（3 轮专家 agent，未向 `src/` 落地改动） · **状态**: 完成 — R1 探索 → R2 实测 → R3 对抗验证 + 报告。
 > **目标**: 把 `cp1_search`（~37ms，占 CP1 延迟 ~95%）压到 **<10ms，最好 <5ms**；评估两条方向 —（1）留在 CPU，（2）迁到 GPU。
-> **基础设施**: [`cache_latency_bench_plan.log.md`](cache_latency_bench_plan.log.md) · **深度扫描**: [`cache_latency_bench_depth_study.log.md`](cache_latency_bench_depth_study.log.md)
+> **基础设施**: [`cache_latency_bench_plan.log.md`](../../../logs/cache_latency_bench_plan.log.md) · **深度扫描**: [`cache_latency_bench_depth_study.log.md`](cache_latency_bench_depth_study.log.md)
 > **方法**: 3 个 `Workflow` 轮次（R1 = 6 探索专家 + 综合；R2 = 5 实测专家 + 综合；R3 = 4 对抗验证专家 + 报告撰写），地基为已核实的 `src` 阅读 + 一份紧凑 per-task tensor pack。所有延迟单位 **ms**；等价性基于 **2640 个真实 libero_10 leave-one-out (LOO) query** over `cp1_spatial_pool_16`。论断标注 **实测（measured）** vs **推断（reasoned）**；R3 复现的数字标 **[R3 复现]**。
 
 ## 执行摘要

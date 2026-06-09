@@ -1,8 +1,8 @@
 # weighted_rrf 渐进调优 — 最终总报告（6 轮 + 对标 weighted_sum）
 
 > **Authority**: Execution（Owner 独裁令工作流 override G1/G2，每轮本会话内 spawn 审查）· **Type**: 优化总报告 · **Status**: In Progress（RRF 6 轮收官）
-> **逐轮 log**: R1 [`rrf_round1`](cache_latency_bench_rrf_round1.log.md) · R2 [`rrf_round2`](cache_latency_bench_rrf_round2.log.md) · R3 [`rrf_round3`](cache_latency_bench_rrf_round3.log.md) · R4 [`rrf_round4`](cache_latency_bench_rrf_round4.log.md) · R5 [`rrf_round5`](cache_latency_bench_rrf_round5.log.md)
-> **weighted_sum 总报告**: [`tuning_final_report`](cache_latency_bench_tuning_final_report.log.md)
+> **逐轮 log**: R1 [`rrf_round1`](../../../logs/cache_latency_bench_rrf_round1.log.md) · R2 [`rrf_round2`](../../../logs/cache_latency_bench_rrf_round2.log.md) · R3 [`rrf_round3`](../../../logs/cache_latency_bench_rrf_round3.log.md) · R4 [`rrf_round4`](../../../logs/cache_latency_bench_rrf_round4.log.md) · R5 [`rrf_round5`](../../../logs/cache_latency_bench_rrf_round5.log.md)
+> **weighted_sum 总报告**: [`tuning_final_report`](tuning_final_report.md)
 
 所有延迟 **ms**，libero_10 / cp1_spatial_pool_16 / 2640 step / CPU t=4 / 静默。**全程零改 src 框架。**
 

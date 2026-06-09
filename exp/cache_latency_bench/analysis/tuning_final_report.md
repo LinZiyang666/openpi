@@ -1,8 +1,8 @@
 # cp1 Latency 渐进调优 — 最终总报告（5 轮 + 评估）
 
 > **Authority**: Execution（Owner 独裁令工作流 override G1/G2，每轮本会话内 spawn 审查，见 [[project_search_tuning_workflow]]）· **Type**: 优化总报告 · **Status**: In Progress（6 轮调优收官）
-> **逐轮 log**: R1 [`round1_stack_elim`](cache_latency_bench_round1_stack_elim.log.md) · R2 [`round2_prenorm_dot`](cache_latency_bench_round2_prenorm_dot.log.md) · R3 [`round3_lean`](cache_latency_bench_round3_lean.log.md) · R4 [`round4_build`](cache_latency_bench_round4_build.log.md) · R5 [`round5_mem_release`](cache_latency_bench_round5_mem_release.log.md)
-> **前置研究**: [`search_optimization_report`](cache_latency_bench_search_optimization_report.log.md)（R1/R2/R3 专家研究，fp32 GEMV 方案探索）
+> **逐轮 log**: R1 [`round1_stack_elim`](../../../logs/cache_latency_bench_round1_stack_elim.log.md) · R2 [`round2_prenorm_dot`](../../../logs/cache_latency_bench_round2_prenorm_dot.log.md) · R3 [`round3_lean`](../../../logs/cache_latency_bench_round3_lean.log.md) · R4 [`round4_build`](../../../logs/cache_latency_bench_round4_build.log.md) · R5 [`round5_mem_release`](../../../logs/cache_latency_bench_round5_mem_release.log.md)
+> **前置研究**: [`search_optimization_report`](../../../logs/cache_latency_bench_search_optimization_report.log.md)（R1/R2/R3 专家研究，fp32 GEMV 方案探索）
 
 所有延迟 **ms**，libero_10 / cp1_spatial_pool_16 / 2640 step / CPU t=4 / 静默（无后台抢占）。**全程零改 src 框架**——所有优化是 `InMemoryBackend`/keybuilder 的 exp 层子类，经 `components_hook` 注入 bench。
 

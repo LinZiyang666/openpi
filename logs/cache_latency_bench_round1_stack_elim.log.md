@@ -2,7 +2,7 @@
 
 > **Authority**: Execution（Owner 独裁令工作流 override G1/G2，见 [[project_search_tuning_workflow]] / WA §7,§10） · **Type**: 性能调优（exp 内，零改 src 老实现） · **Status**: In Progress
 > **工作流**: 每轮 6 步 = ①多专家草拟 plan → ②主 agent 编码 → ③对比法验证 → ④审查 agent → ⑤latency bench → ⑥下一轮。本文件 = ROUND 1 的 plan + 执行记录。
-> **基础设施**: [`cache_latency_bench_plan.log.md`](cache_latency_bench_plan.log.md) · **终版优化报告**: [`cache_latency_bench_search_optimization_report.log.md`](cache_latency_bench_search_optimization_report.log.md)
+> **基础设施**: [`cache_latency_bench_plan.log.md`](../../../logs/cache_latency_bench_plan.log.md) · **终版优化报告**: [`cache_latency_bench_search_optimization_report.log.md`](cache_latency_bench_search_optimization_report.log.md)
 
 ---
 
