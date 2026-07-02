@@ -72,7 +72,7 @@ def test_expected_ids_no_d1_and_unique():
 
 # ---------------------------------------------------------------- winner weights
 def test_winner_modality_weights_exact():
-    mod = E._modality_weights()
+    mod = E._modality_weights("libero_spatial", E.WINNER_CID)
     assert set(mod) == {3, 4, 5}
     for d, w in mod.items():
         assert set(w) == {"vision_0", "vision_1", "robot_state"}   # full key names
@@ -86,7 +86,7 @@ def test_derived_config_only_tw_differs(tmp_path):
     # calibration is the emitter source-of-truth; a hard failure (not skip) if missing.
     assert CALIB.exists(), "tracked calibration JSON missing — reproducibility broken"
     entry = json.loads(CALIB.read_text())["cp1_spatial_pool_16"]
-    mod = E._modality_weights()
+    mod = E._modality_weights("libero_spatial", E.WINNER_CID)
     d = 4
     kw = dict(builder_type=entry["builder_type"], vector_dims=entry["vector_dims"],
               preload_path="exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl",
@@ -230,4 +230,208 @@ def test_main_rejects_analysis_decision_path(tmp_path, monkeypatch):
         "prog", "--journal", "x", "--yaml-dir", "y",
         "--out-dir", str(tmp_path), "--decision-out", str(tmp_path / "analysis" / "decision.json")])
     with pytest.raises(SystemExit):   # JSON under analysis/ -> refused before any file read
+        A.main()
+
+
+# ----------------------------------------------------------------------
+# libero_10 suite — non-lossy manifest bases (G1 R3 approved design)
+# ----------------------------------------------------------------------
+L10_FIX = REPO / "tests/exp/fixtures/libero10_base"
+L10_CALIB = REPO / "exp/weighted_sum/data/libero_10/phase1/calibration_normalizers.json"
+
+# The exact non-lossy weights read from the actual base YAMLs (source of truth).
+L10_REAL_WEIGHTS = {
+    3: {"vision_0": 0.62, "vision_1": 0.37, "robot_state": 0.0},
+    4: {"vision_0": 0.25, "vision_1": 0.4375, "robot_state": 0.3125},
+    5: {"vision_0": 0.5, "vision_1": 0.5, "robot_state": 0.0},
+}
+
+
+def _norm(o):
+    """Order-independent, float-tolerant normalization for deep-diff."""
+    if isinstance(o, dict):
+        return {k: _norm(v) for k, v in sorted(o.items())}
+    if isinstance(o, list):
+        return [_norm(x) for x in o]
+    if isinstance(o, float):
+        return round(o, 10)
+    return o
+
+
+def test_libero10_manifest_weights_match_real():
+    for d, w in L10_REAL_WEIGHTS.items():
+        entry = E.LIBERO10_BASE_MANIFEST[d]
+        assert entry["weights"] == w
+        assert entry["cid"] == E.WINNER_CID_BY_SUITE["libero_10"][d]
+
+
+def test_libero10_manifest_rejects_lossy_reconstruction():
+    """Manifest weights are NOT recoverable from the cid (int/100) or grid funcs."""
+    import re
+
+    from exp.weighted_sum.emit_yamls import grid_weight_configs
+
+    g2 = grid_weight_configs(["vision_0", "vision_1"])
+    # d3 grid2 reconstruction (0.625) != real (0.62)
+    assert g2[E.WINNER_CID_BY_SUITE["libero_10"][3]]["vision_0"] != L10_REAL_WEIGHTS[3]["vision_0"]
+
+    # int(cid)/100 is lossy for d4 (0.43/0.31 != real 0.4375/0.3125). Parse with a
+    # regex because the field names themselves contain underscores.
+    cid4 = E.WINNER_CID_BY_SUITE["libero_10"][4]
+    lossy4 = {f: int(v) / 100.0 for f, v in re.findall(r"(vision_0|vision_1|robot_state)@(\d+)", cid4)}
+    assert lossy4["vision_1"] != L10_REAL_WEIGHTS[4]["vision_1"]        # 0.43 != 0.4375
+    assert lossy4["robot_state"] != L10_REAL_WEIGHTS[4]["robot_state"]  # 0.31 != 0.3125
+
+
+@pytest.mark.parametrize("d", (3, 4, 5))
+def test_libero10_modality_weights_from_manifest(d):
+    mw = E._modality_weights("libero_10", E.WINNER_CID_BY_SUITE["libero_10"])
+    assert mw[d] == L10_REAL_WEIGHTS[d]
+
+
+def test_libero10_winner_cid_matches_threshold_csv():
+    """Winner cids equal the tracked libero_10 threshold_pareto per-depth base (identity)."""
+    import csv
+
+    p = REPO / "exp/weighted_sum/analysis/libero_10/threshold_pareto/threshold_pareto_per_yaml.csv"
+    assert p.exists(), "tracked libero_10 threshold csv missing — identity source-of-truth"
+    base_by_depth: dict[int, set] = {}
+    for r in csv.DictReader(p.open()):
+        d = int(r["base_depth"])
+        cid = r["yaml_id"].split("cp1_spatial_pool_16__")[1].split(f"__d{d}")[0]
+        base_by_depth.setdefault(d, set()).add(cid)
+    for d in (3, 4, 5):
+        assert base_by_depth[d] == {E.WINNER_CID_BY_SUITE["libero_10"][d]}
+
+
+def _l10_incumbent_cfg(d):
+    """Rebuild the libero_10 incumbent config (manifest weights + incumbent tw)."""
+    entry = json.loads(L10_CALIB.read_text())["cp1_spatial_pool_16"]
+    mw = E._modality_weights("libero_10", E.WINNER_CID_BY_SUITE["libero_10"])
+    return build_eval_config(
+        builder_type=entry["builder_type"], vector_dims=entry["vector_dims"],
+        preload_path="exp/common/data/cache_artifacts/libero_10/cp1_spatial_pool_16.pkl",
+        weights=mw[d], fields_calib=entry["fields"], trajectory_depth=d,
+        trajectory_weights=list(E.DEPTH_WEIGHTS[d]))
+
+
+@pytest.mark.parametrize("d", (3, 4, 5))
+def test_libero10_incumbent_deepdiff_vs_fixture(d):
+    """Rebuilt libero_10 incumbent == the real base YAML fixture (only tw is the variable)."""
+    assert L10_CALIB.exists(), "tracked libero_10 calibration missing"
+    incumbent = _l10_incumbent_cfg(d)
+    fixture = yaml.safe_load((L10_FIX / f"d{d}_base.yaml").read_text())
+    assert _norm(incumbent) == _norm(fixture), f"d{d} incumbent diverges from real base"
+
+
+def test_libero10_grid_family_contract(tmp_path):
+    mw = E._modality_weights("libero_10", E.WINNER_CID_BY_SUITE["libero_10"])
+    assert mw[3]["robot_state"] == 0.0 and mw[5]["robot_state"] == 0.0   # grid2
+    assert mw[4]["robot_state"] > 0.0                                    # grid3
+    for d in (3, 4, 5):
+        p = tmp_path / f"d{d}.yaml"
+        p.write_text(yaml.safe_dump(_l10_incumbent_cfg(d), sort_keys=False))
+        load_cache_config(p)                                            # schema validates
+
+
+def test_libero10_count_and_expected_ids():
+    wc = E.WINNER_CID_BY_SUITE["libero_10"]
+    ids = E.expected_ids(winner_cid=wc)
+    assert len(ids) == 171
+    assert all("__d1__" not in i for i in ids)
+    assert any(wc[3] in i for i in ids)   # carries the libero_10 grid2 d3 cid
+
+
+def test_emit_main_dynamic_defaults(monkeypatch):
+    """main() resolves per-suite path defaults post-parse; explicit flags override."""
+    captured = {}
+
+    def fake_emit(output_dir, calibration, artifact_dir, depths=E.DEFAULT_DEPTHS, *,
+                  suite="libero_spatial", winner_cid=None):
+        captured.update(output_dir=str(output_dir), calibration=str(calibration),
+                        artifact_dir=artifact_dir, suite=suite,
+                        winner_is_suite=(winner_cid is E.WINNER_CID_BY_SUITE[suite]))
+        return set()
+
+    monkeypatch.setattr(E, "emit", fake_emit)
+
+    # 1) --task-suite libero_10, no overrides -> all three defaults resolve to libero_10
+    monkeypatch.setattr("sys.argv", ["prog", "--task-suite", "libero_10"])
+    E.main()
+    assert captured["suite"] == "libero_10" and captured["winner_is_suite"]
+    assert "libero_10" in captured["calibration"]
+    assert captured["artifact_dir"] == "exp/common/data/cache_artifacts/libero_10"
+    assert captured["output_dir"].endswith("config/trajectory_weight_alloc/libero_10/eval")
+
+    # 2) explicit flags win over the suite defaults
+    captured.clear()
+    monkeypatch.setattr("sys.argv", ["prog", "--task-suite", "libero_10",
+                                     "--calibration", "/x/cal.json",
+                                     "--artifact-dir", "/x/art", "--output-dir", "/x/out"])
+    E.main()
+    assert captured["calibration"] == "/x/cal.json"
+    assert captured["artifact_dir"] == "/x/art"
+    assert captured["output_dir"] == "/x/out"
+
+
+def test_backward_compat_positional_interface():
+    """The suite/winner_cid additions must not shift the original positional slots."""
+    import inspect
+
+    # expected_ids: depths stays positional-first; winner_cid keyword-only.
+    assert E.expected_ids((3,)) == E.expected_ids(depths=(3,))
+    assert all("__d3__" in i for i in E.expected_ids((3,)))
+    ep = inspect.signature(E.expected_ids).parameters
+    assert list(ep)[0] == "depths"
+    assert ep["winner_cid"].kind == inspect.Parameter.KEYWORD_ONLY
+
+    # emit: 4th positional stays depths; suite/winner_cid keyword-only.
+    em = inspect.signature(E.emit).parameters
+    assert list(em)[:4] == ["output_dir", "calibration", "artifact_dir", "depths"]
+    assert em["suite"].kind == inspect.Parameter.KEYWORD_ONLY
+    assert em["winner_cid"].kind == inspect.Parameter.KEYWORD_ONLY
+
+
+def test_backward_compat_expected_ids_default():
+    assert E.expected_ids() == E.expected_ids(winner_cid=E.WINNER_CID_BY_SUITE["libero_spatial"])
+    assert E.WINNER_CID is E.WINNER_CID_BY_SUITE["libero_spatial"]
+
+
+def _build_full_suite(tmp_path, suite):
+    """Full locked stub set for a suite + a matching complete journal."""
+    wc = E.WINNER_CID_BY_SUITE[suite]
+    ids = sorted(E.expected_ids(winner_cid=wc))
+    ydir = tmp_path / "yamls"
+    ydir.mkdir()
+    jpath = tmp_path / "journal.jsonl"
+    with jpath.open("w") as f:
+        for yid in ids:
+            depth = int(yid.split("__d")[1][0])
+            _stub_yaml(ydir / f"{yid}.yaml", [1.0 / depth] * depth)
+            for t in range(10):
+                for e in range(10):
+                    f.write(json.dumps({"task_uid": f"{yid}:eval:{t}:{e}", "phase": "eval",
+                                        "status": "done", "success": (t + e) % 2 == 0, "ts": 1.0}) + "\n")
+    return ydir, jpath
+
+
+def test_analyze_libero10_suite_passes_and_provenance(tmp_path, monkeypatch):
+    ydir, jpath = _build_full_suite(tmp_path, "libero_10")
+    dec = tmp_path / "data" / "decision.json"
+    monkeypatch.setattr("sys.argv", [
+        "prog", "--task-suite", "libero_10", "--journal", str(jpath), "--yaml-dir", str(ydir),
+        "--out-dir", str(tmp_path / "out"), "--decision-out", str(dec), "--n-boot", "50"])
+    A.main()
+    d = json.loads(dec.read_text())
+    assert "xuanlel2" in d["d1_prior_note"]     # libero_10 provenance, not spatial
+
+
+def test_analyze_rejects_wrong_suite_ids(tmp_path, monkeypatch):
+    """libero_spatial yamls under --task-suite libero_10 -> expected-set mismatch -> fail."""
+    ydir, jpath = _build_full_suite(tmp_path, "libero_spatial")
+    monkeypatch.setattr("sys.argv", [
+        "prog", "--task-suite", "libero_10", "--journal", str(jpath), "--yaml-dir", str(ydir),
+        "--out-dir", str(tmp_path / "out"),
+        "--decision-out", str(tmp_path / "data" / "decision.json"), "--n-boot", "10"])
+    with pytest.raises(SystemExit):
         A.main()

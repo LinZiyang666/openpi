@@ -40,10 +40,20 @@ from math import comb
 
 import yaml
 
-from exp.weighted_sum.emit_traj_weight_alloc import STEM, expected_ids
+from exp.weighted_sum.emit_traj_weight_alloc import STEM, WINNER_CID_BY_SUITE, expected_ids
 
-# d1 (depth-1, no trajectory) ceiling — prior-run non-decisive reference.
-D1_NOTE = "non-decisive prior-run reference (same ziyang10 H200 series, not same-batch)"
+# d1 (depth-1, no trajectory) ceiling — prior-run non-decisive reference. The
+# provenance differs per suite (different machines / stage completeness), so it
+# is parameterized rather than hard-coded.
+D1_NOTE_BY_SUITE = {
+    "libero_spatial": "non-decisive prior-run reference (same ziyang10 H200 series, not same-batch)",
+    "libero_10": "non-decisive prior-run reference (ziyang10+xuanlel2 homogeneous H200, not same-batch, Stage-1 partial)",
+}
+# Per-suite d1 baseline CSV (resolved post-parse; explicit --baseline-csv wins).
+BASELINE_CSV_BY_SUITE = {
+    "libero_spatial": "exp/weighted_sum/data/libero_spatial/phase2/all_results.csv",
+    "libero_10": "exp/weighted_sum/data/libero_10/phase2/all_results.csv",
+}
 
 SHAPE_CLASSES = ("uniform", "decreasing", "increasing", "peak", "trough", "other")
 
@@ -292,7 +302,8 @@ def main():
     ap.add_argument("--out-dir", required=True, help="analysis dir (results.md + png)")
     ap.add_argument("--decision-out", required=True,
                     help="machine-readable decision.json path — MUST be under data/, not analysis/")
-    ap.add_argument("--baseline-csv", default="exp/weighted_sum/data/libero_spatial/phase2/all_results.csv")
+    ap.add_argument("--task-suite", choices=tuple(WINNER_CID_BY_SUITE), default="libero_spatial")
+    ap.add_argument("--baseline-csv", default=None, help="d1 baseline CSV; default resolves from --task-suite")
     ap.add_argument("--depths", default="3,4,5", help="depths whose locked expected_ids to cross-check")
     ap.add_argument("--task-ids", default="0-9")
     ap.add_argument("--trials", type=int, default=10)
@@ -301,6 +312,10 @@ def main():
     ap.add_argument("--n-boot", type=int, default=2000)
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
+    suite = args.task_suite
+    winner_cid = WINNER_CID_BY_SUITE[suite]
+    d1_note = D1_NOTE_BY_SUITE[suite]
+    baseline_csv = args.baseline_csv or BASELINE_CSV_BY_SUITE[suite]
 
     dec_path = Path(args.decision_out)
     if "analysis" in dec_path.parts:
@@ -317,11 +332,11 @@ def main():
     paired = paired_by_yaml(records)
     weights = read_trajectory_weights(Path(args.yaml_dir))
 
-    errs = acceptance_check(paired, set(weights), expected_ids(depths), task_ids, args.trials)
+    errs = acceptance_check(paired, set(weights), expected_ids(depths, winner_cid=winner_cid), task_ids, args.trials)
     if errs:
         raise SystemExit("acceptance-gate FAILED:\n  " + "\n  ".join(errs))
 
-    d1_sr = read_d1_prior(Path(args.baseline_csv))
+    d1_sr = read_d1_prior(Path(baseline_csv))
 
     rows_by_depth: dict[int, list[dict]] = defaultdict(list)
     for yid, w in weights.items():
@@ -336,12 +351,12 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     decision: dict = {
         "note": "SCREENING — candidates with paired uncertainty, not a decisive verdict",
-        "d1_prior_sr": d1_sr, "d1_prior_note": D1_NOTE,
+        "d1_prior_sr": d1_sr, "d1_prior_note": d1_note,
         "bootstrap": {"n_boot": args.n_boot, "seed": args.seed}, "by_depth": {},
     }
     md = ["# Trajectory step-weight screening — results\n",
           "> Screening: ranked candidates + paired McNemar + bootstrap CI vs incumbent. NOT decisive.",
-          f"> d1 prior SR = {d1_sr} ({D1_NOTE}).",
+          f"> d1 prior SR = {d1_sr} ({d1_note}).",
           "> Full per-config paired stats are in the machine-readable decision.json (data/); "
           "the tables below are the top-k summary.\n"]
 

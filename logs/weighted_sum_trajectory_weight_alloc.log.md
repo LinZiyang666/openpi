@@ -1,6 +1,7 @@
 # Weighted-Sum Trajectory 每步权重筛选搜索（libero_spatial）
 
-> **Status**: `In Progress`（G1 APPROVED / §4 Code 完成 / G2 APPROVED R2 2026-07-02 / §6 Verify / 待主跑）
+> **Status**: `Implemented`（G1/G2 APPROVED / code de7c499 / 主跑完成 2026-07-02：17,100 ep，aggregate SR 0.674，0 err/0 ALERT / 分析出 results.md+decision.json）
+> **结论（screening，非裁决）**：171 权重形状中**无一显著超 incumbent**（ΔSR>0 且 McNemar p<0.05 = 空），d3/d4/d5 最优 SR 0.73/0.72/0.72 **均 < d1 prior 0.74**；形状排序 peak≈decreasing > increasing/other > trough > uniform(最差)。→ **合作者假说（固定递减权重不合理致 d1>d3/d4/d5）不被支持**；退化更可能源于 trajectory(depth>1) 本身。详见 `analysis/libero_spatial/trajectory_weight_alloc/results.md`。裁决留 top-k 确认性重跑。
 > **Level**: L2
 > **Authority**: Execution
 > **Date**: 2026-07-02
