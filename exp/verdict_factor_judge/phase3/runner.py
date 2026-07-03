@@ -20,7 +20,7 @@ two-pass flow:
 
 Everything below the ``Args`` block reuses helpers from ``run_phase``
 verbatim (``_parse_dump_to_buffer``, ``_build_libero_argv``,
-``_summarize_per_step_log``, etc.) — runner shape is identical.
+``summarize_gate_log``, etc.) — runner shape is identical.
 
 CLI invocation::
 
@@ -58,7 +58,7 @@ from exp.verdict_factor_judge.common.generate_yamls import write_yaml
 from exp.verdict_factor_judge.common.run_phase import (
     _aggregate_sr_from_episode_json,
     _build_libero_argv,
-    _summarize_per_step_log,
+    summarize_gate_log,
 )
 from exp.verdict_factor_judge.phase3.spec import (
     GRID,
@@ -427,7 +427,7 @@ def _run_one_recipe(
         # AFTER the bundle has been rolled back to a no-WarmupPool yaml.
 
         # Summarize.
-        counts = _summarize_per_step_log(args.per_step_log_dir, eval_yaml_id)
+        counts = summarize_gate_log(args.per_step_log_dir, eval_yaml_id)
         success_rate: Optional[float] = None
         if episode_results_path is not None:
             success_rate = _aggregate_sr_from_episode_json(episode_results_path)

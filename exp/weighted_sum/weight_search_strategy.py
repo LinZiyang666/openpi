@@ -60,6 +60,9 @@ class WeightSearchStrategy(ExperimentStrategy):
                         server_host=server.host,
                         server_port=server.port,
                         bundle_id=yaml_id,
+                        # Per-phase trial count for the worker's canonical episode_id
+                        # (gate collection §19.B6); eval-only strategy so N == eval_trials.
+                        extra={"num_trials_per_task": self._eval_trials},
                     )
                 )
         return episodes

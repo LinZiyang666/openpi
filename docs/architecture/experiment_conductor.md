@@ -46,7 +46,8 @@ server1 / server2          (M2 多 bundle + WarmupPool, 已支持)
 
 ## 4. 核心数据结构（`task.py`）
 
-- `EpisodeTask`：派发单元。`task_uid` 确定性派生 `f"{yaml_id}:{phase}:{task_id}:{episode_idx}"`（续跑幂等匹配账本）。
+- `EpisodeTask`：派发单元。`task_uid` 确定性派生 `f"{yaml_id}:{phase}:{task_id}:{episode_idx}"`（续跑幂等匹配账本）。`extra` 承载自由 per-task 元数据；**gate 采集 producer contract**：经 `LiberoEpisodeRunner` 运行的 strategy 必须 stamp `extra["num_trials_per_task"]` 为本 stage 的 per-phase trial 数（warmup/eval 不同），runner 据此推 canonical `episode_id`、缺失即 fail-fast（不回退 worker 默认值），使 conductor 与 standalone 的 id 一致。
+- **gate 采集回传**：worker 侧精简采集（默认 `robot_state`）作为额外 key 内联进 `EpisodeResult.per_step_rows`，随 result 经 msgpack wire 中央回传 driver（**无 NFS、无 protocol version 变更**）；vision 因单 episode 帧 vs 64 MiB 上限而 standalone-only。详见 [数据收集指南](../data_collection/guide.md#gate-research-per-step-collection-distinct-from---collect)。
 - `Stage`：一组 episode + `phase` + 所属 `server` + 可选 `produces_calib_id` / `consumes_calib_id`。warmup 的重试/续跑原子单位是 stage。
 - `TaskGraph`：`Stage` + `StageDependency` + `CalibrationArtifact`；`validate()` 拒绝悬空 calib 引用与依赖环。
 - `StageContext`（`strategy.py`）：线程安全黑板，承载 warmup→eval 的 calibration buffer 交接。

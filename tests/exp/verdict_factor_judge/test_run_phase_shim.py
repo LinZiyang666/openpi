@@ -466,6 +466,29 @@ def test_build_libero_argv_forwards_save_episode_results_only_on_eval(tmp_path: 
     assert "--save-episode-results" not in no_path_cmd
 
 
+def test_build_libero_argv_emits_canonical_collect_gate_dir_flag(tmp_path: Path) -> None:
+    """Verdict-factor runners emit the CANONICAL ``--collect-gate-dir`` (plan
+    §2.9.3 / T14d); ``--per-step-log-dir`` survives only as main.py's deprecated
+    alias and must NOT be the flag the orchestrator spawns with."""
+    args = replace(_default_args(tmp_path), per_step_log_dir=str(tmp_path / "per_step"))
+    cmd, _ = run_phase._build_libero_argv(
+        args=args, yaml_id="yaml_alpha", phase="eval", num_trials_per_task=1,
+    )
+    assert "--collect-gate-dir" in cmd
+    assert "--per-step-log-dir" not in cmd
+    assert str(tmp_path / "per_step") in cmd
+
+
+def test_summarize_gate_log_is_general_reexport() -> None:
+    """The de-specialized summary (plan §2.11 R1) is the general
+    ``openpi.serving.per_step_recorder.summarize_gate_log``, re-exported from
+    run_phase; the verdict-specific ``_summarize_per_step_log`` is gone."""
+    from openpi.serving.per_step_recorder import summarize_gate_log as general
+
+    assert run_phase.summarize_gate_log is general
+    assert not hasattr(run_phase, "_summarize_per_step_log")
+
+
 def test_main_resume_skips_already_done_yamls(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """``main(--resume)`` with an existing summary must skip done yamls and
     run only the missing ones, appending (not truncating)."""

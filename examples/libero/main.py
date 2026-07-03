@@ -115,6 +115,15 @@ class Args:
     # Identifies the yaml under evaluation; used as the merged file's stem
     # and in every row. Required when per_step_log_dir is set.
     yaml_id: str = ""
+
+    # Gate-research per-step collection (canonical). Enables the recorder in
+    # "gate mode" (stamps episode ``success`` per row + inlines ``collect`` from
+    # the server ``__collect_meta__``). ``--per-step-log-dir`` above is a
+    # deprecated alias (shim mode, no success stamping); the two are mutually
+    # exclusive. ``--collect-embeddings`` must match the server's collect_fields
+    # (pooled => vision fields present; none => robot_state only).
+    collect_gate_dir: str = ""
+    collect_embeddings: str = "pooled"
     # Tags every row (analysis filters on this to separate warmup from eval).
     phase: str = "eval"
 
@@ -168,9 +177,21 @@ def _log_client_timing(worker_id, task_id, episode_idx, ct: dict) -> None:
     )
 
 
+# Pure gate-research collection helpers live in the LIBERO-free ``collect_util``
+# module so the conductor harness and unit tests import the SAME implementations
+# without pulling in the simulator (plan §4 decoupling / §19.B6 single identity).
+# Re-exported under the historical private names so main's call sites are unchanged.
+from examples.libero.collect_util import COLLECTOR_SCHEMA_VERSION as _COLLECTOR_SCHEMA_VERSION  # noqa: E402
+from examples.libero.collect_util import compute_global_episode_id as _compute_global_episode_id  # noqa: E402
+from examples.libero.collect_util import encode_collect_meta as _encode_collect_meta  # noqa: E402
+from examples.libero.collect_util import episode_summary_row as _episode_summary_row  # noqa: E402
+from examples.libero.collect_util import merge_collect as _merge_collect  # noqa: E402
+from examples.libero.collect_util import update_summary_acc as _update_summary_acc  # noqa: E402
+
+
 def _run_episode(env, client, initial_state, task_description, args, max_steps,
                  *, record_video: bool = False, step_callback=None,
-                 infer_recorder: Callable[[int, dict], None] | None = None,
+                 infer_recorder: Callable[..., None] | None = None,
                  client_timing: dict | None = None) -> tuple:
     """Run a single episode.
 
@@ -306,11 +327,13 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
                     hit_meta = _infer_result.get("__hit_meta__")
                     if hit_meta is not None:
                         # ``t - args.num_steps_wait`` resets to 0 on the first
-                        # real verdict per episode (plan §7.2 "physical step
-                        # within an episode"). Wait-phase replays never trigger
-                        # an infer call so this branch only runs once t >=
-                        # num_steps_wait.
-                        infer_recorder(t - args.num_steps_wait, hit_meta)
+                        # real verdict per episode (physical step within an
+                        # episode). Wait-phase replays never trigger an infer
+                        # call so this branch only runs once t >= num_steps_wait.
+                        collect_meta = _encode_collect_meta(
+                            _infer_result.get("__collect_meta__")
+                        )
+                        infer_recorder(t - args.num_steps_wait, hit_meta, collect_meta)
                 assert (
                     len(action_chunk) >= args.replan_steps
                 ), f"We want to replan every {args.replan_steps} steps, but policy only predicts {len(action_chunk)} steps."
@@ -390,19 +413,6 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
         client_timing["infers"] = client_timing.get("infers", 0) + _ct_infers
 
     return done, images, timestamps, traj_buffer, final_env_timestep
-
-
-def _compute_global_episode_id(task_id: int, episode_idx: int, num_trials_per_task: int) -> int:
-    """Derive the global episode id from (task_id, subset episode idx).
-
-    Both serial and concurrent evaluation paths MUST agree on this mapping
-    (plan §4 / §19.B6): if they diverge, client-side GT HDF5, server-side
-    collected HDF5, results JSON, and downstream Layer F unit keys fall out
-    of alignment as soon as the caller uses ``--task_ids`` or
-    ``--episode_filter`` to skip episodes. Keep as the only place this
-    formula lives.
-    """
-    return int(task_id) * int(num_trials_per_task) + int(episode_idx)
 
 
 def _count_filtered_episodes(
@@ -597,21 +607,29 @@ def _eval_serial(
             # frame; ``_run_episode`` only owns ``(step_idx, hit_meta)``.
             # Default-arg binding pins identity values at closure creation
             # so the late-binding loop variables don't bleed across episodes.
+            _ep_acc = {"collected": False, "searched_all": True, "fields": None, "kb_id": None, "n": 0}
             if per_step_pool is not None:
                 writer = per_step_pool.writer_for(0)
+                writer.begin_episode()
 
-                def _rec(step_idx, hit_meta, _t=task_id, _s=episode_idx,
-                         _o=orig_init_state_idx, _e=global_episode_id):
-                    writer.write_row({
+                def _rec(step_idx, hit_meta, collect_meta=None, _t=task_id, _s=episode_idx,
+                         _o=orig_init_state_idx, _e=global_episode_id, _acc=_ep_acc,
+                         _u=f"{args.yaml_id}:{args.phase}:{task_id}:{episode_idx}"):
+                    row = {
                         "yaml_id": args.yaml_id,
                         "task_id": int(_t),
                         "subset_init_state_idx": int(_s),
                         "orig_init_state_idx": int(_o),
                         "episode_id": int(_e),
+                        "task_uid": _u,  # canonical join key (make_task_uid format)
                         "step_idx": int(step_idx),
                         "phase": args.phase,
                         **hit_meta,
-                    })
+                    }
+                    _merge_collect(row, collect_meta)
+                    _acc["n"] += 1
+                    _update_summary_acc(_acc, collect_meta)
+                    writer.write_row(row)
                 recorder = _rec
             else:
                 recorder = None
@@ -641,7 +659,15 @@ def _eval_serial(
             # crash-safety for clean episode boundaries (~250 rows / write
             # call) — required when factor_outputs payloads inflate row size.
             if writer is not None:
-                writer.flush_episode()
+                if _ep_acc["collected"]:
+                    writer.write_row(_episode_summary_row(
+                        _ep_acc,
+                        task_uid=f"{args.yaml_id}:{args.phase}:{task_id}:{episode_idx}",
+                        yaml_id=args.yaml_id, task_id=task_id,
+                        subset_init_state_idx=episode_idx, episode_id=global_episode_id,
+                        phase=args.phase, seed=args.seed, success=done,
+                    ))
+                writer.flush_episode(success=done)
 
             if args.save_trajectory and traj_buffer is not None:
                 _flush_trajectory_h5(
@@ -835,22 +861,30 @@ def _eval_concurrent(
                         # slot avoids any cross-thread lock; identity is pinned
                         # via default-arg binding so late-binding loop vars do
                         # not leak across episodes.
+                        _ep_acc = {"collected": False, "searched_all": True, "fields": None, "kb_id": None, "n": 0}
                         if per_step_pool is not None:
                             writer = per_step_pool.writer_for(worker_id)
+                            writer.begin_episode()
 
-                            def _rec(step_idx, hit_meta, _t=task_id, _s=episode_idx,
+                            def _rec(step_idx, hit_meta, collect_meta=None, _t=task_id, _s=episode_idx,
                                      _o=orig_init_state_idx, _e=global_episode_id,
-                                     _w=writer):
-                                _w.write_row({
+                                     _w=writer, _acc=_ep_acc,
+                                     _u=f"{args.yaml_id}:{args.phase}:{task_id}:{episode_idx}"):
+                                row = {
                                     "yaml_id": args.yaml_id,
                                     "task_id": int(_t),
                                     "subset_init_state_idx": int(_s),
                                     "orig_init_state_idx": int(_o),
                                     "episode_id": int(_e),
+                                    "task_uid": _u,  # canonical join key (make_task_uid format)
                                     "step_idx": int(step_idx),
                                     "phase": args.phase,
                                     **hit_meta,
-                                })
+                                }
+                                _merge_collect(row, collect_meta)
+                                _acc["n"] += 1
+                                _update_summary_acc(_acc, collect_meta)
+                                _w.write_row(row)
                             recorder = _rec
                         else:
                             recorder = None
@@ -874,7 +908,15 @@ def _eval_concurrent(
                         # workers run concurrently — each writes its own
                         # temp file that ``finalize`` later merges.
                         if writer is not None:
-                            writer.flush_episode()
+                            if _ep_acc["collected"]:
+                                writer.write_row(_episode_summary_row(
+                                    _ep_acc,
+                                    task_uid=f"{args.yaml_id}:{args.phase}:{task_id}:{episode_idx}",
+                                    yaml_id=args.yaml_id, task_id=task_id,
+                                    subset_init_state_idx=episode_idx, episode_id=global_episode_id,
+                                    phase=args.phase, seed=args.seed, success=done,
+                                ))
+                            writer.flush_episode(success=done)
 
                         if args.save_trajectory and traj_buffer is not None:
                             # HDF5 write is per-episode and targets a
@@ -1015,21 +1057,37 @@ def eval_libero(args: Args) -> None:
     # the eval path still hits the ``finally`` finalize. ``yaml_id`` is
     # required so the merged file has a deterministic stem the runner shim
     # can locate after spawn.
+    # Gate-research collection: ``--collect-gate-dir`` is canonical (gate mode,
+    # stamps episode success); ``--per-step-log-dir`` is a deprecated alias
+    # (shim mode, byte-identical, no success stamping). Both set => fail-fast.
+    if args.collect_gate_dir and args.per_step_log_dir:
+        raise ValueError(
+            "--collect-gate-dir and --per-step-log-dir are mutually exclusive "
+            "(--per-step-log-dir is a deprecated alias of --collect-gate-dir)."
+        )
+    _gate_mode = bool(args.collect_gate_dir)
+    _collect_dir = args.collect_gate_dir or args.per_step_log_dir
+    if args.per_step_log_dir and not args.collect_gate_dir:
+        logging.warning("--per-step-log-dir is deprecated; use --collect-gate-dir.")
+    if _gate_mode and args.collect_embeddings not in ("pooled", "none"):
+        raise ValueError(
+            f"--collect-embeddings must be 'pooled' or 'none' (got {args.collect_embeddings!r}); "
+            "'none' = robot_state only (required under conductor), 'pooled' allows vision (standalone-only)."
+        )
+
     per_step_pool: PerStepWriterPool | None = None
-    if args.per_step_log_dir:
+    if _collect_dir:
         if not args.yaml_id:
-            raise ValueError("--per-step-log-dir requires --yaml-id")
-        # Lazy import: the per-step writer lives under ``exp/`` which may
-        # not be on ``sys.path`` when this script is launched via
-        # ``conda run -p <env> python examples/libero/main.py`` (the
-        # ``_subprocess`` helper deliberately strips PYTHONPATH). Defer
-        # the import so non-verdict_factor runners never need ``exp.*``.
-        from exp.verdict_factor_judge.per_step_log_writer import PerStepWriterPool  # noqa: PLC0415
+            raise ValueError("--collect-gate-dir/--per-step-log-dir requires --yaml-id")
+        # Generalized recorder now lives in src (no exp.* dependency for gate runs).
+        from openpi.serving.per_step_recorder import PerStepWriterPool  # noqa: PLC0415
 
         per_step_pool = PerStepWriterPool(
-            pathlib.Path(args.per_step_log_dir),
+            pathlib.Path(_collect_dir),
             yaml_id=args.yaml_id,
             num_workers=max(1, args.num_workers),
+            stamp_success=_gate_mode,
+            filter_searched=_gate_mode,
         )
 
     try:

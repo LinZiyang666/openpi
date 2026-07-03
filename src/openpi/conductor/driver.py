@@ -298,6 +298,14 @@ class ConductorDriver:
                 success=result.success,
             )
         if result.per_step_rows:
+            # Stamp episode-level identity/outcome onto each per-step row so the
+            # gate-research collector can join success + dedup stale retries by
+            # (task_uid, step_idx, attempt) offline. setdefault preserves any
+            # value the client already wrote.
+            for _r in result.per_step_rows:
+                _r.setdefault("success", result.success)
+                _r.setdefault("task_uid", result.task_uid)
+                _r.setdefault("attempt", result.attempt)
             with self._rows_lock:
                 self._per_step_rows.extend(result.per_step_rows)
         if self._monitor is not None:

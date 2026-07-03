@@ -146,6 +146,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         stage_config: Optional[StageDeviceConfig] = None,
         coordinator: Optional[Any] = None,
         bundle_id: str = "default",
+        export_collect_meta: bool = False,
+        collect_fields: tuple[str, ...] = ("robot_state",),
+        collect_kb_id: str = "",
     ) -> None:
         if not policy._is_pytorch_model:  # noqa: SLF001
             raise ValueError(
@@ -159,6 +162,14 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         self._input_transform = policy._input_transform    # composed transform fn  # noqa: SLF001
         self._output_transform = policy._output_transform  # composed transform fn  # noqa: SLF001
         self._pytorch_device = policy._pytorch_device      # e.g. "cuda:0"          # noqa: SLF001
+
+        # Gate-research collection (opt-in). Default off => __collect_meta__ is
+        # never attached and the wire stays byte-identical.
+        self._export_collect_meta = export_collect_meta
+        self._collect_fields = tuple(collect_fields)
+        # keybuilder id (server-only provenance for the episode summary; the
+        # client cannot know it otherwise). Empty => not added to the wire.
+        self._collect_kb_id = collect_kb_id
 
         # ---- Stage device config ----
         sc = stage_config
@@ -501,6 +512,41 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             meta["factor_outputs"] = factor_outputs
         return meta
 
+    @staticmethod
+    def _build_collect_meta(cp1_result, fields: tuple[str, ...]) -> dict:
+        """Build the ``__collect_meta__`` payload for gate-research collection.
+
+        Emits ``{"collect": {field: np.ndarray | None}, "searched": bool}`` from
+        ``cp1_result.query_keys`` for the requested ``fields``. The arrays ride
+        back to the client over ``msgpack_numpy``; the client-side recorder
+        converts them to plain lists before writing the row (conductor's
+        ``msgpack.packb`` and the JSONL writer cannot encode ndarrays).
+
+        ``searched`` copies ``CheckResult.searched`` verbatim so the collector
+        filters gate-skipped steps (selection bias C5) without inferring from
+        score/entry_id. A ``None`` ``cp1_result`` (cache-off) or missing / non-
+        tensor ``query_keys`` degrades to a placeholder rather than raising.
+        """
+        if cp1_result is None:
+            return {"collect": None, "searched": False}
+        query_keys = getattr(cp1_result, "query_keys", None)
+        searched = bool(getattr(cp1_result, "searched", True))
+        if not query_keys:
+            return {"collect": None, "searched": searched}
+        collect: dict[str, Any] = {}
+        for name in fields:
+            t = query_keys.get(name)
+            if not isinstance(t, torch.Tensor):
+                collect[name] = None
+                continue
+            # Per-field wire dtype: robot_state stays float32 (joint/gripper are
+            # primary gate features); vision_*/prompt_emb go over the wire as
+            # float16 to halve the frame bytes. The client codec upcasts f16->f32
+            # (lossless) before .tolist(), so the JSONL value is reproducible.
+            dtype = torch.float32 if name == "robot_state" else torch.float16
+            collect[name] = t.detach().to(dtype).cpu().numpy()
+        return {"collect": collect, "searched": searched}
+
     # -----------------------------------------------------------------------
     # BasePolicy interface
     # -----------------------------------------------------------------------
@@ -686,6 +732,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                         # the transform chain (jax.tree.map applied inside) is
                         # not invoked on this nested dict.
                         outputs["__hit_meta__"] = self._build_hit_meta(cp1_result)
+                        if self._export_collect_meta:
+                            outputs["__collect_meta__"] = self._build_collect_meta(
+                                cp1_result, self._collect_fields
+                            )
+                            if self._collect_kb_id:
+                                outputs["__collect_meta__"]["kb_id"] = self._collect_kb_id
                         self._orchestrator.clear()
                         return outputs
 
@@ -833,9 +885,14 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # cp1_result is unbound when orchestrator is None (cache disabled);
         # the helper returns a MISS placeholder so cache-off responses share
         # the wire schema with cold-start MISSes.
-        outputs["__hit_meta__"] = self._build_hit_meta(
-            cp1_result if self._orchestrator is not None else None
-        )
+        _cp1_result = cp1_result if self._orchestrator is not None else None
+        outputs["__hit_meta__"] = self._build_hit_meta(_cp1_result)
+        if self._export_collect_meta:
+            outputs["__collect_meta__"] = self._build_collect_meta(
+                _cp1_result, self._collect_fields
+            )
+            if self._collect_kb_id:
+                outputs["__collect_meta__"]["kb_id"] = self._collect_kb_id
         return outputs
 
     # -----------------------------------------------------------------------

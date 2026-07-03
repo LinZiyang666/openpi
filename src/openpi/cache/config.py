@@ -405,6 +405,24 @@ class WritePolicyConfig:
 
 
 @dataclass
+class CollectionConfig:
+    """Gate-research per-step collection (opt-in; default off keeps wire byte-identical).
+
+    Cross-cutting concern (spans all checkpoints), so it lives on the top-level
+    ``CacheConfig`` rather than mirroring per-checkpoint ``JudgeConfig.
+    export_factor_outputs``. ``export_collect_meta`` gates the server-side
+    ``__collect_meta__`` sibling key; ``collect_fields`` lists which query-key
+    fields to emit (default robot_state only — vision fields are large and, per
+    the plan, standalone-only, enforced at the client/runner boundary);
+    ``wire_frame_cap_kib`` bounds the per-step encoded field bytes.
+    """
+
+    export_collect_meta: bool = False
+    collect_fields: list[str] = field(default_factory=lambda: ["robot_state"])
+    wire_frame_cap_kib: int = 32
+
+
+@dataclass
 class CacheConfig:
     """Top-level cache configuration. This is the root dataclass for cache.yaml."""
 
@@ -418,6 +436,7 @@ class CacheConfig:
     })
     backend: BackendConfig = field(default_factory=BackendConfig)
     write_policy: WritePolicyConfig = field(default_factory=WritePolicyConfig)
+    collection: CollectionConfig = field(default_factory=CollectionConfig)
 
 
 # ---------------------------------------------------------------------------
@@ -492,6 +511,7 @@ _CONFIG_TYPES: dict[str, type] = {
     "PrefixReducerConfig": PrefixReducerConfig,
     "KeyBuilderConfig": KeyBuilderConfig,
     "WritePolicyConfig": WritePolicyConfig,
+    "CollectionConfig": CollectionConfig,
     "CacheConfig": CacheConfig,
 }
 
@@ -1044,6 +1064,83 @@ def _validate_composite_judge_static(
                     f"{judge.normalization.stats_source.type!r} so dump-factor raw "
                     "values stay wire-comparable to inner factor raw values."
                 )
+
+
+def _collection_errors(
+    config: "CacheConfig",
+    export_collect_meta: bool,
+    collect_fields: list[str],
+    wire_frame_cap_kib: int,
+) -> list[str]:
+    """Collection validation shared by the YAML and post-CLI-override paths.
+
+    Enforces the C5 selection-bias hard gate (CP1 present + enabled +
+    always_search) and the per-step encoded frame-byte cap. Returns a list of
+    error strings (empty when collection is off or valid). The
+    standalone-vs-conductor vision restriction is NOT here — it needs runtime
+    mode and is enforced at the runner entry.
+    """
+    errors: list[str] = []
+    if not export_collect_meta:
+        return errors
+    cp1 = config.checkpoints.get("cp1")
+    if cp1 is None:
+        errors.append(
+            "collection.export_collect_meta requires a 'cp1' checkpoint (none configured)."
+        )
+    elif not getattr(cp1, "enabled", True):
+        errors.append(
+            "collection.export_collect_meta requires the 'cp1' checkpoint to be enabled."
+        )
+    elif cp1.gate.type != "always_search":
+        errors.append(
+            "collection.export_collect_meta requires the CP1 gate to be "
+            f"'always_search' (got '{cp1.gate.type}'); a gate that skips steps "
+            "would create selection bias (C5)."
+        )
+    # Per-step encoded frame-byte cap. Estimate JSON/list text bytes per field
+    # (~15 bytes/float element) and reject a field set over the cap.
+    _JSON_BYTES_PER_FLOAT = 15
+    est_bytes = 0
+    for name in collect_fields:
+        dim = config.backend.vector_dims.get(name)
+        if dim is None:
+            errors.append(
+                f"collection.collect_fields '{name}' is not in "
+                f"backend.vector_dims {sorted(config.backend.vector_dims)}."
+            )
+            continue
+        est_bytes += int(dim) * _JSON_BYTES_PER_FLOAT
+    cap_bytes = wire_frame_cap_kib * 1024
+    if est_bytes > cap_bytes:
+        errors.append(
+            f"collection.collect_fields {list(collect_fields)} estimated "
+            f"~{est_bytes // 1024} KiB/step exceeds wire_frame_cap_kib="
+            f"{wire_frame_cap_kib}. Reduce fields (vision is large — "
+            "standalone-only) or raise the cap after a T-BENCH check."
+        )
+    return errors
+
+
+def validate_effective_collection(
+    config: "CacheConfig",
+    *,
+    export_collect_meta: bool,
+    collect_fields,
+    wire_frame_cap_kib: int | None = None,
+) -> None:
+    """Validate the EFFECTIVE (post-CLI-override) collection config.
+
+    ``validate_cache_config`` runs at load time on the YAML, before CLI
+    overrides are applied, so ``--export-collect-meta`` / ``--collect-fields``
+    could otherwise turn collection on while bypassing the C5 always-search
+    hard gate, field validity and the frame cap. serve_policy calls this after
+    resolving the effective config. Raises ``ConfigValidationError`` on error.
+    """
+    cap = wire_frame_cap_kib if wire_frame_cap_kib is not None else config.collection.wire_frame_cap_kib
+    errors = _collection_errors(config, export_collect_meta, list(collect_fields), cap)
+    if errors:
+        raise ConfigValidationError("\n\n".join(errors))
 
 
 def validate_cache_config(config: CacheConfig) -> None:
@@ -1691,6 +1788,16 @@ def validate_cache_config(config: CacheConfig) -> None:
             f"write_policy.type '{config.write_policy.type}' unknown, "
             f"valid: {sorted(_valid_write_policy_types)}"
         )
+
+    # ── Gate-research collection validation (YAML values; the SAME rules are
+    # re-run on the effective post-CLI-override config by
+    # validate_effective_collection so --export-collect-meta cannot bypass them). ──
+    coll = config.collection
+    errors.extend(
+        _collection_errors(
+            config, coll.export_collect_meta, list(coll.collect_fields), coll.wire_frame_cap_kib
+        )
+    )
 
     if errors:
         raise ConfigValidationError("\n\n".join(errors))

@@ -116,6 +116,13 @@ class Args:
     # Only takes effect when --cache or --cache_config is also set.
     collect_images: bool = False
 
+    # Gate-research per-step collection. Tri-state override of the YAML
+    # ``collection`` block: None => use YAML; otherwise CLI wins. Distinct from
+    # the legacy ``--collect`` (forward-hook HDF5) path above.
+    export_collect_meta: bool | None = None
+    # Comma-separated field list; overrides ``collection.collect_fields`` when set.
+    collect_fields: str | None = None
+
     # Enable the staged inference cache system.
     # When True, inference is routed through InferenceInterceptor (run_stage1/2/3).
     # External behavior (actions, timing fields) is identical to the default path.
@@ -358,6 +365,36 @@ def _configure_server_gpu_memory_lock() -> None:
     )
 
 
+def _resolve_collection(cache_config, args) -> tuple[bool, tuple[str, ...]]:
+    """Effective (export_collect_meta, collect_fields) from YAML + CLI tri-state.
+
+    CLI wins only when explicitly set (not None), so ``--export-collect-meta``
+    unset leaves the YAML ``collection`` block authoritative.
+    """
+    from openpi.cache.config import validate_effective_collection
+
+    coll = cache_config.collection
+    export = coll.export_collect_meta if args.export_collect_meta is None else bool(args.export_collect_meta)
+    if args.collect_fields is None:
+        fields = tuple(coll.collect_fields)
+    else:
+        fields = tuple(f.strip() for f in args.collect_fields.split(",") if f.strip())
+    # Legacy --collect (forward-hook HDF5) and gate collection are mutually
+    # exclusive. Check the EFFECTIVE export (YAML / bundle-enabled too), not just
+    # the raw CLI flag that _validate_collect_isolation already covers.
+    if export and getattr(args, "collect", False):
+        raise ValueError(
+            "--collect (legacy forward-hook HDF5) and gate-research collection "
+            "(collection.export_collect_meta / --export-collect-meta) are "
+            "mutually exclusive; enable only one."
+        )
+    # Re-validate the EFFECTIVE config: load_cache_config() validated the YAML
+    # before these CLI overrides, so this is the only place a CLI-enabled
+    # collection gets the C5 always-search / field / frame-cap hard gate.
+    validate_effective_collection(cache_config, export_collect_meta=export, collect_fields=fields)
+    return export, fields
+
+
 def _wrap_policy(
     base_policy,
     args: Args,
@@ -432,6 +469,7 @@ def _wrap_policy(
             offline_writers=components.get("offline_writers", ()),
             library_stats=components.get("library_stats"),
         )
+        _cm_export, _cm_fields = _resolve_collection(bundle.cache_config, args)
         policy = InferenceInterceptor(
             policy,
             timer=components["timer"],
@@ -441,6 +479,9 @@ def _wrap_policy(
             stage_config=stage_config,
             coordinator=coordinator,
             bundle_id=bundle_id,
+            export_collect_meta=_cm_export,
+            collect_fields=_cm_fields,
+            collect_kb_id=bundle.cache_config.key_builder.type,
         )
     elif args.cache_config is not None:
         from openpi.cache.config import build_cache_components
@@ -484,6 +525,7 @@ def _wrap_policy(
             offline_writers=components.get("offline_writers", ()),
             library_stats=components.get("library_stats"),
         )
+        _cm_export, _cm_fields = _resolve_collection(cache_config, args)
         policy = InferenceInterceptor(
             policy,
             timer=components["timer"],
@@ -493,6 +535,9 @@ def _wrap_policy(
             stage_config=stage_config,
             coordinator=coordinator,
             bundle_id=bundle_id,
+            export_collect_meta=_cm_export,
+            collect_fields=_cm_fields,
+            collect_kb_id=cache_config.key_builder.type,
         )
     elif args.cache:
         from openpi.cache.interceptor import InferenceInterceptor
@@ -584,6 +629,16 @@ def _validate_collect_isolation(args: Args) -> None:
     """
     if not args.collect:
         return
+    # The legacy forward-hook HDF5 collector (--collect) and the gate-research
+    # per-step collector (--export-collect-meta / collection block) are distinct,
+    # mutually-exclusive subsystems (docs/data_collection/guide.md). Running both
+    # at once is a configuration error.
+    if args.export_collect_meta:
+        raise ValueError(
+            "--collect (legacy forward-hook HDF5) and --export-collect-meta "
+            "(gate-research per-step collection) are mutually exclusive; enable "
+            "only one."
+        )
     if args.replicas > 1:
         raise ValueError(
             f"--collect requires a single replica (got --replicas {args.replicas}). "

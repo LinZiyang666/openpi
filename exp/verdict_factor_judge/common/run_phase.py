@@ -61,6 +61,11 @@ import tyro
 # ``run_phase.WebsocketClientPolicy`` without touching the openpi-client pkg.
 from openpi_client.websocket_client_policy import WebsocketClientPolicy  # noqa: F401
 
+# The verdict-factor-specific ``_summarize_per_step_log`` was de-specialized into
+# the general gate-analysis ``summarize_gate_log`` (plan §2.11 R1). Re-exported so
+# phase3/4/5 consumers migrate by importing this canonical name from here.
+from openpi.serving.per_step_recorder import summarize_gate_log  # noqa: F401
+
 logger = logging.getLogger(__name__)
 
 
@@ -237,7 +242,9 @@ def _build_libero_argv(
         "--phase", phase,
     ]
     if args.per_step_log_dir:
-        main_args += ["--per-step-log-dir", args.per_step_log_dir]
+        # Canonical flag (plan §2.9.3): main.py still accepts --per-step-log-dir
+        # as a deprecated alias, but verdict-factor runners emit the canonical one.
+        main_args += ["--collect-gate-dir", args.per_step_log_dir]
     if args.task_ids:
         main_args.append("--task-ids")
         main_args += [str(t) for t in args.task_ids]
@@ -333,45 +340,6 @@ def _load_done_yaml_ids(summary_path: Path) -> set[str]:
         if isinstance(yid, str):
             done.add(yid)
     return done
-
-
-def _summarize_per_step_log(per_step_log_dir: str, eval_yaml_id: str) -> dict:
-    """Tally ``hit_type`` counts in the eval phase of the per-step JSONL.
-
-    Best-effort: returns zero counts if the file does not exist (e.g. the
-    user did not pass ``--per-step-log-dir``). The caller decides whether
-    a missing file is fatal.
-    """
-    counts = {
-        "n_eval_verdicts": 0,
-        "n_full_hit": 0,
-        "n_warm_start": 0,
-        "n_miss": 0,
-    }
-    if not per_step_log_dir:
-        return counts
-    path = Path(per_step_log_dir) / f"{eval_yaml_id}.jsonl"
-    if not path.exists():
-        return counts
-    for line in path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            row = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        if row.get("phase") != "eval":
-            continue
-        counts["n_eval_verdicts"] += 1
-        ht = (row.get("hit_type") or "").upper()
-        if ht == "FULL_HIT":
-            counts["n_full_hit"] += 1
-        elif ht == "WARM_START":
-            counts["n_warm_start"] += 1
-        elif ht == "MISS":
-            counts["n_miss"] += 1
-    return counts
 
 
 # ---------------------------------------------------------------------------
@@ -475,7 +443,7 @@ def _run_one_yaml(args: Args, eval_path: Path) -> dict:
             ctl.unload_warmup_buffer(eval_yaml_id)
 
     # ── 9. summarize ─────────────────────────────────────────────────────
-    counts = _summarize_per_step_log(args.per_step_log_dir, eval_yaml_id)
+    counts = summarize_gate_log(args.per_step_log_dir, eval_yaml_id)
     success_rate: Optional[float] = None
     if episode_results_path is not None:
         success_rate = _aggregate_sr_from_episode_json(episode_results_path)

@@ -31,7 +31,9 @@ class FakeClient:
         self.calls.append(("close",))
 
 
-def _ep(yaml_id="y", phase="eval", task_id=0, idx=0, server=S1, bundle="y"):
+def _ep(yaml_id="y", phase="eval", task_id=0, idx=0, server=S1, bundle="y", trials=10):
+    # extra carries the per-phase trial count the strategy stamps (the runner
+    # needs it for the canonical global episode_id; §19.B6).
     return T.EpisodeTask(
         task_uid=T.make_task_uid(yaml_id, phase, task_id, idx),
         yaml_id=yaml_id,
@@ -43,6 +45,7 @@ def _ep(yaml_id="y", phase="eval", task_id=0, idx=0, server=S1, bundle="y"):
         server_host=server.host,
         server_port=server.port,
         bundle_id=bundle,
+        extra={"num_trials_per_task": trials},
     )
 
 

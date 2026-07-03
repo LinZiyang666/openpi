@@ -19,6 +19,8 @@ import asyncio
 from typing import Any
 from unittest.mock import MagicMock
 
+import numpy as np
+
 from openpi_client import msgpack_numpy
 
 from openpi.serving import websocket_policy_server as wps
@@ -133,3 +135,100 @@ def test_msgpack_roundtrip_preserves_hit_meta_with_nones() -> None:
     assert decoded["__hit_meta__"] == payload["__hit_meta__"]
     # Sanity: explicit None preserved (msgpack 'nil' decodes to Python None).
     assert decoded["__hit_meta__"]["start_t"] is None
+
+
+# ---------------------------------------------------------------------------
+# __collect_meta__ over the real WebSocket response path (gate collection).
+# These drive WebsocketPolicyServer._handler — the actual server encode +
+# msgpack_numpy wire — not a bare msgpack helper (plan §6 T-WIRE / T-CONCURRENCY).
+# ---------------------------------------------------------------------------
+
+
+def test_server_ws_roundtrip_preserves_collect_meta_sibling_ndarray() -> None:
+    """A response carrying ``__collect_meta__`` (ndarray robot_state f32 + vision
+    f16) reaches the wire through the real server handler with dtype/shape/value
+    parity, ALONGSIDE actions/state/__hit_meta__ (a collect-unaware client still
+    reads actions)."""
+    infer_result = {
+        "actions": [[1.0, 2.0]],
+        "state": [0.1, 0.2],
+        "__hit_meta__": {"hit_type": "MISS", "cp1_score": None},
+        "__collect_meta__": {
+            "collect": {
+                "robot_state": np.asarray([1.5, -2.25, 3.0], dtype=np.float32),
+                "vision_0": np.asarray([0.5, 0.25], dtype=np.float16),
+            },
+            "searched": True,
+            "kb_id": "cp1_mean_pool",
+        },
+    }
+    policy = MagicMock(spec=["infer"])
+    policy.infer.return_value = dict(infer_result)
+
+    server = wps.WebsocketPolicyServer(policy=policy, metadata={"server": "test"})
+    conn = _FakeConnection(incoming=[_pack({"obs": True})])
+    asyncio.run(server._handler(conn))
+
+    decoded = msgpack_numpy.unpackb(conn.sent[1])
+    # Sibling coexistence: legacy fields survive next to the new key.
+    assert decoded["actions"] == [[1.0, 2.0]]
+    assert "__hit_meta__" in decoded and "server_timing" in decoded
+    cm = decoded["__collect_meta__"]
+    assert cm["searched"] is True
+    assert cm["kb_id"] == "cp1_mean_pool"
+    rs = cm["collect"]["robot_state"]
+    vis = cm["collect"]["vision_0"]
+    # msgpack_numpy preserves ndarray dtype/shape; values are exact (representable).
+    assert rs.dtype == np.float32 and vis.dtype == np.float16
+    np.testing.assert_array_equal(rs, [1.5, -2.25, 3.0])
+    np.testing.assert_array_equal(vis, [0.5, 0.25])
+
+
+class _EchoCollectPolicy:
+    """Stateless dummy policy: echoes ``obs['state']`` into ``__collect_meta__``.
+
+    Each infer() reads only its own obs argument, so two concurrent connections
+    feeding different states must get back their OWN state — any cross-connection
+    bleed at the WS layer would surface as a mismatch."""
+
+    def infer(self, obs: dict) -> dict:
+        st = np.asarray(obs["state"], dtype=np.float32)
+        return {
+            "actions": [[0.0]],
+            "__collect_meta__": {
+                "collect": {"robot_state": st},
+                "searched": True,
+                "kb_id": "cp1_mean_pool",
+            },
+        }
+
+
+def test_two_concurrent_ws_connections_do_not_bleed_collect() -> None:
+    """T-CONCURRENCY (plan §6.9): two WebSocket connections handled concurrently
+    (asyncio.gather over the real ``_handler``) feeding different dummy states
+    each get back collect == their OWN input — no A<->B bleed."""
+
+    async def _run_two():
+        # Concurrent mode: each connection gets its OWN per-connection policy via
+        # the factory (the real §2.6 isolation mechanism), not a shared instance.
+        server = wps.WebsocketPolicyServer(
+            policy=_EchoCollectPolicy(),
+            metadata={"server": "test"},
+            concurrent=True,
+            connection_policy_factory=lambda base, bundle_id: _EchoCollectPolicy(),
+        )
+        conn_a = _FakeConnection(incoming=[_pack({"state": [1.0, 2.0, 3.0]})])
+        conn_b = _FakeConnection(incoming=[_pack({"state": [9.0, 8.0, 7.0]})])
+        await asyncio.gather(server._handler(conn_a), server._handler(conn_b))
+        return conn_a, conn_b
+
+    conn_a, conn_b = asyncio.run(_run_two())
+    dec_a = msgpack_numpy.unpackb(conn_a.sent[1])
+    dec_b = msgpack_numpy.unpackb(conn_b.sent[1])
+    np.testing.assert_array_equal(dec_a["__collect_meta__"]["collect"]["robot_state"], [1.0, 2.0, 3.0])
+    np.testing.assert_array_equal(dec_b["__collect_meta__"]["collect"]["robot_state"], [9.0, 8.0, 7.0])
+    # Explicit no-bleed assertion (would fail if connections shared collect state).
+    assert not np.array_equal(
+        dec_a["__collect_meta__"]["collect"]["robot_state"],
+        dec_b["__collect_meta__"]["collect"]["robot_state"],
+    )

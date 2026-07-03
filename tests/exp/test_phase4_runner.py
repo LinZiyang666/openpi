@@ -267,7 +267,7 @@ def test_run_one_cell_calls_preload_before_load(tmp_path: Path, monkeypatch) -> 
         lambda **kw: ([], {}),
     )
     monkeypatch.setattr(
-        "exp.verdict_factor_judge.run_phase4._summarize_per_step_log",
+        "exp.verdict_factor_judge.run_phase4.summarize_gate_log",
         lambda *a, **kw: {"n_eval_verdicts": 0, "n_full_hit": 0, "n_warm_start": 0, "n_miss": 0},
     )
     monkeypatch.setattr(
@@ -676,7 +676,7 @@ def test_run_one_cell_backfills_thr_from_yaml(tmp_path: Path, monkeypatch) -> No
         "exp.verdict_factor_judge.run_phase4._build_libero_argv", lambda **kw: ([], {}),
     )
     monkeypatch.setattr(
-        "exp.verdict_factor_judge.run_phase4._summarize_per_step_log",
+        "exp.verdict_factor_judge.run_phase4.summarize_gate_log",
         lambda *a, **kw: {"n_eval_verdicts": 0, "n_full_hit": 0, "n_warm_start": 0, "n_miss": 0},
     )
     monkeypatch.setattr(
@@ -732,7 +732,7 @@ def test_run_one_cell_keeps_explicit_thr_when_present(tmp_path: Path, monkeypatc
     monkeypatch.setattr("exp.verdict_factor_judge.run_phase4.subprocess.run", lambda *a, **kw: None)
     monkeypatch.setattr("exp.verdict_factor_judge.run_phase4._build_libero_argv", lambda **kw: ([], {}))
     monkeypatch.setattr(
-        "exp.verdict_factor_judge.run_phase4._summarize_per_step_log",
+        "exp.verdict_factor_judge.run_phase4.summarize_gate_log",
         lambda *a, **kw: {"n_eval_verdicts": 0, "n_full_hit": 0, "n_warm_start": 0, "n_miss": 0},
     )
     monkeypatch.setattr(

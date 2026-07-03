@@ -202,7 +202,7 @@ def _setup_run_one_cell_env(
     # Stub subprocess + libero argv
     monkeypatch.setattr(r.subprocess, "run", lambda *a, **kw: None)
     monkeypatch.setattr(r, "_build_libero_argv", lambda **kw: ([], {}))
-    monkeypatch.setattr(r, "_summarize_per_step_log", lambda *a, **kw: {
+    monkeypatch.setattr(r, "summarize_gate_log", lambda *a, **kw: {
         "n_eval_verdicts": 100, "n_full_hit": 30, "n_warm_start": 50, "n_miss": 20,
     })
     monkeypatch.setattr(r, "_aggregate_sr_from_episode_json", lambda *a, **kw: 0.92)

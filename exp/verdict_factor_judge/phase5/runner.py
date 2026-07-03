@@ -35,7 +35,7 @@ from exp.verdict_factor_judge.common.generate_yamls import write_yaml
 from exp.verdict_factor_judge.common.run_phase import (
     _aggregate_sr_from_episode_json,
     _build_libero_argv,
-    _summarize_per_step_log,
+    summarize_gate_log,
 )
 from exp.verdict_factor_judge.phase3.runner import (
     _save_dump_jsonl,
@@ -463,7 +463,7 @@ def _run_one_cell_phase5(
     )
     subprocess.run(cmd, env=env, check=True)
 
-    counts = _summarize_per_step_log(args.per_step_log_dir, cell.yaml_id)
+    counts = summarize_gate_log(args.per_step_log_dir, cell.yaml_id)
     success_rate = (
         _aggregate_sr_from_episode_json(episode_results_path)
         if episode_results_path is not None else None

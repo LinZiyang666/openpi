@@ -3,6 +3,8 @@ lifecycle, and the warmup->eval handoff via fake ctl + fake strategy."""
 
 from __future__ import annotations
 
+import json
+
 from openpi.conductor import protocol as P  # noqa: N812
 from openpi.conductor import task as T  # noqa: N812
 from openpi.conductor.driver import ConductorDriver
@@ -190,6 +192,100 @@ def test_handle_result_journals_terminal(tmp_path):
     task = P.task_from_wire(pl["task"])
     d.handle_result(P.result_to_wire(T.EpisodeResult(task.task_uid, success=True, n_steps=1)))
     assert task.task_uid in d.journal.replay_done_uids()
+
+
+def test_handle_result_stamps_per_step_rows_and_preserves_stale(tmp_path):
+    """handle_result stamps episode identity/outcome onto per-step rows, but a row
+    that already carries a (stale) attempt/task_uid/success keeps its own value so
+    offline dedup by (task_uid, step_idx, attempt) survives a requeue (G2R3)."""
+    d, _ = _make_driver(tmp_path)
+    d.drive_stages_once()
+    _, pl = d.handle_pull(S1.key)
+    task = P.task_from_wire(pl["task"])
+    result = T.EpisodeResult(
+        task.task_uid,
+        success=True,
+        n_steps=2,
+        attempt=2,
+        per_step_rows=[
+            {"step_idx": 0},  # unstamped -> inherits result identity
+            {"step_idx": 1, "success": False, "task_uid": "stale-uid", "attempt": 1},  # preserved
+        ],
+    )
+    d.handle_result(P.result_to_wire(result))
+    rows = {r["step_idx"]: r for r in d.per_step_rows}
+    assert rows[0]["success"] is True
+    assert rows[0]["task_uid"] == task.task_uid
+    assert rows[0]["attempt"] == 2
+    # setdefault must NOT overwrite a row that already carries stale provenance.
+    assert rows[1]["success"] is False
+    assert rows[1]["task_uid"] == "stale-uid"
+    assert rows[1]["attempt"] == 1
+
+
+def test_cross_fs_central_recovery_of_collect_rows(tmp_path):
+    """T-CROSS-FS (plan §6.10): collected robot_state rides in per_step_rows over
+    the WIRE (central return) and is recovered by the driver with NO shared
+    filesystem. Two distinct roots: the driver is given ONLY ``driver_fs`` (via
+    the writer + journal); ``worker_fs`` (where a real worker would write local
+    artifacts) is never handed to the driver, and must stay untouched — proving
+    the collect data cannot have come from a shared file."""
+    import msgpack
+
+    worker_root = tmp_path / "worker_fs"   # worker-local root; driver has NO handle
+    worker_root.mkdir()
+    (worker_root / "decoy.txt").write_text("worker-only artifact")  # driver must never read this
+    driver_root = tmp_path / "driver_fs"   # driver-side sink, separate FS root
+    driver_root.mkdir()
+    written: dict[str, str] = {}
+
+    def writer(yaml_id, rows):
+        p = driver_root / f"{yaml_id}.jsonl"
+        with open(p, "w") as f:
+            for r in rows:
+                f.write(json.dumps(r) + "\n")
+        written[yaml_id] = str(p)
+
+    ctls: dict[str, FakeCtl] = {}
+
+    def factory(server):
+        ctls[server.key] = FakeCtl(server)
+        return ctls[server.key]
+
+    d = ConductorDriver(
+        FakeStrategy(),
+        yaml_weights={"y": 3},
+        servers=[S1],
+        journal_path=str(tmp_path / "j.jsonl"),  # driver's ONLY fs paths: journal + driver_root
+        ctl_factory=factory,
+        per_step_writer=writer,
+    )
+    d.drive_stages_once()
+    _, pl = d.handle_pull(S1.key)
+    task = P.task_from_wire(pl["task"])
+    result = T.EpisodeResult(
+        task.task_uid, success=True, n_steps=1, attempt=1,
+        per_step_rows=[{
+            "yaml_id": "y", "step_idx": 0,
+            "collect": {"robot_state": [1.0, 2.0, 3.0]}, "searched": True,
+        }],
+    )
+    # Transport boundary: the result crosses the real msgpack wire codec (the
+    # driver never touches the worker's process/filesystem, only this payload).
+    wire = msgpack.unpackb(msgpack.packb(P.result_to_wire(result)), raw=False)
+    d.handle_result(wire)
+    d._flush_per_step_for_stage("y")  # same drain _complete_stage calls
+    # Recovered on the driver-side FS, collect payload intact, removed from memory.
+    assert "y" in written
+    with open(written["y"]) as f:
+        lines = [json.loads(x) for x in f]
+    assert lines[0]["collect"]["robot_state"] == [1.0, 2.0, 3.0]
+    assert lines[0]["success"] is True
+    assert lines[0]["task_uid"] == task.task_uid
+    assert d.per_step_rows == []
+    # The worker-local root was never read/written by the driver (no shared FS).
+    assert list(worker_root.iterdir()) == [worker_root / "decoy.txt"]
+    assert not (driver_root / "decoy.txt").exists()
 
 
 # ------------------------------------------------------------------

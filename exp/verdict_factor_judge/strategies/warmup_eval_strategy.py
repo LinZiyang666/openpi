@@ -94,6 +94,11 @@ class WarmupEvalStrategy(ExperimentStrategy):
     # -- graph construction --
 
     def _episodes(self, yaml_id: str, phase: str, trials: int, server: _task.ServerEndpoint):
+        # Stamp the per-phase trial count so the worker computes the SAME
+        # canonical global episode_id as standalone (gate collection §19.B6):
+        # warmup/eval have different N (e.g. 2 vs 10), and the worker's default
+        # main.Args.num_trials_per_task (50) is unrelated — the strategy is the
+        # only place that knows the real N for this stage.
         return [
             _task.EpisodeTask(
                 task_uid=_task.make_task_uid(yaml_id, phase, task_id, ep),
@@ -106,6 +111,7 @@ class WarmupEvalStrategy(ExperimentStrategy):
                 server_host=server.host,
                 server_port=server.port,
                 bundle_id=yaml_id,
+                extra={"num_trials_per_task": trials},
             )
             for task_id in self._task_ids
             for ep in range(trials)

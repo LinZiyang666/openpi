@@ -612,3 +612,55 @@ def test_prefill_trajectory_records_query_keys_into_strategy():
     assert len(recorder.query_history) == 4
     # Each recorded entry must include ``robot_state`` (the configured key field).
     assert all("robot_state" in entry for entry in recorder.query_history)
+
+
+# ---------------------------------------------------------------------------
+# Gate-research collection: __collect_meta__ sibling emission + per-connection
+# isolation (plan §6 T-NONCOLLECT-CLIENT #2 / T-CONCURRENCY #9). Uses the real
+# infer() path (not a synthetic recorder injection).
+# ---------------------------------------------------------------------------
+
+
+def _make_collecting_interceptor(fixed_state: torch.Tensor) -> InferenceInterceptor:
+    model = FakeModel(fixed_state=fixed_state)
+    policy = FakePolicy(model=model)
+    orch, _, _ = make_orchestrator()  # PlaceholderKeyBuilder -> query_keys[robot_state]
+    return InferenceInterceptor(
+        policy,
+        timer=SystemTimer(enabled=False),
+        orchestrator=orch,
+        export_collect_meta=True,
+        collect_fields=("robot_state",),
+        collect_kb_id="cp1_mean_pool",
+    )
+
+
+def test_collect_meta_sibling_and_per_connection_isolation():
+    """__collect_meta__ rides ALONGSIDE actions/state (a collect-unaware client is
+    unaffected), and two independent per-connection interceptors never bleed
+    collect across each other — each row's robot_state is F.normalize(its OWN
+    input state)."""
+    import torch.nn.functional as F
+
+    state_a = torch.arange(32, dtype=torch.float32).reshape(1, 32)
+    state_b = torch.arange(32, dtype=torch.float32).reshape(1, 32) + 100.0
+
+    result_a = _make_collecting_interceptor(state_a).infer(_make_obs())
+    result_b = _make_collecting_interceptor(state_b).infer(_make_obs())
+
+    # Sibling compat: legacy fields still present next to the new sibling key.
+    assert "actions" in result_a and "state" in result_a
+    assert "__collect_meta__" in result_a
+
+    meta_a = result_a["__collect_meta__"]
+    meta_b = result_b["__collect_meta__"]
+    # Emission provenance: always_search gate -> searched True; kb_id injected.
+    assert meta_a["searched"] is True
+    assert meta_a["kb_id"] == "cp1_mean_pool"
+    # robot_state is a server-side ndarray (client codec runs later, on the wire).
+    rs_a = np.asarray(meta_a["collect"]["robot_state"], dtype=np.float32)
+    rs_b = np.asarray(meta_b["collect"]["robot_state"], dtype=np.float32)
+    # Isolation: each connection collected the L2-normalized version of ITS input.
+    np.testing.assert_allclose(rs_a, F.normalize(state_a[0], dim=0).numpy(), atol=1e-5)
+    np.testing.assert_allclose(rs_b, F.normalize(state_b[0], dim=0).numpy(), atol=1e-5)
+    assert not np.allclose(rs_a, rs_b)  # no A<->B bleed

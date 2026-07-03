@@ -75,6 +75,12 @@ class CheckResult:
     # ``export_factor_outputs: true``; otherwise None and Interceptor skips
     # the hit_meta side-channel.
     factor_outputs: Optional[dict] = None
+    # True when this checkpoint actually searched the cache. Only a gate-skip
+    # return sets this False. The gate-research collector filters non-searched
+    # steps by this flag (selection bias C5) instead of inferring from
+    # score/entry_id, which a cold-start / empty-library always-search MISS
+    # also leaves None.
+    searched: bool = True
 
 
 class CacheOrchestrator:
@@ -443,7 +449,10 @@ class CacheOrchestrator:
             self._miss_by_checkpoint[checkpoint_id] = self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
             if checkpoint_id == CheckpointID.CP1:
                 self._step_counter += 1
-            return CheckResult(hit_type=HitType.MISS, query_keys=query_keys)
+            # searched=False: gate skipped the search. Distinguishes this from a
+            # real always-search MISS (which leaves searched=True) for the
+            # gate-research collector's C5 selection-bias filter.
+            return CheckResult(hit_type=HitType.MISS, query_keys=query_keys, searched=False)
 
         with self._timer.measure(f"{prefix}_search"):
             ctx = SearchContext(

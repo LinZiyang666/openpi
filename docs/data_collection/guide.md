@@ -223,3 +223,127 @@ PY
 - The collector writes one file per episode, not one file per task suite.
 - Disconnect during an episode will flush partial data on connection close.
 - File names include timestamps, so repeated runs do not overwrite earlier files.
+
+## Gate-research per-step collection (distinct from `--collect`)
+
+The `--collect` mode above uses forward hooks to capture deep model internals and
+is **single-connection / single-replica only**. For GATE ("search or not")
+research there is a separate, **concurrency-native** collector that records a
+lean per-step row — the model input the cache actually keys on (`robot_state` by
+default), the verdict (`hit_type` / `cp1_score` / `winner_id` / `start_t`), the
+`searched` flag, and the episode `success`. It reuses the `__hit_meta__` wire
+channel plus a `__collect_meta__` sibling key and per-connection recorder, so it
+works under concurrent serving and (for `robot_state`) under the cross-machine
+conductor. The two collectors are **mutually exclusive** (`serve_policy` fails
+fast if both are on); use whichever the task needs.
+
+Design & rationale: [`logs/gate_data_collection_plan.log.md`](../../logs/gate_data_collection_plan.log.md).
+
+### 1. Enable it on the server
+
+Off by default → when off, the response wire is **byte-identical** to a normal
+serve. Turn it on either in the cache YAML or via CLI (both feed one
+`CacheConfig.collection` block):
+
+```yaml
+# cache config YAML
+collection:
+  export_collect_meta: true          # attach __collect_meta__ to each response
+  collect_fields: [robot_state]       # default; vision_*/prompt_emb opt-in (see §4)
+  wire_frame_cap_kib: 32              # per-step encoded field-byte ceiling
+```
+
+```bash
+# equivalent CLI override (tri-state: unset = use YAML, set = override YAML)
+uv run scripts/serve_policy.py ... \
+    --export-collect-meta \
+    --collect-fields robot_state
+```
+
+Hard requirement (validated at startup, else fail-fast): the CP1 gate must be
+`always_search`, so no step is gate-skipped and the collected labels are not
+selection-biased. The `collect_fields` encoded byte size must also stay under
+`wire_frame_cap_kib`.
+
+### 2. Run the client (standalone LIBERO)
+
+```bash
+uv run examples/libero/main.py \
+    --host <server> --port <port> \
+    --task-suite-name libero_spatial \
+    --yaml-id my_cfg \
+    --num-trials-per-task 10 \
+    --collect-gate-dir out/gate/my_cfg \
+    --collect-embeddings none          # 'none' = robot_state only; 'pooled' allows vision
+```
+
+- `--collect-gate-dir <dir>` is the **canonical** flag (enables the recorder;
+  requires `--yaml-id`). The old `--per-step-log-dir` is a deprecated alias kept
+  for backward compatibility.
+- `--collect-embeddings` must match the server `collect_fields`: `none` for
+  `robot_state`-only, `pooled` when vision embeddings are collected.
+- `--num-trials-per-task N` defines the canonical global `episode_id` mapping
+  (`task_id * N + episode_idx`); keep it identical to any conductor run you want
+  to join against.
+
+Rows are written as JSONL, one file per `yaml_id`, merged across workers.
+
+### 3. Output schema
+
+Two row kinds share the file, distinguished by `_kind`:
+
+**Per-step verdict row** (one per CP1 inference step):
+
+```json
+{"yaml_id": "my_cfg", "task_id": 3, "subset_init_state_idx": 5,
+ "episode_id": 35, "task_uid": "my_cfg:eval:3:5", "phase": "eval",
+ "step_idx": 0, "hit_type": "MISS", "start_t": null, "winner_id": null,
+ "cp1_score": 0.81, "searched": true, "collector_schema_version": 1,
+ "collect": {"robot_state": [0.12, -0.03, ...]}, "success": true}
+```
+
+**Per-episode `episode_summary` row** (one per episode; provenance not derivable
+from step rows — `seed`, `kb_id`, `searched_all`):
+
+```json
+{"_kind": "episode_summary", "task_uid": "my_cfg:eval:3:5", "episode_id": 35,
+ "phase": "eval", "seed": 42, "num_steps": 120, "success": true,
+ "searched_all": true, "collect_fields": ["robot_state"], "kb_id": "cp1_mean_pool",
+ "collector_schema_version": 1}
+```
+
+Model-input arrays arrive as `np.ndarray` over the wire (`robot_state` float32,
+`vision_*`/`prompt_emb` float16 to halve frame bytes) and are upcast to float32
+and converted to plain lists at the client boundary (conductor `msgpack.packb`
+and JSONL `json.dumps` cannot encode ndarrays; the upcast is lossless).
+
+### 4. Fields, scale, and conductor
+
+- `robot_state` (~128 B/step) works **everywhere**, including the cross-machine
+  conductor (no NFS — it rides the existing `per_step_rows` central return over
+  the wire).
+- `vision_*` / `prompt_emb` are large and **standalone-only**; requesting them
+  under the conductor fails fast (a per-episode `EpisodeResult` frame is capped
+  at 64 MiB). `raw prefix_embs` is out of scope.
+- **Conductor producer contract**: a strategy whose episodes run through
+  `LiberoEpisodeRunner` must stamp `EpisodeTask.extra["num_trials_per_task"]`
+  with the stage's per-phase trial count (warmup and eval differ). The runner
+  derives the canonical `episode_id` from it and fails fast if absent — it never
+  reads the worker's unrelated default. Both in-repo strategies already do this.
+
+### 5. Offline analysis
+
+`openpi.serving.per_step_recorder.summarize_gate_log(gate_dir, yaml_id)` tallies
+eval-phase verdicts from a collected JSONL:
+
+```python
+from openpi.serving.per_step_recorder import summarize_gate_log
+counts = summarize_gate_log("out/gate/my_cfg", "my_cfg")
+# {"n_eval_verdicts": N, "n_full_hit": .., "n_warm_start": .., "n_miss": ..}
+# invariant: n_eval_verdicts == n_full_hit + n_warm_start + n_miss
+```
+
+It counts only real verdict rows (`hit_type ∈ {FULL_HIT, WARM_START, MISS}`), so
+the `episode_summary` provenance row never inflates the inference-ratio
+denominator. `searched=False` rows are already dropped at write time in gate
+mode, so the file carries no gate-skipped steps.

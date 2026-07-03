@@ -84,6 +84,12 @@ class EpisodeTask:
     server_port: int
     bundle_id: str  # M2 select_bundle target
     attempt: int = 1  # per-dispatch generation; fences stale results after a requeue (G2R3)
+    # Free-form per-task metadata. Producer contract: a strategy whose episodes
+    # run through ``examples.libero.episode_runner.LiberoEpisodeRunner`` MUST set
+    # ``extra["num_trials_per_task"]`` to this stage's per-phase trial count — the
+    # runner derives the canonical global episode_id from it (gate collection
+    # §19.B6) and fails fast if it is absent (never falls back to the worker's
+    # unrelated main.Args default).
     extra: dict[str, Any] = dataclasses.field(default_factory=dict)
 
     @property

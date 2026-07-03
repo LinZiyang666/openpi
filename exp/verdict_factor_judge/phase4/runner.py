@@ -64,7 +64,7 @@ from exp.verdict_factor_judge.common.generate_yamls import write_yaml
 from exp.verdict_factor_judge.common.run_phase import (
     _aggregate_sr_from_episode_json,
     _build_libero_argv,
-    _summarize_per_step_log,
+    summarize_gate_log,
 )
 from exp.verdict_factor_judge.phase3.runner import (
     _save_dump_jsonl,
@@ -293,7 +293,7 @@ def _apply_default_data_paths(args: Args) -> Args:
     """Fill in round-specific default data paths.
 
     Without this, ``--mode run-eval`` would default ``per_step_log_dir`` /
-    ``episode_results_dir`` to empty, which makes ``_summarize_per_step_log``
+    ``episode_results_dir`` to empty, which makes ``summarize_gate_log``
     return zero verdict counts -> ``_compute_inf`` returns 0.0 for every
     cell -> R1 ``argmax(SR - 0.5*inf)`` collapses to ``argmax SR``. The
     decision gate would then silently disagree with plan §3.1 / §4.2.7.
@@ -715,7 +715,7 @@ def _run_one_cell(
     )
     subprocess.run(cmd, env=env, check=True)
 
-    counts = _summarize_per_step_log(args.per_step_log_dir, cell.yaml_id)
+    counts = summarize_gate_log(args.per_step_log_dir, cell.yaml_id)
     success_rate = (
         _aggregate_sr_from_episode_json(episode_results_path)
         if episode_results_path is not None else None
