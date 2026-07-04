@@ -460,11 +460,26 @@ All CP1 builders extract from `Stage1Output.prefix_embs` using token layout offs
 
 > **Source**: `src/openpi/cache/components/gate.py`
 
-Decides whether to search at a given checkpoint.
+Decides whether to search at a given checkpoint. `__call__(checkpoint_id, cached_data, request_context) -> bool` — `True` searches, `False` skips (falls through to full inference).
 
-**Current implementation**: `AlwaysSearchGate` — always returns True. Also has episode lifecycle methods (`on_episode_start()`, `record_action()`) for future stateful gates.
+**Implementations:**
 
-> **Design vs Implementation**: The original spec included `IntervalGate` and `StateChangeGate`. These are not implemented — the current experiment phase uses `always_search` to ensure every step is evaluated. Stateful gates remain viable future extensions.
+| Type | Behavior |
+|------|----------|
+| `always_search` | Always returns True (default; every step evaluated). |
+| `always_skip` | Always returns False (orchestrator treats as gate-miss; keeps trajectory history gap-free). |
+| `random` | Per-connection deterministic Bernoulli skip (`p_inference`, `seed`). |
+| `periodic` | `cache_len` searches then `inference_len` skips, repeating. |
+| `client_controlled` | Decision driven by the per-request `__gate_decision__` client signal (exp-layer N1/N2 prototyping). |
+| `score_hysteresis` | **Server-side N1 score-hysteresis gate.** Stops searching after `j` consecutive searched steps score below `theta_low`; probes every `probe_interval` steps during the skip stretch (`None` = never probe); a probe scoring `>= theta_high` recovers (dual-threshold hysteresis). Serverizes the exp-layer `N1GateState`; consumes the G0a verdict-feedback hook below. |
+
+**Additive lifecycle hooks** (a gate implements only what it needs; the orchestrator guards each call so gates that omit them are unaffected):
+
+- `on_episode_start(self, task_key: str = "")` — reset per-episode state. **G0a**: the orchestrator broadcasts the episode's `task_key` here via `inspect.signature` filtering (`_safe_call_lifecycle`), so a no-arg `on_episode_start(self)` silently ignores it while a task-aware gate receives it.
+- `record_action(self, action_chunk)` — receive the broadcast action (trajectory-aware gates).
+- `record_verdict(self, checkpoint_id, *, hit_type, cp1_score, winner_id, start_t, searched)` — **G0a verdict feedback.** After the judge runs, `CacheOrchestrator.check()` feeds this step's own verdict back to the checkpoint's gate on **every** return path (searched steps carry the real `cp1_score`; a gate-skip step carries `cp1_score=None, searched=False`), so a stateful gate can condition the **next** step's decision on it. Broadcast under a `hasattr` guard — gates without the method (all legacy gates) are untouched; the wire/interceptor protocol is unchanged. This is the internal server-side counterpart of the client-facing `__hit_meta__` channel (§5.13): N1 no longer needs the client round-trip.
+
+> **Design vs Implementation**: The original spec included `IntervalGate` and `StateChangeGate` (not implemented). `score_hysteresis` is the first stateful gate to consume verdict feedback; the tuned `theta_low`/`theta_high`/`j`/`probe_interval` operating points come from YAML (calibrated by the Stage-1b live sweep), not the code.
 
 ### 5.6 SimilarityJudge (Pluggable)
 

@@ -28,4 +28,8 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Run tests
-        run: uv run pytest --strict-markers -m "not manual"
+        # --run-manual disables the root-conftest default-skip so env_dependent
+        # tests still run on this provisioned runner; -m "not manual" keeps the
+        # GPU/external `manual` set excluded. Net coverage is unchanged from
+        # before the default-skip was introduced.
+        run: uv run pytest --strict-markers --run-manual -m "not manual"

@@ -12,12 +12,16 @@ Coupling map:
 
 from __future__ import annotations
 
+import logging
+import math
 from typing import Protocol, runtime_checkable
 
 import numpy as np
 import torch
 
 from openpi.cache.types import CheckpointID
+
+logger = logging.getLogger(__name__)
 
 
 @runtime_checkable
@@ -30,6 +34,19 @@ class GateFunction(Protocol):
       - CONSUMED BY: CacheOrchestrator.check() — if False, skip search entirely
       - DOES NOT interact with: CacheStorage or any Step 3 component
       - IF CHANGED: Only affects Orchestrator's search frequency, no downstream impact
+
+    Optional lifecycle hooks (additive; a gate implements only what it needs —
+    the orchestrator guards each call so gates that omit them are unaffected):
+      - ``on_episode_start(self, task_key: str = "")`` — reset per-episode state.
+        The orchestrator broadcasts ``task_key`` via ``inspect.signature``
+        filtering, so a no-arg ``on_episode_start(self)`` silently ignores it.
+      - ``record_action(self, action_chunk)`` — receive the broadcast action.
+      - ``record_verdict(self, checkpoint_id, *, hit_type, cp1_score, winner_id,
+        start_t, searched)`` — receive this step's own verdict AFTER the judge
+        runs, so a stateful gate can condition the NEXT step's decision on it.
+        Broadcast by ``CacheOrchestrator.check()`` under a ``hasattr`` guard;
+        stateless gates simply omit the method. Consumed by
+        ``ScoreHysteresisGate`` (server-side N1).
     """
 
     def __call__(
@@ -284,3 +301,171 @@ class ClientControlledGate:
 
     def record_action(self, action_chunk: torch.Tensor) -> None:
         """No-op. Signature matches GateFunction protocol."""
+
+
+class ScoreHysteresisGate:
+    """Server-side N1 score-hysteresis gate (serverizes exp-layer N1GateState).
+
+    Mechanism (roadmap N1): remember the last searched step's ``cp1_score``.
+    After ``j`` consecutive searched steps score below ``theta_low`` the gate
+    stops searching (that step runs full inference); during the skip stretch it
+    probes (forces a search) every ``probe_interval`` steps; a probe scoring
+    ``>= theta_high`` recovers to normal searching (dual-threshold hysteresis
+    guards against chatter). ``probe_interval=None`` means never probe (a skip
+    stretch, once entered, is permanent for the episode).
+
+    Decide/observe are split across two orchestrator calls that together
+    reproduce the exp-layer ``N1GateState`` step-for-step:
+      - ``__call__`` is PURE (no state mutation) -> the decision only.
+      - ``record_verdict`` applies the score-driven transition, branching on the
+        searching/skipping state left unchanged by ``__call__``.
+    The orchestrator feeds ``record_verdict`` on EVERY per-checkpoint check()
+    path: searched steps carry the real ``cp1_score``; skip steps carry
+    ``cp1_score=None`` with ``searched=False``. So the decide/observe pairing
+    matches the client loop and the same golden traces validate both.
+
+    Coupling:
+      - CONSUMES: its own verdict feedback via ``record_verdict``. No dependency
+        on request_context / cached_data / CacheStorage.
+      - Per-connection instance (build_per_connection_components); single-thread
+        per connection -> state mutation is lock-free.
+    """
+
+    def __init__(
+        self,
+        theta_low: float,
+        theta_high: float,
+        j: int,
+        probe_interval: int | None,
+    ) -> None:
+        # bool is an int subclass; reject it explicitly on every numeric param so
+        # a YAML/CLI ``true``/``false`` misconfig fails loud instead of silently
+        # degrading to 1/0 (mirrors RandomGate / PeriodicGate).
+        for name, value in (("theta_low", theta_low), ("theta_high", theta_high)):
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise TypeError(
+                    f"ScoreHysteresisGate {name} must be a real number, "
+                    f"got {type(value).__name__}"
+                )
+            if not math.isfinite(value):
+                raise ValueError(
+                    f"ScoreHysteresisGate {name} must be finite, got {value}"
+                )
+        if float(theta_high) < float(theta_low):
+            raise ValueError(
+                "ScoreHysteresisGate requires theta_high >= theta_low, "
+                f"got theta_low={theta_low}, theta_high={theta_high}"
+            )
+        if isinstance(j, bool) or not isinstance(j, int):
+            raise TypeError(
+                f"ScoreHysteresisGate j must be an int >= 1, got {type(j).__name__}"
+            )
+        if j < 1:
+            raise ValueError(f"ScoreHysteresisGate j must be >= 1, got {j}")
+        if probe_interval is not None:
+            if isinstance(probe_interval, bool) or not isinstance(probe_interval, int):
+                raise TypeError(
+                    "ScoreHysteresisGate probe_interval must be None or an int "
+                    f">= 1, got {type(probe_interval).__name__}"
+                )
+            if probe_interval < 1:
+                raise ValueError(
+                    "ScoreHysteresisGate probe_interval must be >= 1 (or None), "
+                    f"got {probe_interval}"
+                )
+        self._theta_low = float(theta_low)
+        self._theta_high = float(theta_high)
+        self._j = int(j)
+        self._probe_interval = None if probe_interval is None else int(probe_interval)
+        # State machine registers (reset by on_episode_start).
+        self._searching = True
+        self._low_run = 0
+        self._since_probe = 0
+        self._task_key = ""
+
+    def __call__(
+        self,
+        checkpoint_id: CheckpointID,
+        cached_data: dict[str, torch.Tensor],
+        request_context: dict | None = None,
+    ) -> bool:
+        # PURE decide (no mutation): searching -> search; else probe when the
+        # skip interval is up; else skip. Mutation happens only in record_verdict.
+        if self._searching:
+            return True
+        if (
+            self._probe_interval is not None
+            and self._since_probe + 1 >= self._probe_interval
+        ):
+            return True  # probe
+        return False
+
+    def record_verdict(
+        self,
+        checkpoint_id: CheckpointID,
+        *,
+        hit_type,
+        cp1_score: float | None,
+        winner_id: str | None,
+        start_t,
+        searched: bool,
+    ) -> None:
+        """Observe this step's verdict; advance the state machine.
+
+        ``hit_type`` / ``winner_id`` / ``start_t`` are accepted for forward
+        compatibility (a future follow-winner gate needs them); N1 conditions
+        only on ``cp1_score`` + ``searched``.
+        """
+        if cp1_score is None:
+            # searched step with an empty result set (legit MISS): treat as the
+            # lowest possible score so it counts toward low_run and never
+            # triggers recovery. Matches N1GateState's None-as-(-inf) rule.
+            score = -math.inf
+        elif not math.isfinite(cp1_score):
+            # cp1_score is normalized cosine in [-1, 1]; a non-finite value is a
+            # contract violation that should never occur server-side. Fail open
+            # to full searching rather than risk a wrongful skip.
+            logger.warning(
+                "ScoreHysteresisGate got non-finite cp1_score=%r (task=%r); "
+                "failing open to full search.",
+                cp1_score, self._task_key,
+            )
+            self._searching = True
+            self._low_run = 0
+            self._since_probe = 0
+            return
+        else:
+            score = float(cp1_score)
+
+        if self._searching:
+            if score < self._theta_low:
+                self._low_run += 1
+                if self._low_run >= self._j:
+                    self._searching = False
+                    self._since_probe = 0
+            else:
+                self._low_run = 0
+        else:  # skipping
+            if searched:  # this searched step was a probe
+                self._since_probe = 0
+                if score >= self._theta_high:
+                    self._searching = True
+                    self._low_run = 0
+            else:  # a real skip step
+                self._since_probe += 1
+
+    def on_episode_start(self, task_key: str = "") -> None:
+        """Reset the state machine at each episode; stash task_key.
+
+        ``task_key`` is broadcast by the orchestrator (G0a) and kept for
+        diagnostics / future per-task parametrization; the N1 decision does not
+        depend on it.
+        """
+        self._searching = True
+        self._low_run = 0
+        self._since_probe = 0
+        self._task_key = task_key
+        logger.debug("ScoreHysteresisGate reset for task=%r", task_key)
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        """No-op. N1 does not use action history. Signature matches protocol."""

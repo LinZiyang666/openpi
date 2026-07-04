@@ -9,11 +9,12 @@ import torch.nn.functional as F
 from openpi.cache.components.gate import (
     AlwaysSearchGate,
     ClientControlledGate,
+    ScoreHysteresisGate,
 )
-from openpi.cache.components.judge import HitType, ThresholdJudge
+from openpi.cache.components.judge import AlwaysWarmStartJudge, HitType, ThresholdJudge
 from openpi.cache.orchestrator import CacheOrchestrator
 from openpi.cache.storage_types import CachePayload
-from openpi.cache.types import ROBOT_STATE, CheckpointID
+from openpi.cache.types import CheckpointID
 
 from openpi.cache.backends.in_memory_backend import InMemoryBackend
 
@@ -24,7 +25,6 @@ from tests.cache.conftest import (
     make_counting_orchestrator,
     make_orchestrator,
     make_stage1,
-    stable_hash,
 )
 
 
@@ -708,3 +708,193 @@ def test_prefill_mode_context_manager_exits_on_exception():
     # finally branch ran — storage must be back to normal mode.
     assert storage._prefill_mode is False
     assert storage._prefill_payload is None
+
+
+# ---------------------------------------------------------------------------
+# G0a: task_key broadcast + verdict feedback to the gate (Stage 1c)
+# ---------------------------------------------------------------------------
+
+
+class _TaskKeySpyGate:
+    """Gate that records the task_key broadcast to on_episode_start."""
+
+    def __init__(self) -> None:
+        self.received_task_key = None
+
+    def __call__(self, checkpoint_id, cached_data, request_context=None) -> bool:
+        return True
+
+    def on_episode_start(self, task_key: str = "") -> None:
+        self.received_task_key = task_key
+
+    def record_action(self, action_chunk) -> None:
+        pass
+
+
+class _VerdictSpyGate:
+    """Gate with a settable decision that records every record_verdict call."""
+
+    def __init__(self, decision: bool = True) -> None:
+        self.decision = decision
+        self.verdicts: list[dict] = []
+
+    def __call__(self, checkpoint_id, cached_data, request_context=None) -> bool:
+        return self.decision
+
+    def record_verdict(
+        self, checkpoint_id, *, hit_type, cp1_score, winner_id, start_t, searched
+    ) -> None:
+        self.verdicts.append(
+            {
+                "checkpoint_id": checkpoint_id,
+                "hit_type": hit_type,
+                "cp1_score": cp1_score,
+                "winner_id": winner_id,
+                "start_t": start_t,
+                "searched": searched,
+            }
+        )
+
+    def on_episode_start(self, task_key: str = "") -> None:
+        pass
+
+    def record_action(self, action_chunk) -> None:
+        pass
+
+
+def test_task_key_broadcast_to_gate_on_episode_start():
+    spy = _TaskKeySpyGate()
+    orch, _, _ = make_orchestrator(gate=spy)
+    orch.on_episode_start(task_key="pick_up_cup", episode_id="ep0")
+    assert spy.received_task_key == "pick_up_cup"
+    orch.clear()
+
+
+def test_task_key_broadcast_to_gate_on_task_begin():
+    spy = _TaskKeySpyGate()
+    orch, _, _ = make_orchestrator(gate=spy)
+    orch.on_task_begin("stack_blocks")
+    assert spy.received_task_key == "stack_blocks"
+    orch.clear()
+
+
+def test_legacy_gate_without_task_key_param_unaffected():
+    # AlwaysSearchGate.on_episode_start(self) has no task_key param; the
+    # signature-filtered broadcast must not raise.
+    orch, _, _ = make_orchestrator(gate=AlwaysSearchGate())
+    orch.on_episode_start(task_key="anything", episode_id="ep0")  # must not raise
+    orch.clear()
+
+
+def test_verdict_fed_to_gate_on_full_hit():
+    spy = _VerdictSpyGate(decision=True)
+    orch, _, storage = make_orchestrator(gate=spy)
+    state = _unit_vector(32, 0)
+    payload = CachePayload(action_chunk=torch.randn(50, 32))
+    entry = insert_entry(storage, CheckpointID.CP1, state, payload)
+
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(state))
+    assert result.hit_type == HitType.FULL_HIT
+
+    assert len(spy.verdicts) == 1
+    v = spy.verdicts[0]
+    assert v["searched"] is True
+    assert v["hit_type"] == HitType.FULL_HIT
+    assert v["winner_id"] == entry.id
+    assert v["cp1_score"] is not None and abs(v["cp1_score"] - 1.0) < 1e-5
+    orch.clear()
+
+
+def test_verdict_fed_to_gate_on_empty_store_miss():
+    # Always-search MISS with an empty result set: searched=True but
+    # cp1_score is None (no results). The gate must be told searched=True.
+    spy = _VerdictSpyGate(decision=True)
+    orch, _, _ = make_orchestrator(gate=spy)
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(torch.randn(1, 32)))
+    assert result.hit_type == HitType.MISS
+
+    assert len(spy.verdicts) == 1
+    v = spy.verdicts[0]
+    assert v["searched"] is True
+    assert v["hit_type"] == HitType.MISS
+    assert v["cp1_score"] is None
+    orch.clear()
+
+
+def test_verdict_fed_to_gate_on_skip():
+    # Gate returns skip -> no search -> record_verdict(searched=False, None).
+    spy = _VerdictSpyGate(decision=False)
+    orch, _, _ = make_orchestrator(gate=spy)
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(torch.randn(1, 32)))
+    assert result.hit_type == HitType.MISS
+    assert result.searched is False
+
+    assert len(spy.verdicts) == 1
+    v = spy.verdicts[0]
+    assert v["searched"] is False
+    assert v["cp1_score"] is None
+    assert v["hit_type"] == HitType.MISS
+    orch.clear()
+
+
+def test_verdict_fed_to_gate_on_warm_start_downgrade():
+    # WARM_START whose payload lacks intermediates downgrades to MISS. The gate
+    # must be fed the FINAL verdict (MISS) with searched=True, cp1_score = top
+    # score, and winner_id / start_t passed from the judge result.
+    spy = _VerdictSpyGate(decision=True)
+    orch, _, storage = make_orchestrator(
+        gate=spy, judge=AlwaysWarmStartJudge(start_t=0.5)
+    )
+    state = _unit_vector(32, 0)
+    payload = CachePayload(action_chunk=torch.randn(50, 32))  # no intermediates
+    entry = insert_entry(storage, CheckpointID.CP1, state, payload)
+
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(state))
+    assert result.hit_type == HitType.MISS  # WARM_START downgraded to MISS
+
+    assert len(spy.verdicts) == 1
+    v = spy.verdicts[0]
+    assert v["searched"] is True
+    assert v["hit_type"] == HitType.MISS
+    assert v["cp1_score"] is not None and abs(v["cp1_score"] - 1.0) < 1e-5
+    assert v["winner_id"] == entry.id
+    assert v["start_t"] == 0.5
+    orch.clear()
+
+
+def test_check_no_crash_when_gate_lacks_record_verdict():
+    # AlwaysSearchGate has no record_verdict; the hasattr guard must skip it.
+    gate = AlwaysSearchGate()
+    assert not hasattr(gate, "record_verdict")
+    orch, _, _ = make_orchestrator(gate=gate)
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(torch.randn(1, 32)))
+    assert result.hit_type == HitType.MISS  # empty store; no exception raised
+    orch.clear()
+
+
+def test_score_hysteresis_gate_closes_loop_through_orchestrator():
+    # End-to-end: the server-side N1 gate drives skip purely from verdict
+    # feedback inside check() — no client, no __gate_decision__.
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.9, j=2, probe_interval=3)
+    orch, _, storage = make_orchestrator(
+        gate=gate,
+        judge=__import__(
+            "openpi.cache.components.judge", fromlist=["ThresholdJudge"]
+        ).ThresholdJudge(cp1_threshold=0.9, cp3_threshold=0.95),
+    )
+    base = _unit_vector(32, 0)
+    payload = CachePayload(action_chunk=torch.randn(50, 32))
+    insert_entry(storage, CheckpointID.CP1, base, payload)
+
+    low = _vector_with_known_cosine(base, 0.1)  # score 0.1 < theta_low
+    # Query order: high, low, low, low.
+    queries = [base, low, low, low]
+    searched_flags = []
+    for q in queries:
+        r = orch.check(CheckpointID.CP1, stage1=make_stage1(q))
+        searched_flags.append(r.searched)
+
+    # First 3 searched (gate still searching / draining low_run); after 2 low
+    # scores hit j=2 the gate stops -> the 4th step is a gate-skip.
+    assert searched_flags == [True, True, True, False]
+    orch.clear()

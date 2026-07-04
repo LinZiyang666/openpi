@@ -36,6 +36,7 @@ Coupling map:
 from __future__ import annotations
 
 import logging
+import math
 import os
 import re
 from dataclasses import dataclass, field
@@ -87,6 +88,11 @@ class GateConfig:
     # Only for type="periodic" (validated by validate_cache_config)
     cache_len: int | None = None
     inference_len: int | None = None
+    # Only for type="score_hysteresis" (validated by validate_cache_config)
+    theta_low: float | None = None
+    theta_high: float | None = None
+    j: int | None = None
+    probe_interval: int | None = None
 
 
 @dataclass
@@ -456,7 +462,7 @@ _VALID_STEP_FILTERS = frozenset({"all", "exact", "window"})
 # added here so validator (validate_cache_config) and builder (_build_gate /
 # _build_judge) stay in lockstep; otherwise a missing entry silently downgrades
 # to a "Unknown ... type" error at build time despite passing validation.
-_GATE_TYPES = frozenset({"always_search", "always_skip", "client_controlled", "random", "periodic"})
+_GATE_TYPES = frozenset({"always_search", "always_skip", "client_controlled", "random", "periodic", "score_hysteresis"})
 _JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start", "composite"})
 
 
@@ -1236,7 +1242,10 @@ def validate_cache_config(config: CacheConfig) -> None:
         # ------------------------------------------------------------------
         _gate_random_fields = {"p_inference", "seed"}
         _gate_periodic_fields = {"cache_len", "inference_len"}
-        _gate_all_param_fields = _gate_random_fields | _gate_periodic_fields
+        _gate_score_hysteresis_fields = {"theta_low", "theta_high", "j", "probe_interval"}
+        _gate_all_param_fields = (
+            _gate_random_fields | _gate_periodic_fields | _gate_score_hysteresis_fields
+        )
         gate_set_fields = {
             name for name in _gate_all_param_fields
             if getattr(cp_config.gate, name) is not None
@@ -1304,14 +1313,69 @@ def validate_cache_config(config: CacheConfig) -> None:
                     f"{prefix}.gate: type='periodic' cannot set {sorted(stray)}; "
                     f"these belong to type='random'"
                 )
+        elif cp_config.gate.type == "score_hysteresis":
+            # Same bounds the ScoreHysteresisGate constructor enforces, checked
+            # here so a misconfig fails at config-load time with a consistent
+            # diagnostic (theta finite reals with theta_high >= theta_low; j
+            # strict int >= 1; probe_interval None or strict int >= 1).
+            tl = cp_config.gate.theta_low
+            th = cp_config.gate.theta_high
+            jj = cp_config.gate.j
+            pi = cp_config.gate.probe_interval
+            for _name, _val in (("theta_low", tl), ("theta_high", th)):
+                if _val is None:
+                    errors.append(
+                        f"{prefix}.gate: type='score_hysteresis' requires '{_name}'"
+                    )
+                elif not isinstance(_val, (int, float)) or isinstance(_val, bool):
+                    errors.append(
+                        f"{prefix}.gate.{_name} must be a real number, "
+                        f"got {type(_val).__name__}={_val!r}"
+                    )
+                elif not math.isfinite(_val):
+                    errors.append(f"{prefix}.gate.{_name} must be finite, got {_val}")
+            if (
+                isinstance(tl, (int, float)) and not isinstance(tl, bool)
+                and isinstance(th, (int, float)) and not isinstance(th, bool)
+                and math.isfinite(tl) and math.isfinite(th)
+                and th < tl
+            ):
+                errors.append(
+                    f"{prefix}.gate: type='score_hysteresis' requires "
+                    f"theta_high >= theta_low, got theta_low={tl}, theta_high={th}"
+                )
+            if jj is None:
+                errors.append(f"{prefix}.gate: type='score_hysteresis' requires 'j'")
+            elif not _is_strict_int(jj):
+                errors.append(
+                    f"{prefix}.gate.j must be an int >= 1, "
+                    f"got {type(jj).__name__}={jj!r}"
+                )
+            elif jj < 1:
+                errors.append(f"{prefix}.gate.j={jj} must be >= 1")
+            # probe_interval is optional (None -> never probe / permanent skip).
+            if pi is not None:
+                if not _is_strict_int(pi):
+                    errors.append(
+                        f"{prefix}.gate.probe_interval must be None or an int >= 1, "
+                        f"got {type(pi).__name__}={pi!r}"
+                    )
+                elif pi < 1:
+                    errors.append(f"{prefix}.gate.probe_interval={pi} must be >= 1")
+            stray = gate_set_fields - _gate_score_hysteresis_fields
+            if stray:
+                errors.append(
+                    f"{prefix}.gate: type='score_hysteresis' cannot set {sorted(stray)}; "
+                    f"these belong to type='random' or type='periodic'"
+                )
         else:
             # Legacy 3 gate types (always_search / always_skip / client_controlled)
-            # must not carry any of the new parameter fields.
+            # must not carry any of the parameter fields.
             if gate_set_fields:
                 errors.append(
                     f"{prefix}.gate: type={cp_config.gate.type!r} cannot set "
                     f"{sorted(gate_set_fields)}; those fields belong to "
-                    f"type='random' or type='periodic'"
+                    f"type='random' / 'periodic' / 'score_hysteresis'"
                 )
 
         if cp_config.judge.type not in _JUDGE_TYPES:
@@ -2154,6 +2218,23 @@ def _build_gate(cfg: GateConfig):
 
         assert cfg.cache_len is not None and cfg.inference_len is not None
         return PeriodicGate(cache_len=cfg.cache_len, inference_len=cfg.inference_len)
+    if cfg.type == "score_hysteresis":
+        from openpi.cache.components.gate import ScoreHysteresisGate
+
+        # theta_low / theta_high / j required; probe_interval optional (None ->
+        # never probe). Bounds already enforced by validate_cache_config; the
+        # constructor re-validates as a second, consistent guard.
+        assert (
+            cfg.theta_low is not None
+            and cfg.theta_high is not None
+            and cfg.j is not None
+        )
+        return ScoreHysteresisGate(
+            theta_low=cfg.theta_low,
+            theta_high=cfg.theta_high,
+            j=cfg.j,
+            probe_interval=cfg.probe_interval,
+        )
     raise ConfigValidationError(
         f"Unknown gate.type '{cfg.type}'. Valid: {sorted(_GATE_TYPES)}"
     )

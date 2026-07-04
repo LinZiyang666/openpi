@@ -284,7 +284,12 @@ class CacheOrchestrator:
         for strategy in self._search_strategies.values():
             self._safe_call_lifecycle(strategy, "on_episode_start")
         for gate in self._gates.values():
-            self._safe_call_lifecycle(gate, "on_episode_start")
+            # G0a: broadcast task_key to the gate. _safe_call_lifecycle filters
+            # by signature, so legacy gates (on_episode_start(self)) ignore it;
+            # gates that declare on_episode_start(self, task_key="") receive it.
+            self._safe_call_lifecycle(
+                gate, "on_episode_start", task_key=self._current_task_key
+            )
         for judge in self._judges.values():
             self._safe_call_lifecycle(
                 judge, "on_episode_start",
@@ -377,6 +382,37 @@ class CacheOrchestrator:
         first_action = chunk_cpu[0] if chunk_cpu.dim() >= 2 else chunk_cpu
         self._action_history.append(first_action)
 
+    def _feed_verdict_to_gate(
+        self,
+        checkpoint_id: CheckpointID,
+        *,
+        hit_type: HitType,
+        cp1_score: Optional[float],
+        winner_id: Optional[str],
+        start_t: Optional[float],
+        searched: bool,
+    ) -> None:
+        """G0a: feed this step's verdict back to the checkpoint's gate.
+
+        Called on every check() return path so a stateful gate (e.g.
+        ScoreHysteresisGate) can condition the NEXT step's decision on the
+        verdict the judge just produced. Per-checkpoint (only the gate that ran
+        this checkpoint); guarded by hasattr so gates without record_verdict
+        (all legacy gates) are unaffected. Pure gate-local state mutation — no
+        storage lock, no wire. searched=False marks a gate-skip step (no search
+        ran; cp1_score is None).
+        """
+        gate = self._gates.get(checkpoint_id)
+        if gate is not None and hasattr(gate, "record_verdict"):
+            gate.record_verdict(
+                checkpoint_id,
+                hit_type=hit_type,
+                cp1_score=cp1_score,
+                winner_id=winner_id,
+                start_t=start_t,
+                searched=searched,
+            )
+
     # ------------------------------------------------------------------
     # Cache check pipeline
     # ------------------------------------------------------------------
@@ -452,6 +488,10 @@ class CacheOrchestrator:
             # searched=False: gate skipped the search. Distinguishes this from a
             # real always-search MISS (which leaves searched=True) for the
             # gate-research collector's C5 selection-bias filter.
+            self._feed_verdict_to_gate(
+                checkpoint_id, hit_type=HitType.MISS, cp1_score=None,
+                winner_id=None, start_t=None, searched=False,
+            )
             return CheckResult(hit_type=HitType.MISS, query_keys=query_keys, searched=False)
 
         with self._timer.measure(f"{prefix}_search"):
@@ -516,18 +556,31 @@ class CacheOrchestrator:
                     self._miss_by_checkpoint[checkpoint_id] = (
                         self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
                     )
+                    self._feed_verdict_to_gate(
+                        checkpoint_id, hit_type=HitType.MISS,
+                        cp1_score=results[0].score, winner_id=winner_id,
+                        start_t=start_t, searched=True,
+                    )
                     return CheckResult(
                         hit_type=HitType.MISS, query_keys=query_keys,
                         score=results[0].score, entry_id=winner_id,
                         factor_outputs=factor_outputs,
                     )
 
+            self._feed_verdict_to_gate(
+                checkpoint_id, hit_type=hit_type, cp1_score=results[0].score,
+                winner_id=winner_id, start_t=start_t, searched=True,
+            )
             return CheckResult(
                 hit_type=hit_type, payload=payload, start_t=start_t,
                 score=results[0].score, entry_id=winner_id, query_keys=query_keys,
                 factor_outputs=factor_outputs,
             )
 
+        self._feed_verdict_to_gate(
+            checkpoint_id, hit_type=HitType.MISS, cp1_score=top_score,
+            winner_id=winner_id, start_t=start_t, searched=True,
+        )
         return CheckResult(
             hit_type=HitType.MISS, query_keys=query_keys,
             score=top_score, entry_id=winner_id,

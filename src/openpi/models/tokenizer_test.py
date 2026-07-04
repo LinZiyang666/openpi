@@ -1,6 +1,14 @@
 import numpy as np
+import pytest
 
 from openpi.models import tokenizer as _tokenizer
+
+# Both tokenizers download remote assets on construction
+# (``download.maybe_download("gs://big_vision/paligemma_tokenizer.model")`` +
+# ``AutoProcessor.from_pretrained``), so these tests need network / GCS access.
+pytestmark = pytest.mark.env_dependent(
+    reason="constructs tokenizers that download GCS / HuggingFace assets"
+)
 
 
 def test_tokenize():

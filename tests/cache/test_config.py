@@ -1381,6 +1381,141 @@ def test_periodic_gate_rejects_bool_cache_len():
 
 
 # ---------------------------------------------------------------------------
+# ScoreHysteresisGate (server-side N1) dispatch + validation.
+# Plan: logs/n1_serverside_gate_stage1c.log.md §4.4.
+# ---------------------------------------------------------------------------
+
+
+def test_score_hysteresis_gate_valid_config_passes():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(
+            type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=2,
+            probe_interval=3,
+        )
+    )
+    validate_cache_config(cfg)  # must not raise
+
+
+def test_score_hysteresis_gate_probe_interval_omitted_passes():
+    # probe_interval is optional (None -> never probe).
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=2)
+    )
+    validate_cache_config(cfg)
+
+
+def test_score_hysteresis_gate_missing_theta_low_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="score_hysteresis", theta_high=0.95, j=2)
+    )
+    with pytest.raises(ConfigValidationError, match="requires 'theta_low'"):
+        validate_cache_config(cfg)
+
+
+def test_score_hysteresis_gate_missing_j_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="score_hysteresis", theta_low=0.9, theta_high=0.95)
+    )
+    with pytest.raises(ConfigValidationError, match="requires 'j'"):
+        validate_cache_config(cfg)
+
+
+def test_score_hysteresis_gate_theta_high_below_low_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="score_hysteresis", theta_low=0.9, theta_high=0.5, j=2)
+    )
+    with pytest.raises(ConfigValidationError, match="theta_high >= theta_low"):
+        validate_cache_config(cfg)
+
+
+def test_score_hysteresis_gate_non_finite_theta_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(
+            type="score_hysteresis", theta_low=float("nan"), theta_high=0.95, j=2
+        )
+    )
+    with pytest.raises(ConfigValidationError, match="must be finite"):
+        validate_cache_config(cfg)
+
+
+def test_score_hysteresis_gate_zero_j_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=0)
+    )
+    with pytest.raises(ConfigValidationError, match="j=0 must be >= 1"):
+        validate_cache_config(cfg)
+
+
+def test_score_hysteresis_gate_zero_probe_interval_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(
+            type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=2,
+            probe_interval=0,
+        )
+    )
+    with pytest.raises(ConfigValidationError, match="probe_interval=0 must be >= 1"):
+        validate_cache_config(cfg)
+
+
+def test_score_hysteresis_gate_rejects_bool_j():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=True)
+    )
+    with pytest.raises(ConfigValidationError, match="j must be an int"):
+        validate_cache_config(cfg)
+
+
+def test_score_hysteresis_gate_rejects_bool_theta():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="score_hysteresis", theta_low=True, theta_high=0.95, j=2)
+    )
+    with pytest.raises(ConfigValidationError, match="theta_low must be a real number"):
+        validate_cache_config(cfg)
+
+
+def test_score_hysteresis_gate_rejects_stray_fields():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(
+            type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=2,
+            p_inference=0.3,
+        )
+    )
+    with pytest.raises(ConfigValidationError, match="cannot set.*p_inference"):
+        validate_cache_config(cfg)
+
+
+def test_legacy_gate_rejects_score_hysteresis_fields():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="always_search", theta_low=0.9)
+    )
+    with pytest.raises(ConfigValidationError, match="type='always_search'.*cannot set"):
+        validate_cache_config(cfg)
+
+
+def test_build_gate_constructs_score_hysteresis_gate():
+    from openpi.cache.components.gate import ScoreHysteresisGate
+    from openpi.cache.config import _build_gate
+
+    g = _build_gate(
+        GateConfig(
+            type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=2,
+            probe_interval=3,
+        )
+    )
+    assert isinstance(g, ScoreHysteresisGate)
+
+
+def test_build_gate_score_hysteresis_probe_interval_none():
+    from openpi.cache.components.gate import ScoreHysteresisGate
+    from openpi.cache.config import _build_gate
+
+    g = _build_gate(
+        GateConfig(type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=2)
+    )
+    assert isinstance(g, ScoreHysteresisGate)
+
+
+# ---------------------------------------------------------------------------
 # weighted_score_sum_knn per_field score_normalization validation
 # ---------------------------------------------------------------------------
 

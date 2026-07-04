@@ -1,5 +1,7 @@
 """Tests for gate implementations."""
 
+import math
+
 import pytest
 import torch
 
@@ -10,6 +12,7 @@ from openpi.cache.components.gate import (
     GateFunction,
     PeriodicGate,
     RandomGate,
+    ScoreHysteresisGate,
 )
 from openpi.cache.types import CheckpointID
 
@@ -275,3 +278,236 @@ def test_periodic_gate_ctor_rejects_fractional_cache_len():
 def test_periodic_gate_ctor_rejects_bool_inference_len():
     with pytest.raises(TypeError, match="inference_len"):
         PeriodicGate(cache_len=1, inference_len=True)  # type: ignore[arg-type]
+
+
+# ---------------------------------------------------------------------------
+# ScoreHysteresisGate (server-side N1)
+# ---------------------------------------------------------------------------
+
+
+def _drive(gate: ScoreHysteresisGate, scores):
+    """Replay the orchestrator loop: decide (__call__) then feed the verdict.
+
+    ``scores[i]`` is the cp1_score the step would observe *if it searches*.
+    A skip step observes cp1_score=None (no search ran), exactly as the
+    orchestrator feeds it. Returns the list of searched decisions.
+    """
+    out = []
+    for s in scores:
+        searched = gate(CheckpointID.CP1, {})
+        out.append(searched)
+        cp1 = s if searched else None
+        gate.record_verdict(
+            CheckpointID.CP1, hit_type=None, cp1_score=cp1,
+            winner_id=None, start_t=None, searched=searched,
+        )
+    return out
+
+
+def _n1_reference(scores, *, theta_low, theta_high, j, probe_interval):
+    """Independent restatement of the N1 decide/observe spec (no exp import).
+
+    Cross-checks ScoreHysteresisGate against a hand-written implementation of
+    the same state machine (roadmap N1 / Stage-1b N1GateState).
+    """
+    searching, low_run, since_probe = True, 0, 0
+    out = []
+    for s in scores:
+        if searching:
+            searched = True
+        elif probe_interval is not None and since_probe + 1 >= probe_interval:
+            searched = True
+        else:
+            searched = False
+        out.append(searched)
+        val = float(s) if (searched and s is not None) else -math.inf
+        if searching:
+            if val < theta_low:
+                low_run += 1
+                if low_run >= j:
+                    searching = False
+                    since_probe = 0
+            else:
+                low_run = 0
+        else:
+            if searched:
+                since_probe = 0
+                if val >= theta_high:
+                    searching = True
+                    low_run = 0
+            else:
+                since_probe += 1
+    return out
+
+
+def test_score_hysteresis_first_step_searches():
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=3, probe_interval=2)
+    # No history -> the first decision is always search.
+    assert gate(CheckpointID.CP1, {}) is True
+
+
+def test_score_hysteresis_golden_enter_probe_recover():
+    # Hand-computed golden trace (θ_low=0.5, θ_high=0.8, j=3, probe_interval=2):
+    #  0..2 search @0.1 (<θ_low) -> low_run hits j=3 -> stop searching
+    #  3    skip (since_probe 0->needs +1>=2? no)
+    #  4    probe @0.1 (mid<θ_high) -> stay skipping
+    #  5    skip
+    #  6    probe @0.9 (>=θ_high) -> recover to searching
+    #  7    search @0.9
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=3, probe_interval=2)
+    scores = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.9, 0.9]
+    got = _drive(gate, scores)
+    assert got == [True, True, True, False, True, False, True, True]
+
+
+def test_score_hysteresis_band_blocks_chatter():
+    # A probe scoring inside the hysteresis band (θ_low <= s < θ_high) must
+    # NOT recover: the gate stays skipping.
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=2, probe_interval=2)
+    #  0,1 search @0.1 -> stop; 2 skip; 3 probe @0.65 (band) -> stay skipping;
+    #  4 skip; 5 probe @0.65 -> still skipping.
+    scores = [0.1, 0.1, 0.1, 0.65, 0.1, 0.65]
+    got = _drive(gate, scores)
+    assert got == [True, True, False, True, False, True]
+
+
+def test_score_hysteresis_probe_none_permanent_skip():
+    # probe_interval=None -> once skipping, never probe again this episode.
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=2, probe_interval=None)
+    scores = [0.1] * 6
+    got = _drive(gate, scores)
+    assert got == [True, True, False, False, False, False]
+
+
+def test_score_hysteresis_none_score_counts_as_miss():
+    # A searched step with an empty result set (cp1_score=None) is treated as
+    # -inf: it counts toward low_run just like a genuine low score.
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=3, probe_interval=None)
+    scores = [None, None, None, 0.1]
+    got = _drive(gate, scores)
+    # 3 None-verdicts drive low_run to j -> the 4th step is a skip.
+    assert got == [True, True, True, False]
+
+
+def test_score_hysteresis_call_is_pure():
+    # __call__ must not mutate state: repeated calls without record_verdict
+    # return the same decision and leave the registers untouched.
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=3, probe_interval=2)
+    first = gate(CheckpointID.CP1, {})
+    snapshot = (gate._searching, gate._low_run, gate._since_probe)
+    for _ in range(5):
+        assert gate(CheckpointID.CP1, {}) == first
+    assert (gate._searching, gate._low_run, gate._since_probe) == snapshot
+
+
+def test_score_hysteresis_non_finite_fails_open():
+    # A non-finite cp1_score (contract violation) forces recovery to full
+    # searching rather than risking a wrongful skip.
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=None)
+    # One low score drives into skipping (j=1).
+    assert gate(CheckpointID.CP1, {}) is True
+    gate.record_verdict(
+        CheckpointID.CP1, hit_type=None, cp1_score=0.1,
+        winner_id=None, start_t=None, searched=True,
+    )
+    assert gate(CheckpointID.CP1, {}) is False  # now skipping
+    # Feed a NaN verdict on a (probe) searched step -> fail open.
+    gate.record_verdict(
+        CheckpointID.CP1, hit_type=None, cp1_score=float("nan"),
+        winner_id=None, start_t=None, searched=True,
+    )
+    assert gate._searching is True
+    assert gate(CheckpointID.CP1, {}) is True
+
+
+def test_score_hysteresis_on_episode_start_resets_and_stores_task_key():
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=None)
+    # Drive into skipping.
+    _drive(gate, [0.1, 0.1])
+    assert gate._searching is False
+    gate.on_episode_start(task_key="pick_up_the_cup")
+    assert gate._searching is True
+    assert gate._low_run == 0 and gate._since_probe == 0
+    assert gate._task_key == "pick_up_the_cup"
+    # First decision after reset is search again.
+    assert gate(CheckpointID.CP1, {}) is True
+
+
+def test_score_hysteresis_matches_reference_on_long_sequence():
+    # Cross-check the gate against an independent restatement of the spec over
+    # a fixed, adversarial-ish score sequence (no randomness, no exp import).
+    theta_low, theta_high, j, probe_interval = 0.5, 0.8, 3, 2
+    scores = [
+        0.9, 0.9, 0.2, 0.1, 0.3, 0.85, 0.2, 0.2, 0.2, 0.95,
+        0.1, 0.1, 0.4, 0.9, 0.9, 0.1, 0.1, 0.1, 0.7, 0.82,
+    ]
+    gate = ScoreHysteresisGate(
+        theta_low=theta_low, theta_high=theta_high, j=j, probe_interval=probe_interval
+    )
+    got = _drive(gate, scores)
+    expected = _n1_reference(
+        scores, theta_low=theta_low, theta_high=theta_high, j=j,
+        probe_interval=probe_interval,
+    )
+    assert got == expected
+
+
+def test_score_hysteresis_conforms_to_protocol():
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=1)
+    assert isinstance(gate, GateFunction)
+
+
+def test_score_hysteresis_record_action_is_noop():
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=1)
+    assert gate.record_action(torch.zeros(1)) is None
+
+
+# --- ScoreHysteresisGate construction validation ---
+
+
+def test_score_hysteresis_ctor_rejects_theta_high_below_low():
+    with pytest.raises(ValueError, match="theta_high >= theta_low"):
+        ScoreHysteresisGate(theta_low=0.8, theta_high=0.5, j=1, probe_interval=1)
+
+
+def test_score_hysteresis_ctor_rejects_non_finite_theta():
+    with pytest.raises(ValueError, match="finite"):
+        ScoreHysteresisGate(
+            theta_low=float("nan"), theta_high=0.5, j=1, probe_interval=1
+        )
+    with pytest.raises(ValueError, match="finite"):
+        ScoreHysteresisGate(
+            theta_low=0.5, theta_high=float("inf"), j=1, probe_interval=1
+        )
+
+
+def test_score_hysteresis_ctor_rejects_bad_j():
+    with pytest.raises(ValueError, match="j must be >= 1"):
+        ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=0, probe_interval=1)
+
+
+def test_score_hysteresis_ctor_rejects_zero_probe_interval():
+    with pytest.raises(ValueError, match="probe_interval"):
+        ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=0)
+
+
+def test_score_hysteresis_ctor_allows_none_probe_interval():
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=None)
+    assert gate(CheckpointID.CP1, {}) is True
+
+
+def test_score_hysteresis_ctor_rejects_bool_params():
+    # bool is an int subclass; reject it on every numeric param.
+    with pytest.raises(TypeError, match="theta_low"):
+        ScoreHysteresisGate(theta_low=True, theta_high=0.8, j=1, probe_interval=1)  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match="theta_high"):
+        ScoreHysteresisGate(theta_low=0.5, theta_high=False, j=1, probe_interval=1)  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match="j"):
+        ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=True, probe_interval=1)  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match="probe_interval"):
+        ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=True)  # type: ignore[arg-type]
+
+
+def test_score_hysteresis_ctor_rejects_non_numeric_theta():
+    with pytest.raises(TypeError, match="theta_low"):
+        ScoreHysteresisGate(theta_low="0.5", theta_high=0.8, j=1, probe_interval=1)  # type: ignore[arg-type]
