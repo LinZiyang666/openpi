@@ -1,7 +1,7 @@
 # Weighted-Sum Calibration + Weight-Search Runbook (libero_spatial)
 
 > End-to-end experiment for the two-layer `weighted_score_sum` retrieval: **Phase 1** picks the Layer-1 normalization method+params per (keybuilder, modality) offline; **Phase 2** uses the conductor in pure-eval mode to identify useful modalities and search for optimal weights.
-> Design reference: [`logs/weighted_sum_two_layer_refactor.log.md`](../../logs/weighted_sum_two_layer_refactor.log.md); architecture: [`cache_system.md` §5.8.1](../architecture/cache_system.md); orchestration: [`conductor_tutorial.md`](conductor_tutorial.md).
+> Design reference: [`logs/archive/weighted_sum_two_layer_refactor.log.md`](../../logs/archive/weighted_sum_two_layer_refactor.log.md); architecture: [`cache_system.md` §5.8.1](../architecture/cache_system.md); orchestration: [`conductor_tutorial.md`](conductor_tutorial.md).
 
 ---
 
@@ -84,7 +84,7 @@ Group by keybuilder and plot success_rate × weight configuration (aligned with 
 
 ## 3. Trajectory Extension (depth>1 multi-step retrieval)
 
-Layer trajectory search (multi-step query history aggregation) on top of Phase-2's best configuration, methodologically aligned with the old trajectory experiment over Phase 1. Design and decisions: [`logs/weighted_sum_trajectory_search.log.md`](../../logs/weighted_sum_trajectory_search.log.md).
+Layer trajectory search (multi-step query history aggregation) on top of Phase-2's best configuration, methodologically aligned with the old trajectory experiment over Phase 1. Design and decisions: [`logs/archive/weighted_sum_trajectory_search.log.md`](../../logs/archive/weighted_sum_trajectory_search.log.md).
 
 **Base selection (18, deduped)**: ① per-keybuilder (each of the 4 CP1 keybuilders contributes top1+top2+second-to-last; second-to-last taken from the regular weight grid with the same `zscore`, excluding `__norm2`/`iso_`); ② the full-experiment top10. The two sets overlap by 4 (spatial_16/max_pool's top1+top2 are all in top10), union 18. depth ∈ {3,4,5,6}; `trajectory_weights` reuses the old decreasing scheme; the depth-1 baseline reuses the existing SR from `data/libero_spatial/phase2/all_results.csv` (comparable on the same jupyter machine).
 

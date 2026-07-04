@@ -1,7 +1,7 @@
 # Serving Benchmark — Throughput / Latency Runbook
 
 Automated probe for the concurrent-serving optimization layer (plan
-[`logs/concurrent_serving_optimization_plan.log.md`](../../logs/concurrent_serving_optimization_plan.log.md) §4.7).
+[`logs/archive/concurrent_serving_optimization_plan.log.md`](../../logs/archive/concurrent_serving_optimization_plan.log.md) §4.7).
 Surfaces the throughput vs latency Pareto curve under different worker
 counts, request rates, multi-bundle densities, and batching coordinator
 parameters.

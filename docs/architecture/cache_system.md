@@ -1137,7 +1137,7 @@ class TaskLifecycle(Protocol):
 ## 9.X Concurrent serving runtime — C1 / C2 contracts, BackendPool, BatchingCoordinator
 
 The concurrent serving optimization plan
-([`logs/concurrent_serving_optimization_plan.log.md`](../../logs/concurrent_serving_optimization_plan.log.md))
+([`logs/archive/concurrent_serving_optimization_plan.log.md`](../../logs/archive/concurrent_serving_optimization_plan.log.md))
 adds five runtime modules outside the request-side cache pipeline. The
 storage / orchestrator / judge boundaries described above are unchanged;
 what follows is a one-stop reference for how the cache system sits inside
@@ -1207,7 +1207,7 @@ remains post-stage3 and next-cycle predictive only.
   servers also auto-override ``write_policy`` to ``"never"`` on receipt.
 
 For the implementation plan, files touched, and per-module test layout,
-see [`logs/concurrent_serving_optimization_plan.log.md`](../../logs/concurrent_serving_optimization_plan.log.md).
+see [`logs/archive/concurrent_serving_optimization_plan.log.md`](../../logs/archive/concurrent_serving_optimization_plan.log.md).
 
 ---
 

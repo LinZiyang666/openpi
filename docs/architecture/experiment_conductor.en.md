@@ -2,7 +2,7 @@
 
 > A generic, experiment-agnostic **episode-level orchestration engine** that supports large-scale evaluation across GPUs / machines / servers.
 > Mechanism lives in `src/openpi/conductor/`, policy lives in `exp/`.
-> Design decisions and review records: [`logs/client_conductor_two_layer_refactor.log.md`](../../logs/client_conductor_two_layer_refactor.log.md).
+> Design decisions and review records: [`logs/archive/client_conductor_two_layer_refactor.log.md`](../../logs/archive/client_conductor_two_layer_refactor.log.md).
 
 ---
 

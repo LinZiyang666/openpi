@@ -1,7 +1,7 @@
 # Concurrent Serving + Experiment Conductor Tutorial
 
 > End-to-end how-to: **launch a concurrent inference server** + run large-scale evaluations using the new **experiment conductor framework** (`src/openpi/conductor/`). **Focus is on how to write the driver-side independent policy** (`ExperimentStrategy`).
-> Design references: [`docs/architecture/experiment_conductor.md`](../architecture/experiment_conductor.md), [`docs/architecture/cache_system.md`](../architecture/cache_system.md) §9.X, `logs/client_conductor_two_layer_refactor.log.md`, `logs/concurrent_serving_optimization_plan.log.md`.
+> Design references: [`docs/architecture/experiment_conductor.md`](../architecture/experiment_conductor.md), [`docs/architecture/cache_system.md`](../architecture/cache_system.md) §9.X, `logs/archive/client_conductor_two_layer_refactor.log.md`, `logs/archive/concurrent_serving_optimization_plan.log.md`.
 
 ---
 

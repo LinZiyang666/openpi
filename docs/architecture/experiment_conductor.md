@@ -2,7 +2,7 @@
 
 > 通用、与实验无关的 **episode 级编排引擎**，支持跨 GPU / 机器 / server 的大规模评测。
 > 机制（mechanism）在 `src/openpi/conductor/`，策略（policy）在 `exp/`。
-> 设计决策与评审记录见 [`logs/client_conductor_two_layer_refactor.log.md`](../../logs/client_conductor_two_layer_refactor.log.md)。
+> 设计决策与评审记录见 [`logs/archive/client_conductor_two_layer_refactor.log.md`](../../logs/archive/client_conductor_two_layer_refactor.log.md)。
 
 ---
 

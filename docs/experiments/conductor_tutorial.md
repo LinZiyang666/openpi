@@ -1,7 +1,7 @@
 # 并发服务 + 实验编排教程
 
 > 端到端 how-to：如何**起并发 inference server** + 用新的**实验编排框架**（`src/openpi/conductor/`）跑大规模评测。**重点讲如何编写 driver 的独立策略部分**（`ExperimentStrategy`）。
-> 设计依据见 [`docs/architecture/experiment_conductor.md`](../architecture/experiment_conductor.md)、[`docs/architecture/cache_system.md`](../architecture/cache_system.md) §9.X、`logs/client_conductor_two_layer_refactor.log.md`、`logs/concurrent_serving_optimization_plan.log.md`。
+> 设计依据见 [`docs/architecture/experiment_conductor.md`](../architecture/experiment_conductor.md)、[`docs/architecture/cache_system.md`](../architecture/cache_system.md) §9.X、`logs/archive/client_conductor_two_layer_refactor.log.md`、`logs/archive/concurrent_serving_optimization_plan.log.md`。
 
 ---
 

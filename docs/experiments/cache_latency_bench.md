@@ -3,7 +3,7 @@
 把 cache 系统的 **CP1 `check()` 六段**（collect / gate / build / search / judge / fetch）从推理栈里切出来，做成**不加载任何模型**的轻量延迟基准：按真实 cache yaml 像 server 一样组装 `CacheOrchestrator`，用 H5 真实采集的 trajectory 逐 step 回放驱动 cache "真实工作"（含跨 step 的 trajectory / score-memo / verdict 记忆），用 orchestrator 自带的 `SystemTimer` 探针记录每请求、每部件延迟。
 
 - 代码：[`exp/cache_latency_bench/`](../../exp/cache_latency_bench/)（`h5_episode.py` / `replay.py` / `run.py` / `summarize.py`）+ [`README`](../../exp/cache_latency_bench/README.md)
-- 设计与等价性 / 已知偏差分析：[`logs/cache_latency_bench_plan.log.md`](../../logs/cache_latency_bench_plan.log.md)
+- 设计与等价性 / 已知偏差分析：[`logs/archive/cache_latency_bench_plan.log.md`](../../logs/archive/cache_latency_bench_plan.log.md)
 
 ## 前置数据
 

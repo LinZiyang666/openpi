@@ -1,7 +1,7 @@
 # Weighted-Sum 校准 + 权重搜索 runbook（libero_spatial）
 
 > 两层 `weighted_score_sum` 检索的端到端实验：**Phase 1** 离线为每个 (keybuilder, 模态) 选 Layer-1 归一化方法+参数；**Phase 2** 用 conductor 纯-eval 找有用模态 + 搜最优权重。
-> 设计依据见 [`logs/weighted_sum_two_layer_refactor.log.md`](../../logs/weighted_sum_two_layer_refactor.log.md)、架构见 [`cache_system.md` §5.8.1](../architecture/cache_system.md)、编排见 [`conductor_tutorial.md`](conductor_tutorial.md)。
+> 设计依据见 [`logs/archive/weighted_sum_two_layer_refactor.log.md`](../../logs/archive/weighted_sum_two_layer_refactor.log.md)、架构见 [`cache_system.md` §5.8.1](../architecture/cache_system.md)、编排见 [`conductor_tutorial.md`](conductor_tutorial.md)。
 
 ---
 
@@ -85,7 +85,7 @@ uv run exp/weighted_sum/analysis/plot_phase2_results.py \
 ## 3. Trajectory 扩展（depth>1 多步检索）
 
 在 Phase-2 选出的最优配置之上叠加 trajectory search（多步 query 历史聚合），方法学对照老
-trajectory 实验对 Phase 1 的做法。设计与决策见 [`logs/weighted_sum_trajectory_search.log.md`](../../logs/weighted_sum_trajectory_search.log.md)。
+trajectory 实验对 Phase 1 的做法。设计与决策见 [`logs/archive/weighted_sum_trajectory_search.log.md`](../../logs/archive/weighted_sum_trajectory_search.log.md)。
 
 **Base 选取（18 个，去重）**：① per-keybuilder（4 个 CP1 keybuilder 各取 top1+top2+倒数第二，
 倒数第二取正规权重网格、同 `zscore`，排除 `__norm2`/`iso_`）；② 全实验 top10。两组重叠 4 个
