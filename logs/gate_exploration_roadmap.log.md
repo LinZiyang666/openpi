@@ -1,9 +1,10 @@
 # Gate 探索路线图 — 基于 always-search 真 verdict 数据的方案判决与阶段名单
 
-- **Status**: Data-Grounded Roadmap（供后续 gate 探索按阶段执行）
-- **Date**: 2026-07-04
+- **Status**: Data-Grounded Roadmap — Stage 0 ✅ / Stage 1 ✅（live 判决 2026-07-05）/ Stage 2 ✅（三线机制离线判决 2026-07-05，见 §5 回填）/ Stage 3+ 待
+- **Date**: 2026-07-04（创建）/ 2026-07-05（Stage 1b live 判决修订：F9–F12、C10/C11、N2 降级、§5 重排）
+- **Stage 1b live 数据**: 8 run × 500 ep（N1 A/B × 2 suite + matched periodic × 4，同 conductor/init 配对）；报告 `exp/gate_research/analysis/n1_live_results.md`、判决表 `n1_live_final.md`（commit `71f2b22`）；raw 已本地化 `exp/gate_research/data/n1_live/`（gitignored）
 - **前身**: `cache_gate_design_brainstorm.log.md`（2026-07-02/03 头脑风暴，git 历史 `437bbc2` 可查）。本文件是其数据判决版：brainstorm 的方案谱系（G0/A/B/C/D）逐项对撞实测数据后重排，原文仍有效的资产（延迟账本、oracle 口径、RPG 基线、约束公理）已整合进来，不再回读原文。
-- **数据**: `exp/gate_research` 采集（2026-07-04）——weighted_sum d1 Pareto 前沿 7 个标志性 config（libero_spatial 3 + libero_10 4）× 500 ep（全 50 inits 0..49），`gate: always_search` + 真 ThresholdJudge verdict，**185,899 决策步**（"步" = 一次 CP1 决策 = 一个 action chunk ≈ 10 env steps），每步含 `robot_state[32] / hit_type / cp1_score / start_t / winner_id / success`。无选择偏置（C5 满足：always_search 采集）。
+- **数据**: `exp/gate_research` 采集（2026-07-04）——weighted_sum d1 Pareto 前沿 7 个标志性 config（libero_spatial 3 + libero_10 4）× 500 ep（全 50 inits 0..49），`gate: always_search` + 真 ThresholdJudge verdict，**182,899 决策步**（libero_spatial 39,136 + libero_10 143,763；"步" = 一次 CP1 决策 = 一个 action chunk ≈ 10 env steps），每步含 `robot_state[32] / hit_type / cp1_score / start_t / winner_id / success`。无选择偏置（C5 满足：always_search 采集）。
 - **复现**: `exp/gate_research/gate_structure_analysis.py <gate_rows.jsonl> <suite>`（本文所有表）；`verify_gate.py`（采集完整性）；采集报告 `exp/gate_research/analysis/gate_research_results.md`。
 - **Level**: 本文档为研究产物（L0 纯文档）。任何入选方案的实现仍为 L2（新 GateFunction 组件），需另走 Plan → G1 → Code → G2 → Verify。
 - **Owner 指令**: training-free gate 先行探索；需要训练/标定的方案（C1/D1）押后。
@@ -21,7 +22,14 @@
 7. **oracle 与可实现的距离已量化**：oracle（只跳真 MISS）= 免费省 19–38% 搜索。sticky 计数规则在 probe=5 档做到 skip 11–31% / dInf +0.004–0.017；N1 用 AUC 0.98 的连续分数预期进一步支配该前沿（Stage 1a 离线扫描确认）。
 8. **反事实口径**（一切离线数字的边界）：跳过真 MISS 步不改变动作（MISS 本来就全推理）→ 该部分离线数字**精确**；错跳的命中步把缓存回放换成新推理 → 轨迹反事实，dInf 是近似、SR 影响必须 live。**高 precision（低 lost）档位的离线结论最可信；N2 盲回放整体改变执行流，只能 live 评。**
 
-**探索名单（阶段制，training-free 先行）**：Stage 1 = N1 滞回门（离线前沿 → live 验证）+ G0a hook 捎带；Stage 2 = N2 追随赢家门（live）+ A2 预算重分配（离线）+ sticky 作对照基线；Stage 3（押后）= C1 标定组合 / A3 库覆盖（随库规模）/ D1（大概率不立项）。详见 §5。
+**Stage 1b live 判决后记（2026-07-05；详见 §2 F9–F12 与 §5 重排）**：
+
+9. **N1 自身承诺兑现**：vs always_search，SR 保真甚至提升（spatial A/B **+3.0/+5.2pp**、l10 A/B −0.6/−1.4pp，后二者 McNemar 不显著）；4 点 live skip% 与 1a 离线预测偏差全 ≤1.8pp（离线选点方法论成立）；Δinf ≈ 离线预测；net@34/70 全正。
+10. **但本文原及格线 4/4 FAIL**：同 skip% 下 matched periodic 的 SR 全面高于 N1（+1.2~+6.2pp）。同时**延迟轴完全反转**：periodic 的 net@34 3/4 全负（至 −25.7 ms/步）——其 SR 优势多数靠推理暴增（Δinf +0.06~+0.12）购买；唯 spatial_A 档 periodic 在**同 inf_ratio** 下仍 +4.8pp（结构性优势，非买来）。
+11. **新机制浮出（V2）**：skip 本身带 SR 增益——N1 与 periodic 的 SR **都** ≥ always_search。解释方向：缓存回放把轨迹锁在库轨迹上重复既往动作；周期性注入新推理给轨迹"回到自身流形"的机会（F7 的 live 印证）。**均匀盲跳比 score-targeted 跳 MISS 更能兑现 V2**——MISS 步本来就全推理，跳它省搜索但不改动作分布（这正是 N1 SR 保真的原因，也是它吃不到 V2 的原因）。
+12. **判决改写问题本身**：skip% 不是预算轴（N1 的 skip 免推理、periodic 的 skip 费推理，C10）；N1 = 延迟最优 + SR 保真，periodic = SR 最优 + 延迟崩——Pareto 不同点。gate 问题从"何时省搜索"升维为"**(SR, inf_ratio, 延迟) 三元下的执行调度**"。
+
+**探索名单（2026-07-05 重排，training-free 先行不变）**：Stage 1 ✅ = N1 滞回门（1a 离线前沿 → 1b live 8 run → 1c 服务器化，全部完成）；Stage 2 = **V2 增益机制研究**（纯离线，已有数据 0 GPU：H1/H2/H3 裁决 + 公平 Pareto）；Stage 3 = **N4 混合门**（N1 跳 MISS + 定期注入新推理）live；Stage 4（押后）= N2 追随赢家（降级，理由见 §4）/ C1 / A3 / D1。详见 §5。
 
 ---
 
@@ -43,7 +51,7 @@
 
 ---
 
-## 2. 八项数据发现（7 config × 2 suite，报告范围为跨 config min–max）
+## 2. 数据发现 — F1–F8（Stage 0 采集，7 config × 2 suite，跨 config min–max）+ F9–F12（Stage 1b live，本节末）
 
 ### F1. 上一步分数近乎完美预测本步 MISS（G0b 白搜目标的答案）
 
@@ -99,6 +107,42 @@ episode 级：成功 ep 的 MISS% = 5–24%，失败 ep = 34–59%。sticky 模�
 
 robot_state 线性探针 AUC 0.76–0.86、cp1_score~robot_state 岭回归 R²=0.39–0.48：输入侧确有信息，但全面低于免费的 prev_score（0.98）。任何"从输入预测难度"的训练模型（D1）要在**开局无历史**或**跨 suite 泛化**上找增量，步级主战场已被历史信号占领。
 
+### Stage 1b live 发现（2026-07-05；8 run × 500 ep；N1 = client 侧 `N1GateState`，periodic = server 侧 `PeriodicGate`；同 conductor / 同 inits，配对键 `(task_id, subset_init_state_idx)`）
+
+**判决表**（SR/skip 为 %；inf = 实测 inf_ratio；net 单位 ms/步；配对 baseline = Stage-0 always_search：spatial 82.6 / l10 77.6）：
+
+| config (periodic 比) | N1 skip/SR/inf | periodic skip/SR/inf | N1−peri ΔSR | net@34 N1/peri |
+|---|---|---|---|---|
+| spatial_A (7:1) | 12.8 / 85.6 / 0.283 | 10.9 / **90.4** / **0.280** | **−4.8** | +5.6 / +5.8 |
+| spatial_B (4:1) | 20.1 / 87.8 / 0.293 | 18.3 / 89.0 / 0.369 | −1.2 | +5.1 / −18.1 |
+| l10_A (4:1) | 21.2 / 77.0 / 0.642 | 19.2 / 82.2 / 0.701 | **−5.2** | +5.5 / −12.8 |
+| l10_B (2:1) | 32.4 / 76.2 / 0.655 | 32.7 / 82.4 / 0.759 | **−6.2** | +5.5 / −25.7 |
+
+#### F9. N1 兑现自身设计目标（vs always_search）
+
+SR：spatial A +3.0（McNemar 连续校正 p≈0.068）/ B **+5.2（p≈0.0015）**；l10 A −0.6（p≈0.82）/ B −1.4pp（p≈0.48——及格线上 FAIL，统计上噪声级）。skip% 离线→live：13.3→12.8 / 21.9→20.1 / 20.4→21.2 / 32.2→32.4（偏差 ≤1.8pp）——**N1 状态机 live 行为与离线重放一致，1a 离线选点方法论被验证**。Δinf −0.004~+0.018 ≈ 离线预测；net@34/70 全正。1c 服务器化（`ScoreHysteresisGate`）已落 src。
+
+#### F10. 原及格线 4/4 FAIL：同 skip% 下 periodic SR 全面反超
+
+matched periodic（|Δskip|≤2pp 全满足）SR 高于 N1 1.2~6.2pp，且全部高于 baseline +4.6~+7.8pp。原判"N1 以 0.98 vs 0.93 的信号优势支配前沿"（TL;DR 7）在 **SR 轴**被 live 推翻——离线 dInf 只计"错跳命中步的推理成本"，完全没建模 skip 对**动作分布/轨迹**的正向效应。
+
+#### F11. 延迟轴完全反转：periodic 的 SR 多数是买来的
+
+periodic Δinf +0.064~+0.123（盲跳撞 FULL_HIT/WS 步 → 缓存回放换全推理），net@34 −12.8~−25.7；N1 只跳预测 MISS 步（本就 inf=1.0），skip 免推理，net@34 全 +5.1~+5.6。**例外 = spatial_A**：periodic 7:1 在 inf 0.280（≤ N1 0.283 ≤ baseline 0.287）下 SR 仍 90.4——同 inf 轴的**结构性**优势，该点在 RPG 坐标下严格支配 baseline 与 N1；粗插值它比既有 spatial d1 前沿（fh75_ws15 0.270/85 ↔ fh40_ws40 0.351/91 连线）高 ~4.7pp @同 inf，l10 两点比 fh5_ws40↔纯推理 anchor 连线高 ~2.7-3.3pp——**"gate 抬高既有 config 前沿"为初判，正式口径核对留 2b**（anchor 协议差异、跨 config 插值均未严格化）。
+
+#### F12. V2 机制：skip 是 SR 干预；均匀注入 > 定向跳 MISS
+
+两种 gate 的 SR 都 ≥ baseline ⇒ "跳过搜索、走新推理"本身有 SR 增益（V2），与 F7（失败 ep 中被强制换真推理的步反事实可能有益）同向。N1 把 skip 集中在预测 MISS 步——动作分布几乎不变（SR 保真的原因 = 吃不到 V2 的原因）；periodic 的 skip 均匀落进缓存执行段，等效于**限制最大连续缓存执行长度**（7:1/4:1/2:1 → cap ≤7/4/2；而 baseline/N1 的命中段 12.7–22.4 步全程缓存执行，F3）。**剂量已见饱和**：spatial 7:1（12.5% 名义剂量）SR 90.4 ≥ 4:1 的 89.0，l10 4:1 ≈ 2:1（82.2/82.4）——最低试验剂量即达满增益，低剂量注入是 N4 的先验甜点。三个候选机制假设（Stage 2a 裁决，全部可用已有数据离线检验）：
+
+- **H1（剂量/截断）**：SR 增益 ~ 连续缓存执行 run 被截断的程度（rows 直接可算 run-length 分布 × ep 成败 × 3 档剂量）。
+- **H2（on-manifold 反馈）**：定期新推理把轨迹拉回自身流形 → 后续搜索命中更好（spatial_A periodic 的 inf 反降 0.280<0.287、searched-step FH 率是证据坑）。
+- **H3（WS 执行中毒）**：SR 损失集中于 WARM_START 部分去噪回放的执行；均匀 skip 顺带打断它（与 1a"WS-aware probe 0 增益"不矛盾——那是 probe 侧，这是执行侧）。
+
+**公理增补（2026-07-05）**：
+
+- **C10（预算轴）**：任何"同预算"比较必须声明在 (SR, inf_ratio, search 延迟) 三元的哪根轴对齐。**skip% 不是预算轴**——N1 的 skip 免推理、periodic 的 skip 费推理，同 skip% ≠ 同成本。1b 把"同预算"操作化为同 skip% 是本轮最大方法论教训。
+- **C11（skip=干预）**：gate 决策改变动作分布、自带 SR 效应（V2）；任何 gate 评估禁止假设 SR 中性，必须同时报 (SR, inf_ratio, net)。离线 dInf 类模拟只对"动作不变"的跳步（真 MISS）可信——C8 的收紧版。
+
 ---
 
 ## 3. Brainstorm 方案逐项判决
@@ -132,6 +176,7 @@ robot_state 线性探针 AUC 0.76–0.86、cp1_score~robot_state 岭回归 R²=0
 - **预期**：以 0.98 vs 0.93 的信号优势支配 sticky-K 计数前沿（F6 表），把 (skip, dInf) 推向 oracle（免费省 19–38% 搜索）。
 - **落地**：exp 层 `ClientControlledGate`（客户端已有 `__hit_meta__.cp1_score`，零 src 改动，step3 已趟通此路）；定型后经 G0a 服务器化。
 - **失败模式**：score 在阈值带内高频振荡 → 滞回带宽 (θ_high−θ_low) 扫描解决；suite 结构差异（libero_10 振荡多）→ per-suite 的 M。
+- **live 判决（2026-07-05，F9–F11）**：设计目标全兑现（SR 保真 + 延迟净正 + 离线选点精确迁移），已服务器化（1c `ScoreHysteresisGate`）；但同 skip% 的 SR 及格线输给 periodic（F10）。**定位修正**：N1 是**延迟档位**（stock/大库/远程）的正确工具，不是 SR 档位的；A 点可直接部署，l10 的 B 点不推荐（−1.4pp，虽不显著）。后续并入 N4（Stage 3）作为"免推理跳 MISS"分支。
 
 ### N2. 追随赢家门（FollowWinnerGate / lockstep 盲回放）— Stage 2 主打，V1 上限最大
 
@@ -140,6 +185,7 @@ robot_state 线性探针 AUC 0.76–0.86、cp1_score~robot_state 岭回归 R²=0
 - **价值象限**：miss-skip 型省量上限 = MISS%（19–38%）；N2 省的是**命中段**的 search+judge+fetch（60–80% 的步）——把 V1 的省量上限翻了一倍以上，且在大库档（70 ms/步）意义放大。潜在还可省 build/D2H（当前 build 无条件执行以保轨迹历史 gap-free，改动属 L2+，Stage 2 先不动）。
 - **风险与红线**：盲回放段无 verdict 监督 → M 从小起步（3–5）；**离线不可评**（改变执行流，C8）→ 直接 live，用 RPG 的 (k,n) 同构网格与评估管线；SR 及格线同 §5。
 - **失败模式**：重规划密集段 Δ0 占比高（fh80_ws10 达 20%）→ 锁定条件需容忍 Δ∈{0,1}；库轨迹与 live 轨迹在锁定段内漂移 → 债务预算 + 解锁 probe 兜底。
+- **重排判决（2026-07-05）**：**降级至 Stage 4 押后**。理由：(a) N2 是纯 V1（省 hit 段搜索），只在 stock/大库档变现（C9）；(b) F12 显示"长连续缓存执行"正是 SR 被压制之所在——盲回放把缓存执行 run 拉得更长，与 V2 方向相反，SR 风险先验上调；(c) 若 Stage 3 注入门成立，hit 段结构被注入改变，F5 的 lockstep 前提需重测。重启条件见 §5 Stage 4。
 
 ### N3. 首步印象门 — 驳回
 
@@ -147,47 +193,63 @@ episode 前 3 步分数对后续 MISS 的 AUC 仅 0.52–0.60（F1）；库覆�
 
 ---
 
-## 5. 探索名单：阶段与顺序（training-free 先行）
+## 5. 探索名单：阶段与顺序（2026-07-05 按 live 判决重排；原 Stage 2/3 名单见 git `dc2815e`）
 
-> 每阶段内的项目**可并行**；进入下一阶段不要求上一阶段全部收尾，但 Stage 2 的 live 资源分配以 Stage 1b 的结论为准。所有 live 评估沿用 RPG 坐标系（SR vs inference_ratio + FULL_HIT 率三元组，C6），**及格线 = 同预算打败 periodic**（不是 random）；V1 结论按 C9 三档净值表报告。
+> 评估坐标（C6 + C10 修正）：一律在 (SR, inf_ratio, net 三档) 三元上报告；**"同预算"默认 = 同 inf_ratio 轴**（skip% 匹配已被 C10 废止）。training-free 先行不变（H1–H3 与 N4 全部零训练）。
 
-### Stage 0 — 数据与判决（✅ 本文完成）
+### Stage 0 — 数据与判决 ✅（2026-07-04）
 
 - G0b 白搜目标信号研究、结构分析、oracle/成本分档判决、B3/B4/N3 驳回、C1–C9 公理修订。
 
-### Stage 1 — N1 滞回门（training-free 核心）
+### Stage 1 — N1 滞回门 ✅（2026-07-05 收官，判决见 F9–F11）
+
+| # | 项目 | 结果 |
+|---|---|---|
+| 1a | 离线前沿扫描 | ✅ 选出 A/B 操作点；live 复核 skip 预测偏差 ≤1.8pp（方法论成立） |
+| 1b | live 验证 + matched periodic 对照（8 run × 500 ep） | ✅ N1 vs baseline：SR 保真/提升 + net 全正；vs periodic 同 skip% SR 及格线 **4/4 FAIL**（F10/F11，及格线本身被 C10 判为病态轴）。产物 `exp/gate_research/analysis/n1_live_results.md` |
+| 1c | G0a hook + `ScoreHysteresisGate` 服务器化 | ✅（G2 APPROVED，`dc2815e`）；操作点 YAML 化留待 Stage 3 定型后一并做 |
+
+### Stage 2 — V2 增益机制研究（纯离线，已有数据，0 GPU）
 
 | # | 项目 | 方法 | 产出 / 及格线 |
 |---|---|---|---|
-| 1a | **N1 离线前沿扫描** | 复用 `gate_structure_analysis.py` 模拟管线，扫 (θ_low, θ_high, j, M) × 7 config；对照 sticky-K 与 periodic | (skip%, dInf) 前沿 + 三档净值表；及格 = 支配 sticky 前沿、逼近 oracle（skip→MISS%、dInf→0） |
-| 1b | **N1 live 验证** | 离线前沿挑 2–3 操作点，exp 层 ClientControlledGate（零 src），500 ep × 2 suite | SR / inf_ratio / 实测省搜索延迟；及格 = 同 skip% 下 SR ≥ always_search − 1pp，且同预算 ≥ periodic |
-| 1c | G0a hook 补丁（捎带项） | 随下一个 src 改动窗口：verdict 回传 + task_key 广播（L2 小改） | N1/N2 服务器化解锁；不阻塞 1a/1b |
+| 2a | **SR 增益分解 + H1/H2/H3 裁决** | 用 8 run rows + Stage-0 gate_rows：连续缓存执行 run-length 分布 × ep 成败 × 3 档 periodic 剂量（H1 剂量-响应）；periodic searched-step verdict mix / FH 率 vs baseline（H2 反馈量化）；WS 执行量 × 失败相关（H3）；Δinf 三分解（skip 转换 / verdict-mix 迁移 / ep 长度构成）；全对照配对 McNemar 精确 p + per-task 切片 sanity（排单任务异常） | 机制判决（并入本文件）；及格 = ≥1 假设给出**可翻译成 gate 规则**的证据（如 H1 剂量曲线 → 注入间隔 L 取值）。fallback：三假设全不成立 → N4 仍按 uniform L 直接 live（periodic 已证 uniform 有效），2a 只影响注入靶向 |
+| 2b | **公平 Pareto（RPG 坐标）** | 8 live 点 + baseline + d1 前沿 7 config + **RPG 锚点**（`exp/random_periodic_gate/analysis/aggregate.csv`，78 点 periodic(k,n)/random(p) × 3 keybuilder × 500ep，raw 在同目录 `data/batch1..6/`；⚠ **libero_spatial only、AlwaysHitJudge + 老 keybuilder 配置（clip_w7_d4/spatial16_w8_d4/max_pool_w3_d5），非 d1+ThresholdJudge，overlay 必标 "(different search/judge)" caveat**）+ warm_start Floor/Ceiling 锚点（`exp/warm_start/data/`）放同一 (SR, inf_ratio) 图；正式核对 F11 初判"periodic 点抬高既有前沿 ~3-5pp"（统一 50-init 协议、净化 l10 纯推理 anchor 口径；l10 无 RPG 锚点）；~~A2 预算重分配并入此处~~ **A2 → 降 Stage 4 押后**（stage2 plan G1 R1 裁决：C8/C11 下预算重分配跳命中步→反事实→离线 SR 不可靠，只得覆盖曲线非 SR 判决） | frontier overlay 图 + "gate 是否构成第四设计轴（keybuilder/judge/search 之外）"判决 |
+| 2c | （可选）G0b 危险步补充 | 维持原计划：join `trajectory_deviation` deviate_score oracle 标签 | 若危险步可由 prev_score/其他信号预测 → N4 注入可做危险步靶向的证据 |
 
-### Stage 2 — N2 追随赢家门 + 廉价加法
+**Stage 2 判决（2026-07-05 回填；实现 plan `gate_stage2_v2_mechanism.log.md`，代码 `exp/gate_research/stage2_{common,a_sr_decomp,b_pareto_overlay,c_danger_join}.py`，产物 `exp/gate_research/analysis/stage2_{v2_mechanism,fair_pareto,danger_step}.md` + `stage2_pareto_{spatial,l10}.{png,pdf}`）**：
+
+- **2a ✅（H1 达及格线）**：**H1 剂量/截断成立且可翻译成 N4 规则**——periodic 精确把连续缓存执行 run 截断至 cap=k（spatial 7/4、l10 4/2；baseline mean run-len 12.1/10.3 → periodic 5.3/3.5/3.2/1.8），SR 增益 +7.8/+6.4/+4.6/+4.8pp 且**低剂量已饱和**（spatial 7:1 +7.8 ≥ 4:1 +6.4）→ **N4 注入间隔 L 取宽松低剂量（先验 L≈6–8）**。H3（WS 中毒）有方向性支持（失败 ep WS 执行更多：spatial baseline 1.0/3.5，periodic 降至 0.8/2.6）。H2（on-manifold）弱/suite-specific（searched-FH 抬升主要是 N1 选择效应 69.9→80.8/87.2，periodic≈baseline；仅 spatial_A periodic verdict_mix −0.084 主导 Δinf、inf 反降为佐证）。Δinf 三分解证实 periodic Δinf 由 skip 转换项主导（spatial_A 例外 verdict_mix 主导）。全对照配对 McNemar 精确二项 p：N1 +3.0(p0.067)/+5.2(0.0013)/−0.6(0.82)/−1.4(0.48)，periodic +7.8(0.0001)/+6.4(0.0018)/+4.6(0.035)/+4.8(0.021)。
+- **2b ✅**：同协议承重层上 **periodic 抬高既有 d1 前沿**——spatial_A periodic (0.280/90.4) gain **+6.8pp**；l10 periodic (0.70/82.2、0.76/82.4) 对 fh5_ws40↔纯推理(0.83@1.0) 连线 gain **+3.6/+3.0pp**；N1 点 +2.4/+4.4（spatial）、−0.7/−1.7（l10，~在前沿）。spatial_B periodic (0.369) 越 d1 inf 上界暂 OOR（未注入 spatial 纯推理锚，口径待 Stage 3 需要时补）。**判决：gate 构成第四设计轴（keybuilder/judge/search 之外）**，F11 初判 ~3-5pp 成立（spatial 更高 ~7pp）。RPG/异协议锚仅参照未承重。
+- **2c（可选）✅ 完成、判决否定**：deviate_score≥5 危险步（libero_spatial，join 3254 步/6.1%）**不可由廉价信号预测**——neg_prev_score/cp1 全程 AUC 0.52/0.54，早期相位 cp1 0.61/step 0.64（弱）。**危险步 ≠ MISS 步**（prev_score 对 MISS AUC 0.98、对危险仅 0.52）→ **N4 注入不做危险步靶向**，用 2a H1 的 run-length/均匀触发（跨配置 proxy R2 限制，结论定性 suggestive；libero_10 无 deviate_score 离线不可做）。
+
+**对 Stage 3 的净指令**：N4 的 V2 分支用 **uniform / 连续缓存执行 run-length ≥ L 触发**（L≈6–8 低剂量），**不做危险步靶向**（2c 否）；V1 分支沿用 N1 跳预测 MISS。
+
+### Stage 3 — N4 混合门（N1 跳 MISS + 定期注入新推理）live
 
 | # | 项目 | 方法 | 产出 / 及格线 |
 |---|---|---|---|
-| 2a | **N2 live 原型** | ClientControlledGate 实现锁定/盲回放/解锁；M∈{3,5,8}、锁定条件 j∈{2,3}、Δ∈{0,1}；对照 periodic (k,n) 同构网格 | SR–预算前沿；及格 = 同"省搜比例"下 SR ≥ periodic；重点报告大库档净值 |
-| 2b | A2 episode 级预算重分配（离线） | 用本数据按 task 重分配 N1/sticky 档位，合成聚合前沿 | 零成本判断"预算搬运"是否值得进 live |
-| 2c | （可选）G0b 危险步目标补充 | join `trajectory_deviation` step2 的 deviate_score oracle 标签 | 若 prev_score 对危险步也 AUC 高 → N1 兼具 V2 属性的证据 |
+| 3a | **N4 live 原型** | 规则：search，除非 (i) N1 滞回判预测 MISS → skip（免推理，V1 分支）或 (ii) 连续缓存执行 ≥ L 步 → skip（强制注入新推理，V2 分支）。(θ,j,M) 沿用 1a A 点；L 由 2a H1 剂量曲线定 2–3 档（先验 {6,8,12}——F12 剂量饱和提示低剂量足够）；exp 层 ClientControlledGate 客户端状态机（复用 1b 全套 harness/analyzer，零 src）；500 ep × 2 suite；若 2a 判 H2/H3 主因 → 注入触发换相应靶（同框架改 client 状态机） | 及格线（C10 轴）：**同 inf_ratio 下 SR ≥ matched periodic**（对照取 inf 最接近的 periodic 点，必要时补 1–2 个 periodic 档）且 net@34 ≥ 0 且 SR ≥ baseline − 1pp；按 C9 三档报告 |
+| 3b | 定型服务器化 | N4 胜出 → 扩展 `ScoreHysteresisGate`（+缓存执行 run 计数器与注入分支，L2 小改，1c 管道现成）+ 操作点 YAML | src 门 + 部署配方（延迟档 N1-A / SR 档 N4 / 上限对照 periodic） |
 
-### Stage 3 — 标定/学习类（押后，进入条件明确）
+### Stage 4 — 押后（进入条件明确）
 
 | # | 项目 | 进入条件 |
 |---|---|---|
-| 3a | C1 标定组合门（conformal 预算旋钮，V3 完全体） | Stage 1/2 幸存信号 ≥2 个且组合有离线增量；需要"可精确设定 inference_ratio"的部署需求出现 |
-| 3b | A3 库覆盖门 | 库规模计划上 50k（V1 档位上调）或开局段成为瓶颈 |
-| 3c | D1 学习难度门 | 仅当 C1 距 oracle 仍有大缺口 **且** 出现开局段/跨 suite 明确需求（当前证据下大概率不立项） |
+| 4a | N2 追随赢家门（自原 Stage 2 降级，理由见 §4 N2 条） | stock/大库延迟为硬约束 **且** N4 落地后 hit 段搜索仍为主要成本；重启前重测 F5 lockstep（注入改变 hit 段结构）；其 build/D2H 省取问题一并押后 |
+| 4b | C1 标定组合门（conformal 预算旋钮，V3 完全体） | 同原条件；特征集新增候选：连续缓存执行 run 长度 / 注入相位（2a 产出） |
+| 4c | A3 库覆盖门 / D1 学习难度门 | 同原条件不变（A3 随 50k 库上调；D1 大概率不立项） |
 
 ---
 
-## 6. 开放问题
+## 6. 开放问题（2026-07-05 修订）
 
-1. **N1 的 live-离线一致性**：离线 dInf 在错跳命中步上是一阶近似（C8）；1b 的 live 点若系统性偏离离线前沿，需要建反事实修正模型（或接受离线仅作粗筛）。
-2. **N2 的 build/D2H 省取**：当前 build 无条件执行（gap-free 轨迹历史）；盲回放段不产生新 key，理论上可连 build 一起省（把 4/34/70 ms 档再抬高），但动 orchestrator 契约（L2+），待 2a 证明机制价值后再议。
-3. **WS 带的精细利用**：F2 显示 WS 是预警带；N1 目前只用标量阈值,是否给 WS 单独一档（如 WS 时减半 probe 间隔）留给 1a 扫描。
-4. **写路径交互**：本轮全部冻结库（write never）。gate 与 write_policy 联动（如 N1 停搜段的真推理轨迹是否入库）是独立研究线，不混入 Stage 1/2。
-5. **跨 suite 泛化**：θ/M/K 均 per-suite 标定（libero_10 振荡结构要求更频繁 probe）；跨 suite 共享参数的代价未测。
+1. ~~N1 的 live-离线一致性~~ **已答（F9）**：skip%/Δinf 一致（≤1.8pp）；但 SR 效应离线**不可见**——dInf 模拟只对"动作不变"的跳步可信（C11），SR 必须 live。离线前沿降级为"skip 结构粗筛"，反事实修正模型不再立项（被 V2 机制研究取代）。
+2. **V2 机制归因（Stage 2a 主问题）**：H1 剂量截断 / H2 on-manifold 反馈 / H3 WS 执行中毒，谁是主因？periodic 的 SR 是否已顶到纯推理 ceiling（需同协议 50-init anchor，2b）？
+3. **注入的最优调度**：uniform（periodic 已证有效且低剂量饱和）vs state-aware（run-length / WS-band / 危险步触发）——N4 的 L 触发是最小 state-aware 版本；更聪明的靶向是否值得，由 2a 裁决。
+4. **l10_B 的 N1 边界失败是否真实**：−1.4pp p≈0.48 不显著；若 Stage 3 复测同向，则 l10（振荡型）激进档正式标记不安全。
+5. **WS 带**：probe 侧已否（1a 变体 B 0 增益）；**执行侧作为 H3 重开**。
+6. **写路径交互 / 跨 suite 泛化**：维持原状（冻结库 write never；θ/M/L per-suite 标定，跨 suite 共享参数代价未测）。
 
 ---
 
@@ -202,6 +264,7 @@ episode 前 3 步分数对后续 MISS 的 AUC 仅 0.52–0.60（F1）；库覆�
 - sticky 代表档：K3/probe5 → skip 13–28%、dInf +0.006–0.011、net −2.7~+17.5（按档）；oracle skip = 19.4–37.9% @ dInf 0。
 - 纠缠：成功 ep MISS 5–24% vs 失败 ep 34–59%。
 - 精确 inf_ratio：spatial 0.270/0.287/0.351；libero_10 0.314/0.369/0.417/0.636。
+- **Stage 1b live（2026-07-05）**：N1 skip 12.8/20.1/21.2/32.4（spatial A/B、l10 A/B）；ΔSR vs baseline +3.0/+5.2/−0.6/−1.4pp（McNemar p 0.068/0.0015/0.82/0.48）；periodic ΔSR vs baseline +7.8/+6.4/+4.6/+4.8pp（配对 p 待 2a 精算）；N1−periodic ΔSR −4.8/−1.2/−5.2/−6.2pp；periodic Δinf −0.007/+0.081/+0.064/+0.123；net@34：N1 +5.1~+5.6 全正，periodic +5.8/−18.1/−12.8/−25.7。
 
 ## 附录 B：与前身 brainstorm 的差异清单
 
@@ -211,3 +274,12 @@ episode 前 3 步分数对后续 MISS 的 AUC 仅 0.52–0.60（F1）；库覆�
 4. G0b 的白搜目标在本文完成；oracle 上限从 deviate_score 换算口径改为直接的 MISS% 免费上界（miss-skip 族）。
 5. A1/A2 维持"不单独立项"，但有了定量依据（AUC 榜）；A3/C1/D1 押后并给出明确进入条件。
 6. 评估框架新增 C8（反事实口径）——离线可信域的边界首次明确。
+
+## 附录 C：Stage 1b live 判决对本文件的修订清单（2026-07-05）
+
+1. 新增 F9–F12（§2 末）：N1 自证成立 / 原及格线 4/4 FAIL / 延迟轴反转 / V2 机制与三假设。
+2. 公理增补 C10（skip% 不是预算轴，"同预算"须声明三元轴）、C11（skip=干预，禁止假设 SR 中性）——1b 及格线以 skip% 操作化"同预算"被认定为本轮最大方法论教训。
+3. N1 定位修正（§4）：延迟档位工具，A 点可部署；并入 N4 作"免推理跳 MISS"分支。
+4. N2 从 Stage 2 主打降级至 Stage 4 押后（§4 理由三条：纯 V1 / 与 V2 方向相反 / lockstep 前提将被注入改变）。
+5. §5 重排：Stage 2 = V2 机制离线研究（H1–H3 + 公平 Pareto，0 GPU），Stage 3 = N4 混合门 live（同 inf_ratio 及格线），Stage 4 = 押后名单；原 Stage 2/3 见 git `dc2815e`。
+6. §6 开放问题换代：live-离线一致性已答（skip 是、SR 否）；新主问题 = V2 归因与注入调度。

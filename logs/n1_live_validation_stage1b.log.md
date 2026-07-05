@@ -1,6 +1,6 @@
 # N1 分数滞回门 — Live 验证实现计划（Stage 1b）
 
-- **Status**: In Progress（L2，G1 APPROVED / §4 Code / G2 APPROVED 2026-07-04 / §6 Verify 797 pass / committed；**live run 待做**）
+- **Status**: Done — live 完成（L2 全流程收官：G1/G2 APPROVED、Verify 797 pass、committed；live 8 run × 500 ep 于 2026-07-05 完成，vs-periodic 及格线 4/4 FAIL 但 N1 vs baseline SR 保真 + net 全正，判决见 `exp/gate_research/analysis/n1_live_results.md` 与 roadmap F9–F12/C10/C11；待 owner 确认后归档）
 - **Date**: 2026-07-04
 - **Authority**: Execution
 - **Level**: L2（新增 correctness-critical 有状态 gate 组件，落 `exp/gate_research/`；L2 依据=正确性关键性，见 §2）

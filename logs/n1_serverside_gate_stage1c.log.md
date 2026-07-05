@@ -1,6 +1,6 @@
 # N1 服务器端门 + G0a Hook 补丁 — 实现计划（Stage 1c）
 
-- **Status**: In Progress（L2，Authority: Execution，G1 APPROVED / §4 Code / G2 R3 APPROVED / §6 Verify scope-green — 2026-07-04）
+- **Status**: Done（L2 收官：G1 APPROVED / G2 R3 APPROVED / Verify scope-green，committed `dc2815e`；操作点 YAML 化按 roadmap §5 留待 Stage 3 N4 定型后一并做；待 owner 确认后归档）
 - **Date**: 2026-07-04
 - **Authority**: Execution
 - **Level**: L2（新增 src 侧有状态 gate 组件 `ScoreHysteresisGate` + 两条向后兼容的 gate 生命周期加法；单 subsystem=cache，`GateFunction.__call__` 签名不变、interceptor/wire 零改动；见 §2 判定）
