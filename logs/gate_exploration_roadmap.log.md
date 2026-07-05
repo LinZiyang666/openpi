@@ -1,6 +1,6 @@
 # Gate 探索路线图 — 基于 always-search 真 verdict 数据的方案判决与阶段名单
 
-- **Status**: Data-Grounded Roadmap — Stage 0 ✅ / Stage 1 ✅（live 判决 2026-07-05）/ Stage 2 ✅（三线机制离线判决 2026-07-05，见 §5 回填）/ Stage 3+ 待
+- **Status**: Data-Grounded Roadmap — Stage 0 ✅ / Stage 1 ✅（live 判决 2026-07-05）/ Stage 2 ✅（三线机制离线判决 2026-07-05，见 §5 回填）/ Stage 3a ✅（N4 live 胜出 L=6，4/6 pass，2026-07-05，见 §5 回填）/ Stage 3b+ 待
 - **Date**: 2026-07-04（创建）/ 2026-07-05（Stage 1b live 判决修订：F9–F12、C10/C11、N2 降级、§5 重排）
 - **Stage 1b live 数据**: 8 run × 500 ep（N1 A/B × 2 suite + matched periodic × 4，同 conductor/init 配对）；报告 `exp/gate_research/analysis/n1_live_results.md`、判决表 `n1_live_final.md`（commit `71f2b22`）；raw 已本地化 `exp/gate_research/data/n1_live/`（gitignored）
 - **前身**: `cache_gate_design_brainstorm.log.md`（2026-07-02/03 头脑风暴，git 历史 `437bbc2` 可查）。本文件是其数据判决版：brainstorm 的方案谱系（G0/A/B/C/D）逐项对撞实测数据后重排，原文仍有效的资产（延迟账本、oracle 口径、RPG 基线、约束公理）已整合进来，不再回读原文。
@@ -231,6 +231,13 @@ episode 前 3 步分数对后续 MISS 的 AUC 仅 0.52–0.60（F1）；库覆�
 |---|---|---|---|
 | 3a | **N4 live 原型** | 规则：search，除非 (i) N1 滞回判预测 MISS → skip（免推理，V1 分支）或 (ii) 连续缓存执行 ≥ L 步 → skip（强制注入新推理，V2 分支）。(θ,j,M) 沿用 1a A 点；L 由 2a H1 剂量曲线定 2–3 档（先验 {6,8,12}——F12 剂量饱和提示低剂量足够）；exp 层 ClientControlledGate 客户端状态机（复用 1b 全套 harness/analyzer，零 src）；500 ep × 2 suite；若 2a 判 H2/H3 主因 → 注入触发换相应靶（同框架改 client 状态机） | 及格线（C10 轴）：**同 inf_ratio 下 SR ≥ matched periodic**（对照取 inf 最接近的 periodic 点，必要时补 1–2 个 periodic 档）且 net@34 ≥ 0 且 SR ≥ baseline − 1pp；按 C9 三档报告 |
 | 3b | 定型服务器化 | N4 胜出 → 扩展 `ScoreHysteresisGate`（+缓存执行 run 计数器与注入分支，L2 小改，1c 管道现成）+ 操作点 YAML | src 门 + 部署配方（延迟档 N1-A / SR 档 N4 / 上限对照 periodic） |
+
+**Stage 3a 判决（2026-07-05 回填；live 6 run×500ep + 补档 l10 cache12 periodic；报告 `exp/gate_research/analysis/stage3_n4_live.md`，代码 commit `251eddc`，raw 暂留 timan107 见报告 Artifact layout）**：
+- **N4 胜出 ✅，赢点 L=6**（两 suite 唯一都 pass 的档）。及格线（同 inf_ratio SR ≥ matched periodic ∧ net@34≥0 ∧ SR≥baseline−1pp）：**4/6 pass**（spatial_L6、l10_L6/L8/L12），2/6 fail（spatial_L8/L12）。6/6 都 sr_ok + net34_ok（N4 从不倒退、延迟净正）。
+- **剂量效应**：SR 随 L↑（注入变稀）单调降——spatial 92.4/88.8/85.8、l10 81.6/81.0/78.4（L=6/8/12）。**频繁注入（低 L）更好**，坐实 2a H1 方向且显示"更频繁更佳"至少到 L=6。
+- **spatial**：仅 L=6 胜 matched periodic（spatial_A cache7/inf1，SR90.4@inf0.280），+2.0pp；L=8/12 退化输。
+- **l10**：全 L 胜 matched periodic（补档 l10_c12 cache12/inf1，SR78.4@inf0.663），**双赢**——N4 net@34 全正而任何 l10 periodic net 全负（靠推理暴增换 SR，N4 不用）。
+- **对 3b 的净指令**：**服务器化用 L=6**（延迟档 N1-A 纯 V1 / SR 档 N4 L=6，l10 尤推双赢）。caveat：spatial 剂量敏感（勿高 L）；单 run 无 CI（spatial L6 +2.0 在噪声量级，l10 +3.2/+2.6 较稳）；N4 只比了 matched-inf 的弱 l10 periodic，未证胜高-inf l10_A/B。
 
 ### Stage 4 — 押后（进入条件明确）
 

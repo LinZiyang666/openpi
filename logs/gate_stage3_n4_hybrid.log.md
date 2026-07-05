@@ -6,7 +6,7 @@
 - **Date**: 2026-07-05（创建）
 - **Roadmap 锚点**: `logs/gate_exploration_roadmap.log.md` §5 Stage 3 表 3a 行；净指令（roadmap line 226）：V2 分支用 **uniform / 连续缓存执行 run-length ≥ L 触发（L≈6–8 低剂量）**，**不做危险步靶向**（Stage 2c 否决，AUC~0.52）；V1 分支沿用 N1 跳预测 MISS。
 - **前置判决依赖**: Stage 2a（H1 剂量-截断成立 → L 先验 {6,8,12}）、2b（gate 是第四设计轴 → N4 值得做）、2c（危险步不可廉价预测 → 不靶向）。
-- **Status**: Done（L2 收官：G1 APPROVED R2 / G2 APPROVED R2，2026-07-05；§4 Code + §6 Verify scoped-green；实际 live 发射另需 owner 确认，见 §7；待 owner 确认后归档）。
+- **Status**: Done（L2 代码收官：G1/G2 APPROVED R2 + §6 Verify scoped-green，commit `251eddc`）。**Live 已跑并判决（2026-07-05 无人值守）：N4 胜出，赢点 L=6，4/6 pass**；报告 `exp/gate_research/analysis/stage3_n4_live.md`，roadmap §5 已回填。待 owner 确认后归档。
 
 ---
 
