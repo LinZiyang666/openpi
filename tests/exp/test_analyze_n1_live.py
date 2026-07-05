@@ -277,3 +277,147 @@ def test_replay_offline(tmp_path):
     out = A.replay_offline(gr, "base", theta_low=0.5, theta_high=0.5, j=2, M=3, replan_steps=1)
     assert out["skip_pct"] == pytest.approx(0.0)  # all-high -> never skips
     assert out["verdict_mix"] == {"FULL_HIT": 5}
+
+
+# ----------------------------------------------------------------------
+# N4 matched-periodic (inf_ratio axis, non-mutating) + overall (Stage 3a)
+# ----------------------------------------------------------------------
+def _n4run(run_id="n4a", inf=0.40, skip=0.20, sr=None):
+    return {"run_id": run_id, "suite": "s", "config": "c", "live_inf_ratio": inf,
+            "skip_pct": skip, "sr_by_unit": sr or {(0, 0): True, (0, 1): True}}
+
+
+def _percand(run_id="per1", inf=0.41, skip=0.18, matched="old_n1", sr=None):
+    return {"run_id": run_id, "suite": "s", "config": "c", "live_inf_ratio": inf,
+            "skip_pct": skip, "matched_to": matched,
+            "sr_by_unit": sr or {(0, 0): True, (0, 1): False}}
+
+
+def test_match_periodic_n4_nearest_inf():
+    v = A.match_periodic_n4(_n4run(inf=0.40),
+                            [_percand(run_id="near", inf=0.41), _percand(run_id="far", inf=0.60)])
+    assert v["periodic_run_id"] == "near" and v["inf_match_ok"]
+    assert v["inf_delta"] == pytest.approx(0.01)
+    assert v["periodic_pass_n4"] is True  # n4 SR 1.0 >= periodic 0.5
+
+
+def test_match_periodic_n4_non_mutating_provenance():
+    cand = _percand(run_id="per1", inf=0.41, matched="old_n1_run")
+    v = A.match_periodic_n4(_n4run(inf=0.40), [cand])
+    assert v["periodic_matched_to"] == "old_n1_run"  # provenance surfaced
+    assert cand["matched_to"] == "old_n1_run"         # candidate NOT rewritten
+
+
+def test_match_periodic_n4_out_of_tolerance_none():
+    # nearest candidate |Δinf| = 0.10 > 0.03 -> no valid match (analyze -> pending)
+    assert A.match_periodic_n4(_n4run(inf=0.40), [_percand(inf=0.50)]) is None
+
+
+def test_match_periodic_n4_true_tie_raises():
+    # two candidates equidistant (|Δinf| = 0.01 each) and in-tolerance -> refuse pick
+    with pytest.raises(ValueError, match="tie"):
+        A.match_periodic_n4(_n4run(inf=0.40),
+                            [_percand(run_id="lo", inf=0.39), _percand(run_id="hi", inf=0.41)])
+
+
+def test_match_periodic_n4_no_candidates_none():
+    assert A.match_periodic_n4(_n4run(), []) is None
+
+
+# --- n4_overall three-condition pass formula (Blocking 1) ---
+def _row_ov(sr_ok=True, net34=5.0):
+    return {"vs_baseline": {"sr_preservation_ok": sr_ok}, "net": {"stock_2.6k": net34}}
+
+
+def _pv_ov(pass_n4=True):
+    return {"periodic_pass_n4": pass_n4}
+
+
+def test_n4_overall_all_pass():
+    o, c = A.n4_overall(_row_ov(), _pv_ov())
+    assert o == "pass" and c == {"sr_ok": True, "periodic_pass_n4": True, "net34_ok": True}
+
+
+def test_n4_overall_net_negative_fails():
+    o, c = A.n4_overall(_row_ov(net34=-2.0), _pv_ov())
+    assert o == "fail" and c["net34_ok"] is False
+
+
+def test_n4_overall_baseline_fail_fails():
+    o, c = A.n4_overall(_row_ov(sr_ok=False), _pv_ov())
+    assert o == "fail" and c["sr_ok"] is False
+
+
+def test_n4_overall_periodic_fail_fails():
+    o, c = A.n4_overall(_row_ov(), _pv_ov(pass_n4=False))
+    assert o == "fail" and c["periodic_pass_n4"] is False
+
+
+def test_n4_overall_pending_when_no_periodic():
+    o, c = A.n4_overall(_row_ov(), None)
+    assert o == "pending" and c is None
+
+
+# --- analyze() end-to-end: N4 bypasses the N1 offline replay, carries provenance ---
+def _n4_manifest(tmp_path, uid="y:eval:0:0"):
+    per = tmp_path / "rows.jsonl"
+    # 2-step episode, replan spacing 1: step0 searched FULL_HIT, step1 V2-skip.
+    _write_jsonl(per, [_row(uid, 0, "FULL_HIT", True, 1), _row(uid, 1, "MISS", False, 1)])
+    jr = tmp_path / "j.jsonl"
+    _write_jsonl(jr, [{"task_uid": uid, "yaml_id": "y", "success": True}])
+    gr = tmp_path / "gr.jsonl"
+    _write_jsonl(gr, [_gr(uid, 0, "FULL_HIT"), _gr(uid, 1, "MISS")])
+    return {
+        "run_id": "n4run", "suite": "s", "config": "c", "point": "A",
+        "gate_type": "client_controlled", "gate_family": "n4", "L": 8,
+        "theta_low": 0.96, "theta_high": 0.97, "j": 3, "M": 3, "matched_to": None,
+        "yaml_id": "y", "baseline_yaml_id": "y", "n_episodes": 1, "replan_steps": 1,
+        "per_step_out_path": str(per), "journal_path": str(jr),
+        "baseline_journal_path": str(jr), "baseline_gate_rows_path": str(gr),
+    }
+
+
+def test_analyze_n4_bypasses_replay_and_carries_provenance(tmp_path):
+    runs = A.analyze([_n4_manifest(tmp_path)])
+    r = runs[0]
+    assert r["gate_family"] == "n4" and r["L"] == 8
+    assert "offline" not in r          # N1 offline replay must be bypassed for N4
+    assert r["overall"] == "pending"   # no periodic candidate present
+
+
+# --- render_md must surface the N4 three components + N4 caption (Stage 3a) ---
+def _n4_render_row():
+    # net34 FAILS while SR/periodic PASS -> the fail must be localizable in markdown.
+    return {
+        "run_id": "n4_L8", "gate_type": "client_controlled", "gate_family": "n4", "L": 8,
+        "skip_pct": 0.20, "live_inf_ratio": 0.40, "baseline_inf_ratio": 0.35, "d_inf": 0.05,
+        "net": {"opt_2.6k": -1.0, "stock_2.6k": -2.0, "opt_50k": 3.0},
+        "vs_baseline": {"n1_sr": 0.9, "base_sr": 0.9, "sr_delta_pp": 0.0,
+                        "sr_preservation_ok": True, "b": 1, "c": 1},
+        "periodic_verdict": {"periodic_pass_n4": True, "sr_delta_pp": 1.0, "inf_delta": 0.01},
+        "overall_components": {"sr_ok": True, "periodic_pass_n4": True, "net34_ok": False},
+        "overall": "fail",
+    }
+
+
+def test_render_md_n4_shows_components_and_caption():
+    md = A.render_md([_n4_render_row()])
+    assert "Stage 3a" in md and "# N1 Live" not in md            # title fixed for N4
+    assert "periodic_pass_n4" in md and "net34_ok" in md          # component columns
+    assert "net@stock_2.6k ≥ 0" in md and "|Δinf| ≤ 0.03" in md   # N4 three-condition caption
+    assert "| n4_L8 | 8 | ok | PASS | FAIL | fail |" in md        # net34 failure localizable
+
+
+def test_render_md_n1_only_keeps_stage1b_title():
+    # backward compat: an N1-only report must keep the Stage-1b title (no N4 table).
+    n1_row = {
+        "run_id": "n1a", "gate_type": "client_controlled", "gate_family": "n1", "L": None,
+        "skip_pct": 0.13, "live_inf_ratio": 0.30, "baseline_inf_ratio": 0.31, "d_inf": -0.01,
+        "net": {"opt_2.6k": 1.0, "stock_2.6k": 4.0, "opt_50k": 8.0},
+        "vs_baseline": {"n1_sr": 0.9, "base_sr": 0.88, "sr_delta_pp": 2.0,
+                        "sr_preservation_ok": True, "b": 2, "c": 1},
+        "periodic_verdict": None, "overall": "pending",
+    }
+    md = A.render_md([n1_row])
+    assert md.startswith("# N1 Live 验证结果（Stage 1b）")
+    assert "periodic_pass_n4" not in md and "net34_ok" not in md

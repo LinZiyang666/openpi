@@ -37,6 +37,10 @@ from pathlib import Path
 SEARCH_MS = {"opt_2.6k": 4.0, "stock_2.6k": 34.0, "opt_50k": 70.0}
 INFER_MS = 300.0
 SKIP_MATCH_TOL_PP = 2.0
+# N4 pairs its matched periodic on inf_ratio (the C10 pass-line axis), not skip%:
+# N4's V2 skips land on HIT steps so skip% and inf_ratio decouple (roadmap C10).
+# 0.03 ~= half a C9 latency tier.
+INF_MATCH_TOL = 0.03
 
 
 def warm_cost(start_t) -> float:
@@ -291,6 +295,69 @@ def match_periodic(n1_run: dict, periodic_runs: list[dict]) -> dict | None:
     }
 
 
+def match_periodic_n4(n4_run: dict, periodic_runs: list[dict]) -> dict | None:
+    """Pair an N4 run to a matched periodic by NEAREST live inf_ratio.
+
+    Non-mutating: candidates are the same-``(suite, config)`` periodic runs; their
+    manifest ``matched_to`` (which points at old N1 runs) is read-only provenance
+    and is NEVER rewritten -- unlike ``match_periodic`` which pairs N1 via
+    ``matched_to``. Returns None when the nearest candidate is out of
+    ``INF_MATCH_TOL`` (-> overall pending). Raises on a true inf_ratio tie among
+    in-tolerance candidates (refuse a silent pick, mirroring ``match_periodic``'s
+    raise-on->1). ``periodic_pass_n4 = (|Δinf| <= INF_MATCH_TOL) and (N4 SR >=
+    periodic SR)``; since we only return inside tolerance, it reduces to the SR
+    comparison."""
+    cands = [pr for pr in periodic_runs
+             if (pr["suite"], pr["config"]) == (n4_run["suite"], n4_run["config"])]
+    if not cands:
+        return None
+
+    def dinf(pr: dict) -> float:
+        return abs(n4_run["live_inf_ratio"] - pr["live_inf_ratio"])
+
+    cands_sorted = sorted(cands, key=dinf)
+    best = cands_sorted[0]
+    inf_delta = dinf(best)
+    if inf_delta > INF_MATCH_TOL:
+        # Nearest candidate out of tolerance: no valid matched periodic -> pending
+        # (a tie out here is moot since no pick is made).
+        return None
+    if len(cands_sorted) >= 2 and abs(dinf(cands_sorted[1]) - inf_delta) < 1e-9:
+        raise ValueError(
+            f"N4 run {n4_run['run_id']!r} has a true inf_ratio tie between periodic "
+            f"{best['run_id']!r} and {cands_sorted[1]['run_id']!r} "
+            f"(|Δinf|={inf_delta:.6f}); disambiguate the candidate set")
+    pair = mcnemar(n4_run["sr_by_unit"], best["sr_by_unit"], require_equal=True)
+    n4_ge = pair["n1_sr"] >= pair["base_sr"]
+    skip_delta = abs(n4_run["skip_pct"] - best["skip_pct"]) * 100
+    return {
+        "periodic_run_id": best["run_id"],
+        # provenance only, copied verbatim from the candidate manifest (unchanged):
+        "periodic_matched_to": best.get("matched_to"),
+        "inf_delta": inf_delta, "inf_match_ok": True, "skip_delta_pp": skip_delta,
+        "n4_sr": pair["n1_sr"], "periodic_sr": pair["base_sr"],
+        "sr_delta_pp": pair["sr_delta_pp"], "n4_ge_periodic": n4_ge,
+        "periodic_pass_n4": n4_ge,
+    }
+
+
+def n4_overall(row: dict, pv: dict | None) -> tuple[str, dict | None]:
+    """Compute the N4 overall verdict and its three pass components.
+
+    N4 pass requires ALL of: ``periodic_pass_n4`` (inf-matched SR >= periodic),
+    SR preserved vs baseline (``sr_preservation_ok``), and ``net@34 >= 0`` -- the
+    net gate is what N1's ``overall`` omits, so it is spelled out here. No matched
+    periodic (pv is None) -> ``pending`` (not pass, not fail)."""
+    if pv is None:
+        return "pending", None
+    comps = {
+        "sr_ok": row["vs_baseline"]["sr_preservation_ok"],
+        "periodic_pass_n4": pv["periodic_pass_n4"],
+        "net34_ok": row["net"]["stock_2.6k"] >= 0,
+    }
+    return ("pass" if all(comps.values()) else "fail"), comps
+
+
 def analyze(manifests: list[dict]) -> list[dict]:
     """Compute the full result row for each run, including the N1-vs-periodic
     verdict for client_controlled runs that have a matched periodic run."""
@@ -320,6 +387,7 @@ def analyze(manifests: list[dict]) -> list[dict]:
         row = {
             "run_id": m["run_id"], "suite": m["suite"], "config": m["config"],
             "point": m["point"], "gate_type": m["gate_type"],
+            "gate_family": m.get("gate_family", "n1"), "L": m.get("L"),
             "matched_to": m.get("matched_to"),
             "skip_pct": met["skip_pct"], "sr_by_unit": met["sr_by_unit"],
             "live_inf_ratio": met["live_inf_ratio"], "baseline_inf_ratio": base_inf,
@@ -327,7 +395,11 @@ def analyze(manifests: list[dict]) -> list[dict]:
             "n_episodes": met["n_episodes"], "net": net_row(met["skip_pct"], d_inf),
             "vs_baseline": pair,
         }
-        if m["gate_type"] == "client_controlled" and m.get("theta_low") is not None:
+        # replay_offline reconstructs offline skip% with N1GateState -- valid only
+        # for N1 runs. N4 (gate_family="n4") is a different machine, so bypass it
+        # (its live skip% is the authoritative signal; no offline N1 replay).
+        if (m["gate_type"] == "client_controlled" and m.get("theta_low") is not None
+                and m.get("gate_family", "n1") != "n4"):
             row["offline"] = replay_offline(
                 m["baseline_gate_rows_path"], m["baseline_yaml_id"],
                 m["theta_low"], m["theta_high"], m["j"], m["M"], m["replan_steps"])
@@ -336,6 +408,14 @@ def analyze(manifests: list[dict]) -> list[dict]:
     periodic_runs = [r for r in runs if r["gate_type"] == "periodic"]
     for r in runs:
         if r["gate_type"] != "client_controlled":
+            continue
+        if r.get("gate_family", "n1") == "n4":
+            # N4 pairs its periodic by inf_ratio and gates overall on 3 conditions.
+            pv = match_periodic_n4(r, periodic_runs)
+            r["periodic_verdict"] = pv
+            r["overall"], comps = n4_overall(r, pv)
+            if comps is not None:  # surface components so any failure is localizable
+                r["overall_components"] = comps
             continue
         pv = match_periodic(r, periodic_runs)
         r["periodic_verdict"] = pv
@@ -358,13 +438,44 @@ def _periodic_cell(r: dict) -> str:
     pv = r.get("periodic_verdict")
     if pv is None:
         return "pending" if r["gate_type"] == "client_controlled" else "—"
+    if "periodic_pass_n4" in pv:  # N4 verdict: matched by inf_ratio, not skip%
+        tag = "PASS" if pv["periodic_pass_n4"] else "FAIL"
+        return f"ΔSR {pv['sr_delta_pp']:+.1f}pp |Δinf|={pv['inf_delta']:.3f} {tag}"
     tag = "PASS" if pv["periodic_pass"] else ("FAIL(OOB)" if not pv["skip_match_ok"] else "FAIL")
     return f"ΔSR {pv['sr_delta_pp']:+.1f}pp |Δskip|={pv['skip_delta_pp']:.1f}pp {tag}"
 
 
+def _n4_components_table(runs: list[dict]) -> list[str]:
+    """N4-only verdict-components table: one row per N4 run, showing the three
+    overall pass components so a fail is localizable on the same page as overall
+    (e.g. net34 fails while periodic/SR pass). Empty for reports with no N4 run."""
+    n4_runs = [r for r in runs if r.get("gate_family") == "n4"]
+    if not n4_runs:
+        return []
+    out = ["", "N4 overall 分量（三条件同真 = pass；任一 False = fail；无 inf 内对照 = pending）：",
+           "| N4 run | L | sr_ok | periodic_pass_n4 | net34_ok | overall |",
+           "|---|---|---|---|---|---|"]
+    for r in n4_runs:
+        c = r.get("overall_components")
+        if c is None:  # pending: no matched periodic within tolerance
+            cells = "— | — | —"
+        else:
+            cells = (f"{'ok' if c['sr_ok'] else 'FAIL'} | "
+                     f"{'PASS' if c['periodic_pass_n4'] else 'FAIL'} | "
+                     f"{'ok' if c['net34_ok'] else 'FAIL'}")
+        out.append(f"| {r['run_id']} | {r.get('L', '—')} | {cells} | {r.get('overall', '—')} |")
+    return out
+
+
 def render_md(runs: list[dict]) -> str:
-    lines = ["# N1 Live 验证结果（Stage 1b）", ""]
-    lines.append("| run | gate | skip% | SR(N1/base) | ΔSR pp | SR-ok | vs-periodic | overall |")
+    has_n4 = any(r.get("gate_family") == "n4" for r in runs)
+    # N1-only reports keep the Stage-1b title/caption byte-for-byte; N4 reports get
+    # a correct title, a components table, and the N4 three-condition caption.
+    title = "# Gate Live 验证结果（N4 混合门 / Stage 3a）" if has_n4 else "# N1 Live 验证结果（Stage 1b）"
+    lines = [title, ""]
+    lines.append("| run | gate | skip% | SR(run/base) | ΔSR pp | SR-ok | vs-periodic | overall |"
+                 if has_n4 else
+                 "| run | gate | skip% | SR(N1/base) | ΔSR pp | SR-ok | vs-periodic | overall |")
     lines.append("|---|---|---|---|---|---|---|---|")
     for r in runs:
         p = r["vs_baseline"]
@@ -380,11 +491,18 @@ def render_md(runs: list[dict]) -> str:
         lines.append(
             f"| {r['run_id']} | {r['live_inf_ratio']:.3f}/{r['baseline_inf_ratio']:.3f} | "
             f"{r['d_inf']:+.3f} | {nets} | {p['b']}/{p['c']} |")
-    lines += ["", "口径：skip% 由权威 `searched`（periodic 按 ordinal 重建）；SR/periodic 配对按 "
-              "`(task_id, subset_init_state_idx)`，要求 live/baseline-journal/baseline-gate-rows 三方 unit 等集；"
-              "baseline_inf_ratio 来自 Stage-0 gate_rows（episode-global max-attempt 去重）。"
-              "**overall pass** 需 SR 保真（ΔSR ≥ −1pp）**且** 同预算 N1 SR ≥ periodic（|Δskip| ≤ 2pp，越界=FAIL）；"
-              "periodic 未跑 = pending（非 pass）。", ""]
+    lines += _n4_components_table(runs)
+    caption = ("口径：skip% 由权威 `searched`（periodic 按 ordinal 重建）；SR/periodic 配对按 "
+               "`(task_id, subset_init_state_idx)`，要求 live/baseline-journal/baseline-gate-rows 三方 unit 等集；"
+               "baseline_inf_ratio 来自 Stage-0 gate_rows（episode-global max-attempt 去重）。"
+               "**overall pass** 需 SR 保真（ΔSR ≥ −1pp）**且** 同预算 N1 SR ≥ periodic（|Δskip| ≤ 2pp，越界=FAIL）；"
+               "periodic 未跑 = pending（非 pass）。")
+    if has_n4:
+        caption += ("　**N4 overall pass** 需三条件同真：matched periodic 按 **|Δinf| ≤ 0.03** 配对"
+                    "（inf_ratio 轴，非 skip%）下 **N4_SR ≥ periodic_SR**（periodic_pass_n4）、"
+                    "**SR ≥ baseline − 1pp**（sr_ok）、**net@stock_2.6k ≥ 0**（net34_ok）；"
+                    "inf 容差内无候选 = pending，inf 并列 = raise。")
+    lines += ["", caption, ""]
     return "\n".join(lines)
 
 

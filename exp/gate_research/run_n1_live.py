@@ -39,6 +39,7 @@ from pathlib import Path
 import yaml
 
 N1_WORKER_MODULE = "exp.gate_research.worker_entry_n1"
+N4_WORKER_MODULE = "exp.gate_research.worker_entry_n4"
 DEFAULT_WORKER_MODULE = "examples.libero.worker_entry"
 # Sentinel distinguishing "--M not given" from an explicit "--M none" (None is a
 # valid value = never probe).
@@ -86,6 +87,12 @@ def build_manifest(args, yaml_path: Path, ginfo: dict) -> dict:
         "config": yaml_path.stem,
         "point": args.point,
         "gate_type": ginfo["type"],
+        # gate_family disambiguates client_controlled runs (n1 vs n4); it is
+        # meaningless for periodic (gate_type is the discriminator there). L is
+        # the N4 V2 injection threshold, None for n1/periodic. getattr keeps older
+        # callers that build the args namespace without these fields working.
+        "gate_family": getattr(args, "gate_family", "n1"),
+        "L": getattr(args, "L", None),
         "theta_low": args.theta_low,
         "theta_high": args.theta_high,
         "j": args.j,
@@ -105,18 +112,36 @@ def build_manifest(args, yaml_path: Path, ginfo: dict) -> dict:
 
 
 def _resolve_worker_and_env(ginfo: dict, args) -> str:
-    """Validate gate type, set N1 env for client_controlled, and return the
-    worker module. Fails fast on a client_controlled run missing thresholds."""
+    """Validate gate type, set the client env for client_controlled, and return
+    the worker module. The client_controlled YAML is shared by N1 and N4 (both
+    drive the server-side ClientControlledGate); ``--gate-family`` selects which
+    client state machine drives it. Fails fast on missing thresholds / L."""
     gtype = ginfo["type"]
     if gtype == "client_controlled":
         # M may legitimately be None ("never probe"); require it to be PRESENT
-        # (distinct from absent) plus the thresholds/j.
+        # (distinct from absent) plus the thresholds/j. Shared by n1 and n4.
         if None in (args.theta_low, args.theta_high, args.j) or args.M == M_UNSET:
             raise SystemExit(
                 "client_controlled run requires --theta-low --theta-high --j --M "
                 "(--M none for never-probe)")
-        # Fail fast on illegal params in the DRIVER, before spawning workers the
-        # agent would otherwise restart forever on a per-worker ValueError.
+        family = getattr(args, "gate_family", "n1")
+        if family == "n4":
+            # V2 injection threshold is mandatory for N4; fail fast in the DRIVER
+            # before spawning workers that would restart on a per-worker error.
+            if args.L is None:
+                raise SystemExit("client_controlled --gate-family n4 requires --L")
+            from exp.gate_research.n4_gate_client import N4GateState
+            try:
+                N4GateState(args.theta_low, args.theta_high, args.j, args.M, args.L)
+            except ValueError as exc:
+                raise SystemExit(f"invalid N4 params: {exc}")
+            os.environ["N4_THETA_LOW"] = repr(float(args.theta_low))
+            os.environ["N4_THETA_HIGH"] = repr(float(args.theta_high))
+            os.environ["N4_J"] = str(int(args.j))
+            os.environ["N4_M"] = "none" if args.M is None else str(int(args.M))
+            os.environ["N4_L"] = str(int(args.L))
+            return N4_WORKER_MODULE
+        # Default family "n1": Fail fast on illegal params in the DRIVER.
         from exp.gate_research.n1_gate_client import N1GateState
         try:
             N1GateState(args.theta_low, args.theta_high, args.j, args.M)
@@ -139,6 +164,13 @@ def _add_args(ap: argparse.ArgumentParser) -> None:
     ap.add_argument("--yaml-dir", required=True, help="dir containing exactly one eval yaml")
     ap.add_argument("--run-id", required=True, help="unique id for this (config, point) run")
     ap.add_argument("--point", default="", help="operating-point label (A|B|periodic)")
+    ap.add_argument(
+        "--gate-family", choices=("n1", "n4"), default="n1",
+        help="client_controlled state machine: n1 (V1 hysteresis) or n4 (V1+V2 injection)")
+    ap.add_argument(
+        "--L", type=int, default=None,
+        help="N4 V2 injection threshold: force skip after L consecutive cache-execution "
+        "steps (required for --gate-family n4)")
     ap.add_argument("--theta-low", type=float, default=None)
     ap.add_argument("--theta-high", type=float, default=None)
     ap.add_argument("--j", type=int, default=None)
