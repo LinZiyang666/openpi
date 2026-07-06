@@ -898,3 +898,31 @@ def test_score_hysteresis_gate_closes_loop_through_orchestrator():
     # scores hit j=2 the gate stops -> the 4th step is a gate-skip.
     assert searched_flags == [True, True, True, False]
     orch.clear()
+
+
+def test_score_hysteresis_v2_injection_closes_loop_through_orchestrator():
+    # Stage 3b V2: repeated FULL_HITs grow the cache-execution run; after L the
+    # gate injects a skip. The orchestrator feeds the real HitType enum to
+    # record_verdict, so this exercises the enum comparison end-to-end.
+    gate = ScoreHysteresisGate(
+        theta_low=0.5, theta_high=0.9, j=1, probe_interval=None, L=3
+    )
+    orch, _, storage = make_orchestrator(
+        gate=gate,
+        judge=__import__(
+            "openpi.cache.components.judge", fromlist=["ThresholdJudge"]
+        ).ThresholdJudge(cp1_threshold=0.9, cp3_threshold=0.95),
+    )
+    base = _unit_vector(32, 0)
+    payload = CachePayload(action_chunk=torch.randn(50, 32))
+    insert_entry(storage, CheckpointID.CP1, base, payload)
+
+    # Query base (cosine 1.0 -> FULL_HIT, score >= theta_high -> N1 stays
+    # searching). fh_run grows 1,2,3 -> step 3 is a V2-injected skip; the skip
+    # resets the run, so the pattern repeats.
+    searched_flags = []
+    for _ in range(8):
+        r = orch.check(CheckpointID.CP1, stage1=make_stage1(base))
+        searched_flags.append(r.searched)
+    assert searched_flags == [True, True, True, False, True, True, True, False]
+    orch.clear()

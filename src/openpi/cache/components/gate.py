@@ -19,6 +19,7 @@ from typing import Protocol, runtime_checkable
 import numpy as np
 import torch
 
+from openpi.cache.components.judge import HitType
 from openpi.cache.types import CheckpointID
 
 logger = logging.getLogger(__name__)
@@ -304,7 +305,14 @@ class ClientControlledGate:
 
 
 class ScoreHysteresisGate:
-    """Server-side N1 score-hysteresis gate (serverizes exp-layer N1GateState).
+    """Server-side N1 score-hysteresis gate, plus the optional N4 V2 injection.
+
+    Serverizes exp-layer ``N1GateState`` (roadmap N1); with ``L`` set it also
+    serverizes the Stage-3a ``N4GateState`` (roadmap N4, winning point L=6). The
+    V2 branch caps a continuous cache-execution (FULL_HIT) run at ``L``: once
+    ``_fh_run >= L`` the gate forces one skip (a fresh inference) that breaks the
+    run. ``L=None`` disables V2 -> behavior is identical to pure N1 (the latency
+    deployment profile is ``L`` omitted; the SR profile is ``L: 6``).
 
     Mechanism (roadmap N1): remember the last searched step's ``cp1_score``.
     After ``j`` consecutive searched steps score below ``theta_low`` the gate
@@ -337,6 +345,8 @@ class ScoreHysteresisGate:
         theta_high: float,
         j: int,
         probe_interval: int | None,
+        L: int | None = None,
+        include_ws: bool = False,
     ) -> None:
         # bool is an int subclass; reject it explicitly on every numeric param so
         # a YAML/CLI ``true``/``false`` misconfig fails loud instead of silently
@@ -373,14 +383,33 @@ class ScoreHysteresisGate:
                     "ScoreHysteresisGate probe_interval must be >= 1 (or None), "
                     f"got {probe_interval}"
                 )
+        # V2 injection threshold (Stage 3b): None = pure N1 (V2 disabled, exact
+        # backward-compatible behavior). An int L caps a continuous cache-execution
+        # run at L before forcing one skip (inject a fresh inference).
+        if L is not None:
+            if isinstance(L, bool) or not isinstance(L, int):
+                raise TypeError(
+                    f"ScoreHysteresisGate L must be None or an int >= 1, "
+                    f"got {type(L).__name__}"
+                )
+            if L < 1:
+                raise ValueError(f"ScoreHysteresisGate L must be >= 1 (or None), got {L}")
+        if not isinstance(include_ws, bool):
+            raise TypeError(
+                f"ScoreHysteresisGate include_ws must be a bool, got {type(include_ws).__name__}"
+            )
         self._theta_low = float(theta_low)
         self._theta_high = float(theta_high)
         self._j = int(j)
         self._probe_interval = None if probe_interval is None else int(probe_interval)
+        self._L = None if L is None else int(L)
+        self._include_ws = bool(include_ws)
         # State machine registers (reset by on_episode_start).
         self._searching = True
         self._low_run = 0
         self._since_probe = 0
+        # V2: length of the current continuous cache-execution (FULL_HIT) run.
+        self._fh_run = 0
         self._task_key = ""
 
     def __call__(
@@ -392,6 +421,12 @@ class ScoreHysteresisGate:
         # PURE decide (no mutation): searching -> search; else probe when the
         # skip interval is up; else skip. Mutation happens only in record_verdict.
         if self._searching:
+            # V2 injection (Stage 3b): after L continuous cache-execution steps,
+            # force one skip (fresh inference) to break the run. Reads _fh_run/_L
+            # only. A searching-state skip is the UNIQUE V2 source, which is how
+            # record_verdict reconstructs V1 vs V2 without a _last_v2 flag.
+            if self._L is not None and self._fh_run >= self._L:
+                return False  # V2 inject
             return True
         if (
             self._probe_interval is not None
@@ -412,10 +447,32 @@ class ScoreHysteresisGate:
     ) -> None:
         """Observe this step's verdict; advance the state machine.
 
-        ``hit_type`` / ``winner_id`` / ``start_t`` are accepted for forward
-        compatibility (a future follow-winner gate needs them); N1 conditions
-        only on ``cp1_score`` + ``searched``.
+        Dispatches on ``searched`` first so the V2 injection (a skip taken while
+        the N1 machine is still in the searching state) does not perturb the N1
+        hysteresis. ``hit_type`` is a server-side ``HitType`` enum and drives the
+        V2 cache-execution run counter (``_fh_run``); ``winner_id`` / ``start_t``
+        remain forward-compat only. When ``L is None`` (pure N1) a searching-state
+        skip never occurs, so this reduces to the original N1 transitions.
         """
+        if not searched:
+            # Skip step = fresh inference -> break the cache-execution run.
+            self._fh_run = 0
+            if not self._searching:
+                # V1 skip (skipping state): advance the probe counter (N1).
+                self._since_probe += 1
+            # else: V2 injection (searching state, Stage 3b) -> freeze N1; the
+            # gate did not decide this skip via the hysteresis, so leave
+            # _searching / _low_run / _since_probe untouched.
+            return
+
+        # Searched step: a real cache search happened. Advance the V2 run counter
+        # (pure FULL_HIT replay by default; WARM_START only if include_ws), then
+        # the N1 hysteresis exactly as before.
+        is_cache_exec = hit_type == HitType.FULL_HIT or (
+            self._include_ws and hit_type == HitType.WARM_START
+        )
+        self._fh_run = self._fh_run + 1 if is_cache_exec else 0
+
         if cp1_score is None:
             # searched step with an empty result set (legit MISS): treat as the
             # lowest possible score so it counts toward low_run and never
@@ -424,7 +481,8 @@ class ScoreHysteresisGate:
         elif not math.isfinite(cp1_score):
             # cp1_score is normalized cosine in [-1, 1]; a non-finite value is a
             # contract violation that should never occur server-side. Fail open
-            # to full searching rather than risk a wrongful skip.
+            # to full searching (and reset the V2 run) rather than risk a wrongful
+            # skip or injection.
             logger.warning(
                 "ScoreHysteresisGate got non-finite cp1_score=%r (task=%r); "
                 "failing open to full search.",
@@ -433,6 +491,7 @@ class ScoreHysteresisGate:
             self._searching = True
             self._low_run = 0
             self._since_probe = 0
+            self._fh_run = 0
             return
         else:
             score = float(cp1_score)
@@ -445,14 +504,11 @@ class ScoreHysteresisGate:
                     self._since_probe = 0
             else:
                 self._low_run = 0
-        else:  # skipping
-            if searched:  # this searched step was a probe
-                self._since_probe = 0
-                if score >= self._theta_high:
-                    self._searching = True
-                    self._low_run = 0
-            else:  # a real skip step
-                self._since_probe += 1
+        else:  # skipping: this searched step was a probe
+            self._since_probe = 0
+            if score >= self._theta_high:
+                self._searching = True
+                self._low_run = 0
 
     def on_episode_start(self, task_key: str = "") -> None:
         """Reset the state machine at each episode; stash task_key.
@@ -464,6 +520,7 @@ class ScoreHysteresisGate:
         self._searching = True
         self._low_run = 0
         self._since_probe = 0
+        self._fh_run = 0
         self._task_key = task_key
         logger.debug("ScoreHysteresisGate reset for task=%r", task_key)
 

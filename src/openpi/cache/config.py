@@ -93,6 +93,11 @@ class GateConfig:
     theta_high: float | None = None
     j: int | None = None
     probe_interval: int | None = None
+    # Stage 3b N4 V2 injection threshold (score_hysteresis only): None -> pure N1
+    # (V2 disabled); int L -> cap continuous cache-execution run at L. include_ws
+    # is intentionally NOT a config field (constructor-only; a bool default would
+    # trip the stray-field check on every legacy gate).
+    L: int | None = None
 
 
 @dataclass
@@ -1242,7 +1247,7 @@ def validate_cache_config(config: CacheConfig) -> None:
         # ------------------------------------------------------------------
         _gate_random_fields = {"p_inference", "seed"}
         _gate_periodic_fields = {"cache_len", "inference_len"}
-        _gate_score_hysteresis_fields = {"theta_low", "theta_high", "j", "probe_interval"}
+        _gate_score_hysteresis_fields = {"theta_low", "theta_high", "j", "probe_interval", "L"}
         _gate_all_param_fields = (
             _gate_random_fields | _gate_periodic_fields | _gate_score_hysteresis_fields
         )
@@ -1362,6 +1367,16 @@ def validate_cache_config(config: CacheConfig) -> None:
                     )
                 elif pi < 1:
                     errors.append(f"{prefix}.gate.probe_interval={pi} must be >= 1")
+            # L (Stage 3b V2 injection threshold) is optional (None -> pure N1).
+            L_val = cp_config.gate.L
+            if L_val is not None:
+                if not _is_strict_int(L_val):
+                    errors.append(
+                        f"{prefix}.gate.L must be None or an int >= 1, "
+                        f"got {type(L_val).__name__}={L_val!r}"
+                    )
+                elif L_val < 1:
+                    errors.append(f"{prefix}.gate.L={L_val} must be >= 1")
             stray = gate_set_fields - _gate_score_hysteresis_fields
             if stray:
                 errors.append(
@@ -2234,6 +2249,7 @@ def _build_gate(cfg: GateConfig):
             theta_high=cfg.theta_high,
             j=cfg.j,
             probe_interval=cfg.probe_interval,
+            L=cfg.L,
         )
     raise ConfigValidationError(
         f"Unknown gate.type '{cfg.type}'. Valid: {sorted(_GATE_TYPES)}"

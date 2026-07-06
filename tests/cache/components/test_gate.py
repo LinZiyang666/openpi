@@ -14,6 +14,7 @@ from openpi.cache.components.gate import (
     RandomGate,
     ScoreHysteresisGate,
 )
+from openpi.cache.components.judge import HitType
 from openpi.cache.types import CheckpointID
 
 
@@ -511,3 +512,118 @@ def test_score_hysteresis_ctor_rejects_bool_params():
 def test_score_hysteresis_ctor_rejects_non_numeric_theta():
     with pytest.raises(TypeError, match="theta_low"):
         ScoreHysteresisGate(theta_low="0.5", theta_high=0.8, j=1, probe_interval=1)  # type: ignore[arg-type]
+
+
+# ---------------------------------------------------------------------------
+# ScoreHysteresisGate V2 injection (Stage 3b N4, L set)
+# ---------------------------------------------------------------------------
+
+
+def _drive_v2(gate, steps):
+    """Drive with (score, hit_type) per step. ``hit_type`` is the value the
+    server WOULD return on a search (a HitType enum in real use); a skip step
+    observes cp1_score=None, exactly as the orchestrator feeds it."""
+    out = []
+    for score, ht in steps:
+        searched = gate(CheckpointID.CP1, {})
+        out.append(searched)
+        gate.record_verdict(
+            CheckpointID.CP1, hit_type=ht,
+            cp1_score=(score if searched else None),
+            winner_id=None, start_t=None, searched=searched,
+        )
+    return out
+
+
+def test_v2_L_none_equivalent_to_default():
+    # L=None (explicit) and L omitted decide identically over a mixed trace, even
+    # with hit_type fed (fh_run stays a no-op while V2 is disabled).
+    scores = [0.9, 0.1, 0.1, 0.8, 0.1, 0.1, 0.1, 0.95, 0.2, 0.99]
+    g_none = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=2, probe_interval=3, L=None)
+    g_def = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=2, probe_interval=3)
+    steps = [(s, HitType.FULL_HIT) for s in scores]
+    assert _drive_v2(g_none, steps) == _drive_v2(g_def, steps)
+
+
+def test_v2_caps_cache_execution_run():
+    # L=6, all FULL_HIT + high score keeps N1 searching -> search x6 then inject.
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=2, L=6)
+    got = _drive_v2(gate, [(0.9, HitType.FULL_HIT)] * 15)
+    assert got == [True] * 6 + [False] + [True] * 6 + [False] + [True]
+
+
+def test_v2_warm_start_resets_run_by_default():
+    # include_ws=False: a WARM_START breaks the FULL_HIT run, deferring injection.
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=2, L=3)
+    steps = [(0.9, HitType.FULL_HIT), (0.9, HitType.FULL_HIT), (0.9, HitType.WARM_START),
+             (0.9, HitType.FULL_HIT), (0.9, HitType.FULL_HIT), (0.9, HitType.FULL_HIT),
+             (0.9, HitType.FULL_HIT)]
+    got = _drive_v2(gate, steps)
+    assert got[:6] == [True] * 6 and got[6] is False
+
+
+def test_v2_include_ws_counts_warm_start():
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=2, L=3, include_ws=True)
+    steps = [(0.9, HitType.FULL_HIT), (0.9, HitType.FULL_HIT), (0.9, HitType.WARM_START), (0.9, HitType.FULL_HIT)]
+    assert _drive_v2(gate, steps) == [True, True, True, False]
+
+
+def test_v2_miss_resets_run():
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=2, L=2)
+    steps = [(0.9, HitType.FULL_HIT), (0.9, HitType.MISS),
+             (0.9, HitType.FULL_HIT), (0.9, HitType.FULL_HIT), (0.9, HitType.FULL_HIT)]
+    assert _drive_v2(gate, steps) == [True, True, True, True, False]
+
+
+def test_v2_hit_type_must_be_enum_not_string():
+    # D7 boundary: the wire string "FULL_HIT" must NOT count as cache execution
+    # (server compares the HitType enum), so V2 never injects.
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=2, L=2)
+    got = _drive_v2(gate, [(0.9, "FULL_HIT")] * 6)  # strings, not HitType enum
+    assert got == [True] * 6
+    assert gate._fh_run == 0
+
+
+def test_v2_injection_does_not_pollute_n1_phase():
+    # A V2 skip taken in the searching state must freeze the N1 machine.
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=2, L=2)
+    _drive_v2(gate, [(0.9, HitType.FULL_HIT), (0.9, HitType.FULL_HIT)])  # fh_run -> 2
+    assert gate(CheckpointID.CP1, {}) is False  # step2 = V2 inject
+    gate.record_verdict(CheckpointID.CP1, hit_type=HitType.MISS, cp1_score=None,
+                        winner_id=None, start_t=None, searched=False)
+    assert gate._searching and gate._low_run == 0 and gate._since_probe == 0
+    assert gate._fh_run == 0
+
+
+def test_v2_fail_open_resets_run():
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=2, L=2)
+    _drive_v2(gate, [(0.9, HitType.FULL_HIT)])  # fh_run -> 1
+    gate.record_verdict(CheckpointID.CP1, hit_type=HitType.FULL_HIT, cp1_score=float("nan"),
+                        winner_id=None, start_t=None, searched=True)
+    assert gate._searching and gate._fh_run == 0
+
+
+def test_v2_on_episode_start_resets_fh_run():
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=2, L=2)
+    _drive_v2(gate, [(0.9, HitType.FULL_HIT)])
+    gate.on_episode_start("task")
+    assert gate._fh_run == 0
+
+
+def test_score_hysteresis_ctor_allows_none_L():
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=1)
+    assert gate._L is None
+
+
+def test_score_hysteresis_ctor_rejects_bad_L():
+    with pytest.raises(ValueError, match="L must be >= 1"):
+        ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=1, L=0)
+    with pytest.raises(TypeError, match="L must be"):
+        ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=1, L=True)  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match="L must be"):
+        ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=1, L=1.5)  # type: ignore[arg-type]
+
+
+def test_score_hysteresis_ctor_rejects_non_bool_include_ws():
+    with pytest.raises(TypeError, match="include_ws"):
+        ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=1, include_ws=1)  # type: ignore[arg-type]

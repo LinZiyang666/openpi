@@ -179,16 +179,17 @@ Entry chain format:
 | `random` | Per-connection deterministic Bernoulli skip. Params: `p_inference`, `seed`. |
 | `periodic` | `cache_len` searches then `inference_len` skips, repeating. Params: `cache_len`, `inference_len`. |
 | `client_controlled` | Decision from the per-request `__gate_decision__` client signal (exp-layer N1/N2 prototyping). |
-| `score_hysteresis` | Server-side N1 score-hysteresis gate. Params: `theta_low`, `theta_high`, `j`, `probe_interval` (optional; `None`/omitted = never probe). |
+| `score_hysteresis` | Server-side N1 score-hysteresis gate, plus the optional N4 V2 injection. Params: `theta_low`, `theta_high`, `j`, `probe_interval` (optional; `None`/omitted = never probe), `L` (optional; `None`/omitted = pure N1 latency profile; `L: 6` = N4 SR profile that caps a continuous cache-execution run at `L` and injects a skip). |
 
 Gate lifecycle methods (all optional; the orchestrator guards each call):
 - `on_episode_start(task_key="")` — reset per-episode state; receives the episode `task_key` (broadcast filtered by signature, so a no-arg override still works).
 - `record_action(action)` — receive the broadcast action (trajectory-aware gates).
-- `record_verdict(checkpoint_id, *, hit_type, cp1_score, winner_id, start_t, searched)` — receive this step's verdict after the judge runs, so a stateful gate can condition the next decision. Consumed by `score_hysteresis` (server-side N1). See [architecture/cache_system.md §5.5](../architecture/cache_system.md#55-gatefunction-pluggable).
+- `record_verdict(checkpoint_id, *, hit_type, cp1_score, winner_id, start_t, searched)` — receive this step's verdict after the judge runs, so a stateful gate can condition the next decision. Consumed by `score_hysteresis`: `cp1_score`/`searched` drive the N1 hysteresis, and `hit_type` (a `HitType` enum) drives the N4 V2 cache-execution run counter. See [architecture/cache_system.md §5.5](../architecture/cache_system.md#55-gatefunction-pluggable).
 
-**`score_hysteresis` YAML** (θ / j / probe_interval come from the Stage-1b live calibration; values below are illustrative):
+**`score_hysteresis` YAML** — two deployment profiles (θ / j / probe_interval from Stage-1b calibration; `L=6` from the Stage-3a live verdict):
 
 ```yaml
+# Latency profile (N1-A): omit L -> pure N1 hysteresis, no V2 injection.
 checkpoints:
   cp1:
     gate:
@@ -197,6 +198,17 @@ checkpoints:
       theta_high: 0.975336   # a probe must reach this to recover
       j: 3                   # consecutive low-score searched steps before skipping
       probe_interval: 3      # probe every N steps while skipping (omit -> never probe)
+
+# SR profile (N4): add L to cap a continuous cache-execution run and inject a skip.
+checkpoints:
+  cp1:
+    gate:
+      type: score_hysteresis
+      theta_low: 0.968929
+      theta_high: 0.975336
+      j: 3
+      probe_interval: 3
+      L: 6                   # inject one skip after 6 continuous FULL_HIT replays
 ```
 
 ---

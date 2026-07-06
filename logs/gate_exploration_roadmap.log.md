@@ -1,6 +1,6 @@
 # Gate 探索路线图 — 基于 always-search 真 verdict 数据的方案判决与阶段名单
 
-- **Status**: Data-Grounded Roadmap — Stage 0 ✅ / Stage 1 ✅（live 判决 2026-07-05）/ Stage 2 ✅（三线机制离线判决 2026-07-05，见 §5 回填）/ Stage 3a ✅（N4 live 胜出 L=6，4/6 pass，2026-07-05，见 §5 回填）/ Stage 3b+ 待
+- **Status**: Data-Grounded Roadmap — Stage 0 ✅ / Stage 1 ✅（live 判决 2026-07-05）/ Stage 2 ✅（三线机制离线判决 2026-07-05，见 §5 回填）/ Stage 3a ✅（N4 live 胜出 L=6，4/6 pass，2026-07-05，见 §5 回填）/ Stage 3b ✅（N4 服务器化 `ScoreHysteresisGate`+L，G1/G2 APPROVED，2026-07-06，见 §5 回填）/ Stage 4+ 待
 - **Date**: 2026-07-04（创建）/ 2026-07-05（Stage 1b live 判决修订：F9–F12、C10/C11、N2 降级、§5 重排）
 - **Stage 1b live 数据**: 8 run × 500 ep（N1 A/B × 2 suite + matched periodic × 4，同 conductor/init 配对）；报告 `exp/gate_research/analysis/n1_live_results.md`、判决表 `n1_live_final.md`（commit `71f2b22`）；raw 已本地化 `exp/gate_research/data/n1_live/`（gitignored）
 - **前身**: `cache_gate_design_brainstorm.log.md`（2026-07-02/03 头脑风暴，git 历史 `437bbc2` 可查）。本文件是其数据判决版：brainstorm 的方案谱系（G0/A/B/C/D）逐项对撞实测数据后重排，原文仍有效的资产（延迟账本、oracle 口径、RPG 基线、约束公理）已整合进来，不再回读原文。
@@ -238,6 +238,8 @@ episode 前 3 步分数对后续 MISS 的 AUC 仅 0.52–0.60（F1）；库覆�
 - **spatial**：仅 L=6 胜 matched periodic（spatial_A cache7/inf1，SR90.4@inf0.280），+2.0pp；L=8/12 退化输。
 - **l10**：全 L 胜 matched periodic（补档 l10_c12 cache12/inf1，SR78.4@inf0.663），**双赢**——N4 net@34 全正而任何 l10 periodic net 全负（靠推理暴增换 SR，N4 不用）。
 - **对 3b 的净指令**：**服务器化用 L=6**（延迟档 N1-A 纯 V1 / SR 档 N4 L=6，l10 尤推双赢）。caveat：spatial 剂量敏感（勿高 L）；单 run 无 CI（spatial L6 +2.0 在噪声量级，l10 +3.2/+2.6 较稳）；N4 只比了 matched-inf 的弱 l10 periodic，未证胜高-inf l10_A/B。
+
+**Stage 3b 判决（2026-07-06 回填；plan `gate_stage3b_n4_serverize.log.md`，G1/G2 APPROVED）**：**N4 已服务器化 ✅**。扩展 `ScoreHysteresisGate` 加 V2 分支（`__call__` 连续缓存执行 run-length ≥ L 强制 skip 注入，PURE；`record_verdict` 按 searched 分派、用 `HitType` enum 数 run、V1/V2 靠 `_searching` 状态重构区分——**无需客户端 `_last_v2`**）；`config.py` GateConfig 只加 `L`（include_ws 构造器默认不进 config，避免 stray-field 回归）。**零 orchestrator/wire 改动**（record_verdict 已收 hit_type）。**L=None 行为等价 N1**（延迟档 N1-A），**L=6 = N4 SR 档**——同一 gate 类两档。正确性双证：`ScoreHysteresisGate(L=6)` ≡ 3a `N4GateState(L=6)` 等价 golden（含两赢点参数）+ L=None=N1 兼容（1c golden 不回归）。操作点 YAML `exp/gate_research/config/{spatial,l10}/n4_server/`（score_hysteresis L=6）。部署配方：延迟档 L=None(N1-A) / SR 档 L=6(N4) / periodic 上限。
 
 ### Stage 4 — 押后（进入条件明确）
 

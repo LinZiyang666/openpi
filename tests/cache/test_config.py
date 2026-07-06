@@ -1484,6 +1484,77 @@ def test_score_hysteresis_gate_rejects_stray_fields():
         validate_cache_config(cfg)
 
 
+# --- Stage 3b: score_hysteresis L (V2 injection threshold) ---
+
+
+def test_score_hysteresis_gate_valid_L_passes():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(
+            type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=2,
+            probe_interval=3, L=6,
+        )
+    )
+    validate_cache_config(cfg)  # must not raise
+
+
+def test_score_hysteresis_gate_L_omitted_passes():
+    # L is optional (None -> pure N1). Omitting it must not raise.
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=2)
+    )
+    validate_cache_config(cfg)
+
+
+def test_score_hysteresis_gate_zero_L_rejected():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=2, L=0)
+    )
+    with pytest.raises(ConfigValidationError, match="L=0 must be >= 1"):
+        validate_cache_config(cfg)
+
+
+def test_score_hysteresis_gate_rejects_bool_L():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=2, L=True)
+    )
+    with pytest.raises(ConfigValidationError, match="L must be None or an int"):
+        validate_cache_config(cfg)
+
+
+def test_score_hysteresis_gate_rejects_float_L():
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=2, L=1.5)
+    )
+    with pytest.raises(ConfigValidationError, match="L must be None or an int"):
+        validate_cache_config(cfg)
+
+
+def test_build_gate_score_hysteresis_carries_L():
+    from openpi.cache.components.gate import ScoreHysteresisGate
+    from openpi.cache.config import _build_gate
+
+    g = _build_gate(
+        GateConfig(
+            type="score_hysteresis", theta_low=0.9, theta_high=0.95, j=2,
+            probe_interval=3, L=6,
+        )
+    )
+    assert isinstance(g, ScoreHysteresisGate) and g._L == 6
+
+
+@pytest.mark.parametrize("gate", [
+    GateConfig(type="always_search"),
+    GateConfig(type="always_skip"),
+    GateConfig(type="client_controlled"),
+    GateConfig(type="random", p_inference=0.3, seed=0),
+    GateConfig(type="periodic", cache_len=3, inference_len=1),
+])
+def test_legacy_gates_not_stray_from_L_default(gate):
+    # Adding `L` (default None) to GateConfig must NOT make legacy gates appear to
+    # set an alien field. Every legacy config must still validate cleanly.
+    validate_cache_config(_minimal_cache_config_with_gate(gate))
+
+
 def test_legacy_gate_rejects_score_hysteresis_fields():
     cfg = _minimal_cache_config_with_gate(
         GateConfig(type="always_search", theta_low=0.9)
