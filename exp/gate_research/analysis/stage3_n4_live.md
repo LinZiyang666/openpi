@@ -56,5 +56,6 @@ periodic 参照（same 50-init 协议）：spatial_A 90.4@inf0.280(net@34 +5.8) 
 
 - **代码**（已 commit `251eddc`）：`exp/gate_research/n4_gate_client.py` · `worker_entry_n4.py` · `run_n1_live.py`(--gate-family/--L) · `analyze_n1_live.py`(match_periodic_n4 + n4_overall)。
 - **本报告**：`exp/gate_research/analysis/stage3_n4_live.md`（本文件，tracked）。
-- **raw data（gitignored，⚠ 暂留 timan107 `/scratch/zixuans8/openpi/exp/gate_research/data/n1_live/`）**：6 N4 run + l10_periodic_c12 的 journal/rows/manifest。**本地化受阻**：broker（force_single_active）JetStream ObjectStore storage 耗尽 → `tether pull` 全尺寸 bucket_create 失败；本地 curl 外网 egress 被权限层拒。→ 分析改在 timan107 上跑、`tether exec` 流式取结果。**待 broker ObjectStore 恢复后可补拉 raw**（tarball `/tmp/n4_data.tar.gz` sha256 `447704fc…` 已在 timan107）。
+- **raw data（gitignored，已本地化 `exp/gate_research/data/n1_live/`）**：6 N4 run + l10_periodic_c12 的 journal/rows/manifest（各 500 ep）。本地复跑 `analyze_n1_live` 与 live 流式结果 **byte-identical**（判决可本地复现）。
+  - **传输注记**：正常通道当时全堵——broker（force_single_active）JetStream ObjectStore storage 耗尽 → `tether pull` 任何尺寸 bucket_create 失败；本地 curl 外网 egress 被权限层拒。**绕过**：timan107 起 `python -m http.server` + `tether expose` → owner 手动 curl 拉 tarball（sha256 `11fb6c4c…` byte-identical 校验通过）。分析亦在 timan107 上跑、`tether exec` 流式取结果。
 - **补档 config（gitignored）**：`exp/gate_research/config/libero_10/periodic_C12/`（cache12/inf1，timan107）。
