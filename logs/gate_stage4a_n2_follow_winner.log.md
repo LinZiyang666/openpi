@@ -1,6 +1,6 @@
 # Stage 4a — N2 追随赢家门（FollowWinnerGate / lockstep 盲回放）实现计划
 
-- **Status**: In Progress（G1 APPROVED R2 + G2 APPROVED R2 2026-07-06；Phase A F5 复测 GO；§4 Code + §6 Verify green；**Phase C live 未跑**）
+- **Status**: DONE（G1/G2 APPROVED 2026-07-06；Phase A F5 GO；§4 Code + §6 Verify green；**Phase C live 完成 2026-07-07**）。Live verdict：N2 6 点中 **1 点 PASS**（libero_10 budget=3：SR +1.2 vs baseline、vs matched periodic c30 +1.2、net@34 +8.2）；spatial 3 点全 FAIL（同 inf periodic SR 90.4 >> N2 84-85）；l10 b5/b8 FAIL（budget↑ 盲回放漂移，SR 退化）。net@34 全 6 点正（延迟稳健价值）。结论：N2 非广谱优、非全败——延迟处处正，SR 仅「低剂量 × inf-matched periodic 恰近-baseline」窄区间竞争（复现 N1 + F12 甜点 + R2 漂移）。报告 → `exp/gate_research/analysis/stage4a_n2_live.md`
 - **Authority**: Execution
 - **Level**: L3（跨模块：新增 orchestrator 执行原语 + gate→orchestrator 契约扩展 + config + 架构文档更新）
 - **Roadmap**: `logs/gate_exploration_roadmap.log.md` §4 N2 条 / §5 Stage 4 表（4a）
