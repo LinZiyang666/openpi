@@ -350,6 +350,73 @@ def fig8_pit(art, figs):
     save(fig, figs, "fig8_pit")
 
 
+ORANGE = "#eb6834"  # rank-relative fusion family (RRF / Borda)
+RRF_KS = [1, 5, 10, 20, 60, 240, 1000]
+
+
+def fig9_rrf(E, figs):
+    combos = [f"{s}/{b}" for s, b in C.COMBOS]
+    short = {c: c.replace("libero_", "").replace("cp1_", "").replace("spatial_pool_16", "sp16")
+             .replace("mean_pool", "mean") for c in combos}
+    fig, (ax0, ax1, ax2) = plt.subplots(1, 3, figsize=(12.6, 3.4))
+
+    # (a) paired delta rrf_k - zscore at production weights, with CIs
+    xpos = np.arange(len(RRF_KS) + 1)
+    for ci, key in enumerate(combos):
+        row = E[key]["ksweep"]["w_prod"]
+        ds = [row[f"rrf{k}"]["delta_vs_zscore"] for k in RRF_KS] + [row["borda"]["delta_vs_zscore"]]
+        los = [row[f"rrf{k}"]["lo"] for k in RRF_KS] + [row["borda"]["lo"]]
+        his = [row[f"rrf{k}"]["hi"] for k in RRF_KS] + [row["borda"]["hi"]]
+        main = key == f"{PRIMARY[0]}/{PRIMARY[1]}"
+        a = 1.0 if main else 0.45
+        ax0.plot(xpos, ds, color=ORANGE, lw=2 if main else 1.2, marker="o", ms=4, alpha=a)
+        if main:
+            ax0.fill_between(xpos, los, his, color=ORANGE, alpha=0.15, lw=0)
+        ax0.annotate(short[key], xy=(xpos[-1] + 0.12, ds[-1]), fontsize=7, color=ORANGE,
+                     alpha=a, va="center")
+    ax0.axhline(0, color=BLUE, lw=1.4, ls="--")
+    ax0.annotate("zscore+tanh parity", xy=(0.1, 0.002), color=BLUE, fontsize=8)
+    ax0.set_xticks(xpos)
+    ax0.set_xticklabels([str(k) for k in RRF_KS] + ["∞\n(Borda)"], fontsize=8)
+    ax0.set_xlabel("RRF k (reciprocal shape 1/(k+r))")
+    ax0.set_ylabel("Δ top-1 same-task vs zscore+tanh")
+    ax0.set_title("Reciprocal shape, fixed weights")
+
+    # (b) per-method maxima over the 153-point weight simplex
+    methods = ["zscore", "rrf60", "borda"]
+    mcol = {"zscore": BLUE, "rrf60": ORANGE, "borda": ORANGE}
+    for ci, key in enumerate(combos):
+        for mi, m in enumerate(methods):
+            v = E[key]["sweep"][m]["max"]
+            mk = "o" if m != "borda" else "^"
+            ax1.plot(ci + (mi - 1) * 0.18, v, mk, color=mcol[m], ms=7,
+                     mfc=mcol[m] if m != "rrf60" else "white")
+    ax1.set_xticks(range(len(combos)))
+    ax1.set_xticklabels([short[c] for c in combos], fontsize=8)
+    ax1.set_ylabel("top-1 same-task, best simplex weights")
+    ax1.set_title("Per-space tuned weights: near parity")
+    handles = [plt.Line2D([], [], color=BLUE, marker="o", ls="", label="zscore+tanh"),
+               plt.Line2D([], [], color=ORANGE, marker="o", mfc="white", ls="", label="RRF k=60"),
+               plt.Line2D([], [], color=ORANGE, marker="^", ls="", label="Borda")]
+    ax1.legend(handles=handles, fontsize=8, loc="lower right")
+
+    # (c) P(top-1 correct | fused margin quintile)
+    for key in combos:
+        acc = E[key]["margin"]["acc_by_margin_quintile"]
+        main = "spatial" in key.split("/")[0]
+        ax2.plot(range(1, 6), acc, color=BLUE, lw=2 if main else 1.2,
+                 alpha=1.0 if main else 0.4, marker="o", ms=4)
+        ax2.annotate(short[key], xy=(5.06, acc[-1]), fontsize=7, color=BLUE,
+                     alpha=1.0 if main else 0.5, va="center")
+    ax2.set_xticks(range(1, 6))
+    ax2.set_xlabel("fused-margin quintile (small → large)")
+    ax2.set_ylabel("P(top-1 same-task)")
+    ax2.set_title("Margins carry information ranks discard")
+    fig.suptitle("Rank-relative fusion vs fixed pointwise maps (expE)", y=1.04,
+                 fontsize=11, fontweight="bold")
+    save(fig, figs, "fig9_rrf")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--cache-dir", required=True)
@@ -374,6 +441,10 @@ def main() -> None:
     fig6_influence(Cres, figs)
     fig7_missdetect(D, figs)
     fig8_pit(art_p, figs)
+
+    epath = data / "expE_results.json"
+    if epath.exists():
+        fig9_rrf(json.loads(epath.read_text()), figs)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 > 研究对象：Pi0.5 推理 cache 检索的 weighted score sum 融合，Layer-1 归一化两代实现——旧版 percentile 线性拉伸（已弃，"几乎完全失败"）vs 当前 z-score+tanh（`ŝ = ½(tanh((x−μ)/σ)+1)`）。
 > 本报告给出**数学上严密的机理解释 + 基于真实轨迹库的离线实证**：每个公式部件（为什么 z-score、为什么套 tanh、为什么偏偏是 tanh、为什么 percentile 死了、为什么禁 rank/CDF）都有可证伪的命题与对应实验。§10 为可直接用于 ICML 类论文的英文 camera-ready 论述。
 > 数据：`exp/common/data/cache_artifacts/{libero_spatial,libero_10}/cp1_{spatial_pool_16,mean_pool}.pkl`（真实收集轨迹，4 组合，N=1018/2640，49/50 条轨迹，各 10 任务），**全量精确** LOEO（leave-one-episode-out）query×library 打分，无采样近似。
-> 实验代码/数据/图：`exp/weighted_sum/analysis/fusion_theory/`。撰写日期 2026-07-04。只读研究，未改任何 src。
+> 实验代码/数据/图：`exp/weighted_sum/analysis/fusion_theory/`。撰写日期 2026-07-04；2026-07-07 增补 §7.2（RRF 之谜：库相对秩融合的检索差距解剖，expE/图 9）并相应更新 TL;DR、§10、附录。只读研究，未改任何 src。
 
 ---
 
@@ -15,7 +15,8 @@
 4. **为什么 tanh**：三条可独立证伪的性质，各有独立实验支撑——**P1 严格单调（零删失）**：clip 半宽剂量-响应曲线单调饱和，tanh 是 k→∞ 极限（±0.5σ 带 → top1 掉到 0.13–0.29；±1σ → 0.34–0.52；±1.645σ（=legacy 等效带宽）→ 0.75–0.83；±3σ ≈ tanh）；**P2 有界（影响函数有界）**：单模态污染下被污染候选名次 plateau（tanh: 中位 34–65 就停）而无界 identity 坠底（δ=30σ 时名次 86–385）；decoy 攻击（单模态伪高分）下一切有界 squash 假命中率 ≈0，identity 达 13%–34%；**P3 形状不敏感**：tanh ≈ logistic ≈ probit ≈ arctan ≈ softsign，配对差 <1pp（多数 CI 过 0）——有效的是「光滑+有界+严格单调」这个等价类，tanh 是其规范代表（恰为 logistic CDF：`½(tanh z+1) ≡ σ(2z)`，即生物特征融合文献的经典 tanh-normalization）。
 5. **统一视角（命题 1）**：三代归一化都是**概率积分变换（PIT）**——percentile-clip = Uniform[p5,p95] 模型的 CDF；z-score+tanh = Logistic(μ, σ/2) 模型的 CDF；rank = 经验 CDF。CDF 归一化把输出分辨率按**模型密度**分配：uniform 密度在带外为 0（硬删失，决策区恰在带外→死）；logistic 密度处处 >0（指数软压缩、永不打平）；经验密度在样本支撑外为 0（OOD 复发删失）。
 6. **保幅红线（禁 rank/CDF）的精确刻画**：库内相对秩融合检索本身不差（跨模态秩共识甚至给出最高的 hit/miss AUC），但其绝对分语义随库变化：miss 态 top-1 分随库规模以 ~n^{−0.4} 逼近上界 1（极值律），阈值走廊比 tanh 的 ~n^{−0.27} 收窄更快，外推至 10⁵ 级库时 tanh 走廊宽约 5×；且 rank 度量对单调变换不变（AUC 不变性），使 Phase-1 的归一化选型在 rank 指标下**原则上不可辨**——保幅指标 J 是选型可辨识的必要条件。
-7. **检索质量结论（离线，同任务 top-1 准确率，轨迹级 cluster bootstrap 95% CI）**：legacy percentile 0.655–0.814 vs zscore+tanh 0.830–0.981，配对差 **−15.7 至 −21.7pp（全部显著）**；动作重放代理（action-chunk regret@1）legacy 0.18–0.31 vs zscore 0.094–0.102（**约 2–3×**）。权重单纯形全扫描：**没有任何权重组合能救 percentile**（其 153 点最大值 0.68/0.81 仍远低于 zscore 的 0.895/0.998）。与线上事实一致：旧线"几乎完全失败"，新线 libero_spatial 纯检索 SR 74%。
+7. **RRF 之谜的解剖（§7.2 / expE）**：既然 frozen eCDF ≈ zscore+tanh，同属 rank 思想的 RRF 差在哪？实测检索层的类边界**不在「rank vs score」**——Borda（k→∞ 的线性行内秩）与 zscore/eCDF 打平（|Δ|≤1.2pp）。expE 按两种权重设定拆解：**共享权重**（控制变量，隔离 φ 形状净效应）下，reciprocal 形状 $1/(k{+}r)$ 把分辨率集中于前 O(k) 名——k=1 冠军投票掉 1.2–3.3pp、生产默认 k=60 掉 0.4–0.8pp、随 k 增大逼近 Borda；**各自单纯形调优**（对应实践口径：RRF 与 weighted_sum 的权重历来各自独立搜索）下，top-1 |Δmax|≤0.7pp 方向不一、action-regret 中等 k 甚至略优——**检索层无实质差距**。margin 盲（命题 4）签名真实（P(correct|margin) 在 libero_spatial 由 0.75 单调升至 0.96；conflict 决胜多数偏向 zscore，McNemar p=0.01–0.04）但净效应 1–2pp 量级。两代方案在档案中无严格同口径 live 对比（RRF 时代带 verdict 层 + d4，weighted_sum 时代 always_hit + d1），跨时代观感应在此背景下理解。**结论：percentile 输在表征（删失、不可调参挽救），RRF 输在语义（阈值走廊随库收窄、选型不可辨、分数不可迁移，§7.3/§7.4）——rank 家族出局的理由不在 top-1 检索。**
+8. **检索质量结论（离线，同任务 top-1 准确率，轨迹级 cluster bootstrap 95% CI）**：legacy percentile 0.655–0.814 vs zscore+tanh 0.830–0.981，配对差 **−15.7 至 −21.7pp（全部显著）**；动作重放代理（action-chunk regret@1）legacy 0.18–0.31 vs zscore 0.094–0.102（**约 2–3×**）。权重单纯形全扫描：**没有任何权重组合能救 percentile**（其 153 点最大值 0.68/0.81 仍远低于 zscore 的 0.895/0.998）。与线上事实一致：旧线"几乎完全失败"，新线 libero_spatial 纯检索 SR 74%。
 
 ---
 
@@ -36,7 +37,7 @@ $$S(c)=\sum_{f\in F} w_f\, n_f\big(x_f(q,c)\big),\qquad w\in\Delta:=\{w\ge 0,\ \
 
 **数据事实（决定一切的分布形态）**：vision cosine 处于**极窄高基线带**——μ≈0.966–0.990、σ≈0.0033–0.0078；robot_state 定向分 μ≈−1.84/−1.97、σ≈1.0/0.75。同任务 vs 跨任务的均值分离以 σ 计（Cohen's d）：vision_0 0.47–1.32σ、vision_1 0.27–0.61σ、robot_state 0.20–0.66σ；换算回原始余弦单位仅 **0.001–0.008**——这精确对应 owner 当年的观察"cosine 分数要到小数点后好几位才有区别"。判别信号真实存在（原始分 AUC 0.57–0.82），但活在 σ 尺度上，不在原始尺度上。
 
-![LOEO 分布](fusion_theory/figs/fig1_distributions.png)
+![LOEO 分布](figs/fig1_distributions.png)
 *图 1：LOEO serving 分布（libero_10/spatial_pool_16）。蓝=同任务，灰=跨任务，红线=legacy p95（右侧粉区被 clip 成 1.0），虚线=μ。三个模态的同任务右尾——检索真正要区分的部分——都落在删失区内。*
 
 ---
@@ -46,8 +47,8 @@ $$S(c)=\sum_{f\in F} w_f\, n_f\big(x_f(q,c)\big),\qquad w\in\Delta:=\{w\ge 0,\ \
 - **全量精确打分**：每个 (suite, keybuilder) 计算全部 $N\times N$ 原始分矩阵（vision cosine 经行归一化矩阵乘、robot_state cdist），无采样。numpy 复刻与 `src/openpi/cache/components/score_normalizers.py` 的 torch 实现做数值对拍（最大偏差 <1e-5，`collect_scores.py::parity_check`），LOEO 统计精确复现生产 Phase-1 标定 JSON（如 libero_10/mean_pool vision_0: μ=0.9896/σ=0.0033 vs 生产 0.98964/0.00328）。
 - **模拟搜索协议**：每个 entry 轮流作 query，库 = 全部 entry **减去 query 自己的整条轨迹**（LOEO，镜像 serving：live episode 永不在库内）。
 - **指标**：top-1 同任务准确率（主指标；生产 `always_hit` 纯重放下与 SR 同向）、P@5、MRR、nDCG@10、**action-chunk regret@1** =（top-1 的动作块 MSE − oracle 最小 MSE)/(随机候选期望 MSE − oracle)——直接代理"重放检索到的动作有多接近本该执行的动作"、phase 对齐误差、平局诊断。
-- **统计**：query 按轨迹聚类，**轨迹级 cluster bootstrap**（1000 次）95% CI；方法间比较用**配对** cluster bootstrap（2000 次）。
-- **预注册**：命题 2（仿射等价 ⇒ 校准池次要、族形状主要）在跑 2×2 因子实验**之前**由理论推出并记录，随后被数据证实。
+- **统计**：query 按轨迹聚类，**轨迹级 cluster bootstrap**（1000 次）95% CI；方法间比较用**配对** cluster bootstrap（2000 次）；expE 的 conflict 决胜比较另用精确二项（McNemar 型）双侧检验。
+- **预注册**：命题 2（仿射等价 ⇒ 校准池次要、族形状主要）在跑 2×2 因子实验**之前**由理论推出并记录，随后被数据证实。expE 另照实记录一个**反直觉结果**：预注册假设「rank 性本身即是主要退化源」未获数据支持——Borda 与 score 家族打平，实际的代价结构见 §7.2。
 
 ---
 
@@ -69,10 +70,10 @@ $$\tfrac12\big(\tanh z+1\big)=\tfrac12\Big(\tfrac{e^{z}-e^{-z}}{e^{z}+e^{-z}}+1\
 | Logistic(μ,σ/2) | 处处 >0，尾部 $\propto e^{-2\|z\|}$ | 指数衰减但**严格正** | 软压缩、永不打平；$\tfrac{d\hat s}{dz}=2\hat s(1-\hat s)$ 在中位最大 |
 | 经验 $\hat F_n$ | 样本密度本身 | 样本支撑外恒 0 | on-sample 最优、OOD 复发删失 + 台阶平局 |
 
-![PIT 统一](fusion_theory/figs/fig8_pit.png)
+![PIT 统一](figs/fig8_pit.png)
 *图 8：同一份真实数据（libero_10/spatial_16 vision_0 LOEO 分布，上条）下三种"模型 CDF"。三条曲线在分布主体几乎重合——分歧恰好只在尾部：红色（uniform）在带外完全平坦，蓝色（logistic≡tanh 形）严格递增，绿色（经验 CDF）介于其间但在样本支撑外同样平坦。*
 
-这个视角还立刻解释了实验里那个乍看意外的现象：**frozen 经验 CDF 与 z-score+tanh 的检索结果几乎处处相同**（§5 表；配对差 ≤1pp）——近高斯数据上 Logistic CDF ≈ 经验 CDF，两者都是"把 serving 分布铺匀到 [0,1]"。z-score+tanh 的价值在于它是这个 PIT 的**2 参数、光滑、支撑无界、可迁移**的版本（§7 详述与 eCDF 的分野）。
+这个视角还立刻解释了实验里那个乍看意外的现象：**frozen 经验 CDF 与 z-score+tanh 的检索结果几乎处处相同**（§5 表；配对差 ≤1pp）——近高斯数据上 Logistic CDF ≈ 经验 CDF，两者都是"把 serving 分布铺匀到 [0,1]"。z-score+tanh 的价值在于它是这个 PIT 的**2 参数、光滑、支撑无界、可迁移**的版本。但这一等价立即引出一个更尖锐的追问：既然连经验 CDF 都无损，为什么**同属 rank 思想**的 RRF 在历史印象中略逊于 z-score+tanh？§7 将证明：真正的类边界不在「rank vs score」，而在「**固定逐点映射 vs 库内相对次序统计量**」；固定共享权重下 RRF 的可测代价来自其 reciprocal 形状（而非"用了秩"本身），各自调优后差距基本消失，历史印象的相当部分要归于跨协议对比（§7.2）。
 
 ---
 
@@ -96,7 +97,7 @@ $$\tfrac12\big(\tanh z+1\big)=\tfrac12\Big(\tfrac{e^{z}-e^{-z}}{e^{z}+e^{-z}}+1\
 
 最后一行值得强调：**删失只动了 4–5% 的质量，pooled AUC 几乎不变，但 top-1 检索崩溃**——因为坏的恰好是决策发生的那 1%。任何按"整体分布指标"评估归一化的方法学（包括旧线用代理指标选定 percentile 本身）都会被这类失败骗过。
 
-![决策区 vs 归一化映射](fusion_theory/figs/fig2_transfer_decision_region.png)
+![决策区 vs 归一化映射](figs/fig2_transfer_decision_region.png)
 *图 2：把四种 Layer-1 映射画在 z 轴上，上条是"全部 LOEO 分数"（灰）与"每 query 的 top-10 候选"（蓝，即决策区）的分布。决策区整体位于 z∈[2.5,4.2]，而 legacy percentile（红）恰在 z≈1.7 之后完全平坦。tanh（蓝）在该区间仍严格递增。*
 
 ### 4.2 legacy ≈ ±1.6σ 硬 clip + 带内再扭曲
@@ -112,7 +113,7 @@ $$\tfrac12\big(\tanh z+1\big)=\tfrac12\Big(\tfrac{e^{z}-e^{-z}}{e^{z}+e^{-z}}+1\
 
 legacy 实测（0.677/0.813）落在其等效带宽 k=1.645 的曲线值附近再略低（差值 = 带内扭曲 + RP 校准带偏移的代价）。**tanh 就是这条曲线的无删失极限**。
 
-![剂量响应](fusion_theory/figs/fig5_dose_response.png)
+![剂量响应](figs/fig5_dose_response.png)
 
 ### 4.3 对 folklore 三根因的修订
 
@@ -123,7 +124,7 @@ legacy 实测（0.677/0.813）落在其等效带宽 k=1.645 的曲线值附近�
 | ③ 归一化与 keybuilder 焊死不分层 | **成立且可定量**：各 (字段,keybuilder) 的 σ 跨 **300×**（0.0033→1.0），任何单一全局带宽不可能同时适配；分层 + per-field 拟合是必要的 | Phase-1 标定表 |
 | （新增）④ 平局→库序决策 | 融合平局率 0.73–0.96、平局集 7.6–28.5：失败模式不仅是"选错"，更是"**选择这件事没有发生**"——`topk` 在并列时按索引序取首个 | expB tie 诊断 |
 
-![2×2 因子](fusion_theory/figs/fig3_factorial.png)
+![2×2 因子](figs/fig3_factorial.png)
 *图 3：2×2 因子（归一化族 × 校准池）。族间差 15–22pp，池间差 ≤2pp 且对 zscore 为零——**censoring 是病，校准池不是**。*
 
 ---
@@ -152,7 +153,7 @@ $$S_w(c)=\sum_f w_f a_f\, x_f(c) + \underbrace{\textstyle\sum_f w_f b_f}_{\text{
 
 **(c) 让"同一个 squash 形状"全局适用（location-scale 解耦）**。tanh 是无参形状，其线性核在 $z\in[-1,1]$。若不先标准化，就需要为每个 (字段,keybuilder) 单独选 squash 尺度——z-score 把"位置/尺度"（2 参数、按字段拟合）与"形状"（共享、无参）解耦，才使 σ 跨 300× 的所有字段都工作在 tanh 的正确操作点上。这正是两层重构"per-(field,keybuilder) 可插拔"在数学上的最小实现。
 
-![家族对比](fusion_theory/figs/fig4_family.png)
+![家族对比](figs/fig4_family.png)
 *图 4：全家族 head-to-head（生产权重，95% cluster CI；竖灰线=单模态基线）。三个梯队清晰：{zscore, ecdf, rawz, 光滑单调族} > {affine_clip@P1/P99, norm2 混合}（1% 删失仍付代价）> {dirunify}（方差失衡）≫ {legacy percentile}（5% 决策区删失）。*
 
 ---
@@ -172,7 +173,7 @@ $\tfrac{d\hat s}{dz}=\tfrac12\mathrm{sech}^2 z=2\hat s(1-\hat s)>0$ 处处成立
 - **decoy 攻击**（把某个跨任务候选的 vision_0 抬高 δσ）：这是对 cache 真正致命的方向（假命中 ⇒ 重放错误任务的动作）。δ=30 时 identity 的 decoy 夺冠率 3.3%–34.4%，**一切有界 squash ≤1%**（多数恰为 0）——无界归一化允许"单模态伪高分买穿融合"，有界 squash 把任何单字段的说服力封顶在它的权重之内。
 - 注意有界性是 **clip 与 tanh 共享**的：hardclip3 在 C3 同样 plateau。P1 与 P2 相互独立——clip 有 P2 无 P1，identity 有 P1 无 P2，**tanh 是两者的交集**。
 
-![影响函数](fusion_theory/figs/fig6_influence.png)
+![影响函数](figs/fig6_influence.png)
 
 ### P3 具体 sigmoid 形状不敏感 ⇒ 诚实定位 tanh
 
@@ -191,21 +192,60 @@ $\tfrac{d\hat s}{dz}=\tfrac12\mathrm{sech}^2 z=2\hat s(1-\hat s)>0$ 处处成立
 
 ## 7. 保幅红线：为什么禁 rank/经验 CDF（精确边界）
 
-设计契约第三条禁止 empirical-CDF/rank 均匀化。实验给出了这条红线**成立的地方和不成立的地方**——边界本身就是贡献：
+设计契约第三条禁止 empirical-CDF/rank 均匀化。实验给出了这条红线**成立的地方和不成立的地方**——边界本身就是贡献。本节按四层展开：frozen eCDF 的无罪辩护（§7.1）、RRF 检索差距的完整解剖（§7.2）、阈值语义的极值律（§7.3）、选型可辨识性（§7.4）。
 
-**(a) 检索排序上，frozen eCDF 无罪**。它只是另一个单调归一化，on-distribution 与 zscore+tanh 逐点近似（图 8），检索指标不可分（Δ≤1pp）。它的真实缺陷是工程性的：样本支撑外恒平（OOD 复发删失——校准漂移实测已达 0.55σ，右尾越界即打平）、台阶不光滑、参数不可压缩不可迁移（每字段存整条分位表 vs 2 个标量）、分位噪声 $O(1/\sqrt M)$。zscore+tanh 是它的**光滑参数化替身**。
+### 7.1 检索排序上，frozen eCDF 无罪
 
-**(b) 库内相对秩融合（RRF 式），检索甚至更稳、hit/miss AUC 甚至最高——但绝对分语义死亡**。per-query rank 归一化（$\hat s = 1-\tfrac{r-1}{n}$）的 hit/miss AUC 0.838–0.938（最高），机制是**跨模态秩共识**：hit 态下真近邻在三个模态同时排第 1 ⇒ 融合分恰为 1；miss 态下各模态第 1 名互相矛盾 ⇒ <1。这是真实且文献已知的信号（rank 融合的 consensus 效应）。**但**：
+它只是另一个单调归一化，on-distribution 与 zscore+tanh 逐点近似（图 8），检索指标不可分（Δ≤1pp）。它的真实缺陷是工程性的：样本支撑外恒平（OOD 复发删失——校准漂移实测已达 0.55σ，右尾越界即打平）、台阶不光滑、参数不可压缩不可迁移（每字段存整条分位表 vs 2 个标量）、分位噪声 $O(1/\sqrt M)$。zscore+tanh 是它的**光滑参数化替身**。
+
+### 7.2 RRF 之谜：库相对秩融合的检索代价到底在哪（expE）
+
+frozen eCDF 与 zscore+tanh 打平，那么同属 rank 思想的 RRF（生产实现 $S=\sum_f w_f/(60+r_f)$，`in_memory_backend._search_weighted_rrf`，rank 为**当前 query 在当前候选集内**的名次）差在哪？expE 把问题拆成三层：类边界在哪、可测的代价来自什么、与两代实践如何对应。因为两代实践中各融合方法的权重历来**各自独立搜索**（RRF：W1–W8 粗网格 + top-3 邻域细搜，`logs/archive/cache_experiment_plan.log.md`；weighted_sum：Phase-2 wsweep），expE 相应设计了两种权重设定：**共享权重**（同一 w_prod 喂给所有方法——控制变量，隔离 $\phi$ 形状的净效应）与**各自单纯形调优**（153 点全扫各取其 max——对应真实实践的比较口径）。先把类边界说准：
+
+**类边界的形式化**。score 家族用**固定逐点映射** $T_f:\mathbb R\to[0,1]$（tanh-PIT、frozen eCDF、仿射都在此类）——$\hat s$ 只依赖分数值本身；rank 家族用**行内相对次序统计量** $\phi(r_f(c;\mathcal C_q))$——$\hat s$ 依赖同行竞争者。RRF 取 $\phi(r)=1/(k{+}r)$；线性 $\phi(r)=1-\tfrac{r-1}{m-1}$ 即 Borda（expD 中的 rank_perquery 正是它）。
+
+**命题 4（rank-profile 充分性 / margin 盲）.** 任何 rank 家族融合 $S(c)=\sum_f w_f\,\phi(r_f(c))$ 是秩剖面 $\{r_f(c)\}$ 的函数：两个秩剖面相同、margin（分差）任意不同的分数矩阵融合结果**逐位相同**。而固定逐点映射按 margin 大小裁决跨字段冲突。若 $\Pr(\text{相关}\mid \text{margin})$ 随 margin 递增（可实证检验），则在"margin 翻转决策"的事件上，score 家族的判决规则严格占优。
+
+**命题 5（RRF 的两个极限与分辨率分配）.** $k\to\infty$ 时 $\tfrac1{k+r}=\tfrac1k\big(1-\tfrac rk+O(\tfrac{r^2}{k^2})\big)$ 对 $r$ 仿射 ⇒ 与 Borda **排序等价**；$k\to0^+$ 时相邻顶名间距 $\phi(r)-\phi(r{+}1)=\tfrac1{(k+r)(k+r+1)}$ 被 top 名次主导 ⇒ 融合退化为**字段冠军加权投票**（vote splitting：三字段各排 2/2/2 的正确候选会输给单字段排 1 的错误候选）。一般 $k$ 下输出分辨率 $\propto 1/(k{+}r)^2$，集中于前 $O(k)$ 名——RRF 是"top-heavy 的 Borda"。
+
+**实测（expE，全组合，配对 cluster bootstrap；图 9）**：
+
+| 量（设定） | 实测 | 解读 |
+|---|---|---|
+| Borda vs zscore（共享权重，配对 Δ） | +0.3/+1.2/+0.1/−0.2pp，CI 多含 0 | **"rank 性"本身在检索层≈无损**：同质库中行条件分布≈池分布，行内线性秩 ≈ 行内 uniform-PIT ≈ frozen eCDF |
+| RRF k=1 vs zscore（共享权重） | −2.5/−3.3/−1.2/−2.3pp | 投票化的代价，全组合一致 |
+| RRF k=60（生产默认）vs zscore（共享权重） | −0.8/**+2.0**/−0.4/−0.8pp | 3/4 组合为负；随 k 增大在 3/4 组合单调修复至 Borda |
+| 各自调优 max（zscore vs rrf60 vs Borda） | 0.895/0.899/0.896 · 0.859/0.852/0.851 · 0.998/0.998/0.998 · 0.997/0.995/0.996 | **各自最优权重下 \|Δ\|≤0.7pp 且方向不一**——与实践口径对应的比较里，检索层无实质差距 |
+| action-regret@1（越小越好） | 中等 k 的 RRF 甚至略优：如 libero_10/sp16 rrf20 0.090 / rrf60 0.092 vs zscore 0.098 | 同任务内部的邻居质量同样无差距——不存在 top-1 指标看不见的隐藏赤字 |
+| conflict 率 / 决胜差异占比 | 22–29% / 0.9–5.5% | 两法分歧集中在少数 query |
+| conflict 决胜（McNemar 精确二项，共享权重） | zscore 赢 3 组合（20:12 ns；18:7 p=.043；39:19 p=.012）；RRF 赢 spatial/mean（18:38 p=.011） | 净方向由权重-最优匹配度调制（见下） |
+| P(top-1 correct \| fused margin 五分位) | libero_spatial 0.75→0.92、0.79→0.96 单调；libero_10 平坦（天花板） | **margin 携带真实信息**（命题 4 的前提成立） |
+| conflict 中 margin 背书（median 最大单字段 Δz） | zscore 选择 0.36/0.51/0.15/0.35σ vs RRF 选择 0.25/0.18/0.28/0.14σ | 3/4 组合 zscore 的选择由更大的单字段 margin 背书；conflict 只发生在字段意见分裂时（z-pick 恒获 1–2 个字段支持、从不 0 或 3——三字段全同向则两法必同选），RRF 的翻转依赖其余字段的秩优势数量/深度而非分差 |
+
+**共享设定下的差值有一个干净的机理**：rank 输出的行内方差**构造性恒等**（Borda 的行内分布恒为 uniform，per-field 方差=1/12，与字段无关）——rank 融合自带完美方差均衡；而 tanh 输出虽在**池级**均衡（std≈0.31 三字段同），其**决策区** std 按字段差 2–3×（fused top-50 内 v0 0.15–0.21 vs v1/rs 0.06–0.07，expB 决策区诊断，同 §6-P1 所引）。于是同一权重向量在两个空间的**有效权重不同**——这正是跨融合空间比较必须各自调权的原因，也一并解释了 spatial/mean_pool 的符号反转：该组合上共享权重距 zscore 自己的最优点最远（(0.06,0.50,0.44) vs 最优 (0,0.31,0.69)），rank 的强制均衡**意外纠偏**，于是 RRF 在该组合显著反赢（p=.011）——不是 rank 更好，而是权重失配被 rank 的均衡性掩盖。
+
+**与两代实践的对应**。在与实践口径一致的各自调优设定下，top-1 与 action-regret 双双持平（上表第 4、5 行）——**同口径离线证据不支持"调优后的 RRF 在检索层实质落后"**。与此相印证，两代方案在实验档案中也不存在严格同口径的 live 对比：RRF 时代的 SR 全部带 verdict/judge 吸收层且多为 trajectory_depth=4（如 phase5 d4：always-WARM anchors 0.942–0.976、金圈 yaml SR 0.97–0.98@100ep），weighted_sum 时代的 74% 是 `always_hit` 纯重放、d1；kinematic 复刻报告对两条前沿明确标注 "NOT directly comparable"（`exp/weighted_sum/analysis/libero_spatial/kinematic_phase5/kinematic_phase5_results.md` §4）。跨时代的"RRF 略逊"观感应当在这一协议差异的背景下理解，而不能当作检索层的表征差距。
+
+**§7.2 结论**：(i) reciprocal 形状的代价真实但有限且可调（k=60 在共享权重下 0.4–0.8pp，k 越小越差；k=60 源自文档检索传统，非为本库规模选择；k→∞ 收敛 Borda）；(ii) margin 盲（命题 4）的 conflict 级签名真实、方向多数利于 zscore，但净效应 1–2pp 量级且受权重匹配度调制；(iii) 各自调优后检索层持平——**因此在本库上，rank 家族被排除出主方案的理由不在 top-1 检索，而完全是语义性的**：阈值走廊随库规模收窄（§7.3）、选型不可辨（§7.4）、分数不可跨库迁移。percentile 输在表征（删失不可调参挽救），RRF 输在语义（检索可平手、语义不可救）——这一区分本身就是设计契约"保幅"红线的最准确辩护。
+
+![RRF 解剖](figs/fig9_rrf.png)
+*图 9：expE。左——**共享权重设定**（控制变量，隔离 φ 形状净效应）下 RRF−zscore 的配对差随 k 变化（阴影=主组合 95% CI）：k 小则投票化受罚，k→∞ 收敛 Borda≈平手；橙色高位线为 spatial/mean 反例（权重失配被 rank 均衡掩盖）。中——**各自调优设定**（对应实践口径）：三法近乎平手。右——P(top-1 正确 | 融合 margin 五分位)：libero_spatial 上 margin 强单调有效，正是秩融合构造性丢弃的信息。*
+
+### 7.3 绝对分语义：极值律侵蚀 rank 阈值走廊
+
+检索打平不等于语义等价。库相对秩融合的 hit/miss AUC 甚至最高（0.838–0.938），机制是**跨模态秩共识**：hit 态下真近邻在三个模态同时排第 1 ⇒ 融合分恰为 1；miss 态下各模态第 1 名互相矛盾 ⇒ <1。这是真实且文献已知的信号。**但**：
 - **极值律侵蚀走廊**：miss 态 top-1 分随库规模爬向 1（实测 0.927→0.985，n=32→2372），阈值走廊（hit−miss gap）以 $\sim n^{-0.38\text{–}0.44}$ 收窄；tanh 的走廊以 $\sim n^{-0.27}$ 收窄（高斯极值 $\sqrt{2\ln n}$ 经 tanh 压缩后 $1-\hat s\approx e^{-2\sqrt{2\ln n}}$，衰减远慢于秩的 $1/n$ 族）。外推到 $10^5$ 级生产库：tanh 走廊 ≈ rank 的 **5×**。固定阈值在 rank 语义下随库成长必然漂移，在 σ 锚定的幅值语义下慢一个数量级。
 - **同一物理相似度 ⇒ 不同分数**：rank 分数依赖当前库组成，跨库/跨时间不可比；幅值分数由 (μ,σ) 锚定，跨 keybuilder/suite 可解释迁移。
 - legacy percentile 在弃答任务上同样最差（AUC 0.745–0.790，FHR@90recall 0.37–0.48）：删失连"这次检索到底靠不靠谱"的信号也一并抹掉——第三条独立失败通道。
 
-**(c) 选型可辨识性（对 Phase-1 方法学的辩护）**。一切 rank 度量（AUC/召回曲线）对严格单调变换**不变**——若用它们做 Phase-1 选型，全部候选 normalizer 原则上同分（实测 pooled AUC 差 <0.002）。互信息同理：$n$ 严格单调（可逆）时 $I(n(X);Y)=I(X;Y)$，clip/rank 平局则由数据处理不等式严格降低。但**融合性能不是单字段信息量的函数**——各字段单调不变、融合排序却差 22pp（本报告主结果）——所以归一化选型必须用**幅值敏感**指标：这正是 J = mag_sep + β·intra_spread − λ·sat 的数学必然性，而非品味偏好。
-
-![miss-detect](fusion_theory/figs/fig7_missdetect.png)
+![miss-detect](figs/fig7_missdetect.png)
 *图 7：左——hit/miss 弃答 AUC（legacy 显著最差；rank 共识最高）。右——阈值走廊 vs 库规模（log-log）：rank 走廊斜率更陡（收窄更快），uniform-max 极值律 $1/(n{+}1)$ 为参照。*
 
 诚实备注：单步 top-1 分数本身是弱弃答信号（所有方法 FHR@90 都在 0.17–0.52），生产系统据此在分数层之上另设 verdict/threshold 层——本节比较的是"归一化给阈值层留下多少可用语义"，不是宣称分数阈值可单独成事。
+
+### 7.4 选型可辨识性（对 Phase-1 方法学的辩护）
+
+一切 rank 度量（AUC/召回曲线）对严格单调变换**不变**——若用它们做 Phase-1 选型，全部候选 normalizer 原则上同分（实测 pooled AUC 差 <0.002）。互信息同理：$n$ 严格单调（可逆）时 $I(n(X);Y)=I(X;Y)$，clip/rank 平局则由数据处理不等式严格降低。但**融合性能不是单字段信息量的函数**——各字段单调不变、融合排序却差 22pp（本报告主结果）——所以归一化选型必须用**幅值敏感**指标：这正是 J = mag_sep + β·intra_spread − λ·sat 的数学必然性，而非品味偏好。
 
 ---
 
@@ -229,6 +269,8 @@ p5/p95 带 ≈ ±1.6σ（quantile 等变）          μ,σ 按 (字段,keybuilde
 
 外部效度锚点：离线 top-1 差距（15–22pp/步）在闭环里逐步复利放大（每步检索错误→重放错误动作块→状态漂移→后续检索更难），与"几乎完全失败 vs 74%"的线上两极一致；方向与幅度均无矛盾。
 
+第三条历史路线——库相对秩融合 RRF——不在上图之内，因为它的兴衰逻辑不同：同口径离线证据显示**调优后的 RRF 在检索层与 zscore+tanh 无实质差距**（|Δmax|≤0.7pp，regret 甚至略优；§7.2），且档案中不存在两代的严格同口径 live 对比；真正把它排除出主方案的是幅值语义的结构性缺失（阈值走廊随库收窄、选型不可辨、分数不可跨库迁移，§7.3/§7.4）。一句话：**percentile 死于删失，RRF 败于语义，zscore+tanh 两者皆免。**
+
 ---
 
 ## 9. 局限与效度威胁
@@ -238,6 +280,7 @@ p5/p95 带 ≈ ±1.6σ（quantile 等变）          μ,σ 按 (字段,keybuilde
 3. **单一 benchmark 家族**：LIBERO 两套 suite、cp1 系 keybuilder（另含 CLIP 变体的 Phase-1 参数佐证 σ 谱系）。跨域（真实机器人、其他 VLA）未验证；但失败机理只依赖"分数分布窄带+决策在尾部"这一几何事实，不依赖 LIBERO 特有结构。
 4. **tanh 不是唯一解**：P3 表明光滑有界严格单调族内部不可分；选 tanh 的理由是解析恒等（logistic CDF）、文献血缘（biometric tanh-norm）与工程规范性，不宣称严格最优。
 5. **C2 漂移幅度有限**（0.04–0.55σ）：更极端的域漂移下各 squash 的排序可能分化（理论上 polynomial-tail 的 arctan/softsign 在远尾保留更多分辨率），未测。
+6. **RRF 归因的边界（§7.2）**：k 只扫了 7 个点 + Borda 极限，未系统研究 k 最优值随库规模的标度律；conflict 级 margin 签名存在组合间异质性（4 组合中 1 个方向反转，机理归于权重失配，未做跨更多权重点的 conflict 复验）。更根本的：历史档案中**不存在两代方案的严格同口径 live 对比**（RRF 时代带 verdict 层 + d4，weighted_sum 时代 always_hit + d1），故"历史差距"本身无法被严格量化——本报告的同口径证据全部来自离线模拟，"调优后检索层无实质差距"这一结论若要 live 级确证，需要一次 matched-protocol 的 RRF-vs-zscore 对照跑（明确列为未做）。
 
 ---
 
@@ -380,7 +423,53 @@ so magnitude-aware diagnostics are a mathematical necessity — not a stylistic
 preference — for calibrating Layer-1 at all; the legacy scheme is additionally the
 worst abstention scorer (AUC $0.745$–$0.790$), a third independent failure channel.
 
-### 10.7 Empirical summary
+### 10.7 Why RRF trailed although the empirical CDF did not
+
+If the frozen empirical CDF is harmless, why did reciprocal rank fusion
+historically trail z-score+tanh? The operative boundary is not "rank vs score"
+but *fixed pointwise map vs library-relative order statistic*.
+**Proposition 4 (margin blindness).** *Any fusion $S(c)=\sum_f w_f\,\phi(r_f(c))$
+of within-query ranks depends on the score matrix only through its rank
+profiles: configurations with identical profiles but different margins fuse
+identically, whereas a fixed pointwise map adjudicates cross-field conflicts by
+margins.* Margins are empirically informative — $\Pr(\text{top-1 correct}\mid
+\text{fused margin})$ rises monotonically from $0.75$ to $0.96$ on
+LIBERO-Spatial — so rank-family fusion discards usable evidence by construction.
+**Proposition 5 (RRF limits).** *As $k\to\infty$, $1/(k{+}r)$ is affine in $r$,
+so RRF is ranking-equivalent to Borda; as $k\to0^+$ it degenerates into a
+weighted vote among per-field champions; for general $k$ its output resolution
+$\propto(k{+}r)^{-2}$ concentrates on the top $O(k)$ ranks.* Empirically
+(paired trajectory-cluster bootstrap across four suite$\times$key-builder
+combinations): Borda matches z-score+tanh within $\pm1.2$ points with CIs
+mostly covering zero — on a homogeneous library, row-conditional score
+distributions coincide with the pooled one, so the within-row PIT approximates
+the frozen PIT and rank-ness per se costs nothing at retrieval. The production
+RRF ($k{=}60$) loses $0.4$–$0.8$ points at shared weights and recovers
+monotonically toward the Borda limit as $k$ grows; $k{=}1$ (pure champion
+voting) loses $1.2$–$3.3$ points everywhere. Weights, moreover, do not transfer
+across fusion spaces: rank outputs are variance-equalized within every row by
+construction, while tanh outputs equalize only at pool level (decision-region
+std differs $2$–$3\times$ across fields), so a weight vector tuned for one
+space is mistuned for the other. Because production practice tunes each fusion
+method's weights independently (a coarse-plus-refined grid for RRF; a separate
+simplex search for the weighted sum), we evaluate two settings: a shared-weight
+setting that isolates the $\phi$-shape effect (and fully accounts for the
+fixed-weight deltas above, including the one combination where RRF
+significantly wins conflicts, McNemar $p{=}.011$ — exactly where the shared
+weights sit farthest from that combination's score-space optimum), and
+per-method simplex tuning that mirrors practice. Under the latter the gap
+essentially vanishes: top-1 differs by $\le0.7$ points with inconsistent sign
+and the action-replay regret of moderate-$k$ RRF is even marginally lower. No
+protocol-matched live head-to-head between the two generations exists (the RRF
+generation always evaluated behind a verdict layer at trajectory depth 4; the
+weighted-sum generation used pure always-replay at depth 1), so cross-era
+impressions of an RRF deficit should be read against that protocol gap. The
+*decisive* deficits of rank fusion are structural and lie outside top-1
+retrieval: library-relative scores decay any fixed abstention threshold
+(§10.6) and render Layer-1 normalizer selection unidentifiable — the
+percentile scheme loses on representation, rank fusion loses on semantics.
+
+### 10.8 Empirical summary
 
 Across two suites $\times$ two key-builders (exact LOEO scoring, $N{=}1018/2640$,
 trajectory-cluster bootstrap): top-1 same-task accuracy — legacy percentile
@@ -410,13 +499,16 @@ uv run exp/weighted_sum/analysis/fusion_theory/expC_squash.py --cache-dir $CACHE
 # D) miss-detectability + 极值走廊
 uv run exp/weighted_sum/analysis/fusion_theory/expD_missdetect.py --cache-dir $CACHE \
     --out exp/weighted_sum/analysis/fusion_theory/results
-# 图
+# E) RRF/Borda k 扫描 + 权重单纯形 + conflict/margin 解剖（§7.2）
+uv run exp/weighted_sum/analysis/fusion_theory/expE_rrf.py --cache-dir $CACHE \
+    --out exp/weighted_sum/analysis/fusion_theory/results
+# 图（含图 9）
 uv run exp/weighted_sum/analysis/fusion_theory/make_figures.py --cache-dir $CACHE \
     --data exp/weighted_sum/analysis/fusion_theory/results \
     --figs exp/weighted_sum/analysis/fusion_theory/figs
 ```
 
-固定 seed（bootstrap seed=1/2/3、split seed=7/11、decoy seed=13、scaling seed=23）；所有正文数字可在 `results/exp{A,B,C,D}_results.json` 中逐一对号。生产实现对拍：`ZScoreNormalizer`/`LegacyPercentileNormalizer`（`src/openpi/cache/components/score_normalizers.py:156-191, 358-399`）。
+固定 seed（bootstrap seed=1/2/3、split seed=7/11、decoy seed=13、scaling seed=23、expE 配对 bootstrap seed=5）；所有正文数字可在 `results/exp{A,B,C,D,E}_results.json` 中逐一对号。生产实现对拍：`ZScoreNormalizer`/`LegacyPercentileNormalizer`（`src/openpi/cache/components/score_normalizers.py:156-191, 358-399`）。
 
 ## 附录 A：全组合主指标总表（top-1 同任务准确率，生产权重，95% cluster CI）
 
@@ -431,11 +523,14 @@ uv run exp/weighted_sum/analysis/fusion_theory/make_figures.py --cache-dir $CACH
 | affine_clip@LOEO（P1/P99） | 0.846 | 0.823 | 0.968 | 0.959 | .15–.74 |
 | norm2_mix@LOEO（shortlist 第二） | 0.841 | 0.797 | 0.969 | 0.961 | .15–.74 |
 | dirunify（无归一化） | 0.827 | 0.824 | 0.900 | 0.889 | 0 |
+| Borda（行内线性秩，expE） | 0.891 | 0.842 | 0.982 | 0.969 | 0 |
+| RRF k=60（生产秩融合，expE） | 0.880 | 0.850 | 0.977 | 0.963 | 0 |
+| RRF k=1（字段冠军投票，expE） | 0.863 | 0.798 | 0.969 | 0.947 | 0 |
 | legacy@RP（**历史系统**） | 0.677 [.635,.722] | 0.661 [.608,.712] | 0.813 [.742,.874] | 0.813 [.751,.866] | **.73–.95** |
 | legacy@LOEO | 0.671 | 0.655 | 0.792 | 0.797 | .75–.96 |
 | 单模态 vision_0 / vision_1 / robot_state | .792/.827/.818 | .672/.723/.818 | .994/.958/.878 | .986/.933/.878 | — |
 
-action-regret@1（越小越好）：zscore 0.094/0.102/0.098/0.098 vs legacy@RP 0.182/0.177/0.297/0.279。全部数字出自 `results/expB_results.json`（含 P@5/MRR/nDCG/phase 与 w_unif 变体）。
+action-regret@1（越小越好）：zscore 0.094/0.102/0.098/0.098 vs legacy@RP 0.182/0.177/0.297/0.279。全部数字出自 `results/expB_results.json` 与 `results/expE_results.json`（含 P@5/MRR/nDCG/phase、w_unif 变体与 RRF 全 k 扫描）。
 
 ## 12. 参考文献（canonical）
 
@@ -444,11 +539,12 @@ action-regret@1（越小越好）：zscore 0.094/0.102/0.098/0.098 vs legacy@RP 
 - A. K. Jain, K. Nandakumar, A. Ross. *Score Normalization in Multimodal Biometric Systems.* Pattern Recognition 38(12), 2005.（z-score / min-max / tanh 归一化对比，tanh 稳健性）
 - M. Rosenblatt. *Remarks on a Multivariate Transformation.* Ann. Math. Statist., 1952.（概率积分变换）
 - E. A. Fox, J. A. Shaw. *Combination of Multiple Searches.* TREC-2, 1994.（CombSUM 线性分数融合）
-- G. V. Cormack, C. L. A. Clarke, S. Büttcher. *Reciprocal Rank Fusion outperforms Condorcet and Individual Rank Learning Methods.* SIGIR 2009.（RRF/秩融合）
+- G. V. Cormack, C. L. A. Clarke, S. Büttcher. *Reciprocal Rank Fusion outperforms Condorcet and Individual Rank Learning Methods.* SIGIR 2009.（RRF/秩融合；k=60 常数的出处）
+- J. A. Aslam, M. Montague. *Models for Metasearch.* SIGIR 2001.（Borda-fuse 与秩聚合模型）
 - H. A. David, H. N. Nagaraja. *Order Statistics.* Wiley, 2003.（极值/次序统计量）
 - B. Liu et al. *LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning.* NeurIPS D&B, 2023.
 - Physical Intelligence. *π0.5: A VLA with Open-World Generalization.* 2025.
 
 ---
 
-*本报告全部实验为只读离线研究（未触碰 src/ 与任何生产配置）；实验代码、逐项数字 JSON 与图表位于 `exp/weighted_sum/analysis/fusion_theory/`。撰写：2026-07-04。*
+*本报告全部实验为只读离线研究（未触碰 src/ 与任何生产配置）；实验代码、逐项数字 JSON 与图表位于 `exp/weighted_sum/analysis/fusion_theory/`。撰写：2026-07-04；2026-07-07 增补 §7.2 / §10.7 / 图 9（expE：RRF 检索差距解剖）。*

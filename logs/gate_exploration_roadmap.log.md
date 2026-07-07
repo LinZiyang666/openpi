@@ -1,11 +1,12 @@
 # Gate 探索路线图 — 基于 always-search 真 verdict 数据的方案判决与阶段名单
 
-- **Status**: Data-Grounded Roadmap — Stage 0 ✅ / Stage 1 ✅（live 判决 2026-07-05）/ Stage 2 ✅（三线机制离线判决 2026-07-05，见 §5 回填）/ Stage 3a ✅（N4 live 胜出 L=6，4/6 pass，2026-07-05，见 §5 回填）/ Stage 3b ✅（N4 服务器化 `ScoreHysteresisGate`+L，G1/G2 APPROVED，2026-07-06，见 §5 回填）/ Stage 4a 🔨（N2 追随赢家门服务器化，Phase A F5 复测 GO + G1/G2 APPROVED 2026-07-06，见 §5 回填；**Phase C live 未跑**）/ Stage 4b+ 待
+- **Status**: Data-Grounded Roadmap — Stage 0 ✅ / Stage 1 ✅（live 判决 2026-07-05）/ Stage 2 ✅（三线机制离线判决 2026-07-05，见 §5 回填）/ Stage 3a ✅（N4 live 胜出 L=6，4/6 pass，2026-07-05，见 §5 回填）/ Stage 3b ✅（N4 服务器化 `ScoreHysteresisGate`+L，G1/G2 APPROVED，2026-07-06，见 §5 回填）/ Stage 4a ✅（N2 追随赢家门：服务器化 G1/G2 APPROVED 2026-07-06 + Phase C live 判决 2026-07-07——6 点 1 pass（l10 b3），net@34 全正，报告 `exp/gate_research/analysis/stage4a_n2_live.md`）/ Stage 4b+ 待
 - **Date**: 2026-07-04（创建）/ 2026-07-05（Stage 1b live 判决修订：F9–F12、C10/C11、N2 降级、§5 重排）
 - **Stage 1b live 数据**: 8 run × 500 ep（N1 A/B × 2 suite + matched periodic × 4，同 conductor/init 配对）；报告 `exp/gate_research/analysis/n1_live_results.md`、判决表 `n1_live_final.md`（commit `71f2b22`）；raw 已本地化 `exp/gate_research/data/n1_live/`（gitignored）
 - **前身**: `cache_gate_design_brainstorm.log.md`（2026-07-02/03 头脑风暴，git 历史 `437bbc2` 可查）。本文件是其数据判决版：brainstorm 的方案谱系（G0/A/B/C/D）逐项对撞实测数据后重排，原文仍有效的资产（延迟账本、oracle 口径、RPG 基线、约束公理）已整合进来，不再回读原文。
 - **数据**: `exp/gate_research` 采集（2026-07-04）——weighted_sum d1 Pareto 前沿 7 个标志性 config（libero_spatial 3 + libero_10 4）× 500 ep（全 50 inits 0..49），`gate: always_search` + 真 ThresholdJudge verdict，**182,899 决策步**（libero_spatial 39,136 + libero_10 143,763；"步" = 一次 CP1 决策 = 一个 action chunk ≈ 10 env steps），每步含 `robot_state[32] / hit_type / cp1_score / start_t / winner_id / success`。无选择偏置（C5 满足：always_search 采集）。
 - **复现**: `exp/gate_research/gate_structure_analysis.py <gate_rows.jsonl> <suite>`（本文所有表）；`verify_gate.py`（采集完整性）；采集报告 `exp/gate_research/analysis/gate_research_results.md`。
+- **外部报告**: `exp/gate_research/analysis/gate_report_external.md`（2026-07-07）——面向外部合作者的全线综述（去内部代号：N1=分数滞回门 / N4=混合门 / N2=追随赢家门 / periodic=周期刷新门），4 门控 × 2 suite × 22 live run 总表 + 4 图（`analysis/figures/`，脚本 `exp/gate_research/report_figures.py`）。
 - **Level**: 本文档为研究产物（L0 纯文档）。任何入选方案的实现仍为 L2（新 GateFunction 组件），需另走 Plan → G1 → Code → G2 → Verify。
 - **Owner 指令**: training-free gate 先行探索；需要训练/标定的方案（C1/D1）押后。
 
@@ -247,7 +248,7 @@ episode 前 3 步分数对后续 MISS 的 AUC 仅 0.52–0.60（F1）；库覆�
 
 | # | 项目 | 进入条件 |
 |---|---|---|
-| 4a | ✅ **服务器化完成（2026-07-06，G1/G2 APPROVED；Phase C live 未跑）** — N2 追随赢家门（自原 Stage 2 降级，理由见 §4 N2 条） | ~~stock/大库延迟为硬约束 **且** N4 落地后 hit 段搜索仍为主要成本；重启前重测 F5 lockstep~~ → Phase A F5 复测 **GO**；build/D2H 省取仍押后。剩 Phase C live（延迟档条件仍是 owner 部署判断） |
+| 4a | ✅ **全部完成（服务器化 2026-07-06 + Phase C live 2026-07-07）** — N2 追随赢家门（自原 Stage 2 降级，理由见 §4 N2 条）。**live 判决：6 点 1 pass**（l10 budget=3：SR +1.2 vs baseline、+1.2 vs matched periodic c30、net@34 +8.2）；spatial 3 点全败（同 inf 下 periodic_A 90.4 压制）；l10 b5/b8 盲回放漂移退化；**net@34 全 6 点为正 = 延迟稳健价值面**。报告 `exp/gate_research/analysis/stage4a_n2_live.md`（commit `b110c52`） | ~~stock/大库延迟为硬约束 **且** N4 落地后 hit 段搜索仍为主要成本；重启前重测 F5 lockstep~~ → Phase A F5 复测 **GO**；build/D2H 省取仍押后；延迟档部署判断随 owner |
 | 4b | C1 标定组合门（conformal 预算旋钮，V3 完全体） | 同原条件；特征集新增候选：连续缓存执行 run 长度 / 注入相位（2a 产出） |
 | 4c | A3 库覆盖门 / D1 学习难度门 | 同原条件不变（A3 随 50k 库上调；D1 大概率不立项） |
 
