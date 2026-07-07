@@ -48,6 +48,18 @@ class GateFunction(Protocol):
         Broadcast by ``CacheOrchestrator.check()`` under a ``hasattr`` guard;
         stateless gates simply omit the method. Consumed by
         ``ScoreHysteresisGate`` (server-side N1).
+      - ``replay_target(self) -> str | None`` — when a gate wants the orchestrator
+        to blind-replay a locked library episode's next cached action instead of
+        running a fresh inference, it returns that winner ``entry_id`` here (while
+        ``__call__`` returns ``False``). ``CacheOrchestrator.check()`` (under a
+        ``hasattr`` guard) then walks the entry's successor and returns it as a
+        ``FULL_HIT`` with ``searched=False`` — no search, no judge, no inference.
+        Returns ``None`` for a plain gate-skip. Consumed by ``FollowWinnerGate``
+        (server-side N2). Like every hook above, this is DOCSTRING-ONLY and MUST
+        NOT be declared in the Protocol body: ``GateFunction`` is
+        ``@runtime_checkable`` and such a Protocol cannot express optional members,
+        so adding ``replay_target`` as a method would make ``isinstance`` fail for
+        every legacy gate that only implements ``__call__``.
     """
 
     def __call__(
@@ -526,3 +538,203 @@ class ScoreHysteresisGate:
 
     def record_action(self, action_chunk: torch.Tensor) -> None:
         """No-op. N1 does not use action history. Signature matches protocol."""
+
+
+class FollowWinnerGate:
+    """Server-side N2 follow-the-winner gate (lockstep blind replay).
+
+    Detects a stable lockstep hit segment (consecutive searched FULL_HITs on the
+    same library episode with the winner step advancing +1), LOCKS that episode,
+    and for the next ``budget`` steps asks the orchestrator to blind-replay the
+    winner's subsequent cached actions instead of searching or inferring. This
+    saves the whole hit-segment cost (search + judge + inference), unlike N1/N4
+    whose skip still runs a full fresh inference.
+
+    Contract with the orchestrator (see ``CacheOrchestrator.check``):
+      - ``__call__`` is PURE and returns ``not locked``: ``True`` = search
+        (always-search baseline when unlocked), ``False`` = do not search.
+      - ``replay_target`` returns the current lock cursor ``entry_id`` while
+        locked (``None`` otherwise). On a ``False`` decision the orchestrator
+        queries it (via ``hasattr``); a non-None target triggers the blind-replay
+        branch (walk the winner's next entry, return it as ``FULL_HIT`` with
+        ``searched=False``); a ``None`` target is a plain gate-skip.
+      - ``record_verdict`` observes each step AFTER the fact and drives the state
+        machine. Decide (``__call__`` / ``replay_target``) and observe
+        (``record_verdict``) are split exactly like ``ScoreHysteresisGate``.
+
+    Blind-replay verdict feedback (``searched=False``):
+      - ``FULL_HIT`` (replay succeeded) -> advance the cursor, spend one unit of
+        budget; unlock at zero.
+      - ``MISS`` (locked-tail: the winner trajectory is exhausted or ``walk_next``
+        raised, so the orchestrator fell through to the original skip path and
+        fed a ``winner_id=None`` MISS) -> unlock immediately. This is the
+        fail-safe that prevents a permanent lock (a locked gate would otherwise
+        keep returning the same replay target for an exhausted trajectory).
+
+    ``lock_streak`` counting convention (off-by-one made explicit):
+      ``_fh_streak`` counts adjacent lockstep *transitions*, not raw FULL_HIT
+      steps. A run's first FULL_HIT only seeds ``_last_winner_id`` (no predecessor
+      to compare), so ``lock_streak=N`` requires ``N + 1`` consecutive lockstep
+      FULL_HITs to trigger a lock.
+
+    Coupling:
+      - CONSUMES its own verdict feedback via ``record_verdict`` and the winner
+        entry ids the orchestrator walks; no dependency on request_context /
+        cached_data.
+      - REQUIRES an ``in_memory`` backend at deploy time (the orchestrator's
+        blind-replay branch uses ``PayloadView.walk_next`` -> ``fetch_entry``,
+        which only ``InMemoryBackend`` implements). Enforced in config validation.
+      - Per-connection instance (build_per_connection_components); single-thread
+        per connection -> state mutation is lock-free.
+    """
+
+    def __init__(
+        self,
+        lock_streak: int,
+        budget: int,
+        tolerate_delta0: bool = True,
+    ) -> None:
+        # bool is an int subclass; reject it explicitly so a YAML/CLI true/false
+        # misconfig fails loud instead of silently degrading to 1/0 (mirrors the
+        # other gates).
+        for name, value in (("lock_streak", lock_streak), ("budget", budget)):
+            if isinstance(value, bool) or not isinstance(value, int):
+                raise TypeError(
+                    f"FollowWinnerGate {name} must be an int >= 1, "
+                    f"got {type(value).__name__}"
+                )
+            if value < 1:
+                raise ValueError(f"FollowWinnerGate {name} must be >= 1, got {value}")
+        if not isinstance(tolerate_delta0, bool):
+            raise TypeError(
+                f"FollowWinnerGate tolerate_delta0 must be a bool, "
+                f"got {type(tolerate_delta0).__name__}"
+            )
+        self._lock_streak = int(lock_streak)
+        self._budget = int(budget)
+        self._tolerate_delta0 = bool(tolerate_delta0)
+        # State machine registers (reset by on_episode_start).
+        self._locked = False
+        self._cursor_id: str | None = None
+        self._budget_left = 0
+        # Adjacent-lockstep-transition counter (see counting convention above).
+        self._fh_streak = 0
+        self._last_winner_id: str | None = None
+
+    def __call__(
+        self,
+        checkpoint_id: CheckpointID,
+        cached_data: dict[str, torch.Tensor],
+        request_context: dict | None = None,
+    ) -> bool:
+        # PURE decide (no mutation): locked -> do not search (replay_target then
+        # expresses the blind replay); unlocked -> always search. Mutation happens
+        # only in record_verdict.
+        return not self._locked
+
+    def replay_target(self) -> str | None:
+        """Return the lock cursor entry_id while locked, else None (see docstring)."""
+        return self._cursor_id if self._locked else None
+
+    def record_verdict(
+        self,
+        checkpoint_id: CheckpointID,
+        *,
+        hit_type,
+        cp1_score: float | None,
+        winner_id: str | None,
+        start_t,
+        searched: bool,
+    ) -> None:
+        """Observe this step's verdict; advance the lock state machine.
+
+        Dispatches on ``searched`` first. ``searched=False`` is fed only by the
+        orchestrator's blind-replay branch: FULL_HIT = replay succeeded (advance
+        cursor / spend budget), MISS = locked-tail fallback (unlock). ``cp1_score``
+        / ``start_t`` are unused (kept for the shared record_verdict signature).
+        """
+        if not searched:
+            if hit_type == HitType.FULL_HIT and winner_id is not None:
+                # Blind-replay step succeeded: advance the cursor to the entry we
+                # just replayed and spend one unit of budget. Do NOT touch
+                # _last_winner_id / _fh_streak -- those track searched evidence
+                # only, so a fresh lockstep run must be re-earned after unlock.
+                self._cursor_id = winner_id
+                self._budget_left -= 1
+                if self._budget_left <= 0:
+                    self._unlock()
+            else:
+                # Locked-tail / exception fallback (MISS, winner_id=None): the
+                # blind replay cannot continue -> unlock and resume searching.
+                self._unlock()
+            return
+
+        # searched=True: a real cache search happened.
+        if hit_type == HitType.FULL_HIT:
+            cur = self._parse_winner(winner_id)
+            prev = self._parse_winner(self._last_winner_id)
+            if cur is not None and prev is not None and cur[0] == prev[0]:
+                delta = cur[1] - prev[1]
+                lockstep = delta == 1 or (self._tolerate_delta0 and delta == 0)
+            else:
+                # First FULL_HIT of a run (no comparable predecessor), a different
+                # trajectory, or an unparseable winner_id -> not a transition.
+                lockstep = False
+            self._fh_streak = self._fh_streak + 1 if lockstep else 0
+            if not self._locked and self._fh_streak >= self._lock_streak:
+                # Lock: seed the cursor at the current winner and consume the
+                # evidence chain (reset _fh_streak) so a single probe right after a
+                # future unlock cannot immediately re-lock.
+                self._locked = True
+                self._cursor_id = winner_id
+                self._budget_left = self._budget
+                self._fh_streak = 0
+            self._last_winner_id = winner_id
+        else:
+            # searched WS/MISS: the lockstep evidence chain is broken. Clear the
+            # comparable predecessor (NOT set it to this winner_id) so a FULL_HIT
+            # right after a WS/MISS is treated as a fresh run start -- a lockstep
+            # transition requires the PREVIOUS searched verdict to itself be a
+            # FULL_HIT, otherwise a WARM_START(t:0) -> FULL_HIT(t:1) would falsely
+            # count as a +1 transition and lock (G2 R1 Blocking①).
+            self._fh_streak = 0
+            if self._locked:
+                # Defensive: a locked gate returns False from __call__, so a real
+                # search should not occur while locked. If it somehow does, unlock.
+                self._unlock()
+            self._last_winner_id = None
+
+    def _unlock(self) -> None:
+        """Return to the searching state and clear the lock + evidence chain."""
+        self._locked = False
+        self._cursor_id = None
+        self._budget_left = 0
+        self._fh_streak = 0
+
+    @staticmethod
+    def _parse_winner(winner_id: str | None) -> tuple[str, int] | None:
+        """Split ``"trajectory_id:step_idx"`` -> (trajectory_id, step_idx).
+
+        trajectory_id is a uuid4 (server) / library episode name (exp), neither of
+        which contains a colon, so ``rsplit(":", 1)`` is safe. Returns None for a
+        missing or malformed id (fail-safe: never lock on an unparseable winner).
+        """
+        if not winner_id:
+            return None
+        try:
+            traj, step = winner_id.rsplit(":", 1)
+            return traj, int(step)
+        except (ValueError, AttributeError):
+            return None
+
+    def on_episode_start(self, task_key: str = "") -> None:
+        """Reset the state machine at each episode. ``task_key`` is accepted for
+        the shared hook signature but unused (N2 does not parametrize per task)."""
+        self._locked = False
+        self._cursor_id = None
+        self._budget_left = 0
+        self._fh_streak = 0
+        self._last_winner_id = None
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        """No-op. N2 does not use action history. Signature matches protocol."""

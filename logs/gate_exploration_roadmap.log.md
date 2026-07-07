@@ -1,6 +1,6 @@
 # Gate 探索路线图 — 基于 always-search 真 verdict 数据的方案判决与阶段名单
 
-- **Status**: Data-Grounded Roadmap — Stage 0 ✅ / Stage 1 ✅（live 判决 2026-07-05）/ Stage 2 ✅（三线机制离线判决 2026-07-05，见 §5 回填）/ Stage 3a ✅（N4 live 胜出 L=6，4/6 pass，2026-07-05，见 §5 回填）/ Stage 3b ✅（N4 服务器化 `ScoreHysteresisGate`+L，G1/G2 APPROVED，2026-07-06，见 §5 回填）/ Stage 4+ 待
+- **Status**: Data-Grounded Roadmap — Stage 0 ✅ / Stage 1 ✅（live 判决 2026-07-05）/ Stage 2 ✅（三线机制离线判决 2026-07-05，见 §5 回填）/ Stage 3a ✅（N4 live 胜出 L=6，4/6 pass，2026-07-05，见 §5 回填）/ Stage 3b ✅（N4 服务器化 `ScoreHysteresisGate`+L，G1/G2 APPROVED，2026-07-06，见 §5 回填）/ Stage 4a 🔨（N2 追随赢家门服务器化，Phase A F5 复测 GO + G1/G2 APPROVED 2026-07-06，见 §5 回填；**Phase C live 未跑**）/ Stage 4b+ 待
 - **Date**: 2026-07-04（创建）/ 2026-07-05（Stage 1b live 判决修订：F9–F12、C10/C11、N2 降级、§5 重排）
 - **Stage 1b live 数据**: 8 run × 500 ep（N1 A/B × 2 suite + matched periodic × 4，同 conductor/init 配对）；报告 `exp/gate_research/analysis/n1_live_results.md`、判决表 `n1_live_final.md`（commit `71f2b22`）；raw 已本地化 `exp/gate_research/data/n1_live/`（gitignored）
 - **前身**: `cache_gate_design_brainstorm.log.md`（2026-07-02/03 头脑风暴，git 历史 `437bbc2` 可查）。本文件是其数据判决版：brainstorm 的方案谱系（G0/A/B/C/D）逐项对撞实测数据后重排，原文仍有效的资产（延迟账本、oracle 口径、RPG 基线、约束公理）已整合进来，不再回读原文。
@@ -241,11 +241,13 @@ episode 前 3 步分数对后续 MISS 的 AUC 仅 0.52–0.60（F1）；库覆�
 
 **Stage 3b 判决（2026-07-06 回填；plan `gate_stage3b_n4_serverize.log.md`，G1/G2 APPROVED）**：**N4 已服务器化 ✅**。扩展 `ScoreHysteresisGate` 加 V2 分支（`__call__` 连续缓存执行 run-length ≥ L 强制 skip 注入，PURE；`record_verdict` 按 searched 分派、用 `HitType` enum 数 run、V1/V2 靠 `_searching` 状态重构区分——**无需客户端 `_last_v2`**）；`config.py` GateConfig 只加 `L`（include_ws 构造器默认不进 config，避免 stray-field 回归）。**零 orchestrator/wire 改动**（record_verdict 已收 hit_type）。**L=None 行为等价 N1**（延迟档 N1-A），**L=6 = N4 SR 档**——同一 gate 类两档。正确性双证：`ScoreHysteresisGate(L=6)` ≡ 3a `N4GateState(L=6)` 等价 golden（含两赢点参数）+ L=None=N1 兼容（1c golden 不回归）。操作点 YAML `exp/gate_research/config/{spatial,l10}/n4_server/`（score_hysteresis L=6）。部署配方：延迟档 L=None(N1-A) / SR 档 L=6(N4) / periodic 上限。
 
+**Stage 4a 判决（2026-07-06 回填；plan `gate_stage4a_n2_follow_winner.log.md`，G1/G2 APPROVED）**：**N2 已服务器化 ✅（Phase C live 未跑）**。进入条件②"重启前重测 F5 lockstep"以 **Phase A 离线复测**兑现（报告 `exp/gate_research/analysis/stage4a_f5_recheck.md`，脚本 `stage4a_f5_recheck.py`）——在 Stage 3a 6 个 N4 live run 上重算 within-FH-run persistence + Δwinner_step：**6/6 GO**（spatial 差基线 ≤2.1pp、l10 反高于基线 +3.7~3.9pp、Δ+1 全 >92% 主导、Δ0 从 14.4% 降 ~4%）——**注入不摧毁反浓缩 lockstep**，结构前提稳固。Phase B（L3）新增 `FollowWinnerGate`：命中段连续真搜 FULL_HIT + 同轨 Δ+1（容忍 Δ0）达 `lock_streak` transition → 锁定库 episode → `budget` 步**盲回放**（不搜不判不推、直接回放 winner 后续缓存动作，省命中段全部成本，与 N1/N4 skip 仍全推理相反）。契约扩展走**最小侵入 additive hook**：gate 加 docstring-only `replay_target()`（**不进 `@runtime_checkable` Protocol 体**，否则 legacy gate `isinstance` 全坏），orchestrator `check()` 的 `not should_search` 分支 `hasattr` 查询 → `PayloadView.walk_next` 取后续 payload → 返回 **`FULL_HIT × searched=False`**（interceptor 现成短路回放，跳 Stage2/3；Stage1+build 保留，build/D2H 押后）。**locked-tail fail-safe**：`walk_next` 空/异常落原 skip 分支单喂 `(MISS, searched=False, winner_id=None)` → gate `_unlock()`，无锁死。`config.py` 加 `follow_winner`（`lock_streak`/`budget`，**须 in_memory backend** fail-loud）。操作点 YAML `exp/gate_research/config/{spatial,l10}/n2_server/`。**注意**：N2 SR 效应离线不可评（C8/C11，改变执行流），必 Phase C live 验；(lock_streak,budget) 网格 + 及格线（同 inf_ratio SR ≥ matched periodic ∧ net@34≥0 ∧ SR≥baseline−1pp）见 plan §4。
+
 ### Stage 4 — 押后（进入条件明确）
 
 | # | 项目 | 进入条件 |
 |---|---|---|
-| 4a | N2 追随赢家门（自原 Stage 2 降级，理由见 §4 N2 条） | stock/大库延迟为硬约束 **且** N4 落地后 hit 段搜索仍为主要成本；重启前重测 F5 lockstep（注入改变 hit 段结构）；其 build/D2H 省取问题一并押后 |
+| 4a | ✅ **服务器化完成（2026-07-06，G1/G2 APPROVED；Phase C live 未跑）** — N2 追随赢家门（自原 Stage 2 降级，理由见 §4 N2 条） | ~~stock/大库延迟为硬约束 **且** N4 落地后 hit 段搜索仍为主要成本；重启前重测 F5 lockstep~~ → Phase A F5 复测 **GO**；build/D2H 省取仍押后。剩 Phase C live（延迟档条件仍是 owner 部署判断） |
 | 4b | C1 标定组合门（conformal 预算旋钮，V3 完全体） | 同原条件；特征集新增候选：连续缓存执行 run 长度 / 注入相位（2a 产出） |
 | 4c | A3 库覆盖门 / D1 学习难度门 | 同原条件不变（A3 随 50k 库上调；D1 大概率不立项） |
 

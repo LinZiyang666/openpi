@@ -98,6 +98,12 @@ class GateConfig:
     # is intentionally NOT a config field (constructor-only; a bool default would
     # trip the stray-field check on every legacy gate).
     L: int | None = None
+    # Only for type="follow_winner" (Stage 4a N2, validated by validate_cache_config).
+    # tolerate_delta0 is intentionally NOT a config field (constructor-only default
+    # True; a bool default would trip the stray-field check on every legacy gate,
+    # same rationale as include_ws above).
+    lock_streak: int | None = None
+    budget: int | None = None
 
 
 @dataclass
@@ -467,7 +473,7 @@ _VALID_STEP_FILTERS = frozenset({"all", "exact", "window"})
 # added here so validator (validate_cache_config) and builder (_build_gate /
 # _build_judge) stay in lockstep; otherwise a missing entry silently downgrades
 # to a "Unknown ... type" error at build time despite passing validation.
-_GATE_TYPES = frozenset({"always_search", "always_skip", "client_controlled", "random", "periodic", "score_hysteresis"})
+_GATE_TYPES = frozenset({"always_search", "always_skip", "client_controlled", "random", "periodic", "score_hysteresis", "follow_winner"})
 _JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start", "composite"})
 
 
@@ -1235,6 +1241,9 @@ def validate_cache_config(config: CacheConfig) -> None:
         # ``client_controlled`` reads the skip/search decision from a per-request
         # signal injected by the client runner; see
         # logs/trajectory_deviation_step3_redesign.log.md §5.2.
+        # ``follow_winner`` (Stage 4a N2) locks a lockstep hit segment and asks the
+        # orchestrator to blind-replay the winner episode's next cached action (no
+        # search / judge / inference); needs an in_memory backend (see below).
         if cp_config.gate.type not in _GATE_TYPES:
             errors.append(
                 f"{prefix}.gate.type '{cp_config.gate.type}' is unknown. "
@@ -1248,8 +1257,10 @@ def validate_cache_config(config: CacheConfig) -> None:
         _gate_random_fields = {"p_inference", "seed"}
         _gate_periodic_fields = {"cache_len", "inference_len"}
         _gate_score_hysteresis_fields = {"theta_low", "theta_high", "j", "probe_interval", "L"}
+        _gate_follow_winner_fields = {"lock_streak", "budget"}
         _gate_all_param_fields = (
-            _gate_random_fields | _gate_periodic_fields | _gate_score_hysteresis_fields
+            _gate_random_fields | _gate_periodic_fields
+            | _gate_score_hysteresis_fields | _gate_follow_winner_fields
         )
         gate_set_fields = {
             name for name in _gate_all_param_fields
@@ -1382,6 +1393,44 @@ def validate_cache_config(config: CacheConfig) -> None:
                 errors.append(
                     f"{prefix}.gate: type='score_hysteresis' cannot set {sorted(stray)}; "
                     f"these belong to type='random' or type='periodic'"
+                )
+        elif cp_config.gate.type == "follow_winner":
+            # Stage 4a N2: lock_streak / budget are required strict ints >= 1 (same
+            # bounds the FollowWinnerGate constructor enforces). Blind replay walks
+            # the winner trajectory chain via fetch_entry / walk_next, which only
+            # InMemoryBackend implements, so the backend must be in_memory.
+            ls = cp_config.gate.lock_streak
+            bg = cp_config.gate.budget
+            if ls is None:
+                errors.append(f"{prefix}.gate: type='follow_winner' requires 'lock_streak'")
+            elif not _is_strict_int(ls):
+                errors.append(
+                    f"{prefix}.gate.lock_streak must be an int >= 1, "
+                    f"got {type(ls).__name__}={ls!r}"
+                )
+            elif ls < 1:
+                errors.append(f"{prefix}.gate.lock_streak={ls} must be >= 1")
+            if bg is None:
+                errors.append(f"{prefix}.gate: type='follow_winner' requires 'budget'")
+            elif not _is_strict_int(bg):
+                errors.append(
+                    f"{prefix}.gate.budget must be an int >= 1, "
+                    f"got {type(bg).__name__}={bg!r}"
+                )
+            elif bg < 1:
+                errors.append(f"{prefix}.gate.budget={bg} must be >= 1")
+            if config.backend.type != "in_memory":
+                errors.append(
+                    f"{prefix}.gate: type='follow_winner' requires backend.type="
+                    f"'in_memory' (blind replay walks the winner chain via "
+                    f"fetch_entry / walk_next, only implemented by InMemoryBackend); "
+                    f"got backend.type={config.backend.type!r}"
+                )
+            stray = gate_set_fields - _gate_follow_winner_fields
+            if stray:
+                errors.append(
+                    f"{prefix}.gate: type='follow_winner' cannot set {sorted(stray)}; "
+                    f"these belong to another gate type"
                 )
         else:
             # Legacy 3 gate types (always_search / always_skip / client_controlled)
@@ -2251,6 +2300,13 @@ def _build_gate(cfg: GateConfig):
             probe_interval=cfg.probe_interval,
             L=cfg.L,
         )
+    if cfg.type == "follow_winner":
+        from openpi.cache.components.gate import FollowWinnerGate
+
+        # lock_streak / budget required; bounds already enforced by
+        # validate_cache_config. The constructor re-validates as a second guard.
+        assert cfg.lock_streak is not None and cfg.budget is not None
+        return FollowWinnerGate(lock_streak=cfg.lock_streak, budget=cfg.budget)
     raise ConfigValidationError(
         f"Unknown gate.type '{cfg.type}'. Valid: {sorted(_GATE_TYPES)}"
     )

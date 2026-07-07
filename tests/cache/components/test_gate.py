@@ -9,6 +9,7 @@ from openpi.cache.components.gate import (
     AlwaysSearchGate,
     AlwaysSkipGate,
     ClientControlledGate,
+    FollowWinnerGate,
     GateFunction,
     PeriodicGate,
     RandomGate,
@@ -627,3 +628,189 @@ def test_score_hysteresis_ctor_rejects_bad_L():
 def test_score_hysteresis_ctor_rejects_non_bool_include_ws():
     with pytest.raises(TypeError, match="include_ws"):
         ScoreHysteresisGate(theta_low=0.5, theta_high=0.8, j=1, probe_interval=1, include_ws=1)  # type: ignore[arg-type]
+
+
+# ----------------------------------------------------------------------
+# FollowWinnerGate (Stage 4a N2 — lockstep blind replay)
+# ----------------------------------------------------------------------
+
+_CP = CheckpointID.CP1
+
+
+def _searched_fh(gate, *winner_ids):
+    """Feed real (searched=True) FULL_HIT verdicts, as the orchestrator does."""
+    for winner_id in winner_ids:
+        gate.record_verdict(_CP, hit_type=HitType.FULL_HIT, cp1_score=0.99,
+                            winner_id=winner_id, start_t=None, searched=True)
+
+
+def _replay_fh(gate, *winner_ids):
+    """Feed blind-replay (searched=False) FULL_HIT verdicts, as the orchestrator does."""
+    for winner_id in winner_ids:
+        gate.record_verdict(_CP, hit_type=HitType.FULL_HIT, cp1_score=None,
+                            winner_id=winner_id, start_t=None, searched=False)
+
+
+def test_follow_winner_first_step_searches():
+    gate = FollowWinnerGate(lock_streak=2, budget=3)
+    assert gate(_CP, {}) is True  # unlocked -> always search
+
+
+def test_follow_winner_lock_streak_counts_transitions_off_by_one():
+    # (a) lock_streak=N counts adjacent lockstep TRANSITIONS, so it needs N+1
+    # consecutive lockstep FULL_HITs (the first only seeds the baseline).
+    gate = FollowWinnerGate(lock_streak=2, budget=3)
+    _searched_fh(gate, "t:0")
+    assert gate._locked is False and gate._fh_streak == 0  # first FH: no predecessor
+    _searched_fh(gate, "t:1")
+    assert gate._locked is False and gate._fh_streak == 1  # transition 1
+    _searched_fh(gate, "t:2")
+    assert gate._locked is True                            # transition 2 -> lock
+    assert gate._cursor_id == "t:2" and gate._budget_left == 3 and gate._fh_streak == 0
+
+
+def test_follow_winner_locked_decide_and_replay_target():
+    gate = FollowWinnerGate(lock_streak=1, budget=2)
+    _searched_fh(gate, "t:0")
+    _searched_fh(gate, "t:1")  # lock_streak=1 -> lock after 2 FH
+    assert gate._locked is True
+    assert gate(_CP, {}) is False           # locked -> do not search
+    assert gate.replay_target() == "t:1"    # cursor exposed for blind replay
+
+
+def test_follow_winner_replay_advances_cursor():
+    # (b) blind-replay steps advance the cursor and spend budget.
+    gate = FollowWinnerGate(lock_streak=1, budget=3)
+    _searched_fh(gate, "t:0", "t:1")  # lock, budget 3, cursor t:1
+    _replay_fh(gate, "t:2")
+    assert gate._cursor_id == "t:2" and gate._budget_left == 2 and gate._locked is True
+    _replay_fh(gate, "t:3")
+    assert gate._cursor_id == "t:3" and gate._budget_left == 1 and gate._locked is True
+
+
+def test_follow_winner_budget_exhaustion_unlocks():
+    # (b) budget hitting zero unlocks and resumes searching.
+    gate = FollowWinnerGate(lock_streak=1, budget=2)
+    _searched_fh(gate, "t:0", "t:1")  # lock, budget 2
+    _replay_fh(gate, "t:2")                                 # budget 2->1
+    assert gate._locked is True
+    _replay_fh(gate, "t:3")                                 # budget 1->0 -> unlock
+    assert gate._locked is False and gate(_CP, {}) is True and gate.replay_target() is None
+
+
+def test_follow_winner_locked_tail_fallback_unlocks():
+    # (g) Blocking①: searched=False MISS (winner_id=None) is the orchestrator's
+    # locked-tail / walk_next-empty fallback -> unlock immediately (no dead-lock).
+    gate = FollowWinnerGate(lock_streak=1, budget=5)
+    _searched_fh(gate, "t:0", "t:1")  # lock, budget 5
+    assert gate._locked is True and gate._budget_left == 5
+    gate.record_verdict(_CP, hit_type=HitType.MISS, cp1_score=None,
+                        winner_id=None, start_t=None, searched=False)
+    assert gate._locked is False
+    assert gate(_CP, {}) is True and gate.replay_target() is None
+    assert gate._budget_left == 0 and gate._fh_streak == 0
+
+
+def test_follow_winner_real_search_miss_unlocks_defensively():
+    # (c) a real searched non-FULL_HIT breaks the streak; if seen while locked
+    # (defensive, should not happen) it unlocks.
+    gate = FollowWinnerGate(lock_streak=1, budget=5)
+    _searched_fh(gate, "t:0", "t:1")  # lock
+    gate.record_verdict(_CP, hit_type=HitType.MISS, cp1_score=None,
+                        winner_id=None, start_t=None, searched=True)
+    assert gate._locked is False and gate._fh_streak == 0
+
+
+def test_follow_winner_broken_lockstep_resets_streak():
+    gate = FollowWinnerGate(lock_streak=3, budget=3)  # needs 4 lockstep FH
+    _searched_fh(gate, "t:0", "t:1", "t:2")
+    assert gate._fh_streak == 2 and gate._locked is False
+    _searched_fh(gate, "other:9")  # different trajectory -> reset
+    assert gate._fh_streak == 0 and gate._locked is False
+
+
+def test_follow_winner_no_lock_across_non_full_hit_boundary():
+    # G2 R1 Blocking①: a searched non-FULL_HIT (WARM_START / MISS, even one that
+    # carries a winner_id) must clear the comparable predecessor, so a following
+    # FULL_HIT is a fresh run start and does NOT count as a lockstep transition --
+    # otherwise WS(t:0) -> FULL_HIT(t:1) would falsely lock at lock_streak=1.
+    for ht in (HitType.WARM_START, HitType.MISS):
+        gate = FollowWinnerGate(lock_streak=1, budget=3)
+        gate.record_verdict(_CP, hit_type=ht, cp1_score=0.9,
+                            winner_id="t:0", start_t=0.5, searched=True)
+        assert gate._last_winner_id is None  # predecessor cleared
+        _searched_fh(gate, "t:1")  # +1 vs t:0 but predecessor was not a FULL_HIT
+        assert gate._locked is False and gate._fh_streak == 0
+
+
+def test_follow_winner_tolerate_delta0():
+    # (d) tolerate_delta0=True counts a repeated winner step (Δ0 dense-replan) as a
+    # lockstep transition; =False does not.
+    g_on = FollowWinnerGate(lock_streak=1, budget=3, tolerate_delta0=True)
+    _searched_fh(g_on, "t:5", "t:5")  # Δ0 -> transition -> lock
+    assert g_on._locked is True
+    g_off = FollowWinnerGate(lock_streak=1, budget=3, tolerate_delta0=False)
+    _searched_fh(g_off, "t:5", "t:5")  # Δ0 -> not a transition
+    assert g_off._locked is False
+
+
+def test_follow_winner_malformed_winner_id_failsafe_no_lock():
+    # (e) None / unparseable winner_id never locks (fail-safe).
+    gate = FollowWinnerGate(lock_streak=1, budget=3)
+    _searched_fh(gate, None)
+    _searched_fh(gate, "no_colon")
+    assert gate._locked is False
+
+
+def test_follow_winner_replay_does_not_touch_reacquire_baseline():
+    # (h) non-blocking①: blind-replay steps do NOT update _last_winner_id/_fh_streak,
+    # so re-lock after unlock follows the same lock_streak rule -- a single searched
+    # probe cannot fast-path a re-lock when lock_streak >= 2.
+    gate = FollowWinnerGate(lock_streak=2, budget=1)  # needs 3 searched FH to lock
+    _searched_fh(gate, "t:0", "t:1", "t:2")  # lock
+    assert gate._locked is True and gate._last_winner_id == "t:2"
+    _replay_fh(gate, "t:3")  # budget 1->0 -> unlock; baseline untouched by replay
+    assert gate._locked is False and gate._fh_streak == 0 and gate._last_winner_id == "t:2"
+    _searched_fh(gate, "t:3")  # lockstep vs t:2, but streak 1 < 2 -> no immediate re-lock
+    assert gate._locked is False and gate._fh_streak == 1
+
+
+def test_follow_winner_call_is_pure():
+    # (f) __call__ / replay_target must not mutate state.
+    gate = FollowWinnerGate(lock_streak=1, budget=2)
+    _searched_fh(gate, "t:0", "t:1")  # lock
+    snap = (gate._locked, gate._cursor_id, gate._budget_left, gate._fh_streak)
+    for _ in range(5):
+        gate(_CP, {})
+        gate.replay_target()
+    assert (gate._locked, gate._cursor_id, gate._budget_left, gate._fh_streak) == snap
+
+
+def test_follow_winner_on_episode_start_resets():
+    gate = FollowWinnerGate(lock_streak=1, budget=3)
+    _searched_fh(gate, "t:0", "t:1")  # lock
+    assert gate._locked is True
+    gate.on_episode_start("task_x")
+    assert gate._locked is False and gate._cursor_id is None
+    assert gate._budget_left == 0 and gate._fh_streak == 0 and gate._last_winner_id is None
+
+
+def test_follow_winner_conforms_to_protocol():
+    assert isinstance(FollowWinnerGate(lock_streak=2, budget=3), GateFunction)
+
+
+def test_follow_winner_record_action_is_noop():
+    FollowWinnerGate(lock_streak=2, budget=3).record_action(torch.randn(4))  # must not raise
+
+
+def test_follow_winner_ctor_rejects_bad_params():
+    with pytest.raises(ValueError, match="lock_streak must be >= 1"):
+        FollowWinnerGate(lock_streak=0, budget=3)
+    with pytest.raises(ValueError, match="budget must be >= 1"):
+        FollowWinnerGate(lock_streak=2, budget=0)
+    with pytest.raises(TypeError, match="lock_streak must be an int"):
+        FollowWinnerGate(lock_streak=True, budget=3)  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match="budget must be an int"):
+        FollowWinnerGate(lock_streak=2, budget=1.5)  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match="tolerate_delta0"):
+        FollowWinnerGate(lock_streak=2, budget=3, tolerate_delta0="yes")  # type: ignore[arg-type]

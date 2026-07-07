@@ -926,3 +926,95 @@ def test_score_hysteresis_v2_injection_closes_loop_through_orchestrator():
         searched_flags.append(r.searched)
     assert searched_flags == [True, True, True, False, True, True, True, False]
     orch.clear()
+
+
+# ---------------------------------------------------------------------------
+# Stage 4a N2: blind-replay branch (FollowWinnerGate contract)
+# ---------------------------------------------------------------------------
+
+
+class _ReplayStubGate:
+    """Test gate: always skips search; replay_target returns a preset id or None.
+
+    Captures record_verdict calls so tests can assert what the orchestrator fed
+    back on the blind-replay success vs the locked-tail fallback path.
+    """
+
+    def __init__(self, replay_id):
+        self._replay_id = replay_id
+        self.verdicts = []
+
+    def __call__(self, checkpoint_id, cached_data, request_context=None):
+        return False
+
+    def replay_target(self):
+        return self._replay_id
+
+    def record_verdict(self, checkpoint_id, *, hit_type, cp1_score, winner_id, start_t, searched):
+        self.verdicts.append((hit_type, winner_id, searched))
+
+
+def test_blind_replay_hit_returns_full_hit_searched_false():
+    gate = _ReplayStubGate(replay_id="traj:0")
+    orch, _, storage = make_orchestrator(gate=gate)
+    # 2-step linked trajectory; walk_next("traj:0", 1) -> "traj:1".
+    payload0 = CachePayload(action_chunk=torch.zeros(4, 32))
+    payload1 = CachePayload(action_chunk=torch.ones(4, 32))
+    insert_entry(storage, CheckpointID.CP1, _unit_vector(32, 0), payload0,
+                 entry_id="traj:0", next_ids=["traj:1"], trajectory_id="traj")
+    insert_entry(storage, CheckpointID.CP1, _unit_vector(32, 1), payload1,
+                 entry_id="traj:1", prev_ids=["traj:0"], trajectory_id="traj")
+
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(_unit_vector(32, 5)))
+
+    # No search/judge ran; the successor payload is replayed as a FULL_HIT with
+    # searched=False (interceptor then short-circuits stages 2/3).
+    assert result.hit_type == HitType.FULL_HIT
+    assert result.searched is False
+    assert result.entry_id == "traj:1"
+    assert torch.allclose(result.payload.action_chunk, payload1.action_chunk)
+    # Exactly one verdict fed: the walked successor id, searched=False.
+    assert gate.verdicts == [(HitType.FULL_HIT, "traj:1", False)]
+    orch.clear()
+
+
+def test_blind_replay_trajectory_tail_falls_through_to_miss():
+    gate = _ReplayStubGate(replay_id="traj:9")
+    orch, _, storage = make_orchestrator(gate=gate)
+    # Tail entry: no next_ids -> walk_next returns [] -> fall through to skip path.
+    insert_entry(storage, CheckpointID.CP1, _unit_vector(32, 0),
+                 CachePayload(action_chunk=torch.randn(4, 32)),
+                 entry_id="traj:9", trajectory_id="traj")
+
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(_unit_vector(32, 5)))
+
+    assert result.hit_type == HitType.MISS and result.searched is False
+    # Skip path feeds (MISS, winner_id=None, searched=False) -> FollowWinnerGate unlocks.
+    assert gate.verdicts == [(HitType.MISS, None, False)]
+    orch.clear()
+
+
+def test_blind_replay_walk_exception_falls_through_to_miss():
+    gate = _ReplayStubGate(replay_id="traj:0")
+    orch, _, storage = make_orchestrator(gate=gate)
+    # Dangling next link: "traj:ghost" is never inserted -> walk raises -> caught,
+    # then the same fail-safe fall-through as the empty tail.
+    insert_entry(storage, CheckpointID.CP1, _unit_vector(32, 0),
+                 CachePayload(action_chunk=torch.randn(4, 32)),
+                 entry_id="traj:0", next_ids=["traj:ghost"], trajectory_id="traj")
+
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(_unit_vector(32, 5)))
+
+    assert result.hit_type == HitType.MISS and result.searched is False
+    assert gate.verdicts == [(HitType.MISS, None, False)]
+    orch.clear()
+
+
+def test_blind_replay_not_taken_when_replay_target_none():
+    # replay_target None -> plain gate-skip, unchanged (no blind replay attempted).
+    gate = _ReplayStubGate(replay_id=None)
+    orch, _, _ = make_orchestrator(gate=gate)
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(_unit_vector(32, 5)))
+    assert result.hit_type == HitType.MISS and result.searched is False
+    assert gate.verdicts == [(HitType.MISS, None, False)]
+    orch.clear()

@@ -479,6 +479,43 @@ class CacheOrchestrator:
             self._state_history.append(query_keys["robot_state"].detach().cpu())
 
         if not should_search:
+            # N2 blind-replay branch (FollowWinnerGate): a gate that has locked a
+            # winner trajectory asks -- via replay_target(), guarded by hasattr so
+            # every other gate is unaffected -- to replay that episode's NEXT cached
+            # action with no search / judge / inference. Stage 1 + build() already
+            # ran above; the interceptor sees FULL_HIT and short-circuits stages 2/3.
+            replay_id = gate.replay_target() if hasattr(gate, "replay_target") else None
+            if replay_id is not None:
+                try:
+                    entries = StoragePayloadView(self._storage).walk_next(replay_id, 1)
+                except Exception:  # noqa: BLE001 - fork/missing-entry/backend fail-safe
+                    logger.warning(
+                        "[step %d] blind-replay walk_next(%s) failed; unlocking and "
+                        "falling through to skip", self._step_counter, replay_id,
+                    )
+                    entries = []
+                if entries:
+                    nxt = entries[0]
+                    # Record query_keys so trajectory history stays gap-free (same
+                    # as the skip path); this replay is not a miss.
+                    if hasattr(strategy, 'record_query_keys'):
+                        strategy.record_query_keys(query_keys)
+                    if checkpoint_id == CheckpointID.CP1:
+                        self._step_counter += 1
+                    # searched=False FULL_HIT: a cached action replayed without a
+                    # real search. Feeds the gate so it advances its cursor / spends
+                    # budget (winner_id is the replayed entry's id).
+                    self._feed_verdict_to_gate(
+                        checkpoint_id, hit_type=HitType.FULL_HIT, cp1_score=None,
+                        winner_id=nxt.id, start_t=None, searched=False,
+                    )
+                    return CheckResult(
+                        hit_type=HitType.FULL_HIT, payload=nxt.payload,
+                        entry_id=nxt.id, query_keys=query_keys, searched=False,
+                    )
+                # Trajectory exhausted / walk failed: fall through to the skip path
+                # below. Its searched=False MISS (winner_id=None) unlocks the gate.
+
             # Gate skip: record query_keys to strategy history (trajectory gap-free)
             if hasattr(strategy, 'record_query_keys'):
                 strategy.record_query_keys(query_keys)

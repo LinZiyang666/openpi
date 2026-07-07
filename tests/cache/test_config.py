@@ -1697,3 +1697,71 @@ def test_score_sum_per_field_missing_coverage():
     )
     with pytest.raises(ConfigValidationError, match="missing"):
         validate_cache_config(cfg)
+
+
+# ---------------------------------------------------------------------------
+# follow_winner gate (Stage 4a N2) validation
+# ---------------------------------------------------------------------------
+
+
+def _follow_winner_cfg(gate_cfg: GateConfig) -> CacheConfig:
+    """follow_winner needs an in_memory backend; the shared helper defaults to
+    qdrant (with a qdrant-only search strategy), so swap in an in_memory backend
+    and an in_memory-compatible strategy for the valid / gate-param tests."""
+    cfg = _minimal_cache_config_with_gate(gate_cfg)
+    cfg.backend = BackendConfig(type="in_memory", vector_dims={"robot_state": 32})
+    # weighted_rrf_knn is the minimal in_memory-compatible strategy (unlike
+    # weighted_score_sum_knn it needs no score_normalization block), so the only
+    # thing under test here is the gate validation.
+    cfg.checkpoints["cp1"].search_strategy = SearchStrategyConfig(type="weighted_rrf_knn")
+    return cfg
+
+
+def test_follow_winner_gate_valid_config_passes():
+    cfg = _follow_winner_cfg(GateConfig(type="follow_winner", lock_streak=3, budget=5))
+    validate_cache_config(cfg)  # must not raise
+
+
+def test_follow_winner_gate_missing_lock_streak_rejected():
+    cfg = _follow_winner_cfg(GateConfig(type="follow_winner", budget=5))
+    with pytest.raises(ConfigValidationError, match="requires 'lock_streak'"):
+        validate_cache_config(cfg)
+
+
+def test_follow_winner_gate_missing_budget_rejected():
+    cfg = _follow_winner_cfg(GateConfig(type="follow_winner", lock_streak=3))
+    with pytest.raises(ConfigValidationError, match="requires 'budget'"):
+        validate_cache_config(cfg)
+
+
+def test_follow_winner_gate_zero_lock_streak_rejected():
+    cfg = _follow_winner_cfg(GateConfig(type="follow_winner", lock_streak=0, budget=5))
+    with pytest.raises(ConfigValidationError, match="lock_streak=0"):
+        validate_cache_config(cfg)
+
+
+def test_follow_winner_gate_stray_field_rejected():
+    cfg = _follow_winner_cfg(
+        GateConfig(type="follow_winner", lock_streak=3, budget=5, cache_len=7)
+    )
+    with pytest.raises(ConfigValidationError, match="cannot set"):
+        validate_cache_config(cfg)
+
+
+def test_follow_winner_gate_requires_in_memory_backend():
+    # The shared helper backend is qdrant; blind replay needs in_memory -> reject.
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="follow_winner", lock_streak=3, budget=5)
+    )
+    with pytest.raises(ConfigValidationError, match="requires backend"):
+        validate_cache_config(cfg)
+
+
+def test_legacy_gate_rejects_follow_winner_fields():
+    # A legacy gate carrying lock_streak / budget is rejected as stray fields
+    # (they are now part of _gate_all_param_fields).
+    cfg = _minimal_cache_config_with_gate(
+        GateConfig(type="always_search", lock_streak=3, budget=5)
+    )
+    with pytest.raises(ConfigValidationError, match="cannot set"):
+        validate_cache_config(cfg)

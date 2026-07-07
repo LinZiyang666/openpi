@@ -180,11 +180,13 @@ Entry chain format:
 | `periodic` | `cache_len` searches then `inference_len` skips, repeating. Params: `cache_len`, `inference_len`. |
 | `client_controlled` | Decision from the per-request `__gate_decision__` client signal (exp-layer N1/N2 prototyping). |
 | `score_hysteresis` | Server-side N1 score-hysteresis gate, plus the optional N4 V2 injection. Params: `theta_low`, `theta_high`, `j`, `probe_interval` (optional; `None`/omitted = never probe), `L` (optional; `None`/omitted = pure N1 latency profile; `L: 6` = N4 SR profile that caps a continuous cache-execution run at `L` and injects a skip). |
+| `follow_winner` | Server-side N2 lockstep blind-replay gate (Stage 4a). Locks a stable lockstep hit segment and blind-replays the winner episode's next cached action (no search/judge/inference) for `budget` steps. Params: `lock_streak`, `budget`. **Requires an `in_memory` backend.** Note: `lock_streak` counts adjacent lockstep *transitions*, so `lock_streak=N` needs `N+1` consecutive lockstep FULL_HITs. |
 
 Gate lifecycle methods (all optional; the orchestrator guards each call):
 - `on_episode_start(task_key="")` — reset per-episode state; receives the episode `task_key` (broadcast filtered by signature, so a no-arg override still works).
 - `record_action(action)` — receive the broadcast action (trajectory-aware gates).
-- `record_verdict(checkpoint_id, *, hit_type, cp1_score, winner_id, start_t, searched)` — receive this step's verdict after the judge runs, so a stateful gate can condition the next decision. Consumed by `score_hysteresis`: `cp1_score`/`searched` drive the N1 hysteresis, and `hit_type` (a `HitType` enum) drives the N4 V2 cache-execution run counter. See [architecture/cache_system.md §5.5](../architecture/cache_system.md#55-gatefunction-pluggable).
+- `record_verdict(checkpoint_id, *, hit_type, cp1_score, winner_id, start_t, searched)` — receive this step's verdict after the judge runs, so a stateful gate can condition the next decision. Consumed by `score_hysteresis`: `cp1_score`/`searched` drive the N1 hysteresis, and `hit_type` (a `HitType` enum) drives the N4 V2 cache-execution run counter. `follow_winner` also consumes it (blind-replay steps arrive as `searched=False`). See [architecture/cache_system.md §5.5](../architecture/cache_system.md#55-gatefunction-pluggable).
+- `replay_target() -> str | None` — Stage 4a N2 blind-replay hook: a locked `follow_winner` gate returns the winner cursor `entry_id` so the orchestrator replays the successor cached action (no search/judge/inference). Docstring-only optional hook (never a Protocol method).
 
 **`score_hysteresis` YAML** — two deployment profiles (θ / j / probe_interval from Stage-1b calibration; `L=6` from the Stage-3a live verdict):
 
@@ -209,6 +211,21 @@ checkpoints:
       j: 3
       probe_interval: 3
       L: 6                   # inject one skip after 6 continuous FULL_HIT replays
+```
+
+**`follow_winner` YAML** (Stage 4a N2) — must pair with an `in_memory` backend:
+
+```yaml
+checkpoints:
+  cp1:
+    gate:
+      type: follow_winner
+      lock_streak: 3         # lock after 3 lockstep transitions (== 4 consecutive lockstep FULL_HITs)
+      budget: 5              # blind-replay up to 5 steps before unlocking
+backend:
+  type: in_memory           # required: blind replay walks the winner chain via walk_next/fetch_entry
+  in_memory:
+    preload_path: exp/common/data/cache_artifacts/<suite>/<keybuilder>.pkl
 ```
 
 ---
