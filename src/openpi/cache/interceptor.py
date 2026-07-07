@@ -76,11 +76,10 @@ import jax
 import numpy as np
 import torch
 from openpi_client import base_policy as _base_policy
-from typing_extensions import override
 
 from openpi.cache.components.judge import HitType
 from openpi.cache.orchestrator import CacheOrchestrator
-from openpi.cache.timing import SystemTimer, TaskLifecycle
+from openpi.cache.timing import SystemTimer
 from openpi.cache.types import CheckpointID
 from openpi.models import model as _model
 from openpi.models_pytorch.stage_device_placement import StageDeviceConfig
@@ -490,17 +489,26 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         analysis code does not need a parallel "no-cache" branch.
         """
         if cp1_result is None:
+            # cache-off / orchestrator never executed: every step is a full
+            # inference, so ``searched`` is conceptually True (never a skip).
             return {
                 "hit_type": "MISS",
                 "start_t": None,
                 "winner_id": None,
                 "cp1_score": None,
+                "searched": True,
             }
         meta = {
             "hit_type": cp1_result.hit_type.name,
             "start_t": cp1_result.start_t,
             "winner_id": cp1_result.entry_id,
             "cp1_score": cp1_result.score,
+            # ``searched`` distinguishes a real cache search from a gate-skip or a
+            # server-side gate's blind replay (FULL_HIT with searched=False). It
+            # rides the always-on __hit_meta__ channel (no export_collect_meta /
+            # C5 always-search guard) so a server-side gate (e.g. follow_winner)
+            # can have per-step searched recorded without the client stamping it.
+            "searched": cp1_result.searched,
         }
         # Optional diagnostic side-channel: per-step raw + normalized factor
         # values + composer score + cold-start sentinel. Only populated when

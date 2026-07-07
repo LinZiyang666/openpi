@@ -68,6 +68,8 @@ def test_full_hit_attaches_hit_meta() -> None:
     # ThresholdJudge fires FULL_HIT only on score >= 0.98; the writer-stored
     # entry uses the same query_keys so similarity ≈ 1.0.
     assert meta["cp1_score"] is not None and meta["cp1_score"] >= 0.98
+    # always-search gate: a real cache search ran, so searched=True.
+    assert meta["searched"] is True
 
 
 # ---------------------------------------------------------------------------
@@ -93,6 +95,8 @@ def test_miss_attaches_hit_meta() -> None:
     assert meta["winner_id"] is None
     # ThresholdJudge returns score=None on MISS (no candidate met threshold).
     assert meta["cp1_score"] is None
+    # always-search MISS: the search ran (empty result), so searched=True.
+    assert meta["searched"] is True
 
 
 # ---------------------------------------------------------------------------
@@ -153,6 +157,7 @@ def test_warm_start_attaches_hit_meta_with_start_t() -> None:
     # ThresholdJudge picks the tier when score >= warm_tiers[0].threshold and
     # below cp1_threshold; verify we landed in that band.
     assert 0.95 <= meta["cp1_score"] < 0.98
+    assert meta["searched"] is True
 
 
 # ---------------------------------------------------------------------------
@@ -174,4 +179,22 @@ def test_no_orchestrator_attaches_miss_placeholder() -> None:
         "start_t": None,
         "winner_id": None,
         "cp1_score": None,
+        # cache-off = every step full inference -> searched True (never a skip).
+        "searched": True,
     }
+
+
+def test_hit_meta_carries_searched_from_check_result() -> None:
+    """``__hit_meta__.searched`` copies ``CheckResult.searched`` verbatim so a
+    server-side gate's blind replay (FULL_HIT with searched=False) and a gate
+    skip are distinguishable from a real cache search on the always-on channel."""
+    from openpi.cache.components.judge import HitType
+    from openpi.cache.orchestrator import CheckResult
+
+    replay = CheckResult(hit_type=HitType.FULL_HIT, searched=False, entry_id="traj:1")
+    meta = InferenceInterceptor._build_hit_meta(replay)
+    assert meta["hit_type"] == "FULL_HIT" and meta["searched"] is False
+    assert meta["winner_id"] == "traj:1"
+
+    searched_miss = CheckResult(hit_type=HitType.MISS, searched=True)
+    assert InferenceInterceptor._build_hit_meta(searched_miss)["searched"] is True

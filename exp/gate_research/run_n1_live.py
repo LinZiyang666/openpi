@@ -7,6 +7,9 @@ Dispatches by the single eval YAML's CP1 gate type:
   - ``periodic`` -> the default worker (``examples.libero.worker_entry``); no client
     signal is sent (a ``PeriodicGate`` rejects it). ``cache_len`` / ``inference_len``
     are read from the YAML for the manifest.
+  - ``follow_winner`` (N2, server-side) -> the default worker, same as periodic (no
+    client signal). ``lock_streak`` / ``budget`` are read from the YAML; the server
+    stamps per-step ``searched`` on ``__hit_meta__`` (no ``export_collect_meta``).
 
 Both paths reuse the same conductor skeleton as ``run_collect.py`` (eval-only
 ``WarmupEvalStrategy``, incremental per-step append) and write a run manifest
@@ -76,6 +79,9 @@ def gate_info(yaml_path: str | Path) -> dict:
         "type": gate["type"],
         "cache_len": gate.get("cache_len"),
         "inference_len": gate.get("inference_len"),
+        # follow_winner (N2, server-side) params; None unless the gate is N2.
+        "lock_streak": gate.get("lock_streak"),
+        "budget": gate.get("budget"),
     }
 
 
@@ -91,8 +97,12 @@ def build_manifest(args, yaml_path: Path, ginfo: dict) -> dict:
         # meaningless for periodic (gate_type is the discriminator there). L is
         # the N4 V2 injection threshold, None for n1/periodic. getattr keeps older
         # callers that build the args namespace without these fields working.
-        "gate_family": getattr(args, "gate_family", "n1"),
+        "gate_family": "n2" if ginfo["type"] == "follow_winner" else getattr(args, "gate_family", "n1"),
         "L": getattr(args, "L", None),
+        # follow_winner (N2) params; .get keeps hand-built ginfo (older callers /
+        # tests without these keys) working -- real gate_info() always supplies them.
+        "lock_streak": ginfo.get("lock_streak"),
+        "budget": ginfo.get("budget"),
         "theta_low": args.theta_low,
         "theta_high": args.theta_high,
         "j": args.j,
@@ -157,7 +167,16 @@ def _resolve_worker_and_env(ginfo: dict, args) -> str:
             raise SystemExit("periodic yaml must set cache_len and inference_len")
         # Default worker: no client signal (PeriodicGate is server-side).
         return DEFAULT_WORKER_MODULE
-    raise SystemExit(f"unsupported gate.type {gtype!r}; expected client_controlled or periodic")
+    if gtype == "follow_winner":
+        # N2 is a server-side event-driven gate (like periodic): the default
+        # worker sends no client signal; the server drives lock/blind-replay and
+        # stamps per-step ``searched`` on ``__hit_meta__``. lock_streak / budget
+        # live in the YAML; fail fast if absent.
+        if ginfo.get("lock_streak") is None or ginfo.get("budget") is None:
+            raise SystemExit("follow_winner yaml must set lock_streak and budget")
+        return DEFAULT_WORKER_MODULE
+    raise SystemExit(
+        f"unsupported gate.type {gtype!r}; expected client_controlled, periodic, or follow_winner")
 
 
 def _add_args(ap: argparse.ArgumentParser) -> None:

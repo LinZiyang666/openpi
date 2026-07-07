@@ -281,14 +281,15 @@ def test_gate_info_client_controlled(tmp_path):
     y = tmp_path / "cc.yaml"
     y.write_text("checkpoints:\n  cp1:\n    gate:\n      type: client_controlled\n")
     assert run_n1_live.gate_info(y) == {"type": "client_controlled", "cache_len": None,
-                                        "inference_len": None}
+                                        "inference_len": None, "lock_streak": None, "budget": None}
 
 
 def test_gate_info_periodic(tmp_path):
     y = tmp_path / "p.yaml"
     y.write_text("checkpoints:\n  cp1:\n    gate:\n      type: periodic\n"
                  "      cache_len: 13\n      inference_len: 2\n")
-    assert run_n1_live.gate_info(y) == {"type": "periodic", "cache_len": 13, "inference_len": 2}
+    assert run_n1_live.gate_info(y) == {"type": "periodic", "cache_len": 13, "inference_len": 2,
+                                        "lock_streak": None, "budget": None}
 
 
 def test_resolve_worker_client_controlled_sets_env(monkeypatch):

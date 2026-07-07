@@ -99,6 +99,44 @@ def test_hit_row_global_episode_id():
     assert "episode_idx" not in row and "step" not in row
 
 
+def test_hit_row_carries_searched_from_hit_meta():
+    from examples.libero.episode_runner import _hit_row
+
+    task = _task(task_id=1, episode_idx=3)
+    # searched rides __hit_meta__ (a server-side gate's blind replay is a
+    # FULL_HIT with searched=False).
+    assert _hit_row(task, 0, {"hit_type": "FULL_HIT", "searched": False}, 50)["searched"] is False
+    # absent (pre-change server / no field) -> None; the analyzer fail-fasts on a
+    # non-bool searched rather than guessing skip/search.
+    assert _hit_row(task, 0, {"hit_type": "MISS"}, 50)["searched"] is None
+
+
+def test_infer_recorder_uses_hit_meta_searched_when_no_collect_meta():
+    # N2 (server-side follow_winner): no client stamp + server export off ->
+    # collect_meta is None, so per-step searched must come from __hit_meta__.
+    def run_ep(env, client, init, desc, args, max_steps, *, infer_recorder, step_callback):
+        infer_recorder(0, {"hit_type": "FULL_HIT", "searched": False}, None)  # blind replay
+        infer_recorder(1, {"hit_type": "MISS", "searched": True}, None)       # real search miss
+        return (True, None, None, None, 2)
+
+    result = _make_runner(run_ep).run(_task(), report=lambda *a, **k: None)
+    steps = [r for r in result.per_step_rows if r.get("_kind") != "episode_summary"]
+    assert [s["searched"] for s in steps] == [False, True]
+
+
+def test_infer_recorder_collect_meta_searched_overrides_hit_meta():
+    # When collect_meta is present (N1/N4 client stamp or a collection run) its
+    # searched wins over __hit_meta__'s, preserving that provenance.
+    def run_ep(env, client, init, desc, args, max_steps, *, infer_recorder, step_callback):
+        infer_recorder(0, {"hit_type": "MISS", "searched": True},
+                       {"searched": False, "collect": {"robot_state": [1.0]}})
+        return (True, None, None, None, 1)
+
+    result = _make_runner(run_ep).run(_task(), report=lambda *a, **k: None)
+    steps = [r for r in result.per_step_rows if r.get("_kind") != "episode_summary"]
+    assert steps[0]["searched"] is False  # collect_meta wins
+
+
 def _collect_run_ep(env, client, init, desc, args, max_steps, *, infer_recorder, step_callback):
     infer_recorder(0, {"hit_type": "MISS"}, {"searched": True, "collect": {"robot_state": [1.0]}})
     return (True, None, None, None, 1)

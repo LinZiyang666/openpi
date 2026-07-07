@@ -139,9 +139,10 @@ def reconstruct_searched(n_steps: int, cache_len: int, inference_len: int) -> li
 
 
 def episode_searched(ep: list[dict], gate_type: str, manifest: dict) -> list[bool]:
-    """Per-step ``searched`` flags for one episode. client_controlled uses the
-    authoritative recorded field (missing / non-bool -> data-integrity error);
-    periodic reconstructs from the closed form."""
+    """Per-step ``searched`` flags for one episode. ``periodic`` reconstructs from
+    the closed form; every other gate (client_controlled N1/N4, follow_winner N2)
+    uses the authoritative recorded field (missing / non-bool -> data-integrity
+    error, never silently guessed)."""
     if gate_type == "periodic":
         return reconstruct_searched(len(ep), manifest["cache_len"], manifest["inference_len"])
     flags = []
@@ -149,9 +150,10 @@ def episode_searched(ep: list[dict], gate_type: str, manifest: dict) -> list[boo
         s = r.get("searched")
         if not isinstance(s, bool):
             raise ValueError(
-                f"client_controlled per-step row lacks a bool 'searched' "
+                f"{gate_type} per-step row lacks a bool 'searched' "
                 f"(task_uid={r.get('task_uid')!r} step={r.get('step_idx')}); "
-                "the N1 wrapper must stamp it -- refusing to guess skip.")
+                "the client stamp (N1/N4 __collect_meta__) or server __hit_meta__ "
+                "(follow_winner) must set it -- refusing to guess skip.")
         flags.append(s)
     return flags
 
@@ -169,11 +171,16 @@ def run_metrics(manifest: dict) -> dict:
     for ep in episodes.values():
         for r, searched in zip(ep, episode_searched(ep, gate_type, manifest)):
             n_steps += 1
+            # inf is a function of the VERDICT, not of ``searched``: a MISS runs a
+            # full inference (inf=1); a FULL_HIT replays a cached action (inf=0)
+            # whether from a real search or a server-side gate's blind replay
+            # (follow_winner: FULL_HIT with searched=False). N1/N4/periodic only
+            # ever produce MISS on searched=False, so inf_value(MISS)=1.0 keeps
+            # them numerically identical while scoring N2 blind replay correctly.
+            inf_sum += inf_value(r.get("hit_type"), r.get("start_t"))
             if not searched:
                 n_skip += 1
-                inf_sum += 1.0
             else:
-                inf_sum += inf_value(r.get("hit_type"), r.get("start_t"))
                 verdict[r.get("hit_type")] += 1
     skip_pct = n_skip / n_steps if n_steps else 0.0
     live_inf = inf_sum / n_steps if n_steps else 0.0
@@ -407,15 +414,21 @@ def analyze(manifests: list[dict]) -> list[dict]:
 
     periodic_runs = [r for r in runs if r["gate_type"] == "periodic"]
     for r in runs:
-        if r["gate_type"] != "client_controlled":
-            continue
-        if r.get("gate_family", "n1") == "n4":
-            # N4 pairs its periodic by inf_ratio and gates overall on 3 conditions.
+        gt = r["gate_type"]
+        # follow_winner (N2, server-side) and client_controlled N4 share the
+        # inf-matched pass-line: matched periodic paired by inf_ratio + the
+        # 3-condition overall (SR>=periodic, SR>=baseline-1, net@34>=0). Both go
+        # through match_periodic_n4 + n4_overall (the n4_* field names are kept so
+        # N4 result-manifest/report stay byte-identical). N1 (client_controlled,
+        # non-n4) uses skip-matched periodic + the 2-condition overall below.
+        if gt == "follow_winner" or (gt == "client_controlled" and r.get("gate_family", "n1") == "n4"):
             pv = match_periodic_n4(r, periodic_runs)
             r["periodic_verdict"] = pv
             r["overall"], comps = n4_overall(r, pv)
             if comps is not None:  # surface components so any failure is localizable
                 r["overall_components"] = comps
+            continue
+        if gt != "client_controlled":
             continue
         pv = match_periodic(r, periodic_runs)
         r["periodic_verdict"] = pv
@@ -446,16 +459,19 @@ def _periodic_cell(r: dict) -> str:
 
 
 def _n4_components_table(runs: list[dict]) -> list[str]:
-    """N4-only verdict-components table: one row per N4 run, showing the three
-    overall pass components so a fail is localizable on the same page as overall
-    (e.g. net34 fails while periodic/SR pass). Empty for reports with no N4 run."""
-    n4_runs = [r for r in runs if r.get("gate_family") == "n4"]
-    if not n4_runs:
+    """Verdict-components table for the inf-matched families (N4 hybrid gate / N2
+    follow_winner): one row per run, showing the three overall pass components so
+    a fail is localizable on the same page as overall (e.g. net34 fails while
+    periodic/SR pass). Empty for reports with no such run."""
+    inf_runs = [r for r in runs if r.get("gate_family") in ("n4", "n2")]
+    if not inf_runs:
         return []
-    out = ["", "N4 overall 分量（三条件同真 = pass；任一 False = fail；无 inf 内对照 = pending）：",
-           "| N4 run | L | sr_ok | periodic_pass_n4 | net34_ok | overall |",
+    # N4-only reports keep the header byte-identical; N2 reports get a distinct label.
+    col = "N2/N4" if any(r.get("gate_family") == "n2" for r in inf_runs) else "N4"
+    out = ["", f"{col} overall 分量（三条件同真 = pass；任一 False = fail；无 inf 内对照 = pending）：",
+           f"| {col} run | L | sr_ok | periodic_pass_n4 | net34_ok | overall |",
            "|---|---|---|---|---|---|"]
-    for r in n4_runs:
+    for r in inf_runs:
         c = r.get("overall_components")
         if c is None:  # pending: no matched periodic within tolerance
             cells = "— | — | —"
@@ -463,18 +479,26 @@ def _n4_components_table(runs: list[dict]) -> list[str]:
             cells = (f"{'ok' if c['sr_ok'] else 'FAIL'} | "
                      f"{'PASS' if c['periodic_pass_n4'] else 'FAIL'} | "
                      f"{'ok' if c['net34_ok'] else 'FAIL'}")
-        out.append(f"| {r['run_id']} | {r.get('L', '—')} | {cells} | {r.get('overall', '—')} |")
+        out.append(f"| {r['run_id']} | {r.get('L') or '—'} | {cells} | {r.get('overall', '—')} |")
     return out
 
 
 def render_md(runs: list[dict]) -> str:
     has_n4 = any(r.get("gate_family") == "n4" for r in runs)
-    # N1-only reports keep the Stage-1b title/caption byte-for-byte; N4 reports get
-    # a correct title, a components table, and the N4 three-condition caption.
-    title = "# Gate Live 验证结果（N4 混合门 / Stage 3a）" if has_n4 else "# N1 Live 验证结果（Stage 1b）"
+    has_n2 = any(r.get("gate_family") == "n2" for r in runs)
+    has_inf = has_n4 or has_n2  # inf-matched families (N4 hybrid / N2 follow_winner)
+    # N1-only reports keep the Stage-1b title/caption byte-for-byte; N4-only reports
+    # keep the Stage-3a title byte-for-byte; N2 reports get their own title. Each
+    # family adds its 3-condition components table + caption.
+    if has_n2:
+        title = "# Gate Live 验证结果（N2 追随赢家门 / Stage 4a）"
+    elif has_n4:
+        title = "# Gate Live 验证结果（N4 混合门 / Stage 3a）"
+    else:
+        title = "# N1 Live 验证结果（Stage 1b）"
     lines = [title, ""]
     lines.append("| run | gate | skip% | SR(run/base) | ΔSR pp | SR-ok | vs-periodic | overall |"
-                 if has_n4 else
+                 if has_inf else
                  "| run | gate | skip% | SR(N1/base) | ΔSR pp | SR-ok | vs-periodic | overall |")
     lines.append("|---|---|---|---|---|---|---|---|")
     for r in runs:
@@ -502,6 +526,11 @@ def render_md(runs: list[dict]) -> str:
                     "（inf_ratio 轴，非 skip%）下 **N4_SR ≥ periodic_SR**（periodic_pass_n4）、"
                     "**SR ≥ baseline − 1pp**（sr_ok）、**net@stock_2.6k ≥ 0**（net34_ok）；"
                     "inf 容差内无候选 = pending，inf 并列 = raise。")
+    if has_n2:
+        caption += ("　**N2（follow_winner）overall pass** 与 N4 同：matched periodic 按 **|Δinf| ≤ 0.03** "
+                    "配对（inf_ratio 轴）下 **N2_SR ≥ periodic_SR**、**SR ≥ baseline − 1pp**、"
+                    "**net@stock_2.6k ≥ 0**（skip% = 盲回放+locked-tail 的 searched=False 占比）；"
+                    "盲回放步 `FULL_HIT × searched=False` 记 inf=0。inf 容差内无候选 = pending。")
     lines += ["", caption, ""]
     return "\n".join(lines)
 

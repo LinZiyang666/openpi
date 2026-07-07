@@ -72,6 +72,11 @@ def _hit_row(task: _task.EpisodeTask, step: int, hit: dict, num_trials_per_task:
         "start_t": hit.get("start_t"),
         "winner_id": hit.get("winner_id"),
         "cp1_score": hit.get("cp1_score"),
+        # searched from the always-on __hit_meta__ (server-side gates like
+        # follow_winner have no client stamp). When collect_meta is present
+        # (N1/N4 client stamp, or a collection run) infer_recorder overrides
+        # this with collect_meta.searched, preserving that provenance.
+        "searched": hit.get("searched"),
     }
 
 

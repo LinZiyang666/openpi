@@ -93,6 +93,22 @@ def test_resolve_worker_periodic_unchanged():
     assert mod == run_n1_live.DEFAULT_WORKER_MODULE
 
 
+def test_resolve_worker_follow_winner_default_worker():
+    # N2 is server-side (like periodic): default worker, no client signal.
+    mod = run_n1_live._resolve_worker_and_env(
+        {"type": "follow_winner", "lock_streak": 3, "budget": 5}, _ns())
+    assert mod == run_n1_live.DEFAULT_WORKER_MODULE
+
+
+def test_resolve_worker_follow_winner_requires_params():
+    with pytest.raises(SystemExit, match="lock_streak and budget"):
+        run_n1_live._resolve_worker_and_env(
+            {"type": "follow_winner", "lock_streak": None, "budget": 5}, _ns())
+    with pytest.raises(SystemExit, match="lock_streak and budget"):
+        run_n1_live._resolve_worker_and_env(
+            {"type": "follow_winner", "lock_streak": 3, "budget": None}, _ns())
+
+
 # ----------------------------------------------------------------------
 # (test 19) build_manifest N4 provenance + N1/periodic compatible defaults
 # ----------------------------------------------------------------------
@@ -125,3 +141,16 @@ def test_build_manifest_defaults_when_fields_absent(tmp_path):
     m = run_n1_live.build_manifest(
         args, y, {"type": "periodic", "cache_len": 7, "inference_len": 1})
     assert m["gate_family"] == "n1" and m["L"] is None
+
+
+def test_build_manifest_follow_winner_fields(tmp_path):
+    # N2: gate_family is derived from the gate type ("n2"), lock_streak/budget
+    # come from gate_info (the YAML), regardless of args.gate_family.
+    y = tmp_path / "cfg.yaml"
+    y.write_text("x: 1")
+    args = _manifest_args(gate_family="n1", L=None)
+    m = run_n1_live.build_manifest(
+        args, y, {"type": "follow_winner", "cache_len": None, "inference_len": None,
+                  "lock_streak": 3, "budget": 5})
+    assert m["gate_type"] == "follow_winner" and m["gate_family"] == "n2"
+    assert m["lock_streak"] == 3 and m["budget"] == 5

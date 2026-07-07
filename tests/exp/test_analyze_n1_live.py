@@ -148,6 +148,42 @@ def test_run_metrics_missing_searched_raises(tmp_path):
         A.run_metrics(_manifest(per_step_out_path=str(per), journal_path=str(jr)))
 
 
+def test_run_metrics_follow_winner_blind_replay_inf(tmp_path):
+    # N2: a blind-replay step is FULL_HIT with searched=False -> inf=0 (cached
+    # action, no inference), unlike N1/N4 whose searched=False is a MISS (inf=1).
+    # inf now comes from the verdict (inf_value), not a searched=False hardcode.
+    uid = "y:eval:0:0"
+    per = tmp_path / "rows.jsonl"
+    _write_jsonl(per, [
+        _row(uid, 0, "FULL_HIT", True, 1),    # real search hit -> inf 0
+        _row(uid, 1, "FULL_HIT", False, 1),   # blind replay -> searched=False, inf 0
+        _row(uid, 2, "MISS", False, 1),       # locked-tail fallback -> searched=False, inf 1
+        _row(uid, 3, "MISS", True, 1),        # real search miss -> inf 1
+    ])
+    jr = tmp_path / "j.jsonl"
+    _write_jsonl(jr, [{"task_uid": uid, "yaml_id": "y", "success": True}])
+    met = A.run_metrics(_manifest(gate_type="follow_winner", gate_family="n2",
+                                  per_step_out_path=str(per), journal_path=str(jr)))
+    assert met["skip_pct"] == pytest.approx(0.5)          # steps 1,2 searched=False
+    # 0 + 0(replay, NOT 1) + 1(tail) + 1(miss) = 2.0; the old hardcode gave 3.0.
+    assert met["live_inf_ratio"] == pytest.approx(2.0 / 4)
+    assert met["verdict_mix"] == {"FULL_HIT": 1, "MISS": 1}  # over searched steps only
+
+
+def test_run_metrics_follow_winner_missing_searched_raises(tmp_path):
+    # follow_winner (server-side) uses the recorded searched; missing -> raise.
+    uid = "y:eval:0:0"
+    per = tmp_path / "rows.jsonl"
+    row = _row(uid, 0, "FULL_HIT", True, 1)
+    del row["searched"]
+    _write_jsonl(per, [row])
+    jr = tmp_path / "j.jsonl"
+    _write_jsonl(jr, [{"task_uid": uid, "yaml_id": "y", "success": True}])
+    with pytest.raises(ValueError, match="searched"):
+        A.run_metrics(_manifest(gate_type="follow_winner",
+                                per_step_out_path=str(per), journal_path=str(jr)))
+
+
 def test_run_metrics_episode_count_mismatch_raises(tmp_path):
     uid = "y:eval:0:0"
     per = tmp_path / "rows.jsonl"
@@ -385,6 +421,39 @@ def test_analyze_n4_bypasses_replay_and_carries_provenance(tmp_path):
     assert r["overall"] == "pending"   # no periodic candidate present
 
 
+def _fw_manifest(tmp_path, uid="y:eval:0:0"):
+    # N2 follow_winner: step0 real-search FULL_HIT, step1 blind replay (FULL_HIT,
+    # searched=False). Server-side gate -> gate_family n2, no theta/j/M.
+    per = tmp_path / "fw_rows.jsonl"
+    _write_jsonl(per, [_row(uid, 0, "FULL_HIT", True, 1), _row(uid, 1, "FULL_HIT", False, 1)])
+    jr = tmp_path / "fw_j.jsonl"
+    _write_jsonl(jr, [{"task_uid": uid, "yaml_id": "y", "success": True}])
+    gr = tmp_path / "fw_gr.jsonl"
+    _write_jsonl(gr, [_gr(uid, 0, "FULL_HIT"), _gr(uid, 1, "MISS")])
+    return {
+        "run_id": "n2run", "suite": "s", "config": "c", "point": "",
+        "gate_type": "follow_winner", "gate_family": "n2", "L": None,
+        "lock_streak": 3, "budget": 5,
+        "theta_low": None, "theta_high": None, "j": None, "M": None, "matched_to": None,
+        "yaml_id": "y", "baseline_yaml_id": "y", "n_episodes": 1, "replan_steps": 1,
+        "per_step_out_path": str(per), "journal_path": str(jr),
+        "baseline_journal_path": str(jr), "baseline_gate_rows_path": str(gr),
+    }
+
+
+def test_analyze_follow_winner_routes_to_inf_matched(tmp_path):
+    # follow_winner (N2) uses the inf-matched path (like N4), NOT the N1 skip-match
+    # or the N1 offline replay, and gates overall on the 3 conditions.
+    runs = A.analyze([_fw_manifest(tmp_path)])
+    r = runs[0]
+    assert r["gate_type"] == "follow_winner" and r["gate_family"] == "n2"
+    assert "offline" not in r          # N1 offline replay bypassed
+    assert r["overall"] == "pending"   # no periodic candidate within tolerance
+    # blind-replay step (FULL_HIT, searched=False) counts as inf 0, not 1.
+    assert r["live_inf_ratio"] == pytest.approx(0.0)  # both steps FULL_HIT
+    assert r["skip_pct"] == pytest.approx(0.5)        # step1 searched=False
+
+
 # --- render_md must surface the N4 three components + N4 caption (Stage 3a) ---
 def _n4_render_row():
     # net34 FAILS while SR/periodic PASS -> the fail must be localizable in markdown.
@@ -420,4 +489,28 @@ def test_render_md_n1_only_keeps_stage1b_title():
     }
     md = A.render_md([n1_row])
     assert md.startswith("# N1 Live 验证结果（Stage 1b）")
-    assert "periodic_pass_n4" not in md and "net34_ok" not in md
+
+
+def _n2_render_row():
+    # N2 follow_winner: all three components pass (saves search + inference).
+    return {
+        "run_id": "n2_ls3", "gate_type": "follow_winner", "gate_family": "n2", "L": None,
+        "skip_pct": 0.30, "live_inf_ratio": 0.25, "baseline_inf_ratio": 0.35, "d_inf": -0.10,
+        "net": {"opt_2.6k": 5.0, "stock_2.6k": 40.0, "opt_50k": 60.0},
+        "vs_baseline": {"n1_sr": 0.92, "base_sr": 0.90, "sr_delta_pp": 2.0,
+                        "sr_preservation_ok": True, "b": 1, "c": 2},
+        "periodic_verdict": {"periodic_pass_n4": True, "sr_delta_pp": 2.0, "inf_delta": 0.01},
+        "overall_components": {"sr_ok": True, "periodic_pass_n4": True, "net34_ok": True},
+        "overall": "pass",
+    }
+
+
+def test_render_md_n2_shows_components_and_caption():
+    md = A.render_md([_n2_render_row()])
+    assert md.startswith("# Gate Live 验证结果（N2 追随赢家门 / Stage 4a）")
+    assert "# N1 Live" not in md and "Stage 3a" not in md
+    assert "N2/N4 overall 分量" in md                        # components table label
+    assert "N2（follow_winner）overall pass" in md            # N2 three-condition caption
+    # L is '—' for N2 (no injection threshold); all three components pass. The
+    # components table reuses the N4 column names (periodic_pass_n4 / net34_ok).
+    assert "| n2_ls3 | — | ok | PASS | ok | pass |" in md

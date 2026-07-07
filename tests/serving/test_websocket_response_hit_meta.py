@@ -70,6 +70,9 @@ def test_server_propagates_hit_meta_in_infer_response() -> None:
         "start_t": 0.7,
         "winner_id": "episode_0019:42",
         "cp1_score": 0.96,
+        # searched rides __hit_meta__ so a server-side gate's blind replay is
+        # observable client-side; it must survive the wire unchanged.
+        "searched": False,
     }
     infer_result = {
         "actions": [[1.0, 2.0]],
