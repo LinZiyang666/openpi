@@ -39,7 +39,7 @@ import logging
 import math
 import os
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Iterator, Optional
 
@@ -427,6 +427,18 @@ class PrefixReducerConfig:
 
 
 @dataclass
+class ProjectionKeyBuilderConfig:
+    """M1 projection key builder params (only for key_builder.type == 'projection').
+
+    inner_type:   the stateless pool builder whose keys are projected.
+    weights_path: projection artifact (torch-saved ProjectionParams state dict);
+                  None -> identity (output equals the inner pool builder).
+    """
+    inner_type: str = "cp1_mean_pool"
+    weights_path: str | None = None
+
+
+@dataclass
 class KeyBuilderConfig:
     type: str = "placeholder"
     # -- temporal prune params (only for cp1_temporal_prune) --
@@ -436,6 +448,8 @@ class KeyBuilderConfig:
     # -- llm layer extract params (only for cp1_llm_layer_extract) --
     extract_layer: int = 0
     prefix_reducer: PrefixReducerConfig = field(default_factory=PrefixReducerConfig)
+    # -- projection params (only for the 'projection' key builder) --
+    projection: ProjectionKeyBuilderConfig = field(default_factory=ProjectionKeyBuilderConfig)
 
 
 @dataclass
@@ -549,6 +563,7 @@ _CONFIG_TYPES: dict[str, type] = {
     "TimerConfig": TimerConfig,
     "ReducerConfig": ReducerConfig,
     "PrefixReducerConfig": PrefixReducerConfig,
+    "ProjectionKeyBuilderConfig": ProjectionKeyBuilderConfig,
     "KeyBuilderConfig": KeyBuilderConfig,
     "WritePolicyConfig": WritePolicyConfig,
     "CollectionConfig": CollectionConfig,
@@ -1241,12 +1256,27 @@ def validate_cache_config(config: CacheConfig) -> None:
         "cp1_temporal_prune",
         "cp1_llm_layer_extract",
         "clip",
+        "projection",  # M1 outcome-compatible projection over a pool inner
     })
     if config.key_builder.type not in _valid_key_builder_types:
         errors.append(
             f"Unknown key_builder.type '{config.key_builder.type}'.\n"
             f"  Valid types: {sorted(_valid_key_builder_types)}"
         )
+
+    # The projection key builder wraps a stateless pool inner; its inner_type
+    # must be a stateless pool builder (this also blocks 'projection' recursion).
+    if config.key_builder.type == "projection":
+        from openpi.cache.components.projection_key_builder import (
+            STATELESS_POOL_INNER_TYPES,
+        )
+
+        _inner = config.key_builder.projection.inner_type
+        if _inner not in STATELESS_POOL_INNER_TYPES:
+            errors.append(
+                f"projection key_builder inner_type '{_inner}' must be a stateless "
+                f"pool builder.\n  Valid: {sorted(STATELESS_POOL_INNER_TYPES)}"
+            )
 
     # 5 + 7. Per-checkpoint validation.
     _valid_strategy_types = frozenset({
@@ -1698,6 +1728,14 @@ def validate_cache_config(config: CacheConfig) -> None:
             )
 
     # 6. key_builder.type <-> enabled keys cross-validation.
+    # A `projection` wrapper produces the SAME query-key fields as its inner pool
+    # builder, so field-enablement and in_memory-preload constraints below are
+    # evaluated against the effective inner type, not the outer 'projection'.
+    _effective_kb_type = (
+        config.key_builder.projection.inner_type
+        if config.key_builder.type == "projection"
+        else config.key_builder.type
+    )
     if config.key_builder.type == "placeholder":
         unsupported = [f for f in enabled_fields if f not in _PLACEHOLDER_SUPPORTED_FIELDS]
         if unsupported:
@@ -1714,8 +1752,9 @@ def validate_cache_config(config: CacheConfig) -> None:
                 "  Fix: set keys.robot_state.enabled=true"
             )
 
-    # cp1_* builders require at least vision_0 and robot_state.
-    if config.key_builder.type.startswith("cp1_"):
+    # cp1_* builders require at least vision_0 and robot_state (also when the
+    # cp1_* pool is wrapped by projection — see _effective_kb_type).
+    if _effective_kb_type.startswith("cp1_"):
         for f in ("vision_0", "robot_state"):
             if f not in enabled_fields:
                 errors.append(
@@ -1866,9 +1905,10 @@ def validate_cache_config(config: CacheConfig) -> None:
                     f"key_builder.type=clip requires keys.{f}.enabled=true"
                 )
 
-    # in_memory backend + cp1_*/clip builder requires preload_path.
+    # in_memory backend + cp1_*/clip builder requires preload_path (also when the
+    # cp1_* pool is wrapped by projection — see _effective_kb_type).
     if config.backend.type == "in_memory" and (
-        config.key_builder.type.startswith("cp1_") or config.key_builder.type == "clip"
+        _effective_kb_type.startswith("cp1_") or _effective_kb_type == "clip"
     ):
         if not config.backend.in_memory.preload_path:
             errors.append(
@@ -2333,6 +2373,31 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
         from openpi.cache.components.clip_key_builder import CLIPKeyBuilder
 
         return CLIPKeyBuilder(enabled_fields=enabled_fields)
+    elif cfg.type == "projection":
+        from openpi.cache.components.projection_key_builder import (
+            STATELESS_POOL_INNER_TYPES,
+            ProjectionKeyBuilder,
+            ProjectionParams,
+            validate_projection_params,
+        )
+
+        inner_type = cfg.projection.inner_type
+        if inner_type not in STATELESS_POOL_INNER_TYPES:
+            raise ConfigValidationError(
+                f"projection inner_type '{inner_type}' must be a stateless pool "
+                f"builder. Valid: {sorted(STATELESS_POOL_INNER_TYPES)}"
+            )
+        # Reuse the existing pool-builder construction for the inner; the inner
+        # branch ignores cfg.projection, and inner_type != 'projection' bounds
+        # recursion to one level.
+        inner = _build_key_builder(replace(cfg, type=inner_type), enabled_fields, vector_dims)
+        params = (
+            ProjectionParams.load(cfg.projection.weights_path)
+            if cfg.projection.weights_path
+            else None
+        )
+        validate_projection_params(params, inner_type, vector_dims)
+        return ProjectionKeyBuilder(inner, params)
     else:
         raise ConfigValidationError(
             f"Unknown key_builder.type '{cfg.type}'. "

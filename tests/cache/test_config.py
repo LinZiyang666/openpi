@@ -1765,3 +1765,183 @@ def test_legacy_gate_rejects_follow_winner_fields():
     )
     with pytest.raises(ConfigValidationError, match="cannot set"):
         validate_cache_config(cfg)
+
+
+# ---------------------------------------------------------------------------
+# Projection key builder (M1 Phase 2)
+# ---------------------------------------------------------------------------
+
+
+def _robot_state_only_keys():
+    return KeysConfig(
+        vision_0=KeyFieldConfig(enabled=False),
+        vision_1=KeyFieldConfig(enabled=False),
+        vision_2=KeyFieldConfig(enabled=False),
+        prompt_emb=KeyFieldConfig(enabled=False),
+        robot_state=KeyFieldConfig(enabled=True),
+    )
+
+
+def _vision0_robot_state_keys():
+    return KeysConfig(
+        vision_0=KeyFieldConfig(enabled=True),
+        vision_1=KeyFieldConfig(enabled=False),
+        vision_2=KeyFieldConfig(enabled=False),
+        prompt_emb=KeyFieldConfig(enabled=False),
+        robot_state=KeyFieldConfig(enabled=True),
+    )
+
+
+def test_projection_factory_builds_wrapper_and_identity_matches_pool():
+    from types import SimpleNamespace
+
+    from openpi.cache.components.projection_key_builder import ProjectionKeyBuilder
+    from openpi.cache.config import ProjectionKeyBuilderConfig, _build_key_builder
+    from openpi.cache.types import PROMPT_EMB, ROBOT_STATE, VISION_0, VISION_1
+
+    enabled = [VISION_0, VISION_1, PROMPT_EMB, ROBOT_STATE]
+    dims = {VISION_0: 2048, VISION_1: 2048, PROMPT_EMB: 2048, ROBOT_STATE: 32}
+    prefix_len = 256 * 3 + 20
+    stage1 = SimpleNamespace(
+        prefix_embs=torch.randn(1, prefix_len, 2048), state=torch.randn(1, 32)
+    )
+
+    kb = _build_key_builder(
+        KeyBuilderConfig(
+            type="projection",
+            projection=ProjectionKeyBuilderConfig(inner_type="cp1_mean_pool"),
+        ),
+        enabled,
+        dims,
+    )
+    assert isinstance(kb, ProjectionKeyBuilder)
+
+    pool = _build_key_builder(KeyBuilderConfig(type="cp1_mean_pool"), enabled, dims)
+    kb.collect(CheckpointID.CP1, stage1=stage1)
+    pool.collect(CheckpointID.CP1, stage1=stage1)
+    got = kb.build(CheckpointID.CP1)
+    expected = pool.build(CheckpointID.CP1)
+
+    assert set(got) == set(expected)
+    for field in expected:
+        assert torch.equal(got[field], expected[field]), field
+
+
+def test_projection_factory_rejects_bad_inner_type():
+    from openpi.cache.config import ProjectionKeyBuilderConfig, _build_key_builder
+    from openpi.cache.types import ROBOT_STATE
+
+    cfg = KeyBuilderConfig(
+        type="projection",
+        projection=ProjectionKeyBuilderConfig(inner_type="bogus"),
+    )
+    with pytest.raises(ConfigValidationError, match="stateless pool"):
+        _build_key_builder(cfg, [ROBOT_STATE], {ROBOT_STATE: 32})
+
+
+def test_projection_factory_rejects_recursive_inner():
+    from openpi.cache.config import ProjectionKeyBuilderConfig, _build_key_builder
+    from openpi.cache.types import ROBOT_STATE
+
+    cfg = KeyBuilderConfig(
+        type="projection",
+        projection=ProjectionKeyBuilderConfig(inner_type="projection"),
+    )
+    with pytest.raises(ConfigValidationError, match="stateless pool"):
+        _build_key_builder(cfg, [ROBOT_STATE], {ROBOT_STATE: 32})
+
+
+def test_projection_validator_accepts_good_inner():
+    from openpi.cache.config import ProjectionKeyBuilderConfig
+
+    # A projection over cp1_mean_pool inherits the cp1 key contract: it needs
+    # vision_0 + robot_state (qdrant backend => no preload requirement).
+    config = CacheConfig(
+        keys=_vision0_robot_state_keys(),
+        backend=BackendConfig(vector_dims={"vision_0": 2048, "robot_state": 32}),
+        key_builder=KeyBuilderConfig(
+            type="projection",
+            projection=ProjectionKeyBuilderConfig(inner_type="cp1_mean_pool"),
+        ),
+    )
+    validate_cache_config(config)  # no raise
+
+
+def test_projection_inherits_cp1_key_enablement_contract():
+    # G2 finding 1: projection(cp1_mean_pool) must inherit the cp1 requirement
+    # for vision_0; a robot-state-only config is rejected just like direct cp1_*.
+    from openpi.cache.config import ProjectionKeyBuilderConfig
+
+    config = CacheConfig(
+        keys=_robot_state_only_keys(),
+        backend=BackendConfig(vector_dims={"robot_state": 32}),
+        key_builder=KeyBuilderConfig(
+            type="projection",
+            projection=ProjectionKeyBuilderConfig(inner_type="cp1_mean_pool"),
+        ),
+    )
+    with pytest.raises(ConfigValidationError, match="requires keys.vision_0"):
+        validate_cache_config(config)
+
+
+def test_projection_in_memory_requires_preload():
+    # G2 finding 2: in_memory + projection(cp1_*) inherits the cp1 preload
+    # requirement, so a missing preload_path is rejected.
+    from openpi.cache.config import ProjectionKeyBuilderConfig
+
+    config = CacheConfig(
+        keys=_vision0_robot_state_keys(),
+        backend=BackendConfig(
+            type="in_memory", vector_dims={"vision_0": 2048, "robot_state": 32}
+        ),
+        key_builder=KeyBuilderConfig(
+            type="projection",
+            projection=ProjectionKeyBuilderConfig(inner_type="cp1_mean_pool"),
+        ),
+    )
+    with pytest.raises(ConfigValidationError, match="preload_path"):
+        validate_cache_config(config)
+
+
+def test_projection_in_memory_with_preload_accepts():
+    from openpi.cache.config import InMemoryConfig, ProjectionKeyBuilderConfig
+
+    # in_memory requires an in_memory-compatible search strategy (the default
+    # qdrant_weighted_rrf_knn is qdrant-only); use weighted_rrf_knn.
+    in_mem_cp = {
+        "cp1": CheckpointConfig(
+            search_strategy=SearchStrategyConfig(type="weighted_rrf_knn")
+        ),
+        "cp3": CheckpointConfig(
+            search_strategy=SearchStrategyConfig(type="weighted_rrf_knn")
+        ),
+    }
+    config = CacheConfig(
+        keys=_vision0_robot_state_keys(),
+        backend=BackendConfig(
+            type="in_memory",
+            vector_dims={"vision_0": 2048, "robot_state": 32},
+            in_memory=InMemoryConfig(preload_path="artifacts/proj.pkl"),
+        ),
+        key_builder=KeyBuilderConfig(
+            type="projection",
+            projection=ProjectionKeyBuilderConfig(inner_type="cp1_mean_pool"),
+        ),
+        checkpoints=in_mem_cp,
+    )
+    validate_cache_config(config)  # no raise
+
+
+def test_projection_validator_rejects_bad_inner():
+    from openpi.cache.config import ProjectionKeyBuilderConfig
+
+    config = CacheConfig(
+        keys=_robot_state_only_keys(),
+        backend=BackendConfig(vector_dims={"robot_state": 32}),
+        key_builder=KeyBuilderConfig(
+            type="projection",
+            projection=ProjectionKeyBuilderConfig(inner_type="bogus"),
+        ),
+    )
+    with pytest.raises(ConfigValidationError, match="stateless pool"):
+        validate_cache_config(config)

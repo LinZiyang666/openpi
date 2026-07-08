@@ -3,7 +3,7 @@
 - **Status**: Implemented（**G1 + G2 APPROVED 2026-07-07**；§6 Verify green 981 pass / 6 skip；待 owner 确认归档）
 - **Date**: 2026-07-07
 - **Level**: **L2**（新增一个 `SearchStrategy` 可插拔组件；不改任何 Protocol/orchestrator/interceptor/backend/verdict；零训练）
-- **上位依据**: [`tracer_retrieval_refinement_roadmap.log.md`](tracer_retrieval_refinement_roadmap.log.md) Phase 1（M3）。需求由该 roadmap 的 Phase 1 spec 固化（owner 经 `/goal` 授权推进）。
+- **上位依据**: [`tracer_retrieval_refinement_roadmap.log.md`](../tracer_retrieval_refinement_roadmap.log.md) Phase 1（M3）。需求由该 roadmap 的 Phase 1 spec 固化（owner 经 `/goal` 授权推进）。
 - **子实验目录**: `exp/zixuan_proposal/`（源提案 PDF 已归此目录）。
 - **提案锚点**: Eq 7（chain-aware 检索）、Eq 22–23（动态深度 `T_t = argmax ψᵀr_t − μ·cost(T)`）。本期只做**免训练启发式/常数**版；学习 ψ 版押到 roadmap Phase 6。
 

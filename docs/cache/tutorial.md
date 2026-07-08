@@ -163,6 +163,34 @@ Entry chain format:
 | `cp1_max_pool` | `{vision_0: 2048, ...}` | Max pool over tokens | Alternative to mean |
 | `clip` | `{vision_0: 512, ...}` (ViT-B-32) | CLIP image encoder on raw input images | External vision encoder; dim depends on CLIP model |
 | `full_original` | `{vision_0: 524288, ...}` | Raw flatten (Qdrant only) | Deprecated for in_memory |
+| `projection` | inner pool dims (identity), or head `out_dim` when weights loaded | Wraps a stateless pool inner; projects cosine fields (vision_*/prompt_emb) through a per-modality linear head. No weights → identity (== inner). | M1 outcome-compatible projection (skeleton) |
+
+### Outcome-compatible projection (`projection`)
+
+Wraps a stateless pool key builder (`inner_type`) and applies a per-modality
+linear projection `z = x Wᵀ (+ b)` to the cosine fields (vision_0/1/2,
+prompt_emb) — the M1 mechanism from the TRACER retrieval proposal. `robot_state`
+is an L2 field and is never projected.
+
+- **No `weights_path` → identity**: `build()` returns the inner pool builder's
+  exact output, so the projected config is value-for-value equal to the wrapped
+  pool builder (the non-regression anchor).
+- **Same head on both sides**: the online factory and the offline artifact
+  builder (`build_in_memory_cache_artifact.py --builder-type projection
+  --inner-type <pool> --projection-weights <path>`) construct the same wrapper,
+  so library keys and query keys pass through the same head and the backend
+  stays a plain cosine store.
+- Projection weights (`ProjectionParams`, torch-saved) are produced offline. The
+  in-module `fit()` is the InfoNCE fitting mechanism; real weight training lands
+  in a later phase.
+
+```yaml
+key_builder:
+  type: projection
+  projection:
+    inner_type: cp1_mean_pool      # stateless pool builder to wrap
+    weights_path: null             # null → identity; path → per-field projection
+```
 
 ---
 
@@ -482,8 +510,9 @@ keys:
 
 key_builder:
   type: cp1_mean_pool   # "cp1_mean_pool" | "cp1_spatial_pool_16" | "cp1_spatial_pool_4" (alias "cp1_spatial_pool_64")
-                        # | "cp1_max_pool" | "clip" | "placeholder"
+                        # | "cp1_max_pool" | "clip" | "placeholder" | "projection"
                         # Note: "clip" uses open_clip ViT-B-32 by default.
+                        # Note: "projection" wraps a pool inner_type; see §4.
                         # CLIP model variant is set at artifact build time, not in YAML.
 
 checkpoints:

@@ -1,6 +1,6 @@
 # TRACER 检索精炼路线图 — Action-Compatible Failure-Aware Retrieval 的模块化落地
 
-- **Status**: Roadmap（Design-Grounded）— Phase 0 ✅（架构判定/可行性亲验完成）/ Phase 1–7 待逐期立项
+- **Status**: Roadmap（Design-Grounded）— Phase 0 ✅（架构判定/可行性亲验完成）/ **Phase 1 ✅（M3 `dynamic_depth_knn`，G1/G2 APPROVED + §6 Verify green，commit `cea98b2`，2026-07-07；plan 归档 `archive/tracer_phase1_dynamic_depth.log.md`）** / **Phase 2 ✅（M1 `projection` KeyBuilder 骨架，G1/G2 APPROVED + §6 Verify green，2026-07-08）** / Phase 3–7 待逐期立项
 - **Date**: 2026-07-07（创建）
 - **来源**: 合作者提案 `TRACER_RETRIEVAL_REFINED_PROPOSAL.pdf`（*Action-Compatible Failure-Aware Retrieval for VLA Inference Caching*，2026-06-10，含显式方程 Eq 1–28）。文中 "TRACER" = 本 fork 的推理 cache 系统；full-hit / warm-start / miss = 我们的 `HitType`。
 - **Level**: 本文件为**研究产物（L0 纯文档）**。它只负责给整条线**排期与定依赖**，不含代码、不走 G1。**每一期的实现仍是独立的 L2/L3，必须各自走 Understand → Plan → G1 → Code → G2 → Verify。**
@@ -70,8 +70,9 @@
 - 已完成：3 机制 → 部件映射；单 backend / Protocol / config 工厂 / QueryFilter / orchestrator 注入缝 / ScoreNormalizer 范式 全部亲验（§2）；确认"完整实现 = 4 新模块 + 3 additive 缝 + 离线训练/建库"，且完整失败门天生涉及 verdict（`u_t` = kinematic 因子）。
 - 产出：本文件。
 
-### Phase 1 — M3 动态链深（纯新 SearchStrategy）⚪
+### Phase 1 — M3 动态链深（纯新 SearchStrategy）✅
 
+- **✅ 完成（2026-07-07，commit `cea98b2`）**：`dynamic_depth_knn` + `DepthPolicy`（constant / heuristic）落地；G1 R2 / G2 R2 APPROVED；§6 Verify `tests/cache/` **981 pass / 6 skip**；constant@max 逐值等价现有固定深度策略（partial-history golden 守卫）。Plan 归档 [`archive/tracer_phase1_dynamic_depth.log.md`](archive/tracer_phase1_dynamic_depth.log.md)。
 - **目标**：可逐步（per-step）选 trajectory 深度 `T_t ∈ {0,3,5,8}`（Eq 22–23），先用**启发式/常数**策略。
 - **交付物**：新 `SearchStrategy` 子类（继承 `TrajectoryMixin`，内部算深度、建变长 `trajectory_history/weights`）+ config 工厂分支 + 单测。
 - **框架触点**：**零**（套现有 `SearchStrategy` Protocol；backend 已支持变长深度，事实 §2.5）。零 verdict。
@@ -79,8 +80,9 @@
 - **前置**：无。**出场 gate**：常数退化 golden 通过 + 启发式档位可跑。**Level**：L2。
 - **意义**：最干净、无缝、无训练——**首期用来趟通 Plan→G1→Code→G2→Verify 全流程**。
 
-### Phase 2 — M1 投影 KeyBuilder 骨架（identity 默认）⚪
+### Phase 2 — M1 投影 KeyBuilder 骨架（identity 默认）✅
 
+- **✅ 完成（2026-07-08）**：`projection` KeyBuilder（包无状态 pool inner）+ `ProjectionParams`（torch save/load）+ 类上 `fit()`（InfoNCE 机制，合成数据单测，本期不跑真实库）落地；G1 R2 / G2 R2 APPROVED；§6 Verify `tests/cache/` + 库侧脚本测 **1018 pass / 6 skip**；identity 逐值等价内层 pool（两侧同头 golden）+ 加权维度自洽 + projection 继承被包 cp1_* 的 key-enablement/preload 契约。Plan [`tracer_phase2_projection_key_builder.log.md`](tracer_phase2_projection_key_builder.log.md)（G2 Review Log 永久保留）。
 - **目标**：KeyBuilder 支持对每模态过投影头 `z=h_θ`；**无权重时 identity**（等于现有 pool 输出）。`fit()` 逻辑内聚在类上但**本期不调用**。
 - **交付物**：新 `QueryKeyBuilder` 子类（load 权重→投影 / 无权重→identity）+ 类上 `fit(library)->weights`（实现但不跑）+ config 工厂分支 + artifact build 侧投影 hook（identity 默认=no-op）+ 单测。
 - **框架触点**：**零**（套 `QueryKeyBuilder` Protocol；投影两侧都做 → backend 仍普通 cosine，事实 §2）。零 verdict。

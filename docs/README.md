@@ -75,7 +75,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 
 | File | Description |
 |------|-------------|
-| [cache/tutorial.md](cache/tutorial.md) | Complete tutorial: glossary, all components (KeyBuilder/Gate/Judge/SearchStrategy/Backend), YAML config, registration, testing; Search Session score-memo usage (lifecycle through interceptor → orchestrator, mutation contract, manual usage example, `force_legacy_path()` parity escape hatch); §7 `dynamic_depth_knn` (TRACER Phase 1 / M3) per-step adaptive trajectory depth |
+| [cache/tutorial.md](cache/tutorial.md) | Complete tutorial: glossary, all components (KeyBuilder/Gate/Judge/SearchStrategy/Backend), YAML config, registration, testing; Search Session score-memo usage (lifecycle through interceptor → orchestrator, mutation contract, manual usage example, `force_legacy_path()` parity escape hatch); §7 `dynamic_depth_knn` (TRACER Phase 1 / M3) per-step adaptive trajectory depth; §4 `projection` (TRACER Phase 2 / M1) outcome-compatible projection key builder (identity default) |
 | [cache/migration.md](cache/migration.md) \[[EN](cache/migration.en.md)\] | Cache framework migration guide: how to adapt the cache system for non-Pi0.5 models |
 | [cache/temporal_prune.md](cache/temporal_prune.md) \[[EN](cache/temporal_prune.en.md)\] | Temporal Prune KeyBuilder 使用指南：两步架构、参数配置、Reducer 选择、离线 Artifact 构建、生命周期 |
 | [cache/llm_layer_extract.md](cache/llm_layer_extract.md) \[[EN](cache/llm_layer_extract.en.md)\] | CP1 LLM Layer Extract KeyBuilder 使用指南：两步架构（LayerExtractor + PrefixReducer）、attach_model 注入、离线 Stage 1 重建契约（重 tokenize + tokenizer self-check）、在线/离线 parity test |

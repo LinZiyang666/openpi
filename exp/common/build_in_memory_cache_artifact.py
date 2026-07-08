@@ -102,7 +102,22 @@ def _build_artifact_reducer(
 
 
 # Builder types that use dynamic vector dims (not in _VECTOR_DIMS)
-_ALL_BUILDER_TYPES = list(_VECTOR_DIMS.keys()) + ["cp1_temporal_prune", "cp1_llm_layer_extract"]
+_ALL_BUILDER_TYPES = list(_VECTOR_DIMS.keys()) + [
+    "cp1_temporal_prune", "cp1_llm_layer_extract", "projection",
+]
+
+
+def _projection_vector_dims(inner_type: str, params) -> dict[str, int]:
+    """Stored vector dims for a projection artifact.
+
+    Projected fields take their head out_dim; every other field keeps the inner
+    pool dim. Identity (params is None) returns the inner dims unchanged.
+    """
+    dims = dict(_VECTOR_DIMS[inner_type])
+    if params is not None:
+        for field, head in params.heads.items():
+            dims[field] = int(head.weight.shape[0])
+    return dims
 
 
 def _get_vector_dims(
@@ -110,9 +125,19 @@ def _get_vector_dims(
     reducer_type: str = "mean_pool",
     output_tokens: int = 16,
     prefix_reducer_type: str = "prefix_mean_pool",
+    inner_type: str = "cp1_mean_pool",
+    projection_weights_path: str | None = None,
 ) -> dict[str, int]:
     if builder_type in _VECTOR_DIMS:
         return _VECTOR_DIMS[builder_type]
+    if builder_type == "projection":
+        from openpi.cache.components.projection_key_builder import ProjectionParams
+
+        params = (
+            ProjectionParams.load(projection_weights_path)
+            if projection_weights_path else None
+        )
+        return _projection_vector_dims(inner_type, params)
     if builder_type == "cp1_temporal_prune":
         reducer = _build_artifact_reducer(reducer_type, output_tokens)
         vision_dim = reducer.output_dim
@@ -145,10 +170,13 @@ def _create_builder(
     temperature: float = 1.0,
     extract_layer: int = 0,
     prefix_reducer_type: str = "prefix_mean_pool",
+    inner_type: str = "cp1_mean_pool",
+    projection_weights_path: str | None = None,
 ):
     from openpi.cache.components.key_builder import (
         CP1MaxPoolKeyBuilder,
         CP1MeanPoolKeyBuilder,
+        CP1SpatialPool4KeyBuilder,
         CP1SpatialPool16KeyBuilder,
         CP1SpatialPool64KeyBuilder,
     )
@@ -156,11 +184,36 @@ def _create_builder(
     builders = {
         "cp1_mean_pool": CP1MeanPoolKeyBuilder,
         "cp1_spatial_pool_16": CP1SpatialPool16KeyBuilder,
+        # Canonical 4-token name (2x2 pool); cp1_spatial_pool_64 is its legacy alias.
+        "cp1_spatial_pool_4": CP1SpatialPool4KeyBuilder,
         "cp1_spatial_pool_64": CP1SpatialPool64KeyBuilder,
         "cp1_max_pool": CP1MaxPoolKeyBuilder,
     }
     if builder_type in builders:
         return builders[builder_type]()
+    if builder_type == "projection":
+        from openpi.cache.components.projection_key_builder import (
+            ProjectionKeyBuilder,
+            ProjectionParams,
+            validate_projection_params,
+        )
+
+        inner_cls = builders.get(inner_type)
+        if inner_cls is None:
+            raise ValueError(
+                f"projection inner_type '{inner_type}' must be a stateless pool "
+                f"builder. Valid: {sorted(builders)}"
+            )
+        params = (
+            ProjectionParams.load(projection_weights_path)
+            if projection_weights_path else None
+        )
+        # Validate against the projected stored dims (out_dim per head); in_dim
+        # is checked against the inner pool output for the chosen inner_type.
+        validate_projection_params(
+            params, inner_type, _projection_vector_dims(inner_type, params)
+        )
+        return ProjectionKeyBuilder(inner_cls(), params)
     if builder_type == "cp1_temporal_prune":
         from openpi.cache.components.key_builder import CP1TemporalPruneKeyBuilder
 
@@ -550,6 +603,8 @@ def _process_episode(
     temporal_keep_ratio: float = 0.5,
     select_k: int = 32,
     temperature: float = 1.0,
+    inner_type: str = "cp1_mean_pool",
+    projection_weights_path: str | None = None,
 ) -> list | None:
     """Process a single H5 file in a worker process. Returns list of CacheEntry or None."""
     from openpi.cache.storage_types import CacheEntry, CachePayload
@@ -561,6 +616,8 @@ def _process_episode(
         builder_type, reducer_type, output_tokens,
         prune_window_size, temporal_keep_ratio,
         select_k, temperature,
+        inner_type=inner_type,
+        projection_weights_path=projection_weights_path,
     )
 
     with h5py.File(h5_path, "r") as f:
@@ -691,6 +748,8 @@ def build_artifact(
     checkpoint_dir: str | None = None,
     config_name: str | None = None,
     device: str = "cuda",
+    inner_type: str = "cp1_mean_pool",
+    projection_weights_path: str | None = None,
 ) -> dict:
     """Build artifact dict from HDF5 data.
 
@@ -707,6 +766,7 @@ def build_artifact(
     """
     vector_dims = _get_vector_dims(
         builder_type, reducer_type, output_tokens, prefix_reducer_type,
+        inner_type=inner_type, projection_weights_path=projection_weights_path,
     )
 
     h5_paths = sorted(Path(data_dir).rglob("*.h5"))
@@ -780,6 +840,7 @@ def build_artifact(
         builder_type, checkpoint_id_str,
         reducer_type, output_tokens, prune_window_size, temporal_keep_ratio,
         select_k, temperature,
+        inner_type, projection_weights_path,
     )
 
     entries: list = []
@@ -828,6 +889,15 @@ def build_artifact(
             "temporal_keep_ratio": temporal_keep_ratio,
             "select_k": select_k,
             "temperature": temperature,
+        }
+    # Record projection provenance (inner pool + weights source) for the same
+    # offline/online consistency audit.
+    if builder_type == "projection":
+        artifact["projection_params"] = {
+            "inner_type": inner_type,
+            "projection_weights_path": (
+                str(projection_weights_path) if projection_weights_path else None
+            ),
         }
     return artifact
 
@@ -944,6 +1014,12 @@ def main():
     parser.add_argument("--device", default="cuda",
                         help="cp1_llm_layer_extract: torch device for the model "
                              "(default: cuda; use cpu only for tiny smoke tests)")
+    # projection-only args.
+    parser.add_argument("--inner-type", default="cp1_mean_pool",
+                        help="projection: stateless pool builder to wrap")
+    parser.add_argument("--projection-weights", default=None,
+                        help="projection: torch-saved ProjectionParams path "
+                             "(None -> identity, output equals the inner pool)")
     # B2 verdict-factor enrichment.
     parser.add_argument(
         "--factors-yaml", default=None,
@@ -969,6 +1045,8 @@ def main():
         checkpoint_dir=args.checkpoint_dir,
         config_name=args.config_name,
         device=args.device,
+        inner_type=args.inner_type,
+        projection_weights_path=args.projection_weights,
     )
 
     # B2 — enrich with verdict-factor fields. Runs AFTER build_artifact's
