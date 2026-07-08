@@ -499,6 +499,7 @@ Determines whether search results constitute a valid hit. Returns `JudgeResult(h
 | `always_hit` | Always returns FULL_HIT for top result. Used in experiments (threshold calibration deferred). |
 | `always_warm_start` | Always returns WARM_START with a fixed `start_t` for the top result (CP1 only). Used to sweep success-rate vs `start_t` curves under a forced warm-start regime. |
 | `composite` | Aggregates pluggable verdict factors (statistical / kinematic descriptors) through a Composer + optional Normalizer pipeline. See §5.12 (Verdict Factor System) for the architecture. F1a-A / F1a-T / F2 + Composers + Normalizer enabled in B1; F1b OnlineExtractor + OfflineWriter + `LibraryStats` land in B2. |
+| `failure_aware_gate` | (TRACER Phase 3 / M2) Three-state sigmoid gate `g = σ(β₀ + β₁·margin + β₃·Δ⁺)` over a dual-retrieval margin taken from the `retrieval_signals` side-channel. `threshold` / `warm_tiers` are reused but interpreted on the gate value `g ∈ [0,1]` (CP1 warm only). The degenerate default (β₃=0, β₀=−τ, β₁=1, threshold=0.5) reduces to `ThresholdJudge(τ)`. Requires a `dual_retrieval_knn` strategy (validator-paired). The `β₂·u_t` kinematic term of Eq 21 is deferred to Phase 5 (validated to 0). |
 
 Score semantics depend on fusion method — see [../cache/tutorial.md §6](../cache/tutorial.md#6-component-judge) for details.
 
@@ -508,11 +509,12 @@ Score semantics depend on fusion method — see [../cache/tutorial.md §6](../ca
 
 A judge MUST NOT write to `CacheStorage`. The original phrasing "DOES NOT call CacheStorage" is refined to: **no write to storage; read-only access via the optional `PayloadView` parameter is permitted at verdict time** so composite judges can compute factor descriptors over candidate payloads + neighbor entries. The contract preserves the no-side-effects spirit while admitting the read-only fetch path required by §5.12 verdict factors.
 
-The `__call__` signature accepts two keyword-only parameters that orchestrator may inject:
+The `__call__` signature accepts three keyword-only parameters that orchestrator may inject:
 - `view: PayloadView | None` — read-only facade described in §5.11.
 - `history: HistoryView | None` — per-episode action / state snapshot.
+- `retrieval_signals: RetrievalSignals | None` — (TRACER Phase 3 / M2) per-query failure-aware signals from a dual-retrieval strategy; see §5.7.
 
-Legacy judges (`ThresholdJudge` / `AlwaysHitJudge` / `AlwaysWarmStartJudge`) accept and ignore both via `**kwargs`; only `CompositeJudge` consumes them. Orchestrator builds and injects the facades from B1+; in B0 both arrive as None.
+Legacy judges (`ThresholdJudge` / `AlwaysHitJudge` / `AlwaysWarmStartJudge`) accept and ignore all via `**kwargs`; `CompositeJudge` consumes `view`/`history` and accepts-and-ignores `retrieval_signals`; only `FailureAwareGateJudge` consumes `retrieval_signals`. The `DumpingJudge` wrapper forwards all three to its inner judge. Orchestrator injects `view`/`history` from B1+ (None in B0) and `retrieval_signals` whenever the strategy exposes `last_retrieval_signals()` (None otherwise, keeping every existing config byte-identical).
 
 ### 5.7 Cache Data Model
 
@@ -553,6 +555,7 @@ class CacheEntry:
     prev_ids: list[str] = field(default_factory=list)    # previous step's entry id
     next_ids: list[str] = field(default_factory=list)    # next step's entry id
     trajectory_id: Optional[str] = None                  # shared UUID within episode
+    outcome: Optional[int] = None                        # TRACER M2 D+/D- tag: +1/-1/None
 
 @dataclass
 class QuerySpec:
@@ -577,6 +580,8 @@ class SearchResultLite:
     checkpoint_id: CheckpointID
 ```
 
+> **TRACER Phase 3 / M2 additions** (additive, default-inert): `QueryFilter.outcome` (`+1` / `-1` / None) filters the single artifact into success (D⁺) / failure (D⁻) pools — only the in_memory backend advertises it via `supported_filters`; `CacheEntry.outcome` is the per-entry tag (old pickles backfill to None in `load_artifact`). `RetrievalSignals(s_pos, s_neg, margin, delta_pos, lambda_)` is the per-query side-channel a dual-retrieval strategy exposes via `last_retrieval_signals()` and the orchestrator forwards to the judge — intentionally NOT folded into `SearchResultLite`.
+
 > **Design vs Implementation**: The original `CacheEntry` had no trajectory fields. Implementation added `prev_ids`, `next_ids`, `trajectory_id`, `step_idx` to support trajectory-aware search. `QuerySpec` gained `fusion_weights`, `trajectory_history`, and `trajectory_weights` — constructed exclusively by `SearchStrategy`, not by the orchestrator.
 
 ### 5.8 SearchStrategy (Pluggable) — Not in Original Design
@@ -592,6 +597,8 @@ Introduced during implementation to encapsulate the query construction logic tha
 | `weighted_rrf_knn` | in_memory | Rank-based fusion across fields. Good for multi-field when magnitude doesn't matter. |
 | `weighted_score_sum_knn` | in_memory | Similarity-based fusion. Better for trajectory search (preserves magnitude). |
 | `qdrant_weighted_rrf_knn` | qdrant | Qdrant server-side RRF. Does NOT support trajectory search. |
+| `dynamic_depth_knn` | in_memory | (TRACER Phase 1 / M3) Per-step trajectory-depth selection via a `DepthPolicy` (constant / heuristic) over a `weighted_rrf` / `weighted_score_sum` base fusion; constant@max is value-identical to the fixed-depth strategy. |
+| `dual_retrieval_knn` | in_memory | (TRACER Phase 3 / M2) Dual-pool (D⁺/D⁻) retrieval computing `margin` / `Δ⁺` signals; reuses the M3 depth machinery. `enable_dual=false` (single pool, no outcome filter) is value-identical to the fixed-depth base-fusion strategy. Exposes `last_retrieval_signals()` for `failure_aware_gate`. |
 
 All strategies inherit `TrajectoryMixin`, providing history buffer management (`record_query_keys()`, `on_episode_start()`, `_build_trajectory_fields()`).
 

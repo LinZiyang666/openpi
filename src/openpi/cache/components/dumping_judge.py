@@ -38,7 +38,7 @@ import torch
 
 from openpi.cache.components.factors.base import Factor, FactorContext, HistoryView
 from openpi.cache.components.judge import JudgeResult
-from openpi.cache.storage_types import SearchResultLite
+from openpi.cache.storage_types import RetrievalSignals, SearchResultLite
 from openpi.cache.types import CheckpointID
 
 if TYPE_CHECKING:
@@ -138,10 +138,15 @@ class DumpingJudge:
         *,
         view: Optional["PayloadView"] = None,
         history: Optional[HistoryView] = None,
+        retrieval_signals: Optional[RetrievalSignals] = None,
     ) -> JudgeResult:
-        # 1) Forward verdict to inner — verdict behaviour byte-identical.
+        # 1) Forward verdict to inner — verdict behaviour byte-identical. The
+        #    Orchestrator injects retrieval_signals unconditionally (TRACER M2 /
+        #    Phase 3 seam); forward it so an inner failure_aware_gate still
+        #    receives it. The dump-factor path below does not use it.
         judge_result = self._inner(
-            results, checkpoint_id, cached_data, view=view, history=history,
+            results, checkpoint_id, cached_data,
+            view=view, history=history, retrieval_signals=retrieval_signals,
         )
 
         # 2) Best-effort dump. Any extractor failure must not corrupt the

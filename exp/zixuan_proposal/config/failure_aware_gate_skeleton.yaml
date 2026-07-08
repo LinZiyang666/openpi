@@ -1,0 +1,70 @@
+# TRACER Phase 3 / M2 — failure_aware_gate + dual_retrieval_knn skeleton.
+#
+# The failure-aware sigmoid gate is g = sigmoid(b0 + b1*margin + b3*delta_pos)
+# over a dual-retrieval margin (Eq 19-21). With the default betas below
+# (b0 = -tau, b1 = 1, b3 = 0) and threshold = 0.5 on g, the gate reduces to a
+# threshold on the D+ margin (value-equivalent to ThresholdJudge at tau).
+#
+# NOTES
+#   - The betas here are ILLUSTRATIVE (uncalibrated). Real tau/lambda/beta
+#     calibration is TRACER Phase 5; the gate value g's scale follows the
+#     backend's raw similarity scale.
+#   - b2 (the kinematic u_t term of Eq 21) is deferred to Phase 5 and MUST be 0
+#     (omitted here); the validator rejects a non-zero b2 in this phase.
+#   - enable_dual is false because no real failure library (D-) exists yet; a
+#     tagged D+/D- artifact and enable_dual: true land in Phase 4.
+#   - For a three-state gate, add warm_tiers (interpreted on g, CP1-only), e.g.
+#       warm_tiers: [{ threshold: 0.3, start_t: 0.5 }]
+#   - Buildable against the checked-in cp1_mean_pool artifact (backend.vector_dims
+#     / keys mirror the stored fields; only vision_0 + robot_state fuse here).
+enabled: true
+
+keys:
+  vision_0:    { enabled: true,  weight: 1.0 }
+  vision_1:    { enabled: false, weight: 0.0 }
+  vision_2:    { enabled: false, weight: 0.0 }
+  prompt_emb:  { enabled: false, weight: 0.0 }
+  robot_state: { enabled: true,  weight: 1.0 }
+
+key_builder:
+  type: cp1_mean_pool
+
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: failure_aware_gate
+      threshold: 0.5                     # full_hit cutoff on the gate value g in [0, 1]
+      gate_betas: { b0: -0.9, b1: 1.0, b3: 0.0 }   # b0 = -tau (illustrative tau=0.9); b2 omitted (Phase 5)
+    search_strategy:
+      type: dual_retrieval_knn
+      base_fusion: weighted_rrf
+      top_k: 1
+      rrf_k: 60
+      trajectory_depth: 5
+      trajectory_weights: [0.4, 0.3, 0.15, 0.1, 0.05]
+      allowed_depths: [5]
+      depth_policy:
+        type: constant
+        depth: 5
+      margin_lambda: 0.5                 # margin = s_pos - 0.5 * s_neg (inert until D- exists)
+      enable_dual: false                 # single pool for the skeleton; D- lands Phase 4
+      field_similarity:
+        vision_0:    { type: cosine }
+        robot_state: { type: l2, to_similarity: { type: exp, tau: 1.0 } }
+
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 2048
+    vision_1: 2048
+    prompt_emb: 2048
+    robot_state: 32
+  in_memory:
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool.pkl
+    index_type: brute_force
+
+write_policy:
+  type: never

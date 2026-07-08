@@ -110,7 +110,7 @@ class InMemoryBackend(VectorStoreBackend):
         return self._dims
 
     def supported_filters(self) -> frozenset[str]:
-        return frozenset({"checkpoint_id", "task_key", "step_range"})
+        return frozenset({"checkpoint_id", "task_key", "step_range", "outcome"})
 
     # ------------------------------------------------------------------
     # Session lifecycle (override ABC default no-op)
@@ -243,6 +243,10 @@ class InMemoryBackend(VectorStoreBackend):
                 entry.next_ids = []
             if not hasattr(entry, "trajectory_id"):
                 entry.trajectory_id = None
+            # Backfill the failure-aware outcome tag (TRACER M2 / Phase 3) so
+            # old artifacts read as untagged (None) instead of raising on access.
+            if not hasattr(entry, "outcome"):
+                entry.outcome = None
             # Convert numpy arrays back to torch tensors (memory-efficient artifacts)
             if entry.query_keys:
                 entry.query_keys = {
@@ -352,6 +356,11 @@ class InMemoryBackend(VectorStoreBackend):
                     if entry.step_idx is None:
                         continue  # no step_idx → excluded by step_range filter
                     if not (lo <= entry.step_idx <= hi):
+                        continue
+                if spec.filters.outcome is not None:
+                    # getattr guards old pickles that predate the outcome field
+                    # (unpickle bypasses __init__); missing => None => unmatched.
+                    if getattr(entry, "outcome", None) != spec.filters.outcome:
                         continue
             results.append(entry)
         return results

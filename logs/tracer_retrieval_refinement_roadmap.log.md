@@ -1,6 +1,6 @@
 # TRACER 检索精炼路线图 — Action-Compatible Failure-Aware Retrieval 的模块化落地
 
-- **Status**: Roadmap（Design-Grounded）— Phase 0 ✅（架构判定/可行性亲验完成）/ **Phase 1 ✅（M3 `dynamic_depth_knn`，G1/G2 APPROVED + §6 Verify green，commit `cea98b2`，2026-07-07；plan 归档 `archive/tracer_phase1_dynamic_depth.log.md`）** / **Phase 2 ✅（M1 `projection` KeyBuilder 骨架，G1/G2 APPROVED + §6 Verify green，2026-07-08）** / Phase 3–7 待逐期立项
+- **Status**: Roadmap（Design-Grounded）— Phase 0 ✅（架构判定/可行性亲验完成）/ **Phase 1 ✅（M3 `dynamic_depth_knn`，G1/G2 APPROVED + §6 Verify green，commit `cea98b2`，2026-07-07；plan 归档 `archive/tracer_phase1_dynamic_depth.log.md`）** / **Phase 2 ✅（M1 `projection` KeyBuilder 骨架，G1/G2 APPROVED + §6 Verify green，2026-07-08）** / **Phase 3 ✅（M2 `dual_retrieval_knn` + `failure_aware_gate` 骨架，G1 R3 / G2 R1 APPROVED + §6 Verify green，2026-07-08）** / Phase 4–7 待逐期立项
 - **Date**: 2026-07-07（创建）
 - **来源**: 合作者提案 `TRACER_RETRIEVAL_REFINED_PROPOSAL.pdf`（*Action-Compatible Failure-Aware Retrieval for VLA Inference Caching*，2026-06-10，含显式方程 Eq 1–28）。文中 "TRACER" = 本 fork 的推理 cache 系统；full-hit / warm-start / miss = 我们的 `HitType`。
 - **Level**: 本文件为**研究产物（L0 纯文档）**。它只负责给整条线**排期与定依赖**，不含代码、不走 G1。**每一期的实现仍是独立的 L2/L3，必须各自走 Understand → Plan → G1 → Code → G2 → Verify。**
@@ -89,16 +89,18 @@
 - **退化契约**：无权重 → `build()` 输出逐值 == 现有 pool KeyBuilder（golden 对照 keys）。
 - **前置**：无（与 Phase 1 独立并行）。**出场 gate**：identity golden 通过 + 带权重时投影 shape/维度自洽。**Level**：L2。
 
-### Phase 3 — M2 失败感知骨架（惰性 D⁻ + 手设参数）🟡（仅手设默认，不训练）
+### Phase 3 — M2 失败感知骨架（惰性 D⁻ + 手设参数）✅（仅手设默认，不训练）
 
 > 本期最大，含全部 3 处 additive 缝。Plan 里可再拆 3a（缝）/3b（策略）/3c（composer）三个可审子块。
+
+- **✅ 完成（2026-07-08）**：`dual_retrieval_knn` 双检索策略（D⁺ over-fetch≥2 / D⁻ top-1 / `margin=s⁺−λ·s⁻` / `Δ⁺`；`enable_dual=false` 逐值等价固定深度 base-fusion）+ **`failure_aware_gate` 独立 `SimilarityJudge`**（σ 门三态；默认 β₂=β₃=0 逐值 == `ThresholdJudge`）+ 3a additive 缝（`QueryFilter.outcome`/`CacheEntry.outcome`/`RetrievalSignals` 侧信道 orchestrator→judge，legacy/`CompositeJudge`/`DumpingJudge` 全覆盖）。G1 R3 / G2 R1 APPROVED；§6 Verify `tests/cache/` **1056 pass / 6 skip**；深度机构上移 `TrajectoryMixin` 共享（Phase 1 golden 复验）；**实现细化 vs 原提案**：3c 因 `CompositeJudge` 强制 ≥1 factor 落为独立 judge（非 Layer-4 Composer），`u_t` kinematic 项分期 **Phase 5**（validator 守 `b2==0`）。Plan [`tracer_phase3_failure_aware_skeleton.log.md`](tracer_phase3_failure_aware_skeleton.log.md)（G2 Review Log 永久保留）；示例 YAML `dual_retrieval_degenerate` / `failure_aware_gate_skeleton` build-verified。
 
 - **目标**：双检索算 `s⁺/s⁻/margin/Δ⁺`（Eq 16–20）+ 失败感知 σ 判决门（Eq 21）跑通；**D⁻ 空 + 参数手设默认时退化 = 现 success-only + 阈值判决**。
 - **交付物**：
   - **3a 缝**（additive-only，事实 §2.3–2.4）：`QueryFilter.outcome` 字段 + backend `supported_filters`/`_filter_entries`（各数行）；`retrieval_signals` 注入缝（orchestrator 读 `strategy.last_retrieval_signals()`（先例 :303）→ 关键字传 `judge(..., retrieval_signals=...)`（先例 :556））。
   - **3b 策略**：新双检索 `SearchStrategy`（对 D⁺/D⁻ 各搜一次算 margin；D⁺ winner 作 `results[0]`；D⁻ 空→`s⁻=0`→`margin=s⁺`）。含 M3（Phase 1）动态深度（Eq 22–23 正好吃 `s⁻/Δ⁺`，天然并入同一策略）。
-  - **3c composer**：失败感知 `Composer`（σ 门；`u_t` 复用现成 4 层 judge kinematic 因子；`β/τ/λ` 走 YAML 手设默认）。
-- **框架触点**：**2 处 additive 缝**（`QueryFilter.outcome`、`retrieval_signals`），默认 None → 全旧路径逐字节不变；新增 1 策略 + 1 composer 模块 + config 分支。**不改** orchestrator/interceptor/backend-ABC/judge 内核。
+  - **3c composer**：失败感知 `Composer`（σ 门；`u_t` 复用现成 4 层 judge kinematic 因子；`β/τ/λ` 走 YAML 手设默认）。**〔实现细化 · 见 [Phase 3 plan](tracer_phase3_failure_aware_skeleton.log.md) G1 R2〕**：因现架构 `CompositeJudge` 硬性要求 ≥1 factor + normalization + calibration（`composite_judge.py:79`），3c 落为**独立 `SimilarityJudge` 类型 `failure_aware_gate`**（直读 `results[0].score`+`retrieval_signals`，非 Layer-4 Composer）；`u_t`（calibrated 因子）分期 **Phase 5**，本期交付 M2 核心 = margin(+Δ⁺) 失败感知门（Claim 1）。
+- **框架触点**：**2 处 additive 缝**（`QueryFilter.outcome`、`retrieval_signals`），默认 None → 全旧路径逐字节不变；新增 1 策略（`DualRetrievalKnnStrategy`）+ 1 judge（`failure_aware_gate`，见 Phase 3 plan R2 实现细化指针）+ config 分支。**不改** orchestrator/interceptor/backend-ABC/judge 内核。
 - **退化契约**：`outcome=None` + 空 D⁻ + 默认参数 → margin=s⁺、σ 门≈`ThresholdJudge` → 整栈行为 == 现系统（用现有 orchestrator/judge golden 证非回归）。
 - **前置**：Phase 1（动态深度并入策略）。**出场 gate**：惰性退化非回归 + 带小型 fixture D⁻ 时 margin/门 逻辑单测通过。**Level**：L3。
 - **注意**：本期**不需要真 D⁻、不需要训练**——用 fixture / 空池即可开发测试。真数据在 Phase 4，标定在 Phase 5。

@@ -68,6 +68,7 @@ def insert_entry(
     prev_ids: Optional[list[str]] = None,
     next_ids: Optional[list[str]] = None,
     trajectory_id: Optional[str] = None,
+    outcome: Optional[int] = None,
 ) -> CacheEntry:
     """Insert a CacheEntry directly into storage. Returns the entry.
 
@@ -85,6 +86,7 @@ def insert_entry(
         prev_ids=prev_ids or [],
         next_ids=next_ids or [],
         trajectory_id=trajectory_id,
+        outcome=outcome,
     )
     storage.insert(entry)
     return entry

@@ -1,0 +1,61 @@
+# TRACER Phase 3 / M2 — dual_retrieval_knn DEGENERATE (non-regression reference).
+#
+# enable_dual: false + constant depth @ trajectory_depth. This is the Phase 3
+# non-regression anchor: a single-pool (no outcome filter) dual-retrieval search
+# at the full max depth reproduces the fixed-depth weighted_rrf_knn strategy
+# value-for-value at every history length. last_retrieval_signals() reduces to
+# margin == s_pos, s_neg == 0.
+#
+# Buildable against the checked-in cp1_mean_pool artifact: backend.vector_dims
+# and keys mirror the artifact's stored fields (vision_0/1 + prompt_emb +
+# robot_state); only vision_0 + robot_state are enabled for fusion here.
+enabled: true
+
+keys:
+  vision_0:    { enabled: true,  weight: 1.0 }
+  vision_1:    { enabled: false, weight: 0.0 }
+  vision_2:    { enabled: false, weight: 0.0 }
+  prompt_emb:  { enabled: false, weight: 0.0 }
+  robot_state: { enabled: true,  weight: 1.0 }
+
+key_builder:
+  type: cp1_mean_pool
+
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: threshold
+      threshold: 0.9
+    search_strategy:
+      type: dual_retrieval_knn
+      base_fusion: weighted_rrf          # underlying fusion (rrf | score_sum)
+      top_k: 1
+      rrf_k: 60
+      trajectory_depth: 5                # max depth
+      trajectory_weights: [0.4, 0.3, 0.15, 0.1, 0.05]   # newest-first, length == trajectory_depth
+      allowed_depths: [5]                # constant depth 5 -> fixed-depth baseline
+      depth_policy:
+        type: constant
+        depth: 5
+      margin_lambda: 0.0                 # margin = s_pos (no D- influence)
+      enable_dual: false                 # single pool, no outcome filter (non-regression)
+      field_similarity:
+        vision_0:    { type: cosine }
+        robot_state: { type: l2, to_similarity: { type: exp, tau: 1.0 } }
+
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 2048
+    vision_1: 2048
+    prompt_emb: 2048
+    robot_state: 32
+  in_memory:
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool.pkl
+    index_type: brute_force
+
+write_policy:
+  type: never

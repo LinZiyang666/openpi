@@ -540,6 +540,13 @@ class CacheOrchestrator:
             )
             results = strategy.search(ctx)
 
+        # Phase 3 — pull per-query failure-aware signals from the strategy when
+        # it produces them (dual-retrieval). Mirrors the get_search_session_id
+        # getattr precedent: strategies without the method contribute None, so
+        # the judge call stays byte-identical for every existing config.
+        _signals_getter = getattr(strategy, "last_retrieval_signals", None)
+        retrieval_signals = _signals_getter() if _signals_getter is not None else None
+
         # B1 — build PayloadView + HistoryView and inject into the judge.
         # PayloadView is per-check() so its memo (entry_id -> payload) gets
         # GC'd when this call returns. HistoryView snapshots the current
@@ -553,7 +560,7 @@ class CacheOrchestrator:
         with self._timer.measure(f"{prefix}_judge"):
             judge_result = judge(
                 results, checkpoint_id, self._key_builder.cached_data,
-                view=view, history=history,
+                view=view, history=history, retrieval_signals=retrieval_signals,
             )
         hit_type = judge_result.hit_type
         winner_id = judge_result.winner_id

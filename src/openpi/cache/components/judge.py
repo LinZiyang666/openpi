@@ -29,7 +29,7 @@ from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 
 import torch
 
-from openpi.cache.storage_types import SearchResultLite
+from openpi.cache.storage_types import RetrievalSignals, SearchResultLite
 from openpi.cache.types import CANONICAL_DENOISE_TIMESTEPS, CheckpointID
 
 # Verdict-pipeline debug instrumentation. Gated on env var so production
@@ -95,10 +95,11 @@ class SimilarityJudge(Protocol):
       - Purity contract: read-only via `view`; never writes storage.
       - IF CHANGED: Only affects hit/miss decision, no downstream structural impact
 
-    The `view` and `history` keyword-only parameters carry verdict-time
-    facade objects injected by Orchestrator. Existing judges that do not
-    need them accept and ignore both via `**kwargs`; Orchestrator only
-    builds and injects the facades from B1 onward (CompositeJudge land).
+    The `view`, `history`, and `retrieval_signals` keyword-only parameters
+    carry verdict-time objects injected by Orchestrator. Existing judges that
+    do not need them accept and ignore them via `**kwargs`; Orchestrator only
+    builds and injects the facades from B1 onward (CompositeJudge land) and the
+    retrieval signals when a dual-retrieval strategy provides them (Phase 3).
     """
 
     def __call__(
@@ -109,6 +110,7 @@ class SimilarityJudge(Protocol):
         *,
         view: Optional["PayloadView"] = None,
         history: Optional["HistoryView"] = None,
+        retrieval_signals: Optional[RetrievalSignals] = None,
     ) -> JudgeResult:
         """Judge the top search results.
 
@@ -119,6 +121,10 @@ class SimilarityJudge(Protocol):
             view: Read-only facade over CacheStorage (B1+ injection;
                 None for the B0 path and for legacy judges).
             history: Per-episode action / state snapshot (B1+ injection).
+            retrieval_signals: Per-query failure-aware signals from a
+                dual-retrieval strategy (TRACER M2 / Phase 3). None for
+                strategies that do not produce them; only failure_aware_gate
+                consumes it. Legacy judges accept and ignore it via **kwargs.
 
         Returns:
             JudgeResult with hit_type, winner_id, and optional start_t.
@@ -241,6 +247,92 @@ class ThresholdJudge:
 
     def record_action(self, action_chunk: torch.Tensor) -> None:
         """Receive Orchestrator-broadcast action. Pure local buffer op."""
+
+
+class FailureAwareGateJudge:
+    """Failure-aware sigmoid gate judge (TRACER M2 / Phase 3 skeleton).
+
+    Three-state gate over a dual-retrieval margin. The gate value is
+    ``g = sigmoid(b0 + b1*margin + b3*delta_pos)`` where ``margin`` and
+    ``delta_pos`` come from the ``retrieval_signals`` side-channel produced by a
+    dual-retrieval SearchStrategy (Eq 19-21). Decision (thresholds are on ``g``;
+    WARM_START is CP1-only):
+
+      - ``g >= threshold``                     -> FULL_HIT(results[0].id)
+      - CP1 and ``g >= tier["threshold"]``     -> WARM_START(start_t)
+      - otherwise                              -> MISS
+
+    Degenerate default (``b3=0, b0=-tau, b1=1, threshold=0.5``, no warm tiers)
+    makes ``g = sigmoid(margin - tau)``, so ``g >= 0.5 <=> margin >= tau``. With an
+    empty D- (``margin == s_pos == results[0].score``) this is value-equivalent to
+    ``ThresholdJudge(threshold=tau)`` — the Phase 3 non-regression anchor.
+
+    The ``b2*u_t`` kinematic term of Eq 21 is deferred to Phase 5: the calibrated
+    kinematic factor is only produced by the 4-layer verdict-factor pipeline,
+    which an independent judge cannot reach. ``config.validate_cache_config``
+    enforces ``gate_betas["b2"] == 0`` in this phase.
+    """
+
+    def __init__(
+        self,
+        *,
+        gate_betas: dict[str, float],
+        threshold: float = 0.5,
+        warm_tiers: list[dict[str, float]] | None = None,
+    ) -> None:
+        # b2 (kinematic term) is validated to 0 upstream (Phase 3); read it so a
+        # non-zero value here would still be inert rather than silently dropped.
+        self._b0 = float(gate_betas.get("b0", 0.0))
+        self._b1 = float(gate_betas.get("b1", 0.0))
+        self._b3 = float(gate_betas.get("b3", 0.0))
+        self._threshold = float(threshold)
+        self._warm_tiers = warm_tiers or []
+
+    def __call__(
+        self,
+        results: list[SearchResultLite],
+        checkpoint_id: CheckpointID,
+        cached_data: dict[str, torch.Tensor],
+        *,
+        retrieval_signals: Optional[RetrievalSignals] = None,
+        **kwargs,
+    ) -> JudgeResult:
+        if not results:
+            return JudgeResult(HitType.MISS)
+        if retrieval_signals is None:
+            # A failure_aware_gate must be paired with a dual-retrieval strategy
+            # that supplies signals; config validation enforces the pairing, so
+            # reaching here means a misconfiguration — fail loud, do not guess.
+            raise ValueError(
+                "failure_aware_gate requires retrieval_signals from a "
+                "dual-retrieval strategy; got None (check judge<->strategy pairing)"
+            )
+        m = retrieval_signals.margin
+        d = retrieval_signals.delta_pos
+        z = self._b0 + self._b1 * m + self._b3 * d
+        # Numerically stable sigmoid (avoids math.exp overflow for large |z|).
+        if z >= 0.0:
+            g = 1.0 / (1.0 + math.exp(-z))
+        else:
+            ez = math.exp(z)
+            g = ez / (1.0 + ez)
+        winner_id = results[0].id
+        if g >= self._threshold:
+            return JudgeResult(HitType.FULL_HIT, winner_id, composer_score=g)
+        if checkpoint_id == CheckpointID.CP1 and self._warm_tiers:
+            for tier in self._warm_tiers:
+                if g >= tier["threshold"]:
+                    return JudgeResult(
+                        HitType.WARM_START, winner_id,
+                        start_t=tier["start_t"], composer_score=g,
+                    )
+        return JudgeResult(HitType.MISS, composer_score=g)
+
+    def on_episode_start(self) -> None:
+        """Clear internal history buffer. Called by Orchestrator at episode start."""
+
+    def record_action(self, action_chunk: torch.Tensor) -> None:
+        """Receive Orchestrator-broadcast action. No-op (gate is stateless)."""
 
 
 # ---------------------------------------------------------------------------

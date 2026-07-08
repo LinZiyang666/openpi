@@ -283,6 +283,7 @@ Judge returns `JudgeResult(hit_type, winner_id, start_t)`.
 | `always_hit` | Always returns FULL_HIT for top result. Good for testing. |
 | `always_warm_start` | Always emits WARM_START with a fixed `start_t` for the top result (CP1 only). Used to sweep success-rate vs `start_t` curves. |
 | `composite` | 4-layer pluggable verdict pipeline (Normalization → Factor → Calibration → Composer). 17 registered factors: 4 descriptors (`jerk` / `direction` / `dispersion` / `path_length`) × 2 sources (`online` / `offline`) × 2 channels (`action` / `state`) + `topk_action_variance`. Calibration is per-key rolling-window percentile rank with no cold-start state (samples preloaded from offline file or per-yaml `WarmupPool`). Composer subclasses (weighted_sum / and / or / weighted_sum_with_warm_fallback) own NaN handling. Full lifecycle (build pkl → enrich-existing-pkl → warmup → eval → custom extension) lives in [verdict_factor_judge.md](verdict_factor_judge.md). |
+| `failure_aware_gate` | (TRACER Phase 3 / M2) Three-state sigmoid gate `g = σ(β₀ + β₁·margin + β₃·Δ⁺)` over the dual-retrieval margin from a `dual_retrieval_knn` strategy's `retrieval_signals`. Reuses `threshold` / `warm_tiers` but on the gate value `g ∈ [0,1]` (CP1 warm only). Degenerate default (β₃=0, β₀=−τ, β₁=1, threshold=0.5) == a `threshold` judge at τ. Validator pairs it with `dual_retrieval_knn`; the `β₂·u_t` kinematic term is deferred to Phase 5 (must be 0). See the SearchStrategy §7 note. |
 
 **Warm start configuration** (optional, CP1 only):
 
@@ -322,6 +323,7 @@ Judge also has `on_episode_start()` and `record_action()` lifecycle methods.
 | `weighted_score_sum_knn` | in_memory | Two-layer similarity fusion (Layer-1 normalize → Layer-2 weighted sum). Preserves magnitude. Requires `score_normalization`. |
 | `qdrant_weighted_rrf_knn` | qdrant | Qdrant server-side RRF. Does NOT support trajectory search. |
 | `dynamic_depth_knn` | in_memory | Per-step adaptive trajectory depth (TRACER Phase 1 / M3). Wraps a `base_fusion` (`weighted_rrf` / `weighted_score_sum`) and consults a `depth_policy` to choose the depth `T_t` each step. A `constant` policy at the full `trajectory_depth` is value-identical to the fixed-depth strategy; a `heuristic` policy buckets action smoothness. See the note below. |
+| `dual_retrieval_knn` | in_memory | Failure-aware dual-pool retrieval (TRACER Phase 3 / M2). Searches D⁺ and (when `enable_dual`) D⁻ via `QueryFilter.outcome`, computing `margin = s_pos − margin_lambda·s_neg` and `Δ⁺` signals for a `failure_aware_gate` judge. Reuses the M3 depth machinery; `enable_dual=false` (single pool) is value-identical to the fixed-depth base-fusion strategy. See the note below. |
 
 `weighted_score_sum_knn` requires `score_normalization` (config rejects `type:none`). Two forms:
 
@@ -357,6 +359,10 @@ search_strategy:
 ```
 
 The `heuristic` policy maps smaller action smoothness (steadier motion, `||a_{t-1} - a_{t-2}||` over the first action of each chunk) to a deeper context and larger to a shallower one; buckets are half-open `[t_i, t_{i+1})` with `>=` resolving ties. Learned depth policies are out of scope for Phase 1.
+
+### Failure-aware dual retrieval (`dual_retrieval_knn`)
+
+`dual_retrieval_knn` (TRACER Phase 3 / M2) runs the base fusion against a positive pool (D⁺) and, when `enable_dual: true`, a negative pool (D⁻), partitioned by `QueryFilter.outcome` (`+1` / `-1`). It computes per-query signals `s_pos` / `s_neg` / `margin = s_pos − margin_lambda·s_neg` / `Δ⁺` (top1−top2 in D⁺) and exposes them via `last_retrieval_signals()`; the orchestrator forwards them to a `failure_aware_gate` judge. It reuses the `dynamic_depth_knn` depth machinery (`base_fusion` / `allowed_depths` / `depth_policy`), so `enable_dual: false` + a `constant` policy at the full depth is value-identical to the fixed-depth base-fusion strategy (the Phase 3 non-regression anchor). The D⁺ pool is over-fetched to `top_k >= 2` internally so `Δ⁺` is defined even at `top_k: 1`; the returned list respects the configured `top_k`. In-memory only. The skeleton ships `enable_dual: false` — a real tagged D⁻ artifact lands in Phase 4. Outcome semantics: an explicit `outcome` filter only matches entries tagged with that value; untagged (None) entries — including all legacy artifacts — are not matched, so dual retrieval must run against a D⁺/D⁻-tagged library.
 
 ### TrajectoryMixin
 

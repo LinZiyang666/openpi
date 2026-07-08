@@ -314,6 +314,12 @@ class JudgeConfig:
     # Default False keeps the wire / per_step jsonl schema unchanged for
     # production yamls.
     export_factor_outputs: bool = False
+    # ── Failure-aware gate (type="failure_aware_gate"; TRACER Phase 3 / M2) ──
+    # Sigmoid gate coefficients b0/b1/b3 (Eq 21). b2 (the kinematic u_t term) is
+    # validated to 0 in this phase (deferred to Phase 5). ``threshold`` and
+    # ``warm_tiers`` are reused for the full_hit / WARM_START bands but are
+    # interpreted on the gate value g in [0, 1] (config must set threshold=0.5).
+    gate_betas: Optional[dict[str, float]] = None
 
 
 @dataclass
@@ -366,6 +372,11 @@ class SearchStrategyConfig:
     base_fusion: Optional[str] = None  # "weighted_rrf" | "weighted_score_sum"
     allowed_depths: Optional[list[int]] = None  # None -> [trajectory_depth] (constant / non-regression)
     depth_policy: Optional[DepthPolicyConfig] = None  # None -> constant @ trajectory_depth
+    # ── Failure-aware dual retrieval (dual_retrieval_knn only; TRACER Phase 3 / M2) ──
+    # base_fusion / allowed_depths / depth_policy above are shared with the M3
+    # depth machinery. These two are dual-retrieval specific.
+    margin_lambda: float = 0.0   # margin = s_pos - margin_lambda * s_neg (>= 0)
+    enable_dual: bool = False    # False -> single pool, no outcome filter (non-regression)
 
 
 @dataclass
@@ -510,7 +521,7 @@ _VALID_STEP_FILTERS = frozenset({"all", "exact", "window"})
 # _build_judge) stay in lockstep; otherwise a missing entry silently downgrades
 # to a "Unknown ... type" error at build time despite passing validation.
 _GATE_TYPES = frozenset({"always_search", "always_skip", "client_controlled", "random", "periodic", "score_hysteresis", "follow_winner"})
-_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start", "composite"})
+_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start", "composite", "failure_aware_gate"})
 
 
 def _keys_iter(keys: KeysConfig) -> Iterator[tuple[str, KeyFieldConfig]]:
@@ -1281,7 +1292,7 @@ def validate_cache_config(config: CacheConfig) -> None:
     # 5 + 7. Per-checkpoint validation.
     _valid_strategy_types = frozenset({
         "qdrant_weighted_rrf_knn", "weighted_rrf_knn", "weighted_score_sum_knn",
-        "dynamic_depth_knn",
+        "dynamic_depth_knn", "dual_retrieval_knn",
     })
     for cp_name, cp_config in config.checkpoints.items():
         if cp_name.startswith("_"):
@@ -1510,6 +1521,22 @@ def validate_cache_config(config: CacheConfig) -> None:
                 prefix, cp_config.judge, config, errors, cp_name=cp_name,
             )
 
+        # failure_aware_gate judge parameter checks (TRACER Phase 3 / M2).
+        if cp_config.judge.type == "failure_aware_gate":
+            gb = cp_config.judge.gate_betas or {}
+            missing = [k for k in ("b0", "b1") if k not in gb]
+            if missing:
+                errors.append(
+                    f"{prefix}.judge: failure_aware_gate requires gate_betas with "
+                    f"keys {missing} (got {sorted(gb)})"
+                )
+            if float(gb.get("b2", 0.0)) != 0.0:
+                errors.append(
+                    f"{prefix}.judge: failure_aware_gate gate_betas['b2'] must be 0 in "
+                    f"this phase (the u_t kinematic term is deferred to Phase 5); "
+                    f"got {gb.get('b2')}"
+                )
+
         # JudgeConfig.dump validator (G1 R6+). Independent of judge.type;
         # any judge can be wrapped by DumpingJudge for calibration logging.
         if cp_config.judge.dump is not None:
@@ -1522,6 +1549,18 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"is unknown. Valid: {sorted(_valid_strategy_types)}"
             )
 
+        # Failure-aware gate <-> dual-retrieval pairing (TRACER Phase 3 / M2):
+        # the gate reads retrieval_signals that only a dual-retrieval strategy
+        # produces. One-directional — dual retrieval with a non-gate judge is
+        # fine (the judge ignores the signals). Fail loud rather than ship a gate
+        # that raises at verdict time.
+        if cp_config.judge.type == "failure_aware_gate" and ss.type != "dual_retrieval_knn":
+            errors.append(
+                f"{prefix}: judge.type='failure_aware_gate' requires "
+                f"search_strategy.type='dual_retrieval_knn' (to supply retrieval "
+                f"signals); got strategy={ss.type!r}"
+            )
+
         # Backend compatibility checks.
         if ss.type == "qdrant_weighted_rrf_knn" and config.backend.type != "qdrant":
             errors.append(
@@ -1530,7 +1569,7 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"  Fix: use backend.type='qdrant' or choose a different search strategy"
             )
 
-        if ss.type in ("weighted_rrf_knn", "weighted_score_sum_knn", "dynamic_depth_knn") and config.backend.type != "in_memory":
+        if ss.type in ("weighted_rrf_knn", "weighted_score_sum_knn", "dynamic_depth_knn", "dual_retrieval_knn") and config.backend.type != "in_memory":
             errors.append(
                 f"{prefix}.search_strategy.type '{ss.type}' requires backend.type='in_memory'.\n"
                 f"  Current backend.type: {config.backend.type!r}"
@@ -1561,13 +1600,14 @@ def validate_cache_config(config: CacheConfig) -> None:
                     f"{fcfg.type!r} invalid; valid: 'cosine' | 'l2'"
                 )
 
-        # dynamic_depth_knn: base_fusion + allowed_depths + depth_policy legality
-        # (TRACER Phase 1 / M3). The score_normalization requirement for a
+        # dynamic_depth_knn / dual_retrieval_knn: base_fusion + allowed_depths +
+        # depth_policy legality (TRACER M3 / M2 — dual retrieval reuses the M3
+        # depth machinery). The score_normalization requirement for a
         # weighted_score_sum base fusion is covered by the shared block below.
-        if ss.type == "dynamic_depth_knn":
+        if ss.type in ("dynamic_depth_knn", "dual_retrieval_knn"):
             if ss.base_fusion not in ("weighted_rrf", "weighted_score_sum"):
                 errors.append(
-                    f"{prefix}.search_strategy: dynamic_depth_knn requires base_fusion in "
+                    f"{prefix}.search_strategy: {ss.type} requires base_fusion in "
                     f"['weighted_rrf', 'weighted_score_sum'] (got {ss.base_fusion!r})"
                 )
             # Distinguish None (use default) from an explicit empty list (illegal).
@@ -1619,10 +1659,18 @@ def validate_cache_config(config: CacheConfig) -> None:
                             f"must be in allowed_depths {allowed}"
                         )
 
-        # weighted_score_sum_knn (or dynamic_depth_knn with a score_sum base
-        # fusion) requires score_normalization.
+        # dual_retrieval_knn: margin lambda must be non-negative (Eq 16-18).
+        if ss.type == "dual_retrieval_knn" and ss.margin_lambda < 0:
+            errors.append(
+                f"{prefix}.search_strategy: dual_retrieval_knn margin_lambda must be "
+                f">= 0 (got {ss.margin_lambda})"
+            )
+
+        # weighted_score_sum_knn (or dynamic_depth_knn / dual_retrieval_knn with a
+        # score_sum base fusion) requires score_normalization.
         if ss.type == "weighted_score_sum_knn" or (
-            ss.type == "dynamic_depth_knn" and ss.base_fusion == "weighted_score_sum"
+            ss.type in ("dynamic_depth_knn", "dual_retrieval_knn")
+            and ss.base_fusion == "weighted_score_sum"
         ):
             if ss.score_normalization is None or ss.score_normalization.type == "none":
                 errors.append(
@@ -2000,10 +2048,10 @@ def validate_cache_config(config: CacheConfig) -> None:
         if not wt:
             continue
 
-        if cp_config.judge.type != "threshold":
+        if cp_config.judge.type not in ("threshold", "failure_aware_gate"):
             errors.append(
-                f"{prefix}.judge: warm_tiers requires judge.type='threshold', "
-                f"got '{cp_config.judge.type}'"
+                f"{prefix}.judge: warm_tiers requires judge.type in "
+                f"('threshold', 'failure_aware_gate'), got '{cp_config.judge.type}'"
             )
 
         if cp_name != "cp1":
@@ -2510,6 +2558,16 @@ def _build_inner_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optiona
         # 4-layer composite refactor: instantiate Layer 1 / 2 / 3 / 4
         # from yaml schema and assemble via the new CompositeJudge.
         return _build_composite_judge(cfg, library_stats=library_stats, yaml_id=yaml_id)
+    elif cfg.type == "failure_aware_gate":
+        from openpi.cache.components.judge import FailureAwareGateJudge
+
+        # threshold is the gate value g's full_hit cutoff (config sets 0.5);
+        # warm_tiers (if any) are interpreted on g too (validator gates CP1-only).
+        return FailureAwareGateJudge(
+            gate_betas=dict(cfg.gate_betas or {}),
+            threshold=cfg.threshold,
+            warm_tiers=cfg.warm_tiers,
+        )
     else:
         raise ConfigValidationError(
             f"Unknown judge.type '{cfg.type}'. Valid: {sorted(_JUDGE_TYPES)}"
@@ -2959,9 +3017,54 @@ def _build_search_strategy(
             score_normalization=_score_norm_to_dict(cfg.score_normalization),
             **trajectory_kwargs,
         )
+    elif cfg.type == "dual_retrieval_knn":
+        from openpi.cache.components.search_strategy import (
+            ConstantDepthPolicy,
+            DualRetrievalKnnStrategy,
+            HeuristicDepthPolicy,
+        )
+
+        # Depth machinery mirrors dynamic_depth_knn (shared TrajectoryMixin).
+        allowed = list(cfg.allowed_depths) if cfg.allowed_depths is not None else [cfg.trajectory_depth]
+        pol_cfg = cfg.depth_policy or DepthPolicyConfig(type="constant")
+        if pol_cfg.type == "constant":
+            depth = pol_cfg.depth if pol_cfg.depth is not None else cfg.trajectory_depth
+            depth_policy = ConstantDepthPolicy(depth)
+        elif pol_cfg.type == "heuristic":
+            fallback = (
+                pol_cfg.fallback_depth
+                if pol_cfg.fallback_depth is not None
+                else min(allowed)
+            )
+            depth_policy = HeuristicDepthPolicy(
+                allowed_depths=allowed,
+                smoothness_thresholds=list(pol_cfg.smoothness_thresholds or []),
+                fallback_depth=fallback,
+            )
+        else:
+            raise ConfigValidationError(
+                f"Unknown depth_policy.type '{pol_cfg.type}'. Valid: ['constant', 'heuristic']"
+            )
+
+        return DualRetrievalKnnStrategy(
+            storage,
+            base_fusion=cfg.base_fusion,
+            depth_policy=depth_policy,
+            allowed_depths=allowed,
+            lambda_=cfg.margin_lambda,
+            enable_dual=cfg.enable_dual,
+            top_k=effective_top_k,
+            step_filter=cfg.step_filter,
+            step_window=cfg.step_window,
+            fusion_weights=fusion_weights if fusion_weights else None,
+            rrf_k=cfg.rrf_k,
+            field_similarity=_field_similarity_to_dict(cfg.field_similarity),
+            score_normalization=_score_norm_to_dict(cfg.score_normalization),
+            **trajectory_kwargs,
+        )
     else:
         raise ConfigValidationError(
             f"Unknown search_strategy.type '{cfg.type}'. "
             f"Valid: ['qdrant_weighted_rrf_knn', 'weighted_rrf_knn', "
-            f"'weighted_score_sum_knn', 'dynamic_depth_knn']"
+            f"'weighted_score_sum_knn', 'dynamic_depth_knn', 'dual_retrieval_knn']"
         )

@@ -7,6 +7,7 @@ import pytest
 import torch
 
 from openpi.cache.backends.in_memory_backend import InMemoryBackend
+from openpi.cache.cache_storage import CacheStorage
 from openpi.cache.storage_types import (
     CacheEntry,
     CachePayload,
@@ -15,6 +16,8 @@ from openpi.cache.storage_types import (
     SearchResultLite,
 )
 from openpi.cache.types import CheckpointID
+
+from tests.cache.conftest import insert_entry
 
 
 # ---------------------------------------------------------------------------
@@ -431,3 +434,93 @@ class TestEmptyBackend:
             field_similarity={"vision_0": {"type": "cosine"}},
         )
         assert backend.search(spec) == []
+
+
+# ---------------------------------------------------------------------------
+# TestOutcomeFilter — failure-aware dual-pool tag (TRACER M2 / Phase 3)
+# ---------------------------------------------------------------------------
+
+
+class TestOutcomeFilter:
+    """QueryFilter.outcome narrows to the +1 / -1 pool; untagged (None)
+    entries are only visible without an outcome constraint. Old pickles that
+    predate the field must load clean and read as untagged."""
+
+    def test_supported_filters_includes_outcome(self):
+        backend = InMemoryBackend({"robot_state": 4})
+        assert "outcome" in backend.supported_filters()
+
+    def test_outcome_filter_selects_pool(self):
+        """outcome=+1/-1 returns only that pool; no constraint returns all."""
+        backend = InMemoryBackend({"robot_state": 4})
+        storage = CacheStorage(backend)
+        payload = CachePayload(action_chunk=torch.zeros(10, 32))
+        # Three distinct states -> three distinct ids, tagged +1 / -1 / None.
+        pos = insert_entry(storage, CheckpointID.CP1,
+                           torch.tensor([[1.0, 0.0, 0.0, 0.0]]), payload, outcome=1)
+        neg = insert_entry(storage, CheckpointID.CP1,
+                           torch.tensor([[0.0, 1.0, 0.0, 0.0]]), payload, outcome=-1)
+        unt = insert_entry(storage, CheckpointID.CP1,
+                           torch.tensor([[0.0, 0.0, 1.0, 0.0]]), payload, outcome=None)
+
+        query = {"robot_state": torch.tensor([1.0, 0.0, 0.0, 0.0])}
+
+        def _ids(filters):
+            results = storage.search(QuerySpec(
+                query_keys=query, top_k=10,
+                checkpoint_id=CheckpointID.CP1, filters=filters,
+            ))
+            return {r.id for r in results}
+
+        # +1 pool only.
+        assert _ids(QueryFilter(outcome=1)) == {pos.id}
+        # -1 pool only.
+        assert _ids(QueryFilter(outcome=-1)) == {neg.id}
+        # Explicit outcome=None -> no constraint -> all three.
+        assert _ids(QueryFilter(outcome=None)) == {pos.id, neg.id, unt.id}
+        # No filter at all -> all three.
+        assert _ids(None) == {pos.id, neg.id, unt.id}
+
+    def test_load_artifact_backfills_missing_outcome(self, tmp_path):
+        """An artifact built before the outcome field loads without raising and
+        reads as untagged (outcome is None), so an explicit outcome filter does
+        not match it while a plain search does."""
+        dims = {"vision_0": 2, "robot_state": 2}
+        entry = _make_entry(
+            "A",
+            {"vision_0": torch.tensor([1.0, 0.0]), "robot_state": torch.tensor([1.0, 0.0])},
+        )
+        # Simulate an old pickle: drop the attribute from the instance dict.
+        del entry.__dict__["outcome"]
+        assert "outcome" not in entry.__dict__
+
+        artifact = {
+            "key_builder_type": "cp1_mean_pool",
+            "checkpoint_id": "CP1",
+            "vector_dims": dims,
+            "entries": [entry],
+        }
+        pkl_path = tmp_path / "old.pkl"
+        with open(pkl_path, "wb") as f:
+            pickle.dump(artifact, f)
+
+        backend = InMemoryBackend(dims)
+        backend.load_artifact(str(pkl_path))  # must not raise on the missing attr
+        assert backend.count() == 1
+
+        loaded = backend.fetch_entry("A")
+        assert loaded.outcome is None
+
+        storage = CacheStorage(backend)
+        query = {"vision_0": torch.tensor([1.0, 0.0])}
+        # Untagged entry must NOT match an explicit outcome filter ...
+        filtered = storage.search(QuerySpec(
+            query_keys=query, top_k=10,
+            checkpoint_id=CheckpointID.CP1, filters=QueryFilter(outcome=1),
+        ))
+        assert filtered == []
+        # ... but a plain search still returns it.
+        plain = storage.search(QuerySpec(
+            query_keys=query, top_k=10, checkpoint_id=CheckpointID.CP1,
+        ))
+        assert {r.id for r in plain} == {"A"}

@@ -217,9 +217,10 @@ def test_judge_receives_view_and_history_kwargs():
     captured = {}
 
     class _CapturingJudge:
-        def __call__(self, results, checkpoint_id, cached_data, *, view=None, history=None):
+        def __call__(self, results, checkpoint_id, cached_data, *, view=None, history=None, retrieval_signals=None):
             captured["view"] = view
             captured["history"] = history
+            captured["retrieval_signals"] = retrieval_signals
             from openpi.cache.components.judge import HitType, JudgeResult
             return JudgeResult(HitType.MISS)
         def on_episode_start(self):

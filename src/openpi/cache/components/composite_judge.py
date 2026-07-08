@@ -39,7 +39,7 @@ from openpi.cache.components.judge import (
     JudgeResult,
     _build_factor_outputs,
 )
-from openpi.cache.storage_types import SearchResultLite
+from openpi.cache.storage_types import RetrievalSignals, SearchResultLite
 from openpi.cache.types import CheckpointID
 
 if TYPE_CHECKING:
@@ -154,7 +154,13 @@ class CompositeJudge:
         *,
         view: Optional["PayloadView"] = None,
         history: Optional[HistoryView] = None,
+        retrieval_signals: Optional[RetrievalSignals] = None,
     ) -> JudgeResult:
+        # retrieval_signals is accepted but unused: Orchestrator injects it
+        # unconditionally (TRACER M2 / Phase 3 seam); CompositeJudge.__call__ has
+        # no **kwargs, so it must declare the parameter to avoid a TypeError. The
+        # failure-aware gate is a standalone judge (not a composer), so nothing
+        # in this pipeline consumes the signals.
         # Plan §6.11 #5: empty results short-circuit MISS, do NOT delegate
         # to composer (avoids WARM_START with winner_id=None edge case).
         if not results:

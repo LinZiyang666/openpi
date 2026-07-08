@@ -31,7 +31,12 @@ from typing import Any, Optional, Protocol, runtime_checkable
 import torch
 
 from openpi.cache.cache_storage import CacheStorage
-from openpi.cache.storage_types import QueryFilter, QuerySpec, SearchResultLite
+from openpi.cache.storage_types import (
+    QueryFilter,
+    QuerySpec,
+    RetrievalSignals,
+    SearchResultLite,
+)
 from openpi.cache.types import CheckpointID
 
 logger = logging.getLogger(__name__)
@@ -175,6 +180,126 @@ class TrajectoryMixin:
             fields["search_session_id"] = self._search_session_id
             fields["trajectory_query_ids"] = qids_newest_first
         return fields
+
+    # ------------------------------------------------------------------
+    # Depth-aware machinery (TRACER M3 / M2). Shared by DynamicDepthKnn-
+    # Strategy and DualRetrievalKnnStrategy. These methods assume the
+    # subclass __init__ has set the depth attributes (_depth_policy,
+    # _allowed_depths) and the fusion attributes (_base_fusion,
+    # _fusion_weights, _rrf_k, _field_similarity, _score_normalization,
+    # _step_filter, _step_window); the plain fixed-depth strategies never
+    # call them. DepthFeatures / _build_step_filters are module-level names
+    # defined below and resolved at call time.
+    # ------------------------------------------------------------------
+
+    def _action_smoothness(self) -> Optional[float]:
+        """L2 norm between the first actions of the two most recent chunks.
+
+        Returns None when fewer than two actions have been recorded (episode
+        start) or either recorded chunk is missing.
+        """
+        hist = self._action_history
+        if len(hist) < 2:
+            return None
+        a_prev, a_prev2 = hist[-1], hist[-2]
+        if a_prev is None or a_prev2 is None:
+            return None
+        # chunk[0] = first action of the [chunk_len, A] chunk (executed-action
+        # convention, matching the verdict-factor action channel).
+        v1 = a_prev[0].detach().float()
+        v2 = a_prev2[0].detach().float()
+        return float(torch.linalg.vector_norm(v1 - v2))
+
+    def _select_effective_depth(self, ctx: SearchContext) -> int:
+        """Build DepthFeatures, consult the policy, validate, and history-clamp.
+
+        Raises ValueError (explicit, not ``assert`` — survives ``python -O``) if
+        the policy returns a depth outside ``self._allowed_depths``.
+        """
+        features = DepthFeatures(
+            current_step=ctx.current_step,
+            history_len=len(self._query_history),
+            action_smoothness=self._action_smoothness(),
+        )
+        t_sel = self._depth_policy.select(features)
+        if t_sel not in self._allowed_depths:
+            raise ValueError(
+                f"DepthPolicy returned depth {t_sel} outside allowed_depths "
+                f"{sorted(self._allowed_depths)}"
+            )
+        # history-availability clamp — same as _build_trajectory_fields.
+        return min(t_sel, len(self._query_history))
+
+    def _trajectory_fields_for_depth(self, effective_depth: int) -> dict[str, Any]:
+        """Build QuerySpec trajectory fields at a runtime depth.
+
+        Mirrors ``_build_trajectory_fields`` but parameterized by the per-step
+        effective depth, using un-renormalized prefix weights so a constant
+        policy at the full max depth is value-identical to the fixed-depth
+        strategy at every history length.
+        """
+        if effective_depth <= 1 or not self._trajectory_weights:
+            return {}
+        history_newest_first = list(reversed(self._query_history[-effective_depth:]))
+        weights_newest_first = self._trajectory_weights[:effective_depth]
+        fields: dict[str, Any] = {
+            "trajectory_history": history_newest_first,
+            "trajectory_weights": weights_newest_first,
+        }
+        if self._search_session_id is not None:
+            qids_newest_first = list(reversed(self._query_id_history[-effective_depth:]))
+            fields["search_session_id"] = self._search_session_id
+            fields["trajectory_query_ids"] = qids_newest_first
+        return fields
+
+    def _build_spec_at_depth(
+        self,
+        ctx: SearchContext,
+        effective_depth: int,
+        *,
+        top_k: int,
+        extra_filter_outcome: Optional[int] = None,
+    ) -> QuerySpec:
+        """Construct a QuerySpec at a runtime depth for the configured fusion.
+
+        ``top_k`` is explicit so a dual-retrieval caller can over-fetch (>=2) to
+        compute a positive-ambiguity margin without widening the returned list.
+        ``extra_filter_outcome`` (+1 / -1) adds a ``QueryFilter.outcome``
+        constraint for pool-partitioned (D+/D-) retrieval; None leaves the
+        outcome unconstrained so the spec is byte-identical to the fixed-depth
+        path.
+        """
+        filters = _build_step_filters(self._step_filter, self._step_window, ctx)
+        if extra_filter_outcome is not None:
+            filters = QueryFilter(
+                task_key=filters.task_key if filters else None,
+                step_range=filters.step_range if filters else None,
+                outcome=extra_filter_outcome,
+            )
+        traj_fields = self._trajectory_fields_for_depth(effective_depth)
+        if self._base_fusion == "weighted_rrf":
+            return QuerySpec(
+                query_keys=ctx.query_keys,
+                top_k=top_k,
+                checkpoint_id=ctx.checkpoint_id,
+                filters=filters,
+                fusion_weights=self._fusion_weights,
+                fusion_method="weighted_rrf",
+                field_similarity=self._field_similarity,
+                backend_hints={"rrf_k": self._rrf_k},
+                **traj_fields,
+            )
+        return QuerySpec(
+            query_keys=ctx.query_keys,
+            top_k=top_k,
+            checkpoint_id=ctx.checkpoint_id,
+            filters=filters,
+            fusion_weights=self._fusion_weights,
+            fusion_method="weighted_score_sum",
+            field_similarity=self._field_similarity,
+            score_normalization=self._score_normalization,
+            **traj_fields,
+        )
 
 
 class QdrantWeightedRrfKnnStrategy(TrajectoryMixin):
@@ -527,89 +652,122 @@ class DynamicDepthKnnStrategy(TrajectoryMixin):
 
     def search(self, ctx: SearchContext) -> list[SearchResultLite]:
         self.record_query_keys(ctx.query_keys)
-
-        features = DepthFeatures(
-            current_step=ctx.current_step,
-            history_len=len(self._query_history),
-            action_smoothness=self._action_smoothness(),
-        )
-        t_sel = self._depth_policy.select(features)
-        # Explicit raise (not assert) so the guard survives `python -O`.
-        if t_sel not in self._allowed_depths:
-            raise ValueError(
-                f"DepthPolicy returned depth {t_sel} outside allowed_depths "
-                f"{sorted(self._allowed_depths)}"
-            )
-        # history-availability clamp — same as TrajectoryMixin.actual_depth.
-        effective_depth = min(t_sel, len(self._query_history))
-
-        filters = _build_step_filters(self._step_filter, self._step_window, ctx)
-        traj_fields = self._trajectory_fields_for_depth(effective_depth)
-
-        # Mirror each fixed-depth strategy's QuerySpec shape per base fusion so
-        # a constant policy reproduces its results value-for-value.
-        if self._base_fusion == "weighted_rrf":
-            spec = QuerySpec(
-                query_keys=ctx.query_keys,
-                top_k=self._top_k,
-                checkpoint_id=ctx.checkpoint_id,
-                filters=filters,
-                fusion_weights=self._fusion_weights,
-                fusion_method="weighted_rrf",
-                field_similarity=self._field_similarity,
-                backend_hints={"rrf_k": self._rrf_k},
-                **traj_fields,
-            )
-        else:  # weighted_score_sum
-            spec = QuerySpec(
-                query_keys=ctx.query_keys,
-                top_k=self._top_k,
-                checkpoint_id=ctx.checkpoint_id,
-                filters=filters,
-                fusion_weights=self._fusion_weights,
-                fusion_method="weighted_score_sum",
-                field_similarity=self._field_similarity,
-                score_normalization=self._score_normalization,
-                **traj_fields,
-            )
+        effective_depth = self._select_effective_depth(ctx)
+        # Constant policy at the full max depth reproduces the fixed-depth
+        # strategy value-for-value (shared TrajectoryMixin depth machinery).
+        spec = self._build_spec_at_depth(ctx, effective_depth, top_k=self._top_k)
         return self._storage.search(spec)
 
-    def _action_smoothness(self) -> Optional[float]:
-        """L2 norm between the first actions of the two most recent chunks.
 
-        Returns None when fewer than two actions have been recorded (episode
-        start) or either recorded chunk is missing.
-        """
-        hist = self._action_history
-        if len(hist) < 2:
-            return None
-        a_prev, a_prev2 = hist[-1], hist[-2]
-        if a_prev is None or a_prev2 is None:
-            return None
-        # chunk[0] = first action of the [chunk_len, A] chunk (executed-action
-        # convention, matching the verdict-factor action channel).
-        v1 = a_prev[0].detach().float()
-        v2 = a_prev2[0].detach().float()
-        return float(torch.linalg.vector_norm(v1 - v2))
+# ---------------------------------------------------------------------------
+# Failure-aware dual-retrieval strategy (TRACER Phase 3 / M2)
+# ---------------------------------------------------------------------------
 
-    def _trajectory_fields_for_depth(self, effective_depth: int) -> dict[str, Any]:
-        """Build QuerySpec trajectory fields at a runtime depth.
 
-        Mirrors `TrajectoryMixin._build_trajectory_fields` but parameterized by
-        the per-step effective depth, using un-renormalized prefix weights so a
-        constant policy at the full max depth is value-identical to the
-        fixed-depth strategy at every history length.
-        """
-        if effective_depth <= 1 or not self._trajectory_weights:
-            return {}
-        history_newest_first = list(reversed(self._query_history[-effective_depth:]))
-        weights_newest_first = self._trajectory_weights[:effective_depth]
-        fields: dict[str, Any] = {
-            "trajectory_history": history_newest_first,
-            "trajectory_weights": weights_newest_first,
-        }
-        if self._search_session_id is not None:
-            qids_newest_first = list(reversed(self._query_id_history[-effective_depth:]))
-            fields["search_session_id"] = self._search_session_id
-            fields["trajectory_query_ids"] = qids_newest_first
-        return fields
+class DualRetrievalKnnStrategy(TrajectoryMixin):
+    """In-memory dual-pool retrieval strategy (TRACER M2 skeleton).
+
+    Searches a positive pool (D+) and, when enabled, a negative pool (D-),
+    computing per-query failure-aware signals (Eq 16-20):
+
+      - ``s_pos`` / ``s_neg`` : top-1 similarity in each pool (0.0 if empty).
+      - ``margin = s_pos - lambda_ * s_neg``.
+      - ``delta_pos = top1 - top2`` similarity in D+ (positive ambiguity).
+
+    The signals are stashed for ``last_retrieval_signals()``, which the
+    Orchestrator forwards to the judge (a ``failure_aware_gate``). Depth is
+    selected via the shared TrajectoryMixin depth machinery, reusing the
+    Phase-1 DepthPolicy; with a ``ConstantDepthPolicy`` at the full max depth
+    and ``enable_dual=False`` (single pool, no outcome filter) the returned
+    results are value-identical to the fixed-depth ``base_fusion`` strategy —
+    the Phase 3 non-regression anchor.
+
+    The positive pool is always fetched with ``top_k >= 2`` so ``delta_pos`` is
+    well defined even when the configured ``top_k`` is 1; the returned list is
+    sliced back to ``top_k`` to preserve fixed-depth parity (over-fetching does
+    not change the top-1). Pool partitioning uses ``QueryFilter.outcome``
+    (+1 / -1), which only the in_memory backend advertises; config validation
+    gates this strategy to in_memory.
+    """
+
+    def __init__(
+        self,
+        storage: CacheStorage,
+        *,
+        base_fusion: str,
+        depth_policy: DepthPolicy,
+        allowed_depths: list[int],
+        lambda_: float = 0.0,
+        enable_dual: bool = False,
+        top_k: int = 1,
+        step_filter: str = "all",
+        step_window: int = 5,
+        fusion_weights: Optional[dict[str, float]] = None,
+        rrf_k: int = 60,
+        field_similarity: Optional[dict[str, dict[str, Any]]] = None,
+        score_normalization: Optional[dict[str, Any]] = None,
+        trajectory_depth: int = 1,
+        trajectory_weights: Optional[list[float]] = None,
+    ) -> None:
+        if base_fusion not in ("weighted_rrf", "weighted_score_sum"):
+            raise ValueError(
+                "DualRetrievalKnnStrategy base_fusion must be 'weighted_rrf' or "
+                f"'weighted_score_sum', got {base_fusion!r}"
+            )
+        self._storage = storage
+        self._base_fusion = base_fusion
+        self._depth_policy = depth_policy
+        self._allowed_depths = {int(d) for d in allowed_depths}
+        self._lambda = float(lambda_)
+        self._enable_dual = bool(enable_dual)
+        self._top_k = top_k
+        self._step_filter = step_filter
+        self._step_window = step_window
+        self._fusion_weights = fusion_weights
+        self._rrf_k = rrf_k
+        self._field_similarity = field_similarity
+        self._score_normalization = score_normalization
+        self._last_signals: Optional[RetrievalSignals] = None
+        self._init_trajectory(trajectory_depth, trajectory_weights)
+
+    def search(self, ctx: SearchContext) -> list[SearchResultLite]:
+        self.record_query_keys(ctx.query_keys)
+        effective_depth = self._select_effective_depth(ctx)
+
+        # Positive pool (D+). Over-fetch to >=2 so delta_pos (top1-top2) is well
+        # defined regardless of the configured top_k; slice back before return.
+        pos_top_k = max(self._top_k, 2)
+        pos_outcome = 1 if self._enable_dual else None
+        pos_spec = self._build_spec_at_depth(
+            ctx, effective_depth, top_k=pos_top_k, extra_filter_outcome=pos_outcome
+        )
+        pos_full = self._storage.search(pos_spec)
+        s_pos = pos_full[0].score if pos_full else 0.0
+        delta_pos = (
+            pos_full[0].score - pos_full[1].score if len(pos_full) >= 2 else 0.0
+        )
+
+        # Negative pool (D-) only when dual retrieval is enabled; s_neg needs
+        # only the top-1. Empty / disabled => s_neg = 0 => margin = s_pos.
+        if self._enable_dual:
+            neg_spec = self._build_spec_at_depth(
+                ctx, effective_depth, top_k=1, extra_filter_outcome=-1
+            )
+            neg = self._storage.search(neg_spec)
+            s_neg = neg[0].score if neg else 0.0
+        else:
+            s_neg = 0.0
+
+        margin = s_pos - self._lambda * s_neg
+        self._last_signals = RetrievalSignals(
+            s_pos=s_pos,
+            s_neg=s_neg,
+            margin=margin,
+            delta_pos=delta_pos,
+            lambda_=self._lambda,
+        )
+        return pos_full[: self._top_k]
+
+    def last_retrieval_signals(self) -> Optional[RetrievalSignals]:
+        """Return the most recent per-query failure-aware signals (or None)."""
+        return self._last_signals

@@ -11,9 +11,14 @@ from openpi.cache.components.gate import (
     ClientControlledGate,
     ScoreHysteresisGate,
 )
-from openpi.cache.components.judge import AlwaysWarmStartJudge, HitType, ThresholdJudge
+from openpi.cache.components.judge import (
+    AlwaysWarmStartJudge,
+    HitType,
+    JudgeResult,
+    ThresholdJudge,
+)
 from openpi.cache.orchestrator import CacheOrchestrator
-from openpi.cache.storage_types import CachePayload
+from openpi.cache.storage_types import CachePayload, RetrievalSignals, SearchResultLite
 from openpi.cache.types import CheckpointID
 
 from openpi.cache.backends.in_memory_backend import InMemoryBackend
@@ -1018,3 +1023,154 @@ def test_blind_replay_not_taken_when_replay_target_none():
     assert result.hit_type == HitType.MISS and result.searched is False
     assert gate.verdicts == [(HitType.MISS, None, False)]
     orch.clear()
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 (TRACER M2): retrieval_signals seam — Strategy -> Orchestrator -> Judge
+# ---------------------------------------------------------------------------
+
+
+class _SignalSpyJudge:
+    """Judge spy: records the ``retrieval_signals`` kwarg it was called with.
+
+    A sentinel default distinguishes "never called" from "called with None".
+    Returns FULL_HIT for the top result so the orchestrator exercises its
+    post-judge fetch path (winner_id must be a real stored id).
+    """
+
+    _UNSET = object()
+
+    def __init__(self) -> None:
+        self.received = self._UNSET
+        self.call_count = 0
+
+    def __call__(self, results, checkpoint_id, cached_data, *,
+                 view=None, history=None, retrieval_signals=None):
+        self.received = retrieval_signals
+        self.call_count += 1
+        if not results:
+            return JudgeResult(HitType.MISS)
+        return JudgeResult(HitType.FULL_HIT, results[0].id)
+
+    def on_episode_start(self) -> None:
+        pass
+
+    def record_action(self, action_chunk) -> None:
+        pass
+
+
+class _SignalStrategy(TestStorageSearchStrategy):
+    """TestStorageSearchStrategy + a ``last_retrieval_signals()`` getter that
+    returns a preset object — the dual-retrieval strategy contract the
+    orchestrator reads via getattr."""
+
+    def __init__(self, storage, signals, *, top_k: int = 1) -> None:
+        super().__init__(storage, top_k=top_k)
+        self._signals = signals
+
+    def last_retrieval_signals(self):
+        return self._signals
+
+
+def _make_orch_custom(*, strategy_factory, judge):
+    """Assemble an orchestrator whose CP1/CP3 strategy is built by
+    ``strategy_factory(storage)`` and whose judge is ``judge``."""
+    dims = {"robot_state": 32}
+    backend = InMemoryBackend(dims)
+    from openpi.cache.cache_storage import CacheStorage
+    from openpi.cache.components.key_builder import PlaceholderKeyBuilder
+    from openpi.cache.timing import SystemTimer
+
+    storage = CacheStorage(backend)
+    strategy = strategy_factory(storage)
+    orch = CacheOrchestrator(
+        storage,
+        PlaceholderKeyBuilder(),
+        gates=_wrap_per_checkpoint(AlwaysSearchGate()),
+        judges=_wrap_per_checkpoint(judge),
+        search_strategies=_wrap_per_checkpoint(strategy),
+        timer=SystemTimer(enabled=False),
+    )
+    return orch, backend, storage
+
+
+def test_orchestrator_passes_none_signals_when_strategy_lacks_getter():
+    """Strategy without ``last_retrieval_signals`` -> judge receives None
+    (existing behaviour byte-identical)."""
+    spy = _SignalSpyJudge()
+    # make_orchestrator wires the default TestStorageSearchStrategy, which has
+    # no last_retrieval_signals method.
+    orch, _, storage = make_orchestrator(judge=spy)
+    state = _unit_vector(32, 0)
+    insert_entry(storage, CheckpointID.CP1, state,
+                 CachePayload(action_chunk=torch.zeros(50, 32)))
+
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(state))
+
+    assert result.hit_type == HitType.FULL_HIT
+    assert spy.call_count == 1
+    assert spy.received is None
+    orch.clear()
+
+
+def test_orchestrator_forwards_strategy_retrieval_signals_to_judge():
+    """Strategy with ``last_retrieval_signals`` -> orchestrator forwards that
+    exact object to the judge."""
+    signals = RetrievalSignals(
+        s_pos=0.9, s_neg=0.2, margin=0.7, delta_pos=0.1, lambda_=1.0
+    )
+    spy = _SignalSpyJudge()
+    orch, _, storage = _make_orch_custom(
+        strategy_factory=lambda s: _SignalStrategy(s, signals, top_k=1),
+        judge=spy,
+    )
+    state = _unit_vector(32, 0)
+    insert_entry(storage, CheckpointID.CP1, state,
+                 CachePayload(action_chunk=torch.zeros(50, 32)))
+
+    result = orch.check(CheckpointID.CP1, stage1=make_stage1(state))
+
+    assert result.hit_type == HitType.FULL_HIT
+    assert spy.call_count == 1
+    assert spy.received is signals  # exact object, not a copy
+    orch.clear()
+
+
+def test_dumping_judge_forwards_retrieval_signals_to_inner(tmp_path):
+    """DumpingJudge forwards the retrieval_signals object to its inner judge
+    and returns the inner verdict unchanged (does not raise)."""
+    from openpi.cache.components.dumping_judge import DumpingJudge
+
+    spy = _SignalSpyJudge()
+    dumping = DumpingJudge(
+        inner=spy,
+        dump_normalization=None,   # no dump factors -> normalization unused
+        dump_factors=[],
+        dump_path=str(tmp_path / "dump.jsonl"),
+        config_id="phase3_seam_test",
+    )
+    signals = RetrievalSignals(
+        s_pos=0.8, s_neg=0.1, margin=0.7, delta_pos=0.2, lambda_=1.0
+    )
+    results = [SearchResultLite(id="winner", score=0.9, checkpoint_id=CheckpointID.CP1)]
+
+    out = dumping(results, CheckpointID.CP1, {}, retrieval_signals=signals)
+
+    assert spy.received is signals
+    assert out.hit_type == HitType.FULL_HIT
+    assert out.winner_id == "winner"
+
+
+def test_threshold_judge_accepts_retrieval_signals_kwarg():
+    """Legacy ThresholdJudge accepts (and ignores) retrieval_signals via
+    **kwargs — the accept-and-ignore half of the seam contract."""
+    judge = ThresholdJudge(cp1_threshold=0.5)
+    signals = RetrievalSignals(
+        s_pos=1.0, s_neg=0.0, margin=1.0, delta_pos=0.0, lambda_=1.0
+    )
+    results = [SearchResultLite(id="w", score=0.9, checkpoint_id=CheckpointID.CP1)]
+
+    out = judge(results, CheckpointID.CP1, {}, retrieval_signals=signals)
+
+    assert out.hit_type == HitType.FULL_HIT
+    assert out.winner_id == "w"

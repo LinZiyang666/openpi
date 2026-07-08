@@ -150,6 +150,12 @@ class CacheEntry:
     prev_ids: list[str] = field(default_factory=list)
     next_ids: list[str] = field(default_factory=list)
     trajectory_id: Optional[str] = None
+    # ── Failure-aware retrieval outcome tag (TRACER M2 / Phase 3) ──
+    # +1 = success pool (D+), -1 = failure pool (D-), None = untagged. Legacy
+    # artifacts have no such attribute after unpickling; InMemoryBackend.
+    # load_artifact backfills it to None so an explicit QueryFilter.outcome
+    # simply does not match them (no AttributeError).
+    outcome: Optional[int] = None
 
     def validate(self) -> None:
         """Check CP-specific invariants.  Called automatically by CacheStorage.insert()."""
@@ -172,10 +178,15 @@ class QueryFilter:
 
     task_key   : Canonical task identifier — same normalisation as CachePayload.task_key.
     step_range : Restrict to entries whose step_idx is in [min, max] (inclusive).
+    outcome    : Restrict to entries whose CacheEntry.outcome equals this value
+                 (+1 success / -1 failure). None = no outcome constraint. Only the
+                 in_memory backend advertises this filter (see supported_filters);
+                 dual-pool retrieval (TRACER M2 / Phase 3) is in_memory-gated.
     """
 
     task_key: Optional[str] = None
     step_range: Optional[tuple[int, int]] = None
+    outcome: Optional[int] = None
 
 
 @dataclass
@@ -292,6 +303,33 @@ class SearchResult:
     score: float
     payload: CachePayload
     checkpoint_id: CheckpointID
+
+
+@dataclass(frozen=True)
+class RetrievalSignals:
+    """Per-query failure-aware retrieval signals (TRACER M2 / Phase 3).
+
+    Produced by a dual-retrieval SearchStrategy and surfaced to the judge via an
+    additive side-channel: the Orchestrator reads Strategy.last_retrieval_signals()
+    and forwards it as the judge's keyword-only ``retrieval_signals`` argument.
+    This is a per-query scalar bundle — intentionally NOT folded into the
+    per-result SearchResultLite so that fusion/backends stay untouched.
+
+    Fields
+    ------
+    s_pos     : Top-1 similarity from the positive pool (D+); 0.0 if empty.
+    s_neg     : Top-1 similarity from the negative pool (D-); 0.0 if empty/disabled.
+    margin    : ``s_pos - lambda_ * s_neg`` (Eq 16-18). Empty D- => margin == s_pos.
+    delta_pos : Positive-ambiguity margin (Eq 20) = top1 - top2 similarity in D+;
+                0.0 when fewer than two positive results.
+    lambda_   : The effective lambda used for margin (echoed for diagnostics).
+    """
+
+    s_pos: float
+    s_neg: float
+    margin: float
+    delta_pos: float
+    lambda_: float
 
 
 # ---------------------------------------------------------------------------

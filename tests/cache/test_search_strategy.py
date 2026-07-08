@@ -10,9 +10,11 @@ import torch
 
 from openpi.cache.backends.in_memory_backend import InMemoryBackend
 from openpi.cache.cache_storage import CacheStorage
+from openpi.cache.components.judge import FailureAwareGateJudge, ThresholdJudge
 from openpi.cache.components.search_strategy import (
     ConstantDepthPolicy,
     DepthFeatures,
+    DualRetrievalKnnStrategy,
     DynamicDepthKnnStrategy,
     HeuristicDepthPolicy,
     QdrantWeightedRrfKnnStrategy,
@@ -742,4 +744,384 @@ def test_dynamic_heuristic_fallback_not_in_allowed(tmp_path):
 
     bad = _VALID_DYN_HEURISTIC_YAML.replace("fallback_depth: 1", "fallback_depth: 2")
     with pytest.raises(ConfigValidationError, match="fallback_depth"):
+        _load(tmp_path, bad)
+
+
+# ===========================================================================
+# TRACER Phase 3 / M2 — DualRetrievalKnnStrategy + failure_aware_gate judge
+# ===========================================================================
+
+
+def _dual(storage, **overrides) -> DualRetrievalKnnStrategy:
+    kwargs = dict(
+        base_fusion="weighted_rrf",
+        depth_policy=ConstantDepthPolicy(1),
+        allowed_depths=[1],
+        top_k=1,
+        fusion_weights={ROBOT_STATE: 1.0},
+        rrf_k=60,
+        trajectory_depth=1,
+        trajectory_weights=None,
+    )
+    kwargs.update(overrides)
+    return DualRetrievalKnnStrategy(storage, **kwargs)
+
+
+@pytest.mark.parametrize("base_fusion", ["weighted_rrf", "weighted_score_sum"])
+@pytest.mark.parametrize("depth", [1, 3, 5])
+def test_dual_retrieval_degenerate_parity(base_fusion, depth):
+    """NR2: DualRetrievalKnnStrategy(enable_dual=False, constant@D) is value-
+    identical to the fixed-depth base_fusion strategy at every history length,
+    and its dual-off signals reduce to margin == s_pos, s_neg == 0.
+    """
+    backend = InMemoryBackend({ROBOT_STATE: _DIM})
+    storage = CacheStorage(backend)
+    _build_chain_library(storage, chain_len=6)
+
+    weights = None if depth == 1 else [round(1.0 / (k + 1), 4) for k in range(depth)]
+    field_sim = {ROBOT_STATE: {"type": "cosine"}}
+    score_norm = {
+        "type": "per_field",
+        "fields": {ROBOT_STATE: {"method": "affine_clip", "params": {"lo": -1.0, "hi": 1.0}}},
+    }
+    common = dict(
+        top_k=3,
+        step_filter="all",
+        fusion_weights={ROBOT_STATE: 1.0},
+        trajectory_depth=depth,
+        trajectory_weights=weights,
+    )
+
+    if base_fusion == "weighted_rrf":
+        fixed = WeightedRrfKnnStrategy(storage, rrf_k=60, field_similarity=field_sim, **common)
+        dual = DualRetrievalKnnStrategy(
+            storage,
+            base_fusion="weighted_rrf",
+            depth_policy=ConstantDepthPolicy(depth),
+            allowed_depths=[depth],
+            enable_dual=False,
+            rrf_k=60,
+            field_similarity=field_sim,
+            **common,
+        )
+    else:
+        fixed = WeightedScoreSumKnnStrategy(
+            storage, field_similarity=field_sim, score_normalization=score_norm, **common
+        )
+        dual = DualRetrievalKnnStrategy(
+            storage,
+            base_fusion="weighted_score_sum",
+            depth_policy=ConstantDepthPolicy(depth),
+            allowed_depths=[depth],
+            enable_dual=False,
+            field_similarity=field_sim,
+            score_normalization=score_norm,
+            **common,
+        )
+
+    torch.manual_seed(7)
+    for step in range(6):
+        ctx = SearchContext(
+            query_keys={ROBOT_STATE: torch.randn(_DIM)},
+            checkpoint_id=CheckpointID.CP1,
+            current_step=step,
+        )
+        r_fixed = fixed.search(ctx)
+        r_dual = dual.search(ctx)
+        assert [r.id for r in r_dual] == [r.id for r in r_fixed], f"ids diverge at step {step}"
+        assert [r.score for r in r_dual] == pytest.approx(
+            [r.score for r in r_fixed]
+        ), f"scores diverge at step {step}"
+        sig = dual.last_retrieval_signals()
+        assert sig is not None
+        assert sig.s_neg == 0.0
+        assert sig.margin == pytest.approx(sig.s_pos)
+        if len(r_fixed) >= 2:
+            assert sig.delta_pos == pytest.approx(r_fixed[0].score - r_fixed[1].score)
+
+
+def test_dual_margin_and_delta_controlled():
+    """Dual-on: margin = s_pos - lambda_ * s_neg; delta_pos = top1 - top2 in D+."""
+    storage = MagicMock(spec=CacheStorage)
+    pos = [
+        SearchResultLite("p0", 0.90, CheckpointID.CP1),
+        SearchResultLite("p1", 0.70, CheckpointID.CP1),
+    ]
+    neg = [SearchResultLite("n0", 0.40, CheckpointID.CP1)]
+    storage.search.side_effect = [pos, neg]
+    strat = _dual(storage, enable_dual=True, lambda_=0.5, top_k=1)
+    ctx = SearchContext(query_keys={ROBOT_STATE: torch.randn(_DIM)}, checkpoint_id=CheckpointID.CP1)
+    results = strat.search(ctx)
+    sig = strat.last_retrieval_signals()
+    assert sig.s_pos == pytest.approx(0.90)
+    assert sig.s_neg == pytest.approx(0.40)
+    assert sig.margin == pytest.approx(0.90 - 0.5 * 0.40)
+    assert sig.delta_pos == pytest.approx(0.90 - 0.70)
+    assert sig.lambda_ == pytest.approx(0.5)
+    assert [r.id for r in results] == ["p0"]  # winner = D+ top-1, sliced to top_k=1
+    assert storage.search.call_count == 2  # D+ then D-
+
+
+def test_dual_empty_negative_pool_margin_is_s_pos():
+    storage = MagicMock(spec=CacheStorage)
+    pos = [SearchResultLite("p0", 0.8, CheckpointID.CP1), SearchResultLite("p1", 0.5, CheckpointID.CP1)]
+    storage.search.side_effect = [pos, []]  # D- empty
+    strat = _dual(storage, enable_dual=True, lambda_=1.0)
+    ctx = SearchContext(query_keys={ROBOT_STATE: torch.randn(_DIM)}, checkpoint_id=CheckpointID.CP1)
+    strat.search(ctx)
+    sig = strat.last_retrieval_signals()
+    assert sig.s_neg == 0.0
+    assert sig.margin == pytest.approx(0.8)
+
+
+def test_dual_overfetch_computes_delta_with_top_k_1():
+    """delta_pos (feeding beta3) is well-defined even at the default top_k=1:
+    the D+ pool is over-fetched to >=2, but the returned list stays top_k."""
+    storage = MagicMock(spec=CacheStorage)
+    pos = [SearchResultLite("p0", 0.9, CheckpointID.CP1), SearchResultLite("p1", 0.6, CheckpointID.CP1)]
+    storage.search.side_effect = [pos]  # dual-off => single search
+    strat = _dual(storage, enable_dual=False, top_k=1)
+    ctx = SearchContext(query_keys={ROBOT_STATE: torch.randn(_DIM)}, checkpoint_id=CheckpointID.CP1)
+    results = strat.search(ctx)
+    pos_spec = storage.search.call_args_list[0][0][0]
+    assert pos_spec.top_k >= 2  # over-fetch for delta_pos
+    assert len(results) == 1     # returned list sliced back to configured top_k
+    sig = strat.last_retrieval_signals()
+    assert sig.delta_pos == pytest.approx(0.9 - 0.6)
+
+
+def test_dual_enable_dual_sets_outcome_filter():
+    """Dual-on issues D+ (outcome=+1) and D- (outcome=-1) filtered searches."""
+    storage = MagicMock(spec=CacheStorage)
+    storage.search.side_effect = [[SearchResultLite("p0", 0.9, CheckpointID.CP1)], []]
+    strat = _dual(storage, enable_dual=True)
+    ctx = SearchContext(query_keys={ROBOT_STATE: torch.randn(_DIM)}, checkpoint_id=CheckpointID.CP1)
+    strat.search(ctx)
+    pos_spec = storage.search.call_args_list[0][0][0]
+    neg_spec = storage.search.call_args_list[1][0][0]
+    assert pos_spec.filters.outcome == 1
+    assert neg_spec.filters.outcome == -1
+
+
+def test_dual_out_of_range_policy_raises():
+    storage = MagicMock(spec=CacheStorage)
+    strat = _dual(storage, depth_policy=_BadPolicy(), allowed_depths=[1, 3])
+    ctx = SearchContext(query_keys={ROBOT_STATE: torch.randn(_DIM)}, checkpoint_id=CheckpointID.CP1)
+    with pytest.raises(ValueError, match="outside allowed_depths"):
+        strat.search(ctx)
+
+
+def test_dual_base_fusion_invalid_raises():
+    storage = MagicMock(spec=CacheStorage)
+    with pytest.raises(ValueError, match="base_fusion"):
+        _dual(storage, base_fusion="bogus")
+
+
+def test_dual_protocol_compliance():
+    storage = MagicMock(spec=CacheStorage)
+    assert isinstance(_dual(storage), SearchStrategy)
+
+
+@pytest.mark.parametrize("base_fusion", ["weighted_rrf", "weighted_score_sum"])
+@pytest.mark.parametrize("depth", [1, 3])
+def test_nr4_full_stack_degenerate_equals_threshold(base_fusion, depth):
+    """NR4: [dual(dual-off,const@D) + failure_aware_gate default] yields the same
+    JudgeResult sequence as [fixed(depth=D) + ThresholdJudge(tau)]."""
+    backend = InMemoryBackend({ROBOT_STATE: _DIM})
+    storage = CacheStorage(backend)
+    _build_chain_library(storage, chain_len=6)
+
+    tau = 0.5
+    weights = None if depth == 1 else [round(1.0 / (k + 1), 4) for k in range(depth)]
+    field_sim = {ROBOT_STATE: {"type": "cosine"}}
+    score_norm = {
+        "type": "per_field",
+        "fields": {ROBOT_STATE: {"method": "affine_clip", "params": {"lo": -1.0, "hi": 1.0}}},
+    }
+    common = dict(top_k=3, fusion_weights={ROBOT_STATE: 1.0}, trajectory_depth=depth, trajectory_weights=weights)
+
+    if base_fusion == "weighted_rrf":
+        fixed = WeightedRrfKnnStrategy(storage, rrf_k=60, field_similarity=field_sim, **common)
+        dual = DualRetrievalKnnStrategy(
+            storage, base_fusion="weighted_rrf", depth_policy=ConstantDepthPolicy(depth),
+            allowed_depths=[depth], enable_dual=False, rrf_k=60, field_similarity=field_sim, **common,
+        )
+    else:
+        fixed = WeightedScoreSumKnnStrategy(storage, field_similarity=field_sim, score_normalization=score_norm, **common)
+        dual = DualRetrievalKnnStrategy(
+            storage, base_fusion="weighted_score_sum", depth_policy=ConstantDepthPolicy(depth),
+            allowed_depths=[depth], enable_dual=False, field_similarity=field_sim, score_normalization=score_norm, **common,
+        )
+
+    # gate default: b0=-tau, b1=1, b3=0, threshold on g=0.5 => hit iff s_pos>=tau.
+    gate = FailureAwareGateJudge(gate_betas={"b0": -tau, "b1": 1.0, "b3": 0.0}, threshold=0.5)
+    thr = ThresholdJudge(cp1_threshold=tau)
+
+    torch.manual_seed(11)
+    for step in range(6):
+        ctx = SearchContext(query_keys={ROBOT_STATE: torch.randn(_DIM)}, checkpoint_id=CheckpointID.CP1, current_step=step)
+        r_dual = dual.search(ctx)
+        sig = dual.last_retrieval_signals()
+        r_fixed = fixed.search(ctx)
+        gate_res = gate(r_dual, CheckpointID.CP1, {}, retrieval_signals=sig)
+        thr_res = thr(r_fixed, CheckpointID.CP1, {})
+        assert gate_res.hit_type == thr_res.hit_type, f"hit_type diverges at step {step}"
+        assert gate_res.winner_id == thr_res.winner_id, f"winner diverges at step {step}"
+
+
+# ---- dual_retrieval_knn + failure_aware_gate config parse + validation ----
+
+_VALID_DUAL_YAML = """enabled: true
+keys:
+  robot_state: {enabled: true, weight: 1.0}
+key_builder:
+  type: placeholder
+checkpoints:
+  cp1:
+    enabled: true
+    gate: {type: always_search}
+    judge: {type: always_hit}
+    search_strategy:
+      type: dual_retrieval_knn
+      base_fusion: weighted_rrf
+      top_k: 1
+      trajectory_depth: 3
+      trajectory_weights: [0.5, 0.3, 0.2]
+      allowed_depths: [1, 3]
+      depth_policy: {type: constant, depth: 3}
+      margin_lambda: 0.5
+      enable_dual: false
+backend:
+  type: in_memory
+  vector_dims: {robot_state: 32}
+"""
+
+
+def _fag_yaml(
+    *,
+    cp="cp1",
+    betas="{b0: -0.5, b1: 1.0, b3: 0.0}",
+    strategy_type="dual_retrieval_knn",
+    warm_tiers_line="",
+    threshold=0.5,
+):
+    warm = f"\n      warm_tiers: {warm_tiers_line}" if warm_tiers_line else ""
+    return f"""enabled: true
+keys:
+  robot_state: {{enabled: true, weight: 1.0}}
+key_builder:
+  type: placeholder
+checkpoints:
+  {cp}:
+    enabled: true
+    gate: {{type: always_search}}
+    judge:
+      type: failure_aware_gate
+      threshold: {threshold}
+      gate_betas: {betas}{warm}
+    search_strategy:
+      type: {strategy_type}
+      base_fusion: weighted_rrf
+      top_k: 1
+      trajectory_depth: 1
+      allowed_depths: [1]
+      depth_policy: {{type: constant, depth: 1}}
+      enable_dual: false
+backend:
+  type: in_memory
+  vector_dims: {{robot_state: 32}}
+"""
+
+
+def test_build_dual_strategy():
+    from openpi.cache.config import DepthPolicyConfig, SearchStrategyConfig, _build_search_strategy
+
+    storage = MagicMock(spec=CacheStorage)
+    cfg = SearchStrategyConfig(
+        type="dual_retrieval_knn",
+        base_fusion="weighted_rrf",
+        trajectory_depth=3,
+        trajectory_weights=[0.5, 0.3, 0.2],
+        allowed_depths=[1, 3],
+        depth_policy=DepthPolicyConfig(type="constant", depth=3),
+        margin_lambda=0.5,
+        enable_dual=True,
+    )
+    strat = _build_search_strategy(cfg, storage, {ROBOT_STATE: 1.0})
+    assert isinstance(strat, DualRetrievalKnnStrategy)
+
+
+def test_valid_dual_yaml_loads(tmp_path):
+    cfg = _load(tmp_path, _VALID_DUAL_YAML)
+    ss = cfg.checkpoints["cp1"].search_strategy
+    assert ss.type == "dual_retrieval_knn"
+    assert ss.margin_lambda == 0.5
+    assert ss.enable_dual is False
+
+
+def test_dual_requires_in_memory(tmp_path):
+    from openpi.cache.config import ConfigValidationError
+
+    bad = _VALID_DUAL_YAML.replace("type: in_memory", "type: qdrant")
+    with pytest.raises(ConfigValidationError, match="in_memory"):
+        _load(tmp_path, bad)
+
+
+def test_dual_margin_lambda_negative_rejected(tmp_path):
+    from openpi.cache.config import ConfigValidationError
+
+    bad = _VALID_DUAL_YAML.replace("margin_lambda: 0.5", "margin_lambda: -0.1")
+    with pytest.raises(ConfigValidationError, match="margin_lambda"):
+        _load(tmp_path, bad)
+
+
+def test_dual_base_fusion_invalid_config(tmp_path):
+    from openpi.cache.config import ConfigValidationError
+
+    bad = _VALID_DUAL_YAML.replace("base_fusion: weighted_rrf", "base_fusion: bogus")
+    with pytest.raises(ConfigValidationError, match="base_fusion"):
+        _load(tmp_path, bad)
+
+
+def test_valid_failure_aware_gate_yaml_loads(tmp_path):
+    cfg = _load(tmp_path, _fag_yaml())
+    assert cfg.checkpoints["cp1"].judge.type == "failure_aware_gate"
+    assert cfg.checkpoints["cp1"].judge.gate_betas == {"b0": -0.5, "b1": 1.0, "b3": 0.0}
+
+
+def test_failure_aware_gate_requires_dual_strategy(tmp_path):
+    from openpi.cache.config import ConfigValidationError
+
+    bad = _fag_yaml(strategy_type="weighted_rrf_knn")
+    with pytest.raises(ConfigValidationError, match="dual_retrieval_knn"):
+        _load(tmp_path, bad)
+
+
+def test_failure_aware_gate_b2_nonzero_rejected(tmp_path):
+    from openpi.cache.config import ConfigValidationError
+
+    bad = _fag_yaml(betas="{b0: -0.5, b1: 1.0, b2: 0.3, b3: 0.0}")
+    with pytest.raises(ConfigValidationError, match="b2"):
+        _load(tmp_path, bad)
+
+
+def test_failure_aware_gate_missing_betas_rejected(tmp_path):
+    from openpi.cache.config import ConfigValidationError
+
+    bad = _fag_yaml(betas="{b1: 1.0}")  # missing b0
+    with pytest.raises(ConfigValidationError, match="gate_betas"):
+        _load(tmp_path, bad)
+
+
+def test_failure_aware_gate_warm_tiers_cp1_accepted(tmp_path):
+    # finding 2: warm_tiers must be allowed for failure_aware_gate on CP1.
+    cfg = _load(tmp_path, _fag_yaml(warm_tiers_line="[{threshold: 0.3, start_t: 0.5}]"))
+    assert cfg.checkpoints["cp1"].judge.warm_tiers == [{"threshold": 0.3, "start_t": 0.5}]
+
+
+def test_failure_aware_gate_warm_tiers_cp3_rejected(tmp_path):
+    from openpi.cache.config import ConfigValidationError
+
+    bad = _fag_yaml(cp="cp3", warm_tiers_line="[{threshold: 0.3, start_t: 0.5}]")
+    with pytest.raises(ConfigValidationError, match="only supported on CP1"):
         _load(tmp_path, bad)

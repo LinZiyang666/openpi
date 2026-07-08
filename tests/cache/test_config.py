@@ -636,7 +636,9 @@ def test_warm_tiers_cp3_rejected():
 def test_warm_tiers_always_hit_rejected():
     tiers = [{"threshold": 0.90, "start_t": 0.3}]
     config = _config_with_warm_tiers(tiers, judge_type="always_hit")
-    with pytest.raises(ConfigValidationError, match="requires judge.type='threshold'"):
+    # warm_tiers is allowed for 'threshold' and (Phase 3) 'failure_aware_gate';
+    # always_hit is still rejected.
+    with pytest.raises(ConfigValidationError, match=r"warm_tiers requires judge.type in"):
         validate_cache_config(config)
 
 
