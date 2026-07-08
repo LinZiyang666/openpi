@@ -378,3 +378,238 @@ class WeightedScoreSumKnnStrategy(TrajectoryMixin):
             **self._build_trajectory_fields(),
         )
         return self._storage.search(spec)
+
+
+# ---------------------------------------------------------------------------
+# Dynamic chain-depth strategy (TRACER Phase 1 / M3)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class DepthFeatures:
+    """Cheap, pre-search, training-free signals for depth selection.
+
+    Populated by DynamicDepthKnnStrategy before each search. Only carries
+    signals available without a failure library or a prior search this step;
+    the proposal's failure score and positive-ambiguity margin are deferred to
+    a later phase.
+    """
+
+    current_step: int
+    history_len: int
+    action_smoothness: Optional[float] = None
+
+
+@runtime_checkable
+class DepthPolicy(Protocol):
+    """Choose a trajectory depth for the current step.
+
+    Contract: `select()` MUST return a value in the strategy's configured
+    `allowed_depths` set. `DynamicDepthKnnStrategy` raises `ValueError` on any
+    out-of-set return before building a QuerySpec (explicit raise, not
+    `assert`, so the guard survives `python -O`).
+    """
+
+    def select(self, features: DepthFeatures) -> int:
+        """Return the chosen trajectory depth (must be in allowed_depths)."""
+        ...
+
+
+class ConstantDepthPolicy:
+    """Always return a fixed depth.
+
+    The non-regression default: paired with the full max depth it reproduces
+    the existing fixed-depth strategy at every history length.
+    """
+
+    def __init__(self, depth: int) -> None:
+        self._depth = int(depth)
+
+    def select(self, features: DepthFeatures) -> int:
+        return self._depth
+
+
+class HeuristicDepthPolicy:
+    """Deterministic action-smoothness bucketing.
+
+    Smooth motion (small ``||a_{t-1} - a_{t-2}||``) selects a deeper trajectory
+    context; abrupt motion selects a shallower one. When smoothness is
+    undefined (fewer than two recorded actions) returns ``fallback_depth``.
+    Bucket edges are half-open ``[t_i, t_{i+1})`` with ``>=`` resolving ties;
+    the map is total and always returns a member of ``allowed_depths``.
+    """
+
+    def __init__(
+        self,
+        allowed_depths: list[int],
+        smoothness_thresholds: list[float],
+        fallback_depth: int,
+    ) -> None:
+        depths = sorted({int(d) for d in allowed_depths})
+        if not depths:
+            raise ValueError("HeuristicDepthPolicy requires a non-empty allowed_depths")
+        thr = [float(t) for t in smoothness_thresholds]
+        if len(thr) != len(depths) - 1:
+            raise ValueError(
+                f"smoothness_thresholds length ({len(thr)}) must equal "
+                f"len(allowed_depths)-1 ({len(depths) - 1})"
+            )
+        if any(thr[i] >= thr[i + 1] for i in range(len(thr) - 1)):
+            raise ValueError(
+                f"smoothness_thresholds must be strictly ascending, got {thr}"
+            )
+        if int(fallback_depth) not in depths:
+            raise ValueError(
+                f"fallback_depth {fallback_depth} must be in allowed_depths {depths}"
+            )
+        # Descending so bucket index 0 (smoothest) maps to the deepest depth.
+        self._depths_desc = sorted(depths, reverse=True)
+        self._thresholds = thr
+        self._fallback = int(fallback_depth)
+
+    def select(self, features: DepthFeatures) -> int:
+        s = features.action_smoothness
+        if s is None:
+            return self._fallback
+        idx = sum(1 for t in self._thresholds if s >= t)
+        return self._depths_desc[idx]
+
+
+class DynamicDepthKnnStrategy(TrajectoryMixin):
+    """In-memory strategy that picks trajectory depth per step (TRACER M3).
+
+    Wraps a base fusion (``weighted_rrf`` or ``weighted_score_sum``) and
+    consults a `DepthPolicy` to choose an effective depth for each search.
+    With a `ConstantDepthPolicy` at the full max depth it is value-identical to
+    the existing fixed-depth strategy at every history length: the trajectory
+    weights are un-renormalized prefixes, matching `TrajectoryMixin`
+    semantics (see the Phase-1 plan non-regression contract).
+
+    `trajectory_depth` is the max depth; `trajectory_weights` the max-depth
+    (newest-first) weight vector. `_init_trajectory` wires the history and
+    search-session machinery shared with the fixed-depth strategies.
+    """
+
+    def __init__(
+        self,
+        storage: CacheStorage,
+        *,
+        base_fusion: str,
+        depth_policy: DepthPolicy,
+        allowed_depths: list[int],
+        top_k: int = 1,
+        step_filter: str = "all",
+        step_window: int = 5,
+        fusion_weights: Optional[dict[str, float]] = None,
+        rrf_k: int = 60,
+        field_similarity: Optional[dict[str, dict[str, Any]]] = None,
+        score_normalization: Optional[dict[str, Any]] = None,
+        trajectory_depth: int = 1,
+        trajectory_weights: Optional[list[float]] = None,
+    ) -> None:
+        if base_fusion not in ("weighted_rrf", "weighted_score_sum"):
+            raise ValueError(
+                "DynamicDepthKnnStrategy base_fusion must be 'weighted_rrf' or "
+                f"'weighted_score_sum', got {base_fusion!r}"
+            )
+        self._storage = storage
+        self._base_fusion = base_fusion
+        self._depth_policy = depth_policy
+        self._allowed_depths = {int(d) for d in allowed_depths}
+        self._top_k = top_k
+        self._step_filter = step_filter
+        self._step_window = step_window
+        self._fusion_weights = fusion_weights
+        self._rrf_k = rrf_k
+        self._field_similarity = field_similarity
+        self._score_normalization = score_normalization
+        self._init_trajectory(trajectory_depth, trajectory_weights)
+
+    def search(self, ctx: SearchContext) -> list[SearchResultLite]:
+        self.record_query_keys(ctx.query_keys)
+
+        features = DepthFeatures(
+            current_step=ctx.current_step,
+            history_len=len(self._query_history),
+            action_smoothness=self._action_smoothness(),
+        )
+        t_sel = self._depth_policy.select(features)
+        # Explicit raise (not assert) so the guard survives `python -O`.
+        if t_sel not in self._allowed_depths:
+            raise ValueError(
+                f"DepthPolicy returned depth {t_sel} outside allowed_depths "
+                f"{sorted(self._allowed_depths)}"
+            )
+        # history-availability clamp — same as TrajectoryMixin.actual_depth.
+        effective_depth = min(t_sel, len(self._query_history))
+
+        filters = _build_step_filters(self._step_filter, self._step_window, ctx)
+        traj_fields = self._trajectory_fields_for_depth(effective_depth)
+
+        # Mirror each fixed-depth strategy's QuerySpec shape per base fusion so
+        # a constant policy reproduces its results value-for-value.
+        if self._base_fusion == "weighted_rrf":
+            spec = QuerySpec(
+                query_keys=ctx.query_keys,
+                top_k=self._top_k,
+                checkpoint_id=ctx.checkpoint_id,
+                filters=filters,
+                fusion_weights=self._fusion_weights,
+                fusion_method="weighted_rrf",
+                field_similarity=self._field_similarity,
+                backend_hints={"rrf_k": self._rrf_k},
+                **traj_fields,
+            )
+        else:  # weighted_score_sum
+            spec = QuerySpec(
+                query_keys=ctx.query_keys,
+                top_k=self._top_k,
+                checkpoint_id=ctx.checkpoint_id,
+                filters=filters,
+                fusion_weights=self._fusion_weights,
+                fusion_method="weighted_score_sum",
+                field_similarity=self._field_similarity,
+                score_normalization=self._score_normalization,
+                **traj_fields,
+            )
+        return self._storage.search(spec)
+
+    def _action_smoothness(self) -> Optional[float]:
+        """L2 norm between the first actions of the two most recent chunks.
+
+        Returns None when fewer than two actions have been recorded (episode
+        start) or either recorded chunk is missing.
+        """
+        hist = self._action_history
+        if len(hist) < 2:
+            return None
+        a_prev, a_prev2 = hist[-1], hist[-2]
+        if a_prev is None or a_prev2 is None:
+            return None
+        # chunk[0] = first action of the [chunk_len, A] chunk (executed-action
+        # convention, matching the verdict-factor action channel).
+        v1 = a_prev[0].detach().float()
+        v2 = a_prev2[0].detach().float()
+        return float(torch.linalg.vector_norm(v1 - v2))
+
+    def _trajectory_fields_for_depth(self, effective_depth: int) -> dict[str, Any]:
+        """Build QuerySpec trajectory fields at a runtime depth.
+
+        Mirrors `TrajectoryMixin._build_trajectory_fields` but parameterized by
+        the per-step effective depth, using un-renormalized prefix weights so a
+        constant policy at the full max depth is value-identical to the
+        fixed-depth strategy at every history length.
+        """
+        if effective_depth <= 1 or not self._trajectory_weights:
+            return {}
+        history_newest_first = list(reversed(self._query_history[-effective_depth:]))
+        weights_newest_first = self._trajectory_weights[:effective_depth]
+        fields: dict[str, Any] = {
+            "trajectory_history": history_newest_first,
+            "trajectory_weights": weights_newest_first,
+        }
+        if self._search_session_id is not None:
+            qids_newest_first = list(reversed(self._query_id_history[-effective_depth:]))
+            fields["search_session_id"] = self._search_session_id
+            fields["trajectory_query_ids"] = qids_newest_first
+        return fields

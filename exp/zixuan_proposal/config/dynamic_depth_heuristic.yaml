@@ -1,0 +1,48 @@
+# TRACER Phase 1 / M3 — dynamic_depth_knn HEURISTIC.
+#
+# depth_policy: heuristic buckets action smoothness (||a_{t-1} - a_{t-2}||)
+# into allowed_depths {1, 3, 5}: steadier motion -> deeper context, abrupt
+# motion -> shallower. Training-free; the ADAPTIVE arm to contrast against the
+# constant baseline in the same suite.
+enabled: true
+
+keys:
+  vision_0:    { enabled: true, weight: 1.0 }
+  robot_state: { enabled: true, weight: 1.0 }
+
+key_builder:
+  type: cp1_mean_pool
+
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: always_hit
+    search_strategy:
+      type: dynamic_depth_knn
+      base_fusion: weighted_rrf
+      top_k: 1
+      rrf_k: 60
+      trajectory_depth: 5                # max depth
+      trajectory_weights: [0.4, 0.3, 0.15, 0.1, 0.05]
+      allowed_depths: [1, 3, 5]          # depth convention: 1 = single-step (proposal T=0)
+      depth_policy:
+        type: heuristic
+        smoothness_thresholds: [0.5, 1.5]   # ascending, length == len(allowed_depths) - 1
+        fallback_depth: 1                   # used when < 2 actions recorded (episode start)
+      field_similarity:
+        vision_0:    { type: cosine }
+        robot_state: { type: l2, to_similarity: { type: exp, tau: 0.33 } }
+
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 2048
+    robot_state: 32
+  in_memory:
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool.pkl
+
+write_policy:
+  type: never

@@ -293,6 +293,7 @@ Judge also has `on_episode_start()` and `record_action()` lifecycle methods.
 | `weighted_rrf_knn` | in_memory | Rank-based fusion. Good for multi-field when magnitude doesn't matter. |
 | `weighted_score_sum_knn` | in_memory | Two-layer similarity fusion (Layer-1 normalize → Layer-2 weighted sum). Preserves magnitude. Requires `score_normalization`. |
 | `qdrant_weighted_rrf_knn` | qdrant | Qdrant server-side RRF. Does NOT support trajectory search. |
+| `dynamic_depth_knn` | in_memory | Per-step adaptive trajectory depth (TRACER Phase 1 / M3). Wraps a `base_fusion` (`weighted_rrf` / `weighted_score_sum`) and consults a `depth_policy` to choose the depth `T_t` each step. A `constant` policy at the full `trajectory_depth` is value-identical to the fixed-depth strategy; a `heuristic` policy buckets action smoothness. See the note below. |
 
 `weighted_score_sum_knn` requires `score_normalization` (config rejects `type:none`). Two forms:
 
@@ -309,6 +310,25 @@ search_strategy:
 ```
 
 Method registry + design contract (monotone, bounded `[0,1]`, no rank equalization) live in `src/openpi/cache/components/score_normalizers.py` and [`cache_system.md` §5.8.1](../architecture/cache_system.md); the calibration + weight-search workflow is the [weighted_sum runbook](../experiments/weighted_sum.md).
+
+### Dynamic chain depth (`dynamic_depth_knn`)
+
+`dynamic_depth_knn` chooses the trajectory depth per step instead of fixing it (TRACER Phase 1 / M3). `trajectory_depth` / `trajectory_weights` become the **max** depth and the max-depth (newest-first) weight vector; `allowed_depths` (default `[trajectory_depth]`) is the set the policy may pick from; `base_fusion` selects the underlying fusion (a `weighted_score_sum` base still requires `score_normalization`). Requires an `in_memory` backend. Trajectory weights use **un-renormalized prefixes**, so a `constant` policy at the full depth reproduces `weighted_rrf_knn` / `weighted_score_sum_knn` exactly at every history length. Depth convention: depth `>= 1` (1 = single-step), so the proposal's `{0, 3, 5, 8}` maps to `{1, 3, 5, 8}` here.
+
+```yaml
+search_strategy:
+  type: dynamic_depth_knn
+  base_fusion: weighted_rrf        # or weighted_score_sum (+ score_normalization)
+  trajectory_depth: 5              # max depth
+  trajectory_weights: [0.4, 0.3, 0.15, 0.1, 0.05]   # newest-first, length == trajectory_depth
+  allowed_depths: [1, 3, 5]        # subset of [1, trajectory_depth]
+  depth_policy:
+    type: heuristic                # or: { type: constant, depth: 5 }
+    smoothness_thresholds: [0.5, 1.5]   # ascending, length == len(allowed_depths) - 1
+    fallback_depth: 1              # depth when < 2 actions recorded (episode start)
+```
+
+The `heuristic` policy maps smaller action smoothness (steadier motion, `||a_{t-1} - a_{t-2}||` over the first action of each chunk) to a deeper context and larger to a shallower one; buckets are half-open `[t_i, t_{i+1})` with `>=` resolving ties. Learned depth policies are out of scope for Phase 1.
 
 ### TrajectoryMixin
 

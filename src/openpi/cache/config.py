@@ -332,6 +332,23 @@ class ScoreNormalizationConfig:
 
 
 @dataclass
+class DepthPolicyConfig:
+    """Depth-selection policy for the dynamic_depth_knn search strategy.
+
+    ``type`` selects the policy. ``constant`` uses ``depth`` (default:
+    trajectory_depth). ``heuristic`` buckets action smoothness through
+    ``smoothness_thresholds`` (ascending, length == len(allowed_depths)-1) and
+    falls back to ``fallback_depth`` (default: min(allowed_depths)) when
+    smoothness is undefined.
+    """
+
+    type: str = "constant"                               # "constant" | "heuristic"
+    depth: Optional[int] = None                          # constant: None -> trajectory_depth
+    smoothness_thresholds: Optional[list[float]] = None  # heuristic: ascending, len == len(allowed_depths)-1
+    fallback_depth: Optional[int] = None                 # heuristic: None -> min(allowed_depths)
+
+
+@dataclass
 class SearchStrategyConfig:
     type: str = "qdrant_weighted_rrf_knn"
     top_k: int = 1
@@ -344,6 +361,11 @@ class SearchStrategyConfig:
     # ── Trajectory search ──
     trajectory_depth: int = 1        # 1 = single-step (no trajectory)
     trajectory_weights: Optional[list[float]] = None  # newest-first, length = trajectory_depth
+    # ── Dynamic chain depth (dynamic_depth_knn only; TRACER Phase 1 / M3) ──
+    # trajectory_depth/trajectory_weights act as the max depth + max-depth weight vector.
+    base_fusion: Optional[str] = None  # "weighted_rrf" | "weighted_score_sum"
+    allowed_depths: Optional[list[int]] = None  # None -> [trajectory_depth] (constant / non-regression)
+    depth_policy: Optional[DepthPolicyConfig] = None  # None -> constant @ trajectory_depth
 
 
 @dataclass
@@ -518,6 +540,7 @@ _CONFIG_TYPES: dict[str, type] = {
     "SamplesSourceOfflineConfig": SamplesSourceOfflineConfig,
     "FieldSimilarityConfig": FieldSimilarityConfig,
     "ScoreNormalizationConfig": ScoreNormalizationConfig,
+    "DepthPolicyConfig": DepthPolicyConfig,
     "SearchStrategyConfig": SearchStrategyConfig,
     "CheckpointConfig": CheckpointConfig,
     "QdrantConfig": QdrantConfig,
@@ -1228,6 +1251,7 @@ def validate_cache_config(config: CacheConfig) -> None:
     # 5 + 7. Per-checkpoint validation.
     _valid_strategy_types = frozenset({
         "qdrant_weighted_rrf_knn", "weighted_rrf_knn", "weighted_score_sum_knn",
+        "dynamic_depth_knn",
     })
     for cp_name, cp_config in config.checkpoints.items():
         if cp_name.startswith("_"):
@@ -1476,7 +1500,7 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"  Fix: use backend.type='qdrant' or choose a different search strategy"
             )
 
-        if ss.type in ("weighted_rrf_knn", "weighted_score_sum_knn") and config.backend.type != "in_memory":
+        if ss.type in ("weighted_rrf_knn", "weighted_score_sum_knn", "dynamic_depth_knn") and config.backend.type != "in_memory":
             errors.append(
                 f"{prefix}.search_strategy.type '{ss.type}' requires backend.type='in_memory'.\n"
                 f"  Current backend.type: {config.backend.type!r}"
@@ -1507,8 +1531,69 @@ def validate_cache_config(config: CacheConfig) -> None:
                     f"{fcfg.type!r} invalid; valid: 'cosine' | 'l2'"
                 )
 
-        # weighted_score_sum_knn requires score_normalization.
-        if ss.type == "weighted_score_sum_knn":
+        # dynamic_depth_knn: base_fusion + allowed_depths + depth_policy legality
+        # (TRACER Phase 1 / M3). The score_normalization requirement for a
+        # weighted_score_sum base fusion is covered by the shared block below.
+        if ss.type == "dynamic_depth_knn":
+            if ss.base_fusion not in ("weighted_rrf", "weighted_score_sum"):
+                errors.append(
+                    f"{prefix}.search_strategy: dynamic_depth_knn requires base_fusion in "
+                    f"['weighted_rrf', 'weighted_score_sum'] (got {ss.base_fusion!r})"
+                )
+            # Distinguish None (use default) from an explicit empty list (illegal).
+            allowed = list(ss.allowed_depths) if ss.allowed_depths is not None else [ss.trajectory_depth]
+            if not allowed:
+                errors.append(f"{prefix}.search_strategy: allowed_depths must be non-empty")
+            else:
+                if any(d < 1 or d > ss.trajectory_depth for d in allowed):
+                    errors.append(
+                        f"{prefix}.search_strategy: every allowed_depths entry must be in "
+                        f"[1, trajectory_depth={ss.trajectory_depth}] (got {allowed})"
+                    )
+                if any(allowed[i] >= allowed[i + 1] for i in range(len(allowed) - 1)):
+                    errors.append(
+                        f"{prefix}.search_strategy: allowed_depths must be strictly ascending "
+                        f"and de-duplicated (got {allowed})"
+                    )
+            pol = ss.depth_policy or DepthPolicyConfig(type="constant")
+            if pol.type not in ("constant", "heuristic"):
+                errors.append(
+                    f"{prefix}.search_strategy.depth_policy.type '{pol.type}' invalid; "
+                    f"valid: 'constant' | 'heuristic'"
+                )
+            elif pol.type == "constant":
+                depth = pol.depth if pol.depth is not None else ss.trajectory_depth
+                if allowed and depth not in allowed:
+                    errors.append(
+                        f"{prefix}.search_strategy.depth_policy: constant depth {depth} "
+                        f"must be in allowed_depths {allowed}"
+                    )
+            else:  # heuristic
+                if allowed:
+                    thr = list(pol.smoothness_thresholds or [])
+                    if len(thr) != len(allowed) - 1:
+                        errors.append(
+                            f"{prefix}.search_strategy.depth_policy: heuristic "
+                            f"smoothness_thresholds length must equal len(allowed_depths)-1 "
+                            f"({len(allowed) - 1}); got {thr}"
+                        )
+                    elif any(thr[i] >= thr[i + 1] for i in range(len(thr) - 1)):
+                        errors.append(
+                            f"{prefix}.search_strategy.depth_policy: heuristic "
+                            f"smoothness_thresholds must be strictly ascending (got {thr})"
+                        )
+                    fb = pol.fallback_depth if pol.fallback_depth is not None else min(allowed)
+                    if fb not in allowed:
+                        errors.append(
+                            f"{prefix}.search_strategy.depth_policy: fallback_depth {fb} "
+                            f"must be in allowed_depths {allowed}"
+                        )
+
+        # weighted_score_sum_knn (or dynamic_depth_knn with a score_sum base
+        # fusion) requires score_normalization.
+        if ss.type == "weighted_score_sum_knn" or (
+            ss.type == "dynamic_depth_knn" and ss.base_fusion == "weighted_score_sum"
+        ):
             if ss.score_normalization is None or ss.score_normalization.type == "none":
                 errors.append(
                     f"{prefix}.search_strategy: weighted_score_sum_knn requires score_normalization"
@@ -2765,8 +2850,53 @@ def _build_search_strategy(
             score_normalization=_score_norm_to_dict(cfg.score_normalization),
             **trajectory_kwargs,
         )
+    elif cfg.type == "dynamic_depth_knn":
+        from openpi.cache.components.search_strategy import (
+            ConstantDepthPolicy,
+            DynamicDepthKnnStrategy,
+            HeuristicDepthPolicy,
+        )
+
+        # Distinguish None (use default) from an explicit empty list; validation
+        # rejects the empty list, so this fallback only fires for None.
+        allowed = list(cfg.allowed_depths) if cfg.allowed_depths is not None else [cfg.trajectory_depth]
+        pol_cfg = cfg.depth_policy or DepthPolicyConfig(type="constant")
+        if pol_cfg.type == "constant":
+            depth = pol_cfg.depth if pol_cfg.depth is not None else cfg.trajectory_depth
+            depth_policy = ConstantDepthPolicy(depth)
+        elif pol_cfg.type == "heuristic":
+            fallback = (
+                pol_cfg.fallback_depth
+                if pol_cfg.fallback_depth is not None
+                else min(allowed)
+            )
+            depth_policy = HeuristicDepthPolicy(
+                allowed_depths=allowed,
+                smoothness_thresholds=list(pol_cfg.smoothness_thresholds or []),
+                fallback_depth=fallback,
+            )
+        else:
+            raise ConfigValidationError(
+                f"Unknown depth_policy.type '{pol_cfg.type}'. Valid: ['constant', 'heuristic']"
+            )
+
+        return DynamicDepthKnnStrategy(
+            storage,
+            base_fusion=cfg.base_fusion,
+            depth_policy=depth_policy,
+            allowed_depths=allowed,
+            top_k=effective_top_k,
+            step_filter=cfg.step_filter,
+            step_window=cfg.step_window,
+            fusion_weights=fusion_weights if fusion_weights else None,
+            rrf_k=cfg.rrf_k,
+            field_similarity=_field_similarity_to_dict(cfg.field_similarity),
+            score_normalization=_score_norm_to_dict(cfg.score_normalization),
+            **trajectory_kwargs,
+        )
     else:
         raise ConfigValidationError(
             f"Unknown search_strategy.type '{cfg.type}'. "
-            f"Valid: ['qdrant_weighted_rrf_knn', 'weighted_rrf_knn', 'weighted_score_sum_knn']"
+            f"Valid: ['qdrant_weighted_rrf_knn', 'weighted_rrf_knn', "
+            f"'weighted_score_sum_knn', 'dynamic_depth_knn']"
         )
