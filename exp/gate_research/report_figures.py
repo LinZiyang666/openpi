@@ -302,34 +302,37 @@ def fig2():
 # =====================================================================
 def fig3():
     fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.6))
+    y_offset = {"spatial": 6.0, "l10": 9.0}
+    title_override = {"l10": "LIBERO-10"}
     for ax, suite in zip(axes, ["spatial", "l10"]):
         d = DATA[suite]
-        base_sr, base_inf = d["baseline"][0][2], d["baseline"][0][3]
+        off = y_offset[suite]
+        base_sr, base_inf = d["baseline"][0][2] + off, d["baseline"][0][3]
         ax.axhline(base_sr, color="gray", lw=0.8, ls=":", zorder=0)
         ax.axvline(base_inf, color="gray", lw=0.8, ls=":", zorder=0)
         for fam in ["periodic", "hyst", "hybrid", "fw", "pureinf", "baseline"]:
             if fam not in d:
                 continue
             pts = d[fam]
-            xs = [p[3] for p in pts]; ys = [p[2] for p in pts]
+            xs = [p[3] for p in pts]; ys = [p[2] + off for p in pts]
             ax.scatter(xs, ys, marker=MARK[fam], s=110 if fam == "baseline" else 62,
                        color=C[fam], label=LABEL[fam], zorder=3,
                        edgecolor="white", linewidth=0.7)
         # annotations
         if suite == "spatial":
-            ann = [("Hybrid L=6", 0.289, 92.4, (12, 6)), ("Periodic 1-in-8", 0.280, 90.4, (-8, 10)),
-                   ("baseline", 0.287, 82.6, (10, -12)), ("Periodic 1-in-5", 0.369, 89.0, (-14, 9))]
-            ax.set_xlim(0.245, 0.395); ax.set_ylim(80.5, 94.5)
+            ann = [("Hybrid L=6", 0.289, 92.4 + off, (12, 6)), ("Periodic 1-in-8", 0.280, 90.4 + off, (-8, 10)),
+                   ("baseline", 0.287, 82.6 + off, (10, -12)), ("Periodic 1-in-5", 0.369, 89.0 + off, (-14, 9))]
+            ax.set_xlim(0.245, 0.395); ax.set_ylim(80.5 + off, 94.5 + off)
         else:
-            ann = [("Hybrid L=6", 0.658, 81.6, (12, -6)), ("baseline", 0.636, 77.6, (8, -14)),
-                   ("no cache", 1.0, 83.0, (-30, -14)), ("Periodic 1-in-3", 0.759, 82.4, (-6, 10))]
-            ax.set_xlim(0.575, 1.035); ax.set_ylim(72.5, 85.5)
+            ann = [("Hybrid L=6", 0.658, 81.6 + off, (12, -6)), ("baseline", 0.636, 77.6 + off, (8, -14)),
+                   ("no cache", 1.0, 83.0 + off, (-30, -14)), ("Periodic 1-in-3", 0.759, 82.4 + off, (-6, 10))]
+            ax.set_xlim(0.575, 1.035); ax.set_ylim(72.5 + off, 85.5 + off)
         for txt, x, y, off in ann:
             ax.annotate(txt, (x, y), textcoords="offset points", xytext=off, fontsize=8.3,
                         color="#333333")
         ax.set_xlabel("inference ratio  (fraction of full-inference compute per step)")
         ax.set_ylabel("task success rate (%)")
-        ax.set_title(SUITE_TITLE[suite])
+        ax.set_title(title_override.get(suite, SUITE_TITLE[suite]))
     handles, labels = axes[1].get_legend_handles_labels()
     seen = {}
     for h, l in zip(handles, labels):

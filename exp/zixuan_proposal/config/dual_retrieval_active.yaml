@@ -1,0 +1,68 @@
+# TRACER Phase 4 / M2 — dual_retrieval_knn ACTIVE (non-degenerate D-).
+#
+# enable_dual: true against a merged D+/D- artifact (cp1_mean_pool_dual.pkl,
+# every entry outcome in {+1,-1}). This is the first NON-degenerate M2 run:
+# the gate reads a real failure margin  margin = s_pos - lambda * s_neg  where
+# s_neg is the similarity to the failure pool D-. Contrast with Phase 3's
+# dual_retrieval_degenerate.yaml (enable_dual:false -> s_neg=0 -> margin=s_pos).
+#
+# Build the merged artifact first:
+#   PYTHONPATH=. uv run python exp/zixuan_proposal/build_dual_artifact.py \
+#     --pos-artifact exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool.pkl \
+#     --neg-h5-dir   exp/common/data/db/failure_lib/libero_spatial \
+#     --builder-type cp1_mean_pool \
+#     --output       exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool_dual.pkl
+#
+# The betas are ILLUSTRATIVE (uncalibrated); real tau/lambda/beta calibration
+# is Phase 5. b2 (kinematic u_t) is deferred to Phase 5 and MUST be 0 (omitted).
+enabled: true
+
+keys:
+  vision_0:    { enabled: true,  weight: 1.0 }
+  vision_1:    { enabled: false, weight: 0.0 }
+  vision_2:    { enabled: false, weight: 0.0 }
+  prompt_emb:  { enabled: false, weight: 0.0 }
+  robot_state: { enabled: true,  weight: 1.0 }
+
+key_builder:
+  type: cp1_mean_pool
+
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: failure_aware_gate
+      threshold: 0.5                     # full_hit cutoff on the gate value g in [0, 1]
+      gate_betas: { b0: -0.9, b1: 1.0, b3: 0.0 }   # b0 = -tau (illustrative tau=0.9); b2 omitted (Phase 5)
+    search_strategy:
+      type: dual_retrieval_knn
+      base_fusion: weighted_rrf
+      top_k: 1
+      rrf_k: 60
+      trajectory_depth: 5
+      trajectory_weights: [0.4, 0.3, 0.15, 0.1, 0.05]
+      allowed_depths: [5]
+      depth_policy:
+        type: constant
+        depth: 5
+      margin_lambda: 0.5                 # margin = s_pos - 0.5 * s_neg (now ACTIVE: D- is populated)
+      enable_dual: true                  # ← Phase 4: real failure pool D- exists
+      field_similarity:
+        vision_0:    { type: cosine }
+        robot_state: { type: l2, to_similarity: { type: exp, tau: 1.0 } }
+
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 2048
+    vision_1: 2048
+    prompt_emb: 2048
+    robot_state: 32
+  in_memory:
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool_dual.pkl
+    index_type: brute_force
+
+write_policy:
+  type: never

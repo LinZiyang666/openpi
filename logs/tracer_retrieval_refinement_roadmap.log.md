@@ -1,6 +1,6 @@
 # TRACER 检索精炼路线图 — Action-Compatible Failure-Aware Retrieval 的模块化落地
 
-- **Status**: Roadmap（Design-Grounded）— Phase 0 ✅（架构判定/可行性亲验完成）/ **Phase 1 ✅（M3 `dynamic_depth_knn`，G1/G2 APPROVED + §6 Verify green，commit `cea98b2`，2026-07-07；plan 归档 `archive/tracer_phase1_dynamic_depth.log.md`）** / **Phase 2 ✅（M1 `projection` KeyBuilder 骨架，G1/G2 APPROVED + §6 Verify green，2026-07-08）** / **Phase 3 ✅（M2 `dual_retrieval_knn` + `failure_aware_gate` 骨架，G1 R3 / G2 R1 APPROVED + §6 Verify green，2026-07-08）** / Phase 4–7 待逐期立项
+- **Status**: Roadmap（Design-Grounded）— Phase 0 ✅（架构判定/可行性亲验完成）/ **Phase 1 ✅（M3 `dynamic_depth_knn`，G1/G2 APPROVED + §6 Verify green，commit `cea98b2`，2026-07-07；plan 归档 `archive/tracer_phase1_dynamic_depth.log.md`）** / **Phase 2 ✅（M1 `projection` KeyBuilder 骨架，G1/G2 APPROVED + §6 Verify green，2026-07-08）** / **Phase 3 ✅（M2 `dual_retrieval_knn` + `failure_aware_gate` 骨架，G1 R3 / G2 R1 APPROVED + §6 Verify green，2026-07-08）** / **Phase 4 ✅（D⁻ 失败库建库：cache-OFF `serve_policy --collect` 采集；⚠ 首轮误采 pruned/eval 集(污染)→ **held-out 池重采修正**：spatial 18 失败/l10 85 失败,合并 D⁺/D⁻ artifact 两 suite 出场门 PASS,§4 Code + 待 G2 复核,2026-07-10）** / Phase 5–7 待逐期立项
 - **Date**: 2026-07-07（创建）
 - **来源**: 合作者提案 `TRACER_RETRIEVAL_REFINED_PROPOSAL.pdf`（*Action-Compatible Failure-Aware Retrieval for VLA Inference Caching*，2026-06-10，含显式方程 Eq 1–28）。文中 "TRACER" = 本 fork 的推理 cache 系统；full-hit / warm-start / miss = 我们的 `HitType`。
 - **Level**: 本文件为**研究产物（L0 纯文档）**。它只负责给整条线**排期与定依赖**，不含代码、不走 G1。**每一期的实现仍是独立的 L2/L3，必须各自走 Understand → Plan → G1 → Code → G2 → Verify。**
@@ -46,7 +46,7 @@
 5. **backend 已支持变长轨迹深度**：轨迹融合用 `L = min(len(history), len(weights))`。→ **M3 逐步变深度零 backend 改动**。
 6. **"拟合逻辑内聚 + 离线执行"已有范式**：`ScoreNormalizer.fit_from_scores`（score_normalizers.py，拟合是组件 classmethod）离线拟合、在线只 `from_params_dict` 加载；verdict-factor 标定"预加载 + 启动 fail-fast、**无 cold-start**"（`composite_judge.bind_keys`）。→ **训练逻辑可内聚进模块类，但执行必须离线**（见 §3）。
 7. **兼容标签所需数据现成**：`CachePayload` 有 `action_chunk` + `intermediates`（warm-start 快照）+ `factors`（storage_types.py:101-105）→ M1 的 `c^A`（next-H action）/`c^X`（denoise snapshot）离线可算。
-8. **失败样本原料齐**：`exp/gate_research` 已有逐步 `success` 标签（182,899 步）→ D⁻ 建库有数据来源。
+8. **失败样本标签在、embedding 不在**（**Phase 4 census 修正**）：`exp/gate_research` 逐步 `success` 标签齐（182,899 步），但 `gate_rows.jsonl` 仅 `robot_state`、**无 vision/prompt 向量**（采集用 `--collect-embeddings none`）；全 5-key embedding 只存在于近乎全成功的库源 `db/libero_cache`（spatial 49成功/1失败、l10 50成功/0失败）。二者不相交 → **多模态 D⁻ 本地无料，须新 `serve_policy --collect`（cache-OFF）采集失败 rollout**（详见 [`tracer_phase4_failure_library.log.md`](tracer_phase4_failure_library.log.md) §0.1）。
 
 ---
 
@@ -105,9 +105,10 @@
 - **前置**：Phase 1（动态深度并入策略）。**出场 gate**：惰性退化非回归 + 带小型 fixture D⁻ 时 margin/门 逻辑单测通过。**Level**：L3。
 - **注意**：本期**不需要真 D⁻、不需要训练**——用 fixture / 空池即可开发测试。真数据在 Phase 4，标定在 Phase 5。
 
-### Phase 4 — 失败库 D⁻ 构建（数据管线，非训练）⚪
+### Phase 4 — 失败库 D⁻ 构建（数据管线，非训练）✅
 
-- **目标**：从失败 rollout 建带 `y_d∈{+1,-1}` 的 D⁻ artifact（事实 §2.8：gate_research 有 success 标签）；M2 首次**非退化**运行，兑现 Claim 1（失败感知降低不安全复用）。
+- **✅ 完成（2026-07-10，§4 Code + 待 G2 复核）**：cache-OFF `serve_policy --collect --replicas 1 --non-concurrent`（pi05 PyTorch 自然失败，seed 7）。⚠ **污染修正**：首轮 D⁻ 默认 `init_states_dir=""` → `get_task_init_states` = `pruned_init`（= Phase 7 评估集），与 D⁺ 的 held-out 划分相反且泄漏 → 全部污染数据/产物删除，D⁻ 在 **held-out 池 `db_init/libero/<suite>`（全集去掉 pruned）重采**（与 D⁺ 同划分、与 eval 不相交，D8 从根本满足）。修正后：spatial 500 rollout→**18 失败/792 D⁻ step**、l10 500 rollout→**85 失败/8840 D⁻ step**；`build_dual_artifact` 合并 D⁺(tag+1)∪D⁻(tag−1)→ **spatial 1810 / l10 11480 entries**（零 None）；`validate_dual_artifact` 两 suite **出场门 3-gate PASS**（coverage + 非平凡 margin 60/60 + 判别性）。builder 加 additive `--outcome-filter`（默认 success 零回归，14 测试全绿）+ in-experiment fix `main.py` `torch.load` 老 torch 兼容。held-out 失败率(3.6%/17%)高于 pruned(2.2%/5%)反利好 D⁻（D6）；provenance 存 `analysis/phase4_dminus_provenance.md`（索引 held-out 池，D8）。Plan [`tracer_phase4_failure_library.log.md`](tracer_phase4_failure_library.log.md)。
+- **目标**：从失败 rollout 建带 `y_d∈{+1,-1}` 的 D⁻ artifact（§2.8 已 census 修正：gate_rows 仅 robot_state 无 vision/prompt → 多模态 D⁻ 须新采集）；M2 首次**非退化**运行，兑现 Claim 1（失败感知降低不安全复用）。
 - **交付物**：`exp/` 建库脚本（复用 `build_in_memory_cache_artifact` 路径 + 成败标注）+ D⁺/D⁻ 合并 artifact（按 D5 单 artifact + `y_d` tag）+ 采集完整性校验。
 - **框架触点**：无（exp/ 数据层）。零训练（参数仍手设）。
 - **前置**：Phase 3。**出场 gate**：D⁻ artifact 可 load + 双检索在真库上产出非平凡 margin 分布。**Level**：L1/L2（数据脚本）。
@@ -175,7 +176,7 @@ Phase 2 (M1 骨架) ─┘（并入策略）                                    
 | judge 签名 `**kwargs` 兼容 | `judge.py:104` |
 | 拟合内聚 + 离线加载 范式 | `score_normalizers.py` `fit_from_scores`/`from_params_dict`；`composite_judge.bind_keys`（no cold-start） |
 | 兼容标签数据源 | `CachePayload` `storage_types.py:101-105`（action_chunk/intermediates/factors） |
-| 失败样本来源 | `exp/gate_research` 逐步 success 标签（见 `gate_exploration_roadmap.log.md`） |
+| 失败样本来源（Phase 4 修正） | `exp/gate_research` 逐步 success 标签齐，但**仅 robot_state、无 vision/prompt** → 多模态 D⁻ 须新 `serve_policy --collect`（cache-OFF）采集（Phase 4 plan §0.1） |
 
 ## 附录 B：提案方程 ↔ 我们部件 对照
 

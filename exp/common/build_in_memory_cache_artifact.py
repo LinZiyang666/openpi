@@ -605,8 +605,15 @@ def _process_episode(
     temperature: float = 1.0,
     inner_type: str = "cp1_mean_pool",
     projection_weights_path: str | None = None,
+    outcome_filter: str = "success",
 ) -> list | None:
-    """Process a single H5 file in a worker process. Returns list of CacheEntry or None."""
+    """Process a single H5 file in a worker process. Returns list of CacheEntry or None.
+
+    ``outcome_filter`` selects episodes by the HDF5 ``success`` attr: "success"
+    (default; the unchanged legacy code path, behavior-preserving) keeps successful episodes,
+    "failure" keeps only failed ones (TRACER Phase 4 D- collection), "all" keeps
+    every episode.
+    """
     from openpi.cache.storage_types import CacheEntry, CachePayload
     from openpi.cache.types import CheckpointID
 
@@ -623,7 +630,12 @@ def _process_episode(
     with h5py.File(h5_path, "r") as f:
         task = str(f.attrs.get("task", ""))
         success = bool(f.attrs.get("success", False))
-        if not success:
+        # Outcome filter (TRACER Phase 4). Default "success" runs the unchanged
+        # legacy code path (behavior-preserving); "failure" collects the D- pool;
+        # "all" keeps both.
+        if outcome_filter == "success" and not success:
+            return None
+        if outcome_filter == "failure" and success:
             return None
 
         trajectory_id = h5_path.stem
@@ -750,10 +762,12 @@ def build_artifact(
     device: str = "cuda",
     inner_type: str = "cp1_mean_pool",
     projection_weights_path: str | None = None,
+    outcome_filter: str = "success",
 ) -> dict:
     """Build artifact dict from HDF5 data.
 
-    Scans data_dir for .h5 files, uses only successful episodes.
+    Scans data_dir for .h5 files, keeping episodes per ``outcome_filter``
+    ("success" = legacy default, "failure" = TRACER Phase 4 D- pool, "all").
     For each step: collect() -> build() -> CacheEntry.
     Entry id = "{episode_file_stem}_{step_name}" (deterministic, traceable).
     action_chunk keeps real horizon from data (no padding to [50,32]).
@@ -764,6 +778,19 @@ def build_artifact(
             partial paligemma forward must run in the main process where
             the model is loaded once on GPU.
     """
+    if outcome_filter not in ("success", "failure", "all"):
+        raise ValueError(
+            f"outcome_filter must be one of success/failure/all, got {outcome_filter!r}"
+        )
+    # cp1_llm_layer_extract routes through _process_episode_with_model, which
+    # this phase does not parameterize. Reject non-default filters fail-loud at
+    # the very top -- BEFORE any checkpoint/model load -- so the failure is
+    # CPU-only (TRACER Phase 4 plan §4.1 / G1 R2).
+    if outcome_filter != "success" and builder_type == "cp1_llm_layer_extract":
+        raise ValueError(
+            "outcome_filter is only supported for pool builders (_process_episode); "
+            "cp1_llm_layer_extract (model path) accepts only the default 'success'."
+        )
     vector_dims = _get_vector_dims(
         builder_type, reducer_type, output_tokens, prefix_reducer_type,
         inner_type=inner_type, projection_weights_path=projection_weights_path,
@@ -841,6 +868,7 @@ def build_artifact(
         reducer_type, output_tokens, prune_window_size, temporal_keep_ratio,
         select_k, temperature,
         inner_type, projection_weights_path,
+        outcome_filter,
     )
 
     entries: list = []
@@ -1020,6 +1048,14 @@ def main():
     parser.add_argument("--projection-weights", default=None,
                         help="projection: torch-saved ProjectionParams path "
                              "(None -> identity, output equals the inner pool)")
+    # TRACER Phase 4: failure-pool D- collection filter.
+    parser.add_argument(
+        "--outcome-filter", default="success", choices=["success", "failure", "all"],
+        help="Which episodes to keep by HDF5 success attr: 'success' (default, "
+             "unchanged legacy behavior), 'failure' (TRACER Phase 4 D- "
+             "collection), or 'all'. Pool builders only; cp1_llm_layer_extract "
+             "rejects a non-default value fail-loud."
+    )
     # B2 verdict-factor enrichment.
     parser.add_argument(
         "--factors-yaml", default=None,
@@ -1047,6 +1083,7 @@ def main():
         device=args.device,
         inner_type=args.inner_type,
         projection_weights_path=args.projection_weights,
+        outcome_filter=args.outcome_filter,
     )
 
     # B2 — enrich with verdict-factor fields. Runs AFTER build_artifact's

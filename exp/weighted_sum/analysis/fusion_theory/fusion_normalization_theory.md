@@ -233,7 +233,7 @@ frozen eCDF 与 zscore+tanh 打平，那么同属 rank 思想的 RRF（生产实
 
 ### 7.3 绝对分语义：极值律侵蚀 rank 阈值走廊
 
-检索打平不等于语义等价。库相对秩融合的 hit/miss AUC 甚至最高（0.838–0.938），机制是**跨模态秩共识**：hit 态下真近邻在三个模态同时排第 1 ⇒ 融合分恰为 1；miss 态下各模态第 1 名互相矛盾 ⇒ <1。这是真实且文献已知的信号。**但**：
+检索打平不等于语义等价。**两个态的操作性定义**：hit 态 = 标准 LOEO 库（同任务其余轨迹在库）；miss 态 = 将 query 所属任务整体剔除后检索。任务标签在此是 relevance 的**代理**而非真值——同任务不必然可复用、跨任务不必然无用（运动原语跨任务共享）。为此我们做了**无标签审计**（expD `label_proxy`，动作块距离）：剔任务后最佳匹配的动作距离中位数为真近邻的 **4–8×**（如 libero_10/sp16：0.032 vs 0.004，随机跨任务 0.102），仅 **5.2–6.4%** 达到真近邻的典型动作接近度——代理对 ~94% 的 query 成立；其余少数是真可复用的跨任务匹配，**它们得高分是分数的正确行为而非误报**。同时，hit/miss 的方法间对比不受标签噪声影响（两法在完全相同的 query×库组成上评估，噪声对称作用）。在此口径下：库相对秩融合的 hit/miss AUC 甚至最高（0.838–0.938），机制是**跨模态秩共识**：hit 态下真近邻在三个模态同时排第 1 ⇒ 融合分恰为 1；miss 态下各模态第 1 名互相矛盾 ⇒ <1。这是真实且文献已知的信号。**但**：
 - **极值律侵蚀走廊**：miss 态 top-1 分随库规模爬向 1（实测 0.927→0.985，n=32→2372），阈值走廊（hit−miss gap）以 $\sim n^{-0.38\text{–}0.44}$ 收窄；tanh 的走廊以 $\sim n^{-0.27}$ 收窄（高斯极值 $\sqrt{2\ln n}$ 经 tanh 压缩后 $1-\hat s\approx e^{-2\sqrt{2\ln n}}$，衰减远慢于秩的 $1/n$ 族）。外推到 $10^5$ 级生产库：tanh 走廊 ≈ rank 的 **5×**。固定阈值在 rank 语义下随库成长必然漂移，在 σ 锚定的幅值语义下慢一个数量级。
 - **同一物理相似度 ⇒ 不同分数**：rank 分数依赖当前库组成，跨库/跨时间不可比；幅值分数由 (μ,σ) 锚定，跨 keybuilder/suite 可解释迁移。
 - legacy percentile 在弃答任务上同样最差（AUC 0.745–0.790，FHR@90recall 0.37–0.48）：删失连"这次检索到底靠不靠谱"的信号也一并抹掉——第三条独立失败通道。
@@ -275,7 +275,7 @@ p5/p95 带 ≈ ±1.6σ（quantile 等变）          μ,σ 按 (字段,keybuilde
 
 ## 9. 局限与效度威胁
 
-1. **代理指标**：top-1 同任务率与 action-regret 是 SR 的离线代理，非 SR 本身；结论以"方法间相对序+机理"为主张，绝对值不外推。两个代理 + 线上锚点三方向一致缓解此虑。
+1. **代理指标**：top-1 同任务率与 action-regret 是 SR 的离线代理，非 SR 本身；hit/miss 两态中的任务标签同样是 relevance 的代理（§7.3 的无标签动作距离审计表明该代理对 ~94% 的 query 成立，其余 5–6% 为真可复用的跨任务匹配）。结论以"方法间相对序+机理"为主张，绝对值不外推。两个代理 + 无标签审计 + 线上锚点多方向一致缓解此虑。
 2. **库规模**：N≈1k–2.6k，远小于生产极限。但命题 3 表明删失病随 $n$ **恶化**（tie_sz 实测 7.6→26 随 N 增长），结论方向只会加强；rank 走廊结论依赖 $n^{-b}$ 外推（b 由 6–8 个点拟合），已注明。
 3. **单一 benchmark 家族**：LIBERO 两套 suite、cp1 系 keybuilder（另含 CLIP 变体的 Phase-1 参数佐证 σ 谱系）。跨域（真实机器人、其他 VLA）未验证；但失败机理只依赖"分数分布窄带+决策在尾部"这一几何事实，不依赖 LIBERO 特有结构。
 4. **tanh 不是唯一解**：P3 表明光滑有界严格单调族内部不可分；选 tanh 的理由是解析恒等（logistic CDF）、文献血缘（biometric tanh-norm）与工程规范性，不宣称严格最优。
@@ -417,7 +417,11 @@ construction: the miss-regime top-1 score climbs toward the ceiling with library
 size (extreme-value behaviour; measured corridor shrinkage $\sim n^{-0.4}$ versus
 $\sim n^{-0.27}$ for tanh, extrapolating to a $\approx5\times$ wider abstention
 corridor at $10^5$ entries), so any fixed threshold silently decays as the cache
-grows. Finally, rank-based *selection metrics* are invariant under every
+grows. (The miss regime holds the query's task out of the library — a relevance
+proxy we audited without labels: held-out best matches sit $4$–$8\times$ farther
+in action-chunk space, and only $\sim5$–$6\%$ remain as reusable as a genuine
+match; the method contrast is unaffected since both fusions face identical
+query–library pairs.) Finally, rank-based *selection metrics* are invariant under every
 monotone candidate normalizer (and mutual information likewise, by invertibility),
 so magnitude-aware diagnostics are a mathematical necessity — not a stylistic
 preference — for calibrating Layer-1 at all; the legacy scheme is additionally the

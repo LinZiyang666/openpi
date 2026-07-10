@@ -142,6 +142,29 @@ def main() -> None:
         for cname, ns in cfgs.items():
             s_hit_all[cname] = top1_scores(ns, art, hit_mask, w)
             s_miss_all[cname] = top1_scores(ns, art, miss_mask, w)
+
+        # Label-proxy audit: task identity is a *proxy* for relevance. Quantify
+        # it without labels via action-chunk distance of the zscore top-1 under
+        # both library compositions (vs a random cross-task candidate).
+        S = C.fuse(cfgs["zscore_tanh"], w)
+        rows = np.arange(art.n)
+        t_hit = np.where(hit_mask, S, -np.inf).argmax(axis=1)
+        t_miss = np.where(miss_mask, S, -np.inf).argmax(axis=1)
+        d2 = art.action_d2
+        a_hit = d2[rows, t_hit]
+        a_miss = d2[rows, t_miss]
+        a_rand = np.nanmean(np.where(miss_mask, d2, np.nan), axis=1)
+        med_h = float(np.median(a_hit))
+        results[key]["label_proxy"] = {
+            "median_action_d2_task_present_top1": med_h,
+            "median_action_d2_task_removed_top1": float(np.median(a_miss)),
+            "median_action_d2_random_crosstask": float(np.median(a_rand)),
+            "frac_task_removed_top1_action_close": float(np.mean(a_miss <= med_h)),
+        }
+        lp = results[key]["label_proxy"]
+        print(f"  label-proxy audit: top-1 action-d2 median present={lp['median_action_d2_task_present_top1']:.4f} "
+              f"removed={lp['median_action_d2_task_removed_top1']:.4f} random={lp['median_action_d2_random_crosstask']:.4f} "
+              f"| removed-yet-action-close: {lp['frac_task_removed_top1_action_close']:.1%}")
         s_hit_all["rank_perquery"] = rank_perquery_top1(art, hit_mask, w)
         s_miss_all["rank_perquery"] = rank_perquery_top1(art, miss_mask, w)
 

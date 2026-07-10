@@ -114,6 +114,12 @@
         0.9980506822612085,
         0.998898678414097
       ]
+    },
+    "label_proxy": {
+      "median_action_d2_task_present_top1": 0.007353481836616993,
+      "median_action_d2_task_removed_top1": 0.02746313065290451,
+      "median_action_d2_random_crosstask": 0.12387211620807648,
+      "frac_task_removed_top1_action_close": 0.05206286836935167
     }
   },
   "libero_spatial/cp1_mean_pool": {
@@ -231,6 +237,12 @@
         0.9980506822612085,
         0.998898678414097
       ]
+    },
+    "label_proxy": {
+      "median_action_d2_task_present_top1": 0.007659709546715021,
+      "median_action_d2_task_removed_top1": 0.02828180231153965,
+      "median_action_d2_random_crosstask": 0.12387210875749588,
+      "frac_task_removed_top1_action_close": 0.05893909626719057
     }
   },
   "libero_10/cp1_spatial_pool_16": {
@@ -360,6 +372,12 @@
         0.9995119570522206,
         0.9995785924989464
       ]
+    },
+    "label_proxy": {
+      "median_action_d2_task_present_top1": 0.0040482464246451855,
+      "median_action_d2_task_removed_top1": 0.031989336013793945,
+      "median_action_d2_random_crosstask": 0.10228700935840607,
+      "frac_task_removed_top1_action_close": 0.06363636363636363
     }
   },
   "libero_10/cp1_mean_pool": {
@@ -489,6 +507,12 @@
         0.9995119570522206,
         0.9995785924989464
       ]
+    },
+    "label_proxy": {
+      "median_action_d2_task_present_top1": 0.0037400114815682173,
+      "median_action_d2_task_removed_top1": 0.031024349853396416,
+      "median_action_d2_random_crosstask": 0.10228700190782547,
+      "frac_task_removed_top1_action_close": 0.055303030303030305
     }
   }
 }

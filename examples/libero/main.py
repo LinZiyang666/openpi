@@ -1171,7 +1171,12 @@ def _load_init_states(task, task_suite, task_id, init_states_dir: str):
     else:
         raise FileNotFoundError(f"No init states found for {task.name} in {init_states_dir}")
     import torch
-    states = torch.load(path, weights_only=False)
+    try:
+        states = torch.load(path, weights_only=False)
+    except TypeError:
+        # Older torch (the LIBERO client env's py3.8 build) predates the
+        # ``weights_only`` kwarg; its default load is equivalent (full unpickle).
+        states = torch.load(path)
     logging.info(f"Loaded {len(states)} init states from {path}")
     return states
 
