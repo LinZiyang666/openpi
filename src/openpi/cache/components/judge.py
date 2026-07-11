@@ -40,7 +40,7 @@ _VERDICT_DEBUG = os.environ.get("OPENPI_CACHE_VERDICT_DEBUG") == "1"
 _verdict_logger = logging.getLogger("openpi.cache.verdict_debug")
 
 if TYPE_CHECKING:
-    from openpi.cache.components.factors.base import HistoryView
+    from openpi.cache.components.factors.base import HistoryView, LibraryStats
     from openpi.cache.components.payload_view import PayloadView
 
 
@@ -250,27 +250,41 @@ class ThresholdJudge:
 
 
 class FailureAwareGateJudge:
-    """Failure-aware sigmoid gate judge (TRACER M2 / Phase 3 skeleton).
+    """Failure-aware sigmoid gate judge (TRACER M2 / Phase 3 + Phase 5 u_t).
 
     Three-state gate over a dual-retrieval margin. The gate value is
-    ``g = sigmoid(b0 + b1*margin + b3*delta_pos)`` where ``margin`` and
+    ``g = sigmoid(b0 + b1*margin + b2*u_t + b3*delta_pos)`` where ``margin`` and
     ``delta_pos`` come from the ``retrieval_signals`` side-channel produced by a
-    dual-retrieval SearchStrategy (Eq 19-21). Decision (thresholds are on ``g``;
-    WARM_START is CP1-only):
+    dual-retrieval SearchStrategy (Eq 19-21) and ``u_t`` is an optional
+    kinematic-quality descriptor of the positive winner d+ (Phase 5). Decision
+    (thresholds are on ``g``; WARM_START is CP1-only):
 
       - ``g >= threshold``                     -> FULL_HIT(results[0].id)
       - CP1 and ``g >= tier["threshold"]``     -> WARM_START(start_t)
       - otherwise                              -> MISS
 
-    Degenerate default (``b3=0, b0=-tau, b1=1, threshold=0.5``, no warm tiers)
-    makes ``g = sigmoid(margin - tau)``, so ``g >= 0.5 <=> margin >= tau``. With an
-    empty D- (``margin == s_pos == results[0].score``) this is value-equivalent to
-    ``ThresholdJudge(threshold=tau)`` — the Phase 3 non-regression anchor.
+    Degenerate default (``u_t_factor=None, b2=0, b3=0, b0=-tau, b1=1,
+    threshold=0.5``, no warm tiers) makes ``g = sigmoid(margin - tau)``, so
+    ``g >= 0.5 <=> margin >= tau``. With an empty D- (``margin == s_pos ==
+    results[0].score``) this is value-equivalent to ``ThresholdJudge(tau)`` — the
+    Phase 3 non-regression anchor.
 
-    The ``b2*u_t`` kinematic term of Eq 21 is deferred to Phase 5: the calibrated
-    kinematic factor is only produced by the 4-layer verdict-factor pipeline,
-    which an independent judge cannot reach. ``config.validate_cache_config``
-    enforces ``gate_betas["b2"] == 0`` in this phase.
+    u_t (Phase 5, activated when ``u_t_factor`` is configured): the gate builds
+    one online kinematic Factor (``<descriptor>_online_<channel>``) over a single
+    ``(past, future)`` window plus a Layer-1 ``ZScoreNormalization`` from the
+    D+-only ``library_stats``, and computes the descriptor over the
+    ``[history[-P:], winner, walk_next(F)]`` splice at verdict time. A NaN u_t
+    (boundary / fork / short history / chain end) drops the ``b2*u_t`` term for
+    that step, degrading the gate to margin-only (identical to
+    ``u_t_factor=None``). ``config.validate_cache_config`` requires ``u_t_factor``
+    (plus an in_memory backend with ``library_stats``) whenever
+    ``gate_betas["b2"] != 0``.
+
+    factor_outputs (opt-in via ``export_factor_outputs``, default False): when
+    True every verdict carries the raw per-step signals
+    ``{schema, s_pos, s_neg, margin, delta_pos, u_t, g}`` (NaN pre-converted to
+    None) for offline diagnostics; when False ``factor_outputs`` stays None so the
+    ``__hit_meta__`` wire is byte-identical to Phase 3.
     """
 
     def __init__(
@@ -279,14 +293,45 @@ class FailureAwareGateJudge:
         gate_betas: dict[str, float],
         threshold: float = 0.5,
         warm_tiers: list[dict[str, float]] | None = None,
+        u_t_factor: Optional[dict] = None,
+        library_stats: Optional["LibraryStats"] = None,
+        export_factor_outputs: bool = False,
     ) -> None:
-        # b2 (kinematic term) is validated to 0 upstream (Phase 3); read it so a
-        # non-zero value here would still be inert rather than silently dropped.
         self._b0 = float(gate_betas.get("b0", 0.0))
         self._b1 = float(gate_betas.get("b1", 0.0))
+        # b2 is the kinematic u_t coefficient (Phase 5). It is inert unless a
+        # u_t_factor is configured; the validator ties the two together.
+        self._b2 = float(gate_betas.get("b2", 0.0))
         self._b3 = float(gate_betas.get("b3", 0.0))
         self._threshold = float(threshold)
         self._warm_tiers = warm_tiers or []
+        self._export_factor_outputs = bool(export_factor_outputs)
+
+        # ------------------------------------------------------------------
+        # u_t kinematic channel (Phase 5). Lazy-imported so judge.py keeps no
+        # hard dependency on the factors layer (mirrors _build_inner_judge's
+        # in-function imports). None -> Phase 3 behaviour (no b2*u_t term).
+        # ------------------------------------------------------------------
+        self._u_t_factor = None
+        self._u_t_norm = None
+        self._u_t_key: Optional[str] = None
+        if u_t_factor is not None:
+            from openpi.cache.components.factors import registry
+            from openpi.cache.components.factors.normalization.zscore import ZScoreNormalization
+
+            if library_stats is None:
+                raise ValueError(
+                    "failure_aware_gate u_t_factor requires library_stats "
+                    "(the D+-only normalization basis); got None"
+                )
+            name = f"{u_t_factor['descriptor']}_online_{u_t_factor['channel']}"
+            self._u_t_factor = registry.build(
+                name, windows=[{"past": int(u_t_factor["past"]), "future": int(u_t_factor["future"])}]
+            )
+            # Single window -> exactly one descriptor key; cache it so __call__
+            # reads the one value without re-deriving the key string.
+            (self._u_t_key,) = self._u_t_factor.descriptor_orientations.keys()
+            self._u_t_norm = ZScoreNormalization(library_stats)
 
     def __call__(
         self,
@@ -294,6 +339,8 @@ class FailureAwareGateJudge:
         checkpoint_id: CheckpointID,
         cached_data: dict[str, torch.Tensor],
         *,
+        view: Optional["PayloadView"] = None,
+        history: Optional["HistoryView"] = None,
         retrieval_signals: Optional[RetrievalSignals] = None,
         **kwargs,
     ) -> JudgeResult:
@@ -309,7 +356,11 @@ class FailureAwareGateJudge:
             )
         m = retrieval_signals.margin
         d = retrieval_signals.delta_pos
-        z = self._b0 + self._b1 * m + self._b3 * d
+        # u_t: kinematic quality of the winner d+ (None when inactive). A NaN
+        # value (short history / fork / chain end) drops the term -> margin-only.
+        u_t = self._compute_u_t(results, view, history)
+        u_term = 0.0 if (u_t is None or math.isnan(u_t)) else self._b2 * u_t
+        z = self._b0 + self._b1 * m + u_term + self._b3 * d
         # Numerically stable sigmoid (avoids math.exp overflow for large |z|).
         if z >= 0.0:
             g = 1.0 / (1.0 + math.exp(-z))
@@ -317,19 +368,70 @@ class FailureAwareGateJudge:
             ez = math.exp(z)
             g = ez / (1.0 + ez)
         winner_id = results[0].id
+        fo = self._factor_outputs(retrieval_signals, m, d, u_t, g)
         if g >= self._threshold:
-            return JudgeResult(HitType.FULL_HIT, winner_id, composer_score=g)
+            return JudgeResult(HitType.FULL_HIT, winner_id, composer_score=g, factor_outputs=fo)
         if checkpoint_id == CheckpointID.CP1 and self._warm_tiers:
             for tier in self._warm_tiers:
                 if g >= tier["threshold"]:
                     return JudgeResult(
                         HitType.WARM_START, winner_id,
-                        start_t=tier["start_t"], composer_score=g,
+                        start_t=tier["start_t"], composer_score=g, factor_outputs=fo,
                     )
-        return JudgeResult(HitType.MISS, composer_score=g)
+        return JudgeResult(HitType.MISS, composer_score=g, factor_outputs=fo)
+
+    def _compute_u_t(
+        self,
+        results: list[SearchResultLite],
+        view: Optional["PayloadView"],
+        history: Optional["HistoryView"],
+    ) -> Optional[float]:
+        """Extract the winner's single kinematic descriptor value, or None.
+
+        None when u_t is inactive or the verdict context lacks the view/history
+        the online factor needs. A NaN return from the factor (boundary / fork /
+        short-history window) is passed through and treated by ``__call__`` as
+        "drop the b2*u_t term".
+        """
+        if self._u_t_factor is None:
+            return None
+        if view is None or history is None:
+            # The searched path always injects both; guard so a bare unit call
+            # degrades to margin-only instead of crashing.
+            return None
+        from openpi.cache.components.factors.base import FactorContext
+
+        ctx = FactorContext(
+            results=results, view=view, history=history, normalization=self._u_t_norm
+        )
+        return self._u_t_factor.extract(ctx)[self._u_t_key]
+
+    def _factor_outputs(
+        self,
+        signals: RetrievalSignals,
+        margin: float,
+        delta_pos: float,
+        u_t: Optional[float],
+        g: float,
+    ) -> Optional[dict]:
+        """Opt-in diagnostic dump of the raw per-step gate signals (or None).
+
+        None unless ``export_factor_outputs`` is set, keeping the Phase 3
+        ``__hit_meta__`` wire byte-identical by default. NaN / None u_t both
+        serialize to None via ``_nan_to_none``.
+        """
+        if not self._export_factor_outputs:
+            return None
+        return {
+            "schema": "failure_gate_v1",
+            **_nan_to_none({
+                "s_pos": signals.s_pos, "s_neg": signals.s_neg,
+                "margin": margin, "delta_pos": delta_pos, "u_t": u_t, "g": g,
+            }),
+        }
 
     def on_episode_start(self) -> None:
-        """Clear internal history buffer. Called by Orchestrator at episode start."""
+        """No-op; the gate holds no per-episode state (u_t reads live view/history)."""
 
     def record_action(self, action_chunk: torch.Tensor) -> None:
         """Receive Orchestrator-broadcast action. No-op (gate is stateless)."""

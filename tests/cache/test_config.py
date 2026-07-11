@@ -13,6 +13,7 @@ from openpi.cache.config import (
     CacheConfig,
     CheckpointConfig,
     ConfigValidationError,
+    DepthPolicyConfig,
     FieldSimilarityConfig,
     GateConfig,
     JudgeConfig,
@@ -1947,3 +1948,100 @@ def test_projection_validator_rejects_bad_inner():
     )
     with pytest.raises(ConfigValidationError, match="stateless pool"):
         validate_cache_config(config)
+
+
+# ---------------------------------------------------------------------------
+# TRACER Phase 5 — failure_aware_gate u_t_factor validation + factory forward
+# ---------------------------------------------------------------------------
+
+
+def _gate_config(*, gate_betas=None, u_t_factor=None, backend_type="in_memory",
+                 export_factor_outputs=False):
+    """A valid dual_retrieval_knn + failure_aware_gate CacheConfig (in_memory)."""
+    if gate_betas is None:
+        gate_betas = {"b0": -0.9, "b1": 1.0, "b3": 0.0}
+    return CacheConfig(
+        enabled=True,
+        keys=KeysConfig(robot_state=KeyFieldConfig(enabled=True, weight=1.0)),
+        backend=BackendConfig(type=backend_type, vector_dims={"robot_state": 32}),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                gate=GateConfig(type="always_search"),
+                judge=JudgeConfig(
+                    type="failure_aware_gate", threshold=0.5,
+                    gate_betas=gate_betas, u_t_factor=u_t_factor,
+                    export_factor_outputs=export_factor_outputs,
+                ),
+                search_strategy=SearchStrategyConfig(
+                    type="dual_retrieval_knn", base_fusion="weighted_rrf",
+                    top_k=1, trajectory_depth=1, allowed_depths=[1],
+                    depth_policy=DepthPolicyConfig(type="constant", depth=1),
+                    margin_lambda=0.5, enable_dual=True,
+                ),
+            ),
+        },
+    )
+
+
+_UT = {"descriptor": "direction", "channel": "state", "past": 2, "future": 1}
+
+
+def test_u_t_factor_b2_active_valid():
+    cfg = _gate_config(gate_betas={"b0": -0.9, "b1": 1.0, "b2": 0.5, "b3": 0.0}, u_t_factor=_UT)
+    validate_cache_config(cfg)  # must not raise
+
+
+def test_u_t_factor_b2_without_factor_rejected():
+    cfg = _gate_config(gate_betas={"b0": -0.9, "b1": 1.0, "b2": 0.5}, u_t_factor=None)
+    with pytest.raises(ConfigValidationError, match=r"b2.*!= 0 requires u_t_factor"):
+        validate_cache_config(cfg)
+
+
+def test_u_t_factor_requires_in_memory_backend():
+    cfg = _gate_config(gate_betas={"b0": -0.9, "b1": 1.0, "b2": 0.5}, u_t_factor=_UT,
+                       backend_type="qdrant")
+    with pytest.raises(ConfigValidationError, match="requires backend.type='in_memory'"):
+        validate_cache_config(cfg)
+
+
+def test_u_t_factor_bad_descriptor_rejected():
+    bad = {"descriptor": "bogus", "channel": "state", "past": 2, "future": 1}
+    cfg = _gate_config(gate_betas={"b0": -0.9, "b1": 1.0, "b2": 0.5}, u_t_factor=bad)
+    with pytest.raises(ConfigValidationError, match="descriptor must be one of"):
+        validate_cache_config(cfg)
+
+
+def test_u_t_factor_bad_channel_rejected():
+    bad = {"descriptor": "direction", "channel": "camera", "past": 2, "future": 1}
+    cfg = _gate_config(gate_betas={"b0": -0.9, "b1": 1.0, "b2": 0.5}, u_t_factor=bad)
+    with pytest.raises(ConfigValidationError, match="channel must be"):
+        validate_cache_config(cfg)
+
+
+def test_phase3_gate_b2_zero_no_u_t_still_valid():
+    # Non-regression: the Phase 3 shape (b2 absent, no u_t_factor) still validates.
+    cfg = _gate_config(gate_betas={"b0": -0.9, "b1": 1.0, "b3": 0.0}, u_t_factor=None)
+    validate_cache_config(cfg)
+
+
+def test_export_factor_outputs_forwarded_to_gate():
+    cfg = _gate_config(export_factor_outputs=True)
+    validate_cache_config(cfg)
+    comps = build_cache_components(cfg)
+    gate_judge = comps["judges"][CheckpointID.CP1]
+    assert gate_judge._export_factor_outputs is True
+
+
+@pytest.mark.parametrize("bad_win", [
+    {"past": "bad", "future": 1},   # string
+    {"past": 1.5, "future": 1},     # float (must NOT truncate)
+    {"past": True, "future": 1},    # bool (int subclass -> reject)
+    {"past": -1, "future": 1},      # negative
+    {"past": 2, "future": -3},      # negative future
+])
+def test_u_t_factor_bad_window_rejected_clean(bad_win):
+    u_t = {"descriptor": "direction", "channel": "state", **bad_win}
+    cfg = _gate_config(gate_betas={"b0": -0.9, "b1": 1.0, "b2": 0.5}, u_t_factor=u_t)
+    # Must surface as ConfigValidationError (never a raw int() ValueError).
+    with pytest.raises(ConfigValidationError, match=r"u_t_factor\.(past|future)"):
+        validate_cache_config(cfg)

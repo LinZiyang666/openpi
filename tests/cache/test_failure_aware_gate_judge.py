@@ -107,3 +107,144 @@ def test_gate_ignores_view_history_kwargs():
         view=None, history=None, retrieval_signals=_sig(margin=0.9),
     )
     assert res.hit_type is HitType.FULL_HIT
+
+
+# ----------------------------------------------------------------------
+# Phase 5 — u_t kinematic activation + factor_outputs opt-in
+# ----------------------------------------------------------------------
+
+import torch  # noqa: E402
+
+from openpi.cache.components.factors.base import HistoryView, LibraryStats  # noqa: E402
+from openpi.cache.components.factors.normalization import ZScoreNormalization  # noqa: E402
+from openpi.cache.components.factors.online import DirectionOnlineState  # noqa: E402
+from openpi.cache.storage_types import CacheEntry, CachePayload  # noqa: E402
+
+_UT_FACTOR = {"descriptor": "direction", "channel": "state", "past": 2, "future": 1}
+
+
+class _StubView:
+    """Minimal PayloadView: id->entry chain + walk_next (mirrors the factor tests)."""
+
+    def __init__(self, entries):
+        self._entries = {e.id: e for e in entries}
+        self._chain = [e.id for e in entries]
+
+    def get(self, entry_id):
+        return self._entries[entry_id].payload
+
+    def get_entry(self, entry_id):
+        return self._entries[entry_id]
+
+    def walk_next(self, entry_id, k):
+        idx = self._chain.index(entry_id)
+        return [self._entries[i] for i in self._chain[idx + 1 : idx + 1 + k]]
+
+
+def _entry(eid, state):
+    return CacheEntry(
+        id=eid, checkpoint_id=CheckpointID.CP1,
+        query_keys={"robot_state": torch.tensor(state, dtype=torch.float32)},
+        payload=CachePayload(action_chunk=torch.zeros((1, 2), dtype=torch.float32)),
+        trajectory_id="traj-1", prev_ids=[], next_ids=[],
+    )
+
+
+def _lib_stats():
+    s = torch.ones(2, dtype=torch.float32)
+    a = torch.ones(2, dtype=torch.float32)
+    return LibraryStats(
+        action_sigma=a, action_active_mask=torch.ones(2, dtype=torch.bool),
+        state_sigma=s, state_active_mask=torch.ones(2, dtype=torch.bool),
+    )
+
+
+def _chain_fixture():
+    """Winner w0 + forward w1 + 2-step history -> a computable direction u_t."""
+    chain = [_entry("w0", [0.0, 0.0]), _entry("w1", [1.0, 1.0])]
+    view = _StubView(chain)
+    history = HistoryView(
+        actions=[],
+        states=[torch.tensor([-2.0, -2.0]), torch.tensor([-1.0, -1.0])],
+    )
+    results = [SearchResultLite("w0", 0.9, CheckpointID.CP1)]
+    return view, history, results
+
+
+def test_gate_u_t_matches_direct_factor():
+    """Gate's internal u_t == the online factor's extract on the same context."""
+    view, history, results = _chain_fixture()
+    ls = _lib_stats()
+    gate = FailureAwareGateJudge(
+        gate_betas={"b0": -0.5, "b1": 1.0, "b2": 1.0, "b3": 0.0},
+        u_t_factor=_UT_FACTOR, library_stats=ls, export_factor_outputs=True,
+    )
+    out = gate(results, CheckpointID.CP1, {}, view=view, history=history,
+               retrieval_signals=_sig(margin=0.5))
+    # Direct factor over an equivalent FactorContext.
+    from openpi.cache.components.factors.base import FactorContext
+    factor = DirectionOnlineState(windows=[{"past": 2, "future": 1}])
+    ctx = FactorContext(results=results, view=view, history=history,
+                        normalization=ZScoreNormalization(ls))
+    (key,) = factor.descriptor_orientations.keys()
+    expected = factor.extract(ctx)[key]
+    assert out.factor_outputs["u_t"] == pytest.approx(expected)
+
+
+def test_gate_u_t_activates_logit():
+    """b2 != 0 with a non-zero u_t shifts g vs the b2=0 (margin-only) gate."""
+    view, history, results = _chain_fixture()
+    ls = _lib_stats()
+    common = dict(u_t_factor=_UT_FACTOR, library_stats=ls)
+    g_active = FailureAwareGateJudge(gate_betas={"b0": -0.5, "b1": 1.0, "b2": 5.0}, **common)(
+        results, CheckpointID.CP1, {}, view=view, history=history,
+        retrieval_signals=_sig(margin=0.5)).composer_score
+    g_inert = FailureAwareGateJudge(gate_betas={"b0": -0.5, "b1": 1.0, "b2": 0.0}, **common)(
+        results, CheckpointID.CP1, {}, view=view, history=history,
+        retrieval_signals=_sig(margin=0.5)).composer_score
+    assert g_active != pytest.approx(g_inert)
+
+
+def test_gate_u_t_nan_degrades_to_margin_only():
+    """Short history (< past) -> NaN u_t -> b2 term dropped -> == u_t_factor=None gate."""
+    view, _, results = _chain_fixture()
+    short_history = HistoryView(actions=[], states=[torch.tensor([-1.0, -1.0])])  # len 1 < past 2
+    ls = _lib_stats()
+    betas = {"b0": -0.5, "b1": 1.0, "b2": 5.0}
+    g_ut = FailureAwareGateJudge(gate_betas=betas, u_t_factor=_UT_FACTOR, library_stats=ls)(
+        results, CheckpointID.CP1, {}, view=view, history=short_history,
+        retrieval_signals=_sig(margin=0.3)).composer_score
+    g_margin = FailureAwareGateJudge(gate_betas=betas)(
+        results, CheckpointID.CP1, {}, view=view, history=short_history,
+        retrieval_signals=_sig(margin=0.3)).composer_score
+    assert g_ut == pytest.approx(g_margin)
+
+
+def test_gate_factor_outputs_default_off_wire_invariant():
+    """Default (export False) -> factor_outputs is None (Phase 3 wire byte-identical)."""
+    res = _gate()(_res(), CheckpointID.CP1, {}, retrieval_signals=_sig(margin=0.9))
+    assert res.factor_outputs is None
+
+
+def test_gate_factor_outputs_opt_in_nan_to_none():
+    """export True -> dict carries schema + raw signals; NaN u_t -> None, JSON-safe."""
+    import json
+    view, _, results = _chain_fixture()
+    short_history = HistoryView(actions=[], states=[])  # empty -> NaN u_t
+    gate = FailureAwareGateJudge(
+        gate_betas={"b0": -0.5, "b1": 1.0, "b2": 5.0},
+        u_t_factor=_UT_FACTOR, library_stats=_lib_stats(), export_factor_outputs=True,
+    )
+    out = gate(results, CheckpointID.CP1, {}, view=view, history=short_history,
+               retrieval_signals=_sig(margin=0.4, s_pos=0.4, s_neg=0.0, delta_pos=0.01))
+    fo = out.factor_outputs
+    assert fo["schema"] == "failure_gate_v1"
+    assert fo["u_t"] is None  # NaN pre-converted
+    assert set(fo) >= {"s_pos", "s_neg", "margin", "delta_pos", "u_t", "g"}
+    json.dumps(fo, allow_nan=False)  # must not raise
+
+
+def test_gate_u_t_factor_requires_library_stats():
+    with pytest.raises(ValueError, match="library_stats"):
+        FailureAwareGateJudge(gate_betas={"b0": -0.5, "b1": 1.0, "b2": 1.0},
+                              u_t_factor=_UT_FACTOR, library_stats=None)

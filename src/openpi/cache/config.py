@@ -315,11 +315,17 @@ class JudgeConfig:
     # production yamls.
     export_factor_outputs: bool = False
     # ── Failure-aware gate (type="failure_aware_gate"; TRACER Phase 3 / M2) ──
-    # Sigmoid gate coefficients b0/b1/b3 (Eq 21). b2 (the kinematic u_t term) is
-    # validated to 0 in this phase (deferred to Phase 5). ``threshold`` and
-    # ``warm_tiers`` are reused for the full_hit / WARM_START bands but are
-    # interpreted on the gate value g in [0, 1] (config must set threshold=0.5).
+    # Sigmoid gate coefficients b0/b1/b3 (Eq 21). ``threshold`` and ``warm_tiers``
+    # are reused for the full_hit / WARM_START bands but are interpreted on the
+    # gate value g in [0, 1] (config must set threshold=0.5).
     gate_betas: Optional[dict[str, float]] = None
+    # b2 (the kinematic u_t term of Eq 21) is inert unless ``u_t_factor`` is set
+    # (TRACER Phase 5). ``u_t_factor`` = {descriptor, channel, past, future} that
+    # selects one online kinematic factor <descriptor>_online_<channel> over a
+    # single (past, future) window; the gate normalizes it via the backend's
+    # D+-only library_stats. The validator requires u_t_factor whenever
+    # gate_betas["b2"] != 0 (and an in_memory backend carrying library_stats).
+    u_t_factor: Optional[dict[str, Any]] = None
 
 
 @dataclass
@@ -1530,12 +1536,56 @@ def validate_cache_config(config: CacheConfig) -> None:
                     f"{prefix}.judge: failure_aware_gate requires gate_betas with "
                     f"keys {missing} (got {sorted(gb)})"
                 )
-            if float(gb.get("b2", 0.0)) != 0.0:
+            # u_t kinematic term (TRACER Phase 5). b2 is inert unless u_t_factor
+            # selects a kinematic factor; a non-zero b2 without a u_t_factor would
+            # silently do nothing -> fail loud and tie the two together.
+            u_tf = cp_config.judge.u_t_factor
+            if float(gb.get("b2", 0.0)) != 0.0 and u_tf is None:
                 errors.append(
-                    f"{prefix}.judge: failure_aware_gate gate_betas['b2'] must be 0 in "
-                    f"this phase (the u_t kinematic term is deferred to Phase 5); "
-                    f"got {gb.get('b2')}"
+                    f"{prefix}.judge: failure_aware_gate gate_betas['b2'] != 0 requires "
+                    f"u_t_factor (the kinematic descriptor to weight); got b2="
+                    f"{gb.get('b2')} with u_t_factor=None"
                 )
+            if u_tf is not None:
+                missing_k = [k for k in ("descriptor", "channel", "past", "future") if k not in u_tf]
+                if missing_k:
+                    errors.append(
+                        f"{prefix}.judge.u_t_factor requires keys {missing_k} (got {sorted(u_tf)})"
+                    )
+                else:
+                    if u_tf["descriptor"] not in ("jerk", "direction", "dispersion", "path_length"):
+                        errors.append(
+                            f"{prefix}.judge.u_t_factor.descriptor must be one of "
+                            f"('jerk','direction','dispersion','path_length'); got {u_tf['descriptor']!r}"
+                        )
+                    if u_tf["channel"] not in ("action", "state"):
+                        errors.append(
+                            f"{prefix}.judge.u_t_factor.channel must be 'action' or 'state'; "
+                            f"got {u_tf['channel']!r}"
+                        )
+                    # past / future must be true non-negative ints. bool is an
+                    # int subclass -> reject explicitly; a float like 1.5 must NOT
+                    # be silently truncated. All issues surface as
+                    # ConfigValidationError (never a raw int() ValueError).
+                    for wk in ("past", "future"):
+                        wv = u_tf[wk]
+                        if isinstance(wv, bool) or not isinstance(wv, int):
+                            errors.append(
+                                f"{prefix}.judge.u_t_factor.{wk} must be a non-negative int; "
+                                f"got {wv!r} ({type(wv).__name__})"
+                            )
+                        elif wv < 0:
+                            errors.append(
+                                f"{prefix}.judge.u_t_factor.{wk} must be >= 0; got {wv}"
+                            )
+                # u_t normalization basis (D+-only library_stats) only exists on
+                # the in_memory backend; qdrant carries no library_stats.
+                if config.backend.type != "in_memory":
+                    errors.append(
+                        f"{prefix}.judge.u_t_factor requires backend.type='in_memory' "
+                        f"(the D+-only library_stats normalization basis); got "
+                        f"backend.type={config.backend.type!r}"
+                    )
 
         # JudgeConfig.dump validator (G1 R6+). Independent of judge.type;
         # any judge can be wrapped by DumpingJudge for calibration logging.
@@ -2563,10 +2613,16 @@ def _build_inner_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optiona
 
         # threshold is the gate value g's full_hit cutoff (config sets 0.5);
         # warm_tiers (if any) are interpreted on g too (validator gates CP1-only).
+        # u_t_factor + library_stats activate the b2*u_t kinematic term (Phase 5);
+        # export_factor_outputs (reused JudgeConfig field) opt-ins the diagnostic
+        # per-step dump (default False -> Phase 3 wire-identical).
         return FailureAwareGateJudge(
             gate_betas=dict(cfg.gate_betas or {}),
             threshold=cfg.threshold,
             warm_tiers=cfg.warm_tiers,
+            u_t_factor=cfg.u_t_factor,
+            library_stats=library_stats,
+            export_factor_outputs=cfg.export_factor_outputs,
         )
     else:
         raise ConfigValidationError(
