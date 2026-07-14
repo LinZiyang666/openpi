@@ -299,14 +299,18 @@ class ProjectionKeyBuilder:
         epochs: int = 200,
         lr: float = 1e-2,
         temperature: float = 0.07,
+        loss: str = "auto",
     ) -> ProjectionParams:
-        """Fit per-field linear projection heads by InfoNCE over prepared batches.
+        """Fit per-field linear projection heads over prepared batches.
 
-        OFFLINE ONLY. Phase 2 ships this mechanism; Phase 6 adds the payload ->
-        compatibility-label construction (c^A/c^X from action_chunk /
-        intermediates) and the offline driver that persists weights. ``batches``
-        is already-prepared training signal (per-field pooled features + a
-        compatibility grouping), NOT raw CachePayloads.
+        OFFLINE ONLY. ``batches`` is already-prepared training signal (per-field
+        pooled features + a compatibility grouping/masks), NOT raw CachePayloads.
+        ``loss`` selects the objective per TRACER §B:
+        - "masked" -> threshold-gated ``proj_infonce_loss`` (needs pos/neg masks);
+        - "group"  -> legacy supervised ``infonce_loss`` (needs group_labels);
+        - "auto"   -> dispatch on batch contents (masks -> masked, group_labels ->
+          group; both or neither -> error). Default "auto" keeps existing
+          group_labels-only callers on the unchanged "group" path.
         """
         heads: dict[str, ProjectionHead] = {}
         for field, batch in batches.items():
@@ -315,8 +319,9 @@ class ProjectionKeyBuilder:
                     f"cannot fit a projection head for non-projectable field "
                     f"{field!r}; projectable: {sorted(_PROJECTED_FIELDS)}"
                 )
+            mode = _resolve_loss_mode(batch, loss)
             heads[field] = _fit_one_head(
-                batch, out_dim=out_dim, epochs=epochs, lr=lr, temperature=temperature
+                batch, mode=mode, out_dim=out_dim, epochs=epochs, lr=lr, temperature=temperature
             )
         return ProjectionParams(heads=heads)
 
@@ -328,12 +333,23 @@ class ProjectionKeyBuilder:
 class FieldTrainingBatch:
     """Prepared per-field training signal for ``ProjectionKeyBuilder.fit``.
 
-    features:     [N, in_dim] pooled feature vectors.
-    group_labels: [N] int; rows sharing a label are compatible (positives).
+    features:     [N, in_dim] pooled feature vectors (required).
+    group_labels: [N] int; rows sharing a label are compatible positives. Feeds the
+                  legacy supervised-contrastive ``infonce_loss`` (the "group" loss).
+    pos_mask:     [N, N] bool; ``pos_mask[a, b]`` marks b a positive of anchor a.
+    neg_mask:     [N, N] bool; ``neg_mask[a, b]`` marks b a hard negative of anchor a.
+                  ``pos_mask``/``neg_mask`` feed the threshold-gated ``proj_infonce_loss``
+                  (the "masked" loss, TRACER Eq 13-15); gray-zone pairs are in neither.
+
+    A batch carries EITHER ``group_labels`` (legacy path) OR ``pos_mask`` + ``neg_mask``
+    (method path); ``fit(..., loss=...)`` selects which. New optional fields default to
+    ``None`` so existing group_labels-only callers are unaffected.
     """
 
     features: torch.Tensor
-    group_labels: torch.Tensor
+    group_labels: torch.Tensor | None = None
+    pos_mask: torch.Tensor | None = None
+    neg_mask: torch.Tensor | None = None
 
 
 def infonce_loss(z: torch.Tensor, group_labels: torch.Tensor, temperature: float) -> torch.Tensor:
@@ -362,23 +378,113 @@ def infonce_loss(z: torch.Tensor, group_labels: torch.Tensor, temperature: float
     return -per_anchor.mean()
 
 
+def _validate_masks(pos_mask: torch.Tensor, neg_mask: torch.Tensor, n: int, device: torch.device) -> None:
+    """Fail-loud check that a masked-loss batch is well formed (TRACER §B invariants)."""
+    for name, m in (("pos_mask", pos_mask), ("neg_mask", neg_mask)):
+        if tuple(m.shape) != (n, n):
+            raise ValueError(f"{name} must be square [N, N]=[{n}, {n}], got {tuple(m.shape)}")
+        if m.dtype != torch.bool:
+            raise ValueError(f"{name} must be bool, got {m.dtype}")
+        if m.device != device:
+            raise ValueError(f"{name} device {m.device} != features device {device}")
+        if bool(torch.diagonal(m).any()):
+            raise ValueError(f"{name} must have a zero diagonal (no self pairs)")
+        if not bool((m == m.t()).all()):
+            raise ValueError(f"{name} must be symmetric")
+    if bool((pos_mask & neg_mask).any()):
+        raise ValueError("pos_mask and neg_mask must be disjoint (no pair is both positive and negative)")
+
+
+def proj_infonce_loss(
+    z: torch.Tensor,
+    pos_mask: torch.Tensor,
+    neg_mask: torch.Tensor,
+    temperature: float,
+) -> torch.Tensor:
+    """Threshold-gated masked InfoNCE (TRACER Eq 15).
+
+    For each anchor with >=1 positive AND >=1 negative, the numerator sums exp(sim)
+    over P(a) and the denominator over P(a) u N(a) ONLY -- gray-zone pairs (in neither
+    mask) are excluded from both. This is the point of departure from the supervised
+    ``infonce_loss`` above, whose denominator spans every off-diagonal entry. Returns
+    the mean over such anchors of ``-(logsumexp_P - logsumexp_{P u N})``.
+    """
+    z = F.normalize(z.float(), dim=1)  # [N, D]
+    n = z.shape[0]
+    sim = (z @ z.t()) / temperature  # [N, N]
+    eye = torch.eye(n, dtype=torch.bool, device=z.device)
+    pos = pos_mask & ~eye  # [N, N]
+    cand = (pos_mask | neg_mask) & ~eye  # denominator support P u N
+    valid = pos.any(dim=1) & (neg_mask & ~eye).any(dim=1)  # [N]
+    if not bool(valid.any()):
+        raise ValueError("proj_infonce_loss needs an anchor with both a positive and a negative")
+    # Fill non-support positions with the dtype min so they vanish under logsumexp
+    # without forming a (-inf * 0) NaN.
+    neg_inf = torch.finfo(sim.dtype).min
+    sim_pos = torch.where(pos, sim, torch.full_like(sim, neg_inf))
+    sim_cand = torch.where(cand, sim, torch.full_like(sim, neg_inf))
+    num = torch.logsumexp(sim_pos, dim=1)  # [N]
+    den = torch.logsumexp(sim_cand, dim=1)  # [N]
+    per_anchor = (num - den)[valid]
+    return -per_anchor.mean()
+
+
+def _resolve_loss_mode(batch: "FieldTrainingBatch", loss: str) -> str:
+    """Resolve the fit objective for one batch (TRACER §B contract).
+
+    Contract, enforced for EVERY selector (not just "auto"): a partial mask (exactly one
+    of pos/neg) is malformed; carrying BOTH mask and group families is ambiguous. "auto"
+    then routes masks -> "masked", group_labels -> "group"; "masked"/"group" require their
+    own family. Any violation is a loud error, never a silent fallback.
+    """
+    has_pos = batch.pos_mask is not None
+    has_neg = batch.neg_mask is not None
+    has_masks = has_pos and has_neg
+    has_group = batch.group_labels is not None
+    if has_pos ^ has_neg:  # exactly one of pos/neg given
+        raise ValueError("partial mask: provide BOTH pos_mask and neg_mask, or neither")
+    if has_masks and has_group:  # ambiguous for every selector, including explicit ones
+        raise ValueError("ambiguous batch carries BOTH masks and group_labels")
+    if loss == "masked":
+        if not has_masks:
+            raise ValueError("loss='masked' requires pos_mask and neg_mask on the batch")
+        return "masked"
+    if loss == "group":
+        if not has_group:
+            raise ValueError("loss='group' requires group_labels on the batch")
+        return "group"
+    if loss != "auto":
+        raise ValueError(f"unknown loss {loss!r}; expected 'auto' | 'masked' | 'group'")
+    if has_masks:
+        return "masked"
+    if has_group:
+        return "group"
+    raise ValueError("batch carries neither group_labels nor pos/neg masks")
+
+
 def _fit_one_head(
     batch: FieldTrainingBatch,
     *,
+    mode: str,
     out_dim: int,
     epochs: int,
     lr: float,
     temperature: float,
 ) -> ProjectionHead:
     features = batch.features.float()  # [N, in_dim]
-    in_dim = features.shape[1]
+    n, in_dim = features.shape
+    if mode == "masked":
+        _validate_masks(batch.pos_mask, batch.neg_mask, n, features.device)
     # Scaled normal init keeps early logits in a sane range for any dim pair.
     weight = (torch.randn(out_dim, in_dim) * (in_dim ** -0.5)).detach().requires_grad_(True)
     opt = torch.optim.Adam([weight], lr=lr)
     for _ in range(epochs):
         opt.zero_grad()
         z = features @ weight.t()  # [N, out_dim]
-        loss = infonce_loss(z, batch.group_labels, temperature)
+        if mode == "masked":
+            loss = proj_infonce_loss(z, batch.pos_mask, batch.neg_mask, temperature)
+        else:
+            loss = infonce_loss(z, batch.group_labels, temperature)
         loss.backward()
         opt.step()
     return ProjectionHead(weight=weight.detach().cpu().float().contiguous(), bias=None)

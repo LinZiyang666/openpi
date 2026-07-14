@@ -454,7 +454,9 @@ Converts stage outputs into named query vectors (`dict[str, torch.Tensor]`). Two
 
 All CP1 builders extract from `Stage1Output.prefix_embs` using token layout offsets. CLIP builder encodes raw input images via open_clip instead.
 
-> **Design vs Implementation**: The original spec used `nn.Linear` projections to a configurable `output_dim`. Implementation uses direct pooling (mean/spatial/max) without learned projections — this preserves the original embedding space and avoids training a separate projection layer. `CacheContext` was not adopted; `collect()` + `build()` two-phase API replaces it.
+> **Design vs Implementation**: The base CP1 builders use direct pooling (mean/spatial/max) and preserve the raw embedding space. `CacheContext` was not adopted; `collect()` + `build()` two-phase API replaces it.
+>
+> **Learned projection (TRACER Phase 6, implemented)**: `ProjectionKeyBuilder` (`projection_key_builder.py`) optionally wraps a pooling builder with a small per-field **linear projection** `z = xWᵀ` on the cosine fields (`vision_0/1/2`, `prompt_emb`; `robot_state` stays raw L2). With no weights it is the value-for-value identity of the inner pool (non-regression); with trained weights the SAME head projects both library-build and online-query keys, so the backend stays a plain cosine store. Heads are trained **offline** on **action-compatibility** labels (next-H action-chunk / denoise-snapshot closeness) via the threshold-gated masked InfoNCE `proj_infonce_loss` (`fit(loss="masked")`); the host VLA and action expert stay frozen. **Implemented** under `exp/zixuan_proposal/`: the compatibility-label build, fold-scoped σ/ρ, symmetric P/N masks, masked-InfoNCE training with early-stopping, and the SHA-256 weights↔artifact↔YAML binding. The downstream **projected-artifact rebuild + re-calibration + paired rollout** reuse the existing cache-build / calibration / analysis tools and are orchestrated at execution time (see the Phase-6 plan; not yet run). See [`logs/tracer_phase6_projection_training.log.md`](../../logs/tracer_phase6_projection_training.log.md).
 
 ### 5.5 GateFunction (Pluggable)
 

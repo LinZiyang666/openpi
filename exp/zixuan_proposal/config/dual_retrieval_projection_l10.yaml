@@ -1,0 +1,110 @@
+# TRACER Phase 6 projected-lane config TEMPLATE (libero_10).
+# Derived from dual_retrieval_scoresum_l10.yaml; the ONLY structural change is the
+# key_builder (raw cp1_mean_pool -> projection wrapping cp1_mean_pool). Per plan §6:
+#   - weights_path binds the trained ProjectionParams (.pt) for the lane (B: eta=1,
+#     C: eta=0.5); the SAME file must have rebuilt the preloaded projected artifact
+#     (§6.3d SHA-256 check at serve init);
+#   - score_normalization mu/sigma are RE-FIT on the projected keys (raw-space stats are
+#     invalid in projected cosine space) and the gate_betas RE-SOLVED on projected calib
+#     rows; the emit step (§6.6) fills the __FILL_AT_EXECUTION__ placeholders below.
+enabled: true
+keys:
+  vision_0:
+    enabled: true
+    weight: 0.12
+  vision_1:
+    enabled: true
+    weight: 0.31
+  vision_2:
+    enabled: false
+    weight: 0.0
+  prompt_emb:
+    enabled: true
+    weight: 0.0
+  robot_state:
+    enabled: true
+    weight: 0.56
+key_builder:
+  type: projection
+  projection:
+    inner_type: cp1_mean_pool
+    # TODO(Phase6-exec): bind the trained lane weights; must equal the --projection-weights
+    # used to rebuild `preload_path` (§6.3d SHA-256 assert).
+    weights_path: __FILL_AT_EXECUTION__
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: failure_aware_gate
+      threshold: 0.5
+      gate_betas:
+        # TODO(Phase6-exec): re-solved on projected calib rows (§6.6). b1 fixed = cls.B1.
+        b0: __FILL_AT_EXECUTION__
+        b1: 1.0
+        b3: __FILL_AT_EXECUTION__
+    search_strategy:
+      type: dual_retrieval_knn
+      base_fusion: weighted_score_sum
+      top_k: 1
+      trajectory_depth: 5
+      trajectory_weights:
+      - 0.4
+      - 0.3
+      - 0.15
+      - 0.1
+      - 0.05
+      allowed_depths:
+      - 5
+      depth_policy:
+        type: constant
+        depth: 5
+      margin_lambda: 0.5
+      enable_dual: true
+      field_similarity:
+        vision_0:
+          type: cosine
+        vision_1:
+          type: cosine
+        robot_state:
+          type: l2
+          to_similarity:
+            type: exp
+            tau: 1.0
+      score_normalization:
+        type: per_field
+        fields:
+          # TODO(Phase6-exec): re-fit on PROJECTED keys via calibrate_score_normalizers.py.
+          vision_0:
+            method: zscore
+            params:
+              mu: __FILL_AT_EXECUTION__
+              sigma: __FILL_AT_EXECUTION__
+              squash: tanh
+          vision_1:
+            method: zscore
+            params:
+              mu: __FILL_AT_EXECUTION__
+              sigma: __FILL_AT_EXECUTION__
+              squash: tanh
+          robot_state:
+            method: zscore
+            params:
+              mu: __FILL_AT_EXECUTION__
+              sigma: __FILL_AT_EXECUTION__
+              squash: tanh
+backend:
+  type: in_memory
+  vector_dims:
+    # out_dim = inner dim (2048) -> shape-compatible; no dim edit for the default lane.
+    vision_0: 2048
+    vision_1: 2048
+    prompt_emb: 2048
+    robot_state: 32
+  in_memory:
+    # TODO(Phase6-exec): the I_cal-only projected dual artifact rebuilt with weights_path.
+    preload_path: __FILL_AT_EXECUTION__
+    index_type: brute_force
+write_policy:
+  type: never
