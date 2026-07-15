@@ -45,6 +45,22 @@ _DEFAULT_SORT_KEYS = ("task_id", "subset_init_state_idx", "episode_id", "step_id
 _MISSING = object()
 
 
+def _json_default(o):
+    """``json.dumps`` ``default`` hook coercing numpy scalars to native Python.
+
+    The server's ``__hit_meta__`` fields (e.g. ``searched``) and LIBERO's episode
+    ``success`` can arrive as numpy scalars (``np.bool_`` / ``np.integer`` /
+    ``np.floating``), which the stdlib json encoder rejects with ``TypeError``.
+    numpy scalars expose ``.item()`` -> the equivalent native Python scalar; we
+    probe for it rather than importing numpy so this module stays dependency-light
+    on the LIBERO client. ``allow_nan=False`` still guards NaN floats separately.
+    """
+    item = getattr(o, "item", None)
+    if callable(item):
+        return item()
+    raise TypeError(f"Object of type {o.__class__.__name__} is not JSON serializable")
+
+
 # ----------------------------------------------------------------------
 # Writer
 # ----------------------------------------------------------------------
@@ -110,7 +126,8 @@ class PerStepWriter:
         if not self._buffer:
             return 0
         chunk = "".join(
-            json.dumps(row, ensure_ascii=False, sort_keys=True, allow_nan=False) + "\n"
+            json.dumps(row, ensure_ascii=False, sort_keys=True, allow_nan=False,
+                       default=_json_default) + "\n"
             for row in self._buffer
         )
         n = len(self._buffer)
@@ -255,7 +272,8 @@ class PerStepWriterPool:
 
             with open(self._merged_path, "w", encoding="utf-8") as fh:
                 for row in merged_rows:
-                    fh.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+                    fh.write(json.dumps(row, ensure_ascii=False, sort_keys=True,
+                                        default=_json_default) + "\n")
 
             for path in self._temp_paths:
                 if path.exists():

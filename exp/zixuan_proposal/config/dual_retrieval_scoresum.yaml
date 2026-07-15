@@ -1,0 +1,92 @@
+enabled: true
+keys:
+  vision_0:
+    enabled: true
+    weight: 0.12
+  vision_1:
+    enabled: true
+    weight: 0.31
+  vision_2:
+    enabled: false
+    weight: 0.0
+  prompt_emb:
+    enabled: true
+    weight: 0.0
+  robot_state:
+    enabled: true
+    weight: 0.56
+key_builder:
+  type: cp1_mean_pool
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: failure_aware_gate
+      threshold: 0.5
+      gate_betas:
+        b0: -0.5
+        b1: 1.0
+        b3: 0.0
+    search_strategy:
+      type: dual_retrieval_knn
+      base_fusion: weighted_score_sum
+      top_k: 1
+      trajectory_depth: 5
+      trajectory_weights:
+      - 0.4
+      - 0.3
+      - 0.15
+      - 0.1
+      - 0.05
+      allowed_depths:
+      - 5
+      depth_policy:
+        type: constant
+        depth: 5
+      margin_lambda: 0.5
+      enable_dual: true
+      field_similarity:
+        vision_0:
+          type: cosine
+        vision_1:
+          type: cosine
+        robot_state:
+          type: l2
+          to_similarity:
+            type: exp
+            tau: 1.0
+      score_normalization:
+        type: per_field
+        fields:
+          vision_0:
+            method: zscore
+            params:
+              mu: 0.9893910423349395
+              sigma: 0.0038869346940528537
+              squash: tanh
+          vision_1:
+            method: zscore
+            params:
+              mu: 0.983791535446267
+              sigma: 0.005390584773913787
+              squash: tanh
+          robot_state:
+            method: zscore
+            params:
+              mu: -1.8490731322833645
+              sigma: 0.9955931021405758
+              squash: tanh
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 2048
+    vision_1: 2048
+    prompt_emb: 2048
+    robot_state: 32
+  in_memory:
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_mean_pool_dual.pkl
+    index_type: brute_force
+write_policy:
+  type: never

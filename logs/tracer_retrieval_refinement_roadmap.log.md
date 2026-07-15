@@ -1,6 +1,6 @@
 # TRACER 检索精炼路线图 — Action-Compatible Failure-Aware Retrieval 的模块化落地
 
-- **Status**: Roadmap（Design-Grounded）— Phase 0 ✅（架构判定/可行性亲验完成）/ **Phase 1 ✅（M3 `dynamic_depth_knn`，G1/G2 APPROVED + §6 Verify green，commit `cea98b2`，2026-07-07；plan 归档 `archive/tracer_phase1_dynamic_depth.log.md`）** / **Phase 2 ✅（M1 `projection` KeyBuilder 骨架，G1/G2 APPROVED + §6 Verify green，2026-07-08）** / **Phase 3 ✅（M2 `dual_retrieval_knn` + `failure_aware_gate` 骨架，G1 R3 / G2 R1 APPROVED + §6 Verify green，2026-07-08）** / **Phase 4 ✅（D⁻ 失败库建库：cache-OFF `serve_policy --collect` 采集；⚠ 首轮误采 pruned/eval 集(污染)→ **held-out 池重采修正**：spatial 18 失败/l10 85 失败,合并 D⁺/D⁻ artifact 两 suite 出场门 PASS,§4 Code + 待 G2 复核,2026-07-10）** / Phase 5–7 待逐期立项
+- **Status**: Roadmap（Design-Grounded）— Phase 0 ✅（架构判定/可行性亲验完成）/ **Phase 1 ✅（M3 `dynamic_depth_knn`，G1/G2 APPROVED + §6 Verify green，commit `cea98b2`，2026-07-07；plan 归档 `archive/tracer_phase1_dynamic_depth.log.md`）** / **Phase 2 ✅（M1 `projection` KeyBuilder 骨架，G1/G2 APPROVED + §6 Verify green，2026-07-08）** / **Phase 3 ✅（M2 `dual_retrieval_knn` + `failure_aware_gate` 骨架，G1 R3 / G2 R1 APPROVED + §6 Verify green，2026-07-08）** / **Phase 4 ✅（D⁻ 失败库建库：cache-OFF `serve_policy --collect` 采集；⚠ 首轮误采 pruned/eval 集(污染)→ **held-out 池重采修正**：spatial 18 失败/l10 85 失败,合并 D⁺/D⁻ artifact 两 suite 出场门 PASS,§4 Code + 待 G2 复核,2026-07-10）** / **Phase 5 ⚠（M2 标定：机制码 G2 R4 APPROVED + commit `9383230`；运行时出场门 **FAIL** 两 suite——离线逐步门 proxy 与在线 SR 不相关、full-hit 替换令 SR 崩，2026-07-12）** / **Phase 6 ⚠（M1 投影 ①b：混淆-free July 训练+重标定 → 离线门双 **NO_GO**、投影零增益，M1 定格 identity，2026-07-14）** / **Phase 7 ⬚（转定性为负结果整合报告：三机制无「安全且省算力」工作点，见 §4 Phase 7）**
 - **Date**: 2026-07-07（创建）
 - **来源**: 合作者提案 `TRACER_RETRIEVAL_REFINED_PROPOSAL.pdf`（*Action-Compatible Failure-Aware Retrieval for VLA Inference Caching*，2026-06-10，含显式方程 Eq 1–28）。文中 "TRACER" = 本 fork 的推理 cache 系统；full-hit / warm-start / miss = 我们的 `HitType`。
 - **Level**: 本文件为**研究产物（L0 纯文档）**。它只负责给整条线**排期与定依赖**，不含代码、不走 G1。**每一期的实现仍是独立的 L2/L3，必须各自走 Understand → Plan → G1 → Code → G2 → Verify。**
@@ -113,26 +113,33 @@
 - **框架触点**：无（exp/ 数据层）。零训练（参数仍手设）。
 - **前置**：Phase 3。**出场 gate**：D⁻ artifact 可 load + 双检索在真库上产出非平凡 margin 分布。**Level**：L1/L2（数据脚本）。
 
-### Phase 5 — 阈值 / 权重标定（轻标定）🟡
+### Phase 5 — 阈值 / 权重标定（轻标定）🟡 → **出场门 FAIL**
 
+- **⚠ 出场门 FAIL（2026-07-12）**：机制代码（β₂·u_t 激活 + `MarginGateCalibrator`）G1 R3 / G2 R4 APPROVED + commit `9383230`，§6 Verify green。但运行时 Pass 1/2/3 出场门**两 suite 全 FAIL**：先修掉 `weighted_rrf` 信号坍缩 bug（top-1 分数恒 ≈0.056、`s_pos` 无动态范围 → 永不 FULL_HIT）→ 换 `weighted_score_sum`+z-score/tanh 恢复区分度、FULL_HIT 能打；但 full-hit 替换令 **SR 崩**（spatial 0.972→0.776、l10 0.856→0.536），~37–49% FULL_HIT 为 bad。**根因 = 离线逐步 `L_cal` proxy 与在线 trajectory 级 SR 不相关，标定必然过度替换而对 SR 盲视**（离线表对着录制 action 打分，看不到替换诱发的反事实 rollout 发散）。诊断见 `analysis/phase5_scoresum_findings.md`。→ 未达出场门,不标 Validated；判决喂 Phase 7 Claim 1。
 - **目标**：在 held-out 集上标定 `τ_hit/τ_warm/λ`（及可选 M3 的 ψ、M2 融合 `η`），最小化 `L_cal = BadHitRate + c_miss·MissRate + c_warm·WarmCost` s.t. `SR ≥ SR_base − ε`（Eq 24–25）。
 - **交付物**：composer/strategy 类上的 `calibrate(held_out)->params`（内聚，照 `fit_from_scores` 范式）+ `exp/` 离线 driver + 标定产物入 YAML。
 - **框架触点**：无（离线，事实 §2.6 / D3）。**轻**（阈值/权重搜索，非梯度训网络）。
 - **前置**：Phase 4。**出场 gate**：标定参数使 M2 在验证集上 BadHitRate↓ @ 同 SR/inf。**Level**：L2。
 
-### Phase 6 — M1 投影头训练（重训练，条件触发）🔴
+### Phase 6 — M1 投影头训练（重训练，条件触发）🔴 → **①b NO_GO**
 
+- **⚠ ①b → NO_GO（2026-07-14）**：因 Phase 5 FAIL,主动跑 ①b 检验「M1 投影能否救门的 safe-reuse 区分度」。先诊断 Phase 6.0 batch-sep gate FAIL 根因 = April/July 结构性渲染漂移混淆 → owner 裁走方案 ①：弃 April-D+、以同 July-run 的 D+/D− 建混淆-free 数据基座；训投影头（valid_anchor 0.999）+ 投影库 + 重标定 + 离线 GO/NO-GO 门。结果 spatial 投影 B AUROC 0.819 vs raw 0.816、l10 0.760 vs 0.756，ΔAUROC CI 均含 0 → **双 NO_GO,投影零增益**。→ 按触发条件「raw 够则永停 identity」,**M1 不采纳、定格 identity**；Pass-3 GPU 两 suite 皆免。详见 `analysis/phase6_ib_offline_gate_report.md` + [`tracer_phase6_projection_training.log.md`](tracer_phase6_projection_training.log.md)。
 - **目标**：按 InfoNCE（Eq 15）+ 兼容标签（Eq 10–12，`c^A` next-H action / `c^X` denoise snapshot，事实 §2.7）训投影头；host VLA + action expert 冻结。
 - **交付物**：Phase 2 类上 `fit(library)->weights` 的离线 driver + 训练数据构造（从 payload 算兼容标签）+ 冻结权重入投影 artifact。
 - **框架触点**：无（离线，D3）。**重**训练。
 - **触发条件（重要）**：提案 Claim 2 是 **necessity check**（投影可能根本不需要）；**仅当 Phase 7 ablation 显示"候选质量是瓶颈、raw 特征不够"时才启动本期**。否则永久停在 identity（Phase 2 骨架已足）。
 - **前置**：Phase 2 + Phase 7 初轮 ablation。**Level**：L2。
 
-### Phase 7 — 集成评测 + ablation（Claim 1/2/3 验证）🟡
+### Phase 7 — 集成评测 + ablation（Claim 1/2/3 验证）→ **负结果整合报告** 🟡
 
-- **目标**：全线 (SR, inf_ratio) Pareto 评测 + 逐机制 ablation（提案 §11 Claim 1/2/3、§14 step 7）：raw vs 投影、success-only vs dual、fixed vs dynamic depth。
-- **交付物**：`exp/` 评测 driver + 分析报告（`analysis/*.md`）+ 对 Phase 6 是否启动的裁决。
-- **框架触点**：无（exp/ 评测）。**前置**：Phase 3（骨架）→ 首轮可跑；Phase 4/5 后为主轮。**Level**：L2。
+- **定性转向（2026-07-14）**：Phase 5（M2 标定）运行时出场门 FAIL + Phase 6 ①b（M1 投影）NO_GO + **纯 warm-start 经既往实验证明「与全量 inference 开销可比、基本不省算力」** → 三机制无任何「既安全又省算力」的工作点（full-hit 替换省算力但令 SR 崩；warm-start 保 SR 但不省；投影救不了门的区分度）。故 Phase 7 **不再是"证明 Pareto 赢面"，而是把已成定局的负判决整合成一份严谨、可复现、有出场门口径的评测报告**。评测实质数据大半已在手，**基本零新 GPU rollout**。
+- **目标**：在 (SR, inf_ratio) 口径下交出三 Claim 的正式 ablation 判决（提案 §11 Claim 1/2/3、§14 step 7），并对整条 TRACER 检索精炼线给出结论。
+- **三 Claim 判决（数据来源均已在手）**：
+  - **Claim 2（M1 投影，raw vs 投影）= NO_GO** ← Phase 6 ①b 离线门：混淆-free July 数据训练+重标定，spatial 投影 B AUROC 0.819 vs raw 0.816、l10 0.760 vs 0.756，ΔAUROC CI 均含 0 → 投影对失败感知门 safe-reuse 预测零显著增益。
+  - **Claim 1（M2 双检索，success-only vs dual full-hit）= FAIL** ← Phase 5 Pass-3 配对 I_val rollout：calibrated 门令 SR 从 base 0.972→0.776(spatial)/0.856→0.536(l10)，~37–49% FULL_HIT 为 bad。根因 = 离线逐步 `L_cal` proxy 与在线 trajectory 级 SR 不相关，标定必然过度替换而对 SR 盲视 → full-hit action 替换对精密操作本质不安全。
+  - **Claim 3（M3 动态深度，fixed vs dynamic）= moot**：M3 仅优化检索质量/效率；M2 既已 FAIL、检索复用整体不 ship，则深度选择的 Pareto 价值不再单独评估。报告注明其逻辑依赖 M2 成立即闭合 ablation 三元组，**不补新 rollout**（owner 裁 2026-07-14）。
+- **交付物**：`exp/zixuan_proposal/analysis/` 下的整合 ablation/Pareto 报告（复用 Phase 5 Pass-3 + Phase 6 ①b 产物，含 `phase5_scoresum_findings.md` / `phase6_ib_offline_gate_report.md` 的证据）；结论 = **失败感知检索 cache 对精密 VLA 操作无安全且省算力的工作点**（负结果，training-free/训练两路均已验）。
+- **框架触点**：无（exp/ 评测 + 写作）。**前置**：Phase 4 ✅ / Phase 5 ✅（出场门 FAIL 亦为可用判决）/ Phase 6 ✅（①b NO_GO）。**Level**：L2。
 
 ---
 

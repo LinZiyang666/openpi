@@ -113,7 +113,8 @@ def compat_matrix(entries: list[Entry], bw: dict) -> np.ndarray:
     n = len(entries)
     a = np.stack([e.action_flat for e in entries])  # [n, D]
     # c^A: exp(-||a_i - a_j||^2 / sigma_A^2)
-    sq = np.sum((a[:, None, :] - a[None, :, :]) ** 2, axis=-1)  # [n, n]
+    _aa = np.einsum("ij,ij->i", a, a)
+    sq = np.maximum(_aa[:, None] + _aa[None, :] - 2.0 * (a @ a.T), 0.0)  # [n,n] mem-efficient (avoid [n,n,D] OOM)
     c_a = np.exp(-sq / bw["sigma_A_sq"])
     eta = bw["eta"]
     if eta >= 1.0:
