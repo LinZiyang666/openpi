@@ -1,6 +1,6 @@
 # TRACER 检索精炼路线图 — Action-Compatible Failure-Aware Retrieval 的模块化落地
 
-- **Status**: Roadmap（Design-Grounded）— Phase 0 ✅（架构判定/可行性亲验完成）/ **Phase 1 ✅（M3 `dynamic_depth_knn`，G1/G2 APPROVED + §6 Verify green，commit `cea98b2`，2026-07-07；plan 归档 `archive/tracer_phase1_dynamic_depth.log.md`）** / **Phase 2 ✅（M1 `projection` KeyBuilder 骨架，G1/G2 APPROVED + §6 Verify green，2026-07-08）** / **Phase 3 ✅（M2 `dual_retrieval_knn` + `failure_aware_gate` 骨架，G1 R3 / G2 R1 APPROVED + §6 Verify green，2026-07-08）** / **Phase 4 ✅（D⁻ 失败库建库：cache-OFF `serve_policy --collect` 采集；⚠ 首轮误采 pruned/eval 集(污染)→ **held-out 池重采修正**：spatial 18 失败/l10 85 失败,合并 D⁺/D⁻ artifact 两 suite 出场门 PASS,§4 Code + 待 G2 复核,2026-07-10）** / **Phase 5 ⚠（M2 标定：机制码 G2 R4 APPROVED + commit `9383230`；运行时出场门 **FAIL** 两 suite——离线逐步门 proxy 与在线 SR 不相关、full-hit 替换令 SR 崩，2026-07-12）** / **Phase 6 ⚠（M1 投影 ①b：混淆-free July 训练+重标定 → 离线门双 **NO_GO**、投影零增益，M1 定格 identity，2026-07-14）** / **Phase 7 ⬚（转定性为负结果整合报告：三机制无「安全且省算力」工作点，见 §4 Phase 7）**
+- **Status**: Roadmap（Design-Grounded）— Phase 0 ✅（架构判定/可行性亲验完成）/ **Phase 1 ✅（M3 `dynamic_depth_knn`，G1/G2 APPROVED + §6 Verify green，commit `cea98b2`，2026-07-07；plan 归档 `archive/tracer_phase1_dynamic_depth.log.md`）** / **Phase 2 ✅（M1 `projection` KeyBuilder 骨架，G1/G2 APPROVED + §6 Verify green，2026-07-08）** / **Phase 3 ✅（M2 `dual_retrieval_knn` + `failure_aware_gate` 骨架，G1 R3 / G2 R1 APPROVED + §6 Verify green，2026-07-08）** / **Phase 4 ✅（D⁻ 失败库建库：cache-OFF `serve_policy --collect` 采集；⚠ 首轮误采 pruned/eval 集(污染)→ **held-out 池重采修正**：spatial 18 失败/l10 85 失败,合并 D⁺/D⁻ artifact 两 suite 出场门 PASS,§4 Code + 待 G2 复核,2026-07-10）** / **Phase 5 ⚠（M2 标定：机制码 G2 R4 APPROVED + commit `9383230`；运行时出场门 **FAIL** 两 suite——离线逐步门 proxy 与在线 SR 不相关、full-hit 替换令 SR 崩，2026-07-12）** / **Phase 6 ⚠（M1 投影 ①b：混淆-free July 训练+重标定 → 离线门双 **NO_GO**、投影零增益，M1 定格 identity，2026-07-14）** / **Phase 7 ✅（负结果整合报告交付，G1 APPROVED R5：已评估边界内——已评估的 M2 dual 操作点 + M1 reduced 离线门——均未观察到「安全且省算力」工作点（M3 未评估、warm-start 仅背景，皆不进实证综合）；Claim 1 de-scoped/dual 操作点 FAIL、Claim 2 reduced 离线门 NO_GO、Claim 3 owner-de-scoped；报告 `analysis/phase7_tracer_ablation_report.md`，见 §4 Phase 7）**
 - **Date**: 2026-07-07（创建）
 - **来源**: 合作者提案 `TRACER_RETRIEVAL_REFINED_PROPOSAL.pdf`（*Action-Compatible Failure-Aware Retrieval for VLA Inference Caching*，2026-06-10，含显式方程 Eq 1–28）。文中 "TRACER" = 本 fork 的推理 cache 系统；full-hit / warm-start / miss = 我们的 `HitType`。
 - **Level**: 本文件为**研究产物（L0 纯文档）**。它只负责给整条线**排期与定依赖**，不含代码、不走 G1。**每一期的实现仍是独立的 L2/L3，必须各自走 Understand → Plan → G1 → Code → G2 → Verify。**
@@ -130,16 +130,16 @@
 - **触发条件（重要）**：提案 Claim 2 是 **necessity check**（投影可能根本不需要）；**仅当 Phase 7 ablation 显示"候选质量是瓶颈、raw 特征不够"时才启动本期**。否则永久停在 identity（Phase 2 骨架已足）。
 - **前置**：Phase 2 + Phase 7 初轮 ablation。**Level**：L2。
 
-### Phase 7 — 集成评测 + ablation（Claim 1/2/3 验证）→ **负结果整合报告** 🟡
+### Phase 7 — 集成评测 + ablation（Claim 1/2/3 验证）→ **负结果整合报告** ✅（报告交付完成，非实证 ablation 通过；G1 APPROVED R5 2026-07-14）
 
-- **定性转向（2026-07-14）**：Phase 5（M2 标定）运行时出场门 FAIL + Phase 6 ①b（M1 投影）NO_GO + **纯 warm-start 经既往实验证明「与全量 inference 开销可比、基本不省算力」** → 三机制无任何「既安全又省算力」的工作点（full-hit 替换省算力但令 SR 崩；warm-start 保 SR 但不省；投影救不了门的区分度）。故 Phase 7 **不再是"证明 Pareto 赢面"，而是把已成定局的负判决整合成一份严谨、可复现、有出场门口径的评测报告**。评测实质数据大半已在手，**基本零新 GPU rollout**。
-- **目标**：在 (SR, inf_ratio) 口径下交出三 Claim 的正式 ablation 判决（提案 §11 Claim 1/2/3、§14 step 7），并对整条 TRACER 检索精炼线给出结论。
-- **三 Claim 判决（数据来源均已在手）**：
-  - **Claim 2（M1 投影，raw vs 投影）= NO_GO** ← Phase 6 ①b 离线门：混淆-free July 数据训练+重标定，spatial 投影 B AUROC 0.819 vs raw 0.816、l10 0.760 vs 0.756，ΔAUROC CI 均含 0 → 投影对失败感知门 safe-reuse 预测零显著增益。
-  - **Claim 1（M2 双检索，success-only vs dual full-hit）= FAIL** ← Phase 5 Pass-3 配对 I_val rollout：calibrated 门令 SR 从 base 0.972→0.776(spatial)/0.856→0.536(l10)，~37–49% FULL_HIT 为 bad。根因 = 离线逐步 `L_cal` proxy 与在线 trajectory 级 SR 不相关，标定必然过度替换而对 SR 盲视 → full-hit action 替换对精密操作本质不安全。
-  - **Claim 3（M3 动态深度，fixed vs dynamic）= moot**：M3 仅优化检索质量/效率；M2 既已 FAIL、检索复用整体不 ship，则深度选择的 Pareto 价值不再单独评估。报告注明其逻辑依赖 M2 成立即闭合 ablation 三元组，**不补新 rollout**（owner 裁 2026-07-14）。
-- **交付物**：`exp/zixuan_proposal/analysis/` 下的整合 ablation/Pareto 报告（复用 Phase 5 Pass-3 + Phase 6 ①b 产物，含 `phase5_scoresum_findings.md` / `phase6_ib_offline_gate_report.md` 的证据）；结论 = **失败感知检索 cache 对精密 VLA 操作无安全且省算力的工作点**（负结果，training-free/训练两路均已验）。
-- **框架触点**：无（exp/ 评测 + 写作）。**前置**：Phase 4 ✅ / Phase 5 ✅（出场门 FAIL 亦为可用判决）/ Phase 6 ✅（①b NO_GO）。**Level**：L2。
+- **定性转向（2026-07-14）**：Phase 5（M2 标定）运行时出场门 FAIL + Phase 6 ①b（M1 投影）reduced 离线门 NO_GO → **在已评估边界内，已评估的 M2 dual full-hit 操作点 + M1 reduced 离线门均未观察到「既安全又省算力」的工作点**（full-hit 替换省算力但令 SR 崩；投影救不了门的区分度）。**M3 未评估、纯 warm-start（owner 口述既往结论，本 repo 无已提交 cost 产物）仅作背景，皆不进实证综合结论。** 故 Phase 7 **不是"证明 Pareto 赢面"，而是把已跑到的负判决整合成一份严谨、可追溯、有出场门口径的评测报告**。评测实质数据大半已在手，**零新 GPU rollout**。
+- **目标**：在 (SR, inf_ratio) + BHR/FFR/IR 口径下交出**已评估边界内的精确定级判决**（不把 owner 停止决策/未评估比较写成实证 ablation 通过或失败），并对整条 TRACER 检索精炼线在证据边界内下结论。
+- **三 Claim 精确判决（G1 APPROVED；report `analysis/phase7_tracer_ablation_report.md`）**：
+  - **Claim 1（M2 双检索，success-only vs dual）= NOT EVALUATED / de-scoped**；**已评估的两个 dual full-hit 操作点 FAIL 出场门** ← Phase 5 Pass-3 配对 rollout：SR base 0.972→0.776(spatial)/0.856→0.536(l10)。**无 success-only comparator** → 不能交付 proposal-literal Claim 1；直接证据 = 替换 rollout 真在线 SR 下降；`L_cal ⊥ 在线 SR` 仅作与 SR collapse 一致的机制解释（「37–49% FULL_HIT 为 bad」是失败 episode 内 full-hit 占比，episode 级关联非逐步反事实）。
+  - **Claim 2（M1 投影，raw vs projection）= reduced offline rescue 门 NO_GO** ← Phase 6 ①b：spatial 投影 B AUROC 0.819 vs raw 0.816、l10 0.760 vs 0.756，ΔAUROC CI 均含 0。**仅** raw vs action-only 投影 B 的 I_cal AUROC；B-vs-C（denoise）+ downstream SR/IR 未评估 → 非 proposal-literal Claim 2 完整验证。
+  - **Claim 3（M3 动态深度，fixed vs dynamic）= NOT EVALUATED / owner-de-scoped**：无 fixed/oracle/dynamic depth 数据；逻辑闭合（M3 价值以 M2 可 ship 为前提，M2 未过门 → 三元组在 M2 一腿闭合）+ owner 裁不补 rollout（2026-07-14）。**不写成实证通过/失败。**
+- **交付物**：`exp/zixuan_proposal/analysis/phase7_tracer_ablation_report.md`（9 节整合 ablation 报告，复用 Phase 5 Pass-3 + Phase 6 ①b 已提交产物；区分**可追溯≠可复现**，绑 commit `2d0e4cc`）；结论 = **在已评估配置、协议与操作点内，未观察到安全且省算力的 full-hit 替换工作点**（负结果=观察限定，非非存在性证明，边界外不外推）。
+- **框架触点**：无（exp/ 评测 + 写作）。**前置**：Phase 4 ✅ / Phase 5 ✅（出场门 FAIL 亦为可用判决）/ Phase 6 ✅（①b NO_GO）。**Level**：L2。**Plan**：[`tracer_phase7_negative_result_integration.log.md`](tracer_phase7_negative_result_integration.log.md)。
 
 ---
 
@@ -202,4 +202,4 @@ Phase 2 (M1 骨架) ─┘（并入策略）                                    
 
 ---
 
-> **下一步**：Phase 1（M3 动态链深）进入正式 **Understand → Plan → G1 → Code → G2 → Verify**。本路线图作为各期 Plan 的上位依据；每期落地后回填其状态与判决。
+> **进展**：Phase 1–7 全部落地闭环（Phase 1/2/3 ✅ 骨架 → Phase 4 ✅ D⁻ 数据 → Phase 5 ⚠ 出场门 FAIL → Phase 6 ⚠ ①b NO_GO → Phase 7 ✅ 负结果整合报告，G1 APPROVED R5 / G2 APPROVED R4 / §6 Verify green）。本路线图作为各期 Plan 的上位依据，每期落地后回填其状态与判决。**下一步（若继续）**：TRACER 检索线已负结果收尾，无待跑实验；后续方向（逃逸口 / 正交 gate 线待跑阶段 / 收线）待 owner 裁。
