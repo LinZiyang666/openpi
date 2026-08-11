@@ -493,6 +493,29 @@ class CollectionConfig:
 
 
 @dataclass
+class RoutingConfig:
+    """Ablation routing: swap the executor at the CP1 hit / miss slot.
+
+    When present, exactly one of ``hit_to`` / ``miss_to`` names a sidecar
+    endpoint (``"host:port"``) serving the replacement policy over the openpi
+    websocket msgpack protocol. The cache decision chain (gate -> key builder
+    -> search -> judge) is untouched; only the post-verdict executor is
+    swapped (external executor hooks, see docs/architecture/cache_system.md).
+
+    A non-None routing section additionally locks the surrounding config to a
+    positive allowlist (CP1-only, binary threshold verdicts, depth-1 search,
+    read-only serving, no collection) so routed arms stay decision-chain
+    comparable to the baseline; ``validate_cache_config`` enforces the
+    allowlist at YAML load time.
+    """
+
+    hit_to: Optional[str] = None
+    miss_to: Optional[str] = None
+    connect_timeout_s: float = 10.0
+    request_timeout_s: float = 30.0
+
+
+@dataclass
 class CacheConfig:
     """Top-level cache configuration. This is the root dataclass for cache.yaml."""
 
@@ -507,6 +530,8 @@ class CacheConfig:
     backend: BackendConfig = field(default_factory=BackendConfig)
     write_policy: WritePolicyConfig = field(default_factory=WritePolicyConfig)
     collection: CollectionConfig = field(default_factory=CollectionConfig)
+    # Ablation executor routing (None -> inert; see RoutingConfig).
+    routing: Optional[RoutingConfig] = None
 
 
 # ---------------------------------------------------------------------------
@@ -584,6 +609,7 @@ _CONFIG_TYPES: dict[str, type] = {
     "KeyBuilderConfig": KeyBuilderConfig,
     "WritePolicyConfig": WritePolicyConfig,
     "CollectionConfig": CollectionConfig,
+    "RoutingConfig": RoutingConfig,
     "CacheConfig": CacheConfig,
 }
 
@@ -2150,8 +2176,94 @@ def validate_cache_config(config: CacheConfig) -> None:
         )
     )
 
+    # ── Ablation routing allowlist (routing present ⇒ locked config) ──
+    if config.routing is not None:
+        errors.extend(_routing_errors(config))
+
     if errors:
         raise ConfigValidationError("\n\n".join(errors))
+
+
+# Positive allowlist for routing-locked configs. Any component outside these
+# sets can consume broadcast action history or produce non-binary verdicts,
+# which would break the routed-arm vs baseline comparability contract
+# (ablation_study plan §8.2).
+_ROUTING_GATE_TYPES = frozenset({"always_search", "always_skip", "random"})
+_ROUTING_JUDGE_TYPES = frozenset({"threshold", "always_hit"})
+_ROUTING_STRATEGY_TYPES = frozenset({"weighted_score_sum_knn", "weighted_rrf_knn"})
+
+
+def _routing_errors(config: CacheConfig) -> list[str]:
+    """Validate the routing section plus the positive allowlist it implies."""
+    errors: list[str] = []
+    r = config.routing
+    targets = [t for t in (r.hit_to, r.miss_to) if t]
+    if len(targets) != 1:
+        errors.append(
+            "routing requires exactly one of hit_to / miss_to to be a non-empty "
+            f"'host:port' endpoint (got hit_to={r.hit_to!r}, miss_to={r.miss_to!r})."
+        )
+    for t in targets:
+        host, _, port = t.rpartition(":")
+        if not host or not port.isdigit() or not (1 <= int(port) <= 65535):
+            errors.append(
+                f"routing endpoint {t!r} is not 'host:port' with a numeric "
+                "port in [1, 65535]."
+            )
+    import math
+
+    for name, value in (("connect_timeout_s", r.connect_timeout_s),
+                        ("request_timeout_s", r.request_timeout_s)):
+        if not isinstance(value, (int, float)) or not math.isfinite(value) or value <= 0:
+            errors.append(f"routing.{name} must be a finite positive number (got {value!r}).")
+    cps = [cp for cp in config.checkpoints if not cp.startswith("_")]
+    if cps != ["cp1"]:
+        errors.append(
+            f"routing allowlist: checkpoints must be exactly ['cp1'] (got {cps}). "
+            "A configured cp3 would be silently skipped by the miss executor."
+        )
+    cp1 = config.checkpoints.get("cp1")
+    if cp1 is not None:
+        if cp1.gate.type not in _ROUTING_GATE_TYPES:
+            errors.append(
+                f"routing allowlist: cp1.gate.type {cp1.gate.type!r} not in "
+                f"{sorted(_ROUTING_GATE_TYPES)}."
+            )
+        if cp1.judge.type not in _ROUTING_JUDGE_TYPES:
+            errors.append(
+                f"routing allowlist: cp1.judge.type {cp1.judge.type!r} not in "
+                f"{sorted(_ROUTING_JUDGE_TYPES)}."
+            )
+        if cp1.judge.warm_tiers:
+            errors.append(
+                "routing allowlist: cp1.judge.warm_tiers must be absent — the "
+                "executor hooks are FULL_HIT/MISS binary and raise on WARM_START."
+            )
+        ss = cp1.search_strategy
+        if ss.type not in _ROUTING_STRATEGY_TYPES:
+            errors.append(
+                f"routing allowlist: cp1.search_strategy.type {ss.type!r} not in "
+                f"{sorted(_ROUTING_STRATEGY_TYPES)}."
+            )
+        if ss.trajectory_depth != 1 or ss.depth_policy is not None or ss.base_fusion is not None:
+            errors.append(
+                "routing allowlist: search strategy must be depth-1 "
+                "(trajectory_depth=1, no depth_policy, no base_fusion)."
+            )
+        if ss.enable_dual:
+            errors.append("routing allowlist: enable_dual must be false.")
+    if config.write_policy.type != "never":
+        errors.append(
+            f"routing allowlist: write_policy.type must be 'never' "
+            f"(got {config.write_policy.type!r})."
+        )
+    if config.collection.export_collect_meta:
+        errors.append("routing allowlist: collection.export_collect_meta must be false.")
+    if config.backend.type != "in_memory":
+        errors.append(
+            f"routing allowlist: backend.type must be 'in_memory' (got {config.backend.type!r})."
+        )
+    return errors
 
 
 def build_shared_storage(config: CacheConfig):

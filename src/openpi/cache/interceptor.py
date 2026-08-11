@@ -148,12 +148,28 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         export_collect_meta: bool = False,
         collect_fields: tuple[str, ...] = ("robot_state",),
         collect_kb_id: str = "",
+        hit_executor: Optional[Callable[[dict], dict]] = None,
+        miss_executor: Optional[Callable[[dict], dict]] = None,
     ) -> None:
         if not policy._is_pytorch_model:  # noqa: SLF001
             raise ValueError(
                 "InferenceInterceptor only supports PyTorch policies. "
                 "The wrapped policy must be initialised with is_pytorch=True."
             )
+
+        # ---- Ablation executor hooks (default None => byte-identical paths) ----
+        # hit_executor replaces the FULL_HIT payload replay; miss_executor
+        # replaces the MISS-side stage2/3 inference. Both receive the ORIGINAL
+        # client obs dict and must return a client-space outputs dict. Binary
+        # verdicts only: WARM_START raises at run time (routing yamls disable
+        # warm_tiers; validate_cache_config enforces the allowlist).
+        if (hit_executor is not None or miss_executor is not None) and orchestrator is None:
+            raise ValueError(
+                "hit_executor / miss_executor require a cache orchestrator: "
+                "without CP1 verdicts there is no hit/miss slot to route."
+            )
+        self._hit_executor = hit_executor
+        self._miss_executor = miss_executor
 
         self._policy = policy
         # Borrow internals from the wrapped Policy — references only, no copy.
@@ -266,6 +282,10 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         if orchestrator is not None:
             self._timer.register_probe("cp1_sum", backend="cpu")
             self._timer.register_probe("cp3_sum", backend="cpu")
+            if self._hit_executor is not None:
+                self._timer.register_probe("sidecar_hit", backend="cpu")
+            if self._miss_executor is not None:
+                self._timer.register_probe("sidecar_miss", backend="cpu")
             if self._stage3_device != "meta":
                 self._timer.register_probe("stage3_warm", backend=_probe_backend(self._stage3_device))
 
@@ -383,6 +403,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         self._timer.on_task_end()
         if self._orchestrator is not None:
             self._orchestrator.on_task_end()
+        # Deterministic sidecar teardown: executors owning a connection expose
+        # close(); plain callables (tests) are left untouched. getattr keeps
+        # partially-constructed instances (lifecycle tests) valid.
+        for executor in (getattr(self, "_hit_executor", None), getattr(self, "_miss_executor", None)):
+            if executor is not None and hasattr(executor, "close"):
+                executor.close()
 
     # -----------------------------------------------------------------------
     # Prefill API (Step 3 trajectory-deviation spawn runner)
@@ -443,6 +469,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             raise RuntimeError(
                 "prefill_trajectory requires a cache orchestrator, but this "
                 "interceptor was constructed with orchestrator=None."
+            )
+        if self._hit_executor is not None or self._miss_executor is not None:
+            raise RuntimeError(
+                "prefill_trajectory is not supported with ablation executor "
+                "hooks: prefill synthesises FULL_HITs, which would route every "
+                "prefill obs to the sidecar."
             )
 
         for obs, action in zip(observations, actions, strict=True):
@@ -714,6 +746,15 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                             request_context=request_context,
                             **cp1_kwargs,
                         )
+                    if (
+                        (self._hit_executor is not None or self._miss_executor is not None)
+                        and cp1_result.hit_type == HitType.WARM_START
+                    ):
+                        raise RuntimeError(
+                            "Ablation executor hooks are FULL_HIT/MISS binary but "
+                            "CP1 returned WARM_START. Routing yamls must disable "
+                            "warm_tiers (validate_cache_config allowlist)."
+                        )
                     if cp1_result.hit_type == HitType.FULL_HIT:
                         cached_action = cp1_result.payload.action_chunk
                         # Broadcast action + buffer for trajectory write
@@ -722,6 +763,27 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                             self._orchestrator.buffer_for_write(
                                 cp1_result.query_keys, cached_action
                             )
+                        if self._hit_executor is not None:
+                            # Direction-1 routing: the verdict (and its cache
+                            # bookkeeping above) stands, but the executed action
+                            # comes from the sidecar in client space — skip the
+                            # cached-action assembly and _output_transform.
+                            # clear() runs even when the executor raises
+                            # (fail-closed must not leak per-cycle tensors).
+                            try:
+                                with self._timer.measure("sidecar_hit"):
+                                    outputs = self._hit_executor(obs)
+                            finally:
+                                self._orchestrator.clear()
+                            outputs["__hit_meta__"] = self._build_hit_meta(cp1_result)
+                            outputs["__hit_meta__"]["executor"] = "override"
+                            if self._export_collect_meta:
+                                outputs["__collect_meta__"] = self._build_collect_meta(
+                                    cp1_result, self._collect_fields
+                                )
+                                if self._collect_kb_id:
+                                    outputs["__collect_meta__"]["kb_id"] = self._collect_kb_id
+                            return outputs
                         # FULL_HIT short-circuit: skip stage2/3, return the
                         # cached action immediately. ``cached_action`` from
                         # the payload is unbatched; under the legacy path
@@ -748,6 +810,31 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                                 outputs["__collect_meta__"]["kb_id"] = self._collect_kb_id
                         self._orchestrator.clear()
                         return outputs
+
+                if (
+                    self._orchestrator is not None
+                    and self._miss_executor is not None
+                    and cp1_result.hit_type == HitType.MISS
+                ):
+                    # Direction-2 routing: MISS (including gate-skip, which the
+                    # orchestrator reports as MISS/searched=False) executes on
+                    # the sidecar. Stage2/3, CP3, and the MISS-side
+                    # broadcast/buffer bookkeeping are all skipped. clear()
+                    # runs even when the executor raises.
+                    try:
+                        with self._timer.measure("sidecar_miss"):
+                            outputs = self._miss_executor(obs)
+                    finally:
+                        self._orchestrator.clear()
+                    outputs["__hit_meta__"] = self._build_hit_meta(cp1_result)
+                    outputs["__hit_meta__"]["executor"] = "override"
+                    if self._export_collect_meta:
+                        outputs["__collect_meta__"] = self._build_collect_meta(
+                            cp1_result, self._collect_fields
+                        )
+                        if self._collect_kb_id:
+                            outputs["__collect_meta__"]["kb_id"] = self._collect_kb_id
+                    return outputs
 
                 # Cross-device transfer (only when stage placement differs)
                 if self._stage_config is not None and self._stage_config.needs_relocation:

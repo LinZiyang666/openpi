@@ -1,0 +1,6 @@
+# Exact student-venv environment pin (lerobot venv on ziyang10). The modern
+# lerobot.datasets / lerobot.policies API generation is required; the repo's
+# main venv lerobot 0.1.0 does NOT provide it. Provision with:
+#   pip install -r lerobot_requirements.txt && pip freeze > env_lock.txt
+# and attach env_lock.txt next to the freeze manifest (trainers record it).
+lerobot[smolvla]==0.3.3

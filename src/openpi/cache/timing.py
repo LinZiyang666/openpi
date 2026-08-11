@@ -472,6 +472,17 @@ class SystemTimer:
     # Probe registration  (called once at component __init__, not hot path)
     # -----------------------------------------------------------------------
 
+
+    def enable_csv(self, output_dir: str) -> None:
+        """Turn on legacy per-task CSV persistence at runtime.
+
+        Public switch for wrapper code that receives an already-constructed
+        timer (per-connection bundle components) but needs the on-disk
+        artifact (ablation latency runs).
+        """
+        self._output_csv_dir = output_dir
+        self._auto_flush_csv = True
+
     def register_probe(
         self,
         name: str,

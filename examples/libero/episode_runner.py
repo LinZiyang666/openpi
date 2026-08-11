@@ -77,6 +77,9 @@ def _hit_row(task: _task.EpisodeTask, step: int, hit: dict, num_trials_per_task:
         # (N1/N4 client stamp, or a collection run) infer_recorder overrides
         # this with collect_meta.searched, preserving that provenance.
         "searched": hit.get("searched"),
+        # Ablation routing provenance: "override" when a sidecar executor
+        # produced this step's action; absent/None on all non-routed steps.
+        "executor": hit.get("executor"),
     }
 
 
@@ -156,6 +159,19 @@ class LiberoEpisodeRunner(EpisodeRunner):
         # the strategy knows and stamps onto EpisodeTask.extra. Never read the
         # worker's unrelated main.Args default (50): a warmup task (N=2) and an
         # eval task (N=10) must map to distinct global ids matching standalone.
+        _ct: dict = {}  # client-side latency accumulators (main._run_episode fills)
+        # Signature-filtered pass-through: injected run_episode_fn doubles that
+        # predate the client_timing keyword keep working unchanged.
+        import inspect
+
+        try:
+            _params = inspect.signature(self._run_episode_fn).parameters
+            _accepts_ct = "client_timing" in _params or any(
+                p.kind is inspect.Parameter.VAR_KEYWORD for p in _params.values()
+            )
+        except (TypeError, ValueError):
+            _accepts_ct = False
+        _ct_kwargs = {"client_timing": _ct} if _accepts_ct else {}
         _nt = (task.extra or {}).get("num_trials_per_task")
         if _nt is None:
             raise ValueError(
@@ -202,6 +218,7 @@ class LiberoEpisodeRunner(EpisodeRunner):
                 max_steps,
                 infer_recorder=infer_recorder,
                 step_callback=step_callback,
+                **_ct_kwargs,
             )
             # Un-swallowable conductor vision fail-fast: raising here (outside
             # main._run_episode's try) propagates to the worker instead of being
@@ -241,6 +258,14 @@ class LiberoEpisodeRunner(EpisodeRunner):
                 "kb_id": _ep["kb_id"],
                 "collector_schema_version": _COLLECTOR_SCHEMA_VERSION,
                 "attempt": task.attempt,
+            })
+        if _ct:
+            # Client latency persistence (ablation plan latency artifact): one
+            # summary row per episode, filtered from verdict analysis by _kind.
+            per_step.append({
+                "_kind": "client_timing", "task_uid": task.task_uid,
+                "yaml_id": task.yaml_id, "task_id": task.task_id,
+                "subset_init_state_idx": task.episode_idx, **_ct,
             })
         return _task.EpisodeResult(task.task_uid, success=success, n_steps=n_steps, per_step_rows=per_step)
 

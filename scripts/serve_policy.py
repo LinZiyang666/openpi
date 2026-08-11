@@ -395,6 +395,38 @@ def _resolve_collection(cache_config, args) -> tuple[bool, tuple[str, ...]]:
     return export, fields
 
 
+def _build_routing_executors(cache_config, stage_config: StageDeviceConfig | None):
+    """Build (hit_executor, miss_executor) from ``cache_config.routing``.
+
+    Returns (None, None) when no routing section is present — the wrapper
+    chain is then byte-identical to the pre-routing behaviour. The endpoint
+    is probed once per wrapper construction (bounded), so an absent sidecar
+    rejects the connection instead of hanging the first inference.
+    """
+    routing = getattr(cache_config, "routing", None)
+    if routing is None:
+        return None, None
+    if stage_config is not None and (stage_config.has_meta_stage or stage_config.needs_relocation):
+        raise ValueError(
+            "Ablation routing requires legacy stage placement "
+            "(no meta / split-device stages)."
+        )
+    from openpi.cache.sidecar_executor import SidecarExecutor
+    from openpi.cache.sidecar_executor import probe_endpoint
+
+    endpoint = routing.hit_to or routing.miss_to
+    probe_endpoint(endpoint, timeout_s=min(5.0, routing.connect_timeout_s))
+    executor = SidecarExecutor(
+        endpoint,
+        connect_timeout_s=routing.connect_timeout_s,
+        request_timeout_s=routing.request_timeout_s,
+        label=f"sidecar[{endpoint}]",
+    )
+    if routing.hit_to:
+        return executor, None
+    return None, executor
+
+
 def _wrap_policy(
     base_policy,
     args: Args,
@@ -470,6 +502,9 @@ def _wrap_policy(
             library_stats=components.get("library_stats"),
         )
         _cm_export, _cm_fields = _resolve_collection(bundle.cache_config, args)
+        if args.timing_csv_dir:
+            components["timer"].enable_csv(args.timing_csv_dir)
+        _hit_ex, _miss_ex = _build_routing_executors(bundle.cache_config, stage_config)
         policy = InferenceInterceptor(
             policy,
             timer=components["timer"],
@@ -482,6 +517,8 @@ def _wrap_policy(
             export_collect_meta=_cm_export,
             collect_fields=_cm_fields,
             collect_kb_id=bundle.cache_config.key_builder.type,
+            hit_executor=_hit_ex,
+            miss_executor=_miss_ex,
         )
     elif args.cache_config is not None:
         from openpi.cache.config import build_cache_components
@@ -526,6 +563,9 @@ def _wrap_policy(
             library_stats=components.get("library_stats"),
         )
         _cm_export, _cm_fields = _resolve_collection(cache_config, args)
+        if args.timing_csv_dir:
+            components["timer"].enable_csv(args.timing_csv_dir)
+        _hit_ex, _miss_ex = _build_routing_executors(cache_config, stage_config)
         policy = InferenceInterceptor(
             policy,
             timer=components["timer"],
@@ -538,6 +578,8 @@ def _wrap_policy(
             export_collect_meta=_cm_export,
             collect_fields=_cm_fields,
             collect_kb_id=cache_config.key_builder.type,
+            hit_executor=_hit_ex,
+            miss_executor=_miss_ex,
         )
     elif args.cache:
         from openpi.cache.interceptor import InferenceInterceptor

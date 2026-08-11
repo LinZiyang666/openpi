@@ -1,0 +1,24 @@
+suite: libero_spatial
+derived_from: exp/gate_research/config/libero_spatial/eval/cp1_spatial_pool_16__grid3_vision_0@6_vision_1@50_robot_state@43__d1__fh40_ws40_quantile.yaml
+arms:
+- arm: cache_baseline
+  yaml: exp/ablation_study/config/common/libero_spatial_baseline.yaml
+  sidecar: null
+- arm: hit_smolvla
+  yaml: exp/ablation_study/config/small_at_hit/libero_spatial_hit_smolvla.yaml
+  sidecar: smolvla
+- arm: miss_smolvla
+  yaml: exp/ablation_study/config/small_at_miss/libero_spatial_miss_smolvla.yaml
+  sidecar: smolvla
+- arm: pure_smolvla
+  yaml: exp/ablation_study/config/small_at_miss/libero_spatial_allmiss_smolvla.yaml
+  sidecar: smolvla
+- arm: hit_act
+  yaml: exp/ablation_study/config/small_at_hit/libero_spatial_hit_act.yaml
+  sidecar: act
+- arm: miss_act
+  yaml: exp/ablation_study/config/small_at_miss/libero_spatial_miss_act.yaml
+  sidecar: act
+- arm: pure_act
+  yaml: exp/ablation_study/config/small_at_miss/libero_spatial_allmiss_act.yaml
+  sidecar: act

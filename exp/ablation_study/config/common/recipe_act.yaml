@@ -1,0 +1,6 @@
+# Per-task ACT distillation recipe (Phase 1). chunk_size matches the student
+# action contract (10-step env_action_chunk labels).
+chunk_size: 10
+steps: 20000
+batch_size: 64
+extra_args: []
