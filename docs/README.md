@@ -18,7 +18,9 @@ docs/
 ├── experiments/      # Experiment run-books (CP1, temporal prune, trajectory deviation)
 ├── data_collection/  # Data collection (HDF5 schema, --collect flag)
 ├── deployment/       # Deployment / simulator setup (ALOHA, LIBERO)
+├── theory/           # Formal results (Markov inheritance law and proofs)
 ├── papers/           # Related-work bibliographies (inference cache literature, etc.)
+├── iclr/             # ICLR 2027 submission workdocs (TIER outline, experiment designs)
 └── upstream/         # Original upstream openpi docs (remote inference, docker, norm stats)
 ```
 
@@ -81,6 +83,12 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 | [cache/llm_layer_extract.md](cache/llm_layer_extract.md) \[[EN](cache/llm_layer_extract.en.md)\] | CP1 LLM Layer Extract KeyBuilder 使用指南：两步架构（LayerExtractor + PrefixReducer）、attach_model 注入、离线 Stage 1 重建契约（重 tokenize + tokenizer self-check）、在线/离线 parity test |
 | [cache/verdict_factor_judge.md](cache/verdict_factor_judge.md) \[[EN](cache/verdict_factor_judge.en.md)\] | **2026-05-07 重构 G1 APPROVED**：5 因子 → **17 因子扁平化** (`<descriptor>_<source>_<channel>` + `topk_action_variance`)；4 desc 改名 (`dir→direction`, `curv_radius→dispersion`, `cum_disp→path_length`)；judge **4 层正交架构** (Normalization → Factor → Calibration → Composer)；**no cold-start** (启动 fail-fast，废除 `cold_start_strategy` / `all_nan_fallback` / `sentinel`)；wire schema_version=2 (`factor_outputs.{raw, calibrated, composer_score}`)；详细方案见 [`logs/archive/verdict_factor_judge_refactor.log.md`](../logs/archive/verdict_factor_judge_refactor.log.md) |
 
+### [theory/](theory/)
+
+| File | Description |
+|------|-------------|
+| [theory/markov_inheritance.md](theory/markov_inheritance.md) | **马尔可夫继承定律的形式化与证明**（training-free 检索式 cache）。引理 1（无记忆 teacher ⇒ 标签条件独立 `I(a*;h|o)=0`）；**引理 2（去噪上界 `I(a*;h|k) ≤ I(a*;o|k)`：历史能贡献的信息量被 key 的有损度封死，即 rescue-the-weak 的定理化）**；命题 3（阶段吸收——E1-O 检验的正是它的前提）；定理 4 + 推论 4.1（对数损失下"历史带来的模仿误差改善"恰等于 `I(a*;h|k)`，故 ≤ key 有损度）；命题 5（success 过滤 = collider 条件化，历史唯一的正面通道，附两分支闭式例子 0 → 1 bit）；命题 6（非负可加打分类无法表达差分核 ⇒ 171 形状搜索的空集由算子类预定）。§8 逐条对应实验、§9 明列**不**主张的内容（不主张 `I(a*;h|k)=0`、不主张成功率天花板定理、不主张 collider 通道不存在）。配套实验：[`exp/markov_sufficiency/`](../exp/markov_sufficiency/analysis/synthesis.md) |
+
 ### [experiments/](experiments/)
 
 | File | Description |
@@ -116,7 +124,16 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 |------|-------------|
 | [papers/inference_cache_related_work.md](papers/inference_cache_related_work.md) | Related-work bibliography for inference caching / retrieval-augmented control in robotics, organized by proximity to our cache system (RT-Cache, VINN, VLA-Cache, BAC, RTC, Behavior Retrieval, etc.) |
 | [papers/cloud_edge_deployment.md](papers/cloud_edge_deployment.md) | Cloud/edge deployment, brain-cerebellum split, fleet serving, compute/energy efficiency — deployment-context motivation for inference cache |
-| [papers/paper_workbench.md](papers/paper_workbench.md) | Paper workbench: idea → method → story → experiments, living document |
+| [papers/paper_workbench.md](papers/paper_workbench.md) | Paper workbench: idea → method → story → experiments, living document（⚠ ENGRAM 旧叙事，已被 TIER 方向取代，待重写；现行论文工作文档见 [iclr/](iclr/)） |
+
+### [iclr/](iclr/)
+
+ICLR 2027 投稿（TIER: experience-tiered inference）论文工作文档。
+
+| File | Description |
+|------|-------------|
+| [iclr/tier_paper_outline.md](iclr/tier_paper_outline.md) \[[ZH](iclr/tier_paper_outline.zh.md)\] | TIER 论文提纲 v2：thesis「库的价值在索引不在 payload」、9 页结构/float 台账/appendix 预算/3 贡献；4 审稿人对抗评审 32 findings 裁决修订（裁决日志在文末）；scope lock=无 history 项、Markov 继承线独立成文 |
+| [iclr/tier_experiment_designs.md](iclr/tier_experiment_designs.md) | 实验设计全卡 X1–X13（目的/设计/产出/判读分支含预注册负结果结论）+ 前置基建清单 + 波 0–3 执行顺序 |
 
 ### [upstream/](upstream/) — Original upstream openpi docs
 

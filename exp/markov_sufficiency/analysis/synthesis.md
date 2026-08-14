@@ -1,7 +1,8 @@
 # Synthesis — history 无增量假说的五项判别实验
 
 > 逐实验报告：[`e1_residual.md`](e1_residual.md)、[`e2_forensics.md`](e2_forensics.md)、[`e3_aliasing.md`](e3_aliasing.md)、`e4_index_filter.md`、`e5_d3_confirmatory.md`
-> 计划与执行记录：[`../../logs/markov_sufficiency_plan.log.md`](../../logs/markov_sufficiency_plan.log.md)
+> 计划与执行记录：[`../../logs/markov_sufficiency_plan.log.md`](../../../logs/markov_sufficiency_plan.log.md)
+> **形式化与证明**：[`docs/theory/markov_inheritance.md`](../../../docs/theory/markov_inheritance.md) —— 引理 2（去噪上界）给出本文全部实证的理论位置
 > **全部五项实验已完成**（离线 E1/E1-O/E3 + rollout E4/E5 共 12,400 个配对 episode，2026-08-14 收官）。
 
 ---
