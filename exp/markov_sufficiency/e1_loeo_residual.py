@@ -395,18 +395,37 @@ def _cell_verdict(cell: dict[str, Any]) -> str:
     return "inconclusive"
 
 
-def dose_response(by_key_builder: Mapping[str, list[dict[str, Any]]], group: str, k: int = PRIMARY_K) -> dict[str, Any]:
+def dose_response(
+    by_key_builder: Mapping[str, list[dict[str, Any]]],
+    group: str,
+    k: int = PRIMARY_K,
+    *,
+    fold_assignment: Mapping[str, int] | None = None,
+    swap: bool = False,
+) -> dict[str, Any]:
     """Cross-fitted key-quality vs history-gain trend (exploratory, n = builders).
 
     ``x`` (key quality) and ``y`` (relative gain) are computed on disjoint
     episode halves so they do not share the same ``r_A`` term; sharing it would
     manufacture correlation independent of the hypothesis.
+
+    ``fold_assignment`` maps ``trajectory_id -> 0 | 1`` so the caller can supply
+    the plan's task-stratified random split; without it the halves fall back to
+    a deterministic split of the sorted episode ids. ``swap`` exchanges the two
+    folds, which is how the plan's "run it again with the folds reversed and
+    report both" is obtained without re-running LOEO.
     """
     xs, ys = [], []
     for builder, rows in sorted(by_key_builder.items()):
         episodes = sorted({r["trajectory_id"] for r in rows})
-        half = len(episodes) // 2
-        fold1, fold2 = set(episodes[:half]), set(episodes[half:])
+        if fold_assignment is not None:
+            fold1 = {e for e in episodes if fold_assignment.get(e, 0) == 0}
+            fold2 = {e for e in episodes if fold_assignment.get(e, 0) == 1}
+        else:
+            half = len(episodes) // 2
+            fold1, fold2 = set(episodes[:half]), set(episodes[half:])
+        if swap:
+            fold1, fold2 = fold2, fold1
         a1 = aggregate([r for r in rows if r["trajectory_id"] in fold1], group, k)
         a2 = aggregate([r for r in rows if r["trajectory_id"] in fold2], group, k)
         if a1["median_residual_A"] != a1["median_residual_A"] or a2["relative_delta"] != a2["relative_delta"]:

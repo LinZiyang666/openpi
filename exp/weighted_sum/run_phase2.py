@@ -53,6 +53,12 @@ def main():
     ap.add_argument("--task-suite", default="libero_spatial")
     ap.add_argument("--total-inits", type=int, default=50)
     ap.add_argument("--episode-timeout-s", type=int, default=1800)
+    ap.add_argument(
+        "--init-states-dir", default="",
+        help="init-state pool the workers draw from (e.g. exp/common/data/db_init/libero/<suite>). "
+        "Empty = the LIBERO benchmark's own pool. The two pools are disjoint, so a second pass "
+        "over the other pool enlarges the paired episode set without weakening the leak guard.",
+    )
     ap.add_argument("--workers", type=int, default=48, help="worker processes on this client machine")
     ap.add_argument("--gpus", type=int, default=8, help="GPUs to round-robin workers across (EGL slots)")
     ap.add_argument(
@@ -183,6 +189,7 @@ def main():
             gpu_id=str(i % args.gpus),
             conda_env=args.conda_env,
             task_suite_name=args.task_suite,
+            init_states_dir=args.init_states_dir,
         )
         for i in range(n_workers)
     ]

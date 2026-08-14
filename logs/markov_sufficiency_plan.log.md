@@ -793,3 +793,226 @@ Phase 5  合并分析与报告
 - [Non-blocking] [Suggestion] `write_rows()` 的 JSONL fallback 已在 manifest 的 artifact 路径中显式体现；正式 Phase 1 环境应预先确认 parquet engine 可用，从而得到 §6 首选的 parquet 产物。fallback 本身不改变统计结论。
 
 Round 5 的两个 Blocking 均已关闭：E1 的注册路径现在强制两 suite、自动计算并注入四-cell pilot power、输出 family/manifest/逐步行产物；E2 的 suite A/B 共用 fail-closed join gate，第二-suite参数为全有或全无。独立 reviewer probes **8 passed**；本轮聚焦 E1/E2 测试 **42 passed**；上一轮完整任务集 **150 passed, 1 skipped**（唯一 skip 为低于预注册 denominator floor 的合成 E3 cross-suite case，不是产品失败）；ruff 全绿，staged diff check 通过。G2 checklist 全部满足。
+
+---
+
+## 13. 执行记录（§11-5 的逐 Phase 记录）
+
+> 本节在主跑期间追加，与 Review Log 分开；Review Log 保持 G2 APPROVED 时的终态不再改动。
+
+### 13.1 设备与拓扑（实际执行）
+
+| 阶段 | 实际设备 | 与 §10 的差异及理由 |
+|---|---|---|
+| Phase 0–2（离线 CPU） | **本地 weiland-wsl**（20 核） | §10 写的是 weilandserver 限核 40。实际改在本地：① 六个 key builder 的 artifact、`gate_rows.jsonl`、`weighted_sum/config` 全部只在本地有完整副本（weilandserver 只有 `cp1_spatial_pool_16` 两份，且无 gate_rows、无 weighted_sum config），迁移需传 ~4.6 GB；② E1/E3 的热点是 BLAS 点积，实测本地单流程更快。**不改变任何科学内容，只是设备选择。** |
+| Phase 3–4（rollout） | weilandserver，pi05 server `:8010` + LIBERO client 本机闭环 | 与 §10 一致 |
+
+### 13.2 Phase 0（完成 2026-08-13）
+
+- G2 R7 的两条非阻塞前置已闭合：① 补 E3 的 two-suite orchestration（`run_suite` / `run_family` / `--suite-spec` + 7 个测试，含不 skip 的 CLI 产物断言）；② parquet 双端确认（本地与 weilandserver 的 venv 均为 pandas 2.3.3 + pyarrow 23.0.1，实跑产物确为 `.parquet`）。
+- §8 parity gate 与全部单元测试通过：`tests/markov_sufficiency/` **165 passed, 1 skipped**。
+- **E1 pilot 功效已由驱动实算**（不再是假设），四个 primary cell 的 power 见 §13.3，据此按 §3.1 的预注册规则自动降级。
+
+### 13.3 Phase 1 — E1 / E1-O（完成）
+
+四个 primary cell（`k=1`，Holm 族）：
+
+| suite | group | median r_A | HL | Δ% | Holm 拒绝 | pilot power | 判决层级 |
+|---|---|---|---|---|---|---|---|
+| libero_10 | B-d3 | 0.1519 | +0.00435 | **+2.86%** | ✓ | 0.990 | `inconclusive`（拒绝零假设但未过 5% 效应地板） |
+| libero_10 | C-g1.0 | 0.1519 | −0.00264 | −1.74% | ✗ | 0.713 | `estimation_only_underpowered` |
+| libero_spatial | B-d3 | 0.2189 | +0.01172 | **+5.35%** | ✓ | 0.732 | `estimation_only_underpowered` |
+| libero_spatial | C-g1.0 | 0.2189 | +0.01926 | **+8.80%** | ✓ | 0.352 | `estimation_only_underpowered` |
+
+**E1-O（H-B 的真检验，§5.1 预注册规则：Δ% ≥ 5% 且 CI 下界 > 0 才算支持 H-B）**：8 个 cell 中 **0 个** 达标；6 个 `not_supported`、2 个 `positive_but_below_floor`（ε=0.10 且 d=3：l10 +3.44%、spatial +4.17%）。**关键观察**：spatial 在 ε=0.05 下 Δ% = **0.00%** —— 严格进度对齐后，B 相对 A 的增益完全消失，说明未对齐时那 +5.35% 主要是"历史在补偿阶段错位"，而非历史携带了 Markov 之外的信息。
+
+exploratory 网格另有一条与表达力直接相关的观察：**k=5 下效应普遍远大于 k=1**（例：libero_10 `C-g0.5` 由 −0.20% 跳到 +10.24%）。生产口径是 `top_k=1`，故这部分增益在生产路径上取不到。
+
+### 13.4 Phase 1 — E3（primary 完成，6-builder 网格进行中）
+
+`cp1_spatial_pool_16` 两 suite（10,000 次 cluster bootstrap）：
+
+| suite | τ_a^phys（冻结对拍） | W | n_pairs | n_high_sim | ADR | ADR CI | random ADR | diff CI | verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| libero_10 | 2.0036 ✓ | 8 ✓ | 290,533 | 2,905 | **2.79%** | [1.19%, 4.53%] | 47.25% | [−46.58%, −41.96%] | `almost_no_aliasing` |
+| libero_spatial | 1.9994 ✓ | 6 ✓ | 42,499 | 425 | **0.24%** | [0.00%, 1.55%] | 48.00% | [−59.51%, −45.43%] | `almost_no_aliasing` |
+
+跨-suite（draw-wise）：`ADR_l10 − ADR_spatial` = **+2.55pp**，CI [+0.57, +4.41]。
+
+`|Δcycle|` 分层显示 ADR 随时间间隔单调上升（l10：0–2 → 1.23%、3–5 → 6.81%、>5 → 16.02%），即"高相似且时间接近"几乎从不分歧；spatial 的前两档因低于 200 对门槛按预注册规则留空。
+
+### 13.5 Phase 2 — E2-secondary（完成）
+
+时间轴 gate 全过（`replan_steps = 5`，0 非整除 / 0 spacing 异常 / 0 非连续 / 0 quarantine），`winner_id` → 库 join **100%**（spatial 30,637/30,637；l10 104,319/104,319），**错任务率 0**（data-integrity gate 通过）。
+
+| suite | K | 保留/总 episode | 错阶段率差（失败 − 成功） | CI | CMH p | Holm | verdict |
+|---|---|---|---|---|---|---|---|
+| libero_10 | 34 | 1790/2000 | **+16.48pp** | [+11.68, +21.26] | 6.2e−23 | 拒绝 | `aliasing` |
+| libero_spatial | 17 | 1353/1500 | +2.05pp | [−0.07, +4.61] | 0.0023 | 拒绝 | `inconclusive`（CI 含 0，按规则不下结论） |
+
+W 敏感性（spatial）：W=4 → +5.12pp、W=8 → −0.17pp —— **方向随 W 翻转**，必须在报告中与主口径并列，spatial 的结论对 W 的选择不稳健。
+
+### 13.6 Phase 3 — E4（进行中）
+
+- 臂矩阵按 §5.4 emit 完毕（2 suite × 5 臂）并逐一核对 depth / weights / step_filter / step_window；E5 的 4 臂（0.62/0.37/0 base 的 d1 anchor + top-3 d3 形状 [0.2,0.1,0.7] / [0.2,0.3,0.5] / [0.5,0.2,0.3]）亦已 emit 并与 `results.md` 的 rank 1–3 逐向量核对。
+- **§5.2 的 smoke 验收全部通过**：10 ep 无 error，per-step 322 行中 312 行带 `winner_id`，`hit_type` 全为 `FULL_HIT`（`always_hit` 语义符合），`success` 字段齐备 ⇒ **E2-primary 的采集路径确认可用，补采成本为零**。
+- **两个 init 池的零交集已实测复核**（不是转述）：两 suite 每 task 各 50 个 init，官方 `pruned_init` 与 `db_init` 的逐行精确交集 = **0**。故官方池对库无泄漏，其 leak guard 恒为空（`config/init_guard/PROVENANCE.txt` 记录了测法与结论）；`db_init` 池仍走真实 guard。
+
+### 13.7 执行期偏离与事故记录
+
+| # | 事项 | 处置 |
+|---|---|---|
+| D-1 | **改动 `src/openpi/`**（plan 头部声明"不改动"）：`WorkerSpec` 增加默认空的 `init_states_dir` 字段并在 `_default_spawn` 中按需透传，`run_phase2.py` 增加同名 flag。原因：§3.5.2 的 950 ep/臂 = 官方池 500 + db_init 池 450，而 conductor 路径此前无法指定 init 池，只能跑官方池。 | **已向 owner flag 并获批**（2026-08-13）。纯 additive、默认值保持既有行为，补 2 个回归测试（透传 / 未设时 argv 逐字节不变）。blast-radius 测试 `tests/conductor tests/weighted_sum tests/markov_sufficiency` **254 passed, 1 skipped**。 |
+| D-2 | 新增 `analyze_e1_secondary.py`（§6 代码清单未列）。原因：§5.1 预注册了 E1-O，但 `run_family` 只输出 4 个 primary cell，E1-O 的行虽已落盘却无聚合路径。 | 只读 parquet、不重跑 LOEO、不发 family verdict；补 11 个测试（含"oracle 基线必须是 oracle-aligned A"的反例）。 |
+| D-3 | E3 的 `run_suite` / `run_family` / `--suite-spec` 与 `cross_suite_difference(analysis_a=, analysis_b=)`。 | G2 R5/R7 的非阻塞建议，plan §10 已登记为 Phase 1 前置；单 suite CLI 行为逐字节保持。 |
+| D-4 | **事故：CUDA OOM 污染 517 ep**。起初配置为 2 个 pi05 replica + 6 worker，与 ablation 训练进程叠加后超出 4090 显存，server 抛 `torch.OutOfMemoryError`，经 websocket 1011 到达 client 并把 episode 记为 failed。 | 该批 **整批作废**（不做"污染 vs 真实失败"的事后甄别，因为间歇性 OOM 无法可靠区分），移入 `discarded_oom_batch/` 并附 `WHY.txt` 留审；改为 **1 replica + 8 worker** 重跑，实测反而更快（0.57 vs 0.37 ep/s ⇒ 瓶颈是 worker 不是 server），显存余量 ≥ 7 GiB。owner 裁决**不额外协调显存**，故全程按 1 replica 配置执行。 |
+
+### 13.8 Phase 1 补充 — E3 的 key builder 谱系（完成）
+
+6 个 key builder 在**同一 grid 点**（`grid3_vision_0@12_vision_1@12_robot_state@75`）上重跑，差异只来自 key 编码。**12 个 (builder, suite) 组合全部判 `almost_no_aliasing`**：spatial 落在 0.24–0.71%、libero_10 落在 2.03–2.38%，随机对照恒为 47–48%（与 key 编码无关，正确性 sanity check）。
+
+代价：这 6 种编码在混叠意义上**高度同质**，因此该谱系不能论证"key 越强混叠越少"。E1 的剂量-反应独立地撞上同一堵墙（x 轴 `median r_A` 的跨 builder 相对跨度只有 spatial 7.5% / libero_10 2.6%，远小于 y 的变异），故剂量-反应的结论是**"这个检验没被真正执行"**，不是"趋势不存在"。要做这个检验需要刻意构造弱 key（降维 / 加噪），本 plan 未采集。
+
+⚠ 过程记录：E3 的 keybuilder 网格脚本一度把主口径产物 `family__cp1_spatial_pool_16.json` **同名覆盖**（谱系用统一 grid 点，主口径用各 suite 的 E4 base 配置，是两套 yaml）。已发现并以独立文件名 `primary__e4_base_config.json` 重跑主口径，两套口径在报告中分列。
+
+### 13.9 Phase 3 拓扑变更与第二起事故（2026-08-13 16:00–16:10）
+
+**拓扑变更（owner 授权 ziyang10）**：rollout 由单机改为双 server —— weilandserver 本地 `:8010`（4090，1 replica）+ jupyter-ziyang10 `:8020`（H200，2 replica，经 broker `linziyang.top:14032`）；全部 LIBERO worker 仍在 weilandserver（88 核），只有 infer 调用过 broker。实测吞吐由 **0.50 → 0.88 ep/s**。
+
+| # | 事项 | 处置 |
+|---|---|---|
+| D-5 | **在共用节点上误杀他人进程**：在 ziyang10 起 server 时照搬了 skill §3.7 的清理模板 `pkill -9 -f "[s]erve_policy.py"`，而彼时另一 session 的 `zy10_l10_stack.sh` 正在同一 pod 部署，其 server 大概率被连带杀死（GPU 随后归零、对方脚本空转在 ready-wait 循环）。 | 已向 owner 如实上报并请其转告该 session。本 session 改用**独立端口 8020 + 独立 tmux 名 `msuf_srv0`**，此后在共用节点**一律不使用 `pkill -f` 泛模式**，清理只允许 `tmux kill-session -t <自己的会话>` 或精确 PID。教训已写入 memory。 |
+| D-6 | **显存超售 → 22 worker 抢卡**：切换拓扑时新旧两个 conductor 短暂并存（16 + 6 worker），4090 显存打满，MuJoCo 离屏渲染上下文创建失败（`MjRenderContextOffscreen has no attribute 'con'`），并遗留 **60 个孤儿 worker 占住 33 GiB**。 | 按 `ppid == 1 && argv ~ worker_entry` 精确回收（ablation 的 `serve_policy` / `sidecar_server` 全程未受影响，已逐一验证）。此后**同一时刻只跑一个 conductor**，worker 总数按实测 0.55 GiB/worker 的 EGL 足迹定为 **14**（留 >4 GiB 余量）。 |
+| D-7 | **per_step 无 checkpoint**：`run_phase2 --per-step-out` 在进程退出时一次性写盘，conductor 被 kill 则已跑 episode 的 winner 记录全部丢失。A0 臂官方池 500 ep（SR 0.674）因此失去 per_step，而 E2-primary 要求 per_step 与配对的 SR **来自同一批 rollout**。 | ① 该 500 行从 journal 中**定点删除**以便重采（A1 的 456 行原样保留 resume，不做无谓重跑）；② 修法：此后每个批次的 per_step 写入**带时间戳的独立分片** `per_step__MMDD_HHMMSS.jsonl`，resume 只新增分片、绝不覆盖，分析阶段合并全部分片。 |
+
+**journal 层面本来就有 checkpoint**（episode 级 append-only，`ConductorDriver` 按 `task_uid` 跳过已完成项），本次重启即以 resume 方式进行（456 → 723 行连续增长，无重跑）。两次"整批作废"分别源于 **CUDA OOM 污染**（D-4：failed 行无法与真实任务失败区分，且 resume 会把它们当作已完成）与 **per_step 缺失**（D-7），都不是 checkpoint 机制的缺陷。
+
+### 13.10 第三起事故与一个会静默吃掉整批数据的 bug（2026-08-13 16:40–17:10）
+
+**bug（提前捕获，未造成损失）**：`_timeaxis.to_cycles` 用 `_kind == "episode_summary"` 识别非-step 的 sidecar 行，但那是 **gate_research 采集器**的标签；**conductor 的 per-step writer 用的是 `"client_timing"`**。后者因此被判为"缺 `step_idx`"的异常，按 §3.3.0 的 fail-closed 规则**把整个 yaml quarantine**，`kept_rows = 0`。
+
+后果本会是：E4 的 A0 臂 per-step 全部作废 ⇒ **E2-primary 没有任何数据**，且要到主跑结束、分析阶段才会发现。之所以提前发现，是因为在 rollout 进行中就用 smoke 的 per-step 把 E2-primary 管线**端到端试跑了一遍**。
+
+修法：sidecar 行改按 **schema** 判定（任何带 `_kind` 标签的行都不是搜索步），而不是匹配某一个标签值；`missing_step_idx` 的 fail-closed 语义原样保留（补了反例测试确认没被削弱）。blast-radius 测试 `tests/markov_sufficiency tests/conductor tests/weighted_sum` **292 passed, 1 skipped**。
+
+**事故（本地 4090 二次污染）**：与 ablation 训练进程共卡，显存从 8.5 GiB 一路跌到 142 MiB，本地 server 推理时 OOM，`libero_spatial` 批次产生 **75 个 raised + 70 个 1011**。同期走 ziyang10 的 `libero_10` 批次 **0 污染**。
+
+处置与当前拓扑：
+- 停本地 spatial 批次并**下线本地 replica**（这张卡的余量由别人的训练进程支配，不可控）；ziyang10 批次不受影响地继续；
+- 再次确认 **raised 的 episode 从未进入 journal**（`dropped_contaminated = 0`），故 journal 始终干净：spatial 现存 A1 500 + A2 500 + A3 195，A0 因 per-step 需求定点删除待重采；
+- l10 批次加宽到 10 worker（约 33 infer/s，对 ziyang10 三 replica 实测上限 ~38 infer/s 留余量），显存回到 12.9 GiB 空闲；
+- **结论性教训：weilandserver 的 4090 与他人训练共用，不适合承载本实验的推理**；推理集中在独占的 ziyang10 H200，weilandserver 只承担 LIBERO 仿真（EGL，约 0.55 GiB/worker）。
+
+**三次"整批作废"的根因各不相同，都不是 checkpoint 机制的缺陷**：D-4 是 OOM 把 episode 写成 failed（resume 会当作已完成）；D-7 是 per_step 无中途落盘；本次是 raised 根本没进 journal（journal 干净，只是 A0 需要重采 per_step）。per_step 分片写入已消除第二类问题。
+
+### 13.11 E4 中期发现：`step_filter` 会制造 MISS，`always_hit` 的"每步都有 winner"假设不成立
+
+spatial 五臂跑满后按臂统计 per-step 的 `hit_type`：
+
+| 臂 | 配置 | MISS 率 | mean `cp1_score` |
+|---|---|---|---|
+| A0 | d1 + all | **0%**（全 FULL_HIT） | 0.941 |
+| A2 | d3 + all | **0%** | 0.909 |
+| A1 | d1 + window5 | **20.2%** | 0.968 |
+| A3 | d3 + window5 | **19.6%** | 0.955 |
+| A4 | d3 + exact | **23.9%** | 0.968 |
+
+plan §5.2 写的"`always_hit` 下每个搜索步都有 winner，不存在阈值拒绝造成的选择"**只在无 `step_filter` 时成立**。带 filter 的臂里，MISS 不是 judge 拒绝，而是 **index 过滤把候选集清空**，这些步回退到 teacher 推理。
+
+**对判读的影响**：
+
+- `A1 − A0`（描述性，+4.8pp on spatial）**不能**读作"过滤提高了检索质量"——它是"过滤 + 约 20% 的步改用 teacher"的**联合效应**，而 teacher 的 anchor SR（0.83）高于任何 cache 臂，少用 cache 本身就会抬 SR。报告须在该行旁标注。
+- **primary 对比 `A3 − A1` 不受影响**：两臂 MISS 率几乎相同（19.6% vs 20.2%），回退成分对消，depth 效应的对比仍然干净。
+- **E2-primary 不受影响**：其数据源 A0 无 filter，100% FULL_HIT。
+- A4（exact）MISS 最高（23.9%）且 SR 最高（0.730），与 plan §5.4 预警的"候选塌陷"一致；它本就登记为 exploratory，现有理由更充分——它测的与其说是 exact 对齐的价值，不如说是"更频繁地放弃 cache"。
+
+补充口径：报告 E4 时须同时给出各臂的 MISS 率，否则 SR 的跨臂比较会被误读为纯检索质量比较。
+
+### 13.12 无人值守收尾指令（owner 2026-08-13 22:15 离线前授权）
+
+owner 已就寝，授权自主跑完，**全程不得触发任何阻塞窗口**。cron `daf427a7`（每 15 分钟）为驱动。
+
+**待执行清单**（按序）：
+
+1. 等 `e5-official`（2000 ep）与 `e5-db`（1800 ep）跑满 ⇒ 总计 12400/12400。
+2. 拉回 raw 数据到本地，跑 E5 分析：
+   ```
+   PYTHONPATH=. uv run exp/markov_sufficiency/journal_to_arms.py \
+     --batch official=exp/markov_sufficiency/data/e5/libero_10/official/journal.jsonl \
+     --batch db_init=exp/markov_sufficiency/data/e5/libero_10/db_init/journal.jsonl \
+     --out-dir exp/markov_sufficiency/data/e5/arms_libero_10
+   PYTHONPATH=. uv run exp/markov_sufficiency/e45_rollout_analysis.py --mode e5 \
+     --arms "anchor=<...e5_l10__d1_anchor.json>,shape0=<...shape0.json>,shape1=<...shape1.json>,shape2=<...shape2.json>" \
+     --adr-ranking exp/markov_sufficiency/data/e3/primary__e4_base_config.json \
+     --adr-suite libero_10 \
+     --task-map exp/markov_sufficiency/data/e2/task_map_libero_10.json \
+     --out exp/markov_sufficiency/data/e5/e5_result.json
+   ```
+   判读为**估计性四分**（plan §5.5）：CI 上界 < +4pp ⇒ 原 d3-trough 不被支持；CI 下界 > 0 ⇒ 复现；其余 ⇒ 证据不足。**禁止**用 p 值对 4pp 下结论。
+3. 写 `analysis/e5_d3_confirmatory.md`；补完 `analysis/synthesis.md` 的 §4/§5/§6 判决表。
+4. 按 §11-3 回写讨论纪要 `history_similarity_markov_sufficiency_discussion.log.md` 的 §14。
+5. **释放全部显存**（owner 明确要求）：
+   - weilandserver：`tmux kill-session -t ms_srv0`（本地 replica ~7.8 GiB）；按 `ppid==1 && argv 含 worker_entry` 精确回收残留 worker；**严禁 `pkill -f` 泛模式**（该机与 ablation 训练共用）。
+   - ziyang10：`tmux kill-session -t msuf_srv0`（3 replica ~23 GiB 显存 / 17 GiB RAM）；`tether expose rm jupyter-ziyang10 --name msuf-zy2` 归还 broker 端口 14032。
+   - 两端各验一次 `nvidia-smi`，确认只剩他人进程。
+6. `CronDelete daf427a7` 自停，留交接报告。
+
+**不得执行**：`git commit` / `git push` / 任何高危 git 操作 —— 执行授权 §7 要求 owner 逐次明确指示，无人值守 mandate 不涵盖。工作树保持原样待 owner 醒后 review。
+
+---
+
+## 14. 收官记录（2026-08-14 00:40 CDT）
+
+### 14.1 采集完成
+
+**12,400 / 12,400 配对 episode**，六个批次全部跑满，全程 `episodes raised = 0`（无基础设施污染）：
+
+| 批次 | ep | per-step 分片 |
+|---|---|---|
+| E4 spatial official | 2500 | 15 MB |
+| E4 spatial db_init | 1800 | 21 MB |
+| E4 libero_10 official | 2500 | 72 MB |
+| E4 libero_10 db_init | 1800 | 53 MB |
+| E5 official | 2000 | 59 MB |
+| E5 db_init | 1800 | 55 MB |
+
+每臂 950 ep（A4 与 E5 各臂同）＝ 官方 pruned 池 500/450 + db_init 池 450，两池在 journal 与 per-step 两侧均经池偏移隔离。
+
+### 14.2 全部判决
+
+| 实验 | 判决 |
+|---|---|
+| E1 | 3/4 primary cell 区间下界 > 0（spatial B-d3 +5.35%、C-g1.0 +8.80%、l10 B-d3 +2.86%），但均未达二元判决（效应地板 / pilot power），降为估计性 |
+| E1-O | **8/8 cell 不支持 H-B**；spatial ε=0.05 下 Δ% = 0.00%，候选池未退化（中位 8–20，无一 ≤1） |
+| E2-primary | libero_10 **`aliasing`** +26.85pp [+21.52, +31.85]；spatial `inconclusive` +6.88pp（未过 δ_E2=10pp） |
+| E2-secondary | libero_10 `aliasing` +16.48pp；spatial `inconclusive` +2.05pp（CI 含 0，方向随 W 翻转） |
+| E3 | **12/12 (builder, suite) 组合 `almost_no_aliasing`**；ADR 0.24–2.79% vs 随机对 47–48% |
+| E4 | 两 suite primary 均无改善（spatial −2.21pp 触发预注册降级；l10 +0.21pp）；**两个 interaction CI 均含 0** |
+| E5 | 原 d3-trough **未复现**：rank1/2 各 −0.11pp（`not_supported`）、rank3 +2.42pp（`inconclusive`） |
+
+综合：**目标对历史的依赖存在但极弱、且可被阶段对齐吸收；现行算子类连这点弱依赖都表达不了。** 详见 `analysis/synthesis.md` §6，已按 §11-3 回写讨论纪要 §14。
+
+### 14.3 执行期新增的代码单元（§6 清单之外，均补测试）
+
+| 单元 | 动因 |
+|---|---|
+| `analyze_e1_secondary.py` | §5.1 预注册了 E1-O，但 `run_family` 只输出 4 个 primary cell；含 `oracle_pool_sizes()` 退化判别 |
+| `e1_dose_response.py` | §3.2 的剂量-反应无 driver；含任务分层随机二分与两折互换 |
+| `journal_to_arms.py` | conductor journal → E4/E5 分析所需的 episode 结局表；**池偏移**防止 950 配对塌缩成 500 |
+| `merge_per_step.py` | per-step 分片跨池合并；同一池偏移 + 臂过滤（E2-primary 的 estimand 是 A0 单臂） |
+| `_timeaxis` sidecar 判据修正 | conductor 写 `_kind="client_timing"`，与 gate_research 的 `"episode_summary"` 不同，原判据会把整批 quarantine |
+| `e45` 的 `REQUIRED_ARMS` 守卫与 `adr_ranking_of()` | 缺臂时给出可诊断错误；兼容 E3 的 two-suite family 产物（否则静默得到空 ranking） |
+| `e3` 的 `run_suite`/`run_family`/`--suite-spec` | G2 R5/R7 的非阻塞建议，plan §10 已登记为 Phase 1 前置 |
+| `WorkerSpec.init_states_dir` 透传（`src/openpi/`） | 达成 §3.5.2 的 950 ep/臂；**owner 已批准**，见 §13.7 D-1 |
+
+最终验证：`tests/markov_sufficiency tests/conductor tests/weighted_sum` **311 passed, 1 skipped**；ruff 全通过。
+
+### 14.4 资源归还（owner 要求）
+
+- **weilandserver（与 ablation 共卡）**：本地 pi05 replica 已停、端口 8010 释放、孤儿 worker 按 `ppid==1 && argv 含 worker_entry` 精确回收；卡上只剩 ablation 自己的 `serve_policy`（8000/8001）与 act/smolvla sidecar。释放后空闲 28.0 GiB。
+- **ziyang10（独占）**：3-replica server 已停（释放 24.7 GiB 显存 / 14 GiB RAM），端口 8020 空闲，broker 端口 14032 已 `expose rm` 归还。
+- 全程未在共用节点使用 `pkill -f` 泛模式。
+
+### 14.5 未提交
+
+工作树保留全部改动待 owner review；**未执行任何 `git commit` / `git push`** —— 执行授权 §7 要求逐次明确指示，无人值守 mandate 不涵盖。

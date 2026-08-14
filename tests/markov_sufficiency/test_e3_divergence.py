@@ -9,6 +9,7 @@ G1 round, never editing the constants to match.
 
 from __future__ import annotations
 
+import json
 import pathlib
 
 import numpy as np
@@ -296,3 +297,190 @@ def test_analyse_exposes_draws_for_downstream_differencing():
     eps = sorted({p["traj_a"] for p in pairs} | {p["traj_b"] for p in pairs})
     result = e3.analyse(pairs, _adj(eps), n_resamples=200, min_high_sim=1)
     assert result["adr_draws"] is not None and len(result["adr_draws"]) == 200
+
+
+# ------------------------------------------------------------------
+# Two-suite orchestration
+# ------------------------------------------------------------------
+#
+# The single-suite path leaves ``ADR_l10 - ADR_spatial`` to be assembled by
+# hand at reporting time. These tests pin the orchestration instead: the
+# contrast direction is registered, the interval is formed draw-wise, and the
+# per-suite bootstrap is paid for once rather than twice.
+
+
+class _FakePayload:
+    def __init__(self, task_key):
+        self.task_key = task_key
+
+
+class _FakeEntry:
+    def __init__(self, eid, traj, step, task_key, vec, action):
+        self.id = eid
+        self.trajectory_id = traj
+        self.step_idx = step
+        self.payload = _FakePayload(task_key)
+        self.query_keys = {"v": vec}
+        self.action = action
+
+
+class _FakeScorer:
+    """Cosine on one synthetic modality -- the same call shape as the real scorer."""
+
+    def score(self, query_keys, entry):
+        return float(query_keys["v"] @ entry.query_keys["v"])
+
+
+def _fake_library(seed, n_tasks=2, n_eps=20, n_steps=8):
+    """Large enough that the top 1% of pairs clears ``MIN_HIGH_SIM``."""
+    rng = np.random.default_rng(seed)
+    entries = []
+    for t in range(n_tasks):
+        for e in range(n_eps):
+            traj = f"s{seed}_t{t}_ep{e}"
+            for s in range(n_steps):
+                vec = rng.normal(size=4)
+                vec /= np.linalg.norm(vec)
+                entries.append(
+                    _FakeEntry(f"{traj}:{s}", traj, s, f"task{t}", vec, np.array([float(rng.normal())]))
+                )
+    by_traj: dict[str, list] = {}
+    for entry in entries:
+        by_traj.setdefault(entry.trajectory_id, []).append(entry)
+    return _library.Library(
+        entries=entries,
+        by_id={e.id: e for e in entries},
+        by_traj=by_traj,
+        vector_dims={"v": 4},
+        key_builder_type="synthetic",
+        meta={},
+    )
+
+
+@pytest.fixture
+def two_suite_env(monkeypatch):
+    """Synthetic stand-ins for the artifacts, so the orchestration is testable."""
+    libs = {"libero_10": _fake_library(11), "libero_spatial": _fake_library(22)}
+    monkeypatch.setattr(e3._library, "load_library", lambda path: libs[str(path)])
+    monkeypatch.setattr(e3._library, "build_output_chain", lambda *a, **k: None)
+    monkeypatch.setattr(e3._library, "executed_action", lambda e, out_chain: e.action)
+    monkeypatch.setattr(e3._scoring, "build_scorer", lambda path: _FakeScorer())
+    # tau_a^phys and W belong to the real artifacts; the frozen-constant tests
+    # above cover them. Here only the orchestration is under test.
+    monkeypatch.setattr(e3, "assert_frozen", lambda stats, suite: None)
+    return libs
+
+
+SPECS = [
+    ("libero_10", "libero_10", "yaml_l10"),
+    ("libero_spatial", "libero_spatial", "yaml_spatial"),
+]
+
+
+def test_run_family_emits_the_registered_cross_suite_contrast(two_suite_env):
+    out = e3.run_family(SPECS, n_resamples=100)
+    assert set(out["suites"]) == {"libero_10", "libero_spatial"}
+    cross = out["cross_suite"]
+    assert cross["contrast"] == "libero_10 - libero_spatial"
+    if not cross["reported"]:
+        pytest.skip("synthetic suites fell below the high-similarity floor")
+    adr_10 = out["suites"]["libero_10"]["analysis"]["adr"]
+    adr_sp = out["suites"]["libero_spatial"]["analysis"]["adr"]
+    assert cross["difference"] == pytest.approx(adr_10 - adr_sp)
+    assert cross["ci"][0] <= cross["difference"] <= cross["ci"][1]
+    assert cross["n_draws"] == 100
+
+
+def test_run_family_fixes_the_contrast_direction_regardless_of_argument_order(two_suite_env):
+    """The sign is pre-registered; it must not follow the command line."""
+    forward = e3.run_family(SPECS, n_resamples=60)
+    reversed_ = e3.run_family(list(reversed(SPECS)), n_resamples=60)
+    assert reversed_["cross_suite"]["contrast"] == forward["cross_suite"]["contrast"]
+    assert reversed_["cross_suite"]["difference"] == forward["cross_suite"]["difference"]
+    assert reversed_["cross_suite"]["ci"] == forward["cross_suite"]["ci"]
+
+
+def test_run_family_bootstraps_each_suite_exactly_once(two_suite_env, monkeypatch):
+    """Handing the analyses to the contrast must not re-run the bootstrap."""
+    calls = []
+    real = e3.analyse
+
+    def counting(*args, **kwargs):
+        calls.append(kwargs.get("seed"))
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(e3, "analyse", counting)
+    e3.run_family(SPECS, n_resamples=50)
+    assert calls == [0, 1], f"expected one bootstrap per suite, got {calls}"
+
+
+def test_family_cli_writes_both_suites_and_the_contrast(two_suite_env, monkeypatch, tmp_path, capsys):
+    out_path = tmp_path / "e3_family.json"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "e3",
+            "--suite-spec", "libero_10:libero_10:yaml_l10",
+            "--suite-spec", "libero_spatial:libero_spatial:yaml_spatial",
+            "--n-resamples", "60",
+            "--out", str(out_path),
+        ],
+    )
+    e3.main()
+    written = json.loads(out_path.read_text())
+    assert written["mode"] == "family"
+    assert set(written["suites"]) == {"libero_10", "libero_spatial"}
+    assert written["cross_suite"]["contrast"] == "libero_10 - libero_spatial"
+    for suite, block in written["suites"].items():
+        assert block["suite"] == suite
+        # Provenance travels with the result so the report cannot mix artifacts.
+        assert block["library"] and block["yaml"]
+        for key in ("analysis", "threshold_grid", "by_cycle_gap", "by_task", "calibration"):
+            assert key in block
+    assert "contrast" in capsys.readouterr().out
+
+
+def test_single_suite_cli_is_unchanged(two_suite_env, monkeypatch, tmp_path):
+    out_path = tmp_path / "e3_single.json"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["e3", "--suite", "libero_10", "--library", "libero_10", "--yaml", "y",
+         "--n-resamples", "40", "--out", str(out_path)],
+    )
+    e3.main()
+    written = json.loads(out_path.read_text())
+    assert written["suite"] == "libero_10"
+    assert "mode" not in written and "cross_suite" not in written
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["--suite", "libero_10", "--suite-spec", "a:b:c"],
+        ["--suite-spec", "a:b:c"],
+        ["--suite-spec", "a:b:c", "--suite-spec", "d:e:f", "--suite-spec", "g:h:i"],
+        ["--suite-spec", "no-colons"],
+        ["--suite", "libero_10", "--library", "x"],
+    ],
+)
+def test_cli_rejects_malformed_mode_combinations(monkeypatch, tmp_path, argv):
+    monkeypatch.setattr("sys.argv", ["e3", *argv, "--out", str(tmp_path / "x.json")])
+    with pytest.raises(SystemExit):
+        e3.main()
+
+
+def test_cross_suite_difference_rejects_a_mismatched_precomputed_analysis():
+    pairs_a = _pairs(400, seed=1)
+    pairs_b = _pairs(400, seed=2)
+    eps_a = sorted({p["traj_a"] for p in pairs_a} | {p["traj_b"] for p in pairs_a})
+    eps_b = sorted({p["traj_a"] for p in pairs_b} | {p["traj_b"] for p in pairs_b})
+    stale = e3.analyse(pairs_a, _adj(eps_a), n_resamples=50, seed=0, min_high_sim=1)
+    with pytest.raises(ValueError, match="draw indices would not align"):
+        e3.cross_suite_difference(
+            pairs_a, _adj(eps_a), pairs_b, _adj(eps_b), n_resamples=300, analysis_a=stale
+        )
+
+
+def test_run_family_requires_exactly_two_suites(two_suite_env):
+    with pytest.raises(ValueError, match="exactly 2 suites"):
+        e3.run_family(SPECS[:1], n_resamples=10)

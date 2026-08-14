@@ -82,9 +82,23 @@ def _risk_diff_ci(arm_a: Mapping, arm_b: Mapping, keys: Sequence, seed: int = 0,
     )
 
 
+#: Arms the registered E4 contrasts need in every suite (A4 is exploratory).
+REQUIRED_ARMS = ("A0", "A1", "A2", "A3")
+
+
 def analyse_e4(arms_by_suite: Mapping[str, Mapping[str, Mapping[tuple[int, int], bool]]], alpha: float = 0.05) -> dict[str, Any]:
     """Primary ``A3-A1`` per suite with Holm, plus the estimation-only interaction."""
     suites = sorted(arms_by_suite)
+    # Fail with the missing arm named rather than a bare KeyError three frames
+    # deep: a partially collected suite is the normal state mid-rollout, and the
+    # message is what tells the operator which batch is still running.
+    for suite in suites:
+        missing = [a for a in REQUIRED_ARMS if a not in arms_by_suite[suite]]
+        if missing:
+            raise SystemExit(
+                f"suite {suite} is missing arm(s) {missing}; the registered E4 family needs "
+                f"{list(REQUIRED_ARMS)} in every suite (A4 is exploratory and optional)"
+            )
     primary = {}
     for suite in suites:
         arms = arms_by_suite[suite]
@@ -245,6 +259,28 @@ def _e5_verdict(low: float, high: float) -> str:
 # ------------------------------------------------------------------
 
 
+def adr_ranking_of(artifact: Mapping[str, Any], suite: str = "libero_10") -> list[dict[str, Any]]:
+    """Pull the per-task ADR ranking out of either E3 artifact layout.
+
+    A single-suite E3 run puts ``by_task`` at the top level; the two-suite
+    family run nests one block per suite. Reading only the flat shape would
+    silently yield an empty ranking against a family artifact -- and an empty
+    ranking looks exactly like "no task cleared the reporting floor", so E5's
+    high-ADR subset would quietly vanish instead of failing.
+    """
+    if "by_task" in artifact:
+        return list(artifact["by_task"])
+    suites = artifact.get("suites")
+    if isinstance(suites, Mapping):
+        if suite not in suites:
+            raise SystemExit(
+                f"ADR artifact has suites {sorted(suites)} but not {suite!r}; "
+                "pass --adr-suite to select the one E5 runs on"
+            )
+        return list(suites[suite].get("by_task", []))
+    raise SystemExit("ADR artifact has neither a top-level 'by_task' nor a 'suites' block")
+
+
 def task_ids_from_adr_ranking(
     ranking: Sequence[Mapping[str, Any]],
     task_key_to_id: Mapping[str, int],
@@ -279,6 +315,8 @@ def main() -> None:
         help="e4: 'suite:ARM=path,...' for both suites; e5: 'anchor=path,shape0=path,...'",
     )
     ap.add_argument("--adr-ranking", help="e5 only: E3 output JSON providing the per-task ADR ranking")
+    ap.add_argument("--adr-suite", default="libero_10",
+                    help="e5 only: which suite's block to read when --adr-ranking is a two-suite family artifact")
     ap.add_argument("--task-map", help="e5 only: JSON mapping task_id -> task_key (inverted internally)")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
@@ -303,7 +341,7 @@ def main() -> None:
         high_adr: list[int] = []
         if args.adr_ranking and args.task_map:
             with pathlib.Path(args.adr_ranking).open() as fh:
-                ranking = json.load(fh).get("by_task", [])
+                ranking = adr_ranking_of(json.load(fh), args.adr_suite)
             with pathlib.Path(args.task_map).open() as fh:
                 key_to_id = {v.strip(): int(k) for k, v in json.load(fh).items()}
             high_adr = task_ids_from_adr_ranking(ranking, key_to_id)

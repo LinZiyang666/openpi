@@ -82,3 +82,41 @@ def test_report_serialises_for_manifest():
     payload = report.as_dict()
     assert isinstance(payload["quarantined_yamls"], list)
     assert payload["kept_rows"] == 1
+
+
+def test_sidecar_rows_are_detected_by_schema_not_by_tag_value():
+    """The two writers use different `_kind` values; both must be excluded.
+
+    gate_research per-step logs tag their per-episode record "episode_summary",
+    the conductor's per-step writer tags its timing record "client_timing".
+    Matching only the first turned the second into a "missing step_idx" anomaly
+    and quarantined the entire yaml -- a whole batch read as zero usable rows.
+    """
+    rows = [
+        {"yaml_id": "y", "task_id": 0, "subset_init_state_idx": 0, "episode_id": 0,
+         "attempt": 1, "step_idx": s}
+        for s in (0, 5, 10)
+    ]
+    rows.append({"_kind": "client_timing", "yaml_id": "y", "task_id": 0,
+                 "subset_init_state_idx": 0, "attempt": 1, "infer_ms": 12.3})
+    rows.append({"_kind": "episode_summary", "yaml_id": "y", "task_id": 0,
+                 "subset_init_state_idx": 0, "episode_id": 0, "attempt": 1})
+    kept, report = _timeaxis.to_cycles(rows, 5)
+    assert report.episode_summary == 2, "both sidecar tags must be excluded by schema"
+    assert report.missing_step_idx == 0
+    assert report.quarantined_yamls == set()
+    assert [r["cycle"] for r in kept] == [0, 1, 2]
+
+
+def test_a_genuinely_malformed_row_still_quarantines():
+    """Widening the sidecar rule must not weaken the missing-step_idx gate."""
+    rows = [
+        {"yaml_id": "y", "task_id": 0, "subset_init_state_idx": 0, "episode_id": 0,
+         "attempt": 1, "step_idx": 0},
+        {"yaml_id": "y", "task_id": 0, "subset_init_state_idx": 0, "episode_id": 0,
+         "attempt": 1},  # no _kind, no step_idx -> real anomaly
+    ]
+    kept, report = _timeaxis.to_cycles(rows, 5)
+    assert report.missing_step_idx == 1
+    assert "y" in report.quarantined_yamls
+    assert kept == []

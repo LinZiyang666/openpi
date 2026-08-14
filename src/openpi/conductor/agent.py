@@ -51,6 +51,13 @@ class WorkerSpec:
     # default preserves backward-compat with the original libero_spatial runs;
     # callers (run_phase2) forward their --task-suite here.
     task_suite_name: str = "libero_spatial"
+    # Init-state pool the worker draws from, forwarded to
+    # ``examples.libero.worker_entry --init-states-dir``. Empty (the default)
+    # keeps the LIBERO benchmark's own pool, which is what every caller before
+    # markov_sufficiency relied on. Set it to evaluate on a second, disjoint
+    # pool -- e.g. ``exp/common/data/db_init/libero/<suite>`` -- without
+    # rebuilding the benchmark.
+    init_states_dir: str = ""
 
 
 class WorkerHandle(Protocol):
@@ -91,6 +98,10 @@ def _default_spawn(spec: WorkerSpec, driver_host: str, driver_port: int) -> Work
         "--task-suite-name",
         spec.task_suite_name,
     ]
+    if spec.init_states_dir:
+        # Only appended when set, so a worker launched by an older caller keeps
+        # the default LIBERO pool and the argv stays byte-identical.
+        base_cmd += ["--init-states-dir", spec.init_states_dir]
     if spec.conda_env:
         # Mirror legacy build_subprocess_cmd: strip the driver's uv-venv env
         # injections (VIRTUAL_ENV / PYTHONPATH / PYTHONHOME) and drop the uv venv

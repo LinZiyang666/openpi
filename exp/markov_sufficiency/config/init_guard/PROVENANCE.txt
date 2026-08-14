@@ -1,0 +1,14 @@
+official_pool_no_overlap.json is an intentionally EMPTY leak guard, used only for
+the official LIBERO pruned_init pool (the pool a conductor worker loads when
+--init-states-dir is unset).
+
+Justification, measured not quoted (2026-08-13, weilandserver, libero_sim env):
+  for each suite and task, the exact-row intersection between
+  task_suite.get_task_init_states(task_id) and
+  exp/common/data/db_init/libero/<suite>/<task>.init
+  is 0, with 50 init states in each pool.
+The cache libraries were built from 5 db_init states per task, so no official
+pool state can leak into retrieval, and holding any of them out would only
+shrink the sample without removing leakage.
+
+The db_init pool keeps its real guard: exp/common/data/db/libero_cache/<suite>_init_map.json.

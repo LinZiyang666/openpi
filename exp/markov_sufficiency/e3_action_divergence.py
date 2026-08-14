@@ -19,7 +19,8 @@ Only same-task, cross-episode pairs are counted, and the bootstrap resamples
 episodes (rebuilding pairs and re-estimating thresholds each draw).
 
 Public interface: :func:`adjacent_distance_stats`, :func:`pair_table`,
-:func:`adr`, :func:`analyse`, :func:`main`.
+:func:`adr`, :func:`analyse`, :func:`cross_suite_difference`,
+:func:`run_suite`, :func:`run_family`, :func:`main`.
 
 Key dependencies: :mod:`_library`, :mod:`_scoring`, :mod:`_stats`.
 """
@@ -330,15 +331,29 @@ def cross_suite_difference(
     adj_b: dict[str, list[float]],
     n_resamples: int = 10_000,
     seed: int = 0,
+    *,
+    analysis_a: Optional[dict[str, Any]] = None,
+    analysis_b: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     """``ADR_a - ADR_b`` with both suites resampled in the same draw index.
 
     The suites are independent samples, so the difference is formed per draw
     from the two independent bootstrap sequences rather than from two
     separately summarised intervals.
+
+    ``analysis_a`` / ``analysis_b`` let a caller that has already paid for the
+    per-suite bootstrap hand it in instead of running it twice. They must come
+    from the same ``(n_resamples, seed)`` this call would have used, which is
+    checked rather than trusted.
     """
-    a = analyse(pairs_a, adj_a, n_resamples=n_resamples, seed=seed)
-    b = analyse(pairs_b, adj_b, n_resamples=n_resamples, seed=seed + 1)
+    a = analysis_a if analysis_a is not None else analyse(pairs_a, adj_a, n_resamples=n_resamples, seed=seed)
+    b = analysis_b if analysis_b is not None else analyse(pairs_b, adj_b, n_resamples=n_resamples, seed=seed + 1)
+    for label, supplied in (("analysis_a", analysis_a), ("analysis_b", analysis_b)):
+        if supplied is not None and supplied.get("n_resamples") != n_resamples:
+            raise ValueError(
+                f"{label} was computed with n_resamples={supplied.get('n_resamples')} "
+                f"but this call declares {n_resamples}; the draw indices would not align"
+            )
     if a["underpowered"] or b["underpowered"]:
         return {"difference": None, "ci": None, "reported": False,
                 "reason": "one suite is below the high-similarity pair floor"}
@@ -368,38 +383,166 @@ def _verdict(adr_ci_high: float, diff_ci_high: float) -> str:
     return "inconclusive"
 
 
+# ------------------------------------------------------------------
+# Orchestration
+# ------------------------------------------------------------------
+
+#: Registered cross-suite contrast direction (plan section 3.4).
+CONTRAST_ORDER = ("libero_10", "libero_spatial")
+
+
+def run_suite(
+    suite: str,
+    library_path: str | pathlib.Path,
+    yaml_path: str | pathlib.Path,
+    *,
+    max_pairs_per_task: Optional[int] = None,
+    n_resamples: int = 10_000,
+    seed: int = 0,
+) -> tuple[dict[str, Any], list[dict[str, Any]], dict[str, list[float]]]:
+    """One suite end to end: calibrate, enumerate pairs, bootstrap, stratify.
+
+    Returns the result block together with the pair table and the per-episode
+    adjacent distances, because the cross-suite contrast needs both and
+    recomputing them would double the most expensive step in E3.
+    """
+    lib = _library.load_library(library_path)
+    scorer = _scoring.build_scorer(yaml_path)
+    out_chain = _library.build_output_chain()
+
+    calib = adjacent_distance_stats(lib, out_chain)
+    assert_frozen(calib, suite)
+    pairs = pair_table(lib, scorer, out_chain, max_pairs_per_task=max_pairs_per_task)
+    tau_a = calib["tau_a_phys"]
+    result = {
+        "suite": suite,
+        "library": str(library_path),
+        "yaml": str(yaml_path),
+        "seed": seed,
+        "calibration": {k: v for k, v in calib.items() if k != "adjacent_by_traj"},
+        "analysis": analyse(pairs, calib["adjacent_by_traj"], n_resamples=n_resamples, seed=seed),
+        "threshold_grid": threshold_grid(pairs, tau_a),
+        "by_cycle_gap": by_cycle_gap(pairs, tau_a),
+        "by_task": by_task(pairs, tau_a),
+    }
+    return result, pairs, calib["adjacent_by_traj"]
+
+
+def _order_specs(specs: Sequence[tuple[str, Any, Any]]) -> list[tuple[str, Any, Any]]:
+    """Put the registered contrast direction first, whatever order was typed.
+
+    The sign of ``ADR_l10 - ADR_spatial`` is part of the pre-registration; it
+    must not depend on the order of command-line arguments.
+    """
+    by_suite = {s[0]: s for s in specs}
+    if set(by_suite) == set(CONTRAST_ORDER):
+        return [by_suite[name] for name in CONTRAST_ORDER]
+    return list(specs)
+
+
+def run_family(
+    specs: Sequence[tuple[str, Any, Any]],
+    *,
+    max_pairs_per_task: Optional[int] = None,
+    n_resamples: int = 10_000,
+) -> dict[str, Any]:
+    """Run both suites and form the registered cross-suite ADR difference.
+
+    Exists because the single-suite path leaves ``ADR_l10 - ADR_spatial`` to be
+    assembled by hand at reporting time, where the draw-wise construction and
+    the contrast direction are both easy to lose.
+    """
+    ordered = _order_specs(specs)
+    if len(ordered) != 2:
+        raise ValueError(f"the cross-suite family is defined for exactly 2 suites, got {len(ordered)}")
+
+    runs = [
+        run_suite(
+            suite,
+            library_path,
+            yaml_path,
+            max_pairs_per_task=max_pairs_per_task,
+            n_resamples=n_resamples,
+            # Seeds follow the contrast order so the analyses can be handed to
+            # cross_suite_difference instead of being bootstrapped a second time.
+            seed=i,
+        )
+        for i, (suite, library_path, yaml_path) in enumerate(ordered)
+    ]
+    (res_a, pairs_a, adj_a), (res_b, pairs_b, adj_b) = runs
+
+    cross = cross_suite_difference(
+        pairs_a,
+        adj_a,
+        pairs_b,
+        adj_b,
+        n_resamples=n_resamples,
+        seed=0,
+        analysis_a=res_a["analysis"],
+        analysis_b=res_b["analysis"],
+    )
+    cross["contrast"] = f"{res_a['suite']} - {res_b['suite']}"
+    return {
+        "mode": "family",
+        "n_resamples": n_resamples,
+        "suites": {res_a["suite"]: res_a, res_b["suite"]: res_b},
+        "cross_suite": cross,
+    }
+
+
+def _parse_spec(raw: str) -> tuple[str, str, str]:
+    parts = raw.split(":", 2)
+    if len(parts) != 3 or not all(p.strip() for p in parts):
+        raise ValueError(f"--suite-spec must be SUITE:LIBRARY:YAML, got {raw!r}")
+    return parts[0], parts[1], parts[2]
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="E3 action divergence")
-    ap.add_argument("--suite", required=True)
-    ap.add_argument("--library", required=True)
-    ap.add_argument("--yaml", required=True)
+    ap.add_argument("--suite")
+    ap.add_argument("--library")
+    ap.add_argument("--yaml")
+    ap.add_argument(
+        "--suite-spec",
+        action="append",
+        default=[],
+        metavar="SUITE:LIBRARY:YAML",
+        help="repeatable; give it exactly twice to run the registered cross-suite family",
+    )
     ap.add_argument("--max-pairs-per-task", type=int, default=None)
     ap.add_argument("--n-resamples", type=int, default=10_000)
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
-    lib = _library.load_library(args.library)
-    scorer = _scoring.build_scorer(args.yaml)
-    out_chain = _library.build_output_chain()
-
-    calib = adjacent_distance_stats(lib, out_chain)
-    assert_frozen(calib, args.suite)
-    pairs = pair_table(lib, scorer, out_chain, max_pairs_per_task=args.max_pairs_per_task)
-    tau_a = calib["tau_a_phys"]
-    result = {
-        "suite": args.suite,
-        "calibration": {k: v for k, v in calib.items() if k != "adjacent_by_traj"},
-        "analysis": analyse(pairs, calib["adjacent_by_traj"], n_resamples=args.n_resamples),
-        "threshold_grid": threshold_grid(pairs, tau_a),
-        "by_cycle_gap": by_cycle_gap(pairs, tau_a),
-        "by_task": by_task(pairs, tau_a),
-    }
+    single = (args.suite, args.library, args.yaml)
+    if args.suite_spec:
+        if any(single):
+            ap.error("--suite-spec and --suite/--library/--yaml are alternative modes; pass only one")
+        try:
+            specs = [_parse_spec(raw) for raw in args.suite_spec]
+        except ValueError as exc:
+            ap.error(str(exc))
+        if len(specs) != 2:
+            ap.error(f"the cross-suite family needs exactly 2 --suite-spec entries, got {len(specs)}")
+        result = run_family(specs, max_pairs_per_task=args.max_pairs_per_task, n_resamples=args.n_resamples)
+        summary = result["cross_suite"]
+    else:
+        if not all(single):
+            ap.error("--suite, --library and --yaml are all required in single-suite mode")
+        result, _, _ = run_suite(
+            args.suite,
+            args.library,
+            args.yaml,
+            max_pairs_per_task=args.max_pairs_per_task,
+            n_resamples=args.n_resamples,
+        )
+        summary = result["analysis"]
 
     out = pathlib.Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     with out.open("w") as fh:
         json.dump(result, fh, indent=2)
-    print(json.dumps(result["analysis"], indent=2))
+    print(json.dumps(summary, indent=2))
 
 
 if __name__ == "__main__":

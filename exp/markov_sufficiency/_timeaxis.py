@@ -26,10 +26,16 @@ from typing import Any, Iterable
 class QuarantineReport:
     """Counts of rows dropped on the way to a clean cycle axis.
 
-    ``episode_summary`` rows are a schema feature, not an anomaly: the recorder
-    emits one per episode and they legitimately carry no ``step_idx``. They are
-    excluded first and counted separately so they never inflate the anomaly
-    counters.
+    Sidecar rows are a schema feature, not an anomaly: the recorder emits one
+    per episode and they legitimately carry no ``step_idx``. They are excluded
+    first and counted separately so they never inflate the anomaly counters.
+
+    ``episode_summary`` counts every such sidecar row, identified by the
+    presence of a ``_kind`` tag rather than by one hardcoded tag value. The
+    recorder emits ``"episode_summary"`` in the gate_research collection and
+    ``"client_timing"`` in conductor per-step logs; matching only the first
+    silently reclassified the second as "missing step_idx" and quarantined the
+    whole yaml, which cost a full batch before it was caught.
     """
 
     episode_summary: int = 0
@@ -70,7 +76,7 @@ def to_cycles(
 ) -> tuple[list[dict[str, Any]], QuarantineReport]:
     """Convert ``step_idx`` (env steps) to ``cycle`` and validate the axis.
 
-    Checks, in order: drop ``_kind == "episode_summary"`` rows by schema; every
+    Checks, in order: drop ``_kind``-tagged sidecar rows by schema; every
     remaining row must carry ``step_idx``; ``step_idx`` must be divisible by
     ``replan_steps``; within an episode the spacing must be constant and the
     resulting cycle sequence must start at 0 and be contiguous.
@@ -86,7 +92,10 @@ def to_cycles(
     staged: dict[tuple, list[dict[str, Any]]] = {}
 
     for row in rows:
-        if row.get("_kind") == "episode_summary":
+        # Any `_kind`-tagged row is a sidecar record, not a search step. The
+        # tag value differs by writer ("episode_summary" vs "client_timing"),
+        # so the schema flag is the judgement, not the specific string.
+        if row.get("_kind") is not None:
             report.episode_summary += 1
             continue
         if "step_idx" not in row:

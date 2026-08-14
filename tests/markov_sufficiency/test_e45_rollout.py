@@ -178,3 +178,48 @@ def test_e5_high_adr_subset_is_flagged_secondary():
     subset = out["shapes"]["s0"]["high_adr_subset"]
     assert subset["n_pairs"] == 50
     assert "not in any comparison family" in subset["note"]
+
+
+def test_analyse_e4_names_the_missing_arm():
+    """A half-collected suite is normal mid-rollout; the error must be diagnosable."""
+    full = _four_arms(a0=100, a1=100, a2=100, a3=100, n=50)
+    partial = {"A0": _arm(50, 50), "A1": _arm(40, 50)}
+    with pytest.raises(SystemExit, match=r"missing arm\(s\) \['A2', 'A3'\]"):
+        e45.analyse_e4({"libero_spatial": full, "libero_10": partial})
+
+
+def test_analyse_e4_does_not_require_the_exploratory_arm():
+    """A4 is exploratory: its absence must not block the registered family."""
+    arms = _four_arms(a0=100, a1=100, a2=100, a3=120, n=200)
+    assert "A4" not in arms
+    out = e45.analyse_e4({"libero_spatial": arms, "libero_10": arms})
+    assert set(out["cells"]) == {"libero_spatial", "libero_10"}
+
+
+# ------------------------------------------------------------------
+# ADR ranking artifact shapes
+# ------------------------------------------------------------------
+
+
+def test_adr_ranking_reads_the_flat_single_suite_artifact():
+    art = {"by_task": [{"task_key": "a", "adr": 0.3, "reported": True}]}
+    assert e45.adr_ranking_of(art) == art["by_task"]
+
+
+def test_adr_ranking_reads_the_two_suite_family_artifact():
+    """A family artifact nests by_task per suite; reading it flat yields [] silently."""
+    rows = [{"task_key": "a", "adr": 0.3, "reported": True}]
+    art = {"mode": "family", "suites": {"libero_10": {"by_task": rows},
+                                        "libero_spatial": {"by_task": []}}}
+    assert e45.adr_ranking_of(art, "libero_10") == rows
+
+
+def test_adr_ranking_rejects_a_missing_suite():
+    art = {"suites": {"libero_spatial": {"by_task": []}}}
+    with pytest.raises(SystemExit, match="pass --adr-suite"):
+        e45.adr_ranking_of(art, "libero_10")
+
+
+def test_adr_ranking_rejects_an_unrecognised_artifact():
+    with pytest.raises(SystemExit, match="neither a top-level"):
+        e45.adr_ranking_of({"something": "else"})
