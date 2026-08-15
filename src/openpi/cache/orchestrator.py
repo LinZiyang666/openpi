@@ -37,7 +37,7 @@ import torch
 from openpi.cache.cache_storage import CacheStorage
 from openpi.cache.components.factors.base import HistoryView, LibraryStats, OfflineWriter
 from openpi.cache.components.gate import ClientControlledGate, GateFunction
-from openpi.cache.components.judge import HitType, SimilarityJudge
+from openpi.cache.components.judge import HitType, SimilarityJudge, judge_accepts_query_keys
 from openpi.cache.components.key_builder import QueryKeyBuilder
 from openpi.cache.components.payload_view import StoragePayloadView
 from openpi.cache.components.search_strategy import SearchContext, SearchStrategy
@@ -81,6 +81,15 @@ class CheckResult:
     # score/entry_id, which a cold-start / empty-library always-search MISS
     # also leaves None.
     searched: bool = True
+    # X14 router: tri-state executor selector forwarded verbatim from
+    # ``JudgeResult.hit_override``. None on every legacy path, so the
+    # Interceptor's dispatch stays byte-identical for existing configs. See
+    # JudgeResult's docstring for the payloadless-FULL_HIT invariant.
+    hit_override: Optional[bool] = None
+    # X14 router: per-verdict provenance forwarded from ``JudgeResult``, filled
+    # only by MlpRouterJudge. Interceptor stamps ``arm_executed`` onto it and
+    # surfaces it through ``__hit_meta__``.
+    router_outputs: Optional[dict] = None
 
 
 class CacheOrchestrator:
@@ -126,6 +135,15 @@ class CacheOrchestrator:
         self._timer = timer if timer is not None else SystemTimer(enabled=False)
         self._write_policy = write_policy
         self._step_counter: int = 0
+
+        # X14 — decide ONCE per judge whether it can receive the post-build()
+        # ``query_keys``. Probing per verdict would pay an inspect.signature
+        # cost on every step; probing here keeps the hot path a dict lookup and
+        # keeps every judge that does not declare the parameter (CompositeJudge,
+        # DumpingJudge's own surface) on a byte-identical call.
+        self._judge_wants_query_keys: dict[CheckpointID, bool] = {
+            cp: judge_accepts_query_keys(j) for cp, j in self._judges.items()
+        }
 
         # B2 wiring — populated by config builder when composite judges
         # include OfflineWriter-capable factors (currently F1b-A / F1b-T).
@@ -290,7 +308,7 @@ class CacheOrchestrator:
             self._safe_call_lifecycle(
                 gate, "on_episode_start", task_key=self._current_task_key
             )
-        for judge in self._judges.values():
+        for judge in self._unique_judges():
             self._safe_call_lifecycle(
                 judge, "on_episode_start",
                 extra_metadata=self._current_episode_extra,
@@ -308,6 +326,39 @@ class CacheOrchestrator:
                 continue
             self._storage.open_search_session(sid)
             self._current_strategy_session_ids.append(sid)
+
+    def _unique_judges(self):
+        """Yield each distinct judge instance exactly once.
+
+        ``judges`` is keyed by checkpoint, and a config may legitimately bind
+        one instance to several checkpoints. An episode lifecycle hook is a
+        state-machine transition, not an idempotent notification: delivering
+        ``on_episode_start`` twice to the same object would make the router
+        close and re-open its dump buffer inside a single episode start, and
+        emit a spurious zero-step record for the buffer it just opened.
+        """
+        seen: set[int] = set()
+        for judge in self._judges.values():
+            if id(judge) in seen:
+                continue
+            seen.add(id(judge))
+            yield judge
+
+    def _broadcast_episode_end(self, method_name: str) -> None:
+        """Notify lifecycle-aware judges that the episode / task has ended.
+
+        X14: ``MlpRouterJudge`` finalizes its per-episode feature shard here, so
+        this MUST run on every exit path — ``on_episode_end`` has three early
+        returns (no steps / no write policy / policy declines) and the router's
+        own configuration takes the decline path, which is exactly why the call
+        sites put this in ``finally``. Missing it would leave the batch short a
+        shard and force a repair round for a perfectly good episode.
+
+        Signature-filtered like every other lifecycle broadcast, so judges
+        without the hook are untouched.
+        """
+        for judge in self._unique_judges():
+            self._safe_call_lifecycle(judge, method_name)
 
     def _close_current_search_sessions(self) -> None:
         """Close all currently-registered strategy search sessions.
@@ -558,13 +609,26 @@ class CacheOrchestrator:
         )
 
         with self._timer.measure(f"{prefix}_judge"):
+            # X14 seam: query_keys rides in only for judges that declared it
+            # (probe done once in __init__). Everything else sees the legacy
+            # call verbatim.
+            extra_kwargs = (
+                {"query_keys": query_keys}
+                if self._judge_wants_query_keys.get(checkpoint_id)
+                else {}
+            )
             judge_result = judge(
                 results, checkpoint_id, self._key_builder.cached_data,
                 view=view, history=history, retrieval_signals=retrieval_signals,
+                **extra_kwargs,
             )
         hit_type = judge_result.hit_type
         winner_id = judge_result.winner_id
         start_t = judge_result.start_t
+        # X14 router provenance / executor selector. Both are None for every
+        # legacy judge, so the CheckResult wire below is unchanged for them.
+        hit_override = getattr(judge_result, "hit_override", None)
+        router_outputs = getattr(judge_result, "router_outputs", None)
         # Forward the optional CompositeJudge diagnostic dump on every exit
         # path below (FULL_HIT / WARM_START / WARM_START-downgrade-to-MISS /
         # post-judge MISS). Early gate / cache-disabled returns above never
@@ -578,6 +642,23 @@ class CacheOrchestrator:
 
         if checkpoint_id == CheckpointID.CP1:
             self._step_counter += 1
+
+        if hit_type == HitType.FULL_HIT and winner_id is None and hit_override is True:
+            # X14 payloadless FULL_HIT (router student arm). Without this branch
+            # a winner-less FULL_HIT falls through to the unconditional MISS
+            # return below, which would silently route the student arm to the
+            # teacher. Nothing is fetched: the interceptor's hit_executor is the
+            # action source, so `payload` stays None by design (the invariant is
+            # documented on JudgeResult / CheckResult).
+            self._feed_verdict_to_gate(
+                checkpoint_id, hit_type=hit_type, cp1_score=top_score,
+                winner_id=None, start_t=None, searched=True,
+            )
+            return CheckResult(
+                hit_type=hit_type, payload=None, score=top_score,
+                query_keys=query_keys, factor_outputs=factor_outputs,
+                hit_override=True, router_outputs=router_outputs,
+            )
 
         if hit_type in (HitType.FULL_HIT, HitType.WARM_START) and winner_id is not None:
             with self._timer.measure(f"{prefix}_fetch"):
@@ -609,6 +690,7 @@ class CacheOrchestrator:
                         hit_type=HitType.MISS, query_keys=query_keys,
                         score=results[0].score, entry_id=winner_id,
                         factor_outputs=factor_outputs,
+                        router_outputs=router_outputs,
                     )
 
             self._feed_verdict_to_gate(
@@ -619,6 +701,7 @@ class CacheOrchestrator:
                 hit_type=hit_type, payload=payload, start_t=start_t,
                 score=results[0].score, entry_id=winner_id, query_keys=query_keys,
                 factor_outputs=factor_outputs,
+                hit_override=hit_override, router_outputs=router_outputs,
             )
 
         self._feed_verdict_to_gate(
@@ -629,6 +712,7 @@ class CacheOrchestrator:
             hit_type=HitType.MISS, query_keys=query_keys,
             score=top_score, entry_id=winner_id,
             factor_outputs=factor_outputs,
+            router_outputs=router_outputs,
         )
 
     # ------------------------------------------------------------------
@@ -695,6 +779,7 @@ class CacheOrchestrator:
             self._reset_episode_buffer()
         finally:
             self._close_current_search_sessions()
+            self._broadcast_episode_end("on_episode_end")
 
     def on_task_end(self) -> None:
         """Connection close / abnormal-exit cleanup.
@@ -709,8 +794,13 @@ class CacheOrchestrator:
         across reconnects. Cleared here so verdict-factor history can't
         bleed from one connection's tail into the next connection's head.
         """
-        self._close_current_search_sessions()
-        self._reset_episode_buffer()
+        try:
+            self._close_current_search_sessions()
+            self._reset_episode_buffer()
+        finally:
+            # Bottom guard for a connection that drops mid-episode: whatever the
+            # judge still holds is finalized as partial rather than lost.
+            self._broadcast_episode_end("on_task_end")
 
     def _build_entry_chain(self, record: EpisodeRecord) -> list[CacheEntry]:
         """Convert EpisodeRecord to a linked list of CacheEntry objects."""

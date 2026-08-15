@@ -83,6 +83,17 @@ class DumpingJudge:
         object.__setattr__(self, "_config_id", str(config_id))
         object.__setattr__(self, "_current_extra", {})
         object.__setattr__(self, "_step_idx", 0)
+        # X14: probe the inner judge ONCE for the query_keys seam. Strict mode
+        # (explicit parameter only) — a legacy inner with **kwargs would merely
+        # swallow the kwarg, so withholding it keeps every dump-wrapped legacy /
+        # composite config on a byte-identical inner call, while a dump-wrapped
+        # MlpRouterJudge (which declares the parameter) still receives it.
+        from openpi.cache.components.judge import judge_accepts_query_keys
+
+        object.__setattr__(
+            self, "_forward_query_keys",
+            judge_accepts_query_keys(inner, allow_var_keyword=False),
+        )
         # Lazy file handle: opened on first verdict and reused; closed by GC
         # at server shutdown. Avoids 50w open/close/append per phase2 run
         # (plan §6.9 / G1 R1 P3 critique).
@@ -139,14 +150,20 @@ class DumpingJudge:
         view: Optional["PayloadView"] = None,
         history: Optional[HistoryView] = None,
         retrieval_signals: Optional[RetrievalSignals] = None,
+        query_keys: Optional[dict[str, torch.Tensor]] = None,
     ) -> JudgeResult:
         # 1) Forward verdict to inner — verdict behaviour byte-identical. The
         #    Orchestrator injects retrieval_signals unconditionally (TRACER M2 /
         #    Phase 3 seam); forward it so an inner failure_aware_gate still
         #    receives it. The dump-factor path below does not use it.
+        #    ``query_keys`` (X14) is declared here so the Orchestrator's probe
+        #    admits the wrapper, but it is relayed only to an inner judge that
+        #    asked for it — see the constructor's strict probe.
+        extra_kwargs = {"query_keys": query_keys} if self._forward_query_keys else {}
         judge_result = self._inner(
             results, checkpoint_id, cached_data,
             view=view, history=history, retrieval_signals=retrieval_signals,
+            **extra_kwargs,
         )
 
         # 2) Best-effort dump. Any extractor failure must not corrupt the

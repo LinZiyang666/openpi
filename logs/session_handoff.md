@@ -1,78 +1,88 @@
-# Session Handoff — ablation_study（cache 有效性双方向消融）
+# Session Handoff — X14 在线 RL Router 基线（TIER 论文线）
 
-> 更新：2026-08-14 09:15（**🏁 全线收官：主矩阵 7000 + 4b 5000 + 延迟 pass 140 ep 全满账；Phase 5 报告终稿 `exp/ablation_study/analysis/analysis.md`；plan log EN-5 已记；等 owner commit 指示**。存活服务：wls srv0/srv8001(BASIC lat 版)/acts7012+sml7011(spatial)、zy10 srv8005(单 replica BASIC)+双 sidecar+7 占位器、农场闲置——均未关（等 owner 令）；守护全部自然退场。延迟锚点：teacher 步 690ms(4090)/114ms(H200)，hit→ACT 步 −78/−79%，hit→SmolVLA 4090 −24% 但 H200 **+36% 反亏**。历史头部：）（**Phase 4 主矩阵两套件 7000/7000 满账完成**：spatial 3500 SR=0.900、l10 3500 SR=0.685。l10 臂级：cache_baseline .704 / hit_act .888 / hit_smolvla .830 / miss_act .466 / miss_smolvla .474 / pure_act .794 / pure_smolvla .640——hit 替换超 baseline、miss 替换重降质、pure 与独立基线一致。spatial 臂级早查：cache_baseline .930 / hit_act .990 / FULL_HIT 率 ~60%。**spatial 4b 正在 wls 本机 conductor 跑**（tmux p4bsp，8 workers→127.0.0.1:8001，journal wls 本地 data/runs/p4b_sp_journal.jsonl；srv8001 已重启为 v2 载入 EN-4 config——旧进程内存白名单曾拒 composite；worker spawn 需 PATH 前置 ~/miniconda3/bin）。l10 4b 待 zy10 回线（回线后 **--replicas 2 --replica-spawn-batch 1 铁律**，B=2 加载峰爆 32G 两次实证 pod 自动重启）或 spatial 4b 完后 wls 串行。守护：Monitor bckojodb7(p4bsp)+bcx238pd3(zy10 回线)+cron cfc035b9。⚠⚠ kill 与 relaunch 严禁同一 shell 调用（pkill/pgrep 正则匹配 relaunch 文本自杀，一天三次实证）
-> Plan：`logs/ablation_study_plan.log.md`（G1/G2 APPROVED + Execution Notes **EN-1..EN-4**，全部裁决与偏差记录在文末）
-> 账本：`exp/ablation_study/analysis/sr_ledger.md`（全部全量评估 SR 的单一 tracked 记录）
-> Memory：`project_ablation_phase0_live_run.md`（拓扑与陷阱全集，与本文互补）
-> Goal 状态：owner goal「前进 phase 3 于 phase 4 门停止」**已达成**——不得启动任何 Phase 4/4b 臂，等 owner 放行口令。
+> 更新：2026-08-15 18:00 CDT（§4 Code 完成；**G2 Round 12 已在 Ziyang Lin 显式 owner override 下 APPROVED**，Round 11 最后两项 pilot 阻断已修复并由 269 条任务测试、30 条独立审查探针及 1229 条扩展测试验证。**§6 Verify 尚未执行**。本文覆盖了旧 ablation_study handoff——owner 确认其已过时；那条线的记录存于 `logs/ablation_study_plan.log.md` EN 注记 + `exp/ablation_study/analysis/` + memory）
+> 交接对象：接管本工作流的下一个 session。
+> 唯一实施权威：[`rl_router_baseline_plan.log.md`](rl_router_baseline_plan.log.md)——**先完整读它**，本文只是导航与上下文，不重复 plan 细节；两者冲突以 plan 为准。
 
-## 一、状态总览（2026-08-13 晚）
+---
 
-- **Phase 0 ✅** 蒸馏采集：两套件各 500 ep，内容校验 PASS，三端 sha 一致。
-- **Phase 1 ✅ + EN-3 重冻结**：全部候选 EN-2 全量评估（官方 pruned_init，与训练差集池逐字节零交集）；冻结=**套件级统一 step 020000**（标准配方终点，零选择偏差，band 降披露；旧 per-task/002000 表达已按 owner 令删除，演化记录唯一存于 plan log EN-3）。
-- **Phase 2 ✅**：权重汇集（20/20 ACT 020000 sha 对 freeze 校验 PASS→wls `act_selected/` 链接布局）；`act_manifest_<suite>.json` ×2 装配；正式 1-cell conductor smoke（hit_act spatial 10/10 ep，FULL_HIT=override=sidecar 计时=144 三方相等，命中率 70.9%）；`uv run pytest tests/ablation_study/test_manual_e2e.py -m manual --run-manual` **PASSED**。
-- **Phase 3 ✅**：teacher anchor 复跑 + 学生锚点 + 曲线补全（下表）。
-- **Phase 4b 已批（EN-4）**：kinematic 学生路由帕累托，工件全备（见 §三-3）。
+## 0. 接手第一步（不可跳）
 
-### 锚点参考系（Phase 4/5 对照用，全部官方 init 50/任务）
+1. 按 `CLAUDE.md` 会话初始化协议：读 `WORKING_AGREEMENT.md` → 声明 **Execution Authority** → 读 `protocols/execution_authority.md`（**绝不读 review_authority.md**，也绝不碰 `tests/review_tests/`——宪法级封印）→ 出状态卡。
+2. 完整读 `logs/rl_router_baseline_plan.log.md`（204 行，自包含：需求、17+ 亲验代码锚点、全部冻结契约、测试策略、风险、里程碑、owner 裁决）。
+3. 读本文件其余部分补上下文。
 
-| 锚点 | libero_spatial | libero_10 |
-|---|---|---|
-| **teacher（Pi0.5 本次同协议复测）** | **0.974**（500 ep） | **0.868**（500 ep，t8 最难 0.46） |
-| 学生 ACT @20000（冻结即锚点） | 0.966 | 0.766 |
-| 学生 SmolVLA @20000（冻结即锚点） | 0.954 | 0.630 |
-| 历史协议锚（仅参考，勿用于对照） | 0.95 | 0.83 |
+当前状态卡（接手时点）：
 
-anchor json 本地存档：`exp/ablation_study/data/anchors/libero_{spatial,10}_teacher/results_*.json`（t107 亦有正本）。SmolVLA l10 曲线已完整单调：0.344→0.404→0.496→0.504→0.550→0.630（2k→20k，账本）。
+```
+WORKFLOW STATUS | Authority: Execution | Task: X14 在线 RL router 基线实现 | Level: L3
+Understand ✅ → Plan ✅ → G1 ✅(APPROVED R5) → Code ✅(M1+M2) → G2 ✅(APPROVED R12, owner override) → Verify ⬚
+```
 
-## 二、存活拓扑（compact 后接手先核对）
+§6 Verify 仍未执行：按 Execution §5 必须等 G2 APPROVED。
 
-| 机器 | 现役 |
-|---|---|
-| **weilandserver (4090, tether 节点 weilandserver)** | tmux `srv0`=pi05 纯推理:8000→expose 14008（**owner 明令勿关**）；`srv0b`=pi05 第二实例:8002→14026（anchor 加速件，Phase 4 延迟 pass/4b 可复用，可按需关）；`srv8001`=routed server:8001→**14025**（spatial hit_act bundle 已载，**换臂只需 conductor 热切换勿重启**）；`acts7002`=ACT sidecar:7002（**spatial** manifest 全 10 任务）；lerobot venv `~/lerobot_venv`；repo `~/openpi`@d2e4293+工作树（含 4b bundle 已解包） |
-| **ziyang10 (H200, tether 节点 jupyter-ziyang10)** | **Phase 4 l10 全栈 live**（setsid 无 tmux）：pi05 routed server :8000（log /tmp/zy10_srv8000.log）→ expose `zy10-p4`=**linziyang.top:14022**；ACT sidecar :7002（l10 manifest，/tmp/zy10_act7002.{log,jsonl}）；SmolVLA sidecar :7001（l10 020000，/tmp/zy10_sml7001.{log,jsonl}）；栈占 ~12G 显存（owner 授权 ≤48G）；config.py 已更 a371f35f；l10 pkl/act_selected 链接/SmolVLA+ACT t6-9 权重（sha 5/5 对 freeze 匹配）/d1 校准 jsonl 全落位；⚠ 无 rsync 二进制（传输走 tar-over-ssh@wls-ssh:14024）；训练正本勿删；HOME=/home/ziyang10 |
-| **timan107 (48核+8×1080, tether 节点 timan107)** | 农场 `/scratch/zixuans8/equeue/` + 58 tmux worker w0-57 **空转待命**（Phase 4 可复用为 conductor 车队）；repo `/scratch/zixuans8/openpi`@d2e4293+4b bundle（config.py sha 与本地一致 a371f35f）；libero_sim conda + lerobot venv + uv .venv；`export HOME=/home/zixuans8` 必须；sshd expose 14010 |
-| **timan107 双 conductor** | tmux `p4sp`（spatial 主矩阵，journal `exp/ablation_study/data/runs/p4_libero_spatial_journal.jsonl`，log /tmp/p4sp.log，servers 14025）+ tmux `p4l10`（l10 主矩阵，journal `p4_libero_10_journal.jsonl`，log /tmp/p4l10.log，servers 14022）；各 --workers 8 --gpus 8 --trials 50；健康脚本 /tmp/p4{sp,l10}_health.sh（TOTAL=3500）；smoke journal p4sp_smoke(10/10 成功)/p4l10_smoke(19/20) |
-| 守护件 | L2 Monitor `bun0qign6`(spatial)+`bhgrxnzcd`(l10)（300s 轮询，milestone/ALERT/STALL/DONE）+ L3 cron `8a8c673b`（6,20,34,48 分兜底巡检，含 conductor 同 journal relaunch/expose 断重建/Monitor 重装指令）。Monitor 会因进程重启静默死，cron 必须兜底重装 |
+## 1. 我们在干什么（大图景）
 
-三端 `src/openpi/cache/config.py`（EN-4 改动）sha256 前缀 `a371f35f` 一致。
+**论文线**：TIER（experience-tiered inference）投 ICLR 2027。thesis =「经验库的价值在索引不在 payload」；系统 = 检索相似度 + 双阈值把每个控制步派给 teacher（Pi0.5）/ student（蒸馏 ACT/SmolVLA）/ cache（FULL_HIT 直接回放 clean action）三层执行体。论文工作文档全在 `docs/iclr/`（提纲中英双语 + 实验设计卡 X1–X14，提纲文末有 Q&A rebuttal 弹药库）。重要口径：论文拆两篇（Markov 继承线独立成文，本篇零 history/trajectory 内容）；相关 memory：`project_iclr_paper_scoping`、`reference_libero_init_budget`。
 
-## 三、Phase 4 → 5 执行手册（owner 放行后照做）
+**本任务（X14）**：审稿人/导师必问"为什么不训一个 router 而用检索"。我们的回答：监督学习对逐步闭环路由在语义上不可用（反事实标签/分布错位/Bellman 耦合三层论证，见提纲 Q&A Q1），唯一语义正确的训练路线是**在线 RL**——所以真跑它当基线：3 个 MLP router（R_ts / R_tc / R_tsc），batch on-policy REINFORCE 嵌入现有 cache 框架（MLP 作为新 verdict 层 judge `mlp_router`，对它屏蔽一切库侧信息），用 interaction-efficiency 曲线给"训 router 的取得成本"标价，冻结权重在 A 池与 TIER 配对对决。
 
-1. **Phase 4 主矩阵（每套件 7 臂 × 500 ep，SR 主跑）**。conductor 在 t107 tmux：
-   ```
-   export HOME=/home/zixuans8; cd /scratch/zixuans8/openpi && PYTHONPATH=. .venv/bin/python \
-     exp/ablation_study/run_ablation_eval.py \
-     --arm-matrix exp/ablation_study/config/arm_matrix_<suite>.yaml \
-     --task-suite <suite> --servers linziyang.top:14025 \
-     --workers 8 --gpus 8 --trials 50 \
-     --journal exp/ablation_study/data/runs/p4_<suite>_journal.jsonl \
-     --per-step-out exp/ablation_study/data/runs/p4_<suite>_per_step.jsonl \
-     --expected-discordance 0.15 \
-     --preflight-approval exp/ablation_study/config/common/preflight_approval.yaml \
-     --conda-env /scratch/zixuans8/libero_sim
-   ```
-   preflight 在 n=500,q=0.15 下功效 ~7% 必判 underpowered → O7 预批 `underpowered_ok` 放行（审计 json 自动落盘）。ConductorDriver ep 级 resume：崩溃后同 journal 直接 relaunch。
-2. **sidecar 侧按套件切换（关键！）**：跑 <suite> 前 wls 必须（a）`acts7002` 载对应 `act_manifest_<suite>.json`（现载 spatial；换 l10 要重启 sidecar 换 --manifest）；（b）SmolVLA 臂需起 `:7001` sidecar 载 `<suite>/smolvla/checkpoints/020000/pretrained_model`（**当前未起**；换套件同样要换 checkpoint 重启）。sidecar 重启等 CUDA teardown 释放端口。
-2a-新. **端口迁移（2026-08-13 晚，owner 令"端口不能重合"）**：另一 session 共用 ziyang10（markov_sufficiency :8020 双 replica + 一套 15:58 起的同款 ablation 三件套占 8000/7001/7002，归属未明勿动）与 wls（markov :8010）。**我方 l10/4b 栈全部迁新端口：server=8005、SmolVLA=7011、ACT=7012**；small_at_hit/small_at_miss/kin_route 全部 yaml 的 routing 已 sed 成 7011/7012（local+t107 已同步；spatial 主矩阵历史数据用旧端口跑完，不受影响）。wls 现役 l10 sidecar tmux=`acts7012`/`sml7011`。⚠ ziyang10 的 ss 输出可能整体为空不可信，判监听用**新命名 log 文件**的签名；杀进程只按 PID（/tmp/zy10_our_pids_v2.txt）。spatial 主矩阵 **3500/3500 满账完成**（success 3151=0.900；pure_smolvla 曾缺 150 由 resume 补齐）。
-2b. **owner 令（2026-08-13）——p4sp 完成后 wls 承接 l10**：wls sidecars 切 l10（acts7002 换 act_manifest_libero_10.json、sml7001 换 l10 smolvla 020000；wls 已备 l10 pkl/act_selected×10/manifest/双套件 d1 jsonl），p4l10 conductor 同 journal 重启为 `--servers linziyang.top:14022,linziyang.top:14025 --workers 20 --server-workers 12,8`。⚠ conductor 是**臂粒度**分 server（`server_assignment[yaml_id]`）→ 记录 wls 分到的臂并写 plan log **EN-5 跨硬件披露**（部分 l10 臂在 4090、其余在 H200）。l10 主矩阵完 → l10 4b 走 ziyang10(14022)、spatial 4b 走 wls(14025, acts7002 切回 spatial manifest)，并行。
-3. **Phase 4b（主矩阵后）**：同拓扑，conductor 换 `--arm-matrix exp/ablation_study/config/arm_matrix_4b_<suite>.yaml`（5 阈值臂/套件，kinroute FULL_HIT→ACT:7002，校准 jsonl 已在 wls `exp/weighted_sum/data/<suite>/kinematic_phase5/d1/`）。产出与历史 cache 帕累托（`exp/weighted_sum/analysis/<suite>/kinematic_phase5/`）同图比较。
-4. **延迟 pass**（SR 主跑后另跑）：`--workers 1` + server 侧 `OPENPI_MONITOR_LEVEL=BASIC` + `--timing_csv_dir`；srv0b 可作纯推理延迟对照端。
-5. **Phase 5**：`analyze_ablation.py --preflight-artifact <per_step>.preflight.json` → `exp/ablation_study/analysis/analysis.md`。叙事=EN-3/EN-4 口径：标准配方自然强度谱系（0.630-0.966）、无害替换（spatial 双格+l10 ACT）/降质可测（l10 SmolVLA）双 regime、teacher 对照用 0.974/0.868；caveat：三格出带披露、锚点共用测试集（冻结零选择偏差）、underpowered_ok、EN-4 的 broadcast-前置披露。
+## 2. G1 历程（为什么 plan 长这样）
 
-## 四、陷阱清单（血泪浓缩；详表在 memory）
+G1 走了 5 轮（R1–R4 各 NEEDS REVISION，R5 APPROVED），审稿人共提 35 条 blocking 意见、**全部 Accepted**。每一轮都逼出了实质设计升级，接手者务必理解这些是**冻结契约**而非可选建议（Review Log 已按 Execution §3.1 在 polish 时删除，但契约全部内化在 plan 正文；G2 会重新开一节 Review Log）：
 
-- `conda run` 块缓冲：client 日志/tmux pane 全程空白、results json **结束才写**——判活用 **ps CPU time 两次采样**，勿误判挂死；判 server 活用 TCP 探测，勿 grep websockets 握手 Traceback（良性）。
-- pytest manual 用例必须 `--run-manual` 旗标（conftest auto-skip），加 `-m manual`。
-- t107 农场端口表有**两份**：worker2/3 读 `sm_ports.json`、worker4 读 `sm_ports2.json`——新增映射两表都写（原子写：tmp+os.replace）；port-map 改动不影响 in-flight client（要重排必须 kill+requeue，equeue 幂等）。
-- pkill 模式与自身命令行重合会自杀（用 `task_[5]` 方括号）；`conda run` wrapper+child 双条目非双跑；equeue claim mtime 不可判无主（用进程表重建）。
-- t107 tether allow_roots 仅 /home /tmp /srv（/scratch 文件先 cp /tmp 再 pull）；WSL→wls 直连仅 22 端口可靠；ziyang10 无 tmux（setsid）、32G RAM 静默 OOM、pod 不定期回收。
-- 权威工件：cache pkl 在 wls `exp/common/data/cache_artifacts/`（spatial=36cd0f3b/430MB、l10=1.1GB；**本地 WSL 副本目录互换勿用**）；norm_stats 权威=c0ee3c1a（已同步）；所有训练系列 owner 明令保留不删。
-- EN-4 语义：hit 路径 `broadcast_action` 在 executor override **之前**（interceptor L761）——kinematic verdict 的动作历史=cache/teacher 侧（与 cache 系统同构，Phase 5 披露）；composite 进 routing 必须空 WARM tier（config.py 静态校验强制）。
+- R1：特征源从 raw cached_data 改为 `build()` 后 `query_keys`；三层动作记录；身份四元组；算法冻结雏形。
+- R2：orchestrator payloadless FULL_HIT 加法分支（现状 winner=None 会落 MISS）；interceptor 三态互斥状态机（False 必须强制 replay）；维度实测 65,568；scheduler-accepted 贯通；per-episode RNG；warm-start 同架构 MLP 头；λ pilot 必须真训练（固定策略下臂分布与 λ 无关）。
+- R3：DumpingJudge 条件转发；fp16 量化入 encoder（parity 按构造精确）；MISS 路径也带 router_outputs；repair 用新 task_uid + training_accepted_manifest；constant_arm 入 schema；多种子聚合 seed-0 primary；交互总账含 warm-start+pilot。
+- R4：服务器权威 `decision_idx`（client step_idx 是物理步、随 replan_steps 跨步，不可作 join 键）；attempt 权威 = dispatch 时顶层 `task.attempt`；分片 = 内存 buffer + 终结一次性 headerless `.bin`（finalize 广播必须在 `on_episode_end` 的 **finally**——write-never 配置走 decline early-return）；repair = 每轮新建 TaskGraph+Driver + wls packager 权威；核验 = CPU fp32 单线程逐位相等。
 
-## 五、未 commit 工作树（owner 指示后 commit；勿 git add）
+## 3. 接手者接下来做什么（G2 已放行，进入 §6 Verify）
 
-`exp/ablation_study/`：`train_student.py`（EN-1）、`train_{act,smolvla}.py`、`select_student_checkpoint.py`、`config/common/{split_*,stem_map_*,preflight_approval}.yaml`、22 个 `select_freeze_*.yaml`（EN-3 020000 终版）、`config/act_manifest_*.json` ×2、`config/kin_route/` ×10 + `config/arm_matrix_4b_*.yaml` ×2（EN-4）、`analysis/{render_sr_ledger.py,sr_ledger.md}`、`data/anchors/`（新，teacher anchor json ×6）。
-`src/openpi/cache/config.py`（EN-4 白名单+composite 校验；tests/cache+ablation 1152 passed）。
-`logs/`：plan log（EN-1..4+状态头）、本 handoff。
-`assets/.../norm_stats.json`（更正+.bak）；`tests/ablation_study/`（用户/linter 微调过 test_router_hooks 与 test_distill_builder——保留勿回退）。
+M1+M2 已实现。G2 的全部 blocking 已关闭；Round 12 在 owner 明示超越流程、授权 reviewer 直接完成最后两项 pilot 修复后放行，完整披露见 plan `## Review Log`。接手者下一步固定为 §6 Verify：
+
+- 运行 `uv run pytest --ignore=tests/review_tests` **全量必须全绿** + staged API tests；遇到与本改动无关的失败 → 停下来交 owner 当场逐项裁决（plan 明令禁止预豁免）。已知 HEAD 既有失败 1 条（`tests/examples/test_libero_main.py::test_eval_paths_use_shared_episode_id_helper_source`，grep 的是本次未改的 `examples/libero/main.py`），**不得预豁免**，须当场提交裁决。
+- 本轮 reviewer 已按 owner override 修改并暂存最后修复；后续 Execution Authority 不要重复改写或重新暂存其他 session 的文件。
+
+**已落地的实现地图**（改动位置速查）：
+
+- src：`cache/components/mlp_router_judge.py`（新，judge+encoder+权重+分片状态机）、`judge.py`（`judge_accepts_query_keys` + `JudgeResult.hit_override/router_outputs`）、`orchestrator.py`（payloadless FULL_HIT 分支 + 条件注入 + `_unique_judges` + episode/task-end finally 广播）、`interceptor.py`（三态分派 + `arm_executed` 回写）、`config.py`（`mlp_router` 类型/字段/工厂/校验，**含禁 `miss_to`、CP1-only、feature_fields 须 enabled**）、`conductor/{scheduler,driver,journal}.py`（accepted/error 贯通，**`SidecarError` 归 fatal**）、`examples/libero/episode_runner.py`（身份覆盖 + `router_outputs` 列）。
+- exp：`exp/rl_router/`（`batch_package`=三源五键 join + Local/Ssh transport + round-scoped package + ledger 栅栏回收、`train_router`=REINFORCE + full-N admission + sidecar 身份/连续性/digest 校验 + export_meta/state/rejected 摘要 + `--export-only` 幂等重导、`fit_warmstart`=(uid,attempt) admission + **δ₀ 在"实际 ship 的那个 head"的 held-out fold 上按均值 realized rate 二分求解**（最终 head 只训 4 折，第 0 折留作标定；测试直接断言 grafted 参数的部署态 student rate=0.5）+ 强制 folds 清单、`collect_warmstart`、`run_rl_router`=`RemoteRun` 远端命名空间 + 两类 repair 状态机（**generation 与 quarantine 持久化到 `repair_state.json`，崩溃后按原 generation 续跑**）+ `_ResultRowPersister` 逐 result 落盘 + 容量探测 fail-closed、`microbench_cost`=逐臂**进程内** CUDA-event（ACT 按 manifest 真实 prompt 逐任务测再取均值；`in_process` 为假则 gate 拒）、`pilot_lambda`=λ 闭环 + split yaml 产出、`emit_router_yamls`=arm yaml + 预注册守卫、`launch_gates`=G-launch（复算 pilot 逐候选 manifest/digest、arm yaml 字段、episode budget、M4 绑定证据）+M4 五断言+run manifest；**M4 报告由 `run_rl_router.py --smoke` 真实跑 20ep×2 批产出**（规模**机械固定**为 `SMOKE_EPISODES × SMOKE_BATCHES`，绝不取自 matrix；bootstrap 是唯一可在无容量报告时启动的模式，有 main 级 golden 锁调用次数与批大小）、`config/run_matrix.yaml`）。
+- tests：`tests/{cache,serving,conductor,libero,exp}/` 共 8 个新文件，含 `tests/exp/test_rl_router_run_loop.py` 的 **`run_rl_router.main()` 双隔离 filesystem golden**（远端树与本地树分离，任何把远端 artifact 当本地读的写法都会在此暴露）。
+
+**M4 起进入运行期**（G2 APPROVED + §6 Verify 之后）：20-ep smoke（`launch_gates.py smoke` 五断言机器出场门）→ M5a cost microbench（**逐臂在各自 host 上跑 `microbench_cost.py arm`，再 `combine`**）→ M5b warm-start 采集（B-train 450 ep×2 套件，constant_arm 模式，**必带 `--init-states-dir`**）→ M5c λ pilot（`pilot_lambda.py plan → run`）→ `launch_gates.py check` 双门 → M6 五 run 正式训练 → M7 A 池一次性评测 → M8 spatial 确认 → M9 analysis。**M4 起每次 launch 前与 owner 确认**；运行期操作先加载 `experiment-lifecycle` skill（tether/监控/无人值守纪律都在里面）。
+
+**实现时最容易踩的十个契约**（全文详见 plan，此处速查）：① MLP 只见 query_keys、决策函数签名不含任何库侧量（score 置换不变性测试锁）；② student 臂 = FULL_HIT + winner_id=None + hit_override=True（零 fetch）；③ interceptor 三态：True→executor、False→强制 replay（即使配了 hit_executor）、None→现行为逐字节不变（golden）；④ 三源 join 只认 `decision_idx`；⑤ 身份五元组 `(run_id, batch_id, task_uid, attempt, weights_version)` 入分片路径，attempt 从顶层 `task.attempt` 强制覆盖；⑥ 分片 finalize 广播必须放 `on_episode_end`/`on_task_end` 的 **finally**；批完整性权威 = shard manifest（不是 journal）；⑦ encoder 算子次序 `normalize(raw)→Q`，RL dump = Q 输出 fp16 字节，核验 = CPU 单线程逐位 `==`；⑧ 每批恰一次 Adam step，多 epoch 禁止；⑨ full N training_selected 封定前绝不更新；⑩ `constant_arm` 与 `weights_path` 恰一互斥。
+
+## 4. Owner 已裁决事项（全部生效，勿再问）
+
+- **D1–D8 全按建议**（plan §9 有逐条记录）：λ 网格 {0.05,0.2,0.5} + pilot 协议；批 100 ep；仅 B-train；cost = M5a 实测 GPU-time；旗舰全曲线其余终点；ACT 主臂；旗舰双训练种子（共五 run ≈ 20k 训练 ep）；X14 卡三处偏离已批准且上位卡已同步。
+- **不用 cache warm-start**（实验配置层）：所有 cache hit = FULL_HIT 直接回放 clean action；系统代码 WARM_START 能力保留不删。"warm-start" 在本 plan 里只指 RL 权重热启动。
+- 全局规矩：commit 信息英文、无 Co-Authored-By；多 agent 编排每阶段 agent 数静态固定；无人值守期间禁 run_in_background 后台任务（用 L3 cron）；共享机禁宽 pkill、按 PID 定点。
+
+## 5. Git 与文件状态
+
+- **G2 Round 12 时点本任务快照由 reviewer 暂存**，包含 owner override 下的最后两项 pilot 修复与审计记录；其他 session 的未暂存内容保持原状。
+- **本任务改动范围**：`src/openpi/cache/`、`src/openpi/conductor/`、`examples/libero/episode_runner.py`、`exp/rl_router/`、`tests/{cache,serving,conductor,libero,exp}/`、`docs/{README,architecture/cache_system,cache/tutorial}.md`、`logs/README.md`、本 handoff、plan 的 `## Review Log`。
+- **其他 session 的改动**（勿动、勿暂存）：`docs/iclr/`、`logs/benchmark_selection.log.md` 等属于并行工作流。
+- Commit 时注意宪法级 Index Sync：docs/logs 的文件与对应 README 必须同 commit。
+
+## 6. 设备与拓扑事实（勘察于 2026-08-15 14:00，launch 前须复核）
+
+- **weilandserver**：4090 **49140 MiB**，勘察时显存 0 占用、无 tmux、8000/70xx 无监听——干净（旧 ablation handoff 曾记录存活服务，实测已不在）。规划角色：pi05 routed server :8000 + ACT sidecar :7002 (+SmolVLA :7001) + trainer + packager。
+- **timan107**：48 核 + 8×GTX1080 8G，存量 tmux（w0-w11、c1-c3）待按名处置。角色：conductor + 8 LIBERO worker。
+- tether：只查看未挂载；现存 expose `wls-ssh :14024`（batch package scp 通道）、`t107-ssh :14010`；执行期需新开 `rlr-srv`（wls:8000）——**launch 前经 owner 确认**。jupyter-ziyang10 OFFLINE。
+- B 池数据事实：官方 init 1000/套件 = pruned_init 500（A 池，只测量）+ 差集池 500（B-train 450 / B-val 50，tracked split yaml）；无可新铸第三池（memory `reference_libero_init_budget`）。
+
+## 7. 关键文档/记忆指针
+
+- Plan（唯一实施权威）：`logs/rl_router_baseline_plan.log.md`
+- 论文语境：`docs/iclr/tier_paper_outline.md`（+`.zh.md`；Q&A Q1 = 本任务的存在理由）、`docs/iclr/tier_experiment_designs.md`（X14 卡）
+- 框架文档：`docs/architecture/cache_system.md`、`docs/cache/tutorial.md`（实现后两者都要按 plan §5 更新）、`docs/experiments/conductor_tutorial.md`
+- Memory：`project_iclr_paper_scoping`、`reference_libero_init_budget`、`feedback_no_unsolicited_git_add`、`feedback_review_cycle_protocol`、`reference_pytest_manual_skip`（⚠ 其 Verify 口径已被本 plan G1 裁决覆盖：本任务用全量 `--ignore=tests/review_tests`）、`feedback_no_background_tasks_unattended`、`reference_preexisting_test_failures`（背景参考，但本任务不得预豁免、遇失败须 owner 当场裁决）。
+
+## 8. 本任务特有陷阱
+
+- G2 审稿人与 G1 同样严格（本线 G1 打了 5 轮）；每条意见逐项响应、Accepted/Rejected 必须有实质理由，anti-rubber-stamping 双向适用。
+- 实现偏离 plan 任何一条冻结契约都须先向 owner 亮牌再动（Execution §4 禁止静默偏离）。
+- t107 的 conda run 块缓冲、pkill 自匹配、tether HOME 等运维坑见 `experiment-lifecycle` skill 与 memory 陷阱条目。
+- 不实时更新本 handoff——只在关键节点（stage DONE / 重大决策 / 拓扑变更）同步（memory `feedback_handoff_no_realtime_update`）。

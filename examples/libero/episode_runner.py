@@ -80,7 +80,51 @@ def _hit_row(task: _task.EpisodeTask, step: int, hit: dict, num_trials_per_task:
         # Ablation routing provenance: "override" when a sidecar executor
         # produced this step's action; absent/None on all non-routed steps.
         "executor": hit.get("executor"),
+        # X14 RL router provenance ({decision_idx, arm_sampled, arm_executed,
+        # probs, ...}); None for every non-router yaml. ``decision_idx`` — not
+        # ``step_idx`` — is the join key against the server-side dump: this
+        # row's ``step_idx`` is the physical env step, which advances by
+        # ``replan_steps`` between consecutive inference calls.
+        "router_outputs": hit.get("router_outputs"),
     }
+
+
+# Identity keys a strategy may stamp onto ``EpisodeTask.extra`` for the RL
+# router's server-side dump. ``task_uid`` / ``attempt`` are deliberately NOT in
+# this list: they are forced from the dispatched task's top-level fields, since
+# ``extra`` is built once by the strategy and does not follow a requeue.
+_ROUTER_IDENTITY_KEYS = ("run_id", "batch_id", "weights_version")
+
+
+def _episode_extra_metadata(task: _task.EpisodeTask) -> dict:
+    """Build the ``episode_start`` metadata: task identity + router passthrough.
+
+    The dispatched task is authoritative for ``task_uid`` / ``attempt``. A
+    strategy that also wrote them into ``extra`` is stale by construction after
+    a requeue (the scheduler bumps the dispatch generation via
+    ``dataclasses.replace``, which never touches ``extra``), so a disagreement
+    is a producer bug and fails loud rather than silently mislabelling every
+    dumped step of the episode.
+    """
+    extra = dict(task.extra or {})
+    meta: dict = {
+        "task_id": task.task_id,
+        "orig_init_state_idx": task.orig_init_state_idx,
+    }
+    for key in _ROUTER_IDENTITY_KEYS:
+        if extra.get(key) is not None:
+            meta[key] = extra[key]
+    for key, authoritative in (("task_uid", task.task_uid), ("attempt", task.attempt)):
+        stamped = extra.get(key)
+        if stamped is not None and stamped != authoritative:
+            raise ValueError(
+                f"EpisodeTask {task.task_uid!r} extra[{key!r}]={stamped!r} conflicts with "
+                f"the dispatched task's {key}={authoritative!r}; the top-level field is "
+                "authoritative (extra does not follow a requeue). Remove it from the "
+                "strategy's extra payload."
+            )
+        meta[key] = authoritative
+    return meta
 
 
 def default_client_factory(server: _task.ServerEndpoint):
@@ -145,7 +189,7 @@ class LiberoEpisodeRunner(EpisodeRunner):
             experiment=task.experiment,
             task=task_description,
             episode_id=task.episode_idx,
-            extra_metadata={"task_id": task.task_id, "orig_init_state_idx": task.orig_init_state_idx},
+            extra_metadata=_episode_extra_metadata(task),
         )
         per_step: list[dict] = []
         # Per-episode collection state (un-swallowable vision fail-fast +

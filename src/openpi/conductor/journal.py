@@ -39,19 +39,33 @@ class Journal:
         phase: str,
         status: str,
         success: bool,
+        attempt: int | None = None,
+        accepted: bool | None = None,
+        error: str | None = None,
     ) -> None:
-        """Append one terminal-episode record. ``status`` is ``done`` | ``failed``."""
-        line = json.dumps(
-            {
-                "task_uid": task_uid,
-                "yaml_id": yaml_id,
-                "phase": phase,
-                "status": status,
-                "success": success,
-                "ts": time.time(),
-            },
-            ensure_ascii=False,
-        )
+        """Append one terminal-episode record. ``status`` is ``done`` | ``failed``.
+
+        ``attempt`` / ``accepted`` / ``error`` (X14) are optional and omitted
+        from the line when None, so records written by pre-existing callers stay
+        byte-identical. They exist because ``status`` alone cannot tell an
+        offline consumer whether the scheduler took this result as the live
+        dispatch's outcome: a stale attempt from a superseded dispatch is
+        journaled exactly like the real one. The RL router's batch packager
+        admits an episode into a training batch only when ``accepted`` is True
+        and ``error`` is None.
+        """
+        record: dict = {
+            "task_uid": task_uid,
+            "yaml_id": yaml_id,
+            "phase": phase,
+            "status": status,
+            "success": success,
+            "ts": time.time(),
+        }
+        for key, value in (("attempt", attempt), ("accepted", accepted), ("error", error)):
+            if value is not None:
+                record[key] = value
+        line = json.dumps(record, ensure_ascii=False)
         # Open per-append + flush so a crash mid-run cannot lose a flushed record;
         # throughput is fine at episode granularity.
         with self._lock, self._path.open("a", encoding="utf-8") as fh:

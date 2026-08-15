@@ -39,7 +39,18 @@ logger = logging.getLogger(__name__)
 
 # Error substrings that mark a *fatal* (non-retriable) failure: a misconfigured
 # config surfaces as ConfigValidationError and must not be retried (plan §9.1).
-_FATAL_ERROR_MARKERS = ("ConfigValidationError", "ConfigValidation", "FatalEpisodeError")
+#
+# SidecarError joined the list for X14: ``SidecarExecutor`` is fail-closed by
+# construction — it drops the connection and raises rather than falling back to
+# the teacher — so a retry re-runs a whole episode against a sidecar that is
+# almost certainly still down. Classifying it as fatal is also what makes the
+# frozen audit chain hold: sidecar exception -> terminal journal row carrying
+# the error -> excluded from the training manifest. Left retriable, the row is
+# never journaled at all (the driver only records terminal results), so the
+# episode would vanish from the ledger instead of being explained.
+_FATAL_ERROR_MARKERS = (
+    "ConfigValidationError", "ConfigValidation", "FatalEpisodeError", "SidecarError",
+)
 
 
 # ----------------------------------------------------------------------
@@ -284,7 +295,7 @@ class ConductorDriver:
     def handle_result(self, payload: dict[str, Any]) -> None:
         result = _proto.result_from_wire(payload)
         retriable = is_retriable_error(result.error) if not result.success else False
-        self._scheduler.mark_result(
+        accepted = self._scheduler.mark_result(
             result.task_uid, success=result.success, retriable=retriable, attempt=result.attempt
         )
         # Journal terminal records only (a requeued episode is not terminal).
@@ -296,6 +307,13 @@ class ConductorDriver:
                 phase=phase,
                 status="done" if result.success else "failed",
                 success=result.success,
+                # X14: a stale attempt is journaled the same way as the live one,
+                # so carry the scheduler's verdict + the raw error through to the
+                # ledger. Without them an offline batch packager cannot tell which
+                # of two records for the same uid describes the real dispatch.
+                attempt=result.attempt,
+                accepted=accepted,
+                error=result.error,
             )
         if result.per_step_rows:
             # Stamp episode-level identity/outcome onto each per-step row so the

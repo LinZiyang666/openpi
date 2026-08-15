@@ -1,0 +1,54 @@
+# X14 online-RL router baseline — frozen run matrix.
+#
+# Consumed by emit_router_yamls.py / run_rl_router.py; also the machine-checkable
+# record of the owner's D1-D8 rulings, so a launch gate can verify what it is
+# about to run rather than trusting an operator's memory.
+#
+# lambda_1 / lambda_2 are filled in by pilot_lambda.py (M5c) and MUST be
+# concrete numbers before any formal training run starts (G-launch-1).
+
+decisions:
+  D1_lambda_grid: [0.05, 0.2, 0.5]
+  D2_batch_size: 100
+  D3_training_init_domain: b_train           # B-val stays held out
+  D4_cost_authority: microbench_batch1_gpu_time
+  D5_eval_budget: flagship_full_curve_others_endpoint
+  D6_student_arm: act                        # SmolVLA is a stretch goal
+  D7_flagship_training_seeds: 2
+  D8_x14_card_deviations: approved
+
+suites:
+  libero_10:
+    split: exp/ablation_study/config/common/split_libero_10.yaml
+    baseline: exp/ablation_study/config/common/libero_10_baseline.yaml
+    role: primary
+  libero_spatial:
+    split: exp/ablation_study/config/common/split_libero_spatial.yaml
+    baseline: exp/ablation_study/config/common/libero_spatial_baseline.yaml
+    role: confirmation
+
+feature_fields: [vision_0, vision_1, robot_state]   # prompt_emb excluded: production retrieval dropped it
+hidden: 256
+batch_size: 100
+episodes_per_run: 4000
+
+lambda:
+  lambda_1: null    # filled by pilot_lambda.py select  (target realized teacher rate 40%)
+  lambda_2: null    # filled by pilot_lambda.py select  (target realized teacher rate 20%)
+
+# Five formal training runs (D7 adds the flagship's second seed).
+runs:
+  - {id: l10_ts_lam1_s0,  suite: libero_10, variant: R_ts,  lambda: lambda_1, seed: 0, flagship: true}
+  - {id: l10_ts_lam1_s1,  suite: libero_10, variant: R_ts,  lambda: lambda_1, seed: 1, flagship: true}
+  - {id: l10_ts_lam2_s0,  suite: libero_10, variant: R_ts,  lambda: lambda_2, seed: 0}
+  - {id: l10_tsc_lam1_s0, suite: libero_10, variant: R_tsc, lambda: lambda_1, seed: 0}
+  - {id: l10_tc_lam1_s0,  suite: libero_10, variant: R_tc,  lambda: lambda_1, seed: 0}
+
+# Checkpoints evaluated on the A pool, once, after every run is frozen.
+eval:
+  pool: pruned_init                # official 500/suite; never touched during training
+  episodes_per_checkpoint: 500
+  flagship_checkpoints: [500, 1000, 2000, 4000]
+  other_checkpoints: [4000]
+  mode: argmax                     # enforced by emit_router_yamls.py --check
+  primary_seed: 0                  # seed 1 is robustness, reported outside the Holm family

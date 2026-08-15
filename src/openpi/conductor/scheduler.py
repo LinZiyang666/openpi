@@ -257,8 +257,8 @@ class EpisodeScheduler:
                 return dataclasses.replace(self._ep_index[uid][1], attempt=gen)
             return None
 
-    def mark_result(self, task_uid: str, *, success: bool, retriable: bool, attempt: int | None = None) -> None:
-        """Record an episode result and advance stage state.
+    def mark_result(self, task_uid: str, *, success: bool, retriable: bool, attempt: int | None = None) -> bool:
+        """Record an episode result and advance stage state. Returns ``accepted``.
 
         ``attempt`` (set on worker-reported results) fences a stale result from a
         superseded dispatch: a timed-out + requeued task is re-dispatched at a
@@ -272,40 +272,48 @@ class EpisodeScheduler:
         - retriable warmup failure: invalidate the whole stage (re-pending,
           back to SETUP_PENDING) — stage-atomic (plan §8.2/§9.1).
         - retriable eval failure: re-pending that single episode.
+
+        The return value (X14) tells the caller whether this result was taken as
+        the current dispatch's outcome: ``False`` for an unknown uid, a stale
+        attempt, or a duplicate. Downstream (RL router batches) that distinction
+        decides whether an episode may enter a training batch, and a journal
+        record alone cannot express it — the journal is written for rejected
+        results too. Pre-existing callers ignore the value, so this is additive.
         """
         with self._lock:
             entry = self._ep_index.get(task_uid)
             if entry is None:
-                return
+                return False
             sid, ep = entry
             rt = self._rt[sid]
             if attempt is not None and attempt != self._dispatch_gen.get(task_uid):
                 # Result from a superseded dispatch (this attempt timed out and the
                 # task was re-dispatched at a higher generation). Reject so it is
                 # not accepted as the current dispatch (G2R3 stale-result fence).
-                return
+                return False
             if task_uid not in rt.dispatched:
                 # Not currently dispatched → stale / duplicate / post-reset
                 # result (e.g. a warmup episode still in-flight on an old worker
                 # when its stage was invalidated, or a result already recorded).
                 # Ignore: makes mark_result idempotent and blocks the rerun-time
                 # double-append that would bias the warmup buffer (plan §8.2).
-                return
+                return False
             rt.dispatched.discard(task_uid)
             self._dispatch_ts.pop(task_uid, None)
 
             if success:
                 rt.done_ok.add(task_uid)
                 self._maybe_complete(rt)
-                return
+                return True
 
             if not retriable:
                 # Fatal: do not retry; count as terminal failure.
                 rt.done_fail.add(task_uid)
                 self._maybe_complete(rt)
-                return
+                return True
 
-            # Retriable failure.
+            # Retriable failure. Accepted (it came from the live dispatch) but
+            # not terminal — the driver journals only terminal records.
             if ep.phase == "warmup":
                 self._invalidate_warmup_stage(rt)
             else:
@@ -316,6 +324,7 @@ class EpisodeScheduler:
                     self._maybe_complete(rt)
                 else:
                     rt.pending.append(task_uid)  # re-queue this episode
+            return True
 
     def requeue_timed_out(self, *, timeout_s: float, now: float | None = None) -> list[str]:
         """Requeue episodes dispatched more than ``timeout_s`` ago (wall-clock

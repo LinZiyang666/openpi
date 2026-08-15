@@ -284,6 +284,24 @@ Judge returns `JudgeResult(hit_type, winner_id, start_t)`.
 | `always_warm_start` | Always emits WARM_START with a fixed `start_t` for the top result (CP1 only). Used to sweep success-rate vs `start_t` curves. |
 | `composite` | 4-layer pluggable verdict pipeline (Normalization → Factor → Calibration → Composer). 17 registered factors: 4 descriptors (`jerk` / `direction` / `dispersion` / `path_length`) × 2 sources (`online` / `offline`) × 2 channels (`action` / `state`) + `topk_action_variance`. Calibration is per-key rolling-window percentile rank with no cold-start state (samples preloaded from offline file or per-yaml `WarmupPool`). Composer subclasses (weighted_sum / and / or / weighted_sum_with_warm_fallback) own NaN handling. Full lifecycle (build pkl → enrich-existing-pkl → warmup → eval → custom extension) lives in [verdict_factor_judge.md](verdict_factor_judge.md). |
 | `failure_aware_gate` | (TRACER Phase 3 / M2 + Phase 5 u_t) Three-state sigmoid gate `g = σ(β₀ + β₁·margin + β₂·u_t + β₃·Δ⁺)` over the dual-retrieval margin from a `dual_retrieval_knn` strategy's `retrieval_signals`. Reuses `threshold` / `warm_tiers` but on the gate value `g ∈ [0,1]` (CP1 warm only). Degenerate default (`u_t_factor=None`, β₂=0, β₃=0, β₀=−τ, β₁=1, threshold=0.5) == a `threshold` judge at τ. Validator pairs it with `dual_retrieval_knn`. **Phase 5 u_t**: set `u_t_factor: {descriptor: direction, channel: state, past: 2, future: 1}` to weight a kinematic-quality descriptor of the winner d⁺ via `β₂`; requires `β₂ ≠ 0 ⇒ u_t_factor` + in_memory backend (NaN u_t → margin-only). `export_factor_outputs: true` opt-ins the diagnostic per-step signal dump (default false = wire-identical to Phase 3). Calibrate `β/τ/λ` offline with `MarginGateCalibrator` (see `logs/tracer_phase5_calibration.log.md`). See the SearchStrategy §7 note. |
+| `mlp_router` | (X14 online-RL baseline) A 2-layer MLP samples one execution arm per step from the post-`build()` `query_keys` alone — blind to scores, retrieved ids, payloads and history. `arms: ts \| tc \| tsc` selects the action space: teacher → MISS, student → payloadless FULL_HIT routed to the sidecar (`hit_override=True`), cache → forced replay (`hit_override=False`); an empty library degrades the cache arm to MISS with `fallback: true`. CP1-only. Exactly one of `weights_path` (trained) / `constant_arm` (collection pass, argmax-only) must be set; `arms` containing the student arm requires `routing.hit_to`, in both directions. `mode: sample` requires `temperature > 0` and `seed`; `mode: argmax` is the frozen-evaluation setting. `dump_dir` enables the per-episode feature shard + sidecar the RL trainer consumes (empty ⇒ zero I/O). See [architecture/cache_system.md §5.16](../architecture/cache_system.md#516-mlp-router-verdict-layer-x14-online-rl-baseline) and [`logs/rl_router_baseline_plan.log.md`](../../logs/rl_router_baseline_plan.log.md). |
+
+**MLP router configuration** (CP1 only; scripts in `exp/rl_router/` emit these):
+
+```yaml
+judge:
+  type: mlp_router
+  arms: tsc                     # ts | tc | tsc
+  weights_path: exp/rl_router/data/l10/v3.pt   # xor constant_arm
+  feature_fields: [vision_0, vision_1, robot_state]
+  hidden: 256
+  mode: sample                  # argmax for frozen evaluation
+  temperature: 1.0              # required when mode=sample
+  seed: 0                       # required when mode=sample (per-episode RNG)
+  dump_dir: /data/rl_router/dump   # omit for evaluation arms
+routing:
+  hit_to: 127.0.0.1:7002        # required iff arms contains the student arm
+```
 
 **Warm start configuration** (optional, CP1 only):
 

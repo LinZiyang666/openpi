@@ -20,6 +20,7 @@ Coupling map:
 
 from __future__ import annotations
 
+import inspect
 import logging
 import math
 import os
@@ -44,6 +45,41 @@ if TYPE_CHECKING:
     from openpi.cache.components.payload_view import PayloadView
 
 
+def judge_accepts_query_keys(judge, *, allow_var_keyword: bool = True) -> bool:
+    """Probe once whether ``judge.__call__`` can receive ``query_keys=...``.
+
+    The X14 router decides on the post-``build()`` query keys, but the
+    ``SimilarityJudge`` protocol does not carry them: injecting unconditionally
+    would ``TypeError`` on every judge with an explicit keyword-only signature
+    and no ``**kwargs`` (``CompositeJudge``, ``DumpingJudge``). Callers probe
+    once at construction time and pass the kwarg only when this returns True.
+
+    ``allow_var_keyword`` selects the strictness:
+
+      - ``True`` (Orchestrator): a ``**kwargs`` judge counts as accepting. Such
+        judges silently swallow the kwarg, so injection is safe and the rule
+        stays a single signature test.
+      - ``False`` (DumpingJudge's inner forward): only an explicit ``query_keys``
+        parameter counts. A legacy inner judge would merely swallow the kwarg
+        and gain nothing, so keeping it out preserves a byte-identical inner
+        call for every dump-wrapped legacy / composite config.
+    """
+    call = getattr(judge, "__call__", None)
+    if call is None:
+        return False
+    try:
+        params = inspect.signature(call).parameters
+    except (TypeError, ValueError):
+        # Un-introspectable callable (C extension / exotic proxy): stay on the
+        # conservative side and do not inject.
+        return False
+    if "query_keys" in params:
+        return True
+    if not allow_var_keyword:
+        return False
+    return any(p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values())
+
+
 class HitType(Enum):
     """Cache hit classification.
 
@@ -60,8 +96,12 @@ class HitType(Enum):
 class JudgeResult:
     """Structured return type for SimilarityJudge.
 
-    FULL_HIT and WARM_START must include winner_id; Orchestrator skips
-    fetch when winner_id is None.
+    Payload invariant (X14 refinement): FULL_HIT and WARM_START must include
+    winner_id — Orchestrator skips fetch when winner_id is None — **except**
+    for a payloadless FULL_HIT, which is legal if and only if
+    ``hit_override is True``. That single exception exists for the RL router's
+    student arm, where the verdict routes execution to a sidecar and no cached
+    payload is ever read. Every other path keeps the original invariant.
 
     ``factor_outputs`` is an optional diagnostic payload populated only by
     CompositeJudge when its config carries ``export_factor_outputs: true``.
@@ -71,6 +111,21 @@ class JudgeResult:
     pandas) without relying on Python's lax ``allow_nan=True``. Orchestrator
     forwards this on ``CheckResult``; Interceptor surfaces it through
     ``__hit_meta__`` for client-side per-step logging.
+
+    ``hit_override`` is the tri-state executor selector consumed by
+    ``InferenceInterceptor``'s FULL_HIT dispatch:
+
+      - ``True``  — payloadless FULL_HIT; the wired ``hit_executor`` produces
+        the action (router student arm). ``winner_id`` MUST be None.
+      - ``False`` — force cached-action replay even when a ``hit_executor`` is
+        wired (router cache arm). ``winner_id`` MUST be set.
+      - ``None``  — legacy verdict; interceptor behaviour is unchanged.
+
+    ``router_outputs`` is the RL router's per-verdict provenance dict
+    (``{decision_idx, arm_sampled, arm_executed, probs, temperature,
+    weights_version, seed_ep, fallback}``). Only ``MlpRouterJudge`` populates
+    it; every other judge leaves it None so the ``__hit_meta__`` wire is
+    unchanged. Features / logits never ride this channel.
     """
 
     hit_type: HitType
@@ -78,6 +133,8 @@ class JudgeResult:
     start_t: float | None = None
     composer_score: Optional[float] = None
     factor_outputs: Optional[dict] = None
+    hit_override: Optional[bool] = None
+    router_outputs: Optional[dict] = None
 
 
 @runtime_checkable
@@ -100,6 +157,14 @@ class SimilarityJudge(Protocol):
     do not need them accept and ignore them via `**kwargs`; Orchestrator only
     builds and injects the facades from B1 onward (CompositeJudge land) and the
     retrieval signals when a dual-retrieval strategy provides them (Phase 3).
+
+    `query_keys` (X14) is NOT part of this signature: it is injected only into
+    judges whose `__call__` declares it explicitly (or accepts `**kwargs`), as
+    decided once at Orchestrator build time by `judge_accepts_query_keys`.
+    CompositeJudge and DumpingJudge's inner-forward path are therefore never
+    perturbed. Only `MlpRouterJudge` consumes it — it decides on the post-
+    `build()` query keys and never sees the library side (results / view /
+    history / retrieval_signals).
     """
 
     def __call__(

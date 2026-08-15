@@ -900,6 +900,35 @@ Additive hooks (default `None` → every path byte-identical, same discipline as
 - **`CacheConfig.routing`** (`hit_to` / `miss_to` "host:port", `connect_timeout_s`, `request_timeout_s`): exactly one target; a non-None section locks the yaml to a **positive allowlist** (cp1-only, gate ∈ {always_search, always_skip, random}, judge ∈ {threshold, always_hit} with no warm_tiers, depth-1 single-pool strategy, write never, no collection, in_memory backend) enforced at `load_cache_config` time — components outside the allowlist could consume broadcast action history, which the hit-arm's bookkeeping asymmetry (cached action broadcast, sidecar action executed) would poison.
 - **`SidecarExecutor`**: lazy bounded connect (direct `open_timeout` websocket + metadata handshake; never the unbounded `_wait_for_server`), per-request timeout, fail-closed on timeout/close/malformed response (raise → episode fails → conductor retry; no silent Pi0.5 fallback), idempotent `close()` invoked from `on_task_end`. `_wrap_policy` probes the endpoint per wrapper construction and rejects meta/split stage placement when routing is present. Arms switch per bundle hot-swap (`load_cache_config` ctrl) — the routing section rides the yaml, so one server process serves every arm.
 
+### 5.16 MLP Router Verdict Layer (X14 online-RL baseline)
+
+> **Source**: `src/openpi/cache/components/mlp_router_judge.py` (`MlpRouterJudge` / `RouterFeatureEncoder` / `RouterWeights`), `src/openpi/cache/components/judge.py` (`judge_accepts_query_keys`, `JudgeResult.hit_override` / `.router_outputs`), `src/openpi/cache/orchestrator.py` (payloadless FULL_HIT branch, episode/task-end broadcast), `src/openpi/cache/interceptor.py` (tri-state FULL_HIT dispatch). Design: [`logs/rl_router_baseline_plan.log.md`](../../logs/rl_router_baseline_plan.log.md).
+
+A 2-layer MLP occupies the verdict slot (`judge.type: mlp_router`) and samples one **execution arm** per control step, trained by batch on-policy REINFORCE from the episode outcome. It exists to answer "why retrieval instead of a trained router?" with a measured baseline rather than an argument.
+
+**Information contract.** The network sees exactly what TIER's retrieval sees *before* it touches the library: the post-`build()` `query_keys`. Retrieval still runs (the cache arm needs a payload), but scores, retrieved ids, payloads and neighbour history never reach the network — `_decide` takes features only, and the winner id is selected after the arm is chosen.
+
+**Arm → verdict mapping** (`arms: ts | tc | tsc`):
+
+| arm | verdict | executor |
+|---|---|---|
+| teacher | `MISS` | full Pi0.5 inference |
+| student | `FULL_HIT(winner_id=None, hit_override=True)` | wired `hit_executor` sidecar, **zero fetch** |
+| cache | `FULL_HIT(winner_id=results[0].id, hit_override=False)` | forced payload replay |
+
+Empty library on the cache arm degrades to `MISS` with `fallback: true`, and cost is billed to the arm that executed.
+
+**Seams added (all additive; `None` on every legacy path):**
+
+- **`JudgeResult.hit_override`** — tri-state executor selector. `True` = payloadless FULL_HIT (the one documented exception to "FULL_HIT/WARM_START must carry winner+payload"); `False` = force replay even when a `hit_executor` is wired; `None` = pre-X14 behaviour, byte-identical.
+- **`JudgeResult.router_outputs` / `CheckResult.router_outputs` / `__hit_meta__.router_outputs`** — frozen schema `{decision_idx, arm_sampled, arm_executed, probs, temperature, weights_version, seed_ep, fallback}`. Features and logits never ride the wire. `decision_idx` is the server-authoritative per-episode verdict counter and the only valid step coordinate for the three-source join: the client's `step_idx` is the physical env step and advances by `replan_steps` between inference calls.
+- **`query_keys` injection** — `judge_accepts_query_keys` probes each judge's `__call__` once at Orchestrator build time; only judges declaring the parameter (or accepting `**kwargs`) receive it, so `CompositeJudge` and every dump-wrapped legacy config keep an unchanged call. `DumpingJudge` declares it and relays it to its inner judge only when the inner declares it explicitly.
+- **Episode/task-end broadcast** — `on_episode_end` / `on_task_end` notify lifecycle-aware judges from a `finally` block. Required: `on_episode_end` has three early returns and a routed router config (write_policy `never`) takes the decline path, so anything outside `finally` would silently skip shard finalization.
+
+**Dump and parity.** The encoder's operator order is frozen as `raw fp32 → robot_state affine → Q(fp32→fp16→fp32)`, and the MLP decides on the Q output, so dumping the fp16 tensor records the network's input losslessly. One binary shard + one JSONL sidecar per episode, buffered in memory and written once at finalize (tmp → fsync → atomic rename → manifest append). The **shard manifest, not the conductor journal, is the authority on batch completeness** — a journal terminal record does not imply the shard was finalized. Router forwards run single-threaded (`pin_router_threads`) wherever a dump exists, so the trainer's CPU reference reproduces the behaviour logits bitwise.
+
+**Per-episode RNG.** `seed_ep = sha256(run_seed, task_uid, attempt, weights_version)` reseeds a private generator at `on_episode_start`; replaying the same identity replays the same arm sequence, which is what makes an interrupted run and its resume the same experiment without persisting live RNG state. An episode whose identity is incomplete is forced to argmax and isolated — never trained on.
+
 ## 6. Data Flow and Timing
 
 > **Note**: The data flow diagrams below reference cache search/write operations that depend on the storage layer (Section 5.2/5.3). The storage layer is ⚠️ unstable — interfaces and backend implementations will change. The timing structure (stages, checkpoint positions) is stable; the storage interaction details are not.

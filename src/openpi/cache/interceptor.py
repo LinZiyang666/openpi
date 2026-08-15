@@ -510,7 +510,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
     # -----------------------------------------------------------------------
 
     @staticmethod
-    def _build_hit_meta(cp1_result) -> dict:
+    def _build_hit_meta(cp1_result, arm_executed: Optional[str] = None) -> dict:
         """Build the ``__hit_meta__`` payload surfaced via the WebSocket response.
 
         The verdict_factor_judge per-step writer (B1) consumes this on the
@@ -519,6 +519,11 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         disabled or never executed) we emit a MISS placeholder so cache-off
         responses share the wire schema with cold-start MISSes; downstream
         analysis code does not need a parallel "no-cache" branch.
+
+        ``arm_executed`` (X14) names the execution path this call site actually
+        took. It is recorded only when the verdict carried ``router_outputs``,
+        i.e. only under an MlpRouterJudge — every other config keeps its exact
+        pre-X14 wire, including the no-orchestrator placeholder above.
         """
         if cp1_result is None:
             # cache-off / orchestrator never executed: every step is a full
@@ -550,6 +555,16 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         factor_outputs = getattr(cp1_result, "factor_outputs", None)
         if factor_outputs is not None:
             meta["factor_outputs"] = factor_outputs
+        # X14 router provenance. Copied (not aliased) so stamping arm_executed
+        # cannot mutate the judge's own per-verdict dict. features / logits are
+        # deliberately absent from this channel — they stay in the server-side
+        # dump and never cross the wire.
+        router_outputs = getattr(cp1_result, "router_outputs", None)
+        if router_outputs is not None:
+            stamped = dict(router_outputs)
+            if arm_executed is not None:
+                stamped["arm_executed"] = arm_executed
+            meta["router_outputs"] = stamped
         return meta
 
     @staticmethod
@@ -756,6 +771,45 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                             "warm_tiers (validate_cache_config allowlist)."
                         )
                     if cp1_result.hit_type == HitType.FULL_HIT:
+                        # X14 tri-state dispatch, resolved BEFORE any payload
+                        # dereference (the True branch has no payload at all):
+                        #   True  -> router student arm: sidecar is the action
+                        #            source, zero fetch.
+                        #   False -> router cache arm: force replay even when a
+                        #            hit_executor is wired.
+                        #   None  -> every pre-X14 judge: code below unchanged.
+                        _override = cp1_result.hit_override
+                        if _override is True:
+                            if self._hit_executor is None:
+                                raise RuntimeError(
+                                    "CP1 returned a payloadless FULL_HIT (hit_override=True) "
+                                    "but no hit_executor is wired. The router's student arm "
+                                    "requires routing.hit_to; config validation ties "
+                                    "judge.arms containing 's' to a sidecar endpoint."
+                                )
+                            try:
+                                with self._timer.measure("sidecar_hit"):
+                                    outputs = self._hit_executor(obs)
+                                # History stays gap-free on the executed action
+                                # (client space). Nothing is buffered for write:
+                                # a sidecar action is not a cache observation,
+                                # and routed configs are write_policy=never.
+                                self._orchestrator.broadcast_action(
+                                    torch.as_tensor(np.asarray(outputs["actions"]))
+                                )
+                            finally:
+                                self._orchestrator.clear()
+                            outputs["__hit_meta__"] = self._build_hit_meta(
+                                cp1_result, arm_executed="student"
+                            )
+                            outputs["__hit_meta__"]["executor"] = "override"
+                            if self._export_collect_meta:
+                                outputs["__collect_meta__"] = self._build_collect_meta(
+                                    cp1_result, self._collect_fields
+                                )
+                                if self._collect_kb_id:
+                                    outputs["__collect_meta__"]["kb_id"] = self._collect_kb_id
+                            return outputs
                         cached_action = cp1_result.payload.action_chunk
                         # Broadcast action + buffer for trajectory write
                         self._orchestrator.broadcast_action(cached_action)
@@ -763,7 +817,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                             self._orchestrator.buffer_for_write(
                                 cp1_result.query_keys, cached_action
                             )
-                        if self._hit_executor is not None:
+                        if _override is None and self._hit_executor is not None:
                             # Direction-1 routing: the verdict (and its cache
                             # bookkeeping above) stands, but the executed action
                             # comes from the sidecar in client space — skip the
@@ -800,8 +854,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                         outputs = self._output_transform(outputs)
                         # Attach observability meta after output_transform so
                         # the transform chain (jax.tree.map applied inside) is
-                        # not invoked on this nested dict.
-                        outputs["__hit_meta__"] = self._build_hit_meta(cp1_result)
+                        # not invoked on this nested dict. ``arm_executed`` only
+                        # lands when the verdict carried router_outputs, so the
+                        # legacy (override=None) wire is unchanged.
+                        outputs["__hit_meta__"] = self._build_hit_meta(
+                            cp1_result, arm_executed="cache"
+                        )
                         if self._export_collect_meta:
                             outputs["__collect_meta__"] = self._build_collect_meta(
                                 cp1_result, self._collect_fields
@@ -826,7 +884,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                             outputs = self._miss_executor(obs)
                     finally:
                         self._orchestrator.clear()
-                    outputs["__hit_meta__"] = self._build_hit_meta(cp1_result)
+                    outputs["__hit_meta__"] = self._build_hit_meta(
+                        cp1_result, arm_executed="teacher"
+                    )
                     outputs["__hit_meta__"]["executor"] = "override"
                     if self._export_collect_meta:
                         outputs["__collect_meta__"] = self._build_collect_meta(
@@ -981,7 +1041,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # the helper returns a MISS placeholder so cache-off responses share
         # the wire schema with cold-start MISSes.
         _cp1_result = cp1_result if self._orchestrator is not None else None
-        outputs["__hit_meta__"] = self._build_hit_meta(_cp1_result)
+        # Teacher is the only arm that reaches the full stage2/3 path: a router
+        # MISS is either a sampled teacher arm or a cache arm that found an
+        # empty library (the judge already flagged fallback=true).
+        outputs["__hit_meta__"] = self._build_hit_meta(
+            _cp1_result, arm_executed="teacher"
+        )
         if self._export_collect_meta:
             outputs["__collect_meta__"] = self._build_collect_meta(
                 _cp1_result, self._collect_fields

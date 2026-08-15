@@ -326,6 +326,30 @@ class JudgeConfig:
     # D+-only library_stats. The validator requires u_t_factor whenever
     # gate_betas["b2"] != 0 (and an in_memory backend carrying library_stats).
     u_t_factor: Optional[dict[str, Any]] = None
+    # ── MLP router (type="mlp_router"; X14 online-RL baseline) ──
+    # The router occupies the verdict slot and samples one execution arm from
+    # the post-build() query keys alone. All fields default to None so an
+    # unset one is distinguishable from an explicit value — the validator
+    # requires the safety-critical ones (arms / mode / seed) to be spelled out
+    # rather than inherited from a default that could silently change.
+    #   arms:           "ts" | "tc" | "tsc" — the action space.
+    #   weights_path:   trained checkpoint; mutually exclusive with constant_arm.
+    #   constant_arm:   fixed-arm collection mode (warm-start pass), argmax only.
+    #   feature_fields: query-key fields fed to the MLP (canonical order applied).
+    #   hidden:         hidden width (default 256).
+    #   temperature:    softmax temperature; required > 0 when mode="sample".
+    #   mode:           "sample" (training) | "argmax" (frozen evaluation).
+    #   dump_dir:       feature/sidecar dump root; empty => zero dump I/O.
+    #   seed:           run seed folded into the per-episode RNG derivation.
+    arms: Optional[str] = None
+    weights_path: Optional[str] = None
+    constant_arm: Optional[str] = None
+    feature_fields: Optional[list[str]] = None
+    hidden: Optional[int] = None
+    temperature: Optional[float] = None
+    mode: Optional[str] = None
+    dump_dir: Optional[str] = None
+    seed: Optional[int] = None
 
 
 @dataclass
@@ -552,7 +576,7 @@ _VALID_STEP_FILTERS = frozenset({"all", "exact", "window"})
 # _build_judge) stay in lockstep; otherwise a missing entry silently downgrades
 # to a "Unknown ... type" error at build time despite passing validation.
 _GATE_TYPES = frozenset({"always_search", "always_skip", "client_controlled", "random", "periodic", "score_hysteresis", "follow_winner"})
-_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start", "composite", "failure_aware_gate"})
+_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start", "composite", "failure_aware_gate", "mlp_router"})
 
 
 def _keys_iter(keys: KeysConfig) -> Iterator[tuple[str, KeyFieldConfig]]:
@@ -763,6 +787,145 @@ def load_cache_config(path: str | Path) -> CacheConfig:
         config.write_policy.type,
     )
     return config
+
+
+def _validate_mlp_router_static(
+    prefix: str,
+    judge: "JudgeConfig",
+    config: "CacheConfig",
+    errors: list[str],
+    *,
+    cp_name: str,
+) -> None:
+    """Static checks for the X14 ``mlp_router`` judge.
+
+    Every rule here guards a failure that would otherwise surface only as
+    corrupted experiment data: an arm that silently never executes, a sampled
+    run that cannot be replayed, or a feature field the key builder does not
+    produce (which would raise on the first verdict, hours into a batch).
+    """
+    from openpi.cache.components.mlp_router_judge import ARM_SETS, CANONICAL_FIELD_ORDER
+
+    # The interceptor only dispatches CP1 verdicts to executors, so a CP3
+    # router would be built, sampled, and then ignored.
+    if cp_name != "cp1":
+        errors.append(
+            f"{prefix}.judge: type='mlp_router' is CP1-only (the executor slots "
+            f"the arms map onto exist only at CP1); got checkpoint {cp_name!r}"
+        )
+
+    arms = judge.arms
+    if arms is None:
+        errors.append(f"{prefix}.judge: type='mlp_router' requires 'arms'")
+    elif arms not in ARM_SETS:
+        errors.append(
+            f"{prefix}.judge.arms must be one of {sorted(ARM_SETS)}; got {arms!r}"
+        )
+
+    # arms <-> routing.hit_to, both directions. A 's' arm with no sidecar would
+    # raise at verdict time; a sidecar with no 's' arm silently never fires.
+    hit_to = (config.routing.hit_to if config.routing is not None else None) or None
+    miss_to = (config.routing.miss_to if config.routing is not None else None) or None
+    if arms in ARM_SETS:
+        wants_student = "student" in ARM_SETS[arms]
+        if wants_student and hit_to is None:
+            errors.append(
+                f"{prefix}.judge.arms={arms!r} includes the student arm, which "
+                "requires routing.hit_to to name a sidecar endpoint."
+            )
+        if hit_to is not None and not wants_student:
+            errors.append(
+                f"{prefix}.judge.arms={arms!r} has no student arm, but routing.hit_to="
+                f"{hit_to!r} is set — the sidecar would never be reached."
+            )
+    # miss_to is incompatible with the router at any arm set. The MISS slot is
+    # the teacher arm: routing it to a sidecar would execute the student model
+    # while the verdict, the wire, and the cost ledger all still say "teacher",
+    # silently corrupting both the arm semantics and the reward's cost term.
+    if miss_to is not None:
+        errors.append(
+            f"{prefix}.judge: type='mlp_router' forbids routing.miss_to (got "
+            f"{miss_to!r}). The MISS slot IS the teacher arm; routing it to a "
+            "sidecar would bill teacher cost for a student execution. Use "
+            "arms='ts'/'tsc' with routing.hit_to for a student arm."
+        )
+
+    if judge.warm_tiers:
+        errors.append(
+            f"{prefix}.judge: type='mlp_router' cannot set warm_tiers — the router "
+            "is FULL_HIT/MISS binary and the TIER experiment configs replay clean "
+            "actions only (no denoising warm start)."
+        )
+
+    if judge.mode is None:
+        errors.append(
+            f"{prefix}.judge: type='mlp_router' requires an explicit 'mode' "
+            "('sample' for training, 'argmax' for frozen evaluation)"
+        )
+    elif judge.mode not in ("sample", "argmax"):
+        errors.append(
+            f"{prefix}.judge.mode must be 'sample' or 'argmax'; got {judge.mode!r}"
+        )
+    elif judge.mode == "sample":
+        if judge.temperature is None or not (float(judge.temperature) > 0):
+            errors.append(
+                f"{prefix}.judge: mode='sample' requires temperature > 0; "
+                f"got {judge.temperature!r}"
+            )
+        if judge.seed is None:
+            errors.append(
+                f"{prefix}.judge: mode='sample' requires 'seed' — the per-episode "
+                "RNG is derived from it, and without it a run cannot be replayed."
+            )
+
+    if judge.hidden is not None and (
+        isinstance(judge.hidden, bool) or not isinstance(judge.hidden, int) or judge.hidden <= 0
+    ):
+        errors.append(
+            f"{prefix}.judge.hidden must be an int >= 1; got {judge.hidden!r}"
+        )
+
+    if judge.feature_fields is not None:
+        ff = judge.feature_fields
+        if not ff:
+            errors.append(f"{prefix}.judge.feature_fields must be non-empty when set")
+        elif len(set(ff)) != len(ff):
+            errors.append(f"{prefix}.judge.feature_fields has duplicates: {ff}")
+        else:
+            unknown = [f for f in ff if f not in CANONICAL_FIELD_ORDER]
+            if unknown:
+                errors.append(
+                    f"{prefix}.judge.feature_fields {unknown} not in "
+                    f"{list(CANONICAL_FIELD_ORDER)}"
+                )
+            # A field the key builder does not emit would raise on the first
+            # verdict; catch it at load time instead.
+            enabled = {name for name, kf in _keys_iter(config.keys) if kf.enabled}
+            disabled = [f for f in ff if f in CANONICAL_FIELD_ORDER and f not in enabled]
+            if disabled:
+                errors.append(
+                    f"{prefix}.judge.feature_fields {disabled} are not enabled under "
+                    f"'keys' (enabled: {sorted(enabled)}); the key builder would not "
+                    "produce them."
+                )
+
+    has_weights = bool(judge.weights_path)
+    has_constant = bool(judge.constant_arm)
+    if has_weights == has_constant:
+        errors.append(
+            f"{prefix}.judge: exactly one of weights_path / constant_arm must be set "
+            f"(got weights_path={judge.weights_path!r}, constant_arm={judge.constant_arm!r})"
+        )
+    if has_constant:
+        if arms in ARM_SETS and judge.constant_arm not in ARM_SETS[arms]:
+            errors.append(
+                f"{prefix}.judge.constant_arm {judge.constant_arm!r} is not in "
+                f"arms={arms!r} {ARM_SETS[arms]}"
+            )
+        if judge.mode is not None and judge.mode != "argmax":
+            errors.append(
+                f"{prefix}.judge: constant_arm requires mode='argmax'; got {judge.mode!r}"
+            )
 
 
 def _validate_dump_static(
@@ -1613,6 +1776,12 @@ def validate_cache_config(config: CacheConfig) -> None:
                         f"backend.type={config.backend.type!r}"
                     )
 
+        # mlp_router judge parameter checks (X14).
+        if cp_config.judge.type == "mlp_router":
+            _validate_mlp_router_static(
+                prefix, cp_config.judge, config, errors, cp_name=cp_name,
+            )
+
         # JudgeConfig.dump validator (G1 R6+). Independent of judge.type;
         # any judge can be wrapped by DumpingJudge for calibration logging.
         if cp_config.judge.dump is not None:
@@ -2192,7 +2361,11 @@ _ROUTING_GATE_TYPES = frozenset({"always_search", "always_skip", "random"})
 # "composite" admitted 2026-08-13 (plan EN-4, owner ruling): the kinematic
 # composite verdict routes FULL_HIT->student for the Phase 4b Pareto sweep.
 # It is only binary when its WARM tier is empty — enforced below.
-_ROUTING_JUDGE_TYPES = frozenset({"threshold", "always_hit", "composite"})
+# "mlp_router" admitted for X14: the router's student arm IS a routed executor,
+# so a routing section is mandatory for its 's' variants (the bidirectional
+# arms<->hit_to rule lives in _validate_mlp_router_static). It is binary by
+# construction — it never emits WARM_START.
+_ROUTING_JUDGE_TYPES = frozenset({"threshold", "always_hit", "composite", "mlp_router"})
 _ROUTING_STRATEGY_TYPES = frozenset({"weighted_score_sum_knn", "weighted_rrf_knn"})
 
 
@@ -2731,6 +2904,24 @@ def _build_inner_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optiona
         # 4-layer composite refactor: instantiate Layer 1 / 2 / 3 / 4
         # from yaml schema and assemble via the new CompositeJudge.
         return _build_composite_judge(cfg, library_stats=library_stats, yaml_id=yaml_id)
+    elif cfg.type == "mlp_router":
+        # Lazy import (composite precedent): keeps torch-heavy router code out
+        # of every non-router config's import path. Weight loading + full meta
+        # validation happens inside the constructor, so a stale or mismatched
+        # checkpoint fails here at yaml load, not mid-episode.
+        from openpi.cache.components.mlp_router_judge import MlpRouterJudge
+
+        return MlpRouterJudge(
+            arms=cfg.arms,
+            weights_path=cfg.weights_path,
+            constant_arm=cfg.constant_arm,
+            feature_fields=cfg.feature_fields,
+            hidden=256 if cfg.hidden is None else int(cfg.hidden),
+            temperature=1.0 if cfg.temperature is None else float(cfg.temperature),
+            mode=cfg.mode,
+            dump_dir=cfg.dump_dir or "",
+            seed=0 if cfg.seed is None else int(cfg.seed),
+        )
     elif cfg.type == "failure_aware_gate":
         from openpi.cache.components.judge import FailureAwareGateJudge
 
