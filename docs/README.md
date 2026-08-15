@@ -87,7 +87,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 
 | File | Description |
 |------|-------------|
-| [theory/markov_inheritance.md](theory/markov_inheritance.md) | **马尔可夫继承定律的形式化与证明**（training-free 检索式 cache）。引理 1（无记忆 teacher ⇒ 标签条件独立 `I(a*;h|o)=0`）；**引理 2（去噪上界 `I(a*;h|k) ≤ I(a*;o|k)`：历史能贡献的信息量被 key 的有损度封死，即 rescue-the-weak 的定理化）**；命题 3（阶段吸收——E1-O 检验的正是它的前提）；定理 4 + 推论 4.1（对数损失下"历史带来的模仿误差改善"恰等于 `I(a*;h|k)`，故 ≤ key 有损度）；命题 5（success 过滤 = collider 条件化，历史唯一的正面通道，附两分支闭式例子 0 → 1 bit）；命题 6（非负可加打分类无法表达差分核 ⇒ 171 形状搜索的空集由算子类预定）。§8 逐条对应实验、§9 明列**不**主张的内容（不主张 `I(a*;h|k)=0`、不主张成功率天花板定理、不主张 collider 通道不存在）。配套实验：[`exp/markov_sufficiency/`](../exp/markov_sufficiency/analysis/synthesis.md) |
+| [theory/markov_inheritance.md](theory/markov_inheritance.md) | **马尔可夫继承定律：形式化与证明**（training-free 检索式 cache）。核心链条（推论 4.1，对数损失）`0 ≤ R*(k)−R*(k,h) = I(a*;h|k) ≤ I(a*;o|k)`。引理 1（无记忆 teacher ⇒ 标签条件独立 `I(a*;h|o)=0`）；引理 2（去噪上界：历史能贡献的信息被 key 有损度封死）+ 命题 2.2（上界紧且**双向非蕴含**：A1/A2 既推不出历史无用也推不出有用）+ 引理 2.3（上界随 key 粗化单调变松）+ 备注 2.4（**剂量-反应非定理**，附反例）；命题 3（**阶段分解**：Φ=φ(h) 时为精确恒等式；E1-O 所用归一化进度含 oracle 成分，在线 c_t 版待做）；定理 4（风险单调性对一切损失、恒等式**限对数损失**；备注 5.1 方向规则：改善⇒I>0、无改善⇏I=0）+ 命题 4.2（**固定算子上历史效果符号不定**：E1 正信息与 E4 SR 退化并存的和解）；命题 5（**选择条件化 = collider 重注**，success 过滤为主要实例，两分支闭式 0→1 bit；备注 6.1 推广到一般选择机制，构建管线默认 success 筛选故通道不能排除）；命题 6（**标量化分离**：帧间 dynamics 特征非 `{s_l}` 的函数 + 单调打分不可实现全局差分阈值）。§8 逐条对应 E1/E1-O/E3/E4 实证状态（均为**算子特定证据**、非互信息估计）、§9 假设清单与八条不主张。配套实验：[`exp/markov_sufficiency/`](../exp/markov_sufficiency/analysis/synthesis.md) |
 
 ### [experiments/](experiments/)
 
