@@ -1,0 +1,10 @@
+# O7 owner pre-approval for the Phase 3/4 launch power gate (plan §11-O7).
+# Verbatim owner ruling (terminal session, 2026-08-11):
+#   "我根据plan进行执行，我这里提前approve delta 无论任何情况"
+# Encoded as decision=underpowered_ok: the launch gate never blocks on TOST
+# power, while the analysis margin stays at the preregistered delta=0.03
+# (approved_delta would *widen* the margin, which the owner did not ask for).
+approved_by: Ziyang Lin
+date: 2026-08-11
+decision: underpowered_ok
+delta: 0.03

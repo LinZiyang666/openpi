@@ -37,14 +37,17 @@ def main() -> None:
     args = parser.parse_args()
 
     recipe = yaml.safe_load(pathlib.Path(args.recipe).read_text())
+    # API-level entry (train_student.py): the 0.3.3 CLI cannot consume the
+    # pre-chunked [10,7] O5 labels — see train_student.py module docstring.
+    trainer = pathlib.Path(__file__).with_name("train_student.py")
     cmd = [
-        sys.executable, "-m", "lerobot.scripts.train",
-        f"--policy.path={recipe['base_checkpoint']}",
-        f"--dataset.repo_id={recipe.get('dataset_repo_id', 'ablation/distill')}",
-        f"--dataset.root={args.dataset}",
-        f"--output_dir={args.out}",
+        sys.executable, str(trainer),
+        "--student", "smolvla",
+        f"--base-checkpoint={recipe['base_checkpoint']}",
+        f"--dataset={args.dataset}",
+        f"--out={args.out}",
         f"--steps={recipe['steps']}",
-        f"--batch_size={recipe['batch_size']}",
+        f"--batch-size={recipe['batch_size']}",
     ] + [str(x) for x in recipe.get("extra_args", [])]
     subprocess.run(cmd, check=True)
 

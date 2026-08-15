@@ -1,0 +1,1347 @@
+<!--
+  Interactive Pareto plotter for the so_101 real-robot experiments.
+
+  A single self-contained page (no network, no build step): open it in a browser
+  and click on the canvas to place points by hand. It reproduces the visual
+  language of the matplotlib figures under
+  exp/weighted_sum/analysis/libero_spatial/threshold_pareto/ so that hand-drawn
+  frontiers can sit next to generated ones without a style mismatch.
+
+  Public behaviour:
+    * A series is keyed by (color, shape). The pen selects which series receives
+      the next click; a new combination creates a new series + legend entry.
+    * Pareto frontiers are computed ONLY for circle-shaped series ("same color
+      circles"); every other shape is ignored, matching the requested semantics.
+      The frontier rule mirrors pareto_upper_frontier() in
+      exp/verdict_factor_judge/analysis/phase3/plot_pareto.py: sort along the x
+      axis, keep a point when y strictly improves on the running best.
+    * Dominated points (the ones "inside" the frontier) can be hidden per series.
+    * Axis text, limits, tick steps / decimals / explicit tick lists, legend
+      labels, legend placement and figure geometry are all editable; the defaults
+      are the values used by the existing threshold_pareto figures.
+
+  Geometry note: the SVG viewBox unit is one typographic point, and the figure
+  size is given in inches, so every font size and line width below is the same
+  number matplotlib would take. PNG export rasterises at the requested DPI.
+
+  Dependencies: none.
+-->
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pareto Plotter — so_101_real_exps</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --panel: #ffffff;
+    --ink: #1c1f23;
+    --ink-2: #4a5158;
+    --ink-3: #7b838c;
+    --line: #d9dde2;
+    --accent: #0f766e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181c;
+      --panel: #1f2227;
+      --ink: #e8eaed;
+      --ink-2: #b3b9c0;
+      --ink-3: #868d95;
+      --line: #343941;
+      --accent: #2dd4bf;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 13px/1.5 system-ui, -apple-system, "Segoe UI", "Noto Sans CJK SC", sans-serif;
+  }
+  #app { display: flex; height: 100vh; }
+
+  /* ---------------------------------------------------------------- panel */
+  #panel {
+    width: 340px;
+    flex: 0 0 340px;
+    overflow-y: auto;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    padding: 12px 14px 40px;
+  }
+  #panel h1 { font-size: 14px; margin: 0 0 2px; }
+  #panel h1 + p { margin: 0 0 12px; color: var(--ink-3); font-size: 11px; }
+  details {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: var(--panel);
+  }
+  details > summary {
+    cursor: pointer;
+    padding: 7px 10px;
+    font-weight: 600;
+    font-size: 12px;
+    list-style: none;
+    user-select: none;
+  }
+  details > summary::before { content: "▸ "; color: var(--ink-3); }
+  details[open] > summary::before { content: "▾ "; }
+  .body { padding: 4px 10px 10px; }
+
+  .row { display: flex; align-items: center; gap: 6px; margin: 5px 0; }
+  .row > label { flex: 0 0 88px; color: var(--ink-2); font-size: 11px; }
+  .row.wide > label { flex: 0 0 auto; }
+  input[type="text"], input[type="number"], textarea, select {
+    flex: 1 1 auto;
+    min-width: 0;
+    font: inherit;
+    font-size: 12px;
+    padding: 3px 5px;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+  textarea { resize: vertical; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px; }
+  input[type="number"] { text-align: right; }
+  input[type="color"] { width: 30px; height: 24px; padding: 0; border: 1px solid var(--line); border-radius: 4px; background: none; }
+  button {
+    font: inherit; font-size: 11px; padding: 4px 8px; cursor: pointer;
+    color: var(--ink); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 4px;
+  }
+  button:hover { border-color: var(--accent); color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.primary:hover { color: #fff; opacity: .88; }
+  .hintline { color: var(--ink-3); font-size: 11px; margin: 4px 0 0; }
+
+  /* swatches + shapes */
+  .swatches { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+  .sw { width: 20px; height: 20px; border-radius: 4px; border: 1px solid rgba(0,0,0,.25); cursor: pointer; padding: 0; }
+  .sw[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .shapes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .shape { width: 30px; height: 26px; display: grid; place-items: center; }
+  .shape[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--panel); }
+
+  /* series list */
+  .series { border: 1px solid var(--line); border-radius: 5px; margin: 6px 0; }
+  .series.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .series > .head { display: flex; align-items: center; gap: 5px; padding: 5px 6px; }
+  .series .dot { width: 14px; height: 14px; flex: 0 0 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,.3); }
+  .series .lbl { flex: 1 1 auto; min-width: 0; }
+  .series .n { color: var(--ink-3); font-size: 10px; flex: 0 0 auto; }
+  .series .mini { padding: 2px 5px; font-size: 10px; }
+  .series .opts { padding: 0 6px 6px; border-top: 1px dashed var(--line); margin-top: 2px; }
+  .checks { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 6px 6px; font-size: 11px; color: var(--ink-2); }
+  .checks label { display: inline-flex; align-items: center; gap: 3px; cursor: pointer; }
+
+  /* point table */
+  #ptTable { max-height: 220px; overflow-y: auto; border: 1px solid var(--line); border-radius: 5px; }
+  #ptTable table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  #ptTable td { padding: 1px 3px; border-bottom: 1px solid var(--line); }
+  #ptTable input { width: 100%; font-size: 11px; padding: 1px 3px; }
+  #ptTable .idx { color: var(--ink-3); width: 22px; text-align: right; }
+
+  /* ----------------------------------------------------------------- stage */
+  main { flex: 1 1 auto; display: flex; flex-direction: column; overflow: auto; padding: 16px; }
+  #figwrap { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.18); align-self: flex-start; }
+  #fig { display: block; max-width: 100%; height: auto; cursor: crosshair; touch-action: none; }
+  #hint { color: var(--ink-3); font-size: 11px; margin: 10px 2px 0; }
+  kbd {
+    font: inherit; font-size: 10px; padding: 0 4px; border: 1px solid var(--line);
+    border-bottom-width: 2px; border-radius: 3px; background: var(--panel);
+  }
+
+  /* point coordinate dialog (double-click on a point) */
+  #ptDlg {
+    position: fixed; z-index: 20; width: 216px; padding: 10px 12px 11px;
+    background: var(--panel); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 7px;
+    box-shadow: 0 6px 22px rgba(0,0,0,.28);
+  }
+  #ptDlg[hidden] { display: none; }
+  #ptDlg .t { font-size: 11px; color: var(--ink-3); margin-bottom: 6px; }
+  #ptDlg .t b { color: var(--ink); }
+  #ptDlg .row > label { flex: 0 0 20px; }
+  #ptDlg .btns { display: flex; gap: 6px; margin-top: 9px; }
+  #ptDlg .btns button { flex: 1 1 auto; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<aside id="panel">
+  <h1>Pareto Plotter</h1>
+  <p>exp/so_101_real_exps · 手动打点 · matplotlib 风格</p>
+
+  <!-- ------------------------------------------------------------- pen -->
+  <details open>
+    <summary>画笔（新点落到哪个系列）</summary>
+    <div class="body">
+      <div class="row wide"><label>tab10</label></div>
+      <div class="swatches" id="swTab"></div>
+      <div class="row wide"><label>色盲友好 Okabe–Ito</label></div>
+      <div class="swatches" id="swCvd"></div>
+      <div class="row"><label>自定义颜色</label><input type="color" id="penColor"><span class="hintline" id="penColorTxt"></span></div>
+      <div class="row wide"><label>形状</label></div>
+      <div class="shapes" id="shapes"></div>
+      <p class="hintline">帕累托前沿只对<b>圆点</b>系列计算；其他形状仅作标注（如 ★ 锚点）。</p>
+    </div>
+  </details>
+
+  <!-- ---------------------------------------------------------- series -->
+  <details open>
+    <summary>系列 / 图例</summary>
+    <div class="body">
+      <div class="row">
+        <button id="allParetoOn">全部画前沿</button>
+        <button id="allParetoOff">全部不画</button>
+      </div>
+      <div class="row">
+        <button id="allDomOn">显示前沿内点</button>
+        <button id="allDomOff">隐藏前沿内点</button>
+      </div>
+      <div id="seriesList"></div>
+    </div>
+  </details>
+
+  <!-- ---------------------------------------------------------- pareto -->
+  <details>
+    <summary>帕累托方向</summary>
+    <div class="body">
+      <div class="row"><label>x 方向更优</label>
+        <select id="pXDir"><option value="min">越小越好</option><option value="max">越大越好</option></select>
+      </div>
+      <div class="row"><label>y 方向更优</label>
+        <select id="pYDir"><option value="max">越大越好</option><option value="min">越小越好</option></select>
+      </div>
+      <p class="hintline">默认「x 小 / y 大」，与 pareto_upper_frontier 一致。</p>
+    </div>
+  </details>
+
+  <!-- ------------------------------------------------------------ axes -->
+  <details open>
+    <summary>标题与坐标轴文字</summary>
+    <div class="body">
+      <div class="row wide"><label>标题（换行 = 多行）</label></div>
+      <textarea id="title" rows="3"></textarea>
+      <div class="row wide"><label>x 轴文字</label></div>
+      <input type="text" id="xlabel">
+      <div class="row wide"><label>y 轴文字</label></div>
+      <input type="text" id="ylabel">
+    </div>
+  </details>
+
+  <details open>
+    <summary>坐标轴数字</summary>
+    <div class="body">
+      <div class="row"><label>x 范围</label>
+        <input type="number" id="xmin" step="any"><input type="number" id="xmax" step="any"></div>
+      <div class="row"><label>x 步长/小数</label>
+        <input type="number" id="xstep" step="any"><input type="number" id="xdec" min="0" max="6" step="1"></div>
+      <div class="row wide"><label>x 自定义刻度（逗号分隔，留空=按步长）</label></div>
+      <input type="text" id="xticks" placeholder="0, 0.25, 0.5, 0.75, 1">
+      <div class="row"><label>y 范围</label>
+        <input type="number" id="ymin" step="any"><input type="number" id="ymax" step="any"></div>
+      <div class="row"><label>y 步长/小数</label>
+        <input type="number" id="ystep" step="any"><input type="number" id="ydec" min="0" max="6" step="1"></div>
+      <div class="row wide"><label>y 自定义刻度</label></div>
+      <input type="text" id="yticks" placeholder="0.6, 0.8, 1.0">
+      <div class="row"><label>网格</label>
+        <input type="checkbox" id="grid"><span class="hintline">透明度</span>
+        <input type="number" id="gridAlpha" min="0" max="1" step="0.05"></div>
+    </div>
+  </details>
+
+  <!-- ---------------------------------------------------------- legend -->
+  <details>
+    <summary>图例样式</summary>
+    <div class="body">
+      <div class="row"><label>显示图例</label><input type="checkbox" id="legShow"></div>
+      <div class="row"><label>位置</label>
+        <select id="legLoc">
+          <option value="lower right">lower right</option>
+          <option value="lower left">lower left</option>
+          <option value="upper right">upper right</option>
+          <option value="upper left">upper left</option>
+          <option value="lower center">lower center</option>
+          <option value="upper center">upper center</option>
+          <option value="center right">center right</option>
+          <option value="center left">center left</option>
+        </select></div>
+      <div class="row"><label>字号 / 列数</label>
+        <input type="number" id="legFont" min="4" max="24" step="0.5">
+        <input type="number" id="legNcol" min="1" max="4" step="1"></div>
+      <div class="row"><label>边框不透明</label><input type="number" id="legAlpha" min="0" max="1" step="0.05"></div>
+    </div>
+  </details>
+
+  <!-- ---------------------------------------------------------- figure -->
+  <details>
+    <summary>图形尺寸与字号</summary>
+    <div class="body">
+      <div class="row"><label>尺寸（英寸）</label>
+        <input type="number" id="figW" step="0.5" min="2"><input type="number" id="figH" step="0.5" min="2"></div>
+      <div class="row"><label>标题 / 轴标字号</label>
+        <input type="number" id="fTitle" step="0.5" min="4"><input type="number" id="fLabel" step="0.5" min="4"></div>
+      <div class="row"><label>刻度字号</label><input type="number" id="fTick" step="0.5" min="4"></div>
+      <div class="row"><label>导出 DPI</label><input type="number" id="dpi" step="10" min="36" max="600"></div>
+      <div class="row"><label>吸附</label><input type="checkbox" id="snapOn">
+        <input type="number" id="snapX" step="any"><input type="number" id="snapY" step="any"></div>
+      <p class="hintline">吸附打开后，落点按 x / y 步长取整。</p>
+    </div>
+  </details>
+
+  <!-- ------------------------------------------------------------ data -->
+  <details open>
+    <summary>当前系列的点</summary>
+    <div class="body">
+      <div id="ptTable"></div>
+      <div class="row" style="margin-top:6px">
+        <button id="addPt">+ 手输一点</button>
+        <button id="clearSeries">清空本系列</button>
+      </div>
+      <div class="row wide" style="margin-top:6px"><label>批量粘贴（每行 x y 或 x,y）</label></div>
+      <textarea id="pasteBox" rows="3" placeholder="0.24 0.87&#10;0.24, 0.95"></textarea>
+      <div class="row"><button id="pasteBtn">导入到当前系列</button></div>
+    </div>
+  </details>
+
+  <!-- ---------------------------------------------------------- export -->
+  <details open>
+    <summary>导出 / 存档</summary>
+    <div class="body">
+      <div class="row"><button class="primary" id="btnPng">下载 PNG</button><button id="btnSvg">下载 SVG</button></div>
+      <div class="row"><button id="btnJson">保存 JSON</button><button id="btnLoad">载入 JSON</button>
+        <input type="file" id="fileJson" accept=".json" hidden></div>
+      <div class="row"><button id="btnReset">重置为默认</button></div>
+      <p class="hintline">JSON 保存了全部点与样式，下次载入即可继续改。页面也会自动记住最近一次状态。</p>
+    </div>
+  </details>
+</aside>
+
+<main>
+  <div id="figwrap"><svg id="fig" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <p id="hint">
+    <kbd>左键空白</kbd> 打点并可直接拖动定位 ·
+    <kbd>左键点上</kbd> 拖动已有点 ·
+    <kbd>双击</kbd> 输入精确 x / y ·
+    <kbd>右键点上</kbd> 删除 ·
+    <kbd>Ctrl</kbd>+<kbd>Z</kbd> 撤销
+  </p>
+</main>
+</div>
+
+<div id="ptDlg" hidden>
+  <div class="t">编辑坐标 · <b id="dlgWho"></b></div>
+  <div class="row"><label>x</label><input type="number" id="dlgX" step="any"></div>
+  <div class="row"><label>y</label><input type="number" id="dlgY" step="any"></div>
+  <div class="btns">
+    <button class="primary" id="dlgOk">确定</button>
+    <button id="dlgCancel">取消</button>
+    <button id="dlgDel">删除</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+// --------------------------------------------------------------------------
+// Constants
+// --------------------------------------------------------------------------
+
+const SVGNS = "http://www.w3.org/2000/svg";
+// matplotlib's default sans stack, so the page and the generated figures match.
+const FONT = '"DejaVu Sans","Bitstream Vera Sans",Verdana,Geneva,sans-serif';
+
+// tab10 (the order used by the existing threshold_pareto figures) plus the three
+// extra hues those scripts hand-pick for envelope / verdict / baseline lines.
+const PAL_TAB10 = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
+                   "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf",
+                   "#0f766e", "#7e3eb5", "#888888", "#000000"];
+// Okabe-Ito: a CVD-safe alternative for figures that must survive color-blind review.
+const PAL_CVD = ["#000000", "#e69f00", "#56b4e9", "#009e73",
+                 "#f0e442", "#0072b2", "#d55e00", "#cc79a7"];
+
+const SHAPES = [
+  {id: "circle",   glyph: "●"},
+  {id: "star",     glyph: "★"},
+  {id: "square",   glyph: "■"},
+  {id: "triangle", glyph: "▲"},
+  {id: "tri_down", glyph: "▼"},
+  {id: "diamond",  glyph: "◆"},
+  {id: "plus",     glyph: "✚"},
+  {id: "cross",    glyph: "✕"},
+];
+
+const LINE_STYLES = [
+  {id: "-",    name: "实线"},
+  {id: "--",   name: "虚线"},
+  {id: ":",    name: "点线"},
+  {id: "-.",   name: "点划线"},
+  {id: "none", name: "不连线"},
+];
+
+const STORE_KEY = "so101_pareto_plotter_v1";
+
+// Defaults mirror exp/weighted_sum/analysis/plot_threshold_pareto_combined.py.
+function defaultState() {
+  return {
+    fig: {wIn: 12, hIn: 8, dpi: 180},
+    font: {title: 12, label: 12, tick: 10},
+    axes: {
+      title: "Pareto comparison: threshold-pareto vs verdict (kinematic) vs r/p baseline\n"
+           + "★ = wsweep always_hit anchor (inf≈0); per-base detail in per_base.png",
+      xlabel: "inference_ratio (lower = more cache reuse)",
+      ylabel: "success_rate",
+      xmin: -0.02, xmax: 1.02, xstep: 0.1, xdec: 1, xticks: "",
+      ymin: 0.55, ymax: 1.02, ystep: 0.05, ydec: 2, yticks: "",
+      grid: true, gridAlpha: 0.4,
+    },
+    legend: {show: true, loc: "lower right", font: 9, ncol: 1, alpha: 0.95},
+    pareto: {xDir: "min", yDir: "max"},
+    snap: {on: false, x: 0.01, y: 0.005},
+    series: [],
+    activeId: null,
+    pen: {color: PAL_TAB10[0], shape: "circle"},
+    seq: 0,
+  };
+}
+
+let S = defaultState();
+const undoStack = [];
+
+// --------------------------------------------------------------------------
+// Small helpers
+// --------------------------------------------------------------------------
+
+const $ = (id) => document.getElementById(id);
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+function svgEl(tag, attrs) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) if (attrs[k] !== null && attrs[k] !== undefined) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function htmlEl(tag, props, children) {
+  const e = document.createElement(tag);
+  Object.assign(e, props || {});
+  (children || []).forEach((c) => e.appendChild(c));
+  return e;
+}
+
+// Text measurement shares one offscreen canvas; viewBox units are points, and
+// the canvas is queried in px, so the numbers line up 1:1.
+const measureCtx = document.createElement("canvas").getContext("2d");
+function textWidth(str, size, weight) {
+  measureCtx.font = (weight ? weight + " " : "") + size + "px " + FONT;
+  return measureCtx.measureText(str).width;
+}
+
+function fmt(v, dec) {
+  if (Math.abs(v) < 1e-12) v = 0;
+  return v.toFixed(dec);
+}
+
+function pushUndo() {
+  undoStack.push(JSON.stringify(S));
+  if (undoStack.length > 80) undoStack.shift();
+}
+
+function undo() {
+  const prev = undoStack.pop();
+  if (!prev) return;
+  S = JSON.parse(prev);
+  syncControls();
+  renderAll();
+}
+
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) { /* private mode */ }
+}
+
+function download(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = htmlEl("a", {href: url, download: name});
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+// --------------------------------------------------------------------------
+// Series model — a series is keyed by (color, shape)
+// --------------------------------------------------------------------------
+
+function findSeries(color, shape) {
+  return S.series.find((s) => s.color === color && s.shape === shape) || null;
+}
+
+function makeSeries(color, shape) {
+  S.seq += 1;
+  const isCircle = shape === "circle";
+  const s = {
+    id: "s" + S.seq,
+    color, shape,
+    label: "series " + S.seq,
+    visible: true,
+    pareto: isCircle,            // frontier only ever applies to circle series
+    showDominated: true,
+    dimDominated: true,
+    lineStyle: isCircle ? "-" : "none",
+    lw: 2.4,
+    ms: isCircle ? 6 : 12,
+    alpha: 0.95,
+    edge: isCircle ? "none" : "#000000",
+    edgeLw: 0.9,
+    points: [],
+  };
+  S.series.push(s);
+  return s;
+}
+
+function activeSeries(create) {
+  let s = S.series.find((x) => x.id === S.activeId);
+  if (s && s.color === S.pen.color && s.shape === S.pen.shape) return s;
+  s = findSeries(S.pen.color, S.pen.shape);
+  if (!s && create) s = makeSeries(S.pen.color, S.pen.shape);
+  if (s) S.activeId = s.id;
+  return s || null;
+}
+
+// --------------------------------------------------------------------------
+// Pareto frontier — same rule as pareto_upper_frontier() in plot_pareto.py
+// --------------------------------------------------------------------------
+
+/**
+ * Indices of the non-dominated points of `pts`, walking along x in the
+ * "improving" direction and keeping a point whenever y strictly improves on the
+ * running best. Returned in draw order.
+ */
+function frontierIdx(pts, xDir, yDir) {
+  const order = pts.map((p, i) => i).sort((a, b) =>
+    xDir === "min" ? pts[a].x - pts[b].x : pts[b].x - pts[a].x);
+  const keep = [];
+  let best = yDir === "max" ? -Infinity : Infinity;
+  for (const i of order) {
+    const y = pts[i].y;
+    if (yDir === "max" ? y > best : y < best) { keep.push(i); best = y; }
+  }
+  return keep;
+}
+
+function seriesFrontier(s) {
+  // Non-circle shapes never take part in a frontier, by design.
+  if (s.shape !== "circle" || s.points.length === 0) return null;
+  return frontierIdx(s.points, S.pareto.xDir, S.pareto.yDir);
+}
+
+// --------------------------------------------------------------------------
+// Marker geometry
+// --------------------------------------------------------------------------
+
+function starPath(cx, cy, R) {
+  const r = R * 0.382;
+  let d = "";
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 5;
+    const rad = i % 2 === 0 ? R : r;
+    d += (i === 0 ? "M" : "L") + (cx + rad * Math.cos(a)).toFixed(2) + "," + (cy + rad * Math.sin(a)).toFixed(2);
+  }
+  return d + "Z";
+}
+
+/** Build the SVG node for one marker; `ms` is the marker diameter in points. */
+function markerNode(shape, cx, cy, ms, color, alpha, edge, edgeLw) {
+  const h = ms / 2;
+  const fill = {fill: color, "fill-opacity": alpha,
+                stroke: edge && edge !== "none" ? edge : "none",
+                "stroke-width": edge && edge !== "none" ? edgeLw : null};
+  const strokeOnly = {fill: "none", stroke: color, "stroke-opacity": alpha,
+                      "stroke-width": Math.max(0.8, ms / 5), "stroke-linecap": "round"};
+  switch (shape) {
+    case "circle":
+      return svgEl("circle", Object.assign({cx, cy, r: h}, fill));
+    case "square":
+      return svgEl("rect", Object.assign({x: cx - h, y: cy - h, width: ms, height: ms}, fill));
+    case "triangle":
+      return svgEl("polygon", Object.assign(
+        {points: `${cx},${cy - h * 1.15} ${cx - h * 1.1},${cy + h * 0.85} ${cx + h * 1.1},${cy + h * 0.85}`}, fill));
+    case "tri_down":
+      return svgEl("polygon", Object.assign(
+        {points: `${cx},${cy + h * 1.15} ${cx - h * 1.1},${cy - h * 0.85} ${cx + h * 1.1},${cy - h * 0.85}`}, fill));
+    case "diamond":
+      return svgEl("polygon", Object.assign(
+        {points: `${cx},${cy - h * 1.25} ${cx + h},${cy} ${cx},${cy + h * 1.25} ${cx - h},${cy}`}, fill));
+    case "star":
+      return svgEl("path", Object.assign({d: starPath(cx, cy, h * 1.35)}, fill));
+    case "plus": {
+      const g = svgEl("g", strokeOnly);
+      g.appendChild(svgEl("line", {x1: cx - h, y1: cy, x2: cx + h, y2: cy}));
+      g.appendChild(svgEl("line", {x1: cx, y1: cy - h, x2: cx, y2: cy + h}));
+      return g;
+    }
+    default: { // cross
+      const g = svgEl("g", strokeOnly);
+      g.appendChild(svgEl("line", {x1: cx - h, y1: cy - h, x2: cx + h, y2: cy + h}));
+      g.appendChild(svgEl("line", {x1: cx - h, y1: cy + h, x2: cx + h, y2: cy - h}));
+      return g;
+    }
+  }
+}
+
+/** matplotlib dash patterns, scaled by line width as matplotlib does. */
+function dashArray(style, lw) {
+  switch (style) {
+    case "--": return (3.7 * lw).toFixed(2) + "," + (1.6 * lw).toFixed(2);
+    case ":":  return (1.0 * lw).toFixed(2) + "," + (1.65 * lw).toFixed(2);
+    case "-.": return [6.4 * lw, 1.6 * lw, 1.0 * lw, 1.6 * lw].map((v) => v.toFixed(2)).join(",");
+    default:   return null;
+  }
+}
+
+// --------------------------------------------------------------------------
+// Layout + rendering
+// --------------------------------------------------------------------------
+
+let LAYOUT = null;   // {x0, y0, w, h, vbW, vbH} in points
+
+function tickValues(min, max, step, custom) {
+  const parsed = (custom || "").split(/[,;\s]+/).map(parseFloat).filter(Number.isFinite);
+  if (parsed.length) return parsed;
+  if (!(step > 0)) return [min, max];
+  const out = [];
+  const i0 = Math.ceil((min - 1e-9) / step);
+  for (let i = i0; i * step <= max + 1e-9 && out.length < 400; i++) out.push(+(i * step).toFixed(10));
+  return out;
+}
+
+function computeLayout() {
+  const A = S.axes, F = S.font;
+  const vbW = S.fig.wIn * 72, vbH = S.fig.hIn * 72;
+  const yTicks = tickValues(A.ymin, A.ymax, A.ystep, A.yticks);
+  const xTicks = tickValues(A.xmin, A.xmax, A.xstep, A.xticks);
+  let yTickW = 0;
+  yTicks.forEach((v) => { yTickW = Math.max(yTickW, textWidth(fmt(v, A.ydec), F.tick)); });
+  const lastXW = xTicks.length ? textWidth(fmt(xTicks[xTicks.length - 1], A.xdec), F.tick) : 0;
+
+  const titleLines = A.title ? A.title.split("\n").length : 0;
+  const pad = 6;
+  const left = pad + (A.ylabel ? F.label * 1.5 : 0) + yTickW + 6;
+  const right = pad + Math.max(6, lastXW / 2);
+  const top = pad + (titleLines ? titleLines * F.title * 1.35 + 6 : 0);
+  const bottom = pad + F.tick * 1.35 + 6 + (A.xlabel ? F.label * 1.6 : 0);
+
+  LAYOUT = {x0: left, y0: top, w: Math.max(40, vbW - left - right),
+            h: Math.max(40, vbH - top - bottom), vbW, vbH, xTicks, yTicks};
+}
+
+const sx = (x) => LAYOUT.x0 + (x - S.axes.xmin) / (S.axes.xmax - S.axes.xmin) * LAYOUT.w;
+const sy = (y) => LAYOUT.y0 + LAYOUT.h - (y - S.axes.ymin) / (S.axes.ymax - S.axes.ymin) * LAYOUT.h;
+const ix = (px) => S.axes.xmin + (px - LAYOUT.x0) / LAYOUT.w * (S.axes.xmax - S.axes.xmin);
+const iy = (py) => S.axes.ymin + (LAYOUT.y0 + LAYOUT.h - py) / LAYOUT.h * (S.axes.ymax - S.axes.ymin);
+
+function renderFigure() {
+  computeLayout();
+  const A = S.axes, F = S.font, L = LAYOUT;
+  const svg = $("fig");
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  svg.setAttribute("viewBox", `0 0 ${L.vbW} ${L.vbH}`);
+  svg.setAttribute("width", L.vbW);
+  svg.setAttribute("height", L.vbH);
+  svg.style.width = Math.min(L.vbW * 1.35, 1400) + "px";
+
+  svg.appendChild(svgEl("rect", {x: 0, y: 0, width: L.vbW, height: L.vbH, fill: "#ffffff"}));
+
+  // ---- grid ----------------------------------------------------------
+  if (A.grid) {
+    const g = svgEl("g", {stroke: "#b0b0b0", "stroke-width": 0.7, "stroke-opacity": A.gridAlpha});
+    L.xTicks.forEach((v) => {
+      if (v < A.xmin - 1e-9 || v > A.xmax + 1e-9) return;
+      g.appendChild(svgEl("line", {x1: sx(v), y1: L.y0, x2: sx(v), y2: L.y0 + L.h}));
+    });
+    L.yTicks.forEach((v) => {
+      if (v < A.ymin - 1e-9 || v > A.ymax + 1e-9) return;
+      g.appendChild(svgEl("line", {x1: L.x0, y1: sy(v), x2: L.x0 + L.w, y2: sy(v)}));
+    });
+    svg.appendChild(g);
+  }
+
+  // ---- data ----------------------------------------------------------
+  const clip = svgEl("clipPath", {id: "axclip"});
+  clip.appendChild(svgEl("rect", {x: L.x0, y: L.y0, width: L.w, height: L.h}));
+  const defs = svgEl("defs");
+  defs.appendChild(clip);
+  svg.appendChild(defs);
+
+  const data = svgEl("g", {"clip-path": "url(#axclip)"});
+  S.series.forEach((s) => {
+    if (!s.visible || !s.points.length) return;
+    const front = seriesFrontier(s);
+    const onFront = new Set(front || []);
+    const showAll = !front || s.showDominated;
+
+    // connecting line: the frontier when enabled, otherwise the raw points in x order
+    if (s.lineStyle !== "none" && s.lw > 0) {
+      let seq = null;
+      if (s.pareto && front && front.length > 1) {
+        seq = front.map((i) => s.points[i]);
+      } else if (!s.pareto && s.points.length > 1) {
+        seq = s.points.slice().sort((a, b) => a.x - b.x);
+      }
+      if (seq) {
+        data.appendChild(svgEl("polyline", {
+          points: seq.map((p) => sx(p.x).toFixed(2) + "," + sy(p.y).toFixed(2)).join(" "),
+          fill: "none", stroke: s.color, "stroke-width": s.lw, "stroke-opacity": s.alpha,
+          "stroke-linejoin": "round", "stroke-linecap": "round",
+          "stroke-dasharray": dashArray(s.lineStyle, s.lw),
+        }));
+      }
+    }
+
+    // markers: dominated first (optionally dimmed), frontier points on top
+    if (s.ms > 0) {
+      s.points.forEach((p, i) => {
+        const isFront = onFront.has(i);
+        if (!isFront && !showAll) return;
+        const a = (!isFront && front && s.pareto && s.dimDominated) ? s.alpha * 0.45 : s.alpha;
+        data.appendChild(markerNode(s.shape, sx(p.x), sy(p.y), s.ms, s.color, a, s.edge, s.edgeLw));
+      });
+    }
+  });
+  svg.appendChild(data);
+
+  // ---- spines + ticks -------------------------------------------------
+  svg.appendChild(svgEl("rect", {x: L.x0, y: L.y0, width: L.w, height: L.h,
+                                 fill: "none", stroke: "#000000", "stroke-width": 0.8}));
+  const tg = svgEl("g", {stroke: "#000000", "stroke-width": 0.8});
+  const tl = svgEl("g", {"font-family": FONT, "font-size": F.tick, fill: "#000000"});
+  L.xTicks.forEach((v) => {
+    if (v < A.xmin - 1e-9 || v > A.xmax + 1e-9) return;
+    const X = sx(v);
+    tg.appendChild(svgEl("line", {x1: X, y1: L.y0 + L.h, x2: X, y2: L.y0 + L.h + 3.5}));
+    const t = svgEl("text", {x: X, y: L.y0 + L.h + 3.5 + 2 + F.tick * 0.82, "text-anchor": "middle"});
+    t.textContent = fmt(v, A.xdec);
+    tl.appendChild(t);
+  });
+  L.yTicks.forEach((v) => {
+    if (v < A.ymin - 1e-9 || v > A.ymax + 1e-9) return;
+    const Y = sy(v);
+    tg.appendChild(svgEl("line", {x1: L.x0, y1: Y, x2: L.x0 - 3.5, y2: Y}));
+    const t = svgEl("text", {x: L.x0 - 3.5 - 2.5, y: Y + F.tick * 0.35, "text-anchor": "end"});
+    t.textContent = fmt(v, A.ydec);
+    tl.appendChild(t);
+  });
+  svg.appendChild(tg);
+  svg.appendChild(tl);
+
+  // ---- axis labels + title --------------------------------------------
+  if (A.xlabel) {
+    const t = svgEl("text", {x: L.x0 + L.w / 2, y: L.vbH - 6 - F.label * 0.25,
+                             "text-anchor": "middle", "font-family": FONT, "font-size": F.label, fill: "#000"});
+    t.textContent = A.xlabel;
+    svg.appendChild(t);
+  }
+  if (A.ylabel) {
+    const t = svgEl("text", {x: 6 + F.label * 0.85, y: L.y0 + L.h / 2,
+                             "text-anchor": "middle", "font-family": FONT, "font-size": F.label, fill: "#000",
+                             transform: `rotate(-90 ${6 + F.label * 0.85} ${L.y0 + L.h / 2})`});
+    t.textContent = A.ylabel;
+    svg.appendChild(t);
+  }
+  if (A.title) {
+    const lines = A.title.split("\n");
+    lines.forEach((line, i) => {
+      const t = svgEl("text", {x: L.x0 + L.w / 2, y: 6 + (i + 0.85) * F.title * 1.35,
+                               "text-anchor": "middle", "font-family": FONT, "font-size": F.title, fill: "#000"});
+      t.textContent = line;
+      svg.appendChild(t);
+    });
+  }
+
+  if (S.legend.show) renderLegend(svg);
+}
+
+/** matplotlib-like legend box: handle sample + label, laid out in ncol columns. */
+function renderLegend(svg) {
+  const entries = S.series.filter((s) => s.visible && s.label);
+  if (!entries.length) return;
+  const L = LAYOUT, fs = S.legend.font;
+  const handleLen = 2.0 * fs, handlePad = 0.8 * fs, borderPad = 0.4 * fs;
+  const colPad = 2.0 * fs, labelSpacing = 0.5 * fs, rowH = fs * 1.2;
+
+  const ncol = clamp(S.legend.ncol | 0, 1, 4);
+  const nrow = Math.ceil(entries.length / ncol);
+  const cols = [];
+  for (let c = 0; c < ncol; c++) cols.push(entries.slice(c * nrow, (c + 1) * nrow));
+
+  // +2pt guards against small font-metric differences between the measuring
+  // canvas and the rendered SVG text, so a label never touches the frame.
+  const colW = cols.map((col) => handleLen + handlePad + 2 +
+    col.reduce((m, s) => Math.max(m, textWidth(s.label, fs)), 0));
+  const boxW = colW.reduce((a, b) => a + b, 0) + colPad * (ncol - 1) + borderPad * 2;
+  const rows = Math.max(...cols.map((c) => c.length), 1);
+  const boxH = rows * rowH + labelSpacing * (rows - 1) + borderPad * 2;
+
+  const axPad = 0.5 * fs;
+  const loc = S.legend.loc;
+  let bx = L.x0 + L.w - boxW - axPad;
+  let by = L.y0 + L.h - boxH - axPad;
+  if (loc.includes("left")) bx = L.x0 + axPad;
+  if (loc.includes("center") && !loc.startsWith("center")) bx = L.x0 + (L.w - boxW) / 2;
+  if (loc.startsWith("upper")) by = L.y0 + axPad;
+  if (loc.startsWith("center")) by = L.y0 + (L.h - boxH) / 2;
+
+  const g = svgEl("g", {});
+  g.appendChild(svgEl("rect", {x: bx, y: by, width: boxW, height: boxH, rx: 3,
+                               fill: "#ffffff", "fill-opacity": S.legend.alpha,
+                               stroke: "#cccccc", "stroke-width": 0.8}));
+  let cx0 = bx + borderPad;
+  cols.forEach((col, ci) => {
+    col.forEach((s, ri) => {
+      const cy = by + borderPad + ri * (rowH + labelSpacing) + rowH / 2;
+      if (s.lineStyle !== "none" && s.lw > 0) {
+        g.appendChild(svgEl("line", {x1: cx0, y1: cy, x2: cx0 + handleLen, y2: cy,
+                                     stroke: s.color, "stroke-width": s.lw, "stroke-opacity": s.alpha,
+                                     "stroke-dasharray": dashArray(s.lineStyle, s.lw)}));
+      }
+      if (s.ms > 0) {
+        g.appendChild(markerNode(s.shape, cx0 + handleLen / 2, cy,
+                                 Math.min(s.ms, fs * 1.6), s.color, s.alpha, s.edge, s.edgeLw));
+      }
+      const t = svgEl("text", {x: cx0 + handleLen + handlePad, y: cy + fs * 0.35,
+                               "font-family": FONT, "font-size": fs, fill: "#000000"});
+      t.textContent = s.label;
+      g.appendChild(t);
+    });
+    cx0 += colW[ci] + colPad;
+  });
+  svg.appendChild(g);
+}
+
+// --------------------------------------------------------------------------
+// Panel rendering
+// --------------------------------------------------------------------------
+
+function renderSwatches() {
+  const build = (host, pal) => {
+    host.textContent = "";
+    pal.forEach((c) => {
+      const b = htmlEl("button", {className: "sw", title: c});
+      b.style.background = c;
+      b.setAttribute("aria-pressed", String(S.pen.color.toLowerCase() === c.toLowerCase()));
+      b.onclick = () => { S.pen.color = c; activeSeries(false); renderAll(); };
+      host.appendChild(b);
+    });
+  };
+  build($("swTab"), PAL_TAB10);
+  build($("swCvd"), PAL_CVD);
+  $("penColor").value = S.pen.color;
+  $("penColorTxt").textContent = S.pen.color;
+
+  const host = $("shapes");
+  host.textContent = "";
+  SHAPES.forEach((sh) => {
+    const b = htmlEl("button", {className: "shape", textContent: sh.glyph, title: sh.id});
+    b.setAttribute("aria-pressed", String(S.pen.shape === sh.id));
+    b.onclick = () => { S.pen.shape = sh.id; activeSeries(false); renderAll(); };
+    host.appendChild(b);
+  });
+}
+
+function renderSeriesList() {
+  const host = $("seriesList");
+  host.textContent = "";
+  if (!S.series.length) {
+    host.appendChild(htmlEl("p", {className: "hintline", textContent: "还没有系列，在画布上点一下就会自动新建。"}));
+    return;
+  }
+  S.series.forEach((s, idx) => {
+    const box = htmlEl("div", {className: "series" + (s.id === S.activeId ? " active" : "")});
+
+    const dot = htmlEl("span", {className: "dot"});
+    dot.style.background = s.color;
+    const glyph = (SHAPES.find((x) => x.id === s.shape) || SHAPES[0]).glyph;
+
+    const lbl = htmlEl("input", {type: "text", className: "lbl", value: s.label});
+    lbl.oninput = () => { s.label = lbl.value; renderFigure(); save(); };
+
+    const pick = htmlEl("button", {className: "mini", textContent: glyph, title: "设为当前画笔"});
+    pick.onclick = () => { S.pen.color = s.color; S.pen.shape = s.shape; S.activeId = s.id; renderAll(); };
+
+    const up = htmlEl("button", {className: "mini", textContent: "▲", title: "上移"});
+    up.onclick = () => { if (idx > 0) { pushUndo(); S.series.splice(idx - 1, 0, S.series.splice(idx, 1)[0]); renderAll(); } };
+    const dn = htmlEl("button", {className: "mini", textContent: "▼", title: "下移"});
+    dn.onclick = () => { if (idx < S.series.length - 1) { pushUndo(); S.series.splice(idx + 1, 0, S.series.splice(idx, 1)[0]); renderAll(); } };
+    const del = htmlEl("button", {className: "mini", textContent: "✕", title: "删除系列"});
+    del.onclick = () => {
+      if (!confirm(`删除系列「${s.label}」及其 ${s.points.length} 个点？`)) return;
+      pushUndo();
+      S.series.splice(idx, 1);
+      if (S.activeId === s.id) S.activeId = S.series.length ? S.series[0].id : null;
+      renderAll();
+    };
+
+    box.appendChild(htmlEl("div", {className: "head"}, [
+      dot, pick, lbl, htmlEl("span", {className: "n", textContent: s.points.length + "pt"}), up, dn, del,
+    ]));
+
+    // per-series toggles
+    const checks = htmlEl("div", {className: "checks"});
+    const isCircle = s.shape === "circle";
+    const mk = (text, key, disabled, title) => {
+      const cb = htmlEl("input", {type: "checkbox", checked: !!s[key], disabled: !!disabled});
+      cb.onchange = () => { s[key] = cb.checked; renderFigure(); save(); };
+      const l = htmlEl("label", {title: title || ""}, [cb, document.createTextNode(text)]);
+      if (disabled) l.style.opacity = ".45";
+      return l;
+    };
+    checks.appendChild(mk("显示", "visible"));
+    checks.appendChild(mk("画前沿", "pareto", !isCircle, isCircle ? "" : "帕累托前沿仅对圆点系列生效"));
+    checks.appendChild(mk("前沿内点", "showDominated", !isCircle, "取消勾选则只保留前沿上的点"));
+    checks.appendChild(mk("内点淡化", "dimDominated", !isCircle));
+    box.appendChild(checks);
+
+    // advanced style
+    const opts = htmlEl("details", {});
+    opts.appendChild(htmlEl("summary", {textContent: "样式", style: "font-weight:400;font-size:11px;padding:3px 6px"}));
+    const body = htmlEl("div", {className: "opts"});
+
+    const numRow = (name, key, step, min, max) => {
+      const row = htmlEl("div", {className: "row"});
+      row.appendChild(htmlEl("label", {textContent: name}));
+      const inp = htmlEl("input", {type: "number", value: s[key], step, min, max});
+      inp.oninput = () => { s[key] = parseFloat(inp.value); renderFigure(); save(); };
+      row.appendChild(inp);
+      return row;
+    };
+
+    const lsRow = htmlEl("div", {className: "row"});
+    lsRow.appendChild(htmlEl("label", {textContent: "连线"}));
+    const sel = htmlEl("select");
+    LINE_STYLES.forEach((ls) => sel.appendChild(htmlEl("option", {value: ls.id, textContent: ls.name})));
+    sel.value = s.lineStyle;
+    sel.onchange = () => { s.lineStyle = sel.value; renderFigure(); save(); };
+    lsRow.appendChild(sel);
+    body.appendChild(lsRow);
+
+    body.appendChild(numRow("线宽 pt", "lw", 0.1, 0, 12));
+    body.appendChild(numRow("点径 pt", "ms", 0.5, 0, 60));
+    body.appendChild(numRow("不透明度", "alpha", 0.05, 0, 1));
+
+    const edgeRow = htmlEl("div", {className: "row"});
+    edgeRow.appendChild(htmlEl("label", {textContent: "描边"}));
+    const edgeCb = htmlEl("input", {type: "checkbox", checked: s.edge !== "none"});
+    const edgeCol = htmlEl("input", {type: "color", value: s.edge === "none" ? "#000000" : s.edge});
+    edgeCb.onchange = () => { s.edge = edgeCb.checked ? edgeCol.value : "none"; renderFigure(); save(); };
+    edgeCol.oninput = () => { if (edgeCb.checked) { s.edge = edgeCol.value; renderFigure(); save(); } };
+    edgeRow.appendChild(edgeCb);
+    edgeRow.appendChild(edgeCol);
+    body.appendChild(edgeRow);
+    body.appendChild(numRow("描边宽", "edgeLw", 0.1, 0, 6));
+
+    const colRow = htmlEl("div", {className: "row"});
+    colRow.appendChild(htmlEl("label", {textContent: "改颜色"}));
+    const col = htmlEl("input", {type: "color", value: s.color});
+    col.oninput = () => {
+      pushUndo();
+      s.color = col.value;
+      if (S.activeId === s.id) S.pen.color = col.value;
+      renderAll();
+    };
+    colRow.appendChild(col);
+    body.appendChild(colRow);
+
+    opts.appendChild(body);
+    box.appendChild(opts);
+    host.appendChild(box);
+  });
+}
+
+function renderPointTable() {
+  const host = $("ptTable");
+  host.textContent = "";
+  const s = S.series.find((x) => x.id === S.activeId);
+  if (!s) {
+    host.appendChild(htmlEl("p", {className: "hintline", textContent: "（先在画布上打一个点）"}));
+    return;
+  }
+  const table = htmlEl("table");
+  s.points.forEach((p, i) => {
+    const tr = htmlEl("tr");
+    tr.appendChild(htmlEl("td", {className: "idx", textContent: String(i + 1)}));
+    const mkCell = (key, dec) => {
+      const td = htmlEl("td");
+      const inp = htmlEl("input", {type: "number", step: "any", value: String(+p[key].toFixed(dec))});
+      inp.onchange = () => {
+        const v = parseFloat(inp.value);
+        if (Number.isFinite(v)) { pushUndo(); p[key] = v; renderFigure(); renderPointTable(); save(); }
+      };
+      td.appendChild(inp);
+      return td;
+    };
+    tr.appendChild(mkCell("x", 6));
+    tr.appendChild(mkCell("y", 6));
+    const tdDel = htmlEl("td", {style: "width:22px"});
+    const b = htmlEl("button", {className: "mini", textContent: "✕"});
+    b.onclick = () => { pushUndo(); s.points.splice(i, 1); renderAll(); };
+    tdDel.appendChild(b);
+    tr.appendChild(tdDel);
+    table.appendChild(tr);
+  });
+  host.appendChild(table);
+}
+
+function renderAll() {
+  renderSwatches();
+  renderSeriesList();
+  renderPointTable();
+  renderFigure();
+  save();
+}
+
+// --------------------------------------------------------------------------
+// Canvas interaction
+// --------------------------------------------------------------------------
+
+let drag = null;   // {series, index}
+
+function toFigure(evt) {
+  const svg = $("fig");
+  const r = svg.getBoundingClientRect();
+  return {
+    px: (evt.clientX - r.left) / r.width * LAYOUT.vbW,
+    py: (evt.clientY - r.top) / r.height * LAYOUT.vbH,
+  };
+}
+
+function snapVal(v, step) {
+  if (!S.snap.on || !(step > 0)) return v;
+  return +(Math.round(v / step) * step).toFixed(10);
+}
+
+/** Nearest visible & currently drawn point within `tol` points, or null. */
+function hitTest(px, py, tol) {
+  let best = null, bestD = tol * tol;
+  S.series.forEach((s) => {
+    if (!s.visible) return;
+    const front = seriesFrontier(s);
+    const onFront = front ? new Set(front) : null;
+    s.points.forEach((p, i) => {
+      if (onFront && !s.showDominated && !onFront.has(i)) return;
+      const dx = sx(p.x) - px, dy = sy(p.y) - py;
+      const d = dx * dx + dy * dy;
+      if (d <= bestD) { bestD = d; best = {series: s, index: i}; }
+    });
+  });
+  return best;
+}
+
+function insideAxes(px, py) {
+  return px >= LAYOUT.x0 && px <= LAYOUT.x0 + LAYOUT.w && py >= LAYOUT.y0 && py <= LAYOUT.y0 + LAYOUT.h;
+}
+
+// ---- exact-coordinate dialog (double-click a point) ------------------------
+
+let dlgTarget = null;   // {series, index}
+
+function openPointDialog(hit, clientX, clientY) {
+  dlgTarget = hit;
+  const p = hit.series.points[hit.index];
+  $("dlgWho").textContent = `${hit.series.label} · 第 ${hit.index + 1} 点`;
+  $("dlgX").value = p.x;
+  $("dlgY").value = p.y;
+  const dlg = $("ptDlg");
+  dlg.hidden = false;
+  const vw = window.innerWidth || 1200, vh = window.innerHeight || 800;
+  dlg.style.left = clamp(clientX + 12, 8, Math.max(8, vw - 232)) + "px";
+  dlg.style.top = clamp(clientY + 12, 8, Math.max(8, vh - (dlg.offsetHeight || 150) - 8)) + "px";
+  if ($("dlgX").focus) { $("dlgX").focus(); $("dlgX").select(); }
+}
+
+function closePointDialog() {
+  dlgTarget = null;
+  $("ptDlg").hidden = true;
+}
+
+function commitPointDialog() {
+  if (!dlgTarget) return;
+  const x = parseFloat($("dlgX").value), y = parseFloat($("dlgY").value);
+  if (!Number.isFinite(x) || !Number.isFinite(y)) { alert("x / y 需要填数字。"); return; }
+  pushUndo();
+  const p = dlgTarget.series.points[dlgTarget.index];
+  p.x = x;
+  p.y = y;
+  closePointDialog();
+  renderAll();
+}
+
+function deleteFromDialog() {
+  if (!dlgTarget) return;
+  pushUndo();
+  dlgTarget.series.points.splice(dlgTarget.index, 1);
+  closePointDialog();
+  renderAll();
+}
+
+function initCanvas() {
+  const svg = $("fig");
+
+  svg.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0) return;
+    const {px, py} = toFigure(e);
+    const hit = hitTest(px, py, 7);
+    pushUndo();
+    if (hit) {
+      S.pen.color = hit.series.color;
+      S.pen.shape = hit.series.shape;
+      S.activeId = hit.series.id;
+      drag = hit;
+    } else {
+      if (!insideAxes(px, py)) { undoStack.pop(); return; }
+      const s = activeSeries(true);
+      s.points.push({x: snapVal(ix(px), S.snap.x), y: snapVal(iy(py), S.snap.y)});
+      drag = {series: s, index: s.points.length - 1};
+    }
+    svg.setPointerCapture(e.pointerId);
+    renderAll();
+  });
+
+  svg.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    const {px, py} = toFigure(e);
+    const p = drag.series.points[drag.index];
+    p.x = snapVal(clamp(ix(px), S.axes.xmin, S.axes.xmax), S.snap.x);
+    p.y = snapVal(clamp(iy(py), S.axes.ymin, S.axes.ymax), S.snap.y);
+    renderFigure();
+  });
+
+  const endDrag = () => {
+    if (!drag) return;
+    drag = null;
+    renderPointTable();
+    renderSeriesList();
+    save();
+  };
+  svg.addEventListener("pointerup", endDrag);
+  svg.addEventListener("pointercancel", endDrag);
+
+  svg.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    const {px, py} = toFigure(e);
+    const hit = hitTest(px, py, 8);
+    if (!hit) return;
+    pushUndo();
+    hit.series.points.splice(hit.index, 1);
+    renderAll();
+  });
+
+  // Double-click a point to type its exact coordinates. Double-clicking empty
+  // space first drops a point there (via pointerdown), then edits that point.
+  svg.addEventListener("dblclick", (e) => {
+    e.preventDefault();
+    const {px, py} = toFigure(e);
+    const hit = hitTest(px, py, 9);
+    if (hit) openPointDialog(hit, e.clientX, e.clientY);
+  });
+
+  $("dlgOk").onclick = commitPointDialog;
+  $("dlgCancel").onclick = closePointDialog;
+  $("dlgDel").onclick = deleteFromDialog;
+  ["dlgX", "dlgY"].forEach((id) => {
+    $(id).addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); commitPointDialog(); }
+      else if (e.key === "Escape") { e.preventDefault(); closePointDialog(); }
+    });
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && dlgTarget) { closePointDialog(); return; }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) {
+      e.preventDefault();
+      undo();
+    }
+  });
+}
+
+// --------------------------------------------------------------------------
+// Control binding
+// --------------------------------------------------------------------------
+
+const BINDINGS = [
+  ["title", "axes.title", "str"], ["xlabel", "axes.xlabel", "str"], ["ylabel", "axes.ylabel", "str"],
+  ["xmin", "axes.xmin", "num"], ["xmax", "axes.xmax", "num"], ["xstep", "axes.xstep", "num"],
+  ["xdec", "axes.xdec", "int"], ["xticks", "axes.xticks", "str"],
+  ["ymin", "axes.ymin", "num"], ["ymax", "axes.ymax", "num"], ["ystep", "axes.ystep", "num"],
+  ["ydec", "axes.ydec", "int"], ["yticks", "axes.yticks", "str"],
+  ["grid", "axes.grid", "bool"], ["gridAlpha", "axes.gridAlpha", "num"],
+  ["legShow", "legend.show", "bool"], ["legLoc", "legend.loc", "str"],
+  ["legFont", "legend.font", "num"], ["legNcol", "legend.ncol", "int"], ["legAlpha", "legend.alpha", "num"],
+  ["figW", "fig.wIn", "num"], ["figH", "fig.hIn", "num"], ["dpi", "fig.dpi", "int"],
+  ["fTitle", "font.title", "num"], ["fLabel", "font.label", "num"], ["fTick", "font.tick", "num"],
+  ["snapOn", "snap.on", "bool"], ["snapX", "snap.x", "num"], ["snapY", "snap.y", "num"],
+  ["pXDir", "pareto.xDir", "str"], ["pYDir", "pareto.yDir", "str"],
+];
+
+function getPath(path) { return path.split(".").reduce((o, k) => o[k], S); }
+function setPath(path, v) {
+  const ks = path.split(".");
+  const last = ks.pop();
+  ks.reduce((o, k) => o[k], S)[last] = v;
+}
+
+function syncControls() {
+  BINDINGS.forEach(([id, path, type]) => {
+    const el = $(id);
+    const v = getPath(path);
+    if (type === "bool") el.checked = !!v; else el.value = v;
+  });
+}
+
+function initBindings() {
+  BINDINGS.forEach(([id, path, type]) => {
+    const el = $(id);
+    const evt = (el.type === "checkbox" || el.tagName === "SELECT") ? "change" : "input";
+    el.addEventListener(evt, () => {
+      let v;
+      if (type === "bool") v = el.checked;
+      else if (type === "num") { v = parseFloat(el.value); if (!Number.isFinite(v)) return; }
+      else if (type === "int") { v = parseInt(el.value, 10); if (!Number.isFinite(v)) return; }
+      else v = el.value;
+      setPath(path, v);
+      renderFigure();
+      save();
+    });
+  });
+
+  $("penColor").addEventListener("input", () => {
+    S.pen.color = $("penColor").value;
+    activeSeries(false);
+    renderAll();
+  });
+
+  const setAll = (key, val) => {
+    pushUndo();
+    S.series.forEach((s) => { if (s.shape === "circle") s[key] = val; });
+    renderAll();
+  };
+  $("allParetoOn").onclick = () => setAll("pareto", true);
+  $("allParetoOff").onclick = () => setAll("pareto", false);
+  $("allDomOn").onclick = () => setAll("showDominated", true);
+  $("allDomOff").onclick = () => setAll("showDominated", false);
+
+  $("addPt").onclick = () => {
+    const s = activeSeries(true);
+    pushUndo();
+    s.points.push({x: +((S.axes.xmin + S.axes.xmax) / 2).toFixed(4),
+                   y: +((S.axes.ymin + S.axes.ymax) / 2).toFixed(4)});
+    renderAll();
+  };
+  $("clearSeries").onclick = () => {
+    const s = S.series.find((x) => x.id === S.activeId);
+    if (!s || !s.points.length) return;
+    if (!confirm(`清空系列「${s.label}」的 ${s.points.length} 个点？`)) return;
+    pushUndo();
+    s.points = [];
+    renderAll();
+  };
+  $("pasteBtn").onclick = () => {
+    const rows = $("pasteBox").value.split("\n")
+      .map((l) => l.split(/[,\t;\s]+/).map(parseFloat).filter(Number.isFinite))
+      .filter((a) => a.length >= 2);
+    if (!rows.length) { alert("没有解析到 x y 数对。"); return; }
+    const s = activeSeries(true);
+    pushUndo();
+    rows.forEach((a) => s.points.push({x: a[0], y: a[1]}));
+    $("pasteBox").value = "";
+    renderAll();
+  };
+
+  $("btnPng").onclick = exportPng;
+  $("btnSvg").onclick = exportSvg;
+  $("btnJson").onclick = () => download(new Blob([JSON.stringify(S, null, 2)], {type: "application/json"}),
+                                        "pareto_plot.json");
+  $("btnLoad").onclick = () => $("fileJson").click();
+  $("fileJson").onchange = (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const fr = new FileReader();
+    fr.onload = () => {
+      try {
+        const obj = JSON.parse(fr.result);
+        if (!obj || !Array.isArray(obj.series)) throw new Error("bad file");
+        pushUndo();
+        S = Object.assign(defaultState(), obj);
+        syncControls();
+        renderAll();
+      } catch (err) { alert("JSON 解析失败：" + err.message); }
+    };
+    fr.readAsText(f);
+    e.target.value = "";
+  };
+  $("btnReset").onclick = () => {
+    if (!confirm("重置为默认设置并清空所有点？")) return;
+    pushUndo();
+    S = defaultState();
+    syncControls();
+    renderAll();
+  };
+}
+
+// --------------------------------------------------------------------------
+// Export
+// --------------------------------------------------------------------------
+
+function serializedSvg() {
+  const clone = $("fig").cloneNode(true);
+  clone.removeAttribute("style");
+  clone.setAttribute("xmlns", SVGNS);
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(clone);
+}
+
+function exportSvg() {
+  download(new Blob([serializedSvg()], {type: "image/svg+xml;charset=utf-8"}), "pareto_plot.svg");
+}
+
+function exportPng() {
+  const scale = S.fig.dpi / 72;
+  const W = Math.round(LAYOUT.vbW * scale), H = Math.round(LAYOUT.vbH * scale);
+  const url = URL.createObjectURL(new Blob([serializedSvg()], {type: "image/svg+xml;charset=utf-8"}));
+  const img = new Image();
+  img.onload = () => {
+    const cv = htmlEl("canvas", {width: W, height: H});
+    const ctx = cv.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, W, H);
+    ctx.drawImage(img, 0, 0, W, H);
+    URL.revokeObjectURL(url);
+    cv.toBlob((b) => download(b, "pareto_plot.png"), "image/png");
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); alert("PNG 导出失败，可改用 SVG。"); };
+  img.src = url;
+}
+
+// --------------------------------------------------------------------------
+// Boot
+// --------------------------------------------------------------------------
+
+(function boot() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const obj = JSON.parse(raw);
+      if (obj && Array.isArray(obj.series)) S = Object.assign(defaultState(), obj);
+    }
+  } catch (e) { /* fall back to defaults */ }
+  initBindings();
+  initCanvas();
+  syncControls();
+  renderAll();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+student: act_per_task
+suite: libero_spatial
+task: task_5
+note: 'EN-2 protocol full-eval cells; EN-3 rev (owner ruling 2026-08-13): suite-uniform
+  step 020000 = standard-recipe endpoint (official SmolVLA finetune budget / ACT SR
+  plateau), zero selection bias; band demoted to disclosure on the suite aggregate'
+selection:
+  mode: suite_uniform_step
+  uniform_step: '020000'
+  selected_checkpoint: exp/ablation_study/data/checkpoints/libero_spatial/act/task_5/checkpoints/020000/pretrained_model
+  selected_val_sr: 0.98
+  n_val: 50
+  suite_aggregate_succ: 483
+  suite_aggregate_n: 500
+  suite_aggregate_sr: 0.966
+  suite_admitted: false
+  admission_band:
+  - 0.095
+  - 0.8075
+  anchor_sr: 0.95
+  selected_sha256:
+    exp/ablation_study/data/checkpoints/libero_spatial/act/task_5/checkpoints/020000/pretrained_model/model.safetensors: 58895547739d622c05fb6adf42e9b19a11c04f9d636cc415213846d47e5d7828

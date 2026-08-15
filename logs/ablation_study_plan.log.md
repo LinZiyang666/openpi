@@ -1,6 +1,6 @@
 # Ablation Study — cache 有效性双方向消融实验计划
 
-> Status: In Progress（G1 APPROVED R3 / G2 APPROVED R11 2026-08-11；§6 Verify PASS 2288/9；待 owner 指示 commit）
+> Status: In Progress（infra shipped d2e4293；**Phase 0 完成** 2026-08-12 00:00；**Phase 1 完成** 2026-08-12 晚，**EN-3 重冻结** 2026-08-13：四组合套件级统一 step=**020000**（标准配方终点，零选择偏差，band 降披露；见 analysis/sr_ledger.md 与 config/select_freeze_*.yaml）；**Phase 2 完成** 2026-08-13：正式 1-cell conductor smoke（hit_act spatial，10/10 ep，FULL_HIT=override=sidecar 计时 144 行三方相等，命中率 70.9%）+ test_manual_e2e -m manual PASSED，preflight underpowered_ok 审计闭环；**Phase 3 完成** 2026-08-13：teacher anchor 复跑 spatial **500ep SR=0.974** / l10 **500ep SR=0.868**（官方 init 50/任务，json 存 data/anchors/；历史协议锚 0.95/0.83 同量级）；纯学生锚点=各组合 @20000 EN-2 成绩；SmolVLA l10 002000 补评入账（0.344，曲线完整化）；cache_baseline 臂归 Phase 4；**当前停在 Phase 4 门待 owner 放行**（主矩阵 7 臂×2 + 4b 帕累托 10 点已备）；交接见 logs/session_handoff.md；EN-1/2/3 偏差记录见文末；O7 预批 underpowered_ok 已固化）
 > Created: 2026-08-11
 > Owner: Ziyang Lin
 > Level: **L3**（横跨 cache interceptor / cache config / serving wrapper / LIBERO 观测链 + 新 sidecar 执行子系统；随 ship commit 更新 `docs/architecture/cache_system.md` 与 `docs/README.md`，见 §12）
@@ -345,3 +345,62 @@ exp/ablation_study/
 ### G2 Round 11 — Reviewer — APPROVED — 2026-08-11 16:39 CDT
 
 - No blocking or non-blocking findings. Round 9 的三项阻塞均已形成可执行闭环：validation-only selector 原子更新 ACT prompt manifest，非手工测试贯穿 trainer/selector/sidecar factory；approval 经过类型、枚举与范围校验并由 launch preflight 工件单源驱动分析；snapshot writer 在最终 fold 前停止并 join，canonical dedup 覆盖权威文件与 snapshot 内部重复。计划声明的完整 blast-radius 验证为 `2288 passed, 9 skipped`，触及范围 Ruff 与 staged/unstaged diff check 均通过；9 项跳过均为计划明确保留至 Phase 2 的 GPU/仿真手工验收，不构成 G2 阻塞。
+
+---
+
+## Execution Notes（Post-G2 运行期偏差记录）
+
+### EN-1 — Phase 1 训练传输路线变更：lerobot CLI → API 级入口（2026-08-11 晚）
+
+- **触发证据**（ziyang10 lerobot venv 0.3.3 实测，20-step 冒烟首次真实集成）：
+  1. `lerobot.scripts.train --policy.type=act --policy.chunk_size=10` → `ACTConfig` 实例化拒绝（默认 `n_action_steps=100 > chunk_size=10` 校验）；
+  2. 结构性缝隙：数据集按 O5 存**预分块** `actions` [10,7]/帧。0.3.3 的 `resolve_delta_timestamps` 只对键名恰为 `action` 的特征做 chunk 拼装（预分块值会拼成 [10,10,7] 废形状），而 policy 侧 `batch[ACTION]`/`action_is_pad` 硬读 `action` 键——两种命名皆无法经 CLI 送达 [B,10,7] 标签。G2 的 artifact-chain 测试以 subprocess mock 掩盖了该缝隙（manual pinned-venv 冒烟本轮才首跑）。
+- **变更**：新增 `exp/ablation_study/train_student.py`（API 级单模型训练入口，lerobot venv）：无 delta 加载数据集 → batch 内 `actions`→`action` 改名 + 全 False `action_is_pad`；policy 特征手工构造（图像 CHW、action shape=(7,)、chunk_size=n_action_steps=10）；SmolVLA 基座权重合并**剔除归一化 buffer**（normalize 统计取自本数据集）；action 统计 (10,7)→(7,) 按全方差定律池化（per-position buffer 会在 `from_pretrained` 按特征形状重建时 size-mismatch，实测复现）。`train_{act,smolvla}.py` 仅换 subprocess 目标，manifest/freeze 逻辑不变。
+- **不变量**：训练目标与 O5 逐字节一致（完整 teacher env_action_chunk [10,7] 回归、obs 同源）；checkpoint 布局维持 `checkpoints/<step:06d>/pretrained_model` + `last`（selector/sidecar 契约不动）。
+- **验证**：ACT 20-step 冒烟 loss 87→10 + `resolve_pretrained_dir`→manifest→`make_act_policy` **真权重**加载 OK；SmolVLA 20-step 冒烟（bf16, bs4）loss 0.60→0.26 + `make_smolvla_policy` 真权重加载 OK。spatial ACT×10 主训练随即启动（ziyang10）。
+- Owner 授权背景：无人值守全权 mandate + "按照 plan 进行执行" goal；本记录构成 §10 之外的执行期偏差披露，G2 结论不受影响（目标/工件契约未变，传输实现变）。
+
+### EN-2 — ACT 选择协议升级：student-val n=5 → pruned_init 全量 n=50 + 8-GPU 并行（2026-08-12 晨，owner 裁决）
+
+- **触发**：owner 两项质询实证成立——① n=5 粒度 0.2、5/5 的二项 95% 下界仅 0.48，"过强出带"判定证据薄弱；② 多任务连 250 步 ACT 都 5/5，提示 val 切片偏易，与 anchor（teacher 在官方测试集）不可比。
+- **变更**（owner 明令"直接全量把 pruned init 跑了"+"107 上 8 个 GPU 并行"+"全部后台"）：ACT 每候选直接在**官方 pruned_init 测试集**（episode runner 默认 init，50/任务；与训练差集池已做逐字节零交集验证）上全量评估；timan107 8×GTX1080 每卡一对（本地 sidecar:705x + 模拟渲染），队列式后台并行（实测单 job 50 ep 4m48s）。选中候选的这次评估成绩**即 Phase 3 纯 ACT 锚点**（不再重跑，"每模型测试集一跑"原则以此升级形式保持）。
+- **代价声明（Phase 5 报告 caveat）**：checkpoint 选择与最终报告共用同一测试集——10 候选中取最优存在有限的 winner's-curse 乐观偏差（n=50 下每候选 SR 标准误 ~0.07）；对照臂（teacher/cache 基线）无此选择自由度，方向上对"学生"有利，解读差值时需声明。
+- 旧 n=5 select_freeze（7 任务）作废由 n=50 重选覆盖；已训的 20k/earlystop/lowdata 全部系列按 owner 指示**保留不删**，earlystop/lowdata 系列可并入候选池评估。
+
+### EN-3 — 冻结粒度与口径变更：per-task band 选择 → 套件级统一 step=标准配方终点（2026-08-13，owner 两步裁决）
+
+- **触发**：owner 同日两步裁决——① 废除 per-subtask 各选各 step 的冻结，改为每 模型×套件 冻结**一个全局 step**（全部 10 任务共用），要求同模型跨套件、跨模型之间对齐；② 对"统一到聚合带内最早 step=002000"的初版方案，以**训练量常规性**否决（"2000 步会被审稿人攻击；这类模型一般训练多少就选多少，不要只看成功率"），改冻**标准配方终点 020000**，并令删除全部旧冻结表达。
+- **训练量依据**（社区标准核实）：SmolVLA 官方 LeRobot 微调文档推荐预算 **20k steps**（batch 64）；ACT LeRobot 官方示例为 100k，但本实验 45-episode 单任务数据在 16k–20k 处 SR 已平台（l10 聚合 0.774/0.778/0.766；spatial 自 8k 起 0.92–0.97 平台）——20k=收敛终点，可对审辩护。
+- **方法学核心收益**：20000 是各系列**预定的配方终点**，不经由任何成功率比较挑出 → 冻结**零选择偏差**（EN-2 的 winner's-curse caveat 对冻结不再适用；测试集成绩即无偏锚点）。admission band [0.10,0.85]×anchor **降级为聚合披露字段**，不再作为选择器。
+- **冻结结果**（全部复用 EN-2 已有 @20000 全量格子，零新增评估）：
+  | 组合 | uniform step | 聚合 SR (n=500) | band 披露 | vs teacher |
+  |---|---|---|---|---|
+  | ACT × libero_10 | 020000 | 383/500=0.766 | 出带（hi 0.7055） | 0.83，略弱 |
+  | ACT × libero_spatial | 020000 | 483/500=0.966 | 出带（hi 0.8075） | ≈0.95 |
+  | SmolVLA × libero_spatial | 020000 | 477/500=0.954 | 出带 | =0.95 |
+  | SmolVLA × libero_10 | 020000 | 315/500=0.630 | 带内 ✓ | 0.83，显著弱 |
+- **叙事（Phase 5 按此）**：标准训练下学生的**自然强度谱系** 0.630–0.966。spatial 双格与 l10 ACT ≈/略弱于 teacher → 检验 cache 命中替换的**无害性**；l10 SmolVLA 0.630 显著弱 → 检验**降质可测性**。不存在人为弱化的学生。
+- **数据纯度**：@20000 格子无系列同名冲突（弱化系列步名 ≤002000 或 1xxxxx 别名），天然纯标准系列；（附带审计：@2000 列曾查 traj mtime，20 格均早于各任务 ES 波，亦为标准系列成绩——该列现仅作候选数据保留）。冻结指向 `<suite>/act/task_N/checkpoints/020000` 与 `<suite>/smolvla/checkpoints/020000`。
+- **sha256 状态**：SmolVLA 两格与 ACT 6 任务（sp t8/t9、l10 t6-t9，正本在 wls）已算入 freeze；其余 14 个 ACT 正本在 ziyang10（tether agent 2026-08-13 OFFLINE）标 `PENDING_ziyang10_offline_20260813`，权重汇集时补算核验。l10 SmolVLA 020000 sha 与 v1 记录逐字节一致（410c99fb…，交叉验证通过）。
+- **旧表达清除**（owner 明令）：v1 per-task 选择与 002000 中间版已从全部 freeze yaml 与账本移除，本条目为唯一演化记录；EN-2 候选 SR 矩阵（含弱化系列格子）作为评估数据保留于账本。
+- **锚点重绑定**：Phase 3 纯学生锚点 = 各组合 @20000 的 EN-2 全量成绩（既有数据，无需重评，"每模型测试集一跑"原则维持）。
+- 勘误：向 owner 口头汇报方案时 spatial ACT @20000 曾误报 0.944，实为 **0.966**（本表为准）。
+
+### EN-4 — Phase 4b 扩展：kinematic verdict 学生路由系统 + 帕累托扫描（2026-08-13，owner 明令加入）
+
+- **触发**：owner 系列裁决——① 确认全部臂 yaml 沿用历史 base 配置（已核实逐字节一致：spatial 权重 v0=0.0625/v1=0.5/rs=0.4375、τ=0.983416；l10 v0=0.5625/v1=0.25/rs=0.1875、τ=0.997349；均派生自 gate_research `fh40_ws40_quantile` 两 yaml）；② threshold verdict 语义不适于"学生何时接管"（相似度衡量 replay 安全性，与学生能力无因果）→ 学生路由门控改用 **kinematic verdict** 并在其上扫帕累托；③ "我确定加入 4b，你正式修改文件和 plan"。
+- **与 Phase 4 的关系（两层不互换）**：Phase 4 臂矩阵（threshold verdict 配对）回答**归因**问题（同一 hit 集合上 cache 动作 vs 学生动作的边际价值）；Phase 4b 回答**系统竞争**问题（同等加速下 cache 系统与学生路由系统谁的 (usage, SR) 前沿更优）。
+- **设计**：判定链与 ablation base 完全一致，仅 judge 替换为 **composite kinematic**（weighted_sum kinematic_phase5 G5 赢家配方：`jerk_online_action`+`dispersion_online_action`，窗口 p3_f3 等权，`percentile_rolling(50)` + per-suite d1 `super_warmup_raw.jsonl` 离线校准，dispersion 方向 range:[0.3,0.7]）；**WARM tier 置空**（warm_start==full_hit，二元 verdict）；routing FULL_HIT→ACT sidecar(7002)、MISS→teacher。阈值网格 **full_hit ∈ {0.67, 0.49, 0.40, 0.25, 0.11}**（历史 fh0.2/0.3/0.4/0.5 的编译分位值 + 一个高使用率延伸点；阈值为 percentile 校准后的分位分数，跨套件语义对齐——l10 历史 eval 网格 yaml 未存 repo，其 4b 配置按 spatial 模板 + l10 base 参数移植）。预算 5 点 × 2 套件 × 500 ep = **5000 ep**；每点必须真跑（阈值改变闭环轨迹演化，不可事后重扫）。对比基线：历史 cache 帕累托（kinematic_phase5 237-cell，spatial 最优 `g5_p1__fh0.2_ws0.5` SR=1.000/inf=0.682）+ Phase 3 teacher anchor + Phase 4 pure_act。
+- **工件**（全部落盘并三端分发，config.py sha `a371f35f…` 三端一致）：`config/kin_route/<suite>_kinroute_act_fh{67,49,40,25,11}.yaml` ×10（`load_cache_config` 10/10 校验通过）+ `config/arm_matrix_4b_<suite>.yaml` ×2；校准 jsonl 已推 wls（server 端解析路径）。
+- **源码改动**：`config.py` `_ROUTING_JUDGE_TYPES` += "composite"（routing 正向白名单，d2e4293 安全栏的 owner 授权扩展）+ 新增静态校验（composite ⇒ 空 WARM tier，否则 executor 运行时 raise）。回归：`tests/cache tests/ablation_study` **1152 passed**。
+- **披露（Phase 5 必写）**：① composite 的 online action factor 读 `broadcast_action` 历史——hit 路径 broadcast 发生在 executor override **之前**（interceptor L761），故 verdict 的动作历史为 **cache/teacher 侧动作**而非学生实际执行动作：与 cache 系统 verdict 输入完全同构（两前沿信号同源，可比性佳），但与真实执行轨迹存在二阶偏差（学生蒸馏自 teacher，偏差小）；② cache 历史前沿含 WARM_START 机制而学生前沿无 WARM（各系统用各自最优形态比较）。
+- **执行位**：4b 排在 Phase 4 主矩阵之后（复用同一 srv8001+acts7002 拓扑，conductor 换 `--arm-matrix arm_matrix_4b_<suite>.yaml`）；当前 goal=Phase 3 完成停 Phase 4 门，4b 已全部备好待门后放行。
+
+### EN-5 — Phase 4/4b 运行期拓扑偏差与跨硬件披露（2026-08-13 晚 ~ 08-14 晨，owner 全程知情/放行）
+
+- **执行拓扑（实际）**：spatial 主矩阵全程 wls 4090（srv8001+双 sidecar，t107 农场 8→16 workers）；l10 主矩阵 **ep 1-1197 在 ziyang10 H200**（首发双车道并行），其后全部在 wls 4090（zy10 被另一 session 挤爆 CUDA OOM 后 owner 预授权承接）；**spatial 4b 全程 wls**（wls 本机 conductor，127.0.0.1 闭环）；**l10 4b 前 ~1105 ep 在 zy10 H200（2-replica B=1），其余臂粒度分拆 H200/4090 双 server**（owner 令"让 4090 也工作起来"）。
+- **跨硬件披露**：l10 主矩阵与 l10 4b 存在 H200/4090 混合；bf16 数值漂移的 SR 效应远小于报告效应量（≥5pp）；spatial 各阶段单机。
+- **2-replica 例外**：l10 4b SR 主跑在 2-replica server 上执行——plan §"routing 臂固定 --replicas 1" 的动机是延迟混杂，SR 语义不受影响（单连接单 replica 路由）；延迟一律由专门 pass（单 replica、--workers 1、BASIC 探针）测量，未从任何多 replica 跑推延迟。
+- **假完成补账**：两次 conductor "all arms done" 早退（transport 1011 风暴期 in-flight ep 未落账：p4sp 缺 pure_smolvla 150、p4bl10 缺 ~1145）均以同 journal resume 补满至满账；transport 错误从不落 journal（内存 requeue），`failed` 仅为任务失败终态——数据零污染（journal.py replay_done_uids 语义已核）。
+- **运行期源码零改动**（EN-4 之外无新增）；srv8001 曾因进程早于 EN-4 启动而内存持旧白名单拒 composite——重启加载即解，无代码变更。
+- **主矩阵终数（500 ep/格）**：spatial cache_baseline .930 / hit_act .990 / hit_smolvla .982 / miss_act .762 / miss_smolvla .752 / pure_act .954 / pure_smolvla .932；l10 .704/.888/.830/.466/.474/.794/.640。4b：spatial fh67→fh11 = .992/.990/.988/.984/.968；l10 = .858/.846/.844/.832/.780。配对统计（McNemar+Holm，4 primary 全显著双套件）：hit_X > cache_baseline（spatial +6.0/+5.2pp；l10 +18.4/+12.6pp）；miss_X < pure_X（spatial −19.2/−18.0pp；l10 −32.8/−16.6pp，方向 2 混合收益判负）。报告：`exp/ablation_study/analysis/analysis.md`。

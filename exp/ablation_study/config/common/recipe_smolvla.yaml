@@ -3,4 +3,4 @@
 base_checkpoint: lerobot/smolvla_base
 steps: 20000
 batch_size: 64
-extra_args: []
+extra_args: ["--amp-bf16", "--num-workers=8"]

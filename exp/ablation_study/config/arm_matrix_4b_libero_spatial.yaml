@@ -1,0 +1,22 @@
+suite: libero_spatial
+phase: 4b
+note: 'EN-4 kinematic-routing Pareto sweep: composite kinematic verdict (kinematic_phase5
+  G5 winner recipe) gates FULL_HIT->ACT student, MISS->teacher; warm_start disabled;
+  retrieval chain identical to the ablation base'
+derived_from: exp/weighted_sum/config/kinematic_phase5/libero_spatial/d1/eval/ws_d1_kin_g5_g6__fh0.3_ws0.3.yaml
+arms:
+- arm: kinroute_act_fh67
+  yaml: exp/ablation_study/config/kin_route/libero_spatial_kinroute_act_fh67.yaml
+  sidecar: act
+- arm: kinroute_act_fh49
+  yaml: exp/ablation_study/config/kin_route/libero_spatial_kinroute_act_fh49.yaml
+  sidecar: act
+- arm: kinroute_act_fh40
+  yaml: exp/ablation_study/config/kin_route/libero_spatial_kinroute_act_fh40.yaml
+  sidecar: act
+- arm: kinroute_act_fh25
+  yaml: exp/ablation_study/config/kin_route/libero_spatial_kinroute_act_fh25.yaml
+  sidecar: act
+- arm: kinroute_act_fh11
+  yaml: exp/ablation_study/config/kin_route/libero_spatial_kinroute_act_fh11.yaml
+  sidecar: act

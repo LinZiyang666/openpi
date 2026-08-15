@@ -75,4 +75,4 @@ backend:
 write_policy:
   type: never
 routing:
-  hit_to: 127.0.0.1:7001
+  hit_to: 127.0.0.1:7011

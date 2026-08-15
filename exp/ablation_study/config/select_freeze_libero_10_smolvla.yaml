@@ -1,0 +1,97 @@
+student: smolvla
+suite: libero_10
+note: 'EN-2 protocol full-eval cells; EN-3 rev (owner ruling 2026-08-13): suite-uniform
+  step 020000 = standard-recipe endpoint (official SmolVLA finetune budget / ACT SR
+  plateau), zero selection bias; band demoted to disclosure on the suite aggregate'
+selection:
+  mode: suite_uniform_step
+  uniform_step: '020000'
+  selected_checkpoint: exp/ablation_study/data/checkpoints/libero_10/smolvla/checkpoints/020000/pretrained_model
+  selected_val_sr: 0.63
+  n_val: 500
+  suite_aggregate_succ: 315
+  suite_aggregate_n: 500
+  suite_aggregate_sr: 0.63
+  suite_admitted: true
+  admission_band:
+  - 0.083
+  - 0.7054999999999999
+  anchor_sr: 0.83
+  selected_sha256:
+    exp/ablation_study/data/checkpoints/libero_10/smolvla/checkpoints/020000/pretrained_model/model.safetensors: 410c99fb5704423772430a613ca3cebce60191e77784796b9ed2e4be837d46bd
+  candidates:
+  - checkpoint: exp/ablation_study/data/checkpoints/libero_10/smolvla/checkpoints/004000/pretrained_model
+    val_sr: 0.404
+    n_val: 500
+    admitted: true
+    per_task:
+      task_0: 0.08
+      task_1: 0.5
+      task_2: 0.5
+      task_3: 0.74
+      task_4: 0.18
+      task_5: 0.66
+      task_6: 0.3
+      task_7: 0.34
+      task_8: 0.28
+      task_9: 0.46
+  - checkpoint: exp/ablation_study/data/checkpoints/libero_10/smolvla/checkpoints/008000/pretrained_model
+    val_sr: 0.496
+    n_val: 500
+    admitted: true
+    per_task:
+      task_0: 0.3
+      task_1: 0.58
+      task_2: 0.64
+      task_3: 0.6
+      task_4: 0.4
+      task_5: 0.8
+      task_6: 0.52
+      task_7: 0.56
+      task_8: 0.14
+      task_9: 0.42
+  - checkpoint: exp/ablation_study/data/checkpoints/libero_10/smolvla/checkpoints/012000/pretrained_model
+    val_sr: 0.504
+    n_val: 500
+    admitted: true
+    per_task:
+      task_0: 0.2
+      task_1: 0.5
+      task_2: 0.74
+      task_3: 1.0
+      task_4: 0.7
+      task_5: 0.62
+      task_6: 0.42
+      task_7: 0.38
+      task_8: 0.12
+      task_9: 0.36
+  - checkpoint: exp/ablation_study/data/checkpoints/libero_10/smolvla/checkpoints/016000/pretrained_model
+    val_sr: 0.55
+    n_val: 500
+    admitted: true
+    per_task:
+      task_0: 0.36
+      task_1: 0.64
+      task_2: 0.84
+      task_3: 0.6
+      task_4: 0.5
+      task_5: 0.7
+      task_6: 0.4
+      task_7: 0.6
+      task_8: 0.26
+      task_9: 0.6
+  - checkpoint: exp/ablation_study/data/checkpoints/libero_10/smolvla/checkpoints/020000/pretrained_model
+    val_sr: 0.63
+    n_val: 500
+    admitted: true
+    per_task:
+      task_0: 0.28
+      task_1: 0.62
+      task_2: 0.74
+      task_3: 0.82
+      task_4: 0.7
+      task_5: 0.84
+      task_6: 0.5
+      task_7: 0.62
+      task_8: 0.4
+      task_9: 0.78

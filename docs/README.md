@@ -87,7 +87,8 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 
 | File | Description |
 |------|-------------|
-| [theory/markov_inheritance.md](theory/markov_inheritance.md) | **马尔可夫继承定律：形式化与证明**（training-free 检索式 cache）。核心链条（推论 4.1，对数损失）`0 ≤ R*(k)−R*(k,h) = I(a*;h|k) ≤ I(a*;o|k)`。引理 1（无记忆 teacher ⇒ 标签条件独立 `I(a*;h|o)=0`）；引理 2（去噪上界：历史能贡献的信息被 key 有损度封死）+ 命题 2.2（上界紧且**双向非蕴含**：A1/A2 既推不出历史无用也推不出有用）+ 引理 2.3（上界随 key 粗化单调变松）+ 备注 2.4（**剂量-反应非定理**，附反例）；命题 3（**阶段分解**：Φ=φ(h) 时为精确恒等式；E1-O 所用归一化进度含 oracle 成分，在线 c_t 版待做）；定理 4（风险单调性对一切损失、恒等式**限对数损失**；备注 5.1 方向规则：改善⇒I>0、无改善⇏I=0）+ 命题 4.2（**固定算子上历史效果符号不定**：E1 正信息与 E4 SR 退化并存的和解）；命题 5（**选择条件化 = collider 重注**，success 过滤为主要实例，两分支闭式 0→1 bit；备注 6.1 推广到一般选择机制，构建管线默认 success 筛选故通道不能排除）；命题 6（**标量化分离**：帧间 dynamics 特征非 `{s_l}` 的函数 + 单调打分不可实现全局差分阈值）。§8 逐条对应 E1/E1-O/E3/E4 实证状态（均为**算子特定证据**、非互信息估计）、§9 假设清单与八条不主张。配套实验：[`exp/markov_sufficiency/`](../exp/markov_sufficiency/analysis/synthesis.md) |
+| [theory/markov_inheritance.md](theory/markov_inheritance.md) | **马尔可夫继承定律：形式化与证明**（纯数学，自成一体，零实验内容；实证对照见配对文档 history_verdict.md）。核心链条（推论 4.1，对数损失）`0 ≤ R*(k)−R*(k,h) = I(a*;h|k) ≤ I(a*;o|k)`。引理 1（无记忆 teacher ⇒ 标签条件独立 `I(a*;h|o)=0`）；引理 2（去噪上界：历史能贡献的信息被 key 有损度封死）+ 命题 2.2（上界紧且**双向非蕴含**：A1/A2 既推不出历史无用也推不出有用）+ 引理 2.3（上界随 key 粗化单调变松）+ 备注 2.4（**剂量-反应非定理**，附反例）；命题 3（**阶段分解**：Φ=φ(h) 时为精确恒等式；备注 4.2 论在线/oracle 阶段变量）；定理 4（风险单调性对一切损失、恒等式**限对数损失**；备注 5.1 方向规则：改善⇒I>0、无改善⇏I=0）+ 命题 4.2（**固定算子上历史效果符号不定**，双向构造）；命题 5（**选择条件化 = collider 重注**，两分支闭式 0→1 bit；备注 6.1 一般选择机制；**备注 6.2 聚合去随机化 = 另一超越-teacher 机制，故非唯一**）；命题 6（**标量化分离**：帧间 dynamics 特征非 `{s_l}` 的函数 + 单调打分不可实现全局差分阈值）。§8 假设清单（A0/A1/A2 + 经验条件 (4.1)）与六条不主张；§9 主结果一览 |
+| [theory/history_verdict.md](theory/history_verdict.md) | **历史帧的价值判决：继承定律在本系统的实证定位**（与 markov_inheritance.md 配对的解释性文档；两份合读即自足）。**§3 实例化定理**（命题 7–11 + 推论 8.1/9.1/10.1，编号接续数学文档）：本方法确切公式（pool 降维 key → 逐模态 cos/L2 → zscore-tanh → 模态加权 → 历史非负加权）逐阶段对应命题；**命题 7**（zscore-tanh 零信息增删，但校准参与融合排序）、**命题 8**（单帧决策充分 ⇒ 非负历史加权期望增量非正 + 严格受损构造；**条件定理**，前提待测）、**命题 9**（**ε-决策充分预算：任何历史方法的期望增量 ≤ 单帧 regret E[ε₀]**，"足够优质⇒挖不出"由此定量化为可测预算）、**命题 10**（margin 逐候选 no-flip 证书；保守统一证书在生产权重下恒不触发）、**命题 11**（**反定理：任意接近完美的准确率仍可有严格正增量**，"足够优质"必须用 regret 定义）、推论 8.1/10.1（修复须滞后边际反超 ∧ 决策有益；E3 的 ADR 非该交集的测量）。含 2 幅 mermaid 图（历史价值地图：两来路三闸门 / 判决解释链）。现象：强配置上加历史全负（top-10 Δ −6.4pp 10/10、171 形状空集、l10 d1 最优）。定价：**E1** B/C 算子残差小幅低于 A（+2.9%~+8.8%；算子层证据，非互信息证明）→ **E1-O** 0/8 过预注册门槛、最严对齐 cell 精确 0.00%、ε=0.10 两 cell 下界正但低于门槛（与阶段错位补偿一致；oracle 进度 + 非等价判定，不升级为等式）→ **E1-C** Δ 特征 spatial k=1 即 +9%、k=5 至 +12.4%，生产打分不可表（与命题 6 方向一致；特征×聚合混杂待分解）→ **E3** 近似无混叠（ADR 0.24%/2.79% vs 随机 47–48%，12/12）⇒ 选择通道本地近似关闭（ADR 非可修复占比的测量）→ **E4** 已试旋钮均不兑现、闭环净负（−3.47pp）→ **E5** d3-trough = winner's curse。gate 线旁证（AUC 0.973–0.986，N4 胜出）= 历史的正确岗位。含逐通道定价表、**预算总闸审计清单**（增益 ≤ E[ε₀] + 阶段坐标/滞后修复/换算子/winner's curse）、五个遗留开口（**regret 预算测量 / 连续权重域穷尽** / E1-C 两对照 / 在线阶段版 E1-O / 记忆假肢）、主张-依据对照表、边界声明 |
 
 ### [experiments/](experiments/)
 
@@ -132,7 +133,7 @@ ICLR 2027 投稿（TIER: experience-tiered inference）论文工作文档。
 
 | File | Description |
 |------|-------------|
-| [iclr/tier_paper_outline.md](iclr/tier_paper_outline.md) \[[ZH](iclr/tier_paper_outline.zh.md)\] | TIER 论文提纲 v2：thesis「库的价值在索引不在 payload」、9 页结构/float 台账/appendix 预算/3 贡献；4 审稿人对抗评审 32 findings 裁决修订（裁决日志在文末）；scope lock=无 history 项、Markov 继承线独立成文 |
+| [iclr/tier_paper_outline.md](iclr/tier_paper_outline.md) \[[ZH](iclr/tier_paper_outline.zh.md)\] | TIER 论文提纲 v2：thesis「库的价值在索引不在 payload」、9 页结构/float 台账/appendix 预算/3 贡献；4 审稿人对抗评审 32 findings 裁决修订（裁决日志在文末）；scope lock=无 history 项、Markov 继承线独立成文；文末 Q&A rebuttal 弹药库（Q1 trained-router 质疑三层回应） |
 | [iclr/tier_experiment_designs.md](iclr/tier_experiment_designs.md) | 实验设计全卡 X1–X13（目的/设计/产出/判读分支含预注册负结果结论）+ 前置基建清单 + 波 0–3 执行顺序 |
 
 ### [upstream/](upstream/) — Original upstream openpi docs

@@ -34,15 +34,17 @@ def main() -> None:
     for task_dir in sorted(pathlib.Path(args.dataset_root).glob("task_*")):
         prompt = (task_dir / "prompt.txt").read_text().strip()
         out_dir = pathlib.Path(args.out) / task_dir.name
+        # API-level entry (train_student.py): the 0.3.3 CLI cannot consume the
+        # pre-chunked [10,7] O5 labels — see train_student.py module docstring.
+        trainer = pathlib.Path(__file__).with_name("train_student.py")
         cmd = [
-            sys.executable, "-m", "lerobot.scripts.train",
-            "--policy.type=act",
-            f"--policy.chunk_size={recipe.get('chunk_size', 10)}",
-            f"--dataset.repo_id=ablation/distill_{task_dir.name}",
-            f"--dataset.root={task_dir / 'dataset'}",
-            f"--output_dir={out_dir}",
+            sys.executable, str(trainer),
+            "--student", "act",
+            f"--chunk-size={recipe.get('chunk_size', 10)}",
+            f"--dataset={task_dir / 'dataset'}",
+            f"--out={out_dir}",
             f"--steps={recipe['steps']}",
-            f"--batch_size={recipe['batch_size']}",
+            f"--batch-size={recipe['batch_size']}",
         ] + [str(x) for x in recipe.get("extra_args", [])]
         subprocess.run(cmd, check=True)
         # LeRobot 0.3.3 layout: loadable policy lives under

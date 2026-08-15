@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import pathlib
 
 import h5py
@@ -27,6 +28,13 @@ import yaml
 def val_sr(traj_dir: str) -> tuple[float, int]:
     files = sorted(pathlib.Path(traj_dir).rglob("episode_*.h5"))
     if not files:
+        # EN-2 farm keeps only the per-rollout results.json (H5s are pruned to
+        # save disk); the success records are the same attrs the H5s carried.
+        rj = pathlib.Path(traj_dir) / "results.json"
+        if rj.exists():
+            rows = json.loads(rj.read_text())
+            if rows:
+                return sum(bool(r["success"]) for r in rows) / len(rows), len(rows)
         raise SystemExit(f"no val trajectories under {traj_dir}")
     succ = sum(bool(h5py.File(f, "r").attrs.get("success", False)) for f in files)
     return succ / len(files), len(files)

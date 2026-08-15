@@ -2189,7 +2189,10 @@ def validate_cache_config(config: CacheConfig) -> None:
 # which would break the routed-arm vs baseline comparability contract
 # (ablation_study plan §8.2).
 _ROUTING_GATE_TYPES = frozenset({"always_search", "always_skip", "random"})
-_ROUTING_JUDGE_TYPES = frozenset({"threshold", "always_hit"})
+# "composite" admitted 2026-08-13 (plan EN-4, owner ruling): the kinematic
+# composite verdict routes FULL_HIT->student for the Phase 4b Pareto sweep.
+# It is only binary when its WARM tier is empty — enforced below.
+_ROUTING_JUDGE_TYPES = frozenset({"threshold", "always_hit", "composite"})
 _ROUTING_STRATEGY_TYPES = frozenset({"weighted_score_sum_knn", "weighted_rrf_knn"})
 
 
@@ -2239,6 +2242,14 @@ def _routing_errors(config: CacheConfig) -> list[str]:
                 "routing allowlist: cp1.judge.warm_tiers must be absent — the "
                 "executor hooks are FULL_HIT/MISS binary and raise on WARM_START."
             )
+        if cp1.judge.type == "composite":
+            tiers = (cp1.judge.composer.tier_thresholds or {}) if cp1.judge.composer else {}
+            if tiers.get("warm_start") != tiers.get("full_hit"):
+                errors.append(
+                    "routing allowlist: a composite judge must have an EMPTY warm "
+                    "tier (tier_thresholds.warm_start == full_hit) — the executor "
+                    f"hooks raise on WARM_START (got {tiers!r})."
+                )
         ss = cp1.search_strategy
         if ss.type not in _ROUTING_STRATEGY_TYPES:
             errors.append(

@@ -121,3 +121,34 @@ def test_default_spawn_no_conda_uses_plain_python(monkeypatch):
     assert captured["cmd"][0] == "python"
     assert "conda" not in captured["cmd"]
     assert captured["env"]["CUDA_VISIBLE_DEVICES"] == "0"
+
+
+# ----------------------------------------------------------------------
+# _default_spawn: init-state pool forwarding
+# ----------------------------------------------------------------------
+def _spawn_capture(monkeypatch, spec):
+    import openpi.conductor.agent as agent_mod
+
+    captured: dict = {}
+
+    def fake_popen(cmd, env=None, **kwargs):
+        captured["cmd"] = cmd
+        return FakeHandle()
+
+    monkeypatch.setattr(agent_mod.subprocess, "Popen", fake_popen)
+    agent_mod._default_spawn(spec, "dh", 9000)
+    return captured["cmd"]
+
+
+def test_default_spawn_forwards_the_init_states_dir(monkeypatch):
+    """A second, disjoint init pool must reach the worker's CLI."""
+    spec = WorkerSpec("w0", "host:8000", "0", init_states_dir="exp/common/data/db_init/libero/libero_10")
+    cmd = _spawn_capture(monkeypatch, spec)
+    i = cmd.index("--init-states-dir")
+    assert cmd[i + 1] == "exp/common/data/db_init/libero/libero_10"
+
+
+def test_default_spawn_omits_the_flag_when_the_pool_is_unset(monkeypatch):
+    """Default stays byte-identical, so existing callers keep the LIBERO pool."""
+    cmd = _spawn_capture(monkeypatch, WorkerSpec("w0", "host:8000", "0"))
+    assert "--init-states-dir" not in cmd

@@ -1,0 +1,12 @@
+{
+  "pick up the black bowl between the plate and the ramekin and place it on the plate": "exp/ablation_study/data/checkpoints/libero_spatial/act_selected/task_0/pretrained_model",
+  "pick up the black bowl next to the ramekin and place it on the plate": "exp/ablation_study/data/checkpoints/libero_spatial/act_selected/task_1/pretrained_model",
+  "pick up the black bowl from table center and place it on the plate": "exp/ablation_study/data/checkpoints/libero_spatial/act_selected/task_2/pretrained_model",
+  "pick up the black bowl on the cookie box and place it on the plate": "exp/ablation_study/data/checkpoints/libero_spatial/act_selected/task_3/pretrained_model",
+  "pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate": "exp/ablation_study/data/checkpoints/libero_spatial/act_selected/task_4/pretrained_model",
+  "pick up the black bowl on the ramekin and place it on the plate": "exp/ablation_study/data/checkpoints/libero_spatial/act_selected/task_5/pretrained_model",
+  "pick up the black bowl next to the cookie box and place it on the plate": "exp/ablation_study/data/checkpoints/libero_spatial/act_selected/task_6/pretrained_model",
+  "pick up the black bowl on the stove and place it on the plate": "exp/ablation_study/data/checkpoints/libero_spatial/act_selected/task_7/pretrained_model",
+  "pick up the black bowl next to the plate and place it on the plate": "exp/ablation_study/data/checkpoints/libero_spatial/act_selected/task_8/pretrained_model",
+  "pick up the black bowl on the wooden cabinet and place it on the plate": "exp/ablation_study/data/checkpoints/libero_spatial/act_selected/task_9/pretrained_model"
+}

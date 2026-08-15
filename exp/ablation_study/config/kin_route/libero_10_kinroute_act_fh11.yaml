@@ -1,0 +1,114 @@
+backend:
+  in_memory:
+    index_type: brute_force
+    preload_path: exp/common/data/cache_artifacts/libero_10/cp1_spatial_pool_16.pkl
+  type: in_memory
+  vector_dims:
+    prompt_emb: 2048
+    robot_state: 32
+    vision_0: 32768
+    vision_1: 32768
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: composite
+      normalization:
+        type: zscore
+        params: {}
+        stats_source:
+          type: offline
+      factors:
+      - type: jerk_online_action
+        params:
+          windows:
+          - past: 3
+            future: 3
+      - type: dispersion_online_action
+        params:
+          windows:
+          - past: 3
+            future: 3
+      calibration:
+        type: percentile_rolling
+        params:
+          window_size: 50
+        samples_source:
+          type: offline
+          offline:
+            path: exp/weighted_sum/data/libero_10/kinematic_phase5/d1/super_warmup_raw.jsonl
+            format: jsonl
+      composer:
+        type: weighted_sum_zero_nan
+        weights:
+          jerk_online_action__p3_f3: 1.0
+          dispersion_online_action__p3_f3: 1.0
+        tier_thresholds:
+          full_hit: 0.11
+          warm_start: 0.11
+        warm_start_t: 0.5
+        directions:
+          dispersion_online_action__p3_f3: range:[0.3, 0.7]
+      export_factor_outputs: true
+    search_strategy:
+      field_similarity:
+        robot_state:
+          to_similarity:
+            tau: 1.0
+            type: exp
+          type: l2
+        vision_0:
+          type: cosine
+        vision_1:
+          type: cosine
+      score_normalization:
+        fields:
+          robot_state:
+            method: zscore
+            params:
+              mu: -1.9584325681212513
+              sigma: 0.7484941685797242
+              squash: tanh
+          vision_0:
+            method: zscore
+            params:
+              mu: 0.9739899923664463
+              sigma: 0.0061831533438692935
+              squash: tanh
+          vision_1:
+            method: zscore
+            params:
+              mu: 0.9659078322399228
+              sigma: 0.006527797454113087
+              squash: tanh
+        type: per_field
+      step_filter: all
+      top_k: 1
+      type: weighted_score_sum_knn
+enabled: true
+key_builder:
+  type: cp1_spatial_pool_16
+keys:
+  prompt_emb:
+    enabled: false
+    weight: 0.0
+  robot_state:
+    enabled: true
+    weight: 0.1875
+  vision_0:
+    enabled: true
+    weight: 0.5625
+  vision_1:
+    enabled: true
+    weight: 0.25
+  vision_2:
+    enabled: false
+    weight: 0.0
+timer:
+  enabled: true
+write_policy:
+  type: never
+routing:
+  hit_to: 127.0.0.1:7012
