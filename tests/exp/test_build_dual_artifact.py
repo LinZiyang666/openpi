@@ -103,8 +103,17 @@ def test_outcome_filter_threads_through_pool_dispatch(tmp_path, monkeypatch):
 
     monkeypatch.setattr(bm, "_process_episode", spy)
     bm.build_artifact(str(tmp_path), "cp1_mean_pool", workers=-1, outcome_filter="all")
-    # outcome_filter is the last positional entry of the shared _ep_args tuple.
-    assert seen["args"][-1] == "all"
+
+    # Assert by meaning rather than by index: the dispatch tuple grew a
+    # trailing per-file trajectory_id, and pinning outcome_filter to args[-1]
+    # would break on any future append.
+    import inspect
+
+    params = list(inspect.signature(orig).parameters)[1:]  # drop h5_path_str
+    bound = dict(zip(params, seen["args"]))
+    assert bound["outcome_filter"] == "all"
+    # The per-file id rides the same dispatch; None keeps the historical stems.
+    assert bound["trajectory_id"] is None
 
 
 def test_outcome_filter_invalid_raises(tmp_path):

@@ -179,3 +179,132 @@ def test_projection_weighted_same_head_online_and_offline(tmp_path):
         assert on[field].shape == (out_dim,)
         assert np.allclose(on[field].numpy(), off[field], atol=1e-5), field
     assert on[ROBOT_STATE].shape == (32,)
+
+# ---------------------------------------------------------------------------
+# Cache-size ablation (X9b): --episode-list + --trajectory-id-mode
+# ---------------------------------------------------------------------------
+
+
+def _write_task_tree(root, n_tasks=3, success=True):
+    """Lay episodes out as task_N/episode_0.h5 -- the collision-prone shape."""
+    for t in range(n_tasks):
+        d = root / f"task_{t}"
+        d.mkdir(parents=True, exist_ok=True)
+        _write_episode(d / "episode_0.h5", success=success, task=f"task_{t}", step_name="step_000")
+
+
+def test_relpath_mode_yields_unique_ids_across_tasks(tmp_path):
+    _write_task_tree(tmp_path, n_tasks=3)
+
+    artifact = build_artifact(
+        str(tmp_path), "cp1_mean_pool", workers=-1, trajectory_id_mode="relpath"
+    )
+
+    ids = [e.id for e in artifact["entries"]]
+    assert len(ids) == 3
+    assert len(set(ids)) == 3, f"ids collided: {ids}"
+    assert set(ids) == {"task_0/episode_0:0", "task_1/episode_0:0", "task_2/episode_0:0"}
+
+
+def test_stem_mode_collides_across_tasks_known_behavior(tmp_path):
+    """Pin the collision as known behavior so nobody flips the default silently.
+
+    Under the historical `stem` mode every task's ``episode_0.h5`` maps to the
+    same ``episode_0:0``. build() still emits one entry per file -- the loss only
+    materializes when a backend keys entries by id (see the load test below).
+    """
+    _write_task_tree(tmp_path, n_tasks=3)
+
+    artifact = build_artifact(str(tmp_path), "cp1_mean_pool", workers=-1)
+
+    ids = [e.id for e in artifact["entries"]]
+    assert len(ids) == 3
+    assert set(ids) == {"episode_0:0"}, "stem mode is expected to collide here"
+
+
+def test_backend_load_drops_entries_under_stem_but_not_relpath(tmp_path):
+    """`len(entries) == len(backend._entries)` is the general probe for id collisions."""
+    from openpi.cache.backends.in_memory_backend import InMemoryBackend
+
+    _write_task_tree(tmp_path, n_tasks=3)
+    dims = {"vision_0": 2048, "vision_1": 2048, "prompt_emb": 2048, "robot_state": 32}
+
+    def _loaded_count(mode):
+        artifact = build_artifact(
+            str(tmp_path), "cp1_mean_pool", workers=-1, trajectory_id_mode=mode
+        )
+        out = tmp_path / f"{mode}.pkl"
+        import pickle
+
+        with open(out, "wb") as fh:
+            pickle.dump(artifact, fh)
+        backend = InMemoryBackend(vector_dims=dims)
+        backend.load_artifact(str(out))
+        return len(artifact["entries"]), len(backend._entries)
+
+    built_stem, loaded_stem = _loaded_count("stem")
+    built_rel, loaded_rel = _loaded_count("relpath")
+
+    assert (built_stem, loaded_stem) == (3, 1), "stem mode silently drops 2 of 3 entries"
+    assert built_rel == loaded_rel == 3, "relpath mode must not drop entries"
+
+
+def test_relpath_rejected_for_model_builder(tmp_path):
+    _write_task_tree(tmp_path, n_tasks=1)
+    with pytest.raises(ValueError, match="only supported for pool builders"):
+        build_artifact(
+            str(tmp_path), "cp1_llm_layer_extract", workers=-1, trajectory_id_mode="relpath"
+        )
+
+
+def test_episode_list_selects_subset(tmp_path):
+    _write_task_tree(tmp_path, n_tasks=3)
+    listing = tmp_path / "subset.txt"
+    listing.write_text("task_0/episode_0.h5\ntask_2/episode_0.h5\n")
+
+    artifact = build_artifact(
+        str(tmp_path),
+        "cp1_mean_pool",
+        workers=-1,
+        episode_list=str(listing),
+        trajectory_id_mode="relpath",
+    )
+
+    assert {e.id for e in artifact["entries"]} == {"task_0/episode_0:0", "task_2/episode_0:0"}
+
+
+def test_episode_list_absent_matches_recursive_scan(tmp_path):
+    """Non-regression: leaving both new params unset reproduces the old behavior."""
+    from exp.common.build_in_memory_cache_artifact import resolve_h5_paths
+
+    _write_task_tree(tmp_path, n_tasks=3)
+    assert resolve_h5_paths(tmp_path, None) == sorted(tmp_path.rglob("*.h5"))
+
+
+@pytest.mark.parametrize(
+    "content, exc, match",
+    [
+        ("/abs/path.h5\n", ValueError, "absolute path"),
+        ("../outside.h5\n", ValueError, "escapes"),
+        ("task_0/episode_0.txt\n", ValueError, "not a .h5 file"),
+        ("task_0/missing.h5\n", FileNotFoundError, "does not exist"),
+        ("task_0/episode_0.h5\n\ntask_1/episode_0.h5\n", ValueError, "blank line"),
+        ("task_0/episode_0.h5\ntask_0/../task_0/episode_0.h5\n", ValueError, "duplicate"),
+        ("", ValueError, "no episodes listed"),
+    ],
+)
+def test_episode_list_rejects_malformed_entries(tmp_path, content, exc, match):
+    from exp.common.build_in_memory_cache_artifact import resolve_h5_paths
+
+    _write_task_tree(tmp_path, n_tasks=2)
+    listing = tmp_path / "bad.txt"
+    listing.write_text(content)
+
+    with pytest.raises(exc, match=match):
+        resolve_h5_paths(tmp_path, listing)
+
+
+def test_trajectory_id_mode_rejects_unknown_value(tmp_path):
+    _write_task_tree(tmp_path, n_tasks=1)
+    with pytest.raises(ValueError, match="trajectory_id_mode must be one of"):
+        build_artifact(str(tmp_path), "cp1_mean_pool", workers=-1, trajectory_id_mode="nope")

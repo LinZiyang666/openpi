@@ -34,6 +34,40 @@ exp/
 tests/<exp>/test_*.py               # framework-integrated tests — live under tests/, not exp/
 ```
 
+### 1.1 Experiment families (one optional nesting level)
+
+When several independent experiments attack the same research question, they may
+be grouped under a single **family** directory:
+
+```
+exp/
+  <family>/
+    README.md                       # family index: which experiments, what each concluded
+    <experiment-a>/
+      __init__.py
+      <runner>.py, ...
+      config/   data/   analysis/
+    <experiment-b>/
+      ...
+
+tests/<family>/<experiment>/test_*.py
+```
+
+Rules:
+
+- The family directory contains **only** `README.md` and experiment
+  sub-directories. It must **not** hold code, config or data directly —
+  otherwise the family/experiment boundary blurs over time and nobody can tell
+  which artifacts belong to which experiment.
+- Each experiment keeps the full four-slot structure of §1 unchanged.
+- Exactly **one** nesting level is allowed; families of families are not.
+- Test modules must have globally unique basenames (or their directory needs an
+  `__init__.py`): `tests/` has no package markers and pytest's default `prepend`
+  import mode makes two same-named test files collide at collection time.
+- Introducing a family requires an entry in [`docs/README.md`](../README.md).
+
+Current families: `exp/ablation_study/` (`executor_substitution`, `cache_size`).
+
 ## 2. File-kind rules
 
 | Kind | Location |

@@ -589,6 +589,73 @@ def _process_episode_with_model(
 
 
 # ---------------------------------------------------------------------------
+# Episode selection + trajectory id resolution
+# ---------------------------------------------------------------------------
+
+_TRAJECTORY_ID_MODES = ("stem", "relpath")
+
+
+def resolve_h5_paths(data_dir: str | Path, episode_list: str | Path | None) -> list[Path]:
+    """Return the h5 files to build from, either by scan or by explicit list.
+
+    Without ``episode_list`` this is the historical ``rglob`` scan. With one, the
+    listed paths replace it entirely. Every rejection below is fail-fast rather
+    than a silent skip: a silently shrinking library would be indistinguishable
+    from a genuinely smaller one, and library size is the independent variable
+    in the cache-size ablation.
+    """
+    root = Path(data_dir).resolve()
+    if episode_list is None:
+        return sorted(Path(data_dir).rglob("*.h5"))
+
+    raw = Path(episode_list).read_text().splitlines()
+    paths: list[Path] = []
+    seen: set[Path] = set()
+    for lineno, line in enumerate(raw, 1):
+        rel = line.strip()
+        if not rel:
+            raise ValueError(f"{episode_list}:{lineno}: blank line (expected a relative .h5 path)")
+        if Path(rel).is_absolute():
+            raise ValueError(
+                f"{episode_list}:{lineno}: absolute path {rel!r}; entries must be "
+                "relative to --data-dir so the library stays reproducible"
+            )
+        resolved = (root / rel).resolve()
+        if not resolved.is_relative_to(root):
+            raise ValueError(f"{episode_list}:{lineno}: {rel!r} escapes --data-dir {root}")
+        if resolved.suffix != ".h5":
+            raise ValueError(f"{episode_list}:{lineno}: {rel!r} is not a .h5 file")
+        if not resolved.is_file():
+            raise FileNotFoundError(f"{episode_list}:{lineno}: {resolved} does not exist")
+        if resolved in seen:
+            raise ValueError(f"{episode_list}:{lineno}: duplicate entry {rel!r} (after normalization)")
+        seen.add(resolved)
+        paths.append(resolved)
+
+    if not paths:
+        raise ValueError(f"{episode_list}: no episodes listed")
+    return paths
+
+
+def trajectory_id_for(h5_path: Path, data_dir: str | Path, mode: str) -> str | None:
+    """Resolve one file's trajectory id, or None to keep the builder's default.
+
+    ``stem`` (default) returns None so ``_process_episode`` falls back to
+    ``h5_path.stem`` exactly as before. ``relpath`` returns the suffix-stripped
+    path relative to ``data_dir``, which stays unique across sub-directories --
+    required whenever episodes are laid out as ``task_N/episode_M.h5``, since
+    stem-based ids would collide across tasks and silently overwrite each other
+    in ``InMemoryBackend.load_artifact``.
+    """
+    if mode == "stem":
+        return None
+    if mode != "relpath":
+        raise ValueError(f"trajectory_id_mode must be one of {_TRAJECTORY_ID_MODES}, got {mode!r}")
+    root = Path(data_dir).resolve()
+    return h5_path.resolve().relative_to(root).with_suffix("").as_posix()
+
+
+# ---------------------------------------------------------------------------
 # Main build function
 # ---------------------------------------------------------------------------
 
@@ -606,8 +673,13 @@ def _process_episode(
     inner_type: str = "cp1_mean_pool",
     projection_weights_path: str | None = None,
     outcome_filter: str = "success",
+    trajectory_id: str | None = None,
 ) -> list | None:
     """Process a single H5 file in a worker process. Returns list of CacheEntry or None.
+
+    ``trajectory_id`` overrides the default ``h5_path.stem``. The caller resolves
+    it (it needs ``data_dir`` to build a relative path, which workers do not have),
+    so ``None`` preserves the historical stem-based ids byte for byte.
 
     ``outcome_filter`` selects episodes by the HDF5 ``success`` attr: "success"
     (default; the unchanged legacy code path, behavior-preserving) keeps successful episodes,
@@ -638,7 +710,8 @@ def _process_episode(
         if outcome_filter == "failure" and success:
             return None
 
-        trajectory_id = h5_path.stem
+        if trajectory_id is None:
+            trajectory_id = h5_path.stem
 
         # Notify stateful builders to reset history for this episode
         if hasattr(builder, 'on_episode_start'):
@@ -763,6 +836,8 @@ def build_artifact(
     inner_type: str = "cp1_mean_pool",
     projection_weights_path: str | None = None,
     outcome_filter: str = "success",
+    episode_list: str | None = None,
+    trajectory_id_mode: str = "stem",
 ) -> dict:
     """Build artifact dict from HDF5 data.
 
@@ -791,12 +866,25 @@ def build_artifact(
             "outcome_filter is only supported for pool builders (_process_episode); "
             "cp1_llm_layer_extract (model path) accepts only the default 'success'."
         )
+    if trajectory_id_mode not in _TRAJECTORY_ID_MODES:
+        raise ValueError(
+            f"trajectory_id_mode must be one of {_TRAJECTORY_ID_MODES}, got {trajectory_id_mode!r}"
+        )
+    # The model path (_process_episode_with_model) derives ids independently and
+    # is not parameterized here; reject rather than silently ignore the request.
+    if trajectory_id_mode != "stem" and builder_type == "cp1_llm_layer_extract":
+        raise ValueError(
+            "trajectory_id_mode is only supported for pool builders (_process_episode); "
+            "cp1_llm_layer_extract (model path) accepts only the default 'stem'."
+        )
     vector_dims = _get_vector_dims(
         builder_type, reducer_type, output_tokens, prefix_reducer_type,
         inner_type=inner_type, projection_weights_path=projection_weights_path,
     )
 
-    h5_paths = sorted(Path(data_dir).rglob("*.h5"))
+    # Validated once here; both the serial and the ProcessPool branch below
+    # consume this same list, so the two paths cannot diverge.
+    h5_paths = resolve_h5_paths(data_dir, episode_list)
     if not h5_paths:
         logger.warning("No .h5 files found in %s", data_dir)
         return {"key_builder_type": builder_type, "checkpoint_id": checkpoint_id_str,
@@ -871,13 +959,15 @@ def build_artifact(
         outcome_filter,
     )
 
+    traj_ids = {p: trajectory_id_for(p, data_dir, trajectory_id_mode) for p in h5_paths}
+
     entries: list = []
 
     if workers == -1:
         # Serial mode: run in main process (avoids fork overhead in tests)
         logger.info("Processing %d H5 files in serial mode", len(h5_paths))
         for i, p in enumerate(h5_paths, 1):
-            result = _process_episode(str(p), *_ep_args)
+            result = _process_episode(str(p), *_ep_args, traj_ids[p])
             if result is not None:
                 entries.extend(result)
                 del result
@@ -889,7 +979,7 @@ def build_artifact(
         logger.info("Processing %d H5 files with %d workers", len(h5_paths), num_workers)
         with ProcessPoolExecutor(max_workers=num_workers) as pool:
             futures = {
-                pool.submit(_process_episode, str(p), *_ep_args): p
+                pool.submit(_process_episode, str(p), *_ep_args, traj_ids[p]): p
                 for p in h5_paths
             }
             done_count = 0
@@ -1056,6 +1146,26 @@ def main():
              "collection), or 'all'. Pool builders only; cp1_llm_layer_extract "
              "rejects a non-default value fail-loud."
     )
+    # Cache-size ablation (X9b): explicit episode subsets + collision-free ids.
+    parser.add_argument(
+        "--episode-list", default=None,
+        help="Path to a newline-separated list of .h5 paths relative to "
+             "--data-dir. When given it replaces the recursive scan, so a "
+             "library can be built from an explicit subset without copying "
+             "files. Rejects absolute paths, '..' escapes, non-.h5 entries, "
+             "missing files, blank lines and post-normalization duplicates "
+             "fail-fast (a silently shrinking library would be "
+             "indistinguishable from a genuinely smaller one)."
+    )
+    parser.add_argument(
+        "--trajectory-id-mode", default="stem", choices=list(_TRAJECTORY_ID_MODES),
+        help="How to derive each entry's trajectory_id. 'stem' (default) uses "
+             "the file stem, preserving historical artifacts byte for byte. "
+             "'relpath' uses the suffix-stripped path relative to --data-dir; "
+             "required for layouts like task_N/episode_M.h5 where stems repeat "
+             "across sub-directories and would otherwise collide (and silently "
+             "overwrite) in InMemoryBackend.load_artifact. Pool builders only."
+    )
     # B2 verdict-factor enrichment.
     parser.add_argument(
         "--factors-yaml", default=None,
@@ -1084,6 +1194,8 @@ def main():
         inner_type=args.inner_type,
         projection_weights_path=args.projection_weights,
         outcome_filter=args.outcome_filter,
+        episode_list=args.episode_list,
+        trajectory_id_mode=args.trajectory_id_mode,
     )
 
     # B2 — enrich with verdict-factor fields. Runs AFTER build_artifact's

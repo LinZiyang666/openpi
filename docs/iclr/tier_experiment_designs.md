@@ -80,6 +80,17 @@
 - 产出：误差-密度双曲线 + 交叉点。
 - 判读：replay 仅在近重复区间误差 < 学生 → 解释三区制前沿与 replay 层存在的理由。
 
+## X9b — 库规模 vs 纯 replay 闭环 SR【新增，**不替换 X9**；附录 E】
+- 与 X9 的分工（二者互补、问的不是同一件事）：X9 的自变量是**单点 NN 距离**、因变量是**动作误差**、comparator 是**学生**、模式离线；X9b 的自变量是**库规模**、因变量是**闭环 SR**、comparator 是 **teacher 锚点**、模式是真实 rollout。X9 说明 replay 层为何存在，X9b 给出 payload 路线的**数据成本**。只有闭环 SR 能回答后者——离线误差小不蕴含 rollout 成功（误差沿闭环累积，replay 的失败模式是轨迹偏离而非单步误差）。
+- 目的：回答审稿人必问的"你的结论是不是库太小导致的？库大了 replay 就够用了吗？"，并给 §5.1 三区制中 **replay 区的高度上限与其数据成本**（⚠ 不是区间**边界位置**——那由 X4/X11 的成本轴决定）。
+- 设计：**纯 cache**（`gate: always_search` + `judge: always_hit`，**无阈值**，故无标定自由度混入）。自变量 = **每任务入库的成功轨迹数** ∈ {1,2,5,10,20,45}（嵌套子集；45 = B-train 全量，普遍触顶故语义为"数据预算耗尽点"）。⚠ 用"成功轨迹数"而非"抽取 init 数"：检索是**任务内作用域**的，某任务零覆盖会使其评测全程回落 teacher，而该偏倚随 size 单调递减、方向恰好指向"曲线已饱和"的结论。
+- 规模：12 主臂 + 4 敏感性臂（S1/S6 两端 × 2 套件）= 16 臂 × 500 ep = **8,000 ep**，A 池配对。
+- 统计：推断单位 = **task**（10 cluster/套件），全族 studentized null-calibrated cluster bootstrap，每套件 **8 检验 Holm**（5 相邻档 + 方向 + 非劣 + 劣效）。判读是互斥穷尽的决策树：D（方向）× Q（达标性，主轴）正交，P（平台）为 descriptive。
+- ⚠ 与本文件 `:3` 章级统计约定的**有意偏离**：该处冻结为「McNemar + **episode 级** cluster bootstrap」，X9b 改用 **task 级** cluster 并把 McNemar 降为 descriptive。理由：episode 级口径与"同 task 内 episode 误差不独立"这一自身声明不自洽（p 值假设独立、CI 却按 cluster 重采样）。后续实验引用统计口径时请注意区分。
+- ⚠ Init 池协议的状态变更：本文件 `:5` 记「cache 库 50 init 受 `protected_in_train` 锁在 B-train 侧」。X9b 之后 **B-train 全量入库**，故后续任何"补 B-train 做标定"的实验所面对的"库对 B-train 覆盖稠密"警告从 5/45 变为 45/45。**B-val 仍全程在库外**（size 网格永不取到），这是刻意保护的红线。
+- 判读边界（可识别性）：`always_hit` 的 SR = f(库内容, **检索质量**)，而本实验固定单一 index。曲线饱和与"这个 index 吃不下更密的库"观测等价，故结论一律限定**在本 index 下**；真正的识别需要 index 上界臂（用 `sim_state` 按真实状态距离检索），列为 future work。
+- 设计与预注册全文：[`logs/cache_size_ablation_plan.log.md`](../../logs/cache_size_ablation_plan.log.md)
+
 ## X10 — 历史增强负结果表【P2，附录 C，数据已有】
 - 设计：171 config 逐步权重扫描 × 2 套件（各 17,100 ep）+ depth{3..6} 扩展（7,200 ep）压缩为一表：每 depth 最优 config vs d1 的配对 ΔSR + CI。三句话观察式陈述，无命名无机制。
 - 判读：固定结论——单帧 key 下无增益；left to future work。
