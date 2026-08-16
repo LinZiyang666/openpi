@@ -15,7 +15,8 @@ Run inside the GR00T island.  Three things are easy to get wrong here:
 
 * ``gr00t`` is **not installed** in that venv -- it is imported from the
   ``n1.5-release`` worktree at ``/home/weiland/gr00t_n15`` via ``PYTHONPATH``.
-* ``pytest`` and ``decord`` are not in that venv by default.  ``decord`` is
+* ``pytest`` and ``decord`` are not in that venv by default, and it has no
+  ``pip`` -- install through ``uv pip`` with ``VIRTUAL_ENV`` pointed at it.  ``decord`` is
   pulled in indirectly when the parent DataConfig builds its transform chain, so
   without it every DataConfig test dies on an ImportError.
 * the repo's ``conftest.py`` default-skips ``manual``; ``--run-manual`` is the
@@ -23,7 +24,7 @@ Run inside the GR00T island.  Three things are easy to get wrong here:
 
 ::
 
-    /home/weiland/gr00t_n15_venv/.venv/bin/python -m pip install pytest decord
+    VIRTUAL_ENV=/home/weiland/gr00t_n15_venv/.venv uv pip install pytest decord
     cd /home/weiland/openpi && \\
     PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi \\
       /home/weiland/gr00t_n15_venv/.venv/bin/python -m pytest \\

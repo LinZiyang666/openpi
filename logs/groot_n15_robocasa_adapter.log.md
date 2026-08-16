@@ -407,7 +407,7 @@ class RoboCasa365DataConfig(SinglePandaGripperDataConfig):
 # 孤岛 B 的 numpy 为 1.26.4，满足 openpi-client 的 numpy<2.0.0 约束，
 # 故此处不需要（也不应）加 --no-deps —— 与孤岛 A 的处置相反。
 export VIRTUAL_ENV=/home/weiland/gr00t_n15_venv/.venv
-uv pip install -e /home/weiland/openpi/packages/openpi-client
+uv pip install -e /home/weiland/openpi/packages/openpi-client   # 实测：装入 openpi-client + svgwrite/tree/websockets
 # decord：父类 DataConfig 的 transform 链经 transformers 动态模块加载它，
 # 缺失会让 RoboCasa365DataConfig() 直接 ImportError（实测）。
 uv pip install decord
@@ -497,7 +497,7 @@ export PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland
 ```bash
 # 孤岛 B：① gr00t 不在该 venv，来自 n1.5-release worktree ② decord（transform 链需要）
 #         ③ pytest 该 venv 默认没有 ④ conftest.py 默认跳过 manual，须 --run-manual
-/home/weiland/gr00t_n15_venv/.venv/bin/python -m pip install pytest decord
+VIRTUAL_ENV=/home/weiland/gr00t_n15_venv/.venv uv pip install pytest decord
 cd /home/weiland/openpi && \
 PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi \
   /home/weiland/gr00t_n15_venv/.venv/bin/python -m pytest \
@@ -827,3 +827,213 @@ $ ... test_env_action_contract_manual.py --run-manual -q   ->  3 passed
 - 独立复核通过：主环境 `72 passed, 2 skipped`；review-only 独立探针 `3 passed`（错误 horizon 的 server/client 双侧拒绝、推理异常时 env 关闭）；孤岛 B manual `10 passed`；孤岛 A manual `3 passed`；ruff check/format 与 `git diff --cached --check` 均通过。
 - 实现与已批准计划一致：有序观测/动作键、T=1、512→256、`(16,D)` 输出契约、有限值门禁、server/client 环境隔离、资源释放、配对 seed、诊断 server 拒绝、连续失败熔断及原子结果写入均已落地并有相称测试。
 - G0-A 接线等价性、GPU 权重加载与真实仿真 rollout 仍按 plan §6/§9.1 留在 G2 后的 Verify 阶段；它们不是本次代码审查的未完成实现项，不阻塞 G2。
+
+
+---
+
+## 10. 执行记录
+
+### 10.1 G0-A 接线等价性 — ✅ **PASS**（2026-08-16，weilandserver）
+
+§9.1 中唯一「必须通过、不设时间盒」的门。分两步，均在孤岛 B 内实跑：
+
+**步骤 1（同进程）** —— 同一 obs、同一 `torch.manual_seed(12345)` 下比较「直接 `policy.get_action(build_groot_observation(obs))`」与「`adapter.infer(obs)`」：五个 action key **全部 `maxdiff = 0.000e+00`**。
+
+⚠ 同时跑了**必要的反向对照**：不设种子时两次调用**确实不同**（`sampling_stochastic: true`）。没有这一条，`maxdiff=0` 也可能只是"模型本来就确定性"，证明不了 adapter 无损；有了它，才同时确立「采样确实随机」与「固定种子后 adapter 完全透明」。这也在实机复证了 F20。
+
+**步骤 2（跨进程）** —— server 以 `--diagnostic-seed 12345` 启动（seed 在 server 进程内、紧邻 `get_action()` 之前重置；client 侧设种子无效，两个解释器不共享全局 RNG），client 发送同一 obs：五个 key **全部 `maxdiff = 0.000e+00`**，dtype 两侧同为 `float32`（msgpack 往返保真）。
+
+⇒ **adapter 层与 websocket 层均为无损**。后续 rollout 若出现 SR 问题，不可归因于接线。
+
+**附带确认**：server 启动握手按 §4.3 全部通过并打印四类 modality 的**有序**列表与 checkpoint 绝对路径；`metadata` 正确广播 `{checkpoint, diagnostic_seed, action_horizon}`，client 侧的诊断模式拒收与 horizon 核对因此可用。
+
+### 10.2 本次实跑修正的文档错误
+
+- **§4.5 / §5.2 原写 `python -m pip install ...` 是错的**：孤岛 B 的 venv **没有 pip**（实测 `No module named pip`）。正确写法是 `VIRTUAL_ENV=... uv pip install ...`，已更正。此前装 pytest/decord 时用的就是 uv，是文档抄写有误。
+- **`openpi-client` 此前从未真正装进孤岛 B**：plan §4.5 列了该步骤但未执行，导致 server 首次启动即 `ModuleNotFoundError: No module named 'openpi_client'`。现已安装（连带 svgwrite / tree / websockets），并复验 **numpy 1.26.4 / torch 2.5.1+cu124 / transformers 4.51.3 三个关键钉定均未变动**。
+
+### 10.3 G0-B 行为健全性 — ⚠ **按预注册字面判据 FAIL；但失败点不在本门所检验的假设上**
+
+**数据前提已满足**（R10 未触发）：官方 `robocasa/scripts/download_datasets.py` 支持 `--tasks` 按任务下载（数据托管在 UT Austin Box，非 HF）。已取 `PickPlaceCounterToStove`（99 MB / 108 ep）与 `OpenCabinet`（144 MB / 107 ep）的 pretrain human 数据，LeRobot 格式。
+
+**执行**：2 任务 × 各前 5 episode × 4 个起点（step 0/16/32/48）× 5 个共同 seed，逐 action key 在**该键自身 std 单位**下算开环 MSE；先在 episode 内对 (起点 × seed) 求均，再以 **episode 为配对单位**（n = 10）做单侧 Wilcoxon。
+
+| action key | gt 方差 | **P** | N1 | N2 | B | vs_B | vs_N1 | vs_N2 |
+|---|---:|---:|---:|---:|---:|---|---|---|
+| `end_effector_position` | 2.174 | **0.525** | 1.616 | 1.105 | 2.853 | p=0.0010 ✅ | p=0.0010 ✅ | p=0.0010 ✅ |
+| `end_effector_rotation` | 2.412 | **1.023** | 2.485 | 4.444 | 2.939 | p=0.0029 ✅ | p=0.0049 ✅ | p=0.0010 ✅ |
+| `gripper_close` | **0.019** | 1.012 | 1.012 | 1.012 | 0.801 | p=0.999 ❌ | p=0.75 | p=0.75 |
+| `base_motion` | 0.000 | — | — | — | — | **EXCLUDED**（近零方差） | | |
+| `control_mode` | 0.000 | — | — | — | — | **EXCLUDED**（近零方差） | | |
+
+**字面裁决**：判据 1（P 须在**每个**未排除键上显著优于 B）在 `gripper_close` 上不成立 ⇒ **G0-B FAIL**。
+
+**根因分解（不是配置错误）**：
+
+1. **`gripper_close` 对本门的假设零判别力**：三个 arm 的 P/N1/N2 **数值完全相同（1.0124）**——该键用 `binary` 归一化，N1/N2 都不改动它。一个无法区分对照组的键，却能单独否决整个门。
+2. **它实质上属于近零方差类别，只是没被阈值捞住**：其 gt 方差 **0.019**，比两个真正承载控制信息的键（2.174 / 2.412）低 **两个数量级**，仅因高于我预注册的 `1e-3` 阈值而留在判定集内。在一个几乎不变的信号上，常数均值预测器本就接近最优，"模型打不过它"不构成对配置的指控。
+3. **MSE 对二值键本就不是合适指标**：`gripper_close` 与 `control_mode` 都是二值量，模型输出连续值，反归一化后与二值 gt 比 MSE 天然吃亏；恰当的指标是分类准确率。这两个键上"模型不如均值"是**指标选择**的产物。
+
+**证据的实际指向**：在两个真正携带连续控制信息的键上，**P 同时显著优于 B、N1、N2**（p ≤ 0.005，n=10 配对）。即：
+- 相对基线 B —— 模型确实在预测，链路无根本问题；
+- 相对 N1 —— **非旋转字段的 `min_max` 归一化得到确认**；
+- 相对 N2 —— **`rotation_6d` 旋转表示得到确认**。
+
+⚠ **另有一半的 R2 由上游断言直接关闭**：`gr00t/data/transform/state_action.py:445` 断言「凡转换成其他旋转表示的状态字段，其归一化**必须**为 `min_max`」。故两个四元数字段的 `min_max` 是**代码强制**而非我方推定，N1 arm 因此只能扰动非旋转字段。
+
+**补充证据：换用适合二值键的指标后，结论反转**（描述性，**不修改预注册判据**）。对 `gripper_close` / `control_mode` 改用分类准确率（阈值 0.5）重测 shipped 配置（N1/N2 在这两键上与 P 数值完全相同，无需重跑）：
+
+| key | 模型准确率 | 多数类基线 | gt 正例率 | 超越基线 |
+|---|---:|---:|---:|---|
+| `action.gripper_close` | **0.9938** | 0.9688 | 3.1% | **✅ 是** |
+| `action.control_mode` | 1.0000 | 1.0000 | 0.0% | 否（基线已达 100%，无从超越） |
+
+⇒ 模型在 `gripper_close` 上准确率 **99.4%**、**高于多数类基线 96.9%**，即它在该键上**确实在有效预测**；MSE 之所以给出相反结论，是因为把连续输出与 0/1 标签比 MSE 时，时机上的微小偏差被放大，而该信号本身只有 3.1% 的正例。`control_mode` 的 ground truth 在这两个任务上恒为 0，模型 100% 正确 —— 这也从另一侧印证了它被"近零方差"规则排除是恰当的。
+
+⇒ **三条证据共同指向同一结论**：①G0-A 证明接线 bit 级无损；②两个连续控制键上 P 显著优于 B/N1/N2（归一化与旋转表示均获确认）；③二值键在恰当指标下模型优于基线。**G0-B 的字面 FAIL 源于把 MSE 用在近常数的二值键上，而非配置或链路缺陷。**
+
+**⚠ 我不修改预注册判据。** 阈值 `1e-3` 定得过松是我预注册时的缺陷，但事后调阈值以翻转结论正是预注册要防止的行为。字面结论保留为 FAIL，并将处置提交 owner 裁定：
+
+| 选项 | 含义 |
+|---|---|
+| **(a) 判据修正后重判**（建议） | 把"近零方差"阈值改为相对判据（如 gt 方差 < 主控制键中位数的 1/10），或将"三个 arm 数值相同、对假设零判别力"的键一并排除，再重跑判定。按现有数据，两条修正都会让结论变为 PASS + 归一化确认 |
+| (b) 补一个适合二值键的指标 | **已补测（见上）**：`gripper_close` 准确率 99.4% > 基线 96.9%。若采纳该指标进入判定集，判据 1 亦成立 |
+| (c) 严格照字面执行 | 判 FAIL 并转 §9.2 退路。⚠ 与证据方向相悖：P 在主控制键上优于基线 5.4 倍 / 2.9 倍 |
+
+### 10.4 下一步
+
+G0-A 已 PASS；G0-B 的实质结论（归一化与旋转表示均获确认）已具备，仅判据形式待 owner 按上表裁定。其后按 §5.3 进入 S3/S4 rollout。
+
+
+### 10.5 §9.2 退路的前置查证 — ✅ 完成（2026-08-16，HF API 实查）
+
+W3 曾要求「退路 A2 的前置动作：先申请 Cosmos-Reason2-2B 访问权，并验证 `GR00T-N1.7-LIBERO` 是否自带全部 backbone 权重」。该项无论 G0-B 如何裁定都必须有答案（裁「继续」则它是保险，裁「转退路」则它是阻塞项），故先行做掉：
+
+| repo | 可访问性 | 内容 |
+|---|---|---|
+| `nvidia/GR00T-N1.7-LIBERO` | **`gated=False`，可直接下载** | 203 个文件，**四个 suite 子目录齐全**：`libero_spatial` / `libero_object` / `libero_goal` / `libero_10` —— **实测印证 W1**。每 suite 含 `config.json`、`embodiment_id.json`、2 个 safetensors 分片 + index、`processor_config.json`、`statistics.json`、`experiment_cfg/` |
+| `nvidia/Cosmos-Reason2-2B` | **`gated=auto`** | 15 个文件，单个 safetensors |
+| `nvidia/GR00T-N1.7-3B` | `gated=False` | 基座模型，27 个文件 |
+
+**对 W3 的两点修正**：
+
+1. **gated 的性质比原先设想的轻**：`Cosmos-Reason2-2B` 是 **`gated=auto`** —— 接受条款即自动放行，**不存在人工审批排队**。W3 原文「先申请访问权」暗示的等待并不成立。
+2. **checkpoint 并非完全自包含**：`libero_spatial/` 下**没有任何 tokenizer / vocab / preprocessor 类文件**（仅 `processor_config.json`），故加载时仍会回源到 `nvidia/Cosmos-Reason2-2B` 取 tokenizer ⇒ **gated 条款仍须接受**，只是成本仅为一次点击。
+
+⚠ **下载须按官方 `--include` 过滤**：该 repo 同时包含 DeepSpeed 优化器状态（`global_step20000/bf16_zero_pp_rank_*_optim_states.pt`，16 个 rank），全量克隆会拉入大量推理无关的权重。`scripts/deployment/README.md:39-43` 给出的 `--include` 清单是正确做法。
+
+⇒ **退路 A2 的可行性已确认，且成本低于 §9.3 表中的估计**（零微调 + 一次条款接受）。这不改变「退路是保险而非等价替代」的判断（§9.4：LIBERO 无跨场景 split）。
+
+
+### 10.6 N3 决定性负对照 — 区分「指标选择」与「配置缺陷」
+
+上文对 G0-B 失败点的解释（属指标选择而非配置缺陷）此前只是**推断**，未经实验区分。原设计的 N1/N2 恰好都不改动 `binary` 归一化，留下了盲区。故补一个针对该键的负对照：
+
+**N3** = shipped 配置，仅把 `action.gripper_close` 的归一化由 `binary` 改为 `min_max`。其判别逻辑与 §9.1 判据 4 相同（负对照优于 P ⇒ 配置错），且**可能推翻我方解释**。
+
+| action key | P | **N3** | B（基线） | 说明 |
+|---|---:|---:|---:|---|
+| `end_effector_position` | 0.5248 | 0.5248 | 2.8530 | **完全相同** —— 改动是局部的 |
+| `end_effector_rotation` | 1.0230 | 1.0230 | 2.9392 | **完全相同** |
+| **`gripper_close`** | 1.0124 | **1.0052** | **0.8006** | N3 < P，Wilcoxon 单侧 **p = 0.00098** |
+| `base_motion` / `control_mode` | 0.0007 / 1.4710 | 同 P | — | 不受影响 |
+
+**结论（三点，缺一不可）**：
+
+1. **N3 统计显著优于 P，但效应量仅 0.7%**（1.0124 → 1.0052）。⚠ `p = 0.00098` 是 n=10 时 Wilcoxon 单侧的**最小可能值**，只表明 10 个 episode 方向一致，**不表明幅度**。仅看 p 值会严重高估该发现的分量。
+2. **N3 仍远差于基线 B**（1.0052 vs 0.8006，相差 25.6%）。⇒ **即使把归一化"改对"，该键依然无法通过判据 1。** 因此判据 1 的失败**不可能**由归一化配置解释。
+3. 两个连续控制键上 **P 与 N3 数值完全相同**，证明该改动不触及主结论。
+
+⇒ **原解释得到实验支持**：G0-B 判据 1 的失败源于「把 MSE 用在近常数二值键上」这一指标选择，**而非配置缺陷**。这一判断现在有实验依据，不再是推断。
+
+⚠ **同时得到一个未预料到的次要发现，如实记录**：`action.gripper_close` 用 `min_max` 确实比继承自父类的 `binary` **略优**（一致方向、0.7% 幅度）。这不影响 G0-B 的任何定性结论，也不改变判据 1 的走向，但属于「继承配置并非处处最优」的证据。是否据此调整 §4.1 的 `action_normalization_modes`，**提请 owner 一并裁定** —— 我不擅自改动已 G2 APPROVED 的配置：效应量微小，且改动会使 `groot_data_config.py` 偏离父类默认值，需要相应更新测试与 plan。
+
+
+### 10.7 Owner 裁定与 G0-B 重判 — ✅ **PASS**（2026-08-16）
+
+**owner 裁定两项**：
+1. **G0-B：修正判据后重判**（plan §10.3 选项 a）。
+2. **`gripper_close` 归一化：保持 `binary`** —— 效应量仅 0.7% 且不改变任何定性结论，维持与官方父类默认一致，不引入未经官方背书的偏离。N3 的发现留在 §10.6 备查，**不修改 `groot_data_config.py`**。
+
+**⚠ 本次判据修正为「事后修正」，据此显式记录**（原判据见 §9.1「🔒 预注册分析口径」，**原文保持不动**）：
+
+原判据以**绝对阈值** `1e-3` 排除近零方差键。该阈值过松：`action.gripper_close` 的 gt 方差 **0.019** 比两个真正承载控制信号的键低**两个数量级**（2.174 / 2.412），实质属于近常数，却因高于 `1e-3` 留在判定集内，进而以「无法击败常数基线」单独否决整个门 —— 而它同时**对本门假设零判别力**（P/N1/N2 数值完全相同）。
+
+修正后**同时**报告两条独立口径，使结论不依赖于口径选择：
+
+| 口径 | 定义 | 排除的键 | 保留判定 | 结果 |
+|---|---|---|---|---|
+| **C1 相对方差** | gt 方差 < 控制信号键方差中位数（2.412）的 1/10，即 < 0.241 | `base_motion` / `control_mode` / `gripper_close` | `end_effector_position` / `end_effector_rotation` | **PASS** + 归一化确认 |
+| **C2 零判别力** | P、N1、N2 三者数值完全相同（无法区分假设）→ 叠加原排除 | `control_mode` / `gripper_close` (+ 原 `base_motion`) | 同上 | **PASS** + 归一化确认 |
+| **C1 ∪ C2** | 两者并集 | 同 C1 | 同上 | **PASS** + 归一化确认 |
+
+**三条口径结论完全一致**，判定集均收敛到两个真正的控制键：
+- **必要条件**：P 在两键上均显著优于常数基线 B（p = 0.0010 / 0.0029）⇒ 模型确实在预测，链路无根本问题。
+- **判据 2**：P 在两键上均显著优于 N1 与 N2（p = 0.0010/0.0049 与 0.0010/0.0010）⇒ **非旋转字段的 `min_max` 归一化与 `rotation_6d` 旋转表示双双确认**（旋转字段的 `min_max` 另由上游断言强制，见 §10.3）。
+
+⇒ **G0-B PASS。§9.1 的两个出场门（G0-A 接线等价性 / G0-B 行为健全性）均已通过，可进入 §5.3 的 S3/S4 rollout。**
+
+⚠ 重判**未重跑任何推理**，使用的是同一批 `g0b_result.json` 数据；修正的只是「哪些键进入判定集」，各键的 MSE 与 p 值一字未改。
+
+
+### 10.8 S3 闭环暴露的 import 路径缺陷 —— 以及一类 mock 无法覆盖的盲区
+
+首次真实 rollout 立刻失败：
+
+```
+ImportError: cannot import name 'get_task_horizon'
+             from 'robocasa.utils.dataset_registry'
+```
+
+`get_task_horizon` 实际位于 `robocasa/utils/dataset_registry_utils.py:240`，而 `TASK_SET_REGISTRY` 才在 `dataset_registry.py`。`groot_rollout_client.run_one()` 把前者写成了后者。
+
+⚠ **为什么 72 个非 manual 测试全部放行了这个错误**：`test_groot_rollout_client.py` 用 `monkeypatch.setitem(sys.modules, ...)` 注入仿真假件，而假件是**按被测代码所请求的名字**注册的。代码写错模块名，假件就在那个错误的名字下被创建——于是测试与 bug 互相印证，一路全绿。**这是 mock 测试的结构性盲区：它能验证调用逻辑，但对「import 路径是否指向真实存在的符号」天然无能为力。**
+
+三处修正：
+1. **生产代码**：改为 `from robocasa.utils.dataset_registry_utils import get_task_horizon`。
+2. **假件**：改为镜像**真实的**模块布局（`dataset_registry` 提供 `TASK_SET_REGISTRY`，`dataset_registry_utils` 提供 `get_task_horizon`），而非跟随代码的假设。
+3. **补一个 mock 结构上做不到的检验**：孤岛 A 的 `test_rollout_client_imports_resolve_against_real_robocasa`，对真实安装的 `robocasa` 解析这两个符号并调用 `get_task_horizon`。**实测通过（孤岛 A 4 passed）。**
+
+🟢 **两项健壮性设计当场兑现了价值**（均为 G2 Round 2 应自查发现所加）：
+- **连续失败熔断**在第 3 个 arm 即中止，没有让这个必然失败的配置跑满 12 个 episode；
+- **错误摘要取 traceback 末行**，结果 JSON 里直接是 `ImportError: cannot import name ...`，而非 160 字符的 websocket 样板。
+
+⇒ 修正后重跑，**闭环成功**：`ep0(seed=0): OK t=268/600`、`ep1(seed=1): OK t=230/600` —— GR00T N1.5 在 RoboCasa365 上真实执行并完成任务，S3 通过。
+
+
+### 10.9 S3 / S4 冒烟 rollout — ✅ **通过**（2026-08-16）
+
+修正 import 后重跑，2 任务 × 2 场景 × 3 ep，配对 seed `[0, 1, 2]`（两场景回放同一列表）：
+
+| 任务 | scene A (1,1) | scene B (7,7) | wall A | wall B |
+|---|---|---|---:|---:|
+| `PickPlaceCounterToStove` | **3/3 = 1.00** | **3/3 = 1.00** | 78.6 s | 122.0 s |
+| `OpenCabinet` | 2/3 = 0.67 | **3/3 = 1.00** | 157.3 s | 179.4 s |
+| **合计** | **5/6 = 0.83** | **6/6 = 1.00** | | |
+
+**S1–S4 全部通过**：S1 启动握手（四类 modality 有序键 + checkpoint 路径 + 有限值断言）、S2 单步推理（5 键各 `(16, D)` 且有限）、S3 单 episode 闭环（真实执行并完成任务）、S4 冒烟 SR（远大于 0）。
+
+**与 pi0.5 的横向参照**（同两任务，pi0.5 的 180 ep 准入门数据）：`PickPlaceCounterToStove` A 5/5 / B 5/5；`OpenCabinet` A 4/5 / B 4/5。GR00T N1.5 与之**同一量级**，⇒ **两个 teacher 在这两个任务上都能干活**，第二 teacher 的可用性得到初步确认。
+
+⚠ n=3/格，仅作 sanity check，**不承担任何 SR 结论**——S4 的职责按 §9.1 G0-D 已被降级为健全性检查，链路正确性由 G0-A 举证、归一化由 G0-B 举证。正式的跨场景 SR 需按 §12-5 的规模执行。
+
+⚠ 场景成本差与 pi0.5 侧一致：scene B (7,7) 的 wall 明显高于 scene A (1,1)（122 vs 79、179 vs 157），与 §12-6 实测的 2.4× reset 成本差同向。
+
+---
+
+## 11. plan 执行状态总结（2026-08-16）
+
+| 阶段 | 状态 |
+|---|---|
+| §2 Plan / §3 G1 | ✅ APPROVED（R5） |
+| §4 Code / §5 G2 | ✅ APPROVED（R6） |
+| §6 Verify | ✅ 72 passed, 2 skipped |
+| §7 Commit / §8 Push | ✅ `15dfa67` → `origin/Ziyang` |
+| **§9.1 G0-A 接线等价性** | ✅ **PASS**（三路径 bit 相同 + 随机性反向对照） |
+| **§9.1 G0-B 行为健全性** | ✅ **PASS**（owner 裁定修正判据后，三条口径一致） |
+| **§5.3 S1–S4** | ✅ **全部通过**（冒烟 11/12） |
+| §9.2 退路前置查证 | ✅ 完成（`gated=auto`，无人工审批；checkpoint 不自包含 tokenizer） |
+
+**plan 的可执行部分至此全部完成。** 后续属于新的工作范围（正式跨场景实验按 §12-5 规模、以及 GR00T 版 Interceptor/KeyBuilder 的 cache 接入），不在本 plan 内。
+
+⚠ **未提交**：§10 执行记录、import 修正与新增的孤岛 A 测试均在工作树，按 owner 指示未 commit。

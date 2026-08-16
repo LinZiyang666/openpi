@@ -11,8 +11,8 @@ rather than an addition to ``test_groot_data_config_manual.py``.
 
 Run inside the simulation island::
 
-    /home/weiland/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv/bin/python \\
-      -m pip install pytest          # not present there by default
+    # pytest is already present in this island (verified); if it ever is not,
+    # install via: VIRTUAL_ENV=<that venv> uv pip install pytest
     cd /home/weiland/openpi && \\
     PYTHONPATH=/home/weiland/openpi \\
       /home/weiland/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv/bin/python \\
@@ -61,3 +61,20 @@ def test_action_dims_match_real_convert_action_slices():
 def test_total_action_width_is_12():
     """RoboCasa365's PandaOmron action space is 12-dimensional."""
     assert sum(groot_keys.ACTION_DIMS.values()) == 12
+
+
+def test_rollout_client_imports_resolve_against_real_robocasa():
+    """Pin the module paths the rollout client imports at call time.
+
+    A mocked test cannot catch a wrong import path: the fake is registered under
+    whatever name the code asks for, so it confirms the mistake instead of
+    exposing it. That is exactly how `get_task_horizon` was imported from
+    `dataset_registry` (it lives in `dataset_registry_utils`) and still passed
+    every non-manual test. Only resolving against the installed package helps.
+    """
+    from robocasa.utils.dataset_registry import TASK_SET_REGISTRY
+    from robocasa.utils.dataset_registry_utils import get_task_horizon
+
+    assert "atomic_seen" in TASK_SET_REGISTRY
+    assert callable(get_task_horizon)
+    assert get_task_horizon("PickPlaceCounterToStove") > 0

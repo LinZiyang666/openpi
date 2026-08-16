@@ -98,13 +98,23 @@ def fake_sim(monkeypatch):
         return env
 
     monkeypatch.setitem(sys.modules, "gymnasium", types.SimpleNamespace(make=_make))
+    # Mirrors the real robocasa layout: TASK_SET_REGISTRY lives in
+    # dataset_registry, get_task_horizon in dataset_registry_utils. Injecting a
+    # fake that matches whatever the code imports would make this test agree
+    # with a wrong import path instead of catching it -- see the manual suite
+    # for the check that actually pins the real module.
     robocasa = types.ModuleType("robocasa")
     utils = types.ModuleType("robocasa.utils")
     registry = types.ModuleType("robocasa.utils.dataset_registry")
-    registry.get_task_horizon = lambda name: HORIZON
+    registry.TASK_SET_REGISTRY = {"atomic_seen": ["SomeTask"]}
+    registry_utils = types.ModuleType("robocasa.utils.dataset_registry_utils")
+    registry_utils.get_task_horizon = lambda name: HORIZON
     monkeypatch.setitem(sys.modules, "robocasa", robocasa)
     monkeypatch.setitem(sys.modules, "robocasa.utils", utils)
     monkeypatch.setitem(sys.modules, "robocasa.utils.dataset_registry", registry)
+    monkeypatch.setitem(
+        sys.modules, "robocasa.utils.dataset_registry_utils", registry_utils
+    )
     return holder
 
 

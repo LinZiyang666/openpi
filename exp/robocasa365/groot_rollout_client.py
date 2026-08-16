@@ -160,7 +160,7 @@ def run_one(
 ) -> dict:
     """Run ``n_trials`` episodes of one task in one pinned kitchen."""
     import gymnasium as gym
-    from robocasa.utils.dataset_registry import get_task_horizon
+    from robocasa.utils.dataset_registry_utils import get_task_horizon
 
     horizon = get_task_horizon(env_name)
     layout, style = scene
