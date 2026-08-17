@@ -9,6 +9,7 @@ exit path, and replaying one seed list across both scenes -- lives entirely in
 
 from __future__ import annotations
 
+import json
 import math
 import sys
 import types
@@ -124,8 +125,14 @@ class _OkClient:
     def __init__(self) -> None:
         self.calls = 0
         self.last_element: dict[str, Any] | None = None
+        self.ctrl_frames: list[dict[str, Any]] = []
 
     def infer(self, element: dict[str, Any]) -> dict[str, Any]:
+        if "__ctrl__" in element:
+            # Episode framing rides the same call, but it is not an inference:
+            # the server dispatches it before the policy is ever consulted.
+            self.ctrl_frames.append(element)
+            return {}
         self.calls += 1
         self.last_element = element
         base = self.calls * 1000
@@ -142,6 +149,8 @@ class _OkClient:
 
 class _FailingClient:
     def infer(self, element: dict[str, Any]) -> dict[str, Any]:
+        if "__ctrl__" in element:
+            return {}
         raise ConnectionError("server went away")
 
 
@@ -419,3 +428,78 @@ def test_select_and_downsample_rejects_non_square_frames():
 def test_state_dims_cover_every_state_key():
     assert set(groot_keys.STATE_DIMS) == set(groot_keys.STATE_KEYS)
     assert sum(groot_keys.STATE_DIMS.values()) == 16
+
+
+# ------------------------------------------------------------------
+# Episode framing through the real rollout loop
+# ------------------------------------------------------------------
+
+
+class _CtrlRecordingClient(_OkClient):
+    """_OkClient that can be told to blow up on the Nth real inference."""
+
+    def __init__(self, fail_on: int | None = None) -> None:
+        super().__init__()
+        self._fail_on = fail_on
+
+    def infer(self, element: dict[str, Any]) -> dict[str, Any]:
+        if "__ctrl__" not in element and self._fail_on is not None:
+            if self.calls + 1 == self._fail_on:
+                self.calls += 1
+                raise ConnectionError("server went away mid-episode")
+        return super().infer(element)
+
+
+def test_run_one_frames_every_episode_with_ctrl(fake_sim):
+    fake_sim["env"] = _FakeEnv()
+    client = _CtrlRecordingClient()
+    run_one(client, "SomeTask", (1, 1), n_trials=2, replan=3, base_seed=0)
+
+    kinds = [frame["__ctrl__"] for frame in client.ctrl_frames]
+    assert kinds == ["episode_start", "episode_end", "episode_start", "episode_end"]
+    starts = [f for f in client.ctrl_frames if f["__ctrl__"] == "episode_start"]
+    # The task key only reaches SearchContext through this field.
+    assert all(f["__task__"] == "SomeTask" for f in starts)
+    assert [f["__episode_id__"] for f in starts] == [0, 1]
+
+
+def test_run_one_sends_episode_end_when_the_episode_raises(fake_sim):
+    """Without this the server's search session stays open until the socket drops."""
+    fake_sim["env"] = _FakeEnv()
+    client = _CtrlRecordingClient(fail_on=1)
+
+    with pytest.raises(ConnectionError):
+        run_one(client, "SomeTask", (1, 1), n_trials=1, replan=3, base_seed=0)
+
+    kinds = [frame["__ctrl__"] for frame in client.ctrl_frames]
+    assert kinds == ["episode_start", "episode_end"]
+    assert client.ctrl_frames[-1]["__success__"] is False
+
+
+def test_run_one_writes_hit_rows_when_the_server_reports_verdicts(fake_sim, tmp_path):
+    fake_sim["env"] = _FakeEnv()
+
+    class _CachingClient(_CtrlRecordingClient):
+        def infer(self, element):
+            out = super().infer(element)
+            if "__ctrl__" not in element:
+                out = dict(out)
+                out["__hit_meta__"] = {
+                    "hit_type": "FULL_HIT",
+                    "winner_id": f"traj:{self.calls}",
+                    "cp1_score": 0.9,
+                    "searched": True,
+                }
+            return out
+
+    log_path = tmp_path / "hits.jsonl"
+    with log_path.open("w") as handle:
+        run_one(
+            _CachingClient(), "SomeTask", (1, 1),
+            n_trials=1, replan=3, base_seed=0, hit_log=handle,
+        )
+
+    rows = [json.loads(line) for line in log_path.read_text().splitlines()]
+    assert rows
+    assert all(row["task"] == "SomeTask" and row["hit_type"] == "FULL_HIT" for row in rows)
+    assert [row["step_idx"] for row in rows] == sorted(row["step_idx"] for row in rows)

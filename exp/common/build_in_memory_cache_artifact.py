@@ -53,6 +53,21 @@ _VECTOR_DIMS: dict[str, dict[str, int]] = {
     "cp1_max_pool":        {"vision_0": 2048, "vision_1": 2048, "prompt_emb": 2048, "robot_state": 32},
 }
 
+# GR00T pools reuse the Pi0.5 pooling code: the HDF5 stores each field
+# separately, so `_build_fake_stage1` reassembles a prefix whose offsets are
+# correct by construction and the offset-based slicing applies unchanged. Only
+# the geometry differs -- three cameras instead of two, and a 20-wide state --
+# and the artifact is stamped with the GR00T builder name so a library can
+# never be loaded under a Pi0.5 recipe that happens to share its dimensions.
+_GROOT_TO_PI05_BUILDER: dict[str, str] = {
+    "cp1_groot_mean_pool":       "cp1_mean_pool",
+    "cp1_groot_spatial_pool_16": "cp1_spatial_pool_16",
+    "cp1_groot_spatial_pool_4":  "cp1_spatial_pool_4",
+    "cp1_groot_max_pool":        "cp1_max_pool",
+}
+_GROOT_VISION_SLOTS = 3
+_GROOT_ROBOT_STATE_DIM = 20
+
 # cp1_llm_layer_extract dims depend on prefix_reducer. Vision dim varies
 # per reducer; prompt_emb is always 2048 (mean-pooled fallback because the
 # lang segment is variable-length and not square-shaped).
@@ -102,7 +117,7 @@ def _build_artifact_reducer(
 
 
 # Builder types that use dynamic vector dims (not in _VECTOR_DIMS)
-_ALL_BUILDER_TYPES = list(_VECTOR_DIMS.keys()) + [
+_ALL_BUILDER_TYPES = list(_VECTOR_DIMS.keys()) + list(_GROOT_TO_PI05_BUILDER) + [
     "cp1_temporal_prune", "cp1_llm_layer_extract", "projection",
 ]
 
@@ -120,6 +135,25 @@ def _projection_vector_dims(inner_type: str, params) -> dict[str, int]:
     return dims
 
 
+def _reshape_dims(
+    dims: dict[str, int], vision_slots: int, robot_state_dim: int
+) -> dict[str, int]:
+    """Adapt a Pi0.5 dims table to another camera count / state width.
+
+    The base tables describe LIBERO: two cameras, 32-wide state. Leaving them
+    unadapted for a three-camera embodiment is not a loud failure -- the third
+    field is simply absent from `vector_dims`, and the backend then drops that
+    key from every query without comment.
+    """
+    out = {k: v for k, v in dims.items() if not k.startswith("vision_")}
+    vision_dim = dims["vision_0"]
+    for i in range(vision_slots):
+        out[f"vision_{i}"] = vision_dim
+    if "robot_state" in out:
+        out["robot_state"] = robot_state_dim
+    return {k: out[k] for k in sorted(out, key=lambda n: (not n.startswith("vision_"), n))}
+
+
 def _get_vector_dims(
     builder_type: str,
     reducer_type: str = "mean_pool",
@@ -127,9 +161,25 @@ def _get_vector_dims(
     prefix_reducer_type: str = "prefix_mean_pool",
     inner_type: str = "cp1_mean_pool",
     projection_weights_path: str | None = None,
+    vision_slots: int | None = None,
+    robot_state_dim: int | None = None,
 ) -> dict[str, int]:
+    if builder_type in _GROOT_TO_PI05_BUILDER:
+        base = _VECTOR_DIMS[_GROOT_TO_PI05_BUILDER[builder_type]]
+        return _reshape_dims(
+            base,
+            _GROOT_VISION_SLOTS if vision_slots is None else vision_slots,
+            _GROOT_ROBOT_STATE_DIM if robot_state_dim is None else robot_state_dim,
+        )
     if builder_type in _VECTOR_DIMS:
-        return _VECTOR_DIMS[builder_type]
+        dims = _VECTOR_DIMS[builder_type]
+        if vision_slots is None and robot_state_dim is None:
+            return dims
+        return _reshape_dims(
+            dims,
+            len([k for k in dims if k.startswith("vision_")]) if vision_slots is None else vision_slots,
+            dims["robot_state"] if robot_state_dim is None else robot_state_dim,
+        )
     if builder_type == "projection":
         from openpi.cache.components.projection_key_builder import ProjectionParams
 
@@ -173,6 +223,9 @@ def _create_builder(
     inner_type: str = "cp1_mean_pool",
     projection_weights_path: str | None = None,
 ):
+    # GR00T artifacts are built by the equivalent Pi0.5 pooling class; see
+    # _GROOT_TO_PI05_BUILDER for why that is the same computation.
+    builder_type = _GROOT_TO_PI05_BUILDER.get(builder_type, builder_type)
     from openpi.cache.components.key_builder import (
         CP1MaxPoolKeyBuilder,
         CP1MeanPoolKeyBuilder,
@@ -838,6 +891,8 @@ def build_artifact(
     outcome_filter: str = "success",
     episode_list: str | None = None,
     trajectory_id_mode: str = "stem",
+    vision_slots: int | None = None,
+    robot_state_dim: int | None = None,
 ) -> dict:
     """Build artifact dict from HDF5 data.
 
@@ -880,6 +935,7 @@ def build_artifact(
     vector_dims = _get_vector_dims(
         builder_type, reducer_type, output_tokens, prefix_reducer_type,
         inner_type=inner_type, projection_weights_path=projection_weights_path,
+        vision_slots=vision_slots, robot_state_dim=robot_state_dim,
     )
 
     # Validated once here; both the serial and the ProcessPool branch below
@@ -1108,6 +1164,16 @@ def main():
     parser.add_argument("--builder-type", required=True, choices=_ALL_BUILDER_TYPES)
     parser.add_argument("--output", required=True, help="Output .pkl path")
     parser.add_argument("--checkpoint-id", default="CP1", choices=["CP1"])
+    parser.add_argument(
+        "--vision-slots", type=int, default=None,
+        help="Number of vision_* fields in the artifact. Defaults to the "
+             "builder's own convention (2 for the Pi0.5 pools, 3 for cp1_groot_*).",
+    )
+    parser.add_argument(
+        "--robot-state-dim", type=int, default=None,
+        help="Width of the robot_state vector. Defaults per builder (32 for the "
+             "Pi0.5 pools, 20 for cp1_groot_*).",
+    )
     parser.add_argument("--workers", type=int, default=0, help="Parallel workers (0 = all CPUs, -1 = serial in main process)")
     parser.add_argument("--reducer-type", default="mean_pool",
                         choices=["mean_pool", "max_pool", "spatial_pool", "task_scoring"])
@@ -1196,6 +1262,8 @@ def main():
         outcome_filter=args.outcome_filter,
         episode_list=args.episode_list,
         trajectory_id_mode=args.trajectory_id_mode,
+        vision_slots=args.vision_slots,
+        robot_state_dim=args.robot_state_dim,
     )
 
     # B2 — enrich with verdict-factor fields. Runs AFTER build_artifact's

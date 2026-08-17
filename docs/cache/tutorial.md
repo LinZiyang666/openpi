@@ -826,3 +826,39 @@ entry = insert_entry(storage, CheckpointID.CP1, state_tensor, payload,
 | **WritePolicy** | Implemented | on_any_miss / always / never |
 | **Qdrant backend** | Deprecated | Not actively maintained; trajectory search not supported |
 | **CP2** | Suspended | Not implemented |
+
+---
+
+## 18. GR00T N1.5 KeyBuilders (`cp1_groot_*`)
+
+四个与 Pi0.5 同族的 pool builder，供 GR00T N1.5 使用。它们从
+`GrootStage1Output.input_embeds` 里**按 `input_ids == image_token_index` 掩码**定位三段
+图像 token（GR00T 的偏移随 prompt 长度浮动，不能用固定偏移表），其余的降维、CPU 传输、
+字段过滤全部继承 Pi0.5 的基类，所以两边 key 落在同一空间。
+
+| `key_builder.type` | vision 维 | prompt 维 | robot_state 维 |
+|---|---:|---:|---:|
+| `cp1_groot_mean_pool` | 2048 | 2048 | 20 |
+| `cp1_groot_spatial_pool_16` | **32768** | 2048 | 20 |
+| `cp1_groot_spatial_pool_4` | 8192 | 2048 | 20 |
+| `cp1_groot_max_pool` | 2048 | 2048 | 20 |
+
+⚠ **三个相机**（Pi0.5/LIBERO 是两个）：`backend.vector_dims` 必须含 `vision_2` 且
+`keys.vision_2.enabled: true`，否则 builder 照样产出该键而 backend 会**静默丢弃**它。
+
+⚠ **前缀 `cp1_` 不可改**：`validate_cache_config` 的两条检查按它触发。
+
+⚠ **reduce 前统一 `.float()`**：在线是 bf16 激活、离线建库是 fp16→fp32，池化 dtype 必须
+一致，否则在线/离线 key 由构造决定就对不上。
+
+离线建库复用现成脚本：
+```bash
+uv run exp/common/build_in_memory_cache_artifact.py \
+    --data-dir <collected h5 dir> \
+    --builder-type cp1_groot_spatial_pool_16 \
+    --output <artifact.pkl>
+```
+`--vision-slots` / `--robot-state-dim` 可覆盖默认几何（`cp1_groot_*` 默认 3 / 20，
+Pi0.5 pool 默认 2 / 32，**默认值下 Pi0.5 产物逐位不变**）。
+
+完整设计见 [`logs/groot_cache_integration.log.md`](../../logs/groot_cache_integration.log.md)。

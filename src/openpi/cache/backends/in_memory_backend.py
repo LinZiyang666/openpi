@@ -235,6 +235,16 @@ class InMemoryBackend(VectorStoreBackend):
                 f"Artifact vector_dims mismatch: "
                 f"artifact={data['vector_dims']}, backend={self._dims}"
             )
+        # Record which builder produced this artifact so a caller can reject a
+        # library whose keys mean something different. `vector_dims` alone
+        # cannot do that: mean-pool and max-pool artifacts are dimensionally
+        # identical. Recorded, not enforced — the check belongs to whoever
+        # knows the expected identity (see CacheStorage.artifact_meta). Legacy
+        # artifacts predate these fields and read back as None.
+        self.artifact_meta = {
+            "key_builder_type": data.get("key_builder_type"),
+            "checkpoint_id": data.get("checkpoint_id"),
+        }
         for entry in data["entries"]:
             # Backfill trajectory fields for old artifacts that lack them.
             if not hasattr(entry, "prev_ids"):

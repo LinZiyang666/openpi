@@ -248,11 +248,7 @@ class _CP1BaseKeyBuilder:
         if checkpoint_id not in (CheckpointID.CP1, CheckpointID.CP3):
             raise ValueError(f"Unsupported checkpoint_id: {checkpoint_id}")
 
-        raw = _slice_cp1_fields(
-            self._cache["prefix_embs"],
-            self._cache["state"],
-            self._enabled,
-        )
+        raw = self._slice()
         keys: dict[str, torch.Tensor] = {}
 
         for field_name in (VISION_0, VISION_1, VISION_2):
@@ -266,6 +262,22 @@ class _CP1BaseKeyBuilder:
             keys[ROBOT_STATE] = _to_cpu_float32(raw[ROBOT_STATE])
 
         return keys
+
+    def _slice(self) -> dict[str, torch.Tensor]:
+        """Cut the cached Stage1 output into per-modality raw token sequences.
+
+        Overridable so a model whose prefix is not laid out like Pi0.5's can
+        reuse the reduce/transfer half of ``build()``. Pi0.5 slices at fixed
+        offsets because its prefix is exactly three 256-token image blocks
+        followed by the prompt; a model whose image tokens are scattered
+        (located by an id mask rather than by position) overrides this and
+        leaves everything below untouched.
+        """
+        return _slice_cp1_fields(
+            self._cache["prefix_embs"],
+            self._cache["state"],
+            self._enabled,
+        )
 
     def _reduce_vision(self, tokens: torch.Tensor) -> torch.Tensor:
         """[256, emb_dim] -> [reduced_dim]. Subclass override."""

@@ -58,10 +58,12 @@ class _BatchedBuilder(CP1SpatialPool16KeyBuilder):
 
     def build(self, checkpoint_id):  # noqa: D401
         from openpi.cache.components.key_builder import (
-            _slice_cp1_fields, _to_cpu_float32, _mean_pool_tokens,
+            _to_cpu_float32, _mean_pool_tokens,
             VISION_0, VISION_1, VISION_2, PROMPT_EMB, ROBOT_STATE,
         )
-        raw = _slice_cp1_fields(self._cache["prefix_embs"], self._cache["state"], self._enabled)
+        # Same reason as r4_pool_keybuilder: go through the base hook so a
+        # differently-laid-out subclass is not silently sliced by offset.
+        raw = self._slice()
         keys = {}
         # Batch whichever vision fields are present (here vision_0+vision_1).
         vis_present = [vf for vf in (VISION_0, VISION_1, VISION_2) if vf in raw]

@@ -1,0 +1,226 @@
+"""The load-time rejection matrix, and the artifact-identity facade behind it.
+
+Everything here is refused at config load because none of it fails loudly
+later: an unsatisfiable warm start is downgraded to a MISS with a log line, an
+extra checkpoint is simply never consulted, and a library built by the wrong
+pooling has identical dimensions to the right one.
+"""
+
+from __future__ import annotations
+
+import pytest
+
+from openpi.cache.cache_storage import CacheStorage
+from openpi.cache.config import (
+    CacheConfig,
+    CheckpointConfig,
+    ConfigValidationError,
+    GateConfig,
+    JudgeConfig,
+    KeyBuilderConfig,
+    WritePolicyConfig,
+)
+from openpi.cache.groot.load_guard import (
+    validate_artifact_identity,
+    validate_groot_cache_config,
+)
+
+
+def _config(**overrides) -> CacheConfig:
+    config = CacheConfig()
+    config.key_builder = KeyBuilderConfig(type="cp1_groot_spatial_pool_16")
+    config.checkpoints = {
+        "cp1": CheckpointConfig(
+            enabled=True,
+            gate=GateConfig(type="always_search"),
+            judge=JudgeConfig(type="always_hit"),
+        ),
+        "cp3": CheckpointConfig(enabled=False),
+    }
+    config.write_policy = WritePolicyConfig(type="never")
+    for key, value in overrides.items():
+        setattr(config, key, value)
+    return config
+
+
+def test_a_valid_recipe_passes():
+    validate_groot_cache_config(_config())
+
+
+def test_cp3_enabled_is_refused():
+    config = _config()
+    config.checkpoints["cp3"] = CheckpointConfig(enabled=True)
+    with pytest.raises(ConfigValidationError, match="cp3"):
+        validate_groot_cache_config(config)
+
+
+def test_warm_tiers_are_refused():
+    config = _config()
+    config.checkpoints["cp1"].judge.warm_tiers = [{"0.3": 0.9}]
+    with pytest.raises(ConfigValidationError, match="warm_tiers"):
+        validate_groot_cache_config(config)
+
+
+def test_warm_start_judge_is_refused():
+    config = _config()
+    config.checkpoints["cp1"].judge = JudgeConfig(type="always_warm_start")
+    with pytest.raises(ConfigValidationError, match="judge.type"):
+        validate_groot_cache_config(config)
+
+
+def test_non_always_search_gate_is_refused():
+    config = _config()
+    config.checkpoints["cp1"].gate = GateConfig(type="random", p_inference=0.5)
+    with pytest.raises(ConfigValidationError, match="gate.type"):
+        validate_groot_cache_config(config)
+
+
+def test_online_write_policy_is_refused():
+    config = _config(write_policy=WritePolicyConfig(type="on_any_miss"))
+    with pytest.raises(ConfigValidationError, match="write_policy"):
+        validate_groot_cache_config(config)
+
+
+def test_every_problem_is_reported_at_once():
+    config = _config(write_policy=WritePolicyConfig(type="always"))
+    config.checkpoints["cp1"].gate = GateConfig(type="periodic", cache_len=2, inference_len=2)
+    with pytest.raises(ConfigValidationError) as excinfo:
+        validate_groot_cache_config(config)
+    message = str(excinfo.value)
+    assert "gate.type" in message and "write_policy" in message
+
+
+# ------------------------------------------------------------------
+# Artifact identity
+# ------------------------------------------------------------------
+
+
+_ABSENT = object()
+
+
+class _Backend:
+    """Minimal backend stub. `artifact_meta` is present or absent, as in life."""
+
+    def __init__(self, meta=_ABSENT) -> None:
+        if meta is not _ABSENT:
+            self.artifact_meta = meta
+
+
+def _wrap(backend) -> CacheStorage:
+    """A CacheStorage facade over a stub backend, without its real constructor."""
+    storage = CacheStorage.__new__(CacheStorage)
+    storage._backend = backend  # noqa: SLF001 - facade under test
+    return storage
+
+
+def test_matching_identity_passes():
+    storage = _wrap(
+        _Backend({"key_builder_type": "cp1_groot_spatial_pool_16", "checkpoint_id": "CP1"})
+    )
+    validate_artifact_identity(storage, _config())
+
+
+def test_same_dimension_family_mismatch_is_caught():
+    """mean-pool and max-pool artifacts share vector_dims; only the name differs."""
+    config = _config()
+    config.key_builder = KeyBuilderConfig(type="cp1_groot_mean_pool")
+    storage = _wrap(
+        _Backend({"key_builder_type": "cp1_groot_max_pool", "checkpoint_id": "CP1"})
+    )
+    with pytest.raises(ConfigValidationError, match="mean-pool and max-pool"):
+        validate_artifact_identity(storage, config)
+
+
+def test_pi05_artifact_under_a_groot_recipe_is_caught():
+    storage = _wrap(
+        _Backend({"key_builder_type": "cp1_spatial_pool_16", "checkpoint_id": "CP1"})
+    )
+    with pytest.raises(ConfigValidationError, match="cp1_spatial_pool_16"):
+        validate_artifact_identity(storage, _config())
+
+
+def test_wrong_checkpoint_id_is_caught():
+    storage = _wrap(
+        _Backend({"key_builder_type": "cp1_groot_spatial_pool_16", "checkpoint_id": "CP3"})
+    )
+    with pytest.raises(ConfigValidationError, match="checkpoint_id"):
+        validate_artifact_identity(storage, _config())
+
+
+def test_legacy_artifact_reads_as_a_dict_of_nones_and_is_refused():
+    """A real legacy artifact: load_artifact ran, but the pkl had no identity."""
+    storage = _wrap(_Backend({"key_builder_type": None, "checkpoint_id": None}))
+    with pytest.raises(ConfigValidationError, match="predates identity recording"):
+        validate_artifact_identity(storage, _config())
+
+
+def test_backend_without_the_attribute_reads_as_none_and_is_refused():
+    """Distinct from the legacy case: nothing was ever loaded."""
+    storage = _wrap(_Backend())
+    assert storage.artifact_meta is None
+    with pytest.raises(ConfigValidationError, match="exposes no artifact identity"):
+        validate_artifact_identity(storage, _config())
+
+
+def test_facade_forwards_without_reaching_through():
+    meta = {"key_builder_type": "cp1_groot_max_pool", "checkpoint_id": "CP1"}
+    storage = _wrap(_Backend(meta))
+    assert storage.artifact_meta == meta
+    # A property on the facade, not an attribute callers dig out of the backend.
+    assert isinstance(CacheStorage.artifact_meta, property)
+
+
+# ------------------------------------------------------------------
+# The identity path as it actually runs: a real pickle through load_artifact
+# ------------------------------------------------------------------
+
+
+def _write_artifact(path, *, identity: bool, dims=None):
+    """A minimal but genuine artifact pickle, with or without the identity fields."""
+    import pickle
+
+    dims = dims or {"robot_state": 4}
+    payload = {"vector_dims": dims, "entries": []}
+    if identity:
+        payload["key_builder_type"] = "cp1_groot_spatial_pool_16"
+        payload["checkpoint_id"] = "CP1"
+    path.write_bytes(pickle.dumps(payload))
+    return dims
+
+
+def _loaded_backend(path, dims):
+    from openpi.cache.backends.in_memory_backend import InMemoryBackend
+
+    backend = InMemoryBackend(vector_dims=dims)
+    backend.load_artifact(str(path))
+    return backend
+
+
+def test_real_legacy_pickle_reads_back_as_a_dict_of_nones(tmp_path):
+    """The shape that matters: load_artifact ran, but the file predates identity."""
+    path = tmp_path / "legacy.pkl"
+    dims = _write_artifact(path, identity=False)
+    storage = _wrap(_loaded_backend(path, dims))
+
+    assert storage.artifact_meta == {"key_builder_type": None, "checkpoint_id": None}
+    with pytest.raises(ConfigValidationError, match="predates identity recording"):
+        validate_artifact_identity(storage, _config())
+
+
+def test_real_current_pickle_round_trips_its_identity(tmp_path):
+    path = tmp_path / "current.pkl"
+    dims = _write_artifact(path, identity=True)
+    storage = _wrap(_loaded_backend(path, dims))
+
+    assert storage.artifact_meta["key_builder_type"] == "cp1_groot_spatial_pool_16"
+    validate_artifact_identity(storage, _config())
+
+
+def test_a_never_loaded_backend_exposes_nothing(tmp_path):
+    """Distinct from legacy: no artifact was read at all."""
+    from openpi.cache.backends.in_memory_backend import InMemoryBackend
+
+    storage = _wrap(InMemoryBackend(vector_dims={"robot_state": 4}))
+    assert storage.artifact_meta is None
+    with pytest.raises(ConfigValidationError, match="exposes no artifact identity"):
+        validate_artifact_identity(storage, _config())

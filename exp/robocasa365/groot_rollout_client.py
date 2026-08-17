@@ -150,6 +150,53 @@ def episode_seeds(n_trials: int, base_seed: int) -> list[int]:
     return [base_seed + index for index in range(n_trials)]
 
 
+def _send_ctrl(client: Any, ctrl: str, **fields: Any) -> None:
+    """Send one ``__ctrl__`` frame, tolerating a server that has no cache wired.
+
+    Field names are dunder-wrapped because the server reads them straight off
+    the observation dict and must not confuse them with modality keys.
+    """
+    frame: dict[str, Any] = {"__ctrl__": ctrl}
+    for key, value in fields.items():
+        frame[f"__{key}__"] = value
+    client.infer(frame)
+
+
+def _record_hit(
+    hit_log: Any,
+    response: dict,
+    task: str,
+    episode: int,
+    step: int,
+) -> None:
+    """Append one cache verdict to the JSONL log, if one is being written.
+
+    Every field is read with ``.get`` so a server without the cache -- whose
+    responses carry no ``__hit_meta__`` at all -- costs nothing and logs
+    nothing, rather than needing a parallel code path.
+    """
+    if hit_log is None:
+        return
+    meta = response.get("__hit_meta__")
+    if meta is None:
+        return
+    hit_log.write(
+        json.dumps(
+            {
+                "task": task,
+                "episode": episode,
+                "step_idx": step,
+                "hit_type": meta.get("hit_type"),
+                "winner_id": meta.get("winner_id"),
+                "cp1_score": meta.get("cp1_score"),
+                "searched": meta.get("searched"),
+            }
+        )
+        + "\n"
+    )
+    hit_log.flush()
+
+
 def run_one(
     client: Any,
     env_name: str,
@@ -157,6 +204,7 @@ def run_one(
     n_trials: int,
     replan: int,
     base_seed: int,
+    hit_log: Any = None,
 ) -> dict:
     """Run ``n_trials`` episodes of one task in one pinned kitchen."""
     import gymnasium as gym
@@ -187,15 +235,23 @@ def run_one(
             plan: collections.deque = collections.deque()
             step = 0
             done = False
-            while step < horizon:
-                if not plan:
-                    chunk = client.infer(_select_and_downsample(obs))["actions"]
-                    plan.extend(iter_step_actions(chunk, replan))
-                obs, _, _, _, info = env.step(plan.popleft())
-                if info.get("success"):
-                    done = True
-                    break
-                step += 1
+            _send_ctrl(client, "episode_start", task=env_name, episode_id=episode)
+            try:
+                while step < horizon:
+                    if not plan:
+                        response = client.infer(_select_and_downsample(obs))
+                        plan.extend(iter_step_actions(response["actions"], replan))
+                        _record_hit(hit_log, response, env_name, episode, step)
+                    obs, _, _, _, info = env.step(plan.popleft())
+                    if info.get("success"):
+                        done = True
+                        break
+                    step += 1
+            finally:
+                # Always sent, including on an exception mid-episode: the
+                # server closes its search session inside this handler, and a
+                # session left open leaks backend state into the next episode.
+                _send_ctrl(client, "episode_end", success=done)
             successes += int(done)
             print(
                 f"    ep{episode}(seed={seed}): {'OK' if done else 'fail'} t={step}/{horizon}",
@@ -245,6 +301,13 @@ def main() -> None:
         "Success rates from such a server are biased; for wiring checks only.",
     )
     parser.add_argument("--output", type=pathlib.Path, default=DEFAULT_OUTPUT)
+    parser.add_argument(
+        "--hit-log",
+        type=pathlib.Path,
+        default=None,
+        help="JSONL file for per-step cache verdicts. Only meaningful against a "
+             "server started with --cache-config; otherwise nothing is written.",
+    )
     args = parser.parse_args()
 
     # Validate through the same helper the rollout uses, so the CLI cannot admit
@@ -268,6 +331,10 @@ def main() -> None:
     )
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    hit_log = None
+    if args.hit_log is not None:
+        args.hit_log.parent.mkdir(parents=True, exist_ok=True)
+        hit_log = args.hit_log.open("w")
     print(
         f"tasks={len(tasks)} A={scene_a} B={scene_b} trials={args.n_trials} "
         f"-> {args.output}",
@@ -319,6 +386,7 @@ def main() -> None:
                     args.n_trials,
                     args.replan_steps,
                     args.base_seed,
+                    hit_log=hit_log,
                 )
                 consecutive_failures = 0
             except Exception as exc:  # noqa: BLE001 - one bad task must not sink the run

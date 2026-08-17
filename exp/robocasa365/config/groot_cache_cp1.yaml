@@ -1,0 +1,88 @@
+# GR00T N1.5 CP1 cache — closed-loop smoke recipe.
+#
+# Deliberately calibration-free. The judge is always_hit and the fusion is
+# rank-based, so nothing here depends on a threshold or a tau that was tuned
+# against pi0.5's score distribution. That separates "is the wiring correct"
+# from "is the threshold right": the first is what this recipe answers, the
+# second belongs to the experiment run and its own calibration.
+#
+# preload_path must be an artifact built by cp1_groot_spatial_pool_16; the
+# server refuses any other identity, because a mean-pool library has exactly
+# these dimensions and would otherwise load without complaint.
+#
+# Launch:
+#   OPENPI_MONITOR_LEVEL=BASIC python exp/robocasa365/serve_groot_n15.py \
+#       --cache-config exp/robocasa365/config/groot_cache_cp1.yaml
+# The env var is not optional: the timer's master switch defaults to OFF, and
+# with it off every probe records nothing — including the stage-2 probes whose
+# emptiness is the evidence that a hit skipped stage 2.
+
+enabled: true
+
+timer:
+  enabled: true
+  buffer_size: 10000
+  output_csv_dir: null
+
+keys:
+  vision_0:
+    enabled: true
+    weight: 0.25
+  vision_1:
+    enabled: true
+    weight: 0.25
+  vision_2:
+    enabled: true
+    weight: 0.25
+  prompt_emb:
+    enabled: true
+    weight: 0.0
+  robot_state:
+    enabled: true
+    weight: 0.25
+
+key_builder:
+  type: cp1_groot_spatial_pool_16
+
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: always_hit
+    search_strategy:
+      type: weighted_rrf_knn
+      top_k: 1
+      step_filter: all
+      field_similarity:
+        vision_0:
+          type: cosine
+        vision_1:
+          type: cosine
+        vision_2:
+          type: cosine
+        prompt_emb:
+          type: cosine
+        robot_state:
+          type: l2
+          to_similarity:
+            type: exp
+            tau: 1.0
+  cp3:
+    enabled: false
+
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 32768
+    vision_1: 32768
+    vision_2: 32768
+    prompt_emb: 2048
+    robot_state: 20
+  in_memory:
+    preload_path: exp/robocasa365/data/cache_artifacts/smoke_spatial_pool_16.pkl
+    index_type: brute_force
+
+write_policy:
+  type: never

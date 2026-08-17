@@ -55,7 +55,15 @@ from exp.robocasa365.groot_policy_adapter import GrootPolicyAdapter
 
 logging.basicConfig(level=logging.INFO)
 
+# The target-posttrained branch: the one the cross-scene experiment settled on
+# after the admission gates, and the one every dimension in the cache plan was
+# read from. The multitask checkpoint is kept only as an archived comparison
+# and must be requested explicitly.
 DEFAULT_CHECKPOINT = (
+    "/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/"
+    "target_posttraining/atomic_seen/checkpoint-60000"
+)
+ARCHIVED_MULTITASK_CHECKPOINT = (
     "/home/weiland/ckpt_n15_robocasa/gr00t_n1-5/multitask_learning/checkpoint-120000"
 )
 DEFAULT_PORT = 8020
@@ -180,6 +188,61 @@ def _handshake(
 # ------------------------------------------------------------------
 
 
+def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
+    """Pick exactly one of the three serving stacks and return it with a label.
+
+    Plain teacher / cache-aware / collecting are mutually exclusive by
+    construction: whichever is chosen is the single object handed to the
+    adapter, so there is never more than one wrapper in the chain.
+    """
+    if not args.cache_config and not args.collect_hdf5:
+        return policy, "teacher-only (no cache, no collection)"
+
+    from openpi.cache.groot.staged import GrootStagedRunner
+
+    if args.collect_hdf5:
+        from exp.robocasa365.groot_cache_collector import GrootCacheCollector
+
+        runner = GrootStagedRunner(policy.model)
+        return (
+            GrootCacheCollector(policy, runner, out_dir=args.collect_hdf5),
+            f"collector -> {args.collect_hdf5}",
+        )
+
+    from openpi.cache.config import build_cache_components, load_cache_config, validate_cache_config
+    from openpi.cache.groot.interceptor import GrootCacheInterceptor
+    from openpi.cache.groot.load_guard import (
+        validate_artifact_identity,
+        validate_groot_cache_config,
+    )
+    from openpi.cache.orchestrator import CacheOrchestrator
+
+    config = load_cache_config(args.cache_config)
+    validate_cache_config(config)
+    validate_groot_cache_config(config)
+
+    components = build_cache_components(config)
+    validate_artifact_identity(components["storage"], config)
+
+    timer = components["timer"]
+    orchestrator = CacheOrchestrator(
+        storage=components["storage"],
+        key_builder=components["key_builder"],
+        gates=components["gates"],
+        judges=components["judges"],
+        search_strategies=components["search_strategies"],
+        timer=timer,
+        write_policy=components["write_policy"],
+        offline_writers=components["offline_writers"],
+        library_stats=components["library_stats"],
+    )
+    runner = GrootStagedRunner(policy.model, timer=timer)
+    return (
+        GrootCacheInterceptor(policy, runner, orchestrator=orchestrator, timer=timer),
+        f"cache -> {args.cache_config} ({config.key_builder.type})",
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkpoint", default=DEFAULT_CHECKPOINT)
@@ -191,7 +254,33 @@ def main() -> None:
         help="Reset the torch RNG to this seed before every inference. For the "
         "wire-parity check only; must stay unset for real rollouts.",
     )
+    parser.add_argument(
+        "--cache-config",
+        default=None,
+        help="YAML cache config. Routes inference through the CP1 cache; "
+        "without it the server is the plain teacher.",
+    )
+    parser.add_argument(
+        "--collect-hdf5",
+        default=None,
+        help="Directory for per-episode HDF5 embeddings, for offline library "
+        "building. Mutually exclusive with --cache-config.",
+    )
     args = parser.parse_args()
+
+    if args.cache_config and args.collect_hdf5:
+        parser.error(
+            "--cache-config and --collect-hdf5 are mutually exclusive. A library "
+            "must be collected from the teacher's own actions; with the cache "
+            "active some recorded actions would be replayed library entries."
+        )
+    if args.diagnostic_seed is not None and (args.cache_config or args.collect_hdf5):
+        parser.error(
+            "--diagnostic-seed pins the flow-matching noise and cannot be "
+            "combined with --cache-config / --collect-hdf5: those paths drive "
+            "the model through the staged runner, which bypasses the seeding "
+            "wrapper, so the seed would appear to be set but would not be."
+        )
 
     from gr00t.model.policy import Gr00tPolicy
     from openpi.serving import websocket_policy_server
@@ -216,10 +305,18 @@ def main() -> None:
         )
         policy = _SeededPolicy(policy, args.diagnostic_seed)
 
-    adapter = GrootPolicyAdapter(policy)
+    # Handshake against the bare policy, before any cache or collector is
+    # installed. It runs before a client ever connects, so on_task_begin /
+    # on_episode_start have not fired: a probe inference through the cache
+    # would advance the step counter, feed the gate and land in the timer,
+    # polluting the first real episode's statistics.
     print("running start-up handshake", flush=True)
-    _handshake(adapter, policy, checkpoint)
+    _handshake(GrootPolicyAdapter(policy), policy, checkpoint)
     print("POLICY-READY", flush=True)
+
+    served, stack = _build_served_policy(policy, args)
+    adapter = GrootPolicyAdapter(served)
+    print(f"serving stack: {stack}", flush=True)
 
     # Advertise the diagnostic seed so a client can refuse to collect success
     # rates from a server whose sampling noise is pinned: that bias is invisible

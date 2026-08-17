@@ -44,7 +44,6 @@ import torch.nn.functional as F
 from openpi.cache.components.key_builder import (
     CP1SpatialPool16KeyBuilder,
     _mean_pool_tokens,
-    _slice_cp1_fields,
     _to_cpu_float32,
 )
 from openpi.cache.types import (
@@ -85,11 +84,12 @@ class CP1SpatialPool16BatchedKeyBuilder(CP1SpatialPool16KeyBuilder):
         if checkpoint_id not in (CheckpointID.CP1, CheckpointID.CP3):
             raise ValueError(f"Unsupported checkpoint_id: {checkpoint_id}")
 
-        raw = _slice_cp1_fields(
-            self._cache["prefix_embs"],
-            self._cache["state"],
-            self._enabled,
-        )
+        # Routed through the base class's overridable hook rather than calling
+        # the module-level slicer: a subclass that lays its prefix out
+        # differently (the GR00T builders locate image tokens by mask, not by
+        # fixed offset) would otherwise be sliced with Pi0.5's offsets while
+        # believing it had inherited the batched build. Identical result here.
+        raw = self._slice()
         keys: dict[str, torch.Tensor] = {}
 
         active_vision = [f for f in _VISION_FIELDS if f in raw]

@@ -193,10 +193,59 @@ class GrootPolicyAdapter:
         diagnostic fields (timings and the like) can travel alongside them
         without a caller mistaking the envelope for the action data itself.
 
+        A policy may also return dunder-prefixed side-channel fields -- the
+        cache interceptor attaches ``__hit_meta__`` this way.  Those are lifted
+        out before validation and placed beside ``actions`` rather than inside
+        it: ``validate_action_chunk`` rejects unknown keys on purpose, and that
+        check has to keep rejecting a genuinely unexpected *action* key.
+
         Exceptions raised by the underlying policy propagate unchanged -- a
         failed inference must not be papered over into a plausible-looking
         action.
         """
         groot_obs = build_groot_observation(obs)
         raw = self._policy.get_action(groot_obs)
-        return {"actions": validate_action_chunk(raw)}
+        side_channel = {k: v for k, v in raw.items() if k.startswith("__")}
+        actions = {k: v for k, v in raw.items() if not k.startswith("__")}
+        return {"actions": validate_action_chunk(actions), **side_channel}
+
+    # ------------------------------------------------------------------
+    # Task / episode lifecycle
+    # ------------------------------------------------------------------
+    #
+    # The websocket server probes for these with ``hasattr`` and calls them by
+    # keyword.  They are forwarded rather than handled here because the
+    # adapter is stateless; only a cache-aware policy has episode state to
+    # reset.  A plain policy has no such methods and the forwarding degrades
+    # to a no-op, so the teacher-only path is unchanged.
+
+    def on_task_begin(self) -> None:
+        self._forward("on_task_begin")
+
+    def on_task_end(self) -> None:
+        self._forward("on_task_end")
+
+    def on_episode_start(
+        self,
+        experiment: str = "",
+        task: str = "",
+        episode_id: int = -1,
+        episode_name: str = "",
+        extra_metadata: dict | None = None,
+    ) -> None:
+        self._forward(
+            "on_episode_start",
+            experiment=experiment,
+            task=task,
+            episode_id=episode_id,
+            episode_name=episode_name,
+            extra_metadata=extra_metadata,
+        )
+
+    def on_episode_end(self, success: bool) -> None:
+        self._forward("on_episode_end", success=success)
+
+    def _forward(self, name: str, **kwargs: Any) -> None:
+        hook = getattr(self._policy, name, None)
+        if hook is not None:
+            hook(**kwargs)

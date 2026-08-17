@@ -165,6 +165,24 @@ class CacheStorage:
         """
         return getattr(self._backend, "library_stats", None)
 
+    @property
+    def artifact_meta(self) -> dict | None:
+        """Identity of the artifact the backend was preloaded from, or None.
+
+        Same duck-typing pattern as `library_stats`: backends that load a
+        prebuilt artifact (currently InMemoryBackend, via `load_artifact`)
+        record which builder produced it and at which checkpoint; backends
+        that never load one — Qdrant, or an in-memory backend started empty —
+        expose no such attribute and this returns None.
+
+        Callers that need to reject a mismatched library read it here rather
+        than reaching into `self._backend`. Note the two distinct "unknown"
+        shapes: None means the backend exposes nothing, whereas a dict whose
+        values are None means an artifact was loaded but predates the
+        identity fields.
+        """
+        return getattr(self._backend, "artifact_meta", None)
+
     def search_and_fetch(self, spec: QuerySpec) -> list[SearchResult]:
         """Convenience: search then fetch payload for every result.
 

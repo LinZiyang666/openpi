@@ -790,3 +790,22 @@ Pi0.5 的 `action_chunk` 形状是 `[50, 32]`（50 步 × 32 维动作）。你�
 - **Search Strategy**: `weighted_rrf_knn` 适合单步搜索；`weighted_score_sum_knn` 适合 trajectory search
 - **Top-k**: 默认 `top_k=1`，增大可以提高召回率但降低搜索速度
 - **Threshold**: 过高会导致几乎不命中，过低会导致错误命中。建议先用 `always_hit` + 离线分析来确定合适的阈值
+
+---
+
+## 8. 已落地案例：GR00T N1.5
+
+本指南的路径已被实际走过一次。GR00T N1.5 按 Step 1–7 接入，可作为对照阅读：
+
+| 本指南 | GR00T 的对应物 |
+|---|---|
+| Step 1 分析推理流程 | 两阶段切分（视觉散射后、LLM 前），`src/openpi/cache/groot/staged.py` |
+| Step 3 自定义 KeyBuilder | `src/openpi/cache/groot/key_builder.py` —— §7「视觉 Token 布局不同」在这里是**掩码定位**而非固定偏移 |
+| Step 4 自定义 Interceptor | `src/openpi/cache/groot/interceptor.py`（平行实现，非派生） |
+| Step 5 注册到配置系统 | `config.py` 的 `_valid_key_builder_types` + `_build_key_builder`，类型名 `cp1_groot_*` |
+| Step 6 数据收集与 artifact | `exp/robocasa365/groot_cache_collector.py` 写现有 HDF5 schema ⇒ **建库脚本可原样复用** |
+
+三条本指南未覆盖、但迁移时会踩到的坑，见
+[`logs/groot_cache_integration.log.md`](../../logs/groot_cache_integration.log.md)：
+autocast 对 `LayerNorm` 的 fp32 提升、inference tensor 的逃逸时机、
+以及 `load_artifact` 只校验 `vector_dims` 导致同维库可被静默错配。

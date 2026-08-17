@@ -1463,6 +1463,10 @@ def validate_cache_config(config: CacheConfig) -> None:
         "cp1_llm_layer_extract",
         "clip",
         "projection",  # M1 outcome-compatible projection over a pool inner
+        # GR00T N1.5 pools. The `cp1_` prefix is load-bearing: the field
+        # enablement and in_memory-preload checks below key off it.
+        "cp1_groot_mean_pool", "cp1_groot_spatial_pool_16",
+        "cp1_groot_spatial_pool_4", "cp1_groot_max_pool",
     })
     if config.key_builder.type not in _valid_key_builder_types:
         errors.append(
@@ -2763,6 +2767,17 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
             extract_layer=cfg.extract_layer,
             enabled_fields=enabled_fields,
         )
+    elif cfg.type.startswith("cp1_groot_"):
+        # Imported lazily so the Pi0.5 paths never pull in the GR00T module.
+        from openpi.cache.groot import key_builder as _groot_kb
+
+        groot_builders = {
+            "cp1_groot_mean_pool": _groot_kb.GrootCP1MeanPoolKeyBuilder,
+            "cp1_groot_spatial_pool_16": _groot_kb.GrootCP1SpatialPool16KeyBuilder,
+            "cp1_groot_spatial_pool_4": _groot_kb.GrootCP1SpatialPool4KeyBuilder,
+            "cp1_groot_max_pool": _groot_kb.GrootCP1MaxPoolKeyBuilder,
+        }
+        return groot_builders[cfg.type](enabled_fields=enabled_fields)
     elif cfg.type == "clip":
         from openpi.cache.components.clip_key_builder import CLIPKeyBuilder
 

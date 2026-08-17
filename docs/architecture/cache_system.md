@@ -929,6 +929,44 @@ Empty library on the cache arm degrades to `MISS` with `fallback: true`, and cos
 
 **Per-episode RNG.** `seed_ep = sha256(run_seed, task_uid, attempt, weights_version)` reseeds a private generator at `on_episode_start`; replaying the same identity replays the same arm sequence, which is what makes an interrupted run and its resume the same experiment without persisting live RNG state. An episode whose identity is incomplete is forced to argmax and isolated — never trained on.
 
+### 5.17 GR00T N1.5 Two-Stage Path (RoboCasa365 cross-scene line)
+
+第二个模型族接入 cache，走**平行实现**而非共用基类。设计与实现细节见
+[`logs/groot_cache_integration.log.md`](../../logs/groot_cache_integration.log.md)；
+本节只记架构上必须知道的部分。
+
+**为什么平行而非抽象**：`src/openpi/cache/interceptor.py:75` 是模块级 `import jax`，
+而 GR00T 的 venv 没有 jax，**导都导不进去**；且其 coordinator 路由 / routing sidecar /
+meta-device 哨兵 / WARM_START / CP3 在本路径一项不用。真正被复用的是模型无关的那半边：
+Orchestrator / CacheStorage / judge / gate / search strategy —— 它们只看见
+`stage1=<不透明对象>` 被转给 KeyBuilder。
+
+**切点**：`Eagle2_5_VLForConditionalGeneration.forward` 里视觉 token 已散射进语言序列、
+尚未进 Qwen3 第 0 层的 `input_embeds`。stage1 的产物既是 key 源、又是 stage2 的唯一输入，
+故切分干净。stage2 = Qwen3 12 层 + `eagle_linear` + flow-matching action head，
+**命中时整段跳过**；不设第三阶段，`CheckpointID.CP3` 恒 disabled。
+
+**三条与 Pi0.5 不同、且不同处都会静默出错的地方**：
+
+| # | 差异 | 后果 |
+|---|---|---|
+| 1 | 图像 token **偏移随 prompt 长度浮动**（实测 `[1,813]`，三段 `(20,256)/(283,256)/(546,256)`） | 照搬 Pi0.5 的固定偏移表会切到文本 token 上，**shape 不变、测试全过** |
+| 2 | `LayerNorm` 在 autocast 的 fp32 名单上（实测 `max\|Δ\|=1.4e-2`） | 在线/采集/测试任一处漏开 autocast，key 就整体对不上 |
+| 3 | inference tensor 在 context *内* 做 `.cpu().float()` **逃不掉** | 跨 step 存活后被 storage 就地改写即 `RuntimeError` |
+
+⇒ `GrootStagedRunner.session()` 拥有 inference/autocast 上下文并在两个 stage 入口断言；
+**session 只包两段前向**，CP1 检查与所有跨 step 张量都在 session 外产生。
+
+**新增的两处共享缝**（Pi0.5 行为不变）：
+* `_CP1BaseKeyBuilder.build()` 内联切片抽成可覆写的 `self._slice()`；
+* `InMemoryBackend.load_artifact` 记下 `artifact_meta`，经 `CacheStorage.artifact_meta`
+  facade 暴露。⚠ `load_artifact` 原本**只校验 `vector_dims`**，而 mean-pool 与 max-pool
+  的库维度逐字相同 —— GR00T server 因此在加载期做**精确身份绑定**。
+
+**yaml 类型名 `cp1_groot_*` 的前缀是有承载作用的**：`config.py` 的两条校验按
+`startswith("cp1_")` 触发（强制 enable `vision_0`+`robot_state`、强制 `preload_path`），
+改成 `groot_cp1_*` 会让它们静默失效。
+
 ## 6. Data Flow and Timing
 
 > **Note**: The data flow diagrams below reference cache search/write operations that depend on the storage layer (Section 5.2/5.3). The storage layer is ⚠️ unstable — interfaces and backend implementations will change. The timing structure (stages, checkpoint positions) is stable; the storage interaction details are not.
