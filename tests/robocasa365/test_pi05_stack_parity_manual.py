@@ -205,9 +205,21 @@ def _assert_field_equal(name: str, a, b) -> None:
         assert set(a) == set(b), name
         for key in a:
             _assert_field_equal(f"{name}[{key}]", a[key], b[key])
-    elif callable(a) and not isinstance(a, (str, bytes)):
-        # Callables (tokenizers etc.): same concrete type is the comparable unit.
-        assert type(a) is type(b), name
+    elif type(a).__eq__ is object.__eq__ and not isinstance(a, (str, bytes, int, float, bool, type(None))):
+        # Identity-only-equality objects (PaligemmaTokenizer and friends):
+        # `a == b` would compare object identity and fail on two equivalent
+        # instances. Compare the concrete type plus every scalar attribute
+        # (this still catches real drift like a changed max_token_len); opaque
+        # sub-objects (e.g. the sentencepiece processor) compare by type.
+        assert type(a) is type(b), f"{name}: {type(a)} != {type(b)}"
+        va = vars(a) if hasattr(a, "__dict__") else {}
+        vb = vars(b) if hasattr(b, "__dict__") else {}
+        assert set(va) == set(vb), f"{name}: attr sets differ {set(va) ^ set(vb)}"
+        for key in va:
+            if isinstance(va[key], (int, float, str, bool, type(None))):
+                assert va[key] == vb[key], f"{name}.{key}: {va[key]!r} != {vb[key]!r}"
+            else:
+                assert type(va[key]) is type(vb[key]), f"{name}.{key} type mismatch"
     else:
         assert a == b, f"{name}: {a!r} != {b!r}"
 
