@@ -261,30 +261,52 @@ def test_stage1_guard_refuses_to_run_without_a_session(policy, runner):
 # ------------------------------------------------------------------
 
 
-def test_image_runs_are_three_blocks_of_256_at_moving_offsets(policy, runner):
+def test_image_runs_differ_from_the_pi05_fixed_offset_table(policy, runner):
+    """Mask-derived runs are 3x256 contiguous and NOT at pi0.5's 0/256/512.
+
+    The first real-machine A/B corrected an earlier belief: this chat template
+    places the instruction AFTER the image blocks, so the image offsets do NOT
+    move with prompt length — the TOTAL sequence length does (measured
+    812/814/834 for three prompts, runs pinned at 20/283/546 in all of them).
+    What makes mask-driven slicing load-bearing is therefore not offset
+    motion but that the true offsets differ from the pi0.5 fixed table
+    (0/256/512): a copied table would slice system/text tokens while every
+    shape stays plausible.
+    """
     from openpi.cache.groot.key_builder import _contiguous_runs
 
     short = _normalized(policy, _observation())
     obs_long = _observation()
     for key in ("annotation.human.task_description",):
-        obs_long[key] = "pick up the object and put it on the counter please"
+        obs_long[key] = (
+            "please carefully open the leftmost cabinet door and then wait "
+            "patiently for further detailed instructions in this kitchen"
+        )
     long = _normalized(policy, obs_long)
 
     with runner.session():
         s_short = runner.run_stage1(short)
         s_long = runner.run_stage1(long)
 
-    for stage1 in (s_short, s_long):
-        runs = _contiguous_runs(stage1.image_token_mask[0])
+    # The prompt genuinely changes the sequence — so an equal-runs outcome
+    # below is a statement about the template, not a fixture that fed the
+    # same input twice.
+    len_short = int(s_short.image_token_mask.shape[-1])
+    len_long = int(s_long.image_token_mask.shape[-1])
+    assert len_short != len_long, "the long prompt did not change the sequence length"
+
+    runs_short = _contiguous_runs(s_short.image_token_mask[0])
+    runs_long = _contiguous_runs(s_long.image_token_mask[0])
+    for runs in (runs_short, runs_long):
         assert len(runs) == 3
         assert all(length == 256 for _, length in runs)
+    # Template-constant w.r.t. the instruction (it follows the images).
+    assert runs_short == runs_long
 
-    short_starts = [start for start, _ in _contiguous_runs(s_short.image_token_mask[0])]
-    long_starts = [start for start, _ in _contiguous_runs(s_long.image_token_mask[0])]
-    assert short_starts != long_starts, (
-        "image-token offsets did not move with prompt length; the mask-driven "
-        "slicing would be indistinguishable from a fixed offset table here, so "
-        "this test could not detect the bug it exists for"
+    starts = [start for start, _ in runs_short]
+    assert starts != [0, 256, 512], (
+        "image runs sit exactly at the pi0.5 fixed offset table; the "
+        "mask-vs-table distinction this suite protects would be vacuous"
     )
 
 
@@ -321,7 +343,12 @@ def test_online_and_offline_keys_retrieve_the_same_entry(policy, runner, tmp_pat
     builder = GrootCP1SpatialPool16KeyBuilder()
     for step in range(n_steps):
         obs = _observation(step)
-        collector.get_action(obs)
+        # Production shape: the server-side adapter reshapes wire observations
+        # (build_groot_observation adds the T axis) BEFORE the collector sees
+        # them; feeding the wire dict directly is not a path that exists live.
+        from exp.robocasa365.groot_policy_adapter import build_groot_observation
+
+        collector.get_action(build_groot_observation(obs))
         inputs = _normalized(policy, obs)
         with runner.session():
             stage1 = runner.run_stage1(inputs)
