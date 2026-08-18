@@ -1,6 +1,6 @@
 # RoboCasa365 接回标准框架 —— 决策记录 + 临时流程 + 实施计划
 
-**Status**: `In Progress` —— 统一临时 G2：**全部真机门禁证据已回填**（manual 5–8 全过、manual 9 因 a100 退役按 D-K 降级条款取消、老 T-8 9/9、G0-E 正负 probe 计数达标）；首点火修复 7 处（生产 2/配置 1/测试 3/配方 1）；**待 Review Authority 复审**
+**Status**: `In Progress` —— **统一临时 G2 APPROVED**（Round 11，2026-08-17 23:24；11 轮、R3(5)+R5(3)+R7(2)+R9(1) 共 11 项 blocking 全闭合）；**§6 Verify 已过**：`uv run pytest tests/robocasa365 tests/cache tests/conductor` = **1496 passed / 21 skipped / 0 failed**（2026-08-18，流程效力跑）；两条 non-blocking 卫生项已清（key_builder docstring 按真机事实重写、provenance 尾空格、T-8 stdout 归档）；剩余 = 收尾 commit + T4b 裁决 + T5
 **日期**: 2026-08-17
 **Level**: **L2**（新增组件 + 在 `src/openpi/training/config.py` 注册一个推理 config；接入面全部走既有可注入缝，`src/openpi/conductor/` 与 `scripts/serve_policy.py` **零改动**）
 **触发**: owner 指示「先记录决策问题，然后开一个临时流程解决；原来的框架就是 pi server，看能否把原来的框架和 client worker 接起来」
@@ -811,16 +811,30 @@ Wilson 下界与 0.90 分位是**两重保守叠加**，在 `ŜR=1/10` 上直接
 
 ⚠ 这张表把 `E[成功数] = 20` 当成了完成规则。实际约**一半概率不足 20 条**，故它只是**下界**。
 
-### 7.2 现口径（§4.3.6-(4)：点估计下的二项 0.90 分位）
+### 7.2 现口径 —— **逐 task N 表已回填**（2026-08-18，`min_episodes_for_target` 实算，宽·pooled 13-task 子集精确复现）
 
-每 task 的 `N` = 满足 `P(Binom(N, ŜR) ≥ 20) ≥ 0.90` 的最小值，`ŜR` 取点估计。
+每 task 的 `N` = 满足 `P(Binom(N, ŜR) ≥ 20) ≥ 0.90` 的最小值，`ŜR` = (1,1) 10-ep 合并 SR 点估计（准入门 5ep + 锚点重测 5ep）。pi0.5 侧 0/10 的五个 task（CloseToasterOvenDoor / NavigateKitchen / TurnOffStove / TurnOnElectricKettle / TurnOnMicrowave）出局，余 **13**——与 D-D 的宽·pooled 定义逐 task 一致。
 
-⚠⚠ **本节目前不给任何总量 / 墙钟 / 磁盘数字。** 上一版写的「上浮 15–25%、~1370–1490 ep」是在**叠了 Wilson 下界**的口径下算的，而那个口径下 `ŜR=1/10` 的单个任务就要 574–1446 ep（§4.3.6-(4) 的实算表），该估计因此**明显失真，已删除而非修正**。
+| task | pi05 ŜR | N_pi05 | tp ŜR | N_tp |
+|---|---:|---:|---:|---:|
+| CloseBlenderLid | 0.20 | 126 | 1.00 | 20 |
+| CloseFridge | 0.50 | 48 | 0.30 | 83 |
+| CoffeeSetupMug | 0.50 | 48 | 0.50 | 48 |
+| OpenCabinet | 0.60 | 40 | 0.90 | 24 |
+| OpenDrawer | 0.30 | 83 | 0.50 | 48 |
+| OpenStandMixerHead | 0.30 | 83 | 0.80 | 28 |
+| PickPlaceCounterToCabinet | 0.60 | 40 | 0.50 | 48 |
+| PickPlaceCounterToStove | 0.90 | 24 | 0.90 | 24 |
+| PickPlaceDrawerToCounter | 0.70 | 33 | 0.50 | 48 |
+| PickPlaceSinkToCounter | 0.80 | 28 | 0.80 | 28 |
+| PickPlaceToasterToCounter | 0.40 | 61 | 1.00 | 20 |
+| SlideDishwasherRack | 0.40 | 61 | 0.60 | 40 |
+| TurnOnSinkFaucet | 0.60 | 40 | **0.10** | **256** |
+| **合计** | | **715** | | **715** |
 
-**回填顺序（不可颠倒）**：Code 阶段先按冻结的实现算出**逐 task 的 `N` 表** → 再据表裁 **D-C / D-D** → 最后由定稿的任务清单汇总总量、墙钟、磁盘并回填本节。反过来用未算的预算去裁 D-C/D-D 是循环论证。
-
-已知的定性结论：最贵的是 `tp/TurnOnSinkFaucet`（ŜR=0.1 ⇒ N=256，naive 200）与 `pi05/CloseBlenderLid`（ŜR=0.2 ⇒ N=126，naive 100）；**D-C 的封顶/剔除裁决对总量影响最大**。
-⚠ 墙钟是**单路**数字；D-L 的 (a) 下总时长 ≈ 单路时长 ÷ server 进程数。
+**预算**：合计 **1430 ep**、单路 **≈38.5 h**（96.9 s/ep 全局均值粗估；D-L 下 ÷ server 进程数）；磁盘 **≈790 GB**（`/data` 可用 3.3T）。
+**D-C 量化**：`tp/TurnOnSinkFaucet` N=256 = tp 侧 36%；剔除 ⇒ tp 降至 459 ep（≈12.4 h）。⚠ 其 **pi0.5 侧 ŜR=0.6（N=40）是好数据** —— (c) 剔除会连它一起丢，(a) 只封 tp 侧则保得住。
+⚠ 墙钟为**单路**数字；不足 20 的尾部风险由补批规程（§4.3.6-(4)）覆盖。
 
 ---
 
@@ -960,3 +974,8 @@ Wilson 下界与 0.90 分位是**两重保守叠加**，在 `ŜR=1/10` 上直接
 7. 【配方】pgrep 模式两次踩坑（tmux sh 包装 + 自匹配）⇒ 锚定 `^[.]venv/bin/python …`，§5 配方同步。
 
 ⚠ 待办：本轮 tether 直传的 3 个文件（episode_runner / yaml / serve_groot_n15）与证据文件在本地一并 commit + push，远端 `git checkout --` 后 pull 收敛（内容一致，无损）。
+
+### G2 Round 11 — Reviewer — APPROVED — 2026-08-17 23:24 CDT
+
+- [Non-blocking] [Suggestion] 统一 G2 的冻结验收面现已闭合，可以放行 — reasoning: manual 5 的两栈 action sha256 逐字相同、反向对照成立，且 live WS metadata / 实际 argv / checkpoint sha256 齐全；manual 6 为 6 passed；manual 7 的 auditor `ok=true` 且无 missing/schema/multiple-accepted；manual 8 呈现 SIGKILL→agent restart→attempt=2 唯一 accepted 与 orphan_attempt 的预言形状；老 T-8 在孤岛 B 记录 9 passed；G0-E 的本地证据经审查者重计为 **106/106 FULL_HIT、searched 全 true、winner 全非空**，两臂各 53 步的 `stage1_vision/cp1_sum/total_inference` 正控制齐全且 `stage2_llm/stage2_action` 零采样。manual 9 经 owner 明确取消并触发 G1 已预写的 D-K 降级条款，双路替身层已通过、能力降级已在 §1 显式记账。首点火暴露的生产/配置/测试修复均已进入 `d961388`，后续证据与索引提交已 push 到 `origin/Ziyang`；审查者独立复跑规定 blast radius = **1496 passed / 21 skipped / 0 failed**。
+- [Non-blocking] [Suggestion] Post-G2 polish 时一并清理两处证据/说明卫生问题，不阻塞本门 — reasoning: `src/openpi/cache/groot/key_builder.py` 顶部仍沿用已被真机推翻的“图像 offset 随 prompt 长度移动”旧理由，正确理由应是实际 20/283/546 与 pi0.5 的 0/256/512 固定表不同；`exp/robocasa365/analysis/t3_server_provenance_8010.txt` 第一行有一个尾随空格。另建议若远端原始 T-8 pytest stdout 尚在，补存到 analysis 目录；当前 Review Log 已记录非跳过 9 passed 及冻结 invocation，故不把归档完整性降格为功能阻塞。

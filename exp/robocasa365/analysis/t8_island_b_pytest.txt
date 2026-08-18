@@ -1,0 +1,12 @@
+.........                                                                [100%]
+=============================== warnings summary ===============================
+tests/robocasa365/test_groot_cache_manual.py::test_two_stage_split_is_bit_exact
+  /home/weiland/gr00t_n15_venv/.venv/lib/python3.11/site-packages/albumentations/check_version.py:49: UserWarning: Error fetching version info The read operation timed out
+    data = fetch_version_info()
+
+tests/robocasa365/test_groot_cache_manual.py::test_two_stage_split_is_bit_exact
+  /home/weiland/gr00t_n15/gr00t/data/transform/state_action.py:105: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+    self.statistics[key] = torch.tensor(value)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+9 passed, 2 warnings in 27.46s

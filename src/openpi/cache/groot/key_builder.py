@@ -4,12 +4,15 @@ Why these cannot reuse Pi0.5's slicing
 --------------------------------------
 Pi0.5's prefix is three 256-token image blocks followed by the prompt, always
 in that order and always at the same offsets, so its builders slice at fixed
-positions. GR00T's sequence is produced by a chat template: the image runs sit
-wherever the tokenizer put them, and their offsets move with the prompt's
-length. Measured on one RoboCasa observation the runs start at 20, 283 and
-546 for a four-word instruction — copying Pi0.5's 0/256/512 table would slice
-into text tokens and still return correctly-shaped vectors whose distances
-mean nothing. So the runs are located per step from the image-token mask.
+positions. GR00T's sequence is produced by a chat template that places the
+INSTRUCTION AFTER the image blocks, so the runs start at 20, 283 and 546 and
+stay there regardless of prompt length (measured 812/814/834 total tokens for
+three prompts, runs pinned in all of them). What breaks a copied Pi0.5 table
+is not offset motion but the offsets themselves: 20/283/546 != 0/256/512, so
+the fixed table would slice into system/text tokens and still return
+correctly-shaped vectors whose distances mean nothing. The runs are therefore
+located per step from the image-token mask — correct for this template and
+robust to any future template change.
 
 Everything after the slice — the pooling, the CPU transfer, the field
 vocabulary — is shared with Pi0.5, so the resulting keys live in the same
