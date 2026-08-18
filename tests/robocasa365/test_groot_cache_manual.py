@@ -103,15 +103,26 @@ def _observation(step: int = 0) -> dict:
 
 
 def _normalized(policy, obs):
+    """Wire-format obs -> normalized model input, via the PRODUCTION reshaping.
+
+    ``_observation`` builds wire-format values (video ``(H, W, 3)``, state
+    ``(D,)``); upstream ``apply_transforms`` consumes batched ``(B, T, ...)``.
+    The T axis is added by the adapter's ``build_groot_observation`` and the B
+    axis by the interceptor's unsqueeze — using both here means the test eats
+    the same reshaping code the server runs, instead of a hand-rolled copy
+    that can drift (the first real-machine run caught exactly that: a missing
+    T axis sent PIL frames into ``prepare_input``).
+    """
+    from exp.robocasa365.groot_policy_adapter import build_groot_observation
     from openpi.cache.groot.interceptor import _is_batched, _unsqueeze_values
 
-    obs_copy = obs.copy()
-    if not _is_batched(obs_copy):
-        obs_copy = _unsqueeze_values(obs_copy)
-    for key, value in obs_copy.items():
+    shaped = build_groot_observation(obs)  # wire -> [T=1, ...] (production contract)
+    if not _is_batched(shaped):
+        shaped = _unsqueeze_values(shaped)  # add the batch axis, as the interceptor does
+    for key, value in shaped.items():
         if not isinstance(value, np.ndarray):
-            obs_copy[key] = np.array(value)
-    return policy.apply_transforms(obs_copy)
+            shaped[key] = np.array(value)
+    return policy.apply_transforms(shaped)
 
 
 def _warm_up(policy, inputs):
