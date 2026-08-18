@@ -78,3 +78,38 @@ def test_rollout_client_imports_resolve_against_real_robocasa():
     assert "atomic_seen" in TASK_SET_REGISTRY
     assert callable(get_task_horizon)
     assert get_task_horizon("PickPlaceCounterToStove") > 0
+
+
+# ------------------------------------------------------------------
+# T3: pi0.5 adapter binding to the REAL convert_action (frozen §4.3.1a)
+# ------------------------------------------------------------------
+
+
+def test_pi05_adapter_uses_real_convert_action():
+    """The Pi05TeacherAdapter's lazy default must resolve the genuine symbol.
+
+    The non-manual runner tests inject a fake ``convert_action``; only this
+    island can prove the archived contract (12-dim vector -> the env action
+    dict) still holds against the installed robocasa, so a stale copied
+    contract cannot certify itself.
+    """
+    from robocasa.utils.env_utils import convert_action
+
+    from exp.robocasa365.episode_runner import Pi05TeacherAdapter
+
+    adapter = Pi05TeacherAdapter()  # no injection: exercise the lazy real import
+    chunk = np.tile(np.arange(12, dtype=np.float64), (50, 1))
+    actions = list(adapter.iter_actions({"actions": chunk}, 5))
+    assert len(actions) == 5
+    reference = convert_action(chunk[0])
+    produced = actions[0]
+    assert set(produced) == set(reference)
+    for key in reference:
+        assert np.array_equal(np.asarray(produced[key]), np.asarray(reference[key])), key
+
+
+def test_pi05_runner_default_horizon_resolves():
+    """default_horizon_fn must hit dataset_registry_utils (the module that has it)."""
+    from exp.robocasa365.episode_runner import default_horizon_fn
+
+    assert default_horizon_fn("PickPlaceCounterToStove") > 0

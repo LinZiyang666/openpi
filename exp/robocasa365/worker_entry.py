@@ -1,0 +1,71 @@
+"""Worker process entry point for RoboCasa365 collection (island A).
+
+Launched by ``WorkerAgent`` (via ``run_collect.py --role agent|all``) as
+``<island-A-python> -m exp.robocasa365.worker_entry ...`` with
+``cwd=<robocasa-cwd>`` (robocasa resolves its assets relative to the working
+directory) and the EGL triple exported. Builds a ``RobocasaEpisodeRunner``
+wrapped in the ``WatchdogRunner`` (armed BEFORE ``runner.run()`` so the
+unbounded client constructor is covered too) and drives a ``WorkerLoop``.
+
+Imports of robocasa / gymnasium / websockets happen lazily inside the runner's
+default collaborators, so this module stays importable in the main venv for
+tests.
+"""
+
+from __future__ import annotations
+
+import argparse
+import socket
+
+from openpi.conductor.worker import WorkerLoop
+
+from exp.robocasa365.episode_runner import (
+    ADAPTERS,
+    RobocasaEpisodeRunner,
+    WatchdogRunner,
+)
+
+
+def build_runner(args: argparse.Namespace) -> WatchdogRunner:
+    """Adapter + runner + watchdog from parsed CLI args (test seam)."""
+    try:
+        adapter_factory = ADAPTERS[args.teacher]
+    except KeyError:
+        raise SystemExit(f"unknown --teacher {args.teacher!r}; expected one of {sorted(ADAPTERS)}") from None
+    runner = RobocasaEpisodeRunner(
+        adapter_factory(),
+        connect_deadline_s=args.connect_deadline_s,
+        connect_retries=args.connect_retries,
+    )
+    return WatchdogRunner(
+        runner,
+        episode_deadline_s=args.episode_deadline_s,
+        terminate_grace_s=args.terminate_grace_s,
+    )
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="conductor RoboCasa365 collection worker")
+    ap.add_argument("--worker-id", required=True)
+    ap.add_argument("--server-key", required=True, help='bound server endpoint "host:port"')
+    ap.add_argument("--driver-host", required=True)
+    ap.add_argument("--driver-port", type=int, required=True)
+    ap.add_argument("--teacher", required=True, choices=sorted(ADAPTERS))
+    # Liveness bounds are explicit CLI parameters (no magic defaults hidden in
+    # code); run_collect forwards the operator-chosen values.
+    ap.add_argument("--connect-deadline-s", type=float, required=True)
+    ap.add_argument("--connect-retries", type=int, default=3)
+    ap.add_argument("--episode-deadline-s", type=float, required=True)
+    ap.add_argument("--terminate-grace-s", type=float, required=True)
+    args = ap.parse_args()
+
+    runner = build_runner(args)
+
+    def connect() -> socket.socket:
+        return socket.create_connection((args.driver_host, args.driver_port))
+
+    WorkerLoop(args.worker_id, args.server_key, runner, connect=connect).run_forever()
+
+
+if __name__ == "__main__":
+    main()

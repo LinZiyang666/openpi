@@ -1,7 +1,7 @@
 """Roll out the GR00T N1.5 teacher on RoboCasa365 across two pinned kitchens.
 
-Runs teacher-only episodes (no cache) on the same task set in scene A and scene
-B and reports the paired success rates, mirroring the procedure already used for
+Runs teacher-only episodes (no cache) on the same tasks in scene A and scene B
+and reports the per-task paired success rates, mirroring the procedure already used for
 the pi0.5 teacher so the two are directly comparable.
 
 No format translation happens here beyond selection and downsampling: the
@@ -139,13 +139,20 @@ def write_results_atomically(path: pathlib.Path, payload: dict[str, Any]) -> Non
 
 
 def episode_seeds(n_trials: int, base_seed: int) -> list[int]:
-    """Seeds replayed identically in both scenes.
+    """Seeds replayed in both scenes, for reproducibility rather than pairing.
 
-    ``main()`` catches per-arm failures and moves on, so scene A and scene B are
-    separate ``gym.make`` calls.  Reusing one seed list across both is what makes
-    episode *i* of A and episode *i* of B comparable as a pair; without it the
-    object placements and initial states are two independent random draws and
-    the A/B numbers cannot be treated as paired samples.
+    A shared seed makes each arm replayable: rerunning scene A with seed *s*
+    reproduces that episode exactly.  It does **not** give the two arms matching
+    initial states.  RoboCasa samples object placements against the fixtures
+    that the kitchen actually has (``kitchen.py`` hands the same generator to
+    the arena, the object sampler and the placement sampler in turn), so two
+    different scenes consume the stream differently and sample over different
+    regions.  Across scenes the initial states are effectively independent
+    draws no matter what seed is used.
+
+    The comparison is paired on *task*, not on episode: each task is run in both
+    scenes and the analysis takes the per-task success-rate difference.  That
+    pairing is real, and it does not depend on the seeds at all.
     """
     return [base_seed + index for index in range(n_trials)]
 

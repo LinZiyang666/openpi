@@ -347,3 +347,80 @@ It counts only real verdict rows (`hit_type ∈ {FULL_HIT, WARM_START, MISS}`), 
 the `episode_summary` provenance row never inflates the inference-ratio
 denominator. `searched=False` rows are already dropped at write time in gate
 mode, so the file carries no gate-skipped steps.
+
+## RoboCasa365 teacher-library collection (conductor topology)
+
+> Added with the framework re-integration (plan: `logs/robocasa365_framework_integration.log.md`).
+> Formal (paper-grade) collection is gated on the unified temporary G2 approval.
+
+### Hard topology constraints
+
+`--collect` is structurally incompatible with concurrency: the embedding
+collector attaches module-global forward hooks, so `serve_policy.py` enforces
+`--non-concurrent --replicas 1`, and a non-concurrent server rejects a second
+connection outright (close code 1013). The collection topology is therefore
+**one server process ↔ one connection ↔ one worker**, scaled horizontally by
+launching N server processes; the conductor driver's control connection is
+replaced with a socket-free no-op ctl so it cannot consume the only slot.
+One `run_collect.py` invocation serves exactly ONE teacher (core
+`assign_servers` has no model-type notion); the per-teacher endpoint groups
+live in the env-config file and are validated before the graph is built.
+
+### Server (pi0.5 example)
+
+```bash
+uv run scripts/serve_policy.py \
+  --port 8010 --non-concurrent \
+  --collect --collect_dir /data/robocasa365_cache/build_l1s1 \
+  policy:checkpoint \
+  --policy.config pi05_robocasa \
+  --policy.dir /home/weiland/ckpt_pi05_robocasa_pytorch
+```
+
+`--collect_dir` is the **scene root** (`build_l{L}s{S}`), never the teacher
+root: the collector inserts an `<experiment>` (= teacher id) directory level
+itself. Final layout:
+`<scene-root>/<teacher>/<TaskName>/episode_NNNN_aAA.h5`.
+
+### Driver + workers
+
+```bash
+uv run python exp/robocasa365/run_collect.py \
+  --role all --teacher pi05 \
+  --servers 127.0.0.1:8010 \
+  --tasks OpenCabinet:256,CloseDrawer:126 \
+  --layout 1 --style 1 --base-seed 0 \
+  --collect-root /data/robocasa365_cache/build_l1s1 \
+  --env-config exp/robocasa365/config/collect_weilandserver.env \
+  --connect-deadline-s 60 --episode-deadline-s 900 --terminate-grace-s 30
+```
+
+Before dispatch the exact TaskGraph is frozen into an immutable per-batch
+run-plan JSON (`run_plan_<runid>_bNN.json`, containing every expected
+`task_uid` plus a `plan_hash`); resumes recompute the hash and refuse to start
+if parameters changed. Seeds are `base_seed + episode_idx`; this makes the
+*initial state* reproducible, while the rollout itself stays stochastic
+(same initial state, fresh flow-matching noise on retry — retries never
+overwrite, they write a new `_aAA` attempt file).
+
+### Audit + manifest (blocking before any library build)
+
+HDF5 write failures are swallowed server-side (the journal still records the
+episode as done), so the auditor is mandatory, and the run-plan is its only
+source of the expected-UID set:
+
+```bash
+uv run python exp/robocasa365/verify_collection_artifacts.py \
+  --root /data/robocasa365_cache/build_l1s1 --teacher pi05 \
+  --journal exp/robocasa365/data/journal_collect_l1s1_pi05.jsonl \
+  --run-plan exp/robocasa365/data/run_plan_collect_l1s1_pi05_b01.json \
+  --target 20 --manifest-out exp/robocasa365/data/manifest_l1s1_pi05.json
+```
+
+A journal record is admitted iff `accepted && success && error is None`;
+run-plan uids with no journal row at all are reported as `missing_terminal`
+(retry exhaustion leaves zero rows — only the run-plan can see it). Library
+builds consume the manifest (first `--target` successes per task by
+`episode_idx`, sha256-pinned), never directory listings. Per-task episode
+counts come from `min_episodes_for_target(sr)` — the smallest N with
+`P(Binom(N, sr) ≥ 20) ≥ 0.90` at the SR point estimate.

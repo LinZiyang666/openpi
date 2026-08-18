@@ -20,6 +20,7 @@ import openpi.models.tokenizer as _tokenizer
 import openpi.policies.aloha_policy as aloha_policy
 import openpi.policies.droid_policy as droid_policy
 import openpi.policies.libero_policy as libero_policy
+import openpi.policies.robocasa_policy as robocasa_policy
 import openpi.shared.download as _download
 import openpi.shared.normalize as _normalize
 import openpi.training.droid_rlds_dataset as droid_rlds_dataset
@@ -223,6 +224,44 @@ class SimpleDataConfig(DataConfigFactory):
             data_transforms=self.data_transforms(model_config),
             model_transforms=self.model_transforms(model_config),
         )
+
+
+@dataclasses.dataclass(frozen=True)
+class _RobocasaGroup(GroupFactory):
+    """GroupFactory producing the robocasa-benchmark fork's input/output transforms.
+
+    Ported from the previously untracked ``serve_robocasa_pi05.py`` (byte-level
+    archive: ``exp/robocasa365/baselines/serve_robocasa_pi05_ORIGINAL.py``); the
+    inference stack built from this factory must stay bit-equal to that script's
+    (pinned by ``tests/robocasa365/test_pi05_stack_parity_manual.py``).
+    """
+
+    def __call__(self, model_config: _model.BaseModelConfig) -> _transforms.Group:
+        return _transforms.Group(
+            inputs=[
+                robocasa_policy.RobocasaInputs(
+                    action_dim=model_config.action_dim,
+                    model_type=model_config.model_type,
+                )
+            ],
+            outputs=[robocasa_policy.RobocasaOutputs()],
+        )
+
+
+@dataclasses.dataclass(frozen=True)
+class _RobocasaDataConfig(SimpleDataConfig):
+    """Force mean/std normalization for the RoboCasa pi0.5 checkpoint.
+
+    Our fork sets ``use_quantile_norm = (model_type != PI0)`` in
+    ``create_base_config`` — i.e. ON for pi05. The robocasa-benchmark fork has
+    no such line, so the checkpoint was trained with plain mean/std and its
+    ``norm_stats.json`` carries q01/q99 = null; leaving quantile norm on raises
+    inside ``transforms.Normalize``.
+    """
+
+    def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
+        dc = super().create(assets_dirs, model_config)
+        return dataclasses.replace(dc, use_quantile_norm=False)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -760,6 +799,26 @@ _CONFIGS = [
         weight_loader=weight_loaders.CheckpointWeightLoader("gs://openpi-assets/checkpoints/pi05_base/params"),
         pytorch_weight_path="/path/to/your/pytorch_weight_path",
         num_train_steps=30_000,
+    ),
+    #
+    # RoboCasa365 inference config (no training entry point).
+    #
+    # Serves the converted JAX->PyTorch RoboCasa pi0.5 teacher through the
+    # standard scripts/serve_policy.py path (policy:checkpoint --policy.config
+    # pi05_robocasa --policy.dir <ckpt>). Model hyper-parameters must match how
+    # the checkpoint was trained: pi05_pretrain_human300 used
+    # Pi0Config(pi05=True, max_token_len=200), everything else default
+    # (action_dim=32, action_horizon=50, discrete_state_input=True).
+    # AssetsConfig(asset_id="robocasa") is load-bearing: create_policy() does
+    # not pass norm_stats, so create_trained_policy() resolves them from
+    # <ckpt>/assets/robocasa — without an asset_id it raises at startup.
+    TrainConfig(
+        name="pi05_robocasa",
+        model=pi0_config.Pi0Config(pi05=True, max_token_len=200),
+        data=_RobocasaDataConfig(
+            assets=AssetsConfig(asset_id="robocasa"),
+            data_transforms=_RobocasaGroup(),
+        ),
     ),
     #
     # Fine-tuning Aloha configs.

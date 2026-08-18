@@ -2,7 +2,7 @@
 
 Implements the criteria pre-registered in
 `logs/benchmark_and_teacher_selection.log.md` §12-2, and adds the two-teacher
-task-set intersection that defines the formal experiment's task set.
+usable-task intersection that defines the experiment's evaluation task subset.
 
     P1  admission verdict : Wilson 95% lower bound of SR_B (all tasks pooled) > 20%
     P2  per-task class    : U0 (both arms 0) / U1 (exactly one arm 0) / U2 (both > 0)
@@ -266,7 +266,7 @@ def intersect_reports(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
     """Compute the usable-task intersection across teachers.
 
     Kept separate from the printing so the rule that defines the formal
-    experiment's task set is testable on its own. Returns the intersection plus
+    experiment's evaluation task subset is testable on its own. Returns the intersection plus
     every caveat the caller must surface: scene-pair mismatches, tasks absent
     from a run, and the tasks only one teacher can do.
     """
@@ -311,7 +311,7 @@ def intersect_reports(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
 
 
 def print_intersection(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
-    """Render the usable-task intersection -- the formal experiment's task set.
+    """Render the usable-task intersection -- the experiment's evaluation task subset.
 
     This rule is NOT part of the pre-registration, which covered a single
     teacher. P3 requires any exclusion introduced outside §12-2 to be recorded
@@ -343,7 +343,7 @@ def print_intersection(reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
         marks = " ".join(f"{cls_of[label][task]:>8}" for label in labels)
         print(f"{task:<30} {marks}   {'yes' if task in keep else 'no'}")
 
-    print(f"\n--- formal experiment task set (of {len(common)} tasks run by both) ---")
+    print(f"\n--- evaluation task subset (of {len(common)} tasks run by both) ---")
     for label in labels:
         print(f"  usable under {label:<8} : {len(result['usable_common'][label]):2d}/{len(common)}")
     print(f"  intersection             : {len(keep):2d}/{len(common)}  {sorted(keep)}")

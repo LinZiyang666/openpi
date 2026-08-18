@@ -63,7 +63,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 
 | File | Description |
 |------|-------------|
-| [reference/openpi.md](reference/openpi.md) | Project structure, model architecture, Pi0 vs Pi0.5 differences, code paths, training configs, deployment, hardware |
+| [reference/openpi.md](reference/openpi.md) | Project structure, model architecture, Pi0 vs Pi0.5 differences, code paths, training configs (incl. the `pi05_robocasa` inference config), deployment, hardware |
 
 ### [architecture/](architecture/)
 
@@ -109,7 +109,7 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 
 | File | Description |
 |------|-------------|
-| [data_collection/guide.md](data_collection/guide.md) | HDF5 data collection via `--collect` flag, schema and directory layout; **gate-research per-step collection** (`--collect-gate-dir` / `--export-collect-meta`, `__collect_meta__`, per-step verdict + `episode_summary` row schema, conductor `extra` contract, `summarize_gate_log`) |
+| [data_collection/guide.md](data_collection/guide.md) | HDF5 data collection via `--collect` flag, schema and directory layout; **gate-research per-step collection** (`--collect-gate-dir` / `--export-collect-meta`, `__collect_meta__`, per-step verdict + `episode_summary` row schema, conductor `extra` contract, `summarize_gate_log`); **RoboCasa365 teacher-library collection** (one-server-one-worker topology, run-plan artifact, audit + deterministic manifest, binomial completion rule) |
 
 ### [deployment/](deployment/)
 

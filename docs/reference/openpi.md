@@ -202,6 +202,7 @@ Defined in `src/openpi/training/config.py` (_CONFIGS list). Key configs:
 - `pi0_aloha_sim`, `pi05_aloha_sim` — ALOHA simulation
 - `pi0_droid`, `pi05_droid`, `pi0_fast_droid` — DROID robot
 - `pi0_aloha_towel`, `pi0_aloha_tupperware` — Task-specific ALOHA
+- `pi05_robocasa` — RoboCasa365 pi0.5 teacher (inference only; norm stats via `asset_id="robocasa"`, mean/std normalization forced — the checkpoint's q01/q99 are null)
 
 **Fine-tuning:**
 - `pi0_libero`, `pi05_libero` — LIBERO full fine-tuning

@@ -1,6 +1,6 @@
 # GR00T N1.5 接入 Cache 系统（两阶段切分）
 
-**Status**: `In Progress` — G1 APPROVED（2026-08-17），进 §4 Code
+**Status**: `In Progress` — G1 APPROVED、代码已 ship（`28c41c6`，已 push）；**本文件的 G2 已并入统一临时 G2**（owner 2026-08-17 裁定；唯一审查场所 = `robocasa365_framework_integration.log.md` 的 `## Review Log`），未闭合项 **G0-E 实机闭环证据**随迁
 **Level**: L3（跨模块 + 新子系统能力 + 架构文档更新）
 **Authority**: Execution
 **日期**: 2026-08-17
@@ -30,6 +30,13 @@
 - Accepted — **M2 的两个 benchmark 覆写仍直调模块级切片**。属实，计划要求二选一，我两样都没做。已取第一选项：`exp/cache_latency_bench/opt/r4_pool_keybuilder.py` 与 `r4_layout_check.py` 的 `build()` 覆写改走 `self._slice()`，两处各加注释说明理由（布局不同的子类若继承了批量 `build()` 却被 Pi0.5 的固定偏移切，是静默错误）。对 Pi0.5 逐位等价——基类 `_slice()` 就是原来那次调用。`grep _slice_cp1_fields exp/cache_latency_bench/opt/` 现为空。
 - Accepted（前置已完成，**执行待授权**）— **G0-E 缺实机闭环证据**。判断成立：stub 的 probe 计数只证明本地分支记账，不能证明 server 真加载了库、`always_hit` 真返回库中动作、`__hit_meta__` 真穿过 adapter 上线、client 真写出 JSONL。本轮已把**全部前置**补齐（采集接线、真建库链路、判据实现、manual 套件）。⚠ **但执行被一处流程约束挡住**：三道门都在远端 `weilandserver` 跑，而远端 `/home/weiland/openpi` 是 `git clone`，按 **P5 已裁的 git 路线**新代码必须先 commit + push 到 `origin/Ziyang` 才能 `git pull` 取到（P5 明确排除了 `tether push` 手工投放，因为后续正式提交再 pull 会因 untracked-would-be-overwritten 中止）。而 commit 与 push 按 execution_authority §7/§8 均需**用户显式指示**，且当前处于 §5 G2「已暂存未提交」状态。⇒ 已向 owner 请求该授权；取得后按 §8 的 `[push]` 步骤送上远端，执行 T-8 与 G0-E，并把命令、正控制（`stage1_vision`/`cp1_sum`/`total_inference` 各 1）与负判据（`stage2_llm`/`stage2_action` 各 0）的实测计数补进下一轮。在证据落地前，本项**不视为已关闭**。
 
+
+### G2 — 场所合并（Venue merge into the unified temporary G2）— Executor — 2026-08-17
+
+- owner 裁定（2026-08-17）：**本文件的 G2 与 RoboCasa365 接回标准框架的临时 G2 合并为一个门**。自本条起，本 Review Log **不再追加新轮次**；Round 1 六项 blocking 的 Round 2 应答复审、以及唯一未闭合项 **G0-E 实机闭环证据**，全部转入唯一审查场所：
+  [`robocasa365_framework_integration.log.md`](robocasa365_framework_integration.log.md) 的 `## Review Log`（统一临时 G2）。
+- 本节既有内容按 §10.1 永久保留，不删不改；统一门的 APPROVED / NEEDS REVISION 对本文件的 diff（commit `28c41c6`）同等生效。
+
 ## 0. 上下文（无需对话历史）
 
 ### 0.1 一句话
@@ -48,7 +55,23 @@
 
 **当前缺口正是本计划**：上一轮只证明了「能做」（tap 点跑通、key 与 pi0.5 逐位一致、cache 内核可装进孤岛 B），**一行集成代码都没写**。
 
-### 0.3 环境与资产（全部实机验证的绝对路径）
+### 0.3 术语（与 RoboCasa365 源码一致）
+
+三个层级在代码里是同一套命名，不要混用：
+
+| 层级 | 术语 | 实例 | 在代码里是什么 |
+|---|---|---|---|
+| 1 | **task set** | `atomic_seen`(18) / `composite_seen`(16) / `composite_unseen`(16) / `pretrain50…300` / `lifelong_phase1..4` | `TASK_SET_REGISTRY` 里的一个命名列表 |
+| 2 | **task** | `OpenCabinet` | env 类名 = gym id (`robocasa/OpenCabinet`) = `ATOMIC_TASK_DATASETS` 的键（带 `horizon`） |
+| 3 | **episode** | 一次 `reset()` → rollout | 由 seed 驱动的一次采样 |
+
+正交的两个轴：**scene** = `(layout, style)`（各 1–60，TEST=1–10 / TRAIN=11–60）；**object instance split** = `target` / `pretrain`。
+
+⚠ **「评测任务子集」≠「task set」**：我们在 `atomic_seen` 这个 task set 里筛出的 13 或 9 个 task 叫**评测任务子集**。早期文档把它写成"任务集"与 benchmark 的 task set 撞名，已统一。
+
+⚠ **配对发生在 task 层，不在 episode 层**：跨场景时同 seed 不给出相同初始状态——RoboCasa 的摆放是相对该厨房已有 fixture 采样的，且建 arena 本身也消耗同一个 generator，所以不同 scene 的 RNG 流位置与采样区域都不同。同 seed 买到的是**每条臂各自可复现**。分析脚本据此按 task 配对（每个 task 一个 SR 差，再对 task 做单样本 t），这层配对是真的。
+
+### 0.4 环境与资产（全部实机验证的绝对路径）
 
 **远端主机 `weilandserver`**（与本机是两台机器），单张 RTX 4090，49140 MiB，**多 session 共用**。
 
@@ -967,7 +990,7 @@ sim_f(·,·) = 该字段 yaml 里配置的度量（vision_*/prompt_emb → cosin
 |---|---|---|
 | ~~P1~~ | D6 的落点 | ✅ **已裁（2026-08-17）：`src/openpi/cache/groot/`**。§4.0 清单、§5 测试路径、§5 blast radius 均按此定稿，无待定分支 |
 | **P2** | pi0.5 在 RoboCasa 上同样没有 cache（`serve_robocasa_pi05.py` 绕过 `serve_policy.py`）。⚠ 该文件**不在本仓**，实体在 `weilandserver:/home/weiland/step0b_artifacts/serve_robocasa_pi05.py` | **本计划不解**。跨场景实验若要 pi0.5 臂也带 cache，需另起 plan（工作量小于本计划：`InferenceInterceptor` 现成，只缺 RoboCasa 的 server 接线） |
-| **P3** | 任务集口径 13/18 vs 9/18（handoff §4） | 与本计划**正交**，属跑批 plan |
+| **P3** | 评测任务子集口径 13/18 vs 9/18（handoff §4） | 与本计划**正交**，属跑批 plan |
 | ~~P4~~ | 本线未提交文件 | ✅ 已解决：`dd139bd` 已 commit + push（analyze_admission_gate + 其测试 + 两份 log + 本计划 + README 索引），远端已 fast-forward 取到 |
 | ~~P5~~ | **新代码如何送上远端** | ✅ **已裁（2026-08-17）：走 (a) git 路线。** 远端 `/home/weiland/openpi` 是 `git clone`，靠 `git pull --ff-only origin Ziyang` 同步（实测 reflog）⇒ 新代码必须先 **commit + push 到 `origin/Ziyang`**，远端才拿得到；三道门全在远端跑。⚠ 明确**不用** `tether push` 手工投放 —— 后续正式 commit 再 `git pull` 会因 "untracked working tree files would be overwritten" 中止。⚠ 本地工作树混着 3 个别的 session 的未提交文件，提交必须**逐文件点名**，不可 `git add -A`。⚠ 另注：孤岛 B 的 `PYTHONPATH` 指向 `/home/weiland/openpi/src`，与本仓库 `/home/weiland/projects/openpi` 是**两个 checkout** —— D6 把新子包放 `src/` 之后，远端 server 看不到本地改动，除非按本条同步 |
 

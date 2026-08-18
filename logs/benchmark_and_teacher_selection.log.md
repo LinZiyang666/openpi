@@ -309,7 +309,7 @@ owner 判断：**cache 最可能在「同 layout、不同 style」下有用**。
 
 ⚠ 以上全部是 **teacher 能力**的结论，**不是 cache 结论**；cache 迁移本身尚未测。
 
-### 🔴 任务集须按新场景重算 —— 三种口径差别很大，**待 owner 裁定**
+### 🔴 评测任务子集须按新场景重算 —— 三种口径差别很大，**待 owner 裁定**
 
 各场景可用任务数（该场景 SR > 0）：
 
@@ -785,7 +785,7 @@ N1.7 组件 benchmark（`scripts/deployment/README.md:151-183`，H100，4 去噪
    ⇒ **180 ep 判不了 10pp 门槛**（只到 ±14.6pp），而判得了需要 1548 ep ≈ 42 h，性价比极差。**准入门的价值不在统计精度**，在下面三条：
 
    1. **消除任务选择偏差（最主要）** —— 诊断跑的 6 个任务是**人为挑选**的（按「覆盖不同技能 + 相对常见」），非随机抽样；剩余 12 个任务完全未测。要主张「teacher 在整个 `atomic_seen` 上换场景不崩」，必须 18/18 全测。当前结论严格讲只覆盖那 6 个任务。
-   2. **产出 per-task 可用性清单（对正式实验最实用）** —— `TurnOnMicrowave` 在两场景均 0/3。**这类任务对 cache 实验没有信息量**：teacher 本身就不成功，命中与否都谈不上「加速一次成功的推理」，留在正式实验里只会稀释效果并贡献纯噪声。诊断跑只在 6 个任务里逮到 1 个，180 ep 能给出完整清单，使正式实验的任务集有据可依（排除或单独标注）。⚠ n=5 时单任务 SR 粒度为 20%，**识别「0% 任务」够用，区分「20% vs 40%」不够**。
+   2. **产出 per-task 可用性清单（对正式实验最实用）** —— `TurnOnMicrowave` 在两场景均 0/3。**这类任务对 cache 实验没有信息量**：teacher 本身就不成功，命中与否都谈不上「加速一次成功的推理」，留在正式实验里只会稀释效果并贡献纯噪声。诊断跑只在 6 个任务里逮到 1 个，180 ep 能给出完整清单，使正式实验的评测任务子集有据可依（排除或单独标注）。⚠ n=5 时单任务 SR 粒度为 20%，**识别「0% 任务」够用，区分「20% vs 40%」不够**。
    3. **数据可复用，非纯开销** —— 这 180 ep 是 teacher-only、无 cache 的 rollout，正式实验的对照侧本就需要这批数据。
 
    **判据须随之改写**：既然 gap 判不准，准入门应改以 **SR_B 的绝对水平**为判据 —— 这也正是 D6 真正要防的（teacher 崩不崩），且收敛快得多：
@@ -809,7 +809,7 @@ N1.7 组件 benchmark（`scripts/deployment/README.md:151-183`，H100，4 去噪
    - 20% 这条崩溃线的依据：teacher SR 过低时，「加 cache 后 SR 是否退化」这一核心量将失去可测性（基线太小，相对变化淹没在噪声里）。D6 弃用 LIBERO-Plus 时 π₀ 是 94.2%→15.8%，即落在此线之下。
    - ⚠ **不以 gap 为主判据**（180 ep 的 gap CI 仅 ±14.6pp，无判别力）。gap 仅作描述性报告。
 
-   **P2 — per-task 可用性分类（决定正式实验的任务集）**，按 (SR_A, SR_B) 分三类：
+   **P2 — per-task 可用性分类（决定正式实验的评测任务子集）**，按 (SR_A, SR_B) 分三类：
 
    | 类别 | 判据（K=5，每格 0–5 成功） | 处置 |
    |---|---|---|
@@ -827,7 +827,7 @@ N1.7 组件 benchmark（`scripts/deployment/README.md:151-183`，H100，4 去噪
 
    ### ✅✅ 正式准入门完成（2026-08-16 凌晨，**180 ep**，墙钟 **4.59 h**）—— **P1 PASS**
 
-   配置同上，唯二变化：`N_TRIALS=5`、任务集取满 `TASK_SET_REGISTRY["atomic_seen"]` 全 18 个。分析由 `analyze_step0b.py` 按上节预注册口径产出，**判据未作任何事后修改**。
+   配置同上，唯二变化：`N_TRIALS=5`、评测任务子集取满 `TASK_SET_REGISTRY["atomic_seen"]` 全 18 个。分析由 `analyze_step0b.py` 按上节预注册口径产出，**判据未作任何事后修改**。
 
    **P3 全量 per-task 表（18 行，含全部 U0）**：
 
@@ -937,7 +937,7 @@ N1.7 组件 benchmark（`scripts/deployment/README.md:151-183`，H100，4 去噪
    **结论 2（修正后）：维持 `multitask_learning` 的真实理由是「两个 teacher 必须同范式」，不是污染。**
    - 仓库中 `foundation_model_learning/target_*` 一族**只存在于 `gr00t_n1-5/` 之下，pi0.5 侧无任何对应物**（见上方结构图）。⇒ 若单独把 GR00T 换成 target-posttrained，两个 teacher 就不再同范式，「两 teacher 结论一致」这一交叉验证的说服力会被「checkpoint 范式不同」这一替代解释削弱。
    - 次要考量（**较弱，但应记录**）：key 抽自 teacher 内部表征；一个在**全部 10 个 target 场景**上训练过的 teacher，其特征在这些场景间可能天然更不变，从而使「跨场景 cache 迁移成立」这一正结论的**普适性**打折扣。用 pretrain-only 的 teacher 若仍观察到迁移，是**更强**的结果。
-   - 🔶 **反向考量（对本方案不利，须一并记录）**：target-posttrained teacher 绝对更强 ⇒ 成功 episode 更多 ⇒ 可用 cache 条目更多、U0 更少、任务集更大、统计功效更高。GR00T 现有 **6 个 U0**（比 pi0.5 多 2 个）直接压缩了交集。⇒ **「换不换」是一个 owner 可以重新权衡的真实选项，本节不再单方面否决**。若要换，代价是须为 pi0.5 找/训一个同范式对应物，否则失去同范式匹配。
+   - 🔶 **反向考量（对本方案不利，须一并记录）**：target-posttrained teacher 绝对更强 ⇒ 成功 episode 更多 ⇒ 可用 cache 条目更多、U0 更少、评测任务子集更大、统计功效更高。GR00T 现有 **6 个 U0**（比 pi0.5 多 2 个）直接压缩了交集。⇒ **「换不换」是一个 owner 可以重新权衡的真实选项，本节不再单方面否决**。若要换，代价是须为 pi0.5 找/训一个同范式对应物，否则失去同范式匹配。
 
    ### 🔴 43.0% 落差已查明 —— 我方「checkpoint 族」假说**被推翻**，真因是**评测场景不同**（2026-08-16，查论文原文）
 
@@ -968,7 +968,7 @@ N1.7 组件 benchmark（`scripts/deployment/README.md:151-183`，H100，4 去噪
 
    🔴 **须固化的教训（同一错误已犯两次）**：本实验的自变量是**「cache 库建在哪个场景」**，teacher 是**固定底座不是自变量**。teacher 只需满足两条：① **足够能干**（有成功 episode 才有东西可缓存 —— 这正是准入门存在的理由）；② **两臂严格同一个**（A 建库与 B 评测用同一 teacher）。**除此之外，teacher 的训练分布、checkpoint 族、绝对 SR 高低，都不影响「A 建的库能否在 B 用」这一测量。** 反复从 teacher 侧构造反对意见（先是「数据污染」、后是「普适性打折」）是把 D6 的教训（teacher 崩溃会淹没索引效应）过度外推所致。
 
-   ⇒ **换用 `target_posttraining` 对实验设计是加分**：准入门的目的是确认 teacher 在 held-out 厨房不崩，好让 cache 迁移的性能下降不能归因于 teacher 退化；teacher 在 A、B 上都更强，这个前提**更稳**。同时 U0 更少、可用 episode 与 cache 条目更多、任务集更大、统计功效更高。
+   ⇒ **换用 `target_posttraining` 对实验设计是加分**：准入门的目的是确认 teacher 在 held-out 厨房不崩，好让 cache 迁移的性能下降不能归因于 teacher 退化；teacher 在 A、B 上都更强，这个前提**更稳**。同时 U0 更少、可用 episode 与 cache 条目更多、评测任务子集更大、统计功效更高。
 
    （multitask 的两份 180 ep 数据仍全部保留，作为不同 teacher 强度下的对照留档，非必须复现项。）
 
@@ -1006,7 +1006,7 @@ N1.7 组件 benchmark（`scripts/deployment/README.md:151-183`，H100，4 去噪
 
    ⚠⚠ **必须按预注册 P3 记为事后决定**：§12-2 的 P2 只规定了**单个 teacher** 内排除 U0；「跨两个 teacher 取交集」是在看过 pi0.5 数据之后新增的排除规则，不在预注册内。
 
-   **交集（11 个，正式跨场景实验的任务集）**：`CoffeeSetupMug`、`OpenCabinet`、`OpenDrawer`、`OpenStandMixerHead`、`PickPlaceCounterToCabinet`、`PickPlaceCounterToStove`、`PickPlaceDrawerToCounter`、`PickPlaceSinkToCounter`、`PickPlaceToasterToCounter`、`SlideDishwasherRack`、`TurnOnSinkFaucet`。
+   **交集（11 个，正式跨场景实验的评测任务子集）**：`CoffeeSetupMug`、`OpenCabinet`、`OpenDrawer`、`OpenStandMixerHead`、`PickPlaceCounterToCabinet`、`PickPlaceCounterToStove`、`PickPlaceDrawerToCounter`、`PickPlaceSinkToCounter`、`PickPlaceToasterToCounter`、`SlideDishwasherRack`、`TurnOnSinkFaucet`。
    （单侧可用数：pi0.5 **14/18**、GR00T **12/18**。）
 
    **被剔除的 7 个**及归因：
@@ -1019,7 +1019,7 @@ N1.7 组件 benchmark（`scripts/deployment/README.md:151-183`，H100，4 去噪
    | `TurnOffStove` | U1 | U0 | teacher 特异 |
    | `TurnOnElectricKettle` | U0 | **U2** | **反向 teacher 特异**：GR00T 1/5+2/5，pi0.5 全 0 |
 
-   🔴 **交集付出的真实代价**：4 个任务是**某一个 teacher 会做而另一个不会**（三个 pi0.5 会、一个 GR00T 会）。这些任务讲的是**两个 teacher 的能力差异**，不是跨场景迁移，故排除是对的；但必须在论文中列明，否则读者无从判断任务集是怎么来的。⚠ 另注 GR00T 的三个 U0 全是「关闭类」接触任务（`Close*` 三个全 0/10），而 pi0.5 的 `CloseFridge` 有 7/10 —— 这个模式若在 K=10 复核时仍成立，值得单独一句讨论。
+   🔴 **交集付出的真实代价**：4 个任务是**某一个 teacher 会做而另一个不会**（三个 pi0.5 会、一个 GR00T 会）。这些任务讲的是**两个 teacher 的能力差异**，不是跨场景迁移，故排除是对的；但必须在论文中列明，否则读者无从判断评测任务子集是怎么来的。⚠ 另注 GR00T 的三个 U0 全是「关闭类」接触任务（`Close*` 三个全 0/10），而 pi0.5 的 `CloseFridge` 有 7/10 —— 这个模式若在 K=10 复核时仍成立，值得单独一句讨论。
 
    ⚠ **K=5 筛两次会放大假阳性**：真 per-arm SR=10% 的任务被**至少一个** teacher 误判为 U0 的概率 **0.58**（单 teacher 0.35）。⇒ 「U0 须在 K=10 数据上复核」这条预注册要求，在双 teacher 下**更加必要**，而非可以放松。
 
@@ -1038,7 +1038,7 @@ N1.7 组件 benchmark（`scripts/deployment/README.md:151-183`，H100，4 去噪
    | **10** | **550** | **26.2 h** | **16.7 h** | **42.9 h** |
    | 30 | 1650 | 78.6 h | 50.1 h | 128.6 h |
 
-   🟢 **关键结论：加第二个 teacher 不增加总成本**。原 §12-5 的「18 任务 × K=10 × pi0.5 单 teacher × 两侧」按同一实测口径算是 **42.9 h**，与「11 任务 × K=10 × **两个** teacher × 两侧」的 **42.9 h** 相等 —— 任务集从 18 缩到 11（−39%）恰好抵消了 teacher 数翻倍，而 GR00T 比 pi0.5 快 **1.6×** 又贡献了余量。⇒ **K=10 的建议不因引入第二 teacher 而需要下调。**
+   🟢 **关键结论：加第二个 teacher 不增加总成本**。原 §12-5 的「18 任务 × K=10 × pi0.5 单 teacher × 两侧」按同一实测口径算是 **42.9 h**，与「11 任务 × K=10 × **两个** teacher × 两侧」的 **42.9 h** 相等 —— 评测任务子集从 18 缩到 11（−39%）恰好抵消了 teacher 数翻倍，而 GR00T 比 pi0.5 快 **1.6×** 又贡献了余量。⇒ **K=10 的建议不因引入第二 teacher 而需要下调。**
 
    ### 🟢 换 tp 后的最终预算（2026-08-16 实测重算，取代上表）
 
@@ -1051,7 +1051,7 @@ N1.7 组件 benchmark（`scripts/deployment/README.md:151-183`，H100，4 去噪
    | 5 | 450 | 22.9 h | 11.6 h | **34.6 h** |
    | **10** | **900** | **45.9 h** | **23.3 h** | **69.1 h** |
 
-   ⇒ 换 tp 后总预算 **69.1 h**，比换之前（用 mt 的 74.9 h）**还省 5.8 h**，同时 U0 归零、任务集从 11 扩到 14。**换 checkpoint 在成本与统计功效上双赢。**
+   ⇒ 换 tp 后总预算 **69.1 h**，比换之前（用 mt 的 74.9 h）**还省 5.8 h**，同时 U0 归零、评测任务子集从 11 扩到 14。**换 checkpoint 在成本与统计功效上双赢。**
 
    ⚠ **若 owner 裁定 U0 处置走方案 (a)「全保留 18 任务、分层报告」**，成本是交集口径的 **1.75×**：K=10、两 teacher、两侧 = **74.9 h**（pi0.5 45.9 h + GR00T 29.1 h）。该方案的收益是无选择偏差且 U0 自带 K=10 复核数据 —— 在双 teacher 下这个收益比单 teacher 时更值钱（误判概率 0.35 → 0.58），但代价也实打实翻了近一倍，须一并权衡。
 

@@ -552,7 +552,7 @@ uv run pytest tests/robocasa365/ -q
 
 - **与既有代码**：**零修改**，但**有只读 import**（⚠ 二者不同，勿写成"零 import"）。实际依赖：`src/openpi/serving/websocket_policy_server.py` 与 `packages/openpi-client`（均只读引用，F15 证明其 import 面不含 jax/torch，可安全跨环境）。不修改 `training/config.py`（pi0.5 侧已验证：fork 的 robocasa config 在模块顶层 `import robocasa`，塞进主 venv 会破坏 config 导入）。
 - **与后续 cache 工作**：`serve_groot_n15.py` 是未来 GR00T 版 Interceptor 的挂载点——cache 内核已实测可装进孤岛 B（47 模块 44 通过，仅 `interceptor`(缺 jax) / `sidecar_executor`(缺 websockets) / `qdrant_backend`(可选) 未过，且无版本冲突）。本 plan **不实现** cache 接入。
-- **与实验设计**：产出用于 GR00T 侧的 per-task 可用性筛查（K=3，18 任务 × 2 场景 = 108 ep），与 pi0.5 侧清单取交集后确定正式实验任务集。
+- **与实验设计**：产出用于 GR00T 侧的 per-task 可用性筛查（K=3，18 任务 × 2 场景 = 108 ep），与 pi0.5 侧清单取交集后确定正式评测任务子集（⚠ 与 benchmark 自带的 task set `atomic_seen` 不是一层）。
 
 ---
 
