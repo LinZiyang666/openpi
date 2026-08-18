@@ -109,17 +109,66 @@ def _gate_environment():
 
 
 @pytest.fixture(scope="module")
-def _stacks(_gate_environment):
-    """Legacy stack (archive-transcribed config + explicit norm_stats, exactly
-    like the original script) vs registry stack (get_config + asset_id path)."""
+def _artifacts(_gate_environment):
+    """Build legacy and registry stacks SEQUENTIALLY (peak GPU = one policy).
+
+    The 4090 is shared with the owner's other sessions (~33 GB resident); two
+    simultaneously loaded pi0.5 models (~16 GB) would not fit next to them.
+    The comparison criterion is unchanged — the SAME observation and the SAME
+    explicit noise are fed to both stacks; only the residency overlaps differ,
+    and actions are compared as stored arrays. Transform chains and metadata
+    are CPU objects and survive the model teardown.
+    """
+    import gc
+
+    import torch
+
+    from openpi.collect.collection_policy import CollectionPolicy
+    from openpi.collect.data_collector import EpisodeDataCollector
     from openpi.policies import policy_config as _pc
     from openpi.shared import normalize as _normalize
     from openpi.training import config as _config
 
+    obs = _observation()
+    rng = np.random.default_rng(0)
+    noise = rng.standard_normal((50, 32)).astype(np.float32)
+    other_noise = rng.standard_normal((50, 32)).astype(np.float32)
+
     ns = _normalize.load(NS_DIR)
     legacy = _pc.create_trained_policy(_legacy_train_config(), CKPT, norm_stats=ns, pytorch_device="cuda")
+    legacy_chains = {attr: _flatten_chain(getattr(legacy, attr)) for attr in ("_input_transform", "_output_transform")}
+    legacy_meta = legacy.metadata
+    a_legacy = np.asarray(legacy.infer(dict(obs), noise=noise)["actions"])
+    del legacy
+    gc.collect()
+    torch.cuda.empty_cache()
+
     registry = _pc.create_trained_policy(_config.get_config("pi05_robocasa"), CKPT, pytorch_device="cuda")
-    return legacy, registry, ns
+    registry_chains = {attr: _flatten_chain(getattr(registry, attr)) for attr in ("_input_transform", "_output_transform")}
+    registry_meta = registry.metadata
+    a_registry = np.asarray(registry.infer(dict(obs), noise=noise)["actions"])
+    a_other = np.asarray(registry.infer(dict(obs), noise=other_noise)["actions"])
+    # t2c while the registry policy is still alive: the --collect wrapper must
+    # find the real model through the chain.
+    collect_wrap_ok = (
+        CollectionPolicy(registry, EpisodeDataCollector(base_dir="/tmp/t2c_probe"))._inner_model  # noqa: SLF001
+        is registry._model  # noqa: SLF001
+    )
+    del registry
+    gc.collect()
+    torch.cuda.empty_cache()
+
+    return {
+        "ns": ns,
+        "legacy_chains": legacy_chains,
+        "registry_chains": registry_chains,
+        "legacy_meta": legacy_meta,
+        "registry_meta": registry_meta,
+        "a_legacy": a_legacy,
+        "a_registry": a_registry,
+        "a_other": a_other,
+        "collect_wrap_ok": collect_wrap_ok,
+    }
 
 
 def _observation() -> dict:
@@ -163,11 +212,11 @@ def _assert_field_equal(name: str, a, b) -> None:
         assert a == b, f"{name}: {a!r} != {b!r}"
 
 
-def test_t2a_structural_equivalence(_stacks):
-    legacy, registry, ns = _stacks
+def test_t2a_structural_equivalence(_artifacts):
+    ns = _artifacts["ns"]
     for attr in ("_input_transform", "_output_transform"):
-        l_chain = _flatten_chain(getattr(legacy, attr))
-        r_chain = _flatten_chain(getattr(registry, attr))
+        l_chain = _artifacts["legacy_chains"][attr]
+        r_chain = _artifacts["registry_chains"][attr]
         assert [type(t).__name__ for t in l_chain] == [type(t).__name__ for t in r_chain], attr
         for i, (lt, rt) in enumerate(zip(l_chain, r_chain)):
             assert type(lt) is type(rt)
@@ -188,23 +237,16 @@ def test_t2a_structural_equivalence(_stacks):
             _assert_field_equal(f"norm_stats[{key}].{field.name}", getattr(ns[key], field.name), getattr(resolved[key], field.name))
 
 
-def test_t2b_bitwise_parity_with_shared_noise(_stacks):
-    legacy, registry, _ = _stacks
-    obs = _observation()
-    rng = np.random.default_rng(0)
-    noise = rng.standard_normal((50, 32)).astype(np.float32)
-
-    a_legacy = np.asarray(legacy.infer(dict(obs), noise=noise)["actions"])
-    a_registry = np.asarray(registry.infer(dict(obs), noise=noise)["actions"])
+def test_t2b_bitwise_parity_with_shared_noise(_artifacts):
+    a_legacy = _artifacts["a_legacy"]
+    a_registry = _artifacts["a_registry"]
+    a_other = _artifacts["a_other"]
     assert a_legacy.shape == a_registry.shape == (50, 12)
     assert np.array_equal(a_legacy, a_registry), (
         f"stacks diverge: max|d|={np.abs(a_legacy - a_registry).max()}"
     )
-
     # Negative control: without it, array_equal proves nothing (e.g. both
     # stacks degenerating to a constant would also 'pass').
-    other_noise = rng.standard_normal((50, 32)).astype(np.float32)
-    a_other = np.asarray(registry.infer(dict(obs), noise=other_noise)["actions"])
     assert not np.array_equal(a_registry, a_other), "different noise produced identical actions"
 
     EVIDENCE.parent.mkdir(parents=True, exist_ok=True)
@@ -215,22 +257,19 @@ def test_t2b_bitwise_parity_with_shared_noise(_stacks):
         f"sha256(a_registry): {hashlib.sha256(a_registry.tobytes()).hexdigest()}\n"
         f"negative control (different noise differs): {not np.array_equal(a_registry, a_other)}\n"
         "--- in-process policy metadata (NOT server provenance; labeled to avoid confusion) ---\n"
-        f"legacy.metadata:   {legacy.metadata!r}\n"
-        f"registry.metadata: {registry.metadata!r}\n"
+        f"legacy.metadata:   {_artifacts['legacy_meta']!r}\n"
+        f"registry.metadata: {_artifacts['registry_meta']!r}\n"
     )
 
 
-def test_t2c_collect_wrapper_stack(_stacks):
-    """The launch command's wrapper stack: CollectionPolicy directly over Policy."""
-    _legacy, registry, _ = _stacks
-    from openpi.collect.collection_policy import CollectionPolicy
-    from openpi.collect.data_collector import EpisodeDataCollector
+def test_t2c_collect_wrapper_stack(_artifacts):
+    """The launch command's wrapper stack: CollectionPolicy directly over Policy.
 
-    collector = EpisodeDataCollector(base_dir="/tmp/t2c_probe")
-    wrapped = CollectionPolicy(registry, collector)
-    # _find_inner_model walked the chain and accepted the PI0Pytorch model —
-    # this is exactly what serve_policy.py --collect builds (no cache flags).
-    assert wrapped._inner_model is registry._model  # noqa: SLF001
+    Evaluated inside the fixture while the registry policy was still resident
+    (_find_inner_model walked the chain and accepted the PI0Pytorch model) —
+    exactly what serve_policy.py --collect builds with no cache flags.
+    """
+    assert _artifacts["collect_wrap_ok"] is True
 
 
 def _checkpoint_sha() -> str:
