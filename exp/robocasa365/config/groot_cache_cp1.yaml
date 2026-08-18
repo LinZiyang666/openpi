@@ -22,7 +22,10 @@ enabled: true
 timer:
   enabled: true
   buffer_size: 10000
-  output_csv_dir: null
+  # G0-E evidence channel: per-task CSV rows are the probe-count source
+  # (stage1_vision / cp1_sum / total_inference per step, stage2_* absent on
+  # FULL_HIT). The orchestrator log only shows gate/judge lines.
+  output_csv_dir: /tmp/rcg2_timing
 
 keys:
   vision_0:
@@ -71,6 +74,12 @@ checkpoints:
             tau: 1.0
   cp3:
     enabled: false
+    # Disabled, but the validator still type-checks this block's defaults and
+    # the default cp3 strategy is the qdrant one — incompatible with the
+    # in_memory backend below. First real load caught this; pin an in-memory-
+    # compatible type explicitly.
+    search_strategy:
+      type: weighted_rrf_knn
 
 backend:
   type: in_memory

@@ -225,6 +225,12 @@ def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
     validate_artifact_identity(components["storage"], config)
 
     timer = components["timer"]
+    if config.timer.output_csv_dir:
+        # Mirror scripts/serve_policy.py's --timing_csv_dir path: the yaml
+        # field alone sets the directory but leaves the legacy auto-flush off,
+        # so on_task_end would never write the per-task CSV the G0-E probe
+        # counts are read from. First real closed-loop run caught this.
+        timer.enable_csv(config.timer.output_csv_dir)
     orchestrator = CacheOrchestrator(
         storage=components["storage"],
         key_builder=components["key_builder"],

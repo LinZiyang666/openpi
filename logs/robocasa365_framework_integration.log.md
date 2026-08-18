@@ -1,6 +1,6 @@
 # RoboCasa365 接回标准框架 —— 决策记录 + 临时流程 + 实施计划
 
-**Status**: `In Progress` —— 统一临时 G2 **Round 9 = NEEDS REVISION（唯一开放项 = 真机验收证据）**；代码/配方/文档全线闭合（审查者确认），**授权请求包已在 Round 10 应答中列出，等 owner 批准 commit+push+远端执行**
+**Status**: `In Progress` —— 统一临时 G2：**全部真机门禁证据已回填**（manual 5–8 全过、manual 9 因 a100 退役按 D-K 降级条款取消、老 T-8 9/9、G0-E 正负 probe 计数达标）；首点火修复 7 处（生产 2/配置 1/测试 3/配方 1）；**待 Review Authority 复审**
 **日期**: 2026-08-17
 **Level**: **L2**（新增组件 + 在 `src/openpi/training/config.py` 注册一个推理 config；接入面全部走既有可注入缝，`src/openpi/conductor/` 与 `scripts/serve_policy.py` **零改动**）
 **触发**: owner 指示「先记录决策问题，然后开一个临时流程解决；原来的框架就是 pi server，看能否把原来的框架和 client worker 接起来」
@@ -130,7 +130,7 @@ owner 已提出先做 (1,1)→(1,1) 不同初始状态的实验。这是**阶梯
 
 1. 代码按 **N 路无上限**写（路数是运行时参数，不是编译期常量）；
 2. **双路验收分两层**：① 非 manual 层用替身 server 验 driver→2 server 分派 / `task_uid` 全局唯一 / 账本一致（无 GPU，§5 测试 3）；② manual 层在 **a100** 上起 2 个真 server 进程各绑 1 worker 跑通（§5 用例 9）；
-3. **双路真机验收不在当前 4090 上做**；若后续因 a100 不可用而必须降级，按下方 ⚠ 条款处理并显式记录。
+3. ~~双路真机验收在 a100 上做~~ **⚠ 已降级（owner 2026-08-17：「a100 不用了」）**：a100 退役（当晚实测亦三路不可达），触发本条预写的降级条款——**双路真机验收取消**（4090 上 2×21G=42G 与他人进程共存不可行），**双路验收 = 替身层**（§5 测试 3 的 2-endpoint 分派/账本用例，已通过），**真机验收 = 单路**（manual 用例 7/8）。这是显式记录的能力降级：跨机横向扩的代码路径仍在（`--servers` 多端点 + `server_capacities`），但在新机器可用前没有双路真机证据。
 
 ---
 
@@ -762,11 +762,11 @@ Wilson 下界与 0.90 分位是**两重保守叠加**，在 `ŜR=1/10` 上直接
 
 | # | 门 | 命令 | 证据落点 |
 |---|---|---|---|
-| 5 | T2-a/b/c/d 栈等价 + 真 provenance | 先按 §4.2.2 起采集 server，再 `ROBOCASA_T2_SERVER=127.0.0.1:8010 ROBOCASA_T2_SERVER_PID=$(pgrep -f "[s]erve_policy.*--port 8010") uv run pytest tests/robocasa365/test_pi05_stack_parity_manual.py --run-manual -q`（env 缺失 = **fail**，常量不得冒充 provenance） | `exp/robocasa365/analysis/t2_parity.txt`：比较段（in-process，明确标注）+ **t2d 真 provenance 段**（live WS 回包的 raw metadata、`/proc/<pid>/cmdline` 的真实 argv、server cwd、ckpt sha256） |
+| 5 | T2-a/b/c/d 栈等价 + 真 provenance | 先按 §4.2.2 起采集 server，再 `ROBOCASA_T2_SERVER=127.0.0.1:8010 ROBOCASA_T2_SERVER_PID=$(pgrep -f "^[.]venv/bin/python scripts/serve_policy[.]py --port 8010") uv run pytest tests/robocasa365/test_pi05_stack_parity_manual.py --run-manual -q`（env 缺失 = **fail**，常量不得冒充 provenance） | `exp/robocasa365/analysis/t2_parity.txt`：比较段（in-process，明确标注）+ **t2d 真 provenance 段**（live WS 回包的 raw metadata、`/proc/<pid>/cmdline` 的真实 argv、server cwd、ckpt sha256） |
 | 6 | 真实 `convert_action` 绑定（孤岛 A） | `cd <robocasa-cwd> && PYTHONPATH=<repo>:<repo>/src <island-A-python> -m pytest <repo>/tests/robocasa365/test_env_action_contract_manual.py --run-manual -q \| tee <repo>/exp/robocasa365/analysis/t3_action_binding.txt` | `exp/robocasa365/analysis/t3_action_binding.txt` |
-| 7 | 单路端到端 | `uv run python exp/robocasa365/run_collect.py --role all --teacher pi05 --servers 127.0.0.1:8010 --tasks OpenCabinet --episodes 1 --layout 1 --style 1 --base-seed 0 --collect-root /data/robocasa365_cache/build_l1s1 --env-config exp/robocasa365/config/collect_weilandserver.env --connect-deadline-s 60 --episode-deadline-s 900 --terminate-grace-s 30` 然后 `uv run python exp/robocasa365/verify_collection_artifacts.py --root /data/robocasa365_cache/build_l1s1 --teacher pi05 --journal <repo>/exp/robocasa365/data/journal_collect_l1s1_pi05.jsonl --run-plan <repo>/exp/robocasa365/data/run_plan_collect_l1s1_pi05_b01.json --target 1 --report-out exp/robocasa365/analysis/t3_audit_single.txt`（⚠ 冒烟只跑 1 episode，**必须 `--target 1`**，默认 20 会把正确产物判成 insufficient）；最后捕获**完整** server provenance（⚠ metadata 抓取必须在 run_collect **结束后**（或开始前）——非并发 server 只有一条连接，worker 在跑时第二条会被 1013 拒绝）：`{ tr '\0' ' ' < /proc/$(pgrep -f "[s]erve_policy.*--port 8010")/cmdline; echo; uv run python -c "from openpi_client.websocket_client_policy import WebsocketClientPolicy as W; c=W(host='127.0.0.1', port=8010); print(repr(c.get_server_metadata())); c.close()"; sha256sum /home/weiland/ckpt_pi05_robocasa_pytorch/model.safetensors; } > exp/robocasa365/analysis/t3_server_provenance_8010.txt` | h5：`…/build_l1s1/pi05/OpenCabinet/episode_0000_a01.h5`；账本：`journal_collect_l1s1_pi05.jsonl`；清点报告 `t3_audit_single.txt`；server provenance `t3_server_provenance_8010.txt` |
+| 7 | 单路端到端 | `uv run python exp/robocasa365/run_collect.py --role all --teacher pi05 --servers 127.0.0.1:8010 --tasks OpenCabinet --episodes 1 --layout 1 --style 1 --base-seed 0 --collect-root /data/robocasa365_cache/build_l1s1 --env-config exp/robocasa365/config/collect_weilandserver.env --connect-deadline-s 60 --episode-deadline-s 900 --terminate-grace-s 30` 然后 `uv run python exp/robocasa365/verify_collection_artifacts.py --root /data/robocasa365_cache/build_l1s1 --teacher pi05 --journal <repo>/exp/robocasa365/data/journal_collect_l1s1_pi05.jsonl --run-plan <repo>/exp/robocasa365/data/run_plan_collect_l1s1_pi05_b01.json --target 1 --report-out exp/robocasa365/analysis/t3_audit_single.txt`（⚠ 冒烟只跑 1 episode，**必须 `--target 1`**，默认 20 会把正确产物判成 insufficient）；最后捕获**完整** server provenance（⚠ metadata 抓取必须在 run_collect **结束后**（或开始前）——非并发 server 只有一条连接，worker 在跑时第二条会被 1013 拒绝）：`{ tr '\0' ' ' < /proc/$(pgrep -f "^[.]venv/bin/python scripts/serve_policy[.]py --port 8010")/cmdline; echo; uv run python -c "from openpi_client.websocket_client_policy import WebsocketClientPolicy as W; c=W(host='127.0.0.1', port=8010); print(repr(c.get_server_metadata())); c.close()"; sha256sum /home/weiland/ckpt_pi05_robocasa_pytorch/model.safetensors; } > exp/robocasa365/analysis/t3_server_provenance_8010.txt` | h5：`…/build_l1s1/pi05/OpenCabinet/episode_0000_a01.h5`；账本：`journal_collect_l1s1_pi05.jsonl`；清点报告 `t3_audit_single.txt`；server provenance `t3_server_provenance_8010.txt` |
 | 8 | 崩溃续跑 | 同 7，中途 `kill -9 <worker pid>`，重启 agent（**resume 时 plan_hash 必须与 `run_plan_collect_l1s1_pi05_b01.json` 一致**，§4.3.6-(6)） | `journal_collect_l1s1_pi05.jsonl`：被杀的第一次 attempt **无记录**（掉线 requeue 不落账），重跑后恰一条 `accepted=True`；盘上若已有第一次的 h5 则被清点器报 `orphan_attempt`。报告 `exp/robocasa365/analysis/t3_resume.txt` |
-| 9 | a100 双路（D-K 上半场） | ① 起 2 个 server 进程（`--port 8010/8011`，各自 `--collect --non-concurrent`）；② `uv run python exp/robocasa365/run_collect.py --role all --teacher pi05 --servers <h>:8010,<h>:8011 --tasks OpenCabinet,CloseDrawer --episodes 2 --layout 1 --style 1 --base-seed 0 --collect-root <a100-scene-root> --env-config <a100 的 env-config（PI05_SERVERS 含两个端点）> --gpu-ids 0,0 --connect-deadline-s 60 --episode-deadline-s 900 --terminate-grace-s 30`；③ 清点：`uv run python exp/robocasa365/verify_collection_artifacts.py --root <a100-scene-root> --teacher pi05 --journal <repo>/exp/robocasa365/data/journal_collect_l1s1_pi05.jsonl --run-plan <repo>/exp/robocasa365/data/run_plan_collect_l1s1_pi05_b01.json --target 2 --report-out exp/robocasa365/analysis/t3_dual_route.txt`；④ **两个端点各留一份**完整 provenance（run 结束后逐端口）：`for P in 8010 8011; do { tr '\0' ' ' < /proc/$(pgrep -f "[s]erve_policy.*--port $P")/cmdline; echo; uv run python -c "from openpi_client.websocket_client_policy import WebsocketClientPolicy as W; c=W(host='<h>', port=$P); print(repr(c.get_server_metadata())); c.close()"; sha256sum <ckpt>/model.safetensors; } > exp/robocasa365/analysis/t3_server_provenance_$P.txt; done` | `t3_dual_route.txt`（两端点各自 episode 数 + 账本无重无漏 + `--target 2` 清点报告）+ `t3_server_provenance_8010/8011.txt`（各含真实 argv + live WS metadata + ckpt sha256） |
+| 9 | ~~a100 双路~~ **已取消**（owner 2026-08-17：a100 退役；D-K 降级条款生效） | — 双路验收由替身层（§5 测试 3）承担；单路真机 = 用例 7/8 | 无（能力降级显式记录于 §1 D-K） |
 
 ⚠ 5–9 的报告一律落 `exp/robocasa365/analysis/` 纯 `.md`/`.txt`；逐轮工作产物留 `logs/`。
 
@@ -932,3 +932,31 @@ Wilson 下界与 0.90 分位是**两重保守叠加**，在 `ŜR=1/10` 上直接
 **commit message（英文）**：`Reconnect RoboCasa365 to the standard serving and conductor stack`
 
 **push 后远端序列**：① 远端只读比对 dirty/incoming 重叠 → `git pull --ff-only origin Ziyang`；② 按 §5 表逐条非跳过执行 manual 5–9（含 t2d 双 env）、T-8（`--run-manual` + 孤岛 B `PYTHONPATH`）、G0-E（正/负 probe 计数）；③ 证据按表落 `exp/robocasa365/analysis/`，回填本 Review Log 后请求 Round 11 复审。
+
+### G2 Round 10 — Executor（真机门禁证据回填）— 2026-08-17/18
+
+> owner 授权（2026-08-17「我授权你执行真机验证」）后按冻结序列执行完毕。commit `37ab6e7`（27 文件）+ `e5aacca` + `8263d4a` + `480b2ad` 已 push 并在远端 `git pull --ff-only` 取到（唯一 dirty∩incoming = 远端未跟踪的孤儿 `robocasa_policy.py` 本尊，sha256 与 PROVENANCE 一致，已备份至 `step0b_artifacts/` 后让位）。owner 中途改裁同步方式：迭代期 `tether push` 直传、git 里程碑收口（P5 修订）。
+
+**门禁结果（证据全在 `exp/robocasa365/analysis/`，已拉回本地入库）**：
+
+| 门 | 结果 | 证据 |
+|---|---|---|
+| manual 5（T2-a/b/c/d） | ✅ 4/4 passed | `t2_parity.txt`：跨栈 action **sha256 逐字节相同**、反向对照 True、t2d 真 provenance（`/proc` argv + live WS metadata `{}` + ckpt sha256 `609ed270…`） |
+| manual 6（孤岛 A 真绑定） | ✅ 6 passed | `t3_action_binding.txt` |
+| manual 7（单路端到端） | ✅ | journal 1 条 `accepted∧success`、h5 落冻结路径 `pi05/OpenCabinet/episode_0000_a01.h5`、run-plan b01 固化、auditor `ok:true`、`t3_server_provenance_8010.txt`（真 argv+live metadata+ckpt sha） |
+| manual 8（崩溃续跑） | ✅ | `t3_resume.txt`：episode 4 中段 SIGKILL worker（pid 3266201）→ `agent: worker w0 died; restart #1` → journal **恰一条 attempt=2 accepted**（被杀 attempt=1 零记录——§4.3.6-(5)(a) 的预言形状）→ 盘上 `_a01`/`_a02` 并存不覆盖 → 五批 run-plan 并集 auditor `ok:true`（a01 记 orphan_attempt） |
+| ~~manual 9~~ | 取消 | owner 裁「a100 不用了」⇒ D-K 预写降级条款生效（双路=替身层，真机=单路），显式记录于 §1 |
+| 老 T-8（G0-C/G0-D2） | ✅ 9 passed | 两阶段逐位等价、backbone 对齐、复现性、autocast 反向对照、真库端到端 key 检索（`check_key_parity` 内嵌） |
+| **G0-E（闭环）** | ✅ | `g0e_closed_loop.txt` + `g0e_hit_log.jsonl`：102-entry 真库加载（身份校验过）→ always_hit → **106/106 FULL_HIT**（winner 指向真实库 entry）→ 库动作驱动两臂 episode 各自成功 → `__hit_meta__` 穿 adapter → client JSONL；**probe 正控制 `stage1_vision=cp1_sum=total_inference=53/53`（每步 1 次/臂）、负判据 `stage2_llm=stage2_action=0 采样（CSV 中完全不出现）`** |
+
+**首次点火暴露并修复的缺陷（生产代码 2 处 + 测试夹具 3 处 + 配方 2 处）**：
+
+1. 【生产】`episode_runner.default_gym_make` 缺 `import robocasa` ⇒ gym 命名空间未注册（step0b 基线那句 `import robocasa # noqa` 的用途）；
+2. 【生产】`serve_groot_n15` 只设 `output_csv_dir` 不开 `auto_flush_csv` ⇒ `on_task_end` 永不写 CSV，G0-E 计数无来源；补 `timer.enable_csv(...)` 镜像 `serve_policy.py` 行为；
+3. 【配置】`groot_cache_cp1.yaml` 的 cp3 块虽 disabled 仍被校验默认 qdrant strategy 与 in_memory 冲突 ⇒ 显式钉 `weighted_rrf_knn`（该 yaml 在 `28c41c6` ship 过但从未被真 server 加载）；
+4. 【测试】T-8 夹具手搓形状缺 T 轴 ⇒ 改走生产 `build_groot_observation` + interceptor unsqueeze；
+5. 【测试+事实修正】**「图像偏移随 prompt 长度浮动」是错的**：真机 A/B（三种 prompt 总长 812/814/834）证明该模板把 instruction 排在图像块**之后**，段起点恒 20/283/546；load-bearing 事实改为 **≠ pi0.5 固定表 0/256/512**，测试语义重写，handoff/记忆同步改正；
+6. 【测试】parity 比较器对无 `__eq__` 对象（PaligemmaTokenizer）退化为身份比较 ⇒ 改「类型+标量属性」（仍抓 max_token_len 漂移）；另 parity fixture 改**顺序加载**（共享 4090 上两模型同驻不可行；判据不变，同 obs+noise 的数组先存后比）；
+7. 【配方】pgrep 模式两次踩坑（tmux sh 包装 + 自匹配）⇒ 锚定 `^[.]venv/bin/python …`，§5 配方同步。
+
+⚠ 待办：本轮 tether 直传的 3 个文件（episode_runner / yaml / serve_groot_n15）与证据文件在本地一并 commit + push，远端 `git checkout --` 后 pull 收敛（内容一致，无损）。

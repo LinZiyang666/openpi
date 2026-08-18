@@ -219,6 +219,7 @@ def default_client_factory(server: _task.ServerEndpoint) -> Any:
 
 
 def default_gym_make(task_name: str, layout: int, style: int, **kwargs: Any) -> Any:
+    import robocasa  # noqa: F401 - registers the robocasa/ namespace with gymnasium
     import gymnasium as gym
 
     return gym.make(

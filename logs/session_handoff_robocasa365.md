@@ -73,7 +73,7 @@ teacher 只需 ①足够能干 ②两臂严格同一个。其训练分布、chec
 
 ## 4. 三条最容易写错且不报错的地方
 
-1. **图像 token 偏移随 prompt 长度浮动**（实测 `[1,813]`，三段 `(20,256)(283,256)(546,256)`）⇒ 必须按 `input_ids==151669` 掩码定位。照搬 pi0.5 固定偏移表（0/256/512/768）会切到文本 token 上，**shape 不变、测试全过**。
+1. **图像 token 三段 `(20,256)(283,256)(546,256)`；⚠ 修正（2026-08-17 真机 A/B）：偏移对 instruction 恒定**（模板把 instruction 排在图像块之后；三种 prompt 总长 812/814/834、段起点不动）。load-bearing 事实 = **真实偏移 ≠ pi0.5 固定表 0/256/512**，照搬固定表会切到 system/文本 token 且不报错。按 `input_ids==151669` 掩码定位仍是正解。
 2. **`LayerNorm` 在 CUDA autocast 的 fp32 名单上**——实测 bf16 权重+bf16 输入：无 autocast 出 bf16、有 autocast 出 fp32，**max\|Δ\|=0.0137**（Linear 对照逐位相等）。在线/采集/测试任一处漏开 autocast，key 就整体对不上。⇒ runner 拥有 context 且两 stage 入口断言。
 3. **inference tensor 在 context *内* 做 `.cpu().float()` 逃不掉**（实测 `is_inference()` 仍 True）⇒ 跨 step 存活后被就地改写即 `RuntimeError`。⇒ session 只包两段前向，CP1 检查与所有持久张量都在 session 外。
 

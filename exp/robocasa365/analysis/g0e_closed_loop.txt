@@ -1,0 +1,36 @@
+G0-E closed-loop evidence (2026-08-17)
+--- library ---
+artifact: exp/robocasa365/data/cache_artifacts/smoke_spatial_pool_16.pkl (102 entries from 2 collected episodes, builder cp1_groot_spatial_pool_16)
+--- server ---
+serving stack: cache -> exp/robocasa365/config/groot_cache_cp1.yaml (cp1_groot_spatial_pool_16)
+SERVER-LISTENING on 0.0.0.0:8020
+OPENPI_MONITOR_LEVEL=BASIC (explicit; timer master switch defaults OFF)
+--- closed loop (client, island A) ---
+[1/1] OpenCabinet A: {'succ': 1, 'n': 1, 'sr': 1.0, 'wall_s': 21.8, 'seeds': [0]}
+[1/1] OpenCabinet B: {'succ': 1, 'n': 1, 'sr': 1.0, 'wall_s': 21.3, 'seeds': [0]}
+hit log: 106 rows, all FULL_HIT, winner_id -> real library entries (see /tmp/rcg2_g0e_hits3.jsonl head below)
+{"task": "OpenCabinet", "episode": 0, "step_idx": 0, "hit_type": "FULL_HIT", "winner_id": "episode_0000_20260817_224641_135261:0", "cp1_score": 0.01632734015583992, "searched": true}
+{"task": "OpenCabinet", "episode": 0, "step_idx": 5, "hit_type": "FULL_HIT", "winner_id": "episode_0000_20260817_224641_135261:1", "cp1_score": 0.016393441706895828, "searched": true}
+--- probe counts (per-task timing CSV) ---
+== timing_task_0000_20260817_225548.csv ==
+cp1_build 53
+cp1_collect 53
+cp1_fetch 53
+cp1_gate 53
+cp1_judge 53
+cp1_search 53
+cp1_sum 53
+stage1_vision 53
+total_inference 53
+== timing_task_0001_20260817_225617.csv ==
+cp1_build 53
+cp1_collect 53
+cp1_fetch 53
+cp1_gate 53
+cp1_judge 53
+cp1_search 53
+cp1_sum 53
+stage1_vision 53
+total_inference 53
+POSITIVE: stage1_vision / cp1_sum / total_inference = 1 per step (53 per arm)
+NEGATIVE: stage2_llm / stage2_action = 0 samples (absent from CSV entirely) — FULL_HIT skips stage 2

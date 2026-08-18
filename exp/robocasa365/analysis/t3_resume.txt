@@ -1,0 +1,8 @@
+manual 8 crash-resume evidence (2026-08-17)
+kill: worker pid 3266201, SIGKILL mid-episode-4 (server log shows episode 4 started twice)
+agent: worker w0 died; restart #1
+journal rows for :0:4 (killed attempt has NO row):
+{"task_uid": "collect_l1s1_pi05__OpenCabinet:eval:0:4", "yaml_id": "collect_l1s1_pi05__OpenCabinet", "phase": "eval", "status": "failed", "success": false, "ts": 1787024634.595503, "attempt": 2, "accepted": true}
+files:
+episode_0004_a01.h5
+episode_0004_a02.h5

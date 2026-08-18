@@ -1,0 +1,16 @@
+T2 parity evidence
+--- comparison (in-process; server provenance is captured separately by t2d) ---
+sha256(a_legacy):   73e12f5145e04bb89e36fe94f0740dfb00c37b9947a66917836f56be046bac89
+sha256(a_registry): 73e12f5145e04bb89e36fe94f0740dfb00c37b9947a66917836f56be046bac89
+negative control (different noise differs): True
+--- in-process policy metadata (NOT server provenance; labeled to avoid confusion) ---
+legacy.metadata:   {}
+registry.metadata: {}
+--- REAL server provenance (t2d, §4.3.4a) ---
+server endpoint: 127.0.0.1:8010
+server pid: 3244132
+server argv (/proc/3244132/cmdline): .venv/bin/python scripts/serve_policy.py --port 8010 --non-concurrent --collect --collect_dir /data/robocasa365_cache/build_l1s1 policy:checkpoint --policy.config pi05_robocasa --policy.dir /home/weiland/ckpt_pi05_robocasa_pytorch
+server cwd: /home/weiland/openpi
+raw server metadata (WS handshake reply): {}
+checkpoint path: /home/weiland/ckpt_pi05_robocasa_pytorch
+checkpoint sha256(model.safetensors): 609ed2709ca3f42209cfa7b467c7ce81b145383165aa7bf3aff7a862a9697762

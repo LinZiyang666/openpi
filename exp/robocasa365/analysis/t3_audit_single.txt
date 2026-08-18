@@ -1,0 +1,43 @@
+{
+ "admitted": {
+  "collect_l1s1_pi05__OpenCabinet:eval:0:0": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0000_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:0:1": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/OpenCabinet/episode_0001_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:0:3": {
+   "attempt": 1,
+   "batch": 4,
+   "path": "pi05/OpenCabinet/episode_0003_a01.h5"
+  }
+ },
+ "expected": 5,
+ "failed": [
+  "collect_l1s1_pi05__OpenCabinet:eval:0:2",
+  "collect_l1s1_pi05__OpenCabinet:eval:0:4"
+ ],
+ "insufficient": {},
+ "missing_file": [],
+ "missing_terminal": [],
+ "multiple_accepted": [],
+ "ok": true,
+ "orphan_attempts": [
+  "pi05/OpenCabinet/episode_0002_a01.h5",
+  "pi05/OpenCabinet/episode_0004_a01.h5",
+  "pi05/OpenCabinet/episode_0004_a02.h5"
+ ],
+ "plan_hashes": [
+  "c7faea469a9b9802bbaf576a0286fb73a9dbb149f7da3cf112bcd1a2171ff4ef",
+  "fb810c62aa465eb5ebfdfae43970d2fc863dbe8e5640ae848cbf0f37dc687c82",
+  "539c664bb44c765577959f783814d5dca885fc476f7e88d97838d3af54bcf44d",
+  "78e85dcbbf53f5b5df92f37f29614faeccc6c49591d8376b67b8f8fea018c3c6",
+  "4a3d47d4434db7b2898ed3d4407c05ac2d319bb51876710bc77a611edae505e0"
+ ],
+ "schema_errors": {},
+ "teacher": "pi05"
+}
