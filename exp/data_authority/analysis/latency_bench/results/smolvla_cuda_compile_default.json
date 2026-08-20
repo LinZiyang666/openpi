@@ -1,0 +1,18 @@
+{
+  "policy": "smolvla",
+  "device": "cuda",
+  "compile_mode": "default",
+  "mark_step": false,
+  "compiled": "torch.compile(policy.model.vlm_with_expert, mode=default)",
+  "warmup_seconds": 46.0,
+  "median_ms": 177.99951150664128,
+  "p90_ms": 178.89990395633504,
+  "min_ms": 175.57863099500537,
+  "max_ms": 181.68560601770878,
+  "mean_ms": 177.93572000344284,
+  "n": 50,
+  "gpu_util_median_pct": 22.0,
+  "sm_clock_median_mhz": 2520.0,
+  "power_median_w": 116.98,
+  "torch": "2.7.1+cu126"
+}

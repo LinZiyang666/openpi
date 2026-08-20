@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "task": "threshold_pareto",
+  "title": "Weighted-sum (zscore+tanh) x ThresholdJudge: SR x inference_ratio Pareto",
+  "source_experiment": "exp/weighted_sum",
+  "policy": "copy",
+  "collected_at": "2026-08-20",
+  "files": [
+    {
+      "name": "libero_10/pareto_combined.pdf",
+      "sha256": "59060fa3845c14a8f79de32fda1f396fa96340c9d82f91f29a8c4aaa6e2ffa63",
+      "size_bytes": 19146,
+      "source": "exp/weighted_sum/analysis/libero_10/threshold_pareto/pareto_combined.pdf"
+    },
+    {
+      "name": "libero_10/pareto_combined.png",
+      "sha256": "26a3079f72e86d79958afaffd1065c742fd7d98045b3cb015bef6a88179bdcb2",
+      "size_bytes": 181547,
+      "source": "exp/weighted_sum/analysis/libero_10/threshold_pareto/pareto_combined.png"
+    },
+    {
+      "name": "libero_10/pareto_combined_full.pdf",
+      "sha256": "cc7fc05ecb56b0ef645ab0cf18d9de89e1da71efac1b20780f9d3e6848a958f9",
+      "size_bytes": 30589,
+      "source": "exp/weighted_sum/analysis/libero_10/threshold_pareto/pareto_combined_full.pdf"
+    },
+    {
+      "name": "libero_10/pareto_combined_full.png",
+      "sha256": "44c124ca7ae34c26af1d40be324190f39dfd8a33d662a922b77caee0802f71c1",
+      "size_bytes": 353134,
+      "source": "exp/weighted_sum/analysis/libero_10/threshold_pareto/pareto_combined_full.png"
+    },
+    {
+      "name": "libero_10/threshold_pareto_overlay.pdf",
+      "sha256": "b08c1ef7ddd9e4fed3f41a6fb67facb6cff75848d8845db7f9907a9cdb12aaf8",
+      "size_bytes": 23677,
+      "source": "exp/weighted_sum/analysis/libero_10/threshold_pareto/threshold_pareto_overlay.pdf"
+    },
+    {
+      "name": "libero_10/threshold_pareto_overlay.png",
+      "sha256": "723f59e548e540592829f583fdd631fd903889b02c5f15f83a07ed3a5db89705",
+      "size_bytes": 204089,
+      "source": "exp/weighted_sum/analysis/libero_10/threshold_pareto/threshold_pareto_overlay.png"
+    },
+    {
+      "name": "libero_10/threshold_pareto_per_base.pdf",
+      "sha256": "a39a6cca65011f7fa8ef0081977792905a4e99c407892a88f653c80d04464817",
+      "size_bytes": 26987,
+      "source": "exp/weighted_sum/analysis/libero_10/threshold_pareto/threshold_pareto_per_base.pdf"
+    },
+    {
+      "name": "libero_10/threshold_pareto_per_base.png",
+      "sha256": "20d20955deb351140e667757b0b49e99c6f79bab9adeebd07e618660f3b93f9b",
+      "size_bytes": 250650,
+      "source": "exp/weighted_sum/analysis/libero_10/threshold_pareto/threshold_pareto_per_base.png"
+    },
+    {
+      "name": "libero_10/threshold_pareto_per_yaml.csv",
+      "sha256": "87a8d9d5a438d7af38c91639c8540032a14863289858248426b86768f71e5e6a",
+      "size_bytes": 24878,
+      "source": "exp/weighted_sum/analysis/libero_10/threshold_pareto/threshold_pareto_per_yaml.csv"
+    },
+    {
+      "name": "libero_spatial/pareto_combined.pdf",
+      "sha256": "3716c4274ecdb0284a9ccff3b96bb6721a2929e9730b689febb623efb9c005da",
+      "size_bytes": 19521,
+      "source": "exp/weighted_sum/analysis/libero_spatial/threshold_pareto/pareto_combined.pdf"
+    },
+    {
+      "name": "libero_spatial/pareto_combined.png",
+      "sha256": "0721920133f349e84e5626e1e36df14ee5650ec2d190fd4200b5469be562a416",
+      "size_bytes": 179551,
+      "source": "exp/weighted_sum/analysis/libero_spatial/threshold_pareto/pareto_combined.png"
+    },
+    {
+      "name": "libero_spatial/pareto_combined_full.pdf",
+      "sha256": "cfe5d1fc72c48e2bf6b773eb28a6ffa935e9a80513ab6f2eaa68556c4e80cd7e",
+      "size_bytes": 31516,
+      "source": "exp/weighted_sum/analysis/libero_spatial/threshold_pareto/pareto_combined_full.pdf"
+    },
+    {
+      "name": "libero_spatial/pareto_combined_full.png",
+      "sha256": "0e7004a98a3ae2a256efdb6110cde87ef83f1467e59995c046ecd782084350e9",
+      "size_bytes": 335657,
+      "source": "exp/weighted_sum/analysis/libero_spatial/threshold_pareto/pareto_combined_full.png"
+    },
+    {
+      "name": "libero_spatial/threshold_pareto_overlay.pdf",
+      "sha256": "7ab77cbd85e53072ad704d17a78d31e4ec831d43afde35331d40f0f6398be7df",
+      "size_bytes": 24561,
+      "source": "exp/weighted_sum/analysis/libero_spatial/threshold_pareto/threshold_pareto_overlay.pdf"
+    },
+    {
+      "name": "libero_spatial/threshold_pareto_overlay.png",
+      "sha256": "e3301205c4901de8885720cc620dbca8bb12ddf2667c3a24413fd8dcd00d3491",
+      "size_bytes": 200316,
+      "source": "exp/weighted_sum/analysis/libero_spatial/threshold_pareto/threshold_pareto_overlay.png"
+    },
+    {
+      "name": "libero_spatial/threshold_pareto_per_base.pdf",
+      "sha256": "4744570c7da616ee4f23ddda1368886c5abe455ebc8b031824ba0e20679e192c",
+      "size_bytes": 27867,
+      "source": "exp/weighted_sum/analysis/libero_spatial/threshold_pareto/threshold_pareto_per_base.pdf"
+    },
+    {
+      "name": "libero_spatial/threshold_pareto_per_base.png",
+      "sha256": "f606dc02fe21bd7831c06f2c12b5158a09081ab5b84140b42180cc70a93c0b5a",
+      "size_bytes": 251482,
+      "source": "exp/weighted_sum/analysis/libero_spatial/threshold_pareto/threshold_pareto_per_base.png"
+    },
+    {
+      "name": "libero_spatial/threshold_pareto_per_yaml.csv",
+      "sha256": "aacaa40798cdc6bfa54113621764d77757b0b61e4d7d0a3872228f8885c356a2",
+      "size_bytes": 43551,
+      "source": "exp/weighted_sum/analysis/libero_spatial/threshold_pareto/threshold_pareto_per_yaml.csv"
+    },
+    {
+      "name": "libero_spatial/threshold_pareto_results.md",
+      "sha256": "6f6a42b2e2d91063da1bfb537afd04d8d1efba8896adc98ba82a1854ab9488b2",
+      "size_bytes": 18808,
+      "source": "exp/weighted_sum/analysis/libero_spatial/threshold_pareto/threshold_pareto_results.md"
+    }
+  ]
+}

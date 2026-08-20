@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "task": "latency_bench",
+  "title": "Latency bench: batch=1 inference cost of every cache executor (pi0.5 teacher, ACT, SmolVLA) on RTX 4090 + Xeon, eager vs torch.compile vs CUDA Graph",
+  "source_experiment": "exp/ablation_study/latency_bench",
+  "policy": "copy",
+  "collected_at": "2026-08-20",
+  "files": [
+    {
+      "name": "analysis.md",
+      "sha256": "685ab1501ccd28d60b1b165deb25a4597982b2dee90a7b9fcd148e0d5bbdf363",
+      "size_bytes": 17159,
+      "source": "exp/ablation_study/latency_bench/analysis/analysis.md"
+    },
+    {
+      "name": "results/act_cpu_xeon.json",
+      "sha256": "34acbec86b4568d7abe43e555b66ce24bad31b6a07b2132b50bc3f0bdf523735",
+      "size_bytes": 2102,
+      "source": "exp/ablation_study/latency_bench/data/act_cpu_xeon.json"
+    },
+    {
+      "name": "results/act_cuda_4090.json",
+      "sha256": "e32ce481394008cf9049b96451432597e24504fdebd87fcf90fe3d912865245f",
+      "size_bytes": 3324,
+      "source": "exp/ablation_study/latency_bench/data/act_cuda_4090.json"
+    },
+    {
+      "name": "results/act_cuda_compile_default.json",
+      "sha256": "b593b15742798263665c1762128c706d072bb9a52af70b897c44f209ef2d2ff5",
+      "size_bytes": 481,
+      "source": "exp/ablation_study/latency_bench/data/act_cuda_compile_default.json"
+    },
+    {
+      "name": "results/act_cuda_compile_ro.json",
+      "sha256": "c1686615bc97bdb1a2c8db57099231a354056788e1cb2d9f5d84ae7c6235a56d",
+      "size_bytes": 457,
+      "source": "exp/ablation_study/latency_bench/data/act_cuda_compile_ro.json"
+    },
+    {
+      "name": "results/pi05_compile_default.json",
+      "sha256": "8bd2bb8876f3bc39b4ff80c6cf2598e87d96fc1d1890a5e2d929e668122aad12",
+      "size_bytes": 497,
+      "source": "exp/ablation_study/latency_bench/data/pi05_compile_default.json"
+    },
+    {
+      "name": "results/pi05_compile_ro_3stage.json",
+      "sha256": "68fcab23cefa06f7b20a727e61a3cd2b3eb388a060205f48753f31a9e9fff5a2",
+      "size_bytes": 527,
+      "source": "exp/ablation_study/latency_bench/data/pi05_compile_ro_3stage.json"
+    },
+    {
+      "name": "results/pi05_eager.json",
+      "sha256": "48c5ef9c705a3d804fff9c2ebf02bf2407df7f016c739b6061b9dbef2199af4e",
+      "size_bytes": 460,
+      "source": "exp/ablation_study/latency_bench/data/pi05_eager.json"
+    },
+    {
+      "name": "results/pi05_eager_cpu.json",
+      "sha256": "12ffff3c06105c958257447a9af4ccbdf1427b8630bfe531751b8645dca0e032",
+      "size_bytes": 497,
+      "source": "exp/ablation_study/latency_bench/data/pi05_eager_cpu.json"
+    },
+    {
+      "name": "results/pi05_fused_clean_default.json",
+      "sha256": "92d2316da1a00415114c34dc7a9bde0e2e808d5bacaa6e3e461498db59344ab0",
+      "size_bytes": 548,
+      "source": "exp/ablation_study/latency_bench/data/pi05_fused_clean_default.json"
+    },
+    {
+      "name": "results/pi05_fused_clean_ro.json",
+      "sha256": "ba3e4b19969c5365445b147ad8434cbec9d24c74771d8bf333fef495280204c0",
+      "size_bytes": 562,
+      "source": "exp/ablation_study/latency_bench/data/pi05_fused_clean_ro.json"
+    },
+    {
+      "name": "results/smolvla_cpu_xeon.json",
+      "sha256": "0c448f01f3437549dea318416b5b7ee699d9b5e570c526aa047553457e7e2080",
+      "size_bytes": 1207,
+      "source": "exp/ablation_study/latency_bench/data/smolvla_cpu_xeon.json"
+    },
+    {
+      "name": "results/smolvla_cuda_4090.json",
+      "sha256": "9dc778b03c0d6cc8713937d051b4045682cefb850b3a9e59d653c71ebc7d322c",
+      "size_bytes": 2244,
+      "source": "exp/ablation_study/latency_bench/data/smolvla_cuda_4090.json"
+    },
+    {
+      "name": "results/smolvla_cuda_compile_default.json",
+      "sha256": "9ed1753b26a370e5386bf5da567bb33af3d09ba28da16c98240ec1d94b81322e",
+      "size_bytes": 490,
+      "source": "exp/ablation_study/latency_bench/data/smolvla_cuda_compile_default.json"
+    },
+    {
+      "name": "results/smolvla_cuda_compile_ro_markstep.json",
+      "sha256": "e3ed937483c53660d1f332029fdd079564f9557c183af8991ed9527795f34ec8",
+      "size_bytes": 513,
+      "source": "exp/ablation_study/latency_bench/data/smolvla_cuda_compile_ro_markstep.json"
+    },
+    {
+      "name": "results/teacher_pi05_4090.json",
+      "sha256": "da94c962fa0f35ddefe45d4323a5f727de392b4c621dee816082f18044515b33",
+      "size_bytes": 498,
+      "source": "exp/ablation_study/latency_bench/data/teacher_pi05_4090.json"
+    }
+  ]
+}

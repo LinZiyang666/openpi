@@ -1,0 +1,16 @@
+{
+  "model": "pi05_libero",
+  "compile_mode": "none",
+  "mark_step": false,
+  "compiled": "eager (no compile)",
+  "n": 30,
+  "wall_ms": 453.44566548010334,
+  "model_total_ms": 448.255789000541,
+  "stage1_token_prep_ms": 63.05773102212697,
+  "stage2_llm_backbone_ms": 35.267350991489366,
+  "stage3_action_expert_ms": 349.8070094792638,
+  "stage2plus3_ms": 385.07436047075316,
+  "gpu_util_median_pct": 15.0,
+  "power_median_w": 110.13,
+  "torch": "2.7.1+cu126"
+}

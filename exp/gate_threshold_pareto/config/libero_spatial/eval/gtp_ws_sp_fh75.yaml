@@ -1,0 +1,81 @@
+enabled: true
+timer:
+  enabled: false
+keys:
+  vision_0:
+    enabled: true
+    weight: 0.0625
+  vision_1:
+    enabled: true
+    weight: 0.5
+  vision_2:
+    enabled: false
+    weight: 0.0
+  prompt_emb:
+    enabled: false
+    weight: 0.0
+  robot_state:
+    enabled: true
+    weight: 0.4375
+key_builder:
+  type: cp1_spatial_pool_16
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: score_hysteresis
+      theta_low: 0.9775373935699463
+      theta_high: 0.9775373935699463
+      j: 3
+      probe_interval: 3
+      L: 6
+    judge:
+      type: threshold
+      threshold: 0.9808857440948486
+    search_strategy:
+      type: weighted_score_sum_knn
+      top_k: 1
+      step_filter: all
+      field_similarity:
+        vision_0:
+          type: cosine
+        vision_1:
+          type: cosine
+        robot_state:
+          type: l2
+          to_similarity:
+            type: exp
+            tau: 1.0
+      score_normalization:
+        type: per_field
+        fields:
+          vision_0:
+            method: zscore
+            params:
+              mu: 0.977693693699334
+              sigma: 0.00699373921570407
+              squash: tanh
+          vision_1:
+            method: zscore
+            params:
+              mu: 0.9691840492031897
+              sigma: 0.007853951498497307
+              squash: tanh
+          robot_state:
+            method: zscore
+            params:
+              mu: -1.8439531429434792
+              sigma: 1.0018373754826044
+              squash: tanh
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 32768
+    vision_1: 32768
+    prompt_emb: 2048
+    robot_state: 32
+  in_memory:
+    preload_path: exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl
+    index_type: brute_force
+write_policy:
+  type: never

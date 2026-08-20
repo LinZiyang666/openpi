@@ -74,6 +74,18 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 
 全部条目已于 2026-07-04 按「创建 >7 天归档」指令下移 → 见 Archive 小节 **Serving Infrastructure & Audits**。
 
+### Gate x Threshold Pareto
+
+| File | Status | Description |
+|------|--------|-------------|
+| [gate_threshold_pareto_plan.log.md](gate_threshold_pareto_plan.log.md) | `In Progress` (2026-08-20 发射；G1/G2 按 owner 无人值守指令不阻塞，见该文件 §0) | **L2**: threshold-pareto 重做 —— 老 d1 检索栈 + **N4 混合门（`score_hysteresis` + `L=6`）** + **warm_start 整条关闭**（verdict 二值，`f_FH` 单自由度 16 档，旧 83 格三角网格塌成 16 格）× **4 个库**（weighted_sum base 两套件 + cache_size S3 两套件）× **完整 A-pool 500** = 32,000 ep。θ 每库从自己的新 warmup 上 0.85 分位重解（复现历史 spatial 锚点到 1.5e-5）且跨 16 档固定，使档间差异只归因于判据阈值。**泄漏实测排除**：weighted_sum 建库 init 与 A-pool 逐行 0/50 命中，cache_size 来自差集池 `shared: 0` ⇒ 四臂同评测集可配对。拓扑 weilandserver 4 replica → **公网直连 `ziyanglin.com:23100`**（交换机 NAT，2026-08-20 起优先于 tether expose）→ timan107 64 worker。**§5.2 事故**：resume 时 driver 会为已完成臂逐一调 `load_cache_config`，几秒内 23 次 bundle 切换撞上并发推理 ⇒ use-after-free ⇒ `Xid 31 MMU Fault @ 0x0` 打死 GPU，两次复现；显卡无责（干净恢复/零 ECC）。修复 `arms_with_work_left()` 按 distinct task_uid 过滤已完成臂，实测 21/32 臂跳过。src/ 零改动 |
+
+### Experiment Data Governance
+
+| File | Status | Description |
+|------|--------|-------------|
+| [data_authority_plan.log.md](data_authority_plan.log.md) | `Implemented` (§4 Code 完成 + tests/data_authority 28 pass；**G1 由 owner 明令 override**，记录在该文件 §0；G2 待审，2026-08-20) | **L3**: 新建**权威实验数据登记地** `exp/data_authority/` —— `exp/` 下第三类条目（registry，非实验，已在 [`artifact_layout.md`](../docs/experiments/artifact_layout.md) §1.2 注册）。回答且只回答「一份实验数据哪个副本是权威的」：node / path / sha256 / 内容普查 / 产出配置 / 消费方 / **caveats**。**只登记指针不搬字节**（语料几十 GB 在产出节点，`.gitignore` 的 `exp/**/data/**` 本就吞掉全部字节）；台账目录刻意叫 `records/` 而非 `data/`，否则台账自身失 track。`registry.py` 校验返回问题列表而非抛异常（一次报全）；`verify.py` 三判据 file_count/size_bytes/sha256，**全文件无 `du`**（对硬链接去重会少报）+ `os.walk(followlinks=False)`（不跟随软链算进外部字节），远端数据集打印 `tether exec` 命令**在字节所在处测量**而不拉回（`pull` 固定 5 min 超时，GB 级拉不回）。首批 4 条种子全部实测非转抄：cache_size S3 两套件（1,072 / 2,741 entries，各 50 轨迹，entry 数与 X9b 报告逐位吻合）+ weighted_sum/threshold-pareto 底座库两套件（1,018 / 2,640 entries）。**已登记两条 caveat**：spatial 底座库实测 **49** 轨迹而非 50（同管线 l10 兄弟恰 50，成因未定，禁止转述为 50）；l10 底座库是 phase5 因子富化的原地覆盖版（留有 `.pre_phase5.bak.pkl`，跨库对照只有该侧带 `payload.factors`）。**owner 2026-08-20 追加规则**：registry 准 `analysis/`，且必须组织为 `analysis/<任务>/`（任务层强制，平铺会变成一堆同名 `pareto_combined.png` 无法归属）+ 每任务必带 `MANIFEST.json`（逐文件 sha256 + source，无出处的图 = 孤儿）+ **收编是复制不是移动**（实验 `analysis/*.md` 相对路径引图，move 会静默打断已发布报告）。`collect.py` 把「搬入」与「写 MANIFEST」做成不可分动作；记录新增可选 `analysis_task` 字段，悬空指针被 validate 拒绝；`verify --analysis` 把**缺文件 / 内容变了 / 未登记野文件**三类失败分开报（修法不同）。已收编两任务：`cache_size`（7 文件）+ `threshold_pareto`（19 文件，两套件分子目录）。src/ 零改动 |
+
 ---
 
 ## Archive

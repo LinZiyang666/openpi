@@ -1,0 +1,20 @@
+{
+  "model": "pi05_libero",
+  "compile_mode": "default",
+  "mark_step": false,
+  "fused": true,
+  "no_grad_wrapped": true,
+  "builtin_compile_disabled": true,
+  "compiled": "torch.compile(model.sample_actions [FUSED], mode=default)",
+  "n": 30,
+  "wall_ms": 140.56428402545862,
+  "model_total_ms": 135.30051853740588,
+  "stage1_token_prep_ms": NaN,
+  "stage2_llm_backbone_ms": NaN,
+  "stage3_action_expert_ms": NaN,
+  "stage2plus3_ms": NaN,
+  "device": "cuda:0",
+  "gpu_util_median_pct": 50.0,
+  "power_median_w": 206.86,
+  "torch": "2.7.1+cu126"
+}

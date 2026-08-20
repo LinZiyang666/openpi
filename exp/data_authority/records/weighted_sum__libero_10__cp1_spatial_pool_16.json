@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "dataset_id": "weighted_sum/libero_10/cp1_spatial_pool_16",
+  "kind": "cache_artifact",
+  "title": "weighted_sum / threshold-pareto base library, libero_10",
+  "experiment": "exp/weighted_sum",
+  "suite": "libero_10",
+  "analysis_task": "threshold_pareto",
+  "status": "authoritative",
+  "authority": {
+    "node": "local",
+    "path": "exp/common/data/cache_artifacts/libero_10/cp1_spatial_pool_16.pkl",
+    "access": "local"
+  },
+  "integrity": {
+    "sha256": "de51731df08e93af2f34adb85c919b45ed53b244e92b3f15e1332b8655410593",
+    "size_bytes": 1103155623,
+    "file_count": 1
+  },
+  "content": {
+    "entries": 2640,
+    "trajectories": 50,
+    "tasks": 10,
+    "key_builder": "cp1_spatial_pool_16",
+    "vector_dims": {
+      "vision_0": 32768,
+      "vision_1": 32768,
+      "prompt_emb": 2048,
+      "robot_state": 32
+    },
+    "content_sha256": "0a48d74b4c3fd306abc07bf2148a8e14de1f92cacdda494959bee7d4adcb1673"
+  },
+  "provenance": {
+    "produced_by": "exp/common/build_in_memory_cache_artifact.py",
+    "inputs": [
+      "exp/common/data/db/libero_cache/libero_10_init_map.json"
+    ],
+    "measured_at": "2026-08-20",
+    "measured_by": "sha256sum; entry/trajectory census over artifact['entries'] trajectory_id",
+    "notes": "Retrieval base for the libero_10 replication of the weighted_sum line, including the libero_10 threshold-pareto sweep."
+  },
+  "caveats": [
+    "Enriched in place with verdict factors for phase 5: the sibling cp1_spatial_pool_16.pre_phase5.bak.pkl (1096041697 bytes, mtime 2026-05-22) is the pre-enrichment state. Any cross-library comparison against the libero_spatial record must note that only this side carries payload.factors.",
+    "The weilandserver replica is 8 bytes larger with a different file sha256; its content digest is identical. A byte-wise comparison against this record will fail on that host by design."
+  ],
+  "consumers": [
+    "exp/weighted_sum (libero_10 replication)",
+    "exp/weighted_sum (threshold_pareto libero_10)",
+    "exp/weighted_sum (trajectory_weight_alloc libero_10)",
+    "exp/gate_threshold_pareto (hybrid-gate threshold sweep)"
+  ],
+  "replicas": [
+    {
+      "node": "weilandserver",
+      "path": "/home/weiland/openpi/exp/common/data/cache_artifacts/libero_10/cp1_spatial_pool_16.pkl",
+      "sha256": "f13517ad907817a0739d5702b2d3244f85be8659e5a7f3eebfbc4424eb848ce8",
+      "size_bytes": 1103155631,
+      "verified": "2026-08-20",
+      "note": "Byte-level sha256 and size differ from the authoritative copy by exactly 8 bytes (pickle framing), but the packaging-independent content digest over id-sorted entries and key bytes is identical. Compare replicas on content_sha256, not sha256."
+    }
+  ]
+}

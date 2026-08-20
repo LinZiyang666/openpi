@@ -1,0 +1,18 @@
+{
+  "policy": "act",
+  "device": "cuda",
+  "compile_mode": "default",
+  "mark_step": false,
+  "compiled": "torch.compile(policy.model, mode=default)",
+  "warmup_seconds": 12.5,
+  "median_ms": 10.159969999222085,
+  "p90_ms": 10.444573999848217,
+  "min_ms": 9.563384985085577,
+  "max_ms": 12.258362025022507,
+  "mean_ms": 10.098581789643504,
+  "n": 100,
+  "gpu_util_median_pct": 20.0,
+  "sm_clock_median_mhz": 2520.0,
+  "power_median_w": 88.16499999999999,
+  "torch": "2.7.1+cu126"
+}

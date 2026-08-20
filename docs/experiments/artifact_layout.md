@@ -68,6 +68,56 @@ Rules:
 
 Current families: `exp/ablation_study/` (`executor_substitution`, `cache_size`, `latency_bench`).
 
+### 1.2 Registry directories (not experiments)
+
+A third kind of top-level `exp/` entry is permitted: a **registry** — a
+directory that produces no experimental result and participates in no run, but
+holds project-wide bookkeeping that must travel with the code.
+
+```
+exp/
+  <registry>/
+    README.md                       # how to query / add / verify
+    <tool>.py                       # the code that reads and checks the ledger
+    records/                        # the ledger itself, one file per subject
+    analysis/                       # collected authoritative analysis output
+      <task>/                       # one directory per research task — mandatory level
+        MANIFEST.json               # every file: sha256 + the source it was taken from
+        <figures, reports, plot data>
+```
+
+Rules:
+
+- A registry **must not** carry `config/` or `data/`. Those two slots describe
+  an experiment's inputs and its run products; a registry has neither, so
+  shipping them empty would only invite misfiling.
+- A registry **may** carry `analysis/`, and when it does the directory is
+  organised as `analysis/<task>/` — **one sub-directory per research task, and
+  that level is mandatory**. A flat `analysis/` turns into a pile of
+  `pareto_combined.png` files whose owning experiment can only be guessed at;
+  the task level is what keeps a collected figure attributable.
+- Every `analysis/<task>/` **must** hold a `MANIFEST.json` naming each file with
+  its `sha256` and the `source` path it was taken from. A collected figure with
+  no recorded source is not authoritative — it is an orphan, and the whole point
+  of a registry is that nothing in it is an orphan.
+- Collection is a **copy, not a move**, unless the referring reports are updated
+  in the same change: experiment `analysis/*.md` files link their figures by
+  relative path, and moving the file silently breaks the published report.
+- The ledger directory **must not** be named `data/`. §3 default-ignores every
+  `exp/**/data/**` path, which would silently drop the ledger out of version
+  control and void the registry's entire purpose. Use `records/` (or another
+  non-`data` name).
+- A registry stores **pointers and checksums, never bulk bytes**. The bytes stay
+  on the node that produced them, named by the ledger.
+- Design rationale lives in `logs/`, not here (Working Agreement §4). The
+  registry's own `README.md` is an operations index only.
+- Introducing a registry requires an entry in [`docs/README.md`](../README.md)
+  and its own `logs/` design record.
+
+Current registries: `exp/data_authority/` — which copy of an experiment dataset
+is authoritative (node, path, sha256, content census, provenance, caveats).
+Design record: [`logs/data_authority_plan.log.md`](../../logs/data_authority_plan.log.md).
+
 ## 2. File-kind rules
 
 | Kind | Location |

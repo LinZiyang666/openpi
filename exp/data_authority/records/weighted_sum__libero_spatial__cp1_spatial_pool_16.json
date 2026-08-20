@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "dataset_id": "weighted_sum/libero_spatial/cp1_spatial_pool_16",
+  "kind": "cache_artifact",
+  "title": "weighted_sum / threshold-pareto base library, libero_spatial",
+  "experiment": "exp/weighted_sum",
+  "suite": "libero_spatial",
+  "analysis_task": "threshold_pareto",
+  "status": "authoritative",
+  "authority": {
+    "node": "local",
+    "path": "exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl",
+    "access": "local"
+  },
+  "integrity": {
+    "sha256": "09cacb814017a40c3b612da45830db07e52b291b3ae37f8b017732a9f475d2e1",
+    "size_bytes": 430792475,
+    "file_count": 1
+  },
+  "content": {
+    "entries": 1018,
+    "trajectories": 49,
+    "tasks": 10,
+    "key_builder": "cp1_spatial_pool_16",
+    "vector_dims": {
+      "vision_0": 32768,
+      "vision_1": 32768,
+      "prompt_emb": 2048,
+      "robot_state": 32
+    },
+    "content_sha256": "a8781cbcbd503747df91cfd0aefdd5b5118da775aee719bc84cfe166ef9f9564"
+  },
+  "provenance": {
+    "produced_by": "exp/common/build_in_memory_cache_artifact.py",
+    "inputs": [
+      "exp/common/data/db/libero_cache/libero_spatial_init_map.json"
+    ],
+    "measured_at": "2026-08-20",
+    "measured_by": "sha256sum; entry/trajectory census over artifact['entries'] trajectory_id",
+    "notes": "Retrieval base for weighted_sum phase 2 weight search and for the threshold-pareto d1 base. Library was built from roughly 5 of the 50 init states per task; the remaining inits are the held-out eval pool guarded by exp/weighted_sum/init_holdout.py."
+  },
+  "caveats": [
+    "49 distinct trajectory_id values, not 50 -- the libero_10 sibling built by the same pipeline has exactly 50. Cause not yet established (candidate: one episode dropped or id-merged at build time). Do not quote this library as '50 trajectories'.",
+    "File mtime is 2026-05-07, older than the libero_10 sibling; unlike that sibling it carries no .pre_phase5.bak.pkl, i.e. it was not re-enriched in place.",
+    "The weilandserver replica is 8 bytes larger with a different file sha256; its content digest is identical. A byte-wise comparison against this record will fail on that host by design."
+  ],
+  "consumers": [
+    "exp/weighted_sum (phase2 weight search)",
+    "exp/weighted_sum (threshold_pareto)",
+    "exp/weighted_sum (trajectory, trajectory_weight_alloc)",
+    "exp/weighted_sum (kinematic_phase5)",
+    "exp/gate_threshold_pareto (hybrid-gate threshold sweep)"
+  ],
+  "replicas": [
+    {
+      "node": "weilandserver",
+      "path": "/home/weiland/openpi/exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl",
+      "sha256": "36cd0f3b043fd7215aaee9dd053693325f4813127485580fa23aeb5663a88ffe",
+      "size_bytes": 430792483,
+      "verified": "2026-08-20",
+      "note": "Byte-level sha256 and size differ from the authoritative copy by exactly 8 bytes (pickle framing), but the packaging-independent content digest over id-sorted entries and key bytes is identical. Compare replicas on content_sha256, not sha256."
+    }
+  ]
+}

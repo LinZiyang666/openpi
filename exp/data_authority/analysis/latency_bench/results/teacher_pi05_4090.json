@@ -1,0 +1,22 @@
+{
+  "arm": "teacher",
+  "suite": "libero_spatial",
+  "gpu": {
+    "n": 50,
+    "mean_s": 0.4184831182861328,
+    "median_s": 0.4154535522460937,
+    "p90_s": 0.4292103149414062,
+    "min_s": 0.411904052734375,
+    "gpu_timed": true,
+    "in_process": true,
+    "method": "cuda_event",
+    "device": "NVIDIA GeForce RTX 4090",
+    "torch": "2.7.1+cu126",
+    "host": "weilandserver"
+  },
+  "wall": {
+    "mean_s": 0.41797370475833306,
+    "n": 50
+  },
+  "path": "stage1+stage2+stage3 (in-process)"
+}

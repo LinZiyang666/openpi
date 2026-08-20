@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "dataset_id": "cache_size/libero_spatial/all_s3",
+  "kind": "cache_artifact",
+  "title": "cache_size X9b tier S3 library, libero_spatial, all-outcome",
+  "experiment": "exp/ablation_study/cache_size",
+  "suite": "libero_spatial",
+  "analysis_task": "cache_size",
+  "status": "authoritative",
+  "authority": {
+    "node": "weilandserver",
+    "path": "/data/openpi/ablation_study/cache_size/artifacts/cache_size_libero_spatial_all_S3.pkl",
+    "access": "tether"
+  },
+  "integrity": {
+    "sha256": "9a22364e4cb0842bc43da5056ec4f93d9ac1a17a6c18394dba714914203da793",
+    "size_bytes": 445052388,
+    "file_count": 1
+  },
+  "content": {
+    "entries": 1072,
+    "trajectories": 50,
+    "tasks": 10,
+    "trajectories_per_task": 5,
+    "key_builder": "cp1_spatial_pool_16",
+    "outcome_filter": "all",
+    "vector_dims": {
+      "vision_0": 32768,
+      "vision_1": 32768,
+      "prompt_emb": 2048,
+      "robot_state": 32
+    }
+  },
+  "provenance": {
+    "produced_by": "exp/ablation_study/cache_size/build_size_artifacts.py",
+    "inputs": [
+      "exp/ablation_study/cache_size/config/size_grid_libero_spatial_all.yaml (tier S3)",
+      "exp/ablation_study/cache_size/config/lists_all/"
+    ],
+    "measured_at": "2026-08-20",
+    "measured_by": "sha256sum on weilandserver; entry/trajectory census over artifact['entries'] trajectory_id",
+    "notes": "Entry count matches the P8 report table (analysis/analysis.md section 1) exactly, so this file is the one the published curve was computed from. Tier S3 is nested inside S4..S6 by construction."
+  },
+  "caveats": [],
+  "consumers": [
+    "exp/ablation_study/cache_size",
+    "exp/gate_threshold_pareto (hybrid-gate threshold sweep)"
+  ]
+}

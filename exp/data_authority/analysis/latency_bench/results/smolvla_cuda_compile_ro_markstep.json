@@ -1,0 +1,18 @@
+{
+  "policy": "smolvla",
+  "device": "cuda",
+  "compile_mode": "reduce-overhead",
+  "mark_step": true,
+  "compiled": "torch.compile(policy.model.vlm_with_expert, mode=reduce-overhead)",
+  "warmup_seconds": 12.3,
+  "median_ms": 60.63859799178317,
+  "p90_ms": 61.140384001191705,
+  "min_ms": 59.56670199520886,
+  "max_ms": 64.38073597382754,
+  "mean_ms": 60.60854925541207,
+  "n": 50,
+  "gpu_util_median_pct": 50.5,
+  "sm_clock_median_mhz": 2700.0,
+  "power_median_w": 206.92000000000002,
+  "torch": "2.7.1+cu126"
+}

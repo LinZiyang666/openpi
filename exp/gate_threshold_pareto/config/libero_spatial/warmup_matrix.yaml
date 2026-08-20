@@ -1,0 +1,7 @@
+arms:
+- arm: gtpw_cs_sp
+  yaml: exp/gate_threshold_pareto/config/libero_spatial/warmup/gtpw_cs_sp.yaml
+  suite: libero_spatial
+- arm: gtpw_ws_sp
+  yaml: exp/gate_threshold_pareto/config/libero_spatial/warmup/gtpw_ws_sp.yaml
+  suite: libero_spatial

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "task": "cache_size",
+  "title": "Cache size x success-rate ablation (X9b): size curves + latency retest",
+  "source_experiment": "exp/ablation_study/cache_size",
+  "policy": "copy",
+  "collected_at": "2026-08-20",
+  "files": [
+    {
+      "name": "analysis.md",
+      "sha256": "d9148df477f15e39cb899167c2ac74df58e0108fc3a02b4c25192de3dc850a1c",
+      "size_bytes": 11655,
+      "source": "exp/ablation_study/cache_size/analysis/analysis.md"
+    },
+    {
+      "name": "plot_data.json",
+      "sha256": "3849bfef72542e5acb011abafd7a6f9d3d6c430ce08846218efe7af2ffb66d03",
+      "size_bytes": 14915,
+      "source": "exp/ablation_study/cache_size/analysis/plot_data.json"
+    },
+    {
+      "name": "relatency.md",
+      "sha256": "4dd19d3e8aed65c5329981694716713adff343b026fdc3c29d1cd38817da49fc",
+      "size_bytes": 5122,
+      "source": "exp/ablation_study/cache_size/analysis/relatency.md"
+    },
+    {
+      "name": "size_curve_libero_10.pdf",
+      "sha256": "7d9abe908ebfd5726bb994b70d3d16edfd2807c9cd25ce8951cc468a1d632813",
+      "size_bytes": 23281,
+      "source": "exp/ablation_study/cache_size/analysis/size_curve_libero_10.pdf"
+    },
+    {
+      "name": "size_curve_libero_10.png",
+      "sha256": "a07796be9ebeeca28fbf2836250265be074505293212608a2cc7d239e145c94a",
+      "size_bytes": 219821,
+      "source": "exp/ablation_study/cache_size/analysis/size_curve_libero_10.png"
+    },
+    {
+      "name": "size_curve_libero_spatial.pdf",
+      "sha256": "68e48379296cd9faf0c6577eccb132c2306de4a9ed6a09849362ee76a931be50",
+      "size_bytes": 22474,
+      "source": "exp/ablation_study/cache_size/analysis/size_curve_libero_spatial.pdf"
+    },
+    {
+      "name": "size_curve_libero_spatial.png",
+      "sha256": "1c65360bf8b21cc24578bc4f9382f16faabf16a9e2381765395103d71d9cd4c6",
+      "size_bytes": 185934,
+      "source": "exp/ablation_study/cache_size/analysis/size_curve_libero_spatial.png"
+    }
+  ]
+}

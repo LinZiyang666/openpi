@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "dataset_id": "latency_bench/libero_spatial/executor_costs",
+  "kind": "benchmark_results",
+  "title": "latency_bench / batch=1 inference cost of every cache executor (pi0.5 teacher, ACT, SmolVLA) on RTX 4090 + Xeon E5-2696 v4",
+  "experiment": "exp/ablation_study/latency_bench",
+  "suite": "libero_spatial",
+  "analysis_task": "latency_bench",
+  "status": "authoritative",
+  "authority": {
+    "node": "local",
+    "path": "exp/ablation_study/latency_bench/data",
+    "access": "local"
+  },
+  "integrity": {
+    "sha256": "00a6f73c3075864cfa16e41cb02bdecee9de18186cd0d66484073392d55364ea",
+    "size_bytes": 14407,
+    "file_count": 15
+  },
+  "content": {
+    "cells": 15,
+    "executors": [
+      "pi05_libero (teacher, ~3B)",
+      "act (51.55M, task_0)",
+      "smolvla (450.05M)"
+    ],
+    "devices": [
+      "RTX 4090 48G (exclusive, idle)",
+      "Xeon E5-2696 v4 (88 threads)"
+    ],
+    "builds": [
+      "eager",
+      "torch.compile default",
+      "torch.compile reduce-overhead (CUDA Graph)"
+    ],
+    "median_ms_rtx4090": {
+      "act": {
+        "eager": 17.74,
+        "default": 10.16,
+        "cuda_graph": 4.91
+      },
+      "smolvla": {
+        "eager": 540.71,
+        "default": 178.0,
+        "cuda_graph": 60.64
+      },
+      "pi05_3stage_model_total": {
+        "eager": 448.26,
+        "default": 200.85,
+        "cuda_graph": 67.48
+      },
+      "pi05_fused_wall": {
+        "default": 140.56,
+        "cuda_graph": 72.04
+      }
+    },
+    "median_ms_cpu": {
+      "act": 55.9,
+      "smolvla": 1813.36,
+      "pi05_model_total": 20418.88
+    },
+    "pi05_stage_split_ms": {
+      "eager": {
+        "stage1": 63.06,
+        "stage2": 35.27,
+        "stage3": 349.81
+      },
+      "default": {
+        "stage1": 47.55,
+        "stage2": 30.36,
+        "stage3": 122.81
+      },
+      "cuda_graph": {
+        "stage1": 10.26,
+        "stage2": 27.69,
+        "stage3": 29.57
+      }
+    },
+    "per_call_samples": "n=200/100 (students, GPU), n=30 (teacher GPU), n=10 (teacher CPU); every file carries its raw per-call list"
+  },
+  "provenance": {
+    "produced_by": "exp/ablation_study/latency_bench/{bench_students.py,bench_students_compile.py,bench_teacher.py}",
+    "inputs": [
+      "/data/openpi/ablation_study/executor_substitution/checkpoints/libero_spatial/act_selected/task_0/pretrained_model (weilandserver)",
+      "/data/openpi/ablation_study/executor_substitution/checkpoints/libero_spatial/smolvla/checkpoints/020000/pretrained_model (weilandserver)",
+      "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch (weilandserver)"
+    ],
+    "measured_at": "2026-08-19",
+    "measured_by": "one process per cell, run serially on an otherwise idle RTX 4090; timing contract identical to the production sidecar forward_ms (sidecar_server.py:92-96) for students and to the staged Policy.infer path (policy.py:101-131) for the teacher; cross-checked against exp/rl_router/microbench_cost.py CUDA-event timing (415.45 ms, n=50)",
+    "notes": "Synthetic observations (uint8 224x224 dual view + 8-dim state + the real libero_spatial task_0 prompt) with real frozen weights. Latency depends on tensor shapes and graph structure, not on pixel or weight values. A byte-identical sibling copy of these JSONs sits on weilandserver at /home/weiland/bench_latency/results/, alongside the raw run logs."
+  },
+  "caveats": [
+    "The authority path is inside exp/**/data/** and is therefore swallowed by .gitignore line 6: the experiment-side originals never reach version control. The collected copy under analysis/latency_bench/results/ (next caveat) is what a later reader actually gets from git; verify either side before quoting numbers from a working tree you did not produce.",
+    "A git-tracked copy of these 15 JSONs lives at exp/data_authority/analysis/latency_bench/results/ (collected under the registry's analysis rules, digests in that task's MANIFEST.json). The authority path above is the experiment-side original the benchmark scripts wrote; the two are byte-identical at collection time.",
+    "eager pi0.5 (448.26 ms) is NOT the production figure. Production with cache goes through InferenceInterceptor._get_or_compile_stages (interceptor.py:304-340), which compiles the three stages and downgrades max-autotune to max-autotune-no-cudagraphs. That production build was not measured: its compilation did not finish in 20+ minutes (single-threaded dynamo tracing/lowering, 33 inductor workers idle at 2.5%). It must fall between the default (200.85) and CUDA-Graph (67.48) rows, near the default end.",
+    "The fused (one-graph) rows require --no-builtin-compile. openpi compiles sample_actions itself at construction time (pi0_config.py:35 defaults pytorch_compile_mode to max-autotune; pi0_pytorch.py:234), so an unguarded fused run stacks two compilations. A first round measured that way (default 188.28 / CUDA-Graph 72.11 ms) is void and its two JSONs were deleted; do not resurrect those numbers from older chat logs or report drafts.",
+    "For fused + CUDA Graph the in-model total_ms is an artefact (1.75 ms): it times graph SUBMISSION only, kernels are still async. Use the synchronized wall (72.04 ms). The 3-stage rows do not have this problem -- policy.py syncs after every stage.",
+    "ACT loads exactly one per-task model (task_0), not the 10-model production ensemble. Residency does not affect per-call latency (routing is a dict lookup) but the number is not a memory-footprint figure.",
+    "SmolVLA under CUDA Graph needs torch.compiler.cudagraph_mark_step_begin() per call, otherwise it raises 'accessing tensor output of CUDAGraphs that has been overwritten' (smolvlm_with_expert.py:51). The recorded 60.64 ms is with that guard.",
+    "These are isolated model-forward costs. Retrieval, gate, verdict, websocket round trip and client-side env stepping are all excluded; do not read any row as an end-to-end system latency.",
+    "Supersedes the latency table in exp/ablation_study/analysis/analysis.md section 6, which was measured while the sidecar shared the GPU with the pi0.5 server: that table is high by 1.5-2.2x on Stage1/teacher/ACT and low by 1.3x on SmolVLA."
+  ],
+  "consumers": [
+    "exp/ablation_study/latency_bench/analysis/analysis.md (the report; every table regenerable via analysis/summarize.py)",
+    "exp/ablation_study/analysis/analysis.md section 6 (superseded latency table -- correction pending)",
+    "exp/rl_router (arm cost model, exp/rl_router/microbench_cost.py: teacher=1 normalization)"
+  ]
+}
