@@ -35,14 +35,40 @@ episodes_per_run: 4000
 lambda:
   lambda_1: null    # filled by pilot_lambda.py select  (target realized teacher rate 40%)
   lambda_2: null    # filled by pilot_lambda.py select  (target realized teacher rate 20%)
+  lambda_3: 5.0     # AMENDMENT (2026-08-18): re-calibrated for R_tc by the densified
+                    # pre-flight sweep (see the l10_tc_lam3_s0 row); filled before launch
 
-# Five formal training runs (D7 adds the flagship's second seed).
+# Five formal training runs (D7 adds the flagship's second seed), plus one
+# declared amendment run (2026-08-18) — see the amendment block on its row.
 runs:
   - {id: l10_ts_lam1_s0,  suite: libero_10, variant: R_ts,  lambda: lambda_1, seed: 0, flagship: true}
   - {id: l10_ts_lam1_s1,  suite: libero_10, variant: R_ts,  lambda: lambda_1, seed: 1, flagship: true}
   - {id: l10_ts_lam2_s0,  suite: libero_10, variant: R_ts,  lambda: lambda_2, seed: 0}
   - {id: l10_tsc_lam1_s0, suite: libero_10, variant: R_tsc, lambda: lambda_1, seed: 0}
   - {id: l10_tc_lam1_s0,  suite: libero_10, variant: R_tc,  lambda: lambda_1, seed: 0}
+  # AMENDMENT (2026-08-18, ops log §2.5h/§2.5i): D1's λ grid was calibrated on
+  # R_ts. On R_tc the measured SR(p) is monotone (0.520 -> 0.865) and λ=0.5
+  # puts argmax_p J at the p=1.0 corner, so the pre-registered tc run
+  # degenerates to the constant "always teacher" policy. lambda_3 makes the
+  # optimum interior; 600 batches answer the 40-step objection.
+  - id: l10_tc_lam3_s0
+    suite: libero_10
+    variant: R_tc
+    lambda: lambda_3
+    seed: 0
+    episodes: 60000
+    amendment:
+      reason: >-
+        D1's lambda grid was calibrated on R_ts; on R_tc the measured SR(p)
+        curve is monotone (0.520 -> 0.865 over p in [0, 1]) and lambda=0.5
+        places the optimum at the p=1.0 corner, so the pre-registered run
+        degenerates to a constant policy (ops log 2.5h). lambda_3 is
+        re-calibrated on the tc arm pair from the densified pre-flight sweep
+        recorded in the basis file, making the optimum interior (p* ~ 0.30);
+        600 batches give ~260-350 traversal steps plus ~300
+        discrimination-learning steps (the owner's 40-step objection).
+      basis: exp/rl_router/data/amendment_lambda3.json
+      date: "2026-08-18"
 
 # Checkpoints evaluated on the A pool, once, after every run is frozen.
 eval:

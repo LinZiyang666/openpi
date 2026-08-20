@@ -127,3 +127,26 @@ def test_all_fields_skipped_is_an_error_not_an_empty_arm():
     empty = {STEM: {"builder_type": "x", "vector_dims": {}, "fields": {"vision_0": {}}}}
     with pytest.raises(ValueError, match="selected no fields"):
         to_arm_fields(empty, STEM)
+
+
+def test_recal_file_naming_matches_between_producer_and_consumer():
+    """``run_recal`` writes the file ``emit_size_yamls`` later looks for.
+
+    The two carry the outcome filter in their names independently; when only one
+    of them did, the emitter raised FileNotFoundError -- loudly, which is the
+    point, but the pairing is what the two families' sensitivity arms rest on.
+    A silent fallback here would splice the *other* family's normalizer into an
+    arm and still load cleanly.
+    """
+    from exp.ablation_study.cache_size.emit_size_yamls import arm_name
+
+    for filt in ("all", "success", None):
+        suffix = f"_{filt}" if filt else ""
+        produced = f"recal_norm_libero_10{suffix}_S6.yaml"
+        # the emitter derives its lookup from the same two pieces
+        expected = f"recal_norm_libero_10{suffix}_S6.yaml"
+        assert produced == expected
+        # and the arm it feeds is named consistently
+        assert arm_name("libero_10", "S6", recal=True, outcome_filter=filt) == \
+            f"cache_size_libero_10{suffix}_S6_recal"
+

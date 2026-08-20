@@ -41,7 +41,7 @@ a = g(φ(o))；学生 π_S；库 L 来自 success 过滤的 teacher rollout；de
 - 充分统计量视角（`I(a*;o|k)` 残差），一段。
 - **Remark 1**（由 Proposition 降级）：Lipschitz 复合直觉一句话 + 附录 sketch；承重证据是经验性的——X7 的 ε→δ 曲线 **+ 从日志里挖出的真实反例对（CLIP 距离近但动作远）**作分离论证。
 - 成本诚实：内部 key 每步需部分 teacher 前向；级联 = 信号质量 × 查询成本上的操作点；**级联决断率是被测量的量（X11），savings-ceiling 曲线进 §5.1 正文**。
-- **为什么不训一个 router**（预判的审稿质问，单独一段）：router 监督有两条已知获取路径，均不迁移到逐步闭环控制。(i-a) 在线 bandit 吃逐决策反馈（IC-Cache, SOSP'25）——成立靠 LLM serving 的域特权：反馈免费、即时、无害且逐决策；我们的决策逐步、结局是一个延迟的 episode 级 bit、每条反馈是一次物理 rollout —— bandit 退化成完整 RL 问题，explore 的代价是物理失败。注意 IC-Cache 自己就以标签成本为由否决了 classifier router，而那是标签最便宜的域。(i-b) RL 式价值拟合（ThriftyDAgger）—— MC/TD 确实机械地解决 credit assignment，但它需要学生本人在部署分布上的 rollout 含足量失败（贵且不安全的部分；失败是少数类）；用 teacher 数据走 off-policy 捷径撞上 ~200 步 horizon 的 OPE 方差；拟合的 V 还会双重过时——模型更新一次、router 自身诱导的 visitation shift 一次。index 答的是隶属问题（哪里已被证实成功，数据建库/蒸馏本来就采），零标签。(ii) 学习出的 router 自己就是个面临 OOD 问题的函数逼近器——检索距离按构造 **fail-closed**（新颖 → 不相似 → 落回 teacher）；(iii) 维护：teacher/学生/任务更新即过时、且每个学生要单独一个 router，index 只需追加条目并随 teacher 自动同步（一个 index 路由多个学生，X12c）；(iv) replay 层反正需要库——"router + 库"是两套基础设施干一套的活。实证面：§6.2 的 trained-router 基线**就是**路径 (i-b)——MC value 式成功预测器——由 label-efficiency 曲线为其标价。
+- **为什么不训一个 router**（预判质问；完整论述见 Q&A Q1，实验 X14）：对逐步闭环路由，监督学习在语义上不可用——标签是反事实的、纯执行体 rollout 的标签在到达分布与后续语义两头错位、且路由目标量 Bellman 耦合到 router 自己的未来决策（按定义是 RL 问题）。唯一语义正确的训练路线是在线 RL——我们真的把它跑成基线（X14：三变体、离线 MC 热启动、慷慨交互预算），用 interaction-efficiency 曲线对比零训练水平线标价。辅助不对称性：fail-closed OOD 方向（新颖→不相似→teacher）vs 学习 router 的不受控外推；乘法维护成本（trained router 绑定 执行体组合×操作点×学生×套件×模型版本；index 由管线 rollout 零标签重建、随 teacher 表征自动同步）；cache 层执行时反正需要检索取 payload（router 只出类别，动作 chunk 在检到的 entry 里）。
 
 ### 3.3 同一经验的两种压缩
 Replay = 最近邻零阶保持；学生 = 参数化插值。该框架是生成预测的（预测 §6.1 解离与密度行为），**同源 caveat 前置声明**并交由 §6.2 的身份实验（X12）裁决——不当挡箭牌。
@@ -125,16 +125,17 @@ Fig 1 系统+teaser · Fig 2 前沿（双 panel：normalized + 裸 GPU-s）含 c
 | X9 | replay 误差 vs 库密度 | 附录 E | 新，离线 | P2 |
 | X10 | 历史负结果表 | 附录 C | 数据已有 | P2 |
 | X13 | serving mini-bench（吞吐/GPU、延迟 CDF） | 附录 B | 可选 | P2 |
+| X14 | 在线 RL router 对决：R_ts/R_tc/R_tsc 环内 RL router（只看进库前特征、屏蔽检索分；离线 MC 热启动；batch on-policy + bundle 热切换），interaction-efficiency 曲线 + 冻结权重 A 池对决 | §6.2/Q&A | 新 | **P0** |
 
 ---
 
 ## Q&A — 预判的审稿问题（rebuttal 弹药库）
 
-**Q1. "你们的贡献本质上就是一个 router（用 index 比对的 router）——为什么不干脆训一个小模型当 router？"**（导师 2026-08-15 提出；正文计划在 §3.2，实证回应在 §6.2/X3）
+**Q1. “你们的贡献本质上就是一个 router（用 index 比对的 router）——为什么不干脆训一个小模型当 router？”**（导师 2026-08-15 提出；正文计划在 §3.2，实证回应在 X14）
 
-1. **Bandit 路径（IC-Cache, SOSP'25）不迁移。** 训练 router 的监督有两条已知获取路径。第一条是吃逐决策用户反馈的在线 contextual bandit——它成立完全靠 LLM serving 的域特权：反馈免费、即时、无害、且每条独立请求对应一条反馈。闭环控制里决策逐步（~200/episode）、唯一结局是一个延迟的 episode 级成功/失败 bit、每条反馈是一次物理 rollout——bandit 退化成完整 RL 问题，explore 的代价是物理失败。而且 IC-Cache 自己就以标签成本为由把 classifier router 判为 "impractical"——那还是标签最便宜的域。
-2. **RL 价值拟合路径（ThriftyDAgger 式）诚实但昂贵。** 先承认对的部分：MC/TD 价值拟合确实机械地解决 credit assignment，不需要逐步标签。但它移除不了：(a) 需要学生本人在部署分布上的 rollout 且含足量失败（贵且不安全；失败是少数类）；(b) 用 teacher 数据估学生胜任度的 off-policy 捷径 = OPE，~200 步 horizon 下方差出名地不可用；(c) 拟合出的 V 双重过时——teacher/学生每次更新一次、部署 router 自身诱导的 visitation shift 一次。我们的 index 答的是隶属问题（哪里已被证实成功），数据建库/蒸馏管线本来就采——零标签。(d) 数量问题之上还叠着**位置**问题：router 合法可用的训练标签（非 eval 的 init 池，与学生蒸馏同分布）恰好长在学生最少失败的地方，而 router 最需要准确的新 init 上按构造零标签——任何真实部署都受同一约束。辅助论据：学习出的 router 自己就是面临 OOD 问题的函数逼近器，而检索距离按构造 **fail-closed**（新颖 → 不相似 → 落回 teacher）；router 按学生数与模型版本成倍增殖，index 只需追加条目并随 teacher 自动同步；replay 层反正需要库——"router + 库"是两套基础设施干一套的活。
-3. **不辩论，直接测量。** §6.2/X3 的 trained-router 基线**就是** RL 的标准答案——同一内部特征上的 MC value 式成功预测器（离线策略评估：监督学习只是拟合手段，估的对象 V^π 是 RL 量）——由 label-efficiency 曲线标价（AUROC 随标注学生 episode 数变化，对比零标签 index 信号）。预注册立场：零标签追平标签饥渴的 router 即为胜；若 router 大标签量下反超，交点本身入结论——部署场景在标签稀缺侧。若被追问**在线** RL（router 作为环内 RL 策略，reward = 成功 − λ·teacher 调用）：它用同一种货币（rollout）付账且早期汇率更差（explore 烧 episode；匹配预算下离线拟合是更强对手），其唯一真优势——自适应 router 诱导的 visitation shift——要越过 index 获胜的预算区间之后才兑现；可选 P2：其学习曲线（性能 vs 累计交互 episode 数）画进同一张图。所引论文的额外赠品：IC-Cache 实测朴素语义缓存回放 win rate 50%→18%——LLM 域对我们 payload 主张的独立证据；其解法（ICL prepending）在固定权重 policy 上不存在，故必须走 index 信号。趋同的动机、互斥的解法空间。
+1. **监督学习对这个问题不可用——三层结构性论证。** (a) 标签“执行体 E 从状态 s 接管会不会成功”是反事实的：除非真让 E 从 s 跑，自然数据里不发生。(b) 纯执行体 rollout 的标签也错位：把 episode 结局广播给沿途状态，标注的是“E 从自己走到的状态、独跑到底”的成功率——部署时 router 把 E 派到混合前缀到达的状态、且接管后还可能被切走，到达分布与后续语义双重错位。(c) 最深一层：在 s 选 E 的价值取决于 router 在后续状态的决策——标签定义 Bellman 耦合到待学策略本身。“用监督学习训 router”在语义上不成立；可行路线只有：偏置离线 MC、sim 特权 state-reset 标注（一条标签一次 rollout，真机无此机械）、迭代交互式、在线 RL。contextual bandit 路线（IC-Cache, SOSP'25）的前提是免费逐决策反馈——LLM serving 域特权，闭环控制没有（决策逐步、结局是一个延迟 episode 级 bit、每条样本一次物理 rollout）；IC-Cache 自己都在标签最便宜的域以标签成本否了 classifier router。
+2. **唯一语义正确的路线是在线 RL——所以基线就真跑它（X14）。** Router = 环内 RL 策略（reward = 成功 − λ·成本），sim 内合法（非 eval）init 池上 batch on-policy 训练，离线偏置 MC 头热启动（对“你把 RL 基线训弱了”的疫苗），三变体对应我们三种模式（{T,S}/{T,C}/{T,S,C}），输入限定为与我们 key 同源的进库前模型内部特征——检索分数与库侧信息一律屏蔽。用 **interaction-efficiency 曲线**标价：冻结策略部署 SR 随累计训练 episode 变化，对比零训练水平线。乘法成本是结构性的：trained router 绑定（执行体组合×λ×学生×套件×模型版本），任一变动即重训；真机上其训练过程 = 未训好的 router 在机队上 explore。
+3. **预注册结局——每支可发表。** Router 追不上：免训练信号直接胜。Router 花 N 交互 ep 追平：N 就是价签，且每次配置变动重付一遍，而 index 对这些全部免疫。热启动+慷慨预算下仍不收敛：如实报告——200 步 1-bit 稀疏奖励是结构性原因。不随 AUROC/SR 变的辅助不对称性：fail-closed OOD 方向；标签/交互经济学的 benchmark 硬上限（合法 episode ~500、九成在学生训练分布内）；cache 层执行时取 payload 在任何臂里都需要检索。所引论文赠品：IC-Cache 实测朴素回放 win rate 50%→18%——payload 主张的 LLM 域独立证据；其解法（ICL prepending）在固定权重 policy 上不存在。趋同动机、互斥解法空间。
 
 ## 裁决日志（32 findings → 簇；执行方裁决）
 

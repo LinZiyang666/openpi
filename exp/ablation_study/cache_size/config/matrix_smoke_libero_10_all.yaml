@@ -1,0 +1,7 @@
+suite: libero_10
+outcome_filter: all
+derived_from: exp/ablation_study/config/common/libero_10_baseline.yaml
+arms:
+- arm: cache_size_libero_10_all_S6
+  yaml: exp/ablation_study/cache_size/config/arms/cache_size_libero_10_all_S6.yaml
+  sidecar: null

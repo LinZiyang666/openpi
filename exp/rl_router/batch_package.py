@@ -285,12 +285,20 @@ def build_batch_manifest(
         if not pool:
             reject("shard_missing")
             continue
-        shard = next(
-            (s for s in pool
-             if str(s.get("weights_version")) == weights_version
-             and str(s.get("batch_id")) == batch_id),
-            None,
-        )
+        # LAST match, not first. One dispatch can finalize twice under the SAME
+        # attempt: if a worker's result never reaches the driver the scheduler
+        # re-dispatches without bumping the generation, and the second run
+        # rewrites the shard at the same path. The finalize protocol renames the
+        # .bin before appending its manifest row, so the newest row is the one
+        # that describes the bytes on disk — taking the first would reject a
+        # perfectly good episode on a digest mismatch against overwritten
+        # content. Measured at ~1.3% of episodes in the M5b collection.
+        matches = [
+            s for s in pool
+            if str(s.get("weights_version")) == weights_version
+            and str(s.get("batch_id")) == batch_id
+        ]
+        shard = matches[-1] if matches else None
         if shard is None:
             reject("weights_version_mismatch")
             continue

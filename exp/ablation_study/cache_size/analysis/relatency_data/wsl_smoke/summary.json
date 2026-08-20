@@ -1,0 +1,130 @@
+{
+  "n_steps": 2640,
+  "hit_counts": {
+    "FULL_HIT": 2640
+  },
+  "hit_rate": 1.0,
+  "action_history_approx_active_rows": 0,
+  "probes": {
+    "cp1_collect_ms": {
+      "FULL_HIT": {
+        "count": 2640,
+        "median": 0.004207,
+        "p50": 0.004207,
+        "p95": 0.00569105
+      },
+      "ALL": {
+        "count": 2640,
+        "median": 0.004207,
+        "p50": 0.004207,
+        "p95": 0.00569105
+      }
+    },
+    "cp1_gate_ms": {
+      "FULL_HIT": {
+        "count": 2640,
+        "median": 0.001864,
+        "p50": 0.001864,
+        "p95": 0.0024370999999999993
+      },
+      "ALL": {
+        "count": 2640,
+        "median": 0.001864,
+        "p50": 0.001864,
+        "p95": 0.0024370999999999993
+      }
+    },
+    "cp1_build_ms": {
+      "FULL_HIT": {
+        "count": 2640,
+        "median": 0.42582149999999996,
+        "p50": 0.42582149999999996,
+        "p95": 0.7748608499999998
+      },
+      "ALL": {
+        "count": 2640,
+        "median": 0.42582149999999996,
+        "p50": 0.42582149999999996,
+        "p95": 0.7748608499999998
+      }
+    },
+    "cp1_search_ms": {
+      "FULL_HIT": {
+        "count": 2640,
+        "median": 1.0822895,
+        "p50": 1.0822895,
+        "p95": 1.70903965
+      },
+      "ALL": {
+        "count": 2640,
+        "median": 1.0822895,
+        "p50": 1.0822895,
+        "p95": 1.70903965
+      }
+    },
+    "cp1_judge_ms": {
+      "FULL_HIT": {
+        "count": 2640,
+        "median": 0.0088945,
+        "p50": 0.0088945,
+        "p95": 0.013078599999999996
+      },
+      "ALL": {
+        "count": 2640,
+        "median": 0.0088945,
+        "p50": 0.0088945,
+        "p95": 0.013078599999999996
+      }
+    },
+    "cp1_fetch_ms": {
+      "FULL_HIT": {
+        "count": 2640,
+        "median": 0.003635,
+        "p50": 0.003635,
+        "p95": 0.005360249999999999
+      },
+      "ALL": {
+        "count": 2640,
+        "median": 0.003635,
+        "p50": 0.003635,
+        "p95": 0.005360249999999999
+      }
+    },
+    "cp1_total_ms": {
+      "FULL_HIT": {
+        "count": 2640,
+        "median": 1.6326815,
+        "p50": 1.6326815,
+        "p95": 2.5255977499999998
+      },
+      "ALL": {
+        "count": 2640,
+        "median": 1.6326815,
+        "p50": 1.6326815,
+        "p95": 2.5255977499999998
+      }
+    }
+  },
+  "run": {
+    "n_episodes": 50,
+    "n_steps": 2640,
+    "repeats": 1,
+    "hit_counts": {
+      "FULL_HIT": 2640
+    },
+    "hit_rate": 1.0,
+    "judge_consumes_action_history": false
+  },
+  "meta": {
+    "cache_config": "/home/weiland/.claude/jobs/bfeb2354/tmp/arms_wsl/cache_size_libero_10_all_S1.yaml",
+    "h5_dir": "exp/common/data/db/libero_cache/libero_10",
+    "repeats": 1,
+    "device": "cpu",
+    "threads": 4,
+    "backend": "LeanSearchBackend + CP1SpatialPool16BatchedKeyBuilder (round4)",
+    "lean_hits": 2640,
+    "lean_fallbacks": 0,
+    "build_excludes_d2h": true,
+    "checkpoints_driven": "cp1_only"
+  }
+}

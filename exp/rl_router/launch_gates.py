@@ -105,12 +105,20 @@ def check_launch_gates(
     arm_yaml: Optional[str] = None,
     planned_batches: Optional[int] = None,
     bootstrap: bool = False,
+    pilot_calibration: bool = False,
 ) -> list[str]:
     """Return every reason this run may NOT start. Empty list = cleared.
 
     ``artifacts`` maps the required pre-launch products to their paths:
     ``arm_costs`` (M5a), ``warmstart_weights`` (M5b), ``pilot`` (M5c),
     ``capacity_smoke`` (M4).
+
+    ``bootstrap`` is the M4 smoke and ``pilot_calibration`` is one λ-pilot
+    candidate. Both run BEFORE the pilot record exists, and the pilot's training
+    half runs through this very gate — demanding its own output back would make
+    the record unobtainable. They differ in λ: the bootstrap has none yet
+    (§1 permits a declared placeholder there), while a candidate is defined by
+    the λ it was told to train, so that one stays required.
     """
     problems: list[str] = []
 
@@ -130,10 +138,19 @@ def check_launch_gates(
         problems.append(f"suite {suite!r} has no entry in the run matrix")
 
     # --- G-launch-1: parameters and capacity are measured, not assumed ---
-    try:
-        resolve_lambda(matrix, run)
-    except SystemExit as exc:
-        problems.append(str(exc))
+    #
+    # The bootstrap (M4) runs BEFORE the λ pilot by plan §8, and §1 permits
+    # placeholder constants at exactly that point. λ and the pilot record are
+    # therefore the two things it cannot be asked to already have: requiring
+    # them deadlocks the milestone order, because the pilot's own training half
+    # runs through this same gate. Everything else stays enforced even in the
+    # bootstrap — a smoke that ran on a fabricated cost or without weights would
+    # not be exercising the loop that M6 launches.
+    if not bootstrap:
+        try:
+            resolve_lambda(matrix, run)
+        except SystemExit as exc:
+            problems.append(str(exc))
 
     costs_path = artifacts.get("arm_costs")
     if not costs_path or not pathlib.Path(costs_path).exists():
@@ -148,19 +165,32 @@ def check_launch_gates(
     warm = artifacts.get("warmstart_weights")
     if not warm or not pathlib.Path(warm).exists():
         problems.append("missing M5b warm-start weights; training would start uninitialised")
+    else:
+        problems.extend(_warmstart_arms_problems(warm, run))
 
-    problems.extend(_pilot_problems(artifacts.get("pilot"), matrix, run,
-                                    warmstart_path=artifacts.get("warmstart_weights")))
+    if not bootstrap and not pilot_calibration:
+        problems.extend(_pilot_problems(artifacts.get("pilot"), matrix, run,
+                                        warmstart_path=artifacts.get("warmstart_weights")))
     problems.extend(_arm_yaml_problems(arm_yaml, run, matrix))
     if planned_batches is not None:
-        expected = int(matrix["episodes_per_run"]) // int(matrix["batch_size"])
+        if "episodes" in run:
+            # A per-run episode budget is itself a deviation from the frozen
+            # matrix, so it rides the same amendment channel as the λ symbol.
+            problems.extend(amendment_problems(run))
+            episodes = int(run["episodes"])
+        else:
+            episodes = int(matrix["episodes_per_run"])
+        expected = episodes // int(matrix["batch_size"])
         if int(planned_batches) != expected:
             problems.append(
                 f"planned {planned_batches} batches but the matrix fixes "
-                f"{matrix['episodes_per_run']} episodes / {matrix['batch_size']} per batch "
+                f"{episodes} episodes / {matrix['batch_size']} per batch "
                 f"= {expected}; a short run is not the pre-registered experiment"
             )
 
+    # A pilot candidate still has to clear the capacity smoke: M4 precedes the
+    # pilot either way, so the report exists, and a candidate is a real 500-
+    # episode run whose dumps land on the same disk the gate is protecting.
     if not bootstrap:
         problems.extend(_smoke_problems(artifacts.get("capacity_smoke")))
 
@@ -170,6 +200,44 @@ def check_launch_gates(
             f"features (> {CAPACITY_CEILING_BYTES / 1024**3:.0f} GB ceiling); reclaim "
             "before launch"
         )
+    # One amendment block can back two deviations on the same row (a new λ
+    # symbol and an episode budget), so its problems can be collected twice.
+    return list(dict.fromkeys(problems))
+
+
+def amendment_problems(run: dict) -> list[str]:
+    """Validate the explicit amendment block a deviating run must carry.
+
+    The frozen matrix stays the default: a run that cites a λ symbol the pilot
+    never calibrated, or carries its own episode budget, clears the gate ONLY by
+    declaring the deviation on its own row — with a motivation a reader can audit
+    and a pointer to the calibration evidence that replaces the pilot's
+    authority. This is a disclosure channel, not a loosened default: an
+    undeclared deviation is still blocked, and a bare marker (empty reason,
+    dangling basis) is blocked too.
+    """
+    rid = run.get("id", "?")
+    amendment = run.get("amendment")
+    if not isinstance(amendment, dict):
+        return [
+            f"run {rid}: deviating from the frozen matrix requires an "
+            "'amendment' block on the run row (reason/basis/date)"
+        ]
+    problems: list[str] = []
+    reason = amendment.get("reason")
+    if not isinstance(reason, str) or len(reason.strip()) < 40:
+        problems.append(
+            f"run {rid}: amendment.reason must spell out the motivation "
+            "(>= 40 characters); a bare marker is not a disclosure"
+        )
+    basis = amendment.get("basis")
+    if not basis or not pathlib.Path(str(basis)).exists():
+        problems.append(
+            f"run {rid}: amendment.basis must point to an existing calibration "
+            f"artifact (got {basis!r})"
+        )
+    if not amendment.get("date"):
+        problems.append(f"run {rid}: amendment.date is missing")
     return problems
 
 
@@ -197,7 +265,18 @@ def _pilot_problems(pilot_path: Optional[str], matrix: dict, run: dict,
     symbol = run["lambda"]
     matrix_value = (matrix.get("lambda") or {}).get(symbol)
     if symbol not in selected:
-        problems.append(f"pilot record has no selection for {symbol!r} (got {sorted(selected)})")
+        # A λ outside the pilot grid is reachable ONLY through the explicit
+        # amendment channel: the deviation must be declared on the run row
+        # itself, carrying its own calibration evidence. Without that block
+        # the symbol is simply uncalibrated (the original failure mode).
+        if run.get("amendment") is not None:
+            problems.extend(amendment_problems(run))
+        else:
+            problems.append(
+                f"pilot record has no selection for {symbol!r} (got {sorted(selected)}); "
+                "a symbol outside the pilot grid needs an explicit amendment "
+                "block on the run row"
+            )
     elif matrix_value is None or float(selected[symbol]) != float(matrix_value):
         problems.append(
             f"run matrix {symbol}={matrix_value!r} disagrees with the pilot's "
@@ -317,12 +396,44 @@ def _pilot_problems(pilot_path: Optional[str], matrix: dict, run: dict,
                 record["train_split_sha256"] != doc["pilot_split_sha256"]:
             problems.append(f"{prefix} trained on a different split than the pilot plan")
         if warmstart_path and record.get("expected_warmstart_sha256") and \
-                record["expected_warmstart_sha256"] != _sha256(warmstart_path):
+                record["expected_warmstart_sha256"] != _sha256(warmstart_path) and \
+                not _trunk_matches_pilot(doc, warmstart_path):
             problems.append(
                 f"{prefix} calibrated against a different warm-start checkpoint than "
                 "the one this run would start from"
             )
     return problems
+
+
+def _trunk_matches_pilot(doc: dict, warmstart_path: str) -> bool:
+    """Is this warm-start the pilot's own fit, re-grafted for another arm set?
+
+    The file-sha check above is exact and is the normal path. It cannot be met
+    by R_tsc/R_tc: ``MlpRouterJudge`` refuses weights whose ``meta.arms`` differs
+    from the configured arms, so those variants structurally require their own
+    file, while the frozen matrix assigns them the *same* ``lambda_1`` the pilot
+    selected. Two pre-registered facts, jointly unsatisfiable as written.
+
+    What the digest check is really protecting is that lambda was calibrated
+    from the same starting policy -- i.e. the same representation. So that is
+    what this asserts, and it asserts it on the bytes rather than on a promise:
+    the alternate file must appear in the pilot record's ``variant_warmstarts``
+    (pre-registered, not any file the operator points at) **and** carry the same
+    trunk digest the pilot recorded. ``graft`` copies the whole first layer and
+    the normalisation stats unchanged and only rebuilds the output rows, so a
+    genuine re-graft matches; anything refit on different data does not.
+
+    Returns False -- i.e. leaves the original failure standing -- whenever the
+    record does not pre-register this file, so an unregistered path can never
+    slip through by accident.
+    """
+    registered = doc.get("variant_warmstarts") or {}
+    entry = next((e for e in registered.values()
+                  if e.get("sha256") == _sha256(warmstart_path)), None)
+    if not entry:
+        return False
+    pilot_trunk = doc.get("trunk_sha256")
+    return bool(pilot_trunk) and entry.get("trunk_sha256") == pilot_trunk
 
 
 def _smoke_problems(smoke_path: Optional[str]) -> list[str]:
@@ -387,6 +498,43 @@ def _sha256(path: str) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else ""
 
 
+VARIANT_ARMS = {"R_ts": "ts", "R_tc": "tc", "R_tsc": "tsc"}
+
+
+def _warmstart_arms_problems(warm_path: str, run: dict) -> list[str]:
+    """The warm-start's own arm set must match the variant it will initialise.
+
+    ``run_rl_router`` publishes this file verbatim as the run's ``v0``, and
+    ``MlpRouterJudge`` refuses weights whose ``meta.arms`` differs from the
+    configured arms. Without this check the gate clears a run that cannot start:
+    ``_arm_yaml_problems`` only proves the yaml agrees with the matrix, and both
+    can say ``tsc`` while the file being published says ``ts``. That is not
+    hypothetical -- M5b was fitted once, with ``--arms ts``, and G-launch passed
+    all five runs including the tsc and tc ones.
+
+    Reading the checkpoint is cheap (metadata only) and it is the sole authority
+    on what the fleet will actually load.
+    """
+    expected = VARIANT_ARMS.get(run["variant"])
+    if not expected:
+        return []
+    import torch                                  # local: keeps the gate importable without torch
+
+    try:
+        meta = (torch.load(warm_path, map_location="cpu", weights_only=False) or {}).get("meta") or {}
+    except Exception as exc:                      # noqa: BLE001 - any read failure blocks launch
+        return [f"warm-start weights {warm_path} are unreadable: {exc}"]
+    actual = meta.get("arms")
+    if actual != expected:
+        return [
+            f"warm-start {warm_path} was fitted for arms={actual!r} but run "
+            f"{run['id']} is variant {run['variant']} (arms={expected!r}); the "
+            "judge would reject it at worker start. Refit with "
+            f"fit_warmstart.py --arms {expected}"
+        ]
+    return []
+
+
 def _arm_yaml_problems(arm_yaml: Optional[str], run: dict, matrix: dict) -> list[str]:
     """The yaml that will actually be dispatched must match the frozen row.
 
@@ -402,7 +550,7 @@ def _arm_yaml_problems(arm_yaml: Optional[str], run: dict, matrix: dict) -> list
     cfg = yaml.safe_load(path.read_text(encoding="utf-8"))
     judge = ((cfg.get("checkpoints") or {}).get("cp1") or {}).get("judge") or {}
     problems: list[str] = []
-    expected_arms = {"R_ts": "ts", "R_tc": "tc", "R_tsc": "tsc"}.get(run["variant"])
+    expected_arms = VARIANT_ARMS.get(run["variant"])
     if judge.get("type") != "mlp_router":
         problems.append(f"arm yaml judge.type is {judge.get('type')!r}, expected 'mlp_router'")
     if expected_arms and judge.get("arms") != expected_arms:
@@ -479,6 +627,7 @@ def m4_smoke(
     package_sha256: str = "",
     bytes_before_reclaim: Optional[int] = None,
     bytes_after_reclaim: Optional[int] = None,
+    live_bytes: Optional[int] = None,
 ) -> dict:
     """Evaluate the 20-episode exit criteria. Returns a machine-checkable report.
 
@@ -528,7 +677,12 @@ def m4_smoke(
     rows = sum(int(s.get("rows", 0)) for s in selected)
     dims = {int(s.get("dim", 0)) for s in selected}
     bytes_per_step = (max(dims) * 2) if dims else 0
-    live = steady_state_bytes(dump_root)
+    # The shards live on the SERVING host. A local stat of a path the conductor
+    # can see measures the wrong filesystem and reports a comfortable ~0, which
+    # is the one direction a capacity claim must never be wrong in — so the
+    # caller passes the byte count it measured where the shards actually are,
+    # and the local stat is only the same-host fallback.
+    live = int(live_bytes) if live_bytes is not None else steady_state_bytes(dump_root)
     if bytes_per_step <= 0:
         violations.append("could not measure per-step dump bytes from the manifest")
     if live > CAPACITY_CEILING_BYTES:

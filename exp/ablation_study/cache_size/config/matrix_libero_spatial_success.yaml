@@ -1,0 +1,22 @@
+suite: libero_spatial
+outcome_filter: success
+derived_from: exp/ablation_study/config/common/libero_spatial_baseline.yaml
+arms:
+- arm: cache_size_libero_spatial_success_S1
+  yaml: exp/ablation_study/cache_size/config/arms/cache_size_libero_spatial_success_S1.yaml
+  sidecar: null
+- arm: cache_size_libero_spatial_success_S2
+  yaml: exp/ablation_study/cache_size/config/arms/cache_size_libero_spatial_success_S2.yaml
+  sidecar: null
+- arm: cache_size_libero_spatial_success_S3
+  yaml: exp/ablation_study/cache_size/config/arms/cache_size_libero_spatial_success_S3.yaml
+  sidecar: null
+- arm: cache_size_libero_spatial_success_S4
+  yaml: exp/ablation_study/cache_size/config/arms/cache_size_libero_spatial_success_S4.yaml
+  sidecar: null
+- arm: cache_size_libero_spatial_success_S5
+  yaml: exp/ablation_study/cache_size/config/arms/cache_size_libero_spatial_success_S5.yaml
+  sidecar: null
+- arm: cache_size_libero_spatial_success_S6
+  yaml: exp/ablation_study/cache_size/config/arms/cache_size_libero_spatial_success_S6.yaml
+  sidecar: null

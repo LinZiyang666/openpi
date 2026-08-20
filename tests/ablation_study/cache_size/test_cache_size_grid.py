@@ -240,3 +240,84 @@ def test_scan_collected_rejects_the_save_trajectory_dump(tmp_path):
 
     with pytest.raises(ValueError, match="--save_trajectory dump"):
         scan_collected(tmp_path)
+
+
+# ---------------------------------------------------------------------------
+# outcome_filter="all" -- owner ruling 2026-08-17
+# ---------------------------------------------------------------------------
+
+
+def test_all_filter_keeps_failures_and_never_tops_out():
+    """Under "all" the axis is collected trajectories, so no tier can top out.
+
+    This is the whole point of the ruling: eligibility stops depending on the
+    outcome, so a hard task contributes the same 45 B-train inits as an easy
+    one and the R1/R3/R4 topping-out machinery -- which stays wired up -- never
+    binds.
+    """
+    # A brutal task: only 3 of its 45 B-train inits succeeded.
+    eps = _episodes(0, 50, fail=set(range(3, 45)))
+    grid = order_task(eps, anchor_inits={0, 1, 2, 3, 4}, val_inits={45, 46, 47, 48, 49},
+                      outcome_filter="all")
+    assert grid.n_success == 45, "all 45 B-train inits are eligible regardless of outcome"
+    assert sum(1 for e in grid.ordered if not e.success) == 42
+
+    success_only = order_task(eps, anchor_inits={0, 1, 2, 3, 4},
+                              val_inits={45, 46, 47, 48, 49})
+    assert success_only.n_success == 3, "the frozen default still counts successes only"
+
+
+def test_all_filter_still_excludes_b_val():
+    """B-val stays out under either filter -- it is the one slice outside both
+    the student's training set and every library, and the whole TIER line rests
+    on it."""
+    eps = _episodes(0, 50, fail={45, 46})
+    grid = order_task(eps, anchor_inits={0}, val_inits={45, 46, 47, 48, 49},
+                      outcome_filter="all")
+    assert grid.n_success == 45
+    assert all(e.init_idx < 45 for e in grid.ordered)
+
+
+def test_all_filter_keeps_anchors_first():
+    """R5's ordering is unchanged; under "all" every anchor is present, because
+    an anchor is now eligible whether or not its rollout succeeded."""
+    eps = _episodes(0, 50, fail={0, 2})  # two of the five anchors failed
+    grid = order_task(eps, anchor_inits={0, 1, 2, 3, 4}, val_inits=set(),
+                      outcome_filter="all")
+    assert [e.init_idx for e in grid.ordered[:5]] == [0, 1, 2, 3, 4]
+    assert grid.anchor_hits == 5
+
+    success_only = order_task(eps, anchor_inits={0, 1, 2, 3, 4}, val_inits=set())
+    assert success_only.anchor_hits == 3, "the frozen default drops the failed anchors"
+
+
+def test_grid_records_the_filter_it_used():
+    """The emitted grid must say which filter produced it.
+
+    The builder has its own ``--outcome-filter``; if the two disagree the
+    builder silently drops listed episodes and the library ends up smaller than
+    the tier it claims -- with no error anywhere. Recording it is what makes
+    that checkable.
+    """
+    eps = []
+    for t in range(2):
+        eps.extend(_episodes(t, 50, fail={10, 11, 12}))
+    anchors = {t: {0, 1, 2, 3, 4} for t in range(2)}
+    vals = {t: {45, 46, 47, 48, 49} for t in range(2)}
+
+    g_all = build_grid(eps, anchors, vals, expected_inits_per_task=50, outcome_filter="all")
+    assert g_all["outcome_filter"] == "all"
+    assert set(g_all["n_success"].values()) == {45}
+    assert g_all["mean_realized"]["S6"] == 45, "no capping under 'all'"
+
+    g_succ = build_grid(eps, anchors, vals, expected_inits_per_task=50)
+    assert g_succ["outcome_filter"] == "success"
+    assert set(g_succ["n_success"].values()) == {42}
+    assert g_succ["mean_realized"]["S6"] == 42, "capped by the successes that exist"
+
+
+def test_unknown_outcome_filter_is_rejected():
+    with pytest.raises(ValueError, match="outcome_filter"):
+        order_task(_episodes(0, 50), anchor_inits=set(), val_inits=set(),
+                   outcome_filter="failure")
+

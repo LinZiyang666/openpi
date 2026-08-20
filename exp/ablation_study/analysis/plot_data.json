@@ -1,0 +1,601 @@
+{
+ "schema": 1,
+ "families": {
+  "libero_spatial": {
+   "suite": "libero_spatial",
+   "x_axis": "teacher_inference_rate",
+   "x_axis_meaning": "fraction of inference calls executed by the teacher's full Stage1-3 pipeline; owner-ruled axis, the historical warmup-cost axis is not used",
+   "matrix_arm_order": [
+    "cache_baseline",
+    "hit_act",
+    "hit_smolvla",
+    "miss_act",
+    "miss_smolvla",
+    "pure_act",
+    "pure_smolvla"
+   ],
+   "sweep_tag_order": [
+    "fh67",
+    "fh49",
+    "fh40",
+    "fh25",
+    "fh11"
+   ],
+   "teacher_anchor": {
+    "arm": "teacher",
+    "series": "teacher_anchor",
+    "label": "teacher (all steps Pi0.5)",
+    "success_rate": 0.974,
+    "success_rate_ci95": [
+     0.9560280989556288,
+     0.9847437626770749
+    ],
+    "success_rate_source": "aggregated from Phase-3 anchor shards",
+    "n_episodes": 500,
+    "n_success": 487,
+    "teacher_inference_rate": 1.0,
+    "teacher_inference_rate_basis": "all steps on teacher"
+   },
+   "sources": {
+    "main_matrix_journal": {
+     "path": "exp/ablation_study/data/runs/p4_libero_spatial_journal.jsonl",
+     "sha256": "a228ea1cae2e80a29774bd39fd82d8b8d4cbd8e7907f032a8cc1615421e47c06"
+    },
+    "main_matrix_per_step": {
+     "path": "exp/ablation_study/data/runs/p4_libero_spatial_per_step.jsonl",
+     "sha256": "e1c602cba9878ac04b402d83936515fdf6a8f4920fda2ddd2875f73527c86024"
+    },
+    "kinematic_sweep_journal": {
+     "path": "exp/ablation_study/data/runs/p4b_sp_journal.jsonl",
+     "sha256": "a67a24ce7cb3b94f26321f38dfd90f7b4358fa415771c5af0aaa118301ac9895"
+    },
+    "kinematic_sweep_per_step": {
+     "path": "exp/ablation_study/data/runs/p4b_sp_per_step.jsonl",
+     "sha256": "d628f3fc62b6ee021ad1f649f5d798ce458cdc5e8dfed9adde7b686f271b1cc0"
+    },
+    "teacher_anchor_shards": [
+     "exp/ablation_study/data/anchors/libero_spatial_teacher/results_tasks0_1_2_3_4.json",
+     "exp/ablation_study/data/anchors/libero_spatial_teacher/results_tasks5_6_7_8_9.json"
+    ],
+    "paired_analysis": {
+     "path": "exp/ablation_study/data/runs/analysis_libero_spatial.json",
+     "sha256": "a17210d6b50611eacc4092b796ef448333d3fc934d6eedf08d906b824efea372"
+    }
+   },
+   "points": [
+    {
+     "arm": "cache_baseline",
+     "series": "cache_replay",
+     "label": "cache replay at hit (full cache system)",
+     "hit_slot_executor": "cache payload replay",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.93,
+     "success_rate_ci95": [
+      0.9042028101480832,
+      0.949240257054982
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 465,
+     "teacher_inference_rate": 0.40570981619084867,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.5942901838091513,
+     "matrix_index": 0
+    },
+    {
+     "arm": "hit_act",
+     "series": "retrieval_threshold_routing",
+     "label": "retrieval threshold -> ACT at hit",
+     "hit_slot_executor": "ACT student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.99,
+     "success_rate_ci95": [
+      0.9768069002442693,
+      0.9957212461034096
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 495,
+     "teacher_inference_rate": 0.38821064139941686,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.6117893586005831,
+     "matrix_index": 1
+    },
+    {
+     "arm": "hit_smolvla",
+     "series": "retrieval_threshold_routing",
+     "label": "retrieval threshold -> SmolVLA at hit",
+     "hit_slot_executor": "SmolVLA student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.982,
+     "success_rate_ci95": [
+      0.9661483290912607,
+      0.990501806703803
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 491,
+     "teacher_inference_rate": 0.4274762072611914,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.5725237927388086,
+     "matrix_index": 2
+    },
+    {
+     "arm": "miss_act",
+     "series": "student_at_miss",
+     "label": "replay at hit + ACT at miss",
+     "hit_slot_executor": "cache payload replay",
+     "miss_slot_executor": "ACT student (sidecar)",
+     "success_rate": 0.762,
+     "success_rate_ci95": [
+      0.7227638647789387,
+      0.797240980819208
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 381,
+     "teacher_inference_rate": 0.0,
+     "teacher_inference_rate_basis": "no teacher in the loop",
+     "full_hit_rate": 0.5311459145347601,
+     "matrix_index": 3
+    },
+    {
+     "arm": "miss_smolvla",
+     "series": "student_at_miss",
+     "label": "replay at hit + SmolVLA at miss",
+     "hit_slot_executor": "cache payload replay",
+     "miss_slot_executor": "SmolVLA student (sidecar)",
+     "success_rate": 0.752,
+     "success_rate_ci95": [
+      0.7123215407533253,
+      0.7878357916540525
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 376,
+     "teacher_inference_rate": 0.0,
+     "teacher_inference_rate_basis": "no teacher in the loop",
+     "full_hit_rate": 0.5261112288884178,
+     "matrix_index": 4
+    },
+    {
+     "arm": "pure_act",
+     "series": "pure_student",
+     "label": "pure ACT (no teacher steps)",
+     "hit_slot_executor": "ACT student (gate always_skip)",
+     "miss_slot_executor": "ACT student (gate always_skip)",
+     "success_rate": 0.954,
+     "success_rate_ci95": [
+      0.9319222072317267,
+      0.9691548916291838
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 477,
+     "teacher_inference_rate": 0.0,
+     "teacher_inference_rate_basis": "no teacher in the loop",
+     "full_hit_rate": 0.0,
+     "matrix_index": 5
+    },
+    {
+     "arm": "pure_smolvla",
+     "series": "pure_student",
+     "label": "pure SmolVLA (no teacher steps)",
+     "hit_slot_executor": "SmolVLA student (gate always_skip)",
+     "miss_slot_executor": "SmolVLA student (gate always_skip)",
+     "success_rate": 0.932,
+     "success_rate_ci95": [
+      0.9064790772661258,
+      0.9509334925750932
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 466,
+     "teacher_inference_rate": 0.0,
+     "teacher_inference_rate_basis": "no teacher in the loop",
+     "full_hit_rate": 0.0,
+     "matrix_index": 6
+    },
+    {
+     "arm": "kinroute_act_fh67",
+     "series": "kinematic_verdict_sweep",
+     "label": "kinematic verdict -> ACT at hit",
+     "hit_slot_executor": "ACT student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.992,
+     "success_rate_ci95": [
+      0.9796126401630988,
+      0.9968847352024922
+     ],
+     "success_rate_source": "aggregated from journal (no upstream analyzer for 4b)",
+     "n_episodes": 500,
+     "n_success": 496,
+     "teacher_inference_rate": 0.8129101861008721,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.18708981389912793,
+     "threshold_tag": "fh67",
+     "sweep_order": 0
+    },
+    {
+     "arm": "kinroute_act_fh49",
+     "series": "kinematic_verdict_sweep",
+     "label": "kinematic verdict -> ACT at hit",
+     "hit_slot_executor": "ACT student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.99,
+     "success_rate_ci95": [
+      0.976806564621235,
+      0.9957213092184797
+     ],
+     "success_rate_source": "aggregated from journal (no upstream analyzer for 4b)",
+     "n_episodes": 500,
+     "n_success": 495,
+     "teacher_inference_rate": 0.7170185887024003,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.28298141129759974,
+     "threshold_tag": "fh49",
+     "sweep_order": 1
+    },
+    {
+     "arm": "kinroute_act_fh40",
+     "series": "kinematic_verdict_sweep",
+     "label": "kinematic verdict -> ACT at hit",
+     "hit_slot_executor": "ACT student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.988,
+     "success_rate_ci95": [
+      0.9740692922810136,
+      0.9944890800328247
+     ],
+     "success_rate_source": "aggregated from journal (no upstream analyzer for 4b)",
+     "n_episodes": 500,
+     "n_success": 494,
+     "teacher_inference_rate": 0.6303877366997295,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.3696122633002705,
+     "threshold_tag": "fh40",
+     "sweep_order": 2
+    },
+    {
+     "arm": "kinroute_act_fh25",
+     "series": "kinematic_verdict_sweep",
+     "label": "kinematic verdict -> ACT at hit",
+     "hit_slot_executor": "ACT student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.984,
+     "success_rate_ci95": [
+      0.9687485245822888,
+      0.9918708446797967
+     ],
+     "success_rate_source": "aggregated from journal (no upstream analyzer for 4b)",
+     "n_episodes": 500,
+     "n_success": 492,
+     "teacher_inference_rate": 0.5355791749234372,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.4644208250765628,
+     "threshold_tag": "fh25",
+     "sweep_order": 3
+    },
+    {
+     "arm": "kinroute_act_fh11",
+     "series": "kinematic_verdict_sweep",
+     "label": "kinematic verdict -> ACT at hit",
+     "hit_slot_executor": "ACT student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.968,
+     "success_rate_ci95": [
+      0.9486546984063574,
+      0.980208658648717
+     ],
+     "success_rate_source": "aggregated from journal (no upstream analyzer for 4b)",
+     "n_episodes": 500,
+     "n_success": 484,
+     "teacher_inference_rate": 0.44426623897353645,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.5557337610264635,
+     "threshold_tag": "fh11",
+     "sweep_order": 4
+    }
+   ]
+  },
+  "libero_10": {
+   "suite": "libero_10",
+   "x_axis": "teacher_inference_rate",
+   "x_axis_meaning": "fraction of inference calls executed by the teacher's full Stage1-3 pipeline; owner-ruled axis, the historical warmup-cost axis is not used",
+   "matrix_arm_order": [
+    "cache_baseline",
+    "hit_act",
+    "hit_smolvla",
+    "miss_act",
+    "miss_smolvla",
+    "pure_act",
+    "pure_smolvla"
+   ],
+   "sweep_tag_order": [
+    "fh67",
+    "fh49",
+    "fh40",
+    "fh25",
+    "fh11"
+   ],
+   "teacher_anchor": {
+    "arm": "teacher",
+    "series": "teacher_anchor",
+    "label": "teacher (all steps Pi0.5)",
+    "success_rate": 0.868,
+    "success_rate_ci95": [
+     0.8355045607103054,
+     0.8948837200509497
+    ],
+    "success_rate_source": "aggregated from Phase-3 anchor shards",
+    "n_episodes": 500,
+    "n_success": 434,
+    "teacher_inference_rate": 1.0,
+    "teacher_inference_rate_basis": "all steps on teacher"
+   },
+   "sources": {
+    "main_matrix_journal": {
+     "path": "exp/ablation_study/data/runs/p4_libero_10_journal.jsonl",
+     "sha256": "eb08c2bfc4d0852d75e5bb3d598bdbd1128d34d3eb1d98b52b5aa479a5b26d9d"
+    },
+    "main_matrix_per_step": {
+     "path": "exp/ablation_study/data/runs/p4_libero_10_per_step.jsonl",
+     "sha256": "0cc51cfcc2f22f16200f961e8b6fa2df8c93aa2176360cf86effcb4955353349"
+    },
+    "kinematic_sweep_journal": {
+     "path": "exp/ablation_study/data/runs/p4b_l10_journal.jsonl",
+     "sha256": "986b419989632719b4d3021b5586d94b6dbbfbfe1301d12c7c1ffed39d95fa0a"
+    },
+    "kinematic_sweep_per_step": {
+     "path": "exp/ablation_study/data/runs/p4b_l10_per_step.jsonl",
+     "sha256": "af0d26af0db2d8e0a9386aa13bd5efd7caa26c51905aae26c0027eb252f69b4f"
+    },
+    "teacher_anchor_shards": [
+     "exp/ablation_study/data/anchors/libero_10_teacher/results_tasks0_1_2.json",
+     "exp/ablation_study/data/anchors/libero_10_teacher/results_tasks3_4.json",
+     "exp/ablation_study/data/anchors/libero_10_teacher/results_tasks5_6_7.json",
+     "exp/ablation_study/data/anchors/libero_10_teacher/results_tasks8_9.json"
+    ],
+    "paired_analysis": {
+     "path": "exp/ablation_study/data/runs/analysis_libero_10.json",
+     "sha256": "dc341aaed21c592b1ad621ce326d8231c9eb98aff7e03b81325cb6b387ed32ee"
+    }
+   },
+   "points": [
+    {
+     "arm": "cache_baseline",
+     "series": "cache_replay",
+     "label": "cache replay at hit (full cache system)",
+     "hit_slot_executor": "cache payload replay",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.704,
+     "success_rate_ci95": [
+      0.6625546643222885,
+      0.742334604769398
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 352,
+     "teacher_inference_rate": 0.45245817685216794,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.5475418231478321,
+     "matrix_index": 0
+    },
+    {
+     "arm": "hit_act",
+     "series": "retrieval_threshold_routing",
+     "label": "retrieval threshold -> ACT at hit",
+     "hit_slot_executor": "ACT student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.888,
+     "success_rate_ci95": [
+      0.8573463119959378,
+      0.9127371998058978
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 444,
+     "teacher_inference_rate": 0.3336130927402434,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.6663869072597566,
+     "matrix_index": 1
+    },
+    {
+     "arm": "hit_smolvla",
+     "series": "retrieval_threshold_routing",
+     "label": "retrieval threshold -> SmolVLA at hit",
+     "hit_slot_executor": "SmolVLA student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.83,
+     "success_rate_ci95": [
+      0.7945883013993367,
+      0.8603796338960388
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 415,
+     "teacher_inference_rate": 0.4037676112078519,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.5962323887921481,
+     "matrix_index": 2
+    },
+    {
+     "arm": "miss_act",
+     "series": "student_at_miss",
+     "label": "replay at hit + ACT at miss",
+     "hit_slot_executor": "cache payload replay",
+     "miss_slot_executor": "ACT student (sidecar)",
+     "success_rate": 0.466,
+     "success_rate_ci95": [
+      0.42270077745690987,
+      0.5098176776944758
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 233,
+     "teacher_inference_rate": 0.0,
+     "teacher_inference_rate_basis": "no teacher in the loop",
+     "full_hit_rate": 0.42779184385831226,
+     "matrix_index": 3
+    },
+    {
+     "arm": "miss_smolvla",
+     "series": "student_at_miss",
+     "label": "replay at hit + SmolVLA at miss",
+     "hit_slot_executor": "cache payload replay",
+     "miss_slot_executor": "SmolVLA student (sidecar)",
+     "success_rate": 0.474,
+     "success_rate_ci95": [
+      0.43059811407349635,
+      0.5177983516305045
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 237,
+     "teacher_inference_rate": 0.0,
+     "teacher_inference_rate_basis": "no teacher in the loop",
+     "full_hit_rate": 0.4444973797046212,
+     "matrix_index": 4
+    },
+    {
+     "arm": "pure_act",
+     "series": "pure_student",
+     "label": "pure ACT (no teacher steps)",
+     "hit_slot_executor": "ACT student (gate always_skip)",
+     "miss_slot_executor": "ACT student (gate always_skip)",
+     "success_rate": 0.794,
+     "success_rate_ci95": [
+      0.7563735290819746,
+      0.8271433587266328
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 397,
+     "teacher_inference_rate": 0.0,
+     "teacher_inference_rate_basis": "no teacher in the loop",
+     "full_hit_rate": 0.0,
+     "matrix_index": 5
+    },
+    {
+     "arm": "pure_smolvla",
+     "series": "pure_student",
+     "label": "pure SmolVLA (no teacher steps)",
+     "hit_slot_executor": "SmolVLA student (gate always_skip)",
+     "miss_slot_executor": "SmolVLA student (gate always_skip)",
+     "success_rate": 0.64,
+     "success_rate_ci95": [
+      0.597006617075836,
+      0.6808585675949294
+     ],
+     "success_rate_source": "verbatim from analyze_ablation.py",
+     "n_episodes": 500,
+     "n_success": 320,
+     "teacher_inference_rate": 0.0,
+     "teacher_inference_rate_basis": "no teacher in the loop",
+     "full_hit_rate": 0.0,
+     "matrix_index": 6
+    },
+    {
+     "arm": "kinroute_act_fh67",
+     "series": "kinematic_verdict_sweep",
+     "label": "kinematic verdict -> ACT at hit",
+     "hit_slot_executor": "ACT student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.858,
+     "success_rate_ci95": [
+      0.8246696706783865,
+      0.8858711024534867
+     ],
+     "success_rate_source": "aggregated from journal (no upstream analyzer for 4b)",
+     "n_episodes": 500,
+     "n_success": 429,
+     "teacher_inference_rate": 0.7663834951456311,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.23361650485436894,
+     "threshold_tag": "fh67",
+     "sweep_order": 0
+    },
+    {
+     "arm": "kinroute_act_fh49",
+     "series": "kinematic_verdict_sweep",
+     "label": "kinematic verdict -> ACT at hit",
+     "hit_slot_executor": "ACT student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.846,
+     "success_rate_ci95": [
+      0.8117339597150403,
+      0.8749898042615746
+     ],
+     "success_rate_source": "aggregated from journal (no upstream analyzer for 4b)",
+     "n_episodes": 500,
+     "n_success": 423,
+     "teacher_inference_rate": 0.6311992483725924,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.36880075162740755,
+     "threshold_tag": "fh49",
+     "sweep_order": 1
+    },
+    {
+     "arm": "kinroute_act_fh40",
+     "series": "kinematic_verdict_sweep",
+     "label": "kinematic verdict -> ACT at hit",
+     "hit_slot_executor": "ACT student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.844,
+     "success_rate_ci95": [
+      0.8095845658230334,
+      0.8731696966277049
+     ],
+     "success_rate_source": "aggregated from journal (no upstream analyzer for 4b)",
+     "n_episodes": 500,
+     "n_success": 422,
+     "teacher_inference_rate": 0.5317818330941153,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.46821816690588475,
+     "threshold_tag": "fh40",
+     "sweep_order": 2
+    },
+    {
+     "arm": "kinroute_act_fh25",
+     "series": "kinematic_verdict_sweep",
+     "label": "kinematic verdict -> ACT at hit",
+     "hit_slot_executor": "ACT student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.832,
+     "success_rate_ci95": [
+      0.7967249779380424,
+      0.8622122753574376
+     ],
+     "success_rate_source": "aggregated from journal (no upstream analyzer for 4b)",
+     "n_episodes": 500,
+     "n_success": 416,
+     "teacher_inference_rate": 0.4018654494939472,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.5981345505060528,
+     "threshold_tag": "fh25",
+     "sweep_order": 3
+    },
+    {
+     "arm": "kinroute_act_fh11",
+     "series": "kinematic_verdict_sweep",
+     "label": "kinematic verdict -> ACT at hit",
+     "hit_slot_executor": "ACT student (sidecar)",
+     "miss_slot_executor": "teacher Pi0.5",
+     "success_rate": 0.78,
+     "success_rate_ci95": [
+      0.7416305610182787,
+      0.8140996526044155
+     ],
+     "success_rate_source": "aggregated from journal (no upstream analyzer for 4b)",
+     "n_episodes": 500,
+     "n_success": 390,
+     "teacher_inference_rate": 0.2911828095345321,
+     "teacher_inference_rate_basis": "1 - full_hit_rate",
+     "full_hit_rate": 0.7088171904654679,
+     "threshold_tag": "fh11",
+     "sweep_order": 4
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,551 @@
+{
+ "schema": 2,
+ "families": {
+  "libero_spatial/all": {
+   "suite": "libero_spatial",
+   "outcome_filter": "all",
+   "library_filter_meaning": "library keeps every collected trajectory, failed ones included",
+   "x_axis": "trajectories_per_task",
+   "family_role": "primary",
+   "teacher_success_rate": 0.974,
+   "verdict": {
+    "branch": "G",
+    "d": "D-teacher",
+    "q": "Q-fail",
+    "p": "P-inconc",
+    "m_yes": false,
+    "headline": "more than delta behind; whether the curve has plateaued is undetermined; the teacher remains statistically ahead",
+    "caveats": [
+     "scope: single teacher (Pi0.5), single keybuilder (cp1_spatial_pool_16), two LIBERO suites, sim-only"
+    ]
+   },
+   "figures": [
+    "size_curve_libero_spatial.png"
+   ],
+   "source": {
+    "result_json": "/home/weiland/.claude/jobs/bfeb2354/tmp/size_libero_spatial_all.json",
+    "sha256": "97457ec3c82cc3666be77f98172d66438fdd5dc8434bc15644f35bde05bc40d3"
+   },
+   "points": [
+    {
+     "trajectories_per_task": 1.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 10,
+     "success_rate": 0.182,
+     "success_rate_ci95": [
+      0.131,
+      0.246
+     ],
+     "source_arm": "cache_size_libero_spatial_all_S1",
+     "library_entries_total": 229,
+     "entries_scanned_per_call": {
+      "min": 16,
+      "mean": 22.9,
+      "max": 44
+     },
+     "retrieval_latency_ms": {
+      "i7-12700H": {
+       "median": 1.2153,
+       "search_ms_median": 0.6843,
+       "search_ms_p95": 1.0816,
+       "build_ms_median": 0.4061,
+       "total_ms_median": 1.2153
+      },
+      "Xeon E5-2696 v4": {
+       "median": 1.0788,
+       "search_ms_median": 0.6458,
+       "search_ms_p95": 0.7924,
+       "build_ms_median": 0.3387,
+       "total_ms_median": 1.0788
+      }
+     }
+    },
+    {
+     "trajectories_per_task": 2.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 20,
+     "success_rate": 0.364,
+     "success_rate_ci95": [
+      0.204,
+      0.4420000000000001
+     ],
+     "source_arm": "cache_size_libero_spatial_all_S2",
+     "library_entries_total": 448,
+     "entries_scanned_per_call": {
+      "min": 32,
+      "mean": 44.8,
+      "max": 64
+     },
+     "retrieval_latency_ms": {
+      "i7-12700H": {
+       "median": 1.4861,
+       "search_ms_median": 0.9407,
+       "search_ms_p95": 1.3996,
+       "build_ms_median": 0.4082,
+       "total_ms_median": 1.4861
+      },
+      "Xeon E5-2696 v4": {
+       "median": 1.2145,
+       "search_ms_median": 0.8093,
+       "search_ms_p95": 0.9546,
+       "build_ms_median": 0.3159,
+       "total_ms_median": 1.2145
+      }
+     }
+    },
+    {
+     "trajectories_per_task": 5.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 50,
+     "success_rate": 0.688,
+     "success_rate_ci95": [
+      0.624,
+      0.7539999999999999
+     ],
+     "source_arm": "cache_size_libero_spatial_all_S3",
+     "library_entries_total": 1072,
+     "entries_scanned_per_call": {
+      "min": 77,
+      "mean": 107.2,
+      "max": 132
+     },
+     "retrieval_latency_ms": {
+      "i7-12700H": {
+       "median": 2.1108,
+       "search_ms_median": 1.5816,
+       "search_ms_p95": 2.3884,
+       "build_ms_median": 0.3955,
+       "total_ms_median": 2.1108
+      },
+      "Xeon E5-2696 v4": {
+       "median": 1.9919,
+       "search_ms_median": 1.5756,
+       "search_ms_p95": 2.0666,
+       "build_ms_median": 0.3196,
+       "total_ms_median": 1.9919
+      }
+     }
+    },
+    {
+     "trajectories_per_task": 10.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 100,
+     "success_rate": 0.728,
+     "success_rate_ci95": [
+      0.678,
+      0.78
+     ],
+     "source_arm": "cache_size_libero_spatial_all_S4",
+     "library_entries_total": 2133,
+     "entries_scanned_per_call": {
+      "min": 154,
+      "mean": 213.3,
+      "max": 269
+     },
+     "retrieval_latency_ms": {
+      "i7-12700H": {
+       "median": 3.2277,
+       "search_ms_median": 2.6604,
+       "search_ms_p95": 3.8959,
+       "build_ms_median": 0.4205,
+       "total_ms_median": 3.2277
+      },
+      "Xeon E5-2696 v4": {
+       "median": 3.5288,
+       "search_ms_median": 3.1105,
+       "search_ms_p95": 3.7123,
+       "build_ms_median": 0.3126,
+       "total_ms_median": 3.5288
+      }
+     }
+    },
+    {
+     "trajectories_per_task": 20.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 200,
+     "success_rate": 0.762,
+     "success_rate_ci95": [
+      0.686,
+      0.8140000000000001
+     ],
+     "source_arm": "cache_size_libero_spatial_all_S5",
+     "library_entries_total": 4428,
+     "entries_scanned_per_call": {
+      "min": 340,
+      "mean": 442.8,
+      "max": 530
+     },
+     "retrieval_latency_ms": {
+      "i7-12700H": {
+       "median": 6.0451,
+       "search_ms_median": 5.4038,
+       "search_ms_p95": 7.8394,
+       "build_ms_median": 0.4851,
+       "total_ms_median": 6.0451
+      },
+      "Xeon E5-2696 v4": {
+       "median": 6.7055,
+       "search_ms_median": 6.1989,
+       "search_ms_p95": 6.6764,
+       "build_ms_median": 0.3731,
+       "total_ms_median": 6.7055
+      }
+     }
+    },
+    {
+     "trajectories_per_task": 45.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 450,
+     "success_rate": 0.8099999999999999,
+     "success_rate_ci95": [
+      0.758,
+      0.86
+     ],
+     "source_arm": "cache_size_libero_spatial_all_S6",
+     "library_entries_total": 9813,
+     "entries_scanned_per_call": {
+      "min": 755,
+      "mean": 981.3,
+      "max": 1174
+     },
+     "retrieval_latency_ms": {
+      "i7-12700H": {
+       "median": 10.8869,
+       "search_ms_median": 10.2718,
+       "search_ms_p95": 13.229,
+       "build_ms_median": 0.4476,
+       "total_ms_median": 10.8869
+      },
+      "Xeon E5-2696 v4": {
+       "median": 13.6927,
+       "search_ms_median": 13.2566,
+       "search_ms_p95": 15.6227,
+       "build_ms_median": 0.3226,
+       "total_ms_median": 13.6927
+      }
+     }
+    }
+   ]
+  },
+  "libero_10/all": {
+   "suite": "libero_10",
+   "outcome_filter": "all",
+   "library_filter_meaning": "library keeps every collected trajectory, failed ones included",
+   "x_axis": "trajectories_per_task",
+   "family_role": "primary",
+   "teacher_success_rate": 0.868,
+   "verdict": {
+    "branch": "G",
+    "d": "D-teacher",
+    "q": "Q-fail",
+    "p": "P-inconc",
+    "m_yes": false,
+    "headline": "more than delta behind; whether the curve has plateaued is undetermined; the teacher remains statistically ahead",
+    "caveats": [
+     "scope: single teacher (Pi0.5), single keybuilder (cp1_spatial_pool_16), two LIBERO suites, sim-only"
+    ]
+   },
+   "figures": [
+    "size_curve_libero_10.png"
+   ],
+   "source": {
+    "result_json": "/home/weiland/.claude/jobs/bfeb2354/tmp/size_libero_10_all.json",
+    "sha256": "3a2d69478bf6abfccb28c5513f27cc5f6cc2e9d0463be208d05ab8d011f31310"
+   },
+   "points": [
+    {
+     "trajectories_per_task": 1.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 10,
+     "success_rate": 0.072,
+     "success_rate_ci95": [
+      0.05,
+      0.1200000000000001
+     ],
+     "source_arm": "cache_size_libero_10_all_S1",
+     "library_entries_total": 555,
+     "entries_scanned_per_call": {
+      "min": 33,
+      "mean": 55.5,
+      "max": 86
+     },
+     "retrieval_latency_ms": {
+      "i7-12700H": {
+       "median": 1.7013,
+       "search_ms_median": 1.1247,
+       "search_ms_p95": 1.6637,
+       "build_ms_median": 0.4373,
+       "total_ms_median": 1.7013
+      },
+      "Xeon E5-2696 v4": {
+       "median": 1.1905,
+       "search_ms_median": 0.7994,
+       "search_ms_p95": 1.0581,
+       "build_ms_median": 0.3133,
+       "total_ms_median": 1.1905
+      }
+     }
+    },
+    {
+     "trajectories_per_task": 2.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 20,
+     "success_rate": 0.26,
+     "success_rate_ci95": [
+      0.13200000000000003,
+      0.36399999999999993
+     ],
+     "source_arm": "cache_size_libero_10_all_S2",
+     "library_entries_total": 1094,
+     "entries_scanned_per_call": {
+      "min": 70,
+      "mean": 109.4,
+      "max": 163
+     },
+     "retrieval_latency_ms": {
+      "i7-12700H": {
+       "median": 2.2309,
+       "search_ms_median": 1.6638,
+       "search_ms_p95": 2.4717,
+       "build_ms_median": 0.4271,
+       "total_ms_median": 2.2309
+      },
+      "Xeon E5-2696 v4": {
+       "median": 1.7922,
+       "search_ms_median": 1.3909,
+       "search_ms_p95": 1.971,
+       "build_ms_median": 0.3322,
+       "total_ms_median": 1.7922
+      }
+     }
+    },
+    {
+     "trajectories_per_task": 5.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 50,
+     "success_rate": 0.45599999999999996,
+     "success_rate_ci95": [
+      0.292,
+      0.658
+     ],
+     "source_arm": "cache_size_libero_10_all_S3",
+     "library_entries_total": 2741,
+     "entries_scanned_per_call": {
+      "min": 174,
+      "mean": 274.1,
+      "max": 451
+     },
+     "retrieval_latency_ms": {
+      "i7-12700H": {
+       "median": 3.8335,
+       "search_ms_median": 3.229,
+       "search_ms_p95": 4.7951,
+       "build_ms_median": 0.4231,
+       "total_ms_median": 3.8335
+      },
+      "Xeon E5-2696 v4": {
+       "median": 4.1613,
+       "search_ms_median": 3.6892,
+       "search_ms_p95": 5.0936,
+       "build_ms_median": 0.3674,
+       "total_ms_median": 4.1613
+      }
+     }
+    },
+    {
+     "trajectories_per_task": 10.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 100,
+     "success_rate": 0.47800000000000004,
+     "success_rate_ci95": [
+      0.33,
+      0.634
+     ],
+     "source_arm": "cache_size_libero_10_all_S4",
+     "library_entries_total": 5660,
+     "entries_scanned_per_call": {
+      "min": 354,
+      "mean": 566.0,
+      "max": 908
+     },
+     "retrieval_latency_ms": {
+      "i7-12700H": {
+       "median": 6.8158,
+       "search_ms_median": 6.1801,
+       "search_ms_p95": 8.9445,
+       "build_ms_median": 0.4344,
+       "total_ms_median": 6.8158
+      },
+      "Xeon E5-2696 v4": {
+       "median": 7.8271,
+       "search_ms_median": 7.3574,
+       "search_ms_p95": 10.2076,
+       "build_ms_median": 0.3723,
+       "total_ms_median": 7.8271
+      }
+     }
+    },
+    {
+     "trajectories_per_task": 20.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 200,
+     "success_rate": 0.48,
+     "success_rate_ci95": [
+      0.346,
+      0.626
+     ],
+     "source_arm": "cache_size_libero_10_all_S5",
+     "library_entries_total": 11720,
+     "entries_scanned_per_call": {
+      "min": 961,
+      "mean": 1172.0,
+      "max": 1915
+     },
+     "retrieval_latency_ms": {
+      "i7-12700H": {
+       "median": 12.5206,
+       "search_ms_median": 11.8497,
+       "search_ms_p95": 18.5341,
+       "build_ms_median": 0.4502,
+       "total_ms_median": 12.5206
+      },
+      "Xeon E5-2696 v4": {
+       "median": 15.1844,
+       "search_ms_median": 14.713,
+       "search_ms_p95": 34.6412,
+       "build_ms_median": 0.3878,
+       "total_ms_median": 15.1844
+      }
+     }
+    },
+    {
+     "trajectories_per_task": 45.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 450,
+     "success_rate": 0.516,
+     "success_rate_ci95": [
+      0.386,
+      0.65
+     ],
+     "source_arm": "cache_size_libero_10_all_S6",
+     "library_entries_total": 26493,
+     "entries_scanned_per_call": {
+      "min": 2129,
+      "mean": 2649.3,
+      "max": 4283
+     },
+     "retrieval_latency_ms": {
+      "Xeon E5-2696 v4": {
+       "median": 32.0384,
+       "search_ms_median": 31.4226,
+       "search_ms_p95": 58.3143,
+       "build_ms_median": 0.3922,
+       "total_ms_median": 32.0384
+      }
+     }
+    }
+   ]
+  },
+  "libero_10/success": {
+   "suite": "libero_10",
+   "outcome_filter": "success",
+   "library_filter_meaning": "library keeps successful trajectories only",
+   "x_axis": "trajectories_per_task",
+   "family_role": "secondary-descriptive",
+   "teacher_success_rate": 0.868,
+   "verdict": {
+    "branch": "G",
+    "d": "D-none",
+    "q": "Q-fail",
+    "p": "P-inconc",
+    "m_yes": false,
+    "headline": "more than delta behind; whether the curve has plateaued is undetermined; the direction cannot be asserted",
+    "caveats": [
+     "scope: single teacher (Pi0.5), single keybuilder (cp1_spatial_pool_16), two LIBERO suites, sim-only",
+     "magnitude confirmed above delta while direction was not confirmed at family level -- the two use different tails (test 8 one-sided, test 6 two-sided), so this is a real dataset shape, not an inconsistency. Report both facts and do not paraphrase the pair as agreement"
+    ]
+   },
+   "figures": [
+    "size_curve_libero_10.png"
+   ],
+   "source": {
+    "result_json": "/home/weiland/.claude/jobs/bfeb2354/tmp/size_libero_10_success.json",
+    "sha256": "21b0ab6a7e004dd8e5621237b74a14cad08838ab63f08be2e3907bf737f09083"
+   },
+   "points": [
+    {
+     "trajectories_per_task": 1.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 10,
+     "success_rate": 0.072,
+     "success_rate_ci95": [
+      0.05,
+      0.12200000000000004
+     ],
+     "source_arm": "cache_size_libero_10_success_S1",
+     "library_entries_total": 555
+    },
+    {
+     "trajectories_per_task": 2.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 20,
+     "success_rate": 0.26000000000000006,
+     "success_rate_ci95": [
+      0.138,
+      0.36399999999999993
+     ],
+     "source_arm": "cache_size_libero_10_success_S2",
+     "library_entries_total": 1094
+    },
+    {
+     "trajectories_per_task": 5.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 50,
+     "success_rate": 0.4640000000000001,
+     "success_rate_ci95": [
+      0.30200000000000005,
+      0.6599999999999999
+     ],
+     "source_arm": "cache_size_libero_10_success_S3",
+     "library_entries_total": 2706
+    },
+    {
+     "trajectories_per_task": 10.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 100,
+     "success_rate": 0.4699999999999999,
+     "success_rate_ci95": [
+      0.31,
+      0.6519999999999999
+     ],
+     "source_arm": "cache_size_libero_10_success_S4",
+     "library_entries_total": 5462
+    },
+    {
+     "trajectories_per_task": 20.0,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 200,
+     "success_rate": 0.49799999999999994,
+     "success_rate_ci95": [
+      0.34,
+      0.67
+     ],
+     "source_arm": "cache_size_libero_10_success_S5",
+     "library_entries_total": 10781
+    },
+    {
+     "trajectories_per_task": 39.2,
+     "trajectories_per_task_is_realized": true,
+     "episodes_in_library": 392,
+     "success_rate": 0.522,
+     "success_rate_ci95": [
+      0.364,
+      0.6759999999999999
+     ],
+     "source_arm": "cache_size_libero_10_success_S6",
+     "library_entries_total": 20461
+    }
+   ]
+  }
+ }
+}

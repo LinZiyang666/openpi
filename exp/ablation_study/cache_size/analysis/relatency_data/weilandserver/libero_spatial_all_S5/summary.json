@@ -1,0 +1,130 @@
+{
+  "n_steps": 1062,
+  "hit_counts": {
+    "FULL_HIT": 1062
+  },
+  "hit_rate": 1.0,
+  "action_history_approx_active_rows": 0,
+  "probes": {
+    "cp1_collect_ms": {
+      "FULL_HIT": {
+        "count": 1062,
+        "median": 0.004293,
+        "p50": 0.004293,
+        "p95": 0.00471785
+      },
+      "ALL": {
+        "count": 1062,
+        "median": 0.004293,
+        "p50": 0.004293,
+        "p95": 0.00471785
+      }
+    },
+    "cp1_gate_ms": {
+      "FULL_HIT": {
+        "count": 1062,
+        "median": 0.001756,
+        "p50": 0.001756,
+        "p95": 0.002096
+      },
+      "ALL": {
+        "count": 1062,
+        "median": 0.001756,
+        "p50": 0.001756,
+        "p95": 0.002096
+      }
+    },
+    "cp1_build_ms": {
+      "FULL_HIT": {
+        "count": 1062,
+        "median": 0.3730505,
+        "p50": 0.3730505,
+        "p95": 0.4469043499999997
+      },
+      "ALL": {
+        "count": 1062,
+        "median": 0.3730505,
+        "p50": 0.3730505,
+        "p95": 0.4469043499999997
+      }
+    },
+    "cp1_search_ms": {
+      "FULL_HIT": {
+        "count": 1062,
+        "median": 6.1989125000000005,
+        "p50": 6.1989125000000005,
+        "p95": 6.6764424
+      },
+      "ALL": {
+        "count": 1062,
+        "median": 6.1989125000000005,
+        "p50": 6.1989125000000005,
+        "p95": 6.6764424
+      }
+    },
+    "cp1_judge_ms": {
+      "FULL_HIT": {
+        "count": 1062,
+        "median": 0.01263,
+        "p50": 0.01263,
+        "p95": 0.014096499999999998
+      },
+      "ALL": {
+        "count": 1062,
+        "median": 0.01263,
+        "p50": 0.01263,
+        "p95": 0.014096499999999998
+      }
+    },
+    "cp1_fetch_ms": {
+      "FULL_HIT": {
+        "count": 1062,
+        "median": 0.0071255,
+        "p50": 0.0071255,
+        "p95": 0.0202544
+      },
+      "ALL": {
+        "count": 1062,
+        "median": 0.0071255,
+        "p50": 0.0071255,
+        "p95": 0.0202544
+      }
+    },
+    "cp1_total_ms": {
+      "FULL_HIT": {
+        "count": 1062,
+        "median": 6.7055245,
+        "p50": 6.7055245,
+        "p95": 7.3599868499999985
+      },
+      "ALL": {
+        "count": 1062,
+        "median": 6.7055245,
+        "p50": 6.7055245,
+        "p95": 7.3599868499999985
+      }
+    }
+  },
+  "run": {
+    "n_episodes": 50,
+    "n_steps": 1062,
+    "repeats": 1,
+    "hit_counts": {
+      "FULL_HIT": 1062
+    },
+    "hit_rate": 1.0,
+    "judge_consumes_action_history": false
+  },
+  "meta": {
+    "cache_config": "/home/weiland/openpi/exp/ablation_study/cache_size/config/arms/cache_size_libero_spatial_all_S5.yaml",
+    "h5_dir": "exp/common/data/db/libero_cache/libero_spatial",
+    "repeats": 1,
+    "device": "cpu",
+    "threads": 4,
+    "backend": "LeanSearchBackend + CP1SpatialPool16BatchedKeyBuilder (round4)",
+    "lean_hits": 1062,
+    "lean_fallbacks": 0,
+    "build_excludes_d2h": true,
+    "checkpoints_driven": "cp1_only"
+  }
+}

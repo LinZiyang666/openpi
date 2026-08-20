@@ -41,7 +41,12 @@ from exp.rl_router.batch_package import (
     reclaim_batch_shards,
     steady_state_bytes,
 )
-from exp.rl_router.launch_gates import CAPACITY_CEILING_BYTES, check_launch_gates, m4_smoke
+from exp.rl_router.launch_gates import (
+    CAPACITY_CEILING_BYTES,
+    VARIANT_ARMS,
+    check_launch_gates,
+    m4_smoke,
+)
 from exp.rl_router.train_router import EpisodeAdmissionError
 from exp.rl_router.run_rl_router import (
     make_slots,
@@ -557,6 +562,32 @@ def test_m4_smoke_passes_on_a_healthy_batch(tmp_path) -> None:
     assert report["episodes"] == 20
 
 
+def test_m4_steady_state_comes_from_where_the_shards_are(tmp_path) -> None:
+    """The conductor cannot stat the serving host's dump root. Falling back to a
+    local stat reported ~0 bytes of steady state — a capacity claim that is
+    comfortable and wrong."""
+    manifest = {
+        "complete": True, "rejected": [], "missing_slots": [],
+        "training_selected": [{"rows": 10, "dim": 65568} for _ in range(20)],
+    }
+    metrics = [{"batch_id": "b0", "arm_executed_rate": {"teacher": 1.0}}]
+    empty_local = tmp_path / "conductor_scratch"
+    empty_local.mkdir()
+
+    common = dict(
+        manifest=manifest, metrics=metrics, checkpoint_versions=["v0", "v1"],
+        next_batch_shards=[{"weights_version": "v1"}], dump_root=empty_local,
+        bytes_before_reclaim=9_000_000_000, bytes_after_reclaim=5_000_000_000,
+    )
+    measured = m4_smoke(**common, live_bytes=5_000_000_000)
+    assert measured["steady_state_bytes"] == 5_000_000_000
+    assert measured["peak_bytes"] == 9_000_000_000
+    assert measured["passed"], measured["violations"]
+
+    # Without the measurement the local stat wins, and the report understates.
+    assert m4_smoke(**common)["steady_state_bytes"] == 0
+
+
 @pytest.mark.parametrize("break_it", ["join", "updates", "rollover", "fallback"])
 def test_m4_smoke_catches_each_failure(tmp_path, break_it: str) -> None:
     directory = _shard_dir(tmp_path, n=1, size=64)
@@ -596,7 +627,8 @@ MATRIX = {
 }
 
 
-def _artifacts(tmp_path, *, gpu_timed: bool = True, arms=("teacher", "student")) -> dict:
+def _artifacts(tmp_path, *, gpu_timed: bool = True, arms=("teacher", "student"),
+               warm_arms: str = "ts") -> dict:
     import hashlib
 
     costs = tmp_path / "costs.json"
@@ -608,7 +640,12 @@ def _artifacts(tmp_path, *, gpu_timed: bool = True, arms=("teacher", "student"))
             for a in arms
         },
     }), encoding="utf-8")
-    (tmp_path / "warm.pt").write_text("{}", encoding="utf-8")
+    # A real checkpoint, not a stub: the gate reads meta.arms out of it, and a
+    # fixture that only *looks* like weights would let an arm-set mismatch pass
+    # here while the fleet rejects it at worker start.
+    import torch
+
+    torch.save({"meta": {"arms": warm_arms}}, tmp_path / "warm.pt")
     WARM_SHA = hashlib.sha256((tmp_path / "warm.pt").read_bytes()).hexdigest()
     # A real pilot record: the gate reads the selection, the per-candidate
     # manifests and the digests, so an empty {} must NOT clear it.
@@ -697,6 +734,44 @@ def test_launch_gates_block_a_mismatched_batch_size_or_seed(tmp_path) -> None:
         variant="R_ts", suite="libero_10"))
 
 
+@pytest.mark.parametrize("variant,warm_arms", [("R_tsc", "ts"), ("R_tc", "ts"), ("R_ts", "tsc")])
+def test_launch_gates_block_a_warmstart_fitted_for_other_arms(
+    tmp_path, variant: str, warm_arms: str,
+) -> None:
+    """The file published as v0 must match the variant it initialises.
+
+    This is the real M6 failure: M5b was fitted once with ``--arms ts`` and the
+    gate cleared all five runs, including the tsc and tc ones the judge would
+    reject the moment a worker loaded them.
+    """
+    run = {**MATRIX["runs"][0], "variant": variant}
+    problems = check_launch_gates(
+        MATRIX, run, artifacts=_artifacts(tmp_path, warm_arms=warm_arms),
+        batch_size=100, seed=0, variant=variant, suite="libero_10",
+    )
+    assert any("was fitted for arms=" in p for p in problems)
+    assert any(f"--arms {VARIANT_ARMS[variant]}" in p for p in problems)
+
+
+def test_launch_gates_clear_a_matching_warmstart(tmp_path) -> None:
+    run = {**MATRIX["runs"][0], "variant": "R_tsc"}
+    problems = check_launch_gates(
+        MATRIX, run, artifacts=_artifacts(tmp_path, warm_arms="tsc"),
+        batch_size=100, seed=0, variant="R_tsc", suite="libero_10",
+    )
+    assert not any("arms" in p for p in problems), problems
+
+
+def test_launch_gates_block_an_unreadable_warmstart(tmp_path) -> None:
+    artifacts = _artifacts(tmp_path)
+    pathlib.Path(artifacts["warmstart_weights"]).write_text("not a checkpoint")
+    problems = check_launch_gates(
+        MATRIX, MATRIX["runs"][0], artifacts=artifacts,
+        batch_size=100, seed=0, variant="R_ts", suite="libero_10",
+    )
+    assert any("unreadable" in p for p in problems)
+
+
 @pytest.mark.parametrize("missing", ["warmstart_weights", "pilot", "capacity_smoke"])
 def test_launch_gates_block_a_missing_prerequisite(tmp_path, missing: str) -> None:
     artifacts = _artifacts(tmp_path)
@@ -706,6 +781,54 @@ def test_launch_gates_block_a_missing_prerequisite(tmp_path, missing: str) -> No
         batch_size=100, seed=0, variant="R_ts", suite="libero_10",
     )
     assert problems
+
+
+def test_bootstrap_waives_only_what_the_pilot_has_not_produced_yet(tmp_path) -> None:
+    """M4 runs BEFORE the λ pilot (plan §8), and the pilot's own training half
+    runs through this gate: requiring a calibrated λ and a pilot record in the
+    bootstrap deadlocks the milestone order outright. Those two are waived; the
+    measured cost, the weights and the yaml stay enforced, because a smoke on a
+    fabricated cost is not exercising the loop M6 launches."""
+    artifacts = _artifacts(tmp_path)
+    artifacts["pilot"] = str(tmp_path / "absent")
+    uncalibrated = json.loads(json.dumps(MATRIX))
+    uncalibrated["lambda"] = {"lambda_1": None, "lambda_2": None}
+
+    assert check_launch_gates(
+        uncalibrated, uncalibrated["runs"][0], artifacts=artifacts,
+        batch_size=100, seed=0, variant="R_ts", suite="libero_10", bootstrap=True,
+    ) == []
+    # ...and the same inputs are still refused for a formal run.
+    formal = check_launch_gates(
+        uncalibrated, uncalibrated["runs"][0], artifacts=artifacts,
+        batch_size=100, seed=0, variant="R_ts", suite="libero_10",
+    )
+    assert any("lambda_1" in p for p in formal)
+    assert any("pilot" in p for p in formal)
+
+
+@pytest.mark.parametrize("missing", ["warmstart_weights", "arm_costs"])
+def test_bootstrap_still_blocks_on_weights_and_measured_cost(tmp_path, missing: str) -> None:
+    artifacts = _artifacts(tmp_path)
+    artifacts[missing] = str(tmp_path / "absent")
+    assert check_launch_gates(
+        MATRIX, MATRIX["runs"][0], artifacts=artifacts,
+        batch_size=100, seed=0, variant="R_ts", suite="libero_10", bootstrap=True,
+    )
+
+
+def test_bootstrap_lambda_placeholder_is_declared_not_silent() -> None:
+    """The placeholder must exercise the cost term (a zero would switch it off)
+    and must never be substituted for a formal run."""
+    from exp.rl_router.pilot_lambda import LAMBDA_GRID
+    from exp.rl_router.run_rl_router import _resolve_lambda_or_placeholder
+
+    uncalibrated = json.loads(json.dumps(MATRIX))
+    uncalibrated["lambda"] = {"lambda_1": None, "lambda_2": None}
+    lam = _resolve_lambda_or_placeholder(uncalibrated, uncalibrated["runs"][0], bootstrap=True)
+    assert lam in {float(x) for x in LAMBDA_GRID} and lam > 0.0
+    with pytest.raises(SystemExit):
+        _resolve_lambda_or_placeholder(uncalibrated, uncalibrated["runs"][0], bootstrap=False)
 
 
 def test_launch_gates_block_an_over_full_remote_dump_root(tmp_path) -> None:
@@ -742,6 +865,64 @@ def test_realized_teacher_rate_counts_executed_arms() -> None:
     assert realized_teacher_rate(rows) == 0.5
     with pytest.raises(ValueError, match="no executed arms"):
         realized_teacher_rate([{"_kind": "client_timing"}])
+
+
+def test_pilot_eval_yaml_freezes_the_policy_and_writes_nothing(tmp_path) -> None:
+    """Protocol step 3 measures the FROZEN batch-5 policy. Sampling would grade a
+    different distribution than the one being selected, and a dump_dir would turn
+    the measurement into another training rollout on the held-out remainder."""
+    from exp.rl_router.pilot_lambda import build_eval_yaml
+
+    train_yaml = tmp_path / "train.yaml"
+    train_yaml.write_text(yaml.safe_dump({
+        "key_builder": {"type": "cp1_spatial_pool_16"},
+        "backend": {"type": "in_memory", "in_memory": {"preload_path": "lib.pkl"}},
+        "routing": {"hit_to": "127.0.0.1:7002"},
+        "checkpoints": {"cp1": {"judge": {
+            "type": "mlp_router", "arms": "ts", "mode": "sample", "temperature": 1.0,
+            "seed": 0, "dump_dir": "/dump", "weights_path": "/w/v0.pt",
+        }}},
+    }), encoding="utf-8")
+
+    cfg = build_eval_yaml(train_yaml, weights_path="/remote/weights/v5.pt")
+    judge = cfg["checkpoints"]["cp1"]["judge"]
+    assert judge["mode"] == "argmax"
+    assert judge["weights_path"] == "/remote/weights/v5.pt"
+    assert "dump_dir" not in judge and "seed" not in judge and "temperature" not in judge
+    # The retrieval half must be untouched: a candidate measured on a different
+    # observation space is not that candidate.
+    assert cfg["key_builder"] == {"type": "cp1_spatial_pool_16"}
+    assert cfg["backend"]["in_memory"]["preload_path"] == "lib.pkl"
+    assert cfg["routing"] == {"hit_to": "127.0.0.1:7002"}
+
+
+def test_pilot_candidate_waives_only_its_own_record(tmp_path) -> None:
+    """A candidate runs through this gate to PRODUCE the pilot record, so
+    demanding the record back is unobtainable. λ stays required — a candidate is
+    defined by the λ it was told to train."""
+    artifacts = _artifacts(tmp_path)
+    artifacts["pilot"] = str(tmp_path / "absent")
+    assert check_launch_gates(
+        MATRIX, MATRIX["runs"][0], artifacts=artifacts,
+        batch_size=100, seed=0, variant="R_ts", suite="libero_10", pilot_calibration=True,
+    ) == []
+
+    uncalibrated = json.loads(json.dumps(MATRIX))
+    uncalibrated["lambda"] = {"lambda_1": None, "lambda_2": None}
+    problems = check_launch_gates(
+        uncalibrated, uncalibrated["runs"][0], artifacts=artifacts,
+        batch_size=100, seed=0, variant="R_ts", suite="libero_10", pilot_calibration=True,
+    )
+    assert any("lambda_1" in p for p in problems)
+
+    # ...and it does NOT waive the capacity smoke: a candidate is a real
+    # 500-episode run dumping onto the same disk the ceiling protects.
+    no_smoke = _artifacts(tmp_path)
+    no_smoke["capacity_smoke"] = str(tmp_path / "absent")
+    assert any("capacity smoke" in p for p in check_launch_gates(
+        MATRIX, MATRIX["runs"][0], artifacts=no_smoke,
+        batch_size=100, seed=0, variant="R_ts", suite="libero_10", pilot_calibration=True,
+    ))
 
 
 def test_pilot_candidates_share_the_checkpoint_and_seed(tmp_path) -> None:
@@ -853,6 +1034,66 @@ def test_cache_arm_cost_is_measured_not_assumed_zero() -> None:
     assert record["gpu"]["mean_s"] > 0.0
     assert record["path"].startswith("PayloadView.get")
     assert "gpu_timed" in record["gpu"]
+
+
+def test_cache_probe_replays_a_real_entry_when_the_library_is_frozen() -> None:
+    """A production arm yaml preloads its library and freezes the backend, so
+    the probe must pick an existing payload instead of seeding a synthetic one —
+    the earlier seed raised BackendFrozenError and no cache cost could be
+    produced at all."""
+    from exp.rl_router.microbench_cost import _first_preloaded_id
+
+    from tests.cache.conftest import insert_entry, make_orchestrator
+
+    from openpi.cache.storage_types import CachePayload
+    from openpi.cache.types import CheckpointID
+
+    _, _, storage = make_orchestrator()
+    for i in (2, 0, 1):
+        state = torch.zeros(1, 32)
+        state[0, 0] = float(i)
+        insert_entry(storage, CheckpointID.CP1, state,
+                     CachePayload(action_chunk=torch.randn(50, 32)), entry_id=f"e{i}")
+    # Deterministic: the same artifact must time the same entry on every run.
+    assert _first_preloaded_id(storage) == "e0"
+    assert _first_preloaded_id(storage) == "e0"
+
+
+def test_cache_probe_takes_the_frozen_branch_on_a_preloaded_library(monkeypatch) -> None:
+    """End-to-end over the real branch: a frozen storage must route to the
+    existing-entry path and never attempt an insert. Exercising the branch (and
+    not only its helper) is what catches an ``is_frozen`` misuse — the flag is a
+    property, and calling it raised TypeError before any cost was measured."""
+    import exp.rl_router.microbench_cost as mb
+
+    from tests.cache.conftest import insert_entry, make_orchestrator
+
+    from openpi.cache.storage_types import CachePayload
+    from openpi.cache.types import CheckpointID
+
+    orch, backend, storage = make_orchestrator()
+    state = torch.zeros(1, 32)
+    chunk = torch.randn(50, 32)
+    entry = insert_entry(storage, CheckpointID.CP1, state, CachePayload(action_chunk=chunk),
+                         entry_id="preloaded:0")
+    backend.freeze()
+
+    monkeypatch.setattr(mb, "_build_probe_components", lambda _p: (orch, storage))
+    probe_orch, entry_id, probe_chunk = mb._load_cache_probe("unused.yaml")
+    assert probe_orch is orch
+    assert entry_id == entry.id
+    assert torch.equal(probe_chunk, chunk)
+
+
+def test_cache_probe_refuses_an_empty_library() -> None:
+    """An empty library would make the cache arm's cost a fetch of nothing."""
+    from exp.rl_router.microbench_cost import _first_preloaded_id
+
+    from tests.cache.conftest import make_orchestrator
+
+    _, _, storage = make_orchestrator()
+    with pytest.raises(SystemExit, match="non-empty preloaded library"):
+        _first_preloaded_id(storage)
 
 
 # ---------------------------------------------------------------------------
@@ -1189,8 +1430,11 @@ def test_main_loop_runs_two_batches_across_isolated_filesystems(tmp_path, monkey
 
     monkeypatch.setattr(loop, "remote_build_manifest", fake_remote_manifest)
 
+    remote_commands: list[str] = []
+
     def fake_run(command: str):
         """Stand-in for the remote shell: only ever touches the REMOTE tree."""
+        remote_commands.append(command)
         if command.startswith("test -f "):
             return (0 if pathlib.Path(command.split()[-1]).exists() else 1), ""
         if "batch_package.py capacity" in command:
@@ -1238,6 +1482,7 @@ def test_main_loop_runs_two_batches_across_isolated_filesystems(tmp_path, monkey
         "--artifacts", str(artifacts), "--servers", "h:8000", "--workers", "1",
         "--out-dir", str(local), "--shard-root", str(shard_root),
         "--remote-root", str(remote_root),
+        "--remote-python", "/opt/uv run",
         "--trainer-cmd",
         ("uv run exp/rl_router/train_router.py --manifest {manifest} --package {package} "
          "--shards {shards} --weights-in {weights_in} --weights-out {weights_out} "
@@ -1247,6 +1492,15 @@ def test_main_loop_runs_two_batches_across_isolated_filesystems(tmp_path, monkey
     ])
 
     loop.main()
+
+    # Every remote helper must honour --remote-python. A non-interactive ssh
+    # session gets the system PATH, so a hard-coded "uv run" simply is not found
+    # on the serving host and the batch dies after its episodes were already
+    # spent. The trainer itself is exempt: its launcher is inside --trainer-cmd.
+    helper_calls = [c for c in remote_commands
+                    if "exp/rl_router/" in c and "--manifest " not in c]
+    assert helper_calls, "no remote helper was invoked"
+    assert all("&& /opt/uv run exp/rl_router/" in c for c in helper_calls), helper_calls
 
     # Two batches ran, each shipping a yaml pointing at the version before it.
     assert len(dispatched_yamls) == 2
@@ -1813,6 +2067,19 @@ def test_measure_student_refuses_an_rpc_wrapper() -> None:
         measure_student(executor, {"prompt": "x"}, repeats=1)
 
 
+def test_measure_student_guard_survives_openpi_being_unimportable() -> None:
+    """The student arm is measured in the SIDECAR's venv, which has lerobot and
+    openpi_client but not openpi. Importing openpi to build the guard aborted
+    the measurement there, so the guard has to work by name as well."""
+    from exp.rl_router.microbench_cost import measure_student
+
+    class SidecarExecutor:  # noqa: D401 - stands in for the un-importable class
+        pass
+
+    with pytest.raises(ValueError, match="not a SidecarExecutor"):
+        measure_student(SidecarExecutor(), {"prompt": "x"}, repeats=1)
+
+
 def test_out_of_process_timing_is_never_marked_gpu_timed() -> None:
     """A near-zero event time on an idle local stream must not masquerade as the
     other process's GPU time."""
@@ -1999,7 +2266,8 @@ def test_capacity_probe_failure_blocks_the_launch(tmp_path, monkeypatch) -> None
         def run(self, command):
             return 1, "ssh: connect refused"
 
-    args = type("A", (), {"remote_workdir": ".", "shard_root": "/data/x"})()
+    args = type("A", (), {"remote_workdir": ".", "shard_root": "/data/x",
+                          "remote_python": "uv run"})()
     with pytest.raises(SystemExit, match="could not measure remote capacity"):
         loop._remote_live_bytes(_Broken(), args)
 
@@ -2009,6 +2277,18 @@ def test_capacity_probe_failure_blocks_the_launch(tmp_path, monkeypatch) -> None
 
     with pytest.raises(SystemExit, match="unparsable"):
         loop._remote_live_bytes(_Garbled(), args)
+
+    class _Noisy(LocalTransport):
+        """The transport concatenates stdout AND stderr, and the launcher writes
+        to stderr — `uv` emits a deprecation warning on every invocation. The
+        probe's answer is therefore NOT the last line, and reading it blind made
+        a healthy empty dump root read as an unmeasurable disk."""
+
+        def run(self, command):
+            return 0, ('{"root": "/data/x", "live_bytes": 4096}\n'
+                       "warning: the `tool.uv.dev-dependencies` field is deprecated\n")
+
+    assert loop._remote_live_bytes(_Noisy(), args) == 4096
 
 
 def test_m4_gate_requires_bound_evidence(tmp_path) -> None:
@@ -2309,3 +2589,249 @@ def test_pilot_gate_rejects_a_candidate_that_did_not_run_the_frozen_protocol(
     problems = _pilot_problems(str(path), {"lambda": {"lambda_1": 0.2}},
                                {"lambda": "lambda_1"}, warmstart_path=str(warm))
     assert any(expected in p for p in problems), problems
+
+
+# ---------------------------------------------------------------------------
+# Per-arm-set warm-start registration (the R_tsc / R_tc launch path)
+#
+# The frozen matrix gives R_tsc / R_tc the pilot's lambda_1 while the judge
+# refuses a warm-start whose meta.arms differs from the configured arms, so
+# those runs need their own file and the file-sha gate could never clear them.
+# The registration makes the matrix satisfiable without widening the gate.
+# ---------------------------------------------------------------------------
+
+
+def _pilot_doc(tmp_path):
+    return json.loads((tmp_path / "pilot.json").read_text(encoding="utf-8"))
+
+
+def _register(tmp_path, *, arms: str, trunk: str, sha: str) -> None:
+    """Add a pre-registered alternate warm-start to the pilot record."""
+    doc = _pilot_doc(tmp_path)
+    doc["trunk_sha256"] = trunk
+    doc.setdefault("variant_warmstarts", {})[arms] = {
+        "path": f"/nonexistent/{arms}.pt", "sha256": sha,
+        "trunk_sha256": trunk, "arms": arms,
+    }
+    (tmp_path / "pilot.json").write_text(json.dumps(doc), encoding="utf-8")
+
+
+def test_launch_gates_accept_a_registered_regraft(tmp_path) -> None:
+    """A different file clears the pilot digest check when it is BOTH
+    pre-registered for this arm set and carries the pilot's trunk digest."""
+    import torch
+
+    artifacts = _artifacts(tmp_path, warm_arms="tsc")
+    alt = tmp_path / "warm_tsc.pt"
+    torch.save({"meta": {"arms": "tsc"}}, alt)
+    artifacts["warmstart_weights"] = str(alt)
+    _register(tmp_path, arms="tsc", trunk="t" * 64,
+              sha=hashlib.sha256(alt.read_bytes()).hexdigest())
+
+    run = {**MATRIX["runs"][0], "variant": "R_tsc"}
+    problems = check_launch_gates(
+        MATRIX, run, artifacts=artifacts,
+        batch_size=100, seed=0, variant="R_tsc", suite="libero_10",
+    )
+    assert not any("warm-start checkpoint" in p for p in problems), problems
+
+
+def test_launch_gates_reject_an_unregistered_warmstart(tmp_path) -> None:
+    """An arbitrary file the operator points at is still refused: registration
+    is what separates a re-graft from any checkpoint lying around."""
+    import torch
+
+    artifacts = _artifacts(tmp_path, warm_arms="tsc")
+    alt = tmp_path / "warm_tsc.pt"
+    torch.save({"meta": {"arms": "tsc"}}, alt)
+    artifacts["warmstart_weights"] = str(alt)
+    # trunk recorded, but this file is NOT in variant_warmstarts
+    doc = _pilot_doc(tmp_path)
+    doc["trunk_sha256"] = "t" * 64
+    (tmp_path / "pilot.json").write_text(json.dumps(doc), encoding="utf-8")
+
+    run = {**MATRIX["runs"][0], "variant": "R_tsc"}
+    problems = check_launch_gates(
+        MATRIX, run, artifacts=artifacts,
+        batch_size=100, seed=0, variant="R_tsc", suite="libero_10",
+    )
+    assert any("warm-start checkpoint" in p for p in problems)
+
+
+def test_launch_gates_reject_a_registered_file_with_a_foreign_trunk(tmp_path) -> None:
+    """Registration alone is not enough — a head refit on other data has a
+    different trunk and must not inherit the pilot's lambda."""
+    import torch
+
+    artifacts = _artifacts(tmp_path, warm_arms="tsc")
+    alt = tmp_path / "warm_tsc.pt"
+    torch.save({"meta": {"arms": "tsc"}}, alt)
+    artifacts["warmstart_weights"] = str(alt)
+    _register(tmp_path, arms="tsc", trunk="t" * 64,
+              sha=hashlib.sha256(alt.read_bytes()).hexdigest())
+    doc = _pilot_doc(tmp_path)
+    doc["variant_warmstarts"]["tsc"]["trunk_sha256"] = "f" * 64   # foreign trunk
+    (tmp_path / "pilot.json").write_text(json.dumps(doc), encoding="utf-8")
+
+    run = {**MATRIX["runs"][0], "variant": "R_tsc"}
+    problems = check_launch_gates(
+        MATRIX, run, artifacts=artifacts,
+        batch_size=100, seed=0, variant="R_tsc", suite="libero_10",
+    )
+    assert any("warm-start checkpoint" in p for p in problems)
+
+
+# ---------------------------------------------------------------------------
+# The explicit amendment channel (the l10_tc_lam3_s0 launch path)
+#
+# §2.5h: the D1 λ grid was calibrated on R_ts, and on R_tc it puts the optimum
+# at the p=1.0 corner — the pre-registered run degenerates to a constant
+# policy. The re-calibrated λ₃ is NOT a pilot selection, so the pilot gate
+# would (correctly) reject it; the amendment channel lets a run deviate only
+# by declaring the deviation on its own matrix row. These tests pin both
+# halves: an undeclared deviation is still blocked, and a declared one must
+# actually disclose (motivation, evidence, date).
+# ---------------------------------------------------------------------------
+
+
+def _valid_pilot_doc() -> dict:
+    from exp.rl_router.pilot_lambda import PILOT_SCHEMA
+
+    return {
+        "schema": PILOT_SCHEMA, "separated": True, "seed": 0, "candidates_run": 0,
+        "selected": {"lambda_1": 0.2, "lambda_2": 0.5}, "runs": {},
+        "protocol": {"batches": 5, "batch_size": 100, "eval_episodes": 100,
+                     "mode": "argmax", "eval_pool": "b_train_remainder"},
+    }
+
+
+def test_pilot_gate_blocks_an_unpiloted_lambda_without_amendment(tmp_path) -> None:
+    """A λ symbol the pilot never calibrated stays blocked by default; the
+    message must name the one channel that could clear it."""
+    from exp.rl_router.launch_gates import _pilot_problems
+
+    path = tmp_path / "pilot.json"
+    path.write_text(json.dumps(_valid_pilot_doc()), encoding="utf-8")
+    problems = _pilot_problems(str(path), {"lambda": {"lambda_3": 5.0}},
+                               {"id": "rA", "lambda": "lambda_3"})
+    assert any("no selection for 'lambda_3'" in p for p in problems)
+    assert any("amendment" in p for p in problems)
+
+
+def test_pilot_gate_rejects_a_bare_amendment_marker(tmp_path) -> None:
+    """``amendment: {}`` is a marker, not a disclosure: every missing field is
+    reported, so the operator learns the full shape in one rejection."""
+    from exp.rl_router.launch_gates import _pilot_problems
+
+    path = tmp_path / "pilot.json"
+    path.write_text(json.dumps(_valid_pilot_doc()), encoding="utf-8")
+    problems = _pilot_problems(str(path), {"lambda": {"lambda_3": 5.0}},
+                               {"id": "rA", "lambda": "lambda_3", "amendment": {}})
+    assert any("amendment.reason" in p for p in problems)
+    assert any("amendment.basis" in p for p in problems)
+    assert any("amendment.date" in p for p in problems)
+
+
+def test_pilot_gate_rejects_an_amendment_with_dangling_basis(tmp_path) -> None:
+    """The basis is the calibration evidence that replaces the pilot's
+    authority; a path that does not exist is a claim, not evidence."""
+    from exp.rl_router.launch_gates import _pilot_problems
+
+    path = tmp_path / "pilot.json"
+    path.write_text(json.dumps(_valid_pilot_doc()), encoding="utf-8")
+    problems = _pilot_problems(str(path), {"lambda": {"lambda_3": 5.0}}, {
+        "id": "rA", "lambda": "lambda_3",
+        "amendment": {"reason": "x" * 80,
+                      "basis": str(tmp_path / "absent.json"),
+                      "date": "2026-08-18"},
+    })
+    assert any("amendment.basis" in p for p in problems)
+    assert not any("amendment.reason" in p for p in problems)
+
+
+def test_pilot_gate_clears_a_disclosed_amendment(tmp_path) -> None:
+    """A full disclosure (motivation, existing basis, date) clears the symbol
+    check — and ONLY the symbol check; nothing else about the pilot loosens."""
+    from exp.rl_router.launch_gates import _pilot_problems
+
+    path = tmp_path / "pilot.json"
+    path.write_text(json.dumps(_valid_pilot_doc()), encoding="utf-8")
+    basis = tmp_path / "amendment_lambda3.json"
+    basis.write_text("{}", encoding="utf-8")
+    problems = _pilot_problems(str(path), {"lambda": {"lambda_3": 5.0}}, {
+        "id": "rA", "lambda": "lambda_3",
+        "amendment": {"reason": "x" * 80, "basis": str(basis),
+                      "date": "2026-08-18"},
+    })
+    assert not any("amendment" in p or "lambda_3" in p for p in problems), problems
+
+
+def test_launch_gates_episode_budget_rides_the_amendment_channel(tmp_path) -> None:
+    """A per-run episode budget is a deviation from the frozen 4000: undeclared
+    it is blocked, declared it redefines what the planned batch count must be."""
+    artifacts = _artifacts(tmp_path)
+    base = {**MATRIX["runs"][0], "episodes": 60000}
+    problems = check_launch_gates(
+        MATRIX, base, artifacts=artifacts, batch_size=100, seed=0,
+        variant="R_ts", suite="libero_10", planned_batches=600,
+    )
+    assert any("amendment" in p for p in problems)
+
+    basis = tmp_path / "amendment.json"
+    basis.write_text("{}", encoding="utf-8")
+    amended = {**base, "amendment": {"reason": "x" * 80, "basis": str(basis),
+                                     "date": "2026-08-18"}}
+    problems = check_launch_gates(
+        MATRIX, amended, artifacts=artifacts, batch_size=100, seed=0,
+        variant="R_ts", suite="libero_10", planned_batches=600,
+    )
+    assert problems == [], problems
+
+    # The declared budget is what the plan is checked against — a short run is
+    # still not the pre-registered experiment.
+    problems = check_launch_gates(
+        MATRIX, amended, artifacts=artifacts, batch_size=100, seed=0,
+        variant="R_ts", suite="libero_10", planned_batches=40,
+    )
+    assert any("planned 40 batches" in p and "60000" in p for p in problems)
+
+
+def test_launch_gates_report_an_invalid_amendment_once(tmp_path) -> None:
+    """One amendment block can back two deviations (λ symbol + episode budget);
+    its defects must not be reported once per deviation."""
+    artifacts = _artifacts(tmp_path)
+    matrix = {**MATRIX, "lambda": {**MATRIX["lambda"], "lambda_3": 5.0}}
+    run = {**MATRIX["runs"][0], "lambda": "lambda_3", "episodes": 60000,
+           "amendment": {"reason": "too short", "basis": None, "date": None}}
+    problems = check_launch_gates(
+        matrix, run, artifacts=artifacts, batch_size=100, seed=0,
+        variant="R_ts", suite="libero_10", planned_batches=600,
+    )
+    assert sum("amendment.reason" in p for p in problems) == 1, problems
+    assert sum("amendment.basis" in p for p in problems) == 1, problems
+
+
+def test_launch_gates_clear_the_amended_lambda_run_end_to_end(tmp_path) -> None:
+    """The exact shape of the l10_tc_lam3_s0 row: a new λ symbol resolved to a
+    concrete value, an episode budget, and a full disclosure — clears the gate."""
+    artifacts = _artifacts(tmp_path)
+    basis = tmp_path / "amendment_lambda3.json"
+    basis.write_text("{}", encoding="utf-8")
+    matrix = {**MATRIX, "lambda": {**MATRIX["lambda"], "lambda_3": 5.0}}
+    run = {**MATRIX["runs"][0], "lambda": "lambda_3", "episodes": 60000,
+           "amendment": {"reason": "x" * 80, "basis": str(basis),
+                         "date": "2026-08-18"}}
+    problems = check_launch_gates(
+        matrix, run, artifacts=artifacts, batch_size=100, seed=0,
+        variant="R_ts", suite="libero_10", planned_batches=600,
+    )
+    assert problems == [], problems
+
+    # While lambda_3 is still null the amendment does NOT excuse it: the value
+    # must be recorded before launch, exactly as with the pilot's symbols.
+    null_matrix = {**MATRIX, "lambda": {**MATRIX["lambda"], "lambda_3": None}}
+    problems = check_launch_gates(
+        null_matrix, run, artifacts=artifacts, batch_size=100, seed=0,
+        variant="R_ts", suite="libero_10", planned_batches=600,
+    )
+    assert any("still null" in p for p in problems)

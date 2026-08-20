@@ -457,6 +457,117 @@ def _cmd_run(args) -> None:
         print(f"[pilot] inserting supplementary candidate {candidates[0]}")
 
 
+def build_eval_yaml(arm_yaml: str | pathlib.Path, *, weights_path: str) -> dict:
+    """Turn a candidate's TRAIN arm yaml into its frozen-evaluation twin.
+
+    Derived from the training yaml rather than written independently, so the key
+    builder, the artifact and the search config are provably the ones the
+    candidate trained under — the realized teacher rate has to be measured on
+    the same observation space, or it is not measuring that candidate.
+
+    The three edits are the whole protocol: ``argmax`` freezes the policy
+    (sampling would measure a different distribution than the one being
+    selected), no ``dump_dir`` keeps the measurement from becoming another
+    training rollout, and ``weights_path`` points at the batch-5 checkpoint.
+    """
+    import copy
+
+    import yaml as _yaml
+
+    cfg = copy.deepcopy(_yaml.safe_load(
+        pathlib.Path(arm_yaml).read_text(encoding="utf-8")
+    ))
+    judge = cfg["checkpoints"]["cp1"]["judge"]
+    judge["mode"] = "argmax"
+    judge["weights_path"] = str(weights_path)
+    judge.pop("dump_dir", None)
+    judge.pop("temperature", None)
+    judge.pop("seed", None)
+    return cfg
+
+
+def _cmd_eval(args) -> None:
+    """Measure one candidate's frozen batch-5 policy on the B-train remainder.
+
+    This is step 3 of the frozen protocol. It is a separate invocation from the
+    training half because the two differ in every way that matters — a frozen
+    policy, no dump, and a pool the candidate never trained on — and because the
+    controller (``run``) needs the two halves to be independently re-runnable
+    when one of them dies mid-pilot.
+    """
+    import yaml as _yaml
+
+    from openpi.cache.config import load_cache_config
+    from openpi.conductor import ServerEndpoint, WorkerSpec
+
+    from exp.rl_router.run_rl_router import (
+        RouterBatchStrategy,
+        btrain_pairs,
+        make_slots,
+        resolve_init_states_dir,
+        run_round,
+        sample_batch,
+    )
+
+    out_dir = pathlib.Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    eval_yaml = out_dir / "arm.yaml"
+    cfg = build_eval_yaml(args.arm_yaml, weights_path=args.weights)
+    eval_yaml.write_text(_yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
+    load_cache_config(str(eval_yaml))    # allowlist + mlp_router rules, before any episode
+    if cfg["checkpoints"]["cp1"]["judge"].get("dump_dir"):
+        raise SystemExit("the pilot evaluation must not write rollouts")
+
+    # Same guard as every other pass: an empty init dir makes LIBERO fall back to
+    # the official pruned_init A pool, and the pilot would calibrate λ on the
+    # frozen test set.
+    init_dir = resolve_init_states_dir(args.init_states_dir)
+
+    remainder = btrain_pairs(args.split)
+    if len(remainder) < args.episodes:
+        raise SystemExit(
+            f"the remainder split holds {len(remainder)} inits but the frozen protocol "
+            f"measures {args.episodes}; the pilot subset was cut too large"
+        )
+    # Deterministic draw, so a re-run of a candidate measures the same episodes.
+    pairs = sample_batch(remainder, batch_size=args.episodes, batch_idx=0, seed=args.seed)
+    yaml_id = eval_yaml.stem
+    slots = make_slots(pairs, yaml_id=yaml_id)
+    servers = [ServerEndpoint(*_endpoint(s)) for s in args.servers.split(",")]
+    specs = [
+        WorkerSpec(worker_id=f"w{i}", server_key=servers[i % len(servers)].key,
+                   gpu_id=str(i % args.gpus), conda_env=args.conda_env,
+                   task_suite_name=args.suite, init_states_dir=init_dir)
+        for i in range(args.workers)
+    ]
+    strategy = RouterBatchStrategy(
+        suite=args.suite, yaml_path=str(eval_yaml), run_id=args.run_id,
+        batch_id="eval", weights_version=args.weights_version,
+        bundle_id=f"pilot_{args.run_id}_eval_{args.weights_version}",
+        slots=slots, trials_per_task=args.episodes,
+    )
+    _journal, client_rows = run_round(
+        strategy=strategy, yaml_id=yaml_id, servers=servers, worker_specs=specs,
+        journal_path=str(out_dir / "journal.jsonl"),
+        rows_path=str(out_dir / "client_rows.jsonl"),
+        bind_host=args.bind_host, episode_timeout_s=args.episode_timeout_s,
+    )
+    rate = realized_teacher_rate(client_rows)
+    (out_dir / "teacher_rate.json").write_text(
+        json.dumps({"teacher_rate": rate, "episodes": args.episodes,
+                    "weights_version": args.weights_version,
+                    "weights_path": args.weights, "split": str(args.split)}, indent=2),
+        encoding="utf-8",
+    )
+    print(json.dumps({"teacher_rate": rate, "rows": len(client_rows)}, indent=2))
+
+
+def _endpoint(spec: str) -> tuple[str, int]:
+    host, port = spec.rsplit(":", 1)
+    return host, int(port)
+
+
 def _cmd_select(args) -> None:
     raw = json.loads(pathlib.Path(args.measurements).read_text(encoding="utf-8"))
     measurements = {float(k): float(v) for k, v in raw["teacher_rate_by_lambda"].items()}
@@ -487,6 +598,29 @@ def main() -> None:
                        help="the ONE seed every candidate shares")
     p_run.add_argument("--out-dir", required=True)
     p_run.set_defaults(func=_cmd_run)
+
+    p_eval = sub.add_parser(
+        "eval", help="freeze one candidate's batch-5 weights and measure it on the remainder")
+    p_eval.add_argument("--arm-yaml", required=True,
+                        help="the candidate's TRAIN arm yaml; the eval twin is derived from it")
+    p_eval.add_argument("--weights", required=True,
+                        help="SERVER-side path of the frozen batch-5 checkpoint")
+    p_eval.add_argument("--weights-version", required=True)
+    p_eval.add_argument("--split", required=True, help="the pilot's remainder split yaml")
+    p_eval.add_argument("--suite", default="libero_10")
+    p_eval.add_argument("--run-id", required=True)
+    p_eval.add_argument("--servers", required=True)
+    p_eval.add_argument("--workers", type=int, default=8)
+    p_eval.add_argument("--gpus", type=int, default=1)
+    p_eval.add_argument("--conda-env", default="")
+    p_eval.add_argument("--init-states-dir", required=True,
+                        help="B-train diff pool; empty would silently measure on the A pool")
+    p_eval.add_argument("--out-dir", required=True, help="<candidate_dir>/eval")
+    p_eval.add_argument("--episodes", type=int, default=EVAL_EPISODES)
+    p_eval.add_argument("--seed", type=int, default=0)
+    p_eval.add_argument("--bind-host", default="127.0.0.1")
+    p_eval.add_argument("--episode-timeout-s", type=float, default=1800.0)
+    p_eval.set_defaults(func=_cmd_eval)
 
     p_select = sub.add_parser("select", help="pick lambda_1 / lambda_2 from realized rates")
     p_select.add_argument("--measurements", required=True)

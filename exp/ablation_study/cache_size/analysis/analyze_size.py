@@ -31,6 +31,7 @@ import pathlib
 from dataclasses import asdict
 from typing import Iterable, Mapping
 
+from exp.ablation_study.cache_size.emit_size_yamls import arm_name
 from exp.ablation_study.cache_size.full_hit import (
     assert_full_hit_per_episode,
     load_per_episode_hits,
@@ -350,11 +351,27 @@ def analyze_suite(
 
 def render(result: dict, suite: str) -> str:
     v = result["verdict"]
+    role = result.get("family_role", "primary")
+    filt = result.get("outcome_filter")
+    title = f"# cache-size ablation — {suite}"
+    if filt:
+        title += f" / library family `{filt}`"
     lines = [
-        f"# cache-size ablation — {suite}",
+        title,
         "",
         f"**Branch {v['branch']}** — {v['headline']}",
         "",
+    ]
+    if role != "primary":
+        lines += [
+            "> ⚠ **Secondary, descriptive read.** The pre-registered family is the "
+            "`all` library family (plan §3.1b ruling 1 defines the independent "
+            "variable as *collected* trajectories per task). Nothing below is "
+            "confirmatory: the Holm column is reported for symmetry with the "
+            "primary table and must not be worded as \"significant\".",
+            "",
+        ]
+    lines += [
         f"- adequacy (Q, main axis): `{v['q']}`",
         f"- direction (D): `{v['d']}`",
         f"- plateau (P, **descriptive**): `{v['p']}`",
@@ -364,7 +381,9 @@ def render(result: dict, suite: str) -> str:
         f"(95% {result['gap_ci']['method']} CI "
         f"[{result['gap_ci']['lo']:+.4f}, {result['gap_ci']['hi']:+.4f}])",
         "",
-        f"## Pre-registered family ({result['family_size']} tests, Holm)",
+        (f"## Pre-registered family ({result['family_size']} tests, Holm)"
+         if role == "primary"
+         else f"## Family mirror ({result['family_size']} tests, Holm) — **descriptive**"),
         "",
         "| test | p | Holm p | rejected |",
         "|---|---|---|---|",
@@ -428,6 +447,11 @@ def main() -> None:
                     help="expected A-pool rollup sha256, from the frozen record under "
                          "version control. Required unless --smoke: a launch record "
                          "cannot attest its own digest.")
+    ap.add_argument("--outcome-filter", default=None, choices=["success", "all"],
+                    help="which library family to analyse. It is part of the arm id "
+                         "(cache_size_<suite>_<filter>_<tier>), so omitting it when the "
+                         "run used one makes every arm lookup miss. Omit only for the "
+                         "single-family layout.")
     ap.add_argument("--grid", default=None)
     ap.add_argument("--out-json", required=True)
     ap.add_argument("--out-md", required=True)
@@ -439,8 +463,17 @@ def main() -> None:
 
     arms = load_accepted(args.journal)
 
-    tier_arm_names = {t: f"cache_size_{args.suite}_{t}" for t in TIERS}
-    recal_arm_names = {t: f"cache_size_{args.suite}_{t}_recal" for t in ("S1", "S6")}
+    filt = args.outcome_filter
+    tier_arm_names = {t: arm_name(args.suite, t, outcome_filter=filt) for t in TIERS}
+    recal_arm_names = {t: arm_name(args.suite, t, recal=True, outcome_filter=filt)
+                       for t in ("S1", "S6")}
+    # The 4 sensitivity arms of plan §8.3 hang off the primary axis only: §3.1b
+    # ruling 1 defines the independent variable as *collected* trajectories per
+    # task, so `all` is the pre-registered family and 28 = 2 suites x (6 success
+    # + 6 all + 2 recal). Analysing `success` is therefore a secondary,
+    # descriptive read -- its Holm output must not be reported as confirmatory.
+    expects_recal = filt != "success"
+    family_role = "primary" if expects_recal else "secondary-descriptive"
 
     tier_ledgers: dict[str, dict[tuple[int, int], bool]] = {}
     # uid -> the attempt the scheduler accepted. The per-step join needs both
@@ -471,6 +504,18 @@ def main() -> None:
     # Sensitivity arms are part of the formal matrix, not an optional extra:
     # branch N cannot adjudicate the normalization explanation without them.
     sensitivity_ledgers: dict[str, dict[tuple[int, int], bool]] = {}
+    if not expects_recal:
+        # Catch the mirror-image mistake too: a recal arm showing up in the
+        # secondary family would mean the matrices were emitted wrong, and it
+        # would silently enlarge the arm set the launch binding compares against.
+        stray = sorted(a for a in recal_arm_names.values() if a in arms)
+        if stray:
+            raise SystemExit(
+                f"outcome filter {filt!r} carries no sensitivity arms by design, but "
+                f"the journal has {stray}. Either the arm matrix was emitted wrong or "
+                "the wrong --outcome-filter was passed."
+            )
+        recal_arm_names = {}
     for tier, arm in recal_arm_names.items():
         if arm not in arms:
             if args.smoke:
@@ -531,6 +576,9 @@ def main() -> None:
         degenerate_pairs=degenerate,
     )
     result["full_hit_witness"] = hit_summary
+    result["suite"] = args.suite
+    result["family_role"] = family_role
+    result["outcome_filter"] = filt
     result["launch_binding"] = {
         "apool_rollup_sha256": (launch or {}).get("apool", {}).get("rollup_sha256"),
         "apool_dir": (launch or {}).get("apool", {}).get("apool_dir"),

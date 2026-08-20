@@ -434,3 +434,26 @@ def test_trainer_rejects_a_judge_interceptor_disagreement(tmp_path) -> None:
     with pytest.raises(EpisodeAdmissionError) as excinfo:
         load_batch(m, shard_dir=shard_dir, package_dir=tmp_path, n_arms=3)
     assert excinfo.value.rejected[0]["reason"] == "arm_mapping_disagreement"
+
+
+def test_a_rewritten_shard_admits_on_its_newest_manifest_row() -> None:
+    """One dispatch can finalize TWICE under the same attempt.
+
+    When a worker's result never reaches the driver the scheduler re-dispatches
+    without bumping the generation, so the second run rewrites the shard at the
+    same path and appends a second manifest row. The finalize protocol renames
+    the .bin before appending, so the newest row describes the bytes on disk —
+    admitting on the first one rejects a healthy episode on a digest mismatch
+    against content that no longer exists. Measured at ~1.3% of episodes in the
+    real M5b collection (6 of 450).
+    """
+    stale = _shard("u0", rows=3)
+    stale["sha256"] = "a" * 64
+    fresh = _shard("u0", rows=3)
+    fresh["sha256"] = "b" * 64
+
+    m = _manifest(journal=[_journal("u0")], shards=[stale, fresh],
+                  client_rows=_client_rows("u0", n=3), expected=["u0"])
+    assert m.complete and not m.rejected
+    assert [r.task_uid for r in m.selected] == ["u0"]
+    assert m.selected[0].sha256 == "b" * 64

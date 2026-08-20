@@ -149,9 +149,11 @@ def rehash_apool(apool_dir: pathlib.Path, *, expect_per_task: int = TRIALS_PER_T
     loads the substituted pool. So the digests reported here are computed from
     the bytes on disk at launch time, and the caller compares them item by item.
     """
-    from exp.ablation_study.cache_size.verify_apool import digest_init_file, rollup_digest
-
-    import torch  # noqa: PLC0415 -- client env only, and heavy
+    from exp.ablation_study.cache_size.verify_apool import (
+        digest_init_file,
+        load_init_states,
+        rollup_digest,
+    )
 
     files = sorted(apool_dir.glob("*.init"))
     if len(files) != NUM_TASKS:
@@ -161,7 +163,7 @@ def rehash_apool(apool_dir: pathlib.Path, *, expect_per_task: int = TRIALS_PER_T
     digests = {f.stem: digest_init_file(f) for f in files}
     counts = {}
     for f in files:
-        states = torch.load(f, weights_only=False)
+        states = load_init_states(f)
         counts[f.stem] = len(states)
     bad = {k: v for k, v in counts.items() if v != expect_per_task}
     if bad:
@@ -353,19 +355,25 @@ def merge_snapshot(per_step_path: pathlib.Path, snapshot_path: pathlib.Path) -> 
     return merged
 
 
-def _snapshot_loop(driver, per_step_path: pathlib.Path, stop: threading.Event,
-                   interval_s: float = 60.0) -> None:
-    """Atomically dump the driver's in-memory rows so a crash cannot erase them."""
+def _write_snapshot(driver, per_step_path: pathlib.Path) -> int:
+    """Atomically dump the driver's in-memory rows. Returns rows written."""
     import os
 
     snap = per_step_path.with_suffix(".snapshot.jsonl")
+    rows = list(driver.per_step_rows)
+    tmp = snap.with_suffix(".tmp")
+    with tmp.open("w", encoding="utf-8") as f:
+        for row in rows:
+            f.write(json.dumps(row) + "\n")
+    os.replace(tmp, snap)
+    return len(rows)
+
+
+def _snapshot_loop(driver, per_step_path: pathlib.Path, stop: threading.Event,
+                   interval_s: float = 60.0) -> None:
+    """Atomically dump the driver's in-memory rows so a crash cannot erase them."""
     while not stop.wait(interval_s):
-        rows = list(driver.per_step_rows)
-        tmp = snap.with_suffix(".tmp")
-        with tmp.open("w", encoding="utf-8") as f:
-            for row in rows:
-                f.write(json.dumps(row) + "\n")
-        os.replace(tmp, snap)
+        _write_snapshot(driver, per_step_path)
 
 
 def journal_shortfall(journal_path: pathlib.Path, arms: set[str], expected: int) -> dict[str, int]:
@@ -536,6 +544,18 @@ def main() -> None:
     finally:
         snapshot_stop.set()
         snapshot_thread.join(timeout=10)
+        # One final dump AFTER the loop has stopped. Without it, any row produced
+        # between the last periodic tick and shutdown is lost -- and the row most
+        # exposed is the run's very last episode, whose result reaches the journal
+        # (written per result) while its per-step rows are still buffered in the
+        # driver. Measured: the last episode of a 3,000-episode group arrived with
+        # a terminal journal row and zero inference rows, which the per-episode
+        # FULL_HIT gate then correctly refused.
+        try:
+            n = _write_snapshot(driver, per_step_path)
+            logger.info("final snapshot: %d in-memory rows dumped before merge", n)
+        except Exception:  # noqa: BLE001 - never let bookkeeping mask the run's outcome
+            logger.exception("final snapshot failed; trailing rows may be missing")
         agent.stop()
         agent_thread.join(timeout=30)
 

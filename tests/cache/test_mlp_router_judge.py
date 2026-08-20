@@ -435,12 +435,30 @@ def test_encoder_version_tracks_fields_order_and_normalization() -> None:
     assert shifted.version != v1.version
 
 
-def test_encoder_normalizes_only_robot_state() -> None:
+def test_encoder_affine_spans_the_whole_concatenated_vector() -> None:
+    """v2: the affine covers every field, not just robot_state.
+
+    Normalising robot_state alone left the vision fields at their production
+    scale (std ~5.25, range +-209 for ``cp1_spatial_pool_16``). At 65,568 inputs
+    that is not untidy but fatal: Adam displaces every weight by ~lr per step, so
+    one update moves a pre-activation by ~lr*sum_j|x_j| and the policy saturated
+    to a single arm in ONE step.
+    """
     enc = RouterFeatureEncoder(
-        (VISION_0, ROBOT_STATE), mu=torch.full((2,), 5.0), sigma=torch.full((2,), 2.0)
+        (VISION_0, ROBOT_STATE),
+        mu=torch.tensor([1.0, 2.0, 5.0, 5.0]),
+        sigma=torch.tensor([2.0, 2.0, 2.0, 4.0]),
     )
-    out = enc.encode({VISION_0: torch.tensor([1.0, 2.0]), ROBOT_STATE: torch.tensor([7.0, 9.0])})
-    assert torch.equal(out, torch.tensor([1.0, 2.0, 1.0, 2.0], dtype=FEATURE_DTYPE))
+    out = enc.encode({VISION_0: torch.tensor([3.0, 4.0]), ROBOT_STATE: torch.tensor([7.0, 9.0])})
+    # vision is scaled too, and each dimension uses its own (mu, sigma).
+    assert torch.equal(out, torch.tensor([1.0, 1.0, 1.0, 1.0], dtype=FEATURE_DTYPE))
+
+
+def test_encoder_rejects_stats_of_the_wrong_width() -> None:
+    """A checkpoint fitted on another artifact must fail loudly, not broadcast."""
+    enc = RouterFeatureEncoder((VISION_0, ROBOT_STATE), mu=torch.zeros(2), sigma=torch.ones(2))
+    with pytest.raises(ValueError, match="normalization stats dim"):
+        enc.encode({VISION_0: torch.zeros(2), ROBOT_STATE: torch.zeros(2)})
 
 
 def test_encoder_rejects_a_missing_field() -> None:

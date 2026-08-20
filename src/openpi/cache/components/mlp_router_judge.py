@@ -159,7 +159,7 @@ class RouterFeatureEncoder:
 
     Operator order is frozen (§3.0)::
 
-        raw fp32 -> robot_state affine normalize -> Q(fp32 -> fp16 -> fp32)
+        raw fp32 -> concatenate -> affine normalize -> Q(fp32 -> fp16 -> fp32)
 
     and the MLP decides on the Q output, so dumping the fp16 tensor records the
     network's input losslessly and on-policy parity holds by construction.
@@ -169,12 +169,24 @@ class RouterFeatureEncoder:
       - **v0-raw** (``mu``/``sigma`` are None): plain concatenation. Used by the
         warm-start collection pass, which runs before any statistics exist —
         this is what breaks the mu/sigma circular dependency.
-      - **v1**: v0 plus a robot_state affine. Vision fields are already scaled
-        by the key builder and are deliberately left alone.
+      - **v2**: v0 followed by one affine over the WHOLE concatenated vector.
 
-    Normalising the field before concatenation is equivalent to normalising the
-    robot_state slice of the concatenated vector, and keeps the code honest
-    about which field the statistics belong to.
+    The affine spans every field, not just robot_state. The original design
+    normalised robot_state alone, on the premise that "the key builder already
+    scales the vision fields"; measurement disproved it — the production
+    ``cp1_spatial_pool_16`` keys have std ~5.25 and range +-209. At this width
+    (65,568 inputs) that is fatal rather than untidy: Adam displaces every
+    weight by ~lr per step regardless of gradient size, so one step moves a
+    pre-activation by ~``lr * sum_j |x_j|``, which was ~82 for the frozen
+    trainer lr and saturated the policy to a single arm in ONE update
+    (student logit 0.84 -> -45.5, measured). Scaling the input is what lets the
+    frozen §3.5 constants do sensible work: the same 40 updates then move the
+    student rate 0.767 -> 0.637 smoothly instead of off a cliff.
+
+    Because ``sigma`` carries an arbitrary positive scale, the ``1/sqrt(D)``
+    that brings ``||x||`` to O(1) is folded into it by the fitter rather than
+    living as a separate operator — one affine, one version hash, nothing to
+    keep in sync.
     """
 
     def __init__(
@@ -194,14 +206,19 @@ class RouterFeatureEncoder:
         if len(set(fields)) != len(fields):
             raise ValueError(f"duplicate feature fields: {list(fields)}")
         if (mu is None) != (sigma is None):
-            raise ValueError("robot_state mu and sigma must be provided together")
+            raise ValueError("normalization mu and sigma must be provided together")
         self._fields: tuple[str, ...] = tuple(
             f for f in CANONICAL_FIELD_ORDER if f in set(fields)
         )
         self._mu = None if mu is None else mu.detach().to(torch.float32).reshape(-1)
         self._sigma = None if sigma is None else sigma.detach().to(torch.float32).reshape(-1)
-        if self._sigma is not None and bool(torch.any(self._sigma <= 0)):
-            raise ValueError("robot_state sigma must be strictly positive")
+        if self._sigma is not None:
+            if bool(torch.any(self._sigma <= 0)):
+                raise ValueError("normalization sigma must be strictly positive")
+            if self._mu.numel() != self._sigma.numel():
+                raise ValueError(
+                    f"mu dim {self._mu.numel()} != sigma dim {self._sigma.numel()}"
+                )
         self._version = self._compute_version()
 
     # -- properties ---------------------------------------------------------
@@ -223,7 +240,7 @@ class RouterFeatureEncoder:
 
     @property
     def normalized(self) -> bool:
-        """True for v1 (robot_state affine active), False for v0-raw."""
+        """True for v2 (whole-vector affine active), False for v0-raw."""
         return self._mu is not None
 
     # -- encoding -----------------------------------------------------------
@@ -243,16 +260,16 @@ class RouterFeatureEncoder:
                     f"mlp_router feature field {name!r} missing from query_keys "
                     f"(present: {sorted(query_keys)}); check keys.*.enabled in the yaml"
                 )
-            v = t.detach().to(torch.float32).reshape(-1).cpu()
-            if name == ROBOT_STATE and self._mu is not None:
-                if v.numel() != self._mu.numel():
-                    raise ValueError(
-                        f"robot_state dim {v.numel()} != normalization stats dim "
-                        f"{self._mu.numel()}"
-                    )
-                v = (v - self._mu) / self._sigma
-            parts.append(v)
-        return torch.cat(parts).to(FEATURE_DTYPE)
+            parts.append(t.detach().to(torch.float32).reshape(-1).cpu())
+        x = torch.cat(parts)
+        if self._mu is not None:
+            if x.numel() != self._mu.numel():
+                raise ValueError(
+                    f"feature dim {x.numel()} != normalization stats dim "
+                    f"{self._mu.numel()}; the weights were fitted on a different artifact"
+                )
+            x = (x - self._mu) / self._sigma
+        return x.to(FEATURE_DTYPE)
 
     def field_dims(self, query_keys: dict[str, torch.Tensor]) -> dict[str, int]:
         """Per-field element counts for the current query, for meta validation."""
@@ -268,7 +285,7 @@ class RouterFeatureEncoder:
         payload = {
             "fields": list(self._fields),
             "dtype": "float16",
-            "op_order": "normalize->quantize",
+            "op_order": "concat->normalize->quantize",
             "norm": "v0-raw" if self._mu is None else {
                 "mu_sha": _tensor_sha(self._mu),
                 "sigma_sha": _tensor_sha(self._sigma),
@@ -296,7 +313,7 @@ class RouterWeights:
     Blob schema (``torch.save`` of a plain dict)::
 
         {"W1": [H, D], "b1": [H], "W2": [A, H], "b2": [A],
-         "robot_state_mu": [S] | None, "robot_state_sigma": [S] | None,
+         "feature_mu": [D] | None, "feature_sigma": [D] | None,
          "meta": {"fields": [...], "dims": {...}, "arms": "tsc", "hidden": H,
                   "encoder_version": ..., "weights_version": ..., "model_sha": ...}}
 
@@ -329,7 +346,11 @@ class RouterWeights:
         except KeyError as exc:
             raise ValueError(f"router weights {path!r}: missing tensor {exc}") from exc
 
-        mu, sigma = blob.get("robot_state_mu"), blob.get("robot_state_sigma")
+        # ``robot_state_*`` is the pre-v2 name, when the affine covered only
+        # that field. Reading it here turns an old checkpoint into the explicit
+        # dim-mismatch error below instead of a bare KeyError.
+        mu = blob.get("feature_mu", blob.get("robot_state_mu"))
+        sigma = blob.get("feature_sigma", blob.get("robot_state_sigma"))
         self.mu = None if mu is None else mu.detach().to(torch.float32)
         self.sigma = None if sigma is None else sigma.detach().to(torch.float32)
 
@@ -415,8 +436,8 @@ def save_router_weights(
         "b1": b1.detach().to(torch.float32),
         "W2": W2.detach().to(torch.float32),
         "b2": b2.detach().to(torch.float32),
-        "robot_state_mu": None if mu is None else mu.detach().to(torch.float32),
-        "robot_state_sigma": None if sigma is None else sigma.detach().to(torch.float32),
+        "feature_mu": None if mu is None else mu.detach().to(torch.float32),
+        "feature_sigma": None if sigma is None else sigma.detach().to(torch.float32),
         "meta": meta,
     }
     target = pathlib.Path(path)

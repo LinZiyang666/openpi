@@ -202,9 +202,23 @@ def measure_student(policy, obs: dict, *, repeats: int) -> dict:
     sidecar's own interpreter, which is why this is a separate CLI invocation
     run there.
     """
-    from openpi.cache.sidecar_executor import SidecarExecutor
-
-    if isinstance(policy, SidecarExecutor):
+    # The guard must survive running where openpi is NOT importable: this call
+    # is made from the sidecar's own venv (which holds lerobot + openpi_client
+    # but not openpi), so a hard import would abort the very measurement the
+    # docstring above demands be taken there. The class-name check is the one
+    # that always applies; the isinstance check is added back whenever the real
+    # class can be imported.
+    if type(policy).__name__ == "SidecarExecutor":
+        raise ValueError(
+            "measure_student needs the loaded student policy, not a SidecarExecutor: "
+            "an RPC round trip cannot be GPU-timed from the calling process (D4 "
+            "requires server-side batch=1 GPU time)"
+        )
+    try:
+        from openpi.cache.sidecar_executor import SidecarExecutor
+    except ImportError:
+        SidecarExecutor = None  # sidecar venv: no openpi, hence no wrapper either
+    if SidecarExecutor is not None and isinstance(policy, SidecarExecutor):
         raise ValueError(
             "measure_student needs the loaded student policy, not a SidecarExecutor: "
             "an RPC round trip cannot be GPU-timed from the calling process (D4 "
@@ -373,29 +387,63 @@ def _load_local_policy(checkpoint: str, yaml_path: str):
 
 
 def _load_cache_probe(yaml_path: str):
-    """Build storage + orchestrator from an arm yaml and seed one payload."""
+    """Build storage + orchestrator from an arm yaml and pick one payload to replay.
+
+    A production arm yaml preloads its library and the backend is frozen from
+    that moment on (``write_policy: never``), so seeding a synthetic entry is
+    impossible there — and also the wrong thing to measure: the cache arm's cost
+    is a fetch of a *real* library payload, whose action chunk is the size the
+    replay path actually moves. The synthetic seed is therefore only used when
+    the backend is still writable (no preload, i.e. unit fixtures).
+    """
     import torch
 
-    from openpi.cache.config import build_cache_components, load_cache_config
-    from openpi.cache.orchestrator import CacheOrchestrator
     from openpi.cache.storage_types import CacheEntry, CachePayload
     from openpi.cache.types import CheckpointID
 
-    cfg = load_cache_config(yaml_path)
-    components = build_cache_components(cfg)
-    orchestrator = CacheOrchestrator(
-        storage=components["storage"], key_builder=components["key_builder"],
-        gates=components["gates"], judges=components["judges"],
-        search_strategies=components["search_strategies"], timer=components["timer"],
-    )
+    orchestrator, storage = _build_probe_components(yaml_path)
+    if storage.is_frozen:
+        entry_id = _first_preloaded_id(storage)
+        return orchestrator, entry_id, storage.fetch_payload(entry_id).action_chunk
     chunk = torch.randn(50, 32)
     entry_id = "microbench:0"
-    components["storage"].insert(CacheEntry(
+    storage.insert(CacheEntry(
         id=entry_id, checkpoint_id=CheckpointID.CP1,
         query_keys={"robot_state": torch.zeros(32)},
         payload=CachePayload(action_chunk=chunk),
     ))
     return orchestrator, entry_id, chunk
+
+
+def _build_probe_components(yaml_path: str):
+    """Build ``(orchestrator, storage)`` from an arm yaml — the heavy half."""
+    from openpi.cache.config import build_cache_components, load_cache_config
+    from openpi.cache.orchestrator import CacheOrchestrator
+
+    components = build_cache_components(load_cache_config(yaml_path))
+    storage = components["storage"]
+    orchestrator = CacheOrchestrator(
+        storage=storage, key_builder=components["key_builder"],
+        gates=components["gates"], judges=components["judges"],
+        search_strategies=components["search_strategies"], timer=components["timer"],
+    )
+    return orchestrator, storage
+
+
+def _first_preloaded_id(storage) -> str:
+    """Deterministically pick one id out of a frozen, preloaded library.
+
+    Sorted rather than "whatever the dict yields first" so two runs on the same
+    artifact time the same entry; an id that varied per run would make the
+    cache arm's cost irreproducible for no benefit.
+    """
+    entries = getattr(storage._backend, "_entries", None)  # noqa: SLF001 - benchmark probe
+    if not entries:
+        raise SystemExit(
+            f"the cache arm needs a non-empty preloaded library; {storage.count()} "
+            "entries were loaded from the arm yaml's artifact"
+        )
+    return sorted(entries)[0]
 
 
 def main() -> None:

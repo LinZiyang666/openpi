@@ -71,9 +71,9 @@ ln -sT /data/robocasa365_cache /home/weiland/openpi/exp/robocasa365/data_symlink
 tmux new -s rc5gsrv -d "export HOME=/home/weiland; cd /home/weiland/openpi && \
   PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi \
   /home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/serve_groot_n15.py \
-  --collect-hdf5 /data/robocasa365_cache/build_l1s1/groot_tp_raw 2>&1 | tee /tmp/rc5_gsrv.log"
+  --collect-hdf5 /data/robocasa365_cache/build_l1s1 2>&1 | tee /tmp/rc5_gsrv.log"
 ```
-⚠ GR00T 采集走 `--collect-hdf5`（自带 collector），其输出目录**不带** `<experiment>` 层——run_collect 的 conductor 路径只管 pi0.5 侧；GR00T 侧沿用 G0-E 验证过的 `groot_rollout_client` 采集形态，或把 adapter 栈接进 conductor（后者是加分项不是前提，G2 已按现状批过）。
+✅ **T5 实测修正（2026-08-19）**：conductor 路径对 GR00T 完整可用——`run_collect --teacher groot_tp` 端到端验证通过（GrootTeacherAdapter 在 episode_runner TEACHERS 注册，journal/run-plan/审计全套同 pi05）。⚠ `--collect-hdf5` 与 pi05 的 `--collect_dir` **同语义 = 场景根**（`build_l1s1`）：GrootCacheCollector 内部就是 EpisodeDataCollector，episode_name 自带 `<teacher>/<Task>/` 层；传 teacher 根会得 `groot_tp/groot_tp/`（已实踩，episode 0 手工归位）。旧文本推荐的 `groot_tp_raw` 裸堆形态作废。
 
 ## 4. ⏳ T4b 待 owner 裁（每条给默认建议，裁「按默认」即可开跑）
 
@@ -100,13 +100,18 @@ tmux new -s rc5gsrv -d "export HOME=/home/weiland; cd /home/weiland/openpi && \
 - tether exec 单次 ~10min 硬上限：长跑一律 tmux+tee，本地 until-grep 短查。
 - ⚠ h5 写失败静默 + journal 会把"完成"记在没有文件的 episode 上 ⇒ **审计不可跳过**；manifest 只认审计产物。
 - ⚠ `--collect` server 单连接：run 进行中任何第二连接（包括 provenance 抓取）都会被 1013 拒。
+- ⚠⚠ **serve_policy 采集模式偶发挂死**（T5 实录 3 次）：签名 = episode 写毕 + "Connection closed" 后进程全局失响，client 报 `1011 keepalive ping timeout`，driver 空转把剩余 uid 全 raise 光（不落账，resume 会重跑，只亏时间）；wchan 取证 215/219 线程 futex_wait = 用户态死锁，与邻居 GPU 高载时段相关。**处置**：监控 driver 日志 keepalive 计数 ≥4 即弹换（重起 server → 原样重发 driver）；根因修复是待立项的工程债。
+- ⚠ **审计必须放 tmux**：全量 h5 校验 >10min，tether exec 上限会把进程杀在 report 与 manifest 之间（已实踩一次）。
+- ⚠ pgrep/kill 的 shell 里**不得同时含重启命令字符串**（纯文本 `serve_xxx.py` 会被自己的 pgrep 匹配 → kill 自杀，已实踩）；清理与重启分两次 tether exec。
 - ⚠ 图像 token 事实修正（2026-08-17 真机 A/B）：GR00T 模板把 instruction 排在图像块**后**，段起点恒 20/283/546；load-bearing = ≠ pi0.5 固定表 0/256/512。旧说法「随 prompt 浮动」已废。
 
 ## 6. 待办与工作树状态
 
 - [ ] **owner 裁 T4b**（§4，可整体「按默认」）
 - [ ] **收尾 commit**（待 owner 授权）：工作树里本线未提交 = plan（G2 APPROVED 条目+N 表回填+状态行）、本 handoff、`logs/README.md`、`key_builder.py` docstring 修正、provenance 尾空格、`t8_island_b_pytest.txt` 归档、两条记忆同步——commit 后远端 `ff-only pull` 收敛
-- [ ] T5 开跑（§3 runbook）→ 每批审计 → manifest → 建库
+- [x] **T5 pi0.5 侧收官（2026-08-19）**：批1 715 + 批2 59 = 774 ep，369+ 成功；审计 ok:True（13/13 task ≥20，零缺失零 schema 错）；`manifest_l1s1_pi05.json`（13×20）+ `t5_audit_pi05.txt` + provenance 归档；期间 server 挂死 3 次均按恢复流程闭环，零数据损失
+- [x] **T5 GR00T tp 侧收官（2026-08-19）**：批1 559 + 批2 18 + 批3 2 = 579 ep；审计 ok:True（13/13 ≥20，零缺陷）；`manifest_l1s1_groot_tp.json`（13×20）+ `t5_audit_tp.txt` + `t5_server_provenance_groot_tp.txt`（四端同 ckpt 双 sha）归档；**双路→四路横向扩真机验证通过**（D-K 降级条款的双路真机证据已补齐，assign_servers 整 task 原子分派实测）；owner 授权的多路加速将 tp 侧从 ~15h 压到 ~9h
+- [ ] **建库**（T6：从两侧 manifest 各取 13×20 成功轨迹 build cache artifacts）→ L0 阶梯评测（D-H 第一个跑）
 - 最近提交：`def89fb`（远端已同步）；真机证据 commit `d961388`
 - ⚠ 工作树混有其它 session 的 ~25 个未提交文件，提交必须逐文件点名
 

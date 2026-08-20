@@ -38,7 +38,7 @@ from openpi.cache.types import CheckpointID, ROBOT_STATE, VISION_0, VISION_1
 from exp.rl_router.fit_warmstart import (
     SuccessHead,
     fit_head,
-    fit_robot_state_stats,
+    fit_feature_stats,
     graft,
     graft_disclosure,
     grouped_folds,
@@ -303,7 +303,7 @@ def test_production_dimension_parity_between_judge_and_trainer(tmp_path) -> None
         W1=(torch.randn(hidden, dim) * 0.01), b1=torch.zeros(hidden),
         W2=(torch.randn(3, hidden) * 0.1), b2=torch.zeros(3),
         arms=arms, fields=tuple(dims), dims=dims, weights_version="v1",
-        mu=torch.zeros(32), sigma=torch.ones(32),
+        mu=torch.zeros(dim), sigma=torch.ones(dim),
     )
     # Drive the real dump path: the trainer reads shard bytes and sidecar
     # logits off disk, so that is what the parity claim has to cover.
@@ -335,7 +335,7 @@ def test_production_dimension_parity_between_judge_and_trainer(tmp_path) -> None
     assert torch.equal(policy.reference_logits(features), dumped)
 
     # And the dumped bytes really are the encoder's output for that observation.
-    encoder = RouterFeatureEncoder(tuple(dims), mu=torch.zeros(32), sigma=torch.ones(32))
+    encoder = RouterFeatureEncoder(tuple(dims), mu=torch.zeros(dim), sigma=torch.ones(dim))
     assert torch.equal(features[0], encoder.encode(query_keys))
     assert verdict.router_outputs["arm_sampled"] in ARM_SETS[arms]
 
@@ -546,6 +546,38 @@ def test_deployed_router_starts_at_the_declared_student_rate() -> None:
             pytest.approx(0.5, abs=1e-6)
 
 
+def test_r_tc_has_no_student_rate_and_says_so() -> None:
+    """R_tc must not be asked for a student rate it structurally cannot have.
+
+    ``graft`` supports the no-student arm set on purpose (uniform start, §3.8),
+    so the fit must not die one line later while reporting on it. Before the
+    fix this surfaced as ``tuple.index(x): x not in tuple`` from inside
+    ``deployed_student_rate``, i.e. the one variant graft() went out of its way
+    to support was the one the fit could not produce.
+    """
+    from exp.rl_router.fit_warmstart import deployed_student_rate
+
+    torch.manual_seed(0)
+    features = torch.randn(20, D)
+    labels = (features[:, 0] > 0).float()
+    episode = torch.arange(20) // 4
+    folds = grouped_folds(episode, torch.zeros_like(episode), n_folds=5)
+    head, _, calibration = fit_head(features, labels, hidden=H, folds=folds, epochs=2)
+
+    params = graft(head, arms="tc", delta0=initial_student_bias(calibration, arms="tc"))
+    # every row zero -> uniform over {teacher, cache}, on the inherited trunk
+    assert torch.count_nonzero(params["W2"]) == 0
+    assert torch.count_nonzero(params["b2"]) == 0
+    assert torch.count_nonzero(params["W1"]) > 0
+
+    disclosure = graft_disclosure("tc")
+    assert disclosure["initial_policy"] == "uniform"
+    assert disclosure["student_row_from_head"] is False
+
+    with pytest.raises(ValueError, match="no student arm"):
+        deployed_student_rate(params, features, arms="tc")
+
+
 def test_r_tc_grafts_the_trunk_and_starts_uniform() -> None:
     """R_tc has no student arm, so the same frozen rule leaves every output row
     at zero: the representation is inherited, the policy starts uniform. It must
@@ -578,12 +610,27 @@ def test_zero_init_is_a_uniform_policy() -> None:
 
 def test_robot_state_stats_guard_against_a_frozen_joint() -> None:
     """A joint that never moved has zero variance; dividing by it would poison
-    every subsequent feature with inf/NaN."""
-    features = torch.zeros(10, 4)
-    features[:, 0] = torch.arange(10, dtype=torch.float32)
-    mu, sigma = fit_robot_state_stats(features, robot_state_slice=slice(0, 4))
+    every subsequent feature with inf/NaN. The whole-vector affine also has to
+    bring ||x|| to O(1): leaving it at sqrt(D) is what let one Adam step at the
+    frozen trainer lr saturate the policy to a single arm."""
+    from openpi.cache.components.mlp_router_judge import ROBOT_STATE
+
+    features = torch.zeros(10, 8)
+    features[:, 0] = torch.arange(10, dtype=torch.float32)   # only this one varies
+    features[:, 4:] = torch.randn(10, 4) * 50.0              # a wildly unscaled field
+    slices = {"vision_0": slice(0, 4), ROBOT_STATE: slice(4, 8)}
+    mu, sigma = fit_feature_stats(features, field_slices=slices)
+
+    assert mu.numel() == 8 and sigma.numel() == 8       # spans the WHOLE vector
     assert torch.all(sigma > 0)
-    assert torch.all(torch.isfinite((features - mu) / sigma))
+    normalized = (features - mu) / sigma
+    assert torch.all(torch.isfinite(normalized))
+    # sqrt(D) is folded into sigma, so the per-row L1 lands near O(sqrt(D)),
+    # not near D -- that ratio is exactly what the Adam step size multiplies.
+    assert float(normalized.abs().sum(dim=1).mean()) < float(
+        ((features - mu) * 0 + features).abs().sum(dim=1).mean()
+    )
+    assert float(normalized.abs().mean()) < 1.0
 
 
 def test_folds_never_split_one_episode() -> None:
@@ -772,3 +819,89 @@ def test_collect_yaml_is_derived_from_the_arm_yaml(tmp_path) -> None:
     assert judge["feature_fields"] == arm["checkpoints"]["cp1"]["judge"]["feature_fields"]
     assert collect["key_builder"] == arm["key_builder"]
     assert collect["backend"] == arm["backend"]
+
+
+# ---------------------------------------------------------------------------
+# Warm-start trunk health (the failure that cost three pilot batches)
+# ---------------------------------------------------------------------------
+
+
+def test_dead_trunk_is_refused_not_shipped() -> None:
+    """A head whose ReLUs are all dead makes the grafted router a CONSTANT.
+
+    It ignores the observation, argmax collapses onto one arm, and
+    ``relu'(pre) == 0`` means REINFORCE's gradient into the trunk is identically
+    zero — the RL run can never learn, however long it runs. Every surface
+    metric still looks plausible (the checkpoint loads, batches join, rates read
+    ~50/50), so this has to fail loudly at fit time.
+    """
+    import torch
+
+    from exp.rl_router.fit_warmstart import SuccessHead, assert_trunk_alive, trunk_health
+
+    features = torch.randn(64, 32)
+    head = SuccessHead(32, 8)
+    with torch.no_grad():                      # every unit pushed past its hinge
+        head.l1.weight.zero_()
+        head.l1.bias.fill_(-1.0)
+    health = trunk_health(head, features)
+    assert health["live_units"] == 0
+    # Float noise, not a clean zero — which is why the guard uses a tolerance.
+    assert health["output_std"] < 1e-6
+    with pytest.raises(SystemExit, match="degenerate warm-start head"):
+        assert_trunk_alive(health)
+
+
+def test_healthy_trunk_passes_and_reports_its_margin() -> None:
+    import torch
+
+    from exp.rl_router.fit_warmstart import SuccessHead, assert_trunk_alive, trunk_health
+
+    torch.manual_seed(0)
+    features = torch.randn(64, 32)
+    health = trunk_health(SuccessHead(32, 8), features)
+    assert 0.0 < health["live_unit_fraction"] < 1.0
+    assert health["output_std"] > 0.0
+    assert_trunk_alive(health)                 # must not raise
+
+
+
+
+def test_head_learning_rate_follows_the_feature_scale() -> None:
+    """Pinning a learning rate instead of the per-step displacement is what
+    produced two degenerate warm starts: 1e-3 killed the trunk on raw features
+    (sum|x|~2.75e5) and 1e-5 left the head at initialisation on scaled ones
+    (sum|x|~89). Deriving it makes both impossible at any width or scaling."""
+    import torch
+
+    from exp.rl_router.fit_warmstart import HEAD_STEP_TARGET, head_learning_rate
+
+    for scale in (2.75e5, 89.0, 1.0):
+        x = torch.full((4, 8), scale / 8.0)
+        lr = head_learning_rate(x)
+        assert abs(lr * scale - HEAD_STEP_TARGET) < 1e-6 * HEAD_STEP_TARGET
+    with pytest.raises(SystemExit, match="all zero"):
+        head_learning_rate(torch.zeros(4, 8))
+
+
+def test_a_head_no_better_than_the_base_rate_is_refused() -> None:
+    """Both degenerate warm starts were visible here first: CV loss 0.911 and
+    0.687 against a 0.518 bar. Grafting such a head spends the interaction
+    budget the headline curve is measured in and dresses a coin flip up as an
+    initialisation."""
+    import torch
+
+    from exp.rl_router.fit_warmstart import assert_head_beats_base_rate, base_rate_entropy
+
+    labels = torch.cat([torch.ones(787), torch.zeros(213)])       # 78.7% success
+    bar = base_rate_entropy(labels)
+    assert abs(bar - 0.5184) < 1e-3
+
+    with pytest.raises(SystemExit, match="carries no signal"):
+        assert_head_beats_base_rate(
+            {"cv_loss": 0.911, "base_rate_entropy": bar, "head_lr": 1e-3})
+    with pytest.raises(SystemExit, match="carries no signal"):
+        assert_head_beats_base_rate(
+            {"cv_loss": 0.687, "base_rate_entropy": bar, "head_lr": 1e-5})
+    assert_head_beats_base_rate(
+        {"cv_loss": 0.456, "base_rate_entropy": bar, "head_lr": 1e-3})   # must not raise

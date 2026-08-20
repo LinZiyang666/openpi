@@ -138,3 +138,24 @@ def test_arm_matrix_can_drop_sensitivity_arms():
 
     m = build_matrix("libero_10", "d", with_sensitivity=False)
     assert len(m["arms"]) == 6
+
+
+def test_arm_name_separates_the_two_library_families():
+    """Two arms with different libraries must not share a yaml_id.
+
+    The journal keys episodes on ``yaml_id``; if the success-filtered S3 and the
+    unfiltered S3 both answered to ``cache_size_libero_10_S3`` the two would
+    merge into one arm's ledger, and the completeness gate would see 1000
+    episodes where it expected 500 -- or, worse, 500 from a mix of both.
+    """
+    a = arm_name("libero_10", "S3", outcome_filter="all")
+    b = arm_name("libero_10", "S3", outcome_filter="success")
+    assert a != b
+    assert a == "cache_size_libero_10_all_S3"
+    assert b == "cache_size_libero_10_success_S3"
+    # recal twins stay distinguishable too
+    assert arm_name("libero_10", "S6", recal=True, outcome_filter="all") == \
+        "cache_size_libero_10_all_S6_recal"
+    # and the single-family layout is unchanged
+    assert arm_name("libero_10", "S3") == "cache_size_libero_10_S3"
+

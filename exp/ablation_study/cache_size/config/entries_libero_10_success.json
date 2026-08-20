@@ -1,0 +1,42 @@
+{
+  "suite": "libero_10",
+  "outcome_filter": "success",
+  "tiers": [
+    {
+      "tier": "S1",
+      "episodes": 10,
+      "entries": 555,
+      "pkl": "/data/openpi/ablation_study/cache_size/artifacts/cache_size_libero_10_success_S1.pkl"
+    },
+    {
+      "tier": "S2",
+      "episodes": 20,
+      "entries": 1094,
+      "pkl": "/data/openpi/ablation_study/cache_size/artifacts/cache_size_libero_10_success_S2.pkl"
+    },
+    {
+      "tier": "S3",
+      "episodes": 50,
+      "entries": 2706,
+      "pkl": "/data/openpi/ablation_study/cache_size/artifacts/cache_size_libero_10_success_S3.pkl"
+    },
+    {
+      "tier": "S4",
+      "episodes": 100,
+      "entries": 5462,
+      "pkl": "/data/openpi/ablation_study/cache_size/artifacts/cache_size_libero_10_success_S4.pkl"
+    },
+    {
+      "tier": "S5",
+      "episodes": 200,
+      "entries": 10781,
+      "pkl": "/data/openpi/ablation_study/cache_size/artifacts/cache_size_libero_10_success_S5.pkl"
+    },
+    {
+      "tier": "S6",
+      "episodes": 392,
+      "entries": 20461,
+      "pkl": "/data/openpi/ablation_study/cache_size/artifacts/cache_size_libero_10_success_S6.pkl"
+    }
+  ]
+}

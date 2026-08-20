@@ -147,11 +147,37 @@ exp/ablation_study/data/runs/            (gitignored; local + client copies, sha
 ├── lat_sidecar_sp/{act7012,sml7011}_lat_sidecar.jsonl   # sidecar forward/queue timing
 ├── analysis_libero_{spatial,10}.json           # paired-stats machine output
 └── analysis_libero_{spatial,10}_fragment.md
+exp/ablation_study/data/anchors/         (gitignored)
+└── libero_{spatial,10}_teacher/results_tasks*.json   # Phase-3 teacher anchor
 exp/ablation_study/analysis/             (tracked)
 ├── analysis.md                                  # this report
 ├── analyze_ablation.py                          # paired statistics
-├── plot_ablation.py                             # figures (reads data/runs/)
+├── emit_plot_data.py                            # collects every plotted point
+├── plot_data.json                               # the single file the figures read
+├── plot_ablation.py                             # figures (reads plot_data.json only)
 ├── ablation_sr_matrix.{png,pdf}                 # fig1: main matrix + CIs
 ├── ablation_pareto_inference_rate.{png,pdf}     # fig2: SR vs inference rate
 └── sr_ledger.md                                 # freeze/candidate ledger (EN-3)
 ```
+
+Figure pipeline: the raw tree is gitignored and lives off this disk, so the
+figures do not read it. `emit_plot_data.py` collects every plotted point into
+`plot_data.json` (main-matrix SR/CI copied verbatim from the analyzer output and
+cross-checked against the journal; 4b sweep SR, FULL_HIT rates and the teacher
+anchor aggregated there, each point labelled with which of the two it is), and
+`plot_ablation.py` renders from that file alone. Re-collect one suite:
+
+```bash
+uv run python exp/ablation_study/analysis/emit_plot_data.py \
+  --out exp/ablation_study/analysis/plot_data.json --suite libero_spatial \
+  --main-journal   exp/ablation_study/data/runs/p4_libero_spatial_journal.jsonl \
+  --main-per-step  exp/ablation_study/data/runs/p4_libero_spatial_per_step.jsonl \
+  --sweep-journal  exp/ablation_study/data/runs/p4b_sp_journal.jsonl \
+  --sweep-per-step exp/ablation_study/data/runs/p4b_sp_per_step.jsonl \
+  --anchor-dir     exp/ablation_study/data/anchors/libero_spatial_teacher \
+  --paired-analysis exp/ablation_study/data/runs/analysis_libero_spatial.json
+uv run python exp/ablation_study/analysis/plot_ablation.py
+```
+
+(`libero_10` uses the same call with `p4_libero_10_*` and `p4b_l10_*`.) Both
+figures re-render byte-identical to the pre-refactor versions from this file.

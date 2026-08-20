@@ -188,6 +188,20 @@ owner 裁定（2026-08-16）：**第一轮只测纯 cache**，配置为 `gate: a
 
 **归一化参数固定是一个需要 G1 评判的选择**。`per_field` 的 mu/sigma 是从 50-init 库的 query×library 分数分布拟合来的。zscore+tanh 对**单模态**排序是单调变换（无影响），但本配置是**三模态加权和**，各模态归一化参数不同 → 库分布变化时融合排序会变。固定它 = 所有 size 点共用同一个算子（纯 size 效应，与 D5「零标定」一致）；重标定 = 每个 size 点都用"该 size 下的最优算子"（引入标定这一自由度）。本计划取固定，并在 §8.3 加敏感性检查：**在 S1 与 S6 两端**各用重标定参数跑一个 500 ep 臂（共 4 臂，复用主臂 pkl 只换打分参数），量化这个选择的量级。取两端而非只取最大档，是因为标定锚点在 S3（50-init 库），失配是**双向**的，且小库一侧机制上更危险（§8.3）。
 
+### 3.1b ⚠ owner 裁定（2026-08-17）：两处改动 §3.2 的冻结设计
+
+**裁定 1 —— 不过滤失败轨迹**（`--outcome-filter all`，builder 与 `emit_size_grid` 两侧都要给）。
+自变量从「**成功**轨迹数/任务」改为「**采集轨迹数**/任务」。后果，全部记在这里而不是等到读结果时才发现：
+
+- **触顶现象整体消失**。可用集就是 B-train 的 45 个 init，与成败无关 ⇒ 每任务每档恰好 k 条，**S6 = 45/任务 = 450 条/套件，两套件一致**，R4 的实测 x 轴逐档等于名义值。
+- **R1 `min(k,n_t)` / R3 退化档对 / R4「S6 = 数据预算耗尽点」/ R5 锚命中打折 全部空转**。⚠ 按 §6.2.2「矩阵在采集后不因数据而变」的原则，这些规则**保留在代码与 family 里**（`n_success` 仍算、R2 仍守），只是不再 binding——不删规则、不改 family 大小。
+- **库里含失败轨迹，`always_hit` 会照常回放它们**。实测占比：spatial **2.6%**（487/500 成功）、l10 **12.8%**（436/500），且 l10 集中在 **task 8——它一半的库是失败轨迹**（25/50）。所以 l10 的 SR 会比"只收成功"的库低，低多少正是本实验要测的量之一。
+- **这改变了实验回答的问题**：不再是「攒多少条成功演示够用」，而是「**采多少条轨迹够用**」。后者更贴近部署现实（写 cache 时并不知道这条会不会成功），但两者不可互换引用；§8.4 的所有措辞与 X9b 卡片须统一用后者。
+- 采集侧**不受影响**：1,000 条 h5 全都在，`--outcome-filter` 只决定 build 时收哪些。将来若要补做 success-only 对照，无需重采。
+
+**裁定 2 —— S3（总数 50）重建而非复用历史 pkl**。
+现有 `exp/common/data/cache_artifacts/<suite>/cp1_spatial_pool_16.pkl`（spatial 49 条 / l10 50 条，2026-04 采）与本实验 keybuilder、checkpoint、vector_dims 全部一致，但**是另一批 rollout、且用时间戳 trajectory_id**。复用会：① 让 S3 与 S2/S4 的 entry 交集为零，**P4 的嵌套门按构造失败**，而嵌套正是"同一批轨迹逐步加量"的科学含义所在；② 在 S2→S3、S3→S4 两段斜率里混入"轨迹换了一批"；③ spatial 那个库只有 49 条，某任务仅 4 条，破坏"每任务恰 k 条"。**故 12 个库全部从本次采集重建**，历史 pkl 仅作为将来可选的 `S3-hist` 并列臂（本轮不做）。
+
 ### 3.2 自变量：库 size（嵌套）
 
 | size 档 | **名义目标成功轨迹/任务** | 名义总轨迹上限 | 预估入库 entries 上限（spatial） | 预估入库 entries 上限（l10） |
@@ -1004,7 +1018,334 @@ D 与 Q 由**不同的检验**驱动（6 vs 7/8），互不蕴含。下表的 CI
 | **P9** | **M-c2 族化收编**（收扁平文件 + 改全部引用 + 软链改名 + manifest） | §9.4 的 5 条出场门 | **X14 全部 run 结束后的单一静默窗口** |
 | P10 | 同步 `tier_experiment_designs.md`（X9b 卡）+ outline 台账 + docs/README | index sync 一致 | 无 |
 
+### 12.1 执行记录（live，2026-08-16 起）
+
+**拓扑**：weilandserver 单机闭环（server + LIBERO client 都在本机，client 走 `127.0.0.1`，不经 broker）。⚠ 这台机同时在跑另外两个 session 的实验，故本实验全程按共享机纪律隔离：**端口 8030**（X14 占 :8000/:7002/:7003，GR00T 占 :8020）、**tmux `cssrv`/`cscol`**、不碰任何他人进程。落盘 `/data/openpi/ablation_study/cache_size/{collect_h5,save_traj,results}/<suite>/`。
+
+| 阶段 | 结果 |
+|---|---|
+| **P1b** | ✅ **PASS** 2026-08-16 17:2x。两套件各 10 任务 × 50 init = 500；**`A ∩ B = ∅` 逐任务 shared=0**（本 repo 首次执行该断言）。rollup：spatial `0eeece46a08b958e…` / l10 `52457a37eb26f951…`，记录落 `config/apool_<suite>.yaml`（实测未被 gitignore，正合"版本控制内的冻结记录"要求）。⚠ **执行中打出一个真 bug**：`verify_apool` / `run_size_eval` 的 `torch.load(..., weights_only=False)` 在 LIBERO client env（**torch 1.11**）里 `TypeError`——那里没有这个参数；而主 uv venv 是 torch 2.x，那里**必须**传（否则 pickled numpy 被拒）。已抽出共享 `load_init_states()` 先试新签名再回落，并补钉住"顺序不可反"的回归测试 |
+| **P2** | 采集 smoke（10 任务 × 1 ep）。路径 `libero_spatial/task_N/episode_M.h5` ✅；字段 `vision_0/1/2 (256,2048) fp16` + `prompt_emb (200,2048) fp16` + `robot_state (32,)` + `clean_action (10,32)` ✅（与 Phase 0 那批零 embedding 的 `--save_trajectory` 产物形成对照，坐实 §5.1）；步洞探针 `attrs.num_steps` == step group 数 ✅；**54 MB/ep**（估 70）；**2.65 ep/min**（估 2.8，且共享负载下） |
+
+| **P3 (spatial)** | ✅ **PASS** 2026-08-16 17:32–20:11（**2h39m**，3.15 ep/min，共享负载下）。500/500 h5、**35.61 GB**、client 干净退出、cerr=0 serr=0。五道门（网格完整 / schema / 步洞探针 / results-JSON 逐条联结 / sha 记账）见 `verify_collect.py`。**SR 487/500 = 0.974，与历史 spatial teacher 锚 0.974 逐位吻合** |
+
+**spatial 的 size 轴实测（P3b 的输入，提前算出以便及早暴露问题）**：按 `split_libero_spatial.yaml` 的 train45/val5 切分，逐任务 B-train 内成功数 `n_t`：
+
+| 量 | 实测 | 对照 plan |
+|---|---|---|
+| `n_t` 范围 / 均值 | 41–45 / **43.9** | §3.2 期望 ~42.8 |
+| **S6 触顶任务** | **5/10**（task 0/4/5/8/9） | 「S6 普遍触顶」✓ ⇒ R1 `min(k,n_t)` 与 R4「x 轴用实测均值、S6 语义 = 数据预算耗尽点」按预期生效 |
+| **S5(20) 触顶** | **0/10** | spatial 上 S5 安全 ✓（l10 才是 R1/R3 的真考场） |
+| R2 最低可运行门 | 最小 `n_t = 41` | 离 0 极远，不触发 |
+| **R5 历史锚命中** | 9 任务 **5/5**，task 8 **4/5** | S3 每任务仍取满 5 条；只有 task 8 需 1 条优先级-2 补足，"同 init、新轨迹"的可比性仅在该任务打折 |
+
+| **P3 (libero_10)** | ✅ **PASS** 2026-08-16 20:12 → 08-17 02:47（**6h35m**，1.27 ep/min）。500/500 h5、**95.63 GB**、client 干净退出、results JSON 500 行、cerr=0 serr=0。**SR 436/500 = 0.872** |
+
+**libero_10 的 size 轴实测**（`split_libero_10.yaml` train45/val5）：
+
+| task | 总成功 | `n_t` | S5=20 | S6=45 | R5 锚命中 |
+|---|---|---|---|---|---|
+| 0 | 49 | 44 | ok | CAP | 5/5 |
+| 1 | 50 | 45 | ok | full | 5/5 |
+| 2 | 46 | 41 | ok | CAP | 5/5 |
+| 3 | 43 | 39 | ok | CAP | 5/5 |
+| 4 | 46 | 43 | ok | CAP | 5/5 |
+| 5 | 42 | 37 | ok | CAP | 5/5 |
+| 6 | 44 | 39 | ok | CAP | 5/5 |
+| **8** | **25** | **23** | **ok（余量仅 3）** | CAP | **3/5** |
+| 7 / 9 | 50 / 41 | 45 / 36 | ok | full / CAP | 5/5 |
+
+- `n_t` 23–45，**均值 39.2**；**S6 触顶 8/10**，S5(20) **0/10 触顶**
+- ⚠ plan §3.2 曾预警「l10 最难任务 S5 有实质概率触顶」——**实测未触顶**（task 8 的 `n_t=23 > 20`），但**余量只有 3 条，是全实验最窄的一处**，须在报告中披露
+- **R4 的实测 x 轴**：S1–S5 逐档**等于名义值**（1/2/5/10/20），只有 S6 是 **39.2**（spatial 为 43.9）⇒ 只有顶档承担"数据预算耗尽点"语义，曲线前五点是设计值本身
+- R2 不触发（min `n_t`=23 远离 0）；R3 不触发（S5→S6 逐任务均不同，无退化档对）
+- R5：9 任务 5/5，**task 8 仅 3/5**（spatial 侧最差是 4/5）⇒ S3 的"同 init、新轨迹"可比性在 l10-task8 上打折最多
+
+**收尾（owner 授权）**：08-17 02:50 按 PID 定点关停采集 server（`kill -9 2198441`，匹配 `[s]erve_policy.py.*8030`），:8030 释放、GPU **30528→22887 MiB used，释放 7641 MiB ≈ 7.5 G**。关停前后核验 X14（:8000 三进程 + 四个 sidecar + 三个 tmux）完好；GR00T 的 :8020 在**关停前的快照里就已为空**（该 session 自行结束），非本次误伤。
+
+| **P3b + P4** | ✅ **PASS** 2026-08-17 08:57–10:0x。裁定 1 之后跑**两组**（`success` / `all`）⇒ **24 个 pkl**（2 套件 × 6 档 × 2 口径），**49 GB**，落 `/data/openpi/ablation_study/cache_size/artifacts/`，repo 侧经 `data/artifacts__symlink__slash_data_openpi` 访问。三道门全过：**加载不掉条 24/24**（built == loaded，无 ID 碰撞）、**清单覆盖 24/24**、**嵌套性 4/4 组** |
+
+**实测 entries 表（P4 交付物）**
+
+| suite / filter | S1 | S2 | S3 | S4 | S5 | S6 | S6 的 episodes |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| spatial / success | 205 | 421 | 1,047 | 2,109 | 4,253 | 9,329 | 439 |
+| spatial / all | 229 | 448 | 1,072 | 2,133 | 4,428 | 9,813 | 450 |
+| l10 / success | 555 | 1,094 | 2,706 | 5,462 | 10,781 | 20,461 | 392 |
+| l10 / all | 555 | 1,094 | 2,741 | 5,660 | 11,720 | **26,493** | 450 |
+
+三处实测出来、影响判读的现象：
+
+1. **失败轨迹更长**。spatial 的 S1–S4 两组条数相同，`all` 却多出约 24–27 个 entries——失败 rollout 通常跑满 horizon 才判负。所以失败轨迹在库里不只是"坏内容"，还**多占检索空间**；S6 处 l10 两组差 **6,032 entries（+29%）** 而 episodes 只差 58 条（+15%），差距近乎翻倍正是这个效应。
+2. ⚠ **l10 的 S1/S2 两组库逐字节相同**（555 / 1,094）。每任务前 2 个历史锚恰好都成功，故两口径选到同一批轨迹。**这给了一个天然的 null 对照**：若评测中这两档测出组间显著差异，那是管线或统计的问题，不是数据的。须在报告中作为管线自检明写。
+3. **S3 与历史库可比**：重建的 S3（50 条）是 1,047 entries，历史那个 50 条库是 1,018——差 29 步，来自"同 init 不同 rollout"的长度差异，量级合理，支持裁定 2 的重建选择。
+
+**新增护栏**（P4 期补，均已测）：`build_size_artifacts` 的 `--outcome-filter`（此前不传 ⇒ builder 默认 `success`，会让 `all` 的库**静默缩水**且不报错）、`verify_list_coverage`（与过滤器无关的通用护栏，交集比较，超集不能掩盖缺失）、`verify_nesting`（冻结出场门固化为代码，报出**所有**断裂环节而非首个）。11 个测试。
+
+**⚠ owner 裁定（2026-08-17）：`spatial/success` 的 1 条证据缺口按失败计入，不重跑。**
+`cache_size_libero_spatial_success_S6:eval:9:49`（整组最后一条）journal 记 `status=failed / success=false / accepted=true`，但 per-step **0 条推理行**（同一 episode 在 S1 有 28 行、S5 有 36 行），故无法证明它是纯 cache 服务而非静默回落 teacher。逐 episode FULL_HIT 门**正确拦下并把该组标记 FAILED**。owner 裁定：**当作失败照常计入分母，不重跑**。
+
+据此须在报告中如实披露三点：① 3,000 条中 **1 条无 FULL_HIT 见证**；② 风险方向**可证伪** —— 该条失败了，若它真走了 teacher（SR 0.974）反而更该成功，故缺口不可能藏着"被 teacher 帮忙的成功"；③ 影响**有上界**：把它当非纯 cache 剔除则 S6 的 SR 由 408/500 = 0.8160 变为 408/499 = 0.8176，差 **+0.16 pp**，方向对 cache 不利，而 δ = 5 pp。
+
+成因是收尾竞态（result 逐条写 journal，per-step 行仍在 driver 内存，而 snapshot 线程已停），只影响**每次跑的最后一条**；已修（收尾前强制再 dump 一次内存行 + 两个回归测试）。⚠ **spatial 两组是旧代码跑的**，`spatial/all` 预计同样缺最后一条；l10 两组用的是修复后版本。
+
+**两条运维教训（已修，记录以免重犯）**：
+
+1. **`tmux new -s X -d "多行命令"` 会被换行拆成多条命令**，`2>&1 | tee` 只作用于最后一段 ⇒ 日志 0 字节、会话秒退、现场全丢。改为把启动命令写成落盘的 launcher 脚本，tmux 只调脚本。
+2. **健康脚本自造假阳性**：serve_policy 是纯 websocket server、没有 `/healthz`，故存活探测只能裸 TCP connect——而每一次探测都会在 server log 里留下一个 websockets 握手 Traceback。脚本若无差别地数 traceback，就会**对自己的脚印报警**，然后这条警报被人为静音。现改为：fatal 签名（OOM/CUDA/Killed/FATAL）无条件计数，Traceback 只在其后续行**不含 `websockets`** 时才计。
+
 **关键排序性质**：P1–P8 全部**不需要** X14 结束（只需排队用 GPU），破坏性的 P9 被单独隔离到最后。这解决了原 §12 与 §4.4/R6 的自相矛盾。
+
+### 12.2 P7 正式评测执行记录（live，2026-08-17 起）
+
+**分组方式**：28 臂拆成 4 组（suite × outcome_filter）顺序跑，组间重启 server。理由是 `BackendPool` 从不 evict——单进程跑满两族全部档位常驻约 98 G（fp32）。**统计上零代价**：Holm 按套件独立、所有配对都在套件内，各组 journal 分别喂给 analyzer（`--journal` 可重复）。
+
+**主/次口径的确认（须在报告中明写）**：§3.1b 裁定 1 把自变量定义为「**采集**轨迹数/任务」，故 **`all` 族是预注册的 primary family**（每套件 8 检验），`success` 族是**次级对照**，descriptive、不进 family。三条独立证据表明该指定不是看到结果之后才做的：① 裁定 1 的文本本身就是这么定义自变量的；② §8.3 的 4 个敏感性臂（`S1_recal` / `S6_recal`）**只挂在 `all` 族上**，28 = 2 套件 × (6 success + 6 all + 2 recal)；③ 两族 24 个库全部建于 08-17 **09:15–10:12**，而 P7 第一条 episode 的 journal 时间戳是 **12:16:15**——设计在任何评测数据存在之前就已落定。⚠ 同时如实披露：本条记录写于 spatial 两族 SR 都已可见之后，故该指定的效力来自裁定 1 的**成文时间与结构性证据**，不是"盲选"。
+
+**逐组状态**
+
+| 组 | 臂 | episode | 逐 episode FULL_HIT 门 | 完成 |
+|---|---:|---:|---|---|
+| `libero_spatial / success` | 6 | 3,000 | ❌ FAILED（1 条，owner 裁定见 §12.1） | 08-17 16:20 |
+| `libero_spatial / all` | 8 | 4,000 | ✅ **PASS**：8/8 臂各 500 条见证齐全，`stale_rows_ignored = 0` | 08-17 22:00 |
+| `libero_10 / success` | 6 | 3,000 | ✅ **PASS**：6/6 臂各 500 见证齐全、`stale_rows_ignored = 0`、**`final snapshot: 0 rows`（收尾竞态修复实证生效，未丢最后一条）** | 08-18 11:16 |
+| `libero_10 / all` | 8 | 4,000 | ✅ **PASS**：8/8 臂各 500 见证齐全、`stale_rows_ignored = 0`、`final snapshot: 0 rows` | 08-19 06:10（**ALL GROUPS DONE fail=0**） |
+
+⚠ **更正 §12.1 的一处预判**：那里写「`spatial/all` 预计同样缺最后一条」——**实测未发生**。该组 8 个臂逐 episode 见证全齐（S6_recal 是最后一个臂，500/500）。收尾竞态只在特定时序下咬到最后一条，不是必然；预判该写成"可能"而非"预计"。
+
+**spatial 两族 SR（逐臂，全部 500/500 accepted、attempt 恒为 1、10 任务 × 50 init 网格完整）**
+
+| 档 | 每任务轨迹 | `all`（primary） | `success`（次级） | all − success |
+|---|---:|---:|---:|---:|
+| S1 | 1 | 0.5020 | 0.5320 | −3.0 pp |
+| S2 | 2 | 0.4640 | 0.4880 | −2.4 pp |
+| S3 | 5 | 0.6880 | 0.6880 | 0.0 |
+| S4 | 10 | 0.7280 | 0.6980 | +3.0 pp |
+| S5 | 20 | 0.7620 | 0.7480 | +1.4 pp |
+| S6 | 45 / 43.9 | **0.8100** | **0.8160** | −0.6 pp |
+
+teacher 锚 0.974 ⇒ **顶档 gap ≈ 16.4 pp**（δ = 5 pp）。⚠ 以上一律是**效应量展示**，确认性落格只能由 P8 的 Holm 后结果驱动（§8.1.2 / §8.4.1b）。
+
+三处形状，**均为描述性观察，不改任何预注册判据**：
+
+1. **S1→S2 下降在两族同时出现**（`all` −3.8 pp、`success` −4.4 pp）。这正是 M 轴（检验 1）要判的对象；是否构成 `M-yes` 由 Holm 后结果决定，此处不得预读。
+2. **过滤失败轨迹只在小库上有用**。S4 之后两族差在 ±3 pp 内往返，S6 处仅 −0.6 pp；小库上则是 −3.0 / −2.4 pp（`all` 更差）。
+3. ⚠ **一条失败轨迹足以把一个任务整体打死**。`spatial/all` 的 S1 与 S1_recal 在 **task 8 上是 0/50**、S2 是 3/50，而 `success` 同档是 16/50、15/50。两族 S1 列表交集 9/10，**差的正是 task 8 那一条**：`all` 取 `task_8/episode_0.h5`（采集台账里 `episode_id=400`，`success=false`，task 8 全部 5 条失败之一），`success` 取 `episode_13`。`always_hit` 会照实回放失败轨迹，库里只有它时该任务就整体失效。这是裁定 1「库里含失败轨迹会照常回放」的最强实证，也是小库负差的直接机制。
+
+**§8.3 归一化敏感性臂（descriptive，不进 family）**：`ΔSR(recal − fixed)` 在 spatial 上 **S1 +0.6 pp**、**S6 +1.0 pp**。
+⚠ **点估计小不等于等价成立**——正是 §8.3 明令不得用"CI 含 0 且半宽小"代替等价检验的那个陷阱。跑完正式的 ±3 pp 检验后：
+**S6 等价成立**（CI `[-0.20, +2.20] pp`，整段在 ±3 pp 内），**S1 不成立**（CI `[-2.80, +4.00] pp`，上界越界）。
+S1 的失败是**宽度问题**（10 个 cluster + 小库上 SR 方差最大），不是不等价的证据，但按预注册口径**不得**据此宣称等价：
+主曲线的措辞须限定为"**在生产标定参数下**"，并把重标定结果并列报告。分支 N 未被触发（M 轴见下），故该限定不影响主结论。
+
+**l10 的天然 null 对照已就位**：§12.1 现象 2 记过两族 S1/S2 库逐字节相同（555 / 1,094 entries；列表交集 10/10 与 20/20，本轮复核确认）。故 l10 跑完后，`libero_10_success_S1` 与 `libero_10_all_S1` 之差是**纯运行噪声**——库、A 池 init、arm 配置全同，唯一差别是 rollout 的随机性。该差值给出本实验的**经验噪声底**，须在报告中作为管线自检明写；若它与真实档间差同量级，所有小效应的解读都要相应收紧。⚠ 注意这两档在 primary family 里**仍各占自己的位置**（`all` 族的 S1/S2 是正常档位，不是重复臂）——被复制的是跨 filter 的那一对，而跨 filter 比较本就不在 family 内。
+
+**provenance 收口**：远端生成的 `config/`（28 个臂 yaml、4 个 matrix、4 份 recal、两套 lists、4 个 entries JSON）
+已拉回仓库；`config/apool_<suite>.yaml` 与运行时实际传给 `--apool-record` 的那两份 **sha256 逐位一致**
+（spatial `d654643f…`、l10 `2be5df50…`）。
+
+**§11 风险 1「teacher anchor 协议错配」—— 已实测排除**（此前只是"须核对"）。三个轴逐一验：
+
+| 轴 | anchor（2026-08-13 采） | 本实验评测臂 | 判定 |
+|---|---|---|---|
+| init 集合 | 官方 pruned_init，每任务 `init_state_idx == orig_init_state_idx == 0..49` | A 池 = 同一批 pruned_init（每任务 50，P1b 已 rehash） | 同一批、同一顺序 |
+| seed | 逐行常量 **7** | runner 不传 seed ⇒ `examples/libero/main.py` 默认 **7** | 相同 |
+| `replan_steps` | client 默认 **5**（臂 yaml 只配 cache，不碰 client） | 同左 | 相同 |
+
+anchor 本身：两套件各 **500 行、500 个唯一 `(task_id, init_state_idx)` 键、零重复**，
+spatial SR **0.9740** / l10 SR **0.8680**。⚠ 注意 l10 的 **0.868 是 A 池 anchor**，
+与 §12.1 记的采集 SR **0.872（B-train 500 条）是两个不同集合上的两个数**，
+比较 gap 时只能用前者，报告中不得混用。
+
+#### 12.2.1 spatial 主族的 P8 结果（`all`，数据完整，可定稿）
+
+分析器命令与产物见 §12.2 末；全部门禁一次通过：A 池 digest 逐位吻合、launch 绑定 8 臂相等、
+逐 episode FULL_HIT 见证 8×500 全齐、**无退化重采样（8 个检验全 0.0）、无 not-evaluable、无 CI/门禁分歧**。
+
+| 档 | S1 | S2 | S3 | S4 | S5 | S6 | teacher |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| SR | 0.502 | 0.464 | 0.688 | 0.728 | 0.762 | **0.810** | **0.974** |
+
+`gap = teacher − S6 = +0.1640`，95% BCa CI **[+0.1060, +0.2080]**；S6 的 SR CI `[0.758, 0.860]`。
+
+**8 检验 Holm 后**
+
+| # | 检验 | p | Holm p | 拒绝 |
+|---|---|---:|---:|---|
+| 1 | S1–S2 | 0.5766 | 1.0000 | no |
+| 2 | S2–S3 | 0.0302 | 0.1815 | no |
+| 3 | S3–S4 | 0.2663 | 0.9951 | no |
+| 4 | S4–S5 | 0.2488 | 0.9951 | no |
+| 5 | S5–S6 | 0.1005 | 0.5024 | no |
+| 6 | 方向 | 0.0010 | **0.0078** | **yes** |
+| 7 | 非劣 | 0.9980 | 1.0000 | no |
+| 8 | 劣效 | 0.0029 | **0.0205** | **yes** |
+
+**落格：`D-teacher` × `Q-fail` × `P-inconc`，`M-yes = False` ⇒ 分支 G。**
+
+四点判读，逐条按预注册口径：
+
+1. **`Q-fail` 是确认性的**：检验 8 Holm 后 p = 0.0205 拒绝 `H0: gap ≤ δ` ⇒ **确认 gap > 5 pp**。这是本实验对 thesis 的直接回答：在 spatial 上，把每任务 45 条采集轨迹全部灌进纯 cache，**仍确证性地落后 teacher 超过 5 pp**。
+2. ⚠ **S1→S2 的下降不构成 `M-yes`**。原始 p = 0.5766，Holm 后 1.0000——那个 −3.8 pp 的下降在 task-cluster 口径下毫无统计支持。**§12.2 里"S1→S2 下降"只能作曲线形状描述，绝不可读成非单调性证据**；分支 N 未触发。
+3. **`P-inconc`：曲线并未饱和**。末档斜率 `S5–S6` 的 BCa CI 是 `[-0.20, +9.60] pp`，上界远超 2 pp 的平台判据、下界又贴着 0 ⇒ **既不能说已到平台，也不能说仍在爬**。故**不得**写"更多数据也没用"——分支 A 那种"payload 上限不是数据量问题"的措辞在 spatial 上**没有依据**。
+4. **唯一被 Holm 拒绝的档间检验是没有的**：真正驱动曲线的 S2–S3（+22.4 pp，原始 p = 0.0302）在 8 槽位 Holm 下也没能过关（0.1815）。**10 个 cluster 的功效紧张是本设计的已知代价**（§8.1.1 已披露），必须与结论一并报告，不得把"未拒绝"读成"无差异"。
+
+⚠ **本节只是 spatial 一个套件**。两套件各自独立 Holm、并列报告，**不做"至少一个套件显著"式推断**（§8.2）。l10 跑完后单独出一份，再按 §8.4.2 汇总。
+
+#### 12.2.2 ⚠ 分析器缺 `--outcome-filter`（P8 前打出的真 bug，已修）
+
+`analyze_size.py` 用 `f"cache_size_{suite}_{tier}"` 重建臂名，**不带 filter**；而裁定 1 之后真实臂名是
+`cache_size_<suite>_<filter>_<tier>`。后果不是错答案而是**每个臂都查不到、P8 直接跑不起来**（fail-loud，正确的失败方式）。
+根因与 P4 期 `build_size_artifacts` 那个是同一类：裁定 1 穿到了生产侧，没穿到消费侧。
+
+修法与护栏：
+
+- 分析器**不再自己拼字符串**，改为 import 生产侧已有的 `emit_size_yamls.arm_name()` ⇒ 两侧不可能再漂移；
+- 新增 `--outcome-filter {success,all}`；
+- **敏感性臂按族区分**：`all`（primary）**必须**有 S1/S6 两个 recal 臂（原行为不变）；`success`（次级）**必须没有**——
+  出现即 fail，报"矩阵发错或 filter 传错"。两个方向都堵，避免"少发了 recal 臂却静默通过"；
+- 产出物带 `family_role` / `outcome_filter` 字段，次级族的 markdown **在任何结论之前**先打一条
+  「Secondary, descriptive read」告示，且标题由 "Pre-registered family" 改为 "Family mirror — descriptive"，
+  使一份 `success` 报告不可能被误读成 primary。
+
+5 个新测试**端到端走 `main()`**（bug 就在 `main()` 里）：漏传 filter 必须 fail、primary 找得到 8 臂并消费两个 recal、
+次级族零 recal 臂可跑、次级族混入 recal 臂必须 fail、次级 markdown 必须自报身份且 primary 不受影响。
+`tests/ablation_study/cache_size/` 全量 **207 passed / 5 skipped**。
+
+
+#### 12.2.3 l10 次级族的 P8 结果（`success`，descriptive——primary 是 `all`，尚在跑）
+
+跑批 08-17 22:14 → 08-18 11:16（**13h02m**，4 worker），门禁一次通过。分析器按 §12.2.2 的设计自动把本族标为
+**Secondary, descriptive read**（markdown 在任何结论前先自报身份），以下一切不得措辞为"显著"。
+
+| 档 | S1 | S2 | S3 | S4 | S5 | S6 | teacher 锚 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| SR | 0.274 | 0.360 | 0.464 | 0.470 | 0.498 | **0.522** | **0.868** |
+
+`gap = +0.3460`，BCa CI `[+0.2018, +0.4940]`；S6 的 SR CI `[0.364, 0.676]`（任务间方差极大——l10 任务难度重尾）。
+
+**落格（descriptive）：分支 G —— `D-none` × `Q-fail` × `P-inconc`，`M-yes = False`。**
+
+三点判读：
+
+1. ⚠ **`D-none × Q-fail` 这个 G1 期反复争论的"可达格"真实出现了**，机制与 §8.4.1b 预注册的完全一致：
+   检验 8（单侧劣效）Holm 后 p = 0.0468 拒绝，检验 6（双侧方向）Holm 后 p = 0.0615 未拒——两者取不同的尾。
+   预注册读法正确接住（gap CI `[+20.2, +49.4] pp` 明明白白在 0 之外，但**落格由 Holm 驱动，CI/门禁分歧照实打印、
+   不得择优**——分析器把这条分歧写进了 `ci_gate_disagreements`，报告须原样保留）。当初若保留 fail-loud，
+   这里就会中止一份完全合法的分析。
+2. **量级与 spatial 完全不同**：顶档 gap 34.6 pp（spatial 16.4 pp），l10 的纯 cache 只到 teacher 的 60%。
+   每任务约 39 条成功轨迹在长程任务上远不够用——但这句话的确认性版本要等 `all` 族（primary）出来才能说。
+3. **曲线在爬但极缓**：S3→S6 三档共 +5.8 pp（S4–S5 与 S5–S6 的 BCa CI 分别 `[+0.0, +6.2]`、`[-0.2, +6.4] pp`），
+   `P-inconc`——不能说饱和，也不能说不饱和。
+
+**运维教训（第三条，与前两条同根）**：重挂的 L5 Monitor 用裸签名 grep `/tmp/csmain_trace.log`，
+而该 trace 带 `-x`——`restart_server()` 里那句"检查 server 日志有没有 OOM"的 grep 命令**本身**被 `set -x`
+打印出来，含 "out of memory" 字样 ⇒ Monitor 对**脚本自己的脚印**连发误报。已修（排除 `^+` 行）。
+与健康脚本的 websockets-Traceback、worker 计数被邻居污染同属一类：**监控必须区分"信号本体"与
+"谈论信号的文本"**，凡是监控会读到自己（或邻居）动作回声的通道，都要先把回声滤掉。
+
+#### 12.2.4 l10 主族的 P8 结果（`all`，primary，确认性）——P7 全部收官
+
+跑批 08-18 11:16 → 08-19 06:10（18h54m；16:52 起 owner 授权由 4 worker **热加至 12**，
+不重启 driver——conductor pull 协议只认 server_key，新 worker 连上就领活，收官时 driver 广播
+MSG_SHUTDOWN；实测提速 S4 档 1.76×、S6 档 ~1.3×，server 检索侧成为并行瓶颈）。
+门禁一次通过：launch 绑定 8 臂相等、A 池 digest 逐位吻合、逐 episode FULL_HIT 见证 8×500 全齐、
+无退化重采样、无 not-evaluable、**无 CI/门禁分歧**。
+
+| 档 | S1 | S2 | S3 | S4 | S5 | S6 | teacher 锚 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| SR | 0.272 | 0.360 | 0.456 | 0.478 | 0.480 | **0.516** | **0.868** |
+
+`gap = +0.3520`，BCa CI `[+0.2200, +0.5020]`；S6 的 SR CI `[0.386, 0.650]`。
+
+**8 检验 Holm 后**：检验 6（方向，双侧）p=0.0068 → Holm **0.0478 拒绝**；
+检验 8（劣效，单侧）p=0.0049 → Holm **0.0390 拒绝**；其余 6 个均未拒（t2 原始 0.0420 → 0.2517）。
+
+**落格（确认性）：分支 G —— `D-teacher` × `Q-fail` × `P-inconc`，`M-yes = False`。**
+
+判读四条：
+
+1. **这是 l10 的确认性主结论**：teacher 显著在前（D-teacher）**且** gap 确证大于 δ=5 pp（Q-fail）。
+   每任务 45 条采集轨迹灌进纯 cache，SR 只到 teacher 的 59%（0.516 vs 0.868）。
+2. **与 success 次级族对照**：主族把 `D-none` 收紧成了 `D-teacher`（次级族检验 6 Holm 后 0.0615 差一点、
+   主族 0.0478 过线）——两族点估计几乎相同（S6 0.516 vs 0.522），差异纯在临界带的多重性运气上；
+   报告须把两族并列展示并说明这一点，不得把次级族的 `D-none` 读成"方向不确定的证据"。
+3. **平台轴照旧 `P-inconc`**（S5–S6 斜率 CI `[-0.4, +7.0] pp`）——不得写"更多数据也没用"。
+   S4→S5 几乎零增益（+0.2 pp，CI `[-3.6, +3.2]`）但 S5→S6 又 +3.6 pp，曲线形状是"缓爬带平段"，
+   只能描述、不能断言饱和。
+4. **敏感性臂（descriptive）**：S1 等价成立（Δ −0.6 pp，TOST 双 p < 0.017）；**S6 不成立**
+   （Δ −1.4 pp，CI `[−5.0, +1.6] pp` 下界越 −3 pp 界，TOST 下侧 p=0.197）——又是宽度问题
+   （S6 任务间方差大），方向与 spatial 相反（recal 略差）。主曲线措辞须限定"在生产标定参数下"。
+   四个敏感性臂两 PASS 两 FAIL 的分布（spatial S6 ✓ S1 ✗ / l10 S1 ✓ S6 ✗）没有一致方向，
+   支持"归一化不是主效应"的定性判断，但该判断本身是 descriptive。
+
+**P7 总账**：28 臂 × 500 = **14,000 episodes 全部落袋**，四组出口门全过；总墙钟约 42h
+（08-17 12:16 → 08-19 06:10，含组间重启与一次 success 组的证据缺口裁定）。
+唯一的数据瑕疵仍是 §12.1 那 1/14,000（owner 已裁定按失败计入，披露三件套见 §12.1）。
+
+**收尾**：ALL GROUPS DONE 后按 owner 持久授权（"数据完全收集完毕之后释放显存"）执行了拆除：
+残余 4 个热加入 worker（w4/5/7/11，臂尾半途未收到 MSG_SHUTDOWN）+ :8030 server 两进程，
+全部**按列出的 PID 定点 kill**；csw2/cssrv tmux 已收；GPU 释放至 24.5G free；
+邻居 tmux（rc5gsrv/rc5run/rlrsrv）核验无恙。
+
+### 12.3 附属实验 X9b-L：优化 backend 的 size×延迟重测（live，2026-08-19 起）
+
+**动机（owner 指示）**：X9b 报告 §6 的成本账全部出自 **src 原版 backend**；而 5-6 月的
+`exp/cache_latency_bench` 调优栈（R1 预建矩阵 / R2 prenorm-dot GEMV / R3 LEAN / R4 batched build，
+在 2.6k entries 库上 search 9.6×）**从未上生产**。owner 裁定：要的性能数据就是**优化后 backend** 在
+X9b 不过滤（`all`）族 12 个不同 size pkl 上的延迟——**单 backend 条件，不测原版对照**。
+
+**兼容性验证（跑之前逐环验过）**：
+- 调用链闭合：X9b 臂的 `weighted_score_sum_knn` 在 QuerySpec 里下发 `fusion_method="weighted_score_sum"`
+  → src `_search_weighted_score_sum` → **LEAN 覆盖的正是该方法**；R4 keybuilder 与臂同为 `cp1_spatial_pool_16`。
+- 任务作用域：X9b pkl 的任务身份在 `payload.task_key`（l10/all S1 实测 10 个任务串齐全）；
+  bench replay 逐 h5 调 `on_episode_start(task_key)` → 检索按任务分桶，与 server 同路径。
+  ⚠ **更正（08-19，实测推翻）**：此前写"旧 pkl task 全 None、单桶全扫 2,640 条"是**探针错误**
+  ——当时只查了 entry 属性层，漏了 `payload.task_key`。复查确认旧 pkl 同样按任务分桶（10 桶、
+  均值 264 条/桶），故旧 bench 的 3.54 ms 对应 ~13.4 µs/条，与本轮完全同斜率；据错误前提推出的
+  "优化后 ~1.4 ms/千条、比生产快 30–70×"一并作废。**对比斜率一律按单桶实际扫描量折算**。
+- 查询流：April 采集的 h5（l10 50 个 / spatial 50 个，vision_0/1/2 fp16 + prompt_emb + robot_state，
+  与 X9b 同 schema；任务串与 pkl task_key 逐字一致）。两机用**同一批 h5**保证可比。
+- search 配置：X9b 臂与旧 bench yaml 的 search 段逐字一致（同 3 字段 / cosine+l2-exp / top_k=1），
+  仅 zscore 常数不同（不影响延迟路径）。
+
+**协议**：
+- 矩阵 = `all` 族 12 pkl（2 套件 × S1–S6）× 2 机器（weilandserver 88 核 / WSL 20 核）。
+- runner = `opt/run_round4_pool_latency.py`（R1–R4 全栈，逐段计时），每档**独立进程**跑完即退
+  （BackendPool 不 evict；WSL 23G 内存顶，l10/all S6 常驻 ~13.5G）。
+- 控噪：旧 bench 是 `torch.set_num_threads(4)` + 挑静默时段 + median/p95，**没有绑核**；
+  本轮两机都加 `taskset -c`（weilandserver 有常驻邻居，"等静默"不可保证），线程仍钉 4，
+  环境快照（nproc/uptime/free）随产物落盘。
+- 传输：两机同内网（192.168.0.200，免密 ssh）——April h5 12.1G 上行 / 12 pkl 33G 下行，rsync 直连。
+
+**冒烟（WSL，l10/all S1）✅ 2026-08-19 17:0x**：2,640/2,640 步全 FULL_HIT、`lean_fallbacks=0`
+（LEAN 稳态路径 100% 覆盖 X9b 配置）、total median **1.63 ms**（build 0.43 / search 1.08）。
+owner 的"换 pkl 直接跑"假设成立，链路零改动。
+
+**绘图管线重构（owner 指示，为本实验这类补充测量铺路）**：原 `plot_size.py` 直接吃分析 JSON，
+补充实验没有落点。现改为两段：`emit_plot_data.py` 把每个点收进 **`analysis/plot_data.json`**
+（逐字复制分析 JSON 的 SR/CI/teacher/verdict + 来源 sha256，不做任何再计算；按 (suite,filter) 分块，
+重收某族只覆盖该块），`plot_size.py` **只读该文件**。延迟类补充测量经 `--attach-latency --latency-label
+<host_backend>` 挂到已有点的 `latency.<label>` 下——不许发明没有 SR 锚的点。图已用新管线重出（顺带修正：旧图 x 轴误用名义值，现取 grid 的 `mean_realized`）。
+**owner 四轮迭代（08-19）**：① 点上标数据（traj/task + SR / 延迟 ms），横轴不标数字；
+② 全线废除 S1–S6 代号——数据文件 schema 2 全自描述字段（`trajectories_per_task` /
+`success_rate_ci95` / `entries_scanned_per_call` / `retrieval_latency_ms.<host>_optimized` 等，
+档位只存在于 `source_arm` 溯源串），family 块带 `figures` 字段（出图自动回写）；
+③ 同套件 success+all **同框叠加**（图 5→2 张：`size_curve_libero_10.png` / `size_curve_libero_spatial.png`），
+删除 teacher 下方 δ 阴影带；④ 延迟标签只写 **CPU 型号**（`Xeon E5-2696 v4` = weilandserver /
+`i7-12700H` = WSL，owner 明令不带 "optimized backend" 后缀——backend 语境由本节标题承载）。
+测试随迭代重写至 22 个（叠加/单 teacher 线/无 δ 带/图名回写等），全量 223 passed。
+
+**产物**（owner 指示：图与数据都归 cache_size）：`exp/ablation_study/cache_size/analysis/relatency_data/<host>/<suite>_all_<tier>/{per_step.csv,summary.json}`；收官后经 `--attach-latency` 并入 `analysis/plot_data.json`。
+
+**✅ 收官（08-19 17:45）**：weilandserver 12/12、WSL 11/12（l10/S6 被 OOM-kill——优化栈峰值内存
+≈3× fp16-pkl 字节，11 G pkl 需 ~33 G，23 G 的 WSL 顶不住；**这是真发现不是事故**，部署内存账按 3× 估）。
+23/24 点 hit_rate=1.0、fallbacks=0。**延迟对桶大小严格线性**（四条拟合最大残差 <0.5 ms）：
+WSL 9.6–10.1 µs/条、weilandserver 11.8–13.3 µs/条，截距 0.26–0.62 ms；与旧 bench 13.4 µs/条吻合，
+roofline 自洽（≈26 GB/s ≈ 4 核带宽底）。**生产化改写**：优化栈下 l10/S6 检索仅 31 ms/call，
+加固定分量后比 teacher 快 ~4.4×（原版下慢 ~3.8×）——"盈亏平衡点"只在原版 backend 下存在。
+完整报告 `exp/ablation_study/cache_size/analysis/relatency.md`；四组延迟已挂进 `plot_data.json`。
+分析：逐段 median/p95 vs 单桶 entries 的斜率；两机对照；与旧 bench 4.15ms@2.6k（单桶）对齐。
 
 ---
 

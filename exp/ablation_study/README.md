@@ -8,6 +8,7 @@
 |---|---|---|
 | `executor_substitution/` | 把 hit / miss 槽的**执行体**换掉，价值是掉在 payload 还是 index 上？ | 已收官（2026-08-14）。结论：payload 可替换（hit→学生 +6.0/+18.4pp 超整个 cache 系统），index 承重（miss 槽换学生 −19~−33pp）。报告见 `executor_substitution/analysis/analysis.md` |
 | `cache_size/` | 库**多大**才够用？纯 replay 的成功率随库规模怎么走？ | 设计冻结（G1 APPROVED），实施中。设计见 [`logs/cache_size_ablation_plan.log.md`](../../logs/cache_size_ablation_plan.log.md) |
+| `latency_bench/` | 各**执行体**（teacher / ACT / SmolVLA）一次推理到底多贵？瓶颈在算力还是在 kernel 发射？ | 已收官（2026-08-19）。结论：eager 下三者全是 launch-bound（GPU 利用率 6–15%），编译后 3–9 倍加速；命中步换 ACT 稳定省 71–82%，换 SmolVLA 任何档位都不省；拆 stage 在 default 档要付 32%，CUDA Graph 下归零——而生产 interceptor 恰好降级掉了 CUDA Graph。报告见 `latency_bench/analysis/analysis.md` |
 
 ---
 

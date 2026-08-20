@@ -137,6 +137,9 @@ def main() -> None:
     ap.add_argument("--artifact-dir", required=True)
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--tiers", default=",".join(SENSITIVITY_TIERS))
+    ap.add_argument("--outcome-filter", default=None, choices=[None, "success", "all"],
+                    help="which library family to recalibrate against; must match "
+                         "the arms these sensitivity twins will be spliced into.")
     ap.add_argument("--calibrator-arg", action="append", default=[],
                     help="extra flag forwarded verbatim to the production calibrator")
     ap.add_argument("--baseline", default=None,
@@ -146,10 +149,11 @@ def main() -> None:
     methods = baseline_methods_from(args.baseline) if args.baseline else None
 
     for tier in args.tiers.split(","):
-        pkl = pathlib.Path(args.artifact_dir) / f"cache_size_{args.suite}_{tier}.pkl"
+        filt = f"_{args.outcome_filter}" if args.outcome_filter else ""
+        pkl = pathlib.Path(args.artifact_dir) / f"cache_size_{args.suite}{filt}_{tier}.pkl"
         if not pkl.exists():
             raise FileNotFoundError(pkl)
-        out = pathlib.Path(args.out_dir) / f"recal_norm_{args.suite}_{tier}.yaml"
+        out = pathlib.Path(args.out_dir) / f"recal_norm_{args.suite}{filt}_{tier}.yaml"
         fields = calibrate_tier(pkl=pkl, out_yaml=out, extra=args.calibrator_arg,
                                 baseline_methods=methods)
         print(f"  {tier}: {out}  ({len(fields)} fields)")

@@ -506,3 +506,117 @@ def test_sensitivity_renders_into_the_report():
     md = render(res, SUITE)
     assert "Normalizer sensitivity (descriptive)" in md
     assert "must be qualified" in md
+
+
+# --- outcome-filter wiring (plan §3.1b ruling 1 / §12.2) -----------------------
+#
+# The two library families are evaluated side by side, so the arm id carries the
+# filter (``cache_size_<suite>_<filter>_<tier>``). The analyzer used to rebuild
+# that id without the filter, which made every arm lookup miss on a real run.
+# These tests drive ``main`` end to end because that is where the id was built.
+
+def _full_run(tmp_path, *, outcome_filter, with_recal):
+    """A complete, formally valid single-family run on disk."""
+    from exp.ablation_study.cache_size.emit_size_yamls import arm_name
+
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    # A recal arm carries its base tier's rate, so the sensitivity comparison is
+    # the near-equivalence the real arms show rather than an artefact of ordering.
+    rate_of = {arm_name(SUITE, tier, outcome_filter=outcome_filter): 0.50 + 0.05 * i
+               for i, tier in enumerate(TIERS)}
+    names = list(rate_of)
+    if with_recal:
+        for tier in ("S1", "S6"):
+            recal = arm_name(SUITE, tier, recal=True, outcome_filter=outcome_filter)
+            rate_of[recal] = rate_of[arm_name(SUITE, tier, outcome_filter=outcome_filter)]
+            names.append(recal)
+
+    journal = tmp_path / "journal.jsonl"
+    per_step = tmp_path / "per_step.jsonl"
+    with open(journal, "w") as jf, open(per_step, "w") as pf:
+        for arm in names:
+            rate = rate_of[arm]
+            for row in _journal_rows(arm, success_of=_ladder_fn(rate),
+                                     attempt=1, accepted=True):
+                jf.write(json.dumps(row) + "\n")
+                for step in range(2):
+                    pf.write(json.dumps({
+                        "task_uid": row["task_uid"], "yaml_id": arm,
+                        "attempt": 1, "step_idx": step, "hit_type": "FULL_HIT",
+                    }) + "\n")
+
+    anchor_dir = tmp_path / "anchor"
+    anchor_dir.mkdir()
+    teacher = _ladder_fn(0.95)
+    (anchor_dir / "t.json").write_text(json.dumps([
+        {"task_id": t, "init_state_idx": e, "success": bool(teacher(t, e))}
+        for t in range(EXPECTED_TASKS) for e in range(EXPECTED_EPISODES_PER_TASK)
+    ]))
+
+    launch = tmp_path / "launch.json"
+    launch.write_text(json.dumps({
+        "suite": SUITE, "arms": names, "trials_per_task": 50, "smoke": False,
+        "apool": {"rollup_sha256": "deadbeef", "apool_dir": "/frozen/apool"},
+    }))
+    return names, journal, per_step, anchor_dir, launch
+
+
+def _run_main(monkeypatch, tmp_path, fixture, *, flag):
+    _names, journal, per_step, anchor_dir, launch = fixture
+    out_json = tmp_path / "out.json"
+    argv = ["analyze_size.py",
+            "--journal", str(journal), "--per-step", str(per_step),
+            "--launch-record", str(launch), "--teacher-anchor", str(anchor_dir),
+            "--suite", SUITE, "--apool-digest", "deadbeef",
+            "--out-json", str(out_json), "--out-md", str(tmp_path / "out.md")]
+    if flag is not None:
+        argv += ["--outcome-filter", flag]
+    monkeypatch.setattr("sys.argv", argv)
+    from exp.ablation_study.cache_size.analysis.analyze_size import main
+    main()
+    return json.loads(out_json.read_text())
+
+
+def test_primary_family_is_found_through_the_filtered_arm_ids(monkeypatch, tmp_path):
+    fx = _full_run(tmp_path, outcome_filter="all", with_recal=True)
+    result = _run_main(monkeypatch, tmp_path, fx, flag="all")
+    assert result["family_role"] == "primary"
+    assert result["outcome_filter"] == "all"
+    assert result["family_size"] == 8
+    # both sensitivity arms consumed
+    assert {s["tier"] for s in result["sensitivity"]} == {"S1", "S6"}
+
+
+def test_omitting_the_filter_misses_every_arm(monkeypatch, tmp_path):
+    """The original defect: names rebuilt without the filter match nothing."""
+    fx = _full_run(tmp_path, outcome_filter="all", with_recal=True)
+    with pytest.raises(SystemExit, match=r"no accepted rows for arm"):
+        _run_main(monkeypatch, tmp_path, fx, flag=None)
+
+
+def test_secondary_family_needs_no_sensitivity_arms(monkeypatch, tmp_path):
+    fx = _full_run(tmp_path, outcome_filter="success", with_recal=False)
+    result = _run_main(monkeypatch, tmp_path, fx, flag="success")
+    assert result["family_role"] == "secondary-descriptive"
+    assert result["sensitivity"] == []
+    assert result["family_size"] == 8   # the test family itself is unchanged
+
+
+def test_stray_recal_arm_in_the_secondary_family_is_fatal(monkeypatch, tmp_path):
+    fx = _full_run(tmp_path, outcome_filter="success", with_recal=True)
+    with pytest.raises(SystemExit, match="carries no sensitivity arms by design"):
+        _run_main(monkeypatch, tmp_path, fx, flag="success")
+
+
+def test_secondary_report_announces_itself_before_any_verdict(monkeypatch, tmp_path):
+    fx = _full_run(tmp_path, outcome_filter="success", with_recal=False)
+    result = _run_main(monkeypatch, tmp_path, fx, flag="success")
+    md = render(result, SUITE)
+    assert "Secondary, descriptive read" in md
+    assert "Pre-registered family" not in md
+    assert "**descriptive**" in md
+    # and the primary keeps its wording
+    fx2 = _full_run(tmp_path / "p", outcome_filter="all", with_recal=True)
+    primary = _run_main(monkeypatch, tmp_path / "p", fx2, flag="all")
+    assert "Pre-registered family" in render(primary, SUITE)
+    assert "Secondary, descriptive read" not in render(primary, SUITE)

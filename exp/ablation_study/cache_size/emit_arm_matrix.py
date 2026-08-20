@@ -20,17 +20,25 @@ from exp.ablation_study.cache_size.emit_size_yamls import (
 )
 
 
-def build_matrix(suite: str, yaml_dir: str, *, with_sensitivity: bool = True) -> dict:
+def build_matrix(suite: str, yaml_dir: str, *, with_sensitivity: bool = True,
+                 outcome_filter: str | None = None) -> dict:
+    """One suite's arm roster.
+
+    ``outcome_filter`` selects the library family and, because the run is split
+    by suite x family (BackendPool never evicts, so one process cannot hold every
+    tier of both families), each group gets its own matrix.
+    """
     arms = []
     for tier in TIERS:
-        name = arm_name(suite, tier)
+        name = arm_name(suite, tier, outcome_filter=outcome_filter)
         arms.append({"arm": name, "yaml": f"{yaml_dir.rstrip('/')}/{name}.yaml", "sidecar": None})
         if with_sensitivity and tier in SENSITIVITY_TIERS:
-            sname = arm_name(suite, tier, recal=True)
+            sname = arm_name(suite, tier, recal=True, outcome_filter=outcome_filter)
             arms.append({"arm": sname, "yaml": f"{yaml_dir.rstrip('/')}/{sname}.yaml",
                          "sidecar": None})
     return {
         "suite": suite,
+        "outcome_filter": outcome_filter,
         "derived_from": f"exp/ablation_study/config/common/{suite}_baseline.yaml",
         "arms": arms,
     }
@@ -42,9 +50,19 @@ def main() -> None:
     ap.add_argument("--yaml-dir", required=True)
     ap.add_argument("--output", required=True)
     ap.add_argument("--no-sensitivity", action="store_true")
+    ap.add_argument("--outcome-filter", default=None, choices=[None, "success", "all"])
+    ap.add_argument("--arms", default="", help="comma list; keep only these arm names")
     args = ap.parse_args()
 
-    matrix = build_matrix(args.suite, args.yaml_dir, with_sensitivity=not args.no_sensitivity)
+    matrix = build_matrix(args.suite, args.yaml_dir,
+                          with_sensitivity=not args.no_sensitivity,
+                          outcome_filter=args.outcome_filter)
+    if args.arms:
+        keep = set(args.arms.split(","))
+        missing = keep - {a["arm"] for a in matrix["arms"]}
+        if missing:
+            raise SystemExit(f"requested arms not in this matrix: {sorted(missing)}")
+        matrix["arms"] = [a for a in matrix["arms"] if a["arm"] in keep]
     out = pathlib.Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(yaml.safe_dump(matrix, sort_keys=False))

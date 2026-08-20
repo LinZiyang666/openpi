@@ -1,0 +1,1063 @@
+repeat,episode_id,step_idx,task,hit_type,top_score,cp1_collect_ms,cp1_gate_ms,cp1_build_ms,cp1_search_ms,cp1_judge_ms,cp1_fetch_ms,cp1_total_ms,warm_start_action_approx,action_history_approx_active
+0,0,0,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.988939,0.005093,0.002544,0.969440,6.366116,0.023666,0.008221,7.528050,0,0
+0,0,1,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.988598,0.004846,0.002226,0.653971,5.935705,0.015771,0.006861,6.726268,0,0
+0,0,2,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.988414,0.004679,0.002156,0.314393,5.873383,0.015075,0.007761,6.320336,0,0
+0,0,3,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.988411,0.004401,0.002210,0.365107,5.840672,0.016833,0.007816,6.354566,0,0
+0,0,4,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.988483,0.004489,0.002443,0.344595,5.869335,0.014413,0.007415,6.347348,0,0
+0,0,5,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.988221,0.004511,0.001980,0.353181,5.866626,0.014532,0.007659,6.383056,0,0
+0,0,6,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.988195,0.004791,0.001834,0.326096,6.287634,0.015849,0.007903,6.747838,0,0
+0,0,7,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.988451,0.005148,0.002129,0.343274,6.371504,0.015530,0.010082,6.864330,0,0
+0,0,8,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986259,0.004411,0.002082,0.341202,6.165706,0.012397,0.008106,6.629109,0,0
+0,0,9,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985199,0.004729,0.001812,0.400046,6.396725,0.012004,0.006831,6.917164,0,0
+0,0,10,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987679,0.004351,0.001764,0.363772,6.386913,0.012808,0.007346,6.881799,0,0
+0,0,11,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987717,0.004721,0.001896,0.373459,6.245400,0.012874,0.006926,6.748445,0,0
+0,0,12,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987860,0.004201,0.001764,0.342794,6.140276,0.012262,0.007590,6.600934,0,0
+0,0,13,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987593,0.004222,0.001515,0.338141,5.483869,0.012485,0.006212,5.934403,0,0
+0,0,14,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987273,0.004268,0.001935,0.316280,5.431586,0.011572,0.006761,5.872413,0,0
+0,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987050,0.004184,0.001646,0.331166,5.339652,0.012676,0.006135,5.786845,0,0
+0,0,0,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.988147,0.004244,0.001611,0.316479,5.470056,0.012098,0.006377,5.899559,0,0
+0,0,1,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.988324,0.004138,0.001731,0.347830,5.421341,0.011540,0.006292,5.880719,0,0
+0,0,2,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987961,0.004577,0.001930,0.356458,5.408239,0.012510,0.006038,5.880897,0,0
+0,0,3,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987732,0.004115,0.001842,0.338116,5.418128,0.024665,0.006250,5.881413,0,0
+0,0,4,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987396,0.003986,0.001904,0.352116,5.428114,0.011000,0.006053,5.891861,0,0
+0,0,5,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986754,0.004320,0.001692,0.313958,5.325964,0.011595,0.006574,5.753089,0,0
+0,0,6,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986235,0.004510,0.001836,0.331199,5.322439,0.011429,0.006480,5.766882,0,0
+0,0,7,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986514,0.004125,0.002157,0.340080,5.361810,0.020327,0.006621,5.824357,0,0
+0,0,8,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986968,0.004338,0.001704,0.318139,5.344979,0.011535,0.006504,5.775690,0,0
+0,0,9,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987569,0.004618,0.001761,0.339343,5.401628,0.011593,0.006651,5.854206,0,0
+0,0,10,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985853,0.004017,0.001724,0.334087,5.287463,0.012160,0.006404,5.735417,0,0
+0,0,11,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987825,0.004233,0.001838,0.311204,5.323271,0.011715,0.006012,5.746892,0,0
+0,0,12,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986903,0.004216,0.001696,0.333316,5.319526,0.013111,0.006291,5.765520,0,0
+0,0,13,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986428,0.004009,0.001901,0.314205,5.329682,0.012021,0.006354,5.755108,0,0
+0,0,14,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986410,0.004105,0.001830,0.391558,5.331723,0.012302,0.006481,5.836211,0,0
+0,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985911,0.004428,0.002101,0.348440,5.316343,0.011870,0.006782,5.779134,0,0
+0,0,16,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985330,0.004074,0.001693,0.341387,5.327686,0.011397,0.005696,5.779470,0,0
+0,2,0,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.988806,0.004326,0.001683,0.319476,5.535852,0.013391,0.006260,5.970387,0,0
+0,2,1,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.988351,0.004189,0.001639,0.320453,5.343018,0.011427,0.006731,5.774120,0,0
+0,2,2,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987805,0.003903,0.001632,0.328162,5.323766,0.012114,0.005921,5.762919,0,0
+0,2,3,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987629,0.004310,0.001715,0.346742,5.387939,0.012335,0.006231,5.846379,0,0
+0,2,4,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987358,0.004345,0.001718,0.320045,5.379244,0.011790,0.006560,5.809707,0,0
+0,2,5,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986932,0.004085,0.001698,0.331269,5.359688,0.011416,0.006745,5.802202,0,0
+0,2,6,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986680,0.004376,0.001679,0.340489,5.344572,0.011682,0.006838,5.798029,0,0
+0,2,7,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987084,0.004221,0.001621,0.324767,5.334127,0.011383,0.006392,5.770188,0,0
+0,2,8,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987526,0.004314,0.001694,0.314300,5.349597,0.011353,0.007132,5.776406,0,0
+0,2,9,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987481,0.004350,0.001875,0.314469,5.319287,0.012380,0.006167,5.746628,0,0
+0,2,10,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986344,0.004117,0.001870,0.316537,5.301203,0.012183,0.006440,5.728808,0,0
+0,2,11,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985886,0.004209,0.001858,0.312927,5.336831,0.013353,0.006318,5.763821,0,0
+0,2,12,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985470,0.004495,0.001885,0.433965,5.429425,0.012314,0.006609,5.978345,0,0
+0,2,13,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985855,0.008799,0.001959,0.439489,5.498079,0.017426,0.009597,6.090948,0,0
+0,2,14,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987044,0.003985,0.001619,0.420672,5.438653,0.012149,0.006344,5.972672,0,0
+0,2,15,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987439,0.004313,0.001931,0.422546,5.717627,0.012179,0.006849,6.256281,0,0
+0,2,16,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986040,0.004277,0.001946,0.409416,5.576907,0.011828,0.006623,6.104631,0,0
+0,3,0,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987225,0.004144,0.002243,0.318064,5.462202,0.011705,0.006217,5.893363,0,0
+0,3,1,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986791,0.004363,0.002096,0.333430,5.391976,0.011437,0.007025,5.838255,0,0
+0,3,2,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986704,0.004133,0.001782,0.336786,5.582812,0.012485,0.006411,6.036416,0,0
+0,3,3,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986334,0.004290,0.001976,0.369616,5.547799,0.017469,0.006629,6.039393,0,0
+0,3,4,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986592,0.004538,0.002174,0.336072,5.460396,0.012003,0.007144,5.909139,0,0
+0,3,5,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987333,0.004139,0.001765,0.325675,5.379898,0.011991,0.006370,5.818546,0,0
+0,3,6,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987109,0.004173,0.002333,0.336527,5.372954,0.012669,0.006039,5.823346,0,0
+0,3,7,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986201,0.004092,0.001682,0.332552,5.401259,0.011819,0.006245,5.843638,0,0
+0,3,8,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985769,0.004125,0.001745,0.332202,5.358192,0.012781,0.006847,5.805649,0,0
+0,3,9,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.983330,0.003908,0.001730,0.378365,5.409550,0.013038,0.005976,5.914007,0,0
+0,3,10,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985005,0.004042,0.001720,0.308131,5.319608,0.011555,0.006934,5.739731,0,0
+0,3,11,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985661,0.004323,0.001847,0.375752,5.561940,0.012196,0.006597,6.053345,0,0
+0,3,12,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985668,0.004272,0.001874,0.382341,5.429097,0.012250,0.006346,5.930988,0,0
+0,3,13,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985927,0.004362,0.001670,0.344898,5.295901,0.011821,0.006266,5.749689,0,0
+0,3,14,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985862,0.004053,0.001858,0.346763,5.386294,0.011686,0.006321,5.846962,0,0
+0,3,15,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.985193,0.004007,0.001874,0.339139,5.450449,0.011406,0.006767,5.901202,0,0
+0,4,0,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.988675,0.004453,0.001894,0.316508,5.353282,0.012701,0.006260,5.785371,0,0
+0,4,1,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.987285,0.004429,0.001767,0.319503,5.369174,0.012263,0.006496,5.811197,0,0
+0,4,2,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986880,0.004096,0.001830,0.316338,5.323691,0.010698,0.007138,5.750292,0,0
+0,4,3,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986846,0.004588,0.001647,0.329590,5.371434,0.011151,0.006050,5.813353,0,0
+0,4,4,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.986623,0.004231,0.001613,0.321556,5.390634,0.013046,0.006290,5.824776,0,0
+0,4,5,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.984937,0.004142,0.001542,0.341270,5.338085,0.012042,0.006214,5.791490,0,0
+0,4,6,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.983463,0.004099,0.001925,0.329607,5.326333,0.011834,0.005745,5.767097,0,0
+0,4,7,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.979472,0.004379,0.001598,0.317892,5.377758,0.011872,0.006759,5.807781,0,0
+0,4,8,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.972473,0.004337,0.001893,0.336227,5.367576,0.012773,0.007190,5.818212,0,0
+0,4,9,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.984260,0.004375,0.001722,0.389987,5.397826,0.011455,0.006214,5.902288,0,0
+0,4,10,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.982498,0.004577,0.001642,0.312642,5.348850,0.011820,0.006697,5.784141,0,0
+0,4,11,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.981469,0.004324,0.001717,0.311941,5.392040,0.011607,0.006175,5.814603,0,0
+0,4,12,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.981513,0.003793,0.001570,0.554929,5.426678,0.012419,0.006239,6.093952,0,0
+0,4,13,pick up the black bowl between the plate and the ramekin and place it on the plate,FULL_HIT,0.981826,0.004107,0.002065,0.379342,5.334360,0.011331,0.006390,5.828795,0,0
+0,5,0,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.988361,0.004153,0.016112,0.311699,6.246932,0.012240,0.006747,6.688878,0,0
+0,5,1,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987771,0.004081,0.001725,0.331897,5.958037,0.012553,0.006539,6.404388,0,0
+0,5,2,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987844,0.004433,0.001614,0.321528,6.044524,0.011511,0.006742,6.479360,0,0
+0,5,3,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987762,0.003798,0.001481,0.385983,6.005145,0.012185,0.007227,6.546577,0,0
+0,5,4,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987755,0.004336,0.001871,0.322378,5.975597,0.012559,0.006697,6.414594,0,0
+0,5,5,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987264,0.004149,0.001686,0.325197,5.945506,0.011485,0.006536,6.385243,0,0
+0,5,6,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986968,0.004257,0.001651,0.380091,5.973248,0.011692,0.006775,6.468111,0,0
+0,5,7,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985859,0.004224,0.001722,0.369763,6.017462,0.012267,0.006863,6.502580,0,0
+0,5,8,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.984428,0.004638,0.001710,0.383299,5.969682,0.012550,0.007338,6.472575,0,0
+0,5,9,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.984562,0.004142,0.001656,0.384875,5.973627,0.011629,0.006947,6.475134,0,0
+0,5,10,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983827,0.004328,0.002040,0.394774,6.105574,0.011854,0.006981,6.621972,0,0
+0,5,11,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.979785,0.003993,0.001690,0.375085,5.944041,0.011870,0.007553,6.437637,0,0
+0,5,12,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.975689,0.004032,0.001782,0.389653,5.983478,0.013405,0.006918,6.492874,0,0
+0,5,13,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.971803,0.004035,0.001609,0.346669,5.988898,0.012405,0.006821,6.452013,0,0
+0,5,14,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.982172,0.004474,0.001878,0.345578,5.934821,0.012393,0.007155,6.397765,0,0
+0,5,15,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.980457,0.004378,0.001797,1.090999,6.318462,0.012893,0.007491,7.530392,0,0
+0,5,16,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.980499,0.004087,0.001564,0.351353,5.936646,0.013937,0.006955,6.425495,0,0
+0,5,17,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.980482,0.004434,0.001720,0.348041,5.956784,0.013065,0.007104,6.425335,0,0
+0,5,18,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.980253,0.004083,0.002050,1.066429,5.956435,0.012812,0.006723,7.141981,0,0
+0,5,19,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.980826,0.004130,0.001781,0.330452,5.922632,0.012250,0.006612,6.370808,0,0
+0,5,20,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.980373,0.004175,0.001799,0.348385,5.922403,0.020055,0.006853,6.399273,0,0
+0,5,21,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.979346,0.004217,0.001726,0.319077,5.906114,0.013217,0.006544,6.351622,0,0
+0,5,22,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.980083,0.004596,0.001783,0.339738,5.908532,0.012270,0.006968,6.368762,0,0
+0,6,0,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986998,0.004329,0.001481,0.317065,6.020284,0.012374,0.006583,6.455412,0,0
+0,6,1,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987961,0.004130,0.001641,0.373194,6.016281,0.011916,0.007125,6.506018,0,0
+0,6,2,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.988364,0.004310,0.001655,0.322711,5.997560,0.013155,0.006440,6.437554,0,0
+0,6,3,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.988029,0.004082,0.001641,0.324841,6.043942,0.012355,0.006891,6.486358,0,0
+0,6,4,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987983,0.004081,0.001728,0.337269,6.034962,0.011995,0.006856,6.488676,0,0
+0,6,5,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987664,0.004116,0.001643,0.337739,6.018565,0.012082,0.006889,6.472180,0,0
+0,6,6,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987518,0.004166,0.001911,0.337685,6.010095,0.011730,0.006524,6.465697,0,0
+0,6,7,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987191,0.004696,0.001695,0.356471,6.049862,0.011631,0.006799,6.528947,0,0
+0,6,8,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987075,0.004210,0.001746,0.333345,5.975687,0.012042,0.006841,6.427665,0,0
+0,6,9,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987720,0.004283,0.001599,0.316251,6.007385,0.013922,0.006766,6.441336,0,0
+0,6,10,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.981495,0.004241,0.001907,0.415616,6.034301,0.012223,0.007113,6.570281,0,0
+0,6,11,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.980698,0.004205,0.001645,0.383276,5.941804,0.012268,0.007218,6.445515,0,0
+0,6,12,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986601,0.004195,0.001619,0.396123,5.996916,0.012743,0.007072,6.525694,0,0
+0,6,13,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985248,0.004226,0.001576,0.345509,9.476486,0.013166,0.016100,9.951625,0,0
+0,6,14,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986276,0.004451,0.002102,0.364806,6.102298,0.011548,0.006905,6.584070,0,0
+0,6,15,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987120,0.004076,0.016678,1.103845,6.039804,0.012116,0.006858,7.276883,0,0
+0,6,16,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986422,0.004282,0.001723,0.350107,6.013302,0.012593,0.007001,6.484335,0,0
+0,6,17,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986510,0.004564,0.001797,0.423445,6.239658,0.012612,0.016450,6.797255,0,0
+0,6,18,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986570,0.004138,0.001826,1.076304,6.171198,0.018119,0.006878,7.377227,0,0
+0,6,19,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986318,0.004349,0.001965,0.373434,6.064026,0.012592,0.006439,6.557668,0,0
+0,6,20,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985913,0.004130,0.001852,0.323996,6.012585,0.013664,0.006598,6.456911,0,0
+0,7,0,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987673,0.004038,0.001727,0.330244,6.038299,0.012591,0.006353,6.507083,0,0
+0,7,1,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.988140,0.004395,0.001865,0.320544,5.898202,0.012136,0.006467,6.345183,0,0
+0,7,2,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987965,0.004210,0.001842,0.345386,6.127925,0.012157,0.006284,6.586911,0,0
+0,7,3,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987580,0.004353,0.002074,0.340891,5.903372,0.013109,0.006450,6.365323,0,0
+0,7,4,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986983,0.004549,0.001916,0.322341,5.979687,0.011961,0.006439,6.416132,0,0
+0,7,5,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987017,0.004215,0.001762,0.332386,5.957979,0.011700,0.006541,6.405367,0,0
+0,7,6,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986983,0.004237,0.001665,0.326561,5.973985,0.012115,0.006699,6.416702,0,0
+0,7,7,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985814,0.004191,0.001772,0.331316,5.904381,0.012512,0.006874,6.363981,0,0
+0,7,8,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985575,0.004396,0.001682,0.323267,5.898834,0.012486,0.006590,6.337011,0,0
+0,7,9,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985373,0.004375,0.001802,0.393721,5.950705,0.011955,0.006611,6.462170,0,0
+0,7,10,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983957,0.004311,0.001878,0.407139,5.995700,0.012104,0.007215,6.520244,0,0
+0,7,11,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.982719,0.004527,0.001824,0.384250,5.975223,0.012705,0.007089,6.476871,0,0
+0,7,12,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.980491,0.004247,0.001810,0.381076,6.057613,0.013124,0.007242,6.555884,0,0
+0,7,13,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.979851,0.004551,0.001860,0.385741,5.931810,0.012590,0.007049,6.455714,0,0
+0,7,14,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983175,0.004605,0.001832,0.346560,5.894657,0.012221,0.007609,6.369087,0,0
+0,7,15,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983656,0.004152,0.001634,0.350768,5.927550,0.011679,0.007202,6.394535,0,0
+0,7,16,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983125,0.004395,0.001664,1.113835,6.039946,0.012154,0.007258,7.275911,0,0
+0,7,17,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983134,0.004552,0.001779,0.329924,5.917928,0.011548,0.006524,6.366837,0,0
+0,7,18,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983035,0.004402,0.001811,0.317087,5.931051,0.013221,0.007002,6.382156,0,0
+0,7,19,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983504,0.004276,0.001609,0.323147,5.863002,0.013950,0.006874,6.306175,0,0
+0,7,20,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.984072,0.004268,0.001761,0.340219,5.914869,0.011707,0.006694,6.372625,0,0
+0,7,21,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983113,0.004099,0.001924,0.337252,5.897686,0.012076,0.006943,6.353029,0,0
+0,7,22,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983949,0.003977,0.001971,0.310948,5.905490,0.012343,0.006618,6.332833,0,0
+0,7,23,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.982310,0.004426,0.001832,0.361844,5.930795,0.012647,0.007258,6.411828,0,0
+0,8,0,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986557,0.004037,0.001641,0.316570,5.953123,0.012759,0.006488,6.389194,0,0
+0,8,1,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986761,0.004068,0.001780,0.368067,5.993094,0.011637,0.006807,6.479341,0,0
+0,8,2,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986864,0.003992,0.001680,0.318829,5.948367,0.011853,0.007025,6.381908,0,0
+0,8,3,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986875,0.004319,0.001656,0.329290,6.017973,0.012409,0.007066,6.465261,0,0
+0,8,4,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985866,0.004318,0.001639,0.385462,6.004079,0.012251,0.007182,6.507408,0,0
+0,8,5,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985847,0.004331,0.001624,0.357107,5.918094,0.011589,0.006657,6.391506,0,0
+0,8,6,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986022,0.004057,0.001617,1.160412,5.981000,0.012180,0.006687,7.260605,0,0
+0,8,7,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985747,0.004021,0.001741,0.379481,5.971359,0.011314,0.007426,6.485921,0,0
+0,8,8,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985297,0.004208,0.001625,0.390082,5.979811,0.013385,0.007134,6.489207,0,0
+0,8,9,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985103,0.013754,0.001767,0.386515,5.959680,0.012058,0.006754,6.471181,0,0
+0,8,10,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985527,0.004646,0.001754,0.395282,5.973514,0.011685,0.006972,6.485849,0,0
+0,8,11,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.980440,0.004048,0.002332,0.379976,5.960391,0.012851,0.006847,6.458882,0,0
+0,8,12,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.984607,0.004254,0.001984,0.376245,6.019452,0.012341,0.007131,6.521232,0,0
+0,8,13,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.984142,0.004172,0.001725,0.335219,6.135241,0.011945,0.006649,6.589675,0,0
+0,8,14,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.984599,0.004402,0.001607,0.347146,5.939084,0.012595,0.007706,6.406108,0,0
+0,8,15,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983290,0.004114,0.001724,0.999852,6.017676,0.011592,0.006822,7.136868,0,0
+0,8,16,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983832,0.004076,0.001575,0.348197,6.065744,0.012411,0.006552,6.545369,0,0
+0,8,17,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.984016,0.004158,0.001688,0.353953,5.974276,0.012522,0.007247,6.446012,0,0
+0,8,18,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983889,0.004596,0.001728,1.005740,6.011946,0.011588,0.006572,7.138337,0,0
+0,8,19,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.984536,0.004325,0.001718,0.349140,5.924172,0.012452,0.006791,6.391574,0,0
+0,8,20,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985018,0.004368,0.001684,0.318907,5.900088,0.013387,0.006314,6.336789,0,0
+0,8,21,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.982669,0.004544,0.001724,0.320865,5.937970,0.011652,0.006511,6.374818,0,0
+0,9,0,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.988868,0.004050,0.001650,0.315597,6.017166,0.012078,0.006954,6.451336,0,0
+0,9,1,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.988647,0.004327,0.001843,0.333830,6.061420,0.012052,0.006702,6.513397,0,0
+0,9,2,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.988341,0.004389,0.001770,0.339299,5.946570,0.011627,0.007059,6.403948,0,0
+0,9,3,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987843,0.004392,0.001746,0.343717,5.943295,0.011589,0.007366,6.404846,0,0
+0,9,4,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986884,0.004038,0.001704,0.314410,5.962080,0.013042,0.007059,6.393838,0,0
+0,9,5,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985813,0.004342,0.001932,0.322159,6.003173,0.011976,0.007046,6.441942,0,0
+0,9,6,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.984652,0.004018,0.001774,0.330894,5.970488,0.012271,0.006458,6.416464,0,0
+0,9,7,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.984711,0.004067,0.001718,0.322786,5.956079,0.011567,0.007031,6.394043,0,0
+0,9,8,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983443,0.004409,0.001806,0.352994,5.922129,0.010984,0.007393,6.392875,0,0
+0,9,9,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.983665,0.004170,0.001660,0.385514,5.967164,0.012789,0.006773,6.485943,0,0
+0,9,10,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.984522,0.004166,0.001783,0.393814,5.995118,0.012172,0.007431,6.507214,0,0
+0,9,11,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.984417,0.004177,0.001756,0.393005,5.985629,0.011555,0.007078,6.497230,0,0
+0,9,12,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.982008,0.004190,0.001703,0.352049,6.000274,0.012753,0.006799,6.470542,0,0
+0,9,13,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985001,0.004114,0.001889,0.348324,5.917146,0.012466,0.006981,6.385039,0,0
+0,9,14,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.985898,0.004198,0.002022,1.090834,6.034530,0.013009,0.006842,7.247589,0,0
+0,9,15,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986318,0.004131,0.001907,0.336498,5.907070,0.012366,0.007084,6.361750,0,0
+0,9,16,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986437,0.004156,0.001699,0.343906,5.901660,0.012215,0.007033,6.364485,0,0
+0,9,17,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986473,0.004117,0.001837,1.111089,5.945562,0.012070,0.007069,7.179241,0,0
+0,9,18,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987003,0.004099,0.001682,0.341614,5.946131,0.013024,0.006977,6.405744,0,0
+0,9,19,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.986840,0.004134,0.001707,0.307533,6.098246,0.013584,0.007390,6.527055,0,0
+0,9,20,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.987789,0.004054,0.001768,0.324292,5.928459,0.012715,0.006856,6.380508,0,0
+0,9,21,pick up the black bowl next to the ramekin and place it on the plate,FULL_HIT,0.988168,0.004264,0.001677,0.393643,5.922775,0.013816,0.006277,6.434295,0,0
+0,10,0,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.988877,0.004315,0.001720,0.315439,5.685402,0.012483,0.006665,6.120137,0,0
+0,10,1,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.988396,0.004510,0.001654,0.321886,5.590902,0.012725,0.006077,6.029839,0,0
+0,10,2,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.988374,0.004224,0.001765,0.322948,5.719038,0.011524,0.007233,6.155142,0,0
+0,10,3,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.988314,0.004516,0.001664,0.476845,5.604531,0.013483,0.006848,6.208792,0,0
+0,10,4,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.988136,0.013387,0.001747,0.316123,5.588726,0.012526,0.014747,6.039592,0,0
+0,10,5,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.988271,0.004417,0.001722,0.358047,5.575197,0.012403,0.006608,6.050567,0,0
+0,10,6,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.988095,0.004037,0.001571,0.386496,5.726459,0.012006,0.006861,6.229125,0,0
+0,10,7,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987814,0.004198,0.001678,0.380784,5.688533,0.011852,0.006880,6.184744,0,0
+0,10,8,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987821,0.004356,0.001765,0.382080,5.677707,0.012200,0.006787,6.176956,0,0
+0,10,9,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987194,0.004439,0.001677,0.368159,5.761851,0.012404,0.007196,6.250155,0,0
+0,10,10,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985456,0.004461,0.001572,0.388150,5.621140,0.012787,0.006764,6.127500,0,0
+0,10,11,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985748,0.004472,0.001729,0.372129,5.605979,0.012535,0.007056,6.094045,0,0
+0,10,12,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.984239,0.004214,0.001948,0.374162,5.593304,0.012040,0.007341,6.083763,0,0
+0,10,13,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.984576,0.004501,0.001623,0.375103,5.702863,0.012020,0.006979,6.194362,0,0
+0,10,14,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985041,0.004225,0.001787,0.379223,5.625712,0.012408,0.007074,6.125046,0,0
+0,10,15,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985128,0.004332,0.001730,0.352395,5.607348,0.012149,0.006543,6.074843,0,0
+0,10,16,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985049,0.004230,0.001693,0.351403,5.592225,0.012630,0.006511,6.061410,0,0
+0,10,17,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985098,0.003875,0.001677,1.098877,5.649006,0.012307,0.007155,6.874964,0,0
+0,10,18,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.984737,0.004330,0.001671,0.332704,5.611880,0.012695,0.007162,6.060813,0,0
+0,10,19,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.984795,0.013716,0.001745,0.310283,5.582526,0.012432,0.007398,6.031097,0,0
+0,10,20,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.982938,0.004091,0.001803,0.307326,5.557215,0.012707,0.007253,5.982069,0,0
+0,11,0,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.988532,0.005129,0.001867,0.319807,5.639597,0.017101,0.006270,6.089330,0,0
+0,11,1,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.988208,0.004246,0.001792,0.321800,5.715511,0.011860,0.006890,6.152877,0,0
+0,11,2,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987691,0.004116,0.001674,0.321827,5.604971,0.012219,0.007051,6.049953,0,0
+0,11,3,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987666,0.004088,0.001575,0.390034,5.603408,0.012310,0.006619,6.107343,0,0
+0,11,4,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987196,0.004355,0.001796,0.328193,5.621439,0.012621,0.006901,6.065415,0,0
+0,11,5,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986927,0.004017,0.001604,0.357124,5.603291,0.012910,0.006742,6.076176,0,0
+0,11,6,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987785,0.004123,0.001823,0.395512,5.624586,0.012691,0.006958,6.144995,0,0
+0,11,7,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987230,0.004217,0.001855,0.371170,5.640842,0.012200,0.006879,6.126695,0,0
+0,11,8,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987333,0.004194,0.001883,0.381121,5.633678,0.012790,0.006700,6.140199,0,0
+0,11,9,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986940,0.004229,0.001936,0.424077,5.554821,0.012311,0.007665,6.103495,0,0
+0,11,10,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986668,0.004253,0.001603,0.394917,5.584783,0.012440,0.007038,6.095859,0,0
+0,11,11,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987128,0.004115,0.001731,0.376892,5.623432,0.029144,0.007379,6.135133,0,0
+0,11,12,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986815,0.004280,0.001748,0.376412,5.627873,0.012041,0.007376,6.119317,0,0
+0,11,13,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985491,0.004298,0.001697,0.336401,5.606928,0.013250,0.006780,6.057677,0,0
+0,11,14,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985008,0.004264,0.001805,0.339491,5.586625,0.012039,0.006826,6.043765,0,0
+0,11,15,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.984568,0.004091,0.001738,1.088546,5.596948,0.012043,0.014423,6.809379,0,0
+0,11,16,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.984699,0.004262,0.001948,0.346840,5.595110,0.012420,0.006592,6.063218,0,0
+0,11,17,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.983903,0.004051,0.001654,0.341112,5.616921,0.012983,0.006918,6.072113,0,0
+0,11,18,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.983950,0.003964,0.002684,1.273077,5.646294,0.012023,0.006837,7.048175,0,0
+0,11,19,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.984439,0.004225,0.001861,0.344509,6.235166,0.011974,0.032966,6.724801,0,0
+0,12,0,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.988854,0.004158,0.001941,0.343286,5.805177,0.013896,0.006003,6.267024,0,0
+0,12,1,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.988763,0.004168,0.001711,0.313917,5.745441,0.012125,0.006918,6.175476,0,0
+0,12,2,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.988646,0.004229,0.001724,0.327176,5.598666,0.012790,0.006575,6.040976,0,0
+0,12,3,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.988188,0.003979,0.001662,0.377086,5.607361,0.011874,0.007032,6.099513,0,0
+0,12,4,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987450,0.004235,0.001709,0.312688,5.548973,0.011902,0.006755,5.976447,0,0
+0,12,5,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986615,0.004173,0.001707,0.357611,5.515714,0.011118,0.006282,5.985936,0,0
+0,12,6,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985810,0.004430,0.001716,0.384710,5.627533,0.012426,0.006491,6.129332,0,0
+0,12,7,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985683,0.004141,0.002433,0.375825,5.593060,0.012992,0.006525,6.084328,0,0
+0,12,8,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985554,0.004371,0.001721,0.383905,5.694864,0.013074,0.007032,6.213037,0,0
+0,12,9,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985774,0.004328,0.001650,0.380267,5.561163,0.013774,0.007038,6.068708,0,0
+0,12,10,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985918,0.004310,0.001614,0.392299,5.673151,0.012676,0.007074,6.181261,0,0
+0,12,11,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985530,0.004269,0.001838,0.380993,5.544323,0.012558,0.007138,6.041008,0,0
+0,12,12,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985502,0.004255,0.001697,0.382640,5.560490,0.012869,0.014985,6.070407,0,0
+0,12,13,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985441,0.004563,0.001785,0.366817,5.572847,0.013081,0.006968,6.057667,0,0
+0,12,14,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985660,0.004054,0.001673,0.383930,5.580909,0.013630,0.006425,6.081513,0,0
+0,12,15,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986254,0.004159,0.001790,0.350221,5.548255,0.012536,0.007369,6.025141,0,0
+0,12,16,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986835,0.004392,0.001773,0.346734,5.678688,0.011897,0.006733,6.142486,0,0
+0,12,17,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987174,0.004027,0.001800,1.076715,5.625088,0.011862,0.007589,6.822919,0,0
+0,12,18,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987003,0.004158,0.001592,0.331179,5.544763,0.011903,0.007047,5.993359,0,0
+0,13,0,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987448,0.003999,0.001736,0.322705,5.677613,0.012699,0.006580,6.117119,0,0
+0,13,1,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987069,0.004334,0.001693,0.326553,5.615861,0.012530,0.006250,6.057681,0,0
+0,13,2,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986765,0.004039,0.002101,0.324355,5.556587,0.012046,0.007065,6.008264,0,0
+0,13,3,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986604,0.004282,0.001789,0.397963,5.600193,0.011788,0.006721,6.131923,0,0
+0,13,4,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986704,0.004774,0.001638,0.317929,5.699815,0.011970,0.006470,6.131566,0,0
+0,13,5,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987102,0.004264,0.002096,0.360496,5.568719,0.011924,0.007883,6.047679,0,0
+0,13,6,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987347,0.003962,0.001750,0.386458,5.753728,0.010776,0.007505,6.255441,0,0
+0,13,7,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986949,0.004294,0.001686,0.404094,5.712615,0.012369,0.007965,6.235596,0,0
+0,13,8,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987097,0.004163,0.001972,0.384529,5.601003,0.012436,0.007330,6.102713,0,0
+0,13,9,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987121,0.004110,0.001676,0.390964,5.577082,0.011955,0.007276,6.086246,0,0
+0,13,10,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.984948,0.004157,0.010354,0.383725,5.598216,0.012661,0.007546,6.109219,0,0
+0,13,11,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986099,0.004285,0.001840,0.378698,5.588708,0.012926,0.006983,6.085354,0,0
+0,13,12,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986167,0.004045,0.001708,0.556863,5.601743,0.013005,0.006874,6.277313,0,0
+0,13,13,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985783,0.004371,0.001758,0.364118,5.581389,0.012146,0.006463,6.060131,0,0
+0,13,14,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985838,0.004154,0.001679,0.384064,5.647515,0.012054,0.007298,6.148913,0,0
+0,13,15,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986002,0.004054,0.001763,0.351033,5.584366,0.012512,0.007218,6.052975,0,0
+0,13,16,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986689,0.004379,0.001825,0.349107,5.541918,0.012683,0.007116,6.012084,0,0
+0,13,17,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985972,0.004181,0.001740,1.318468,5.623746,0.013425,0.007252,7.061876,0,0
+0,13,18,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.985048,0.004231,0.001666,0.352389,5.533767,0.012346,0.006696,6.001641,0,0
+0,14,0,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987603,0.004122,0.002056,0.326834,5.747862,0.013624,0.006334,6.225550,0,0
+0,14,1,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987106,0.004371,0.001592,0.335325,5.576429,0.011864,0.006956,6.028568,0,0
+0,14,2,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987319,0.004035,0.001595,0.316664,5.579408,0.011987,0.006635,6.010964,0,0
+0,14,3,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987745,0.004153,0.001678,0.391507,5.824127,0.012405,0.007199,6.335390,0,0
+0,14,4,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987376,0.004169,0.001694,0.310744,5.656891,0.012568,0.006796,6.082954,0,0
+0,14,5,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986924,0.004291,0.001652,0.343545,5.575241,0.011696,0.007007,6.034687,0,0
+0,14,6,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987400,0.004154,0.001810,0.396377,5.600687,0.012043,0.015795,6.123596,0,0
+0,14,7,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987315,0.004888,0.001846,0.422881,5.768508,0.011706,0.007424,6.325188,0,0
+0,14,8,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.981244,0.004612,0.001734,0.439881,5.703978,0.011638,0.007169,6.289843,0,0
+0,14,9,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.983708,0.004247,0.001905,0.385035,5.616271,0.013190,0.006799,6.120071,0,0
+0,14,10,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986909,0.004363,0.001881,0.391785,5.552103,0.012060,0.007339,6.061121,0,0
+0,14,11,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986504,0.004275,0.001609,0.389071,5.631426,0.011516,0.007375,6.136123,0,0
+0,14,12,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986410,0.004061,0.001617,0.379049,5.598861,0.011795,0.006973,6.094187,0,0
+0,14,13,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986122,0.004738,0.001908,0.412562,5.850096,0.012467,0.006365,6.384297,0,0
+0,14,14,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986391,0.004290,0.001635,0.393862,5.585835,0.012028,0.006692,6.095546,0,0
+0,14,15,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986745,0.004326,0.001895,0.344182,5.570748,0.011793,0.007365,6.030765,0,0
+0,14,16,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.987119,0.004109,0.001683,0.338896,5.524510,0.012106,0.006952,5.980247,0,0
+0,14,17,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986882,0.004221,0.001693,1.035397,5.614340,0.012907,0.007146,6.769485,0,0
+0,14,18,pick up the black bowl from table center and place it on the plate,FULL_HIT,0.986651,0.004143,0.001781,0.335785,5.515046,0.013530,0.006894,5.968929,0,0
+0,15,0,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988872,0.004214,0.002143,0.314502,5.361276,0.012174,0.006618,5.792449,0,0
+0,15,1,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988340,0.004408,0.001743,0.326029,5.149361,0.011625,0.006428,5.612464,0,0
+0,15,2,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987954,0.004369,0.001618,0.315130,5.073118,0.011514,0.006184,5.498793,0,0
+0,15,3,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987832,0.004123,0.001715,0.351588,5.145490,0.011356,0.006210,5.610516,0,0
+0,15,4,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987812,0.004339,0.001665,0.323560,5.084344,0.011629,0.006020,5.517962,0,0
+0,15,5,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987538,0.004026,0.001676,0.354564,5.081685,0.011605,0.006498,5.548140,0,0
+0,15,6,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987602,0.004193,0.001610,0.387491,5.200133,0.011866,0.006895,5.701794,0,0
+0,15,7,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987720,0.004467,0.001641,0.387502,5.132147,0.011306,0.007178,5.633076,0,0
+0,15,8,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987729,0.004630,0.001713,0.389748,5.158536,0.011658,0.007274,5.675506,0,0
+0,15,9,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.983592,0.004352,0.001796,0.367194,5.125770,0.011176,0.006264,5.606933,0,0
+0,15,10,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.979125,0.004147,0.001640,0.390365,8.239737,0.012584,0.006769,8.759095,0,0
+0,15,11,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987723,0.004465,0.001932,0.387566,5.635444,0.012340,0.006950,6.139679,0,0
+0,15,12,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.986576,0.004441,0.002004,0.397711,5.687832,0.012426,0.006583,6.205314,0,0
+0,15,13,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.986206,0.004202,0.001749,0.372487,5.671002,0.011943,0.006353,6.159251,0,0
+0,15,14,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.986362,0.004326,0.001828,0.395108,5.684446,0.011873,0.006564,6.205296,0,0
+0,15,15,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.986606,0.004687,0.001839,0.361786,5.676662,0.011928,0.007055,6.178433,0,0
+0,15,16,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.986187,0.004522,0.001964,0.346802,5.699125,0.011620,0.007406,6.163107,0,0
+0,16,0,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988851,0.004341,0.001965,0.331509,5.681843,0.012513,0.007099,6.134159,0,0
+0,16,1,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988736,0.004307,0.001936,0.337923,5.642069,0.011131,0.006568,6.095436,0,0
+0,16,2,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988684,0.004682,0.001867,0.335738,5.673332,0.011695,0.006960,6.123479,0,0
+0,16,3,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988639,0.004575,0.002077,0.341231,5.746253,0.011616,0.006920,6.204315,0,0
+0,16,4,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988603,0.004667,0.002224,0.324490,5.601217,0.011936,0.006515,6.050938,0,0
+0,16,5,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988650,0.004114,0.002002,0.367306,5.618030,0.011142,0.006580,6.099378,0,0
+0,16,6,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988347,0.004897,0.002023,0.406624,5.782122,0.011190,0.007317,6.303062,0,0
+0,16,7,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987741,0.004155,0.001976,0.388637,5.686399,0.012315,0.006614,6.190750,0,0
+0,16,8,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987704,0.004656,0.002170,0.414196,5.800920,0.011365,0.007438,6.336493,0,0
+0,16,9,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.982043,0.004508,0.001893,0.392312,5.670907,0.012301,0.006940,6.179685,0,0
+0,16,10,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.980116,0.004449,0.001823,0.396040,5.734956,0.012208,0.006361,6.245316,0,0
+0,16,11,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.986457,0.004299,0.001976,0.412949,5.691374,0.011782,0.007098,6.222130,0,0
+0,16,12,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985905,0.004437,0.001939,0.392953,5.763050,0.011935,0.006943,6.270867,0,0
+0,16,13,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985129,0.004227,0.001905,0.383121,5.628295,0.012703,0.006208,6.125878,0,0
+0,16,14,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.984903,0.004057,0.001951,0.382926,5.678996,0.011544,0.006356,6.177516,0,0
+0,16,15,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985162,0.004443,0.002031,0.361619,5.610627,0.020083,0.006359,6.096971,0,0
+0,16,16,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.983888,0.004512,0.002067,0.349409,5.671325,0.010568,0.006823,6.134568,0,0
+0,17,0,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988739,0.004271,0.002082,0.327033,5.723744,0.011820,0.006322,6.165253,0,0
+0,17,1,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985786,0.004449,0.001811,0.328144,5.640787,0.012362,0.006639,6.084972,0,0
+0,17,2,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985263,0.004285,0.001759,0.327740,5.658480,0.011293,0.006814,6.099488,0,0
+0,17,3,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985361,0.004548,0.001756,0.352401,5.644106,0.011591,0.007061,6.127044,0,0
+0,17,4,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985110,0.004349,0.001793,0.335985,5.615712,0.011477,0.006840,6.068136,0,0
+0,17,5,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985673,0.004513,0.001886,0.359088,5.674372,0.011373,0.006474,6.146665,0,0
+0,17,6,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.986128,0.004299,0.001760,0.407707,5.693141,0.011926,0.006627,6.216641,0,0
+0,17,7,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985834,0.004501,0.002245,0.400804,5.729195,0.020303,0.006979,6.255010,0,0
+0,17,8,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.984229,0.004353,0.001771,0.401383,5.670679,0.011585,0.007100,6.187134,0,0
+0,17,9,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.976612,0.004289,0.002345,0.392159,5.719428,0.011704,0.006880,6.227575,0,0
+0,17,10,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985103,0.004454,0.001877,0.405691,5.646507,0.011957,0.006897,6.169061,0,0
+0,17,11,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985957,0.004271,0.001890,0.401927,5.677312,0.011243,0.006890,6.195883,0,0
+0,17,12,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.986136,0.004452,0.001827,0.384208,5.783112,0.012469,0.007861,6.282034,0,0
+0,17,13,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.986437,0.004335,0.001779,0.376091,5.628233,0.011986,0.006756,6.117193,0,0
+0,17,14,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.986351,0.004875,0.001741,0.388878,5.687579,0.011554,0.007125,6.192216,0,0
+0,17,15,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.986212,0.004313,0.001826,0.350443,5.650822,0.012032,0.007216,6.117108,0,0
+0,17,16,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.984950,0.004671,0.001873,0.344614,5.595906,0.011211,0.006925,6.057198,0,0
+0,18,0,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988889,0.004295,0.002106,0.323336,5.679176,0.012029,0.006068,6.115247,0,0
+0,18,1,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988232,0.004845,0.001792,0.327249,5.608933,0.011334,0.006531,6.049332,0,0
+0,18,2,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987932,0.004379,0.001875,0.328338,5.690157,0.011131,0.006683,6.134406,0,0
+0,18,3,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987920,0.004790,0.001984,0.447164,6.027919,0.011893,0.006955,6.606915,0,0
+0,18,4,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987872,0.004492,0.001878,0.348362,5.924589,0.011435,0.006633,6.389340,0,0
+0,18,5,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987975,0.004608,0.002280,0.414742,5.789840,0.012475,0.006652,6.327900,0,0
+0,18,6,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988052,0.004292,0.001887,0.399474,5.963142,0.012385,0.006966,6.480122,0,0
+0,18,7,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987916,0.004401,0.001928,0.386715,5.651254,0.011790,0.007326,6.154124,0,0
+0,18,8,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987730,0.004770,0.001785,0.439841,5.711257,0.011585,0.007627,6.271090,0,0
+0,18,9,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.983111,0.004524,0.002013,0.437514,5.729982,0.012029,0.006998,6.295179,0,0
+0,18,10,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.980449,0.004492,0.001967,0.397455,5.738361,0.011708,0.006545,6.248774,0,0
+0,18,11,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.980417,0.004176,0.001664,0.385954,5.162206,0.011128,0.006256,5.657813,0,0
+0,18,12,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985535,0.004361,0.001675,0.407868,5.248077,0.011505,0.006548,5.766151,0,0
+0,18,13,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985505,0.004328,0.001580,0.368374,5.127585,0.011686,0.006180,5.606844,0,0
+0,18,14,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985153,0.004295,0.001703,0.389467,5.179556,0.011790,0.006273,5.692615,0,0
+0,18,15,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987818,0.004186,0.002463,0.342091,5.062283,0.012554,0.006316,5.516442,0,0
+0,18,16,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.987836,0.004179,0.001800,0.356149,5.079009,0.011818,0.006035,5.547418,0,0
+0,19,0,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988409,0.004231,0.001783,0.323886,5.158965,0.012886,0.006063,5.593863,0,0
+0,19,1,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988268,0.004209,0.001915,0.329166,5.104899,0.012060,0.006130,5.545878,0,0
+0,19,2,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988084,0.004218,0.001818,0.321513,5.134638,0.011263,0.006095,5.568246,0,0
+0,19,3,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988101,0.004599,0.001858,0.351865,5.101940,0.011187,0.006059,5.566113,0,0
+0,19,4,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988113,0.004145,0.001867,0.326696,5.071122,0.011314,0.006168,5.506721,0,0
+0,19,5,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988141,0.004450,0.001764,0.353835,5.113729,0.011333,0.005792,5.578159,0,0
+0,19,6,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988227,0.004497,0.001701,0.394598,5.116768,0.011406,0.007057,5.623508,0,0
+0,19,7,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988406,0.004210,0.001646,0.385087,5.219863,0.011868,0.006165,5.717543,0,0
+0,19,8,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.988598,0.004379,0.001734,0.381214,5.126963,0.011544,0.006404,5.622459,0,0
+0,19,9,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.984024,0.004119,0.001716,0.397295,5.125458,0.011643,0.006501,5.636766,0,0
+0,19,10,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.981781,0.004093,0.001802,0.392153,5.243570,0.011984,0.006644,5.750250,0,0
+0,19,11,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.984524,0.004173,0.001647,0.387535,5.176405,0.011756,0.006824,5.679309,0,0
+0,19,12,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.984324,0.004471,0.001775,0.390571,5.176717,0.011167,0.006430,5.679230,0,0
+0,19,13,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985284,0.004144,0.001710,0.413244,5.127878,0.012179,0.006175,5.664416,0,0
+0,19,14,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.985942,0.004361,0.002253,0.384922,5.155841,0.012565,0.006712,5.657260,0,0
+0,19,15,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.986496,0.004609,0.001950,0.351225,5.199177,0.010941,0.006056,5.663229,0,0
+0,19,16,pick up the black bowl on the cookie box and place it on the plate,FULL_HIT,0.986923,0.004327,0.002246,0.352735,5.087654,0.012194,0.006535,5.553623,0,0
+0,20,0,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.988628,0.003999,0.012971,0.325701,6.755372,0.014204,0.006766,7.213617,0,0
+0,20,1,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.988507,0.004316,0.001778,0.327769,6.618981,0.013493,0.007224,7.067177,0,0
+0,20,2,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.988262,0.004314,0.001724,0.329875,6.834299,0.014068,0.007153,7.286200,0,0
+0,20,3,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.988011,0.004117,0.001649,0.390589,6.650457,0.014571,0.007382,7.162509,0,0
+0,20,4,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987916,0.004362,0.001742,0.330477,6.563129,0.014318,0.007251,7.015862,0,0
+0,20,5,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987865,0.004127,0.001700,0.356681,6.717966,0.013143,0.006681,7.194706,0,0
+0,20,6,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987937,0.004751,0.001677,0.396154,6.598172,0.012814,0.007097,7.114933,0,0
+0,20,7,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987739,0.004314,0.001803,0.384246,17.897234,0.013745,0.006768,18.406046,0,0
+0,20,8,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986875,0.004546,0.001925,0.386561,8.151518,0.013499,0.007453,8.663931,0,0
+0,20,9,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985507,0.004093,0.002265,0.381002,7.056957,0.014380,0.007524,7.562835,0,0
+0,20,10,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.983109,0.004431,0.001926,0.387676,7.101744,0.012910,0.006993,7.614601,0,0
+0,20,11,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.983245,0.004561,0.002069,0.388367,7.226004,0.012880,0.007743,7.740508,0,0
+0,20,12,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.983898,0.004663,0.002431,0.394426,7.274094,0.012687,0.007251,7.794057,0,0
+0,20,13,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.983707,0.004656,0.002075,0.418528,7.171872,0.012978,0.007294,7.712879,0,0
+0,20,14,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985547,0.004776,0.001914,0.383648,7.107002,0.013006,0.007688,7.615788,0,0
+0,20,15,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987037,0.004519,0.001991,0.352170,7.259719,0.013271,0.007862,7.736454,0,0
+0,20,16,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987063,0.004510,0.001846,0.359114,7.192675,0.013139,0.007329,7.676316,0,0
+0,20,17,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987137,0.004367,0.001883,1.177620,6.731498,0.013267,0.007160,8.031978,0,0
+0,20,18,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987640,0.004218,0.001773,0.373972,6.523347,0.012713,0.007146,7.017525,0,0
+0,20,19,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987602,0.004257,0.001959,0.309255,6.501356,0.012267,0.007462,6.928045,0,0
+0,20,20,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986910,0.004288,0.001836,0.316876,7.215492,0.013083,0.007252,7.668241,0,0
+0,20,21,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986598,0.004287,0.001774,0.341726,6.465155,0.012964,0.007939,6.926037,0,0
+0,20,22,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986458,0.004321,0.001788,0.309760,6.450369,0.012747,0.007689,6.881819,0,0
+0,20,23,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986314,0.004131,0.002070,0.315849,6.512961,0.012807,0.006989,6.948192,0,0
+0,21,0,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.988648,0.004221,0.001790,1.008206,6.614748,0.014632,0.007295,7.758356,0,0
+0,21,1,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.988265,0.004091,0.001656,0.394436,6.569921,0.012721,0.007399,7.085767,0,0
+0,21,2,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987515,0.004334,0.001858,0.428691,6.593113,0.012732,0.006855,7.143466,0,0
+0,21,3,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987065,0.004200,0.001745,0.391881,6.569931,0.014098,0.007966,7.082095,0,0
+0,21,4,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987094,0.004313,0.001685,0.393815,6.566160,0.012994,0.006751,7.079715,0,0
+0,21,5,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987168,0.004073,0.001889,0.392248,6.573726,0.012707,0.007230,7.088653,0,0
+0,21,6,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986900,0.004166,0.001894,0.400379,6.565845,0.013222,0.007115,7.086107,0,0
+0,21,7,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987064,0.004081,0.001715,0.407620,6.551795,0.013660,0.006965,7.078919,0,0
+0,21,8,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986630,0.004327,0.001651,0.390066,6.537313,0.012449,0.007066,7.048141,0,0
+0,21,9,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987170,0.004246,0.001799,0.372907,6.651357,0.012107,0.007297,7.141983,0,0
+0,21,10,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.984639,0.004292,0.001676,0.384288,6.544523,0.012561,0.007216,7.049015,0,0
+0,21,11,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.981505,0.004170,0.001610,0.368747,6.508886,0.012727,0.007830,6.996174,0,0
+0,21,12,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.980618,0.003955,0.001640,0.340500,6.524907,0.012313,0.007555,6.984984,0,0
+0,21,13,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986899,0.004130,0.001729,1.078242,6.588485,0.012892,0.007582,7.788862,0,0
+0,21,14,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987005,0.004227,0.001717,0.366815,6.556618,0.012701,0.006697,7.043494,0,0
+0,21,15,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986014,0.004178,0.001730,0.312273,6.512166,0.012479,0.007135,6.945349,0,0
+0,21,16,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986786,0.004230,0.001725,0.312616,6.527166,0.012713,0.007267,6.958988,0,0
+0,21,17,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986567,0.004049,0.001605,0.347186,6.526590,0.012906,0.007471,6.993984,0,0
+0,21,18,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986883,0.004087,0.001703,0.320059,6.509721,0.013133,0.007143,6.949417,0,0
+0,21,19,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987099,0.004413,0.002281,0.368257,6.543128,0.012988,0.007399,7.034304,0,0
+0,21,20,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987076,0.004196,0.001975,0.344054,6.558260,0.012723,0.008299,7.058143,0,0
+0,21,21,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986612,0.004105,0.001666,0.314627,6.496313,0.012600,0.007832,6.932220,0,0
+0,21,22,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985778,0.004340,0.001982,0.305969,6.467713,0.012717,0.007294,6.895142,0,0
+0,21,23,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985119,0.004199,0.001777,0.309094,6.604919,0.012667,0.007592,7.034082,0,0
+0,21,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985347,0.004126,0.002065,0.317681,6.484255,0.012936,0.007326,6.922863,0,0
+0,22,0,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.988579,0.004405,0.001732,0.974266,6.668891,0.014778,0.006736,7.767061,0,0
+0,22,1,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987192,0.004087,0.001615,0.356348,6.546101,0.012031,0.007616,7.023146,0,0
+0,22,2,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985902,0.004072,0.001694,0.389333,6.588099,0.012947,0.006994,7.098992,0,0
+0,22,3,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985510,0.004384,0.001574,0.356977,6.539647,0.012368,0.008465,7.017879,0,0
+0,22,4,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985085,0.004354,0.001800,0.393840,6.555205,0.012732,0.007064,7.067878,0,0
+0,22,5,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985971,0.004150,0.001686,0.361315,6.518108,0.012620,0.006785,6.996776,0,0
+0,22,6,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986352,0.004228,0.001591,0.397632,6.555992,0.012463,0.007228,7.072716,0,0
+0,22,7,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985848,0.004555,0.001905,0.367962,6.608227,0.012676,0.006696,7.108059,0,0
+0,22,8,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.983249,0.004677,0.001601,0.400123,6.596536,0.013161,0.007029,7.117069,0,0
+0,22,9,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.983830,0.004437,0.001973,0.380000,6.529972,0.012030,0.007403,7.031029,0,0
+0,22,10,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.982801,0.004269,0.001972,0.387925,6.564687,0.012277,0.006695,7.071718,0,0
+0,22,11,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.980140,0.004223,0.001741,0.354202,6.560330,0.012407,0.007191,7.034842,0,0
+0,22,12,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985443,0.004284,0.001646,0.381390,6.560840,0.013091,0.007366,7.074524,0,0
+0,22,13,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986513,0.004406,0.002143,0.350143,6.648551,0.013338,0.007369,7.118485,0,0
+0,22,14,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985710,0.004146,0.001683,0.336504,6.545482,0.012847,0.007238,7.001094,0,0
+0,22,15,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.984993,0.004212,0.001499,0.357040,6.606841,0.012556,0.007005,7.084770,0,0
+0,22,16,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985168,0.004277,0.001909,0.317301,6.522014,0.011914,0.006982,6.960153,0,0
+0,22,17,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985538,0.004150,0.001909,0.391044,6.577045,0.013291,0.006994,7.089516,0,0
+0,22,18,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985667,0.004396,0.001768,0.356688,6.541466,0.012301,0.007540,7.020575,0,0
+0,22,19,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986485,0.004400,0.001768,0.316638,6.473586,0.012863,0.006984,6.911660,0,0
+0,22,20,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985364,0.004012,0.002446,0.383518,6.569662,0.024886,0.007128,7.090564,0,0
+0,22,21,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.984659,0.004098,0.001903,0.322539,6.538005,0.012669,0.006917,6.990736,0,0
+0,22,22,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.983909,0.004227,0.001684,0.317016,6.496933,0.012890,0.006976,6.932164,0,0
+0,23,0,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.988716,0.004181,0.001773,0.987543,6.654180,0.013311,0.007258,7.765623,0,0
+0,23,1,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987730,0.004462,0.001853,0.360862,6.552043,0.012965,0.006854,7.033604,0,0
+0,23,2,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987856,0.004150,0.001959,0.388571,6.623671,0.012214,0.006888,7.130498,0,0
+0,23,3,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987763,0.004190,0.001963,0.355112,6.556315,0.012392,0.007457,7.031881,0,0
+0,23,4,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987688,0.004230,0.001647,0.378937,6.559941,0.013203,0.007184,7.060158,0,0
+0,23,5,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987124,0.004608,0.001690,0.350612,6.539194,0.013379,0.007453,7.030000,0,0
+0,23,6,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986058,0.004306,0.001614,0.416732,6.657628,0.012549,0.007609,7.204246,0,0
+0,23,7,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986006,0.004589,0.001722,0.351987,6.563147,0.012987,0.007661,7.035469,0,0
+0,23,8,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986352,0.004521,0.001887,0.402726,6.636317,0.014018,0.006856,7.160857,0,0
+0,23,9,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985757,0.004705,0.001827,0.359363,6.942177,0.012588,0.033721,7.461397,0,0
+0,23,10,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986395,0.004540,0.001968,0.431281,6.748576,0.013501,0.008171,7.302342,0,0
+0,23,11,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985820,0.004213,0.001859,0.374370,6.577799,0.012424,0.007158,7.071721,0,0
+0,23,12,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.967445,0.004535,0.001783,0.323182,6.591054,0.013144,0.007249,7.034785,0,0
+0,23,13,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.975859,0.004337,0.001892,0.339734,6.605009,0.013252,0.007162,7.063802,0,0
+0,23,14,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.984401,0.004073,0.001660,0.306564,6.526923,0.012256,0.007421,6.966367,0,0
+0,23,15,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.983283,0.012316,0.001769,0.382286,6.559017,0.012345,0.007462,7.093518,0,0
+0,23,16,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.984430,0.004718,0.001792,0.343744,6.683368,0.012361,0.007421,7.147070,0,0
+0,23,17,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.984784,0.003984,0.001549,0.324912,6.554347,0.012532,0.007692,6.999731,0,0
+0,23,18,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985898,0.004190,0.001772,0.423319,6.566465,0.012996,0.006975,7.109419,0,0
+0,23,19,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987169,0.004391,0.001755,0.319455,6.560867,0.012339,0.007956,7.003555,0,0
+0,23,20,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986950,0.004530,0.001626,0.312001,6.484732,0.012309,0.006849,6.914833,0,0
+0,23,21,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985447,0.004271,0.001864,0.324525,6.493126,0.012746,0.007390,6.940916,0,0
+0,23,22,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.984146,0.004526,0.001598,0.305214,6.496155,0.012313,0.007225,6.922173,0,0
+0,23,23,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.981504,0.004362,0.001765,0.325712,6.566297,0.012632,0.007498,7.013455,0,0
+0,23,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.974405,0.004481,0.001852,0.314428,6.491142,0.012806,0.007551,6.925827,0,0
+0,23,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.967664,0.004153,0.001761,0.305150,6.530519,0.012178,0.007670,6.955491,0,0
+0,23,26,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.966193,0.004083,0.001744,0.360516,6.530608,0.013533,0.007908,7.021811,0,0
+0,24,0,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.988870,0.004127,0.001814,0.740408,6.609313,0.013438,0.006969,7.474518,0,0
+0,24,1,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.988630,0.004245,0.001885,0.361312,6.517925,0.012228,0.007383,7.002390,0,0
+0,24,2,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.988316,0.004162,0.001712,0.385721,6.558929,0.013214,0.007264,7.062527,0,0
+0,24,3,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987704,0.004188,0.001902,0.355680,6.524870,0.013577,0.007540,7.000537,0,0
+0,24,4,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986678,0.004546,0.001898,0.390642,6.567359,0.012711,0.007693,7.078787,0,0
+0,24,5,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985803,0.004223,0.001977,0.364974,6.515530,0.013461,0.007010,7.001268,0,0
+0,24,6,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985805,0.004081,0.001624,0.393853,6.632200,0.013064,0.006782,7.148151,0,0
+0,24,7,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986095,0.004179,0.001609,0.366079,6.554767,0.013009,0.007170,7.041730,0,0
+0,24,8,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.985841,0.004131,0.001861,0.382920,6.560102,0.012890,0.007276,7.062846,0,0
+0,24,9,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.984562,0.004542,0.001985,0.348047,6.558940,0.011799,0.007256,7.026753,0,0
+0,24,10,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.980676,0.004545,0.001612,0.385732,6.594375,0.012898,0.007267,7.099549,0,0
+0,24,11,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.978687,0.004228,0.001648,0.349411,6.554440,0.011871,0.007393,7.041432,0,0
+0,24,12,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.975884,0.003976,0.001673,0.396481,6.593422,0.012984,0.007170,7.110379,0,0
+0,24,13,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.984017,0.004024,0.001739,0.359121,6.525482,0.012849,0.007360,7.005598,0,0
+0,24,14,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986738,0.004172,0.001757,0.315452,6.478352,0.012015,0.007651,6.911553,0,0
+0,24,15,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.987048,0.004417,0.001679,0.340303,6.503096,0.012846,0.007261,6.965429,0,0
+0,24,16,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986830,0.004089,0.002076,0.340889,6.578147,0.013081,0.007061,7.041526,0,0
+0,24,17,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986862,0.004372,0.001639,0.353958,6.596313,0.012442,0.007108,7.069911,0,0
+0,24,18,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986901,0.004128,0.001646,0.325676,6.491177,0.012059,0.007630,6.936226,0,0
+0,24,19,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986885,0.004086,0.001657,0.312820,6.511917,0.013736,0.006805,6.954886,0,0
+0,24,20,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986262,0.004475,0.001973,0.330241,6.543454,0.013277,0.007281,6.997201,0,0
+0,24,21,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986594,0.004132,0.001921,0.316935,6.477202,0.012672,0.007088,6.914112,0,0
+0,24,22,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.986214,0.004277,0.001748,0.317789,6.751851,0.012860,0.007398,7.189503,0,0
+0,24,23,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.984914,0.004312,0.001681,0.308001,6.695482,0.013162,0.007145,7.138568,0,0
+0,24,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.983800,0.004140,0.001661,0.307589,6.679291,0.012798,0.007359,7.108262,0,0
+0,24,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,FULL_HIT,0.983426,0.004204,0.001685,0.302743,6.539592,0.013102,0.007912,6.963174,0,0
+0,25,0,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.988426,0.004407,0.001841,0.973125,14.944077,0.013163,0.006610,16.036801,0,0
+0,25,1,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987947,0.004353,0.001986,0.382970,6.014880,0.012340,0.007571,6.517395,0,0
+0,25,2,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987479,0.004480,0.001681,0.380765,5.970861,0.011993,0.007454,6.471995,0,0
+0,25,3,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986972,0.004111,0.001788,0.347423,5.914253,0.012528,0.007247,6.377312,0,0
+0,25,4,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987198,0.004217,0.001605,0.376910,5.842464,0.012720,0.006936,6.335613,0,0
+0,25,5,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987487,0.004236,0.001830,0.345505,5.886023,0.011902,0.006844,6.348545,0,0
+0,25,6,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987730,0.004403,0.001709,0.394149,5.925964,0.021347,0.006940,6.450574,0,0
+0,25,7,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987536,0.004109,0.001683,0.353654,5.920284,0.012984,0.007571,6.393310,0,0
+0,25,8,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.985536,0.004148,0.001759,0.388365,5.903543,0.012942,0.007751,6.411461,0,0
+0,25,9,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.982444,0.004100,0.001751,0.369393,5.865507,0.013247,0.006867,6.354964,0,0
+0,25,10,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.982939,0.004307,0.001612,0.402254,6.005921,0.011762,0.007369,6.525986,0,0
+0,25,11,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.983704,0.004343,0.001642,0.350689,5.928164,0.012550,0.008197,6.399325,0,0
+0,25,12,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.983161,0.004791,0.001843,0.312345,5.861292,0.013359,0.007440,6.291421,0,0
+0,25,13,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.983541,0.004168,0.001724,0.354331,8.902779,0.013432,0.007450,9.379700,0,0
+0,25,14,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.982892,0.004508,0.002127,0.325452,6.419063,0.013004,0.007138,6.864889,0,0
+0,25,15,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.983320,0.004537,0.001812,0.362052,6.431629,0.012150,0.007226,6.912794,0,0
+0,25,16,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984647,0.004658,0.001895,0.350963,6.417510,0.013098,0.007422,6.890448,0,0
+0,25,17,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984878,0.004603,0.001853,0.316262,6.392755,0.012159,0.007826,6.830806,0,0
+0,25,18,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.980299,0.004646,0.001899,0.389595,6.436226,0.012668,0.007056,6.947168,0,0
+0,26,0,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.988763,0.004871,0.001939,1.085996,6.531832,0.013149,0.007283,7.741285,0,0
+0,26,1,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.988464,0.004156,0.001824,0.358323,6.481546,0.012497,0.007059,6.959725,0,0
+0,26,2,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.988328,0.004367,0.001776,0.391739,6.460958,0.013194,0.007459,6.978408,0,0
+0,26,3,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987829,0.004830,0.001774,0.360138,6.512868,0.012878,0.007034,6.992928,0,0
+0,26,4,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987800,0.004369,0.001764,0.383912,6.517688,0.012110,0.006810,7.022164,0,0
+0,26,5,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987641,0.004675,0.001784,0.358031,6.424477,0.012624,0.007126,6.904143,0,0
+0,26,6,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987644,0.004271,0.001755,0.392956,6.568986,0.013295,0.006709,7.084707,0,0
+0,26,7,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984541,0.004295,0.001849,0.357707,6.463736,0.013083,0.007951,6.944005,0,0
+0,26,8,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986439,0.004339,0.001757,0.392378,6.498853,0.012934,0.007487,7.014044,0,0
+0,26,9,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986888,0.004338,0.001848,0.347560,6.407500,0.012844,0.006748,6.876114,0,0
+0,26,10,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986828,0.004166,0.002206,0.395458,6.502409,0.012825,0.007713,7.019615,0,0
+0,26,11,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.985567,0.004751,0.001804,0.356033,6.435152,0.012906,0.006876,6.910821,0,0
+0,26,12,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984812,0.004801,0.001774,0.400678,6.439624,0.012741,0.007207,6.962939,0,0
+0,26,13,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984721,0.004612,0.002033,0.349822,6.374245,0.012925,0.006937,6.846326,0,0
+0,26,14,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984422,0.004914,0.001832,0.338170,6.411762,0.012961,0.007239,6.873399,0,0
+0,26,15,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984546,0.004704,0.001946,0.352029,6.601645,0.012950,0.007335,7.075640,0,0
+0,26,16,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984616,0.004733,0.002096,0.348179,6.381993,0.012685,0.007011,6.853966,0,0
+0,26,17,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984835,0.004426,0.001864,0.414187,6.529230,0.012825,0.007054,7.064436,0,0
+0,26,18,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.983342,0.004405,0.001802,0.334887,6.314957,0.013013,0.007510,6.780315,0,0
+0,1,0,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.988936,0.004417,0.001956,1.034584,6.564640,0.013883,0.006773,7.726868,0,0
+0,1,1,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.988684,0.004387,0.001841,0.361592,6.657408,0.013306,0.007308,7.141031,0,0
+0,1,2,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.988604,0.004905,0.001912,0.396772,6.529391,0.013465,0.007194,7.051036,0,0
+0,1,3,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.988246,0.004627,0.002000,0.361392,6.472283,0.013560,0.006896,6.953880,0,0
+0,1,4,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987794,0.005151,0.001894,0.395315,6.508012,0.013079,0.007534,7.024905,0,0
+0,1,5,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987638,0.004302,0.001820,0.355017,6.499471,0.012508,0.007134,6.973209,0,0
+0,1,6,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987717,0.004930,0.001806,0.399997,6.476254,0.011968,0.007375,6.997703,0,0
+0,1,7,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987378,0.004333,0.002077,0.363642,6.471934,0.012977,0.007161,6.956765,0,0
+0,1,8,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987520,0.004433,0.001754,0.401090,6.544601,0.012667,0.006884,7.066356,0,0
+0,1,9,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986522,0.004461,0.001882,0.356500,6.560010,0.012943,0.007813,7.037607,0,0
+0,1,10,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986232,0.004392,0.001989,0.400110,6.529787,0.013033,0.006768,7.050377,0,0
+0,1,11,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986158,0.004843,0.001796,0.374593,6.506610,0.012542,0.007298,7.001771,0,0
+0,1,12,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986364,0.004308,0.001747,0.401506,6.517125,0.012270,0.007279,7.047480,0,0
+0,1,13,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986149,0.004341,0.001835,0.361698,6.465393,0.012936,0.007047,6.948240,0,0
+0,1,14,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.985247,0.004403,0.001759,0.329559,6.456898,0.012823,0.007038,6.907423,0,0
+0,1,15,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.985941,0.004375,0.001893,0.362007,6.544434,0.012798,0.006981,7.028390,0,0
+0,1,16,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.985711,0.004655,0.002121,0.324937,6.470234,0.013187,0.006984,6.917495,0,0
+0,1,17,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.985240,0.004157,0.001732,0.380409,6.436502,0.011730,0.007181,6.951525,0,0
+0,28,0,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987703,0.004592,0.001956,1.121008,6.640827,0.013140,0.007175,7.886129,0,0
+0,28,1,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.988046,0.004358,0.002130,0.378417,6.486334,0.012368,0.007193,6.985710,0,0
+0,28,2,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987541,0.004330,0.002196,0.400566,6.535123,0.013657,0.007191,7.056316,0,0
+0,28,3,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986145,0.004524,0.002158,0.358216,6.452861,0.013268,0.007301,6.932985,0,0
+0,28,4,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986010,0.004387,0.001910,0.397632,6.510403,0.022358,0.008309,7.039855,0,0
+0,28,5,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986277,0.004105,0.001727,0.362258,6.477122,0.012655,0.006904,6.959895,0,0
+0,28,6,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986210,0.004866,0.001823,0.394011,6.517688,0.014158,0.007186,7.034024,0,0
+0,28,7,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984614,0.004621,0.001921,0.363299,6.454094,0.012768,0.018113,6.949967,0,0
+0,28,8,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.982101,0.004560,0.001641,0.409380,6.538695,0.013174,0.007353,7.070087,0,0
+0,28,9,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.985284,0.004341,0.001791,0.361911,6.578012,0.012549,0.007233,7.058792,0,0
+0,28,10,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.985458,0.004290,0.001811,0.380907,6.437942,0.012472,0.007617,6.945251,0,0
+0,28,11,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.985011,0.004361,0.001742,0.371553,6.848343,0.012817,0.007380,7.342295,0,0
+0,28,12,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.982730,0.004919,0.001981,0.403830,6.819757,0.014047,0.006628,7.365655,0,0
+0,28,13,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.985051,0.004394,0.001597,0.397553,6.168212,0.012754,0.007175,6.683188,0,0
+0,28,14,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984117,0.004111,0.001598,0.314888,5.977841,0.019197,0.006696,6.417953,0,0
+0,28,15,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984065,0.004171,0.001544,0.352376,6.020331,0.012323,0.023362,6.505089,0,0
+0,28,16,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.983933,0.004230,0.001696,0.316759,5.901021,0.012718,0.007200,6.345666,0,0
+0,28,17,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.982718,0.004572,0.001505,0.476867,5.905360,0.013332,0.007185,6.498697,0,0
+0,28,18,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.979957,0.004078,0.001555,0.361918,5.907572,0.028953,0.007173,6.403569,0,0
+0,29,0,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.988061,0.004259,0.002029,1.005872,5.994855,0.012849,0.007225,7.122326,0,0
+0,29,1,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987897,0.004158,0.002059,0.363017,6.008498,0.012875,0.007028,6.487683,0,0
+0,29,2,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987708,0.004102,0.001627,0.399316,5.909456,0.012322,0.007173,6.434756,0,0
+0,29,3,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987863,0.004123,0.001610,0.357995,5.910782,0.012820,0.006835,6.385729,0,0
+0,29,4,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987801,0.004401,0.001669,0.390185,5.898738,0.012202,0.007206,6.404742,0,0
+0,29,5,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.987384,0.004262,0.001594,0.368014,6.013279,0.012328,0.006942,6.497809,0,0
+0,29,6,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.986946,0.004069,0.001651,0.384020,5.932896,0.012587,0.007011,6.432870,0,0
+0,29,7,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.983595,0.004435,0.001724,0.363008,5.970106,0.013518,0.007237,6.461410,0,0
+0,29,8,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.980351,0.004292,0.001671,0.387950,5.915570,0.012699,0.006657,6.418417,0,0
+0,29,9,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984644,0.004143,0.001722,0.352373,5.932311,0.012670,0.007330,6.401998,0,0
+0,29,10,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.985817,0.004315,0.001779,0.388834,5.965945,0.012660,0.008019,6.475062,0,0
+0,29,11,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.984487,0.004301,0.001793,0.381514,5.990908,0.012792,0.006819,6.491027,0,0
+0,29,12,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.983600,0.004349,0.001817,0.391653,5.926239,0.012522,0.007350,6.436276,0,0
+0,29,13,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.983692,0.004490,0.001693,0.359440,5.937975,0.012628,0.006771,6.415685,0,0
+0,29,14,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.983660,0.004113,0.001724,0.319913,5.967495,0.012148,0.006773,6.404440,0,0
+0,29,15,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.983579,0.004188,0.001738,0.368242,5.928000,0.012557,0.007252,6.414682,0,0
+0,29,16,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.983066,0.004111,0.001785,0.312886,5.914108,0.012095,0.006829,6.345618,0,0
+0,29,17,pick up the black bowl on the ramekin and place it on the plate,FULL_HIT,0.980040,0.004221,0.001683,0.378628,5.921130,0.011934,0.007299,6.423602,0,0
+0,30,0,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988886,0.004217,0.001679,1.061102,14.426709,0.012548,0.006809,15.603989,0,0
+0,30,1,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988047,0.004066,0.001840,0.348742,5.742578,0.012108,0.007891,6.209085,0,0
+0,30,2,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987796,0.005049,0.001755,0.402057,5.860934,0.012683,0.017317,6.392431,0,0
+0,30,3,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987671,0.004581,0.001843,0.366107,5.726612,0.012908,0.006367,6.209563,0,0
+0,30,4,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987514,0.004283,0.001787,0.388797,5.764415,0.012382,0.007056,6.269668,0,0
+0,30,5,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987529,0.004411,0.001655,0.344105,5.700293,0.012040,0.006508,6.161690,0,0
+0,30,6,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987633,0.004038,0.001744,0.387004,5.756017,0.012071,0.007205,6.258152,0,0
+0,30,7,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987964,0.004195,0.001608,0.352552,5.737718,0.011966,0.006981,6.206429,0,0
+0,30,8,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987442,0.004348,0.001765,0.380260,5.767325,0.012228,0.007359,6.265258,0,0
+0,30,9,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986920,0.004354,0.001743,0.353104,5.768258,0.012061,0.006902,6.237801,0,0
+0,30,10,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986578,0.004233,0.001655,0.374974,5.749969,0.012320,0.006761,6.250773,0,0
+0,30,11,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986556,0.004372,0.001665,0.343119,5.695595,0.022987,0.007372,6.164385,0,0
+0,30,12,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986377,0.004331,0.001723,0.391601,5.742750,0.013271,0.006951,6.252787,0,0
+0,30,13,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987320,0.004264,0.001631,0.339887,5.649123,0.013726,0.007292,6.105683,0,0
+0,30,14,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987378,0.004348,0.001636,0.306411,5.658012,0.013404,0.006818,6.080968,0,0
+0,30,15,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987491,0.004376,0.001691,0.365199,5.897315,0.013681,0.006992,6.379484,0,0
+0,30,16,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986461,0.004426,0.001670,0.312418,5.905862,0.012442,0.032480,6.391327,0,0
+0,30,17,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986708,0.003849,0.001636,0.394906,5.793763,0.028994,0.007173,6.322940,0,0
+0,30,18,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987044,0.004306,0.001784,0.341930,5.699397,0.012896,0.006216,6.156480,0,0
+0,30,19,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987012,0.004189,0.002245,0.305635,5.656264,0.011896,0.006373,6.079104,0,0
+0,30,20,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986681,0.004387,0.001698,0.370981,5.680199,0.011601,0.007534,6.168020,0,0
+0,31,0,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988883,0.004333,0.001636,1.059405,5.834281,0.013534,0.006700,7.015419,0,0
+0,31,1,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988677,0.004271,0.001674,0.360495,5.790768,0.012609,0.006741,6.274549,0,0
+0,31,2,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988620,0.004435,0.001600,0.392403,5.752382,0.012512,0.007018,6.262117,0,0
+0,31,3,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988508,0.004333,0.001714,0.356282,5.734448,0.011943,0.007377,6.214288,0,0
+0,31,4,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988408,0.004295,0.001589,0.374608,5.771871,0.011951,0.006821,6.263786,0,0
+0,31,5,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988229,0.004496,0.001562,0.358050,5.735850,0.012027,0.006905,6.209751,0,0
+0,31,6,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988261,0.004342,0.001688,0.387201,5.773766,0.012264,0.008326,6.278264,0,0
+0,31,7,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988242,0.004392,0.001856,0.365809,5.753436,0.012844,0.006399,6.236091,0,0
+0,31,8,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987437,0.004224,0.001726,0.390040,5.765651,0.012482,0.006947,6.271108,0,0
+0,31,9,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987675,0.004146,0.001607,0.350409,5.748067,0.012466,0.007061,6.217146,0,0
+0,31,10,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987489,0.004872,0.001737,0.399913,6.324553,0.012543,0.006740,6.845638,0,0
+0,31,11,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.974175,0.004483,0.001970,0.364348,6.326453,0.012710,0.006750,6.808116,0,0
+0,31,12,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.983751,0.004656,0.001818,0.387232,6.312643,0.012546,0.006821,6.822612,0,0
+0,31,13,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.983424,0.004705,0.001920,0.359809,6.309611,0.012253,0.007259,6.787506,0,0
+0,31,14,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.983166,0.004661,0.001786,0.329636,6.244101,0.013622,0.007310,6.692630,0,0
+0,31,15,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.983565,0.004510,0.001780,0.346156,6.281943,0.012641,0.007028,6.747117,0,0
+0,31,16,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.983788,0.004505,0.001951,0.318620,6.241322,0.011891,0.006609,6.680677,0,0
+0,31,17,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.983952,0.004623,0.001771,0.375702,6.359250,0.012467,0.006933,6.856852,0,0
+0,31,18,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.983557,0.004277,0.001619,0.338315,5.818186,0.011717,0.007346,6.274092,0,0
+0,31,19,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.984764,0.004245,0.001625,0.340793,5.946342,0.012450,0.006366,6.402514,0,0
+0,31,20,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.985247,0.004220,0.001800,0.340415,5.728246,0.011597,0.007341,6.186411,0,0
+0,31,21,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.985479,0.004221,0.001526,0.327681,5.737326,0.012195,0.007024,6.180243,0,0
+0,31,22,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.981182,0.004397,0.001695,0.330639,5.815259,0.012351,0.006713,6.263228,0,0
+0,31,23,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.971498,0.004452,0.001783,0.316464,5.756366,0.012312,0.007008,6.187833,0,0
+0,32,0,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988758,0.004420,0.001777,1.026812,6.024201,0.013132,0.006575,7.174591,0,0
+0,32,1,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988205,0.004151,0.001773,0.372027,5.750166,0.011850,0.006967,6.243192,0,0
+0,32,2,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988091,0.004315,0.001705,0.388483,5.746821,0.012445,0.006577,6.251958,0,0
+0,32,3,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988044,0.004382,0.001737,0.360171,5.804374,0.013345,0.006619,6.282560,0,0
+0,32,4,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987983,0.004402,0.001705,0.389431,5.849743,0.012409,0.006551,6.358865,0,0
+0,32,5,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987665,0.004269,0.002173,0.353843,5.770517,0.012637,0.006988,6.244316,0,0
+0,32,6,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987620,0.004440,0.001651,0.404434,5.797085,0.021325,0.006477,6.328550,0,0
+0,32,7,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987910,0.004501,0.001797,0.366916,5.893241,0.014128,0.007830,6.382553,0,0
+0,32,8,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988118,0.004224,0.001750,0.391716,5.818569,0.013144,0.006755,6.327498,0,0
+0,32,9,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987819,0.004275,0.001747,0.358138,5.790951,0.013265,0.007026,6.267081,0,0
+0,32,10,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988623,0.004429,0.001690,0.380658,5.776772,0.012724,0.006970,6.273864,0,0
+0,32,11,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987586,0.004310,0.001882,0.355969,5.790990,0.012434,0.007504,6.266355,0,0
+0,32,12,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988050,0.004352,0.001765,0.383743,5.771717,0.013119,0.006600,6.272406,0,0
+0,32,13,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987673,0.004350,0.001644,0.349653,5.695692,0.013406,0.006752,6.162225,0,0
+0,32,14,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986373,0.004074,0.001586,0.317454,5.767095,0.012718,0.007415,6.200544,0,0
+0,32,15,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.984870,0.004256,0.001760,0.350820,5.695103,0.012416,0.006849,6.162159,0,0
+0,32,16,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.984558,0.004361,0.001627,0.316629,5.778052,0.013023,0.006654,6.212582,0,0
+0,32,17,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986144,0.004430,0.001726,0.379601,5.683502,0.012517,0.006856,6.181651,0,0
+0,32,18,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986517,0.004109,0.001729,0.332648,5.701761,0.012824,0.006962,6.152549,0,0
+0,32,19,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986619,0.004210,0.001766,0.315058,5.701768,0.013658,0.006377,6.133184,0,0
+0,32,20,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986330,0.004067,0.001662,0.326212,5.727176,0.012191,0.007126,6.168370,0,0
+0,32,21,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986241,0.004607,0.001727,0.312198,5.756261,0.013187,0.006802,6.188243,0,0
+0,32,22,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.985836,0.004198,0.001707,0.381517,5.719612,0.013268,0.006677,6.234838,0,0
+0,32,23,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.985047,0.004143,0.001658,0.383304,5.824447,0.012085,0.007234,6.324338,0,0
+0,32,24,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.983626,0.004106,0.001816,0.358791,5.748159,0.012510,0.006527,6.224749,0,0
+0,33,0,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988678,0.004401,0.001722,1.007313,5.814964,0.013297,0.005713,6.940429,0,0
+0,33,1,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987691,0.004523,0.001790,0.352031,5.843259,0.011797,0.006509,6.312888,0,0
+0,33,2,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987635,0.004084,0.001678,0.394178,5.768659,0.012631,0.007186,6.280585,0,0
+0,33,3,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986934,0.004138,0.001870,0.352725,5.749526,0.013620,0.007066,6.223443,0,0
+0,33,4,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987128,0.004336,0.001832,0.384465,5.740687,0.013178,0.006577,6.242682,0,0
+0,33,5,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987506,0.004290,0.001758,0.342820,5.742416,0.012427,0.007125,6.200337,0,0
+0,33,6,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987280,0.004153,0.001743,0.390618,5.801437,0.012509,0.006972,6.309218,0,0
+0,33,7,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986772,0.004165,0.001584,0.351785,5.763726,0.012273,0.007405,6.233464,0,0
+0,33,8,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.985354,0.004483,0.001545,0.379698,5.828587,0.012874,0.006780,6.324559,0,0
+0,33,9,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.985169,0.004040,0.001879,0.357887,5.722792,0.012667,0.007142,6.197280,0,0
+0,33,10,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.983652,0.004298,0.001706,0.394667,5.767026,0.011864,0.006925,6.279117,0,0
+0,33,11,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.970807,0.004177,0.001632,0.360300,5.759664,0.013069,0.006890,6.237384,0,0
+0,33,12,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.980228,0.004291,0.001728,0.379435,5.734729,0.012010,0.007251,6.231900,0,0
+0,33,13,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.981616,0.004525,0.001641,0.399299,5.864266,0.012580,0.006808,6.381665,0,0
+0,33,14,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.979586,0.004534,0.001726,0.311851,5.828510,0.011285,0.007347,6.256608,0,0
+0,33,15,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.980465,0.004508,0.001560,0.338177,5.739743,0.012050,0.006710,6.186939,0,0
+0,33,16,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.982296,0.004243,0.001632,0.307255,5.698964,0.012997,0.008397,6.124495,0,0
+0,33,17,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.983020,0.003896,0.001798,0.375697,5.897498,0.012124,0.007383,6.388997,0,0
+0,33,18,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.983303,0.004500,0.001686,0.338512,5.822573,0.013341,0.006848,6.281277,0,0
+0,33,19,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.983251,0.004143,0.001667,0.324563,5.728080,0.011548,0.007304,6.166286,0,0
+0,33,20,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.980891,0.004533,0.001655,0.329439,5.680331,0.012313,0.007180,6.125254,0,0
+0,34,0,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988820,0.004110,0.001982,1.000988,5.809215,0.013089,0.006468,6.928067,0,0
+0,34,1,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.988437,0.004262,0.001610,0.363762,5.810734,0.011792,0.007524,6.294289,0,0
+0,34,2,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987557,0.004268,0.001651,0.396960,5.859644,0.012240,0.015279,6.384787,0,0
+0,34,3,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987201,0.004433,0.001705,0.365225,5.746986,0.013667,0.007185,6.232034,0,0
+0,34,4,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987015,0.004280,0.001811,0.396813,5.823646,0.012617,0.007032,6.348626,0,0
+0,34,5,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986847,0.004265,0.001734,0.366697,5.785319,0.012396,0.006707,6.270885,0,0
+0,34,6,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.986801,0.004330,0.001897,0.386934,5.838317,0.012068,0.007461,6.341763,0,0
+0,34,7,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987100,0.004104,0.001571,0.355768,5.767423,0.013356,0.007080,6.239760,0,0
+0,34,8,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987073,0.004276,0.001806,0.392733,5.784288,0.012502,0.007574,6.296214,0,0
+0,34,9,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.987670,0.004467,0.001678,0.348153,5.834333,0.012476,0.007464,6.298410,0,0
+0,34,10,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.985647,0.004491,0.001534,0.388619,5.821641,0.012356,0.006632,6.327193,0,0
+0,34,11,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.981522,0.004386,0.001598,0.347091,5.731133,0.012713,0.006980,6.195217,0,0
+0,34,12,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.985128,0.004105,0.001666,0.379110,5.734041,0.012699,0.007157,6.230417,0,0
+0,34,13,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.984984,0.004269,0.010776,0.347331,9.018042,0.013468,0.006864,9.495098,0,0
+0,34,14,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.984883,0.004332,0.001858,0.319707,6.190918,0.012156,0.007066,6.631821,0,0
+0,34,15,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.984958,0.004341,0.001862,0.356183,6.230427,0.012020,0.007504,6.707395,0,0
+0,34,16,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.985333,0.004406,0.001799,0.315290,6.270829,0.011982,0.006904,6.703654,0,0
+0,34,17,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.985583,0.004176,0.001776,0.375709,6.224785,0.013309,0.006367,6.720265,0,0
+0,34,18,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.982767,0.004887,0.001904,0.354246,6.332774,0.012582,0.006985,6.813846,0,0
+0,34,19,pick up the black bowl next to the cookie box and place it on the plate,FULL_HIT,0.980900,0.004469,0.001887,0.320022,6.149631,0.013217,0.007163,6.601106,0,0
+0,35,0,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988704,0.004612,0.001931,1.032054,17.049544,0.022452,0.006678,18.219240,0,0
+0,35,1,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987979,0.004396,0.001893,0.369637,6.655213,0.013459,0.007446,7.149923,0,0
+0,35,2,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987494,0.004452,0.001898,0.402160,6.669576,0.013481,0.015281,7.204408,0,0
+0,35,3,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987756,0.004535,0.001863,0.352119,6.727709,0.013400,0.007408,7.203307,0,0
+0,35,4,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987513,0.004635,0.001846,0.385816,6.767034,0.012679,0.007386,7.276333,0,0
+0,35,5,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987034,0.004250,0.001724,0.344320,6.708047,0.011693,0.007032,7.173035,0,0
+0,35,6,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.958903,0.004306,0.001838,0.400430,6.745171,0.012704,0.007561,7.271132,0,0
+0,35,7,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.961077,0.020170,0.001809,0.390257,6.726904,0.013584,0.007572,7.257007,0,0
+0,35,8,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.971758,0.004450,0.001893,0.394893,6.704478,0.013584,0.007414,7.221258,0,0
+0,35,9,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.971169,0.004443,0.001891,0.347632,6.739571,0.012547,0.007738,7.210488,0,0
+0,35,10,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.966818,0.004593,0.001962,0.429132,6.873733,0.013481,0.007462,7.431508,0,0
+0,35,11,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.964823,0.004486,0.002043,0.364348,6.794561,0.012537,0.007214,7.280729,0,0
+0,35,12,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.966287,0.004544,0.001702,0.386258,7.511730,0.012812,0.007357,8.019991,0,0
+0,35,13,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.977620,0.004323,0.001926,0.345080,6.793063,0.012269,0.007221,7.260826,0,0
+0,35,14,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.983649,0.004777,0.001858,0.323262,6.806351,0.013023,0.007054,7.251854,0,0
+0,35,15,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986038,0.014085,0.001915,0.346287,6.670123,0.013197,0.007185,7.150259,0,0
+0,35,16,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985373,0.004275,0.001939,0.345338,6.874392,0.012352,0.007612,7.360918,0,0
+0,35,17,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985612,0.003989,0.001909,0.417693,6.944007,0.012771,0.007782,7.489441,0,0
+0,35,18,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986076,0.004818,0.001669,0.363061,6.243312,0.013005,0.006728,6.725701,0,0
+0,35,19,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986119,0.004189,0.001623,0.316607,6.144686,0.011943,0.007641,6.586896,0,0
+0,35,20,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986676,0.004061,0.001914,0.357580,6.310243,0.011288,0.007745,6.803877,0,0
+0,35,21,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986389,0.004147,0.001636,0.328531,6.210418,0.013214,0.007422,6.660238,0,0
+0,35,22,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986211,0.004222,0.001843,0.308509,6.112582,0.012803,0.007184,6.541457,0,0
+0,36,0,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988775,0.004377,0.001706,0.987236,6.317938,0.012651,0.006931,7.430352,0,0
+0,36,1,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988695,0.004389,0.001498,0.359011,6.231993,0.012701,0.007049,6.711503,0,0
+0,36,2,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988663,0.004301,0.001724,0.387750,6.424029,0.013508,0.007322,6.933277,0,0
+0,36,3,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988533,0.004293,0.001837,0.351806,6.338193,0.012116,0.007268,6.810466,0,0
+0,36,4,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988165,0.004095,0.001794,0.392910,6.257537,0.012798,0.007189,6.771565,0,0
+0,36,5,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988191,0.004498,0.001901,0.351589,6.247346,0.011914,0.006908,6.719712,0,0
+0,36,6,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987916,0.004322,0.001713,0.393909,6.264573,0.012884,0.006743,6.778669,0,0
+0,36,7,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987862,0.004299,0.001715,0.346357,6.182932,0.012781,0.007354,6.649494,0,0
+0,36,8,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986221,0.004414,0.001910,0.406887,6.295149,0.012643,0.007167,6.824743,0,0
+0,36,9,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985597,0.004379,0.001838,0.369490,6.284320,0.012638,0.007371,6.782537,0,0
+0,36,10,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986942,0.004132,0.001673,0.381439,6.249947,0.012066,0.007175,6.751276,0,0
+0,36,11,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986889,0.004549,0.001713,0.347050,6.259587,0.012240,0.007377,6.725519,0,0
+0,36,12,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986806,0.003941,0.001635,0.319504,6.159479,0.012201,0.006854,6.596174,0,0
+0,36,13,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986405,0.004382,0.001808,0.344351,6.215210,0.012767,0.007227,6.681000,0,0
+0,36,14,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986505,0.003974,0.001894,0.323281,6.192406,0.012734,0.007367,6.636662,0,0
+0,36,15,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986821,0.003716,0.001558,0.354784,6.229062,0.011768,0.007557,6.701607,0,0
+0,36,16,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987113,0.004142,0.001820,0.338165,6.207158,0.012217,0.007300,6.666787,0,0
+0,36,17,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987392,0.004417,0.001735,0.318618,6.158214,0.012063,0.007627,6.596432,0,0
+0,36,18,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987529,0.003965,0.001974,0.332651,6.183143,0.012827,0.008738,6.640008,0,0
+0,36,19,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987754,0.004173,0.001641,0.309678,6.355868,0.012907,0.006692,6.784997,0,0
+0,36,20,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987846,0.004175,0.001954,0.322774,6.182945,0.013146,0.006932,6.625348,0,0
+0,36,21,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987536,0.004129,0.002015,0.315116,6.174258,0.013652,0.007145,6.609335,0,0
+0,36,22,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987598,0.004179,0.001824,0.311526,6.190752,0.012464,0.007919,6.631868,0,0
+0,37,0,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988720,0.004188,0.001842,0.984220,6.335742,0.013031,0.006968,7.442418,0,0
+0,37,1,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988402,0.004454,0.001834,0.360999,6.271509,0.012412,0.006945,6.755471,0,0
+0,37,2,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988210,0.004447,0.001707,0.389237,6.262938,0.013022,0.006805,6.772926,0,0
+0,37,3,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988348,0.004395,0.001603,0.357096,6.220376,0.012554,0.007187,6.696318,0,0
+0,37,4,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988354,0.004241,0.001907,0.402535,6.259729,0.012909,0.007005,6.784345,0,0
+0,37,5,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988292,0.004068,0.001792,0.355076,6.410261,0.013046,0.006795,6.885114,0,0
+0,37,6,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987307,0.004523,0.001696,0.402261,6.262013,0.013096,0.007417,6.783353,0,0
+0,37,7,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985787,0.004412,0.001657,0.369633,6.254382,0.012523,0.007015,6.742528,0,0
+0,37,8,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.984958,0.004400,0.001777,0.384522,6.261066,0.014557,0.007185,6.776941,0,0
+0,37,9,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.979454,0.004093,0.001819,0.346447,6.209419,0.012470,0.007480,6.672938,0,0
+0,37,10,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985381,0.004378,0.001705,0.398078,6.317049,0.012414,0.007078,6.834622,0,0
+0,37,11,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.984764,0.004281,0.001626,0.356154,6.243510,0.012710,0.007692,6.718389,0,0
+0,37,12,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.984708,0.004344,0.002184,0.395428,6.263596,0.013146,0.007179,6.780333,0,0
+0,37,13,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985925,0.004371,0.001713,0.358553,6.237493,0.013913,0.007691,6.717608,0,0
+0,37,14,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985554,0.004392,0.001643,0.317364,6.224282,0.014245,0.007393,6.671118,0,0
+0,37,15,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985148,0.004294,0.001623,0.359838,6.221862,0.013387,0.007208,6.700488,0,0
+0,37,16,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985148,0.004277,0.001603,0.311322,6.246333,0.013235,0.007215,6.679194,0,0
+0,37,17,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985233,0.004304,0.001613,0.381305,6.194356,0.013459,0.007848,6.696014,0,0
+0,37,18,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985209,0.004429,0.001665,0.333632,6.163667,0.014057,0.007460,6.627061,0,0
+0,37,19,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985553,0.004180,0.001646,0.316574,6.166425,0.013648,0.007947,6.605431,0,0
+0,37,20,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985640,0.004414,0.001549,0.319736,6.175703,0.012743,0.007275,6.612907,0,0
+0,37,21,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986179,0.004453,0.001700,0.318403,6.212894,0.013427,0.006942,6.652095,0,0
+0,37,22,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986463,0.004341,0.001590,0.334861,6.199103,0.011972,0.007411,6.652012,0,0
+0,37,23,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986536,0.004774,0.001872,0.311180,6.116131,0.012986,0.007484,6.548120,0,0
+0,37,24,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986917,0.004243,0.001678,0.321605,6.141354,0.013324,0.007090,6.580788,0,0
+0,38,0,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988741,0.004453,0.001891,1.008127,6.484260,0.013864,0.006571,7.616188,0,0
+0,38,1,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988308,0.004512,0.001679,0.363598,6.239067,0.012059,0.007600,6.732860,0,0
+0,38,2,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988198,0.004317,0.001638,0.400023,6.282443,0.013062,0.007288,6.801887,0,0
+0,38,3,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987915,0.004354,0.001631,0.367602,6.215014,0.012201,0.007249,6.699945,0,0
+0,38,4,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987836,0.004446,0.001588,0.396320,6.296681,0.013191,0.006863,6.813308,0,0
+0,38,5,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987802,0.004065,0.001750,0.371072,6.311977,0.012067,0.006720,6.800581,0,0
+0,38,6,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987856,0.004334,0.001630,0.381700,6.299066,0.012103,0.006248,6.796702,0,0
+0,38,7,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.984183,0.004251,0.001745,0.359548,6.311865,0.012207,0.006475,6.787699,0,0
+0,38,8,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.980924,0.004414,0.001576,0.391266,6.262880,0.012098,0.006979,6.772506,0,0
+0,38,9,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.984763,0.004013,0.001660,0.347726,6.290207,0.012367,0.007452,6.757457,0,0
+0,38,10,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.983871,0.004358,0.001649,0.330795,6.163283,0.012232,0.007242,6.613265,0,0
+0,38,11,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.983842,0.004308,0.001852,0.342430,6.393221,0.012506,0.007277,6.857420,0,0
+0,38,12,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.982690,0.004664,0.001630,0.310278,6.391642,0.012154,0.007494,6.838570,0,0
+0,38,13,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.984977,0.003626,0.001535,0.380346,6.280272,0.011885,0.006363,6.775711,0,0
+0,38,14,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985326,0.004396,0.001673,0.371399,6.323918,0.011643,0.006677,6.813071,0,0
+0,38,15,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986423,0.004442,0.001630,0.318187,6.191026,0.012709,0.007371,6.629676,0,0
+0,38,16,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985500,0.004234,0.001982,0.333551,6.257811,0.012220,0.006702,6.711561,0,0
+0,38,17,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985111,0.004330,0.001770,0.311339,6.296135,0.012070,0.007810,6.725285,0,0
+0,38,18,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985319,0.004273,0.001640,0.320612,6.142789,0.012425,0.007015,6.589623,0,0
+0,38,19,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985648,0.004162,0.001798,0.312420,6.183582,0.011698,0.007067,6.614844,0,0
+0,38,20,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986163,0.004182,0.001923,0.308251,6.155959,0.012227,0.007175,6.591346,0,0
+0,38,21,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986197,0.004296,0.001756,0.308185,6.176734,0.012462,0.007554,6.603919,0,0
+0,38,22,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985731,0.004309,0.001660,0.305865,6.164384,0.013073,0.007410,6.588125,0,0
+0,38,23,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985643,0.004024,0.001881,0.363975,6.188628,0.012368,0.007118,6.669695,0,0
+0,38,24,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.984453,0.004213,0.001934,0.328481,6.289623,0.011959,0.007576,6.740021,0,0
+0,38,25,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985564,0.004247,0.001655,0.318202,6.198722,0.012558,0.008235,6.638406,0,0
+0,39,0,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.988388,0.003972,0.001719,0.990086,6.344850,0.012979,0.007025,7.457566,0,0
+0,39,1,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987790,0.004377,0.001754,0.354693,6.215795,0.013251,0.006786,6.690865,0,0
+0,39,2,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986910,0.004360,0.001804,0.394183,6.219501,0.012729,0.007452,6.732274,0,0
+0,39,3,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986832,0.004268,0.001684,0.346641,6.268726,0.012616,0.007953,6.733998,0,0
+0,39,4,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.986983,0.004381,0.001625,0.390487,6.249057,0.012023,0.007069,6.759117,0,0
+0,39,5,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.987049,0.004192,0.001677,0.345761,6.169981,0.012599,0.007136,6.641219,0,0
+0,39,6,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.985543,0.004133,0.001960,0.389563,6.268416,0.012477,0.007377,6.778955,0,0
+0,39,7,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.976081,0.004077,0.001797,0.363197,6.175813,0.012710,0.007500,6.661405,0,0
+0,39,8,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.965828,0.004323,0.002004,0.379812,6.334519,0.012208,0.007489,6.835839,0,0
+0,39,9,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.977221,0.004510,0.001627,0.344979,6.227522,0.012684,0.007852,6.694110,0,0
+0,39,10,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.980742,0.004197,0.001883,0.402950,6.239158,0.012671,0.007543,6.762555,0,0
+0,39,11,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.982849,0.004671,0.001999,0.415870,6.451242,0.012638,0.007239,6.992604,0,0
+0,39,12,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.982622,0.004050,0.001835,0.380784,6.233059,0.013537,0.007907,6.735510,0,0
+0,39,13,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.980527,0.004368,0.001759,0.349080,6.222875,0.012103,0.006972,6.690946,0,0
+0,39,14,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.981088,0.004328,0.001694,0.317751,6.193305,0.022284,0.008222,6.643929,0,0
+0,39,15,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.981561,0.004022,0.001634,0.347383,6.115035,0.013231,0.007423,6.579956,0,0
+0,39,16,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.981127,0.004026,0.001788,0.320438,6.142752,0.012257,0.006946,6.582863,0,0
+0,39,17,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.980351,0.003968,0.001592,0.369778,6.221920,0.012980,0.007127,6.710696,0,0
+0,39,18,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.981562,0.004137,0.001623,0.320854,6.144873,0.013604,0.006965,6.586727,0,0
+0,39,19,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.982563,0.004081,0.001616,0.316749,6.139625,0.012212,0.006947,6.574511,0,0
+0,39,20,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.982721,0.003979,0.002352,0.374146,6.141083,0.012225,0.007270,6.632086,0,0
+0,39,21,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.982963,0.004056,0.002142,0.333185,6.154531,0.013542,0.007298,6.608103,0,0
+0,39,22,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.983153,0.004276,0.001695,0.312763,6.210825,0.012504,0.007224,6.641057,0,0
+0,39,23,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.982500,0.004134,0.001684,0.336019,6.220085,0.012750,0.006950,6.700190,0,0
+0,39,24,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.981783,0.004152,0.002121,0.311105,6.108349,0.013024,0.006737,6.538932,0,0
+0,39,25,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.980640,0.004134,0.001686,0.378234,6.235849,0.013295,0.007067,6.734732,0,0
+0,39,26,pick up the black bowl on the stove and place it on the plate,FULL_HIT,0.981083,0.003876,0.001719,0.378756,6.317071,0.011827,0.007545,6.813430,0,0
+0,2,0,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.988942,0.004189,0.001578,0.969343,16.210961,0.013682,0.006317,17.301772,0,0
+0,2,1,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.988534,0.004315,0.001627,0.355047,6.665216,0.012541,0.007509,7.140561,0,0
+0,2,2,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987715,0.004286,0.001605,0.418398,6.601038,0.012648,0.006985,7.140984,0,0
+0,2,3,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986370,0.004301,0.001670,0.358704,6.456543,0.012253,0.007541,6.932927,0,0
+0,2,4,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985721,0.004193,0.001631,0.385111,6.464346,0.012461,0.007182,6.966897,0,0
+0,2,5,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985917,0.004151,0.001838,0.353776,6.374470,0.012407,0.007282,6.844979,0,0
+0,2,6,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985366,0.004077,0.001763,0.385534,12.016364,0.016128,0.013322,12.558548,0,0
+0,2,7,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985026,0.004370,0.001733,0.387767,6.769754,0.039870,0.008472,7.312195,0,0
+0,2,8,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985112,0.004331,0.001829,0.397063,6.499011,0.013291,0.020214,7.028143,0,0
+0,2,9,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.984193,0.004246,0.001840,0.363818,6.493287,0.012798,0.019646,6.991660,0,0
+0,2,10,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.980862,0.004127,0.001959,0.388080,6.442246,0.012148,0.006891,6.950444,0,0
+0,2,11,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.976204,0.004284,0.001647,0.350060,6.376174,0.012477,0.007067,6.846517,0,0
+0,2,12,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.983249,0.004151,0.001687,0.323093,6.457925,0.013373,0.019238,6.915309,0,0
+0,2,13,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.984427,0.004100,0.002162,0.352903,6.498278,0.012426,0.015786,6.980415,0,0
+0,2,14,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986158,0.004053,0.001973,0.308856,6.433211,0.012274,0.016375,6.870140,0,0
+0,2,15,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986301,0.004119,0.001801,0.383600,6.344310,0.012686,0.007294,6.856139,0,0
+0,2,16,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986345,0.004449,0.001716,0.352912,6.552358,0.013017,0.007368,7.031318,0,0
+0,2,17,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987575,0.004582,0.001741,0.311157,6.369912,0.012067,0.007188,6.799457,0,0
+0,2,18,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.966432,0.004089,0.001714,0.347581,6.395962,0.012070,0.007732,6.875651,0,0
+0,2,19,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.974968,0.004588,0.001826,0.321010,6.370909,0.013337,0.007531,6.813739,0,0
+0,2,20,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.939999,0.003952,0.001663,0.373254,6.383392,0.013038,0.009471,6.885202,0,0
+0,2,21,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.954257,0.004374,0.001691,0.392079,6.348231,0.012281,0.007007,6.869997,0,0
+0,2,22,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.964313,0.004170,0.001660,0.347910,6.335658,0.013944,0.007180,6.805040,0,0
+0,2,23,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.971320,0.004243,0.001726,0.414588,6.598079,0.012587,0.007805,7.132756,0,0
+0,2,24,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.964011,0.004268,0.001802,0.375243,6.481760,0.012993,0.007459,6.979048,0,0
+0,2,25,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.960300,0.004311,0.001705,0.420506,6.371391,0.013283,0.007260,6.917031,0,0
+0,2,26,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.940284,0.004090,0.001600,0.368230,6.343644,0.013469,0.007023,6.831231,0,0
+0,2,27,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.947087,0.004236,0.001615,0.398241,6.350785,0.013028,0.007189,6.868492,0,0
+0,2,28,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.929570,0.004010,0.001704,0.343013,6.331437,0.012473,0.007082,6.804646,0,0
+0,2,29,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.928629,0.004147,0.001684,0.310387,6.370051,0.012806,0.012884,6.807495,0,0
+0,2,30,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.954612,0.004425,0.001829,0.305457,6.326632,0.012440,0.023436,6.778810,0,0
+0,2,31,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.965566,0.004259,0.001623,0.351968,6.276685,0.012595,0.007953,6.747947,0,0
+0,2,32,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.974234,0.004272,0.001782,0.319243,6.295047,0.013259,0.012616,6.744161,0,0
+0,2,33,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.974223,0.004134,0.001753,0.378428,6.406003,0.012684,0.007957,6.907213,0,0
+0,2,34,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.973834,0.004121,0.001628,0.380041,6.295899,0.011621,0.007566,6.795443,0,0
+0,2,35,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.973325,0.004057,0.001610,0.310933,6.392694,0.012924,0.013912,6.830033,0,0
+0,2,36,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.974032,0.004247,0.001672,0.328260,6.299567,0.012569,0.007135,6.761919,0,0
+0,2,37,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.970313,0.004383,0.001751,0.315274,6.301842,0.012149,0.006868,6.750646,0,0
+0,2,38,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.963109,0.004030,0.001676,0.311719,6.375234,0.011987,0.007454,6.806395,0,0
+0,2,39,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.970436,0.004350,0.001954,0.305695,6.353358,0.022106,0.010923,6.795072,0,0
+0,2,40,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.965504,0.004346,0.002051,0.354070,6.323271,0.012804,0.010384,6.817088,0,0
+0,2,41,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.974522,0.004082,0.001819,0.382058,6.356459,0.012592,0.007443,6.862663,0,0
+0,2,42,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.978255,0.004316,0.001943,0.347750,6.325792,0.012986,0.007377,6.802550,0,0
+0,2,43,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.977055,0.004098,0.001724,0.323316,6.473313,0.012886,0.007001,6.917157,0,0
+0,41,0,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987445,0.004127,0.001807,1.016592,6.532274,0.014460,0.006542,7.671023,0,0
+0,41,1,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987074,0.004231,0.001830,0.399018,6.434760,0.013439,0.007337,6.956084,0,0
+0,41,2,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986765,0.004365,0.001767,0.386413,6.455538,0.013358,0.006773,6.973282,0,0
+0,41,3,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986778,0.004476,0.001779,0.387560,6.468296,0.013126,0.007218,6.977271,0,0
+0,41,4,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987150,0.004213,0.001623,0.395263,6.450929,0.013016,0.006678,6.967580,0,0
+0,41,5,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987591,0.004386,0.001688,0.385952,6.432700,0.012354,0.006842,6.939380,0,0
+0,41,6,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987162,0.004220,0.001772,0.390794,6.511824,0.012390,0.020583,7.038461,0,0
+0,41,7,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986111,0.004416,0.001715,0.386793,6.458137,0.012802,0.007509,6.966894,0,0
+0,41,8,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985663,0.004483,0.001819,0.402738,6.652182,0.012690,0.007791,7.173483,0,0
+0,41,9,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985057,0.004152,0.001778,0.394352,6.454855,0.013097,0.012434,6.974953,0,0
+0,41,10,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985225,0.004416,0.001823,0.386302,6.405026,0.013361,0.021857,6.927470,0,0
+0,41,11,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985153,0.004148,0.001661,0.387740,6.558518,0.012569,0.006743,7.064326,0,0
+0,41,12,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985353,0.004699,0.001704,0.392212,6.404662,0.012866,0.019761,6.929206,0,0
+0,41,13,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.983819,0.013508,0.001687,0.381277,6.431418,0.012896,0.007073,6.942805,0,0
+0,41,14,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.983027,0.004478,0.001922,0.388052,6.427116,0.013493,0.007037,6.937909,0,0
+0,41,15,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.984608,0.004688,0.001789,0.395588,6.346337,0.012886,0.006555,6.862157,0,0
+0,41,16,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.984538,0.004234,0.001642,0.387029,6.427161,0.013745,0.012771,6.941526,0,0
+0,41,17,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985402,0.004293,0.001771,0.379737,6.449750,0.012682,0.007405,6.948848,0,0
+0,41,18,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.984924,0.004216,0.001607,0.375522,6.387869,0.012208,0.006860,6.896401,0,0
+0,42,0,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.988839,0.004292,0.001695,1.116801,6.577653,0.012869,0.006478,7.814248,0,0
+0,42,1,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.988613,0.004328,0.001754,0.397506,6.383965,0.012930,0.006875,6.901671,0,0
+0,42,2,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.988422,0.004403,0.001691,0.399737,6.457223,0.013030,0.006596,6.977643,0,0
+0,42,3,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987328,0.004472,0.001849,0.398478,6.578235,0.011720,0.007298,7.096743,0,0
+0,42,4,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986162,0.004304,0.001857,0.391274,6.630614,0.013153,0.007601,7.145993,0,0
+0,42,5,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985739,0.004369,0.001773,0.415494,6.569932,0.012626,0.020892,7.122824,0,0
+0,42,6,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985531,0.004715,0.001763,0.400435,6.563778,0.013320,0.010757,7.089813,0,0
+0,42,7,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986132,0.004640,0.001625,0.384299,6.513445,0.012835,0.019073,7.045804,0,0
+0,42,8,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986614,0.004500,0.001607,0.398884,6.489813,0.012237,0.011560,7.014378,0,0
+0,42,9,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986841,0.004359,0.001683,0.383363,6.444968,0.012503,0.007322,6.948117,0,0
+0,42,10,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.983556,0.004150,0.001686,0.378801,6.331358,0.012970,0.006880,6.830473,0,0
+0,42,11,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985459,0.004614,0.001827,0.391253,6.430739,0.013601,0.006978,6.939681,0,0
+0,42,12,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.984734,0.004132,0.001745,0.384953,6.526953,0.012434,0.011307,7.036349,0,0
+0,42,13,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985678,0.004237,0.001548,0.373811,6.467918,0.012251,0.007335,6.964392,0,0
+0,42,14,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986317,0.004285,0.001736,0.392588,6.397720,0.012314,0.006748,6.917306,0,0
+0,42,15,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986913,0.004409,0.001685,0.393267,6.418613,0.013070,0.012689,6.937737,0,0
+0,42,16,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986458,0.003911,0.001570,0.377547,6.337833,0.020880,0.006715,6.845008,0,0
+0,43,0,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987638,0.004088,0.001850,0.999521,6.516842,0.013544,0.013688,7.645600,0,0
+0,43,1,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987408,0.004370,0.001674,0.388901,6.447350,0.013153,0.007413,6.967188,0,0
+0,43,2,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987312,0.004241,0.001631,0.392042,6.628747,0.013184,0.006648,7.139493,0,0
+0,43,3,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986291,0.004356,0.001665,0.385195,6.493319,0.012789,0.007333,6.999758,0,0
+0,43,4,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986428,0.004233,0.001622,0.395748,6.494896,0.012630,0.011026,7.014201,0,0
+0,43,5,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986352,0.004083,0.001684,0.394346,6.601810,0.012355,0.007374,7.115169,0,0
+0,43,6,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.984879,0.004441,0.001976,0.378038,6.458492,0.012671,0.007160,6.956818,0,0
+0,43,7,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985795,0.004538,0.001793,0.379878,6.493548,0.012630,0.006920,7.000017,0,0
+0,43,8,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.985698,0.004071,0.002243,0.384810,6.392963,0.012745,0.021422,6.921647,0,0
+0,43,9,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986665,0.004414,0.001925,0.396133,6.450364,0.012387,0.007010,6.969956,0,0
+0,43,10,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.984215,0.003877,0.001706,0.395803,6.345466,0.012142,0.021953,6.874596,0,0
+0,43,11,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.981197,0.004153,0.001628,0.395158,6.539030,0.012640,0.006848,7.054115,0,0
+0,43,12,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.978207,0.004049,0.001764,0.391272,6.464750,0.012913,0.014094,6.984229,0,0
+0,43,13,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.980662,0.004301,0.001590,0.395088,6.330052,0.012812,0.007326,6.845886,0,0
+0,43,14,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.982488,0.003801,0.001802,0.383095,6.361316,0.013128,0.007025,6.863091,0,0
+0,43,15,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.983232,0.004172,0.002208,0.386556,6.431798,0.012516,0.020771,6.962956,0,0
+0,43,16,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.982138,0.004102,0.001733,0.382529,6.456660,0.012692,0.006980,6.957199,0,0
+0,43,17,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.975668,0.004014,0.001795,0.388606,6.355669,0.013043,0.006800,6.861694,0,0
+0,43,18,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.938216,0.004153,0.001562,0.382431,6.349904,0.012542,0.006683,6.852032,0,0
+0,44,0,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.988559,0.004234,0.001624,1.014548,6.581591,0.013135,0.010447,7.722993,0,0
+0,44,1,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.988341,0.004323,0.001787,0.391730,6.510412,0.013225,0.033887,7.062723,0,0
+0,44,2,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987968,0.004118,0.001816,0.395224,6.467677,0.012727,0.007108,6.980918,0,0
+0,44,3,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987469,0.004095,0.001832,0.386575,6.457528,0.012958,0.007214,6.965544,0,0
+0,44,4,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987041,0.004204,0.001710,0.390770,6.590717,0.014052,0.007813,7.102035,0,0
+0,44,5,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.987121,0.004530,0.002005,0.380229,7.501481,0.012832,0.021601,8.016749,0,0
+0,44,6,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986918,0.004022,0.001868,0.394739,6.433214,0.013570,0.010649,6.953740,0,0
+0,44,7,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986763,0.004399,0.001746,0.384437,6.435589,0.012920,0.022569,6.967713,0,0
+0,44,8,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986036,0.004103,0.001780,0.391992,6.815119,0.013411,0.016921,7.339973,0,0
+0,44,9,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986232,0.004238,0.001816,0.389571,6.783819,0.013836,0.007985,7.298965,0,0
+0,44,10,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.986744,0.004666,0.001912,0.411310,6.556689,0.012744,0.007579,7.090911,0,0
+0,44,11,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.975203,0.004072,0.001651,0.387789,7.726568,0.012402,0.007380,8.237178,0,0
+0,44,12,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.980069,0.004756,0.001792,0.385937,6.469911,0.012961,0.013492,6.989616,0,0
+0,44,13,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.980244,0.004278,0.001841,0.374101,6.414188,0.012818,0.007336,6.913901,0,0
+0,44,14,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.981597,0.004867,0.001791,0.406867,6.407558,0.012397,0.006774,6.943237,0,0
+0,44,15,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.981704,0.004228,0.001888,0.379916,6.403722,0.013089,0.011673,6.906906,0,0
+0,44,16,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.982422,0.004083,0.001724,0.380033,6.356741,0.012449,0.021315,6.871437,0,0
+0,44,17,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.982211,0.004474,0.001691,0.382285,6.340971,0.011883,0.020243,6.853919,0,0
+0,44,18,pick up the black bowl next to the plate and place it on the plate,FULL_HIT,0.980628,0.004239,0.001840,0.386592,6.492034,0.012342,0.007552,6.998187,0,0
+0,45,0,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988637,0.004157,0.001847,1.046490,16.557018,0.013560,0.013323,17.731399,0,0
+0,45,1,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987874,0.004165,0.001705,0.386563,6.387435,0.012349,0.023643,6.908544,0,0
+0,45,2,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987438,0.004377,0.002019,0.394297,7.053397,0.013807,0.022622,7.601675,0,0
+0,45,3,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987461,0.004219,0.001712,0.393618,6.524011,0.012942,0.007354,7.037356,0,0
+0,45,4,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987139,0.004205,0.001661,0.385305,6.431123,0.012629,0.023027,6.962724,0,0
+0,45,5,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987034,0.004366,0.001644,0.378982,6.475616,0.012878,0.007129,6.973324,0,0
+0,45,6,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987753,0.004309,0.001638,0.390487,6.390610,0.012897,0.007266,6.899829,0,0
+0,45,7,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987589,0.004332,0.001891,0.386200,6.423164,0.013616,0.019826,6.944490,0,0
+0,45,8,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.986822,0.004626,0.001637,0.384870,6.387292,0.011869,0.019843,6.906076,0,0
+0,45,9,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.981586,0.004065,0.001645,0.385571,6.462254,0.012740,0.020223,6.981691,0,0
+0,45,10,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.981496,0.004340,0.001680,0.387623,6.454750,0.011941,0.006670,6.968872,0,0
+0,45,11,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985217,0.004897,0.001740,0.384143,6.399131,0.012787,0.020425,6.916395,0,0
+0,45,12,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985082,0.004342,0.001750,0.400327,6.433330,0.013587,0.006935,6.952912,0,0
+0,45,13,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.984391,0.004282,0.001736,0.393684,6.390502,0.013110,0.020360,6.920322,0,0
+0,45,14,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.984737,0.004231,0.001851,0.379778,6.377151,0.012210,0.007816,6.879219,0,0
+0,45,15,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985165,0.004504,0.001723,0.374615,6.440668,0.012890,0.019949,6.949633,0,0
+0,45,16,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985443,0.004300,0.001818,0.388706,6.421436,0.013521,0.022754,6.949415,0,0
+0,45,17,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985282,0.004269,0.001691,0.383832,6.446280,0.013158,0.020255,6.974748,0,0
+0,45,18,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.984703,0.017295,0.001714,0.380824,6.437583,0.012993,0.022552,6.970064,0,0
+0,45,19,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985140,0.004145,0.001583,0.383703,6.329639,0.011973,0.025410,6.852169,0,0
+0,45,20,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.984889,0.004572,0.001643,0.387427,6.465601,0.012601,0.022625,6.991156,0,0
+0,45,21,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985791,0.004362,0.001730,0.386578,6.407705,0.012878,0.020561,6.928785,0,0
+0,45,22,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985214,0.004575,0.001704,0.405292,6.389601,0.013274,0.007464,6.916874,0,0
+0,46,0,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988808,0.004468,0.001812,0.995719,6.525542,0.013590,0.007485,7.644832,0,0
+0,46,1,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987393,0.004208,0.001686,0.395253,6.525864,0.013030,0.006891,7.040782,0,0
+0,46,2,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985683,0.004206,0.001694,0.402935,6.597730,0.012354,0.007539,7.122371,0,0
+0,46,3,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985477,0.004939,0.001700,0.402204,6.483137,0.012430,0.019958,7.018967,0,0
+0,46,4,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.984393,0.004355,0.001675,0.441971,6.611873,0.012640,0.030316,7.199536,0,0
+0,46,5,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.984667,0.004347,0.001824,0.385764,6.483842,0.012711,0.007424,6.991576,0,0
+0,46,6,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.983274,0.004391,0.001814,0.387406,6.465876,0.013074,0.020375,6.989371,0,0
+0,46,7,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985599,0.004472,0.001802,0.387407,6.475138,0.012882,0.007700,6.983098,0,0
+0,46,8,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985531,0.004417,0.001684,0.388411,6.483564,0.012519,0.019079,7.004896,0,0
+0,46,9,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.982908,0.004549,0.001677,0.391059,6.567722,0.013466,0.018775,7.088246,0,0
+0,46,10,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.977124,0.004047,0.001764,0.384099,6.453304,0.017894,0.022262,6.978358,0,0
+0,46,11,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.978607,0.004169,0.001801,0.394127,6.486980,0.012937,0.024096,7.020092,0,0
+0,46,12,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.982314,0.004178,0.001681,0.404061,6.487417,0.013464,0.006934,7.011816,0,0
+0,46,13,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.983087,0.004391,0.001541,0.376129,6.458150,0.013179,0.022506,6.971752,0,0
+0,46,14,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.980098,0.004205,0.001621,0.388789,6.403517,0.012398,0.020282,6.933951,0,0
+0,46,15,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.980209,0.004325,0.001658,0.392062,6.427666,0.013203,0.007365,6.937126,0,0
+0,46,16,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.981975,0.004597,0.001552,0.376542,6.337359,0.013477,0.007070,6.835899,0,0
+0,46,17,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.983320,0.004367,0.001820,0.379014,6.404423,0.013067,0.023171,6.920677,0,0
+0,46,18,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.983893,0.004315,0.001704,0.396916,6.452239,0.013580,0.007137,6.970287,0,0
+0,46,19,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985625,0.004111,0.001934,0.400642,6.394322,0.012588,0.020496,6.928960,0,0
+0,46,20,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.986246,0.004390,0.001772,0.388422,6.304786,0.012777,0.020603,6.828355,0,0
+0,46,21,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985754,0.004148,0.001668,0.378340,6.359729,0.013192,0.006880,6.856749,0,0
+0,46,22,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985702,0.004253,0.002110,0.386471,6.371340,0.022608,0.007615,6.890255,0,0
+0,46,23,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985374,0.004323,0.001728,0.391687,6.410944,0.012553,0.020844,6.935776,0,0
+0,46,24,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985002,0.003961,0.001704,0.404843,6.408599,0.013054,0.007100,6.932745,0,0
+0,47,0,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988409,0.004234,0.001776,1.012014,6.491630,0.013454,0.019282,7.648092,0,0
+0,47,1,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987996,0.004011,0.001974,0.395760,6.463799,0.012264,0.019770,6.991222,0,0
+0,47,2,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987226,0.004157,0.001655,0.401939,6.502426,0.012638,0.022545,7.041749,0,0
+0,47,3,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987112,0.004214,0.001914,0.392465,6.483442,0.012265,0.006672,6.994850,0,0
+0,47,4,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987107,0.004522,0.001821,0.414927,6.489742,0.013146,0.019335,7.038635,0,0
+0,47,5,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987519,0.004454,0.001748,0.381567,6.495893,0.013045,0.029066,7.023574,0,0
+0,47,6,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987440,0.004425,0.001769,0.392989,6.451919,0.012594,0.006663,6.959213,0,0
+0,47,7,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987208,0.004090,0.001753,0.385375,6.446883,0.013241,0.020493,6.963395,0,0
+0,47,8,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988107,0.004331,0.001880,0.377987,6.437989,0.012948,0.019444,6.949392,0,0
+0,47,9,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985264,0.004512,0.001700,0.395960,6.369419,0.014273,0.020329,6.900372,0,0
+0,47,10,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.984645,0.004341,0.001840,0.412856,6.515729,0.013783,0.006779,7.050218,0,0
+0,47,11,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987236,0.004203,0.001789,0.373366,6.389091,0.014544,0.007318,6.883839,0,0
+0,47,12,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987147,0.004381,0.001688,0.394021,6.410954,0.013317,0.007213,6.923437,0,0
+0,47,13,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987737,0.004376,0.001975,0.385139,6.436373,0.014487,0.006723,6.943701,0,0
+0,47,14,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987469,0.004249,0.001788,0.374000,6.389361,0.014306,0.020610,6.899659,0,0
+0,47,15,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987391,0.004227,0.001722,0.375606,6.422837,0.013587,0.007391,6.918643,0,0
+0,47,16,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987513,0.004213,0.001633,0.394740,6.405449,0.013613,0.020618,6.931949,0,0
+0,47,17,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987152,0.004114,0.001617,0.382257,6.411716,0.013570,0.019724,6.927513,0,0
+0,47,18,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.986835,0.004420,0.001749,0.388566,6.336286,0.013811,0.007166,6.846657,0,0
+0,47,19,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.986988,0.004240,0.001759,0.381062,6.442966,0.012972,0.020185,6.957122,0,0
+0,47,20,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.986861,0.004412,0.001837,0.395249,6.407424,0.013564,0.007176,6.924724,0,0
+0,47,21,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.986760,0.004768,0.001683,0.384568,6.482672,0.013446,0.008509,6.989602,0,0
+0,47,22,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987313,0.004269,0.001863,0.373366,6.417337,0.013454,0.019867,6.925353,0,0
+0,47,23,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.986117,0.004251,0.001868,0.373248,6.507845,0.012806,0.019093,7.011682,0,0
+0,48,0,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988784,0.004111,0.001703,1.002684,6.449298,0.013495,0.006682,7.576664,0,0
+0,48,1,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988177,0.004099,0.001758,0.400957,6.533612,0.012488,0.020986,7.071387,0,0
+0,48,2,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988015,0.004390,0.001939,0.394032,6.548253,0.013038,0.006921,7.066071,0,0
+0,48,3,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987888,0.004308,0.001727,0.401475,6.458368,0.013541,0.007614,6.980144,0,0
+0,48,4,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987922,0.004194,0.001759,0.400107,6.503424,0.013689,0.007273,7.022967,0,0
+0,48,5,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987994,0.004652,0.001656,0.385971,6.477117,0.013188,0.007135,6.983750,0,0
+0,48,6,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988356,0.004444,0.001666,0.418215,6.475667,0.012965,0.007323,7.016527,0,0
+0,48,7,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.986902,0.004043,0.001838,0.384924,6.466293,0.012853,0.019642,6.983668,0,0
+0,48,8,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987046,0.004431,0.001798,0.385124,6.469592,0.013040,0.020812,6.988683,0,0
+0,48,9,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.986472,0.004824,0.001620,0.397796,6.490976,0.013197,0.020808,7.035794,0,0
+0,48,10,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985985,0.004504,0.001622,0.394498,6.628962,0.012673,0.007243,7.143589,0,0
+0,48,11,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987456,0.004334,0.001805,0.396904,6.435801,0.013468,0.007854,6.954413,0,0
+0,48,12,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.986580,0.004266,0.001563,0.396444,6.427067,0.013197,0.007417,6.944179,0,0
+0,48,13,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.986596,0.004402,0.001713,0.375986,6.439059,0.013119,0.007222,6.936057,0,0
+0,48,14,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985675,0.004128,0.001659,0.383658,6.448344,0.023361,0.007257,6.970134,0,0
+0,48,15,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985262,0.004312,0.001747,0.393215,6.396654,0.013443,0.007237,6.911668,0,0
+0,48,16,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985002,0.004268,0.001596,0.389947,6.352446,0.013431,0.022360,6.880524,0,0
+0,48,17,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.984995,0.004295,0.001749,0.378843,6.386298,0.013272,0.020357,6.898701,0,0
+0,48,18,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.984928,0.004364,0.001600,0.385542,6.402448,0.013954,0.006970,6.907078,0,0
+0,48,19,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985013,0.004224,0.001707,0.387435,6.386200,0.013679,0.022021,6.911323,0,0
+0,48,20,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.984991,0.004329,0.001606,0.381763,6.384717,0.012926,0.022282,6.903163,0,0
+0,48,21,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985740,0.004272,0.001694,0.374914,6.413529,0.013322,0.022560,6.927061,0,0
+0,48,22,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.985430,0.004224,0.001801,0.393125,6.349482,0.011499,0.019448,6.874158,0,0
+0,49,0,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988846,0.004202,0.001983,0.993626,6.609424,0.014404,0.006498,7.728186,0,0
+0,49,1,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988420,0.004629,0.001750,0.388311,6.476449,0.013007,0.007470,6.986673,0,0
+0,49,2,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988361,0.004457,0.001824,0.391421,6.432611,0.013563,0.036701,6.975079,0,0
+0,49,3,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.987894,0.021015,0.001909,0.392389,6.663747,0.012583,0.025211,7.242746,0,0
+0,49,4,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988094,0.004361,0.001736,0.431289,6.676775,0.013073,0.008209,7.231044,0,0
+0,49,5,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988355,0.004276,0.001943,0.392530,6.407383,0.012632,0.007149,6.924391,0,0
+0,49,6,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988392,0.004560,0.001809,0.417727,6.625677,0.012459,0.018419,7.176617,0,0
+0,49,7,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.988352,0.019074,0.001783,0.407358,6.568894,0.012669,0.007207,7.112080,0,0
+0,49,8,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.984369,0.004610,0.001609,0.419596,6.449387,0.012645,0.007727,6.991545,0,0
+0,49,9,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.982090,0.004346,0.001722,0.384772,6.440009,0.014269,0.007257,6.949921,0,0
+0,49,10,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.973423,0.004226,0.001693,0.381491,6.441469,0.013016,0.007338,6.944058,0,0
+0,49,11,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.984132,0.004304,0.002226,0.391499,6.459104,0.012584,0.022193,6.984865,0,0
+0,49,12,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.983494,0.004107,0.001738,0.385926,6.456977,0.013041,0.007305,6.962548,0,0
+0,49,13,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.983561,0.004598,0.001670,0.383455,6.408299,0.013253,0.007752,6.909755,0,0
+0,49,14,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.983701,0.004165,0.001625,0.385589,6.482554,0.013721,0.007240,6.995065,0,0
+0,49,15,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.983628,0.004177,0.001813,0.384309,6.401293,0.013390,0.007795,6.906501,0,0
+0,49,16,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.983588,0.004484,0.001711,0.394976,6.370258,0.013123,0.007107,6.884316,0,0
+0,49,17,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.982899,0.004408,0.002046,0.415900,6.487575,0.013392,0.007425,7.025515,0,0
+0,49,18,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.982742,0.004191,0.001677,0.394929,6.374123,0.021501,0.021484,6.915371,0,0
+0,49,19,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.984716,0.004196,0.001697,0.376168,6.442359,0.013103,0.007132,6.939553,0,0
+0,49,20,pick up the black bowl on the wooden cabinet and place it on the plate,FULL_HIT,0.982739,0.004268,0.001924,0.386308,6.469063,0.012800,0.016436,6.990715,0,0

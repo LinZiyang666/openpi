@@ -65,8 +65,17 @@ def make_sensitivity_arm(main_arm: dict, recal_fields: dict) -> dict:
     return cfg
 
 
-def arm_name(suite: str, tier: str, *, recal: bool = False) -> str:
-    return f"cache_size_{suite}_{tier}{'_recal' if recal else ''}"
+def arm_name(suite: str, tier: str, *, recal: bool = False,
+             outcome_filter: str | None = None) -> str:
+    """Arm id, and (minus the ``_recal``) the artifact basename it pairs with.
+
+    ``outcome_filter`` enters the name because the two library families -- the
+    success-filtered one and the unfiltered one -- are evaluated side by side.
+    Leaving it out would let two arms with different libraries share a yaml_id,
+    and the journal keys on that id: the two would silently merge into one arm.
+    """
+    filt = f"_{outcome_filter}" if outcome_filter else ""
+    return f"cache_size_{suite}{filt}_{tier}{'_recal' if recal else ''}"
 
 
 def main() -> None:
@@ -77,6 +86,10 @@ def main() -> None:
                     help="directory holding cache_size_<suite>_<tier>.pkl")
     ap.add_argument("--recal-dir", default=None,
                     help="directory holding recal_norm_<suite>_<tier>.yaml (S1/S6)")
+    ap.add_argument("--outcome-filter", default=None, choices=[None, "success", "all"],
+                    help="which library family this arm set draws from. Enters both "
+                         "the pkl name and the arm id; omit for the single-family "
+                         "layout.")
     ap.add_argument("--out-dir", required=True)
     args = ap.parse_args()
 
@@ -86,19 +99,23 @@ def main() -> None:
 
     written: list[str] = []
     for tier in TIERS:
-        pkl = f"{args.artifact_dir.rstrip('/')}/cache_size_{args.suite}_{tier}.pkl"
+        pkl = (f"{args.artifact_dir.rstrip('/')}/"
+               f"{arm_name(args.suite, tier, outcome_filter=args.outcome_filter)}.pkl")
         main_cfg = make_main_arm(baseline, pkl)
-        name = arm_name(args.suite, tier)
+        name = arm_name(args.suite, tier, outcome_filter=args.outcome_filter)
         (out_dir / f"{name}.yaml").write_text(yaml.safe_dump(main_cfg, sort_keys=False))
         written.append(name)
 
         if args.recal_dir and tier in SENSITIVITY_TIERS:
-            recal_file = pathlib.Path(args.recal_dir) / f"recal_norm_{args.suite}_{tier}.yaml"
+            filt = f"_{args.outcome_filter}" if args.outcome_filter else ""
+            recal_file = (pathlib.Path(args.recal_dir)
+                          / f"recal_norm_{args.suite}{filt}_{tier}.yaml")
             if not recal_file.exists():
                 raise FileNotFoundError(f"sensitivity arm needs {recal_file}")
             recal = yaml.safe_load(recal_file.read_text())
             sens_cfg = make_sensitivity_arm(main_cfg, recal["fields"])
-            sname = arm_name(args.suite, tier, recal=True)
+            sname = arm_name(args.suite, tier, recal=True,
+                             outcome_filter=args.outcome_filter)
             (out_dir / f"{sname}.yaml").write_text(yaml.safe_dump(sens_cfg, sort_keys=False))
             written.append(sname)
 

@@ -297,8 +297,13 @@ def refresh_remote_state(remote: RemoteRun, args) -> None:
     """
     if not remote.exists(remote.checkpoint):
         return
+    # PYTHONPATH must ride IN the command: the trainer-cmd template carries it,
+    # but this state refresh builds its own command line — and an ssh remote
+    # does not inherit the conductor's environment the way LocalTransport
+    # does. Single-host resumes worked by that inheritance accident; the first
+    # cross-host resume died here with "No module named 'exp'" (2026-08-19).
     code, output = remote.run(
-        f"cd {args.remote_workdir} && uv run exp/rl_router/train_router.py --state-only "
+        f"cd {args.remote_workdir} && PYTHONPATH=. {args.remote_python} exp/rl_router/train_router.py --state-only "
         f"--checkpoint {remote.checkpoint} --state-out {remote.state} "
         f"--manifest /dev/null --package /dev/null --shards /dev/null "
         f"--weights-out /dev/null --metrics /dev/null --lam 0 --t-max 1 --arm-costs {{}}"
@@ -682,6 +687,49 @@ def _pending_for(slots: list[tuple[int, int, str]], state: dict) -> list[tuple[i
 
 
 
+def worker_gpu_id(i: int, *, gpus: int, gpu_ids: str = "") -> str:
+    """CUDA device for worker ``i``.
+
+    ``--gpus N`` assumes the healthy devices are exactly ``0..N-1`` — true on a
+    box we own, false on a shared cluster where the free VRAM lives on whatever
+    cards the other users happen not to fill (a worker landing on a full GPU
+    dies at EGL init, silently costing its whole slot share). ``--gpu-ids``
+    names the devices explicitly and is cycled, so repetition weights a card:
+    ``7,7,7,4`` puts three quarters of the fleet on device 7.
+    """
+    ids = [g.strip() for g in gpu_ids.split(",") if g.strip()] if gpu_ids else []
+    if ids:
+        return ids[i % len(ids)]
+    return str(i % gpus)
+
+
+def _resolve_lambda_or_placeholder(matrix: dict, run: dict, *, bootstrap: bool) -> float:
+    """Resolve λ, or hand the bootstrap a declared placeholder.
+
+    A formal run must never substitute a default: it would report results
+    against the pre-registered λ₁/λ₂ labels while λ came from nowhere. The M4
+    bootstrap is the one exception the plan names (§1, "placeholder constants
+    only here"), because it runs BEFORE the pilot that calibrates λ. The
+    placeholder is the middle of the frozen grid rather than zero, so the cost
+    term is actually exercised instead of being silently switched off.
+    """
+    from exp.rl_router.launch_gates import resolve_lambda
+    from exp.rl_router.pilot_lambda import LAMBDA_GRID
+
+    try:
+        return resolve_lambda(matrix, run)
+    except SystemExit:
+        if not bootstrap:
+            raise
+        placeholder = float(sorted(LAMBDA_GRID)[len(LAMBDA_GRID) // 2])
+        logger.warning(
+            "M4 bootstrap: lambda %s is not calibrated yet; using the frozen grid's "
+            "midpoint %.3f as a PLACEHOLDER. This run's products are barred from "
+            "A-pool evaluation and the paper (plan §1).", run["lambda"], placeholder,
+        )
+        return placeholder
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--matrix", required=True, help="config/run_matrix.yaml")
@@ -698,17 +746,30 @@ def main() -> None:
     parser.add_argument("--remote-port", type=int, default=14024)
     parser.add_argument("--remote-user", default="")
     parser.add_argument("--remote-workdir", default=".", help="repo path on the server")
+    parser.add_argument("--remote-python", default="uv run",
+                        help="how to launch python ON THE SERVER. A non-interactive ssh "
+                             "session gets the system PATH, which on a real deployment does "
+                             "not contain a user-local uv, so this must be settable — "
+                             "e.g. '/home/<user>/.local/bin/uv run'")
     parser.add_argument("--trainer-cmd", required=True,
                         help="remote command template; receives {manifest} {package} "
                              "{shards} {weights_in} {weights_out} {checkpoint} {metrics} "
                              "{export_meta} {state} {rejected} {lam} {t_max} {arm_costs}")
     parser.add_argument("--bind-host", default="127.0.0.1")
     parser.add_argument("--gpus", type=int, default=1)
+    parser.add_argument("--gpu-ids", default="",
+                        help="explicit CUDA device list, cycled across workers "
+                             "(e.g. '7,7,7,4'); overrides --gpus — see worker_gpu_id")
     parser.add_argument("--conda-env", default="")
     parser.add_argument("--episode-timeout-s", type=float, default=1800.0)
     parser.add_argument("--smoke", action="store_true",
                         help="M4 bootstrap: run SMOKE_EPISODES x 2 batches and emit the "
                              "capacity report the formal launch gate requires")
+    parser.add_argument("--pilot", action="store_true",
+                        help="this run IS one λ-pilot candidate (M5c). Waives only the "
+                             "pilot-record gate — the record is what this run helps "
+                             "produce — and keeps every other launch gate, λ included: "
+                             "a candidate is defined by the λ it was told to train")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
 
@@ -716,7 +777,6 @@ def main() -> None:
         build_run_manifest,
         check_launch_gates,
         load_run_matrix,
-        resolve_lambda,
         resolve_run,
     )
 
@@ -738,7 +798,10 @@ def main() -> None:
         batch_size, total_batches = SMOKE_EPISODES, SMOKE_BATCHES
     else:
         batch_size = int(matrix["batch_size"])
-        total_batches = int(matrix["episodes_per_run"]) // batch_size
+        # An amendment row may carry its own episode budget; the launch gate
+        # honours it only when the row declares the amendment, so this stays
+        # exactly what the gate approved.
+        total_batches = int(run.get("episodes", matrix["episodes_per_run"])) // batch_size
     transport_probe = (
         LocalTransport() if not args.remote_host
         else SshTransport(args.remote_host, port=args.remote_port, user=args.remote_user)
@@ -756,10 +819,11 @@ def main() -> None:
         arm_yaml=args.arm_yaml,
         planned_batches=None if args.smoke else total_batches,
         bootstrap=args.smoke,
+        pilot_calibration=args.pilot,
     )
     if problems:
         raise SystemExit("LAUNCH BLOCKED:\n" + "\n".join(f"  - {p}" for p in problems))
-    lam = resolve_lambda(matrix, run)
+    lam = _resolve_lambda_or_placeholder(matrix, run, bootstrap=args.smoke)
 
     out_dir = pathlib.Path(args.out_dir)
     scratch = out_dir / "_fetched"
@@ -773,8 +837,14 @@ def main() -> None:
     pairs = btrain_pairs(matrix["suites"][suite]["split"])
     # Charge the interaction ledger by the candidates the pilot ACTUALLY ran: a
     # supplementary λ is a real cost, and defaulting to the grid size would
-    # under-report exactly the runs that needed extra calibration.
-    pilot_record = json.loads(pathlib.Path(artifacts["pilot"]).read_text(encoding="utf-8"))
+    # under-report exactly the runs that needed extra calibration. The bootstrap
+    # precedes the pilot, so there is nothing to charge yet and the ledger falls
+    # back to the grid size — its manifest is barred from the paper anyway (§1).
+    pilot_path = pathlib.Path(artifacts.get("pilot", ""))
+    pilot_record = (
+        json.loads(pilot_path.read_text(encoding="utf-8"))
+        if artifacts.get("pilot") and pilot_path.exists() else {}
+    )
     manifest_doc = build_run_manifest(
         matrix=matrix, run=run, lam=lam, init_states_dir=init_dir, arm_costs=arm_costs,
         warmstart_episodes=len(pairs), artifacts=artifacts,
@@ -824,7 +894,8 @@ def main() -> None:
     specs = [
         WorkerSpec(
             worker_id=f"w{i}", server_key=servers[i % len(servers)].key,
-            gpu_id=str(i % args.gpus), conda_env=args.conda_env,
+            gpu_id=worker_gpu_id(i, gpus=args.gpus, gpu_ids=args.gpu_ids),
+            conda_env=args.conda_env,
             task_suite_name=suite,
             # THE B-pool binding. Empty here = the official pruned_init A pool.
             init_states_dir=init_dir,
@@ -907,6 +978,7 @@ def run_one_batch(
         ok, output = remote_build_manifest(
             remote._transport, remote_package=remote_pkg, remote_shards=remote_shards,
             remote_manifest=remote_manifest, workdir=args.remote_workdir,
+            python=args.remote_python,
         )
         doc = remote.fetch_json(remote_manifest, batch_dir / "remote_manifest.json")
         if doc is None:
@@ -957,7 +1029,7 @@ def run_one_batch(
     )
     before = _remote_live_bytes(remote._transport, args)
     code, output = remote.run(
-        f"cd {args.remote_workdir} && uv run exp/rl_router/batch_package.py reclaim "
+        f"cd {args.remote_workdir} && {args.remote_python} exp/rl_router/batch_package.py reclaim "
         f"--shards {remote_shards} --checkpoint {remote.checkpoint} "
         f"--batch-id {batch_id} --package-sha256 {package_meta['package_sha256']}"
     )
@@ -1008,6 +1080,10 @@ def emit_m4_report(*, remote: RemoteRun, args, out_dir: pathlib.Path,
         package_sha256=package_meta["package_sha256"],
         bytes_before_reclaim=capacity["before"],
         bytes_after_reclaim=capacity["after"],
+        # Measured on the serving host either side of reclaim; `scratch` is the
+        # conductor's local fetch dir and stat-ing it would report ~0 bytes of
+        # steady state for a dump root it cannot even see.
+        live_bytes=capacity["after"],
     )
 
 
@@ -1034,7 +1110,7 @@ def _verify_export(remote: RemoteRun, batch_id: str, batch_dir: pathlib.Path,
 
 def _remote_reexport(remote: RemoteRun, args, version: str) -> None:
     code, output = remote.run(
-        f"cd {args.remote_workdir} && uv run exp/rl_router/train_router.py --export-only "
+        f"cd {args.remote_workdir} && {args.remote_python} exp/rl_router/train_router.py --export-only "
         f"--checkpoint {remote.checkpoint} --weights-out {remote.weights(version)} "
         f"--state-out {remote.state} --manifest /dev/null --package /dev/null "
         f"--shards /dev/null --metrics {remote.metrics} --lam 0 --t-max 1 --arm-costs {{}}"
@@ -1050,7 +1126,7 @@ def _reclaim_consumed(remote: RemoteRun, args, consumed: list[dict]) -> None:
         if not batch_id:
             continue
         code, output = remote.run(
-            f"cd {args.remote_workdir} && uv run exp/rl_router/batch_package.py reclaim "
+            f"cd {args.remote_workdir} && {args.remote_python} exp/rl_router/batch_package.py reclaim "
             f"--shards {remote.shards(batch_id)} --checkpoint {remote.checkpoint} "
             f"--batch-id {batch_id}"
         )
@@ -1068,7 +1144,7 @@ def _remote_live_bytes(transport, args) -> int:
     4k-episode run is most likely to fill it.
     """
     code, output = transport.run(
-        f"cd {args.remote_workdir} && uv run exp/rl_router/batch_package.py capacity "
+        f"cd {args.remote_workdir} && {args.remote_python} exp/rl_router/batch_package.py capacity "
         f"--root {args.shard_root}"
     )
     if code != 0:
@@ -1076,13 +1152,38 @@ def _remote_live_bytes(transport, args) -> int:
             f"LAUNCH BLOCKED: could not measure remote capacity under {args.shard_root} "
             f"(exit {code}): {output.strip()[-500:]}"
         )
-    try:
-        return int(json.loads(output.strip().splitlines()[-1])["live_bytes"])
-    except (json.JSONDecodeError, KeyError, IndexError, ValueError) as exc:
+    live = _last_json_field(output, "live_bytes")
+    if live is None:
         raise SystemExit(
             f"LAUNCH BLOCKED: remote capacity probe returned unparsable output: "
             f"{output.strip()[-500:]}"
-        ) from exc
+        )
+    return live
+
+
+def _last_json_field(output: str, field: str) -> Optional[int]:
+    """Scan backwards for the newest line carrying ``field``, ignoring noise.
+
+    The transport hands back stdout AND stderr concatenated, and the launcher
+    writes to stderr: ``uv`` emits a deprecation warning on every invocation, so
+    the literal last line is that warning and not the probe's answer. Taking the
+    last line blind made a healthy, empty dump root read as an unparsable disk
+    and blocked the launch.
+    """
+    for line in reversed(output.strip().splitlines()):
+        line = line.strip()
+        if not line.startswith("{"):
+            continue
+        try:
+            doc = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(doc, dict) and field in doc:
+            try:
+                return int(doc[field])
+            except (TypeError, ValueError):
+                return None
+    return None
 
 
 def _split_endpoint(spec: str) -> tuple[str, int]:

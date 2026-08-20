@@ -38,6 +38,7 @@ def build_one(
     output: str,
     builder_type: str,
     workers: int,
+    outcome_filter: str,
     python: str = sys.executable,
 ) -> None:
     cmd = [
@@ -47,10 +48,56 @@ def build_one(
         "--output", output,
         "--episode-list", episode_list,
         "--trajectory-id-mode", "relpath",
+        "--outcome-filter", outcome_filter,
         "--workers", str(workers),
     ]
     print("+", " ".join(cmd), flush=True)
     subprocess.run(cmd, check=True)
+
+
+def verify_nesting(out_dir: str, prefix: str) -> list[str]:
+    """Every tier's entries must be a subset of the next tier's. Returns violations.
+
+    Nesting is what makes the size axis a *within-library* comparison: S4 is S3
+    plus more, not a differently-sampled library of its own. Without it, each
+    adjacent-tier test would confound "bigger" with "different trajectories", and
+    the whole nested design collapses into six unrelated draws.
+
+    A topped-out tier may equal its successor (``<=``, not ``<``) -- that is R1
+    doing its job, not a defect.
+    """
+    ids: dict[str, set[str]] = {}
+    for tier in TIERS:
+        with open(pathlib.Path(out_dir) / f"{prefix}_{tier}.pkl", "rb") as f:
+            ids[tier] = {e.id for e in pickle.load(f)["entries"]}
+    violations = []
+    for lo, hi in zip(TIERS, TIERS[1:]):
+        orphans = ids[lo] - ids[hi]
+        if orphans:
+            violations.append(
+                f"{lo} is not a subset of {hi}: {len(orphans)} entries present in "
+                f"{lo} but absent from {hi} (e.g. {sorted(orphans)[:3]})"
+            )
+    return violations
+
+
+def verify_list_coverage(pkl_path: str, episode_list: str) -> tuple[int, int]:
+    """Every listed episode must appear in the artifact. Returns (listed, present).
+
+    This is the guard that does not care *why* an episode went missing. The
+    builder has its own ``--outcome-filter``, and the episode list is produced by
+    a grid that has one too; when they disagree the builder quietly drops the
+    episodes the list deliberately included, and the library ends up smaller than
+    the tier it claims with no error raised anywhere. Same protection against a
+    listed-but-unreadable file, or a path that normalized to something else.
+    """
+    with open(pkl_path, "rb") as f:
+        artifact = pickle.load(f)
+    present = {e.trajectory_id for e in artifact["entries"]}
+    listed = {line.strip().removesuffix(".h5")
+              for line in pathlib.Path(episode_list).read_text().splitlines()
+              if line.strip()}
+    return len(listed), len(listed & present)
 
 
 def verify_no_entry_loss(pkl_path: str) -> tuple[int, int]:
@@ -83,6 +130,13 @@ def main() -> None:
     ap.add_argument("--builder-type", default="cp1_spatial_pool_16")
     ap.add_argument("--workers", type=int, default=4,
                     help="kept small on purpose: the corpus is on a spinning disk")
+    ap.add_argument("--outcome-filter", default="success", choices=["success", "failure", "all"],
+                    help="MUST match the --outcome-filter the size grid was emitted "
+                         "with; a mismatch silently shrinks every library below the "
+                         "tier it claims. Checked by verify_list_coverage.")
+    ap.add_argument("--pkl-prefix", default=None,
+                    help="artifact basename prefix; defaults to cache_size_<suite>. "
+                         "Use it to keep two outcome-filter groups side by side.")
     ap.add_argument("--report", default=None, help="where to write the entry-count table")
     args = ap.parse_args()
 
@@ -91,14 +145,16 @@ def main() -> None:
 
     rows = []
     for tier in TIERS:
+        prefix = args.pkl_prefix or f"cache_size_{args.suite}"
         listing = pathlib.Path(args.list_dir) / f"episodes_{args.suite}_{tier}.txt"
-        out = out_dir / f"cache_size_{args.suite}_{tier}.pkl"
+        out = out_dir / f"{prefix}_{tier}.pkl"
         build_one(
             data_dir=args.data_dir,
             episode_list=str(listing),
             output=str(out),
             builder_type=args.builder_type,
             workers=args.workers,
+            outcome_filter=args.outcome_filter,
         )
         built, loaded = verify_no_entry_loss(str(out))
         if built != loaded:
@@ -106,11 +162,29 @@ def main() -> None:
                 f"{tier}: built {built} entries but backend loaded {loaded} -- "
                 "trajectory ids collided, the library is silently truncated"
             )
-        rows.append({"tier": tier, "episodes": len(listing.read_text().split()),
-                     "entries": built, "pkl": str(out)})
-        print(f"  {tier}: {built} entries OK", flush=True)
+        listed, present = verify_list_coverage(str(out), str(listing))
+        if listed != present:
+            raise SystemExit(
+                f"{tier}: {listed} episodes listed but only {present} made it into the "
+                f"artifact ({listed - present} dropped). The usual cause is an "
+                f"--outcome-filter mismatch: this build used {args.outcome_filter!r} "
+                "while the grid that wrote the list used something else."
+            )
+        rows.append({"tier": tier, "episodes": listed, "entries": built,
+                     "pkl": str(out)})
+        print(f"  {tier}: {built} entries from {listed} episodes OK", flush=True)
 
-    table = {"suite": args.suite, "tiers": rows}
+    prefix = args.pkl_prefix or f"cache_size_{args.suite}"
+    violations = verify_nesting(str(out_dir), prefix)
+    if violations:
+        raise SystemExit(
+            "nested-library gate failed; the size axis would confound 'bigger' with "
+            "'different trajectories':\n  " + "\n  ".join(violations)
+        )
+    print(f"  nesting OK across {len(TIERS)} tiers", flush=True)
+
+    table = {"suite": args.suite, "outcome_filter": args.outcome_filter,
+             "nested": True, "tiers": rows}
     if args.report:
         pathlib.Path(args.report).write_text(json.dumps(table, indent=2))
     print(json.dumps(table, indent=2))

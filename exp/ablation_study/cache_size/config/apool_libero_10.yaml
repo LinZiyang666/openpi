@@ -1,0 +1,56 @@
+suite: libero_10
+apool_dir: /home/weiland/openpi/exp/common/data/db_init/libero/libero_10_apool
+total_inits: 500
+per_task_digests:
+  KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it: 02a8401f8d59f5447fc8c5a16f4c158dd8c426c3eaed6779927a2a53e9abf3c5
+  KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it: e98ded151f64a036c74c872336dd09b968c379f3c9db7bc333aba37e7c235b86
+  KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it: 6b75c8d4d1e1c40b5d99c78ceea380d99ccffb0a484a4cb2d3153488a0afbbe2
+  KITCHEN_SCENE8_put_both_moka_pots_on_the_stove: 44f992e911c84a1340589510ecdaf947a4872966f7678c8364d8bb5d13dc4dac
+  LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket: 2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc
+  LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket: 1899fe54c51e24a41d5f9e32254730d6777f4894ab68e0e873f1fa7ae2062030
+  LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket: f8ac06ea8f43bb328d40cba1e6a9767da2f8f5386fd7ff3f845c64a96bf6d2ce
+  LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate: b6f20784b381c75d715f4fdaadda1fb460cbe24adcbad76f381a009419b8474e
+  LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate: 6e811394c4ff9a43ae23515d8512e9b657c04344b94dd5baed121b595490514f
+  STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy: 6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8
+rollup_sha256: 52457a37eb26f9511b708f2e2efb2c175d0a1f8665ba8d57180556693c1ee756
+disjoint_from_difference_pool:
+  KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it:
+    a_count: 50
+    b_count: 50
+    shared: 0
+  KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it:
+    a_count: 50
+    b_count: 50
+    shared: 0
+  KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it:
+    a_count: 50
+    b_count: 50
+    shared: 0
+  KITCHEN_SCENE8_put_both_moka_pots_on_the_stove:
+    a_count: 50
+    b_count: 50
+    shared: 0
+  LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket:
+    a_count: 50
+    b_count: 50
+    shared: 0
+  LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket:
+    a_count: 50
+    b_count: 50
+    shared: 0
+  LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket:
+    a_count: 50
+    b_count: 50
+    shared: 0
+  LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate:
+    a_count: 50
+    b_count: 50
+    shared: 0
+  LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate:
+    a_count: 50
+    b_count: 50
+    shared: 0
+  STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy:
+    a_count: 50
+    b_count: 50
+    shared: 0

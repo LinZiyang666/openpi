@@ -66,7 +66,7 @@ Rules:
   import mode makes two same-named test files collide at collection time.
 - Introducing a family requires an entry in [`docs/README.md`](../README.md).
 
-Current families: `exp/ablation_study/` (`executor_substitution`, `cache_size`).
+Current families: `exp/ablation_study/` (`executor_substitution`, `cache_size`, `latency_bench`).
 
 ## 2. File-kind rules
 

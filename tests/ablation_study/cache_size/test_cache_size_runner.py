@@ -519,3 +519,64 @@ def test_journal_shortfall_empty_when_complete(tmp_path):
             f.write(json.dumps({"task_uid": f"armA:eval:0:{e}", "yaml_id": "armA",
                                 "status": "failed", "success": False}) + "\n")
     assert journal_shortfall(j, {"armA"}, 500) == {}
+
+
+def test_final_snapshot_captures_rows_produced_after_the_last_tick(tmp_path):
+    """The run's last episode must not lose its per-step evidence.
+
+    Measured on a real 3,000-episode group: the final episode's *result* reached
+    the journal (written per result) while its per-step rows were still buffered
+    in the driver, and the periodic snapshot had already stopped. The rows were
+    gone, the episode looked terminal-but-unwitnessed, and the per-episode
+    FULL_HIT gate refused the whole group -- correctly, but for evidence that
+    should never have been lost.
+    """
+    from types import SimpleNamespace
+
+    from exp.ablation_study.cache_size.run_size_eval import _write_snapshot, merge_snapshot
+
+    sink = tmp_path / "ps.jsonl"
+    sink.write_text(json.dumps({"task_uid": "a:eval:0:0", "step_idx": 0,
+                                "attempt": 1, "hit_type": "FULL_HIT"}) + "\n")
+
+    # The driver still holds the last episode's rows in memory.
+    late = [{"task_uid": "a:eval:9:49", "step_idx": i, "attempt": 1,
+             "hit_type": "FULL_HIT"} for i in range(3)]
+    driver = SimpleNamespace(per_step_rows=late)
+
+    written = _write_snapshot(driver, sink)
+    assert written == 3
+    merged = merge_snapshot(sink, sink.with_suffix(".snapshot.jsonl"))
+    assert merged == 3
+
+    got = [json.loads(x) for x in sink.read_text().splitlines() if x.strip()]
+    uids = {r["task_uid"] for r in got}
+    assert "a:eval:9:49" in uids, "the last episode's rows must survive shutdown"
+    assert len(got) == 4
+    assert not sink.with_suffix(".snapshot.jsonl").exists()
+
+
+def test_final_snapshot_is_idempotent_against_the_periodic_one(tmp_path):
+    """Dumping again at exit must not duplicate rows the periodic tick already wrote.
+
+    ``merge_snapshot`` dedups canonically, so the final dump is safe to take
+    unconditionally -- which is what lets it be a plain belt-and-braces step
+    rather than something that has to reason about what the loop already saved.
+    """
+    from types import SimpleNamespace
+
+    from exp.ablation_study.cache_size.run_size_eval import _write_snapshot, merge_snapshot
+
+    sink = tmp_path / "ps.jsonl"
+    sink.write_text("")
+    rows = [{"task_uid": "a:eval:0:0", "step_idx": i, "attempt": 1,
+             "hit_type": "FULL_HIT"} for i in range(2)]
+    driver = SimpleNamespace(per_step_rows=rows)
+
+    _write_snapshot(driver, sink)
+    assert merge_snapshot(sink, sink.with_suffix(".snapshot.jsonl")) == 2
+    # exit dump of the very same in-memory rows
+    _write_snapshot(driver, sink)
+    assert merge_snapshot(sink, sink.with_suffix(".snapshot.jsonl")) == 0
+    assert len([x for x in sink.read_text().splitlines() if x.strip()]) == 2
+

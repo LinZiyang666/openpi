@@ -72,3 +72,33 @@ def test_digest_is_stable_and_content_sensitive(tmp_path):
     rows[0][0] += 1.0
     torch.save(rows, f)
     assert digest_init_file(f) != first
+
+
+def test_load_init_states_survives_the_torch_1x_signature(tmp_path, monkeypatch):
+    """The pools are read from both sides of a torch version split.
+
+    The main uv venv is on torch 2.x, where ``weights_only`` defaults to True and
+    refuses the pickled numpy arrays these files contain unless it is passed
+    explicitly. The LIBERO client env is pinned to torch 1.11, where the argument
+    does not exist and passing it raises ``TypeError`` -- which is exactly how
+    this failed on the first real P1b run.
+    """
+    from exp.ablation_study.cache_size import verify_apool
+
+    f = tmp_path / "task_0.init"
+    torch.save(np.arange(6, dtype=np.float64).reshape(2, 3), f)
+
+    calls = []
+
+    def fake_load(path, **kwargs):
+        calls.append(kwargs)
+        if "weights_only" in kwargs:
+            raise TypeError("'weights_only' is an invalid keyword argument for Unpickler()")
+        return "loaded"
+
+    monkeypatch.setattr(verify_apool.torch, "load", fake_load)
+    assert verify_apool.load_init_states(f) == "loaded"
+    assert calls == [{"weights_only": False}, {}], (
+        "must try the torch 2.x signature first, then fall back -- not the reverse, "
+        "which would trip torch 2.x's weights_only default instead"
+    )

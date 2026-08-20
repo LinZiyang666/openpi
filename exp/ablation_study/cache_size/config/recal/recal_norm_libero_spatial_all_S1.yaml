@@ -1,0 +1,20 @@
+source_pkl: /data/openpi/ablation_study/cache_size/artifacts/cache_size_libero_spatial_all_S1.pkl
+fields:
+  vision_0:
+    method: zscore
+    params:
+      mu: 0.97803730195138
+      sigma: 0.007024637546140521
+      squash: tanh
+  vision_1:
+    method: zscore
+    params:
+      mu: 0.9687430124009611
+      sigma: 0.0069285195017565445
+      squash: tanh
+  robot_state:
+    method: zscore
+    params:
+      mu: -1.8541394935639712
+      sigma: 0.9613411355507404
+      squash: tanh

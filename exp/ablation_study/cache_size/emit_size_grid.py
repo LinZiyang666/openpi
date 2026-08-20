@@ -81,6 +81,12 @@ class TaskGrid:
 
     @property
     def n_success(self) -> int:
+        """Trajectories this task contributes, under the active outcome filter.
+
+        Named for the frozen default (success-only). Under ``outcome_filter="all"``
+        it is simply the eligible B-train count, which is 45 for every task -- so
+        the R1/R3/R4 topping-out machinery stays wired up but never binds.
+        """
         return len(self.ordered)
 
 
@@ -143,23 +149,42 @@ def order_task(
     anchor_inits: set[int],
     val_inits: set[int],
     seed: int = SHUFFLE_SEED,
+    outcome_filter: str = "success",
 ) -> TaskGrid:
-    """Order one task's successful episodes: anchors first, then shuffled rest.
+    """Order one task's episodes: anchors first, then shuffled rest.
 
     ``val_inits`` (B-val) are dropped outright, before any counting.
+
+    ``outcome_filter`` selects what the library is made of, and it changes what
+    the size axis *means*:
+
+    *   ``"success"`` (the frozen default) -- size is "successful trajectories
+        per task". Hard tasks contribute fewer, so the top tiers top out and the
+        R1/R3/R4 rules do real work.
+    *   ``"all"`` -- size is "collected trajectories per task", failures included.
+        Every task then contributes all 45 of its B-train inits, so no tier ever
+        tops out; the library contains failed rollouts, and ``always_hit`` replays
+        them like any other. Owner ruling 2026-08-17.
+
+    Must match the ``--outcome-filter`` passed to the builder: this picks which
+    episodes are *listed*, the builder picks which listed episodes it *keeps*,
+    and a mismatch silently shrinks the library below the tier it claims.
     """
+    if outcome_filter not in ("success", "all"):
+        raise ValueError(f"outcome_filter must be 'success' or 'all', got {outcome_filter!r}")
     task_ids = {e.task_id for e in episodes}
     assert len(task_ids) == 1, f"order_task expects one task, got {task_ids}"
     task_id = task_ids.pop()
 
     eligible = [e for e in episodes if e.init_idx not in val_inits]
-    successes = [e for e in eligible if e.success]
+    if outcome_filter == "success":
+        eligible = [e for e in eligible if e.success]
 
     anchors = sorted(
-        (e for e in successes if e.init_idx in anchor_inits),
+        (e for e in eligible if e.init_idx in anchor_inits),
         key=lambda e: e.init_idx,
     )
-    rest = [e for e in successes if e.init_idx not in anchor_inits]
+    rest = [e for e in eligible if e.init_idx not in anchor_inits]
     rng = random.Random(f"{seed}:{task_id}")
     rng.shuffle(rest)
 
@@ -224,6 +249,7 @@ def build_grid(
     seed: int = SHUFFLE_SEED,
     expected_tasks: set[int] | None = None,
     expected_inits_per_task: int | None = None,
+    outcome_filter: str = "success",
 ) -> dict[str, Any]:
     """Assemble the full nested grid and its realized-count bookkeeping.
 
@@ -248,13 +274,15 @@ def build_grid(
             anchor_inits_by_task.get(task_id, set()),
             val_inits_by_task.get(task_id, set()),
             seed=seed,
+            outcome_filter=outcome_filter,
         )
-        # R2: a task with no successful trajectory breaks the "every task has at
+        # R2: a task with no eligible trajectory breaks the "every task has at
         # least one entry" premise in *every* tier, which would silently turn
         # part of the evaluation into a teacher run. Refuse to emit a grid.
         if grid.n_success == 0:
+            what = "successful " if outcome_filter == "success" else ""
             raise ValueError(
-                f"task {task_id} has zero successful B-train trajectories; the suite is "
+                f"task {task_id} has zero {what}B-train trajectories; the suite is "
                 "unrunnable because retrieval is task-scoped and this task would fall "
                 "back to the teacher in every tier (plan §3.2 R2)"
             )
@@ -295,6 +323,10 @@ def build_grid(
             f"task_{tid}": {"hit": g.anchor_hits, "of": g.anchor_total}
             for tid, g in grids.items()
         },
+        # Recorded so the builder invocation can be checked against the grid that
+        # produced the episode lists: the two filters must agree, and a mismatch
+        # would shrink the library below the tier it claims without any error.
+        "outcome_filter": outcome_filter,
         "n_success": {f"task_{tid}": g.n_success for tid, g in grids.items()},
         "degenerate_pairs": degenerate,
     }
@@ -319,6 +351,13 @@ def main() -> None:
     ap.add_argument("--output", required=True, help="destination size_grid_<suite>.yaml")
     ap.add_argument("--tiers", default=",".join(str(t) for t in DEFAULT_TIERS))
     ap.add_argument("--seed", type=int, default=SHUFFLE_SEED)
+    ap.add_argument("--outcome-filter", default="success", choices=["success", "all"],
+                    help="what the library is made of. 'success' (frozen default) makes "
+                         "size mean successful trajectories per task; 'all' includes "
+                         "failed rollouts, so every task contributes all 45 B-train "
+                         "inits and no tier tops out. MUST match the builder's "
+                         "--outcome-filter, or the library silently shrinks below the "
+                         "tier it claims.")
     ap.add_argument("--expect-inits-per-task", type=int, default=50,
                     help="formal collection ledger: episodes collected per task "
                          "(0 disables the check)")
@@ -339,6 +378,7 @@ def main() -> None:
         # The split file is the authoritative task roster.
         expected_tasks=set(anchors) | set(vals),
         expected_inits_per_task=args.expect_inits_per_task or None,
+        outcome_filter=args.outcome_filter,
     )
 
     out = pathlib.Path(args.output)

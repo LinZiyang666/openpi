@@ -45,6 +45,21 @@ def rollup_digest(per_task_digests: dict[str, str]) -> str:
     ).hexdigest()
 
 
+def load_init_states(path: pathlib.Path):
+    """``torch.load`` across the two torch generations this experiment spans.
+
+    The init pools have to be read from both sides of a version split: the main
+    uv venv is on torch 2.x, where ``weights_only`` defaults to True and pickled
+    numpy arrays are refused unless it is passed explicitly; the LIBERO client
+    env is pinned to torch 1.11, where the argument does not exist at all and
+    passing it raises ``TypeError``. Same files, same bytes, two call signatures.
+    """
+    try:
+        return torch.load(path, weights_only=False)
+    except TypeError:
+        return torch.load(path)
+
+
 def states_to_rows(states) -> set[bytes]:
     """Canonical byte rows for set arithmetic across differently-ordered pools."""
     arr = np.asarray(states)
@@ -60,8 +75,8 @@ def assert_disjoint(a_dir: pathlib.Path, b_dir: pathlib.Path) -> dict:
         b_file = b_dir / a_file.name
         if not b_file.exists():
             raise FileNotFoundError(f"difference pool has no counterpart for {a_file.name}")
-        a_rows = states_to_rows(torch.load(a_file, weights_only=False))
-        b_rows = states_to_rows(torch.load(b_file, weights_only=False))
+        a_rows = states_to_rows(load_init_states(a_file))
+        b_rows = states_to_rows(load_init_states(b_file))
         shared = a_rows & b_rows
         report[a_file.stem] = {
             "a_count": len(a_rows),
