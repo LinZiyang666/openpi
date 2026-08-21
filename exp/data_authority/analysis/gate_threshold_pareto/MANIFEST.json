@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "task": "gate_threshold_pareto",
+  "title": "Gate threshold Pareto (Hybrid L=6, d=1): teacher ratio x success frontier",
+  "source_experiment": "exp/gate_threshold_pareto",
+  "policy": "copy",
+  "collected_at": "2026-08-20",
+  "files": [
+    {
+      "name": "analysis.md",
+      "sha256": "f4ea89756c3ba80dd0ac2fbb0766bba36eb000d81409413371347523eda1073b",
+      "size_bytes": 8580,
+      "source": "exp/gate_threshold_pareto/analysis/analysis.md"
+    },
+    {
+      "name": "pareto_ir_libero_10.pdf",
+      "sha256": "46b9aa994eda98108bd8fbb31ebeb5fa83d86bd0c32928bbc83c3267adf40cf4",
+      "size_bytes": 27065,
+      "source": "exp/gate_threshold_pareto/analysis/pareto_ir_libero_10.pdf"
+    },
+    {
+      "name": "pareto_ir_libero_10.png",
+      "sha256": "0720b79a97cb8d19466594be724bfab9b4d3b480d3968869f7b70cbfffc3f7cb",
+      "size_bytes": 150150,
+      "source": "exp/gate_threshold_pareto/analysis/pareto_ir_libero_10.png"
+    },
+    {
+      "name": "pareto_ir_libero_spatial.pdf",
+      "sha256": "077c0286d3111ca0489a2cb6a7407f5f062246c42025f40aa1a30a78466177e1",
+      "size_bytes": 26984,
+      "source": "exp/gate_threshold_pareto/analysis/pareto_ir_libero_spatial.pdf"
+    },
+    {
+      "name": "pareto_ir_libero_spatial.png",
+      "sha256": "8a39badef2efeeb789294e8c64c3a2679af4e69b7ff942644904902aeeaee986",
+      "size_bytes": 148004,
+      "source": "exp/gate_threshold_pareto/analysis/pareto_ir_libero_spatial.png"
+    },
+    {
+      "name": "pareto_libero_10.pdf",
+      "sha256": "fc6c9f73e3251eda3c7fdf21983b8caad1b5e9d3c378f3ee4083b3ea4a574c28",
+      "size_bytes": 25100,
+      "source": "exp/gate_threshold_pareto/analysis/pareto_libero_10.pdf"
+    },
+    {
+      "name": "pareto_libero_10.png",
+      "sha256": "c24ce9ec46954ae1b47368d4b2763cbb873e474561e46c3ad8c8b4856d844904",
+      "size_bytes": 149745,
+      "source": "exp/gate_threshold_pareto/analysis/pareto_libero_10.png"
+    },
+    {
+      "name": "pareto_libero_spatial.pdf",
+      "sha256": "a070d514e89941fcc2d3d8bb4625b4b6509d47f532c2a87faa48896b9580f687",
+      "size_bytes": 25031,
+      "source": "exp/gate_threshold_pareto/analysis/pareto_libero_spatial.pdf"
+    },
+    {
+      "name": "pareto_libero_spatial.png",
+      "sha256": "bafdf92b8004aa4de99981920c5b88c555348cfe4f0a726b90e3ad4be76309ab",
+      "size_bytes": 148015,
+      "source": "exp/gate_threshold_pareto/analysis/pareto_libero_spatial.png"
+    },
+    {
+      "name": "plot_data.json",
+      "sha256": "b81ef9bc3b55c5fc18198e8556d1016393199c052629e7af3d4aff3e72cf2ad8",
+      "size_bytes": 12970,
+      "source": "exp/gate_threshold_pareto/analysis/plot_data.json"
+    }
+  ]
+}

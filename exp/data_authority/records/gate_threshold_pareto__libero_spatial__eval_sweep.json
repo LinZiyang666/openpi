@@ -1,0 +1,218 @@
+{
+ "schema_version": 1,
+ "dataset_id": "gate_threshold_pareto/libero_spatial/eval_sweep",
+ "kind": "journal",
+ "title": "gate_threshold_pareto / libero_spatial / 16-cell f_FH sweep x {ws,cs} pkl, 16,000 accepted episodes (ws_sp_fh30 re-run clean 2026-08-21)",
+ "experiment": "exp/gate_threshold_pareto",
+ "suite": "libero_spatial",
+ "analysis_task": "gate_threshold_pareto",
+ "status": "authoritative",
+ "authority": {
+  "node": "local",
+  "path": "exp/gate_threshold_pareto/data/eval/libero_spatial",
+  "access": "local"
+ },
+ "integrity": {
+  "file_count": 7,
+  "size_bytes": 154960467,
+  "sha256": "ce589d1b1683906a3e6be902dce3ee2b79248008fb9a7cd52dd0fc9e775c5f79",
+  "members": [
+   [
+    "apool_libero_spatial.local.yaml",
+    2848,
+    "e6ae90da31713cd0ec40281bf12d98624e9abeb31a409ffc179630348ba78f2b"
+   ],
+   [
+    "journal.jsonl",
+    2874382,
+    "3ac7b58ec0578dd9e7197bf33e2446502601a4744f61397e8a2935ea416639dc"
+   ],
+   [
+    "journal.jsonl.quarantine_gtp_ws_sp_fh30.jsonl",
+    90134,
+    "c6da9ca9fe0ca7a7167998cdcb284042e64bae782de58af2bd3e84b1eb4857f4"
+   ],
+   [
+    "per_step.jsonl",
+    148291095,
+    "d5e41a28a42d238d508771f73c5bc8f478287318a7dae14cfe4f21f9fcae1dad"
+   ],
+   [
+    "per_step.jsonl.launch.json",
+    3543,
+    "ff4c65c841d199bcb642e3e87752418331047e64a155f9124e9a314ee5ba131c"
+   ],
+   [
+    "per_step.jsonl.quarantine_gtp_ws_sp_fh30.jsonl",
+    3698465,
+    "448618625ab63dbfdfeea97d4e26223fab24d214d35835b2454318bca3e00ca4"
+   ],
+   [
+    "per_step.snapshot.jsonl",
+    0,
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   ]
+  ]
+ },
+ "content": {
+  "files": "journal.jsonl (episode outcomes) + per_step.jsonl (per-decision hit_type/searched/cp1_score, one row per 5 control steps) + per_step.jsonl.launch.json (run manifest incl. A-pool per-task digests) + apool local yaml + empty per_step.snapshot.jsonl + quarantine files of the contaminated first ws_sp_fh30 run (GPU-crash window, kept as incident evidence, excluded from all aggregates)",
+  "arms": {
+   "gtp_cs_sp_fh05": {
+    "episodes": 500,
+    "success": 490
+   },
+   "gtp_cs_sp_fh10": {
+    "episodes": 500,
+    "success": 488
+   },
+   "gtp_cs_sp_fh15": {
+    "episodes": 500,
+    "success": 482
+   },
+   "gtp_cs_sp_fh20": {
+    "episodes": 500,
+    "success": 478
+   },
+   "gtp_cs_sp_fh25": {
+    "episodes": 500,
+    "success": 484
+   },
+   "gtp_cs_sp_fh30": {
+    "episodes": 500,
+    "success": 486
+   },
+   "gtp_cs_sp_fh35": {
+    "episodes": 500,
+    "success": 488
+   },
+   "gtp_cs_sp_fh40": {
+    "episodes": 500,
+    "success": 480
+   },
+   "gtp_cs_sp_fh45": {
+    "episodes": 500,
+    "success": 476
+   },
+   "gtp_cs_sp_fh50": {
+    "episodes": 500,
+    "success": 477
+   },
+   "gtp_cs_sp_fh55": {
+    "episodes": 500,
+    "success": 468
+   },
+   "gtp_cs_sp_fh60": {
+    "episodes": 500,
+    "success": 472
+   },
+   "gtp_cs_sp_fh65": {
+    "episodes": 500,
+    "success": 474
+   },
+   "gtp_cs_sp_fh70": {
+    "episodes": 500,
+    "success": 467
+   },
+   "gtp_cs_sp_fh75": {
+    "episodes": 500,
+    "success": 466
+   },
+   "gtp_cs_sp_fh80": {
+    "episodes": 500,
+    "success": 466
+   },
+   "gtp_ws_sp_fh05": {
+    "episodes": 500,
+    "success": 493
+   },
+   "gtp_ws_sp_fh10": {
+    "episodes": 500,
+    "success": 494
+   },
+   "gtp_ws_sp_fh15": {
+    "episodes": 500,
+    "success": 486
+   },
+   "gtp_ws_sp_fh20": {
+    "episodes": 500,
+    "success": 488
+   },
+   "gtp_ws_sp_fh25": {
+    "episodes": 500,
+    "success": 489
+   },
+   "gtp_ws_sp_fh30": {
+    "episodes": 500,
+    "success": 493
+   },
+   "gtp_ws_sp_fh35": {
+    "episodes": 500,
+    "success": 485
+   },
+   "gtp_ws_sp_fh40": {
+    "episodes": 500,
+    "success": 486
+   },
+   "gtp_ws_sp_fh45": {
+    "episodes": 500,
+    "success": 482
+   },
+   "gtp_ws_sp_fh50": {
+    "episodes": 500,
+    "success": 481
+   },
+   "gtp_ws_sp_fh55": {
+    "episodes": 500,
+    "success": 487
+   },
+   "gtp_ws_sp_fh60": {
+    "episodes": 500,
+    "success": 485
+   },
+   "gtp_ws_sp_fh65": {
+    "episodes": 500,
+    "success": 468
+   },
+   "gtp_ws_sp_fh70": {
+    "episodes": 500,
+    "success": 484
+   },
+   "gtp_ws_sp_fh75": {
+    "episodes": 500,
+    "success": 474
+   },
+   "gtp_ws_sp_fh80": {
+    "episodes": 500,
+    "success": 470
+   }
+  },
+  "gate": {
+   "type": "score_hysteresis",
+   "j": 3,
+   "probe_interval": 3,
+   "L": 6,
+   "theta": "per-library 0.85 top-fraction of own warmup scores"
+  },
+  "verdict": "binary threshold, solved per f_FH cell",
+  "eval_set": "official A-pool 500 pruned_init per task, full set, build-init leakage 0/50"
+ },
+ "provenance": {
+  "produced_by": "exp/gate_threshold_pareto/run_gtp.py --phase eval on timan107 (64->48 workers), serving weilandserver serve_policy replicas via ziyanglin.com direct public port",
+  "inputs": [
+   "ws pkl: exp/common/data/cache_artifacts/<suite>/cp1_spatial_pool_16.pkl (weilandserver)",
+   "cs pkl: /data/openpi/ablation_study/cache_size/artifacts/cache_size_<suite>_all_S3.pkl (weilandserver)",
+   "thresholds: solved from this experiment's own force-MISS warmup (always_search), see logs/gate_threshold_pareto_plan.log.md"
+  ],
+  "measured_at": "2026-08-20/21",
+  "measured_by": "conductor episode-level journal; per_step attempt-matched to accepted journal rows; pulled to local 2026-08-21, 22/22 files sha256-verified against timan107 originals",
+  "notes": "timan107 originals remain at /scratch/zixuans8/openpi/exp/gate_threshold_pareto/data/ (plus *.bak_* pre-quarantine backups excluded from this pull; their content equals kept+quarantine rows)."
+ },
+ "caveats": [
+  "authority path is inside exp/**/data/** and is gitignored -- these bytes never reach version control; the derived plot_data.json and figures are the git-tracked face (analysis/gate_threshold_pareto).",
+  "journal.jsonl/per_step.jsonl contain only the clean re-run of ws_sp_fh30; the contaminated first run (GPU-crash window 2026-08-20, success 0.760) sits in the .quarantine_gtp_ws_sp_fh30.jsonl files and must never re-enter aggregates."
+ ],
+ "consumers": [
+  "exp/gate_threshold_pareto/analysis/analysis.md (+ authority-collected copy under exp/data_authority/analysis/gate_threshold_pareto/)",
+  "exp/gate_threshold_pareto/analyze_gtp.py (aggregate/plot; inference_ratio owner definition 2026-08-21)"
+ ]
+}

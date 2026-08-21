@@ -146,6 +146,25 @@ Xid 154 GPU Reset Required
 
 按行数而非 uid 计数会把重试过的臂误判为完成并跳过其欠账，测试 `test_resume_filter_counts_distinct_uids_not_lines` 钉住这一点。
 
+**追加（同日，崩溃 3 之后）——切换风暴假说被证伪，嫌疑收敛到两个变量**：
+
+修复上线后（resume 过滤实测生效，仅 11 次 bundle 加载）第三次崩溃仍在 ~3 min 内发生。这次拿到了 server 侧日志（前两次的已丢），两条决定性证据：① 故障前**没有任何 bundle 切换**，所有连接稳定绑在同一 bundle 上；② 本次 MMU fault 落在 **GPC0**（前两次 GPC4）⇒ "总是 GPC4 指向硬件" 的推论作废，GPC 编号只是出错 warp 的调度位置。服务端栈精确落点：`batching_coordinator.py:899 _run_stage3_bucket`。
+
+四次运行对照后仍站着的变量只剩两个：
+
+| 变量 | 证据 |
+|---|---|
+| **网络路径**（broker vs 公网直连） | 唯一稳定 4.5 h 的 Run A 走 broker；三次崩溃全走直连。机制假说：broker 隧道天然限速使批次稀疏，直连后 64 连接压满、`max_batch_size=8` 的 stage-3 分桶路径首次被真正打满，暴露竞态 |
+| **臂 `gtp_ws_sp_fh30` 的 task_5-9 段** | 三次崩溃时服务的都是该臂；但 Run A 曾无恙跑完它的前 341 ep（task_0-4 全满），崩溃发生的都是 resume 后的 task_5-9 init 段。存在"它总是 resume 后第一个跑"的混杂 |
+
+owner 授权紧急免流程跑 **gpu_burn 600 s** 作硬件分辨实验（结果见下）。
+
+**硬件判定（gpu_burn，owner 紧急授权免流程）**：600 s 满载烧机判 **`GPU 0: FAULTY`** —— 错误全部集中在开跑后 **28–62 s 的冷卡爬坡窗口**（4.7%→10.3%，67–71 °C，累计 40,689,673 个错误结果），窗口之后 9 分钟完全干净、全程零 Xid 零降频。**静默算错，不崩不报。**
+
+这一个模式解开全部谜团：三次崩溃都在起流量后 ~3 min（= 爬坡窗口）；Run A 稳 4.5 h 因为它的卡先被 warmup 阶段焐热；"总是 fh30" 是 resume 首臂的位置巧合；"broker vs 直连" 是冷启动的巧合。**软件无罪** —— bundle 切换风暴假说、batching 竞态假说均作废（resume 过滤修复仍正确，但与崩溃无关）。已收 episode 是行为级数据不受影响；该卡冷启动后立即满载的推理不可信。
+
+**缓解（实测有效）**：`nvidia-smi -pl 350` + `-lgc 210,2205`（实际稳在 1800 MHz / 351 W，算力 −18%）。复烧同窗口 **262 采样全 0 错误**。⚠ 两设置**重启即失效**，恢复流程必须在起 server 前重设。
+
 **未修的根**：server 端 bundle 热切换没有 quiesce 在途请求。正确修法是切换前排空/挡住在途请求，或给 backend 加引用计数——属 `src/openpi/cache/` 改动，L2/L3，须走 Plan→G1→G2，**不在无人值守期间进行**。
 
 **规程改正**：CUDA 进程一律先 `SIGTERM` 等待退出；skill §5.1 的 `pkill -9` 模板是**实验收尾**场景，不可用于**中途重启**。另：重启机器前必须先把 server 日志拉离 `/tmp`——本次 `/tmp/gtp_srv.log` 随重启被清除，是取证损失；server 日志已改落持久路径 `/home/weiland/gtp_logs/`。
@@ -176,3 +195,14 @@ Xid 154 GPU Reset Required
 3. 四库两两之间 entries 相差最多 2.7×，SR 差异含库规模与库来源两个因子，本实验不做分解。
 
 ## Review Log
+
+---
+
+## §7 收官记录（2026-08-21）
+
+- **主扫描完成**：32,000/32,000 ep（spatial 16k 于 08-20 20:16 收口；l10 16k 于 08-21 06:56 收口，途中 05:00 因 timan107 驱动侧锁页内存累积→OOM→websocket 心跳超时致 conductor 退出一次，48 worker 按 episode 级 resume 续跑，resume 过滤正确跳过 26/32 已完成臂）。
+- **污染臂替换**：`ws_sp_fh30` 首轮横跨 GPU 崩溃窗口（分桶失败率 94-96% vs 干净窗口 2.1%），已隔离至 quarantine 文件并以同配置重跑 500 ep（成功率 0.986，回归单调序列）。
+- **gate-only 消融补测**（owner 指令）：verdict 关闭（threshold=-1.0）×2 pkl×2 suite×500 ep，gate L=8。门固有干预率 22-25%；成功率 spatial 82-83% / l10 61.5%，星标入图。
+- **inference_ratio 正式口径**（owner 裁定 08-21）：`(N_req·s1+N_miss·(s2+s3))/(N_req·Σs)`，s 取 CUDA-Graph 档三段延迟 = `0.152+0.848·teacher_ratio`；四图两轴并存。
+- **数据落位**：原始 journal/per_step 已拉回本地 `exp/gate_threshold_pareto/data/`（22/22 文件 sha256 双端一致），`exp/data_authority/records/` 登记 4 条数据集台账（eval_sweep/gate_only × 2 suite），registry validate + verify 全绿；分析产物收编 `exp/data_authority/analysis/gate_threshold_pareto/`（10 文件 MANIFEST）。
+- 报告：`exp/gate_threshold_pareto/analysis/analysis.md`。资源已全部释放（server/worker/中转文件），keepwarm 按 owner 裁定常驻。

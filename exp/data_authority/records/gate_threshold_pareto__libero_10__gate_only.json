@@ -1,0 +1,88 @@
+{
+ "schema_version": 1,
+ "dataset_id": "gate_threshold_pareto/libero_10/gate_only",
+ "kind": "journal",
+ "title": "gate_threshold_pareto / libero_10 / verdict-off (judge threshold=-1.0) x {ws,cs} pkl, L=8, 1,000 episodes",
+ "experiment": "exp/gate_threshold_pareto",
+ "suite": "libero_10",
+ "analysis_task": "gate_threshold_pareto",
+ "status": "authoritative",
+ "authority": {
+  "node": "local",
+  "path": "exp/gate_threshold_pareto/data/eval_gate_only/libero_10",
+  "access": "local"
+ },
+ "integrity": {
+  "file_count": 5,
+  "size_bytes": 28834499,
+  "sha256": "1a17a6287d6c7afae674eba0b049841381f98149d3c863cd1a520d77e50dcc0b",
+  "members": [
+   [
+    "apool_libero_10.local.yaml",
+    3018,
+    "4b3555785e69789787c80f3a12ad278a5a7d6f5d5d81c81d4b1ff7ee877e6213"
+   ],
+   [
+    "journal.jsonl",
+    176715,
+    "c93639cd9799998ae3dd9267b08b555fd8a8d9f0938eb03becfa1d371370fb24"
+   ],
+   [
+    "per_step.jsonl",
+    28651040,
+    "3f534919e498fce9ba434bb696a3d1c8834647e8ea000291a20fe710e4a10117"
+   ],
+   [
+    "per_step.jsonl.launch.json",
+    3726,
+    "61594622940732e920e546417d48131b2cc9e71c061681dee2a3701cb09d2bd6"
+   ],
+   [
+    "per_step.snapshot.jsonl",
+    0,
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   ]
+  ]
+ },
+ "content": {
+  "files": "journal.jsonl (episode outcomes) + per_step.jsonl (per-decision hit_type/searched/cp1_score, one row per 5 control steps) + per_step.jsonl.launch.json (run manifest incl. A-pool per-task digests) + apool local yaml + empty per_step.snapshot.jsonl",
+  "arms": {
+   "gtpgo_cs_l10": {
+    "episodes": 500,
+    "success": 307
+   },
+   "gtpgo_ws_l10": {
+    "episodes": 500,
+    "success": 308
+   }
+  },
+  "gate": {
+   "type": "score_hysteresis",
+   "j": 3,
+   "probe_interval": 3,
+   "L": 8,
+   "theta": "per-library 0.85 top-fraction of own warmup scores"
+  },
+  "verdict": "disabled: threshold=-1.0 (below score range, every gated probe accepted)",
+  "eval_set": "official A-pool 500 pruned_init per task, full set, build-init leakage 0/50"
+ },
+ "provenance": {
+  "produced_by": "exp/gate_threshold_pareto/run_gtp.py --phase eval on timan107 (64->48 workers), serving weilandserver serve_policy replicas via ziyanglin.com direct public port",
+  "inputs": [
+   "ws pkl: exp/common/data/cache_artifacts/<suite>/cp1_spatial_pool_16.pkl (weilandserver)",
+   "cs pkl: /data/openpi/ablation_study/cache_size/artifacts/cache_size_<suite>_all_S3.pkl (weilandserver)",
+   "thresholds: solved from this experiment's own force-MISS warmup (always_search), see logs/gate_threshold_pareto_plan.log.md"
+  ],
+  "measured_at": "2026-08-20/21",
+  "measured_by": "conductor episode-level journal; per_step attempt-matched to accepted journal rows; pulled to local 2026-08-21, 22/22 files sha256-verified against timan107 originals",
+  "notes": "timan107 originals remain at /scratch/zixuans8/openpi/exp/gate_threshold_pareto/data/ (plus *.bak_* pre-quarantine backups excluded from this pull; their content equals kept+quarantine rows)."
+ },
+ "caveats": [
+  "authority path is inside exp/**/data/** and is gitignored -- these bytes never reach version control; the derived plot_data.json and figures are the git-tracked face (analysis/gate_threshold_pareto).",
+  "gate lockout L=8 here vs L=6 in the main sweep (owner-specified for this ablation); teacher ratio floor ~0.22-0.25 is the gate's intrinsic intervention rate."
+ ],
+ "consumers": [
+  "exp/gate_threshold_pareto/analysis/analysis.md (+ authority-collected copy under exp/data_authority/analysis/gate_threshold_pareto/)",
+  "exp/gate_threshold_pareto/analyze_gtp.py (aggregate/plot; inference_ratio owner definition 2026-08-21)"
+ ]
+}

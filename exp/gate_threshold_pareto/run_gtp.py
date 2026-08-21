@@ -146,7 +146,9 @@ def arms_with_work_left(
     return remaining, counts
 
 
-def validate_arms(arm_rows: list[dict], *, phase: str) -> dict[str, str]:
+def validate_arms(
+    arm_rows: list[dict], *, phase: str, expected_l: int = GATE_L
+) -> dict[str, str]:
     """Every arm must be warm-tier-free, routing-free, and carry the right gate."""
     yaml_paths: dict[str, str] = {}
     for row in arm_rows:
@@ -179,9 +181,9 @@ def validate_arms(arm_rows: list[dict], *, phase: str) -> dict[str, str]:
                 raise SystemExit(
                     f"arm {arm}: eval gate is {cp1.gate.type!r}, expected 'score_hysteresis'"
                 )
-            if cp1.gate.L != GATE_L:
+            if cp1.gate.L != expected_l:
                 raise SystemExit(
-                    f"arm {arm}: gate L is {cp1.gate.L!r}, expected {GATE_L}. Without L the "
+                    f"arm {arm}: gate L is {cp1.gate.L!r}, expected {expected_l}. Without L the "
                     "gate degrades to pure N1 and the run would be silently mislabelled."
                 )
         yaml_paths[arm] = path
@@ -219,6 +221,12 @@ def main() -> None:
     ap.add_argument("--eval-concurrency", type=int, default=0)
     ap.add_argument("--gpus", type=int, default=1)
     ap.add_argument("--conda-env", default="")
+    ap.add_argument(
+        "--gate-l",
+        type=int,
+        default=GATE_L,
+        help="expected gate lockout L for arm validation (gate-only ablation uses 8)",
+    )
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO)
 
@@ -249,7 +257,7 @@ def main() -> None:
             logger.info("every arm is complete; nothing to run")
             return
 
-    yaml_paths = validate_arms(rows, phase=args.phase)
+    yaml_paths = validate_arms(rows, phase=args.phase, expected_l=args.gate_l)
 
     per_step_path = pathlib.Path(args.per_step_out)
     per_step_path.parent.mkdir(parents=True, exist_ok=True)
@@ -285,7 +293,7 @@ def main() -> None:
                 "suite": args.task_suite,
                 "arms": sorted(yaml_paths),
                 "trials_per_task": args.trials,
-                "gate_L": GATE_L,
+                "gate_L": args.gate_l,
                 "warm_start": "disabled",
                 "apool": apool,
             },

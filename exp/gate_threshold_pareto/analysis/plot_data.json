@@ -1,0 +1,501 @@
+{
+ "schema_version": 1,
+ "experiment": "exp/gate_threshold_pareto",
+ "status": "complete: 16k ep per suite sweep (ws_sp_fh30 re-run clean) + 2k ep gate-only ablation; inference_ratio owner-defined 2026-08-21",
+ "teacher_ratio_definition": "MISS decisions / all decisions, from per_step.jsonl (the gate decides once every 5 control steps; hit_type in {FULL_HIT, MISS}); accepted episodes only (status done|failed, accepted=true) with attempt matched to the accepted journal entry. Owner's new inference_ratio definition is still pending; this is the direct per-step reading.",
+ "success_rate_definition": "journal status==done over (done+failed), accepted rows only, 500 A-pool inits per arm",
+ "raw_source": {
+  "node": "timan107",
+  "dir": "/scratch/zixuans8/openpi/exp/gate_threshold_pareto/data/eval/<suite>/"
+ },
+ "inference_ratio_definition": "(N_req*stage1 + N_miss*(stage2+stage3)) / (N_req*(stage1+stage2+stage3)) with CUDA-Graph stage latencies s1=10.26 s2=27.69 s3=29.57 ms (authority: latency_bench executor_costs, pi05_stage_split_ms.cuda_graph); owner-ruled 2026-08-21; equals 0.15195 + 0.84805*teacher_ratio",
+ "suites": {
+  "libero_spatial": {
+   "gtp_cs_sp_fh05": {
+    "n_ep": 500,
+    "success_rate": 0.98,
+    "teacher_ratio": 0.8811710155468679,
+    "decisions": 10999,
+    "inference_ratio": 0.899228
+   },
+   "gtp_cs_sp_fh10": {
+    "n_ep": 500,
+    "success_rate": 0.976,
+    "teacher_ratio": 0.777266161068978,
+    "decisions": 11076,
+    "inference_ratio": 0.811112
+   },
+   "gtp_cs_sp_fh15": {
+    "n_ep": 500,
+    "success_rate": 0.964,
+    "teacher_ratio": 0.704846598488217,
+    "decisions": 11245,
+    "inference_ratio": 0.749697
+   },
+   "gtp_cs_sp_fh20": {
+    "n_ep": 500,
+    "success_rate": 0.956,
+    "teacher_ratio": 0.6401758241758242,
+    "decisions": 11375,
+    "inference_ratio": 0.694853
+   },
+   "gtp_cs_sp_fh25": {
+    "n_ep": 500,
+    "success_rate": 0.968,
+    "teacher_ratio": 0.5779792520268503,
+    "decisions": 11471,
+    "inference_ratio": 0.642107
+   },
+   "gtp_cs_sp_fh30": {
+    "n_ep": 500,
+    "success_rate": 0.972,
+    "teacher_ratio": 0.5369333099947489,
+    "decisions": 11426,
+    "inference_ratio": 0.607299
+   },
+   "gtp_cs_sp_fh35": {
+    "n_ep": 500,
+    "success_rate": 0.976,
+    "teacher_ratio": 0.515625,
+    "decisions": 11328,
+    "inference_ratio": 0.589228
+   },
+   "gtp_cs_sp_fh40": {
+    "n_ep": 500,
+    "success_rate": 0.96,
+    "teacher_ratio": 0.4949922293213607,
+    "decisions": 11582,
+    "inference_ratio": 0.571731
+   },
+   "gtp_cs_sp_fh45": {
+    "n_ep": 500,
+    "success_rate": 0.952,
+    "teacher_ratio": 0.4653439835094048,
+    "decisions": 11643,
+    "inference_ratio": 0.546588
+   },
+   "gtp_cs_sp_fh50": {
+    "n_ep": 500,
+    "success_rate": 0.954,
+    "teacher_ratio": 0.4274353876739563,
+    "decisions": 11569,
+    "inference_ratio": 0.514439
+   },
+   "gtp_cs_sp_fh55": {
+    "n_ep": 500,
+    "success_rate": 0.936,
+    "teacher_ratio": 0.42661365366720244,
+    "decisions": 11821,
+    "inference_ratio": 0.513743
+   },
+   "gtp_cs_sp_fh60": {
+    "n_ep": 500,
+    "success_rate": 0.944,
+    "teacher_ratio": 0.4057061579651941,
+    "decisions": 11952,
+    "inference_ratio": 0.496012
+   },
+   "gtp_cs_sp_fh65": {
+    "n_ep": 500,
+    "success_rate": 0.948,
+    "teacher_ratio": 0.37924608216857264,
+    "decisions": 11805,
+    "inference_ratio": 0.473573
+   },
+   "gtp_cs_sp_fh70": {
+    "n_ep": 500,
+    "success_rate": 0.934,
+    "teacher_ratio": 0.36450158624144263,
+    "decisions": 11978,
+    "inference_ratio": 0.461069
+   },
+   "gtp_cs_sp_fh75": {
+    "n_ep": 500,
+    "success_rate": 0.932,
+    "teacher_ratio": 0.34365940528451916,
+    "decisions": 12073,
+    "inference_ratio": 0.443394
+   },
+   "gtp_cs_sp_fh80": {
+    "n_ep": 500,
+    "success_rate": 0.932,
+    "teacher_ratio": 0.31734837799717913,
+    "decisions": 12053,
+    "inference_ratio": 0.421081
+   },
+   "gtp_ws_sp_fh05": {
+    "n_ep": 500,
+    "success_rate": 0.986,
+    "teacher_ratio": 0.8884495125988596,
+    "decisions": 10874,
+    "inference_ratio": 0.9054
+   },
+   "gtp_ws_sp_fh10": {
+    "n_ep": 500,
+    "success_rate": 0.988,
+    "teacher_ratio": 0.7771744049235225,
+    "decisions": 11049,
+    "inference_ratio": 0.811034
+   },
+   "gtp_ws_sp_fh15": {
+    "n_ep": 500,
+    "success_rate": 0.972,
+    "teacher_ratio": 0.7043284248103525,
+    "decisions": 11205,
+    "inference_ratio": 0.749257
+   },
+   "gtp_ws_sp_fh20": {
+    "n_ep": 500,
+    "success_rate": 0.976,
+    "teacher_ratio": 0.6585516450560113,
+    "decisions": 11337,
+    "inference_ratio": 0.710436
+   },
+   "gtp_ws_sp_fh25": {
+    "n_ep": 500,
+    "success_rate": 0.978,
+    "teacher_ratio": 0.6180151595275868,
+    "decisions": 11346,
+    "inference_ratio": 0.67606
+   },
+   "gtp_ws_sp_fh30": {
+    "n_ep": 500,
+    "success_rate": 0.986,
+    "teacher_ratio": 0.5819333274694344,
+    "decisions": 11369,
+    "inference_ratio": 0.645461
+   },
+   "gtp_ws_sp_fh35": {
+    "n_ep": 500,
+    "success_rate": 0.97,
+    "teacher_ratio": 0.5422222222222223,
+    "decisions": 11475,
+    "inference_ratio": 0.611784
+   },
+   "gtp_ws_sp_fh40": {
+    "n_ep": 500,
+    "success_rate": 0.972,
+    "teacher_ratio": 0.5257488176563321,
+    "decisions": 11418,
+    "inference_ratio": 0.597814
+   },
+   "gtp_ws_sp_fh45": {
+    "n_ep": 500,
+    "success_rate": 0.964,
+    "teacher_ratio": 0.4983546934534118,
+    "decisions": 11548,
+    "inference_ratio": 0.574582
+   },
+   "gtp_ws_sp_fh50": {
+    "n_ep": 500,
+    "success_rate": 0.962,
+    "teacher_ratio": 0.47467488021902804,
+    "decisions": 11688,
+    "inference_ratio": 0.554501
+   },
+   "gtp_ws_sp_fh55": {
+    "n_ep": 500,
+    "success_rate": 0.974,
+    "teacher_ratio": 0.43119266055045874,
+    "decisions": 11554,
+    "inference_ratio": 0.517626
+   },
+   "gtp_ws_sp_fh60": {
+    "n_ep": 500,
+    "success_rate": 0.97,
+    "teacher_ratio": 0.41008978195810175,
+    "decisions": 11695,
+    "inference_ratio": 0.49973
+   },
+   "gtp_ws_sp_fh65": {
+    "n_ep": 500,
+    "success_rate": 0.936,
+    "teacher_ratio": 0.4005324902238123,
+    "decisions": 12019,
+    "inference_ratio": 0.491625
+   },
+   "gtp_ws_sp_fh70": {
+    "n_ep": 500,
+    "success_rate": 0.968,
+    "teacher_ratio": 0.34690747997955357,
+    "decisions": 11738,
+    "inference_ratio": 0.446148
+   },
+   "gtp_ws_sp_fh75": {
+    "n_ep": 500,
+    "success_rate": 0.948,
+    "teacher_ratio": 0.3408462505236699,
+    "decisions": 11935,
+    "inference_ratio": 0.441008
+   },
+   "gtp_ws_sp_fh80": {
+    "n_ep": 500,
+    "success_rate": 0.94,
+    "teacher_ratio": 0.3257086026852312,
+    "decisions": 12066,
+    "inference_ratio": 0.428171
+   }
+  },
+  "libero_10": {
+   "gtp_cs_l10_fh05": {
+    "n_ep": 500,
+    "success_rate": 0.836,
+    "teacher_ratio": 0.9040084041889629,
+    "decisions": 30461,
+    "inference_ratio": 0.918595
+   },
+   "gtp_cs_l10_fh10": {
+    "n_ep": 500,
+    "success_rate": 0.84,
+    "teacher_ratio": 0.8515017232890202,
+    "decisions": 30465,
+    "inference_ratio": 0.874067
+   },
+   "gtp_cs_l10_fh15": {
+    "n_ep": 500,
+    "success_rate": 0.82,
+    "teacher_ratio": 0.7917003590257787,
+    "decisions": 30917,
+    "inference_ratio": 0.823353
+   },
+   "gtp_cs_l10_fh20": {
+    "n_ep": 500,
+    "success_rate": 0.806,
+    "teacher_ratio": 0.7418343517067084,
+    "decisions": 31259,
+    "inference_ratio": 0.781064
+   },
+   "gtp_cs_l10_fh25": {
+    "n_ep": 500,
+    "success_rate": 0.834,
+    "teacher_ratio": 0.6794900978829956,
+    "decisions": 30751,
+    "inference_ratio": 0.728193
+   },
+   "gtp_cs_l10_fh30": {
+    "n_ep": 500,
+    "success_rate": 0.814,
+    "teacher_ratio": 0.6425906014799823,
+    "decisions": 31622,
+    "inference_ratio": 0.696901
+   },
+   "gtp_cs_l10_fh35": {
+    "n_ep": 500,
+    "success_rate": 0.792,
+    "teacher_ratio": 0.6145856284032608,
+    "decisions": 31771,
+    "inference_ratio": 0.673151
+   },
+   "gtp_cs_l10_fh40": {
+    "n_ep": 500,
+    "success_rate": 0.796,
+    "teacher_ratio": 0.5670116063284371,
+    "decisions": 31793,
+    "inference_ratio": 0.632806
+   },
+   "gtp_cs_l10_fh45": {
+    "n_ep": 500,
+    "success_rate": 0.758,
+    "teacher_ratio": 0.5318621449559255,
+    "decisions": 32672,
+    "inference_ratio": 0.602998
+   },
+   "gtp_cs_l10_fh50": {
+    "n_ep": 500,
+    "success_rate": 0.758,
+    "teacher_ratio": 0.5151940016458898,
+    "decisions": 32809,
+    "inference_ratio": 0.588863
+   },
+   "gtp_cs_l10_fh55": {
+    "n_ep": 500,
+    "success_rate": 0.742,
+    "teacher_ratio": 0.4925616889865487,
+    "decisions": 33677,
+    "inference_ratio": 0.569669
+   },
+   "gtp_cs_l10_fh60": {
+    "n_ep": 500,
+    "success_rate": 0.758,
+    "teacher_ratio": 0.45446821423152783,
+    "decisions": 32955,
+    "inference_ratio": 0.537364
+   },
+   "gtp_cs_l10_fh65": {
+    "n_ep": 500,
+    "success_rate": 0.744,
+    "teacher_ratio": 0.42052791207471246,
+    "decisions": 33301,
+    "inference_ratio": 0.508582
+   },
+   "gtp_cs_l10_fh70": {
+    "n_ep": 500,
+    "success_rate": 0.732,
+    "teacher_ratio": 0.40243110875081134,
+    "decisions": 33894,
+    "inference_ratio": 0.493235
+   },
+   "gtp_cs_l10_fh75": {
+    "n_ep": 500,
+    "success_rate": 0.712,
+    "teacher_ratio": 0.3864596783660054,
+    "decisions": 34076,
+    "inference_ratio": 0.47969
+   },
+   "gtp_cs_l10_fh80": {
+    "n_ep": 500,
+    "success_rate": 0.696,
+    "teacher_ratio": 0.35088635506426435,
+    "decisions": 34467,
+    "inference_ratio": 0.449522
+   },
+   "gtp_ws_l10_fh05": {
+    "n_ep": 500,
+    "success_rate": 0.832,
+    "teacher_ratio": 0.8911595716897363,
+    "decisions": 30632,
+    "inference_ratio": 0.907698
+   },
+   "gtp_ws_l10_fh10": {
+    "n_ep": 500,
+    "success_rate": 0.846,
+    "teacher_ratio": 0.8233883156995465,
+    "decisions": 30434,
+    "inference_ratio": 0.850225
+   },
+   "gtp_ws_l10_fh15": {
+    "n_ep": 500,
+    "success_rate": 0.812,
+    "teacher_ratio": 0.7564188009774985,
+    "decisions": 31509,
+    "inference_ratio": 0.793432
+   },
+   "gtp_ws_l10_fh20": {
+    "n_ep": 500,
+    "success_rate": 0.804,
+    "teacher_ratio": 0.7056833774771037,
+    "decisions": 31337,
+    "inference_ratio": 0.750406
+   },
+   "gtp_ws_l10_fh25": {
+    "n_ep": 500,
+    "success_rate": 0.824,
+    "teacher_ratio": 0.6653297119757453,
+    "decisions": 31664,
+    "inference_ratio": 0.716185
+   },
+   "gtp_ws_l10_fh30": {
+    "n_ep": 500,
+    "success_rate": 0.79,
+    "teacher_ratio": 0.6247116044147908,
+    "decisions": 32074,
+    "inference_ratio": 0.681739
+   },
+   "gtp_ws_l10_fh35": {
+    "n_ep": 500,
+    "success_rate": 0.78,
+    "teacher_ratio": 0.5943531858921416,
+    "decisions": 32691,
+    "inference_ratio": 0.655993
+   },
+   "gtp_ws_l10_fh40": {
+    "n_ep": 500,
+    "success_rate": 0.74,
+    "teacher_ratio": 0.5713602248602099,
+    "decisions": 33443,
+    "inference_ratio": 0.636494
+   },
+   "gtp_ws_l10_fh45": {
+    "n_ep": 500,
+    "success_rate": 0.794,
+    "teacher_ratio": 0.5355147150130386,
+    "decisions": 32212,
+    "inference_ratio": 0.606096
+   },
+   "gtp_ws_l10_fh50": {
+    "n_ep": 500,
+    "success_rate": 0.796,
+    "teacher_ratio": 0.4963185249350328,
+    "decisions": 32324,
+    "inference_ratio": 0.572855
+   },
+   "gtp_ws_l10_fh55": {
+    "n_ep": 500,
+    "success_rate": 0.78,
+    "teacher_ratio": 0.47867584873746527,
+    "decisions": 33108,
+    "inference_ratio": 0.557894
+   },
+   "gtp_ws_l10_fh60": {
+    "n_ep": 500,
+    "success_rate": 0.742,
+    "teacher_ratio": 0.48064785042277003,
+    "decisions": 33588,
+    "inference_ratio": 0.559566
+   },
+   "gtp_ws_l10_fh65": {
+    "n_ep": 500,
+    "success_rate": 0.762,
+    "teacher_ratio": 0.4540790302739356,
+    "decisions": 33329,
+    "inference_ratio": 0.537034
+   },
+   "gtp_ws_l10_fh70": {
+    "n_ep": 500,
+    "success_rate": 0.758,
+    "teacher_ratio": 0.4436346398838622,
+    "decisions": 33753,
+    "inference_ratio": 0.528177
+   },
+   "gtp_ws_l10_fh75": {
+    "n_ep": 500,
+    "success_rate": 0.74,
+    "teacher_ratio": 0.4129871659013305,
+    "decisions": 33972,
+    "inference_ratio": 0.502187
+   },
+   "gtp_ws_l10_fh80": {
+    "n_ep": 500,
+    "success_rate": 0.728,
+    "teacher_ratio": 0.3847583094936149,
+    "decisions": 33907,
+    "inference_ratio": 0.478247
+   }
+  }
+ },
+ "suites_gate_only": {
+  "libero_spatial": {
+   "gtpgo_cs_sp": {
+    "n_ep": 500,
+    "success_rate": 0.834,
+    "teacher_ratio": 0.2263549415515409,
+    "decisions": 13174,
+    "inference_ratio": 0.343914
+   },
+   "gtpgo_ws_sp": {
+    "n_ep": 500,
+    "success_rate": 0.822,
+    "teacher_ratio": 0.24063013289532625,
+    "decisions": 13394,
+    "inference_ratio": 0.35602
+   }
+  },
+  "libero_10": {
+   "gtpgo_cs_l10": {
+    "n_ep": 500,
+    "success_rate": 0.614,
+    "teacher_ratio": 0.22230131135872094,
+    "decisions": 36527,
+    "inference_ratio": 0.340476
+   },
+   "gtpgo_ws_l10": {
+    "n_ep": 500,
+    "success_rate": 0.616,
+    "teacher_ratio": 0.25050443627518726,
+    "decisions": 36179,
+    "inference_ratio": 0.364394
+   }
+  }
+ },
+ "gate_only_definition": "verdict disabled (judge threshold=-1.0, every gated probe accepted); hysteresis gate L=8 is the sole protection"
+}

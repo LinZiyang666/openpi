@@ -1,0 +1,7 @@
+arms:
+- arm: gtpgo_cs_l10
+  yaml: exp/gate_threshold_pareto/config/libero_10/gate_only/gtpgo_cs_l10.yaml
+  suite: libero_10
+- arm: gtpgo_ws_l10
+  yaml: exp/gate_threshold_pareto/config/libero_10/gate_only/gtpgo_ws_l10.yaml
+  suite: libero_10
