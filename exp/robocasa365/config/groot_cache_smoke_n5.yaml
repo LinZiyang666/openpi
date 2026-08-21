@@ -1,0 +1,88 @@
+# GR00T N1.5 concurrent-serving smoke — T6 n5 library, calibration-free.
+#
+# Derived from groot_cache_cp1.yaml (same always_search + always_hit wiring
+# recipe; see that file for why the recipe is deliberately calibration-free).
+# Differences: preload_path points at the T6 groot_tp n5 artifact, and the
+# timing CSVs land in a smoke-specific dir so the per-connection conn_<id>/
+# subdirectories are trivially auditable.
+#
+# Launch (weilandserver):
+#   OPENPI_MONITOR_LEVEL=BASIC python exp/robocasa365/serve_groot_n15.py \
+#       --checkpoint <target_posttraining checkpoint-60000> \
+#       --port 231xx --cache-config exp/robocasa365/config/groot_cache_smoke_n5.yaml \
+#       --concurrent
+
+enabled: true
+
+timer:
+  enabled: true
+  buffer_size: 10000
+  output_csv_dir: /tmp/groot_smk_timing
+
+keys:
+  vision_0:
+    enabled: true
+    weight: 0.25
+  vision_1:
+    enabled: true
+    weight: 0.25
+  vision_2:
+    enabled: true
+    weight: 0.25
+  prompt_emb:
+    enabled: true
+    weight: 0.0
+  robot_state:
+    enabled: true
+    weight: 0.25
+
+key_builder:
+  type: cp1_groot_spatial_pool_16
+
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: always_hit
+    search_strategy:
+      type: weighted_rrf_knn
+      top_k: 1
+      step_filter: all
+      field_similarity:
+        vision_0:
+          type: cosine
+        vision_1:
+          type: cosine
+        vision_2:
+          type: cosine
+        prompt_emb:
+          type: cosine
+        robot_state:
+          type: l2
+          to_similarity:
+            type: exp
+            tau: 1.0
+  cp3:
+    enabled: false
+    # Disabled, but the validator still type-checks this block's defaults and
+    # the default cp3 strategy is the qdrant one — incompatible with the
+    # in_memory backend below.  Pin an in-memory-compatible type explicitly.
+    search_strategy:
+      type: weighted_rrf_knn
+
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 32768
+    vision_1: 32768
+    vision_2: 32768
+    prompt_emb: 2048
+    robot_state: 20
+  in_memory:
+    preload_path: /data/robocasa365_cache/cache_artifacts_l1s1/groot_tp_spatial_pool_16_n5.pkl
+    index_type: brute_force
+
+write_policy:
+  type: never

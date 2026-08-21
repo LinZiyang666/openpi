@@ -123,3 +123,7 @@
 ### 正式 §6 Verify（G2 APPROVED 后，2026-08-21）
 
 裸 `uv run pytest tests/robocasa365 tests/cache tests/serving` = **1527 passed / 27 skipped / 0 failed**。与 pre-G2 advisory 及 Reviewer 独立运行一致（Reviewer 侧 1529 含其 2 条 review-only 探针）。manual 真机双连接冒烟随 T7 评测准备进入真机段。
+
+### Manual 真机双连接冒烟（2026-08-21，T7 真机段第一件事）— PASS
+
+拓扑：weilandserver `serve_groot_n15 --concurrent --cache-config groot_cache_smoke_n5.yaml`（T6 `groot_tp_..._n5.pkl` 4794 entries，公网口 23160）× timan107 双客户端（OpenCabinet / OpenDrawer，A/B 两景各 1 集，seed 1000000）。八项判据全过：并发分支激活（双客户端均见 `metadata.concurrent=true`）、双连接同开、首推理时间戳仅差 230ms（真交错）、每连接独立 `conn_<id>/` CSV、双侧逐步 FULL_HIT + 库 winner id（420+300 行）、全部 CSV 零 stage2 行（hit 跳过 stage2）、零串扰、干净撤场（keepwarm 全程常驻 53-55°C，显存三连读后才抢）。完整证据：[`exp/robocasa365/analysis/t7_concurrent_smoke.txt`](../exp/robocasa365/analysis/t7_concurrent_smoke.txt) + 双 hit log。备注（非判据）：纯 cache 回放（always_hit, top_k=1）SR 0/4，供评测臂 judge 设计裁决参考。

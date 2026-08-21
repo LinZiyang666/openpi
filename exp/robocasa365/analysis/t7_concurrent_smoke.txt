@@ -1,0 +1,60 @@
+T7 smoke — GR00T --concurrent real-machine dual-connection (G2 manual leftover)
+Date: 2026-08-21  Verdict: PASS (all wiring criteria; SR is not a criterion here)
+
+Topology
+--------
+server   weilandserver, tmux grootsmk (torn down after run), port 23160
+         (ziyanglin.com public 1:1 range; scouted free, others' 23152-23155 untouched)
+         cmd: OPENPI_MONITOR_LEVEL=BASIC PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi
+              /home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/serve_groot_n15.py
+              --checkpoint /home/weiland/ckpt_n15_robocasa_tp/.../target_posttraining/atomic_seen/checkpoint-60000
+              --port 23160 --cache-config exp/robocasa365/config/groot_cache_smoke_n5.yaml --concurrent
+         code: 9f9a1f0 serve_groot_n15.py + websocket_policy_server.py, tether-pushed
+              onto the (still 6818ff2) weilandserver checkout; sha256 verified both ends.
+         GPU rules observed: keepwarm resident throughout (53-55 C before/during/after);
+         free VRAM read 3x consecutively (48070 MiB) before claiming; server peak 6.25 GiB.
+library  /data/robocasa365_cache/cache_artifacts_l1s1/groot_tp_spatial_pool_16_n5.pkl
+         (T6, 4794 entries) - loaded, identity accepted by validate_artifact_identity.
+clients  timan107 sim island, 2 tmux sessions (smk1 GPU0 / smk2 GPU4), venv
+         robocasa365_uv (websockets 17.0.1 + msgpack added --no-deps; numpy stays 2.2.5),
+         groot_rollout_client.py --host ziyanglin.com --port 23160 --n-trials 1
+         --base-seed 1000000, tasks OpenCabinet / OpenDrawer, scenes A=(1,1) B=(7,7).
+config   exp/robocasa365/config/groot_cache_smoke_n5.yaml = groot_cache_cp1.yaml recipe
+         (always_search + always_hit, calibration-free) with T6 n5 preload + smoke CSV dir.
+
+Wiring criteria - all PASS
+--------------------------
+1. Concurrent branch active: server log line "serving stack: concurrent cache -> ...";
+   server_metadata.concurrent == true observed by BOTH clients (in both result jsons).
+2. Two simultaneous connections: websockets log "connection open" x2 back-to-back
+   (log lines 149/151), closes at lines 1369/1599; both client tmux sessions live
+   concurrently from t=15s to t=285s after launch.
+3. True interleaving: first stage1_vision timestamps of the two connections are
+   1787335032.854 vs 1787335033.085 (230 ms apart); per-conn CSV row counts 2700/3780
+   over overlapping windows.
+4. Per-connection CSV isolation: /tmp/groot_smk_timing/{conn_2ba6c26a,conn_38654bf2}/
+   each with its own timing_task_*.csv set (the shared-name overwrite hazard is gone).
+5. Cache path live on both connections: per-step FULL_HIT verdicts with library
+   winner ids (relpath mode, e.g. "OpenCabinet/episode_0004_a01:0") + cp1_score;
+   420 verdict lines (OpenCabinet conn) + 300 (OpenDrawer conn).
+6. Stage-2 skip evidence: zero stage2_* rows across all conn CSVs (always_hit ->
+   FULL_HIT -> stage 2 skipped), same evidence channel as G0-E.
+7. Zero crosstalk: OpenCabinet hit log contains 0 OpenDrawer lines and vice versa;
+   each episode ran to its horizon and its result json is well-formed.
+8. Clean teardown: grootsmk killed, port 23160 released, keepwarm alive,
+   GPU back to 441 MiB (keepwarm only). No other session's process/port touched.
+
+Episode outcomes (NOT a smoke criterion; note for eval-arm design)
+------------------------------------------------------------------
+Pure cache replay (always_hit, top_k=1) SR 0/4: OpenCabinet A fail 160.4s /
+B fail 205.6s; OpenDrawer A fail 113.8s / B fail 147.3s. n=2 tasks x 1 seed -
+no conclusions, but consistent with "cache-only floor needs a real judge";
+feeds the pending eval-arm ruling.
+
+Artifacts
+---------
+exp/robocasa365/analysis/t7_smoke_hits_opencabinet.jsonl   (420 lines)
+exp/robocasa365/analysis/t7_smoke_hits_opendrawer.jsonl    (300 lines)
+exp/robocasa365/config/groot_cache_smoke_n5.yaml           (recipe, also on weilandserver)
+weilandserver:/tmp/grootsmk.log, /tmp/groot_smk_timing/    (raw, left in place)
+timan107:/tmp/smk{1,2}_result.json, /tmp/smk{1,2}.log      (raw, left in place)

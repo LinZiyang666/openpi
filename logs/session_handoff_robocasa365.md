@@ -1,123 +1,84 @@
-# Session Handoff — RoboCasa365 跨场景 cache 实验（T5 采集就绪版）
+# Session Handoff — RoboCasa365 跨场景 cache 实验（T7 评测就绪版）
 
-> ⚠ **本文件不是 `logs/session_handoff.md`**。那一份属 X14 RL Router session，勿动、勿暂存。
+> ⚠ **本文件不是 `logs/session_handoff.md`**（那份属 X14 RL Router session，勿动）。
 
-**Status**: `Ready-to-collect` — 工程面收官，**owner 裁完 T4b 即开跑 T5 正式采集**。
-**日期**: 2026-08-18（覆写第四版；旧版内容已被本版取代）
+**Status**: `Eval-prep` — 采集(T5)/建库(T6)/并发服务改造全部收官，**下一步 = T7 评测（L0 阶梯先行）**。
+**日期**: 2026-08-21（覆写第五版；旧版内容已被本版取代。⚠ commit `9f9a1f0` 里的本文件是被共享工作树意外回退的 v4，以本版为准）
 
 ---
 
 ## 0. 一句话现状
 
-**统一临时 G2 已 APPROVED（Round 11）+ §6 Verify 已过（1496 passed/0 failed）**。临时 G1 五轮 + 统一 G2 六轮共 30 项 blocking 全闭合；真机门禁全套通过（manual 5–8、老 T-8 9/9、G0-E 106/106 FULL_HIT + stage2 零采样），证据在 `exp/robocasa365/analysis/`（8 份）。本地与远端同在 git 头部附近（见 §6 待办）。**下一步 = owner 裁 T4b → 按 §3 runbook 开跑。**
+数据、库、并发基础设施三线全清：双 teacher 各 13 task × ≥20 成功轨迹审计过 + manifest 钉死；{pi05, groot_tp}×{n20/n10/n5} 六件套 pkl 建成；GR00T 并发服务改造经外审 G2 四轮 APPROVED 并 ship（`9f9a1f0`，本地=origin）；timan107 sim 车队部署完毕、weilandserver 直连公网段可用。**T7 已开：并发双连接真机冒烟 PASS（2026-08-21）；下一步 = 评测臂设计裁决 + 薄 eval driver + L0 阶梯。**
 
 ## 1. 接手第一步
 
-1. 本文件读完。
-2. plan 权威 = [`logs/robocasa365_framework_integration.log.md`](robocasa365_framework_integration.log.md)：冻结契约（§4.3.x 全部 🔒 小节）、**逐 task N 表已回填 §7.2**、Review Log 含全部审查历史与真机证据轮次。
-3. Authority = **Execution**（读 `protocols/execution_authority.md`，勿读 review 侧）。
-4. ⚠ 正式采集属 T5，plan/G2 均已就绪，**只差 T4b 的 owner 裁决**（§4）。
+1. 本文件读完；Authority = Execution（读 `protocols/execution_authority.md`）。
+2. plan 权威：主线 = [`robocasa365_framework_integration.log.md`](robocasa365_framework_integration.log.md)（冻结契约 §4.3.x、N 表 §7.2）；并发改造 = [`groot_concurrent_serving_plan.log.md`](groot_concurrent_serving_plan.log.md)（`Shipped`，含 3 专家自审 + 外审 G2 四轮 Review Log）。
+3. T7 尚无 plan——评测臂设计含科学决策（§4 待裁），**流程形式先问 owner**（正常 L2 还是 fast-track）。
 
-## 2. 冻结的采集设计（不可再议的部分）
+## 2. 资产清单（全部已验证在位）
 
-- **建库场景 (1,1)**，输出根 `/data/robocasa365_cache/build_l1s1`（**场景根**，collector 自己插 `<teacher>` 层）；最终 `build_l1s1/<teacher>/<Task>/episode_NNNN_aAA.h5`。
-- **种子**：采集段 `base_seed=0`，评测段 `base_seed=1000000`；`env.reset(seed=base_seed+episode_idx)`；契约 = same initial state, fresh stochastic rollout（重试写新 `_aAA`，永不覆盖）。
-- **完成规则**：每 task 跑 `N`（§7.2 表）= 点估计二项 0.90 分位；不足 20 条成功走**补批规程**（`--batch N+1` + `--episode-lo` 从上批末尾接续，新 run-plan 文件）。
-- **拓扑（D-L）**：1 server 进程 ↔ 1 连接 ↔ 1 worker；横向扩 = 多 server 进程 + `--gpu-ids`；**一个 teacher 一次 driver 调用**（亲和门在 env-config 里按 `PI05_SERVERS`/`GROOT_TP_SERVERS` 分组）。
-- **manifest**：只收 journal `accepted∧success∧error is None` 的 attempt、按 `episode_idx` 升序前 20、sha256 钉死；建库只消费 manifest。
-- **审计是 T5 的阻塞后置**：每批跑完必跑 `verify_collection_artifacts.py`（h5 写失败是静默的，journal 会说谎）。
+### 数据（weilandserver `/data/robocasa365_cache/`，盘 3.6T 余 ~2.8T）
 
-## 3. 🚀 Runbook（pi0.5 侧示例；GR00T 侧换 server 命令与 `--teacher groot_tp`）
+- **`build_l1s1/pi05/`** 774 ep（322G）：批1 715+批2 59；审计 ok:True（13/13 task ≥20 成功，零缺失/零 missing_terminal/零 multi/零 schema 错）。逐 task 实测 SR：CloseBlenderLid 0.14、CloseFridge 0.62、CoffeeSetupMug 0.48、OpenCabinet 0.82、OpenDrawer 0.72、OpenStandMixerHead 0.31、PP-CounterToCabinet 0.70、PP-CounterToStove 0.81、PP-DrawerToCounter 0.51、PP-SinkToCounter 0.93、PP-ToasterToCounter 0.43、SlideDishwasherRack 0.51、TurnOnSinkFaucet 0.82。
+- **`build_l1s1/groot_tp/`** 579 ep（183G）：批1 559+批2 18+批3 2；审计 ok:True。逐 task：CBL 0.74、CF 0.43、CSM 0.60、OC 0.81、OD 0.77、OSMH 0.79、PPCC 0.62、PPCS 0.81、PPDC 0.60、PPSC 0.82、PPTC 0.79、SDR 0.55、TOSF 0.24（封顶 100）。
+- **账本**（`exp/robocasa365/data/`，gitignored）：`journal_collect_l1s1_{pi05,groot_tp}.jsonl`、run-plan pi05 b01-b02 / tp b01-b03、**`manifest_l1s1_{pi05,groot_tp}.json`（各 13×20，sha256 钉死，建库唯一入口）**。
+- T3 测试残留已归档 `_archive_t3_manual/`（勿混入正式数据）。示例视频 `videos_l1s1/` 13 mp4（pi05 manifest 首条成功集，三视角横拼；Windows 副本在 `C:\Users\lzy66\Downloads\videos_l1s1\`）。
 
-```bash
-# ① server（每路一个进程；多路换 --port 8011... 各自独立进程）
-tmux new -s rc5srv0 -d "cd /home/weiland/openpi && .venv/bin/python scripts/serve_policy.py \
-  --port 8010 --non-concurrent --collect --collect_dir /data/robocasa365_cache/build_l1s1 \
-  policy:checkpoint --policy.config pi05_robocasa --policy.dir /home/weiland/ckpt_pi05_robocasa_pytorch \
-  2>&1 | tee /tmp/rc5_srv0.log"
-# 就绪标志：log 出现 "server listening on 0.0.0.0:8010"
+### 库（T6，`/data/robocasa365_cache/cache_artifacts_l1s1/`，软链 `exp/robocasa365/data/cache_artifacts_l1s1`）
 
-# ② driver+agent+worker（--tasks 用 §7.2 的 N 表逐 task 冒号计数；按 T4b 裁决增删）
-tmux new -s rc5run -d "export HOME=/home/weiland; cd /home/weiland/openpi && .venv/bin/python exp/robocasa365/run_collect.py \
-  --role all --teacher pi05 --servers 127.0.0.1:8010 \
-  --tasks CloseBlenderLid:126,CloseFridge:48,CoffeeSetupMug:48,OpenCabinet:40,OpenDrawer:83,OpenStandMixerHead:83,PickPlaceCounterToCabinet:40,PickPlaceCounterToStove:24,PickPlaceDrawerToCounter:33,PickPlaceSinkToCounter:28,PickPlaceToasterToCounter:61,SlideDishwasherRack:61,TurnOnSinkFaucet:40 \
-  --layout 1 --style 1 --base-seed 0 --batch 1 \
-  --collect-root /data/robocasa365_cache/build_l1s1 \
-  --env-config exp/robocasa365/config/collect_weilandserver.env \
-  --connect-deadline-s 60 --episode-deadline-s 900 --terminate-grace-s 30 \
-  2>&1 | tee /tmp/rc5_run_pi05.log"
-# 完成标志：log 出现 "[run_collect] driver finished"；崩溃直接重启同命令（journal 续跑 + run-plan hash 校验）
-
-# ③ 审计 + manifest（跑完必做；多批时 --run-plan 重复给）
-.venv/bin/python exp/robocasa365/verify_collection_artifacts.py \
-  --root /data/robocasa365_cache/build_l1s1 --teacher pi05 \
-  --journal exp/robocasa365/data/journal_collect_l1s1_pi05.jsonl \
-  --run-plan exp/robocasa365/data/run_plan_collect_l1s1_pi05_b01.json \
-  --target 20 --report-out exp/robocasa365/analysis/t5_audit_pi05.txt \
-  --manifest-out exp/robocasa365/data/manifest_l1s1_pi05.json
-
-# ④ provenance（run 结束后抓，单连接 server 跑时抓会被 1013 拒）
-{ tr '\0' ' ' < /proc/$(pgrep -f "^[.]venv/bin/python scripts/serve_policy[.]py --port 8010")/cmdline; echo; \
-  .venv/bin/python -c "from openpi_client.websocket_client_policy import WebsocketClientPolicy as W; c=W(host='127.0.0.1', port=8010); print(repr(c.get_server_metadata())); c.close()"; \
-  sha256sum /home/weiland/ckpt_pi05_robocasa_pytorch/model.safetensors; } \
-  > exp/robocasa365/analysis/t5_server_provenance_8010.txt
-
-# ⑤ 软链（D-G，首次开跑前建一次）
-ln -sT /data/robocasa365_cache /home/weiland/openpi/exp/robocasa365/data_symlink_to_data_disk
-```
-
-**GR00T 侧 server**（孤岛 B；worker 不变，`--teacher groot_tp` + `GROOT_TP_SERVERS` 端口）：
-```bash
-tmux new -s rc5gsrv -d "export HOME=/home/weiland; cd /home/weiland/openpi && \
-  PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi \
-  /home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/serve_groot_n15.py \
-  --collect-hdf5 /data/robocasa365_cache/build_l1s1 2>&1 | tee /tmp/rc5_gsrv.log"
-```
-✅ **T5 实测修正（2026-08-19）**：conductor 路径对 GR00T 完整可用——`run_collect --teacher groot_tp` 端到端验证通过（GrootTeacherAdapter 在 episode_runner TEACHERS 注册，journal/run-plan/审计全套同 pi05）。⚠ `--collect-hdf5` 与 pi05 的 `--collect_dir` **同语义 = 场景根**（`build_l1s1`）：GrootCacheCollector 内部就是 EpisodeDataCollector，episode_name 自带 `<teacher>/<Task>/` 层；传 teacher 根会得 `groot_tp/groot_tp/`（已实踩，episode 0 手工归位）。旧文本推荐的 `groot_tp_raw` 裸堆形态作废。
-
-## 4. ⏳ T4b 待 owner 裁（每条给默认建议，裁「按默认」即可开跑）
-
-| 项 | 建议默认 | 备注 |
+| pkl | entries | 大小 |
 |---|---|---|
-| D-A 顺序 | **先 pi0.5 后 GR00T** | 你原话「先 pi 在 gt」；两侧独立，顺序不影响科学性 |
-| D-C `TurnOnSinkFaucet` | **(a) tp 侧封顶 100 ep**（攒到几条算几条），pi0.5 侧照 N=40 收 | 剔除会连 pi0.5 侧 ŜR=0.6 的好数据一起丢；封顶省 156 ep≈4.2h |
-| D-D 子集 | **宽·pooled 13**（§7.2 表即按此口径） | 12↔13 只差 TurnOnSinkFaucet，与 D-C 联动 |
-| D-E 种子 | 采集 0 / 评测 1000000 | 已冻结在机制里，此处只确认数值 |
-| D-F 失败轨迹 | 全落盘（现成行为），manifest 只收成功 | 磁盘代价已计入 790 GB 估算 |
-| D-G 存储 | `/data/robocasa365_cache` + 软链（runbook ⑤） | 路径公式已冻结 |
-| D-H L0 阶梯 | 纳入且第一个跑（评测段种子，另一次 run_collect 即可） | 廉价熔断 |
-| D-I 物体实例 | 本计划不做（相反裁决须另开 plan+G1+G2） | §3.2.1 冻结 |
-| D-J 场景水平 | 维持 2×2（layout∈{1,5}×style∈{1,7}） | 加水平每场景先付 ≈3.75h 准入门 |
+| `pi05_spatial_pool_16_n{20,10,5}` | 23793/11911/5901 | 11.1G/5.6G/2.8G |
+| `groot_tp_spatial_pool_16_n{20,10,5}` | 19003/9683/4794 | 7.7G/3.9G/1.9G |
 
-**预算（默认口径）**：pi05 715 ep ≈19.2h + tp（封顶后）559 ep ≈15.0h ≈ **34h 单路**；双 server 进程对半。
+嵌套前缀（n5⊂n10⊂n20，manifest episode_idx 序，零选择偏差）；n20 全量构建、n10/n5 切片派生（builder 纯可加性验证过，`library_stats` 用同一 `enrich_artifact_with_factors` 在子集重算=与重建等价）；`lists/` 六份 episode 清单为 provenance。配方：pi05=`cp1_spatial_pool_16 --vision-slots 3`、tp=`cp1_groot_spatial_pool_16`，均 `--episode-list`+`--trajectory-id-mode relpath`（stem 模式会静默碰撞丢 90%，绝不可用）。
 
-## 5. 拓扑 / 纪律 / 陷阱
+### 代码（git：本地 = origin/Ziyang = `9f9a1f0`）
 
-- **weilandserver 4090（49G）与 owner 其它 session 共享**：8000 端口 serve_policy、8030 serve_policy、两个 sidecar **绝不可动**；⚠ 每路 ≈21G（server 8 + sim client 13），开跑前 `nvidia-smi` 查 free，**不够不硬挤**（owner 明令不伤别的进程）；显存读数波动大，抢大块前连续 3 次 ≥ 需求。
-- 端口：我方 pi0.5 用 8010+（多路 8011…）、GR00T 用 8020+；tmux 一律 `rc5*` 前缀；禁宽 pkill，pgrep 用 `^[.]venv/bin/python …` 锚定（sh 包装与自匹配双坑）。
-- **同步方式（owner 裁定）**：迭代 `tether push --force` 直传 tracked 文件；git 只做里程碑收口（收口时远端先 `git checkout -- <直传文件>` 再 `ff-only pull`；**新文件必须先走 git**，untracked+incoming 同名会中止 pull）。
-- 孤岛 A（sim client）：venv `/home/weiland/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv`，cwd 必须 `/home/weiland/Isaac-GR00T/external_dependencies/robocasa365`，EGL 三件套必需（run_collect 的 spawn 已封装，手跑 client 才需手动 export）。孤岛 B（GR00T）：venv `/home/weiland/gr00t_n15_venv/.venv`，`PYTHONPATH` 必含 `/home/weiland/gr00t_n15`。
-- tether exec 单次 ~10min 硬上限：长跑一律 tmux+tee，本地 until-grep 短查。
-- ⚠ h5 写失败静默 + journal 会把"完成"记在没有文件的 episode 上 ⇒ **审计不可跳过**；manifest 只认审计产物。
-- ⚠ `--collect` server 单连接：run 进行中任何第二连接（包括 provenance 抓取）都会被 1013 拒。
-- ⚠⚠ **serve_policy 采集模式偶发挂死**（T5 实录 3 次）：签名 = episode 写毕 + "Connection closed" 后进程全局失响，client 报 `1011 keepalive ping timeout`，driver 空转把剩余 uid 全 raise 光（不落账，resume 会重跑，只亏时间）；wchan 取证 215/219 线程 futex_wait = 用户态死锁，与邻居 GPU 高载时段相关。**处置**：监控 driver 日志 keepalive 计数 ≥4 即弹换（重起 server → 原样重发 driver）；根因修复是待立项的工程债。
-- ⚠ **审计必须放 tmux**：全量 h5 校验 >10min，tether exec 上限会把进程杀在 report 与 manifest 之间（已实踩一次）。
-- ⚠ pgrep/kill 的 shell 里**不得同时含重启命令字符串**（纯文本 `serve_xxx.py` 会被自己的 pgrep 匹配 → kill 自杀，已实踩）；清理与重启分两次 tether exec。
-- ⚠ 图像 token 事实修正（2026-08-17 真机 A/B）：GR00T 模板把 instruction 排在图像块**后**，段起点恒 20/283/546；load-bearing = ≠ pi0.5 固定表 0/256/512。旧说法「随 prompt 浮动」已废。
+- **并发服务（本次 ship）**：`serve_groot_n15.py --concurrent`（默认 off 显式 opt-in，保既有命令 byte-fidelity）= per-connection 工厂：共享面仅 GPU policy（模块级单推理锁，v1 并发模型=GPU 串行+sim/网络重叠）与 storage backend（`build_shared_storage`+每连接 facade）；每连接全新 key_builder/orchestrator/`GrootStagedRunner`/interceptor/adapter；CSV 落 `conn_<uuid8>/` 子目录。`WebsocketPolicyServer` 新公共参数 **`allow_dynamic_bundles=False`**：拒全部 `load_cache_config`、拒非 default `select_bundle`、`select_bundle("default")` 保留为启动配置幂等绑定（runner 每连接首发依赖）。`--collect-hdf5` 恒单连接（D-L 冻结）。16 条非 manual 测试；**正式 Verify（G2 后）`tests/robocasa365 tests/cache tests/serving` = 1527/27/0**。
+- T5 机器（run_collect conductor 全套 + `verify_collection_artifacts.py` + `min_episodes_for_target`）与 GR00T cache 栈（staged/interceptor/key_builder）早前已 ship。
+- **并发能力真机实证（2026-08-21 探测）**：pi05 concurrent server + 双真 robocasa episode 全程时间戳交错、零串扰（公网路径推理 1.1-1.2s/次，两集一集墙钟）；conductor `WorkerAgent(specs)` 任意 worker 数（`capacities=1` 只是采集冻结参数）；**GR00T `--concurrent` 真机双连接冒烟未做**（G2 记录的 manual 遗留，T7 真机段第一件事）。
 
-## 6. 待办与工作树状态
+### 基础设施
 
-- [x] **T4b 已按默认执行**（owner「依照plan有序开展」+ §4 默认建议，T5 全程按此跑完）
-- [x] **收尾 commit 完成**：`6818ff2`（本线六文件，远端已收敛）+ `32d291e`（owner 指令全线快照，**尚未 push**——origin 已被其它 session 推进到 `ef9d9cc`，push 前需 rebase）
-- [x] **T5 pi0.5 侧收官（2026-08-19）**：批1 715 + 批2 59 = 774 ep，369+ 成功；审计 ok:True（13/13 task ≥20，零缺失零 schema 错）；`manifest_l1s1_pi05.json`（13×20）+ `t5_audit_pi05.txt` + provenance 归档；期间 server 挂死 3 次均按恢复流程闭环，零数据损失
-- [x] **T5 GR00T tp 侧收官（2026-08-19）**：批1 559 + 批2 18 + 批3 2 = 579 ep；审计 ok:True（13/13 ≥20，零缺陷）；`manifest_l1s1_groot_tp.json`（13×20）+ `t5_audit_tp.txt` + `t5_server_provenance_groot_tp.txt`（四端同 ckpt 双 sha）归档；**双路→四路横向扩真机验证通过**（D-K 降级条款的双路真机证据已补齐，assign_servers 整 task 原子分派实测）；owner 授权的多路加速将 tp 侧从 ~15h 压到 ~9h
-- [x] **T6 建库完成（2026-08-20）**：六件套 pkl 于 `/data/robocasa365_cache/cache_artifacts_l1s1/`（软链 `exp/robocasa365/data/cache_artifacts_l1s1`）：{pi05, groot_tp} × {n20 全量构建, n10/n5 嵌套前缀切片}；builder=`cp1_spatial_pool_16 --vision-slots 3`(pi05) / `cp1_groot_spatial_pool_16`(tp)，`--episode-list`+`--trajectory-id-mode relpath`；切片=同 enrich 函数重算 library_stats，与重建等价；13 task 逐项断言过
-- [x] **并发探测通过（2026-08-21）**：pi05 concurrent server（`{'concurrent': True}`）+ 双真 robocasa episode 全程交错 40 步零串扰（公网路径 `ziyanglin.com:23160`，推理 1.1–1.2s/次含邻居争用）；conductor `WorkerAgent(specs)` 支持任意 worker 数（capacities=1 仅采集冻结参数）；⚠ GR00T serve 栈仍单连接（F6：需 per-connection 工厂改造后才能并发评测）
-- [x] **timan107 sim 岛部署完成（2026-08-21）**：Isaac-GR00T@376ba89 + robocasa365 assets 23G + venv（`/scratch/zixuans8/Isaac-GR00T/.../robocasa365_uv/.venv`）+ 干净浅克隆 `openpi_rc365@ef9d9cc`（不碰共享 checkout 的 rl_router 直传态）+ openpi-client --no-deps（numpy 2.2.5 保住）；EGL 原生（无需 nvidia-gl 补丁）；冒烟 SMOKE-OK（env 16s、render std 72.3）
-- [ ] **T7 评测（下一步）**：GR00T 并发服务改造（`logs/groot_concurrent_serving_plan.log.md`，外审 G2 进行中）通过后 → 薄 eval driver（capacities>1 + 真 ctl factory 替换 no-op ctl）→ **L0 阶梯先行**（D-H，评测段种子 base_seed=1000000）→ 2×2 场景阵；输入 = T6 六件套 pkl（已就绪）+ timan107 sim 车队（已部署）+ weilandserver 直连公网段 231xx
-- 最近提交：本地 `32d291e`（未 push）；origin/Ziyang=`ef9d9cc`（他线推进）；真机证据 `d961388`
-- ⚠ 工作树混有其它 session 的 ~25 个未提交文件，提交必须逐文件点名
+- **weilandserver**（4090 48G 改装卡，多 session 共享）：直连公网段 **`ziyanglin.com:23100-23199`**（交换机 NAT 1:1，**服务必须监听段内**，ufw 已放行，优先级高于 tether expose——devices.md §4.0/§2.5.1）；已占 23100-23103/23122/23150（他线）。⚠ **GPU 冷卡不稳定**（冷态拉载 28-62s 窗口静默算错/Xid 31）→ **tmux `keepwarm` 恒温脚本常驻，任何情况不许关**。实测占用：GR00T server 6.1G、pi05 server ~8G、sim worker ~0.5-1G 显存+6G RAM。
+- **timan107 sim 岛（已部署+冒烟 SMOKE-OK）**：Isaac-GR00T@`376ba89`（与 weilandserver 同 commit）+ robocasa365 assets 23G + venv `/scratch/zixuans8/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv`（py3.12、numpy 2.2.5、openpi-client `--no-deps` 已装——⚠ 直装会被 numpy<2 pin 拖垮整个 venv）+ **干净浅克隆 `/scratch/zixuans8/openpi_rc365`**（本线 import 专用；勿动共享 `/scratch/zixuans8/openpi`，rl_router 线直传态在那里）；EGL 原生（`10_nvidia.json`，无需 weilandserver 那套 nvidia-gl 补丁）；容量 ≈35-40 worker（48 核 CPU 是瓶颈）；/scratch 余 ~32G。⚠ 机上有 yurenh2 训练与 zixuans8 LIBERO 车队。
+- **weilandserver 仓库未收敛到 `9f9a1f0`**：rl_router 线活跃使用中，pull 暂缓——T7 启动前先协调再同步。
 
-## 7. 证据索引（`exp/robocasa365/analysis/`）
+## 3. T7 评测 — 下一步工作（顺序）
 
-`t2_parity.txt`（跨栈 sha256 逐位同+真 provenance）｜`t3_action_binding.txt`（孤岛 A 6 passed）｜`t3_audit_single.txt`+`t3_resume.txt`+`t3_server_provenance_8010.txt`（单路端到端+SIGKILL 续跑+provenance）｜`t8_island_b_pytest.txt`（9 passed）｜`g0e_closed_loop.txt`+`g0e_hit_log.jsonl`（106/106 FULL_HIT、stage2 零采样）
+1. ~~真机段第一件事：GR00T 并发双连接冒烟~~ **✅ DONE（2026-08-21）PASS**——weilandserver:23160 `--concurrent`+n5 库 × timan107 双客户端，八项判据全过；证据 `exp/robocasa365/analysis/t7_concurrent_smoke.txt`（含纯 cache 回放 SR 0/4 备注，供 judge 裁决参考）。timan107 venv 已补 websockets/msgpack（--no-deps，numpy 未动）。
+2. **薄 eval driver**：复用 conductor（`WorkerAgent` capacities>1 + **真 ctl factory**——`run_collect.py` docstring 明记「EVAL runs must switch back to a real ctl factory (`examples.libero.episode_runner.default_client_factory`)，no-op ctl 仅对 collection 正确」）；评测段种子 `base_seed=1000000`；沿用 journal/审计对账纪律。
+3. **L0 阶梯先行**（D-H 冻结默认）：场景 (1,1)+评测段种子，同分布熔断；天然结合 size 阶梯 {n5,n10,n20}。
+4. **2×2 场景阵**（D-J：layout∈{1,5}×style∈{1,7}；同 seed 跨场景不同 ⇒ 配对在 task 层）。
+5. **拓扑**：weilandserver 多 server 进程（231xx 公网口，显存三连读 ≥ 需求才抢）+ timan107 多 worker（broker/公网往返慢，靠并发摊薄）。
+
+## 4. T7 前待裁/待办（owner 决策点）
+
+- **评测臂设计**：每臂 episode 数与统计口径；judge/gate 配置——G0-E 用 `always_hit` 只验接线，**现有 τ=0.334717 是 pi0.5 尺度标定，GR00T 侧不可直接复用**；纯 cache 口径（`always_search`+`always_hit`，同 cache_size 消融）还是完整 judge 栈，须 owner 定。
+- **⚠ pi05 侧在线 cache 通路未验证**：库按 3 相机建（`--vision-slots 3`），pi05 在线 key builder 是 LIBERO 双相机血统——serve_policy `--cache_config` 在 `pi05_robocasa` 上的在线 key 构建须先做结构验证（groot_cache_integration 的 P2 遗留）。
+- **T7 流程形式**（L2 全流程 vs fast-track）。
+- eval yaml 族未起草：GR00T 模板 = `exp/robocasa365/config/groot_cache_cp1.yaml`（artifact 换 T6 pkl；⚠ cp3 块即使 disabled 也须显式 `search_strategy: weighted_rrf_knn`，validator 坑实踩过）。
+
+## 5. 纪律与陷阱（存活精选）
+
+- 共享机红线：他 session 进程/端口（8030、23100-23103、23122、23150、tmux `csmain`/`cssrv`/`keepwarm`/`rlrsrv`/`srv0`/`pubfwd`、timan107 的训练与 LIBERO 车队）绝不可动；禁宽 pkill；pgrep 锚定 `^[.]venv/bin/python …`；**清理 shell 与重启命令不得同 shell**（pgrep 自匹配自杀，实踩）。
+- tether exec ~10min 硬上限：长任务（审计/构建）一律 tmux+tee；**审计曾被掐死在 report 与 manifest 之间**（实踩）。
+- **远端后台清场脚本是延时地雷**：TaskStop 杀不掉 tether 远端 shell，尾部 `tmux kill-session` 会炸后启的同名会话（实踩，损失一次构建）。
+- **共享工作树风险成真过**：他 session 的 git 操作会洗掉本线未提交编辑（本文件 v4→回退实例）；重要文档编辑后尽快 commit，或先核对 mtime。
+- serve_policy 采集模式偶发挂死档案（3 次同签名：episode 写毕+连接关闭后 futex 用户态死锁全局失响；处置=driver 日志 keepalive 计数 ≥4 即弹换 server 重发 driver，resume 零数据损失；工程债未立项）。
+- `--collect-hdf5`/`--collect_dir` 都传**场景根**（collector 自插 teacher 层，传 teacher 根得双层，实踩）。
+- 同步规矩：迭代 `tether push --force`（tracked）；git 只在里程碑收口；新文件必须先走 git。
+- 图像 token 事实：GR00T 段起点恒 20/283/546 ≠ pi0.5 固定表 0/256/512。
+
+## 6. 工作树与监控状态
+
+- git：本地 = origin = `9f9a1f0`；工作树残留他线文件（latency_bench、rl_router 等），提交须逐文件点名；本文件 v5 为本线唯一未提交件（下个里程碑随批提交）。
+- 无活跃 cron/Monitor（T5 巡检已清；T7 开跑时按「Monitor 管事件触发、cron 管按时巡检」双层重挂，Monitor 挂载须在被盯日志重置**之后**——旧日志虚警实踩过）。
+- 记忆：`reference_weilandserver_public_gpu.md`（公网段+冷卡）、`project_robocasa365_framework_reconnect.md`（T5 收官笔记）已同步。
+
+## 7. 证据索引
+
+`exp/robocasa365/analysis/`：`t5_audit_pi05.txt`/`t5_audit_tp.txt`（双侧终审 ok:True）｜`t5_server_provenance_8010.txt`（含 4 实例注记）/`t5_server_provenance_groot_tp.txt`（四端同 ckpt 双 safetensors sha）｜`t2_parity.txt`、`t3_*`、`t8_island_b_pytest.txt`、`g0e_closed_loop.txt`+`g0e_hit_log.jsonl`（历史门禁全套）。并发改造全history：`logs/groot_concurrent_serving_plan.log.md` Review Log。

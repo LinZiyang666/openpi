@@ -1,0 +1,69 @@
+T7 Stage 0 — capacity probe (owner-ordered, 2026-08-21): concurrent servers on
+weilandserver x conductor workers on timan107, GR00T pure-cache workload.
+Verdict: operating point S=3 servers x 4 workers/slot (12 streams) for the
+GR00T arm; scaling PAST that point REDUCES aggregate throughput (two walls, see
+below). pi05 probe deliberately separate (owner ruling: the two teachers are
+different stacks) and pending its P2 wiring gate.
+
+Workload
+--------
+serve_groot_n15 --concurrent --cache-config <smoke recipe on the T6 n5 pkl,
+4794 entries, always_search+always_hit, all 3 vision fields weighted — the
+WORST-case scan; real search cells scan 1-2 vision fields> on ports 23160-65;
+clients = groot_rollout_client episodes, scene (1,1), eval seeds base 1000000
+(owner: probes use the eval seed segment), tasks rotated over the 13-task set.
+
+Tiers (all timestamps 2026-08-21 UTC)
+-------------------------------------
+T1  1 server x 4 workers   18:34:28-18:51:09 (1001s), 16 ep -> 57.5 ep/h.
+    Server-side: 2640 infers, total_inference mean 354ms p95 420ms
+    (stage1_vision 50ms, cp1_search 261ms = the dominant cost).
+    2.64 infer/s ~= single-server ceiling; 4 workers already saturate.
+T2  3 servers x 4 workers  (12 streams): per-server 170-185 infers/min with
+    latency UNCHANGED (mean 329-351ms) -> linear scaling at S=3.
+    Aggregate ~8.7 infer/s. weilandserver load ~10-13/88.
+T3  6 servers x 3 workers  (18 streams): COLLAPSE. Per-server 20-70/min,
+    aggregate 4.58 infer/s (HALF of T2), latency mean 276-537ms p95 up to
+    709ms, weilandserver load climbing 16->23->33, each server process
+    236-395% CPU for a fraction of T2's per-server throughput.
+
+The two walls
+-------------
+1. Host memory bandwidth: one cp1_search scans ~1.9 GB of key vectors
+   (4794 entries x 3 vision fields x 32768 dims); 3 concurrent scan streams
+   (~22 GB/s) fit the host's DDR budget, 6+ thrash it — more servers past
+   S=3-4 slow EVERY search (torch CPU threads pile up: load 33, CPU% high,
+   throughput down). Scales with library size: pi05 n5 is 2.8G (+45%/scan),
+   n10/n20 ladders will bite harder.
+2. WAN path is WiFi: default route = wlx* USB wireless adapter. Measured rx
+   8.3 MB/s during T3 — 18 concurrent obs-upload streams hit WiFi airtime
+   contention (classic many-stream collapse). 12 streams (T2) stayed healthy.
+
+Operating point for the GR00T arm
+---------------------------------
+S=3 slots (ports 23160-62) x 4 workers x capacity 4. Expected aggregate 8.7+
+infer/s on the worst-case recipe; real cells (1-2 scanned fields) should do
+better. At ~132 infers/ep (mean horizon 658, replan 5): >=237 ep/h ->
+76 cells x 104 ep = 7904 ep in <=33h, likely nearer 1 day.
+
+timan107 guardrail readings (18-worker worst case, all within rails)
+--------------------------------------------------------------------
+load avg peak 19.4/48; RAM available min 104G (rail: >=40G); per-GPU used
+1.3-4.8G with 2-3 workers/card, min free 3.3G (rail: >=1.5G); co-user GPU
+jobs finished during the probe window (cards read 8111 MiB free at baseline);
+worker footprint ~1.3-1.6G VRAM, ~6-8G RAM each.
+
+pi05 side (pending)
+-------------------
+Same-method probe AFTER the P2 wiring gate (pi05 3-camera online key path is
+unverified). Expect lower per-server rates (2.8G/scan) and ~8G VRAM/server.
+
+Cleanup: all probe sessions (wsp1/wsp2/wsp3, ws0-ws5) killed by exact name;
+231xx back to foreign 23152-55 only; keepwarm resident throughout (53-55C);
+GPU back to 441 MiB. Known incident: an interrupted tether exec kept running
+remotely and its relaunch collided (duplicate tmux sessions) + a log rm
+orphaned the first wave's logs — measurement switched to server-side CSV
+windows, which the numbers above use.
+
+Raw evidence: weilandserver /tmp/wsprobe_p2316{0..5}/ timing CSVs +
+/tmp/wsprobe_ws{0..5}.log; timan107 /tmp/wsp{1,2,3}_*.{log,json}.
