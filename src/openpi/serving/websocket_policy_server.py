@@ -459,6 +459,17 @@ class WebsocketPolicyServer:
                     concurrent mode.  Receives the base ``policy`` and returns
                     a per-connection wrapper stack.  Required when
                     ``concurrent=True``.
+        allow_dynamic_bundles: When ``False``, the ``load_cache_config`` ctrl
+                    message and any non-``"default"`` ``select_bundle`` are
+                    rejected with an error ack: the server serves exactly its
+                    startup configuration, and ``select_bundle("default")``
+                    stays an idempotent bind of that configuration (the
+                    in-repo runner issues it before the first infer of every
+                    connection). Set by servers whose factory ignores
+                    hot-loaded bundles, so a client can never receive a
+                    success ack for a configuration switch that will not
+                    happen. Default ``True`` preserves the legacy dynamic
+                    behavior.
     """
 
     def __init__(
@@ -470,6 +481,7 @@ class WebsocketPolicyServer:
         concurrent: bool = False,
         connection_policy_factory: Callable[..., _base_policy.BasePolicy] | None = None,
         ready_callback: Callable[[], None] | None = None,
+        allow_dynamic_bundles: bool = True,
     ) -> None:
         self._policy = policy
         self._host = host
@@ -477,6 +489,16 @@ class WebsocketPolicyServer:
         self._metadata = metadata or {}
         self._concurrent = concurrent
         self._connection_policy_factory = connection_policy_factory
+        # When False, every ``load_cache_config`` and every non-"default"
+        # ``select_bundle`` ctrl message is rejected with an error ack even in
+        # concurrent mode; ``select_bundle("default")`` stays an idempotent
+        # bind of the startup configuration (the in-repo runner sends it
+        # before the first infer of each connection). A server whose factory
+        # ignores hot-loaded bundles MUST set this, otherwise a client could
+        # register a yaml, receive success acks, and silently keep being
+        # served the startup stack — a provenance mismatch invisible in the
+        # results (GR00T concurrent plan, G2 R1/R2).
+        self._allow_dynamic_bundles = allow_dynamic_bundles
         self._has_active_connection = False  # for single-connection mode
         # Fired exactly once, after the listen socket is bound — lets a
         # supervisor (replica scale-out) wait for "actually serving" rather
@@ -694,6 +716,15 @@ class WebsocketPolicyServer:
                             continue
                         await websocket.send(packer.pack({"__ack__": "prefill_trajectory"}))
                     elif ctrl == "load_cache_config":
+                        if not self._allow_dynamic_bundles:
+                            msg = (
+                                "load_cache_config is disabled on this server: it "
+                                "serves a fixed startup configuration. Restart the "
+                                "server with the desired --cache-config instead."
+                            )
+                            logger.error(msg)
+                            await websocket.send(packer.pack({"__ack__": "error", "msg": msg}))
+                            continue
                         if not self._concurrent:
                             msg = (
                                 "load_cache_config requires --concurrent mode. "
@@ -796,6 +827,30 @@ class WebsocketPolicyServer:
                                 logger.error("Failed to load cache config %s: %s", yaml_path, e)
                                 await websocket.send(packer.pack({"__ack__": "error", "msg": str(e)}))
                     elif ctrl == "select_bundle":
+                        if (
+                            not self._allow_dynamic_bundles
+                            and obs.get("bundle_id", _DEFAULT_BUNDLE_ID) != _DEFAULT_BUNDLE_ID
+                        ):
+                            # Hot-load is disabled, but the "default" slot must
+                            # stay selectable: the in-repo runner protocol
+                            # (RobocasaEpisodeRunner._ensure_client) issues
+                            # select_bundle("default") before the first infer
+                            # of every new connection, and with
+                            # load_cache_config rejected above nothing can ever
+                            # be registered under "default" — so the default
+                            # bind is always the startup configuration,
+                            # idempotently. Only non-default ids would confirm
+                            # a switch the fixed factory will not perform.
+                            msg = (
+                                "select_bundle is disabled on this server for "
+                                "any bundle other than 'default': it serves a "
+                                "fixed startup configuration. Restart the "
+                                "server with the desired --cache-config "
+                                "instead."
+                            )
+                            logger.error(msg)
+                            await websocket.send(packer.pack({"__ack__": "error", "msg": msg}))
+                            continue
                         # M2 (Phase 3, G2 R1 Item 2): client declares which
                         # bundle this connection binds to. Lazy lifecycle:
                         # the per-connection wrapper stack is created here

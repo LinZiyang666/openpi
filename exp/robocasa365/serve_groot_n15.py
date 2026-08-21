@@ -45,7 +45,10 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import pathlib
+import threading
+import uuid
 from typing import Any
 
 import numpy as np
@@ -249,6 +252,126 @@ def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
     )
 
 
+class _InferLockedPolicy:
+    """Serialize ``infer`` across connections; everything else passes through.
+
+    v1 concurrency model (plan D4): one shared lock strictly serializes the
+    GPU-touching ``infer`` path while sim stepping and socket I/O of the other
+    connections overlap. Lifecycle hooks are NOT taken under the lock — they
+    run per-connection-serial in the server's handler and their only shared
+    touch point (the storage backend) is read-only by construction
+    (``write_policy=never`` is enforced at config load).
+
+    ``__getattr__`` delegation keeps the ``hasattr`` surface identical to the
+    wrapped stack — the WebSocket server feature-detects every lifecycle hook
+    (``on_task_begin`` / ``on_episode_start`` / ``prefill_trajectory`` / ...),
+    so a wrapper that faked or hid attributes would silently disable CSV
+    flushing and episode resets.
+    """
+
+    def __init__(self, inner: Any, lock: threading.Lock) -> None:
+        self._inner = inner
+        self._lock = lock
+
+    def infer(self, obs: dict[str, Any]) -> dict[str, Any]:
+        with self._lock:
+            return self._inner.infer(obs)
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._inner, name)
+
+
+def _require_default_bundle(bundle_id: str) -> None:
+    """Fail fast instead of silently serving the CLI yaml under another name.
+
+    In concurrent mode the server exposes ``load_cache_config`` /
+    ``select_bundle``; this factory only knows the configuration it was
+    started with, so acking any other bundle id would be a silent provenance
+    mismatch. The raise surfaces as an error ack on the requesting client.
+    Yaml hot-swap on the GR00T server is future work, not this plan.
+    """
+    if bundle_id != "default":
+        raise ValueError(
+            f"GR00T concurrent server serves only bundle_id='default' (its CLI "
+            f"config); got {bundle_id!r}. Restart the server with the desired "
+            f"--cache-config instead of select_bundle."
+        )
+
+
+def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
+    """Per-connection policy factory for concurrent serving (plan D2/D3).
+
+    Shares exactly two things across connections: the GPU policy (guarded by
+    the infer lock) and the storage backend (via per-connection facades).
+    Every mutable component — key_builder, gates, judges, strategies, timer,
+    orchestrator, staged runner, adapter — is built fresh per connection.
+    """
+    lock = threading.Lock()
+
+    if not args.cache_config:
+
+        def teacher_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
+            _require_default_bundle(bundle_id)
+            return _InferLockedPolicy(GrootPolicyAdapter(shared_base_policy), lock)
+
+        return teacher_factory, "concurrent teacher-only (no cache)"
+
+    from openpi.cache.config import (
+        build_per_connection_components,
+        build_shared_storage,
+        load_cache_config,
+        validate_cache_config,
+    )
+    from openpi.cache.groot.interceptor import GrootCacheInterceptor
+    from openpi.cache.groot.load_guard import (
+        validate_artifact_identity,
+        validate_groot_cache_config,
+    )
+    from openpi.cache.groot.staged import GrootStagedRunner
+    from openpi.cache.orchestrator import CacheOrchestrator
+
+    config = load_cache_config(args.cache_config)
+    validate_cache_config(config)
+    validate_groot_cache_config(config)
+    shared_storage = build_shared_storage(config)
+    validate_artifact_identity(shared_storage, config)
+
+    def cache_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
+        _require_default_bundle(bundle_id)
+        components = build_per_connection_components(config, shared_storage, quiet=True)
+        timer = components["timer"]
+        if config.timer.output_csv_dir:
+            # Per-connection subdirectory: the per-task CSV name is only
+            # (task ordinal, second) and every connection counts from task 0,
+            # so two concurrent connections writing one directory would
+            # silently overwrite each other's latency evidence.
+            conn_dir = os.path.join(
+                config.timer.output_csv_dir, f"conn_{uuid.uuid4().hex[:8]}"
+            )
+            os.makedirs(conn_dir, exist_ok=True)
+            timer.enable_csv(conn_dir)
+        orchestrator = CacheOrchestrator(
+            storage=components["storage"],
+            key_builder=components["key_builder"],
+            gates=components["gates"],
+            judges=components["judges"],
+            search_strategies=components["search_strategies"],
+            timer=timer,
+            write_policy=components["write_policy"],
+            offline_writers=components["offline_writers"],
+            library_stats=components["library_stats"],
+        )
+        runner = GrootStagedRunner(shared_base_policy.model, timer=timer)
+        interceptor = GrootCacheInterceptor(
+            shared_base_policy, runner, orchestrator=orchestrator, timer=timer
+        )
+        return _InferLockedPolicy(GrootPolicyAdapter(interceptor), lock)
+
+    return cache_factory, (
+        f"concurrent cache -> {args.cache_config} ({config.key_builder.type})"
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkpoint", default=DEFAULT_CHECKPOINT)
@@ -272,8 +395,22 @@ def main() -> None:
         help="Directory for per-episode HDF5 embeddings, for offline library "
         "building. Mutually exclusive with --cache-config.",
     )
+    parser.add_argument(
+        "--concurrent",
+        action="store_true",
+        help="Serve multiple simultaneous connections via a per-connection "
+        "policy factory (plan groot_concurrent_serving). Default OFF: without "
+        "this flag every existing invocation keeps the approved "
+        "single-connection semantics byte for byte.",
+    )
     args = parser.parse_args()
 
+    if args.concurrent and args.collect_hdf5:
+        parser.error(
+            "--concurrent cannot be combined with --collect-hdf5: collection "
+            "topology is frozen at one server process <-> one connection <-> "
+            "one worker (plan D-L); horizontal scale = more server processes."
+        )
     if args.cache_config and args.collect_hdf5:
         parser.error(
             "--cache-config and --collect-hdf5 are mutually exclusive. A library "
@@ -320,10 +457,6 @@ def main() -> None:
     _handshake(GrootPolicyAdapter(policy), policy, checkpoint)
     print("POLICY-READY", flush=True)
 
-    served, stack = _build_served_policy(policy, args)
-    adapter = GrootPolicyAdapter(served)
-    print(f"serving stack: {stack}", flush=True)
-
     # Advertise the diagnostic seed so a client can refuse to collect success
     # rates from a server whose sampling noise is pinned: that bias is invisible
     # in the resulting numbers and unrecoverable after the fact.
@@ -332,9 +465,33 @@ def main() -> None:
         "diagnostic_seed": args.diagnostic_seed,
         "action_horizon": groot_keys.ACTION_HORIZON,
     }
-    server = websocket_policy_server.WebsocketPolicyServer(
-        adapter, host="0.0.0.0", port=args.port, metadata=metadata
-    )
+    if args.concurrent:
+        factory, stack = _build_concurrent_factory(policy, args)
+        print(f"serving stack: {stack}", flush=True)
+        # Only the concurrent branch adds the key (pi05 convention): the
+        # default-mode metadata bytes stay identical to the approved form so
+        # provenance captures diff clean across batches.
+        metadata["concurrent"] = True
+        server = websocket_policy_server.WebsocketPolicyServer(
+            policy,
+            host="0.0.0.0",
+            port=args.port,
+            metadata=metadata,
+            concurrent=True,
+            connection_policy_factory=factory,
+            # Close the whole hot-swap ctrl surface (load_cache_config /
+            # select_bundle, "default" id included): this factory only ever
+            # builds the CLI configuration, so any success ack for a loaded
+            # bundle would be a silent provenance mismatch (G2 R1 item 1).
+            allow_dynamic_bundles=False,
+        )
+    else:
+        served, stack = _build_served_policy(policy, args)
+        adapter = GrootPolicyAdapter(served)
+        print(f"serving stack: {stack}", flush=True)
+        server = websocket_policy_server.WebsocketPolicyServer(
+            adapter, host="0.0.0.0", port=args.port, metadata=metadata
+        )
     print(f"SERVER-LISTENING on 0.0.0.0:{args.port}", flush=True)
     server.serve_forever()
 

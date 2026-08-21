@@ -107,12 +107,15 @@ tmux new -s rc5gsrv -d "export HOME=/home/weiland; cd /home/weiland/openpi && \
 
 ## 6. 待办与工作树状态
 
-- [ ] **owner 裁 T4b**（§4，可整体「按默认」）
-- [ ] **收尾 commit**（待 owner 授权）：工作树里本线未提交 = plan（G2 APPROVED 条目+N 表回填+状态行）、本 handoff、`logs/README.md`、`key_builder.py` docstring 修正、provenance 尾空格、`t8_island_b_pytest.txt` 归档、两条记忆同步——commit 后远端 `ff-only pull` 收敛
+- [x] **T4b 已按默认执行**（owner「依照plan有序开展」+ §4 默认建议，T5 全程按此跑完）
+- [x] **收尾 commit 完成**：`6818ff2`（本线六文件，远端已收敛）+ `32d291e`（owner 指令全线快照，**尚未 push**——origin 已被其它 session 推进到 `ef9d9cc`，push 前需 rebase）
 - [x] **T5 pi0.5 侧收官（2026-08-19）**：批1 715 + 批2 59 = 774 ep，369+ 成功；审计 ok:True（13/13 task ≥20，零缺失零 schema 错）；`manifest_l1s1_pi05.json`（13×20）+ `t5_audit_pi05.txt` + provenance 归档；期间 server 挂死 3 次均按恢复流程闭环，零数据损失
 - [x] **T5 GR00T tp 侧收官（2026-08-19）**：批1 559 + 批2 18 + 批3 2 = 579 ep；审计 ok:True（13/13 ≥20，零缺陷）；`manifest_l1s1_groot_tp.json`（13×20）+ `t5_audit_tp.txt` + `t5_server_provenance_groot_tp.txt`（四端同 ckpt 双 sha）归档；**双路→四路横向扩真机验证通过**（D-K 降级条款的双路真机证据已补齐，assign_servers 整 task 原子分派实测）；owner 授权的多路加速将 tp 侧从 ~15h 压到 ~9h
-- [ ] **建库**（T6：从两侧 manifest 各取 13×20 成功轨迹 build cache artifacts）→ L0 阶梯评测（D-H 第一个跑）
-- 最近提交：`def89fb`（远端已同步）；真机证据 commit `d961388`
+- [x] **T6 建库完成（2026-08-20）**：六件套 pkl 于 `/data/robocasa365_cache/cache_artifacts_l1s1/`（软链 `exp/robocasa365/data/cache_artifacts_l1s1`）：{pi05, groot_tp} × {n20 全量构建, n10/n5 嵌套前缀切片}；builder=`cp1_spatial_pool_16 --vision-slots 3`(pi05) / `cp1_groot_spatial_pool_16`(tp)，`--episode-list`+`--trajectory-id-mode relpath`；切片=同 enrich 函数重算 library_stats，与重建等价；13 task 逐项断言过
+- [x] **并发探测通过（2026-08-21）**：pi05 concurrent server（`{'concurrent': True}`）+ 双真 robocasa episode 全程交错 40 步零串扰（公网路径 `ziyanglin.com:23160`，推理 1.1–1.2s/次含邻居争用）；conductor `WorkerAgent(specs)` 支持任意 worker 数（capacities=1 仅采集冻结参数）；⚠ GR00T serve 栈仍单连接（F6：需 per-connection 工厂改造后才能并发评测）
+- [x] **timan107 sim 岛部署完成（2026-08-21）**：Isaac-GR00T@376ba89 + robocasa365 assets 23G + venv（`/scratch/zixuans8/Isaac-GR00T/.../robocasa365_uv/.venv`）+ 干净浅克隆 `openpi_rc365@ef9d9cc`（不碰共享 checkout 的 rl_router 直传态）+ openpi-client --no-deps（numpy 2.2.5 保住）；EGL 原生（无需 nvidia-gl 补丁）；冒烟 SMOKE-OK（env 16s、render std 72.3）
+- [ ] **T7 评测（下一步）**：GR00T 并发服务改造（`logs/groot_concurrent_serving_plan.log.md`，外审 G2 进行中）通过后 → 薄 eval driver（capacities>1 + 真 ctl factory 替换 no-op ctl）→ **L0 阶梯先行**（D-H，评测段种子 base_seed=1000000）→ 2×2 场景阵；输入 = T6 六件套 pkl（已就绪）+ timan107 sim 车队（已部署）+ weilandserver 直连公网段 231xx
+- 最近提交：本地 `32d291e`（未 push）；origin/Ziyang=`ef9d9cc`（他线推进）；真机证据 `d961388`
 - ⚠ 工作树混有其它 session 的 ~25 个未提交文件，提交必须逐文件点名
 
 ## 7. 证据索引（`exp/robocasa365/analysis/`）
