@@ -338,6 +338,7 @@ def robocasa_spawn_fn(
     connect_deadline_s: float,
     episode_deadline_s: float,
     terminate_grace_s: float,
+    max_cached_envs: int | None = None,
 ) -> subprocess.Popen:
     """Launch one island-A worker. All paths come from parameters — never hardcoded.
 
@@ -358,6 +359,9 @@ def robocasa_spawn_fn(
         "--episode-deadline-s", str(episode_deadline_s),
         "--terminate-grace-s", str(terminate_grace_s),
     ]
+    if max_cached_envs is not None:
+        # Optional so every existing collection invocation stays byte-identical.
+        cmd += ["--max-cached-envs", str(max_cached_envs)]
     env = {k: v for k, v in os.environ.items() if k not in ("VIRTUAL_ENV", "PYTHONPATH", "PYTHONHOME")}
     # Island A has openpi_client but not openpi/exp; both come off the repo.
     env["PYTHONPATH"] = os.pathsep.join((repo_root, os.path.join(repo_root, "src")))

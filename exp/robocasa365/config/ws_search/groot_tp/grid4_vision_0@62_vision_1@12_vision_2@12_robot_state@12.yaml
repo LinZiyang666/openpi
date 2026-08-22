@@ -1,0 +1,88 @@
+enabled: true
+timer:
+  enabled: false
+keys:
+  vision_0:
+    enabled: true
+    weight: 0.625
+  vision_1:
+    enabled: true
+    weight: 0.125
+  vision_2:
+    enabled: true
+    weight: 0.125
+  prompt_emb:
+    enabled: false
+    weight: 0.0
+  robot_state:
+    enabled: true
+    weight: 0.125
+key_builder:
+  type: cp1_groot_spatial_pool_16
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: always_hit
+    search_strategy:
+      type: weighted_score_sum_knn
+      top_k: 1
+      step_filter: all
+      field_similarity:
+        vision_0:
+          type: cosine
+        vision_1:
+          type: cosine
+        vision_2:
+          type: cosine
+        robot_state:
+          type: l2
+          to_similarity:
+            type: exp
+            tau: 1.0
+      score_normalization:
+        type: per_field
+        fields:
+          vision_0:
+            method: zscore
+            params:
+              mu: 0.8548058452967752
+              sigma: 0.03216505356411405
+              squash: tanh
+          vision_1:
+            method: zscore
+            params:
+              mu: 0.8486966886775902
+              sigma: 0.03203490294110123
+              squash: tanh
+          vision_2:
+            method: zscore
+            params:
+              mu: 0.7962705813997545
+              sigma: 0.044117166668199655
+              squash: tanh
+          robot_state:
+            method: zscore
+            params:
+              mu: -1.6076559129011956
+              sigma: 0.5274057448209626
+              squash: tanh
+  cp3:
+    enabled: false
+    search_strategy:
+      type: weighted_rrf_knn
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 32768
+    vision_1: 32768
+    vision_2: 32768
+    prompt_emb: 2048
+    robot_state: 20
+  in_memory:
+    preload_path: /data/robocasa365_cache/cache_artifacts_l1s1/groot_tp_spatial_pool_16_n5.pkl
+    index_type: brute_force
+write_policy:
+  type: never

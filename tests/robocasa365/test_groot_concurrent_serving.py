@@ -62,7 +62,8 @@ class _RecordingInner:
 
 def _args(**overrides) -> types.SimpleNamespace:
     ns = types.SimpleNamespace(
-        cache_config=None, collect_hdf5=None, concurrent=True, diagnostic_seed=None
+        cache_config=None, collect_hdf5=None, concurrent=True, diagnostic_seed=None,
+        compile_stage1=False,
     )
     ns.__dict__.update(overrides)
     return ns
@@ -206,9 +207,10 @@ class _FakeOrchestrator:
 
 
 class _FakeRunner:
-    def __init__(self, model, *, timer=None):
+    def __init__(self, model, *, timer=None, compile_vision=False):
         self.model = model
         self.timer = timer
+        self.compile_vision = compile_vision
 
 
 @pytest.fixture

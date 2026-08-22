@@ -1,0 +1,234 @@
+{
+ "PickPlaceSinkToCounter": {
+  "lib": {
+   "0": {
+    "prompt": "Pick the sweet potato from the sink and place it on the plate located on the counter.",
+    "objects": []
+   },
+   "1": {
+    "prompt": "Pick the tomato from the sink and place it on the plate located on the counter.",
+    "objects": []
+   },
+   "2": {
+    "prompt": "Pick the bell pepper from the sink and place it on the plate located on the counter.",
+    "objects": []
+   },
+   "4": {
+    "prompt": "Pick the peach from the sink and place it on the plate located on the counter.",
+    "objects": []
+   },
+   "5": {
+    "prompt": "Pick the steak from the sink and place it on the plate located on the counter.",
+    "objects": []
+   }
+  },
+  "eval": {
+   "1000000": {
+    "prompt": "Pick the lemon from the sink and place it on the plate located on the counter.",
+    "objects": []
+   },
+   "1000001": {
+    "prompt": "Pick the corn from the sink and place it on the plate located on the counter.",
+    "objects": []
+   },
+   "1000002": {
+    "prompt": "Pick the lemon from the sink and place it on the plate located on the counter.",
+    "objects": []
+   },
+   "1000003": {
+    "prompt": "Pick the chicken drumstick from the sink and place it on the plate located on the counter.",
+    "objects": []
+   },
+   "1000004": {
+    "prompt": "Pick the peach from the sink and place it on the plate located on the counter.",
+    "objects": []
+   },
+   "1000005": {
+    "prompt": "Pick the lime from the sink and place it on the plate located on the counter.",
+    "objects": []
+   },
+   "1000006": {
+    "prompt": "Pick the orange from the sink and place it on the plate located on the counter.",
+    "objects": []
+   },
+   "1000007": {
+    "prompt": "Pick the carrot from the sink and place it on the plate located on the counter.",
+    "objects": []
+   }
+  }
+ },
+ "PickPlaceCounterToStove": {
+  "lib": {
+   "0": {
+    "prompt": "Pick the eggplant from the plate and place it in the pan.",
+    "objects": []
+   },
+   "1": {
+    "prompt": "Pick the bell pepper from the plate and place it in the pan.",
+    "objects": []
+   },
+   "2": {
+    "prompt": "Pick the hotdog bun from the plate and place it in the pan.",
+    "objects": []
+   },
+   "3": {
+    "prompt": "Pick the cheese from the plate and place it in the pan.",
+    "objects": []
+   },
+   "4": {
+    "prompt": "Pick the kebab skewer from the plate and place it in the pan.",
+    "objects": []
+   }
+  },
+  "eval": {
+   "1000000": {
+    "prompt": "Pick the cream cheese stick from the plate and place it in the pan.",
+    "objects": []
+   },
+   "1000001": {
+    "prompt": "Pick the tomato from the plate and place it in the pan.",
+    "objects": []
+   },
+   "1000002": {
+    "prompt": "Pick the hot dog from the plate and place it in the pan.",
+    "objects": []
+   },
+   "1000003": {
+    "prompt": "Pick the squash from the plate and place it in the pan.",
+    "objects": []
+   },
+   "1000004": {
+    "prompt": "Pick the cheese from the plate and place it in the pan.",
+    "objects": []
+   },
+   "1000005": {
+    "prompt": "Pick the hot dog from the plate and place it in the pan.",
+    "objects": []
+   },
+   "1000006": {
+    "prompt": "Pick the egg from the plate and place it in the pan.",
+    "objects": []
+   },
+   "1000007": {
+    "prompt": "Pick the hotdog bun from the plate and place it in the pan.",
+    "objects": []
+   }
+  }
+ },
+ "PickPlaceCounterToCabinet": {
+  "lib": {
+   "1": {
+    "prompt": "Pick the dish brush from the counter and place it in the cabinet.",
+    "objects": []
+   },
+   "2": {
+    "prompt": "Pick the canned food from the counter and place it in the cabinet.",
+    "objects": []
+   },
+   "5": {
+    "prompt": "Pick the lime from the counter and place it in the cabinet.",
+    "objects": []
+   },
+   "9": {
+    "prompt": "Pick the banana from the counter and place it in the cabinet.",
+    "objects": []
+   },
+   "10": {
+    "prompt": "Pick the ice cube from the counter and place it in the cabinet.",
+    "objects": []
+   }
+  },
+  "eval": {
+   "1000000": {
+    "prompt": "Pick the hot dog from the counter and place it in the cabinet.",
+    "objects": []
+   },
+   "1000001": {
+    "prompt": "Pick the sponge from the counter and place it in the cabinet.",
+    "objects": []
+   },
+   "1000002": {
+    "prompt": "Pick the mango from the counter and place it in the cabinet.",
+    "objects": []
+   },
+   "1000003": {
+    "prompt": "Pick the croissant from the counter and place it in the cabinet.",
+    "objects": []
+   },
+   "1000004": {
+    "prompt": "Pick the corn from the counter and place it in the cabinet.",
+    "objects": []
+   },
+   "1000005": {
+    "prompt": "Pick the cupcake from the counter and place it in the cabinet.",
+    "objects": []
+   },
+   "1000006": {
+    "prompt": "Pick the coffee cup from the counter and place it in the cabinet.",
+    "objects": []
+   },
+   "1000007": {
+    "prompt": "Pick the beer from the counter and place it in the cabinet.",
+    "objects": []
+   }
+  }
+ },
+ "PickPlaceDrawerToCounter": {
+  "lib": {
+   "1": {
+    "prompt": "Pick the peeler from the drawer and place it on the counter.",
+    "objects": []
+   },
+   "2": {
+    "prompt": "Pick the tongs from the drawer and place it on the counter.",
+    "objects": []
+   },
+   "3": {
+    "prompt": "Pick the rolling pin from the drawer and place it on the counter.",
+    "objects": []
+   },
+   "7": {
+    "prompt": "Pick the ladle from the drawer and place it on the counter.",
+    "objects": []
+   },
+   "8": {
+    "prompt": "Pick the whisk from the drawer and place it on the counter.",
+    "objects": []
+   }
+  },
+  "eval": {
+   "1000000": {
+    "prompt": "Pick the measuring cup from the drawer and place it on the counter.",
+    "objects": []
+   },
+   "1000001": {
+    "prompt": "Pick the rolling pin from the drawer and place it on the counter.",
+    "objects": []
+   },
+   "1000002": {
+    "prompt": "Pick the peeler from the drawer and place it on the counter.",
+    "objects": []
+   },
+   "1000003": {
+    "prompt": "Pick the pizza cutter from the drawer and place it on the counter.",
+    "objects": []
+   },
+   "1000004": {
+    "prompt": "Pick the pizza cutter from the drawer and place it on the counter.",
+    "objects": []
+   },
+   "1000005": {
+    "prompt": "Pick the pizza cutter from the drawer and place it on the counter.",
+    "objects": []
+   },
+   "1000006": {
+    "prompt": "Pick the pizza cutter from the drawer and place it on the counter.",
+    "objects": []
+   },
+   "1000007": {
+    "prompt": "Pick the rolling pin from the drawer and place it on the counter.",
+    "objects": []
+   }
+  }
+ }
+}

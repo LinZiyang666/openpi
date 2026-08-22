@@ -25,8 +25,10 @@ Coupling map:
 from __future__ import annotations
 
 import contextlib
+import inspect
 import logging
 import time
+import weakref
 from typing import Any, Optional
 
 import numpy as np
@@ -43,9 +45,20 @@ from openpi.cache.storage_types import (
     CachePayload,
     QuerySpec,
     SearchResultLite,
+    StepRetrievalFeatures,
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _diag_count_only(results: list[SearchResultLite]) -> StepRetrievalFeatures:
+    """Diagnostics for a path that does not decompose per-field scores.
+
+    Only the coverage count is meaningful off the weighted-score-sum single-step
+    path; the risk router is config-gated to that path, so the other paths still
+    report a truthful ``n_results`` rather than a fabricated decomposition.
+    """
+    return StepRetrievalFeatures(n_results=len(results))
 
 
 class SearchSessionActiveError(RuntimeError):
@@ -82,6 +95,20 @@ class InMemoryBackend(VectorStoreBackend):
         # Counters for call tracking in tests.
         self.search_call_count: int = 0
         self.fetch_payload_call_count: int = 0
+
+        # Frozen-search caches. The serving path (write_policy=never) issues
+        # thousands of searches against an immutable entry set, and rebuilding
+        # the filter list plus torch.stack'ing hundreds of key vectors PER
+        # QUERY dominated live search cost (measured: 136ms of a 202ms infer,
+        # ws_search timing lab 2026-08-22). Both caches are exact — same
+        # inputs, same outputs — and any mutation clears them.
+        #   _filtered_cache: filter fingerprint -> candidates list (stable
+        #     object identity is what keys the matrix cache below).
+        #   _field_matrix_cache: (field, id(candidates)) -> (weakref to the
+        #     list, valid-index tensor, stacked matrix). The weakref guards
+        #     against id() reuse after the original list is garbage collected.
+        self._filtered_cache: dict[tuple, list[CacheEntry]] = {}
+        self._field_matrix_cache: dict[tuple, tuple] = {}
 
         # Library-level statistics for verdict-factor F1b normalization.
         # Populated by `load_artifact` (from artifact dict, or computed
@@ -164,6 +191,7 @@ class InMemoryBackend(VectorStoreBackend):
                 "Close all sessions before mutation (offline-only operation)."
             )
         self._entries[entry.id] = entry
+        self._invalidate_frozen_search_caches()
 
     def fetch_payload(self, id: str) -> CachePayload:
         self.fetch_payload_call_count += 1
@@ -193,6 +221,11 @@ class InMemoryBackend(VectorStoreBackend):
             )
         for i in ids:
             self._entries.pop(i, None)
+        self._invalidate_frozen_search_caches()
+
+    def _invalidate_frozen_search_caches(self) -> None:
+        self._filtered_cache.clear()
+        self._field_matrix_cache.clear()
 
     def count(self) -> int:
         return len(self._entries)
@@ -301,13 +334,34 @@ class InMemoryBackend(VectorStoreBackend):
     # -------------------------------------------------------------------
 
     def search(self, spec: QuerySpec) -> list[SearchResultLite]:
-        self.search_call_count += 1
-        if not self._entries:
-            return []
+        """Vector search. Thin wrapper that discards X15 diagnostics."""
+        results, _ = self.search_with_diagnostics(spec)
+        return results
 
-        candidates = self._filter_entries(spec)
+    def search_with_diagnostics(
+        self, spec: QuerySpec
+    ) -> tuple[list[SearchResultLite], StepRetrievalFeatures]:
+        """Search, returning the results and this search's retrieval diagnostics.
+
+        Returning the diagnostics *with* the results is what makes them safe
+        under ``BackendPool``, which shares one backend across connections: a
+        mutable ``last_*`` slot on the backend could be overwritten by another
+        connection between the search and the judge that reads it. The caller
+        (a per-connection ``CacheStorage`` facade) owns the returned snapshot.
+
+        Diagnostics are populated only on the weighted-score-sum single-step
+        path — the one the X15 risk router is gated to by config validation.
+        Every other path returns an empty ``StepRetrievalFeatures``, whose
+        ``n_results`` still reflects the real result count.
+        """
+        self.search_call_count += 1
+        diag = StepRetrievalFeatures()
+        if not self._entries:
+            return [], diag
+
+        candidates = self._filtered_candidates(spec)
         if not candidates:
-            return []
+            return [], diag
 
         # ── Trajectory search ──
         if (spec.trajectory_history is not None
@@ -320,36 +374,81 @@ class InMemoryBackend(VectorStoreBackend):
                 len(candidates),
             )
             if self._force_legacy:
-                return self._search_with_trajectory_legacy(candidates, spec)
+                out = self._search_with_trajectory_legacy(candidates, spec)
+                return out, _diag_count_only(out)
             try:
-                return self._search_with_trajectory(candidates, spec)
+                out = self._search_with_trajectory(candidates, spec)
             except _MultiBranchSentinel:
                 logger.warning(
                     "Multi-branch trajectory detected (prev_ids has > 1 "
                     "entry); falling back to legacy DAG path."
                 )
-                return self._search_with_trajectory_legacy(candidates, spec)
+                out = self._search_with_trajectory_legacy(candidates, spec)
+            return out, _diag_count_only(out)
 
         # ── Existing single-step search (unchanged) ──
         method = spec.fusion_method
         if method == "weighted_rrf":
             active = self._iter_active_fields(spec)
             if not active:
-                return []
-            return self._search_weighted_rrf(candidates, spec, active)
+                return [], diag
+            out = self._search_weighted_rrf(candidates, spec, active)
+            return out, _diag_count_only(out)
         elif method == "weighted_score_sum":
             active = self._iter_active_fields(spec)
             if not active:
-                return []
-            return self._search_weighted_score_sum(candidates, spec, active)
+                return [], diag
+            if self._wss_collects_diagnostics():
+                return self._search_weighted_score_sum(
+                    candidates, spec, active, collect_diagnostics=True,
+                )
+            # A subclass overriding the fusion with its own optimised path
+            # (the latency-bench LEAN backends) does not produce the per-field
+            # decomposition; it reports a truthful count instead. Probing the
+            # signature once mirrors the judge-kwarg seam in components/judge.py.
+            out = self._search_weighted_score_sum(candidates, spec, active)
+            return out, _diag_count_only(out)
         elif method is None:
-            return self._search_single_field_cosine(candidates, spec)
+            out = self._search_single_field_cosine(candidates, spec)
+            return out, _diag_count_only(out)
         else:
             raise ValueError(f"Unknown fusion_method: {method}")
 
     # -------------------------------------------------------------------
     # Filtering
     # -------------------------------------------------------------------
+
+    class _CandidateList(list):
+        """List subclass so the matrix cache can hold weak identity refs
+        (plain lists do not support weakref)."""
+
+        __slots__ = ("__weakref__",)
+
+    def _filtered_candidates(self, spec: QuerySpec) -> list[CacheEntry]:
+        """`_filter_entries` behind the frozen-search cache.
+
+        The returned list is cached by filter fingerprint so repeated searches
+        with the same filters (one episode = hundreds of them) reuse the SAME
+        list object — which is also what keys the per-field matrix cache.
+        Mutations clear the cache, so a hit is always exact.
+        """
+        key = (
+            spec.checkpoint_id,
+            None if spec.filters is None else spec.filters.task_key,
+            None if spec.filters is None else spec.filters.step_range,
+            None if spec.filters is None else spec.filters.outcome,
+        )
+        try:
+            cached = self._filtered_cache.get(key)
+        except TypeError:  # unhashable fingerprint component: skip caching
+            return self._filter_entries(spec)
+        if cached is not None:
+            return cached
+        result = self._CandidateList(self._filter_entries(spec))
+        if len(self._filtered_cache) > 256:  # unbounded-fingerprint backstop
+            self._filtered_cache.clear()
+        self._filtered_cache[key] = result
+        return result
 
     def _filter_entries(self, spec: QuerySpec) -> list[CacheEntry]:
         """Filter by checkpoint_id / task_key / step_range."""
@@ -397,29 +496,77 @@ class InMemoryBackend(VectorStoreBackend):
                  mask: 1.0 for candidates that have the field, 0.0 otherwise.
         """
         n = len(candidates)
-        valid_indices = [i for i, e in enumerate(candidates) if field_name in e.query_keys]
-
-        if not valid_indices:
+        idx_t, mat, mask, row_norms = self._candidate_matrix(candidates, field_name)
+        if mat is None:
             return torch.zeros(n), torch.zeros(n)
 
-        vecs = [candidates[i].query_keys[field_name] for i in valid_indices]
-        mat = torch.stack(vecs).float()           # [V, D]
-        q = query_vec.float().unsqueeze(0)         # [1, D]
+        q = query_vec.float()                      # [D]
 
         sim_type = sim_cfg.get("type", "cosine")
         if sim_type == "cosine":
-            valid_scores = F.cosine_similarity(q, mat)     # [V]
+            # Manual dot/norms instead of F.cosine_similarity: the broadcast
+            # kernel materializes several [V, D] temporaries and measured
+            # 43ms/call on [369, 32768] (p1 profile, 2026-08-22) — the matvec
+            # with cached row norms is the same math (docs formula:
+            # x·y / max(‖x‖‖y‖, ε)) at a fraction of the traffic.
+            denom = (row_norms * torch.linalg.vector_norm(q)).clamp_min(1e-8)
+            valid_scores = (mat @ q) / denom               # [V]
         elif sim_type == "l2":
-            valid_scores = torch.norm(q - mat, p=2, dim=1)  # [V]
+            valid_scores = torch.norm(q.unsqueeze(0) - mat, p=2, dim=1)  # [V]
         else:
             raise ValueError(f"Unknown similarity type: {sim_type}")
 
         scores = torch.zeros(n)
-        mask = torch.zeros(n)
-        idx_t = torch.tensor(valid_indices, dtype=torch.long)
         scores[idx_t] = valid_scores
-        mask[idx_t] = 1.0
-        return scores, mask
+        return scores, mask.clone()
+
+    def _candidate_matrix(
+        self, candidates: list[CacheEntry], field_name: str,
+    ) -> tuple[
+        Optional[torch.Tensor], Optional[torch.Tensor],
+        Optional[torch.Tensor], Optional[torch.Tensor],
+    ]:
+        """(valid_idx, matrix, mask, row_norms) for a field, cached per list object.
+
+        The gather + ``torch.stack`` of hundreds of key vectors was the
+        dominant per-query cost (frozen-search lab, 2026-08-22); the stacked
+        matrix only depends on (candidates list, field), so it is cached keyed
+        by ``id(candidates)`` with a weakref identity guard: a hit requires the
+        SAME list object to still be alive, which `_filtered_candidates`
+        guarantees across an episode's searches. Ad-hoc lists (memo subset
+        fills, tests) simply miss and pay the old cost. Returns (None, None,
+        None) when no candidate has the field.
+        """
+        key = (field_name, id(candidates))
+        cached = self._field_matrix_cache.get(key)
+        if cached is not None:
+            ref, idx_t, mat, mask, row_norms = cached
+            if ref() is candidates:
+                return idx_t, mat, mask, row_norms
+
+        valid_indices = [i for i, e in enumerate(candidates) if field_name in e.query_keys]
+        if not valid_indices:
+            idx_t, mat, mask, row_norms = None, None, None, None
+        else:
+            mat = torch.stack(
+                [candidates[i].query_keys[field_name] for i in valid_indices]
+            ).float()
+            idx_t = torch.tensor(valid_indices, dtype=torch.long)
+            mask = torch.zeros(len(candidates))
+            mask[idx_t] = 1.0
+            # Row L2 norms are query-independent: precompute for the manual
+            # cosine path so a warm query reads the matrix exactly once.
+            row_norms = torch.linalg.vector_norm(mat, dim=1)
+        try:
+            ref = weakref.ref(candidates)
+        except TypeError:
+            # Ad-hoc plain list (memo subset fill, direct test call): not
+            # weakref-able, so not identity-guardable — compute uncached.
+            return idx_t, mat, mask, row_norms
+        if len(self._field_matrix_cache) > 64:  # bound resident duplicate matrices
+            self._field_matrix_cache.clear()
+        self._field_matrix_cache[key] = (ref, idx_t, mat, mask, row_norms)
+        return idx_t, mat, mask, row_norms
 
     def _batch_field_scores(
         self,
@@ -613,7 +760,8 @@ class InMemoryBackend(VectorStoreBackend):
         spec: QuerySpec,
         active_fields: list[tuple[str, float, dict[str, Any]]],
         normalizers: Optional[dict[str, ScoreNormalizer]] = None,
-    ) -> list[SearchResultLite]:
+        collect_diagnostics: bool = False,
+    ):
         """Two-layer weighted score sum (batched).
 
         Layer 1 (normalization): each field's raw score (cosine value or L2
@@ -623,11 +771,19 @@ class InMemoryBackend(VectorStoreBackend):
 
         `normalizers` may be supplied by the trajectory entry points so they are
         constructed once per search rather than once per chain layer.
+
+        With ``collect_diagnostics`` the return becomes
+        ``(results, StepRetrievalFeatures)``: the per-field normalized scores
+        this method already computes are captured for the X15 risk router
+        instead of being dropped after fusion. The default stays list-returning
+        so the trajectory entry points are byte-identical.
         """
         normalizers = self._ensure_normalizers(normalizers, active_fields, spec)
 
         n = len(candidates)
         final_scores = torch.zeros(n)
+        # Retained only under collect_diagnostics: {field: (masked scores)}.
+        per_field_masked: dict[str, tuple[torch.Tensor, torch.Tensor]] = {}
 
         for field_name, weight, sim_cfg in active_fields:
             raw, mask = self._batch_field_scores(
@@ -636,7 +792,16 @@ class InMemoryBackend(VectorStoreBackend):
             # Layer 1: raw similarity -> bounded normalized score.
             s = normalizers[field_name](raw)
             # Layer 2: only accumulate for entries that have this field.
-            final_scores += weight * s * mask
+            contribution = s * mask
+            final_scores += weight * contribution
+            if collect_diagnostics:
+                # Keep the masked normalized score (pre-weight): the router
+                # compares fields to each other, so the fusion weight — a
+                # config constant — would only rescale every step identically.
+                # The mask rides along: a candidate lacking this field scores 0
+                # after masking, and counting that zero as a runner-up would
+                # fabricate a margin out of an absent candidate.
+                per_field_masked[field_name] = (contribution, mask)
 
         top_k = min(spec.top_k, n)
         top_indices = final_scores.topk(top_k).indices.tolist()
@@ -648,7 +813,73 @@ class InMemoryBackend(VectorStoreBackend):
                 SearchResultLite(id=entry.id, score=float(final_scores[idx]),
                                  checkpoint_id=entry.checkpoint_id)
             )
-        return results
+        if not collect_diagnostics:
+            return results
+        return results, self._build_step_features(
+            results, top_indices, final_scores, per_field_masked,
+        )
+
+    @classmethod
+    def _wss_collects_diagnostics(cls) -> bool:
+        """Whether this class's fusion accepts the diagnostics flag.
+
+        Cached per class: the answer is fixed at import time, and the probe is
+        on the search hot path.
+        """
+        cached = cls.__dict__.get("_WSS_DIAG_SUPPORTED")
+        if cached is None:
+            params = inspect.signature(cls._search_weighted_score_sum).parameters
+            cached = "collect_diagnostics" in params
+            cls._WSS_DIAG_SUPPORTED = cached
+        return cached
+
+    @staticmethod
+    def _build_step_features(
+        results: list[SearchResultLite],
+        top_indices: list[int],
+        final_scores: torch.Tensor,
+        per_field_masked: dict[str, tuple[torch.Tensor, torch.Tensor]],
+    ) -> StepRetrievalFeatures:
+        """Assemble the X15 diagnostics from one fusion pass.
+
+        ``winner_per_field`` decomposes the FUSED winner; ``field_own_margin``
+        instead ranks each field independently, which is what exposes a field
+        that cannot separate its own best two candidates even when the fused
+        score looks confident.
+        """
+        if not results:
+            return StepRetrievalFeatures()
+
+        winner_idx = top_indices[0]
+        winner_per_field = {
+            name: float(scores[winner_idx])
+            for name, (scores, _) in per_field_masked.items()
+        }
+
+        field_own_margin: dict[str, float] = {}
+        for name, (scores, mask) in per_field_masked.items():
+            # Only candidates that actually carry the field are ranked: with
+            # fewer than two of them the field has no second place, so the
+            # margin is undefined rather than zero.
+            scored = scores[mask > 0]
+            if scored.numel() < 2:
+                continue
+            top2 = scored.topk(2).values
+            field_own_margin[name] = float(top2[0] - top2[1])
+
+        fused_margin = 0.0
+        if len(top_indices) >= 2:
+            fused_margin = float(
+                final_scores[top_indices[0]] - final_scores[top_indices[1]]
+            )
+
+        return StepRetrievalFeatures(
+            fused_topk=tuple((r.id, r.score) for r in results),
+            winner_per_field=winner_per_field,
+            field_own_margin=field_own_margin,
+            fused_margin=fused_margin,
+            n_results=len(results),
+        )
 
     # -------------------------------------------------------------------
     # Trajectory search — new single-chain main path

@@ -66,12 +66,39 @@ TEACHERS = {
 }
 
 
+def _simplex(fields: tuple[str, ...], *, step: float = 0.125, prefix: str) -> dict[str, dict[str, float]]:
+    """All positive weightings of `fields` on a `step`-spaced simplex (sum 1)."""
+    from itertools import product
+
+    n = round(1.0 / step)
+    configs: dict[str, dict[str, float]] = {}
+    k = len(fields)
+    for units in product(range(1, n - k + 2), repeat=k - 1):
+        last = n - sum(units)
+        if last < 1:
+            continue
+        weights = {f: round(u * step, 4) for f, u in zip(fields, (*units, last))}
+        cid = prefix + "_" + "_".join(f"{f}@{int(w * 100)}" for f, w in weights.items())
+        configs[cid] = weights
+    return configs
+
+
 def weight_matrix() -> dict[str, dict[str, float]]:
-    """The frozen round-1 matrix: iso 4 + grid2 42 + grid3(rs-dominant) 30."""
+    """The round-1 matrix.
+
+    Families (all statically sized):
+    - iso 4 + grid2 42 + grid3(rs-dominant) 30: the LIBERO-mirrored core.
+    - grid3v 21: the {v0,v1,v2} three-camera simplex — LIBERO's grid3 WAS its
+      full field set, so a faithful 4-field port must cover the all-camera
+      face too (owner correction 2026-08-22).
+    - grid4 35: the full four-field simplex interior.
+    """
     configs: dict[str, dict[str, float]] = {}
     configs.update(isolation_weight_configs(FIELDS))
     configs.update(grid_weight_configs(FIELDS))
     configs.update(grid3_weight_configs(FIELDS, dominant="robot_state"))
+    configs.update(_simplex(("vision_0", "vision_1", "vision_2"), prefix="grid3v"))
+    configs.update(_simplex(("vision_0", "vision_1", "vision_2", "robot_state"), prefix="grid4"))
     return configs
 
 

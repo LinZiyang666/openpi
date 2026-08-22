@@ -64,10 +64,16 @@ from dataclasses import dataclass
 from typing import Any, Iterator, Optional
 
 import torch
+import torch.nn.functional as F
 
 from openpi.cache.timing import SystemTimer
 
 logger = logging.getLogger(__name__)
+
+# id(eagle module) -> {"fn": compiled extract_feature, "checked": bool}.
+# One compiled artifact (and one equivalence check) per model per process —
+# see GrootStagedRunner.__init__ (compile_vision).
+_COMPILED_VISION_REGISTRY: dict[int, dict[str, Any]] = {}
 
 # ------------------------------------------------------------------
 # Upstream contract
@@ -196,6 +202,7 @@ class GrootStagedRunner:
         *,
         timer: Optional[SystemTimer] = None,
         verify_upstream: bool = True,
+        compile_vision: bool = False,
     ) -> None:
         self._model = model
         self._backbone = model.backbone
@@ -231,6 +238,35 @@ class GrootStagedRunner:
         probe_backend = "cuda" if device_type == "cuda" else "cpu"
         for probe in ("stage1_vision", "stage2_llm", "stage2_action"):
             self._timer.register_probe(probe, backend=probe_backend)
+
+        # Optional compiled vision tower (owner directive 2026-08-22): the
+        # stage1 forward is launch-bound at B=1, so mode="reduce-overhead"
+        # (CUDA graphs) recovers most of the launch overhead. Compilation is
+        # cached persistently when TORCHINDUCTOR_CACHE_DIR is set (the serving
+        # entrypoint does this), so later server starts skip the compile. The
+        # compiled callable is PROCESS-shared via a module registry: concurrent
+        # serving builds one runner per connection, and per-runner compiles
+        # would each capture their own CUDA graph pool. The FIRST real call
+        # double-runs eager vs compiled and refuses to serve on divergence —
+        # keys built from a miscompiled tower would be quietly wrong
+        # everywhere downstream.
+        self._compiled_entry = None
+        if compile_vision:
+            entry = _COMPILED_VISION_REGISTRY.get(id(self._eagle))
+            if entry is None:
+                # Mode knob for divergence triage (real 4090, 2026-08-22:
+                # reduce-overhead failed the equivalence gate at cos 0.87).
+                mode = os.environ.get("OPENPI_STAGE1_COMPILE_MODE", "reduce-overhead")
+                entry = {
+                    "fn": torch.compile(
+                        self._eagle.extract_feature,
+                        mode=None if mode in ("", "default") else mode,
+                        dynamic=False,
+                    ),
+                    "checked": False,
+                }
+                _COMPILED_VISION_REGISTRY[id(self._eagle)] = entry
+            self._compiled_entry = entry
 
     # -- upstream drift guard -------------------------------------------
 
@@ -323,7 +359,14 @@ class GrootStagedRunner:
         with self._timer.measure("stage1_vision"):
             # --- copied from upstream forward, lines 235-259 ---
             input_embeds = self._eagle.language_model.get_input_embeddings()(input_ids)
-            vit_embeds = self._eagle.extract_feature(eagle_input["pixel_values"])
+            if self._compiled_entry is None:
+                vit_embeds = self._eagle.extract_feature(eagle_input["pixel_values"])
+            else:
+                vit_embeds = self._compiled_entry["fn"](eagle_input["pixel_values"])
+                if not self._compiled_entry["checked"]:
+                    vit_embeds = self._verify_compiled_vision(
+                        eagle_input["pixel_values"], vit_embeds,
+                    )
 
             b, n, c = input_embeds.shape
             flat_embeds = input_embeds.reshape(b * n, c)
@@ -352,6 +395,32 @@ class GrootStagedRunner:
             image_token_mask=selected.reshape(b, n),
             action_inputs=action_inputs,
         )
+
+    def _verify_compiled_vision(
+        self, pixel_values: torch.Tensor, compiled_out: torch.Tensor,
+    ) -> torch.Tensor:
+        """One-time eager-vs-compiled gate on the FIRST real input.
+
+        Compiled kernels reorder bf16 reductions, so bitwise equality is not
+        the bar; per-token cosine against the eager tower is. On divergence we
+        raise instead of serving: every retrieval key downstream inherits this
+        tensor. Returns the compiled output (cloned out of the CUDA-graph
+        static buffer so the eager re-run cannot alias it).
+        """
+        compiled_out = compiled_out.clone()
+        eager_out = self._eagle.extract_feature(pixel_values)
+        a = compiled_out.float().reshape(-1, compiled_out.shape[-1])
+        b = eager_out.float().reshape(-1, eager_out.shape[-1])
+        cos = F.cosine_similarity(a, b, dim=-1)
+        worst = float(cos.min())
+        logger.info("compiled vision tower one-time check: worst token cos=%.6f", worst)
+        if worst < 0.999:
+            raise RuntimeError(
+                f"compiled vision tower diverges from eager (worst token cosine "
+                f"{worst:.6f} < 0.999); refusing to serve miscompiled keys."
+            )
+        self._compiled_entry["checked"] = True
+        return compiled_out
 
     def run_stage2(self, stage1: GrootStage1Output) -> GrootStage2Output:
         """Language model + action head. This is the half a cache hit skips."""

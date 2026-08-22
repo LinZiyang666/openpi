@@ -501,3 +501,46 @@ def test_l3_exit_feeds_worker_agent_respawn():
     agent.supervise_once()  # sees exitcode 3 -> respawn
     assert spawned == ["w0", "w0"]
     assert agent.restart_counts == {"w0": 1}
+
+
+def test_env_cache_bounded_evicts_and_closes():
+    # 8G eval cards: max_cached_envs=1 must close the previous kitchen on a
+    # task switch instead of accumulating one env per task (live OOM 2026-08-21).
+    class _Env:
+        def __init__(self):
+            self.closed = False
+
+        def close(self):
+            self.closed = True
+
+    envs = []
+
+    def gym_make(task_name, layout, style, **kw):  # noqa: ARG001
+        env = _Env()
+        envs.append(env)
+        return env
+
+    runner = RobocasaEpisodeRunner(
+        _FakeAdapter(),
+        client_factory=lambda server: _FakeClient(),
+        gym_make=gym_make,
+        horizon_fn=lambda name: 5,
+        handshake_probe=lambda server, timeout_s: None,
+        max_cached_envs=1,
+    )
+    runner._ensure_env("TaskA", 1, 1)
+    runner._ensure_env("TaskB", 1, 1)
+    runner._ensure_env("TaskC", 1, 1)
+    assert len(runner._envs) == 1
+    assert [e.closed for e in envs] == [True, True, False]
+    # Re-requesting the cached key must not rebuild.
+    runner._ensure_env("TaskC", 1, 1)
+    assert len(envs) == 3
+
+
+def test_env_cache_unbounded_by_default():
+    runner, _client, _env, made = _runner()
+    runner._ensure_env("TaskA", 1, 1)
+    runner._ensure_env("TaskB", 1, 1)
+    assert len(runner._envs) == 2  # legacy collection behavior preserved
+    assert len(made) == 2

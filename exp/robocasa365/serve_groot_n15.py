@@ -245,7 +245,9 @@ def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
         offline_writers=components["offline_writers"],
         library_stats=components["library_stats"],
     )
-    runner = GrootStagedRunner(policy.model, timer=timer)
+    runner = GrootStagedRunner(
+        policy.model, timer=timer, compile_vision=args.compile_stage1
+    )
     return (
         GrootCacheInterceptor(policy, runner, orchestrator=orchestrator, timer=timer),
         f"cache -> {args.cache_config} ({config.key_builder.type})",
@@ -361,7 +363,9 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
             offline_writers=components["offline_writers"],
             library_stats=components["library_stats"],
         )
-        runner = GrootStagedRunner(shared_base_policy.model, timer=timer)
+        runner = GrootStagedRunner(
+            shared_base_policy.model, timer=timer, compile_vision=args.compile_stage1
+        )
         interceptor = GrootCacheInterceptor(
             shared_base_policy, runner, orchestrator=orchestrator, timer=timer
         )
@@ -396,6 +400,15 @@ def main() -> None:
         "building. Mutually exclusive with --cache-config.",
     )
     parser.add_argument(
+        "--compile-stage1",
+        action="store_true",
+        help="torch.compile the vision tower (mode=reduce-overhead / CUDA "
+        "graphs). Compilation is persisted via TORCHINDUCTOR_CACHE_DIR so "
+        "later server starts reuse it; the first real inference double-runs "
+        "eager vs compiled and refuses to serve on divergence. Eval paths "
+        "only — collection stays eager (frozen byte-fidelity).",
+    )
+    parser.add_argument(
         "--concurrent",
         action="store_true",
         help="Serve multiple simultaneous connections via a per-connection "
@@ -404,6 +417,19 @@ def main() -> None:
         "single-connection semantics byte for byte.",
     )
     args = parser.parse_args()
+
+    if args.compile_stage1:
+        if args.collect_hdf5:
+            parser.error(
+                "--compile-stage1 cannot be combined with --collect-hdf5: the "
+                "collection path is frozen eager (byte-fidelity)."
+            )
+        # Persist inductor/triton artifacts so only the first server start on
+        # a machine pays the compile; every later start reuses the cache.
+        os.environ.setdefault(
+            "TORCHINDUCTOR_CACHE_DIR",
+            os.path.expanduser("~/.cache/openpi_inductor"),
+        )
 
     if args.concurrent and args.collect_hdf5:
         parser.error(

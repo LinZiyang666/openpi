@@ -1,0 +1,72 @@
+# RoboCasa365 加权和检索搜索 — Round 1（筛选轮定稿）
+
+> **状态：定稿（2026-08-22）**。GR00T 臂 132/132 cells 全 complete；配对统计与机理解剖齐备。
+> **范围截断（owner /goal 改令 2026-08-22）**：cache 将重构，故原计划的 GR00T 锚点臂、加密确认轮、pi05 全臂/锚点臂**取消**；本轮以"筛选 + 机理"收口，pi05 侧仅保留 Stage-0 服务容量探测（§6）。加密轮设计（配对 top-8+阴性对照×32 trials、`--run-prefix ws2`）保留给重构后复用。
+> 姊妹报告：[`robocasa365_seed_anatomy.md`](robocasa365_seed_anatomy.md)（每任务组成与 seed 效应的逐项解剖——**读本报告前建议先读它**）。
+> 数据：`exp/robocasa365/data/ws_search/groot_tp/`（132 cell 的 journal/run_plan/summary，weilandserver+timan107 双源）；证据页 `ws_search_matrix.html`（132×13 成功数热力表）/`pickplace_first_frames.html`（库 vs eval 首帧对照）。
+
+## 1. 问题与设计
+
+纯 cache 条件（`always_search`+`always_hit`+top_k=1，无教师回落）下扫描加权和检索的权重空间：132 cells/teacher = iso 4 + grid2 42 + grid3 30 + grid3v 21 + grid4 35（步长 0.125 的单纯形族），query builder 固定 `spatial_pool_16`，库为 per-task 5 条成功轨迹的 n5 pkl。每 cell 13 任务 × 8 初始状态 = 104 episodes；场景钉死 (1,1)，eval 种子 1,000,000+idx。评测口径、配对方法与统计功效详见 plan §1-7 与 `analyze_ws_search_stats.py` docstring。
+
+## 2. 主结果：权重空间的形状
+
+**榜首与打平集合**（配对符号翻转检验，α=0.05，131 次比较未做多重校正——校正只会让打平集合更大）：
+
+- 榜首 `grid2 v2@87.5/rs@12.5` **macro_sr = 0.269**；次席 `grid3 v1@37.5/v2@25/rs@37.5` 0.260（配对 p=1.0，完全打平）。
+- **48/132 个 cell 与榜首统计打平**——8 trials/task 只能划出"好区域"，不能加冕单一冠军。**任何"最优配置"表述都不成立**；可用的结论是区域性的。
+- top-9 几乎全为 v2+rs 二字段或 v2 重的 grid3 组合。
+
+**权重边际（全平衡设计上的均值，比榜单稳健）**：
+
+| 字段 | 0 权重 | 高权重 | 单调性 |
+|---|---|---|---|
+| vision_2 | 0.117 | 0.18–0.20（@0.75–1.0） | **单调升——唯一强载体** |
+| robot_state | 0.120 | ~0.17–0.19 平台（任意 >0） | **有即饱和的辅助信号** |
+| vision_0 | 0.172 | 0.019（@1.0） | 单调降——只会稀释 v2 |
+| vision_1 | 0.174 | 0.019（@1.0） | 单调降——同上 |
+
+iso 锚点：v2 单字段 0.202 / rs 0.144 / v0 0.019 / v1 0.019。**配方 = v2 打底 + rs 少量配平；v0/v1 零正贡献**（三相机全开的 grid3v/grid4 已充分覆盖：最好 0.212，纯三视觉 grid3v 包揽全矩阵垫底 0.087）。
+
+**初始状态支配**：38% 的初始状态在全部 132 个 cell 上判决一致；跨状态方差是独立零模型的 **62×**。检索权重能影响的只是剩余部分——这是本轮所有统计功效结论的根源。
+
+## 3. 任务结构：目标确定性梯度（机理）
+
+任务表现按"目标被 seed 重抽的自由度"单调分层（完整逐任务档案与定量证据见姊妹报告 §3）：
+
+1. **固定家具类**（CloseFridge 0.481 / OpenStandMixerHead 0.450 / OpenDrawer 0.427）：目标位置恒定，seed 只改连续量（冰箱门角 81–90°）或二值侧别（左/右抽屉，库两侧全覆盖）。轨迹重放天然对位；**权重搜索的全部有效梯度来自这层**（OpenDrawer 跨 cell 0.12–0.88 为全矩阵最大方差——视觉权重决定能否挑中同侧轨迹）。
+2. **可动物体·类别恒定**（PickPlaceToasterToCounter 0.140 等）：只有位置变，成功率降一个数量级。
+3. **可动物体·类别重抽 = 4 个死任务**（PickPlace 族 0.011–0.017，1056 集/任务终数，总成功 12–18 次）：每集从任务物体池重抽类别+位置+干扰物；**n=5 库只覆盖 eval 类别的 19%（6/32）**；成功=类别巧合×几何巧合（CounterToStove 的 7 次成功全在库中不存在的"鸡蛋"上——纯几何巧合）。teacher 同场景 0.4–1.0 ⇒ **不是任务超纲，是纯 cache + 小库的结构性迁移失败**。裁决：从搜索指标中剔除（分析层双口径），定性为方法失败模式证据。
+
+**正面发现**：固定家具任务上纯 cache **反超教师**——CloseFridge 0.481 vs teacher 0.2、TurnOnSinkFaucet 峰值 0.50 vs teacher 0/5：重放已验证成功的轨迹比教师现场逐步推理更稳。cache 的价值区与失效区在本 benchmark 上因此被干净地划开。
+
+## 4. 统计方法结论（对下一轮的直接指导）
+
+- 8 trials/task 的分辨力：配对检验下打平带 48/132；实测不一致对（榜首 vs 强对手在 104 个配对 episode 上只有 7–13 个判决不同）⇒ **权重每约十集才改变一次结果**。要把 top 区分开需 ≥32 trials/task（外推：打平带 48→~10 内），64 trials 才可能加冕唯一冠军——但 top-3 的真差可能为零。
+- **配对（同 task×seed 同初始状态）比非配对灵敏得多**（本轮 41-cell 中期数据上 32/40 vs 19/40 可分）——重构后任何 cell 间比较都应配对。
+- 队列序教训：字母序按族分块，任何中途读数都是族偏样本（本轮 44 个先完成 cell 100% 是 grid3/grid3v）——`--cid-order stratified` 已为默认。
+
+## 5. 对 cache 重构的建议（owner 决定重构后）
+
+1. **库覆盖是第一瓶颈**（19% 类别覆盖）：per-task 轨迹数按"物体池大小 × 位姿分辨率"定，而非统一 n=5；或按类别分桶采集。
+2. **特征不编码目标位置**：spatial_pool_16 全图池化 + 20 维本体都不含"目标物体在哪"；重构应考虑物体中心特征或相对目标编码，否则 PickPlace 族在任何权重下依旧不可迁移。
+3. **prompt_emb 应入检索**：RoboCasa 指令在任务内随物体变（这与 LIBERO 根本不同），prompt_emb 至少能对上类别；本轮按 LIBERO 形制关闭属设计沿袭而非结论。
+4. 权重先验：v2 主载体 + rs 辅助在 (1,1) 场景成立；跨场景是否仍是 v2 需重验（v2=右肩相机的视角覆盖可能场景相关）。
+
+## 6. pi05 Stage-0 服务容量探测（终点实验）
+
+> 目标（owner 直令）：weilandserver ≥4 个 pi05 replica（至少 3）；timan107 worker 打满。逐档 1→3→4 server（:23170-73），每档每 server 26 集真实短评测（run_ws_search --episodes 2，隔离 journal）。
+
+| 档 | server × worker | wall（26 集/路） | 聚合吞吐 | 线性度 |
+|---|---|---|---|---|
+| 1 | 1 × 8 | ~9.5 min | ~165 ep/h | 基准 |
+| 2 | 3 × 24 | ~9.5 min | ~490 ep/h | 3.0× |
+| 3 | 4 × 32 | ~10 min | **~625 ep/h** | 3.8× |
+
+**裁决：4 replica PASS**——零误差（8 个探测 cell 全 0 err/0 missing）、无吞吐衰减、驻留 31.5G/余 17G（第 5 台算术上过 VRAM 门但未实测）、GPU 57°C。timan107 32 worker（与 GR00T 臂同编制）无客户端瓶颈。明细见 `t7_capacity_probe.txt` pi05 节。
+
+## 7. 运维资产与教训（本轮沉淀）
+
+- 拓扑：40-worker 跨机（weilandserver 4 server+4 driver+8 worker / timan107 32 worker），实测 741 ep/h；共享工作队列（`CellQueue`）根治静态分片尾部空转（实测损失 2.5h 的事故）；`--run-prefix` 支持多轮不互踩；`--agent-c-host` 支持第三工作机。
+- timan1 已供给完成（4×A6000 共享机，EGL 原生可用，岛 174630 文件，env 验收过）——下一轮 `--timan2-workers N --agent-c-host timan1 --timan2-gpu-order 0,2,3`（**单卡优先打满，不平摊**；GPU1 他人常占避开）。timan108 仍卡管理员重启（EGL 用户态缺失，CUDA 已由 userns shim 救活）。
+- 完整事故与教训清单（时区鬼影、banner 假阳、GL 帧缓冲耗竭、事件递送冻结、控制组纪律等）：plan §9。

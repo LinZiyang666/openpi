@@ -89,12 +89,15 @@ EVAL_NO_COLLECT_ROOT = "/tmp/WS_SEARCH_EVAL_NO_COLLECT"
 class WsSearchStrategy(RobocasaCollectStrategy):
     """Collection strategy with the search-cell id folded into the identity."""
 
-    def __init__(self, *, cid: str, **kwargs) -> None:
+    def __init__(self, *, cid: str, run_prefix: str = "ws1", **kwargs) -> None:
         super().__init__(**kwargs)
         self._cid = str(cid)
         # Full replacement, not a prefix: the parent's run_id says "collect_",
         # which would mislabel every eval task_uid and journal filename.
-        self.run_id = f"ws1-{self._cid}__l{self._layout}s{self._style}_{self._teacher}"
+        # ``run_prefix`` separates rounds over the same cells (a confirmation
+        # round at more trials must not land on round 1's journal, and the
+        # orchestrator's skip-if-complete check keys on this same string).
+        self.run_id = f"{run_prefix}-{self._cid}__l{self._layout}s{self._style}_{self._teacher}"
 
 
 def summarize_journal(journal_path: pathlib.Path, expected_uids: list[str] | None = None) -> dict:
@@ -159,6 +162,9 @@ def main() -> None:
     ap.add_argument("--teacher", required=True, choices=("pi05", "groot_tp"))
     ap.add_argument("--server", required=True, help="host:port of THE slot server (exactly one)")
     ap.add_argument("--cid", required=True, help="search cell id (matches the emitted YAML stem)")
+    ap.add_argument("--run-prefix", default="ws1",
+                    help="round tag in the run_id; bump it (e.g. ws2) to re-run cells "
+                         "at a different trial count without colliding with round 1")
     ap.add_argument("--tasks", default=DEFAULT_EVAL_TASKS)
     ap.add_argument("--episodes", type=int, default=8, help="trials per task (owner-ruled 8)")
     ap.add_argument("--layout", type=int, default=1)
@@ -169,7 +175,17 @@ def main() -> None:
     ap.add_argument("--gpu-ids", default="0", help="comma-separated CUDA slots, round-robin over workers")
     ap.add_argument("--journal-dir", default="", help="default: exp/robocasa365/data/ws_search/<teacher>/")
     ap.add_argument("--env-config", required=True)
+    ap.add_argument(
+        "--role", default="all", choices=("driver", "agent", "all"),
+        help="split like run_collect: the DRIVER (journal/run-plan/summary "
+        "owner) can live on one machine while worker AGENTS join from several "
+        "(cross-machine worker pooling, owner directive 2026-08-22)",
+    )
     ap.add_argument("--bind-host", default="127.0.0.1")
+    ap.add_argument("--bind-port", type=int, default=0,
+                    help="driver pull port (0 = ephemeral; fix it for cross-machine agents)")
+    ap.add_argument("--driver-host", default="", help="agent role: where the driver's pull port lives")
+    ap.add_argument("--driver-port", type=int, default=0, help="agent role: the driver's pull port")
     ap.add_argument("--episode-timeout-s", type=float, default=1800.0)
     ap.add_argument("--connect-deadline-s", type=float, default=600.0)
     ap.add_argument("--episode-deadline-s", type=float, default=1500.0)
@@ -191,6 +207,7 @@ def main() -> None:
     tasks = parse_tasks(args.tasks, args.episodes)
     strategy = WsSearchStrategy(
         cid=args.cid,
+        run_prefix=args.run_prefix,
         teacher=args.teacher,
         layout=args.layout,
         style=args.style,
@@ -200,74 +217,104 @@ def main() -> None:
     )
     run_id = strategy.run_id
 
-    data_dir = pathlib.Path(__file__).resolve().parent / "data" / "ws_search" / args.teacher
-    journal_dir = pathlib.Path(args.journal_dir) if args.journal_dir else data_dir
-    journal_dir.mkdir(parents=True, exist_ok=True)
-    journal_path = journal_dir / f"journal_{run_id}.jsonl"
-    run_plan_path = journal_dir / f"run_plan_{run_id}.json"
-
     yaml_weights = {yid: n for yid, (_, n) in zip(strategy.yaml_ids, tasks)}
     server_capacities = {slot.key: args.workers}
 
-    assignment = assign_servers(yaml_weights, [slot], None, server_capacities)
-    graph = strategy.plan(sorted(yaml_weights), assignment)
-    run_plan = build_run_plan(strategy, graph, EVAL_NO_COLLECT_ROOT)
-    write_run_plan(run_plan_path, run_plan)
-    print(f"[ws_search] run-plan {run_plan_path} plan_hash={run_plan['plan_hash']}", flush=True)
+    driver = None
+    driver_thread = None
+    run_plan = None
+    journal_path = summary_path = None
+    if args.role in ("driver", "all"):
+        data_dir = pathlib.Path(__file__).resolve().parent / "data" / "ws_search" / args.teacher
+        journal_dir = pathlib.Path(args.journal_dir) if args.journal_dir else data_dir
+        journal_dir.mkdir(parents=True, exist_ok=True)
+        journal_path = journal_dir / f"journal_{run_id}.jsonl"
+        run_plan_path = journal_dir / f"run_plan_{run_id}.json"
+        summary_path = journal_dir / f"summary_{run_id}.json"
 
-    driver = ConductorDriver(
-        strategy,
-        yaml_weights=yaml_weights,
-        servers=[slot],
-        journal_path=str(journal_path),
-        ctl_factory=lambda _server: _NoOpCtl(),  # static per-process config: nothing for ctl to do
-        episode_timeout_s=args.episode_timeout_s,
-        bind_host=args.bind_host,
-        server_capacities=server_capacities,
-    )
-    driver_thread = threading.Thread(target=driver.run, daemon=True)
-    driver_thread.start()
-    while driver.port is None:
-        time.sleep(0.05)
-    print(f"[ws_search] driver pull port = {driver.port}", flush=True)
+        assignment = assign_servers(yaml_weights, [slot], None, server_capacities)
+        graph = strategy.plan(sorted(yaml_weights), assignment)
+        run_plan = build_run_plan(strategy, graph, EVAL_NO_COLLECT_ROOT)
+        write_run_plan(run_plan_path, run_plan)
+        print(f"[ws_search] run-plan {run_plan_path} plan_hash={run_plan['plan_hash']}", flush=True)
 
-    gpu_ids = [g.strip() for g in args.gpu_ids.split(",") if g.strip()]
-    specs = [
-        WorkerSpec(worker_id=f"w{i}", server_key=slot.key, gpu_id=gpu_ids[i % len(gpu_ids)])
-        for i in range(args.workers)
-    ]
-    spawn = functools.partial(
-        robocasa_spawn_fn,
-        worker_python=env_config["WORKER_PYTHON"],
-        robocasa_cwd=env_config["ROBOCASA_CWD"],
-        repo_root=env_config["REPO_ROOT"],
-        egl_lib_dir=env_config["EGL_LIB_DIR"],
-        egl_vendor_dir=env_config["EGL_VENDOR_DIR"],
-        teacher=args.teacher,
-        connect_deadline_s=args.connect_deadline_s,
-        episode_deadline_s=args.episode_deadline_s,
-        terminate_grace_s=args.terminate_grace_s,
-    )
-    agent = WorkerAgent(specs, driver_host=args.bind_host, driver_port=driver.port, spawn_fn=spawn)
-    agent_thread = threading.Thread(target=agent.run, daemon=True)
-    agent_thread.start()
-    print(f"[ws_search] agent supervising {len(specs)} worker(s) -> {slot.key}", flush=True)
+        driver = ConductorDriver(
+            strategy,
+            yaml_weights=yaml_weights,
+            servers=[slot],
+            journal_path=str(journal_path),
+            ctl_factory=lambda _server: _NoOpCtl(),  # static per-process config: nothing for ctl to do
+            episode_timeout_s=args.episode_timeout_s,
+            bind_host=args.bind_host,
+            bind_port=args.bind_port,
+            server_capacities=server_capacities,
+        )
+        driver_thread = threading.Thread(target=driver.run, daemon=True)
+        driver_thread.start()
+        while driver.port is None:
+            time.sleep(0.05)
+        print(f"[ws_search] driver pull port = {driver.port}", flush=True)
+
+    agent = None
+    if args.role in ("agent", "all"):
+        driver_host = args.driver_host or args.bind_host
+        driver_port = args.driver_port or (driver.port if driver is not None else 0)
+        if not driver_port:
+            raise SystemExit("--role agent requires --driver-host/--driver-port of a running driver")
+        gpu_ids = [g.strip() for g in args.gpu_ids.split(",") if g.strip()]
+        specs = [
+            WorkerSpec(worker_id=f"w{i}", server_key=slot.key, gpu_id=gpu_ids[i % len(gpu_ids)])
+            for i in range(args.workers)
+        ]
+        spawn = functools.partial(
+            robocasa_spawn_fn,
+            worker_python=env_config["WORKER_PYTHON"],
+            robocasa_cwd=env_config["ROBOCASA_CWD"],
+            repo_root=env_config["REPO_ROOT"],
+            egl_lib_dir=env_config["EGL_LIB_DIR"],
+            egl_vendor_dir=env_config["EGL_VENDOR_DIR"],
+            teacher=args.teacher,
+            connect_deadline_s=args.connect_deadline_s,
+            episode_deadline_s=args.episode_deadline_s,
+            terminate_grace_s=args.terminate_grace_s,
+            # 8G eval cards: one cached kitchen per worker, evict on task switch.
+            # Unbounded (the collection default) walks a worker into OOM as the
+            # scheduler rotates it across the 13 tasks (found live 2026-08-21).
+            max_cached_envs=1,
+        )
+        agent = WorkerAgent(specs, driver_host=driver_host, driver_port=driver_port, spawn_fn=spawn)
+        agent_thread = threading.Thread(target=agent.run, daemon=True)
+        agent_thread.start()
+        print(
+            f"[ws_search] agent supervising {len(specs)} worker(s) -> {slot.key} "
+            f"(driver {driver_host}:{driver_port})",
+            flush=True,
+        )
 
     try:
-        while driver_thread.is_alive():
-            driver_thread.join(timeout=5.0)
+        if driver_thread is not None:
+            while driver_thread.is_alive():
+                driver_thread.join(timeout=5.0)
+        else:
+            # Agent-only: serve workers until the orchestrator kills this
+            # process (the driver lives on another machine).
+            while True:
+                time.sleep(5.0)
     finally:
-        agent.stop()
+        if agent is not None:
+            agent.stop()
 
-    summary = summarize_journal(journal_path, expected_uids=list(run_plan["uids"]))
-    summary_path = journal_dir / f"summary_{run_id}.json"
-    summary_path.write_text(json.dumps({"cid": args.cid, "teacher": args.teacher, **summary}, indent=1))
-    print(
-        f"[ws_search] {'DONE' if summary['complete'] else 'INCOMPLETE'} cid={args.cid} "
-        f"macro_sr={summary['macro_sr']} n_err={summary['n_err']} "
-        f"n_missing={summary['n_missing']} -> {summary_path}",
-        flush=True,
-    )
+    if driver is not None:
+        summary = summarize_journal(journal_path, expected_uids=list(run_plan["uids"]))
+        summary_path.write_text(
+            json.dumps({"cid": args.cid, "teacher": args.teacher, **summary}, indent=1)
+        )
+        print(
+            f"[ws_search] {'DONE' if summary['complete'] else 'INCOMPLETE'} cid={args.cid} "
+            f"macro_sr={summary['macro_sr']} n_err={summary['n_err']} "
+            f"n_missing={summary['n_missing']} -> {summary_path}",
+            flush=True,
+        )
 
 
 if __name__ == "__main__":

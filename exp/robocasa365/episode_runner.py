@@ -257,6 +257,7 @@ class RobocasaEpisodeRunner(EpisodeRunner):
         handshake_probe: Callable[[_task.ServerEndpoint, float], None] = default_handshake_probe,
         connect_deadline_s: float = 60.0,
         connect_retries: int = 3,
+        max_cached_envs: int | None = None,
     ) -> None:
         self._adapter = adapter
         self._client_factory = client_factory
@@ -265,6 +266,12 @@ class RobocasaEpisodeRunner(EpisodeRunner):
         self._handshake_probe = handshake_probe
         self._connect_deadline_s = connect_deadline_s
         self._connect_retries = max(1, int(connect_retries))
+        # None = legacy unbounded cache (collection ran 1 worker on a 48G GPU
+        # where 13 cached kitchens fit). Eval fleets on 8G cards MUST bound it:
+        # each cached kitchen holds ~1-1.5G VRAM and several GB host RAM, so an
+        # unbounded cache walks a worker straight into OOM as the scheduler
+        # rotates it across tasks (found live, ws_search 2026-08-21).
+        self._max_cached_envs = None if max_cached_envs is None else max(1, int(max_cached_envs))
         self._client: Any | None = None
         self._client_server: str | None = None
         self._bundle: str | None = None
@@ -326,6 +333,12 @@ class RobocasaEpisodeRunner(EpisodeRunner):
         key = (task_name, layout, style)
         env = self._envs.get(key)
         if env is None:
+            if self._max_cached_envs is not None:
+                while len(self._envs) >= self._max_cached_envs:
+                    evict_key, evict_env = next(iter(self._envs.items()))
+                    del self._envs[evict_key]
+                    with contextlib.suppress(Exception):
+                        evict_env.close()
             env = self._gym_make(task_name, layout, style, **self._adapter.env_kwargs())
             self._envs[key] = env
         return env

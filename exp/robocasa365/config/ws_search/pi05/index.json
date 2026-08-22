@@ -239,6 +239,489 @@
    "vision_2": 0.125
   }
  },
+ "grid3v_vision_0@12_vision_1@12_vision_2@75": {
+  "file": "grid3v_vision_0@12_vision_1@12_vision_2@75.yaml",
+  "weights": {
+   "vision_0": 0.125,
+   "vision_1": 0.125,
+   "vision_2": 0.75
+  }
+ },
+ "grid3v_vision_0@12_vision_1@25_vision_2@62": {
+  "file": "grid3v_vision_0@12_vision_1@25_vision_2@62.yaml",
+  "weights": {
+   "vision_0": 0.125,
+   "vision_1": 0.25,
+   "vision_2": 0.625
+  }
+ },
+ "grid3v_vision_0@12_vision_1@37_vision_2@50": {
+  "file": "grid3v_vision_0@12_vision_1@37_vision_2@50.yaml",
+  "weights": {
+   "vision_0": 0.125,
+   "vision_1": 0.375,
+   "vision_2": 0.5
+  }
+ },
+ "grid3v_vision_0@12_vision_1@50_vision_2@37": {
+  "file": "grid3v_vision_0@12_vision_1@50_vision_2@37.yaml",
+  "weights": {
+   "vision_0": 0.125,
+   "vision_1": 0.5,
+   "vision_2": 0.375
+  }
+ },
+ "grid3v_vision_0@12_vision_1@62_vision_2@25": {
+  "file": "grid3v_vision_0@12_vision_1@62_vision_2@25.yaml",
+  "weights": {
+   "vision_0": 0.125,
+   "vision_1": 0.625,
+   "vision_2": 0.25
+  }
+ },
+ "grid3v_vision_0@12_vision_1@75_vision_2@12": {
+  "file": "grid3v_vision_0@12_vision_1@75_vision_2@12.yaml",
+  "weights": {
+   "vision_0": 0.125,
+   "vision_1": 0.75,
+   "vision_2": 0.125
+  }
+ },
+ "grid3v_vision_0@25_vision_1@12_vision_2@62": {
+  "file": "grid3v_vision_0@25_vision_1@12_vision_2@62.yaml",
+  "weights": {
+   "vision_0": 0.25,
+   "vision_1": 0.125,
+   "vision_2": 0.625
+  }
+ },
+ "grid3v_vision_0@25_vision_1@25_vision_2@50": {
+  "file": "grid3v_vision_0@25_vision_1@25_vision_2@50.yaml",
+  "weights": {
+   "vision_0": 0.25,
+   "vision_1": 0.25,
+   "vision_2": 0.5
+  }
+ },
+ "grid3v_vision_0@25_vision_1@37_vision_2@37": {
+  "file": "grid3v_vision_0@25_vision_1@37_vision_2@37.yaml",
+  "weights": {
+   "vision_0": 0.25,
+   "vision_1": 0.375,
+   "vision_2": 0.375
+  }
+ },
+ "grid3v_vision_0@25_vision_1@50_vision_2@25": {
+  "file": "grid3v_vision_0@25_vision_1@50_vision_2@25.yaml",
+  "weights": {
+   "vision_0": 0.25,
+   "vision_1": 0.5,
+   "vision_2": 0.25
+  }
+ },
+ "grid3v_vision_0@25_vision_1@62_vision_2@12": {
+  "file": "grid3v_vision_0@25_vision_1@62_vision_2@12.yaml",
+  "weights": {
+   "vision_0": 0.25,
+   "vision_1": 0.625,
+   "vision_2": 0.125
+  }
+ },
+ "grid3v_vision_0@37_vision_1@12_vision_2@50": {
+  "file": "grid3v_vision_0@37_vision_1@12_vision_2@50.yaml",
+  "weights": {
+   "vision_0": 0.375,
+   "vision_1": 0.125,
+   "vision_2": 0.5
+  }
+ },
+ "grid3v_vision_0@37_vision_1@25_vision_2@37": {
+  "file": "grid3v_vision_0@37_vision_1@25_vision_2@37.yaml",
+  "weights": {
+   "vision_0": 0.375,
+   "vision_1": 0.25,
+   "vision_2": 0.375
+  }
+ },
+ "grid3v_vision_0@37_vision_1@37_vision_2@25": {
+  "file": "grid3v_vision_0@37_vision_1@37_vision_2@25.yaml",
+  "weights": {
+   "vision_0": 0.375,
+   "vision_1": 0.375,
+   "vision_2": 0.25
+  }
+ },
+ "grid3v_vision_0@37_vision_1@50_vision_2@12": {
+  "file": "grid3v_vision_0@37_vision_1@50_vision_2@12.yaml",
+  "weights": {
+   "vision_0": 0.375,
+   "vision_1": 0.5,
+   "vision_2": 0.125
+  }
+ },
+ "grid3v_vision_0@50_vision_1@12_vision_2@37": {
+  "file": "grid3v_vision_0@50_vision_1@12_vision_2@37.yaml",
+  "weights": {
+   "vision_0": 0.5,
+   "vision_1": 0.125,
+   "vision_2": 0.375
+  }
+ },
+ "grid3v_vision_0@50_vision_1@25_vision_2@25": {
+  "file": "grid3v_vision_0@50_vision_1@25_vision_2@25.yaml",
+  "weights": {
+   "vision_0": 0.5,
+   "vision_1": 0.25,
+   "vision_2": 0.25
+  }
+ },
+ "grid3v_vision_0@50_vision_1@37_vision_2@12": {
+  "file": "grid3v_vision_0@50_vision_1@37_vision_2@12.yaml",
+  "weights": {
+   "vision_0": 0.5,
+   "vision_1": 0.375,
+   "vision_2": 0.125
+  }
+ },
+ "grid3v_vision_0@62_vision_1@12_vision_2@25": {
+  "file": "grid3v_vision_0@62_vision_1@12_vision_2@25.yaml",
+  "weights": {
+   "vision_0": 0.625,
+   "vision_1": 0.125,
+   "vision_2": 0.25
+  }
+ },
+ "grid3v_vision_0@62_vision_1@25_vision_2@12": {
+  "file": "grid3v_vision_0@62_vision_1@25_vision_2@12.yaml",
+  "weights": {
+   "vision_0": 0.625,
+   "vision_1": 0.25,
+   "vision_2": 0.125
+  }
+ },
+ "grid3v_vision_0@75_vision_1@12_vision_2@12": {
+  "file": "grid3v_vision_0@75_vision_1@12_vision_2@12.yaml",
+  "weights": {
+   "vision_0": 0.75,
+   "vision_1": 0.125,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@12_vision_1@12_vision_2@12_robot_state@62": {
+  "file": "grid4_vision_0@12_vision_1@12_vision_2@12_robot_state@62.yaml",
+  "weights": {
+   "robot_state": 0.625,
+   "vision_0": 0.125,
+   "vision_1": 0.125,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@12_vision_1@12_vision_2@25_robot_state@50": {
+  "file": "grid4_vision_0@12_vision_1@12_vision_2@25_robot_state@50.yaml",
+  "weights": {
+   "robot_state": 0.5,
+   "vision_0": 0.125,
+   "vision_1": 0.125,
+   "vision_2": 0.25
+  }
+ },
+ "grid4_vision_0@12_vision_1@12_vision_2@37_robot_state@37": {
+  "file": "grid4_vision_0@12_vision_1@12_vision_2@37_robot_state@37.yaml",
+  "weights": {
+   "robot_state": 0.375,
+   "vision_0": 0.125,
+   "vision_1": 0.125,
+   "vision_2": 0.375
+  }
+ },
+ "grid4_vision_0@12_vision_1@12_vision_2@50_robot_state@25": {
+  "file": "grid4_vision_0@12_vision_1@12_vision_2@50_robot_state@25.yaml",
+  "weights": {
+   "robot_state": 0.25,
+   "vision_0": 0.125,
+   "vision_1": 0.125,
+   "vision_2": 0.5
+  }
+ },
+ "grid4_vision_0@12_vision_1@12_vision_2@62_robot_state@12": {
+  "file": "grid4_vision_0@12_vision_1@12_vision_2@62_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.125,
+   "vision_1": 0.125,
+   "vision_2": 0.625
+  }
+ },
+ "grid4_vision_0@12_vision_1@25_vision_2@12_robot_state@50": {
+  "file": "grid4_vision_0@12_vision_1@25_vision_2@12_robot_state@50.yaml",
+  "weights": {
+   "robot_state": 0.5,
+   "vision_0": 0.125,
+   "vision_1": 0.25,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@12_vision_1@25_vision_2@25_robot_state@37": {
+  "file": "grid4_vision_0@12_vision_1@25_vision_2@25_robot_state@37.yaml",
+  "weights": {
+   "robot_state": 0.375,
+   "vision_0": 0.125,
+   "vision_1": 0.25,
+   "vision_2": 0.25
+  }
+ },
+ "grid4_vision_0@12_vision_1@25_vision_2@37_robot_state@25": {
+  "file": "grid4_vision_0@12_vision_1@25_vision_2@37_robot_state@25.yaml",
+  "weights": {
+   "robot_state": 0.25,
+   "vision_0": 0.125,
+   "vision_1": 0.25,
+   "vision_2": 0.375
+  }
+ },
+ "grid4_vision_0@12_vision_1@25_vision_2@50_robot_state@12": {
+  "file": "grid4_vision_0@12_vision_1@25_vision_2@50_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.125,
+   "vision_1": 0.25,
+   "vision_2": 0.5
+  }
+ },
+ "grid4_vision_0@12_vision_1@37_vision_2@12_robot_state@37": {
+  "file": "grid4_vision_0@12_vision_1@37_vision_2@12_robot_state@37.yaml",
+  "weights": {
+   "robot_state": 0.375,
+   "vision_0": 0.125,
+   "vision_1": 0.375,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@12_vision_1@37_vision_2@25_robot_state@25": {
+  "file": "grid4_vision_0@12_vision_1@37_vision_2@25_robot_state@25.yaml",
+  "weights": {
+   "robot_state": 0.25,
+   "vision_0": 0.125,
+   "vision_1": 0.375,
+   "vision_2": 0.25
+  }
+ },
+ "grid4_vision_0@12_vision_1@37_vision_2@37_robot_state@12": {
+  "file": "grid4_vision_0@12_vision_1@37_vision_2@37_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.125,
+   "vision_1": 0.375,
+   "vision_2": 0.375
+  }
+ },
+ "grid4_vision_0@12_vision_1@50_vision_2@12_robot_state@25": {
+  "file": "grid4_vision_0@12_vision_1@50_vision_2@12_robot_state@25.yaml",
+  "weights": {
+   "robot_state": 0.25,
+   "vision_0": 0.125,
+   "vision_1": 0.5,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@12_vision_1@50_vision_2@25_robot_state@12": {
+  "file": "grid4_vision_0@12_vision_1@50_vision_2@25_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.125,
+   "vision_1": 0.5,
+   "vision_2": 0.25
+  }
+ },
+ "grid4_vision_0@12_vision_1@62_vision_2@12_robot_state@12": {
+  "file": "grid4_vision_0@12_vision_1@62_vision_2@12_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.125,
+   "vision_1": 0.625,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@25_vision_1@12_vision_2@12_robot_state@50": {
+  "file": "grid4_vision_0@25_vision_1@12_vision_2@12_robot_state@50.yaml",
+  "weights": {
+   "robot_state": 0.5,
+   "vision_0": 0.25,
+   "vision_1": 0.125,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@25_vision_1@12_vision_2@25_robot_state@37": {
+  "file": "grid4_vision_0@25_vision_1@12_vision_2@25_robot_state@37.yaml",
+  "weights": {
+   "robot_state": 0.375,
+   "vision_0": 0.25,
+   "vision_1": 0.125,
+   "vision_2": 0.25
+  }
+ },
+ "grid4_vision_0@25_vision_1@12_vision_2@37_robot_state@25": {
+  "file": "grid4_vision_0@25_vision_1@12_vision_2@37_robot_state@25.yaml",
+  "weights": {
+   "robot_state": 0.25,
+   "vision_0": 0.25,
+   "vision_1": 0.125,
+   "vision_2": 0.375
+  }
+ },
+ "grid4_vision_0@25_vision_1@12_vision_2@50_robot_state@12": {
+  "file": "grid4_vision_0@25_vision_1@12_vision_2@50_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.25,
+   "vision_1": 0.125,
+   "vision_2": 0.5
+  }
+ },
+ "grid4_vision_0@25_vision_1@25_vision_2@12_robot_state@37": {
+  "file": "grid4_vision_0@25_vision_1@25_vision_2@12_robot_state@37.yaml",
+  "weights": {
+   "robot_state": 0.375,
+   "vision_0": 0.25,
+   "vision_1": 0.25,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@25_vision_1@25_vision_2@25_robot_state@25": {
+  "file": "grid4_vision_0@25_vision_1@25_vision_2@25_robot_state@25.yaml",
+  "weights": {
+   "robot_state": 0.25,
+   "vision_0": 0.25,
+   "vision_1": 0.25,
+   "vision_2": 0.25
+  }
+ },
+ "grid4_vision_0@25_vision_1@25_vision_2@37_robot_state@12": {
+  "file": "grid4_vision_0@25_vision_1@25_vision_2@37_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.25,
+   "vision_1": 0.25,
+   "vision_2": 0.375
+  }
+ },
+ "grid4_vision_0@25_vision_1@37_vision_2@12_robot_state@25": {
+  "file": "grid4_vision_0@25_vision_1@37_vision_2@12_robot_state@25.yaml",
+  "weights": {
+   "robot_state": 0.25,
+   "vision_0": 0.25,
+   "vision_1": 0.375,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@25_vision_1@37_vision_2@25_robot_state@12": {
+  "file": "grid4_vision_0@25_vision_1@37_vision_2@25_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.25,
+   "vision_1": 0.375,
+   "vision_2": 0.25
+  }
+ },
+ "grid4_vision_0@25_vision_1@50_vision_2@12_robot_state@12": {
+  "file": "grid4_vision_0@25_vision_1@50_vision_2@12_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.25,
+   "vision_1": 0.5,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@37_vision_1@12_vision_2@12_robot_state@37": {
+  "file": "grid4_vision_0@37_vision_1@12_vision_2@12_robot_state@37.yaml",
+  "weights": {
+   "robot_state": 0.375,
+   "vision_0": 0.375,
+   "vision_1": 0.125,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@37_vision_1@12_vision_2@25_robot_state@25": {
+  "file": "grid4_vision_0@37_vision_1@12_vision_2@25_robot_state@25.yaml",
+  "weights": {
+   "robot_state": 0.25,
+   "vision_0": 0.375,
+   "vision_1": 0.125,
+   "vision_2": 0.25
+  }
+ },
+ "grid4_vision_0@37_vision_1@12_vision_2@37_robot_state@12": {
+  "file": "grid4_vision_0@37_vision_1@12_vision_2@37_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.375,
+   "vision_1": 0.125,
+   "vision_2": 0.375
+  }
+ },
+ "grid4_vision_0@37_vision_1@25_vision_2@12_robot_state@25": {
+  "file": "grid4_vision_0@37_vision_1@25_vision_2@12_robot_state@25.yaml",
+  "weights": {
+   "robot_state": 0.25,
+   "vision_0": 0.375,
+   "vision_1": 0.25,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@37_vision_1@25_vision_2@25_robot_state@12": {
+  "file": "grid4_vision_0@37_vision_1@25_vision_2@25_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.375,
+   "vision_1": 0.25,
+   "vision_2": 0.25
+  }
+ },
+ "grid4_vision_0@37_vision_1@37_vision_2@12_robot_state@12": {
+  "file": "grid4_vision_0@37_vision_1@37_vision_2@12_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.375,
+   "vision_1": 0.375,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@50_vision_1@12_vision_2@12_robot_state@25": {
+  "file": "grid4_vision_0@50_vision_1@12_vision_2@12_robot_state@25.yaml",
+  "weights": {
+   "robot_state": 0.25,
+   "vision_0": 0.5,
+   "vision_1": 0.125,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@50_vision_1@12_vision_2@25_robot_state@12": {
+  "file": "grid4_vision_0@50_vision_1@12_vision_2@25_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.5,
+   "vision_1": 0.125,
+   "vision_2": 0.25
+  }
+ },
+ "grid4_vision_0@50_vision_1@25_vision_2@12_robot_state@12": {
+  "file": "grid4_vision_0@50_vision_1@25_vision_2@12_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.5,
+   "vision_1": 0.25,
+   "vision_2": 0.125
+  }
+ },
+ "grid4_vision_0@62_vision_1@12_vision_2@12_robot_state@12": {
+  "file": "grid4_vision_0@62_vision_1@12_vision_2@12_robot_state@12.yaml",
+  "weights": {
+   "robot_state": 0.125,
+   "vision_0": 0.625,
+   "vision_1": 0.125,
+   "vision_2": 0.125
+  }
+ },
  "grid_vision_0@12_robot_state@87": {
   "file": "grid_vision_0@12_robot_state@87.yaml",
   "weights": {

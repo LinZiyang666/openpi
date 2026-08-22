@@ -36,6 +36,7 @@ def build_runner(args: argparse.Namespace) -> WatchdogRunner:
         adapter_factory(),
         connect_deadline_s=args.connect_deadline_s,
         connect_retries=args.connect_retries,
+        max_cached_envs=None if args.max_cached_envs < 1 else args.max_cached_envs,
     )
     return WatchdogRunner(
         runner,
@@ -55,6 +56,13 @@ def main() -> None:
     # code); run_collect forwards the operator-chosen values.
     ap.add_argument("--connect-deadline-s", type=float, required=True)
     ap.add_argument("--connect-retries", type=int, default=3)
+    ap.add_argument(
+        "--max-cached-envs",
+        type=int,
+        default=0,
+        help="bound the per-worker kitchen-env cache; <1 keeps the legacy "
+        "unbounded cache (safe only where all task kitchens fit one GPU)",
+    )
     ap.add_argument("--episode-deadline-s", type=float, required=True)
     ap.add_argument("--terminate-grace-s", type=float, required=True)
     args = ap.parse_args()

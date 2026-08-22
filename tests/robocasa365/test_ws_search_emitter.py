@@ -1,9 +1,10 @@
 """Snapshot tests for the weighted-sum search emitter + cell summarizer.
 
 Pin the round-1 matrix invariants (owner-approved plan robocasa365_ws_search):
-76 cells = 4 iso + 42 grid2 + 30 grid3(rs-dominant) per teacher, weights on a
-unit simplex, the forced-enabled keybuilder fields, the cp3 in-memory pin, and
-the journal summarizer's success/error split.
+132 cells = 4 iso + 42 grid2 + 30 grid3(rs-dominant) + 21 grid3v (all-camera
+face) + 35 grid4 (full simplex) per teacher, weights on a unit simplex, the
+forced-enabled keybuilder fields, the cp3 in-memory pin, and the journal
+summarizer's success/error split.
 """
 
 from __future__ import annotations
@@ -34,12 +35,23 @@ def _calib() -> dict:
 
 
 class TestWeightMatrix:
-    def test_cell_count_is_76(self):
+    def test_cell_count_is_132(self):
         m = weight_matrix()
-        assert len(m) == 76
+        assert len(m) == 132
         assert sum(1 for c in m if c.startswith("iso_")) == 4
         assert sum(1 for c in m if c.startswith("grid_")) == 42
         assert sum(1 for c in m if c.startswith("grid3_")) == 30
+        # Owner correction 2026-08-22: a 3-camera benchmark's matrix must
+        # cover the all-camera face and the full 4-field interior.
+        assert sum(1 for c in m if c.startswith("grid3v_")) == 21
+        assert sum(1 for c in m if c.startswith("grid4_")) == 35
+
+    def test_three_camera_face_has_all_visions_positive(self):
+        for cid, w in weight_matrix().items():
+            if cid.startswith("grid3v_"):
+                assert set(w) == {"vision_0", "vision_1", "vision_2"}, cid
+            if cid.startswith("grid4_"):
+                assert set(w) == {"vision_0", "vision_1", "vision_2", "robot_state"}, cid
 
     def test_weights_sum_to_one(self):
         for cid, weights in weight_matrix().items():
@@ -55,7 +67,7 @@ class TestWeightMatrix:
 class TestEmit:
     def test_emitted_yaml_shape(self, tmp_path):
         cids = emit_teacher("groot_tp", _calib(), tmp_path)
-        assert len(cids) == 76
+        assert len(cids) == 132
         index = json.loads((tmp_path / "groot_tp" / "index.json").read_text())
         assert sorted(index) == cids
 
@@ -95,6 +107,20 @@ class TestStrategyIdentity:
         assert s.run_id == "ws1-grid_vision_0@25_robot_state@75__l1s1_groot_tp"
         assert "collect" not in s.run_id
         assert s.yaml_ids == [f"{s.run_id}__OpenCabinet"]
+
+    def test_run_prefix_separates_rounds_over_the_same_cell(self):
+        kwargs = dict(
+            cid="grid_vision_0@25_robot_state@75", teacher="groot_tp",
+            layout=1, style=1, base_seed=1_000_000, replan_steps=5,
+            tasks=[("OpenCabinet", 2)],
+        )
+        first = WsSearchStrategy(**kwargs)
+        second = WsSearchStrategy(run_prefix="ws2", **kwargs)
+        # A confirmation round at more trials must not land on round 1's
+        # journal/summary — nor be skipped by the orchestrator as "complete".
+        assert second.run_id == "ws2-grid_vision_0@25_robot_state@75__l1s1_groot_tp"
+        assert second.run_id != first.run_id
+        assert second.yaml_ids != first.yaml_ids
 
 
 class TestSummarizeJournal:

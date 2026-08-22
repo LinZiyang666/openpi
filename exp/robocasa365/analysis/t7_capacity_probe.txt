@@ -67,3 +67,34 @@ windows, which the numbers above use.
 
 Raw evidence: weilandserver /tmp/wsprobe_p2316{0..5}/ timing CSVs +
 /tmp/wsprobe_ws{0..5}.log; timan107 /tmp/wsp{1,2,3}_*.{log,json}.
+
+================================================================
+pi05 Stage-0 serving-topology probe (2026-08-22, terminal experiment)
+================================================================
+Goal (owner directive): >=4 pi05 replicas on weilandserver (minimum 3),
+timan107 workers at full complement. GR00T fleet fully torn down first
+(132/132 screening complete; card verified back to 48069 MiB free).
+
+Recipe per server (ports 23170-73):
+  cd ~/openpi && OPENPI_MONITOR_LEVEL=BASIC .venv/bin/python scripts/serve_policy.py
+    --port <p> --cache_config exp/robocasa365/config/ws_search/pi05/grid_vision_2@87_robot_state@12.yaml
+    policy:checkpoint --policy.config pi05_robocasa --policy.dir /home/weiland/ckpt_pi05_robocasa_pytorch
+  readiness = port listening AND "Loaded 5901 entries" in fresh log
+  VRAM gate: 3 consecutive reads >= 10500 MiB before every launch (all passed).
+
+Load per rung: real short evals from timan107, one client per server
+(run_ws_search --role all --teacher pi05 --episodes 2 --workers 8,
+13 tasks x 2 = 26 eps/client, isolated journal /tmp/pi05_probe).
+
+Results (wall time = client launch -> [ws_search] DONE):
+  rung 1: 1 server  x  8 workers:  26 eps in ~9.5 min  -> ~165 ep/h
+  rung 2: 3 servers x 24 workers:  78 eps in ~9.5 min  -> ~490 ep/h  (3.0x, linear)
+  rung 3: 4 servers x 32 workers: 104 eps in ~10  min  -> ~625 ep/h  (3.8x, ~linear)
+  errors: 0 err / 0 missing on all 8 probe cells; per-server ~3.6-3.7k
+  FULL_HIT search steps per 26-ep run; steady VRAM ~7.9G/server
+  (4 servers resident: 31.5G used / 17.0G free; GPU 57 C, keepwarm alive).
+
+VERDICT: 4 pi05 replicas on weilandserver PASS with ~17G headroom and no
+throughput degradation at 32 workers. A 5th replica passes the VRAM gate
+arithmetically but was not probed. timan107 at 32 workers (4/card, same
+complement as the GR00T arm) shows no client-side bottleneck at 4 replicas.

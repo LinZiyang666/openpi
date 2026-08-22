@@ -27,6 +27,7 @@ def main() -> None:
     ap.add_argument("--data-dir", default="", help="default: exp/robocasa365/data/ws_search/<teacher>")
     ap.add_argument("--index", default="", help="default: exp/robocasa365/config/ws_search/<teacher>/index.json")
     ap.add_argument("--top", type=int, default=10)
+    ap.add_argument("--run-prefix", default="ws1", help="round tag the summaries were written under")
     args = ap.parse_args()
 
     root = pathlib.Path(__file__).resolve().parent
@@ -36,7 +37,7 @@ def main() -> None:
     index = json.loads(index_path.read_text())
 
     rows = []
-    for path in sorted(data_dir.glob("summary_ws1-*.json")):
+    for path in sorted(data_dir.glob(f"summary_{args.run_prefix}-*.json")):
         s = json.loads(path.read_text())
         cid = s["cid"]
         weights = index.get(cid, {}).get("weights", {})
@@ -53,13 +54,24 @@ def main() -> None:
         })
     rows.sort(key=lambda r: (r["macro_sr"] is not None, r["macro_sr"]), reverse=True)
 
-    out_csv = data_dir / "ws_search_round1_results.csv"
+    out_csv = data_dir / f"{args.run_prefix}_search_results.csv"
     if rows:
         with out_csv.open("w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
             w.writeheader()
             w.writerows(rows)
-    print(f"{len(rows)}/{len(index)} cells summarized -> {out_csv}")
+    # A cell that ended early still leaves a summary file, so counting files
+    # would report a full sweep that is not one; the drain gate is the
+    # *complete* count, and any incomplete cid needs an --only re-run.
+    incomplete = [r["cid"] for r in rows if not r["complete"]]
+    missing = sorted(set(index) - {r["cid"] for r in rows})
+    print(f"{len(rows) - len(incomplete)}/{len(index)} cells COMPLETE "
+          f"({len(rows)} summary files, {len(incomplete)} incomplete, {len(missing)} never run) -> {out_csv}")
+    for cid in incomplete + missing:
+        why = "incomplete" if cid in incomplete else "never run"
+        print(f"  RERUN [{why}] {cid}")
+    if incomplete or missing:
+        print("  --only " + ",".join(incomplete + missing))
     for r in rows[: args.top]:
         ws = "/".join(f"{r[f'w_{f}']:.3f}" for f in FIELDS)
         sr = "None" if r["macro_sr"] is None else f"{r['macro_sr']:.3f}"

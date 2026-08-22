@@ -1,0 +1,45 @@
+T7 P2 wiring gate — pi05 3-camera online cache path (groot_cache_integration
+P2 leftover). Date: 2026-08-21. Verdict: PASS (structural + online halves).
+
+Question gated: the T6 pi05 library was built with --vision-slots 3, but the
+pi05 online key path had never been exercised on RoboCasa365 (LIBERO-lineage
+concern). Pre-gate source finding: key_builder.py hard-codes the 3-image
+SigLIP layout (_NUM_IMAGES=3, vision_2=[512:768)) and the offline library was
+captured from the SAME serve_policy forward hooks, so online/offline are
+structurally congruent by construction — the gate confirms it live.
+
+Recipe
+------
+server   weilandserver:23170 (public range), scripts/serve_policy.py
+         --cache_config exp/robocasa365/config/ws_search/pi05/
+         grid3_vision_0@25_vision_1@25_robot_state@50.yaml   (emitted search cell)
+         policy:checkpoint --policy.config pi05_robocasa
+         --policy.dir /home/weiland/ckpt_pi05_robocasa_pytorch
+client   timan107, run_ws_search --teacher pi05 --cid p2gate --tasks OpenDrawer
+         --episodes 1 (isolated journal /tmp/p2_gate), eval seed 1000000,
+         scene (1,1). VRAM triple-read 30432 MiB before start; GR00T arm's
+         3 servers kept running throughout (gate adds one brief search stream).
+
+Evidence — structural
+---------------------
+- "Cache config loaded: backend=in_memory, key_builder=cp1_spatial_pool_16,
+  checkpoints=['cp1','cp3'], write_policy=never"
+- "Loaded 5901 entries from .../pi05_spatial_pool_16_n5.pkl" — the backend's
+  full-dims equality check (vision_0/1/2 32768 + prompt_emb 2048 +
+  robot_state 32) accepted the 3-camera artifact.
+
+Evidence — online
+-----------------
+- 56 per-step "cp1 judge: FULL_HIT" lines in /tmp/wssrv23170.log, e.g.
+  [step 52..55] winners OpenDrawer/episode_0006_a01:51 -> :52 -> :53 -> :54,
+  top_score ~0.994: online keys retrieve the SAME library trajectory with
+  step indices advancing in lockstep with the live episode — the online
+  3-camera keys are semantically coherent, not just dimensionally legal.
+- Episode COMPLETED and SUCCEEDED: summary complete:true, OpenDrawer sr=1.0
+  (pure cache replay, weighted_score_sum v0/v1/rs = .25/.25/.50).
+- Zero errors / dim mismatches / tracebacks in the server log.
+
+Consequence: the pi05 arm of the weighted-sum search is unblocked; its
+capacity probe runs after the GR00T arm drains (memory-bandwidth isolation).
+Server torn down after the gate; port 23170 released; keepwarm untouched.
+Raw: weilandserver /tmp/wssrv23170.log; timan107 /tmp/p2gate.log + /tmp/p2_gate/.
