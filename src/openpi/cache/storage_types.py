@@ -306,6 +306,46 @@ class SearchResult:
 
 
 @dataclass(frozen=True)
+class StepRetrievalFeatures:
+    """Per-search retrieval diagnostics for the X15 risk router.
+
+    Weighted-score-sum fusion computes per-field normalized scores and then
+    discards them, keeping only the fused top-k. The risk router decides from
+    exactly those intermediate scores, so the backend surfaces them here.
+
+    Ownership is deliberately NOT a mutable slot on the backend: ``BackendPool``
+    shares one backend instance across connections by fingerprint, so a
+    ``last_*`` attribute would let one connection's search overwrite another's
+    diagnostics between the search call and the judge that reads them. The
+    backend therefore returns this object *atomically* alongside the results
+    (``search_with_diagnostics``) and each per-connection ``CacheStorage``
+    facade holds its own snapshot.
+
+    Fields
+    ------
+    fused_topk       : ``(entry_id, fused_score)`` in descending fused order,
+                       truncated to the requested ``top_k``.
+    winner_per_field : normalized per-field score OF THE FUSED WINNER — the
+                       field-wise decomposition of why the top-1 won. Empty
+                       when there is no winner.
+    field_own_margin : per field, ``top1 - top2`` under THAT FIELD's own
+                       ranking (not the fused ranking); a small value means the
+                       field cannot discriminate among its own best candidates.
+                       Absent for fields with fewer than two scored candidates.
+    fused_margin     : fused ``top1 - top2``; 0.0 when fewer than two results.
+    n_results        : results actually returned (``< top_k`` on a small or
+                       filtered library; the router carries this as an explicit
+                       coverage feature rather than padding silently).
+    """
+
+    fused_topk: tuple[tuple[str, float], ...] = ()
+    winner_per_field: dict[str, float] = field(default_factory=dict)
+    field_own_margin: dict[str, float] = field(default_factory=dict)
+    fused_margin: float = 0.0
+    n_results: int = 0
+
+
+@dataclass(frozen=True)
 class RetrievalSignals:
     """Per-query failure-aware retrieval signals (TRACER M2 / Phase 3).
 
