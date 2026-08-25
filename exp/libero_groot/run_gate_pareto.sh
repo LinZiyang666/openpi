@@ -111,10 +111,16 @@ $PY exp/libero_groot/orchestrate_search.py \\
 echo \$? > $status
 EOS
 
-  tmux kill-session -t libgp 2>/dev/null || true
+  # '=' forces an exact match. Without it tmux falls back to PREFIX matching,
+  # so `-t libgp` with no session of that exact name matches this chain's own
+  # session (libgpchain) and kills it -- silently, exit code 0, no output. The
+  # chain then vanishes right after announcing a phase, with an empty log and
+  # no scheduler, which reads as a failure inside run_stage rather than as the
+  # kill it actually is.
+  tmux kill-session -t '=libgp' 2>/dev/null || true
   sleep 2
   tmux new -s libgp -d "bash $script"
-  while tmux has-session -t libgp 2>/dev/null; do sleep 120; done
+  while tmux has-session -t '=libgp' 2>/dev/null; do sleep 120; done
 
   [ -f "$status" ] || die "$label: scheduler left no status file (tmux died?)"
   local rc; rc=$(cat "$status")

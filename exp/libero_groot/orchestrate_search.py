@@ -133,9 +133,13 @@ class Slot:
         self.a = args
 
     # -- server side (local) ------------------------------------------------
+    # tmux targets are '='-armored throughout: a bare -t falls back to PREFIX
+    # matching when nothing matches exactly, so killing "libsrv2316" would take
+    # out "libsrv23160" -- and, as this line found the hard way, killing
+    # "libgp" takes out "libgpchain". It reports success either way.
     def start_server(self, cell: str) -> bool:
         yaml_path = f"{self.a.yaml_dir}/{cell}.yaml"
-        sh(f"tmux kill-session -t libsrv{self.port} 2>/dev/null")
+        sh(f"tmux kill-session -t '=libsrv{self.port}' 2>/dev/null")
         time.sleep(3)
         cmd = (
             f"cd {WEILAND_REPO} && PYTHONPATH={GR00T_PATH} OPENPI_MONITOR_LEVEL=BASIC "
@@ -152,7 +156,7 @@ class Slot:
         return False
 
     def stop_server(self) -> None:
-        sh(f"tmux kill-session -t libsrv{self.port} 2>/dev/null")
+        sh(f"tmux kill-session -t '=libsrv{self.port}' 2>/dev/null")
 
     # -- client side (timan107) --------------------------------------------
     def out_dir(self, cell: str) -> str:
@@ -179,8 +183,17 @@ class Slot:
                 if self.a.per_step_dir
                 else ""
             )
+            # ``src`` joins the path exactly when the recorder is used, because
+            # that recorder is the only thing the client imports from openpi
+            # (``openpi.serving.per_step_recorder``, imported lazily inside
+            # eval_libero). The sim venv is a separate py3.8 environment with no
+            # openpi installed, so without this the worker dies on
+            # ModuleNotFoundError the moment per-step capture is switched on --
+            # after the server is already up, which reads as "the fleet produced
+            # no rows" rather than as an import error.
+            pypath = ".:src" if self.a.per_step_dir else "."
             cmd = (
-                f"cd {TIMAN_REPO} && MUJOCO_EGL_DEVICE_ID={gpu} PYTHONPATH=. "
+                f"cd {TIMAN_REPO} && MUJOCO_EGL_DEVICE_ID={gpu} PYTHONPATH={pypath} "
                 f"{TIMAN_CONDA} run -p {TIMAN_SIM} --no-capture-output python "
                 f"examples/libero/main.py --host {self.a.public_host} --port {self.port} "
                 f"--task-suite-name {self.a.suite} --num-trials-per-task 50 "
@@ -294,7 +307,7 @@ class Slot:
         tether(
             TIMAN,
             f"export HOME={TIMAN_HOME}; for s in $(tmux ls 2>/dev/null | "
-            f"grep -oE '^lw{self.port}_[0-9]+'); do tmux kill-session -t $s 2>/dev/null; done; echo ok",
+            f"grep -oE '^lw{self.port}_[0-9]+'); do tmux kill-session -t \"=$s\" 2>/dev/null; done; echo ok",
         )
 
     # -- one cell ----------------------------------------------------------
@@ -349,7 +362,7 @@ def reap_stale_workers() -> None:
         TIMAN,
         f"export HOME={TIMAN_HOME}; n=0; "
         f"for s in $(tmux ls 2>/dev/null | grep -oE '^lw[0-9]+_[0-9]+'); do "
-        f"tmux kill-session -t $s 2>/dev/null; n=$((n+1)); done; "
+        f"tmux kill-session -t \"=$s\" 2>/dev/null; n=$((n+1)); done; "
         f"sleep 3; for p in $(pgrep -f 'task-suite-nam[e]'); do kill -TERM $p 2>/dev/null; done; "
         f"echo REAPED $n",
     )

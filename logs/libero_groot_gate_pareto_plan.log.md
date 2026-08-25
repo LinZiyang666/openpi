@@ -527,3 +527,29 @@ worker 数沿用实测安全值：spatial 12/槽、**l10 8/槽**（l10 worker 3.
 - [Resolved] 启动前置检查已覆盖 driver 所需 venv/scheduler/analyzer/tether 与 scheduler 所需 server/island，`GP_PREFLIGHT_ONLY=1` 通过真实脚本验证 driver 与 scheduler 根目录一致；新增 8 条路径测试均通过。
 - [Evidence] 本轮复跑 `tests/cache tests/libero_groot tests/robocasa365`：**1645 passed / 26 skipped / 0 failed**；路径专项与密封独立 probes：**11 passed**；`bash -n` 与 diff whitespace 检查通过。R1 的 I1–I6/预期臂集、非零状态传播、T7 前置冒烟、plot + manifest 四项修复均保持闭合。
 - [Decision] G2 代码批准；可进入 §6 Verify。部署前仍须按执行方记录把已批准快照同步到实际发车 checkout，此为正常发布步骤，不构成代码阻塞。
+
+### Post-G2 Hotfixes — Executor — 2026-08-24 20:00 CDT
+
+两处首点火才暴露的缺陷，均在 G2 APPROVED 之后修改，按 WA §2.6「emergency hotfix 仍需事后 G2 复审」记录在此。
+两者都不改变实验设计、口径或产物，只让已批准的设计真的跑得起来。
+
+- **仿真 venv 导不进 `openpi`**（`orchestrate_search.py:launch_clients`）——
+  客户端命令原本用 `PYTHONPATH=.`，而 `openpi` 在 `src/` 下。搜索线从未踩到，因为
+  `--per-step-log-dir` 是客户端**唯一**会 import `openpi` 的地方
+  （`openpi.serving.per_step_recorder`，在 `eval_libero` 里惰性导入）。首次开启逐步捕获后，
+  12 个 worker 在 server 起来之后立刻全部 `ModuleNotFoundError` 退出，
+  症状呈现为「车队产出 0 行」而不是导入错误。
+  修法：仅在启用逐步捕获时用 `PYTHONPATH=.:src`（该 recorder 只依赖 stdlib，
+  且 `openpi/__init__.py` 与 `openpi/serving/__init__.py` 均为空命名空间，
+  py3.8 的 LIBERO venv 可安全导入）。搜索线路径保持 `.` 不变。
+  **计划 §3 锚点 5 的漏洞**：当时只亲验了「main.py 有这个 flag 且会写行」，
+  没有亲验「仿真 venv 能否导入它所需要的模块」——契约验到了，运行环境没验。
+
+- **tmux 前缀匹配杀掉了链自己**（`run_gate_pareto.sh`，同类隐患一并加固 `orchestrate_search.py`）——
+  `tmux kill-session -t libgp` 在没有精确同名会话时**回落到前缀匹配**，
+  于是匹配上链自身的会话 `libgpchain` 并把它杀掉，**退出码 0、无任何输出**。
+  表现为：链在打印完某个相位横幅后凭空消失，日志停在那一行，没有 scheduler、没有 status 文件，
+  三次复现都被误读成「run_stage 内部失败」。实证：`tmux new -s probechain` 后
+  `tmux kill-session -t probe` 返回 0 且 `probechain` 消失。
+  修法：全部 `-t` 目标改用 tmux 的精确匹配语法 `'=name'`（`libgp` / `libsrv<port>` / `lw<port>_<n>`）。
+  这是一整类 bug：`-t libsrv2316` 同样会误杀 `libsrv23160`。
