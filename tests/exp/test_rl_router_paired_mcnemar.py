@@ -122,3 +122,89 @@ def test_a_two_sided_verdict_does_not_depend_on_which_arm_is_first() -> None:
     assert fwd["p_value"] == rev["p_value"]
     assert fwd["paired_diff"] == pytest.approx(-rev["paired_diff"])
     assert fwd["significant_at_05"] == rev["significant_at_05"]
+
+
+# ------------------------------------------------------------------
+# Pre-registration gates at the real CLI entry point (X15 U6)
+# ------------------------------------------------------------------
+
+
+def _run_cli(argv: list[str]):
+    """Invoke paired_mcnemar's main() as the analysis driver would."""
+    import sys
+
+    from exp.rl_router.analysis.paired_mcnemar import main
+
+    saved = sys.argv
+    sys.argv = ["paired_mcnemar.py", *argv]
+    try:
+        return main()
+    finally:
+        sys.argv = saved
+
+
+def _ledger(tmp_path, frozen: bool = True) -> str:
+    body = {"gradient": ["g1"], "delta": ["d1"], "cal": ["c1"], "test": ["t1"], "a": ["a1"]}
+    if frozen:
+        body["frozen"] = {"p_hat": {"value": 0.29, "at": "2026-08-22T00:00:00Z"}}
+    # First-touch stamp written by the launcher; the gate compares it against
+    # the freeze time, so it must be present and later.
+    body["touched"] = {"a": "2026-08-22T06:00:00Z"}
+    path = tmp_path / "ledger.json"
+    path.write_text(json.dumps(body), encoding="utf-8")
+    return str(path)
+
+
+def _pair(tmp_path, name: str, uids: list[str]) -> str:
+    rows = [{"task_uid": u, "attempt": 1, "success": True} for u in uids]
+    return _journal(tmp_path, name, rows)
+
+
+def test_primary_cli_rejects_an_unpaired_run(tmp_path) -> None:
+    """The gate must fire at the real entry point, not only as a library call:
+    an unpaired slot means the arms did not run the same list."""
+    from exp.rl_router.analysis.cluster_stats import PreregistrationError
+
+    a = _pair(tmp_path, "a.jsonl", ["u1", "u2", "u3"])
+    b = _pair(tmp_path, "b.jsonl", ["u1", "u2"])
+
+    with pytest.raises(PreregistrationError, match="identical slot lists"):
+        _run_cli([a, b, "--primary", "--ledger", _ledger(tmp_path)])
+
+
+def test_primary_cli_rejects_an_unfrozen_p_hat(tmp_path) -> None:
+    """Evaluating before p_hat was committed is exactly the ordering the ledger
+    exists to make impossible."""
+    from exp.rl_router.analysis.cluster_stats import PreregistrationError
+
+    a = _pair(tmp_path, "a.jsonl", ["u1", "u2"])
+    b = _pair(tmp_path, "b.jsonl", ["u1", "u2"])
+
+    with pytest.raises(PreregistrationError, match="frozen block"):
+        _run_cli([a, b, "--primary", "--ledger", _ledger(tmp_path, frozen=False)])
+
+
+def test_primary_cli_rejects_reading_a_fitting_pool(tmp_path) -> None:
+    from exp.rl_router.analysis.cluster_stats import PreregistrationError
+
+    a = _pair(tmp_path, "a.jsonl", ["u1", "u2"])
+    b = _pair(tmp_path, "b.jsonl", ["u1", "u2"])
+
+    with pytest.raises(PreregistrationError):
+        _run_cli([
+            a, b, "--primary", "--ledger", _ledger(tmp_path),
+            "--phase", "evaluate_a", "--reads", "gradient",
+        ])
+
+
+def test_primary_cli_accepts_a_clean_run(tmp_path) -> None:
+    a = _pair(tmp_path, "a.jsonl", ["u1", "u2", "u3"])
+    b = _pair(tmp_path, "b.jsonl", ["u1", "u2", "u3"])
+    _run_cli([a, b, "--primary", "--ledger", _ledger(tmp_path)])
+
+
+def test_non_primary_run_keeps_the_lenient_warning_path(tmp_path) -> None:
+    """Exploratory comparisons still drop-and-warn; only the primary hard-fails."""
+    a = _pair(tmp_path, "a.jsonl", ["u1", "u2", "u3"])
+    b = _pair(tmp_path, "b.jsonl", ["u1", "u2"])
+    _run_cli([a, b])

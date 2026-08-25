@@ -39,8 +39,22 @@ from openpi.cache.storage_types import (
     QuerySpec,
     SearchResult,
     SearchResultLite,
+    StepRetrievalFeatures,
     UnsupportedFilterError,
 )
+
+
+def _search_with_diagnostics(backend, spec: QuerySpec):
+    """Search a backend, tolerating one that predates the diagnostics seam.
+
+    Backends that only implement ``search()`` get an empty feature snapshot
+    rather than an AttributeError. Config validation is what actually gates
+    ``risk_router`` onto a backend that fills these in.
+    """
+    fn = getattr(backend, "search_with_diagnostics", None)
+    if fn is None:
+        return backend.search(spec), StepRetrievalFeatures()
+    return fn(spec)
 
 
 class CacheStorage:
@@ -60,6 +74,9 @@ class CacheStorage:
         # logs/trajectory_deviation_corrective_implementation.log.md §6.
         self._prefill_mode: bool = False
         self._prefill_payload: Optional[CachePayload] = None
+        # X15: retrieval diagnostics of the most recent search on THIS facade.
+        # Per-connection by construction — see last_step_features().
+        self._last_step_features: Optional[StepRetrievalFeatures] = None
 
     # ------------------------------------------------------------------
     # Prefill mode (per-facade)
@@ -96,19 +113,41 @@ class CacheStorage:
         Use fetch_payload() on the winning candidate, or search_and_fetch()
         when you need full results for all top-k entries.
         """
+        # Clear FIRST: a validation error or a backend exception below must not
+        # leave the previous query's diagnostics readable. "We could not tell"
+        # has to stay distinguishable from "we looked and it was fine".
+        self._last_step_features = None
         self._check_query_dims(spec)
         self._check_filters(spec)
         if self._prefill_mode:
             # Synthetic hit — a sentinel id short-circuits the downstream
             # fetch_payload() to the stored prefill payload.
-            return [
+            prefill = [
                 SearchResultLite(
                     id="__prefill__",
                     score=1.0,
                     checkpoint_id=spec.checkpoint_id,
                 )
             ]
-        return self._backend.search(spec)
+            self._last_step_features = StepRetrievalFeatures(
+                fused_topk=(("__prefill__", 1.0),), n_results=1,
+            )
+            return prefill
+        results, diagnostics = _search_with_diagnostics(self._backend, spec)
+        # Snapshot ownership is per-connection: this facade is built once per
+        # connection while ``BackendPool`` shares the backend itself, so holding
+        # the snapshot here is what keeps one connection's retrieval features
+        # from being read by another (X15 plan 3.5).
+        self._last_step_features = diagnostics
+        return results
+
+    def last_step_features(self) -> Optional[StepRetrievalFeatures]:
+        """Diagnostics of the most recent ``search()`` on THIS facade.
+
+        Returns None before the first search. Additive: only the X15
+        ``risk_router`` reads it, through its strategy.
+        """
+        return self._last_step_features
 
     def fetch_payload(self, id: str) -> CachePayload:
         """Fetch the full payload for one candidate id."""

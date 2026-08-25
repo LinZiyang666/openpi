@@ -351,6 +351,25 @@ class JudgeConfig:
     dump_dir: Optional[str] = None
     seed: Optional[int] = None
 
+    # ── Risk router (type="risk_router"; X15 proxy-supervised gate) ──
+    # Reads the retrieval evidence X14's router is blind to and thresholds a
+    # calibrated risk. All fields default to None so the validator can demand
+    # the ones that change the verdict rather than inherit a silent default.
+    #   risk_model_path:      trained + calibrated artifact.
+    #   tau:                  risk threshold; >= tau routes to teacher.
+    #   dwell:                decisions teacher is held after being chosen.
+    #   task_index:           position of this task in the one-hot (0..9).
+    #   replan_steps:         client inference interval, in env steps.
+    #   library_replan_steps: the SAME interval for the episodes that built the
+    #                         library — a library entry's step_idx counts ITS
+    #                         cycles, so the two can differ.
+    risk_model_path: Optional[str] = None
+    tau: Optional[float] = None
+    dwell: Optional[int] = None
+    task_index: Optional[int] = None
+    replan_steps: Optional[int] = None
+    library_replan_steps: Optional[int] = None
+
 
 @dataclass
 class FieldSimilarityConfig:
@@ -540,6 +559,26 @@ class RoutingConfig:
 
 
 @dataclass
+class ShadowTeacherConfig:
+    """X15 shadow-teacher label collection (``shadow_teacher:`` in the yaml).
+
+    Off by default, and off means genuinely nothing happens: no recorder is
+    constructed, so the inference path is byte-identical to a config that has
+    never heard of X15. Turning it on costs one extra teacher forward per
+    cache-executed decision — paid during a calibration campaign, never in a
+    measured run.
+
+    ``path`` is the sidecar JSONL the labels land in; ``action_sigma`` is the
+    per-dimension action scale used to normalise the deviation, so joints with
+    different ranges contribute comparably.
+    """
+
+    enabled: bool = False
+    path: str = ""
+    action_sigma: Optional[list[float]] = None
+
+
+@dataclass
 class CacheConfig:
     """Top-level cache configuration. This is the root dataclass for cache.yaml."""
 
@@ -554,6 +593,7 @@ class CacheConfig:
     backend: BackendConfig = field(default_factory=BackendConfig)
     write_policy: WritePolicyConfig = field(default_factory=WritePolicyConfig)
     collection: CollectionConfig = field(default_factory=CollectionConfig)
+    shadow_teacher: ShadowTeacherConfig = field(default_factory=ShadowTeacherConfig)
     # Ablation executor routing (None -> inert; see RoutingConfig).
     routing: Optional[RoutingConfig] = None
 
@@ -576,7 +616,7 @@ _VALID_STEP_FILTERS = frozenset({"all", "exact", "window"})
 # _build_judge) stay in lockstep; otherwise a missing entry silently downgrades
 # to a "Unknown ... type" error at build time despite passing validation.
 _GATE_TYPES = frozenset({"always_search", "always_skip", "client_controlled", "random", "periodic", "score_hysteresis", "follow_winner"})
-_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start", "composite", "failure_aware_gate", "mlp_router"})
+_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start", "composite", "failure_aware_gate", "mlp_router", "risk_router"})
 
 
 def _keys_iter(keys: KeysConfig) -> Iterator[tuple[str, KeyFieldConfig]]:
@@ -787,6 +827,70 @@ def load_cache_config(path: str | Path) -> CacheConfig:
         config.write_policy.type,
     )
     return config
+
+
+def _validate_risk_router_static(
+    prefix: str,
+    cp_config,
+    config,
+    errors: list,
+    *,
+    cp_name: str,
+) -> None:
+    """Static checks for the X15 ``risk_router`` judge.
+
+    Two of these are capability gates rather than taste. The judge reads
+    per-field retrieval diagnostics, which only the in-memory
+    weighted-score-sum path produces; and it needs ``top_k`` candidates to
+    build its top-k features. Catching both at yaml load turns a whole run of
+    silently degraded verdicts into one startup error.
+    """
+    from openpi.cache.components.risk_features import TOP_K
+
+    judge = cp_config.judge
+
+    if cp_name != "cp1":
+        errors.append(
+            f"{prefix}.judge: type='risk_router' is CP1-only (the teacher/cache "
+            f"arms live on the CP1 verdict); got {cp_name}"
+        )
+
+    if not judge.risk_model_path:
+        errors.append(f"{prefix}.judge: type='risk_router' requires 'risk_model_path'")
+    if judge.tau is None:
+        errors.append(f"{prefix}.judge: type='risk_router' requires an explicit 'tau'")
+    if judge.dwell is not None and judge.dwell < 1:
+        errors.append(f"{prefix}.judge: dwell must be >= 1 (got {judge.dwell})")
+    if judge.task_index is None:
+        errors.append(f"{prefix}.judge: type='risk_router' requires 'task_index'")
+    if judge.replan_steps is None:
+        errors.append(f"{prefix}.judge: type='risk_router' requires 'replan_steps'")
+    if judge.library_replan_steps is None:
+        # No safe default: assuming the library shares the client's interval
+        # silently scales every phase feature by the wrong factor.
+        errors.append(
+            f"{prefix}.judge: type='risk_router' requires 'library_replan_steps' "
+            "(a library entry's step_idx counts the LIBRARY episode's inference "
+            "cycles, which need not match this client's replan_steps)"
+        )
+
+    # Capability gate: only this backend/fusion pair emits per-field diagnostics.
+    if config.backend.type != "in_memory":
+        errors.append(
+            f"{prefix}.judge: type='risk_router' requires backend.type='in_memory' "
+            f"(the per-field retrieval diagnostics source); got {config.backend.type!r}"
+        )
+    ss = cp_config.search_strategy
+    if ss.type != "weighted_score_sum_knn":
+        errors.append(
+            f"{prefix}.judge: type='risk_router' requires "
+            f"search_strategy.type='weighted_score_sum_knn'; got {ss.type!r}"
+        )
+    if (ss.top_k or 0) < TOP_K:
+        errors.append(
+            f"{prefix}.judge: type='risk_router' requires search_strategy.top_k >= "
+            f"{TOP_K} (the top-k score features); got {ss.top_k!r}"
+        )
 
 
 def _validate_mlp_router_static(
@@ -1425,6 +1529,17 @@ def validate_cache_config(config: CacheConfig) -> None:
     7. step_filter values must be valid
     """
     errors: list[str] = []
+
+    # X15 shadow teacher: enabling label collection without a destination
+    # silently discards every label, which looks exactly like a successful
+    # collection run until the trainer finds no data.
+    st = getattr(config, "shadow_teacher", None)
+    if st is not None and st.enabled and not st.path:
+        errors.append(
+            "shadow_teacher.enabled requires 'path' (the sidecar JSONL the "
+            "per-decision labels are written to)"
+        )
+
     enabled_fields = [name for name, kf in _keys_iter(config.keys) if kf.enabled]
 
     # 1. Enabled keys vs vector_dims.
@@ -1788,6 +1903,12 @@ def validate_cache_config(config: CacheConfig) -> None:
         if cp_config.judge.type == "mlp_router":
             _validate_mlp_router_static(
                 prefix, cp_config.judge, config, errors, cp_name=cp_name,
+            )
+
+        # risk_router judge parameter checks (X15).
+        if cp_config.judge.type == "risk_router":
+            _validate_risk_router_static(
+                prefix, cp_config, config, errors, cp_name=cp_name,
             )
 
         # JudgeConfig.dump validator (G1 R6+). Independent of judge.type;
@@ -2925,6 +3046,38 @@ def _build_inner_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optiona
         # 4-layer composite refactor: instantiate Layer 1 / 2 / 3 / 4
         # from yaml schema and assemble via the new CompositeJudge.
         return _build_composite_judge(cfg, library_stats=library_stats, yaml_id=yaml_id)
+    elif cfg.type == "risk_router":
+        # Lazy import mirrors the mlp_router branch: keeps the torch-heavy risk
+        # model out of every non-router config's import path. The artifact's
+        # feature-schema digest is checked inside load(), so a checkpoint from a
+        # different feature layout fails here at yaml load rather than serving
+        # confident nonsense mid-episode.
+        from openpi.cache.components.risk_features import (
+            RiskFeatureBuilder,
+            feature_schema_digest,
+        )
+        from openpi.cache.components.risk_model import RiskModel
+        from openpi.cache.components.risk_router_judge import RiskRouterJudge
+
+        model = RiskModel.load(
+            cfg.risk_model_path, expected_schema_sha=feature_schema_digest(),
+        )
+        # The builder uses the table the model was FITTED with, not a freshly
+        # derived one: identical by construction today, but binding them here
+        # is what keeps a future fitted table correct without a code change.
+        builder = RiskFeatureBuilder(
+            task_index=cfg.task_index,
+            replan_steps=cfg.replan_steps,
+            library_replan_steps=cfg.library_replan_steps,
+            task_embedding_table=model.task_embedding_table,
+        )
+        return RiskRouterJudge(
+            feature_builder=builder,
+            risk_model=model,
+            tau=cfg.tau,
+            dwell=cfg.dwell if cfg.dwell is not None else 1,
+            dump_dir=cfg.dump_dir or "",
+        )
     elif cfg.type == "mlp_router":
         # Lazy import (composite precedent): keeps torch-heavy router code out
         # of every non-router config's import path. Weight loading + full meta

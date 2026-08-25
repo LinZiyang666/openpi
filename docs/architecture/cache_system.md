@@ -929,6 +929,7 @@ Empty library on the cache arm degrades to `MISS` with `fallback: true`, and cos
 
 **Per-episode RNG.** `seed_ep = sha256(run_seed, task_uid, attempt, weights_version)` reseeds a private generator at `on_episode_start`; replaying the same identity replays the same arm sequence, which is what makes an interrupted run and its resume the same experiment without persisting live RNG state. An episode whose identity is incomplete is forced to argmax and isolated — never trained on.
 
+
 ### 5.17 GR00T N1.5 Two-Stage Path (RoboCasa365 cross-scene line)
 
 第二个模型族接入 cache，走**平行实现**而非共用基类。设计与实现细节见
@@ -966,6 +967,22 @@ Orchestrator / CacheStorage / judge / gate / search strategy —— 它们只看
 **yaml 类型名 `cp1_groot_*` 的前缀是有承载作用的**：`config.py` 的两条校验按
 `startswith("cp1_")` 触发（强制 enable `vision_0`+`robot_state`、强制 `preload_path`），
 改成 `groot_cp1_*` 会让它们静默失效。
+
+### 5.18 Risk Router Verdict Layer (X15 proxy-supervised gate)
+
+> **Source**: `src/openpi/cache/components/risk_router_judge.py` (`RiskRouterJudge`), `risk_features.py` (`RiskFeatureBuilder`, 59-dim A-tier vector), `risk_model.py` (`RiskNet` / `IsotonicMap` / `RiskModel`), `src/openpi/cache/shadow_teacher.py` (`ShadowTeacherRecorder`), plus the diagnostics seam in `backends/in_memory_backend.py` / `cache_storage.py` / `components/search_strategy.py` / `orchestrator.py`. Design: [`logs/rl_router_v2_risk_router_plan.log.md`](../../logs/rl_router_v2_risk_router_plan.log.md).
+
+Where X14's `mlp_router` is deliberately blind to the library, X15 inverts the information contract: it reads the retrieval evidence the search just produced, scores a calibrated cache-risk scalar, and thresholds it (`judge.type: risk_router`). CP1-only, teacher/cache only — it is **not** in `_ROUTING_JUDGE_TYPES`, because neither arm needs a sidecar.
+
+**Retrieval diagnostics seam (additive).** Weighted-score-sum fusion computes per-field normalized scores inside `InMemoryBackend._search_weighted_score_sum` and then discards them. `search_with_diagnostics()` returns them **atomically** with the results as a `StepRetrievalFeatures`, and the per-connection `CacheStorage` facade holds the snapshot. Ownership matters: `BackendPool` shares one backend instance across connections by fingerprint, so a mutable `last_*` slot on the backend would let one connection's search overwrite another's diagnostics between the search and the judge that reads them. `search()` remains a thin wrapper with its original signature, and the Orchestrator injects `step_features` only for judges whose `__call__` declares it (`judge_accepts_kwarg`, the generalised form of X14's `judge_accepts_query_keys`) — every legacy judge keeps a byte-identical call.
+
+**Two time axes.** `decision_idx` counts this client's inference cycles; a `CacheEntry.step_idx` counts the *library* episode's cycles. Both are converted to physical environment steps (`× replan_steps` and `× library_replan_steps` respectively) before the phase features compare them. `library_replan_steps` is required config with no default — assuming it equals the client's interval silently rescales every phase feature.
+
+**Fail-safe and dwell.** Missing results, absent diagnostics, a non-finite feature, or any builder/model exception yield maximum risk, i.e. teacher: degrading to the expensive-but-correct arm is the only safe direction for a gate whose purpose is catching cache failures. After choosing teacher the gate holds it for `dwell` decisions, since cache failure is drift-shaped rather than a one-step event.
+
+**Config gates.** Load fails unless `backend.type: in_memory`, `search_strategy.type: weighted_score_sum_knn` (the only path emitting per-field diagnostics) and `top_k >= 5` (the top-k score features). The risk artifact carries the feature-schema digest it was trained against and refuses to load against a different runtime builder — a model scored through a different layout is confident nonsense no runtime fail-safe can detect.
+
+**Shadow-teacher labels.** `ShadowTeacherRecorder` runs the teacher once per decision *without executing it* and records the normalised deviation from the cached chunk it would have replayed, turning X14's one-bit-per-episode signal into one label per decision. Wired into `InferenceInterceptor` behind `shadow_teacher.enabled` (off by default ⇒ no recorder is constructed and the path is byte-identical), injected by `serve_policy.py`. Both arms are labelled: on a cache step the teacher runs in shadow; on a teacher step the teacher chunk is already free and the cached candidate is fetched instead. The shadow forward draws its noise from a recorder-owned, device-matched generator seeded by a stable SHA-256 digest of `(task_uid, attempt, decision_idx)`, so the global RNG stream — and therefore every later teacher step — is unchanged. `run_stage3` returns a `Stage3Output`, so the label is taken from its `action_chunk`. Exactly one terminal row per episode (`finalize_episode` is idempotent; both the episode-end and connection-close hooks call it). Any shadow failure is recorded and swallowed. It never changes the executed action, and it never changes the RNG stream: `PI0Pytorch.sample_noise` gained an additive optional `generator` (default `None` = global stream, byte-identical for every existing caller) so the shadow forward draws from a recorder-owned, device-matched generator seeded by a stable SHA-256 digest of `(task_uid, attempt, decision_idx)`. Rows are a union schema (`ok` / `error` / `finalize`) so a failed shadow pass and an aborted episode are both expressible; any shadow failure is recorded and swallowed.
 
 ## 6. Data Flow and Timing
 

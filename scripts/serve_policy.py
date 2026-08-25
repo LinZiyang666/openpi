@@ -395,6 +395,24 @@ def _resolve_collection(cache_config, args) -> tuple[bool, tuple[str, ...]]:
     return export, fields
 
 
+def _build_shadow_teacher(cache_config):
+    """Construct the X15 label recorder, or None when collection is off.
+
+    Off is the default and means no object at all, so the inference path stays
+    byte-identical for every config that is not a calibration campaign.
+    """
+    st = getattr(cache_config, "shadow_teacher", None)
+    if st is None or not st.enabled:
+        return None
+    import torch
+
+    from openpi.cache.shadow_teacher import ShadowTeacherRecorder
+
+    sigma = None if not st.action_sigma else torch.tensor(st.action_sigma)
+    logging.info("X15 shadow-teacher label collection ON -> %s", st.path)
+    return ShadowTeacherRecorder(path=st.path, action_sigma=sigma)
+
+
 def _build_routing_executors(cache_config, stage_config: StageDeviceConfig | None):
     """Build (hit_executor, miss_executor) from ``cache_config.routing``.
 
@@ -519,6 +537,7 @@ def _wrap_policy(
             collect_kb_id=bundle.cache_config.key_builder.type,
             hit_executor=_hit_ex,
             miss_executor=_miss_ex,
+            shadow_teacher=_build_shadow_teacher(bundle.cache_config),
         )
     elif args.cache_config is not None:
         from openpi.cache.config import build_cache_components
@@ -580,6 +599,7 @@ def _wrap_policy(
             collect_kb_id=cache_config.key_builder.type,
             hit_executor=_hit_ex,
             miss_executor=_miss_ex,
+            shadow_teacher=_build_shadow_teacher(cache_config),
         )
     elif args.cache:
         from openpi.cache.interceptor import InferenceInterceptor

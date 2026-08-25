@@ -37,7 +37,12 @@ import torch
 from openpi.cache.cache_storage import CacheStorage
 from openpi.cache.components.factors.base import HistoryView, LibraryStats, OfflineWriter
 from openpi.cache.components.gate import ClientControlledGate, GateFunction
-from openpi.cache.components.judge import HitType, SimilarityJudge, judge_accepts_query_keys
+from openpi.cache.components.judge import (
+    HitType,
+    SimilarityJudge,
+    judge_accepts_kwarg,
+    judge_accepts_query_keys,
+)
 from openpi.cache.components.key_builder import QueryKeyBuilder
 from openpi.cache.components.payload_view import StoragePayloadView
 from openpi.cache.components.search_strategy import SearchContext, SearchStrategy
@@ -143,6 +148,10 @@ class CacheOrchestrator:
         # DumpingJudge's own surface) on a byte-identical call.
         self._judge_wants_query_keys: dict[CheckpointID, bool] = {
             cp: judge_accepts_query_keys(j) for cp, j in self._judges.items()
+        }
+        # X15: same one-shot probe for the retrieval-diagnostics kwarg.
+        self._judge_wants_step_features: dict[CheckpointID, bool] = {
+            cp: judge_accepts_kwarg(j, "step_features") for cp, j in self._judges.items()
         }
 
         # B2 wiring — populated by config builder when composite judges
@@ -617,6 +626,15 @@ class CacheOrchestrator:
                 if self._judge_wants_query_keys.get(checkpoint_id)
                 else {}
             )
+            # X15 seam, same shape as the X14 one above: retrieval diagnostics
+            # ride in only for judges that declared ``step_features``. The
+            # snapshot is pulled from the strategy (which reads its own
+            # per-connection storage facade), never from a shared backend slot.
+            if self._judge_wants_step_features.get(checkpoint_id):
+                _feat_getter = getattr(strategy, "last_step_features", None)
+                extra_kwargs["step_features"] = (
+                    _feat_getter() if _feat_getter is not None else None
+                )
             judge_result = judge(
                 results, checkpoint_id, self._key_builder.cached_data,
                 view=view, history=history, retrieval_signals=retrieval_signals,

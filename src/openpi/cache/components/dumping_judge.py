@@ -38,7 +38,11 @@ import torch
 
 from openpi.cache.components.factors.base import Factor, FactorContext, HistoryView
 from openpi.cache.components.judge import JudgeResult
-from openpi.cache.storage_types import RetrievalSignals, SearchResultLite
+from openpi.cache.storage_types import (
+    RetrievalSignals,
+    SearchResultLite,
+    StepRetrievalFeatures,
+)
 from openpi.cache.types import CheckpointID
 
 if TYPE_CHECKING:
@@ -47,6 +51,41 @@ if TYPE_CHECKING:
     from openpi.cache.components.payload_view import PayloadView
 
 logger = logging.getLogger("openpi.cache.dumping_judge")
+
+
+def _query_keys_to_row(
+    query_keys: Optional[dict[str, torch.Tensor]]
+) -> Optional[dict]:
+    """JSON-safe fp16 projection of the query keys, for offline replay.
+
+    fp16 is deliberate: it is the precision the router itself decided on, so
+    the replay reproduces the live decision rather than a more precise one the
+    server never saw.
+    """
+    if not query_keys:
+        return None
+    return {
+        name: tensor.detach().reshape(-1).to(torch.float16).float().tolist()
+        for name, tensor in query_keys.items()
+    }
+
+
+def _features_to_row(features: Optional[StepRetrievalFeatures]) -> Optional[dict]:
+    """JSON-safe projection of the X15 retrieval diagnostics.
+
+    Tuples become lists and every scalar becomes a float so the row round-trips
+    through strict JSON parsers; None stays None so a legacy judge's dump is
+    byte-identical apart from the added key.
+    """
+    if features is None:
+        return None
+    return {
+        "fused_topk": [[str(i), float(s)] for i, s in features.fused_topk],
+        "winner_per_field": {k: float(v) for k, v in features.winner_per_field.items()},
+        "field_own_margin": {k: float(v) for k, v in features.field_own_margin.items()},
+        "fused_margin": float(features.fused_margin),
+        "n_results": int(features.n_results),
+    }
 
 
 class DumpingJudge:
@@ -88,11 +127,20 @@ class DumpingJudge:
         # swallow the kwarg, so withholding it keeps every dump-wrapped legacy /
         # composite config on a byte-identical inner call, while a dump-wrapped
         # MlpRouterJudge (which declares the parameter) still receives it.
-        from openpi.cache.components.judge import judge_accepts_query_keys
+        from openpi.cache.components.judge import (
+            judge_accepts_kwarg,
+            judge_accepts_query_keys,
+        )
 
         object.__setattr__(
             self, "_forward_query_keys",
             judge_accepts_query_keys(inner, allow_var_keyword=False),
+        )
+        # X15: same strict probe for the retrieval-diagnostics kwarg, so a
+        # legacy inner judge keeps a byte-identical call.
+        object.__setattr__(
+            self, "_forward_step_features",
+            judge_accepts_kwarg(inner, "step_features", allow_var_keyword=False),
         )
         # Lazy file handle: opened on first verdict and reused; closed by GC
         # at server shutdown. Avoids 50w open/close/append per phase2 run
@@ -151,6 +199,7 @@ class DumpingJudge:
         history: Optional[HistoryView] = None,
         retrieval_signals: Optional[RetrievalSignals] = None,
         query_keys: Optional[dict[str, torch.Tensor]] = None,
+        step_features: Optional["StepRetrievalFeatures"] = None,
     ) -> JudgeResult:
         # 1) Forward verdict to inner — verdict behaviour byte-identical. The
         #    Orchestrator injects retrieval_signals unconditionally (TRACER M2 /
@@ -159,7 +208,13 @@ class DumpingJudge:
         #    ``query_keys`` (X14) is declared here so the Orchestrator's probe
         #    admits the wrapper, but it is relayed only to an inner judge that
         #    asked for it — see the constructor's strict probe.
+        #    ``step_features`` (X15) follows the same rule: declared so the
+        #    Orchestrator's probe admits the wrapper, relayed only to an inner
+        #    judge that declared it. A dump-wrapped risk_router would otherwise
+        #    lose its entire input and fail safe to teacher on every step.
         extra_kwargs = {"query_keys": query_keys} if self._forward_query_keys else {}
+        if self._forward_step_features:
+            extra_kwargs["step_features"] = step_features
         judge_result = self._inner(
             results, checkpoint_id, cached_data,
             view=view, history=history, retrieval_signals=retrieval_signals,
@@ -170,7 +225,10 @@ class DumpingJudge:
         #    verdict path; trap exceptions and log instead of swallowing
         #    silently (plan §6.9 G1 R1 P3 critique).
         try:
-            self._write_dump_row(results, view, history, judge_result)
+            self._write_dump_row(
+                results, view, history, judge_result,
+                step_features=step_features, query_keys=query_keys,
+            )
         except Exception as exc:  # noqa: BLE001
             logger.warning(
                 "DumpingJudge step=%d config_id=%s: failed to write dump row: %r",
@@ -190,6 +248,8 @@ class DumpingJudge:
         view: Optional["PayloadView"],
         history: Optional[HistoryView],
         judge_result: JudgeResult,
+        step_features: Optional[StepRetrievalFeatures] = None,
+        query_keys: Optional[dict[str, torch.Tensor]] = None,
     ) -> None:
         # Run the dump-factor list with a self-owned FactorContext.
         ctx = FactorContext(
@@ -234,6 +294,22 @@ class DumpingJudge:
             "inner_start_t": judge_result.start_t,
             "inner_factor_outputs": getattr(judge_result, "factor_outputs", None),
         }
+        # X15: the retrieval decomposition, recorded so the offline pipeline has
+        # something independent to check its recomputation against — forwarding
+        # it to the inner judge alone leaves P0-b with no parity baseline. Added
+        # ONLY when diagnostics actually exist, so a legacy dump's rows keep
+        # their exact key set rather than gaining a null column.
+        features_row = _features_to_row(step_features)
+        if features_row is not None:
+            row["step_features"] = features_row
+            # The offline pipeline replays these against the frozen library to
+            # recompute the scores independently; without them its parity gate
+            # has no input and every run reports "zero comparable decisions".
+            # Written only alongside diagnostics, so a legacy dump's key set is
+            # untouched. fp16 matches what the router itself consumed.
+            keys_row = _query_keys_to_row(query_keys)
+            if keys_row is not None:
+                row["query_keys"] = keys_row
         self._append_jsonl(row)
 
     def _append_jsonl(self, row: dict) -> None:

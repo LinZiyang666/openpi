@@ -308,13 +308,31 @@ class PI0Pytorch(nn.Module):
             observation.state,
         )
 
-    def sample_noise(self, shape, device):
+    def sample_noise(self, shape, device, generator=None):
+        """Draw flow-matching noise.
+
+        ``generator`` is additive and defaults to None, which keeps the global
+        RNG stream and therefore byte-identical behaviour for every existing
+        caller. A caller that must NOT disturb that stream — the X15 shadow
+        teacher, which runs an extra forward purely to record a label — passes
+        its own device-matched generator so the main trajectory's random
+        sequence advances exactly as it would have without the shadow pass.
+        """
+        if generator is None:
+            return torch.normal(
+                mean=0.0,
+                std=1.0,
+                size=shape,
+                dtype=torch.float32,
+                device=device,
+            )
         return torch.normal(
             mean=0.0,
             std=1.0,
             size=shape,
             dtype=torch.float32,
             device=device,
+            generator=generator,
         )
 
     def sample_time(self, bsize, device):

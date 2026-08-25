@@ -64,6 +64,20 @@ def judge_accepts_query_keys(judge, *, allow_var_keyword: bool = True) -> bool:
         and gain nothing, so keeping it out preserves a byte-identical inner
         call for every dump-wrapped legacy / composite config.
     """
+    return judge_accepts_kwarg(judge, "query_keys", allow_var_keyword=allow_var_keyword)
+
+
+def judge_accepts_kwarg(judge, name: str, *, allow_var_keyword: bool = True) -> bool:
+    """Probe once whether ``judge.__call__`` can receive ``name=...``.
+
+    The generic form of the X14 ``query_keys`` probe, reused by the X15
+    ``step_features`` seam. Each additive judge kwarg is injected only for
+    judges that declare it, so every legacy judge keeps a byte-identical call.
+
+    ``allow_var_keyword=True`` counts a ``**kwargs`` judge as accepting (safe:
+    it silently swallows the kwarg); ``False`` requires an explicit parameter,
+    which is what keeps a dump-wrapped legacy inner judge untouched.
+    """
     call = getattr(judge, "__call__", None)
     if call is None:
         return False
@@ -73,7 +87,7 @@ def judge_accepts_query_keys(judge, *, allow_var_keyword: bool = True) -> bool:
         # Un-introspectable callable (C extension / exotic proxy): stay on the
         # conservative side and do not inject.
         return False
-    if "query_keys" in params:
+    if name in params:
         return True
     if not allow_var_keyword:
         return False

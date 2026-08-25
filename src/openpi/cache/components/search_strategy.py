@@ -504,6 +504,16 @@ class WeightedScoreSumKnnStrategy(TrajectoryMixin):
         )
         return self._storage.search(spec)
 
+    def last_step_features(self):
+        """X15 retrieval diagnostics of this strategy's most recent search.
+
+        Read-through to the per-connection storage facade — this strategy holds
+        no diagnostics state of its own, which is what keeps the snapshot tied
+        to one connection under a pooled backend.
+        """
+        getter = getattr(self._storage, "last_step_features", None)
+        return None if getter is None else getter()
+
 
 # ---------------------------------------------------------------------------
 # Dynamic chain-depth strategy (TRACER Phase 1 / M3)

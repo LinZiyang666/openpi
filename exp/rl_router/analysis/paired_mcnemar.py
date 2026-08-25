@@ -120,11 +120,42 @@ def main() -> None:
     ap.add_argument("--label-a", default="router")
     ap.add_argument("--label-b", default="constant")
     ap.add_argument("--json", help="also write the verdict as json")
+    ap.add_argument(
+        "--primary", action="store_true",
+        help="enforce the pre-registered primary rules: hard-fail on any "
+             "unpaired slot, and require p_hat/tau frozen in the ledger",
+    )
+    ap.add_argument("--ledger", help="init ledger (required with --primary)")
+    ap.add_argument("--phase", default="evaluate_a",
+                    help="which pre-registered phase this run is")
+    ap.add_argument("--reads", default="a", help="which pool it reads")
     args = ap.parse_args()
+
+    if args.primary:
+        # The primary runs behind the pre-registration gates rather than beside
+        # them: a warning nobody reads is not a protocol.
+        from exp.rl_router.analysis.cluster_stats import (
+            assert_frozen_before,
+            assert_pool_isolation,
+        )
+
+        if not args.ledger:
+            raise SystemExit("--primary requires --ledger")
+        ledger = json.loads(pathlib.Path(args.ledger).read_text(encoding="utf-8"))
+        assert_pool_isolation(ledger, phase=args.phase, reads=args.reads)
+        assert_frozen_before(ledger, "p_hat", phase=args.phase)
 
     a = terminal_outcomes(args.journal_a)
     b = terminal_outcomes(args.journal_b)
     r = compare(a, b)
+
+    if args.primary:
+        from exp.rl_router.analysis.cluster_stats import assert_no_unpaired_drop
+
+        # Hard-fail, not the WARNING below: for the primary an unpaired slot
+        # means the two arms did not run the same list, so the paired test that
+        # was pre-registered is not the test being computed.
+        assert_no_unpaired_drop(r["n_only_a"], r["n_only_b"])
     la, lb = args.label_a, args.label_b
 
     print(f"{la}: {len(a)} slots   {lb}: {len(b)} slots   paired: {r['n_paired']}")

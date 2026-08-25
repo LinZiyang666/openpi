@@ -150,6 +150,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         collect_kb_id: str = "",
         hit_executor: Optional[Callable[[dict], dict]] = None,
         miss_executor: Optional[Callable[[dict], dict]] = None,
+        shadow_teacher: Optional[Any] = None,
     ) -> None:
         if not policy._is_pytorch_model:  # noqa: SLF001
             raise ValueError(
@@ -170,6 +171,15 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             )
         self._hit_executor = hit_executor
         self._miss_executor = miss_executor
+
+        # ---- X15 shadow teacher (default None => byte-identical paths) ----
+        # Records what the teacher WOULD have produced at a cache step, without
+        # executing it. Everything about the wiring is arranged so the recorded
+        # episode is indistinguishable from an unrecorded one: the shadow runs
+        # after the cache payload is in hand, its noise comes from a
+        # recorder-owned generator so the global RNG stream is untouched, and
+        # any failure inside it is swallowed.
+        self._shadow_teacher = shadow_teacher
 
         self._policy = policy
         # Borrow internals from the wrapped Policy — references only, no copy.
@@ -344,6 +354,95 @@ class InferenceInterceptor(_base_policy.BasePolicy):
     # TaskLifecycle interface  (called by WebsocketPolicyServer._handler)
     # -----------------------------------------------------------------------
 
+    # ------------------------------------------------------------------
+    # X15 shadow teacher
+    # ------------------------------------------------------------------
+
+    def _record_shadow(self, cp1_result, cached_action, stage1) -> None:
+        """Run the teacher once for the label, never for the action.
+
+        Called only on the cache-executed branch, with the cached chunk already
+        chosen. Three properties are load-bearing and all of them are about what
+        does NOT change:
+
+        * the dispatched action is the cache's, decided before this runs;
+        * the global RNG stream is untouched — the flow-matching noise comes
+          from the recorder's own generator, so every later teacher step draws
+          exactly what it would have drawn without recording;
+        * a failure here costs a label, never the episode (fail-open).
+
+        Both execution paths are covered: ``self._stage2_fn`` / ``_stage3_fn``
+        already point at either the direct model calls or the coordinator
+        submissions, so this works under both without branching on which.
+        """
+        shadow = getattr(self, "_shadow_teacher", None)
+        if shadow is None or not getattr(shadow, "enabled", False):
+            return
+        router = getattr(cp1_result, "router_outputs", None) or {}
+        decision_idx = int(router.get("decision_idx", -1))
+        if decision_idx < 0:
+            return
+
+        def teacher_fn(noise=None):
+            stage2 = self._stage2_fn(stage1)
+            if self._stage_config is not None and self._stage_config.needs_relocation:
+                stage2 = stage2.to(self._stage3_device)
+            out = self._stage3_fn(stage2, noise=noise, num_steps=_NUM_STEPS)
+            # run_stage3 returns a Stage3Output, not a bare tensor; the label is
+            # the action chunk it carries. A stub that returns a tensor directly
+            # (tests, some coordinator shims) still works.
+            return getattr(out, "action_chunk", out)
+
+        try:
+            chunk = cached_action
+            shadow.record(
+                decision_idx=decision_idx,
+                cache_chunk=chunk,
+                teacher_fn=teacher_fn,
+                device=self._stage3_device,
+                noise_shape=(1, *tuple(chunk.shape)),
+            )
+        except Exception as exc:  # noqa: BLE001 - the episode outranks the label
+            logger.warning(
+                "shadow teacher failed at decision %d: %r", decision_idx, exc
+            )
+
+    def _record_shadow_teacher_arm(self, cp1_result, stage3) -> None:
+        """Label a teacher-executed decision by fetching what cache would have done.
+
+        The mirror of ``_record_shadow``: on this arm the teacher chunk already
+        exists, so the missing half is the cached candidate. Fetching a payload
+        is cheap next to a forward, and it doubles the label coverage — the
+        model needs states where the gate chose teacher just as much as states
+        where it chose cache.
+        """
+        shadow = getattr(self, "_shadow_teacher", None)
+        if shadow is None or not getattr(shadow, "enabled", False):
+            return
+        router = getattr(cp1_result, "router_outputs", None) or {}
+        decision_idx = int(router.get("decision_idx", -1))
+        # CheckResult names this ``entry_id``; ``winner_id`` is the JudgeResult
+        # field it is built from and does not exist here. Reading the wrong one
+        # silently disabled every teacher-arm label.
+        entry_id = getattr(cp1_result, "entry_id", None)
+        if decision_idx < 0 or entry_id is None or self._orchestrator is None:
+            return
+        try:
+            payload = self._orchestrator._storage.fetch_payload(entry_id)  # noqa: SLF001
+            teacher_chunk = getattr(stage3, "action_chunk", stage3)
+            shadow.record(
+                decision_idx=decision_idx,
+                cache_chunk=payload.action_chunk,
+                teacher_fn=lambda noise=None: teacher_chunk,
+                device=self._stage3_device,
+                noise_shape=None,          # nothing is sampled on this arm
+            )
+        except Exception as exc:  # noqa: BLE001 - the episode outranks the label
+            logger.warning(
+                "shadow teacher-arm label failed at decision %d: %r",
+                decision_idx, exc,
+            )
+
     def on_task_begin(self) -> None:
         """Reset per-task state.  Called when a client connection opens.
 
@@ -373,6 +472,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         per-verdict consumption.
         """
         del experiment, episode_name  # reserved; avoid unused-arg lint noise
+        if self._shadow_teacher is not None:
+            meta = extra_metadata or {}
+            self._shadow_teacher.begin_episode(
+                str(meta.get("task_uid", episode_id)),
+                int(meta.get("attempt", 1)),
+            )
         if self._orchestrator is not None:
             self._orchestrator.on_episode_start(
                 task_key=task,
@@ -385,6 +490,11 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
         Triggers episode-end write (WritePolicy decides), then resets timer.
         """
+        # Terminal row first: it must land even if the orchestrator's own
+        # episode-end work raises, or the label joiner cannot tell a truncated
+        # episode from one whose rows are merely still buffered.
+        if self._shadow_teacher is not None:
+            self._shadow_teacher.finalize_episode(terminal=True)
         if self._orchestrator is not None:
             self._orchestrator.on_episode_end()
         self._timer.on_task_end()
@@ -396,11 +506,21 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         Forwards to ``SystemTimer.on_task_end()`` for summary printing and to
         ``CacheOrchestrator.on_task_end()`` so any search sessions registered
         by strategies (in `_broadcast_episode_start`) are released even when
-        the connection closes without a clean ``episode_end``.
+        the connection closes without a clean ``episode_end``. The shadow
+        recorder is flushed here too, marking the episode non-terminal: a
+        connection that drops mid-episode must be distinguishable from one that
+        finished.
 
         Called when a client WebSocket connection closes.
         """
         self._timer.on_task_end()
+        # A connection that drops mid-episode is marked non-terminal, so the
+        # joiner can drop that episode's labels instead of treating a truncated
+        # rollout as a complete one.
+        shadow = getattr(self, "_shadow_teacher", None)
+        if shadow is not None:
+            shadow.finalize_episode(terminal=False)
+            shadow.close()
         if self._orchestrator is not None:
             self._orchestrator.on_task_end()
         # Deterministic sidecar teardown: executors owning a connection expose
@@ -847,6 +967,11 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                         # already unbatched, so reuse the same helper as the
                         # main MISS/WS exit (G2 R3 Item 1) instead of the
                         # legacy ``[0, ...]`` map.
+                        # X15 shadow: the teacher runs here — AFTER the cached
+                        # action is in hand and BEFORE it is dispatched — so the
+                        # executed action is the cache's either way and the
+                        # recording cannot change the trajectory.
+                        self._record_shadow(cp1_result, cached_action, stage1)
                         outputs = self._unbatch_outputs(
                             inputs["state"],
                             cached_action.to(self._pytorch_device)[None, ...],
@@ -1035,6 +1160,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # ``split_stage1_output``. Stripping ``[0, ...]`` from both — as the
         # legacy code does — collapses state to a 0-D scalar and breaks any
         # output transform that indexes into it (G2 R3 Item 1).
+        # X15 shadow, teacher-arm half: here the teacher chunk is FREE — it is
+        # the one being executed — so the label costs a cache payload fetch
+        # instead of a forward. Without this the training set only ever sees
+        # states the router already chose to replay, which is the distribution
+        # the deployed gate is least uncertain about.
+        self._record_shadow_teacher_arm(locals().get("cp1_result"), stage3)
         outputs = self._unbatch_outputs(inputs["state"], stage3.action_chunk)
         outputs = self._output_transform(outputs)
         # cp1_result is unbound when orchestrator is None (cache disabled);
