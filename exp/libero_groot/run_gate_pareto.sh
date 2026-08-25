@@ -221,8 +221,14 @@ for suite in $SUITES; do
   [ -f "$ROOT/$suite/summary.json" ] || die "$suite: summary.json missing at plot time"
   SPECS+=(--suite "$suite=$ROOT/$suite/summary.json")
 done
+# The Pi0.5 line's own sweep is overlaid for the cross-executor comparison
+# this experiment exists to make. Same axes, same frozen A pool; the reference
+# is context, so a missing file must not cost us our own figures.
+REF=$REPO/exp/data_authority/analysis/gate_threshold_pareto/plot_data.json
+[ -f "$REF" ] || { say "WARN reference $REF missing; plotting without the Pi0.5 overlay"; REF=""; }
 $PY exp/libero_groot/analysis/gate_pareto/analyze_gate_pareto.py plot \
   "${SPECS[@]}" --out-dir "$REPO/exp/libero_groot/analysis/gate_pareto" \
+  ${REF:+--reference "$REF"} \
   --status "gate-threshold Pareto, $(date '+%Y-%m-%d'), teacher-rate axis only"
 
 for suite in $SUITES; do

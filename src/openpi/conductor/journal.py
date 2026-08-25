@@ -42,6 +42,8 @@ class Journal:
         attempt: int | None = None,
         accepted: bool | None = None,
         error: str | None = None,
+        duration_s: float | None = None,
+        run_id: str | None = None,
     ) -> None:
         """Append one terminal-episode record. ``status`` is ``done`` | ``failed``.
 
@@ -53,6 +55,13 @@ class Journal:
         journaled exactly like the real one. The RL router's batch packager
         admits an episode into a training batch only when ``accepted`` is True
         and ``error`` is None.
+
+        ``duration_s`` is the wall clock the worker spent on the episode. It is
+        recorded because a capacity change is judged on worker utilisation, and
+        the ledger is the only per-episode artifact a phase leaves behind -- the
+        health aggregator is in-memory and the monitor renders a string. Without
+        it, "did the fleet stay busy" is not answerable from anything the run
+        wrote down.
         """
         record: dict = {
             "task_uid": task_uid,
@@ -62,7 +71,19 @@ class Journal:
             "success": success,
             "ts": time.time(),
         }
-        for key, value in (("attempt", attempt), ("accepted", accepted), ("error", error)):
+        for key, value in (
+            ("attempt", attempt),
+            ("accepted", accepted),
+            ("error", error),
+            # Rounded: milliseconds are already finer than anything a
+            # utilisation figure resolves, and full float repr would double the
+            # size of a ledger with hundreds of thousands of lines.
+            ("duration_s", None if duration_s is None else round(float(duration_s), 3)),
+            # Which driver process produced this line. Dispatch generations
+            # restart at 1 after a crash, so without it a re-run episode's
+            # record is indistinguishable from the pre-crash one.
+            ("run_id", run_id),
+        ):
             if value is not None:
                 record[key] = value
         line = json.dumps(record, ensure_ascii=False)
@@ -71,6 +92,28 @@ class Journal:
         with self._lock, self._path.open("a", encoding="utf-8") as fh:
             fh.write(line + "\n")
             fh.flush()
+
+    @staticmethod
+    def record_counts_as_done(rec: dict) -> bool:
+        """Does this terminal record describe work that actually completed?
+
+        The driver journals *rejected* results too -- a timed-out episode is
+        re-dispatched at a higher generation, and when the original worker
+        finally reports, the scheduler fences that result and it is written
+        with ``accepted: false``. Treating such a record as completed work is
+        how a crash between the fence and the live retry turns into an episode
+        that is never run again: resume skips it, and the arm is then short by
+        one with nothing reporting a failure.
+
+        Records written before the field existed carry neither value, so the
+        test is ``is False`` rather than falsiness -- absent means "unknown,
+        assume real", which is what keeps older ledgers replaying as they did.
+
+        This is the single definition of "counts as done"; every consumer
+        (resume replay, arm filtering, outcome selection, utilisation) must
+        route through it or they will disagree about the same ledger.
+        """
+        return rec.get("status") in ("done", "failed") and rec.get("accepted") is not False
 
     def replay_done_uids(self) -> set[str]:
         """Return task_uids with any TERMINAL record (``done`` OR ``failed``).
@@ -82,6 +125,10 @@ class Journal:
         Previously only ``done`` was skipped, so every ``failed`` episode was
         re-run on resume — deterministic rollouts just fail again, inflating
         the journal while distinct/full100 never advances (a resume livelock).
+
+        Records the scheduler rejected (``accepted: false``) are excluded --
+        see :meth:`record_counts_as_done`. Without that, an episode whose only
+        terminal line is a fenced stale result is skipped forever.
         """
         if not self._path.exists():
             return set()
@@ -98,6 +145,9 @@ class Journal:
                 uid = rec.get("task_uid")
                 if uid is None:
                     continue
-                if rec.get("status") in ("done", "failed"):
+                # Only the positive case adds: a uid can carry both a fenced
+                # record and a real one in either order on disk, and a rejected
+                # line must never cancel an accepted one.
+                if self.record_counts_as_done(rec):
                     done.add(uid)
         return done

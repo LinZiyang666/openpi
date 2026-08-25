@@ -26,6 +26,7 @@ import contextlib
 import logging
 import socket
 import threading
+import uuid
 import time
 from typing import Any
 
@@ -168,6 +169,12 @@ class ConductorDriver:
         # writer callback ends up re-entering driver internals.
         self._per_step_writer = per_step_writer
         self._per_step_lock = threading.RLock()
+        # Identifies this driver process's run. Dispatch generations restart at
+        # 1 after a crash, so an episode re-run on resume produces rows and a
+        # journal line that are indistinguishable from the pre-crash ones by
+        # (accepted, attempt) alone. Stamping the run on both sides gives the
+        # finalizer a discriminator that survives the restart.
+        self._run_id = uuid.uuid4().hex[:12]
 
     # -- ctl connection pool --
 
@@ -210,7 +217,7 @@ class ConductorDriver:
             self._flush_per_step_for_stage(stage.yaml_id)
         self._scheduler.mark_complete_done(stage.stage_id)
 
-    def _flush_per_step_for_stage(self, yaml_id: str) -> None:
+    def _flush_per_step_for_stage(self, yaml_id: str) -> bool:
         """Drain accumulated per_step rows for ``yaml_id`` to the writer.
 
         Called by ``_complete_stage`` at end-of-eval for one yaml. Filters
@@ -219,32 +226,45 @@ class ConductorDriver:
         rows from the in-memory list. On writer failure the rows are
         retained so the run() finalizer can still dump them.
 
-        Thread safety: ``self._per_step_lock`` (RLock) guards the
-        read-then-modify cycle. ``self._rows_lock`` (the existing append
-        lock) is acquired briefly around the slice + filter to stay
-        consistent with concurrent ``handle_result`` appends.
+        Thread safety: ``self._per_step_lock`` (RLock) serialises flushes.
+        The take-and-detach happens in a single ``self._rows_lock`` section:
+        the rows being flushed are removed and the remainder is installed as
+        the new list *before* the writer runs, so rows that ``handle_result``
+        appends while the writer is working land in the new list and survive.
+
+        Selecting by yaml id and deleting by yaml id in two separate lock
+        sections would not be equivalent: a stage completing for one yaml no
+        longer implies that yaml is finished, because sibling stages of the
+        same yaml run on other servers and finish independently. Any row
+        arriving in that window would be deleted having never reached the
+        writer -- and the integrity gate requires the per-step episode set to
+        equal the results episode set exactly, so losing rows silently fails
+        the arm after it has already run.
         """
         if self._per_step_writer is None:
-            return
+            return True
         with self._per_step_lock:
             with self._rows_lock:
-                this_yaml_rows = [
-                    r for r in self._per_step_rows if r.get("yaml_id") == yaml_id
-                ]
-            if not this_yaml_rows:
-                return
+                taken: list[dict[str, Any]] = []
+                kept: list[dict[str, Any]] = []
+                for row in self._per_step_rows:
+                    (taken if row.get("yaml_id") == yaml_id else kept).append(row)
+                if not taken:
+                    return True
+                self._per_step_rows = kept
             try:
-                self._per_step_writer(yaml_id, this_yaml_rows)
+                self._per_step_writer(yaml_id, taken)
             except Exception:
                 logger.exception(
                     "per_step_writer failed for yaml_id=%s; rows retained for final dump",
                     yaml_id,
                 )
-                return
-            with self._rows_lock:
-                self._per_step_rows = [
-                    r for r in self._per_step_rows if r.get("yaml_id") != yaml_id
-                ]
+                with self._rows_lock:
+                    # Restore ahead of anything that arrived meanwhile, so the
+                    # finalizer still dumps them in production order.
+                    self._per_step_rows[:0] = taken
+                return False
+        return True
 
     def drive_stages_once(self) -> None:
         """Run one pass of stage setup/complete (also a test/driver entry point)."""
@@ -298,10 +318,66 @@ class ConductorDriver:
         accepted = self._scheduler.mark_result(
             result.task_uid, success=result.success, retriable=retriable, attempt=result.attempt
         )
-        # Journal terminal records only (a requeued episode is not terminal).
-        if result.success or not retriable:
-            yaml_id, phase = self._uid_meta(result.task_uid)
+        terminal = result.success or not retriable
+        yaml_id, phase = self._uid_meta(result.task_uid)
+        if result.per_step_rows:
+            # Stamp episode-level identity/outcome onto each per-step row so the
+            # gate-research collector can join success + dedup stale retries by
+            # (task_uid, step_idx, attempt) offline. ``accepted`` is stamped too:
+            # a fenced dispatch also reports rows, and only the scheduler knows
+            # which of two same-attempt reports it took. setdefault preserves any
+            # value the client already wrote.
+            for _r in result.per_step_rows:
+                # Two groups, deliberately different.
+                #
+                # ``success`` / ``task_uid`` / ``attempt`` keep ``setdefault``:
+                # a row replayed after a requeue may carry its original
+                # provenance on purpose, and preserving it is what lets offline
+                # dedup by (task_uid, step_idx, attempt) survive the requeue
+                # (G2R3, pinned by test_handle_result_stamps_per_step_rows_and
+                # _preserves_stale).
+                #
+                # ``accepted`` / ``yaml_id`` / ``run_id`` are assigned. They are
+                # the driver's own statements -- the scheduler's verdict and the
+                # producing run -- and no client has standing to assert them. A
+                # worker claiming ``accepted: true`` for a report the scheduler
+                # fenced would otherwise walk straight through the finalizer.
+                _r.setdefault("success", result.success)
+                _r.setdefault("task_uid", result.task_uid)
+                _r.setdefault("attempt", result.attempt)
+                _r["accepted"] = accepted
+                _r["yaml_id"] = yaml_id
+                _r["run_id"] = self._run_id
+            with self._rows_lock:
+                self._per_step_rows.extend(result.per_step_rows)
+        # Persist the evidence *before* the ledger marks the episode done, and
+        # at the same granularity. The journal is written per episode while the
+        # per-step writer used to fire only when a whole stage completed, so a
+        # crash in between left an episode that resume skips and whose per-step
+        # rows are gone -- and the integrity gate requires the two sides to
+        # describe the same episode set, so the arm could never pass again.
+        #
+        # This order is the recoverable one. Crashing between the flush and the
+        # journal line leaves rows for an episode that is not marked done: it is
+        # re-run on resume and the duplicate is dropped by the accepted-attempt
+        # selection in finalize. The opposite order loses evidence outright.
+        evidence_safe = self._flush_per_step_for_stage(yaml_id) if terminal else True
+        # Journal terminal records only (a requeued episode is not terminal) --
+        # and only once the evidence for this episode is on disk. Writing the
+        # done line after a failed flush would mark the episode complete while
+        # its rows exist nowhere but memory: a later exit loses them for good
+        # and the arm can never satisfy I3 again. Withholding the line instead
+        # leaves the episode re-runnable, and the shortfall is visible to the
+        # sidecar's expected-vs-reported comparison.
+        if terminal and not evidence_safe:
+            logger.error(
+                "per-step flush failed for %s; withholding its terminal journal "
+                "record so the episode stays re-runnable",
+                result.task_uid,
+            )
+        if terminal and evidence_safe:
             self._journal.record(
+                run_id=self._run_id,
                 task_uid=result.task_uid,
                 yaml_id=yaml_id,
                 phase=phase,
@@ -312,20 +388,13 @@ class ConductorDriver:
                 # ledger. Without them an offline batch packager cannot tell which
                 # of two records for the same uid describes the real dispatch.
                 attempt=result.attempt,
+                # Forwarded so phase utilisation is computable from the ledger
+                # alone; None from a worker that predates the field, and then
+                # omitted from the line entirely.
+                duration_s=result.duration_s,
                 accepted=accepted,
                 error=result.error,
             )
-        if result.per_step_rows:
-            # Stamp episode-level identity/outcome onto each per-step row so the
-            # gate-research collector can join success + dedup stale retries by
-            # (task_uid, step_idx, attempt) offline. setdefault preserves any
-            # value the client already wrote.
-            for _r in result.per_step_rows:
-                _r.setdefault("success", result.success)
-                _r.setdefault("task_uid", result.task_uid)
-                _r.setdefault("attempt", result.attempt)
-            with self._rows_lock:
-                self._per_step_rows.extend(result.per_step_rows)
         if self._monitor is not None:
             self._monitor.on_result(result)
 

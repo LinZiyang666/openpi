@@ -363,7 +363,19 @@ class GrootStagedRunner:
             if self._compiled_entry is None:
                 vit_embeds = self._eagle.extract_feature(eagle_input["pixel_values"])
             else:
-                vit_embeds = self._compiled_entry["fn"](eagle_input["pixel_values"])
+                # Clone unconditionally, not just on the first (checked) call.
+                # Under mode="reduce-overhead" the compiled callable returns a
+                # CUDA-graph static output buffer, and the registry entry is
+                # shared across every runner built on the same base model -- so a
+                # second stage1 on another connection overwrites the tensor this
+                # one is still scattering into the language sequence, and every
+                # retrieval key downstream inherits the wrong image tokens with
+                # nothing raising. The lock around inference is what prevents
+                # that today; this makes the output side safe on its own terms.
+                # It is not sufficient on its own: the graph's *input* buffer is
+                # static too, so a concurrent caller can still replay on another
+                # caller's pixels. The lock remains required.
+                vit_embeds = self._compiled_entry["fn"](eagle_input["pixel_values"]).clone()
                 if not self._compiled_entry["checked"]:
                     vit_embeds = self._verify_compiled_vision(
                         eagle_input["pixel_values"], vit_embeds,
@@ -405,10 +417,12 @@ class GrootStagedRunner:
         Compiled kernels reorder bf16 reductions, so bitwise equality is not
         the bar; per-token cosine against the eager tower is. On divergence we
         raise instead of serving: every retrieval key downstream inherits this
-        tensor. Returns the compiled output (cloned out of the CUDA-graph
-        static buffer so the eager re-run cannot alias it).
+        tensor.
+
+        ``compiled_out`` is already a clone -- ``run_stage1`` copies it out of
+        the CUDA-graph static buffer before calling -- so the eager re-run below
+        cannot alias it and no second copy is taken here.
         """
-        compiled_out = compiled_out.clone()
         eager_out = self._eagle.extract_feature(pixel_values)
         a = compiled_out.float().reshape(-1, compiled_out.shape[-1])
         b = eager_out.float().reshape(-1, eager_out.shape[-1])

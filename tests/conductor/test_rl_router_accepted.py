@@ -156,13 +156,31 @@ def test_journal_records_attempt_accepted_and_error(tmp_path) -> None:
     assert row["error"] == "SidecarError: down"
 
 
-def test_replay_done_uids_ignores_the_new_fields(tmp_path) -> None:
+def test_replay_done_uids_ignores_attempt_and_error_but_not_accepted(tmp_path) -> None:
+    """``attempt`` / ``error`` are inert for replay; ``accepted`` is not.
+
+    This test previously asserted that all three fields were inert, which held
+    while nothing consumed them. It does not hold: ``accepted: false`` marks a
+    result the scheduler *fenced* -- a superseded dispatch reporting late. The
+    live retry may not have finished, so treating the fenced line as completed
+    work means a crash in that window leaves the episode permanently skipped.
+    Changed at X17 G2 Round 1; ``Journal.record_counts_as_done`` is now the one
+    definition and every consumer routes through it.
+    """
     journal = Journal(tmp_path / "j.jsonl")
     journal.record(task_uid="u1", yaml_id="y", phase="eval", status="done",
                    success=True, attempt=1, accepted=True)
     journal.record(task_uid="u2", yaml_id="y", phase="eval", status="failed",
                    success=False, attempt=3, accepted=False, error="boom")
-    assert journal.replay_done_uids() == {"u1", "u2"}
+    # u2's only terminal line is fenced -> not done.
+    assert journal.replay_done_uids() == {"u1"}
+
+    # A non-retriable failure the scheduler *accepted* is still terminal, which
+    # is what keeps deterministic failures from re-running forever (the
+    # anti-livelock property replay_done_uids exists for).
+    journal.record(task_uid="u3", yaml_id="y", phase="eval", status="failed",
+                   success=False, attempt=1, accepted=True, error="boom")
+    assert journal.replay_done_uids() == {"u1", "u3"}
 
 
 # ---------------------------------------------------------------------------

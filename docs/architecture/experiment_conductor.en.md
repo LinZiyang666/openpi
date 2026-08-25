@@ -55,6 +55,17 @@ server1 / server2           (M2 multi-bundle + WarmupPool, already supported)
 ## 5. Scheduling Algorithm (`scheduler.py`)
 
 - **Affinity (static)**: `assign_servers` assigns each yaml as a whole to one server (all stages of a yaml on the same server, because `WarmupPool` is server-process-level state), balancing by total episode count and co-locating yamls that share calib.
+  - ⚠ **This is the default placement, not a hard constraint.** The stage set is the strategy's
+    to build in `plan()`; the core never requires one stage per yaml.
+    `shard_eval_stage` in `src/openpi/conductor/sharding.py` fans **one eval yaml into one sibling
+    stage per server**, so a phase holding a single arm uses the whole pool instead of 1/N of it
+    (measured at 25.2% of libero_spatial's wall clock).
+    The activation cap counts per `(server, phase)` and `make_task_uid` does not encode the server,
+    so this neither fights the cap nor breaks resume idempotence -- a run resumed with a different
+    shard count still matches its journal by uid.
+    **Eval only**: a warmup stage publishes a calibration artifact, and sharding it would have each
+    sibling fetch 1/N of the dump and each publish overwrite the last, silently -- so the helper
+    raises on warmup rather than trusting the caller.
 - **Activation (dynamic) + affinity**: per server, the number of concurrently active yamls is bounded — **warmup is loose** (default ≤2, fills barrier gaps), **eval is tight** (default 1, saves VRAM).
 - **Never idle**: as long as the server has any ready episode, a pull will return one.
 - **Barrier gating**: a downstream stage stays blocked until all upstreams are done AND their `on_stage_complete` has returned.

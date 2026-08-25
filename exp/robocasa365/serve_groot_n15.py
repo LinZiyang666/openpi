@@ -300,6 +300,55 @@ def _require_default_bundle(bundle_id: str) -> None:
         )
 
 
+def _resolve_bundle(
+    bundle_id: str,
+    *,
+    cli_config: Any,
+    cli_storage: Any,
+    allow_dynamic: bool,
+) -> tuple[Any, Any]:
+    """Return the ``(config, shared_storage)`` this connection is served under.
+
+    Mirrors ``exp/libero_groot/serve_groot_libero._resolve_bundle``. With
+    hot-swap off this is the CLI configuration and any other id is refused.
+    With ``--allow-dynamic-bundles`` the driver owns the swap schedule, so the
+    GR00T guards re-run on the *loaded* config -- ``load_cache_config`` runs
+    only the generic validator, and the recipes the two-stage split cannot
+    honour fail silently (an unsatisfiable WARM_START downgrades to MISS, a CP3
+    checkpoint is built and never consulted).
+
+    The storage is read off the bundle, never rebuilt: the server's
+    ``load_cache_config`` handler already paid for that artifact load, and
+    repeating it per connection would repeat it per episode.
+    """
+    if not allow_dynamic:
+        _require_default_bundle(bundle_id)
+        return cli_config, cli_storage
+
+    from openpi.serving.websocket_policy_server import get_current_cache_bundle
+
+    bundle = get_current_cache_bundle(bundle_id)
+    if bundle is None:
+        if bundle_id == "default":
+            return cli_config, cli_storage
+        raise ValueError(
+            f"no cache bundle is registered under bundle_id={bundle_id!r}; "
+            "load_cache_config must precede the first connection that names it, "
+            "otherwise this connection would silently be served the startup "
+            "configuration under another id."
+        )
+
+    from openpi.cache.groot.load_guard import (
+        validate_artifact_identity,
+        validate_groot_cache_config,
+    )
+
+    config = bundle.cache_config
+    validate_groot_cache_config(config)
+    validate_artifact_identity(bundle.shared_storage, config)
+    return config, bundle.shared_storage
+
+
 def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     """Per-connection policy factory for concurrent serving (plan D2/D3).
 
@@ -338,17 +387,24 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     shared_storage = build_shared_storage(config)
     validate_artifact_identity(shared_storage, config)
 
+    allow_dynamic = bool(getattr(args, "allow_dynamic_bundles", False))
+
     def cache_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
-        _require_default_bundle(bundle_id)
-        components = build_per_connection_components(config, shared_storage, quiet=True)
+        conn_config, conn_storage = _resolve_bundle(
+            bundle_id,
+            cli_config=config,
+            cli_storage=shared_storage,
+            allow_dynamic=allow_dynamic,
+        )
+        components = build_per_connection_components(conn_config, conn_storage, quiet=True)
         timer = components["timer"]
-        if config.timer.output_csv_dir:
+        if conn_config.timer.output_csv_dir:
             # Per-connection subdirectory: the per-task CSV name is only
             # (task ordinal, second) and every connection counts from task 0,
             # so two concurrent connections writing one directory would
             # silently overwrite each other's latency evidence.
             conn_dir = os.path.join(
-                config.timer.output_csv_dir, f"conn_{uuid.uuid4().hex[:8]}"
+                conn_config.timer.output_csv_dir, f"conn_{uuid.uuid4().hex[:8]}"
             )
             os.makedirs(conn_dir, exist_ok=True)
             timer.enable_csv(conn_dir)
@@ -416,6 +472,16 @@ def main() -> None:
         "this flag every existing invocation keeps the approved "
         "single-connection semantics byte for byte.",
     )
+    parser.add_argument(
+        "--allow-dynamic-bundles",
+        action="store_true",
+        help="Accept load_cache_config over the wire, so one process can serve "
+        "successive cache configurations addressed by bundle_id. Default OFF: "
+        "configuration identity is otherwise carried by the process, which is "
+        "what lets a run's results be attributed to one yaml. Turn it on only "
+        "for a driver that owns the swap schedule; the GR00T guards then re-run "
+        "per bundle instead of once at startup.",
+    )
     args = parser.parse_args()
 
     if args.compile_stage1:
@@ -449,6 +515,31 @@ def main() -> None:
             "combined with --cache-config / --collect-hdf5: those paths drive "
             "the model through the staged runner, which bypasses the seeding "
             "wrapper, so the seed would appear to be set but would not be."
+        )
+
+    if args.allow_dynamic_bundles and not args.cache_config:
+        # Unlike the LIBERO entry point, this one has no "start with nothing and
+        # receive every configuration over the wire" mode: its teacher-only
+        # factory refuses any non-default bundle id, so the server would ack
+        # load_cache_config and then fail the first episode's select_bundle --
+        # after the whole fleet is already up. Requiring a startup config keeps
+        # the flag meaning what it says.
+        parser.error(
+            "--allow-dynamic-bundles requires --cache-config on this entry point: "
+            "without one the factory is teacher-only and cannot serve a loaded bundle."
+        )
+    if args.allow_dynamic_bundles and not args.concurrent:
+        parser.error(
+            "--allow-dynamic-bundles requires --concurrent: the server only "
+            "consults a bundle when building a per-connection policy, so "
+            "without the factory a loaded yaml would be acked and never served."
+        )
+    if args.allow_dynamic_bundles and args.collect_hdf5:
+        parser.error(
+            "--allow-dynamic-bundles cannot be combined with --collect-hdf5: "
+            "collection writes one artifact whose provenance is the process's "
+            "single configuration, so swapping the library underneath it would "
+            "put entries from two configurations in one file."
         )
 
     from gr00t.model.policy import Gr00tPolicy
@@ -505,11 +596,11 @@ def main() -> None:
             metadata=metadata,
             concurrent=True,
             connection_policy_factory=factory,
-            # Close the whole hot-swap ctrl surface (load_cache_config /
-            # select_bundle, "default" id included): this factory only ever
+            # Off by default, which closes the whole hot-swap ctrl surface
+            # (load_cache_config / select_bundle): the factory then only ever
             # builds the CLI configuration, so any success ack for a loaded
             # bundle would be a silent provenance mismatch (G2 R1 item 1).
-            allow_dynamic_bundles=False,
+            allow_dynamic_bundles=args.allow_dynamic_bundles,
         )
     else:
         served, stack = _build_served_policy(policy, args)

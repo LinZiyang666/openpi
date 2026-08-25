@@ -39,11 +39,20 @@ Phase = Literal["warmup", "eval"]
 class ServerEndpoint:
     """A single inference server *process* endpoint.
 
-    Per the plan (§11.1) the conductor path connects directly to a
-    single-process server, never through the ``replica_proxy`` router (whose
-    sticky ``fetch_dump`` would yield a partial warmup dump). Multiple replicas
-    are modelled as multiple independent ``ServerEndpoint`` entries; this is a
-    deployment invariant, not something the driver probes at runtime.
+    Both deployment shapes the conductor architecture supports map onto this
+    type, and which one is in use is a deployment decision the driver does not
+    probe: a ``replica_proxy`` public port registers as **one** endpoint whose
+    fan-out the driver neither sees nor schedules against, while independent
+    single-process servers register as **one entry each**. (An earlier note here
+    claimed the router shape was disallowed because its sticky ``fetch_dump``
+    would return a partial warmup dump; that stopped being true once the router
+    began aggregating -- ``replica_proxy.merge_dump_replies``.)
+
+    The choice is not neutral for scheduling: ``next_task`` selects by
+    ``server.key``, so N independent entries are N units the scheduler can place
+    work on, whereas one routed entry is a single unit. A strategy that wants
+    the pool to work on one yaml at once therefore needs independent entries --
+    or a routed endpoint, which achieves the same thing below the driver.
     """
 
     host: str
@@ -109,6 +118,13 @@ class EpisodeResult:
     # the driver can merge them centrally without a shared NFS.
     per_step_rows: list[dict[str, Any]] = dataclasses.field(default_factory=list)
     attempt: int = 1  # echoes the dispatched EpisodeTask.attempt (G2R3 stale-result fence)
+    # Wall clock the worker spent on this episode, filled in by ``WorkerLoop``.
+    # Without it a phase's worker utilisation -- the thing a capacity change is
+    # supposed to move -- cannot be computed from any artifact: the journal
+    # records only a terminal timestamp, and the health aggregator is in-memory
+    # and never written out. ``None`` for results produced by callers that
+    # predate the field.
+    duration_s: float | None = None
 
     @property
     def ok(self) -> bool:
@@ -237,12 +253,51 @@ class TaskGraph:
         return [d.downstream_stage_id for d in self.dependencies if d.upstream_stage_id == stage_id]
 
     def validate(self) -> None:
-        """Reject malformed graphs early: dangling calib refs and dependency cycles."""
+        """Reject malformed graphs early: dangling calib refs, cycles, duplicate uids."""
         for stage in self.stages.values():
             for cid in (stage.produces_calib_id, stage.consumes_calib_id):
                 if cid is not None and cid not in self.calibrations:
                     raise ValueError(f"stage {stage.stage_id!r} references unknown calib_id {cid!r}")
+        self._assert_unique_episode_uids()
         self._assert_acyclic()
+
+    def _assert_unique_episode_uids(self) -> None:
+        """No ``task_uid`` may appear in two stages.
+
+        The scheduler indexes episodes by uid into a flat ``{uid: (stage_id,
+        task)}`` map, so a duplicate silently rebinds the uid to whichever stage
+        was built last. The stage that dispatches it then never sees the result
+        -- ``mark_result`` looks up the *other* stage, finds the uid absent from
+        its dispatched set, and drops it -- so both stages wait forever and
+        ``all_done()`` never holds. Nothing logs.
+
+        Two shapes have to be refused, not one. A uid repeated *inside* one
+        stage is dispatched twice from the same pending list, and the second
+        dispatch's result is fenced or double-counted; a uid split *across*
+        stages rebinds the flat index as described above. Checking only the
+        cross-stage case would pass a same-stage duplicate straight through.
+
+        Every strategy shipped before sibling sharding built one stage per yaml,
+        which made duplicates unreachable; a strategy that fans one yaml across
+        servers is the first shape where a partition bug can produce them, and a
+        graph-time check is the only thing standing between that bug and a hung
+        run.
+        """
+        seen: dict[str, str] = {}
+        for stage_id in sorted(self.stages):
+            for ep in self.stages[stage_id].episodes:
+                first = seen.get(ep.task_uid)
+                if first is not None:
+                    where = (
+                        f"twice in stage {stage_id!r}"
+                        if first == stage_id
+                        else f"in both stage {first!r} and stage {stage_id!r}"
+                    )
+                    raise ValueError(
+                        f"episode {ep.task_uid!r} appears {where}; a uid must "
+                        "occur exactly once in the graph or the run cannot complete"
+                    )
+                seen[ep.task_uid] = stage_id
 
     def _assert_acyclic(self) -> None:
         # Standard DFS cycle detection over the stage dependency DAG.

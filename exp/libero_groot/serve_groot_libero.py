@@ -16,10 +16,15 @@ shared, everything mutable is rebuilt per connection. It is refused together
 with ``--collect-hdf5`` -- collection hangs per-episode state off one runner and
 is single-connection by construction.
 
-No yaml hot-swap: ``allow_dynamic_bundles=False``, so the served configuration
-is carried by the process and a cell scheduler restarts the server per cell.
+Yaml hot-swap is off by default: the served configuration is then carried by
+the process, which is what makes a cell scheduler's results impossible to
+attribute to another cell's weights -- it restarts the server per cell and pays
+for that property. ``--allow-dynamic-bundles`` trades it away deliberately, for
+a driver that owns the swap schedule (the conductor sends ``load_cache_config``
+once per stage and names the bundle on every episode's connection); the GR00T
+guards then re-run per bundle rather than once at startup. Either way
 ``select_bundle("default")`` stays an idempotent no-op, which is what the
-conductor's ``LiberoEpisodeRunner`` issues on every episode.
+conductor's ``LiberoEpisodeRunner`` issues on every connection.
 
 ⚠ Data config is ``examples/Libero/custom_data_config.py:LiberoDataConfig``
 (two cameras, seven scalar action keys). The key builder must therefore be a
@@ -96,6 +101,68 @@ def _require_default_bundle(bundle_id: str) -> None:
         )
 
 
+def _resolve_bundle(
+    bundle_id: str,
+    *,
+    cli_config: Any,
+    cli_storage: Any,
+    allow_dynamic: bool,
+) -> tuple[Any, Any]:
+    """Return the ``(config, shared_storage)`` this connection is served under.
+
+    With hot-swap disabled this is the CLI configuration and nothing else --
+    ``_require_default_bundle`` rejects any other id rather than acking it.
+
+    With ``--allow-dynamic-bundles`` the conductor drives configuration: each
+    stage sends ``load_cache_config`` and every episode of that stage then opens
+    a connection naming the stage's ``bundle_id``. Two things matter here.
+
+    First, the *guards must re-run on the loaded config*. ``load_cache_config``
+    runs only the generic validator, so a hot-swapped yaml would otherwise reach
+    serving with an unsatisfiable WARM_START silently downgraded to MISS, a CP3
+    checkpoint built and never consulted, or a three-camera RoboCasa builder
+    that rejects every LIBERO observation. The startup checks protect the CLI
+    config; nothing protected the loaded one.
+
+    Second, the storage is *read, never rebuilt*. The server's
+    ``load_cache_config`` handler already called ``build_shared_storage`` and
+    hung the result off the bundle; building it again here would mean one
+    gigabyte-scale artifact load per connection per arm.
+
+    A missing bundle under the default id is not an error: on a server started
+    with ``--cache-config`` that slot means the startup configuration, and on a
+    teacher-only server it means no cache at all (``None``) -- which is what the
+    runner's opening ``select_bundle("default")`` is asking for in both cases.
+    """
+    if not allow_dynamic:
+        _require_default_bundle(bundle_id)
+        return cli_config, cli_storage
+
+    from openpi.serving.websocket_policy_server import get_current_cache_bundle
+
+    bundle = get_current_cache_bundle(bundle_id)
+    if bundle is None:
+        if bundle_id == "default":
+            return cli_config, cli_storage
+        raise ValueError(
+            f"no cache bundle is registered under bundle_id={bundle_id!r}; "
+            "load_cache_config must precede the first connection that names it, "
+            "otherwise this connection would silently be served the startup "
+            "configuration under another id."
+        )
+
+    from openpi.cache.groot.load_guard import (
+        validate_artifact_identity,
+        validate_groot_cache_config,
+    )
+
+    config = bundle.cache_config
+    validate_groot_cache_config(config, allow_hysteresis_gate=True)
+    _check_libero_builder(config.key_builder.type, lambda m: (_ for _ in ()).throw(ValueError(m)))
+    validate_artifact_identity(bundle.shared_storage, config)
+    return config, bundle.shared_storage
+
+
 def _check_libero_builder(builder_type: str, fail) -> None:
     """The three-camera RoboCasa builders reject every LIBERO observation."""
     if not builder_type.startswith("cp1_groot_libero"):
@@ -120,8 +187,9 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     from exp.libero_groot.policy_adapter import GrootLiberoPolicyAdapter
 
     lock = threading.Lock()
+    allow_dynamic = bool(getattr(args, "allow_dynamic_bundles", False))
 
-    if not args.cache_config:
+    if not args.cache_config and not allow_dynamic:
 
         def teacher_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
             _require_default_bundle(bundle_id)
@@ -143,8 +211,14 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     from openpi.cache.groot.staged import GrootStagedRunner
     from openpi.cache.orchestrator import CacheOrchestrator
 
-    config = load_cache_config(args.cache_config)
-    validate_cache_config(config)
+    # With --allow-dynamic-bundles and no --cache-config the server starts with
+    # no configuration at all and receives every arm over the wire; the guards
+    # then run per bundle in ``_resolve_bundle`` instead of here.
+    config = None
+    shared_storage = None
+    if args.cache_config:
+        config = load_cache_config(args.cache_config)
+        validate_cache_config(config)
     # The generic validator permits recipes the two-stage split cannot honour
     # and that fail *silently*: an unsatisfiable WARM_START is downgraded to
     # MISS (a GR00T library never carries intermediates), a CP3 checkpoint is
@@ -157,25 +231,38 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     # its analysis still assumes every step searched. The claim is only valid
     # while this line's analysis reads ``searched`` -- which it does: gate-skip
     # steps are counted as teacher calls in the Pareto's x-axis.
-    validate_groot_cache_config(config, allow_hysteresis_gate=True)
-    _check_libero_builder(config.key_builder.type, lambda m: (_ for _ in ()).throw(ValueError(m)))
-    shared_storage = build_shared_storage(config)
-    # ``load_artifact`` only compares ``vector_dims``, and mean-pool and
-    # max-pool libraries are dimensionally identical -- nothing else would ever
-    # notice a swapped artifact.
-    validate_artifact_identity(shared_storage, config)
+    if config is not None:
+        validate_groot_cache_config(config, allow_hysteresis_gate=True)
+        _check_libero_builder(
+            config.key_builder.type, lambda m: (_ for _ in ()).throw(ValueError(m))
+        )
+        shared_storage = build_shared_storage(config)
+        # ``load_artifact`` only compares ``vector_dims``, and mean-pool and
+        # max-pool libraries are dimensionally identical -- nothing else would ever
+        # notice a swapped artifact.
+        validate_artifact_identity(shared_storage, config)
 
     def cache_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
-        _require_default_bundle(bundle_id)
-        components = build_per_connection_components(config, shared_storage, quiet=True)
+        conn_config, conn_storage = _resolve_bundle(
+            bundle_id,
+            cli_config=config,
+            cli_storage=shared_storage,
+            allow_dynamic=allow_dynamic,
+        )
+        if conn_config is None:
+            # Dynamic bundles enabled but nothing loaded yet: serve the teacher.
+            # Refusing instead would break the runner's opening handshake, which
+            # selects "default" before the first stage has been sent.
+            return _InferLockedPolicy(GrootLiberoPolicyAdapter(shared_base_policy), lock)
+        components = build_per_connection_components(conn_config, conn_storage, quiet=True)
         timer = components["timer"]
-        if config.timer.output_csv_dir:
+        if conn_config.timer.output_csv_dir:
             # Per-connection subdirectory: the per-task CSV name is only
             # (task ordinal, second) and every connection counts from task 0,
             # so two connections writing one directory would silently
             # overwrite each other's latency evidence.
             conn_dir = os.path.join(
-                config.timer.output_csv_dir, f"conn_{uuid.uuid4().hex[:8]}"
+                conn_config.timer.output_csv_dir, f"conn_{uuid.uuid4().hex[:8]}"
             )
             os.makedirs(conn_dir, exist_ok=True)
             timer.enable_csv(conn_dir)
@@ -196,8 +283,11 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
         )
         return _InferLockedPolicy(GrootLiberoPolicyAdapter(interceptor), lock)
 
+    if config is None:
+        return cache_factory, "concurrent cache -> dynamic bundles (no startup yaml)"
     return cache_factory, (
         f"concurrent cache -> {args.cache_config} ({config.key_builder.type})"
+        + (" + dynamic bundles" if allow_dynamic else "")
     )
 
 
@@ -237,6 +327,16 @@ def main() -> None:
         "per-connection policy factory. Default OFF: without it the server is "
         "one connection at a time, which is what collection requires.",
     )
+    parser.add_argument(
+        "--allow-dynamic-bundles",
+        action="store_true",
+        help="Accept load_cache_config over the wire, so one process can serve "
+        "successive cache configurations addressed by bundle_id. Default OFF: "
+        "configuration identity is otherwise carried by the process, which is "
+        "what makes a cell's results impossible to attribute to another cell's "
+        "weights. Turn it on only for a driver that owns the swap schedule "
+        "(the conductor); the guards then re-run per bundle.",
+    )
     args = parser.parse_args()
 
     if args.cache_config and args.collect_hdf5:
@@ -246,6 +346,19 @@ def main() -> None:
             "--concurrent cannot be combined with --collect-hdf5: the collector "
             "hangs per-episode state off one runner and one HDF5 writer, so two "
             "connections would interleave into the same episode buffer."
+        )
+    if args.allow_dynamic_bundles and not args.concurrent:
+        parser.error(
+            "--allow-dynamic-bundles requires --concurrent: the server only "
+            "consults a bundle when building a per-connection policy, so "
+            "without the factory a loaded yaml would be acked and never served."
+        )
+    if args.allow_dynamic_bundles and args.collect_hdf5:
+        parser.error(
+            "--allow-dynamic-bundles cannot be combined with --collect-hdf5: "
+            "collection writes one HDF5 file per run and its provenance is the "
+            "process's single configuration, so swapping the library underneath "
+            "it would put entries from two configurations in one artifact."
         )
 
     from gr00t.model.policy import Gr00tPolicy
@@ -334,11 +447,12 @@ def main() -> None:
             metadata={"concurrent": True, "denoising_steps": args.denoising_steps},
             concurrent=True,
             connection_policy_factory=factory,
-            # No yaml hot-swap: this factory only ever builds the CLI config, so
-            # an ack for a loaded bundle would be a silent provenance mismatch.
-            # ``select_bundle("default")`` stays an idempotent no-op, which is
-            # what the conductor's LiberoEpisodeRunner issues every episode.
-            allow_dynamic_bundles=False,
+            # Off by default: the factory then only ever builds the CLI config,
+            # so an ack for a loaded bundle would be a silent provenance
+            # mismatch. ``select_bundle("default")`` stays an idempotent no-op
+            # either way, which is what the conductor's LiberoEpisodeRunner
+            # issues on every connection.
+            allow_dynamic_bundles=args.allow_dynamic_bundles,
         )
     else:
         server = websocket_policy_server.WebsocketPolicyServer(

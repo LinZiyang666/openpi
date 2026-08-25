@@ -1,0 +1,356 @@
+{
+  "status": "gate-threshold Pareto, 2026-08-25, teacher-rate axis only",
+  "x_axis": "teacher_ratio",
+  "suites": {
+    "libero_spatial": {
+      "arms": {
+        "gp_sp_fh05": {
+          "n_ep": 500,
+          "success_rate": 0.94,
+          "teacher_ratio": 0.8551018608342887,
+          "decisions": 11339,
+          "misses": 9696,
+          "gate_skip_ratio": 0.03783402416438839,
+          "judge_miss_ratio": 0.8172678366699003,
+          "arm": "gp_sp_fh05"
+        },
+        "gp_sp_fh10": {
+          "n_ep": 500,
+          "success_rate": 0.926,
+          "teacher_ratio": 0.738469556153913,
+          "decisions": 11513,
+          "misses": 8502,
+          "gate_skip_ratio": 0.05845565882046382,
+          "judge_miss_ratio": 0.6800138973334492,
+          "arm": "gp_sp_fh10"
+        },
+        "gp_sp_fh15": {
+          "n_ep": 500,
+          "success_rate": 0.91,
+          "teacher_ratio": 0.6650335224342444,
+          "decisions": 11634,
+          "misses": 7737,
+          "gate_skip_ratio": 0.07031115695375623,
+          "judge_miss_ratio": 0.5947223654804882,
+          "arm": "gp_sp_fh15"
+        },
+        "gp_sp_fh20": {
+          "n_ep": 500,
+          "success_rate": 0.916,
+          "teacher_ratio": 0.5897280966767372,
+          "decisions": 11585,
+          "misses": 6832,
+          "gate_skip_ratio": 0.07932671558049202,
+          "judge_miss_ratio": 0.5104013810962451,
+          "arm": "gp_sp_fh20"
+        },
+        "gp_sp_fh25": {
+          "n_ep": 500,
+          "success_rate": 0.896,
+          "teacher_ratio": 0.5403022670025189,
+          "decisions": 11910,
+          "misses": 6435,
+          "gate_skip_ratio": 0.09219143576826197,
+          "judge_miss_ratio": 0.44811083123425693,
+          "arm": "gp_sp_fh25"
+        },
+        "gp_sp_fh30": {
+          "n_ep": 500,
+          "success_rate": 0.894,
+          "teacher_ratio": 0.49396984924623116,
+          "decisions": 11940,
+          "misses": 5898,
+          "gate_skip_ratio": 0.09865996649916248,
+          "judge_miss_ratio": 0.3953098827470687,
+          "arm": "gp_sp_fh30"
+        },
+        "gp_sp_fh35": {
+          "n_ep": 500,
+          "success_rate": 0.878,
+          "teacher_ratio": 0.4540019926934573,
+          "decisions": 12044,
+          "misses": 5468,
+          "gate_skip_ratio": 0.10951511125871803,
+          "judge_miss_ratio": 0.34448688143473927,
+          "arm": "gp_sp_fh35"
+        },
+        "gp_sp_fh40": {
+          "n_ep": 500,
+          "success_rate": 0.898,
+          "teacher_ratio": 0.4214903805763253,
+          "decisions": 11903,
+          "misses": 5017,
+          "gate_skip_ratio": 0.1086280769553894,
+          "judge_miss_ratio": 0.3128623036209359,
+          "arm": "gp_sp_fh40"
+        },
+        "gp_sp_fh45": {
+          "n_ep": 500,
+          "success_rate": 0.868,
+          "teacher_ratio": 0.3924174480228292,
+          "decisions": 12265,
+          "misses": 4813,
+          "gate_skip_ratio": 0.12564207093355076,
+          "judge_miss_ratio": 0.26677537708927845,
+          "arm": "gp_sp_fh45"
+        },
+        "gp_sp_fh50": {
+          "n_ep": 500,
+          "success_rate": 0.852,
+          "teacher_ratio": 0.3656937225109956,
+          "decisions": 12505,
+          "misses": 4573,
+          "gate_skip_ratio": 0.13874450219912035,
+          "judge_miss_ratio": 0.22694922031187525,
+          "arm": "gp_sp_fh50"
+        },
+        "gp_sp_fh55": {
+          "n_ep": 500,
+          "success_rate": 0.846,
+          "teacher_ratio": 0.3455718381650207,
+          "decisions": 12556,
+          "misses": 4339,
+          "gate_skip_ratio": 0.14319847085058937,
+          "judge_miss_ratio": 0.20237336731443134,
+          "arm": "gp_sp_fh55"
+        },
+        "gp_sp_fh60": {
+          "n_ep": 500,
+          "success_rate": 0.86,
+          "teacher_ratio": 0.31516472868217055,
+          "decisions": 12384,
+          "misses": 3903,
+          "gate_skip_ratio": 0.1434108527131783,
+          "judge_miss_ratio": 0.17175387596899225,
+          "arm": "gp_sp_fh60"
+        },
+        "gp_sp_fh65": {
+          "n_ep": 500,
+          "success_rate": 0.836,
+          "teacher_ratio": 0.31261268323273494,
+          "decisions": 12757,
+          "misses": 3988,
+          "gate_skip_ratio": 0.15395469154189856,
+          "judge_miss_ratio": 0.15865799169083641,
+          "arm": "gp_sp_fh65"
+        },
+        "gp_sp_fh70": {
+          "n_ep": 500,
+          "success_rate": 0.826,
+          "teacher_ratio": 0.29835454827693264,
+          "decisions": 12884,
+          "misses": 3844,
+          "gate_skip_ratio": 0.16376901583359205,
+          "judge_miss_ratio": 0.13458553244334057,
+          "arm": "gp_sp_fh70"
+        },
+        "gp_sp_fh75": {
+          "n_ep": 500,
+          "success_rate": 0.822,
+          "teacher_ratio": 0.26617760617760616,
+          "decisions": 12950,
+          "misses": 3447,
+          "gate_skip_ratio": 0.16517374517374517,
+          "judge_miss_ratio": 0.10100386100386101,
+          "arm": "gp_sp_fh75"
+        },
+        "gp_sp_fh80": {
+          "n_ep": 500,
+          "success_rate": 0.834,
+          "teacher_ratio": 0.22457857531266992,
+          "decisions": 12873,
+          "misses": 2891,
+          "gate_skip_ratio": 0.16049095005049327,
+          "judge_miss_ratio": 0.06408762526217665,
+          "arm": "gp_sp_fh80"
+        },
+        "gpgo_sp": {
+          "n_ep": 500,
+          "success_rate": 0.832,
+          "teacher_ratio": 0.1553398058252427,
+          "decisions": 12978,
+          "misses": 2016,
+          "gate_skip_ratio": 0.1553398058252427,
+          "judge_miss_ratio": 0.0,
+          "arm": "gpgo_sp"
+        }
+      },
+      "figure": "pareto_libero_spatial.png"
+    },
+    "libero_10": {
+      "arms": {
+        "gp_l10_fh05": {
+          "n_ep": 500,
+          "success_rate": 0.852,
+          "teacher_ratio": 0.9087765957446808,
+          "decisions": 30080,
+          "misses": 27336,
+          "gate_skip_ratio": 0.0976063829787234,
+          "judge_miss_ratio": 0.8111702127659575,
+          "arm": "gp_l10_fh05"
+        },
+        "gp_l10_fh10": {
+          "n_ep": 500,
+          "success_rate": 0.842,
+          "teacher_ratio": 0.8265598932265599,
+          "decisions": 29970,
+          "misses": 24772,
+          "gate_skip_ratio": 0.10707374040707374,
+          "judge_miss_ratio": 0.7194861528194861,
+          "arm": "gp_l10_fh10"
+        },
+        "gp_l10_fh15": {
+          "n_ep": 500,
+          "success_rate": 0.81,
+          "teacher_ratio": 0.7797435481253043,
+          "decisions": 30805,
+          "misses": 24020,
+          "gate_skip_ratio": 0.13306281447816912,
+          "judge_miss_ratio": 0.6466807336471352,
+          "arm": "gp_l10_fh15"
+        },
+        "gp_l10_fh20": {
+          "n_ep": 500,
+          "success_rate": 0.808,
+          "teacher_ratio": 0.7150354747788901,
+          "decisions": 30867,
+          "misses": 22071,
+          "gate_skip_ratio": 0.14008488029286942,
+          "judge_miss_ratio": 0.5749505944860207,
+          "arm": "gp_l10_fh20"
+        },
+        "gp_l10_fh25": {
+          "n_ep": 500,
+          "success_rate": 0.788,
+          "teacher_ratio": 0.6665179567254071,
+          "decisions": 31381,
+          "misses": 20916,
+          "gate_skip_ratio": 0.1570376979701093,
+          "judge_miss_ratio": 0.5094802587552978,
+          "arm": "gp_l10_fh25"
+        },
+        "gp_l10_fh30": {
+          "n_ep": 500,
+          "success_rate": 0.77,
+          "teacher_ratio": 0.6313231097312384,
+          "decisions": 31887,
+          "misses": 20131,
+          "gate_skip_ratio": 0.16878351679367767,
+          "judge_miss_ratio": 0.46253959293756075,
+          "arm": "gp_l10_fh30"
+        },
+        "gp_l10_fh35": {
+          "n_ep": 500,
+          "success_rate": 0.742,
+          "teacher_ratio": 0.6044326078305323,
+          "decisions": 32667,
+          "misses": 19745,
+          "gate_skip_ratio": 0.18110019285517495,
+          "judge_miss_ratio": 0.4233324149753574,
+          "arm": "gp_l10_fh35"
+        },
+        "gp_l10_fh40": {
+          "n_ep": 500,
+          "success_rate": 0.744,
+          "teacher_ratio": 0.57702677860163,
+          "decisions": 32638,
+          "misses": 18833,
+          "gate_skip_ratio": 0.18938047674489858,
+          "judge_miss_ratio": 0.38764630185673143,
+          "arm": "gp_l10_fh40"
+        },
+        "gp_l10_fh45": {
+          "n_ep": 500,
+          "success_rate": 0.716,
+          "teacher_ratio": 0.5615716624497693,
+          "decisions": 33595,
+          "misses": 18866,
+          "gate_skip_ratio": 0.1983330852805477,
+          "judge_miss_ratio": 0.3632385771692216,
+          "arm": "gp_l10_fh45"
+        },
+        "gp_l10_fh50": {
+          "n_ep": 500,
+          "success_rate": 0.744,
+          "teacher_ratio": 0.5243254662884047,
+          "decisions": 33134,
+          "misses": 17373,
+          "gate_skip_ratio": 0.20070018711897145,
+          "judge_miss_ratio": 0.32362527916943323,
+          "arm": "gp_l10_fh50"
+        },
+        "gp_l10_fh55": {
+          "n_ep": 500,
+          "success_rate": 0.716,
+          "teacher_ratio": 0.5124249963412849,
+          "decisions": 34165,
+          "misses": 17507,
+          "gate_skip_ratio": 0.2010537099370701,
+          "judge_miss_ratio": 0.31137128640421485,
+          "arm": "gp_l10_fh55"
+        },
+        "gp_l10_fh60": {
+          "n_ep": 500,
+          "success_rate": 0.692,
+          "teacher_ratio": 0.5027361959637491,
+          "decisions": 34537,
+          "misses": 17363,
+          "gate_skip_ratio": 0.21637663954599415,
+          "judge_miss_ratio": 0.28635955641775485,
+          "arm": "gp_l10_fh60"
+        },
+        "gp_l10_fh65": {
+          "n_ep": 500,
+          "success_rate": 0.706,
+          "teacher_ratio": 0.4686051288069949,
+          "decisions": 34082,
+          "misses": 15971,
+          "gate_skip_ratio": 0.22102576139897892,
+          "judge_miss_ratio": 0.24757936740801595,
+          "arm": "gp_l10_fh65"
+        },
+        "gp_l10_fh70": {
+          "n_ep": 500,
+          "success_rate": 0.702,
+          "teacher_ratio": 0.45150071601835345,
+          "decisions": 34217,
+          "misses": 15449,
+          "gate_skip_ratio": 0.23163924365081684,
+          "judge_miss_ratio": 0.21986147236753661,
+          "arm": "gp_l10_fh70"
+        },
+        "gp_l10_fh75": {
+          "n_ep": 500,
+          "success_rate": 0.68,
+          "teacher_ratio": 0.4480684974657083,
+          "decisions": 34921,
+          "misses": 15647,
+          "gate_skip_ratio": 0.2460697001804072,
+          "judge_miss_ratio": 0.2019987972853011,
+          "arm": "gp_l10_fh75"
+        },
+        "gp_l10_fh80": {
+          "n_ep": 500,
+          "success_rate": 0.678,
+          "teacher_ratio": 0.41130560190029125,
+          "decisions": 35363,
+          "misses": 14545,
+          "gate_skip_ratio": 0.2504029635494726,
+          "judge_miss_ratio": 0.16090263835081864,
+          "arm": "gp_l10_fh80"
+        },
+        "gpgo_l10": {
+          "n_ep": 500,
+          "success_rate": 0.6,
+          "teacher_ratio": 0.3002366638557167,
+          "decisions": 36761,
+          "misses": 11037,
+          "gate_skip_ratio": 0.3002366638557167,
+          "judge_miss_ratio": 0.0,
+          "arm": "gpgo_l10"
+        }
+      },
+      "figure": "pareto_libero_10.png"
+    }
+  }
+}

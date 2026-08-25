@@ -129,6 +129,11 @@ class WorkerLoop:
                     },
                 )
 
+        # Timed around the runner, including the failure path: an episode that
+        # crashed still consumed the worker for however long it ran, and a
+        # utilisation figure that silently drops those intervals reads high for
+        # exactly the run that went worst.
+        started = time.monotonic()
         try:
             result = self._runner.run(task, report)
         except Exception as exc:
@@ -136,7 +141,15 @@ class WorkerLoop:
             result = _task.EpisodeResult(task_uid=task.task_uid, success=False, n_steps=0, error=repr(exc))
         # Echo the dispatch attempt so the driver can fence a stale result from a
         # superseded (timed-out + requeued) dispatch of the same task_uid (G2R3).
-        result = dataclasses.replace(result, attempt=task.attempt)
+        # ``duration_s`` is set here rather than in the runner so every runner
+        # gets it without knowing about it; a runner that measured it itself is
+        # left alone.
+        elapsed = time.monotonic() - started
+        result = dataclasses.replace(
+            result,
+            attempt=task.attempt,
+            duration_s=result.duration_s if result.duration_s is not None else elapsed,
+        )
         self._report_result(sock, result)
 
     def run_forever(self, stop: Callable[[], bool] | None = None) -> None:

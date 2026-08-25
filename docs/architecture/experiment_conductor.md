@@ -56,6 +56,13 @@ server1 / server2          (M2 多 bundle + WarmupPool, 已支持)
 ## 5. 调度算法（`scheduler.py`）
 
 - **归属（静态）**：`assign_servers` 把每个 yaml 整体分配到一个 server（一个 yaml 的全部 stage 同 server，因 `WarmupPool` 是 server 进程级状态），按 episode 总数均衡，共享 calib 的 yaml co-locate。
+  - ⚠ **这是默认放置，不是硬约束**。策略层的 `plan()` 决定 stage 集合，核心从不要求「一个 yaml 一个 stage」。
+    `src/openpi/conductor/sharding.py` 的 `shard_eval_stage` 把**一个 eval yaml 摊成每台 server 一个兄弟 stage**，
+    于是**单臂相位也能吃满整池**（否则它只用 1/N 容量——实测占 libero_spatial 全程的 25.2%）。
+    活化上限按 `(server, phase)` 计数、`make_task_uid` 不含 server，所以这既不与上限冲突、
+    也不破坏 resume 幂等（分片数变了照样按 uid 命中 journal）。
+    **只对 eval 有效**：warmup stage 发布标定产物，分片会让 N 次 `fetch_dump` 各拿 1/N、
+    N 次 `ctx.publish` 互相覆盖，且**不会报错** —— helper 因此对 warmup 直接 raise。
 - **激活（动态）+ 亲和**：per server 限制同时激活的 yaml 数——**warmup 放松**（默认 ≤2，填 barrier 空隙）、**eval 收紧**（默认 1，省显存）。
 - **永不空转**：该 server 有任意 ready episode 时 pull 必返回。
 - **barrier 门控**：downstream stage 在 upstream 全 done + 其 `on_stage_complete` 返回前保持 blocked。

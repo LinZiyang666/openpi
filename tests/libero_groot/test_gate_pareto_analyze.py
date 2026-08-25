@@ -16,6 +16,7 @@ import pytest
 
 from exp.libero_groot.analysis.gate_pareto.analyze_gate_pareto import (
     IntegrityError,
+    check_arm_integrity,
     _f_fh_of,
     aggregate,
     aggregate_arm,
@@ -63,6 +64,23 @@ def test_gate_skipped_steps_count_as_teacher_calls():
     assert point["decisions"] == 4
     assert point["misses"] == 2
     assert point["teacher_ratio"] == 0.5
+    # The same teacher rate, split by which component called the teacher: the
+    # gate's share is what the arm would still pay with the judge disabled.
+    assert point["gate_skip_ratio"] == 0.25
+    assert point["judge_miss_ratio"] == 0.25
+    assert point["gate_skip_ratio"] + point["judge_miss_ratio"] == point["teacher_ratio"]
+
+
+def test_rows_without_a_searched_field_count_as_searched():
+    """``searched`` arrived with the gate; before it every step searched."""
+    per_step = [
+        {"episode_id": 0, "step_idx": 0, "hit_type": "MISS"},
+        {"episode_id": 0, "step_idx": 1, "hit_type": "FULL_HIT"},
+    ]
+    point = aggregate_arm(_results(1, 1), per_step, expect_ep=1)
+    assert point["teacher_ratio"] == 0.5
+    assert point["gate_skip_ratio"] == 0.0
+    assert point["judge_miss_ratio"] == 0.5
 
 
 def test_a_gate_only_arm_still_reports_a_nonzero_ratio():
@@ -245,3 +263,43 @@ def test_manifest_digests_every_generated_file(tmp_path):
     # The manifest must not digest itself: rewriting it would change its own
     # hash and the record would never be reproducible.
     assert "MANIFEST.json" not in names
+
+
+def test_tcp_sidecar_is_checked_against_the_plan_not_the_results():
+    """The conductor path loses episodes, not worker files.
+
+    An episode whose retries are exhausted never reaches a terminal journal
+    record, so ``episodes_reported`` falls short of the plan while the results
+    file is internally consistent -- exactly the shape a self-derived count
+    would miss.
+    """
+    per_step = [_row(0, 0, "FULL_HIT", True)]
+    with pytest.raises(IntegrityError, match="planned episodes reported"):
+        check_arm_integrity(
+            _results(1, 1),
+            per_step,
+            expect_ep=1,
+            merge={"transport": "tcp", "episodes_expected": 2, "episodes_reported": 1},
+            arm="a",
+        )
+
+
+def test_tcp_sidecar_without_its_counts_is_refused():
+    with pytest.raises(IntegrityError, match="episodes_expected"):
+        check_arm_integrity(
+            _results(1, 1),
+            [_row(0, 0, "FULL_HIT", True)],
+            expect_ep=1,
+            merge={"transport": "tcp"},
+            arm="a",
+        )
+
+
+def test_tcp_sidecar_passes_when_every_planned_episode_reported():
+    check_arm_integrity(
+        _results(1, 1),
+        [_row(0, 0, "FULL_HIT", True)],
+        expect_ep=1,
+        merge={"transport": "tcp", "episodes_expected": 1, "episodes_reported": 1},
+        arm="a",
+    )

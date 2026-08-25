@@ -59,7 +59,19 @@ def result_to_wire(r: _task.EpisodeResult) -> dict[str, Any]:
 
 
 def result_from_wire(d: dict[str, Any]) -> _task.EpisodeResult:
-    return _task.EpisodeResult(**d)
+    """Decode a result, tolerating fields this build does not know about.
+
+    Workers and drivers are deployed to different machines and are not always
+    restarted together -- one checkout on the sim box is shared with another
+    experiment line, so it can be a version behind. A worker that reports a
+    field added after the driver was started would otherwise raise
+    ``TypeError: unexpected keyword argument`` on every single episode, which
+    reads as "the fleet produces nothing" rather than as a version skew.
+    Dropping unknown keys degrades to the older schema instead; a *missing*
+    known field still fails loudly, because that is a real incompatibility.
+    """
+    known = {f.name for f in dataclasses.fields(_task.EpisodeResult)}
+    return _task.EpisodeResult(**{k: v for k, v in d.items() if k in known})
 
 
 # ----------------------------------------------------------------------

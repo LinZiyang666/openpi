@@ -58,6 +58,21 @@ class WorkerSpec:
     # pool -- e.g. ``exp/common/data/db_init/libero/<suite>`` -- without
     # rebuilding the benchmark.
     init_states_dir: str = ""
+    # Client-side rollout knobs, forwarded to ``worker_entry`` only when set so
+    # a caller that omits them keeps the argv byte-identical. They live here
+    # rather than in a fork of the spawn path because they are the same kind of
+    # per-run fact as ``task_suite_name``: get them wrong and the fleet comes up
+    # and then fails every episode. A GR00T checkpoint needs ``resize_size=256``
+    # -- the official evaluator feeds the raw render and lets the transform
+    # chain crop to 224, so main.Args' 224 default crops twice and changes the
+    # field of view; the wire contract rejects the frame, but only once every
+    # worker is already running.
+    resize_size: int | None = None
+    replan_steps: int | None = None
+    # Extra process environment for this worker (merged last, so it wins).
+    # ``MUJOCO_EGL_DEVICE_ID`` belongs here: ``CUDA_VISIBLE_DEVICES`` steers the
+    # policy client, while EGL picks its render device independently.
+    env: dict[str, str] = dataclasses.field(default_factory=dict)
 
 
 class WorkerHandle(Protocol):
@@ -102,6 +117,10 @@ def _default_spawn(spec: WorkerSpec, driver_host: str, driver_port: int) -> Work
         # Only appended when set, so a worker launched by an older caller keeps
         # the default LIBERO pool and the argv stays byte-identical.
         base_cmd += ["--init-states-dir", spec.init_states_dir]
+    if spec.resize_size is not None:
+        base_cmd += ["--resize-size", str(spec.resize_size)]
+    if spec.replan_steps is not None:
+        base_cmd += ["--replan-steps", str(spec.replan_steps)]
     if spec.conda_env:
         # Mirror legacy build_subprocess_cmd: strip the driver's uv-venv env
         # injections (VIRTUAL_ENV / PYTHONPATH / PYTHONHOME) and drop the uv venv
@@ -137,6 +156,10 @@ def _default_spawn(spec: WorkerSpec, driver_host: str, driver_port: int) -> Work
     # caller export still wins.
     env.setdefault("MALLOC_ARENA_MAX", "2")
     env.setdefault("MALLOC_TRIM_THRESHOLD_", "134217728")
+    # Caller-supplied last: an explicit per-worker value (e.g. the EGL render
+    # device) is a deliberate choice and must not be overridden by the defaults
+    # above or by the inherited environment.
+    env.update(spec.env)
     # start_new_session=True puts the worker (and, under `conda run`, the real
     # grandchild process) in its own process group so stop() can signal the
     # whole group rather than only the wrapper.

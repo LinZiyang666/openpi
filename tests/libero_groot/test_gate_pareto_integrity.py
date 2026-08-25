@@ -96,7 +96,13 @@ def test_i2_a_duplicated_episode_result_is_refused():
 
 
 def test_i3_a_missing_episode_on_the_per_step_side_is_refused():
-    with pytest.raises(IntegrityError, match="missing 1"):
+    """Still refused -- now reported by I4, which names the cause.
+
+    An episode absent from the per-step side has, by definition, no verdict
+    row, so I4 catches it first and says so. I3 keeps the "extra" direction,
+    which I4 cannot see.
+    """
+    with pytest.raises(IntegrityError, match="have no verdict row"):
         check_arm_integrity(
             _results(), _per_step(range(EXPECT - 1)), expect_ep=EXPECT, merge=_merge()
         )

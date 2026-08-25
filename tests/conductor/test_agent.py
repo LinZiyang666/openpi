@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import openpi.conductor.agent as _agent
 from openpi.conductor.agent import WorkerAgent
 from openpi.conductor.agent import WorkerSpec
 
@@ -82,12 +83,12 @@ def test_default_spawn_conda_env_builds_conda_cmd(monkeypatch):
         captured["start_new_session"] = kwargs.get("start_new_session")
         return FakeHandle()
 
-    monkeypatch.setattr(agent_mod.subprocess, "Popen", fake_popen)
+    monkeypatch.setattr(_agent.subprocess, "Popen", fake_popen)
     monkeypatch.setenv("VIRTUAL_ENV", "/some/uv/venv")
     monkeypatch.setenv("PYTHONPATH", "/uv/inject")
 
     spec = WorkerSpec("w0", "host:8000", "3", conda_env="/scratch/zixuans8/libero_sim")
-    agent_mod._default_spawn(spec, "dh", 9000)
+    _agent._default_spawn(spec, "dh", 9000)
     cmd, env = captured["cmd"], captured["env"]
 
     # conda run -p <abs prefix> python -m worker_entry ...
@@ -106,7 +107,6 @@ def test_default_spawn_conda_env_builds_conda_cmd(monkeypatch):
 
 
 def test_default_spawn_no_conda_uses_plain_python(monkeypatch):
-    import openpi.conductor.agent as agent_mod
 
     captured: dict = {}
 
@@ -115,9 +115,9 @@ def test_default_spawn_no_conda_uses_plain_python(monkeypatch):
         captured["start_new_session"] = kwargs.get("start_new_session")
         return FakeHandle()
 
-    monkeypatch.setattr(agent_mod.subprocess, "Popen", fake_popen)
+    monkeypatch.setattr(_agent.subprocess, "Popen", fake_popen)
     spec = WorkerSpec("w0", "host:8000", "0")  # no conda_env (default)
-    agent_mod._default_spawn(spec, "dh", 9000)
+    _agent._default_spawn(spec, "dh", 9000)
     assert captured["cmd"][0] == "python"
     assert "conda" not in captured["cmd"]
     assert captured["env"]["CUDA_VISIBLE_DEVICES"] == "0"
@@ -127,7 +127,6 @@ def test_default_spawn_no_conda_uses_plain_python(monkeypatch):
 # _default_spawn: init-state pool forwarding
 # ----------------------------------------------------------------------
 def _spawn_capture(monkeypatch, spec):
-    import openpi.conductor.agent as agent_mod
 
     captured: dict = {}
 
@@ -135,8 +134,8 @@ def _spawn_capture(monkeypatch, spec):
         captured["cmd"] = cmd
         return FakeHandle()
 
-    monkeypatch.setattr(agent_mod.subprocess, "Popen", fake_popen)
-    agent_mod._default_spawn(spec, "dh", 9000)
+    monkeypatch.setattr(_agent.subprocess, "Popen", fake_popen)
+    _agent._default_spawn(spec, "dh", 9000)
     return captured["cmd"]
 
 
@@ -152,3 +151,48 @@ def test_default_spawn_omits_the_flag_when_the_pool_is_unset(monkeypatch):
     """Default stays byte-identical, so existing callers keep the LIBERO pool."""
     cmd = _spawn_capture(monkeypatch, WorkerSpec("w0", "host:8000", "0"))
     assert "--init-states-dir" not in cmd
+
+
+def test_rollout_knobs_are_forwarded_only_when_set(monkeypatch):
+    """A GR00T fleet needs --resize-size 256; omitting it fails every episode.
+
+    The failure is late and uniform: the fleet comes up, connects, and only
+    then does the wire contract reject each 224 frame -- so the flag has to be
+    expressible where the worker is described, not discovered afterwards.
+    """
+    seen: dict = {}
+
+    class _P:
+        def poll(self):
+            return None
+
+        def terminate(self):
+            return None
+
+    def fake_popen(cmd, **kw):
+        seen["cmd"] = cmd
+        seen["env"] = kw.get("env", {})
+        return _P()
+
+    monkeypatch.setattr(_agent.subprocess, "Popen", fake_popen)
+
+    bare = WorkerSpec(worker_id="w0", server_key="h:8000", gpu_id="0")
+    _agent._default_spawn(bare, "h", 9000)
+    assert "--resize-size" not in seen["cmd"]
+    assert "--replan-steps" not in seen["cmd"]
+
+    groot = WorkerSpec(
+        worker_id="w0",
+        server_key="h:8000",
+        gpu_id="3",
+        resize_size=256,
+        replan_steps=5,
+        env={"MUJOCO_EGL_DEVICE_ID": "3"},
+    )
+    _agent._default_spawn(groot, "h", 9000)
+    assert seen["cmd"][seen["cmd"].index("--resize-size") + 1] == "256"
+    assert seen["cmd"][seen["cmd"].index("--replan-steps") + 1] == "5"
+    # CUDA_VISIBLE_DEVICES steers the policy client; EGL picks its render
+    # device independently, so the caller's value must survive.
+    assert seen["env"]["MUJOCO_EGL_DEVICE_ID"] == "3"
+    assert seen["env"]["CUDA_VISIBLE_DEVICES"] == "3"

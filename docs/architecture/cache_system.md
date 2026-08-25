@@ -964,6 +964,21 @@ Orchestrator / CacheStorage / judge / gate / search strategy —— 它们只看
   facade 暴露。⚠ `load_artifact` 原本**只校验 `vector_dims`**，而 mean-pool 与 max-pool
   的库维度逐字相同 —— GR00T server 因此在加载期做**精确身份绑定**。
 
+**动态 bundle（`--allow-dynamic-bundles`，默认关）改变了守卫的时机，不是守卫的内容**：
+默认下配置身份由**进程**携带 —— 一个 cell 一个 server，所以一个 cell 的结果不可能被归到另一个
+cell 的权重上，调度器为这条性质付出了每 cell 重启的代价。打开该 flag 后由驱动方（conductor）
+拥有换库时刻表，于是**三道 GR00T 守卫从"启动期跑一次"变成"每个 bundle 跑一次"**
+（`validate_groot_cache_config` / `_check_libero_builder` / `validate_artifact_identity`）——
+`load_cache_config` 只跑通用校验器，而两阶段拆分无法承载的配方**全都是静默失败**
+（不可满足的 WARM_START 降级为 MISS、CP3 建了不用、三相机 builder 拒绝每一个 LIBERO 观测）。
+⚠ 共享 storage **只读不重建**：server 的 `load_cache_config` handler 已经付过那次 GB 级 artifact 加载
+并把结果挂在 bundle 上，工厂再建一次就等于每连接、每臂各加载一遍。
+
+**编译视觉塔的输出必须拷出静态缓冲**：`mode="reduce-overhead"` 下编译产物是 CUDA-graph 静态缓冲，
+而注册表按 `id(eagle)` 进程内共享 ⇒ 在「编译调用」与「散射进语言序列」之间，那个张量是活的共享状态。
+`run_stage1` 因此**无条件** `.clone()`。⚠ 这只堵住**输出侧**：graph 的**输入**同样是静态缓冲，
+所以 `_InferLockedPolicy` 仍是必需的，不能据此认为拆锁安全了。
+
 **yaml 类型名 `cp1_groot_*` 的前缀是有承载作用的**：`config.py` 的两条校验按
 `startswith("cp1_")` 触发（强制 enable `vision_0`+`robot_state`、强制 `preload_path`），
 改成 `groot_cp1_*` 会让它们静默失效。

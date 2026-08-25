@@ -120,3 +120,38 @@ def test_validate_ok_warmup_eval_chain():
     g.add_stage(_stage("e", consumes_calib_id="c"))
     g.add_dependency("w", "e")
     g.validate()  # no raise
+
+
+def test_validate_rejects_an_episode_owned_by_two_stages():
+    """A duplicated uid hangs the run silently, so the graph must refuse it.
+
+    The scheduler's uid index is flat, so the second stage to be built wins it;
+    the first then dispatches an episode whose result is routed to a stage that
+    never dispatched it, dropped, and waited on forever by both.
+    """
+    shared = _ep(yaml_id="arm", episode_idx=7)
+    g = T.TaskGraph()
+    g.add_stage(_stage("s0", episodes=[shared]))
+    g.add_stage(_stage("s1", episodes=[shared]))
+    with pytest.raises(ValueError, match="appears in both stage"):
+        g.validate()
+
+
+def test_validate_allows_the_same_uid_shape_in_disjoint_stages():
+    """Distinct episodes that merely look alike are fine -- only uids collide."""
+    g = T.TaskGraph()
+    g.add_stage(_stage("s0", episodes=[_ep(yaml_id="arm", episode_idx=0)]))
+    g.add_stage(_stage("s1", episodes=[_ep(yaml_id="arm", episode_idx=1)]))
+    g.validate()  # no raise
+
+
+def test_validate_rejects_a_uid_repeated_inside_one_stage():
+    """The same-stage shape: dispatched twice from one pending list.
+
+    Checking only for a *different* owning stage would let this through.
+    """
+    ep = _ep(yaml_id="arm", episode_idx=3)
+    g = T.TaskGraph()
+    g.add_stage(_stage("s0", episodes=[ep, ep]))
+    with pytest.raises(ValueError, match="twice in stage"):
+        g.validate()

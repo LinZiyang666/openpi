@@ -3,6 +3,8 @@ lifecycle, and the warmup->eval handoff via fake ctl + fake strategy."""
 
 from __future__ import annotations
 
+import threading
+
 import json
 
 from openpi.conductor import protocol as P  # noqa: N812
@@ -477,3 +479,188 @@ def test_fatal_setup_hook_error_fails_fast_not_infinite_retry(tmp_path):
     assert d.scheduler.stage_state("y:warmup") == StageState.FAILED
     assert d.scheduler.stage_state("y:eval") == StageState.FAILED  # cascaded
     assert d.scheduler.all_done()  # no hang
+
+
+def test_flush_does_not_delete_rows_that_arrive_while_the_writer_runs():
+    """Sibling stages of one yaml finish independently, so this window is live.
+
+    The old shape selected by yaml id, ran the writer, then deleted by yaml id
+    again -- anything appended in between was removed having never reached the
+    writer. The integrity gate requires the per-step episode set to equal the
+    results episode set, so a silently dropped row fails the arm after it has
+    already run.
+    """
+    from openpi.conductor.driver import ConductorDriver
+
+    drv = ConductorDriver.__new__(ConductorDriver)
+    drv._rows_lock = threading.Lock()
+    drv._per_step_lock = threading.RLock()
+    drv._per_step_rows = [{"yaml_id": "arm", "step_idx": 0}]
+    written = []
+
+    def writer(yaml_id, rows):
+        # A later sibling of the same arm reports mid-write.
+        with drv._rows_lock:
+            drv._per_step_rows.append({"yaml_id": "arm", "step_idx": 1})
+        written.append((yaml_id, list(rows)))
+
+    drv._per_step_writer = writer
+    drv._flush_per_step_for_stage("arm")
+
+    assert [r["step_idx"] for r in written[0][1]] == [0]
+    assert [r["step_idx"] for r in drv._per_step_rows] == [1], (
+        "the row appended during the write must survive for a later flush"
+    )
+
+
+def test_flush_restores_rows_when_the_writer_raises():
+    from openpi.conductor.driver import ConductorDriver
+
+    drv = ConductorDriver.__new__(ConductorDriver)
+    drv._rows_lock = threading.Lock()
+    drv._per_step_lock = threading.RLock()
+    drv._per_step_rows = [{"yaml_id": "arm", "step_idx": 0}]
+
+    def boom(yaml_id, rows):
+        raise RuntimeError("disk full")
+
+    drv._per_step_writer = boom
+    drv._flush_per_step_for_stage("arm")
+    assert [r["step_idx"] for r in drv._per_step_rows] == [0]
+
+
+def _drv_with_writer():
+    """A driver stub wired for handle_result's journal + per-step path."""
+    import types
+
+    from openpi.conductor.driver import ConductorDriver
+
+    drv = ConductorDriver.__new__(ConductorDriver)
+    drv._rows_lock = threading.Lock()
+    drv._per_step_lock = threading.RLock()
+    drv._per_step_rows = []
+    drv._monitor = None
+    drv._run_id = "run0"
+    written: list = []
+    drv._per_step_writer = lambda yaml_id, rows: written.extend(rows)
+    drv._uid_meta = lambda uid: (uid.split(":", 1)[0], "eval")
+    accepted_box = {"v": True}
+    drv._scheduler = types.SimpleNamespace(
+        mark_result=lambda *a, **k: accepted_box["v"]
+    )
+    return drv, written, accepted_box
+
+
+def test_terminal_result_persists_per_step_before_the_journal_line(tmp_path):
+    """The crash boundary has to be the same for both sides.
+
+    The journal is written per episode; if per-step rows only reached disk when
+    a whole stage finished, a crash in between would leave an episode that
+    resume skips and whose evidence is gone -- and the integrity gate requires
+    the two sides to name the same episodes, so the arm could never pass again.
+    """
+    from openpi.conductor.journal import Journal
+
+    drv, written, _ = _drv_with_writer()
+    drv._journal = Journal(tmp_path / "j.jsonl")
+    drv.handle_result(
+        {
+            "task_uid": "arm:eval:0:0",
+            "success": True,
+            "n_steps": 3,
+            "attempt": 1,
+            "per_step_rows": [{"step_idx": 0}],
+        }
+    )
+    assert written, "per-step rows must be on disk by the time the uid is replayable"
+    assert drv._journal.replay_done_uids() == {"arm:eval:0:0"}
+
+
+def test_rows_from_a_fenced_report_are_stamped_not_accepted(tmp_path):
+    """A fenced dispatch reports rows too, at the same generation."""
+    from openpi.conductor.journal import Journal
+
+    drv, written, accepted_box = _drv_with_writer()
+    drv._journal = Journal(tmp_path / "j.jsonl")
+    accepted_box["v"] = False
+    drv.handle_result(
+        {
+            "task_uid": "arm:eval:0:0",
+            "success": True,
+            "n_steps": 3,
+            "attempt": 1,
+            "per_step_rows": [{"step_idx": 0}],
+        }
+    )
+    assert [r["accepted"] for r in written] == [False]
+
+
+def test_writer_failure_withholds_the_terminal_journal_line(tmp_path):
+    """A done line written after a failed flush strands the evidence.
+
+    The rows would then exist only in memory: a later exit loses them, resume
+    skips the uid on the strength of the journal, and the arm can never satisfy
+    I3 again. Withholding the line keeps the episode re-runnable instead.
+    """
+    from openpi.conductor.journal import Journal
+
+    drv, _written, _ = _drv_with_writer()
+    drv._journal = Journal(tmp_path / "j.jsonl")
+
+    def boom(yaml_id, rows):
+        raise RuntimeError("disk full")
+
+    drv._per_step_writer = boom
+    drv.handle_result(
+        {
+            "task_uid": "arm:eval:0:0",
+            "success": True,
+            "n_steps": 3,
+            "attempt": 1,
+            "per_step_rows": [{"step_idx": 0}],
+        }
+    )
+    assert drv._journal.replay_done_uids() == set()
+    # The rows are back in memory for the finalizer to retry.
+    assert [r["step_idx"] for r in drv._per_step_rows] == [0]
+
+
+def test_scheduler_acceptance_overrides_a_client_claim(tmp_path):
+    """Only the scheduler knows which of two same-generation reports it took."""
+    from openpi.conductor.journal import Journal
+
+    drv, written, accepted_box = _drv_with_writer()
+    drv._journal = Journal(tmp_path / "j.jsonl")
+    accepted_box["v"] = False
+    drv.handle_result(
+        {
+            "task_uid": "arm:eval:0:0",
+            "success": True,
+            "n_steps": 3,
+            "attempt": 1,
+            # A worker asserting its own verdict must not win.
+            "per_step_rows": [{"step_idx": 0, "accepted": True}],
+        }
+    )
+    assert [r["accepted"] for r in written] == [False]
+
+
+def test_rows_carry_the_run_id_so_a_restart_tie_is_separable(tmp_path):
+    from openpi.conductor.journal import Journal
+
+    drv, written, _ = _drv_with_writer()
+    drv._journal = Journal(tmp_path / "j.jsonl")
+    drv.handle_result(
+        {
+            "task_uid": "arm:eval:0:0",
+            "success": True,
+            "n_steps": 3,
+            "attempt": 1,
+            "per_step_rows": [{"step_idx": 0}],
+        }
+    )
+    assert [r["run_id"] for r in written] == ["run0"]
+    import json as _json
+
+    rec = _json.loads((tmp_path / "j.jsonl").read_text().splitlines()[0])
+    assert rec["run_id"] == "run0"

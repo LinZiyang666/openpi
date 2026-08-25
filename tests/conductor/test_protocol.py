@@ -90,3 +90,18 @@ def test_decode_rejects_malformed_message():
     frame = msgpack.packb([1, 2, 3], use_bin_type=True)  # a list, not a {type:...} dict
     with pytest.raises(P.ProtocolError, match="malformed"):
         P.decode(frame)
+
+
+def test_result_from_wire_ignores_fields_this_build_does_not_know():
+    """Worker and driver live on different machines and skew in practice.
+
+    Without this, a worker one version ahead raises TypeError on *every*
+    episode, which looks like a dead fleet rather than a version mismatch.
+    """
+    from openpi.conductor.protocol import result_from_wire
+
+    r = result_from_wire(
+        {"task_uid": "u", "success": True, "n_steps": 3, "invented_later": 42}
+    )
+    assert r.task_uid == "u"
+    assert r.n_steps == 3
