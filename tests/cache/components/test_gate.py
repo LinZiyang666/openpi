@@ -814,3 +814,42 @@ def test_follow_winner_ctor_rejects_bad_params():
         FollowWinnerGate(lock_streak=2, budget=1.5)  # type: ignore[arg-type]
     with pytest.raises(TypeError, match="tolerate_delta0"):
         FollowWinnerGate(lock_streak=2, budget=3, tolerate_delta0="yes")  # type: ignore[arg-type]
+
+
+# ---------------------------------------------------------------------------
+# N1 x V2 at the gate-Pareto operating point (j=3, probe_interval=3, L=6)
+#
+# Every existing V2 case runs j=1 or j=2, and every j=3 case omits L, so the
+# combination this experiment actually serves has no golden trace. The two
+# mechanisms are independent sources of teacher steps -- V2 caps a continuous
+# cache run, N1 skips after j sub-theta scores -- and the risk worth pinning is
+# that one silently swallows the other.
+# ---------------------------------------------------------------------------
+
+
+def test_operating_point_injection_and_hysteresis_coexist():
+    # theta_low == theta_high, as the solved 0.85-quantile gate uses.
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.5, j=3, probe_interval=3, L=6)
+    steps = (
+        [(0.9, HitType.FULL_HIT)] * 8   # cache run -> V2 injects on the 7th
+        + [(0.1, HitType.MISS)] * 8     # sub-theta -> N1 enters skipping, probes
+        + [(0.9, HitType.FULL_HIT)] * 2  # a probe recovers, searching resumes
+    )
+    expected = (
+        [True] * 6 + [False] + [True]    # inject at index 6, N1 untouched
+        + [True, True, True]             # low_run 1,2,3 -> stop searching
+        + [False, False, True]           # skip, skip, probe (interval 3)
+        + [False, False]                 # probe scored below theta -> still skipping
+        + [True]                         # probe at index 16 recovers
+        + [True]                         # searching again, run counter restarted
+    )
+    assert _drive_v2(gate, steps) == expected
+
+
+def test_operating_point_low_scoring_full_hits_are_gated_by_n1_not_v2():
+    # The gate-only arm's regime: the judge accepts everything, so a step can be
+    # FULL_HIT while scoring below theta. N1 must still act on the score -- and
+    # because every skip resets the cache-execution run, V2 never reaches L.
+    gate = ScoreHysteresisGate(theta_low=0.5, theta_high=0.5, j=3, probe_interval=3, L=6)
+    got = _drive_v2(gate, [(0.1, HitType.FULL_HIT)] * 12)
+    assert got == [True, True, True] + [False, False, True] * 3

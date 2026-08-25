@@ -12,8 +12,19 @@ those can be caught later, because none of them fail loudly at run time:
   a GR00T library — so a runtime guard would never fire and the only symptom
   is an inexplicably low hit rate;
 * a CP3 checkpoint would be built and registered, and simply never consulted;
-* a gate other than ``always_search`` would make ``searched`` mean something
-  the downstream analysis does not expect.
+* a gate other than ``always_search`` emits ``searched=False`` steps, which a
+  downstream analysis that assumes every step really searched would count as
+  real verdicts.
+
+That last restriction is the only one with a legitimate exception, and it is
+opted into **per serving entry point** rather than relaxed globally
+(``allow_hysteresis_gate``). The gate itself lives in the Orchestrator and is
+model-agnostic, so ``score_hysteresis`` is mechanically serviceable here; what
+is not portable is the *analysis* assumption above, which the cross-scene
+RoboCasa365 line still relies on. Widening the default would silently carry one
+experiment's exception into another subsystem, so the default stays
+``always_search`` and callers that have taught their analysis to read
+``searched`` say so explicitly.
 
 The artifact identity check is here for a sharper reason: ``load_artifact``
 only compares ``vector_dims``, and mean-pool and max-pool libraries are
@@ -21,7 +32,8 @@ dimensionally identical. Nothing else would ever notice the swap.
 
 Coupling map:
   DEPENDS ON:  CacheConfig, CacheStorage.artifact_meta
-  CONSUMED BY: exp/robocasa365/serve_groot_n15.py
+  CONSUMED BY: exp/robocasa365/serve_groot_n15.py (default),
+               exp/libero_groot/serve_groot_libero.py (allow_hysteresis_gate)
   IF CHANGED:  the guard rejection matrix test must be updated
 """
 
@@ -32,14 +44,29 @@ from typing import Any
 from openpi.cache.config import CacheConfig, ConfigValidationError
 
 _ALLOWED_JUDGE_TYPES = frozenset({"threshold", "always_hit"})
-_REQUIRED_GATE = "always_search"
+#: Gates every GR00T serving entry point may use, with no opt-in.
+_BASE_ALLOWED_GATES = frozenset({"always_search"})
+#: The single documented exception, admitted only via ``allow_hysteresis_gate``.
+_HYSTERESIS_GATE = "score_hysteresis"
 
 
-def validate_groot_cache_config(config: CacheConfig) -> None:
+def validate_groot_cache_config(
+    config: CacheConfig, *, allow_hysteresis_gate: bool = False
+) -> None:
     """Reject a recipe the two-stage GR00T split cannot honour.
 
     Collects every problem before raising so a mis-written YAML is fixed in one
     pass rather than one error at a time.
+
+    Args:
+        config: the loaded recipe to check.
+        allow_hysteresis_gate: admit ``score_hysteresis`` in addition to
+            ``always_search``. Opt-in per entry point, and deliberately a
+            boolean rather than a caller-supplied allow-set: a set parameter
+            would let any caller smuggle in an arbitrary gate, and this module
+            would no longer own the knowledge of which gates can ever be
+            served. Callers passing ``True`` must read ``searched`` in their
+            analysis, since the hysteresis gate emits gate-skipped steps.
 
     Raises:
         ConfigValidationError: naming each offending field.
@@ -73,11 +100,21 @@ def validate_groot_cache_config(config: CacheConfig) -> None:
                 "intermediates, which is every GR00T library entry, so this "
                 "would present as a low hit rate rather than an error."
             )
-        if cp1.gate.type != _REQUIRED_GATE:
+        allowed_gates = _BASE_ALLOWED_GATES | (
+            {_HYSTERESIS_GATE} if allow_hysteresis_gate else set()
+        )
+        if cp1.gate.type not in allowed_gates:
+            hint = (
+                ""
+                if allow_hysteresis_gate
+                else f" ({_HYSTERESIS_GATE!r} is available to entry points that "
+                "pass allow_hysteresis_gate=True and read `searched`)"
+            )
             errors.append(
-                f"cp1.gate.type={cp1.gate.type!r} but only {_REQUIRED_GATE!r} is "
-                "supported. Other gates emit searched=False steps, which the "
-                "downstream analysis would count as real verdicts."
+                f"cp1.gate.type={cp1.gate.type!r} but only {sorted(allowed_gates)} "
+                f"are supported here{hint}. Other gates emit searched=False steps, "
+                "which a downstream analysis that assumes every step searched "
+                "would count as real verdicts."
             )
 
     if config.write_policy.type != "never":

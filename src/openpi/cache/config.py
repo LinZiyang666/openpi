@@ -1467,6 +1467,10 @@ def validate_cache_config(config: CacheConfig) -> None:
         # enablement and in_memory-preload checks below key off it.
         "cp1_groot_mean_pool", "cp1_groot_spatial_pool_16",
         "cp1_groot_spatial_pool_4", "cp1_groot_max_pool",
+        # LIBERO variants: same pooling, two image-token runs instead of
+        # RoboCasa365's three. The three-camera builders assert three runs and
+        # would reject every LIBERO observation.
+        "cp1_groot_libero_mean_pool", "cp1_groot_libero_spatial_pool_16",
     })
     if config.key_builder.type not in _valid_key_builder_types:
         errors.append(
@@ -2776,6 +2780,8 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
             "cp1_groot_spatial_pool_16": _groot_kb.GrootCP1SpatialPool16KeyBuilder,
             "cp1_groot_spatial_pool_4": _groot_kb.GrootCP1SpatialPool4KeyBuilder,
             "cp1_groot_max_pool": _groot_kb.GrootCP1MaxPoolKeyBuilder,
+            "cp1_groot_libero_mean_pool": _groot_kb.GrootLiberoCP1MeanPoolKeyBuilder,
+            "cp1_groot_libero_spatial_pool_16": _groot_kb.GrootLiberoCP1SpatialPool16KeyBuilder,
         }
         return groot_builders[cfg.type](enabled_fields=enabled_fields)
     elif cfg.type == "clip":

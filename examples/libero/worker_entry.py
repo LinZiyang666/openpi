@@ -49,12 +49,24 @@ def main() -> None:
     ap.add_argument("--task-suite-name", default="libero_spatial")
     ap.add_argument("--init-states-dir", default="")
     ap.add_argument("--seed", type=int, default=7)
+    # Both default to main.Args' values, which are the Pi0.5 LIBERO convention.
+    # A GR00T checkpoint needs --resize-size 256: the official evaluator feeds
+    # the raw render and lets the transform chain crop to 224, so the 224
+    # default would crop twice and change the field of view. The wire contract
+    # rejects a 224 frame outright, but only after the fleet is already up.
+    ap.add_argument("--resize-size", type=int, default=None)
+    ap.add_argument("--replan-steps", type=int, default=None)
     a = ap.parse_args()
 
     from examples.libero import main as m
     from examples.libero.episode_runner import LiberoEpisodeRunner
 
-    args = m.Args(task_suite_name=a.task_suite_name, seed=a.seed)
+    overrides = {}
+    if a.resize_size is not None:
+        overrides["resize_size"] = a.resize_size
+    if a.replan_steps is not None:
+        overrides["replan_steps"] = a.replan_steps
+    args = m.Args(task_suite_name=a.task_suite_name, seed=a.seed, **overrides)
     runner = LiberoEpisodeRunner(args, _build_episode_setup(a, a.seed, a.init_states_dir))
 
     def connect():

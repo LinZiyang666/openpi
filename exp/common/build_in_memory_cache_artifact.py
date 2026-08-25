@@ -60,13 +60,25 @@ _VECTOR_DIMS: dict[str, dict[str, int]] = {
 # and the artifact is stamped with the GR00T builder name so a library can
 # never be loaded under a Pi0.5 recipe that happens to share its dimensions.
 _GROOT_TO_PI05_BUILDER: dict[str, str] = {
-    "cp1_groot_mean_pool":       "cp1_mean_pool",
-    "cp1_groot_spatial_pool_16": "cp1_spatial_pool_16",
-    "cp1_groot_spatial_pool_4":  "cp1_spatial_pool_4",
-    "cp1_groot_max_pool":        "cp1_max_pool",
+    "cp1_groot_mean_pool":              "cp1_mean_pool",
+    "cp1_groot_spatial_pool_16":        "cp1_spatial_pool_16",
+    "cp1_groot_spatial_pool_4":         "cp1_spatial_pool_4",
+    "cp1_groot_max_pool":               "cp1_max_pool",
+    # LIBERO post-trains of the same architecture: two cameras, 8-wide state.
+    "cp1_groot_libero_mean_pool":       "cp1_mean_pool",
+    "cp1_groot_libero_spatial_pool_16": "cp1_spatial_pool_16",
 }
 _GROOT_VISION_SLOTS = 3
 _GROOT_ROBOT_STATE_DIM = 20
+# Geometry is carried by the builder NAME, not by CLI flags: `_reshape_dims`
+# fails silently in the direction that matters -- an under-declared camera count
+# just drops that field from `vector_dims`, and the backend then omits it from
+# every query without comment. Binding the geometry to the name makes the
+# LIBERO artifact impossible to build under the RoboCasa recipe by omission.
+_GROOT_GEOMETRY: dict[str, tuple[int, int]] = {  # builder -> (vision_slots, state_dim)
+    "cp1_groot_libero_mean_pool":       (2, 8),
+    "cp1_groot_libero_spatial_pool_16": (2, 8),
+}
 
 # cp1_llm_layer_extract dims depend on prefix_reducer. Vision dim varies
 # per reducer; prompt_emb is always 2048 (mean-pooled fallback because the
@@ -166,10 +178,13 @@ def _get_vector_dims(
 ) -> dict[str, int]:
     if builder_type in _GROOT_TO_PI05_BUILDER:
         base = _VECTOR_DIMS[_GROOT_TO_PI05_BUILDER[builder_type]]
+        default_slots, default_state = _GROOT_GEOMETRY.get(
+            builder_type, (_GROOT_VISION_SLOTS, _GROOT_ROBOT_STATE_DIM)
+        )
         return _reshape_dims(
             base,
-            _GROOT_VISION_SLOTS if vision_slots is None else vision_slots,
-            _GROOT_ROBOT_STATE_DIM if robot_state_dim is None else robot_state_dim,
+            default_slots if vision_slots is None else vision_slots,
+            default_state if robot_state_dim is None else robot_state_dim,
         )
     if builder_type in _VECTOR_DIMS:
         dims = _VECTOR_DIMS[builder_type]

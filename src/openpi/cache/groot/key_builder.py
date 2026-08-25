@@ -84,6 +84,7 @@ def slice_groot_cp1_fields(
     enabled: set[str] | None,
     *,
     expected_state_index: torch.Tensor | None = None,
+    vision_fields: tuple[str, ...] = _VISION_FIELDS,
 ) -> dict[str, torch.Tensor]:
     """Cut per-modality token sequences out of one stage-1 sequence.
 
@@ -91,8 +92,13 @@ def slice_groot_cp1_fields(
     ``[256, emb_dim]``, `prompt_emb` is ``[num_text_tokens, emb_dim]`` and
     `robot_state` is the valid slice of the normalised state vector.
 
-    Raises RuntimeError when the image-token layout is not the expected three
-    equal runs. That is a hard failure on purpose: every downstream number
+    ``vision_fields`` names the cameras in run order and therefore also fixes
+    how many runs are expected: three for RoboCasa365, two for LIBERO
+    (image + wrist_image). It stays a keyword with the three-camera default so
+    the RoboCasa call sites are unchanged.
+
+    Raises RuntimeError when the image-token layout is not the expected number
+    of equal runs. That is a hard failure on purpose: every downstream number
     stays plausible when the slicing is wrong, so this is the only place the
     mistake is still visible.
     """
@@ -100,9 +106,9 @@ def slice_groot_cp1_fields(
         raise RuntimeError(f"expected batch size 1, got {input_embeds.shape[0]}")
 
     runs = _contiguous_runs(image_token_mask[0])
-    if len(runs) != len(_VISION_FIELDS):
+    if len(runs) != len(vision_fields):
         raise RuntimeError(
-            f"expected {len(_VISION_FIELDS)} contiguous image-token runs, found "
+            f"expected {len(vision_fields)} contiguous image-token runs, found "
             f"{len(runs)}: {runs}. The camera-to-field mapping is defined by run "
             "order, so any other count means the prompt layout changed."
         )
@@ -115,7 +121,7 @@ def slice_groot_cp1_fields(
     seq = input_embeds[0]
     result: dict[str, torch.Tensor] = {}
 
-    for field_name, (start, length) in zip(_VISION_FIELDS, runs, strict=True):
+    for field_name, (start, length) in zip(vision_fields, runs, strict=True):
         if enabled is not None and field_name not in enabled:
             continue
         result[field_name] = seq[start : start + length].float()
@@ -148,7 +154,14 @@ class _GrootCP1BaseKeyBuilder(_CP1BaseKeyBuilder):
 
     Reduction, CPU transfer and field filtering are inherited from the Pi0.5
     base unchanged, which is what keeps the two key spaces comparable.
+
+    ``vision_fields`` is the camera list in image-token run order, and doubles
+    as the expected run count. RoboCasa365 feeds three cameras; the LIBERO
+    checkpoints feed two (image + wrist_image), so the LIBERO subclasses below
+    narrow it and the slicer then rejects any other layout.
     """
+
+    vision_fields: tuple[str, ...] = _VISION_FIELDS
 
     def __init__(self, enabled_fields: list[str] | None = None) -> None:
         super().__init__(enabled_fields=enabled_fields)
@@ -173,6 +186,7 @@ class _GrootCP1BaseKeyBuilder(_CP1BaseKeyBuilder):
             self._cache["state_mask"],
             self._enabled,
             expected_state_index=self._state_index,
+            vision_fields=self.vision_fields,
         )
         if self._state_index is None:
             # Latch the first step's valid-dimension set so a later change is
@@ -228,3 +242,22 @@ class GrootCP1MaxPoolKeyBuilder(_GrootCP1BaseKeyBuilder):
 
     def _reduce_prompt(self, tokens: torch.Tensor) -> torch.Tensor:
         return _max_pool_tokens(tokens)
+
+
+# ------------------------------------------------------------------
+# LIBERO variants (two cameras)
+# ------------------------------------------------------------------
+
+_LIBERO_VISION_FIELDS = (VISION_0, VISION_1)  # video.image, video.wrist_image
+
+
+class GrootLiberoCP1MeanPoolKeyBuilder(GrootCP1MeanPoolKeyBuilder):
+    """LIBERO's two-camera mean-pool variant. Output: vision_{0,1}=2048."""
+
+    vision_fields = _LIBERO_VISION_FIELDS
+
+
+class GrootLiberoCP1SpatialPool16KeyBuilder(GrootCP1SpatialPool16KeyBuilder):
+    """LIBERO's two-camera 4x4 spatial pool. Output: vision_{0,1}=32768."""
+
+    vision_fields = _LIBERO_VISION_FIELDS

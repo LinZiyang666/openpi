@@ -72,11 +72,15 @@ class GrootCacheCollector:
         *,
         out_dir: str,
         experiment: str = "groot_cache",
+        vision_fields: tuple[str, ...] | None = None,
     ) -> None:
         self._policy = policy
         self._runner = runner
         self._collector = EpisodeDataCollector(out_dir)
         self._experiment = experiment
+        # Camera list in image-token run order; None keeps the slicer's
+        # three-camera RoboCasa365 default. LIBERO checkpoints feed two.
+        self._vision_fields = vision_fields
         self._state_index = None
 
     # -- lifecycle -------------------------------------------------------
@@ -135,6 +139,7 @@ class GrootCacheCollector:
             stage1.state_mask,
             enabled=None,
             expected_state_index=self._state_index,
+            **({} if self._vision_fields is None else {"vision_fields": self._vision_fields}),
         )
         if self._state_index is None:
             self._state_index = stage1.state_mask[0, -1].clone()
@@ -149,7 +154,8 @@ class GrootCacheCollector:
                 # they dominate the file size and the offline builder upcasts
                 # to fp32 before pooling anyway.
                 vision_embs=[
-                    raw[name].cpu().to(torch.float16).numpy() for name in _VISION_FIELDS
+                    raw[name].cpu().to(torch.float16).numpy()
+                    for name in (self._vision_fields or _VISION_FIELDS)
                 ],
                 prompt_emb=raw["prompt_emb"].cpu().to(torch.float16).numpy(),
                 robot_state=raw["robot_state"].cpu().float().numpy(),

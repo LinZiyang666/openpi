@@ -43,6 +43,18 @@ def _config(**overrides) -> CacheConfig:
     return config
 
 
+def _hysteresis_gate() -> GateConfig:
+    """The N4 operating point this line serves (gate-threshold Pareto)."""
+    return GateConfig(
+        type="score_hysteresis",
+        theta_low=0.9,
+        theta_high=0.9,
+        j=3,
+        probe_interval=3,
+        L=6,
+    )
+
+
 def test_a_valid_recipe_passes():
     validate_groot_cache_config(_config())
 
@@ -73,6 +85,58 @@ def test_non_always_search_gate_is_refused():
     config.checkpoints["cp1"].gate = GateConfig(type="random", p_inference=0.5)
     with pytest.raises(ConfigValidationError, match="gate.type"):
         validate_groot_cache_config(config)
+
+
+def test_hysteresis_gate_is_refused_by_default():
+    # The default path is what exp/robocasa365/serve_groot_n15.py calls: that
+    # module is untouched by the opt-in change and therefore cannot pass the
+    # keyword at all, so "default rejects" is exactly "RoboCasa365 rejects".
+    config = _config()
+    config.checkpoints["cp1"].gate = _hysteresis_gate()
+    with pytest.raises(ConfigValidationError, match="gate.type"):
+        validate_groot_cache_config(config)
+
+
+def test_hysteresis_gate_passes_only_when_opted_in():
+    config = _config()
+    config.checkpoints["cp1"].gate = _hysteresis_gate()
+    validate_groot_cache_config(config, allow_hysteresis_gate=True)
+
+
+@pytest.mark.parametrize("allow", [False, True])
+@pytest.mark.parametrize(
+    "gate",
+    [
+        GateConfig(type="random", p_inference=0.5),
+        GateConfig(type="periodic", cache_len=2, inference_len=2),
+        GateConfig(type="always_skip"),
+        GateConfig(type="client_controlled"),
+    ],
+)
+def test_opt_in_admits_nothing_beyond_hysteresis(gate, allow):
+    # The opt-in widens the allow-set by exactly one member. Without this the
+    # flag could drift into a general "any gate" escape hatch, which is the
+    # design that was rejected: the guard would stop owning the knowledge of
+    # which gates can ever be served.
+    config = _config()
+    config.checkpoints["cp1"].gate = gate
+    with pytest.raises(ConfigValidationError, match="gate.type"):
+        validate_groot_cache_config(config, allow_hysteresis_gate=allow)
+
+
+@pytest.mark.parametrize("allow", [False, True])
+def test_the_other_four_guards_are_unaffected_by_the_opt_in(allow):
+    # CP3 / warm tiers / judge type / write policy must behave identically in
+    # both modes: the opt-in is about gates and nothing else.
+    config = _config(write_policy=WritePolicyConfig(type="always"))
+    config.checkpoints["cp3"].enabled = True
+    config.checkpoints["cp1"].judge = JudgeConfig(type="warm_start")
+    with pytest.raises(ConfigValidationError) as excinfo:
+        validate_groot_cache_config(config, allow_hysteresis_gate=allow)
+    message = str(excinfo.value)
+    assert "enabled checkpoints" in message
+    assert "judge.type" in message
+    assert "write_policy" in message
 
 
 def test_online_write_policy_is_refused():
