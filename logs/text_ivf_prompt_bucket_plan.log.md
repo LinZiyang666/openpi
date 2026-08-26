@@ -112,7 +112,7 @@
   3. `text_ivf_knn` ⇒ `prompt_emb` ∈ enabled keys 且 ∈ `vector_dims`;
   4. 反向绑定:`index_type == "text_ivf"` ⇒ 至少一个启用 checkpoint 的策略为 `text_ivf_knn`(拒绝"建了索引没人用");
   5. `prompt_instruction_span` ⇒ `prompt_masked_pool`;
-  6. `text_ivf_knn` 拒绝与 `cp1_groot_*` / `placeholder` / `clip` builder 组合(无 `prompt_emb` 语义);
+  6. `text_ivf_knn` 拒绝与 `cp1_groot_*` / `placeholder` / `clip` builder 组合(无 `prompt_emb` 语义);**⚠ 后续扩展(2026-08-26,`robocasa365_ws_search2_text_ivf_plan.log.md` §3-W1)**:规则 6 已按**正向冻结集**放开——四个 RoboCasa GR00T pool(`cp1_groot_{mean_pool,spatial_pool_16,spatial_pool_4,max_pool}`)获准,其 `prompt_emb` 由`groot/key_builder.py:129-133` 从非图像 token 段提取、离线/在线 parity 有门验证;`cp1_groot_libero_*` 与 placeholder/clip 仍拒。本行下文的 v1 口径为历史记录,现行判据以该后续 plan 与 `config.py` 的 `_TEXT_IVF_GROOT_BUILDERS` 为准;
   7. `text_ivf_index.field` 目前仅接受 `"prompt_emb"`(前向留位,当前锁死)。
   8. **定界旋钮 allowlist(G1 R3)**:`prompt_masked_pool` 或 `prompt_instruction_span` 为 true ⇒ `key_builder.type ∈ PROMPT_POOL_KNOB_BUILDERS`,或 `type == "projection"` 且 `projection.inner_type ∈ PROMPT_POOL_KNOB_BUILDERS`;否则 `ConfigValidationError`(拒绝"YAML 声称定界、运行时静默原语义")。旋钮均 false 时,其余能产出 `prompt_emb` 的 builder 与 text-IVF 的组合维持现有 scope(仅受规则 6 约束)。
 
@@ -216,7 +216,7 @@ builder 离线测试(合成 H5 → 定界构建 → 与在线同款 builder 直�
 
 ## 11. 边界(owner 裁定的 scope,非延期项)
 
-Owner 于需求讨论中裁定"现在只对 text 模态做 IVF,先不考虑别的":多字段/多桶收取(nprobe>1)、学习式聚类桶、桶级分数参与精排、Qdrant 后端、GR00T 路径(`cp1_groot_*` 无 `prompt_emb`,校验规则 6 显式拒绝)均在本次 scope 之外。
+Owner 于需求讨论中裁定"现在只对 text 模态做 IVF,先不考虑别的":多字段/多桶收取(nprobe>1)、学习式聚类桶、桶级分数参与精排、Qdrant 后端、GR00T 路径均在**本 v1** scope 之外。⚠ **GR00T 一条已于 2026-08-26 由后续 plan 扩展**(`robocasa365_ws_search2_text_ivf_plan.log.md` §3-W1):「`cp1_groot_*` 无 `prompt_emb`」这一 v1 表述**事实上不成立**——四个 RoboCasa GR00T pool 的在线通路确实产 `prompt_emb`,现已获准使用 `text_ivf_knn`;`cp1_groot_libero_*` 仍被规则 6 拒绝(缺 parity/artifact 证据)。此处保留 v1 原文作历史记录。
 
 ## Review Log
 

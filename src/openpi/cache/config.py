@@ -544,6 +544,17 @@ PROMPT_POOL_KNOB_BUILDERS = frozenset({
     "cp1_spatial_pool_64", "cp1_max_pool",
 })
 
+# GR00T builders cleared to feed the text-IVF prompt index (rule 6). All four
+# share _GrootCP1BaseKeyBuilder's prompt_emb extraction (non-image token run,
+# mean pool) whose offline/online parity is gate-verified on the RoboCasa365
+# lane; the LIBERO variants stay excluded until they carry the same evidence,
+# so this positive set — not the artifact binding check, which only compares
+# an artifact that already exists — is the capability fence.
+_TEXT_IVF_GROOT_BUILDERS = frozenset({
+    "cp1_groot_mean_pool", "cp1_groot_spatial_pool_16",
+    "cp1_groot_spatial_pool_4", "cp1_groot_max_pool",
+})
+
 
 def _prompt_pool_knobs_supported(cfg: "KeyBuilderConfig") -> bool:
     """Whether cfg.type honours the prompt-pool knobs (projection: by inner)."""
@@ -2539,11 +2550,16 @@ def validate_cache_config(config: CacheConfig) -> None:
             errors.append("text_ivf_knn requires keys.prompt_emb.enabled=true (screening field).")
         if "prompt_emb" not in config.backend.vector_dims:
             errors.append("text_ivf_knn requires 'prompt_emb' in backend.vector_dims.")
-        # Rule 6: builders with no prompt_emb semantics cannot feed the index.
-        if config.key_builder.type in ("placeholder", "clip") or config.key_builder.type.startswith("cp1_groot_"):
+        # Rule 6: only builders with verified prompt_emb semantics may feed the
+        # index. placeholder/clip have none; GR00T builders are gated by the
+        # positive set above (LIBERO variants lack parity/artifact evidence).
+        _kb_type = config.key_builder.type
+        if _kb_type in ("placeholder", "clip") or (
+            _kb_type.startswith("cp1_groot_") and _kb_type not in _TEXT_IVF_GROOT_BUILDERS
+        ):
             errors.append(
                 f"text_ivf_knn is incompatible with key_builder.type="
-                f"{config.key_builder.type!r} (no prompt_emb semantics)."
+                f"{_kb_type!r} (no verified prompt_emb semantics)."
             )
     if _im.index_type == "text_ivf":
         # Rule 4: reverse binding — an index nobody probes is a silent waste.

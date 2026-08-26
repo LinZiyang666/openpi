@@ -343,6 +343,22 @@ class RobocasaEpisodeRunner(EpisodeRunner):
             self._envs[key] = env
         return env
 
+    # -- evidence hook ---------------------------------------------------
+
+    def _episode_header_rows(
+        self, task: _task.EpisodeTask, *, prompt: str, seed: int
+    ) -> list[dict[str, Any]]:
+        """Rows prepended to ``per_step`` after the episode's single reset.
+
+        Called exactly once per episode, right after ``env.reset`` produced
+        ``prompt``/``seed``. The base runner contributes nothing — collection
+        and plain eval keep their per-step row set byte-identical. Evidence
+        runners (ws2) override this to emit one header row; they must not copy
+        the rollout loop or reset a second time to reach these values.
+        """
+        del task, prompt, seed
+        return []
+
     # -- one episode -----------------------------------------------------
 
     def run(self, task: _task.EpisodeTask, report: ProgressCallback) -> _task.EpisodeResult:
@@ -388,6 +404,13 @@ class RobocasaEpisodeRunner(EpisodeRunner):
         step = 0
         started = time.monotonic()
         try:
+            # Single-reset capture seam: the true prompt/seed exist only here as
+            # locals, so subclasses that need them as evidence rows get exactly
+            # one hook call instead of copying the rollout or resetting twice.
+            # Inside the try so a raising override still runs episode_end --
+            # episode_start has already been sent, and leaving it unbalanced
+            # would strand the collector's open episode.
+            per_step.extend(self._episode_header_rows(task, prompt=prompt, seed=seed))
             plan: collections.deque = collections.deque()
             while step < horizon:
                 if not plan:

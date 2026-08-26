@@ -32,7 +32,14 @@ def build_runner(args: argparse.Namespace) -> WatchdogRunner:
         adapter_factory = ADAPTERS[args.teacher]
     except KeyError:
         raise SystemExit(f"unknown --teacher {args.teacher!r}; expected one of {sorted(ADAPTERS)}") from None
-    runner = RobocasaEpisodeRunner(
+    runner_cls = RobocasaEpisodeRunner
+    if getattr(args, "episode_header_rows", False):
+        # Lazy import: the evidence runner exists only for the ws2 search
+        # round; the default path must not even load it.
+        from exp.robocasa365.ws2_episode_runner import Ws2EpisodeRunner
+
+        runner_cls = Ws2EpisodeRunner
+    runner = runner_cls(
         adapter_factory(),
         connect_deadline_s=args.connect_deadline_s,
         connect_retries=args.connect_retries,
@@ -45,7 +52,8 @@ def build_runner(args: argparse.Namespace) -> WatchdogRunner:
     )
 
 
-def main() -> None:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parse the worker CLI (test seam; ``main`` uses the process argv)."""
     ap = argparse.ArgumentParser(description="conductor RoboCasa365 collection worker")
     ap.add_argument("--worker-id", required=True)
     ap.add_argument("--server-key", required=True, help='bound server endpoint "host:port"')
@@ -57,6 +65,13 @@ def main() -> None:
     ap.add_argument("--connect-deadline-s", type=float, required=True)
     ap.add_argument("--connect-retries", type=int, default=3)
     ap.add_argument(
+        "--episode-header-rows",
+        action="store_true",
+        help="use the ws2 evidence runner: one prompt/seed header row per "
+        "episode on the per-step channel. Default OFF keeps every existing "
+        "path's per-step row set byte-identical.",
+    )
+    ap.add_argument(
         "--max-cached-envs",
         type=int,
         default=0,
@@ -65,8 +80,11 @@ def main() -> None:
     )
     ap.add_argument("--episode-deadline-s", type=float, required=True)
     ap.add_argument("--terminate-grace-s", type=float, required=True)
-    args = ap.parse_args()
+    return ap.parse_args(argv)
 
+
+def main() -> None:
+    args = parse_args()
     runner = build_runner(args)
 
     def connect() -> socket.socket:

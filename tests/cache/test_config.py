@@ -2148,10 +2148,32 @@ def test_text_ivf_field_locked_to_prompt_emb():
 
 
 def test_text_ivf_rejects_no_prompt_builder():
-    for kb_type in ("placeholder", "clip", "cp1_groot_mean_pool"):
+    # placeholder/clip have no prompt_emb at all; the LIBERO GR00T variants
+    # lack the parity/artifact evidence backing the positive set (rule 6).
+    for kb_type in ("placeholder", "clip",
+                    "cp1_groot_libero_mean_pool", "cp1_groot_libero_spatial_pool_16"):
         cfg = _text_ivf_config(kb_type=kb_type, masked=False)
-        with pytest.raises(ConfigValidationError):
+        # match= pins the REASON: without it an unrelated rule rejecting these
+        # configs would keep the LIBERO regression green while rule 6 rotted.
+        with pytest.raises(ConfigValidationError, match="no verified prompt_emb semantics"):
             validate_cache_config(cfg)
+
+
+def test_text_ivf_accepts_robocasa_groot_builders():
+    # The four RoboCasa GR00T pools share the base-class prompt_emb extraction
+    # whose offline/online parity is gate-verified; knobs stay off (not in the
+    # prompt-pool allowlist), matching the {masked:F, span:F} artifact meta.
+    for kb_type in ("cp1_groot_mean_pool", "cp1_groot_spatial_pool_16",
+                    "cp1_groot_spatial_pool_4", "cp1_groot_max_pool"):
+        validate_cache_config(_text_ivf_config(kb_type=kb_type, masked=False))
+
+
+def test_text_ivf_groot_builders_still_reject_prompt_pool_knobs():
+    # Rule 6 acceptance must not leak the pooling knobs to GR00T builders:
+    # rule 8 keeps rejecting them independently.
+    cfg = _text_ivf_config(kb_type="cp1_groot_spatial_pool_16", masked=True)
+    with pytest.raises(ConfigValidationError, match="only honoured by"):
+        validate_cache_config(cfg)
 
 
 def test_span_requires_masked():

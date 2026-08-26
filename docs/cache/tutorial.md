@@ -407,6 +407,8 @@ backend:
     text_ivf: { field: prompt_emb, max_buckets: 1024 }
 ```
 
+**GR00T builders** (`cp1_groot_mean_pool` / `cp1_groot_spatial_pool_16` / `cp1_groot_spatial_pool_4` / `cp1_groot_max_pool`) are cleared for `text_ivf_knn` — their shared base extracts `prompt_emb` from the non-image token run of `input_embeds`, and the RoboCasa365 lane's offline/online parity is gate-verified. They are NOT in `PROMPT_POOL_KNOB_BUILDERS`, so the pooling knobs stay off and the artifact must record `prompt_pool: {masked: false, instruction_span: false}` (GR00T prompt embeddings are unpadded and bit-stable within a task, so masking buys nothing there). The LIBERO variants (`cp1_groot_libero_*`) remain rejected pending their own parity evidence — the allowance is a positive set (`_TEXT_IVF_GROOT_BUILDERS` in `config.py`), not a prefix rule.
+
 Offline rebuild (existing H5 is enough — it stores the unpooled `[max_len, 2048]` prompt token sequence and the raw prompt attr):
 
 ```bash
