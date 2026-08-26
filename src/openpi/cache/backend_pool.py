@@ -83,8 +83,13 @@ class BackendFingerprint:
     """Sorted ``tuple(cfg.vector_dims.items())`` for hashability."""
 
     index_type: str
-    """Currently always ``"brute_force"`` for InMemory; reserved for future
-    indexing backends."""
+    """``"brute_force"`` or ``"text_ivf"`` for InMemory backends."""
+
+    text_ivf_params: Optional[tuple] = None
+    """``(field, max_buckets)`` when ``index_type == "text_ivf"``; None
+    otherwise, so legacy fingerprints keep their equality semantics. Differing
+    index parameters must not share a backend instance (each gets its own
+    bucket build + validation)."""
 
     @classmethod
     def from_config(cls, cfg: "BackendConfig") -> "BackendFingerprint":
@@ -103,11 +108,18 @@ class BackendFingerprint:
                 "BackendFingerprint.from_config requires a non-empty preload_path. "
                 "Empty preload_path bypasses the pool."
             )
+        text_ivf_params = None
+        if cfg.in_memory.index_type == "text_ivf":
+            text_ivf_params = (
+                cfg.in_memory.text_ivf.field,
+                cfg.in_memory.text_ivf.max_buckets,
+            )
         return cls(
             backend_type=cfg.type,
             resolved_preload_path=str(Path(cfg.in_memory.preload_path).resolve()),
             vector_dims=tuple(sorted(cfg.vector_dims.items())),
             index_type=cfg.in_memory.index_type,
+            text_ivf_params=text_ivf_params,
         )
 
 
@@ -126,7 +138,12 @@ def _build_empty_backend(cfg: "BackendConfig") -> VectorStoreBackend:
     if cfg.type == "in_memory":
         from openpi.cache.backends.in_memory_backend import InMemoryBackend
 
-        return InMemoryBackend(vector_dims=cfg.vector_dims)
+        text_ivf = (
+            cfg.in_memory.text_ivf
+            if cfg.in_memory.index_type == "text_ivf"
+            else None
+        )
+        return InMemoryBackend(vector_dims=cfg.vector_dims, text_ivf=text_ivf)
     if cfg.type == "qdrant":
         from openpi.cache.backends.qdrant_backend import (
             QdrantBackendConfig,

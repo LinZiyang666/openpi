@@ -266,7 +266,11 @@ def test_real_legacy_pickle_reads_back_as_a_dict_of_nones(tmp_path):
     dims = _write_artifact(path, identity=False)
     storage = _wrap(_loaded_backend(path, dims))
 
-    assert storage.artifact_meta == {"key_builder_type": None, "checkpoint_id": None}
+    assert storage.artifact_meta == {
+        "key_builder_type": None,
+        "checkpoint_id": None,
+        "prompt_pool": None,  # text-IVF identity field; legacy pickles read back None
+    }
     with pytest.raises(ConfigValidationError, match="predates identity recording"):
         validate_artifact_identity(storage, _config())
 

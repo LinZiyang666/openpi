@@ -165,6 +165,10 @@ Entry chain format:
 | `full_original` | `{vision_0: 524288, ...}` | Raw flatten (Qdrant only) | Deprecated for in_memory |
 | `projection` | inner pool dims (identity), or head `out_dim` when weights loaded | Wraps a stateless pool inner; projects cosine fields (vision_*/prompt_emb) through a per-modality linear head. No weights → identity (== inner). | M1 outcome-compatible projection (skeleton) |
 
+### Instruction-span masked prompt pooling (`prompt_masked_pool` / `prompt_instruction_span`)
+
+Two `key_builder` knobs (default false = byte-identical legacy) honoured only by the four `cp1_*` pool builders above (and `projection` over such an inner; the allowlist is `PROMPT_POOL_KNOB_BUILDERS` in `config.py`, enforced on both the YAML and the offline builder CLI). `prompt_masked_pool` pools `prompt_emb` over real prompt tokens only (padding excluded via `Stage1Output.prefix_pad_masks`); `prompt_instruction_span` additionally cuts at the `" State:"` token-id marker for discrete-state prompts (falls back to masked-only + WARN when ids/marker are unavailable). Artifacts record the knobs as `prompt_pool` metadata, force-checked against the config at startup. See §7 (`text_ivf_knn`) for the retrieval feature this powers.
+
 ### Outcome-compatible projection (`projection`)
 
 Wraps a stateless pool key builder (`inner_type`) and applies a per-modality
@@ -342,6 +346,7 @@ Judge also has `on_episode_start()` and `record_action()` lifecycle methods.
 | `weighted_score_sum_knn` | in_memory | Two-layer similarity fusion (Layer-1 normalize → Layer-2 weighted sum). Preserves magnitude. Requires `score_normalization`. |
 | `qdrant_weighted_rrf_knn` | qdrant | Qdrant server-side RRF. Does NOT support trajectory search. |
 | `dynamic_depth_knn` | in_memory | Per-step adaptive trajectory depth (TRACER Phase 1 / M3). Wraps a `base_fusion` (`weighted_rrf` / `weighted_score_sum`) and consults a `depth_policy` to choose the depth `T_t` each step. A `constant` policy at the full `trajectory_depth` is value-identical to the fixed-depth strategy; a `heuristic` policy buckets action smoothness. See the note below. |
+| `text_ivf_knn` | in_memory | Text-IVF bucket probe (screening field `prompt_emb`): backend narrows candidates to ONE bucket (exact byte match → nearest representative) before the weighted score sum runs. Never emits `task_key` (the bucket replaces task scoping); `step_range` applies inside the bucket; trajectory supported (bucket screens chain heads only). Requires `backend.in_memory.index_type: text_ivf` + `keys.prompt_emb.enabled` + `score_normalization`; see the note below. |
 | `dual_retrieval_knn` | in_memory | Failure-aware dual-pool retrieval (TRACER Phase 3 / M2). Searches D⁺ and (when `enable_dual`) D⁻ via `QueryFilter.outcome`, computing `margin = s_pos − margin_lambda·s_neg` and `Δ⁺` signals for a `failure_aware_gate` judge. Reuses the M3 depth machinery; `enable_dual=false` (single pool) is value-identical to the fixed-depth base-fusion strategy. See the note below. |
 
 `weighted_score_sum_knn` requires `score_normalization` (config rejects `type:none`). Two forms:
@@ -382,6 +387,34 @@ The `heuristic` policy maps smaller action smoothness (steadier motion, `||a_{t-
 ### Failure-aware dual retrieval (`dual_retrieval_knn`)
 
 `dual_retrieval_knn` (TRACER Phase 3 / M2) runs the base fusion against a positive pool (D⁺) and, when `enable_dual: true`, a negative pool (D⁻), partitioned by `QueryFilter.outcome` (`+1` / `-1`). It computes per-query signals `s_pos` / `s_neg` / `margin = s_pos − margin_lambda·s_neg` / `Δ⁺` (top1−top2 in D⁺) and exposes them via `last_retrieval_signals()`; the orchestrator forwards them to a `failure_aware_gate` judge. It reuses the `dynamic_depth_knn` depth machinery (`base_fusion` / `allowed_depths` / `depth_policy`), so `enable_dual: false` + a `constant` policy at the full depth is value-identical to the fixed-depth base-fusion strategy (the Phase 3 non-regression anchor). The D⁺ pool is over-fetched to `top_k >= 2` internally so `Δ⁺` is defined even at `top_k: 1`; the returned list respects the configured `top_k`. In-memory only. The skeleton ships `enable_dual: false` — a real tagged D⁻ artifact lands in Phase 4. Outcome semantics: an explicit `outcome` filter only matches entries tagged with that value; untagged (None) entries — including all legacy artifacts — are not matched, so dual retrieval must run against a D⁺/D⁻-tagged library.
+
+### Text-IVF bucket probing (`text_ivf_knn`)
+
+Buckets are built by the backend from byte-identical `prompt_emb` vectors (one bucket per distinct instruction; representative = the vector itself, no clustering). Probe = exact byte match first, nearest-rep cosine fallback (deterministic tie-break by smallest bucket key). Pair with the instruction-span masked pooling knobs (`key_builder.prompt_masked_pool` / `prompt_instruction_span`) — they cut padding (and the discrete-state `" State:"` segment) out of the prompt pooling, which is what makes nearest-bucket routing robust (~1000× larger cross-task margins) and per-task embeddings bit-stable on `discrete_state_input=True` lines. The knobs are only honoured by the four `cp1_*` pool builders (+ `projection` over such an inner); any other builder type is rejected at config load AND by the offline builder CLI. A preloaded artifact must carry matching `prompt_pool` metadata — legacy artifacts are rejected at startup (rebuild with `--prompt-masked-pool`). Recommended recipe: `keys.prompt_emb: {enabled: true, weight: 0.0}` — the field feeds the bucket probe but contributes nothing to in-bucket ranking (it is near-constant there anyway).
+
+```yaml
+key_builder: { type: cp1_mean_pool, prompt_masked_pool: true }   # + prompt_instruction_span for state-in-prompt models
+checkpoints:
+  cp1:
+    search_strategy:
+      type: text_ivf_knn
+      score_normalization: { type: per_field, fields: { ... } }
+backend:
+  type: in_memory
+  in_memory:
+    preload_path: <masked-pool artifact .pkl>
+    index_type: text_ivf
+    text_ivf: { field: prompt_emb, max_buckets: 1024 }
+```
+
+Offline rebuild (existing H5 is enough — it stores the unpooled `[max_len, 2048]` prompt token sequence and the raw prompt attr):
+
+```bash
+uv run exp/common/build_in_memory_cache_artifact.py \
+    --data-dir <h5 dir> --builder-type cp1_mean_pool \
+    --output <out.pkl> --prompt-masked-pool
+    # add --prompt-instruction-span --discrete-state-input for pi05_robocasa-style prompts
+```
 
 ### TrajectoryMixin
 

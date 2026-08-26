@@ -87,9 +87,19 @@ class InMemoryBackend(VectorStoreBackend):
       - None (fallback): single-field cosine for backward compatibility
     """
 
-    def __init__(self, vector_dims: dict[str, int]) -> None:
+    def __init__(self, vector_dims: dict[str, int], text_ivf=None) -> None:
         self._dims = vector_dims
         self._entries: dict[str, CacheEntry] = {}
+        # Text-IVF bucket index config (duck-typed: needs .field / .max_buckets,
+        # normally a config.TextIvfIndexConfig). None => index disabled; a
+        # QuerySpec carrying the text_ivf hint then raises.
+        self._text_ivf_cfg = text_ivf
+        # Derived bucket index, built lazily / eagerly-at-load and dropped on
+        # every mutation. Published atomically via single reference assignment:
+        # (buckets: dict[bytes, list[entry_id]],
+        #  keys_sorted: list[bytes]  (ascending; doubles as the tie-break order),
+        #  reps: FloatTensor [B, dim] | None, rep_norms: FloatTensor [B] | None)
+        self._text_ivf_state = None
         # Runtime write-frozen contract (C2): flipped True by freeze().
         self._is_frozen: bool = False
         # Counters for call tracking in tests.
@@ -226,6 +236,7 @@ class InMemoryBackend(VectorStoreBackend):
     def _invalidate_frozen_search_caches(self) -> None:
         self._filtered_cache.clear()
         self._field_matrix_cache.clear()
+        self._text_ivf_state = None
 
     def count(self) -> int:
         return len(self._entries)
@@ -277,6 +288,10 @@ class InMemoryBackend(VectorStoreBackend):
         self.artifact_meta = {
             "key_builder_type": data.get("key_builder_type"),
             "checkpoint_id": data.get("checkpoint_id"),
+            # Prompt-pool identity (text-IVF): dict for prompt-pool-aware
+            # builds, None for legacy artifacts — the binding check treats
+            # None as "must rebuild" whenever the config engages the knobs.
+            "prompt_pool": data.get("prompt_pool"),
         }
         for entry in data["entries"]:
             # Backfill trajectory fields for old artifacts that lack them.
@@ -306,6 +321,12 @@ class InMemoryBackend(VectorStoreBackend):
                 }
             self._entries[entry.id] = entry
         logger.info("Loaded %d entries from %s", len(data["entries"]), path)
+
+        # Text-IVF: build the bucket index eagerly so a polluted / mismatched
+        # artifact fails at load time (inside BackendPool's per-fingerprint
+        # load lock, before freeze) instead of on the first live search.
+        if self._text_ivf_cfg is not None:
+            self._build_text_ivf_index()
 
         # ---- library_stats: load from artifact OR fallback recompute ----
         # Distinguish "missing key" (legacy artifact, fallback) from
@@ -359,7 +380,10 @@ class InMemoryBackend(VectorStoreBackend):
         if not self._entries:
             return [], diag
 
-        candidates = self._filtered_candidates(spec)
+        if spec.backend_hints and spec.backend_hints.get("text_ivf"):
+            candidates = self._text_ivf_candidates(spec)
+        else:
+            candidates = self._filtered_candidates(spec)
         if not candidates:
             return [], diag
 
@@ -424,36 +448,54 @@ class InMemoryBackend(VectorStoreBackend):
 
         __slots__ = ("__weakref__",)
 
-    def _filtered_candidates(self, spec: QuerySpec) -> list[CacheEntry]:
+    def _filtered_candidates(
+        self,
+        spec: QuerySpec,
+        bucket: Optional[tuple[bytes, list[str]]] = None,
+    ) -> list[CacheEntry]:
         """`_filter_entries` behind the frozen-search cache.
 
         The returned list is cached by filter fingerprint so repeated searches
         with the same filters (one episode = hundreds of them) reuse the SAME
         list object — which is also what keys the per-field matrix cache.
         Mutations clear the cache, so a hit is always exact.
+
+        ``bucket`` (text-IVF path) restricts the base entry set to one bucket's
+        members; its key joins the fingerprint so bucket candidate lists keep a
+        stable identity across an episode's searches (None on the legacy path
+        leaves legacy fingerprints equivalent).
         """
         key = (
             spec.checkpoint_id,
             None if spec.filters is None else spec.filters.task_key,
             None if spec.filters is None else spec.filters.step_range,
             None if spec.filters is None else spec.filters.outcome,
+            None if bucket is None else bucket[0],
         )
         try:
             cached = self._filtered_cache.get(key)
         except TypeError:  # unhashable fingerprint component: skip caching
-            return self._filter_entries(spec)
+            return self._filter_entries(spec, bucket=bucket)
         if cached is not None:
             return cached
-        result = self._CandidateList(self._filter_entries(spec))
+        result = self._CandidateList(self._filter_entries(spec, bucket=bucket))
         if len(self._filtered_cache) > 256:  # unbounded-fingerprint backstop
             self._filtered_cache.clear()
         self._filtered_cache[key] = result
         return result
 
-    def _filter_entries(self, spec: QuerySpec) -> list[CacheEntry]:
+    def _filter_entries(
+        self,
+        spec: QuerySpec,
+        bucket: Optional[tuple[bytes, list[str]]] = None,
+    ) -> list[CacheEntry]:
         """Filter by checkpoint_id / task_key / step_range."""
+        if bucket is None:
+            pool = self._entries.values()
+        else:
+            pool = [self._entries[eid] for eid in bucket[1] if eid in self._entries]
         results = []
-        for entry in self._entries.values():
+        for entry in pool:
             if spec.checkpoint_id is not None and entry.checkpoint_id != spec.checkpoint_id:
                 continue
             if spec.filters is not None:
@@ -473,6 +515,109 @@ class InMemoryBackend(VectorStoreBackend):
                         continue
             results.append(entry)
         return results
+
+    # -------------------------------------------------------------------
+    # Text-IVF bucket index (screening field = prompt_emb)
+    # -------------------------------------------------------------------
+
+    def _build_text_ivf_index(self):
+        """Group entries into buckets by byte-identical screening vectors.
+
+        Fail-fast contract: any entry missing the screening field aborts the
+        build (a partially screened library silently changes retrieval scope);
+        more buckets than ``max_buckets`` aborts too — that shape means either
+        a state-in-prompt polluted artifact or one built without
+        instruction-span masked pooling.
+
+        The state is assembled in locals and published with one reference
+        assignment, so concurrent readers on the lazy path never observe a
+        half-built index. Rebuilding from the same entry set is idempotent.
+        """
+        cfg = self._text_ivf_cfg
+        buckets: dict[bytes, list[str]] = {}
+        for entry in self._entries.values():
+            vec = entry.query_keys.get(cfg.field)
+            if vec is None:
+                raise ValueError(
+                    f"text_ivf: entry {entry.id!r} lacks screening field "
+                    f"{cfg.field!r}. The whole library must carry it — rebuild "
+                    "the artifact with the screening field enabled."
+                )
+            buckets.setdefault(vec.numpy().tobytes(), []).append(entry.id)
+        if len(buckets) > cfg.max_buckets:
+            raise ValueError(
+                f"text_ivf: {len(buckets)} buckets exceed max_buckets="
+                f"{cfg.max_buckets}. Likely causes: a state-in-prompt model "
+                "whose prompt embedding drifts per step, or an artifact built "
+                "without instruction-span masked pooling. Rebuild the artifact "
+                "with --prompt-masked-pool (and --prompt-instruction-span for "
+                "discrete-state prompts), or raise max_buckets if the library "
+                "genuinely holds this many instructions."
+            )
+        keys_sorted = sorted(buckets)
+        if keys_sorted:
+            reps = torch.stack([
+                torch.from_numpy(np.frombuffer(k, dtype=np.float32).copy())
+                for k in keys_sorted
+            ])
+            rep_norms = torch.linalg.vector_norm(reps, dim=1).clamp_min(1e-8)
+        else:
+            reps, rep_norms = None, None
+        state = (buckets, keys_sorted, reps, rep_norms)
+        self._text_ivf_state = state
+        return state
+
+    def _text_ivf_candidates(self, spec: QuerySpec) -> list[CacheEntry]:
+        """Probe the bucket index: exact byte match first, nearest-rep fallback.
+
+        Returns the probed bucket's members passed through the normal filter
+        semantics (checkpoint_id / step_range / outcome). Empty library =>
+        empty result (a MISS downstream), never an error.
+        """
+        if self._text_ivf_cfg is None:
+            raise RuntimeError(
+                "QuerySpec carries the text_ivf hint but this backend has no "
+                "text_ivf index configured (backend.in_memory.index_type)."
+            )
+        state = self._text_ivf_state
+        if state is None:
+            state = self._build_text_ivf_index()
+        buckets, keys_sorted, reps, rep_norms = state
+        query = spec.query_keys.get(self._text_ivf_cfg.field)
+        if query is None:
+            raise ValueError(
+                f"text_ivf search requires query field {self._text_ivf_cfg.field!r} "
+                "in query_keys."
+            )
+        if not buckets:
+            return self._CandidateList()
+
+        qbytes = query.float().contiguous().numpy().tobytes()
+        if qbytes in buckets:
+            bucket_key = qbytes
+            logger.debug("text_ivf probe: exact bucket hit (%d members)",
+                         len(buckets[bucket_key]))
+        else:
+            q = query.float()
+            denom = (rep_norms * torch.linalg.vector_norm(q)).clamp_min(1e-8)
+            sims = (reps @ q) / denom
+            # argmax returns the FIRST max index; keys_sorted is ascending, so
+            # ties deterministically resolve to the smallest bucket key.
+            best = int(sims.argmax())
+            margin = float("inf")
+            if sims.numel() >= 2:
+                top2 = sims.topk(2).values
+                margin = float(top2[0] - top2[1])
+            if margin < 1e-4:
+                logger.warning(
+                    "text_ivf probe: nearest-bucket margin %.2e is tiny — "
+                    "routing may be unstable (collapsed representatives or "
+                    "numeric drift).", margin)
+            else:
+                logger.debug("text_ivf probe: nearest bucket sim=%.6f margin=%.2e",
+                             float(sims[best]), margin)
+            bucket_key = keys_sorted[best]
+        return self._filtered_candidates(spec, bucket=(bucket_key, buckets[bucket_key]))
 
     # -------------------------------------------------------------------
     # Batched field scoring

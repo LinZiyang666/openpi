@@ -446,9 +446,25 @@ class QdrantConfig:
 
 
 @dataclass
+class TextIvfIndexConfig:
+    """Text-IVF bucket index parameters (backend.in_memory.text_ivf).
+
+    field: screening field the buckets are keyed on. Locked to 'prompt_emb'
+        for now (validated); kept as a field for forward extension.
+    max_buckets: build-time cap. More buckets than this aborts the index
+        build — the shape indicates a state-in-prompt polluted artifact or one
+        built without instruction-span masked pooling.
+    """
+
+    field: str = "prompt_emb"
+    max_buckets: int = 1024
+
+
+@dataclass
 class InMemoryConfig:
     preload_path: Optional[str] = None    # artifact .pkl path
-    index_type: str = "brute_force"       # only brute_force for now
+    index_type: str = "brute_force"       # "brute_force" | "text_ivf"
+    text_ivf: TextIvfIndexConfig = field(default_factory=TextIvfIndexConfig)
 
 
 @dataclass
@@ -510,6 +526,30 @@ class KeyBuilderConfig:
     prefix_reducer: PrefixReducerConfig = field(default_factory=PrefixReducerConfig)
     # -- projection params (only for the 'projection' key builder) --
     projection: ProjectionKeyBuilderConfig = field(default_factory=ProjectionKeyBuilderConfig)
+    # -- instruction-span masked prompt pooling (text-IVF plan U1) --
+    # Only honoured by builders in PROMPT_POOL_KNOB_BUILDERS (validated);
+    # both default False => byte-identical legacy behaviour.
+    prompt_masked_pool: bool = False
+    prompt_instruction_span: bool = False
+
+
+# Effective-builder allowlist for the prompt-pool knobs: exactly the builders
+# routed through _CP1BaseKeyBuilder._slice() honour prompt_masked_pool /
+# prompt_instruction_span; every other type would silently drop them. Single
+# source of truth — the offline artifact builder imports this same constant so
+# a CLI flag on an unsupported builder aborts instead of writing lying
+# `prompt_pool` metadata.
+PROMPT_POOL_KNOB_BUILDERS = frozenset({
+    "cp1_mean_pool", "cp1_spatial_pool_16", "cp1_spatial_pool_4",
+    "cp1_spatial_pool_64", "cp1_max_pool",
+})
+
+
+def _prompt_pool_knobs_supported(cfg: "KeyBuilderConfig") -> bool:
+    """Whether cfg.type honours the prompt-pool knobs (projection: by inner)."""
+    if cfg.type in PROMPT_POOL_KNOB_BUILDERS:
+        return True
+    return cfg.type == "projection" and cfg.projection.inner_type in PROMPT_POOL_KNOB_BUILDERS
 
 
 @dataclass
@@ -645,6 +685,7 @@ def _substitute_env_vars(text: str) -> str:
 
 
 _CONFIG_TYPES: dict[str, type] = {
+    "TextIvfIndexConfig": TextIvfIndexConfig,
     "KeyFieldConfig": KeyFieldConfig,
     "KeysConfig": KeysConfig,
     "GateConfig": GateConfig,
@@ -1610,7 +1651,7 @@ def validate_cache_config(config: CacheConfig) -> None:
     # 5 + 7. Per-checkpoint validation.
     _valid_strategy_types = frozenset({
         "qdrant_weighted_rrf_knn", "weighted_rrf_knn", "weighted_score_sum_knn",
-        "dynamic_depth_knn", "dual_retrieval_knn",
+        "dynamic_depth_knn", "dual_retrieval_knn", "text_ivf_knn",
     })
     for cp_name, cp_config in config.checkpoints.items():
         if cp_name.startswith("_"):
@@ -1943,7 +1984,7 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"  Fix: use backend.type='qdrant' or choose a different search strategy"
             )
 
-        if ss.type in ("weighted_rrf_knn", "weighted_score_sum_knn", "dynamic_depth_knn", "dual_retrieval_knn") and config.backend.type != "in_memory":
+        if ss.type in ("weighted_rrf_knn", "weighted_score_sum_knn", "dynamic_depth_knn", "dual_retrieval_knn", "text_ivf_knn") and config.backend.type != "in_memory":
             errors.append(
                 f"{prefix}.search_strategy.type '{ss.type}' requires backend.type='in_memory'.\n"
                 f"  Current backend.type: {config.backend.type!r}"
@@ -2042,7 +2083,7 @@ def validate_cache_config(config: CacheConfig) -> None:
 
         # weighted_score_sum_knn (or dynamic_depth_knn / dual_retrieval_knn with a
         # score_sum base fusion) requires score_normalization.
-        if ss.type == "weighted_score_sum_knn" or (
+        if ss.type in ("weighted_score_sum_knn", "text_ivf_knn") or (
             ss.type in ("dynamic_depth_knn", "dual_retrieval_knn")
             and ss.base_fusion == "weighted_score_sum"
         ):
@@ -2474,6 +2515,67 @@ def validate_cache_config(config: CacheConfig) -> None:
         )
     )
 
+    # ── Text-IVF bucket index rules (text-IVF plan U4) ──
+    _im = config.backend.in_memory
+    if _im.index_type not in ("brute_force", "text_ivf"):
+        errors.append(
+            f"backend.in_memory.index_type '{_im.index_type}' is unknown. "
+            "Valid: ['brute_force', 'text_ivf']"
+        )
+    _text_ivf_cps = [
+        name for name, cp in config.checkpoints.items()
+        if not name.startswith("_") and cp.enabled and cp.search_strategy.type == "text_ivf_knn"
+    ]
+    if _text_ivf_cps:
+        # Rule 1: strategy <-> backend index binding.
+        if config.backend.type != "in_memory" or _im.index_type != "text_ivf":
+            errors.append(
+                "text_ivf_knn requires backend.type='in_memory' with "
+                f"in_memory.index_type='text_ivf' (got type={config.backend.type!r}, "
+                f"index_type={_im.index_type!r})."
+            )
+        # Rule 3: the screening field must be an enabled key and a backend dim.
+        if not config.keys.prompt_emb.enabled:
+            errors.append("text_ivf_knn requires keys.prompt_emb.enabled=true (screening field).")
+        if "prompt_emb" not in config.backend.vector_dims:
+            errors.append("text_ivf_knn requires 'prompt_emb' in backend.vector_dims.")
+        # Rule 6: builders with no prompt_emb semantics cannot feed the index.
+        if config.key_builder.type in ("placeholder", "clip") or config.key_builder.type.startswith("cp1_groot_"):
+            errors.append(
+                f"text_ivf_knn is incompatible with key_builder.type="
+                f"{config.key_builder.type!r} (no prompt_emb semantics)."
+            )
+    if _im.index_type == "text_ivf":
+        # Rule 4: reverse binding — an index nobody probes is a silent waste.
+        if not _text_ivf_cps:
+            errors.append(
+                "backend.in_memory.index_type='text_ivf' but no enabled checkpoint "
+                "uses search_strategy.type='text_ivf_knn'. Remove the index or use "
+                "the strategy."
+            )
+        # Rule 7: screening field locked to prompt_emb for now.
+        if _im.text_ivf.field != "prompt_emb":
+            errors.append(
+                f"backend.in_memory.text_ivf.field must be 'prompt_emb' for now "
+                f"(got {_im.text_ivf.field!r})."
+            )
+        if _im.text_ivf.max_buckets < 1:
+            errors.append(
+                f"backend.in_memory.text_ivf.max_buckets must be >= 1 "
+                f"(got {_im.text_ivf.max_buckets})."
+            )
+    # Rule 5: span implies masked.
+    if config.key_builder.prompt_instruction_span and not config.key_builder.prompt_masked_pool:
+        errors.append("key_builder.prompt_instruction_span=true requires prompt_masked_pool=true.")
+    # Rule 8: prompt-pool knobs only on builders that honour them.
+    if (config.key_builder.prompt_masked_pool or config.key_builder.prompt_instruction_span) \
+            and not _prompt_pool_knobs_supported(config.key_builder):
+        errors.append(
+            f"prompt_masked_pool / prompt_instruction_span are only honoured by "
+            f"{sorted(PROMPT_POOL_KNOB_BUILDERS)} (or 'projection' with such an "
+            f"inner); got key_builder.type={config.key_builder.type!r}."
+        )
+
     # ── Ablation routing allowlist (routing present ⇒ locked config) ──
     if config.routing is not None:
         errors.extend(_routing_errors(config))
@@ -2580,11 +2682,70 @@ def _routing_errors(config: CacheConfig) -> list[str]:
 
 
 def build_shared_storage(config: CacheConfig):
-    """Create only the shared CacheStorage instance (for concurrent mode)."""
+    """Create only the shared CacheStorage instance (for concurrent mode).
+
+    Single choke point for storage construction: build_cache_components()
+    delegates here, so the text-IVF artifact binding check below covers both
+    public assembly entries (plan U4 / G1 R2).
+    """
     from openpi.cache.cache_storage import CacheStorage
 
     backend = _build_backend(config.backend)
-    return CacheStorage(backend)
+    storage = CacheStorage(backend)
+    _check_text_ivf_artifact_binding(storage, config)
+    return storage
+
+
+def _check_text_ivf_artifact_binding(storage, config: CacheConfig) -> None:
+    """Fail-fast when a preloaded artifact's prompt-pool semantics mismatch config.
+
+    A legacy full-mean LIBERO artifact can pass the bucket-count validation
+    (10 buckets) while its vectors live in a different pooling space than the
+    online masked/span query keys — silent misrouting. So whenever text-IVF or
+    the prompt-pool knobs are in play AND an artifact is preloaded, the
+    artifact's recorded identity must match the configured semantics exactly
+    (the CacheStorage.artifact_meta pattern from the GR00T identity guard).
+    Empty preload skips: keys are then produced online by one builder and are
+    self-consistent by construction.
+    """
+    kb = config.key_builder
+    knobs_on = kb.prompt_masked_pool or kb.prompt_instruction_span
+    uses_text_ivf = any(
+        not name.startswith("_") and cp.enabled and cp.search_strategy.type == "text_ivf_knn"
+        for name, cp in config.checkpoints.items()
+    )
+    if not (knobs_on or uses_text_ivf):
+        return
+    if config.backend.type != "in_memory" or not config.backend.in_memory.preload_path:
+        return
+    meta = storage.artifact_meta
+    if meta is None:
+        raise ConfigValidationError(
+            "text_ivf / prompt-pool config requires a preloaded artifact with "
+            "identity metadata, but the backend exposes none."
+        )
+    art_type = meta.get("key_builder_type")
+    if art_type != kb.type:
+        raise ConfigValidationError(
+            f"Artifact key_builder_type {art_type!r} does not match configured "
+            f"key_builder.type {kb.type!r}. Rebuild the artifact (plan §9 runbook) "
+            "or fix the config."
+        )
+    pool_meta = meta.get("prompt_pool")
+    if not isinstance(pool_meta, dict):
+        raise ConfigValidationError(
+            "Artifact lacks `prompt_pool` metadata (legacy build). Text-IVF / "
+            "prompt-pool configs require an artifact rebuilt with the "
+            "prompt-pool-aware builder (plan §9 runbook)."
+        )
+    if bool(pool_meta.get("masked")) != kb.prompt_masked_pool or \
+            bool(pool_meta.get("instruction_span")) != kb.prompt_instruction_span:
+        raise ConfigValidationError(
+            f"Artifact prompt_pool metadata {pool_meta!r} does not match configured "
+            f"knobs (masked={kb.prompt_masked_pool}, "
+            f"instruction_span={kb.prompt_instruction_span}). Query and library "
+            "would live in different pooling spaces — rebuild one side."
+        )
 
 
 def build_cache_components(config: CacheConfig) -> dict[str, Any]:
@@ -2594,11 +2755,11 @@ def build_cache_components(config: CacheConfig) -> dict[str, Any]:
     In single-connection mode this is all you need.
     In concurrent mode, only 'storage' is shared; call build_per_connection_components()
     for each connection to get fresh key_builder/gates/judges/strategies.
-    """
-    from openpi.cache.cache_storage import CacheStorage
 
-    backend = _build_backend(config.backend)
-    storage = CacheStorage(backend)
+    Storage construction delegates to build_shared_storage() so both public
+    assembly entries share the text-IVF artifact binding check (plan U4).
+    """
+    storage = build_shared_storage(config)
 
     return build_per_connection_components(config, storage)
 
@@ -2844,6 +3005,18 @@ def _build_prefix_reducer(cfg: PrefixReducerConfig):
 
 def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_dims: dict[str, int]):
     """Instantiate a QueryKeyBuilder from config."""
+    # Defence-in-depth behind validation rule 8: never let a prompt-pool knob
+    # ride on a builder that would silently drop it.
+    if (cfg.prompt_masked_pool or cfg.prompt_instruction_span) and not _prompt_pool_knobs_supported(cfg):
+        raise ConfigValidationError(
+            f"prompt_masked_pool / prompt_instruction_span are only honoured by "
+            f"{sorted(PROMPT_POOL_KNOB_BUILDERS)} (or 'projection' with such an "
+            f"inner); got key_builder.type={cfg.type!r}."
+        )
+    _pool_knobs = {
+        "prompt_masked_pool": cfg.prompt_masked_pool,
+        "prompt_instruction_span": cfg.prompt_instruction_span,
+    }
     if cfg.type == "placeholder":
         from openpi.cache.components.key_builder import PlaceholderKeyBuilder
 
@@ -2855,22 +3028,22 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
     elif cfg.type == "cp1_mean_pool":
         from openpi.cache.components.key_builder import CP1MeanPoolKeyBuilder
 
-        return CP1MeanPoolKeyBuilder(enabled_fields=enabled_fields)
+        return CP1MeanPoolKeyBuilder(enabled_fields=enabled_fields, **_pool_knobs)
     elif cfg.type == "cp1_spatial_pool_16":
         from openpi.cache.components.key_builder import CP1SpatialPool16KeyBuilder
 
-        return CP1SpatialPool16KeyBuilder(enabled_fields=enabled_fields)
+        return CP1SpatialPool16KeyBuilder(enabled_fields=enabled_fields, **_pool_knobs)
     elif cfg.type in ("cp1_spatial_pool_4", "cp1_spatial_pool_64"):
         # `cp1_spatial_pool_4` is the canonical name (4 output tokens, 2x2 grid);
         # `cp1_spatial_pool_64` is a backward-compat alias from the legacy naming
         # convention where `_64` referred to the 64x compression ratio (256->4).
         from openpi.cache.components.key_builder import CP1SpatialPool4KeyBuilder
 
-        return CP1SpatialPool4KeyBuilder(enabled_fields=enabled_fields)
+        return CP1SpatialPool4KeyBuilder(enabled_fields=enabled_fields, **_pool_knobs)
     elif cfg.type == "cp1_max_pool":
         from openpi.cache.components.key_builder import CP1MaxPoolKeyBuilder
 
-        return CP1MaxPoolKeyBuilder(enabled_fields=enabled_fields)
+        return CP1MaxPoolKeyBuilder(enabled_fields=enabled_fields, **_pool_knobs)
     elif cfg.type == "cp1_temporal_prune":
         from openpi.cache.components.key_builder import CP1TemporalPruneKeyBuilder
 
@@ -3508,6 +3681,19 @@ def _build_search_strategy(
         from openpi.cache.components.search_strategy import WeightedScoreSumKnnStrategy
 
         return WeightedScoreSumKnnStrategy(
+            storage,
+            top_k=effective_top_k,
+            step_filter=cfg.step_filter,
+            step_window=cfg.step_window,
+            fusion_weights=fusion_weights if fusion_weights else None,
+            field_similarity=_field_similarity_to_dict(cfg.field_similarity),
+            score_normalization=_score_norm_to_dict(cfg.score_normalization),
+            **trajectory_kwargs,
+        )
+    elif cfg.type == "text_ivf_knn":
+        from openpi.cache.components.search_strategy import TextIvfKnnStrategy
+
+        return TextIvfKnnStrategy(
             storage,
             top_k=effective_top_k,
             step_filter=cfg.step_filter,

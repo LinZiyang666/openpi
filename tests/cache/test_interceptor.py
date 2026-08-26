@@ -664,3 +664,106 @@ def test_collect_meta_sibling_and_per_connection_isolation():
     np.testing.assert_allclose(rs_a, F.normalize(state_a[0], dim=0).numpy(), atol=1e-5)
     np.testing.assert_allclose(rs_b, F.normalize(state_b[0], dim=0).numpy(), atol=1e-5)
     assert not np.allclose(rs_a, rs_b)  # no A<->B bleed
+
+
+# ---------------------------------------------------------------------------
+# _canonical_tokenized_prompt (text-IVF plan U6)
+# ---------------------------------------------------------------------------
+
+
+class TestCanonicalTokenizedPrompt:
+    """Both inference paths' real representations normalise to 1-D CPU int64,
+    and the canonical ids drive identical marker search + span slicing."""
+
+    _IDS = [2, 10, 11, 99, 55, 12, 0, 0]
+
+    def _assert_canonical(self, out):
+        assert isinstance(out, np.ndarray)
+        assert out.dtype == np.int64
+        assert out.ndim == 1
+        assert out.tolist() == self._IDS
+
+    def test_legacy_observation_batched_tensor(self):
+        from openpi.cache.interceptor import _canonical_tokenized_prompt
+
+        obs = SimpleNamespace(tokenized_prompt=torch.tensor([self._IDS]))  # [1, L]
+        self._assert_canonical(_canonical_tokenized_prompt(obs))
+
+    def test_coordinator_dict_unbatched_tensor(self):
+        from openpi.cache.interceptor import _canonical_tokenized_prompt
+
+        obs = {"tokenized_prompt": torch.tensor(self._IDS)}  # [L] CPU
+        self._assert_canonical(_canonical_tokenized_prompt(obs))
+
+    def test_both_representations_yield_identical_span(self):
+        from openpi.cache.components.key_builder import find_instruction_span
+        from openpi.cache.interceptor import _canonical_tokenized_prompt
+
+        marker = np.array([99, 55])
+        legacy = _canonical_tokenized_prompt(
+            SimpleNamespace(tokenized_prompt=torch.tensor([self._IDS]))
+        )
+        coord = _canonical_tokenized_prompt({"tokenized_prompt": torch.tensor(self._IDS)})
+        assert np.array_equal(legacy, coord)
+        s1 = find_instruction_span(legacy, marker)
+        s2 = find_instruction_span(coord, marker)
+        assert s1 == s2 == 3
+        assert legacy[:s1].tolist() == coord[:s2].tolist() == [2, 10, 11]
+
+    def test_batch_dim_not_one_raises(self):
+        import pytest
+
+        from openpi.cache.interceptor import _canonical_tokenized_prompt
+
+        obs = SimpleNamespace(tokenized_prompt=torch.zeros(2, 4, dtype=torch.long))
+        with pytest.raises(ValueError, match="batch dim must be 1"):
+            _canonical_tokenized_prompt(obs)
+
+    def test_malformed_shapes_raise(self):
+        import pytest
+
+        from openpi.cache.interceptor import _canonical_tokenized_prompt
+
+        bad_shapes = [
+            torch.tensor(7),                              # 0-D scalar
+            torch.zeros(1, 1, 4, dtype=torch.long),       # 3-D [1,1,L]
+            np.int64(7),                                  # 0-D numpy scalar
+            np.zeros((1, 1, 4), dtype=np.int64),          # 3-D numpy
+        ]
+        for bad in bad_shapes:
+            with pytest.raises(ValueError, match="tokenized_prompt"):
+                _canonical_tokenized_prompt({"tokenized_prompt": bad})
+
+    def test_none_passthrough(self):
+        from openpi.cache.interceptor import _canonical_tokenized_prompt
+
+        assert _canonical_tokenized_prompt(SimpleNamespace(tokenized_prompt=None)) is None
+        assert _canonical_tokenized_prompt({}) is None
+
+    def test_explicit_and_default_prompt_pipeline_consistency(self):
+        """TokenizePrompt output (explicit or InjectDefaultPrompt-injected)
+        reaches the builder as exactly the ids tokenization produced."""
+        from openpi.cache.interceptor import _canonical_tokenized_prompt
+        from openpi.transforms import InjectDefaultPrompt, TokenizePrompt
+
+        class StubTokenizer:
+            def tokenize(self, prompt, state=None):
+                ids = [ord(c) % 97 for c in str(prompt)][:8]
+                ids = ids + [0] * (8 - len(ids))
+                mask = [True] * min(len(str(prompt)), 8) + [False] * max(0, 8 - len(str(prompt)))
+                return np.asarray(ids), np.asarray(mask[:8])
+
+        tokenize = TokenizePrompt(tokenizer=StubTokenizer())
+        inject = InjectDefaultPrompt(prompt="default task")
+
+        # Explicit prompt.
+        data = tokenize(inject({"prompt": "pick the bowl", "state": np.zeros(2)}))
+        expected = StubTokenizer().tokenize("pick the bowl")[0]
+        out = _canonical_tokenized_prompt({"tokenized_prompt": data["tokenized_prompt"]})
+        assert np.array_equal(out, expected.astype(np.int64))
+
+        # Default prompt (missing from obs, injected by InjectDefaultPrompt).
+        data = tokenize(inject({"state": np.zeros(2)}))
+        expected = StubTokenizer().tokenize("default task")[0]
+        out = _canonical_tokenized_prompt({"tokenized_prompt": data["tokenized_prompt"]})
+        assert np.array_equal(out, expected.astype(np.int64))

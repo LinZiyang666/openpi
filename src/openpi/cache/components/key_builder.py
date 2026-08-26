@@ -12,8 +12,10 @@ Coupling map:
 
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable
+import logging
+from typing import Callable, Optional, Protocol, runtime_checkable
 
+import numpy as np
 import torch
 import torch.nn.functional as F
 
@@ -26,6 +28,30 @@ from openpi.cache.types import (
     VISION_2,
     CheckpointID,
 )
+
+logger = logging.getLogger(__name__)
+
+# The " State:" boundary of the Pi05 discrete-state prompt template
+# (tokenizer.py: "Task: {text}, State: {digits};\nAction: "). Instruction
+# tokens are everything strictly before the marker's first occurrence.
+_SPAN_MARKER_FRAGMENT = " State:"
+
+
+def find_instruction_span(ids: np.ndarray, marker: np.ndarray) -> Optional[int]:
+    """Index of the first occurrence of `marker` in `ids`, or None.
+
+    Shared by the online key builder and the offline artifact builder so both
+    sides cut the instruction span with the same rule. Pure numpy sliding
+    window over 1-D int arrays; device-independent by construction.
+    """
+    ids = np.asarray(ids).reshape(-1)
+    marker = np.asarray(marker).reshape(-1)
+    n, m = len(ids), len(marker)
+    if m == 0 or n < m:
+        return None
+    windows = np.lib.stride_tricks.sliding_window_view(ids, m)
+    hits = np.nonzero((windows == marker).all(axis=1))[0]
+    return int(hits[0]) if hits.size else None
 
 
 @runtime_checkable
@@ -231,9 +257,24 @@ class _CP1BaseKeyBuilder:
     because the backend needs real L2 distance for exp(-d/tau) conversion.
     """
 
-    def __init__(self, enabled_fields: list[str] | None = None) -> None:
+    def __init__(
+        self,
+        enabled_fields: list[str] | None = None,
+        *,
+        prompt_masked_pool: bool = False,
+        prompt_instruction_span: bool = False,
+        tokenizer_factory: Optional[Callable[[], object]] = None,
+    ) -> None:
         self._cache: dict[str, torch.Tensor] = {}
         self._enabled = set(enabled_fields) if enabled_fields is not None else None
+        # Instruction-span masked pooling knobs (text-IVF plan U1). Both
+        # default False => byte-identical legacy behaviour.
+        self._prompt_masked_pool = prompt_masked_pool
+        self._prompt_instruction_span = prompt_instruction_span
+        self._tokenizer_factory = tokenizer_factory
+        self._tokenized_prompt: Optional[np.ndarray] = None
+        self._span_marker: Optional[np.ndarray] = None
+        self._span_warned: set[str] = set()
 
     def collect(self, checkpoint_id: CheckpointID, **stage_outputs) -> None:
         self._cache.clear()
@@ -241,8 +282,19 @@ class _CP1BaseKeyBuilder:
             s1 = stage_outputs["stage1"]
             self._cache["state"] = s1.state               # [B, state_dim] GPU
             self._cache["prefix_embs"] = s1.prefix_embs   # [B, prefix_len, emb_dim] GPU
+            if self._prompt_masked_pool:
+                # [B, prefix_len] bool -- language segment doubles as the
+                # padding-exclusion mask for prompt pooling.
+                self._cache["prefix_pad_masks"] = s1.prefix_pad_masks
         if "stage3" in stage_outputs:
             self._cache["action_chunk"] = stage_outputs["stage3"].action_chunk
+        # Canonical representation (interceptor-normalised): 1-D CPU int64
+        # ndarray or None. Unconditionally replaced every collect() — a caller
+        # that omits the kwarg gets the masked-only fallback rather than a
+        # stale span from a previous cycle silently cutting the wrong slice
+        # (G2 R1 finding 1). The interceptor passes it at both CP1 and CP3, so
+        # no cross-checkpoint retention is needed.
+        self._tokenized_prompt = stage_outputs.get("tokenized_prompt")
 
     def build(self, checkpoint_id: CheckpointID) -> dict[str, torch.Tensor]:
         if checkpoint_id not in (CheckpointID.CP1, CheckpointID.CP3):
@@ -273,11 +325,87 @@ class _CP1BaseKeyBuilder:
         (located by an id mask rather than by position) overrides this and
         leaves everything below untouched.
         """
-        return _slice_cp1_fields(
+        result = _slice_cp1_fields(
             self._cache["prefix_embs"],
             self._cache["state"],
             self._enabled,
         )
+        if self._prompt_masked_pool and PROMPT_EMB in result:
+            result[PROMPT_EMB] = self._bound_prompt_tokens(result[PROMPT_EMB])
+        return result
+
+    # ------------------------------------------------------------------
+    # Instruction-span masked pooling (text-IVF plan U1)
+    # ------------------------------------------------------------------
+
+    def _bound_prompt_tokens(self, prompt_tokens: torch.Tensor) -> torch.Tensor:
+        """Restrict prompt tokens to the real-instruction span.
+
+        masked pool: drop padding positions via the language segment of
+        prefix_pad_masks. instruction span (optional, state-in-prompt
+        deployments): additionally cut at the " State:" marker located in the
+        canonical tokenized_prompt ids. Failure modes degrade to the widest
+        safe behaviour (masked-only) with a once-per-reason warning; a missing
+        mask is a hard error because it means the configured semantics cannot
+        be honoured at all.
+        """
+        mask = self._cache.get("prefix_pad_masks")
+        if mask is None:
+            raise RuntimeError(
+                "prompt_masked_pool is enabled but collect() did not receive "
+                "prefix_pad_masks (stage1 output missing the field?)."
+            )
+        lang_mask = mask[0, _PROMPT_START:].bool()
+        valid_len = int(lang_mask.sum())
+        if valid_len == 0:
+            raise RuntimeError(
+                "prompt_masked_pool: language mask has zero valid tokens; "
+                "prompt embedding cannot be pooled."
+            )
+        bounded = prompt_tokens[lang_mask]
+        if self._prompt_instruction_span:
+            span = self._resolve_instruction_span(valid_len)
+            if span is not None:
+                bounded = bounded[:span]
+        return bounded
+
+    def _resolve_instruction_span(self, valid_len: int) -> Optional[int]:
+        """Marker position in the valid token ids, or None => masked-only."""
+        ids = self._tokenized_prompt
+        if ids is None:
+            self._warn_once(
+                "no_ids",
+                "prompt_instruction_span: no tokenized_prompt available; "
+                "falling back to masked-only pooling.",
+            )
+            return None
+        span = find_instruction_span(np.asarray(ids)[:valid_len], self._get_span_marker())
+        if span is None or span <= 0:
+            self._warn_once(
+                "no_marker",
+                "prompt_instruction_span: ' State:' marker not found in "
+                "tokenized prompt; falling back to masked-only pooling.",
+            )
+            return None
+        return span
+
+    def _get_span_marker(self) -> np.ndarray:
+        if self._span_marker is None:
+            if self._tokenizer_factory is not None:
+                tok = self._tokenizer_factory()
+            else:
+                from openpi.models.tokenizer import PaligemmaTokenizer
+
+                tok = PaligemmaTokenizer(max_len=200)
+            self._span_marker = np.asarray(
+                tok.encode_fragment(_SPAN_MARKER_FRAGMENT), dtype=np.int64
+            )
+        return self._span_marker
+
+    def _warn_once(self, reason: str, message: str) -> None:
+        if reason not in self._span_warned:
+            self._span_warned.add(reason)
+            logger.warning(message)
 
     def _reduce_vision(self, tokens: torch.Tensor) -> torch.Tensor:
         """[256, emb_dim] -> [reduced_dim]. Subclass override."""
@@ -293,6 +421,7 @@ class _CP1BaseKeyBuilder:
 
     def clear(self) -> None:
         self._cache.clear()
+        self._tokenized_prompt = None
 
 
 # ---------------------------------------------------------------------------

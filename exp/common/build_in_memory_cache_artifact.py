@@ -237,6 +237,9 @@ def _create_builder(
     prefix_reducer_type: str = "prefix_mean_pool",
     inner_type: str = "cp1_mean_pool",
     projection_weights_path: str | None = None,
+    prompt_masked_pool: bool = False,
+    prompt_instruction_span: bool = False,
+    tokenizer_factory=None,
 ):
     # GR00T artifacts are built by the equivalent Pi0.5 pooling class; see
     # _GROOT_TO_PI05_BUILDER for why that is the same computation.
@@ -257,8 +260,13 @@ def _create_builder(
         "cp1_spatial_pool_64": CP1SpatialPool64KeyBuilder,
         "cp1_max_pool": CP1MaxPoolKeyBuilder,
     }
+    _pool_knobs = {
+        "prompt_masked_pool": prompt_masked_pool,
+        "prompt_instruction_span": prompt_instruction_span,
+        "tokenizer_factory": tokenizer_factory,
+    }
     if builder_type in builders:
-        return builders[builder_type]()
+        return builders[builder_type](**_pool_knobs)
     if builder_type == "projection":
         from openpi.cache.components.projection_key_builder import (
             ProjectionKeyBuilder,
@@ -281,7 +289,7 @@ def _create_builder(
         validate_projection_params(
             params, inner_type, _projection_vector_dims(inner_type, params)
         )
-        return ProjectionKeyBuilder(inner_cls(), params)
+        return ProjectionKeyBuilder(inner_cls(**_pool_knobs), params)
     if builder_type == "cp1_temporal_prune":
         from openpi.cache.components.key_builder import CP1TemporalPruneKeyBuilder
 
@@ -354,8 +362,13 @@ class _FakeStage1:
         self.prefix_att_2d_masks_4d = prefix_att_2d_masks_4d  # [1, 1, prefix_len, prefix_len]
 
 
-def _build_fake_stage1(group: h5py.Group) -> _FakeStage1:
+def _build_fake_stage1(group: h5py.Group, lang_mask: "torch.Tensor | None" = None) -> _FakeStage1:
     """Reconstruct prefix_embs from HDF5 step group.
+
+    ``lang_mask`` (masked prompt pooling): [num_prompt_tokens] bool from the
+    deterministic re-tokenization of the stored prompt attr; when given, a
+    prefix_pad_masks is synthesized (vision positions all True) so the online
+    masked-pool code path runs identically offline.
 
     HDF5 fields:
       vision_0: [256, 2048], vision_1: [256, 2048],
@@ -381,7 +394,14 @@ def _build_fake_stage1(group: h5py.Group) -> _FakeStage1:
     if state.dim() == 1:
         state = state.unsqueeze(0)  # [1, state_dim]
 
-    return _FakeStage1(prefix_embs, state)
+    prefix_pad_masks = None
+    if lang_mask is not None:
+        n_vision = prefix_embs.shape[1] - lang_mask.shape[0]
+        prefix_pad_masks = torch.cat(
+            [torch.ones(n_vision, dtype=torch.bool), lang_mask.bool()]
+        ).unsqueeze(0)
+
+    return _FakeStage1(prefix_embs, state, prefix_pad_masks=prefix_pad_masks)
 
 
 # ---------------------------------------------------------------------------
@@ -728,6 +748,91 @@ def trajectory_id_for(h5_path: Path, data_dir: str | Path, mode: str) -> str | N
 # ---------------------------------------------------------------------------
 
 
+_TOKENIZER_CACHE: dict[int, object] = {}
+
+
+def _get_pi05_tokenizer(max_len: int):
+    """Per-process PaligemmaTokenizer cache keyed by max_len.
+
+    max_len is derived from the stored prompt_emb sequence length so the
+    offline re-tokenization pads exactly like the deployment did.
+    """
+    tok = _TOKENIZER_CACHE.get(max_len)
+    if tok is None:
+        from openpi.models.tokenizer import PaligemmaTokenizer
+
+        tok = PaligemmaTokenizer(max_len=max_len)
+        _TOKENIZER_CACHE[max_len] = tok
+    return tok
+
+
+def _trailing_identical_rows(seq: np.ndarray) -> int:
+    """Length of the trailing run of rows identical to the last row."""
+    last = seq[-1]
+    n = 0
+    for i in range(len(seq) - 1, -1, -1):
+        if np.array_equal(seq[i], last):
+            n += 1
+        else:
+            break
+    return n
+
+
+def _masked_prompt_step_context(
+    tokenizer,
+    prompt_str: str,
+    state_np: np.ndarray | None,
+    prompt_emb_np: np.ndarray,
+    instruction_span: bool,
+    h5_name: str,
+):
+    """Re-tokenize one step's prompt and self-check against the stored rows.
+
+    Returns (tokens_int64_1d, lang_mask_bool_tensor). Aborts (ValueError) on:
+      - mask/stored-length mismatch;
+      - dual-source mismatch (mask.sum() != seq_len - trailing pad rows,
+        checked only when padding exists);
+      - instruction_span with the " State:" marker not occurring exactly once.
+    """
+    from openpi.cache.components.key_builder import find_instruction_span
+
+    tokens, mask = tokenizer.tokenize(prompt_str, state=state_np)
+    if len(mask) != prompt_emb_np.shape[0]:
+        raise ValueError(
+            f"{h5_name}: re-tokenized mask length {len(mask)} != stored "
+            f"prompt_emb rows {prompt_emb_np.shape[0]} (tokenizer max_len drift)."
+        )
+    valid = int(np.asarray(mask).sum())
+    if valid < prompt_emb_np.shape[0]:
+        trailing = _trailing_identical_rows(prompt_emb_np)
+        if prompt_emb_np.shape[0] - trailing != valid:
+            raise ValueError(
+                f"{h5_name}: dual-source mask check failed — re-tokenized "
+                f"valid={valid} but stored rows imply "
+                f"{prompt_emb_np.shape[0] - trailing}. The H5 prompt attr and "
+                "the captured embeddings disagree; refusing to build a "
+                "mismatched artifact."
+            )
+    tokens_np = np.asarray(tokens, dtype=np.int64)
+    if instruction_span:
+        marker = np.asarray(tokenizer.encode_fragment(" State:"), dtype=np.int64)
+        valid_ids = tokens_np[:valid]
+        first = find_instruction_span(valid_ids, marker)
+        if first is None or first <= 0:
+            raise ValueError(
+                f"{h5_name}: --prompt-instruction-span set but the ' State:' "
+                "marker was not found in the tokenized prompt."
+            )
+        second = find_instruction_span(valid_ids[first + 1:], marker)
+        if second is not None:
+            raise ValueError(
+                f"{h5_name}: ' State:' marker occurs more than once in the "
+                "tokenized prompt; the span rule is ambiguous."
+            )
+    lang_mask = torch.from_numpy(np.asarray(mask).astype(bool))
+    return tokens_np, lang_mask
+
+
 def _process_episode(
     h5_path_str: str,
     builder_type: str,
@@ -742,6 +847,10 @@ def _process_episode(
     projection_weights_path: str | None = None,
     outcome_filter: str = "success",
     trajectory_id: str | None = None,
+    *,
+    prompt_masked_pool: bool = False,
+    prompt_instruction_span: bool = False,
+    discrete_state_input: bool = False,
 ) -> list | None:
     """Process a single H5 file in a worker process. Returns list of CacheEntry or None.
 
@@ -759,12 +868,16 @@ def _process_episode(
 
     h5_path = Path(h5_path_str)
     cp_id = CheckpointID[checkpoint_id_str]
+    tokenizer = None
     builder = _create_builder(
         builder_type, reducer_type, output_tokens,
         prune_window_size, temporal_keep_ratio,
         select_k, temperature,
         inner_type=inner_type,
         projection_weights_path=projection_weights_path,
+        prompt_masked_pool=prompt_masked_pool,
+        prompt_instruction_span=prompt_instruction_span,
+        tokenizer_factory=(lambda: tokenizer) if prompt_masked_pool else None,
     )
 
     with h5py.File(h5_path, "r") as f:
@@ -785,6 +898,16 @@ def _process_episode(
         if hasattr(builder, 'on_episode_start'):
             builder.on_episode_start()
 
+        prompt_str = None
+        episode_prompt_ctx = None
+        if prompt_masked_pool:
+            prompt_str = str(f.attrs.get("prompt", "") or task)
+            if not prompt_str:
+                raise ValueError(
+                    f"{h5_path.name}: masked prompt pooling needs the episode "
+                    "prompt but neither the 'prompt' nor the 'task' attr is set."
+                )
+
         def _step_sort_key(name: str) -> tuple[bool, int, str]:
             suffix = name.split("_", 1)[1] if "_" in name else ""
             if suffix.isdigit():
@@ -799,8 +922,30 @@ def _process_episode(
         for step_name in step_names:
             group = f[step_name]
 
-            fake_stage1 = _build_fake_stage1(group)
-            builder.collect(cp_id, stage1=fake_stage1)
+            if prompt_masked_pool:
+                prompt_emb_np = np.array(group["prompt_emb"])
+                if tokenizer is None:
+                    tokenizer = _get_pi05_tokenizer(prompt_emb_np.shape[0])
+                if discrete_state_input:
+                    # State is baked into the prompt: tokens vary per step.
+                    step_ctx = _masked_prompt_step_context(
+                        tokenizer, prompt_str,
+                        np.array(group["robot_state"], dtype=np.float32),
+                        prompt_emb_np, prompt_instruction_span, h5_path.name,
+                    )
+                else:
+                    if episode_prompt_ctx is None:
+                        episode_prompt_ctx = _masked_prompt_step_context(
+                            tokenizer, prompt_str, None,
+                            prompt_emb_np, prompt_instruction_span, h5_path.name,
+                        )
+                    step_ctx = episode_prompt_ctx
+                tokens_np, lang_mask = step_ctx
+                fake_stage1 = _build_fake_stage1(group, lang_mask=lang_mask)
+                builder.collect(cp_id, stage1=fake_stage1, tokenized_prompt=tokens_np)
+            else:
+                fake_stage1 = _build_fake_stage1(group)
+                builder.collect(cp_id, stage1=fake_stage1)
             query_keys = builder.build(cp_id)
             builder.clear()
 
@@ -908,6 +1053,9 @@ def build_artifact(
     trajectory_id_mode: str = "stem",
     vision_slots: int | None = None,
     robot_state_dim: int | None = None,
+    prompt_masked_pool: bool = False,
+    prompt_instruction_span: bool = False,
+    discrete_state_input: bool = False,
 ) -> dict:
     """Build artifact dict from HDF5 data.
 
@@ -927,6 +1075,24 @@ def build_artifact(
         raise ValueError(
             f"outcome_filter must be one of success/failure/all, got {outcome_filter!r}"
         )
+    # Prompt-pool knob allowlist — same single-source constant as online config
+    # validation. Rejecting BEFORE any H5 is touched also closes the
+    # lying-metadata path: an unsupported builder would emit full-pool keys
+    # while the artifact claimed masked semantics.
+    if prompt_masked_pool or prompt_instruction_span:
+        from openpi.cache.config import PROMPT_POOL_KNOB_BUILDERS
+
+        supported = builder_type in PROMPT_POOL_KNOB_BUILDERS or (
+            builder_type == "projection" and inner_type in PROMPT_POOL_KNOB_BUILDERS
+        )
+        if not supported:
+            raise ValueError(
+                f"--prompt-masked-pool / --prompt-instruction-span are only "
+                f"honoured by {sorted(PROMPT_POOL_KNOB_BUILDERS)} (or projection "
+                f"with such an inner); got builder_type={builder_type!r}."
+            )
+    if prompt_instruction_span and not prompt_masked_pool:
+        raise ValueError("--prompt-instruction-span requires --prompt-masked-pool.")
     # cp1_llm_layer_extract routes through _process_episode_with_model, which
     # this phase does not parameterize. Reject non-default filters fail-loud at
     # the very top -- BEFORE any checkpoint/model load -- so the failure is
@@ -959,7 +1125,9 @@ def build_artifact(
     if not h5_paths:
         logger.warning("No .h5 files found in %s", data_dir)
         return {"key_builder_type": builder_type, "checkpoint_id": checkpoint_id_str,
-                "vector_dims": vector_dims, "entries": []}
+                "vector_dims": vector_dims, "entries": [],
+                "prompt_pool": {"masked": prompt_masked_pool,
+                                "instruction_span": prompt_instruction_span}}
 
     # cp1_llm_layer_extract takes a model-aware code path that cannot be
     # shipped through ProcessPool workers (each would reload the model into
@@ -1029,6 +1197,11 @@ def build_artifact(
         inner_type, projection_weights_path,
         outcome_filter,
     )
+    _ep_kwargs = {
+        "prompt_masked_pool": prompt_masked_pool,
+        "prompt_instruction_span": prompt_instruction_span,
+        "discrete_state_input": discrete_state_input,
+    }
 
     traj_ids = {p: trajectory_id_for(p, data_dir, trajectory_id_mode) for p in h5_paths}
 
@@ -1038,7 +1211,7 @@ def build_artifact(
         # Serial mode: run in main process (avoids fork overhead in tests)
         logger.info("Processing %d H5 files in serial mode", len(h5_paths))
         for i, p in enumerate(h5_paths, 1):
-            result = _process_episode(str(p), *_ep_args, traj_ids[p])
+            result = _process_episode(str(p), *_ep_args, traj_ids[p], **_ep_kwargs)
             if result is not None:
                 entries.extend(result)
                 del result
@@ -1050,7 +1223,7 @@ def build_artifact(
         logger.info("Processing %d H5 files with %d workers", len(h5_paths), num_workers)
         with ProcessPoolExecutor(max_workers=num_workers) as pool:
             futures = {
-                pool.submit(_process_episode, str(p), *_ep_args, traj_ids[p]): p
+                pool.submit(_process_episode, str(p), *_ep_args, traj_ids[p], **_ep_kwargs): p
                 for p in h5_paths
             }
             done_count = 0
@@ -1068,6 +1241,10 @@ def build_artifact(
         "checkpoint_id": checkpoint_id_str,
         "vector_dims": vector_dims,
         "entries": entries,
+        # Prompt-pool identity, force-checked at serve time against the
+        # configured knobs (_check_text_ivf_artifact_binding).
+        "prompt_pool": {"masked": prompt_masked_pool,
+                        "instruction_span": prompt_instruction_span},
     }
     # Record reducer params for traceability (offline/online consistency audit)
     if builder_type == "cp1_temporal_prune":
@@ -1247,6 +1424,26 @@ def main():
              "across sub-directories and would otherwise collide (and silently "
              "overwrite) in InMemoryBackend.load_artifact. Pool builders only."
     )
+    # Text-IVF instruction-span masked prompt pooling (plan U5).
+    parser.add_argument(
+        "--prompt-masked-pool", action="store_true",
+        help="Pool prompt_emb over real prompt tokens only (padding excluded), "
+             "reconstructing the mask by re-tokenizing the stored prompt attr. "
+             "Only honoured by the cp1_* pool builders (and projection with "
+             "such an inner); other builder types abort before any H5 is read."
+    )
+    parser.add_argument(
+        "--prompt-instruction-span", action="store_true",
+        help="Additionally cut the prompt at the ' State:' marker "
+             "(discrete-state prompts). Requires --prompt-masked-pool; the "
+             "build aborts unless the marker occurs exactly once per prompt."
+    )
+    parser.add_argument(
+        "--discrete-state-input", action="store_true",
+        help="The deployment bakes discretized state into the prompt "
+             "(Pi0Config.discrete_state_input=True, e.g. pi05_robocasa): "
+             "re-tokenize per step with that step's state."
+    )
     # B2 verdict-factor enrichment.
     parser.add_argument(
         "--factors-yaml", default=None,
@@ -1272,6 +1469,9 @@ def main():
         checkpoint_dir=args.checkpoint_dir,
         config_name=args.config_name,
         device=args.device,
+        prompt_masked_pool=args.prompt_masked_pool,
+        prompt_instruction_span=args.prompt_instruction_span,
+        discrete_state_input=args.discrete_state_input,
         inner_type=args.inner_type,
         projection_weights_path=args.projection_weights,
         outcome_filter=args.outcome_filter,

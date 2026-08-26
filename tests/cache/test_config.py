@@ -2045,3 +2045,272 @@ def test_u_t_factor_bad_window_rejected_clean(bad_win):
     # Must surface as ConfigValidationError (never a raw int() ValueError).
     with pytest.raises(ConfigValidationError, match=r"u_t_factor\.(past|future)"):
         validate_cache_config(cfg)
+
+
+# ---------------------------------------------------------------------------
+# Text-IVF bucket index rules + artifact binding (text-IVF plan U4 / §8)
+# ---------------------------------------------------------------------------
+
+
+def _text_ivf_config(
+    *,
+    index_type="text_ivf",
+    strategy_type="text_ivf_knn",
+    kb_type="cp1_mean_pool",
+    masked=True,
+    span=False,
+    # validate_cache_config requires a preload_path for cp1_* + in_memory but
+    # never opens it; binding tests override with real files (or None).
+    preload_path="dummy_artifact.pkl",
+    backend_type="in_memory",
+    prompt_enabled=True,
+):
+    from openpi.cache.config import InMemoryConfig, TextIvfIndexConfig
+
+    return CacheConfig(
+        enabled=True,
+        keys=KeysConfig(
+            vision_0=KeyFieldConfig(enabled=True, weight=1.0),
+            prompt_emb=KeyFieldConfig(enabled=prompt_enabled, weight=0.0),
+            robot_state=KeyFieldConfig(enabled=True, weight=1.0),
+        ),
+        key_builder=KeyBuilderConfig(
+            type=kb_type, prompt_masked_pool=masked, prompt_instruction_span=span,
+        ),
+        backend=BackendConfig(
+            type=backend_type,
+            vector_dims={"vision_0": 4, "prompt_emb": 4, "robot_state": 2},
+            in_memory=InMemoryConfig(
+                preload_path=preload_path,
+                index_type=index_type,
+                text_ivf=TextIvfIndexConfig(max_buckets=16),
+            ),
+        ),
+        checkpoints={
+            "cp1": CheckpointConfig(
+                search_strategy=SearchStrategyConfig(
+                    type=strategy_type,
+                    field_similarity={
+                        "vision_0": FieldSimilarityConfig(type="cosine"),
+                        "prompt_emb": FieldSimilarityConfig(type="cosine"),
+                        "robot_state": FieldSimilarityConfig(
+                            type="l2", to_similarity={"tau": 0.33}
+                        ),
+                    },
+                    score_normalization=ScoreNormalizationConfig(
+                        type="per_field",
+                        fields={
+                            "vision_0": {"method": "affine_clip",
+                                         "params": {"lo": 0.0, "hi": 1.0}},
+                            "robot_state": {"method": "exp_l2",
+                                            "params": {"tau": 0.33}},
+                        },
+                    ),
+                ),
+            ),
+        },
+    )
+
+
+def test_text_ivf_valid_config_passes():
+    validate_cache_config(_text_ivf_config())
+
+
+def test_text_ivf_requires_index_type():
+    cfg = _text_ivf_config(index_type="brute_force")
+    with pytest.raises(ConfigValidationError, match="index_type='text_ivf'"):
+        validate_cache_config(cfg)
+
+
+def test_text_ivf_index_without_strategy_rejected():
+    cfg = _text_ivf_config(strategy_type="weighted_score_sum_knn")
+    with pytest.raises(ConfigValidationError, match="no enabled checkpoint"):
+        validate_cache_config(cfg)
+
+
+def test_text_ivf_requires_prompt_emb_enabled():
+    cfg = _text_ivf_config(prompt_enabled=False)
+    with pytest.raises(ConfigValidationError, match="keys.prompt_emb.enabled"):
+        validate_cache_config(cfg)
+
+
+def test_text_ivf_unknown_index_type_rejected():
+    cfg = _text_ivf_config(index_type="hnsw")
+    with pytest.raises(ConfigValidationError, match="index_type"):
+        validate_cache_config(cfg)
+
+
+def test_text_ivf_field_locked_to_prompt_emb():
+    cfg = _text_ivf_config()
+    cfg.backend.in_memory.text_ivf.field = "vision_0"
+    with pytest.raises(ConfigValidationError, match="must be 'prompt_emb'"):
+        validate_cache_config(cfg)
+
+
+def test_text_ivf_rejects_no_prompt_builder():
+    for kb_type in ("placeholder", "clip", "cp1_groot_mean_pool"):
+        cfg = _text_ivf_config(kb_type=kb_type, masked=False)
+        with pytest.raises(ConfigValidationError):
+            validate_cache_config(cfg)
+
+
+def test_span_requires_masked():
+    cfg = _text_ivf_config(masked=False, span=True)
+    with pytest.raises(ConfigValidationError, match="requires prompt_masked_pool"):
+        validate_cache_config(cfg)
+
+
+def test_prompt_pool_knobs_allowlist():
+    # Unsupported builders carrying a knob are rejected (rule 8) ...
+    for kb_type in ("full_original", "cp1_temporal_prune", "cp1_llm_layer_extract",
+                    "clip", "placeholder"):
+        cfg = _text_ivf_config(kb_type=kb_type, index_type="brute_force",
+                               strategy_type="weighted_score_sum_knn")
+        with pytest.raises(ConfigValidationError, match="only honoured by"):
+            validate_cache_config(cfg)
+    # ... every allowlisted pool type passes.
+    for kb_type in ("cp1_mean_pool", "cp1_spatial_pool_16", "cp1_spatial_pool_4",
+                    "cp1_spatial_pool_64", "cp1_max_pool"):
+        validate_cache_config(_text_ivf_config(kb_type=kb_type))
+
+
+def test_prompt_pool_knobs_projection_inner():
+    cfg = _text_ivf_config(kb_type="projection")
+    cfg.key_builder.projection.inner_type = "cp1_mean_pool"
+    validate_cache_config(cfg)
+    cfg.key_builder.projection.inner_type = "cp1_llm_layer_extract"
+    with pytest.raises(ConfigValidationError):
+        validate_cache_config(cfg)
+
+
+# ---------------------------------------------------------------------------
+# Artifact binding: four states x both public assembly entries
+# ---------------------------------------------------------------------------
+
+
+def _write_text_ivf_artifact(tmp_path, *, prompt_pool, kb_type="cp1_mean_pool"):
+    import pickle
+
+    from openpi.cache.storage_types import CacheEntry, CachePayload
+    from openpi.cache.types import CheckpointID as _CP
+
+    entry = CacheEntry(
+        id="e0",
+        checkpoint_id=_CP.CP1,
+        query_keys={
+            "vision_0": torch.ones(4),
+            "prompt_emb": torch.tensor([1.0, 0.0, 0.0, 0.0]),
+            "robot_state": torch.tensor([0.1, 0.2]),
+        },
+        payload=CachePayload(action_chunk=torch.zeros(5, 3), task_key="t"),
+        step_idx=0,
+    )
+    art = {
+        "key_builder_type": kb_type,
+        "checkpoint_id": "CP1",
+        "vector_dims": {"vision_0": 4, "prompt_emb": 4, "robot_state": 2},
+        "entries": [entry],
+    }
+    if prompt_pool is not None:
+        art["prompt_pool"] = prompt_pool
+    path = tmp_path / f"art_{abs(hash(str(prompt_pool)))}.pkl"
+    with open(path, "wb") as fh:
+        pickle.dump(art, fh)
+    return str(path)
+
+
+@pytest.fixture()
+def _fresh_pool():
+    from openpi.cache.backend_pool import BackendPool
+
+    BackendPool.reset_for_tests()
+    yield
+    BackendPool.reset_for_tests()
+
+
+@pytest.mark.parametrize("entry_fn_name", ["build_shared_storage", "build_cache_components"])
+def test_binding_matching_artifact_passes(tmp_path, _fresh_pool, entry_fn_name):
+    import openpi.cache.config as cfg_mod
+
+    path = _write_text_ivf_artifact(
+        tmp_path, prompt_pool={"masked": True, "instruction_span": False}
+    )
+    cfg = _text_ivf_config(preload_path=path)
+    getattr(cfg_mod, entry_fn_name)(cfg)  # must not raise
+
+
+@pytest.mark.parametrize("entry_fn_name", ["build_shared_storage", "build_cache_components"])
+def test_binding_mismatched_knobs_rejected(tmp_path, _fresh_pool, entry_fn_name):
+    import openpi.cache.config as cfg_mod
+
+    path = _write_text_ivf_artifact(
+        tmp_path, prompt_pool={"masked": False, "instruction_span": False}
+    )
+    cfg = _text_ivf_config(preload_path=path)  # config says masked=True
+    with pytest.raises(ConfigValidationError, match="does not match configured"):
+        getattr(cfg_mod, entry_fn_name)(cfg)
+
+
+@pytest.mark.parametrize("entry_fn_name", ["build_shared_storage", "build_cache_components"])
+def test_binding_legacy_artifact_rejected(tmp_path, _fresh_pool, entry_fn_name):
+    import openpi.cache.config as cfg_mod
+
+    path = _write_text_ivf_artifact(tmp_path, prompt_pool=None)
+    cfg = _text_ivf_config(preload_path=path)
+    with pytest.raises(ConfigValidationError, match="prompt_pool"):
+        getattr(cfg_mod, entry_fn_name)(cfg)
+
+
+@pytest.mark.parametrize("entry_fn_name", ["build_shared_storage", "build_cache_components"])
+def test_binding_reverse_mismatch_rejected(tmp_path, _fresh_pool, entry_fn_name):
+    """Artifact IS masked but config knobs are off: also a semantic mismatch."""
+    import openpi.cache.config as cfg_mod
+
+    path = _write_text_ivf_artifact(
+        tmp_path, prompt_pool={"masked": True, "instruction_span": False}
+    )
+    cfg = _text_ivf_config(preload_path=path, masked=False)
+    with pytest.raises(ConfigValidationError, match="does not match configured"):
+        getattr(cfg_mod, entry_fn_name)(cfg)
+
+
+@pytest.mark.parametrize("entry_fn_name", ["build_shared_storage", "build_cache_components"])
+def test_binding_builder_type_mismatch_rejected(tmp_path, _fresh_pool, entry_fn_name):
+    import openpi.cache.config as cfg_mod
+
+    path = _write_text_ivf_artifact(
+        tmp_path, prompt_pool={"masked": True, "instruction_span": False},
+        kb_type="cp1_max_pool",
+    )
+    cfg = _text_ivf_config(preload_path=path)  # config says cp1_mean_pool
+    with pytest.raises(ConfigValidationError, match="key_builder_type"):
+        getattr(cfg_mod, entry_fn_name)(cfg)
+
+
+@pytest.mark.parametrize("entry_fn_name", ["build_shared_storage", "build_cache_components"])
+def test_binding_empty_preload_skips(tmp_path, _fresh_pool, entry_fn_name):
+    import openpi.cache.config as cfg_mod
+
+    cfg = _text_ivf_config(preload_path=None)
+    getattr(cfg_mod, entry_fn_name)(cfg)  # must not raise
+
+
+def test_build_cache_components_routes_through_shared_storage(
+    tmp_path, _fresh_pool, monkeypatch
+):
+    """The single-connection entry must reuse the shared-storage choke point."""
+    import openpi.cache.config as cfg_mod
+
+    calls = []
+    orig = cfg_mod.build_shared_storage
+
+    def spy(config):
+        calls.append(config)
+        return orig(config)
+
+    monkeypatch.setattr(cfg_mod, "build_shared_storage", spy)
+    path = _write_text_ivf_artifact(
+        tmp_path, prompt_pool={"masked": True, "instruction_span": False}
+    )
+    cfg_mod.build_cache_components(_text_ivf_config(preload_path=path))
+    assert len(calls) == 1

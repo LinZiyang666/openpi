@@ -515,6 +515,81 @@ class WeightedScoreSumKnnStrategy(TrajectoryMixin):
         return None if getter is None else getter()
 
 
+class TextIvfKnnStrategy(TrajectoryMixin):
+    """Text-IVF bucket-probing search strategy (weighted_score_sum base).
+
+    Declares the ``text_ivf`` backend hint so InMemoryBackend narrows the
+    candidate set to one prompt bucket (exact byte match, nearest-representative
+    fallback) before the ordinary two-layer weighted score sum runs. The bucket
+    replaces task scoping, so this strategy NEVER emits a task_key filter even
+    when the episode carries one (plan D4); step_range still applies inside the
+    bucket. Trajectory search is supported: the bucket only screens the chain
+    heads — ancestor walks follow prev_ids unrestricted.
+    """
+
+    def __init__(
+        self,
+        storage: CacheStorage,
+        *,
+        top_k: int = 1,
+        step_filter: str = "all",
+        step_window: int = 5,
+        fusion_weights: Optional[dict[str, float]] = None,
+        field_similarity: Optional[dict[str, dict[str, Any]]] = None,
+        score_normalization: Optional[dict[str, Any]] = None,
+        trajectory_depth: int = 1,
+        trajectory_weights: Optional[list[float]] = None,
+    ) -> None:
+        self._storage = storage
+        self._top_k = top_k
+        self._step_filter = step_filter
+        self._step_window = step_window
+        self._fusion_weights = fusion_weights
+        self._field_similarity = field_similarity
+        self._score_normalization = score_normalization
+        self._init_trajectory(trajectory_depth, trajectory_weights)
+
+    def search(self, ctx: SearchContext) -> list[SearchResultLite]:
+        if "prompt_emb" not in ctx.query_keys:
+            raise ValueError(
+                "text_ivf_knn requires 'prompt_emb' in query_keys — the "
+                "screening field must be an enabled key (config validation "
+                "normally guarantees this)."
+            )
+        self.record_query_keys(ctx.query_keys)
+
+        spec = QuerySpec(
+            query_keys=ctx.query_keys,
+            top_k=self._top_k,
+            checkpoint_id=ctx.checkpoint_id,
+            filters=self._build_filters(ctx),
+            fusion_weights=self._fusion_weights,
+            fusion_method="weighted_score_sum",
+            field_similarity=self._field_similarity,
+            score_normalization=self._score_normalization,
+            backend_hints={"text_ivf": True},
+            **self._build_trajectory_fields(),
+        )
+        return self._storage.search(spec)
+
+    def _build_filters(self, ctx: SearchContext) -> Optional[QueryFilter]:
+        # Deliberately NOT _build_step_filters: the bucket replaces task
+        # scoping, so task_key must stay unset even when ctx carries one.
+        if self._step_filter == "all":
+            return None
+        if self._step_filter == "exact":
+            return QueryFilter(step_range=(ctx.current_step, ctx.current_step))
+        if self._step_filter == "window":
+            lo = max(0, ctx.current_step - self._step_window)
+            return QueryFilter(step_range=(lo, ctx.current_step + self._step_window))
+        raise ValueError(f"Unknown step_filter: {self._step_filter}")
+
+    def last_step_features(self):
+        """Retrieval diagnostics read-through, mirroring WeightedScoreSumKnn."""
+        getter = getattr(self._storage, "last_step_features", None)
+        return None if getter is None else getter()
+
+
 # ---------------------------------------------------------------------------
 # Dynamic chain-depth strategy (TRACER Phase 1 / M3)
 # ---------------------------------------------------------------------------

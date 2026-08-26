@@ -250,6 +250,9 @@ def test_collected_episode_builds_a_loadable_groot_artifact(pinned_to_the_stub, 
     assert backend.artifact_meta == {
         "key_builder_type": "cp1_groot_mean_pool",
         "checkpoint_id": "CP1",
+        # text-IVF identity field: the shared builder now records the
+        # prompt-pool recipe on every artifact; this build used no masking.
+        "prompt_pool": {"masked": False, "instruction_span": False},
     }
 
 

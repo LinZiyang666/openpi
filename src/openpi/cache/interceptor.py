@@ -108,6 +108,48 @@ def _meta_guard(stage_name: str) -> Callable:
     return _fn
 
 
+def _canonical_tokenized_prompt(observation) -> Optional[np.ndarray]:
+    """Normalise both inference paths' token ids to 1-D CPU int64 (or None).
+
+    Canonical representation contract (text-IVF plan U6): the legacy path
+    carries ``Observation.tokenized_prompt`` as a ``[1, L]`` tensor on the
+    model device; the coordinator path carries an unbatched ``[L]`` CPU value
+    in the raw dict. Downstream (KeyBuilder span search) must never touch a
+    GPU tensor element-wise, so the single bounded D2H copy happens here.
+    """
+    if isinstance(observation, dict):
+        ids = observation.get("tokenized_prompt")
+    else:
+        ids = getattr(observation, "tokenized_prompt", None)
+    if ids is None:
+        return None
+    if torch.is_tensor(ids):
+        if ids.ndim == 2:
+            if ids.shape[0] != 1:
+                raise ValueError(
+                    f"tokenized_prompt batch dim must be 1, got shape {tuple(ids.shape)}"
+                )
+            ids = ids[0]
+        if ids.ndim != 1:
+            raise ValueError(
+                "tokenized_prompt must be [L] or [1, L], got shape "
+                f"{tuple(ids.shape)}"
+            )
+        return ids.detach().to("cpu", torch.long).numpy()
+    arr = np.asarray(ids)
+    if arr.ndim == 2:
+        if arr.shape[0] != 1:
+            raise ValueError(
+                f"tokenized_prompt batch dim must be 1, got shape {arr.shape}"
+            )
+        arr = arr[0]
+    if arr.ndim != 1:
+        raise ValueError(
+            f"tokenized_prompt must be [L] or [1, L], got shape {arr.shape}"
+        )
+    return arr.astype(np.int64, copy=False)
+
+
 class InferenceInterceptor(_base_policy.BasePolicy):
     """Drop-in Policy replacement that routes inference through the staged API.
 
@@ -872,7 +914,10 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
                 # CP1: check cache after Stage 1.
                 if self._orchestrator is not None:
-                    cp1_kwargs = {"stage1": stage1}
+                    cp1_kwargs = {
+                        "stage1": stage1,
+                        "tokenized_prompt": _canonical_tokenized_prompt(observation),
+                    }
                     if input_images is not None:
                         cp1_kwargs["input_images"] = input_images
                     with self._timer.measure("cp1_sum"):
@@ -1119,7 +1164,11 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
             # Post-inference cache operations.
             if self._orchestrator is not None:
-                cp3_kwargs = {"stage1": stage1, "stage3": stage3}
+                cp3_kwargs = {
+                    "stage1": stage1,
+                    "stage3": stage3,
+                    "tokenized_prompt": _canonical_tokenized_prompt(observation),
+                }
                 if input_images is not None:
                     cp3_kwargs["input_images"] = input_images
                 with self._timer.measure("cp3_sum"):

@@ -19,6 +19,15 @@ class PaligemmaTokenizer:
         with path.open("rb") as f:
             self._tokenizer = sentencepiece.SentencePieceProcessor(model_proto=f.read())
 
+    def encode_fragment(self, text: str) -> list[int]:
+        """Raw SentencePiece encoding of a text fragment (no BOS, no cleaning).
+
+        Exists to locate template boundaries (e.g. the " State:" segment of the
+        Pi05 discrete-state prompt) inside an already-tokenized prompt. Not a
+        general tokenization entry point -- use tokenize() for that.
+        """
+        return self._tokenizer.encode(text)
+
     def tokenize(self, prompt: str, state: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray]:
         cleaned_text = prompt.strip().replace("_", " ").replace("\n", " ")
         if state is not None:
