@@ -565,3 +565,4 @@ def _build_factor_outputs(
 
 from openpi.cache.components.composite_judge import CompositeJudge  # noqa: E402, F401
 from openpi.cache.components.dumping_judge import DumpingJudge      # noqa: E402, F401
+from openpi.cache.components.surface_judge import SurfaceJudge      # noqa: E402, F401

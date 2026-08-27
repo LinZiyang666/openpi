@@ -45,6 +45,14 @@ class EpisodeDataCollector:
         self._episode_attrs: dict[str, Any] = {}
         self._lock = threading.Lock()
 
+    # Identity keys persisted from ``extra_metadata`` into the episode's HDF5
+    # attrs. An allowlist, not a passthrough: free-form client metadata must
+    # not silently become schema (dispatch-surface cohort identity, G2-B4).
+    _METADATA_ATTR_ALLOWLIST = (
+        "task_id", "init_state_idx", "orig_init_state_idx",
+        "subset_init_state_idx", "split",
+    )
+
     def on_episode_start(
         self,
         experiment: str,
@@ -52,7 +60,7 @@ class EpisodeDataCollector:
         episode_id: int,
         *,
         episode_name: str = "",
-        extra_metadata: dict | None = None,  # noqa: ARG002 — accepted for keyword-call compat with cache lifecycle
+        extra_metadata: dict | None = None,
     ) -> None:
         with self._lock:
             self._buffer = []
@@ -61,6 +69,10 @@ class EpisodeDataCollector:
             self._episode_id = episode_id
             self._episode_name = episode_name
             self._episode_attrs.clear()
+            if extra_metadata:
+                for key in self._METADATA_ATTR_ALLOWLIST:
+                    if key in extra_metadata:
+                        self._episode_attrs[key] = extra_metadata[key]
         logger.info("EpisodeDataCollector: episode %d started (%s / %s)", episode_id, experiment, task)
 
     def record_inference(self, embs: InferenceEmbeddings) -> None:

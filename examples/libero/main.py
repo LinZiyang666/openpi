@@ -73,6 +73,11 @@ class Args:
 
     seed: int = 7  # Random Seed (for reproducibility)
     init_states_dir: str = ""  # Custom init states directory. Expects {task_name}.pruned_init or .init files.
+    # Dispatch-surface query-cohort plan (collect_query_cohort.py plan output).
+    # When set: only planned (task, subset-init) episodes run, and the
+    # episode_start metadata carries the full four-field identity so the
+    # server-side collector stamps it into the H5 attrs. Serial mode only.
+    cohort_plan: str = ""
     cuda_visible_devices: str = "0"  # Value assigned to CUDA_VISIBLE_DEVICES before running.
 
     #################################################################################################################
@@ -566,6 +571,16 @@ def _eval_serial(
     # Plan §19.B6: episode_filter selects which (task_id, subset_init_state_idx)
     # pairs to run and remembers their original indices for HDF5 attrs.
     filter_pairs, orig_map = _load_episode_filter(args.episode_filter)
+    # Dispatch-surface cohort plan: reuses the same filter machinery and adds
+    # the four-field identity metadata (subset + split) to episode_start.
+    cohort_map = None
+    if args.cohort_plan:
+        from examples.libero.cohort_plan import episode_filter_pairs, load_cohort_map
+
+        if args.episode_filter:
+            raise ValueError("--cohort-plan and --episode-filter are mutually exclusive")
+        cohort_map = load_cohort_map(args.cohort_plan)
+        filter_pairs, orig_map = episode_filter_pairs(cohort_map)
     per_episode_log: list[dict[str, Any]] = []
 
     total_episodes, total_successes = 0, 0
@@ -592,15 +607,23 @@ def _eval_serial(
                 if args.save_trajectory
                 else ""
             )
+            if cohort_map is not None:
+                from examples.libero.cohort_plan import cohort_extra_metadata
+
+                _extra_md = cohort_extra_metadata(
+                    cohort_map, task_id, episode_idx, orig_init_state_idx,
+                )
+            else:
+                _extra_md = {
+                    "task_id": int(task_id),
+                    "orig_init_state_idx": int(orig_init_state_idx),
+                }
             client.episode_start(
                 experiment=args.task_suite_name,
                 task=str(task_description),
                 episode_id=global_episode_id,
                 episode_name=episode_name,
-                extra_metadata={
-                    "task_id": int(task_id),
-                    "orig_init_state_idx": int(orig_init_state_idx),
-                },
+                extra_metadata=_extra_md,
             )
 
             # B1.2 per-step recorder closure: identity stays in this caller
@@ -1052,6 +1075,12 @@ def eval_libero(args: Args) -> None:
     if args.num_workers > 15:
         logging.warning("num_workers capped at 15 (MuJoCo EGL context limit per GPU). Using 15.")
         args.num_workers = 15
+    if args.cohort_plan and args.num_workers != 1:
+        raise ValueError(
+            "--cohort-plan requires serial mode (num_workers=1): cohort collection "
+            "is a single-server teacher run and the parallel path does not carry "
+            "the cohort identity metadata."
+        )
 
     # B1.2: build the per-step writer pool *before* dispatch so SIGINT inside
     # the eval path still hits the ``finally`` finalize. ``yaml_id`` is

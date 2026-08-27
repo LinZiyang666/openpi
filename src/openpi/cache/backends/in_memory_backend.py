@@ -270,8 +270,16 @@ class InMemoryBackend(VectorStoreBackend):
                 "Cannot load_artifact while search sessions are active. "
                 "Offline-only operation."
             )
+        import hashlib
         import pickle
 
+        # Content identity of the artifact file (dispatch-surface contract
+        # binding). Streamed once at load time; BackendPool loads each
+        # fingerprint exactly once, so this never repeats per connection.
+        _sha = hashlib.sha256()
+        with open(path, "rb") as f:
+            while chunk := f.read(4 * 1024 * 1024):
+                _sha.update(chunk)
         with open(path, "rb") as f:
             data = pickle.load(f)
         if data["vector_dims"] != self._dims:
@@ -320,6 +328,38 @@ class InMemoryBackend(VectorStoreBackend):
                     for k, v in p.intermediates.items()
                 }
             self._entries[entry.id] = entry
+
+        # Identity extension (dispatch-surface line): aggregate action-schema
+        # consensus and intermediates completeness over ALL loaded entries.
+        # Recorded, never asserted — legacy / mixed-CP / payloadless artifacts
+        # must keep loading; the surface assembly point consumes these fields
+        # and enforces its own requirements there.
+        schema_counts: dict[tuple, int] = {}
+        t_completeness: dict[float, int] = {}
+        n_entries = len(data["entries"])
+        for entry in data["entries"]:
+            p = entry.payload
+            dims = (
+                tuple(p.action_chunk.shape) if p.action_chunk is not None else None,
+                p.denoising_num_steps,
+            )
+            schema_counts[dims] = schema_counts.get(dims, 0) + 1
+            if p.intermediates:
+                for t in p.intermediates:
+                    t_completeness[t] = t_completeness.get(t, 0) + 1
+        consensus = max(schema_counts, key=schema_counts.get) if schema_counts else (None, None)
+        consensus_shape, consensus_num_steps = consensus
+        self.artifact_meta.update({
+            "library_sha256": _sha.hexdigest(),
+            "entry_count": n_entries,
+            "action_horizon": consensus_shape[0] if consensus_shape else None,
+            "action_dim": consensus_shape[1] if consensus_shape and len(consensus_shape) > 1 else None,
+            "denoising_num_steps": consensus_num_steps,
+            "schema_consensus_count": schema_counts.get(consensus, 0),
+            "intermediates_completeness": {
+                f"{t:.4f}": count / n_entries for t, count in sorted(t_completeness.items())
+            } if n_entries else {},
+        })
         logger.info("Loaded %d entries from %s", len(data["entries"]), path)
 
         # Text-IVF: build the bucket index eagerly so a polluted / mismatched

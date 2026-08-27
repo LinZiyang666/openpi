@@ -289,6 +289,11 @@ class JudgeConfig:
     # Only for type="always_warm_start". Must round to one of
     # openpi.cache.types.CANONICAL_DENOISE_TIMESTEPS ({0.1..0.9}).
     start_t: float | None = None
+    # Only for type="dispatch_surface": NPZ surface artifact carrying the
+    # calibrated boundaries plus the retrieval_contract this yaml must match.
+    # k / W / delta / boundaries all live in the artifact — a single pointer
+    # here keeps YAML and artifact from drifting apart.
+    surface_artifact_path: Optional[str] = None
     # ── 4-layer composite judge fields (only when type="composite") ──
     # Layer 1 / Layer 2 / Layer 3 / Layer 4. All four MUST be present
     # for type="composite"; the legacy ``normalizer`` + ``all_nan_fallback``
@@ -667,7 +672,45 @@ _VALID_STEP_FILTERS = frozenset({"all", "exact", "window"})
 # _build_judge) stay in lockstep; otherwise a missing entry silently downgrades
 # to a "Unknown ... type" error at build time despite passing validation.
 _GATE_TYPES = frozenset({"always_search", "always_skip", "client_controlled", "random", "periodic", "score_hysteresis", "follow_winner"})
-_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start", "composite", "failure_aware_gate", "mlp_router", "risk_router"})
+_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start", "composite", "failure_aware_gate", "mlp_router", "risk_router", "dispatch_surface"})
+
+
+def compute_surface_retrieval_contract(config: "CacheConfig") -> dict:
+    """Yaml-side half of the dispatch-surface retrieval contract.
+
+    Canonical digests over the FULL config sections that can change the fused
+    score s or the candidate set: the whole ``key_builder`` section (type +
+    every knob) and the whole (``keys``, ``checkpoints.cp1.search_strategy``)
+    pair (enabled fields, weights, per-field similarity, fusion type,
+    step filter/window, trajectory settings, complete score normalization).
+    Digesting entire dataclasses instead of hand-picked fields means any new
+    score-affecting knob invalidates old certificates — the conservative
+    failure direction.
+
+    The pipeline that fits a surface fills in the remaining contract fields
+    (library sha / entry count, action schema, h_exec, policy_fingerprint);
+    this function only defines the fields comparable at yaml level plus the
+    configured ``top_k``.
+    """
+    import dataclasses as _dc
+    import hashlib as _hashlib
+    import json as _json
+
+    def _digest(obj) -> str:
+        payload = _json.dumps(obj, sort_keys=True, default=str)
+        return _hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+    cp1 = config.checkpoints.get("cp1")
+    if cp1 is None:
+        raise ConfigValidationError("dispatch_surface contract requires a cp1 checkpoint")
+    return {
+        "key_builder_digest": _digest(_dc.asdict(config.key_builder)),
+        "search_digest": _digest({
+            "keys": _dc.asdict(config.keys),
+            "search_strategy": _dc.asdict(cp1.search_strategy),
+        }),
+        "top_k": cp1.search_strategy.top_k,
+    }
 
 
 def _keys_iter(keys: KeysConfig) -> Iterator[tuple[str, KeyFieldConfig]]:
@@ -2508,6 +2551,70 @@ def validate_cache_config(config: CacheConfig) -> None:
                 )
             tier["start_t"] = st
 
+    # ── dispatch_surface validation (yaml level) ──
+    for cp_name, cp_config in config.checkpoints.items():
+        if cp_name.startswith("_"):
+            continue
+        prefix = f"checkpoints.{cp_name}"
+        if cp_config.judge.type != "dispatch_surface":
+            continue
+
+        if cp_name != "cp1":
+            errors.append(
+                f"{prefix}.judge: dispatch_surface is only supported on CP1"
+            )
+        if cp_config.judge.warm_tiers or cp_config.judge.start_t is not None:
+            errors.append(
+                f"{prefix}.judge: dispatch_surface carries its tiers inside the "
+                "artifact; warm_tiers / start_t must not be set"
+            )
+        if any((
+            cp_config.judge.normalization, cp_config.judge.factors,
+            cp_config.judge.calibration, cp_config.judge.composer,
+        )):
+            errors.append(
+                f"{prefix}.judge: dispatch_surface cannot combine composite-judge fields"
+            )
+        # A surface certificate binds to one frozen library and a read-only run.
+        if config.backend.type != "in_memory" or not config.backend.in_memory.preload_path:
+            errors.append(
+                f"{prefix}.judge: dispatch_surface requires backend.type=in_memory "
+                "with a non-empty preload_path (frozen library)"
+            )
+        if config.write_policy.type != "never":
+            errors.append(
+                f"{prefix}.judge: dispatch_surface requires write_policy.type=never"
+            )
+
+        path = cp_config.judge.surface_artifact_path
+        if not path:
+            errors.append(
+                f"{prefix}.judge: dispatch_surface requires surface_artifact_path"
+            )
+        elif not os.path.isfile(path):
+            errors.append(
+                f"{prefix}.judge.surface_artifact_path does not exist: {path}"
+            )
+        else:
+            try:
+                from openpi.cache.components.surface_judge import load_surface_artifact
+
+                artifact = load_surface_artifact(path)
+            except Exception as exc:  # noqa: BLE001 — collected into errors
+                errors.append(
+                    f"{prefix}.judge.surface_artifact_path failed to load/validate: {exc}"
+                )
+            else:
+                expected = compute_surface_retrieval_contract(config)
+                contract = artifact.retrieval_contract
+                for contract_field in ("key_builder_digest", "search_digest"):
+                    if contract.get(contract_field) != expected[contract_field]:
+                        errors.append(
+                            f"{prefix}.judge: surface artifact {contract_field} does not "
+                            "match this yaml's retrieval configuration — the certificate "
+                            "was calibrated for a different retrieval space"
+                        )
+
     # ── Write policy validation ──
     _valid_write_policy_types = frozenset({"on_any_miss", "always", "never"})
     if config.write_policy.type not in _valid_write_policy_types:
@@ -2782,6 +2889,69 @@ def build_cache_components(config: CacheConfig) -> dict[str, Any]:
 
 
 
+def _check_surface_library_binding(cp_name, judge, storage, *, effective_top_k: int) -> None:
+    """Library-level contract check for a dispatch_surface judge.
+
+    Compares the surface artifact's contract against the identity of the
+    library the backend actually loaded (sha256 / entry count / action schema)
+    and enforces the surface-conditional schema requirements that the generic
+    loader deliberately only records: schema consensus must be unanimous, the
+    deployed warm tier t=0.3 must be complete, h_exec must fit the horizon and
+    the assembled search width must cover the artifact's k.
+    """
+    artifact = getattr(judge, "artifact", None)
+    if artifact is None:
+        # Dump-wrapped surface judge: unwrap one level.
+        artifact = getattr(getattr(judge, "_inner", None), "artifact", None)
+    if artifact is None:
+        raise ConfigValidationError(
+            f"checkpoints.{cp_name}: dispatch_surface judge exposes no artifact"
+        )
+    meta = storage.artifact_meta
+    if not meta or meta.get("library_sha256") is None:
+        raise ConfigValidationError(
+            f"checkpoints.{cp_name}: dispatch_surface requires a preloaded library "
+            "with identity metadata (library_sha256); backend reported none"
+        )
+    contract = artifact.retrieval_contract
+    for contract_field, meta_field in (
+        ("library_sha256", "library_sha256"),
+        ("library_entry_count", "entry_count"),
+        ("action_dim", "action_dim"),
+        ("num_steps", "denoising_num_steps"),
+    ):
+        if contract.get(contract_field) != meta.get(meta_field):
+            raise ConfigValidationError(
+                f"checkpoints.{cp_name}: surface contract {contract_field}="
+                f"{contract.get(contract_field)!r} does not match loaded library "
+                f"{meta_field}={meta.get(meta_field)!r}"
+            )
+    if meta.get("schema_consensus_count") != meta.get("entry_count"):
+        raise ConfigValidationError(
+            f"checkpoints.{cp_name}: library has heterogeneous action schema "
+            f"({meta.get('schema_consensus_count')}/{meta.get('entry_count')} consensus); "
+            "dispatch_surface requires a uniform library"
+        )
+    horizon = meta.get("action_horizon")
+    if horizon is None or artifact.h_exec > horizon:
+        raise ConfigValidationError(
+            f"checkpoints.{cp_name}: artifact h_exec={artifact.h_exec} exceeds "
+            f"library action_horizon={horizon}"
+        )
+    ws_key = f"{artifact.start_t_ws:.4f}"
+    completeness = (meta.get("intermediates_completeness") or {}).get(ws_key, 0.0)
+    if completeness < 1.0:
+        raise ConfigValidationError(
+            f"checkpoints.{cp_name}: warm tier t={ws_key} completeness is "
+            f"{completeness:.4f}; dispatch_surface requires 100% coverage"
+        )
+    if artifact.uses_disagreement and effective_top_k < artifact.k:
+        raise ConfigValidationError(
+            f"checkpoints.{cp_name}: effective top_k={effective_top_k} < artifact "
+            f"k={artifact.k}; the min_required_top_k hint failed to lift the width"
+        )
+
+
 def build_per_connection_components(
     config: CacheConfig,
     shared_storage,
@@ -2860,6 +3030,18 @@ def build_per_connection_components(
             fusion_weights,
             min_top_k_hint=min_top_k_hint,
         )
+        # Dispatch-surface library-level contract binding: the loaded backend
+        # must be byte-identical to the library the surface was fitted on, and
+        # the assembled search width must cover the artifact's k. Yaml-level
+        # digests were already checked in validate_cache_config; this is the
+        # half that needs the storage in hand.
+        if cp_config.judge.type == "dispatch_surface":
+            _check_surface_library_binding(
+                cp_name,
+                judges[cp_id],
+                per_conn_storage,
+                effective_top_k=max(cp_config.search_strategy.top_k, min_top_k_hint),
+            )
 
     # WarmupPool preload (verdict_factor_judge B2). The judge tree is fully
     # built (CompositeJudge.__init__ calls bind_keys), so the normalizer's
@@ -3227,6 +3409,13 @@ def _build_inner_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optiona
         from openpi.cache.components.judge import AlwaysWarmStartJudge
 
         return AlwaysWarmStartJudge(cfg.start_t)
+    elif cfg.type == "dispatch_surface":
+        from openpi.cache.components.surface_judge import SurfaceJudge
+
+        return SurfaceJudge(
+            cfg.surface_artifact_path,
+            export_factor_outputs=cfg.export_factor_outputs,
+        )
     elif cfg.type == "composite":
         # B0 ships the composite branch but `_JUDGE_TYPES` excludes the
         # name, so `validate_cache_config` rejects composite YAML before

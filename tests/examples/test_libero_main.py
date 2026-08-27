@@ -83,11 +83,12 @@ def test_eval_paths_use_shared_episode_id_helper_source() -> None:
     regression (serial path using a monotonic counter) is exactly what this
     lock prevents."""
     src = Path(libero_main.__file__).read_text()
-    # Exactly two call sites expected: one in ``_eval_serial``, one in
-    # ``_eval_concurrent``. A drift back to ``global_episode_id += 1`` or an
-    # inline ``task_id * args.num_trials_per_task + episode_idx`` would break
-    # this assertion.
-    assert src.count("_compute_global_episode_id(") >= 3  # def + 2 callsites
+    # The helper now lives in ``collect_util`` and main.py re-imports it under
+    # the historical private name; the lock therefore asserts the shared
+    # import PLUS the two call sites (serial + concurrent). A drift back to
+    # ``global_episode_id += 1`` or an inline formula would break this.
+    assert "from examples.libero.collect_util import compute_global_episode_id" in src
+    assert src.count("_compute_global_episode_id(") >= 2  # serial + concurrent callsites
     assert "global_episode_id += 1" not in src, (
         "serial path must NOT increment a monotonic counter (plan §4 / §19.B6)"
     )

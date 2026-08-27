@@ -266,11 +266,14 @@ def test_real_legacy_pickle_reads_back_as_a_dict_of_nones(tmp_path):
     dims = _write_artifact(path, identity=False)
     storage = _wrap(_loaded_backend(path, dims))
 
-    assert storage.artifact_meta == {
-        "key_builder_type": None,
-        "checkpoint_id": None,
-        "prompt_pool": None,  # text-IVF identity field; legacy pickles read back None
-    }
+    # Builder identity reads back as None for a legacy pickle. The meta dict
+    # also carries the content-identity fields (library_sha256, entry_count,
+    # action schema, intermediates completeness) added by the dispatch-surface
+    # line — those are computed from the file at load time, so subset-compare
+    # the builder-identity keys instead of demanding dict equality.
+    for key in ("key_builder_type", "checkpoint_id", "prompt_pool"):
+        assert storage.artifact_meta[key] is None
+    assert "library_sha256" in storage.artifact_meta
     with pytest.raises(ConfigValidationError, match="predates identity recording"):
         validate_artifact_identity(storage, _config())
 

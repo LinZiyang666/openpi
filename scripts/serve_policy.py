@@ -245,7 +245,24 @@ def _get_stage_device_config(args: Args) -> StageDeviceConfig:
     )
 
 
-def create_policy(args: Args) -> _policy.Policy:
+def _resolve_effective_policy_spec(args: Args) -> Checkpoint:
+    """Map ``Default`` / explicit ``Checkpoint`` to one canonical Checkpoint.
+
+    The single resolution point for the policy-attestation seam: the resolved
+    spec is handed to BOTH policy creation and fingerprint computation, so the
+    reported identity can never drift from the loaded checkpoint.
+    """
+    match args.policy:
+        case Checkpoint():
+            return args.policy
+        case Default():
+            if checkpoint := DEFAULT_CHECKPOINT.get(args.env):
+                return checkpoint
+            raise ValueError(f"Unsupported environment mode: {args.env}")
+    raise TypeError(f"Unsupported policy spec: {args.policy!r}")
+
+
+def create_policy(args: Args, *, resolved: Checkpoint | None = None) -> _policy.Policy:
     """Create a policy with optional per-stage device placement.
 
     Three-layer loading path:
@@ -279,20 +296,15 @@ def create_policy(args: Args) -> _policy.Policy:
     else:
         pytorch_device = None  # legacy default
 
-    match args.policy:
-        case Checkpoint():
-            policy = _policy_config.create_trained_policy(
-                _disable_compile_for_serving(_config.get_config(args.policy.config)),
-                args.policy.dir,
-                default_prompt=args.default_prompt,
-                pytorch_device=pytorch_device,
-            )
-        case Default():
-            policy = create_default_policy(
-                args.env,
-                default_prompt=args.default_prompt,
-                pytorch_device=pytorch_device,
-            )
+    # Attestation seam: when the caller passes the resolved spec, both loading
+    # and fingerprinting consume that single resolution (no second lookup).
+    spec = resolved if resolved is not None else _resolve_effective_policy_spec(args)
+    policy = _policy_config.create_trained_policy(
+        _disable_compile_for_serving(_config.get_config(spec.config)),
+        spec.dir,
+        default_prompt=args.default_prompt,
+        pytorch_device=pytorch_device,
+    )
 
     if stage_config.needs_relocation:
         relocate_model_stages(policy._model, stage_config)  # noqa: SLF001
@@ -832,8 +844,63 @@ def _serve_single(args: Args, ready_callback=None, bind_host: str = "0.0.0.0") -
     _configure_torchinductor_cache_dir()
     _setup_warmup_dump_root(args.warmup_dump_root)
     stage_config = _get_stage_device_config(args)
-    base_policy = create_policy(args)
-    policy_metadata = base_policy.metadata
+    resolved_spec = _resolve_effective_policy_spec(args)
+    base_policy = create_policy(args, resolved=resolved_spec)
+
+    # Policy attestation (dispatch-surface line): report the content-level
+    # identity of the checkpoint this process actually loaded, plus the
+    # effective monitor level, so runners can bind artifacts to reality
+    # instead of trusting operator-supplied strings. Computed once per process.
+    from openpi.serving import monitor as _monitor
+    from openpi.serving import policy_identity as _policy_identity
+
+    import torch as _torch
+
+    _ckpt_root = _policy_identity.resolve_checkpoint_root(resolved_spec.dir)
+    _cuda = _torch.cuda.is_available()
+    _gpu_event_probes = _monitor.get_monitor_level() >= _monitor.MonitorLevel.SNAPSHOT
+
+    def _probe_backend(device: str | None) -> str:
+        # Mirrors the SystemTimer registration reality: a CUDA-event probe is
+        # only real when the stage actually runs on a CUDA device AND CUDA is
+        # available; explicit cpu/meta stages register perf_counter probes.
+        if device is None:
+            return "absent"
+        if str(device) == "meta":
+            return "absent"
+        if not _cuda or not _gpu_event_probes:
+            return "cpu"
+        return "cuda" if str(device).startswith("cuda") else "cpu"
+
+    # Mirror InferenceInterceptor's normalization exactly: legacy ``None``
+    # overrides fall back to the LOADED policy's actual pytorch device.  The
+    # former metadata treated every None as CUDA merely because CUDA was
+    # visible, which was false for an explicitly CPU-loaded policy.
+    _base_device = getattr(base_policy, "_pytorch_device", None)
+    if stage_config.is_legacy_default:
+        _stage_devices = {name: _base_device for name in ("stage1", "stage2", "stage3")}
+    else:
+        _stage_devices = {
+            "stage1": stage_config.stage1, "stage2": stage_config.stage2,
+            "stage3": stage_config.stage3,
+        }
+    policy_metadata = {
+        **base_policy.metadata,
+        "policy_fingerprint": _policy_identity.compute_policy_fingerprint(
+            str(_ckpt_root), resolved_spec.config
+        ),
+        "monitor_level": _monitor.get_monitor_level().name,
+        # Probe-backend attestation (dispatch-surface cost bench): report the
+        # EFFECTIVE per-stage device and the timing backend each stage probe
+        # actually registers, so a cost runner can refuse CPU wall time being
+        # adjudicated as GPU compute — `cuda_available` alone cannot tell an
+        # explicit-CPU-stage config apart from a CUDA one.
+        "cuda_available": _cuda,
+        "gpu_name": _torch.cuda.get_device_name(0) if _cuda else None,
+        "stage_devices": {k: (str(v) if v is not None else None)
+                          for k, v in _stage_devices.items()},
+        "stage_probe_backends": {k: _probe_backend(v) for k, v in _stage_devices.items()},
+    }
 
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
