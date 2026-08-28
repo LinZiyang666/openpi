@@ -1,0 +1,149 @@
+# full-matrix JOINT effect (library growth + text-IVF together; 132 cells, 104 paired episodes/cell)
+cid, macro_ws1, macro_ws2, delta, p_paired
+grid3_vision_0@12_vision_1@12_robot_state@75, 0.173, 0.231, +0.058, 0.2896
+grid3_vision_0@12_vision_1@25_robot_state@62, 0.154, 0.260, +0.106, 0.0128
+grid3_vision_0@12_vision_1@37_robot_state@50, 0.163, 0.298, +0.135, 0.0054
+grid3_vision_0@12_vision_1@50_robot_state@37, 0.173, 0.269, +0.096, 0.0545
+grid3_vision_0@12_vision_2@12_robot_state@75, 0.192, 0.327, +0.135, 0.0044
+grid3_vision_0@12_vision_2@25_robot_state@62, 0.231, 0.269, +0.038, 0.5248
+grid3_vision_0@12_vision_2@37_robot_state@50, 0.192, 0.385, +0.192, 0.0000
+grid3_vision_0@12_vision_2@50_robot_state@37, 0.221, 0.356, +0.135, 0.0013
+grid3_vision_0@25_vision_1@12_robot_state@62, 0.154, 0.298, +0.144, 0.0058
+grid3_vision_0@25_vision_1@25_robot_state@50, 0.135, 0.269, +0.135, 0.0048
+grid3_vision_0@25_vision_1@37_robot_state@37, 0.135, 0.279, +0.144, 0.0019
+grid3_vision_0@25_vision_2@12_robot_state@62, 0.163, 0.337, +0.173, 0.0004
+grid3_vision_0@25_vision_2@25_robot_state@50, 0.192, 0.298, +0.106, 0.0258
+grid3_vision_0@25_vision_2@37_robot_state@37, 0.212, 0.346, +0.135, 0.0024
+grid3_vision_0@37_vision_1@12_robot_state@50, 0.115, 0.327, +0.212, 0.0001
+grid3_vision_0@37_vision_1@25_robot_state@37, 0.125, 0.250, +0.125, 0.0129
+grid3_vision_0@37_vision_2@12_robot_state@50, 0.173, 0.375, +0.202, 0.0002
+grid3_vision_0@37_vision_2@25_robot_state@37, 0.212, 0.327, +0.115, 0.0221
+grid3_vision_0@50_vision_1@12_robot_state@37, 0.183, 0.327, +0.144, 0.0062
+grid3_vision_0@50_vision_2@12_robot_state@37, 0.173, 0.308, +0.135, 0.0092
+grid3_vision_1@12_vision_2@12_robot_state@75, 0.173, 0.279, +0.106, 0.0193
+grid3_vision_1@12_vision_2@25_robot_state@62, 0.212, 0.288, +0.077, 0.1374
+grid3_vision_1@12_vision_2@37_robot_state@50, 0.202, 0.317, +0.115, 0.0044
+grid3_vision_1@12_vision_2@50_robot_state@37, 0.202, 0.298, +0.096, 0.0217
+grid3_vision_1@25_vision_2@12_robot_state@62, 0.163, 0.337, +0.173, 0.0001
+grid3_vision_1@25_vision_2@25_robot_state@50, 0.202, 0.317, +0.115, 0.0045
+grid3_vision_1@25_vision_2@37_robot_state@37, 0.231, 0.279, +0.048, 0.4045
+grid3_vision_1@37_vision_2@12_robot_state@50, 0.173, 0.337, +0.163, 0.0003
+grid3_vision_1@37_vision_2@25_robot_state@37, 0.260, 0.327, +0.067, 0.2339
+grid3_vision_1@50_vision_2@12_robot_state@37, 0.183, 0.308, +0.125, 0.0014
+grid3v_vision_0@12_vision_1@12_vision_2@75, 0.163, 0.163, +0.000, 1.0000
+grid3v_vision_0@12_vision_1@25_vision_2@62, 0.087, 0.260, +0.173, 0.0003
+grid3v_vision_0@12_vision_1@37_vision_2@50, 0.173, 0.308, +0.135, 0.0207
+grid3v_vision_0@12_vision_1@50_vision_2@37, 0.135, 0.298, +0.163, 0.0048
+grid3v_vision_0@12_vision_1@62_vision_2@25, 0.144, 0.288, +0.144, 0.0030
+grid3v_vision_0@12_vision_1@75_vision_2@12, 0.125, 0.240, +0.115, 0.0283
+grid3v_vision_0@25_vision_1@12_vision_2@62, 0.154, 0.240, +0.087, 0.1633
+grid3v_vision_0@25_vision_1@25_vision_2@50, 0.115, 0.250, +0.135, 0.0089
+grid3v_vision_0@25_vision_1@37_vision_2@37, 0.125, 0.356, +0.231, 0.0000
+grid3v_vision_0@25_vision_1@50_vision_2@25, 0.144, 0.250, +0.106, 0.0075
+grid3v_vision_0@25_vision_1@62_vision_2@12, 0.106, 0.221, +0.115, 0.0122
+grid3v_vision_0@37_vision_1@12_vision_2@50, 0.163, 0.327, +0.163, 0.0008
+grid3v_vision_0@37_vision_1@25_vision_2@37, 0.173, 0.317, +0.144, 0.0059
+grid3v_vision_0@37_vision_1@37_vision_2@25, 0.106, 0.240, +0.135, 0.0042
+grid3v_vision_0@37_vision_1@50_vision_2@12, 0.125, 0.288, +0.163, 0.0021
+grid3v_vision_0@50_vision_1@12_vision_2@37, 0.163, 0.240, +0.077, 0.1337
+grid3v_vision_0@50_vision_1@25_vision_2@25, 0.144, 0.221, +0.077, 0.1159
+grid3v_vision_0@50_vision_1@37_vision_2@12, 0.125, 0.279, +0.154, 0.0016
+grid3v_vision_0@62_vision_1@12_vision_2@25, 0.183, 0.308, +0.125, 0.0302
+grid3v_vision_0@62_vision_1@25_vision_2@12, 0.154, 0.231, +0.077, 0.1511
+grid3v_vision_0@75_vision_1@12_vision_2@12, 0.135, 0.250, +0.115, 0.0285
+grid4_vision_0@12_vision_1@12_vision_2@12_robot_state@62, 0.183, 0.337, +0.154, 0.0004
+grid4_vision_0@12_vision_1@12_vision_2@25_robot_state@50, 0.192, 0.317, +0.125, 0.0097
+grid4_vision_0@12_vision_1@12_vision_2@37_robot_state@37, 0.212, 0.269, +0.058, 0.2827
+grid4_vision_0@12_vision_1@12_vision_2@50_robot_state@25, 0.212, 0.317, +0.106, 0.0429
+grid4_vision_0@12_vision_1@12_vision_2@62_robot_state@12, 0.183, 0.327, +0.144, 0.0058
+grid4_vision_0@12_vision_1@25_vision_2@12_robot_state@50, 0.173, 0.375, +0.202, 0.0000
+grid4_vision_0@12_vision_1@25_vision_2@25_robot_state@37, 0.212, 0.288, +0.077, 0.0940
+grid4_vision_0@12_vision_1@25_vision_2@37_robot_state@25, 0.192, 0.288, +0.096, 0.0519
+grid4_vision_0@12_vision_1@25_vision_2@50_robot_state@12, 0.212, 0.317, +0.106, 0.0532
+grid4_vision_0@12_vision_1@37_vision_2@12_robot_state@37, 0.192, 0.298, +0.106, 0.0513
+grid4_vision_0@12_vision_1@37_vision_2@25_robot_state@25, 0.202, 0.317, +0.115, 0.0217
+grid4_vision_0@12_vision_1@37_vision_2@37_robot_state@12, 0.173, 0.298, +0.125, 0.0233
+grid4_vision_0@12_vision_1@50_vision_2@12_robot_state@25, 0.154, 0.288, +0.135, 0.0028
+grid4_vision_0@12_vision_1@50_vision_2@25_robot_state@12, 0.163, 0.317, +0.154, 0.0045
+grid4_vision_0@12_vision_1@62_vision_2@12_robot_state@12, 0.192, 0.288, +0.096, 0.0415
+grid4_vision_0@25_vision_1@12_vision_2@12_robot_state@50, 0.163, 0.337, +0.173, 0.0000
+grid4_vision_0@25_vision_1@12_vision_2@25_robot_state@37, 0.192, 0.279, +0.087, 0.0764
+grid4_vision_0@25_vision_1@12_vision_2@37_robot_state@25, 0.202, 0.288, +0.087, 0.1096
+grid4_vision_0@25_vision_1@12_vision_2@50_robot_state@12, 0.163, 0.308, +0.144, 0.0079
+grid4_vision_0@25_vision_1@25_vision_2@12_robot_state@37, 0.144, 0.346, +0.202, 0.0004
+grid4_vision_0@25_vision_1@25_vision_2@25_robot_state@25, 0.183, 0.317, +0.135, 0.0049
+grid4_vision_0@25_vision_1@25_vision_2@37_robot_state@12, 0.192, 0.298, +0.106, 0.0431
+grid4_vision_0@25_vision_1@37_vision_2@12_robot_state@25, 0.154, 0.308, +0.154, 0.0014
+grid4_vision_0@25_vision_1@37_vision_2@25_robot_state@12, 0.192, 0.250, +0.058, 0.2814
+grid4_vision_0@25_vision_1@50_vision_2@12_robot_state@12, 0.173, 0.298, +0.125, 0.0143
+grid4_vision_0@37_vision_1@12_vision_2@12_robot_state@37, 0.173, 0.365, +0.192, 0.0001
+grid4_vision_0@37_vision_1@12_vision_2@25_robot_state@25, 0.154, 0.298, +0.144, 0.0040
+grid4_vision_0@37_vision_1@12_vision_2@37_robot_state@12, 0.202, 0.240, +0.038, 0.5409
+grid4_vision_0@37_vision_1@25_vision_2@12_robot_state@25, 0.115, 0.356, +0.240, 0.0000
+grid4_vision_0@37_vision_1@25_vision_2@25_robot_state@12, 0.212, 0.288, +0.077, 0.1509
+grid4_vision_0@37_vision_1@37_vision_2@12_robot_state@12, 0.192, 0.269, +0.077, 0.1825
+grid4_vision_0@50_vision_1@12_vision_2@12_robot_state@25, 0.135, 0.337, +0.202, 0.0001
+grid4_vision_0@50_vision_1@12_vision_2@25_robot_state@12, 0.183, 0.260, +0.077, 0.1701
+grid4_vision_0@50_vision_1@25_vision_2@12_robot_state@12, 0.154, 0.288, +0.135, 0.0024
+grid4_vision_0@62_vision_1@12_vision_2@12_robot_state@12, 0.135, 0.288, +0.154, 0.0054
+grid_vision_0@12_robot_state@87, 0.135, 0.269, +0.135, 0.0045
+grid_vision_0@12_vision_1@87, 0.019, 0.135, +0.115, 0.0014
+grid_vision_0@12_vision_2@87, 0.163, 0.231, +0.067, 0.2102
+grid_vision_0@25_robot_state@75, 0.154, 0.317, +0.163, 0.0012
+grid_vision_0@25_vision_1@75, 0.048, 0.163, +0.115, 0.0127
+grid_vision_0@25_vision_2@75, 0.183, 0.212, +0.029, 0.7111
+grid_vision_0@37_robot_state@62, 0.154, 0.308, +0.154, 0.0006
+grid_vision_0@37_vision_1@62, 0.038, 0.125, +0.087, 0.0351
+grid_vision_0@37_vision_2@62, 0.144, 0.317, +0.173, 0.0003
+grid_vision_0@50_robot_state@50, 0.144, 0.317, +0.173, 0.0004
+grid_vision_0@50_vision_1@50, 0.029, 0.115, +0.087, 0.0116
+grid_vision_0@50_vision_2@50, 0.173, 0.356, +0.183, 0.0003
+grid_vision_0@62_robot_state@37, 0.163, 0.317, +0.154, 0.0016
+grid_vision_0@62_vision_1@37, 0.029, 0.125, +0.096, 0.0227
+grid_vision_0@62_vision_2@37, 0.115, 0.240, +0.125, 0.0042
+grid_vision_0@75_robot_state@25, 0.096, 0.231, +0.135, 0.0047
+grid_vision_0@75_vision_1@25, 0.067, 0.125, +0.058, 0.1804
+grid_vision_0@75_vision_2@25, 0.144, 0.240, +0.096, 0.0219
+grid_vision_0@87_robot_state@12, 0.115, 0.240, +0.125, 0.0105
+grid_vision_0@87_vision_1@12, 0.048, 0.135, +0.087, 0.0214
+grid_vision_0@87_vision_2@12, 0.144, 0.183, +0.038, 0.5072
+grid_vision_1@12_robot_state@87, 0.154, 0.279, +0.125, 0.0136
+grid_vision_1@12_vision_2@87, 0.125, 0.250, +0.125, 0.0075
+grid_vision_1@25_robot_state@75, 0.163, 0.308, +0.144, 0.0029
+grid_vision_1@25_vision_2@75, 0.163, 0.231, +0.067, 0.2338
+grid_vision_1@37_robot_state@62, 0.135, 0.356, +0.221, 0.0000
+grid_vision_1@37_vision_2@62, 0.135, 0.250, +0.115, 0.0174
+grid_vision_1@50_robot_state@50, 0.144, 0.288, +0.144, 0.0029
+grid_vision_1@50_vision_2@50, 0.144, 0.250, +0.106, 0.0448
+grid_vision_1@62_robot_state@37, 0.115, 0.279, +0.163, 0.0003
+grid_vision_1@62_vision_2@37, 0.106, 0.231, +0.125, 0.0204
+grid_vision_1@75_robot_state@25, 0.192, 0.221, +0.029, 0.6778
+grid_vision_1@75_vision_2@25, 0.115, 0.260, +0.144, 0.0041
+grid_vision_1@87_robot_state@12, 0.125, 0.298, +0.173, 0.0005
+grid_vision_1@87_vision_2@12, 0.096, 0.260, +0.163, 0.0017
+grid_vision_2@12_robot_state@87, 0.183, 0.288, +0.106, 0.0266
+grid_vision_2@25_robot_state@75, 0.231, 0.327, +0.096, 0.0535
+grid_vision_2@37_robot_state@62, 0.221, 0.269, +0.048, 0.3578
+grid_vision_2@50_robot_state@50, 0.212, 0.288, +0.077, 0.0568
+grid_vision_2@62_robot_state@37, 0.221, 0.375, +0.154, 0.0002
+grid_vision_2@75_robot_state@25, 0.231, 0.298, +0.067, 0.1650
+grid_vision_2@87_robot_state@12, 0.269, 0.279, +0.010, 1.0000
+iso_robot_state, 0.144, 0.212, +0.067, 0.1863
+iso_vision_0, 0.019, 0.096, +0.077, 0.0074
+iso_vision_1, 0.019, 0.077, +0.058, 0.0685
+iso_vision_2, 0.202, 0.279, +0.077, 0.1179
+
+# per-task joint effect (mean SR over shared cells; PickPlace revival readout)
+CloseBlenderLid, 0.071, 0.115, +0.044
+CloseFridge, 0.475, 0.737, +0.261
+CoffeeSetupMug, 0.041, 0.046, +0.006
+OpenCabinet, 0.055, 0.416, +0.361
+OpenDrawer, 0.426, 0.602, +0.176
+OpenStandMixerHead, 0.455, 0.683, +0.227
+PickPlaceCounterToCabinet, 0.016, 0.000, -0.016
+PickPlaceCounterToStove, 0.012, 0.031, +0.019
+PickPlaceDrawerToCounter, 0.017, 0.066, +0.049
+PickPlaceSinkToCounter, 0.011, 0.006, -0.006
+PickPlaceToasterToCounter, 0.145, 0.228, +0.083
+SlideDishwasherRack, 0.119, 0.372, +0.253
+TurnOnSinkFaucet, 0.208, 0.313, +0.105

@@ -1,0 +1,23 @@
+# ws2 Stage-0 — capacity probe
+# run: 2026-08-26T20:57:40Z
+
+## serving pool: 6 x serve_groot_n15 --concurrent --allow-dynamic-bundles (:23160-65)
+  each passed the preflight gate (port/tmux free, RAM floor, VRAM triple-read, >=44C)
+  resident after six: RAM 67G free, VRAM 11.8G free, 55C
+  per-server: ~22.3G RSS, ~6G VRAM
+
+## worker throughput (measured, 200s window)
+  6 workers on ONE server: 126 ep/h  => 21 ep/h per worker
+  worker VRAM (evict-1):   1.3-2.4 GiB each (round-1 feared 3.5-4G with unbounded env cache)
+
+## sizing for the 132-cell main arm (13,728 episodes)
+  16 workers  ~336 ep/h  ~41h
+  32 workers  ~672 ep/h  ~20h   <- target
+  NOTE: worker affinity binds a fleet to ONE server, so 6 servers need 6 fleets.
+
+## worker hosts admitted
+  timan107: 8x8G GPUs, 48 cores, load 1.8 idle. 2 workers/GPU keeps >=3.3G free -> 16 max
+  timan1:   4xA6000, 48 cores, SHARED and busy (others at 99-100% util, load 22).
+            GPU1/2/3 have ~44G free each; CPU is the binding constraint here.
+            Verified on-island: Ws2EpisodeRunner builds, EGL 512x512 render OK.
+  weilandserver: serving; not used for sim (11.8G VRAM left).

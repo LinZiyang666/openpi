@@ -5,16 +5,20 @@ ws2 servers stay up for a whole phase (bundle hot-swap over the wire), so
 orchestration collapses to a handful of idempotent operations, each a
 subcommand:
 
-- ``servers-up``    serially start N ``serve_groot_n15 --concurrent
-                    --allow-dynamic-bundles`` tmux sessions on the serving
-                    host, gating each on (a) free RAM, (b) a fresh log showing
-                    THIS bootstrap yaml path, and (c) the real
+- ``servers-up``    serially start N dynamic-bundle server tmux sessions on the
+                    serving host — the entry point, interpreter and checkpoint
+                    come from ``--teacher`` (``TEACHERS``) — gating each on
+                    (a) free RAM, (b) free VRAM against that teacher's measured
+                    per-server need, (c) a fresh log showing THIS bootstrap
+                    yaml path, and (d) the real
                     ``INFO:websockets.server:server listening`` line — the CLI
                     banner prints before bind and is not trusted (round-1
-                    lesson).
+                    lesson). Both teachers emit that line: they share
+                    ``WebsocketPolicyServer``, which raises the
+                    ``websockets.server`` logger to INFO.
 - ``servers-down``  kill only OUR tmux sessions and any serve process whose
-                    /proc cmdline carries our serving repo + port (PID-anchored;
-                    no broad pkill on a shared host).
+                    /proc cmdline carries the teacher's entry point + one of
+                    our ports (PID-anchored; no broad pkill on a shared host).
 - ``driver-up``     launch ``run_ws_search2 --role driver`` in tmux on the
                     serving host.
 - ``agents-up``     launch worker agents (``--role agent``) on a worker host,
@@ -45,13 +49,88 @@ import time
 SERVE_DEFAULTS = {
     "node": "weilandserver",
     "repo": "/data/openpi_text_ivf_build",
-    "python": "/home/weiland/gr00t_n15_venv/.venv/bin/python",
-    "pythonpath": "/home/weiland/gr00t_n15:/data/openpi_text_ivf_build/src:/data/openpi_text_ivf_build",
-    "checkpoint": (
-        "/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/"
-        "target_posttraining/atomic_seen/checkpoint-60000"
-    ),
 }
+
+# Per-teacher serving recipe. The two teachers do not share an entry point, an
+# interpreter or a flag spelling, so every teacher-specific string lives here
+# and nowhere else; ``--teacher`` picks a row and the subcommands read it.
+#
+# ``vram_mb`` is the per-server VRAM need INCLUDING headroom, carried over from
+# round 1's measured footprints (GR00T ~6.25 GiB, pi0.5 ~8 GiB). It is the
+# floor the three-read admission gate enforces, so a pool that no longer fits
+# the card is refused at the next server rather than OOM-ing the running ones.
+TEACHERS: dict[str, dict[str, str | int]] = {
+    "groot_tp": {
+        "entry": "exp/robocasa365/serve_groot_n15.py",
+        # /proc-cmdline anchor for the shutdown sweep: must be the token that
+        # identifies THIS teacher's serve process and no other.
+        "anchor": "serve_groot_n15",
+        "python": "/home/weiland/gr00t_n15_venv/.venv/bin/python",
+        # {repo} is filled from --repo so a different serving clone stays consistent.
+        "pythonpath": "/home/weiland/gr00t_n15:{repo}/src:{repo}",
+        "checkpoint": (
+            "/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/"
+            "target_posttraining/atomic_seen/checkpoint-60000"
+        ),
+        "vram_mb": 8500,
+    },
+    "pi05": {
+        "entry": "scripts/serve_policy.py",
+        "anchor": "serve_policy.py",
+        # The throwaway serving clone has NO venv of its own (verified on the
+        # host), so pi0.5 borrows the main checkout's interpreter and grafts
+        # the clone's source in front of it via PYTHONPATH -- the same trick
+        # GR00T uses. Without the graft the server would import the main
+        # checkout's openpi and reject this round's pooling knobs.
+        "python": "/home/weiland/openpi/.venv/bin/python",
+        "pythonpath": "{repo}/src:{repo}",
+        "checkpoint": "/home/weiland/ckpt_pi05_robocasa_pytorch",
+        "vram_mb": 10500,
+    },
+}
+
+
+def teacher_spec(teacher: str, repo: str) -> dict[str, str | int]:
+    """The serving row for ``teacher``, with ``{repo}`` resolved."""
+    try:
+        spec = TEACHERS[teacher]
+    except KeyError:
+        raise SystemExit(
+            f"no serving recipe for teacher {teacher!r}; known: {sorted(TEACHERS)}"
+        ) from None
+    return {k: (v.format(repo=repo) if isinstance(v, str) else v) for k, v in spec.items()}
+
+
+def serve_command(args: argparse.Namespace, port: int, log: str) -> str:
+    """The remote shell line that starts ONE server for ``args.teacher``.
+
+    The two recipes differ in more than a path. GR00T's server takes
+    ``--cache-config`` and an explicit ``--allow-dynamic-bundles``; pi0.5 goes
+    through ``scripts/serve_policy.py``, whose flag is ``--cache_config`` and
+    which must receive every flag BEFORE the ``policy:checkpoint`` subcommand
+    (tyro ordering) — a flag after it is silently parsed as the subcommand's.
+    pi0.5 needs no ``--allow-dynamic-bundles``: ``WebsocketPolicyServer``
+    defaults it to True and ``serve_policy`` never overrides it (verified in
+    plan §1), which is what lets the pool hot-swap bundles without restarts.
+    """
+    spec = teacher_spec(args.teacher, args.repo)
+    prefix = (
+        f"cd {args.repo} && CUDA_VISIBLE_DEVICES={args.cuda_device} OPENPI_MONITOR_LEVEL=BASIC "
+    )
+    if args.pythonpath:
+        prefix += f"PYTHONPATH={args.pythonpath} "
+    if args.teacher == "groot_tp":
+        body = (
+            f"{args.python} {spec['entry']} --checkpoint {args.checkpoint} --port {port} "
+            f"--concurrent --allow-dynamic-bundles --cache-config {args.bootstrap_yaml}"
+        )
+    else:
+        body = (
+            f"{args.python} {spec['entry']} --port {port} "
+            f"--cache_config {args.bootstrap_yaml} policy:checkpoint "
+            f"--policy.config pi05_robocasa --policy.dir {args.checkpoint}"
+        )
+    return f"{prefix}{body} 2>&1 | tee {log}"
 
 
 def run(cmd: list[str], *, echo_only: bool) -> str:
@@ -68,10 +147,17 @@ def run(cmd: list[str], *, echo_only: bool) -> str:
     return out
 
 
-def texec(node: str, script: str, *, echo_only: bool) -> str:
-    """Run a script on a tether node (HOME fixed: the agent default is not the user home)."""
+def texec(node: str, script: str, *, echo_only: bool, home: str = "/home/weiland") -> str:
+    """Run a script on a tether node under an explicit HOME.
+
+    The tether agent's default HOME is its own state directory, not the user's,
+    so every remote script has to set it — and the right value is per NODE:
+    the serving host runs as ``weiland`` while the worker island runs as a
+    different account entirely, whose venv, tmux socket and caches all live
+    under its own home.
+    """
     return run(["tether", "exec", node, "--", "bash", "-lc",
-                f"export HOME=/home/weiland; {script}"], echo_only=echo_only)
+                f"export HOME={home}; {script}"], echo_only=echo_only)
 
 
 # ERE metacharacters that must not act as pattern syntax when an identity
@@ -99,14 +185,17 @@ def preflight_gate(args: argparse.Namespace, port: int, session: str) -> None:
     reads (a single sample catches another process mid-allocation), and the GPU
     must already be warm (this card computes silently wrong from cold).
     """
+    gpu = getattr(args, "cuda_device", 0)
+    # -i <gpu>: with more than one card the pool is spread across them, so the
+    # admission read has to be of the card this server will actually use.
     probe = texec(
         args.node,
         f"ss -tln | grep -c ':{port} ' || true; "
         f"tmux has-session -t '={session}' 2>/dev/null && echo TAKEN || echo FREE; "
         "free -g | awk '/Mem:/{print $7}'; "
-        "nvidia-smi --query-gpu=memory.free,temperature.gpu --format=csv,noheader,nounits | head -1; "
-        "sleep 2; nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits | head -1; "
-        "sleep 2; nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits | head -1",
+        f"nvidia-smi -i {gpu} --query-gpu=memory.free,temperature.gpu --format=csv,noheader,nounits; "
+        f"sleep 2; nvidia-smi -i {gpu} --query-gpu=memory.free --format=csv,noheader,nounits; "
+        f"sleep 2; nvidia-smi -i {gpu} --query-gpu=memory.free --format=csv,noheader,nounits",
         echo_only=False,
     ).splitlines()
     rows = [line.strip() for line in probe if line.strip()]
@@ -126,29 +215,42 @@ def preflight_gate(args: argparse.Namespace, port: int, session: str) -> None:
             f"free VRAM three-read min {min(reads)}MiB < {args.min_free_vram_mb}MiB floor "
             f"(reads {reads}); not adding :{port}"
         )
-    if int(temp) < args.min_gpu_temp_c:
+    if args.min_gpu_temp_c and int(temp) < args.min_gpu_temp_c:
+        # Only meaningful on hardware with the cold-miscompute defect; pass
+        # --min-gpu-temp-c 0 on a healthy card rather than warming it for show.
         raise SystemExit(
-            f"GPU at {temp}C is below the {args.min_gpu_temp_c}C warm floor — this card "
-            "computes silently wrong from cold; confirm the keepwarm session is running"
+            f"GPU {gpu} at {temp}C is below the {args.min_gpu_temp_c}C warm floor — a card "
+            "with the cold-miscompute defect must be warmed before it serves"
         )
-    print(f"[orch] :{port} preflight ok (RAM {free_ram}G, VRAM {reads}MiB, {temp}C)", flush=True)
+    print(f"[orch] :{port} preflight ok (gpu {gpu}, RAM {free_ram}G, VRAM {reads}MiB, {temp}C)",
+          flush=True)
+
+
+def resolve_serve_defaults(args: argparse.Namespace) -> None:
+    """Fill the unset serving flags from the teacher's row, in place.
+
+    The interpreter, PYTHONPATH, checkpoint and VRAM floor are all functions of
+    the teacher, but argparse resolves subparser defaults before ``--teacher``
+    is known. So they default to None on the CLI and are bound here, which also
+    keeps an explicit override winning over the table.
+    """
+    spec = teacher_spec(args.teacher, args.repo)
+    for flag, key in (("python", "python"), ("pythonpath", "pythonpath"),
+                      ("checkpoint", "checkpoint"), ("min_free_vram_mb", "vram_mb")):
+        if getattr(args, flag, None) is None:
+            setattr(args, flag, spec[key])
 
 
 def cmd_servers_up(args: argparse.Namespace) -> None:
     """Start the server pool serially, each gated on RAM and a real bind line."""
+    resolve_serve_defaults(args)
     ports = [int(p) for p in args.ports.split(",")]
     for port in ports:
         session = f"{args.tmux_prefix}{port}"
         log = f"/tmp/{session}.log"
         if not args.echo:
             preflight_gate(args, port, session)
-        serve = (
-            f"cd {args.repo} && OPENPI_MONITOR_LEVEL=BASIC PYTHONPATH={args.pythonpath} "
-            f"{args.python} exp/robocasa365/serve_groot_n15.py "
-            f"--checkpoint {args.checkpoint} --port {port} --concurrent "
-            f"--allow-dynamic-bundles --cache-config {args.bootstrap_yaml} "
-            f"2>&1 | tee {log}"
-        )
+        serve = serve_command(args, port, log)
         texec(args.node,
               f"tmux new -s {session} -d {shlex.quote(serve)}",
               echo_only=args.echo)
@@ -193,10 +295,11 @@ def cmd_servers_down(args: argparse.Namespace) -> None:
     # grep OPTION, so the bracketed first character is what makes the anchor
     # match at all (verified against a real serve cmdline).
     port_anchor = "|".join(f"[-]-port {p}( |$)" for p in ports)
+    anchor = teacher_spec(args.teacher, args.repo)["anchor"]
     sweep = (
         "for pid in $(ls /proc | grep -E '^[0-9]+$'); do "
         "c=$(tr '\\0' ' ' < /proc/$pid/cmdline 2>/dev/null); "
-        "case \"$c\" in *serve_groot_n15*) "
+        f"case \"$c\" in *{anchor}*) "
         f"printf '%s' \"$c\" | grep -Eq '{port_anchor}' && kill $pid && "
         "echo \"swept $pid\";; esac; done; true"
     )
@@ -207,7 +310,7 @@ def cmd_driver_up(args: argparse.Namespace) -> None:
     """Launch the phase driver in tmux on the serving host."""
     drive = (
         f"cd {args.repo} && PYTHONPATH=src:. {args.driver_python} -m exp.robocasa365.run_ws_search2 "
-        f"--teacher groot_tp --servers {args.servers} --run-prefix {args.run_prefix} "
+        f"--teacher {args.teacher} --servers {args.servers} --run-prefix {args.run_prefix} "
         f"--config-dir {args.config_dir} --env-config {args.env_config} "
         f"--episodes {args.episodes} --role driver --bind-host 0.0.0.0 --bind-port {args.driver_port} "
         + (f"--manifest {args.manifest} " if args.manifest else "")
@@ -221,14 +324,15 @@ def cmd_agents_up(args: argparse.Namespace) -> None:
     session = f"{args.tmux_prefix}agent{args.fleet}"
     agent = (
         f"cd {args.worker_repo} && PYTHONPATH=src:. {args.agent_python} -m exp.robocasa365.run_ws_search2 "
-        f"--teacher groot_tp --servers {args.servers} --run-prefix {args.run_prefix} "
+        f"--teacher {args.teacher} --servers {args.servers} --run-prefix {args.run_prefix} "
         f"--config-dir {args.config_dir} --env-config {args.env_config} "
         f"--role agent --agent-server {args.agent_server} --workers {args.workers} "
         f"--gpu-ids {args.gpu_ids} --driver-host {args.driver_host} --driver-port {args.driver_port} "
         + (f"--manifest {args.manifest} " if args.manifest else "")
         + f"2>&1 | tee /tmp/{session}.log"
     )
-    texec(args.worker_node, f"tmux new -s {session} -d {shlex.quote(agent)}", echo_only=args.echo)
+    texec(args.worker_node, f"tmux new -s {session} -d {shlex.quote(agent)}",
+          echo_only=args.echo, home=args.worker_home)
 
 
 def cmd_agents_down(args: argparse.Namespace) -> None:
@@ -244,7 +348,7 @@ def cmd_agents_down(args: argparse.Namespace) -> None:
     """
     session = f"{args.tmux_prefix}agent{args.fleet}"
     texec(args.worker_node, f"tmux kill-session -t '={session}' 2>/dev/null || true",
-          echo_only=args.echo)
+          echo_only=args.echo, home=args.worker_home)
     # Fleet-level identity, not phase-level. Every fleet of this phase points at
     # the SAME driver, so the driver endpoint alone would sweep the other
     # fleets' workers off this node too; what distinguishes a fleet is the
@@ -265,7 +369,7 @@ def cmd_agents_down(args: argparse.Namespace) -> None:
         f"if printf '%s' \"$c\" | {match}; then kill $pid && echo \"swept $pid\"; fi;; "
         "esac; done; true"
     )
-    texec(args.worker_node, sweep, echo_only=args.echo)
+    texec(args.worker_node, sweep, echo_only=args.echo, home=args.worker_home)
     # Verify, do not assume. A worker that survived the sweep keeps a GPU
     # context and an EGL surface on a shared node, so a silent success here
     # would hand the next phase a machine that looks free and is not.
@@ -277,7 +381,7 @@ def cmd_agents_down(args: argparse.Namespace) -> None:
         "case \"$c\" in *robocasa365.worker_entry*) "
         f"if printf '%s' \"$c\" | {match}; then echo LEFTOVER; fi;; "
         "esac; done; true",
-        echo_only=args.echo,
+        echo_only=args.echo, home=args.worker_home,
     )
     if args.echo:
         return
@@ -312,19 +416,29 @@ def main() -> None:
     ap.add_argument("--node", default=SERVE_DEFAULTS["node"])
     ap.add_argument("--repo", default=SERVE_DEFAULTS["repo"])
     ap.add_argument("--tmux-prefix", default="ws2s")
+    ap.add_argument("--teacher", default="groot_tp", choices=sorted(TEACHERS),
+                    help="serving recipe (entry point, interpreter, checkpoint, VRAM floor); "
+                    "also the --teacher passed through to driver and agent runs")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     up = sub.add_parser("servers-up")
     up.add_argument("--ports", required=True, help="comma list, started serially in order")
-    up.add_argument("--python", default=SERVE_DEFAULTS["python"])
-    up.add_argument("--pythonpath", default=SERVE_DEFAULTS["pythonpath"])
-    up.add_argument("--checkpoint", default=SERVE_DEFAULTS["checkpoint"])
+    # None means "take the teacher's row"; an explicit value still wins. argparse
+    # cannot see --teacher this early, so the binding happens after parsing (see
+    # resolve_serve_defaults).
+    up.add_argument("--python", default=None)
+    up.add_argument("--pythonpath", default=None)
+    up.add_argument("--checkpoint", default=None)
     up.add_argument("--bootstrap-yaml", required=True, help="repo-relative cell yaml for --cache-config")
     up.add_argument("--min-free-ram-gb", type=int, default=40)
-    up.add_argument("--min-free-vram-mb", type=int, default=8500,
-                    help="floor across three consecutive reads (~6.25G server + margin)")
-    up.add_argument("--min-gpu-temp-c", type=int, default=44,
-                    help="cold-card floor; keepwarm must be running below this")
+    up.add_argument("--min-free-vram-mb", type=int, default=None,
+                    help="floor across three consecutive reads; defaults to the teacher's "
+                    "measured per-server need plus margin (GR00T 8500, pi0.5 10500)")
+    up.add_argument("--min-gpu-temp-c", type=int, default=0,
+                    help="cold-card floor (0 = off). Only set this on a card with the "
+                    "cold-miscompute defect, where serving cold yields silently wrong results")
+    up.add_argument("--cuda-device", type=int, default=0,
+                    help="which GPU this server binds to; spread the pool across cards")
     up.add_argument("--ready-timeout-s", type=float, default=900.0)
     up.set_defaults(func=cmd_servers_up)
 
@@ -346,6 +460,8 @@ def main() -> None:
 
     ag = sub.add_parser("agents-up")
     ag.add_argument("--worker-node", required=True)
+    ag.add_argument("--worker-home", default="/home/weiland",
+                    help="HOME on the worker node — its account is usually NOT the serving one")
     ag.add_argument("--worker-repo", required=True)
     ag.add_argument("--agent-python", default="python3")
     ag.add_argument("--servers", required=True)
@@ -363,6 +479,8 @@ def main() -> None:
 
     ad = sub.add_parser("agents-down")
     ad.add_argument("--worker-node", required=True)
+    ad.add_argument("--worker-home", default="/home/weiland",
+                    help="HOME on the worker node — must match the one agents-up used")
     ad.add_argument("--fleet", default="0")
     ad.add_argument("--driver-host", required=True,
                     help="fleet identity part 2: the driver address its workers hold")

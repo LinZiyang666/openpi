@@ -1,0 +1,43 @@
+pi05 cells: 132 | groot_tp cells: 132
+pi05  mean=0.1669 best=0.298 worst=0.058
+groot mean=0.2781 best=0.385 worst=0.077
+
+--- pi05 top 8 ---
+  0.298  grid_vision_1@87_robot_state@12   (groot 0.298)
+  0.269  grid_vision_1@87_vision_2@12   (groot 0.260)
+  0.260  grid_vision_1@62_robot_state@37   (groot 0.279)
+  0.250  grid3_vision_1@37_vision_2@25_robot_state@37   (groot 0.327)
+  0.250  grid_vision_0@12_vision_1@87   (groot 0.135)
+  0.250  grid3_vision_0@12_vision_1@50_robot_state@37   (groot 0.269)
+  0.240  grid3_vision_1@50_vision_2@12_robot_state@37   (groot 0.308)
+  0.240  grid4_vision_0@12_vision_1@50_vision_2@25_robot_state@12   (groot 0.317)
+--- pi05 bottom 5 ---
+  0.058  grid_vision_0@50_vision_2@50   (groot 0.356)
+  0.058  grid_vision_0@37_vision_2@62   (groot 0.317)
+  0.058  grid_vision_0@87_vision_2@12   (groot 0.183)
+  0.067  iso_vision_0   (groot 0.096)
+  0.067  grid_vision_0@25_vision_2@75   (groot 0.212)
+
+--- iso baselines (single field) ---
+  iso_vision_0       pi05 0.067   groot 0.096
+  iso_vision_1       pi05 0.231   groot 0.077
+  iso_vision_2       pi05 0.077   groot 0.279
+  iso_robot_state    pi05 0.125   groot 0.212
+
+cells in both: 132 | mean(pi05-groot) = -0.1112 | pi05 higher in 6 cells
+Spearman rank correlation of the 132-cell orderings: rho = +0.175
+
+--- per-task (all cells) ---
+  SlideDishwasherRack          pi05 0.580   groot 0.372   diff +0.208
+  OpenDrawer                   pi05 0.543   groot 0.602   diff -0.060
+  OpenStandMixerHead           pi05 0.311   groot 0.683   diff -0.372
+  CloseFridge                  pi05 0.249   groot 0.737   diff -0.488
+  OpenCabinet                  pi05 0.201   groot 0.416   diff -0.215
+  TurnOnSinkFaucet             pi05 0.158   groot 0.313   diff -0.155
+  PickPlaceSinkToCounter       pi05 0.048   groot 0.006   diff +0.043
+  PickPlaceCounterToStove      pi05 0.022   groot 0.031   diff -0.009
+  CoffeeSetupMug               pi05 0.021   groot 0.046   diff -0.026
+  PickPlaceDrawerToCounter     pi05 0.020   groot 0.066   diff -0.046
+  CloseBlenderLid              pi05 0.009   groot 0.115   diff -0.106
+  PickPlaceToasterToCounter    pi05 0.008   groot 0.228   diff -0.221
+  PickPlaceCounterToCabinet    pi05 0.001   groot 0.000   diff +0.001

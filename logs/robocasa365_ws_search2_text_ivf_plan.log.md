@@ -117,6 +117,484 @@
 | 锚点臂（D5，若准） | 104 | ~1-1.5h |
 | **合计** | ~19.4k | **~1-1.5 天无人值守** |
 
+## 6b. Live 运行记录（2026-08-26）
+
+- **部署**：两台机（weilandserver 服务克隆 `/data/openpi_text_ivf_build`、timan107 岛）+ 后加 timan1 岛，全部到 `3598534`。三台的 ws2 配置树由同一 tarball 分发，sha 双机核对一致。
+- **真机修掉的两个 bug**（本地测试覆盖不到，只有真库/真部署会暴露）：① `build_bucket_variants` 直接读 pkl 拿到的是 **numpy**，而 backend 是在 `load_artifact` 里 `torch.from_numpy(v).float()` 之后才算桶键——漏掉这层转换，工具算出的桶号与服务端真正使用的索引对不上；已改为逐字复刻 backend 推导并加对拍测试。② 编排器 `texec` 把 HOME 硬编码为 `/home/weiland`，而 worker 岛的账号是 `zixuans8`；已改为按节点传 HOME 并加回归。
+- **S0-a 桶映射硬门 PASS**：111 桶 / 0 unresolved / 0 ambiguous；`robocasa_commit be22d659…`（40 位）+ `camera 512×512` 证明 replay env 与正式 eval 同源；代表 prompt 与 object_class 互相印证。证据 `analysis/ws2_s0a_bucket_variants.txt`。
+- **S1 冒烟 PASS**：`complete=2/2`、1071 次推理全 FULL_HIT、8 集全 join 零缺口、桶落点 6/8 精确。两个 `matched=False` 是**设计中的最近代表回落**（eval 抽到 "hot dog"，库内最近为 "hotdog bun"）——正是本轮要检验的现象。证据 `analysis/ws2_s1_smoke.txt`。
+  - ⚠ 运维教训：车队必须用 `orchestrate_ws_search2 agents-up` 起。手写 tmux 名会让 `agents-down` 找错会话（它按 `<prefix>agent<fleet>` 推导），supervisor 存活并把刚被扫掉的 worker 重新拉起。
+- **Stage-0 定档**：6 worker 挤在单 server = 126 ep/h（21/worker）；**30 worker 摊到 6 台 = 1224 ep/h（41/worker）**——瓶颈是单台 server 的推理排队，不是 worker 数，这正是「6 server 必须配 6 fleet」的量化依据。worker 显存实测 1.3–2.4 GiB（evict-1 生效，远低于 round-1 担心的 3.5–4G）。证据 `analysis/ws2_stage0_capacity.txt`。
+- **GR00T 主臂 live**：6 server × 6 fleet × 5 worker = 30 worker，11 批 × 12 格，预计 ~11.2 h。
+- **pi0.5 前置就绪**：标定 4/4（vision_2 的 J=0.4356 **高于** GR00T 的 0.3206，两执行体字段可分性结构不同，实证了必须分别标定）；144 yaml 已 emit 且旋钮 `masked/span` 双开与其库 meta 对齐。
+- **pi05 serving 拓扑可复用**（本轮亲验）：`serve_policy.py` 两条构造路径都不传 `allow_dynamic_bundles`，而 `WebsocketPolicyServer` 默认 `True`（:484），且其 `_connection_policy_factory` 同样接收 `bundle_id`（:885-889）⇒ pi05 支持同款动态 bundle 热切换，**不必回退 round-1 的重启制**。
+
+### 6b-1. 中途读数（2026-08-27 02:05Z，**26/132 格**，PARTIAL / NOT A FORMAL RESULT）
+
+分析链路已用真实数据端到端跑通（先 `--finalize-only` 物化逐 cell 产物——`load_journals` 读的是
+**per-cell** journal，那只在 finalize 时才写，所以不跑 finalize 就永远只看得到上次的快照；
+再 `compare --allow-partial --resamples 20000`，ws1 目录为归并后的 132 journal）。工具自报
+`skipped 106 in-flight/partial cells`、抬头 `PARTIAL (NOT A FORMAL RESULT)`——门禁按设计生效，
+**下列数字不得当结论引用**。
+
+**联合效应（库增长 + text-IVF 一起，26 格 × 104 配对集）**
+
+| | round-1 | round-2 | 差 |
+|---|---|---|---|
+| 26 格平均 macro SR | 0.148 | **0.251** | **+10.3 pp**（相对 +69%） |
+| 最好一格 | 0.269（round-1 全 132 格最好） | **0.337** | 已有 7 格超过 round-1 全矩阵最好 |
+| 最差一格 | 0.019 | 0.077 | — |
+
+26 格**无一变差**，delta ∈ [+0.000, +0.173]，其中 **16 格 p<0.05**。榜首
+`grid4 v0@12 v1@12 v2@12 rs@62` = 0.337（+0.154, p=0.0007）。round-1 里「v0/v1 零正贡献」的
+`iso_vision_0/1` 从 0.019 升到 0.096 / 0.077——仍垫底，但**「零贡献」这个结论已不成立**。
+关键的 `iso_vision_2` 0.202→0.279 尚未显著（p=0.116）。
+
+**⚠ 逐任务：增益高度不均，PickPlace 家族没有复活**
+
+大涨全部是接触-操纵类：`OpenCabinet 0.034→0.409 (+0.375)`、`CloseFridge 0.471→0.721 (+0.250)`、
+`OpenStandMixerHead +0.231`、`SlideDishwasherRack +0.221`、`TurnOnSinkFaucet +0.139`。
+
+取放-搬运类持平到倒退：`PickPlaceCounterToCabinet 0.029→0.000`、
+`PickPlaceSinkToCounter 0.014→0.000`（两个掉到**绝对零**）、`ToasterToCounter −0.010`、
+`CounterToStove +0.010`、`DrawerToCounter +0.062`；`CoffeeSetupMug 0.053→0.043`。
+
+代码里这张表的注释就叫 "PickPlace revival readout"——本轮预期之一是更大的库 + 文本分桶能救活
+PickPlace，**26 格的证据不支持**。是「检索原理上救不了长程搬运」还是「库里根本没有可用轨迹」，
+要等 ws2c 控制臂把两个因子拆开才能判：现在这个 delta 是**联合效应**，不可归因给任一单因子。
+
+⚠ 这 26 格是批 1+2，`interleave_cells` 保证跨族覆盖，但仍不是随机抽样，别当总体估计。
+
+### 6b-2. 中途读数刷新（2026-08-27 04:00Z，**47/132 格**，PARTIAL / NOT A FORMAL RESULT）
+
+| | round-1 | round-2 | 差 |
+|---|---|---|---|
+| 47 格平均 macro SR | 0.148 | **0.264** | **+11.6 pp**（相对 +79%） |
+| 最好一格 | 0.269 | **0.385** | **24 格**已超 round-1 全矩阵最好 |
+
+47 格**无一变差**（delta ∈ [+0.000, +0.231]），**33 格 p<0.05**；均值较 26 格时（0.251）继续抬升。
+
+**⚠ 榜首换人，且最优权重结构在迁移**：`grid3 v0@12 v2@37 rs@50` = 0.385（+0.192, p<0.0001）
+取代 `grid4 v0@12 v1@12 v2@12 rs@62`（0.337）。前四名 0.385 / 0.375 / 0.356 / 0.356 的共性是
+**robot_state 占 37–50 配一个中等 vision_2**——而 round-1 的冠军是 `vision_2@87 robot_state@12`
+（几乎全押 vision_2）。即**最优配比正从「重 vision_2」往「vision 与 robot_state 均衡」迁移**。
+单字段基线佐证：`iso_vision_2` 0.279、`iso_robot_state` 0.212，任何混合体都超过单字段。
+（这条若在全 132 格站得住，就是本轮相对 round-1 的一个结构性结论，不只是数值变好。）
+
+**逐任务修正 6b-1 的说法**：26 格时四个 PickPlace 为负；47 格时只剩两个为负
+（`CounterToCabinet 0.021→0.000` 仍是绝对零、`SinkToCounter 0.016→0.003`），
+`ToasterToCounter` 已从 −0.010 翻正到 +0.035，`DrawerToCounter +0.051`、`CounterToStove +0.016`。
+但量级差距依旧悬殊：PickPlace 家族最大增益 +0.051，而接触-操纵类
+（`OpenCabinet +0.372`、`OpenStandMixerHead +0.269`、`CloseFridge +0.263`、
+`SlideDishwasherRack +0.239`）动辄 +0.24~+0.37。**方向性判断「库增长 + 文本分桶救不活取放-搬运类」
+仍成立，但没有 26 格时看上去那么绝对**——这正是为什么中途读数只能当趋势、不能当结论。
+
+### 6b-3. ⚠ 事故:批次静默丢集(2026-08-27 06:00Z 发现,主臂批 6–8)
+
+**症状**:批 6→7→8 各只隔 ~20 分钟(前几批 60–75 分钟),而每批有 1248 集要跑;同期
+journal 40 分钟只涨 284 行。逐格计数:**90 格被碰过,57 格满 104,33 格残缺**(1–31 集),
+其中约 20 格最后一集已是 5–31 分钟前 ⇒ **批次把没跑完的集丢下就推进了**。
+
+**因果链(证据齐全)**
+
+1. worker 日志 `websockets.exceptions.ConnectionClosedError: sent 1011 (internal error)
+   keepalive ping timeout`——agent0/2 各 5298 / 6753 条。server >20s 不应 ping,
+   该 server 上**所有** worker 连接被同时判死。
+2. 掉线打断在跑的 episode → 记一次失败。
+3. `EpisodeScheduler(max_episode_retries=3)`;同一 uid 三次都撞掉线 → 标 `FAILED`
+   (exhausted retries / fatal)。**不是超时**:`--episode-timeout-s` 默认 1800s,而单集只要 ~120s。
+4. **重试耗尽不写 journal 行**——即已知的「journal 无『每 uid 一条终态』不变量」缺口。
+5. 该批队列排空 → `ConductorDriver.run()` 返回 → driver 推进下一批(循环确实等本批跑完,
+   `while inner.is_alive(): inner.join(...)`,所以不是"没等")。
+6. 该格停在 <104 集,而中央 journal 里**没有任何痕迹说这些 uid 失败过**。
+
+**卡住 server 的最可能来源:bundle 热切换**。每台 server 已切 **75 次**
+(`Loading cache config` → `Cache bundle updated to vNN`),切换是同步的。旁证三条:
+① CPU 极不均衡——同一时刻一台 +12409 ticks/20s(6.2 核)、两台 +3~4 ticks(空转);
+② GPU util 0–10% / 46°C(**不是推理打爆**,本配方 `always_hit` 本就少推理);
+③ **RSS 从启动的 ~21.2G 涨到 23.5–32.8G**(六台合计 ~172G,约漏 50G),与切换次数同步。
+机器本身没到墙:swap 0、si/so 0、88 核只用 10–12%、load 11.5;但 `cs≈200K/s` 异常高。
+
+**吞吐**:每 10 分钟完成集数从 189(≈1134 ep/h)一路掉到 37,批 8 起来后最近 5 分钟回到
+792 ep/h ⇒ 是**「整体腰斩 + 换批深坑」叠加**,不是完全崩塌。
+
+**处置裁定(2026-08-27,未停机)**:不中途拆机重启。理由——(a) run 仍在 500–800 ep/h 推进;
+(b) 冷启动 10 分钟/台 × 6 台再加起车队,代价近一小时;(c) **丢掉的集是可恢复的**:双图 resume
+按 journal 剪枝,重跑同一条 driver 命令只会重派缺失 uid,这正是 §6d ① 写的收官路径。
+⇒ **全 11 批跑完后必须做一次「补跑 pass」**:`--finalize-only` 看 INCOMPLETE 清单,
+用 summarize 的 `--only` 串重发射,直到报 `132/132`。**别把首次 11 批跑完当作主臂收官。**
+
+**给 owner 的建议(需裁决)**:后面三个相位(ws2c / ws2e / pi05)要么
+(i) 降低 bundle churn——减小 `--cells-per-batch`,让同一时刻每台 server 服务的 bundle 数变少;
+或 (ii) 接受"跑完再补一遍"的两趟制。ws2c 只有 12 格、pi05 132 格,churn 量级不同,
+pi05 尤其值得先降 churn 再开跑。⚠ 另外 pi05 单 server RSS 基线 ~32G,**若同样存在切换泄漏,
+5 台会更早撞 251G 的墙**——起 pi05 前应先复核这条。
+
+### 6b-4. 首轮收官与补跑 pass(2026-08-27 07:08–07:30Z)
+
+**首轮结果**:`[ws2] INCOMPLETE phase=ws2 complete=57/132`,driver 自行退出并给出 75 个
+incomplete cid 与 `--only` 串,附一句 `rerun heals MISSING uids only; inspect n_err first`。
+
+**查 n_err 的结论(关键)**:75 格**全部 `n_err=0`**,6,643 个缺口**全是 MISSING**
+(从未写过 journal 行)⇒ **重跑可完全治愈,没有需要人工裁决的脏数据**。
+完成/未完成的分界是**时间性的**(批 1–5 好、批 6–11 坏),不是特定 cell 的性质。
+
+**服务端重启印证了泄漏**:停光 6 台后 RAM 用量 175G→**3G**(可用 248G)、VRAM 全空;
+重起后每台 RSS 回到 **21.2–21.3G**(此前 23.5–32.8G)。页缓存热,六台串行起只用约 6 分钟。
+
+**⚠ 我在这里犯了一个错,记下来别再犯**:重启 server **没有同时循环 worker 车队**。
+workers 还握着被杀掉的旧 server / 旧 driver 的连接,每集瞬间 `Connection refused` /
+`peer closed connection mid-frame` → 三次重试耗尽 → 批次**秒排空**(批 1 的 456 集
+2 分钟"跑完",journal 只涨 3)。**无永久损失**(耗尽不写 journal,uid 仍是 MISSING),
+但白跑两批。**正确顺序:agents-down 全部 → 起 driver → agents-up 全部。**
+
+**⚠ 而且 §5 记过的 tmux 前缀坑又踩了一次**:`agents-down` 按 `<--tmux-prefix>agent<fleet>`
+推导会话名,**默认前缀是 `ws2s`,而实际会话叫 `ws2agent0..5`(前缀 `ws2`)**。
+不传 `--tmux-prefix ws2` 时它一个 supervisor 都杀不到,只扫 worker,supervisor 立刻把它们
+拉回来——表现为「agents-down 报 0 tmux session + LEFTOVER,30 秒后 worker 数原样复原」。
+**所有 agents-up / agents-down 都必须显式带 `--tmux-prefix ws2`。**
+
+**补跑配置**:`--only <75 cids>`(在服务器上从 summary 现算,不手抄;脚本内断言
+`n_err==0` 且格数==75)+ **`--cells-per-batch 6`**(降低 bundle churn,13 批)。
+批 1 实际 `episodes=453` 而非 6×104=624 ⇒ resume 剪枝正确,已完成的集不重跑。
+07:30Z 复核:两岛 27w+3a / 15w+3a、GPU 66%/58°C、仍在批 1(不再秒排空)⇒ 修复生效。
+
+### 6b-5. ✅ GR00T 主臂收官 + 第一份正式结果(2026-08-27 14:17Z)
+
+**补跑 pass 结果**:`[ws2] DONE phase=ws2 complete=75/75`。全相位独立核实:
+```
+finalize-only: 132/132 cells complete
+journal 132 格,每格恰好 104 集(min=max=104),合计 13,728
+132 份 summary 全 complete,n_err=0,n_missing=0
+```
+补跑用时约 6h45m(07:30→14:17Z),平均 897 ep/h,全程 RAM 稳定在 89–101G 可用、
+**未再出现 RSS 爬升**⇒ 「重启清泄漏 + `--cells-per-batch 6` 降 churn」的组合有效。
+
+**正式全矩阵联合效应**(`compare` 不带 `--allow-partial`,全覆盖门通过;
+证据 `analysis/ws2_joint_full132.txt`)
+
+| | round-1 | round-2 | 差 |
+|---|---|---|---|
+| 132 格平均 macro SR | 0.1579 | **0.2781** | **+0.1202(+76%)** |
+| 最好一格 | 0.269 | **0.385** | 82 格超过 round-1 全矩阵最好 |
+
+**132 格无一变差**(131 改善 / 1 持平 / 0 退步),**95 格 p<0.05、66 格 p<0.01**。
+
+**⚠ 结构性结论(本轮相对 round-1 最重要的发现):最优权重配比迁移了。**
+round-1 冠军 `grid_vision_2@87_robot_state@12`(几乎全押 vision_2)在 round-2 只到 0.279,
+跌出前列;新榜首 `grid3_vision_0@12_vision_2@37_robot_state@50` = 0.385。前六名清一色是
+**robot_state 37–50 + vision_2 仅占 12–62** 的均衡配比。⇒ 库变大 + 文本分桶后,
+**robot_state 从配角变成主力**;round-1 那个"vision_2 一家独大"的结论是小库下的假象。
+单字段基线:`iso_vision_2` 0.279、`iso_robot_state` 0.212、`iso_vision_0` 0.096、
+`iso_vision_1` 0.077——任何混合体都超过任一单字段。
+
+**逐任务(全矩阵终版)**:增益集中在接触-操纵类
+`OpenCabinet 0.055→0.416 (+0.361)`、`CloseFridge 0.475→0.737 (+0.261)`、
+`SlideDishwasherRack 0.119→0.372 (+0.253)`、`OpenStandMixerHead 0.455→0.683 (+0.227)`、
+`OpenDrawer +0.176`、`TurnOnSinkFaucet +0.105`。
+取放-搬运类:`ToasterToCounter +0.083`、`DrawerToCounter +0.049`、`CounterToStove +0.019`
+(三个翻正但量级小),而 **`CounterToCabinet 0.016→0.000`(绝对零)、
+`SinkToCounter 0.011→0.006` 仍为负**。⇒ **「更大的库 + 文本分桶救不活取放-搬运类」
+在全 132 格上成立**,这是本轮的负结果之一。
+
+⚠ 以上全部是**联合效应**(库增长 + text-IVF 一起),拆不出单因子——那要等 ws2c 控制臂。
+
+### 6b-6. ✅ ws2c 控制臂完成 + 正式因子分解(2026-08-27 15:45Z)
+
+`[ws2] DONE phase=ws2c complete=12/12`,journal 1248/1248。用时约 1h15m,平均 992 ep/h。
+证据 `analysis/ws2_factor_decomposition.txt`(`compare` 带 `--ws2c-dir` + `--manifest`,
+不带 `--allow-partial`,三臂全覆盖门通过)。
+
+| 臂 | 库 | 检索 | 12 格平均 macro SR |
+|---|---|---|---|
+| ws1 | 小库 | weighted_score_sum + brute force | 0.1899 |
+| ws2c | **full704** | weighted_score_sum + brute force | 0.2516 |
+| ws2 | **full704** | **text_ivf** | 0.2557 |
+
+- **`lib_effect` = +0.0617**(占联合 **94%**),12 格中 **3 格 p<0.05**
+- **`bucket_margin` = +0.0040**(占 **6%**),**12 格中 0 格 p<0.05**;符号 6 正 / 3 零 / 3 负
+
+**判读(owner 2026-08-27 裁定的口径)**:text-IVF 的目的**不是**提升 SR,而是在大库上把检索
+成本压回去;**SR 不掉即为通过**。本结果是「中性、略正且不显著」⇒ **通过**。
+SR 的提升几乎全部来自库变大——这本就是预期内的,不是本方法的卖点。
+⚠ 因子分解只对这 12 格有效(它们按 round-1 表现选出,是 round-1 的强格,联合效应 +0.066
+低于全矩阵的 +0.120),**不可外推到全 132 格**。
+
+⚠ **本轮未采集检索延迟/吞吐证据**(owner 明确表示这轮不管速度)。因此"text-IVF 让检索更快"
+这半边**没有实验支撑**,只有"SR 不受损"这半边。若将来要写进论文,需要补一次
+ws2 vs ws2c 的配对延迟测量(同库、同格、同 seed、同硬件,数据条件已具备)。
+
+### 6b-7. ✅ ws2e 加密臂完成:噪声地板 + 胜者诅咒(2026-08-27 20:17Z)
+
+`[ws2] DONE phase=ws2e complete=10/10`,journal 4160/4160(10 格 × 416 集),平均 982 ep/h。
+证据 `analysis/ws2e_reproduce.txt`。
+
+**① 复现噪声地板 = 3.0%**。`reproduce` 把 ws2e 前 104 集与 ws2 的同 seed 配对(1,040 对):
+`s→s 309 / s→f 15 / f→s 16 / f→f 700` ⇒ 翻转 31/1040 = **3.0%,方向对称**(15 vs 16)。
+⇒ **任何小于 ~3pp 的逐格差异都在复现噪声内,不可解读**;反过来也确认主臂 +12pp 远在噪声之上。
+
+**② 胜者诅咒(方法学结论,对论文口径有直接影响)**
+
+| cell | ws2(104) | ws2e(416) | diff |
+|---|---|---|---|
+| `grid3_v0@12_v2@37_rs@50`(主臂榜首) | 0.385 | **0.334** | −0.050 |
+| `grid3_v0@12_v2@50_rs@37` | 0.356 | 0.332 | −0.024 |
+| `grid4_v0@37_v1@25_v2@12_rs@25` | 0.356 | 0.329 | −0.026 |
+| `grid3v_v0@25_v1@37_v2@37` | 0.356 | 0.315 | −0.041 |
+| `grid4_v0@37_v1@12_v2@12_rs@37` | 0.365 | 0.315 | −0.050 |
+| `grid_v2@62_rs@37` | 0.375 | 0.310 | −0.065 |
+| `grid3_v0@37_v2@12_rs@50` | 0.375 | 0.308 | −0.067 |
+| `grid4_v0@12_v1@25_v2@12_rs@50` | 0.375 | 0.298 | −0.077 |
+| `iso_vision_1`(垫底) | 0.077 | 0.113 | **+0.036** |
+| `iso_vision_0`(垫底) | 0.096 | 0.099 | +0.002 |
+
+**8 个头部格全部回落、2 个垫底格上升** —— 教科书式选择偏差:它们正因在 104 集上考得
+好/差才被选中,加到 416 集后向真值收缩。
+
+**口径要求**:
+- 主臂榜首的 0.385 是虚高,**真值约 0.334**;头部 8 格加密后聚在 **0.298–0.334**,
+  彼此在统计上分不开 ⇒ **不能声称"某个配比最优"**,只能说"这一族均衡配比是第一梯队"。
+- ⚠ 同一诅咒也作用在 round-1 的 0.269(同样是 104 集的极值)。因此
+  **"+12.0pp 的全矩阵均值差"成立**(两轮测量精度对等),但
+  **"最好一格 0.385 vs 0.269"这种极值对极值的写法必须避免**。
+
+### 6b-8. pi05 全线启动(2026-08-27 21:05Z)
+
+拓扑:**5 台 server @ 23170–23174**(不是 GR00T 的 23160 段,见下)、driver `ws2main` @ 23180、
+**5 个 fleet / 37 worker**(timan107 3×9、timan1 2×5);22 批 × 6 格 = 132 格 / 13,728 集。
+实测单台 pi05:**RSS 29.7G、VRAM 7.58 GiB**;5 台合计 148.5G RAM / 37.9G VRAM,
+剩 100G RAM / 10.6G VRAM ⇒ **确认只能 5 台**(第 6 台会把 VRAM 余量压到 3G)。
+
+**启动时暴露并修掉的三个缺口**(前两个会直接卡死相位):
+
+1. **`run_ws_search2 --teacher` 被窄化成 `("groot_tp",)`** —— 而同族其它工具
+   (`summarize_ws_search`/`analyze_ws_search_stats`/`orchestrate_ws_search`)都接受两个,
+   `episode_runner.ADAPTERS` 也两个都有。属遗漏而非设计:端点同质性由
+   `validate_teacher_endpoints` 保证,不靠这个 choices 列表。已放开并加 4 条测试
+   (直接驱动真实 CLI 判 `invalid choice`,并断言 choices 与 `ADAPTERS` 相等);
+   做过变异验证(改回窄化 ⇒ 两条 pi05 用例失败)。
+2. **worker 岛上没有 pi05 的配置目录**(`pi05/main` = 0 yaml)。与 manifest 同类问题:
+   服务克隆有、岛上没有。已打包同步(132 yaml + index.json,走 `/tmp` 中转绕开 allow_roots)。
+3. **端口段必须与 env 声明一致**。`ws2_weilandserver.env` 里
+   `PI05_SERVERS=…:23170–23175`,而我先把 pi05 起在了 GR00T 的 23160 段,
+   `validate_teacher_endpoints` 直接拒绝——**这是护栏正确工作**(防止 pi05 的 driver
+   指到 GR00T 的端口上)。正确处置是**把 server 挪到 23170–23174**,不是改 env 削弱护栏。
+
+⚠ **既有基线失败(不是本次改动引入,也不属本线)**:
+`tests/robocasa365/test_groot_cache_collector.py::test_collected_episode_builds_a_loadable_groot_artifact`
+用精确相等断言 `artifact_meta`,而该字典后来多了 7 个字段
+(`library_sha256`/`entry_count`/`action_horizon`/`action_dim`/`denoising_num_steps`/
+`schema_consensus_count`/`intermediates_completeness`,来自 library_stats 那条线)。
+已用 stash 复核:去掉本次改动仍失败。留给该线决定是改成子集断言还是更新期望值。
+
+### 6b-9. ✅ pi05 全线完成 —— 全量实验收官(2026-08-28 11:05Z)
+
+`[ws2] DONE phase=ws2 complete=132/132`,journal 13,728;独立核实每格恰好 104 集、
+`n_err=0 / n_missing=0`。用时约 14h,平均 977 ep/h,5 server × 5 fleet(37 worker),
+全程 RSS 在 168–190G 区间随换批起伏、**无泄漏趋势**,一次未干预。
+证据 `analysis/ws2_pi05_matrix.txt`;完整报告 `analysis/ws_search2_groot_results.md`。
+
+⚠ **round-1 从未跑过 pi05**(只有 groot_tp),故 pi05 **没有跨轮 delta**,只有绝对矩阵
+与跨 teacher 对照。
+
+| | pi0.5 | GR00T |
+|---|---|---|
+| 132 格平均 macro_sr | 0.1669 | 0.2781 |
+| 最好格 / 最差格 | 0.298 / 0.058 | 0.385 / 0.077 |
+
+**⚠ 本轮最重要的发现:检索字段权重不跨执行体迁移。**
+
+单字段基线几乎**相反**:pi0.5 最强字段是 `iso_vision_1` 0.231(GR00T 该字段最弱 0.077);
+GR00T 最强是 `iso_vision_2` 0.279(pi0.5 该字段仅 0.077)。pi0.5 的头部格全是
+`vision_1` 主导,GR00T 的是 `vision_2`+`robot_state` 均衡;GR00T 表现好的
+`grid v0@50 v2@50`(0.356)在 pi0.5 上只有 0.058。
+
+**两个 teacher 对同一 132 个配置的排序 Spearman ρ = +0.175**,基本不相关。
+⇒ **每个执行体必须各自搜权重,不能复用**。这与 Phase-1 标定时看到的
+「pi05 vision_2 的 J=0.4356 vs GR00T 0.3206,字段可分性结构不同」形成端到端闭环。
+
+⚠ **绝对水平差(pi05 全面偏低、GR00T 在 126/132 格更高)是混淆的**:两臂用不同的库
+(pi05 63,977 条/29.8G vs GR00T 50,795 条/20.5G)、不同模型、不同渲染分辨率,
+**不可读作「GR00T 检索能力强于 pi05」**。而**排序结论不受此影响**,因为它在各臂内部计算。
+
+**逐任务**:pi0.5 只在 `SlideDishwasherRack` 明显更好(0.580 vs 0.372, +0.208)、
+`PickPlaceSinkToCounter` 略好(+0.043);其余 GR00T 全胜,差距最大是
+`CloseFridge −0.488`、`OpenStandMixerHead −0.372`、`ToasterToCounter −0.221`。
+**两个 teacher 对 PickPlace 的判决一致**:整族贴近零(pi0.5 该族最好仅 0.048)。
+
+## 6c. 暂停点与恢复手册（2026-08-26 17:26 CDT，owner 装新显卡断电）
+
+**停机前已固化**（`/data/openpi_text_ivf_build/exp/robocasa365/`）：
+- `data/ws_search2/groot_tp/`：中心 journal **1,464 集**；132 份 `journal_ws2-*` + 132 份 `summary_ws2-*` + 132 份 `run_plan_ws2-*`；**13/132 格 complete**（err=0 / missing=0）；15 份 `per_step_ws2-*` 证据流。
+- `config/ws_search2/`：`selection_manifest.json`、`bucket_variants.json`、两份标定 json、288 个 yaml（groot 144 + pi05 144）。
+- `analysis/`：`ws2_s0a_bucket_variants.txt`、`ws2_s1_smoke.txt`、`ws2_stage0_capacity.txt`。
+
+**续跑安全性**：resume 只认中心 journal，已完成的 1,464 集不再派发；132 份 run_plan 的 `plan_hash` 会在续跑时逐一校验，任何参数漂移（episodes/tasks/base_seed/…）都会被 `write_run_plan` 硬拒而不是静默改口径。
+
+**恢复顺序（依赖序，勿跳）**：
+1. **先起 keepwarm，等卡温 ≥44°C**。4090 冷卡静默算错是有档案的硬件缺陷（`reference_weilandserver_4090_unstable`），server 起在冷卡上会产出无法察觉的错误结果。
+2. **重认 GPU 序号**：加卡后 `nvidia-smi` 的 index 会重排，worker 的 `--gpu-ids` 与 keepwarm 盯哪张卡都要重定。若新卡显存更大，可重测 Stage-0 决定是否加 server（当前 6 台是 48G 卡的上限：6×6G VRAM + 6×22.3G RSS）。
+3. `orchestrate_ws_search2 servers-up --ports 23160..23165`（每台过四道 preflight 门）。
+4. 6 个 fleet：timan107 三个（fleet 0-2 → :23160-62）、timan1 三个（fleet 3-5 → :23163-65），各 5 worker，`--worker-home /home/zixuans8`。**必须用 `agents-up`**，手写 tmux 名会让 `agents-down` 找错会话。
+5. driver：`--cells-per-batch 12 --bind-port 23180`，它会自动跳过已完成的 13 格。
+6. 重挂 20 分钟 cron 巡检；巡检里加一条 `--finalize-only` 定期物化逐 cell 产物（finalize 本身只在全 11 批跑完后才自动调用一次）。
+
+**剩余工作量**：GR00T 主臂还剩 119 格 ≈ 12,264 集 ≈ **13 h @ 945 ep/h**；之后 ws2c（12 格 ×104，需重启 server 换 brute_force 指纹）、ws2e（10 格 ×416）；再整套复用给 pi0.5（其 server 用 `serve_policy.py`，已亲验同样支持动态 bundle）。
+
+## 6d. 相位切换命令(照抄即可,2026-08-26 实跑校准)
+
+共用变量:`SRV=ziyanglin.com:23160,...,23165`;服务克隆 `/data/openpi_text_ivf_build`;
+worker 岛 `/scratch/zixuans8/openpi_rc365`(两台 worker 机同路径,`--worker-home /home/zixuans8`)。
+
+**① 主臂排空判定**:`--finalize-only` 报 `132/132 cells complete` 才算完;若有 INCOMPLETE,
+用 summarize 给出的 `--only` 串重发射(MISSING 可自愈;ERR 需先看 n_err 再定夺)。
+
+**② → ws2c 控制臂**(12 格 ×104)。⚠ 控制臂是 `brute_force` 指纹,与主臂**不同 backend**,
+同进程会双份驻留 ~42G,故必须**先把 6 台 server 全停再重起**指向 control 目录:
+```
+orchestrate_ws_search2 --repo <clone> servers-down --ports 23160..23165
+orchestrate_ws_search2 --repo <clone> servers-up --ports 23160,...,23165 --cuda-device 0 \
+  --bootstrap-yaml exp/robocasa365/config/ws_search2/groot_tp/control/iso_vision_2.yaml
+# 六个 fleet 照旧(agents-up),driver:
+run_ws_search2 --teacher groot_tp --servers $SRV --run-prefix ws2c \
+  --config-dir exp/robocasa365/config/ws_search2/groot_tp/control \
+  --manifest exp/robocasa365/config/ws_search2/selection_manifest.json \
+  --data-dir exp/robocasa365/data/ws_search2/groot_tp --episodes 8 \
+  --cells-per-batch 12 --role driver --bind-host 0.0.0.0 --bind-port 23180
+```
+
+**③ → ws2e 加密臂**(10 格 ×32 trial = 每格 416 集,共 4,160)。
+
+⚠ **追加 manifest 段之后必须把 manifest 同步到两个 worker 岛**(2026-08-27 踩过):
+`build_selection_manifest` 只改**服务克隆**那一份,而 agent 读的是各自岛上的副本,
+启动即死于 `manifest ... has no segment 'ws2e'`,而 `agents-up` 只看 tmux 建没建成、
+**会照样报 launched**——判活必须看 worker 进程数,不能信 launched。
+⚠ 且 **`/scratch` 不在 tether 的 allow_roots(`/home /tmp /srv`)**,必须走 `/tmp` 中转:
+```
+tether pull weilandserver:<clone>/<manifest> /tmp/m.json
+for n in timan107 timan1; do
+  tether push --force /tmp/m.json $n:/tmp/selection_manifest.json
+  tether exec $n -- bash -lc 'cp /tmp/selection_manifest.json <island-repo>/<manifest>'
+done
+# 三台 sha256 必须一致（driver 会 pin manifest sha）
+```
+
+先由 G2 已审工具按 ws2 结果追加 manifest 段:
+```
+build_selection_manifest --segment ws2e \
+  --journal-dir exp/robocasa365/data/ws_search2/groot_tp \
+  --index exp/robocasa365/config/ws_search2/groot_tp/main/index.json \
+  --manifest exp/robocasa365/config/ws_search2/selection_manifest.json
+```
+(工具是 append-only:既有 ws2c 段被改会拒;p<alpha 的 cell 不足 2 个会 fail-fast 上报。)
+再用 main 目录的 yaml 跑 `--run-prefix ws2e --episodes 32 --manifest <manifest>`;
+server 需切回 main 的 text_ivf 配置。
+
+**④ → pi05 全线**:同一套拓扑,只换三处——server 用 `serve_policy.py`(已验默认支持动态
+bundle,`WebsocketPolicyServer` 默认 `allow_dynamic_bundles=True`、其
+`_connection_policy_factory` 同样接收 `bundle_id`);`--config-dir .../ws_search2/pi05/main`;
+`--teacher pi05`。**编排器已于 2026-08-27 泛化**:`orchestrate_ws_search2` 新增顶层
+`--teacher`,按 `TEACHERS` 表选 entry/解释器/checkpoint/VRAM 门,并把 `--teacher` 透传给
+driver 与 agent;`servers-down` 的清扫锚点也随 teacher 切换(端口跨相位复用,**入口名才是
+区分两个 teacher 的锚**)。命令:
+```
+orchestrate_ws_search2 --teacher pi05 --repo <clone> servers-up --ports <5 个> \
+  --bootstrap-yaml exp/robocasa365/config/ws_search2/pi05/main/iso_vision_2.yaml
+orchestrate_ws_search2 --teacher pi05 --repo <clone> driver-up  ...
+orchestrate_ws_search2 --teacher pi05 --repo <clone> agents-up  ...
+```
+
+上线前实测出的三条硬约束:
+
+1. **服务克隆没有自己的 venv**(`/data/openpi_text_ivf_build/.venv` 不存在)。pi05 借主 checkout
+   的解释器 `/home/weiland/openpi/.venv/bin/python`,再用 `PYTHONPATH=<clone>/src:<clone>`
+   把本轮源码顶到前面——与 GR00T 同一套嫁接。已在真机验证:`openpi.cache.config` 解析到
+   `/data/openpi_text_ivf_build/src/...` 且 `_TEXT_IVF_GROOT_BUILDERS` 在。**没有这条嫁接**
+   会导入主 checkout(其 HEAD 是 `6818ff2`,与本轮不同)的 openpi,本轮的 pooling 旋钮启动即被拒。
+2. **tyro 顺序**:`serve_policy.py` 的所有 flag 必须在 `policy:checkpoint` **之前**,且拼写是
+   `--cache_config`(下划线);放到子命令之后不会报错,而是绑到错误的 parser ——server 起得来、
+   但**完全没有 cache**,外观与健康 server 无异。
+3. **VRAM 决定池子只能开 5 台,不是 6**:4090 48G(49,140 MiB),pi05 单栈约 8 GiB
+   ⇒ 6×8192 已超卡容量。准入门(单台 10,500 MiB 门槛 × 三连读)会在第 6 台**主动拒绝**,
+   这是设计中的正确行为,不是故障。**因此 pi05 相位配 5 个 fleet**(worker 亲和把 fleet 绑死在
+   一台 server,多出的 fleet 会空转)。
+
+⚠ pi05 库 29.8G/entry 63,977,单 server RSS 约 32G ⇒ **5 台需 ~160G**,
+必须先把 GR00T 的 server 全停,两个库不能同时驻留(机器 251G)。
+
+**启动绑定检查已提前验明(2026-08-27)**:`config.py:2750-2764` 会拿库里的 `prompt_pool`
+元数据与 yaml 旋钮逐位比对,不等就 `ConfigValidationError` 拒启。用**两次 8MB 定点读**直接从
+pickle 字节里取出该字段(`\x88`=True / `\x89`=False),不必加载 29.8G:
+
+| 库 | `masked` | `instruction_span` | 与 yaml |
+|---|---|---|---|
+| `pi05_spatial_pool_16_full704` | **True** | **True** | pi05 yaml `prompt_masked_pool/instruction_span: true` ✔ |
+| `groot_tp_spatial_pool_16_full704` | False | False | GR00T yaml 无旋钮(默认 False)✔ |
+
+同时 `key_builder_type` 也对上(pi05 库写的是 `cp1_spatial_pool_16`,与其 yaml 一致)。
+GR00T 那半本来就由主臂正在跑这一事实自证——它此刻就跑在这道检查后面。
+⇒ **pi05 相位不会卡在绑定检查上**,这是上线前最后一个未验前置条件。
+
+**④b Round-1 journal 已归并到单目录(2026-08-27)**。`analyze compare --ws1-dir` 只吃**一个**
+目录,而 round-1 的 132 个 journal 原本**分散在两台机器**:weilandserver 113 个在
+`/data/openpi_exp_data/robocasa365/ws_search/groot_tp`,timan107 19 个在
+`/scratch/zixuans8/openpi_rc365/exp/robocasa365/data/ws_search/groot_tp`。已把 19 个打包
+(timan107 → 本地 → weilandserver,tarball sha 三端一致)并入前者,**先查零文件名冲突再落盘**。
+
+归并后逐项对拍 manifest 记录的 132 条 sha256:`missing=0 / extra=0 / sha mismatch=0`
+⇒ **最终分析读到的就是冻结选择所依据的那批字节**,不会出现漂移或半覆盖。
+`--ws1-dir` 从此填 `/data/openpi_exp_data/robocasa365/ws_search/groot_tp`。
+(`load_journals` 只 glob `journal_<prefix>-*.jsonl`,summary 不参与,所以不必一起搬。)
+
+**⑤ 分析**(两个 estimand 分开报,不得混用):
+```
+analyze_ws2_vs_ws1 compare --ws1-dir <round1 journals> --ws2-dir <ws2 dir> \
+  --ws2c-dir <ws2c dir> --manifest <manifest> --index <main index.json>
+analyze_ws2_vs_ws1 buckets --data-dir <ws2 dir> \
+  --bucket-variants exp/robocasa365/config/ws_search2/bucket_variants.json
+```
+默认正式模式强制冻结 132 格全覆盖且三臂网格逐项相等;中途观察须显式 `--allow-partial`
+(输出会自带 PARTIAL / NOT A FORMAL RESULT 抬头)。
+
+## 6e. 车队原始参数（2026-08-27 从 live 进程 `/proc/<pid>/cmdline` 读出，逐字复用）
+
+相位切换时 6 条 `agents-up` 是最容易记错的部分（gpu-ids 是**错位轮转**，不是重复）。下表是主臂
+此刻真正在跑的参数，来源是进程本身而不是某次命令的回忆：
+
+| fleet | worker-node | `--agent-server` | `--workers` | `--gpu-ids` |
+|---|---|---|---|---|
+| 0 | timan107 | `ziyanglin.com:23160` | 9 | `0,3,6,1,4,7,2,5` |
+| 1 | timan107 | `ziyanglin.com:23161` | 9 | `1,4,7,2,5,0,3,6` |
+| 2 | timan107 | `ziyanglin.com:23162` | 9 | `2,5,0,3,6,1,4,7` |
+| 3 | timan1 | `ziyanglin.com:23163` | 5 | `1` |
+| 4 | timan1 | `ziyanglin.com:23164` | 5 | `2` |
+| 5 | timan1 | `ziyanglin.com:23165` | 5 | `3` |
+
+两台 worker 机共用的常量：`--worker-repo /scratch/zixuans8/openpi_rc365`、
+`--worker-home /home/zixuans8`、
+`--agent-python /scratch/zixuans8/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv/bin/python`、
+`--env-config exp/robocasa365/config/ws_search_timan107.env`（timan1 也用这一份）、
+`--driver-host ziyanglin.com --driver-port 23180`、`--servers` 为六个端点的全串。
+
+⚠ timan1 的 gpu-ids 刻意**避开 GPU0**（他人常占）。timan107 的错位轮转让 3 个 fleet × 9 worker
+铺满 8 张卡而不撞车；照抄，别"简化"成同一串。
+
+**换相位时只改三个值**：`--run-prefix`、`--config-dir`、（pi05 时）`--teacher pi05` + fleet 数
+降到 5（VRAM 只够 5 台 server，见 ④）。其余逐字不动。
+
+三条 2026-08-27 干跑（`--echo`）核对出来的细节：
+
+- **`--data-dir` 不用传**：默认就是 `exp/robocasa365/data/ws_search2/<teacher>/`，各相位靠
+  `--run-prefix` 前缀区分文件，`analyze` 的 `--ws2-dir/--ws2c-dir` 指同一个目录即可。
+- **`driver-up` 建的会话叫 `<tmux-prefix>driver`（默认 `ws2sdriver`）**，而主臂当前的 driver 是
+  手起的 `ws2main`。存活检查按 `grep ws2` 数会话，不要写死名字。
+- **`--cells-per-batch 12` 要走 `--extra-args`**（`driver-up` 没有这个直通 flag）。
+
+**ws2c 已逐项验明（2026-08-27）**：`control/` 12 个 yaml 与 manifest 的 `ws2c` 段 12 个 cell
+一一对应、零漂移；yaml 内确为 `weighted_score_sum_knn` + `index_type: brute_force`（⇒ 指纹与
+主臂不同，**必须重启 server**），且 `preload_path` 与主臂**同一个库**（这正是配对成立的前提）。
+manifest 此刻只有 `ws2c` 一段，`ws2e` 段按设计待主臂结果出来后 append。
+
 ## 7. 运维与红线（承袭 Round-1 全套 + 本轮新增）
 
 共享机红线全承袭（keepwarm 常驻不动、端口/tmux 侦察让位、pkill 独占 exec + 模式串拼接、清理与发车拆 shell）；无人值守巡检 = cron 定时 + Monitor 事件（事件递送恢复后第一动作全量对账）；INCOMPLETE（Round-1 实测 ~1.5%）由 journal resume + summarize `--only` 网住；seeds 纪律（采集段 base=0 / 评测探测统一 base=1_000_000，两段绝不混用）；时间线取证前三端 `date -u` 对表；`tmux -t` 一律 `'=name'` 精确匹配。

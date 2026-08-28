@@ -30,26 +30,48 @@ import yaml
 from exp.robocasa365.emit_ws_search_yamls import weight_matrix
 from exp.weighted_sum.emit_yamls import build_eval_config
 
-TEACHER = "groot_tp"
-CALIB_STEM = "groot_tp_spatial_pool_16_full704"
-# The servers resolve this on weilandserver, where /data is local.
-PRELOAD = "/data/robocasa365_cache/cache_artifacts_text_ivf/groot_tp_spatial_pool_16_full704.pkl"
+# Per-teacher deployment facts. ``knobs`` must equal the artifact's recorded
+# ``prompt_pool`` metadata or the startup binding check refuses the config:
+# the pi0.5 library was pooled over the instruction span (its prompts carry a
+# state segment that would otherwise drift every step), the GR00T one was not
+# (its prompt embeddings are unpadded and already bit-stable within a task).
+TEACHERS = {
+    "groot_tp": {
+        "builder": "cp1_groot_spatial_pool_16",
+        "stem": "groot_tp_spatial_pool_16_full704",
+        # The servers resolve this on weilandserver, where /data is local.
+        "preload": "/data/robocasa365_cache/cache_artifacts_text_ivf/"
+                   "groot_tp_spatial_pool_16_full704.pkl",
+        "knobs": {},
+    },
+    "pi05": {
+        "builder": "cp1_spatial_pool_16",
+        "stem": "pi05_spatial_pool_16_full704",
+        "preload": "/data/robocasa365_cache/cache_artifacts_text_ivf/"
+                   "pi05_spatial_pool_16_full704.pkl",
+        "knobs": {"prompt_masked_pool": True, "prompt_instruction_span": True},
+    },
+}
 
 # Round-1's real-load-proven cp3 pin (see emit_ws_search_yamls docstring for
 # the exact trap it guards against).
 CP3_PIN = {"enabled": False, "search_strategy": {"type": "weighted_rrf_knn"}}
 
 
-def build_cell(weights: dict[str, float], calib_entry: dict, *, text_ivf: bool) -> dict:
+def build_cell(
+    weights: dict[str, float], calib_entry: dict, teacher: str, *, text_ivf: bool
+) -> dict:
     """Build one cell config: the round-1 recipe, plus the text-IVF keys for the main arm."""
+    spec = TEACHERS[teacher]
     cfg = build_eval_config(
         builder_type=calib_entry["builder_type"],
         vector_dims=calib_entry["vector_dims"],
-        preload_path=PRELOAD,
+        preload_path=spec["preload"],
         weights=weights,
         fields_calib=calib_entry["fields"],
     )
     cfg["checkpoints"]["cp3"] = dict(CP3_PIN)
+    cfg["key_builder"].update(spec["knobs"])
     if text_ivf:
         cfg["checkpoints"]["cp1"]["search_strategy"]["type"] = "text_ivf_knn"
         cfg["backend"]["in_memory"]["index_type"] = "text_ivf"
@@ -57,7 +79,7 @@ def build_cell(weights: dict[str, float], calib_entry: dict, *, text_ivf: bool) 
     return cfg
 
 
-def verify_cell(cfg: dict, cid: str, *, text_ivf: bool) -> None:
+def verify_cell(cfg: dict, cid: str, teacher: str, *, text_ivf: bool) -> None:
     """Arm-shape invariants + the real validator on a round-tripped load."""
     ss = cfg["checkpoints"]["cp1"]["search_strategy"]
     weights = {f: k["weight"] for f, k in cfg["keys"].items() if k.get("enabled")}
@@ -72,6 +94,13 @@ def verify_cell(cfg: dict, cid: str, *, text_ivf: bool) -> None:
         assert not cfg["keys"]["prompt_emb"]["enabled"], cid
     assert cfg["write_policy"] == {"type": "never"}, cid
     assert cfg["backend"]["vector_dims"]["prompt_emb"] == 2048, cid
+    spec = TEACHERS[teacher]
+    assert cfg["key_builder"]["type"] == spec["builder"], cid
+    # Knobs must match the artifact's prompt_pool metadata exactly; the startup
+    # binding check compares them and refuses a mismatch in either direction.
+    for knob in ("prompt_masked_pool", "prompt_instruction_span"):
+        assert cfg["key_builder"].get(knob, False) == spec["knobs"].get(knob, False), (cid, knob)
+    assert cfg["backend"]["in_memory"]["preload_path"] == spec["preload"], cid
 
 
 def validate_on_disk(path: Path) -> None:
@@ -82,15 +111,16 @@ def validate_on_disk(path: Path) -> None:
 
 
 def emit_arm(
-    out_dir: Path, cids: list[str], configs: dict, calib_entry: dict, *, text_ivf: bool
+    out_dir: Path, cids: list[str], configs: dict, calib_entry: dict, teacher: str,
+    *, text_ivf: bool,
 ) -> dict:
     """Emit one arm's YAMLs plus its index.json, validating every file as it lands."""
     out_dir.mkdir(parents=True, exist_ok=True)
     index = {}
     for cid in cids:
         weights = configs[cid]
-        cfg = build_cell(weights, calib_entry, text_ivf=text_ivf)
-        verify_cell(cfg, cid, text_ivf=text_ivf)
+        cfg = build_cell(weights, calib_entry, teacher, text_ivf=text_ivf)
+        verify_cell(cfg, cid, teacher, text_ivf=text_ivf)
         path = out_dir / f"{cid}.yaml"
         path.write_text(yaml.safe_dump(cfg, sort_keys=False))
         validate_on_disk(path)
@@ -106,10 +136,17 @@ def main() -> None:
     ap.add_argument("--manifest", required=True,
                     help="selection_manifest.json with the ws2c segment (control-arm cells)")
     ap.add_argument("--out-root", default="exp/robocasa365/config/ws_search2")
+    ap.add_argument("--teacher", default="groot_tp", choices=sorted(TEACHERS))
     args = ap.parse_args()
 
+    spec = TEACHERS[args.teacher]
     calib = json.loads(Path(args.calibration).read_text())
-    calib_entry = calib[CALIB_STEM]
+    calib_entry = calib[spec["stem"]]
+    if calib_entry["builder_type"] != spec["builder"]:
+        raise SystemExit(
+            f"calibration was computed for builder {calib_entry['builder_type']!r}, "
+            f"but teacher {args.teacher!r} runs {spec['builder']!r}"
+        )
     manifest = json.loads(Path(args.manifest).read_text())
     control_cells = manifest["segments"]["ws2c"]["cells"]
 
@@ -118,9 +155,11 @@ def main() -> None:
     if unknown:
         raise SystemExit(f"manifest ws2c cells not in the weight matrix: {unknown}")
 
-    out_root = Path(args.out_root) / TEACHER
-    main_index = emit_arm(out_root / "main", sorted(configs), configs, calib_entry, text_ivf=True)
-    ctrl_index = emit_arm(out_root / "control", list(control_cells), configs, calib_entry, text_ivf=False)
+    out_root = Path(args.out_root) / args.teacher
+    main_index = emit_arm(out_root / "main", sorted(configs), configs, calib_entry,
+                          args.teacher, text_ivf=True)
+    ctrl_index = emit_arm(out_root / "control", list(control_cells), configs, calib_entry,
+                          args.teacher, text_ivf=False)
     assert len(main_index) == 132, f"main arm must be 132 cells, got {len(main_index)}"
     assert len(ctrl_index) == 12, f"control arm must be 12 cells, got {len(ctrl_index)}"
     print(f"[emit] main={len(main_index)} control={len(ctrl_index)} -> {out_root}", flush=True)

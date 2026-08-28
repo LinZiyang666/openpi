@@ -228,3 +228,63 @@ def test_provenance_records_the_same_kwargs_it_replayed(monkeypatch):
         assert prov["env_kwargs"][key] == value
     assert prov["teacher"] == "groot_tp"
     assert "robocasa_commit" in prov
+
+
+def test_bucket_key_matches_the_backend_on_a_real_pickled_artifact(tmp_path):
+    """Bucket ids must be the ones the SERVED index uses, not the raw bytes.
+
+    Artifacts store fp16 numpy; the backend rehydrates with
+    ``torch.from_numpy(v).float()`` before keying. A tool reading the pickle
+    directly sees the numpy arrays, so this drives both paths over the same
+    file and demands identical grouping.
+    """
+    import pickle
+
+    from openpi.cache.backends.in_memory_backend import InMemoryBackend
+    from openpi.cache.config import TextIvfIndexConfig
+    from openpi.cache.storage_types import CacheEntry, CachePayload, CheckpointID
+
+    from exp.robocasa365.build_bucket_variants import bucket_entries
+
+    import numpy as np
+
+    def entry(eid: str, prompt: np.ndarray) -> CacheEntry:
+        return CacheEntry(
+            id=eid, checkpoint_id=CheckpointID.CP1,
+            query_keys={"prompt_emb": prompt, "vision_0": np.zeros(2, dtype=np.float16)},
+            payload=CachePayload(action_chunk=np.zeros((2, 2), dtype=np.float16)),
+        )
+
+    a = np.array([1.0, 0.0], dtype=np.float16)
+    b = np.array([0.0, 1.0], dtype=np.float16)
+    entries = [
+        entry("OpenDrawer/episode_0000_a01:0", a),
+        entry("OpenDrawer/episode_0000_a01:1", a),
+        entry("CloseFridge/episode_0003_a01:0", b),
+    ]
+    path = tmp_path / "artifact.pkl"
+    path.write_bytes(pickle.dumps({
+        "vector_dims": {"prompt_emb": 2, "vision_0": 2},
+        "entries": entries,
+        "checkpoint_id": "CP1",
+        "key_builder_type": "cp1_groot_spatial_pool_16",
+        "prompt_pool": {"masked": False, "instruction_span": False},
+    }))
+
+    backend = InMemoryBackend(
+        vector_dims={"prompt_emb": 2, "vision_0": 2},
+        text_ivf=TextIvfIndexConfig(field="prompt_emb", max_buckets=16),
+    )
+    backend.load_artifact(str(path))
+    served_buckets, _, _, _ = backend._text_ivf_state  # noqa: SLF001 - contract under test
+    served = {frozenset(ids) for ids in served_buckets.values()}
+
+    with path.open("rb") as fh:
+        tool_entries = pickle.load(fh)["entries"]
+    mapped = bucket_entries(tool_entries)
+    tool = {frozenset(t for t in bucket["trajectories"]) for bucket in mapped}
+
+    # Grouping must agree at trajectory level (ids differ only by step suffix).
+    served_trajectories = {frozenset(i.rsplit(":", 1)[0] for i in ids) for ids in served_buckets.values()}
+    assert tool == served_trajectories
+    assert len(mapped) == len(served) == 2

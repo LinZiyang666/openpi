@@ -1,0 +1,39 @@
+# ws2 S1 — dynamic-bundle smoke gate
+# run: 2026-08-26T20:39:55Z  server: :23160  cells: iso_vision_2 + grid_vision_2@87_robot_state@12
+
+## verdict: PASS
+
+### server: rule-6 allowance is live on real hardware
+INFO:openpi.cache.backends.in_memory_backend:Loaded 50795 entries from /data/robocasa365_cache/cache_artifacts_text_ivf/groot_tp_spatial_pool_16_full704.pkl
+serving stack: concurrent cache -> exp/robocasa365/config/ws_search2/groot_tp/main/iso_vision_2.yaml (cp1_groot_spatial_pool_16)
+SERVER-LISTENING on 0.0.0.0:23160
+
+### episodes
+=== (1) journal: complete, no err/missing ===
+  grid_vision_2@87_robot_state@12            complete=True macro_sr=0.25 err=0 missing=0
+      OpenDrawer                   succ=1 fail=1 sr=0.5
+      PickPlaceCounterToCabinet    succ=0 fail=2 sr=0.0
+  iso_vision_2                               complete=True macro_sr=0.25 err=0 missing=0
+      OpenDrawer                   succ=1 fail=1 sr=0.5
+      PickPlaceCounterToCabinet    succ=0 fail=2 sr=0.0
+=== (2) evidence channel ===
+  per_step_ws2-grid_vision_2@87_robot_state@12__l1s1_g   rows=548 headers=4 decisions=544 with_winner=544
+      header sample: seed=1000001 attempt=1 run_id=87554d76 accepted=True
+      prompt='Open the right drawer.'
+      hit types: {'FULL_HIT': 544}
+  per_step_ws2-iso_vision_2__l1s1_groot_tp.jsonl         rows=531 headers=4 decisions=527 with_winner=527
+      header sample: seed=1000000 attempt=1 run_id=87554d76 accepted=True
+      prompt='Open the left drawer.'
+      hit types: {'FULL_HIT': 527}
+
+### bucket attribution join (S1-4)
+  episodes joined: 8 | matched: {True: 6, False: 2}
+  gaps: all zero (missing_evidence/run_mismatch/missing_header/unresolved/no_winner)
+  nearest-representative fallback:
+    eval: 'Pick the hot dog from the counter and place it in the cabinet.'
+    lib : 'Pick the hotdog bun from the counter and place it in the cabinet.'
+
+### operator note
+  Launch fleets through orchestrate_ws_search2 agents-up: agents-down derives the
+  session name as <prefix>agent<fleet>, so a hand-rolled tmux name leaves the
+  supervisor alive and it respawns the workers the sweep just killed.

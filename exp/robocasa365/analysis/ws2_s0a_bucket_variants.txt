@@ -1,0 +1,32 @@
+# ws2 S0-a — bucket-variant map + real-seed replay gate
+# run: 2026-08-26T19:42:38Z  host: weilandserver  commit: 3598534
+
+## verdict: PASS (four criteria, plan section 5)
+
+(1) n_buckets      = 111 expect 111 -> True
+(2) n_unresolved   = 0 expect 0   -> True
+(3) robocasa_commit= be22d659b02db8f6 40-hex -> True
+    env_kwargs     = {'env_id_template': 'robocasa/<task_name>', 'split': None, 'obj_instance_split': 'target', 'layout_and_style_ids': [[1, 1]], 'camera_heights': 512, 'camera_widths': 512}
+    teacher        = groot_tp | sha256: 7293a7895a1c51dc
+    ambiguous      = 0
+(4) three sampled representatives:
+    bucket 108 ['PickPlaceCounterToStove'] n_entries= 50 seed= 29
+       prompt = 'Pick the corn from the plate and place it in the pan.'
+       object = [{'name': 'container', 'cat': 'pan'}, {'name': 'obj_container', 'cat': 'plate'}, {'name': 'obj', 'cat': 'corn'}]
+    bucket 49 ['PickPlaceCounterToCabinet'] n_entries= 192 seed= 1
+       prompt = 'Pick the dish brush from the counter and place it in the cabinet.'
+       object = [{'name': 'obj', 'cat': 'dish_brush'}, {'name': 'distr_counter', 'cat': 'scissors'}, {'name': 'distr_cab', 'cat': 'orange'}]
+    bucket 97 ['PickPlaceSinkToCounter'] n_entries= 165 seed= 4
+       prompt = 'Pick the bell pepper from the sink and place it on the plate located on the counter.'
+       object = [{'name': 'obj', 'cat': 'bell_pepper'}, {'name': 'container', 'cat': 'plate'}, {'name': 'distr_counter', 'cat': 'cake'}]
+    entries: 50795 | traj->bucket rows: 704
+
+## entry-id shape probe (confirms the _aNN attempt suffix is real)
+sample entry ids: ['CloseBlenderLid/episode_0000_a01:0', 'CloseBlenderLid/episode_0000_a01:1', 'CloseBlenderLid/episode_0000_a01:2']
+  traj: CloseBlenderLid/episode_0000_a01 -> _EPISODE_RE match: True
+  traj: CloseBlenderLid/episode_0000_a01 -> _EPISODE_RE match: True
+  traj: CloseBlenderLid/episode_0000_a01 -> _EPISODE_RE match: True
+prompt_emb type: ndarray dtype: float32
+
+## tool stdout
+[bucket_variants] 111 buckets (0 unresolved, 0 ambiguous) -> /data/openpi_text_ivf_build/exp/robocasa365/config/ws_search2/bucket_variants.json

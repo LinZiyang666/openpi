@@ -14,8 +14,7 @@ import pytest
 import yaml
 
 from exp.robocasa365.emit_ws_search2_yamls import (
-    CALIB_STEM,
-    PRELOAD,
+    TEACHERS,
     build_cell,
     emit_arm,
     verify_cell,
@@ -44,11 +43,11 @@ def test_matrix_is_the_frozen_132_cell_set():
 
 def test_main_arm_cell_carries_the_three_text_ivf_keys():
     weights = {"vision_2": 0.875, "robot_state": 0.125}
-    cfg = build_cell(weights, CALIB, text_ivf=True)
+    cfg = build_cell(weights, CALIB, "groot_tp", text_ivf=True)
     assert cfg["checkpoints"]["cp1"]["search_strategy"]["type"] == "text_ivf_knn"
     assert cfg["backend"]["in_memory"]["index_type"] == "text_ivf"
     assert cfg["keys"]["prompt_emb"] == {"enabled": True, "weight": 0.0}
-    assert cfg["backend"]["in_memory"]["preload_path"] == PRELOAD
+    assert cfg["backend"]["in_memory"]["preload_path"] == TEACHERS["groot_tp"]["preload"]
     # prompt_emb screens; it must never score.
     sn = cfg["checkpoints"]["cp1"]["search_strategy"]["score_normalization"]["fields"]
     assert "prompt_emb" not in sn
@@ -56,17 +55,17 @@ def test_main_arm_cell_carries_the_three_text_ivf_keys():
 
 def test_control_arm_cell_is_the_round1_shape_over_the_same_library():
     weights = {"vision_2": 0.875, "robot_state": 0.125}
-    cfg = build_cell(weights, CALIB, text_ivf=False)
+    cfg = build_cell(weights, CALIB, "groot_tp", text_ivf=False)
     assert cfg["checkpoints"]["cp1"]["search_strategy"]["type"] == "weighted_score_sum_knn"
     assert cfg["backend"]["in_memory"]["index_type"] == "brute_force"
     assert cfg["keys"]["prompt_emb"]["enabled"] is False
     # Same library as the main arm: that is what makes the pair matched.
-    assert cfg["backend"]["in_memory"]["preload_path"] == PRELOAD
+    assert cfg["backend"]["in_memory"]["preload_path"] == TEACHERS["groot_tp"]["preload"]
 
 
 def test_both_arms_keep_the_pure_cache_recipe():
     for text_ivf in (True, False):
-        cfg = build_cell({"vision_0": 1.0}, CALIB, text_ivf=text_ivf)
+        cfg = build_cell({"vision_0": 1.0}, CALIB, "groot_tp", text_ivf=text_ivf)
         cp1 = cfg["checkpoints"]["cp1"]
         assert cp1["gate"]["type"] == "always_search"
         assert cp1["judge"]["type"] == "always_hit"
@@ -78,10 +77,10 @@ def test_both_arms_keep_the_pure_cache_recipe():
 
 
 def test_verify_cell_rejects_a_half_converted_config():
-    cfg = build_cell({"vision_0": 1.0}, CALIB, text_ivf=True)
+    cfg = build_cell({"vision_0": 1.0}, CALIB, "groot_tp", text_ivf=True)
     cfg["backend"]["in_memory"]["index_type"] = "brute_force"
     with pytest.raises(AssertionError):
-        verify_cell(cfg, "iso_vision_0", text_ivf=True)
+        verify_cell(cfg, "iso_vision_0", "groot_tp", text_ivf=True)
 
 
 def test_emit_arm_writes_index_and_reproduces_byte_for_byte(tmp_path, monkeypatch):
@@ -91,11 +90,11 @@ def test_emit_arm_writes_index_and_reproduces_byte_for_byte(tmp_path, monkeypatc
     configs = weight_matrix()
     cids = sorted(configs)[:5]
 
-    index = emit_arm(tmp_path / "main", cids, configs, CALIB, text_ivf=True)
+    index = emit_arm(tmp_path / "main", cids, configs, CALIB, "groot_tp", text_ivf=True)
     assert set(index) == set(cids)
     first = {cid: (tmp_path / "main" / f"{cid}.yaml").read_text() for cid in cids}
 
-    emit_arm(tmp_path / "main", cids, configs, CALIB, text_ivf=True)
+    emit_arm(tmp_path / "main", cids, configs, CALIB, "groot_tp", text_ivf=True)
     assert {cid: (tmp_path / "main" / f"{cid}.yaml").read_text() for cid in cids} == first
 
     written = json.loads((tmp_path / "main" / "index.json").read_text())
@@ -104,9 +103,66 @@ def test_emit_arm_writes_index_and_reproduces_byte_for_byte(tmp_path, monkeypatc
     assert loaded["checkpoints"]["cp1"]["search_strategy"]["type"] == "text_ivf_knn"
 
 
-def test_calibration_stem_names_the_full704_library():
-    assert CALIB_STEM.endswith("_full704")
-    assert "full704" in PRELOAD and PRELOAD.startswith("/data/")
+def test_every_teacher_names_a_full704_library():
+    for teacher, spec in TEACHERS.items():
+        assert spec["stem"].endswith("_full704"), teacher
+        assert "full704" in spec["preload"] and spec["preload"].startswith("/data/"), teacher
+
+
+PI05_CALIB = {
+    "builder_type": "cp1_spatial_pool_16",
+    "vector_dims": {"vision_0": 32768, "vision_1": 32768, "vision_2": 32768,
+                    "prompt_emb": 2048, "robot_state": 32},
+    "fields": {
+        f: {"sim_type": "cosine" if f.startswith("vision") else "l2",
+            "selected": {"method": "zscore",
+                         "params": {"mu": 0.85, "sigma": 0.03, "squash": "tanh"}}}
+        for f in ("vision_0", "vision_1", "vision_2", "robot_state")
+    },
+}
+
+
+def test_pi05_cells_carry_the_span_pooling_knobs():
+    """The pi0.5 library was pooled over the instruction span; the config must say so.
+
+    Its prompts embed a per-step state segment, so the library was built with
+    masked + instruction-span pooling and records that in ``prompt_pool``. A
+    config without the knobs would query a different pooling space, which the
+    startup binding check refuses.
+    """
+    cfg = build_cell({"vision_2": 0.875, "robot_state": 0.125}, PI05_CALIB, "pi05", text_ivf=True)
+    assert cfg["key_builder"] == {
+        "type": "cp1_spatial_pool_16",
+        "prompt_masked_pool": True,
+        "prompt_instruction_span": True,
+    }
+    assert "pi05_spatial_pool_16_full704" in cfg["backend"]["in_memory"]["preload_path"]
+    verify_cell(cfg, "iso_vision_2", "pi05", text_ivf=True)
+
+
+def test_groot_cells_leave_the_knobs_off():
+    """GR00T pools are not in the knob allowlist; its library records False/False."""
+    cfg = build_cell({"vision_2": 1.0}, CALIB, "groot_tp", text_ivf=True)
+    assert cfg["key_builder"] == {"type": "cp1_groot_spatial_pool_16"}
+    verify_cell(cfg, "iso_vision_2", "groot_tp", text_ivf=True)
+
+
+def test_verify_rejects_a_teacher_knob_mismatch():
+    cfg = build_cell({"vision_2": 1.0}, PI05_CALIB, "pi05", text_ivf=True)
+    cfg["key_builder"]["prompt_instruction_span"] = False
+    with pytest.raises(AssertionError):
+        verify_cell(cfg, "iso_vision_2", "pi05", text_ivf=True)
+
+
+@pytest.mark.parametrize("teacher", ["groot_tp", "pi05"])
+def test_both_teachers_pass_the_production_validator(tmp_path, teacher):
+    from openpi.cache.config import load_cache_config, validate_cache_config
+
+    calib = CALIB if teacher == "groot_tp" else PI05_CALIB
+    cfg = build_cell({"vision_2": 0.875, "robot_state": 0.125}, calib, teacher, text_ivf=True)
+    path = tmp_path / f"{teacher}.yaml"
+    path.write_text(yaml.safe_dump(cfg, sort_keys=False))
+    validate_cache_config(load_cache_config(path))
 
 
 @pytest.mark.parametrize("text_ivf", [True, False])
@@ -118,7 +174,7 @@ def test_both_arms_pass_the_production_validator(tmp_path, text_ivf):
     """
     from openpi.cache.config import load_cache_config, validate_cache_config
 
-    cfg = build_cell({"vision_2": 0.875, "robot_state": 0.125}, CALIB, text_ivf=text_ivf)
+    cfg = build_cell({"vision_2": 0.875, "robot_state": 0.125}, CALIB, "groot_tp", text_ivf=text_ivf)
     path = tmp_path / "cell.yaml"
     path.write_text(yaml.safe_dump(cfg, sort_keys=False))
     validate_cache_config(load_cache_config(path))

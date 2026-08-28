@@ -429,7 +429,12 @@ def finalize(
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--teacher", required=True, choices=("groot_tp",))
+    # Both teachers, like every other tool in this family (summarize_ws_search,
+    # analyze_ws_search_stats, orchestrate_ws_search). The pi0.5 arm reuses this
+    # driver unchanged; ``episode_runner.ADAPTERS`` already carries both, and
+    # ``validate_teacher_endpoints`` is what keeps one invocation pointed at a
+    # single teacher's endpoint group.
+    ap.add_argument("--teacher", required=True, choices=("groot_tp", "pi05"))
     ap.add_argument("--servers", required=True,
                     help='comma-separated "host:port" pool of dynamic-bundle servers')
     ap.add_argument("--run-prefix", default="ws2", choices=("ws2", "ws2c", "ws2e"))

@@ -8,6 +8,7 @@ the scheduler actually does, not about graph insertion order.
 from __future__ import annotations
 
 import json
+import os
 
 import pytest
 
@@ -559,3 +560,44 @@ def test_finalize_tolerates_a_torn_last_line(tmp_path):
     complete = finalize(central, tmp_path, teacher="groot_tp",
                         expected_by_run={run_id: {"cid": strategy._cid, "uids": uids}})  # noqa: SLF001
     assert complete[run_id] is True
+
+
+@pytest.mark.parametrize(
+    ("teacher", "rejected"),
+    [("groot_tp", False), ("pi05", False), ("not_a_teacher", True)],
+)
+def test_driver_accepts_both_teachers(teacher, rejected):
+    """The pi0.5 arm reuses this driver; a narrowed choice list blocks the phase.
+
+    Drives the REAL CLI: argparse rejects an out-of-choices value with
+    "invalid choice" before any other validation, so a run that gets past that
+    message proves the teacher is accepted (it still fails on the missing
+    required args, which is fine). Endpoint homogeneity is enforced by
+    ``validate_teacher_endpoints``, not by this list, so narrowing it buys no
+    safety -- it only blocks a phase, as it did on 2026-08-27.
+    """
+    import subprocess
+    import sys
+
+    proc = subprocess.run(
+        [sys.executable, "-m", "exp.robocasa365.run_ws_search2", "--teacher", teacher],
+        capture_output=True, text=True, timeout=120,
+        env={**os.environ, "PYTHONPATH": "src:."},
+    )
+    assert ("invalid choice" in proc.stderr) is rejected, proc.stderr[-400:]
+
+
+def test_driver_teachers_match_the_adapters():
+    """An argparse list narrower than ADAPTERS is a silent phase blocker."""
+    import subprocess
+    import sys
+
+    from exp.robocasa365.episode_runner import ADAPTERS
+
+    for teacher in ADAPTERS:
+        proc = subprocess.run(
+            [sys.executable, "-m", "exp.robocasa365.run_ws_search2", "--teacher", teacher],
+            capture_output=True, text=True, timeout=120,
+            env={**os.environ, "PYTHONPATH": "src:."},
+        )
+        assert "invalid choice" not in proc.stderr, f"{teacher} has an adapter but the CLI rejects it"

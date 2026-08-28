@@ -98,6 +98,24 @@ def env_provenance(layout: int, style: int, teacher: str) -> dict[str, Any]:
     }
 
 
+def bucket_key(vec: Any) -> bytes:
+    """The byte key ``InMemoryBackend`` would give this vector.
+
+    Two steps, and both matter. ``load_artifact`` rehydrates a pickled entry
+    with ``torch.from_numpy(v).float()`` — artifacts store fp16 to stay small,
+    so the backend's keys are the fp32 UPCAST of those bytes — and
+    ``_build_text_ivf_index`` then keys on ``vec.numpy().tobytes()``. Reading
+    the pickle directly skips the rehydration, so a tool that hashed the raw
+    array would produce bucket ids the served index never uses.
+    """
+    import numpy as np
+    import torch
+
+    if isinstance(vec, np.ndarray):
+        vec = torch.from_numpy(vec).float()
+    return vec.float().contiguous().numpy().tobytes()
+
+
 def bucket_entries(entries: list[Any]) -> list[dict[str, Any]]:
     """Group entries by exact prompt_emb bytes; index in ascending key order."""
     buckets: dict[bytes, list[Any]] = {}
@@ -105,7 +123,7 @@ def bucket_entries(entries: list[Any]) -> list[dict[str, Any]]:
         vec = entry.query_keys.get("prompt_emb")
         if vec is None:
             raise SystemExit(f"entry {entry.id!r} has no prompt_emb — not a text-IVF artifact")
-        buckets.setdefault(vec.float().contiguous().numpy().tobytes(), []).append(entry)
+        buckets.setdefault(bucket_key(vec), []).append(entry)
     out = []
     for index, key in enumerate(sorted(buckets)):
         members = buckets[key]

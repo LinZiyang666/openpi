@@ -336,10 +336,13 @@ class _Recorder:
 
     def __init__(self, outputs: list[str]) -> None:
         self.scripts: list[str] = []
+        self.calls: list[tuple[str, str]] = []
         self._outputs = list(outputs)
 
-    def __call__(self, node: str, script: str, *, echo_only: bool) -> str:
-        del node, echo_only
+    def __call__(self, node: str, script: str, *, echo_only: bool,
+                 home: str = "/home/weiland") -> str:
+        del echo_only
+        self.calls.append((node, home))
         self.scripts.append(script)
         return self._outputs.pop(0) if self._outputs else ""
 
@@ -515,9 +518,9 @@ def test_matched_mode_projects_before_checking(tmp_path, monkeypatch, capsys):
 def _agents_down_ns(**over):
     import argparse
 
-    base = dict(worker_node="timan107", fleet="0", driver_host="ziyanglin.com",
-                driver_port=23180, agent_server="ziyanglin.com:23160",
-                tmux_prefix="ws2s", echo=False)
+    base = dict(worker_node="timan107", worker_home="/home/zixuans8", fleet="0",
+                driver_host="ziyanglin.com", driver_port=23180,
+                agent_server="ziyanglin.com:23160", tmux_prefix="ws2s", echo=False)
     base.update(over)
     return argparse.Namespace(**base)
 
@@ -798,3 +801,199 @@ def test_agents_down_reports_a_clean_fleet(monkeypatch, capsys):
     monkeypatch.setattr(orch, "texec", _Recorder(["", "", "0"]))
     orch.cmd_agents_down(_agents_down_ns())
     assert "is clear" in capsys.readouterr().out
+
+
+def test_worker_node_commands_use_the_worker_account_home(monkeypatch):
+    """The worker island runs as a different account than the serving host.
+
+    The tether agent's own HOME is not a user home, so every remote script
+    sets it — and using the serving host's value on the worker node points
+    tmux, the venv caches and the island paths at an account that does not
+    own them.
+    """
+    from exp.robocasa365 import orchestrate_ws_search2 as orch
+
+    rec = _Recorder(["", "", "0"])
+    monkeypatch.setattr(orch, "texec", rec)
+    orch.cmd_agents_down(_agents_down_ns())
+    assert rec.calls, "teardown must reach the worker node"
+    assert all(node == "timan107" and home == "/home/zixuans8" for node, home in rec.calls)
+
+
+# ------------------------------------------------------------------
+# per-teacher serving recipes (the pi0.5 phase reuses this orchestrator)
+# ------------------------------------------------------------------
+
+
+def _serve_ns(**over):
+    import argparse
+
+    base = dict(node="weilandserver", repo="/data/openpi_text_ivf_build", teacher="groot_tp",
+                tmux_prefix="ws2s", echo=True, ports="23160", cuda_device=0,
+                python=None, pythonpath=None, checkpoint=None,
+                bootstrap_yaml="exp/robocasa365/config/ws_search2/groot_tp/main/iso_vision_2.yaml",
+                min_free_ram_gb=40, min_free_vram_mb=None, min_gpu_temp_c=0,
+                ready_timeout_s=900.0)
+    base.update(over)
+    ns = argparse.Namespace(**base)
+    return ns
+
+
+def _resolved(**over):
+    from exp.robocasa365 import orchestrate_ws_search2 as orch
+
+    ns = _serve_ns(**over)
+    orch.resolve_serve_defaults(ns)
+    return ns
+
+
+def test_teacher_row_binds_interpreter_checkpoint_and_vram_floor():
+    """Every teacher-specific string comes from one table, not from a call site."""
+    groot = _resolved(teacher="groot_tp")
+    pi05 = _resolved(teacher="pi05")
+
+    assert "gr00t_n15_venv" in groot.python and groot.checkpoint.endswith("checkpoint-60000")
+    assert groot.min_free_vram_mb == 8500
+    assert pi05.checkpoint == "/home/weiland/ckpt_pi05_robocasa_pytorch"
+    # pi0.5 needs a bigger slice of the card than GR00T (round-1 footprints).
+    assert pi05.min_free_vram_mb == 10500
+
+
+def test_every_teacher_grafts_the_serving_clone_in_front_of_its_interpreter():
+    """The serving clone has no venv; both teachers borrow one and override src.
+
+    Without the graft the server imports the interpreter's own checkout — a
+    different openpi than the one this round's configs were validated against,
+    which shows up as a startup rejection at best and a silently different
+    retrieval path at worst.
+    """
+    for teacher in ("groot_tp", "pi05"):
+        ns = _resolved(teacher=teacher, repo="/other/clone")
+        assert ns.pythonpath.endswith("/other/clone/src:/other/clone"), teacher
+        assert not ns.python.startswith("/other/clone"), (
+            f"{teacher}: the clone owns no interpreter; the venv path is external"
+        )
+
+
+def test_explicit_flags_still_beat_the_table():
+    ns = _resolved(teacher="pi05", python="/custom/python", min_free_vram_mb=1)
+    assert ns.python == "/custom/python" and ns.min_free_vram_mb == 1
+
+
+def test_unknown_teacher_is_refused_with_the_known_set():
+    from exp.robocasa365 import orchestrate_ws_search2 as orch
+
+    with pytest.raises(SystemExit, match="no serving recipe"):
+        orch.teacher_spec("pi0", "/repo")
+
+
+def test_pi05_puts_every_flag_before_the_policy_subcommand():
+    """tyro parses flags after ``policy:checkpoint`` as the SUBCOMMAND's.
+
+    A ``--cache_config`` placed after it is not a parse error — it binds to the
+    wrong parser and the server comes up with no cache at all, which looks like
+    a healthy server serving uncached actions.
+    """
+    from exp.robocasa365 import orchestrate_ws_search2 as orch
+
+    cmd = orch.serve_command(_resolved(teacher="pi05"), 23160, "/tmp/x.log")
+    head, _, tail = cmd.partition("policy:checkpoint")
+    assert "--port 23160" in head and "--cache_config " in head
+    assert "--cache_config" not in tail and "--port" not in tail
+    assert "--policy.config pi05_robocasa" in tail and "--policy.dir " in tail
+
+
+def test_pi05_uses_the_underscore_flag_and_no_dynamic_bundle_flag():
+    """``serve_policy`` spells it ``--cache_config`` and has no bundle flag.
+
+    ``WebsocketPolicyServer`` defaults ``allow_dynamic_bundles=True`` and
+    ``serve_policy`` never overrides it, so passing an invented flag would only
+    make tyro reject the launch.
+    """
+    from exp.robocasa365 import orchestrate_ws_search2 as orch
+
+    cmd = orch.serve_command(_resolved(teacher="pi05"), 23160, "/tmp/x.log")
+    assert "scripts/serve_policy.py" in cmd
+    assert "--cache-config" not in cmd
+    assert "--allow-dynamic-bundles" not in cmd
+    assert "PYTHONPATH=/data/openpi_text_ivf_build/src:" in cmd
+
+
+def test_groot_keeps_its_verified_recipe():
+    from exp.robocasa365 import orchestrate_ws_search2 as orch
+
+    cmd = orch.serve_command(_resolved(teacher="groot_tp"), 23161, "/tmp/x.log")
+    assert "exp/robocasa365/serve_groot_n15.py" in cmd
+    for flag in ("--concurrent", "--allow-dynamic-bundles", "--cache-config", "--checkpoint"):
+        assert flag in cmd
+    assert "PYTHONPATH=/home/weiland/gr00t_n15:" in cmd
+    assert "policy:checkpoint" not in cmd
+
+
+@pytest.mark.parametrize("teacher", ["groot_tp", "pi05"])
+def test_serve_command_pins_the_card_and_tees_its_log(teacher):
+    from exp.robocasa365 import orchestrate_ws_search2 as orch
+
+    cmd = orch.serve_command(_resolved(teacher=teacher, cuda_device=1), 23162, "/tmp/s.log")
+    assert "CUDA_VISIBLE_DEVICES=1" in cmd
+    # tee, not redirect: the readiness probe greps this log AND an operator
+    # attaching to the pane must still see the stream.
+    assert cmd.rstrip().endswith("| tee /tmp/s.log")
+
+
+@pytest.mark.parametrize(
+    ("teacher", "cmdline", "expect"),
+    [
+        ("pi05", "python scripts/serve_policy.py --port 23160 --cache_config x.yaml", True),
+        # The other teacher's server on one of the same ports is NOT ours.
+        ("pi05", "python exp/robocasa365/serve_groot_n15.py --port 23160", False),
+        ("groot_tp", "python exp/robocasa365/serve_groot_n15.py --port 23160", True),
+        ("groot_tp", "python scripts/serve_policy.py --port 23160", False),
+    ],
+)
+def test_servers_down_anchors_on_the_teachers_entry_point(
+    teacher, cmdline, expect, tmp_path, monkeypatch
+):
+    """Ports are recycled between phases; the entry point is what disambiguates.
+
+    Runs the generated sweep as real shell against a fake /proc so the ``case``
+    pattern is exercised, not merely inspected.
+    """
+    import subprocess
+
+    from exp.robocasa365 import orchestrate_ws_search2 as orch
+
+    rec = _Recorder(["", "", ""])
+    monkeypatch.setattr(orch, "texec", rec)
+    orch.cmd_servers_down(_serve_ns(teacher=teacher, ports="23160,23161", echo=False))
+    sweep = rec.scripts[-1]
+
+    proc_dir = tmp_path / "proc" / "4242"
+    proc_dir.mkdir(parents=True)
+    (proc_dir / "cmdline").write_bytes(cmdline.replace(" ", "\0").encode() + b"\0")
+    # Neutralise the kill: only the selection is under test.
+    script = sweep.replace("/proc", str(tmp_path / "proc")).replace("kill $pid", "true")
+    out = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=60)
+    assert ("swept 4242" in out.stdout) is expect, out
+
+
+def test_driver_and_agents_pass_the_chosen_teacher_through(monkeypatch):
+    """A pi0.5 phase driven with ``--teacher groot_tp`` would key every uid wrong."""
+    import argparse
+
+    from exp.robocasa365 import orchestrate_ws_search2 as orch
+
+    rec = _Recorder(["", ""])
+    monkeypatch.setattr(orch, "texec", rec)
+    common = dict(node="weilandserver", repo="/repo", tmux_prefix="ws2s", echo=False,
+                  teacher="pi05", servers="h:1", run_prefix="ws2p",
+                  config_dir="cfg", env_config="env", manifest="")
+    orch.cmd_driver_up(argparse.Namespace(
+        **common, episodes=104, driver_port=23180, driver_python="py", extra_args=""))
+    orch.cmd_agents_up(argparse.Namespace(
+        **common, worker_node="timan107", worker_home="/home/zixuans8", worker_repo="/wrepo",
+        agent_python="py", agent_server="h:1", fleet="0", workers=9, gpu_ids="0",
+        driver_host="h", driver_port=23180))
+
+    assert all("--teacher pi05" in s for s in rec.scripts)
+    assert not any("--teacher groot_tp" in s for s in rec.scripts)
