@@ -44,6 +44,13 @@ import pathlib
 
 import yaml
 
+from exp.dispatch_surface.phase0_roster import FAMILY_S0, FAMILY_SV, PROTOCOL_PHASE0
+from exp.dispatch_surface.template_parity import (
+    assert_export_record_schema,
+    assert_no_placeholders,
+    assert_template_parity,
+)
+
 from exp.gate_threshold_pareto.emit_gtp_yamls import (
     GATE_J,
     GATE_L,
@@ -61,6 +68,9 @@ WS_START_T = 0.3
 # secondary arm set can never be chosen after seeing primary results.
 LAYER_PRIMARY = "primary"
 LAYER_SECONDARY = "secondary"
+# Rev 2 Phase 0: post-hoc exploratory arms on the old A' (development set).
+# The roster is frozen in phase0_roster; nothing here is confirmatory.
+LAYER_EXPLORATORY = "exploratory"
 # Effective retrieval widths. The on-disk yaml stays at configured top_k=1 for
 # every arm so search_digest keeps matching the calibration table; these are the
 # widths the judges' min_required_top_k hint lifts to at runtime.
@@ -131,16 +141,186 @@ def _emit(template: dict, out_path: pathlib.Path, judge_section: dict,
     out_path.write_text(yaml.safe_dump(doc, sort_keys=False))
 
 
+# ----------------------------------------------------------------------
+# Rev 2 Phase 0: exploratory layer (plan section 3.2)
+# ----------------------------------------------------------------------
+
+def _export_record_arms(records: list[dict]) -> dict[str, dict]:
+    """arm -> {family, quantile, artifact, delta, export_record_index, output_sha256}."""
+    out: dict[str, dict] = {}
+    for idx, rec in enumerate(records):
+        if rec.get("protocol") != PROTOCOL_PHASE0 or rec.get("posthoc_exploratory") is not True:
+            raise SystemExit(f"export record {idx} is not a Phase 0 exploratory record")
+        family = rec.get("family")
+        if family not in (FAMILY_SV, FAMILY_S0):
+            raise SystemExit(f"export record {idx} has family {family!r}")
+        for name, art in (rec.get("artifacts") or {}).items():
+            arm = f"dsp_{family}_{name}"
+            if arm in out:
+                raise SystemExit(f"duplicate exploratory arm {arm}")
+            out[arm] = {"family": family, "quantile": float(art["quantile"]),
+                        "artifact": art["path"], "delta": float(art["delta"]),
+                        "output_sha256": art["output_sha256"], "export_record_index": idx}
+    return out
+
+
+def emit_exploratory(args) -> None:
+    from exp.dispatch_surface import rev1_package as pkgmod
+    from exp.dispatch_surface.analysis.analytic_cost import cost_model_digest, cost_model_payload
+    from exp.dispatch_surface.phase0_roster import (
+        ANCHOR_ARM,
+        ANCHOR_ROLE,
+        ANCHOR_THRESHOLD,
+        CONTRACT_ANCHOR_ARM,
+        FAMILY_ANCHOR,
+        assert_roster,
+        roster_spec,
+        roster_spec_digest,
+    )
+    from openpi.cache.components.surface_judge import load_surface_artifact
+
+    for flag in ("suite", "export_records", "rev1_package_manifest"):
+        if not getattr(args, flag):
+            raise SystemExit(f"--{flag.replace('_', '-')} is required for the exploratory layer")
+    suite = args.suite
+    manifest, pkg, manifest_sha = pkgmod.load_manifest(args.rev1_package_manifest)
+    pkgmod.verify_package(args.rev1_package_manifest)
+    if manifest.get("suite") != suite:
+        raise SystemExit(f"package suite {manifest.get('suite')!r} != --suite {suite!r}")
+    rev1_matrix = pkgmod.load_json_member(manifest, pkg, "matrix")
+    template = yaml.safe_load(open(args.template))
+    out_dir = pathlib.Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    lib_sha = _file_sha256(pathlib.Path(args.library_pkl))
+    if lib_sha != rev1_matrix.get("library_sha256"):
+        raise SystemExit("--library-pkl is not the library the Rev 1 matrix froze")
+    theta = float(rev1_matrix["gate_theta"])
+
+    record_paths = [pathlib.Path(p) for p in args.export_records.split(",") if p.strip()]
+    records = [json.loads(p.read_text()) for p in record_paths]
+    record_sha = [_file_sha256(p) for p in record_paths]
+    for idx, rec in enumerate(records):
+        assert_export_record_schema(rec, what=f"export record {idx}", cost_model_digest=cost_model_digest(),
+                                    protocol=PROTOCOL_PHASE0)
+        if rec.get("rev1_package_manifest_sha256") != manifest_sha:
+            raise SystemExit("an export record was produced against a different Rev 1 package")
+    surface_arms = _export_record_arms(records)
+    roster_arms = {arm: {"family": spec["family"], "quantile": spec["quantile"]}
+                   for arm, spec in surface_arms.items()}
+    roster_arms[ANCHOR_ARM] = {"family": FAMILY_ANCHOR, "quantile": None}
+    assert_roster(suite, roster_arms)
+
+    arms: dict[str, str] = {}
+    artifact_paths: dict[str, str] = {}
+    artifact_sha256: dict[str, str] = {}
+    families: dict[str, str] = {}
+    quantiles: dict[str, float] = {}
+    deltas: dict[str, float] = {}
+    for arm, spec in surface_arms.items():
+        path = pathlib.Path(spec["artifact"])
+        if not path.is_file() or _file_sha256(path) != spec["output_sha256"]:
+            raise SystemExit(f"{arm}: artifact missing or drifted from its export record")
+        art = load_surface_artifact(str(path))
+        if art.meta.get("posthoc_exploratory") is not True:
+            raise SystemExit(f"{arm}: artifact is not marked posthoc_exploratory")
+        rec = records[spec["export_record_index"]]
+        source_role = rec["source_role"]
+        source = load_surface_artifact(str(pkgmod.verify_member(manifest, pkg, source_role)))
+        if (art.meta.get("source_artifact_sha256") != pkgmod.member_sha(manifest, source_role)
+                or rec["source_artifact_sha256"] != pkgmod.member_sha(manifest, source_role)):
+            raise SystemExit(f"{arm}: source artifact SHA chain broken")
+        fit_role = "fit.s0" if spec["family"] == FAMILY_S0 else "fit.sv"
+        if rec["source_fit_record_sha256"] != pkgmod.member_sha(manifest, fit_role):
+            raise SystemExit(f"{arm}: source fit record SHA chain broken")
+        assert_template_parity(art, source, what=arm)
+        assert_no_placeholders(art.meta, what=arm)
+        if art.uses_disagreement != (spec["family"] == FAMILY_SV):
+            raise SystemExit(f"{arm}: family/uses_disagreement mismatch")
+        if art.delta != spec["delta"]:
+            raise SystemExit(f"{arm}: artifact delta != export record delta")
+        judge = {"type": "dispatch_surface", "surface_artifact_path": str(path)}
+        ypath = out_dir / f"{arm}.yaml"
+        _emit(template, ypath, judge, args.library_pkl, theta, LAYER_PRIMARY)
+        arms[arm] = str(ypath)
+        artifact_paths[arm] = str(path.resolve())
+        artifact_sha256[arm] = spec["output_sha256"]
+        families[arm] = spec["family"]
+        quantiles[arm] = spec["quantile"]
+        deltas[arm] = spec["delta"]
+    anchor_judge = {"type": "threshold", "threshold": float(ANCHOR_THRESHOLD)}
+    apath = out_dir / f"{ANCHOR_ARM}.yaml"
+    _emit(template, apath, anchor_judge, args.library_pkl, theta, LAYER_PRIMARY)
+    arms[ANCHOR_ARM] = str(apath)
+    families[ANCHOR_ARM] = FAMILY_ANCHOR
+
+    spec = roster_spec(suite)
+    spec_path = out_dir / "roster_spec.json"
+    # canonical form: the digest hashes exactly these bytes
+    spec_path.write_text(json.dumps(spec, sort_keys=True, separators=(",", ":")))
+    matrix = {
+        "protocol": PROTOCOL_PHASE0,
+        "layer": LAYER_EXPLORATORY,
+        "posthoc_exploratory": True,
+        "suite": suite,
+        "arms": arms,
+        "families": families,
+        "quantiles": quantiles,
+        "deltas": deltas,
+        "gate_type": gate_section(LAYER_PRIMARY, theta)["type"],
+        "gate_theta": theta,
+        "gate_theta_top_fraction": rev1_matrix.get("gate_theta_top_fraction"),
+        "gate_params": rev1_matrix.get("gate_params"),
+        "arm_yaml_sha256": {arm: _file_sha256(pathlib.Path(p)) for arm, p in arms.items()},
+        "artifact_paths": artifact_paths,
+        "artifact_sha256": artifact_sha256,
+        "certification_mode": rev1_matrix.get("certification_mode"),
+        "judge_role": {ANCHOR_ARM: ANCHOR_ROLE},
+        "anchor_threshold": float(ANCHOR_THRESHOLD),
+        "contract_anchor_arm": CONTRACT_ANCHOR_ARM[suite],
+        "core_arms": [],
+        "descriptive_arms": sorted(arms),
+        "roster_spec_path": str(spec_path.resolve()),
+        "roster_spec_sha256": roster_spec_digest(suite),
+        "rev1_package_manifest_path": str(pathlib.Path(args.rev1_package_manifest).resolve()),
+        "rev1_package_manifest_sha256": manifest_sha,
+        "rev1_matrix_sha256": pkgmod.member_sha(manifest, "matrix"),
+        "export_record_paths": [str(p.resolve()) for p in record_paths],
+        "export_record_sha256": record_sha,
+        "cost_model": cost_model_payload(),
+        "cost_model_digest": cost_model_digest(),
+        "library_pkl": args.library_pkl,
+        "library_sha256": lib_sha,
+        "template": str(args.template),
+    }
+    if _file_sha256(spec_path) != roster_spec_digest(suite):
+        raise SystemExit("roster spec digest mismatch")
+    matrix_path = out_dir / f"arm_matrix_{LAYER_EXPLORATORY}.json"
+    matrix_path.write_text(json.dumps(matrix, indent=2, sort_keys=True))
+    print(f"emitted {len(arms)} exploratory arms for {suite} -> {matrix_path}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--template", required=True)
-    ap.add_argument("--table", required=True)
-    ap.add_argument("--fit-dir", required=True,
+    ap.add_argument("--table", default=None)
+    ap.add_argument("--fit-dir", default=None,
                     help="fit_surface output dir (artifacts + fit_record.json)")
     ap.add_argument("--library-pkl", required=True)
-    ap.add_argument("--layer", required=True, choices=[LAYER_PRIMARY, LAYER_SECONDARY])
+    ap.add_argument("--layer", required=True,
+                    choices=[LAYER_PRIMARY, LAYER_SECONDARY, LAYER_EXPLORATORY])
     ap.add_argument("--out-dir", required=True)
+    # -- Rev 2 Phase 0 exploratory layer only ------------------------
+    ap.add_argument("--suite", default=None, help="exploratory: suite whose frozen roster to emit")
+    ap.add_argument("--export-records", default=None,
+                    help="exploratory: comma list of export_record.json (SV and S0)")
+    ap.add_argument("--rev1-package-manifest", default=None,
+                    help="exploratory: Rev 1 discipline package MANIFEST.json")
     args = ap.parse_args()
+    if args.layer == LAYER_EXPLORATORY:
+        emit_exploratory(args)
+        return
+    if not args.table or not args.fit_dir:
+        ap.error("--table and --fit-dir are required for the primary/secondary layers")
 
     from exp.gate_threshold_pareto.solve_gtp import MIN_SCORES, THETA_TOP_FRACTION
     from exp.verdict_factor_judge.phase3.threshold_solver import derive_thresholds

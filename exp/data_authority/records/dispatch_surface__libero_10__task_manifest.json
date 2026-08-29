@@ -1,0 +1,68 @@
+{
+ "schema_version": 1,
+ "dataset_id": "dispatch_surface/libero_10/task_manifest",
+ "kind": "task_manifest",
+ "title": "dispatch_surface / libero_10 / task manifest: LIBERO benchmark execution order -> task name -> BDDL path/SHA -> goal atoms (bddl parser)",
+ "experiment": "exp/dispatch_surface",
+ "suite": "libero_10",
+ "status": "authoritative",
+ "authority": {
+  "node": "local",
+  "path": "exp/dispatch_surface/config/task_manifest_libero_10.json",
+  "access": "local"
+ },
+ "integrity": {
+  "file_count": 1,
+  "size_bytes": 11522,
+  "sha256": "0e29677e6cc9dacc132c83262de9786d3a8cbd7c5033932293cb28ed8ff3e3f4",
+  "members": [
+   [
+    "task_manifest_libero_10.json",
+    11522,
+    "0e29677e6cc9dacc132c83262de9786d3a8cbd7c5033932293cb28ed8ff3e3f4"
+   ]
+  ]
+ },
+ "content": {
+  "tasks": 10,
+  "n_goal_atoms_by_task": {
+   "0": 2,
+   "1": 2,
+   "2": 2,
+   "3": 2,
+   "4": 2,
+   "5": 1,
+   "6": 2,
+   "7": 2,
+   "8": 3,
+   "9": 2
+  },
+  "bddl_sha256_by_task": {
+   "0": "2e661058917f683a25bce480015197f0a2c1911bcbc2b9dd9d947199069c9618",
+   "1": "3f552805c7ab34c44debcf38a48b8131d6fee3011dd86c039650b84e0f77d058",
+   "2": "491835cc2eb6956f7ce3d1ee4e266377116168fe453e6529fe105e3b0333635d",
+   "3": "5255fe54d7f25fad4dee8fa30a30033d8cb908f1708d953c91ab609264fb4fb8",
+   "4": "0c6749b920bff1e1efe47ffb0e0b801a3e6959a650e710f376dd2b812c74e865",
+   "5": "07ca32c940d70c065e870452ef9c63e6dfa1d8506e6a86cf9b3763f652ba2d9f",
+   "6": "dbc9464b424cdc9b771b92d0b8a8c185b1b539f6a4133b323dc858bcf8f6a9c2",
+   "7": "e27ab37f512fe42e35771d6130f531e6a9656929e7b4c60b348b81360cf5675d",
+   "8": "ae1299a707d3e810096ad648948c517de40474bcdacca93a15e17d191e34454a",
+   "9": "456d145f92be049f445fc77673dc583d9d17ea7afe92f6ffcb2fd1fa5565d420"
+  },
+  "libero_version": "0.1.1",
+  "bddl_version": "1.0.1",
+  "split_manifest_sha256": "1948ab3bf3ac6fad8121813b2defad091636ee3423ce4201d80072084ccc3bc7",
+  "parser": "bddl.parsing.parse_problem(predefined_problem=<bddl text>) -> goal_state, flattened over and/or/not"
+ },
+ "provenance": {
+  "produced_by": "exp/dispatch_surface/build_task_manifest.py (timan107, conda /scratch/zixuans8/libero_sim)",
+  "measured_at": "2026-08-29T11:40:00-05:00",
+  "measured_by": "Execution Authority (Rev 2 Phase 0, G1R1-B7 option a)"
+ },
+ "consumers": [
+  "logs/dispatch_surface_rev2_protocol_draft.md section 6 (descriptive heterogeneity)"
+ ],
+ "caveats": [
+  "Task ids are LIBERO benchmark execution order and were cross-checked both ways against the split manifest assignment; v0 of the Rev 2 draft had joined by filename order (task 5/9 swapped) — this manifest supersedes that table."
+ ]
+}

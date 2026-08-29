@@ -431,6 +431,48 @@ class FoldModel:
     heldout_local: np.ndarray  # bool over fit rows
 
 
+@dataclasses.dataclass
+class FinalFit:
+    """The formal (all-development-rows) surface fit and its binning grid."""
+
+    q_hat: np.ndarray
+    s_edges: np.ndarray
+    v_edges: np.ndarray
+    sb: np.ndarray
+    vb: np.ndarray
+
+
+def final_fit(
+    table: Table, dev_mask: np.ndarray, *, alpha: float,
+    edges: tuple[np.ndarray, np.ndarray] | None = None,
+    ladder=None,
+) -> FinalFit | None:
+    """Pure final fit on ``dev_mask``: bin on the grid, fit the bimonotone quantile.
+
+    Exactly the computation ``main`` performs for the deployed q-grid, exposed
+    so the Rev 2 exploratory exporter can recompute it from the frozen inputs
+    and compare digests. ``edges`` supplies a pre-chosen grid (as ``main``
+    does); otherwise the mechanical ladder picks it and ``None`` signals the
+    sparse-cell stop-loss.
+    """
+    if edges is None:
+        if ladder is None:
+            raise ValueError("final_fit needs either edges or a grid ladder")
+        grid = choose_grid(table.s[dev_mask], table.v[dev_mask], ladder)
+        if grid is None:
+            return None
+        s_edges, v_edges = grid
+    else:
+        s_edges, v_edges = edges
+    sb = bin_index(table.s[dev_mask], s_edges)
+    vb = bin_index(table.v[dev_mask], v_edges)
+    q_hat = fit_bimonotone_quantile(
+        sb, vb, table.y7[dev_mask], table.y10[dev_mask],
+        len(s_edges) - 1, len(v_edges) - 1, alpha,
+    )
+    return FinalFit(q_hat=q_hat, s_edges=s_edges, v_edges=v_edges, sb=sb, vb=vb)
+
+
 def assign_folds(table: Table, dev_mask: np.ndarray) -> np.ndarray:
     folds = np.full(len(table.s), -1, dtype=np.int64)
     for task in np.unique(table.task[dev_mask]):
@@ -896,12 +938,8 @@ def main() -> None:
             record["frozen_delta_suite"] = suite
 
     # -- formal fit + split conformal ------------------------------
-    sb_fit = bin_index(table.s[dev_mask], s_edges)
-    vb_fit = bin_index(table.v[dev_mask], v_edges)
-    q_hat = fit_bimonotone_quantile(
-        sb_fit, vb_fit, table.y7[dev_mask], table.y10[dev_mask],
-        len(s_edges) - 1, len(v_edges) - 1, args.alpha,
-    )
+    ff = final_fit(table, dev_mask, alpha=args.alpha, edges=(s_edges, v_edges))
+    sb_fit, vb_fit, q_hat = ff.sb, ff.vb, ff.q_hat
     if empirical:
         # No certification stage: delta was chosen by cross-fitted deployed
         # verdict and the boundaries are exported from q_hat as fitted. Nothing

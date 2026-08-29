@@ -1,0 +1,164 @@
+{
+ "schema_version": 1,
+ "dataset_id": "dispatch_surface/libero_10/rev1_discipline",
+ "kind": "cache_artifact",
+ "title": "dispatch_surface / libero_10 / Rev 1 primary discipline package (frozen matrix, yamls, artifacts, fit records, D0, rebuild, split manifest, ledger, verdict, journal, per_step)",
+ "experiment": "exp/dispatch_surface",
+ "suite": "libero_10",
+ "status": "authoritative",
+ "authority": {
+  "node": "local",
+  "path": "exp/dispatch_surface/data/aprime_rev1/discipline/libero_10_primary",
+  "access": "local"
+ },
+ "integrity": {
+  "file_count": 20,
+  "size_bytes": 62041079,
+  "sha256": "733a7911733572dd905301100108d1cb2c537e6f554ae9a9337fc94cad938f57",
+  "members": [
+   [
+    "MANIFEST.json",
+    5721,
+    "48eccb9fa4627b182b8fbd93b7f47eebca5ada6d9d6c4d2c0bb5105233e942e5"
+   ],
+   [
+    "arm_matrix_primary.json",
+    2794,
+    "225430306e1a31f2e67ccb426454f77b351ecb3c64e6590be00e3edd863ad0bd"
+   ],
+   [
+    "d0_record.json",
+    146667,
+    "8309acf1ae1b1f5b8773a6628e39d64e9403b5f3ca904cc14aedfd5df2769d15"
+   ],
+   [
+    "dsp_s0.yaml",
+    1679,
+    "8db4cb5b1fc3d2eed3c51c25883a80bd68ffc53e632a2fabf84bbaccd2a36dde"
+   ],
+   [
+    "dsp_sv.yaml",
+    1675,
+    "ff538b5a6ddcf9831d7eaa9baf7a5ba62e4a1d07bf934db69be9c0e9a094c0f5"
+   ],
+   [
+    "dsp_sv_minus.yaml",
+    1673,
+    "73c2a6bcb10d4be5b89e6ecea27f1b95914c02425ea51e95947fba00e3fd7602"
+   ],
+   [
+    "dsp_t_fh30_ws20.yaml",
+    1690,
+    "fa88b2e5f19e64e8c3a790283b09a8e585aa522cac216ffc3f2ba313fe1759fb"
+   ],
+   [
+    "dsp_t_fh50_ws20.yaml",
+    1690,
+    "dbfbbe1612cb072f4d6b439ec414689b1d563b510f3b243c868f771cdd1a7637"
+   ],
+   [
+    "dsp_t_fh70_ws10.yaml",
+    1690,
+    "0897f570288729e9695dab617c4f8c2e792c3a00fe67f28f6bd965585e639948"
+   ],
+   [
+    "fit_record.json",
+    25616,
+    "2bd694c32c26db984fd537fa4b09eedf1e1c8690481ba4baba6b4682220665d4"
+   ],
+   [
+    "fit_record_s_only.json",
+    23703,
+    "41bd814f4195343a37496a1907e99d7fd2447a35f0e6f655bee6c45cb99621ba"
+   ],
+   [
+    "journal.jsonl",
+    403615,
+    "11b89c4cc8e0af4d649c3c049c46eaf6787d1be3d8daf71cb7a85b15fe68f353"
+   ],
+   [
+    "per_step.jsonl",
+    61346433,
+    "d67af61f269e3d87274a03dff83d2b421d44818b8e5a19222cad060f613b17f2"
+   ],
+   [
+    "per_step.jsonl.launch.json",
+    13879,
+    "aa84fff9a5975ca629fa957aab65c8fafac7855c36ce03a7256d93971889ca3b"
+   ],
+   [
+    "rebuild_record.json",
+    10483,
+    "816ee3eed24ebfa70e7f6b320ab90abec9b8a7433263a5274099f3b27c140ffe"
+   ],
+   [
+    "split_manifest.json",
+    29159,
+    "1948ab3bf3ac6fad8121813b2defad091636ee3423ce4201d80072084ccc3bc7"
+   ],
+   [
+    "surface_s_only_primary.npz",
+    4771,
+    "574525c87833382b5ffdfcd571e8be66c3570cc8b0219a3357718c25b15fc776"
+   ],
+   [
+    "surface_sv_minus.npz",
+    4830,
+    "8d9ab2270bd0aa8503d5900333a35fe601a5879b813f61b8e45007b380fdf973"
+   ],
+   [
+    "surface_sv_primary.npz",
+    4832,
+    "dcbd256ac45576be1baf6b86a47801f96c005fdb48752dc9101b39be6864f25c"
+   ],
+   [
+    "verdict.json",
+    8479,
+    "7ffa8c808e0278629643db81abf2f0cc5fcf69409c71de602632dc7cbb1b746f"
+   ]
+  ]
+ },
+ "content": {
+  "manifest": "MANIFEST.json",
+  "roles": [
+   "artifact.dsp_s0",
+   "artifact.dsp_sv",
+   "artifact.dsp_sv_minus",
+   "d0",
+   "fit.s0",
+   "fit.sv",
+   "journal",
+   "ledger",
+   "matrix",
+   "per_step",
+   "rebuild",
+   "split_manifest",
+   "verdict",
+   "yaml.dsp_s0",
+   "yaml.dsp_sv",
+   "yaml.dsp_sv_minus",
+   "yaml.dsp_t_fh30_ws20",
+   "yaml.dsp_t_fh50_ws20",
+   "yaml.dsp_t_fh70_ws10"
+  ],
+  "resolution": "by role through MANIFEST.json only"
+ },
+ "provenance": {
+  "produced_by": "exp/dispatch_surface/archive_rev1_discipline.py",
+  "measured_at": "2026-08-29T18:07:26+00:00",
+  "measured_by": "Execution Authority (Rev 2 Phase 0)",
+  "source_machines": [
+   "weilandserver:/tmp/dsp_shared",
+   "timan107:/tmp/dsp_precheck"
+  ]
+ },
+ "consumers": [
+  "exp/dispatch_surface/export_exploratory_surface.py",
+  "exp/dispatch_surface/emit_precheck_yamls.py (exploratory layer)",
+  "exp/dispatch_surface/run_precheck.py (exploratory layer)",
+  "exp/dispatch_surface/analysis/cost_map.py"
+ ],
+ "caveats": [
+  "Member files keep historical absolute paths (/tmp/dsp_shared, /data/openpi_dispatch); they are frozen bytes and must never be rewritten."
+ ]
+}

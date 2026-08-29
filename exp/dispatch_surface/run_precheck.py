@@ -64,7 +64,12 @@ SECONDARY_CORE_ARMS = {
     "dsp_t_fh70_ws10",
     "dsp_sv",
 }
-LAYER_EXPECTED_GATE = {LAYER_PRIMARY: "always_search", LAYER_SECONDARY: "score_hysteresis"}
+# Rev 2 Phase 0 exploratory layer: post-hoc arms on the development set,
+# probing every step like primary. Its matrix has its own validator; the Rev 1
+# validators below are untouched.
+LAYER_EXPLORATORY = "exploratory"
+LAYER_EXPECTED_GATE = {LAYER_PRIMARY: "always_search", LAYER_SECONDARY: "score_hysteresis",
+                       LAYER_EXPLORATORY: "always_search"}
 
 FORMAL_CORE_ARMS = {
     "dsp_t_fh30_ws20",
@@ -92,6 +97,14 @@ FROZEN_LAUNCH_KEYS = (
     "fit_record_sha256",
 )
 PROTOCOL = "dispatch_surface_rev1"
+EXPLORATORY_FROZEN_LAUNCH_KEYS = (
+    "posthoc_exploratory",
+    "roster_spec_sha256",
+    "rev1_package_manifest_sha256",
+    "export_record_sha256",
+    "cost_model_digest",
+    "contract_anchor_arm",
+)
 
 
 def _file_sha256(path: pathlib.Path) -> str:
@@ -323,8 +336,14 @@ def validate_optional_pool_record(path: str, pool: dict) -> None:
             raise SystemExit(f"A' pool record {key} does not match the split-bound pool")
 
 
-def validate_precheck_arms(arm_paths: dict[str, str], layer: str) -> dict[str, str]:
-    """Accept exactly the two precheck verdict families; reject anything else."""
+def validate_precheck_arms(arm_paths: dict[str, str], layer: str,
+                           anchor_arms: frozenset[str] = frozenset()) -> dict[str, str]:
+    """Accept exactly the two precheck verdict families; reject anything else.
+
+    ``anchor_arms`` (exploratory layer only) names the always-full-inference
+    anchor: a threshold judge with threshold > 1.0 and NO warm tier, which is
+    the one shape the Rev 1 rule below refuses on purpose.
+    """
     for arm, path in arm_paths.items():
         cfg = load_cache_config(path)
         if cfg.routing is not None:
@@ -338,7 +357,14 @@ def validate_precheck_arms(arm_paths: dict[str, str], layer: str) -> dict[str, s
                 f"contract {LAYER_EXPECTED_GATE[layer]!r}"
             )
         jt = cp1.judge.type
-        if jt == "threshold":
+        if arm in anchor_arms:
+            if jt != "threshold" or not (float(cp1.judge.threshold) > 1.0) or cp1.judge.warm_tiers:
+                raise SystemExit(
+                    f"arm {arm}: always-full-inference anchor must be a threshold judge with "
+                    f"threshold > 1.0 and no warm tier, got type={jt!r} "
+                    f"threshold={cp1.judge.threshold!r} tiers={cp1.judge.warm_tiers!r}"
+                )
+        elif jt == "threshold":
             tiers = cp1.judge.warm_tiers or []
             if len(tiers) != 1 or tiers[0].get("start_t") != WS_START_T:
                 raise SystemExit(
@@ -439,6 +465,140 @@ def validate_matrix_artifacts(matrix: dict) -> None:
                 raise SystemExit(f"surface artifact for {arm} drifts from fit record on {field}")
 
 
+def validate_exploratory_matrix_artifacts(matrix: dict) -> dict:
+    """Phase 0 counterpart of ``validate_matrix_artifacts`` (G1R1-B1).
+
+    Every surface arm is replayed through the chain
+    artifact -> export record -> Rev 1 package member (by ROLE) -> Rev 1 matrix
+    declared SHA -> archived verdict; families come from the export record,
+    never from the arm name. Returns the loaded roster/export context.
+    """
+    from exp.dispatch_surface import rev1_package as pkgmod
+    from exp.dispatch_surface.analysis.analytic_cost import cost_model_digest
+    from exp.dispatch_surface.phase0_roster import (
+        ANCHOR_ARM,
+        ANCHOR_ROLE,
+        CONTRACT_ANCHOR_ARM,
+        FAMILY_ANCHOR,
+        FAMILY_S0,
+        FAMILY_SV,
+        PROTOCOL_PHASE0,
+        assert_roster,
+        roster_spec_digest,
+    )
+    from openpi.cache.components.surface_judge import load_surface_artifact
+
+    if matrix.get("protocol") != PROTOCOL_PHASE0 or matrix.get("posthoc_exploratory") is not True:
+        raise SystemExit("arm matrix is not a Phase 0 exploratory matrix")
+    suite = matrix.get("suite")
+    if matrix.get("core_arms") != [] or sorted(matrix.get("descriptive_arms") or []) != sorted(matrix.get("arms") or {}):
+        raise SystemExit("exploratory matrix must have an empty core roster and all arms descriptive")
+    if matrix.get("roster_spec_sha256") != roster_spec_digest(suite):
+        raise SystemExit("exploratory matrix roster spec digest != the frozen Phase 0 roster")
+    families = matrix.get("families") or {}
+    quantiles = matrix.get("quantiles") or {}
+    roster_arms = {arm: {"family": families.get(arm), "quantile": quantiles.get(arm)}
+                   for arm in matrix.get("arms") or {}}
+    assert_roster(suite, roster_arms)
+    if matrix.get("judge_role") != {ANCHOR_ARM: ANCHOR_ROLE}:
+        raise SystemExit("exploratory matrix must declare exactly the anchor judge role")
+    if matrix.get("contract_anchor_arm") != CONTRACT_ANCHOR_ARM.get(suite) \
+            or families.get(matrix.get("contract_anchor_arm")) != FAMILY_SV:
+        raise SystemExit("contract_anchor_arm is not this suite's frozen SV exploratory arm")
+    if matrix.get("cost_model_digest") != cost_model_digest():
+        raise SystemExit("exploratory matrix cost model digest != the cost authority")
+    manifest_path = matrix.get("rev1_package_manifest_path")
+    manifest, pkg, manifest_sha = pkgmod.load_manifest(manifest_path)
+    if manifest_sha != matrix.get("rev1_package_manifest_sha256"):
+        raise SystemExit("Rev 1 package manifest content-drifted since emit")
+    pkgmod.verify_package(manifest_path)
+    if manifest.get("suite") != suite:
+        raise SystemExit("Rev 1 package suite != exploratory matrix suite")
+    rev1_matrix = pkgmod.load_json_member(manifest, pkg, "matrix")
+    if pkgmod.member_sha(manifest, "matrix") != matrix.get("rev1_matrix_sha256"):
+        raise SystemExit("exploratory matrix binds a different Rev 1 matrix")
+    if matrix.get("library_sha256") != rev1_matrix.get("library_sha256"):
+        raise SystemExit("exploratory matrix library != Rev 1 library")
+    record_paths = matrix.get("export_record_paths") or []
+    record_sha = matrix.get("export_record_sha256") or []
+    if len(record_paths) != len(record_sha) or not record_paths:
+        raise SystemExit("exploratory matrix lacks export record bindings")
+    from exp.dispatch_surface.template_parity import (
+        assert_export_record_schema,
+        assert_no_placeholders,
+        assert_template_parity,
+    )
+
+    records = []
+    for idx, (raw, sha) in enumerate(zip(record_paths, record_sha)):
+        rp = pathlib.Path(raw)
+        if not rp.is_file() or _file_sha256(rp) != sha:
+            raise SystemExit(f"export record {raw} missing or content-drifted")
+        rec = json.loads(rp.read_text())
+        assert_export_record_schema(rec, what=f"export record {idx}", cost_model_digest=cost_model_digest(),
+                                    protocol=PROTOCOL_PHASE0)
+        if rec.get("rev1_package_manifest_sha256") != manifest_sha:
+            raise SystemExit(f"export record {raw} was produced against another Rev 1 package")
+        records.append(rec)
+    by_arm = {}
+    for rec in records:
+        for name, art in (rec.get("artifacts") or {}).items():
+            key = f"dsp_{rec['family']}_{name}"
+            if key in by_arm:
+                raise SystemExit(f"export records map {key} twice")
+            by_arm[key] = (rec, art)
+    artifact_paths = matrix.get("artifact_paths") or {}
+    artifact_sha = matrix.get("artifact_sha256") or {}
+    import yaml
+
+    for arm, family in families.items():
+        if family == FAMILY_ANCHOR:
+            if arm != ANCHOR_ARM:
+                raise SystemExit(f"anchor family on a non-anchor arm {arm}")
+            continue
+        if arm not in by_arm:
+            raise SystemExit(f"surface arm {arm} has no export record entry")
+        rec, art = by_arm[arm]
+        path = pathlib.Path(artifact_paths.get(arm, ""))
+        if not path.is_file() or _file_sha256(path) != artifact_sha.get(arm):
+            raise SystemExit(f"surface artifact for {arm} is missing or content-drifted")
+        if artifact_sha.get(arm) != art.get("output_sha256"):
+            raise SystemExit(f"surface artifact for {arm} != its export record output SHA")
+        yaml_artifact = yaml.safe_load(pathlib.Path(matrix["arms"][arm]).read_text())["checkpoints"]["cp1"]["judge"].get("surface_artifact_path")
+        if pathlib.Path(str(yaml_artifact)).resolve() != path.resolve():
+            raise SystemExit(f"arm {arm} YAML points at an artifact outside the matrix binding")
+        source_role = rec["source_role"]
+        expected_family = FAMILY_S0 if source_role == "artifact.dsp_s0" else FAMILY_SV
+        if family != expected_family or rec.get("family") != family:
+            raise SystemExit(f"arm {arm}: family {family} != export record source {source_role}")
+        if rec["source_artifact_sha256"] != pkgmod.member_sha(manifest, source_role):
+            raise SystemExit(f"arm {arm}: source artifact SHA chain broken")
+        fit_role = "fit.s0" if family == FAMILY_S0 else "fit.sv"
+        if rec["source_fit_record_sha256"] != pkgmod.member_sha(manifest, fit_role):
+            raise SystemExit(f"arm {arm}: source fit record SHA chain broken")
+        declared_field, declared_key = ("artifact_sha256", source_role.split(".", 1)[1])
+        if (rev1_matrix.get(declared_field) or {}).get(declared_key) != rec["source_artifact_sha256"]:
+            raise SystemExit(f"arm {arm}: Rev 1 matrix does not declare the source artifact SHA")
+        artifact = load_surface_artifact(str(path))
+        source = load_surface_artifact(str(pkgmod.verify_member(manifest, pkg, source_role)))
+        if artifact.meta.get("posthoc_exploratory") is not True:
+            raise SystemExit(f"arm {arm}: artifact not marked posthoc_exploratory")
+        assert_no_placeholders(artifact.meta, what=f"arm {arm}")
+        if artifact.uses_disagreement != (family == FAMILY_SV):
+            raise SystemExit(f"arm {arm}: uses_disagreement disagrees with family")
+        expected_k = 5 if family == FAMILY_SV else 1
+        if artifact.k != expected_k or artifact.retrieval_contract.get("top_k") != expected_k:
+            raise SystemExit(f"arm {arm}: effective top-k != {expected_k}")
+        if artifact.h_exec != FORMAL_H_EXEC:
+            raise SystemExit(f"arm {arm}: h_exec != {FORMAL_H_EXEC}")
+        assert_template_parity(artifact, source, what=f"arm {arm}")
+        if artifact.meta.get("source_artifact_sha256") != rec["source_artifact_sha256"]:
+            raise SystemExit(f"arm {arm}: artifact meta source SHA != export record")
+        if artifact.delta != float(art.get("delta")) or artifact.delta != (matrix.get("deltas") or {}).get(arm):
+            raise SystemExit(f"arm {arm}: delta binding broken")
+    return {"manifest": manifest, "package_dir": pkg, "records": records, "rev1_matrix": rev1_matrix}
+
+
 def assert_launch_contract(
     primary_artifact_path: str, replan_steps: int, servers: list[ServerEndpoint],
 ) -> dict:
@@ -488,8 +648,15 @@ def validate_existing_launch_ledger(ledger: dict, new_entry: dict) -> None:
         raise SystemExit("launch ledger is not schema_version 2; use a fresh output path")
     seen_run_ids: set[str] = set()
     frozen_yamls = new_entry["frozen_yaml_sha256"]
+    frozen_keys = FROZEN_LAUNCH_KEYS
+    # Once any launch in the ledger is exploratory the extra keys are frozen
+    # for every entry -- a resume that drops the flag must not escape them.
+    if new_entry.get("posthoc_exploratory") is True or any(
+        prior.get("posthoc_exploratory") is True for prior in ledger["launches"]
+    ):
+        frozen_keys = FROZEN_LAUNCH_KEYS + EXPLORATORY_FROZEN_LAUNCH_KEYS
     for idx, prior in enumerate(ledger["launches"]):
-        for key in FROZEN_LAUNCH_KEYS:
+        for key in frozen_keys:
             if prior.get(key) != new_entry.get(key):
                 raise SystemExit(f"launch ledger entry {idx} drifts on frozen key {key}")
         run_id = prior.get("run_id")
@@ -535,7 +702,8 @@ def build_worker_specs(
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--arm-matrix", required=True, help="emit_precheck_yamls arm_matrix.json")
-    ap.add_argument("--layer", required=True, choices=[LAYER_PRIMARY, LAYER_SECONDARY],
+    ap.add_argument("--layer", required=True,
+                    choices=[LAYER_PRIMARY, LAYER_SECONDARY, LAYER_EXPLORATORY],
                     help="must match the arm matrix; the layers keep separate ledgers")
     ap.add_argument("--task-suite", required=True)
     ap.add_argument("--servers", required=True)
@@ -591,19 +759,28 @@ def main() -> None:
             f"--layer {args.layer!r} does not match the matrix's layer {layer!r}; "
             "the two layers keep separate ledgers and must not be crossed"
         )
-    expected_core = FORMAL_CORE_ARMS if layer == LAYER_PRIMARY else SECONDARY_CORE_ARMS
-    if set(matrix.get("core_arms") or []) != expected_core:
-        raise SystemExit(
-            f"{layer} arm matrix must contain exactly {sorted(expected_core)}"
-        )
-    if matrix.get("gate_type") != LAYER_EXPECTED_GATE[layer]:
-        raise SystemExit(
-            f"{layer} arm matrix declares gate_type={matrix.get('gate_type')!r}; "
-            f"expected {LAYER_EXPECTED_GATE[layer]!r}"
-        )
-    validate_matrix_artifacts(matrix)
-    if set(matrix.get("descriptive_arms") or []) != matrix_arm_ids - expected_core:
-        raise SystemExit("arm matrix descriptive arm roster is inconsistent")
+    if layer == LAYER_EXPLORATORY:
+        if matrix.get("gate_type") != LAYER_EXPECTED_GATE[layer]:
+            raise SystemExit("exploratory arm matrix must probe every step (always_search)")
+        validate_exploratory_matrix_artifacts(matrix)
+        anchor_arms = frozenset(matrix.get("judge_role") or {})
+    else:
+        if matrix.get("posthoc_exploratory"):
+            raise SystemExit(f"{layer} arm matrix carries posthoc_exploratory; refusing")
+        expected_core = FORMAL_CORE_ARMS if layer == LAYER_PRIMARY else SECONDARY_CORE_ARMS
+        if set(matrix.get("core_arms") or []) != expected_core:
+            raise SystemExit(
+                f"{layer} arm matrix must contain exactly {sorted(expected_core)}"
+            )
+        if matrix.get("gate_type") != LAYER_EXPECTED_GATE[layer]:
+            raise SystemExit(
+                f"{layer} arm matrix declares gate_type={matrix.get('gate_type')!r}; "
+                f"expected {LAYER_EXPECTED_GATE[layer]!r}"
+            )
+        validate_matrix_artifacts(matrix)
+        if set(matrix.get("descriptive_arms") or []) != matrix_arm_ids - expected_core:
+            raise SystemExit("arm matrix descriptive arm roster is inconsistent")
+        anchor_arms = frozenset()
     arm_paths: dict[str, str] = dict(matrix["arms"])
     if args.arms:
         wanted = set(args.arms.split(","))
@@ -620,7 +797,7 @@ def main() -> None:
         if not arm_paths:
             logger.info("every arm is complete; nothing to run")
             return
-    yaml_paths = validate_precheck_arms(arm_paths, layer)
+    yaml_paths = validate_precheck_arms(arm_paths, layer, anchor_arms)
 
     servers = []
     for spec in args.servers.split(","):
@@ -629,10 +806,17 @@ def main() -> None:
         host, port = spec.rsplit(":", 1)
         servers.append(ServerEndpoint(host, int(port)))
 
-    # Launch contract before anything runs.
-    sv_yaml = matrix["arms"].get("dsp_sv")
-    if sv_yaml is None:
-        raise SystemExit("arm matrix has no primary surface arm 'dsp_sv'")
+    # Launch contract before anything runs. The exploratory layer names its
+    # contract arm in the matrix (frozen per suite); Rev 1 uses dsp_sv.
+    if layer == LAYER_EXPLORATORY:
+        contract_arm = matrix["contract_anchor_arm"]
+        sv_yaml = matrix["arms"].get(contract_arm)
+        if sv_yaml is None:
+            raise SystemExit(f"arm matrix has no contract anchor arm {contract_arm!r}")
+    else:
+        sv_yaml = matrix["arms"].get("dsp_sv")
+        if sv_yaml is None:
+            raise SystemExit("arm matrix has no primary surface arm 'dsp_sv'")
     import yaml as _yaml
 
     primary_artifact = _yaml.safe_load(open(sv_yaml))["checkpoints"]["cp1"]["judge"][
@@ -668,7 +852,7 @@ def main() -> None:
     # all matrix YAMLs to stay frozen, while each entry records the subset that
     # this run actually executed.
     launch_entry = {
-        "protocol": PROTOCOL,
+        "protocol": matrix["protocol"] if layer == LAYER_EXPLORATORY else PROTOCOL,
         "layer": layer,
         "suite": args.task_suite,
         "executed_arms": sorted(yaml_paths),
@@ -686,12 +870,21 @@ def main() -> None:
         "arm_matrix_sha256": _file_sha256(pathlib.Path(args.arm_matrix)),
         "frozen_yaml_sha256": matrix_yaml_sha,
         "artifact_sha256": matrix["artifact_sha256"],
-        "fit_record_sha256": matrix["fit_record_sha256"],
+        "fit_record_sha256": matrix.get("fit_record_sha256"),
         "executed_yaml_sha256": {
             arm: _file_sha256(pathlib.Path(path)) for arm, path in yaml_paths.items()
         },
         "pool": pool,
     }
+    if layer == LAYER_EXPLORATORY:
+        launch_entry.update({
+            "posthoc_exploratory": True,
+            "roster_spec_sha256": matrix["roster_spec_sha256"],
+            "rev1_package_manifest_sha256": matrix["rev1_package_manifest_sha256"],
+            "export_record_sha256": list(matrix["export_record_sha256"]),
+            "cost_model_digest": matrix["cost_model_digest"],
+            "contract_anchor_arm": matrix["contract_anchor_arm"],
+        })
     launch_path = pathlib.Path(str(per_step_path) + ".launch.json")
     ledger = {"schema_version": 2, "launches": []}
     if launch_path.is_file():
@@ -749,7 +942,10 @@ def main() -> None:
             "official_inits_per_task": {t: len(v) for t, v in sorted(official.items())},
             "contract_binding": contract_binding,
             "would_append_launch": {
-                k: launch_entry.get(k) for k in sorted(FROZEN_LAUNCH_KEYS)
+                k: launch_entry.get(k) for k in sorted(
+                    FROZEN_LAUNCH_KEYS + (EXPLORATORY_FROZEN_LAUNCH_KEYS
+                                          if layer == LAYER_EXPLORATORY else ())
+                )
             },
         }
         print(json.dumps(summary, indent=2, sort_keys=True, default=str))

@@ -1,0 +1,60 @@
+{
+ "schema_version": 1,
+ "dataset_id": "dispatch_surface/libero_spatial/libero_assets_hf",
+ "kind": "external_asset",
+ "title": "LIBERO simulation assets (HF jadechoghari/libero-assets) as actually loaded by the timan107 workers during the Rev 1 libero_spatial primary run",
+ "experiment": "exp/dispatch_surface",
+ "suite": "libero_spatial",
+ "status": "authoritative",
+ "authority": {
+  "node": "timan107",
+  "path": "/srv/local/zixuans8/tether-home/.cache/libero/assets",
+  "access": "tether"
+ },
+ "integrity": {
+  "file_count": 1758,
+  "size_bytes": 375103669,
+  "sha256": "9bc4f946f44d5aefb09848484ba9d312b5f9464b1dc38403f54736867e090e14",
+  "rollup_method": "find . -type f | LC_ALL=C sort | xargs sha256sum | sha256sum",
+  "sentinel_files": [
+   [
+    "scenes/libero_tabletop_base_style.xml",
+    null,
+    "bb118118e3e02a0f23295c072d77c5a7c6b44cc773032dc79c17070b4e133f86"
+   ]
+  ]
+ },
+ "content": {
+  "hf_repo": "jadechoghari/libero-assets",
+  "hf_refs_main": "90001343cb134b7e26e18fde0fa2416f3ed6e6a3",
+  "hf_last_modified": "2025-11-03T09:43:10Z",
+  "downloader": "libero/libero/utils/download_utils.py:download_assets_from_huggingface (cache_dir=$HOME/.cache/libero/assets)",
+  "license": "undeclared (HF cardData.license=null as of 2026-08-29; no LICENSE file in the snapshot)",
+  "top_level": [
+   "articulated_objects",
+   "scenes",
+   "serving_region.xml",
+   "stable_hope_objects",
+   "stable_scanned_objects",
+   "textures",
+   "turbosquid_objects",
+   "wall.xml",
+   "wall_frames.stl"
+  ]
+ },
+ "provenance": {
+  "produced_by": "huggingface:jadechoghari/libero-assets@90001343cb134b7e26e18fde0fa2416f3ed6e6a3",
+  "measured_at": "2026-08-29T00:10:00-05:00",
+  "measured_by": "Execution Authority (dispatch_surface Rev 1 archive, Rev 2 Phase 0 0c)",
+  "downloaded_at": "2026-08-28T23:08:42-05:00"
+ },
+ "consumers": [
+  "exp/dispatch_surface/data/aprime_rev1/libero_spatial_primary (Rev 1 spatial primary rollouts)"
+ ],
+ "caveats": [
+  "libero_10 primary never touched this directory: KITCHEN/LIVING_ROOM scenes do not load scenes/libero_tabletop_base_style.xml.",
+  "License is undeclared on the HF repo card; this is a provenance limitation of the libero_spatial results until the upstream declares one.",
+  "The directory was populated by 48 workers cold-starting concurrently; the 48 first-episode FileNotFoundError retries in the spatial journal (attempt=2) are this download race, all absorbed by the conductor.",
+  "integrity.sentinel_files lists only the file whose absence caused the retries (size not recorded); it is NOT a census. The rollup sha256 covers all 1758 files."
+ ]
+}

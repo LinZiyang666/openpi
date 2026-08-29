@@ -80,7 +80,7 @@ timan107 余量充足（load 8.95/48 核、每卡 2 GB/8.1 GB），瓶颈在 wei
 
 codex 两轮裁决在 result 文档 §7、§9；执行方复核与计划在 §8。**Rev 2 协议草案 v0**：[`dispatch_surface_rev2_protocol_draft.md`](dispatch_surface_rev2_protocol_draft.md)。
 Rev 1 finalizer 已跑：`suite_specific_only`。development AUC（l10）+0.0753，LB +0.030，LOTO 全正 ⇒ Decision Gate A-1 ✅。
-codex §12 预 G1 裁决已全部采纳 → 协议 **v1**；Phase 0 代码计划 [`dispatch_surface_rev2_phase0_plan.log.md`](dispatch_surface_rev2_phase0_plan.log.md) 已于 2026-08-29 **G1 APPROVED Round 5**。下一步仅为按冻结计划进入 Code；代码仍须独立 G2，通过后才可由 owner 放行 rollout：0a anchor / 0b spatial p95,p97.5 / 0b′ l10 p85 / 0e S0 p80,p95 × 2 suite，合计 2700 ep。server 当前保持停止。
+codex §12 预 G1 裁决已全部采纳 → 协议 **v1**；Phase 0 代码计划 [`dispatch_surface_rev2_phase0_plan.log.md`](dispatch_surface_rev2_phase0_plan.log.md) 已于 2026-08-29 **G1 APPROVED Round 5 → Code → G2 R1 NEEDS REVISION（7 blocking 已修：ledger 认领、cost-map 输入 digest 冻结、精确积分、共享 parity、δ 排序 / tie / 分位下标、per-task + A2/A5/A6、入口级测试）→ G2 R2 NEEDS REVISION（3 条已修：R/seed header fail-closed、A-2 断点精确极值、恢复冻结 Pareto 支配）→ G2 APPROVED（R3，含 reviewer 加固）→ **Verify 通过**（全量 4594 passed；六个 Rev 1 artifact 与两个 verdict 在远端复算逐字节一致；真实归档包导出 7 个 exploratory artifact，digest 一致）→ 待 commit / push**（新增 `analysis/{analytic_cost,precheck_io,frontier_hull,phase0_discipline,phase0_summary,cost_map,phase0_outcome_design}.py`、`rev1_package.py`、`phase0_roster.py`、`export_exploratory_surface.py`、`archive_rev1_discipline.py`、`build_task_manifest.py`、`cost_map_api.py`；emitter/runner `exploratory` 层；`fit_surface.final_fit` 抽取；台账两个新 kind + 3 条记录；`config/task_manifest_<suite>.json`；测试 `tests/dispatch_surface/test_rev2_phase0.py` 34 项）。代码仍须独立 G2，通过后才可由 owner 放行 rollout：0a anchor / 0b spatial p95,p97.5 / 0b′ l10 p85 / 0e S0 p80,p95 × 2 suite，合计 2700 ep。server 当前保持停止。
 
 ~~旧内容：~~
 

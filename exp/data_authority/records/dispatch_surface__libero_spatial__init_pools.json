@@ -146,7 +146,8 @@
       "library_h5_files": 50,
       "official_pool_files": 10,
       "collection_init_pool_files": 10
-    }
+    },
+    "task_manifest_dataset_id": "dispatch_surface/libero_spatial/task_manifest"
   },
   "provenance": {
     "produced_by": "exp/dispatch_surface/split_init_pools.py",
@@ -168,6 +169,7 @@
     "exp/dispatch_surface/rebuild_dispatch_library.py (re-verifies the D_lib census)",
     "exp/dispatch_surface/collect_query_cohort.py (rolls out query_c)",
     "exp/dispatch_surface/build_dispatch_table.py (fit/cal split assignment)",
-    "exp/dispatch_surface/run_precheck.py (test_aprime)"
+    "exp/dispatch_surface/run_precheck.py (test_aprime)",
+    "dispatch_surface/libero_spatial/task_manifest"
   ]
 }

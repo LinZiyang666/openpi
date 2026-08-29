@@ -13,7 +13,8 @@
     "exp/dispatch_surface/rebuild_dispatch_library.py (re-verifies the D_lib census)",
     "exp/dispatch_surface/collect_query_cohort.py (rolls out query_c)",
     "exp/dispatch_surface/build_dispatch_table.py (fit/cal split assignment)",
-    "exp/dispatch_surface/run_precheck.py (test_aprime)"
+    "exp/dispatch_surface/run_precheck.py (test_aprime)",
+    "dispatch_surface/libero_10/task_manifest"
   ],
   "content": {
     "dlib_content_digests": {
@@ -38,7 +39,8 @@
       "fit": 50,
       "test": 300
     },
-    "tasks": 10
+    "tasks": 10,
+    "task_manifest_dataset_id": "dispatch_surface/libero_10/task_manifest"
   },
   "dataset_id": "dispatch_surface/libero_10/init_pools",
   "experiment": "exp/dispatch_surface",

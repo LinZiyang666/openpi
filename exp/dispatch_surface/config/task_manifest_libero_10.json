@@ -1,0 +1,402 @@
+{
+ "bddl_version": "1.0.1",
+ "libero_version": "0.1.1",
+ "schema": 1,
+ "split_manifest_sha256": "1948ab3bf3ac6fad8121813b2defad091636ee3423ce4201d80072084ccc3bc7",
+ "suite": "libero_10",
+ "task_order": "LIBERO benchmark execution order (benchmark.get_task(i))",
+ "tasks": [
+  {
+   "bddl_file": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.bddl",
+   "bddl_path": "/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero/bddl_files/libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.bddl",
+   "bddl_sha256": "2e661058917f683a25bce480015197f0a2c1911bcbc2b9dd9d947199069c9618",
+   "goal_atoms": [
+    {
+     "args": [
+      "alphabet_soup_1",
+      "basket_1_contain_region"
+     ],
+     "predicate": "in"
+    },
+    {
+     "args": [
+      "tomato_sauce_1",
+      "basket_1_contain_region"
+     ],
+     "predicate": "in"
+    }
+   ],
+   "language": "put both the alphabet soup and the tomato sauce in the basket",
+   "n_goal_atoms": 2,
+   "objects": {
+    "alphabet_soup": [
+     "alphabet_soup_1"
+    ],
+    "basket": [
+     "basket_1"
+    ],
+    "butter": [
+     "butter_1"
+    ],
+    "cream_cheese": [
+     "cream_cheese_1"
+    ],
+    "ketchup": [
+     "ketchup_1"
+    ],
+    "milk": [
+     "milk_1"
+    ],
+    "orange_juice": [
+     "orange_juice_1"
+    ],
+    "tomato_sauce": [
+     "tomato_sauce_1"
+    ]
+   },
+   "problem_name": "libero_living_room_tabletop_manipulation",
+   "task_id": 0,
+   "task_name": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket"
+  },
+  {
+   "bddl_file": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.bddl",
+   "bddl_path": "/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero/bddl_files/libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.bddl",
+   "bddl_sha256": "3f552805c7ab34c44debcf38a48b8131d6fee3011dd86c039650b84e0f77d058",
+   "goal_atoms": [
+    {
+     "args": [
+      "cream_cheese_1",
+      "basket_1_contain_region"
+     ],
+     "predicate": "in"
+    },
+    {
+     "args": [
+      "butter_1",
+      "basket_1_contain_region"
+     ],
+     "predicate": "in"
+    }
+   ],
+   "language": "put both the cream cheese box and the butter in the basket",
+   "n_goal_atoms": 2,
+   "objects": {
+    "alphabet_soup": [
+     "alphabet_soup_1"
+    ],
+    "basket": [
+     "basket_1"
+    ],
+    "butter": [
+     "butter_1"
+    ],
+    "cream_cheese": [
+     "cream_cheese_1"
+    ],
+    "ketchup": [
+     "ketchup_1"
+    ],
+    "milk": [
+     "milk_1"
+    ],
+    "orange_juice": [
+     "orange_juice_1"
+    ],
+    "tomato_sauce": [
+     "tomato_sauce_1"
+    ]
+   },
+   "problem_name": "libero_living_room_tabletop_manipulation",
+   "task_id": 1,
+   "task_name": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket"
+  },
+  {
+   "bddl_file": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.bddl",
+   "bddl_path": "/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero/bddl_files/libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.bddl",
+   "bddl_sha256": "491835cc2eb6956f7ce3d1ee4e266377116168fe453e6529fe105e3b0333635d",
+   "goal_atoms": [
+    {
+     "args": [
+      "flat_stove_1"
+     ],
+     "predicate": "turnon"
+    },
+    {
+     "args": [
+      "moka_pot_1",
+      "flat_stove_1_cook_region"
+     ],
+     "predicate": "on"
+    }
+   ],
+   "language": "turn on the stove and put the moka pot on it",
+   "n_goal_atoms": 2,
+   "objects": {
+    "chefmate_8_frypan": [
+     "chefmate_8_frypan_1"
+    ],
+    "moka_pot": [
+     "moka_pot_1"
+    ]
+   },
+   "problem_name": "libero_kitchen_tabletop_manipulation",
+   "task_id": 2,
+   "task_name": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it"
+  },
+  {
+   "bddl_file": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.bddl",
+   "bddl_path": "/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero/bddl_files/libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.bddl",
+   "bddl_sha256": "5255fe54d7f25fad4dee8fa30a30033d8cb908f1708d953c91ab609264fb4fb8",
+   "goal_atoms": [
+    {
+     "args": [
+      "white_cabinet_1_bottom_region"
+     ],
+     "predicate": "close"
+    },
+    {
+     "args": [
+      "akita_black_bowl_1",
+      "white_cabinet_1_bottom_region"
+     ],
+     "predicate": "in"
+    }
+   ],
+   "language": "put the black bowl in the bottom drawer of the cabinet and close it",
+   "n_goal_atoms": 2,
+   "objects": {
+    "akita_black_bowl": [
+     "akita_black_bowl_1"
+    ],
+    "wine_bottle": [
+     "wine_bottle_1"
+    ]
+   },
+   "problem_name": "libero_kitchen_tabletop_manipulation",
+   "task_id": 3,
+   "task_name": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it"
+  },
+  {
+   "bddl_file": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.bddl",
+   "bddl_path": "/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero/bddl_files/libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.bddl",
+   "bddl_sha256": "0c6749b920bff1e1efe47ffb0e0b801a3e6959a650e710f376dd2b812c74e865",
+   "goal_atoms": [
+    {
+     "args": [
+      "porcelain_mug_1",
+      "plate_1"
+     ],
+     "predicate": "on"
+    },
+    {
+     "args": [
+      "white_yellow_mug_1",
+      "plate_2"
+     ],
+     "predicate": "on"
+    }
+   ],
+   "language": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+   "n_goal_atoms": 2,
+   "objects": {
+    "plate": [
+     "plate_1",
+     "plate_2"
+    ],
+    "porcelain_mug": [
+     "porcelain_mug_1"
+    ],
+    "red_coffee_mug": [
+     "red_coffee_mug_1"
+    ],
+    "white_yellow_mug": [
+     "white_yellow_mug_1"
+    ]
+   },
+   "problem_name": "libero_living_room_tabletop_manipulation",
+   "task_id": 4,
+   "task_name": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate"
+  },
+  {
+   "bddl_file": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.bddl",
+   "bddl_path": "/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero/bddl_files/libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.bddl",
+   "bddl_sha256": "07ca32c940d70c065e870452ef9c63e6dfa1d8506e6a86cf9b3763f652ba2d9f",
+   "goal_atoms": [
+    {
+     "args": [
+      "black_book_1",
+      "desk_caddy_1_back_contain_region"
+     ],
+     "predicate": "in"
+    }
+   ],
+   "language": "pick up the book and place it in the back compartment of the caddy",
+   "n_goal_atoms": 1,
+   "objects": {
+    "black_book": [
+     "black_book_1"
+    ],
+    "white_yellow_mug": [
+     "white_yellow_mug_1"
+    ]
+   },
+   "problem_name": "libero_study_tabletop_manipulation",
+   "task_id": 5,
+   "task_name": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy"
+  },
+  {
+   "bddl_file": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.bddl",
+   "bddl_path": "/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero/bddl_files/libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.bddl",
+   "bddl_sha256": "dbc9464b424cdc9b771b92d0b8a8c185b1b539f6a4133b323dc858bcf8f6a9c2",
+   "goal_atoms": [
+    {
+     "args": [
+      "porcelain_mug_1",
+      "plate_1"
+     ],
+     "predicate": "on"
+    },
+    {
+     "args": [
+      "chocolate_pudding_1",
+      "living_room_table_plate_right_region"
+     ],
+     "predicate": "on"
+    }
+   ],
+   "language": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+   "n_goal_atoms": 2,
+   "objects": {
+    "chocolate_pudding": [
+     "chocolate_pudding_1"
+    ],
+    "plate": [
+     "plate_1"
+    ],
+    "porcelain_mug": [
+     "porcelain_mug_1"
+    ],
+    "red_coffee_mug": [
+     "red_coffee_mug_1"
+    ]
+   },
+   "problem_name": "libero_living_room_tabletop_manipulation",
+   "task_id": 6,
+   "task_name": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate"
+  },
+  {
+   "bddl_file": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.bddl",
+   "bddl_path": "/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero/bddl_files/libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.bddl",
+   "bddl_sha256": "e27ab37f512fe42e35771d6130f531e6a9656929e7b4c60b348b81360cf5675d",
+   "goal_atoms": [
+    {
+     "args": [
+      "alphabet_soup_1",
+      "basket_1_contain_region"
+     ],
+     "predicate": "in"
+    },
+    {
+     "args": [
+      "cream_cheese_1",
+      "basket_1_contain_region"
+     ],
+     "predicate": "in"
+    }
+   ],
+   "language": "put both the alphabet soup and the cream cheese box in the basket",
+   "n_goal_atoms": 2,
+   "objects": {
+    "alphabet_soup": [
+     "alphabet_soup_1"
+    ],
+    "basket": [
+     "basket_1"
+    ],
+    "cream_cheese": [
+     "cream_cheese_1"
+    ],
+    "ketchup": [
+     "ketchup_1"
+    ],
+    "tomato_sauce": [
+     "tomato_sauce_1"
+    ]
+   },
+   "problem_name": "libero_living_room_tabletop_manipulation",
+   "task_id": 7,
+   "task_name": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket"
+  },
+  {
+   "bddl_file": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.bddl",
+   "bddl_path": "/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero/bddl_files/libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.bddl",
+   "bddl_sha256": "ae1299a707d3e810096ad648948c517de40474bcdacca93a15e17d191e34454a",
+   "goal_atoms": [
+    {
+     "args": [
+      "moka_pot_1",
+      "flat_stove_1_cook_region"
+     ],
+     "predicate": "on"
+    },
+    {
+     "args": [
+      "moka_pot_2",
+      "flat_stove_1_cook_region"
+     ],
+     "predicate": "on"
+    },
+    {
+     "args": [
+      "flat_stove_1"
+     ],
+     "predicate": "turnon"
+    }
+   ],
+   "language": "put both moka pots on the stove",
+   "n_goal_atoms": 3,
+   "objects": {
+    "moka_pot": [
+     "moka_pot_1",
+     "moka_pot_2"
+    ]
+   },
+   "problem_name": "libero_kitchen_tabletop_manipulation",
+   "task_id": 8,
+   "task_name": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove"
+  },
+  {
+   "bddl_file": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.bddl",
+   "bddl_path": "/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero/bddl_files/libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.bddl",
+   "bddl_sha256": "456d145f92be049f445fc77673dc583d9d17ea7afe92f6ffcb2fd1fa5565d420",
+   "goal_atoms": [
+    {
+     "args": [
+      "white_yellow_mug_1",
+      "microwave_1_heating_region"
+     ],
+     "predicate": "in"
+    },
+    {
+     "args": [
+      "microwave_1"
+     ],
+     "predicate": "close"
+    }
+   ],
+   "language": "put the yellow and white mug in the microwave and close it",
+   "n_goal_atoms": 2,
+   "objects": {
+    "porcelain_mug": [
+     "porcelain_mug_1"
+    ],
+    "white_yellow_mug": [
+     "white_yellow_mug_1"
+    ]
+   },
+   "problem_name": "libero_kitchen_tabletop_manipulation",
+   "task_id": 9,
+   "task_name": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it"
+  }
+ ]
+}

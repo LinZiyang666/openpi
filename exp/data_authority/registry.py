@@ -69,6 +69,11 @@ KNOWN_KINDS = (
     #: bytes are small but whose provenance (host, build flags, what was
     #: superseded) is exactly what a later reader needs.
     "benchmark_results",
+    #: An externally sourced simulation asset the workers actually loaded
+    #: (e.g. LIBERO scene assets pulled from a HuggingFace repo at runtime).
+    "external_asset",
+    #: A small, git-tracked task manifest (task id -> name -> BDDL -> goal atoms).
+    "task_manifest",
 )
 KNOWN_STATUS = ("authoritative", "superseded")
 KNOWN_ACCESS = ("local", "tether")
