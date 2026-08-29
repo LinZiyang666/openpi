@@ -133,7 +133,9 @@ ICLR 2027 投稿（TIER: experience-tiered inference）论文工作文档。⚠ 
 
 | File | Description |
 |------|-------------|
-| [iclr/paper_rethink_discussion.md](iclr/paper_rethink_discussion.md) | 现行讨论纪要（2026-08-22 起）：放弃旧 TIER 叙事回归 VLA cache 本身；8 条 anti-小模型 defense 弹药；讨论收敛后写正式 outline |
+| [iclr/paper_rethink_discussion.md](iclr/paper_rethink_discussion.md) | 现行讨论纪要（2026-08-22 起，已整体重构）：放弃旧 TIER 叙事回归 VLA cache 本身；novelty 叙事 / R(ε) 定义与数学 / 工作提纲 v0.2 / 实验对照表（E0–E13）/ defense 弹药库 / 部署生命周期 / deck 结构 |
+| [iclr/actioncache_response_plan.md](iclr/actioncache_response_plan.md) | ActionCache（concurrent work）攻防方案（2026-08-26）：核实（地板 45–53% vs 14%、端到端 1.26×、LIBERO 被 NFE=1 裸基线支配）/ ICLR 规则豁免 / 写作定位与三层攻防分工 / 12 条弹药 / 四臂对照（Arm1=激活 CP2，核心 ~3,000 ep）与预注册分支 |
+| [iclr/redundancy_structure_fig.html](iclr/redundancy_structure_fig.html) | §5.3 冗余结构三 panel 草图（真数据自包含页 + PNG）；讲法与裁决见纪要 §6.2 |
 | [iclr/tier_paper_outline.old.md](iclr/tier_paper_outline.old.md) \[[ZH](iclr/tier_paper_outline.zh.old.md)\] | **旧版（待重写取代）** TIER 论文提纲 v2：thesis「库的价值在索引不在 payload」、9 页结构/float 台账/appendix 预算/3 贡献；4 审稿人对抗评审 32 findings 裁决修订（裁决日志在文末）；scope lock=无 history 项、Markov 继承线独立成文；文末 Q&A rebuttal 弹药库（Q1 trained-router 质疑三层回应） |
 | [iclr/tier_experiment_designs.old.md](iclr/tier_experiment_designs.old.md) | **旧版（待重写取代）** 实验设计全卡 X1–X13（目的/设计/产出/判读分支含预注册负结果结论）+ 前置基建清单 + 波 0–3 执行顺序 |
 

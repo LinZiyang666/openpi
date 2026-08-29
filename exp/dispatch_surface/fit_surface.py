@@ -39,6 +39,8 @@ import pathlib
 import numpy as np
 
 from openpi.cache.components.surface_judge import (
+    CERTIFICATION_CONFORMAL,
+    CERTIFICATION_EMPIRICAL,
     PINNED_START_T_WS,
     SURFACE_ARTIFACT_SCHEMA_VERSION,
     SurfaceArtifact,
@@ -51,6 +53,25 @@ N_STEPS = 10
 STOP_LOSS_EXIT = 3
 
 HITSHARE_TARGET = 0.40
+# Rev 1 development set: the whole verified cohort, 15 episodes per task.
+EXPECTED_DEV_EPISODES = 150
+EXPECTED_TASKS = 10
+# Rev 1 formal parameters. The empirical mode is the protocol's only formal
+# path, so these are contract, not defaults: an artifact fitted at some other
+# alpha/h_exec/width would still be accepted by emitter and runner, and would
+# not be the surface the protocol froze.
+FORMAL_ALPHA = 0.05
+FORMAL_H_EXEC = 5
+FORMAL_SV_TOP_K = 5
+FORMAL_S0_TOP_K = 1
+# The delta each suite's D_dev mechanically yields, frozen by the Rev 1 ruling.
+# The fit recomputes it from the table and must land here; the constant exists
+# to catch a changed input, not to substitute for the computation.
+FROZEN_DELTA_STAR = {
+    "libero_spatial": 6.1298201,
+    "libero_10": 5.9096355,
+}
+FROZEN_DELTA_TOL = 1e-6
 ACCURACY_SLACK = 0.05
 MIN_BIN_SAMPLES = 8
 N_FOLDS = 5
@@ -127,6 +148,96 @@ def validate_dlib_chain(
             "rebuild record D_lib content digests differ from the split manifest"
         )
     return rebuild
+
+
+def validate_d0_record(
+    d0_path: pathlib.Path,
+    *,
+    table_path: pathlib.Path,
+    weights_path: pathlib.Path,
+    cache_yaml_path: pathlib.Path,
+    split_manifest_path: pathlib.Path,
+    rebuild: dict,
+) -> dict:
+    """Authenticate the D0 replay and bind it to this exact formal fit.
+
+    D0 is not a free-standing narrative result: it is the executable bridge
+    between the current warm-start implementation and the y7/y10 bytes being
+    fitted. Recompute its complete input attestation here so copying a PASS JSON
+    next to different inputs cannot authorize an artifact.
+    """
+    from exp.dispatch_surface.d0_check import (
+        CONTROL_ROWS_PER_TASK,
+        D0_PROTOCOL,
+        EXPECTED_TASKS,
+        FORMAL_H_EXEC as D0_FORMAL_H_EXEC,
+        validate_input_attestation,
+    )
+    from openpi.serving.policy_identity import compute_policy_fingerprint, resolve_checkpoint_root
+
+    if not d0_path.is_file():
+        raise SystemExit(f"D0 record missing: {d0_path}")
+    d0 = json.loads(d0_path.read_text())
+    split = json.loads(split_manifest_path.read_text())
+    if d0.get("protocol") != D0_PROTOCOL or d0.get("D0") != "PASS":
+        raise SystemExit("fit requires a PASS record from the frozen Rev 1 D0 protocol")
+    if d0.get("suite") != split.get("suite"):
+        raise SystemExit("D0 suite does not match the split manifest suite")
+    if d0.get("h_exec") != D0_FORMAL_H_EXEC:
+        raise SystemExit(f"D0 h_exec must be {D0_FORMAL_H_EXEC}")
+
+    census = d0.get("census") or {}
+    check1 = d0.get("check1_self_resume_parity") or {}
+    check2 = d0.get("check2_payload_sidecar_identity") or {}
+    check3 = d0.get("check3_path_decomposition") or {}
+    if census.get("passed") is not True or census.get("problems") != []:
+        raise SystemExit("D0 census is missing, failed, or carries unresolved problems")
+    for label, check in (("self-resume", check1), ("payload/sidecar", check2)):
+        if check.get("passed") is not True or check.get("failures") != 0 or not check.get("n"):
+            raise SystemExit(f"D0 {label} check is incomplete or failed")
+    if (check3.get("complete") is not True
+            or check3.get("table_semantics_passed") is not True
+            or not check3.get("n")):
+        raise SystemExit("D0 sampled table-semantics replay is incomplete or failed")
+    sample = d0.get("sample") or {}
+    if sample.get("control_rows") != CONTROL_ROWS_PER_TASK * EXPECTED_TASKS:
+        raise SystemExit("D0 does not contain the frozen two controls per task")
+    if sample.get("tasks_covered") != list(range(EXPECTED_TASKS)):
+        raise SystemExit("D0 replay does not cover all ten formal tasks")
+    if not isinstance(sample.get("rows_sha256"), str) or len(sample["rows_sha256"]) != 64:
+        raise SystemExit("D0 sample identity digest is missing")
+
+    attestation = d0.get("inputs")
+    if not isinstance(attestation, dict):
+        raise SystemExit("D0 input attestation is missing")
+    try:
+        validate_input_attestation(attestation)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise SystemExit(f"D0 input attestation is invalid: {exc}") from exc
+    files = attestation["files"]
+    current = {
+        "table": _file_sha256(table_path),
+        "weights_npz": _file_sha256(weights_path),
+        "cache_yaml": _file_sha256(cache_yaml_path),
+    }
+    for name, digest in current.items():
+        if files[name].get("sha256") != digest:
+            raise SystemExit(f"D0 {name} digest does not match this fit input")
+    if files["library_pkl"].get("sha256") != rebuild.get("library_sha256"):
+        raise SystemExit("D0 library digest does not match the rebuild authority")
+    if files["noise_sidecar"].get("sha256") != rebuild.get("noise_sidecar_sha256"):
+        raise SystemExit("D0 noise sidecar digest does not match the rebuild authority")
+    expected_policy = compute_policy_fingerprint(
+        str(resolve_checkpoint_root(rebuild["checkpoint_dir"])), rebuild["config_name"],
+    )
+    if attestation["policy"].get("policy_fingerprint") != expected_policy:
+        raise SystemExit("D0 policy fingerprint does not match the rebuild authority")
+    return {
+        "record_sha256": _file_sha256(d0_path),
+        "input_rollup_sha256": attestation.get("rollup_sha256"),
+        "sample_rows_sha256": sample["rows_sha256"],
+        "suite": d0["suite"],
+    }
 
 
 def audit_cohort(table: Table, manifest_path: str, *, verify_files: bool = True) -> None:
@@ -320,10 +431,10 @@ class FoldModel:
     heldout_local: np.ndarray  # bool over fit rows
 
 
-def assign_folds(table: Table, fit_mask: np.ndarray) -> np.ndarray:
+def assign_folds(table: Table, dev_mask: np.ndarray) -> np.ndarray:
     folds = np.full(len(table.s), -1, dtype=np.int64)
-    for task in np.unique(table.task[fit_mask]):
-        m = fit_mask & (table.task == task)
+    for task in np.unique(table.task[dev_mask]):
+        m = dev_mask & (table.task == task)
         inits = np.unique(table.init_idx[m])
         rank = {int(x): r for r, x in enumerate(sorted(inits))}
         for init_val, r in rank.items():
@@ -332,16 +443,16 @@ def assign_folds(table: Table, fit_mask: np.ndarray) -> np.ndarray:
 
 
 def fit_fold_models(
-    table: Table, fit_mask: np.ndarray, folds: np.ndarray,
+    table: Table, dev_mask: np.ndarray, folds: np.ndarray,
     ladder, alpha: float,
 ) -> list[FoldModel] | None:
     """Per-fold: OWN edges from fold-train data, own LP surface (G2-B1)."""
-    fit_idx = np.where(fit_mask)[0]
+    dev_idx = np.where(dev_mask)[0]
     models: list[FoldModel] = []
     for f in range(N_FOLDS):
-        train_local = folds[fit_idx] != f
-        s_tr = table.s[fit_idx][train_local]
-        v_tr = table.v[fit_idx][train_local]
+        train_local = folds[dev_idx] != f
+        s_tr = table.s[dev_idx][train_local]
+        v_tr = table.v[dev_idx][train_local]
         grid = choose_grid(s_tr, v_tr, ladder)
         if grid is None:
             return None
@@ -349,7 +460,7 @@ def fit_fold_models(
         sb = bin_index(s_tr, s_edges)
         vb = bin_index(v_tr, v_edges)
         q = fit_bimonotone_quantile(
-            sb, vb, table.y7[fit_idx][train_local], table.y10[fit_idx][train_local],
+            sb, vb, table.y7[dev_idx][train_local], table.y10[dev_idx][train_local],
             len(s_edges) - 1, len(v_edges) - 1, alpha,
         )
         models.append(FoldModel(q=q, s_edges=s_edges, v_edges=v_edges,
@@ -358,14 +469,14 @@ def fit_fold_models(
 
 
 def oof_predictions(models: list[FoldModel], table: Table,
-                    fit_mask: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    fit_idx = np.where(fit_mask)[0]
-    q7 = np.full(len(fit_idx), np.nan)
-    q10 = np.full(len(fit_idx), np.nan)
+                    dev_mask: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    dev_idx = np.where(dev_mask)[0]
+    q7 = np.full(len(dev_idx), np.nan)
+    q10 = np.full(len(dev_idx), np.nan)
     for m in models:
         held = m.heldout_local
-        sb = bin_index(table.s[fit_idx][held], m.s_edges)
-        vb = bin_index(table.v[fit_idx][held], m.v_edges)
+        sb = bin_index(table.s[dev_idx][held], m.s_edges)
+        vb = bin_index(table.v[dev_idx][held], m.v_edges)
         q7[held] = m.q[0, sb, vb]
         q10[held] = m.q[1, sb, vb]
     if np.isnan(q7).any():
@@ -403,7 +514,7 @@ def export_boundaries(q_grid: np.ndarray, s_edges: np.ndarray,
 
 
 def evaluate_candidate_deployed(
-    delta: float, models: list[FoldModel], table: Table, fit_mask: np.ndarray,
+    delta: float, models: list[FoldModel], table: Table, dev_mask: np.ndarray,
     offset: float, *, uses_disagreement: bool,
 ) -> tuple[float, float]:
     """(hitshare, accepted_step_accuracy) by EXECUTING the deployed verdict.
@@ -413,13 +524,13 @@ def evaluate_candidate_deployed(
     ``surface_verdict`` on each held-out row — s participates exactly as it
     does online, including boundary rounding and v support-domain semantics.
     """
-    fit_idx = np.where(fit_mask)[0]
-    verdicts = np.empty(len(fit_idx), dtype=object)
+    dev_idx = np.where(dev_mask)[0]
+    verdicts = np.empty(len(dev_idx), dtype=object)
     for m in models:
         full, warm = export_boundaries(m.q + offset, m.s_edges, delta)
         v_edges = m.v_edges if uses_disagreement else np.array([-np.inf, np.inf])
         for local_i in np.where(m.heldout_local)[0]:
-            row = fit_idx[local_i]
+            row = dev_idx[local_i]
             verdicts[local_i] = surface_verdict(
                 float(table.s[row]), float(table.v[row]),
                 v_edges, full, warm, uses_disagreement=uses_disagreement,
@@ -430,7 +541,7 @@ def evaluate_candidate_deployed(
         return hitshare, 1.0
     y_eff = np.where(
         verdicts[accepted] == "full",
-        table.y10[fit_mask][accepted], table.y7[fit_mask][accepted],
+        table.y10[dev_mask][accepted], table.y7[dev_mask][accepted],
     )
     return hitshare, float((y_eff <= delta).mean())
 
@@ -454,6 +565,113 @@ def select_delta(candidates: np.ndarray, metrics: dict, alpha: float):
 # ------------------------------------------------------------------
 
 
+def _validate_d0_record(args) -> dict:
+    """Re-check the D0 report against the inputs THIS fit is about to use.
+
+    D0 was a side script: nothing forced a fit to have run it, and a report
+    naming its table by path could vouch for a file that had since changed.
+    Both holes close here. The attestation is re-attested from disk by D0's own
+    validator -- hashing the JSON would only authenticate a statement about
+    paths, not the bytes that were replayed -- and the digests it records must
+    equal this run's files.
+    """
+    from exp.dispatch_surface.d0_check import D0_PROTOCOL, validate_input_attestation
+
+    record = json.loads(pathlib.Path(args.d0_record).read_text())
+    if record.get("D0") != "PASS":
+        raise SystemExit(
+            f"D0 record says {record.get('D0')!r}; the fit may not run on inputs "
+            "whose data semantics have not been cleared"
+        )
+    if record.get("protocol") != D0_PROTOCOL:
+        raise SystemExit(
+            f"D0 record protocol {record.get('protocol')!r} != {D0_PROTOCOL!r}; "
+            "re-run D0 under the current checks"
+        )
+    attestation = record.get("inputs")
+    if not isinstance(attestation, dict):
+        raise SystemExit("D0 record carries no input attestation")
+    try:
+        validate_input_attestation(attestation)
+    except ValueError as exc:
+        raise SystemExit(f"D0 input attestation no longer re-attests: {exc}") from exc
+
+    files = attestation["files"]
+    for name, path in (("table", args.table),
+                       ("weights_npz", args.weights_npz),
+                       ("cache_yaml", args.cache_yaml)):
+        actual = _file_sha256(pathlib.Path(path))
+        recorded = files.get(name, {}).get("sha256")
+        if recorded != actual:
+            raise SystemExit(
+                f"D0 cleared {name} {str(recorded)[:12]}… but this fit was handed "
+                f"{path} ({actual[:12]}…); they are not the same file"
+            )
+
+    # The library and its noise sidecar are not fit_surface arguments, so the
+    # comparison above cannot reach them: a D0 record that cleared library A
+    # could be handed to a fit whose rebuild record describes library B at a
+    # different path, and D0's own validator -- which re-attests its OWN
+    # recorded paths -- would still pass. Bind them through the rebuild record,
+    # whose library_sha256/noise_sidecar_sha256 are those files' digests.
+    rebuild = json.loads(pathlib.Path(args.rebuild_record).read_text())
+    for d0_name, rebuild_key in (("library_pkl", "library_sha256"),
+                                 ("noise_sidecar", "noise_sidecar_sha256")):
+        cleared = files.get(d0_name, {}).get("sha256")
+        declared = rebuild.get(rebuild_key)
+        if cleared != declared:
+            raise SystemExit(
+                f"D0 cleared {d0_name} {str(cleared)[:12]}… but the rebuild record "
+                f"declares {rebuild_key}={str(declared)[:12]}…; the audited library "
+                "and the fitted library are not the same artifact"
+            )
+
+    # Cheap and explicit: a record from the other suite would already fail the
+    # table digest, but saying so directly beats relying on that side effect.
+    split_suite = json.loads(pathlib.Path(args.split_manifest).read_text()).get("suite")
+    if record.get("suite") != split_suite:
+        raise SystemExit(
+            f"D0 record is for suite {record.get('suite')!r} but this fit's split "
+            f"manifest is {split_suite!r}"
+        )
+    return record
+
+
+def _digest_obj(obj) -> str:
+    """Canonical sha256 of a JSON-serialisable audit payload."""
+    import hashlib
+
+    return hashlib.sha256(
+        json.dumps(obj, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+
+
+def _development_audit(
+    table: Table, dev_mask: np.ndarray, folds: np.ndarray | None,
+) -> tuple[list, list]:
+    """Return canonical episode membership and fold assignment.
+
+    Every row in an episode must agree on task/init/fold. This is stronger than
+    selecting an arbitrary first row and makes the digests meaningful audit
+    objects rather than hashes of whichever duplicate happened to come first.
+    """
+    membership = []
+    fold_map = []
+    for episode in sorted(str(ep) for ep in np.unique(table.episode[dev_mask])):
+        mask = dev_mask & (table.episode.astype(str) == episode)
+        tasks = np.unique(table.task[mask])
+        inits = np.unique(table.init_idx[mask])
+        if len(tasks) != 1 or len(inits) != 1:
+            raise SystemExit(f"episode {episode!r} has inconsistent task/init identity")
+        membership.append((episode, int(tasks[0]), int(inits[0])))
+        if folds is not None:
+            assigned = np.unique(folds[mask])
+            if len(assigned) != 1 or int(assigned[0]) not in range(N_FOLDS):
+                raise SystemExit(f"episode {episode!r} has invalid/inconsistent fold")
+            fold_map.append((episode, int(assigned[0])))
+    return membership, fold_map
+
+
 def _stop(record: dict, out_dir: pathlib.Path, reason: str, s_only: bool) -> None:
     record["stop_loss"] = reason
     name = "fit_record_s_only.json" if s_only else "fit_record.json"
@@ -471,6 +689,10 @@ def main() -> None:
     ap.add_argument("--split-manifest", required=True,
                     help="split_init_pools manifest bound into the rebuild record")
     ap.add_argument("--weights-npz", required=True)
+    ap.add_argument(
+        "--d0-record", required=True,
+        help="PASS output from d0_check for this exact table/library/model",
+    )
     ap.add_argument("--alpha", type=float, default=0.05)
     ap.add_argument("--h-exec", type=int, default=5)
     ap.add_argument("--top-k", type=int, default=5)
@@ -478,11 +700,26 @@ def main() -> None:
     ap.add_argument("--frozen-record", default=None,
                     help="REQUIRED with --s-only: the SV fit_record.json whose "
                          "delta_star this run inherits (G2-B2; no re-selection)")
+    ap.add_argument(
+        "--certification-mode", required=True,
+        choices=[CERTIFICATION_EMPIRICAL, CERTIFICATION_CONFORMAL],
+        help="Rev 1 emits only the empirical mode; the conformal branch is kept "
+             "explicit so a certified artifact can never be produced by accident",
+    )
     ap.add_argument("--out-dir", required=True)
     args = ap.parse_args()
 
+    d0_record = _validate_d0_record(args)
     rebuild_record_path = pathlib.Path(args.rebuild_record)
     rebuild = validate_dlib_chain(pathlib.Path(args.split_manifest), rebuild_record_path)
+    d0_binding = validate_d0_record(
+        pathlib.Path(args.d0_record),
+        table_path=pathlib.Path(args.table),
+        weights_path=pathlib.Path(args.weights_npz),
+        cache_yaml_path=pathlib.Path(args.cache_yaml),
+        split_manifest_path=pathlib.Path(args.split_manifest),
+        rebuild=rebuild,
+    )
 
     if args.s_only and not args.frozen_record:
         raise SystemExit("--s-only requires --frozen-record (delta* is frozen by the SV fit)")
@@ -505,15 +742,50 @@ def main() -> None:
         "rebuild_record": _file_sha256(pathlib.Path(args.rebuild_record)),
         "split_manifest": _file_sha256(pathlib.Path(args.split_manifest)),
         "cache_yaml": _file_sha256(pathlib.Path(args.cache_yaml)),
+        "d0_record": d0_binding["record_sha256"],
     }
-    record: dict = {"s_only": args.s_only, "alpha": args.alpha,
+    empirical = args.certification_mode == CERTIFICATION_EMPIRICAL
+    if empirical:
+        frozen = {
+            "alpha": (args.alpha, FORMAL_ALPHA),
+            "h_exec": (args.h_exec, FORMAL_H_EXEC),
+            "top_k": (args.top_k, FORMAL_S0_TOP_K if args.s_only else FORMAL_SV_TOP_K),
+        }
+        drift = {k: v for k, v in frozen.items() if v[0] != v[1]}
+        if drift:
+            raise SystemExit(
+                "formal empirical fit runs at frozen parameters; got "
+                + ", ".join(f"{k}={got!r} (frozen {want!r})" for k, (got, want) in drift.items())
+            )
+    # Rev 1 development set: the whole verified cohort is exploratory data, so
+    # there is no held-out calibration split left to certify with. The conformal
+    # branch keeps the old fit/cal separation.
+    dev_mask = (fit_mask | cal_mask) if empirical else fit_mask
+    record: dict = {"s_only": args.s_only, "quantile_alpha": args.alpha,
+                    "certification_mode": args.certification_mode,
+                    "d0_record_sha256": _file_sha256(pathlib.Path(args.d0_record)),
+                    "d0_suite": d0_record.get("suite"),
+                    "d0_sample_rows_sha256": d0_record.get("sample", {}).get("rows_sha256"),
+                    "d0_inputs_rollup_sha256": (d0_record.get("inputs") or {}).get("rollup_sha256"),
                     "cohort_manifest": str(args.cohort_manifest),
-                    "input_digests": input_digests}
+                    "input_digests": input_digests,
+                    "d0_binding": d0_binding}
+    folds: np.ndarray | None = None
+    dev_eps = np.unique(table.episode[dev_mask])
+    record["n_dev_episodes"] = len(dev_eps)
+    if empirical:
+        if len(dev_eps) != EXPECTED_DEV_EPISODES:
+            _stop(record, out_dir, "dev_episode_count_mismatch", args.s_only)
+        per_task = collections.Counter(
+            int(table.task[table.episode == ep][0]) for ep in dev_eps
+        )
+        if sorted(per_task.values()) != [EXPECTED_DEV_EPISODES // EXPECTED_TASKS] * EXPECTED_TASKS:
+            _stop(record, out_dir, "dev_episodes_not_evenly_task_stratified", args.s_only)
     ladder = GRID_LADDER_S_ONLY if args.s_only else GRID_LADDER_SV
     uses_v = not args.s_only
 
     # -- final binning grid (fit split, mechanical ladder) ----------
-    grid = choose_grid(table.s[fit_mask], table.v[fit_mask], ladder)
+    grid = choose_grid(table.s[dev_mask], table.v[dev_mask], ladder)
     if grid is None:
         _stop(record, out_dir, "stop_loss_sparse_cells", args.s_only)
     s_edges, v_edges = grid
@@ -535,31 +807,58 @@ def main() -> None:
         delta_star = float(frozen["delta_star"])
         neighbours = {"minus": None, "plus": None}
         record["delta_star"] = delta_star
+        if empirical:
+            suite = json.loads(pathlib.Path(args.split_manifest).read_text()).get("suite")
+            want = FROZEN_DELTA_STAR.get(suite)
+            if want is None:
+                raise SystemExit(
+                    f"split manifest suite {suite!r} has no frozen delta; the formal "
+                    f"fit is defined only for {sorted(FROZEN_DELTA_STAR)}"
+                )
+            if abs(delta_star - want) > FROZEN_DELTA_TOL:
+                raise SystemExit(
+                    f"recomputed delta* {delta_star!r} differs from the frozen "
+                    f"{suite} value {want!r} by more than {FROZEN_DELTA_TOL}; the "
+                    "inputs are not the ones the protocol froze"
+                )
+            record["frozen_delta_star"] = want
+            record["frozen_delta_suite"] = suite
         record["frozen_from"] = str(args.frozen_record)
         record["delta_selection_reason"] = "frozen_from_sv"
     else:
-        folds = assign_folds(table, fit_mask)
-        models = fit_fold_models(table, fit_mask, folds, ladder, args.alpha)
+        folds = assign_folds(table, dev_mask)
+        record["fold_sizes"] = [
+            int(len(np.unique(table.episode[dev_mask & (folds == f)]))) for f in range(N_FOLDS)
+        ]
+        models = fit_fold_models(table, dev_mask, folds, ladder, args.alpha)
         if models is None:
             _stop(record, out_dir, "stop_loss_sparse_cells_oof", args.s_only)
-        q_oof7, q_oof10 = oof_predictions(models, table, fit_mask)
-        fit_idx = np.where(fit_mask)[0]
+        q_oof7, q_oof10 = oof_predictions(models, table, dev_mask)
+        dev_idx = np.where(dev_mask)[0]
         oof_res = episode_max_residual(
-            q_oof7, q_oof10, table.y7[fit_idx], table.y10[fit_idx], table.episode[fit_idx],
+            q_oof7, q_oof10, table.y7[dev_idx], table.y10[dev_idx], table.episode[dev_idx],
         )
         if len(oof_res) < 19:
             _stop(record, out_dir, "fit_episode_count_below_19", args.s_only)
-        oof_offset = order_statistic_offset(list(oof_res.values()), args.alpha)
+        # Rev 1: the episode-max OOF offset is NOT applied. It was a second
+        # extreme-value tax on top of the calibration correction, and either
+        # layer alone empties the acceptance region on this deviation scale.
+        oof_offset = 0.0 if empirical else order_statistic_offset(
+            list(oof_res.values()), args.alpha
+        )
         record["oof_safety_offset"] = oof_offset
+        record["oof_episode_max_residual_p95"] = order_statistic_offset(
+            list(oof_res.values()), args.alpha
+        )
         record["n_fit_episodes"] = len(oof_res)
 
-        grid_d = np.unique(np.percentile(table.y10[fit_mask], np.arange(10, 100, 10)))
+        grid_d = np.unique(np.percentile(table.y10[dev_mask], np.arange(10, 100, 10)))
         record["delta_grid"] = grid_d.tolist()
         if len(grid_d) < 2:
             _stop(record, out_dir, "degenerate_delta_grid", args.s_only)
         metrics = {
             float(d): evaluate_candidate_deployed(
-                float(d), models, table, fit_mask, oof_offset, uses_disagreement=True,
+                float(d), models, table, dev_mask, oof_offset, uses_disagreement=True,
             )
             for d in grid_d
         }
@@ -579,31 +878,59 @@ def main() -> None:
         }
         record["delta_neighbours"] = neighbours
 
+        if empirical:
+            suite = json.loads(pathlib.Path(args.split_manifest).read_text()).get("suite")
+            want = FROZEN_DELTA_STAR.get(suite)
+            if want is None:
+                raise SystemExit(
+                    f"split manifest suite {suite!r} has no frozen delta; the formal "
+                    f"fit is defined only for {sorted(FROZEN_DELTA_STAR)}"
+                )
+            if abs(delta_star - want) > FROZEN_DELTA_TOL:
+                raise SystemExit(
+                    f"recomputed delta* {delta_star!r} differs from the frozen "
+                    f"{suite} value {want!r} by more than {FROZEN_DELTA_TOL}; "
+                    "refusing to label a changed fit as the frozen protocol"
+                )
+            record["frozen_delta_star"] = want
+            record["frozen_delta_suite"] = suite
+
     # -- formal fit + split conformal ------------------------------
-    sb_fit = bin_index(table.s[fit_mask], s_edges)
-    vb_fit = bin_index(table.v[fit_mask], v_edges)
+    sb_fit = bin_index(table.s[dev_mask], s_edges)
+    vb_fit = bin_index(table.v[dev_mask], v_edges)
     q_hat = fit_bimonotone_quantile(
-        sb_fit, vb_fit, table.y7[fit_mask], table.y10[fit_mask],
+        sb_fit, vb_fit, table.y7[dev_mask], table.y10[dev_mask],
         len(s_edges) - 1, len(v_edges) - 1, args.alpha,
     )
-    sb_cal = bin_index(table.s[cal_mask], s_edges)
-    vb_cal = bin_index(table.v[cal_mask], v_edges)
-    cal_res = episode_max_residual(
-        q_hat[0, sb_cal, vb_cal], q_hat[1, sb_cal, vb_cal],
-        table.y7[cal_mask], table.y10[cal_mask], table.episode[cal_mask],
-    )
-    record["n_calibration_episodes"] = len(cal_res)
-    if len(cal_res) < 19:
-        _stop(record, out_dir, "calibration_episode_count_below_19", args.s_only)
-    c = order_statistic_offset(list(cal_res.values()), args.alpha)
-    record["conformal_c"] = c
-    q_tilde = q_hat + c
+    if empirical:
+        # No certification stage: delta was chosen by cross-fitted deployed
+        # verdict and the boundaries are exported from q_hat as fitted. Nothing
+        # here is a coverage statement, so nothing may be recorded as one.
+        n_cal_episodes = 0
+        c = 0.0
+        q_tilde = q_hat
+        record["n_calibration_episodes"] = 0
+        record["conformal_c"] = 0.0
+    else:
+        sb_cal = bin_index(table.s[cal_mask], s_edges)
+        vb_cal = bin_index(table.v[cal_mask], v_edges)
+        cal_res = episode_max_residual(
+            q_hat[0, sb_cal, vb_cal], q_hat[1, sb_cal, vb_cal],
+            table.y7[cal_mask], table.y10[cal_mask], table.episode[cal_mask],
+        )
+        n_cal_episodes = len(cal_res)
+        record["n_calibration_episodes"] = n_cal_episodes
+        if n_cal_episodes < 19:
+            _stop(record, out_dir, "calibration_episode_count_below_19", args.s_only)
+        c = order_statistic_offset(list(cal_res.values()), args.alpha)
+        record["conformal_c"] = c
+        q_tilde = q_hat + c
 
     # -- diagnostics (SV run only; A1 on unconstrained bin quantiles)
     if not args.s_only:
         n_s, n_v = len(s_edges) - 1, len(v_edges) - 1
         emp_q = np.full((2, n_s, n_v), np.nan)
-        for layer, y in ((0, table.y7[fit_mask]), (1, table.y10[fit_mask])):
+        for layer, y in ((0, table.y7[dev_mask]), (1, table.y10[dev_mask])):
             for i in range(n_s):
                 for j in range(n_v):
                     m = (sb_fit == i) & (vb_fit == j)
@@ -624,16 +951,58 @@ def main() -> None:
                         total += 1
                         viol += int(rr[j + 1] < rr[j])
         record["a1_violation_rate"] = (viol / total) if total else None
-        z = (table.y10[fit_mask] <= delta_star).astype(float)
-        zb = bin_index(table.s[fit_mask], np.unique(np.quantile(
-            table.s[fit_mask], np.linspace(0, 1, 11))))
+        z = (table.y10[dev_mask] <= delta_star).astype(float)
+        zb = bin_index(table.s[dev_mask], np.unique(np.quantile(
+            table.s[dev_mask], np.linspace(0, 1, 11))))
         rates = [float(z[zb == b].mean()) for b in range(zb.max() + 1) if (zb == b).any()]
         record["mlr_rate_by_s_decile"] = rates
         record["mlr_monotone_violations"] = int(
             sum(rates[i + 1] < rates[i] for i in range(len(rates) - 1))
         )
-        if record["a1_violation_rate"] is not None and record["a1_violation_rate"] > 0.20:
+        # Rev 1 records (A1) but does not gate on it. Section 4.1 lets ONLY
+        # cell occupancy drive the ladder and section 4.2 freezes only the
+        # accuracy/hitshare stops; the old A1 stop belonged to the certified
+        # construction Rev 1 dropped. It is also strongly grid-dependent -- the
+        # rate is computed from unconstrained per-cell 0.95 quantiles, and at
+        # (12,6) a cell holds ~47 rows, where that statistic is essentially the
+        # third largest value. Re-introducing it as a gate, or letting it drive
+        # the ladder, would change the frozen fitter and the frozen delta.
+        record["a1_gate_applied"] = not empirical
+        if not empirical and record["a1_violation_rate"] is not None \
+                and record["a1_violation_rate"] > 0.20:
             _stop(record, out_dir, "a1_violation_rate_above_20pct", args.s_only)
+
+    # Freeze the full development/fold/refit audit BEFORE artifact emission so
+    # the deployable object can carry the same immutable proof. S0 inherits the
+    # SV fold map even though it does not repeat delta selection: that is the
+    # only honest representation of a nested ablation on the same split.
+    dev_rows = np.where(dev_mask)[0]
+    membership, computed_fold_map = _development_audit(table, dev_mask, folds)
+    if args.s_only:
+        frozen_membership = frozen.get("dev_membership")
+        frozen_fold_map = frozen.get("fold_map")
+        if frozen_membership != [list(x) for x in membership]:
+            raise SystemExit("S0 development membership differs from the frozen SV fit")
+        if not isinstance(frozen_fold_map, list) or not frozen_fold_map:
+            raise SystemExit("SV frozen record carries no auditable fold map")
+        fold_map = [tuple(x) for x in frozen_fold_map]
+    else:
+        fold_map = computed_fold_map
+    record["dev_membership"] = membership
+    record["dev_membership_sha256"] = _digest_obj(membership)
+    record["fold_map"] = fold_map
+    record["fold_map_sha256"] = _digest_obj(fold_map)
+    record["final_fit_digests"] = {
+        "s_edges": _digest_obj(np.asarray(s_edges).tolist()),
+        "v_edges": _digest_obj(np.asarray(v_edges).tolist()),
+        "q_deploy": _digest_obj(np.asarray(q_tilde).tolist()),
+        "n_dev_rows": int(len(dev_rows)),
+    }
+    if args.s_only:
+        if record["dev_membership_sha256"] != frozen.get("dev_membership_sha256"):
+            raise SystemExit("S0 development membership digest differs from SV")
+        if record["fold_map_sha256"] != frozen.get("fold_map_sha256"):
+            raise SystemExit("S0 inherited fold map digest differs from SV")
 
     # -- contract + artifact emission ------------------------------
     from openpi.cache.config import compute_surface_retrieval_contract, load_cache_config
@@ -654,8 +1023,13 @@ def main() -> None:
             str(ckpt_root), rebuild["config_name"],
         ),
     })
-    if args.s_only:
-        contract["top_k"] = args.top_k  # width is a retrieval fact, not a v need
+    # The artifact's effective retrieval width, not the yaml's configured one.
+    # search_digest stays bound to the on-disk yaml (top_k=1) so the arms match
+    # the table; this field is what SurfaceArtifact.validate() checks against k,
+    # and it must therefore be the width the surface was actually fitted at.
+    # S0 needs no extra candidates, so it declares k=1.
+    artifact_k = args.top_k if uses_v else 1
+    contract["top_k"] = artifact_k
 
     tag = "s_only" if args.s_only else "sv"
     emitted = {}
@@ -669,28 +1043,36 @@ def main() -> None:
         full, warm = export_boundaries(q_tilde, s_edges, delta)
         artifact = SurfaceArtifact(
             schema_version=SURFACE_ARTIFACT_SCHEMA_VERSION,
-            k=args.top_k,
+            k=artifact_k,
             h_exec=args.h_exec,
             w=weights["w"],
             active_mask=weights["active_mask"],
             start_t_ws=PINNED_START_T_WS,
             delta=float(delta),
-            alpha=args.alpha,
+            quantile_alpha=args.alpha,
+            certification_mode=args.certification_mode,
             uses_disagreement=uses_v,
             v_bin_edges=v_edges,
             s_min_full=full,
             s_min_warm=warm,
             conformal_c=c,
-            n_calibration_episodes=len(cal_res),
+            n_calibration_episodes=n_cal_episodes,
             retrieval_contract=contract,
             meta={
                 "ref_mode": "fresh",
                 "delta_name": name,
                 "delta_selection_reason": record["delta_selection_reason"],
                 "oof_safety_offset": record.get("oof_safety_offset"),
+                "certification_mode": args.certification_mode,
+                "n_dev_episodes": record.get("n_dev_episodes"),
+                "d0_record_sha256": record.get("d0_record_sha256"),
                 "frozen_from": record.get("frozen_from"),
                 "table": str(args.table),
                 "input_digests": input_digests,
+                "d0_binding": d0_binding,
+                "dev_membership_sha256": record["dev_membership_sha256"],
+                "fold_map_sha256": record["fold_map_sha256"],
+                "final_fit_digests": record["final_fit_digests"],
                 "deviation_metric": "mean over h_exec steps of weighted L2 (active dims)",
             },
         )

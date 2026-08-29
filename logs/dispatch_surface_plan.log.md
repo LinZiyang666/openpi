@@ -1,6 +1,6 @@
 # Dispatch Surface 实施计划（三档 (s,v) 调度 + 标定管线 + 增益预检）
 
-> Status: **In Progress**（G1 APPROVED；G2 Round 3 **NEEDS REVISION**） | Level: **L2** | Authority: Execution
+> Status: **In Progress — 实验执行期**（G1 APPROVED R5；G2 APPROVED R4；Verify 通过；commit `1985271` 已 push；**成本轴 2026-08-27 变更，Review Authority 有条件批准；§4.6/§7 已按裁决修订冻结，analyzer 已重写、`run_cost_bench.py`/`power_sim_cost_blocks.py` 已删**） | Level: **L2** | Authority: Execution
 > 数学权威：[`docs/iclr/latex/dispatch_note.tex`](../docs/iclr/latex/dispatch_note.tex)（v3 定稿）。攻防与裁决：[`docs/iclr/dispatch_defense_plan.md`](../docs/iclr/dispatch_defense_plan.md)（§3b 三档坍缩）。交接：[`logs/session_handoff_dispatch.md`](session_handoff_dispatch.md)。
 > 本 plan 是 dispatch 线的**唯一流程**：数据独立性重建、noise 诊断、标定数据生成、surface 拟合与 conformal 校准、SurfaceJudge、闭环增益预检、预检后并入挂点，全部在本流程内交付代码与预注册执行方案，不留后续流程。
 > 本 plan 经 G1 五轮评审（Round 1–4 共 39 条意见全部修订 + Round 5 owner 授权复审当场修复三处后 APPROVED）定稿；G1 APPROVED 2026-08-27 10:03 CDT。
@@ -79,7 +79,7 @@ NPZ 读取显式 `np.load(path, allow_pickle=False)`；object array 拒绝；契
 | `top_k` | = k（uses_disagreement=true 时）/ 无约束（false 时） | 装配后 effective top_k |
 | `library_sha256` / `library_entry_count` | 拟合期所用库 | `CacheStorage.artifact_meta`（identity 扩展，见下） |
 | `action_dim` / `num_steps`(N) | 动作维度与去噪步数 | `artifact_meta` 的 action schema 字段 |
-| `h_exec` | = 标定所用执行窗（5） | **runner launch 契约**：`run_precheck.py`/`run_cost_bench.py` launch 前断言 client `replan_steps == h_exec` |
+| `h_exec` | = 标定所用执行窗（5） | **runner launch 契约**：`run_precheck.py` launch 前断言 client `replan_steps == h_exec` |
 | `policy_fingerprint` | `compute_policy_fingerprint(resolved_checkpoint_root, config_name)` = sha256(canonical config 名 + checkpoint 根目录下逐文件的 `(relative_path, size, sha256(content))` canonical manifest)，重建/标定脚本运行模型时现场计算写入 | **server 自报告的同函数值**（attestation seam，见下），runner 比对，错配 fail-fast |
 
 **Policy attestation seam（additive，入 scope）**：操作者自报字符串、文件名/大小清单都不构成内容绑定。新增共享实现 `src/openpi/serving/policy_identity.py`，只负责把 checkpoint URI 经 policy loader 已用的 downloader/resolver 物化为本地 canonical root，并计算内容摘要；`scripts/serve_policy.py` 内的 `_resolve_effective_policy_spec(args)` 负责把 `Default` 或显式 `Checkpoint` 唯一映射为 canonical config 名与 URI，避免 `src/` 反向依赖 script dataclass。server 将这一 resolved spec 同时交给 create-policy 与 fingerprint，二者不得分别解析。摘要对根目录下普通文件递归流式 sha256；manifest 按 POSIX relative path 排序，拒绝空目录、特殊文件和逃出根目录的 symlink。该摘要每个进程只算一次并缓存结果，不在请求路径计算。三方调用同一实现：重建/标定脚本写入 artifact contract；**`scripts/serve_policy.py` 用同一份 resolved spec 创建 policy 并把 fingerprint 与 effective `monitor_level` 放入 websocket metadata（additive 字段）**；runner 连接后从 `get_server_metadata()` 读取并与 artifact contract/预期 pass 比对——server 加载了什么就报告什么，同大小替换权重也会改变摘要。`replan_steps` 仍为 runner CLI 显式无默认参数（先例：risk_router）。契约值与 metadata 写 manifest；judge 计算 v 用 artifact 内 h_exec。
@@ -208,36 +208,74 @@ Handoff 的"零 rollout"指标定表生成无需闭环交互（仍成立：标�
 | SV | `dispatch_surface` @ δ\* | **primary** |
 | SV−/SV+ | @ δ\* 去重 grid 邻档，**存在才 emit（δ\* 在 grid 端点时缺侧省略）** | secondary，描述性 |
 
-**Arm cardinality 动态闭合**：emit 按 δ\* 的 grid 位置确定性生成 5/6/7 臂矩阵，manifest 记录实际臂集；一切 Gate 只消费核心 5 臂，SV± 缺席不影响任何裁决路径；成本实验固定只跑核心 5 臂（SV± 的成本仅以解析 ir 辅助口径描述）。
+**Arm cardinality 动态闭合**：emit 按 δ\* 的 grid 位置确定性生成 5/6/7 臂矩阵，manifest 记录实际臂集；一切 Gate 只消费核心 5 臂，SV± 缺席不影响任何裁决路径。成本自主预检解析得到，故 SV± 的成本与 SR 一样自动可得，仅作描述。
 
 - **T1–T3 recipe 冻结协议**：阈值由 `derive_thresholds`（唯一实现）在 **fit∪cal 的 s 分布**上按预注册 (f_FH,f_WS) 反解。这是 baseline 自身的标定算法（matched calibration budget），其对 cal 分数的这次读取发生在看 test 之前、recipe 参数在本 plan 冻结，不反向影响 surface 的 q̂/c/δ\*——不构成 surface 的 calibration 回访。冻结时间与输入 digest 落 launch manifest。
-- `emit_precheck_yamls.py`：基板 = gtp 模板，替换 judge 段 + `preload_path`（§4.1 重建库，emit 时 assert preload sha == artifact 契约 sha）+ `write_policy: never`；gate 沿用模板。
-- `run_precheck.py`：薄 conductor runner，结构复制 `run_gtp.py`（arm matrix、resume 过滤、init 池 digest 重算、journal/per_step 落盘），去掉 no-warm-tiers 断言，init 池指向 A′；**全臂同 A′ init 文件、同 env seed、同 conductor seed —— 配对纪律**，launch manifest 记录三者 digest。**Launch 契约 fail-fast**：launch 前读 primary artifact 的 `retrieval_contract`，断言 client `replan_steps == h_exec`（显式参数、无默认）；连接 server 后从 server metadata 读取实际 `policy_fingerprint` 与 artifact contract 比对（server 自报告，不接受操作者自报字符串），两者写入 manifest；`run_cost_bench.py` 同款断言。主预检只裁 **SR 轴**。
-- **成本轴：独立成本实验 `run_cost_bench.py`**。现有接口无法支撑主预检内的逐 decision 配对成本（`client_timing` 仅 episode 累计；`SystemTimer` 行无 yaml/episode join key；conductor 持久连接跨臂 `select_bundle` 使归属断裂）。隔离实验设计：
-  - 拓扑：单 server 单 replica；**pass A 与 pass B 是两个顺序、互斥的 server launch**，因为 `OPENPI_MONITOR_LEVEL` 在进程内首次读取后缓存，禁止在同一进程/连接间切换。每个 pass 内每（臂 × block）一条独立测量连接；两个 launch 除 monitor level 外使用相同 policy/cache/hardware，并逐项核验 metadata 与 launch digest。
-  - **抽样（覆盖 init 不确定度，非重复同 10 ep）**：先以固定 seed 对 A′ 的 30 个 init/task 各自产生一次 permutation；block b（b=1..R）使用每 task permutation 的第 b 个 init（task-stratified 轮换，预注册零自由度），每臂每 block 10 ep；R 个 block 覆盖每 task R 个不同 init，block 间方差因此内含 init 抽样不确定度，臂内同 block 同 init 配对。每 block 内臂序由另一固定 seed 洗牌，并在两个 pass 复用完全相同的 `(block, init-set, arm-order)` manifest。
-  - **R 的预定（NB9）**：正式执行前以 E0 latency bench 的配对 block 方差 + 合成 shift/noise 分别模拟 Gate 1/Gate 2 的 compute 与 latency bootstrap 分辨率；替代效应逐门写死为 **Gate1 compute 真值 −10%（检验门 −5%）、Gate1 latency −2%（门 0）、Gate2 compute 0%（门 +5%）、Gate2 latency −2%（门 0）**。不能拿恰在检验边界的 −5% 当 Gate1 compute 替代效应——其通过概率不可能达到 80%。从 `R∈{5,10,15}` 取使四个成本门最小功效均 ≥80% 的最小值。若 R=15 仍不达标，止损点 B 在看 test 前触发，成本主张记为功效不足且不启动闭环；规则、模拟脚本、方差输入 digest 与输出一并冻结。
-  - **双 pass 分离（CUDA-event 同步不得污染 latency 门）**：pass A server 以 `OPENPI_MONITOR_LEVEL=SNAPSHOT` 启动，只取 **compute**（server CUDA 段 per-decision：stage1+stage2+stage3_warm/flow）与 cp1_* CPU 归因分段；整个 pass A 完成并关闭 server 后，pass B 以 `OPENPI_MONITOR_LEVEL=OFF` 重新启动，只取 **latency**（runner 即 client，逐请求 `perf_counter` 端到端，内含 CPU 检索、k−1 fetch、v 计算、judge、网络）。OFF 下 `SystemTimer` 为零开销 no-op，故 pass B 既不调用也不依赖 `dump_metrics`。
-  - **采集生命周期（按现有接口分 pass 写死）**：每个 server launch 在测量前按核心五臂各开一条独立连接，用相同固定 observation 序列预热对应 bundle 后关闭；这些 warmup 单元标记为 discard。pass A 每条测量连接开始前由独立 control connection `dump_metrics(clear=True)` 清场 → 跑该（臂,block）mini-set → 关闭测量连接以触发 `on_task_end` 将 timing rows 推入 recorder → control connection `dump_metrics(clear=True)` 取回 rows，核验 response `level=SNAPSHOT`、CUDA backend 和该单元唯一性。pass B 从 server metadata 核验 `monitor_level=OFF`，只保存 measurement connection 上 runner 的逐请求计时；任何 metrics 调用、server timing row 或非 OFF metadata 都 fail-fast。不依赖 `auto_flush_csv`。
-  - 推断单位 = **block**：每（臂, block, pass）先得均值，臂间相对差在 R 个 block 上配对；绝不跨 pass 比绝对值。总量 = 5 臂 × R × 10 ep × 2 pass（R=5/10/15 时 500/1,000/1,500 ep）。解析 `ir` 降为辅助口径（历史可比）。
+- `emit_precheck_yamls.py`：基板 = gtp 模板，替换 judge 段 + `preload_path`（§4.1 重建库，emit 时 assert preload sha == artifact 契约 sha）+ `write_policy: never`；**gate 段重解并覆写，不沿用模板**（2026-08-28 修正，owner 指出）。
+  - 权威做法见 `exp/gate_threshold_pareto/solve_gtp.py`：gate theta 与 judge 阈值是**同一分数分布的分位切**，必须 per-library 重解——「carrying a threshold across libraries is exactly the mistake the ratio-based design exists to prevent: two libraries with different score spreads reach the same operating point at different numeric cuts」。本线重建了库，沿用模板 theta 会让 gate 落在它未被标定的操作点上。
+  - 因此 `theta = derive_thresholds(fit∪cal scores, THETA_TOP_FRACTION=0.85, 0.0)`，与 T1–T3 的 `T_fh` 同源同实现；gate 结构参数 `j=3 / probe_interval=3 / L=6` 从 `emit_gtp_yamls` 导入而非重新定义。样本量不足 `MIN_SCORES=500` 时 fail-fast。
+  - **同一个 theta 用于全部臂**（T1–T3 / S0 / SV / SV±）且跨 sweep 固定：gate 决定某步是否被 probe，若它随臂变动，SR 或成本的差异就无法归因于被检验的 verdict 规则。theta 及其分位、结构参数、解算样本数一并写入 arm matrix 作 provenance。
+  - 两 suite 的模板 gate 原本就不同（spatial 带旧库的 `score_hysteresis theta=0.968929`，l10 带 `always_search`），沿用会让两条线的 baseline 前沿不是同一种东西。
+- `run_precheck.py`：薄 conductor runner，结构复制 `run_gtp.py`（arm matrix、resume 过滤、init 池 digest 重算、journal/per_step 落盘），去掉 no-warm-tiers 断言，init 池指向 A′；runner 直接以 split manifest 的 30/task assignment、逐 task state-content digest 和 worker 实际读取目录作三方核验，**不得复用 cache-size 线冻结 50/task 的 A-pool verifier**。A′ 已物化成 30/task，因此 worker 显式使用 subset position 索引文件，同时 `orig_init_state_idx` 保留官方 0..49 provenance；不得用 official index 直接索引 30 条数组。**全臂同 A′ init 文件、同 env seed、同 conductor seed —— 配对纪律**，launch manifest 记录三者 digest。**Launch 契约 fail-fast**：launch 前读 primary artifact 的 `retrieval_contract`，断言 client `replan_steps == h_exec`（显式参数、无默认），且同一 `replan_steps` 与冻结 env seed 必须传入实际 worker；连接 server 后从 server metadata 读取实际 `policy_fingerprint` 与 artifact contract 比对（server 自报告，不接受操作者自报字符串），两者写入 manifest。主预检同时产出 **SR 与解析成本两轴**的全部输入（`per_step.jsonl` 的逐 step verdict）。
+- **成本轴：从主预检解析计算，无独立成本实验**（2026-08-27 变更，Review Authority 有条件批准，见 [`dispatch_surface_cost_axis_change.md`](dispatch_surface_cost_axis_change.md) §9/§10）。成本口径是 **GPU inference ratio**，是 verdict 的解析函数，不是墙钟测量：
+
+  | verdict | per-decision 成本 | CUDA-graph 档 |
+  |---|---|---|
+  | `FULL_HIT` | stage1 | 10.26 ms |
+  | `WARM_START` | stage1 + stage2 + `start_t` × stage3 | 46.821 ms（`start_t=0.3`） |
+  | `MISS` | stage1 + stage2 + stage3 | 67.52 ms |
+
+  单位成本取自 `exp/data_authority/records/latency_bench__libero_spatial__executor_costs.json` 的 **CUDA-graph 三阶段档**（`pi05_compile_ro_3stage.json`：10.260266 / 27.686469 / 29.571860 ms），eager 与 default 档描述未优化系统，不得使用。`start_t=0.3` 表示**执行 30% 的 stage3**（`run_stage3_from` 跑 `round(start_t × num_steps)` 步，见 `pi0_pytorch.py:691`），该语义由测试固定。检索 CPU 不占 GPU、不进成本。
+
+  **estimand = decision-weighted ratio-of-sums**：`C_a = Σ_d c(h_d) / N_decisions`。**不得**先求每 episode 的 per-decision 均值再对不等长 episode 等权平均——那估的是"随机 episode 的平均成本"，与本线主张的"随机 decision 的 GPU inference cost"不是同一个量（实测 episode 决策数 14–44 不等）。每个 bootstrap replicate 必须按被抽中的完整 init cluster **重新汇总分子与分母**再作比。
+
+  数据来源是主预检自身的 `per_step.jsonl`（逐 step 记 `hit_type` 与 `start_t`，带 `(yaml_id, task_id, orig_init_state_idx, episode_id)` 完整 join key），与 SR 用同一批 episode、同一批 init、天然配对，**不额外跑任何 episode**。删除的旧设计：`run_cost_bench.py` 双 server launch、block 设计、`R∈{5,10,15}`、`power_sim_cost_blocks.py` 及其 variance source 与确定性重放、`stage_probe_backends` CUDA 断言、原止损点 B。
+
+  正式文字一律称 **解析 GPU inference cost** 或 **model-forward compute proxy**，**不得**写成实测端到端延迟。`client_timing` 可作描述性报告并注明多 worker 竞争限制，**不参与任何 Gate 判定**。
 
 **预注册统计裁决（进 test 前冻结，测后不得改）**：
 
-- **联合 replicate**（B=10,000）：每个 replicate = [主预检按 task 分层、init 级 cluster 重采样 → 各臂 SR] × [成本实验按 block 重采样（n=R，有放回）→ 各臂 compute/latency]，两部分独立重采样后联合构造下述量。
-- **每 replicate 的唯一输出（endpoint-clamped，analyzer 零自由度）**：每个联合 replicate 用其 T1–T3 (SR, compute, latency) 按 `(SR, arm_id)` 稳定升序构造 operational threshold polyline（SR 相同则 arm_id 打破 tie），与 SV 的 `(SR_sv, C_sv, L_sv)` 比对，产出恰好一条记录 `{branch, D_sr, D_c, D_l}`：
-  - `branch=bracket`（min T.SR ≤ SR_sv ≤ max T.SR）：相邻两 cell 线性插值得 C_m、L_m。
-  - `branch=high`（SR_sv > max T.SR）：**clamp 到 argmax-SR cell**（C_m、L_m 取该 cell）。此 replicate 内 SR(SV) ≥ SR(comparator) 自动成立，且 clamp 不外推；SV 仍须过下述成本门才计胜，方向保守。
-  - `branch=low`（SR_sv < min T.SR）：**clamp 到 argmin-SR cell**（C_m、L_m 取该 cell），禁外推。
-  - 三分支统一：令 `SR_m = clip(SR_sv, min T.SR, max T.SR)`，`D_sr = SR_sv − SR_m`，`D_c = (C_sv − C_m)/C_m`，`D_l = (L_sv − L_m)/L_m`。bracket 的 `D_sr=0`，high 为正，low 为负；任何分母 ≤0 或非有限均使 analyzer fail-fast。**所有 replicate 都产 D_c/D_l，禁止丢弃 low 后对条件分布算成本门。**全样本点估计同规则，仅作图。
-- **Gate 1（确认性，SV vs T-frontier）**，三门全过才胜：
-  1. `D_sr` 的 5% 下分位 ≥ 0（等价地，bootstrap 质量至少 95% 不落到 threshold polyline 下沿以下）；
-  2. **全部 replicates** 的 `D_c` 95% 上分位 ≤ −5%；
-  3. **全部 replicates** 的 `D_l` 95% 上分位 ≤ 0（无回归硬门，CPU 开销吃掉收益即判负）。
-  不胜 → 此线降级，一切后续对比降描述性，负结果反哺纪要 §7.2。
-- **Gate 2（确认性，仅 Gate 1 胜后；fixed-sequence 至此为止）**：SV vs S0 直接配对（同 δ\*，单点对单点）。**单一预注册方向 = 同预算下 v 提升 SR 且不以延迟回归换取**：ΔSR = SR(SV)−SR(S0) 的 95% CI 下界 > 0；相对 Δcompute = (C_sv−C_s0)/C_s0 的 95% CI 上界 ≤ +5%；相对 **Δlatency = (L_sv−L_s0)/L_s0 的 95% CI 上界 ≤ 0**（v 专属的 fetch/judge CPU 开销由硬门覆盖，v 不得靠变慢换 SR）。胜 → surface 胜且 v 增值获证，SV 并入 Arm2.5。
-- **Gate 2 不胜 → 确认性检验到此停止**（fixed-sequence gatekeeping 在未拒绝处停止方可免校正）。此时结论 = "SV 优于 threshold 获证；v 的增值未获确认"。s-only 是否作为部署版本并入改由**描述性比较**决定（点估计 + 全 CI 展示，明确标注非确认性），论文如实陈述。原 Gate 3 的确认性地位删除。
+- **单一联合 replicate**（B=10,000）：每个 replicate 在 task 内以 `orig_init_state_idx` 为 cluster 作**有放回配对重采样**，**同一 replicate 对所有臂使用同一套 task/init 抽样索引**，并在该 replicate 内**同时**计算各臂 SR 与解析成本、以及 Gate 1 的 threshold-frontier 插值。**禁止为 SR 与成本分别抽样**——Gate 2 的 intersection-union 检验的有效性依赖两个统计量的联合分布。
+- **每 replicate 的唯一输出（endpoint-clamped，analyzer 零自由度）**：每个 replicate 用其 T1–T3 `(SR, C)` 按 `(SR, arm_id)` 稳定升序构造 operational threshold polyline（SR 相同则 arm_id 打破 tie），与 SV 的 `(SR_sv, C_sv)` 比对，产出恰好一条记录 `{branch, D_sr, D_c}`：
+  - `branch=bracket`（min T.SR ≤ SR_sv ≤ max T.SR）：相邻两 cell 线性插值得 C_m。
+  - `branch=high`（SR_sv > max T.SR）：**clamp 到 argmax-SR cell**。此 replicate 内 SR(SV) ≥ SR(comparator) 自动成立，且 clamp 不外推；SV 仍须过成本门才计胜，方向保守。
+  - `branch=low`（SR_sv < min T.SR）：**clamp 到 argmin-SR cell**，禁外推。
+  - 三分支统一：令 `SR_m = clip(SR_sv, min T.SR, max T.SR)`，`D_sr = SR_sv − SR_m`，`D_c = (C_sv − C_m)/C_m`。bracket 的 `D_sr=0`，high 为正，low 为负；任何分母 ≤0 或非有限均使 analyzer fail-fast。**所有 replicate 都产 D_c，禁止丢弃 low 后对条件分布算成本门。**全样本点估计同规则，仅作图。
+- **Gate 1（确认性，SV vs T-frontier）**，两门全过才胜：
+  1. `D_sr` 的 5% 下分位 ≥ 0（bootstrap 质量至少 95% 不落到 threshold polyline 下沿以下）；
+  2. **全部 replicates** 的 `D_c` 95% 上分位 ≤ **−5%**。
+
+  原第 3 条延迟门**已删除**：GPU inference ratio 口径下检索 CPU 不进成本，主预检没有与之匹配、且不受多 worker 竞争污染的确认性测量物。不胜 → 此线降级，一切后续对比降描述性，负结果反哺纪要 §7.2。
+- **Gate 2（确认性，仅 Gate 1 胜后；fixed-sequence 至此为止）**：SV vs S0 直接配对（同 δ\*，单点对单点）。令
+
+  `ΔSR = SR_sv − SR_s0`，`ΔC = C_sv / C_s0 − 1`。
+
+  Gate 2 通过 **当且仅当同一套配对 bootstrap draws 同时满足**：
+
+  1. `q_0.05(ΔSR) > 0`
+  2. `q_0.95(ΔC) ≤ +0.05`
+
+  这是方向明确的 **intersection-union test**：论文主张要求"SR 严格提升"与"成本增幅不超过 5%"同时成立，联合原假设下只要一个分量原假设为真联合主张即不成立，故两个单侧分量**各用 α=0.05，不作 Bonferroni 修正**。
+
+  > **成本条件形式的裁定依据**：原写法「97.5% 上界 ≤ +5%」在 v 无害时只有约 0.64 的放行概率（把守卫的误伤成本记在主张头上）；而「点估计 ≤ +5%」在真实增幅**恰为 +5% 的非劣界值**处误放率为 0.500，无一类错误控制。采用的单侧 95% 上界在该边界处恰为 α=0.05，v 无害时放行概率约 **0.752**（历史方差模型下的 **design-stage sensitivity estimate**，非保证功效——它用历史 threshold 臂对估计未来嵌套 SV/S0 对比的方差，两者的逐 init verdict 不一致率与相关结构未必相同）。
+  >
+  > **SR 条件的分位已冻结为单侧 `q_0.05`**（owner 裁决 2026-08-27）：主张有明确方向、Gate 2 是 IUT，两个分量都用单侧 α=0.05；`q_0.025` 只是额外保守、白损功效，无统计必要。**不得**把 `q_0.025` 与「单侧 95%」混称。
+
+  胜 → surface 胜且 v 增值获证，SV 并入 Arm2.5。
+- **Gate 2 不胜 → 确认性检验到此停止**（fixed-sequence gatekeeping 在未拒绝处停止方可免校正）。结果判读固定为：
+  - 两条件均过 → "`v` 带来成功率增益，且解析 GPU inference cost 的增幅以单侧 95% 置信不超过 5%"；
+  - SR 过、成本未过 → "确认了 SR 增益，但成本非劣性证据不足"，**不得**据此判定 `v` 无效；
+  - SR 未过 → "`v` 的独立成功率收益未获确认"。
+
+  s-only 是否作为部署版本并入改由**描述性比较**决定（点估计 + 全 CI 展示，明确标注非确认性）。原 Gate 3 的确认性地位删除。
 - CI 触界一律按"不胜"处理。SV−/SV+ 与 matched-cost 增 SR 方向只画图与描述，不进任何 Gate。
-- `analyze_precheck.py` 把纪律写成代码约束：拒绝未冻结 primary、拒绝臂间 init/seed digest 不一致、拒绝成本数据缺 block/warmup/pass 标记或 metadata/backend 未确认、SR-matched 插值与两端 clamp 在 replicate 内执行、禁止删除 low replicate、Gate 顺序与停止规则硬编码、多点择优路径不存在。
+- **`analyze_precheck.py` 的 fail-closed 纪律**（代码约束，非建议）：
+  - 拒绝未冻结 primary；拒绝臂间 init/seed digest 不一致；
+  - 主分析输入必须**精确覆盖**预注册的 `arm × task × init` 网格，每格恰有一个 accepted episode；**缺格、重复格或身份不一致均 fail closed**；
+  - `per_step` 的 decision 数必须与 episode 的 inference 数一致；`hit_type` 只能是 `FULL_HIT`/`WARM_START`/`MISS`，**缺失、未知或 `UNPROBED` 不得静默按 MISS 计费，也不得静默丢弃 episode**；
+  - 所有 WARM_START 行验证 `start_t=0.3`；
+  - 单位成本台账摘要、输入 `per_step.jsonl` 摘要、臂配置摘要必须进入分析 manifest；
+  - SR-matched 插值与两端 clamp 在 replicate 内执行；禁止删除 low replicate；Gate 顺序与停止规则硬编码；多点择优路径不存在。
 
 ### 4.7 Arm2.5 并入挂点
 
@@ -247,7 +285,7 @@ Handoff 的"零 rollout"指标定表生成无需闭环交互（仍成立：标�
 
 **新建 `src/`**：`src/openpi/cache/components/surface_judge.py`；`src/openpi/serving/policy_identity.py`（checkpoint URI 物化 + resolved checkpoint 内容摘要，共享给 server/离线脚本；不依赖 `scripts/` 类型）。
 **修改 `src/`**：`src/openpi/cache/config.py`（_JUDGE_TYPES、JudgeConfig 字段、工厂分支、yaml 级校验、装配点库级契约比对）；`src/openpi/cache/components/judge.py`（facade re-export 一行）；`src/openpi/cache/backends/in_memory_backend.py` + `src/openpi/cache/cache_storage.py`（**identity seam additive 扩展**：`load_artifact` 计算文件 sha256 + 全库扫描聚合 metadata（记录不断言），facade 透传；对既有 yaml 与 legacy artifact 字节等价）；`scripts/serve_policy.py`（**policy attestation seam additive**：用同一 resolved spec 加载并将 `policy_fingerprint`/`monitor_level` 合入 websocket metadata）。`src/openpi/serving/websocket_policy_server.py` 无需改：既有 arbitrary metadata handshake 已满足透传。
-**新建 `exp/dispatch_surface/`**：`__init__.py`、`split_init_pools.py`（super-pool 固定 seed 分层划分 A′/C + `assert_disjoint` + D_lib init census）、`rebuild_dispatch_library.py`、`collect_query_cohort.py`（C 池 `--collect` 采集驱动）、`noise_sensitivity.py`、`build_dispatch_table.py`、`fit_surface.py`（含 `--s-only` 与机械 δ 选择）、`emit_precheck_yamls.py`、`run_precheck.py`、`run_cost_bench.py`（隔离成本实验：block 设计 + warmup 请求 + CUDA backend 断言 + 逐请求 client 计时）、`analysis/analyze_precheck.py`、`config/`。
+**新建 `exp/dispatch_surface/`**：`__init__.py`、`split_init_pools.py`（super-pool 固定 seed 分层划分 A′/C + `assert_disjoint` + D_lib init census）、`rebuild_dispatch_library.py`、`collect_query_cohort.py`（C 池 `--collect` 采集驱动）、`noise_sensitivity.py`、`build_dispatch_table.py`、`fit_surface.py`（含 `--s-only` 与机械 δ 选择）、`emit_precheck_yamls.py`、`run_precheck.py`、`analysis/analyze_precheck.py`、`config/`。`run_cost_bench.py` 与 `power_sim_cost_blocks.py` 随成本轴变更删除（2026-08-27）；`analysis/` 另有三个诊断脚本 `block_variance_probe.py` / `analytic_cost_power.py` / `verify_cost_gate_rules.py`，留存该变更的证据。
 **新建 `tests/`**：`tests/cache/components/test_surface_judge.py`；`tests/cache/test_surface_binding.py`（集成契约）；`tests/serving/test_policy_identity.py`；`tests/dispatch_surface/test_dispatch_split_pools.py`、`test_dispatch_table.py`、`test_fit_surface_solver.py`、`test_precheck_emit.py`、`test_precheck_analyzer.py`。
 **修改 `tests/`**：`tests/cache/test_config.py`（dispatch_surface 校验用例）；`tests/serving/test_websocket_policy_server.py`（attestation metadata handshake 非回归）。
 **文档**：`docs/architecture/cache_system.md` §5.6 judge 表 + `docs/cache/tutorial.md` §6 judge 表各加一行；`docs/README.md`、`logs/README.md` 索引同步（宪法红线，同 commit）。
@@ -274,7 +312,7 @@ Handoff 的"零 rollout"指标定表生成无需闭环交互（仍成立：标�
 3. `noise_sensitivity` → TT/WT 诊断报告（不驱动口径）。
 4. `build_dispatch_table --ref-mode fresh`（+ fit split 上 uncoupled/tau1 sensitivity 列）→ 标定表。
 5. `fit_surface`（surface + `--s-only`）→ artifacts + (A1)/MLR 诊断 + **δ\* 机械冻结（§4.5 规则）**。**止损点 A**：(A1) 违反率 > 20%、或 §4.5 选择规则的 `accepted_step_accuracy` 门全候选失败 → 记录负结果，跳过闭环。
-6. 成本 block 数功效模拟（不看 test，R ∈ {5,10,15} 冻结；R=15 仍不足则止损）→ `emit_precheck_yamls`（5–7 臂动态矩阵）+ `run_precheck`（各臂 × 300 ep，配对，SR 轴）→ `run_cost_bench`（核心 5 臂 × R block × 10 ep × 两次 server launch，成本轴）→ `analyze_precheck`（联合 replicate）→ §4.6 门控结论。**止损点 B** = 功效不足或 Gate 1 不胜。
+6. `emit_precheck_yamls`（5–7 臂动态矩阵）→ `run_precheck`（各臂 × 300 ep，配对；SR 与解析成本共用这一批 episode）→ `analyze_precheck`（单一联合 replicate，同 replicate 内同时算 SR 与成本）→ §4.6 门控结论。**止损点 B 收窄为 Gate 1 不胜** —— 原「功效不足」分支随 power sim 一并删除（成本不再是独立测量，无 R 可选）。
 7. 并入方向按 Gate 结果执行（§4.6）；负 → 负结果归档 + 纪要 §7.2 反哺。E5 第三项事后描述性分析随 analyzer 产出。
 
 ## 8. 测试策略
@@ -293,10 +331,10 @@ Handoff 的"零 rollout"指标定表生成无需闭环交互（仍成立：标�
 - δ 机械性：grid 去重与退化（unique<2 → 止损）、fold 指派、OOF 残差池 n=50 单次 order statistic（**断言不存在任何 n<19 的 pseudo-conformal 分支**——n=10 冒充 α=0.05 calibration 的路径必须不可达）、空接受集语义、tie-break、accuracy 门全失败 → 止损 A，各分支合成数据测试。
 - Legacy 兼容：无 intermediates / payloadless / 混合 CP artifact 经扩展后 loader 照常加载（非回归）；同一 artifact 装配 `dispatch_surface` 时被拒。
 - Launch 契约与 attestation：`replan_steps != h_exec` 错配 fail-fast；替换真实 checkpoint 目录内容（增删文件、改 size、**保持 size 不变但改 bytes**）均令 `compute_policy_fingerprint` 变化；Default/显式 Checkpoint 解析到实际 resolved root；runner 从 server metadata 读取比对失败（非仅传不同 CLI 字符串）；symlink escape/特殊文件/空根拒绝；manifest 字段在位。
-- 成本实验：**两 launch 生命周期**——A(SNAPSHOT)：逐臂 warmup 独立连接丢弃 → clear → measure → 关闭 → dump 取回 + level/backend 核验；B(OFF)：逐臂 warmup 独立连接丢弃 → 仅 client measure、禁止 metrics API/server timing row；断言 warmup 行不在成本分母，server metadata 与 pass 一致；connection↔(臂,block,pass) 归属唯一性；task-stratified permutation/轮换 init 指派正确（block b → permutation 第 b init）且两 pass manifest 相同；同进程切 level、pass A/B 交叉污染、CUDA backend 回退均 fail-fast；R 选择四门功效分支与 R=15 仍不足止损；block 数不足拒绝推断。
+- 成本轴（解析）：真实 producer schema 的成功路径（`client_timing` 行**没有** `orig_init_state_idx`，只有 `task_uid`/`subset_init_state_idx`）；缺 `client_timing` 必拒；`infers` 与计价 decision 数不符必拒；stale attempt / fenced 同 attempt 报告 / 他 run 的行**排除并计数**而非计费；网格外 cell fail closed；verdict 行的 `orig_init_state_idx` 与冻结 split manifest 的 subset→official 映射交叉验证；未知 verdict 与 off-tier `start_t` 必拒；ratio-of-sums 与 episode 等权在不等长 episode 下必须给出不同结果。
 - emit 产物的 preload sha 与拟合库 sha 一致性断言。
 - 端到端 mini：小合成库 + surface artifact 走 orchestrator `check()`，缺 0.3 档 payload 降级 MISS、v 异常步 MISS、非有限 s → MISS。
-- analyzer 纪律：未冻结 primary 拒绝、臂间 digest 不一致拒绝、成本数据缺 block/warmup/pass 标记或 backend/level 未确认拒绝、**SR-matched 插值在 replicate 内重算且不存在把待检验 compute 差按构造置零的路径**（合成数据：SV 与 threshold polyline compute 已知差 → 断言 Δcompute CI 不退化为 0）、**前沿三分支各构造样例**（bracket 插值 / high clamp 到 argmax-SR / low clamp 到 argmin-SR 且 D_sr<0），断言 low replicate 仍进入 D_c/D_l 分位数；Gate 1 的 D_sr 下分位失败样例；Gate 1→2 固定顺序与 **Gate 2 不胜即停止确认性检验**（无 Gate 3 确认路径可达）；Gate 1 与 **Gate 2 的 latency 回归样例均判负**；动态臂矩阵（5/6/7 臂输入均可判读，Gate 只读核心 5 臂）；多点择优路径不存在。
+- analyzer 纪律：未冻结 primary 拒绝、臂间 digest 不一致拒绝、launch ledger 非 v2 / 多次 launch 的**实验级冻结摘要**不一致 / run_id 缺失或重复 / 执行时 yaml 与分析时 yaml 不符 均拒绝；resume 可只执行未完成 arm，但每个 accepted episode 的 `(run_id, arm)` 必须落在该次 launch 的 `executed_arms` 内。`task_uid/yaml_id/task_id/subset_init_state_idx/episode_id/attempt/accepted/run_id` 逐层交叉核验，缺字段或不一致 fail closed。**SR-matched 插值在 replicate 内重算且不存在把待检验 compute 差按构造置零的路径**（合成数据：SV 与 threshold polyline compute 已知差 → 断言 ΔC CI 不退化为 0）；**前沿三分支各构造样例**（bracket 插值 / high clamp 到 argmax-SR / low clamp 到 argmin-SR 且 D_sr<0），断言 low replicate 仍进入 D_c 分位数；Gate 1 的 D_sr 下分位失败样例；Gate 1→2 固定顺序与 **Gate 2 不胜即停止确认性检验**（无 Gate 3 确认路径可达）；Gate 2 成本条件是单侧 95% 上界（边界处即 α=0.05）而非点估计或 p97.5；动态臂矩阵（5/6/7 臂输入均可判读，Gate 只读核心 5 臂）；多点择优路径不存在；端到端：完整 5 臂 × 10 task × 30 init 合成实验直接从 journal + per_step 判出 verdict。
 
 **Verify**：`uv run pytest` 全量（§6 程序性运行）；仅 metadata handshake 增 additive 字段，不改 infer request/response；serving handshake 与 staged API 非回归测试显式运行。
 
@@ -310,15 +348,564 @@ Handoff 的"零 rollout"指标定表生成无需闭环交互（仍成立：标�
 | 重建库与历史 pkl 不同（z 重采导致 intermediates 变化） | 三处强制同库 + sha 契约绑定；历史 sweep 数据仅作背景引用不作对照臂 |
 | fit 50 ep（~1,050 step）拟合 2D 曲面仍偏薄 | 等频分箱 + 最小 bin 合并；B_s×B_v 可在 fit 内部降档（8×4）；cal 不受影响 |
 | MISS 子集实际可捞空间低于 always-hit 平均 | 裁决只看配对差值 CI，不引用历史 94% 作承诺 |
-| surface 实测 judge/fetch 开销抵消 9ms 级差距 | 成本轴实测（含 cp1_* 探针与端到端 latency 硬门），该风险直接被测量而非假设 |
-| 成本实验与主预检拓扑不同（单 replica vs 多 replica）引入口径差 | 同库、同 yaml、同 server 配置，仅并发拓扑隔离；成本结论限定 per-decision 相对差（臂间对称），绝对值不外推；联合 bootstrap 显式分离两轴不确定度 |
-| compute/latency 两个 server launch 存在时段漂移 | 两个 pass 各自在同一 launch 内完成五臂配对并随机化臂序；只在各自 pass 内形成臂间相对差，绝不跨 pass 比绝对值；policy/cache/hardware/arm-order metadata attestation 不一致即中止 |
+| surface 的 judge/fetch CPU 开销 | 成本轴口径是 **GPU inference ratio**，检索 CPU 不占 GPU、不进成本；该开销以 `client_timing` 作描述性报告（注明多 worker 竞争限制），不进任何 Gate |
+| 成本与 SR 口径不一致 | 两轴出自**同一批 episode、同一批 init、同一次重采样**（解析成本从主预检 `per_step` 得到），拓扑差异这一风险随独立成本实验一并消失 |
+| resume 使累计 per_step 跨多次 launch | launch ledger 分离实验级冻结字段与每次运行的 `executed_arms/executed_yaml_sha256`；前者所有条目一致，后者允许未完成 arm 子集；analyzer 要求每个 accepted episode 的 `(run_id, arm)` 由对应条目认领，否则拒绝 |
 | 输给双阈值或 s-only | 预注册三分结论；负结果 = "threshold 已近可达域"实证反哺纪要 §7.2；s-only 胜出仍可并入（v 维降级） |
-| 吞吐波动 | 主预检动态 5–7 臂、成本固定核心 5 臂；预算按 R=15 上限预留，resume 过滤沿用 run_gtp 机制 |
+| 吞吐波动 | 主预检动态 5–7 臂、成本固定核心 5 臂；每臂固定 A′ 300 episode，resume 过滤沿用 run_gtp 机制 |
 
 ## 10. 文档义务（同 commit 红线）
 
 `logs/README.md`（本文件条目）；`docs/README.md` + `docs/architecture/cache_system.md` + `docs/cache/tutorial.md`（judge 表）；实验产出期：`exp/data_authority` 收编 + MANIFEST + records 台账（重建库、query cohort、预检各一）；`docs/iclr/dispatch_defense_plan.md` §5 与 `actioncache_response_plan.md` 状态行更新（连同 `docs/iclr/README.md` 描述同步）。
+
+## 11. 执行日志
+
+§7 时序的逐步执行记录。每步记：命令、产物、独立复核结论。**冻结判据零自由度**（§4.2 配额 / §4.5 δ 规则 / §4.6 门控）在执行期不得重议。
+
+**拓扑（本轮 owner 指定）**：`weilandserver` 单机闭环（4090 48G，server + LIBERO client 同机，client 走 `127.0.0.1` 不经 broker），`timan107` 本轮不参与。跨节点操作走 tether，`tether exec` 必须 `export HOME=/home/weiland`（agent 默认 HOME 是 `~/.tether-agent`）。设备与端口规约见 `dist_experiment_control/docs/devices.md §2.5`。
+
+### 2026-08-27 — 前置：标定检索配置
+
+`exp/dispatch_surface/config/calibration_retrieval.yaml` 由 gtp 模板 `exp/gate_research/config/libero_spatial/n4_server/cp1_spatial_pool_16__grid3_vision_0@6_vision_1@50_robot_state@43__d1__fh75_ws10_quantile.yaml` **机械派生**（施加与 `emit_precheck_yamls._emit` 完全相同的三处替换：judge → `always_hit`、`preload_path` → 重建库、`write_policy` → `never`），而非手写。理由：`compute_surface_retrieval_contract` 对 `key_builder` 整段与 (`keys`, `cp1.search_strategy`) 整对取 digest 并写进 surface artifact，标定栈与预检臂只要有一处 dataclass 字段不同，臂在 load 期就会拒绝证书。
+
+**复核**：模板 / 标定 yaml / 模拟臂 yaml 三方的 `key_builder_digest`（`77c0dfad…`）、`search_digest`（`5cceb846…`）、`top_k`（1）逐一相等。yaml 的 `top_k: 1` 与 §4 的"检索宽度 5"不矛盾——`SurfaceJudge.min_required_top_k = artifact.k` 在装配点把有效宽度抬到 5，`_check_surface_library_binding` 再断言 `effective_top_k ≥ k`。gate 段是模板原样（其阈值属 threshold-pareto 线，标定期离线回放不走 gate），已在文件注释中标明以免被误读为本线标定结果。
+
+### 2026-08-27 — 步骤 0：`split_init_pools`（CPU，完成）
+
+```
+uv run python -m exp.dispatch_surface.split_init_pools --suite libero_spatial \
+  --init-map exp/common/data/db/libero_cache/libero_spatial_init_map.json \
+  --apool-dir exp/common/data/db_init/libero/libero_spatial \
+  --library-h5-dir exp/common/data/db/libero_cache/libero_spatial \
+  --out-root exp/dispatch_surface/data/init_pools --seed 20260827
+```
+
+官方 super-pool 目录实为 `exp/common/data/db_init/libero/libero_spatial`（每 task 一个 `.init`，各 50 states），无需 `materialize_apool.py` 现场物化。D_lib census 通过：10 task × 恰 5 官方 init。
+
+**产物**：`test_aprime/`（30 states/task）、`query_c/`（15 = 5 fit + 10 cal）、`split_manifest.json`。21 文件 / 464,399 B / rollup `23beeafe…`。
+
+**独立复核**（不复用脚本自身的打印）：逐 task 重算 `dlib ∪ fit ∪ cal ∪ test = {0..49}` 且两两不交；450 个物化 state 逐字节比对其 manifest 声称的官方索引，450/450 相等——只核数量会放过"计数正确但内容被置换"的划分，而那恰好会静默破坏整条线赖以成立的数据独立性。
+
+**台账**：`exp/data_authority/records/dispatch_surface__libero_spatial__init_pools.json`（`kind: init_pool`，含 21 条逐文件明细），`registry validate` 与 `verify` 全绿。字节被 `.gitignore` 的 `exp/**/data/**` 吞掉，台账是它在 git 内的唯一痕迹。
+
+### 2026-08-27 — 步骤 2 前置：`collect_query_cohort plan`（CPU，完成）
+
+由 split manifest 生成 150 episode 的采集计划（10 task × 15 = 5 fit + 10 cal），产物 `exp/dispatch_surface/data/query_cohort_plan.json`。计划同时钉住官方 init 索引与 C 池文件内的 subset 位置两套索引空间，采集器据此打 metadata，下游 join 不猜。**采集本身需 GPU**（teacher rollout），待卡。
+
+### 2026-08-27 — 成本轴：取消独立成本 bench，改为从主预检解析计算（owner 定口径）
+
+**owner 厘清成本口径后，§4.6 的整个独立成本实验失去存在理由。** 三次修正，最后一次是结构性的：
+
+1. **成本 = GPU inference ratio**。检索不占 GPU、不进成本、不进 Pareto 前沿。此前把检索 CPU 算进"端到端 latency"并当成一条独立确认性轴，是错的。
+2. **单位成本用 CUDA-graph 档**（stage1 10.26 / stage2 27.69 / stage3 29.57 ms），不是 eager 也不是 default——后两者描述未优化的系统，会低估 FULL_HIT 相对 MISS 有多便宜，而那个比值是全部结论的支点。
+3. **成本是解析量，不是测量量**：
+
+| 档 | 成本 | CUDA-graph |
+|---|---|---|
+| FULL_HIT | stage1 | 10.26 ms |
+| WARM_START(start_t=0.3) | stage1 + stage2 + **0.3 ×** stage3 | 46.82 ms |
+| MISS | stage1 + stage2 + stage3 | 67.52 ms |
+
+`per_step.jsonl` 逐 step 记录 `hit_type` 与 `start_t`，带完整的 (arm, task, init, episode) join key。**数一数三档各多少步，乘上单位成本，每臂的成本就出来了**——从主预检的 300 ep/臂 直接得到，与 SR 用同一批 episode、同一批 init、天然配对。§4.6 当初引入独立成本实验的理由是"现有接口无法支撑主预检内的逐 decision 配对成本"，但那是针对**计时**的；解析成本只需要 verdict 计数，而计数早已 join 好。
+
+> **同时修掉一个实现错误**：`decision_compute_ms` 原写 `frac = 1 - start_t`，把 WARM_START 当成跑 70% 的 stage3。源码 `pi0_pytorch.py:691` 明确：`start_t=0.3, num_steps=10 → 3 steps, saves 70%`，即跑 `start_t` 那一份。已改为 `frac = start_t` 并加测试钉死。此错未污染任何已得数字——gtp 那批数据 warm_start 整条关闭，该分支从未触发。
+
+**功效对比**（`exp/dispatch_surface/analysis/analytic_cost_power.py`，在 gtp sweep 上取 30 init/task 模拟 A′ 配额，task 分层 init-cluster bootstrap，臂对按各 Gate 实际面对的差异程度分组）：
+
+| 口径 | 额外 episode | Gate 1 功效 | Gate 2 功效 |
+|---|---|---|---|
+| **解析成本，主预检 300 ep/臂** | **0** | **0.765** | **0.696** |
+| 独立 block bench（block=40 ep、R=7，A′ 池上限） | 2,800 | 同等（SE 0.019 vs 0.021） | 同等 |
+
+**独立成本 bench 花 2,800 个 episode 换来的精度，主预检免费给到几乎一样——它没有存在价值。** 一并消失的还有：block 设计、R∈{5,10,15}、power sim、双 server launch、以及此前算了半天的 A′ 池 init 配额冲突（那是 block 之间要求 init 不重复才产生的）。
+
+**剩下的唯一问题是功效仍不足 0.80**（Gate 1 0.765 / Gate 2 0.696），且瓶颈是 `gate2_compute`（p97.5、真效应 0% 对阈值 +5%）。杠杆已经换成 `--trials`——它同时抬高 SR 轴与成本轴的精度：
+
+- Gate 1 达 0.80 需 SE ≤ 0.0201（现 0.0211），差一点点；
+- Gate 2 达 0.80 需 SE ≤ 0.0179（现 0.0202），约需 38 init/task。
+
+A′ 现为 30 init/task（500 官方 init 已四分：D_lib 50 / fit 50 / cal 100 / A′ 300）。扩到 38 要从 cal 挪 80 个（cal 10→2 per task，|E| 100→20），逼近 §4.5 的 19 下限，代价大。
+
+**已裁决（2026-08-27，Review Authority 有条件批准）** —— 详见 [`dispatch_surface_cost_axis_change.md`](dispatch_surface_cost_axis_change.md) §9（裁决）与 §10（Executor 接收）：
+
+- 解析成本获批为正式 estimand，独立成本 bench 删除；确认性 latency 门删除。
+- Gate 2 成本条件采用**方案 D（单侧 95% 上界 ≤ +5%）**，**否决**本日志此前推荐的方案 C。补算证实：C 在真实增幅恰为 +5% 的非劣界值处误放率为 **0.500**（无一类错误控制），D 在该边界恰为 α=0.05；此前只列 +8%/+15% 漏放率而漏掉边界点，是本日志的论证缺陷。
+- estimand 须为 **decision-weighted ratio-of-sums**，非 episode 等权平均（实测 episode 决策数 14–44 不等）。据此修正，方案 D 在 v 无害时的放行概率由本日志此前报的 0.797 **更正为 0.752**，并按裁决 §9.6 标注为 design-stage sensitivity estimate。
+- §4.6 与 §7 已按裁决修订并冻结（本次同 commit）；analyzer 实现按 §4.6 新增的 fail-closed 纪律清单执行。
+- Gate 2 的 SR 条件由 owner 于同日裁定冻结为单侧 `q_0.05`（见 §4.6）。
+
+### 2026-08-27 — weilandserver 执行环境部署（CPU，完成）
+
+**本机（weiland-wsl）无 GPU**（`nvidia-smi` not found），故一切需要模型的步骤都在 weilandserver 跑，本机只做纯 CPU 分析与文档。
+
+weilandserver 上原有三个 openpi 克隆，**没有一个带本线代码**：`/home/weiland/openpi` 停在 `6818ff2` 且有 67 个未提交改动（其他会话的工作，且是 ws2 实验克隆的源，**不可动**）；`/data/openpi` 非 git；`/data/openpi_text_ivf_build` 是 ws2 正在用的 detached 克隆。核对确认 `6818ff2` **是** `origin/Ziyang` 的祖先——只是落后 21 个提交，无分叉。
+
+因此按项目既有模式（ws2 即用独立克隆）新建隔离环境，不触碰任何现有工作区：
+
+- 代码：`/data/openpi_dispatch`，`git clone --shared /home/weiland/openpi` 后 checkout `cdb128d`，dirty=0，106 MB（objects 共享）。
+- 数据：软链而非复制——`exp/common/data/db/libero_cache/libero_spatial` 与 `exp/common/data/db_init` 指向 `/home/weiland/openpi/exp/common/data/` 下的真身（3.5 G H5 不复制）。注意 `exp/common/data` 本身**不能**整体软链：克隆里该路径下有 534 个 tracked 文件。
+- 解释器：复用 `/home/weiland/openpi/.venv/bin/python`（3.11.15）+ `PYTHONPATH=/data/openpi_dispatch/src:/data/openpi_dispatch`，与 ws2 同一模式。
+
+**端到端验证（不是"看起来对"，是 digest 逐字节相等）**：远端重跑 `split_init_pools`（同参数同 seed）与 `collect_query_cohort plan`，产物与本机比对——`split_manifest.json` 两边同为 `964b5b71…`，`query_cohort_plan.json` 两边同为 `79ed09ae…`。这一次同时验证了三件事：远端代码与依赖可用、两边库源数据同源（`init_map` `ac0c88c3…`、首个 H5 `7636bba1…` 各自在两边相等）、划分确定性。因此 init pools 不需要传输，远端就地重建即可。
+
+**checkpoint 同一性（handoff 关卡）**：两边 `compute_policy_fingerprint` **不同** —— 本机 `81ac1961…`、weilandserver `95098c85…`。查明原因：`model.safetensors` 两边 sha256 完全相同（`69960c7b…`，7,233,650,408 B），`config.json` 也同；差异**全部**来自本机目录里多出的 `.ipynb_checkpoints/config-checkpoint.json`（149 B，Jupyter 残留）。即权重同一，指纹分歧纯属本机的目录卫生。由于模型步骤全在 weilandserver 上跑，本线一律以 **`95098c85…`** 为准，内部自洽。
+
+> 留给后来者的坑：`compute_policy_fingerprint` 计入 checkpoint 根下**每一个**常规文件，所以编辑器备份、`.DS_Store`、Jupyter checkpoint 都会改变 attestation，并让"同一个模型"在两台机器上互相拒绝。fail-closed 是设计意图，但排查时先看文件清单差异再怀疑权重。
+
+### 2026-08-28 — 范围扩展：两 suite 并进，l10 优先（owner 指定）
+
+owner 决定本线覆盖 **libero_10 与 libero_spatial 两个 suite**：前置链（采集 / 重建库 / 标定表 / 拟合）两线并进，**但最终大实验（`run_precheck` 及其后）必须先跑 l10、再跑 spatial**。即便 spatial 的 fit 先就绪也不得抢跑——排序是 owner 的调度决定，不是资源可用性问题。
+
+§4.6 原文写"预检（闭环，1 suite libero_spatial）"，现扩为两 suite，其余冻结判据（配额 5/5/10/30、δ 机械规则、Gate 判据与分位、单位成本表）**逐字不变，两 suite 各自独立执行一遍**。
+
+**l10 的检索配置是它自己的**：`exp/dispatch_surface/config/calibration_retrieval_libero_10.yaml`，从 `exp/gate_research/config/libero_10/eval/` 的模板机械派生（四个模板的检索段实测同构，任选其一不影响契约）。它与 spatial 的 `key_builder_digest` 相同（同一 `cp1_spatial_pool_16`），但 `search_digest` 不同（l10 的融合权重 56/25/18 对 spatial 的 6/50/43）——因此一个 suite 的 surface artifact 无法被另一个 suite 的臂加载，这是应有的行为。
+
+**l10 的 D_lib 必须重采**（owner 选定方案 B）。原因：l10 的库源过不了 §4.2 要求的内容级 census——它的 init map 只有 5 个字段（缺 `h5_path`/`attrs`/`full_init_path`/`init_path`/`entry_count`/`trajectory_id`），且库源 H5（2026-04-21 采）的 attrs 不含任何 init 身份，把 map 行关联到具体 H5 只能靠推断，而推断正是 G2R3-B1 要拒绝的。新增 `exp/dispatch_surface/bootstrap_library_source.py` 打破这个死锁：从既有 map 取它自己记录的 D_lib official init 选择（每 task 5 个，保持历史一致）→ 物化 5/task 池 → 生成 cohort-plan 格式的采集计划；采完用 `rebuild-map` 从 H5 **反向**构建完整 init map 并当场跑 `census_dlib_inits` 自检。**该脚本为本轮新增、尚未过 G2**，只做数据准备、不碰任何冻结判据。
+
+> **备查资产（本次不用，但存在）**：`/data/openpi/ablation_study/cache_size/collect_h5/{libero_10,libero_spatial}/task_N/episode_M.h5` —— 每 suite **完整 500 init**（10×50 格，`verify_collect.py` 契约化并验证 grid 完整性），132 GB，纯 teacher（无 cache，见 `ablation_study_plan.log.md:69`），2026-08-16 采。本线未采用，因为它的 H5 attrs 只有 `episode_id`、身份编码在路径里，喂给 `build_dispatch_table` 需要改 loader 支持路径式身份（新代码 + 两 suite provenance 形式不对称），而 owner 选择了对称性更强的重采方案。**它是目前唯一覆盖全部 official init 的纯 teacher 语料**，任何需要"每个 init 都有 H5"的后续工作（换 estimand、init 级分析）应先想到它。另注：`libero_10_init_map.json` **未被 git 跟踪**（只有 spatial 那份是），隔离克隆里没有、需手推。两者都尚无 data_authority 台账，待补。
+
+### 待执行（需 GPU）
+
+GPU 当前被 robocasa365 ws_search2 占用（探测时 11 个 `serve_policy`，49 G 中仅 ~9 G 空闲，util 66–80%）。已挂后台监控，`serve_policy` 归零且空闲 >30 G 时通知。
+
+环境前缀（下列命令都在此之下）：
+
+```bash
+tether exec weilandserver -- bash -lc 'export HOME=/home/weiland
+  cd /data/openpi_dispatch
+  export PYTHONPATH=/data/openpi_dispatch/src:/data/openpi_dispatch
+  PY=/home/weiland/openpi/.venv/bin/python
+  ...'
+```
+
+**§7 的步骤 3/4 编号与实现相反，以下为按实际输入依赖核对（逐脚本 `--help`）后的正确顺序**：§7 把 `noise_sensitivity` 排在 `build_dispatch_table` 之前，但前者的 `--table`（fresh 标定表）与 `--weights-npz`（W/active_mask）**都是后者的产物**且均为必填。代码是对的——诊断从已算好的标定表分层抽 50 step 才有意义；§7 的编号是笔误。`noise_sensitivity` 是"preliminary diagnostic，不驱动口径"，其位置不影响任何裁决，故按依赖顺序执行，此处备案。
+
+| # | 步骤 | 关键输入（来源） | 预算 |
+|---|---|---|---|
+| 1 | `rebuild_dispatch_library` | `--split-manifest`(步 0)、`--checkpoint-dir /home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch`、`--device cuda` | ~10 min |
+| 2 | `collect_query_cohort launch` → `verify` | 步 0 的 `query_c` 池；server 侧 `serve_policy.py --collect`（纯 teacher），client 侧本机 `libero_sim` conda prefix、`--num-workers 1` | 150 ep，数小时 |
+| 3 | `build_dispatch_table --ref-mode fresh --top-k 5 --h-exec 5` | `--library-pkl`/`--noise-sidecar`(步 1)、`--query-h5-dir`(步 2)、`--cache-yaml`(标定 yaml)、`--split-manifest` | ~1–2 h |
+| 4 | `noise_sensitivity` | `--table`/`--weights-npz`(步 3) —— **依赖步 3** | 诊断 |
+| 5 | `fit_surface`（再 `--s-only --frozen-record`） | `--table`/`--weights-npz`(步 3)、`--cohort-manifest`(步 2 verify)、`--rebuild-record`(步 1)、`--cache-yaml`、`--split-manifest` | CPU |
+| 6 | `emit_precheck_yamls` → `run_precheck --trials 30 --replan-steps 5` → `analyze_precheck` | 步 5 的 artifacts + δ\*；A′ 池 | 5–7 臂 × 300 ep ≈ 1 h |
+
+成本轴不再有独立步骤：`run_precheck` 的 `per_step.jsonl` 同时供给 SR 与解析成本，`analyze_precheck` 在同一 bootstrap replicate 内算两者。
+
+GPU 空出后的第一条命令（步 1，已核对参数名与路径）：
+
+```bash
+$PY -m exp.dispatch_surface.rebuild_dispatch_library \
+  --h5-dir exp/common/data/db/libero_cache/libero_spatial \
+  --split-manifest exp/dispatch_surface/data/init_pools/split_manifest.json \
+  --builder cp1_spatial_pool_16 --config-name pi05_libero \
+  --checkpoint-dir /home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch \
+  --out-dir exp/dispatch_surface/data/cache_artifacts --device cuda
+```
+
+步 2 的两侧命令（由 `collect_query_cohort launch` 打印，`--run` 才执行；client 侧已实测可跑——`libero_sim` env 能解析新 `main.py` 的 `--cohort-plan`）：
+
+```bash
+# server（tmux srvN，tee 落盘保留 stdout）
+uv run scripts/serve_policy.py --collect --collect_dir <out> --env LIBERO \
+  policy:checkpoint --policy.config pi05_libero \
+  --policy.dir /home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch
+# client（必须 conda run -p 才触发 EGL activate 钩子；直接调 libero_sim/bin/python 不生效）
+MUJOCO_EGL_DEVICE_ID=0 PYTHONPATH=. /home/weiland/miniconda3/bin/conda run -p /home/weiland/libero_sim \
+  python examples/libero/main.py --host 127.0.0.1 --port 8000 \
+  --task-suite-name libero_spatial --num-trials-per-task 15 --num-workers 1 \
+  --init-states-dir exp/dispatch_surface/data/init_pools/query_c \
+  --cohort-plan exp/dispatch_surface/data/query_cohort_plan.json
+```
+
+`--num-workers 1` 是硬约束（cohort 身份 metadata 只在串行路径写入，main.py 有断言），不是吞吐选择。
+
+**独占 GPU 的要求随成本 bench 一并消失**：成本是解析量，不测墙钟，因此 `run_precheck` 与其他 GPU 步骤一样只需要卡可用、不需要独占（共卡只影响吞吐，不影响 verdict 计数）。`fit_surface` / `emit_precheck_yamls` / `analyze_precheck` 是纯 CPU，但依赖上游 GPU 产物。
+
+### 2026-08-28 — GPU 阶段执行日志（两线并进）
+
+GPU 于 2026-08-28 上午空出（owner 通知「机器已空出」），前置链开跑。以下为**实际发生**的时序与产物摘要；上一节「待执行（需 GPU）」的命令表仍是有效的依赖参考，但其"待执行"状态已被本节取代。
+
+| 产物 | libero_spatial | libero_10 |
+|---|---|---|
+| split manifest | `964b5b71…` | `1948ab3b…` |
+| 重建库 entry_count | 1018 | 2496 |
+| library_sha256 | `b3f61dc5…` | `7315f4b1…` |
+| noise sidecar | `8889e232…` | `d0543efe…` |
+| 九档 intermediates completeness | 100% | 100% |
+
+> entry_count 相差 2.45× 是 suite 性质而非配额差异：两边都是 50 个 D_lib episode，libero_10 是长程套件，单 episode 步数远多于 spatial。
+
+`libero_10` 的重建 record 里 `builder = cp1_spatial_pool_16`，与 spatial 同名——这是 key_builder 的 id，两 suite 的 `key_builder_digest` 本就相同（同一 `cp1_spatial_pool_16`，无差异旋钮），库条目因此是同构的；两边真正不同的是检索融合权重（`search_digest`），而它不参与建库。pkl 文件名里的 `spatial` 字样同理只是 builder id 的回显，不表示用错了语料——两个 pkl 在各自 suite 的目录下，`preload_path` 分别指向自己那份。
+
+**踩坑并修复：标定表的检索宽度不由 `--top-k` 决定。** 首版 spatial 标定表（3364 行）跑完后抽检发现 **`v` 100% 为 None、`k_eff` 全部为 1**，即 F2 分歧特征完全缺失。根因：检索宽度取 `effective_top_k = max(yaml 的 search_strategy.top_k, judge 的 min_required_top_k hint)`。部署期由 surface judge 给出 hint（`surface_judge.py:402`，`uses_disagreement` 时 hint = `artifact.k`）把宽度抬到 5；但**标定期 judge 是 `always_hit`、不给 hint**，宽度就停在模板的 `top_k: 1`，而 `build_dispatch_table --top-k 5` 只是在返回的 1 个结果上切片，于是恒有 k_eff=1、v=NaN→None。
+
+修法（`build_dispatch_table._load_components` 新增 `min_top_k` 参数）：装配 components 前把**内存中** config 的 `search_strategy.top_k` 抬到 `--top-k`。**刻意不改盘上的 yaml**——`fit_surface` 重新读盘算 `compute_surface_retrieval_contract`，记录的 `search_digest` 仍来自 `top_k: 1` 的原始 yaml，与 `emit_precheck_yamls` 产出的臂 yaml 逐字一致（yaml 级契约只比 `key_builder_digest` / `search_digest` 两项，`top_k` 不参与比对）；部署时照旧由 judge hint 抬宽，并由 `config.py:2948` 的 `effective_top_k < artifact.k` 断言兜底。即：这是**复现部署语义**，不是绕过契约。
+
+> **教训（本线最贵的一条）**：这个 bug **不报错**，只安静产出一张 v 全空的表，退出码 0、行数正确。若不抽检就会一路跑到 `fit_surface` 的 (s,v) 分箱才炸，那时两条线的标定表都已作废、GPU 时间全部白烧。**新增纪律：每个阶段完成后必须验产物的取值分布**（None 率 + 取值集合 + 分层计数），不能只看行数和退出码。已把该检查固化为 `next_*_fit.sh` 里的 GUARD 段（v_none / s_none / k_eff / episodes 四项，任一不符即拒绝进入拟合）。
+
+首版表改名 `dispatch_table_fresh.VOID_k1.jsonl` 留证，**不得用于任何拟合**；spatial 以修复后的代码重跑完毕（3364 行 / 10 tasks / 150 episodes = fit 50 + cal 100），验收：`v_none=0`、`s_none=0`、`k_eff` 全为 5、`y_tau7`/`y_tau10` 无缺、`ref_mode=fresh`、`v ∈ [9.22, 40.58]`、`s ∈ [0.6763, 0.9885]`。
+
+**把作废表当对照组用了一次，得到一个有用的结论**：新表与 VOID 表按 `(episode_id, step_idx)` 全键对齐（3364/3364），逐行比较得
+`max|s_new − s_void| = 0`、`winner_id` 3364/3364 相同、`max|y_tau10 差| = 0`。即**检索宽度只影响 `v`，不影响 `s`／winner／Y**。两个推论：
+
+1. 宽度修复是外科手术式的——它没有扰动任何别的列，VOID 表并不是"算错了 s"，只是缺 v。
+2. **s-only 曲面在部署期的窄宽度下是有效的**。`surface_judge.py:402` 在 `uses_disagreement=false` 时把 `min_required_top_k` 设为 1，于是 S0 臂部署时宽度停在 yaml 的 1；此前这一点只有"top-1 winner 与 k 无关"的论证，现在有了全表逐行的实测证据。若将来有人改动检索使 winner 依赖 k，这条不变量会失效，S0 臂的契约需重新论证。
+
+**`noise_sensitivity` 延后执行（备案）。** 它是 §7 明写的 "preliminary diagnostic，不驱动口径"（脚本 docstring：`the calibration ref-mode is fixed to fresh regardless of this outcome`），且**没有任何下游消费它的产物**——`fit_surface` 的必填输入里不含它。它需要 GPU（重载 pi05，50 step × 8 samples），而当前 GPU 的关键路径是 l10 的 cohort 采集（owner 指定 l10 优先）。因此把两 suite 的 `noise_sensitivity` 排到 GPU 空闲窗口执行，`fit_surface` 不等它。**这不是判据变更**：诊断的位置与结论都不进入任何 Gate。
+
+### 2026-08-28 — **libero_spatial 触发止损点 A：`stop_loss_zero_hitshare`**
+
+`fit_surface`（SV）以退出码 3 停机，`exp/dispatch_surface/data/surface_fit/fit_record.json` 记 `delta_selection_reason = stop_loss_zero_hitshare`：**δ 网格里每一个候选的 `hitshare` 都是 0.0**，即曲面在任何 δ 下都不接受任何一步（`accepted_step_accuracy=1.0` 是 0/0 的平凡值，不代表精度好）。
+
+标定表本身完全健康（3364 行 / 10 tasks / 150 ep，v/s/y 无缺，`k_eff` 全 5），所以这不是数据问题。
+
+**这次停机是算术上被强制的，与曲面拟合得好不好无关。** 逐项：
+
+| 量 | 值 |
+|---|---|
+| δ 网格 = `y10[fit]` 的 p10…p90 | `[3.633, 6.187]`（9 档） |
+| OOF safety offset（`order_statistic_offset`, n=50, α=0.05 → 第 49/50 个序统计量） | **5.373** |
+| 于是接受需要 `q̂ ≤ δ − offset ≤` | **0.814** |
+| 但 `y10` 的**全局最小值** | **2.655**（`y7` 最小 1.884） |
+| `p90(y10) − p10(y10)` | **2.554 < 5.373** |
+
+`evaluate_candidate_deployed` 用 `m.q + offset` 导出边界，而 δ 上限只到 p90(y10)。既然 `p90 − p10 < offset`，**网格里不存在任何 δ 能让 `q̂ + offset ≤ δ` 成立**——哪怕 q̂ 是完美的条件分位数（其下界仍 ≥ y 的最小值 2.655），也过不去。换言之：**只要偏差分布的"地板"非零且尾巴够重，预注册的 δ 网格（p10…p90）与 OOF offset（episode-max 的 95% 序统计量）就处在不相容的尺度上，止损必然触发。**
+
+**信号是存在的，不能把这读成"曲面没有预测力"**：
+
+- Spearman `y10 ~ s` = **−0.328**、`y10 ~ v` = **+0.304**；`y7` 侧为 −0.301 / +0.304。**两个轴的符号都与设计假设一致**（检索分越高偏差越小、top-k 分歧越大偏差越大），(A1) 双单调假设在数据上站得住。
+- 按 s 十分位看中位 `y10` 单调下行：d0 `5.35` → d9 `3.97`；p95 同向 `7.79` → `5.38`。
+
+问题在**动态范围**：最好的 s 十分位中位数仍有 3.97，而 offset 是 5.373。信号有方向，但幅度远小于安全边际。
+
+**offset 为什么这么大**：它是「每 episode 内 `max(y7−q̂7, y10−q̂10)` 的最大值」再取 50 个 episode 的第 49 位，本质是**尾部的尾部**。fit split 1134 行里只有 **9 行**（0.8%，分布在 50 个 episode 中的 6 个）`y7 > 8`，其中一个 episode 的 `y7` 达到 **18.34**（而 `y7` 的 p99 才 7.50）。也就是说这个门槛实际上是被 6 个 episode 的少数几步定下来的。
+
+**一处值得评审注意的不对称**（陈述，不作判断）：δ 选择用的是 OOF offset **5.373**，而最终 artifact 导出用的是 `q_tilde = q̂ + c`，`c` 是 cal split 上的正式 split-conformal 修正——两者是不同的量。选择阶段的保守量结构上大于它所代表的部署阶段修正，于是**在部署侧未必不可行的 δ，在选择阶段就被判死**。`fit_surface` 的 docstring 自己写明该 offset "order statistic; not a conformal certificate"，所以这大概率是有意的保守，但它在本数据上的后果是决定性的。
+
+**处置**：δ 的机械选择规则与止损点 A 是冻结判据，**执行期不得修改**。故按 §7 记负结果、spatial 跳过闭环。**是否要请评审重新审视预注册规则（例如 δ 网格上界或 offset 的定义），是 owner／Review Authority 的决定，不是执行方的**。
+
+**l10 不受影响，继续跑**：两 suite 各自独立执行，l10 的 cohort 仍在采集，其 `fit_surface` 照常进行。若 l10 也落在 `p90(y10) − p10(y10) < offset` 这个条件内，则会得到同一结论的第二次独立确认；若不在，则说明该条件是 suite 相关的。**建表后、拟合前值得先算这一个不等式**——它一行就能预判结局。
+
+**`noise_sensitivity` 的优先级因此提高并已开跑**（spatial，tmux `dsp2`）。它测的是「同一观测下 teacher 重复采样之间的偏差」。若该 teacher–teacher 偏差本身就在 2.6–4 量级，那么 `y` 的地板就**不是检索误差、而是策略自身的采样噪声**——那将直接解释为什么 `y` 永远够不到 0，也就解释了本次止损。它仍然**不驱动任何口径、不进任何 Gate**，只作解释性证据。
+
+### 2026-08-28 — `noise_sensitivity`（spatial）：止损点 A 的解释——**teacher 自噪声支配了偏差度量**
+
+诊断跑完（50 步分层抽样 × 8 个独立 teacher 采样，`h_exec=5`，与标定表同一 `W/active_mask`）：
+
+| 量 | 中位 | p95 |
+|---|---|---|
+| **tt**（同一观测下两次独立 teacher 采样之间的偏差） | **6.222** | 8.380 |
+| **wt**（检索 winner 的 τ=7 warm 补全 vs 一次 teacher 采样） | **3.181** | 6.406 |
+| `ratio_median` = tt/wt | **1.956** | — |
+
+**先看一致性检查（这条让上面的对比可信）**：诊断的 `wt` 中位 **3.181** 与标定表 fit split 的 `y7` 中位 **3.31** 几乎相等（两者由不同代码路径、不同抽样得到，n 分别是 50 与 1134）。两条流水线在测同一个量，尺度可比，所以下面的 tt 对比是同量纲的。
+
+**结论：**
+
+1. **teacher 自己跟自己的分歧（6.222）比 cache 跟 teacher 的分歧（`y7` 3.31 / `y10` 4.55）还大**，`ratio_median ≈ 1.96` ——**warm-start 的 cache 输出与一次 teacher 采样的接近程度，是两次 teacher 采样彼此接近程度的约两倍**。缓存不是偏差的来源。
+2. **δ 网格的上界 6.187 低于 tt 的中位 6.222。** 也就是说：**一个"完美"的 cache——输出恰好等于某次 teacher 采样——其偏差期望值仍约等于 tt ≈ 6.22，超过网格里的每一个 δ 候选。**
+3. 于是 `y` 的地板（`y10` 全局最小 2.655、最好 s 十分位中位 3.97）**不是检索能力的上限，而是策略自身采样噪声的下限**。
+
+**这把上一条的负结果重新定性了。** 它不是「dispatch surface 没有预测力」——(A1) 双单调在数据上成立，Spearman 符号也对（`y10~s` −0.328、`y10~v` +0.304）。真正的问题是**偏差度量 `Y` 分不开「cache 误差」与「teacher 采样噪声」，而后者占主导**；任何写成「保证 `Y ≤ δ`」且 δ 由 `Y` 自身分位数标定的接受规则，在这种度量下**构造上不可达**。
+
+**必须同时说清的边界**：
+
+- 这是**预注册的 preliminary diagnostic**，脚本自己写明 "does not drive the pipeline / the calibration ref-mode is fixed to fresh regardless of this outcome"。它**不改变、也不得改变任何冻结判据或 Gate**，只是解释证据。
+- n=50 步、m=8 采样，样本很小，`tt_median` 有实打实的不确定性；上面的 6.222 vs 6.187 是"同一量级、互相跨过"，不宜当作精确的临界判定，但 `ratio ≈ 2` 这个量级结论是稳健的。
+- tt 用的是 pair 间偏差的中位数聚合，与 `y` 的定义（对 teacher 单次采样比）不完全同构；`wt ≈ y7` 的一致性是支持可比性的主要证据，但不是证明。
+
+**对设计的含义（陈述给评审，执行方不作决定）**：若要让「偏差容忍」式的曲面在这类策略上可用，`Y` 需要能把 cache 误差从策略随机性里分离出来——例如以**teacher 采样分布**（而非单次采样）为参照、或用噪声配对的参考轨迹。这属于预注册规则的重新设计，超出执行期权限。
+
+> ### ⚠ 2026-08-28 追加：`ratio = 1.956` 可能超出理论上界，**在核实前不要引用这个数字**
+>
+> 事后推导：设 teacher 采样 `X ~ (μ, σ²I)`，维度 d。则 `E‖X₁−X₂‖² = 2σ²d`，而对**任何确定性输出 c**
+> 有 `E‖c−X‖² ≥ σ²d`（等号在 `c = μ` 即条件均值取到，这是 c 的最优值）。高维下范数集中，故
+> **`tt / wt ≤ √2 ≈ 1.414`**——**哪怕缓存输出恰好是最优点预测，比值也到不了 1.414 以上。**
+> 实测 **1.956** 超出该上界。
+>
+> 尚未验证的可能解释：
+> 1. **teacher 分布多模态** —— 中位数聚合下，跨模态的 `tt` pair 会抬高 `tt` 中位，而 `wt` 可能稳定落在主模态内。多模态/重尾很容易破坏 √2 关系。
+> 2. 度量是「h_exec 步上加权 L2 的**均值**」，是范数的均值而非范数，上述逐步近似可能不严格适用。
+> 3. `tt`/`wt` 的实现存在我尚未看出的不对称。
+>
+> **已排除**：不是抽样步不同步——`per_step.jsonl` 每行同时带 `tt_median` 与 `wt`，是同一步。
+>
+> **可查的方法**（不占 GPU、不动任何判据）：`noise_sensitivity` 每步有 M=8 个采样即 28 个 pair，
+> 直接看 pair 级距离的分布形状是否双峰／重尾即可分辨解释 1。
+>
+> **影响面**：本条目的「cache 比 teacher 自己更接近 teacher」是执行方报给 owner 的头条数字。
+> 若上界成立而解释 1 不成立，该说法需**收回或改写**。`tt ≫ wt`（定性）与 `tt` 中位跨过 δ 网格上界
+> 这两点不依赖 ratio 的具体数值，暂不受影响；受影响的是「约两倍」这个定量表述。
+>
+> **若解释 1（多模态）成立，结论方向反而更强**：同一观测下 teacher 会跳到不同行为模式，
+> 那么「降低 teacher 随机性」就不是修补而是对症——见 open-questions 文档的出路 A/C。>
+> #### 2026-08-28 再追加：读了 `noise_sensitivity` 源码后的三项更正
+>
+> **更正 1（重要）——「`wt ≈ y7` 是独立一致性佐证」这句话是错的。** 源码 `noise_sensitivity.py:112`
+> 是 `wt_devs.append(row["y_tau7"])`：**`wt` 直接取自标定表的 `y_tau7` 列，不是独立算的。**
+> 因此 "wt 中位 3.181 ≈ y7 中位 3.31" **近乎恒真**（差别只来自 50 步子采样 vs 1134 行），
+> 我此前把它当作「不同代码路径、不同抽样得到同一量」的可比性证据，**这个论证不成立**。
+> 受影响的是本条目里 `tt` 与 `y` 尺度可比的主要依据。
+>
+> **更正 2——`tt` 与 `wt` 不是同一种比较。** `tt` 是**两次完整 stage3 采样**（从纯噪声跑满 10 步）之间的偏差；
+> `wt` = `y_tau7` 是**从检索 winner 的中间态做 τ=7 warm 补全**再与一次 teacher 采样比。
+> warm 补全已积分掉 70% 的流，**是个方差更低的对象**。所以「cache vs teacher」与「teacher vs teacher」
+> 并非同类比较，此前的措辞不准确。
+>
+> **更正 3——聚合口径不是异常的成因，该解释被排除。** 脚本的 `ratio_median` 是
+> `median(tt_pooled) / median(wt)`（1400 个 pair vs 50 个值），是**混合池的中位数之比**，
+> 而 √2 上界是逐观测命题。我怀疑异常来自这个聚合，于是用 `per_step.jsonl` 重算了**配对口径**：
+>
+> | 口径 | 值 |
+> |---|---|
+> | 脚本报的 ratio-of-pooled-medians | 1.956 |
+> | 用 per-step `tt_median` 重算的 ratio-of-medians | 1.994 |
+> | **配对口径 `median(per-step ratio)`** | **1.797** |
+> | per-step ratio 的 p5/p25/p50/p75/p95 | 1.05 / 1.45 / 1.80 / 2.26 / 2.83 |
+> | **单步超过 √2 的比例** | **38/50 = 76%** |
+> | 单步超过 2 的比例 | 18/50 |
+>
+> **配对口径仍是 1.797，且 76% 的单步各自超过 √2 ——聚合不是成因，异常在逐观测层面就存在。**
+>
+> **新增旁证**：跨 50 步 `Spearman(tt_median, wt) = +0.045`，**两者几乎不相关**。若二者都由同一处
+> 局部「难度／离散度」驱动，本应正相关。不相关支持「它们在测不同的东西」（与更正 2 一致），
+> 也与多模态解释相容（`tt` 的 28 个 pair 含跨模态对而被抬高，warm 补全则锁定主模态）。
+>
+> **结论**：解释 3（实现不对称）现在有了具体内容——就是更正 2 描述的对象不同；解释 1（多模态）
+> 仍未验证但获得旁证；解释 2（度量是范数均值）未检验。**「约两倍」这个定量表述仍不应引用。**
+>
+> #### 关于噪声配对（出路 B）的可行性：部分可行
+>
+> `CacheEntry` 字段为 `id / checkpoint_id / query_keys / payload / step_idx / timestamp /
+> prev_ids / next_ids / trajectory_id / outcome`，`CachePayload` 为 `action_chunk /
+> intermediates {t: x_t} / denoising_num_steps / task_key / factors`——**都没有初始噪声字段**。
+> 但 `intermediates` 存了九档 `t ∈ {0.1…0.9}` 的流状态，而 ODE 积分是确定的，
+> **从库里的 `x_{0.9}` 起跑完整 stage3，就等价于一个与库条目噪声配对的 teacher 参照**。
+> 即出路 B 不需要重采库，用现有 artifact 即可实现；未覆盖的只有 t∈(0.9, 1] 那一小段。
+> 这条我只做了字段核对与推理，**没有实测验证**。
+
+**对 l10 的预期**：若 l10 也呈现 tt 支配，则会得到同一结论的第二次独立确认。建表后的一行预判（`p90(y10) − p10(y10)` vs OOF offset）仍然适用，且现在多了一个可选的旁证——l10 的 `noise_sensitivity` 在 GPU 空闲窗口跑完后可对照 tt/wt 比值。
+
+### 2026-08-28 — 止损点 A 的归因刻画（spatial，**描述性，不改任何判据**）
+
+新增 `exp/dispatch_surface/analysis/characterize_stop_loss.py`（**尚未过 G2**）。它只读地复用 `fit_surface` 自己的 `assign_folds` / `fit_fold_models` / `evaluate_candidate_deployed`，**不写任何 artifact、不重解任何阈值、不重跑冻结的 δ 规则**；δ 始终停在已冻结的网格上，唯一被扫的是 **offset 本身**。目的只有一个：回答读者看到负结果后必然问的第一个问题——**是 OOF safety offset 杀死了接受域，还是偏差地板本身杀死了它？**
+
+固定输入：`offset = 5.373`，`y10` 地板 `2.655`，`p90 − p10 = 2.554`，δ 网格为冻结的 9 档。
+
+| offset | 冻结 δ 网格上的最大 hitshare | 该点的 δ 与 OOF accuracy |
+|---|---|---|
+| **0**（无安全边际的极限） | **0.6093** | δ=6.1875，acc **0.9826** |
+| 5.373 / 4 = 1.343 | 0.2698 | δ=6.1875，acc 0.9967 |
+| 5.373 / 2 = 2.687 | **0** | — |
+| **5.373（实际值）** | **0** | — |
+
+offset=0 时的完整梯度：δ=4.5532→0.1305 (acc 0.9257)、4.8243→0.2698 (0.9706)、5.0706→0.2884 (0.9847)、5.5331→0.4912 (0.9856)、6.1875→0.6093 (0.9826)。
+
+**归因结论**：冻结的选择门是 `acc_gate = 1 − α − ACCURACY_SLACK = 0.90` 与 `HITSHARE_TARGET = 0.40`。offset=0 时有**两个** δ 候选同时越过两道门（5.5331 的 0.4912 与 6.1875 的 0.6093，acc 均 ≈ 0.985），`select_delta` 会以 `qualified` 理由干净地选出 δ\*=6.1875；offset 降到四分之一时仍能以 `fallback_accuracy_only` 出一个 artifact。**也就是说：曲面本身有足够的判别力去满足两道冻结的门——把 hitshare 压到 0 的是 offset 的量级，不是曲面的能力，也不是偏差地板。**
+
+**与 `noise_sensitivity` 串起来的完整因果链**：
+
+1. teacher 采样噪声支配偏差度量（tt 中位 6.222 vs wt 中位 3.181，ratio ≈ 1.96）；
+2. 该噪声给 OOF 残差 `y − q̂` 一条重右尾（fit split 1134 行中 9 行 `y7 > 8`，最大 18.34）；
+3. 预注册的 offset = 「episode 内 max 残差」的第 49/50 序统计量 = **5.373**，把这条尾巴整个吸收进去；
+4. `5.373 > p90 − p10 = 2.554` ⇒ 冻结网格里没有任何 δ 能满足 `q̂ + offset ≤ δ` ⇒ hitshare 恒 0 ⇒ 止损点 A；
+5. 而同一批 fold 模型在 offset=0 下接受 60.9% 的步、OOF 精度 98.3%。
+
+**必须钉住的边界（防止这张表被误读成结果）**：
+
+- offset=0 一栏**不是一个方案、也不是一次替代拟合**。offset 的存在正是为了让 δ 不被 in-fold 过拟合，去掉它就**没有任何越过 fold 的安全保证**；表里的 acc 虽是 OOF 的（`evaluate_candidate_deployed` 在每折的 held-out 行上判），但那是**逐步**精度，不是 episode 级证书，也不等于部署期的 split-conformal `c`。
+- 本条**没有、也不得**改变任何冻结判据。spatial 依 §7 记负结果、跳过闭环的处置不变。
+- 是否重审预注册的 offset 定义（例如episode-max 换成别的聚合、或与部署期 `c` 对齐）是 owner／Review Authority 的决定，**执行方只提供上述数字**。
+
+产物：`exp/dispatch_surface/analysis/stop_loss_characterization_spatial.json`。
+
+### 2026-08-28 — **libero_10 同样触发止损点 A**，且「信号更强、离可行更远」
+
+l10 走完 cohort(150) → verify(`{fit:50, cal:100}`) → 标定表(9205 行) → `fit_surface`(SV)，以退出码 3 停机，
+`delta_selection_reason = stop_loss_zero_hitshare`，9 档 δ 的 hitshare 全为 0.0。**与 spatial 同一停机理由。**
+
+标定表验收干净：9205 行 / 10 tasks / 150 episodes（fit 50 + cal 100）、`v_none=0`、`s_none=0`、`k_eff` 恒 5、`ref_mode` 全 fresh。
+
+#### 两 suite 对照（同一脚本 `table_diagnostics.py`，口径逐字相同）
+
+| 量 | libero_spatial | libero_10 |
+|---|---|---|
+| 标定表行数 / fit 行数 | 3364 / 1134 | 9205 / 2985 |
+| **Spearman(y10, s)** | −0.328 | **−0.464** |
+| **Spearman(y10, v)** | +0.304 | **+0.420** |
+| Spearman(s, v)（冗余度） | −0.197 | −0.230 |
+| **partial Spearman(y, v \| s)** | +0.259 | **+0.364** |
+| s 层内 v 的中位差 | +0.358（9/10 档正） | **+0.567（10/10 档正）** |
+| s 自身跨档范围 | 1.377 | **2.026** |
+| δ 网格跨度 `p90−p10` | 2.554 | 2.501 |
+| `y10` 地板 | 2.655 | 2.313 |
+| **OOF safety offset** | 5.373 | **8.405** |
+| **offset / spread** | 2.10 | **3.36** |
+| offset=0 时冻结网格上的最大 hitshare | 0.6093（acc 0.983） | **0.6345（acc 0.979）** |
+
+**l10 在每一项信号指标上都强于 spatial**（边际相关、partial 相关、层内增量、跨档范围），offset=0 下的接受率也更高；
+**但它离可行更远**——`offset/spread` 从 2.10 涨到 3.36。反事实扫描显示 l10 连 `offset/4 = 2.101` 都已归零
+（spatial 在 `offset/4 = 1.343` 时尚有 0.2698）。
+
+#### 机制：offset 是 episode-max，随 episode 长度增长；δ 网格跨度不随之增长
+
+| | spatial | l10 |
+|---|---|---|
+| fit split 每 episode 步数 min/中位/max | 15 / **22** / 44 | 35 / **50** / 104 |
+| offset | 5.373 | 8.405（**1.56×**） |
+| δ 网格跨度 | 2.554 | 2.501（**≈ 不变**） |
+
+`oof_offset` 定义为「每 episode 内 `max(y7−q̂7, y10−q̂10)`」再取 50 个 episode 的第 49 位——**它是对 episode 内步数取的最大值**，
+episode 越长，抽到极端残差的机会越多，offset 就越大。而 δ 网格是 `y10` 的**逐步分位跨度**，与 episode 长度无关（实测 2.554 vs 2.501）。
+
+**推论：该判据随任务时程变长而单调变难，且这一变难与方法质量无关。** libero_10 是长程套件（中位步数 50，是 spatial 的 2.3 倍），
+于是尽管它的 (s,v) 信号明显更强，反而更过不去。**这个方向是反的**——通常我们希望判据不因任务更长而惩罚它。
+
+#### 处置
+
+两 suite 均按 §7 记负结果、跳过闭环。**`run_precheck` 及其后在两条线上都不执行。**
+δ 的机械选择规则与止损点 A 是冻结判据，执行期未作任何修改。是否重审预注册规则是 owner／Review Authority 的决定。
+
+产物：`table_diagnostics_{spatial,libero_10}.json`、`stop_loss_characterization_{spatial,libero_10}.json`、
+两 suite 的 `surface_fit/fit_record.json`。
+
+### 2026-08-28 — ⚠ **重大更正：`ref_mode=fresh` 本来就是噪声配对的，"teacher 自噪声支配偏差度量"这条解释不成立**
+
+读 `build_dispatch_table.py:240-266` 与 `rebuild_dispatch_library.py:1-22` 后确认，我此前对偏差度量 `Y` 的理解是错的。
+
+**实际的计算是**（`ref_mode=fresh`）：
+
+```python
+z = torch.from_numpy(sidecar[winner_id]).to(dev)[None]      # winner 的【已存】初始噪声
+a_ref  = model.run_stage3(stage2, noise=z).action_chunk[0]  # 当前观测 + 同一个 z
+x3     = winner_payload.intermediates[0.3]                  # winner 的中间态（由同一个 z 产生）
+a_warm = model.run_stage3_from(stage2, x3, 0.3, ...)        # 当前观测 + 同一条噪声轨迹
+y_tau10 = dev(winner.action_chunk, a_ref)
+y_tau7  = dev(a_warm,              a_ref)
+```
+
+`rebuild_dispatch_library.py` 的 docstring 第 1 行就写着 **"Rebuild the dispatch-surface library with known initial noise (**fresh coupling**)"**。
+**"fresh" 指的是「在当前观测下重新生成」，不是「重新抽一个随机噪声」。** 参照分支与被测分支**共用同一个 `z`**。
+
+#### 后果一：`y7`/`y10` 里没有独立噪声方差
+
+ODE 积分给定 `z` 是确定的，两条分支共用 `z`，因此 `y10` 度量的是**纯粹的观测失配效应**（噪声held fixed），
+`y7` 度量的是**「在库观测下提交 70% 的流」与「全程在当前观测下积分」之差**，同样噪声固定。
+**`y` 的地板 2.655 / 2.313 不是采样噪声的下限，是真实的观测失配偏差。**
+
+#### 后果二：把 `tt` 拿来跟 δ 网格比是**不同量纲的比较**
+
+`noise_sensitivity` 的 `tt` 用的是**独立**噪声（`gen.manual_seed(stable_seed(episode, m, step))`，逐 m 不同），
+而 `y` 是噪声配对的。所以「`tt` 中位跨过 δ 网格上界」这个观察**不能**用来论证 `y` 被噪声支配——
+它比较的是一个 uncoupled 量与一个 coupled 量。两 suite 都出现该现象只说明这个错误是系统性的。
+
+#### 因此以下内容作废
+
+| 位置 | 作废的内容 |
+|---|---|
+| §11「`noise_sensitivity`：止损点 A 的解释」整条 | 「teacher 自噪声支配偏差度量」的因果链 |
+| 同上 | 「`y` 的地板是策略采样噪声的下限」 |
+| 同上 | 「δ 网格上界 < tt 中位 ⇒ 完美 cache 也过不去」——完美 cache 在配对度量下 `y=0`，不受 tt 约束 |
+| open-questions §2.4 / §4.2 / §4.3 | 同上因果链 |
+| open-questions §5.5 出路 A / B / D | **A（固定种子）与 D 无的放矢**——度量里的噪声已经是固定的；**B（噪声配对）已经实现**，不是待选项 |
+
+#### 仍然成立、不受影响的部分
+
+- 止损本身与两 suite 的复现：`stop_loss_zero_hitshare`，9 档 δ 全零。
+- §2.3 的算术：`spread < offset` ⇒ 网格内无可行 δ。数字未变（2.554 vs 5.373；2.501 vs 8.405）。
+- §2.5 的归因：offset=0 时 hitshare 0.609 / 0.635、OOF acc 0.98——**曲面有判别力，是 offset 的量级压死了它**。
+- §2.6 (A1) 双单调、§2.7 `v` 的增量信号（partial +0.259 / +0.364）。
+- **§3.1 的机制：`oof_offset` 是 episode-max，随 episode 长度增长，而 δ 网格跨度不随之增长。**
+  该条不依赖任何噪声论证，**现在它是唯一站得住的机制性解释**。
+
+#### 新的、指向性更强的线索：offset 的尾部由 warm-start 的病态行为撑起
+
+极端 `y7` 行的画像（fit split，`y7 > p99`）：
+
+| | spatial | l10 |
+|---|---|---|
+| 极端行数 | 12 / 1134 | 30 / 2985 |
+| 它们在 episode 内的相对位置（中位） | 0.54 | **0.89**（全体中位 0.50） |
+| 其中 `y7 > y10` 的比例 | **10/12** | **22/30** |
+| 全体行中 `y7 > y10` 的比例 | 4.3% | 5.2% |
+
+l10 的 top-5 极端行**全部来自同一个失败 episode 的尾部**（step 96/97/98/99/103，relpos 0.93–1.00，`episode_success=False`，
+其中四行 `v` 完全相同 = 22.44），`y7` 高达 19.77 而同行 `y10` 只有 9.05。
+
+**`y7 > y10` 意味着 warm start 比直接照搬缓存还差**——这与该档的设计意图相反（warm 分支本应借当前观测把轨迹拉回来）。
+全体只有 4–5% 的行如此，但**在决定 offset 的极端行里占 80%+**。
+
+两种读法，我无法区分：
+1. **真实**：在长程失败 episode 的尾部，当前观测已与库条目严重失配，从 t=0.3 的中间态恢复反而把一个错误的承诺继续推下去，比整块照搬更糟。
+2. **实现问题**：`run_stage3_from(stage2, x3, 0.3, num_steps=winner_payload.denoising_num_steps)` 在这些行上有我没看出的问题（例如 `denoising_num_steps` 与当前 stage2 不匹配）。
+
+**这是我认为现在最该查的一条**，因为 offset 完全由这条尾巴决定，而这条尾巴由一小撮 `y7 > y10` 的病态行撑起。
+
+#### 我的处置
+
+**未修改任何冻结判据。** 上述作废内容已在原条目就地标注。执行方在此犯的错误性质是：
+**我依据脚本名（`ref_mode=fresh`）与函数名推断了语义，没有读实现**，而实现的 docstring 第一行就写明了 coupling。
+这与本线此前 top_k 那次的教训同类——**名字不是契约，必须读实现**。
+
+### 2026-08-28 — 止损机制的完整链条（不依赖任何噪声论证）
+
+在「重大更正」推翻噪声解释后，对 `y7 > y10` 这条线索做了两轮只读排查，得到一条自洽且有证据的机制。
+
+#### 排查 1：实现层面——**未发现问题**
+
+两 suite 的库逐条核对：`denoising_num_steps` **全部为 10**（spatial 1018/1018、l10 2496/2496）；
+`intermediates` 键集**全部**是完整九档 `{0.1…0.9}`；`0.3` 键存在率 100%；`action_chunk` 形状一致 `(10, 32)`。
+`run_stage3_from` 的实现也对得上（`dt = −1/num_steps`，`n_steps = floor(0.3×10+0.5) = 3`），
+且 `build_dispatch_table` 传的是 `winner_payload.denoising_num_steps` 而非硬编码。
+**「`y7 > y10` 源于实现不匹配」这一读法不被支持。**
+
+#### 排查 2：我的「高失配区 warm 更差」假设——**被证伪**
+
+假设的可检验推论是：`y7 − y10` 应随 `s` 降低而升高。实测：
+
+| | spatial | l10 |
+|---|---|---|
+| `Spearman(y7−y10, s)` | **+0.013** | **+0.139** |
+| `Spearman(y7−y10, v)` | −0.010 | −0.159 |
+| 中位 `y10 − y7`（warm 的优势） | **+1.173** | **+1.061** |
+| ——最低 s 十分位 | +0.990 | **+1.405** |
+| ——最高 s 十分位 | +1.050 | +1.009 |
+
+**相关系数近零甚至为正，方向与假设相反；warm 在每一个 s 十分位的中位上都更好**（优势 ≈ +1.0…+1.4），
+在 l10 的最低 s 档优势反而最大。**设计假设「warm ≤ full」在中位意义上处处成立，包括最难的区域。**
+
+但**尾部**确实有反转，且在低 s 档更密：`y7 > y10` 的比例按 s 十分位为
+spatial `12% 10% 4% 3% 3% 1% 2% 4% 4% 2%`、l10 `12% 8% 4% 5% 6% 5% 4% 2% 4% 1%`，
+整体 4.3% / 5.2%。**所以这是尾部现象，不是区域性的机制翻转**——我此前的措辞不准确。
+
+#### 由此得到的完整机制（每一环都有本轮证据）
+
+1. **warm start 偶发过冲**：约 4–5% 的步上 `y7 > y10`，即从 t=0.3 的已提交中间态在当前观测下跑完 3 步，
+   落点比直接照搬缓存更远。中位行为正常，这是尾部事件。
+2. **该尾部不可由 (s, v) 预测**：`Spearman(y7−y10, s) ≈ 0`（+0.013 / +0.139），
+   `(y7−y10, v)` 亦近零。低 s 档密度略高（12% vs 2–4%）但远不足以被条件分位数吸收。
+3. **于是 OOF 残差 `y − q̂` 有重右尾**：q̂ 是 (s,v) 的条件分位面，预测不到第 2 条里的事件。
+   实测 fit split 中 `y7 > 8` 的行 spatial 9/1134、l10 30/2985，最大值 18.34 / 19.77（p99 仅 7.50 / 7.96）。
+4. **offset 取到这条尾巴**：`oof_offset` = 「每 episode 内 max 残差」的第 49/50 序统计量，
+   本质是尾部的尾部 ⇒ 5.373 / 8.405。
+5. **episode 越长放大越多**：max 是对 episode 内步数取的，spatial 中位 22 步、l10 中位 50 步，
+   offset 相应 5.373 → 8.405（1.56×）；而 δ 网格是逐步分位跨度、几乎不变（2.554 / 2.501）。
+6. **⇒ `offset > spread` ⇒ 冻结网格内无可行 δ ⇒ `hitshare` 恒 0 ⇒ 止损点 A。**
+
+**这条链完全不依赖噪声论证**，与被更正作废的旧解释无关，且第 1、2、5 条都是本轮新测的。
+
+#### 它对设计的含义（陈述，不作建议）
+
+- 判据失败的根因是**一个 (s,v) 预测不到的稀有尾部事件**，经由「episode-max 序统计量」被放大成一个
+  比整个 δ 网格跨度还大的安全边际。**曲面的条件预测能力与这条尾巴无关**——这也是为什么 offset=0 时
+  它能达到 hitshare 0.61/0.63、OOF acc 0.98。
+- 若要让判据可行，可动的地方在**残差聚合方式**（episode-max 对长任务的惩罚）或**尾部事件本身**
+  （warm 过冲能否被检测／抑制），而不在曲面。两者都属预注册规则或方法的改动，执行方不实施。
+
+#### 未解决
+
+`y7 > y10` 的**成因**仍未查明——已排除实现不匹配与「低 s 区域性翻转」，但为何 4–5% 的步上
+3 步重积分会越过原始缓存块，需要逐案检查轨迹，属方法层面的新工作。
 
 ## Review Log
 

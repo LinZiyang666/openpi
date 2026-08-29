@@ -59,8 +59,24 @@ START_T_WS = 0.3
 START_T_TAU1 = 0.9
 
 
-def _load_components(cache_yaml: str, library_pkl: str):
-    """Assemble storage + search strategy through the production config path."""
+def _load_components(cache_yaml: str, library_pkl: str, min_top_k: int):
+    """Assemble storage + search strategy through the production config path.
+
+    ``min_top_k`` reproduces what the DEPLOYED stack does to the search width.
+    At serve time ``build_per_connection_components`` reads the judge's
+    ``min_required_top_k`` and the strategy fetches ``max(yaml top_k, hint)``
+    candidates, so a surface judge with k=5 always sees five. Calibration has
+    no surface artifact yet -- its judge is ``always_hit``, which exposes no
+    hint -- so without this the strategy would fetch the yaml's top_k (1 in
+    every gate-line template) and every disagreement value would be undefined.
+
+    The widening is applied to the in-memory config only. ``fit_surface``
+    re-reads the yaml to compute the retrieval contract, so the recorded
+    ``top_k`` stays 1 and keeps matching the emitted arm yamls, exactly as the
+    deployed path intends.
+    """
+    import dataclasses
+
     from openpi.cache.config import (
         build_per_connection_components,
         build_shared_storage,
@@ -74,6 +90,18 @@ def _load_components(cache_yaml: str, library_pkl: str):
             f"!= --library-pkl {library_pkl}; refusing a split-brain calibration"
         )
     storage = build_shared_storage(config)
+    cp1 = config.checkpoints["cp1"]
+    if cp1.search_strategy.top_k < min_top_k:
+        widened = dataclasses.replace(
+            cp1.search_strategy, top_k=max(cp1.search_strategy.top_k, min_top_k)
+        )
+        config = dataclasses.replace(
+            config,
+            checkpoints={
+                **config.checkpoints,
+                "cp1": dataclasses.replace(cp1, search_strategy=widened),
+            },
+        )
     components = build_per_connection_components(config, storage)
     return config, storage, components
 
@@ -117,7 +145,9 @@ def main() -> None:
     from openpi.cache.components.search_strategy import SearchContext
     from openpi.cache.types import CheckpointID
 
-    config, storage, components = _load_components(args.cache_yaml, args.library_pkl)
+    config, storage, components = _load_components(
+        args.cache_yaml, args.library_pkl, args.top_k
+    )
     strategy = components["search_strategies"][CheckpointID.CP1]
     key_builder = components["key_builder"]
     view = StoragePayloadView(storage)

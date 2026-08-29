@@ -710,12 +710,23 @@ class PI0Pytorch(nn.Module):
 
         dt = torch.tensor(-1.0 / num_steps, dtype=torch.float32, device=device)
         x_t = start_x
-        timestep = torch.tensor(start_t, dtype=torch.float32, device=device)
 
         # Fixed Python-int step count, exactly matching the old tensor
         # while-loop without its per-step GPU->CPU sync. See
         # _warm_start_num_steps for why round() would be wrong here.
         n_steps = _warm_start_num_steps(start_t, num_steps)
+
+        # Seed the timestep by REPLAYING the full loop's float32 accumulation
+        # rather than taking the literal ``start_t``. Both full-denoise paths
+        # advance with ``timestep = timestep + dt``, so at the tier where
+        # ``start_x`` was snapshotted they hold 0.2999999225, not 0.3 -- a
+        # 7.7e-08 gap. That is invisible in float32 but the action expert runs
+        # in bfloat16 (eps 7.8e-03), so seeding the literal moves the resumed
+        # chunk by ~1e-03 and the resume no longer reproduces the trajectory it
+        # claims to continue. Replaying the accumulation makes it bit-exact.
+        timestep = torch.tensor(1.0, dtype=torch.float32, device=device)
+        for _ in range(num_steps - n_steps):
+            timestep = timestep + dt
         for _ in range(n_steps):
             expanded_time = timestep.expand(bsize)
             v_t = self.denoise_step(

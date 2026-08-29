@@ -454,6 +454,17 @@ class ConductorDriver:
                 conn.close()
 
     @property
+    def run_id(self) -> str:
+        """This driver process's run id, as stamped on journal and per-step rows.
+
+        Exposed so a launcher can record which run produced an episode: the id
+        is already written into both ledgers, and an analyzer that must bind an
+        accepted attempt back to the configuration that ran it needs the same
+        discriminator on the launch side.
+        """
+        return self._run_id
+
+    @property
     def scheduler(self) -> _sched.EpisodeScheduler:
         return self._scheduler
 

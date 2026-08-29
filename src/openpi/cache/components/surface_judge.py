@@ -51,7 +51,17 @@ if TYPE_CHECKING:
     from openpi.cache.components.payload_view import PayloadView
 
 
-SURFACE_ARTIFACT_SCHEMA_VERSION = 1
+SURFACE_ARTIFACT_SCHEMA_VERSION = 2
+
+# How the boundaries were certified. Rev 1 emits only the empirical mode: delta
+# is chosen by cross-fitted deployed verdict on development data and NO
+# finite-sample coverage statement is attached. The conformal mode is kept as an
+# explicit, separate branch so a certified variant can never be produced by
+# accident -- and so an empirical artifact can never be reported as a
+# certificate. Anything outside this set is rejected at load.
+CERTIFICATION_EMPIRICAL = "empirical_no_certificate"
+CERTIFICATION_CONFORMAL = "conformal"
+CERTIFICATION_MODES = frozenset({CERTIFICATION_EMPIRICAL, CERTIFICATION_CONFORMAL})
 
 # The dispatch-surface line froze the single warm tier at start_t = 0.3
 # (tau = 7 of N = 10). An artifact carrying any other tier is not a valid
@@ -205,7 +215,10 @@ class SurfaceArtifact:
     active_mask: np.ndarray
     start_t_ws: float
     delta: float
-    alpha: float
+    # Quantile level the surface was FITTED at. Deliberately not named "alpha":
+    # under the empirical mode it carries no coverage meaning at all.
+    quantile_alpha: float
+    certification_mode: str
     uses_disagreement: bool
     v_bin_edges: np.ndarray
     s_min_full: np.ndarray
@@ -274,8 +287,29 @@ class SurfaceArtifact:
             raise ValueError(f"h_exec must be positive, got {self.h_exec}")
         if not (math.isfinite(self.delta) and self.delta > 0):
             raise ValueError(f"delta must be finite and > 0, got {self.delta}")
-        if not (0 < self.alpha <= 0.5):
-            raise ValueError(f"alpha must be in (0, 0.5], got {self.alpha}")
+        if not (0 < self.quantile_alpha <= 0.5):
+            raise ValueError(
+                f"quantile_alpha must be in (0, 0.5], got {self.quantile_alpha}"
+            )
+        if self.certification_mode not in CERTIFICATION_MODES:
+            raise ValueError(
+                f"certification_mode {self.certification_mode!r} not in "
+                f"{sorted(CERTIFICATION_MODES)}"
+            )
+        if self.certification_mode == CERTIFICATION_EMPIRICAL:
+            # An empirical artifact has no calibration set and no correction; if
+            # either field carried a value it would read as a certificate to
+            # anything that formats the artifact.
+            if self.conformal_c != 0.0:
+                raise ValueError(
+                    f"{CERTIFICATION_EMPIRICAL} requires conformal_c == 0, "
+                    f"got {self.conformal_c}"
+                )
+            if self.n_calibration_episodes != 0:
+                raise ValueError(
+                    f"{CERTIFICATION_EMPIRICAL} requires n_calibration_episodes == 0, "
+                    f"got {self.n_calibration_episodes}"
+                )
         # conformal_c may be +inf, but only as the coherent fail-valid
         # degenerate artifact whose boundaries are all +inf (rule == all-MISS).
         if math.isnan(self.conformal_c) or self.conformal_c == -np.inf:
@@ -313,7 +347,8 @@ def save_surface_artifact(artifact: SurfaceArtifact, path: str) -> None:
         "h_exec": artifact.h_exec,
         "start_t_ws": artifact.start_t_ws,
         "delta": artifact.delta,
-        "alpha": artifact.alpha,
+        "quantile_alpha": artifact.quantile_alpha,
+        "certification_mode": artifact.certification_mode,
         "uses_disagreement": artifact.uses_disagreement,
         # inf does not survive strict JSON; encode as string sentinel.
         "conformal_c": "inf" if artifact.conformal_c == np.inf else artifact.conformal_c,
@@ -346,6 +381,12 @@ def load_surface_artifact(path: str) -> SurfaceArtifact:
         if missing:
             raise ValueError(f"surface artifact missing fields: {sorted(missing)}")
         scalars = json.loads(bytes(data["scalars_json"]).decode("utf-8"))
+        for field in ("quantile_alpha", "certification_mode"):
+            if field not in scalars:
+                raise ValueError(
+                    f"surface artifact predates schema v{SURFACE_ARTIFACT_SCHEMA_VERSION} "
+                    f"(no {field!r}); refit rather than defaulting a certification claim"
+                )
         contract = json.loads(bytes(data["contract_json"]).decode("utf-8"))
         meta = json.loads(bytes(data["meta_json"]).decode("utf-8"))
         c_raw = scalars["conformal_c"]
@@ -357,7 +398,8 @@ def load_surface_artifact(path: str) -> SurfaceArtifact:
             active_mask=data["active_mask"],
             start_t_ws=float(scalars["start_t_ws"]),
             delta=float(scalars["delta"]),
-            alpha=float(scalars["alpha"]),
+            quantile_alpha=float(scalars["quantile_alpha"]),
+            certification_mode=str(scalars["certification_mode"]),
             uses_disagreement=bool(scalars["uses_disagreement"]),
             v_bin_edges=data["v_bin_edges"],
             s_min_full=data["s_min_full"],

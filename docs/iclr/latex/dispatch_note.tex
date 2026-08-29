@@ -1,0 +1,290 @@
+% Technical note for collaborators: retrieval-conditioned graded dispatch.
+% Companion to redundancy_note.tex. ICLR 2027 template, no title block.
+% Compile with pdflatex.
+\documentclass{article}
+\usepackage{iclr2027_conference,times}
+\iclrfinalcopy
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+
+\begin{document}
+
+\paragraph{Problem.}
+On a cache hit, the executor must decide how much of the action head's
+denoising schedule to skip. Let $N$ be the number of denoising steps of the
+flow-matching action expert and let $\tau \in \{0, 1, \dots, N\}$ denote the
+skip depth: the integration is initialized at the retrieved intermediate
+state of depth $\tau$ and runs the remaining $N - \tau$ steps. In this view
+every hit is a warm start of some depth, and the familiar tiers are its
+extreme cases: full replay is the special case $\tau = N$, in which the
+retrieved chunk is executed directly, and full inference is the case
+$\tau = 0$, generation from pure noise. Convention: $\tau$ counts
+\emph{skipped} steps; the executor's start parameter is the remaining
+integration fraction, $\mathtt{start\_t} = (N - \tau)/N$. We fix this mapping
+here because sign errors between data generation, plots, and the executor are
+otherwise easy to make. The dispatch question is therefore how deeply to skip
+on each hit. Existing rules are coarse: our current dispatch quantizes $\tau$
+to three values, while fixed-depth rules apply one global $\tau$ to every hit.
+We instead seek a per-step rule that allocates the remaining denoising
+computation without training a separate policy.
+
+\paragraph{Two statistics.}
+Both inputs are byproducts of the retrieval already performed. The first is
+the fused similarity $s_t$, which measures whether the current state is
+covered by the library. The second measures whether the retrieved
+neighborhood agrees on what to do. Let $a_{(1)}, \dots, a_{(k)}$ be the
+action chunks of the top-$k$ retrieved entries, $\bar{a}$ their mean, and $W$
+a fixed diagonal (or Mahalanobis) weighting that standardizes the action
+dimensions; define the local action disagreement
+\begin{equation}
+v_t \;=\; \frac{1}{k}\sum_{j=1}^{k} \bigl\| W\bigl(a_{(j)} - \bar{a}\bigr) \bigr\|^2 .
+\label{eq:v}
+\end{equation}
+Because the top-$k$ entries come from neighboring states rather than repeated
+samples at the same state, $v_t$ is not a pure measure of aleatoric
+uncertainty. It may reflect retrieval error, task-phase aliasing, action
+multimodality, teacher stochasticity, and library density. We therefore treat
+it as a local disagreement statistic whose predictive value is measured
+empirically.
+
+\paragraph{Random loss under coupled noise.}
+Let $c$ denote the current conditioning (observation and prompt), let
+$x_{j,\tau}$ be the retrieved intermediate of depth $\tau$ from library entry
+$j$, and let $z_j$ be the initial noise of the cached trajectory that
+produced it. Write $F_{c}^{\tau \to N}$ for the probability-flow integration
+from depth $\tau$ to completion under conditioning $c$. Define
+\begin{equation}
+a^{(\tau)} \;=\; F_{c}^{\tau \to N}\bigl( x_{j,\tau} \bigr),
+\qquad
+a^{(0)} \;=\; F_{c}^{0 \to N}\bigl( z_j \bigr),
+\qquad
+Y_\tau \;=\; \bigl\| W\bigl(a^{(\tau)} - a^{(0)}\bigr) \bigr\| .
+\label{eq:Y}
+\end{equation}
+The reference $a^{(0)}$ is full generation under the \emph{current}
+conditioning from the \emph{same} initial noise $z_j$. The coupling matters
+because identical distribution does not mean identical realization: a freshly
+sampled $z' \sim \mathcal{N}(0, I)$ may land on a different action branch, and
+the measured deviation would then confound the warm-start mismatch with the
+teacher's own sampling variability. By construction $Y_0 = 0$: at
+$\tau = 0$ the two branches coincide.
+
+The calibration artifact therefore stores, for each cache entry (equivalently,
+each action-generation call), either the initial noise tensor or a
+deterministic seed. A $50 \times 32$ float32 tensor requires approximately
+$6.4$\,KB, which is small relative to the stored denoising intermediates. A
+seed is cheaper, but it requires bit-exact regeneration across the software
+and hardware configuration used for calibration. Current runtime payloads
+need not change: the additional field is required only while constructing the
+calibration data. As a preliminary diagnostic, we also measure the teacher's
+noise-induced variability through repeated full generations at the same
+observation. If teacher--teacher deviation is negligible relative to
+warm-start deviation, an uncoupled analysis may be reported separately; its
+target is population deviation from a random teacher sample rather than the
+paired initialization error defined above.
+
+\paragraph{Conditional quantiles.}
+For $\tau \ge 1$ define
+\begin{equation}
+q_\tau(s, v) \;=\; Q_{1-\alpha}\bigl( Y_\tau \mid s_t = s,\; v_t = v \bigr),
+\label{eq:q}
+\end{equation}
+the conditional quantile of the random loss given the retrieval statistics;
+it is a function of $(\tau, s, v)$, not a quantile of an expectation. The
+qualitative motivation is empirical rather than theoretical: additional
+refinement steps may correct initialization mismatch, and a retrieved branch
+of a multimodal target can only be arbitrated by the steps that remain. We
+do not derive these effects from smoothness constants of the flow map; a
+Lipschitz bound alone does not imply contraction.
+
+\paragraph{Why a threshold is not naive.}
+Consider the binary decision ``accept or reject a full replay'' based on a
+fixed scalar score $s$, and define the offline-checkable event
+\begin{equation}
+Z \;=\; \mathbb{1}\{\, Y_N \le \delta \,\},
+\label{eq:Z}
+\end{equation}
+direct replay stays within the prescribed deviation tolerance. If the
+likelihood ratio of the conditional densities of $s$ given $Z = 1$ and
+$Z = 0$ is monotone in $s$, then by the Neyman--Pearson lemma the threshold
+test on $s$ is, at any fixed false-accept rate, optimal among all decision
+rules that depend on $s$ alone; equivalently, thresholding traces the ROC
+frontier of the score. The statement is conditional on the fixed constraint
+and on the information available; it does not assert optimality against rules
+with access to more information. We use the deviation event because the
+effect of replaying one step on the eventual episode outcome is a closed-loop
+counterfactual that offline data cannot label. Assigning the episode outcome
+to every constituent step would not resolve this attribution problem. The
+surrogate is measurable on logged data, while task success is assessed through
+closed-loop evaluation. Improvements over the threshold must therefore come
+from one of three sources: additional statistics beyond $s$, better
+calibration of $s$, or a graded choice of $\tau$ instead of a binary one. The
+construction below addresses all three. The monotone-likelihood-ratio premise
+for this surrogate is assessed diagnostically on the fit split (E5).
+
+\paragraph{Monotonicity assumption.}
+For $\tau \ge 1$,
+\begin{equation}
+\text{(A1)}\qquad q_\tau(s, v)\ \text{is nondecreasing in } \tau\
+\text{and in } v,\ \text{and nonincreasing in } s .
+\label{eq:A1}
+\end{equation}
+A sufficient and cleaner condition is first-order stochastic dominance of the
+conditional laws of $Y_\tau$ along each coordinate. (A1) is an assumption
+about the data-generating process, not a theorem; its empirical violation
+rate on the fit split is a reported diagnostic.
+
+\paragraph{The dispatch surface.}
+Fix a deviation tolerance $\delta$ and a confidence level $1-\alpha$, and let
+$\tilde{q}_\tau(s,v)$, $\tau \ge 1$, denote the conformalized prediction
+bounds of Eq.~\ref{eq:conformal}. These bounds carry the episode-level
+marginal guarantee stated below; they are not pointwise conditional bounds at
+each $(s,v)$. Set $\tilde{q}_0 \equiv 0$, since $Y_0 = 0$ identically and full
+inference needs no statistical certificate. The rule is
+\begin{equation}
+\tau^{*}(s, v) \;=\;
+\max \Bigl( \{0\} \cup \bigl\{ \tau \ge 1 \;:\; \tilde{q}_\tau(s, v) \le \delta \bigr\} \Bigr).
+\label{eq:tau}
+\end{equation}
+The maximizing set always contains $0$, so the rule is total; when the
+calibrated bounds exclude every positive depth, the step falls back to full
+inference. This is the fail-closed direction made explicit in the
+definition. Under (A1) the surface is bimonotone: nondecreasing in $s$,
+nonincreasing in $v$. The three coarse regimes are recovered as level sets
+rather than imposed: $\tau^{*} \to N$ where similarity is high and
+disagreement low, $\tau^{*} = 0$ where similarity is low, and intermediate
+$\tau^{*}$ where the state is covered but the neighborhood disagrees. The
+last region supplies a mechanistic reading of warm start that the three-tier
+rule lacked: partial denoising is retained exactly where the remaining steps
+have arbitration work to do.
+
+\paragraph{Data separation and estimation.}
+The experience library is built from a dedicated prefill set
+$\mathcal{D}_{\mathrm{lib}}$ and frozen before dispatch calibration. Query
+episodes are then divided into three pairwise-disjoint sets---fit,
+calibration, and test---none of which contributes entries to the library.
+Same-trajectory retrieval is explicitly excluded. All divisions are made at
+the episode level because steps within an episode are strongly dependent.
+
+The \emph{fit} split is used to choose $k$, $W$, the depth grid, $\alpha$, and
+$\delta$; fit the quantile surface; run the (A1) and
+monotone-likelihood-ratio diagnostics; and perform any pilot closed-loop
+selection. When $\delta$ is selected through pilot rollouts, an internal split
+or cross-validation within the fit data is used. The chosen operating point
+is frozen before final calibration. The \emph{calibration} split is then used
+once to compute the conformal correction and is not revisited after any
+methodological change. The closed-loop \emph{test} split is reserved for the
+final evaluation; a full frontier may be reported, but its primary operating
+point is declared in advance.
+\begin{enumerate}[leftmargin=1.5em, itemsep=0.25em, topsep=0.2em]
+\item \emph{Data.} For each step of the fit and calibration episodes, run
+the coupled reference once and each candidate depth $\tau \ge 1$ once,
+offline, recording $(s_i, v_i, Y_{i,\tau})$. This is replay of logged
+states, not interaction.
+\item \emph{Joint bimonotone fit.} On the fit split, estimate a single
+quantile surface $\hat{q}(\tau, s, v)$, $\tau \ge 1$, by minimizing the
+convex pinball (check) loss over the lattice-ordered monotone function class
+of (A1). Fitting each $\tau$ separately would allow the fitted surfaces to
+cross, producing depths at which a deeper skip appears safer than a
+shallower one; the joint constraint removes this artifact. Order-restricted
+convex optimization over a lattice partial order is solvable in polynomial
+time through linear-programming or network-flow formulations.
+\item \emph{Simultaneous conformal correction.} On the calibration split,
+define per-episode nonconformity scores that cover all steps and all
+positive depths at once,
+\begin{equation}
+R_e \;=\; \max_{i \in e}\; \max_{\tau \ge 1}\;
+\bigl( Y_{i,\tau} - \hat{q}(\tau, s_i, v_i) \bigr),
+\label{eq:R}
+\end{equation}
+where $i$ ranges over the steps of calibration episode $e$. Let $c$ be the
+$\lceil (1-\alpha)(|\mathcal{E}|+1) \rceil$-th order statistic of
+$\{R_e\}_{e \in \mathcal{E}}$ and set
+\begin{equation}
+\tilde{q}_\tau(s, v) \;=\; \hat{q}(\tau, s, v) + c ,
+\qquad \tau \ge 1 .
+\label{eq:conformal}
+\end{equation}
+The index must not exceed $|\mathcal{E}|$, which requires
+$|\mathcal{E}| \ge (1-\alpha)/\alpha$ (at least $19$ calibration episodes
+for $\alpha = 0.05$); otherwise $c = +\infty$ and the rule degenerates to
+$\tau^{*} \equiv 0$, which is valid but vacuous. This is a conformalized
+prediction bound with episode-level marginal coverage, rather than a
+conditional guarantee at a fixed $(s,v)$. Because the correction is
+simultaneous over depths and over the steps of an episode, the bound remains
+valid \emph{after} the data-dependent selection of $\tau^{*}$: under
+exchangeability of calibration and test episodes,
+\begin{equation}
+P\Bigl( \, Y_{i,\tau} \le \tilde{q}_\tau(s_i, v_i)
+\ \ \text{for all steps } i \text{ and all } \tau \ge 1
+\ \Bigm|\ \text{a fresh episode} \Bigr) \;\ge\; 1 - \alpha ,
+\label{eq:coverage}
+\end{equation}
+and in particular $Y_{i,\tau^{*}} \le \delta$ holds jointly over the episode
+with probability at least $1-\alpha$. Per-depth marginal calibration would
+not survive this selection step; the max construction is what makes the
+guarantee legitimate. The price is conservatism, which we report rather than
+hide. When several tasks are pooled, Eq.~\ref{eq:coverage} is marginal
+coverage over the task mixture; per-task validity requires task-wise
+(Mondrian) calibration, and per-task results are reported where sample sizes
+permit.
+\end{enumerate}
+
+\paragraph{Scope of the guarantee.}
+Eq.~\ref{eq:coverage} applies to fresh episodes drawn from the teacher
+visitation distribution represented by the calibration data. Deployment
+intervenes on the process: replayed prefixes alter subsequent visitation and
+may break exchangeability, reflecting the failure of composition described in
+the companion note. The guaranteed quantity is also an action-deviation proxy,
+not task success. We therefore study the association between $\delta$ and
+closed-loop failure risk on fit data, freeze the operating point before final
+calibration, and use closed-loop success on the test split as the final
+criterion. The conformal result provides an offline certificate under teacher
+visitation, not a guarantee for the intervened deployment distribution.
+
+\paragraph{On the term ``training-free''.}
+The estimator is a nonparametric post-hoc calibration: isotonic quantile
+regression does minimize an objective over a class of monotone functions, so
+it is statistical fitting in the ordinary sense. What is absent is any
+policy or model fine-tuning, any gradient-based learner, and any parametric
+hypothesis class; the procedure is gradient-free, order-restricted convex
+optimization followed by quantile computation. We use ``training-free''
+throughout in this restricted sense, consistent with the paper's standing
+definition. A
+learned router (E10) remains in the study as the contrast: it asks whether
+gradient-based fitting buys anything beyond what calibrated order statistics
+provide.
+
+\paragraph{Relation to existing rules.}
+The rule family strictly contains the incumbents: the two-threshold dispatch
+is the degenerate surface that ignores $v$ and quantizes $\tau$ to three
+values $\{0, \tau_{ws}, N\}$, and a fixed-depth rule is the constant surface
+$\tau \equiv \tau_0$ gated by a single threshold on $s$. Containment implies
+that the \emph{oracle} optimum over surfaces is no worse than the oracle
+optimum over thresholds; it does not imply that a surface estimated from
+finite data beats a well-calibrated threshold, since the larger class can
+overfit. ``Surface $\ge$ threshold'' is therefore a hypothesis to be tested
+at matched calibration budgets, not an expected theorem. In the notation of
+the companion note, every surface policy is a causal scheduler over the
+retrieval information set, so its replay share remains a lower bound on
+$R_{\mathcal{C}(\mathcal{I}_\varphi)}(\varepsilon)$.
+
+\paragraph{Experimental consequences.}
+Evaluation proceeds in three stages. First, on one suite, we compare the
+surface restricted to the depths already stored online with a calibrated
+two-threshold rule under the same calibration budget. This pilot measures
+whether the episode-level simultaneous correction remains useful despite its
+conservatism: an overly large correction will route most states to
+$\tau^{*}=0$ and eliminate any computational gain. Second, if the pilot shows
+a measurable advantage, we run the full comparison with the library, teacher,
+hardware, and calibration budget held fixed. The arms comprise a fixed
+threshold at fixed depth, the three-tier rule, the surface, the surface with
+stateful gating, a reduced-step teacher, and a learned dispatcher (E10). The
+primary readout is closed-loop success against measured GPU-time per decision
+step. Third, E5 reports the (A1) violation rate, the
+monotone-likelihood-ratio diagnostic for the surrogate event, and the
+association between deviation and closed-loop failure. All deviation data are
+obtained by offline replay of logged states together with the paired initial
+noise described above.
+
+\end{document}

@@ -1120,11 +1120,41 @@ def _remote_reexport(remote: RemoteRun, args, version: str) -> None:
 
 
 def _reclaim_consumed(remote: RemoteRun, args, consumed: list[dict]) -> None:
-    """Sweep shards of batches the ledger already consumed (idempotent)."""
-    for entry in consumed:
-        batch_id = entry.get("batch_id")
-        if not batch_id:
-            continue
+    """Sweep shards of batches the ledger already consumed (idempotent).
+
+    Only batches whose shard directory still EXISTS are swept, decided by one
+    remote listing rather than one remote call per consumed batch. Reclaim was
+    always idempotent, so re-running it on an already-swept batch was correct —
+    just ruinously expensive: every call is a fresh ssh plus a `uv run` cold
+    start, measured at 2.7 s per batch same-host and 4.0 s through the relay.
+    That is linear in progress, so a resume cost ~15 min at batch 227 and would
+    have cost ~40 min at batch 600, every time — for work that is a no-op in all
+    but the crash window this sweep exists to cover.
+
+    The invariant is unchanged: a batch whose shards survived (crash after the
+    trainer update, before the sweep) is still reclaimed. A batch with no shard
+    directory has nothing to reclaim by definition.
+    """
+    batch_ids = [e["batch_id"] for e in consumed if e.get("batch_id")]
+    if not batch_ids:
+        return
+    # Fails OPEN, deliberately: an unlistable shard root means "I cannot tell
+    # what survived", and the safe answer there is to sweep everything rather
+    # than silently carry ~2.6 GB per orphan forward.
+    code, output = remote.run(f"ls -1 {remote.shard_root} 2>/dev/null")
+    if code == 0:
+        present = {line.strip() for line in output.splitlines() if line.strip()}
+        stale = [b for b in batch_ids if b in present]
+    else:
+        logger.warning("resume: could not list %s; sweeping every consumed batch",
+                       remote.shard_root)
+        stale = batch_ids
+    if not stale:
+        logger.info("resume: no leftover shards among %d consumed batches", len(batch_ids))
+        return
+    logger.info("resume: reclaiming %d leftover shard dir(s) of %d consumed batches",
+                len(stale), len(batch_ids))
+    for batch_id in stale:
         code, output = remote.run(
             f"cd {args.remote_workdir} && {args.remote_python} exp/rl_router/batch_package.py reclaim "
             f"--shards {remote.shards(batch_id)} --checkpoint {remote.checkpoint} "

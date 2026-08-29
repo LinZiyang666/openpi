@@ -66,7 +66,12 @@ def cmd_plan(args) -> None:
         "pool_dir": str(args.pool_dir),
         "episodes": episodes,
         "collection_recipe": [
+            # --non-concurrent is REQUIRED, not optional: serve_policy refuses
+            # --collect without it, because concurrent forward hooks
+            # cross-contaminate the captured embeddings. Printing the command
+            # without it hands the operator something that fails at launch.
             "uv run scripts/serve_policy.py --collect --collect_dir <out> --env LIBERO "
+            "--non-concurrent "
             "policy:checkpoint --policy.config pi05_libero --policy.dir <ckpt>",
             f"client: run each task's episodes on the materialised C pool at {args.pool_dir} "
             "(pure teacher, no cache), one rollout per planned (task, subset init). The "

@@ -1456,3 +1456,292 @@ tether exec timan107 -- bash -lc 'export HOME=/home/zixuans8; tmux new -s rlrm6 
 配套读数：份额轨迹 0.500（v0）→ 0.427（前 30 批）→ 0.38 平台（b0040-b0110 七十批）→ 0.335（b0140-b0149），**已进入 λ₃=5.0 的目标带 0.25-0.30 的邻域**；同期跨状态 sd 0.0000→0.0051→0.0117（P2 纯测量，§前节全表）。SR 从起点 ~0.744 降到 0.704，**与「用 SR 换成本」的预注册预期同向**（预期带 0.69-0.72），不是失败信号。
 
 ⚠ 口径说明：门限用的是 `metrics.jsonl` 的 `arm_executed_rate.teacher`（实际执行占比，权威口径），不是 router 输出概率均值；两者在采样模式下应当一致，b0148 实测分别为 0.33 与 0.32 量级，无异常。
+
+**第二次暂停（2026-08-20 ~17:0xZ，owner「资源给别人」）**：在 b0215 完成后停于 **215 批完整 + b0215 部分 / 21,538 ep**（trainer_state 到 b0214，权重链 v215.pt）。停法同 §3.25 收尾：kill tmux rlrm6 → DRYRUN 确认 48 个候选全带 `--server-key linziyang.top:14007` 且 KEEP 侧空 → 实收 48（回吐 1432 MiB/卡）→ 停 wls server（显卡 0 MiB 占用 / 48511 全空）→ 撤全部监控（Monitor bd0phzkg2、cron 90ab2f54 t107 巡检、cb51e302 wls 看门狗）。恢复流程见 handoff §3（批级 resume 从 b0215，**绝不删 art_m6/**）。本次暂停前已获成果：P1 PASS（§2.5k.1）、P2 中期轨迹（sd 0→0.0274，方差分解 62% 在 episode 内）、reward 分解（+0.077 全部来自省成本、SR −0.047）、两报告补入信息不对称边界（MLP 对相似度全屏蔽 ⇒ 与 TIER 阈值 judge 非同一问题）。
+
+### 3.26 wls 4090 保温协议成为硬前置（owner 裁定 2026-08-20）
+
+**背景**（`dist_experiment_control/docs/devices.md` §2.5，2026-08-20 实测判定）：这张 48G 改装 4090 在出厂功率/频率下不稳定——冷卡（≤36 °C）拉满带宽负载，在 **28–62 s 爬坡窗口**内产生静默计算错误（实测 4,069 万个，67–71 °C 非过热，**零 Xid 零报错**）；同一不稳定曾以 `Xid 31 MMU Fault @ 0x0` 三次打死推理 server（都在起流量后 ~3 min）。冷启动 3/3 全灭、起温 ≥44 °C 2/2 全过 ⇒ 故障 = 冷态陡热爬坡 × 满带宽显存流量**两条件叠加**。
+
+**owner 裁定（2026-08-20）**：① **显卡问题是今天（8-20）才出现的，此前无问题**；② **授权在正确执行保温程序的条件下继续使用这块卡**——即 devices.md §2.5 那句「送修前不承担正式实验」由本裁定覆盖，前提是保温协议到位。
+
+**本线落实**：任何 GPU 负载（pi05 server / 评测）启动前必须先起 `keepwarm` 会话并确认温度 ≥50 °C，且**全程陪跑到实验完全结束**（含中途重启 server/conductor 的冷却窗口——那正是最危险的时刻）。恢复闹钟（cron 74ad9068，8-21 08:00 CDT）已把这条写成第 1 步硬前置；重挂的 wls 看门狗追加一条：keepwarm 会话不在 → 立即重起并报警。
+
+**留痕的边界（供报告引用时判断）**：本 run 的 b0143–b0215 由 8-19 22:59 CDT 冷启动的 server 承载（**早于保温协议建立**），落在 owner 所述"今天出问题"的时间窗内。风险性质与量级：故障窗口只有冷启后 ~28–62 s，此后干净；若有污染，表现为个别 episode 的动作块被算错 ⇒ 少量 episode 失败，**结果是回报信号更噪，而非把策略推向某个系统性方向**（份额下探是成本项驱动的，与算错无关）。**唯一需要干净数值的是 P3 主判定，而 P3 尚未运行、将在保温协议下执行**——所以主结论不受影响。若后续复核发现 b0143–b0215 段异常，可用 v143 之前的权重链重跑该段。
+
+### 3.27 server 入口切到 wls 直连公网段（owner 指示 2026-08-21）
+
+**变更**：`weilandserver` 自 2026-08-20 起有直连公网入口 `ziyanglin.com:23100-23199`（交换机 NAT，`ziyanglin.com` → 140.177.159.24）。按 devices.md §4.0 优先级规则，**优先于 tether expose**：少一跳 broker 转发、不占 broker 端口池、不受 yamux keepalive 长 idle 断流影响（§3.25 那次 agent 卡死正是 broker 侧问题）。
+
+⚠ **关键差别（踩过就废一次启动）**：直连段是 **1:1 映射、不做端口转换**——服务必须**自己监听在 23100-23199 之内**。把 server 起在 `:8000` 再指望公网 `:23100` 连上是连不通的（本次首次启动就是这样起错了，随即改正）。
+
+**本线落地**：pi05 server 改起在 **`--port 23150`**；t107 三处地址同步（`run_m6_t107.sh` 的 `--servers`、`reap_orphans.sh` 与 `rlr_health.sh` 的 `SERVER_KEY` 默认值）改为 `ziyanglin.com:23150`。⚠ SERVER_KEY 必须与 worker argv 里的串**逐字一致**，否则孤儿判据（§3.20 的域收窄）会失效——这是本次改动最容易漏的一处。旧的 `rlr-srv` expose（:8000→:14007）随之作废。
+
+**更正与补完（2026-08-21，owner 质询「公网端口不够你用吗」后）**：我起初判断「trainer 的 ssh 只能走 expose，因为 sshd 在 :22、改端口要 sudo（实测无免密）」——**这个判断不完整**。不必动 sshd：起一个**用户态转发**监听在段内即可（>1024 端口无需 root）。已实装 `pubfwd.py`（wls `/home/weiland/gtp_logs/`，纯 Python 无依赖，tmux 会话 `pubfwd`，`23122 → 127.0.0.1:22`），实测 `SSH_OK_DIRECT` + 3 MB scp 往返 md5 逐位一致。⇒ **两条通道现在都不经 broker**：推理 `:23150`、trainer/包推送 `:23122`。t107 的 `~/.ssh/config` 需为 `ziyanglin.com` 补 IdentityFile（原先只配了 `linziyang.top`，否则表现为 `Permission denied` 而非网络不通——这一步漏了会误判成转发没通）。旧的 `wls-ssh` expose 与 `--remote-port 14008` 一并作废。
+
+⚠ 转发器只应指向**自带鉴权**的服务（这里是 sshd，公钥认证）；直连段本身无鉴权，别把无鉴权服务挂上去。
+
+⚠ **安全性（devices.md §2.5.1 明载）**：该段**无任何鉴权**，且不经 broker、不受 session 成员资格约束，任何人扫到端口即可连；pi0.5 server 自身没有 token/TLS ⇒ 起在这个段上等于对公网开放推理算力。owner 已指示优先用直连段，本线遵此执行；实验结束应及时停 server。
+
+
+### 3.28 resume 的隐藏成本：`_reclaim_consumed()` 是 O(已消费批次) 的 ssh 循环（2026-08-21 实测定位）
+
+**现象**：resume 后 conductor 沉默 7-10 分钟不起 worker，日志停在 `run manifest written`。owner 追问「worker 启动怎么这么久，别人的一下就起来」。
+
+**排查（逐项实测排除）**：远端 `du` 容量测量 **0.22 s**（dump_m6 有 427 目录 / 42,377 文件，仍然快）；远端 state refresh **2.2 s**（torch import 1.7 s + 193 MB checkpoint 载入 0.2 s）。都不是。conductor 主进程 48 线程阻塞在 `poll`、零网络连接、零常驻子进程——但**每次采样都能抓到一个刚生出来的 `/bin/sh -c ssh -p … 'cd /home/weiland/openpi && uv run exp/rl_router/batch_package.py reclaim --shards …'`**（12 次采样 12 次命中）。
+
+**根因**：`run_rl_router.py:889` 的 `_reclaim_consumed(remote, args, state["consumed"])` 对**每一个已消费批次**执行一次远端 reclaim，每次是**一条全新 ssh**（无 ControlMaster 复用）+ 一次 **`uv run` 冷启动**，实测 **~2.7 s/批**。216 批 ⇒ ~9.7 分钟，与两次实测（7.4 / 9+ 分钟）吻合。**开销随进度线性增长**：跑到 500 批时 resume 要 ~22 分钟。
+
+**为什么别人的 worker 秒起**：他们从零开跑，没有已消费批次，这段循环是空的。
+
+**设计上是对的**（崩溃可能停在「更新已落但 shards 未清」之间，ledger 门使 reclaim 幂等且安全），**实现上两处可省**：① 没跳过已经清过的批次；② 每批一条 ssh 而非一次批量调用（传全部 batch_id 进去一次跑完）。任一改法都能把 resume 从 10 分钟降到秒级。**本轮不动代码**（改了要重测 resume 路径，而当时正在 resume 中途）；留作下次暂停窗口或收官后处理。
+
+**监控启示**：判「是否卡死」不能只看 `workers=0`，要看 `ps --ppid <conductor> -o cmd=` 里的 `reclaim --shards .../b0xxx` 推进到哪批——已把这个字段加进启动期 Monitor。
+
+### 3.29 迁移到 ziyang10 H200 + 自建 TCP 中继（owner 指示 2026-08-21，"tether expose 流量不够"）
+
+**动因**：owner 要求把实验转到 H200，并问能否手搓一个中继让 ziyang10 与 t107 经 wls 沟通（broker 带宽不够用）。
+
+**为什么不用现成方案（全部实测）**：
+
+| 路径 | 吞吐 |
+|---|---|
+| 裸 TCP ziyang10→wls 公网段 | **19.35 MB/s** |
+| 裸 TCP t107→wls 公网段 | **22.29 MB/s** |
+| 经 pubfwd（用户态转发，无加密） | 11.46 MB/s |
+| **经 ssh 隧道** | **1.4 MB/s** |
+
+⇒ **瓶颈是 ssh 的加密，不是网络**。需求（N=24）4.3-4.9 MB/s，所以数据面必须绕开 ssh。
+
+**中继设计（`relay.py`，wls `/home/weiland/gtp_logs/` + ziyang10 `/home/ziyang10/tools/`）**：**反向连接池**，不是多路复用器。ziyang10 在 NAT 后无法被拨入，所以 agent 主动外拨、在中继的 backend 端口**预先驻留** N 条连接；客户端到达时中继取一条、发 GO、agent 拨通本地服务后**回 ACK**，中继收到 ACK 才拼接。**一客户 = 一条端到端 TCP**，无分帧、无队头阻塞、没有自制多路复用器会有的错位失步。
+
+⚠ **v1 的 bug 与修法（值得记住的通用教训）**：v1 用「写 GO 成功」判驻留连接存活——**错**，死 TCP 的写只是进本地发送缓冲，要更晚才报错。实测 24 并发有 **1 条**被配到死连接、中途 BrokenPipe。v2 改成**握手往返（GO→ACK）**，一次证明三件事：驻留 socket 活、agent 在跑、**本地服务可达**；另加 TCP keepalive 防 NAT 静默回收驻留映射。复测 **3 轮 × 24 并发 = 72/72 全通**，聚合 8.8-9.6 MB/s，建连中位 20-27 ms。
+
+**卡住迁移的真问题：ziyang10 没有 sshd**（无监听、无进程、无二进制、无 authorized_keys）。而 **trainer 必须跑在 server 那台**（每批 ~700 MB shards 落在那里），conductor 靠 `SshTransport` 驱动它。三条路里选了代价最小的：
+- ~~改 `SshTransport` 为 `TetherTransport`~~：要在活跑的关键路径上加新 transport 类，风险高；
+- ~~把 shards 每批拉回 t107~~：700 MB/批，代码里没有这条路；
+- ✅ **在 ziyang10 装用户态 sshd**（`mamba create -p ~/sshenv openssh`，监听 127.0.0.1:2222，仅公钥认证，无需 root），再用同一套中继暴露 ⇒ **`SshTransport` 一行不改**。
+
+**最终拓扑（旧端点全部作废）**：
+
+```
+推理    : t107 workers   -> ziyanglin.com:23152 -> relay(wls) -> ziyang10:8999
+trainer : t107 conductor -> ziyanglin.com:23154 -> relay(wls) -> ziyang10:2222 (用户态 sshd)
+```
+两条都不经 broker、不经 ssh 隧道（trainer 那条的 ssh 只在中继之后的最后一跳，且只传包与命令，不是数据面大头）。
+
+**迁移清单（缺一不可，实际都踩了）**：① 状态迁移 wls→ziyang10（trainer_checkpoint.pt 203 MB + trainer_state.json + metrics.jsonl + v227.pt + v0.pt，经 ziyang10 直接 scp wls，19 s）；② arm yaml 的 `weights_path`/`dump_dir` 重写到 ziyang10 本地路径；③ gate artifacts 落位；④ **ziyang10 的 repo 落后两个版本，缺 `mlp_router` judge** ⇒ 补 `mlp_router_judge.py` + `config.py`（**覆盖前确认我们的 config.py 是它那份的超集**，含别人的 composite 校验，没踩掉他线改动）；⑤ **缺整个 `exp/rl_router/` 包** ⇒ 补 12 个模块（首次发射就死在 `batch_package.py: No such file`）；⑥ t107 的 `SERVER_KEY`（reaper + 探针）同步为 `ziyanglin.com:23152`，**必须与 worker argv 逐字一致**；⑦ 新发射脚本 `/tmp/run_m6_h200.sh`（旧的 `run_m6_t107.sh` 保留作回退）。
+
+**方法学边界（报告必带）**：b0000-b0227 跑在 wls 的 4090（含故障卡时期），**b0228 起跑在 ziyang10 的 H200**。两者数值内核不同，**SR 轨迹在切换点会有一个不可归因的台阶**。影响评估：P2（跨状态 sd）是策略内部量、P3（同 session 内配对）自洽，**两个预注册判据都不依赖跨批次的 SR 绝对水平**；台阶只影响"监控用"的 SR 曲线。收益是剩余 372 批 + P3 主判定全部离开有静默算错前科的 4090。
+
+**§3.29 续：迁移当天的两次失败与代价（教训）**
+
+第一次发全量：`LAUNCH BLOCKED ... batch_package.py: No such file` —— ziyang10 缺**整个 `exp/rl_router/` 包**。补 12 个模块后再发。
+
+第二次发全量：worker 起来了，但**每个 episode 都被 server 端 1011 打回**，累计 **~800 条 Traceback / 376 次 ConnectionClosedError**。server 侧真因：`ValueError: mlp_router requires query_keys; Orchestrator injects them when the judge signature declares the parameter` —— ziyang10 的 `orchestrator.py` 是旧版，没有 `judge_accepts_query_keys` 注入机制。
+
+**我的方法错误**：逐个文件试错，撞一次补一次。**正确做法（已改用）**：`git merge-base --is-ancestor df2ef13 HEAD` 确认我们的 src 是对方的严格后代（覆盖安全）→ `git diff --name-only df2ef13 HEAD -- src/openpi` 一次列全 **20 个**文件 → 批量同步 → 核对对端 `git status` 只有 `config.py` 有他线本地改动（我们的是超集，未踩掉其 composite 校验）→ 原件备份到 `rlr_backup_0821/`。
+
+**代价与数据完整性**：约 800 个 episode 级失败，但**没有污染数据**——这些 episode 全部失败重跑，b0228 一条都没写进 journal（eps 始终停在 22,724）。
+
+**新增规程：跨机迁移后，发全量前必须跑真推理冒烟**（`sweep_mixture` 2 worker × 2 episode，判据 = `[sweep]` 行出现且 `1011`/`requires query_keys` 计数为 0）。本次冒烟以 2 个 episode 的代价暴露了两个问题（`query_keys` 缺失、`constant.pt` 只在 t107 本地而 server 在 ziyang10 读同一路径串——后者是 §3.23 时代「镜像 constant.pt」那条坑的跨机重演，**只影响扫点工具，不影响主跑**：主跑的权重由 `SshTransport` 推到 server 侧）。上一次同样的问题是用 800 个失败 episode 换来的。
+
+### 3.30 修掉 §3.28 的 resume 慢：只清幸存的 shard 目录（2026-08-21，owner「直接改了他吧，浪费时间」）
+
+**改法**（`run_rl_router.py::_reclaim_consumed`）：resume 时先发**一次** `ls -1 <shard_root>`，与 ledger 的 consumed 列表取交集，**只对还存在 shard 目录的批次**跑 reclaim。已清过的直接跳过——reclaim 本来就幂等，重复清是纯浪费。
+
+**收益**：干净停机的常见情形从「N 条 ssh + N 次 `uv run` 冷启动」降到「1 条 ls」。实测单批成本 **2.7 s 同机 / 4.0 s 经中继**（迁到 H200 后多穿一层中继，慢 ~50%），⇒ 227 批 ≈ 15 min → **~1 s**；600 批时省的是 **~40 min/次**。
+
+**不变量未动**：崩溃窗口（trainer 更新已落、shards 未清）留下的目录在 `ls` 里是存在的，照样被清。**故意 fail-open**：`ls` 失败时退回全清——"列不出来"意味着"不知道谁还在"，此时漏清每个孤儿要多背 ~2.6 GB。
+
+**测试 5 条**（`tests/exp/test_rl_router_run_loop.py`，全套 1287 绿）：只清幸存者 / 300 批全干净只花 1 次远端调用 / 列表失败全清 / 无 ledger 连 ls 都不发 / **畸形 ledger 行（空 batch_id）必须忽略**——否则 `--shards {root}/` 会展开成 shard 根目录，一次清掉所有批次。
+
+**部署**：t107 与 ziyang10 均已装（原件备份 t107 `/tmp/rlr_rrr_prev.py`）。**当前运行中的 conductor 不受影响**（Python 已加载旧模块），下次 resume 生效。
+
+### 3.31 迁机后整批 `shard_missing`：`dump_dir` 是 arm yaml 里的常量，`--shard-root` 管不到它（2026-08-21）
+
+**现象**：b0227 连续三轮 100/100「缺 slot」，两轮修复后按设计 halt（不在缩水的批上更新）。但 episode 本身**全是好的**——journal 200 行里 145 `done` / 55 `failed`，SR 0.725 落在 λ₃ 的预期带内，**一条 `error` 都没有**。
+
+**根因**：`remote_manifest.json` 里 200 条 `rejected` 的理由全是 **`shard_missing`**。server 端逐步 shard 的落盘路径来自 **arm yaml 的 `checkpoints.cp1.judge.dump_dir`**，迁机后它仍是 `/home/weiland/rl_router/dump_m6`（wls 的路径），而 ziyang10 上**根本没有 `/home/weiland`** ⇒ 一条 shard 都没写。
+
+**为什么没被任何东西挡住**——三个独立的洞叠在一起：
+1. **两处路径、零校验**。conductor 的 `--shard-root` 只决定「去哪儿找」（`RemoteArtifacts.shard_root`），server 的 `dump_dir` 决定「往哪儿写」，**没有任何代码或门禁检查两者一致**。
+2. **`write_versioned_yaml` 只改写 `weights_path`**（见其 docstring：它存在的理由就是防版本错配），`dump_dir` 原样透传。所以逐批生成的 yaml 会忠实地把错路径发给 server 600 次。
+3. **写失败是静默的**。episode 照常返回 `done`，成功率正常，client 侧看不出任何异常——只有远端三源 join 才发现无 shard 可选。
+
+**§3.29 的迁移清单第 ② 条（"arm yaml 的 `weights_path`/`dump_dir` 重写到 ziyang10 本地路径"）写了但没执行**，而且没有任何一步会去验证它。清单不等于校验。
+
+**处置**：`sed` 改 t107 上的 `r_tc_train.yaml`（原件存 `.bak_wls`）；把 b0227 的本地批目录与远端 `art_m6/<rid>/b0227/` 一并挪走（**必须**：包摘要守卫拒绝同 batch_id 不同 digest 覆盖，round 0 重跑会撞上），再重发。trainer 状态未受影响（consumed 到 b0226 → v227，无需回滚）。代价 = 3 轮 × 100 episode。
+
+**连带发现（本条最贵的一课）**：旧 conductor halt 退出后，它的 **48 个 worker 变成孤儿**（父链直挂 systemd），带着**已作废的 `ziyanglin.com:23150`** 又活了 1h17m，一直占着 t107 八张卡的显存。按 §3.19/§3.20 的判据收割：先 `bash /tmp/inspect_workers.sh` 逐进程列「归属端点 + 父链判定」确认 48/48 都是本线旧端点且都是孤儿，再 `SERVER_KEY=ziyanglin.com:23150 DRYRUN=1` 确认 **KEEP 侧为空**、打击面与新 run 的 `:23152` 零交集，最后实清 48 个。**孤儿判据必须按端点收窄**：不收窄就会误杀他线；只按当前端点查则完全看不见这批旧端点孤儿（第一次 DRYRUN 报的就是「0 个」）。
+
+**待办（需 owner 授权后实施，属代码改动）**：在发射门禁里加一条断言——`dump_dir`（去掉尾部 `/`）必须等于 `--shard-root`，不等就 BLOCK。这是本条唯一能防止复发的结构性修复；靠"迁移清单"防不住，本次已经证明了。
+
+### 3.32 `trainer exited 255` 但更新其实落了：ssh 通道无保活 + 监控漏报终态（2026-08-21）
+
+**现象**：b0227 修好 shard 后终于填满，进 `train()`，conductor 抛 `ALERT: trainer exited 255 without an admission report`，尾部是 `Connection to ziyanglin.com closed by remote host.`，随后整条 run 退出。
+
+**真相是反的**：trainer **跑成功了**——ziyang10 上 `v228.pt` 已写、`trainer_state.json` 已是 `v228 / 228 consumed`、`metrics.jsonl` 已追加。断的只是 ssh 通道，conductor 因此读不到 admission report，把一次**成功的更新**判成失败并停机。排除项：cgroup `memory.events` 的 `oom_kill=0`（不是 32 GiB 内存墙）；wls 侧 `relayssh` 自 11:51 起 `served=750 pool=7` 零错误、ziyang10 侧 `zagentssh` 日志只有启动一行（**不是中继重启**）。
+
+**第一版诊断是错的，记在这里当反面教材**：我判成「`SshTransport` 走裸 `ssh`、没有 keepalive ⇒ 路径上的空闲回收掐断了连接」，于是在 t107 的 `~/.ssh/config` 里加了 `ServerAliveInterval 30`。**重发后第二批以完全相同的方式又死了**——同一个 `exit 255`、同一句 `closed by remote host`、同样是更新已落。**教训：没有复现就不算定位。** 我拿一个「像是」的机制解释了现象，而没有先问「它到底在第几秒死的」。
+
+**真正的根因见 §3.33**（中继 agent 侧把建连超时留成了空闲读超时，静默 20 s 必断）。ssh 保活作为纵深防御保留（现为 `ServerAliveInterval 15` / `ServerAliveCountMax 20`），但**它不是修复**：15 s 的探测恰好能盖住 20 s 的窗口纯属巧合，真正让长静默会话可用的是 §3.33 那一行。
+
+**恢复代价为零**：`trainer_state.json` 是 resume 的唯一权威，它已记 b0227 已消费 ⇒ 重发直接从 b0228 开始，既不重跑也不重复更新。
+
+**监控的漏洞（比故障本身更该记）**：老 Monitor 的 fatal 正则是 `LAUNCH BLOCKED|CUDA error|failed \(exit|requires query_keys`——**不含 `ALERT`、不含 `Traceback`、不含「tmux 会话消失」**。于是这次 halt 它一声没吭，停机 ~30 min 无人知道，是我下一次巡检才发现的。**判据：写完过滤器要问一句「如果它现在崩了，我的过滤器会吐出一行吗？」** 新版覆盖 `ALERT|Traceback|LAUNCH BLOCKED|CUDA error|OutOfMemory|exited 255|requires query_keys` **加上 `alive=$(tmux ls | grep -c '^rlrm6:')`**——进程没了是最强的终态信号，比任何日志正则都可靠。
+
+**顺带**：`_reclaim_consumed` 的 fail-open 在「shard 根目录压根不存在」时会退化成 227 次远端 `uv run`（实测 ~5 s/次 ≈ 16 min）。**迁机后先 `mkdir -p <shard_root>/<run_id>`**，`ls` 就能成功返回空集，清扫降回 1 次调用。已建。
+
+### 3.33 中继的真根因：建连超时被留成了空闲读超时，静默 20 s 必断（2026-08-21）
+
+**怎么定位的（这次做对了：先复现，再解释）**。同一条通道跑两个对照 ssh 会话：
+
+| 测试 | 命令 | 结果 |
+|---|---|---|
+| A 有输出 | `for i in $(seq 1 20); do echo tick $i; sleep 10; done` | **活满 200 s，exit 0** |
+| B 全静默 | `sleep 200; echo silent_done` | **21 s 就死**，`closed by remote host`，exit 255 |
+
+「有数据就活、静默就死、死在 21 s」——一句话把「路径空闲回收」（那样 A 也该死，且不会卡在 20 s 整）排除掉，直接指向**我们自己中继里的一个 20 秒常量**。
+
+**根因（`relay.py` agent 侧，一行）**：
+```python
+svc = socket.create_connection((thost, tport), timeout=20)   # 这 20 s 是 CONNECT 期限
+# ...从未调用 svc.settimeout(None)
+```
+`create_connection(timeout=...)` 会把超时**留在 socket 上**。于是 `_pump` 里的 `src.recv(BUF)` 在静默 20 s 后抛 `socket.timeout`——它是 `OSError` 的子类，被 `except OSError: pass` **静默吞掉**，`finally` 照常 `dst.shutdown(SHUT_WR)`，对端就看到一次「正常的半关闭」。**没有任何一侧打日志**：中继日志只有 `served=750 pool=7`，agent 日志只有启动那一行。这是它能骗过我一次的原因。
+
+**为什么推理通道从没中招**：LIBERO 闭环每个控制步一次往返（~200 ms），那条连接**永远不会静默 20 s**。只有 trainer 那条 ssh 会静默数分钟 ⇒ **b0227 启用中继后每批必死**，样本量 2/2。
+
+**修复**：
+```python
+svc.settimeout(None)   # 建连期限不得变成读期限
+_keepalive(svc)        # 活性交给 TCP keepalive，不是读超时
+```
+两端 `relay.py` 同步（wls `gtp_logs/`、ziyang10 `tools/`），重启 `zagent`/`zagentssh`。**复测：静默 240 s 会话 exit 0 / elapsed 242 s**（修复前 21 s 必死），推理通道 healthz 仍 200。
+
+**可推广的判据**：`socket.create_connection(timeout=T)` 之后，只要这个 socket 还要长期用来读，**必须 `settimeout(None)`**；否则 T 就成了整条连接的静默上限。配套地，`except OSError` 吞掉 `socket.timeout` 会让超时和对端正常关闭长得一模一样——中继类代码里这两者**必须分开处理**（至少分开打日志），否则下次还是只能靠 A/B 复现来抓。
+
+### 3.34 conductor 每批漏一条 ctl 连接，把中继连接池吃干（2026-08-21）
+
+**现象**：run 一切正常（批在推进、无 ALERT），但 Monitor 报 `fatal` 从 58 涨到 96。分类后**全部是 `Traceback`，零 `ALERT`/`OOM`/`exited 255`**——都是 client 侧握手时的 `EOFError: stream ends after 0 bytes`，且行号间隔精确到每 34 行一条：**某个 worker 卡在稳定的重连循环里**。
+
+**链路侧对上了**：wls 的 `relay.log` 尾部一路 `no parked backend for 192.17.58.207; dropping`。数一下：`:23152` client 侧 **32** 条 established，`:23153` backend 侧 **32** 条——**池子（`--pool 32`）被占满**，第 33 个 client 直接被丢弃，worker 就收到 0 字节 EOF。
+
+**根因**：在 t107 上按 pid 归类那 32 条连接——**24 个唯一 pid，其中 23 个各占 1 条，而 pid 114549 独占 9 条**。114549 是 **conductor 自己**（`run_rl_router.py`，启动 56 min，正好经历 9 批）。源码对上：`ConductorDriver` 有个 per-server 控制连接池 `self._ctls`（`driver.py:174 _ctl()`，懒建），**driver 结束时从不关闭**；而 `run_round` **每批新建一个 driver** ⇒ **每批稳定漏一条 ctl 连接**。
+
+**为什么现在才炸**：24 worker + 每批 1 条泄漏，`pool=32` 只够撑 8 批。b0227 启用中继、b0229 起正常跑，到 b0237 左右正好填满。**这是个单调恶化的定时炸弹**：600 批需要 24+370 条，任何固定池子都会被吃穿。
+
+**处置（不动实验代码）**：给 `relay.py` 的 agent 模式加 `--idle-timeout`（默认 0=关），对 spliced 的两端 `settimeout(idle)`。推理侧起 `--pool 64 --idle-timeout 1800`，**ssh 侧保持不加**——trainer 那步本来就静默数分钟，加了就是 §3.33 重演。判据选 1800 s 的理由：**泄漏的连接永远空闲，活 worker 只在 trainer 步之间空闲（~4 min）**，两者差一个数量级，不会误杀。
+
+**代价与验证**：重启 zagent 打断在飞的 WS ⇒ b0237 只掉 **1 个 slot**（一轮修复搞定）。重启后 `CLIENTS=25`（24 worker + 1 条 ctl）、`backends=64`；90 s 内 `no parked backend` 增量 **0**、`EOFError` 增量 **0**。
+
+**看门狗 cron 同步更新**（旧 `d4dad7a6` → 新 `ee7f503d`）：zagent 的重启参数改成含 `--pool 64 --idle-timeout 1800`，否则看门狗一触发就把修复覆盖回去；并新增行动条件 (f)：`DROP` 增长或 `CLIENTS` 逼近 60 ⇒ 重启 zagent。
+
+**待 owner 裁（正解，属代码改动需 G1/G2）**：`ConductorDriver` 结束时关闭 `self._ctls` 里的全部连接。中继侧的空闲回收是**兜底**不是修复——它把泄漏封顶在 ~5 条，但泄漏本身还在，且同一个 driver 泄漏在别的实验线里一样会咬人。
+
+**判据（可推广）**：`fatal>0` 但 `alive=1` 且批数在推进时，**先分类再定性**——`grep -oE` 把命中按类型 `uniq -c`，再取每类的异常末行。这次 96 条命中里没有一条是致命的，但它们是另一个真故障的**唯一可见症状**。「过滤器响了」和「实验坏了」是两件事，中间那步分类不能省。
+
+### 3.34 续：空闲回收对这个泄漏无效——`websockets` 每 20 s 发 ping，TCP 层永不空闲
+
+**打脸的观测**：`--idle-timeout 1800` 上线 60 分钟后再数，conductor 那个 pid 仍占 **10 条**（约 9 批的泄漏量），**一条都没被回收**。1800 s 的判据前提是「泄漏连接永远空闲」——**这个前提是错的**：`websockets` 客户端默认 `ping_interval=20`，泄漏的 ctl 连接每 20 秒有一次 ping/pong 往返，TCP 层看起来一直活跃，任何基于「无字节流动」的回收都够不着它。
+
+**教训**：在 TCP 层做空闲回收时，「应用层没在干活」和「链路上没有字节」是两回事。带心跳的协议（WebSocket ping、gRPC keepalive、MySQL 的 ping）会让前者永远表现成后者的反面。**要按应用语义回收就得在应用层做，中继层做不到。**
+
+**改用容量兜底**：zagent 起 `--pool 512`（剩余 ~355 批 × 1 条泄漏 + 24 worker ≈ 379，留 1.35× 余量），**一次重启覆盖整个剩余 run**，不再需要周期性重启。`--idle-timeout 1800` 保留——它仍能收掉真正死掉的连接，只是收不掉这个。
+
+**512 池的两个实测细节**：① 启动时 512 个线程同时解析 DNS，会零星报 `park failed: [Errno -3] Temporary failure in name resolution`，agent 自己 sleep 2 重试，**实测只失败 2 次、最终 512 条全部 parked**——判据看 wls 上 `BACKENDS` 是否回到 512，别看这行日志；② 本次重启的代价是 b0247 掉 **20 个 slot**（上次只掉 1 个），一轮修复补齐——**重启代价取决于打断时批内进度，1～24 个 slot 都可能，但恒定是「一轮修复」，有界**。
+
+**看门狗再次同步**（`ee7f503d` → `ea68f4b9`）：池参数改 512，(f) 的阈值从 `CLIENTS 逼近 60` 改成 `CLIENTS>450`，并写明「`CLIENTS` 每批 +1 的缓慢爬升是已知现象，不是故障」——否则下一个接手的人会把正常的爬升当成新事故。
+
+### 3.35 ziyang10 整节点掉线：run 停在 258 批（2026-08-21 21:5x UTC）
+
+**现象**：Monitor 报 `alive=0 fatal=174`，其中 **172 条 `websockets.exceptions.ConnectionClosedError`** + **1 条 `TransportError`**（b0257 的包推送经 `ssh -p 23154` 三次全败）。**推理与 trainer 两条通道同时断**——这个组合本身就指向「对端整机没了」，而不是任一条通道的问题。
+
+**定性**：`tether node ls -a` 显示 **`jupyter-ziyang10 OFFLINE`**，**连 tether agent 都没了** ⇒ 不是我们的进程死了，是**整个 jupyter pod 没了**。存活时长 17:22 → 21:5x ≈ **4.5 h**，与 `reference_jupyterhub_idle_culler.md` 记的 5h11m 同一量级，形态一致。
+
+**处置边界**：**jupyter 会话只能由 owner 在浏览器里重开**，agent 侧做不了。已挂哨兵 Monitor 轮询节点状态，恢复即自动接续。
+
+**现场是干净的**：t107 上 conductor 已退出、**孤儿 worker 0 个**（这次退出路径把 worker 带走了）、显存无残留。数据停在 **258 个批目录 / 25,801 ep**，b0257 是在飞未落的那批（包没推上去，远端什么都没写）。ziyang10 的 `/home/ziyang10` 是 NFS home，**pod 没了数据仍在**，会话回来后原地 resume 即可。
+
+**恢复步骤（节点回来后按序）**：① 起 `rlrsrv`（约 3 min 加载）；② 起 `zagent --pool 512 --idle-timeout 1800` 与 `zagentssh`（**不加 idle-timeout**）；③ 确认 wls 侧 `BACKENDS=512`；④ 重发 conductor；⑤ 推进探针与 Monitor 的日志偏移。b0257 会从 round 0 干净重来（远端无残留 ⇒ 不必挪 `art_m6/<rid>/b0257`）。
+
+**§3.35 续：恢复实录（2026-08-22 00:41 UTC，停机约 2h50m）**
+
+owner 重开 jupyter 会话后节点回到 ONLINE。**盘点：什么都没丢**——`/home/ziyang10` 是 NFS home，pod 没了数据仍在：`trainer_state.json` = **v257 / 257 批**（b0256 已落，b0257 在飞未落，与 t107 的 258 个批目录自洽）、`tools/relay.py`（含 §3.33/§3.34 修复）、`sshenv/`、`sshd_run/` 全在；**H200 此刻整卡空闲 142 GB**（之前占 103 G 的那位也随之退出）。
+
+**新 pod 缺什么**：`tmux` 一个会话都没有、**用户态 sshd 没在跑**（它不是 .bashrc 自启的）、`/tmp` 清空。`keepalive.sh` + `ws_keepalive.py` **是自启的**（PID 128/130 已在跑）——**注意：这次被杀时它们也在跑**，所以 keepalive 并不能保证不被回收，别把它当护身符。
+
+**五步恢复全部照 §3.35 执行并逐条验证**：① sshd UP；② 三个 tmux（rlrsrv / zagent `--pool 512 --idle-timeout 1800` / zagentssh 无 idle-timeout）；③ wls 侧 `BACKENDS=512 SSHBACK=8`；④ 两条通道端到端过：推理 `healthz=200`、**trainer 通道静默 30 s 的 ssh 存活（elapsed 33 s）**——这一条专门复验 §3.33 的修复随重新部署的 relay.py 一起回来了；⑤ resume 走**快速路径**（shard 根目录存在 ⇒ `ls` 成功，只清 **30** 个残留而不是 257 个），探针与 Monitor 偏移推进到 43937。
+
+**端到端确认**：b0257 从 round 0 干净重跑并落地 **v258**，conductor 读到 admission report 后继续推进。**整段停机的净损失 = 0 个 episode**（b0257 本来就没落，远端无残留）。
+
+**Monitor 加了一条**：现在每拍附带查 `tether node ls` 的 `jupyter-ziyang10` 状态，非 ONLINE 就把 `ZIYANG10=<状态>` 拼进事件——上次是靠 172 条 `ConnectionClosedError` 间接推断整机没了，绕了一圈；节点状态是**直接判据**，应该第一时间可见。
+
+### 2.5l b0400 提前停跑规则（owner 裁定 2026-08-22，**在 b0400 数据到达之前**写死）
+
+**背景**：b0195 之后 reward 横盘。最近 100 批斜率 +0.017/100批、最近 50 批 +0.007/100批，**都远小于批间 sd 0.050**；teacher 率反而从 0.263 回爬到 0.316。
+
+**owner 指令**：「如果 400 批时还在这样横盘的话就停止训练」。
+
+**判据（现在定，不许事后改）**——沿用 ts 线报告的分位比较口径：
+- 取 **b0300–b0349** 与 **b0350–b0399** 两个 50 批块的 `mean_reward` 均值，记 Δ = 后 − 前。
+- 每块 SE = sd/√50 ≈ 0.050/7.07 ≈ 0.0071 ⇒ **差的 SE ≈ 0.010**。
+- **Δ ≥ +0.020（2 SE）判「仍在涨」→ 继续跑满 600**；否则判 **「横盘」→ 在 b0400 停**。
+- 同时报 b0300–0399 的 OLS 斜率与其 95% CI 作**辅助**（不参与裁决，只用于报告）。
+
+**停跑后的影响（预先说清，避免临时找补）**：
+1. **P3 不受影响**——它是「冻结 router(sample) vs 常数@p̂」的同 session 配对比较，p̂ 取**最后 50 批**（即 b0350–b0399）。预注册文本里 p̂ 的定义是「最后 50 批」，不是「第 550–600 批」，所以 600→400 不改口径、不引入选点自由度。
+2. **P2 的 sd 轨迹**长度从 600 缩到 400 批，结论表述里要写明轨迹截断于 b0400 及其原因。
+3. 报告必须写明**这是 owner 在 b0280 时依据「横盘」下的提前停，判据于停跑前 120 批就已冻结**——这一条是防止把「提前停」读成事后挑点。
+
+### 3.36 迁回 tether expose：实测推翻了自建中继的立项理由（2026-08-22 03:5x，owner 指令）
+
+**owner 指令**：「我们现在可以用 tether expose 了，把训练转移到 tether expose，不要走 weilandserver 中继」。
+
+**切之前先测（§3.29 的教训：跨机换通道必须先量）**，同一时刻、同一条 50 MB scp、同一负载下对照：
+
+| 通道 | 实测 |
+|---|---|
+| **broker expose `linziyang.top:14009`** | **15.01 MB/s** |
+| 自建中继 `ziyanglin.com:23154` | **3.85 MB/s** ⚠ **已跌破 4.9 MB/s 的需求线** |
+
+**中继当初的立项理由（§3.29「ssh 只有 1.4 MB/s，中继 8.8–9.6」）现在不成立了**，而且方向反了近 4 倍。根因是拓扑而非实现：**中继把 t107↔ziyang10 的流量全逼过 weilandserver 的家用上行**，而 broker 在 VPS 上，两端都在机房网。当初测到 8.8–9.6 是家用链路空闲时的上限，扛不住 24 worker 的推理流量叠加。
+
+**教训**：「自建的比现成的快」是**当时那次测量**的结论，不是性质。链路条件一变（家宽被本实验自己的流量占满）结论就翻。**通道选型的数字必须在真实负载下、定期复测**，别把一次空闲基准当成常量写进架构。
+
+**迁移执行（四处必须同步改，漏一处就废一批）**：① `/tmp/run_m6_h200.sh` 的 `--servers linziyang.top:14008` 与 `--remote-host linziyang.top --remote-port 14009`；② `/tmp/rlr_health.sh` 与 `/tmp/reap_orphans.sh` 的 `SERVER_KEY` → `linziyang.top:14008`（**必须与 worker argv 逐字一致**）；③ t107 `~/.ssh/config` 的 `Host linziyang.top` 补 `ServerAliveInterval 15`（原来只加在 `ziyanglin.com` 块上）；④ Monitor/探针偏移推进到 46871。
+
+**孤儿处置**：停 conductor 后 48 个 worker 带**旧端点** `ziyanglin.com:23152` 成孤儿，按旧 key 收割。⚠ 同机上他线的 worker 带 `ziyanglin.com:23160/23161/23162/23163`，收割前后 `inspect_workers.sh` 两次确认它们全是 `tmux(alive)` 且**一个没碰**——这正是「孤儿判据必须按端点收窄」的价值（§3.31）。
+
+**端到端验证**：resume 走快速路径（57 个残留 shard，非 284）；b0284 的 shard 经新推理通道落盘；**b0284 经 broker ssh 通道完成 trainer 步 → v285**。切换总代价 = 一批的在飞 episode（一轮修复）。
+
+**回退保留**：weilandserver 上 `relay`/`relayssh` 两个 tmux 留着但**已不在数据面**，owner 确认稳定后再拆。看门狗 cron 换成 `30de222b`（原 `ea68f4b9` 删除，它的中继自愈条件已全部作废）。
+
+### 3.37 完全关停：owner 于 b0288 下令腾出所有资源（2026-08-22 05:1x UTC）
+
+**指令**：「完全关闭实验，腾出所有资源」。**这不是 §2.5l 的横盘停**——§2.5l 的判据（b0300–0349 vs b0350–0399）永远没有到达它的数据。run 在 **288 批 / 28,867 ep** 处被外部指令停止，trainer 恰好消费到 **b0287 → v288**，正在跑的 b0288 未落 ⇒ **干净停机点，零数据损失**。
+
+**关停清单（全部执行并验证）**：
+| 资源 | 处置 | 验证 |
+|---|---|---|
+| t107 conductor+worker（tmux rlrm6） | kill 会话 | reaper DRYRUN 0 孤儿；`linziyang.top:14008` 独立元素判据 0 残留 |
+| ziyang10 zagent / zagentssh | kill 会话 | tmux ls 无 |
+| ziyang10 pi05 server（rlrsrv） | **发现已自行消失** | `:8999` 零监听；serve_policy 独立元素判据 0 残留 |
+| ziyang10 用户态 sshd | 按 PID kill（835→已核不是 sshd，实际 sshd pid 830） | pgrep 0 |
+| 两条 expose rlr-inf/rlr-ssh | `tether expose rm` | 14008/14009 归池（FREED） |
+| wls relay / relayssh | **发现已自行消失**（大概率随换网线时 tmux server 一起没了） | `23152/23154` 零监听 |
+| Monitor `bcklkwbq0`、cron `30de222b`/`1feed103` | 停/删 | — |
+
+**三个没踩的坑（记下判据）**：
+1. ziyang10 上 `srv0/srv1` 是 **h200 存活探针线**的（`session_probe/train_h200_probe.py`，GPU 13.3 GB）——不是本线的，未动。
+2. **PID 835 的 argv 是 `tmux new -s rlrsrv -d "...serve_policy..."`，但它是 tmux server 本体**（首条 tmux 命令 fork 出 server，argv 留着那串文本），正托管他线 srv0/srv1。凭 argv 文本判 serve_policy 残留会误杀整个 tmux server。交叉判据：`:8999` 是否监听。
+3. wls 上剩的 `wsdrv*/wssrv*` 全是 **ws_search 线**的（对应 t107 上 `ziyanglin.com:2316x` 的 worker），未动。
+
+**数据资产全部在位（未删任何字节）**：
+- ziyang10 `rl_router/art_m6/l10_tc_lam3_s0/`（4.5 G）：trainer_checkpoint.pt、trainer_state.json（v288/288）、metrics.jsonl、weights/（v0、v227、v285–v288 等）、b0227–b0287 批产物
+- wls `rl_router/art_m6/l10_tc_lam3_s0/weights/` v0–v227（P2 全轨迹的前半段）
+- t107 `/scratch/zixuans8/rl_router/m6/l10_tc_lam3_s0/` 288 个批目录（journal/client_rows）
+- ziyang10 `dump_m6`（1 G shards，可再生，未清）
+
+**恢复路径**：按 handoff §3.1/§7——先 expose 两条（端口会变，四处同步）、拉 sshd、起 server、重发同一条命令即批级 resume（从 b0288 起）。**P3 与后续裁决（SR0.80 路线、天花板测量）全部悬置待 owner。**

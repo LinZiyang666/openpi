@@ -25,6 +25,7 @@ from openpi.cache.config import (
     load_cache_config,
 )
 from openpi.cache.components.surface_judge import (
+    CERTIFICATION_CONFORMAL,
     SURFACE_ARTIFACT_SCHEMA_VERSION,
     SurfaceArtifact,
     save_surface_artifact,
@@ -127,7 +128,8 @@ def _artifact(tmp_path, contract_overrides=None, **art_overrides):
     kwargs = dict(
         schema_version=SURFACE_ARTIFACT_SCHEMA_VERSION, k=3, h_exec=5,
         w=np.ones(4, dtype=np.float32), active_mask=np.ones(4, dtype=bool),
-        start_t_ws=0.3, delta=0.5, alpha=0.05, uses_disagreement=True,
+        start_t_ws=0.3, delta=0.5, quantile_alpha=0.05,
+        certification_mode=CERTIFICATION_CONFORMAL, uses_disagreement=True,
         v_bin_edges=np.array([0.0, 1.0]), s_min_full=np.array([0.9]),
         s_min_warm=np.array([0.8]), conformal_c=0.01, n_calibration_episodes=100,
         retrieval_contract=contract, meta={},

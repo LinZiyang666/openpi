@@ -169,8 +169,13 @@ class BatchingCoordinator:
         model,
         *,
         device: str | torch.device | None = None,
-        max_batch_size: int = 8,
-        max_wait_ms: float = 10.0,
+        # Measured sweet spot for LIBERO closed-loop serving, not a guess:
+        # under closed loop each window issues few requests, so a batch rarely
+        # fills and a long wait is pure latency tax. 10 ms is too aggressive for
+        # a batch to form at all; >50 ms only adds latency. 32 is the safe upper
+        # bound on batch size. See docs/experiments/conductor_tutorial.md §8.1.
+        max_batch_size: int = 32,
+        max_wait_ms: float = 25.0,
     ) -> None:
         self._model = model
         self._device = torch.device(device) if device is not None else next(model.parameters()).device

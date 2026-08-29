@@ -269,3 +269,6 @@ logs/**/*.pkl
 # lives at ~/.claude/skills/<name>/SKILL.md and gets loaded by Claude Code
 # from there; the local copy here is a working scratch and not project code.
 docs/skills/
+
+# ICLR slides workdir (beamer template + drafts, not project deliverables yet)
+docs/iclr/slides/

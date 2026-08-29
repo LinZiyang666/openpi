@@ -4,6 +4,7 @@ mechanical delta rule, cohort audit, sparse-cell ladder, boundary export."""
 from __future__ import annotations
 
 import json
+import pathlib
 
 import numpy as np
 import pytest
@@ -295,3 +296,95 @@ def test_audit_cohort_rejects(tmp_path, corrupt):
         table.split[0] = "cal"
     with pytest.raises(SystemExit):
         audit_cohort(table, _manifest(tmp_path, files), verify_files=False)
+
+
+# ---------------- Rev 1 formal contract (G2R1-B3 / B4) ----------------
+
+def test_frozen_delta_table_covers_exactly_the_two_protocol_suites():
+    from exp.dispatch_surface.fit_surface import FROZEN_DELTA_STAR
+
+    assert set(FROZEN_DELTA_STAR) == {"libero_spatial", "libero_10"}
+    assert FROZEN_DELTA_STAR["libero_spatial"] == 6.1298201
+    assert FROZEN_DELTA_STAR["libero_10"] == 5.9096355
+
+
+def test_formal_parameters_are_pinned_not_defaulted():
+    from exp.dispatch_surface.fit_surface import (
+        FORMAL_ALPHA, FORMAL_H_EXEC, FORMAL_S0_TOP_K, FORMAL_SV_TOP_K,
+    )
+
+    assert (FORMAL_ALPHA, FORMAL_H_EXEC) == (0.05, 5)
+    # SV needs five candidates for v; S0 only ever reads the winner.
+    assert (FORMAL_SV_TOP_K, FORMAL_S0_TOP_K) == (5, 1)
+
+
+def test_frozen_delta_tolerance_is_the_protocol_one():
+    from exp.dispatch_surface.fit_surface import FROZEN_DELTA_TOL
+
+    assert FROZEN_DELTA_TOL == 1e-6
+
+
+def test_digest_of_audit_payload_is_canonical_and_order_independent():
+    from exp.dispatch_surface.fit_surface import _digest_obj
+
+    a = [("ep_b", 1, 7), ("ep_a", 0, 3)]
+    assert _digest_obj(sorted(a)) == _digest_obj(sorted(reversed(a)))
+    assert _digest_obj(sorted(a)) != _digest_obj([("ep_a", 0, 4), ("ep_b", 1, 7)])
+
+
+def test_fit_authenticates_d0_against_the_exact_table_and_rebuild(tmp_path, monkeypatch):
+    from exp.dispatch_surface.d0_check import D0_PROTOCOL
+    from exp.dispatch_surface.fit_surface import _file_sha256, validate_d0_record
+    import exp.dispatch_surface.d0_check as d0_mod
+    import openpi.serving.policy_identity as identity
+
+    table = tmp_path / "table.jsonl"
+    weights = tmp_path / "weights.npz"
+    cache = tmp_path / "cache.yaml"
+    split = tmp_path / "split.json"
+    table.write_text("table-v1")
+    weights.write_bytes(b"weights")
+    cache.write_text("enabled: true\n")
+    split.write_text(json.dumps({"suite": "libero_spatial"}))
+    monkeypatch.setattr(d0_mod, "validate_input_attestation", lambda _a: None)
+    monkeypatch.setattr(identity, "resolve_checkpoint_root", lambda p: pathlib.Path(p))
+    monkeypatch.setattr(identity, "compute_policy_fingerprint", lambda *_a: "policy-fp")
+
+    files = {
+        "table": {"sha256": _file_sha256(table)},
+        "weights_npz": {"sha256": _file_sha256(weights)},
+        "cache_yaml": {"sha256": _file_sha256(cache)},
+        "library_pkl": {"sha256": "lib-sha"},
+        "noise_sidecar": {"sha256": "noise-sha"},
+    }
+    report = {
+        "protocol": D0_PROTOCOL, "D0": "PASS", "suite": "libero_spatial", "h_exec": 5,
+        "census": {"passed": True, "problems": []},
+        "check1_self_resume_parity": {"passed": True, "failures": 0, "n": 21},
+        "check2_payload_sidecar_identity": {"passed": True, "failures": 0, "n": 21},
+        "check3_path_decomposition": {
+            "complete": True, "table_semantics_passed": True, "n": 21,
+        },
+        "sample": {"control_rows": 20, "tasks_covered": list(range(10)),
+                   "rows_sha256": "r" * 64},
+        "inputs": {"files": files, "policy": {"policy_fingerprint": "policy-fp"},
+                   "rollup_sha256": "i" * 64},
+    }
+    d0_path = tmp_path / "d0.json"
+    d0_path.write_text(json.dumps(report))
+    rebuild = {
+        "library_sha256": "lib-sha", "noise_sidecar_sha256": "noise-sha",
+        "checkpoint_dir": str(tmp_path / "ckpt"), "config_name": "pi05_libero",
+    }
+    binding = validate_d0_record(
+        d0_path, table_path=table, weights_path=weights, cache_yaml_path=cache,
+        split_manifest_path=split, rebuild=rebuild,
+    )
+    assert binding["sample_rows_sha256"] == "r" * 64
+
+    table.write_text("table-v2")
+    with pytest.raises(SystemExit, match="table digest"):
+        validate_d0_record(
+            d0_path, table_path=table, weights_path=weights, cache_yaml_path=cache,
+            split_manifest_path=split, rebuild=rebuild,
+        )

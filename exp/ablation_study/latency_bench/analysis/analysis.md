@@ -2,7 +2,7 @@
 
 > 状态：**完成**（2026-08-19，weilandserver 独占空闲 4090）。
 > 起因：`executor_substitution` 报告 §6 的延迟表被判定不可用（见 §7），本实验重新测量并把口径钉死。
-> 原始数据：`../data/*.json`（逐次耗时、GPU 状态、provenance 全部落盘）。
+> 原始数据：`../data/*.json`（逐次耗时、GPU 状态、provenance 全部落盘）。**该目录被 `.gitignore` 的 `exp/**/data/**` 吞掉，字节不进版本控制**；权威登记见台账 `latency_bench/libero_spatial/executor_costs`（`uv run python -m exp.data_authority.registry show latency_bench/libero_spatial/executor_costs`，校验用 `... -m exp.data_authority.verify <同名>`）。
 > 表格再生成：`uv run exp/ablation_study/latency_bench/analysis/summarize.py`。
 
 ## 1. 结论

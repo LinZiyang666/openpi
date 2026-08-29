@@ -1,0 +1,94 @@
+% Experiment list for collaborators: all planned experiments with status labels.
+% ICLR 2027 template, no title block. Compile: pdflatex.
+\documentclass{article}
+\usepackage{iclr2027_conference,times}
+\iclrfinalcopy
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[table]{xcolor}
+
+\newcommand{\DONE}{\colorbox{green!18}{\scriptsize\textbf{done}}}
+\newcommand{\RUNNING}{\colorbox{orange!25}{\scriptsize\textbf{running}}}
+\newcommand{\TORUN}{\colorbox{red!15}{\scriptsize\textbf{to run}}}
+\newcommand{\STALE}{\colorbox{gray!20}{\scriptsize\textbf{stale, re-run}}}
+\newcommand{\INHAND}{\colorbox{green!18}{\scriptsize\textbf{data in hand}}}
+
+\begin{document}
+
+\paragraph{Experiment list.}
+The table lists all experiments of the paper. \emph{Establishes} states the
+claim the experiment supports. Status: \DONE\ = analyzed; \INHAND\ = collected, analysis pending
+re-framing; \RUNNING\ = currently executing; \STALE\ = old data from a
+superseded configuration, to be re-collected; \TORUN\ = not started.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}l p{4.6cm} p{4.2cm} l@{}}
+\toprule
+ & Experiment & Establishes & Status \\
+\midrule
+E0 & Retrieval / replay micro-benchmark & Cost anatomy: full step 72.5\,ms vs.\
+     hit $\approx$ 14\,ms (Stage-1 10.3 + retrieval 4.15); origin of the
+     $\mathrm{IR}$ floor 0.152 & \DONE \\
+\addlinespace
+\rowcolor{blue!7}
+E1 & Main frontier: threshold sweeps, $2$ benchmarks $\times$ $2$ teachers &
+     The deployable lower bound on $R(\varepsilon)$; 50\%@$<$1\,pp /
+     63\%@$<$5\,pp (Spatial), 30\%@$\sim$1\,pp (LIBERO-10); difficulty
+     dependence of $R$ & \DONE\ LIBERO \; \RUNNING\ RoboCasa \\
+\addlinespace
+\rowcolor{blue!7}
+E2 & Oracle arm: retrieval by simulator state & Second term of the sandwich;
+     separates coverage from key loss & \TORUN\ {\scriptsize(highest leverage)} \\
+\addlinespace
+E3 & Library-size scaling, 6 tiers $\times$ 2 suites & $R$ grows with the
+     library ($0.27 \to 0.52$ on LIBERO-10); pure replay stays below the
+     teacher; no saturation claim & \DONE \\
+\addlinespace
+E4 & Temporal structure of hits & Stickiness $0.91$--$0.96$ vs.\ marginals
+     $0.28$--$0.70$; runs of 9--12 steps; 93--98\% single-trajectory lockstep & \DONE \\
+\addlinespace
+E5 & Score discriminability (AUROC, offline) & The thresholded score is
+     informative for outcome; descriptive only & \TORUN\ {\scriptsize(offline, cheap)} \\
+\addlinespace
+E6 & Cross-scene transfer (RoboCasa365, held-out kitchens) & Varies
+     $\mathcal{M}$ with $(\pi_T, \mathcal{L}, \varphi)$ fixed; preliminary:
+     robust on large-motion tasks & \RUNNING \\
+\addlinespace
+E7 & Key-space ablations: E7a source (\emph{main text}: direct evidence for
+     the title claim) / E7b depth, E7c fusion (appendix) & The teacher's own
+     representation is an adequate index (the $\varphi$ argument) & \TORUN\ {\scriptsize(offline replay)} \\
+\addlinespace
+E8 & Warm start, three-way control & Experience-guided step reduction vs.\
+     blind reduction at equal skipped budget & \STALE \\
+\addlinespace
+E9 & Small-model comparison (ACT / SmolVLA in the hit slot) & Regime map:
+     distillation vs.\ replay; acquisition-cost accounting & \INHAND \\
+\addlinespace
+E10 & Trained-router comparison & Whether a learned scheduler raises the
+     lower bound over the threshold rule within
+     $\mathcal{C}(\mathcal{I}_\varphi)$ & \RUNNING \\
+\addlinespace
+E11 & Serving mini-bench: $N \in \{4,8,16\}$ concurrent episodes per GPU &
+     Measured anchor for the robots-per-GPU projection ($1/\mathrm{IR}$) & \TORUN \\
+\addlinespace
+E12 & History-augmented negatives & Depth-1 keys suffice; history terms do not
+     help (one table in the appendix) & \INHAND \\
+\addlinespace
+E13 & Real-robot validation (SO-101): full lifecycle, 3 tasks by motion scale,
+     $\approx$330 episodes & The mechanism functions under real perception and
+     physics; measured hit/miss latency; removes the simulation-only
+     limitation & \TORUN\ {\scriptsize(teacher fine-tuning first)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+The shaded rows (E1, E2) are plotted in a single figure: the oracle arm
+overlays the main frontier as a second curve per panel.
+New collection required: E2, E11, the E8 refresh, and E13. E5 and E7 are offline
+computations on logged data. E1 (RoboCasa cells), E6, and E10 are in progress.
+
+\end{document}

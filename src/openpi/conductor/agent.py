@@ -27,7 +27,7 @@ import os
 import signal
 import subprocess
 import threading
-from typing import Protocol
+from typing import Literal, Protocol
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +58,11 @@ class WorkerSpec:
     # pool -- e.g. ``exp/common/data/db_init/libero/<suite>`` -- without
     # rebuilding the benchmark.
     init_states_dir: str = ""
+    # Which EpisodeTask identity selects an entry inside ``init_states_dir``.
+    # "orig" preserves the historical contract for a full official pool;
+    # "subset" is required when the directory itself is a materialised subset
+    # while ``orig_init_state_idx`` remains the official provenance label.
+    init_state_index_mode: Literal["orig", "subset"] = "orig"
     # Client-side rollout knobs, forwarded to ``worker_entry`` only when set so
     # a caller that omits them keeps the argv byte-identical. They live here
     # rather than in a fork of the spawn path because they are the same kind of
@@ -69,6 +74,7 @@ class WorkerSpec:
     # worker is already running.
     resize_size: int | None = None
     replan_steps: int | None = None
+    seed: int | None = None
     # Extra process environment for this worker (merged last, so it wins).
     # ``MUJOCO_EGL_DEVICE_ID`` belongs here: ``CUDA_VISIBLE_DEVICES`` steers the
     # policy client, while EGL picks its render device independently.
@@ -117,10 +123,14 @@ def _default_spawn(spec: WorkerSpec, driver_host: str, driver_port: int) -> Work
         # Only appended when set, so a worker launched by an older caller keeps
         # the default LIBERO pool and the argv stays byte-identical.
         base_cmd += ["--init-states-dir", spec.init_states_dir]
+    if spec.init_state_index_mode != "orig":
+        base_cmd += ["--init-state-index-mode", spec.init_state_index_mode]
     if spec.resize_size is not None:
         base_cmd += ["--resize-size", str(spec.resize_size)]
     if spec.replan_steps is not None:
         base_cmd += ["--replan-steps", str(spec.replan_steps)]
+    if spec.seed is not None:
+        base_cmd += ["--seed", str(spec.seed)]
     if spec.conda_env:
         # Mirror legacy build_subprocess_cmd: strip the driver's uv-venv env
         # injections (VIRTUAL_ENV / PYTHONPATH / PYTHONHOME) and drop the uv venv

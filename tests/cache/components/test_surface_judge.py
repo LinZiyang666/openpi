@@ -8,6 +8,7 @@ import torch
 
 from openpi.cache.components.judge import HitType, SimilarityJudge
 from openpi.cache.components.surface_judge import (
+    CERTIFICATION_CONFORMAL,
     SURFACE_ARTIFACT_SCHEMA_VERSION,
     SurfaceArtifact,
     SurfaceJudge,
@@ -53,7 +54,8 @@ def make_artifact(tmp_path, *, uses_disagreement=True, s_min_full=None,
         k=3, h_exec=H_EXEC,
         w=np.ones(ACTION_DIM, dtype=np.float32),
         active_mask=np.ones(ACTION_DIM, dtype=bool),
-        start_t_ws=0.3, delta=0.5, alpha=0.05,
+        start_t_ws=0.3, delta=0.5, quantile_alpha=0.05,
+        certification_mode=CERTIFICATION_CONFORMAL,
         uses_disagreement=uses_disagreement,
         v_bin_edges=v_edges, s_min_full=s_min_full, s_min_warm=s_min_warm,
         conformal_c=conformal_c, n_calibration_episodes=100,
@@ -157,7 +159,7 @@ def test_artifact_roundtrip(tmp_path):
     {"s_min_full": np.array([-np.inf, 0.9])},            # -inf boundary
     {"start_t_ws": 0.35},                                 # non-canonical tier
     {"k": 1},                                             # k too small
-    {"alpha": 0.9},                                       # alpha domain
+    {"quantile_alpha": 0.9},                              # quantile_alpha domain
     {"conformal_c": 1.0, "s_min_full": np.array([np.inf, np.inf])},  # placeholder
 ])
 def test_artifact_validation_rejects(tmp_path, mutation):
@@ -317,3 +319,109 @@ def test_npz_rejects_pickle_payload(tmp_path):
     np.savez(path, w=np.array([{"a": 1}], dtype=object))
     with pytest.raises(Exception):
         load_surface_artifact(str(path))
+
+
+# ---------------- Rev 1 certification mode ----------------
+
+def test_empirical_mode_forbids_a_conformal_correction(tmp_path):
+    """An empirical artifact carrying a c would read as a certificate."""
+    from openpi.cache.components.surface_judge import CERTIFICATION_EMPIRICAL
+
+    with pytest.raises(ValueError, match="conformal_c == 0"):
+        make_artifact(tmp_path, certification_mode=CERTIFICATION_EMPIRICAL, conformal_c=0.01)
+
+
+def test_empirical_mode_forbids_a_calibration_episode_count(tmp_path):
+    from openpi.cache.components.surface_judge import CERTIFICATION_EMPIRICAL
+
+    with pytest.raises(ValueError, match="n_calibration_episodes == 0"):
+        make_artifact(tmp_path, certification_mode=CERTIFICATION_EMPIRICAL,
+                      conformal_c=0.0, n_calibration_episodes=100)
+
+
+def test_empirical_mode_round_trips_when_it_claims_nothing(tmp_path):
+    from openpi.cache.components.surface_judge import (
+        CERTIFICATION_EMPIRICAL, load_surface_artifact,
+    )
+
+    path = make_artifact(tmp_path, certification_mode=CERTIFICATION_EMPIRICAL,
+                         conformal_c=0.0, n_calibration_episodes=0)
+    back = load_surface_artifact(path)
+    assert back.certification_mode == CERTIFICATION_EMPIRICAL
+    assert back.conformal_c == 0.0 and back.n_calibration_episodes == 0
+
+
+def test_unknown_certification_mode_is_rejected(tmp_path):
+    with pytest.raises(ValueError, match="certification_mode"):
+        make_artifact(tmp_path, certification_mode="probably_fine")
+
+
+def test_v1_artifact_without_a_mode_is_refused_not_defaulted(tmp_path):
+    """A pre-Rev-1 artifact must not acquire a certification claim by default."""
+    import json
+
+    import numpy as np
+
+    from openpi.cache.components.surface_judge import load_surface_artifact
+
+    p = tmp_path / "v1.npz"
+    scalars = {"schema_version": 2, "k": 1, "h_exec": 5, "start_t_ws": 0.3,
+               "delta": 0.5, "uses_disagreement": False,
+               "conformal_c": 0.0, "n_calibration_episodes": 0}
+    np.savez(
+        p, w=np.ones(2, dtype=np.float32), active_mask=np.ones(2, dtype=bool),
+        v_bin_edges=np.array([-np.inf, np.inf]), s_min_full=np.array([0.9]),
+        s_min_warm=np.array([0.8]),
+        scalars_json=np.frombuffer(json.dumps(scalars).encode(), dtype=np.uint8),
+        contract_json=np.frombuffer(json.dumps({"h_exec": 5}).encode(), dtype=np.uint8),
+        meta_json=np.frombuffer(json.dumps({}).encode(), dtype=np.uint8),
+    )
+    with pytest.raises(ValueError, match="predates schema"):
+        load_surface_artifact(str(p))
+
+
+# ---------------- Rev 1 effective top-k contract (four tamper classes) ----------------
+
+def test_sv_contract_top_k_must_equal_artifact_k(tmp_path):
+    """The blocker the old stop-loss hid: SV saved with the yaml's configured 1."""
+    with pytest.raises(ValueError, match=r"contract top_k=1 != artifact k=5"):
+        make_artifact(tmp_path, uses_disagreement=True, k=5,
+                      v_edges=np.array([0.0, 1.0, 2.0]),
+                      retrieval_contract={**_contract(), "top_k": 1})
+
+
+def test_sv_contract_top_k_must_not_exceed_artifact_k(tmp_path):
+    with pytest.raises(ValueError, match="contract top_k"):
+        make_artifact(tmp_path, uses_disagreement=True, k=5,
+                      v_edges=np.array([0.0, 1.0, 2.0]),
+                      retrieval_contract={**_contract(), "top_k": 7})
+
+
+def test_sv_contract_top_k_missing_is_rejected(tmp_path):
+    contract = {k: v for k, v in _contract().items() if k != "top_k"}
+    with pytest.raises(ValueError, match="contract top_k"):
+        make_artifact(tmp_path, uses_disagreement=True, k=5,
+                      v_edges=np.array([0.0, 1.0, 2.0]), retrieval_contract=contract)
+
+
+def test_sv_effective_width_round_trips_at_five(tmp_path):
+    """configured yaml=1, artifact k=contract=5, judge hint lifts runtime to 5."""
+    from openpi.cache.components.surface_judge import SurfaceJudge, load_surface_artifact
+
+    path = make_artifact(tmp_path, uses_disagreement=True, k=5,
+                         v_edges=np.array([0.0, 1.0, 2.0]),
+                         s_min_full=np.array([0.9, 0.95]),
+                         s_min_warm=np.array([0.8, 0.85]),
+                         retrieval_contract={**_contract(), "top_k": 5})
+    art = load_surface_artifact(path)
+    assert art.k == 5 and art.retrieval_contract["top_k"] == 5
+    assert SurfaceJudge(path).min_required_top_k == 5
+
+
+def test_s0_declares_width_one_and_hints_one(tmp_path):
+    from openpi.cache.components.surface_judge import SurfaceJudge, load_surface_artifact
+
+    path = make_artifact(tmp_path, uses_disagreement=False, k=1,
+                         retrieval_contract={**_contract(), "top_k": 1})
+    assert load_surface_artifact(path).k == 1
+    assert SurfaceJudge(path).min_required_top_k == 1

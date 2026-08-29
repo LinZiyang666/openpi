@@ -2835,3 +2835,103 @@ def test_launch_gates_clear_the_amended_lambda_run_end_to_end(tmp_path) -> None:
         variant="R_ts", suite="libero_10", planned_batches=600,
     )
     assert any("still null" in p for p in problems)
+
+
+# ---------------------------------------------------------------------------
+# Resume's shard sweep: cost, not just correctness
+#
+# The sweep was correct but linear in progress -- one ssh + one `uv run` per
+# consumed batch, measured at 2.7 s same-host and 4.0 s through the relay, so a
+# resume cost ~15 min at batch 227 and would have cost ~40 min at batch 600.
+# These pin the cheap version's contract: one listing, sweep only survivors,
+# and still sweep everything when the listing itself fails.
+# ---------------------------------------------------------------------------
+
+
+class _RecordingRemote:
+    """Minimal RemoteRun stand-in that records every remote command."""
+
+    def __init__(self, listing: str | None, shard_root: str = "/dump/run") -> None:
+        self.shard_root = shard_root
+        self.checkpoint = "/art/run/trainer_checkpoint.pt"
+        self._listing = listing
+        self.commands: list[str] = []
+
+    def shards(self, batch_id: str) -> str:
+        return f"{self.shard_root}/{batch_id}"
+
+    def run(self, command: str) -> tuple[int, str]:
+        self.commands.append(command)
+        if command.startswith("ls -1 "):
+            return (1, "") if self._listing is None else (0, self._listing)
+        return 0, ""
+
+
+def _consumed(*batch_ids: str) -> list[dict]:
+    return [{"batch_id": b} for b in batch_ids]
+
+
+def _args():
+    import types
+
+    return types.SimpleNamespace(remote_workdir="/repo", remote_python="uv run")
+
+
+def test_resume_sweeps_only_batches_whose_shards_survived(tmp_path) -> None:
+    """The listing decides. Three consumed batches, one leftover dir -> exactly
+    one reclaim, not three."""
+    from exp.rl_router.run_rl_router import _reclaim_consumed
+
+    remote = _RecordingRemote("b0002\n")
+    _reclaim_consumed(remote, _args(), _consumed("b0001", "b0002", "b0003"))
+
+    reclaims = [c for c in remote.commands if "reclaim" in c]
+    assert len(reclaims) == 1
+    assert "--batch-id b0002" in reclaims[0]
+    assert "/dump/run/b0002" in reclaims[0]
+
+
+def test_resume_costs_one_remote_call_when_nothing_leftover() -> None:
+    """The common case -- a clean stop -- must not pay per batch. 300 consumed
+    batches, empty shard root: one listing, zero reclaims."""
+    from exp.rl_router.run_rl_router import _reclaim_consumed
+
+    remote = _RecordingRemote("")
+    _reclaim_consumed(remote, _args(), _consumed(*[f"b{i:04d}" for i in range(300)]))
+
+    assert len(remote.commands) == 1
+    assert remote.commands[0].startswith("ls -1 /dump/run")
+
+
+def test_resume_sweeps_everything_when_the_listing_fails() -> None:
+    """Fails OPEN. An unlistable shard root means "cannot tell what survived",
+    and carrying ~2.6 GB per orphan forward is the worse error."""
+    from exp.rl_router.run_rl_router import _reclaim_consumed
+
+    remote = _RecordingRemote(None)
+    _reclaim_consumed(remote, _args(), _consumed("b0001", "b0002"))
+
+    reclaims = [c for c in remote.commands if "reclaim" in c]
+    assert len(reclaims) == 2
+
+
+def test_resume_sweep_is_a_noop_without_a_ledger() -> None:
+    """No consumed batches -> not even a listing."""
+    from exp.rl_router.run_rl_router import _reclaim_consumed
+
+    remote = _RecordingRemote("")
+    _reclaim_consumed(remote, _args(), [])
+    assert remote.commands == []
+
+
+def test_resume_sweep_ignores_ledger_rows_without_a_batch_id() -> None:
+    """A malformed ledger row must not become a reclaim of the empty string,
+    which would expand to the shard ROOT and sweep every batch at once."""
+    from exp.rl_router.run_rl_router import _reclaim_consumed
+
+    remote = _RecordingRemote("b0001\n")
+    _reclaim_consumed(remote, _args(), [{"batch_id": "b0001"}, {}, {"batch_id": ""}])
+
+    reclaims = [c for c in remote.commands if "reclaim" in c]
+    assert len(reclaims) == 1
+    assert "--batch-id b0001" in reclaims[0]

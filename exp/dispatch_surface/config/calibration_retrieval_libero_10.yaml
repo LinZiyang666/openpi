@@ -1,0 +1,99 @@
+# Dispatch-surface calibration retrieval config -- libero_10.
+#
+# Mechanically derived from the gate-line template
+#   exp/gate_research/config/libero_10/eval/
+#     cp1_spatial_pool_16__grid3_vision_0@56_vision_1@25_robot_state@18__d1__fh40_ws40_quantile.yaml
+# by the same substitution emit_precheck_yamls._emit applies to the precheck
+# arms: judge section replaced, preload_path repointed, write_policy pinned.
+# All four libero_10 gate templates share one retrieval section (verified: the
+# key_builder and search digests are identical across them), so the choice of
+# base template does not affect the contract.
+#
+# The key_builder digest matches libero_spatial's (same cp1_spatial_pool_16
+# with no differing knobs); the search digest does NOT, because each suite
+# carries its own calibrated fusion weights -- libero_10 is 56/25/18 where
+# libero_spatial is 6/50/43. A surface artifact fitted on one suite therefore
+# cannot be loaded by the other's arms, which is the intended behaviour.
+#
+# judge is always_hit because calibration has no artifact yet (fit_surface
+# produces it from this very config) and build_dispatch_table replays every
+# step offline rather than consulting a verdict.
+#
+# The gate section is the template's verbatim; its thresholds were solved on
+# the gate-research line, are not a dispatch-surface calibration result, and
+# nothing here consults them -- offline replay never runs the gate.
+enabled: true
+timer:
+  enabled: false
+keys:
+  vision_0:
+    enabled: true
+    weight: 0.5625
+  vision_1:
+    enabled: true
+    weight: 0.25
+  vision_2:
+    enabled: false
+    weight: 0.0
+  prompt_emb:
+    enabled: false
+    weight: 0.0
+  robot_state:
+    enabled: true
+    weight: 0.1875
+key_builder:
+  type: cp1_spatial_pool_16
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: always_hit
+    search_strategy:
+      type: weighted_score_sum_knn
+      top_k: 1
+      step_filter: all
+      field_similarity:
+        vision_0:
+          type: cosine
+        vision_1:
+          type: cosine
+        robot_state:
+          type: l2
+          to_similarity:
+            type: exp
+            tau: 1.0
+      score_normalization:
+        type: per_field
+        fields:
+          vision_0:
+            method: zscore
+            params:
+              mu: 0.9739899923664463
+              sigma: 0.0061831533438692935
+              squash: tanh
+          vision_1:
+            method: zscore
+            params:
+              mu: 0.9659078322399228
+              sigma: 0.006527797454113087
+              squash: tanh
+          robot_state:
+            method: zscore
+            params:
+              mu: -1.9584325681212513
+              sigma: 0.7484941685797242
+              squash: tanh
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 32768
+    vision_1: 32768
+    prompt_emb: 2048
+    robot_state: 32
+  in_memory:
+    preload_path: exp/dispatch_surface/data/libero_10/cache_artifacts/dispatch_lib_cp1_spatial_pool_16.pkl
+    index_type: brute_force
+write_policy:
+  type: never

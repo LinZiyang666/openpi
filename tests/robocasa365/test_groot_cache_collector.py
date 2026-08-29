@@ -247,7 +247,13 @@ def test_collected_episode_builds_a_loadable_groot_artifact(pinned_to_the_stub, 
     path.write_bytes(pickle.dumps(artifact))
     backend = InMemoryBackend(vector_dims=artifact["vector_dims"])
     backend.load_artifact(str(path))
-    assert backend.artifact_meta == {
+    # The subject here is BUILDER identity, so assert those keys by name. The
+    # loader also records additive schema fields (library_sha256, entry_count,
+    # action_dim, intermediates_completeness, ...) that describe the loaded
+    # library rather than which builder produced it; pinning the whole dict
+    # would make any new recorded field read as a builder-identity change.
+    identity_keys = ("key_builder_type", "checkpoint_id", "prompt_pool")
+    assert {k: backend.artifact_meta[k] for k in identity_keys} == {
         "key_builder_type": "cp1_groot_mean_pool",
         "checkpoint_id": "CP1",
         # text-IVF identity field: the shared builder now records the

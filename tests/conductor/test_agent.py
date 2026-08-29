@@ -151,6 +151,22 @@ def test_default_spawn_omits_the_flag_when_the_pool_is_unset(monkeypatch):
     """Default stays byte-identical, so existing callers keep the LIBERO pool."""
     cmd = _spawn_capture(monkeypatch, WorkerSpec("w0", "host:8000", "0"))
     assert "--init-states-dir" not in cmd
+    assert "--init-state-index-mode" not in cmd
+    assert "--seed" not in cmd
+
+
+def test_default_spawn_forwards_materialised_subset_identity_and_seed(monkeypatch):
+    spec = WorkerSpec(
+        "w0",
+        "host:8000",
+        "0",
+        init_states_dir="test_aprime",
+        init_state_index_mode="subset",
+        seed=17,
+    )
+    cmd = _spawn_capture(monkeypatch, spec)
+    assert cmd[cmd.index("--init-state-index-mode") + 1] == "subset"
+    assert cmd[cmd.index("--seed") + 1] == "17"
 
 
 def test_rollout_knobs_are_forwarded_only_when_set(monkeypatch):

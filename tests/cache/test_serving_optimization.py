@@ -1432,3 +1432,17 @@ def test_infer_coordinator_output_survives_state_indexing_transform():
 
     interceptor.infer(_make_libero_like_obs())
     assert captured.get("sub_shape") == (3,)
+
+
+def test_batching_defaults_are_the_measured_sweet_spot():
+    """Defaults were 8 / 10 ms, and 10 ms is too short for a batch to form at
+    all under LIBERO closed loop (conductor_tutorial section 8.1). Pinning them
+    here so a future edit has to argue with the measurement, not drift past it.
+    """
+    import inspect
+
+    from openpi.serving.batching_coordinator import BatchingCoordinator
+
+    sig = inspect.signature(BatchingCoordinator.__init__)
+    assert sig.parameters["max_batch_size"].default == 32
+    assert sig.parameters["max_wait_ms"].default == 25.0

@@ -1,0 +1,228 @@
+% Note for collaborators: the recoverable-redundancy formalism (pages 1-2) and
+% the experimental program (page 3). ICLR 2027 template, no title block.
+% Compile: pdflatex.
+\documentclass{article}
+\usepackage{iclr2027_conference,times}
+\iclrfinalcopy
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+
+\begin{document}
+
+\paragraph{Setup.}
+A deployed teacher policy $\pi_T$ repeatedly encounters near-identical
+situations. We store its successful rollouts in a library
+$\mathcal{L} = \{(k_i, a_i)\}$, where each key $k_i = \varphi(o_i)$ is an
+intermediate representation extracted from the teacher's forward pass and each
+payload $a_i$ is the executed action chunk. At each decision step a scheduler
+$\sigma$ selects either \textsc{replay} (execute the nearest neighbor's
+payload) or \textsc{infer} (run the full forward pass), inducing a mixed policy
+$\pi_\sigma$. The episode outcome is $Y \in \{0,1\}$ and the teacher-only
+success rate is $\mathrm{SR}_T$. The paper formalizes the question of how many
+steps can be replayed without degrading success.
+
+\paragraph{Concept.}
+A step of inference is redundant when the action it produces is already
+determined by stored experience, so that the forward pass contributes no
+information beyond what the library holds. This is analogous to inter-frame
+compression in video coding: a \textsc{miss} step corresponds to an I-frame,
+computed in full, and a \textsc{hit} step to a P-frame, reconstructed from
+stored data.
+
+\paragraph{Step-level redundancy.}
+Let $d_{\pi_T}$ denote the state distribution induced by the teacher acting
+alone, and let $s_t \sim d_{\pi_T}$. Step $t$ is $\delta$-redundant if
+\begin{equation}
+\bigl|\,P\bigl(Y{=}1 \mid \mathrm{do}(a_t = \hat{a}_t^{\mathrm{replay}})\bigr)
+      - P\bigl(Y{=}1 \mid \mathrm{do}(a_t = a_t^{\pi_T})\bigr)\,\bigr| \;\le\; \delta .
+\label{eq:step}
+\end{equation}
+Since $Y$ is binary, the left-hand side equals the total variation distance
+between the two outcome distributions. The definition is stated in terms of the
+outcome rather than action similarity, because similar actions may lead to
+failure and dissimilar actions may both succeed. The $\mathrm{do}(\cdot)$
+operator denotes intervention; conditioning on the observed action would
+introduce confounding, because the teacher's choice of action is itself
+informative about the state. Eq.~\ref{eq:step} defines redundancy; the
+operational quantity is Eq.~\ref{eq:R}.
+
+\paragraph{Remark (failure of composition).}
+Eq.~\ref{eq:step} is evaluated under $d_{\pi_T}$. Under deployment, earlier
+steps may already have been replayed, so the state distribution at step $t$
+differs from $d_{\pi_T}$ and replacement errors accumulate. Per-step redundancy
+therefore does not compose: individual replaceability of each step does not
+imply joint replaceability. The operational quantity must be defined at the
+level of the scheduler and estimated from closed-loop rollouts. Offline metrics
+computed on a fixed set of teacher trajectories cannot estimate it.
+
+\paragraph{Recoverable redundancy.}
+The replay share of a scheduler is
+\begin{equation}
+h(\sigma) \;=\; \mathbb{E}_{\pi_\sigma}\!\left[\frac{1}{T}\sum_{t=1}^{T}
+\mathbb{1}\{\sigma_t = \mathrm{replay}\}\right],
+\label{eq:h}
+\end{equation}
+where the expectation is taken under the trajectory distribution induced by
+$\pi_\sigma$ itself, so that closed-loop effects are part of the definition.
+For a class of schedulers $\mathcal{C}$, define
+\begin{equation}
+R_{\mathcal{C}}(\varepsilon) \;=\; \sup_{\sigma \in \mathcal{C}} \; h(\sigma)
+\qquad \text{s.t.} \qquad
+\mathrm{SR}(\pi_\sigma) \;\ge\; \mathrm{SR}_T - \varepsilon ,
+\label{eq:R}
+\end{equation}
+where $\varepsilon$ is the admissible loss in success rate; the supremum need
+not be attained. Since $R_{\mathcal{C}}$ is a supremum, the replay share of any
+feasible scheduler is a lower bound on it, and reported values cannot overstate
+the quantity.
+
+\paragraph{Stratification by information set.}
+Let $\mathcal{C}(\mathcal{I})$ denote the class of causal schedulers whose
+decisions depend only on the information set $\mathcal{I}$, i.e.\ on present
+and past quantities but not on future states or the outcome; without this
+restriction the supremum is attained by schedulers that condition on $Y$ and
+Eq.~\ref{eq:R} is uninformative. Consider
+$\mathcal{I}_\varphi \subseteq \mathcal{I}_{\mathrm{sim}} \subseteq
+\mathcal{I}_{\mathrm{all}}$, where $\mathcal{I}_\varphi$ contains the
+quantities visible to $\varphi$-key retrieval, and
+$\mathcal{I}_{\mathrm{sim}}$ additionally contains the simulator state. The
+first inclusion holds because, in simulation, the state determines the
+observation and hence the key. Then
+\begin{equation}
+h(\sigma_{\mathrm{thr}}) \;\le\; R_{\mathcal{C}(\mathcal{I}_\varphi)}(\varepsilon)
+\;\le\; R_{\mathcal{C}(\mathcal{I}_{\mathrm{sim}})}(\varepsilon)
+\;\le\; R_{\mathcal{C}(\mathcal{I}_{\mathrm{all}})}(\varepsilon) = R(\varepsilon).
+\label{eq:sandwich}
+\end{equation}
+The first inequality holds because the threshold scheduler
+$\sigma_{\mathrm{thr}}$ is an element of $\mathcal{C}(\mathcal{I}_\varphi)$;
+the remaining inequalities hold because enlarging the information set enlarges
+the feasible set. An empirical comparison between a measured oracle arm and a
+measured threshold arm does not follow from Eq.~\ref{eq:sandwich}: the two
+measurements are lower bounds on different terms.
+
+\paragraph{Attribution.}
+\begin{equation}
+R \;=\; R\bigl(\varepsilon;\; \mathcal{M},\; \pi_T,\; \mathcal{L},\; \varphi\bigr)
+\label{eq:quad}
+\end{equation}
+depends jointly on the task $\mathcal{M}$, the teacher $\pi_T$, the library
+$\mathcal{L}$, and the key map $\varphi$. Reported values must specify all four
+arguments; a statement of the form ``this task is $60\%$ redundant'' is not
+well defined.
+
+\paragraph{Monotonicity.}
+For any scheduler class closed under ignoring library entries, for example
+$\mathcal{C}(\mathcal{I}_{\mathrm{all}})$,
+\begin{equation}
+\mathcal{L} \subseteq \mathcal{L}' \;\Longrightarrow\;
+R(\varepsilon;\mathcal{L}) \;\le\; R(\varepsilon;\mathcal{L}') .
+\label{eq:mono}
+\end{equation}
+\emph{Proof.} A scheduler feasible on $\mathcal{L}$ remains feasible on
+$\mathcal{L}'$ by ignoring the entries of
+$\mathcal{L}' \setminus \mathcal{L}$, with identical success rate and replay
+share; the feasible set therefore grows and the supremum does not decrease.
+\hfill$\square$\\
+The argument requires closure under ignoring entries and does not apply to
+threshold rules: an added entry may attain a high retrieval score while being a
+poor match, which changes the induced policy and can reduce the success rate.
+Monotonicity under threshold rules is therefore an empirical question.
+
+\paragraph{Intrinsic limit.}
+\begin{equation}
+R^{*}(\varepsilon) \;=\; \sup_{\mathcal{L}}\; R(\varepsilon; \mathcal{L})
+\label{eq:intrinsic}
+\end{equation}
+depends only on the task and the teacher and upper-bounds
+$R(\varepsilon;\mathcal{L})$ for every library. A step can be recognized as
+redundant only if the library contains a sufficiently close experience, so
+increasing $\mathcal{L}$ increases the recoverable share while
+$R^{*}$ is unchanged. $R^{*}$ is not measurable, since the space of libraries
+cannot be exhausted; it serves as a reference point and is not estimated.
+
+\paragraph{Relation to calibration.}
+Eq.~\ref{eq:R} also describes the system's calibration procedure. Selecting
+the threshold on a calibration split to maximize the replay share subject to
+the success-rate constraint solves Eq.~\ref{eq:R} empirically within
+$\mathcal{C}(\mathcal{I}_\varphi)$; the threshold sweep of experiment E1
+therefore traces the empirical Pareto frontier of
+$R_{\mathcal{C}(\mathcal{I}_\varphi)}(\varepsilon)$. The deployment stages
+correspond to the same program: collection constructs $\mathcal{L}$, shadow
+operation estimates the score distributions, calibration solves the program,
+and serving executes the resulting scheduler.
+
+\newpage
+
+\paragraph{Experimental program.}
+Each experiment addresses one argument of Eq.~\ref{eq:quad} or one term of
+Eq.~\ref{eq:sandwich}.
+\begin{itemize}[leftmargin=1.3em, itemsep=0.35em, topsep=0.3em]
+\item \textbf{E1, main frontier} (LIBERO complete; RoboCasa365 in progress).
+Threshold sweeps measure $h(\sigma_{\mathrm{thr}})$ as a function of
+$\varepsilon$, the first term of Eq.~\ref{eq:sandwich}; two benchmarks and two
+teachers vary the $\mathcal{M}$ and $\pi_T$ arguments of Eq.~\ref{eq:quad}.
+Current results: $50\%$ of decisions replayable at $<$1\,pp loss in success
+rate and $63\%$ at $<$5\,pp on LIBERO-Spatial; $30\%$ at $\sim$1\,pp on
+LIBERO-10. The difference between the suites indicates that recoverable
+redundancy depends on task difficulty, consistent with Eq.~\ref{eq:quad}.
+\item \textbf{E2, oracle arm} (to run). The same system with retrieval by
+simulator state estimates the second term of Eq.~\ref{eq:sandwich}. It
+separates coverage (the library lacks a close experience, so no key can
+recover the step) from key loss (the experience is present but the index
+misses it). If the oracle and threshold arms are close, the internal keys lose
+little information; a large gap quantifies the margin attributable to the
+index; a low oracle value indicates that the remaining gap is due to coverage.
+\item \textbf{E3, library-size scaling} (complete). $R$ increases with
+$\mathcal{L}$, from $0.27$ to $0.52$ on LIBERO-10 as the library grows from 1
+to approximately 39 trajectories per task. This is the empirical counterpart
+of Eq.~\ref{eq:mono}, which does not imply it for threshold rules; the
+observed monotone increase is a finding about robustness to library growth.
+Two boundaries: pure replay remains below the teacher at the full data budget,
+so replay alone is not a viable policy; and no plateau is resolved, so
+saturation is not claimed.
+\item \textbf{E4, temporal structure} (complete). Hits are not independent
+across steps. With the stickiness coefficient
+$s = P(\mathrm{hit}_t \mid \mathrm{hit}_{t-1}) - P(\mathrm{hit})$, which is
+zero under independence, we measure
+$P(\mathrm{hit} \mid \mathrm{hit}) = 0.91$--$0.96$ against marginal hit rates
+of $0.28$--$0.70$ across seven configurations; median replay runs last
+$9$--$12$ steps (P90 up to 52); and $93$--$98\%$ of consecutive hits within a
+run retrieve the same library trajectory. The last property explains why long
+replay runs are compatible with the failure of composition: the replayed
+segment follows a trajectory that previously succeeded, which bounds the
+deviation introduced by replacement.
+\item \textbf{E5, score discriminability} (offline; to run). The AUROC of the
+retrieval score with respect to episode outcome measures whether the quantity
+the threshold operates on is informative. The result is descriptive only:
+episode-level labels paired with step-level scores establish association, not
+a counterfactual.
+\item \textbf{E6, cross-scene transfer} (in progress). Varies $\mathcal{M}$
+with $(\pi_T, \mathcal{L}, \varphi)$ held fixed: the library is built in one
+kitchen scene and queried in a held-out scene. Preliminary observations show
+robustness on large-motion furniture tasks and weakness on precise dynamic
+tasks; the controlled experiment has not yet been run.
+\item \textbf{E7, key ablations} (offline replay of logged data). Varies
+$\varphi$: internal representations against external encoders, extraction
+depth (vision tower against mid-backbone), and multi-modal fusion (per-field
+weighting against a single concatenated key). This addresses whether the
+teacher's own representation is an adequate index.
+\item \textbf{E8, warm start} (stale data; to re-run). Extends the scheduler's
+action space from the binary choice in Eq.~\ref{eq:h} to a third option: a
+partially redundant step initializes the flow integration with the retrieved
+action and skips the early denoising steps. The control compares the full
+teacher, blind step reduction, and warm start at an equal number of skipped
+steps.
+\item \textbf{E10, trained-router comparison} (in progress). A learned router
+is an element of $\mathcal{C}(\mathcal{I}_\varphi)$, so its replay share is a
+further lower bound on the same term of Eq.~\ref{eq:sandwich}. The comparison
+asks whether the threshold rule is already close to the reachable set of its
+class; if the learned scheduler does not raise the bound appreciably, the
+threshold is empirically near-optimal within
+$\mathcal{C}(\mathcal{I}_\varphi)$.
+\end{itemize}
+All reported values are lower bounds by construction (Eq.~\ref{eq:R}); the
+gaps in Eq.~\ref{eq:sandwich} quantify the margin available to better
+schedulers.
+
+\end{document}

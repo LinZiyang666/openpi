@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "dataset_id": "dispatch_surface/libero_spatial/init_pools",
+  "kind": "init_pool",
+  "title": "dispatch_surface / libero_spatial / four-way init partition of the official 50-per-task super-pool: D_lib 5 + fit 5 + cal 10 + test 30",
+  "experiment": "exp/dispatch_surface",
+  "suite": "libero_spatial",
+  "status": "authoritative",
+  "authority": {
+    "node": "local",
+    "path": "exp/dispatch_surface/data/init_pools",
+    "access": "local"
+  },
+  "integrity": {
+    "file_count": 21,
+    "size_bytes": 464399,
+    "sha256": "23beeafe69e8df7c84be3f8a2a8722e9c5580e7b9adebacd45ed26d6adbc256b",
+    "members": [
+      [
+        "query_c/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate.init",
+        15343,
+        "1b27cbff9d92aae3e6cd93de4e7e2625ddaef96509323403011266d61e252439"
+      ],
+      [
+        "query_c/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate.init",
+        15119,
+        "42b7a669424072ad5ec43e06ebd676dc52701418d498112d4dabe5602417630e"
+      ],
+      [
+        "query_c/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate.init",
+        15571,
+        "9a7e808e26730b06edfc617f04ed8b7e9009e5e0315b66323c0b8011aa4ef001"
+      ],
+      [
+        "query_c/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate.init",
+        15341,
+        "7b2ba08a84d5f7464a0bd0b5a3316d411c737300b5d24bcfc52fb734b54079a7"
+      ],
+      [
+        "query_c/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate.init",
+        15119,
+        "2433d5b73fc52bf3ed81cffcb38fa14a613f5893d674707fe2e17a4a4fa8105e"
+      ],
+      [
+        "query_c/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate.init",
+        15259,
+        "e869e4645dd0d688a8830593aa833cd5609d72eaa69ffa4b6cab21559f616afa"
+      ],
+      [
+        "query_c/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate.init",
+        15247,
+        "68fc423aaf83769aa557f5a2c2bc4f63afc897f6cd70ba7979f602ca7c919f3e"
+      ],
+      [
+        "query_c/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate.init",
+        15101,
+        "ab6f2d1a5ddd11b1591acb8c9b1ffc7f0ce45b8dc5b07a03516e69110070d730"
+      ],
+      [
+        "query_c/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate.init",
+        15153,
+        "37f6e10bf2af3b353474341d24db91edc6d207d6db34ce52cef67cd7a569fd5a"
+      ],
+      [
+        "query_c/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate.init",
+        15335,
+        "0b4400ea65f35f5811dc2f72cd77ae993403e78bbd1db7a527a85de4a16b2e16"
+      ],
+      [
+        "split_manifest.json",
+        28215,
+        "964b5b71f0e1cf704391028cffc4a495e6d990233a5e41a861184a5c80dc1142"
+      ],
+      [
+        "test_aprime/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate.init",
+        28399,
+        "c1e8439961342d67ffba11943f6e2078357310dfddc675ea4d077b99b5cbaa29"
+      ],
+      [
+        "test_aprime/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate.init",
+        28111,
+        "f2ef3f6a4a8ad3ea8e7ae7bf021c7b689364376f007dd4abe27a55ffec895fec"
+      ],
+      [
+        "test_aprime/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate.init",
+        28819,
+        "78c6d0eb43e39b18f5c02edb7d13c55020f450ed2fdf1f281b84f0bfc5f7e2d3"
+      ],
+      [
+        "test_aprime/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate.init",
+        28525,
+        "f9f67a00b07f0642e5b0336357b737480866d22506e1a9add40f160b9d98bda9"
+      ],
+      [
+        "test_aprime/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate.init",
+        28239,
+        "01a4a9e2b39c551a945e523006dc61677e011efc22bd0045af37c11c21c11867"
+      ],
+      [
+        "test_aprime/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate.init",
+        28315,
+        "647b3df74c05f756ed20462d579c9ef9fcf697a5c09b4ad66d36284ce9981dbc"
+      ],
+      [
+        "test_aprime/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate.init",
+        28303,
+        "86046b288dc62e531dd5d1ba4dbbc77a4a2d19e378a4a7439bf0a4e6ba1b7b93"
+      ],
+      [
+        "test_aprime/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate.init",
+        28157,
+        "496cf46403b6ae6292412e645b1d0c637bb0df588e166fbc0fef416135a840c8"
+      ],
+      [
+        "test_aprime/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate.init",
+        28273,
+        "27f1ebb44e1750e572c0ebe553fa741e843d0df269090822b82b8d5bfa7c4dca"
+      ],
+      [
+        "test_aprime/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate.init",
+        28455,
+        "da63c6ec6c1dcd96d678355c1af5dac4e2627c596bbc0210eb1bfa876c6263a4"
+      ]
+    ]
+  },
+  "content": {
+    "files": "test_aprime/<task>.init (30 states/task, the A' precheck pool) + query_c/<task>.init (15 states/task = 5 fit + 10 cal, the query cohort pool) + split_manifest.json (per-task index assignment, pool digests, D_lib content digests)",
+    "tasks": 10,
+    "quota_per_task": {
+      "cal": 10,
+      "dlib": 5,
+      "fit": 5,
+      "test": 30
+    },
+    "states": {
+      "dlib": 50,
+      "fit": 50,
+      "cal": 100,
+      "test": 300
+    },
+    "split_seed": 20260827,
+    "official_super_pool": "exp/common/data/db_init/libero/libero_spatial",
+    "init_map": "exp/common/data/db/libero_cache/libero_spatial_init_map.json",
+    "dlib_content_digests": {
+      "init_map_sha256": "ac0c88c324a538e1b2f307ae0e8f06aeffbed1032fc81bb38b6f92b61445a2c1",
+      "library_h5_files": 50,
+      "official_pool_files": 10,
+      "collection_init_pool_files": 10
+    }
+  },
+  "provenance": {
+    "produced_by": "exp/dispatch_surface/split_init_pools.py",
+    "inputs": [
+      "exp/common/data/db/libero_cache/libero_spatial_init_map.json (authoritative D_lib provenance)",
+      "exp/common/data/db_init/libero/libero_spatial (official 50-per-task pools)",
+      "exp/common/data/db/libero_cache/libero_spatial (library-source H5, content-verified)",
+      "seed=20260827"
+    ],
+    "measured_at": "2026-08-27",
+    "measured_by": "exp.data_authority.verify.census on weiland-wsl; partition independently re-audited by comparing every materialised state byte-for-byte against the official index the manifest claims for it (450/450 identical)",
+    "notes": "The D_lib census is content-level, not field-level: every init-map row is opened as real HDF5, its attrs snapshot compared live, and the library collection's init state required to be byte-identical to the official state at orig_init_state_idx. Per task the D_lib occupancy is exactly 5 official inits, so the remaining 45 split 15/30 into query C and test A'."
+  },
+  "caveats": [
+    "The partition is only meaningful together with its seed and the init map: re-running split_init_pools with a different seed produces a different, equally valid partition, and any artifact calibrated on the old one no longer matches.",
+    "test_aprime is the precheck A' pool and must never be read by calibration or fitting; query_c is the fit/cal cohort pool and must never be evaluated on. The split manifest is what downstream scripts bind to for that separation."
+  ],
+  "consumers": [
+    "exp/dispatch_surface/rebuild_dispatch_library.py (re-verifies the D_lib census)",
+    "exp/dispatch_surface/collect_query_cohort.py (rolls out query_c)",
+    "exp/dispatch_surface/build_dispatch_table.py (fit/cal split assignment)",
+    "exp/dispatch_surface/run_precheck.py (test_aprime)"
+  ]
+}
