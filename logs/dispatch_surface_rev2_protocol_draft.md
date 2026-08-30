@@ -274,3 +274,47 @@ simple 单阶段对照。task-id→task-name→BDDL path→raw goal atoms 的完
 在这之前不启动任何 rollout。以上不是否定 Rev 2；相反，development AUC `+0.075` 且 LOTO 不被单一
 task 翻转，是足以继续投入 Phase 0 的证据。需要防住的是第二次因 operating-point/support 定义不完整而
 让一个本来有信号的方法输在协议上。
+
+## 13. Confirmation amendment（**FROZEN — G1 Round 3 APPROVED，2026-08-29；冻结权威 = `dispatch_surface_rev2_confirmation_plan.log.md` §9 G1 Round 3。Code 阶段首个 freeze record 记录本文、plan 与 review 的字节 SHA；之后只允许以独立 `amendment_result` artifact 机械填入输出值（tgrid package SHA、`[B_L,B_H]`、roster、N、power record），不得改规则**）
+
+> 本节只追加，不删改 §1–§12。**适用范围 = budget amendment development（含 dense-threshold 止损）+ power MC + C**；旧 A′ 上的 Rev 1 verdict 与 Phase 0 exact-cost 产物按原 estimator 永久保留（不等于新 estimator 只能用于 C）。计划：[`dispatch_surface_rev2_confirmation_plan.log.md`](dispatch_surface_rev2_confirmation_plan.log.md)。
+
+### 13.1 可达集合与价值函数（取代 §3.2 的直线 upper hull；适用于 development amendment / power / C）
+
+单臂成本仍为 decision-weighted ratio-of-sums（不变）。对 family `F` 的臂 `i`，每 episode 均值：总解析成本 `t_i`、决策数 `d_i`、成功率 `s_i`。episode-level randomized mixture `p` 的成本为 `C(p) = Σ p_i t_i / Σ p_i d_i`（分式，**不是** `Σ p_i (t_i/d_i)`），SR 为 `Σ p_i s_i`。
+
+```text
+V_F(B) = max_p Σ p_i s_i   s.t.  Σ p_i (t_i − B d_i) ≤ 0,  Σ p_i = 1,  p ≥ 0
+```
+
+- 记号：横轴 `C(π) = E[T(π)] / E[D(π)]`，约束 `C(π) ≤ B`；不用 `E[c(π)]`。
+- **不做任何 `(c, s)` 标记上的 Pareto 剪枝或同成本去重**：被 standalone 支配的臂可能因 `d_i` 更大成为最优混合基（反例：A(10,1,0.5)、B(20,100,0.4)、C(100,1,1.0)，B=30 时 A/C 0.611 而 B/C 0.961）；roster 全部臂进入 LP，dominance 只作描述性标记。
+- canonical tie / 数值策略：roster 总序；同值 `1e-12` 时 basis 取臂数少者、再取 canonical 臂元组；断点限于开区间并以 `1e-9` ms 合并；只有正长度开区间计入活跃基，端点 basis 另存。每次解析计算检查分片覆盖、顺序、中点 basis 与连续性；adaptive Simpson（`1e-10`）只审计 G2 随机/退化 fixture、development/C 的 full-sample + digest 派生最多 100 个 replicate、以及 power 每个 `(N,outer_r)` 的 inner-0；差 > `1e-8` ⇒ 对应 artifact / power record fail closed，不得用近似值替代解析值。
+- 可行 ⇔ `min_i t_i/d_i ≤ B`；否则该族在 `B` 不可行（support miss）；禁止左外推。
+- 最优基 ≤ 2 臂（单臂或 tight 两臂）；两臂片段是线性分式曲线。`B ≥ max_i t_i/d_i` 时 `V_F = max_i s_i`（预算语义内生，无需附加"水平保持"规则）。
+- 积分为精确分片解析：断点 = 单臂成本 ∪ 三点共线的线性根；每片常数或线性分式闭式原函数。
+- 三族（threshold / SV / S0）、LOTO、per-task、A-2、power MC、C analyzer 共用同一纯函数，估计器 digest `budget_mixture_v1` 写入所有产物。
+- **敏感性（非 gating）**：同时报告 measured-policy-only step envelope `V^step_F(B) = max{s_i : T_i/D_i ≤ B}` 下的同一组量，用于显示结论是否主要来自 decision-count 加权的混合效应。
+
+### 13.2 H1（唯一 inferential primary）
+
+`Δ_H1 = (1/(B_H − B_L)) ∫_{B_L}^{B_H} [V_SV(B) − V_T(B)] dB`；10000 paired、task-stratified、init-cluster bootstrap；support-miss replicate 记 −1.0 并保留；判过 = 左端可行 ∧ joint miss ≤ 1% ∧ 单侧 95% q05 > 0。H2（SV−S0）与 S0−T 只报 effect 与 q05/q95，不 gating、不 fixed sequence。secondary：`ΔV(B_1), ΔV(B_2)` 的 studentized max-t simultaneous 95% band（exploratory）。A-2 spatial 描述。
+
+### 13.3 development 与 pre-C gate
+
+- development 候选 = Rev 1 + Phase 0 + libero_10 dense threshold grid（`fh ∈ {20..80} × ws ∈ {0..40}`，`fh+ws ≤ 100`，32 cell / 29 新臂）；所有已测点进各自 envelope，臂数不强制相同。
+- `[B_L,B_H]`、`B_1,B_2` 仍按 §3.3 的 cost-only 机械式（候选集扩大后重算，旧值只作记录）；A-3′ 加"每族 max cost ≥ B_H"。
+- C roster = full-sample 正长度开区间的 canonical 活跃基并集 ∪ 端点 basis ∪ bootstrap 频率 ≥ 0.20 的臂；每族 ≤ 6（anchor 另计）；超限 fail closed；与臂输入顺序无关。
+- dense-baseline 止损：development H1 q05 ≤ 0 ⇒ 不进 C。
+- N 由完整裁决 power MC 机械选出：候选 {30,40,50,60}，`R_outer = 200`，Clopper–Pearson 单侧 95% 下界 ≥ 0.80，取最小的 N 使该 N 及所有更大候选均满足；60 不满足 ⇒ 停，交 owner。
+- pre-C gate：A-1、A-3′、A-4、止损通过、power record、Action Cache decision record（§13.5）、P pilot（`|SR_P − 0.847| ≤ 10 pt`，一次性）。
+
+### 13.4 fresh pool、封存与解封
+
+- 生成：逐 state 状态机（每 attempt 新建 env、`random/np.random/env.seed` 三处赋同一 `seed32`、`env.reset()`、接受 = 无异常 ∧ 形状 ∧ 有限、attempt `a=0` base + `a=1..4` retry、失败 / 碰撞占用 k 不重采）；seed authority = `sha256("dsp_rev2_fresh|suite|task|pool|k|attempt|a")` → `SeedSequence` → `uint32`；C 恰 60/task 且 60/60 ok、prefix 规则；P = 10/task 且 10/10 ok；内容级互斥对官方 50 与 P↔C；跨机 digest 相等才封存；真实 LIBERO round-trip smoke。
+- `confirmation_task_plan.json` 在 seal **之前**由 frozen roster、N 与 C manifest 生成：`task_uid → {arm, task, prefix, pool_id, fresh_state_sha256}`；它不得包含 seal SHA。seal = {P/C manifest、roster、task-plan SHA、arm yaml、analyzer / estimator / cost authority digest、N、power record、Action Cache record、本节 SHA}，因此不存在 seal/task-plan 哈希环。
+- **unseal 前**必须通过 outcome-blind `confirmation_discipline`：roster × 10 task × prefix `0..N−1` 每 cell 恰一个 accepted、无 off-grid / 重复 / stale；fresh identity 经 `task_uid` 对 task plan 唯一 join，task-plan fresh digest 对 sealed C manifest，row `run_id` 对 ledger，ledger 的 seal/task-plan SHA 对当前输入；`orig_init_state_idx` 为 null；per-step 与 `infers` 一致。discipline SHA 进 unseal record；此前任何代码路径不得读取 outcome。
+
+### 13.5 Action Cache decision record
+
+schema 与分支随本节冻结，owner 的取值稍后签署。`inclusion ∈ {yes, no, post_confirmation_descriptive}`；`no` / `post_confirmation_descriptive` 时 `development_selection_protocol / config_digest / code_digest / c_pool_binding` 为 canonical `null`，`reason_code` 与 `claim_restriction` 必填；`yes` ⇒ 独立 G1/G2 的 Action Cache package（development 选点、config / code / 成本映射 digest、C roster、同一 fresh pool、runner / analyzer、discipline）先于 seal 与任何 C rollout，其统计地位 ≤ secondary；`no` / `post_confirmation_descriptive` ⇒ reason code + claim restriction，confirmation 不得输出任何 "优于 Action Cache" 字段。共同横轴 = 每族**总 model-forward compute budget**；CP2 命中不进 CP1 三单价表。

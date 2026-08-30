@@ -112,3 +112,59 @@ def assert_roster(suite: str, arms: dict) -> None:
     seen = [spec["quantile"] for arm, spec in want.items() if spec["quantile"] is not None]
     if len(seen) != len(set((want[a]["family"], want[a]["quantile"]) for a in want if want[a]["quantile"] is not None)):
         raise SystemExit(f"{suite}: roster carries a duplicate (family, quantile)")
+
+
+# ----------------------------------------------------------------------
+# Rev 2 confirmation plan (plan section 3.2 / 3.3): dense threshold grid and
+# the C-roster selector constants. Frozen at G1 Round 3; the freeze record in
+# exp/dispatch_surface/config/confirmation_freeze_record.json pins them.
+# ----------------------------------------------------------------------
+
+LAYER_TGRID = "exploratory_tgrid"
+PROTOCOL_TGRID = "dispatch_surface_rev2_tgrid_dev"
+TGRID_SUITE = "libero_10"
+THRESHOLD_GRID_FH = (20, 30, 40, 50, 60, 70, 80)
+THRESHOLD_GRID_WS = (0, 10, 20, 30, 40)
+#: Rev 1 cells already measured (see REV1_CANDIDATES); they are NOT re-emitted.
+REV1_THRESHOLD_CELLS = ((30, 20), (50, 20), (70, 10))
+#: C-roster selector (plan 3.3-2): bootstrap frequency floor and per-family cap.
+F_MIN = 0.20
+M_MAX = 6
+
+
+def tgrid_cells(*, include_rev1: bool = False) -> list[tuple[int, int]]:
+    """Legal grid cells (fh + ws <= 100) in row-major (fh, ws) order; 32 in
+    total, 29 once the three Rev 1 cells are excluded."""
+    cells = [(fh, ws) for fh in THRESHOLD_GRID_FH for ws in THRESHOLD_GRID_WS if fh + ws <= 100]
+    if include_rev1:
+        return cells
+    return [c for c in cells if c not in REV1_THRESHOLD_CELLS]
+
+
+def tgrid_arm_id(fh: int, ws: int) -> str:
+    if (fh, ws) not in tgrid_cells(include_rev1=True):
+        raise SystemExit(f"({fh}, {ws}) is not a legal threshold-grid cell")
+    return f"dsp_tg_fh{fh}_ws{ws}"
+
+
+def tgrid_roster_spec(suite: str) -> dict:
+    if suite != TGRID_SUITE:
+        raise SystemExit(f"the dense threshold grid is frozen for {TGRID_SUITE!r} only, not {suite!r}")
+    return {
+        "protocol": PROTOCOL_TGRID,
+        "layer": LAYER_TGRID,
+        "suite": suite,
+        "fh": list(THRESHOLD_GRID_FH),
+        "ws": list(THRESHOLD_GRID_WS),
+        "legality": "fh + ws <= 100",
+        "rev1_cells_excluded": [list(c) for c in REV1_THRESHOLD_CELLS],
+        "arms": {tgrid_arm_id(fh, ws): {"family": FAMILY_THRESHOLD, "fh": fh, "ws": ws}
+                 for fh, ws in tgrid_cells()},
+        "contract_source": "rev1_package:artifact.dsp_sv",
+        "ws_zero_representation": "no warm_tiers key",
+    }
+
+
+def tgrid_roster_spec_digest(suite: str) -> str:
+    blob = json.dumps(tgrid_roster_spec(suite), sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()

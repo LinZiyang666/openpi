@@ -24,8 +24,10 @@ Usage mirrors run_gtp; pool record/dir point at the A' pool and
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
+import math
 import pathlib
 import threading
 import time
@@ -68,8 +70,17 @@ SECONDARY_CORE_ARMS = {
 # probing every step like primary. Its matrix has its own validator; the Rev 1
 # validators below are untouched.
 LAYER_EXPLORATORY = "exploratory"
+# Rev 2 confirmation plan: the dense threshold-grid development layer and the
+# fresh-init confirmation layer. Each has its own validator; nothing above is
+# touched (plan section 3.2-e / 3.7-g).
+LAYER_TGRID = "exploratory_tgrid"
+LAYER_CONFIRMATION = "confirmation"
+PROTOCOL_CONFIRMATION = "dispatch_surface_rev2_confirmation"
+LAYER_PILOT = "pilot"
+PROTOCOL_PILOT = "dispatch_surface_rev2_pilot"
 LAYER_EXPECTED_GATE = {LAYER_PRIMARY: "always_search", LAYER_SECONDARY: "score_hysteresis",
-                       LAYER_EXPLORATORY: "always_search"}
+                       LAYER_EXPLORATORY: "always_search", LAYER_TGRID: "always_search",
+                       LAYER_CONFIRMATION: "always_search"}
 
 FORMAL_CORE_ARMS = {
     "dsp_t_fh30_ws20",
@@ -104,6 +115,30 @@ EXPLORATORY_FROZEN_LAUNCH_KEYS = (
     "export_record_sha256",
     "cost_model_digest",
     "contract_anchor_arm",
+)
+TGRID_FROZEN_LAUNCH_KEYS = (
+    "posthoc_exploratory",
+    "tgrid_roster_spec_sha256",
+    "threshold_pair_rollup_sha256",
+    "contract_source",
+    "estimator_version",
+    "rev1_package_manifest_sha256",
+    "cost_model_digest",
+)
+PILOT_FROZEN_LAUNCH_KEYS = (
+    "task_plan_sha256",
+    "pool_digest",
+    "N",
+    "cost_model_digest",
+    "rev1_package_manifest_sha256",
+)
+CONFIRMATION_FROZEN_LAUNCH_KEYS = (
+    "seal_sha256",
+    "confirmation_task_plan_sha256",
+    "pool_digest",
+    "N",
+    "estimator_version",
+    "cost_model_digest",
 )
 
 
@@ -599,6 +634,272 @@ def validate_exploratory_matrix_artifacts(matrix: dict) -> dict:
     return {"manifest": manifest, "package_dir": pkg, "records": records, "rev1_matrix": rev1_matrix}
 
 
+def validate_tgrid_matrix_artifacts(matrix: dict, *, rev1_manifest_path: str | None = None) -> dict:
+    """Threshold-grid development matrix (plan 3.2-d/e): frozen roster digest,
+    Rev 1 package binding, table/library/cost/estimator digests, pair digests
+    and rollup. Returns the package context. Reads no outcome.
+
+    ``rev1_manifest_path`` names a local copy of the Rev 1 package; it must
+    carry the manifest digest the matrix froze (the matrix's own path is an
+    execution-time path, G2R1-B8)."""
+    from exp.dispatch_surface import rev1_package as pkgmod
+    from exp.dispatch_surface.analysis.analytic_cost import assert_unit_costs_match, cost_model_digest
+    from exp.dispatch_surface.analysis.estimator_version import budget_mixture_digest
+    from exp.dispatch_surface.emit_precheck_yamls import threshold_pair_digest, threshold_pair_rollup
+    from exp.dispatch_surface.phase0_roster import (
+        LAYER_TGRID as _LT, PROTOCOL_TGRID, tgrid_arm_id, tgrid_cells, tgrid_roster_spec,
+        tgrid_roster_spec_digest,
+    )
+
+    if matrix.get("layer") != _LT or matrix.get("protocol") != PROTOCOL_TGRID \
+            or matrix.get("posthoc_exploratory") is not True:
+        raise SystemExit("arm matrix is not a threshold-grid development matrix")
+    suite = matrix.get("suite")
+    spec = tgrid_roster_spec(suite)
+    if matrix.get("tgrid_roster_spec_sha256") != tgrid_roster_spec_digest(suite):
+        raise SystemExit("threshold-grid matrix roster spec digest != the frozen grid")
+    grid_arms = [tgrid_arm_id(fh, ws) for fh, ws in tgrid_cells()]
+    if sorted(matrix.get("arms") or {}) != sorted(grid_arms):
+        raise SystemExit("threshold-grid matrix arms != frozen grid")
+    if matrix.get("core_arms") != [] or sorted(matrix.get("descriptive_arms") or []) != sorted(grid_arms):
+        raise SystemExit("threshold-grid matrix must have an empty core roster and all arms descriptive")
+    if matrix.get("artifact_paths") not in ({}, None) or matrix.get("artifact_sha256") not in ({}, None):
+        raise SystemExit("threshold-grid arms carry no surface artifacts")
+    if matrix.get("contract_source") != spec["contract_source"]:
+        raise SystemExit("threshold-grid matrix contract_source != frozen spec")
+    if matrix.get("estimator_version") != budget_mixture_digest():
+        raise SystemExit("threshold-grid matrix estimator digest != budget_mixture_v1")
+    if matrix.get("cost_model_digest") != cost_model_digest():
+        raise SystemExit("threshold-grid matrix cost model digest != the cost authority")
+    assert_unit_costs_match((matrix.get("cost_model") or {}).get("unit_cost_ms"), what="threshold-grid matrix")
+    nominal = matrix.get("nominal") or {}
+    pairs = matrix.get("threshold_pairs") or {}
+    digests = matrix.get("threshold_pair_digests") or {}
+    if set(nominal) != set(grid_arms) or set(pairs) != set(grid_arms) or set(digests) != set(grid_arms):
+        raise SystemExit("threshold-grid matrix nominal/pair maps do not cover the grid")
+    seen = {}
+    for arm in grid_arms:
+        fh, ws = int(nominal[arm]["fh"]), int(nominal[arm]["ws"])
+        if arm != tgrid_arm_id(fh, ws) or fh + ws > 100:
+            raise SystemExit(f"{arm}: nominal cell disagrees with the arm id or is illegal")
+        t_fh, t_ws = pairs[arm]
+        if ws == 0 and t_ws is not None or ws > 0 and t_ws is None:
+            raise SystemExit(f"{arm}: warm tier presence disagrees with ws")
+        if not isinstance(t_fh, (int, float)) or not math.isfinite(float(t_fh)) or float(t_fh) > 1.0:
+            raise SystemExit(f"{arm}: t_fh must be finite and <= 1.0")
+        if t_ws is not None and (not math.isfinite(float(t_ws)) or not float(t_fh) > float(t_ws)):
+            raise SystemExit(f"{arm}: t_fh must exceed t_ws")
+        if digests[arm] != threshold_pair_digest(t_fh, t_ws):
+            raise SystemExit(f"{arm}: threshold pair digest drifted")
+        key = (float(t_fh), None if t_ws is None else float(t_ws))
+        if key in seen:
+            raise SystemExit(f"{arm} and {seen[key]} share a threshold pair")
+        seen[key] = arm
+    if matrix.get("threshold_pair_rollup_sha256") != threshold_pair_rollup(grid_arms, digests):
+        raise SystemExit("threshold pair rollup digest drifted")
+    manifest_path = rev1_manifest_path or matrix.get("rev1_package_manifest_path")
+    manifest, pkg, manifest_sha = pkgmod.load_manifest(manifest_path)
+    if manifest_sha != matrix.get("rev1_package_manifest_sha256"):
+        raise SystemExit("Rev 1 package manifest content-drifted since emit")
+    pkgmod.verify_package(manifest_path)
+    if manifest.get("suite") != suite:
+        raise SystemExit("Rev 1 package suite != threshold-grid matrix suite")
+    rev1_matrix = pkgmod.load_json_member(manifest, pkg, "matrix")
+    if pkgmod.member_sha(manifest, "matrix") != matrix.get("rev1_matrix_sha256"):
+        raise SystemExit("threshold-grid matrix binds a different Rev 1 matrix")
+    if matrix.get("library_sha256") != rev1_matrix.get("library_sha256"):
+        raise SystemExit("threshold-grid matrix library != Rev 1 library")
+    if matrix.get("gate_theta") != rev1_matrix.get("gate_theta"):
+        raise SystemExit("threshold-grid matrix gate theta != Rev 1 matrix (must not be recomputed)")
+    fit_sv = pkgmod.load_json_member(manifest, pkg, "fit.sv")
+    if matrix.get("table_sha256") != (fit_sv.get("input_digests") or {}).get("table"):
+        raise SystemExit("threshold-grid matrix table digest != archived SV fit record")
+    return {"manifest": manifest, "package_dir": pkg, "manifest_sha256": manifest_sha,
+            "contract_artifact": str(pkgmod.verify_member(manifest, pkg, "artifact.dsp_sv"))}
+
+
+def validate_tgrid_arms(arm_paths: dict[str, str], matrix: dict) -> dict[str, str]:
+    """Every threshold-grid yaml: always_search gate, threshold judge with the
+    matrix's exact pair, finite thresholds <= 1.0, exactly the tiers ws demands
+    (none for ws = 0, one at start_t 0.3 for ws > 0), write_policy never."""
+    pairs = matrix["threshold_pairs"]
+    nominal = matrix["nominal"]
+    for arm, path in arm_paths.items():
+        if arm not in pairs:
+            raise SystemExit(f"arm {arm}: not a threshold-grid arm")
+        cfg = load_cache_config(path)
+        if cfg.routing is not None:
+            raise SystemExit(f"arm {arm}: precheck has no executor routing ({path})")
+        cp1 = cfg.checkpoints.get("cp1")
+        if cp1 is None:
+            raise SystemExit(f"arm {arm}: missing cp1 checkpoint ({path})")
+        if cp1.gate.type != LAYER_EXPECTED_GATE[LAYER_TGRID]:
+            raise SystemExit(f"arm {arm}: gate {cp1.gate.type!r} != always_search")
+        if cp1.judge.type != "threshold":
+            raise SystemExit(f"arm {arm}: judge must be threshold, got {cp1.judge.type!r}")
+        thr = float(cp1.judge.threshold)
+        if not math.isfinite(thr) or thr > 1.0:
+            raise SystemExit(f"arm {arm}: threshold {thr!r} must be finite and <= 1.0")
+        t_fh, t_ws = pairs[arm]
+        if thr != float(t_fh):
+            raise SystemExit(f"arm {arm}: yaml threshold {thr!r} != matrix pair {t_fh!r}")
+        tiers = cp1.judge.warm_tiers or []
+        ws = int(nominal[arm]["ws"])
+        if ws == 0:
+            if tiers:
+                raise SystemExit(f"arm {arm}: ws=0 must carry no warm tier, got {tiers}")
+        else:
+            if len(tiers) != 1:
+                raise SystemExit(f"arm {arm}: ws>0 must carry exactly one warm tier, got {tiers}")
+            tier = tiers[0]
+            if set(tier) - {"threshold", "start_t"}:
+                raise SystemExit(f"arm {arm}: warm tier carries unexpected fields {sorted(tier)}")
+            if tier.get("start_t") != WS_START_T:
+                raise SystemExit(f"arm {arm}: warm tier start_t != {WS_START_T}")
+            tw = float(tier.get("threshold"))
+            if not math.isfinite(tw) or tw != float(t_ws) or not thr > tw:
+                raise SystemExit(f"arm {arm}: warm threshold {tw!r} != matrix pair / not below t_fh")
+        if cfg.write_policy.type != "never":
+            raise SystemExit(f"arm {arm}: write_policy must be 'never'")
+    return dict(arm_paths)
+
+
+def validate_pool_files(manifest_path: str, manifest_sha256: str, pool_id: str, pool_dir: str, n_prefix: int) -> dict:
+    """Bind a worker's fresh pool bytes to a pool manifest (plan 3.7-g).
+
+    Every task file must hold exactly the manifest's states in k order; each
+    state's content digest must equal the manifest entry; the prefix 0..N-1
+    is what the run schedules. Official 0..49 semantics are never used."""
+    from exp.dispatch_surface.generate_fresh_inits import load_pool_manifest, state_sha256
+
+    manifest = load_pool_manifest(manifest_path)
+    if _file_sha256(pathlib.Path(manifest_path)) != manifest_sha256:
+        raise SystemExit("fresh pool manifest content-drifted since it was bound")
+    root = pathlib.Path(pool_dir).resolve()
+    if not root.is_dir():
+        raise SystemExit(f"fresh pool directory does not exist: {root}")
+    if pool_id not in (manifest.get("pools") or {}):
+        raise SystemExit(f"pool manifest lacks pool {pool_id!r}")
+    tasks = manifest["pools"][pool_id]["tasks"]
+    per_task_sha: dict[str, list[str]] = {}
+    for task_name, info in sorted(tasks.items()):
+        path = root / f"{task_name}.init"
+        if not path.is_file():
+            raise SystemExit(f"fresh pool file missing: {path}")
+        states = load_init_states(path)
+        expected = [e["state_sha256"] for e in info["entries"]]
+        if len(states) != len(expected):
+            raise SystemExit(f"{task_name}: pool holds {len(states)} states, manifest {len(expected)}")
+        if n_prefix > len(expected):
+            raise SystemExit(f"{task_name}: prefix N={n_prefix} exceeds the pool size {len(expected)}")
+        got = [state_sha256(st) for st in states]
+        if got != expected:
+            raise SystemExit(f"{task_name}: fresh state bytes do not match the bound manifest")
+        if any(e.get("status") != "ok" for e in info["entries"]):
+            raise SystemExit(f"{task_name}: pool contains non-ok states")
+        per_task_sha[task_name] = got
+    if len(per_task_sha) != NUM_TASKS:
+        raise SystemExit(f"fresh pool has {len(per_task_sha)} tasks, expected {NUM_TASKS}")
+    rollup = rollup_digest({k: hashlib.sha256("".join(v[:n_prefix]).encode()).hexdigest()
+                            for k, v in per_task_sha.items()})
+    return {
+        "suite": manifest["suite"], "pool_id": pool_id, "apool_dir": str(root),
+        "total_inits": NUM_TASKS * n_prefix, "prefix_n": n_prefix,
+        "manifest_sha256": manifest_sha256,
+        "per_task_state_sha256": per_task_sha, "rollup_sha256": rollup,
+    }
+
+
+def validate_fresh_pool(seal: dict, pool_dir: str, n_prefix: int) -> dict:
+    """The sealed C pool (plan 3.7-g): ``validate_pool_files`` under the seal's manifest binding."""
+    pool_info = seal["pool"]
+    return validate_pool_files(pool_info["manifest_path"], pool_info["manifest_sha256"], pool_info["pool_id"], pool_dir, n_prefix)
+
+
+class ConfirmationStrategy(PrecheckSweepStrategy):
+    """Fresh-init C: episodes come from the frozen task plan; ``orig_init_state_idx``
+    is None because the states are not official inits (plan 3.6-b / 3.7-g).
+    ``episode_idx`` is the prefix position the client indexes the C pool with."""
+
+    def __init__(self, task_suite: str, yaml_paths: dict[str, str], n_prefix: int, task_plan: dict):
+        super().__init__(task_suite, yaml_paths, n_prefix, {t: [] for t in range(NUM_TASKS)})
+        self._plan = task_plan
+
+    def plan(self, yamls, server_assignment):
+        from openpi.conductor import task as _task
+
+        entries = self._plan["entries"]
+        graph = _task.TaskGraph()
+        for yaml_id in yamls:
+            server = server_assignment[yaml_id]
+            stage = _task.Stage(stage_id=f"eval__{yaml_id}", yaml_id=yaml_id, phase="eval",
+                                server=server, setup={"yaml_path": self._yaml_paths[yaml_id]})
+            for task_id in range(NUM_TASKS):
+                for ep_idx in range(self._trials):
+                    uid = _task.make_task_uid(yaml_id, "eval", task_id, ep_idx)
+                    ent = entries.get(uid)
+                    if ent is None or ent["arm"] != yaml_id or ent["task_id"] != task_id \
+                            or ent["prefix_idx"] != ep_idx:
+                        raise SystemExit(f"task plan lacks or mislabels {uid}")
+                    stage.episodes.append(_task.EpisodeTask(
+                        task_uid=uid, yaml_id=yaml_id, phase="eval", experiment=self._task_suite,
+                        task_id=task_id, episode_idx=ep_idx, orig_init_state_idx=None,
+                        server_host=server.host, server_port=server.port, bundle_id=yaml_id,
+                        extra={"num_trials_per_task": self._trials},
+                    ))
+            graph.add_stage(stage)
+        return graph
+
+
+def validate_confirmation_arms(arm_paths: dict[str, str], seal: dict) -> dict[str, str]:
+    """C arms against the seal: anchor / threshold pair / surface artifact per arm."""
+    roster = seal["roster"]
+    for arm, path in arm_paths.items():
+        if arm not in roster["arms"]:
+            raise SystemExit(f"arm {arm}: not in the sealed roster")
+        if _file_sha256(pathlib.Path(path)) != roster["yaml_sha256"][arm]:
+            raise SystemExit(f"arm {arm}: yaml bytes differ from the seal")
+        cfg = load_cache_config(path)
+        cp1 = cfg.checkpoints.get("cp1")
+        if cp1 is None or cp1.gate.type != LAYER_EXPECTED_GATE[LAYER_CONFIRMATION]:
+            raise SystemExit(f"arm {arm}: confirmation arms probe every step (always_search)")
+        fam = roster["families"][arm]
+        jt = cp1.judge.type
+        if fam == "anchor":
+            if jt != "threshold" or not (float(cp1.judge.threshold) > 1.0) or cp1.judge.warm_tiers:
+                raise SystemExit(f"arm {arm}: anchor must be threshold > 1.0 with no warm tier")
+        elif fam == "threshold":
+            pair = roster["threshold_pairs"].get(arm)
+            if not pair:
+                raise SystemExit(f"arm {arm}: the seal carries no threshold pair for this arm")
+            t_fh, t_ws = pair
+            if jt != "threshold" or float(cp1.judge.threshold) != float(t_fh):
+                raise SystemExit(f"arm {arm}: threshold judge != sealed pair")
+            tiers = cp1.judge.warm_tiers or []
+            if t_ws is None:
+                if tiers:
+                    raise SystemExit(f"arm {arm}: sealed ws=0 arm carries a warm tier")
+            elif len(tiers) != 1 or tiers[0].get("start_t") != WS_START_T \
+                    or float(tiers[0].get("threshold")) != float(t_ws):
+                raise SystemExit(f"arm {arm}: warm tier != sealed pair")
+        elif fam in ("sv", "s0"):
+            # The yaml keeps the path the worker will open (possibly a historical
+            # absolute path); the seal binds the artifact by CONTENT, so both the
+            # yaml's file and the sealed member must carry the sealed digest.
+            if jt != "dispatch_surface":
+                raise SystemExit(f"arm {arm}: surface arm must use the dispatch_surface judge")
+            yaml_art = pathlib.Path(cp1.judge.surface_artifact_path)
+            if not yaml_art.is_file() or _file_sha256(yaml_art) != roster["artifact_sha256"][arm]:
+                raise SystemExit(f"arm {arm}: the yaml's surface artifact is missing or its bytes != seal")
+            if _file_sha256(pathlib.Path(roster["artifact_paths"][arm])) != roster["artifact_sha256"][arm]:
+                raise SystemExit(f"arm {arm}: sealed surface artifact bytes != seal")
+        else:
+            raise SystemExit(f"arm {arm}: unknown family {fam!r}")
+        if cfg.write_policy.type != "never":
+            raise SystemExit(f"arm {arm}: write_policy must be 'never'")
+    return dict(arm_paths)
+
+
 def assert_launch_contract(
     primary_artifact_path: str, replan_steps: int, servers: list[ServerEndpoint],
 ) -> dict:
@@ -699,12 +1000,273 @@ def build_worker_specs(
     ]
 
 
+def _launch_fresh_pool_run(args, strategy_factory, yaml_paths: dict[str, str], servers: list, launch_entry: dict,
+                           ledger: dict, launch_path: pathlib.Path, per_step_path: pathlib.Path, pool_dir: str, *,
+                           layer: str, frozen_keys: tuple, summary: dict) -> None:
+    """Shared driver / worker launch for the fresh-pool layers (confirmation, pilot)."""
+    if args.server_workers:
+        counts = [int(x) for x in args.server_workers.split(",")]
+        if len(counts) != len(servers) or any(c <= 0 for c in counts):
+            raise SystemExit("--server-workers must give one positive count per server")
+        worker_server_keys = [s.key for s, c in zip(servers, counts) for _ in range(c)]
+        server_capacities = {s.key: c for s, c in zip(servers, counts)}
+    else:
+        worker_server_keys = [servers[i % len(servers)].key for i in range(args.workers)]
+        server_capacities = None
+
+    from examples.libero.episode_runner import default_client_factory
+
+    per_step_lock = threading.Lock()
+    merged = merge_snapshot(per_step_path, per_step_path.with_suffix(".snapshot.jsonl"))
+    if merged:
+        logger.info("merged %d snapshot rows on resume", merged)
+
+    def _per_step_writer(yaml_id: str, rows: list[dict]) -> None:
+        with per_step_lock, per_step_path.open("a", encoding="utf-8") as f:
+            for row in rows:
+                f.write(json.dumps({"yaml_id": yaml_id, **row}) + "\n")
+
+    if args.dry_validate:
+        out = {
+            "dry_validate": True, "layer": layer, "suite": args.task_suite,
+            "arms": sorted(yaml_paths), "replan_steps": args.replan_steps, "env_seed": args.seed,
+            "would_append_launch": {k: launch_entry.get(k) for k in sorted(frozen_keys)},
+            **summary,
+        }
+        print(json.dumps(out, indent=2, sort_keys=True, default=str))
+        logger.info("dry validation passed for the %s layer; no episode was run", layer)
+        return
+
+    strategy = strategy_factory()
+    driver = ConductorDriver(
+        strategy, yaml_weights={arm: 100 for arm in yaml_paths}, servers=servers,
+        journal_path=args.journal, ctl_factory=default_client_factory,
+        episode_timeout_s=args.episode_timeout_s, bind_host=args.bind_host,
+        scheduler_kwargs=({"eval_concurrency": args.eval_concurrency} if args.eval_concurrency else None),
+        server_capacities=server_capacities, per_step_writer=_per_step_writer,
+    )
+    launch_entry["run_id"] = driver.run_id
+    ledger["launches"].append(launch_entry)
+    launch_path.write_text(json.dumps(ledger, indent=2))
+    logger.info("%s launch %s recorded in %s", layer, driver.run_id, launch_path)
+
+    driver_thread = threading.Thread(target=driver.run, daemon=True)
+    driver_thread.start()
+    snapshot_stop = threading.Event()
+    snapshot_thread = threading.Thread(target=_snapshot_loop, args=(driver, per_step_path, snapshot_stop), daemon=True)
+    snapshot_thread.start()
+    while driver.port is None:
+        time.sleep(0.05)
+    specs = build_worker_specs(worker_server_keys, gpus=args.gpus, conda_env=args.conda_env,
+                               task_suite=args.task_suite, pool_dir=pool_dir,
+                               replan_steps=args.replan_steps, seed=args.seed)
+    agent = WorkerAgent(specs, driver_host=args.bind_host, driver_port=driver.port)
+    agent_thread = threading.Thread(target=agent.run, daemon=True)
+    agent_thread.start()
+    try:
+        driver_thread.join()
+    finally:
+        snapshot_stop.set()
+        snapshot_thread.join(timeout=10)
+        try:
+            n = _write_snapshot(driver, per_step_path)
+            logger.info("final snapshot: %d in-memory rows dumped", n)
+        except Exception:  # noqa: BLE001 - bookkeeping must not mask the run outcome
+            logger.exception("final snapshot failed; trailing rows may be missing")
+        agent.stop()
+        agent_thread.join(timeout=30)
+    logger.info("%s run %s finished", layer, driver.run_id)
+
+
+def run_pilot(args) -> None:
+    """P pilot layer (plan 3.7-f, G2R1-B4): the anchor on every P state, exactly
+    one launch per ledger, bound to the P task plan / manifest / anchor yaml."""
+    from openpi.cache.components.surface_judge import load_surface_artifact
+
+    from exp.dispatch_surface import rev1_package as pkgmod
+    from exp.dispatch_surface.analysis.analytic_cost import cost_model_digest
+    from exp.dispatch_surface.build_confirmation_task_plan import load_task_plan, verify_task_plan_against_pool
+    from exp.dispatch_surface.pilot import PILOT_POOL, PILOT_TRIALS, validate_anchor_yaml
+    from exp.dispatch_surface.phase0_roster import ANCHOR_ARM
+
+    if not (args.task_plan and args.pool_dir and args.pool_manifest and args.anchor_yaml and args.rev1_package_manifest):
+        raise SystemExit("pilot layer requires --task-plan, --pool-dir, --pool-manifest, --anchor-yaml and --rev1-package-manifest")
+    if args.trials != PILOT_TRIALS:
+        raise SystemExit(f"--trials must equal the P quota {PILOT_TRIALS}")
+    plan, plan_sha = load_task_plan(args.task_plan)
+    if plan["pool_id"] != PILOT_POOL or plan["N"] != PILOT_TRIALS or plan["roster_arms"] != [ANCHOR_ARM] \
+            or plan["suite"] != args.task_suite:
+        raise SystemExit("pilot task plan must be the anchor on the whole P pool of this suite")
+    verify_task_plan_against_pool(plan, args.pool_manifest)
+    manifest_sha = _file_sha256(pathlib.Path(args.pool_manifest))
+    pool = validate_pool_files(args.pool_manifest, manifest_sha, PILOT_POOL, args.pool_dir, PILOT_TRIALS)
+    if pool["suite"] != args.task_suite:
+        raise SystemExit("fresh pool suite != --task-suite")
+    for uid, ent in plan["entries"].items():
+        if pool["per_task_state_sha256"][ent["task_name"]][ent["prefix_idx"]] != ent["fresh_state_sha256"]:
+            raise SystemExit(f"task plan entry {uid} points at a state digest not in the P pool")
+    anchor_sha = validate_anchor_yaml(args.anchor_yaml)
+    yaml_paths = {ANCHOR_ARM: args.anchor_yaml}
+
+    servers = []
+    for spec in args.servers.split(","):
+        if ":" not in spec:
+            raise SystemExit(f"--servers entry {spec!r} must be host:port")
+        host, port = spec.rsplit(":", 1)
+        servers.append(ServerEndpoint(host, int(port)))
+    manifest, pkg, rev1_sha = pkgmod.load_manifest(args.rev1_package_manifest)
+    pkgmod.verify_package(args.rev1_package_manifest)
+    if manifest.get("suite") != args.task_suite:
+        raise SystemExit("Rev 1 package suite != --task-suite")
+    contract_artifact = str(pkgmod.verify_member(manifest, pkg, "artifact.dsp_sv"))
+    contract_binding = assert_launch_contract(contract_artifact, args.replan_steps, servers)
+    lib_sha = load_surface_artifact(contract_artifact).retrieval_contract.get("library_sha256")
+
+    per_step_path = pathlib.Path(args.per_step_out)
+    per_step_path.parent.mkdir(parents=True, exist_ok=True)
+    launch_entry = {
+        "protocol": PROTOCOL_PILOT, "layer": LAYER_PILOT, "suite": args.task_suite,
+        "executed_arms": [ANCHOR_ARM], "core_arms": [ANCHOR_ARM], "descriptive_arms": [],
+        "trials_per_task": PILOT_TRIALS, "replan_steps": args.replan_steps, "env_seed": args.seed,
+        "policy_fingerprint": contract_binding["policy_fingerprint"], "contract_binding": contract_binding,
+        "library_sha256": lib_sha, "aprime_content_sha256": pool["rollup_sha256"],
+        "split_manifest": "", "split_manifest_sha256": None, "arm_matrix_sha256": plan_sha,
+        "frozen_yaml_sha256": {ANCHOR_ARM: anchor_sha}, "artifact_sha256": {}, "fit_record_sha256": None,
+        "executed_yaml_sha256": {ANCHOR_ARM: anchor_sha}, "pool": pool,
+        "task_plan_sha256": plan_sha, "pool_digest": pool["rollup_sha256"], "N": PILOT_TRIALS,
+        "cost_model_digest": cost_model_digest(), "rev1_package_manifest_sha256": rev1_sha,
+    }
+    launch_path = pathlib.Path(str(per_step_path) + ".launch.json")
+    ledger = {"schema_version": 2, "launches": []}
+    if launch_path.is_file():
+        prior = json.loads(launch_path.read_text())
+        if prior.get("launches"):
+            raise SystemExit("the P pilot is one-shot: this ledger already holds a launch; a second attempt is refused")
+    _launch_fresh_pool_run(args, lambda: ConfirmationStrategy(args.task_suite, yaml_paths, PILOT_TRIALS, plan), yaml_paths, servers,
+                           launch_entry, ledger, launch_path, per_step_path, pool["apool_dir"],
+                           layer=LAYER_PILOT, frozen_keys=FROZEN_LAUNCH_KEYS + PILOT_FROZEN_LAUNCH_KEYS,
+                           summary={"N": PILOT_TRIALS, "contract_binding": contract_binding})
+
+
+def run_confirmation(args) -> None:
+    """Fresh-init confirmation layer (plan 3.7-g): everything comes from the
+    seal; the task plan supplies the episode identities; the ledger freezes
+    the seal / task-plan / pool digests. No official init identity is used."""
+    from exp.dispatch_surface import seal_confirmation
+    from exp.dispatch_surface.build_confirmation_task_plan import load_task_plan
+
+    if not args.seal or not args.task_plan or not args.pool_dir:
+        raise SystemExit("confirmation layer requires --seal, --task-plan and --pool-dir")
+    seal, seal_sha = seal_confirmation.load_seal(args.seal)
+    n_prefix = int(seal["N"])
+    if args.trials != n_prefix:
+        raise SystemExit(f"--trials must equal the sealed N={n_prefix}")
+    if seal["suite"] != args.task_suite:
+        raise SystemExit(f"seal suite {seal['suite']!r} != --task-suite {args.task_suite!r}")
+    plan, plan_sha = load_task_plan(args.task_plan)
+    if plan_sha != seal["confirmation_task_plan_sha256"]:
+        raise SystemExit("task plan bytes != the seal's confirmation_task_plan_sha256")
+    if plan.get("N") != n_prefix or plan.get("suite") != seal["suite"] \
+            or plan.get("pool_manifest_sha256") != seal["pool"]["manifest_sha256"] \
+            or sorted(plan.get("roster_arms") or []) != sorted(seal["roster"]["arms"]):
+        raise SystemExit("task plan roster/N/pool binding disagrees with the seal")
+    pool = validate_fresh_pool(seal, args.pool_dir, n_prefix)
+    if pool["suite"] != args.task_suite:
+        raise SystemExit("fresh pool suite != --task-suite")
+    for uid, ent in plan["entries"].items():
+        task_name = ent["task_name"]
+        digest = pool["per_task_state_sha256"][task_name][ent["prefix_idx"]]
+        if digest != ent["fresh_state_sha256"]:
+            raise SystemExit(f"task plan entry {uid} points at a state digest not in the sealed pool")
+
+    arm_paths: dict[str, str] = dict(seal["roster"]["yaml_paths"])
+    if args.arms:
+        wanted = set(args.arms.split(","))
+        missing = wanted - set(arm_paths)
+        if missing:
+            raise SystemExit(f"unknown arms requested: {sorted(missing)}")
+        arm_paths = {a: p for a, p in arm_paths.items() if a in wanted}
+    if not args.no_resume_filter:
+        remaining, _counts = arms_with_accepted_work_left(args.journal, list(arm_paths), expected=NUM_TASKS * n_prefix)
+        arm_paths = {a: p for a, p in arm_paths.items() if a in set(remaining)}
+        if not arm_paths:
+            logger.info("every confirmation arm is complete; nothing to run")
+            return
+    yaml_paths = validate_confirmation_arms(arm_paths, seal)
+
+    servers = []
+    for spec in args.servers.split(","):
+        if ":" not in spec:
+            raise SystemExit(f"--servers entry {spec!r} must be host:port")
+        host, port = spec.rsplit(":", 1)
+        servers.append(ServerEndpoint(host, int(port)))
+    contract_artifact = seal["roster"]["artifact_paths"][seal["contract_arm"]]
+    contract_binding = assert_launch_contract(contract_artifact, args.replan_steps, servers)
+
+    per_step_path = pathlib.Path(args.per_step_out)
+    per_step_path.parent.mkdir(parents=True, exist_ok=True)
+    all_yaml_sha = {arm: _file_sha256(pathlib.Path(p)) for arm, p in seal["roster"]["yaml_paths"].items()}
+    if all_yaml_sha != seal["roster"]["yaml_sha256"]:
+        raise SystemExit("sealed yaml digests do not match the files about to run")
+    launch_entry = {
+        "protocol": PROTOCOL_CONFIRMATION,
+        "layer": LAYER_CONFIRMATION,
+        "suite": args.task_suite,
+        "executed_arms": sorted(yaml_paths),
+        "core_arms": sorted(seal["roster"]["arms"]),
+        "descriptive_arms": [],
+        "trials_per_task": n_prefix,
+        "replan_steps": args.replan_steps,
+        "env_seed": args.seed,
+        "policy_fingerprint": contract_binding["policy_fingerprint"],
+        "contract_binding": contract_binding,
+        "library_sha256": seal["library_sha256"],
+        "aprime_content_sha256": pool["rollup_sha256"],
+        "split_manifest": "",
+        "split_manifest_sha256": None,
+        "arm_matrix_sha256": seal_sha,
+        "frozen_yaml_sha256": all_yaml_sha,
+        "artifact_sha256": dict(seal["roster"]["artifact_sha256"]),
+        "fit_record_sha256": None,
+        "executed_yaml_sha256": {arm: _file_sha256(pathlib.Path(p)) for arm, p in yaml_paths.items()},
+        "pool": pool,
+        "seal_sha256": seal_sha,
+        "confirmation_task_plan_sha256": plan_sha,
+        "pool_digest": pool["rollup_sha256"],
+        "N": n_prefix,
+        "estimator_version": seal["estimator_digest"],
+        "cost_model_digest": seal["cost_model_digest"],
+    }
+    launch_path = pathlib.Path(str(per_step_path) + ".launch.json")
+    ledger = {"schema_version": 2, "launches": []}
+    if launch_path.is_file():
+        prior = json.loads(launch_path.read_text())
+        if prior.get("schema_version") != 2:
+            raise SystemExit("pre-ledger launch manifest cannot be resumed safely; use fresh output paths")
+        ledger = prior
+    validate_existing_launch_ledger(ledger, launch_entry)
+    for prior_entry in ledger["launches"]:
+        for key in CONFIRMATION_FROZEN_LAUNCH_KEYS:
+            if prior_entry.get(key) != launch_entry.get(key):
+                raise SystemExit(f"confirmation ledger drifts on frozen key {key}")
+
+    _launch_fresh_pool_run(args, lambda: ConfirmationStrategy(args.task_suite, yaml_paths, n_prefix, plan), yaml_paths, servers,
+                           launch_entry, ledger, launch_path, per_step_path, pool["apool_dir"],
+                           layer=LAYER_CONFIRMATION, frozen_keys=FROZEN_LAUNCH_KEYS + CONFIRMATION_FROZEN_LAUNCH_KEYS,
+                           summary={"N": n_prefix, "contract_binding": contract_binding})
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--arm-matrix", required=True, help="emit_precheck_yamls arm_matrix.json")
+    ap.add_argument("--arm-matrix", default="", help="emit_precheck_yamls arm_matrix.json (not used by the confirmation layer)")
     ap.add_argument("--layer", required=True,
-                    choices=[LAYER_PRIMARY, LAYER_SECONDARY, LAYER_EXPLORATORY],
+                    choices=[LAYER_PRIMARY, LAYER_SECONDARY, LAYER_EXPLORATORY, LAYER_TGRID, LAYER_CONFIRMATION, LAYER_PILOT],
                     help="must match the arm matrix; the layers keep separate ledgers")
+    ap.add_argument("--seal", default="", help="confirmation layer: confirmation_seal.json")
+    ap.add_argument("--task-plan", default="", help="confirmation / pilot layers: task plan json")
+    ap.add_argument("--pool-manifest", default="", help="pilot layer: pool_manifest_P.json")
+    ap.add_argument("--anchor-yaml", default="", help="pilot layer: the always_full_inference yaml")
+    ap.add_argument("--rev1-package-manifest", default="", help="pilot layer: Rev 1 package (launch contract)")
     ap.add_argument("--task-suite", required=True)
     ap.add_argument("--servers", required=True)
     ap.add_argument("--workers", type=int, default=8)
@@ -741,10 +1303,18 @@ def main() -> None:
     )
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO)
-    if args.trials != FORMAL_TRIALS:
-        raise SystemExit(f"formal precheck is frozen at --trials {FORMAL_TRIALS}")
     if args.workers <= 0 or args.gpus <= 0:
         raise SystemExit("--workers and --gpus must be positive")
+    if args.layer == LAYER_CONFIRMATION:
+        run_confirmation(args)
+        return
+    if args.layer == LAYER_PILOT:
+        run_pilot(args)
+        return
+    if args.trials != FORMAL_TRIALS:
+        raise SystemExit(f"formal precheck is frozen at --trials {FORMAL_TRIALS}")
+    if not args.arm_matrix:
+        raise SystemExit("--arm-matrix is required")
 
     matrix = json.loads(pathlib.Path(args.arm_matrix).read_text())
     matrix_arm_ids = set(matrix.get("arms") or {})
@@ -759,11 +1329,17 @@ def main() -> None:
             f"--layer {args.layer!r} does not match the matrix's layer {layer!r}; "
             "the two layers keep separate ledgers and must not be crossed"
         )
+    tgrid_ctx = None
     if layer == LAYER_EXPLORATORY:
         if matrix.get("gate_type") != LAYER_EXPECTED_GATE[layer]:
             raise SystemExit("exploratory arm matrix must probe every step (always_search)")
         validate_exploratory_matrix_artifacts(matrix)
         anchor_arms = frozenset(matrix.get("judge_role") or {})
+    elif layer == LAYER_TGRID:
+        if matrix.get("gate_type") != LAYER_EXPECTED_GATE[layer]:
+            raise SystemExit("threshold-grid arm matrix must probe every step (always_search)")
+        tgrid_ctx = validate_tgrid_matrix_artifacts(matrix)
+        anchor_arms = frozenset()
     else:
         if matrix.get("posthoc_exploratory"):
             raise SystemExit(f"{layer} arm matrix carries posthoc_exploratory; refusing")
@@ -797,7 +1373,10 @@ def main() -> None:
         if not arm_paths:
             logger.info("every arm is complete; nothing to run")
             return
-    yaml_paths = validate_precheck_arms(arm_paths, layer, anchor_arms)
+    if layer == LAYER_TGRID:
+        yaml_paths = validate_tgrid_arms(arm_paths, matrix)
+    else:
+        yaml_paths = validate_precheck_arms(arm_paths, layer, anchor_arms)
 
     servers = []
     for spec in args.servers.split(","):
@@ -808,20 +1387,25 @@ def main() -> None:
 
     # Launch contract before anything runs. The exploratory layer names its
     # contract arm in the matrix (frozen per suite); Rev 1 uses dsp_sv.
+    import yaml as _yaml
+
     if layer == LAYER_EXPLORATORY:
         contract_arm = matrix["contract_anchor_arm"]
         sv_yaml = matrix["arms"].get(contract_arm)
         if sv_yaml is None:
             raise SystemExit(f"arm matrix has no contract anchor arm {contract_arm!r}")
+        primary_artifact = _yaml.safe_load(open(sv_yaml))["checkpoints"]["cp1"]["judge"]["surface_artifact_path"]
+    elif layer == LAYER_TGRID:
+        # No surface arm in the grid: the launch contract comes from the Rev 1
+        # package's SV artifact (matrix contract_source, plan 3.2-d).
+        primary_artifact = tgrid_ctx["contract_artifact"]
     else:
         sv_yaml = matrix["arms"].get("dsp_sv")
         if sv_yaml is None:
             raise SystemExit("arm matrix has no primary surface arm 'dsp_sv'")
-    import yaml as _yaml
-
-    primary_artifact = _yaml.safe_load(open(sv_yaml))["checkpoints"]["cp1"]["judge"][
-        "surface_artifact_path"
-    ]
+        primary_artifact = _yaml.safe_load(open(sv_yaml))["checkpoints"]["cp1"]["judge"][
+            "surface_artifact_path"
+        ]
     contract_binding = assert_launch_contract(primary_artifact, args.replan_steps, servers)
 
     per_step_path = pathlib.Path(args.per_step_out)
@@ -852,7 +1436,7 @@ def main() -> None:
     # all matrix YAMLs to stay frozen, while each entry records the subset that
     # this run actually executed.
     launch_entry = {
-        "protocol": matrix["protocol"] if layer == LAYER_EXPLORATORY else PROTOCOL,
+        "protocol": matrix["protocol"] if layer in (LAYER_EXPLORATORY, LAYER_TGRID) else PROTOCOL,
         "layer": layer,
         "suite": args.task_suite,
         "executed_arms": sorted(yaml_paths),
@@ -884,6 +1468,16 @@ def main() -> None:
             "export_record_sha256": list(matrix["export_record_sha256"]),
             "cost_model_digest": matrix["cost_model_digest"],
             "contract_anchor_arm": matrix["contract_anchor_arm"],
+        })
+    elif layer == LAYER_TGRID:
+        launch_entry.update({
+            "posthoc_exploratory": True,
+            "tgrid_roster_spec_sha256": matrix["tgrid_roster_spec_sha256"],
+            "threshold_pair_rollup_sha256": matrix["threshold_pair_rollup_sha256"],
+            "contract_source": matrix["contract_source"],
+            "estimator_version": matrix["estimator_version"],
+            "rev1_package_manifest_sha256": matrix["rev1_package_manifest_sha256"],
+            "cost_model_digest": matrix["cost_model_digest"],
         })
     launch_path = pathlib.Path(str(per_step_path) + ".launch.json")
     ledger = {"schema_version": 2, "launches": []}
@@ -943,8 +1537,8 @@ def main() -> None:
             "contract_binding": contract_binding,
             "would_append_launch": {
                 k: launch_entry.get(k) for k in sorted(
-                    FROZEN_LAUNCH_KEYS + (EXPLORATORY_FROZEN_LAUNCH_KEYS
-                                          if layer == LAYER_EXPLORATORY else ())
+                    FROZEN_LAUNCH_KEYS + (EXPLORATORY_FROZEN_LAUNCH_KEYS if layer == LAYER_EXPLORATORY
+                                          else TGRID_FROZEN_LAUNCH_KEYS if layer == LAYER_TGRID else ())
                 )
             },
         }

@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import math
 import json
 import pathlib
 
@@ -71,6 +72,9 @@ LAYER_SECONDARY = "secondary"
 # Rev 2 Phase 0: post-hoc exploratory arms on the old A' (development set).
 # The roster is frozen in phase0_roster; nothing here is confirmatory.
 LAYER_EXPLORATORY = "exploratory"
+# Rev 2 confirmation plan: dense threshold grid on the development set
+# (plan section 3.2). Cells are frozen in phase0_roster; nothing is chosen here.
+LAYER_TGRID = "exploratory_tgrid"
 # Effective retrieval widths. The on-disk yaml stays at configured top_k=1 for
 # every arm so search_digest keeps matching the calibration table; these are the
 # widths the judges' min_required_top_k hint lifts to at runtime.
@@ -299,6 +303,183 @@ def emit_exploratory(args) -> None:
     print(f"emitted {len(arms)} exploratory arms for {suite} -> {matrix_path}")
 
 
+# ----------------------------------------------------------------------
+# Rev 2 confirmation plan: dense threshold grid (plan section 3.2)
+# ----------------------------------------------------------------------
+
+def threshold_pair_digest(t_fh: float, t_ws: float | None) -> str:
+    return hashlib.sha256(json.dumps([float(t_fh), None if t_ws is None else float(t_ws)],
+                                     separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
+def threshold_pair_rollup(arms: list[str], digests: dict[str, str]) -> str:
+    h = hashlib.sha256()
+    for arm in arms:
+        h.update(digests[arm].encode("utf-8"))
+    return h.hexdigest()
+
+
+def nominal_cost_ms(fh: int, ws: int) -> float:
+    """Analytic cost if the FULL / WARM / MISS shares were exactly fh% / ws% / rest."""
+    from exp.dispatch_surface.analysis.analytic_cost import unit_cost_table
+
+    u = unit_cost_table()
+    return (fh / 100.0) * u["FULL_HIT"] + (ws / 100.0) * u["WARM_START"] + (1.0 - (fh + ws) / 100.0) * u["MISS"]
+
+
+def emit_tgrid(args) -> None:
+    """Emit the 29 frozen threshold-grid arms for libero_10 on the development set.
+
+    Thresholds come from the SAME ``derive_thresholds`` on the SAME fit-union-
+    cal score list as Rev 1 (the table's content SHA must equal the archived
+    fit record's ``input_digests.table``); gate theta is read from the Rev 1
+    matrix, never recomputed. ``ws = 0`` cells carry no ``warm_tiers`` key;
+    ``ws > 0`` cells carry exactly one tier at ``start_t = 0.3`` and require
+    ``t_fh > t_ws``. Two cells deriving the same threshold pair are refused.
+    """
+    from exp.dispatch_surface import rev1_package as pkgmod
+    from exp.dispatch_surface.analysis.analytic_cost import cost_model_digest, cost_model_payload
+    from exp.dispatch_surface.analysis.estimator_version import budget_mixture_digest
+    from exp.dispatch_surface.analysis.precheck_io import (
+        load_accepted_cells_costonly,
+        load_cost_cells_costonly,
+    )
+    from exp.dispatch_surface.phase0_roster import (
+        FAMILY_THRESHOLD,
+        PROTOCOL_TGRID,
+        REV1_THRESHOLD_CELLS,
+        tgrid_arm_id,
+        tgrid_cells,
+        tgrid_roster_spec,
+        tgrid_roster_spec_digest,
+    )
+    from exp.dispatch_surface.run_precheck import FORMAL_TRIALS, official_test_inits
+    from exp.verdict_factor_judge.phase3.threshold_solver import derive_thresholds
+
+    for flag in ("suite", "rev1_package_manifest", "table"):
+        if not getattr(args, flag):
+            raise SystemExit(f"--{flag.replace('_', '-')} is required for the threshold-grid layer")
+    suite = args.suite
+    spec = tgrid_roster_spec(suite)
+    manifest, pkg, manifest_sha = pkgmod.load_manifest(args.rev1_package_manifest)
+    pkgmod.verify_package(args.rev1_package_manifest)
+    if manifest.get("suite") != suite:
+        raise SystemExit(f"package suite {manifest.get('suite')!r} != --suite {suite!r}")
+    rev1_matrix = pkgmod.load_json_member(manifest, pkg, "matrix")
+    fit_sv = pkgmod.load_json_member(manifest, pkg, "fit.sv")
+    table_sha = _file_sha256(pathlib.Path(args.table))
+    if table_sha != (fit_sv.get("input_digests") or {}).get("table"):
+        raise SystemExit("--table is not the calibration table the archived SV fit record binds")
+    template = yaml.safe_load(open(args.template))
+    out_dir = pathlib.Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    if any(out_dir.iterdir()):
+        raise SystemExit(f"--out-dir {out_dir} must be empty")
+    lib_sha = _file_sha256(pathlib.Path(args.library_pkl))
+    if lib_sha != rev1_matrix.get("library_sha256"):
+        raise SystemExit("--library-pkl is not the library the Rev 1 matrix froze")
+    theta = float(rev1_matrix["gate_theta"])
+    scores = _load_scores(args.table)
+
+    arms: dict[str, str] = {}
+    nominal: dict[str, dict] = {}
+    pairs: dict[str, list] = {}
+    pair_digests: dict[str, str] = {}
+    nominal_cost: dict[str, float] = {}
+    seen_pairs: dict[tuple, str] = {}
+    conflicts = []
+    grid_arms = [tgrid_arm_id(fh, ws) for fh, ws in tgrid_cells()]
+    for fh, ws in tgrid_cells():
+        if fh + ws > 100:
+            raise SystemExit(f"illegal cell ({fh}, {ws}): fh + ws > 100")
+        arm = tgrid_arm_id(fh, ws)
+        t_fh, t_ws = derive_thresholds(scores, fh / 100.0, ws / 100.0)
+        if not (math.isfinite(t_fh) and math.isfinite(t_ws)):
+            raise SystemExit(f"{arm}: non-finite derived thresholds")
+        if ws == 0:
+            judge = {"type": "threshold", "threshold": float(t_fh)}
+            pair = (float(t_fh), None)
+        else:
+            if not t_fh > t_ws:
+                raise SystemExit(f"{arm}: degenerate cell, t_fh={t_fh} is not > t_ws={t_ws}")
+            judge = {"type": "threshold", "threshold": float(t_fh),
+                     "warm_tiers": [{"threshold": float(t_ws), "start_t": WS_START_T}]}
+            pair = (float(t_fh), float(t_ws))
+        if pair in seen_pairs:
+            conflicts.append((seen_pairs[pair], arm, pair))
+        seen_pairs[pair] = arm
+        ypath = out_dir / f"{arm}.yaml"
+        _emit(template, ypath, judge, args.library_pkl, theta, LAYER_PRIMARY)
+        arms[arm] = str(ypath)
+        nominal[arm] = {"fh": fh, "ws": ws}
+        pairs[arm] = [pair[0], pair[1]]
+        pair_digests[arm] = threshold_pair_digest(pair[0], pair[1])
+        nominal_cost[arm] = nominal_cost_ms(fh, ws)
+    if conflicts:
+        raise SystemExit(f"threshold-grid cells derive identical threshold pairs: {conflicts}")
+    if sorted(arms) != sorted(grid_arms) or sorted(arms) != sorted(spec["arms"]):
+        raise SystemExit("emitted arms != frozen threshold grid")
+
+    # Rev 1 reference cells: nominal vs realized (cost rows only, outcome-blind)
+    officials = official_test_inits(str(pkgmod.verify_member(manifest, pkg, "split_manifest")), FORMAL_TRIALS)
+    grid = {(t, i) for t in officials for i in range(len(officials[t]))}
+    rev1_arms = [f"dsp_t_fh{fh}_ws{ws}" for fh, ws in REV1_THRESHOLD_CELLS]
+    accepted = load_accepted_cells_costonly(str(pkgmod.verify_member(manifest, pkg, "journal")), rev1_arms, grid)
+    cells, _summary = load_cost_cells_costonly(str(pkgmod.verify_member(manifest, pkg, "per_step")), rev1_arms, accepted, officials)
+    rev1_ref = {}
+    for (fh, ws), arm in zip(REV1_THRESHOLD_CELLS, rev1_arms):
+        num = sum(c for c, _n in cells[arm].values())
+        den = sum(n for _c, n in cells[arm].values())
+        realized = num / den
+        rev1_ref[arm] = {"fh": fh, "ws": ws, "nominal_cost_ms": nominal_cost_ms(fh, ws),
+                         "realized_cost_ms": realized, "realized_minus_nominal_ms": realized - nominal_cost_ms(fh, ws)}
+
+    spec_path = out_dir / "tgrid_roster_spec.json"
+    spec_path.write_text(json.dumps(spec, sort_keys=True, separators=(",", ":")))
+    if _file_sha256(spec_path) != tgrid_roster_spec_digest(suite):
+        raise SystemExit("tgrid roster spec digest mismatch")
+    matrix = {
+        "protocol": PROTOCOL_TGRID,
+        "layer": LAYER_TGRID,
+        "posthoc_exploratory": True,
+        "suite": suite,
+        "arms": arms,
+        "families": {arm: FAMILY_THRESHOLD for arm in arms},
+        "nominal": nominal,
+        "threshold_pairs": pairs,
+        "threshold_pair_digests": pair_digests,
+        "threshold_pair_rollup_sha256": threshold_pair_rollup(grid_arms, pair_digests),
+        "nominal_cost_ms": nominal_cost,
+        "rev1_reference_cells": rev1_ref,
+        "gate_type": gate_section(LAYER_PRIMARY, theta)["type"],
+        "gate_theta": theta,
+        "gate_theta_top_fraction": rev1_matrix.get("gate_theta_top_fraction"),
+        "gate_params": rev1_matrix.get("gate_params"),
+        "arm_yaml_sha256": {arm: _file_sha256(pathlib.Path(p)) for arm, p in arms.items()},
+        "artifact_paths": {},
+        "artifact_sha256": {},
+        "certification_mode": rev1_matrix.get("certification_mode"),
+        "core_arms": [],
+        "descriptive_arms": sorted(arms),
+        "tgrid_roster_spec_path": str(spec_path.resolve()),
+        "tgrid_roster_spec_sha256": tgrid_roster_spec_digest(suite),
+        "rev1_package_manifest_path": str(pathlib.Path(args.rev1_package_manifest).resolve()),
+        "rev1_package_manifest_sha256": manifest_sha,
+        "rev1_matrix_sha256": pkgmod.member_sha(manifest, "matrix"),
+        "table_sha256": table_sha,
+        "cost_model": cost_model_payload(),
+        "cost_model_digest": cost_model_digest(),
+        "estimator_version": budget_mixture_digest(),
+        "contract_source": spec["contract_source"],
+        "library_pkl": args.library_pkl,
+        "library_sha256": lib_sha,
+        "template": str(args.template),
+    }
+    matrix_path = out_dir / f"arm_matrix_{LAYER_TGRID}.json"
+    matrix_path.write_text(json.dumps(matrix, indent=2, sort_keys=True))
+    print(f"emitted {len(arms)} threshold-grid arms for {suite} -> {matrix_path}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--template", required=True)
@@ -307,7 +488,7 @@ def main() -> None:
                     help="fit_surface output dir (artifacts + fit_record.json)")
     ap.add_argument("--library-pkl", required=True)
     ap.add_argument("--layer", required=True,
-                    choices=[LAYER_PRIMARY, LAYER_SECONDARY, LAYER_EXPLORATORY])
+                    choices=[LAYER_PRIMARY, LAYER_SECONDARY, LAYER_EXPLORATORY, LAYER_TGRID])
     ap.add_argument("--out-dir", required=True)
     # -- Rev 2 Phase 0 exploratory layer only ------------------------
     ap.add_argument("--suite", default=None, help="exploratory: suite whose frozen roster to emit")
@@ -318,6 +499,9 @@ def main() -> None:
     args = ap.parse_args()
     if args.layer == LAYER_EXPLORATORY:
         emit_exploratory(args)
+        return
+    if args.layer == LAYER_TGRID:
+        emit_tgrid(args)
         return
     if not args.table or not args.fit_dir:
         ap.error("--table and --fit-dir are required for the primary/secondary layers")

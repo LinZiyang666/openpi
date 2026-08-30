@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "protocol": "dispatch_surface_rev2_confirmation_freeze",
+  "frozen_at": "2026-08-29",
+  "gate": "G1 Round 3 APPROVED (Review Authority direct revisions accepted and staged by the Execution Authority)",
+  "binding": "documents_sha256 = whole-file SHA-256; frozen_prefix = SHA-256 of the canonical prefix ending at end_marker (exp/dispatch_surface/freeze_record.py)",
+  "documents_sha256": {
+    "logs/dispatch_surface_rev2_protocol_draft.md": "59e05870e3df761a44156e3b93c90464c5d3c6b4a61f564913f551248a00a632",
+    "docs/iclr/ICLR_PAPER_BLOCKING_TODO.md": "d26fee9028c4b4f247861378ebc67a7f2f3b0837e0edb38d1dc9b95220e8373a"
+  },
+  "frozen_prefix": {
+    "logs/dispatch_surface_rev2_confirmation_plan.log.md": {
+      "end_marker": "**G1 freeze boundary：**",
+      "sha256": "0b357190bef5cabef40b5eedeeeeafe779889ca6a1466f17c6ce597783abf08d",
+      "git_blob": "efa4585c57fb488ddb346b85b298c3ad73bedffb",
+      "note": "append-only log: the G1 text is every byte up to and including the single line starting with end_marker; Code / G2 records appended after it do not change this digest"
+    }
+  },
+  "constants": {
+    "estimator": "budget_mixture_v1",
+    "threshold_grid_fh": [
+      20,
+      30,
+      40,
+      50,
+      60,
+      70,
+      80
+    ],
+    "threshold_grid_ws": [
+      0,
+      10,
+      20,
+      30,
+      40
+    ],
+    "threshold_grid_legality": "fh + ws <= 100",
+    "threshold_grid_suite": "libero_10",
+    "threshold_grid_new_arms": 29,
+    "F_MIN": 0.2,
+    "M_MAX": 6,
+    "N_CANDIDATES": [
+      30,
+      40,
+      50,
+      60
+    ],
+    "R_OUTER": 200,
+    "R_INNER": 10000,
+    "OUTER_SEED": 20260830,
+    "INNER_SEED": 20260829,
+    "LCB_ALPHA": 0.05,
+    "POWER_TARGET": 0.8,
+    "MAX_JOINT_MISS": 0.01,
+    "MAX_RETRIES": 4,
+    "POOL_QUOTA": {
+      "P": 10,
+      "C": 60
+    },
+    "PILOT_TOLERANCE_PT": 10.0,
+    "V_METRIC_SEED": 20260831,
+    "AUDIT_TOL": 1e-08,
+    "SIMPSON_ABS_TOL": 1e-10,
+    "VALUE_TOL": 1e-12,
+    "BREAKPOINT_TOL_MS": 1e-09
+  },
+  "rules": "Frozen by protocol section 13 at G1 APPROVED; only output values (tgrid package SHA, [B_L,B_H], roster, N, power record) may be filled in later through a separate amendment_result artifact."
+}
