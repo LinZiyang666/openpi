@@ -59,6 +59,7 @@ SEAL_REQUIRED_KEYS = ("schema", "protocol", "suite", "N", "roster", "contract_ar
                       "power_record_sha256", "power_replay_sha256", "pool", "pilot", "action_cache_record_sha256",
                       "action_cache_branch", "estimator_digest", "cost_model_digest", "analyzer_version",
                       "protocol_section13_sha256")
+SEAL_KEYS = SEAL_REQUIRED_KEYS + ("sealed_at",)
 
 
 def _file_sha256(path: pathlib.Path) -> str:
@@ -180,7 +181,7 @@ def build_seal(args) -> dict:
 def load_seal(path) -> tuple[dict, str]:
     p = pathlib.Path(path)
     seal = json.loads(p.read_text())
-    if seal.get("protocol") != PROTOCOL or seal.get("schema") != 1:
+    if seal.get("protocol") != PROTOCOL or seal.get("schema") != 1 or set(seal) != set(SEAL_KEYS):
         raise SystemExit(f"{p}: not a confirmation seal")
     missing = [k for k in SEAL_REQUIRED_KEYS if k not in seal]
     if missing:

@@ -8,7 +8,8 @@ task|pool|k|attempt|a")``, maps it through ``SeedSequence`` to ONE uint32
 seed that is handed to ``random``, ``numpy`` and ``env.seed`` alike, builds a
 fresh ``OffScreenRenderEnv``, calls ``env.reset()`` and reads the simulator
 state. A state is accepted when reset raised nothing, the shape matches the
-suite's official ``.init`` width and every entry is finite. Failed or
+TASK's official ``.init`` width (LIBERO-10 widths differ per task: 45..123)
+and every entry is finite. Failed or
 colliding indices occupy ``k`` (never re-sampled); P needs 10/10 ``ok`` and
 C 60/60 ``ok`` or the pool is ``generator_validation_failed``.
 
@@ -46,9 +47,10 @@ MAX_RETRIES = 4          # attempts a = 0..MAX_RETRIES (5 in total)
 POOL_QUOTA = {"P": 10, "C": 60}
 STATUS_OK, STATUS_FAILED, STATUS_COLLISION = "ok", "failed", "collision"
 NUM_TASKS = 10
+OFFICIAL_QUOTA = 50
 _SHA_RE = re.compile(r"^[0-9a-f]{64}$")
 VALIDATION_PATH_KEYS = ("p_manifest_path", "c_manifest_path", "p_dir", "c_dir", "apool_dir", "task_manifest_path",
-                        "cross_p_record", "cross_p_peer", "cross_c_record", "cross_c_peer", "assets_dir")
+                        "bddl_root", "cross_p_record", "cross_p_peer", "cross_c_record", "cross_c_peer", "assets_dir")
 
 
 def state_sha256(state) -> str:
@@ -135,21 +137,28 @@ def load_init_states(path):
 
 
 def official_state_digests(apool_dir: pathlib.Path, task_name: str) -> set[str]:
-    states = load_init_states(pathlib.Path(apool_dir) / f"{task_name}.init")
-    return {state_sha256(st) for st in states}
+    states = np.asarray(load_init_states(pathlib.Path(apool_dir) / f"{task_name}.init"))
+    if states.ndim != 2 or states.shape[0] != OFFICIAL_QUOTA or not np.isfinite(states).all():
+        raise SystemExit(f"{task_name}: official init file must hold exactly {OFFICIAL_QUOTA} finite 2-D states")
+    digests = {state_sha256(st) for st in states}
+    if len(digests) != OFFICIAL_QUOTA:
+        raise SystemExit(f"{task_name}: official init file contains duplicate states")
+    return digests
 
 
 def official_state_dim(apool_dir: pathlib.Path, task_name: str) -> int:
     """The suite's state width, derived from the official per-task ``.init`` file."""
     states = np.asarray(load_init_states(pathlib.Path(apool_dir) / f"{task_name}.init"))
-    if states.ndim != 2 or states.shape[0] == 0:
-        raise SystemExit(f"{task_name}: official init file is not a non-empty 2-D state array")
+    if states.ndim != 2 or states.shape[0] != OFFICIAL_QUOTA or not np.isfinite(states).all():
+        raise SystemExit(f"{task_name}: official init file must hold exactly {OFFICIAL_QUOTA} finite 2-D states")
     return int(states.shape[1])
 
 
 def load_task_manifest(path) -> dict:
     """The suite's task manifest: exactly 10 tasks with unique ids 0..9, names and BDDL digests."""
     tm = json.loads(pathlib.Path(path).read_text())
+    if tm.get("schema") != 1 or not isinstance(tm.get("suite"), str) or not tm["suite"]:
+        raise SystemExit("task manifest requires schema=1 and a non-empty suite")
     tasks = tm.get("tasks")
     if not isinstance(tasks, list) or len(tasks) != NUM_TASKS:
         raise SystemExit(f"task manifest must list exactly {NUM_TASKS} tasks")
@@ -169,6 +178,8 @@ def load_task_manifest(path) -> dict:
 
 def assets_rollup(assets_dir) -> dict:
     """Content rollup of every file under the simulator asset directory."""
+    if not assets_dir:
+        raise SystemExit("assets directory is required (the rollup is part of the generation authority)")
     root = pathlib.Path(assets_dir)
     if not root.is_dir():
         raise SystemExit(f"assets directory does not exist: {root}")
@@ -180,20 +191,31 @@ def assets_rollup(assets_dir) -> dict:
             "sha256": hashlib.sha256("\n".join(lines).encode()).hexdigest()}
 
 
-def generate_pool(suite: str, pool: str, tasks: list[dict], *, apool_dir: pathlib.Path, state_dim: int,
+def task_state_dims(apool_dir: pathlib.Path, task_names) -> dict[str, int]:
+    """Per-task official state width (the ONLY source of the width)."""
+    return {name: official_state_dim(apool_dir, name) for name in task_names}
+
+
+def _width_for(state_dim, name: str) -> int:
+    return int(state_dim[name]) if isinstance(state_dim, dict) else int(state_dim)
+
+
+def generate_pool(suite: str, pool: str, tasks: list[dict], *, apool_dir: pathlib.Path, state_dim,
                   env_factory=make_env, exclude: dict[str, set[str]] | None = None) -> dict:
-    """tasks: [{task_id, task_name, bddl_file, bddl_sha256?}]; returns pools[pool] block + states."""
+    """tasks: [{task_id, task_name, bddl_file, bddl_sha256?}]; ``state_dim`` is the per-task
+    width map from ``task_state_dims`` (an int applies to every task); returns pools[pool] block + states."""
     quota = POOL_QUOTA[pool]
     block = {"quota": quota, "tasks": {}}
     states_by_task: dict[str, list[np.ndarray]] = {}
     for t in tasks:
         name = t["task_name"]
+        width = _width_for(state_dim, name)
         banned = set(official_state_digests(apool_dir, name)) | set((exclude or {}).get(name, set()))
         entries = []
         seen: set[str] = set()
         states = []
         for k in range(quota):
-            e = sample_one(suite, name, pool, k, bddl_file=t["bddl_file"], state_dim=state_dim, env_factory=env_factory)
+            e = sample_one(suite, name, pool, k, bddl_file=t["bddl_file"], state_dim=width, env_factory=env_factory)
             st = e.pop("_state")
             if e["status"] == STATUS_OK and (e["state_sha256"] in banned or e["state_sha256"] in seen):
                 e["status"] = STATUS_COLLISION
@@ -260,19 +282,33 @@ def environment_record(assets_dir=None) -> dict:
 
 
 def compare_manifests(a: dict, b: dict, pool: str) -> list[str]:
-    """Cross-machine determinism check: every (task, k) state digest must agree."""
+    """Cross-machine determinism check under the same generation authority."""
     problems = []
-    ta, tb = a["pools"][pool]["tasks"], b["pools"][pool]["tasks"]
+    for key in ("suite", "seed_namespace", "max_retries", "state_dim", "task_manifest_sha256"):
+        if a.get(key) != b.get(key):
+            problems.append(f"authority field {key} differs")
+    if (a.get("environment") or {}).get("assets_rollup") != (b.get("environment") or {}).get("assets_rollup"):
+        problems.append("asset rollups differ")
+    pa, pb = (a.get("pools") or {}).get(pool), (b.get("pools") or {}).get(pool)
+    if not isinstance(pa, dict) or not isinstance(pb, dict):
+        return problems + [f"one manifest lacks pool {pool}"]
+    if pa.get("quota") != pb.get("quota"):
+        problems.append("pool quotas differ")
+    ta, tb = pa.get("tasks") or {}, pb.get("tasks") or {}
     if set(ta) != set(tb):
-        return ["task sets differ"]
+        return problems + ["task sets differ"]
     for name in sorted(ta):
+        for key in ("task_id", "bddl_sha256"):
+            if ta[name].get(key) != tb[name].get(key):
+                problems.append(f"{name}: {key} differs")
         ea, eb = ta[name]["entries"], tb[name]["entries"]
         if len(ea) != len(eb):
             problems.append(f"{name}: entry counts differ")
             continue
         for x, y in zip(ea, eb):
-            if x["status"] != y["status"] or x["state_sha256"] != y["state_sha256"]:
-                problems.append(f"{name} k={x['k']}: {x['status']}/{x['state_sha256']} vs {y['status']}/{y['state_sha256']}")
+            for key in ("k", "attempts", "status", "shape", "dtype", "state_sha256"):
+                if x.get(key) != y.get(key):
+                    problems.append(f"{name} k={x.get('k')}: {key} differs")
     return problems
 
 
@@ -347,12 +383,13 @@ def _validate_task_block(pool: str, suite: str, name: str, task_id: int, info: d
     return digests
 
 
-def validate_pools(*, p_manifest_path, c_manifest_path, p_dir, c_dir, apool_dir, task_manifest_path,
-                   cross_p_record, cross_p_peer, cross_c_record, cross_c_peer, assets_dir=None) -> dict:
+def validate_pools(*, p_manifest_path, c_manifest_path, p_dir, c_dir, apool_dir, task_manifest_path, bddl_root,
+                   cross_p_record, cross_p_peer, cross_c_record, cross_c_peer, assets_dir) -> dict:
     """The fresh-pool finalizer: everything re-derived from files, nothing self-reported."""
     paths = {k: (str(pathlib.Path(v).resolve()) if v else None) for k, v in {
         "p_manifest_path": p_manifest_path, "c_manifest_path": c_manifest_path, "p_dir": p_dir, "c_dir": c_dir,
-        "apool_dir": apool_dir, "task_manifest_path": task_manifest_path, "cross_p_record": cross_p_record,
+        "apool_dir": apool_dir, "task_manifest_path": task_manifest_path, "bddl_root": bddl_root,
+        "cross_p_record": cross_p_record,
         "cross_p_peer": cross_p_peer, "cross_c_record": cross_c_record, "cross_c_peer": cross_c_peer,
         "assets_dir": assets_dir}.items()}
     manifests = {"P": load_pool_manifest(p_manifest_path), "C": load_pool_manifest(c_manifest_path)}
@@ -361,11 +398,16 @@ def validate_pools(*, p_manifest_path, c_manifest_path, p_dir, c_dir, apool_dir,
     tm_sha = _file_sha256(pathlib.Path(task_manifest_path))
     suite = tm.get("suite")
     tasks = sorted(tm["tasks"], key=lambda t: t["task_id"])
+    bddl_dir = pathlib.Path(bddl_root)
+    for t in tasks:
+        rel = pathlib.Path(t["bddl_file"])
+        if rel.is_absolute() or ".." in rel.parts:
+            raise SystemExit(f"task {t['task_name']}: bddl_file must be relative to --bddl-root")
+        bddl = bddl_dir / rel
+        if not bddl.is_file() or _file_sha256(bddl) != t["bddl_sha256"]:
+            raise SystemExit(f"task {t['task_name']}: BDDL bytes != task manifest")
     apool = pathlib.Path(apool_dir)
-    dims = {t["task_name"]: official_state_dim(apool, t["task_name"]) for t in tasks}
-    if len(set(dims.values())) != 1:
-        raise SystemExit(f"official init files disagree on the state width: {dims}")
-    state_dim = next(iter(dims.values()))
+    dims = task_state_dims(apool, [t["task_name"] for t in tasks])
     official = {t["task_name"]: official_state_digests(apool, t["task_name"]) for t in tasks}
     rollups = {}
     for pool, m in manifests.items():
@@ -373,8 +415,8 @@ def validate_pools(*, p_manifest_path, c_manifest_path, p_dir, c_dir, apool_dir,
             raise SystemExit(f"{pool} manifest suite != task manifest suite")
         if m.get("task_manifest_sha256") != tm_sha:
             raise SystemExit(f"{pool} manifest does not bind this task manifest")
-        if m.get("state_dim") != state_dim:
-            raise SystemExit(f"{pool} manifest state_dim {m.get('state_dim')} != official width {state_dim}")
+        if m.get("state_dim") != dims:
+            raise SystemExit(f"{pool} manifest state_dim {m.get('state_dim')} != official per-task widths {dims}")
         if m.get("seed_namespace") != SEED_NAMESPACE or m.get("max_retries") != MAX_RETRIES:
             raise SystemExit(f"{pool} manifest seed namespace / retry budget != frozen")
         rollups[pool] = (m.get("environment") or {}).get("assets_rollup")
@@ -382,7 +424,7 @@ def validate_pools(*, p_manifest_path, c_manifest_path, p_dir, c_dir, apool_dir,
             raise SystemExit(f"{pool} manifest lacks the asset rollup")
     if rollups["P"] != rollups["C"]:
         raise SystemExit("P and C were generated against different asset rollups")
-    if assets_dir and assets_rollup(assets_dir) != rollups["P"]:
+    if assets_rollup(assets_dir) != rollups["P"]:
         raise SystemExit("asset rollup recomputed from --assets-dir != the manifests")
     pools_out = {}
     digests_by_pool: dict[str, dict[str, list[str]]] = {}
@@ -402,7 +444,7 @@ def validate_pools(*, p_manifest_path, c_manifest_path, p_dir, c_dir, apool_dir,
             info = block["tasks"][name]
             if info.get("bddl_sha256") != t["bddl_sha256"]:
                 raise SystemExit(f"{pool}/{name}: bddl digest != task manifest")
-            per_task[name] = _validate_task_block(pool, suite, name, t["task_id"], info, state_dim)
+            per_task[name] = _validate_task_block(pool, suite, name, t["task_id"], info, dims[name])
             path = dirs[pool] / f"{name}.init"
             if not path.is_file():
                 raise SystemExit(f"{pool}/{name}: materialised init file missing: {path}")
@@ -410,8 +452,8 @@ def validate_pools(*, p_manifest_path, c_manifest_path, p_dir, c_dir, apool_dir,
             if file_sha.get(name) != got:
                 raise SystemExit(f"{pool}/{name}: init file bytes != manifest init_file_sha256")
             states = np.asarray(load_init_states(path))
-            if states.shape != (POOL_QUOTA[pool], state_dim):
-                raise SystemExit(f"{pool}/{name}: init file shape {states.shape} != ({POOL_QUOTA[pool]}, {state_dim})")
+            if states.shape != (POOL_QUOTA[pool], dims[name]):
+                raise SystemExit(f"{pool}/{name}: init file shape {states.shape} != ({POOL_QUOTA[pool]}, {dims[name]})")
             if [state_sha256(st) for st in states] != per_task[name]:
                 raise SystemExit(f"{pool}/{name}: materialised states != manifest digests (k order)")
             files[name] = got
@@ -432,7 +474,7 @@ def validate_pools(*, p_manifest_path, c_manifest_path, p_dir, c_dir, apool_dir,
         excl["P_vs_C"] += len(p_set & c_set)
     if any(excl.values()):
         raise SystemExit(f"fresh pools are not exclusive: {excl}")
-    return {"protocol": VALIDATION_PROTOCOL, "suite": suite, "state_dim": state_dim, "task_manifest_sha256": tm_sha,
+    return {"protocol": VALIDATION_PROTOCOL, "suite": suite, "state_dim": dims, "task_manifest_sha256": tm_sha,
             "tasks": [{"task_id": t["task_id"], "task_name": t["task_name"], "bddl_sha256": t["bddl_sha256"]} for t in tasks],
             "official": {"states_per_task": {n: len(s) for n, s in official.items()},
                          "file_sha256": {t["task_name"]: _file_sha256(apool / f"{t['task_name']}.init") for t in tasks}},
@@ -462,6 +504,8 @@ def validate_pool_validation(artifact_path, *, p_manifest_path, c_manifest_path)
 
 def _generate(args) -> None:
     tm = load_task_manifest(args.task_manifest)
+    if tm["suite"] != args.suite:
+        raise SystemExit("task manifest suite != --suite")
     tasks = []
     for t in tm["tasks"]:
         tasks.append({"task_id": int(t["task_id"]), "task_name": t["task_name"],
@@ -470,20 +514,17 @@ def _generate(args) -> None:
         if not pathlib.Path(t["bddl_file"]).is_file() or _file_sha256(pathlib.Path(t["bddl_file"])) != t["bddl_sha256"]:
             raise SystemExit(f"{t['task_name']}: BDDL file missing or its digest != task manifest")
     apool = pathlib.Path(args.apool_dir)
-    dims = {t["task_name"]: official_state_dim(apool, t["task_name"]) for t in tasks}
-    if len(set(dims.values())) != 1:
-        raise SystemExit(f"official init files disagree on the state width: {dims}")
-    state_dim = next(iter(dims.values()))
+    dims = task_state_dims(apool, [t["task_name"] for t in tasks])
     exclude = {}
     if args.exclude_manifest:
         other = load_pool_manifest(args.exclude_manifest)
         for pool_block in other["pools"].values():
             for name, info in pool_block["tasks"].items():
                 exclude.setdefault(name, set()).update(e["state_sha256"] for e in info["entries"] if e["state_sha256"])
-    block, states = generate_pool(args.suite, args.pool, tasks, apool_dir=apool, state_dim=state_dim, exclude=exclude)
+    block, states = generate_pool(args.suite, args.pool, tasks, apool_dir=apool, state_dim=dims, exclude=exclude)
     out = pathlib.Path(args.out_dir)
     manifest = {"schema": 1, "protocol": PROTOCOL, "suite": args.suite, "seed_namespace": SEED_NAMESPACE,
-                "max_retries": MAX_RETRIES, "state_dim": state_dim, "environment": environment_record(args.assets_dir),
+                "max_retries": MAX_RETRIES, "state_dim": dims, "environment": environment_record(args.assets_dir),
                 "task_manifest_sha256": _file_sha256(pathlib.Path(args.task_manifest)),
                 "pools": {args.pool: block}}
     (out / "pool_manifest_draft.json").parent.mkdir(parents=True, exist_ok=True)
@@ -514,7 +555,7 @@ def main() -> None:
     x.add_argument("--out", required=True)
     v = sub.add_parser("validate")
     for key in VALIDATION_PATH_KEYS:
-        v.add_argument("--" + key.replace("_", "-"), required=(key != "assets_dir"), default=None)
+        v.add_argument("--" + key.replace("_", "-"), required=True)
     v.add_argument("--out", required=True)
     args = ap.parse_args()
     if args.cmd == "generate":

@@ -36,7 +36,7 @@ import numpy as np
 
 from exp.dispatch_surface.analysis import budget_outcome_design as bod
 from exp.dispatch_surface.analysis.estimator_version import budget_mixture_digest
-from exp.dispatch_surface.analysis.h1_verdict import FrozenDesign, evaluate_h1_verdict
+from exp.dispatch_surface.analysis.h1_verdict import MAX_JOINT_MISS, FrozenDesign, evaluate_h1_verdict
 from exp.dispatch_surface.phase0_roster import ANCHOR_ARM, F_MIN, M_MAX, FAMILY_S0, FAMILY_SV, FAMILY_THRESHOLD
 from exp.dispatch_surface.run_precheck import FORMAL_TRIALS, NUM_TASKS
 
@@ -52,12 +52,18 @@ LCB_ALPHA = 0.05
 POWER_TARGET = 0.80
 REPLAY_PER_N = 5
 SELECTION_RULE = "smallest N with LCB>=target for N and all larger candidates"
+ASSUMPTION = ("effect-replication: the empirical joint (cost, SR) distribution of the official A' development cells, "
+              "conditional on the development-selected roster, approximates fresh C; the P pilot only checks "
+              "full-inference difficulty drift, not H1 effect transport")
+HALF_EFFECT_NOTE = "proxy: q05 shifted by effect/2; non-gating"
 ROW_KEYS = ("N", "r", "formal", "passed", "reason", "effect", "q05", "joint_miss", "left_support_ok",
             "half_effect_proxy_pass", "outer_index_sha256", "inner_index_sha256", "audit_inner0", "row_sha256")
 RECORD_KEYS = ("protocol", "smoke", "suite", "estimator_version", "outcome_design_sha256", "c_roster_sha256",
                "budget_cost_map_sha256", "budget_interval", "roster", "constants", "assumption", "per_N", "selection",
                "verdict", "selected_N", "replicates", "aggregate_sha256", "wall_seconds", "half_effect_note")
 PER_N_KEYS = ("passes", "n", "power_point", "lcb95", "half_effect_proxy_power", "reasons")
+REPLAY_KEYS = ("protocol", "power_record_sha256", "aggregate_sha256", "constants", "replayed", "passed", "host", "wall_seconds")
+REPLAY_ROW_KEYS = ("N", "r", "expected_row_sha256", "replayed_row_sha256", "match")
 _SHA_LEN = 64
 
 
@@ -291,6 +297,49 @@ def _is_sha(x) -> bool:
     return isinstance(x, str) and len(x) == _SHA_LEN and all(c in "0123456789abcdef" for c in x)
 
 
+def _is_json_int(x) -> bool:
+    return isinstance(x, int) and not isinstance(x, bool)
+
+
+def _finite_number(x) -> bool:
+    return isinstance(x, (int, float)) and not isinstance(x, bool) and np.isfinite(float(x))
+
+
+def _validate_row_semantics(row: dict) -> None:
+    """Validate cheap adjudication identities on every row, replayed or not."""
+    if not _is_json_int(row["N"]) or not _is_json_int(row["r"]):
+        raise SystemExit("power row N/r must be JSON integers")
+    if not _finite_number(row["q05"]) or not _finite_number(row["joint_miss"]) \
+            or not 0.0 <= float(row["joint_miss"]) <= 1.0:
+        raise SystemExit("power row q05 / joint_miss domain invalid")
+    if row["effect"] is not None and not _finite_number(row["effect"]):
+        raise SystemExit("power row effect must be finite or null")
+    if not isinstance(row["left_support_ok"], bool) or not isinstance(row["half_effect_proxy_pass"], bool):
+        raise SystemExit("power row support / half-effect flags must be boolean")
+    if row["left_support_ok"] != (row["effect"] is not None):
+        raise SystemExit("power row effect nullability contradicts left support")
+    miss = float(row["joint_miss"])
+    if abs(miss * R_INNER - round(miss * R_INNER)) > 1e-8:
+        raise SystemExit("power row joint_miss is not attainable under frozen R_INNER")
+    passed = bool(row["left_support_ok"] and miss <= MAX_JOINT_MISS and float(row["q05"]) > 0.0)
+    if row["passed"] is not passed:
+        raise SystemExit("power row passed flag contradicts the frozen H1 rule")
+    if not row["left_support_ok"]:
+        reason = "left_support_fail"
+    elif miss > MAX_JOINT_MISS:
+        reason = "joint_miss_exceeds"
+    elif float(row["q05"]) > 0.0:
+        reason = "q05_positive"
+    else:
+        reason = "q05_not_positive"
+    if row["reason"] != reason:
+        raise SystemExit("power row reason contradicts the frozen H1 rule")
+    half = bool(row["left_support_ok"] and miss <= MAX_JOINT_MISS
+                and float(row["q05"]) - 0.5 * float(row["effect"]) > 0.0)
+    if row["half_effect_proxy_pass"] is not half:
+        raise SystemExit("power row half-effect flag contradicts its effect/q05/support fields")
+
+
 def validate_power_record(record: dict, *, outcome_design_path, c_roster_path, budget_cost_map_path,
                           allow_smoke: bool = False) -> dict:
     """Mechanically re-derive everything a power record claims (G2R1-B3)."""
@@ -305,6 +354,10 @@ def validate_power_record(record: dict, *, outcome_design_path, c_roster_path, b
     r_outer = R_OUTER_SMOKE if record["smoke"] else R_OUTER
     if record["constants"] != frozen_constants(r_outer):
         raise SystemExit("power record constants != the frozen constants")
+    if record["assumption"] != ASSUMPTION or record["half_effect_note"] != HALF_EFFECT_NOTE:
+        raise SystemExit("power record assumption / half-effect note != frozen wording")
+    if not _finite_number(record["wall_seconds"]) or float(record["wall_seconds"]) < 0:
+        raise SystemExit("power record wall_seconds must be finite and nonnegative")
     if record["estimator_version"] != budget_mixture_digest():
         raise SystemExit("power record estimator != budget_mixture_v1")
     design = json.loads(pathlib.Path(outcome_design_path).read_text())
@@ -333,6 +386,7 @@ def validate_power_record(record: dict, *, outcome_design_path, c_roster_path, b
             raise SystemExit(f"row (N={row['N']}, r={row['r']}) is not formal")
         if not isinstance(row["passed"], bool) or not isinstance(row["reason"], str):
             raise SystemExit("row verdict schema invalid")
+        _validate_row_semantics(row)
         if not _is_sha(row["outer_index_sha256"]) or not _is_sha(row["inner_index_sha256"]):
             raise SystemExit("row index digests malformed")
         if row_digest(row) != row["row_sha256"]:
@@ -374,16 +428,22 @@ def replay_indices(record: dict) -> list[tuple[int, int]]:
 
 def validate_power_replay(replay: dict, record: dict, record_path) -> None:
     """The seal's check that a replay artifact recomputed this record's rows."""
-    if replay.get("protocol") != REPLAY_PROTOCOL:
+    if not isinstance(replay, dict) or set(replay) != set(REPLAY_KEYS) or replay.get("protocol") != REPLAY_PROTOCOL:
         raise SystemExit("not a power replay artifact")
+    if not isinstance(replay.get("host"), str) or not replay["host"] or not _finite_number(replay.get("wall_seconds")) \
+            or float(replay["wall_seconds"]) < 0:
+        raise SystemExit("power replay host / wall_seconds schema invalid")
     if replay.get("power_record_sha256") != _file_sha(record_path) or replay.get("aggregate_sha256") != record["aggregate_sha256"]:
         raise SystemExit("power replay does not bind this power record")
     expected = replay_indices(record)
-    got = [(int(x["N"]), int(x["r"])) for x in replay.get("replayed") or []]
+    replayed = replay.get("replayed")
+    if not isinstance(replayed, list) or any(not isinstance(x, dict) or set(x) != set(REPLAY_ROW_KEYS) for x in replayed):
+        raise SystemExit("power replay row key set is not exact")
+    got = [(int(x["N"]), int(x["r"])) for x in replayed]
     if got != expected:
         raise SystemExit("power replay subset != the digest-derived subset for this record")
     by_key = {(int(x["N"]), int(x["r"])): x["row_sha256"] for x in record["replicates"]}
-    for x in replay["replayed"]:
+    for x in replayed:
         key = (int(x["N"]), int(x["r"]))
         if x.get("match") is not True or x.get("expected_row_sha256") != by_key[key] or x.get("replayed_row_sha256") != by_key[key]:
             raise SystemExit(f"power replay row {key} did not reproduce the record")
@@ -442,12 +502,10 @@ def run(args) -> dict:
         "c_roster_sha256": _file_sha(args.c_roster),
         "budget_cost_map_sha256": inp["design"]["budget_cost_map_sha256"], "budget_interval": inp["design"]["budget_interval"],
         "roster": inp["roster"], "constants": frozen_constants(r_outer),
-        "assumption": ("effect-replication: the empirical joint (cost, SR) distribution of the official A' development cells, "
-                       "conditional on the development-selected roster, approximates fresh C; the P pilot only checks "
-                       "full-inference difficulty drift, not H1 effect transport"),
+        "assumption": ASSUMPTION,
         "per_N": {str(N): per_n[N] for N in N_CANDIDATES}, "selection": sel, "verdict": sel["verdict"],
         "selected_N": sel["selected_N"], "replicates": results, "aggregate_sha256": aggregate_sha256(results),
-        "wall_seconds": time.time() - t0, "half_effect_note": "proxy: q05 shifted by effect/2; non-gating",
+        "wall_seconds": time.time() - t0, "half_effect_note": HALF_EFFECT_NOTE,
     }
     record = _canon(record)
     p = pathlib.Path(args.out)

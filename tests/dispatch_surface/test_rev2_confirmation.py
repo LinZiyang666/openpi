@@ -245,6 +245,7 @@ def test_freeze_record_matches_code_constants():
     assert c["OUTER_SEED"] == FROZEN_PMC["OUTER_SEED"] and c["INNER_SEED"] == FROZEN_PMC["INNER_SEED"]
     assert c["POWER_TARGET"] == FROZEN_PMC["POWER_TARGET"] == 0.80 and c["LCB_ALPHA"] == FROZEN_PMC["LCB_ALPHA"] == 0.05
     assert c["MAX_RETRIES"] == gen.MAX_RETRIES and c["POOL_QUOTA"] == gen.POOL_QUOTA
+    assert c["OFFICIAL_QUOTA"] == gen.OFFICIAL_QUOTA == 50
     assert c["PILOT_TOLERANCE_PT"] == pilot_mod.PILOT_TOLERANCE_PT
     assert c["AUDIT_TOL"] == bm.AUDIT_TOL and c["VALUE_TOL"] == bm.VALUE_TOL and c["BREAKPOINT_TOL_MS"] == bm.BREAKPOINT_TOL_MS
     # G1 binding on the working tree: whole-file digests + the plan's frozen G1 prefix (G2R1-B1)
@@ -661,6 +662,21 @@ def test_power_replicate_is_deterministic_and_shares_the_verdict_function():
     assert pmc.row_digest(tampered) != a["row_sha256"]
 
 
+def test_power_row_semantics_reject_self_hashed_contradictions():
+    row = {"N": 30, "r": 0, "formal": True, "passed": True, "reason": "q05_positive",
+           "effect": 0.1, "q05": 0.02, "joint_miss": 0.0, "left_support_ok": True,
+           "half_effect_proxy_pass": False, "outer_index_sha256": "0" * 64,
+           "inner_index_sha256": "1" * 64, "audit_inner0": None}
+    pmc._validate_row_semantics(row)
+    bad = dict(row, passed=False, reason="q05_not_positive")
+    with pytest.raises(SystemExit, match="passed flag"):
+        pmc._validate_row_semantics(bad)
+    with pytest.raises(SystemExit, match="JSON integers"):
+        pmc._validate_row_semantics(dict(row, r=0.0))
+    with pytest.raises(SystemExit, match="attainable"):
+        pmc._validate_row_semantics(dict(row, joint_miss=0.00001))
+
+
 @pytest.fixture(scope="module")
 def power(chain, tgrid, budget):
     """The formal power pipeline (run -> record -> replay) under test-sized frozen constants."""
@@ -752,6 +768,19 @@ def test_power_replay_recomputes_a_digest_derived_subset(power, budget, tmp_path
 # 5. fresh-init generator (plan 6-10)
 # ------------------------------------------------------------------
 
+def _official50(root: pathlib.Path) -> pathlib.Path:
+    """Synthetic official super-pool: exactly OFFICIAL_QUOTA states per task, width 3 (state (0,0) = [0,0,0.5])."""
+    import torch
+    d = root / "official50"
+    d.mkdir(parents=True, exist_ok=True)
+    for t in range(10):
+        torch.save(np.array([[t, float(i), 0.5] for i in range(gen.OFFICIAL_QUOTA)], dtype=np.float64), d / f"task_{t}.init")
+    return d
+
+
+DIMS3 = {f"task_{t}": 3 for t in range(10)}
+
+
 class _StubEnv:
     calls = 0
 
@@ -775,6 +804,38 @@ class _StubEnv:
         pass
 
 
+def test_cross_machine_comparison_binds_generation_authority():
+    entry = {"k": 0, "attempts": [{"a": 0, "authority_sha256": "a" * 64, "seed32": 1,
+                                     "py_seed": 1, "np_seed": 1, "env_seed": 1, "outcome": "accepted"}],
+             "status": "ok", "shape": [3], "dtype": "float64", "state_sha256": "b" * 64}
+    task = {"task_id": 0, "bddl_sha256": "c" * 64, "entries": [entry]}
+    base = {"suite": SUITE, "seed_namespace": gen.SEED_NAMESPACE, "max_retries": gen.MAX_RETRIES,
+            "state_dim": 3, "task_manifest_sha256": "d" * 64,
+            "environment": {"assets_rollup": {"sha256": "e" * 64}},
+            "pools": {"P": {"quota": 1, "tasks": {"task_0": task}}}}
+    assert gen.compare_manifests(base, json.loads(json.dumps(base)), "P") == []
+    peer = json.loads(json.dumps(base))
+    peer["seed_namespace"] = "other"
+    assert "authority field seed_namespace differs" in gen.compare_manifests(base, peer, "P")
+    peer = json.loads(json.dumps(base))
+    peer["pools"]["P"]["tasks"]["task_0"]["entries"][0]["attempts"][0]["seed32"] = 2
+    assert any("attempts differs" in p for p in gen.compare_manifests(base, peer, "P"))
+
+
+def test_official_pool_authority_is_exactly_fifty_unique_finite_states(monkeypatch):
+    good = np.arange(gen.OFFICIAL_QUOTA * 3, dtype=np.float64).reshape(gen.OFFICIAL_QUOTA, 3)
+    monkeypatch.setattr(gen, "load_init_states", lambda _p: good)
+    assert len(gen.official_state_digests(pathlib.Path("unused"), "task")) == gen.OFFICIAL_QUOTA
+    monkeypatch.setattr(gen, "load_init_states", lambda _p: good[:-1])
+    with pytest.raises(SystemExit, match="exactly 50"):
+        gen.official_state_dim(pathlib.Path("unused"), "task")
+    duplicate = good.copy()
+    duplicate[-1] = duplicate[0]
+    monkeypatch.setattr(gen, "load_init_states", lambda _p: duplicate)
+    with pytest.raises(SystemExit, match="duplicate"):
+        gen.official_state_digests(pathlib.Path("unused"), "task")
+
+
 def test_seed_domain_and_attempt_semantics():
     seeds = gen.derive_seeds(SUITE, "task_0", "C", 0, 0)
     assert int.from_bytes(bytes.fromhex(seeds["authority_sha256"]), "big") > 2 ** 32 - 1
@@ -787,14 +848,18 @@ def test_seed_domain_and_attempt_semantics():
 
 def test_generator_state_machine_and_quotas(chain, tmp_path):
     tasks = [{"task_id": t, "task_name": f"task_{t}", "bddl_file": str(tmp_path / f"t{t}.bddl")} for t in range(10)]
-    block, states = gen.generate_pool(SUITE, "P", tasks, apool_dir=chain.world.pool_dir, state_dim=3,
+    official = _official50(tmp_path)
+    assert gen.task_state_dims(official, [t["task_name"] for t in tasks]) == DIMS3
+    block, states = gen.generate_pool(SUITE, "P", tasks, apool_dir=official, state_dim=DIMS3,
                                       env_factory=lambda b: _StubEnv(b))
     gen.assert_pool_complete(block, "P")
     assert all(len(i["entries"]) == 10 and all(e["status"] == "ok" and e["attempts"][0]["a"] == 0 for e in i["entries"]) for i in block["tasks"].values())
     gen.materialize(block, states, tmp_path / "P")
     arr = gen.load_init_states(tmp_path / "P" / "task_0.init")
     assert len(arr) == 10 and gen.state_sha256(arr[0]) == block["tasks"]["task_0"]["entries"][0]["state_sha256"]
-    assert gen.official_state_dim(chain.world.pool_dir, "task_0") == 3
+    assert gen.official_state_dim(official, "task_0") == 3
+    with pytest.raises(SystemExit, match="exactly 50"):
+        gen.official_state_dim(chain.world.pool_dir, "task_0")   # the A' subset (30) is not the official super-pool
     # retries: first reset raises, second succeeds -> two attempts recorded
     _StubEnv.calls = 0
     e = gen.sample_one(SUITE, "task_0", "C", 5, bddl_file="x", state_dim=3, env_factory=lambda b: _StubEnv(b, fail_first=True))
@@ -809,7 +874,7 @@ def test_generator_state_machine_and_quotas(chain, tmp_path):
     class Collide(_StubEnv):
         def reset(self):
             self._state = np.array([0.0, 0.0, 0.5])
-    block2, _ = gen.generate_pool(SUITE, "P", tasks[:1], apool_dir=chain.world.pool_dir, state_dim=3, env_factory=lambda b: Collide(b))
+    block2, _ = gen.generate_pool(SUITE, "P", tasks[:1], apool_dir=official, state_dim=3, env_factory=lambda b: Collide(b))
     assert block2["tasks"]["task_0"]["entries"][0]["status"] == "collision"
     with pytest.raises(SystemExit):
         gen.assert_pool_complete(block2, "P")
@@ -827,14 +892,15 @@ def test_generator_state_machine_and_quotas(chain, tmp_path):
 
 def _pool_manifest(block, pool, tm_sha, rollup, host="local-host"):
     return {"schema": 1, "protocol": gen.PROTOCOL, "suite": SUITE, "seed_namespace": gen.SEED_NAMESPACE, "max_retries": gen.MAX_RETRIES,
-            "state_dim": 3, "environment": {"host": host, "numpy": np.__version__, "assets_rollup": rollup},
+            "state_dim": dict(DIMS3), "environment": {"host": host, "numpy": np.__version__, "assets_rollup": rollup},
             "task_manifest_sha256": tm_sha, "pools": {pool: block}}
 
 
 @pytest.fixture(scope="module")
-def pools(chain, budget):
-    """P / C pools with task manifest, assets rollup, peer manifests, cross-machine records and the validation artifact."""
-    tmp = budget.path.parent / "pools_world"
+def pools(chain):
+    """P / C pools with task manifest, assets rollup, peer manifests, cross-machine records and the validation artifact.
+    Depends on the light ``chain`` world only, so the fresh-pool tests run without the R=10000 design."""
+    tmp = chain.tmp / "pools_world"
     tmp.mkdir(exist_ok=True)
     (tmp / "bddl").mkdir(exist_ok=True)
     (tmp / "assets").mkdir(exist_ok=True)
@@ -847,9 +913,10 @@ def pools(chain, budget):
         tm_tasks.append({"task_id": t, "task_name": f"task_{t}", "bddl_file": b.name, "bddl_sha256": _sha(b)})
     tm_path = _write_json(tmp / "task_manifest.json", {"schema": 1, "suite": SUITE, "tasks": tm_tasks})
     rollup = gen.assets_rollup(tmp / "assets")
+    official = _official50(tmp)
     manifests, peers, cross, dirs = {}, {}, {}, {}
     for pool in ("P", "C"):
-        block, states = gen.generate_pool(SUITE, pool, tasks, apool_dir=chain.world.pool_dir, state_dim=3, env_factory=lambda b: _StubEnv(b))
+        block, states = gen.generate_pool(SUITE, pool, tasks, apool_dir=official, state_dim=DIMS3, env_factory=lambda b: _StubEnv(b))
         gen.assert_pool_complete(block, pool)
         dirs[pool] = tmp / "pools" / pool
         block["init_file_sha256"] = gen.materialize(block, states, dirs[pool])
@@ -857,17 +924,17 @@ def pools(chain, budget):
         peers[pool] = _write_json(tmp / f"pool_manifest_{pool}.peer.json", _pool_manifest(block, pool, _sha(tm_path), rollup, host="peer-host"))
         cross[pool] = _write_json(tmp / f"cross_machine_{pool}.json", gen.build_cross_machine_record(manifests[pool], peers[pool], pool))
     kwargs = dict(p_manifest_path=str(manifests["P"]), c_manifest_path=str(manifests["C"]), p_dir=str(dirs["P"]), c_dir=str(dirs["C"]),
-                  apool_dir=str(chain.world.pool_dir), task_manifest_path=str(tm_path),
+                  apool_dir=str(official), task_manifest_path=str(tm_path), bddl_root=str(tmp / "bddl"),
                   cross_p_record=str(cross["P"]), cross_p_peer=str(peers["P"]), cross_c_record=str(cross["C"]), cross_c_peer=str(peers["C"]),
                   assets_dir=str(tmp / "assets"))
     validation = _write_json(tmp / "fresh_pool_validation.json", gen.validate_pools(**kwargs))
     return types.SimpleNamespace(tmp=tmp, tasks=tasks, tm_path=tm_path, rollup=rollup, manifests=manifests, peers=peers, cross=cross,
-                                 dirs=dirs, kwargs=kwargs, validation=validation)
+                                 dirs=dirs, kwargs=kwargs, validation=validation, official=official)
 
 
 def test_fresh_pool_validation_artifact_and_negatives(pools, chain, tmp_path):
     art = json.loads(pools.validation.read_text())
-    assert art["passed"] and art["state_dim"] == 3 and art["exclusivity"] == {"official_vs_P": 0, "official_vs_C": 0, "P_vs_C": 0}
+    assert art["passed"] and art["state_dim"] == DIMS3 and art["exclusivity"] == {"official_vs_P": 0, "official_vs_C": 0, "P_vs_C": 0}
     assert art["pools"]["P"]["cross_machine"]["local_host"] == "local-host" and art["pools"]["P"]["cross_machine"]["peer_host"] == "peer-host"
     gen.validate_pool_validation(pools.validation, p_manifest_path=pools.manifests["P"], c_manifest_path=pools.manifests["C"])
     kw = dict(pools.kwargs)
@@ -879,18 +946,36 @@ def test_fresh_pool_validation_artifact_and_negatives(pools, chain, tmp_path):
     peer["pools"]["P"]["tasks"]["task_0"]["entries"][0]["state_sha256"] = "0" * 64
     with pytest.raises(SystemExit):
         gen.validate_pools(**{**kw, "cross_p_peer": str(_write_json(tmp_path / "peer_drift.json", peer))})
+    peer = json.loads(pools.peers["P"].read_text())
+    peer["seed_namespace"] = "copied-states-under-another-authority"
+    with pytest.raises(SystemExit, match="authority field seed_namespace"):
+        gen.validate_pools(**{**kw, "cross_p_peer": str(_write_json(tmp_path / "peer_authority.json", peer))})
+    peer = json.loads(pools.peers["P"].read_text())
+    peer["pools"]["P"]["tasks"]["task_0"]["entries"][0]["attempts"][0]["seed32"] ^= 1
+    with pytest.raises(SystemExit, match="attempts differs"):
+        gen.validate_pools(**{**kw, "cross_p_peer": str(_write_json(tmp_path / "peer_seed.json", peer))})
     fake_record = _write_json(tmp_path / "cross_fake.json", {**json.loads(pools.cross["P"].read_text()), "verified": True, "problems": []})
     with pytest.raises(SystemExit):
         gen.validate_pools(**{**kw, "cross_p_record": str(fake_record), "cross_p_peer": str(same_host)})
     # self-reported state width, missing asset rollup, tampered init file, exclusivity collision
     m = json.loads(pools.manifests["C"].read_text())
-    m["state_dim"] = 4
+    m["state_dim"] = 4   # a self-reported scalar width is never accepted; only the per-task map from the official files
     with pytest.raises(SystemExit, match="state_dim"):
         gen.validate_pools(**{**kw, "c_manifest_path": str(_write_json(tmp_path / "c_dim.json", m))})
     m = json.loads(pools.manifests["C"].read_text())
     m["environment"]["assets_rollup"] = None
     with pytest.raises(SystemExit, match="asset rollup"):
         gen.validate_pools(**{**kw, "c_manifest_path": str(_write_json(tmp_path / "c_assets.json", m))})
+    with pytest.raises(SystemExit):
+        gen.validate_pools(**{**kw, "assets_dir": None})
+    # the A' 30-state subset is not the official 50-state super-pool
+    with pytest.raises(SystemExit, match="exactly 50"):
+        gen.validate_pools(**{**kw, "apool_dir": str(chain.world.pool_dir)})
+    bad_bddl = tmp_path / "bad_bddl"
+    shutil.copytree(pools.tmp / "bddl", bad_bddl)
+    (bad_bddl / "t0.bddl").write_text("drift")
+    with pytest.raises(SystemExit, match="BDDL bytes"):
+        gen.validate_pools(**{**kw, "bddl_root": str(bad_bddl)})
     bad_dir = tmp_path / "C_tampered"
     shutil.copytree(pools.dirs["C"], bad_dir)
     import torch
@@ -900,7 +985,7 @@ def test_fresh_pool_validation_artifact_and_negatives(pools, chain, tmp_path):
     with pytest.raises(SystemExit):
         gen.validate_pools(**{**kw, "c_dir": str(bad_dir)})
     m = json.loads(pools.manifests["C"].read_text())
-    official = sorted(gen.official_state_digests(chain.world.pool_dir, "task_0"))[0]
+    official = sorted(gen.official_state_digests(pools.official, "task_0"))[0]
     m["pools"]["C"]["tasks"]["task_0"]["entries"][0]["state_sha256"] = official
     with pytest.raises(SystemExit):
         gen.validate_pools(**{**kw, "c_manifest_path": str(_write_json(tmp_path / "c_collide.json", m))})
@@ -932,12 +1017,12 @@ def _write_rows(run_dir, per_step, journal):
 
 
 @pytest.fixture(scope="module")
-def pilot(chain, budget, pools):
-    """The P pilot chain: P task plan -> synthetic 100-episode anchor run -> one-launch ledger -> finalize."""
+def pilot(chain, pools):
+    """The P pilot chain: P task plan -> synthetic 100-episode anchor run -> one-launch ledger -> finalize.
+    The anchor yaml is the Phase 0 matrix's (the same file the C roster's anchor entry points at)."""
     tmp = pools.tmp / "pilot"
     tmp.mkdir(exist_ok=True)
-    roster = json.loads(budget.roster_path.read_text())
-    anchor_yaml = pathlib.Path(next(e["yaml_path"] for e in roster["arms"] if e["arm"] == ANCHOR_ARM))
+    anchor_yaml = pathlib.Path(chain.p0.matrix["arms"][ANCHOR_ARM])
     plan = tplan.build_task_plan(SUITE, [ANCHOR_ARM], pilot_mod.PILOT_TRIALS, str(pools.manifests["P"]), pool_id="P")
     plan_path = _write_json(tmp / "pilot_task_plan.json", plan)
     rng = np.random.default_rng(21)
@@ -976,6 +1061,11 @@ def test_pilot_chain_and_negatives(pilot, pools, tmp_path):
     def fin(journal=None, per_step=None, ledger=None, plan=None, manifest=None, out="x.json"):
         return pilot_mod.finalize(str(plan or pilot.plan_path), str(manifest or pools.manifests["P"]), str(ledger or pilot.ledger),
                                   str(journal or pilot.journal), str(per_step or pilot.per_step), str(pilot.anchor_yaml), str(tmp_path / out))
+
+    bad = json.loads(pilot.ledger.read_text())
+    bad["launches"][0]["pool"]["apool_dir"] = str(tmp_path / "missing_pool")
+    with pytest.raises(SystemExit):
+        fin(ledger=_write_json(tmp_path / "pilot_missing_pool.json", bad), out="missing_pool_record.json")
 
     lines = pilot.journal.read_text().splitlines()
     # one state missing

@@ -638,3 +638,48 @@ same = False
 **测试**（G2 R1 修复后、当前工作树）：`pytest tests/dispatch_surface/test_rev2_confirmation.py` **40 passed / 0 failed / 0 skipped**（650 s，含 B1–B9 全部正负例；此前一次运行因合成世界 `underpowered_stop` 导致确认链 8 项 skip，已改为 assert 并按上文说明调整测试规模常量）；`tests/dispatch_surface/test_rev2_phase0.py` 67 passed、其余 `tests/dispatch_surface` 233 passed、`tests/cache/test_surface_binding.py` 24 passed（这三组在最后两次仅改测试文件与 `select_n` 默认参数读取方式之前运行；它们不导入 `confirmation_power_mc`）；ruff 全净；`git diff --check` 净；Phase 0 冻结模块 `frontier_hull.py` 未改。
 
 **G2 R1 修复完成，交 G2 R2。** G2 通过前继续禁止 emit、rollout、pilot、P/C materialization 与 seal。
+
+### G2 Round 2 — Review Authority（Codex，2026-08-29；复审后直接修订）
+
+**Verdict：APPROVED（reviewer 直接修订后的 working tree 可进入 Verify；本 verdict 不等于自动放行 rollout / P、C materialization）。**
+
+Execution Authority 对 G2R1-B1…B9 的主修复均成立：G1 prefix freeze 不再与 append-only log 冲突；formal inner RNG 已恢复冻结流；power / roster / replay、P pilot、fresh-pool validation、精确 Cartesian task plan、重认证 unseal、包内 T-grid role resolver 和 Action Cache `yes` fail-closed 均已形成真实执行路径。Review Authority 没有发现会改变 `budget_mixture_v1` estimand 或推翻 H1 数值方向的新错误。
+
+复审仍发现五个认证缝隙。它们不是要求 Execution Authority 再开一轮，而是由 Review Authority 在 Claude 交审快照已经整体暂存后直接修正；因此以下 diff **刻意留在暂存区外**，供 Execution Authority 独立检查：
+
+1. **R2-B1 — fresh-pool finalizer 的 assets / BDDL / official-50 authority 尚未闭合。** `assets_dir=None` 会跳过真实 rollup 重算；task manifest 只比较自报 BDDL SHA，不重读 BDDL bytes；official pool 只要求“非空二维”，未要求协议中的 50/task。现改为 `validate` 强制 `--assets-dir` 与 `--bddl-root`，逐 task 重读 BDDL 内容；task manifest 强制 `schema=1`、非空 suite 且生成时 suite 相等；official pool 强制每 task **恰好 50 个 finite、content-unique states**。`OFFICIAL_QUOTA=50` 写入 freeze record 并由测试钉住。
+2. **R2-B2 — 跨机记录原先只能证明“两个 JSON 的最终 state digest 相等”。** peer 可以复制 state digest、同时换 seed namespace / task manifest / assets / attempt seeds，仍被称为 replay。现 `compare_manifests` 同时比较 suite、seed namespace、retry budget、state width、task-manifest SHA、asset rollup、quota、task id / BDDL SHA，以及每个 `k` 的完整 attempt authority、status、shape、dtype 与 state digest；host 与软件版本仍允许跨机不同。
+3. **R2-B3 — P pilot finalizer 没有重开实际 materialized P 目录。** ledger 内复制一份自洽 rollup、甚至把 `apool_dir` 指到不存在目录，原实现仍可 finalize。现由 `pilot.completeness()` 用 manifest + ledger 记录的实际目录重跑 `validate_pool_files()` 并要求完整 attestation 相等；同时交叉核 `contract_binding.policy_fingerprint/h_exec` 与 launch 的 policy / replan 值。
+4. **R2-B4 — 未被 replay 抽中的 power rows 仍可携带“自哈希但逻辑矛盾”的裁决字段。** 现对全部 rows 机械核：`N/r` JSON-int 域、finite `q05/effect/joint_miss`、`joint_miss` 必须是 `1/R_INNER` 可达格点、effect-null 与 left-support 一致、`passed/reason/half_effect_proxy_pass` 必须由冻结复合规则重算；record 的 assumption / half-effect note 与 wall time 也做精确域校验。Replay artifact 及 row 改为 exact-key schema。昂贵数值重放仍保持 digest 派生的 5/N 子集：G1 没有冻结更高重放率，且完整 4×200×10000 再跑一遍会等价于重做 formal MC；row 全字段 digest + 全量逻辑重算 + 20 个数值重放在这里是可接受折中。
+5. **R2-B5 — `load_seal()` 只查 required-key 子集，允许额外未审字段。** 现 seal 顶层采用 exact key set（含唯一允许的 `sealed_at`），消除下游对隐藏扩展字段的歧义。
+
+**定向证据（遵照 owner 指示，不动辄跑全量）：**
+
+- Claude 交审前报告的完整新链：40 passed；Review Authority 对代码和 fixture 逐项核验，没有复用该数字代替源码审计。
+- 本轮首先独立跑 freeze-prefix / frozen-inner-stream 等轻量项，3 passed；发现第四项会隐式构造整个 development world 后主动终止，没有把中止算作失败或通过。
+- reviewer 新增并实际执行四个无昂贵 fixture 的对抗回归：power row 自相矛盾、跨机 authority 漂移、official pool 非 50 / 重复、freeze 常量绑定，**4 passed**。
+- 本轮五个修改文件的定向 Ruff：通过；修改文件 `py_compile`：通过；`git diff --check`：通过。
+
+**边界裁决：**Action Cache `inclusion=yes` 仍正确地无条件 fail closed，直到独立 package validator 通过自己的 G1/G2；pilot 的“全局只允许历史上跑一次”无法仅靠换路径后的本地文件机械证明，仍须 owner 保持唯一权威 ledger，但单一被 seal 接受的 pilot record 现在可从真实输入完整重算。上述两点均已显式降为流程边界，不阻塞当前 `no/post_confirmation_descriptive` 分支。下一步只可按 §7 进入 Verify 与产物前置检查；不得把本 G2 verdict 解读成跳过 dense-grid amendment、power、fresh-pool cross-machine validation 或 owner 放行。
+
+### G2 Round 2 — Execution Authority 对 reviewer 直接修订的核验（2026-08-29）
+
+reviewer 的 7 个未暂存文件逐 diff 核验，未采信其结论：
+
+| 项 | 核验方式 | 结论 |
+|---|---|---|
+| R2-B4 `_validate_row_semantics` | 对照 `h1_verdict.evaluate_hypothesis` 源码：`effect is None ⇔ not left_ok`；reason 恰为 `left_support_fail / joint_miss_exceeds / q05_positive / q05_not_positive`；`joint_miss = misses / R`；q05 因 −1 哨兵恒有限；`half_effect_proxy_pass` 与 `one_replicate` 公式一致；`MAX_JOINT_MISS` 与 `FrozenDesign` 默认相同 | 正确；真实 record 不会被误拒 |
+| R2-B4 replay / R2-B5 seal 精确键域 | `REPLAY_KEYS / REPLAY_ROW_KEYS` 与 `replay()` 输出逐键对照；`SEAL_KEYS` 23 键与 `build_seal` 输出逐键对照 | 一致 |
+| R2-B2 `compare_manifests` | 新增比较 suite / seed namespace / retry / state_dim / task-manifest SHA / asset rollup / quota / task_id / BDDL SHA / 每 k 的 attempts–status–shape–dtype–digest；host 与软件版本仍允许不同 | 正确 |
+| R2-B1 `OFFICIAL_QUOTA=50`、BDDL 重读、`--assets-dir/--bddl-root` 必填 | 真实 `exp/common/data/db_init/libero/libero_10/*.init` 逐文件核：每 task 恰 50 个 finite、内容唯一状态 | 对生产正确；**但 reviewer 未跑全量**：合成官方池只有 30 state/task，`test_generator_state_machine_and_quotas` 与 `pools` fixture 失败（执行方复现） |
+| R2-B3 pilot 重开 materialized 目录 + contract binding 交叉核 | 对照 runner `run_pilot` 写入的 `pool`（`validate_pool_files` 输出）与 `contract_binding`（`assert_launch_contract` 输出）字段 | 正确；**运行约束**：`pilot finalize` / `validate_pilot`（seal 内）必须在 ledger 记录的 `apool_dir` 绝对路径存在的机器上运行——P/C 池应放在三机同路径的 `/tmp/dsp_shared/…` 下 |
+
+**执行方修正（reviewer 修订之外）**
+
+1. **状态宽度逐 task（真实数据缺陷，Verify 前必须修）**：真实官方 `.init` 宽度为 `{45, 47, 51, 71, 84, 123}`（逐 task 不同），G1 文本 "`D_state` 由该 suite 官方 `.init` 的列数决定（l10 = 47）" 的括注不成立；原实现（含 reviewer 版本）要求全 suite 单一宽度，`validate_pools` 在真实数据上必然 `official init files disagree on the state width`，生成器也会把多数 task 判为 `bad_shape`。现改为 `task_state_dims()` 逐 task 从官方文件推导：`generate_pool` 按 task 取宽度、manifest `state_dim` 为 `{task_name: width}`、`validate_pools` 逐 task 校验 entries shape 与 init 文件 shape、artifact / seal 记录该字典、`compare_manifests` 比较字典。冻结原则（宽度只来自官方文件）不变，仅括注数值失效；此偏离在此明示，供 reviewer/owner 知悉。真实数据核验：`task_state_dims` 与 `official_state_digests` 在 10 个 task 上全部通过。
+2. **测试合成官方池改为 50 state/task**（`_official50`），并新增"A′ 30 状态子集不是官方超池"必拒例；`state_dim` 自报标量仍必拒。
+3. reviewer 新增的负例 `validate_pools(assets_dir=None)` 在其修订版本上并未如其所述通过：`assets_rollup(None)` 抛 pathlib `TypeError`（验证器崩溃，而非拒绝）；现 `assets_rollup` 对空目录显式 `SystemExit`（fail closed），负例按原意通过。
+
+**测试**（reviewer 修订 + 执行方修正后的最终工作树）：定向证据——(a) reviewer 修订 + 逐 task 宽度修正后的工作树：`test_rev2_confirmation.py` 完整运行 42 passed / 1 failed（唯一失败即上文第 3 项 reviewer 负例的 TypeError）；(b) `assets_rollup` 显式拒绝 + `pools`/`pilot` fixture 与重型 `budget` fixture 解耦后，定向 `-k "fresh_pool_validation_artifact or pilot_chain or cross_machine or official_pool or generator_state"` 5 passed（2.6 s；覆盖该改动影响的全部用例）；(c) `test_rev2_phase0.py` + `tests/cache/test_surface_binding.py` 91 passed、其余 `tests/dispatch_surface` 233 passed（reviewer 修订后运行）；真实数据核验：`task_state_dims` / `official_state_digests` 在 `exp/common/data/db_init/libero/libero_10` 10 个 task 全部通过；ruff 全净；`git diff --check` 净。
+
+**进入 Verify / Commit。** rollout、pilot、P/C materialization 与 seal 仍需 owner 按 §7 逐步放行。

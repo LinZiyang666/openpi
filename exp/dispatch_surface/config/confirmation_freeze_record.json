@@ -57,6 +57,7 @@
       "P": 10,
       "C": 60
     },
+    "OFFICIAL_QUOTA": 50,
     "PILOT_TOLERANCE_PT": 10.0,
     "V_METRIC_SEED": 20260831,
     "AUDIT_TOL": 1e-08,

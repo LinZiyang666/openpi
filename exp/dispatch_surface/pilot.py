@@ -95,12 +95,26 @@ def completeness(task_plan_path: str, pool_manifest_path: str, ledger_path: str,
             or pool.get("prefix_n") != PILOT_TRIALS or pool.get("total_inits") != NUM_TASKS * PILOT_TRIALS \
             or launch.get("pool_digest") != pool.get("rollup_sha256"):
         raise SystemExit("pilot launch pool attestation != the P manifest")
+    # Re-open the exact materialised directory used by the launch. Comparing
+    # ledger fields only to one another would allow a copied rollup to attest
+    # a different (or missing) P pool.
+    from exp.dispatch_surface.run_precheck import validate_pool_files
+
+    materialised = validate_pool_files(
+        pool_manifest_path, manifest_sha, PILOT_POOL, pool.get("apool_dir", ""), PILOT_TRIALS
+    )
+    if materialised != pool:
+        raise SystemExit("pilot launch pool attestation cannot be reproduced from its materialised files")
     run_id = launch.get("run_id")
     if not isinstance(run_id, str) or not run_id:
         raise SystemExit("pilot launch lacks a run id")
     for key in ("policy_fingerprint", "contract_binding", "env_seed", "replan_steps"):
         if launch.get(key) is None:
             raise SystemExit(f"pilot launch lacks {key}")
+    binding = launch["contract_binding"]
+    if not isinstance(binding, dict) or binding.get("policy_fingerprint") != launch["policy_fingerprint"] \
+            or binding.get("h_exec") != launch["replan_steps"] or not isinstance(binding.get("servers"), dict):
+        raise SystemExit("pilot launch contract binding disagrees with policy_fingerprint / replan_steps")
     grid = {(t, i) for t in range(NUM_TASKS) for i in range(PILOT_TRIALS)}
     accepted = load_accepted_c(journal_path, [ANCHOR_ARM], grid)
     for key, rec in accepted[ANCHOR_ARM].items():
