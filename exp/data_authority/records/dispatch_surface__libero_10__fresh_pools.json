@@ -1,0 +1,193 @@
+{
+  "authority": {
+    "access": "local",
+    "node": "local",
+    "path": "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools"
+  },
+  "caveats": [
+    "Not official LIBERO inits; orig_init_state_idx is null for every episode."
+  ],
+  "consumers": [
+    "exp/dispatch_surface/run_precheck.py (confirmation layer)",
+    "exp/dispatch_surface/build_confirmation_task_plan.py",
+    "exp/dispatch_surface/seal_confirmation.py"
+  ],
+  "content": {
+    "cross_machine": {
+      "C": {
+        "local_host": "weilandserver",
+        "peer_host": "timan107",
+        "peer_manifest_sha256": "70f5ff5aa729e31f6e5dd8ce83d6de21433fb28b585b844c96a598e207d07c53",
+        "record_sha256": "0c754c01aba31d6478499aacf635618a1a7ecf0e3acf2619efe70527bdb40bb0"
+      },
+      "P": {
+        "local_host": "weilandserver",
+        "peer_host": "timan107",
+        "peer_manifest_sha256": "290adcc646c5971b7569f177d77dd54793d254e7a104863e67d2b9e2bb18f23b",
+        "record_sha256": "a8267bd53c6b3b2467f764dd7af9fed12d6ed45e4e36822cdd66efac41b7cd46"
+      }
+    },
+    "exclusivity_recomputed": {
+      "P_vs_C": 0,
+      "official_vs_C": 0,
+      "official_vs_P": 0
+    },
+    "identity": "task_uid -> task plan",
+    "manifests": [
+      "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pool_manifest_P.json",
+      "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pool_manifest_C.json"
+    ],
+    "state_dim": {
+      "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": 47,
+      "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": 51,
+      "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": 47,
+      "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": 47,
+      "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": 84,
+      "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": 123,
+      "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": 123,
+      "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": 84,
+      "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": 71,
+      "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": 45
+    },
+    "validation_artifact": "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/fresh_pool_validation.json",
+    "validation_sha256": "8e6848714c3848bb0939081d4328f4e0d8418e43c404c32c53fef268db322934"
+  },
+  "dataset_id": "dispatch_surface/libero_10/fresh_pools",
+  "experiment": "exp/dispatch_surface",
+  "integrity": {
+    "file_count": 23,
+    "members": [
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/fresh_pool_validation.json",
+        11344,
+        "8e6848714c3848bb0939081d4328f4e0d8418e43c404c32c53fef268db322934"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pool_manifest_C.json",
+        421734,
+        "ac910db5c7508b5f002f03d2a085d02095221d4bbc629aa8a25da888af4a24d2"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pool_manifest_P.json",
+        76690,
+        "07653f6c4aeb07e3f2645dad04a7f03fdfa71af1a57c1f9088db2a548b5bdba4"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/C/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.init",
+        26479,
+        "e9e5e47df823461524e151f9c6ebcf64204af8ed443cab84ce986092d248cd6a"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/C/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.init",
+        28655,
+        "3a18f5ea082a2a39919f93476dd6bb03a47565bcc44b29f0e2a73ff46b2581d0"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/C/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.init",
+        27311,
+        "fe5ababc9eca92f8eb9af190843c5de7b18e71e80398f2bce8c9987943402ad6"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/C/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.init",
+        26223,
+        "b4e13a5483305219f16eee477a1262844383443fe89af0fcba89c0bd553f7ff0"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/C/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.init",
+        47919,
+        "de5ca5973a0dc1ac4d70ea089b17e792a4234800611e47f91021073a1c453d56"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/C/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.init",
+        69679,
+        "912e4c5ae6be8abfc34c5e174ae3499b3c6cce04a01d72823593b7b58df35f5e"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/C/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.init",
+        69679,
+        "efdaf29b2e83b22d4e75740d81a3df708eb75e05a85094a88b3a69e50876b992"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/C/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.init",
+        49071,
+        "d568756c249e1a42eed4b2e5f47e81612b0738119aed575aa75f6663a4986f2c"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/C/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.init",
+        41007,
+        "060c8a23bb21ff377d727171805269e22854d5168dd02c7699c2d913b51942d6"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/C/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.init",
+        26287,
+        "1c4bc8baa87b3f34cbd019993345e228fcbf93025e3f3350d3a379fbf9b1cf57"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/P/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.init",
+        4911,
+        "60519b6157070afcb2a8363004e479c3d30579ec1a800e40ede461ac474a9efe"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/P/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.init",
+        5295,
+        "783eee31590ab206e82a1471fbf5ed686dc2cd2d0bc3a56560032fd940f397a9"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/P/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.init",
+        5039,
+        "b151606636d00d7eb0f98c7b07116b773f627c511d168a5f5fd895520a066987"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/P/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.init",
+        4911,
+        "7edacb753f1e52d899e853cf3815394ad0dae6d78344c43125a99ad209fd8b48"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/P/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.init",
+        8495,
+        "026fd9b242dff512aa848c80c2e1f08d973a336aa2a9b9021332f86422bf9f05"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/P/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.init",
+        12143,
+        "bee119e5216ef149423d304b14c06fdd314d2839b506296f5497c803db38d86b"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/P/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.init",
+        12143,
+        "e89261f1f027089c0369ee1875af112c37492025758ba02d91d7f25228f0176e"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/P/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.init",
+        8687,
+        "d444fff877e25c912e9cb75c535a93e602ddeacc784d12fe64d5d038167d4a26"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/P/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.init",
+        7343,
+        "46b7de67e9038cf2486ab039e354e25cedd84d50d1c73c6a5083b372bd570370"
+      ],
+      [
+        "exp/dispatch_surface/data/confirmation/libero_10/fresh_pools/pools/P/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.init",
+        4847,
+        "9a46349873e5e00f91e8332b2f116197a2f5e4f1c7f7d7a8d73996ed59995124"
+      ]
+    ],
+    "sha256": "84c4b99f6b3eb4dba783bb377fd5d842085a6906c1f9c29cc1a0549bf63b064d",
+    "size_bytes": 995892
+  },
+  "kind": "init_pool",
+  "provenance": {
+    "measured_at": "2026-08-30T05:26:53.690462+00:00",
+    "measured_by": "Execution Authority (Rev 2 confirmation plan)",
+    "produced_by": "exp/dispatch_surface/generate_fresh_inits.py",
+    "source_machines": [
+      "weilandserver",
+      "timan107"
+    ]
+  },
+  "schema_version": 1,
+  "status": "authoritative",
+  "suite": "libero_10",
+  "title": "dispatch_surface / libero_10 / fresh initial-state pools P (10/task) and C (60/task) from BDDL placement re-sampling"
+}

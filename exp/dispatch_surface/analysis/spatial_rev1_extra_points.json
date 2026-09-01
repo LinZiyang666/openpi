@@ -1,0 +1,13 @@
+{
+  "_note": "Rev 1 primary/exploratory spatial measurements (A' 30 inits x 10 tasks, 300 ep each) that the goal-2/3/4 sweeps do not re-measure: the three Rev 1 threshold cells excluded from the 29-cell grid, and the SV family. Costs are realized ms/decision; SR from the same accepted-episode rule. Sources: discipline/libero_spatial_primary/verdict.json point_estimates; libero_spatial_exploratory/{phase0_summary.json cost, journal.jsonl SR}.",
+  "threshold": {
+    "dsp_t_fh30_ws20": {"cost": 43.24093315562223, "sr": 0.94},
+    "dsp_t_fh50_ws20": {"cost": 35.5357908055039, "sr": 0.9366666666666666},
+    "dsp_t_fh70_ws10": {"cost": 32.5216258468857, "sr": 0.8366666666666667}
+  },
+  "sv": {
+    "dsp_sv": {"cost": 37.28137809275358, "sr": 0.93},
+    "dsp_sv_p95": {"cost": 32.35127805800878, "sr": 0.8833333333333333},
+    "dsp_sv_p975": {"cost": 31.881760558412697, "sr": 0.78}
+  }
+}

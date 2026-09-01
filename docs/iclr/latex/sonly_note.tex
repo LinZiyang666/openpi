@@ -1,0 +1,181 @@
+% Technical note for collaborators: risk-indexed thresholds for cached dispatch
+% (the s-only pivot). Companion to dispatch_note.tex and redundancy_note.tex.
+% ICLR 2027 template, no title block. Compile with pdflatex.
+\documentclass{article}
+\usepackage{iclr2027_conference,times}
+\iclrfinalcopy
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+
+\begin{document}
+
+\paragraph{Problem.}
+Each decision step of the cached executor observes a single scalar, the fused
+retrieval score $s_t$, and must choose one of $K{+}1$ actions: full inference
+(action $0$) or one of $K$ reuse tiers $a \in \{1, \dots, K\}$ of increasing
+skip depth $\tau_1 < \dots < \tau_K$ (in the current system $K = 2$: warm
+start at $\mathtt{start\_t} = 0.3$ and full replay). Unit compute costs are
+fixed and known,
+\begin{equation}
+c_a \;=\; \mathrm{s}_1 \;+\; \mathbf{1}[a < K]\,\bigl( \mathrm{s}_2 +
+\mathtt{start\_t}(a)\cdot \mathrm{s}_3 \bigr),
+\qquad
+\mathtt{start\_t}(0) = 1, \quad \mathtt{start\_t}(K) = 0,
+\label{eq:cost}
+\end{equation}
+so that $c_K < \dots < c_1 < c_0 = \mathrm{s}_1 + \mathrm{s}_2 + \mathrm{s}_3$,
+with $\mathrm{s}_1, \mathrm{s}_2, \mathrm{s}_3$ the measured stage latencies
+(vision encoding, language-model prefix, full flow integration). Every
+decision pays $\mathrm{s}_1$, which produces the features the retrieval score
+is computed from; a warm tier resumes the flow at $\mathtt{start\_t}(a)$ and
+pays that fraction of $\mathrm{s}_3$; the deepest tier replays the cached
+chunk and skips both the prefix and the integration.
+The online rule class we consider is the incumbent one: \emph{monotone cut
+vectors}. A rule is a vector $\theta = (\theta_1, \dots, \theta_K)$,
+$\theta_1 \le \dots \le \theta_K$ interpreted through ``execute the deepest
+tier whose cut is cleared'', $a(s) = \max(\{0\} \cup \{a : s \ge
+\theta_a\})$. Every policy discussed in this note---the hand-tuned threshold
+dispatch, its percentile-indexed grid, and the calibrated rule---is a member
+of this class at run time; a deployment differs from the incumbent only in
+\emph{how $\theta$ is chosen offline}. This note makes that difference the
+object of study.
+
+\paragraph{Two indexings of one family.}
+The incumbent \emph{rate indexing} sets each $\theta_a$ at a percentile of
+the development score distribution: $\theta_a = \hat{F}_s^{-1}(1 - f_a)$
+admits a target fraction $f_a$ of decisions into tier $a$ or deeper. Rates
+are predictable by construction; \emph{risk} is not. Which vector
+$(f_1, \dots, f_K)$ lands on the cost--success frontier is unknown a priori,
+so the incumbent finds operating points by rolling out a $K$-dimensional
+grid. The alternative studied here is \emph{risk indexing}. Let $Y_a \ge 0$
+be the offline-checkable deviation surrogate of the companion note
+(Eq.~2 there) for tier $a$, and define per tier the conditional upper
+quantile
+\begin{equation}
+q_a(s) \;=\; Q_{1-\alpha}\bigl( Y_a \mid s_t = s \bigr),
+\qquad a = 1, \dots, K,
+\label{eq:qa}
+\end{equation}
+estimated on calibration rollouts by order-restricted (isotonic) quantile
+regression under the monotonicity assumption (A1$'$): $q_a$ nonincreasing in
+$s$, nondecreasing in the skip depth. Given one tolerance $\delta$, the cuts
+are \emph{computed}, not searched:
+\begin{equation}
+s^{*}_a(\delta) \;=\; \min\{\, s : \hat{q}_a(s) \le \delta \,\},
+\qquad
+\theta_a = s^{*}_a(\delta) .
+\label{eq:cuts}
+\end{equation}
+The rule executes the deepest admissible tier and falls back to full
+inference when no tier is admissible (fail-closed, as in the companion
+note). Online, Eq.~\ref{eq:cuts} is indistinguishable in form and cost from
+the incumbent: the same comparisons against stored constants.
+
+\paragraph{Equivalence at $K = 1$ (a concession).}
+With a single tier the two indexings coincide as families. Under (A1$'$) the
+map $\delta \mapsto s^{*}_1(\delta)$ is a monotone reparametrization of the
+cut, so
+$\{\text{risk-indexed rules}\}_{\delta} =
+\{\text{threshold rules}\}_{\theta} =
+\{\text{monotone rules on } s\}$,
+and under the monotone-likelihood-ratio premise already stated in the
+companion note the common family traces the ROC frontier of $s$
+(Neyman--Pearson). At $K=1$, therefore, risk indexing buys semantics but no
+new operating points, and percentile inversion is equally automatic. Any
+claimed contribution must---and here does---begin at $K \ge 2$.
+
+\paragraph{Coupling at $K \ge 2$: the solution path.}
+Consider the budgeted design problem over cut vectors,
+\begin{equation}
+\max_{\theta}\ \mathrm{SR}(\theta)
+\qquad \text{s.t.} \qquad
+\mathbb{E}\bigl[ c_{a(s;\theta)} \bigr] \le B .
+\label{eq:budget}
+\end{equation}
+Introduce the surrogate objective in which closed-loop degradation is
+exchanged for accumulated per-decision surrogate risk,
+\begin{equation}
+\text{(A2)} \qquad
+\mathrm{SR}(\theta) \;\approx\; \Phi\Bigl(
+\mathbb{E}\bigl[\, r_{a(s;\theta)}(s) \,\bigr] \Bigr),
+\qquad
+r_a(s) = \text{a nondecreasing functional of } q_a(s),\ r_0 \equiv 0,
+\label{eq:A2}
+\end{equation}
+with $\Phi$ decreasing. (A2) is an approximation, not a theorem: it ignores
+sequencing and closed-loop intervention (the composition failure of the
+companion note) and is adopted because its consequences are checkable. Under
+(A1$'$), (A2), and $c_K < \dots < c_0$, the Lagrangian of
+Eq.~\ref{eq:budget} separates across decisions and across adjacent tier
+boundaries: at an optimum, each boundary $\theta_a$ equalizes marginal
+surrogate risk against marginal compute saving with the \emph{same}
+multiplier $\lambda$,
+\begin{equation}
+\frac{\partial\, \mathbb{E}[r]}{\partial \theta_a}
+\;=\;
+\lambda\, \frac{\partial\, \mathbb{E}[c]}{\partial \theta_a}
+\qquad (a = 1, \dots, K),
+\label{eq:kkt}
+\end{equation}
+so the set of optimal cut vectors is a \emph{one-parameter solution path}
+indexed by $\lambda$. When the marginal risk at a boundary is governed by
+the calibrated quantile at the cut---the case in which admission at
+$\theta_a$ adds decisions of surrogate risk $\approx \hat q_a(\theta_a)$---
+the path is traced by a common level: $\hat q_a(\theta_a) = \delta(\lambda)$
+for all $a$, which is exactly Eq.~\ref{eq:cuts}. The calibrated ladder
+$\{\,\theta(\delta) : \delta \ge 0\,\}$ is thus the plug-in estimate of the
+solution path of the $K$-dimensional design problem, and a $K$-dimensional
+grid search rediscovers that path pointwise. Two consequences are testable:
+(i) ladder points should track the grid family's empirical Pareto hull at
+matched evaluation budget; (ii) at a fixed number $n$ of a-priori arms, the
+vertical regret of a $K$-dimensional grid against its own hull grows with
+$K$, while the ladder remains one-dimensional. Neither consequence asserts
+that the path \emph{dominates} the grid family---it cannot, being a subset;
+the claim is that the path attains the family's frontier without the search.
+
+\paragraph{Per-task and cross-library transfer.}
+Rate indexing conditions on nothing: a percentile vector tuned on one task
+mixture or one library encodes that mixture's score distribution, and the
+incumbent's own documentation records that carrying a threshold across
+libraries is a known failure mode. Risk indexing recomputes
+Eq.~\ref{eq:cuts} from the calibrated curves: per-task (Mondrian) cuts
+$s^{*}_{a,t}(\delta)$ follow from per-task quantile curves at the same
+$\delta$ when sample sizes permit, and a library change re-runs calibration
+rather than a $K$-dimensional (per task, $K \times T$-dimensional) grid.
+The empirical finding that task-conditional selection improves every family
+by a comparable margin is consistent with this reading: conditioning is a
+property of the information set, not of any single rule family; what risk
+indexing changes is the \emph{cost of exploiting it}.
+
+\paragraph{What is not claimed.}
+No statement here is a closed-loop guarantee: deployment intervenes on the
+visitation distribution, and Eq.~\ref{eq:A2} is a surrogate adopted for its
+checkable consequences (the companion note's scope paragraph applies
+verbatim). The path property is relative to rules measurable in $s$ alone;
+richer information sets---the disagreement statistic $v$, task identity used
+online, stateful gates---can move the frontier, and whether they do is an
+empirical question that our measurements answer in the negative for $v$
+(no measurable increment at matched density) and in the positive, equally
+for all families, for task identity. Finally, the estimated path can miss
+the frontier where calibration data are sparse; matched-density evaluation,
+not construction, is what supports the tracking claim.
+
+\paragraph{Experimental consequences.}
+Four readouts follow. (i) \emph{Matched-density frontier comparison}: the
+risk ladder against the dense percentile grid on the same evaluation set,
+library, and cost accounting; the tracking claim predicts hull agreement
+within estimation noise. (ii) \emph{Tuning budget}: frontier quality (hull
+area or vertical regret) as a function of the number of a-priori arms for
+each indexing; the prediction is a widening gap as arms are removed, and a
+qualitative jump when $K$ grows. (iii) \emph{Risk calibration}: realized
+per-decision surrogate risk of admitted steps against the declared $\delta$
+---the plot only a risk-indexed rule can draw in advance. (iv) \emph{System
+composition}: the full deployed stack adds the production hysteresis gate in
+front of either indexing; the ceiling-equality reading predicts that gate
+plus risk ladder matches gate plus tuned grid at matched freedom, measured
+on the same chain. A three-tier instance ($K = 3$, second warm depth
+unpinned from $\mathtt{start\_t}=0.3$ after its unit cost is frozen) turns
+consequence (ii) into the discriminating experiment: budget-matched
+$3$-dimensional grid against the unchanged one-dimensional ladder.
+
+\end{document}

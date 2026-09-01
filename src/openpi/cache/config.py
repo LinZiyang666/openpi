@@ -2597,6 +2597,25 @@ def validate_cache_config(config: CacheConfig) -> None:
             )
         else:
             try:
+                from openpi.cache.components.crd_judge import CumulativeRiskJudge, is_crd_artifact
+
+                if is_crd_artifact(path):
+                    if cp_config.gate.type != "always_search":
+                        errors.append(
+                            f"{prefix}.judge: a cumulative-risk (CRD) surface artifact requires "
+                            f"gate.type=always_search on CP1, got '{cp_config.gate.type}'"
+                        )
+                    # Validate the CRD-only arrays, digests, task scales, and
+                    # controller parameters during YAML loading.  The generic
+                    # SurfaceArtifact loader intentionally knows nothing about
+                    # these extensions and cannot provide this fail-fast gate.
+                    CumulativeRiskJudge(
+                        path,
+                        export_factor_outputs=cp_config.judge.export_factor_outputs,
+                    )
+            except Exception as exc:  # noqa: BLE001 - reported as a config error below
+                errors.append(f"{prefix}.judge.surface_artifact_path could not be inspected for CRD: {exc}")
+            try:
                 from openpi.cache.components.surface_judge import load_surface_artifact
 
                 artifact = load_surface_artifact(path)
@@ -3410,8 +3429,17 @@ def _build_inner_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optiona
 
         return AlwaysWarmStartJudge(cfg.start_t)
     elif cfg.type == "dispatch_surface":
+        from openpi.cache.components.crd_judge import CumulativeRiskJudge, is_crd_artifact
         from openpi.cache.components.surface_judge import SurfaceJudge
 
+        # A surface artifact that carries the cumulative-risk extras routes to
+        # the stateful CRD judge (exploratory, 2026-08-30); the plain artifact
+        # keeps the static surface judge.
+        if is_crd_artifact(cfg.surface_artifact_path):
+            return CumulativeRiskJudge(
+                cfg.surface_artifact_path,
+                export_factor_outputs=cfg.export_factor_outputs,
+            )
         return SurfaceJudge(
             cfg.surface_artifact_path,
             export_factor_outputs=cfg.export_factor_outputs,

@@ -86,6 +86,9 @@ def _hit_row(task: _task.EpisodeTask, step: int, hit: dict, num_trials_per_task:
         # row's ``step_idx`` is the physical env step, which advances by
         # ``replan_steps`` between consecutive inference calls.
         "router_outputs": hit.get("router_outputs"),
+        # Judge diagnostics exported by the server (``export_factor_outputs`` or a
+        # stateful CRD judge's commit record); None for every other yaml.
+        "factor_outputs": hit.get("factor_outputs"),
     }
 
 

@@ -177,13 +177,19 @@ def load_task_manifest(path) -> dict:
 
 
 def assets_rollup(assets_dir) -> dict:
-    """Content rollup of every file under the simulator asset directory."""
+    """Content rollup of every file under the simulator asset directory.
+
+    Hidden entries (any path component starting with ``.``) are excluded: the
+    HuggingFace download bookkeeping under ``assets/.cache/huggingface`` holds
+    per-download ``*.metadata`` files with timestamps that differ between
+    machines while the asset content itself is identical."""
     if not assets_dir:
         raise SystemExit("assets directory is required (the rollup is part of the generation authority)")
     root = pathlib.Path(assets_dir)
     if not root.is_dir():
         raise SystemExit(f"assets directory does not exist: {root}")
-    files = sorted(p for p in root.rglob("*") if p.is_file())
+    files = sorted(p for p in root.rglob("*")
+                   if p.is_file() and not any(part.startswith(".") for part in p.relative_to(root).parts))
     if not files:
         raise SystemExit(f"assets directory is empty: {root}")
     lines = [f"{p.relative_to(root).as_posix()} {_file_sha256(p)}" for p in files]

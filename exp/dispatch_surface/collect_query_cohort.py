@@ -41,6 +41,8 @@ CAL_PER_TASK = 10
 
 
 def cmd_plan(args) -> None:
+    fit_quota = getattr(args, "fit_per_task", None) or FIT_PER_TASK
+    cal_quota = getattr(args, "cal_per_task", None) or CAL_PER_TASK
     manifest = json.loads(pathlib.Path(args.split_manifest).read_text())
     episodes = []
     for tid_str, info in sorted(manifest["assignment"].items(), key=lambda kv: int(kv[0])):
@@ -50,7 +52,7 @@ def cmd_plan(args) -> None:
         # (subset index). Both index spaces are planned explicitly so the
         # collector can stamp them and downstream joins never guess (G2-B4).
         pool_officials = sorted(int(i) for i in (info["fit"] + info["cal"]))
-        for split, quota in (("fit", FIT_PER_TASK), ("cal", CAL_PER_TASK)):
+        for split, quota in (("fit", fit_quota), ("cal", cal_quota)):
             idxs = info[split]
             if len(idxs) != quota:
                 raise SystemExit(f"task {tid}: split {split} has {len(idxs)} inits, expected {quota}")
@@ -62,6 +64,7 @@ def cmd_plan(args) -> None:
                     "split": split,
                 })
     plan = {
+        "quota": {"fit": fit_quota, "cal": cal_quota},
         "split_manifest": str(args.split_manifest),
         "pool_dir": str(args.pool_dir),
         "episodes": episodes,
@@ -131,7 +134,8 @@ def cmd_verify(args) -> None:
     counts = {"fit": 0, "cal": 0}
     for f in files:
         counts[f["split"]] += 1
-    expected = {"fit": FIT_PER_TASK * 10, "cal": CAL_PER_TASK * 10}
+    quota = plan.get("quota") or {"fit": FIT_PER_TASK, "cal": CAL_PER_TASK}
+    expected = {"fit": quota["fit"] * 10, "cal": quota["cal"] * 10}
     if counts != expected:
         raise SystemExit(f"split counts {counts} != expected {expected}")
     out = {"plan": str(args.plan), "h5_dir": str(args.h5_dir),
@@ -153,7 +157,7 @@ def cmd_launch(args) -> None:
         "python", "examples/libero/main.py",
         "--host", args.host, "--port", str(args.port),
         "--task-suite-name", args.task_suite,
-        "--num-trials-per-task", str(FIT_PER_TASK + CAL_PER_TASK),
+        "--num-trials-per-task", str(sum((plan.get("quota") or {"fit": FIT_PER_TASK, "cal": CAL_PER_TASK}).values())),
         "--num-workers", "1",
         "--init-states-dir", plan["pool_dir"],
         "--cohort-plan", str(args.plan),
@@ -176,6 +180,10 @@ def main() -> None:
     p_plan.add_argument("--split-manifest", required=True)
     p_plan.add_argument("--pool-dir", required=True)
     p_plan.add_argument("--out", required=True)
+    p_plan.add_argument("--fit-per-task", type=int, default=None,
+                        help="override the 5/task fit quota (goal-5 eval500 uses 15)")
+    p_plan.add_argument("--cal-per-task", type=int, default=None,
+                        help="override the 10/task cal quota (goal-5 eval500 uses 35)")
     p_plan.set_defaults(func=cmd_plan)
     p_launch = sub.add_parser("launch")
     p_launch.add_argument("--plan", required=True)

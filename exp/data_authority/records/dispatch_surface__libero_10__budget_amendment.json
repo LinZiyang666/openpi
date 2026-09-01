@@ -1,0 +1,91 @@
+{
+  "authority": {
+    "access": "local",
+    "node": "local",
+    "path": "exp/dispatch_surface/data/confirmation/libero_10"
+  },
+  "caveats": [
+    "development-only; Phase 0 exact-cost artifacts are kept unchanged alongside."
+  ],
+  "consumers": [
+    "exp/dispatch_surface/seal_confirmation.py",
+    "exp/dispatch_surface/analysis/confirmation_analyzer.py"
+  ],
+  "content": {
+    "estimator": "budget_mixture_v1",
+    "files": [
+      "action_cache_decision.json",
+      "budget_cost_map.json",
+      "budget_cost_map.sha256",
+      "budget_outcome_design.json",
+      "budget_outcome_design.sha256",
+      "c_roster.json",
+      "c_roster.sha256",
+      "v_offline_metric.json"
+    ],
+    "posthoc_design_amendment": true
+  },
+  "dataset_id": "dispatch_surface/libero_10/budget_amendment",
+  "experiment": "exp/dispatch_surface",
+  "integrity": {
+    "file_count": 8,
+    "members": [
+      [
+        "action_cache_decision.json",
+        1124,
+        "f3e3ff1cad858d8bc6d326c363286dcbb0d1fb9a385e353ae30edbcebe59fa5d"
+      ],
+      [
+        "budget_cost_map.json",
+        34460,
+        "7645f0f727059fb38252220b1332d38386784c8bee942542bfbc5aea6da0ea1e"
+      ],
+      [
+        "budget_cost_map.sha256",
+        87,
+        "d905835640cc63d431f5f545abcaf14d343a6d486c290c33f57d56ce8f14174a"
+      ],
+      [
+        "budget_outcome_design.json",
+        159698,
+        "9a8fe787abf92c1037d956c6f272541dc9587301578c63f818a361cbd2452f90"
+      ],
+      [
+        "budget_outcome_design.sha256",
+        93,
+        "b4755aff32b796edea092b41daff18fed8b8840daec85be8c9c755f12309ed55"
+      ],
+      [
+        "c_roster.json",
+        12452,
+        "fe55d6296c94b2ea47ac1c6866ec51a919d4e4d4c4c3b8443a5241b362ce9bb7"
+      ],
+      [
+        "c_roster.sha256",
+        80,
+        "0f2907d35a4c7817d89ea9e62aa8a5d70bdf1c56f08d7458cb7e55c306621dd3"
+      ],
+      [
+        "v_offline_metric.json",
+        5836,
+        "538e3e181cda1f6a2a266833e161df6a0c292f7c0e7fbbca17167c362a4baf3b"
+      ]
+    ],
+    "sha256": "a62e40acb79bf7eafed0df5908392a09cbfe2bdffc0efc4a91a78e188fea3309",
+    "size_bytes": 213830
+  },
+  "kind": "cache_artifact",
+  "provenance": {
+    "measured_at": "2026-08-30T11:23:57.626393+00:00",
+    "measured_by": "Execution Authority (Rev 2 confirmation plan)",
+    "produced_by": "exp/dispatch_surface/analysis/budget_cost_map.py + budget_outcome_design.py + confirmation_power_mc.py",
+    "source_machines": [
+      "weilandserver",
+      "timan107"
+    ]
+  },
+  "schema_version": 1,
+  "status": "authoritative",
+  "suite": "libero_10",
+  "title": "dispatch_surface / libero_10 / budget-mixture amendment artifacts (cost map, outcome design, C roster, power record)"
+}

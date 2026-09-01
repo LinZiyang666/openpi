@@ -1,0 +1,268 @@
+{
+  "authority": {
+    "access": "local",
+    "node": "local",
+    "path": "exp/dispatch_surface/data/tgrid_dev/libero_10/package"
+  },
+  "caveats": [
+    "Development data on the official A' inits; never a confirmation result."
+  ],
+  "consumers": [
+    "exp/dispatch_surface/analysis/budget_cost_map.py",
+    "exp/dispatch_surface/analysis/budget_outcome_design.py"
+  ],
+  "content": {
+    "manifest": "MANIFEST.json",
+    "posthoc_exploratory": true,
+    "resolution": "by role through MANIFEST.json only",
+    "roles": [
+      "journal",
+      "launch_meta",
+      "ledger",
+      "matrix",
+      "per_step",
+      "roster_spec",
+      "split_manifest",
+      "yaml.dsp_tg_fh20_ws0",
+      "yaml.dsp_tg_fh20_ws10",
+      "yaml.dsp_tg_fh20_ws20",
+      "yaml.dsp_tg_fh20_ws30",
+      "yaml.dsp_tg_fh20_ws40",
+      "yaml.dsp_tg_fh30_ws0",
+      "yaml.dsp_tg_fh30_ws10",
+      "yaml.dsp_tg_fh30_ws30",
+      "yaml.dsp_tg_fh30_ws40",
+      "yaml.dsp_tg_fh40_ws0",
+      "yaml.dsp_tg_fh40_ws10",
+      "yaml.dsp_tg_fh40_ws20",
+      "yaml.dsp_tg_fh40_ws30",
+      "yaml.dsp_tg_fh40_ws40",
+      "yaml.dsp_tg_fh50_ws0",
+      "yaml.dsp_tg_fh50_ws10",
+      "yaml.dsp_tg_fh50_ws30",
+      "yaml.dsp_tg_fh50_ws40",
+      "yaml.dsp_tg_fh60_ws0",
+      "yaml.dsp_tg_fh60_ws10",
+      "yaml.dsp_tg_fh60_ws20",
+      "yaml.dsp_tg_fh60_ws30",
+      "yaml.dsp_tg_fh60_ws40",
+      "yaml.dsp_tg_fh70_ws0",
+      "yaml.dsp_tg_fh70_ws20",
+      "yaml.dsp_tg_fh70_ws30",
+      "yaml.dsp_tg_fh80_ws0",
+      "yaml.dsp_tg_fh80_ws10",
+      "yaml.dsp_tg_fh80_ws20"
+    ],
+    "run_ids": [
+      "7bc35a56cdda"
+    ]
+  },
+  "dataset_id": "dispatch_surface/libero_10/tgrid_dev",
+  "experiment": "exp/dispatch_surface",
+  "integrity": {
+    "file_count": 37,
+    "members": [
+      [
+        "MANIFEST.json",
+        6862,
+        "2747430b72713348b7103222c96e91ad248f8ea672c840e0a44c223fab478280"
+      ],
+      [
+        "arm_matrix_exploratory_tgrid.json",
+        18566,
+        "2a6fac9ad169cbacd4167e314ecbc9c0f3ea108caa5641d46ee71425726fc2c6"
+      ],
+      [
+        "journal.jsonl",
+        2025959,
+        "9678245be8e0c08404b9df38c63af418a4c7c802e0b08e58a00672ab53db9dc5"
+      ],
+      [
+        "launch_meta.json",
+        2423,
+        "d8d943390beafe2f4be7fa44a6218eac88a71fbe92562ff113de159937698f95"
+      ],
+      [
+        "per_step.jsonl",
+        307042222,
+        "be882bf12821393c1bb227f6507e5fb98a493fbb51c3b4ea5467912984a887e3"
+      ],
+      [
+        "per_step.jsonl.launch.json",
+        12918,
+        "90660ad77d17d5bb87a54432cd6b8acafed12ed8f0dd21a43573f05a135ed88d"
+      ],
+      [
+        "split_manifest.json",
+        29159,
+        "1948ab3bf3ac6fad8121813b2defad091636ee3423ce4201d80072084ccc3bc7"
+      ],
+      [
+        "tgrid_roster_spec.json",
+        1990,
+        "013468854bd94b47db4f5ab9fb9a79ec58065eba911e221e9dcac10c8e2a16c7"
+      ],
+      [
+        "yaml/dsp_tg_fh20_ws0.yaml",
+        1613,
+        "d11a7887305559bcb9d4fefb984310596c545f6a0875fc2886acc83d71cac469"
+      ],
+      [
+        "yaml/dsp_tg_fh20_ws10.yaml",
+        1690,
+        "2b192bef6d11720112f87a21b0622745a8fd5f99175180b3801f743058397e29"
+      ],
+      [
+        "yaml/dsp_tg_fh20_ws20.yaml",
+        1690,
+        "29428a3c0565a20ae227f1ebd243edaeef066095b1024bc04bb3fc1ad2303c68"
+      ],
+      [
+        "yaml/dsp_tg_fh20_ws30.yaml",
+        1690,
+        "e10f8315ce125b30c2b48e9c897bbd6050ef17d504371ef2c1645ab16857e921"
+      ],
+      [
+        "yaml/dsp_tg_fh20_ws40.yaml",
+        1690,
+        "7e0af01f6dc37d61472db94e423b602d9730479507fd99564d81b840b747031f"
+      ],
+      [
+        "yaml/dsp_tg_fh30_ws0.yaml",
+        1613,
+        "d756b0fb3ad05e00bbb29082b87bc1ce29e997bcf129885574d959b670daf3a7"
+      ],
+      [
+        "yaml/dsp_tg_fh30_ws10.yaml",
+        1690,
+        "0931792d2fb30ba15b82cbb75c33295cb10676f937e1be118545b887c8696215"
+      ],
+      [
+        "yaml/dsp_tg_fh30_ws30.yaml",
+        1690,
+        "1799137f021f422349b1282d550c9faca299dc89d1f0fe110977fe39b0772605"
+      ],
+      [
+        "yaml/dsp_tg_fh30_ws40.yaml",
+        1690,
+        "1c94c1b36bf7551ef19913d26c549d1f839697971099c68e6332b3d6cc767d3c"
+      ],
+      [
+        "yaml/dsp_tg_fh40_ws0.yaml",
+        1613,
+        "faeefd28f362c85c40da4615c02429a5b2658093ec876aa40b915ec3b13b8b47"
+      ],
+      [
+        "yaml/dsp_tg_fh40_ws10.yaml",
+        1690,
+        "84f8bbb82c5bc1d57b64a1fcf0b07c9189219e64a85be38e2419a304192b0c59"
+      ],
+      [
+        "yaml/dsp_tg_fh40_ws20.yaml",
+        1690,
+        "1df0b18965a1a105ce4dc7093fdaf2fce5ab28b23222f680b2e27986697ab26d"
+      ],
+      [
+        "yaml/dsp_tg_fh40_ws30.yaml",
+        1690,
+        "ad3cea43428964fcf9d25bc73d8c567b7e03cc0b8430604b35110b53fedf2f84"
+      ],
+      [
+        "yaml/dsp_tg_fh40_ws40.yaml",
+        1690,
+        "5e38057782bb96f3ada6de6e79467d37424dfed123dc2066d95b9bd54be9c2ab"
+      ],
+      [
+        "yaml/dsp_tg_fh50_ws0.yaml",
+        1613,
+        "373bae7bd3ffb312f127610f4492846e7d1472f3bdf635f8c032dc5e18f5bd48"
+      ],
+      [
+        "yaml/dsp_tg_fh50_ws10.yaml",
+        1690,
+        "1ec2ecc64e69b4f2c79f4b0b7d5597838453dbf792dd699bb917f99c3639f467"
+      ],
+      [
+        "yaml/dsp_tg_fh50_ws30.yaml",
+        1690,
+        "2059429a674215d75b436384db5b0686997b429a28b685cfe87ab787a50425b4"
+      ],
+      [
+        "yaml/dsp_tg_fh50_ws40.yaml",
+        1689,
+        "a72f05c5dce89f3bb1ad99e42b7460d53dfedb96b0dd86c5a80dcc121de6e27b"
+      ],
+      [
+        "yaml/dsp_tg_fh60_ws0.yaml",
+        1613,
+        "a30db971eca6f8d44cb3df41c457aea6a3403af284d151fbe010612726312ee4"
+      ],
+      [
+        "yaml/dsp_tg_fh60_ws10.yaml",
+        1690,
+        "8f251ef322761967070e205767db811af77bbab19c45b15b1f31ae6ab79d236c"
+      ],
+      [
+        "yaml/dsp_tg_fh60_ws20.yaml",
+        1690,
+        "912c3d21f8f09f7f9195598485fb1d6ddfec42b753ce272a8085a4cc0adecea1"
+      ],
+      [
+        "yaml/dsp_tg_fh60_ws30.yaml",
+        1689,
+        "d92e070bdaaebce0ae1045ad5317111aa1d843d968de07c01cbfc74d27f8471f"
+      ],
+      [
+        "yaml/dsp_tg_fh60_ws40.yaml",
+        1690,
+        "4508794b50f3608d0ae4aae4cf513b8cfb607dfd42cfe51b9aaee3c30ec96967"
+      ],
+      [
+        "yaml/dsp_tg_fh70_ws0.yaml",
+        1613,
+        "65141d4b1b51dbd3b35156409d3da5b777b94c1ac47f996bceb23f73cea4346e"
+      ],
+      [
+        "yaml/dsp_tg_fh70_ws20.yaml",
+        1689,
+        "fd4e19db2971447d9523605ac8c66d2768a7241e8d474867dc1429045fbd879e"
+      ],
+      [
+        "yaml/dsp_tg_fh70_ws30.yaml",
+        1690,
+        "034312d6e39e334c6e3464d4a434e8f5d278313ddbf55a539ae6a489e569a671"
+      ],
+      [
+        "yaml/dsp_tg_fh80_ws0.yaml",
+        1613,
+        "80167ad83565121ea2decb5cabed8ee8c91a49863cd329cbef5d52fbd66411e0"
+      ],
+      [
+        "yaml/dsp_tg_fh80_ws10.yaml",
+        1689,
+        "ed1249466bfae744fca94f2608baa1abfb8a93af799f995423bddff71bf4f505"
+      ],
+      [
+        "yaml/dsp_tg_fh80_ws20.yaml",
+        1690,
+        "9ace922d53123055a86af1d837b3246c29ede789376b70da39c2d12b1922e678"
+      ]
+    ],
+    "sha256": "7d93e084d08edf6a3b596d3167999f4af164b6fa8d4ceff5cf6b34916dcaa8e1",
+    "size_bytes": 309188566
+  },
+  "kind": "cache_artifact",
+  "provenance": {
+    "measured_at": "2026-08-30T11:16:41.956632+00:00",
+    "measured_by": "Execution Authority (Rev 2 confirmation plan)",
+    "produced_by": "exp/dispatch_surface/finalize_tgrid_package.py",
+    "source_machines": [
+      "weilandserver",
+      "timan107"
+    ]
+  },
+  "schema_version": 1,
+  "status": "authoritative",
+  "suite": "libero_10",
+  "title": "dispatch_surface / libero_10 / dense threshold-grid development package (29 arms x 300 cells, posthoc_exploratory)"
+}

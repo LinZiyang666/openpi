@@ -170,14 +170,22 @@ class DumpingJudge:
     # Lifecycle hooks
     # ------------------------------------------------------------------
 
-    def on_episode_start(self, *, extra_metadata: Optional[dict] = None) -> None:
+    def on_episode_start(
+        self,
+        *,
+        extra_metadata: Optional[dict] = None,
+        provisional: bool = False,
+    ) -> None:
         """Stash identity metadata + reset per-episode counters; forward to inner."""
         object.__setattr__(self, "_current_extra", dict(extra_metadata or {}))
         object.__setattr__(self, "_step_idx", 0)
         # Filtered forward — inner judge may not accept extra_metadata.
         from openpi.cache.orchestrator import CacheOrchestrator
         CacheOrchestrator._safe_call_lifecycle(
-            self._inner, "on_episode_start", extra_metadata=extra_metadata,
+            self._inner,
+            "on_episode_start",
+            extra_metadata=extra_metadata,
+            provisional=provisional,
         )
 
     def record_action(self, action_chunk: torch.Tensor) -> None:

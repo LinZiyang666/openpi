@@ -136,6 +136,16 @@ class CacheOrchestrator:
         self._key_builder = key_builder
         self._gates = gates
         self._judges = judges
+        self._last_judge_commit = None
+        # A stateful CRD judge must see every step: refuse any gate that can
+        # skip the search on its checkpoint (exploratory 2026-08-30).
+        from openpi.cache.components.gate import AlwaysSearchGate as _AlwaysSearch
+        for cp, judge in self._judges.items():
+            if hasattr(judge, "commit_verdict") and not isinstance(self._gates.get(cp), _AlwaysSearch):
+                raise ValueError(
+                    f"{cp}: a cumulative-risk (CRD) judge requires gate.type=always_search, "
+                    f"got {type(self._gates.get(cp)).__name__}"
+                )
         self._search_strategies = search_strategies
         self._timer = timer if timer is not None else SystemTimer(enabled=False)
         self._write_policy = write_policy
@@ -257,7 +267,10 @@ class CacheOrchestrator:
         self._step_counter = 0
         self._current_task_key = task_key
         self._reset_episode_buffer()
-        self._broadcast_episode_start()
+        # A connection opens before an identified episode_start frame arrives.
+        # Stateful judges must reset here, but must not be asked to invent task
+        # metadata.  The later non-provisional broadcast binds that identity.
+        self._broadcast_episode_start(provisional=True)
 
     def on_episode_start(
         self,
@@ -282,9 +295,9 @@ class CacheOrchestrator:
         # the new identity so it survives the broadcast below.
         self._reset_episode_buffer()
         self._current_episode_extra = dict(extra_metadata or {})
-        self._broadcast_episode_start()
+        self._broadcast_episode_start(provisional=False)
 
-    def _broadcast_episode_start(self) -> None:
+    def _broadcast_episode_start(self, *, provisional: bool = False) -> None:
         """Lifecycle entry point shared by on_task_begin and on_episode_start.
 
         Atomically performs three steps so all broadcast paths obtain the
@@ -321,6 +334,7 @@ class CacheOrchestrator:
             self._safe_call_lifecycle(
                 judge, "on_episode_start",
                 extra_metadata=self._current_episode_extra,
+                provisional=provisional,
             )
 
         # (3) Collect strategy-minted sids and register with the backend.
@@ -472,6 +486,29 @@ class CacheOrchestrator:
                 start_t=start_t,
                 searched=searched,
             )
+        # Stateful judges (CRD, exploratory 2026-08-30) only PROPOSE inside
+        # __call__; the FINAL executed verdict is committed here, on the same
+        # every-return-path hook, so a WARM_START downgraded to MISS by the
+        # payload check above is booked as the MISS that actually ran.
+        judge = self._judges.get(checkpoint_id)
+        if searched and judge is not None and hasattr(judge, "commit_verdict"):
+            self._last_judge_commit = judge.commit_verdict(
+                checkpoint_id,
+                hit_type=hit_type,
+                cp1_score=cp1_score,
+                winner_id=winner_id,
+                start_t=start_t,
+            )
+
+    def _with_judge_diag(self, factor_outputs):
+        """Merge a stateful judge's commit diagnostics into the step's factor_outputs."""
+        diag = self._last_judge_commit
+        if not diag:
+            return factor_outputs
+        self._last_judge_commit = None
+        merged = dict(factor_outputs or {})
+        merged["crd"] = diag
+        return merged
 
     # ------------------------------------------------------------------
     # Cache check pipeline
@@ -674,7 +711,7 @@ class CacheOrchestrator:
             )
             return CheckResult(
                 hit_type=hit_type, payload=None, score=top_score,
-                query_keys=query_keys, factor_outputs=factor_outputs,
+                query_keys=query_keys, factor_outputs=self._with_judge_diag(factor_outputs),
                 hit_override=True, router_outputs=router_outputs,
             )
 
@@ -707,7 +744,7 @@ class CacheOrchestrator:
                     return CheckResult(
                         hit_type=HitType.MISS, query_keys=query_keys,
                         score=results[0].score, entry_id=winner_id,
-                        factor_outputs=factor_outputs,
+                        factor_outputs=self._with_judge_diag(factor_outputs),
                         router_outputs=router_outputs,
                     )
 
@@ -718,7 +755,7 @@ class CacheOrchestrator:
             return CheckResult(
                 hit_type=hit_type, payload=payload, start_t=start_t,
                 score=results[0].score, entry_id=winner_id, query_keys=query_keys,
-                factor_outputs=factor_outputs,
+                factor_outputs=self._with_judge_diag(factor_outputs),
                 hit_override=hit_override, router_outputs=router_outputs,
             )
 
@@ -729,7 +766,7 @@ class CacheOrchestrator:
         return CheckResult(
             hit_type=HitType.MISS, query_keys=query_keys,
             score=top_score, entry_id=winner_id,
-            factor_outputs=factor_outputs,
+            factor_outputs=self._with_judge_diag(factor_outputs),
             router_outputs=router_outputs,
         )
 

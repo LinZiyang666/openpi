@@ -123,6 +123,10 @@ def assert_roster(suite: str, arms: dict) -> None:
 LAYER_TGRID = "exploratory_tgrid"
 PROTOCOL_TGRID = "dispatch_surface_rev2_tgrid_dev"
 TGRID_SUITE = "libero_10"
+#: Post-hoc exploratory extension (owner goal, 2026-08-30): the identical
+#: 29-cell grid may also be emitted for libero_spatial. The l10 spec bytes and
+#: digest are untouched -- the spec depends only on the suite string passed in.
+TGRID_SUITES = (TGRID_SUITE, "libero_spatial")
 THRESHOLD_GRID_FH = (20, 30, 40, 50, 60, 70, 80)
 THRESHOLD_GRID_WS = (0, 10, 20, 30, 40)
 #: Rev 1 cells already measured (see REV1_CANDIDATES); they are NOT re-emitted.
@@ -148,8 +152,8 @@ def tgrid_arm_id(fh: int, ws: int) -> str:
 
 
 def tgrid_roster_spec(suite: str) -> dict:
-    if suite != TGRID_SUITE:
-        raise SystemExit(f"the dense threshold grid is frozen for {TGRID_SUITE!r} only, not {suite!r}")
+    if suite not in TGRID_SUITES:
+        raise SystemExit(f"the dense threshold grid is frozen for {TGRID_SUITES!r} only, not {suite!r}")
     return {
         "protocol": PROTOCOL_TGRID,
         "layer": LAYER_TGRID,
