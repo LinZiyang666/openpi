@@ -1,5 +1,7 @@
 # Dispatch Surface Rev 2 — Phase 0 实施计划（exploratory 导出 / anchor 臂 / cost-map / outcome-design / 台账）
 
+> **术语统一（2026-08-31，owner 裁定，全库生效）**：**GST = Grid-Searched Threshold（网格搜索阈值）**——本文中的 threshold / thr / T / tgrid / (fh, ws) 网格 / 速率索引均指它；**RIT = Risk-Indexed Threshold（风险索引阈值）**——本文中的 s-only / s0 / 校准分位切 / 风险阶梯 / surface 均指它（(s,v) 版 SV 为 RIT 的消融）。历史正文与 Review Log 按章程不改写，以本注释为准。
+
 > Status: **G1 APPROVED（5 轮）→ Code → G2 APPROVED（3 轮）→ Verify 通过（2026-08-29）→ 待 commit / push**。Level **L2**（`exp/` 多文件；不改 `src/`）。
 > 协议权威：[`dispatch_surface_rev2_protocol_draft.md`](dispatch_surface_rev2_protocol_draft.md) v1（§12 预 G1 裁决）；本计划 §3.6 / §3.8 的机械规则同步写回协议 §3.3–§3.4、§7 A-4。
 > 结果与证据：[`dispatch_surface_rev1_aprime_result.md`](dispatch_surface_rev1_aprime_result.md) §7–§10。

@@ -1,4 +1,4 @@
-"""Fit the dispatch surface: bimonotone quantile fit, OOF delta selection,
+"""Fit the dispatch surface (RIT, Risk-Indexed Threshold): bimonotone quantile fit, OOF delta selection,
 episode-level conformal correction, boundary export, artifact emission.
 
 Implements plan section 4.5 mechanically (zero execution-time freedom):

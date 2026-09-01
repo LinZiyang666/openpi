@@ -1,6 +1,7 @@
-# Session Handoff — Dispatch（论文已转向 s-only 风险索引；三目标夜跑链进行中；2026-08-30 20:30）
+# Session Handoff — Dispatch（论文已转向 RIT 风险索引阈值；三目标夜跑链进行中；2026-08-30 20:30）
 
-> **一句话状态**：论文定位已按 owner 决定转向——**s-only 校准分位切 = score-threshold 族帕累托前沿的风险索引**（SV/CRD/H-CRD 全部降为消融/附录素材，CRD 图已删）。夜跑三目标链：**① l10 s-only+gate（sysgate，OOM 后 20:20 续跑，34.9%，预计 ~23:10）→ ② spatial s-only 密扫（已全备、dry-validate 过，①完自动接）→ ③ spatial s-only+gate（已全备，②完接）**。冻结裁决 `stop_before_C` 与其资产不动。
+> **一句话状态**：论文定位已按 owner 决定转向——**RIT（Risk-Indexed Threshold，风险索引阈值；s-only 校准分位切）= 阈值规则族帕累托前沿的风险索引，GST（Grid-Searched Threshold，网格搜索阈值）= 同族的网格搜索索引**（SV/CRD/H-CRD 全部降为消融/附录素材，CRD 图已删）。夜跑三目标链：**① l10 s-only+gate（sysgate，OOM 后 20:20 续跑，34.9%，预计 ~23:10）→ ② spatial s-only 密扫（已全备、dry-validate 过，①完自动接）→ ③ spatial s-only+gate（已全备，②完接）**。冻结裁决 `stop_before_C` 与其资产不动。
+> **术语（owner 2026-08-31 裁定，全库统一）**：GST = Grid-Searched Threshold（网格搜索阈值；旧 threshold / thr / tgrid 族）；RIT = Risk-Indexed Threshold（风险索引阈值；s-only / s0 校准阶梯，(s,v) 版 SV 为其消融）。
 > **规则（新增两条加粗）**：**未经 owner 明示绝不 `git add`/暂存任何东西（今日被训诫，一切产出留工作区）**；**不随手写记忆文件（owner 已删我写的）**。其余照旧：commit/push 只按明示、作者 LinZiyang666 无 AI 署名；handoff 只按要求写；定向测试；不碰 pruned 测试集/fresh C；codex 改码逐 diff 核验；杀进程 ps→kill pid；中文回复英文注释。
 
 ## 0. 权威文档（今日新增/大改）
@@ -20,7 +21,7 @@
 
 ## 2. l10 数据资产（A′ 开发集，全部 post-hoc 探索）
 
-- **24 臂 dense summary**：`exp/dispatch_surface/data/sgrid/libero_10/sgrid_summary_all.json`（18 臂 sha `78eb6491…` + 加密 6 臂 sha `c7b84be9…` 合并；raw 在 `…/sgrid/libero_10/raw{,2}/`）。关键数：区间内 SV 高 thr +2.0…+4.2 pt、s0 打平；`s0_p86` 0.763@70.7%、`s0_p775` 0.840@83.5%、`s0_p75` **0.870@94.6%**、`sv_p75` 0.840@81.8%；thr 前沿止于 84.5%/0.797；anchor 0.847/67.52ms；s0/sv 在 89–95% 段越过 anchor。
+- **24 臂 dense summary**：`exp/dispatch_surface/data/sgrid/libero_10/sgrid_summary_all.json`（18 臂 sha `78eb6491…` + 加密 6 臂 sha `c7b84be9…` 合并；raw 在 `…/sgrid/libero_10/raw{,2}/`）。关键数：区间内 SV 高 thr +2.0…+4.2 pt、s0 打平；`s0_p86` 0.763@70.7%、`s0_p775` 0.840@83.5%、`s0_p75` **0.870@94.6%**、`sv_p75` 0.840@81.8%；GST（thr）前沿止于 84.5%/0.797；anchor 0.847/67.52ms；s0/sv 在 89–95% 段越过 anchor。
 - batch D（H-CRD 消融素材）：`data/crd/libero_10/crd_batchD_summary.json` sha `71008e0c…` + golden 0 违例 + `analysis/crd_offline_screen.py`（校准误差<0.5ms，旋钮余地仅 1–3%）。
 - 图：`analysis/figures/libero_10/` 仅 16 文件（dense 系列 + 诊断图；旧版/CRD 版已删）。**画法**：实线=逐点非支配前沿（`_pareto_staircase`），点线=两臂混合包络；`--sgrid-summary` 时不再生成非 dense 旧图（latest-only 已写入 plot main）。报告页 https://claude.ai/code/artifact/5458a825-e32a-45b8-8674-c9289c9aa31e （图1 dense/图1b 24臂/图2 dense/图3–5）。
 
@@ -28,7 +29,7 @@
 
 **① l10 sysgate（在跑）**：15 个 s0 分位 × production gate（θ=0.9928/j3/probe3/L6），矩阵 `/tmp/dsp_shared/config/precheck_libero_10_sysgate/`（24 臂，run 用 `--arms` 15 s0）。20:18 timan107 **系统 OOM**（机队连跑 ~9h 驱动锁页内存耗尽，GTP 已知模式）杀 worker→全体 keepalive 1011→runner 退出；server 无恙（握手 0.04s 验证过）。20:20:26 同 journal 续跑（1525 accepted 无损；污染日志轮换为 `.oom_2020`）。Monitor `bl3yk24jf` + cron `7fca9f2a`（都跨 compact 存活），TOTAL 4500，标记 `SYSGATE_DONE`。**再 OOM → 降 worker 数续跑**。
 **DONE 后**：CronDelete → `bash $CLAUDE_JOB_DIR/tmp/pull_sysgate.sh`（→ `data/sysgate/libero_10/raw/`）→ `sgrid_sweep summarize --arm-matrix data/sgrid/libero_10/inputs/precheck_libero_10_sysgate/arm_matrix_sgrid.json --arms <15 s0 臂> --journal/per-step/launch-manifest <raw> --split-manifest data/libero_10/init_pools/split_manifest.json --out data/sysgate/libero_10/sysgate_summary.json` → 系统图（s0+gate 层叠加 24 臂 dense 图，需给 plot 加一层或单独脚本）→ 页面/文档 → **接跑 ②**。
-**② spatial 密扫**：`tmux new -s srv0 -d /tmp/dsp_spsgrid_wrap.sh`（先确认无残留、srv0 空）；health `/tmp/dsp_spsgrid_health.sh` TOTAL 4200 标记 `SPSGRID_DONE`；输出 `/tmp/dsp_precheck/libero_spatial_sgrid/`；挂同款 Monitor+cron。DONE 后 pull（仿 pull_sgrid.sh 造 pull_spsgrid.sh：libero_10_sgrid→libero_spatial_sgrid、DST=data/sgrid/libero_spatial/raw）→ summarize（matrix 在 `data/sgrid/libero_spatial/inputs/precheck_libero_spatial_sgrid/`，`--task-suite` 由 matrix 校验、`--arms` 14 s0、split manifest 本地路径 `exp/dispatch_surface/data/aprime_rev1/discipline/libero_spatial_primary/split_manifest.json`）→ spatial 三线图（threshold 基线 = GTP spatial 数据 / Rev 1 spatial phase0）→ **接跑 ③**。
+**② spatial 密扫**：`tmux new -s srv0 -d /tmp/dsp_spsgrid_wrap.sh`（先确认无残留、srv0 空）；health `/tmp/dsp_spsgrid_health.sh` TOTAL 4200 标记 `SPSGRID_DONE`；输出 `/tmp/dsp_precheck/libero_spatial_sgrid/`；挂同款 Monitor+cron。DONE 后 pull（仿 pull_sgrid.sh 造 pull_spsgrid.sh：libero_10_sgrid→libero_spatial_sgrid、DST=data/sgrid/libero_spatial/raw）→ summarize（matrix 在 `data/sgrid/libero_spatial/inputs/precheck_libero_spatial_sgrid/`，`--task-suite` 由 matrix 校验、`--arms` 14 s0、split manifest 本地路径 `exp/dispatch_surface/data/aprime_rev1/discipline/libero_spatial_primary/split_manifest.json`）→ spatial 三线图（GST 基线 = GTP spatial 数据 / Rev 1 spatial phase0）→ **接跑 ③**。
 **③ spatial sysgate**：`/tmp/dsp_spsysgate_wrap.sh`，TOTAL 4200，`SPSYSGATE_DONE`，θ=0.97174 已在 yaml。流程同 ②。
 
 ## 4. spatial 资产（今日新建，全部三机核验）
@@ -56,4 +57,4 @@ server：weilandserver tmux `srv0`，`ziyanglin.com:23150` 公网 1:1 直连（p
 
 ## 8. 待 owner / codex
 
-codex 新 G1（转向提案 = 转向报告 + sonly_note + 24 臂证据）；§15.6 未尽（commit reviewer patch、commit 后重建 export record provenance——现 record 的 git_commit 字段两端各记无关 HEAD，已查明）；pruned-500 确认与 Arm1 CP2 对照与 K=3（论文三缺口）；threshold+gate 同链 baseline 臂（§16.5 待办）；docs/iclr 剩余文档去留；commit/push 时机。
+codex 新 G1（转向提案 = 转向报告 + sonly_note + 24 臂证据）；§15.6 未尽（commit reviewer patch、commit 后重建 export record provenance——现 record 的 git_commit 字段两端各记无关 HEAD，已查明）；pruned-500 确认与 Arm1 CP2 对照与 K=3（论文三缺口）；GST+gate 同链 baseline 臂（§16.5 待办）；docs/iclr 剩余文档去留；commit/push 时机。

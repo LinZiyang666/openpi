@@ -274,7 +274,7 @@ def build_cost_map(rev1: dict, phase0: dict, *, seed: int = SEED, reps: int = RE
     point = {a: ratio_of_sums(cells[a], grid) for a in cells}
     dec = {a: int(sum(n for _c, n in cells[a].values())) for a in cells}
 
-    # step 2: isotonic per delta family; threshold family by pre-registered order
+    # step 2: isotonic per delta (RIT) family; GST threshold family by pre-registered order
     fam_points: dict[str, dict] = {}
     for fam in (FAMILY_SV, FAMILY_S0):
         arms = sorted((a for a in cells if families[a] == fam), key=lambda a: deltas[a])

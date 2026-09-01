@@ -1,5 +1,7 @@
 # Dispatch Surface —— 成本轴变更提案（提交评审）
 
+> **术语统一（2026-08-31，owner 裁定，全库生效）**：**GST = Grid-Searched Threshold（网格搜索阈值）**——本文中的 threshold / thr / T / tgrid / (fh, ws) 网格 / 速率索引均指它；**RIT = Risk-Indexed Threshold（风险索引阈值）**——本文中的 s-only / s0 / 校准分位切 / 风险阶梯 / surface 均指它（(s,v) 版 SV 为 RIT 的消融）。历史正文与 Review Log 按章程不改写，以本注释为准。
+
 > 2026-08-27 | 提交人：Execution Authority | 状态：**待裁决**
 > 关联：[`dispatch_surface_plan.log.md`](dispatch_surface_plan.log.md)（§4.6 预检设计、§11 执行日志）
 > 本文自包含，不需要先读 plan 也能判断。

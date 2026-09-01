@@ -1,5 +1,7 @@
 # Dispatch Surface Rev 2 第二计划：结果、分析与走向（供 Review Authority 审阅）
 
+> **术语统一（2026-08-31，owner 裁定，全库生效）**：**GST = Grid-Searched Threshold（网格搜索阈值）**——本文中的 threshold / thr / T / tgrid / (fh, ws) 网格 / 速率索引均指它；**RIT = Risk-Indexed Threshold（风险索引阈值）**——本文中的 s-only / s0 / 校准分位切 / 风险阶梯 / surface 均指它（(s,v) 版 SV 为 RIT 的消融）。历史正文与 Review Log 按章程不改写，以本注释为准。
+
 > 作者：Execution Authority（2026-08-30）。owner 交审的两个议题：
 > **议题 1** —— 本文 §3–§5 对实验结果的分析是否正确（数字、口径、推断）。
 > **议题 2** —— §6 提出的"可能超过 threshold"的方法是否成立，用于决定后续走向；涉及模型训练的选项已列出但**标注为尽量不用**。

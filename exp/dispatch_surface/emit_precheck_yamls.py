@@ -3,7 +3,7 @@
 Arms (plan section 4.6): T1-T3 calibrated two-threshold baselines
 (start_t=0.3 tier, thresholds solved by the single shared
 ``derive_thresholds`` implementation on the fit-union-cal score
-distribution), S0 (s-only surface artifact at delta*), SV (primary surface),
+distribution), S0 (RIT s-only surface artifact at delta*), SV (RIT primary surface),
 and SV-/SV+ only when the corresponding grid neighbour artifact exists.
 
 Every yaml is derived from the gate-line template: judge section replaced,
@@ -13,7 +13,7 @@ the preload file's sha256 equals the artifact contract's library_sha256), and
 arm set for the launch manifest.
 
 The GATE is re-solved too, not inherited. ``solve_gtp`` states the rule the
-threshold line runs on: the gate theta and the judge cuts are quantiles of the
+GST threshold line runs on: the gate theta and the judge cuts are quantiles of the
 SAME score distribution and are "re-derived per library rather than carried
 over -- carrying a threshold across libraries is exactly the mistake the
 ratio-based design exists to prevent". This line rebuilds the library, so an
@@ -72,7 +72,7 @@ LAYER_SECONDARY = "secondary"
 # Rev 2 Phase 0: post-hoc exploratory arms on the old A' (development set).
 # The roster is frozen in phase0_roster; nothing here is confirmatory.
 LAYER_EXPLORATORY = "exploratory"
-# Rev 2 confirmation plan: dense threshold grid on the development set
+# Rev 2 confirmation plan: dense GST threshold grid on the development set
 # (plan section 3.2). Cells are frozen in phase0_roster; nothing is chosen here.
 LAYER_TGRID = "exploratory_tgrid"
 # Effective retrieval widths. The on-disk yaml stays at configured top_k=1 for
@@ -304,7 +304,7 @@ def emit_exploratory(args) -> None:
 
 
 # ----------------------------------------------------------------------
-# Rev 2 confirmation plan: dense threshold grid (plan section 3.2)
+# Rev 2 confirmation plan: dense GST threshold grid (plan section 3.2)
 # ----------------------------------------------------------------------
 
 def threshold_pair_digest(t_fh: float, t_ws: float | None) -> str:

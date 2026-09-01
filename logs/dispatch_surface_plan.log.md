@@ -1,5 +1,7 @@
 # Dispatch Surface 实施计划（三档 (s,v) 调度 + 标定管线 + 增益预检）
 
+> **术语统一（2026-08-31，owner 裁定，全库生效）**：**GST = Grid-Searched Threshold（网格搜索阈值）**——本文中的 threshold / thr / T / tgrid / (fh, ws) 网格 / 速率索引均指它；**RIT = Risk-Indexed Threshold（风险索引阈值）**——本文中的 s-only / s0 / 校准分位切 / 风险阶梯 / surface 均指它（(s,v) 版 SV 为 RIT 的消融）。历史正文与 Review Log 按章程不改写，以本注释为准。
+
 > Status: **In Progress — 实验执行期**（G1 APPROVED R5；G2 APPROVED R4；Verify 通过；commit `1985271` 已 push；**成本轴 2026-08-27 变更，Review Authority 有条件批准；§4.6/§7 已按裁决修订冻结，analyzer 已重写、`run_cost_bench.py`/`power_sim_cost_blocks.py` 已删**） | Level: **L2** | Authority: Execution
 > 数学权威：[`docs/iclr/latex/dispatch_note.tex`](../docs/iclr/latex/dispatch_note.tex)（v3 定稿）。攻防与裁决：[`docs/iclr/dispatch_defense_plan.md`](../docs/iclr/dispatch_defense_plan.md)（§3b 三档坍缩）。交接：[`logs/session_handoff_dispatch.md`](session_handoff_dispatch.md)。
 > 本 plan 是 dispatch 线的**唯一流程**：数据独立性重建、noise 诊断、标定数据生成、surface 拟合与 conformal 校准、SurfaceJudge、闭环增益预检、预检后并入挂点，全部在本流程内交付代码与预注册执行方案，不留后续流程。

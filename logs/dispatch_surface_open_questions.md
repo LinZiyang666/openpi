@@ -1,5 +1,7 @@
 # Dispatch Surface — 执行期遇到的问题与待裁决问题（提交 Review Authority）
 
+> **术语统一（2026-08-31，owner 裁定，全库生效）**：**GST = Grid-Searched Threshold（网格搜索阈值）**——本文中的 threshold / thr / T / tgrid / (fh, ws) 网格 / 速率索引均指它；**RIT = Risk-Indexed Threshold（风险索引阈值）**——本文中的 s-only / s0 / 校准分位切 / 风险阶梯 / surface 均指它（(s,v) 版 SV 为 RIT 的消融）。历史正文与 Review Log 按章程不改写，以本注释为准。
+
 > 本文由 Execution Authority 起草。**它不主张结论，只陈述观察、说明检验方法、并把判断不了或不该由执行方判断的部分列成问题。**
 > 涉及冻结判据的一切改动均未执行，也不建议由执行方执行。
 > 数据截至 2026-08-28。**两个 suite 都已跑完拟合，都触发了同一个预注册止损（`stop_loss_zero_hitshare`）**，

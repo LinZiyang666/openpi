@@ -58,7 +58,7 @@ REV1_CANDIDATES: dict[str, tuple[str, float | None]] = {
     "dsp_t_fh50_ws20": (FAMILY_THRESHOLD, None),
     "dsp_t_fh70_ws10": (FAMILY_THRESHOLD, None),
 }
-#: Pre-registered aggressiveness order of the threshold family: endpoints
+#: Pre-registered aggressiveness order of the GST (threshold) family: endpoints
 #: are fh70 (cheapest) and fh30 (most expensive); the middle is fh50. They
 #: never pass through the isotonic fit because they carry no delta.
 THRESHOLD_ORDER = ("dsp_t_fh70_ws10", "dsp_t_fh50_ws20", "dsp_t_fh30_ws20")
@@ -115,7 +115,7 @@ def assert_roster(suite: str, arms: dict) -> None:
 
 
 # ----------------------------------------------------------------------
-# Rev 2 confirmation plan (plan section 3.2 / 3.3): dense threshold grid and
+# Rev 2 confirmation plan (plan section 3.2 / 3.3): dense GST threshold grid and
 # the C-roster selector constants. Frozen at G1 Round 3; the freeze record in
 # exp/dispatch_surface/config/confirmation_freeze_record.json pins them.
 # ----------------------------------------------------------------------

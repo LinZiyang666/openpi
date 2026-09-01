@@ -1,5 +1,11 @@
 """Dispatch-surface judge: three-tier (s, v) verdict from a calibrated artifact.
 
+In the dispatch-surface line this judge is the Risk-Indexed Threshold (RIT):
+online it is the same monotone-cut rule class as the ``threshold`` judge whose
+cuts are picked by grid search (GST, Grid-Searched Threshold); the difference
+is only that RIT's cuts are computed offline from calibrated risk curves at
+one tolerance delta.
+
 Implements the collapsed dispatch surface of the dispatch note (v3): every CP1
 verdict is FULL_HIT (tau = N), WARM_START at the single stored depth
 start_t = 0.3 (tau = 0.7 N), or MISS (tau = 0), decided by two conformally

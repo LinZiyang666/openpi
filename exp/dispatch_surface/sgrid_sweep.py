@@ -1,6 +1,6 @@
-"""Exploratory surface-density sweep ("sgrid"): fill the SV / S0 families with
-extra calibration quantiles so their frontiers are as dense as the threshold
-grid. Owner-authorised post-hoc development rollout (2026-08-30); it does NOT
+"""Exploratory RIT-density sweep ("sgrid"): fill the RIT (SV / S0) families
+with extra calibration quantiles so their frontiers are as dense as the GST
+threshold grid. Owner-authorised post-hoc development rollout (2026-08-30); it does NOT
 enter the frozen confirmation chain (no roster spec, no seal input).
 
 Re-uses the disciplined components unchanged:

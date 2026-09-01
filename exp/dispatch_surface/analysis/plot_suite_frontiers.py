@@ -4,8 +4,8 @@ The l10 dense figure (plot_budget_amendment) requires the confirmation outcome
 design; the spatial chain (goals 2-4) and the eval500 line produce only
 summarize outputs. This script draws the same picture -- per-family staircase
 frontier (solid), two-arm mixture envelope (dotted), anchor star, percent-cost
-axis -- directly from up to three summaries: the s0/sv density sweep, the
-threshold grid, and the gated-s0 system points.
+axis -- directly from up to three summaries: the RIT (s0/sv) density sweep, the
+GST threshold grid, and the gated RIT (s0) system points.
 """
 from __future__ import annotations
 
@@ -72,14 +72,14 @@ def _series(ax, arms_dict, color, marker, label, pct, style="-", offset=(3, 3), 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--sgrid-summary", required=True, help="s0/sv density sweep summarize output")
-    ap.add_argument("--tgrid-summary", default="", help="threshold-grid summarize output (orange line)")
-    ap.add_argument("--sysgate-summary", default="", help="gated-s0 summarize output (system line)")
+    ap.add_argument("--tgrid-summary", default="", help="GST threshold-grid summarize output (orange line)")
+    ap.add_argument("--sysgate-summary", default="", help="gated RIT (s0) summarize output (system line)")
     ap.add_argument("--phase0-summary", default="", help="anchor source (always_full_inference arm)")
     ap.add_argument("--anchor", type=float, nargs=2, default=None, metavar=("COST_MS", "SR"),
                     help="anchor given directly (for lines with no phase0 summary, e.g. eval500)")
     ap.add_argument("--reference-curve", default="",
                     help="JSON {label, color, points: [[cost_pct, sr], ...]} drawn as a reference "
-                         "line (e.g. the GTP threshold+gate curve on the same pool)")
+                         "line (e.g. the GTP GST+gate curve on the same pool)")
     ap.add_argument("--extra-points", default="",
                     help="JSON {family: {arm: {cost, sr}}} merged into the family series "
                          "(e.g. Rev 1 measurements the sweeps do not re-measure)")
@@ -135,7 +135,7 @@ def main() -> None:
                     FAMILY_LABEL[fam], pct, offset=(-28, 7))
     if "sysgate" in summaries:
         _series(ax, summaries["sysgate"]["arms"], SYSGATE_COLOR, "^",
-                "s-only ladder + production gate (score_hysteresis, j=3, probe=3, L=6)",
+                "RIT ladder (s-only) + production gate (score_hysteresis, j=3, probe=3, L=6)",
                 pct, style="--", offset=(4, -12), z=6)
 
     if args.reference_curve:
@@ -155,7 +155,7 @@ def main() -> None:
     ax.set_xlabel("analytic compute cost per decision, % of always-full inference")
     ax.set_ylabel("success rate")
     ax.set_title(f"{suite}: measured arms by family — solid = per-family Pareto frontier, dotted = mixture envelope\n"
-                 "threshold labels = fh/ws percentiles; surface labels = calibration quantile (development points, exploratory)")
+                 "GST labels = fh/ws percentiles; RIT labels = calibration quantile (development points, exploratory)")
     ax.grid(alpha=0.25)
     ax.legend(loc="lower right", fontsize=7.6, framealpha=0.95)
     fig.tight_layout()

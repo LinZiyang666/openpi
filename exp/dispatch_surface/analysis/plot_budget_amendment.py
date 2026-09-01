@@ -8,7 +8,7 @@ Reads ``budget_outcome_design.json`` (+ ``budget_cost_map.json``) and draws:
      interval with the H1 interval-average effect and its bootstrap 90 % band;
   3. ``effect_summary``    H1 / H2 / S0-T interval effects with bootstrap q05-q95
      bars, per-task descriptive effects and the audited replicate differences;
-  4. ``tgrid_heatmap``     dense threshold grid: SR and analytic cost per (fh, ws) cell;
+  4. ``tgrid_heatmap``     dense GST grid: SR and analytic cost per (fh, ws) cell;
   5. ``baseline_density``  exploratory: plug-in H1 vs the number of grid cells the baseline may tune over;
   6. ``pareto_hull_percent`` every arm, cost in % of always-full inference, Rev 1-style Pareto hulls
      (needs ``--phase0-summary`` for the anchor);
@@ -43,9 +43,9 @@ import numpy as np  # noqa: E402
 from exp.dispatch_surface.analysis.budget_mixture import ArmStats, value_at  # noqa: E402
 
 FAMILY_LABEL = {
-    "sv": "surface dispatch, risk-calibrated on (s, v)",
-    "s0": "surface dispatch, s-only",
-    "threshold": "threshold dispatch (fh / ws grid)",
+    "sv": "RIT on (s, v) — ablation (Risk-Indexed Threshold with the disagreement statistic)",
+    "s0": "RIT (Risk-Indexed Threshold, s-only ladder)",
+    "threshold": "GST (Grid-Searched Threshold, fh / ws grid)",
 }
 FAMILY_COLOR = {"sv": "#1f5fbf", "s0": "#2a9d3f", "threshold": "#e07b1a"}
 FAMILY_MARKER = {"sv": "o", "s0": "s", "threshold": "D"}
@@ -53,8 +53,8 @@ CRD_COLOR = "#8e24aa"
 CRD_ABL_COLOR = "#c2185b"
 SYSGATE_COLOR = "#6a2d9e"
 CRD_SWEEP = {"budget_mult": 2, "j_bad": 3, "l_max": 6, "gamma": 1.0}   # the frozen H-CRD development setting
-HYP_LABEL = {"H1": "H1: (s,v) surface − threshold", "H2": "H2: (s,v) surface − s-only",
-             "S0_minus_T": "s-only − threshold"}
+HYP_LABEL = {"H1": "H1: RIT(s,v) − GST", "H2": "H2: RIT(s,v) − RIT(s-only)",
+             "S0_minus_T": "RIT(s-only) − GST"}
 _TG = re.compile(r"^dsp_tg_fh(\d+)_ws(\d+)$")
 _REV1_T = re.compile(r"^dsp_t_fh(\d+)_ws(\d+)$")
 
@@ -162,8 +162,8 @@ def fig_family_frontiers(design: dict, out: pathlib.Path, suffix: str = "") -> N
     ax.set_xlabel("analytic compute cost per decision, B (ms)")
     ax.set_ylabel("success rate on the development set (A′ 30 inits × 10 tasks)")
     ax.set_title("libero_10 development set: family frontiers under the budget-mixture estimand"
-                 + (" — with the surface density sweep (exploratory)" if suffix else "") + "\n"
-                 "threshold labels = fh/ws percentiles; surface labels = calibration quantile; dashed = B_1, B_2")
+                 + (" — with the RIT density sweep (exploratory)" if suffix else "") + "\n"
+                 "GST labels = fh/ws percentiles; RIT labels = calibration quantile; dashed = B_1, B_2")
     ax.set_ylim(0.1, 0.9)
     ax.grid(alpha=0.25)
     ax.legend(loc="lower right", fontsize=8, framealpha=0.95)
@@ -256,7 +256,7 @@ def fig_effect_summary(design: dict, out: pathlib.Path) -> None:
     ax2.hist(diffs, bins=18, color="#c0392b", alpha=0.75)
     ax2.axvline(0.0, color="black", lw=1)
     ax2.axvline(hyps["H1"]["effect_plugin"], color="#c0392b", ls="--", lw=1.2)
-    ax2.set_xlabel("$V_{sv} - V_{threshold}$ (audited replicates)")
+    ax2.set_xlabel("$V_{RIT(s,v)} - V_{GST}$ (audited replicates)")
     ax2.set_ylabel("count")
     ax2.set_title(f"H1 over {len(diffs)} audited replicates\n"
                   f"share ≤ 0: {(diffs <= 0).mean():.2f}", fontsize=10)
@@ -304,7 +304,7 @@ def fig_tgrid_heatmap(design: dict, out: pathlib.Path) -> None:
                 if arm in active:
                     ax.add_patch(plt.Rectangle((j - 0.5, i - 0.5), 1, 1, fill=False, ec="#c0392b", lw=2))
         fig.colorbar(im, ax=ax, fraction=0.046, pad=0.03)
-    fig.suptitle("Dense threshold grid on the development set (29 cells; red frame = active on the budget interval)")
+    fig.suptitle("Dense GST grid on the development set (29 cells; red frame = active on the budget interval)")
     fig.tight_layout()
     fig.savefig(out / "tgrid_heatmap.png", dpi=170)
     fig.savefig(out / "tgrid_heatmap.pdf")
@@ -390,7 +390,7 @@ def fig_pareto_hull_percent(design: dict, anchor: dict, out: pathlib.Path, suffi
         pts_g = [(sysgate["arms"][a]["cost"], sysgate["arms"][a]["sr"]) for a in arms_g]
         front_g = _pareto_staircase(pts_g)
         ax.plot([pct(c) for c, _ in front_g], [s_ for _, s_ in front_g], "--", color=SYSGATE_COLOR, lw=2.4, zorder=5,
-                label=f"s-only ladder + production gate (score_hysteresis, j=3, probe=3, L=6) — Pareto frontier "
+                label=f"RIT ladder (s-only) + production gate (score_hysteresis, j=3, probe=3, L=6) — Pareto frontier "
                       f"({len(front_g)} / {len(pts_g)} arms, development points)")
         on_g = {(round(c, 9), round(s_, 9)) for c, s_ in front_g}
         face_g = [SYSGATE_COLOR if (round(c, 9), round(s_, 9)) in on_g else "white" for c, s_ in pts_g]
@@ -405,10 +405,10 @@ def fig_pareto_hull_percent(design: dict, anchor: dict, out: pathlib.Path, suffi
     ax.set_xlabel("analytic compute cost per decision, % of always-full inference")
     ax.set_ylabel("success rate on the development set (A′ 30 inits × 10 tasks)")
     ax.set_title("libero_10 development set: every measured arm — solid = per-family Pareto frontier (all non-dominated arms), dotted = mixture envelope"
-                 + (" — with the surface density sweep (exploratory)" if "dense" in suffix else "")
+                 + (" — with the RIT density sweep (exploratory)" if "dense" in suffix else "")
                  + (" — H-CRD development points overlaid (exploratory)" if crd is not None else "")
-                 + (" — s0 + production gate system points overlaid (exploratory)" if sysgate is not None else "") + "\n"
-                 "threshold labels = fh/ws percentiles; surface labels = calibration quantile (sv = q0.90, sv_minus = q0.80, p85 = q0.85)")
+                 + (" — RIT(s-only) + production gate system points overlaid (exploratory)" if sysgate is not None else "") + "\n"
+                 "GST labels = fh/ws percentiles; RIT labels = calibration quantile (sv = q0.90, sv_minus = q0.80, p85 = q0.85)")
     ax.set_xlim(40, 104)
     ax.set_ylim(0.1, 0.9)
     ax.grid(alpha=0.25)
@@ -517,7 +517,7 @@ def fig_baseline_density(design: dict, out: pathlib.Path, seed: int = 20260830, 
     ax.fill_between(k_arr, [r[2] for r in rows], [r[3] for r in rows], color="#e07b1a", alpha=0.18, lw=0,
                     label="q05–q95 over random cell subsets of the dense grid")
     ax.plot(k_arr, [r[1] for r in rows], "-o", color="#e07b1a", lw=2.2, ms=5,
-            label="median plug-in H1 = $V_{sv}$ − $V_{threshold}$(k cells)")
+            label="median plug-in H1 = $V_{RIT(s,v)}$ − $V_{GST}$(k cells)")
     ax.axhline(h1["effect_plugin"], color="#c0392b", ls="--", lw=1.4, label=f"full 29-cell grid: {h1['effect_plugin']:+.4f}")
     ax.axhspan(h1["bootstrap_q05"], h1["bootstrap_q95"], color="#c0392b", alpha=0.10, lw=0,
                label="episode-bootstrap 90 % band of the full-grid H1")
@@ -525,10 +525,10 @@ def fig_baseline_density(design: dict, out: pathlib.Path, seed: int = 20260830, 
                label=f"Phase 0 baseline (Rev 1's 3 cells): {phase0:+.4f}")
     ax.annotate("3 Rev 1 cells", (3, phase0), xytext=(8, 6), textcoords="offset points", fontsize=8, color="#1f5fbf")
     ax.axhline(0.0, color="black", lw=1)
-    ax.set_xlabel("number of dense-grid cells the threshold baseline may tune over, k")
-    ax.set_ylabel("interval-average $V_{sv} - V_{threshold}$ (SR points)")
-    ax.set_title("How the surface's margin shrinks with the baseline's tuning freedom\n"
-                 "(plug-in, development set; the surface family itself has only 3 measured arms)")
+    ax.set_xlabel("number of dense-grid cells the GST baseline may tune over, k")
+    ax.set_ylabel("interval-average $V_{RIT(s,v)} - V_{GST}$ (SR points)")
+    ax.set_title("How RIT's margin shrinks with GST's tuning freedom\n"
+                 "(plug-in, development set; RIT(s,v) itself has only 3 measured arms)")
     ax.set_xticks(k_arr)
     ax.grid(alpha=0.25)
     ax.legend(fontsize=8, loc="upper right")

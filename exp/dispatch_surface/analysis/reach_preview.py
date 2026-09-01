@@ -1,4 +1,4 @@
-"""Offline reachability preview: which costs can a quantile ladder actually hit?
+"""Offline reachability preview: which costs can a RIT quantile ladder actually hit?
 
 For a family (s-only or (s,v)) on a calibration table, sweep quantiles, export
 the deployed boundaries and predict the per-decision cost with the frozen unit

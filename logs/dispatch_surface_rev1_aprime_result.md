@@ -1,5 +1,7 @@
 # Dispatch Surface Rev 1 — A′ primary 结果与执行方分析（提交 Review Authority）
 
+> **术语统一（2026-08-31，owner 裁定，全库生效）**：**GST = Grid-Searched Threshold（网格搜索阈值）**——本文中的 threshold / thr / T / tgrid / (fh, ws) 网格 / 速率索引均指它；**RIT = Risk-Indexed Threshold（风险索引阈值）**——本文中的 s-only / s0 / 校准分位切 / 风险阶梯 / surface 均指它（(s,v) 版 SV 为 RIT 的消融）。历史正文与 Review Log 按章程不改写，以本注释为准。
+
 > 本文由 Execution Authority 起草，2026-08-29 00:10。**它报告一个负结果，并把执行方对原因的推断和可能的出路列成问题，不主张裁决。**
 > 冻结判据（配额 5/5/10/30、δ\*、Gate 1/2、单价、q0.05、`--trials 30`）在执行期**一项都没动**。
 > 两个 suite 的 primary 层各 1800 episodes 已跑完并分析；**secondary 两层未启动**（owner 指示暂停）。

@@ -1,5 +1,7 @@
 # Dispatch Surface Rev 2 — Phase 0 结果与裁决请求
 
+> **术语统一（2026-08-31，owner 裁定，全库生效）**：**GST = Grid-Searched Threshold（网格搜索阈值）**——本文中的 threshold / thr / T / tgrid / (fh, ws) 网格 / 速率索引均指它；**RIT = Risk-Indexed Threshold（风险索引阈值）**——本文中的 s-only / s0 / 校准分位切 / 风险阶梯 / surface 均指它（(s,v) 版 SV 为 RIT 的消融）。历史正文与 Review Log 按章程不改写，以本注释为准。
+
 > 执行方（Execution Authority）记录，2026-08-29。owner 于 14:00 放行 rollout（weilandserver 4 replica / timan107 48 worker）；2700 ep 于 14:02–15:38 跑完，分析于 16:00 前完成。
 > **本文全部数字来自 development set（旧 A′）上的 exploratory 产物（`posthoc_exploratory=true`, `development_only=true`），不是确认结果；不得回写 Rev 1 verdict，也不改变 Rev 1 的负结论。**
 > 协议：[`dispatch_surface_rev2_protocol_draft.md`](dispatch_surface_rev2_protocol_draft.md)；代码计划：[`dispatch_surface_rev2_phase0_plan.log.md`](dispatch_surface_rev2_phase0_plan.log.md)；Rev 1 结果：[`dispatch_surface_rev1_aprime_result.md`](dispatch_surface_rev1_aprime_result.md)。

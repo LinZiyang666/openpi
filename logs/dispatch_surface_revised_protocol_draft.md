@@ -1,5 +1,7 @@
 # Dispatch Surface — 修订协议（Rev 1，**方法冻结，待实现与 D0 放行**）
 
+> **术语统一（2026-08-31，owner 裁定，全库生效）**：**GST = Grid-Searched Threshold（网格搜索阈值）**——本文中的 threshold / thr / T / tgrid / (fh, ws) 网格 / 速率索引均指它；**RIT = Risk-Indexed Threshold（风险索引阈值）**——本文中的 s-only / s0 / 校准分位切 / 风险阶梯 / surface 均指它（(s,v) 版 SV 为 RIT 的消融）。历史正文与 Review Log 按章程不改写，以本注释为准。
+
 > **状态**：owner 授权 Review Authority 直接定稿；Rev 1 的方法、统计裁决与执行顺序已冻结。
 > 代码尚未按本协议实现，D0 尚未通过，因此**不得 emit、不得 rollout、不得触碰 A′**。
 > 本文不覆盖 2026-08-28 的原协议止损记录；Rev 1 是独立的 post-hoc protocol revision。

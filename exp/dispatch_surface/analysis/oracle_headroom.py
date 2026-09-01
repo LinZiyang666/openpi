@@ -1,7 +1,7 @@
 """Per-episode oracle headroom above the measured families (exploratory).
 
 Every arm of the Rev 1 primary layer, the Phase 0 exploratory layer and the
-dense threshold grid was rolled out on the SAME 300 A' episodes. With
+dense GST grid was rolled out on the SAME 300 A' episodes. With
 hindsight, an oracle that may pick a different arm for every episode bounds
 what ANY episode-adaptive dispatcher built from these arms could achieve:
 
@@ -125,8 +125,8 @@ def main() -> None:
     lambdas = np.concatenate([[0.0], np.logspace(-5, 0, 200)])
     subsets = {
         "all arms": np.ones(len(arms), bool),
-        "threshold arms only": fams == "threshold",
-        "surface arms only (sv + s0)": np.isin(fams, ["sv", "s0"]),
+        "GST arms only": fams == "threshold",
+        "RIT arms only (sv + s0)": np.isin(fams, ["sv", "s0"]),
     }
     curves = {name: oracle_curve(T[:, m], D[:, m], S[:, m], budgets, lambdas) for name, m in subsets.items()}
     # single-episode diagnostic: cheapest successful arm per episode
@@ -147,12 +147,12 @@ def main() -> None:
     ax.axvspan(b_l, b_h, color="#bbbbbb", alpha=0.25, lw=0, label=f"budget interval [{b_l}, {b_h}] ms")
     ax.axhline(full_sr, color="#444444", ls=":", lw=1)
     ax.scatter([full_cost], [full_sr], marker="*", s=300, color="#333333", zorder=6, label=f"always full inference ({full_sr:.3f})")
-    styles = {"all arms": ("#c0392b", "-"), "threshold arms only": ("#e07b1a", "--"), "surface arms only (sv + s0)": ("#1f5fbf", "--")}
+    styles = {"all arms": ("#c0392b", "-"), "GST arms only": ("#e07b1a", "--"), "RIT arms only (sv + s0)": ("#1f5fbf", "--")}
     for name, ys in curves.items():
         c, ls = styles[name]
         ax.plot(budgets, ys, ls, color=c, lw=2.2, label=f"per-episode oracle, {name} ({int(subsets[name].sum())} arms)")
-    fam_style = {"threshold": ("#e07b1a", "threshold dispatch — budget-mixture value"), "sv": ("#1f5fbf", "(s,v) surface — budget-mixture value"),
-                 "s0": ("#2a9d3f", "s-only surface — budget-mixture value")}
+    fam_style = {"threshold": ("#e07b1a", "GST — budget-mixture value"), "sv": ("#1f5fbf", "RIT (s,v) — budget-mixture value"),
+                 "s0": ("#2a9d3f", "RIT (s-only) — budget-mixture value")}
     for fam, ys in family_values.items():
         c, lab = fam_style[fam]
         ax.plot(budgets, ys, "-", color=c, lw=1.6, alpha=0.85, label=lab)
@@ -172,8 +172,8 @@ def main() -> None:
     probe = [b_l, design["B_1"], design["B_2"], b_h, 50.0, 55.0, 60.0]
     def at(ys, b):
         return float(np.interp(b, budgets, ys))
-    table = {f"{b:g}": {"oracle_all": at(curves["all arms"], b), "oracle_threshold_only": at(curves["threshold arms only"], b),
-                        "oracle_surface_only": at(curves["surface arms only (sv + s0)"], b),
+    table = {f"{b:g}": {"oracle_all": at(curves["all arms"], b), "oracle_threshold_only": at(curves["GST arms only"], b),
+                        "oracle_surface_only": at(curves["RIT arms only (sv + s0)"], b),
                         **{f"V_{fam}": at(ys, b) for fam, ys in family_values.items()}} for b in probe}
     out = {
         "protocol": "dispatch_surface_rev2_oracle_headroom", "posthoc_exploratory": True, "n_arms": len(arms),
