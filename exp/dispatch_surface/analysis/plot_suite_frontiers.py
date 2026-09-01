@@ -30,6 +30,7 @@ from exp.dispatch_surface.analysis.plot_budget_amendment import (  # noqa: E402
 )
 
 _QUANT = re.compile(r"^dsp_s0_p(\d+)(?:wp(\d+))?$")
+_PL = re.compile(r"^dsp_s0_pl_(?:ir([0-9]+(?:p[0-9]+)?)|p([0-9]+))$")
 
 
 def _label(arm: str) -> str:
@@ -40,6 +41,10 @@ def _label(arm: str) -> str:
                               quantile, warm cut from the second: a decoupled
                               cut vector, not a point on the single-delta ladder)
     """
+    pl = _PL.match(arm)
+    if pl:
+        # RIT-PL: ir82p5 -> IR82.5 (budget-addressed), p925 -> q.925 (delta-addressed)
+        return f"IR{pl.group(1).replace('p', '.')}" if pl.group(1) else f"q.{pl.group(2)}"
     m = _QUANT.match(arm)
     if not m:
         return _short(arm)
@@ -129,7 +134,7 @@ def main() -> None:
     for fam, pts in extra.items():
         if fam != "threshold":
             by_family.setdefault(fam, {}).update(pts)
-    for fam in ("s0", "sv"):
+    for fam in ("s0", "s0_pl", "sv"):
         if fam in by_family:
             _series(ax, by_family[fam], FAMILY_COLOR[fam], FAMILY_MARKER[fam],
                     FAMILY_LABEL[fam], pct, offset=(-28, 7))

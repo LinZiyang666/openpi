@@ -172,3 +172,7 @@ def tgrid_roster_spec(suite: str) -> dict:
 def tgrid_roster_spec_digest(suite: str) -> str:
     blob = json.dumps(tgrid_roster_spec(suite), sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
+
+#: RIT-PL (piecewise-linear risk curve, IR-addressed) exploratory family; it
+#: never enters a frozen roster (``assert_roster`` and ``ROSTERS`` are unchanged).
+FAMILY_S0_PL = "s0_pl"

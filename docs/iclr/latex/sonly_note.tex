@@ -135,6 +135,35 @@ $K$, while RIT remains one-dimensional. Neither consequence asserts
 that RIT \emph{dominates} GST---it cannot, being a subset;
 the claim is that the path attains the family's frontier without the search.
 
+\paragraph{Budget addressing.}
+Two refinements turn the ladder into a dial. First, the calibration estimate
+of $q_a$ in the frozen fit is a step function on equal-frequency bins, so
+every cut snaps to a bin edge and the reachable operating points are coarse;
+moreover, order restriction pools adjacent bins into plateaus that are data,
+not artefacts of the bin count (on the libero\_10 table one plateau of
+$q_{\mathrm{full}}$ covers a quarter of all decisions). We therefore fit the
+same two-layer pinball objective on knot values with linear interpolation
+between equal-frequency knots, add a slope floor
+$q_a(x_k) - q_a(x_{k+1}) \ge \varepsilon\,(x_{k+1}-x_k)$ with a fixed total
+$\varepsilon$-budget over the score range ($0.02$ here) that removes
+plateaus, and keep the nesting $q_{\mathrm{warm}} \le q_{\mathrm{full}}$; the
+cut is then the exact crossing of the fitted curve with $\delta$, and
+$\delta \mapsto \theta(\delta)$ is continuous and strictly monotone. On a
+floor segment the fitted gradient is the $\varepsilon$ prior, so the position
+of a cut inside such a segment is budget-addressed rather than
+risk-addressed; we record that flag per cut and claim no data-supported risk
+difference inside it. Second, the user-facing dial is the compute budget:
+the predicted inference ratio
+$\widehat{\mathrm{IR}}(\delta) = \sum_t c_{a(s_t;\theta(\delta))} / (N c_0)$
+over the shadow-executed calibration rows is nonincreasing in $\delta$ and
+outcome-blind, so a target ratio is inverted to $\delta$ by bisection and
+then to the cut vector. The ladder is thus one path that can be indexed by
+risk or by budget, whereas the grid needs a $K$-dimensional search for
+either. On a finite table $\widehat{\mathrm{IR}}$ is a step function, so the
+inversion returns the nearest attainable point and records the gap;
+closed-loop deployment and the production gate move the realized ratio,
+which we report against the prediction rather than correct.
+
 \paragraph{Per-task and cross-library transfer.}
 GST conditions on nothing: a percentile vector tuned on one task
 mixture or one library encodes that mixture's score distribution, and the

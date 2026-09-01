@@ -45,10 +45,13 @@ from exp.dispatch_surface.analysis.budget_mixture import ArmStats, value_at  # n
 FAMILY_LABEL = {
     "sv": "RIT on (s, v) — ablation (Risk-Indexed Threshold with the disagreement statistic)",
     "s0": "RIT (Risk-Indexed Threshold, s-only ladder)",
-    "threshold": "GST (Grid-Searched Threshold, fh / ws grid)",
+        "threshold": "GST (Grid-Searched Threshold, fh / ws grid)",
+    "s0_pl": "RIT-PL (piecewise-linear q̂, IR-addressed)",
 }
-FAMILY_COLOR = {"sv": "#1f5fbf", "s0": "#2a9d3f", "threshold": "#e07b1a"}
-FAMILY_MARKER = {"sv": "o", "s0": "s", "threshold": "D"}
+FAMILY_COLOR = {"sv": "#1f5fbf", "s0": "#2a9d3f", "threshold": "#e07b1a", "s0_pl": "#0b7a75"}
+FAMILY_MARKER = {"sv": "o", "s0": "s", "threshold": "D", "s0_pl": "P"}
+#: Families drawn on the frontier figures, in this order, when present in the design.
+FRONTIER_FAMILIES = ("threshold", "s0", "s0_pl", "sv")
 CRD_COLOR = "#8e24aa"
 CRD_ABL_COLOR = "#c2185b"
 SYSGATE_COLOR = "#6a2d9e"
@@ -57,6 +60,7 @@ HYP_LABEL = {"H1": "H1: RIT(s,v) − GST", "H2": "H2: RIT(s,v) − RIT(s-only)",
              "S0_minus_T": "RIT(s-only) − GST"}
 _TG = re.compile(r"^dsp_tg_fh(\d+)_ws(\d+)$")
 _REV1_T = re.compile(r"^dsp_t_fh(\d+)_ws(\d+)$")
+_PL = re.compile(r"^dsp_s0_pl_(?:ir([0-9]+(?:p[0-9]+)?)|p([0-9]+))$")
 
 
 def _stats(measured: dict) -> dict[str, ArmStats]:
@@ -76,7 +80,15 @@ def _short(arm: str) -> str:
     m = _TG.match(arm) or _REV1_T.match(arm)
     if m:
         return f"{m.group(1)}/{m.group(2)}"
+    pl = _PL.match(arm)
+    if pl:
+        # ir82p5 -> IR82.5 (target inference ratio); p925 -> q.925 (delta-addressed)
+        return f"IR{pl.group(1).replace('p', '.')}" if pl.group(1) else f"q.{pl.group(2)}"
     return arm.replace("dsp_", "")
+
+
+def _present_families(fams: dict) -> list[str]:
+    return [f for f in FRONTIER_FAMILIES if f in fams and fams[f]["measured_policies"]]
 
 
 def _crd_groups(crd_summary: dict) -> tuple[dict, dict]:
@@ -121,7 +133,13 @@ def merge_sgrid(design: dict, summary: dict) -> dict:
     if summary.get("suite") != design.get("suite"):
         raise SystemExit("sgrid summary suite != outcome design suite")
     for arm, a in summary["arms"].items():
-        fam = dense["families"][a["family"]]["measured_policies"]
+        family = a["family"]
+        if family not in dense["families"]:
+            if family != "s0_pl":
+                raise SystemExit(f"sweep arm {arm} has family {family!r}, unknown to the outcome design")
+            # RIT-PL only ever appears on the exploratory frontier figures.
+            dense["families"][family] = {"measured_policies": {}, "active": []}
+        fam = dense["families"][family]["measured_policies"]
         if arm in fam:
             raise SystemExit(f"sweep arm {arm} already exists in the outcome design")
         fam[arm] = {"cost": a["cost"], "sr": a["sr"], "t": a["t"], "d": a["d"]}
@@ -138,7 +156,7 @@ def fig_family_frontiers(design: dict, out: pathlib.Path, suffix: str = "") -> N
     xmin = min(m["cost"] for f in fams.values() for m in f["measured_policies"].values())
     xmax = max(m["cost"] for f in fams.values() for m in f["measured_policies"].values())
     grid = np.linspace(xmin - 0.5, xmax + 0.5, 1200)
-    for fam in ("threshold", "s0", "sv"):
+    for fam in _present_families(fams):
         f = fams[fam]
         measured = f["measured_policies"]
         stats = _stats(measured)
@@ -342,7 +360,7 @@ def fig_pareto_hull_percent(design: dict, anchor: dict, out: pathlib.Path, suffi
     ax.scatter([100.0], [full_sr], marker="*", s=320, color="#333333", zorder=6,
                label=f"always full inference: 100 % cost ({full_cost:.1f} ms), SR {full_sr:.3f}")
     ax.annotate("full inference", (100.0, full_sr), xytext=(-70, 8), textcoords="offset points", fontsize=8, color="#333333")
-    for fam in ("threshold", "s0", "sv"):
+    for fam in _present_families(fams):
         f = fams[fam]
         measured = f["measured_policies"]
         arms = sorted(measured)

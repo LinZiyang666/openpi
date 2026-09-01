@@ -44,6 +44,25 @@ def _sha(path) -> str:
     return hashlib.sha256(pathlib.Path(path).read_bytes()).hexdigest()
 
 
+def pl_arm_fields(matrix: dict, arm: str) -> dict:
+    """RIT-PL addressing fields of an arm as recorded in the matrix (empty for
+    a matrix emitted before the RIT-PL keys existed)."""
+    return {key: matrix[key].get(arm) for key in ("target_ir", "predicted_ir", "estimator")
+            if isinstance(matrix.get(key), dict)}
+
+
+def _load_pl_fit_record(rec: dict, *, what: str) -> dict:
+    """Legs (i) path and (ii) bytes of the PL fit-record validation; the
+    semantic leg runs once every artifact of the record has been loaded."""
+    path = pathlib.Path(rec["pl_fit_record_path"])
+    if not path.is_file():
+        raise SystemExit(f"{what}: PL fit record missing at {path}")
+    if _sha(path) != rec["pl_fit_record_sha256"]:
+        raise SystemExit(f"{what}: PL fit record drifted from the export record SHA")
+    return json.loads(path.read_text())
+
+
+
 # ----------------------------------------------------------------------
 # emit
 # ----------------------------------------------------------------------
@@ -58,10 +77,14 @@ def emit(args) -> None:
         _export_record_arms,
         gate_section,
     )
-    from exp.dispatch_surface.phase0_roster import FAMILY_S0, FAMILY_SV, PROTOCOL_PHASE0
+    from exp.dispatch_surface.phase0_roster import FAMILY_S0, FAMILY_S0_PL, FAMILY_SV, PROTOCOL_PHASE0
+    from exp.dispatch_surface.rit_pl import ESTIMATOR, PROTOCOL_RIT_PL
     from exp.dispatch_surface.template_parity import (
         assert_export_record_schema,
         assert_no_placeholders,
+        assert_rit_pl_artifact_coherence,
+        assert_rit_pl_export_record_schema,
+        assert_rit_pl_fit_record,
         assert_template_parity,
     )
     from openpi.cache.components.surface_judge import load_surface_artifact
@@ -85,14 +108,25 @@ def emit(args) -> None:
     record_paths = [pathlib.Path(p) for p in args.export_records.split(",") if p.strip()]
     records = [json.loads(p.read_text()) for p in record_paths]
     record_sha = [_sha(p) for p in record_paths]
+    pl_fit_records: dict[int, dict] = {}
     for idx, rec in enumerate(records):
-        assert_export_record_schema(rec, what=f"export record {idx}", cost_model_digest=cost_model_digest(),
-                                    protocol=PROTOCOL_PHASE0)
+        what = f"export record {idx}"
+        proto = rec.get("protocol")
+        if proto == PROTOCOL_PHASE0:
+            assert_export_record_schema(rec, what=what, cost_model_digest=cost_model_digest(), protocol=PROTOCOL_PHASE0)
+        elif proto == PROTOCOL_RIT_PL:
+            assert_rit_pl_export_record_schema(rec, what=what, cost_model_digest=cost_model_digest())
+            pl_fit_records[idx] = _load_pl_fit_record(rec, what=what)
+        else:
+            raise SystemExit(f"{what}: protocol {proto!r} is not accepted by the sweep")
         if rec.get("rev1_package_manifest_sha256") != manifest_sha:
             raise SystemExit("an export record was produced against a different Rev 1 package")
-    surface_arms = _export_record_arms(records)
+    surface_arms = _export_record_arms(records, protocols=(PROTOCOL_PHASE0, PROTOCOL_RIT_PL),
+                                       families=(FAMILY_SV, FAMILY_S0, FAMILY_S0_PL))
 
     arms, artifact_paths, artifact_sha256, families, quantiles, deltas = {}, {}, {}, {}, {}, {}
+    target_ir, predicted_ir, estimator, pl_sha = {}, {}, {}, {}
+    pl_cuts: dict[int, dict[str, tuple[float, float]]] = {}
     for arm, spec in surface_arms.items():
         path = pathlib.Path(spec["artifact"])
         if not path.is_file() or _sha(path) != spec["output_sha256"]:
@@ -106,7 +140,7 @@ def emit(args) -> None:
         if (art.meta.get("source_artifact_sha256") != pkgmod.member_sha(manifest, source_role)
                 or rec["source_artifact_sha256"] != pkgmod.member_sha(manifest, source_role)):
             raise SystemExit(f"{arm}: source artifact SHA chain broken")
-        fit_role = "fit.s0" if spec["family"] == FAMILY_S0 else "fit.sv"
+        fit_role = "fit.sv" if spec["family"] == FAMILY_SV else "fit.s0"
         if rec["source_fit_record_sha256"] != pkgmod.member_sha(manifest, fit_role):
             raise SystemExit(f"{arm}: source fit record SHA chain broken")
         assert_template_parity(art, source, what=arm)
@@ -115,6 +149,19 @@ def emit(args) -> None:
             raise SystemExit(f"{arm}: family/uses_disagreement mismatch")
         if art.delta != spec["delta"]:
             raise SystemExit(f"{arm}: artifact delta != export record delta")
+        extra = spec.get("extra")
+        if extra is not None:
+            # RIT-PL: the artifact must bind the same PL fit record as its export record.
+            if art.meta.get("pl_fit_record_sha256") != rec["pl_fit_record_sha256"]:
+                raise SystemExit(f"{arm}: artifact meta does not bind the record's PL fit record")
+            name = arm[len(f"dsp_{spec['family']}_"):]
+            # Close the record <-> artifact <-> meta triangle before any value enters the matrix.
+            assert_rit_pl_artifact_coherence(art, rec["artifacts"][name], rec, pl_fit_records[spec["export_record_index"]], what=arm)
+            pl_cuts.setdefault(spec["export_record_index"], {})[name] = (float(art.s_min_full[0]), float(art.s_min_warm[0]))
+            target_ir[arm], predicted_ir[arm] = extra["target_ir"], extra["predicted_ir"]
+            estimator[arm], pl_sha[arm] = ESTIMATOR, rec["pl_fit_record_sha256"]
+        else:
+            target_ir[arm] = predicted_ir[arm] = estimator[arm] = pl_sha[arm] = None
         judge = {"type": "dispatch_surface", "surface_artifact_path": str(path)}
         if art.meta.get("judge_variant") == "cumulative_risk":
             judge["export_factor_outputs"] = True   # persist the CRD commit diagnostics per step
@@ -126,6 +173,9 @@ def emit(args) -> None:
         families[arm] = spec["family"]
         quantiles[arm] = spec["quantile"]
         deltas[arm] = spec["delta"]
+    for idx, fit_rec in pl_fit_records.items():
+        # Semantic leg: schema, digests, identity and per-arm cut recomputation.
+        assert_rit_pl_fit_record(fit_rec, records[idx], what=f"export record {idx}", artifact_cuts=pl_cuts.get(idx, {}))
     sv_arms = sorted(a for a in arms if families[a] == FAMILY_SV)
     if not sv_arms:
         raise SystemExit("the sweep needs at least one SV arm to carry the launch contract")
@@ -139,6 +189,10 @@ def emit(args) -> None:
         "families": families,
         "quantiles": quantiles,
         "deltas": deltas,
+        "target_ir": target_ir,
+        "predicted_ir": predicted_ir,
+        "estimator": estimator,
+        "pl_fit_record_sha256": pl_sha,
         "gate_type": gate_section(emit_layer, theta)["type"],
         "gate_theta": theta,
         "gate_theta_top_fraction": rev1_matrix.get("gate_theta_top_fraction"),
@@ -338,6 +392,8 @@ def summarize(args) -> None:
             out_arms[arm]["fh"] = matrix["nominal"][arm]["fh"]
             out_arms[arm]["ws"] = matrix["nominal"][arm]["ws"]
             out_arms[arm]["threshold_pair"] = matrix["threshold_pairs"][arm]
+        out_arms[arm].update(pl_arm_fields(matrix, arm))
+
         knobs = crd_params(arm)
         if knobs is not None:
             out_arms[arm]["crd"] = {k: (None if v is None else (v if v != float("inf") else "inf")) for k, v in knobs.items()}

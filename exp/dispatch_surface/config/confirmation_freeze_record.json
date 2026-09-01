@@ -5,8 +5,7 @@
   "gate": "G1 Round 3 APPROVED (Review Authority direct revisions accepted and staged by the Execution Authority)",
   "binding": "documents_sha256 = whole-file SHA-256; frozen_prefix = SHA-256 of the canonical prefix ending at end_marker (exp/dispatch_surface/freeze_record.py)",
   "documents_sha256": {
-    "logs/dispatch_surface_rev2_protocol_draft.md": "59e05870e3df761a44156e3b93c90464c5d3c6b4a61f564913f551248a00a632",
-    "docs/iclr/ICLR_PAPER_BLOCKING_TODO.md": "d26fee9028c4b4f247861378ebc67a7f2f3b0837e0edb38d1dc9b95220e8373a"
+    "logs/dispatch_surface_rev2_protocol_draft.md": "59e05870e3df761a44156e3b93c90464c5d3c6b4a61f564913f551248a00a632"
   },
   "frozen_prefix": {
     "logs/dispatch_surface_rev2_confirmation_plan.log.md": {
@@ -65,5 +64,13 @@
     "VALUE_TOL": 1e-12,
     "BREAKPOINT_TOL_MS": 1e-09
   },
-  "rules": "Frozen by protocol section 13 at G1 APPROVED; only output values (tgrid package SHA, [B_L,B_H], roster, N, power record) may be filled in later through a separate amendment_result artifact."
+  "rules": "Frozen by protocol section 13 at G1 APPROVED; only output values (tgrid package SHA, [B_L,B_H], roster, N, power record) may be filled in later through a separate amendment_result artifact.",
+  "retired_documents": {
+    "docs/iclr/ICLR_PAPER_BLOCKING_TODO.md": {
+      "sha256": "d26fee9028c4b4f247861378ebc67a7f2f3b0837e0edb38d1dc9b95220e8373a",
+      "retired_in_commit": "735a164",
+      "reason": "owner retired the paper gate document (2026-08-30); the G1 freeze prefix and constants are untouched",
+      "record_sha256_before_retirement": "9e28b6a3564add5ea3252856e51f1782d1cad0790df7e73c809a66e6c0f36fcc"
+    }
+  }
 }

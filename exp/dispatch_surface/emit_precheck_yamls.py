@@ -149,22 +149,37 @@ def _emit(template: dict, out_path: pathlib.Path, judge_section: dict,
 # Rev 2 Phase 0: exploratory layer (plan section 3.2)
 # ----------------------------------------------------------------------
 
-def _export_record_arms(records: list[dict]) -> dict[str, dict]:
-    """arm -> {family, quantile, artifact, delta, export_record_index, output_sha256}."""
+#: Addressing fields a RIT-PL export artifact carries beyond the Phase 0 ones.
+_RIT_PL_ARM_EXTRA = ("addressing", "target_ir", "predicted_ir", "ir_gap", "theta_full", "theta_warm", "floor_info")
+
+
+def _export_record_arms(records: list[dict], *, protocols=(PROTOCOL_PHASE0,),
+                        families=(FAMILY_SV, FAMILY_S0)) -> dict[str, dict]:
+    """arm -> {family, quantile, artifact, delta, export_record_index, output_sha256}.
+
+    The defaults accept exactly the Phase 0 records and return the same dict
+    as before. A RIT-PL record (only when its protocol is listed in
+    ``protocols``) additionally carries its addressing fields under ``extra``.
+    """
+    from exp.dispatch_surface.rit_pl import PROTOCOL_RIT_PL
+
     out: dict[str, dict] = {}
     for idx, rec in enumerate(records):
-        if rec.get("protocol") != PROTOCOL_PHASE0 or rec.get("posthoc_exploratory") is not True:
-            raise SystemExit(f"export record {idx} is not a Phase 0 exploratory record")
+        if rec.get("protocol") not in protocols or rec.get("posthoc_exploratory") is not True:
+            raise SystemExit(f"export record {idx} is not an exploratory record of {sorted(protocols)}")
         family = rec.get("family")
-        if family not in (FAMILY_SV, FAMILY_S0):
+        if family not in families:
             raise SystemExit(f"export record {idx} has family {family!r}")
         for name, art in (rec.get("artifacts") or {}).items():
             arm = f"dsp_{family}_{name}"
             if arm in out:
                 raise SystemExit(f"duplicate exploratory arm {arm}")
-            out[arm] = {"family": family, "quantile": float(art["quantile"]),
-                        "artifact": art["path"], "delta": float(art["delta"]),
-                        "output_sha256": art["output_sha256"], "export_record_index": idx}
+            spec = {"family": family, "quantile": float(art["quantile"]),
+                    "artifact": art["path"], "delta": float(art["delta"]),
+                    "output_sha256": art["output_sha256"], "export_record_index": idx}
+            if rec.get("protocol") == PROTOCOL_RIT_PL:
+                spec["extra"] = {k: art[k] for k in _RIT_PL_ARM_EXTRA}
+            out[arm] = spec
     return out
 
 
