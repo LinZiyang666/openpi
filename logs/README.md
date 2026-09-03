@@ -124,6 +124,12 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 
 Completed and historical logs. See [`archive/`](archive/) for all files.
 
+### Storage & Node Operations (archived 2026-09-03)
+
+| File | Status | Description |
+|------|--------|-------------|
+| [weilandserver_storage_tiering.log.md](archive/weilandserver_storage_tiering.log.md) | `Validated` (2026-09-03 完成并归档，45 笔零失败) | **L1**: weilandserver 三层存储分层整理（T1 `/` NVMe / T2 `/data` CMR / T3 `/archive` HM-SMR）。判据分两把尺子：**T1↔T2 看文件粒度**（小文件海 + 并发随机读恒留 NVMe），**T2↔T3 不看读性能**（SMR 读速同 CMR）**只看将来是否覆盖写**。每个搬走的目录原位留**同名软链**，消费方路径零变化，已有软链自然形成二级链无需重指。四判据校验（文件数 / 字节和 / `rsync -n --itemize-changes` 空 / sha256 抽样**超配硬链接族**），**全程不用 `du`**（对硬链接去重会假失配），源目录只在四判据全过后才删；单流串行 + `flock`（HDD 并发顺序流会塌到 37 MB/s）。实测**否决**两项初版候选：`Isaac-GR00T/gr00t/eval` 8.6G 全是 uv venv、`external_dependencies/robocasa365` 24G 是 123,504 个文件的 MuJoCo 资产树（env init 并发随机读）；`.cache/uv` 26G 中 108,697/112,681 文件与各 venv 硬链接，搬走反而多占 24G。**Phase 3** 追加 robocasa365 `build_l1s1` 1.1T（27 笔按任务目录拆）：初版按"未确认采集是否返工"搁置，经代码取证**改判归档** —— 写入侧 `data_collector.py:137` 是 `h5py.File(tmp,"w")`+rename，消费侧全部 `"r"`（`"a"`/`"r+"` 仅存于 tests fixture），SMR 覆盖写惩罚结构上不可达；抽样均文件 407.7 MiB 为全机最优粒度。⚠ 无压缩红利（h5 内已 lzf）。**未动**：`/tmp`（owner 明示不管）。**结果：45 笔移动 + 1 笔删除全部通过四判据，零失败** —— T1 382.3→215.0 GiB (45%→25%)、T2 1571.6→291.8 GiB (44%→9%)、T3 66.3→1282.3 GiB (1%→10%)。软链穿透迁移后实测三级链正常。⚠ Phase 1 的 489/536 MB/s 是 write-back 缓存假象（已 `sync` 确认落盘），校验开销实测仅 ×1.11。逐笔 ledger 见该文件 §4，`src/` 零改动 |
+
 ### Cache Latency Bench (archived 2026-07-04, >7d)
 
 | File | Status | Description |
