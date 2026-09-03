@@ -1,60 +1,82 @@
-# Session Handoff — Dispatch（论文已转向 RIT 风险索引阈值；三目标夜跑链进行中；2026-08-30 20:30）
+# Session Handoff — RIT-Pareto（K=2 四组已完成；K=3 四组进行中，group 1 在跑；2026-09-01 20:25 CDT）
 
-> **一句话状态**：论文定位已按 owner 决定转向——**RIT（Risk-Indexed Threshold，风险索引阈值；s-only 校准分位切）= 阈值规则族帕累托前沿的风险索引，GST（Grid-Searched Threshold，网格搜索阈值）= 同族的网格搜索索引**（SV/CRD/H-CRD 全部降为消融/附录素材，CRD 图已删）。夜跑三目标链：**① l10 s-only+gate（sysgate，OOM 后 20:20 续跑，34.9%，预计 ~23:10）→ ② spatial s-only 密扫（已全备、dry-validate 过，①完自动接）→ ③ spatial s-only+gate（已全备，②完接）**。冻结裁决 `stop_before_C` 与其资产不动。
-> **术语（owner 2026-08-31 裁定，全库统一）**：GST = Grid-Searched Threshold（网格搜索阈值；旧 threshold / thr / tgrid 族）；RIT = Risk-Indexed Threshold（风险索引阈值；s-only / s0 校准阶梯，(s,v) 版 SV 为其消融）。
-> **规则（新增两条加粗）**：**未经 owner 明示绝不 `git add`/暂存任何东西（今日被训诫，一切产出留工作区）**；**不随手写记忆文件（owner 已删我写的）**。其余照旧：commit/push 只按明示、作者 LinZiyang666 无 AI 署名；handoff 只按要求写；定向测试；不碰 pruned 测试集/fresh C；codex 改码逐 diff 核验；杀进程 ps→kill pid；中文回复英文注释。
+> **一句话状态**：RIT-Pareto 线正在跑 **K=3 阶梯（FULL / WARM@0.3 / WARM@0.5，无 gate）的 4 组帕累托极限**：顺序 ① spatial-RIT（**20:17 起在跑**，timan108 tmux `k3_g1`）→ ② spatial-GST → ③ l10-RIT → ④ l10-GST；每组每臂 500 集（官方 pruned-500 池），RIT 16 臂、GST 34 格。K=2 的四组（spatial/l10 × no-gate/H-gate）今天 05:24–18:45 全部跑完、已本地化、已出图与报告。**owner /goal 授权：独断、不弹阻塞窗口、不做完不停、监控体系必须在。** 所有代码改动**未 commit**（owner 明示后才 commit/push）。
+> **术语**：GST = 网格搜索阈值（分位切）；RIT = 风险索引阈值（单 δ 切风险曲线）；RIT-PL = 分段线性估计量；K3 = 三档阶梯。tau1 = 标定参考（winner 的 x₀.₉ 在查询观测下补完 9 步）。
+> **规则**：未经 owner 明示绝不 `git add`/commit/push；不写记忆文件（owner 明令）；handoff 只按要求写；作者 LinZiyang666、英文 why 式 commit、无 AI 署名；共享机杀进程 ps→kill pid；中文回复英文注释；**图 = 散点 + 非支配点前沿线（owner 纠正：不逐点连线）**；server 4 replica / client 48 worker 固定（owner）。
 
-## 0. 权威文档（今日新增/大改）
+## 0. 权威文档
 
 | 文档 | 内容 |
 |---|---|
-| `logs/dispatch_surface_sonly_pivot_report.md` | **转向报告**：§0 新定位、§1 全天讨论证据链（batch D→GTP 对照→参数诊断→per-task 平手→三线区间打平）、§2 完整表述（K=1 让步 / K≥2 解路径命题 / K=3 决胜实验设计 / 措辞纪律）、§3 系统实验、§6 **相关工作初查**（selective prediction；Pareto Testing 2210.07913；MultiRisk 2512.24587；级联影子价格 2605.06350——后两篇投稿前必须精读）与贡献声明层级 |
-| `docs/iclr/latex/sonly_note.tex` | 数学文档（仿 dispatch_note 风格）：两种索引、K=1 等价、单乘子解路径、per-task/跨库迁移、不主张范围、四条实验推论；**pdflatex 已过**（sonly_note.pdf） |
-| `logs/dispatch_surface_rev2_amendment_result.md` | 交审文档新增 §16–§16.8：batch D 结果/golden/GTP 对照/行为分解/离线预演/同密度区间对照。§15 = codex Round 2 **APPROVED WITH REVIEWER FIXES**（§15.6 未尽：commit + commit 后重建 export record provenance） |
-| `logs/dispatch_surface_rev2_confirmation_plan.log.md` | §10 之后按时间追加全天记录（暂停/重启/batch D/清理/OOM 事故等），append-only |
-| 已删（owner 目标变更） | `docs/iclr/ICLR_PAPER_BLOCKING_TODO.md`（原冻结 SHA 文档，freeze_record.verify 不受影响）+ 三个 `.old` 规划稿；README 索引与 gate 横幅已清。**保留待表态**：paper_rethink_discussion / actioncache_* / dispatch_defense_plan / latex/paper_outline / experiment_list |
+| `exp/rit_pareto/analysis/analysis.md` | **实验报告**：Part I（K=2 四组：设计/溯源/拓扑与事故记录/spatial+l10 结果表与解读/讨论/工件布局）+ Part II（K=3：§9 设计已写，§10–12 结果待填） |
+| `exp/rit_pareto/analysis/figures/pareto_rit_{libero_spatial,libero_10}.{png,pdf}` | K=2 前沿图（no gate vs H gate + GST 参考） |
+| `logs/rit_pl_ir_ladder_plan.log.md` | RIT-PL 计划（commit `ca15b5e`，G1/G2 记录） |
+| `logs/dispatch_surface_sonly_pivot_report.md`、`docs/iclr/latex/sonly_note.tex` | 转向报告与数学 note |
+| 本文件 §5–§7 | 拓扑、恢复规程、事故记录 |
 
-## 1. 论文转向要点（给 codex 立新 G1 的材料已齐）
+## 1. 当前状态：K=3 四组全部完成（2026-09-02 21:34），等 owner 裁决
 
-- 主张三层：(a) 问题域首创（VLA 动作缓存的风险校准多档调度）；(b) 等风险闭式解路径 vs "搜索+检验"（Pareto Testing 一族）；(c) matched-density 前沿贴合 + 调参预算 + 负结果实证学。K=1 与 selective prediction 等价——主动让步。禁语：最优/支配/CMDP/formal guarantee。
-- ActionCache 防守评估（详见对话/交审）：三支柱（backbone 前 key 地板 14% vs 45–53%；arXiv-only 豁免；风险索引 vs 他们逐任务手调）；**仍需**：Arm1 CP2-AC 对照（~3000 ep）、pruned-500 确认（方法冻结后 ~2500 ep）、K=3（~4–7k ep）。录用估计 40–55%。截稿 9/16 或 9/25（须再核）。
+- **实验已收官（owner 21:40 裁定）**：无任务在跑，cron 已撤、Monitor 已停，TaskList #14/#15 完成；**weilandserver `srv0` server 已于 21:44 关闭**（:23150 不监听、显存 0、tmux 会话消失）；timan108 车队已随 runner 退出（0 worker）。全部改动已作为**单一 commit `Add RIT-Pareto K=2 and K=3 frontier experiments on the pruned-500 pools` push 到 origin/Ziyang**（§6 Verify：全量 pytest 4981 passed / 14 failed / 60 skipped，14 例全为 HEAD 既有或密封 review_tests，与本次改动无关）。
+- 四组结果（全部审计 OK：唯一 uid = 总量、每臂 500、0 dup、截断 0、attempt 集合一致）：
+  | 组 | 集数 | ok | 本地 raw + aggregate.json |
+  |---|---|---|---|
+  | g1 spatial RIT | 8000 | 7048 | `exp/rit_pareto/data/runs/libero_spatial_k3_rit/` |
+  | g2 spatial GST | 17000 | 16378 | `exp/rit_pareto/data/runs/libero_spatial_k3_gst/` |
+  | g3 l10 RIT | 8000 | 5186 | `exp/rit_pareto/data/runs/libero_10_k3_rit/` |
+  | g4+g5 l10 GST | 17000 | 13221 | `exp/rit_pareto/data/runs/libero_10_k3_gst/`（含 `contaminated_uids_1011.json`；g4 事故后剔除 30 截断集 + resume 补跑 9111 集，§7） |
+- **图（owner 裁定只画图不写报告）**：`exp/rit_pareto/analysis/figures/pareto_k3_libero_spatial.{png,pdf}`（RIT 前沿 13 点 / GST 前沿 9 点 / K=2 虚线）、`pareto_k3_libero_10.{png,pdf}`（RIT 前沿 14 点 / GST 前沿 17 点 / K=2 虚线）；散点画全部臂，折线只连非支配点。重画命令：`uv run python -m exp.rit_pareto.aggregate_rit plot-k3 --suite <suite> --rit …/<suite>_k3_rit/aggregate.json --gst …/<suite>_k3_gst/aggregate.json --k2-nogate …/<suite>_ng/aggregate.json --out-dir exp/rit_pareto/analysis/figures`。
+- 两 suite 共同观察（未写入 analysis.md，供 owner 参考）：低/中 IR 段 GST 前沿高于 RIT-K3（spatial IR 40–55：GST 0.91–0.97 vs RIT 0.80–0.82；l10 IR 43–66：GST 0.61–0.78 vs RIT 0.49–0.68），RIT-K3 在该段把 18–29% 决策放到 WARM@0.5，而 GST 最优格几乎不用 W0.5；高 IR 段两法齐平。
+- **仍待 owner（非阻塞）**：① 是否要 analysis.md §10–12（owner 已裁只画图）；② 根治僵尸 worker 的 src 改动（`examples/libero/episode_runner.py` 在 ConnectionClosed 时重建 client）是否立项；③ 远端临时文件是否清理：timan108 `/tmp/dsp_precheck/rit_pareto/`（raw 已 sha 校验拉回本地，含 g4 备份 `*.pre_excise_142132`、`*.old` 日志）与 weilandserver `/tmp/dsp_shared/rit_pareto/`（shadow H5 唯一副本 41 GB、`h5_shards/`、`table_tau1_k3.part*`）。
+- **timan108 远端 raw**：`/tmp/dsp_precheck/rit_pareto/<suite>_k3_<rule>/` + tgz/sha；本地已 sha 校验一致。
 
-## 2. l10 数据资产（A′ 开发集，全部 post-hoc 探索）
+## 2. K=3 实验定义（owner 裁定）
 
-- **24 臂 dense summary**：`exp/dispatch_surface/data/sgrid/libero_10/sgrid_summary_all.json`（18 臂 sha `78eb6491…` + 加密 6 臂 sha `c7b84be9…` 合并；raw 在 `…/sgrid/libero_10/raw{,2}/`）。关键数：区间内 SV 高 thr +2.0…+4.2 pt、s0 打平；`s0_p86` 0.763@70.7%、`s0_p775` 0.840@83.5%、`s0_p75` **0.870@94.6%**、`sv_p75` 0.840@81.8%；GST（thr）前沿止于 84.5%/0.797；anchor 0.847/67.52ms；s0/sv 在 89–95% 段越过 anchor。
-- batch D（H-CRD 消融素材）：`data/crd/libero_10/crd_batchD_summary.json` sha `71008e0c…` + golden 0 违例 + `analysis/crd_offline_screen.py`（校准误差<0.5ms，旋钮余地仅 1–3%）。
-- 图：`analysis/figures/libero_10/` 仅 16 文件（dense 系列 + 诊断图；旧版/CRD 版已删）。**画法**：实线=逐点非支配前沿（`_pareto_staircase`），点线=两臂混合包络；`--sgrid-summary` 时不再生成非 dense 旧图（latest-only 已写入 plot main）。报告页 https://claude.ai/code/artifact/5458a825-e32a-45b8-8674-c9289c9aa31e （图1 dense/图1b 24臂/图2 dense/图3–5）。
+- 阶梯：FULL_HIT → WARM@0.3（3 步）→ WARM@0.5（5 步，新增）→ MISS；verdict 取最便宜的可入档（`ThresholdJudge`：先 `threshold`，再按 `warm_tiers` 列表顺序）。**无 gate**（`always_search`）。
+- 成本（`rit_k.tier_cost`，常数来自 `analytic_cost`）：FULL 10.260 / W0.3 46.818 / W0.5 52.733 / MISS 67.519 ms；IR% = Σcost / (N·MISS)。
+- 两法同一部署形式（GTP 模板 + `judge: threshold` + `warm_tiers [{θ_w03,0.3},{θ_w05,0.5}]`，同一 ws pkl），只差阈值来源：
+  - **RIT-K3**：`exp/rit_pareto/rit_k.py` 三层联合 pinball LP（嵌套 q_w05 ≤ q_w03 ≤ q_full，ε=0.02，α=0.05，结点梯子同 rit_pl；K=2 与 rit_pl 逐位一致有测试），单 δ → 三切点；IR 寻址 20…95 步 5 → 16 臂；切点 +∞ 或被更险档遮蔽的档从 yaml 省略。
+  - **GST-K3**：百分比三元组 (fh,w3,w5)，步长 20，fh+w3+w5 ≤ 80，去 (0,0,0) → **34 格**（owner 拍板）；θ = 同一 shadow 表 s 的降序分位（`derive_thresholds` 惯例，累积份额）；部署切点重合的格去重（两 suite 均 0 跳过）。
+- 标定：复用 Part I 的 150 集 tau1 shadow cohort（seed 20260901，每 task 15 个 pruned init），`build_dispatch_table --extra-warm-tiers 0.5` 重建表 `table_tau1_k3.jsonl`（多一列 `y_tau5`；guard 证明 s/y7/y10 与 K=2 表逐位一致、行序一致）。spatial 3193 行 / l10 9008 行；y5 中位 < y7 < y10 两 suite 均成立。
+- 导出结果：两 suite RIT 16 臂 |gap| ≤ 0.04 pt、GST 34/34 格；l10 RIT ir20 因 full=w03 切点重合只部署 full+warm05。
 
-## 3. 夜跑链操作手册（compact 后最重要）
+## 3. 资产位置
 
-**① l10 sysgate（在跑）**：15 个 s0 分位 × production gate（θ=0.9928/j3/probe3/L6），矩阵 `/tmp/dsp_shared/config/precheck_libero_10_sysgate/`（24 臂，run 用 `--arms` 15 s0）。20:18 timan107 **系统 OOM**（机队连跑 ~9h 驱动锁页内存耗尽，GTP 已知模式）杀 worker→全体 keepalive 1011→runner 退出；server 无恙（握手 0.04s 验证过）。20:20:26 同 journal 续跑（1525 accepted 无损；污染日志轮换为 `.oom_2020`）。Monitor `bl3yk24jf` + cron `7fca9f2a`（都跨 compact 存活），TOTAL 4500，标记 `SYSGATE_DONE`。**再 OOM → 降 worker 数续跑**。
-**DONE 后**：CronDelete → `bash $CLAUDE_JOB_DIR/tmp/pull_sysgate.sh`（→ `data/sysgate/libero_10/raw/`）→ `sgrid_sweep summarize --arm-matrix data/sgrid/libero_10/inputs/precheck_libero_10_sysgate/arm_matrix_sgrid.json --arms <15 s0 臂> --journal/per-step/launch-manifest <raw> --split-manifest data/libero_10/init_pools/split_manifest.json --out data/sysgate/libero_10/sysgate_summary.json` → 系统图（s0+gate 层叠加 24 臂 dense 图，需给 plot 加一层或单独脚本）→ 页面/文档 → **接跑 ②**。
-**② spatial 密扫**：`tmux new -s srv0 -d /tmp/dsp_spsgrid_wrap.sh`（先确认无残留、srv0 空）；health `/tmp/dsp_spsgrid_health.sh` TOTAL 4200 标记 `SPSGRID_DONE`；输出 `/tmp/dsp_precheck/libero_spatial_sgrid/`；挂同款 Monitor+cron。DONE 后 pull（仿 pull_sgrid.sh 造 pull_spsgrid.sh：libero_10_sgrid→libero_spatial_sgrid、DST=data/sgrid/libero_spatial/raw）→ summarize（matrix 在 `data/sgrid/libero_spatial/inputs/precheck_libero_spatial_sgrid/`，`--task-suite` 由 matrix 校验、`--arms` 14 s0、split manifest 本地路径 `exp/dispatch_surface/data/aprime_rev1/discipline/libero_spatial_primary/split_manifest.json`）→ spatial 三线图（GST 基线 = GTP spatial 数据 / Rev 1 spatial phase0）→ **接跑 ③**。
-**③ spatial sysgate**：`/tmp/dsp_spsysgate_wrap.sh`，TOTAL 4200，`SPSYSGATE_DONE`，θ=0.97174 已在 yaml。流程同 ②。
+- **weilandserver**（server 机，`ziyanglin.com:23150` 1:1 直连；`tether exec` 须 `export PATH=/usr/local/bin:/usr/bin:/bin; export HOME=/home/weiland`）：
+  - tmux `srv0`：`serve_policy --replicas 4 --replica-spawn-batch 2 --port 23150`（pi05_libero，~31 GB；`/tmp/srv0.log`；重启脚本 `/tmp/dsp_shared/rit_pareto/start_eval_server.sh`，ready 签名 `replica_proxy listening on`，~4 min）。
+  - `/tmp/dsp_shared/rit_pareto/<suite>/`：`shadow_manifest.json`、`shadow_pool/`、`cohort_plan.json`、`cohort_manifest.json`、`h5/shard*/`（150 H5，spatial 11 GB / l10 30 GB，**唯一副本**）、`calibration_retrieval.yaml`、`table_tau1.jsonl`（K=2）、`table_tau1_k3.jsonl`（K=3，+`.weights.npz`）、`export_tau1/`（K=2 RIT 工件）、`arms/`（K=2 yaml）、**`k3/`（K=3：`export_record.json`、`rit/*.yaml`、`gst/*.yaml`、`arm_matrix_{rit,gst}.yaml`）**；l10 另有 `table_tau1_k3.{done,part0-3}.jsonl` 与 `h5_shards/`（并行建表遗留，可删）。
+  - `/tmp/dsp_shared/rit_pareto/*.sh`：全部运维脚本；`/data/rit_stage/`：给 timan108 建车队用的 staging 包（可删）；`/data/openpi_dispatch`：代码克隆（与本地工作树同步，含 K3 代码）。
+- **timan108**（client 车队，`tether exec` 用 `export PATH=/scratch/zixuans8/dsp_bin:/usr/local/bin:/usr/bin:/bin`）：
+  - 环境：`/scratch/zixuans8/libero_sim`（从 weilandserver 搬迁的 conda prefix，EGL 535 hook 指向 `/scratch/zixuans8/nvidia-gl`）、`/scratch/zixuans8/dsp_bin/conda`（shim）、`/scratch/zixuans8/openpi_dispatch`（代码 + `packages/openpi-client`，runner PYTHONPATH 必须前置 `packages/openpi-client/src`）、runner venv `/scratch/zixuans8/openpi/.venv`（py3.12）、A-pool `/scratch/zixuans8/openpi_dispatch/exp/common/data/db_init/libero/<suite>_apool`。
+  - `/tmp/dsp_shared/rit_pareto/<suite>/{export_tau1,arms,k3}`：与 weilandserver 同路径同 sha（arm yaml 内为绝对路径）。
+  - `/tmp/dsp_precheck/rit_pareto/`：`run_group.sh`（K=2）、`run_group_k3.sh`、`rit_health.sh`、`rit_health_k3.sh`；K=2 四组 raw（`<suite>_{ng,hg}/` + tgz/sha）；K=3 `<suite>_k3_<rule>/`；`libero_10_ng/journal.jsonl.pre_srvdown` 与 `contaminated_uids_srvdown_1130.json`（11:30 事故备份）。
+- **timan107**：12:05 重启回归，`/tmp` 清空，环境需重建；本轮不用。
+- **本地（全部未 commit）**：`exp/rit_pareto/`（`shadow_cohort.py`、`export_rit.py`、`emit_arms.py`、`rit_k.py`、`export_k3.py`、`aggregate_rit.py`、`config/task_order_*.json`、`ops/*.sh` 21 个运维脚本副本、`analysis/analysis.md`、`analysis/figures/`、`data/shadow/`、`data/runs/{libero_spatial,libero_10}_{ng,hg}/` 四组 raw + aggregate.json）；`tests/rit_pareto/`（3 文件 44 例，全绿）；additive 改动 `exp/gate_threshold_pareto/run_gtp.py`（`--judge-type/--eval-gate/--gpu-ids/--warm-tiers`）、`exp/dispatch_surface/build_dispatch_table.py`（`--noise-sidecar` 可选、`--extra-warm-tiers`）；`logs/README.md`、本文件。定级 L1（exp 脚本 + additive 标志，未动 src）。
 
-## 4. spatial 资产（今日新建，全部三机核验）
+## 4. 监控体系（compact/重启后必须重建，session 级）
 
-Rev 1 包 `/tmp/dsp_shared/libero_spatial/rev1_discipline/MANIFEST.json` sha `4f9f79b2…`；lib.pkl `b3f61dc5…`（425MB）；gate θ **0.9717439413070679**（j3/probe3/L6，与 l10 同构、θ 不同）；模板权重 vision_0@6/vision_1@50/robot_state@43（l10 是 56/25/18）；table `/tmp/dsp_shared/libero_spatial/inputs/dispatch_table_fresh.jsonl` sha `9448c115…`（今日从本地推）；新 export 12 分位 {50,55,60,65,70,75,775,85,875,90,925,96} record `352c85bc…` + 旧 exploratory s0{p80,p95} sv{p95,p975}；cfg `precheck_libero_spatial_{sgrid,sysgate}` 各 16 臂（14 s0 + sv 载 contract `dsp_sv_p95`），tgz `0edb3555…` 48 文件三机一致；**两批 dry-validate 均过（14 臂，EXIT=0）**。timan107 侧：split manifest = 仓库相对 `exp/dispatch_surface/data/init_pools/split_manifest.json`、A′ 池同目录 `test_aprime`（rollup `89099b50…`）；quota 同 l10（test=30×10 task）；spatial anchor SR 0.9567/67.52ms；policy fingerprint 与 l10 相同 → **server 不用动**。
+- **L1** `rit_health_k3.sh <suite> <rit|gst> <total>`（timan108）：一行 progress/ok/runner/workers/server/err/**cexc**（main.py `Caught exception` 次数 = 被截断集数）/**restarts**（worker 重启数）/**bigW**（RSS ≥ 6 GB 的 worker 数）/**zomb**（没有到 :23150 established 连接的 worker 数）/freeGB；`RIT GROUP DONE`；`ALERT runner exited|server DOWN|runner dead|low memory(<30 GB)|ballooned workers(bigW≥4)|zombie workers(zomb≥2)`。err 是累计 traceback 行数，g4 已被 1011 刷到 3.6 万，**看 cexc 不看 err**。
+- **L2 Monitor**（persistent，180 s，**owner 22:20 裁定：只做条件触发，不推里程碑**）：每 3 min 跑 L1，只在 ALERT、STALL(6 轮 = 18 min 冻结)、DONE、tether 连续 3 次无回复时发事件；DONE 退出。写法：`tether exec --timeout 60s timan108 -- bash -lc 'bash /tmp/dsp_precheck/rit_pareto/rit_health_k3.sh <suite> <rule> <total>'`，`grep ALERT` 直出、`d==prev` 计 stall、`RIT GROUP DONE` → `K3_GN_<SUITE>_<RULE>_DONE` 退出。
+- **L3 cron** `*/20 * * * *`（**定时巡检归 cron**）：同一 L1 + `tether node ls -a`；prompt 含处置规程（§6）；compact 后存活。
+- 当前挂载：**无**（21:35 全部撤除）。重启实验时按上述模板重建。TaskList：#10–#13 完成，#14 进行中（描述含当前组，cron 靠它），#15 待办。
 
-## 5. 代码改动（全部未暂存；`sgrid_sweep.py` 已同步两远端并 sha 核验）
+## 5. 拓扑速查
 
-- `exp/dispatch_surface/sgrid_sweep.py`：`summarize --arms`（子集）、`crd_params()`、**`emit --gate-layer secondary`**（注入 production gate，θ 自动取包内 rev1 matrix `gate_theta`；新协议 `dispatch_surface_rev2_sysgate_dev`；run/summarize 双协议，gated 走 `LAYER_SECONDARY` 校验）。
-- `analysis/plot_budget_amendment.py`：逐点非支配前沿实线 + hull 点线、`--crd-summary`（现已不用）、latest-only（有 `--sgrid-summary` 不再出非 dense 旧图）。
-- `analysis/crd_offline_screen.py`（离线参数预演器）。测试：`tests/dispatch_surface/test_sgrid_summarize_subset.py`、`test_sgrid_gate_layer.py`（3 例）等定向全过。
-- Git：约 20 文件为 compact 前 owner 指示暂存的旧批次；今日一切改动/新文件/删除均未暂存（含 docs/iclr 删除）。
+server weilandserver 4090 48 GB：4 replica，`--replica-spawn-batch 2`，`OPENPI_SERVER_GPU_MEMORY_LOCK=0`，bundle 由 conductor 每臂热切；client timan108 3×A5000，48 worker（每 EGL worker ≈ 0.65 GB CPU 内存、~8 GB 显存/卡），`--gpus 3`；吞吐 spatial ≈ 95 ep/min、l10 ≈ 30 ep/min。tether exec 静默 10 min 上限，长跑一律 tmux；`tether push` 远端路径须绝对、父目录先建；timan108 `allow_roots=[/home /tmp /srv]`（不能 push 到 /scratch，先 push /tmp 再 mv）。
 
-## 6. 拓扑/运行时（不变项速查）
+## 6. 故障处置规程（已实战验证）
 
-server：weilandserver tmux `srv0`，`ziyanglin.com:23150` 公网 1:1 直连（proxy→23151–54，4 replica，13:59 起，H-CRD 版代码，pi05_libero，两 suite 通用）。client：timan107 48 worker；**每条命令 `export PATH=/usr/local/bin:/usr/bin:/bin`（runner 加 `/scratch/zixuans8/dsp_bin`）**，HOME 分别 /home/weiland、/home/zixuans8；tether push/pull `--force`、父目录先建、exec 静默 10min 超时→本地轮询；远端克隆独立（tar+push /tmp+sha -c）；`MUJOCO_GL=egl`；吞吐 ~18–19 ep/min；srv0.log 的 InvalidMessage/EOFError = 健康脚本裸探测噪声。
+- **server 死**（`pgrep -af "[s]erve_policy.py --replicas"` 为 0，`:23150` 不监听）：runner 会把在途集记成 `failed, accepted`（同一 drain ts 的一批）。步骤：停 runner（`kill -INT`，等退出，`kill -9` worker）→ 从 journal/per_step 剔除该批 uid（按 `max(ts of failed)` ±2 s 选 uid，写备份 `.pre_srvdown` 与 uid 清单）→ `start_eval_server.sh` 等 ready → 轮换日志 → 同 journal 续跑（resume 跳过完整臂，episode 级续跑）。
+- **weilandserver OOM 根因**（11:30）：另一会话经 tether 在同机跑 tether 仓库 Go 测试（5789 个 `exe` 进程，unit 峰值 247 GB）→ kernel OOM 杀 replica、tmux server、tether agent（systemd `Restart=on-failure` 5 s 自动拉回）。若再发生：同上规程；建议那边加 `systemd-run -p MemoryMax=`。
+- **timan108 runner/worker 死或 OOM**：`tail -40 /tmp/rit_k3_<suite>_<rule>.log`、`dmesg -T | grep -i killed`；轮换日志后同 journal 续跑。
+- **GPU 被他人占满 → EGL FatalError 假失败**（timan107 事故）：`run_gtp --gpu-ids` 跳过该卡；受污染的 journal 整体作废重跑。
+- **timan108 worker 内存膨胀 → OOM → 1011 截断 + 僵尸 worker**（g4 10:46–10:57 实战）：症状 = freeGB 骤降到个位数、bigW 十几个（RSS 7–12 GB，GPU 显存同涨 2–5 GB，渲染器泄漏，起因不明）、dmesg OOM kill、随后 server 端 keepalive ping 20 s 无 pong 批量 1011 关连接（同一秒一批）。后果两类：① main.py 步内 `except Exception → break`，集被截断记成终态 `failed`（client_timing `steps` < 上限）= **污染，必须剔除补跑**；② `episode_start` 在死连接上抛 → worker 报 `episode … raised`，driver 判 retriable 只重派不落 journal，但该 worker 永远拿着死连接空转刷 traceback（僵尸）。**僵尸的真正危害**：`episode_runner._ensure_client → select_bundle` 在死连接上立即抛 → driver 判 retriable 重派 → 同一僵尸再领再抛，每集 `max_episode_retries=3`（4 次）耗尽后 scheduler 静默记 `done_fail` 且**不落 journal**；6 个僵尸 19 分钟烧掉 9081 集，runner 之后以 exit 0 "完成"。因此 **zomb ≥ 2 立即按 PID kill**；runner 若在 progress < total 时退出（`ALERT runner exited`），不是故障而是队列被烧光：audit → excise 截断集 → `launch_k3_group.sh N suite rule` 同 journal resume 即可补齐。处置：`ps`→按 PID `kill -9` 膨胀（≥6 GB）与僵尸（无 :23150 连接，两次采样取交集）worker，conductor 自动重启并重派在途集（无终态记录、无损失）。不要用 pkill。根治需改 `examples/libero/episode_runner.py` 在 ConnectionClosed 时重建 client（src 改动，等 owner 裁）。
+- **完整性审计**（每组完成后）：journal terminal 行 = unique uid = 总量、dup 0；failed 集的 per_step 决策数不异常少（spatial <42、l10 <100 判可疑）；per_step attempt 集合 == journal attempt；**failed 且 client_timing.steps < 上限（l10 500 / spatial 200）= 截断污染**（`audit_k3_group.py` 已内置，输出 `truncated_failed_uids`）；四组 K=2 与 K3 g1–g3 均 0 异常。
 
-## 7. 坑（新增今日）
+## 7. 事故记录（时间线）
 
-- **wrap 的 DONE 标记会在 runner 异常退出时误写**：任何续跑前先 `mv` 轮换日志（sgrid/sysgate 均已踩过）。
-- **timan107 OOM 模式**：机队连跑多小时后驱动锁页内存耗尽 → keepalive 1011 连锁；恢复 = 确认 server 健康（真实握手探测）→ 轮换日志 → 原 journal 续跑；复发则降 worker。
-- emit 需 ≥1 SV 臂载 contract；同一 journal 只能配同一 matrix sha（补臂 = 大矩阵 + `--arms` 分批）；summarize 子集必须 `--arms` 否则报 incomplete。
-- plot 的 merge_sgrid 拒绝重名臂；两 summary 合并用 jq/python 合 `arms` 后传单文件（`sgrid_summary_all.json` 即此法）。
-- H-CRD 代码/数据/审查记录保留（消融+审查链），仅图与页面已清；不再向图中传 `--crd-summary`。
+01:54 K=2 group 1 在 timan107 起跑，GPU 5/7 被占 → 7 次 EGL FatalError 假失败 → 作废重跑（`--gpu-ids 0,1,2,3,4,6`）；02:50 timan107 宕机（12:05 才重启）→ 03:19 weilandserver 本机 20 worker 跑 870 集（唯一偏离 48 的区间）→ 03:37 自建 timan108 车队接管，同 journal 续跑；11:30 weilandserver 被另一会话 Go 测试打爆内存，OOM 杀 replica，group 3 剔除 48 个在途假失败后续跑；K=2 四组 18:45 全部完成，审计 0 异常。K=3：18:56 建表（并行 4 片后 20:07 完成），20:15 srv0 重启，20:16 smoke 三档均出现，20:17 group 1 起跑。
 
-## 8. 待 owner / codex
+- **2026-09-02 10:41–11:15（g4 l10 GST）**：10:41 freeGB 174 → 11:01 10；19 个 worker RSS 膨胀到 7–12 GB（GPU 显存同涨），10:46–10:49 内核 OOM 杀 5 个；10:52:31/10:52:51/10:53:11/10:55:51/10:57:11 五批 server 1011 keepalive 关连接 → 30 集截断记 failed（臂 f00w20v20）+ 6 僵尸 worker。11:08 按 PID 杀 19 膨胀 worker（free 回 153 GB、显存回 10 GB/卡），11:11 杀 6 僵尸（raised 行停增），conductor 共重启 30 个 worker，cexc 定格 30，进度未中断。健康脚本/审计/剔除脚本随即固化（§4/§6）。**14:19** runner exit 0 提前退出于 7919/17000：事后从 raised 行分布（每 5 万行均匀 2632 条）确认 6 僵尸在 10:52–11:11 已把后续臂的 9081 集全部重试耗尽（36418 raised ≈ 9100 × 4）；14:21 剔除 30 截断集，14:22 `k3_g5` 同 journal resume 补跑 9111 集，**21:34 完成**（resume 段 cexc/restarts/bigW/zomb 全程 0），审计 OK。
+## 8. K=2 结果摘要（详见 analysis.md Part I）
 
-codex 新 G1（转向提案 = 转向报告 + sonly_note + 24 臂证据）；§15.6 未尽（commit reviewer patch、commit 后重建 export record provenance——现 record 的 git_commit 字段两端各记无关 HEAD，已查明）；pruned-500 确认与 Arm1 CP2 对照与 K=3（论文三缺口）；GST+gate 同链 baseline 臂（§16.5 待办）；docs/iclr 剩余文档去留；commit/push 时机。
+spatial：no gate 实测 IR 37→93 %、SR 0.772→0.998；H gate 40→93 %、0.906→0.992；H gate 在 40–60 % 段与 GST 同库参考持平到 −2 pt，>70 % 一致。l10：no gate 27→93 %、0.468→0.872；H gate 40→93 %、0.662→0.860；H gate 在 40–66 % 比 no gate 高 8–20 pt，vs GST 50–62 % 低 2–5 pt、74–86 % 高 2–4 pt（均在 CI 内）；顶点 ≈ 纯 teacher 0.868。

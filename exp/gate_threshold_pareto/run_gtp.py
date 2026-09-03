@@ -103,6 +103,23 @@ class SweepStrategy(_strat.ExperimentStrategy):
         logger.info("arm %s: bundle loaded from %s", stage.yaml_id, yaml_path)
 
 
+def gpu_slots(gpus: int, gpu_ids: str = "") -> list[str]:
+    """Worker GPU assignment cycle: ``--gpu-ids`` when given, else ``range(gpus)``.
+
+    A shared client node may have cards that are full of someone else's work;
+    an EGL offscreen context on such a card fails with ``mujoco.FatalError``
+    (framebuffer incomplete) and every episode routed there is a retry.
+    """
+    if gpu_ids:
+        slots = [x.strip() for x in gpu_ids.split(",") if x.strip()]
+        if not slots or any(not x.isdigit() for x in slots):
+            raise SystemExit(f"--gpu-ids must be a comma list of non-negative integers, got {gpu_ids!r}")
+        return slots
+    if gpus <= 0:
+        raise SystemExit("--gpus must be positive")
+    return [str(i) for i in range(gpus)]
+
+
 def arms_with_work_left(
     journal_path: str | pathlib.Path, arms: list[str], *, expected: int
 ) -> tuple[list[str], dict[str, int]]:
@@ -146,10 +163,30 @@ def arms_with_work_left(
     return remaining, counts
 
 
+JUDGE_TYPES = ("threshold", "dispatch_surface")
+EVAL_GATES = ("score_hysteresis", "always_search")
+
+
 def validate_arms(
-    arm_rows: list[dict], *, phase: str, expected_l: int = GATE_L
+    arm_rows: list[dict], *, phase: str, expected_l: int = GATE_L,
+    judge_type: str = "threshold", eval_gate: str = "score_hysteresis",
+    warm_tiers: tuple[float, ...] = (),
 ) -> dict[str, str]:
-    """Every arm must be warm-tier-free, routing-free, and carry the right gate."""
+    """Every arm must carry the declared judge and gate and no executor routing.
+
+    Defaults are the GTP sweep (binary ``threshold`` verdict, hysteresis eval
+    gate). The RIT-Pareto line reuses the runner with ``judge_type=
+    "dispatch_surface"`` (three-way verdict by artifact) and either eval gate;
+    the warm-tier prohibition applies only to the threshold judge, whose warm
+    route the GTP sweep disabled on purpose. ``warm_tiers`` lifts it for a
+    declared ladder (the RIT-Pareto K=3 line): every threshold arm may then
+    carry a subset of the declared start_t values, in the declared order, with
+    strictly decreasing thresholds from the FULL cut down.
+    """
+    if judge_type not in JUDGE_TYPES:
+        raise SystemExit(f"judge_type must be one of {JUDGE_TYPES}, got {judge_type!r}")
+    if eval_gate not in EVAL_GATES:
+        raise SystemExit(f"eval_gate must be one of {EVAL_GATES}, got {eval_gate!r}")
     yaml_paths: dict[str, str] = {}
     for row in arm_rows:
         arm, path = row["arm"], row["yaml"]
@@ -159,16 +196,30 @@ def validate_arms(
         cp1 = cfg.checkpoints.get("cp1")
         if cp1 is None:
             raise SystemExit(f"arm {arm}: missing cp1 checkpoint ({path})")
-        if cp1.judge.type != "threshold":
+        if cp1.judge.type != judge_type:
             raise SystemExit(
-                f"arm {arm}: judge is {cp1.judge.type!r}, expected 'threshold'"
+                f"arm {arm}: judge is {cp1.judge.type!r}, expected {judge_type!r}"
             )
-        if cp1.judge.warm_tiers:
+        if judge_type == "threshold" and cp1.judge.warm_tiers and not warm_tiers:
             raise SystemExit(
                 f"arm {arm}: warm tier present ({cp1.judge.warm_tiers}). The warm-start "
                 "route is disabled for this experiment; a surviving tier would make the "
                 "verdict three-way and the inference-ratio axis incomparable."
             )
+        if judge_type == "threshold" and warm_tiers:
+            tiers = cp1.judge.warm_tiers or []
+            got = [round(float(t["start_t"]), 4) for t in tiers]
+            declared = [round(float(x), 4) for x in warm_tiers]
+            if any(x not in declared for x in got) or got != [x for x in declared if x in got]:
+                raise SystemExit(
+                    f"arm {arm}: warm tiers {got} are not an ordered subset of the declared "
+                    f"ladder {declared}"
+                )
+            cuts = [float(cp1.judge.threshold)] + [float(t["threshold"]) for t in tiers]
+            if any(b >= a for a, b in zip(cuts, cuts[1:])):
+                raise SystemExit(f"arm {arm}: tier thresholds must strictly decrease, got {cuts}")
+        if judge_type == "dispatch_surface" and not cp1.judge.surface_artifact_path:
+            raise SystemExit(f"arm {arm}: dispatch_surface judge without surface_artifact_path")
         if phase == "warmup":
             if cp1.gate.type != "always_search":
                 raise SystemExit(
@@ -177,11 +228,11 @@ def validate_arms(
                     "so the solved quantiles would describe a censored distribution."
                 )
         else:
-            if cp1.gate.type != "score_hysteresis":
+            if cp1.gate.type != eval_gate:
                 raise SystemExit(
-                    f"arm {arm}: eval gate is {cp1.gate.type!r}, expected 'score_hysteresis'"
+                    f"arm {arm}: eval gate is {cp1.gate.type!r}, expected {eval_gate!r}"
                 )
-            if cp1.gate.L != expected_l:
+            if eval_gate == "score_hysteresis" and cp1.gate.L != expected_l:
                 raise SystemExit(
                     f"arm {arm}: gate L is {cp1.gate.L!r}, expected {expected_l}. Without L the "
                     "gate degrades to pure N1 and the run would be silently mislabelled."
@@ -220,12 +271,31 @@ def main() -> None:
     ap.add_argument("--episode-timeout-s", type=float, default=1800.0)
     ap.add_argument("--eval-concurrency", type=int, default=0)
     ap.add_argument("--gpus", type=int, default=1)
+    ap.add_argument(
+        "--gpu-ids", default="",
+        help="comma list of GPU indices to cycle workers over (overrides --gpus; "
+        "use it to skip cards occupied by other users)",
+    )
     ap.add_argument("--conda-env", default="")
     ap.add_argument(
         "--gate-l",
         type=int,
         default=GATE_L,
         help="expected gate lockout L for arm validation (gate-only ablation uses 8)",
+    )
+    ap.add_argument(
+        "--judge-type", choices=JUDGE_TYPES, default="threshold",
+        help="verdict every arm must carry: GTP binary threshold (default) or the "
+        "RIT-Pareto dispatch_surface artifact judge",
+    )
+    ap.add_argument(
+        "--warm-tiers", default="",
+        help="comma list of warm start_t values the threshold arms may carry (RIT-Pareto "
+        "K=3 uses 0.3,0.5); empty keeps the GTP prohibition on warm tiers",
+    )
+    ap.add_argument(
+        "--eval-gate", choices=EVAL_GATES, default="score_hysteresis",
+        help="gate every eval arm must carry (the RIT-Pareto no-gate layer uses always_search)",
     )
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO)
@@ -257,7 +327,11 @@ def main() -> None:
             logger.info("every arm is complete; nothing to run")
             return
 
-    yaml_paths = validate_arms(rows, phase=args.phase, expected_l=args.gate_l)
+    warm_tiers = tuple(float(x) for x in args.warm_tiers.split(",") if x.strip())
+    yaml_paths = validate_arms(
+        rows, phase=args.phase, expected_l=args.gate_l,
+        judge_type=args.judge_type, eval_gate=args.eval_gate, warm_tiers=warm_tiers,
+    )
 
     per_step_path = pathlib.Path(args.per_step_out)
     per_step_path.parent.mkdir(parents=True, exist_ok=True)
@@ -294,7 +368,14 @@ def main() -> None:
                 "arms": sorted(yaml_paths),
                 "trials_per_task": args.trials,
                 "gate_L": args.gate_l,
-                "warm_start": "disabled",
+                "judge_type": args.judge_type,
+                "eval_gate": args.eval_gate,
+                "gpu_slots": gpu_slots(args.gpus, args.gpu_ids),
+                "warm_start": (
+                    f"threshold_tiers_{list(warm_tiers)}" if warm_tiers
+                    else "disabled" if args.judge_type == "threshold" else "artifact_tier_0.3"
+                ),
+                "warm_tiers": list(warm_tiers),
                 "apool": apool,
             },
             indent=2,
@@ -364,11 +445,12 @@ def main() -> None:
         time.sleep(0.05)
     logger.info("driver pull port = %d", driver.port)
 
+    slots = gpu_slots(args.gpus, args.gpu_ids)
     specs = [
         WorkerSpec(
             worker_id=f"w{i}",
             server_key=worker_server_keys[i],
-            gpu_id=str(i % args.gpus),
+            gpu_id=slots[i % len(slots)],
             conda_env=args.conda_env,
             task_suite_name=args.task_suite,
             init_states_dir=apool["apool_dir"],

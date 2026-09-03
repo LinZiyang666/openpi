@@ -122,7 +122,8 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--query-h5-dir", required=True)
     ap.add_argument("--library-pkl", required=True)
-    ap.add_argument("--noise-sidecar", required=True)
+    ap.add_argument("--noise-sidecar", default=None,
+                    help="required for --ref-mode fresh (z_j per entry); unused otherwise")
     ap.add_argument("--split-manifest", required=True)
     ap.add_argument("--cache-yaml", required=True)
     ap.add_argument("--config-name", default="pi05_libero")
@@ -134,7 +135,14 @@ def main() -> None:
     ap.add_argument("--out-jsonl", required=True)
     ap.add_argument("--weights-out", default=None,
                     help="NPZ for (w, active_mask); default <out-jsonl>.weights.npz")
+    ap.add_argument("--extra-warm-tiers", default="",
+                    help="comma list of additional canonical warm start_t values (e.g. 0.5); "
+                         "each adds a y_tau<round((1-t)*10)> column next to y_tau7 (t=0.3)")
     args = ap.parse_args()
+    extra_tiers = [round(float(x), 4) for x in args.extra_warm_tiers.split(",") if x.strip()]
+    for t in extra_tiers:
+        if t == START_T_WS or not (0.0 < t < 1.0) or abs(t * 10 - round(t * 10)) > 1e-9:
+            raise SystemExit(f"--extra-warm-tiers: {t} is not a canonical tier distinct from {START_T_WS}")
 
     from exp.common.build_in_memory_cache_artifact import (
         _build_fake_stage1_with_masks,
@@ -163,6 +171,8 @@ def main() -> None:
     )
     w, active_mask = compute_library_action_weights(lib_chunks)
 
+    if args.ref_mode == "fresh" and not args.noise_sidecar:
+        raise SystemExit("--ref-mode fresh needs --noise-sidecar (the library's z_j per entry)")
     sidecar = np.load(args.noise_sidecar) if args.ref_mode in ("fresh",) else None
     model, tokenizer = _load_pi05_for_llm_extract(args.checkpoint_dir, args.config_name, args.device)
     dev = torch.device(args.device)
@@ -255,6 +265,13 @@ def main() -> None:
                             stage2, x3, START_T_WS,
                             num_steps=winner_payload.denoising_num_steps,
                         ).action_chunk[0]
+                        # Extra warm tiers (K>2 ladders): same completion from the stored x_t.
+                        a_extra = {}
+                        for t in extra_tiers:
+                            xt = winner_payload.intermediates[t].to(dev)[None]
+                            a_extra[t] = model.run_stage3_from(
+                                stage2, xt, t, num_steps=winner_payload.denoising_num_steps,
+                            ).action_chunk[0]
 
                     a_ref_cpu = a_ref.float().cpu()
                     y_tau10 = weighted_chunk_deviation(
@@ -264,6 +281,12 @@ def main() -> None:
                     y_tau7 = weighted_chunk_deviation(
                         a_warm.float().cpu(), a_ref_cpu, w, active_mask, args.h_exec,
                     )
+                    y_extra = {
+                        f"y_tau{int(round((1.0 - t) * 10))}": weighted_chunk_deviation(
+                            a.float().cpu(), a_ref_cpu, w, active_mask, args.h_exec,
+                        )
+                        for t, a in a_extra.items()
+                    }
                     out.write(json.dumps({
                         "episode_id": h5_path.stem,
                         "task_id": task_id,
@@ -276,6 +299,7 @@ def main() -> None:
                         "winner_id": winner_id,
                         "y_tau7": y_tau7,
                         "y_tau10": y_tau10,
+                        **y_extra,
                         "ref_mode": args.ref_mode,
                         "episode_success": success,
                     }) + "\n")
