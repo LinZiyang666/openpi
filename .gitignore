@@ -270,5 +270,5 @@ logs/**/*.pkl
 # from there; the local copy here is a working scratch and not project code.
 docs/skills/
 
-# ICLR slides workdir (beamer template + drafts, not project deliverables yet)
-docs/iclr/slides/
+# ICLR paper workdir (Overleaf git working copy + drafts, not project deliverables)
+docs/iclr/
