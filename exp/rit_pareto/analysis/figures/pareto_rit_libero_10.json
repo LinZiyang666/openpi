@@ -1,0 +1,610 @@
+{
+  "schema": "rit_pareto.figure/v1",
+  "figure_id": "pareto_rit_libero_10",
+  "title": "libero_10: RIT-PL frontiers on the official pruned-500 pool",
+  "x_label": "measured inference ratio (% of always-full GPU cost, three-tier)",
+  "y_label": "success rate",
+  "figsize": [
+    8,
+    5.5
+  ],
+  "dpi": 160,
+  "grid_alpha": 0.3,
+  "legend": {
+    "fontsize": 7,
+    "loc": "lower right"
+  },
+  "series": [
+    {
+      "key": "no gate",
+      "style": {
+        "color": "#0b7a75",
+        "marker": "o",
+        "marker_size": 34,
+        "alpha": 0.85,
+        "point_zorder": 3,
+        "linestyle": "-",
+        "linewidth": 2.4,
+        "line_zorder": 2,
+        "annotate_fontsize": 7
+      },
+      "show_points": true,
+      "show_frontier": true,
+      "annotate": true,
+      "scatter_label": "RIT-PL no gate: arms ({n_arms} x 500 ep)",
+      "frontier_label": "RIT-PL no gate: Pareto frontier ({n_front} non-dominated)",
+      "points": [
+        {
+          "id": "rit_l10_ng_ir20",
+          "x": 27.44878305133733,
+          "y": 0.468,
+          "label": "IR=20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir25",
+          "x": 37.901862168225186,
+          "y": 0.494,
+          "label": "IR=25",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir30",
+          "x": 43.169565775801146,
+          "y": 0.544,
+          "label": "IR=30",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir35",
+          "x": 45.478867210781885,
+          "y": 0.574,
+          "label": "IR=35",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir40",
+          "x": 48.30212566661739,
+          "y": 0.56,
+          "label": "IR=40",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir45",
+          "x": 50.17145742423567,
+          "y": 0.57,
+          "label": "IR=45",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir50",
+          "x": 52.050319957541106,
+          "y": 0.586,
+          "label": "IR=50",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir55",
+          "x": 53.674896204301895,
+          "y": 0.63,
+          "label": "IR=55",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir60",
+          "x": 56.05481258945055,
+          "y": 0.654,
+          "label": "IR=60",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir65",
+          "x": 58.598192509969806,
+          "y": 0.694,
+          "label": "IR=65",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir70",
+          "x": 64.12306424630437,
+          "y": 0.734,
+          "label": "IR=70",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir75",
+          "x": 74.12346032179137,
+          "y": 0.806,
+          "label": "IR=75",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir80",
+          "x": 77.14800359952876,
+          "y": 0.84,
+          "label": "IR=80",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir85",
+          "x": 80.96755340100464,
+          "y": 0.856,
+          "label": "IR=85",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir90",
+          "x": 86.1501054601818,
+          "y": 0.872,
+          "label": "IR=90",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_ng_ir95",
+          "x": 92.83552654666101,
+          "y": 0.854,
+          "label": "IR=95",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        }
+      ]
+    },
+    {
+      "key": "H gate",
+      "style": {
+        "color": "#b8336a",
+        "marker": "s",
+        "marker_size": 34,
+        "alpha": 0.85,
+        "point_zorder": 3,
+        "linestyle": "-",
+        "linewidth": 2.4,
+        "line_zorder": 2,
+        "annotate_fontsize": 7
+      },
+      "show_points": true,
+      "show_frontier": true,
+      "annotate": true,
+      "scatter_label": "RIT-PL H gate: arms ({n_arms} x 500 ep)",
+      "frontier_label": "RIT-PL H gate: Pareto frontier ({n_front} non-dominated)",
+      "points": [
+        {
+          "id": "rit_l10_hg_ir20",
+          "x": 39.973826312123826,
+          "y": 0.662,
+          "label": "IR=20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir25",
+          "x": 41.82514011047528,
+          "y": 0.674,
+          "label": "IR=25",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir30",
+          "x": 45.418727412876585,
+          "y": 0.672,
+          "label": "IR=30",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir35",
+          "x": 46.81354397879543,
+          "y": 0.726,
+          "label": "IR=35",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir40",
+          "x": 48.87625026794101,
+          "y": 0.712,
+          "label": "IR=40",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir45",
+          "x": 49.27542449194755,
+          "y": 0.748,
+          "label": "IR=45",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir50",
+          "x": 52.13434601211023,
+          "y": 0.722,
+          "label": "IR=50",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir55",
+          "x": 54.07042591174614,
+          "y": 0.74,
+          "label": "IR=55",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir60",
+          "x": 57.22816180693658,
+          "y": 0.766,
+          "label": "IR=60",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir65",
+          "x": 61.176767336195475,
+          "y": 0.762,
+          "label": "IR=65",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir70",
+          "x": 65.8937276299356,
+          "y": 0.804,
+          "label": "IR=70",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir75",
+          "x": 73.7640138669277,
+          "y": 0.826,
+          "label": "IR=75",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir80",
+          "x": 77.07756366091218,
+          "y": 0.85,
+          "label": "IR=80",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir85",
+          "x": 81.40569945121077,
+          "y": 0.854,
+          "label": "IR=85",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir90",
+          "x": 86.03549545784337,
+          "y": 0.86,
+          "label": "IR=90",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "rit_l10_hg_ir95",
+          "x": 92.91216314827355,
+          "y": 0.86,
+          "label": "IR=95",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        }
+      ]
+    },
+    {
+      "key": "GST (GTP)",
+      "style": {
+        "color": "0.45",
+        "marker": "x",
+        "marker_size": 28,
+        "alpha": 1,
+        "point_zorder": 3,
+        "linestyle": "--",
+        "linewidth": 1.4,
+        "line_zorder": 2,
+        "annotate_fontsize": 7
+      },
+      "show_points": true,
+      "show_frontier": true,
+      "annotate": false,
+      "scatter_label": "GST hysteresis-gate sweep, same library (GTP): arms",
+      "frontier_label": "GST: Pareto frontier (reference)",
+      "points": [
+        {
+          "id": "gtp_ws_l10_fh80",
+          "x": 47.82473459953256,
+          "y": 0.728,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh75",
+          "x": 50.21866871965371,
+          "y": 0.74,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh70",
+          "x": 52.79208450518574,
+          "y": 0.76,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh65",
+          "x": 53.729074508061196,
+          "y": 0.764,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh55",
+          "x": 55.789364778891084,
+          "y": 0.78,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh60",
+          "x": 55.956599400485494,
+          "y": 0.742,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh50",
+          "x": 57.28554315429499,
+          "y": 0.796,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh45",
+          "x": 60.609556548647205,
+          "y": 0.794,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh40",
+          "x": 63.64941717342359,
+          "y": 0.74,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh35",
+          "x": 65.59932379174174,
+          "y": 0.78,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh30",
+          "x": 68.17385436728513,
+          "y": 0.79,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh25",
+          "x": 71.61845276618953,
+          "y": 0.824,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh20",
+          "x": 75.04062528782428,
+          "y": 0.804,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh15",
+          "x": 79.34321763028962,
+          "y": 0.812,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh10",
+          "x": 85.02253400023108,
+          "y": 0.846,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "gtp_ws_l10_fh05",
+          "x": 90.76984163944651,
+          "y": 0.832,
+          "label": null,
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        }
+      ]
+    }
+  ]
+}
