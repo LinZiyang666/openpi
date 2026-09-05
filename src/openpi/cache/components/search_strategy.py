@@ -380,27 +380,33 @@ def _build_step_filters(
     step_filter: str,
     step_window: int,
     ctx: SearchContext,
+    task_scoped: bool = True,
 ) -> Optional[QueryFilter]:
     """Build QueryFilter from step_filter config + runtime context.
 
     Shared by QdrantWeightedRrfKnnStrategy, WeightedRrfKnnStrategy,
     and WeightedScoreSumKnnStrategy.
+
+    ``task_scoped=False`` drops the ``task_key`` filter only (suite-wide
+    retrieval, the ActionCache-style CP2 arm); the step-range logic is
+    untouched. The default reproduces the legacy filters field for field.
     """
-    task_filter = QueryFilter(task_key=ctx.task_key) if ctx.task_key else None
+    task_key = ctx.task_key if task_scoped else None
+    task_filter = QueryFilter(task_key=task_key) if task_key else None
 
     if step_filter == "all":
         return task_filter
     elif step_filter == "exact":
         f = QueryFilter(step_range=(ctx.current_step, ctx.current_step))
-        if ctx.task_key:
-            f.task_key = ctx.task_key
+        if task_key:
+            f.task_key = task_key
         return f
     elif step_filter == "window":
         lo = max(0, ctx.current_step - step_window)
         hi = ctx.current_step + step_window
         f = QueryFilter(step_range=(lo, hi))
-        if ctx.task_key:
-            f.task_key = ctx.task_key
+        if task_key:
+            f.task_key = task_key
         return f
     else:
         raise ValueError(f"Unknown step_filter: {step_filter}")
@@ -477,6 +483,7 @@ class WeightedScoreSumKnnStrategy(TrajectoryMixin):
         score_normalization: Optional[dict[str, Any]] = None,
         trajectory_depth: int = 1,
         trajectory_weights: Optional[list[float]] = None,
+        task_scoped: bool = True,
     ) -> None:
         self._storage = storage
         self._top_k = top_k
@@ -485,12 +492,17 @@ class WeightedScoreSumKnnStrategy(TrajectoryMixin):
         self._fusion_weights = fusion_weights
         self._field_similarity = field_similarity
         self._score_normalization = score_normalization
+        # False = suite-wide retrieval (no task_key filter); the CP2
+        # ActionCache-style arm. Default True is the legacy task-scoped search.
+        self._task_scoped = task_scoped
         self._init_trajectory(trajectory_depth, trajectory_weights)
 
     def search(self, ctx: SearchContext) -> list[SearchResultLite]:
         self.record_query_keys(ctx.query_keys)
 
-        filters = _build_step_filters(self._step_filter, self._step_window, ctx)
+        filters = _build_step_filters(
+            self._step_filter, self._step_window, ctx, task_scoped=self._task_scoped,
+        )
         spec = QuerySpec(
             query_keys=ctx.query_keys,
             top_k=self._top_k,

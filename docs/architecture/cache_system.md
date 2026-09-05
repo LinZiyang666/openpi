@@ -1,9 +1,9 @@
 # Pi0.5 Inference Cache System - Architecture Specification
 
-> Version: 0.5
-> Status: Implemented — CP1 three-level judgment (FULL_HIT / WARM_START / MISS), CP2 suspended (warm start migrated to CP1)
+> Version: 0.6
+> Status: Implemented — CP1 three-level judgment (FULL_HIT / WARM_START / MISS), CP2 active as the ActionCache-style post-backbone single-key checkpoint (`cp2_vlm_ternary`, CP2-only configs; warm start remains at CP1 for the main line)
 > Scope: PyTorch inference pipeline only (JAX path disabled)
-> Last updated: 2026-04-10
+> Last updated: 2026-09-04
 >
 > **Reading guide:** This document covers architecture principles and component design.
 > For YAML configuration, testing patterns, and hands-on tutorial, see [../cache/tutorial.md](../cache/tutorial.md).
@@ -66,11 +66,17 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
 - **Risk**: FULL_HIT is highest (skips subtask prediction); WARM_START is medium (subtask is fresh, only denoising is partial).
 - **Applicable scenario**: Highly repetitive operations (FULL_HIT) or similar scenes (WARM_START).
 
-### CP2: After LLM Backbone — ⚠️ Suspended
+### CP2: After LLM Backbone — ActionCache-style post-backbone single key
 
-> Warm start functionality has been migrated to CP1. CP2 remains suspended due to lack of usable retrieval key (Stage 2 produces only an opaque KV cache).
+> Activated for the ActionCache baseline line (`logs/actioncache_baseline_plan.log.md`; runbook `docs/experiments/actioncache_baseline.md`). The main CP1 line is untouched: CP2 is a **CP2-only** configuration (mutually exclusive with CP1 and CP3), and every existing CP1 / CP1+CP3 / CP3-only config behaves byte-for-byte as before.
 
-- **Current status**: **Suspended** — no usable retrieval key; warm start now handled at CP1.
+- **Trigger**: Stage 2 complete. The retrieval key is the backbone's prefix output (final-norm hidden states of the 968 prefix tokens, 968 × 2048 = 1,982,464 dims), which the plain `run_stage2` drops. The new public `PI0Pytorch.run_stage2_capture()` (`models_pytorch/pi0_pytorch.py`) fills the additive `Stage2Output.prefix_out` field; the private `_stage2_llm_backbone` helper is unchanged.
+- **Transport**: `Stage2Output.prefix_out` is carried by `stage_io.stack_stage2_output / split_stage2_output` (all-None → None, all-set → cat, mixed → `ValueError`). In `BatchingCoordinator`, `StageRequest.requires_stage2_capture` (set by `submit_to_stage(..., requires_stage2_capture=True)`) makes the stage-2 batch call `run_stage2_capture` when any request in the batch needs it. Direct (non-coordinator) mode binds `run_stage2_capture` in the interceptor when the config is CP2-only.
+- **Key builder** `cp2_vlm_ternary` (`cache/components/cp2_vlm_key_builder.py`): flatten `prefix_out`, apply a fixed sparse ternary random projection (`d=500, p=0.01`, `floor(pD/2)` +1 / −1 entries per row, seeded, float32 accumulation) → single field `vlm_out` (`CACHE_QUERY_FIELDS` gained `VLM_OUT`). The projection index tables are a process-wide immutable resource (`get_projection_spec`) shared across connections, with a per-device copy cache; the only D2H transfer is the final 500-float key.
+- **Retrieval / judge**: `weighted_score_sum_knn` with `task_scoped: false` (whole-suite library, no task filter — `SearchStrategyConfig.task_scoped`, default `True` keeps the existing behaviour), single cosine field with `affine_clip(lo=-1, hi=1)` normalisation, `ThresholdJudge` (`cp2_threshold`). N_hit=0 arms use `threshold=θ_norm` and no warm tiers (FULL_HIT / MISS only); N_hit=1 arms use `threshold=1.5` + one warm tier `{θ_norm, start_t: 0.1}` (WARM_START / MISS only).
+- **Lifecycle**: the interceptor skips `check(CP1)` and calls `check(CP2, stage2=...)` right after Stage 2; the step counter is owned by `CP1` or `CP2` (`_STEP_OWNER_CPS`), so CP2-only configs see the same `current_step` sequence as CP1-only configs. FULL_HIT skips Stage 3; WARM_START runs `run_stage3_from(..., 0.1)`; MISS runs full Stage 3. No CP3 check, `write_policy: never`.
+- **Config rules (R-CP2, `config.py::_validate_cp2_arm`)**: `cp2` ⇔ `key_builder.type == cp2_vlm_ternary`; keys exactly `{vlm_out}`; `in_memory` backend with `preload_path`; `vector_dims == {vlm_out: d}`; gate `always_search`; judge `threshold`; strategy `weighted_score_sum_knn` depth 1; no routing / shadow / collect_meta; `write_policy: never`. Loading binds the artifact's `projection` metadata (seed, d, p, D, nnz, accumulation dtype, index digest) and `id_policy: inherited_from_source` to the running builder (`_check_cp2_projection_binding`); `serve_policy.py::_validate_cp2_stage_placement` enforces the stage placement.
+- **Wire**: `__hit_meta__` gained additive `checkpoint` (`"CP1"` / `"CP2"` / `None`) and `score` fields; `cp1_score` is `None` on CP2. CP2 responses additionally carry `library_sha256` (the loaded artifact's digest, from `CacheOrchestrator.artifact_meta`) so the client ledger can prove which library the verdicts came from; the key is absent, not `None`, on every other path, keeping legacy wires byte-identical. Probes `cp2_gate/build/search/judge/sum` are registered.
 
 ### CP3: After Action Expert
 
@@ -90,7 +96,7 @@ Stage 1: Token Preparation        Stage 2: LLM Backbone         Stage 3: Action 
             │ Vision  │  LLM    │ FlowMatch│          │ (may be skipped) │
             └────┬────┴────┬────┴─────┬────┘          └────────┬─────────┘
                  │         │          │                         │
-              [CP1]  [CP2:suspended] [CP3]─── predict ────> skip?
+              [CP1]       [CP2]      [CP3]─── predict ────> skip?
                  │                    │
           hit: skip              hit: schedule
           S2+S3                  next cycle's
@@ -204,10 +210,11 @@ class InferenceInterceptor(BasePolicy):
         with self._timer.measure("stage2_llm"):
             stage2_output = self._model.run_stage2(stage1_output)
 
-        # --- CP2: Suspended ---
-        # CP2 is suspended because Stage 2 produces only an opaque
-        # past_key_values (DynamicCache), with no command embedding
-        # available as a retrieval key. See Section 3 for details.
+        # --- CP2: ActionCache-style post-backbone check (CP2-only configs) ---
+        # In a CP2-only config the CP1 check above is skipped, Stage 2 runs
+        # via run_stage2_capture() so Stage2Output.prefix_out is filled, and
+        # cp2_result = self.orchestrator.check(CP2, stage2=stage2_output)
+        # decides FULL_HIT (return cached chunk) / WARM_START / MISS. See §3.
 
         # --- Stage 3: Action Expert (full flow matching) ---
         with self._timer.measure("stage3_flow"):
@@ -225,7 +232,7 @@ Key design points:
 - `PI0Pytorch.run_stage1/2/3` are **public typed wrappers** added on top of existing private `_stage1_token_prep`, `_stage2_llm_backbone`, `_stage3_action_expert` methods. The original `sample_actions()` is unmodified.
 - `InferenceInterceptor` implements `BasePolicy`, making it a transparent drop-in — WebsocketPolicyServer and clients require zero changes.
 - `return_intermediates=True` causes Stage 3 to return `x_t` at selected timesteps during flow matching, for future warm start caching.
-- CP2 check is intentionally omitted (suspended) — see Section 3 for the rationale.
+- The CP2 check only runs in CP2-only configurations (`orchestrator.has_checkpoint(CP2)`); CP1 / CP3 configurations never see it — see Section 3.
 
 ---
 
@@ -237,7 +244,7 @@ Key design points:
 
 The master controller. Coordinates the gate → build → search → judge workflow for each checkpoint, manages episode lifecycle (buffer steps, batch write at episode end), and broadcasts actions to trajectory-aware components.
 
-> With CP2 suspended, the orchestrator handles CP1 and CP3 only.
+> The orchestrator handles CP1, CP2 and CP3; config validation makes CP2 mutually exclusive with the other two, so a running orchestrator is either CP1[+CP3] / CP3-only or CP2-only.
 
 **Constructor** (per-checkpoint components):
 
@@ -1059,20 +1066,18 @@ Time ─────────────────────────
 Total: Stage1 + CP1 latency only
 ```
 
-### 6.3 CP2 Warm Start Timing — ⚠️ Suspended (design preserved)
+### 6.3 CP2 Timing (ActionCache-style baseline, CP2-only config)
 
 ```
 Time ──────────────────────────────────────────────>
 
 [GPU Main Stream]
-│ Stage1 ││ Stage2 ││ Partial Stage3 (3 steps)    ││
-│ Vision ││ LLM    ││ from cached x_0.3           ││
+│ Stage1 ││ Stage2 (capture) ││ CP2 check ││ Stage3: skipped (FULL_HIT) /
+│ Vision ││ LLM + prefix_out ││ proj+cos  ││ 1 step from x_0.1 (WARM) / 10 steps (MISS)
 
-[GPU Transfer Stream]
-         ││ CP1    ││ CP2 search ──> WARM START HIT
-         ││ miss   ││ load cached x_0.3
-
-Total: Stage1 + Stage2 + CP2 latency + 3 denoise steps (instead of 10)
+Analytic model-forward cost (CUDA-graph tier): FULL_HIT = s1+s2 = 37.95 ms,
+WARM@0.1 = 40.91 ms, MISS = 67.52 ms. The CP2 check itself (collect / build /
+search / judge) is measured by `exp/actioncache_baseline/bench_cp2_overhead.py`.
 ```
 
 ### 6.4 CP3 Predictive Hit Timing
@@ -1268,7 +1273,7 @@ class TaskLifecycle(Protocol):
 | `stage3_flow` | cuda | ✅ Registered | Full flow matching (10 denoise steps) |
 | `total_inference` | cpu | ✅ Registered | Wall-clock total (outer `measure()` wrapping all 3 stages) |
 | `cp1_*`, `cp3_*` | cpu | ✅ Registered (Step 4) — unstable | Cache sub-step probes (gate, build, search, judge, write) |
-| `cp2_*` | — | Suspended | CP2 suspended (see Section 3) |
+| `cp2_*` | cpu | ✅ Registered | CP2 sub-step probes (`cp2_gate/build/search/judge/sum`), CP2-only configs (see Section 3) |
 | `write_vectordb`, `write_metadata` | cpu | Planned | Async write-back |
 | `gpu_to_cpu`, `cpu_to_gpu` | cuda | Planned | Data migration on `transfer_stream` |
 

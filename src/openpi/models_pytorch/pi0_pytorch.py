@@ -81,12 +81,17 @@ class Stage2Output:
     stage1: Stage1Output
     past_key_values: Any
     """HuggingFace DynamicCache (or tuple-of-tuples).  Read-only during Stage 3."""
+    prefix_out: torch.Tensor | None = None
+    """Backbone output for the prefix tokens ``[B, prefix_len, emb_dim]`` (final-norm
+    hidden states). Filled only by ``run_stage2_capture`` (CP2 cache key source);
+    ``run_stage2`` leaves it None so every pre-CP2 consumer is unchanged."""
 
     def to(self, device: str | torch.device) -> Stage2Output:
-        """Move stage1 outputs and KV cache to the target device."""
+        """Move stage1 outputs, KV cache and (when present) prefix_out to the target device."""
         return Stage2Output(
             stage1=self.stage1.to(device),
             past_key_values=_move_kv_cache(self.past_key_values, device),
+            prefix_out=None if self.prefix_out is None else self.prefix_out.to(device),
         )
 
 
@@ -613,6 +618,28 @@ class PI0Pytorch(nn.Module):
             stage1.prefix_position_ids,
         )
         return Stage2Output(stage1=stage1, past_key_values=past_key_values)
+
+    def run_stage2_capture(self, stage1: Stage1Output) -> Stage2Output:
+        """Stage 2 that also keeps the backbone's prefix output (CP2 cache key source).
+
+        Issues the same ``paligemma_with_expert.forward`` call as
+        ``_stage2_llm_backbone`` (identical arguments, identical KV cache); the
+        only difference is that the ``prefix_output`` the HF forward computes
+        anyway (final-norm hidden states of the prefix tokens) is retained on
+        ``Stage2Output.prefix_out`` instead of being dropped. No extra compute
+        is introduced, and ``run_stage2`` / the private helper are untouched so
+        the default path stays byte-identical.
+        """
+        outputs, past_key_values = self.paligemma_with_expert.forward(
+            attention_mask=stage1.prefix_att_2d_masks_4d,
+            position_ids=stage1.prefix_position_ids,
+            past_key_values=None,
+            inputs_embeds=[stage1.prefix_embs, None],
+            use_cache=True,
+        )
+        return Stage2Output(
+            stage1=stage1, past_key_values=past_key_values, prefix_out=outputs[0],
+        )
 
     def run_stage3(
         self,

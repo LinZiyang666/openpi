@@ -181,6 +181,9 @@ def test_no_orchestrator_attaches_miss_placeholder() -> None:
         "cp1_score": None,
         # cache-off = every step full inference -> searched True (never a skip).
         "searched": True,
+        # additive CP2-era fields: no checkpoint issued a verdict, no score.
+        "checkpoint": None,
+        "score": None,
     }
 
 

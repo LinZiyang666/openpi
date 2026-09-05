@@ -25,9 +25,12 @@ VISION_1 = "vision_1"
 VISION_2 = "vision_2"
 PROMPT_EMB = "prompt_emb"
 ROBOT_STATE = "robot_state"
+# CP2 post-backbone single key (ActionCache-style baseline): the backbone's
+# prefix output projected to a compact vector by cp2_vlm_key_builder.
+VLM_OUT = "vlm_out"
 
 CACHE_QUERY_FIELDS: frozenset[str] = frozenset({
-    VISION_0, VISION_1, VISION_2, PROMPT_EMB, ROBOT_STATE,
+    VISION_0, VISION_1, VISION_2, PROMPT_EMB, ROBOT_STATE, VLM_OUT,
 })
 
 
@@ -52,7 +55,11 @@ class CheckpointID(Enum):
           FULL_HIT skips Stage 2 + Stage 3.
           WARM_START runs Stage 2 then partial Stage 3 from a cached x_t.
           MISS runs full Stage 2 + Stage 3.
-    CP2 — after Stage 2 (LLM backbone).  Reserved; warm start migrated to CP1.
+    CP2 — after Stage 2 (LLM backbone).  Post-backbone single-key cache
+          (ActionCache-style baseline; key = projected backbone prefix output).
+          FULL_HIT skips Stage 3, WARM_START runs partial Stage 3 from a
+          cached x_t, MISS runs Stage 3.  Config validation makes CP2
+          mutually exclusive with CP1 and CP3.
     CP3 — after Stage 3 (flow matching).  Schedules a cached action for the
           *next* inference cycle.
     """

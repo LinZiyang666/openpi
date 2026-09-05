@@ -57,6 +57,11 @@ from openpi.cache.types import CheckpointID
 
 logger = logging.getLogger(__name__)
 
+# Checkpoints that own the per-cycle step counter. CP1 and CP2 are mutually
+# exclusive by config validation, so exactly one of them increments the counter
+# per inference cycle; CP3 never does (it reads the coordinate CP1/CP2 set).
+_STEP_OWNER_CPS = (CheckpointID.CP1, CheckpointID.CP2)
+
 
 @dataclass
 class CheckResult:
@@ -215,7 +220,7 @@ class CacheOrchestrator:
         self._current_strategy_session_ids: list[str] = []
 
         # Register fine-grained probes for each checkpoint's sub-steps.
-        for cp in ("cp1", "cp3"):
+        for cp in ("cp1", "cp2", "cp3"):
             for step in ("collect", "gate", "build", "search", "judge", "fetch"):
                 self._timer.register_probe(f"{cp}_{step}", backend="cpu")
 
@@ -234,6 +239,16 @@ class CacheOrchestrator:
         explicit and unit-testable.
         """
         return self._key_builder
+
+    def has_checkpoint(self, checkpoint_id: CheckpointID) -> bool:
+        """True when ``checkpoint_id`` is wired (gate / judge / strategy configured)."""
+        return checkpoint_id in self._gates
+
+    @property
+    def artifact_meta(self) -> Optional[dict]:
+        """Identity metadata of the preloaded library (``CacheStorage.artifact_meta``);
+        None when the storage has none. Read-only provenance for the wire."""
+        return getattr(self._storage, "artifact_meta", None)
 
     # ------------------------------------------------------------------
     # Prefill mode (delegated to the underlying storage)
@@ -529,7 +544,10 @@ class CacheOrchestrator:
         downgraded to MISS.
 
         Args:
-            checkpoint_id: CP1 or CP3.
+            checkpoint_id: CP1, CP2 or CP3. CP2 (post-backbone single key)
+                takes ``stage2=Stage2Output`` in ``stage_outputs`` and owns
+                the step counter exactly like CP1 (the two are mutually
+                exclusive by config validation).
             request_context: Optional per-request dict forwarded to the gate.
                 Default gates ignore it; ``ClientControlledGate`` consumes
                 ``gate_decision``. Kwarg-only to keep it out of the
@@ -542,7 +560,7 @@ class CacheOrchestrator:
 
         # If this checkpoint is not configured, skip gracefully.
         if checkpoint_id not in self._gates:
-            if checkpoint_id == CheckpointID.CP1:
+            if checkpoint_id in _STEP_OWNER_CPS:
                 self._step_counter += 1
             return CheckResult(hit_type=HitType.MISS)
 
@@ -597,7 +615,7 @@ class CacheOrchestrator:
                     # as the skip path); this replay is not a miss.
                     if hasattr(strategy, 'record_query_keys'):
                         strategy.record_query_keys(query_keys)
-                    if checkpoint_id == CheckpointID.CP1:
+                    if checkpoint_id in _STEP_OWNER_CPS:
                         self._step_counter += 1
                     # searched=False FULL_HIT: a cached action replayed without a
                     # real search. Feeds the gate so it advances its cursor / spends
@@ -617,7 +635,7 @@ class CacheOrchestrator:
             if hasattr(strategy, 'record_query_keys'):
                 strategy.record_query_keys(query_keys)
             self._miss_by_checkpoint[checkpoint_id] = self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
-            if checkpoint_id == CheckpointID.CP1:
+            if checkpoint_id in _STEP_OWNER_CPS:
                 self._step_counter += 1
             # searched=False: gate skipped the search. Distinguishes this from a
             # real always-search MISS (which leaves searched=True) for the
@@ -695,7 +713,7 @@ class CacheOrchestrator:
         if hit_type == HitType.MISS:
             self._miss_by_checkpoint[checkpoint_id] = self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
 
-        if checkpoint_id == CheckpointID.CP1:
+        if checkpoint_id in _STEP_OWNER_CPS:
             self._step_counter += 1
 
         if hit_type == HitType.FULL_HIT and winner_id is None and hit_override is True:

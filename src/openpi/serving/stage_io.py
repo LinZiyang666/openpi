@@ -176,23 +176,48 @@ def _split_dynamic_cache(cache: Any, n: int) -> list[Any]:
     return shards
 
 
+def _stack_prefix_out(out_list: Sequence[Stage2Output]) -> torch.Tensor | None:
+    """Batch the optional CP2 ``prefix_out``: all-None -> None, all-set -> cat.
+
+    A mixed batch is a programming error (a capture decision is made once per
+    batch, see ``BatchingCoordinator._run_batch``), so it fails loud instead of
+    silently dropping some requests' keys.
+    """
+    outs = [o.prefix_out for o in out_list]
+    if all(p is None for p in outs):
+        return None
+    if any(p is None for p in outs):
+        raise ValueError(
+            "stack_stage2_output: prefix_out must be all-None or all-set across the batch"
+        )
+    return torch.cat(outs, dim=0)
+
+
 def stack_stage2_output(out_list: Sequence[Stage2Output]) -> Stage2Output:
-    """Concatenate N Stage2Outputs along batch dim 0 (incl. DynamicCache)."""
+    """Concatenate N Stage2Outputs along batch dim 0 (incl. DynamicCache and prefix_out)."""
     if not out_list:
         raise ValueError("stack_stage2_output: out_list must be non-empty")
     return Stage2Output(
         stage1=stack_stage1_output([o.stage1 for o in out_list]),
         past_key_values=_stack_dynamic_cache([o.past_key_values for o in out_list]),
+        prefix_out=_stack_prefix_out(out_list),
     )
 
 
 def split_stage2_output(out: Stage2Output, n: int) -> list[Stage2Output]:
-    """Slice a batched Stage2Output into N shards (incl. DynamicCache split)."""
+    """Slice a batched Stage2Output into N shards (incl. DynamicCache and prefix_out split)."""
     stage1_shards = split_stage1_output(out.stage1, n)
     cache_shards = _split_dynamic_cache(out.past_key_values, n)
+    if out.prefix_out is None:
+        prefix_shards: list[torch.Tensor | None] = [None] * len(stage1_shards)
+    else:
+        # Mirror the stage1 shard batch sizes so prefix_out stays aligned with
+        # the request order whatever split policy stage1 used.
+        sizes = [s1.state.shape[0] for s1 in stage1_shards]
+        prefix_shards = list(torch.split(out.prefix_out, sizes, dim=0))
     return [
-        Stage2Output(stage1=s1, past_key_values=kv)
-        for s1, kv in zip(stage1_shards, cache_shards)
+        Stage2Output(stage1=s1, past_key_values=kv, prefix_out=po)
+        for s1, kv, po in zip(stage1_shards, cache_shards, prefix_shards)
     ]
 
 

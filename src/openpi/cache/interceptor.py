@@ -214,6 +214,20 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         self._hit_executor = hit_executor
         self._miss_executor = miss_executor
 
+        # ---- CP2 (post-backbone single-key arm) ----
+        # Frozen from THIS wrapper's orchestrator, i.e. the connection's own
+        # config snapshot — never a mutable bundle registry, so a same-id hot
+        # replacement leaves already-bound connections on their capability.
+        _has_cp = getattr(orchestrator, "has_checkpoint", None)
+        self._cp2_only = bool(
+            orchestrator is not None and _has_cp is not None and _has_cp(CheckpointID.CP2)
+        )
+        # Library identity the CP2 verdicts are taken against, surfaced on the
+        # wire so the client ledger can prove which artifact the server ran
+        # (plan §3.11 completeness gate: server library_sha256 == export record).
+        _meta = getattr(orchestrator, "artifact_meta", None) if self._cp2_only else None
+        self._cp2_library_sha256 = _meta.get("library_sha256") if isinstance(_meta, dict) else None
+
         # ---- X15 shadow teacher (default None => byte-identical paths) ----
         # Records what the teacher WOULD have produced at a cache step, without
         # executing it. Everything about the wiring is arranged so the recorded
@@ -247,6 +261,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         self._stage1_device = sc.stage1 if sc and not sc.is_legacy_default else _dev
         self._stage2_device = sc.stage2 if sc and not sc.is_legacy_default else _dev
         self._stage3_device = sc.stage3 if sc and not sc.is_legacy_default else _dev
+        if self._cp2_only and (self._stage2_device == "meta" or self._stage3_device == "meta"):
+            raise ValueError(
+                "CP2 (post-backbone single key) needs stage2 and stage3 on real devices "
+                "in this process: the key is the stage-2 output and WARM_START / MISS "
+                "run stage 3. Meta stage placement is incompatible with a cp2 config."
+            )
 
         # ---- Stage functions (eager or compiled, with meta sentinel) ----
         if eager:
@@ -266,6 +286,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             self._stage2_fn = _meta_guard("stage2")
         if sc and sc.stage3 == "meta":
             self._stage3_fn = _meta_guard("stage3")
+        if self._cp2_only:
+            # The CP2 key is the backbone prefix output: take the capture
+            # variant of stage 2 (same forward, output retained). Eager on
+            # purpose — serving disables compile, and the coordinator path
+            # below replaces this binding anyway.
+            self._stage2_fn = self._model.run_stage2_capture
 
         # ---- BatchingCoordinator wiring (M1, Phase 4) ----
         # When set, stage1/2/3 forward calls are routed through the
@@ -283,8 +309,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             def _stage1_via_coordinator(observation):
                 return coordinator.submit_to_stage(1, bundle_id, observation)
 
+            _cp2_capture = self._cp2_only  # frozen per wrapper (request-aware capture)
+
             def _stage2_via_coordinator(stage1):
-                return coordinator.submit_to_stage(2, bundle_id, stage1)
+                return coordinator.submit_to_stage(
+                    2, bundle_id, stage1, requires_stage2_capture=_cp2_capture,
+                )
 
             def _stage3_via_coordinator(stage2, *, noise=None, num_steps=10,
                                         return_intermediates=False, save_timesteps=None):
@@ -333,6 +363,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         self._orchestrator = orchestrator
         if orchestrator is not None:
             self._timer.register_probe("cp1_sum", backend="cpu")
+            self._timer.register_probe("cp2_sum", backend="cpu")
             self._timer.register_probe("cp3_sum", backend="cpu")
             if self._hit_executor is not None:
                 self._timer.register_probe("sidecar_hit", backend="cpu")
@@ -672,8 +703,18 @@ class InferenceInterceptor(_base_policy.BasePolicy):
     # -----------------------------------------------------------------------
 
     @staticmethod
-    def _build_hit_meta(cp1_result, arm_executed: Optional[str] = None) -> dict:
+    def _build_hit_meta(
+        cp1_result, arm_executed: Optional[str] = None, checkpoint: Optional[str] = None,
+        library_sha256: Optional[str] = None,
+    ) -> dict:
         """Build the ``__hit_meta__`` payload surfaced via the WebSocket response.
+
+        ``checkpoint`` names the verdict's checkpoint (``"CP1"`` default,
+        ``"CP2"`` for the post-backbone single-key arm). Two additive fields
+        ride alongside the legacy ones: ``checkpoint`` and ``score`` (the
+        verdict's fused score whatever the checkpoint). ``cp1_score`` keeps
+        its legacy meaning — filled for CP1, None for CP2 — and cache-off
+        responses carry ``checkpoint=None, score=None``.
 
         The verdict_factor_judge per-step writer (B1) consumes this on the
         client side to persist per-verdict ``(hit_type, start_t, winner_id,
@@ -696,12 +737,20 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 "winner_id": None,
                 "cp1_score": None,
                 "searched": True,
+                "checkpoint": None,
+                "score": None,
             }
+        cp_name = "CP1" if checkpoint is None else checkpoint
         meta = {
             "hit_type": cp1_result.hit_type.name,
             "start_t": cp1_result.start_t,
             "winner_id": cp1_result.entry_id,
-            "cp1_score": cp1_result.score,
+            "cp1_score": cp1_result.score if cp_name == "CP1" else None,
+            "checkpoint": cp_name,
+            "score": cp1_result.score,
+            # CP2 only: identity of the library the verdict was searched in.
+            # Omitted (not None) elsewhere so every legacy wire stays byte-identical.
+            **({"library_sha256": library_sha256} if library_sha256 is not None else {}),
             # ``searched`` distinguishes a real cache search from a gate-skip or a
             # server-side gate's blind replay (FULL_HIT with searched=False). It
             # rides the always-on __hit_meta__ channel (no export_collect_meta /
@@ -912,8 +961,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 with self._timer.measure("stage1_vision"):
                     stage1 = self._stage1_fn(observation)
 
-                # CP1: check cache after Stage 1.
-                if self._orchestrator is not None:
+                # CP1: check cache after Stage 1 (CP2-only configs take their
+                # verdict after Stage 2 instead; the two are mutually exclusive).
+                if self._orchestrator is not None and not self._cp2_only:
                     cp1_kwargs = {
                         "stage1": stage1,
                         "tokenized_prompt": _canonical_tokenized_prompt(observation),
@@ -1082,6 +1132,39 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 with self._timer.measure("stage2_llm"):
                     stage2 = self._stage2_fn(stage1)
 
+                if self._cp2_only:
+                    # CP2 (post-backbone single key): the verdict is taken on
+                    # the backbone output. FULL_HIT returns the cached chunk
+                    # and skips stage 3; WARM_START / MISS fall through to the
+                    # shared stage-3 tail below, which reads the verdict under
+                    # the tail's own name ``cp1_result`` (the checkpoint is CP2
+                    # and the wire says so via ``checkpoint``).
+                    with self._timer.measure("cp2_sum"):
+                        cp1_result = self._orchestrator.check(
+                            CheckpointID.CP2,
+                            request_context=request_context,
+                            stage2=stage2,
+                            tokenized_prompt=_canonical_tokenized_prompt(observation),
+                        )
+                    if cp1_result.hit_type == HitType.FULL_HIT:
+                        cached_action = cp1_result.payload.action_chunk
+                        self._orchestrator.broadcast_action(cached_action)
+                        if cp1_result.query_keys is not None:
+                            self._orchestrator.buffer_for_write(
+                                cp1_result.query_keys, cached_action
+                            )
+                        outputs = self._unbatch_outputs(
+                            inputs["state"],
+                            cached_action.to(self._pytorch_device)[None, ...],
+                        )
+                        outputs = self._output_transform(outputs)
+                        outputs["__hit_meta__"] = self._build_hit_meta(
+                            cp1_result, checkpoint="CP2",
+                            library_sha256=self._cp2_library_sha256,
+                        )
+                        self._orchestrator.clear()
+                        return outputs
+
                 # Meta guard: check before cross-device transfer to avoid
                 # moving KV cache to meta device unnecessarily.
                 if self._stage3_device == "meta":
@@ -1164,19 +1247,24 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
             # Post-inference cache operations.
             if self._orchestrator is not None:
-                cp3_kwargs = {
-                    "stage1": stage1,
-                    "stage3": stage3,
-                    "tokenized_prompt": _canonical_tokenized_prompt(observation),
-                }
-                if input_images is not None:
-                    cp3_kwargs["input_images"] = input_images
-                with self._timer.measure("cp3_sum"):
-                    _cp3_result = self._orchestrator.check(
-                        CheckpointID.CP3,
-                        request_context=request_context,
-                        **cp3_kwargs,
-                    )
+                # CP3 predictive probe: never on the CP2 arm (plan §3.3 — CP2 is
+                # mutually exclusive with CP3 and its decision cycle is exactly
+                # one ``check(CP2)``; probing an unconfigured CP3 would add a
+                # planned-out call and a spurious ``cp3_sum`` timing record).
+                if not self._cp2_only:
+                    cp3_kwargs = {
+                        "stage1": stage1,
+                        "stage3": stage3,
+                        "tokenized_prompt": _canonical_tokenized_prompt(observation),
+                    }
+                    if input_images is not None:
+                        cp3_kwargs["input_images"] = input_images
+                    with self._timer.measure("cp3_sum"):
+                        _cp3_result = self._orchestrator.check(
+                            CheckpointID.CP3,
+                            request_context=request_context,
+                            **cp3_kwargs,
+                        )
 
                 action_chunk_cpu = stage3.action_chunk[0].detach().cpu().float().contiguous()
 
@@ -1225,7 +1313,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # MISS is either a sampled teacher arm or a cache arm that found an
         # empty library (the judge already flagged fallback=true).
         outputs["__hit_meta__"] = self._build_hit_meta(
-            _cp1_result, arm_executed="teacher"
+            _cp1_result, arm_executed="teacher",
+            checkpoint="CP2" if self._cp2_only else "CP1",
+            library_sha256=self._cp2_library_sha256 if self._cp2_only else None,
         )
         if self._export_collect_meta:
             outputs["__collect_meta__"] = self._build_collect_meta(

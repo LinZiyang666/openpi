@@ -300,6 +300,15 @@ class InMemoryBackend(VectorStoreBackend):
             # builds, None for legacy artifacts — the binding check treats
             # None as "must rebuild" whenever the config engages the knobs.
             "prompt_pool": data.get("prompt_pool"),
+            # CP2 post-backbone single-key identity: projection spec (seed /
+            # shape / index digest / accumulation dtype) and the entry-id
+            # policy. None for every other artifact; the CP2 storage binding
+            # check treats None as "must rebuild".
+            "projection": data.get("projection"),
+            "id_policy": data.get("id_policy"),
+            # Model provenance of the artifact build (``weights_digest`` = full
+            # content sha256 of the checkpoint dir); None for legacy artifacts.
+            "model": data.get("model"),
         }
         for entry in data["entries"]:
             # Backfill trajectory fields for old artifacts that lack them.

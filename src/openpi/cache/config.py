@@ -77,6 +77,8 @@ class KeysConfig:
     vision_2: KeyFieldConfig = field(default_factory=lambda: KeyFieldConfig(enabled=False))
     prompt_emb: KeyFieldConfig = field(default_factory=lambda: KeyFieldConfig(enabled=False))
     robot_state: KeyFieldConfig = field(default_factory=KeyFieldConfig)
+    # CP2 post-backbone single key (only produced by key_builder.type=cp2_vlm_ternary).
+    vlm_out: KeyFieldConfig = field(default_factory=lambda: KeyFieldConfig(enabled=False))
 
 
 @dataclass
@@ -414,6 +416,9 @@ class SearchStrategyConfig:
     top_k: int = 1
     step_filter: str = "all"
     step_window: int = 5
+    # False = suite-wide retrieval (no task_key filter). Honoured by
+    # weighted_score_sum_knn only; the CP2 ActionCache-style arm sets it.
+    task_scoped: bool = True
     rrf_k: int = 60
     candidate_multiplier: int = 5
     field_similarity: Optional[dict[str, FieldSimilarityConfig]] = None
@@ -520,6 +525,21 @@ class ProjectionKeyBuilderConfig:
 
 
 @dataclass
+class CP2VlmKeyBuilderConfig:
+    """Params of the CP2 post-backbone single-key builder (key_builder.type == 'cp2_vlm_ternary').
+
+    seed / d / p define the fixed sparse ternary random projection (ActionCache
+    Eq. 2): ``d`` output dims, each row with ``floor(p*input_dim/2)`` entries of
+    +1 and of -1 drawn without replacement from ``seed``. ``input_dim`` is the
+    flattened backbone prefix output (Pi0.5: 968 tokens x 2048 = 1,982,464).
+    """
+    seed: int = 0
+    d: int = 500
+    p: float = 0.01
+    input_dim: int = 1_982_464
+
+
+@dataclass
 class KeyBuilderConfig:
     type: str = "placeholder"
     # -- temporal prune params (only for cp1_temporal_prune) --
@@ -531,6 +551,8 @@ class KeyBuilderConfig:
     prefix_reducer: PrefixReducerConfig = field(default_factory=PrefixReducerConfig)
     # -- projection params (only for the 'projection' key builder) --
     projection: ProjectionKeyBuilderConfig = field(default_factory=ProjectionKeyBuilderConfig)
+    # -- CP2 post-backbone single key (only for key_builder.type == 'cp2_vlm_ternary') --
+    cp2_vlm: CP2VlmKeyBuilderConfig = field(default_factory=CP2VlmKeyBuilderConfig)
     # -- instruction-span masked prompt pooling (text-IVF plan U1) --
     # Only honoured by builders in PROMPT_POOL_KNOB_BUILDERS (validated);
     # both default False => byte-identical legacy behaviour.
@@ -662,7 +684,10 @@ class CacheConfig:
 _PLACEHOLDER_SUPPORTED_FIELDS = frozenset({"robot_state"})
 
 # Valid checkpoint names (lowercase).
-_VALID_CHECKPOINTS = frozenset({"cp1", "cp3"})
+_VALID_CHECKPOINTS = frozenset({"cp1", "cp2", "cp3"})
+
+# key_builder.type of the CP2 post-backbone single-key arm.
+_CP2_KEY_BUILDER_TYPE = "cp2_vlm_ternary"
 
 # Valid step_filter values.
 _VALID_STEP_FILTERS = frozenset({"all", "exact", "window"})
@@ -720,6 +745,7 @@ def _keys_iter(keys: KeysConfig) -> Iterator[tuple[str, KeyFieldConfig]]:
     yield "vision_2", keys.vision_2
     yield "prompt_emb", keys.prompt_emb
     yield "robot_state", keys.robot_state
+    yield "vlm_out", keys.vlm_out
 
 
 def _substitute_env_vars(text: str) -> str:
@@ -765,6 +791,7 @@ _CONFIG_TYPES: dict[str, type] = {
     "ReducerConfig": ReducerConfig,
     "PrefixReducerConfig": PrefixReducerConfig,
     "ProjectionKeyBuilderConfig": ProjectionKeyBuilderConfig,
+    "CP2VlmKeyBuilderConfig": CP2VlmKeyBuilderConfig,
     "KeyBuilderConfig": KeyBuilderConfig,
     "WritePolicyConfig": WritePolicyConfig,
     "CollectionConfig": CollectionConfig,
@@ -1603,6 +1630,81 @@ def validate_effective_collection(
         raise ConfigValidationError("\n\n".join(errors))
 
 
+def _validate_cp2_arm(config: "CacheConfig", enabled_fields: list[str], errors: list[str]) -> None:
+    """R-CP2: the post-backbone single-key arm is an all-or-nothing configuration.
+
+    ``checkpoints.cp2`` and ``key_builder.type=cp2_vlm_ternary`` imply each
+    other; CP2 is mutually exclusive with CP1 / CP3; the only key is
+    ``vlm_out`` on an in_memory preloaded library; the verdict is a plain
+    ``threshold`` judge behind ``always_search`` with a single-step
+    ``weighted_score_sum_knn`` search; no routing / shadow teacher /
+    gate-research collection / online writes. Anything else has no defined
+    CP2 code path and is rejected here rather than degrading silently.
+    """
+    cp2 = config.checkpoints.get("cp2")
+    is_cp2_kb = config.key_builder.type == _CP2_KEY_BUILDER_TYPE
+    if (cp2 is not None) != is_cp2_kb:
+        errors.append(
+            "checkpoints.cp2 and key_builder.type='cp2_vlm_ternary' must be configured "
+            f"together (cp2 present={cp2 is not None}, builder={config.key_builder.type!r})"
+        )
+        return
+    if cp2 is None:
+        if "vlm_out" in enabled_fields:
+            errors.append("keys.vlm_out is only produced by key_builder.type='cp2_vlm_ternary'")
+        return
+    prefix = "checkpoints.cp2"
+    others = sorted(n for n in config.checkpoints if not n.startswith("_") and n != "cp2")
+    if others:
+        errors.append(f"{prefix}: CP2 is mutually exclusive with other checkpoints, got {others}")
+    if not cp2.enabled:
+        errors.append(f"{prefix}.enabled must be true")
+    if enabled_fields != ["vlm_out"]:
+        errors.append(
+            f"key_builder.type='cp2_vlm_ternary' produces exactly keys.vlm_out; "
+            f"enabled keys are {enabled_fields}"
+        )
+    kb = config.key_builder.cp2_vlm
+    if not isinstance(kb.seed, int) or isinstance(kb.seed, bool) or kb.seed < 0:
+        errors.append(f"key_builder.cp2_vlm.seed must be a non-negative int, got {kb.seed!r}")
+    if not isinstance(kb.d, int) or isinstance(kb.d, bool) or kb.d < 1:
+        errors.append(f"key_builder.cp2_vlm.d must be an int >= 1, got {kb.d!r}")
+    if not isinstance(kb.p, (int, float)) or isinstance(kb.p, bool) or not (0.0 < kb.p < 1.0):
+        errors.append(f"key_builder.cp2_vlm.p must be in (0, 1), got {kb.p!r}")
+    if not isinstance(kb.input_dim, int) or isinstance(kb.input_dim, bool) or kb.input_dim < 2:
+        errors.append(f"key_builder.cp2_vlm.input_dim must be an int >= 2, got {kb.input_dim!r}")
+    if config.backend.type != "in_memory":
+        errors.append(f"{prefix}: requires backend.type='in_memory', got {config.backend.type!r}")
+    elif not config.backend.in_memory.preload_path:
+        errors.append(f"{prefix}: requires backend.in_memory.preload_path (the CP2 library)")
+    if dict(config.backend.vector_dims) != {"vlm_out": kb.d}:
+        errors.append(
+            f"{prefix}: backend.vector_dims must be exactly {{'vlm_out': {kb.d}}}, "
+            f"got {dict(config.backend.vector_dims)}"
+        )
+    if cp2.gate.type != "always_search":
+        errors.append(f"{prefix}.gate.type must be 'always_search', got {cp2.gate.type!r}")
+    if cp2.judge.type != "threshold":
+        errors.append(f"{prefix}.judge.type must be 'threshold', got {cp2.judge.type!r}")
+    if getattr(cp2.judge, "dump", None) is not None:
+        errors.append(f"{prefix}.judge.dump is not supported on CP2")
+    ss = cp2.search_strategy
+    if ss.type != "weighted_score_sum_knn":
+        errors.append(f"{prefix}.search_strategy.type must be 'weighted_score_sum_knn', got {ss.type!r}")
+    if ss.trajectory_depth != 1:
+        errors.append(f"{prefix}.search_strategy.trajectory_depth must be 1 (single-step retrieval)")
+    if getattr(config, "routing", None) is not None:
+        errors.append(f"{prefix}: executor routing is not supported on CP2")
+    st = getattr(config, "shadow_teacher", None)
+    if st is not None and getattr(st, "enabled", False):
+        errors.append(f"{prefix}: shadow_teacher is not supported on CP2")
+    coll = getattr(config, "collection", None)
+    if coll is not None and getattr(coll, "export_collect_meta", False):
+        errors.append(f"{prefix}: collection.export_collect_meta is not supported on CP2")
+    if config.write_policy.type != "never":
+        errors.append(f"{prefix}: requires write_policy.type='never' (offline-built library only)")
+
+
 def validate_cache_config(config: CacheConfig) -> None:
     """Cross-validate cache config consistency. Called once at startup.
 
@@ -1636,6 +1738,9 @@ def validate_cache_config(config: CacheConfig) -> None:
         )
 
     enabled_fields = [name for name, kf in _keys_iter(config.keys) if kf.enabled]
+
+    # R-CP2. The post-backbone single-key arm (all-or-nothing configuration).
+    _validate_cp2_arm(config, enabled_fields, errors)
 
     # 1. Enabled keys vs vector_dims.
     for name in enabled_fields:
@@ -1673,6 +1778,7 @@ def validate_cache_config(config: CacheConfig) -> None:
         "cp1_llm_layer_extract",
         "clip",
         "projection",  # M1 outcome-compatible projection over a pool inner
+        _CP2_KEY_BUILDER_TYPE,  # CP2 post-backbone single key (ActionCache-style arm)
         # GR00T N1.5 pools. The `cp1_` prefix is load-bearing: the field
         # enablement and in_memory-preload checks below key off it.
         "cp1_groot_mean_pool", "cp1_groot_spatial_pool_16",
@@ -2523,9 +2629,9 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"('threshold', 'failure_aware_gate'), got '{cp_config.judge.type}'"
             )
 
-        if cp_name != "cp1":
+        if cp_name not in ("cp1", "cp2"):
             errors.append(
-                f"{prefix}.judge: warm_tiers is only supported on CP1"
+                f"{prefix}.judge: warm_tiers is only supported on CP1 / CP2"
             )
 
         prev_threshold = cp_config.judge.threshold
@@ -2835,7 +2941,60 @@ def build_shared_storage(config: CacheConfig):
     backend = _build_backend(config.backend)
     storage = CacheStorage(backend)
     _check_text_ivf_artifact_binding(storage, config)
+    _check_cp2_projection_binding(storage, config)
     return storage
+
+
+def _check_cp2_projection_binding(storage, config: CacheConfig) -> None:
+    """Fail-fast when a CP2 library was built with a different projection than configured.
+
+    The online builder and the offline artifact builder share one projection
+    implementation; what can still drift is the (seed, d, p, input_dim) tuple
+    and hence the index tables. The artifact records the projection metadata
+    (including the index-table digest and the frozen float32 accumulation
+    dtype) at build time; here it must match the spec the configured builder
+    will use, and the artifact must declare the inherited-id policy the
+    verifier enforces. Runs at the single storage choke point so both the
+    single-connection and the concurrent assembly entries are covered.
+    """
+    if config.key_builder.type != _CP2_KEY_BUILDER_TYPE:
+        return
+    if config.backend.type != "in_memory" or not config.backend.in_memory.preload_path:
+        return
+    from openpi.cache.components.cp2_vlm_key_builder import get_projection_spec
+
+    meta = storage.artifact_meta
+    if not meta:
+        raise ConfigValidationError(
+            "cp2_vlm_ternary requires a preloaded artifact with identity metadata, "
+            "but the backend exposes none."
+        )
+    art_type = meta.get("key_builder_type")
+    if art_type != _CP2_KEY_BUILDER_TYPE:
+        raise ConfigValidationError(
+            f"Artifact key_builder_type {art_type!r} does not match configured "
+            f"key_builder.type {_CP2_KEY_BUILDER_TYPE!r}. Build the library with "
+            "exp/actioncache_baseline/build_cp2_artifact.py."
+        )
+    kb = config.key_builder.cp2_vlm
+    expected = get_projection_spec(kb.seed, kb.d, kb.p, kb.input_dim).meta()
+    got = meta.get("projection")
+    if not isinstance(got, dict):
+        raise ConfigValidationError(
+            "CP2 artifact lacks `projection` metadata; rebuild it with the CP2 builder."
+        )
+    for name, value in expected.items():
+        if got.get(name) != value:
+            raise ConfigValidationError(
+                f"CP2 artifact projection.{name}={got.get(name)!r} does not match the "
+                f"configured builder ({name}={value!r}). Query and library would live in "
+                "different projection spaces — rebuild one side."
+            )
+    if meta.get("id_policy") != "inherited_from_source":
+        raise ConfigValidationError(
+            f"CP2 artifact id_policy={meta.get('id_policy')!r}; expected "
+            "'inherited_from_source' (entries copied one-to-one from the source library)."
+        )
 
 
 def _check_text_ivf_artifact_binding(storage, config: CacheConfig) -> None:
@@ -3299,6 +3458,13 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
         from openpi.cache.components.clip_key_builder import CLIPKeyBuilder
 
         return CLIPKeyBuilder(enabled_fields=enabled_fields)
+    elif cfg.type == _CP2_KEY_BUILDER_TYPE:
+        from openpi.cache.components.cp2_vlm_key_builder import CP2VlmTernaryKeyBuilder
+
+        return CP2VlmTernaryKeyBuilder(
+            seed=cfg.cp2_vlm.seed, d=cfg.cp2_vlm.d, p=cfg.cp2_vlm.p,
+            input_dim=cfg.cp2_vlm.input_dim,
+        )
     elif cfg.type == "projection":
         from openpi.cache.components.projection_key_builder import (
             STATELESS_POOL_INNER_TYPES,
@@ -3419,6 +3585,7 @@ def _build_inner_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optiona
             cp1_threshold=cfg.threshold,
             cp3_threshold=cfg.threshold,
             warm_tiers=cfg.warm_tiers,
+            cp2_threshold=cfg.threshold,
         )
     elif cfg.type == "always_hit":
         from openpi.cache.components.judge import AlwaysHitJudge
@@ -3921,6 +4088,7 @@ def _build_search_strategy(
             fusion_weights=fusion_weights if fusion_weights else None,
             field_similarity=_field_similarity_to_dict(cfg.field_similarity),
             score_normalization=_score_norm_to_dict(cfg.score_normalization),
+            task_scoped=cfg.task_scoped,
             **trajectory_kwargs,
         )
     elif cfg.type == "text_ivf_knn":

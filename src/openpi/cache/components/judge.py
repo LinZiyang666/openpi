@@ -295,9 +295,13 @@ class ThresholdJudge:
         cp1_threshold: float = 0.98,
         cp3_threshold: float = 0.95,
         warm_tiers: list[dict[str, float]] | None = None,
+        cp2_threshold: float | None = None,
     ) -> None:
+        # CP2 (post-backbone single-key arm) shares CP1's FULL threshold unless
+        # given its own; the factory always passes it explicitly.
         self._thresholds = {
             CheckpointID.CP1: cp1_threshold,
+            CheckpointID.CP2: cp1_threshold if cp2_threshold is None else cp2_threshold,
             CheckpointID.CP3: cp3_threshold,
         }
         self._warm_tiers = warm_tiers or []
@@ -315,7 +319,7 @@ class ThresholdJudge:
         threshold = self._thresholds.get(checkpoint_id, 0.98)
         if top.score >= threshold:
             return JudgeResult(HitType.FULL_HIT, top.id)
-        if checkpoint_id == CheckpointID.CP1 and self._warm_tiers:
+        if checkpoint_id in (CheckpointID.CP1, CheckpointID.CP2) and self._warm_tiers:
             for tier in self._warm_tiers:
                 if top.score >= tier["threshold"]:
                     return JudgeResult(HitType.WARM_START, top.id, start_t=tier["start_t"])

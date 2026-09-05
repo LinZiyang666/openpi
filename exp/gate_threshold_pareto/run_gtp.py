@@ -167,10 +167,14 @@ JUDGE_TYPES = ("threshold", "dispatch_surface")
 EVAL_GATES = ("score_hysteresis", "always_search")
 
 
+CHECKPOINTS = ("cp1", "cp2")
+
+
 def validate_arms(
     arm_rows: list[dict], *, phase: str, expected_l: int = GATE_L,
     judge_type: str = "threshold", eval_gate: str = "score_hysteresis",
     warm_tiers: tuple[float, ...] = (),
+    checkpoint: str = "cp1",
 ) -> dict[str, str]:
     """Every arm must carry the declared judge and gate and no executor routing.
 
@@ -187,15 +191,41 @@ def validate_arms(
         raise SystemExit(f"judge_type must be one of {JUDGE_TYPES}, got {judge_type!r}")
     if eval_gate not in EVAL_GATES:
         raise SystemExit(f"eval_gate must be one of {EVAL_GATES}, got {eval_gate!r}")
+    if checkpoint not in CHECKPOINTS:
+        raise SystemExit(f"checkpoint must be one of {CHECKPOINTS}, got {checkpoint!r}")
     yaml_paths: dict[str, str] = {}
     for row in arm_rows:
         arm, path = row["arm"], row["yaml"]
         cfg = load_cache_config(path)
         if cfg.routing is not None:
             raise SystemExit(f"arm {arm}: this sweep has no executor routing ({path})")
-        cp1 = cfg.checkpoints.get("cp1")
+        # ``cp1`` below is the validated checkpoint's config; under
+        # ``--checkpoint cp2`` (post-backbone single-key arm) it is the cp2
+        # section, which carries the same judge / gate schema.
+        cp1 = cfg.checkpoints.get(checkpoint)
         if cp1 is None:
-            raise SystemExit(f"arm {arm}: missing cp1 checkpoint ({path})")
+            raise SystemExit(f"arm {arm}: missing {checkpoint} checkpoint ({path})")
+        if checkpoint == "cp2":
+            # Full CP2 arm contract (actioncache_baseline plan §3.4 / §3.5):
+            # not just "has a cp2 section" — a hand-edited, corrupted or
+            # stale arm must fail here, before any rollout is issued.
+            from exp.actioncache_baseline import libs as _acb
+
+            problems = _acb.cp2_contract_problems(cfg)
+            parsed = _acb.parse_arm(arm)
+            if parsed is None:
+                problems.append("arm id is not acb_<suite>_<lib>_<n0|n1>_<target>")
+            else:
+                shape = _acb.cp2_tier_of_config(cfg)
+                if shape != parsed["tier"]:
+                    problems.append(f"arm id tier {parsed['tier']!r} != judge shape {shape!r}")
+                suite = row.get("suite")
+                if suite and _acb.SUITE_TAGS.get(suite) != parsed["suite_tag"]:
+                    problems.append(f"arm id suite tag {parsed['suite_tag']!r} != matrix suite {suite!r}")
+            if problems:
+                raise SystemExit(
+                    f"arm {arm}: CP2 contract violated ({path}):\n  " + "\n  ".join(problems)
+                )
         if cp1.judge.type != judge_type:
             raise SystemExit(
                 f"arm {arm}: judge is {cp1.judge.type!r}, expected {judge_type!r}"
@@ -297,6 +327,11 @@ def main() -> None:
         "--eval-gate", choices=EVAL_GATES, default="score_hysteresis",
         help="gate every eval arm must carry (the RIT-Pareto no-gate layer uses always_search)",
     )
+    ap.add_argument(
+        "--checkpoint", choices=CHECKPOINTS, default="cp1",
+        help="checkpoint every arm carries its judge / gate on: cp1 (default) or cp2 "
+        "(the ActionCache-style post-backbone single-key arm, exp/actioncache_baseline)",
+    )
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO)
 
@@ -331,6 +366,7 @@ def main() -> None:
     yaml_paths = validate_arms(
         rows, phase=args.phase, expected_l=args.gate_l,
         judge_type=args.judge_type, eval_gate=args.eval_gate, warm_tiers=warm_tiers,
+        checkpoint=args.checkpoint,
     )
 
     per_step_path = pathlib.Path(args.per_step_out)

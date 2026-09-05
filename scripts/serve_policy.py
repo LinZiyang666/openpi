@@ -457,6 +457,25 @@ def _build_routing_executors(cache_config, stage_config: StageDeviceConfig | Non
     return None, executor
 
 
+def _validate_cp2_stage_placement(cache_config, stage_config: StageDeviceConfig | None) -> None:
+    """Reject a CP2 (post-backbone single-key) config on meta stage placement.
+
+    ``validate_cache_config`` cannot see the CLI ``StageDeviceConfig``; this
+    is the serving assembly boundary where both are known. CP2 keys come from
+    stage 2 and its WARM_START / MISS verdicts run stage 3, so neither may be
+    a meta stub in this process. Legacy configs (no cp2) pass untouched.
+    """
+    if "cp2" not in getattr(cache_config, "checkpoints", {}):
+        return
+    if stage_config is None:
+        return
+    if stage_config.stage2 == "meta" or stage_config.stage3 == "meta":
+        raise ValueError(
+            "checkpoints.cp2 requires stage2 and stage3 on real devices in this "
+            f"process (got stage2={stage_config.stage2!r}, stage3={stage_config.stage3!r})."
+        )
+
+
 def _wrap_policy(
     base_policy,
     args: Args,
@@ -534,6 +553,7 @@ def _wrap_policy(
         _cm_export, _cm_fields = _resolve_collection(bundle.cache_config, args)
         if args.timing_csv_dir:
             components["timer"].enable_csv(args.timing_csv_dir)
+        _validate_cp2_stage_placement(bundle.cache_config, stage_config)
         _hit_ex, _miss_ex = _build_routing_executors(bundle.cache_config, stage_config)
         policy = InferenceInterceptor(
             policy,
@@ -596,6 +616,7 @@ def _wrap_policy(
         _cm_export, _cm_fields = _resolve_collection(cache_config, args)
         if args.timing_csv_dir:
             components["timer"].enable_csv(args.timing_csv_dir)
+        _validate_cp2_stage_placement(cache_config, stage_config)
         _hit_ex, _miss_ex = _build_routing_executors(cache_config, stage_config)
         policy = InferenceInterceptor(
             policy,

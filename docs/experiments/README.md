@@ -12,6 +12,7 @@ Experiment run-books: step-by-step pipelines for each experiment family.
 | [trajectory_deviation.md](trajectory_deviation.md) \[[EN](trajectory_deviation.en.md)\] | Trajectory Deviation experiment runbook: Step 1a→1b→2→3→4 pipeline, parallelism rules, tunables |
 | [warm_start_sweep.md](warm_start_sweep.md) \[[EN](warm_start_sweep.en.md)\] | Warm Start sweep runbook: 3 keybuilder × 3 start_t under always-hit + always_warm_start, artifact rebuild, 3-server parallel run, recovery/loss analysis |
 | [serving_benchmark.md](serving_benchmark.md) | Serving throughput/latency benchmark runbook (Phase 6 M7 from `logs/archive/concurrent_serving_optimization_plan.log.md`): 5 modes (GPU microbench / sparse→dense / freq sweep / yaml density / batch window) + driver/sweep/collect/plot tooling |
+| [actioncache_baseline.md](actioncache_baseline.md) | ActionCache 式 post-backbone（CP2）基线 runbook：从 CP1 库逐条建 CP2 库（backbone 输出 → 稀疏三值投影 500 维，id/payload/链边不变）→ 验证器 + parity 门 → shadow 表（GST K=1 IR 寻址切点）→ `export_arms` 出臂 yaml（N_hit∈{0,1} = FULL_HIT / WARM@0.1，单阈值、suite 内无 task 过滤）→ `run_gtp.py --checkpoint cp2` 评测 → CP2 开销实测 → 聚合 / 与 `exp/rit_pareto` 前沿的两侧分层 bootstrap 对照 |
 | [weighted_sum.md](weighted_sum.md) \[[EN](weighted_sum.en.md)\] | Weighted-sum 两层检索校准 + 权重搜索 runbook：Phase 1 离线为每 (keybuilder, 模态) 选 Layer-1 归一化方法+参数（LOEO query×全库分布，J=mag_sep+β·intra_spread−λ·sat 出 shortlist）；Phase 2 conductor 纯-eval（always_hit）找有用模态+搜权重，含 init-state 防泄漏硬门；prompt_emb 已退出 |
 
 Back to [docs index](../README.md).

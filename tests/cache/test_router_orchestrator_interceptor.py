@@ -264,7 +264,9 @@ def _stage1():
 # ---------------------------------------------------------------------------
 
 
-_LEGACY_META_KEYS = {"hit_type", "start_t", "winner_id", "cp1_score", "searched"}
+# The two additive CP2-era fields (``checkpoint`` / ``score``) ride on every
+# response; the legacy wire is the same five fields plus those two.
+_LEGACY_META_KEYS = {"hit_type", "start_t", "winner_id", "cp1_score", "searched", "checkpoint", "score"}
 
 
 def test_legacy_full_hit_replay_wire_is_unchanged() -> None:

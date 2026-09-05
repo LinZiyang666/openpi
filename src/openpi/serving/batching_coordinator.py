@@ -135,6 +135,12 @@ class StageRequest:
     reply_slot: list | None = None  # list-of-len-1 used as a mutable slot; None until worker writes
     error: BaseException | None = None
     enqueue_t: float = 0.0  # time.monotonic() at submit — for wait_ms instrumentation
+    # CP2 capture capability, frozen from the submitting connection's own
+    # config snapshot (never from a mutable bundle registry): a stage-2 batch
+    # containing any True request runs ``run_stage2_capture`` so that request
+    # receives ``Stage2Output.prefix_out``. Default False keeps every legacy
+    # caller on ``run_stage2``.
+    requires_stage2_capture: bool = False
 
 
 # ------------------------------------------------------------------
@@ -458,9 +464,15 @@ class BatchingCoordinator:
         *,
         request_id: str | None = None,
         timeout: float | None = None,
+        requires_stage2_capture: bool = False,
     ) -> Stage1Output | Stage2Output | Stage3Output:
         """Submit a request to ``stage_id``; block until the worker fills in
         the per-request output.
+
+        ``requires_stage2_capture`` (stage 2 only) asks the batched forward to
+        keep the backbone prefix output on ``Stage2Output.prefix_out`` (CP2
+        key source). It is a per-request capability so a mixed CP1/CP2 batch
+        and a hot-replaced bundle id both stay correct.
 
         Raises whatever exception the worker raised on the batched forward
         (per-request, not per-batch — every request in the same batch sees
@@ -481,6 +493,7 @@ class BatchingCoordinator:
             reply_event=threading.Event(),
             reply_slot=[None],
             enqueue_t=time.monotonic(),
+            requires_stage2_capture=bool(requires_stage2_capture),
         )
         self._queues[stage_id].put(req)
         # Block until the worker signals completion. None -> finite backstop so a
@@ -827,7 +840,13 @@ class BatchingCoordinator:
             stage1_batched = stage_io.stack_stage1_output([r.payload for r in batch])
             self._tls.assemble_ms = (time.monotonic() - _t_a) * 1000.0
             _t_f = time.monotonic()
-            stage2_batched = self._model.run_stage2(stage1_batched)
+            # Request-aware capture: one CP2 request in the batch is enough to
+            # take the capture variant (same forward, prefix output retained);
+            # CP1 requests in that batch ignore the extra field.
+            if any(r.requires_stage2_capture for r in batch):
+                stage2_batched = self._model.run_stage2_capture(stage1_batched)
+            else:
+                stage2_batched = self._model.run_stage2(stage1_batched)
             shards = stage_io.split_stage2_output(stage2_batched, n)
             self._sync_stage_stream()
             for req, out in zip(batch, shards):

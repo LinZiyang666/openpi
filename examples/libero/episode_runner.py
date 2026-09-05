@@ -72,6 +72,13 @@ def _hit_row(task: _task.EpisodeTask, step: int, hit: dict, num_trials_per_task:
         "start_t": hit.get("start_t"),
         "winner_id": hit.get("winner_id"),
         "cp1_score": hit.get("cp1_score"),
+        # Additive (CP2 post-backbone arm): which checkpoint issued the verdict
+        # and its fused score; None on legacy servers and cache-off responses.
+        "checkpoint": hit.get("checkpoint"),
+        "score": hit.get("score"),
+        # CP2 only: the server's loaded library identity (completeness gate
+        # ``server library_sha256 == export record``); None elsewhere.
+        "library_sha256": hit.get("library_sha256"),
         # searched from the always-on __hit_meta__ (server-side gates like
         # follow_winner have no client stamp). When collect_meta is present
         # (N1/N4 client stamp, or a collection run) infer_recorder overrides
