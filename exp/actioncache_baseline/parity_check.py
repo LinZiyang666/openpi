@@ -31,7 +31,6 @@ import pathlib
 import random
 
 import h5py
-import numpy as np
 import torch
 
 from exp.actioncache_baseline import libs
@@ -40,37 +39,9 @@ from exp.common.build_in_memory_cache_artifact import (
     _load_pi05_for_llm_extract,
     _self_check_tokenizer_consistency,
 )
+from exp.actioncache_baseline.stage1_paths import observation_from_h5
 from openpi.cache.components.cp2_vlm_key_builder import CP2VlmTernaryKeyBuilder
 from openpi.cache.types import CheckpointID
-from openpi.models import model as _model
-from openpi.models_pytorch.preprocessing_pytorch import IMAGE_KEYS
-
-
-def observation_from_h5(group: h5py.Group, task: str, tokenizer, model, device: torch.device):
-    """Rebuild the model ``Observation`` of one step from the raw H5 fields."""
-    images = {}
-    masks = {}
-    stored = group["input_images"]
-    for key in IMAGE_KEYS:
-        if key in stored:
-            img = torch.from_numpy(np.array(stored[key]))
-            images[key] = img[None, ...].to(device)
-            masks[key] = torch.tensor([True], device=device)
-        else:
-            # Absent camera: zero frame + mask False, exactly what the LIBERO
-            # input transform sends for the unused wrist slot.
-            ref = next(iter(images.values())) if images else torch.zeros(1, 224, 224, 3, dtype=torch.uint8, device=device)
-            images[key] = torch.zeros_like(ref)
-            masks[key] = torch.tensor([False], device=device)
-    state_np = np.array(group["robot_state"], dtype=np.float32)
-    state = torch.from_numpy(state_np)[None, ...].to(device)
-    tok_state = state_np if model.config.discrete_state_input else None
-    tokens_np, mask_np = tokenizer.tokenize(task, state=tok_state)
-    return _model.Observation.from_dict({
-        "image": images, "image_mask": masks, "state": state,
-        "tokenized_prompt": torch.from_numpy(tokens_np).long()[None, ...].to(device),
-        "tokenized_prompt_mask": torch.from_numpy(mask_np).bool()[None, ...].to(device),
-    })
 
 
 def run(args: argparse.Namespace) -> dict:

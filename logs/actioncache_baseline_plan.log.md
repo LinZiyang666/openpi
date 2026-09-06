@@ -28,6 +28,7 @@
 | D13-证据 | 2026-09-04 | owner 质疑"从未启用过任务过滤"。实证：把 `exp/rit_pareto/data/runs/*/per_step.jsonl` 全部命中行的 `winner_id`（轨迹 stem）经本地 pkl 映到 `payload.task_key`，与 episode 的 `task_id`（`config/task_order_*.json`）比对：spatial 5 组 934,352 次命中、l10 4 组 2,005,866 次命中，**跨任务命中 0**，10 个 task 各只对应 1 个 winner task。过滤自 2026-04-06 首个 commit 起就在（`git log -S`），LIBERO 所有阈值实验都在任务内检索 | Q6 的差异是真实的 |
 | D15 | 2026-09-04 | Owner Ziyang Lin 定向覆盖 WA §9.3：授权 G1 R3 reviewer 在同一会话原地修复其审查项并复核；执行方 v0.5 + R3 review 保留在 index，reviewer 的 v0.6 修订留在 working tree | R4 approval 明示为 owner-authorized self-remediation，不声称独立复审 |
 | D16 | 2026-09-04 | Owner Ziyang Lin 定向覆盖 Review Authority §4–§6：授权 G2 R2 reviewer 先把执行方 R1 修订加入 index，再在同一会话修复至可放行；reviewer 修订与本条记录留在 working tree，不再请求另开 Execution / Review session | G2 R2 的 APPROVED 明示为 owner-authorized self-remediation；执行方快照与 reviewer 修订由 staged / unstaged 边界区分，不声称修复后另有独立审查者 |
+| D17 | 2026-09-04 | Owner Ziyang Lin 实验启动指令：4 组各**扫 10 个点**（原 §3.9 的 ≤17 臂是上限）；拓扑 weilandserver 4 replica + timan107 48 worker；每臂 pruned-500 全集；spatial 先于 l10，不做完不停；20 min cron 巡检 + 条件触发 Monitor；跑完不画图 | 执行方解释：每档目标 IR {65,75,85,95}（4 臂）+ 每档参考臂 θ_raw=0.85（1 臂）= 10 臂/组；`export_arms --targets 65,75,85,95`；阶梯可由 owner 改 |
 
 **执行方注记（非 owner 决策）**：D7 是 owner 的工作假设，记录在案；本实验的读数按 §1 预注册为可证伪的前沿对照，结果如何写以实测为准（G1 R1 B9）。
 

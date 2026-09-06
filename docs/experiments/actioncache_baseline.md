@@ -43,7 +43,9 @@ uv run python -m exp.actioncache_baseline.verify_cp2_artifact \
 
 检查 (a) id 集合一一对应 (a′) 全部 CP2 标签 (a″) 真 `InMemoryBackend` 加载后 CP2 `QuerySpec` 检索非空 (b) payload 逐位相等 (c) 链边闭合 (d) key finite float32 ×500 (e) 每条 `action_chunk` 严格 == (10,32) 且 `intermediates` 含 0.1 (f) `vector_dims` (g) meta 绑定字段（含 64 位 hex 的 `model.weights_digest`）。
 
-**parity 门（每库抽 200 步）**：离线路径（H5 `vision_*`/`prompt_emb` 重建 Stage 1）与在线等价路径（H5 `input_images` + task + state → 真 `run_stage1`）两条 key 的 cosine ≥ 0.999：
+**Stage 1 路径（2026-09-04 实测裁定）**：离线重建（H5 `vision_*`/`prompt_emb`，`_build_fake_stage1_with_masks`）会把被 mask 的右腕相机槽也当作有效 token（784 vs serving 的 528），backbone 输出随之偏离，CP2 key 与 serving 的 cosine 仅 0.70（三段 embedding 逐段 cosine 1.0，差在 pad mask）。因此建库 / shadow 表 / 开销实测**一律走在线路径**（`--stage1-path online`：H5 `input_images` + task → `Observation.from_dict` → 真 `run_stage1`，与 serving 同一代码），artifact meta 记 `stage1_path`，shadow / bench 加载时必须与库一致（`exp/actioncache_baseline/stage1_paths.py`）。
+
+**parity 记录（每库抽 200 步，只记录不阻断）**：离线路径与在线路径两条 key 的 cosine（原门槛 0.999）：
 
 ```bash
 uv run python -m exp.actioncache_baseline.parity_check \

@@ -11,7 +11,7 @@ Fit: the same joint knot-value pinball LP as ``rit_pl.fit_pl_quantile`` --
 strict monotone floor ``EPS_TOTAL`` per curve, nesting ``q_safer <= q_riskier``
 at every knot, ``q >= 0`` -- laid out so that the K=2 ladder (WARM@0.3, FULL)
 builds the identical LP (same variables, same rows, same order) and therefore
-the identical HiGHS solution as ``rit_pl``; ``tests/rit_pareto`` pins that.
+the identical HiGHS solution as ``rit_pl``.
 
 Costs: the stage constants are imported from the single cost authority
 (``analytic_cost``); a warm tier at canonical ``start_t`` re-runs

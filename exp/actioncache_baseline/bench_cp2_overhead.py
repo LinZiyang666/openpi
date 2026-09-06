@@ -201,6 +201,7 @@ def write_record(out_dir: str | pathlib.Path, *, suite: str, cache_yaml: str | p
         "library_entries": meta.get("entry_count"),
         "projection": meta.get("projection"),
         "model": {"library_model": meta.get("model"), "bound": model_binding},
+        "stage1_path": meta.get("stage1_path"),
         "hardware": hardware_info(device),
         "cohort_root": None if cohort_root is None else str(pathlib.Path(cohort_root).resolve()),
         **measured,
@@ -212,14 +213,12 @@ def write_record(out_dir: str | pathlib.Path, *, suite: str, cache_yaml: str | p
     return record
 
 
-def _cohort_decisions(h5_root: str, model, tokenizer, device: torch.device):
+def _cohort_decisions(h5_root: str, model, tokenizer, device: torch.device, stage1_path: str):
     """Lazily replay every step of every cohort H5 through ``run_stage2_capture``."""
     import h5py
 
-    from exp.common.build_in_memory_cache_artifact import (
-        _build_fake_stage1_with_masks,
-        _self_check_tokenizer_consistency,
-    )
+    from exp.actioncache_baseline.stage1_paths import rebuild_stage1
+    from exp.common.build_in_memory_cache_artifact import _self_check_tokenizer_consistency
 
     h5_files = sorted(pathlib.Path(h5_root).rglob("*.h5"))
     if not h5_files:
@@ -231,10 +230,8 @@ def _cohort_decisions(h5_root: str, model, tokenizer, device: torch.device):
             task = str(f.attrs.get("task", ""))
             episode = h5_path.stem
             for step_idx, group in libs.iter_steps(f):
-                fake = _build_fake_stage1_with_masks(
-                    group, task_str=task, tokenizer=tokenizer, model=model, device=device,
-                )
-                yield episode, step_idx, model.run_stage2_capture(fake)
+                stage1 = rebuild_stage1(group, task, tokenizer, model, device, stage1_path)
+                yield episode, step_idx, model.run_stage2_capture(stage1)
 
 
 def bench(args: argparse.Namespace) -> dict:
@@ -246,11 +243,16 @@ def bench(args: argparse.Namespace) -> dict:
     # The library keys, the shadow cuts and this run must all come from one
     # set of weights (plan §3.7 binding; full-content digest).
     model_binding = libs.assert_model_binding(meta.get("model"), args.checkpoint_dir)
+    from exp.actioncache_baseline.stage1_paths import STAGE1_PATHS
+
+    stage1_path = meta.get("stage1_path")
+    if stage1_path not in STAGE1_PATHS:
+        raise SystemExit(f"library carries no valid stage1_path ({stage1_path!r}); rebuild it with build_cp2_artifact")
     model, tokenizer = _load_pi05_for_llm_extract(args.checkpoint_dir, args.config_name, args.device)
     model.eval()
     orch.on_task_begin()
     measured = run_decisions(
-        orch, timer, _cohort_decisions(args.cohort_h5_root, model, tokenizer, device),
+        orch, timer, _cohort_decisions(args.cohort_h5_root, model, tokenizer, device, stage1_path),
         device=device, out_dir=args.out_dir, cold=args.cold, max_decisions=args.max_decisions,
     )
     orch.on_task_end()

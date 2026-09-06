@@ -1,0 +1,465 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>RIT-Pareto figure editor</title>
+<style>
+  :root { --bg:#fbfbfa; --fg:#1c1c1a; --mut:#6b6b66; --line:#d8d8d4; --acc:#0b7a75; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:13px/1.45 ui-sans-serif,system-ui,"Segoe UI",sans-serif; color:var(--fg); background:var(--bg); }
+  header { display:flex; align-items:center; gap:10px; padding:8px 12px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  select { font:inherit; padding:4px 6px; border:1px solid var(--line); border-radius:5px; background:#fff; max-width:280px; }
+  button { font:inherit; padding:4px 10px; border:1px solid var(--line); border-radius:5px; background:#fff; cursor:pointer; }
+  button:hover { border-color:var(--acc); color:var(--acc); }
+  button.primary { background:var(--acc); border-color:var(--acc); color:#fff; }
+  button.primary:hover { opacity:.88; color:#fff; }
+  #status { margin-left:auto; color:var(--mut); font-variant-numeric:tabular-nums; }
+  #status.err { color:#b8336a; }
+  #status.dirty { color:#b06a00; }
+  main { display:flex; align-items:flex-start; gap:12px; padding:12px; }
+  #plot { flex:1 1 auto; min-width:0; background:#fff; border:1px solid var(--line); border-radius:6px; }
+  aside { flex:0 0 440px; max-height:calc(100vh - 90px); overflow:auto; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin-bottom:10px; }
+  .card h2 { font-size:12px; margin:0 0 6px; color:var(--mut); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+  .srow { display:flex; align-items:center; gap:6px; padding:3px 0; border-bottom:1px dashed var(--line); }
+  .srow:last-child { border-bottom:none; }
+  .srow .name { flex:1 1 auto; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .srow .name.sel { font-weight:600; }
+  .swatch { width:11px; height:11px; border-radius:3px; flex:0 0 auto; }
+  .srow label { color:var(--mut); font-size:11px; display:inline-flex; align-items:center; gap:2px; }
+  table { width:100%; border-collapse:collapse; table-layout:fixed; }
+  th, td { text-align:left; padding:2px 3px; font-size:11px; border-bottom:1px solid #f0f0ec; }
+  th { color:var(--mut); font-weight:600; }
+  td.arm { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:pointer; }
+  td input[type=number], td input[type=text] { width:100%; font:inherit; font-size:12px; font-variant-numeric:tabular-nums;
+    padding:2px 4px; border:1px solid transparent; border-radius:3px; background:#f7f7f5; }
+  /* Spinners eat the width the digits need. */
+  input[type=number] { -moz-appearance:textfield; appearance:textfield; }
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  td input:focus { border-color:var(--acc); outline:none; background:#fff; }
+  button.mini { padding:0 4px; font-size:12px; line-height:1.5; }
+  tr.sel { background:#eef6f5; }
+  .hint { color:var(--mut); font-size:11px; margin:6px 0 0; }
+  circle.pt, rect.pt, polygon.pt, path.pt { cursor:grab; }
+  .pt.sel { stroke:#1c1c1a; stroke-width:1.4; }
+  text.lbl { cursor:move; user-select:none; }
+</style>
+
+<header>
+  <select id="figsel" title="switch figure"></select>
+  <button id="save">Save JSON</button>
+  <button id="export" class="primary">Export PNG + PDF</button>
+  <button id="refit">Refit axes</button>
+  <button id="reload" title="re-read the spec from disk, discarding unsaved changes">Revert to saved</button>
+  <span id="status">loading…</span>
+</header>
+
+<main>
+  <svg id="plot" viewBox="0 0 900 560" role="img"></svg>
+  <aside>
+    <div class="card">
+      <h2>Series</h2>
+      <div id="series"></div>
+      <p class="hint">The Pareto frontier is always derived from the points — drag a point and it follows.
+        This preview approximates the matplotlib figure; Export re-renders the real one.</p>
+    </div>
+    <div class="card">
+      <h2>Points — <span id="selname">—</span></h2>
+      <div id="pointsbox"></div>
+      <p class="hint">Drag a point to move it, drag its label to nudge the annotation, or type exact values.
+        Arrow keys step the selected point by one episode (Shift = ×10). Success rate snaps to multiples of
+        1/n_ep (0.002 for the 500-episode arms), so every y stays a rate an actual run could have produced.
+        <b>Ctrl-Z</b> undoes the last action, <b>&#8634;</b> reverts one point and <b>Revert to saved</b>
+        the whole figure to the last save.</p>
+    </div>
+  </aside>
+</main>
+
+<script>
+"use strict";
+const SVG = "http://www.w3.org/2000/svg";
+const M = {l: 66, r: 16, t: 34, b: 46};
+const plot = document.getElementById("plot");
+const VB = {w: 900, h: 560};
+const W = VB.w - M.l - M.r, H = VB.h - M.t - M.b;
+
+let spec = null, refs = {}, xd = [0, 1], yd = [0, 1], selSeries = 0, selPoint = null, dirty = false;
+// Snapshot of the spec as last written to (or read from) disk. Reverting means going
+// back to this, never to the measured values -- those are rebuilt with build_figure.
+let savedJson = "";
+let figureIds = [];   // what the picker offers; a spec that is only a data source is not in it
+
+// A series either owns its points or reads them from another figure, in which
+// case they arrive in `refs`; edits to those are written back to that figure on save.
+const pointsOf = s => s.source_figure ? (refs[s.key] || []) : (s.points || []);
+const stateJson = () => JSON.stringify({spec, refs});
+
+// ---------------------------------------------------------------
+// helpers
+// ---------------------------------------------------------------
+const el = (tag, attrs = {}, text) => {
+  const n = document.createElementNS(SVG, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (text !== undefined) n.textContent = text;
+  return n;
+};
+// matplotlib accepts greyscale strings such as "0.45"; SVG does not.
+const color = c => /^(0|1|0?\.\d+)$/.test(c) ? `rgb(${[0, 0, 0].map(() => Math.round(parseFloat(c) * 255)).join(",")})` : c;
+const dash = ls => ls === "--" ? "7,4" : ls === ":" ? "2,3" : ls === "-." ? "7,3,2,3" : null;
+const sx = v => M.l + (v - xd[0]) / (xd[1] - xd[0]) * W;
+const sy = v => M.t + H - (v - yd[0]) / (yd[1] - yd[0]) * H;
+const ix = p => xd[0] + (p - M.l) / W * (xd[1] - xd[0]);
+const iy = p => yd[0] + (M.t + H - p) / H * (yd[1] - yd[0]);
+const visible = s => s.hidden ? [] : pointsOf(s).filter(p => !p.hidden);
+
+// A success rate is a count over n_ep episodes, so it can only take multiples of
+// 1/n_ep -- 0.002 for the 500-episode arms. Every y written here snaps to that grid.
+const yStep = p => (p.n_ep > 0 ? 1 / p.n_ep : 0);
+// Snap through the episode count rather than the step, so a value dragged back onto
+// a measured rate is bit-identical to it; k successes out of n also bounds y to [0, 1].
+const snapY = (p, v) => {
+  const n = p.n_ep;
+  return n > 0 ? Math.min(n, Math.max(0, Math.round(v * n))) / n : v;
+};
+
+// Same rule as render_figure.pareto_front: minimise x, maximise y. The server
+// re-derives it on export, so this is only the live preview of that staircase.
+function front(points) {
+  const out = []; let best = -Infinity;
+  for (const p of [...points].sort((a, b) => a.x - b.x || b.y - a.y)) if (p.y > best) { out.push(p); best = p.y; }
+  return out;
+}
+
+function ticks(lo, hi, n) {
+  const raw = (hi - lo) / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), norm = raw / mag;
+  const step = (norm >= 5 ? 5 : norm >= 2 ? 2 : 1) * mag, out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(10));
+  return out;
+}
+
+function fmt(v) { return Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 1 ? v.toFixed(1) : v.toFixed(2); }
+
+function setStatus(msg, kind) { const s = document.getElementById("status"); s.textContent = msg; s.className = kind || ""; }
+
+function markSaved() { savedJson = stateJson(); dirty = false; }
+
+// Dirty is measured against the snapshot, so undoing an edit by hand clears it too.
+function markDirty() {
+  dirty = stateJson() !== savedJson;
+  setStatus(dirty ? "unsaved changes" : "no changes since last save", dirty ? "dirty" : "");
+}
+
+// Undo stack of whole-spec snapshots. One entry per user action: a drag from press
+// to release, a keystroke, a typed value, a toggle. Reloading a figure clears it.
+const HISTORY_MAX = 100;
+let history = [];
+
+function pushHistory() {
+  history.push(stateJson());
+  if (history.length > HISTORY_MAX) history.shift();
+}
+
+// Drop the snapshot just pushed if the action turned out to change nothing.
+function dropHistoryIfUnchanged() {
+  if (history.length && history[history.length - 1] === stateJson()) history.pop();
+}
+
+function undo() {
+  if (!history.length) { setStatus("nothing to undo"); return; }
+  const st = JSON.parse(history.pop());
+  spec = st.spec; refs = st.refs;
+  if (selPoint && !pointsOf(spec.series[selPoint.s]).some(p => p.id === selPoint.id)) selPoint = null;
+  markDirty(); renderSeries(); renderPoints(); draw();
+  setStatus(`undone (${history.length} step${history.length === 1 ? "" : "s"} left)`, dirty ? "dirty" : "");
+}
+
+function savedPoint(si, id) {
+  if (!savedJson) return null;
+  const saved = JSON.parse(savedJson), series = saved.spec.series[si];
+  const pts = series.source_figure ? (saved.refs[series.key] || []) : (series.points || []);
+  return pts.find(q => q.id === id) || null;
+}
+
+function fitAxes() {
+  const xs = [], ys = [];
+  for (const s of spec.series) for (const p of visible(s)) { xs.push(p.x); ys.push(p.y); }
+  if (!xs.length) { xd = [0, 100]; yd = [0, 1]; return; }
+  const pad = (a, b, f) => { const d = (b - a) || Math.abs(a) || 1; return [a - d * f, b + d * f]; };
+  xd = pad(Math.min(...xs), Math.max(...xs), 0.05);
+  yd = pad(Math.min(...ys), Math.max(...ys), 0.07);
+}
+
+// ---------------------------------------------------------------
+// drawing
+// ---------------------------------------------------------------
+function draw() {
+  plot.textContent = "";
+  const g = el("g");
+  plot.appendChild(g);
+  g.appendChild(el("rect", {x: M.l, y: M.t, width: W, height: H, fill: "#fff", stroke: "#d8d8d4"}));
+  for (const t of ticks(xd[0], xd[1], 8)) {
+    g.appendChild(el("line", {x1: sx(t), y1: M.t, x2: sx(t), y2: M.t + H, stroke: "#e9e9e5"}));
+    g.appendChild(el("text", {x: sx(t), y: M.t + H + 15, "text-anchor": "middle", "font-size": 10, fill: "#6b6b66"}, fmt(t)));
+  }
+  for (const t of ticks(yd[0], yd[1], 6)) {
+    g.appendChild(el("line", {x1: M.l, y1: sy(t), x2: M.l + W, y2: sy(t), stroke: "#e9e9e5"}));
+    g.appendChild(el("text", {x: M.l - 6, y: sy(t) + 3, "text-anchor": "end", "font-size": 10, fill: "#6b6b66"}, fmt(t)));
+  }
+  g.appendChild(el("text", {x: M.l + W / 2, y: VB.h - 10, "text-anchor": "middle", "font-size": 11, fill: "#3c3c38"}, spec.x_label));
+  g.appendChild(el("text", {x: 14, y: M.t + H / 2, "text-anchor": "middle", "font-size": 11, fill: "#3c3c38",
+    transform: `rotate(-90 14 ${M.t + H / 2})`}, spec.y_label));
+  g.appendChild(el("text", {x: M.l + W / 2, y: 20, "text-anchor": "middle", "font-size": 12, fill: "#1c1c1a"}, spec.title));
+
+  spec.series.forEach((s, si) => {
+    const pts = visible(s), c = color(s.style.color);
+    if (!pts.length) return;
+    if (s.show_frontier !== false) {
+      const f = front(pts);
+      const line = el("polyline", {points: f.map(p => `${sx(p.x)},${sy(p.y)}`).join(" "), fill: "none",
+        stroke: c, "stroke-width": s.style.linewidth || 2, opacity: 0.95});
+      if (dash(s.style.linestyle)) line.setAttribute("stroke-dasharray", dash(s.style.linestyle));
+      g.appendChild(line);
+    }
+    if (s.show_points === false) return;
+    const r = Math.max(3, Math.sqrt(s.style.marker_size || 34));
+    pts.forEach(p => {
+      // Marker and annotation live in one group and are both placed from the
+      // point's coordinates, so dragging the point carries its text along.
+      const grp = el("g");
+      const node = marker(s.style.marker, sx(p.x), sy(p.y), r, c, s.style.alpha);
+      node.classList.add("pt");
+      if (selPoint && selPoint.s === si && selPoint.id === p.id) node.classList.add("sel");
+      node.addEventListener("pointerdown", e => startDrag(e, si, p, "point"));
+      grp.appendChild(node);
+      if (s.annotate && p.label) {
+        const off = p.label_offset || [4, 4];
+        const t = el("text", {x: sx(p.x) + off[0], y: sy(p.y) - off[1], "font-size": s.style.annotate_fontsize || 7,
+          fill: c, class: "lbl"}, p.label);
+        // Dragging the text alone only re-offsets it against its own point.
+        t.addEventListener("pointerdown", e => startDrag(e, si, p, "label"));
+        grp.appendChild(t);
+      }
+      g.appendChild(grp);
+    });
+  });
+}
+
+function marker(kind, cx, cy, r, c, alpha) {
+  const fill = {fill: c, opacity: alpha === undefined ? 0.85 : alpha};
+  if (kind === "s") return el("rect", {x: cx - r, y: cy - r, width: 2 * r, height: 2 * r, ...fill});
+  if (kind === "^") return el("polygon", {points: `${cx},${cy - r * 1.2} ${cx - r * 1.1},${cy + r * .8} ${cx + r * 1.1},${cy + r * .8}`, ...fill});
+  if (kind === "x") return el("path", {d: `M${cx - r},${cy - r}L${cx + r},${cy + r}M${cx + r},${cy - r}L${cx - r},${cy + r}`,
+    stroke: c, "stroke-width": 1.6, fill: "none", opacity: alpha === undefined ? 1 : alpha});
+  return el("circle", {cx, cy, r, ...fill});
+}
+
+// ---------------------------------------------------------------
+// interaction
+// ---------------------------------------------------------------
+function svgPoint(e) {
+  const m = plot.getScreenCTM().inverse(), p = plot.createSVGPoint();
+  p.x = e.clientX; p.y = e.clientY;
+  return p.matrixTransform(m);
+}
+
+function startDrag(e, si, point, mode) {
+  e.preventDefault();
+  select(si, point.id);
+  pushHistory();
+  const start = svgPoint(e), ox = point.x, oy = point.y, off = [...(point.label_offset || [4, 4])];
+  const move = ev => {
+    const now = svgPoint(ev);
+    if (mode === "point") {
+      point.x = ox + (ix(now.x) - ix(start.x));
+      point.y = snapY(point, oy + (iy(now.y) - iy(start.y)));
+    } else {
+      point.label_offset = [off[0] + (now.x - start.x), off[1] - (now.y - start.y)];
+    }
+    markDirty(); draw();
+  };
+  const up = () => {
+    window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up);
+    dropHistoryIfUnchanged();
+    renderPoints();
+  };
+  window.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", up);
+}
+
+function select(si, id) { selSeries = si; selPoint = {s: si, id}; renderSeries(); renderPoints(); draw(); }
+
+window.addEventListener("keydown", e => {
+  if (/input|textarea/i.test(e.target.tagName)) return;  // let a focused field keep its own undo
+  // Shift is left alone so a later redo binding can have it; plain ctrl/cmd-Z undoes.
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === "z") { e.preventDefault(); undo(); return; }
+  if (!selPoint || !e.key.startsWith("Arrow")) return;
+  const p = pointsOf(spec.series[selPoint.s]).find(q => q.id === selPoint.id);
+  if (!p) return;
+  const mult = e.shiftKey ? 10 : 1;
+  const kx = (xd[1] - xd[0]) / 400 * mult, ky = (yStep(p) || (yd[1] - yd[0]) / 400) * mult;
+  pushHistory();
+  if (e.key === "ArrowLeft") p.x -= kx; else if (e.key === "ArrowRight") p.x += kx;
+  else if (e.key === "ArrowUp") p.y = snapY(p, p.y + ky); else p.y = snapY(p, p.y - ky);
+  e.preventDefault(); markDirty(); draw(); renderPoints();
+});
+
+// ---------------------------------------------------------------
+// side panel
+// ---------------------------------------------------------------
+function renderSeries() {
+  const box = document.getElementById("series");
+  box.textContent = "";
+  spec.series.forEach((s, i) => {
+    const row = document.createElement("div");
+    row.className = "srow";
+    const sw = document.createElement("span");
+    sw.className = "swatch"; sw.style.background = color(s.style.color);
+    const name = document.createElement("span");
+    name.className = "name" + (i === selSeries ? " sel" : "");
+    name.textContent = `${s.key} (${visible(s).length})` + (s.source_figure ? "  \u2192 " + s.source_figure : "");
+    name.title = s.source_figure ? `points read from ${s.source_figure} / ${s.source_series}` : s.key;
+    name.onclick = () => { selSeries = i; selPoint = null; renderSeries(); renderPoints(); draw(); };
+    row.append(sw, name);
+    const on = document.createElement("label"), onb = document.createElement("input");
+    onb.type = "checkbox"; onb.checked = !s.hidden; onb.title = "draw this series at all";
+    onb.onchange = () => { pushHistory(); s.hidden = !onb.checked; markDirty(); draw(); renderSeries(); renderPoints(); };
+    on.append(onb, document.createTextNode("on"));
+    row.appendChild(on);
+    for (const [key, text] of [["show_points", "pts"], ["show_frontier", "front"], ["annotate", "lbl"]]) {
+      const lab = document.createElement("label"), cb = document.createElement("input");
+      // show_points / show_frontier default on, annotate defaults off (same as the renderer).
+      cb.type = "checkbox"; cb.checked = key === "annotate" ? !!s[key] : s[key] !== false;
+      cb.onchange = () => { pushHistory(); s[key] = cb.checked; markDirty(); draw(); };
+      lab.append(cb, document.createTextNode(text));
+      row.appendChild(lab);
+    }
+    box.appendChild(row);
+  });
+}
+
+function renderPoints() {
+  const s = spec.series[selSeries];
+  document.getElementById("selname").textContent = s ? s.key : "—";
+  const box = document.getElementById("pointsbox");
+  box.textContent = "";
+  if (!s) return;
+  if (s.source_figure) {
+    const note = document.createElement("p");
+    note.className = "hint";
+    note.style.margin = "0 0 6px";
+    note.innerHTML = `\u2192 <b>${s.source_figure}</b> / ${s.source_series}: these points live in that ` +
+      `file; edits made here are written back to it on Save. `;
+    // Only offer the jump when the owner is a figure of its own; data-source specs are not.
+    if (figureIds.includes(s.source_figure)) {
+      const go = document.createElement("button");
+      go.className = "mini"; go.textContent = "open " + s.source_figure;
+      go.onclick = () => switchFigure(s.source_figure);
+      note.appendChild(go);
+    }
+    box.appendChild(note);
+  }
+  const table = document.createElement("table");
+  // Fixed columns: the numbers must stay readable, the arm id gives up the room.
+  table.innerHTML = "<colgroup><col style='width:28%'><col style='width:19%'><col style='width:19%'>" +
+    "<col style='width:22%'><col style='width:6%'><col style='width:6%'></colgroup>" +
+    "<tr><th>arm</th><th>x (IR%)</th><th>y (SR)</th><th>label</th><th>on</th><th></th></tr>";
+  pointsOf(s).forEach(p => {
+    const tr = document.createElement("tr");
+    if (selPoint && selPoint.s === selSeries && selPoint.id === p.id) tr.className = "sel";
+    const td = html => { const c = document.createElement("td"); if (html !== undefined) c.textContent = html; tr.appendChild(c); return c; };
+    const idc = td(p.id);
+    idc.className = "arm";
+    idc.title = p.id;
+    idc.onclick = () => select(selSeries, p.id);
+    for (const axis of ["x", "y"]) {
+      const inp = document.createElement("input");
+      inp.type = "number"; inp.step = axis === "x" ? 0.1 : (yStep(p) || 0.001);
+      inp.value = +p[axis].toFixed(axis === "x" ? 2 : 4);
+      inp.onchange = () => {
+        const v = parseFloat(inp.value);
+        if (!Number.isFinite(v)) return;
+        pushHistory();
+        p[axis] = axis === "y" ? snapY(p, v) : v;
+        dropHistoryIfUnchanged();
+        markDirty(); draw(); renderPoints();
+      };
+      td().appendChild(inp);
+    }
+    const lin = document.createElement("input");
+    lin.type = "text"; lin.value = p.label || "";
+    lin.onchange = () => { pushHistory(); p.label = lin.value || null; dropHistoryIfUnchanged(); markDirty(); draw(); };
+    td().appendChild(lin);
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.checked = !p.hidden;
+    cb.onchange = () => { pushHistory(); p.hidden = !cb.checked; markDirty(); draw(); renderSeries(); };
+    td().appendChild(cb);
+    const btn = document.createElement("button");
+    btn.textContent = "\u21ba"; btn.className = "mini"; btn.title = "revert this point to the last saved state";
+    btn.onclick = () => {
+      const was = savedPoint(selSeries, p.id);
+      if (!was) return;
+      pushHistory();
+      p.x = was.x; p.y = was.y; p.label = was.label;
+      p.label_offset = (was.label_offset || [4, 4]).slice();
+      p.hidden = !!was.hidden;
+      dropHistoryIfUnchanged();
+      markDirty(); draw(); renderPoints(); renderSeries();
+    };
+    td().appendChild(btn);
+    table.appendChild(tr);
+  });
+  box.appendChild(table);
+}
+
+// ---------------------------------------------------------------
+// server round trips
+// ---------------------------------------------------------------
+async function listFigures() {
+  const sel = document.getElementById("figsel");
+  const {figures} = await (await fetch("/api/figures", {cache: "no-store"})).json();
+  figureIds = figures.map(f => f.id);
+  sel.textContent = "";
+  for (const f of figures) {
+    const opt = document.createElement("option");
+    opt.value = f.id; opt.textContent = f.id; opt.title = f.title;
+    sel.appendChild(opt);
+  }
+  return figures;
+}
+
+async function load(id) {
+  const sel = document.getElementById("figsel");
+  const url = "/api/figure" + (id ? "?id=" + encodeURIComponent(id) : "");
+  const payload = await (await fetch(url, {cache: "no-store"})).json();
+  if (payload.error) { setStatus("error: " + payload.error, "err"); return; }
+  spec = payload.spec; refs = payload.refs || {};
+  sel.value = spec.figure_id;
+  document.title = spec.figure_id + " — figure editor";
+  selSeries = 0; selPoint = null; history = [];
+  fitAxes(); renderSeries(); renderPoints(); draw();
+  markSaved(); setStatus("loaded");
+}
+
+function switchFigure(id) {
+  if (dirty && !confirm("Discard unsaved changes?")) return;
+  load(id);
+}
+
+async function post(path) {
+  setStatus("writing…");
+  try {
+    const res = await fetch(path + "?id=" + encodeURIComponent(spec.figure_id),
+      {method: "POST", headers: {"Content-Type": "application/json"}, body: stateJson()});
+    const body = await res.json();
+    if (!res.ok) { setStatus("error: " + (body.error || res.status), "err"); return; }
+    markSaved();
+    setStatus("wrote " + body.written.map(p => p.split("/").pop()).join(", "));
+  } catch (err) { setStatus("error: " + err, "err"); }
+}
+
+document.getElementById("save").onclick = () => post("/api/save");
+document.getElementById("export").onclick = () => post("/api/export");
+document.getElementById("refit").onclick = () => { fitAxes(); draw(); };
+document.getElementById("reload").onclick = () => { if (!dirty || confirm("Discard unsaved changes?")) load(spec.figure_id); };
+document.getElementById("figsel").onchange = e => switchFigure(e.target.value);
+window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+listFigures().then(figures => load(figures.length ? figures[0].id : null));
+</script>

@@ -1,0 +1,240 @@
+{
+  "arm_matrix": "/tmp/dsp_shared/actioncache_baseline/libero_10_lib50/arm_matrix.yaml",
+  "arms": {
+    "acb_l10_lib50_n0_ir65": {
+      "admit_frac": 0.7990674955595026,
+      "arm_id": "acb_l10_lib50_n0_ir65",
+      "hit_type": "FULL_HIT",
+      "ir_gap": 0.0023640017446382444,
+      "predicted_ir": 65.00236400174464,
+      "start_t": null,
+      "target_ir": 65.0,
+      "theta_norm": 0.9487962424755096,
+      "theta_raw": 0.8975924849510193,
+      "tier": "n0",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_10_lib50/arms/acb_l10_lib50_n0_ir65.yaml",
+      "yaml_sha256": "053fd5b024ae926469a9b8d81eeee222d14cffd4cf3b8a0eb6d045ffa41cd994"
+    },
+    "acb_l10_lib50_n0_ir75": {
+      "admit_frac": 0.5708259325044405,
+      "arm_id": "acb_l10_lib50_n0_ir75",
+      "hit_type": "FULL_HIT",
+      "ir_gap": -0.0010897892510399743,
+      "predicted_ir": 74.99891021074896,
+      "start_t": null,
+      "target_ir": 75.0,
+      "theta_norm": 0.9547305405139923,
+      "theta_raw": 0.9094610810279846,
+      "tier": "n0",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_10_lib50/arms/acb_l10_lib50_n0_ir75.yaml",
+      "yaml_sha256": "961651afb6325bdacec09f74895ed31acd36b01b063d357e9f0aac1f3ab06877"
+    },
+    "acb_l10_lib50_n0_ir85": {
+      "admit_frac": 0.3424733570159858,
+      "arm_id": "acb_l10_lib50_n0_ir85",
+      "hit_type": "FULL_HIT",
+      "ir_gap": 0.0003185531233924621,
+      "predicted_ir": 85.00031855312339,
+      "start_t": null,
+      "target_ir": 85.0,
+      "theta_norm": 0.959717333316803,
+      "theta_raw": 0.919434666633606,
+      "tier": "n0",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_10_lib50/arms/acb_l10_lib50_n0_ir85.yaml",
+      "yaml_sha256": "7b75b14cab75be834c1722241befb753f00b60d12b131e35672f5eff7fa7826a"
+    },
+    "acb_l10_lib50_n0_ir95": {
+      "admit_frac": 0.11412078152753108,
+      "arm_id": "acb_l10_lib50_n0_ir95",
+      "hit_type": "FULL_HIT",
+      "ir_gap": 0.0017268954978533202,
+      "predicted_ir": 95.00172689549785,
+      "start_t": null,
+      "target_ir": 95.0,
+      "theta_norm": 0.9660405516624451,
+      "theta_raw": 0.9320811033248901,
+      "tier": "n0",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_10_lib50/arms/acb_l10_lib50_n0_ir95.yaml",
+      "yaml_sha256": "2c44d82fb513e1d5e50360c01c8b5add572fdb22d5f9eb04c2ec872e21d962d1"
+    },
+    "acb_l10_lib50_n0_ref850": {
+      "admit_frac": 0.9998889875666075,
+      "arm_id": "acb_l10_lib50_n0_ref850",
+      "hit_type": "FULL_HIT",
+      "ir_gap": null,
+      "predicted_ir": 56.20676473516449,
+      "start_t": null,
+      "target_ir": null,
+      "theta_norm": 0.925,
+      "theta_raw": 0.85,
+      "tier": "n0",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_10_lib50/arms/acb_l10_lib50_n0_ref850.yaml",
+      "yaml_sha256": "e39b02d21fd15df648c61af78b1239e44dd360b8162257769aef00bfef5a126d"
+    },
+    "acb_l10_lib50_n1_ir65": {
+      "admit_frac": 0.8878774422735346,
+      "arm_id": "acb_l10_lib50_n1_ir65",
+      "hit_type": "WARM_START",
+      "ir_gap": 0.0013915750706132712,
+      "predicted_ir": 65.00139157507061,
+      "start_t": 0.1,
+      "target_ir": 65.0,
+      "theta_norm": 0.9454950988292694,
+      "theta_raw": 0.8909901976585388,
+      "tier": "n1",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_10_lib50/arms/acb_l10_lib50_n1_ir65.yaml",
+      "yaml_sha256": "19c491747114888230e6f3e87548d9d4d132a61ba42aef37b4ddf09fe46033c5"
+    },
+    "acb_l10_lib50_n1_ir75": {
+      "admit_frac": 0.6342140319715808,
+      "arm_id": "acb_l10_lib50_n1_ir75",
+      "hit_type": "WARM_START",
+      "ir_gap": 0.0003688507599974855,
+      "predicted_ir": 75.00036885076,
+      "start_t": 0.1,
+      "target_ir": 75.0,
+      "theta_norm": 0.9532768130302429,
+      "theta_raw": 0.9065536260604858,
+      "tier": "n1",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_10_lib50/arms/acb_l10_lib50_n1_ir75.yaml",
+      "yaml_sha256": "d5f04a1c67e1ed7204ebd03cbc2e7bf73cbd7131db88f2d4547c8b3d5ee550d8"
+    },
+    "acb_l10_lib50_n1_ir85": {
+      "admit_frac": 0.380550621669627,
+      "arm_id": "acb_l10_lib50_n1_ir85",
+      "hit_type": "WARM_START",
+      "ir_gap": -0.0006538735506325111,
+      "predicted_ir": 84.99934612644937,
+      "start_t": 0.1,
+      "target_ir": 85.0,
+      "theta_norm": 0.9589343667030334,
+      "theta_raw": 0.9178687334060669,
+      "tier": "n1",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_10_lib50/arms/acb_l10_lib50_n1_ir85.yaml",
+      "yaml_sha256": "390fd17b6f1fe23dd010f494e8772fdc9240faee993ebfb8c4d9c2c418bdaa33"
+    },
+    "acb_l10_lib50_n1_ir95": {
+      "admit_frac": 0.12688721136767317,
+      "arm_id": "acb_l10_lib50_n1_ir95",
+      "hit_type": "WARM_START",
+      "ir_gap": -0.0016765978612482968,
+      "predicted_ir": 94.99832340213875,
+      "start_t": 0.1,
+      "target_ir": 95.0,
+      "theta_norm": 0.9655440449714661,
+      "theta_raw": 0.9310880899429321,
+      "tier": "n1",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_10_lib50/arms/acb_l10_lib50_n1_ir95.yaml",
+      "yaml_sha256": "b399ade78b640d541aaaa7addc16d0eb2400f8f5a5a5294d89d2bc1fa408c8b9"
+    },
+    "acb_l10_lib50_n1_ref850": {
+      "admit_frac": 0.9998889875666075,
+      "arm_id": "acb_l10_lib50_n1_ref850",
+      "hit_type": "WARM_START",
+      "ir_gap": null,
+      "predicted_ir": 60.58608826164804,
+      "start_t": 0.1,
+      "target_ir": null,
+      "theta_norm": 0.925,
+      "theta_raw": 0.85,
+      "tier": "n1",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_10_lib50/arms/acb_l10_lib50_n1_ref850.yaml",
+      "yaml_sha256": "cdefc0d4c96ed4467eb1aabadd6e4323bb0673aa62eebd9175d4eeda66ca1fe5"
+    }
+  },
+  "attainable_ir": {
+    "n0": [
+      56.20190260179436,
+      100.0
+    ],
+    "n1": [
+      60.58171234161492,
+      100.0
+    ]
+  },
+  "budget": {
+    "arms_per_tier": {
+      "n0": 5,
+      "n1": 5
+    },
+    "group_arm_cap": 17,
+    "tier_target_cap": {
+      "n0": 8,
+      "n1": 7
+    },
+    "total_arms": 10
+  },
+  "cost_table": "cuda_graph",
+  "deploy_library_path": "/data/acb/cp2_libero_10_lib50.pkl",
+  "git_commit": "unknown",
+  "lib_tag": "lib50",
+  "library_pkl": "/data/acb/cp2_libero_10_lib50.pkl",
+  "library_sha256": "a23e361faa6773b4fdc8de71884478305d09aaa44ecc6993e330cc774d0c8238",
+  "max_gap": 1.0,
+  "n_rows": 9008,
+  "projection": {
+    "D": 1982464,
+    "accumulation_dtype": "float32",
+    "d": 500,
+    "digest": "6279b39845efb5ccebad6ce1a2d54cab1686502c20e413432cfdaf725d3b02b6",
+    "nnz_per_sign": 9912,
+    "p": 0.01,
+    "seed": 20260904
+  },
+  "protocol": "actioncache_baseline/v1",
+  "ref_theta_raw": 0.85,
+  "shadow_record": {
+    "backend_checked_rows": 50,
+    "checkpoint_dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch",
+    "cohort_files": 150,
+    "cohort_manifest_sha256": "78022d81372d1247b6d37a687f973a9d83ac224096005562f224237fa94cd6e8",
+    "cohort_root": "/tmp/dsp_shared/rit_pareto/libero_10/h5",
+    "config_name": "pi05_libero",
+    "elapsed_s": 1854.3,
+    "git_commit": "unknown",
+    "library_entries": 2640,
+    "library_pkl": "/data/acb/cp2_libero_10_lib50.pkl",
+    "library_sha256": "a23e361faa6773b4fdc8de71884478305d09aaa44ecc6993e330cc774d0c8238",
+    "model": {
+      "bound_to_library": true,
+      "bytes": 7233650557,
+      "checkpoint_dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch",
+      "files": 2,
+      "library_model": {
+        "bytes": 7233650557,
+        "checkpoint_dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch",
+        "config_name": "pi05_libero",
+        "files": 2,
+        "weights_digest": "dc8fd0bbd893b887322304742d4278d4ca5a53dd52837d77979e442fe1aa30df"
+      },
+      "weights_digest": "dc8fd0bbd893b887322304742d4278d4ca5a53dd52837d77979e442fe1aa30df"
+    },
+    "n_rows": 9008,
+    "out_jsonl": "/data/acb/shadow_libero_10_lib50.jsonl",
+    "out_jsonl_sha256": "1fd3f2d55a4b79e5d3030b6756d2cc54a43fc2b4856f310b75c8f8767452da32",
+    "projection": {
+      "D": 1982464,
+      "accumulation_dtype": "float32",
+      "d": 500,
+      "digest": "6279b39845efb5ccebad6ce1a2d54cab1686502c20e413432cfdaf725d3b02b6",
+      "nnz_per_sign": 9912,
+      "p": 0.01,
+      "seed": 20260904
+    },
+    "protocol": "actioncache_baseline/v1",
+    "stage1_path": "online"
+  },
+  "shadow_table": "/data/acb/shadow_libero_10_lib50.jsonl",
+  "skipped": [],
+  "suite": "libero_10",
+  "targets": [
+    65.0,
+    75.0,
+    85.0,
+    95.0
+  ],
+  "tiers": [
+    "n0",
+    "n1"
+  ]
+}

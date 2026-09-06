@@ -36,8 +36,8 @@ import torch
 
 from exp.actioncache_baseline import libs
 from exp.actioncache_baseline.verify_cp2_artifact import cp2_query_spec
+from exp.actioncache_baseline.stage1_paths import STAGE1_PATHS, rebuild_stage1
 from exp.common.build_in_memory_cache_artifact import (
-    _build_fake_stage1_with_masks,
     _load_pi05_for_llm_extract,
     _self_check_tokenizer_consistency,
 )
@@ -80,6 +80,13 @@ def build(args: argparse.Namespace) -> dict:
     # Fail closed unless the checkpoint we are about to load is the one the
     # library keys were built with (full-content weights digest, plan §3.7).
     model_binding = libs.assert_model_binding(lib_meta.get("model"), args.checkpoint_dir)
+    # The shadow keys must come from the same Stage-1 path as the library keys.
+    lib_path = lib_meta.get("stage1_path")
+    if lib_path not in STAGE1_PATHS:
+        raise SystemExit(f"library carries no valid stage1_path ({lib_path!r}); rebuild it with build_cp2_artifact")
+    stage1_path = args.stage1_path or lib_path
+    if stage1_path != lib_path:
+        raise SystemExit(f"--stage1-path {stage1_path} != library stage1_path {lib_path}")
     model, tokenizer = _load_pi05_for_llm_extract(args.checkpoint_dir, args.config_name, args.device)
     model.eval()
     builder = CP2VlmTernaryKeyBuilder(seed=proj["seed"], d=proj["d"], p=proj["p"], input_dim=proj["D"])
@@ -110,10 +117,8 @@ def build(args: argparse.Namespace) -> dict:
                 success = bool(f.attrs.get("success", False))
                 episode = h5_path.relative_to(pathlib.Path(args.cohort_h5_root)).with_suffix("").as_posix()
                 for step_idx, group in libs.iter_steps(f):
-                    fake = _build_fake_stage1_with_masks(
-                        group, task_str=task, tokenizer=tokenizer, model=model, device=device,
-                    )
-                    stage2 = model.run_stage2_capture(fake)
+                    stage1 = rebuild_stage1(group, task, tokenizer, model, device, stage1_path)
+                    stage2 = model.run_stage2_capture(stage1)
                     builder.collect(CheckpointID.CP2, stage2=stage2)
                     key = builder.build(CheckpointID.CP2)[libs.FIELD]
                     builder.clear()
@@ -141,6 +146,7 @@ def build(args: argparse.Namespace) -> dict:
         "library_sha256": libs.sha256_file(args.library_pkl),
         "library_entries": len(ids),
         "projection": proj,
+        "stage1_path": stage1_path,
         "cohort_root": str(pathlib.Path(args.cohort_h5_root).resolve()),
         "cohort_files": len(h5_files),
         "cohort_manifest_sha256": _manifest_digest(cohort_manifest),
@@ -175,6 +181,8 @@ def main() -> None:
     ap.add_argument("--config-name", default="pi05_libero")
     ap.add_argument("--checkpoint-dir", required=True)
     ap.add_argument("--device", default="cuda:0")
+    ap.add_argument("--stage1-path", choices=STAGE1_PATHS, default="",
+                    help="must equal the library's stage1_path (default: taken from the library)")
     ap.add_argument("--out-jsonl", required=True)
     ap.add_argument("--backend-check", type=int, default=50, help="rows cross-checked against the real backend")
     ap.add_argument("--limit-episodes", type=int, default=0, help="debug: only the first N H5 files")

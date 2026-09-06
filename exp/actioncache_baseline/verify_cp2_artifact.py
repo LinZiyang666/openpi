@@ -115,6 +115,8 @@ def verify(cp2_path: str, source_path: str, *, search_samples: int = 20, seed: i
     for field in ("source_pkl_sha256", "h5_manifest", "model", "tokenizer", "build_git_commit"):
         if not art.get(field):
             raise VerificationError(f"(g) metadata field {field!r} missing")
+    if art.get("stage1_path") not in ("offline", "online"):
+        raise VerificationError(f"(g) stage1_path must be 'online' or 'offline', got {art.get('stage1_path')!r}")
     wd = art["model"].get("weights_digest") if isinstance(art["model"], dict) else None
     if not (isinstance(wd, str) and len(wd) == 64 and all(c in "0123456789abcdef" for c in wd)):
         raise VerificationError(f"(g) model.weights_digest must be a full-content sha256, got {wd!r}")

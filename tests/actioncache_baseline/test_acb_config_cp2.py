@@ -89,7 +89,8 @@ def _write_cp2_artifact(path, spec, *, id_policy=libs.ID_POLICY, projection=None
         ))
     art = {"key_builder_type": libs.KEY_BUILDER_TYPE, "checkpoint_id": "CP2",
            "vector_dims": {libs.FIELD: spec.d}, "entries": entries,
-           "projection": spec.meta() if projection is None else projection, "id_policy": id_policy}
+           "projection": spec.meta() if projection is None else projection, "id_policy": id_policy,
+           "stage1_path": "online"}
     with open(path, "wb") as f:
         pickle.dump(art, f)
 

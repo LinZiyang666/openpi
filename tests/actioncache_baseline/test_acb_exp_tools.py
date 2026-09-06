@@ -142,7 +142,7 @@ def _write_pair(tmp_path, spec, *, tamper=None):
            "vector_dims": {libs.FIELD: spec.d}, "entries": entries, "projection": spec.meta(),
            "id_policy": libs.ID_POLICY, "source_pkl_sha256": libs.sha256_file(src_path),
            "h5_manifest": {"files": [], "digest": "x"},
-           "model": {"checkpoint_dir": "c", "weights_digest": "0" * 64},
+           "model": {"checkpoint_dir": "c", "weights_digest": "0" * 64}, "stage1_path": "online",
            "tokenizer": {"source": "s"}, "build_git_commit": "g"}
     cp2_path = tmp_path / "cp2.pkl"
     with open(cp2_path, "wb") as f:
@@ -199,6 +199,13 @@ def test_verify_rejects_uniformly_wrong_chunk_shape_and_partial_model_digest(tmp
     art["model"] = {"checkpoint_dir": "c", "sha256_head1mib": "ab" * 32}  # the pre-R1 partial identity
     pickle.dump(art, open(cp2, "wb"))
     with pytest.raises(VerificationError, match=r"\(g\) model.weights_digest"):
+        verify(cp2, src, search_samples=2)
+    (tmp_path / "s1").mkdir()
+    cp2, src = _write_pair(tmp_path / "s1", spec)
+    art = pickle.load(open(cp2, "rb"))
+    art.pop("stage1_path")  # a library that does not say how its keys were made
+    pickle.dump(art, open(cp2, "wb"))
+    with pytest.raises(VerificationError, match=r"\(g\) stage1_path"):
         verify(cp2, src, search_samples=2)
 
 
@@ -445,3 +452,22 @@ def test_bench_verdict_thresholds():
     assert verdict_for(9.9) == "ok_report"
     assert verdict_for(25.0) == "report_with_caption"
     assert verdict_for(41.0) == "halt_profile_segments"
+
+
+# ------------------------------------------------------------------
+# figure-spec export (points only)
+# ------------------------------------------------------------------
+
+
+def test_figure_point_labels_and_series_split():
+    from exp.actioncache_baseline.export_figure_points import point_label, series_arms
+
+    assert point_label("acb_sp_lib50_n0_ir65") == "N0 IR65"
+    assert point_label("acb_l10_s6_n1_ref850") == "N1 θ=.85"
+    assert point_label("rit_sp_ng_ir20") == "rit_sp_ng_ir20"
+    arms = {a: {"ir_percent": 60.0 + i, "success_rate": 0.9, "n_ep": 500}
+            for i, a in enumerate(("acb_sp_lib50_n0_ir65", "acb_sp_lib50_n1_ir65", "acb_sp_s6_n0_ir65"))}
+    s = series_arms(arms, "lib50", "n0")
+    assert list(s) == ["acb_sp_lib50_n0_ir65"] and s["acb_sp_lib50_n0_ir65"]["label"] == "N0 IR65"
+    assert set(s["acb_sp_lib50_n0_ir65"]) == {"ir_percent", "success_rate", "label", "n_ep"}
+    assert list(series_arms(arms, "s6", "n0")) == ["acb_sp_s6_n0_ir65"] and series_arms(arms, "s6", "n1") == {}

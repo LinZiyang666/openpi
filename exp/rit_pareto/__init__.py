@@ -8,5 +8,8 @@ Modules:
   shadow_cohort   sample + materialise the shadow cohort from the A-pool
   export_rit      calibration yaml; shadow table -> IR-addressed artifacts
   emit_arms       arm yamls + matrices for the no-gate / H-gate layers
-  aggregate_rit   three-tier inference ratio + success rate; frontier plots
+  aggregate_rit   three-tier inference ratio + success rate per arm
+  build_figure    run aggregates -> figure spec json (all experiment semantics)
+  render_figure   figure spec -> png/pdf; the Pareto frontier is always derived
+  edit_figure     browser editor for a figure spec; writes the spec and re-renders
 """

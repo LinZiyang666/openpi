@@ -83,7 +83,8 @@ def _write_artifact(path, keys):
         step_idx=i, trajectory_id="traj", prev_ids=[], next_ids=[]) for i, k in enumerate(keys)]
     art = {"key_builder_type": libs.KEY_BUILDER_TYPE, "checkpoint_id": "CP2",
            "vector_dims": {libs.FIELD: PROJ.d}, "entries": entries, "projection": SPEC.meta(),
-           "id_policy": libs.ID_POLICY, "model": {"checkpoint_dir": "c", "weights_digest": "0" * 64}}
+           "id_policy": libs.ID_POLICY, "model": {"checkpoint_dir": "c", "weights_digest": "0" * 64},
+           "stage1_path": "online"}
     with open(path, "wb") as f:
         pickle.dump(art, f)
 

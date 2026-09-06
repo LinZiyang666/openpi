@@ -1,0 +1,35 @@
+protocol: actioncache_baseline/v1
+suite: libero_spatial
+rule: acb_lib50
+checkpoint: cp2
+arms:
+- arm: acb_sp_lib50_n0_ir65
+  yaml: /tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n0_ir65.yaml
+  suite: libero_spatial
+- arm: acb_sp_lib50_n0_ir75
+  yaml: /tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n0_ir75.yaml
+  suite: libero_spatial
+- arm: acb_sp_lib50_n0_ir85
+  yaml: /tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n0_ir85.yaml
+  suite: libero_spatial
+- arm: acb_sp_lib50_n0_ir95
+  yaml: /tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n0_ir95.yaml
+  suite: libero_spatial
+- arm: acb_sp_lib50_n0_ref850
+  yaml: /tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n0_ref850.yaml
+  suite: libero_spatial
+- arm: acb_sp_lib50_n1_ir65
+  yaml: /tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n1_ir65.yaml
+  suite: libero_spatial
+- arm: acb_sp_lib50_n1_ir75
+  yaml: /tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n1_ir75.yaml
+  suite: libero_spatial
+- arm: acb_sp_lib50_n1_ir85
+  yaml: /tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n1_ir85.yaml
+  suite: libero_spatial
+- arm: acb_sp_lib50_n1_ir95
+  yaml: /tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n1_ir95.yaml
+  suite: libero_spatial
+- arm: acb_sp_lib50_n1_ref850
+  yaml: /tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n1_ref850.yaml
+  suite: libero_spatial

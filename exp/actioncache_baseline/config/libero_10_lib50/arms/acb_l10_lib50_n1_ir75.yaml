@@ -1,0 +1,65 @@
+enabled: true
+timer:
+  enabled: false
+keys:
+  vision_0:
+    enabled: false
+    weight: 0.0
+  vision_1:
+    enabled: false
+    weight: 0.0
+  vision_2:
+    enabled: false
+    weight: 0.0
+  prompt_emb:
+    enabled: false
+    weight: 0.0
+  robot_state:
+    enabled: false
+    weight: 0.0
+  vlm_out:
+    enabled: true
+    weight: 1.0
+key_builder:
+  type: cp2_vlm_ternary
+  cp2_vlm:
+    seed: 20260904
+    d: 500
+    p: 0.01
+    input_dim: 1982464
+checkpoints:
+  cp2:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: threshold
+      threshold: 1.5
+      warm_tiers:
+      - threshold: 0.9532768130302429
+        start_t: 0.1
+    search_strategy:
+      type: weighted_score_sum_knn
+      top_k: 1
+      step_filter: all
+      task_scoped: false
+      field_similarity:
+        vlm_out:
+          type: cosine
+      score_normalization:
+        type: per_field
+        fields:
+          vlm_out:
+            method: affine_clip
+            params:
+              lo: -1.0
+              hi: 1.0
+backend:
+  type: in_memory
+  vector_dims:
+    vlm_out: 500
+  in_memory:
+    preload_path: /data/acb/cp2_libero_10_lib50.pkl
+    index_type: brute_force
+write_policy:
+  type: never

@@ -1,0 +1,240 @@
+{
+  "arm_matrix": "/tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arm_matrix.yaml",
+  "arms": {
+    "acb_sp_lib50_n0_ir65": {
+      "admit_frac": 0.7992483557782649,
+      "arm_id": "acb_sp_lib50_n0_ir65",
+      "hit_type": "FULL_HIT",
+      "ir_gap": -0.005557331732163107,
+      "predicted_ir": 64.99444266826784,
+      "start_t": null,
+      "target_ir": 65.0,
+      "theta_norm": 0.9495989978313446,
+      "theta_raw": 0.8991979956626892,
+      "tier": "n0",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n0_ir65.yaml",
+      "yaml_sha256": "6d55d7fb7986f7e93ec405f757788fb97889ef95de17c1825b4ac9c6e2441bb7"
+    },
+    "acb_sp_lib50_n0_ir75": {
+      "admit_frac": 0.570936423426245,
+      "arm_id": "acb_sp_lib50_n0_ir75",
+      "hit_type": "FULL_HIT",
+      "ir_gap": -0.0059290814058527985,
+      "predicted_ir": 74.99407091859415,
+      "start_t": null,
+      "target_ir": 75.0,
+      "theta_norm": 0.9540078938007355,
+      "theta_raw": 0.908015787601471,
+      "tier": "n0",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n0_ir75.yaml",
+      "yaml_sha256": "4316aa36db31a7a79d59d741cdaa04ac18d2f4e59fd92541bfb4bfe3b5c7294e"
+    },
+    "acb_sp_lib50_n0_ir85": {
+      "admit_frac": 0.3426244910742249,
+      "arm_id": "acb_sp_lib50_n0_ir85",
+      "hit_type": "FULL_HIT",
+      "ir_gap": -0.0063008310795424904,
+      "predicted_ir": 84.99369916892046,
+      "start_t": null,
+      "target_ir": 85.0,
+      "theta_norm": 0.9583264589309692,
+      "theta_raw": 0.9166529178619385,
+      "tier": "n0",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n0_ir85.yaml",
+      "yaml_sha256": "3c247c8c3813bd93921718acc8b0ac89b510f8b28ff5bc6348ddb96796d70c28"
+    },
+    "acb_sp_lib50_n0_ir95": {
+      "admit_frac": 0.11431255872220482,
+      "arm_id": "acb_sp_lib50_n0_ir95",
+      "hit_type": "FULL_HIT",
+      "ir_gap": -0.0066725807532179715,
+      "predicted_ir": 94.99332741924678,
+      "start_t": null,
+      "target_ir": 95.0,
+      "theta_norm": 0.9637775719165802,
+      "theta_raw": 0.9275551438331604,
+      "tier": "n0",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n0_ir95.yaml",
+      "yaml_sha256": "6d9b3df502957270f6e450ab107541e864850f18016c52414f06469e8496fead"
+    },
+    "acb_sp_lib50_n0_ref850": {
+      "admit_frac": 1.0,
+      "arm_id": "acb_sp_lib50_n0_ref850",
+      "hit_type": "FULL_HIT",
+      "ir_gap": null,
+      "predicted_ir": 56.20190260179436,
+      "start_t": null,
+      "target_ir": null,
+      "theta_norm": 0.925,
+      "theta_raw": 0.85,
+      "tier": "n0",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n0_ref850.yaml",
+      "yaml_sha256": "762ccecbe35cc640a6985a57066c79b1d5f7514e961df793e7c1be1bb8a14797"
+    },
+    "acb_sp_lib50_n1_ir65": {
+      "admit_frac": 0.8878797369245224,
+      "arm_id": "acb_sp_lib50_n1_ir65",
+      "hit_type": "WARM_START",
+      "ir_gap": 0.0013011238578997109,
+      "predicted_ir": 65.0013011238579,
+      "start_t": 0.1,
+      "target_ir": 65.0,
+      "theta_norm": 0.9469363987445831,
+      "theta_raw": 0.8938727974891663,
+      "tier": "n1",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n1_ir65.yaml",
+      "yaml_sha256": "46d49a3c671bbd23935d74eae659df777b22ff864a53b9e5b831ab7e8f2c00ca"
+    },
+    "acb_sp_lib50_n1_ir75": {
+      "admit_frac": 0.6341998120889446,
+      "arm_id": "acb_sp_lib50_n1_ir75",
+      "hit_type": "WARM_START",
+      "ir_gap": 0.0009293741842100189,
+      "predicted_ir": 75.00092937418421,
+      "start_t": 0.1,
+      "target_ir": 75.0,
+      "theta_norm": 0.9528521001338959,
+      "theta_raw": 0.9057042002677917,
+      "tier": "n1",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n1_ir75.yaml",
+      "yaml_sha256": "29cd0f19b3fb7b326d608dfafdd31aa7600fc3b491dbeb38e7c586227454b52e"
+    },
+    "acb_sp_lib50_n1_ir85": {
+      "admit_frac": 0.3805198872533667,
+      "arm_id": "acb_sp_lib50_n1_ir85",
+      "hit_type": "WARM_START",
+      "ir_gap": 0.000557624510520327,
+      "predicted_ir": 85.00055762451052,
+      "start_t": 0.1,
+      "target_ir": 85.0,
+      "theta_norm": 0.9576005935668945,
+      "theta_raw": 0.9152011871337891,
+      "tier": "n1",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n1_ir85.yaml",
+      "yaml_sha256": "33dee3904305f5095052764edbe7e0d5eeabdfbbfabdb398c8439fa51672ac4c"
+    },
+    "acb_sp_lib50_n1_ir95": {
+      "admit_frac": 0.12683996241778892,
+      "arm_id": "acb_sp_lib50_n1_ir95",
+      "hit_type": "WARM_START",
+      "ir_gap": 0.0001858748368306351,
+      "predicted_ir": 95.00018587483683,
+      "start_t": 0.1,
+      "target_ir": 95.0,
+      "theta_norm": 0.963274210691452,
+      "theta_raw": 0.926548421382904,
+      "tier": "n1",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n1_ir95.yaml",
+      "yaml_sha256": "f48ec6baee2a97f578369389439dcccbc7dbe7434aa3bd017f4b5c457e4173de"
+    },
+    "acb_sp_lib50_n1_ref850": {
+      "admit_frac": 1.0,
+      "arm_id": "acb_sp_lib50_n1_ref850",
+      "hit_type": "WARM_START",
+      "ir_gap": null,
+      "predicted_ir": 60.58171234161492,
+      "start_t": 0.1,
+      "target_ir": null,
+      "theta_norm": 0.925,
+      "theta_raw": 0.85,
+      "tier": "n1",
+      "yaml": "/tmp/dsp_shared/actioncache_baseline/libero_spatial_lib50/arms/acb_sp_lib50_n1_ref850.yaml",
+      "yaml_sha256": "f0b79e6a5aecd9ff071868873b3f512038b8e6a961417157916adf94762195a2"
+    }
+  },
+  "attainable_ir": {
+    "n0": [
+      56.20190260179436,
+      100.0
+    ],
+    "n1": [
+      60.58171234161492,
+      100.0
+    ]
+  },
+  "budget": {
+    "arms_per_tier": {
+      "n0": 5,
+      "n1": 5
+    },
+    "group_arm_cap": 17,
+    "tier_target_cap": {
+      "n0": 8,
+      "n1": 7
+    },
+    "total_arms": 10
+  },
+  "cost_table": "cuda_graph",
+  "deploy_library_path": "/data/acb/cp2_libero_spatial_lib50.pkl",
+  "git_commit": "unknown",
+  "lib_tag": "lib50",
+  "library_pkl": "/data/acb/cp2_libero_spatial_lib50.pkl",
+  "library_sha256": "a086936fd1d0c406af1cd04da66b315691ab463ddec16b115563451303702935",
+  "max_gap": 1.0,
+  "n_rows": 3193,
+  "projection": {
+    "D": 1982464,
+    "accumulation_dtype": "float32",
+    "d": 500,
+    "digest": "6279b39845efb5ccebad6ce1a2d54cab1686502c20e413432cfdaf725d3b02b6",
+    "nnz_per_sign": 9912,
+    "p": 0.01,
+    "seed": 20260904
+  },
+  "protocol": "actioncache_baseline/v1",
+  "ref_theta_raw": 0.85,
+  "shadow_record": {
+    "backend_checked_rows": 50,
+    "checkpoint_dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch",
+    "cohort_files": 150,
+    "cohort_manifest_sha256": "f342b68fb00fb9f87a48ef9c1dc1fdff15821ca49dc681bf0d2b7bd17b2d1b1b",
+    "cohort_root": "/tmp/dsp_shared/rit_pareto/libero_spatial/h5",
+    "config_name": "pi05_libero",
+    "elapsed_s": 812.9,
+    "git_commit": "unknown",
+    "library_entries": 1018,
+    "library_pkl": "/data/acb/cp2_libero_spatial_lib50.pkl",
+    "library_sha256": "a086936fd1d0c406af1cd04da66b315691ab463ddec16b115563451303702935",
+    "model": {
+      "bound_to_library": true,
+      "bytes": 7233650557,
+      "checkpoint_dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch",
+      "files": 2,
+      "library_model": {
+        "bytes": 7233650557,
+        "checkpoint_dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch",
+        "config_name": "pi05_libero",
+        "files": 2,
+        "weights_digest": "dc8fd0bbd893b887322304742d4278d4ca5a53dd52837d77979e442fe1aa30df"
+      },
+      "weights_digest": "dc8fd0bbd893b887322304742d4278d4ca5a53dd52837d77979e442fe1aa30df"
+    },
+    "n_rows": 3193,
+    "out_jsonl": "/data/acb/shadow_libero_spatial_lib50.jsonl",
+    "out_jsonl_sha256": "c2228559a56288cdcc356f070805f8174d7c7e1b260a08440440a5c2bf675fc1",
+    "projection": {
+      "D": 1982464,
+      "accumulation_dtype": "float32",
+      "d": 500,
+      "digest": "6279b39845efb5ccebad6ce1a2d54cab1686502c20e413432cfdaf725d3b02b6",
+      "nnz_per_sign": 9912,
+      "p": 0.01,
+      "seed": 20260904
+    },
+    "protocol": "actioncache_baseline/v1",
+    "stage1_path": "online"
+  },
+  "shadow_table": "/data/acb/shadow_libero_spatial_lib50.jsonl",
+  "skipped": [],
+  "suite": "libero_spatial",
+  "targets": [
+    65.0,
+    75.0,
+    85.0,
+    95.0
+  ],
+  "tiers": [
+    "n0",
+    "n1"
+  ]
+}

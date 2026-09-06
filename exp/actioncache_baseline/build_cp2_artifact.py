@@ -39,10 +39,10 @@ import h5py
 import torch
 
 from exp.actioncache_baseline import libs
+from exp.actioncache_baseline.stage1_paths import DEFAULT_STAGE1_PATH, STAGE1_PATHS, rebuild_stage1
 from exp.common.build_in_memory_cache_artifact import (
     _PI05_TOKENIZER_MAX_LEN,
     _PI05_TOKENIZER_SOURCE,
-    _build_fake_stage1_with_masks,
     _load_pi05_for_llm_extract,
     _self_check_tokenizer_consistency,
 )
@@ -125,10 +125,8 @@ def build(args: argparse.Namespace) -> dict:
                     e = wanted.pop(step_idx, None)
                     if e is None:
                         continue
-                    fake = _build_fake_stage1_with_masks(
-                        group, task_str=task, tokenizer=tokenizer, model=model, device=device,
-                    )
-                    stage2 = model.run_stage2_capture(fake)
+                    stage1 = rebuild_stage1(group, task, tokenizer, model, device, args.stage1_path)
+                    stage2 = model.run_stage2_capture(stage1)
                     builder.collect(CheckpointID.CP2, stage2=stage2)
                     key = builder.build(CheckpointID.CP2)[libs.FIELD]
                     builder.clear()
@@ -155,6 +153,10 @@ def build(args: argparse.Namespace) -> dict:
         "entries": out_entries,
         "projection": builder.projection_meta(),
         "id_policy": libs.ID_POLICY,
+        # How Stage 1 was obtained for every key (§3.8): "online" = the serving
+        # path on the stored input images; "offline" = stored vision/prompt
+        # tensors (diverges from serving, see stage1_paths.py).
+        "stage1_path": args.stage1_path,
         "source_pkl": str(source_path),
         "source_pkl_sha256": libs.sha256_file(source_path),
         "source_key_builder_type": src.get("key_builder_type"),
@@ -196,6 +198,8 @@ def main() -> None:
     ap.add_argument("--d", type=int, default=libs.ProjectionArgs.d)
     ap.add_argument("--p", type=float, default=libs.ProjectionArgs.p)
     ap.add_argument("--input-dim", type=int, default=libs.ProjectionArgs.input_dim)
+    ap.add_argument("--stage1-path", choices=STAGE1_PATHS, default=DEFAULT_STAGE1_PATH,
+                    help="Stage-1 reconstruction: online (serving path on input_images, default) or offline")
     ap.add_argument("--limit", type=int, default=0, help="debug: only the first N source entries")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")

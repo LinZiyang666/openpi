@@ -36,6 +36,7 @@ import numpy as np
 import yaml
 
 from exp.dispatch_surface.analysis.analytic_cost import cost_model_digest
+from exp.dispatch_surface.emit_precheck_yamls import LAYER_SECONDARY, gate_section
 from exp.gate_threshold_pareto import libraries as libs
 from exp.rit_pareto import rit_k
 from openpi.cache.config import load_cache_config
@@ -122,8 +123,13 @@ def deployable_tiers(thetas: list[float]) -> list[tuple[rit_k.Tier, float]]:
     return out
 
 
-def build_arm(template: dict, *, preload_path: str, thetas: list[float]) -> tuple[dict, list[str]] | None:
+def build_arm(template: dict, *, preload_path: str, thetas: list[float],
+              gate_theta: float | None = None) -> tuple[dict, list[str]] | None:
     """Template + threshold judge with the deployable tiers of ``thetas``.
+
+    ``gate_theta`` None keeps the no-gate layer (``always_search``); a float puts
+    the production hysteresis gate (GTP constants j / probe_interval / L) at that
+    score in front of the same judge, which is the K=3 H-gate layer.
 
     Returns ``(yaml dict, deployed tier names)``; None when no tier can fire
     (an all-MISS rule)."""
@@ -141,7 +147,7 @@ def build_arm(template: dict, *, preload_path: str, thetas: list[float]) -> tupl
     if warm:
         judge["warm_tiers"] = warm
     cp1["judge"] = judge
-    cp1["gate"] = {"type": "always_search"}
+    cp1["gate"] = {"type": "always_search"} if gate_theta is None else gate_section(LAYER_SECONDARY, float(gate_theta))
     doc["backend"]["in_memory"]["preload_path"] = preload_path
     doc["write_policy"] = {"type": "never"}
     return doc, [t.name for t, _ in finite]
@@ -152,11 +158,32 @@ def build_arm(template: dict, *, preload_path: str, thetas: list[float]) -> tupl
 # ------------------------------------------------------------------
 
 
+def rule_tag(rule: str, gate_theta: float | None) -> str:
+    """Directory / arm-id tag of a rule: ``gst`` for the no-gate layer, ``gsth``
+    for the same cuts behind the hysteresis gate."""
+    return rule if gate_theta is None else f"{rule}h"
+
+
 def export(args) -> dict:
     out_dir = pathlib.Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    if any(out_dir.iterdir()):
-        raise SystemExit(f"--out-dir must be empty: {out_dir}")
+    rules_arg = getattr(args, "rules", None) or ",".join(RULES)
+    rules = tuple(r.strip() for r in rules_arg.split(",") if r.strip())
+    if not rules or any(r not in RULES for r in rules):
+        raise SystemExit(f"--rules must be a subset of {RULES}, got {rules_arg!r}")
+    gate_arg = getattr(args, "gate_theta", None)
+    gate_theta = None if gate_arg is None else float(gate_arg)
+    if gate_theta is not None and not (0.0 < gate_theta < 1.0):
+        raise SystemExit(f"--gate-theta must lie in (0, 1), got {gate_theta}")
+    # One record per exported layer set: the no-gate export keeps its historical name, a gated
+    # export is named after the rule tags it wrote (export_record_gsth.json, export_record_rith.json).
+    record_name = ("export_record.json" if gate_theta is None
+                   else "export_record_" + "_".join(rule_tag(r, gate_theta) for r in rules) + ".json")
+    clashes = [p for p in [out_dir / record_name]
+               + [out_dir / rule_tag(r, gate_theta) for r in rules]
+               + [out_dir / f"arm_matrix_{rule_tag(r, gate_theta)}.yaml" for r in rules] if p.exists()]
+    if clashes:
+        raise SystemExit(f"--out-dir must be empty of this layer's outputs, already holds: {[str(p) for p in clashes]}")
     table = pathlib.Path(args.table)
     rows = load_rows(table, args.ref_mode)
     s = np.asarray([r["s"] for r in rows], dtype=np.float64)
@@ -225,16 +252,21 @@ def export(args) -> dict:
                 "fit": rit_k.fit_record_fields(fit), "fit_digests": rit_k.fit_digests(fit),
                 "ir_curve": [[float(d), float(ir)] for d, ir in rit_k.ir_curve(fit, s)], "arms": rit_arms},
         "gst": {"step": args.gst_step, "max_sum": args.gst_max_sum, "arms": gst_arms, "skipped": skipped},
+        "gate": None if gate_theta is None else gate_section(LAYER_SECONDARY, gate_theta),
+        "rules": list(rules),
         "layers": {},
     })
-    for rule in RULES:
-        rule_dir = out_dir / rule
+    for rule in rules:
+        tag_r = rule_tag(rule, gate_theta)
+        rule_dir = out_dir / tag_r
         rule_dir.mkdir()
         rows_out = []
         arms = record[rule]["arms"]
-        for arm, rec in arms.items():
+        for arm_base, rec in arms.items():
+            # Same cuts, same arm ids up to the layer tag (k3_sp_gst_* -> k3_sp_gsth_*).
+            arm = arm_base.replace(f"_{rule}_", f"_{tag_r}_", 1)
             thetas = rit_thetas_to_list(rec["thetas"])
-            built = build_arm(template, preload_path=args.library_pkl, thetas=thetas)
+            built = build_arm(template, preload_path=args.library_pkl, thetas=thetas, gate_theta=gate_theta)
             if built is None:
                 raise SystemExit(f"{arm}: cuts {thetas} produce no deployable tier set")
             doc, deployed = built
@@ -245,15 +277,18 @@ def export(args) -> dict:
             got = [cp1.judge.threshold] + [t["threshold"] for t in (cp1.judge.warm_tiers or [])]
             if any(b >= a for a, b in zip(got, got[1:])):
                 raise SystemExit(f"{path}: thresholds not strictly decreasing after round-trip: {got}")
+            if gate_theta is not None and (cp1.gate.type != "score_hysteresis" or cp1.gate.L != gate_section(LAYER_SECONDARY, gate_theta)["L"]):
+                raise SystemExit(f"{path}: gate did not round-trip: {cp1.gate}")
             rec["yaml"] = str(path.resolve())
             rec["yaml_sha256"] = _sha(path)
             rec["deployed_tiers"] = deployed
+            rec["arm_id"] = arm
             rows_out.append({"arm": arm, "yaml": str(path.resolve()), "suite": args.suite})
-        matrix = {"protocol": PROTOCOL, "suite": args.suite, "rule": rule, "arms": rows_out}
-        mpath = out_dir / f"arm_matrix_{rule}.yaml"
+        matrix = {"protocol": PROTOCOL, "suite": args.suite, "rule": tag_r, "arms": rows_out}
+        mpath = out_dir / f"arm_matrix_{tag_r}.yaml"
         mpath.write_text(yaml.safe_dump(matrix, sort_keys=False), encoding="utf-8")
-        record["layers"][rule] = {"matrix": str(mpath.resolve()), "n_arms": len(rows_out)}
-    (out_dir / "export_record.json").write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
+        record["layers"][tag_r] = {"matrix": str(mpath.resolve()), "n_arms": len(rows_out)}
+    (out_dir / record_name).write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
     return record
 
 
@@ -268,6 +303,10 @@ def main() -> None:
     ap.add_argument("--target-ir", default=",".join(f"{t:g}" for t in DEFAULT_TARGETS))
     ap.add_argument("--gst-step", type=int, default=GST_STEP)
     ap.add_argument("--gst-max-sum", type=int, default=GST_MAX_SUM)
+    ap.add_argument("--rules", default=",".join(RULES), help="subset of rit,gst to emit (comma-separated)")
+    ap.add_argument("--gate-theta", type=float, default=None,
+                    help="emit the H-gate layer (score_hysteresis at this theta) instead of the no-gate layer; "
+                         "rule dirs / arm ids get the 'h' suffix (gst -> gsth) and the record is export_record_<tags>.json")
     ap.add_argument("--out-dir", required=True)
     args = ap.parse_args()
     rec = export(args)
