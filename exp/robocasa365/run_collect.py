@@ -49,6 +49,11 @@ from typing import Any
 
 from openpi.conductor import task as _task
 from openpi.conductor.agent import WorkerAgent, WorkerSpec
+from exp.robocasa365.pinned_objects import (
+    compute_pin_task_id,
+    load_pin_manifest,
+    resolve_manifest_path,
+)
 from openpi.conductor.driver import ConductorDriver
 from openpi.conductor.strategy import ExperimentStrategy
 from openpi.conductor.task import EpisodeTask, ServerEndpoint, Stage, TaskGraph, make_task_uid
@@ -99,6 +104,11 @@ def canonical_collect_root(raw: str) -> str:
 # ------------------------------------------------------------------
 
 
+# First seed of the evaluation segment. Collection uses 0.. and eval 1_000_000..
+# so the two never share an initial state (analysis/robocasa365_seed_anatomy.md).
+EVAL_SEED_BASE = 1_000_000
+
+
 class RobocasaCollectStrategy(ExperimentStrategy):
     """Static collection plan: one eval stage per task, no calibration, no deps.
 
@@ -118,6 +128,8 @@ class RobocasaCollectStrategy(ExperimentStrategy):
         tasks: list[tuple[str, int]],
         batch: int = 1,
         episode_lo: dict[str, int] | None = None,
+        pin_id: str | None = None,
+        pinned_objects: dict[str, dict[str, str]] | None = None,
     ) -> None:
         if teacher not in TEACHERS:
             raise ValueError(f"unknown teacher {teacher!r}; expected one of {TEACHERS}")
@@ -131,6 +143,33 @@ class RobocasaCollectStrategy(ExperimentStrategy):
         # Extension batches continue the episode range where the prior batch
         # ended (seeds stay contiguous and non-overlapping, §4.3.6-(4)).
         self._episode_lo = dict(episode_lo or {})
+        self._pin_id = pin_id
+        self._pinned_objects = pinned_objects
+        if (pin_id is None) != (pinned_objects is None):
+            raise ValueError("pin_id and pinned_objects must be supplied together")
+        if pinned_objects is not None:
+            unknown = sorted({name for name, _ in self._tasks} - set(pinned_objects))
+            if unknown:
+                raise ValueError(
+                    f"pin table has no slot map for {unknown}; a task dispatched "
+                    "without pins would silently run random objects"
+                )
+        # The eval segment starts at 1_000_000 (analysis/robocasa365_seed_anatomy.md).
+        # Nothing enforced that until now: a large enough extension batch would
+        # walk collection seeds straight into eval's range and the two would
+        # share initial states with no error anywhere. The guard applies only to
+        # runs that START in the collection segment -- an eval run's base_seed
+        # IS 1_000_000 by design, so testing it against the same bound would
+        # reject every eval strategy.
+        highest = max(
+            (int(self._episode_lo.get(name, 0)) + int(n) - 1 for name, n in self._tasks),
+            default=0,
+        )
+        if self._base_seed < EVAL_SEED_BASE and self._base_seed + highest >= EVAL_SEED_BASE:
+            raise ValueError(
+                f"seed {self._base_seed + highest} reaches the eval segment "
+                f"(base {EVAL_SEED_BASE}); collection and eval must not share seeds"
+            )
         self.run_id = build_run_id(self._layout, self._style, teacher)
 
     @property
@@ -173,6 +212,21 @@ class RobocasaCollectStrategy(ExperimentStrategy):
                             "base_seed": self._base_seed,
                             "replan_steps": self._replan_steps,
                             "batch": self._batch,
+                            # The pin payload travels WITH the task: a hash
+                            # cannot build an environment, only the slot map
+                            # can. Absent for unpinned runs so their wire
+                            # format is unchanged.
+                            **(
+                                {}
+                                if self._pinned_objects is None
+                                else {
+                                    "pin_id": self._pin_id,
+                                    "pin_task_id": compute_pin_task_id(
+                                        task_name, self._pinned_objects[task_name]
+                                    ),
+                                    "pinned_objects": self._pinned_objects[task_name],
+                                }
+                            ),
                         },
                     )
                 )
@@ -282,6 +336,9 @@ def build_run_plan(strategy: RobocasaCollectStrategy, graph: TaskGraph, collect_
             # Output-affecting parameter, canonicalized: a resume must not be
             # able to split one journal across two spellings of the same root.
             "collect_root": canonical_collect_root(collect_root),
+            # Identity of the object pinning, so a resume cannot join a pinned
+            # batch onto an unpinned journal (or onto a different pin table).
+            "pin_id": strategy._pin_id,  # noqa: SLF001 - own module
         },
         "uids": uids,
         "prefixes": prefixes,
@@ -339,6 +396,7 @@ def robocasa_spawn_fn(
     episode_deadline_s: float,
     terminate_grace_s: float,
     max_cached_envs: int | None = None,
+    pinned_objects_path: str | None = None,
 ) -> subprocess.Popen:
     """Launch one island-A worker. All paths come from parameters — never hardcoded.
 
@@ -362,6 +420,8 @@ def robocasa_spawn_fn(
     if max_cached_envs is not None:
         # Optional so every existing collection invocation stays byte-identical.
         cmd += ["--max-cached-envs", str(max_cached_envs)]
+    if pinned_objects_path:
+        cmd += ["--pinned-objects", pinned_objects_path]
     env = {k: v for k, v in os.environ.items() if k not in ("VIRTUAL_ENV", "PYTHONPATH", "PYTHONHOME")}
     # Island A has openpi_client but not openpi/exp; both come off the repo.
     env["PYTHONPATH"] = os.pathsep.join((repo_root, os.path.join(repo_root, "src")))
@@ -409,6 +469,12 @@ def main() -> None:
     ap.add_argument("--replan-steps", type=int, default=5)
     ap.add_argument("--batch", type=int, default=1)
     ap.add_argument("--episode-lo", default="", help="TaskA:20,TaskB:15 — extension-batch episode range starts")
+    ap.add_argument(
+        "--pinned-objects",
+        default="",
+        help="pin table path; pins every object slot to one exact mesh. The "
+        "driver re-derives its pin_id and every worker re-reads the file.",
+    )
     ap.add_argument("--collect-root", required=True, help="scene root the servers write under (hashed into run-plan)")
     ap.add_argument("--journal", default="", help="default: exp/robocasa365/data/journal_<runid>.jsonl")
     ap.add_argument("--run-plan-dir", default="", help="default: alongside the journal")
@@ -438,6 +504,13 @@ def main() -> None:
         if item:
             name, _, lo = item.partition(":")
             episode_lo[name] = int(lo)
+    # Resolved once here, on the driver: the worker's cwd is the external
+    # RoboCasa checkout, so a relative path forwarded verbatim opens nothing.
+    pin_path = resolve_manifest_path(args.pinned_objects) if args.pinned_objects else ""
+    pin_id, pinned_objects = (None, None)
+    if pin_path:
+        pin_id, pinned_objects = load_pin_manifest(pin_path)
+        print(f"[run_collect] pin_id={pin_id} manifest={pin_path}", flush=True)
     strategy = RobocasaCollectStrategy(
         teacher=args.teacher,
         layout=args.layout,
@@ -447,6 +520,8 @@ def main() -> None:
         tasks=tasks,
         batch=args.batch,
         episode_lo=episode_lo,
+        pin_id=pin_id,
+        pinned_objects=pinned_objects,
     )
     run_id = strategy.run_id
     data_dir = pathlib.Path(__file__).resolve().parent / "data"
@@ -508,6 +583,7 @@ def main() -> None:
             connect_deadline_s=args.connect_deadline_s,
             episode_deadline_s=args.episode_deadline_s,
             terminate_grace_s=args.terminate_grace_s,
+            pinned_objects_path=pin_path or None,
         )
         agent = WorkerAgent(specs, driver_host=driver_host, driver_port=driver_port, spawn_fn=spawn)
         agent_thread = threading.Thread(target=agent.run, daemon=True)

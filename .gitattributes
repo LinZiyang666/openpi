@@ -1,0 +1,3 @@
+# Patch files carry exact diff context, empty context lines included; git
+# must not treat their intentional trailing space as a whitespace error.
+/exp/robocasa365/patches/robocasa_pnp_pinned_objects.patch -whitespace

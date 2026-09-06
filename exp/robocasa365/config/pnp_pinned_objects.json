@@ -1,0 +1,269 @@
+{
+ "pin_id": "4d13ac5effce76c0ec253c9cef7dc2ed25dcb7d9ed4bae596e8b08ca483edcaa",
+ "pinned_objects": {
+  "PickPlaceCounterToCabinet": {
+   "distr_cab": "objects/objaverse/beer/beer_5/model.xml",
+   "distr_counter": "objects/objaverse/bread/bread_4/model.xml",
+   "obj": "objects/lightwheel/turmeric/Turmeric008/model.xml"
+  },
+  "PickPlaceCounterToStove": {
+   "container": "objects/objaverse/pan/pan_5/model.xml",
+   "obj": "objects/objaverse/corn/corn_3/model.xml",
+   "obj_container": "objects/objaverse/plate/plate_8/model.xml"
+  },
+  "PickPlaceDrawerToCounter": {
+   "distr": "objects/lightwheel/mustard/Mustard010/model.xml",
+   "obj": "objects/lightwheel/tongs/Tongs009/model.xml"
+  },
+  "PickPlaceSinkToCounter": {
+   "container": "objects/objaverse/plate/plate_8/model.xml",
+   "distr_counter": "objects/objaverse/bread/bread_4/model.xml",
+   "obj": "objects/objaverse/apple/apple_7/model.xml"
+  },
+  "PickPlaceToasterToCounter": {
+   "obj": "objects/lightwheel/sandwich_bread/SandwichBread011/model_upright.xml",
+   "plate": "objects/objaverse/plate/plate_8/model.xml"
+  }
+ },
+ "provenance": {
+  "layout": 1,
+  "obj_registries": [
+   "objaverse",
+   "lightwheel"
+  ],
+  "slots": {
+   "PickPlaceCounterToCabinet": [
+    {
+     "attempts": 1,
+     "candidates": 460,
+     "category": "turmeric",
+     "extent": [
+      0.06587308,
+      0.066242176,
+      0.11895053950000001
+     ],
+     "mjcf_path": "objects/lightwheel/turmeric/Turmeric008/model.xml",
+     "name": "obj",
+     "rank": 0,
+     "registry": "lightwheel",
+     "scale": 0.65,
+     "volume": 0.0005190497382650143
+    },
+    {
+     "attempts": 1,
+     "candidates": 576,
+     "category": "bread",
+     "extent": [
+      0.08456705165999998,
+      0.08926895977999999,
+      0.06878105779999999
+     ],
+     "mjcf_path": "objects/objaverse/bread/bread_4/model.xml",
+     "name": "distr_counter",
+     "rank": 0,
+     "registry": "objaverse",
+     "scale": [
+      0.7,
+      0.7,
+      1.0
+     ],
+     "volume": 0.000519242837357023
+    },
+    {
+     "attempts": 1,
+     "candidates": 576,
+     "category": "beer",
+     "extent": [
+      0.05119406205499997,
+      0.051194067919999975,
+      0.19763801536999992
+     ],
+     "mjcf_path": "objects/objaverse/beer/beer_5/model.xml",
+     "name": "distr_cab",
+     "rank": 2,
+     "registry": "objaverse",
+     "scale": 1.15,
+     "volume": 0.0005179760924022159
+    }
+   ],
+   "PickPlaceCounterToStove": [
+    {
+     "attempts": 1,
+     "candidates": 5,
+     "category": "pan",
+     "extent": [
+      0.23288965255738678,
+      0.4034186749487407,
+      0.033542426640000005
+     ],
+     "mjcf_path": "objects/objaverse/pan/pan_5/model.xml",
+     "name": "container",
+     "rank": 0,
+     "registry": "objaverse",
+     "scale": 1.7,
+     "volume": 0.0031513792431411927
+    },
+    {
+     "attempts": 1,
+     "candidates": 5,
+     "category": "plate",
+     "extent": [
+      0.247940875935,
+      0.24539034402000004,
+      0.01667049282
+     ],
+     "mjcf_path": "objects/objaverse/plate/plate_8/model.xml",
+     "name": "obj_container",
+     "rank": 0,
+     "registry": "objaverse",
+     "scale": 1.35,
+     "volume": 0.0010142710726620341
+    },
+    {
+     "attempts": 1,
+     "candidates": 103,
+     "category": "corn",
+     "extent": [
+      0.042583401629999997,
+      0.17180189334,
+      0.040235673555
+     ],
+     "mjcf_path": "objects/objaverse/corn/corn_3/model.xml",
+     "name": "obj",
+     "rank": 0,
+     "registry": "objaverse",
+     "scale": 1.05,
+     "volume": 0.0002943605272836185
+    }
+   ],
+   "PickPlaceDrawerToCounter": [
+    {
+     "attempts": 1,
+     "candidates": 33,
+     "category": "tongs",
+     "extent": [
+      0.051477194,
+      0.25675598699999996,
+      0.051140799
+     ],
+     "mjcf_path": "objects/lightwheel/tongs/Tongs009/model.xml",
+     "name": "obj",
+     "rank": 0,
+     "registry": "lightwheel",
+     "scale": 0.95,
+     "volume": 0.0006759319167570937
+    },
+    {
+     "attempts": 1,
+     "candidates": 498,
+     "category": "mustard",
+     "extent": [
+      0.08069994999999999,
+      0.0348525,
+      0.18381098749999997
+     ],
+     "mjcf_path": "objects/lightwheel/mustard/Mustard010/model.xml",
+     "name": "distr",
+     "rank": 0,
+     "registry": "lightwheel",
+     "scale": 1.25,
+     "volume": 0.0005169858657431684
+    }
+   ],
+   "PickPlaceSinkToCounter": [
+    {
+     "attempts": 1,
+     "candidates": 124,
+     "category": "apple",
+     "extent": [
+      0.06813349897500001,
+      0.06781113517500002,
+      0.06432903765000002
+     ],
+     "mjcf_path": "objects/objaverse/apple/apple_7/model.xml",
+     "name": "obj",
+     "rank": 0,
+     "registry": "objaverse",
+     "scale": 0.9,
+     "volume": 0.00029721365718306914
+    },
+    {
+     "attempts": 1,
+     "candidates": 5,
+     "category": "plate",
+     "extent": [
+      0.247940875935,
+      0.24539034402000004,
+      0.01667049282
+     ],
+     "mjcf_path": "objects/objaverse/plate/plate_8/model.xml",
+     "name": "container",
+     "rank": 0,
+     "registry": "objaverse",
+     "scale": 1.35,
+     "volume": 0.0010142710726620341
+    },
+    {
+     "attempts": 1,
+     "candidates": 576,
+     "category": "bread",
+     "extent": [
+      0.08456705165999998,
+      0.08926895977999999,
+      0.06878105779999999
+     ],
+     "mjcf_path": "objects/objaverse/bread/bread_4/model.xml",
+     "name": "distr_counter",
+     "rank": 0,
+     "registry": "objaverse",
+     "scale": [
+      0.7,
+      0.7,
+      1.0
+     ],
+     "volume": 0.000519242837357023
+    }
+   ],
+   "PickPlaceToasterToCounter": [
+    {
+     "attempts": 1,
+     "candidates": 5,
+     "category": "sandwich_bread",
+     "extent": [
+      0.02201714,
+      0.12090221000000001,
+      0.11913812
+     ],
+     "mjcf_path": "objects/lightwheel/sandwich_bread/SandwichBread011/model_upright.xml",
+     "name": "obj",
+     "rank": 0,
+     "registry": "lightwheel",
+     "scale": 1.0,
+     "volume": 0.00031713624969413004
+    },
+    {
+     "attempts": 1,
+     "candidates": 5,
+     "category": "plate",
+     "extent": [
+      0.247940875935,
+      0.24539034402000004,
+      0.01667049282
+     ],
+     "mjcf_path": "objects/objaverse/plate/plate_8/model.xml",
+     "name": "plate",
+     "rank": 0,
+     "registry": "objaverse",
+     "scale": 1.35,
+     "volume": 0.0010142710726620341
+    }
+   ]
+  },
+  "split": "target",
+  "style": 1,
+  "verify_seeds": [
+   1000000,
+   1000001
+  ]
+ }
+}

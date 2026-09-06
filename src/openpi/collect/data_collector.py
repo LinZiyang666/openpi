@@ -51,6 +51,11 @@ class EpisodeDataCollector:
     _METADATA_ATTR_ALLOWLIST = (
         "task_id", "init_state_idx", "orig_init_state_idx",
         "subset_init_state_idx", "split",
+        # Pinned-object provenance: the identity the episode claims plus the
+        # slot->mesh map the scene actually realized (JSON). The auditor admits
+        # an episode on the realized value, so it has to survive the allowlist
+        # or the check would silently have nothing to read.
+        "pin_id", "pin_task_id", "realized_objects",
     )
 
     def on_episode_start(

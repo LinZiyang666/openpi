@@ -403,6 +403,40 @@ if parameters changed. Seeds are `base_seed + episode_idx`; this makes the
 (same initial state, fresh flow-matching noise on retry — retries never
 overwrite, they write a new `_aAA` attempt file).
 
+### Pinned-object task variants
+
+By default every episode resamples which mesh instance fills each object slot,
+so a task's "initial state" is reproducible in pose but not in *identity*. A run
+can instead pin every slot to one exact mesh by passing a pin table:
+
+```bash
+  --pinned-objects exp/robocasa365/config/pnp_pinned_objects.json
+```
+
+The table is `{task: {slot: "objects/<...>/model.xml"}}` plus its own `pin_id`
+(sha256 over canonical JSON, domain-separated). Paths are asset-relative because
+the three collection hosts keep their asset trees at different prefixes;
+robocasa rebases them onto the local `assets_root`.
+
+Two things are worth knowing before using it:
+
+* **The flag must be passed to every driver in the run**, including
+  `run_ws_search.py` for a teacher-only arm. A driver without it dispatches
+  unpinned episodes that look identical in the journal.
+* **Pinning bypasses robocasa's own object filters.** The exact-path branch of
+  `sample_kitchen_object_helper` skips `exclude_obj_groups`, the seven
+  capability flags and the `obj_instance_split` slice, so a hand-written table
+  can seat a pretrain-split or non-graspable object with no error anywhere.
+  Generate tables with `select_pinned_objects.py`, which replays those filters
+  and only picks from the legal set.
+
+Identity travels with each episode (`pin_id`, `pin_task_id`, and the task's slot
+map) and the worker re-reads the table from disk to check both against what it
+was dispatched. After `reset()` the episode also records `realized_objects` —
+what the scene *actually* built — into its HDF5 attrs. That is what the auditor
+judges on: an override that was accepted but never applied produces a correct
+`pin_id` and wrong realized objects, and is refused admission.
+
 ### Audit + manifest (blocking before any library build)
 
 HDF5 write failures are swallowed server-side (the journal still records the

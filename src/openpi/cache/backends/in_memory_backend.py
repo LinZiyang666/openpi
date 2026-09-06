@@ -309,6 +309,9 @@ class InMemoryBackend(VectorStoreBackend):
             # Model provenance of the artifact build (``weights_digest`` = full
             # content sha256 of the checkpoint dir); None for legacy artifacts.
             "model": data.get("model"),
+            # Object-pinning identity: sha256 of the pin table the collection
+            # ran under. None for every library built before pinning existed.
+            "pin_id": data.get("pin_id"),
         }
         for entry in data["entries"]:
             # Backfill trajectory fields for old artifacts that lack them.

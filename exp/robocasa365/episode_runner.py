@@ -60,6 +60,15 @@ import numpy as np
 from openpi.conductor import task as _task
 from openpi.conductor.worker import EpisodeRunner, ProgressCallback
 
+# Re-exported at the location the plan freezes for it (D14): callers read
+# realized provenance through episode_runner, the implementation lives with
+# the other pin primitives so the auditor and the selector share one copy.
+from exp.robocasa365.pinned_objects import (  # noqa: F401
+    compute_pin_task_id,
+    load_pin_manifest,
+    realized_objects_of,
+)
+
 # ------------------------------------------------------------------
 # Frozen contract constants
 # ------------------------------------------------------------------
@@ -68,6 +77,11 @@ from openpi.conductor.worker import EpisodeRunner, ProgressCallback
 # fails fast instead of silently falling back to a default (the LIBERO runner's
 # ``num_trials_per_task`` precedent).
 REQUIRED_EXTRA_KEYS = ("task_name", "layout", "style", "teacher", "base_seed", "replan_steps")
+
+# Required IN ADDITION when the worker runs with a pin manifest. They are not in
+# REQUIRED_EXTRA_KEYS because every unpinned invocation must keep working
+# byte-for-byte: pinning is opt-in per run, not a schema bump.
+PIN_EXTRA_KEYS = ("pin_id", "pin_task_id", "pinned_objects")
 
 # The natural-language instruction source. Feeds the model observation only —
 # never ``episode_start.task``.
@@ -218,10 +232,21 @@ def default_client_factory(server: _task.ServerEndpoint) -> Any:
     return WebsocketClientPolicy(host=server.host, port=server.port)
 
 
-def default_gym_make(task_name: str, layout: int, style: int, **kwargs: Any) -> Any:
+def default_gym_make(
+    task_name: str,
+    layout: int,
+    style: int,
+    *,
+    pinned_objects: dict[str, str] | None = None,
+    **kwargs: Any,
+) -> Any:
     import robocasa  # noqa: F401 - registers the robocasa/ namespace with gymnasium
     import gymnasium as gym
 
+    # ``pinned_objects`` is the slot map for THIS task, not the whole table: it
+    # reaches Kitchen.__init__ through create_env's **kwargs and pins every slot
+    # to one exact mesh. Omitted (None) the sampled-object path is untouched.
+    extra = {} if pinned_objects is None else {"pinned_objects": pinned_objects}
     return gym.make(
         f"robocasa/{task_name}",
         # split=None bypasses the branch that would also swap the object pool;
@@ -229,6 +254,7 @@ def default_gym_make(task_name: str, layout: int, style: int, **kwargs: Any) -> 
         split=None,
         obj_instance_split="target",
         layout_and_style_ids=[(layout, style)],
+        **extra,
         **kwargs,
     )
 
@@ -258,6 +284,7 @@ class RobocasaEpisodeRunner(EpisodeRunner):
         connect_deadline_s: float = 60.0,
         connect_retries: int = 3,
         max_cached_envs: int | None = None,
+        pinned_objects_path: str | None = None,
     ) -> None:
         self._adapter = adapter
         self._client_factory = client_factory
@@ -276,10 +303,20 @@ class RobocasaEpisodeRunner(EpisodeRunner):
         self._client_server: str | None = None
         self._bundle: str | None = None
         self._client_lock = threading.Lock()
-        # (task_name, layout, style) -> live env. The conductor queue interleaves
-        # episodes of different tasks, so without this cache every episode would
-        # pay a full gym.make (kitchen build) again.
-        self._envs: dict[tuple[str, int, int], Any] = {}
+        # The worker loads the pin table from disk itself rather than trusting
+        # the dispatched payload alone: two independent readings of the same
+        # identity is what makes a mismatch detectable at all.
+        self._pin_id: str | None = None
+        self._pin_table: dict[str, dict[str, str]] | None = None
+        if pinned_objects_path:
+            self._pin_id, self._pin_table = load_pin_manifest(pinned_objects_path)
+        # (task_name, layout, style, pin_task_id) -> live env. The conductor
+        # queue interleaves episodes of different tasks, so without this cache
+        # every episode would pay a full gym.make (kitchen build) again. The pin
+        # identity is part of the key: two pin tables produce different scenes
+        # from the same (task, layout, style), and reusing the first env for the
+        # second is a silent, unloggable substitution.
+        self._envs: dict[tuple[str, int, int, str | None], Any] = {}
 
     # -- client lifecycle ------------------------------------------------
 
@@ -329,8 +366,16 @@ class RobocasaEpisodeRunner(EpisodeRunner):
 
     # -- env lifecycle ---------------------------------------------------
 
-    def _ensure_env(self, task_name: str, layout: int, style: int) -> Any:
-        key = (task_name, layout, style)
+    def _ensure_env(
+        self,
+        task_name: str,
+        layout: int,
+        style: int,
+        *,
+        pinned_objects: dict[str, str] | None = None,
+        pin_task_id: str | None = None,
+    ) -> Any:
+        key = (task_name, layout, style, pin_task_id)
         env = self._envs.get(key)
         if env is None:
             if self._max_cached_envs is not None:
@@ -339,7 +384,13 @@ class RobocasaEpisodeRunner(EpisodeRunner):
                     del self._envs[evict_key]
                     with contextlib.suppress(Exception):
                         evict_env.close()
-            env = self._gym_make(task_name, layout, style, **self._adapter.env_kwargs())
+            # Unpinned runs must call gym_make exactly as before -- injected
+            # fakes in the existing tests take (task, layout, style, **kwargs)
+            # and an always-present pinned_objects kwarg would change that call.
+            pin_kw = {} if pinned_objects is None else {"pinned_objects": pinned_objects}
+            env = self._gym_make(
+                task_name, layout, style, **pin_kw, **self._adapter.env_kwargs()
+            )
             self._envs[key] = env
         return env
 
@@ -359,6 +410,75 @@ class RobocasaEpisodeRunner(EpisodeRunner):
         del task, prompt, seed
         return []
 
+    # -- pin identity ----------------------------------------------------
+
+    def _verify_pin(
+        self, task: _task.EpisodeTask, extra: dict[str, Any], task_name: str
+    ) -> tuple[dict[str, str] | None, str | None]:
+        """Check the dispatched pin payload against the worker's own copy.
+
+        Two independent readings have to agree: the slot map that rode in on the
+        task, and the manifest this worker loaded from disk. Either alone is
+        self-consistent by construction and proves nothing.
+
+        The check is bidirectional: a worker with a manifest refuses a task that
+        carries no pin keys, and a worker without one refuses a task that does.
+        Only when neither side pins does the legacy sampled-object path run.
+        """
+        present = [key for key in PIN_EXTRA_KEYS if key in extra]
+        if self._pin_table is None:
+            if present:
+                # The dangerous asymmetry: a driver that pins, dispatching to a
+                # worker whose --pinned-objects was forgotten. Falling through to
+                # the legacy path here would build random-object scenes while the
+                # episode still carried a perfectly valid-looking identity, and
+                # nothing downstream could tell the difference.
+                raise ValueError(
+                    f"EpisodeTask {task.task_uid!r} carries pin keys {present} but "
+                    "this worker was started without --pinned-objects; refusing to "
+                    "run unpinned under a pinned identity."
+                )
+            return None, None
+        missing = [key for key in PIN_EXTRA_KEYS if key not in extra]
+        if missing:
+            raise ValueError(
+                f"EpisodeTask {task.task_uid!r} is missing pin keys {missing}; this "
+                "worker was started with --pinned-objects, so the driver must "
+                "stamp the payload."
+            )
+        if extra["pin_id"] != self._pin_id:
+            raise ValueError(
+                f"pin_id mismatch on {task.task_uid!r}: task says {extra['pin_id']}, "
+                f"this worker's manifest hashes to {self._pin_id}"
+            )
+        slot_map = dict(extra["pinned_objects"])
+        local = self._pin_table.get(task_name)
+        if local != slot_map:
+            raise ValueError(
+                f"pinned_objects mismatch for {task_name!r} on {task.task_uid!r}: "
+                f"task carries {sorted(slot_map)}, manifest has "
+                f"{sorted(local or {})}"
+            )
+        recomputed = compute_pin_task_id(task_name, slot_map)
+        if extra["pin_task_id"] != recomputed:
+            raise ValueError(
+                f"pin_task_id mismatch on {task.task_uid!r}: task says "
+                f"{extra['pin_task_id']}, payload hashes to {recomputed}"
+            )
+        return slot_map, recomputed
+
+    def _realized_metadata(self, env: Any, extra: dict[str, Any]) -> dict[str, Any]:
+        """The provenance triple an unpinned run must not grow."""
+        if self._pin_table is None:
+            return {}
+        import json as _json
+
+        return {
+            "pin_id": str(extra["pin_id"]),
+            "pin_task_id": str(extra["pin_task_id"]),
+            "realized_objects": _json.dumps(realized_objects_of(env), sort_keys=True),
+        }
+
     # -- one episode -----------------------------------------------------
 
     def run(self, task: _task.EpisodeTask, report: ProgressCallback) -> _task.EpisodeResult:
@@ -377,8 +497,12 @@ class RobocasaEpisodeRunner(EpisodeRunner):
         replan_steps = int(extra["replan_steps"])
         layout, style = int(extra["layout"]), int(extra["style"])
 
+        pinned_objects, pin_task_id = self._verify_pin(task, extra, task_name)
+
         client = self._ensure_client(task)
-        env = self._ensure_env(task_name, layout, style)
+        env = self._ensure_env(
+            task_name, layout, style, pinned_objects=pinned_objects, pin_task_id=pin_task_id
+        )
         horizon = int(self._horizon_fn(task_name))
         seed = int(extra["base_seed"]) + task.orig_init_state_idx
 
@@ -397,6 +521,10 @@ class RobocasaEpisodeRunner(EpisodeRunner):
                 "task_id": task.task_id,
                 "orig_init_state_idx": task.orig_init_state_idx,
                 "seed": seed,
+                # Read AFTER reset: what the scene actually got, not what we
+                # asked for. The auditor admits an episode on this, so a pin
+                # that was accepted but never applied cannot reach the dataset.
+                **self._realized_metadata(env, extra),
             },
         )
         per_step: list[dict[str, Any]] = []

@@ -65,6 +65,13 @@ from openpi.conductor.journal import Journal
 from openpi.conductor.strategy import ExperimentStrategy, StageContext
 from openpi.conductor.task import Stage, TaskGraph
 
+from exp.robocasa365.pinned_objects import (
+    PNP_CACHE_ARM,
+    assert_pnp_eval_identity,
+    assert_pnp_run_plan_identity,
+    load_pin_manifest,
+    resolve_manifest_path,
+)
 from exp.robocasa365.run_collect import (
     build_run_plan,
     load_env_config,
@@ -222,6 +229,7 @@ def ws2_spawn_fn(
     episode_deadline_s: float,
     terminate_grace_s: float,
     max_cached_envs: int | None = None,
+    pinned_objects_path: str | None = None,
 ) -> subprocess.Popen:
     """``robocasa_spawn_fn`` copy + ``--episode-header-rows`` (plan §3-W3).
 
@@ -245,6 +253,8 @@ def ws2_spawn_fn(
     ]
     if max_cached_envs is not None:
         cmd += ["--max-cached-envs", str(max_cached_envs)]
+    if pinned_objects_path:
+        cmd += ["--pinned-objects", pinned_objects_path]
     env = {k: v for k, v in os.environ.items() if k not in ("VIRTUAL_ENV", "PYTHONPATH", "PYTHONHOME")}
     env["PYTHONPATH"] = os.pathsep.join((repo_root, os.path.join(repo_root, "src")))
     env["MUJOCO_GL"] = "egl"
@@ -282,6 +292,31 @@ def resolve_cells(run_prefix: str, config_dir: pathlib.Path, manifest_path: str)
     if segment is None:
         raise SystemExit(f"manifest {manifest_path} has no segment {run_prefix!r}")
     return list(segment["cells"]), hashlib.sha256(blob).hexdigest()
+
+
+def pinned_config_root(config_dir: pathlib.Path, teacher: str) -> pathlib.Path:
+    """Validate and return the root of ``<root>/<teacher>/main``.
+
+    The digest covers both teachers, so checking it alone cannot detect a
+    groot run accidentally pointed at the valid pi05 half of the same tree.
+    """
+    config_dir = pathlib.Path(config_dir).resolve()
+    if config_dir.name != "main" or config_dir.parent.name != teacher:
+        raise ValueError(
+            f"pinned config dir must end in {teacher}/main, got {config_dir}"
+        )
+    return config_dir.parent.parent
+
+
+def assert_frozen_cell_set(selected: list[str], frozen: set[str]) -> None:
+    """Bind ``index.json`` (the dispatched cells) to the frozen digest table."""
+    selected_set = set(selected)
+    if len(selected) != len(frozen) or selected_set != frozen:
+        raise ValueError(
+            "selected cells do not match the frozen digest; "
+            f"missing={sorted(frozen - selected_set)[:5]} "
+            f"extra={sorted(selected_set - frozen)[:5]}"
+        )
 
 
 def pin_manifest_sha(data_dir: pathlib.Path, run_prefix: str, sha: str) -> None:
@@ -461,6 +496,12 @@ def main() -> None:
                     "bundle re-selection on the connection (facade-level, cheap)")
     ap.add_argument("--gpu-ids", default="0")
     ap.add_argument("--data-dir", default="", help="default: exp/robocasa365/data/ws_search2/<teacher>/")
+    ap.add_argument(
+        "--pinned-objects",
+        default="",
+        help="pin table path; pins every object slot to one exact mesh. Must "
+        "match the table the library was collected under.",
+    )
     ap.add_argument("--env-config", required=True)
     ap.add_argument("--role", default="all", choices=("driver", "agent", "all"))
     ap.add_argument("--bind-host", default="127.0.0.1")
@@ -480,6 +521,14 @@ def main() -> None:
     for sig in (signal.SIGTERM, signal.SIGHUP):
         signal.signal(sig, lambda *_: sys.exit(143))
 
+    # Resolved before any role branches: the agent role never loads the
+    # manifest but still forwards its path to workers whose cwd is the external
+    # RoboCasa checkout, where a relative path opens nothing.
+    pin_path = resolve_manifest_path(args.pinned_objects) if args.pinned_objects else ""
+    pin_id, pinned_objects = (None, None)
+    if pin_path:
+        pin_id, pinned_objects = load_pin_manifest(pin_path)
+
     env_config = load_env_config(args.env_config)
     servers = []
     for item in args.servers.split(","):
@@ -488,8 +537,32 @@ def main() -> None:
     validate_teacher_endpoints(args.teacher, servers, env_config)
 
     config_dir = pathlib.Path(args.config_dir)
+    if pin_path:
+        # Before a single cell is dispatched: the 132 yamls this run will ship
+        # to the servers must be the exact ones that were frozen, for BOTH
+        # teachers. Checking only the teacher in play would let the other half
+        # of the experiment drift unnoticed, and the two share cid names.
+        from exp.robocasa365.emit_ws_search2_yamls import DIGEST_NAME, verify_index_digest
+
+        try:
+            digest_root = pinned_config_root(config_dir, args.teacher)
+            digest_doc = verify_index_digest(
+                digest_root,
+                digest_root / DIGEST_NAME,
+                expected_pin_id=pin_id,
+            )
+        except ValueError as exc:
+            raise SystemExit(f"[run_ws_search2] index digest preflight failed: {exc}") from exc
+        config_dir = config_dir.resolve()
+        print(f"[run_ws_search2] index digest verified under {digest_root}", flush=True)
     cells, manifest_sha = resolve_cells(args.run_prefix, config_dir, args.manifest)
     all_cells = list(cells)
+    if pin_path:
+        frozen_cells = set(digest_doc["per_teacher"][args.teacher]["cells"])
+        try:
+            assert_frozen_cell_set(all_cells, frozen_cells)
+        except ValueError as exc:
+            raise SystemExit(f"[run_ws_search2] {exc}") from exc
     if args.only:
         wanted = {c.strip() for c in args.only.split(",") if c.strip()}
         unknown = wanted - set(cells)
@@ -517,6 +590,15 @@ def main() -> None:
     # whole agent at launch on any pre-existing plan whose parameters differ
     # (round 1 gated this the same way). Agents need nothing but the endpoint
     # and the worker recipe.
+    if pin_path:
+        print(f"[run_ws_search2] pin_id={pin_id} manifest={pin_path}", flush=True)
+        # Gated on the immutable full cell list, not on `ordered_cells`: a
+        # --only resume legitimately dispatches a subset, but the experiment's
+        # shape must still be the frozen one.
+        assert_pnp_eval_identity(
+            tasks, cells=len(all_cells), arm=PNP_CACHE_ARM,
+            label="run_ws_search2 (cache arm)",
+        )
     cell_strategies: dict[str, WsSearchStrategy] = {}
     yaml_weights: dict[str, int] = {}
     for cid in ordered_cells:
@@ -529,6 +611,8 @@ def main() -> None:
             base_seed=args.base_seed,
             replan_steps=args.replan_steps,
             tasks=tasks,
+            pin_id=pin_id,
+            pinned_objects=pinned_objects,
         )
         cell_strategies[strategy.run_id] = strategy
         for yaml_id, (_, n) in zip(strategy.yaml_ids, tasks):
@@ -539,6 +623,7 @@ def main() -> None:
 
     expected_by_run: dict[str, dict[str, Any]] = {}
     full_graphs: dict[str, TaskGraph] = {}
+    run_plans: list[dict[str, Any]] = []
     owns_ledger = args.role in ("driver", "all") or args.finalize_only
     if owns_ledger:
         data_dir.mkdir(parents=True, exist_ok=True)
@@ -546,11 +631,19 @@ def main() -> None:
             graph = strategy.plan(sorted(strategy.yaml_ids), assignment)
             full_graphs[run_id] = graph
             run_plan = build_run_plan(strategy, graph, EVAL_NO_COLLECT_ROOT)
+            run_plans.append(run_plan)
             write_run_plan(data_dir / f"run_plan_{run_id}.json", run_plan)
             expected_by_run[run_id] = {
                 "cid": strategy._cid,  # noqa: SLF001
                 "uids": list(run_plan["uids"]),
             }
+        if pin_path:
+            assert_pnp_run_plan_identity(
+                run_plans,
+                arm=PNP_CACHE_ARM,
+                pin_id=pin_id,
+                label="run_ws_search2 (cache arm)",
+            )
 
     central_journal = data_dir / f"journal_central_{args.run_prefix}.jsonl"
 
@@ -704,6 +797,7 @@ def main() -> None:
             connect_deadline_s=args.connect_deadline_s,
             episode_deadline_s=args.episode_deadline_s,
             terminate_grace_s=args.terminate_grace_s,
+            pinned_objects_path=pin_path or None,
             # 8G eval cards: one cached kitchen per worker (round-1 lesson).
             max_cached_envs=1,
         )

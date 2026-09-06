@@ -51,6 +51,13 @@ import time
 from openpi.conductor import ServerEndpoint, WorkerAgent, WorkerSpec
 from openpi.conductor.driver import ConductorDriver, assign_servers
 
+from exp.robocasa365.pinned_objects import (
+    PNP_TEACHER_ARM,
+    assert_pnp_eval_identity,
+    assert_pnp_run_plan_identity,
+    load_pin_manifest,
+    resolve_manifest_path,
+)
 from exp.robocasa365.run_collect import (
     RobocasaCollectStrategy,
     _NoOpCtl,
@@ -174,6 +181,12 @@ def main() -> None:
     ap.add_argument("--workers", type=int, default=4, help="worker fleet = the slot's concurrency")
     ap.add_argument("--gpu-ids", default="0", help="comma-separated CUDA slots, round-robin over workers")
     ap.add_argument("--journal-dir", default="", help="default: exp/robocasa365/data/ws_search/<teacher>/")
+    ap.add_argument(
+        "--pinned-objects",
+        default="",
+        help="pin table path; pins every object slot to one exact mesh. Must "
+        "match the table the library was collected under.",
+    )
     ap.add_argument("--env-config", required=True)
     ap.add_argument(
         "--role", default="all", choices=("driver", "agent", "all"),
@@ -204,7 +217,17 @@ def main() -> None:
     slot = ServerEndpoint(host, int(port))
     validate_teacher_endpoints(args.teacher, [slot], env_config)
 
+    pin_path = resolve_manifest_path(args.pinned_objects) if args.pinned_objects else ""
+    pin_id, pinned_objects = (None, None)
+    if pin_path:
+        pin_id, pinned_objects = load_pin_manifest(pin_path)
+        print(f"[run_ws_search] pin_id={pin_id} manifest={pin_path}", flush=True)
     tasks = parse_tasks(args.tasks, args.episodes)
+    if pin_path:
+        # Teacher-only floor arm: one cid, the frozen roster, 50 trials each.
+        assert_pnp_eval_identity(
+            tasks, cells=1, arm=PNP_TEACHER_ARM, label="run_ws_search (teacher-only arm)"
+        )
     strategy = WsSearchStrategy(
         cid=args.cid,
         run_prefix=args.run_prefix,
@@ -214,6 +237,8 @@ def main() -> None:
         base_seed=args.base_seed,
         replan_steps=args.replan_steps,
         tasks=tasks,
+        pin_id=pin_id,
+        pinned_objects=pinned_objects,
     )
     run_id = strategy.run_id
 
@@ -235,6 +260,13 @@ def main() -> None:
         assignment = assign_servers(yaml_weights, [slot], None, server_capacities)
         graph = strategy.plan(sorted(yaml_weights), assignment)
         run_plan = build_run_plan(strategy, graph, EVAL_NO_COLLECT_ROOT)
+        if pin_path:
+            assert_pnp_run_plan_identity(
+                [run_plan],
+                arm=PNP_TEACHER_ARM,
+                pin_id=pin_id,
+                label="run_ws_search (teacher-only arm)",
+            )
         write_run_plan(run_plan_path, run_plan)
         print(f"[ws_search] run-plan {run_plan_path} plan_hash={run_plan['plan_hash']}", flush=True)
 
@@ -277,6 +309,7 @@ def main() -> None:
             connect_deadline_s=args.connect_deadline_s,
             episode_deadline_s=args.episode_deadline_s,
             terminate_grace_s=args.terminate_grace_s,
+            pinned_objects_path=pin_path or None,
             # 8G eval cards: one cached kitchen per worker, evict on task switch.
             # Unbounded (the collection default) walks a worker into OOM as the
             # scheduler rotates it across the 13 tasks (found live 2026-08-21).

@@ -1,0 +1,106 @@
+diff --git a/robocasa/environments/kitchen/kitchen.py b/robocasa/environments/kitchen/kitchen.py
+index f7f5093..590fe2b 100644
+--- a/robocasa/environments/kitchen/kitchen.py
++++ b/robocasa/environments/kitchen/kitchen.py
+@@ -409,6 +409,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
+         update_fxtr_cfg_dict=None,
+         use_cotraining_cameras=False,
+         use_novel_instructions=False,
++        pinned_objects=None,
+     ):
+         self.init_robot_base_ref = init_robot_base_ref
+ 
+@@ -420,6 +421,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
+         self.placement_initializer = placement_initializer
+         self.obj_registries = obj_registries
+         self.obj_instance_split = obj_instance_split
++        # slot name -> exact mjcf path; None keeps the sampled-object path
++        # byte-for-byte unchanged.
++        self.pinned_objects = pinned_objects
+ 
+         if layout_and_style_ids is not None:
+             assert (
+@@ -844,6 +848,74 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
+ 
+         self.robot_geom_ids = None
+ 
++    @staticmethod
++    def _pin_path(path):
++        """Put a pin path into the shape create_obj's rebasing door expects.
++
++        That door splits on "/objects/" to find the machine-independent tail, so
++        an asset-relative path written as "objects/..." has nothing to split on
++        and would be rebased into "<assets>/objects/objects/...". Tables store
++        the leading-slash-free form because it reads as relative; restore the
++        slash here rather than pushing the quirk out to every table author.
++        """
++        if "/objects/" in path:
++            return path
++        if path.startswith("objects/"):
++            return "/" + path
++        raise ValueError(
++            "pinned path {!r} has no 'objects/' segment; it cannot be rebased "
++            "onto this machine's assets_root".format(path)
++        )
++
++    def _apply_pinned_objects(self, cfgs):
++        """
++        Pins every object slot of this task to one exact mesh instance.
++
++        self.pinned_objects maps a slot name to an asset-relative mjcf path
++        (any path containing "/objects/"). The path goes into
++        cfg["info"]["mjcf_path"] because that is the only route create_obj
++        rebases onto the local assets_root, which is what lets one pin table
++        work on machines whose asset trees live at different prefixes.
++
++        A container slot that _create_objects builds implicitly cannot be
++        reached from here, so its pin rides along inside
++        placement["try_to_place_in_kwargs"], which _create_objects copies
++        verbatim into the container cfg.
++
++        Raises:
++            ValueError: if the table and this task's slots do not correspond
++                exactly. A pin that is silently ignored leaves a randomly
++                sampled object behind, which is indistinguishable downstream
++                from a correctly pinned one.
++        """
++        pins = {name: self._pin_path(path) for name, path in self.pinned_objects.items()}
++        consumed = set()
++        unpinned = []
++        for obj_num, cfg in enumerate(cfgs):
++            name = cfg.get("name", "obj_{}".format(obj_num + 1))
++            if name in pins:
++                cfg["info"] = {"mjcf_path": pins[name]}
++                consumed.add(name)
++            else:
++                unpinned.append(name)
++            placement = cfg.get("placement") or {}
++            if placement.get("try_to_place_in") is not None:
++                container_name = "{}_container".format(name)
++                if container_name in pins:
++                    kwargs = placement.setdefault("try_to_place_in_kwargs", {})
++                    kwargs["info"] = {"mjcf_path": pins[container_name]}
++                    consumed.add(container_name)
++                else:
++                    unpinned.append(container_name)
++        unknown = sorted(set(pins) - consumed)
++        if unpinned or unknown:
++            raise ValueError(
++                "pinned_objects does not match the slots of {}: "
++                "unpinned={}, unknown={}".format(
++                    type(self).__name__, sorted(unpinned), unknown
++                )
++            )
++
+     def _create_objects(self):
+         """
+         Creates and places objects in the kitchen environment.
+@@ -862,6 +934,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
+                 self.model.merge_objects([model])
+         else:
+             self.object_cfgs = self._get_obj_cfgs()
++            if self.pinned_objects is not None:
++                self._apply_pinned_objects(self.object_cfgs)
+             all_obj_cfgs = []
+             for obj_num, cfg in enumerate(self.object_cfgs):
+                 cfg["type"] = "object"

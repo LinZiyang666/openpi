@@ -35,10 +35,22 @@ TASKS = [("OpenCabinet", 2), ("CloseDrawer", 1)]
 # ------------------------------------------------------------------
 
 
-def _run_plan(tmp_path: pathlib.Path, *, batch: int = 1, episode_lo=None, tasks=TASKS) -> dict:
+def _run_plan(
+    tmp_path: pathlib.Path,
+    *,
+    batch: int = 1,
+    episode_lo=None,
+    tasks=TASKS,
+    pin_id=None,
+    pinned_objects=None,
+) -> dict:
+    # ``pin_id`` / ``pinned_objects`` default to None so every pre-pinning test
+    # keeps hashing the exact plan it hashed before; the pinned-object tests
+    # pass a table and get a plan whose params carry that identity.
     strategy = RobocasaCollectStrategy(
         teacher="pi05", layout=1, style=1, base_seed=0, replan_steps=5,
         tasks=tasks, batch=batch, episode_lo=episode_lo,
+        pin_id=pin_id, pinned_objects=pinned_objects,
     )
     servers = [ServerEndpoint("127.0.0.1", 8010)]
     weights = {yid: n for yid, (_, n) in zip(strategy.yaml_ids, tasks)}
@@ -49,13 +61,27 @@ def _run_plan(tmp_path: pathlib.Path, *, batch: int = 1, episode_lo=None, tasks=
     return load_run_plan(path)
 
 
-def _write_h5(root: pathlib.Path, prefix: str, attempt: int, *, task: str, success: bool, steps: int = 2) -> pathlib.Path:
+def _write_h5(
+    root: pathlib.Path,
+    prefix: str,
+    attempt: int,
+    *,
+    task: str,
+    success: bool,
+    steps: int = 2,
+    pin_attrs: dict[str, str] | None = None,
+) -> pathlib.Path:
+    # ``pin_attrs`` is written verbatim (no recomputation here) so a caller can
+    # forge the exact disagreements the pin audit exists to catch — an episode
+    # whose declared identity is impeccable and whose realized objects are not.
     path = root / f"{prefix}_a{attempt:02d}.h5"
     path.parent.mkdir(parents=True, exist_ok=True)
     with h5py.File(path, "w") as f:
         f.attrs["task"] = task
         f.attrs["success"] = success
         f.attrs["num_steps"] = steps
+        for key, value in (pin_attrs or {}).items():
+            f.attrs[key] = value
         for i in range(steps):
             grp = f.create_group(f"step_{i:04d}")
             for j in range(3):

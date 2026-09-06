@@ -474,6 +474,9 @@ class TextIvfIndexConfig:
 class InMemoryConfig:
     preload_path: Optional[str] = None    # artifact .pkl path
     index_type: str = "brute_force"       # "brute_force" | "text_ivf"
+    # sha256 of the pinned-object table the artifact must have been built from.
+    # None = no expectation (every library that predates object pinning).
+    expected_pin_id: Optional[str] = None
     text_ivf: TextIvfIndexConfig = field(default_factory=TextIvfIndexConfig)
 
 
@@ -2942,7 +2945,54 @@ def build_shared_storage(config: CacheConfig):
     storage = CacheStorage(backend)
     _check_text_ivf_artifact_binding(storage, config)
     _check_cp2_projection_binding(storage, config)
+    _check_pin_identity_binding(storage, config)
     return storage
+
+
+def _check_pin_identity_binding(storage, config: CacheConfig) -> None:
+    """Fail-fast when a library was built under a different object pin table.
+
+    An experiment that pins every object slot to one mesh produces a library
+    whose entries only describe that scene distribution. Serving it under a
+    config that expects a different pin table -- or serving an unpinned library
+    to a pinned run -- yields retrieval results that look entirely normal and
+    mean nothing.
+
+    This has to live here rather than in ``load_artifact``: BackendPool reuses a
+    backend across configs whose fingerprint matches, and that fingerprint does
+    not include the pin identity, so a per-load check would pass once and then
+    never run again for the second config.
+
+    No expectation configured means no check: every library built before object
+    pinning existed must keep loading.
+    """
+    expected = config.backend.in_memory.expected_pin_id
+    if not expected:
+        return
+    if config.backend.type != "in_memory" or not config.backend.in_memory.preload_path:
+        raise ConfigValidationError(
+            "backend.in_memory.expected_pin_id is set but no in-memory artifact "
+            "is preloaded; there is nothing whose pin identity could be checked."
+        )
+    meta = storage.artifact_meta
+    if meta is None:
+        raise ConfigValidationError(
+            f"config expects pin_id {expected!r} but the backend exposes no "
+            "artifact identity metadata."
+        )
+    actual = meta.get("pin_id")
+    if actual is None:
+        raise ConfigValidationError(
+            f"config expects pin_id {expected!r} but the artifact records none "
+            "(built before object pinning, or by a builder that does not stamp "
+            "it). Rebuild the library from the pinned collection."
+        )
+    if actual != expected:
+        raise ConfigValidationError(
+            f"artifact pin_id {actual!r} does not match the configured "
+            f"expected_pin_id {expected!r}: the library and this run were built "
+            "from different object pin tables."
+        )
 
 
 def _check_cp2_projection_binding(storage, config: CacheConfig) -> None:

@@ -44,6 +44,7 @@ def build_runner(args: argparse.Namespace) -> WatchdogRunner:
         connect_deadline_s=args.connect_deadline_s,
         connect_retries=args.connect_retries,
         max_cached_envs=None if args.max_cached_envs < 1 else args.max_cached_envs,
+        pinned_objects_path=getattr(args, "pinned_objects", "") or None,
     )
     return WatchdogRunner(
         runner,
@@ -77,6 +78,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=0,
         help="bound the per-worker kitchen-env cache; <1 keeps the legacy "
         "unbounded cache (safe only where all task kitchens fit one GPU)",
+    )
+    ap.add_argument(
+        "--pinned-objects",
+        default="",
+        help="path to the pin table. The worker re-reads it and re-derives both "
+        "identities rather than trusting the dispatched payload; omitted, the "
+        "sampled-object path is untouched.",
     )
     ap.add_argument("--episode-deadline-s", type=float, required=True)
     ap.add_argument("--terminate-grace-s", type=float, required=True)

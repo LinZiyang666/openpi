@@ -27,6 +27,8 @@ from __future__ import annotations
 
 import argparse
 import gc
+import hashlib
+import json
 import logging
 import os
 import pickle
@@ -683,6 +685,70 @@ def _process_episode_with_model(
 _TRAJECTORY_ID_MODES = ("stem", "relpath")
 
 
+def resolve_from_manifest(data_dir: str | Path, manifest_path: str | Path) -> tuple[list[Path], dict]:
+    """Return the h5 files named by an audit manifest, verifying every digest.
+
+    ``verify_collection_artifacts`` already decided which episodes are
+    admissible and recorded a sha256 for each. Feeding the builder that manifest
+    -- rather than re-scanning the directory -- is what makes "the library was
+    built from exactly the audited set" a checkable statement instead of a
+    convention: a file edited or replaced after the audit changes its digest and
+    is rejected here.
+
+    Returns:
+        ``(paths, manifest)`` so the caller can stamp the manifest's identity
+        (plan hashes, pin id) onto the artifact.
+    """
+    root = Path(data_dir).resolve()
+    manifest = json.loads(Path(manifest_path).read_text())
+    if "tasks" not in manifest:
+        raise ValueError(f"{manifest_path}: not an audit manifest (no 'tasks' key)")
+
+    manifest_pin_id = manifest.get("pin_id")
+    paths: list[Path] = []
+    seen: set[Path] = set()
+    for task_name in sorted(manifest["tasks"]):
+        for row in manifest["tasks"][task_name]:
+            resolved = (root / row["path"]).resolve()
+            if not resolved.is_relative_to(root):
+                raise ValueError(f"{manifest_path}: {row['path']!r} escapes --data-dir {root}")
+            if not resolved.is_file():
+                raise FileNotFoundError(f"{manifest_path}: {resolved} does not exist")
+            if resolved in seen:
+                raise ValueError(f"{manifest_path}: duplicate entry {row['path']!r}")
+            digest = hashlib.sha256(resolved.read_bytes()).hexdigest()
+            if digest != row["sha256"]:
+                raise ValueError(
+                    f"{manifest_path}: {row['path']} hashes to {digest} but the "
+                    f"manifest recorded {row['sha256']}; the file changed after "
+                    "the audit admitted it"
+                )
+            if manifest_pin_id is not None:
+                # The digests only prove the bytes are unchanged; they say
+                # nothing about WHICH experiment those bytes came from. Without
+                # this the manifest's pin_id is an unbacked claim, and editing
+                # that one field (touching no episode at all) would stamp a
+                # false identity onto the library that the serve-time binding
+                # check would then happily accept.
+                with h5py.File(resolved, "r") as handle:
+                    episode_pin = handle.attrs.get("pin_id")
+                if episode_pin is None:
+                    raise ValueError(
+                        f"{manifest_path}: {row['path']} records no pin_id but the "
+                        f"manifest claims {manifest_pin_id}"
+                    )
+                if str(episode_pin) != manifest_pin_id:
+                    raise ValueError(
+                        f"{manifest_path}: {row['path']} was collected under pin_id "
+                        f"{str(episode_pin)} but the manifest claims {manifest_pin_id}"
+                    )
+            seen.add(resolved)
+            paths.append(resolved)
+    if not paths:
+        raise ValueError(f"{manifest_path}: manifest admits no episodes")
+    return paths, manifest
+
+
 def resolve_h5_paths(data_dir: str | Path, episode_list: str | Path | None) -> list[Path]:
     """Return the h5 files to build from, either by scan or by explicit list.
 
@@ -1050,6 +1116,7 @@ def build_artifact(
     projection_weights_path: str | None = None,
     outcome_filter: str = "success",
     episode_list: str | None = None,
+    manifest: str | None = None,
     trajectory_id_mode: str = "stem",
     vision_slots: int | None = None,
     robot_state_dim: int | None = None,
@@ -1121,7 +1188,12 @@ def build_artifact(
 
     # Validated once here; both the serial and the ProcessPool branch below
     # consume this same list, so the two paths cannot diverge.
-    h5_paths = resolve_h5_paths(data_dir, episode_list)
+    if manifest is not None:
+        if episode_list is not None:
+            raise ValueError("--manifest and --episode-list are mutually exclusive inputs")
+        h5_paths, manifest_doc = resolve_from_manifest(data_dir, manifest)
+    else:
+        h5_paths, manifest_doc = resolve_h5_paths(data_dir, episode_list), None
     if not h5_paths:
         logger.warning("No .h5 files found in %s", data_dir)
         return {"key_builder_type": builder_type, "checkpoint_id": checkpoint_id_str,
@@ -1246,6 +1318,14 @@ def build_artifact(
         "prompt_pool": {"masked": prompt_masked_pool,
                         "instruction_span": prompt_instruction_span},
     }
+    if manifest_doc is not None:
+        # Provenance of the SET this library was built from: which collection
+        # run-plans produced it, and which object pin table those episodes ran
+        # under. The pin id is what _check_pin_identity_binding compares a
+        # serving config against.
+        artifact["plan_hashes"] = manifest_doc.get("plan_hashes")
+        if manifest_doc.get("pin_id") is not None:
+            artifact["pin_id"] = manifest_doc["pin_id"]
     # Record reducer params for traceability (offline/online consistency audit)
     if builder_type == "cp1_temporal_prune":
         artifact["reducer_params"] = {
@@ -1416,6 +1496,13 @@ def main():
              "indistinguishable from a genuinely smaller one)."
     )
     parser.add_argument(
+        "--manifest", default=None,
+        help="Path to a verify_collection_artifacts manifest. Replaces both the "
+             "scan and --episode-list: the library is built from exactly the "
+             "admitted episodes, each one's sha256 re-verified, and the "
+             "manifest's plan hashes plus pin_id are stamped onto the artifact."
+    )
+    parser.add_argument(
         "--trajectory-id-mode", default="stem", choices=list(_TRAJECTORY_ID_MODES),
         help="How to derive each entry's trajectory_id. 'stem' (default) uses "
              "the file stem, preserving historical artifacts byte for byte. "
@@ -1476,6 +1563,7 @@ def main():
         projection_weights_path=args.projection_weights,
         outcome_filter=args.outcome_filter,
         episode_list=args.episode_list,
+        manifest=args.manifest,
         trajectory_id_mode=args.trajectory_id_mode,
         vision_slots=args.vision_slots,
         robot_state_dim=args.robot_state_dim,

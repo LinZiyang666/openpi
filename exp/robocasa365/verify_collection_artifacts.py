@@ -40,6 +40,8 @@ import math
 import pathlib
 from typing import Any
 
+from exp.robocasa365.pinned_objects import compute_pin_task_id, load_pin_manifest
+
 REQUIRED_STEP_FIELDS = ("vision_0", "vision_1", "vision_2", "prompt_emb", "robot_state", "clean_action")
 
 
@@ -104,7 +106,18 @@ def load_run_plan(path: str | pathlib.Path) -> dict[str, Any]:
 
 
 def merge_run_plans(plans: list[dict[str, Any]]) -> tuple[list[str], dict[str, str], dict[str, int], list[str]]:
-    """Union of expected uids across batches; duplicate/conflicting uids are an error."""
+    """Union of expected uids across batches; duplicate/conflicting uids are an error.
+
+    Batches must also agree on the object pinning: a pinned batch and an
+    unpinned one describe different scene distributions, and unioning them into
+    one audit would build a library out of both with nothing recording that.
+    """
+    pin_ids = {plan["params"].get("pin_id") for plan in plans}
+    if len(pin_ids) > 1:
+        raise ValueError(
+            f"run-plans disagree on pin_id ({sorted(pin_ids, key=str)}); batches "
+            "collected under different object pinnings cannot be audited together"
+        )
     uids: list[str] = []
     prefixes: dict[str, str] = {}
     batches: dict[str, int] = {}
@@ -144,6 +157,70 @@ def is_admissible(record: dict[str, Any]) -> bool:
 # ------------------------------------------------------------------
 # Audit
 # ------------------------------------------------------------------
+
+
+def _check_pin_provenance(
+    path: pathlib.Path,
+    expected_task: str,
+    pin_table: dict[str, dict[str, str]],
+    pin_id: str,
+) -> list[str]:
+    """Prove this episode ACTUALLY ran the pinned objects, not merely claimed to.
+
+    The declared identity is not evidence: a worker that accepted a pin table
+    and then, through any bug in the plumbing, built an unpinned env would still
+    stamp a perfectly correct ``pin_id``. So the judgement is made on
+    ``realized_objects`` -- read back from the built scene after reset -- and the
+    declared identity is only checked for agreement with it.
+
+    Four checks, all of which must pass before the episode can be admitted:
+    the slot SET matches the table exactly; every path matches byte-for-byte;
+    the per-task identity re-derives from the realized values; and the global
+    identity matches the auditor's own copy of the table (a correct task slice
+    under a wrong global table would otherwise slip through).
+    """
+    import h5py
+
+    problems: list[str] = []
+    expected_slots = pin_table.get(expected_task)
+    if expected_slots is None:
+        return [f"pin table has no slot map for task {expected_task!r}"]
+    with h5py.File(path, "r") as f:
+        for attr in ("pin_id", "pin_task_id", "realized_objects"):
+            if attr not in f.attrs:
+                problems.append(f"missing pin attr {attr!r}")
+        if problems:
+            return problems
+        if str(f.attrs["pin_id"]) != pin_id:
+            problems.append(
+                f"attr pin_id={f.attrs['pin_id']!r} != auditor's table {pin_id!r}"
+            )
+        try:
+            realized = json.loads(str(f.attrs["realized_objects"]))
+        except ValueError as exc:
+            return [*problems, f"realized_objects is not JSON: {exc}"]
+        if not isinstance(realized, dict):
+            # Valid JSON is not enough: a scalar would make the set comparison
+            # below raise out of the auditor instead of failing this episode.
+            return [*problems, f"realized_objects is {type(realized).__name__}, not an object"]
+        if set(realized) != set(expected_slots):
+            problems.append(
+                f"realized slots {sorted(realized)} != pinned slots {sorted(expected_slots)}"
+            )
+        else:
+            for slot in sorted(expected_slots):
+                if realized[slot] != expected_slots[slot]:
+                    problems.append(
+                        f"slot {slot!r} realized {realized[slot]!r} != pinned "
+                        f"{expected_slots[slot]!r}"
+                    )
+        recomputed = compute_pin_task_id(expected_task, realized)
+        if str(f.attrs["pin_task_id"]) != recomputed:
+            problems.append(
+                f"attr pin_task_id={f.attrs['pin_task_id']!r} != identity of the "
+                f"realized objects {recomputed!r}"
+            )
+    return problems
 
 
 def _check_h5_schema(path: pathlib.Path, expected_task: str) -> list[str]:
@@ -186,8 +263,12 @@ def audit(
     journal_records: list[dict[str, Any]],
     plans: list[dict[str, Any]],
     target: int,
+    pin_id: str | None = None,
+    pin_table: dict[str, dict[str, str]] | None = None,
 ) -> dict[str, Any]:
     """Full audit against the run-plan uid set. Returns a JSON-able report."""
+    if pin_table is not None and not pin_id:
+        raise ValueError("pin_table given without pin_id; the global identity check needs both")
     root = pathlib.Path(root)
     expected_uids, prefixes, batches, plan_hashes = merge_run_plans(plans)
 
@@ -199,6 +280,7 @@ def audit(
     failed: list[str] = []
     missing_file: list[str] = []
     schema_errors: dict[str, list[str]] = {}
+    pin_errors: dict[str, list[str]] = {}
     multiple_accepted: list[str] = []
     admitted: dict[str, dict[str, Any]] = {}  # uid -> {path, attempt, ...}
 
@@ -227,6 +309,14 @@ def audit(
         if problems:
             schema_errors[uid] = problems
             continue
+        if pin_table is not None:
+            pin_problems = _check_pin_provenance(h5_path, task_name, pin_table, pin_id)
+            if pin_problems:
+                # Not admitted: an episode whose realized objects disagree with
+                # the pin table is a different experiment than the one we are
+                # building a library for.
+                pin_errors[uid] = pin_problems
+                continue
         admitted[uid] = {
             "path": str(h5_path.relative_to(root)),
             "attempt": attempt,
@@ -251,7 +341,10 @@ def audit(
     expected_tasks = sorted({prefixes[uid].split("/")[1] for uid in expected_uids})
     insufficient = {t: per_task.get(t, 0) for t in expected_tasks if per_task.get(t, 0) < target}
 
-    ok = not (missing_terminal or missing_file or schema_errors or multiple_accepted or insufficient)
+    ok = not (
+        missing_terminal or missing_file or schema_errors or pin_errors
+        or multiple_accepted or insufficient
+    )
     return {
         "ok": ok,
         "plan_hashes": plan_hashes,
@@ -261,6 +354,8 @@ def audit(
         "missing_terminal": sorted(missing_terminal),
         "missing_file": sorted(missing_file),
         "schema_errors": schema_errors,
+        "pin_errors": pin_errors,
+        "pin_id": pin_id,
         "multiple_accepted": sorted(multiple_accepted),
         "orphan_attempts": orphan_attempts,
         "insufficient": insufficient,
@@ -302,7 +397,12 @@ def build_manifest(report: dict[str, Any], *, root: str | pathlib.Path, target: 
                 }
             )
         tasks[task_name] = rows
-    return {"target": target, "plan_hashes": report["plan_hashes"], "tasks": tasks}
+    manifest = {"target": target, "plan_hashes": report["plan_hashes"], "tasks": tasks}
+    if report.get("pin_id") is not None:
+        # Travels with the manifest so the library builder can stamp it onto the
+        # artifact without a second source of truth.
+        manifest["pin_id"] = report["pin_id"]
+    return manifest
 
 
 # ------------------------------------------------------------------
@@ -322,6 +422,13 @@ def main() -> None:
         help="run-plan JSON (repeatable, one per batch) — the ONLY expected-uid source",
     )
     ap.add_argument("--target", type=int, default=20)
+    ap.add_argument(
+        "--pinned-objects",
+        default="",
+        help="pin table path. Given, every admitted episode must prove -- from "
+        "its recorded realized objects, not its claimed identity -- that it "
+        "actually ran these exact meshes.",
+    )
     ap.add_argument("--report-out", default="", help="write the JSON report here (default: stdout only)")
     ap.add_argument("--manifest-out", default="", help="write the deterministic manifest here")
     args = ap.parse_args()
@@ -338,7 +445,47 @@ def run_cli(args: argparse.Namespace) -> dict[str, Any]:
     """
     plans = [load_run_plan(path) for path in args.run_plan]
     records = load_journal(args.journal)
-    report = audit(root=args.root, journal_records=records, plans=plans, target=args.target)
+    pin_id, pin_table = (None, None)
+    # getattr: existing callers build the Namespace by hand (test seam), so a
+    # newly added flag must not become a required attribute.
+    pin_path = getattr(args, "pinned_objects", "")
+    # The run-plan is the ground truth about how these episodes were collected,
+    # so batch agreement and table identity are settled here, once, with a
+    # readable message. Left to the per-episode checks they would still fire --
+    # but as N identical failures at the wrong level of the diagnosis.
+    plan_pin_ids = {plan["params"].get("pin_id") for plan in plans}
+    if len(plan_pin_ids) > 1:
+        raise SystemExit(
+            f"run-plans disagree on pin_id ({sorted(plan_pin_ids, key=str)}); batches "
+            "collected under different object pinnings cannot be audited together"
+        )
+    plan_pin_id = next(iter(plan_pin_ids)) if plan_pin_ids else None
+    if pin_path:
+        pin_id, pin_table = load_pin_manifest(pin_path)
+        if pin_id != plan_pin_id:
+            raise SystemExit(
+                f"--pinned-objects has pin_id {pin_id} but the run-plan records "
+                f"{plan_pin_id}; this is not the table this collection ran under"
+            )
+    elif plan_pin_id:
+        # The run-plan says these episodes were collected pinned. Auditing them
+        # without the table would silently skip every provenance check and emit
+        # a manifest that looks clean, so the library would be built from
+        # unverified episodes.
+        raise SystemExit(
+            "run-plan records pin_id "
+            f"{sorted({p['params'].get('pin_id') for p in plans}, key=str)} but "
+            "--pinned-objects was not given; refusing to audit a pinned "
+            "collection without its table"
+        )
+    report = audit(
+        root=args.root,
+        journal_records=records,
+        plans=plans,
+        target=args.target,
+        pin_id=pin_id,
+        pin_table=pin_table,
+    )
     report["teacher"] = args.teacher
     rendered = json.dumps(report, sort_keys=True, indent=1)
     print(rendered)

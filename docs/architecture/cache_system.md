@@ -1023,6 +1023,38 @@ A screening layer that groups library entries into **buckets keyed on byte-ident
 
 **Startup binding + guards**: `build_shared_storage` is the single storage-construction choke point (`build_cache_components` delegates to it), and `_check_text_ivf_artifact_binding` fail-fasts when a preloaded artifact's `key_builder_type` / `prompt_pool` metadata mismatches the configured builder + knobs in either direction (legacy artifacts without the metadata are rejected — rebuild per the plan §9 runbook). The bucket index itself is a **derived search structure** (like §5.10's score memo): built eagerly inside `load_artifact` (under the BackendPool per-fingerprint load lock, before `freeze()` — the serving path never lazy-builds) with two fail-fast validations (any entry missing the screening field; more buckets than `max_buckets` = state-pollution / un-masked artifact signature), rebuilt lazily after mutations via local-build + single-reference-assignment atomic publish. Empty library ⇒ empty probe result ⇒ MISS, never an error. `BackendFingerprint` carries `(field, max_buckets)` so differing index params never share a pooled backend instance.
 
+### 5.20 Pinned-object artifact identity (RoboCasa365 PickPlace line)
+
+A library collected with every object slot pinned to one exact mesh describes
+only that scene distribution. Serving it under a config that expects a different
+pin table — or serving an unpinned library to a pinned run — returns retrieval
+results that look entirely normal and mean nothing, so the identity is bound the
+same way §5.19 binds prompt-pool semantics.
+
+**Recorded**: `build_in_memory_cache_artifact.py` stamps `pin_id` (and the
+audit manifest's `plan_hashes`) onto the artifact when the library is built
+through `--manifest`. `InMemoryBackend` surfaces it as
+`CacheStorage.artifact_meta["pin_id"]`; `None` for every library built before
+object pinning existed.
+
+**Enforced**: `_check_pin_identity_binding(storage, config)` compares it against
+`backend.in_memory.expected_pin_id` and raises `ConfigValidationError` on
+mismatch, on a pinned config over an unstamped library, and on an expectation
+with no preloaded artifact. An unset expectation skips the check entirely, which
+is what keeps legacy libraries loading.
+
+**Why it hangs off `build_shared_storage` and not `load_artifact`**: `BackendPool`
+reuses a backend across configs whose fingerprint matches, and that fingerprint
+(`backend_type`, `preload_path`, `vector_dims`, `index_type`, text-IVF params)
+does **not** include the pin identity. A check inside `load_artifact` would run
+once for the first config and never again for the second. Hanging it off the
+storage-construction choke point instead covers both server startup and every
+`load_cache_config` hot-swap.
+
+Collection-side mechanics — how the table reaches the environment and how each
+episode proves it was applied — are in
+[`../data_collection/guide.md`](../data_collection/guide.md).
+
 ## 6. Data Flow and Timing
 
 > **Note**: The data flow diagrams below reference cache search/write operations that depend on the storage layer (Section 5.2/5.3). The storage layer is ⚠️ unstable — interfaces and backend implementations will change. The timing structure (stages, checkpoint positions) is stable; the storage interaction details are not.
