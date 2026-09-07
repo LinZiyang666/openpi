@@ -114,12 +114,11 @@ class QdrantBackendConfig:
     request_timeout: int = 30
     # RRF fusion parameters (used when query_keys has more than one field)
     rrf_k: int = 60
-    candidate_multiplier: int = 5   # prefetch limit = top_k * candidate_multiplier
+    candidate_multiplier: int = 5  # prefetch limit = top_k * candidate_multiplier
     fusion_weights: Optional[dict[str, float]] = None  # per-field weight; None = equal
 
 
 class QdrantVectorStore(VectorStoreBackend):
-
     _SUPPORTED_FILTERS: frozenset[str] = frozenset(
         {"checkpoint_id", "task_key", "step_range"}
     )
@@ -161,7 +160,9 @@ class QdrantVectorStore(VectorStoreBackend):
             try:
                 points.append(self._to_point(entry))
             except Exception as exc:
-                logger.warning("batch_insert serialisation failed for %s: %s", entry.id, exc)
+                logger.warning(
+                    "batch_insert serialisation failed for %s: %s", entry.id, exc
+                )
                 failed_ids.append(entry.id)
 
         if points:
@@ -178,9 +179,11 @@ class QdrantVectorStore(VectorStoreBackend):
         1 total chunk → direct query (no RRF overhead).
         >1 total chunks → RRF fusion across all prefetches.
         """
-        if (spec.trajectory_history is not None
-                and spec.trajectory_weights is not None
-                and len(spec.trajectory_weights) > 1):
+        if (
+            spec.trajectory_history is not None
+            and spec.trajectory_weights is not None
+            and len(spec.trajectory_weights) > 1
+        ):
             raise NotImplementedError(
                 "Trajectory search (trajectory_depth > 1) is not supported in QdrantBackend. "
                 "Use InMemoryBackend for trajectory search, or set trajectory_depth=1."
@@ -217,16 +220,22 @@ class QdrantVectorStore(VectorStoreBackend):
             # Read fusion params from spec (per-query, from SearchStrategy) with
             # fallback to backend config (global defaults).
             hints = spec.backend_hints or {}
-            candidate_multiplier = hints.get("candidate_multiplier", self._config.candidate_multiplier)
+            candidate_multiplier = hints.get(
+                "candidate_multiplier", self._config.candidate_multiplier
+            )
             rrf_k = hints.get("rrf_k", self._config.rrf_k)
 
             candidate_limit = spec.top_k * candidate_multiplier
             prefetches = [
-                Prefetch(query=values, using=name, filter=query_filter, limit=candidate_limit)
+                Prefetch(
+                    query=values, using=name, filter=query_filter, limit=candidate_limit
+                )
                 for name, values, _ in all_chunks
             ]
             fusion_weights = self._build_fusion_weights_for_chunks(
-                active_fields, all_chunks, override_weights=spec.fusion_weights,
+                active_fields,
+                all_chunks,
+                override_weights=spec.fusion_weights,
             )
             rrf = Rrf(k=rrf_k, weights=fusion_weights)
             response = self._client.query_points(
@@ -244,10 +253,14 @@ class QdrantVectorStore(VectorStoreBackend):
             try:
                 cp = CheckpointID[cp_name] if cp_name else CheckpointID.CP1
             except KeyError:
-                logger.warning("Unknown checkpoint_id %r in search result %s", cp_name, point.id)
+                logger.warning(
+                    "Unknown checkpoint_id %r in search result %s", cp_name, point.id
+                )
                 continue
             results.append(
-                SearchResultLite(id=str(point.id), score=float(point.score), checkpoint_id=cp)
+                SearchResultLite(
+                    id=str(point.id), score=float(point.score), checkpoint_id=cp
+                )
             )
         return results
 
@@ -266,7 +279,9 @@ class QdrantVectorStore(VectorStoreBackend):
             with_payload=True,
         )
         if not results:
-            raise KeyError(f"id {id!r} not found in collection {self._config.collection_name!r}")
+            raise KeyError(
+                f"id {id!r} not found in collection {self._config.collection_name!r}"
+            )
         return self._deserialize_payload(results[0].payload)
 
     def delete(self, ids: list[str]) -> None:
@@ -276,9 +291,7 @@ class QdrantVectorStore(VectorStoreBackend):
         )
 
     def count(self) -> int:
-        return self._client.count(
-            collection_name=self._config.collection_name
-        ).count
+        return self._client.count(collection_name=self._config.collection_name).count
 
     # ------------------------------------------------------------------
     # Internal: point construction
@@ -323,6 +336,7 @@ class QdrantVectorStore(VectorStoreBackend):
         Multiple chunks → "field__chunk_000", "field__chunk_001", ...
         """
         import numpy as np
+
         if hasattr(tensor, "numpy"):  # torch.Tensor
             flat = tensor.float().cpu().numpy().astype("float32").flatten().tolist()
         else:
@@ -354,7 +368,11 @@ class QdrantVectorStore(VectorStoreBackend):
         Returns None when fusion_weights is not configured (equal weights for all
         prefetches, which is Qdrant's default when weights=None).
         """
-        cfg = override_weights if override_weights is not None else self._config.fusion_weights
+        cfg = (
+            override_weights
+            if override_weights is not None
+            else self._config.fusion_weights
+        )
         if not cfg:
             return None
 
@@ -383,6 +401,7 @@ class QdrantVectorStore(VectorStoreBackend):
         if t is None:
             return None
         import torch
+
         buf = io.BytesIO()
         torch.save(t, buf)
         return base64.b64encode(buf.getvalue()).decode()
@@ -393,6 +412,7 @@ class QdrantVectorStore(VectorStoreBackend):
             return None
         import numpy as np
         import torch
+
         raw = base64.b64decode(s)
         buf = io.BytesIO(raw)
         # Try torch format first, fall back to numpy (.npy) format
@@ -416,6 +436,7 @@ class QdrantVectorStore(VectorStoreBackend):
             "action_chunk": cls._tensor_to_b64(p.action_chunk),
             "intermediates": intermediates_b64,
             "denoising_num_steps": p.denoising_num_steps,
+            "schedule_id": p.schedule_id,
         }
 
     @classmethod
@@ -423,8 +444,7 @@ class QdrantVectorStore(VectorStoreBackend):
         intermediates: Optional[dict[float, torch.Tensor]] = None
         if raw.get("intermediates"):
             intermediates = {
-                float(k): cls._b64_to_tensor(v)
-                for k, v in raw["intermediates"].items()
+                float(k): cls._b64_to_tensor(v) for k, v in raw["intermediates"].items()
             }
 
         return CachePayload(
@@ -432,6 +452,12 @@ class QdrantVectorStore(VectorStoreBackend):
             intermediates=intermediates,
             denoising_num_steps=raw.get("denoising_num_steps"),
             task_key=raw.get("task_key", raw.get("task", "")),
+            # Missing is the pre-schedule Pi0.5 wire format. Only payloads
+            # carrying intermediates can ever execute WARM_START.
+            schedule_id=(
+                raw.get("schedule_id")
+                or ("pi05_v1" if intermediates is not None else None)
+            ),
         )
 
     # ------------------------------------------------------------------

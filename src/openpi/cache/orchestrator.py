@@ -35,7 +35,11 @@ from typing import Optional
 import torch
 
 from openpi.cache.cache_storage import CacheStorage
-from openpi.cache.components.factors.base import HistoryView, LibraryStats, OfflineWriter
+from openpi.cache.components.factors.base import (
+    HistoryView,
+    LibraryStats,
+    OfflineWriter,
+)
 from openpi.cache.components.gate import ClientControlledGate, GateFunction
 from openpi.cache.components.judge import (
     HitType,
@@ -53,7 +57,7 @@ from openpi.cache.storage_types import (
     StepRecord,
 )
 from openpi.cache.timing import SystemTimer
-from openpi.cache.types import CheckpointID
+from openpi.cache.types import CheckpointID, schedule_from_id
 
 logger = logging.getLogger(__name__)
 
@@ -145,8 +149,11 @@ class CacheOrchestrator:
         # A stateful CRD judge must see every step: refuse any gate that can
         # skip the search on its checkpoint (exploratory 2026-08-30).
         from openpi.cache.components.gate import AlwaysSearchGate as _AlwaysSearch
+
         for cp, judge in self._judges.items():
-            if hasattr(judge, "commit_verdict") and not isinstance(self._gates.get(cp), _AlwaysSearch):
+            if hasattr(judge, "commit_verdict") and not isinstance(
+                self._gates.get(cp), _AlwaysSearch
+            ):
                 raise ValueError(
                     f"{cp}: a cumulative-risk (CRD) judge requires gate.type=always_search, "
                     f"got {type(self._gates.get(cp)).__name__}"
@@ -166,7 +173,8 @@ class CacheOrchestrator:
         }
         # X15: same one-shot probe for the retrieval-diagnostics kwarg.
         self._judge_wants_step_features: dict[CheckpointID, bool] = {
-            cp: judge_accepts_kwarg(j, "step_features") for cp, j in self._judges.items()
+            cp: judge_accepts_kwarg(j, "step_features")
+            for cp, j in self._judges.items()
         }
 
         # B2 wiring — populated by config builder when composite judges
@@ -347,7 +355,8 @@ class CacheOrchestrator:
             )
         for judge in self._unique_judges():
             self._safe_call_lifecycle(
-                judge, "on_episode_start",
+                judge,
+                "on_episode_start",
                 extra_metadata=self._current_episode_extra,
                 provisional=provisional,
             )
@@ -449,13 +458,13 @@ class CacheOrchestrator:
         Must be called after check() returns (all locks released).
         """
         for strategy in self._search_strategies.values():
-            if hasattr(strategy, 'record_action'):
+            if hasattr(strategy, "record_action"):
                 strategy.record_action(action_chunk)
         for gate in self._gates.values():
-            if hasattr(gate, 'record_action'):
+            if hasattr(gate, "record_action"):
                 gate.record_action(action_chunk)
         for judge in self._judges.values():
-            if hasattr(judge, 'record_action'):
+            if hasattr(judge, "record_action"):
                 judge.record_action(action_chunk)
         # B1 — record into the orchestrator-owned action history (read by
         # CompositeJudge factors via HistoryView). Detaches the chunk so
@@ -503,8 +512,8 @@ class CacheOrchestrator:
             )
         # Stateful judges (CRD, exploratory 2026-08-30) only PROPOSE inside
         # __call__; the FINAL executed verdict is committed here, on the same
-        # every-return-path hook, so a WARM_START downgraded to MISS by the
-        # payload check above is booked as the MISS that actually ran.
+        # every-successful-return hook. A malformed WARM_START payload raises
+        # before this point and is never booked as a model MISS.
         judge = self._judges.get(checkpoint_id)
         if searched and judge is not None and hasattr(judge, "commit_verdict"):
             self._last_judge_commit = judge.commit_verdict(
@@ -540,8 +549,8 @@ class CacheOrchestrator:
 
         For CP1, Judge returns JudgeResult with three possible outcomes:
         FULL_HIT, WARM_START (with start_t), or MISS.  On WARM_START,
-        payload completeness is validated here; incomplete payloads are
-        downgraded to MISS.
+        payload schedule identity and completeness are validated here;
+        malformed payloads fail loudly rather than becoming silent MISSes.
 
         Args:
             checkpoint_id: CP1, CP2 or CP3. CP2 (post-backbone single key)
@@ -575,7 +584,12 @@ class CacheOrchestrator:
             should_search = gate(
                 checkpoint_id, self._key_builder.cached_data, request_context
             )
-        logger.info("[step %d] %s gate: %s", self._step_counter, prefix, "SEARCH" if should_search else "SKIP")
+        logger.info(
+            "[step %d] %s gate: %s",
+            self._step_counter,
+            prefix,
+            "SEARCH" if should_search else "SKIP",
+        )
 
         # build() always executes (even on gate skip) for trajectory completeness
         with self._timer.measure(f"{prefix}_build"):
@@ -606,14 +620,16 @@ class CacheOrchestrator:
                 except Exception:  # noqa: BLE001 - fork/missing-entry/backend fail-safe
                     logger.warning(
                         "[step %d] blind-replay walk_next(%s) failed; unlocking and "
-                        "falling through to skip", self._step_counter, replay_id,
+                        "falling through to skip",
+                        self._step_counter,
+                        replay_id,
                     )
                     entries = []
                 if entries:
                     nxt = entries[0]
                     # Record query_keys so trajectory history stays gap-free (same
                     # as the skip path); this replay is not a miss.
-                    if hasattr(strategy, 'record_query_keys'):
+                    if hasattr(strategy, "record_query_keys"):
                         strategy.record_query_keys(query_keys)
                     if checkpoint_id in _STEP_OWNER_CPS:
                         self._step_counter += 1
@@ -621,30 +637,45 @@ class CacheOrchestrator:
                     # real search. Feeds the gate so it advances its cursor / spends
                     # budget (winner_id is the replayed entry's id).
                     self._feed_verdict_to_gate(
-                        checkpoint_id, hit_type=HitType.FULL_HIT, cp1_score=None,
-                        winner_id=nxt.id, start_t=None, searched=False,
+                        checkpoint_id,
+                        hit_type=HitType.FULL_HIT,
+                        cp1_score=None,
+                        winner_id=nxt.id,
+                        start_t=None,
+                        searched=False,
                     )
                     return CheckResult(
-                        hit_type=HitType.FULL_HIT, payload=nxt.payload,
-                        entry_id=nxt.id, query_keys=query_keys, searched=False,
+                        hit_type=HitType.FULL_HIT,
+                        payload=nxt.payload,
+                        entry_id=nxt.id,
+                        query_keys=query_keys,
+                        searched=False,
                     )
                 # Trajectory exhausted / walk failed: fall through to the skip path
                 # below. Its searched=False MISS (winner_id=None) unlocks the gate.
 
             # Gate skip: record query_keys to strategy history (trajectory gap-free)
-            if hasattr(strategy, 'record_query_keys'):
+            if hasattr(strategy, "record_query_keys"):
                 strategy.record_query_keys(query_keys)
-            self._miss_by_checkpoint[checkpoint_id] = self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
+            self._miss_by_checkpoint[checkpoint_id] = (
+                self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
+            )
             if checkpoint_id in _STEP_OWNER_CPS:
                 self._step_counter += 1
             # searched=False: gate skipped the search. Distinguishes this from a
             # real always-search MISS (which leaves searched=True) for the
             # gate-research collector's C5 selection-bias filter.
             self._feed_verdict_to_gate(
-                checkpoint_id, hit_type=HitType.MISS, cp1_score=None,
-                winner_id=None, start_t=None, searched=False,
+                checkpoint_id,
+                hit_type=HitType.MISS,
+                cp1_score=None,
+                winner_id=None,
+                start_t=None,
+                searched=False,
             )
-            return CheckResult(hit_type=HitType.MISS, query_keys=query_keys, searched=False)
+            return CheckResult(
+                hit_type=HitType.MISS, query_keys=query_keys, searched=False
+            )
 
         with self._timer.measure(f"{prefix}_search"):
             ctx = SearchContext(
@@ -691,8 +722,12 @@ class CacheOrchestrator:
                     _feat_getter() if _feat_getter is not None else None
                 )
             judge_result = judge(
-                results, checkpoint_id, self._key_builder.cached_data,
-                view=view, history=history, retrieval_signals=retrieval_signals,
+                results,
+                checkpoint_id,
+                self._key_builder.cached_data,
+                view=view,
+                history=history,
+                retrieval_signals=retrieval_signals,
                 **extra_kwargs,
             )
         hit_type = judge_result.hit_type
@@ -703,15 +738,24 @@ class CacheOrchestrator:
         hit_override = getattr(judge_result, "hit_override", None)
         router_outputs = getattr(judge_result, "router_outputs", None)
         # Forward the optional CompositeJudge diagnostic dump on every exit
-        # path below (FULL_HIT / WARM_START / WARM_START-downgrade-to-MISS /
-        # post-judge MISS). Early gate / cache-disabled returns above never
+        # path below (FULL_HIT / WARM_START / post-judge MISS). Early gate /
+        # cache-disabled returns above never
         # touched a judge and stay None.
         factor_outputs = getattr(judge_result, "factor_outputs", None)
         top_score = results[0].score if results else None
-        logger.info("[step %d] %s judge: %s (top_score=%s, winner=%s)", self._step_counter, prefix, hit_type.name, top_score, winner_id)
+        logger.info(
+            "[step %d] %s judge: %s (top_score=%s, winner=%s)",
+            self._step_counter,
+            prefix,
+            hit_type.name,
+            top_score,
+            winner_id,
+        )
 
         if hit_type == HitType.MISS:
-            self._miss_by_checkpoint[checkpoint_id] = self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
+            self._miss_by_checkpoint[checkpoint_id] = (
+                self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
+            )
 
         if checkpoint_id in _STEP_OWNER_CPS:
             self._step_counter += 1
@@ -724,13 +768,21 @@ class CacheOrchestrator:
             # action source, so `payload` stays None by design (the invariant is
             # documented on JudgeResult / CheckResult).
             self._feed_verdict_to_gate(
-                checkpoint_id, hit_type=hit_type, cp1_score=top_score,
-                winner_id=None, start_t=None, searched=True,
+                checkpoint_id,
+                hit_type=hit_type,
+                cp1_score=top_score,
+                winner_id=None,
+                start_t=None,
+                searched=True,
             )
             return CheckResult(
-                hit_type=hit_type, payload=None, score=top_score,
-                query_keys=query_keys, factor_outputs=self._with_judge_diag(factor_outputs),
-                hit_override=True, router_outputs=router_outputs,
+                hit_type=hit_type,
+                payload=None,
+                score=top_score,
+                query_keys=query_keys,
+                factor_outputs=self._with_judge_diag(factor_outputs),
+                hit_override=True,
+                router_outputs=router_outputs,
             )
 
         if hit_type in (HitType.FULL_HIT, HitType.WARM_START) and winner_id is not None:
@@ -742,48 +794,49 @@ class CacheOrchestrator:
                 payload = view.get(winner_id)
 
             if hit_type == HitType.WARM_START:
-                if (not payload.intermediates
-                        or payload.denoising_num_steps is None
-                        or start_t not in payload.intermediates):
-                    logger.warning(
-                        "[step %d] WARM_START payload incomplete (start_t=%s, "
-                        "has_intermediates=%s), downgrade to MISS.",
-                        self._step_counter - 1, start_t,
-                        payload.intermediates is not None,
+                meta = self.artifact_meta or {}
+                schedule_id = meta.get("schedule_id") or payload.schedule_id
+                if schedule_id is None:
+                    raise ValueError(
+                        "WARM_START payload and library carry no schedule_id; "
+                        "the snapshot's denoise direction is unknowable"
                     )
-                    self._miss_by_checkpoint[checkpoint_id] = (
-                        self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
-                    )
-                    self._feed_verdict_to_gate(
-                        checkpoint_id, hit_type=HitType.MISS,
-                        cp1_score=results[0].score, winner_id=winner_id,
-                        start_t=start_t, searched=True,
-                    )
-                    return CheckResult(
-                        hit_type=HitType.MISS, query_keys=query_keys,
-                        score=results[0].score, entry_id=winner_id,
-                        factor_outputs=self._with_judge_diag(factor_outputs),
-                        router_outputs=router_outputs,
-                    )
+                schedule = schedule_from_id(schedule_id)
+                payload.validate_for_warm_start(schedule, start_t)
 
             self._feed_verdict_to_gate(
-                checkpoint_id, hit_type=hit_type, cp1_score=results[0].score,
-                winner_id=winner_id, start_t=start_t, searched=True,
+                checkpoint_id,
+                hit_type=hit_type,
+                cp1_score=results[0].score,
+                winner_id=winner_id,
+                start_t=start_t,
+                searched=True,
             )
             return CheckResult(
-                hit_type=hit_type, payload=payload, start_t=start_t,
-                score=results[0].score, entry_id=winner_id, query_keys=query_keys,
+                hit_type=hit_type,
+                payload=payload,
+                start_t=start_t,
+                score=results[0].score,
+                entry_id=winner_id,
+                query_keys=query_keys,
                 factor_outputs=self._with_judge_diag(factor_outputs),
-                hit_override=hit_override, router_outputs=router_outputs,
+                hit_override=hit_override,
+                router_outputs=router_outputs,
             )
 
         self._feed_verdict_to_gate(
-            checkpoint_id, hit_type=HitType.MISS, cp1_score=top_score,
-            winner_id=winner_id, start_t=start_t, searched=True,
+            checkpoint_id,
+            hit_type=HitType.MISS,
+            cp1_score=top_score,
+            winner_id=winner_id,
+            start_t=start_t,
+            searched=True,
         )
         return CheckResult(
-            hit_type=HitType.MISS, query_keys=query_keys,
-            score=top_score, entry_id=winner_id,
+            hit_type=HitType.MISS,
+            query_keys=query_keys,
+            score=top_score,
+            entry_id=winner_id,
             factor_outputs=self._with_judge_diag(factor_outputs),
             router_outputs=router_outputs,
         )
@@ -798,18 +851,22 @@ class CacheOrchestrator:
         action_chunk: torch.Tensor,
         intermediates: Optional[dict[float, torch.Tensor]] = None,
         denoising_num_steps: Optional[int] = None,
+        schedule_id: Optional[str] = None,
     ) -> None:
         """Buffer current step for episode-end batch write.
 
         Called by Interceptor after action is produced (cache hit or inference).
         Not called inside check() — action is not available at check time.
         """
-        self._episode_steps.append(StepRecord(
-            query_keys=query_keys,
-            action_chunk=action_chunk,
-            intermediates=intermediates,
-            denoising_num_steps=denoising_num_steps,
-        ))
+        self._episode_steps.append(
+            StepRecord(
+                query_keys=query_keys,
+                action_chunk=action_chunk,
+                intermediates=intermediates,
+                denoising_num_steps=denoising_num_steps,
+                schedule_id=schedule_id,
+            )
+        )
 
     def on_episode_end(self) -> None:
         """Episode ended. Consult WritePolicy and optionally batch-write trajectory.
@@ -891,6 +948,7 @@ class CacheOrchestrator:
                     task_key=record.task_key,
                     intermediates=step.intermediates,
                     denoising_num_steps=step.denoising_num_steps,
+                    schedule_id=step.schedule_id,
                 ),
                 step_idx=step_idx,
                 trajectory_id=trajectory_id,
@@ -911,7 +969,8 @@ class CacheOrchestrator:
         if self._offline_writers and self._library_stats is not None:
             for writer in self._offline_writers:
                 per_entry_factors = writer.compute_for_episode(
-                    entries, self._library_stats,
+                    entries,
+                    self._library_stats,
                 )
                 for entry, factors in zip(entries, per_entry_factors, strict=True):
                     if entry.payload.factors is None:

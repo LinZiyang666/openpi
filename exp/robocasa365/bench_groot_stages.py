@@ -29,13 +29,15 @@ Three modes
 
 Why this lives in a standalone script and not in the serving path
 ----------------------------------------------------------------
-Production ``GrootStagedRunner`` is **two** stages: ``run_stage1`` (vision) and
-``run_stage2`` (LLM + the action head's whole Euler loop as one atomic
-``get_action`` call). The measurement needs three. Plan D2 forbids touching
-production code before the payoff gate, so the split is replicated here, and
-all copied boundaries carry drift pins (``UPSTREAM_GET_ACTION_SHA256`` for the
-upstream action head and ``RUN_STAGE{1,2}_SRC_SHA256`` for the two in-repo
-runner methods). Stage 1 uses a benchmark-local ``index_copy`` equivalent so
+Production ``GrootStagedRunner`` now exposes the three boundaries
+(``run_stage1`` / ``run_stage2_llm`` / ``run_stage3``), and the Euler loop this
+benchmark compiles is the production transcription itself
+(``staged.denoise_loop`` / ``denoise_step``, pinned by
+``UPSTREAM_ACTION_HEAD_SHA256``). What is still copied here are the two tensor
+bodies that must be free of eager tails to compile as whole graphs, and both
+copies carry drift pins against the runner methods they track
+(``RUN_STAGE1_SRC_SHA256`` for ``run_stage1``, ``RUN_STAGE2_SRC_SHA256`` for
+``run_stage2_llm``). Stage 1 uses a benchmark-local ``index_copy`` equivalent so
 its production data-dependent guard stays eager while all tensor work is one
 ``fullgraph=True`` graph; the initial production eager call executes that guard.
 
@@ -93,19 +95,25 @@ from typing import Any, Callable
 import numpy as np
 import torch
 
+from openpi.cache.groot.staged import (
+    UPSTREAM_ACTION_HEAD_SHA256,
+    denoise_loop,
+    denoise_step,
+)
+
 # --- pinned sources ---------------------------------------------------------
 # Bump deliberately after re-reading the source and re-running parity, never to
 # "make it pass": a drift means this benchmark is measuring code that no longer
 # matches what the copies below assume.
-UPSTREAM_GET_ACTION_SHA256 = (
-    "8a8e6cf7ec63e2a335559990c4ab62bbb81e487d82ea4a969f452a93e0dbdd69"
-)
+# The pin lives with the transcription it guards (staged.py); re-exported so
+# the cell records and the certify path keep their field name.
+UPSTREAM_GET_ACTION_SHA256 = UPSTREAM_ACTION_HEAD_SHA256
 UPSTREAM_ACTION_HEAD_REL = "gr00t/model/action_head/flow_matching_action_head.py"
 RUN_STAGE2_SRC_SHA256 = (
-    "cc81f0fa91c38e385b1c577cb86686d149f85b82c303f5a88ba32ce1bf4786a1"
+    "d397102127745a6877b91695773fd5df78d041e00687ab22e2d01d45359cffb8"
 )
 RUN_STAGE1_SRC_SHA256 = (
-    "8cb20edfc06a93ae21ec90cde7f117159fbff7a44e7c216d2461f18fa5f44b98"
+    "cbf1bfe88a82cc91cf2c9379f55b4db4d8ee09f65effaaec6ba82e96afa09960"
 )
 
 # Step count is part of the identity: the same GR00T checkpoint runs 4 steps on
@@ -420,86 +428,6 @@ def rel_err(a: torch.Tensor, b: torch.Tensor) -> float:
 # ---------------------------------------------------------------------------
 # stage 3: the upstream denoise loop, with the noise hoisted out
 # ---------------------------------------------------------------------------
-
-
-def denoise_step(
-    action_head: Any,
-    vl: torch.Tensor,
-    state_features: torch.Tensor,
-    embodiment_id: torch.Tensor,
-    actions: torch.Tensor,
-    timesteps_tensor: torch.Tensor,
-    dt: float,
-) -> torch.Tensor:
-    """Run one GR00T flow-matching step; this is the Stage-3 compiled graph."""
-    action_features = action_head.action_encoder(
-        actions, timesteps_tensor, embodiment_id
-    )
-    if action_head.config.add_pos_embed:
-        pos_ids = torch.arange(
-            action_features.shape[1], dtype=torch.long, device=vl.device
-        )
-        action_features = action_features + action_head.position_embedding(
-            pos_ids
-        ).unsqueeze(0)
-    future_tokens = action_head.future_tokens.weight.unsqueeze(0).expand(
-        vl.shape[0], -1, -1
-    )
-    sa_embs = torch.cat((state_features, future_tokens, action_features), dim=1)
-    model_output = action_head.model(
-        hidden_states=sa_embs, encoder_hidden_states=vl, timestep=timesteps_tensor
-    )
-    pred = action_head.action_decoder(model_output, embodiment_id)
-    return actions + dt * pred[:, -action_head.action_horizon :]
-
-
-def denoise_loop(
-    action_head: Any,
-    backbone_output: Any,
-    action_input: Any,
-    *,
-    noise: torch.Tensor,
-    num_steps: int,
-    step_fn: Callable[..., torch.Tensor] = denoise_step,
-) -> torch.Tensor:
-    """Copy upstream ``get_action`` with external noise and a pluggable one-step body.
-
-    Upstream draws ``torch.randn`` inside the function body
-    (flow_matching_action_head.py:364-368). Hoisting it out is what lets parity
-    separate "the compiled output is numerically wrong" from "the two runs drew
-    different noise", and it matches how pi0.5 already does it
-    (``policy.py:122-128``).
-
-    Everything else is upstream's, character for character: the **ascending**
-    ``t_cont = t/N``, the integer bucket discretisation, the position embedding,
-    the ``future_tokens`` expansion and the ``+dt*v`` Euler update.
-    """
-    processed = action_head.process_backbone_output(backbone_output)
-    vl = processed.backbone_features
-    embodiment_id = action_input.embodiment_id
-    state_features = action_head.state_encoder(action_input.state, embodiment_id)
-
-    batch_size = vl.shape[0]
-    actions = noise
-    dt = 1.0 / num_steps
-    for t in range(num_steps):
-        t_cont = t / float(num_steps)  # ascending: 0, 1/N, 2/N, ...
-        t_discretized = int(t_cont * action_head.num_timestep_buckets)
-        timesteps_tensor = torch.full(
-            size=(batch_size,), fill_value=t_discretized, device=vl.device
-        )
-        # A reduce-overhead graph returns a static output buffer. Clone after
-        # every replay because the next denoise step consumes this value.
-        actions = step_fn(
-            action_head,
-            vl,
-            state_features,
-            embodiment_id,
-            actions,
-            timesteps_tensor,
-            dt,
-        ).clone()
-    return actions
 
 
 def upstream_reference_action(
@@ -837,10 +765,10 @@ def assert_source_pins(gr00t_root: pathlib.Path, runner_cls: type) -> None:
             f"GrootStagedRunner.run_stage1 drifted:\n  expected {RUN_STAGE1_SRC_SHA256}\n"
             f"  got      {stage1_sha}\nThe fullgraph stage-1 copy may be stale."
         )
-    stage2_sha = sha256_text(inspect.getsource(runner_cls.run_stage2))
+    stage2_sha = sha256_text(inspect.getsource(runner_cls.run_stage2_llm))
     if stage2_sha != RUN_STAGE2_SRC_SHA256:
         raise SystemExit(
-            f"GrootStagedRunner.run_stage2 drifted:\n  expected {RUN_STAGE2_SRC_SHA256}\n"
+            f"GrootStagedRunner.run_stage2_llm drifted:\n  expected {RUN_STAGE2_SRC_SHA256}\n"
             f"  got      {stage2_sha}\nThe stage-2 copy in this script may be stale."
         )
 

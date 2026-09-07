@@ -30,6 +30,10 @@ Output layout (same naming convention as per-config path):
     {output_dir}/cp1_llm_l{L}_{reducer}.pkl
 """
 
+# Direct-script compatibility intentionally mutates sys.path before the
+# sibling builder and openpi imports below.
+# ruff: noqa: E402
+
 from __future__ import annotations
 
 import argparse
@@ -70,7 +74,12 @@ from openpi.cache.components.prefix_reducer import (
     PrefixReducer,
 )
 from openpi.cache.storage_types import CacheEntry, CachePayload
-from openpi.cache.types import PROMPT_EMB, ROBOT_STATE, CheckpointID
+from openpi.cache.types import PI05_V1, PROMPT_EMB, ROBOT_STATE, CheckpointID
+from openpi.collect.h5_intermediates import (
+    DenoiseSchedule,
+    episode_schedule,
+    read_step_intermediates,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -112,9 +121,9 @@ def _forward_collect_layers(
     dict maps layer index -> hidden state [L, D] (batch dim dropped).
     """
     max_layer = max(target_layers)
-    prefix_embs = fake_stage1.prefix_embs                       # [1, L, D]
-    attention_mask = fake_stage1.prefix_att_2d_masks_4d         # [1, 1, L, L]
-    position_ids = fake_stage1.prefix_position_ids              # [1, L]
+    prefix_embs = fake_stage1.prefix_embs  # [1, L, D]
+    attention_mask = fake_stage1.prefix_att_2d_masks_4d  # [1, 1, L, L]
+    position_ids = fake_stage1.prefix_position_ids  # [1, L]
 
     hidden = _cast_to_layer_dtype(prefix_embs, layers[0])
     cos, sin = rotary_emb(hidden, position_ids)
@@ -131,7 +140,7 @@ def _forward_collect_layers(
                 use_cache=False,
                 cache_position=None,
                 position_embeddings=(cos, sin),
-                adarms_cond=None,     # paligemma side: use_adarms[0]=False (Pi0.5)
+                adarms_cond=None,  # paligemma side: use_adarms[0]=False (Pi0.5)
             )
             hidden = layer_out[0]
             if layer_idx in target_layers:
@@ -154,6 +163,7 @@ def _build_entry(
     cp_id: CheckpointID,
     group: h5py.Group,
     task: str,
+    schedule: DenoiseSchedule | None,
 ) -> CacheEntry:
     """Assemble CacheEntry + CachePayload from the per-step HDF5 group.
 
@@ -174,31 +184,16 @@ def _build_entry(
     if action.dim() == 1:
         action = action.unsqueeze(0)
 
-    _NUM_STEPS = 10
-    intermediates = None
-    denoising_num_steps = None
-    noise_indices: list[int] = []
-    for k in group.keys():
-        if k.startswith("noise_action_"):
-            suffix = k.split("_")[-1]
-            if suffix.isdigit():
-                idx = int(suffix)
-                if 1 <= idx < _NUM_STEPS:
-                    noise_indices.append(idx)
-    if noise_indices:
-        denoising_num_steps = _NUM_STEPS
-        intermediates = {}
-        for i in sorted(noise_indices):
-            t = round(1.0 - i / _NUM_STEPS, 4)
-            intermediates[t] = torch.from_numpy(
-                np.array(group[f"noise_action_{i}"])
-            ).float()
+    intermediates, denoising_num_steps = read_step_intermediates(group, schedule)
 
     payload = CachePayload(
         action_chunk=action,
         task_key=task,
         intermediates=intermediates,
         denoising_num_steps=denoising_num_steps,
+        schedule_id=(
+            schedule.schedule_id if schedule is not None else PI05_V1.schedule_id
+        ),
     )
     return CacheEntry(
         id=entry_id,
@@ -229,6 +224,7 @@ def _process_episode_matrix(
         if not success:
             return 0
         trajectory_id = h5_path.stem
+        schedule = episode_schedule(f)
 
         def _step_sort_key(name: str) -> tuple[bool, int, str]:
             suffix = name.split("_", 1)[1] if "_" in name else ""
@@ -249,16 +245,22 @@ def _process_episode_matrix(
         for step_name in step_names:
             group = f[step_name]
             fake_stage1 = _build_fake_stage1_with_masks(
-                group, task_str=task, tokenizer=tokenizer,
-                model=model, device=device,
+                group,
+                task_str=task,
+                tokenizer=tokenizer,
+                model=model,
+                device=device,
             )
 
             # Single forward -> hidden states at every target layer.
             layer_hiddens = _forward_collect_layers(
-                fake_stage1, layers, rotary_emb, target_layers,
+                fake_stage1,
+                layers,
+                rotary_emb,
+                target_layers,
             )
 
-            pad_mask = fake_stage1.prefix_pad_masks[0]          # [L]
+            pad_mask = fake_stage1.prefix_pad_masks[0]  # [L]
             prefix_len = pad_mask.shape[0]
             segment_offsets = {
                 field: (start, end) for field, start, end in _VISION_OFFSETS
@@ -295,6 +297,7 @@ def _process_episode_matrix(
                         cp_id=cp_id,
                         group=group,
                         task=task,
+                        schedule=schedule,
                     )
                     per_slot_this_episode[slot].append(entry)
 
@@ -344,16 +347,23 @@ def _save_artifact(
             _load_offline_writers_from_yaml,
             enrich_artifact_with_factors,
         )
+
         offline_writers = (
             _load_offline_writers_from_yaml(factors_yaml) if factors_yaml else []
         )
         library_stats = enrich_artifact_with_factors(entries, offline_writers)
 
+    schedule_ids = {entry.payload.schedule_id for entry in entries}
+    if len(schedule_ids) > 1:
+        raise ValueError(
+            f"input episodes mix denoise schedules: {sorted(schedule_ids)}"
+        )
     artifact = {
         "key_builder_type": "cp1_llm_layer_extract",
         "checkpoint_id": "CP1",
         "vector_dims": _vector_dims_for_reducer(reducer_type),
         "entries": entries,
+        "schedule_id": next(iter(schedule_ids), None),
         "library_stats": library_stats,
         "reducer_params": {
             "extract_layer": extract_layer,
@@ -393,8 +403,7 @@ def build_matrix(
     for r in reducer_types:
         if r not in _LLM_LAYER_EXTRACT_DIMS:
             raise ValueError(
-                f"Unknown reducer_type {r!r}. "
-                f"Valid: {sorted(_LLM_LAYER_EXTRACT_DIMS)}"
+                f"Unknown reducer_type {r!r}. Valid: {sorted(_LLM_LAYER_EXTRACT_DIMS)}"
             )
 
     # Compute which (layer, reducer) slots still need building.
@@ -461,7 +470,10 @@ def build_matrix(
 
     logger.info(
         "Matrix build: %d layers × %d reducers = %d slots, %d episodes",
-        len(target_layers), len(required_reducer_types), len(slots), len(h5_paths),
+        len(target_layers),
+        len(required_reducer_types),
+        len(slots),
+        len(h5_paths),
     )
     for i, p in enumerate(h5_paths, 1):
         # Per-episode: pick reducers-per-layer dict fresh so each step only
@@ -488,14 +500,18 @@ def build_matrix(
             sentinel_slot = slots[0]
             logger.info(
                 "Progress: %d/%d episodes, slot[%s] #entries=%d, elapsed=%.1fs",
-                i, len(h5_paths), sentinel_slot,
-                len(entries_by_key[sentinel_slot]), time.time() - t_start,
+                i,
+                len(h5_paths),
+                sentinel_slot,
+                len(entries_by_key[sentinel_slot]),
+                time.time() - t_start,
             )
         total_steps += 1
 
     logger.info(
         "Forward complete in %.1fs. Saving %d artifacts...",
-        time.time() - t_start, len(slots),
+        time.time() - t_start,
+        len(slots),
     )
 
     for (L, r), bucket in entries_by_key.items():
@@ -510,7 +526,9 @@ def build_matrix(
             factors_yaml=factors_yaml,
         )
         size_mb = out_path.stat().st_size / 1024 / 1024
-        logger.info("  saved %s  (%d entries, %.1f MB)", out_path.name, len(bucket), size_mb)
+        logger.info(
+            "  saved %s  (%d entries, %.1f MB)", out_path.name, len(bucket), size_mb
+        )
 
     logger.info("Matrix build done in %.1fs total.", time.time() - t_start)
 
@@ -526,37 +544,52 @@ def _parse_layers(s: str) -> list[int]:
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Batched cp1_llm_layer_extract artifact matrix builder "
-                    "(1 model load, 1 forward per step -> all (layer,reducer) pkls).",
+        "(1 model load, 1 forward per step -> all (layer,reducer) pkls).",
     )
     parser.add_argument("--data-dir", required=True, help="Dir of HDF5 episode files.")
-    parser.add_argument("--output-dir", required=True,
-                        help="Dir to write cp1_llm_l{L}_{reducer}.pkl into.")
-    parser.add_argument("--checkpoint-dir", required=True,
-                        help="PI0Pytorch checkpoint dir (model.safetensors).")
-    parser.add_argument("--config-name", required=True,
-                        help="TrainConfig name (e.g. pi05_libero).")
-    parser.add_argument("--device", default="cuda",
-                        help="torch device; default cuda.")
-    parser.add_argument("--layers", default="0,1,2,3",
-                        help="Comma-separated layer indices to extract. Default 0,1,2,3.")
+    parser.add_argument(
+        "--output-dir",
+        required=True,
+        help="Dir to write cp1_llm_l{L}_{reducer}.pkl into.",
+    )
+    parser.add_argument(
+        "--checkpoint-dir",
+        required=True,
+        help="PI0Pytorch checkpoint dir (model.safetensors).",
+    )
+    parser.add_argument(
+        "--config-name", required=True, help="TrainConfig name (e.g. pi05_libero)."
+    )
+    parser.add_argument("--device", default="cuda", help="torch device; default cuda.")
+    parser.add_argument(
+        "--layers",
+        default="0,1,2,3",
+        help="Comma-separated layer indices to extract. Default 0,1,2,3.",
+    )
     parser.add_argument(
         "--reducers",
         default="prefix_mean_pool,per_modality_mean_pool,per_modality_max_pool,"
-                "per_modality_spatial_pool_16,per_modality_spatial_pool_4",
+        "per_modality_spatial_pool_16,per_modality_spatial_pool_4",
         help="Comma-separated reducer types to run.",
     )
-    parser.add_argument("--no-skip-existing", action="store_true",
-                        help="Rebuild even if the output pkl already exists.")
     parser.add_argument(
-        "--factors-yaml", default=None,
+        "--no-skip-existing",
+        action="store_true",
+        help="Rebuild even if the output pkl already exists.",
+    )
+    parser.add_argument(
+        "--factors-yaml",
+        default=None,
         help="Path to a YAML listing OfflineWriter-capable factors "
-             "(F1b-A / F1b-T) — see exp/common/factor_postprocess.py. "
-             "Each (layer, reducer) artifact gets per-entry "
-             "`payload.factors` + a top-level `library_stats` field."
+        "(F1b-A / F1b-T) — see exp/common/factor_postprocess.py. "
+        "Each (layer, reducer) artifact gets per-entry "
+        "`payload.factors` + a top-level `library_stats` field.",
     )
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s"
+    )
 
     build_matrix(
         data_dir=args.data_dir,

@@ -39,6 +39,13 @@ import h5py
 import numpy as np
 import torch
 
+from openpi.cache.types import PI05_V1
+from openpi.collect.h5_intermediates import (
+    SCHEDULE_ID_ATTR,
+    episode_schedule,
+    read_step_intermediates,
+)
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -46,13 +53,38 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 _VECTOR_DIMS: dict[str, dict[str, int]] = {
-    "cp1_mean_pool":       {"vision_0": 2048, "vision_1": 2048, "prompt_emb": 2048, "robot_state": 32},
-    "cp1_spatial_pool_16": {"vision_0": 32768, "vision_1": 32768, "prompt_emb": 2048, "robot_state": 32},
+    "cp1_mean_pool": {
+        "vision_0": 2048,
+        "vision_1": 2048,
+        "prompt_emb": 2048,
+        "robot_state": 32,
+    },
+    "cp1_spatial_pool_16": {
+        "vision_0": 32768,
+        "vision_1": 32768,
+        "prompt_emb": 2048,
+        "robot_state": 32,
+    },
     # cp1_spatial_pool_4: canonical name (4 output tokens, 2x2 pool).
-    "cp1_spatial_pool_4":  {"vision_0": 8192, "vision_1": 8192, "prompt_emb": 2048, "robot_state": 32},
+    "cp1_spatial_pool_4": {
+        "vision_0": 8192,
+        "vision_1": 8192,
+        "prompt_emb": 2048,
+        "robot_state": 32,
+    },
     # Backward-compat alias of cp1_spatial_pool_4 (old `_64` = 64x compression).
-    "cp1_spatial_pool_64": {"vision_0": 8192, "vision_1": 8192, "prompt_emb": 2048, "robot_state": 32},
-    "cp1_max_pool":        {"vision_0": 2048, "vision_1": 2048, "prompt_emb": 2048, "robot_state": 32},
+    "cp1_spatial_pool_64": {
+        "vision_0": 8192,
+        "vision_1": 8192,
+        "prompt_emb": 2048,
+        "robot_state": 32,
+    },
+    "cp1_max_pool": {
+        "vision_0": 2048,
+        "vision_1": 2048,
+        "prompt_emb": 2048,
+        "robot_state": 32,
+    },
 }
 
 # GR00T pools reuse the Pi0.5 pooling code: the HDF5 stores each field
@@ -62,12 +94,12 @@ _VECTOR_DIMS: dict[str, dict[str, int]] = {
 # and the artifact is stamped with the GR00T builder name so a library can
 # never be loaded under a Pi0.5 recipe that happens to share its dimensions.
 _GROOT_TO_PI05_BUILDER: dict[str, str] = {
-    "cp1_groot_mean_pool":              "cp1_mean_pool",
-    "cp1_groot_spatial_pool_16":        "cp1_spatial_pool_16",
-    "cp1_groot_spatial_pool_4":         "cp1_spatial_pool_4",
-    "cp1_groot_max_pool":               "cp1_max_pool",
+    "cp1_groot_mean_pool": "cp1_mean_pool",
+    "cp1_groot_spatial_pool_16": "cp1_spatial_pool_16",
+    "cp1_groot_spatial_pool_4": "cp1_spatial_pool_4",
+    "cp1_groot_max_pool": "cp1_max_pool",
     # LIBERO post-trains of the same architecture: two cameras, 8-wide state.
-    "cp1_groot_libero_mean_pool":       "cp1_mean_pool",
+    "cp1_groot_libero_mean_pool": "cp1_mean_pool",
     "cp1_groot_libero_spatial_pool_16": "cp1_spatial_pool_16",
 }
 _GROOT_VISION_SLOTS = 3
@@ -78,7 +110,7 @@ _GROOT_ROBOT_STATE_DIM = 20
 # every query without comment. Binding the geometry to the name makes the
 # LIBERO artifact impossible to build under the RoboCasa recipe by omission.
 _GROOT_GEOMETRY: dict[str, tuple[int, int]] = {  # builder -> (vision_slots, state_dim)
-    "cp1_groot_libero_mean_pool":       (2, 8),
+    "cp1_groot_libero_mean_pool": (2, 8),
     "cp1_groot_libero_spatial_pool_16": (2, 8),
 }
 
@@ -86,21 +118,37 @@ _GROOT_GEOMETRY: dict[str, tuple[int, int]] = {  # builder -> (vision_slots, sta
 # per reducer; prompt_emb is always 2048 (mean-pooled fallback because the
 # lang segment is variable-length and not square-shaped).
 _LLM_LAYER_EXTRACT_DIMS: dict[str, dict[str, int]] = {
-    "prefix_mean_pool":  {"vision_0": 2048, "robot_state": 32},
-    "per_modality_mean_pool": {"vision_0": 2048, "vision_1": 2048,
-                           "vision_2": 2048, "prompt_emb": 2048,
-                           "robot_state": 32},
-    "per_modality_max_pool": {"vision_0": 2048, "vision_1": 2048,
-                               "vision_2": 2048, "prompt_emb": 2048,
-                               "robot_state": 32},
+    "prefix_mean_pool": {"vision_0": 2048, "robot_state": 32},
+    "per_modality_mean_pool": {
+        "vision_0": 2048,
+        "vision_1": 2048,
+        "vision_2": 2048,
+        "prompt_emb": 2048,
+        "robot_state": 32,
+    },
+    "per_modality_max_pool": {
+        "vision_0": 2048,
+        "vision_1": 2048,
+        "vision_2": 2048,
+        "prompt_emb": 2048,
+        "robot_state": 32,
+    },
     # vision: 16 tokens (4x4) * 2048 = 32768; prompt_emb: 2048 (masked mean fallback).
-    "per_modality_spatial_pool_16": {"vision_0": 32768, "vision_1": 32768,
-                                      "vision_2": 32768, "prompt_emb": 2048,
-                                      "robot_state": 32},
+    "per_modality_spatial_pool_16": {
+        "vision_0": 32768,
+        "vision_1": 32768,
+        "vision_2": 32768,
+        "prompt_emb": 2048,
+        "robot_state": 32,
+    },
     # vision: 4 tokens (2x2) * 2048 = 8192; prompt_emb: 2048.
-    "per_modality_spatial_pool_4":  {"vision_0": 8192, "vision_1": 8192,
-                                      "vision_2": 8192, "prompt_emb": 2048,
-                                      "robot_state": 32},
+    "per_modality_spatial_pool_4": {
+        "vision_0": 8192,
+        "vision_1": 8192,
+        "vision_2": 8192,
+        "prompt_emb": 2048,
+        "robot_state": 32,
+    },
 }
 
 
@@ -131,9 +179,15 @@ def _build_artifact_reducer(
 
 
 # Builder types that use dynamic vector dims (not in _VECTOR_DIMS)
-_ALL_BUILDER_TYPES = list(_VECTOR_DIMS.keys()) + list(_GROOT_TO_PI05_BUILDER) + [
-    "cp1_temporal_prune", "cp1_llm_layer_extract", "projection",
-]
+_ALL_BUILDER_TYPES = (
+    list(_VECTOR_DIMS.keys())
+    + list(_GROOT_TO_PI05_BUILDER)
+    + [
+        "cp1_temporal_prune",
+        "cp1_llm_layer_extract",
+        "projection",
+    ]
+)
 
 
 def _projection_vector_dims(inner_type: str, params) -> dict[str, int]:
@@ -165,7 +219,9 @@ def _reshape_dims(
         out[f"vision_{i}"] = vision_dim
     if "robot_state" in out:
         out["robot_state"] = robot_state_dim
-    return {k: out[k] for k in sorted(out, key=lambda n: (not n.startswith("vision_"), n))}
+    return {
+        k: out[k] for k in sorted(out, key=lambda n: (not n.startswith("vision_"), n))
+    }
 
 
 def _get_vector_dims(
@@ -194,7 +250,9 @@ def _get_vector_dims(
             return dims
         return _reshape_dims(
             dims,
-            len([k for k in dims if k.startswith("vision_")]) if vision_slots is None else vision_slots,
+            len([k for k in dims if k.startswith("vision_")])
+            if vision_slots is None
+            else vision_slots,
             dims["robot_state"] if robot_state_dim is None else robot_state_dim,
         )
     if builder_type == "projection":
@@ -202,15 +260,18 @@ def _get_vector_dims(
 
         params = (
             ProjectionParams.load(projection_weights_path)
-            if projection_weights_path else None
+            if projection_weights_path
+            else None
         )
         return _projection_vector_dims(inner_type, params)
     if builder_type == "cp1_temporal_prune":
         reducer = _build_artifact_reducer(reducer_type, output_tokens)
         vision_dim = reducer.output_dim
         return {
-            "vision_0": vision_dim, "vision_1": vision_dim,
-            "prompt_emb": 2048, "robot_state": 32,
+            "vision_0": vision_dim,
+            "vision_1": vision_dim,
+            "prompt_emb": 2048,
+            "robot_state": 32,
         }
     if builder_type == "cp1_llm_layer_extract":
         if prefix_reducer_type not in _LLM_LAYER_EXTRACT_DIMS:
@@ -284,7 +345,8 @@ def _create_builder(
             )
         params = (
             ProjectionParams.load(projection_weights_path)
-            if projection_weights_path else None
+            if projection_weights_path
+            else None
         )
         # Validate against the projected stored dims (out_dim per head); in_dim
         # is checked against the inner pool output for the chosen inner_type.
@@ -295,7 +357,9 @@ def _create_builder(
     if builder_type == "cp1_temporal_prune":
         from openpi.cache.components.key_builder import CP1TemporalPruneKeyBuilder
 
-        reducer = _build_artifact_reducer(reducer_type, output_tokens, select_k, temperature)
+        reducer = _build_artifact_reducer(
+            reducer_type, output_tokens, select_k, temperature
+        )
         return CP1TemporalPruneKeyBuilder(
             reducer=reducer,
             prune_window_size=prune_window_size,
@@ -332,7 +396,9 @@ def _create_builder(
             reducer=prefix_reducer,
             extract_layer=extract_layer,
         )
-    raise ValueError(f"Unknown builder_type: {builder_type}. Valid: {_ALL_BUILDER_TYPES}")
+    raise ValueError(
+        f"Unknown builder_type: {builder_type}. Valid: {_ALL_BUILDER_TYPES}"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -357,14 +423,18 @@ class _FakeStage1:
         prefix_position_ids: torch.Tensor | None = None,
         prefix_att_2d_masks_4d: torch.Tensor | None = None,
     ):
-        self.prefix_embs = prefix_embs                     # [1, prefix_len, emb_dim]
-        self.state = state                                 # [1, state_dim]
-        self.prefix_pad_masks = prefix_pad_masks           # [1, prefix_len] bool
-        self.prefix_position_ids = prefix_position_ids     # [1, prefix_len] int64
-        self.prefix_att_2d_masks_4d = prefix_att_2d_masks_4d  # [1, 1, prefix_len, prefix_len]
+        self.prefix_embs = prefix_embs  # [1, prefix_len, emb_dim]
+        self.state = state  # [1, state_dim]
+        self.prefix_pad_masks = prefix_pad_masks  # [1, prefix_len] bool
+        self.prefix_position_ids = prefix_position_ids  # [1, prefix_len] int64
+        self.prefix_att_2d_masks_4d = (
+            prefix_att_2d_masks_4d  # [1, 1, prefix_len, prefix_len]
+        )
 
 
-def _build_fake_stage1(group: h5py.Group, lang_mask: "torch.Tensor | None" = None) -> _FakeStage1:
+def _build_fake_stage1(
+    group: h5py.Group, lang_mask: "torch.Tensor | None" = None
+) -> _FakeStage1:
     """Reconstruct prefix_embs from HDF5 step group.
 
     ``lang_mask`` (masked prompt pooling): [num_prompt_tokens] bool from the
@@ -431,7 +501,9 @@ def _load_pi05_for_llm_extract(checkpoint_dir: str, config_name: str, device: st
     train_config = _config.get_config(config_name)
     logger.info("Loading PI0Pytorch checkpoint from %s on %s", checkpoint_dir, device)
     policy = _policy_config.create_trained_policy(
-        train_config, checkpoint_dir, pytorch_device=device,
+        train_config,
+        checkpoint_dir,
+        pytorch_device=device,
     )
     model = policy._model  # noqa: SLF001 -- canonical access pattern (interceptor.py:156)
     tokenizer = PaligemmaTokenizer(max_len=_PI05_TOKENIZER_MAX_LEN)
@@ -496,7 +568,7 @@ def _build_fake_stage1_with_masks(
     vision_pad = torch.zeros(len(_VISION_SLOTS) * _TOKENS_PER_IMAGE, dtype=torch.bool)
     for i, present in enumerate(present_cameras):
         if present:
-            vision_pad[i * _TOKENS_PER_IMAGE:(i + 1) * _TOKENS_PER_IMAGE] = True
+            vision_pad[i * _TOKENS_PER_IMAGE : (i + 1) * _TOKENS_PER_IMAGE] = True
 
     prefix_pad_masks = torch.cat([vision_pad, lang_mask]).unsqueeze(0).to(device)
 
@@ -508,8 +580,12 @@ def _build_fake_stage1_with_masks(
     # Prefix-LM attention: att_masks all zero -> full attention among valid
     # tokens, padding columns excluded by the pad mask. Mirrors `embed_prefix`
     # (`pi0_pytorch.py:308, 323`).
-    prefix_att_masks = torch.zeros_like(prefix_pad_masks, dtype=torch.bool, device=device)
-    prefix_att_2d_masks = pi0_module.make_att_2d_masks(prefix_pad_masks, prefix_att_masks)
+    prefix_att_masks = torch.zeros_like(
+        prefix_pad_masks, dtype=torch.bool, device=device
+    )
+    prefix_att_2d_masks = pi0_module.make_att_2d_masks(
+        prefix_pad_masks, prefix_att_masks
+    )
     prefix_att_2d_masks_4d = model._prepare_attention_masks_4d(prefix_att_2d_masks)  # noqa: SLF001
 
     return _FakeStage1(
@@ -548,7 +624,9 @@ def _self_check_tokenizer_consistency(
             return
         group = f[step_names[0]]
         state_np = np.array(group["robot_state"], dtype=np.float32)
-        hdf5_prompt = torch.from_numpy(np.array(group["prompt_emb"])).float()  # [200, 2048]
+        hdf5_prompt = torch.from_numpy(
+            np.array(group["prompt_emb"])
+        ).float()  # [200, 2048]
 
     tok_state = state_np if model.config.discrete_state_input else None
     lang_tokens_np, lang_mask_np = tokenizer.tokenize(task_str, state=tok_state)
@@ -556,7 +634,7 @@ def _self_check_tokenizer_consistency(
     with torch.no_grad():
         lang_emb = model.paligemma_with_expert.embed_language_tokens(lang_tokens)
         lang_emb = lang_emb * math.sqrt(lang_emb.shape[-1])
-    lang_emb = lang_emb[0].float().cpu()                    # [200, 2048]
+    lang_emb = lang_emb[0].float().cpu()  # [200, 2048]
     mask = torch.from_numpy(lang_mask_np).bool()
 
     if not mask.any():
@@ -594,6 +672,7 @@ def _process_episode_with_model(
         success = bool(f.attrs.get("success", False))
         if not success:
             return None
+        schedule = episode_schedule(f)
 
         trajectory_id = h5_path.stem
 
@@ -615,7 +694,11 @@ def _process_episode_with_model(
             group = f[step_name]
 
             fake_stage1 = _build_fake_stage1_with_masks(
-                group, task_str=task, tokenizer=tokenizer, model=model, device=device,
+                group,
+                task_str=task,
+                tokenizer=tokenizer,
+                model=model,
+                device=device,
             )
             builder.collect(cp_id, stage1=fake_stage1)
             query_keys = builder.build(cp_id)
@@ -626,37 +709,28 @@ def _process_episode_with_model(
             if suffix.isdigit():
                 step_idx = int(suffix)
 
-            entry_id = f"{trajectory_id}:{step_idx if step_idx is not None else step_name}"
+            entry_id = (
+                f"{trajectory_id}:{step_idx if step_idx is not None else step_name}"
+            )
 
             action = torch.from_numpy(np.array(group["clean_action"])).float()
             if action.dim() == 1:
                 action = action.unsqueeze(0)
 
-            _NUM_STEPS = 10
-            intermediates = None
-            denoising_num_steps = None
-            noise_indices = []
-            for k in group.keys():
-                if k.startswith("noise_action_"):
-                    suffix = k.split("_")[-1]
-                    if suffix.isdigit():
-                        idx = int(suffix)
-                        if 1 <= idx < _NUM_STEPS:
-                            noise_indices.append(idx)
-            if noise_indices:
-                denoising_num_steps = _NUM_STEPS
-                intermediates = {}
-                for i in sorted(noise_indices):
-                    t = round(1.0 - i / _NUM_STEPS, 4)
-                    intermediates[t] = torch.from_numpy(
-                        np.array(group[f"noise_action_{i}"])
-                    ).float()
+            intermediates, denoising_num_steps = read_step_intermediates(
+                group, schedule
+            )
 
             payload = CachePayload(
                 action_chunk=action,
                 task_key=task,
                 intermediates=intermediates,
                 denoising_num_steps=denoising_num_steps,
+                schedule_id=(
+                    schedule.schedule_id
+                    if schedule is not None
+                    else PI05_V1.schedule_id
+                ),
             )
             entry = CacheEntry(
                 id=entry_id,
@@ -685,7 +759,9 @@ def _process_episode_with_model(
 _TRAJECTORY_ID_MODES = ("stem", "relpath")
 
 
-def resolve_from_manifest(data_dir: str | Path, manifest_path: str | Path) -> tuple[list[Path], dict]:
+def resolve_from_manifest(
+    data_dir: str | Path, manifest_path: str | Path
+) -> tuple[list[Path], dict]:
     """Return the h5 files named by an audit manifest, verifying every digest.
 
     ``verify_collection_artifacts`` already decided which episodes are
@@ -711,7 +787,9 @@ def resolve_from_manifest(data_dir: str | Path, manifest_path: str | Path) -> tu
         for row in manifest["tasks"][task_name]:
             resolved = (root / row["path"]).resolve()
             if not resolved.is_relative_to(root):
-                raise ValueError(f"{manifest_path}: {row['path']!r} escapes --data-dir {root}")
+                raise ValueError(
+                    f"{manifest_path}: {row['path']!r} escapes --data-dir {root}"
+                )
             if not resolved.is_file():
                 raise FileNotFoundError(f"{manifest_path}: {resolved} does not exist")
             if resolved in seen:
@@ -749,7 +827,9 @@ def resolve_from_manifest(data_dir: str | Path, manifest_path: str | Path) -> tu
     return paths, manifest
 
 
-def resolve_h5_paths(data_dir: str | Path, episode_list: str | Path | None) -> list[Path]:
+def resolve_h5_paths(
+    data_dir: str | Path, episode_list: str | Path | None
+) -> list[Path]:
     """Return the h5 files to build from, either by scan or by explicit list.
 
     Without ``episode_list`` this is the historical ``rglob`` scan. With one, the
@@ -768,7 +848,9 @@ def resolve_h5_paths(data_dir: str | Path, episode_list: str | Path | None) -> l
     for lineno, line in enumerate(raw, 1):
         rel = line.strip()
         if not rel:
-            raise ValueError(f"{episode_list}:{lineno}: blank line (expected a relative .h5 path)")
+            raise ValueError(
+                f"{episode_list}:{lineno}: blank line (expected a relative .h5 path)"
+            )
         if Path(rel).is_absolute():
             raise ValueError(
                 f"{episode_list}:{lineno}: absolute path {rel!r}; entries must be "
@@ -776,13 +858,19 @@ def resolve_h5_paths(data_dir: str | Path, episode_list: str | Path | None) -> l
             )
         resolved = (root / rel).resolve()
         if not resolved.is_relative_to(root):
-            raise ValueError(f"{episode_list}:{lineno}: {rel!r} escapes --data-dir {root}")
+            raise ValueError(
+                f"{episode_list}:{lineno}: {rel!r} escapes --data-dir {root}"
+            )
         if resolved.suffix != ".h5":
             raise ValueError(f"{episode_list}:{lineno}: {rel!r} is not a .h5 file")
         if not resolved.is_file():
-            raise FileNotFoundError(f"{episode_list}:{lineno}: {resolved} does not exist")
+            raise FileNotFoundError(
+                f"{episode_list}:{lineno}: {resolved} does not exist"
+            )
         if resolved in seen:
-            raise ValueError(f"{episode_list}:{lineno}: duplicate entry {rel!r} (after normalization)")
+            raise ValueError(
+                f"{episode_list}:{lineno}: duplicate entry {rel!r} (after normalization)"
+            )
         seen.add(resolved)
         paths.append(resolved)
 
@@ -804,7 +892,9 @@ def trajectory_id_for(h5_path: Path, data_dir: str | Path, mode: str) -> str | N
     if mode == "stem":
         return None
     if mode != "relpath":
-        raise ValueError(f"trajectory_id_mode must be one of {_TRAJECTORY_ID_MODES}, got {mode!r}")
+        raise ValueError(
+            f"trajectory_id_mode must be one of {_TRAJECTORY_ID_MODES}, got {mode!r}"
+        )
     root = Path(data_dir).resolve()
     return h5_path.resolve().relative_to(root).with_suffix("").as_posix()
 
@@ -889,7 +979,7 @@ def _masked_prompt_step_context(
                 f"{h5_name}: --prompt-instruction-span set but the ' State:' "
                 "marker was not found in the tokenized prompt."
             )
-        second = find_instruction_span(valid_ids[first + 1:], marker)
+        second = find_instruction_span(valid_ids[first + 1 :], marker)
         if second is not None:
             raise ValueError(
                 f"{h5_name}: ' State:' marker occurs more than once in the "
@@ -936,9 +1026,13 @@ def _process_episode(
     cp_id = CheckpointID[checkpoint_id_str]
     tokenizer = None
     builder = _create_builder(
-        builder_type, reducer_type, output_tokens,
-        prune_window_size, temporal_keep_ratio,
-        select_k, temperature,
+        builder_type,
+        reducer_type,
+        output_tokens,
+        prune_window_size,
+        temporal_keep_ratio,
+        select_k,
+        temperature,
         inner_type=inner_type,
         projection_weights_path=projection_weights_path,
         prompt_masked_pool=prompt_masked_pool,
@@ -959,9 +1053,10 @@ def _process_episode(
 
         if trajectory_id is None:
             trajectory_id = h5_path.stem
+        schedule = episode_schedule(f)
 
         # Notify stateful builders to reset history for this episode
-        if hasattr(builder, 'on_episode_start'):
+        if hasattr(builder, "on_episode_start"):
             builder.on_episode_start()
 
         prompt_str = None
@@ -995,15 +1090,22 @@ def _process_episode(
                 if discrete_state_input:
                     # State is baked into the prompt: tokens vary per step.
                     step_ctx = _masked_prompt_step_context(
-                        tokenizer, prompt_str,
+                        tokenizer,
+                        prompt_str,
                         np.array(group["robot_state"], dtype=np.float32),
-                        prompt_emb_np, prompt_instruction_span, h5_path.name,
+                        prompt_emb_np,
+                        prompt_instruction_span,
+                        h5_path.name,
                     )
                 else:
                     if episode_prompt_ctx is None:
                         episode_prompt_ctx = _masked_prompt_step_context(
-                            tokenizer, prompt_str, None,
-                            prompt_emb_np, prompt_instruction_span, h5_path.name,
+                            tokenizer,
+                            prompt_str,
+                            None,
+                            prompt_emb_np,
+                            prompt_instruction_span,
+                            h5_path.name,
                         )
                     step_ctx = episode_prompt_ctx
                 tokens_np, lang_mask = step_ctx
@@ -1020,35 +1122,28 @@ def _process_episode(
             if suffix.isdigit():
                 step_idx = int(suffix)
 
-            entry_id = f"{trajectory_id}:{step_idx if step_idx is not None else step_name}"
+            entry_id = (
+                f"{trajectory_id}:{step_idx if step_idx is not None else step_name}"
+            )
 
             action = torch.from_numpy(np.array(group["clean_action"])).float()
             if action.dim() == 1:
                 action = action.unsqueeze(0)
 
-            _NUM_STEPS = 10
-            intermediates = None
-            denoising_num_steps = None
-            noise_indices = []
-            for k in group.keys():
-                if k.startswith("noise_action_"):
-                    suffix = k.split("_")[-1]
-                    if suffix.isdigit():
-                        idx = int(suffix)
-                        if 1 <= idx < _NUM_STEPS:
-                            noise_indices.append(idx)
-            if noise_indices:
-                denoising_num_steps = _NUM_STEPS
-                intermediates = {}
-                for i in sorted(noise_indices):
-                    t = round(1.0 - i / _NUM_STEPS, 4)
-                    intermediates[t] = torch.from_numpy(np.array(group[f"noise_action_{i}"])).float()
+            intermediates, denoising_num_steps = read_step_intermediates(
+                group, schedule
+            )
 
             payload = CachePayload(
                 action_chunk=action,
                 task_key=task,
                 intermediates=intermediates,
                 denoising_num_steps=denoising_num_steps,
+                schedule_id=(
+                    schedule.schedule_id
+                    if schedule is not None
+                    else PI05_V1.schedule_id
+                ),
             )
             entry = CacheEntry(
                 id=entry_id,
@@ -1096,6 +1191,50 @@ def _detach_entries(entries: list) -> None:
             }
 
 
+def _library_schedule_id(h5_paths: list[Path], builder_type: str) -> str | None:
+    """The one denoise schedule every episode of this library was collected under.
+
+    Read from file attributes only (cheap, no datasets touched). A library
+    mixing schedules is refused outright: its intermediates would be keyed by
+    t values that mean different things in different entries. The schedule
+    family is also checked against the builder family -- a GR00T builder fed
+    Pi0.5 snapshots (or the reverse) is a wrong-corpus mistake that would
+    otherwise build a perfectly loadable, perfectly wrong library. Returns
+    ``None`` only when no episode carries a stamp (pre-schedule corpora).
+    """
+    seen: set[str] = set()
+    unstamped = 0
+    for path in h5_paths:
+        with h5py.File(path, "r") as f:
+            schedule = episode_schedule(f)
+        if schedule is None:
+            unstamped += 1
+        else:
+            seen.add(schedule.schedule_id)
+    if len(seen) > 1:
+        raise ValueError(
+            f"episodes were collected under different denoise schedules "
+            f"{sorted(seen)}; a library must come from exactly one loop."
+        )
+    if seen and unstamped:
+        raise ValueError(
+            f"{unstamped} episode(s) carry no {SCHEDULE_ID_ATTR} while others are "
+            f"stamped {sorted(seen)}; re-collect or split the corpus."
+        )
+    if not seen:
+        return None
+    schedule_id = next(iter(seen))
+    groot_builder = builder_type.startswith("cp1_groot")
+    groot_schedule = schedule_id.startswith("groot_")
+    if groot_builder != groot_schedule:
+        raise ValueError(
+            f"builder {builder_type!r} does not belong to the model family that "
+            f"produced schedule {schedule_id!r}; the corpus and the builder disagree "
+            "about which policy collected it."
+        )
+    return schedule_id
+
+
 def build_artifact(
     data_dir: str,
     builder_type: str,
@@ -1123,6 +1262,7 @@ def build_artifact(
     prompt_masked_pool: bool = False,
     prompt_instruction_span: bool = False,
     discrete_state_input: bool = False,
+    expected_schedule_id: str | None = None,
 ) -> dict:
     """Build artifact dict from HDF5 data.
 
@@ -1181,25 +1321,53 @@ def build_artifact(
             "cp1_llm_layer_extract (model path) accepts only the default 'stem'."
         )
     vector_dims = _get_vector_dims(
-        builder_type, reducer_type, output_tokens, prefix_reducer_type,
-        inner_type=inner_type, projection_weights_path=projection_weights_path,
-        vision_slots=vision_slots, robot_state_dim=robot_state_dim,
+        builder_type,
+        reducer_type,
+        output_tokens,
+        prefix_reducer_type,
+        inner_type=inner_type,
+        projection_weights_path=projection_weights_path,
+        vision_slots=vision_slots,
+        robot_state_dim=robot_state_dim,
     )
 
     # Validated once here; both the serial and the ProcessPool branch below
     # consume this same list, so the two paths cannot diverge.
     if manifest is not None:
         if episode_list is not None:
-            raise ValueError("--manifest and --episode-list are mutually exclusive inputs")
+            raise ValueError(
+                "--manifest and --episode-list are mutually exclusive inputs"
+            )
         h5_paths, manifest_doc = resolve_from_manifest(data_dir, manifest)
     else:
         h5_paths, manifest_doc = resolve_h5_paths(data_dir, episode_list), None
     if not h5_paths:
+        if expected_schedule_id is not None:
+            raise ValueError(
+                f"cannot verify expected schedule {expected_schedule_id!r}: no H5 files"
+            )
         logger.warning("No .h5 files found in %s", data_dir)
-        return {"key_builder_type": builder_type, "checkpoint_id": checkpoint_id_str,
-                "vector_dims": vector_dims, "entries": [],
-                "prompt_pool": {"masked": prompt_masked_pool,
-                                "instruction_span": prompt_instruction_span}}
+        return {
+            "key_builder_type": builder_type,
+            "checkpoint_id": checkpoint_id_str,
+            "vector_dims": vector_dims,
+            "entries": [],
+            "prompt_pool": {
+                "masked": prompt_masked_pool,
+                "instruction_span": prompt_instruction_span,
+            },
+        }
+
+    library_schedule_id = _library_schedule_id(h5_paths, builder_type)
+    if expected_schedule_id is not None:
+        from openpi.cache.types import schedule_from_id
+
+        schedule_from_id(expected_schedule_id)
+        if library_schedule_id != expected_schedule_id:
+            raise ValueError(
+                f"collected corpus schedule {library_schedule_id!r} does not match "
+                f"the requested {expected_schedule_id!r}"
+            )
 
     # cp1_llm_layer_extract takes a model-aware code path that cannot be
     # shipped through ProcessPool workers (each would reload the model into
@@ -1217,7 +1385,9 @@ def build_artifact(
             workers = -1
 
         torch_device = torch.device(device)
-        model, tokenizer = _load_pi05_for_llm_extract(checkpoint_dir, config_name, device)
+        model, tokenizer = _load_pi05_for_llm_extract(
+            checkpoint_dir, config_name, device
+        )
         builder = _create_builder(
             builder_type,
             extract_layer=extract_layer,
@@ -1230,26 +1400,36 @@ def build_artifact(
         _self_check_tokenizer_consistency(h5_paths[0], model, tokenizer, torch_device)
 
         entries: list = []
-        logger.info("Processing %d H5 files in serial mode (cp1_llm_layer_extract)",
-                    len(h5_paths))
+        logger.info(
+            "Processing %d H5 files in serial mode (cp1_llm_layer_extract)",
+            len(h5_paths),
+        )
         for i, p in enumerate(h5_paths, 1):
             result = _process_episode_with_model(
-                p, builder, model, tokenizer, torch_device, checkpoint_id_str,
+                p,
+                builder,
+                model,
+                tokenizer,
+                torch_device,
+                checkpoint_id_str,
             )
             if result is not None:
                 entries.extend(result)
                 del result
             gc.collect()
             if i % 10 == 0 or i == len(h5_paths):
-                logger.info("Progress: %d/%d files, %d entries",
-                            i, len(h5_paths), len(entries))
-        logger.info("Built %d entries for %s from %s",
-                    len(entries), builder_type, data_dir)
+                logger.info(
+                    "Progress: %d/%d files, %d entries", i, len(h5_paths), len(entries)
+                )
+        logger.info(
+            "Built %d entries for %s from %s", len(entries), builder_type, data_dir
+        )
         return {
             "key_builder_type": builder_type,
             "checkpoint_id": checkpoint_id_str,
             "vector_dims": vector_dims,
             "entries": entries,
+            "schedule_id": library_schedule_id,
             "reducer_params": {
                 "extract_layer": extract_layer,
                 "prefix_reducer_type": prefix_reducer_type,
@@ -1263,10 +1443,16 @@ def build_artifact(
         }
 
     _ep_args = (
-        builder_type, checkpoint_id_str,
-        reducer_type, output_tokens, prune_window_size, temporal_keep_ratio,
-        select_k, temperature,
-        inner_type, projection_weights_path,
+        builder_type,
+        checkpoint_id_str,
+        reducer_type,
+        output_tokens,
+        prune_window_size,
+        temporal_keep_ratio,
+        select_k,
+        temperature,
+        inner_type,
+        projection_weights_path,
         outcome_filter,
     )
     _ep_kwargs = {
@@ -1289,13 +1475,19 @@ def build_artifact(
                 del result
             gc.collect()
             if i % 10 == 0 or i == len(h5_paths):
-                logger.info("Progress: %d/%d files, %d entries", i, len(h5_paths), len(entries))
+                logger.info(
+                    "Progress: %d/%d files, %d entries", i, len(h5_paths), len(entries)
+                )
     else:
         num_workers = workers if workers > 0 else (os.cpu_count() or 1)
-        logger.info("Processing %d H5 files with %d workers", len(h5_paths), num_workers)
+        logger.info(
+            "Processing %d H5 files with %d workers", len(h5_paths), num_workers
+        )
         with ProcessPoolExecutor(max_workers=num_workers) as pool:
             futures = {
-                pool.submit(_process_episode, str(p), *_ep_args, traj_ids[p], **_ep_kwargs): p
+                pool.submit(
+                    _process_episode, str(p), *_ep_args, traj_ids[p], **_ep_kwargs
+                ): p
                 for p in h5_paths
             }
             done_count = 0
@@ -1305,7 +1497,12 @@ def build_artifact(
                 if result is not None:
                     entries.extend(result)
                 if done_count % 10 == 0 or done_count == len(h5_paths):
-                    logger.info("Progress: %d/%d files, %d entries", done_count, len(h5_paths), len(entries))
+                    logger.info(
+                        "Progress: %d/%d files, %d entries",
+                        done_count,
+                        len(h5_paths),
+                        len(entries),
+                    )
 
     logger.info("Built %d entries for %s from %s", len(entries), builder_type, data_dir)
     artifact = {
@@ -1313,10 +1510,15 @@ def build_artifact(
         "checkpoint_id": checkpoint_id_str,
         "vector_dims": vector_dims,
         "entries": entries,
+        # Denoise-loop identity of the whole corpus; the serving-side binding
+        # check compares it against the config's schedule before any warm start.
+        "schedule_id": library_schedule_id,
         # Prompt-pool identity, force-checked at serve time against the
         # configured knobs (_check_text_ivf_artifact_binding).
-        "prompt_pool": {"masked": prompt_masked_pool,
-                        "instruction_span": prompt_instruction_span},
+        "prompt_pool": {
+            "masked": prompt_masked_pool,
+            "instruction_span": prompt_instruction_span,
+        },
     }
     if manifest_doc is not None:
         # Provenance of the SET this library was built from: which collection
@@ -1396,6 +1598,7 @@ def _enrich_existing_pkl_main(argv: list[str]) -> None:
     # ``from factor_postprocess import ...`` works when invoked as
     # ``uv run python -m exp.common.build_in_memory_cache_artifact ...``.
     import sys as _sys
+
     _here = str(Path(__file__).parent.resolve())
     if _here not in _sys.path:
         _sys.path.insert(0, _here)
@@ -1408,7 +1611,7 @@ def _enrich_existing_pkl_main(argv: list[str]) -> None:
     new_library_stats = enrich_artifact_with_factors(
         artifact["entries"],
         offline_writers,
-        library_stats=library_stats,   # G1 R3 Item 4: skip recompute when present
+        library_stats=library_stats,  # G1 R3 Item 4: skip recompute when present
     )
     artifact["library_stats"] = new_library_stats
 
@@ -1417,7 +1620,9 @@ def _enrich_existing_pkl_main(argv: list[str]) -> None:
         pickle.dump(artifact, fh)
     logger.info(
         "wrote enriched pkl: %d entries, %d offline writers applied → %s",
-        len(artifact["entries"]), len(offline_writers), out_path,
+        len(artifact["entries"]),
+        len(offline_writers),
+        out_path,
     )
 
 
@@ -1427,123 +1632,192 @@ def main():
     # B6 refactor: dispatch on first positional ``argv`` token. The legacy
     # build-from-HDF5 path runs unchanged when no sub-command is given.
     import sys
+
     if len(sys.argv) > 1 and sys.argv[1] == "enrich-existing-pkl":
         _enrich_existing_pkl_main(sys.argv[2:])
         return
 
-    parser = argparse.ArgumentParser(description="Build InMemoryBackend artifact from HDF5 data")
-    parser.add_argument("--data-dir", required=True, help="Directory with .h5 episode files")
+    parser = argparse.ArgumentParser(
+        description="Build InMemoryBackend artifact from HDF5 data"
+    )
+    parser.add_argument(
+        "--data-dir", required=True, help="Directory with .h5 episode files"
+    )
     parser.add_argument("--builder-type", required=True, choices=_ALL_BUILDER_TYPES)
     parser.add_argument("--output", required=True, help="Output .pkl path")
     parser.add_argument("--checkpoint-id", default="CP1", choices=["CP1"])
     parser.add_argument(
-        "--vision-slots", type=int, default=None,
+        "--vision-slots",
+        type=int,
+        default=None,
         help="Number of vision_* fields in the artifact. Defaults to the "
-             "builder's own convention (2 for the Pi0.5 pools, 3 for cp1_groot_*).",
+        "builder's own convention (2 for the Pi0.5 pools, 3 for cp1_groot_*).",
     )
     parser.add_argument(
-        "--robot-state-dim", type=int, default=None,
+        "--robot-state-dim",
+        type=int,
+        default=None,
         help="Width of the robot_state vector. Defaults per builder (32 for the "
-             "Pi0.5 pools, 20 for cp1_groot_*).",
+        "Pi0.5 pools, 20 for cp1_groot_*).",
     )
-    parser.add_argument("--workers", type=int, default=0, help="Parallel workers (0 = all CPUs, -1 = serial in main process)")
-    parser.add_argument("--reducer-type", default="mean_pool",
-                        choices=["mean_pool", "max_pool", "spatial_pool", "task_scoring"])
-    parser.add_argument("--output-tokens", type=int, default=16,
-                        help="SpatialPoolReducer output_tokens (must be perfect square)")
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=0,
+        help="Parallel workers (0 = all CPUs, -1 = serial in main process)",
+    )
+    parser.add_argument(
+        "--reducer-type",
+        default="mean_pool",
+        choices=["mean_pool", "max_pool", "spatial_pool", "task_scoring"],
+    )
+    parser.add_argument(
+        "--output-tokens",
+        type=int,
+        default=16,
+        help="SpatialPoolReducer output_tokens (must be perfect square)",
+    )
     parser.add_argument("--prune-window-size", type=int, default=4)
     parser.add_argument("--temporal-keep-ratio", type=float, default=0.5)
-    parser.add_argument("--select-k", type=int, default=32,
-                        help="TaskScoringReducer: number of top-k tokens to select")
-    parser.add_argument("--temperature", type=float, default=1.0,
-                        help="TaskScoringReducer: softmax temperature")
+    parser.add_argument(
+        "--select-k",
+        type=int,
+        default=32,
+        help="TaskScoringReducer: number of top-k tokens to select",
+    )
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=1.0,
+        help="TaskScoringReducer: softmax temperature",
+    )
     # cp1_llm_layer_extract-only args.
-    parser.add_argument("--extract-layer", type=int, default=0,
-                        help="cp1_llm_layer_extract: PaliGemma layer index to extract (0..17)")
-    parser.add_argument("--prefix-reducer-type", default="prefix_mean_pool",
-                        choices=sorted(_LLM_LAYER_EXTRACT_DIMS.keys()),
-                        help="cp1_llm_layer_extract: how to pool layer-N hidden states")
-    parser.add_argument("--checkpoint-dir", default=None,
-                        help="cp1_llm_layer_extract: PI0Pytorch checkpoint dir (model.safetensors)")
-    parser.add_argument("--config-name", default=None,
-                        help="cp1_llm_layer_extract: TrainConfig name (e.g. pi05_libero)")
-    parser.add_argument("--device", default="cuda",
-                        help="cp1_llm_layer_extract: torch device for the model "
-                             "(default: cuda; use cpu only for tiny smoke tests)")
+    parser.add_argument(
+        "--extract-layer",
+        type=int,
+        default=0,
+        help="cp1_llm_layer_extract: PaliGemma layer index to extract (0..17)",
+    )
+    parser.add_argument(
+        "--prefix-reducer-type",
+        default="prefix_mean_pool",
+        choices=sorted(_LLM_LAYER_EXTRACT_DIMS.keys()),
+        help="cp1_llm_layer_extract: how to pool layer-N hidden states",
+    )
+    parser.add_argument(
+        "--checkpoint-dir",
+        default=None,
+        help="cp1_llm_layer_extract: PI0Pytorch checkpoint dir (model.safetensors)",
+    )
+    parser.add_argument(
+        "--config-name",
+        default=None,
+        help="cp1_llm_layer_extract: TrainConfig name (e.g. pi05_libero)",
+    )
+    parser.add_argument(
+        "--device",
+        default="cuda",
+        help="cp1_llm_layer_extract: torch device for the model "
+        "(default: cuda; use cpu only for tiny smoke tests)",
+    )
     # projection-only args.
-    parser.add_argument("--inner-type", default="cp1_mean_pool",
-                        help="projection: stateless pool builder to wrap")
-    parser.add_argument("--projection-weights", default=None,
-                        help="projection: torch-saved ProjectionParams path "
-                             "(None -> identity, output equals the inner pool)")
+    parser.add_argument(
+        "--inner-type",
+        default="cp1_mean_pool",
+        help="projection: stateless pool builder to wrap",
+    )
+    parser.add_argument(
+        "--projection-weights",
+        default=None,
+        help="projection: torch-saved ProjectionParams path "
+        "(None -> identity, output equals the inner pool)",
+    )
     # TRACER Phase 4: failure-pool D- collection filter.
     parser.add_argument(
-        "--outcome-filter", default="success", choices=["success", "failure", "all"],
+        "--outcome-filter",
+        default="success",
+        choices=["success", "failure", "all"],
         help="Which episodes to keep by HDF5 success attr: 'success' (default, "
-             "unchanged legacy behavior), 'failure' (TRACER Phase 4 D- "
-             "collection), or 'all'. Pool builders only; cp1_llm_layer_extract "
-             "rejects a non-default value fail-loud."
+        "unchanged legacy behavior), 'failure' (TRACER Phase 4 D- "
+        "collection), or 'all'. Pool builders only; cp1_llm_layer_extract "
+        "rejects a non-default value fail-loud.",
     )
     # Cache-size ablation (X9b): explicit episode subsets + collision-free ids.
     parser.add_argument(
-        "--episode-list", default=None,
+        "--episode-list",
+        default=None,
         help="Path to a newline-separated list of .h5 paths relative to "
-             "--data-dir. When given it replaces the recursive scan, so a "
-             "library can be built from an explicit subset without copying "
-             "files. Rejects absolute paths, '..' escapes, non-.h5 entries, "
-             "missing files, blank lines and post-normalization duplicates "
-             "fail-fast (a silently shrinking library would be "
-             "indistinguishable from a genuinely smaller one)."
+        "--data-dir. When given it replaces the recursive scan, so a "
+        "library can be built from an explicit subset without copying "
+        "files. Rejects absolute paths, '..' escapes, non-.h5 entries, "
+        "missing files, blank lines and post-normalization duplicates "
+        "fail-fast (a silently shrinking library would be "
+        "indistinguishable from a genuinely smaller one).",
     )
     parser.add_argument(
-        "--manifest", default=None,
+        "--manifest",
+        default=None,
         help="Path to a verify_collection_artifacts manifest. Replaces both the "
-             "scan and --episode-list: the library is built from exactly the "
-             "admitted episodes, each one's sha256 re-verified, and the "
-             "manifest's plan hashes plus pin_id are stamped onto the artifact."
+        "scan and --episode-list: the library is built from exactly the "
+        "admitted episodes, each one's sha256 re-verified, and the "
+        "manifest's plan hashes plus pin_id are stamped onto the artifact.",
     )
     parser.add_argument(
-        "--trajectory-id-mode", default="stem", choices=list(_TRAJECTORY_ID_MODES),
+        "--trajectory-id-mode",
+        default="stem",
+        choices=list(_TRAJECTORY_ID_MODES),
         help="How to derive each entry's trajectory_id. 'stem' (default) uses "
-             "the file stem, preserving historical artifacts byte for byte. "
-             "'relpath' uses the suffix-stripped path relative to --data-dir; "
-             "required for layouts like task_N/episode_M.h5 where stems repeat "
-             "across sub-directories and would otherwise collide (and silently "
-             "overwrite) in InMemoryBackend.load_artifact. Pool builders only."
+        "the file stem, preserving historical artifacts byte for byte. "
+        "'relpath' uses the suffix-stripped path relative to --data-dir; "
+        "required for layouts like task_N/episode_M.h5 where stems repeat "
+        "across sub-directories and would otherwise collide (and silently "
+        "overwrite) in InMemoryBackend.load_artifact. Pool builders only.",
     )
     # Text-IVF instruction-span masked prompt pooling (plan U5).
     parser.add_argument(
-        "--prompt-masked-pool", action="store_true",
+        "--prompt-masked-pool",
+        action="store_true",
         help="Pool prompt_emb over real prompt tokens only (padding excluded), "
-             "reconstructing the mask by re-tokenizing the stored prompt attr. "
-             "Only honoured by the cp1_* pool builders (and projection with "
-             "such an inner); other builder types abort before any H5 is read."
+        "reconstructing the mask by re-tokenizing the stored prompt attr. "
+        "Only honoured by the cp1_* pool builders (and projection with "
+        "such an inner); other builder types abort before any H5 is read.",
     )
     parser.add_argument(
-        "--prompt-instruction-span", action="store_true",
+        "--prompt-instruction-span",
+        action="store_true",
         help="Additionally cut the prompt at the ' State:' marker "
-             "(discrete-state prompts). Requires --prompt-masked-pool; the "
-             "build aborts unless the marker occurs exactly once per prompt."
+        "(discrete-state prompts). Requires --prompt-masked-pool; the "
+        "build aborts unless the marker occurs exactly once per prompt.",
     )
     parser.add_argument(
-        "--discrete-state-input", action="store_true",
+        "--discrete-state-input",
+        action="store_true",
         help="The deployment bakes discretized state into the prompt "
-             "(Pi0Config.discrete_state_input=True, e.g. pi05_robocasa): "
-             "re-tokenize per step with that step's state."
+        "(Pi0Config.discrete_state_input=True, e.g. pi05_robocasa): "
+        "re-tokenize per step with that step's state.",
+    )
+    parser.add_argument(
+        "--expected-schedule",
+        default=None,
+        help="Require every input H5 and the output artifact to use this denoise "
+        "schedule id. Warm-start build pipelines must set it explicitly.",
     )
     # B2 verdict-factor enrichment.
     parser.add_argument(
-        "--factors-yaml", default=None,
+        "--factors-yaml",
+        default=None,
         help="Path to a minimal YAML listing OfflineWriter-capable factors "
-             "(F1b-A / F1b-T). When set, the artifact is enriched with per-entry "
-             "`payload.factors` and a top-level `library_stats` field. When unset, "
-             "only an empty `library_stats` placeholder is computed (still safe "
-             "to load — InMemoryBackend will fall back to recompute at startup)."
+        "(F1b-A / F1b-T). When set, the artifact is enriched with per-entry "
+        "`payload.factors` and a top-level `library_stats` field. When unset, "
+        "only an empty `library_stats` placeholder is computed (still safe "
+        "to load — InMemoryBackend will fall back to recompute at startup).",
     )
     args = parser.parse_args()
 
     artifact = build_artifact(
-        args.data_dir, args.builder_type, args.checkpoint_id,
+        args.data_dir,
+        args.builder_type,
+        args.checkpoint_id,
         workers=args.workers,
         reducer_type=args.reducer_type,
         output_tokens=args.output_tokens,
@@ -1567,6 +1841,7 @@ def main():
         trajectory_id_mode=args.trajectory_id_mode,
         vision_slots=args.vision_slots,
         robot_state_dim=args.robot_state_dim,
+        expected_schedule_id=args.expected_schedule,
     )
 
     # B2 — enrich with verdict-factor fields. Runs AFTER build_artifact's
@@ -1576,6 +1851,7 @@ def main():
     # sys.path injection mirrors build_llm_layer_matrix.py:50 — exp/ is
     # not on the package path when invoked as `uv run python exp/...`.
     import sys as _sys
+
     _here = str(Path(__file__).parent.resolve())
     if _here not in _sys.path:
         _sys.path.insert(0, _here)
@@ -1583,12 +1859,14 @@ def main():
         _load_offline_writers_from_yaml,
         enrich_artifact_with_factors,
     )
+
     offline_writers = (
-        _load_offline_writers_from_yaml(args.factors_yaml)
-        if args.factors_yaml else []
+        _load_offline_writers_from_yaml(args.factors_yaml) if args.factors_yaml else []
     )
     if artifact["entries"]:
-        library_stats = enrich_artifact_with_factors(artifact["entries"], offline_writers)
+        library_stats = enrich_artifact_with_factors(
+            artifact["entries"], offline_writers
+        )
         artifact["library_stats"] = library_stats
 
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)

@@ -9,6 +9,7 @@ import numpy as np
 import torch
 from openpi_client import base_policy as _base_policy
 
+from openpi.cache.types import PI05_V1
 from openpi.collect.data_collector import EpisodeDataCollector, InferenceEmbeddings
 from openpi.shared.image_extract import extract_valid_images
 
@@ -21,9 +22,15 @@ def _find_inner_model(policy: Any) -> Any:
     while obj is not None:
         if hasattr(obj, "_model"):
             model = obj._model
-            required_attrs = ("action_in_proj", "action_out_proj", "paligemma_with_expert")
+            required_attrs = (
+                "action_in_proj",
+                "action_out_proj",
+                "paligemma_with_expert",
+            )
             if not all(hasattr(model, attr) for attr in required_attrs):
-                raise ValueError("CollectionPolicy only supports the PyTorch PI0Pytorch inference path.")
+                raise ValueError(
+                    "CollectionPolicy only supports the PyTorch PI0Pytorch inference path."
+                )
             return model
         obj = getattr(obj, "_policy", None)
     raise ValueError("CollectionPolicy: cannot find _model in policy chain.")
@@ -93,8 +100,12 @@ class CollectionPolicy(_base_policy.BasePolicy):
 
         model = self._inner_model
         handles = [
-            model.paligemma_with_expert.paligemma.multi_modal_projector.register_forward_hook(_vision_hook),
-            model.paligemma_with_expert.paligemma.language_model.embed_tokens.register_forward_hook(_lang_hook),
+            model.paligemma_with_expert.paligemma.multi_modal_projector.register_forward_hook(
+                _vision_hook
+            ),
+            model.paligemma_with_expert.paligemma.language_model.embed_tokens.register_forward_hook(
+                _lang_hook
+            ),
             model.action_in_proj.register_forward_hook(_action_in_hook),
             model.action_out_proj.register_forward_hook(_action_out_hook),
         ]
@@ -106,9 +117,18 @@ class CollectionPolicy(_base_policy.BasePolicy):
                 handle.remove()
 
         try:
-            self._record(robot_state_np, input_images, vision_captures, lang_capture[0], action_in_captures, action_out_captures)
+            self._record(
+                robot_state_np,
+                input_images,
+                vision_captures,
+                lang_capture[0],
+                action_in_captures,
+                action_out_captures,
+            )
         except Exception:
-            logger.exception("CollectionPolicy: failed to record inference embeddings; skipping step.")
+            logger.exception(
+                "CollectionPolicy: failed to record inference embeddings; skipping step."
+            )
 
         return result
 
@@ -158,7 +178,9 @@ class CollectionPolicy(_base_policy.BasePolicy):
 
     def on_task_end(self) -> None:
         if self._collecting and self._collector.has_pending_data():
-            logger.warning("CollectionPolicy: connection closed mid-episode, flushing partial data.")
+            logger.warning(
+                "CollectionPolicy: connection closed mid-episode, flushing partial data."
+            )
             self._collector.on_episode_end(success=False)
             self._collecting = False
         if hasattr(self._policy, "on_task_end"):
@@ -176,7 +198,10 @@ class CollectionPolicy(_base_policy.BasePolicy):
         action_in_captures: list[torch.Tensor],
         action_out_captures: list[torch.Tensor],
     ) -> None:
-        vision_embs = [vision.squeeze(0).cpu().to(torch.float16).numpy() for vision in vision_captures]
+        vision_embs = [
+            vision.squeeze(0).cpu().to(torch.float16).numpy()
+            for vision in vision_captures
+        ]
 
         if lang_emb is None:
             raise RuntimeError("CollectionPolicy: embed_tokens hook did not fire.")
@@ -188,10 +213,23 @@ class CollectionPolicy(_base_policy.BasePolicy):
                 "CollectionPolicy: expected equal action hook counts >= 2, got "
                 f"action_in={num_steps}, action_out={len(action_out_captures)}."
             )
+        # The hook count is the live step count. The file is stamped with the
+        # schedule it was produced under, and that schedule is defined as
+        # exactly this many steps -- a model run with any other count would
+        # produce snapshots whose t the Pi0.5 schedule mislabels, so refuse.
+        if num_steps != PI05_V1.num_steps:
+            raise RuntimeError(
+                f"CollectionPolicy: observed {num_steps} denoise steps but schedule "
+                f"{PI05_V1.schedule_id} is defined as {PI05_V1.num_steps}."
+            )
+        self._collector.set_episode_attr("denoise_schedule_id", PI05_V1.schedule_id)
+        self._collector.set_episode_attr("denoising_num_steps", num_steps)
         dt = -1.0 / num_steps
         noise_action_steps = [
-            action_in_captures[i].squeeze(0).cpu().numpy().astype(np.float32) for i in range(1, num_steps)
+            action_in_captures[i].squeeze(0).cpu().numpy().astype(np.float32)
+            for i in range(1, num_steps)
         ]
+        init_noise = action_in_captures[0].squeeze(0).cpu().numpy().astype(np.float32)
 
         x_last = action_in_captures[-1].squeeze(0).cpu().float()
         v_last = action_out_captures[-1].squeeze(0).cpu().float()
@@ -205,15 +243,20 @@ class CollectionPolicy(_base_policy.BasePolicy):
                 noise_action_steps=noise_action_steps,
                 clean_action=clean_action_np,
                 input_images=input_images or None,
+                init_noise=init_noise,
             )
         )
 
-    def _extract_obs_fields(self, obs: dict) -> tuple[np.ndarray, dict[str, np.ndarray]]:
+    def _extract_obs_fields(
+        self, obs: dict
+    ) -> tuple[np.ndarray, dict[str, np.ndarray]]:
         """Single transform pass to extract both robot_state and valid input images."""
         inputs = jax.tree.map(lambda x: x, obs)
         inputs = self._input_transform(inputs)
         if "state" not in inputs:
-            raise RuntimeError("CollectionPolicy: transformed inputs are missing the 'state' field.")
+            raise RuntimeError(
+                "CollectionPolicy: transformed inputs are missing the 'state' field."
+            )
         robot_state = np.asarray(inputs["state"], dtype=np.float32).flatten()
         input_images = extract_valid_images(inputs)
         return robot_state, input_images

@@ -1,4 +1,4 @@
-"""Cache-aware GR00T inference: drive CacheOrchestrator around the two-stage split.
+"""Cache-aware GR00T inference: drive CacheOrchestrator around the three-stage split.
 
 What this is
 ------------
@@ -8,9 +8,8 @@ that are not stylistic:
 
 * that module imports jax at import time, and the GR00T virtualenv has no jax,
   so it cannot even be loaded there;
-* its coordinator routing, sidecar executors, meta-device sentinels, warm start
-  and CP3 handling are all unused here, and a common base would have to carry
-  Pi0.5's three-stage shape into a model that has two.
+* its coordinator routing, sidecar executors, meta-device sentinels and CP3
+  handling are all unused here, and a common base would drag them along.
 
 What *is* shared is everything that matters: the orchestrator, the storage
 facade, the judges, gates and search strategies are model-agnostic — they only
@@ -23,10 +22,16 @@ so it is injected *inside* ``GrootPolicyAdapter`` rather than wrapped around
 it. The adapter validates the wire contract; that check belongs outermost, so
 a malformed observation is rejected before it can reach the key builder.
 
-Verdict handling is binary. WARM_START is impossible by construction — there
-is no third stage to resume into — and is refused at config load rather than
-here, because the orchestrator silently downgrades an unsatisfiable WARM_START
-to MISS, which would make a runtime check unreachable.
+Verdict handling is three-way, exactly as on Pi0.5: FULL_HIT replays the
+cached chunk, WARM_START resumes the flow-matching loop from the cached
+snapshot at ``start_t`` (``GrootStagedRunner.run_stage3_from``), MISS runs the
+language model and the full head. The schedule the snapshot is keyed under is
+the library's stamp; the runner refuses to resume under any other loop.
+
+Online write-back records the action chunk only. GR00T libraries are built
+offline from collected HDF5 (which carries the snapshots); the load guard pins
+``write_policy: never`` so an online entry without intermediates can never be
+selected for WARM_START.
 
 Coupling map:
   DEPENDS ON:  GrootStagedRunner, CacheOrchestrator, a Gr00tPolicy-shaped object
@@ -46,7 +51,7 @@ from openpi.cache.components.judge import HitType
 from openpi.cache.groot.staged import GrootStagedRunner
 from openpi.cache.orchestrator import CacheOrchestrator
 from openpi.cache.timing import SystemTimer
-from openpi.cache.types import CheckpointID
+from openpi.cache.types import CheckpointID, DenoiseSchedule, schedule_from_id
 
 logger = logging.getLogger(__name__)
 
@@ -168,8 +173,9 @@ class GrootCacheInterceptor:
     def _build_hit_meta(cp1_result) -> dict:
         """Same field set as the Pi0.5 interceptor, so one analysis path reads both.
 
-        ``start_t`` is always None here: it only ever describes a warm start,
-        which this two-stage split has no room for.
+        ``start_t`` is the real resume point on a WARM_START and ``None``
+        otherwise; downstream cost summaries price a warm start by it, so a
+        placeholder here would silently mis-price every warm step.
         """
         if cp1_result is None:
             return {
@@ -181,7 +187,11 @@ class GrootCacheInterceptor:
             }
         return {
             "hit_type": cp1_result.hit_type.name,
-            "start_t": None,
+            "start_t": (
+                cp1_result.start_t
+                if cp1_result.hit_type == HitType.WARM_START
+                else None
+            ),
             "winner_id": cp1_result.entry_id,
             "cp1_score": cp1_result.score,
             "searched": cp1_result.searched,
@@ -219,15 +229,25 @@ class GrootCacheInterceptor:
                         cp1_result = self._orchestrator.check(
                             CheckpointID.CP1, stage1=stage1
                         )
-                    if cp1_result.hit_type == HitType.WARM_START:
-                        raise RuntimeError(
-                            "CP1 returned WARM_START, which a two-stage split "
-                            "cannot serve. Config validation should have refused "
-                            "this recipe at load time."
-                        )
 
-                if cp1_result is not None and cp1_result.hit_type == HitType.FULL_HIT:
+                hit_type = None if cp1_result is None else cp1_result.hit_type
+                if hit_type == HitType.FULL_HIT:
                     chunk = cp1_result.payload.action_chunk
+                elif hit_type == HitType.WARM_START:
+                    payload = cp1_result.payload
+                    start_t = cp1_result.start_t
+                    # The orchestrator already proved start_t is a key of the
+                    # payload; the schedule comes from the library, and the
+                    # runner refuses it unless the head is running that loop.
+                    schedule = self._library_schedule(payload)
+                    with self._runner.session():
+                        stage2 = self._runner.run_stage2_llm(stage1)
+                        chunk = self._runner.run_stage3_from(
+                            stage2,
+                            payload.intermediates[start_t],
+                            start_t,
+                            schedule=schedule,
+                        ).action_pred
                 else:
                     with self._runner.session():
                         chunk = self._runner.run_stage2(stage1).action_pred
@@ -252,6 +272,34 @@ class GrootCacheInterceptor:
 
         unnormalized["__hit_meta__"] = self._build_hit_meta(cp1_result)
         return unnormalized
+
+    def _library_schedule(self, payload) -> DenoiseSchedule:
+        """Resolve the loop a payload's snapshots were taken from.
+
+        The artifact-level ``schedule_id`` is the authority when the storage
+        exposes one; the entry's own ``denoising_num_steps`` must agree with it.
+        Without artifact metadata the entry must still carry its own explicit
+        identity. The runner checks that identity against the live head.
+        """
+        meta = getattr(self._orchestrator, "artifact_meta", None) or {}
+        library_id = meta.get("schedule_id")
+        payload_id = payload.schedule_id
+        if library_id is not None and payload_id != library_id:
+            raise RuntimeError(
+                f"WARM_START payload is stamped {payload_id!r} but its library is "
+                f"stamped {library_id!r}."
+            )
+        schedule_id = library_id or payload_id
+        if schedule_id is None:
+            raise RuntimeError("WARM_START payload and library carry no schedule_id")
+        schedule = schedule_from_id(schedule_id)
+        if payload.denoising_num_steps != schedule.num_steps:
+            raise RuntimeError(
+                "WARM_START payload carries denoising_num_steps="
+                f"{payload.denoising_num_steps} but its schedule is {schedule_id} "
+                f"({schedule.num_steps} steps)."
+            )
+        return schedule
 
     @staticmethod
     def _to_storage_tensor(chunk: torch.Tensor) -> torch.Tensor:

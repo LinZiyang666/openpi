@@ -36,7 +36,7 @@ from typing import TYPE_CHECKING, Any, Optional
 if TYPE_CHECKING:
     import torch
 
-from openpi.cache.types import CheckpointID
+from openpi.cache.types import CheckpointID, DenoiseSchedule
 
 
 # ---------------------------------------------------------------------------
@@ -63,22 +63,26 @@ class CachePayload:
 
     CP-specific field requirements:
       CP1 FULL_HIT   : action_chunk required; intermediates / denoising_num_steps optional.
-      CP1 WARM_START : action_chunk + intermediates + denoising_num_steps required.
+      CP1 WARM_START : action_chunk + intermediates + denoising_num_steps +
+                       schedule_id required.
 
     intermediates keys
     ------------------
-    Keys are float timestep values.  Online path stores the default
-    save_timesteps (0.7, 0.5, 0.3); offline artifact path stores all 9
-    intermediates (0.9, 0.8, ..., 0.1).  Judge's warm_tiers.start_t must
-    exist in the payload's intermediates keys; Orchestrator validates this
-    and downgrades to MISS if the key is absent.
+    Keys are float timestep values, meaningful only under the denoise
+    schedule the library records (``types.DenoiseSchedule``): Pi0.5 stores
+    up to nine snapshots at t = 0.9 ... 0.1 (the online path keeps the
+    default save_timesteps 0.7, 0.5, 0.3); GR00T stores num_steps - 1
+    snapshots at t = i / num_steps.  Judge's warm_tiers.start_t must exist
+    in the payload's intermediates keys; Orchestrator validates this and
+    fails loudly if the key or schedule identity is absent.
     Backends must serialise keys as f"{t:.4f}" strings to avoid JSON
     round-trip drift.
 
     denoising_num_steps
     -------------------
-    Must match the num_steps used during the original inference.  Passed
-    directly to run_stage3_from(start_t=t, num_steps=denoising_num_steps).
+    Must match the num_steps used during the original inference and the
+    schedule's ``num_steps``.  Passed directly to
+    run_stage3_from(start_t=t, num_steps=denoising_num_steps).
 
     task_key
     --------
@@ -98,11 +102,13 @@ class CachePayload:
     signal contract.
     """
 
-    action_chunk: torch.Tensor                          # [50, 32] CPU float32
-    intermediates: Optional[dict[float, torch.Tensor]] = None   # {t: x_t}
+    action_chunk: torch.Tensor  # [50, 32] CPU float32
+    intermediates: Optional[dict[float, torch.Tensor]] = None  # {t: x_t}
     denoising_num_steps: Optional[int] = None
     task_key: str = ""
     factors: Optional[dict[str, float]] = None
+    # Appended to preserve the positional constructor layout of legacy callers.
+    schedule_id: Optional[str] = None
 
     def validate_for_checkpoint(self, checkpoint_id: CheckpointID) -> None:
         """Raise ValueError if CP-specific invariants are violated."""
@@ -111,6 +117,56 @@ class CachePayload:
         if self.intermediates is not None and self.denoising_num_steps is None:
             raise ValueError(
                 "denoising_num_steps must be set when intermediates is provided"
+            )
+
+    def validate_for_warm_start(
+        self, schedule: DenoiseSchedule, start_t: float | None
+    ) -> None:
+        """Validate the entry-local contract before executing WARM_START.
+
+        This is deliberately separate from ``validate_for_checkpoint``: a CP1
+        FULL_HIT only consumes ``action_chunk`` and must remain compatible with
+        payloads that carry no denoise snapshots.
+        """
+        if self.action_chunk is None:
+            raise ValueError("WARM_START payload has no action_chunk")
+        if not self.intermediates:
+            raise ValueError("WARM_START payload has no intermediates")
+        if self.denoising_num_steps is None:
+            raise ValueError("WARM_START payload has no denoising_num_steps")
+        if self.schedule_id is None:
+            raise ValueError("WARM_START payload has no schedule_id")
+        if self.schedule_id != schedule.schedule_id:
+            raise ValueError(
+                f"WARM_START payload schedule {self.schedule_id!r} does not match "
+                f"the serving library's {schedule.schedule_id!r}"
+            )
+        if self.denoising_num_steps != schedule.num_steps:
+            raise ValueError(
+                "WARM_START payload denoising_num_steps="
+                f"{self.denoising_num_steps} does not match {schedule.schedule_id} "
+                f"({schedule.num_steps})"
+            )
+        if start_t is None:
+            raise ValueError("WARM_START verdict has no start_t")
+        normalized_t = round(float(start_t), 4)
+        schedule.snapshot_index(normalized_t)
+        # Consumers index the mapping with the verdict's actual key. Accepting
+        # only a rounded match would defer a KeyError until after the verdict.
+        if start_t not in self.intermediates:
+            raise ValueError(
+                f"WARM_START payload has no snapshot at start_t={normalized_t:.4f}"
+            )
+        snapshot = self.intermediates[start_t]
+        if self.action_chunk.ndim != 2 or snapshot.shape != self.action_chunk.shape:
+            raise ValueError(
+                f"WARM_START snapshot shape {tuple(snapshot.shape)} must match "
+                f"the unbatched action_chunk shape {tuple(self.action_chunk.shape)}"
+            )
+        if snapshot.dtype != self.action_chunk.dtype:
+            raise ValueError(
+                f"WARM_START snapshot dtype {snapshot.dtype} does not match "
+                f"action_chunk dtype {self.action_chunk.dtype}"
             )
 
 
@@ -214,12 +270,16 @@ class QuerySpec:
       - IF CHANGED: SearchStrategy construction logic, Backend.search() parameter reading
     """
 
-    query_keys: dict[str, torch.Tensor]          # {field: [dim] CPU float32}
+    query_keys: dict[str, torch.Tensor]  # {field: [dim] CPU float32}
     top_k: int = 10
     checkpoint_id: Optional[CheckpointID] = None
     filters: Optional[QueryFilter] = None
-    fusion_weights: Optional[dict[str, float]] = None     # per-field fusion weights (backend-agnostic)
-    backend_hints: Optional[dict[str, Any]] = None        # e.g. {"rrf_k": 60, "candidate_multiplier": 5}
+    fusion_weights: Optional[dict[str, float]] = (
+        None  # per-field fusion weights (backend-agnostic)
+    )
+    backend_hints: Optional[dict[str, Any]] = (
+        None  # e.g. {"rrf_k": 60, "candidate_multiplier": 5}
+    )
 
     fusion_method: Optional[str] = None
     # "weighted_rrf" | "weighted_score_sum" | None
@@ -403,10 +463,11 @@ class StepRecord:
     then consumed by on_episode_end() to build a linked CacheEntry chain.
     """
 
-    query_keys: dict[str, torch.Tensor]   # CPU float32
-    action_chunk: torch.Tensor            # CPU float32, required
+    query_keys: dict[str, torch.Tensor]  # CPU float32
+    action_chunk: torch.Tensor  # CPU float32, required
     intermediates: Optional[dict[float, torch.Tensor]] = None
     denoising_num_steps: Optional[int] = None
+    schedule_id: Optional[str] = None
 
 
 @dataclass

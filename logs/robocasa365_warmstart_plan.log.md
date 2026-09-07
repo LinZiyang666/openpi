@@ -1,9 +1,9 @@
 # WARM_START 引入 RoboCasa365 —— plan
 
-> 状态：**G1 APPROVED**（2026-09-06，3 轮）。已完成 Post-G1 polish，进入 §4 Code。
-> 授权口径：owner 2026-09-06 裁定「先编写 plan，收益确定之后再做」。**G1 放行只表示计划具备执行条件，不自动启动执行**；owner 启动收益前置阶段后，范围仅为 W0-W4（允许新增隔离的 benchmark/runner 与测量产物），**不授权生产代码改动或数据重新采集**。阶段 B 必须在 W4 再获 owner 明示授权。
-> §4 Code 的交付物 = **W1 一个文件**：`exp/robocasa365/bench_groot_stages.py`（新增、隔离、不进生产路径）。W0/W2/W3 是运行动作不是代码，须等外部 pnp W8 campaign 收工、GPU 空窗后才可执行。
-> 并行前置：外部 pnp W8 的 GR00T cache 臂已收官、teacher 基线臂正在跑（`logs/pnp_run_progress.md`），本 plan 的任何**运行**动作都排在该 campaign 收工之后。
+> 状态：**G1 APPROVED；本轮阶段 B 代码 CODE APPROVED（2026-09-06，owner override 下审查后直接修复并验证）**。W1 原实现已在 HEAD；本轮交付为 W5-W12 + W14 及其接线修正。真模型 G0-C 已通过：RoboCasa-k4 / LIBERO-k8 各两份输入，完整动作与全部 HDF5 续跑点逐位一致。详见 Review Log 末尾收口记录。
+> 授权口径：owner 原先要求「先测收益再做」；其后已明示解除 D2、授权阶段 B，并再次明确授权本 reviewer 先暂存开发者交付、直接修到可以放行。本轮是这一流程豁免的执行与自检，不冒充修复后的独立 reviewer 审批。
+> 代码放行不等于实验结论：W0/W2/W3、CUDA-Graph 的 G-M 认证及 W13 两线重采集/正式评测仍是待执行的运行动作，本轮没有宣称完成。
+> 本轮仅在确认 weilandserver GPU 空闲后，用 `/tmp` 隔离代码运行 G0-C；没有覆盖远端工作仓或启动其他实验。
 
 ---
 
@@ -144,6 +144,53 @@ GR00T 4 步的中间量若被现有 builder 处理，会被打成 t = **0.9 / 0.
 | L-1 | ⚠ **LIBERO 跑 8 步，不是 4 步** | `exp/libero_groot/serve_groot_libero.py:60` `DEFAULT_DENOISING_STEPS = 8`，`:380` 经 `Gr00tPolicy(denoising_steps=...)` 生效；注释 `:56-59` 说明已发表的 LIBERO 数字用的就是 8 而非 ckpt 内置值。RoboCasa 用 4（`staged.py:41`） | D4 的 `schedule_id` 必须把**步数写进主键**（`groot_n15_k4_v1` / `groot_n15_k8_v1`），否则两条线的库会互相"合法"对上而 t 的含义完全不同 |
 | L-2 | **第二道 emitter 守卫** | `exp/libero_groot/emit_gate_yamls.py:177-182` 拒绝写出任何带非空 `cp1.judge.warm_tiers` 的 yaml | D9 的"最后放开"要放开**两道**，见 D9 |
 | L-3 | 三个装配点带既有豁免 | `serve_groot_libero.py:160,235,429` 均传 `allow_hysteresis_gate=True`（RoboCasa 侧用默认值） | W10 放宽白名单时不得把该豁免冲掉 |
+| **L-4** | ⚠ **相机数与 state 宽度都不同**：RoboCasa **3 路相机 / 20 宽 state**（`build_in_memory_cache_artifact.py:73-74` 的 `_GROOT_VISION_SLOTS=3`、`_GROOT_ROBOT_STATE_DIM=20`；采集器默认 `_VISION_FIELDS` 三元组，`groot_cache_collector.py:51`），LIBERO **2 路 / 8 宽**（`_GROOT_GEOMETRY` 显式钉死 `(2, 8)`，`:80-84`；server 传 `vision_fields=(VISION_0, VISION_1)`，`serve_groot_libero.py:407`） | 见下方"**这条已有现成解法，schedule 必须照抄**" |
+
+**⚠ L-4 已有现成解法，D4 的 schedule 必须照抄它，不能另起一套**：
+
+仓库**已经解决过同一形状的问题**。`build_in_memory_cache_artifact.py:75-84` 的注释写得很清楚：
+
+> Geometry is carried by the builder **NAME**, not by CLI flags: `_reshape_dims` fails silently
+> in the direction that matters — an under-declared camera count just drops that field from
+> `vector_dims`, and the backend then omits it from every query without comment.
+> Binding the geometry to the name makes the LIBERO artifact **impossible to build under the
+> RoboCasa recipe by omission**.
+
+去噪步数（k=4 vs k=8）与相机数（3 vs 2）**是同一类问题、同一个失效方向**：漏写不会报错，
+只会静默地少一块。⇒ **schedule 不做成"顶层 `denoise_schedule:` 字段 + 默认 `pi05_v1`"**
+（那正是"漏写即静默"），而是**扩 `_GROOT_GEOMETRY` 为一张线身份表**：
+
+```
+builder name -> (vision_slots, robot_state_dim, schedule_id)
+  cp1_groot_*              -> (3, 20, "groot_n15_k4_v1")
+  cp1_groot_libero_*       -> (2,  8, "groot_n15_k8_v1")
+```
+
+⚠ **但只绑 builder 名不够，因为步数和几何不是同一种东西**（owner 2026-09-06 追问后核实修正）：
+
+| | 相机数 / state 宽度 | 去噪步数 |
+|---|---|---|
+| 性质 | checkpoint 的**静态属性** | **运行时属性** |
+| RoboCasa 侧怎么定的 | 由 ckpt 决定，`_GROOT_GEOMETRY` 已钉 | ⛔ **本仓库完全没钉**：`serve_groot_n15.py:554` 的 `Gr00tPolicy(...)` 根本不传 `denoising_steps`，取 ckpt `config.json` 的 `action_head_cfg.num_inference_timesteps`（实读记录 = 4，见 `logs/groot_cache_integration.log.md:242`） |
+| LIBERO 侧怎么定的 | `_GROOT_GEOMETRY` 钉死 `(2, 8)` | 一个**可改的 CLI 默认值** `--denoising-steps`（默认 8，`serve_groot_libero.py:60`），ckpt 自带值更低 |
+
+⇒ 若把 `schedule_id` 也绑在 builder 名上，`--denoising-steps 4` 起的 LIBERO server 会被表**一口咬定**成
+`groot_n15_k8_v1` —— 那张表反而制造出它本要防的错配。**权威顺序必须是三层，不可颠倒**：
+
+1. **唯一权威 = 运行时的 `action_head.num_inference_timesteps`。** `schedule_id` 由它**派生**
+   （`groot_n15_k{N}_v1`），⚠ **代码里不得出现字面量 4 或 8**。采集时写进 h5 的 file-level
+   `denoise_schedule_id` / `denoising_num_steps` 取自这个活值（W14b 本来就是这么写的）。
+2. **`_GROOT_GEOMETRY` 扩出的 `schedule_id` 列只作"预期值"**，用于**装配期断言**：
+   活值 ≠ 预期 ⇒ 响亮拒起；**绝不**按表默默取值。
+3. **几何（3 路/20 宽 vs 2 路/8 宽）继续绑 builder 名** —— 那是 ckpt 静态属性，现成解法对它成立。
+
+⚠ 这同时推翻本 plan 早前写的"`CacheConfig.denoise_schedule` 默认 `pi05_v1`"：**默认值是这条链上
+唯一不该有的东西**（`config.py:878-880` 对未知 key 只 warning 后丢弃，默认值会让漏写彻底无声）。
+pi0.5 旧产物由兼容 loader 回填 `pi05_v1`，那是**读旧数据**的回填，不是新配置的默认。
+
+⚠ **RoboCasa 的 4 尚未在本机复验**（本机无该 ckpt，`/home/weiland/gr00t_n15` 不存在，只有一份版本
+对不上的 N1.7 源码）。引的是当时的实读记录。要坐实需在 weilandserver 上重读一次 `config.json`；
+在那之前，第 1 层"只从活值派生、不出现字面量"正是让这个未验事实**无法**变成静默错误的保险。
 
 **术语陷阱**：`exp/libero_groot/` 里的 "warmup"（`emit_gate_yamls.py --mode warmup`、`emit_warmup_pool.py`）指的是**阈值标定的 force-MISS 臂**，与本 plan 的 warm-**start**（中途续跑）**完全无关**，只是共用一个英文词。两者在同一条流水线里相邻出现，读 runbook 时极易混淆。
 
@@ -180,20 +227,20 @@ owner 2026-09-06 三条裁定：
 | `schedule_id` | `"pi05_v1"` / `"groot_n15_k4_v1"` / `"groot_n15_k8_v1"` | 字符串主键；**这是唯一权威**，不做隐式推断。⚠ **步数必须进主键**：同一个 GR00T ckpt 在 RoboCasa 跑 4 步、在 LIBERO 跑 8 步（§1.8），若两条线共用一个 `groot_n15_v1`，两边的库会互相“合法”地对上而 `intermediates` 的 t 含义完全不同 —— 这正是 D4 存在的理由。原先冻结的 `groot_n15_v1` 作废，不得使用 |
 | `num_steps` | 10 / 4 / 8 | |
 | `direction` | `"noise_to_clean_desc"`（t:1→0）/ `"noise_to_clean_asc"`（t:0→1） | **方向是显式字段**，不靠数值集合推断 |
-| `timesteps` | 由 `num_steps` + `direction` 生成的、按**从噪声到 clean 的执行顺序**排列的元组 | pi0.5: (0.9…0.1)，9 个可恢复点；GR00T k=4: (0.25, 0.5, 0.75)，剩余步数 3/2/1；GR00T k=8: (0.125, 0.25, …, 0.875)，7 个可恢复点，剩余步数 7…1。⚠ **k=8 的集合与 `CANONICAL_DENOISE_TIMESTEPS`（{0.1…0.9}）交集为空**，所以 LIBERO 侧不存在 k=4 那种“碰巧合法”的静默坑，但六处校验点会**全部拒绝**它 —— W5 若只把校验改成“按 schedule 取值”而漏掉任何一处，症状是响亮的启动失败（可接受），反过来若保留全局常量兜底则退回静默（不可接受） |
+| `timesteps` | 由 `num_steps` + `direction` 生成的、按**从噪声到 clean 的执行顺序**排列的元组 | pi0.5: (0.9…0.1)，9 个可恢复点；GR00T k=4: (0.25, 0.5, 0.75)，剩余步数 3/2/1；GR00T k=8: (0.125, 0.25, …, 0.875)，7 个可恢复点，剩余步数 7…1。⚠ **k=8 的集合与 `CANONICAL_DENOISE_TIMESTEPS`（{0.1…0.9}）交集是 `{0.5}`，不是空**（k=4 同样只交于 0.5；此前写的“交集为空”是错的，2026-09-06 实算更正）。⇒ LIBERO 侧同样有一个“碰巧合法”的静默口子：`start_t: 0.5` 在旧校验下通过，而含义是 k=8 的第 4 步。W5 把六处校验改为按 schedule 取值后才封上；若保留全局常量兜底则这个口子永远开着 |
 | 派生方法 | `snapshot_t(i)` / `snapshot_index(t)` / `remaining_steps(t)` / `replay_timestep(i, device)` | 任何 builder、续跑入口与校验器都不得自行重写方向或步数公式 |
 
 五个携带面（缺一即静默）：
 
 | 面 | 现状 | 契约 |
 |---|---|---|
-| YAML/config | `CacheConfig` 无身份；cache YAML 本身就是 `CacheConfig` 根对象 | 新增顶层 `denoise_schedule: <schedule_id>`（`CacheConfig.denoise_schedule` 默认 `"pi05_v1"`，**不是**不存在的 `cache.*` 子树）；`judge.start_t` / `warm_tiers[].start_t` 的合法集合改为由该 schedule 的 `timesteps` 决定 |
+| YAML/config | `CacheConfig` 无身份；cache YAML 本身就是 `CacheConfig` 根对象 | 新增顶层 `denoise_schedule: <schedule_id>`，**不设新配置默认值**；字段缺失只作为旧 pi0.5 recipe 的兼容读法，任何新 GR00T warm recipe 必须显式声明。`judge.start_t` / `warm_tiers[].start_t` 的合法集合改为由该 schedule 的 `timesteps` 决定 |
 | HDF5 attrs | ⚠ 只有 episode 长度语义的 `num_steps`（`data_collector.py:146`） | 新增 `attrs["denoise_schedule_id"]` 与 `attrs["denoising_num_steps"]`（与既有 `num_steps` **不同名**，避免 §1.4 那个语义冲突） |
-| artifact meta | pkl 顶层无 schedule | 新增 `denoise_schedule_id`；loader 记录并校验所有 entry 的 payload schedule/步数共识 |
+| artifact meta | pkl 顶层无 schedule | 新增 `schedule_id`；loader 记录并校验所有 entry 的 payload schedule/步数共识 |
 | `CachePayload` | 只有 `denoising_num_steps`，⚠ **区分不了 1→0 与 0→1** | 保留 `denoising_num_steps`，新增可回填的 `schedule_id`。`validate_for_checkpoint` 只保留 CP 结构不变量；新增 `validate_for_warm_start(schedule, start_t)`，在确实要执行 WARM_START 时要求 `action_chunk + intermediates + denoising_num_steps + schedule_id`、目标键存在且身份一致（FULL_HIT 的 CP1 payload 不被误伤） |
 | 装配期绑定 | 只有 dispatch_surface 在 backend preload 后对账（`config.py:3169-3175`） | 见 W9：在 `build_per_connection_components()` 的 storage-aware 装配点，把 completeness 门推广到所有可产生 WARM_START 的 judge，并同时比对 `schedule_id` 与 `denoising_num_steps`；纯 YAML load 期只做静态 schedule/timestep 校验 |
 
-**向后兼容（必须证明，不能假设）**：旧 YAML 因 `CacheConfig.denoise_schedule` 默认值继续取 `"pi05_v1"`；旧 artifact / 旧 h5 缺字段也只在兼容 loader 中回填为 `"pi05_v1"`。`InMemoryBackend.load_artifact()` 还须给旧 pickle 的 payload 补 `schedule_id` 属性，并拒绝顶层身份与 entry 共识不一致的混库。现存 517 个 `always_warm_start` yaml、882 个 `warm_start_t` yaml、CP2 / dispatch_surface 既有产物由 §8-T12 证明零改动兼容；任何 GR00T warm 配置则必须显式写 `denoise_schedule: groot_n15_k4_v1`（RoboCasa）或 `groot_n15_k8_v1`（LIBERO），不得靠模型名推断，也不得由两条线共用一个 id。
+**向后兼容（必须证明，不能假设）**：旧 YAML 缺字段时由兼容读法解释为 `"pi05_v1"`，但 dataclass 字段仍保持 `None`，避免新 GR00T recipe 漏写后静默取默认；旧 artifact / 旧 h5 缺字段只在兼容 loader 中回填为 `"pi05_v1"`。`InMemoryBackend.load_artifact()` 还须给旧 pickle 的 payload 补 `schedule_id` 属性，并拒绝顶层身份与 entry 共识不一致的混库。现存 517 个 `always_warm_start` yaml、882 个 `warm_start_t` yaml、CP2 / dispatch_surface 既有产物由 §8-T12 证明零改动兼容；任何 GR00T warm 配置则必须显式写 `denoise_schedule: groot_n15_k4_v1`（RoboCasa）或 `groot_n15_k8_v1`（LIBERO），不得靠模型名推断，也不得由两条线共用一个 id。
 
 **消费者迁移清单**：registry 与派生数学放在 cache-side 独立模块；`config.py` 在构造 `AlwaysWarmStartJudge` / `ThresholdJudge` / `FailureAwareGateJudge` / surface judge 时注入已解析 schedule（不得让组件继续 import 全局 canonical 集合）；两个 offline builder 按 H5 schedule 调 `snapshot_t(i)`；artifact loader 汇总身份与共识；orchestrator 在返回 WARM_START 前调用 payload 的 warm validator，若装配门被绕过也必须 fail loud，不再 warning 后静默降级 MISS；pi0.5 interceptor 的步数与时间戳逻辑保持数值兼容，GR00T 走 8b 的升序实现。
 
@@ -230,6 +277,12 @@ warm-start 的 yaml 发射**新建文件、新 out_root、新 digest**，绝不�
 **D9（守卫放开是最后一步）。**
 `load_guard.py` 的白名单是当前唯一挡在静默坑前面的**响亮**防线。放开顺序必须是：G-1 采集 → G-3 时间轴 → G-2 执行体 → **最后** G-4 守卫。任何提前放开都会把响亮失败换成静默失败。
 ⚠ **守卫有两道，不是一道**：除 `load_guard.py` 外，LIBERO 侧的 emitter `exp/libero_groot/emit_gate_yamls.py:177-182` 还会拒绝写出任何带非空 `cp1.judge.warm_tiers` 的 yaml。两道必须**同时**在最后一步放开；只放开 `load_guard` 会得到“配置合法但根本发不出来”的假象，只放开 emitter 则 server 启动即拒。另注：LIBERO 的三个调用点（`serve_groot_libero.py:160,235,429`）都传 `allow_hysteresis_gate=True`，放开时不得把这个既有豁免一并冲掉。
+**实现口径（W10/W11 落地时定）**：`emit_gate_yamls.py` **不改**——它的实验从不 warm-start，
+其 writer 对 warm tier 的拒绝是防模板泄漏的**实验内**守卫，不是全局守卫；改它还会踩 D8。
+warm-start yaml 只由新 emitter（`exp/robocasa365/emit_ws_warmstart_yamls.py` /
+`exp/libero_groot/emit_warmstart_yamls.py`）产出，且新 emitter 的 writer 是**镜像守卫**：
+不是 warm cell、或没写 `denoise_schedule` 就拒写。两道守卫因此同时"最后放开"：
+`load_guard` 放行 warm judge 的同时，warm yaml 才有了合法来源。
 
 ---
 
@@ -614,7 +667,7 @@ owner 指示：「gr00t 的 warmstart 部分 LIBERO 那条线也需要用，如�
 **但核查同时查出三处真实差异，不处理就是静默失败**，已写进 §1.8 并回改了两条已冻结的裁定：
 
 1. ⚠ **LIBERO 跑 8 步，不是 4 步**（`serve_groot_libero.py:60,380`）。原 D4 把 GR00T 的 `schedule_id` 冻结成单一的 `groot_n15_v1`、`num_steps=4` —— **这在 LIBERO 上是错的**，且是 D4 本身要防的那类错：两条线共用一个 id，k=4 的库和 k=8 的 server 会互相"合法"对上，而 `intermediates` 里 t 的含义完全不同。已把步数写进主键（`groot_n15_k4_v1` / `groot_n15_k8_v1`），并同步改了 §2-D4 三行、§3.1.1-8b、§8-T7 与 `bench_groot_stages.py:111` 的 `SCHEDULE_ID`。
-   附带结论：k=8 的 timesteps `{0.125…0.875}` 与 `CANONICAL_DENOISE_TIMESTEPS` **交集为空**，所以 LIBERO 侧没有 k=4 那个"碰巧全是合法值"的静默坑，失败会是响亮的启动拒绝。
+   附带结论（2026-09-06 实算更正）：k=8 的 timesteps `{0.125…0.875}` 与 `CANONICAL_DENOISE_TIMESTEPS` 交集是 **`{0.5}`**，不是空 —— `start_t: 0.5` 在旧校验下对 LIBERO 也“合法”，所以 LIBERO 并非没有静默口子，只是比 k=4 小（一个值 vs 三个值）。
 2. **守卫有两道**：除 `load_guard.py`，还有 `exp/libero_groot/emit_gate_yamls.py:177-182` 这道 emitter 守卫。D9 已补，要求两道同时最后放开。
 3. LIBERO 三个装配点带 `allow_hysteresis_gate=True` 既有豁免，W10 放宽时不得冲掉。
 
@@ -626,3 +679,224 @@ owner 指示：「gr00t 的 warmstart 部分 LIBERO 那条线也需要用，如�
 3. 本轮的终点是 commit + push，把未验证的 L3 生产改动推上去与 §6 Verify 的门相悖。
 
 ⇒ **待 owner 一句话裁决**：是先按 §6 执行顺序跑阶段 A（W0→stage1 诊断→W2→W3→W4），还是直接解除 D2 授权阶段 B（含 W14）并为其单独走一次 G1。两机 GPU 现已全空，阶段 A 的窗口是开着的。
+
+### §4 Code 交付（阶段 B：W5-W12 + W14）— 2026-09-06 23:30 CDT
+
+> owner 同日两次明示「把实现补充上」，据此解除 D2 与 §3.1 抬头的「本 plan 不授权」；
+> §3.1 的设计（含六个执行缝）本就在 G1 APPROVED 范围内，故按已批准计划进 §4 Code。
+
+**计划符合性声明：代码遵循已批准计划，以下五处为有意偏离，均已在正文对应节回写并在此声明**：
+
+1. **D4 的 schedule 绑定方式**（owner 追问后修正，§1.8 L-4 之下）：schedule id **由活值
+   `action_head.num_inference_timesteps` 派生**（`groot_n15_k<N>_v1`，`GrootStagedRunner.live_schedule()`），
+   不绑 builder 名、不设 YAML 默认；`_GROOT_GEOMETRY` 未扩列。代码中不出现字面步数。
+2. **W9 完整性门的严格度只在声明了 `denoise_schedule` 时生效**（`_check_warm_library_completeness` /
+   `required_warm_timesteps` 对未知 warm judge 的拒绝同理）：517 个既有 pi0.5 yaml 走 legacy 读法零改动（T12）。
+3. **D9「第二道守卫」不改 `emit_gate_yamls.py`**（见 D9 实现口径）：warm yaml 只由新 emitter 产出，
+   新 emitter 的 writer 是镜像守卫。
+4. **W7 审计的 schedule 戳是 opt-in**（`--require-denoise-schedule` / `audit(require_denoise_schedule=)`）：
+   既有 pnp 语料没有戳，默认口径须仍可入库；戳存在时基数/连续性检查无条件执行。
+5. **W8 的 MISS 路径仍是上游原子 `get_action`**；转写循环只用于续跑与等价门（真机 G0-C 待孤岛 B）。
+   探针保留历史名 `stage2_action`（全程动作头）并新增 `stage3_warm`，未改名以免波及 CSV 消费方。
+
+**改动清单（新增/修改）**
+
+| 文件 | 单元 |
+|---|---|
+| `src/openpi/cache/types.py` | W5：`DenoiseSchedule` / `PI05_V1` / `groot_n15_schedule` / `schedule_from_id`；`CANONICAL_DENOISE_TIMESTEPS` 改为派生 |
+| `src/openpi/cache/config.py` | W5/W9：`CacheConfig.denoise_schedule`（无默认）、`effective_denoise_schedule`、六处校验按 schedule、judge 工厂穿 schedule、`_check_denoise_schedule_binding`、`required_warm_timesteps`、`_check_warm_library_completeness` |
+| `src/openpi/cache/components/judge.py` | W5：`AlwaysWarmStartJudge(start_t, *, schedule=PI05_V1)` |
+| `src/openpi/cache/backends/in_memory_backend.py` | W5：`artifact_meta.schedule_id`；拒混库 / 戳与条目步数矛盾 / 外来 t |
+| `src/openpi/cache/storage_types.py` | W5：`CachePayload` 契约文档 |
+| `src/openpi/cache/interceptor.py` | pi0.5 `_NUM_STEPS` 改取 `PI05_V1.num_steps` |
+| `src/openpi/collect/data_collector.py` | W6/D5：`InferenceEmbeddings.init_noise` → `noise_action_0` |
+| `src/openpi/collect/collection_policy.py` | W6：pi0.5 侧写 `init_noise` + schedule 戳 + 步数断言 |
+| `src/openpi/collect/h5_intermediates.py` | **新**，W7：`episode_schedule` / `read_step_intermediates` / `snapshot_indices` |
+| `exp/robocasa365/groot_cache_collector.py` | W6：`action_encoder` hook、活值戳、hook 计数断言 |
+| `exp/common/build_in_memory_cache_artifact.py` / `build_clip_cache_artifact.py` / `build_llm_layer_matrix.py` | W7：四处 `_NUM_STEPS=10` 改为共享读取；`_library_schedule_id` 盖章 + builder 族检查 |
+| `exp/robocasa365/verify_collection_artifacts.py` | W7：快照基数/连续性审计（戳 opt-in） |
+| `src/openpi/cache/groot/staged.py` | W8：`GrootStage2Output`(features+mask+action_inputs) / `GrootStage3Output` / `run_stage2_llm` / `run_stage3` / `run_stage3_from` / `live_schedule` / `denoise_step` + `denoise_loop`（`UPSTREAM_ACTION_HEAD_SHA256`）/ `stage3_warm` 探针 |
+| `src/openpi/cache/groot/interceptor.py` | W8：三分支、`__hit_meta__.start_t` 真值、`_library_schedule` |
+| `src/openpi/cache/groot/load_guard.py` | W10：放行 `always_warm_start` / `warm_tiers`（须显式 GR00T schedule + 活步数一致）、`live_num_inference_timesteps`、artifact 无戳即拒 |
+| `exp/robocasa365/serve_groot_n15.py` / `exp/libero_groot/serve_groot_libero.py` | W10/W14a：六个装配点传活步数（含 bundle 热切换） |
+| `exp/robocasa365/emit_ws_warmstart_yamls.py` / `exp/libero_groot/emit_warmstart_yamls.py` | **新**，W11/W14d：warm-start emitter，各自 digest，`--groot-steps` / `--denoising-steps` 无默认 |
+| `exp/robocasa365/bench_groot_stages.py` | 改为从 staged 导入循环与钉；`RUN_STAGE2_SRC_SHA256` 改钉 `run_stage2_llm` |
+| `docs/architecture/cache_system.md` §5.17、`docs/data_collection/guide.md`、`docs/README.md` | W12/W14f |
+| 测试 | `tests/cache/test_denoise_schedule.py`、`test_denoise_schedule_config.py`、`test_in_memory_backend_schedule.py`、`tests/cache/groot/test_groot_stage3.py`、`tests/collect/test_h5_intermediates.py`、`test_init_noise_and_schedule_stamp.py`、`tests/exp/test_build_artifact_schedule.py`、`tests/robocasa365/test_ws_warmstart_emitter.py`、`tests/libero_groot/test_warmstart_emitter.py`；既有 `test_groot_interceptor.py` / `test_groot_load_guard.py` / `test_groot_cache_collector.py` 按新契约改写；stub 动作头改为真按步调用 `action_encoder` |
+
+**§4 本地测试（advisory）**：`tests/cache tests/collect tests/robocasa365 tests/libero_groot tests/exp` = 3669 passed / 27 skipped，
+失败仅 `tests/exp/test_prebuilt_matrix_backend.py` ×2（HEAD 既有基线）。
+
+**未做 / 待做（如实）**：真机 G0-C（转写 vs 上游 `get_action` 固定噪声逐位等价、真 checkpoint）与
+`UPSTREAM_ACTION_HEAD_SHA256` 对 HF 动态模块副本的核对都只能在孤岛 B 跑；W13 重采集（两线）是运行动作，
+未启动；`docs/architecture/cache_system.zh.md` 若存在需同步。
+
+### G2 Round 3 — Reviewer — NEEDS REVISION — 2026-09-06 23:58 CDT
+
+- [Blocking] [Concern] D4/W5 的五面身份契约只实现了四面：`CachePayload` 仍无 `schedule_id`，也无计划冻结的 `validate_for_warm_start(schedule, start_t)`；`InMemoryBackend.load_artifact()` 没有给旧 payload 回填身份，`CacheOrchestrator.check()` 仍在 payload 不完整时 warning 后降级 MISS。请让 entry 自带并校验 schedule 身份，在 orchestrator 真正返回 WARM_START 前调用 validator，缺字段/身份或步数不一致一律 fail loud；FULL_HIT 不得被误伤。— reasoning: artifact 装配门不是运行时边界，绕过装配、共享 backend 或混入单条错误 entry 时，当前代码仍无法区分同一个 `t=0.5` 属于 pi0.5、GR00T-k4 还是 GR00T-k8，且会把坏数据伪装成命中率下降。
+- [Blocking] [Concern] D7/W7 的新旧语料隔离未实现：`build_run_plan()` 的 hashed `params` 没有 `collect_schema`，全仓唯一命中仍是 plan 文本。请把冻结 schema 版本写入 run-plan 参数并更新其冻结形状测试。— reasoning: 新 writer 增加 `noise_action_0` 和 schedule attrs 后，旧命令仍能复用同一个 batch/journal/plan hash，形成有戳与无戳 episode 的静默混库。
+- [Blocking] [Concern] W7/T8 要求的 snapshot shape/dtype 审计缺失：`_check_h5_schema()` 只核对字段存在、索引基数与连续性，任意 shape/dtype 的 `noise_action_*` 都可通过。请以 `clean_action` 为同 step 的形状/dtype 权威，逐个核对 `noise_action_0..N-1`（含 init noise），并补正反例测试。— reasoning: 这类文件会通过 collection admission，直到建库或线上续跑才发生广播、截断或 dtype 漂移；reviewer 构造的 `(49,32)/float64` 快照当前被判为合法。
+- [Blocking] [Concern] W14c/W14d 没有落到 LIBERO 建库与 eval 入口：`build_size_libraries.py` 的 full-build 命令、manifest 均不带期望 schedule，`verify_libraries.py` 不比较 tier 的 `schedule_id`；`orchestrate_search.py` / `run_conductor.py` 也未增加 warm-cell 形状与 digest/schedule 校验。请让建库 CLI 显式声明期望 schedule、full artifact 与每个 tier/manifest 一致；两个 eval 入口在起服务/派发前校验 warm index digest、每个 cell 的 hash、judge 形状、schedule 和 preload library。— reasoning: 新 emitter 单独正确不等于流水线闭环；当前旧/错步数 library 或被事后改写的 yaml 可直接进入正式 eval。
+- [Blocking] [Concern] 计划冻结的真实模型等价门尚未执行：RoboCasa k=4 与 LIBERO k=8 的 G0-C、以及动态 HF action-head 源码 pin 都只有 stub 单测，执行方也明确标为未做。请在孤岛 B 对两个实际 checkpoint 固定 noise 运行 staged full/resume 与 upstream `get_action` 的逐位/阈值等价及反向对照，并记录命令、模型/源码摘要与结果。— reasoning: 本次改动把约 40 行上游 flow-matching 循环转写进生产 WARM_START；stub 与 copy 自洽不能证明真实模型 API、dtype/autocast 和 8 步累积误差一致，未过 G0-C 不能放开生产守卫。
+- [Non-blocking] [Concern] 计划正文 D4 仍写 `CacheConfig.denoise_schedule` 默认 `pi05_v1`、artifact 字段名 `denoise_schedule_id`，而后续 §1.8/交付声明改成“无 YAML 默认”和代码字段 `schedule_id`。请把旧正文同步成最终裁定，避免下一位实现者按两个互斥合同之一继续扩展。— reasoning: Review Log 的偏离声明不能替代冻结设计正文的一致性。
+
+Reviewer evidence: task-targeted executor tests independently rerun as `171 passed`; `git diff --check` reports one trailing blank line in `tests/robocasa365/test_groot_cache_collector.py`; independent semantic probes `3 failed` exactly on payload identity/runtime validator, run-plan schema isolation, and H5 shape/dtype audit. No GPU/manual checkpoint claim was accepted as test evidence. This session previously authored part of W1 under the owner's explicit override; that W1 work is already absorbed in HEAD and is not the subject of this Stage-B delta verdict.
+
+### G2 Round 3 — Owner-authorized remediation / closure — CODE APPROVED — 2026-09-06 22:55 CDT
+
+**裁决范围**：当前阶段 B（W5-W12 + W14）交付及本轮修复可以放行。
+owner Ziyang Lin 明示授权本 session 在审查后暂存开发者修改、直接修复直至可放行，
+故本节是流程豁免下的修复与验证结论；修复部分不声称具有独立审查身份。
+开发者交付已作为 index 基线保留，以下修复、补测、文档收口均留在 index 之外。
+其他 session 的既有暂存与工作区内容未被本 session 改动；review probes 未进入 index。
+
+**Round 3 各阻塞项的闭环**：
+
+- **B1 关闭**：`CachePayload.schedule_id` 与 `validate_for_warm_start` 已落地；
+  orchestrator 在返回 WARM_START 前校验身份、步数、实际可索引的 snapshot key 及 shape/dtype，
+  无降级 MISS；Pi0.5 消费者额外绑定 `PI05_V1`，GR00T runner 绑定 live schedule。
+  旧 pickle / Qdrant 在兼容性边界回填 Pi0.5 身份，在线 Pi0.5 写入携带身份。
+  FULL_HIT 不要求 warm 字段。
+- **B2 关闭**：run-plan 的 hashed params 固定携带 `collect_schema: v2`，
+  新 schema 不复用旧 plan hash；冻结形状测试同步。
+- **B3 关闭**：带戳 H5 的 `noise_action_0..N-1` 全部与同 step 的
+  `clean_action` 对照 shape/dtype，缺失/错形状/错 dtype 均拒绝。
+- **B4 关闭**：LIBERO 建库透传 `--expected-schedule`，full/tier/manifest 身份一致；
+  两个 eval 入口核查 suite、全部 cell digest、schedule、preload library、
+  enabled + always_search + always_warm_start 和 write_policy=never。
+  已补「最后一个 warm judge 被移除仍须拒绝」负例，以及普通 search index 的兼容性正例。
+- **B5 关闭**：孤岛 B 的真实 RoboCasa-k4 / LIBERO-k8 G0-C 已执行并通过，见下。
+- **正文一致性项关闭**：D4 与当前接口统一为 config 无显式默认值、artifact 字段
+  `schedule_id`；旧数据的 Pi0.5 解释留在兼容层。
+
+**重新审查发现并修复的实质缺陷**：
+
+1. 真模型首轮 **4 failed**：`run_stage3(noise=...)` 与 `run_stage3_from`
+   把普通 dict 交给 `GR00T_N1_5.validate_data`，上游要求 `BatchFeature`，
+   所以真实生产 warm hit 必定报错。两处输出已改为 `_batch_feature(...)`，
+   CPU 单测增加真实容器类型约束；修复后真模型 **4 passed**。
+2. warm index 存在但所有 judge 被改掉时，先前 preflight 会提前返回并跳过认证；
+   现以 index 的 warm 元数据继续识别目录，关闭该绕过。
+3. 库与 entry 自洽仍不足以保证 Pi0.5 消费安全：同为 t=0.5 的 GR00T payload
+   不能交给 Pi0.5 循环。消费端增加固定模型身份检查，并补直接装配场景负例。
+4. snapshot 的四位小数相等不保证实际 dict lookup 成功；运行期按消费者实际 key
+   校验，同时拒绝广播形状和 dtype 漂移。
+
+**真模型证据**：
+
+隔离目录：`weilandserver:/tmp/openpi-warmstart-g2.naBeyxpU`。
+本地代码包与修复包解压于该目录，未写入 `/home/weiland/openpi`。
+在该目录执行：
+
+```bash
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 NO_ALBUMENTATIONS_UPDATE=1 \
+PYTHONPATH=/tmp/openpi-warmstart-g2.naBeyxpU:/tmp/openpi-warmstart-g2.naBeyxpU/src:/home/weiland/gr00t_n15:/home/weiland/gr00t_n15/examples/Libero \
+/home/weiland/gr00t_n15_venv/.venv/bin/python -m pytest \
+  tests/robocasa365/test_groot_warmstart_manual.py --run-manual -v -s --tb=short
+```
+
+结果：**4 passed，71.16 s**。GPU = RTX 4090，
+UUID = `GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9`，
+driver = `595.71.05`，torch = `2.5.1+cu124`。
+fixture / 每条测试前后均检查无其他 compute PID。
+
+| checkpoint | 完整权重/config 内容 SHA-256 | 验证 |
+|---|---|---|
+| RoboCasa target-posttraining atomic-seen checkpoint-60000 | `96ca0647fbc28ba140b66e0797430385202cc520d88149c085a5b426eb3d757e` | k4，两份输入；full 与 3 个续跑点每份 max-abs 全为 0 |
+| LIBERO spatial | `b68ec1b5b91ebfa3e0e72025d29762d1177f30eba0718fcb66444ade1796103a` | k8，两份输入；full 与 7 个续跑点每份 max-abs 全为 0 |
+
+参考调用是完整的真实 `policy.model.get_action`，用固定外部 noise 注入一次 upstream RNG；
+快照由 upstream action_encoder hook 捕获，经 HDF5 float32 写入与生产 reader 往返后续跑。
+相同 noise replay 一致；不同 noise 的 max-abs 为 **4.75154–4.93737**；
+错一阶 snapshot 的 max-abs 为 **0.071289–0.976563**，全部非零。
+
+实际运行的 action-head class 来自
+`/home/weiland/gr00t_n15/gr00t/model/action_head/flow_matching_action_head.py`，
+不是假设中的 HF 动态 action-head 副本；其 SHA-256 正是
+`8a8e6cf7ec63e2a335559990c4ab62bbb81e487d82ea4a969f452a93e0dbdd69`。
+runner 初始化同时验证 Eagle forward 的既有源码 pin，未关闭任何源码校验。
+
+原始日志：远端 `g0c_fixed.log`，本地副本
+`/tmp/openpi_warmstart_g0c_fixed_20260906.log`，
+SHA-256 = `80749ecf5360cc61f017f8e0e97081152288ba70cf3694b9af99f7700c30cb3f`。
+代码包 SHA-256 = `8cfa574c779cef4731719b1a27fd88126388e2216c344e93c5ed3e0c48648446`；
+修复包 SHA-256 = `0ed23abe19a81d8d5827a3e3317079c288469212589f85ab0611df29499f7209`。
+
+**最终本地验证**：
+
+```bash
+PYTHONPATH=. uv run pytest -q \
+  tests/cache tests/collect tests/robocasa365 tests/libero_groot tests/exp \
+  tests/actioncache_baseline/test_acb_staged_integration.py \
+  tests/actioncache_baseline/test_acb_stage_io_coordinator.py \
+  tests/review_tests/test_robocasa365_warmstart_g2r3.py \
+  tests/review_tests/test_warmstart_w1_g2.py \
+  --deselect=tests/exp/test_prebuilt_matrix_backend.py::test_cosine_fast_path_bit_identical \
+  --deselect=tests/exp/test_prebuilt_matrix_backend.py::test_fast_path_robust_to_candidate_reordering
+```
+
+**3716 passed / 31 skipped / 2 deselected，81.27 s**。
+两个 deselected 在当前实现与从 `git show HEAD:src/openpi/cache/backends/in_memory_backend.py`
+读取并执行的未修改 backend 上均独立复现相同失败（该文件另 5 项均通过）：
+它们是既有浮点逐位比较问题，不计作本轮引入的回归，未改写其断言。
+中途四个 socket 测试在沙箱内失败，沙箱外单独复跑 **4 passed**，最终整轮亦通过。
+
+本轮涉及 **54 个 Python 文件**的 `ruff check` / `ruff format --check` 全通过；
+任务范围 `git diff --check` 通过。格式化改变了 stage1 源码字节，
+AST 与已暂存版本一致；benchmark 的 stage1 pin 已同步并增加一致性单测，stage2 pin 未变。
+架构、采集 guide 与 docs/logs 索引已同步；`cache_system.zh.md` 明确冻结为历史版本，
+本轮遵循其指向英文主文档的约定。
+
+**G2 检查项**：计划一致性通过（B1–B5 已闭环）；测试覆盖通过（含真模型与独立探针）；
+文档/索引通过；未发现本轮引入的剩余重大回归。正常的独立复审流程由 owner 明示豁免。
+
+**仍未执行的实验范围**：W13 重采集/正式 eval、W0/W2/W3 与 G-M CUDA-Graph 性能认证。
+本次仅放行代码与已测的 eager warm-start 正确性，不声明新的精度收益、延迟数据或 CUDA-Graph 证书。
+
+### G2 Round 4 — Executor（对 R3 Reviewer 六项的答复 + 对 reviewer 直接修复的审计）— 2026-09-07 00:20 CDT
+
+> reviewer 在 R3 之后按 owner 授权直接修改了工作区（开发者交付留在 index），并写下「CODE APPROVED — owner override」。
+> 按 §9.3 它不能为自己的修复签独立审批，按 §10.2 我仍须对 R3 的每一项给出恰好一条答复。
+> 我的审计方法：把 index 版本先 `ruff format` 再与工作区 diff，只看语义改动（reviewer 对 54 个文件跑了整文件 format，
+> 换行噪音约 3000 行，语义改动约 400 行）；逐文件读完；影响面 + 密封探针复跑。
+
+- **Accepted（R3-B1 五面身份只落了四面 / orchestrator 仍静默降级）** — 属实。我原实现把身份放在 artifact 与装配期，
+  entry 自身没有，绕过装配（共享 backend、单条坏 entry）时 `t=0.5` 分不清 pi0.5 / k4 / k8。reviewer 的修复我逐行审过并接受：
+  `CachePayload.schedule_id`（追加在末尾，保住旧的位置参数布局）+ `validate_for_warm_start(schedule, start_t)`
+  （身份 / 步数 / **按消费者实际 key** 查快照 / shape 与 dtype 对 `action_chunk`）；orchestrator 在返回 WARM_START 前调用，
+  **失败即 raise，不再降级 MISS，也不喂 gate、不计 miss**；`in_memory_backend` / `qdrant_backend` 在兼容边界给旧 payload 回填
+  `pi05_v1`，顶层与 entry 身份不一致即拒；pi0.5 消费端另绑 `PI05_V1`（同为 t=0.5 的 GR00T payload 不能交给 pi0.5 循环）。
+  ⚠ 这是一处**行为变更**：legacy pi0.5 配方遇到坏 payload 从"静默 MISS"变成运行期 `ValueError`。我接受——这正是本 plan
+  §1.7 的立论（静默失败面），且完整性门在装配期已挡住声明了 schedule 的配方；对 legacy 配方，坏数据本就不该伪装成命中率下降。
+  相关既有测试（`test_orchestrator` 四例、`test_crd_orchestrator` 一例）已由 reviewer 按新契约改写，我复核过断言方向正确。
+- **Accepted（R3-B2 新旧语料隔离）** — 属实，D7 我漏做了。`run_collect.py` 的 hashed `params` 现固定携带 `collect_schema: v2`，
+  旧 journal 无法续进新 schema 的 batch；冻结形状测试同步。
+- **Accepted（R3-B3 快照 shape/dtype 审计缺失）** — 属实。`_check_h5_schema` 现以同 step 的 `clean_action` 为权威逐个核对
+  `noise_action_0..N-1` 的 shape 与 dtype；reviewer 构造的 `(49,32)/float64` 反例现被拒（`test_warm_snapshot_shape_and_dtype_are_audited`）。
+- **Accepted（R3-B4 W14c/W14d 未落到 LIBERO 建库与 eval 入口）** — 属实，我只写了 emitter 没接管线。现：
+  `build_size_libraries.py --denoise-schedule` 透传为 builder 的 `--expected-schedule`（builder 新增该参数，语料 schedule 与请求不符即拒），
+  manifest 记 `schedule_id`，`verify_libraries.py --expected-schedule` + 逐 tier 比对；`emit_warmstart_yamls.verify_warm_sweep()`
+  在 `orchestrate_search.py` / `run_conductor.py` 派发前核查 suite、每个 cell 的 digest、schedule、judge 形状、preload 库与
+  `write_policy=never`，且「warm index 存在但所有 judge 被改掉」不能绕过。
+- **Accepted（R3-B5 真实模型等价门未执行）** — 属实，我明确标过未做。reviewer 在 weilandserver 用 `/tmp` 隔离目录跑了
+  `tests/robocasa365/test_groot_warmstart_manual.py --run-manual`：RoboCasa-k4 与 LIBERO-k8 各两份输入，**完整动作与全部
+  HDF5 往返续跑点与上游 `get_action` 逐位相等（max-abs 全为 0）**，负对照有效（不同噪声 4.75–4.94，错一阶快照 0.07–0.98），
+  两个 checkpoint 的内容 SHA-256 与 GPU/driver/torch 版本均记录；实际加载的动作头源文件 SHA-256 正是我钉的
+  `8a8e6cf7…`。这次真机跑**抓出了我一个真实生产缺陷**：`run_stage3` / `run_stage3_from` 把普通 dict 交给
+  `GR00T_N1_5.validate_data`，上游要求 `BatchFeature`，真实 warm hit 必然报错——stub 单测抓不到。修复为 `_batch_feature(...)`，
+  我接受并复核。
+- **Accepted（R3-NB1 计划正文 D4 与交付声明互斥）** — 属实。D4 正文已改为「config 无新默认值、字段缺失只作 legacy 读法」、
+  artifact 字段名 `schedule_id`，与代码一致。
+
+**审计附注（不是对 reviewer 的驳回，是我要留痕的两件事）**：
+1. reviewer 对 54 个文件跑了整文件 `ruff format`，触及大量本次改动之外的既有代码行（纯换行/引号，AST 不变；
+   bench 的 `RUN_STAGE1_SRC_SHA256` 因此重钉并加了 `test_benchmark_source_pins_match_the_checked_in_runner`）。
+   这超出 WA §3.1「最小改动」的字面口径；我没有回退——回退会与它的 pin 与测试互相打架，且 owner 已明示放行。
+   本次提交信息中如实注明。
+2. 「CODE APPROVED」是 owner 授权下的流程豁免（reviewer 自己也如此声明），**不是** §9.3 意义上的独立复审。
+   owner 随后明示「审查修改后推进流程到 commit push」，我据此进入 §6 Verify → §7 Commit → §8 Push。
+
+**我的复核证据**：`tests/cache tests/collect tests/robocasa365 tests/libero_groot tests/exp` + 密封探针
+`tests/review_tests/test_robocasa365_warmstart_g2r3.py` + `test_warmstart_w1_g2.py` = **3706 passed / 31 skipped**，
+失败仅 `test_prebuilt_matrix_backend.py` ×2（HEAD 既有基线）；54 个改动文件 `ruff check` + `ruff format --check` 全过；
+`git diff --check` 干净。§6 的裸全量 `uv run pytest` 结果见提交信息。

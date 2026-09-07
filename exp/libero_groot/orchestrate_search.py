@@ -65,7 +65,9 @@ TIMAN_SIM = "/scratch/zixuans8/libero_sim"
 # rl_router line, and an untracked directory there would surface in its
 # git status and risk being swept into someone else's commit.
 TIMAN_SHARDS = "/tmp/libsearch/shards"
-GR00T_PATH = f"{GR00T_HOME}:{GR00T_HOME}/examples/Libero:{WEILAND_REPO}:{WEILAND_REPO}/src"
+GR00T_PATH = (
+    f"{GR00T_HOME}:{GR00T_HOME}/examples/Libero:{WEILAND_REPO}:{WEILAND_REPO}/src"
+)
 ISLAND_PY = os.environ.get(
     "GROOT_N15_PYTHON", "/home/weiland/gr00t_n15_venv/.venv/bin/python"
 )
@@ -94,6 +96,8 @@ def preflight() -> None:
             + f" (repo root resolved from __file__ = {REPO_ROOT}; override the "
             "island with GROOT_N15_HOME / GROOT_N15_PYTHON)"
         )
+
+
 _LOCK = threading.Lock()
 # The broker caps concurrent file transfers: six slots finishing within the
 # same minute all issued a pull and were rejected with too_many_in_flight,
@@ -220,7 +224,7 @@ class Slot:
         dst_dir = pathlib.Path(self.a.per_step_dir)
         dst_dir.mkdir(parents=True, exist_ok=True)
         script = (
-            f"export HOME={TIMAN_HOME}; python3 -c \"import glob,json;"
+            f'export HOME={TIMAN_HOME}; python3 -c "import glob,json;'
             f"ps=sorted(glob.glob('{out}/per_step/w*/{cell}.jsonl'));"
             f"rows=[l for p in ps for l in open(p) if l.strip()];"
             f"open('{merged}','w').writelines(rows);"
@@ -229,22 +233,32 @@ class Slot:
             f"print('PERSTEP',len(ps),len(rows))\""
         )
         merge_out = tether(TIMAN, script)
-        for name, remote in ((f"{cell}.jsonl", merged), (f"{cell}.merge.json", sidecar)):
+        for name, remote in (
+            (f"{cell}.jsonl", merged),
+            (f"{cell}.merge.json", sidecar),
+        ):
             dst = dst_dir / name
             for attempt in range(1, 7):
                 with _PULL_LOCK:
-                    sh(f"export HOME=/home/weiland; tether pull {TIMAN}:{remote} "
-                       f"{dst} --force 2>&1 | tail -2")
+                    sh(
+                        f"export HOME=/home/weiland; tether pull {TIMAN}:{remote} "
+                        f"{dst} --force 2>&1 | tail -2"
+                    )
                 if dst.exists():
                     break
                 time.sleep(20 * attempt)
             if not dst.exists():
-                log(f"slot {self.port}: {cell} per-step {name} UNPULLED -- "
+                log(
+                    f"slot {self.port}: {cell} per-step {name} UNPULLED -- "
                     f"recoverable at {TIMAN}:{remote} (merge said "
-                    f"{merge_out.strip()[-40:]!r})")
+                    f"{merge_out.strip()[-40:]!r})"
+                )
 
     def clients_alive(self) -> int:
-        out = tether(TIMAN, f"export HOME={TIMAN_HOME}; tmux ls 2>/dev/null | grep -c '^lw{self.port}_' || true")
+        out = tether(
+            TIMAN,
+            f"export HOME={TIMAN_HOME}; tmux ls 2>/dev/null | grep -c '^lw{self.port}_' || true",
+        )
         for line in reversed(out.strip().splitlines()):
             if line.strip().isdigit():
                 return int(line.strip())
@@ -262,7 +276,7 @@ class Slot:
         # first occurrence was undiagnosable because neither was captured.
         merge_out = tether(
             TIMAN,
-            f"export HOME={TIMAN_HOME}; python3 -c \"import glob,json;"
+            f'export HOME={TIMAN_HOME}; python3 -c "import glob,json;'
             f"rows=[r for p in sorted(glob.glob('{out}/r*.json')) for r in json.load(open(p))];"
             f"json.dump(rows, open('{merged}','w'));print('MERGED',len(rows))\"",
         )
@@ -274,13 +288,17 @@ class Slot:
                 )
             if dst.exists():
                 break
-            log(f"slot {self.port}: {cell} pull attempt {attempt} failed: "
-                f"{pull_out.strip()[-160:]!r}")
+            log(
+                f"slot {self.port}: {cell} pull attempt {attempt} failed: "
+                f"{pull_out.strip()[-160:]!r}"
+            )
             time.sleep(20 * attempt)  # linear backoff: the limit is transient
         if not dst.exists():
-            log(f"slot {self.port}: {cell} UNPULLED -- rows are merged at "
+            log(
+                f"slot {self.port}: {cell} UNPULLED -- rows are merged at "
                 f"{TIMAN}:{merged}, recoverable without re-running "
-                f"(merge said {merge_out.strip()[-40:]!r})")
+                f"(merge said {merge_out.strip()[-40:]!r})"
+            )
         if not dst.exists():
             return 0
         try:
@@ -295,7 +313,9 @@ class Slot:
         # it; a result file existing is what "done" means to the queue.
         if rows != self.a.expect:
             dst.rename(dst.with_suffix(".partial.json"))
-            log(f"slot {self.port}: {cell} INCOMPLETE {rows}/{self.a.expect} rows, kept as .partial")
+            log(
+                f"slot {self.port}: {cell} INCOMPLETE {rows}/{self.a.expect} rows, kept as .partial"
+            )
             return 0
         # Only after the results file is accepted: a short cell is re-run, and
         # its per-step evidence would be superseded anyway.
@@ -328,7 +348,9 @@ class Slot:
                 break
             idle = idle + 1 if alive == -1 else 0
             if idle * self.a.poll > self.a.stall:
-                log(f"slot {self.port}: {cell} unreadable for {self.a.stall}s, giving up")
+                log(
+                    f"slot {self.port}: {cell} unreadable for {self.a.stall}s, giving up"
+                )
                 break
             if time.time() - t0 > self.a.cell_timeout:
                 log(f"slot {self.port}: {cell} exceeded cell timeout")
@@ -341,9 +363,13 @@ class Slot:
         if not rows:
             log(f"slot {self.port}: {cell} FAILED (no rows, {mins:.1f} min)")
             return
-        records = json.loads((pathlib.Path(self.a.results_dir) / f"{cell}.json").read_text())
+        records = json.loads(
+            (pathlib.Path(self.a.results_dir) / f"{cell}.json").read_text()
+        )
         ok = sum(1 for r in records if r["success"])
-        log(f"slot {self.port}: {cell} DONE rows={rows} sr={ok / rows:.3f} ({mins:.1f} min)")
+        log(
+            f"slot {self.port}: {cell} DONE rows={rows} sr={ok / rows:.3f} ({mins:.1f} min)"
+        )
 
 
 def reap_stale_workers() -> None:
@@ -362,7 +388,7 @@ def reap_stale_workers() -> None:
         TIMAN,
         f"export HOME={TIMAN_HOME}; n=0; "
         f"for s in $(tmux ls 2>/dev/null | grep -oE '^lw[0-9]+_[0-9]+'); do "
-        f"tmux kill-session -t \"=$s\" 2>/dev/null; n=$((n+1)); done; "
+        f'tmux kill-session -t "=$s" 2>/dev/null; n=$((n+1)); done; '
         f"sleep 3; for p in $(pgrep -f 'task-suite-nam[e]'); do kill -TERM $p 2>/dev/null; done; "
         f"echo REAPED $n",
     )
@@ -397,11 +423,13 @@ def prepare_shards(args: argparse.Namespace) -> None:
             f"ls {shards}/{prefix}_lane*.json | wc -l"
         )
         out = tether(TIMAN, script)
-        log(f"shards: {out.strip().splitlines()[-1] if out.strip() else 'NO OUTPUT'} lanes for "
-            f"{args.workers} workers")
+        log(
+            f"shards: {out.strip().splitlines()[-1] if out.strip() else 'NO OUTPUT'} lanes for "
+            f"{args.workers} workers"
+        )
     verify = tether(
         TIMAN,
-        f"export HOME={TIMAN_HOME}; python3 -c \"import glob,json;"
+        f'export HOME={TIMAN_HOME}; python3 -c "import glob,json;'
         f"n=sum(len(json.load(open(p))) for p in glob.glob('{shards}/{prefix}_lane*.json'));"
         f"f=len(glob.glob('{shards}/{prefix}_lane*.json'));print(f'SHARDS {{f}} {{n}}')\"",
     )
@@ -425,28 +453,44 @@ def main() -> None:
     ap.add_argument("--checkpoint", default="/home/weiland/ckpt_n15_libero_spatial")
     ap.add_argument("--ports", default="23160,23161,23162,23163,23164,23165")
     ap.add_argument("--workers", type=int, default=16, help="sim workers per slot")
-    ap.add_argument("--gpus", type=int, default=8, help="timan107 GPUs to spread EGL over")
+    ap.add_argument(
+        "--gpus", type=int, default=8, help="timan107 GPUs to spread EGL over"
+    )
     ap.add_argument("--public-host", default="ziyanglin.com")
     ap.add_argument("--tasks", type=int, default=10)
     ap.add_argument("--trials", type=int, default=50)
-    ap.add_argument("--expect", type=int, default=500,
-                    help="Episodes a complete cell must return (tasks x trials).")
+    ap.add_argument(
+        "--expect",
+        type=int,
+        default=500,
+        help="Episodes a complete cell must return (tasks x trials).",
+    )
     ap.add_argument("--poll", type=int, default=60)
     ap.add_argument("--stall", type=int, default=900)
     ap.add_argument("--cell-timeout", type=int, default=7200)
-    ap.add_argument("--only", default="", help="comma-separated cell ids (default: all)")
+    ap.add_argument(
+        "--only", default="", help="comma-separated cell ids (default: all)"
+    )
     # Opt-in extensions for the gate-threshold Pareto line. Every default
     # reproduces the search's behaviour exactly.
-    ap.add_argument("--per-step-dir", default="",
-                    help="capture per-step verdicts and pull them here (empty: off)")
+    ap.add_argument(
+        "--per-step-dir",
+        default="",
+        help="capture per-step verdicts and pull them here (empty: off)",
+    )
     ap.add_argument("--phase", default="eval", help="stamped into each per-step row")
-    ap.add_argument("--init-subdir", default="",
-                    help="init pool under exp/common/data/db_init/libero "
-                         "(default: <suite>_apool)")
+    ap.add_argument(
+        "--init-subdir",
+        default="",
+        help="init pool under exp/common/data/db_init/libero (default: <suite>_apool)",
+    )
     ap.add_argument("--shards-dir", default=TIMAN_SHARDS)
     ap.add_argument("--shard-prefix", default="eval")
-    ap.add_argument("--skip-shard-prep", action="store_true",
-                    help="shards are supplied externally; verify but do not cut")
+    ap.add_argument(
+        "--skip-shard-prep",
+        action="store_true",
+        help="shards are supplied externally; verify but do not cut",
+    )
     args = ap.parse_args()
     # Resolved once, here, so every consumer sees the same pool: an empty
     # --init-subdir means "the suite's frozen A pool", which is what every
@@ -459,14 +503,20 @@ def main() -> None:
     prepare_shards(args)
 
     yaml_dir = pathlib.Path(args.yaml_dir)
+    from exp.libero_groot.emit_warmstart_yamls import verify_warm_sweep
+
+    verify_warm_sweep(yaml_dir, expected_suite=args.suite)
     cells = sorted(p.stem for p in yaml_dir.glob("*.yaml"))
     if args.only:
         wanted = set(args.only.split(","))
         cells = [c for c in cells if c in wanted]
     results = pathlib.Path(args.results_dir)
     # .partial files are deliberately not counted as done.
-    done = ({p.stem for p in results.glob("*.json") if not p.name.endswith(".partial.json")}
-            if results.exists() else set())
+    done = (
+        {p.stem for p in results.glob("*.json") if not p.name.endswith(".partial.json")}
+        if results.exists()
+        else set()
+    )
     todo = [c for c in cells if c not in done]
     log(f"{len(cells)} cells, {len(done)} already done, {len(todo)} to run")
 
@@ -489,8 +539,10 @@ def main() -> None:
                 slot.kill_clients()
                 slot.stop_server()
 
-    threads = [threading.Thread(target=worker, args=(int(p),), daemon=False)
-               for p in args.ports.split(",")]
+    threads = [
+        threading.Thread(target=worker, args=(int(p),), daemon=False)
+        for p in args.ports.split(",")
+    ]
     for t in threads:
         t.start()
     for t in threads:
@@ -517,8 +569,10 @@ def main() -> None:
 
     log(f"ALL-CELLS-DONE complete={len(complete)}/{len(cells)} partial={len(partial)}")
     if incomplete or missing_evidence:
-        log(f"PHASE-FAILED incomplete={incomplete} partial={partial} "
-            f"missing_evidence={missing_evidence}")
+        log(
+            f"PHASE-FAILED incomplete={incomplete} partial={partial} "
+            f"missing_evidence={missing_evidence}"
+        )
         raise SystemExit(1)
     log("PHASE-OK")
 

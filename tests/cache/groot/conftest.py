@@ -61,16 +61,46 @@ class _StubEagle:
         return None
 
 
+class _StubActionEncoder(torch.nn.Module):
+    """Stands in for the upstream action encoder: the hook target the collector uses."""
+
+    def forward(self, actions, timesteps, embodiment_id):
+        del timesteps, embodiment_id
+        return actions
+
+
 class _StubActionHead:
-    def __init__(self) -> None:
+    """Mimics the upstream flow-matching head's loop shape, not its numbers.
+
+    ``get_action`` feeds the current chunk through ``action_encoder`` once per
+    Euler step, exactly as upstream does, so a forward hook there observes
+    ``num_inference_timesteps`` inputs: x_0 (pure noise) then one snapshot per
+    step. The final chunk is the same deterministic function of the backbone
+    features the old stub returned.
+    """
+
+    def __init__(self, num_inference_timesteps: int = 4) -> None:
         self.calls = 0
+        self.num_inference_timesteps = num_inference_timesteps
+        self.action_encoder = _StubActionEncoder()
 
     def get_action(self, backbone_outputs, action_inputs):
         self.calls += 1
         features = backbone_outputs["backbone_features"]
         value = features.float().mean()
-        pred = torch.full((1, ACTION_HORIZON, ACTION_DIM), value)
-        return {"action_pred": pred}
+        target = torch.full((1, ACTION_HORIZON, ACTION_DIM), value)
+        # Deterministic "noise" so tests can check snapshots are distinct per step.
+        actions = torch.zeros((1, ACTION_HORIZON, ACTION_DIM))
+        num_steps = self.num_inference_timesteps
+        for step in range(num_steps):
+            timesteps = torch.full((1,), step, dtype=torch.long)
+            encoded = self.action_encoder(
+                actions, timesteps, action_inputs["embodiment_id"]
+            )
+            # Linear interpolation that lands exactly on ``target`` at the last
+            # step, so the final chunk is byte-identical to the old stub's.
+            actions = encoded + (target - encoded) / (num_steps - step)
+        return {"action_pred": actions}
 
 
 class StubGrootModel:

@@ -80,14 +80,16 @@ from openpi_client import base_policy as _base_policy
 from openpi.cache.components.judge import HitType
 from openpi.cache.orchestrator import CacheOrchestrator
 from openpi.cache.timing import SystemTimer
-from openpi.cache.types import CheckpointID
+from openpi.cache.types import PI05_V1, CheckpointID
 from openpi.models import model as _model
 from openpi.models_pytorch.stage_device_placement import StageDeviceConfig
 from openpi.policies import policy as _policy
 
 logger = logging.getLogger(__name__)
 
-_NUM_STEPS = 10  # matches pi0_pytorch.run_stage3 default
+# The Pi0.5 loop length, taken from its schedule identity rather than restated
+# here; matches the pi0_pytorch.run_stage3 default.
+_NUM_STEPS = PI05_V1.num_steps
 
 
 def _probe_backend(device_str: str | torch.device | None) -> str:
@@ -99,12 +101,14 @@ def _probe_backend(device_str: str | torch.device | None) -> str:
 
 def _meta_guard(stage_name: str) -> Callable:
     """Return a sentinel function that raises on call for meta-device stages."""
+
     def _fn(*args: Any, **kwargs: Any) -> None:
         raise RuntimeError(
             f"{stage_name} is on meta device (not loaded). "
             "Cannot execute forward pass. Check cache config — "
             "meta stages require always_hit at the preceding checkpoint."
         )
+
     return _fn
 
 
@@ -132,8 +136,7 @@ def _canonical_tokenized_prompt(observation) -> Optional[np.ndarray]:
             ids = ids[0]
         if ids.ndim != 1:
             raise ValueError(
-                "tokenized_prompt must be [L] or [1, L], got shape "
-                f"{tuple(ids.shape)}"
+                f"tokenized_prompt must be [L] or [1, L], got shape {tuple(ids.shape)}"
             )
         return ids.detach().to("cpu", torch.long).numpy()
     arr = np.asarray(ids)
@@ -206,7 +209,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # client obs dict and must return a client-space outputs dict. Binary
         # verdicts only: WARM_START raises at run time (routing yamls disable
         # warm_tiers; validate_cache_config enforces the allowlist).
-        if (hit_executor is not None or miss_executor is not None) and orchestrator is None:
+        if (
+            hit_executor is not None or miss_executor is not None
+        ) and orchestrator is None:
             raise ValueError(
                 "hit_executor / miss_executor require a cache orchestrator: "
                 "without CP1 verdicts there is no hit/miss slot to route."
@@ -220,13 +225,17 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # replacement leaves already-bound connections on their capability.
         _has_cp = getattr(orchestrator, "has_checkpoint", None)
         self._cp2_only = bool(
-            orchestrator is not None and _has_cp is not None and _has_cp(CheckpointID.CP2)
+            orchestrator is not None
+            and _has_cp is not None
+            and _has_cp(CheckpointID.CP2)
         )
         # Library identity the CP2 verdicts are taken against, surfaced on the
         # wire so the client ledger can prove which artifact the server ran
         # (plan §3.11 completeness gate: server library_sha256 == export record).
         _meta = getattr(orchestrator, "artifact_meta", None) if self._cp2_only else None
-        self._cp2_library_sha256 = _meta.get("library_sha256") if isinstance(_meta, dict) else None
+        self._cp2_library_sha256 = (
+            _meta.get("library_sha256") if isinstance(_meta, dict) else None
+        )
 
         # ---- X15 shadow teacher (default None => byte-identical paths) ----
         # Records what the teacher WOULD have produced at a cache step, without
@@ -239,10 +248,16 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
         self._policy = policy
         # Borrow internals from the wrapped Policy — references only, no copy.
-        self._model = policy._model                        # PI0Pytorch instance  # noqa: SLF001
-        self._input_transform = policy._input_transform    # composed transform fn  # noqa: SLF001
-        self._output_transform = policy._output_transform  # composed transform fn  # noqa: SLF001
-        self._pytorch_device = policy._pytorch_device      # e.g. "cuda:0"          # noqa: SLF001
+        self._model = policy._model  # PI0Pytorch instance  # noqa: SLF001
+        self._input_transform = (
+            policy._input_transform
+        )  # composed transform fn  # noqa: SLF001
+        self._output_transform = (
+            policy._output_transform
+        )  # composed transform fn  # noqa: SLF001
+        self._pytorch_device = (
+            policy._pytorch_device
+        )  # e.g. "cuda:0"          # noqa: SLF001
 
         # Gate-research collection (opt-in). Default off => __collect_meta__ is
         # never attached and the wire stays byte-identical.
@@ -261,7 +276,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         self._stage1_device = sc.stage1 if sc and not sc.is_legacy_default else _dev
         self._stage2_device = sc.stage2 if sc and not sc.is_legacy_default else _dev
         self._stage3_device = sc.stage3 if sc and not sc.is_legacy_default else _dev
-        if self._cp2_only and (self._stage2_device == "meta" or self._stage3_device == "meta"):
+        if self._cp2_only and (
+            self._stage2_device == "meta" or self._stage3_device == "meta"
+        ):
             raise ValueError(
                 "CP2 (post-backbone single key) needs stage2 and stage3 on real devices "
                 "in this process: the key is the stage-2 output and WARM_START / MISS "
@@ -313,11 +330,20 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
             def _stage2_via_coordinator(stage1):
                 return coordinator.submit_to_stage(
-                    2, bundle_id, stage1, requires_stage2_capture=_cp2_capture,
+                    2,
+                    bundle_id,
+                    stage1,
+                    requires_stage2_capture=_cp2_capture,
                 )
 
-            def _stage3_via_coordinator(stage2, *, noise=None, num_steps=10,
-                                        return_intermediates=False, save_timesteps=None):
+            def _stage3_via_coordinator(
+                stage2,
+                *,
+                noise=None,
+                num_steps=10,
+                return_intermediates=False,
+                save_timesteps=None,
+            ):
                 # The interceptor always asks for intermediates on MISS;
                 # the coordinator's MISS bucket already passes
                 # ``return_intermediates=True``. ``save_timesteps`` is
@@ -325,7 +351,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 # uses the model's default save_timesteps).
                 payload = _bc.Stage3MissPayload(
                     stage2_out=stage2,
-                    noise=noise.squeeze(0) if (noise is not None and noise.dim() == 3) else noise,
+                    noise=noise.squeeze(0)
+                    if (noise is not None and noise.dim() == 3)
+                    else noise,
                     num_steps=num_steps,
                 )
                 return coordinator.submit_to_stage(3, bundle_id, payload)
@@ -335,23 +363,34 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             self._stage3_fn = _stage3_via_coordinator
             # ``run_stage3_from`` is routed via a separate hook below
             # because the WARM_START path uses a different payload type.
-            self._stage3_from_fn = self._make_warm_start_via_coordinator(coordinator, bundle_id)
+            self._stage3_from_fn = self._make_warm_start_via_coordinator(
+                coordinator, bundle_id
+            )
             logger.info(
                 "InferenceInterceptor: routing stage1/2/3 through "
-                "BatchingCoordinator (bundle_id=%s).", bundle_id,
+                "BatchingCoordinator (bundle_id=%s).",
+                bundle_id,
             )
         else:
-            self._stage3_from_fn = None  # legacy code path uses model.run_stage3_from directly
+            self._stage3_from_fn = (
+                None  # legacy code path uses model.run_stage3_from directly
+            )
 
         # ---- SystemTimer setup ----
         # Probe backend is derived from the normalized per-stage device,
         # so legacy default (stage*=None → pytorch_device) keeps CUDA timing.
         self._timer: SystemTimer = timer if timer is not None else SystemTimer()
-        self._timer.register_probe("stage1_vision",   backend=_probe_backend(self._stage1_device))
+        self._timer.register_probe(
+            "stage1_vision", backend=_probe_backend(self._stage1_device)
+        )
         if self._stage2_device != "meta":
-            self._timer.register_probe("stage2_llm",  backend=_probe_backend(self._stage2_device))
+            self._timer.register_probe(
+                "stage2_llm", backend=_probe_backend(self._stage2_device)
+            )
         if self._stage3_device != "meta":
-            self._timer.register_probe("stage3_flow", backend=_probe_backend(self._stage3_device))
+            self._timer.register_probe(
+                "stage3_flow", backend=_probe_backend(self._stage3_device)
+            )
         self._timer.register_probe("total_inference", backend="cpu")
 
         # ---- Image collection for cache key builders ----
@@ -370,7 +409,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             if self._miss_executor is not None:
                 self._timer.register_probe("sidecar_miss", backend="cpu")
             if self._stage3_device != "meta":
-                self._timer.register_probe("stage3_warm", backend=_probe_backend(self._stage3_device))
+                self._timer.register_probe(
+                    "stage3_warm", backend=_probe_backend(self._stage3_device)
+                )
 
             # Optional model attachment for KeyBuilders that need a slice of
             # the model (e.g. `cp1_llm_layer_extract` borrows
@@ -404,14 +445,17 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             logger.info(
                 "InferenceInterceptor: compile mode '%s' -> '%s' "
                 "(avoid CUDAGraph output reuse errors).",
-                raw_compile_mode, compile_mode,
+                raw_compile_mode,
+                compile_mode,
             )
 
         if compile_mode is not None:
             s1 = torch.compile(self._model.run_stage1, mode=compile_mode)
             s2 = torch.compile(self._model.run_stage2, mode=compile_mode)
             s3 = torch.compile(self._model.run_stage3, mode=compile_mode)
-            logger.info("InferenceInterceptor: stages compiled (mode='%s').", compile_mode)
+            logger.info(
+                "InferenceInterceptor: stages compiled (mode='%s').", compile_mode
+            )
         else:
             s1 = self._model.run_stage1
             s2 = self._model.run_stage2
@@ -508,12 +552,13 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 cache_chunk=payload.action_chunk,
                 teacher_fn=lambda noise=None: teacher_chunk,
                 device=self._stage3_device,
-                noise_shape=None,          # nothing is sampled on this arm
+                noise_shape=None,  # nothing is sampled on this arm
             )
         except Exception as exc:  # noqa: BLE001 - the episode outranks the label
             logger.warning(
                 "shadow teacher-arm label failed at decision %d: %r",
-                decision_idx, exc,
+                decision_idx,
+                exc,
             )
 
     def on_task_begin(self) -> None:
@@ -599,7 +644,10 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # Deterministic sidecar teardown: executors owning a connection expose
         # close(); plain callables (tests) are left untouched. getattr keeps
         # partially-constructed instances (lifecycle tests) valid.
-        for executor in (getattr(self, "_hit_executor", None), getattr(self, "_miss_executor", None)):
+        for executor in (
+            getattr(self, "_hit_executor", None),
+            getattr(self, "_miss_executor", None),
+        ):
             if executor is not None and hasattr(executor, "close"):
                 executor.close()
 
@@ -704,7 +752,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
     @staticmethod
     def _build_hit_meta(
-        cp1_result, arm_executed: Optional[str] = None, checkpoint: Optional[str] = None,
+        cp1_result,
+        arm_executed: Optional[str] = None,
+        checkpoint: Optional[str] = None,
         library_sha256: Optional[str] = None,
     ) -> dict:
         """Build the ``__hit_meta__`` payload surfaced via the WebSocket response.
@@ -750,7 +800,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             "score": cp1_result.score,
             # CP2 only: identity of the library the verdict was searched in.
             # Omitted (not None) elsewhere so every legacy wire stays byte-identical.
-            **({"library_sha256": library_sha256} if library_sha256 is not None else {}),
+            **(
+                {"library_sha256": library_sha256} if library_sha256 is not None else {}
+            ),
             # ``searched`` distinguishes a real cache search from a gate-skip or a
             # server-side gate's blind replay (FULL_HIT with searched=False). It
             # rides the always-on __hit_meta__ channel (no export_collect_meta /
@@ -841,13 +893,13 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             and state.ndim == action_chunk.ndim - 1
         ):
             return {
-                "state":   np.asarray(state[0, ...].detach().cpu()),
+                "state": np.asarray(state[0, ...].detach().cpu()),
                 "actions": np.asarray(action_chunk[0, ...].detach().cpu()),
             }
         # Coordinator path: state is unbatched; only action carries the
         # leading B=1. Strip only the action.
         return {
-            "state":   np.asarray(state.detach().cpu()),
+            "state": np.asarray(state.detach().cpu()),
             "actions": np.asarray(action_chunk[0, ...].detach().cpu()),
         }
 
@@ -901,8 +953,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # call so sharing is not a concern there.
         client_signal = obs.pop("__gate_decision__", None)
         accepts_client_signal = (
-            self._orchestrator is not None
-            and self._orchestrator.accepts_client_signal
+            self._orchestrator is not None and self._orchestrator.accepts_client_signal
         )
         if client_signal is not None and not accepts_client_signal:
             raise ValueError(
@@ -922,6 +973,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         input_images: dict[str, np.ndarray] | None = None
         if self._collect_images:
             from openpi.shared.image_extract import extract_valid_images
+
             input_images = extract_valid_images(inputs)
 
         if self._coordinator is None:
@@ -929,8 +981,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             # ``run_stage1`` receives a properly shaped Observation. This is
             # what every pre-Phase-4 code path expected.
             inputs = jax.tree.map(
-                lambda x: torch.from_numpy(np.array(x))
-                               .to(self._pytorch_device)[None, ...],
+                lambda x: torch.from_numpy(np.array(x)).to(self._pytorch_device)[
+                    None, ...
+                ],
                 inputs,
             )
             observation = _model.Observation.from_dict(inputs)
@@ -941,7 +994,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             # stack to device. Sending a B=1 observation here would re-create
             # the double batch dim bug.
             inputs = jax.tree.map(
-                lambda x: torch.from_numpy(np.array(x)) if not torch.is_tensor(x) else x,
+                lambda x: (
+                    torch.from_numpy(np.array(x)) if not torch.is_tensor(x) else x
+                ),
                 inputs,
             )
             observation = inputs  # raw dict; coordinator does Observation.from_dict
@@ -977,9 +1032,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                             **cp1_kwargs,
                         )
                     if (
-                        (self._hit_executor is not None or self._miss_executor is not None)
-                        and cp1_result.hit_type == HitType.WARM_START
-                    ):
+                        self._hit_executor is not None
+                        or self._miss_executor is not None
+                    ) and cp1_result.hit_type == HitType.WARM_START:
                         raise RuntimeError(
                             "Ablation executor hooks are FULL_HIT/MISS binary but "
                             "CP1 returned WARM_START. Routing yamls must disable "
@@ -1023,7 +1078,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                                     cp1_result, self._collect_fields
                                 )
                                 if self._collect_kb_id:
-                                    outputs["__collect_meta__"]["kb_id"] = self._collect_kb_id
+                                    outputs["__collect_meta__"]["kb_id"] = (
+                                        self._collect_kb_id
+                                    )
                             return outputs
                         cached_action = cp1_result.payload.action_chunk
                         # Broadcast action + buffer for trajectory write
@@ -1051,7 +1108,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                                     cp1_result, self._collect_fields
                                 )
                                 if self._collect_kb_id:
-                                    outputs["__collect_meta__"]["kb_id"] = self._collect_kb_id
+                                    outputs["__collect_meta__"]["kb_id"] = (
+                                        self._collect_kb_id
+                                    )
                             return outputs
                         # FULL_HIT short-circuit: skip stage2/3, return the
                         # cached action immediately. ``cached_action`` from
@@ -1085,7 +1144,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                                 cp1_result, self._collect_fields
                             )
                             if self._collect_kb_id:
-                                outputs["__collect_meta__"]["kb_id"] = self._collect_kb_id
+                                outputs["__collect_meta__"]["kb_id"] = (
+                                    self._collect_kb_id
+                                )
                         self._orchestrator.clear()
                         return outputs
 
@@ -1117,7 +1178,10 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                     return outputs
 
                 # Cross-device transfer (only when stage placement differs)
-                if self._stage_config is not None and self._stage_config.needs_relocation:
+                if (
+                    self._stage_config is not None
+                    and self._stage_config.needs_relocation
+                ):
                     stage1 = stage1.to(self._stage2_device)
 
                 # Meta guard: stage2=meta and not FULL_HIT -> clear error
@@ -1159,7 +1223,8 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                         )
                         outputs = self._output_transform(outputs)
                         outputs["__hit_meta__"] = self._build_hit_meta(
-                            cp1_result, checkpoint="CP2",
+                            cp1_result,
+                            checkpoint="CP2",
                             library_sha256=self._cp2_library_sha256,
                         )
                         self._orchestrator.clear()
@@ -1175,13 +1240,21 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                         "always_hit at the preceding checkpoint)."
                     )
 
-                if self._stage_config is not None and self._stage_config.needs_relocation:
+                if (
+                    self._stage_config is not None
+                    and self._stage_config.needs_relocation
+                ):
                     stage2 = stage2.to(self._stage3_device)
 
                 # Stage 3: three-way branch
-                if (self._orchestrator is not None
-                        and cp1_result.hit_type == HitType.WARM_START):
+                if (
+                    self._orchestrator is not None
+                    and cp1_result.hit_type == HitType.WARM_START
+                ):
                     start_t = cp1_result.start_t
+                    # The generic orchestrator checks library/entry agreement;
+                    # this consumer must also bind that identity to Pi0.5.
+                    cp1_result.payload.validate_for_warm_start(PI05_V1, start_t)
                     start_x = cp1_result.payload.intermediates[start_t].to(
                         self._stage3_device
                     )
@@ -1189,10 +1262,14 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                         start_x = start_x[None, ...]
                     # Route through coordinator when wired (Phase 4 M1);
                     # otherwise fall back to the model directly.
-                    _run_stage3_from = self._stage3_from_fn or self._model.run_stage3_from
+                    _run_stage3_from = (
+                        self._stage3_from_fn or self._model.run_stage3_from
+                    )
                     with self._timer.measure("stage3_warm"):
                         stage3 = _run_stage3_from(
-                            stage2, start_x, start_t,
+                            stage2,
+                            start_x,
+                            start_t,
                             num_steps=cp1_result.payload.denoising_num_steps,
                         )
                 elif self._orchestrator is not None:
@@ -1218,16 +1295,21 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                                     self._model.config.action_dim,
                                 )
                                 stage3_noise = self._model.sample_noise(
-                                    shape, self._stage3_device,
+                                    shape,
+                                    self._stage3_device,
                                 )
                             stage3 = self._stage3_fn(
-                                stage2, noise=stage3_noise,
-                                num_steps=_NUM_STEPS, return_intermediates=True,
+                                stage2,
+                                noise=stage3_noise,
+                                num_steps=_NUM_STEPS,
+                                return_intermediates=True,
                             )
                         else:
                             stage3 = self._model.run_stage3(
-                                stage2, noise=start_noise,
-                                num_steps=_NUM_STEPS, return_intermediates=True,
+                                stage2,
+                                noise=start_noise,
+                                num_steps=_NUM_STEPS,
+                                return_intermediates=True,
                             )
                 else:
                     # No-cache mode: compiled call
@@ -1241,7 +1323,8 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                                 self._model.config.action_dim,
                             )
                             start_noise = self._model.sample_noise(
-                                shape, self._stage3_device,
+                                shape,
+                                self._stage3_device,
                             )
                         stage3 = self._stage3_fn(stage2, noise=start_noise)
 
@@ -1266,12 +1349,14 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                             **cp3_kwargs,
                         )
 
-                action_chunk_cpu = stage3.action_chunk[0].detach().cpu().float().contiguous()
+                action_chunk_cpu = (
+                    stage3.action_chunk[0].detach().cpu().float().contiguous()
+                )
 
                 # Prepare intermediates for write (MISS only; WARM_START has no valid intermediates)
                 intermediates_cpu = None
                 denoising_num_steps_val = None
-                if getattr(stage3, 'intermediates', None):
+                if getattr(stage3, "intermediates", None):
                     intermediates_cpu = {
                         t: x[0].detach().cpu().float().contiguous()
                         for t, x in stage3.intermediates.items()
@@ -1282,9 +1367,15 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 self._orchestrator.broadcast_action(action_chunk_cpu)
                 if cp1_result.query_keys is not None:
                     self._orchestrator.buffer_for_write(
-                        cp1_result.query_keys, action_chunk_cpu,
+                        cp1_result.query_keys,
+                        action_chunk_cpu,
                         intermediates=intermediates_cpu,
                         denoising_num_steps=denoising_num_steps_val,
+                        schedule_id=(
+                            PI05_V1.schedule_id
+                            if intermediates_cpu is not None
+                            else None
+                        ),
                     )
 
                 self._orchestrator.clear()
@@ -1313,7 +1404,8 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # MISS is either a sampled teacher arm or a cache arm that found an
         # empty library (the judge already flagged fallback=true).
         outputs["__hit_meta__"] = self._build_hit_meta(
-            _cp1_result, arm_executed="teacher",
+            _cp1_result,
+            arm_executed="teacher",
             checkpoint="CP2" if self._cp2_only else "CP1",
             library_sha256=self._cp2_library_sha256 if self._cp2_only else None,
         )

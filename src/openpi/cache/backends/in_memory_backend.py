@@ -33,7 +33,6 @@ from typing import Any, Optional
 
 import numpy as np
 import torch
-import torch.nn.functional as F
 
 from openpi.cache.backend_base import VectorStoreBackend
 from openpi.cache.components.score_normalizers import (
@@ -47,6 +46,7 @@ from openpi.cache.storage_types import (
     SearchResultLite,
     StepRetrievalFeatures,
 )
+from openpi.cache.types import PI05_V1
 
 logger = logging.getLogger(__name__)
 
@@ -312,6 +312,14 @@ class InMemoryBackend(VectorStoreBackend):
             # Object-pinning identity: sha256 of the pin table the collection
             # ran under. None for every library built before pinning existed.
             "pin_id": data.get("pin_id"),
+            # Flow-matching loop the intermediates were snapshotted from
+            # (``types.DenoiseSchedule.schedule_id``). None for every library
+            # built before schedules were stamped, which the binding check
+            # reads as the Pi0.5 legacy loop.
+            # An absent top-level stamp is the pre-schedule Pi0.5 artifact
+            # format. Backfill the identity at the compatibility boundary so
+            # runtime WARM_START never has to guess from a timestep or count.
+            "schedule_id": data.get("schedule_id") or PI05_V1.schedule_id,
         }
         for entry in data["entries"]:
             # Backfill trajectory fields for old artifacts that lack them.
@@ -332,6 +340,14 @@ class InMemoryBackend(VectorStoreBackend):
                     for k, v in entry.query_keys.items()
                 }
             p = entry.payload
+            if not hasattr(p, "schedule_id") or p.schedule_id is None:
+                p.schedule_id = self.artifact_meta["schedule_id"]
+            elif p.schedule_id != self.artifact_meta["schedule_id"]:
+                raise ValueError(
+                    f"Artifact {path} is stamped "
+                    f"{self.artifact_meta['schedule_id']!r} but entry {entry.id!r} "
+                    f"carries payload schedule {p.schedule_id!r}."
+                )
             if p.action_chunk is not None and isinstance(p.action_chunk, np.ndarray):
                 p.action_chunk = torch.from_numpy(p.action_chunk).float()
             if p.intermediates:
@@ -359,19 +375,57 @@ class InMemoryBackend(VectorStoreBackend):
             if p.intermediates:
                 for t in p.intermediates:
                     t_completeness[t] = t_completeness.get(t, 0) + 1
-        consensus = max(schema_counts, key=schema_counts.get) if schema_counts else (None, None)
+        consensus = (
+            max(schema_counts, key=schema_counts.get) if schema_counts else (None, None)
+        )
         consensus_shape, consensus_num_steps = consensus
-        self.artifact_meta.update({
-            "library_sha256": _sha.hexdigest(),
-            "entry_count": n_entries,
-            "action_horizon": consensus_shape[0] if consensus_shape else None,
-            "action_dim": consensus_shape[1] if consensus_shape and len(consensus_shape) > 1 else None,
-            "denoising_num_steps": consensus_num_steps,
-            "schema_consensus_count": schema_counts.get(consensus, 0),
-            "intermediates_completeness": {
-                f"{t:.4f}": count / n_entries for t, count in sorted(t_completeness.items())
-            } if n_entries else {},
-        })
+        # Intermediates are only meaningful under one loop. A pickle whose
+        # entries disagree on the step count, or whose snapshot timesteps are
+        # not points of the schedule it claims, cannot be served: a WARM_START
+        # would pick an x_t whose t means something else. Payloadless and
+        # Pi0.5-era artifacts carry nothing to check and keep loading.
+        step_counts = {steps for (_shape, steps) in schema_counts if steps is not None}
+        if len(step_counts) > 1:
+            raise ValueError(
+                f"Artifact {path} mixes denoising_num_steps {sorted(step_counts)}; "
+                "a library must come from exactly one flow-matching loop."
+            )
+        schedule_id = self.artifact_meta.get("schedule_id")
+        if schedule_id is not None:
+            from openpi.cache.types import schedule_from_id
+
+            schedule = schedule_from_id(schedule_id)
+            if step_counts and step_counts != {schedule.num_steps}:
+                raise ValueError(
+                    f"Artifact {path} records schedule {schedule_id!r} "
+                    f"({schedule.num_steps} steps) but its entries carry "
+                    f"denoising_num_steps={sorted(step_counts)}."
+                )
+            foreign = sorted(set(t_completeness) - schedule.timestep_set)
+            if foreign:
+                raise ValueError(
+                    f"Artifact {path} has intermediates at t={foreign} which are "
+                    f"not recoverable points of {schedule_id!r} "
+                    f"{list(schedule.timesteps)}."
+                )
+        self.artifact_meta.update(
+            {
+                "library_sha256": _sha.hexdigest(),
+                "entry_count": n_entries,
+                "action_horizon": consensus_shape[0] if consensus_shape else None,
+                "action_dim": consensus_shape[1]
+                if consensus_shape and len(consensus_shape) > 1
+                else None,
+                "denoising_num_steps": consensus_num_steps,
+                "schema_consensus_count": schema_counts.get(consensus, 0),
+                "intermediates_completeness": {
+                    f"{t:.4f}": count / n_entries
+                    for t, count in sorted(t_completeness.items())
+                }
+                if n_entries
+                else {},
+            }
+        )
         logger.info("Loaded %d entries from %s", len(data["entries"]), path)
 
         # Text-IVF: build the bucket index eagerly so a polluted / mismatched
@@ -394,11 +448,13 @@ class InMemoryBackend(VectorStoreBackend):
                 "Artifact %s lacks `library_stats`; computing from %d "
                 "entries (one-time fallback — rebuild with the B2 pipeline "
                 "to skip this).",
-                path, len(self._entries),
+                path,
+                len(self._entries),
             )
             ls = LibraryStats.compute_from_entries(list(self._entries.values()))
             logger.warning(
-                "library_stats fallback compute finished in %.2fs", time.time() - t0,
+                "library_stats fallback compute finished in %.2fs",
+                time.time() - t0,
             )
         self.library_stats = ls
 
@@ -440,9 +496,11 @@ class InMemoryBackend(VectorStoreBackend):
             return [], diag
 
         # ── Trajectory search ──
-        if (spec.trajectory_history is not None
-                and spec.trajectory_weights is not None
-                and len(spec.trajectory_weights) > 1):
+        if (
+            spec.trajectory_history is not None
+            and spec.trajectory_weights is not None
+            and len(spec.trajectory_weights) > 1
+        ):
             logger.info(
                 "Trajectory search: depth=%d, history_len=%d, candidates=%d",
                 len(spec.trajectory_weights),
@@ -476,7 +534,10 @@ class InMemoryBackend(VectorStoreBackend):
                 return [], diag
             if self._wss_collects_diagnostics():
                 return self._search_weighted_score_sum(
-                    candidates, spec, active, collect_diagnostics=True,
+                    candidates,
+                    spec,
+                    active,
+                    collect_diagnostics=True,
                 )
             # A subclass overriding the fusion with its own optimised path
             # (the latency-bench LEAN backends) does not produce the per-field
@@ -548,7 +609,10 @@ class InMemoryBackend(VectorStoreBackend):
             pool = [self._entries[eid] for eid in bucket[1] if eid in self._entries]
         results = []
         for entry in pool:
-            if spec.checkpoint_id is not None and entry.checkpoint_id != spec.checkpoint_id:
+            if (
+                spec.checkpoint_id is not None
+                and entry.checkpoint_id != spec.checkpoint_id
+            ):
                 continue
             if spec.filters is not None:
                 if spec.filters.task_key is not None:
@@ -608,10 +672,12 @@ class InMemoryBackend(VectorStoreBackend):
             )
         keys_sorted = sorted(buckets)
         if keys_sorted:
-            reps = torch.stack([
-                torch.from_numpy(np.frombuffer(k, dtype=np.float32).copy())
-                for k in keys_sorted
-            ])
+            reps = torch.stack(
+                [
+                    torch.from_numpy(np.frombuffer(k, dtype=np.float32).copy())
+                    for k in keys_sorted
+                ]
+            )
             rep_norms = torch.linalg.vector_norm(reps, dim=1).clamp_min(1e-8)
         else:
             reps, rep_norms = None, None
@@ -647,8 +713,10 @@ class InMemoryBackend(VectorStoreBackend):
         qbytes = query.float().contiguous().numpy().tobytes()
         if qbytes in buckets:
             bucket_key = qbytes
-            logger.debug("text_ivf probe: exact bucket hit (%d members)",
-                         len(buckets[bucket_key]))
+            logger.debug(
+                "text_ivf probe: exact bucket hit (%d members)",
+                len(buckets[bucket_key]),
+            )
         else:
             q = query.float()
             denom = (rep_norms * torch.linalg.vector_norm(q)).clamp_min(1e-8)
@@ -664,10 +732,15 @@ class InMemoryBackend(VectorStoreBackend):
                 logger.warning(
                     "text_ivf probe: nearest-bucket margin %.2e is tiny — "
                     "routing may be unstable (collapsed representatives or "
-                    "numeric drift).", margin)
+                    "numeric drift).",
+                    margin,
+                )
             else:
-                logger.debug("text_ivf probe: nearest bucket sim=%.6f margin=%.2e",
-                             float(sims[best]), margin)
+                logger.debug(
+                    "text_ivf probe: nearest bucket sim=%.6f margin=%.2e",
+                    float(sims[best]),
+                    margin,
+                )
             bucket_key = keys_sorted[best]
         return self._filtered_candidates(spec, bucket=(bucket_key, buckets[bucket_key]))
 
@@ -697,7 +770,7 @@ class InMemoryBackend(VectorStoreBackend):
         if mat is None:
             return torch.zeros(n), torch.zeros(n)
 
-        q = query_vec.float()                      # [D]
+        q = query_vec.float()  # [D]
 
         sim_type = sim_cfg.get("type", "cosine")
         if sim_type == "cosine":
@@ -707,7 +780,7 @@ class InMemoryBackend(VectorStoreBackend):
             # with cached row norms is the same math (docs formula:
             # x·y / max(‖x‖‖y‖, ε)) at a fraction of the traffic.
             denom = (row_norms * torch.linalg.vector_norm(q)).clamp_min(1e-8)
-            valid_scores = (mat @ q) / denom               # [V]
+            valid_scores = (mat @ q) / denom  # [V]
         elif sim_type == "l2":
             valid_scores = torch.norm(q.unsqueeze(0) - mat, p=2, dim=1)  # [V]
         else:
@@ -718,10 +791,14 @@ class InMemoryBackend(VectorStoreBackend):
         return scores, mask.clone()
 
     def _candidate_matrix(
-        self, candidates: list[CacheEntry], field_name: str,
+        self,
+        candidates: list[CacheEntry],
+        field_name: str,
     ) -> tuple[
-        Optional[torch.Tensor], Optional[torch.Tensor],
-        Optional[torch.Tensor], Optional[torch.Tensor],
+        Optional[torch.Tensor],
+        Optional[torch.Tensor],
+        Optional[torch.Tensor],
+        Optional[torch.Tensor],
     ]:
         """(valid_idx, matrix, mask, row_norms) for a field, cached per list object.
 
@@ -741,7 +818,9 @@ class InMemoryBackend(VectorStoreBackend):
             if ref() is candidates:
                 return idx_t, mat, mask, row_norms
 
-        valid_indices = [i for i, e in enumerate(candidates) if field_name in e.query_keys]
+        valid_indices = [
+            i for i, e in enumerate(candidates) if field_name in e.query_keys
+        ]
         if not valid_indices:
             idx_t, mat, mask, row_norms = None, None, None, None
         else:
@@ -784,16 +863,21 @@ class InMemoryBackend(VectorStoreBackend):
           + warning (lifecycle bug somewhere upstream).
         """
         if sid is None or qid is None:
-            return self._compute_field_scores(query_vec, candidates, field_name, sim_cfg)
+            return self._compute_field_scores(
+                query_vec, candidates, field_name, sim_cfg
+            )
 
         # Defensive: refuse to create a bucket for an unregistered sid.
         if sid not in self._active_search_sessions:
             logger.warning(
                 "Search with unregistered search_session_id %r; falling back "
                 "to uncached path. Indicates a lifecycle bug (strategy minted "
-                "sid but orchestrator did not register).", sid,
+                "sid but orchestrator did not register).",
+                sid,
             )
-            return self._compute_field_scores(query_vec, candidates, field_name, sim_cfg)
+            return self._compute_field_scores(
+                query_vec, candidates, field_name, sim_cfg
+            )
 
         sim_type = sim_cfg.get("type", "cosine")
         inner_key = (field_name, qid, sim_type)
@@ -827,7 +911,10 @@ class InMemoryBackend(VectorStoreBackend):
         if miss_indices:
             sub = [candidates[i] for i in miss_indices]
             sub_scores, sub_mask = self._compute_field_scores(
-                query_vec, sub, field_name, sim_cfg,
+                query_vec,
+                sub,
+                field_name,
+                sim_cfg,
             )
             valid_mask = sub_mask.bool()
             if valid_mask.any():
@@ -891,7 +978,10 @@ class InMemoryBackend(VectorStoreBackend):
 
         for field_name, weight, sim_cfg in active_fields:
             scores, mask = self._batch_field_scores(
-                spec.query_keys[field_name], candidates, field_name, sim_cfg,
+                spec.query_keys[field_name],
+                candidates,
+                field_name,
+                sim_cfg,
             )
             valid_idx = mask.nonzero(as_tuple=True)[0]
             if valid_idx.numel() == 0:
@@ -915,8 +1005,11 @@ class InMemoryBackend(VectorStoreBackend):
         for idx in top_indices:
             entry = candidates[idx]
             results.append(
-                SearchResultLite(id=entry.id, score=float(rrf_scores[idx]),
-                                 checkpoint_id=entry.checkpoint_id)
+                SearchResultLite(
+                    id=entry.id,
+                    score=float(rrf_scores[idx]),
+                    checkpoint_id=entry.checkpoint_id,
+                )
             )
         return results
 
@@ -939,14 +1032,18 @@ class InMemoryBackend(VectorStoreBackend):
         """
         if normalizers is None:
             return build_field_normalizers(
-                active_fields, spec.score_normalization, spec.field_similarity,
+                active_fields,
+                spec.score_normalization,
+                spec.field_similarity,
             )
         missing = [af for af in active_fields if af[0] not in normalizers]
         if missing:
             return {
                 **normalizers,
                 **build_field_normalizers(
-                    missing, spec.score_normalization, spec.field_similarity,
+                    missing,
+                    spec.score_normalization,
+                    spec.field_similarity,
                 ),
             }
         return normalizers
@@ -984,7 +1081,10 @@ class InMemoryBackend(VectorStoreBackend):
 
         for field_name, weight, sim_cfg in active_fields:
             raw, mask = self._batch_field_scores(
-                spec.query_keys[field_name], candidates, field_name, sim_cfg,
+                spec.query_keys[field_name],
+                candidates,
+                field_name,
+                sim_cfg,
             )
             # Layer 1: raw similarity -> bounded normalized score.
             s = normalizers[field_name](raw)
@@ -1007,13 +1107,19 @@ class InMemoryBackend(VectorStoreBackend):
         for idx in top_indices:
             entry = candidates[idx]
             results.append(
-                SearchResultLite(id=entry.id, score=float(final_scores[idx]),
-                                 checkpoint_id=entry.checkpoint_id)
+                SearchResultLite(
+                    id=entry.id,
+                    score=float(final_scores[idx]),
+                    checkpoint_id=entry.checkpoint_id,
+                )
             )
         if not collect_diagnostics:
             return results
         return results, self._build_step_features(
-            results, top_indices, final_scores, per_field_masked,
+            results,
+            top_indices,
+            final_scores,
+            per_field_masked,
         )
 
     @classmethod
@@ -1109,10 +1215,10 @@ class InMemoryBackend(VectorStoreBackend):
         tensor at different layers shares a query_id, so reuse holds across
         steps even though the layer index moves.
         """
-        history = spec.trajectory_history    # newest-first
-        weights = spec.trajectory_weights     # newest-first
-        qids = spec.trajectory_query_ids      # newest-first or None
-        sid = spec.search_session_id            # None → uncached path
+        history = spec.trajectory_history  # newest-first
+        weights = spec.trajectory_weights  # newest-first
+        qids = spec.trajectory_query_ids  # newest-first or None
+        sid = spec.search_session_id  # None → uncached path
         # Effective depth — history may be shorter than weights when episode
         # has not yet accumulated enough steps. Excess weight slots are unused.
         L = min(len(history), len(weights))
@@ -1124,7 +1230,9 @@ class InMemoryBackend(VectorStoreBackend):
         # for the RRF path would be wasted work and could raise on a stray type.
         traj_normalizers = (
             build_field_normalizers(
-                self._iter_active_fields(spec), spec.score_normalization, spec.field_similarity,
+                self._iter_active_fields(spec),
+                spec.score_normalization,
+                spec.field_similarity,
             )
             if spec.fusion_method == "weighted_score_sum"
             else None
@@ -1132,8 +1240,9 @@ class InMemoryBackend(VectorStoreBackend):
 
         # (1) Flatten ancestors. ancestor_ids[i][l] is candidate i's ancestor
         # l steps back (None when chain ends earlier than L).
-        ancestor_ids = self._walk_chain(candidates, depth=L,
-                                        expected_checkpoint_id=spec.checkpoint_id)
+        ancestor_ids = self._walk_chain(
+            candidates, depth=L, expected_checkpoint_id=spec.checkpoint_id
+        )
 
         # (2) Per-layer batched fusion -> {entry_id: layer_score}.
         level_scores: list[dict[str, float]] = []
@@ -1147,17 +1256,22 @@ class InMemoryBackend(VectorStoreBackend):
                 level_scores.append({})
                 continue
             layer_entries = [
-                self._entries[eid] for eid in layer_entry_ids
-                if eid in self._entries
+                self._entries[eid] for eid in layer_entry_ids if eid in self._entries
             ]
             if not layer_entries:
                 level_scores.append({})
                 continue
             qid = qids[layer_idx] if qids is not None else None
-            level_scores.append(self._compute_level_scores(
-                layer_entries, history[layer_idx], spec, sid=sid, qid=qid,
-                normalizers=traj_normalizers,
-            ))
+            level_scores.append(
+                self._compute_level_scores(
+                    layer_entries,
+                    history[layer_idx],
+                    spec,
+                    sid=sid,
+                    qid=qid,
+                    normalizers=traj_normalizers,
+                )
+            )
 
         # (3) Accumulate per-candidate trajectory score.
         traj_scores = self._accumulate(ancestor_ids, level_scores, weights)
@@ -1172,7 +1286,8 @@ class InMemoryBackend(VectorStoreBackend):
             best = top_indices[0]
             logger.info(
                 "  Trajectory result: winner=%s, traj_score=%.6f",
-                candidates[best].id, float(traj_scores[best]),
+                candidates[best].id,
+                float(traj_scores[best]),
             )
         return [
             SearchResultLite(
@@ -1205,8 +1320,10 @@ class InMemoryBackend(VectorStoreBackend):
             for layer in range(depth):
                 if cur is None:
                     break
-                if (expected_checkpoint_id is not None
-                        and cur.checkpoint_id != expected_checkpoint_id):
+                if (
+                    expected_checkpoint_id is not None
+                    and cur.checkpoint_id != expected_checkpoint_id
+                ):
                     break
                 row[layer] = cur.id
                 prev_ids = getattr(cur, "prev_ids", None) or []
@@ -1257,11 +1374,17 @@ class InMemoryBackend(VectorStoreBackend):
         n = len(entries)
 
         # Per-field cached similarity scores (sid/qid plumbed through).
-        per_field_scores: list[tuple[str, float, dict[str, Any], torch.Tensor, torch.Tensor]] = []
+        per_field_scores: list[
+            tuple[str, float, dict[str, Any], torch.Tensor, torch.Tensor]
+        ] = []
         for field_name, weight, sim_cfg in active_fields:
             scores, mask = self._batch_field_scores(
-                query_keys[field_name], entries, field_name, sim_cfg,
-                sid=sid, qid=qid,
+                query_keys[field_name],
+                entries,
+                field_name,
+                sim_cfg,
+                sid=sid,
+                qid=qid,
             )
             per_field_scores.append((field_name, weight, sim_cfg, scores, mask))
 
@@ -1281,7 +1404,9 @@ class InMemoryBackend(VectorStoreBackend):
                 else:
                     order = valid_scores.argsort(descending=False)
                 ranks = torch.empty(valid_idx.numel(), dtype=torch.float32)
-                ranks[order] = torch.arange(1, valid_idx.numel() + 1, dtype=torch.float32)
+                ranks[order] = torch.arange(
+                    1, valid_idx.numel() + 1, dtype=torch.float32
+                )
                 rrf_scores[valid_idx] += weight / (rrf_k + ranks)
             return {entries[i].id: float(rrf_scores[i]) for i in range(n)}
 
@@ -1297,11 +1422,7 @@ class InMemoryBackend(VectorStoreBackend):
         # Fallback (fusion_method=None) — use first field's cosine.
         if per_field_scores:
             field_name, weight, sim_cfg, scores, mask = per_field_scores[0]
-            return {
-                entries[i].id: float(scores[i])
-                for i in range(n)
-                if mask[i] > 0
-            }
+            return {entries[i].id: float(scores[i]) for i in range(n) if mask[i] > 0}
         return {}
 
     def _accumulate(
@@ -1322,14 +1443,14 @@ class InMemoryBackend(VectorStoreBackend):
         traj = torch.zeros(n)
         for i, row in enumerate(ancestor_ids):
             total = 0.0
-            for l in range(L):
-                eid = row[l] if l < len(row) else None
+            for depth_index in range(L):
+                eid = row[depth_index] if depth_index < len(row) else None
                 if eid is None:
                     continue
-                score = level_scores[l].get(eid)
+                score = level_scores[depth_index].get(eid)
                 if score is None:
                     continue
-                total += weights[l] * score
+                total += weights[depth_index] * score
             traj[i] = total
         return traj
 
@@ -1360,8 +1481,8 @@ class InMemoryBackend(VectorStoreBackend):
         is scoped to that level's reachable entry set (per-level reachable-set
         RRF score), which differs from single-step RRF semantics.
         """
-        history = spec.trajectory_history   # newest-first
-        weights = spec.trajectory_weights   # newest-first
+        history = spec.trajectory_history  # newest-first
+        weights = spec.trajectory_weights  # newest-first
         max_depth = len(weights) - 1
 
         # Phase A: collect entry ids per depth level
@@ -1382,7 +1503,9 @@ class InMemoryBackend(VectorStoreBackend):
         # the weighted_score_sum path consumes them.
         traj_normalizers = (
             build_field_normalizers(
-                self._iter_active_fields(spec), spec.score_normalization, spec.field_similarity,
+                self._iter_active_fields(spec),
+                spec.score_normalization,
+                spec.field_similarity,
             )
             if spec.fusion_method == "weighted_score_sum"
             else None
@@ -1395,12 +1518,17 @@ class InMemoryBackend(VectorStoreBackend):
             if not entry_ids:
                 level_scores.append({})
                 continue
-            entries_at_level = [self._entries[eid] for eid in entry_ids if eid in self._entries]
+            entries_at_level = [
+                self._entries[eid] for eid in entry_ids if eid in self._entries
+            ]
             if not entries_at_level:
                 level_scores.append({})
                 continue
             scores = self._batch_step_scores(
-                entries_at_level, history[idx], spec, normalizers=traj_normalizers,
+                entries_at_level,
+                history[idx],
+                spec,
+                normalizers=traj_normalizers,
             )
             level_scores.append(scores)
 
@@ -1425,11 +1553,12 @@ class InMemoryBackend(VectorStoreBackend):
         if top:
             logger.info(
                 "  Phase C result: winner=%s, traj_score=%.6f",
-                top[0].id, top[1],
+                top[0].id,
+                top[1],
             )
         return [
             SearchResultLite(id=e.id, score=s, checkpoint_id=e.checkpoint_id)
-            for e, s in scored[:spec.top_k]
+            for e, s in scored[: spec.top_k]
         ]
 
     def _collect_trajectory_entries(
@@ -1449,7 +1578,10 @@ class InMemoryBackend(VectorStoreBackend):
         entry = self._entries.get(entry_id)
         if entry is None:
             return
-        if expected_checkpoint_id is not None and entry.checkpoint_id != expected_checkpoint_id:
+        if (
+            expected_checkpoint_id is not None
+            and entry.checkpoint_id != expected_checkpoint_id
+        ):
             return
 
         idx = max_depth - depth
@@ -1462,15 +1594,18 @@ class InMemoryBackend(VectorStoreBackend):
             return
         for prev_id in entry.prev_ids:
             self._collect_trajectory_entries(
-                prev_id, depth - 1, max_depth,
-                level_entries, query_history_len,
+                prev_id,
+                depth - 1,
+                max_depth,
+                level_entries,
+                query_history_len,
                 expected_checkpoint_id,
             )
 
     def _batch_step_scores(
         self,
         entries: list[CacheEntry],
-        query_keys: dict[str, 'torch.Tensor'],
+        query_keys: dict[str, "torch.Tensor"],
         spec: QuerySpec,
         normalizers: Optional[dict[str, ScoreNormalizer]] = None,
     ) -> dict[str, float]:
@@ -1504,7 +1639,10 @@ class InMemoryBackend(VectorStoreBackend):
             results = self._search_weighted_rrf(entries, temp_spec, level_active_fields)
         elif spec.fusion_method == "weighted_score_sum":
             results = self._search_weighted_score_sum(
-                entries, temp_spec, level_active_fields, normalizers=normalizers,
+                entries,
+                temp_spec,
+                level_active_fields,
+                normalizers=normalizers,
             )
         else:
             results = self._search_single_field_cosine(entries, temp_spec)
@@ -1535,7 +1673,10 @@ class InMemoryBackend(VectorStoreBackend):
         if entry is None:
             return [accumulated_sim]
 
-        if expected_checkpoint_id is not None and entry.checkpoint_id != expected_checkpoint_id:
+        if (
+            expected_checkpoint_id is not None
+            and entry.checkpoint_id != expected_checkpoint_id
+        ):
             return [accumulated_sim]
 
         idx = max_depth - depth
@@ -1552,12 +1693,18 @@ class InMemoryBackend(VectorStoreBackend):
 
         all_paths: list[float] = []
         for prev_id in entry.prev_ids:
-            all_paths.extend(self._score_trajectory(
-                prev_id, depth - 1, max_depth,
-                weights, accumulated_sim, level_scores,
-                query_history_len,
-                expected_checkpoint_id,
-            ))
+            all_paths.extend(
+                self._score_trajectory(
+                    prev_id,
+                    depth - 1,
+                    max_depth,
+                    weights,
+                    accumulated_sim,
+                    level_scores,
+                    query_history_len,
+                    expected_checkpoint_id,
+                )
+            )
         return all_paths
 
     # -------------------------------------------------------------------
@@ -1571,7 +1718,10 @@ class InMemoryBackend(VectorStoreBackend):
         sim_cfg = {"type": "cosine"}
         for field in spec.query_keys:
             scores, mask = self._batch_field_scores(
-                spec.query_keys[field], candidates, field, sim_cfg,
+                spec.query_keys[field],
+                candidates,
+                field,
+                sim_cfg,
             )
             if mask.sum() == 0:
                 continue

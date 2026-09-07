@@ -33,7 +33,13 @@ TASKS = [("OpenCabinet", 3), ("CloseDrawer", 2)]
 
 def _strategy(teacher="pi05", layout=1, style=1, **kw):
     return RobocasaCollectStrategy(
-        teacher=teacher, layout=layout, style=style, base_seed=0, replan_steps=5, tasks=TASKS, **kw
+        teacher=teacher,
+        layout=layout,
+        style=style,
+        base_seed=0,
+        replan_steps=5,
+        tasks=TASKS,
+        **kw,
     )
 
 
@@ -56,7 +62,10 @@ def _uids(graph):
 def test_identity_formulas():
     strategy = _strategy()
     assert strategy.run_id == "collect_l1s1_pi05"
-    assert build_yaml_id(strategy.run_id, "OpenCabinet") == "collect_l1s1_pi05__OpenCabinet"
+    assert (
+        build_yaml_id(strategy.run_id, "OpenCabinet")
+        == "collect_l1s1_pi05__OpenCabinet"
+    )
     graph = _planned(strategy)
     first = graph.stages["collect_l1s1_pi05__OpenCabinet"].episodes[0]
     assert first.task_uid == "collect_l1s1_pi05__OpenCabinet:eval:0:0"
@@ -66,8 +75,12 @@ def test_uids_globally_unique_across_teachers_and_scenes():
     all_uids: list[str] = []
     for teacher in ("pi05", "groot_tp"):
         for layout, style in ((1, 1), (5, 7)):
-            all_uids += _uids(_planned(_strategy(teacher=teacher, layout=layout, style=style)))
-    assert len(all_uids) == len(set(all_uids)), "teacher/scene identity must be encoded in yaml_id"
+            all_uids += _uids(
+                _planned(_strategy(teacher=teacher, layout=layout, style=style))
+            )
+    assert len(all_uids) == len(set(all_uids)), (
+        "teacher/scene identity must be encoded in yaml_id"
+    )
 
 
 def test_plan_is_deterministic_and_validates():
@@ -86,14 +99,23 @@ def test_stage_and_task_shape():
             assert ep.bundle_id == "default"  # the only id a bare server acks
             assert ep.experiment == "pi05" and "/" not in ep.experiment
             assert ep.orig_init_state_idx == ep.episode_idx  # seed offset carrier
-            for key in ("task_name", "layout", "style", "teacher", "base_seed", "replan_steps"):
+            for key in (
+                "task_name",
+                "layout",
+                "style",
+                "teacher",
+                "base_seed",
+                "replan_steps",
+            ):
                 assert key in ep.extra, key
 
 
 def test_extension_batch_continues_episode_range():
     strategy = _strategy(batch=2, episode_lo={"OpenCabinet": 3, "CloseDrawer": 2})
     graph = _planned(strategy)
-    idxs = [ep.episode_idx for ep in graph.stages["collect_l1s1_pi05__OpenCabinet"].episodes]
+    idxs = [
+        ep.episode_idx for ep in graph.stages["collect_l1s1_pi05__OpenCabinet"].episodes
+    ]
     assert idxs == [3, 4, 5]  # seeds continue where batch 1 ended, no overlap
 
 
@@ -195,7 +217,13 @@ def test_spawn_kwargs_are_safe_and_parameterized(monkeypatch):
     assert "--teacher" in captured["cmd"]
     # All paths flow from the parameters above; nothing about weilandserver may
     # be baked into the code path under test.
-    joined = " ".join(captured["cmd"]) + " " + env["PYTHONPATH"] + " " + env["LD_LIBRARY_PATH"]
+    joined = (
+        " ".join(captured["cmd"])
+        + " "
+        + env["PYTHONPATH"]
+        + " "
+        + env["LD_LIBRARY_PATH"]
+    )
     assert "/home/weiland" not in joined
 
 
@@ -213,7 +241,10 @@ def test_run_plan_shape_and_hash_excludes_itself():
     payload = _plan_payload()
     assert payload["uids"] == _uids(_planned(_strategy()))
     assert payload["prefixes"][payload["uids"][0]] == "pi05/OpenCabinet/episode_0000"
-    assert payload["params"]["collect_root"] == "/data/x/build_l1s1"  # output-affecting param is hashed
+    assert (
+        payload["params"]["collect_root"] == "/data/x/build_l1s1"
+    )  # output-affecting param is hashed
+    assert payload["params"]["collect_schema"] == "v2"
     assert payload["plan_hash"] == compute_plan_hash(payload)
     # Hash is over the body only: recomputing with the hash field present must
     # give the same digest (i.e. plan_hash is excluded from its own input).

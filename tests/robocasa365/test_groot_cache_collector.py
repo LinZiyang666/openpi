@@ -6,6 +6,7 @@ the flag the operator actually types.
 
 from __future__ import annotations
 
+import pathlib
 import types
 
 import h5py
@@ -44,10 +45,16 @@ def pinned_to_the_stub(monkeypatch):
 
     from openpi.cache.groot import staged
 
-    from tests.cache.groot.conftest import _StubEagle
+    from tests.cache.groot.conftest import _StubActionHead, _StubEagle
 
     digest = hashlib.sha256(inspect.getsource(_StubEagle.forward).encode()).hexdigest()
     monkeypatch.setattr(staged, "UPSTREAM_FORWARD_SHA256", digest)
+    # The action-head pin hashes the head's source *file* (the dynamic-module
+    # copy is what runs in production); the stub's file stands in for it.
+    head_file = pathlib.Path(inspect.getsourcefile(_StubActionHead)).read_bytes()
+    monkeypatch.setattr(
+        staged, "UPSTREAM_ACTION_HEAD_SHA256", hashlib.sha256(head_file).hexdigest()
+    )
 
 
 def _args(**overrides):
@@ -192,7 +199,9 @@ def test_recorded_tensors_are_not_inference_tensors(tmp_path):
 # ------------------------------------------------------------------
 
 
-def test_collected_episode_builds_a_loadable_groot_artifact(pinned_to_the_stub, tmp_path):
+def test_collected_episode_builds_a_loadable_groot_artifact(
+    pinned_to_the_stub, tmp_path
+):
     """Everything downstream of the flag, in one go.
 
     Each link is individually plausible and jointly broken in the obvious ways:
@@ -228,7 +237,11 @@ def test_collected_episode_builds_a_loadable_groot_artifact(pinned_to_the_stub, 
 
     # Geometry: three cameras, not LIBERO's two.
     assert set(artifact["vector_dims"]) == {
-        "vision_0", "vision_1", "vision_2", "prompt_emb", "robot_state",
+        "vision_0",
+        "vision_1",
+        "vision_2",
+        "prompt_emb",
+        "robot_state",
     }
     assert artifact["vector_dims"]["robot_state"] == 5
 
@@ -278,3 +291,63 @@ def test_a_failed_episode_yields_no_entries(pinned_to_the_stub, tmp_path):
         str(data_dir), "cp1_groot_mean_pool", "CP1", workers=-1, robot_state_dim=5
     )
     assert artifact["entries"] == []
+
+
+# ---------------------------------------------------------------------------
+# Warm-start snapshots (plan W6)
+# ---------------------------------------------------------------------------
+
+
+def test_episode_carries_snapshots_and_the_live_schedule_stamp(tmp_path):
+    """One x_t per Euler step from the action_encoder hook, plus the stamp that
+    tells the builder which loop they came from."""
+    _, collector = _collector(tmp_path)
+    head = collector._runner._model.action_head  # noqa: SLF001 - test seam
+    collector.on_episode_start(task="OpenCabinet", episode_id=2)
+    collector.get_action(_obs())
+    collector.on_episode_end(success=True)
+
+    with h5py.File(_only_h5(tmp_path), "r") as f:
+        assert (
+            f.attrs["denoise_schedule_id"]
+            == f"groot_n15_k{head.num_inference_timesteps}_v1"
+        )
+        assert int(f.attrs["denoising_num_steps"]) == head.num_inference_timesteps
+        group = f["step_0000"]
+        names = sorted(k for k in group if k.startswith("noise_action_"))
+        assert names == [
+            f"noise_action_{i}" for i in range(head.num_inference_timesteps)
+        ]
+        for name in names:
+            assert group[name].shape == (ACTION_HORIZON, ACTION_DIM)
+            assert group[name].dtype == np.float32
+        # x_0 is the loop's start (zeros in the stub); later snapshots move
+        # toward the final chunk, so they are not copies of each other.
+        assert float(np.abs(group["noise_action_0"][...]).max()) == 0.0
+        assert not np.array_equal(
+            group["noise_action_1"][...], group["noise_action_2"][...]
+        )
+
+
+def test_a_step_count_changed_mid_episode_is_refused_not_mislabelled(tmp_path):
+    _, collector = _collector(tmp_path)
+    head = collector._runner._model.action_head  # noqa: SLF001
+    collector.on_episode_start(task="OpenCabinet", episode_id=3)
+    head.num_inference_timesteps = 8  # stamp says 4, loop now runs 8
+    with pytest.raises(RuntimeError, match="fired 8 times"):
+        collector.get_action(_obs())
+
+
+def test_stamp_is_reread_every_episode(tmp_path):
+    _, collector = _collector(tmp_path)
+    head = collector._runner._model.action_head  # noqa: SLF001
+    head.num_inference_timesteps = 8
+    collector.on_episode_start(task="OpenCabinet", episode_id=4)
+    collector.get_action(_obs())
+    collector.on_episode_end(success=True)
+    with h5py.File(_only_h5(tmp_path), "r") as f:
+        assert f.attrs["denoise_schedule_id"] == "groot_n15_k8_v1"
+        assert (
+            sorted(k for k in f["step_0000"] if k.startswith("noise_action_"))[-1]
+            == "noise_action_7"
+        )

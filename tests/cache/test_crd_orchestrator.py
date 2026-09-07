@@ -1,10 +1,10 @@
 """H-CRD through the real orchestrator (G2 R1 B2 / B4 / B6 integration).
 
-* a WARM_START the judge proposes is downgraded by the orchestrator when the
-  payload lacks intermediates; the judge must book the executed MISS (D = 0,
-  RECOVERY) and the step's ``factor_outputs["crd"]`` must record both verdicts;
+* a WARM_START whose payload lacks intermediates fails loudly and is not
+  committed as a model MISS;
 * assembling a CRD judge behind any gate other than always_search is refused.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -30,41 +30,52 @@ def _unit(dim=32, index=0):
 def _with_cosine(base, target):
     other = torch.zeros_like(base)
     other[0, 1] = 1.0
-    q = target * base + (1.0 - target ** 2) ** 0.5 * other
+    q = target * base + (1.0 - target**2) ** 0.5 * other
     return F.normalize(q, dim=1)
 
 
 def _judge(tmp_path, **kw):
     # beta between d_warm (0.4) and d_full (0.5) at the top bins -> FULL infeasible, WARM feasible
-    j = crd.CumulativeRiskJudge(write_crd(tmp_path, gamma=1.0, beta=0.45, j_bad=None, l_max=None, **kw))
+    j = crd.CumulativeRiskJudge(
+        write_crd(tmp_path, gamma=1.0, beta=0.45, j_bad=None, l_max=None, **kw)
+    )
     return j
 
 
-def test_warm_downgrade_is_committed_as_miss_and_logged(tmp_path):
+def test_invalid_warm_payload_fails_loud_instead_of_committing_a_miss(tmp_path):
     judge = _judge(tmp_path)
     orch, _, storage = make_orchestrator(judge=judge)
     orch.on_episode_start(extra_metadata={"task_id": 0})
     state = _unit(32, 0)
-    insert_entry(storage, CheckpointID.CP1, state, CachePayload(action_chunk=torch.randn(50, 32)))  # no intermediates
-    result = orch.check(CheckpointID.CP1, stage1=make_stage1(_with_cosine(state, 0.96)))
-    assert result.hit_type == HitType.MISS
-    diag = (result.factor_outputs or {}).get("crd")
-    assert diag is not None
-    assert diag["proposed"] == "WARM_START" and diag["executed"] == "MISS" and diag["reason"] == "downgrade"
-    assert judge.state["D"] == 0.0 and judge.state["mode"] == crd.RECOVERY and judge.state["pending"] is False
+    insert_entry(
+        storage,
+        CheckpointID.CP1,
+        state,
+        CachePayload(action_chunk=torch.randn(50, 32), schedule_id="pi05_v1"),
+    )
+    with pytest.raises(ValueError, match="no intermediates"):
+        orch.check(CheckpointID.CP1, stage1=make_stage1(_with_cosine(state, 0.96)))
     orch.clear()
 
 
 def test_full_hit_commits_and_logs_debt(tmp_path):
-    judge = crd.CumulativeRiskJudge(write_crd(tmp_path, gamma=1.0, beta=5.0, j_bad=None, l_max=None))
+    judge = crd.CumulativeRiskJudge(
+        write_crd(tmp_path, gamma=1.0, beta=5.0, j_bad=None, l_max=None)
+    )
     orch, _, storage = make_orchestrator(judge=judge)
     orch.on_episode_start(extra_metadata={"task_id": 0})
     state = _unit(32, 0)
-    insert_entry(storage, CheckpointID.CP1, state, CachePayload(action_chunk=torch.randn(50, 32)))
+    insert_entry(
+        storage, CheckpointID.CP1, state, CachePayload(action_chunk=torch.randn(50, 32))
+    )
     result = orch.check(CheckpointID.CP1, stage1=make_stage1(_with_cosine(state, 0.96)))
     assert result.hit_type == HitType.FULL_HIT
     diag = result.factor_outputs["crd"]
-    assert diag["executed"] == "FULL_HIT" and diag["D_after"] == pytest.approx(0.5) and diag["fh_run"] == 1
+    assert (
+        diag["executed"] == "FULL_HIT"
+        and diag["D_after"] == pytest.approx(0.5)
+        and diag["fh_run"] == 1
+    )
     assert judge.state["D"] == pytest.approx(0.5) and judge.state["pending"] is False
     orch.clear()
 

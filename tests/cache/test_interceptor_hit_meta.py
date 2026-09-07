@@ -112,7 +112,7 @@ def test_warm_start_attaches_hit_meta_with_start_t() -> None:
     stored_state[0, 0] = 1.0
 
     target_cos = 0.96
-    sin_val = math.sqrt(1.0 - target_cos ** 2)
+    sin_val = math.sqrt(1.0 - target_cos**2)
     query_state = torch.zeros(1, 32)
     query_state[0, 0] = target_cos
     query_state[0, 1] = sin_val
@@ -134,7 +134,9 @@ def test_warm_start_attaches_hit_meta_with_start_t() -> None:
     policy = FakePolicy(model=model)
 
     warm_tiers = [{"threshold": 0.95, "start_t": 0.3}]
-    judge = ThresholdJudge(cp1_threshold=0.98, cp3_threshold=0.95, warm_tiers=warm_tiers)
+    judge = ThresholdJudge(
+        cp1_threshold=0.98, cp3_threshold=0.95, warm_tiers=warm_tiers
+    )
     orch, _, storage = make_orchestrator(judge=judge)
     interceptor = InferenceInterceptor(
         policy, timer=SystemTimer(enabled=False), orchestrator=orch
@@ -144,6 +146,7 @@ def test_warm_start_attaches_hit_meta_with_start_t() -> None:
         action_chunk=torch.randn(50, 32),
         intermediates={0.3: torch.randn(50, 32), 0.5: torch.randn(50, 32)},
         denoising_num_steps=10,
+        schedule_id="pi05_v1",
     )
     insert_entry(storage, CheckpointID.CP1, stored_state, payload)
 
@@ -169,9 +172,7 @@ def test_no_orchestrator_attaches_miss_placeholder() -> None:
     """Without an orchestrator the interceptor never produces a CheckResult;
     the helper must emit a MISS placeholder so client analysis tools see one
     uniform schema regardless of whether caching is on."""
-    interceptor = InferenceInterceptor(
-        FakePolicy(), timer=SystemTimer(enabled=False)
-    )
+    interceptor = InferenceInterceptor(FakePolicy(), timer=SystemTimer(enabled=False))
     result = interceptor.infer(_make_obs())
     meta = result["__hit_meta__"]
     assert meta == {

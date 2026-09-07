@@ -56,9 +56,16 @@ def _no_op_guards(monkeypatch):
     """
     seen: dict[str, list] = {"validate": [], "identity": []}
     guard = types.ModuleType("openpi.cache.groot.load_guard")
+    # The factory reads the live step count off the policy through this helper;
+    # the stub policies here have no model, and the fake guards ignore it anyway.
+    guard.live_num_inference_timesteps = lambda policy: None
     guard.validate_groot_cache_config = lambda cfg, **kw: seen["validate"].append(cfg)
-    guard.validate_artifact_identity = lambda storage, cfg: seen["identity"].append((storage, cfg))
-    monkeypatch.setitem(__import__("sys").modules, "openpi.cache.groot.load_guard", guard)
+    guard.validate_artifact_identity = lambda storage, cfg: seen["identity"].append(
+        (storage, cfg)
+    )
+    monkeypatch.setitem(
+        __import__("sys").modules, "openpi.cache.groot.load_guard", guard
+    )
     return seen
 
 
@@ -80,7 +87,9 @@ def test_hot_swap_off_rejects_any_other_bundle_id():
 
 
 def test_hot_swap_off_serves_the_cli_config_under_default():
-    cfg, storage = _resolve("default", cli_config="CFG", cli_storage="ST", allow_dynamic=False)
+    cfg, storage = _resolve(
+        "default", cli_config="CFG", cli_storage="ST", allow_dynamic=False
+    )
     assert (cfg, storage) == ("CFG", "ST")
 
 
@@ -120,9 +129,13 @@ def test_guards_rerun_on_the_loaded_bundle(monkeypatch, _no_op_guards):
     loaded = _fake_config()
     monkeypatch.setattr(
         "openpi.serving.websocket_policy_server.get_current_cache_bundle",
-        lambda bundle_id=None: _FakeBundle(cache_config=loaded, shared_storage="LOADED_ST"),
+        lambda bundle_id=None: _FakeBundle(
+            cache_config=loaded, shared_storage="LOADED_ST"
+        ),
     )
-    cfg, storage = _resolve("gp_l10_fh20", cli_config=_fake_config(), cli_storage="CLI_ST")
+    cfg, storage = _resolve(
+        "gp_l10_fh20", cli_config=_fake_config(), cli_storage="CLI_ST"
+    )
     assert cfg is loaded
     assert storage == "LOADED_ST"
     # Both guards saw the loaded config -- not the startup one, which is what
@@ -156,7 +169,9 @@ def test_storage_is_read_from_the_bundle_never_rebuilt(monkeypatch, _no_op_guard
     )
     monkeypatch.setattr(
         "openpi.serving.websocket_policy_server.get_current_cache_bundle",
-        lambda bundle_id=None: _FakeBundle(cache_config=_fake_config(), shared_storage="ST"),
+        lambda bundle_id=None: _FakeBundle(
+            cache_config=_fake_config(), shared_storage="ST"
+        ),
     )
     _, storage = _resolve("gp_l10_fh20")
     assert storage == "ST"

@@ -45,7 +45,13 @@ from typing import Any, Iterator, Optional
 
 import yaml
 
-from openpi.cache.types import CACHE_QUERY_FIELDS, CANONICAL_DENOISE_TIMESTEPS, CheckpointID
+from openpi.cache.types import (
+    CACHE_QUERY_FIELDS,
+    PI05_V1,
+    CheckpointID,
+    DenoiseSchedule,
+    schedule_from_id,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -72,13 +78,23 @@ class KeyFieldConfig:
 
 @dataclass
 class KeysConfig:
-    vision_0: KeyFieldConfig = field(default_factory=lambda: KeyFieldConfig(enabled=False))
-    vision_1: KeyFieldConfig = field(default_factory=lambda: KeyFieldConfig(enabled=False))
-    vision_2: KeyFieldConfig = field(default_factory=lambda: KeyFieldConfig(enabled=False))
-    prompt_emb: KeyFieldConfig = field(default_factory=lambda: KeyFieldConfig(enabled=False))
+    vision_0: KeyFieldConfig = field(
+        default_factory=lambda: KeyFieldConfig(enabled=False)
+    )
+    vision_1: KeyFieldConfig = field(
+        default_factory=lambda: KeyFieldConfig(enabled=False)
+    )
+    vision_2: KeyFieldConfig = field(
+        default_factory=lambda: KeyFieldConfig(enabled=False)
+    )
+    prompt_emb: KeyFieldConfig = field(
+        default_factory=lambda: KeyFieldConfig(enabled=False)
+    )
     robot_state: KeyFieldConfig = field(default_factory=KeyFieldConfig)
     # CP2 post-backbone single key (only produced by key_builder.type=cp2_vlm_ternary).
-    vlm_out: KeyFieldConfig = field(default_factory=lambda: KeyFieldConfig(enabled=False))
+    vlm_out: KeyFieldConfig = field(
+        default_factory=lambda: KeyFieldConfig(enabled=False)
+    )
 
 
 @dataclass
@@ -220,7 +236,7 @@ class SamplesSourceOfflineConfig:
     """
 
     path: str = ""
-    format: str = "jsonl"   # "jsonl" | "pkl"
+    format: str = "jsonl"  # "jsonl" | "pkl"
 
 
 @dataclass
@@ -232,7 +248,7 @@ class SamplesSourceConfig:
     per-yaml ``WarmupPool`` entry populated by a sibling warmup yaml.
     """
 
-    type: str = "warmup"   # "offline" | "warmup"
+    type: str = "warmup"  # "offline" | "warmup"
     offline: Optional[SamplesSourceOfflineConfig] = None
 
 
@@ -288,8 +304,8 @@ class JudgeConfig:
     type: str = "threshold"
     threshold: float = 0.98
     warm_tiers: list[dict[str, float]] | None = None
-    # Only for type="always_warm_start". Must round to one of
-    # openpi.cache.types.CANONICAL_DENOISE_TIMESTEPS ({0.1..0.9}).
+    # Only for type="always_warm_start". Must round to a recoverable
+    # timestep of the config's denoise schedule (Pi0.5 legacy: {0.1..0.9}).
     start_t: float | None = None
     # Only for type="dispatch_surface": NPZ surface artifact carrying the
     # calibrated boundaries plus the retrieval_contract this yaml must match.
@@ -380,14 +396,14 @@ class JudgeConfig:
 
 @dataclass
 class FieldSimilarityConfig:
-    type: str = "cosine"           # "cosine" | "l2"
+    type: str = "cosine"  # "cosine" | "l2"
     to_similarity: Optional[dict[str, Any]] = None
     # Only for l2, e.g.: {"type": "exp", "tau": 0.334717}
 
 
 @dataclass
 class ScoreNormalizationConfig:
-    type: str = "none"             # "none" | "percentile" | "per_field"
+    type: str = "none"  # "none" | "percentile" | "per_field"
     fields: Optional[dict[str, dict[str, Any]]] = None
     # percentile: {"vision_0": {"p5": 0.82, "p95": 0.99}}
     # per_field:  {"vision_0": {"method": "logit", "params": {"lo": .., "hi": ..}}}
@@ -404,10 +420,12 @@ class DepthPolicyConfig:
     smoothness is undefined.
     """
 
-    type: str = "constant"                               # "constant" | "heuristic"
-    depth: Optional[int] = None                          # constant: None -> trajectory_depth
-    smoothness_thresholds: Optional[list[float]] = None  # heuristic: ascending, len == len(allowed_depths)-1
-    fallback_depth: Optional[int] = None                 # heuristic: None -> min(allowed_depths)
+    type: str = "constant"  # "constant" | "heuristic"
+    depth: Optional[int] = None  # constant: None -> trajectory_depth
+    smoothness_thresholds: Optional[list[float]] = (
+        None  # heuristic: ascending, len == len(allowed_depths)-1
+    )
+    fallback_depth: Optional[int] = None  # heuristic: None -> min(allowed_depths)
 
 
 @dataclass
@@ -424,18 +442,26 @@ class SearchStrategyConfig:
     field_similarity: Optional[dict[str, FieldSimilarityConfig]] = None
     score_normalization: Optional[ScoreNormalizationConfig] = None
     # ── Trajectory search ──
-    trajectory_depth: int = 1        # 1 = single-step (no trajectory)
-    trajectory_weights: Optional[list[float]] = None  # newest-first, length = trajectory_depth
+    trajectory_depth: int = 1  # 1 = single-step (no trajectory)
+    trajectory_weights: Optional[list[float]] = (
+        None  # newest-first, length = trajectory_depth
+    )
     # ── Dynamic chain depth (dynamic_depth_knn only; TRACER Phase 1 / M3) ──
     # trajectory_depth/trajectory_weights act as the max depth + max-depth weight vector.
     base_fusion: Optional[str] = None  # "weighted_rrf" | "weighted_score_sum"
-    allowed_depths: Optional[list[int]] = None  # None -> [trajectory_depth] (constant / non-regression)
-    depth_policy: Optional[DepthPolicyConfig] = None  # None -> constant @ trajectory_depth
+    allowed_depths: Optional[list[int]] = (
+        None  # None -> [trajectory_depth] (constant / non-regression)
+    )
+    depth_policy: Optional[DepthPolicyConfig] = (
+        None  # None -> constant @ trajectory_depth
+    )
     # ── Failure-aware dual retrieval (dual_retrieval_knn only; TRACER Phase 3 / M2) ──
     # base_fusion / allowed_depths / depth_policy above are shared with the M3
     # depth machinery. These two are dual-retrieval specific.
-    margin_lambda: float = 0.0   # margin = s_pos - margin_lambda * s_neg (>= 0)
-    enable_dual: bool = False    # False -> single pool, no outcome filter (non-regression)
+    margin_lambda: float = 0.0  # margin = s_pos - margin_lambda * s_neg (>= 0)
+    enable_dual: bool = (
+        False  # False -> single pool, no outcome filter (non-regression)
+    )
 
 
 @dataclass
@@ -472,8 +498,8 @@ class TextIvfIndexConfig:
 
 @dataclass
 class InMemoryConfig:
-    preload_path: Optional[str] = None    # artifact .pkl path
-    index_type: str = "brute_force"       # "brute_force" | "text_ivf"
+    preload_path: Optional[str] = None  # artifact .pkl path
+    index_type: str = "brute_force"  # "brute_force" | "text_ivf"
     # sha256 of the pinned-object table the artifact must have been built from.
     # None = no expectation (every library that predates object pinning).
     expected_pin_id: Optional[str] = None
@@ -497,10 +523,12 @@ class TimerConfig:
 
 @dataclass
 class ReducerConfig:
-    type: str = "mean_pool"     # "mean_pool" | "max_pool" | "spatial_pool" | "task_scoring"
-    output_tokens: int = 16     # only for spatial_pool
-    select_k: int = 32          # only for task_scoring
-    temperature: float = 1.0    # only for task_scoring
+    type: str = (
+        "mean_pool"  # "mean_pool" | "max_pool" | "spatial_pool" | "task_scoring"
+    )
+    output_tokens: int = 16  # only for spatial_pool
+    select_k: int = 32  # only for task_scoring
+    temperature: float = 1.0  # only for task_scoring
 
 
 @dataclass
@@ -510,6 +538,7 @@ class PrefixReducerConfig:
     Independent from `ReducerConfig` (which is for SigLIP token reduction)
     because the inputs and emit semantics differ — see `prefix_reducer.py`.
     """
+
     # One of: "prefix_mean_pool" | "per_modality_mean_pool" | "per_modality_max_pool"
     #       | "per_modality_spatial_pool_16" | "per_modality_spatial_pool_4"
     type: str = "prefix_mean_pool"
@@ -523,6 +552,7 @@ class ProjectionKeyBuilderConfig:
     weights_path: projection artifact (torch-saved ProjectionParams state dict);
                   None -> identity (output equals the inner pool builder).
     """
+
     inner_type: str = "cp1_mean_pool"
     weights_path: str | None = None
 
@@ -536,6 +566,7 @@ class CP2VlmKeyBuilderConfig:
     +1 and of -1 drawn without replacement from ``seed``. ``input_dim`` is the
     flattened backbone prefix output (Pi0.5: 968 tokens x 2048 = 1,982,464).
     """
+
     seed: int = 0
     d: int = 500
     p: float = 0.01
@@ -553,7 +584,9 @@ class KeyBuilderConfig:
     extract_layer: int = 0
     prefix_reducer: PrefixReducerConfig = field(default_factory=PrefixReducerConfig)
     # -- projection params (only for the 'projection' key builder) --
-    projection: ProjectionKeyBuilderConfig = field(default_factory=ProjectionKeyBuilderConfig)
+    projection: ProjectionKeyBuilderConfig = field(
+        default_factory=ProjectionKeyBuilderConfig
+    )
     # -- CP2 post-backbone single key (only for key_builder.type == 'cp2_vlm_ternary') --
     cp2_vlm: CP2VlmKeyBuilderConfig = field(default_factory=CP2VlmKeyBuilderConfig)
     # -- instruction-span masked prompt pooling (text-IVF plan U1) --
@@ -569,10 +602,15 @@ class KeyBuilderConfig:
 # source of truth — the offline artifact builder imports this same constant so
 # a CLI flag on an unsupported builder aborts instead of writing lying
 # `prompt_pool` metadata.
-PROMPT_POOL_KNOB_BUILDERS = frozenset({
-    "cp1_mean_pool", "cp1_spatial_pool_16", "cp1_spatial_pool_4",
-    "cp1_spatial_pool_64", "cp1_max_pool",
-})
+PROMPT_POOL_KNOB_BUILDERS = frozenset(
+    {
+        "cp1_mean_pool",
+        "cp1_spatial_pool_16",
+        "cp1_spatial_pool_4",
+        "cp1_spatial_pool_64",
+        "cp1_max_pool",
+    }
+)
 
 # GR00T builders cleared to feed the text-IVF prompt index (rule 6). All four
 # share _GrootCP1BaseKeyBuilder's prompt_emb extraction (non-image token run,
@@ -580,22 +618,29 @@ PROMPT_POOL_KNOB_BUILDERS = frozenset({
 # lane; the LIBERO variants stay excluded until they carry the same evidence,
 # so this positive set — not the artifact binding check, which only compares
 # an artifact that already exists — is the capability fence.
-_TEXT_IVF_GROOT_BUILDERS = frozenset({
-    "cp1_groot_mean_pool", "cp1_groot_spatial_pool_16",
-    "cp1_groot_spatial_pool_4", "cp1_groot_max_pool",
-})
+_TEXT_IVF_GROOT_BUILDERS = frozenset(
+    {
+        "cp1_groot_mean_pool",
+        "cp1_groot_spatial_pool_16",
+        "cp1_groot_spatial_pool_4",
+        "cp1_groot_max_pool",
+    }
+)
 
 
 def _prompt_pool_knobs_supported(cfg: "KeyBuilderConfig") -> bool:
     """Whether cfg.type honours the prompt-pool knobs (projection: by inner)."""
     if cfg.type in PROMPT_POOL_KNOB_BUILDERS:
         return True
-    return cfg.type == "projection" and cfg.projection.inner_type in PROMPT_POOL_KNOB_BUILDERS
+    return (
+        cfg.type == "projection"
+        and cfg.projection.inner_type in PROMPT_POOL_KNOB_BUILDERS
+    )
 
 
 @dataclass
 class WritePolicyConfig:
-    type: str = "on_any_miss"   # "on_any_miss" | "always" | "never"
+    type: str = "on_any_miss"  # "on_any_miss" | "always" | "never"
 
 
 @dataclass
@@ -667,16 +712,38 @@ class CacheConfig:
     timer: TimerConfig = field(default_factory=TimerConfig)
     keys: KeysConfig = field(default_factory=KeysConfig)
     key_builder: KeyBuilderConfig = field(default_factory=KeyBuilderConfig)
-    checkpoints: dict[str, CheckpointConfig] = field(default_factory=lambda: {
-        "cp1": CheckpointConfig(judge=JudgeConfig(threshold=0.98)),
-        "cp3": CheckpointConfig(judge=JudgeConfig(threshold=0.95)),
-    })
+    checkpoints: dict[str, CheckpointConfig] = field(
+        default_factory=lambda: {
+            "cp1": CheckpointConfig(judge=JudgeConfig(threshold=0.98)),
+            "cp3": CheckpointConfig(judge=JudgeConfig(threshold=0.95)),
+        }
+    )
     backend: BackendConfig = field(default_factory=BackendConfig)
     write_policy: WritePolicyConfig = field(default_factory=WritePolicyConfig)
     collection: CollectionConfig = field(default_factory=CollectionConfig)
     shadow_teacher: ShadowTeacherConfig = field(default_factory=ShadowTeacherConfig)
     # Ablation executor routing (None -> inert; see RoutingConfig).
     routing: Optional[RoutingConfig] = None
+    # Identity of the flow-matching loop every warm-start timestep in this
+    # config refers to (``types.DenoiseSchedule``). ``None`` keeps the Pi0.5
+    # legacy reading for the hundreds of existing yamls; it is NOT a default
+    # for anything else -- a GR00T warm-start recipe must name its schedule
+    # explicitly, and the artifact / runtime binding checks refuse omission.
+    denoise_schedule: Optional[str] = None
+
+
+def effective_denoise_schedule(config: "CacheConfig") -> DenoiseSchedule:
+    """Resolve the schedule a config's warm-start timesteps are expressed in.
+
+    Unknown ids raise ``ConfigValidationError`` so a typo cannot fall back to
+    the Pi0.5 timestep set and validate a GR00T recipe against it.
+    """
+    if config.denoise_schedule is None:
+        return PI05_V1
+    try:
+        return schedule_from_id(config.denoise_schedule)
+    except ValueError as exc:
+        raise ConfigValidationError(f"denoise_schedule: {exc}") from exc
 
 
 # ---------------------------------------------------------------------------
@@ -699,8 +766,29 @@ _VALID_STEP_FILTERS = frozenset({"all", "exact", "window"})
 # added here so validator (validate_cache_config) and builder (_build_gate /
 # _build_judge) stay in lockstep; otherwise a missing entry silently downgrades
 # to a "Unknown ... type" error at build time despite passing validation.
-_GATE_TYPES = frozenset({"always_search", "always_skip", "client_controlled", "random", "periodic", "score_hysteresis", "follow_winner"})
-_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start", "composite", "failure_aware_gate", "mlp_router", "risk_router", "dispatch_surface"})
+_GATE_TYPES = frozenset(
+    {
+        "always_search",
+        "always_skip",
+        "client_controlled",
+        "random",
+        "periodic",
+        "score_hysteresis",
+        "follow_winner",
+    }
+)
+_JUDGE_TYPES = frozenset(
+    {
+        "threshold",
+        "always_hit",
+        "always_warm_start",
+        "composite",
+        "failure_aware_gate",
+        "mlp_router",
+        "risk_router",
+        "dispatch_surface",
+    }
+)
 
 
 def compute_surface_retrieval_contract(config: "CacheConfig") -> dict:
@@ -730,13 +818,17 @@ def compute_surface_retrieval_contract(config: "CacheConfig") -> dict:
 
     cp1 = config.checkpoints.get("cp1")
     if cp1 is None:
-        raise ConfigValidationError("dispatch_surface contract requires a cp1 checkpoint")
+        raise ConfigValidationError(
+            "dispatch_surface contract requires a cp1 checkpoint"
+        )
     return {
         "key_builder_digest": _digest(_dc.asdict(config.key_builder)),
-        "search_digest": _digest({
-            "keys": _dc.asdict(config.keys),
-            "search_strategy": _dc.asdict(cp1.search_strategy),
-        }),
+        "search_digest": _digest(
+            {
+                "keys": _dc.asdict(config.keys),
+                "search_strategy": _dc.asdict(cp1.search_strategy),
+            }
+        ),
         "top_k": cp1.search_strategy.top_k,
     }
 
@@ -876,7 +968,9 @@ def _dict_to_dataclass(cls: type, data: dict[str, Any]) -> Any:
             # Skip YAML anchors like _defaults.
             continue
         if key not in field_types:
-            logger.warning("Unknown config key '%s' in %s, ignoring.", key, cls.__name__)
+            logger.warning(
+                "Unknown config key '%s' in %s, ignoring.", key, cls.__name__
+            )
             continue
 
         field_type = _resolve_type(field_types[key])
@@ -898,17 +992,25 @@ def _dict_to_dataclass(cls: type, data: dict[str, Any]) -> Any:
             result = {}
             for field_name, field_data in value.items():
                 if isinstance(field_data, dict):
-                    result[field_name] = _dict_to_dataclass(FieldSimilarityConfig, field_data)
+                    result[field_name] = _dict_to_dataclass(
+                        FieldSimilarityConfig, field_data
+                    )
                 else:
                     result[field_name] = field_data
             kwargs[key] = result
-        elif isinstance(value, dict) and isinstance(field_type, type) and dataclasses.is_dataclass(field_type):
+        elif (
+            isinstance(value, dict)
+            and isinstance(field_type, type)
+            and dataclasses.is_dataclass(field_type)
+        ):
             kwargs[key] = _dict_to_dataclass(field_type, value)
         else:
             list_inner = _list_inner_dataclass(field_types[key])
             if list_inner is not None and isinstance(value, list):
                 kwargs[key] = [
-                    _dict_to_dataclass(list_inner, item) if isinstance(item, dict) else item
+                    _dict_to_dataclass(list_inner, item)
+                    if isinstance(item, dict)
+                    else item
                     for item in value
                 ]
             else:
@@ -1108,7 +1210,9 @@ def _validate_mlp_router_static(
             )
 
     if judge.hidden is not None and (
-        isinstance(judge.hidden, bool) or not isinstance(judge.hidden, int) or judge.hidden <= 0
+        isinstance(judge.hidden, bool)
+        or not isinstance(judge.hidden, int)
+        or judge.hidden <= 0
     ):
         errors.append(
             f"{prefix}.judge.hidden must be an int >= 1; got {judge.hidden!r}"
@@ -1130,7 +1234,9 @@ def _validate_mlp_router_static(
             # A field the key builder does not emit would raise on the first
             # verdict; catch it at load time instead.
             enabled = {name for name, kf in _keys_iter(config.keys) if kf.enabled}
-            disabled = [f for f in ff if f in CANONICAL_FIELD_ORDER and f not in enabled]
+            disabled = [
+                f for f in ff if f in CANONICAL_FIELD_ORDER and f not in enabled
+            ]
             if disabled:
                 errors.append(
                     f"{prefix}.judge.feature_fields {disabled} are not enabled under "
@@ -1210,7 +1316,10 @@ def _validate_dump_static(
             )
             continue
         cls = registry.get_class(fcfg.type)
-        if getattr(cls, "requires_library_stats", False) and backend_type != "in_memory":
+        if (
+            getattr(cls, "requires_library_stats", False)
+            and backend_type != "in_memory"
+        ):
             errors.append(
                 f"{item_prefix} '{fcfg.type}' requires library_stats; "
                 f"backend.type must be 'in_memory' (got {backend_type!r})"
@@ -1282,7 +1391,10 @@ def _validate_composite_judge_static(
 
     # (3) requires_library_stats=True factor + non-in_memory backend → reject
     for cls, fcfg in zip(factor_classes, judge.factors, strict=True):
-        if getattr(cls, "requires_library_stats", False) and backend_type != "in_memory":
+        if (
+            getattr(cls, "requires_library_stats", False)
+            and backend_type != "in_memory"
+        ):
             errors.append(
                 f"{prefix}.judge.factors[type={fcfg.type!r}] requires backend.type="
                 f"'in_memory' (uses library_stats); current backend.type={backend_type!r}"
@@ -1352,9 +1464,9 @@ def _validate_composite_judge_static(
 
     # (5a-5d) Warm-start tier rules (per plan §3.6, mirroring the existing
     # ThresholdJudge / AlwaysWarmStartJudge constraints):
-    #   5a — warm_start_t must be a CANONICAL_DENOISE_TIMESTEPS value
-    #        (so payload.intermediates[start_t] always lands on a key the
-    #        denoising loop actually populates)
+    #   5a — warm_start_t must be a recoverable timestep of the config's
+    #        denoise schedule (so payload.intermediates[start_t] always lands
+    #        on a key the denoising loop actually populates)
     #   5b — pairwise rule: weighted_sum's `tier_thresholds.warm_start`
     #        and `composer.warm_start_t` are co-required (one without
     #        the other has no defined runtime meaning)
@@ -1362,16 +1474,22 @@ def _validate_composite_judge_static(
     #        payload to resume from)
     #   5d — tier ordering: weighted_sum's `tier_thresholds.warm_start`
     #        must be strictly below `tier_thresholds.full_hit`
+    try:
+        schedule = effective_denoise_schedule(config)
+    except ConfigValidationError as exc:
+        errors.append(str(exc))
+        schedule = PI05_V1
     warm_start_t = composer.warm_start_t
     if warm_start_t is not None:
         st = round(warm_start_t, 4)
-        if st not in CANONICAL_DENOISE_TIMESTEPS:
+        if st not in schedule.timestep_set:
             errors.append(
                 f"{prefix}.judge.composer.warm_start_t={warm_start_t} is not a "
-                f"canonical denoise timestep. Valid: {sorted(CANONICAL_DENOISE_TIMESTEPS)}"
+                f"canonical denoise timestep of {schedule.schedule_id}. "
+                f"Valid: {sorted(schedule.timesteps)}"
             )
         else:
-            composer.warm_start_t = st                  # normalize float drift
+            composer.warm_start_t = st  # normalize float drift
         if cp_name is not None and cp_name != "cp1":
             errors.append(
                 f"{prefix}.judge.composer: warm_start_t is only supported on CP1 "
@@ -1401,10 +1519,11 @@ def _validate_composite_judge_static(
                 )
             else:
                 st = round(float(wfst), 4)
-                if st not in CANONICAL_DENOISE_TIMESTEPS:
+                if st not in schedule.timestep_set:
                     errors.append(
                         f"{prefix}.judge.composer.warm_fallback_start_t={wfst} is not a "
-                        f"canonical denoise timestep. Valid: {sorted(CANONICAL_DENOISE_TIMESTEPS)}"
+                        f"canonical denoise timestep of {schedule.schedule_id}. "
+                        f"Valid: {sorted(schedule.timesteps)}"
                     )
                 else:
                     composer.warm_fallback_start_t = st
@@ -1543,7 +1662,11 @@ def _validate_composite_judge_static(
 
     # (11) Dump-side Normalization replica MUST match inner.normalization.stats_source
     # so dump-factor raw values are wire-comparable to inner factor raw values.
-    if judge.dump is not None and judge.dump.factors and judge.normalization is not None:
+    if (
+        judge.dump is not None
+        and judge.dump.factors
+        and judge.normalization is not None
+    ):
         dump_norm = judge.dump.normalization
         if dump_norm is not None:
             if dump_norm.stats_source.type != judge.normalization.stats_source.type:
@@ -1627,13 +1750,19 @@ def validate_effective_collection(
     hard gate, field validity and the frame cap. serve_policy calls this after
     resolving the effective config. Raises ``ConfigValidationError`` on error.
     """
-    cap = wire_frame_cap_kib if wire_frame_cap_kib is not None else config.collection.wire_frame_cap_kib
+    cap = (
+        wire_frame_cap_kib
+        if wire_frame_cap_kib is not None
+        else config.collection.wire_frame_cap_kib
+    )
     errors = _collection_errors(config, export_collect_meta, list(collect_fields), cap)
     if errors:
         raise ConfigValidationError("\n\n".join(errors))
 
 
-def _validate_cp2_arm(config: "CacheConfig", enabled_fields: list[str], errors: list[str]) -> None:
+def _validate_cp2_arm(
+    config: "CacheConfig", enabled_fields: list[str], errors: list[str]
+) -> None:
     """R-CP2: the post-backbone single-key arm is an all-or-nothing configuration.
 
     ``checkpoints.cp2`` and ``key_builder.type=cp2_vlm_ternary`` imply each
@@ -1654,12 +1783,18 @@ def _validate_cp2_arm(config: "CacheConfig", enabled_fields: list[str], errors: 
         return
     if cp2 is None:
         if "vlm_out" in enabled_fields:
-            errors.append("keys.vlm_out is only produced by key_builder.type='cp2_vlm_ternary'")
+            errors.append(
+                "keys.vlm_out is only produced by key_builder.type='cp2_vlm_ternary'"
+            )
         return
     prefix = "checkpoints.cp2"
-    others = sorted(n for n in config.checkpoints if not n.startswith("_") and n != "cp2")
+    others = sorted(
+        n for n in config.checkpoints if not n.startswith("_") and n != "cp2"
+    )
     if others:
-        errors.append(f"{prefix}: CP2 is mutually exclusive with other checkpoints, got {others}")
+        errors.append(
+            f"{prefix}: CP2 is mutually exclusive with other checkpoints, got {others}"
+        )
     if not cp2.enabled:
         errors.append(f"{prefix}.enabled must be true")
     if enabled_fields != ["vlm_out"]:
@@ -1669,33 +1804,57 @@ def _validate_cp2_arm(config: "CacheConfig", enabled_fields: list[str], errors: 
         )
     kb = config.key_builder.cp2_vlm
     if not isinstance(kb.seed, int) or isinstance(kb.seed, bool) or kb.seed < 0:
-        errors.append(f"key_builder.cp2_vlm.seed must be a non-negative int, got {kb.seed!r}")
+        errors.append(
+            f"key_builder.cp2_vlm.seed must be a non-negative int, got {kb.seed!r}"
+        )
     if not isinstance(kb.d, int) or isinstance(kb.d, bool) or kb.d < 1:
         errors.append(f"key_builder.cp2_vlm.d must be an int >= 1, got {kb.d!r}")
-    if not isinstance(kb.p, (int, float)) or isinstance(kb.p, bool) or not (0.0 < kb.p < 1.0):
+    if (
+        not isinstance(kb.p, (int, float))
+        or isinstance(kb.p, bool)
+        or not (0.0 < kb.p < 1.0)
+    ):
         errors.append(f"key_builder.cp2_vlm.p must be in (0, 1), got {kb.p!r}")
-    if not isinstance(kb.input_dim, int) or isinstance(kb.input_dim, bool) or kb.input_dim < 2:
-        errors.append(f"key_builder.cp2_vlm.input_dim must be an int >= 2, got {kb.input_dim!r}")
+    if (
+        not isinstance(kb.input_dim, int)
+        or isinstance(kb.input_dim, bool)
+        or kb.input_dim < 2
+    ):
+        errors.append(
+            f"key_builder.cp2_vlm.input_dim must be an int >= 2, got {kb.input_dim!r}"
+        )
     if config.backend.type != "in_memory":
-        errors.append(f"{prefix}: requires backend.type='in_memory', got {config.backend.type!r}")
+        errors.append(
+            f"{prefix}: requires backend.type='in_memory', got {config.backend.type!r}"
+        )
     elif not config.backend.in_memory.preload_path:
-        errors.append(f"{prefix}: requires backend.in_memory.preload_path (the CP2 library)")
+        errors.append(
+            f"{prefix}: requires backend.in_memory.preload_path (the CP2 library)"
+        )
     if dict(config.backend.vector_dims) != {"vlm_out": kb.d}:
         errors.append(
             f"{prefix}: backend.vector_dims must be exactly {{'vlm_out': {kb.d}}}, "
             f"got {dict(config.backend.vector_dims)}"
         )
     if cp2.gate.type != "always_search":
-        errors.append(f"{prefix}.gate.type must be 'always_search', got {cp2.gate.type!r}")
+        errors.append(
+            f"{prefix}.gate.type must be 'always_search', got {cp2.gate.type!r}"
+        )
     if cp2.judge.type != "threshold":
-        errors.append(f"{prefix}.judge.type must be 'threshold', got {cp2.judge.type!r}")
+        errors.append(
+            f"{prefix}.judge.type must be 'threshold', got {cp2.judge.type!r}"
+        )
     if getattr(cp2.judge, "dump", None) is not None:
         errors.append(f"{prefix}.judge.dump is not supported on CP2")
     ss = cp2.search_strategy
     if ss.type != "weighted_score_sum_knn":
-        errors.append(f"{prefix}.search_strategy.type must be 'weighted_score_sum_knn', got {ss.type!r}")
+        errors.append(
+            f"{prefix}.search_strategy.type must be 'weighted_score_sum_knn', got {ss.type!r}"
+        )
     if ss.trajectory_depth != 1:
-        errors.append(f"{prefix}.search_strategy.trajectory_depth must be 1 (single-step retrieval)")
+        errors.append(
+            f"{prefix}.search_strategy.trajectory_depth must be 1 (single-step retrieval)"
+        )
     if getattr(config, "routing", None) is not None:
         errors.append(f"{prefix}: executor routing is not supported on CP2")
     st = getattr(config, "shadow_teacher", None)
@@ -1703,9 +1862,13 @@ def _validate_cp2_arm(config: "CacheConfig", enabled_fields: list[str], errors: 
         errors.append(f"{prefix}: shadow_teacher is not supported on CP2")
     coll = getattr(config, "collection", None)
     if coll is not None and getattr(coll, "export_collect_meta", False):
-        errors.append(f"{prefix}: collection.export_collect_meta is not supported on CP2")
+        errors.append(
+            f"{prefix}: collection.export_collect_meta is not supported on CP2"
+        )
     if config.write_policy.type != "never":
-        errors.append(f"{prefix}: requires write_policy.type='never' (offline-built library only)")
+        errors.append(
+            f"{prefix}: requires write_policy.type='never' (offline-built library only)"
+        )
 
 
 def validate_cache_config(config: CacheConfig) -> None:
@@ -1772,25 +1935,33 @@ def validate_cache_config(config: CacheConfig) -> None:
             )
 
     # 4. key_builder type.
-    _valid_key_builder_types = frozenset({
-        "placeholder", "full_original",
-        "cp1_mean_pool", "cp1_spatial_pool_16", "cp1_spatial_pool_4",
-        "cp1_spatial_pool_64",  # legacy alias of cp1_spatial_pool_4
-        "cp1_max_pool",
-        "cp1_temporal_prune",
-        "cp1_llm_layer_extract",
-        "clip",
-        "projection",  # M1 outcome-compatible projection over a pool inner
-        _CP2_KEY_BUILDER_TYPE,  # CP2 post-backbone single key (ActionCache-style arm)
-        # GR00T N1.5 pools. The `cp1_` prefix is load-bearing: the field
-        # enablement and in_memory-preload checks below key off it.
-        "cp1_groot_mean_pool", "cp1_groot_spatial_pool_16",
-        "cp1_groot_spatial_pool_4", "cp1_groot_max_pool",
-        # LIBERO variants: same pooling, two image-token runs instead of
-        # RoboCasa365's three. The three-camera builders assert three runs and
-        # would reject every LIBERO observation.
-        "cp1_groot_libero_mean_pool", "cp1_groot_libero_spatial_pool_16",
-    })
+    _valid_key_builder_types = frozenset(
+        {
+            "placeholder",
+            "full_original",
+            "cp1_mean_pool",
+            "cp1_spatial_pool_16",
+            "cp1_spatial_pool_4",
+            "cp1_spatial_pool_64",  # legacy alias of cp1_spatial_pool_4
+            "cp1_max_pool",
+            "cp1_temporal_prune",
+            "cp1_llm_layer_extract",
+            "clip",
+            "projection",  # M1 outcome-compatible projection over a pool inner
+            _CP2_KEY_BUILDER_TYPE,  # CP2 post-backbone single key (ActionCache-style arm)
+            # GR00T N1.5 pools. The `cp1_` prefix is load-bearing: the field
+            # enablement and in_memory-preload checks below key off it.
+            "cp1_groot_mean_pool",
+            "cp1_groot_spatial_pool_16",
+            "cp1_groot_spatial_pool_4",
+            "cp1_groot_max_pool",
+            # LIBERO variants: same pooling, two image-token runs instead of
+            # RoboCasa365's three. The three-camera builders assert three runs and
+            # would reject every LIBERO observation.
+            "cp1_groot_libero_mean_pool",
+            "cp1_groot_libero_spatial_pool_16",
+        }
+    )
     if config.key_builder.type not in _valid_key_builder_types:
         errors.append(
             f"Unknown key_builder.type '{config.key_builder.type}'.\n"
@@ -1812,10 +1983,16 @@ def validate_cache_config(config: CacheConfig) -> None:
             )
 
     # 5 + 7. Per-checkpoint validation.
-    _valid_strategy_types = frozenset({
-        "qdrant_weighted_rrf_knn", "weighted_rrf_knn", "weighted_score_sum_knn",
-        "dynamic_depth_knn", "dual_retrieval_knn", "text_ivf_knn",
-    })
+    _valid_strategy_types = frozenset(
+        {
+            "qdrant_weighted_rrf_knn",
+            "weighted_rrf_knn",
+            "weighted_score_sum_knn",
+            "dynamic_depth_knn",
+            "dual_retrieval_knn",
+            "text_ivf_knn",
+        }
+    )
     for cp_name, cp_config in config.checkpoints.items():
         if cp_name.startswith("_"):
             continue
@@ -1843,14 +2020,23 @@ def validate_cache_config(config: CacheConfig) -> None:
         # ------------------------------------------------------------------
         _gate_random_fields = {"p_inference", "seed"}
         _gate_periodic_fields = {"cache_len", "inference_len"}
-        _gate_score_hysteresis_fields = {"theta_low", "theta_high", "j", "probe_interval", "L"}
+        _gate_score_hysteresis_fields = {
+            "theta_low",
+            "theta_high",
+            "j",
+            "probe_interval",
+            "L",
+        }
         _gate_follow_winner_fields = {"lock_streak", "budget"}
         _gate_all_param_fields = (
-            _gate_random_fields | _gate_periodic_fields
-            | _gate_score_hysteresis_fields | _gate_follow_winner_fields
+            _gate_random_fields
+            | _gate_periodic_fields
+            | _gate_score_hysteresis_fields
+            | _gate_follow_winner_fields
         )
         gate_set_fields = {
-            name for name in _gate_all_param_fields
+            name
+            for name in _gate_all_param_fields
             if getattr(cp_config.gate, name) is not None
         }
 
@@ -1871,9 +2057,7 @@ def validate_cache_config(config: CacheConfig) -> None:
                     f"got {type(p).__name__}={p!r}"
                 )
             elif not (0.0 <= p <= 1.0):
-                errors.append(
-                    f"{prefix}.gate.p_inference={p} must be in [0, 1]"
-                )
+                errors.append(f"{prefix}.gate.p_inference={p} must be in [0, 1]")
             if s is None:
                 errors.append(f"{prefix}.gate: type='random' requires 'seed'")
             elif not _is_strict_int(s):
@@ -1902,7 +2086,9 @@ def validate_cache_config(config: CacheConfig) -> None:
             elif k < 1:
                 errors.append(f"{prefix}.gate.cache_len={k} must be >= 1")
             if n is None:
-                errors.append(f"{prefix}.gate: type='periodic' requires 'inference_len'")
+                errors.append(
+                    f"{prefix}.gate: type='periodic' requires 'inference_len'"
+                )
             elif not _is_strict_int(n):
                 errors.append(
                     f"{prefix}.gate.inference_len must be an int >= 1, "
@@ -1938,9 +2124,12 @@ def validate_cache_config(config: CacheConfig) -> None:
                 elif not math.isfinite(_val):
                     errors.append(f"{prefix}.gate.{_name} must be finite, got {_val}")
             if (
-                isinstance(tl, (int, float)) and not isinstance(tl, bool)
-                and isinstance(th, (int, float)) and not isinstance(th, bool)
-                and math.isfinite(tl) and math.isfinite(th)
+                isinstance(tl, (int, float))
+                and not isinstance(tl, bool)
+                and isinstance(th, (int, float))
+                and not isinstance(th, bool)
+                and math.isfinite(tl)
+                and math.isfinite(th)
                 and th < tl
             ):
                 errors.append(
@@ -1989,7 +2178,9 @@ def validate_cache_config(config: CacheConfig) -> None:
             ls = cp_config.gate.lock_streak
             bg = cp_config.gate.budget
             if ls is None:
-                errors.append(f"{prefix}.gate: type='follow_winner' requires 'lock_streak'")
+                errors.append(
+                    f"{prefix}.gate: type='follow_winner' requires 'lock_streak'"
+                )
             elif not _is_strict_int(ls):
                 errors.append(
                     f"{prefix}.gate.lock_streak must be an int >= 1, "
@@ -2040,7 +2231,11 @@ def validate_cache_config(config: CacheConfig) -> None:
         # state-library check below for the runtime-dependent piece).
         if cp_config.judge.type == "composite":
             _validate_composite_judge_static(
-                prefix, cp_config.judge, config, errors, cp_name=cp_name,
+                prefix,
+                cp_config.judge,
+                config,
+                errors,
+                cp_name=cp_name,
             )
 
         # failure_aware_gate judge parameter checks (TRACER Phase 3 / M2).
@@ -2063,13 +2258,22 @@ def validate_cache_config(config: CacheConfig) -> None:
                     f"{gb.get('b2')} with u_t_factor=None"
                 )
             if u_tf is not None:
-                missing_k = [k for k in ("descriptor", "channel", "past", "future") if k not in u_tf]
+                missing_k = [
+                    k
+                    for k in ("descriptor", "channel", "past", "future")
+                    if k not in u_tf
+                ]
                 if missing_k:
                     errors.append(
                         f"{prefix}.judge.u_t_factor requires keys {missing_k} (got {sorted(u_tf)})"
                     )
                 else:
-                    if u_tf["descriptor"] not in ("jerk", "direction", "dispersion", "path_length"):
+                    if u_tf["descriptor"] not in (
+                        "jerk",
+                        "direction",
+                        "dispersion",
+                        "path_length",
+                    ):
                         errors.append(
                             f"{prefix}.judge.u_t_factor.descriptor must be one of "
                             f"('jerk','direction','dispersion','path_length'); got {u_tf['descriptor']!r}"
@@ -2106,13 +2310,21 @@ def validate_cache_config(config: CacheConfig) -> None:
         # mlp_router judge parameter checks (X14).
         if cp_config.judge.type == "mlp_router":
             _validate_mlp_router_static(
-                prefix, cp_config.judge, config, errors, cp_name=cp_name,
+                prefix,
+                cp_config.judge,
+                config,
+                errors,
+                cp_name=cp_name,
             )
 
         # risk_router judge parameter checks (X15).
         if cp_config.judge.type == "risk_router":
             _validate_risk_router_static(
-                prefix, cp_config, config, errors, cp_name=cp_name,
+                prefix,
+                cp_config,
+                config,
+                errors,
+                cp_name=cp_name,
             )
 
         # JudgeConfig.dump validator (G1 R6+). Independent of judge.type;
@@ -2132,7 +2344,10 @@ def validate_cache_config(config: CacheConfig) -> None:
         # produces. One-directional — dual retrieval with a non-gate judge is
         # fine (the judge ignores the signals). Fail loud rather than ship a gate
         # that raises at verdict time.
-        if cp_config.judge.type == "failure_aware_gate" and ss.type != "dual_retrieval_knn":
+        if (
+            cp_config.judge.type == "failure_aware_gate"
+            and ss.type != "dual_retrieval_knn"
+        ):
             errors.append(
                 f"{prefix}: judge.type='failure_aware_gate' requires "
                 f"search_strategy.type='dual_retrieval_knn' (to supply retrieval "
@@ -2147,7 +2362,17 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"  Fix: use backend.type='qdrant' or choose a different search strategy"
             )
 
-        if ss.type in ("weighted_rrf_knn", "weighted_score_sum_knn", "dynamic_depth_knn", "dual_retrieval_knn", "text_ivf_knn") and config.backend.type != "in_memory":
+        if (
+            ss.type
+            in (
+                "weighted_rrf_knn",
+                "weighted_score_sum_knn",
+                "dynamic_depth_knn",
+                "dual_retrieval_knn",
+                "text_ivf_knn",
+            )
+            and config.backend.type != "in_memory"
+        ):
             errors.append(
                 f"{prefix}.search_strategy.type '{ss.type}' requires backend.type='in_memory'.\n"
                 f"  Current backend.type: {config.backend.type!r}"
@@ -2157,9 +2382,13 @@ def validate_cache_config(config: CacheConfig) -> None:
         # as cryptic empty-result / division / slicing errors deep in the backend
         # at first query rather than a clear startup error.
         if ss.top_k < 1:
-            errors.append(f"{prefix}.search_strategy.top_k must be >= 1 (got {ss.top_k})")
+            errors.append(
+                f"{prefix}.search_strategy.top_k must be >= 1 (got {ss.top_k})"
+            )
         if ss.rrf_k < 1:
-            errors.append(f"{prefix}.search_strategy.rrf_k must be >= 1 (got {ss.rrf_k})")
+            errors.append(
+                f"{prefix}.search_strategy.rrf_k must be >= 1 (got {ss.rrf_k})"
+            )
         if ss.candidate_multiplier < 1:
             errors.append(
                 f"{prefix}.search_strategy.candidate_multiplier must be >= 1 "
@@ -2189,9 +2418,15 @@ def validate_cache_config(config: CacheConfig) -> None:
                     f"['weighted_rrf', 'weighted_score_sum'] (got {ss.base_fusion!r})"
                 )
             # Distinguish None (use default) from an explicit empty list (illegal).
-            allowed = list(ss.allowed_depths) if ss.allowed_depths is not None else [ss.trajectory_depth]
+            allowed = (
+                list(ss.allowed_depths)
+                if ss.allowed_depths is not None
+                else [ss.trajectory_depth]
+            )
             if not allowed:
-                errors.append(f"{prefix}.search_strategy: allowed_depths must be non-empty")
+                errors.append(
+                    f"{prefix}.search_strategy: allowed_depths must be non-empty"
+                )
             else:
                 if any(d < 1 or d > ss.trajectory_depth for d in allowed):
                     errors.append(
@@ -2230,7 +2465,11 @@ def validate_cache_config(config: CacheConfig) -> None:
                             f"{prefix}.search_strategy.depth_policy: heuristic "
                             f"smoothness_thresholds must be strictly ascending (got {thr})"
                         )
-                    fb = pol.fallback_depth if pol.fallback_depth is not None else min(allowed)
+                    fb = (
+                        pol.fallback_depth
+                        if pol.fallback_depth is not None
+                        else min(allowed)
+                    )
                     if fb not in allowed:
                         errors.append(
                             f"{prefix}.search_strategy.depth_policy: fallback_depth {fb} "
@@ -2262,7 +2501,8 @@ def validate_cache_config(config: CacheConfig) -> None:
                 else:
                     # Percentile fields must cover all enabled fields with weight > 0.
                     weighted_fields = {
-                        name for name, kf in _keys_iter(config.keys)
+                        name
+                        for name, kf in _keys_iter(config.keys)
                         if kf.enabled and kf.weight > 0
                     }
                     missing = weighted_fields - set(ss.score_normalization.fields)
@@ -2277,7 +2517,11 @@ def validate_cache_config(config: CacheConfig) -> None:
                     # Each percentile entry must carry p5/p95, else the normalizer
                     # raises a bare KeyError at the first search rather than here.
                     for fname, entry in ss.score_normalization.fields.items():
-                        if not isinstance(entry, dict) or "p5" not in entry or "p95" not in entry:
+                        if (
+                            not isinstance(entry, dict)
+                            or "p5" not in entry
+                            or "p95" not in entry
+                        ):
                             errors.append(
                                 f"{prefix}.search_strategy: percentile field {fname!r} "
                                 f"must provide 'p5' and 'p95' (got {entry!r})"
@@ -2298,7 +2542,8 @@ def validate_cache_config(config: CacheConfig) -> None:
                     )
 
                     weighted_fields = {
-                        name for name, kf in _keys_iter(config.keys)
+                        name
+                        for name, kf in _keys_iter(config.keys)
                         if kf.enabled and kf.weight > 0
                     }
                     missing = weighted_fields - set(fields)
@@ -2310,7 +2555,9 @@ def validate_cache_config(config: CacheConfig) -> None:
                         )
                     fs_cfg = ss.field_similarity or {}
                     for fname, entry in fields.items():
-                        method = entry.get("method") if isinstance(entry, dict) else None
+                        method = (
+                            entry.get("method") if isinstance(entry, dict) else None
+                        )
                         # Only candidate (selectable) methods are valid in a
                         # production per_field YAML; the back-compat normalizers
                         # (legacy_percentile / direction_unify) are reachable only
@@ -2363,7 +2610,9 @@ def validate_cache_config(config: CacheConfig) -> None:
         else config.key_builder.type
     )
     if config.key_builder.type == "placeholder":
-        unsupported = [f for f in enabled_fields if f not in _PLACEHOLDER_SUPPORTED_FIELDS]
+        unsupported = [
+            f for f in enabled_fields if f not in _PLACEHOLDER_SUPPORTED_FIELDS
+        ]
         if unsupported:
             errors.append(
                 f"keys {unsupported} are enabled but key_builder type 'placeholder' "
@@ -2397,9 +2646,13 @@ def validate_cache_config(config: CacheConfig) -> None:
         if not (0.0 < config.key_builder.temporal_keep_ratio <= 1.0):
             errors.append("temporal_keep_ratio must be in (0, 1]")
         if config.key_builder.prune_window_size < 2:
-            errors.append("prune_window_size must be >= 2 (temporal scoring needs at least 2 frames)")
+            errors.append(
+                "prune_window_size must be >= 2 (temporal scoring needs at least 2 frames)"
+            )
         # reducer-specific validation
-        _valid_reducer_types = frozenset({"mean_pool", "max_pool", "spatial_pool", "task_scoring"})
+        _valid_reducer_types = frozenset(
+            {"mean_pool", "max_pool", "spatial_pool", "task_scoring"}
+        )
         if config.key_builder.reducer.type not in _valid_reducer_types:
             errors.append(
                 f"reducer.type '{config.key_builder.reducer.type}' unknown, "
@@ -2413,14 +2666,10 @@ def validate_cache_config(config: CacheConfig) -> None:
         if config.key_builder.reducer.type == "spatial_pool":
             ot = config.key_builder.reducer.output_tokens
             if ot < 1:
-                errors.append(
-                    f"reducer.output_tokens={ot} must be >= 1"
-                )
+                errors.append(f"reducer.output_tokens={ot} must be >= 1")
             ps = int(ot**0.5) if ot >= 1 else 0
             if ps * ps != ot:
-                errors.append(
-                    f"reducer.output_tokens={ot} must be a perfect square"
-                )
+                errors.append(f"reducer.output_tokens={ot} must be a perfect square")
         # Cross-check reducer output dim vs backend.vector_dims for vision fields
         _reducer_vision_dim = {
             "mean_pool": 2048,
@@ -2459,13 +2708,15 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"valid: 0..{_GEMMA_2B_DEPTH - 1} (gemma_2b depth)"
             )
 
-        _valid_prefix_reducer_types = frozenset({
-            "prefix_mean_pool",
-            "per_modality_mean_pool",
-            "per_modality_max_pool",
-            "per_modality_spatial_pool_16",
-            "per_modality_spatial_pool_4",
-        })
+        _valid_prefix_reducer_types = frozenset(
+            {
+                "prefix_mean_pool",
+                "per_modality_mean_pool",
+                "per_modality_max_pool",
+                "per_modality_spatial_pool_16",
+                "per_modality_spatial_pool_4",
+            }
+        )
         pr_type = config.key_builder.prefix_reducer.type
         if pr_type not in _valid_prefix_reducer_types:
             errors.append(
@@ -2483,8 +2734,9 @@ def validate_cache_config(config: CacheConfig) -> None:
         if pr_type == "prefix_mean_pool":
             # Single global key carried in vision_0 slot. Other vision and
             # prompt slots must be disabled to avoid silently emitting nothing.
-            forbidden = [f for f in enabled_fields
-                         if f in ("vision_1", "vision_2", "prompt_emb")]
+            forbidden = [
+                f for f in enabled_fields if f in ("vision_1", "vision_2", "prompt_emb")
+            ]
             if forbidden:
                 errors.append(
                     f"prefix_reducer=prefix_mean_pool only emits vision_0 "
@@ -2507,9 +2759,9 @@ def validate_cache_config(config: CacheConfig) -> None:
             output_tokens = int(pr_type.rsplit("_", 1)[-1])
             vision_dim = output_tokens * _GEMMA_2B_WIDTH
             expected_dim_by_field = {
-                "vision_0":   vision_dim,
-                "vision_1":   vision_dim,
-                "vision_2":   vision_dim,
+                "vision_0": vision_dim,
+                "vision_1": vision_dim,
+                "vision_2": vision_dim,
                 "prompt_emb": _GEMMA_2B_WIDTH,
             }
 
@@ -2527,9 +2779,7 @@ def validate_cache_config(config: CacheConfig) -> None:
     if config.key_builder.type == "clip":
         for f in ("vision_0", "robot_state"):
             if f not in enabled_fields:
-                errors.append(
-                    f"key_builder.type=clip requires keys.{f}.enabled=true"
-                )
+                errors.append(f"key_builder.type=clip requires keys.{f}.enabled=true")
 
     # in_memory backend + cp1_*/clip builder requires preload_path (also when the
     # cp1_* pool is wrapped by projection — see _effective_kb_type).
@@ -2582,6 +2832,16 @@ def validate_cache_config(config: CacheConfig) -> None:
                     f"Use InMemoryBackend or set trajectory_depth=1."
                 )
 
+    # ── denoise schedule identity ──
+    # Resolved once; every warm-start timestep below is validated against this
+    # schedule's recoverable points rather than the Pi0.5 constant, so a GR00T
+    # recipe cannot pass with a Pi0.5 timestep that happens to be a number.
+    try:
+        schedule = effective_denoise_schedule(config)
+    except ConfigValidationError as exc:
+        errors.append(str(exc))
+        schedule = PI05_V1
+
     # ── always_warm_start validation ──
     for cp_name, cp_config in config.checkpoints.items():
         if cp_name.startswith("_"):
@@ -2603,14 +2863,15 @@ def validate_cache_config(config: CacheConfig) -> None:
         if cp_config.judge.start_t is None:
             errors.append(
                 f"{prefix}.judge: always_warm_start requires 'start_t'. "
-                f"Valid: {sorted(CANONICAL_DENOISE_TIMESTEPS)}"
+                f"Valid for {schedule.schedule_id}: {sorted(schedule.timesteps)}"
             )
         else:
             st = round(cp_config.judge.start_t, 4)
-            if st not in CANONICAL_DENOISE_TIMESTEPS:
+            if st not in schedule.timestep_set:
                 errors.append(
                     f"{prefix}.judge.start_t={cp_config.judge.start_t} is not a "
-                    f"valid timestep. Valid: {sorted(CANONICAL_DENOISE_TIMESTEPS)}"
+                    f"valid timestep of {schedule.schedule_id}. "
+                    f"Valid: {sorted(schedule.timesteps)}"
                 )
             else:
                 # Normalize writeback: avoids YAML inputs like 0.30000000000000004
@@ -2633,9 +2894,7 @@ def validate_cache_config(config: CacheConfig) -> None:
             )
 
         if cp_name not in ("cp1", "cp2"):
-            errors.append(
-                f"{prefix}.judge: warm_tiers is only supported on CP1 / CP2"
-            )
+            errors.append(f"{prefix}.judge: warm_tiers is only supported on CP1 / CP2")
 
         prev_threshold = cp_config.judge.threshold
         for i, tier in enumerate(wt):
@@ -2653,10 +2912,11 @@ def validate_cache_config(config: CacheConfig) -> None:
             prev_threshold = t_val
 
             st = round(tier["start_t"], 4)
-            if st not in CANONICAL_DENOISE_TIMESTEPS:
+            if st not in schedule.timestep_set:
                 errors.append(
-                    f"{tp}: start_t={tier['start_t']} is not a valid timestep. "
-                    f"Valid: {sorted(CANONICAL_DENOISE_TIMESTEPS)}"
+                    f"{tp}: start_t={tier['start_t']} is not a valid timestep "
+                    f"of {schedule.schedule_id}. "
+                    f"Valid: {sorted(schedule.timesteps)}"
                 )
             tier["start_t"] = st
 
@@ -2669,23 +2929,28 @@ def validate_cache_config(config: CacheConfig) -> None:
             continue
 
         if cp_name != "cp1":
-            errors.append(
-                f"{prefix}.judge: dispatch_surface is only supported on CP1"
-            )
+            errors.append(f"{prefix}.judge: dispatch_surface is only supported on CP1")
         if cp_config.judge.warm_tiers or cp_config.judge.start_t is not None:
             errors.append(
                 f"{prefix}.judge: dispatch_surface carries its tiers inside the "
                 "artifact; warm_tiers / start_t must not be set"
             )
-        if any((
-            cp_config.judge.normalization, cp_config.judge.factors,
-            cp_config.judge.calibration, cp_config.judge.composer,
-        )):
+        if any(
+            (
+                cp_config.judge.normalization,
+                cp_config.judge.factors,
+                cp_config.judge.calibration,
+                cp_config.judge.composer,
+            )
+        ):
             errors.append(
                 f"{prefix}.judge: dispatch_surface cannot combine composite-judge fields"
             )
         # A surface certificate binds to one frozen library and a read-only run.
-        if config.backend.type != "in_memory" or not config.backend.in_memory.preload_path:
+        if (
+            config.backend.type != "in_memory"
+            or not config.backend.in_memory.preload_path
+        ):
             errors.append(
                 f"{prefix}.judge: dispatch_surface requires backend.type=in_memory "
                 "with a non-empty preload_path (frozen library)"
@@ -2706,7 +2971,10 @@ def validate_cache_config(config: CacheConfig) -> None:
             )
         else:
             try:
-                from openpi.cache.components.crd_judge import CumulativeRiskJudge, is_crd_artifact
+                from openpi.cache.components.crd_judge import (
+                    CumulativeRiskJudge,
+                    is_crd_artifact,
+                )
 
                 if is_crd_artifact(path):
                     if cp_config.gate.type != "always_search":
@@ -2723,7 +2991,9 @@ def validate_cache_config(config: CacheConfig) -> None:
                         export_factor_outputs=cp_config.judge.export_factor_outputs,
                     )
             except Exception as exc:  # noqa: BLE001 - reported as a config error below
-                errors.append(f"{prefix}.judge.surface_artifact_path could not be inspected for CRD: {exc}")
+                errors.append(
+                    f"{prefix}.judge.surface_artifact_path could not be inspected for CRD: {exc}"
+                )
             try:
                 from openpi.cache.components.surface_judge import load_surface_artifact
 
@@ -2757,7 +3027,10 @@ def validate_cache_config(config: CacheConfig) -> None:
     coll = config.collection
     errors.extend(
         _collection_errors(
-            config, coll.export_collect_meta, list(coll.collect_fields), coll.wire_frame_cap_kib
+            config,
+            coll.export_collect_meta,
+            list(coll.collect_fields),
+            coll.wire_frame_cap_kib,
         )
     )
 
@@ -2769,8 +3042,11 @@ def validate_cache_config(config: CacheConfig) -> None:
             "Valid: ['brute_force', 'text_ivf']"
         )
     _text_ivf_cps = [
-        name for name, cp in config.checkpoints.items()
-        if not name.startswith("_") and cp.enabled and cp.search_strategy.type == "text_ivf_knn"
+        name
+        for name, cp in config.checkpoints.items()
+        if not name.startswith("_")
+        and cp.enabled
+        and cp.search_strategy.type == "text_ivf_knn"
     ]
     if _text_ivf_cps:
         # Rule 1: strategy <-> backend index binding.
@@ -2782,7 +3058,9 @@ def validate_cache_config(config: CacheConfig) -> None:
             )
         # Rule 3: the screening field must be an enabled key and a backend dim.
         if not config.keys.prompt_emb.enabled:
-            errors.append("text_ivf_knn requires keys.prompt_emb.enabled=true (screening field).")
+            errors.append(
+                "text_ivf_knn requires keys.prompt_emb.enabled=true (screening field)."
+            )
         if "prompt_emb" not in config.backend.vector_dims:
             errors.append("text_ivf_knn requires 'prompt_emb' in backend.vector_dims.")
         # Rule 6: only builders with verified prompt_emb semantics may feed the
@@ -2790,7 +3068,8 @@ def validate_cache_config(config: CacheConfig) -> None:
         # positive set above (LIBERO variants lack parity/artifact evidence).
         _kb_type = config.key_builder.type
         if _kb_type in ("placeholder", "clip") or (
-            _kb_type.startswith("cp1_groot_") and _kb_type not in _TEXT_IVF_GROOT_BUILDERS
+            _kb_type.startswith("cp1_groot_")
+            and _kb_type not in _TEXT_IVF_GROOT_BUILDERS
         ):
             errors.append(
                 f"text_ivf_knn is incompatible with key_builder.type="
@@ -2816,11 +3095,18 @@ def validate_cache_config(config: CacheConfig) -> None:
                 f"(got {_im.text_ivf.max_buckets})."
             )
     # Rule 5: span implies masked.
-    if config.key_builder.prompt_instruction_span and not config.key_builder.prompt_masked_pool:
-        errors.append("key_builder.prompt_instruction_span=true requires prompt_masked_pool=true.")
+    if (
+        config.key_builder.prompt_instruction_span
+        and not config.key_builder.prompt_masked_pool
+    ):
+        errors.append(
+            "key_builder.prompt_instruction_span=true requires prompt_masked_pool=true."
+        )
     # Rule 8: prompt-pool knobs only on builders that honour them.
-    if (config.key_builder.prompt_masked_pool or config.key_builder.prompt_instruction_span) \
-            and not _prompt_pool_knobs_supported(config.key_builder):
+    if (
+        config.key_builder.prompt_masked_pool
+        or config.key_builder.prompt_instruction_span
+    ) and not _prompt_pool_knobs_supported(config.key_builder):
         errors.append(
             f"prompt_masked_pool / prompt_instruction_span are only honoured by "
             f"{sorted(PROMPT_POOL_KNOB_BUILDERS)} (or 'projection' with such an "
@@ -2870,10 +3156,18 @@ def _routing_errors(config: CacheConfig) -> list[str]:
             )
     import math
 
-    for name, value in (("connect_timeout_s", r.connect_timeout_s),
-                        ("request_timeout_s", r.request_timeout_s)):
-        if not isinstance(value, (int, float)) or not math.isfinite(value) or value <= 0:
-            errors.append(f"routing.{name} must be a finite positive number (got {value!r}).")
+    for name, value in (
+        ("connect_timeout_s", r.connect_timeout_s),
+        ("request_timeout_s", r.request_timeout_s),
+    ):
+        if (
+            not isinstance(value, (int, float))
+            or not math.isfinite(value)
+            or value <= 0
+        ):
+            errors.append(
+                f"routing.{name} must be a finite positive number (got {value!r})."
+            )
     cps = [cp for cp in config.checkpoints if not cp.startswith("_")]
     if cps != ["cp1"]:
         errors.append(
@@ -2898,7 +3192,9 @@ def _routing_errors(config: CacheConfig) -> list[str]:
                 "executor hooks are FULL_HIT/MISS binary and raise on WARM_START."
             )
         if cp1.judge.type == "composite":
-            tiers = (cp1.judge.composer.tier_thresholds or {}) if cp1.judge.composer else {}
+            tiers = (
+                (cp1.judge.composer.tier_thresholds or {}) if cp1.judge.composer else {}
+            )
             if tiers.get("warm_start") != tiers.get("full_hit"):
                 errors.append(
                     "routing allowlist: a composite judge must have an EMPTY warm "
@@ -2911,7 +3207,11 @@ def _routing_errors(config: CacheConfig) -> list[str]:
                 f"routing allowlist: cp1.search_strategy.type {ss.type!r} not in "
                 f"{sorted(_ROUTING_STRATEGY_TYPES)}."
             )
-        if ss.trajectory_depth != 1 or ss.depth_policy is not None or ss.base_fusion is not None:
+        if (
+            ss.trajectory_depth != 1
+            or ss.depth_policy is not None
+            or ss.base_fusion is not None
+        ):
             errors.append(
                 "routing allowlist: search strategy must be depth-1 "
                 "(trajectory_depth=1, no depth_policy, no base_fusion)."
@@ -2924,7 +3224,9 @@ def _routing_errors(config: CacheConfig) -> list[str]:
             f"(got {config.write_policy.type!r})."
         )
     if config.collection.export_collect_meta:
-        errors.append("routing allowlist: collection.export_collect_meta must be false.")
+        errors.append(
+            "routing allowlist: collection.export_collect_meta must be false."
+        )
     if config.backend.type != "in_memory":
         errors.append(
             f"routing allowlist: backend.type must be 'in_memory' (got {config.backend.type!r})."
@@ -2946,7 +3248,187 @@ def build_shared_storage(config: CacheConfig):
     _check_text_ivf_artifact_binding(storage, config)
     _check_cp2_projection_binding(storage, config)
     _check_pin_identity_binding(storage, config)
+    _check_denoise_schedule_binding(storage, config)
+    _check_warm_library_completeness(storage, config)
     return storage
+
+
+def required_warm_timesteps(config: CacheConfig) -> frozenset[float]:
+    """Every ``start_t`` a judge in this config may resume from.
+
+    Enumerated positively over the judge shapes that carry an explicit
+    timestep: ``always_warm_start.start_t``, ``warm_tiers[].start_t`` on
+    threshold / failure-aware judges, and the composite composer's
+    ``warm_start_t`` / ``warm_fallback_start_t``. ``dispatch_surface`` pins its
+    own ``start_t_ws`` and is bound by ``_check_surface_library_binding``.
+
+    A judge shape this function cannot enumerate but that may still emit
+    WARM_START (``mlp_router``, ``risk_router``) is refused when the config
+    names a ``denoise_schedule`` -- a new-style recipe must be provable -- and
+    tolerated under the Pi0.5 legacy reading so no existing yaml changes
+    behaviour (plan T12).
+    """
+    found: set[float] = set()
+    for cp_name, cp in config.checkpoints.items():
+        if cp_name.startswith("_") or not cp.enabled:
+            continue
+        judge = cp.judge
+        if judge.type == "always_warm_start" and judge.start_t is not None:
+            found.add(round(judge.start_t, 4))
+        if judge.type in ("threshold", "failure_aware_gate", "always_hit"):
+            for tier in judge.warm_tiers or []:
+                if "start_t" in tier:
+                    found.add(round(tier["start_t"], 4))
+            continue
+        if judge.type == "composite":
+            composer = judge.composer
+            if composer is not None:
+                for value in (composer.warm_start_t, composer.warm_fallback_start_t):
+                    if value is not None:
+                        found.add(round(float(value), 4))
+            continue
+        if judge.type in ("always_warm_start", "dispatch_surface"):
+            continue
+        if config.denoise_schedule is not None:
+            raise ConfigValidationError(
+                f"checkpoints.{cp_name}.judge.type={judge.type!r} may emit WARM_START "
+                "but its resume timesteps cannot be enumerated for the library "
+                "completeness check; a recipe that names denoise_schedule must "
+                "use an enumerable warm judge."
+            )
+    return frozenset(found)
+
+
+def _check_warm_library_completeness(storage, config: CacheConfig) -> None:
+    """Refuse a warm-start recipe whose library cannot serve every resume point.
+
+    The runtime validator fails loudly when a WARM_START payload lacks
+    ``start_t``; this assembly check rejects that broken library before serving
+    begins. Under a declared
+    ``denoise_schedule`` every required timestep must be present on 100% of
+    entries, the entries must agree on their action schema, and each required
+    t must be a recoverable point of that schedule. Legacy (schedule-less)
+    recipes keep today's behaviour so no existing yaml changes.
+    """
+    if config.denoise_schedule is None:
+        return
+    if config.backend.type != "in_memory" or not config.backend.in_memory.preload_path:
+        return
+    required = required_warm_timesteps(config)
+    if not required:
+        return
+    schedule = effective_denoise_schedule(config)
+    foreign = sorted(required - schedule.timestep_set)
+    if foreign:
+        raise ConfigValidationError(
+            f"warm-start timesteps {foreign} are not recoverable points of "
+            f"{schedule.schedule_id} {list(schedule.timesteps)}."
+        )
+    meta = storage.artifact_meta or {}
+    entry_count = meta.get("entry_count")
+    if not entry_count:
+        raise ConfigValidationError(
+            "warm-start recipe but the preloaded library reports no entries."
+        )
+    if meta.get("schema_consensus_count") != entry_count:
+        raise ConfigValidationError(
+            f"library has heterogeneous action schema "
+            f"({meta.get('schema_consensus_count')}/{entry_count} consensus); "
+            "a warm-start library must be uniform."
+        )
+    completeness = meta.get("intermediates_completeness") or {}
+    for t in sorted(required):
+        have = completeness.get(f"{t:.4f}", 0.0)
+        if have < 1.0:
+            raise ConfigValidationError(
+                f"warm tier t={t:.4f} is present on {have:.4%} of library entries; "
+                "100% is required, otherwise missing entries would fail at runtime. "
+                "Rebuild from a fully stamped collection."
+            )
+
+
+def _config_emits_warm_start(config: CacheConfig) -> bool:
+    """True if any judge in this config can return WARM_START.
+
+    Enumerated positively; an unknown judge shape that might warm-start is not
+    an excuse to skip the schedule binding, so anything not proven cold is
+    treated as warm.
+    """
+    for cp_name, cp in config.checkpoints.items():
+        if cp_name.startswith("_") or not cp.enabled:
+            continue
+        judge = cp.judge
+        if judge.type in ("always_hit", "threshold", "failure_aware_gate"):
+            if judge.warm_tiers:
+                return True
+            continue
+        if judge.type == "always_warm_start":
+            return True
+        if judge.type == "composite":
+            composer = judge.composer
+            if composer is not None and (
+                composer.warm_start_t is not None
+                or composer.warm_fallback_start_t is not None
+            ):
+                return True
+            continue
+        # dispatch_surface, mlp_router, risk_router and any future judge:
+        # not proven cold, so the binding check runs.
+        return True
+    return False
+
+
+def _check_denoise_schedule_binding(storage, config: CacheConfig) -> None:
+    """Fail-fast when a warm-start config and its library disagree on the loop.
+
+    A payload's ``intermediates`` are only meaningful under the schedule that
+    produced them. Two libraries with identical geometry but different step
+    counts -- the same GR00T checkpoint served with 4 and with 8 steps -- load
+    interchangeably at the vector-dims level, so this is the only place the
+    mismatch can be caught before every WARM_START silently resumes from the
+    wrong x_t.
+
+    Rules, all fail-closed:
+      * a library that records a schedule must match the config's schedule;
+      * a library without one is a Pi0.5-era artifact and only matches the
+        Pi0.5 legacy reading (``denoise_schedule`` unset or ``pi05_v1``);
+      * a config with no warm-start judge is exempt -- FULL_HIT-only recipes
+        never touch intermediates and must keep loading every library.
+    """
+    if not _config_emits_warm_start(config):
+        return
+    if config.backend.type != "in_memory" or not config.backend.in_memory.preload_path:
+        return
+    expected = effective_denoise_schedule(config)
+    meta = storage.artifact_meta
+    if meta is None:
+        raise ConfigValidationError(
+            f"config warm-starts under {expected.schedule_id!r} but the backend "
+            "exposes no artifact identity metadata."
+        )
+    recorded = meta.get("schedule_id")
+    if recorded is None:
+        if expected is not PI05_V1:
+            raise ConfigValidationError(
+                f"config warm-starts under {expected.schedule_id!r} but the "
+                "artifact records no denoise schedule (built before schedules "
+                "existed, or from a collection that never captured "
+                "intermediates). Rebuild the library from a schedule-stamped "
+                "collection."
+            )
+        return
+    if recorded != expected.schedule_id:
+        raise ConfigValidationError(
+            f"artifact denoise schedule {recorded!r} does not match the config's "
+            f"{expected.schedule_id!r}: every cached x_t was taken from a "
+            "different flow-matching loop and would be resumed at the wrong t."
+        )
+    consensus_steps = meta.get("denoising_num_steps")
+    if consensus_steps is not None and consensus_steps != expected.num_steps:
+        raise ConfigValidationError(
+            f"artifact entries carry denoising_num_steps={consensus_steps} but "
+            f"schedule {expected.schedule_id!r} has {expected.num_steps} steps."
+        )
 
 
 def _check_pin_identity_binding(storage, config: CacheConfig) -> None:
@@ -3062,7 +3544,9 @@ def _check_text_ivf_artifact_binding(storage, config: CacheConfig) -> None:
     kb = config.key_builder
     knobs_on = kb.prompt_masked_pool or kb.prompt_instruction_span
     uses_text_ivf = any(
-        not name.startswith("_") and cp.enabled and cp.search_strategy.type == "text_ivf_knn"
+        not name.startswith("_")
+        and cp.enabled
+        and cp.search_strategy.type == "text_ivf_knn"
         for name, cp in config.checkpoints.items()
     )
     if not (knobs_on or uses_text_ivf):
@@ -3089,8 +3573,10 @@ def _check_text_ivf_artifact_binding(storage, config: CacheConfig) -> None:
             "prompt-pool configs require an artifact rebuilt with the "
             "prompt-pool-aware builder (plan §9 runbook)."
         )
-    if bool(pool_meta.get("masked")) != kb.prompt_masked_pool or \
-            bool(pool_meta.get("instruction_span")) != kb.prompt_instruction_span:
+    if (
+        bool(pool_meta.get("masked")) != kb.prompt_masked_pool
+        or bool(pool_meta.get("instruction_span")) != kb.prompt_instruction_span
+    ):
         raise ConfigValidationError(
             f"Artifact prompt_pool metadata {pool_meta!r} does not match configured "
             f"knobs (masked={kb.prompt_masked_pool}, "
@@ -3115,9 +3601,9 @@ def build_cache_components(config: CacheConfig) -> dict[str, Any]:
     return build_per_connection_components(config, storage)
 
 
-
-
-def _check_surface_library_binding(cp_name, judge, storage, *, effective_top_k: int) -> None:
+def _check_surface_library_binding(
+    cp_name, judge, storage, *, effective_top_k: int
+) -> None:
     """Library-level contract check for a dispatch_surface judge.
 
     Compares the surface artifact's contract against the identity of the
@@ -3218,9 +3704,13 @@ def build_per_connection_components(
     per_conn_storage = shared_storage.per_connection_facade()
 
     enabled_fields = [name for name, kf in _keys_iter(config.keys) if kf.enabled]
-    key_builder = _build_key_builder(config.key_builder, enabled_fields, config.backend.vector_dims)
+    key_builder = _build_key_builder(
+        config.key_builder, enabled_fields, config.backend.vector_dims
+    )
 
-    fusion_weights = {name: kf.weight for name, kf in _keys_iter(config.keys) if kf.enabled}
+    fusion_weights = {
+        name: kf.weight for name, kf in _keys_iter(config.keys) if kf.enabled
+    }
     gates: dict[CheckpointID, Any] = {}
     judges: dict[CheckpointID, Any] = {}
     search_strategies: dict[CheckpointID, Any] = {}
@@ -3242,10 +3732,15 @@ def build_per_connection_components(
         # non-empty `state_active_mask` in `library_stats`.
         if cp_config.judge.type == "composite":
             _validate_composite_judge_state_library(
-                cp_name, cp_config.judge, library_stats,
+                cp_name,
+                cp_config.judge,
+                library_stats,
             )
         judges[cp_id] = _build_judge(
-            cp_config.judge, library_stats=library_stats, yaml_id=yaml_id,
+            cp_config.judge,
+            library_stats=library_stats,
+            yaml_id=yaml_id,
+            schedule=effective_denoise_schedule(config),
         )
         # Forward the judge's min_required_top_k hint into the strategy so
         # F2 (and any future top-k-hungry factor) gets enough candidates.
@@ -3312,10 +3807,7 @@ def _validate_composite_judge_state_library(
     """
     # Refactor: state-channel factors are the 8 names ending in `_state`
     # (4 desc × {online, offline}). The legacy 5-name set is gone.
-    state_factors = [
-        f for f in (judge.factors or [])
-        if f.type.endswith("_state")
-    ]
+    state_factors = [f for f in (judge.factors or []) if f.type.endswith("_state")]
     if not state_factors:
         return
     if library_stats is None:
@@ -3429,11 +3921,15 @@ def _build_prefix_reducer(cfg: PrefixReducerConfig):
     raise ConfigValidationError(f"Unknown prefix_reducer.type '{cfg.type}'")
 
 
-def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_dims: dict[str, int]):
+def _build_key_builder(
+    cfg: KeyBuilderConfig, enabled_fields: list[str], vector_dims: dict[str, int]
+):
     """Instantiate a QueryKeyBuilder from config."""
     # Defence-in-depth behind validation rule 8: never let a prompt-pool knob
     # ride on a builder that would silently drop it.
-    if (cfg.prompt_masked_pool or cfg.prompt_instruction_span) and not _prompt_pool_knobs_supported(cfg):
+    if (
+        cfg.prompt_masked_pool or cfg.prompt_instruction_span
+    ) and not _prompt_pool_knobs_supported(cfg):
         raise ConfigValidationError(
             f"prompt_masked_pool / prompt_instruction_span are only honoured by "
             f"{sorted(PROMPT_POOL_KNOB_BUILDERS)} (or 'projection' with such an "
@@ -3450,7 +3946,9 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
     elif cfg.type == "full_original":
         from openpi.cache.components.key_builder import FullOriginalKeyBuilder
 
-        return FullOriginalKeyBuilder(enabled_fields=enabled_fields, vector_dims=vector_dims)
+        return FullOriginalKeyBuilder(
+            enabled_fields=enabled_fields, vector_dims=vector_dims
+        )
     elif cfg.type == "cp1_mean_pool":
         from openpi.cache.components.key_builder import CP1MeanPoolKeyBuilder
 
@@ -3512,7 +4010,9 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
         from openpi.cache.components.cp2_vlm_key_builder import CP2VlmTernaryKeyBuilder
 
         return CP2VlmTernaryKeyBuilder(
-            seed=cfg.cp2_vlm.seed, d=cfg.cp2_vlm.d, p=cfg.cp2_vlm.p,
+            seed=cfg.cp2_vlm.seed,
+            d=cfg.cp2_vlm.d,
+            p=cfg.cp2_vlm.p,
             input_dim=cfg.cp2_vlm.input_dim,
         )
     elif cfg.type == "projection":
@@ -3532,7 +4032,9 @@ def _build_key_builder(cfg: KeyBuilderConfig, enabled_fields: list[str], vector_
         # Reuse the existing pool-builder construction for the inner; the inner
         # branch ignores cfg.projection, and inner_type != 'projection' bounds
         # recursion to one level.
-        inner = _build_key_builder(replace(cfg, type=inner_type), enabled_fields, vector_dims)
+        inner = _build_key_builder(
+            replace(cfg, type=inner_type), enabled_fields, vector_dims
+        )
         params = (
             ProjectionParams.load(cfg.projection.weights_path)
             if cfg.projection.weights_path
@@ -3604,7 +4106,13 @@ def _build_gate(cfg: GateConfig):
     )
 
 
-def _build_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optional[str] = None):
+def _build_judge(
+    cfg: JudgeConfig,
+    library_stats=None,
+    *,
+    yaml_id: Optional[str] = None,
+    schedule: DenoiseSchedule = PI05_V1,
+):
     """Instantiate a SimilarityJudge from config.
 
     ``library_stats`` is forwarded into the 4-layer composite Layer 1
@@ -3620,13 +4128,21 @@ def _build_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optional[str]
     JSONL for offline calibration; the wrapper preserves the inner
     judge's verdict surface byte-identically.
     """
-    inner = _build_inner_judge(cfg, library_stats=library_stats, yaml_id=yaml_id)
+    inner = _build_inner_judge(
+        cfg, library_stats=library_stats, yaml_id=yaml_id, schedule=schedule
+    )
     if cfg.dump is None:
         return inner
     return _wrap_with_dumping_judge(inner, cfg.dump, library_stats=library_stats)
 
 
-def _build_inner_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optional[str] = None):
+def _build_inner_judge(
+    cfg: JudgeConfig,
+    library_stats=None,
+    *,
+    yaml_id: Optional[str] = None,
+    schedule: DenoiseSchedule = PI05_V1,
+):
     """Build the unwrapped judge instance based on `cfg.type` only."""
     if cfg.type == "threshold":
         from openpi.cache.components.judge import ThresholdJudge
@@ -3644,9 +4160,12 @@ def _build_inner_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optiona
     elif cfg.type == "always_warm_start":
         from openpi.cache.components.judge import AlwaysWarmStartJudge
 
-        return AlwaysWarmStartJudge(cfg.start_t)
+        return AlwaysWarmStartJudge(cfg.start_t, schedule=schedule)
     elif cfg.type == "dispatch_surface":
-        from openpi.cache.components.crd_judge import CumulativeRiskJudge, is_crd_artifact
+        from openpi.cache.components.crd_judge import (
+            CumulativeRiskJudge,
+            is_crd_artifact,
+        )
         from openpi.cache.components.surface_judge import SurfaceJudge
 
         # A surface artifact that carries the cumulative-risk extras routes to
@@ -3683,7 +4202,8 @@ def _build_inner_judge(cfg: JudgeConfig, library_stats=None, *, yaml_id: Optiona
         from openpi.cache.components.risk_router_judge import RiskRouterJudge
 
         model = RiskModel.load(
-            cfg.risk_model_path, expected_schema_sha=feature_schema_digest(),
+            cfg.risk_model_path,
+            expected_schema_sha=feature_schema_digest(),
         )
         # The builder uses the table the model was FITTED with, not a freshly
         # derived one: identical by construction today, but binding them here
@@ -4163,7 +4683,11 @@ def _build_search_strategy(
 
         # Distinguish None (use default) from an explicit empty list; validation
         # rejects the empty list, so this fallback only fires for None.
-        allowed = list(cfg.allowed_depths) if cfg.allowed_depths is not None else [cfg.trajectory_depth]
+        allowed = (
+            list(cfg.allowed_depths)
+            if cfg.allowed_depths is not None
+            else [cfg.trajectory_depth]
+        )
         pol_cfg = cfg.depth_policy or DepthPolicyConfig(type="constant")
         if pol_cfg.type == "constant":
             depth = pol_cfg.depth if pol_cfg.depth is not None else cfg.trajectory_depth
@@ -4206,7 +4730,11 @@ def _build_search_strategy(
         )
 
         # Depth machinery mirrors dynamic_depth_knn (shared TrajectoryMixin).
-        allowed = list(cfg.allowed_depths) if cfg.allowed_depths is not None else [cfg.trajectory_depth]
+        allowed = (
+            list(cfg.allowed_depths)
+            if cfg.allowed_depths is not None
+            else [cfg.trajectory_depth]
+        )
         pol_cfg = cfg.depth_policy or DepthPolicyConfig(type="constant")
         if pol_cfg.type == "constant":
             depth = pol_cfg.depth if pol_cfg.depth is not None else cfg.trajectory_depth

@@ -31,7 +31,7 @@ from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 import torch
 
 from openpi.cache.storage_types import RetrievalSignals, SearchResultLite
-from openpi.cache.types import CANONICAL_DENOISE_TIMESTEPS, CheckpointID
+from openpi.cache.types import PI05_V1, CheckpointID, DenoiseSchedule
 
 # Verdict-pipeline debug instrumentation. Gated on env var so production
 # runs pay zero cost. Toggle from server shell:
@@ -248,14 +248,17 @@ class AlwaysWarmStartJudge:
     defensive only and should be unreachable for validated configs.
     """
 
-    def __init__(self, start_t: float) -> None:
+    def __init__(self, start_t: float, *, schedule: DenoiseSchedule = PI05_V1) -> None:
+        # The schedule decides which timesteps are recoverable; the Pi0.5
+        # default keeps every existing direct construction byte-for-byte.
         st = round(start_t, 4)
-        if st not in CANONICAL_DENOISE_TIMESTEPS:
+        if st not in schedule.timestep_set:
             raise ValueError(
-                f"start_t must round to one of {sorted(CANONICAL_DENOISE_TIMESTEPS)}, "
-                f"got {start_t}"
+                f"start_t must round to one of {sorted(schedule.timesteps)} "
+                f"({schedule.schedule_id}), got {start_t}"
             )
         self._start_t = st
+        self._schedule = schedule
 
     def __call__(
         self,
@@ -322,7 +325,9 @@ class ThresholdJudge:
         if checkpoint_id in (CheckpointID.CP1, CheckpointID.CP2) and self._warm_tiers:
             for tier in self._warm_tiers:
                 if top.score >= tier["threshold"]:
-                    return JudgeResult(HitType.WARM_START, top.id, start_t=tier["start_t"])
+                    return JudgeResult(
+                        HitType.WARM_START, top.id, start_t=tier["start_t"]
+                    )
         return JudgeResult(HitType.MISS)
 
     def on_episode_start(self) -> None:
@@ -400,7 +405,9 @@ class FailureAwareGateJudge:
         self._u_t_key: Optional[str] = None
         if u_t_factor is not None:
             from openpi.cache.components.factors import registry
-            from openpi.cache.components.factors.normalization.zscore import ZScoreNormalization
+            from openpi.cache.components.factors.normalization.zscore import (
+                ZScoreNormalization,
+            )
 
             if library_stats is None:
                 raise ValueError(
@@ -409,7 +416,13 @@ class FailureAwareGateJudge:
                 )
             name = f"{u_t_factor['descriptor']}_online_{u_t_factor['channel']}"
             self._u_t_factor = registry.build(
-                name, windows=[{"past": int(u_t_factor["past"]), "future": int(u_t_factor["future"])}]
+                name,
+                windows=[
+                    {
+                        "past": int(u_t_factor["past"]),
+                        "future": int(u_t_factor["future"]),
+                    }
+                ],
             )
             # Single window -> exactly one descriptor key; cache it so __call__
             # reads the one value without re-deriving the key string.
@@ -453,13 +466,18 @@ class FailureAwareGateJudge:
         winner_id = results[0].id
         fo = self._factor_outputs(retrieval_signals, m, d, u_t, g)
         if g >= self._threshold:
-            return JudgeResult(HitType.FULL_HIT, winner_id, composer_score=g, factor_outputs=fo)
+            return JudgeResult(
+                HitType.FULL_HIT, winner_id, composer_score=g, factor_outputs=fo
+            )
         if checkpoint_id == CheckpointID.CP1 and self._warm_tiers:
             for tier in self._warm_tiers:
                 if g >= tier["threshold"]:
                     return JudgeResult(
-                        HitType.WARM_START, winner_id,
-                        start_t=tier["start_t"], composer_score=g, factor_outputs=fo,
+                        HitType.WARM_START,
+                        winner_id,
+                        start_t=tier["start_t"],
+                        composer_score=g,
+                        factor_outputs=fo,
                     )
         return JudgeResult(HitType.MISS, composer_score=g, factor_outputs=fo)
 
@@ -507,10 +525,16 @@ class FailureAwareGateJudge:
             return None
         return {
             "schema": "failure_gate_v1",
-            **_nan_to_none({
-                "s_pos": signals.s_pos, "s_neg": signals.s_neg,
-                "margin": margin, "delta_pos": delta_pos, "u_t": u_t, "g": g,
-            }),
+            **_nan_to_none(
+                {
+                    "s_pos": signals.s_pos,
+                    "s_neg": signals.s_neg,
+                    "margin": margin,
+                    "delta_pos": delta_pos,
+                    "u_t": u_t,
+                    "g": g,
+                }
+            ),
         }
 
     def on_episode_start(self) -> None:
@@ -553,7 +577,7 @@ def _build_factor_outputs(
         s = float(composer_score)
         score = None if math.isnan(s) else s
     return {
-        "raw":  _nan_to_none(raw),
+        "raw": _nan_to_none(raw),
         "norm": _nan_to_none(norm),
         "score": score,
         "sentinel": sentinel,
@@ -568,5 +592,5 @@ def _build_factor_outputs(
 # ---------------------------------------------------------------------------
 
 from openpi.cache.components.composite_judge import CompositeJudge  # noqa: E402, F401
-from openpi.cache.components.dumping_judge import DumpingJudge      # noqa: E402, F401
-from openpi.cache.components.surface_judge import SurfaceJudge      # noqa: E402, F401
+from openpi.cache.components.dumping_judge import DumpingJudge  # noqa: E402, F401
+from openpi.cache.components.surface_judge import SurfaceJudge  # noqa: E402, F401

@@ -25,17 +25,38 @@ def load_ids(path: pathlib.Path) -> tuple[set[str], set[str], dict]:
         artifact = pickle.load(f)
     entries = artifact["entries"]
     meta = {k: v for k, v in artifact.items() if k != "entries"}
-    return {e.id for e in entries}, {e.trajectory_id for e in entries}, meta | {"n": len(entries)}
+    return (
+        {e.id for e in entries},
+        {e.trajectory_id for e in entries},
+        meta | {"n": len(entries)},
+    )
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("manifest", type=pathlib.Path)
-    ap.add_argument("--skip-backend", action="store_true",
-                    help="Skip the InMemoryBackend round trip (structure checks only).")
+    ap.add_argument(
+        "--expected-schedule",
+        default=None,
+        help="Optional operator-side assertion against manifest.schedule_id.",
+    )
+    ap.add_argument(
+        "--skip-backend",
+        action="store_true",
+        help="Skip the InMemoryBackend round trip (structure checks only).",
+    )
     args = ap.parse_args()
 
     manifest = json.loads(args.manifest.read_text())
+    manifest_schedule = manifest.get("schedule_id")
+    if (
+        args.expected_schedule is not None
+        and args.expected_schedule != manifest_schedule
+    ):
+        raise SystemExit(
+            f"manifest schedule {manifest_schedule!r} != requested "
+            f"{args.expected_schedule!r}"
+        )
     print(f"{manifest['prefix']}  builder={manifest['builder_type']}")
     print(f"vector_dims={manifest['vector_dims']}")
 
@@ -56,15 +77,26 @@ def main() -> None:
                 "-- an id collision would drop the difference at load time"
             )
         if meta["key_builder_type"] != manifest["builder_type"]:
-            failures.append(f"{tier}: stamped {meta['key_builder_type']!r}, manifest says "
-                            f"{manifest['builder_type']!r}")
+            failures.append(
+                f"{tier}: stamped {meta['key_builder_type']!r}, manifest says "
+                f"{manifest['builder_type']!r}"
+            )
         if meta["vector_dims"] != manifest["vector_dims"]:
             failures.append(f"{tier}: vector_dims drift {meta['vector_dims']}")
+        if meta.get("schedule_id") != manifest_schedule:
+            failures.append(
+                f"{tier}: schedule_id {meta.get('schedule_id')!r} != manifest "
+                f"{manifest_schedule!r}"
+            )
         if len(trajs) != record["trajectories"]:
-            failures.append(f"{tier}: {record['trajectories']} trajectories expected, {len(trajs)} present")
+            failures.append(
+                f"{tier}: {record['trajectories']} trajectories expected, {len(trajs)} present"
+            )
         if prev_traj is not None and not prev_traj <= trajs:
-            failures.append(f"{tier}: not a superset of {prev_tier} "
-                            f"({len(prev_traj - trajs)} trajectories lost)")
+            failures.append(
+                f"{tier}: not a superset of {prev_tier} "
+                f"({len(prev_traj - trajs)} trajectories lost)"
+            )
 
         loaded = ""
         if not args.skip_backend:

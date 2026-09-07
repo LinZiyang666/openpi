@@ -55,7 +55,14 @@ class FakeModel:
         self.stage2_calls += 1
         return SimpleNamespace(kv_cache=None)
 
-    def run_stage3(self, stage2, noise=None, num_steps=10, return_intermediates=False, save_timesteps=(0.7, 0.5, 0.3)):
+    def run_stage3(
+        self,
+        stage2,
+        noise=None,
+        num_steps=10,
+        return_intermediates=False,
+        save_timesteps=(0.7, 0.5, 0.3),
+    ):
         self.stage3_calls += 1
         action = (
             self._fixed_action.clone()
@@ -64,10 +71,7 @@ class FakeModel:
         )
         intermediates = None
         if return_intermediates:
-            intermediates = {
-                st: torch.randn(1, 50, 32)
-                for st in save_timesteps
-            }
+            intermediates = {st: torch.randn(1, 50, 32) for st in save_timesteps}
         return SimpleNamespace(action_chunk=action, intermediates=intermediates)
 
 
@@ -186,9 +190,9 @@ def test_infer_with_orchestrator_cp1_hit_skips_stage2_3():
     # Second call: same fixed_state -> CP1 hit, skip stage2 + stage3.
     result = interceptor.infer(obs)
     assert "actions" in result
-    assert model.stage1_calls == 1   # stage1 still runs (CP1 is after stage1)
-    assert model.stage2_calls == 0   # skipped
-    assert model.stage3_calls == 0   # skipped
+    assert model.stage1_calls == 1  # stage1 still runs (CP1 is after stage1)
+    assert model.stage2_calls == 0  # skipped
+    assert model.stage3_calls == 0  # skipped
 
 
 # ---------------------------------------------------------------------------
@@ -228,7 +232,7 @@ def test_infer_warm_start_calls_stage3_from():
     stored_state[0, 0] = 1.0
 
     target_cos = 0.96
-    sin_val = math.sqrt(1.0 - target_cos ** 2)
+    sin_val = math.sqrt(1.0 - target_cos**2)
     query_state = torch.zeros(1, 32)
     query_state[0, 0] = target_cos
     query_state[0, 1] = sin_val
@@ -248,7 +252,9 @@ def test_infer_warm_start_calls_stage3_from():
     policy = FakePolicy(model=model)
 
     warm_tiers = [{"threshold": 0.95, "start_t": 0.3}]
-    judge = ThresholdJudge(cp1_threshold=0.98, cp3_threshold=0.95, warm_tiers=warm_tiers)
+    judge = ThresholdJudge(
+        cp1_threshold=0.98, cp3_threshold=0.95, warm_tiers=warm_tiers
+    )
     orch, _, storage = make_orchestrator(judge=judge)
     interceptor = InferenceInterceptor(
         policy, timer=SystemTimer(enabled=False), orchestrator=orch
@@ -259,6 +265,7 @@ def test_infer_warm_start_calls_stage3_from():
         action_chunk=torch.randn(50, 32),
         intermediates={0.3: torch.randn(50, 32), 0.5: torch.randn(50, 32)},
         denoising_num_steps=10,
+        schedule_id="pi05_v1",
     )
     insert_entry(storage, CheckpointID.CP1, stored_state, payload)
 
@@ -519,11 +526,13 @@ def test_infer_skip_signal_reaches_gate_and_bypasses_stage2_3():
 
     orch._gates[CheckpointID.CP1].__class__.__call__  # touch to confirm attr
     orch._gates[CheckpointID.CP1] = type(
-        "SpyGate", (), {
+        "SpyGate",
+        (),
+        {
             "__call__": lambda self, cid, cd, rc=None: spying_call(cid, cd, rc),
             "on_episode_start": lambda self: None,
             "record_action": lambda self, a: None,
-        }
+        },
     )()
 
     interceptor = InferenceInterceptor(
@@ -703,7 +712,9 @@ class TestCanonicalTokenizedPrompt:
         legacy = _canonical_tokenized_prompt(
             SimpleNamespace(tokenized_prompt=torch.tensor([self._IDS]))
         )
-        coord = _canonical_tokenized_prompt({"tokenized_prompt": torch.tensor(self._IDS)})
+        coord = _canonical_tokenized_prompt(
+            {"tokenized_prompt": torch.tensor(self._IDS)}
+        )
         assert np.array_equal(legacy, coord)
         s1 = find_instruction_span(legacy, marker)
         s2 = find_instruction_span(coord, marker)
@@ -725,10 +736,10 @@ class TestCanonicalTokenizedPrompt:
         from openpi.cache.interceptor import _canonical_tokenized_prompt
 
         bad_shapes = [
-            torch.tensor(7),                              # 0-D scalar
-            torch.zeros(1, 1, 4, dtype=torch.long),       # 3-D [1,1,L]
-            np.int64(7),                                  # 0-D numpy scalar
-            np.zeros((1, 1, 4), dtype=np.int64),          # 3-D numpy
+            torch.tensor(7),  # 0-D scalar
+            torch.zeros(1, 1, 4, dtype=torch.long),  # 3-D [1,1,L]
+            np.int64(7),  # 0-D numpy scalar
+            np.zeros((1, 1, 4), dtype=np.int64),  # 3-D numpy
         ]
         for bad in bad_shapes:
             with pytest.raises(ValueError, match="tokenized_prompt"):
@@ -737,7 +748,9 @@ class TestCanonicalTokenizedPrompt:
     def test_none_passthrough(self):
         from openpi.cache.interceptor import _canonical_tokenized_prompt
 
-        assert _canonical_tokenized_prompt(SimpleNamespace(tokenized_prompt=None)) is None
+        assert (
+            _canonical_tokenized_prompt(SimpleNamespace(tokenized_prompt=None)) is None
+        )
         assert _canonical_tokenized_prompt({}) is None
 
     def test_explicit_and_default_prompt_pipeline_consistency(self):
@@ -750,7 +763,9 @@ class TestCanonicalTokenizedPrompt:
             def tokenize(self, prompt, state=None):
                 ids = [ord(c) % 97 for c in str(prompt)][:8]
                 ids = ids + [0] * (8 - len(ids))
-                mask = [True] * min(len(str(prompt)), 8) + [False] * max(0, 8 - len(str(prompt)))
+                mask = [True] * min(len(str(prompt)), 8) + [False] * max(
+                    0, 8 - len(str(prompt))
+                )
                 return np.asarray(ids), np.asarray(mask[:8])
 
         tokenize = TokenizePrompt(tokenizer=StubTokenizer())
@@ -759,11 +774,15 @@ class TestCanonicalTokenizedPrompt:
         # Explicit prompt.
         data = tokenize(inject({"prompt": "pick the bowl", "state": np.zeros(2)}))
         expected = StubTokenizer().tokenize("pick the bowl")[0]
-        out = _canonical_tokenized_prompt({"tokenized_prompt": data["tokenized_prompt"]})
+        out = _canonical_tokenized_prompt(
+            {"tokenized_prompt": data["tokenized_prompt"]}
+        )
         assert np.array_equal(out, expected.astype(np.int64))
 
         # Default prompt (missing from obs, injected by InjectDefaultPrompt).
         data = tokenize(inject({"state": np.zeros(2)}))
         expected = StubTokenizer().tokenize("default task")[0]
-        out = _canonical_tokenized_prompt({"tokenized_prompt": data["tokenized_prompt"]})
+        out = _canonical_tokenized_prompt(
+            {"tokenized_prompt": data["tokenized_prompt"]}
+        )
         assert np.array_equal(out, expected.astype(np.int64))

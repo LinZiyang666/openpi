@@ -212,9 +212,14 @@ def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
             f"collector -> {args.collect_hdf5}",
         )
 
-    from openpi.cache.config import build_cache_components, load_cache_config, validate_cache_config
+    from openpi.cache.config import (
+        build_cache_components,
+        load_cache_config,
+        validate_cache_config,
+    )
     from openpi.cache.groot.interceptor import GrootCacheInterceptor
     from openpi.cache.groot.load_guard import (
+        live_num_inference_timesteps,
         validate_artifact_identity,
         validate_groot_cache_config,
     )
@@ -222,7 +227,9 @@ def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
 
     config = load_cache_config(args.cache_config)
     validate_cache_config(config)
-    validate_groot_cache_config(config)
+    validate_groot_cache_config(
+        config, num_inference_timesteps=live_num_inference_timesteps(policy)
+    )
 
     components = build_cache_components(config)
     validate_artifact_identity(components["storage"], config)
@@ -306,6 +313,7 @@ def _resolve_bundle(
     cli_config: Any,
     cli_storage: Any,
     allow_dynamic: bool,
+    num_inference_timesteps: int | None = None,
 ) -> tuple[Any, Any]:
     """Return the ``(config, shared_storage)`` this connection is served under.
 
@@ -313,8 +321,8 @@ def _resolve_bundle(
     hot-swap off this is the CLI configuration and any other id is refused.
     With ``--allow-dynamic-bundles`` the driver owns the swap schedule, so the
     GR00T guards re-run on the *loaded* config -- ``load_cache_config`` runs
-    only the generic validator, and the recipes the two-stage split cannot
-    honour fail silently (an unsatisfiable WARM_START downgrades to MISS, a CP3
+    only the generic validator, and this integration needs additional checks
+    (an unsatisfiable WARM_START fails on its first hit, a CP3
     checkpoint is built and never consulted).
 
     The storage is read off the bundle, never rebuilt: the server's
@@ -344,7 +352,7 @@ def _resolve_bundle(
     )
 
     config = bundle.cache_config
-    validate_groot_cache_config(config)
+    validate_groot_cache_config(config, num_inference_timesteps=num_inference_timesteps)
     validate_artifact_identity(bundle.shared_storage, config)
     return config, bundle.shared_storage
 
@@ -375,6 +383,7 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     )
     from openpi.cache.groot.interceptor import GrootCacheInterceptor
     from openpi.cache.groot.load_guard import (
+        live_num_inference_timesteps,
         validate_artifact_identity,
         validate_groot_cache_config,
     )
@@ -383,7 +392,9 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
 
     config = load_cache_config(args.cache_config)
     validate_cache_config(config)
-    validate_groot_cache_config(config)
+    validate_groot_cache_config(
+        config, num_inference_timesteps=live_num_inference_timesteps(policy)
+    )
     shared_storage = build_shared_storage(config)
     validate_artifact_identity(shared_storage, config)
 
@@ -394,9 +405,12 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
             bundle_id,
             cli_config=config,
             cli_storage=shared_storage,
+            num_inference_timesteps=live_num_inference_timesteps(shared_base_policy),
             allow_dynamic=allow_dynamic,
         )
-        components = build_per_connection_components(conn_config, conn_storage, quiet=True)
+        components = build_per_connection_components(
+            conn_config, conn_storage, quiet=True
+        )
         timer = components["timer"]
         if conn_config.timer.output_csv_dir:
             # Per-connection subdirectory: the per-task CSV name is only

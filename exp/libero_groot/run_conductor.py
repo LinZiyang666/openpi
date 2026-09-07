@@ -327,7 +327,9 @@ def read_journal_outcomes(journal_path: pathlib.Path) -> dict[str, dict]:
                 continue
             uid = rec["task_uid"]
             prev = best.get(uid)
-            if prev is None or int(rec.get("attempt", 1)) >= int(prev.get("attempt", 1)):
+            if prev is None or int(rec.get("attempt", 1)) >= int(
+                prev.get("attempt", 1)
+            ):
                 best[uid] = rec
     return best
 
@@ -395,7 +397,12 @@ def write_arm_artifacts(
 
 
 def _groot_specs(
-    *, n: int, server_keys: list[str], gpus: int, conda_env: str, task_suite: str,
+    *,
+    n: int,
+    server_keys: list[str],
+    gpus: int,
+    conda_env: str,
+    task_suite: str,
     init_states_dir: str,
 ) -> list[WorkerSpec]:
     return [
@@ -424,7 +431,9 @@ def main() -> None:
     ap.add_argument("--role", default="all", choices=("driver", "agent", "all"))
     ap.add_argument("--suite", default="libero_spatial")
     ap.add_argument("--yaml-dir", default="")
-    ap.add_argument("--servers", default="", help="host:port,host:port,... (driver role)")
+    ap.add_argument(
+        "--servers", default="", help="host:port,host:port,... (driver role)"
+    )
     ap.add_argument("--journal", default="", help="episode ledger path (driver role)")
     ap.add_argument(
         "--results-dir",
@@ -462,9 +471,10 @@ def main() -> None:
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 
-
     if not args.servers:
-        raise SystemExit("--servers is required: it is how workers are bound to endpoints")
+        raise SystemExit(
+            "--servers is required: it is how workers are bound to endpoints"
+        )
     servers = []
     for spec in args.servers.split(","):
         if ":" not in spec:
@@ -513,13 +523,18 @@ def main() -> None:
             args.num_tasks = bindings.NUM_TASKS
 
     yaml_dir = pathlib.Path(args.yaml_dir)
+    from exp.libero_groot.emit_warmstart_yamls import verify_warm_sweep
+
+    verify_warm_sweep(yaml_dir, expected_suite=args.suite)
     yaml_paths = {p.stem: str(p) for p in sorted(yaml_dir.glob("*.yaml"))}
     if not yaml_paths:
         raise SystemExit(f"no arm recipes under {yaml_dir}")
 
     journal = pathlib.Path(args.journal)
     expected = args.num_tasks * args.trials
-    remaining, counts = arms_with_work_left(journal, sorted(yaml_paths), expected=expected)
+    remaining, counts = arms_with_work_left(
+        journal, sorted(yaml_paths), expected=expected
+    )
     if len(remaining) != len(yaml_paths):
         logger.info(
             "resume: %d/%d arms already complete, not walking their stages (%s)",
@@ -577,7 +592,9 @@ def main() -> None:
                         "".join(json.dumps(r) + "\n" for r in kept), encoding="utf-8"
                     )
                     logger.info(
-                        "%s: dropped %d superseded per-step rows", arm, len(rows) - len(kept)
+                        "%s: dropped %d superseded per-step rows",
+                        arm,
+                        len(rows) - len(kept),
                     )
             write_arm_artifacts(
                 results_dir=results_dir,
@@ -606,9 +623,10 @@ def main() -> None:
         #
         # One file per arm because that is what the analyzer reads; the driver
         # calls this once per sibling stage, each with only its own shard's rows.
-        with per_step_lock, (per_step_dir / f"{yaml_id}.jsonl").open(
-            "a", encoding="utf-8"
-        ) as fh:
+        with (
+            per_step_lock,
+            (per_step_dir / f"{yaml_id}.jsonl").open("a", encoding="utf-8") as fh,
+        ):
             for row in rows:
                 fh.write(json.dumps({"yaml_id": yaml_id, **row}) + "\n")
 
@@ -624,7 +642,9 @@ def main() -> None:
         bind_host=args.bind_host,
         bind_port=args.driver_port,
         scheduler_kwargs=(
-            {"eval_concurrency": args.eval_concurrency} if args.eval_concurrency else None
+            {"eval_concurrency": args.eval_concurrency}
+            if args.eval_concurrency
+            else None
         ),
         per_step_writer=_per_step_writer,
     )

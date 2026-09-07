@@ -58,7 +58,7 @@ def _vector_with_known_cosine(base: torch.Tensor, target_cos: float) -> torch.Te
         ortho[0, 1] = base[0, 0]
         ortho = F.normalize(ortho, dim=1)
 
-    sin_val = math.sqrt(1.0 - target_cos ** 2)
+    sin_val = math.sqrt(1.0 - target_cos**2)
     v = target_cos * base + sin_val * ortho
     v = F.normalize(v, dim=1)
     return v
@@ -438,7 +438,9 @@ _WARM_TIERS = [
 
 
 def _warm_judge():
-    return ThresholdJudge(cp1_threshold=0.98, cp3_threshold=0.95, warm_tiers=_WARM_TIERS)
+    return ThresholdJudge(
+        cp1_threshold=0.98, cp3_threshold=0.95, warm_tiers=_WARM_TIERS
+    )
 
 
 def test_warm_start_complete_payload():
@@ -450,6 +452,7 @@ def test_warm_start_complete_payload():
         action_chunk=torch.randn(50, 32),
         intermediates={0.3: torch.randn(50, 32), 0.5: torch.randn(50, 32)},
         denoising_num_steps=10,
+        schedule_id="pi05_v1",
     )
     insert_entry(storage, CheckpointID.CP1, state, payload)
 
@@ -463,24 +466,22 @@ def test_warm_start_complete_payload():
     orch.clear()
 
 
-def test_warm_start_missing_intermediates_downgrade():
-    """WARM_START with no intermediates downgrades to MISS."""
+def test_warm_start_missing_intermediates_fails_loud():
+    """WARM_START with no intermediates cannot masquerade as a cache miss."""
     orch, _, storage = make_orchestrator(judge=_warm_judge())
 
     state = _unit_vector(32, 0)
-    payload = CachePayload(action_chunk=torch.randn(50, 32))
+    payload = CachePayload(action_chunk=torch.randn(50, 32), schedule_id="pi05_v1")
     insert_entry(storage, CheckpointID.CP1, state, payload)
 
     query = _vector_with_known_cosine(state, 0.96)
-    result = orch.check(CheckpointID.CP1, stage1=make_stage1(query))
-    assert result.hit_type == HitType.MISS
-    assert result.score is not None
-    assert result.entry_id is not None
+    with pytest.raises(ValueError, match="no intermediates"):
+        orch.check(CheckpointID.CP1, stage1=make_stage1(query))
     orch.clear()
 
 
-def test_warm_start_missing_start_t_key_downgrade():
-    """WARM_START with intermediates that lack the required start_t key downgrades to MISS."""
+def test_warm_start_missing_start_t_key_fails_loud():
+    """WARM_START requires the exact snapshot selected by the judge."""
     orch, _, storage = make_orchestrator(judge=_warm_judge())
 
     state = _unit_vector(32, 0)
@@ -488,27 +489,28 @@ def test_warm_start_missing_start_t_key_downgrade():
         action_chunk=torch.randn(50, 32),
         intermediates={0.5: torch.randn(50, 32)},
         denoising_num_steps=10,
+        schedule_id="pi05_v1",
     )
     insert_entry(storage, CheckpointID.CP1, state, payload)
 
     query = _vector_with_known_cosine(state, 0.96)
-    result = orch.check(CheckpointID.CP1, stage1=make_stage1(query))
-    # Judge wants start_t=0.3 but payload only has 0.5 → downgrade
-    assert result.hit_type == HitType.MISS
+    with pytest.raises(ValueError, match="no snapshot at start_t=0.3000"):
+        orch.check(CheckpointID.CP1, stage1=make_stage1(query))
     orch.clear()
 
 
-def test_warm_start_miss_count_incremented_on_downgrade():
-    """Downgraded WARM_START increments miss counter."""
+def test_invalid_warm_start_is_not_counted_as_a_model_miss():
+    """Corrupt library data is fatal provenance, not a model MISS."""
     orch, _, storage = make_orchestrator(judge=_warm_judge())
 
     state = _unit_vector(32, 0)
-    payload = CachePayload(action_chunk=torch.randn(50, 32))
+    payload = CachePayload(action_chunk=torch.randn(50, 32), schedule_id="pi05_v1")
     insert_entry(storage, CheckpointID.CP1, state, payload)
 
     query = _vector_with_known_cosine(state, 0.96)
-    orch.check(CheckpointID.CP1, stage1=make_stage1(query))
-    assert orch._miss_by_checkpoint.get(CheckpointID.CP1, 0) >= 1
+    with pytest.raises(ValueError, match="no intermediates"):
+        orch.check(CheckpointID.CP1, stage1=make_stage1(query))
+    assert orch._miss_by_checkpoint.get(CheckpointID.CP1, 0) == 0
     orch.clear()
 
 
@@ -587,7 +589,9 @@ def test_check_request_context_is_kwarg_only():
     state = torch.randn(1, 32)
 
     with pytest.raises(TypeError):
-        orch.check(CheckpointID.CP1, {"gate_decision": "skip"}, stage1=make_stage1(state))  # type: ignore[misc]
+        orch.check(
+            CheckpointID.CP1, {"gate_decision": "skip"}, stage1=make_stage1(state)
+        )  # type: ignore[misc]
     orch.clear()
 
 
@@ -842,28 +846,20 @@ def test_verdict_fed_to_gate_on_skip():
     orch.clear()
 
 
-def test_verdict_fed_to_gate_on_warm_start_downgrade():
-    # WARM_START whose payload lacks intermediates downgrades to MISS. The gate
-    # must be fed the FINAL verdict (MISS) with searched=True, cp1_score = top
-    # score, and winner_id / start_t passed from the judge result.
+def test_invalid_warm_start_is_not_committed_to_the_gate_as_a_miss():
+    # A corrupt payload is a fatal library error, not a model verdict. Feeding
+    # MISS to the gate would hide the corruption inside hit-rate statistics.
     spy = _VerdictSpyGate(decision=True)
     orch, _, storage = make_orchestrator(
         gate=spy, judge=AlwaysWarmStartJudge(start_t=0.5)
     )
     state = _unit_vector(32, 0)
-    payload = CachePayload(action_chunk=torch.randn(50, 32))  # no intermediates
-    entry = insert_entry(storage, CheckpointID.CP1, state, payload)
+    payload = CachePayload(action_chunk=torch.randn(50, 32), schedule_id="pi05_v1")
+    insert_entry(storage, CheckpointID.CP1, state, payload)
 
-    result = orch.check(CheckpointID.CP1, stage1=make_stage1(state))
-    assert result.hit_type == HitType.MISS  # WARM_START downgraded to MISS
-
-    assert len(spy.verdicts) == 1
-    v = spy.verdicts[0]
-    assert v["searched"] is True
-    assert v["hit_type"] == HitType.MISS
-    assert v["cp1_score"] is not None and abs(v["cp1_score"] - 1.0) < 1e-5
-    assert v["winner_id"] == entry.id
-    assert v["start_t"] == 0.5
+    with pytest.raises(ValueError, match="no intermediates"):
+        orch.check(CheckpointID.CP1, stage1=make_stage1(state))
+    assert spy.verdicts == []
     orch.clear()
 
 
@@ -955,7 +951,9 @@ class _ReplayStubGate:
     def replay_target(self):
         return self._replay_id
 
-    def record_verdict(self, checkpoint_id, *, hit_type, cp1_score, winner_id, start_t, searched):
+    def record_verdict(
+        self, checkpoint_id, *, hit_type, cp1_score, winner_id, start_t, searched
+    ):
         self.verdicts.append((hit_type, winner_id, searched))
 
 
@@ -965,10 +963,24 @@ def test_blind_replay_hit_returns_full_hit_searched_false():
     # 2-step linked trajectory; walk_next("traj:0", 1) -> "traj:1".
     payload0 = CachePayload(action_chunk=torch.zeros(4, 32))
     payload1 = CachePayload(action_chunk=torch.ones(4, 32))
-    insert_entry(storage, CheckpointID.CP1, _unit_vector(32, 0), payload0,
-                 entry_id="traj:0", next_ids=["traj:1"], trajectory_id="traj")
-    insert_entry(storage, CheckpointID.CP1, _unit_vector(32, 1), payload1,
-                 entry_id="traj:1", prev_ids=["traj:0"], trajectory_id="traj")
+    insert_entry(
+        storage,
+        CheckpointID.CP1,
+        _unit_vector(32, 0),
+        payload0,
+        entry_id="traj:0",
+        next_ids=["traj:1"],
+        trajectory_id="traj",
+    )
+    insert_entry(
+        storage,
+        CheckpointID.CP1,
+        _unit_vector(32, 1),
+        payload1,
+        entry_id="traj:1",
+        prev_ids=["traj:0"],
+        trajectory_id="traj",
+    )
 
     result = orch.check(CheckpointID.CP1, stage1=make_stage1(_unit_vector(32, 5)))
 
@@ -987,9 +999,14 @@ def test_blind_replay_trajectory_tail_falls_through_to_miss():
     gate = _ReplayStubGate(replay_id="traj:9")
     orch, _, storage = make_orchestrator(gate=gate)
     # Tail entry: no next_ids -> walk_next returns [] -> fall through to skip path.
-    insert_entry(storage, CheckpointID.CP1, _unit_vector(32, 0),
-                 CachePayload(action_chunk=torch.randn(4, 32)),
-                 entry_id="traj:9", trajectory_id="traj")
+    insert_entry(
+        storage,
+        CheckpointID.CP1,
+        _unit_vector(32, 0),
+        CachePayload(action_chunk=torch.randn(4, 32)),
+        entry_id="traj:9",
+        trajectory_id="traj",
+    )
 
     result = orch.check(CheckpointID.CP1, stage1=make_stage1(_unit_vector(32, 5)))
 
@@ -1004,9 +1021,15 @@ def test_blind_replay_walk_exception_falls_through_to_miss():
     orch, _, storage = make_orchestrator(gate=gate)
     # Dangling next link: "traj:ghost" is never inserted -> walk raises -> caught,
     # then the same fail-safe fall-through as the empty tail.
-    insert_entry(storage, CheckpointID.CP1, _unit_vector(32, 0),
-                 CachePayload(action_chunk=torch.randn(4, 32)),
-                 entry_id="traj:0", next_ids=["traj:ghost"], trajectory_id="traj")
+    insert_entry(
+        storage,
+        CheckpointID.CP1,
+        _unit_vector(32, 0),
+        CachePayload(action_chunk=torch.randn(4, 32)),
+        entry_id="traj:0",
+        next_ids=["traj:ghost"],
+        trajectory_id="traj",
+    )
 
     result = orch.check(CheckpointID.CP1, stage1=make_stage1(_unit_vector(32, 5)))
 
@@ -1044,8 +1067,16 @@ class _SignalSpyJudge:
         self.received = self._UNSET
         self.call_count = 0
 
-    def __call__(self, results, checkpoint_id, cached_data, *,
-                 view=None, history=None, retrieval_signals=None):
+    def __call__(
+        self,
+        results,
+        checkpoint_id,
+        cached_data,
+        *,
+        view=None,
+        history=None,
+        retrieval_signals=None,
+    ):
         self.received = retrieval_signals
         self.call_count += 1
         if not results:
@@ -1102,8 +1133,9 @@ def test_orchestrator_passes_none_signals_when_strategy_lacks_getter():
     # no last_retrieval_signals method.
     orch, _, storage = make_orchestrator(judge=spy)
     state = _unit_vector(32, 0)
-    insert_entry(storage, CheckpointID.CP1, state,
-                 CachePayload(action_chunk=torch.zeros(50, 32)))
+    insert_entry(
+        storage, CheckpointID.CP1, state, CachePayload(action_chunk=torch.zeros(50, 32))
+    )
 
     result = orch.check(CheckpointID.CP1, stage1=make_stage1(state))
 
@@ -1125,8 +1157,9 @@ def test_orchestrator_forwards_strategy_retrieval_signals_to_judge():
         judge=spy,
     )
     state = _unit_vector(32, 0)
-    insert_entry(storage, CheckpointID.CP1, state,
-                 CachePayload(action_chunk=torch.zeros(50, 32)))
+    insert_entry(
+        storage, CheckpointID.CP1, state, CachePayload(action_chunk=torch.zeros(50, 32))
+    )
 
     result = orch.check(CheckpointID.CP1, stage1=make_stage1(state))
 
@@ -1144,7 +1177,7 @@ def test_dumping_judge_forwards_retrieval_signals_to_inner(tmp_path):
     spy = _SignalSpyJudge()
     dumping = DumpingJudge(
         inner=spy,
-        dump_normalization=None,   # no dump factors -> normalization unused
+        dump_normalization=None,  # no dump factors -> normalization unused
         dump_factors=[],
         dump_path=str(tmp_path / "dump.jsonl"),
         config_id="phase3_seam_test",

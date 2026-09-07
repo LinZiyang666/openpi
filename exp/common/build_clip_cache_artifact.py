@@ -39,7 +39,8 @@ from openpi.cache.components.clip_key_builder import (
     clip_state_key,
 )
 from openpi.cache.storage_types import CacheEntry, CachePayload
-from openpi.cache.types import PROMPT_EMB, ROBOT_STATE, CheckpointID
+from openpi.cache.types import PI05_V1, PROMPT_EMB, ROBOT_STATE, CheckpointID
+from openpi.collect.h5_intermediates import episode_schedule, read_step_intermediates
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,9 @@ class _CLIPEncoder:
         self.device = torch.device(device)
 
         model, _, preprocess = open_clip.create_model_and_transforms(
-            model_name, pretrained=pretrained, device=self.device,
+            model_name,
+            pretrained=pretrained,
+            device=self.device,
         )
         model.eval()
         self._model = model
@@ -68,7 +71,10 @@ class _CLIPEncoder:
         self.embed_dim = model.visual.output_dim
         logger.info(
             "Loaded %s (pretrained=%s) on %s, embed_dim=%d",
-            model_name, pretrained, device, self.embed_dim,
+            model_name,
+            pretrained,
+            device,
+            self.embed_dim,
         )
 
     def encode_batch(self, images: list[np.ndarray]) -> torch.Tensor:
@@ -114,6 +120,7 @@ def _process_episode(
         success = bool(f.attrs.get("success", False))
         if not success:
             return None
+        schedule = episode_schedule(f)
 
         step_names = sorted(
             (k for k in f.keys() if k.startswith("step_")),
@@ -149,7 +156,7 @@ def _process_episode(
         # -- Batch encode all images --
         all_embeddings: list[torch.Tensor] = []
         for batch_start in range(0, len(all_images), batch_size):
-            batch = all_images[batch_start:batch_start + batch_size]
+            batch = all_images[batch_start : batch_start + batch_size]
             embs = encoder.encode_batch(batch)  # [N, embed_dim]
             for i in range(embs.shape[0]):
                 all_embeddings.append(embs[i])
@@ -185,41 +192,32 @@ def _process_episode(
             if suffix.isdigit():
                 step_idx = int(suffix)
 
-            entry_id = f"{trajectory_id}:{step_idx if step_idx is not None else step_name}"
+            entry_id = (
+                f"{trajectory_id}:{step_idx if step_idx is not None else step_name}"
+            )
 
             action = torch.from_numpy(np.array(group["clean_action"])).float()
             if action.dim() == 1:
                 action = action.unsqueeze(0)
 
-            # Mirror build_in_memory_cache_artifact.py:250-266 — read noise_action_*
-            # to populate payload.intermediates, so WARM_START judges can lift
-            # cached x_t from this artifact without hitting the Orchestrator
-            # "WARM_START payload incomplete" downgrade path.
-            _NUM_STEPS = 10
-            intermediates = None
-            denoising_num_steps = None
-            noise_indices = []
-            for k in group.keys():
-                if k.startswith("noise_action_"):
-                    suffix = k.split("_")[-1]
-                    if suffix.isdigit():
-                        idx = int(suffix)
-                        if 1 <= idx < _NUM_STEPS:
-                            noise_indices.append(idx)
-            if noise_indices:
-                denoising_num_steps = _NUM_STEPS
-                intermediates = {}
-                for nidx in sorted(noise_indices):
-                    t = round(1.0 - nidx / _NUM_STEPS, 4)
-                    intermediates[t] = torch.from_numpy(
-                        np.array(group[f"noise_action_{nidx}"])
-                    ).float()
+            # Read noise_action_* under the file's own schedule to populate
+            # payload.intermediates, so WARM_START judges can lift cached x_t
+            # from this artifact without hitting the Orchestrator "WARM_START
+            # payload incomplete" downgrade path.
+            intermediates, denoising_num_steps = read_step_intermediates(
+                group, schedule
+            )
 
             payload = CachePayload(
                 action_chunk=action,
                 task_key=task,
                 intermediates=intermediates,
                 denoising_num_steps=denoising_num_steps,
+                schedule_id=(
+                    schedule.schedule_id
+                    if schedule is not None
+                    else PI05_V1.schedule_id
+                ),
             )
             entry = CacheEntry(
                 id=entry_id,
@@ -278,7 +276,11 @@ def build_artifact(
     skipped = 0
     for idx, h5_path in enumerate(h5_paths):
         result = _process_episode(
-            h5_path, encoder, enabled_set, checkpoint_id_str, batch_size,
+            h5_path,
+            encoder,
+            enabled_set,
+            checkpoint_id_str,
+            batch_size,
         )
         if result is None:
             skipped += 1
@@ -287,7 +289,10 @@ def build_artifact(
         if (idx + 1) % 10 == 0 or (idx + 1) == len(h5_paths):
             logger.info(
                 "Progress: %d/%d files, %d entries, %d skipped",
-                idx + 1, len(h5_paths), len(entries), skipped,
+                idx + 1,
+                len(h5_paths),
+                len(entries),
+                skipped,
             )
 
     # Prune vector_dims to only fields that actually appear in entries.
@@ -298,9 +303,18 @@ def build_artifact(
 
     logger.info(
         "Built %d entries from %d files (%d skipped) for clip/%s/%s",
-        len(entries), len(h5_paths), skipped, clip_model, clip_pretrained,
+        len(entries),
+        len(h5_paths),
+        skipped,
+        clip_model,
+        clip_pretrained,
     )
 
+    schedule_ids = {entry.payload.schedule_id for entry in entries}
+    if len(schedule_ids) > 1:
+        raise ValueError(
+            f"input episodes mix denoise schedules: {sorted(schedule_ids)}"
+        )
     return {
         "key_builder_type": "clip",
         "checkpoint_id": checkpoint_id_str,
@@ -308,6 +322,7 @@ def build_artifact(
         "clip_model_name": clip_model,
         "clip_pretrained": clip_pretrained,
         "entries": entries,
+        "schedule_id": next(iter(schedule_ids), None),
     }
 
 
@@ -317,23 +332,33 @@ def main():
     parser = argparse.ArgumentParser(
         description="Build InMemoryBackend artifact from HDF5 data using CLIP encoder",
     )
-    parser.add_argument("--data-dir", required=True, help="Directory with .h5 episode files")
+    parser.add_argument(
+        "--data-dir", required=True, help="Directory with .h5 episode files"
+    )
     parser.add_argument("--clip-model", default="ViT-B-32", help="open_clip model name")
-    parser.add_argument("--clip-pretrained", default="openai", help="open_clip pretrained tag")
+    parser.add_argument(
+        "--clip-pretrained", default="openai", help="open_clip pretrained tag"
+    )
     parser.add_argument("--output", required=True, help="Output .pkl path")
     parser.add_argument("--checkpoint-id", default="CP1", choices=["CP1"])
-    parser.add_argument("--device", default="cpu", help="Device for CLIP encoding (cpu/cuda)")
-    parser.add_argument("--batch-size", type=int, default=64, help="Batch size for CLIP encoding")
     parser.add_argument(
-        "--fields", default="vision_0,robot_state",
+        "--device", default="cpu", help="Device for CLIP encoding (cpu/cuda)"
+    )
+    parser.add_argument(
+        "--batch-size", type=int, default=64, help="Batch size for CLIP encoding"
+    )
+    parser.add_argument(
+        "--fields",
+        default="vision_0,robot_state",
         help="Comma-separated enabled fields (default: vision_0,robot_state)",
     )
     parser.add_argument(
-        "--factors-yaml", default=None,
+        "--factors-yaml",
+        default=None,
         help="Path to a YAML listing OfflineWriter-capable factors "
-             "(F1b-A / F1b-T) — see exp/common/factor_postprocess.py. "
-             "When set, the artifact is enriched with per-entry "
-             "`payload.factors` and a top-level `library_stats` field."
+        "(F1b-A / F1b-T) — see exp/common/factor_postprocess.py. "
+        "When set, the artifact is enriched with per-entry "
+        "`payload.factors` and a top-level `library_stats` field.",
     )
     args = parser.parse_args()
 
@@ -352,6 +377,7 @@ def main():
     # B2 — verdict-factor enrichment (see exp/common/factor_postprocess.py).
     # sys.path injection mirrors build_llm_layer_matrix.py:50 pattern.
     import sys as _sys
+
     _here = str(Path(__file__).parent.resolve())
     if _here not in _sys.path:
         _sys.path.insert(0, _here)
@@ -359,12 +385,14 @@ def main():
         _load_offline_writers_from_yaml,
         enrich_artifact_with_factors,
     )
+
     offline_writers = (
-        _load_offline_writers_from_yaml(args.factors_yaml)
-        if args.factors_yaml else []
+        _load_offline_writers_from_yaml(args.factors_yaml) if args.factors_yaml else []
     )
     if artifact["entries"]:
-        library_stats = enrich_artifact_with_factors(artifact["entries"], offline_writers)
+        library_stats = enrich_artifact_with_factors(
+            artifact["entries"], offline_writers
+        )
         artifact["library_stats"] = library_stats
 
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)

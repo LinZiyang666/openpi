@@ -66,9 +66,19 @@ from exp.robocasa365.pinned_objects import (
 )
 from openpi.conductor.driver import ConductorDriver
 from openpi.conductor.strategy import ExperimentStrategy
-from openpi.conductor.task import EpisodeTask, ServerEndpoint, Stage, TaskGraph, make_task_uid
+from openpi.conductor.task import (
+    EpisodeTask,
+    ServerEndpoint,
+    Stage,
+    TaskGraph,
+    make_task_uid,
+)
 
 TEACHERS = ("pi05", "groot_tp")
+# HDF5 contract written by the current collectors: schedule attrs plus
+# noise_action_0..N-1. It is hashed into every run plan so a pre-v2 journal
+# can never be resumed into a mixed-schema collection by accident.
+COLLECT_SCHEMA_VERSION = "v2"
 
 # ------------------------------------------------------------------
 # Identity formulas (frozen §4.3.2)
@@ -172,10 +182,16 @@ class RobocasaCollectStrategy(ExperimentStrategy):
         # IS 1_000_000 by design, so testing it against the same bound would
         # reject every eval strategy.
         highest = max(
-            (int(self._episode_lo.get(name, 0)) + int(n) - 1 for name, n in self._tasks),
+            (
+                int(self._episode_lo.get(name, 0)) + int(n) - 1
+                for name, n in self._tasks
+            ),
             default=0,
         )
-        if self._base_seed < EVAL_SEED_BASE and self._base_seed + highest >= EVAL_SEED_BASE:
+        if (
+            self._base_seed < EVAL_SEED_BASE
+            and self._base_seed + highest >= EVAL_SEED_BASE
+        ):
             raise ValueError(
                 f"seed {self._base_seed + highest} reaches the eval segment "
                 f"(base {EVAL_SEED_BASE}); collection and eval must not share seeds"
@@ -241,7 +257,13 @@ class RobocasaCollectStrategy(ExperimentStrategy):
                     )
                 )
             graph.add_stage(
-                Stage(stage_id=yaml_id, yaml_id=yaml_id, phase="eval", server=server, episodes=episodes)
+                Stage(
+                    stage_id=yaml_id,
+                    yaml_id=yaml_id,
+                    phase="eval",
+                    server=server,
+                    episodes=episodes,
+                )
             )
         graph.validate()
         return graph
@@ -287,11 +309,15 @@ def teacher_endpoint_group(env_config: dict[str, str], teacher: str) -> set[str]
     return {spec.strip() for spec in raw.split(",") if spec.strip()}
 
 
-def validate_teacher_endpoints(teacher: str, servers: list[ServerEndpoint], env_config: dict[str, str]) -> None:
+def validate_teacher_endpoints(
+    teacher: str, servers: list[ServerEndpoint], env_config: dict[str, str]
+) -> None:
     """Refuse BEFORE graph construction if any endpoint is outside the teacher's group."""
     group = teacher_endpoint_group(env_config, teacher)
     if not group:
-        raise SystemExit(f"env-config declares no {teacher.upper()}_SERVERS group; refusing to guess")
+        raise SystemExit(
+            f"env-config declares no {teacher.upper()}_SERVERS group; refusing to guess"
+        )
     stray = [s.key for s in servers if s.key not in group]
     if stray:
         raise SystemExit(
@@ -312,7 +338,9 @@ def compute_plan_hash(payload: dict[str, Any]) -> str:
     return hashlib.sha256(canonical.encode()).hexdigest()
 
 
-def build_run_plan(strategy: RobocasaCollectStrategy, graph: TaskGraph, collect_root: str) -> dict[str, Any]:
+def build_run_plan(
+    strategy: RobocasaCollectStrategy, graph: TaskGraph, collect_root: str
+) -> dict[str, Any]:
     """Serialize the ACTUAL dispatch graph — no second UID formula anywhere."""
     uids: list[str] = []
     prefixes: dict[str, str] = {}
@@ -321,10 +349,13 @@ def build_run_plan(strategy: RobocasaCollectStrategy, graph: TaskGraph, collect_
         for episode in stage.episodes:
             uids.append(episode.task_uid)
             prefixes[episode.task_uid] = output_prefix(
-                episode.extra["teacher"], episode.extra["task_name"], episode.episode_idx
+                episode.extra["teacher"],
+                episode.extra["task_name"],
+                episode.episode_idx,
             )
     payload: dict[str, Any] = {
         "params": {
+            "collect_schema": COLLECT_SCHEMA_VERSION,
             "teacher": strategy._teacher,  # noqa: SLF001 - own module
             "layout": strategy._layout,  # noqa: SLF001
             "style": strategy._style,  # noqa: SLF001
@@ -369,7 +400,9 @@ def write_run_plan(path: str | pathlib.Path, payload: dict[str, Any]) -> None:
         stored = existing.get("plan_hash")
         recomputed = compute_plan_hash(existing)
         if stored != recomputed:
-            raise SystemExit(f"run-plan {path} is corrupt: stored hash {stored} != recomputed {recomputed}")
+            raise SystemExit(
+                f"run-plan {path} is corrupt: stored hash {stored} != recomputed {recomputed}"
+            )
         if stored != payload["plan_hash"]:
             raise SystemExit(
                 f"run-plan mismatch at {path}: existing plan_hash {stored} != new {payload['plan_hash']}. "
@@ -418,21 +451,33 @@ def robocasa_spawn_fn(
         worker_python,
         "-m",
         "exp.robocasa365.worker_entry",
-        "--worker-id", spec.worker_id,
-        "--server-key", spec.server_key,
-        "--driver-host", driver_host,
-        "--driver-port", str(driver_port),
-        "--teacher", teacher,
-        "--connect-deadline-s", str(connect_deadline_s),
-        "--episode-deadline-s", str(episode_deadline_s),
-        "--terminate-grace-s", str(terminate_grace_s),
+        "--worker-id",
+        spec.worker_id,
+        "--server-key",
+        spec.server_key,
+        "--driver-host",
+        driver_host,
+        "--driver-port",
+        str(driver_port),
+        "--teacher",
+        teacher,
+        "--connect-deadline-s",
+        str(connect_deadline_s),
+        "--episode-deadline-s",
+        str(episode_deadline_s),
+        "--terminate-grace-s",
+        str(terminate_grace_s),
     ]
     if max_cached_envs is not None:
         # Optional so every existing collection invocation stays byte-identical.
         cmd += ["--max-cached-envs", str(max_cached_envs)]
     if pinned_objects_path:
         cmd += ["--pinned-objects", pinned_objects_path]
-    env = {k: v for k, v in os.environ.items() if k not in ("VIRTUAL_ENV", "PYTHONPATH", "PYTHONHOME")}
+    env = {
+        k: v
+        for k, v in os.environ.items()
+        if k not in ("VIRTUAL_ENV", "PYTHONPATH", "PYTHONHOME")
+    }
     # Island A has openpi_client but not openpi/exp; both come off the repo.
     env["PYTHONPATH"] = os.pathsep.join((repo_root, os.path.join(repo_root, "src")))
     env["MUJOCO_GL"] = "egl"
@@ -470,29 +515,68 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--role", required=True, choices=("driver", "agent", "all"))
     ap.add_argument("--teacher", required=True, choices=TEACHERS)
-    ap.add_argument("--servers", required=True, help="comma-separated host:port, ONE teacher's endpoints only")
-    ap.add_argument("--tasks", required=True, help="TaskA,TaskB or TaskA:256,TaskB:126 (ordered; order is identity)")
-    ap.add_argument("--episodes", type=int, default=1, help="shared per-task episode count when --tasks has no :N")
+    ap.add_argument(
+        "--servers",
+        required=True,
+        help="comma-separated host:port, ONE teacher's endpoints only",
+    )
+    ap.add_argument(
+        "--tasks",
+        required=True,
+        help="TaskA,TaskB or TaskA:256,TaskB:126 (ordered; order is identity)",
+    )
+    ap.add_argument(
+        "--episodes",
+        type=int,
+        default=1,
+        help="shared per-task episode count when --tasks has no :N",
+    )
     ap.add_argument("--layout", type=int, required=True)
     ap.add_argument("--style", type=int, required=True)
     ap.add_argument("--base-seed", type=int, required=True)
     ap.add_argument("--replan-steps", type=int, default=5)
     ap.add_argument("--batch", type=int, default=1)
-    ap.add_argument("--episode-lo", default="", help="TaskA:20,TaskB:15 — extension-batch episode range starts")
+    ap.add_argument(
+        "--episode-lo",
+        default="",
+        help="TaskA:20,TaskB:15 — extension-batch episode range starts",
+    )
     ap.add_argument(
         "--pinned-objects",
         default="",
         help="pin table path; pins every object slot to one exact mesh. The "
         "driver re-derives its pin_id and every worker re-reads the file.",
     )
-    ap.add_argument("--collect-root", required=True, help="scene root the servers write under (hashed into run-plan)")
-    ap.add_argument("--journal", default="", help="default: exp/robocasa365/data/journal_<runid>.jsonl")
+    ap.add_argument(
+        "--collect-root",
+        required=True,
+        help="scene root the servers write under (hashed into run-plan)",
+    )
+    ap.add_argument(
+        "--journal",
+        default="",
+        help="default: exp/robocasa365/data/journal_<runid>.jsonl",
+    )
     ap.add_argument("--run-plan-dir", default="", help="default: alongside the journal")
-    ap.add_argument("--env-config", required=True, help="env-config file with per-teacher endpoint groups + paths")
+    ap.add_argument(
+        "--env-config",
+        required=True,
+        help="env-config file with per-teacher endpoint groups + paths",
+    )
     ap.add_argument("--bind-host", default="127.0.0.1")
-    ap.add_argument("--driver-host", default="", help="agent role: where the driver's pull port lives")
-    ap.add_argument("--driver-port", type=int, default=0, help="agent role: the driver's pull port")
-    ap.add_argument("--gpu-ids", default="0", help="comma-separated CUDA slots, one worker per bound server")
+    ap.add_argument(
+        "--driver-host",
+        default="",
+        help="agent role: where the driver's pull port lives",
+    )
+    ap.add_argument(
+        "--driver-port", type=int, default=0, help="agent role: the driver's pull port"
+    )
+    ap.add_argument(
+        "--gpu-ids",
+        default="0",
+        help="comma-separated CUDA slots, one worker per bound server",
+    )
     ap.add_argument("--episode-timeout-s", type=float, default=1800.0)
     ap.add_argument("--connect-deadline-s", type=float, required=True)
     ap.add_argument("--episode-deadline-s", type=float, required=True)
@@ -535,12 +619,20 @@ def main() -> None:
     )
     run_id = strategy.run_id
     data_dir = pathlib.Path(__file__).resolve().parent / "data"
-    journal_path = pathlib.Path(args.journal) if args.journal else data_dir / f"journal_{run_id}.jsonl"
-    plan_dir = pathlib.Path(args.run_plan_dir) if args.run_plan_dir else journal_path.parent
+    journal_path = (
+        pathlib.Path(args.journal)
+        if args.journal
+        else data_dir / f"journal_{run_id}.jsonl"
+    )
+    plan_dir = (
+        pathlib.Path(args.run_plan_dir) if args.run_plan_dir else journal_path.parent
+    )
     run_plan_path = plan_dir / f"run_plan_{run_id}_b{args.batch:02d}.json"
 
     yaml_weights = {yid: n for yid, (_, n) in zip(strategy.yaml_ids, tasks)}
-    server_capacities = {s.key: 1 for s in servers}  # frozen D-L: 1 connection per server process
+    server_capacities = {
+        s.key: 1 for s in servers
+    }  # frozen D-L: 1 connection per server process
 
     agent = None
     driver = None
@@ -554,14 +646,19 @@ def main() -> None:
         graph = strategy.plan(sorted(yaml_weights), assignment)
         run_plan = build_run_plan(strategy, graph, args.collect_root)
         write_run_plan(run_plan_path, run_plan)
-        print(f"[run_collect] run-plan {run_plan_path} plan_hash={run_plan['plan_hash']}", flush=True)
+        print(
+            f"[run_collect] run-plan {run_plan_path} plan_hash={run_plan['plan_hash']}",
+            flush=True,
+        )
 
         driver = ConductorDriver(
             strategy,
             yaml_weights=yaml_weights,
             servers=servers,
             journal_path=str(journal_path),
-            ctl_factory=lambda _server: _NoOpCtl(),  # collection only; eval needs the real ctl
+            ctl_factory=lambda _server: (
+                _NoOpCtl()
+            ),  # collection only; eval needs the real ctl
             episode_timeout_s=args.episode_timeout_s,
             bind_host=args.bind_host,
             server_capacities=server_capacities,
@@ -576,10 +673,16 @@ def main() -> None:
         driver_host = args.driver_host or args.bind_host
         driver_port = args.driver_port or (driver.port if driver is not None else 0)
         if not driver_port:
-            raise SystemExit("--role agent requires --driver-host/--driver-port of a running driver")
+            raise SystemExit(
+                "--role agent requires --driver-host/--driver-port of a running driver"
+            )
         gpu_ids = [g.strip() for g in args.gpu_ids.split(",") if g.strip()]
         specs = [
-            WorkerSpec(worker_id=f"w{i}", server_key=server.key, gpu_id=gpu_ids[i % len(gpu_ids)])
+            WorkerSpec(
+                worker_id=f"w{i}",
+                server_key=server.key,
+                gpu_id=gpu_ids[i % len(gpu_ids)],
+            )
             for i, server in enumerate(servers)
         ]
         spawn = functools.partial(
@@ -595,7 +698,9 @@ def main() -> None:
             terminate_grace_s=args.terminate_grace_s,
             pinned_objects_path=pin_path or None,
         )
-        agent = WorkerAgent(specs, driver_host=driver_host, driver_port=driver_port, spawn_fn=spawn)
+        agent = WorkerAgent(
+            specs, driver_host=driver_host, driver_port=driver_port, spawn_fn=spawn
+        )
         agent_thread = threading.Thread(target=agent.run, daemon=True)
         agent_thread.start()
         print(f"[run_collect] agent supervising {len(specs)} worker(s)", flush=True)

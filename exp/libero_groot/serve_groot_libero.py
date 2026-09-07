@@ -107,6 +107,7 @@ def _resolve_bundle(
     cli_config: Any,
     cli_storage: Any,
     allow_dynamic: bool,
+    num_inference_timesteps: int | None = None,
 ) -> tuple[Any, Any]:
     """Return the ``(config, shared_storage)`` this connection is served under.
 
@@ -119,7 +120,7 @@ def _resolve_bundle(
 
     First, the *guards must re-run on the loaded config*. ``load_cache_config``
     runs only the generic validator, so a hot-swapped yaml would otherwise reach
-    serving with an unsatisfiable WARM_START silently downgraded to MISS, a CP3
+    serving with an unsatisfiable WARM_START rejected on its first hit, a CP3
     checkpoint built and never consulted, or a three-camera RoboCasa builder
     that rejects every LIBERO observation. The startup checks protect the CLI
     config; nothing protected the loaded one.
@@ -157,8 +158,14 @@ def _resolve_bundle(
     )
 
     config = bundle.cache_config
-    validate_groot_cache_config(config, allow_hysteresis_gate=True)
-    _check_libero_builder(config.key_builder.type, lambda m: (_ for _ in ()).throw(ValueError(m)))
+    validate_groot_cache_config(
+        config,
+        allow_hysteresis_gate=True,
+        num_inference_timesteps=num_inference_timesteps,
+    )
+    _check_libero_builder(
+        config.key_builder.type, lambda m: (_ for _ in ()).throw(ValueError(m))
+    )
     validate_artifact_identity(bundle.shared_storage, config)
     return config, bundle.shared_storage
 
@@ -193,7 +200,9 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
 
         def teacher_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
             _require_default_bundle(bundle_id)
-            return _InferLockedPolicy(GrootLiberoPolicyAdapter(shared_base_policy), lock)
+            return _InferLockedPolicy(
+                GrootLiberoPolicyAdapter(shared_base_policy), lock
+            )
 
         return teacher_factory, "concurrent teacher-only (no cache)"
 
@@ -205,6 +214,7 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     )
     from openpi.cache.groot.interceptor import GrootCacheInterceptor
     from openpi.cache.groot.load_guard import (
+        live_num_inference_timesteps,
         validate_artifact_identity,
         validate_groot_cache_config,
     )
@@ -219,9 +229,8 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     if args.cache_config:
         config = load_cache_config(args.cache_config)
         validate_cache_config(config)
-    # The generic validator permits recipes the two-stage split cannot honour
-    # and that fail *silently*: an unsatisfiable WARM_START is downgraded to
-    # MISS (a GR00T library never carries intermediates), a CP3 checkpoint is
+    # The generic validator permits recipes this GR00T integration cannot honour:
+    # a wrong-schedule WARM_START is rejected at runtime, a CP3 checkpoint is
     # built and never consulted, a non-``always_search`` gate changes what
     # ``searched`` means downstream.
     #
@@ -232,7 +241,11 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     # while this line's analysis reads ``searched`` -- which it does: gate-skip
     # steps are counted as teacher calls in the Pareto's x-axis.
     if config is not None:
-        validate_groot_cache_config(config, allow_hysteresis_gate=True)
+        validate_groot_cache_config(
+            config,
+            allow_hysteresis_gate=True,
+            num_inference_timesteps=live_num_inference_timesteps(policy),
+        )
         _check_libero_builder(
             config.key_builder.type, lambda m: (_ for _ in ()).throw(ValueError(m))
         )
@@ -247,14 +260,19 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
             bundle_id,
             cli_config=config,
             cli_storage=shared_storage,
+            num_inference_timesteps=live_num_inference_timesteps(shared_base_policy),
             allow_dynamic=allow_dynamic,
         )
         if conn_config is None:
             # Dynamic bundles enabled but nothing loaded yet: serve the teacher.
             # Refusing instead would break the runner's opening handshake, which
             # selects "default" before the first stage has been sent.
-            return _InferLockedPolicy(GrootLiberoPolicyAdapter(shared_base_policy), lock)
-        components = build_per_connection_components(conn_config, conn_storage, quiet=True)
+            return _InferLockedPolicy(
+                GrootLiberoPolicyAdapter(shared_base_policy), lock
+            )
+        components = build_per_connection_components(
+            conn_config, conn_storage, quiet=True
+        )
         timer = components["timer"]
         if conn_config.timer.output_csv_dir:
             # Per-connection subdirectory: the per-task CSV name is only
@@ -415,18 +433,25 @@ def main() -> None:
             validate_cache_config,
         )
         from openpi.cache.groot.interceptor import GrootCacheInterceptor
-        from openpi.cache.groot.load_guard import validate_groot_cache_config
+        from openpi.cache.groot.load_guard import (
+            live_num_inference_timesteps,
+            validate_groot_cache_config,
+        )
         from openpi.cache.groot.staged import GrootStagedRunner
 
         config = load_cache_config(args.cache_config)
         validate_cache_config(config)
-        # Recipes the two-stage split cannot honour fail *silently* otherwise:
-        # an unsatisfiable WARM_START is downgraded to MISS, a CP3 checkpoint is
+        # Reject incompatible recipes at startup: an unsatisfiable WARM_START
+        # would fail on its first hit, a CP3 checkpoint is
         # built and never consulted, a non-always_search gate changes what
         # ``searched`` means downstream. ``allow_hysteresis_gate`` is this entry
         # point's explicit opt-in (see the concurrent path above for why it is
         # claimed per entry point rather than relaxed in the shared guard).
-        validate_groot_cache_config(config, allow_hysteresis_gate=True)
+        validate_groot_cache_config(
+            config,
+            allow_hysteresis_gate=True,
+            num_inference_timesteps=live_num_inference_timesteps(policy),
+        )
         _check_libero_builder(config.key_builder.type, parser.error)
         components = build_cache_components(config)
         runner = GrootStagedRunner(policy.model)

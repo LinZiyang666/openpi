@@ -35,6 +35,10 @@ class _RecordingInner:
         self.active = 0
         self.max_active = 0
         self._meter = threading.Lock()
+        # The factory reads the served head's live step count off the policy.
+        self.model = types.SimpleNamespace(
+            action_head=types.SimpleNamespace(num_inference_timesteps=4)
+        )
 
     def infer(self, obs):
         with self._meter:
@@ -62,7 +66,10 @@ class _RecordingInner:
 
 def _args(**overrides) -> types.SimpleNamespace:
     ns = types.SimpleNamespace(
-        cache_config=None, collect_hdf5=None, concurrent=True, diagnostic_seed=None,
+        cache_config=None,
+        collect_hdf5=None,
+        concurrent=True,
+        diagnostic_seed=None,
         compile_stage1=False,
     )
     ns.__dict__.update(overrides)
@@ -228,20 +235,27 @@ def cache_seams(monkeypatch, tmp_path):
     )
     shared_sentinel = object()
     record = {
-        "load": [], "validate": [], "groot_validate": [], "identity": [],
-        "shared": [], "per_conn": [],
+        "load": [],
+        "validate": [],
+        "groot_validate": [],
+        "identity": [],
+        "shared": [],
+        "per_conn": [],
     }
 
     monkeypatch.setattr(
-        cache_config, "load_cache_config",
+        cache_config,
+        "load_cache_config",
         lambda path: (record["load"].append(path), cfg)[1],
     )
     monkeypatch.setattr(
-        cache_config, "validate_cache_config",
+        cache_config,
+        "validate_cache_config",
         lambda c: record["validate"].append(c),
     )
     monkeypatch.setattr(
-        cache_config, "build_shared_storage",
+        cache_config,
+        "build_shared_storage",
         lambda c: (record["shared"].append(c), shared_sentinel)[1],
     )
 
@@ -261,11 +275,13 @@ def cache_seams(monkeypatch, tmp_path):
 
     monkeypatch.setattr(cache_config, "build_per_connection_components", fake_per_conn)
     monkeypatch.setattr(
-        lg, "validate_groot_cache_config",
-        lambda c: record["groot_validate"].append(c),
+        lg,
+        "validate_groot_cache_config",
+        lambda c, **kwargs: record["groot_validate"].append(c),
     )
     monkeypatch.setattr(
-        lg, "validate_artifact_identity",
+        lg,
+        "validate_artifact_identity",
         lambda storage, c: record["identity"].append((storage, c)),
     )
     monkeypatch.setattr(orch, "CacheOrchestrator", _FakeOrchestrator)
@@ -284,7 +300,11 @@ def _cache_args():
 
 def test_cache_factory_builds_fresh_components_per_connection(cache_seams):
     """T1: mutable components are per-connection; only storage is shared."""
-    policy = types.SimpleNamespace(model=object())
+    policy = types.SimpleNamespace(
+        model=types.SimpleNamespace(
+            action_head=types.SimpleNamespace(num_inference_timesteps=4)
+        )
+    )
     factory, label = sgn._build_concurrent_factory(policy, _cache_args())
     assert "concurrent cache" in label
 
@@ -297,7 +317,8 @@ def test_cache_factory_builds_fresh_components_per_connection(cache_seams):
 
     # Both connections were built from the same shared storage sentinel.
     assert [c[1] for c in cache_seams.record["per_conn"]] == [
-        cache_seams.shared, cache_seams.shared
+        cache_seams.shared,
+        cache_seams.shared,
     ]
     assert all(c[2] is True for c in cache_seams.record["per_conn"])  # quiet=True
 
@@ -321,7 +342,11 @@ def test_cache_factory_gives_each_connection_its_own_csv_dir(cache_seams):
     connections must therefore write disjoint directories."""
     import os
 
-    policy = types.SimpleNamespace(model=object())
+    policy = types.SimpleNamespace(
+        model=types.SimpleNamespace(
+            action_head=types.SimpleNamespace(num_inference_timesteps=4)
+        )
+    )
     factory, _ = sgn._build_concurrent_factory(policy, _cache_args())
     factory(policy)
     factory(policy)
@@ -337,7 +362,11 @@ def test_cache_factory_gives_each_connection_its_own_csv_dir(cache_seams):
 
 def test_cache_factory_rejects_non_default_bundle(cache_seams):
     """T6 (cache side): same fail-fast contract as teacher-only."""
-    policy = types.SimpleNamespace(model=object())
+    policy = types.SimpleNamespace(
+        model=types.SimpleNamespace(
+            action_head=types.SimpleNamespace(num_inference_timesteps=4)
+        )
+    )
     factory, _ = sgn._build_concurrent_factory(policy, _cache_args())
     with pytest.raises(ValueError, match="default"):
         factory(policy, "n5_variant")
@@ -346,7 +375,11 @@ def test_cache_factory_rejects_non_default_bundle(cache_seams):
 
 def test_lifecycle_calls_stay_on_their_own_connection(cache_seams):
     """T5: conn A's episode hooks never land on conn B's orchestrator."""
-    policy = types.SimpleNamespace(model=object())
+    policy = types.SimpleNamespace(
+        model=types.SimpleNamespace(
+            action_head=types.SimpleNamespace(num_inference_timesteps=4)
+        )
+    )
     factory, _ = sgn._build_concurrent_factory(policy, _cache_args())
     pa = factory(policy)
     pb = factory(policy)
@@ -373,7 +406,8 @@ def test_lifecycle_calls_stay_on_their_own_connection(cache_seams):
 def test_concurrent_conflicts_with_collect(monkeypatch, capsys):
     """T2a: the frozen collection topology cannot be served concurrently."""
     monkeypatch.setattr(
-        sys, "argv",
+        sys,
+        "argv",
         ["serve_groot_n15.py", "--concurrent", "--collect-hdf5", "/tmp/x"],
     )
     with pytest.raises(SystemExit):
@@ -526,9 +560,11 @@ def test_shared_backend_survives_lifecycle_vs_search_pressure():
                 results = backend.search(_depth_spec(sid))
                 search_count += 1
                 if [r.id for r in results] != baseline_ids:
-                    errors.append(AssertionError(
-                        f"result drift under pressure at search {search_count}"
-                    ))
+                    errors.append(
+                        AssertionError(
+                            f"result drift under pressure at search {search_count}"
+                        )
+                    )
                     break
                 if sid in backend._score_memo:
                     memo_ready.set()
@@ -626,12 +662,15 @@ def test_dynamic_bundle_ctrl_rejected_when_disabled():
         connection_policy_factory=factory,
         allow_dynamic_bundles=False,
     )
-    sent = _run_handler(server, [
-        _pack({"__ctrl__": "load_cache_config", "yaml_content": "backend: {}"}),
-        _pack({"__ctrl__": "select_bundle", "bundle_id": "other"}),
-        _pack({"__ctrl__": "select_bundle", "bundle_id": "default"}),
-        _pack({"__ctrl__": "select_bundle", "bundle_id": "default"}),
-    ])
+    sent = _run_handler(
+        server,
+        [
+            _pack({"__ctrl__": "load_cache_config", "yaml_content": "backend: {}"}),
+            _pack({"__ctrl__": "select_bundle", "bundle_id": "other"}),
+            _pack({"__ctrl__": "select_bundle", "bundle_id": "default"}),
+            _pack({"__ctrl__": "select_bundle", "bundle_id": "default"}),
+        ],
+    )
 
     assert sent[0] == {"concurrent": True}  # metadata handshake
     # Hot-load surface: rejected loudly.
@@ -656,10 +695,13 @@ def test_dynamic_bundle_ctrl_keeps_legacy_flow_when_allowed():
         concurrent=True,
         connection_policy_factory=lambda p, b="default": _RecordingInner(),
     )
-    sent = _run_handler(server, [
-        _pack({"__ctrl__": "load_cache_config"}),  # no yaml fields
-        _pack({"__ctrl__": "select_bundle", "bundle_id": "never-loaded"}),
-    ])
+    sent = _run_handler(
+        server,
+        [
+            _pack({"__ctrl__": "load_cache_config"}),  # no yaml fields
+            _pack({"__ctrl__": "select_bundle", "bundle_id": "never-loaded"}),
+        ],
+    )
 
     assert sent[1]["__ack__"] == "error"
     assert "missing yaml_path" in sent[1]["msg"]

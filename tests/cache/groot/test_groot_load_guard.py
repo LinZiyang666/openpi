@@ -1,7 +1,7 @@
 """The load-time rejection matrix, and the artifact-identity facade behind it.
 
-Everything here is refused at config load because none of it fails loudly
-later: an unsatisfiable warm start is downgraded to a MISS with a log line, an
+Everything here is refused at config load so malformed recipes never reach
+traffic: an unsatisfiable warm start is rejected by the runtime validator, an
 extra checkpoint is simply never consulted, and a library built by the wrong
 pooling has identical dimensions to the right one.
 """
@@ -66,16 +66,57 @@ def test_cp3_enabled_is_refused():
         validate_groot_cache_config(config)
 
 
-def test_warm_tiers_are_refused():
+def test_warm_tiers_without_a_schedule_are_refused():
     config = _config()
-    config.checkpoints["cp1"].judge.warm_tiers = [{"0.3": 0.9}]
-    with pytest.raises(ConfigValidationError, match="warm_tiers"):
+    config.checkpoints["cp1"].judge.warm_tiers = [{"threshold": 0.9, "start_t": 0.5}]
+    with pytest.raises(ConfigValidationError, match="denoise_schedule"):
         validate_groot_cache_config(config)
 
 
-def test_warm_start_judge_is_refused():
+def test_warm_start_judge_without_a_schedule_is_refused():
     config = _config()
-    config.checkpoints["cp1"].judge = JudgeConfig(type="always_warm_start")
+    config.checkpoints["cp1"].judge = JudgeConfig(type="always_warm_start", start_t=0.5)
+    with pytest.raises(ConfigValidationError, match="denoise_schedule"):
+        validate_groot_cache_config(config)
+
+
+def test_warm_start_under_the_pi05_schedule_is_refused():
+    config = _config()
+    config.checkpoints["cp1"].judge = JudgeConfig(type="always_warm_start", start_t=0.5)
+    config.denoise_schedule = "pi05_v1"
+    with pytest.raises(ConfigValidationError, match="not a GR00T loop"):
+        validate_groot_cache_config(config)
+
+
+def test_warm_start_passes_when_the_schedule_is_the_live_loop():
+    config = _config()
+    config.checkpoints["cp1"].judge = JudgeConfig(type="always_warm_start", start_t=0.5)
+    config.denoise_schedule = "groot_n15_k4_v1"
+    validate_groot_cache_config(config, num_inference_timesteps=4)
+    validate_groot_cache_config(
+        config
+    )  # no live count available: schedule alone must be legal
+
+
+def test_warm_start_under_another_step_count_is_refused():
+    """A k=4 recipe served by a head running 8 steps: same geometry, wrong loop."""
+    config = _config()
+    config.checkpoints["cp1"].judge = JudgeConfig(type="always_warm_start", start_t=0.5)
+    config.denoise_schedule = "groot_n15_k4_v1"
+    with pytest.raises(ConfigValidationError, match="runs 8 steps"):
+        validate_groot_cache_config(config, num_inference_timesteps=8)
+
+
+def test_warm_tiers_pass_with_a_matching_schedule():
+    config = _config()
+    config.checkpoints["cp1"].judge.warm_tiers = [{"threshold": 0.9, "start_t": 0.25}]
+    config.denoise_schedule = "groot_n15_k4_v1"
+    validate_groot_cache_config(config, num_inference_timesteps=4)
+
+
+def test_composite_judge_is_still_refused():
+    config = _config()
+    config.checkpoints["cp1"].judge = JudgeConfig(type="composite")
     with pytest.raises(ConfigValidationError, match="judge.type"):
         validate_groot_cache_config(config)
 
@@ -147,7 +188,9 @@ def test_online_write_policy_is_refused():
 
 def test_every_problem_is_reported_at_once():
     config = _config(write_policy=WritePolicyConfig(type="always"))
-    config.checkpoints["cp1"].gate = GateConfig(type="periodic", cache_len=2, inference_len=2)
+    config.checkpoints["cp1"].gate = GateConfig(
+        type="periodic", cache_len=2, inference_len=2
+    )
     with pytest.raises(ConfigValidationError) as excinfo:
         validate_groot_cache_config(config)
     message = str(excinfo.value)
@@ -179,7 +222,9 @@ def _wrap(backend) -> CacheStorage:
 
 def test_matching_identity_passes():
     storage = _wrap(
-        _Backend({"key_builder_type": "cp1_groot_spatial_pool_16", "checkpoint_id": "CP1"})
+        _Backend(
+            {"key_builder_type": "cp1_groot_spatial_pool_16", "checkpoint_id": "CP1"}
+        )
     )
     validate_artifact_identity(storage, _config())
 
@@ -205,7 +250,9 @@ def test_pi05_artifact_under_a_groot_recipe_is_caught():
 
 def test_wrong_checkpoint_id_is_caught():
     storage = _wrap(
-        _Backend({"key_builder_type": "cp1_groot_spatial_pool_16", "checkpoint_id": "CP3"})
+        _Backend(
+            {"key_builder_type": "cp1_groot_spatial_pool_16", "checkpoint_id": "CP3"}
+        )
     )
     with pytest.raises(ConfigValidationError, match="checkpoint_id"):
         validate_artifact_identity(storage, _config())

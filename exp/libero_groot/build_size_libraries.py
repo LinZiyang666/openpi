@@ -52,20 +52,38 @@ def episode_identity(trajectory_id: str, trials: int) -> tuple[int, int]:
     """
     match = _EPISODE_RE.search(trajectory_id)
     if match is None:
-        raise ValueError(f"trajectory id does not carry an episode number: {trajectory_id!r}")
+        raise ValueError(
+            f"trajectory id does not carry an episode number: {trajectory_id!r}"
+        )
     episode_id = int(match.group(1))
     return episode_id // trials, episode_id % trials
 
 
-def build_full(*, data_dir: str, builder_type: str, out: pathlib.Path, workers: int) -> None:
+def build_full(
+    *,
+    data_dir: str,
+    builder_type: str,
+    out: pathlib.Path,
+    workers: int,
+    denoise_schedule: str | None = None,
+) -> None:
+    """Build the unsliced artifact, binding a requested denoise schedule."""
     cmd = [
-        sys.executable, BUILDER,
-        "--data-dir", data_dir,
-        "--builder-type", builder_type,
-        "--output", str(out),
-        "--outcome-filter", "success",
-        "--workers", str(workers),
+        sys.executable,
+        BUILDER,
+        "--data-dir",
+        data_dir,
+        "--builder-type",
+        builder_type,
+        "--output",
+        str(out),
+        "--outcome-filter",
+        "success",
+        "--workers",
+        str(workers),
     ]
+    if denoise_schedule is not None:
+        cmd.extend(("--expected-schedule", denoise_schedule))
     print("+", " ".join(cmd), flush=True)
     subprocess.run(cmd, check=True)
 
@@ -95,7 +113,9 @@ def verify_tier(entries: list, kept: set[str]) -> list[str]:
     problems = []
     ids = {e.id for e in entries}
     if len(ids) != len(entries):
-        problems.append(f"duplicate entry ids: {len(entries)} entries, {len(ids)} unique")
+        problems.append(
+            f"duplicate entry ids: {len(entries)} entries, {len(ids)} unique"
+        )
     for entry in entries:
         if entry.trajectory_id not in kept:
             problems.append(f"entry {entry.id} belongs to an unselected trajectory")
@@ -115,29 +135,56 @@ def verify_tier(entries: list, kept: set[str]) -> list[str]:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--data-dir", required=True, help="Directory of collected .h5 episodes")
+    ap.add_argument(
+        "--data-dir", required=True, help="Directory of collected .h5 episodes"
+    )
     ap.add_argument("--builder-type", required=True)
     ap.add_argument("--out-dir", required=True, type=pathlib.Path)
-    ap.add_argument("--prefix", required=True, help="Artifact name stem, e.g. libero_spatial")
+    ap.add_argument(
+        "--prefix", required=True, help="Artifact name stem, e.g. libero_spatial"
+    )
     ap.add_argument("--tiers", type=int, nargs="+", default=list(DEFAULT_TIERS))
-    ap.add_argument("--trials", type=int, default=50, help="num_trials_per_task at collection")
+    ap.add_argument(
+        "--trials", type=int, default=50, help="num_trials_per_task at collection"
+    )
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--seed", type=int, default=SHUFFLE_SEED)
-    ap.add_argument("--skip-build", action="store_true", help="Reuse an existing _full.pkl")
+    ap.add_argument(
+        "--denoise-schedule",
+        default=None,
+        help="Expected schedule id. Required when building a stamped warm-start corpus.",
+    )
+    ap.add_argument(
+        "--skip-build", action="store_true", help="Reuse an existing _full.pkl"
+    )
     args = ap.parse_args()
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     full_path = args.out_dir / f"{args.prefix}_full.pkl"
     if not args.skip_build or not full_path.exists():
         build_full(
-            data_dir=args.data_dir, builder_type=args.builder_type,
-            out=full_path, workers=args.workers,
+            data_dir=args.data_dir,
+            builder_type=args.builder_type,
+            out=full_path,
+            workers=args.workers,
+            denoise_schedule=args.denoise_schedule,
         )
 
     print(f"loading {full_path}", flush=True)
     with full_path.open("rb") as f:
         artifact = pickle.load(f)
     entries = artifact["entries"]
+    artifact_schedule = artifact.get("schedule_id")
+    if artifact_schedule is not None and args.denoise_schedule is None:
+        raise SystemExit(
+            "stamped warm-start artifact requires explicit --denoise-schedule; "
+            "do not infer the requested loop from the corpus"
+        )
+    if artifact_schedule != args.denoise_schedule:
+        raise SystemExit(
+            f"full artifact schedule {artifact_schedule!r} != requested "
+            f"{args.denoise_schedule!r}"
+        )
 
     by_traj: dict[str, list] = collections.defaultdict(list)
     for entry in entries:
@@ -157,6 +204,7 @@ def main() -> None:
         "prefix": args.prefix,
         "builder_type": artifact["key_builder_type"],
         "vector_dims": artifact["vector_dims"],
+        "schedule_id": args.denoise_schedule,
         "seed": args.seed,
         "trajectories_per_task": n_per_task,
         "tiers": [],
@@ -186,11 +234,18 @@ def main() -> None:
             f"{tier}: nominal k={k:<3} realized mean={mean:5.1f}/task  "
             f"trajectories={len(kept):<5} entries={len(tier_entries):<7} {size_mb} MB  -> {out.name}"
         )
-        manifest["tiers"].append({
-            "tier": tier, "nominal_k": k, "realized_per_task": realized,
-            "realized_mean": mean, "trajectories": len(kept),
-            "entries": len(tier_entries), "size_mb": size_mb, "path": str(out),
-        })
+        manifest["tiers"].append(
+            {
+                "tier": tier,
+                "nominal_k": k,
+                "realized_per_task": realized,
+                "realized_mean": mean,
+                "trajectories": len(kept),
+                "entries": len(tier_entries),
+                "size_mb": size_mb,
+                "path": str(out),
+            }
+        )
         prev_kept = kept
 
     manifest_path = args.out_dir / f"{args.prefix}_manifest.json"

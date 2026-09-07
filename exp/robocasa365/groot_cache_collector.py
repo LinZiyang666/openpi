@@ -14,10 +14,19 @@ What it writes
 Exactly the schema ``exp/common/build_in_memory_cache_artifact.py`` already
 reads, so the offline builder needs no GR00T-specific branch: per step
 ``vision_0/1/2`` ``[256, emb_dim]``, ``prompt_emb`` ``[num_text_tokens,
-emb_dim]``, ``robot_state`` and ``clean_action``. The file-level ``task`` and
-``success`` attributes matter as much as the arrays: the builder drops any
-episode whose ``success`` attribute is absent or false, and it copies ``task``
-straight into each entry's ``task_key``.
+emb_dim]``, ``robot_state``, ``clean_action``, the pure-noise start
+``noise_action_0`` and the warm-start snapshots ``noise_action_1 .. N-1``
+(``[action_horizon, action_dim]`` fp32, the x consumed by Euler step i). The
+file-level ``task`` and ``success`` attributes matter as much as the arrays:
+the builder drops any episode whose ``success`` attribute is absent or false,
+and it copies ``task`` straight into each entry's ``task_key``.
+
+The snapshots are captured with a forward hook on the action head's
+``action_encoder`` around the upstream ``get_action`` call, so the library
+holds what the real loop consumed rather than a re-implementation of it. The
+loop's step count is a runtime property of the served policy, so every file is
+stamped with ``denoise_schedule_id`` / ``denoising_num_steps`` read from the
+live action head, and a hook count that disagrees with it is an error.
 
 The fields are cut with the same function the online path uses, from the same
 stage-1 tensors, inside the same inference/autocast context. That is what
@@ -44,6 +53,7 @@ from openpi.cache.groot.interceptor import (
 )
 from openpi.cache.groot.key_builder import slice_groot_cp1_fields
 from openpi.cache.groot.staged import GrootStagedRunner
+from openpi.cache.types import DenoiseSchedule
 from openpi.collect.data_collector import EpisodeDataCollector, InferenceEmbeddings
 
 logger = logging.getLogger(__name__)
@@ -82,6 +92,11 @@ class GrootCacheCollector:
         # three-camera RoboCasa365 default. LIBERO checkpoints feed two.
         self._vision_fields = vision_fields
         self._state_index = None
+        self._schedule: DenoiseSchedule | None = None
+
+    def _live_schedule(self) -> DenoiseSchedule:
+        """The schedule the served action head is running right now."""
+        return self._runner.live_schedule()
 
     # -- lifecycle -------------------------------------------------------
 
@@ -107,6 +122,17 @@ class GrootCacheCollector:
             episode_name=episode_name,
             extra_metadata=extra_metadata,
         )
+        # Re-read per episode, never cached at construction: the count can be
+        # changed on the policy after this wrapper exists, and the per-step
+        # hook-count assertion below only means something against the value
+        # the file claims.
+        self._schedule = self._live_schedule()
+        self._collector.set_episode_attr(
+            "denoise_schedule_id", self._schedule.schedule_id
+        )
+        self._collector.set_episode_attr(
+            "denoising_num_steps", self._schedule.num_steps
+        )
 
     def on_episode_end(self, success: bool) -> None:
         """Flush the episode. ``success`` decides whether the builder will keep it."""
@@ -125,9 +151,34 @@ class GrootCacheCollector:
 
         normalized_input = self._policy.apply_transforms(obs_copy)
 
-        with self._runner.session():
-            stage1 = self._runner.run_stage1(normalized_input)
-            stage2 = self._runner.run_stage2(stage1)
+        # x_t at the input of every Euler step, in loop order. ``action_encoder``
+        # is the first module each step feeds the current chunk through, which
+        # makes its arg 0 the GR00T analogue of Pi0.5's ``action_in_proj`` hook.
+        captures: list[torch.Tensor] = []
+
+        def _action_encoder_hook(module, inp, out):
+            del module, out
+            captures.append(inp[0].detach())
+
+        action_head = self._runner._model.action_head  # noqa: SLF001
+        handle = action_head.action_encoder.register_forward_hook(_action_encoder_hook)
+        try:
+            with self._runner.session():
+                stage1 = self._runner.run_stage1(normalized_input)
+                stage2 = self._runner.run_stage2(stage1)
+        finally:
+            handle.remove()
+
+        schedule = (
+            self._schedule if self._schedule is not None else self._live_schedule()
+        )
+        if len(captures) != schedule.num_steps:
+            raise RuntimeError(
+                f"GrootCacheCollector: action_encoder fired {len(captures)} times but "
+                f"the file is stamped {schedule.schedule_id} ({schedule.num_steps} "
+                "steps). The policy's step count changed mid-episode or the "
+                "upstream loop no longer feeds the encoder once per step."
+            )
 
         # Cut outside the context: the slices outlive this call inside the
         # episode buffer, and tensors produced under inference_mode stay
@@ -139,7 +190,11 @@ class GrootCacheCollector:
             stage1.state_mask,
             enabled=None,
             expected_state_index=self._state_index,
-            **({} if self._vision_fields is None else {"vision_fields": self._vision_fields}),
+            **(
+                {}
+                if self._vision_fields is None
+                else {"vision_fields": self._vision_fields}
+            ),
         )
         if self._state_index is None:
             self._state_index = stage1.state_mask[0, -1].clone()
@@ -147,6 +202,15 @@ class GrootCacheCollector:
         action_cpu = stage2.action_pred[0].detach().cpu().float().contiguous()
         if action_cpu.is_inference():
             action_cpu = action_cpu.clone()
+
+        def _snapshot(x: torch.Tensor) -> np.ndarray:
+            x = x[0].cpu().float().contiguous()
+            if x.is_inference():
+                x = x.clone()
+            return x.numpy().astype(np.float32)
+
+        init_noise = _snapshot(captures[0])
+        noise_action_steps = [_snapshot(x) for x in captures[1:]]
 
         self._collector.record_inference(
             InferenceEmbeddings(
@@ -159,8 +223,9 @@ class GrootCacheCollector:
                 ],
                 prompt_emb=raw["prompt_emb"].cpu().to(torch.float16).numpy(),
                 robot_state=raw["robot_state"].cpu().float().numpy(),
-                noise_action_steps=[],
+                noise_action_steps=noise_action_steps,
                 clean_action=action_cpu.numpy(),
+                init_noise=init_noise,
             )
         )
 

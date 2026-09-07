@@ -40,6 +40,20 @@ RAW_CELL_IDENTITY = {
 TRACE_MARKER = bench.trace_marker(RAW_CELL_IDENTITY)
 
 
+def test_benchmark_source_pins_match_the_checked_in_runner():
+    """Formatting or editing a pinned method must not silently disable W1."""
+    from openpi.cache.groot.staged import GrootStagedRunner
+
+    assert (
+        bench.sha256_text(inspect.getsource(GrootStagedRunner.run_stage1))
+        == bench.RUN_STAGE1_SRC_SHA256
+    )
+    assert (
+        bench.sha256_text(inspect.getsource(GrootStagedRunner.run_stage2_llm))
+        == bench.RUN_STAGE2_SRC_SHA256
+    )
+
+
 def _trace(*api_rows: str, marker: str = TRACE_MARKER) -> str:
     """Build the combined CUDA-API/NVTX export consumed by certification."""
     return (

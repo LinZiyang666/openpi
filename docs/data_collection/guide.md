@@ -87,8 +87,16 @@ Each `step_xxxx` group contains:
 - `vision_1`: `float16[256, 2048]`
 - `vision_2`: `float16[256, 2048]`
 - `prompt_emb`: `float16[num_lang_tokens, 2048]`
-- `robot_state`: `float32[32]`
-- `noise_action_1 ... noise_action_9`: `float32[action_horizon, action_dim]`
+- `robot_state`: `float32[32]` (GR00T: 20 on RoboCasa365, 8 on LIBERO)
+- `noise_action_0`: `float32[action_horizon, action_dim]` — the pure-noise start of the
+  denoise loop (`InferenceEmbeddings.init_noise`); reproduces a teacher action, never a
+  warm-start point.
+- `noise_action_1 ... noise_action_{N-1}`: `float32[action_horizon, action_dim]` — the
+  `x_t` consumed by Euler step `i`. `N` and the index→t mapping come from the file-level
+  attributes `denoise_schedule_id` / `denoising_num_steps` (`openpi.cache.types.DenoiseSchedule`):
+  Pi0.5 is `pi05_v1`, ten steps, `t = 1 - i/10`; GR00T is `groot_n15_k<N>_v1` with `N` the
+  served head's live `num_inference_timesteps`, `t = i/N`. Files without the stamp are
+  read as `pi05_v1`; a stamped file must carry exactly `N-1` snapshots.
 - `clean_action`: `float32[action_horizon, action_dim]`
 
 For the released `pi05_libero` checkpoint, this usually means:
@@ -397,8 +405,11 @@ uv run python exp/robocasa365/run_collect.py \
 
 Before dispatch the exact TaskGraph is frozen into an immutable per-batch
 run-plan JSON (`run_plan_<runid>_bNN.json`, containing every expected
-`task_uid` plus a `plan_hash`); resumes recompute the hash and refuse to start
-if parameters changed. Seeds are `base_seed + episode_idx`; this makes the
+`task_uid` plus a `plan_hash`). Its hashed params include
+`collect_schema: v2`, the schedule-stamped `noise_action_0..N-1` HDF5
+contract, so a pre-v2 journal cannot be resumed into a mixed-schema batch.
+Resumes recompute the hash and refuse to start if parameters changed. Seeds are
+`base_seed + episode_idx`; this makes the
 *initial state* reproducible, while the rollout itself stays stochastic
 (same initial state, fresh flow-matching noise on retry — retries never
 overwrite, they write a new `_aAA` attempt file).
@@ -448,7 +459,8 @@ uv run python exp/robocasa365/verify_collection_artifacts.py \
   --root /data/robocasa365_cache/build_l1s1 --teacher pi05 \
   --journal exp/robocasa365/data/journal_collect_l1s1_pi05.jsonl \
   --run-plan exp/robocasa365/data/run_plan_collect_l1s1_pi05_b01.json \
-  --target 20 --manifest-out exp/robocasa365/data/manifest_l1s1_pi05.json
+  --target 20 --require-denoise-schedule \
+  --manifest-out exp/robocasa365/data/manifest_l1s1_pi05.json
 ```
 
 A journal record is admitted iff `accepted && success && error is None`;
@@ -458,3 +470,28 @@ builds consume the manifest (first `--target` successes per task by
 `episode_idx`, sha256-pinned), never directory listings. Per-task episode
 counts come from `min_episodes_for_target(sr)` — the smallest N with
 `P(Binom(N, sr) ≥ 20) ≥ 0.90` at the SR point estimate.
+
+For a LIBERO GR00T warm-start size library, the operator must also bind the
+expected live loop at build and verification time:
+
+```bash
+uv run python exp/libero_groot/build_size_libraries.py \
+  --data-dir /data/libero_cache/collected/<suite> \
+  --builder-type cp1_groot_libero_spatial_pool_16 \
+  --out-dir /data/libero_cache/libraries/<suite> --prefix <suite>_warm \
+  --denoise-schedule groot_n15_k8_v1
+uv run python exp/libero_groot/verify_libraries.py \
+  /data/libero_cache/libraries/<suite>/<suite>_warm_manifest.json \
+  --expected-schedule groot_n15_k8_v1
+```
+
+The slicer refuses to infer a requested schedule from a stamped corpus, and
+the verifier checks every tier against the manifest identity.
+
+Emit warm cells with `exp/libero_groot/emit_warmstart_yamls.py --suite <suite>
+--library <warm-library.pkl> --denoising-steps 8`. Both LIBERO evaluation entry
+points (`orchestrate_search.py` and the driver in `run_conductor.py`) verify
+`index.json`, every YAML digest, suite/schedule/library bindings, and the enabled
+`always_search` / `always_warm_start` recipe before dispatch. An indexed warm
+directory cannot become a normal search directory merely by removing its warm
+judges. Existing ordinary search indexes remain supported.

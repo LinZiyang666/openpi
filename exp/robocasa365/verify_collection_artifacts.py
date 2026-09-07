@@ -40,9 +40,17 @@ import math
 import pathlib
 from typing import Any
 
+from openpi.collect.h5_intermediates import episode_schedule, snapshot_indices
 from exp.robocasa365.pinned_objects import compute_pin_task_id, load_pin_manifest
 
-REQUIRED_STEP_FIELDS = ("vision_0", "vision_1", "vision_2", "prompt_emb", "robot_state", "clean_action")
+REQUIRED_STEP_FIELDS = (
+    "vision_0",
+    "vision_1",
+    "vision_2",
+    "prompt_emb",
+    "robot_state",
+    "clean_action",
+)
 
 
 # ------------------------------------------------------------------
@@ -72,7 +80,9 @@ def prob_at_least(n: int, p: float, target: int) -> float:
     return 1.0 - lower
 
 
-def min_episodes_for_target(sr: float, *, target: int = 20, confidence: float = 0.90, cap: int = 20000) -> int:
+def min_episodes_for_target(
+    sr: float, *, target: int = 20, confidence: float = 0.90, cap: int = 20000
+) -> int:
     """Smallest N with P(Binom(N, sr) >= target) >= confidence (point estimate)."""
     if not 0.0 < sr <= 1.0:
         raise ValueError(f"sr must be in (0, 1], got {sr}")
@@ -101,11 +111,15 @@ def load_run_plan(path: str | pathlib.Path) -> dict[str, Any]:
     stored = payload.get("plan_hash")
     recomputed = compute_plan_hash(payload)
     if stored != recomputed:
-        raise ValueError(f"run-plan {path}: stored plan_hash {stored} != recomputed {recomputed}")
+        raise ValueError(
+            f"run-plan {path}: stored plan_hash {stored} != recomputed {recomputed}"
+        )
     return payload
 
 
-def merge_run_plans(plans: list[dict[str, Any]]) -> tuple[list[str], dict[str, str], dict[str, int], list[str]]:
+def merge_run_plans(
+    plans: list[dict[str, Any]],
+) -> tuple[list[str], dict[str, str], dict[str, int], list[str]]:
     """Union of expected uids across batches; duplicate/conflicting uids are an error.
 
     Batches must also agree on the object pinning: a pinned batch and an
@@ -128,7 +142,9 @@ def merge_run_plans(plans: list[dict[str, Any]]) -> tuple[list[str], dict[str, s
         batch = int(plan["params"]["batch"])
         for uid in plan["uids"]:
             if uid in seen:
-                raise ValueError(f"uid {uid!r} appears in more than one run-plan; batches must be disjoint")
+                raise ValueError(
+                    f"uid {uid!r} appears in more than one run-plan; batches must be disjoint"
+                )
             seen.add(uid)
             uids.append(uid)
             prefixes[uid] = plan["prefixes"][uid]
@@ -151,7 +167,11 @@ def load_journal(path: str | pathlib.Path) -> list[dict[str, Any]]:
 
 
 def is_admissible(record: dict[str, Any]) -> bool:
-    return record.get("accepted") is True and record.get("success") is True and record.get("error") is None
+    return (
+        record.get("accepted") is True
+        and record.get("success") is True
+        and record.get("error") is None
+    )
 
 
 # ------------------------------------------------------------------
@@ -202,7 +222,10 @@ def _check_pin_provenance(
         if not isinstance(realized, dict):
             # Valid JSON is not enough: a scalar would make the set comparison
             # below raise out of the auditor instead of failing this episode.
-            return [*problems, f"realized_objects is {type(realized).__name__}, not an object"]
+            return [
+                *problems,
+                f"realized_objects is {type(realized).__name__}, not an object",
+            ]
         if set(realized) != set(expected_slots):
             problems.append(
                 f"realized slots {sorted(realized)} != pinned slots {sorted(expected_slots)}"
@@ -223,7 +246,9 @@ def _check_pin_provenance(
     return problems
 
 
-def _check_h5_schema(path: pathlib.Path, expected_task: str) -> list[str]:
+def _check_h5_schema(
+    path: pathlib.Path, expected_task: str, *, require_schedule: bool = False
+) -> list[str]:
     """Validate ONE admitted file: attrs (values included) + EVERY step group.
 
     Checking only the first step would pass a file whose write died halfway; an
@@ -242,18 +267,70 @@ def _check_h5_schema(path: pathlib.Path, expected_task: str) -> list[str]:
         if task_attr != expected_task:
             problems.append(f"attr task={task_attr!r} != canonical {expected_task!r}")
         if "success" in f.attrs and not bool(f.attrs["success"]):
-            problems.append("attr success=False on a journal-admitted (success) episode")
+            problems.append(
+                "attr success=False on a journal-admitted (success) episode"
+            )
         step_groups = sorted(k for k in f.keys() if k.startswith("step_"))
         num_steps = int(f.attrs.get("num_steps", -1))
         if num_steps != len(step_groups):
             problems.append(f"num_steps={num_steps} != {len(step_groups)} step groups")
         if not step_groups:
             problems.append("zero step groups")
+        # Warm-start snapshots: a stamped file must carry exactly the
+        # num_steps - 1 snapshots its loop writes, in every step group. The
+        # count is a property of the file, not a constant, so it is read from
+        # the stamp; presence alone would let a file with a gap pass and then
+        # downgrade every WARM_START at that t to MISS without a trace.
+        try:
+            schedule = episode_schedule(f)
+        except ValueError as exc:
+            problems.append(f"denoise schedule stamp: {exc}")
+            schedule = None
+        # Unstamped files are the pre-schedule corpora; they stay admissible for
+        # FULL_HIT-only libraries unless the caller is auditing a warm-start
+        # collection, where a file without snapshots is a silent hole.
+        if (
+            schedule is None
+            and require_schedule
+            and "denoise_schedule_id" not in f.attrs
+        ):
+            problems.append(
+                "missing attr 'denoise_schedule_id' (file predates schedule stamps)"
+            )
+        expected_snapshots = (
+            list(range(1, schedule.num_steps)) if schedule is not None else None
+        )
         for name in step_groups:
             group = f[name]
             for field in REQUIRED_STEP_FIELDS:
                 if field not in group:
                     problems.append(f"{name}: step field {field!r} missing")
+            if expected_snapshots is not None:
+                if "noise_action_0" not in group:
+                    problems.append(f"{name}: noise_action_0 (init noise) missing")
+                got = snapshot_indices(group)
+                if got != expected_snapshots:
+                    problems.append(
+                        f"{name}: noise_action indices {got} != {expected_snapshots} "
+                        f"required by {schedule.schedule_id}"
+                    )
+                clean = group.get("clean_action")
+                if clean is not None:
+                    for index in range(schedule.num_steps):
+                        field = f"noise_action_{index}"
+                        snapshot = group.get(field)
+                        if snapshot is None:
+                            continue
+                        if snapshot.shape != clean.shape:
+                            problems.append(
+                                f"{name}: {field} shape {snapshot.shape} != "
+                                f"clean_action shape {clean.shape}"
+                            )
+                        if snapshot.dtype != clean.dtype:
+                            problems.append(
+                                f"{name}: {field} dtype {snapshot.dtype} != "
+                                f"clean_action dtype {clean.dtype}"
+                            )
     return problems
 
 
@@ -265,10 +342,17 @@ def audit(
     target: int,
     pin_id: str | None = None,
     pin_table: dict[str, dict[str, str]] | None = None,
+    require_denoise_schedule: bool = False,
 ) -> dict[str, Any]:
-    """Full audit against the run-plan uid set. Returns a JSON-able report."""
+    """Full audit against the run-plan uid set. Returns a JSON-able report.
+
+    ``require_denoise_schedule`` makes an unstamped episode a schema failure;
+    set it when the corpus is meant to feed warm-start libraries.
+    """
     if pin_table is not None and not pin_id:
-        raise ValueError("pin_table given without pin_id; the global identity check needs both")
+        raise ValueError(
+            "pin_table given without pin_id; the global identity check needs both"
+        )
     root = pathlib.Path(root)
     expected_uids, prefixes, batches, plan_hashes = merge_run_plans(plans)
 
@@ -305,7 +389,9 @@ def audit(
             missing_file.append(uid)
             continue
         task_name = prefixes[uid].split("/")[1]
-        problems = _check_h5_schema(h5_path, task_name)
+        problems = _check_h5_schema(
+            h5_path, task_name, require_schedule=require_denoise_schedule
+        )
         if problems:
             schema_errors[uid] = problems
             continue
@@ -339,11 +425,17 @@ def audit(
         task_name = prefixes[uid].split("/")[1]
         per_task[task_name] = per_task.get(task_name, 0) + 1
     expected_tasks = sorted({prefixes[uid].split("/")[1] for uid in expected_uids})
-    insufficient = {t: per_task.get(t, 0) for t in expected_tasks if per_task.get(t, 0) < target}
+    insufficient = {
+        t: per_task.get(t, 0) for t in expected_tasks if per_task.get(t, 0) < target
+    }
 
     ok = not (
-        missing_terminal or missing_file or schema_errors or pin_errors
-        or multiple_accepted or insufficient
+        missing_terminal
+        or missing_file
+        or schema_errors
+        or pin_errors
+        or multiple_accepted
+        or insufficient
     )
     return {
         "ok": ok,
@@ -367,7 +459,9 @@ def audit(
 # ------------------------------------------------------------------
 
 
-def build_manifest(report: dict[str, Any], *, root: str | pathlib.Path, target: int) -> dict[str, Any]:
+def build_manifest(
+    report: dict[str, Any], *, root: str | pathlib.Path, target: int
+) -> dict[str, Any]:
     """First ``target`` admitted successes per task, episode_idx ascending, with sha256.
 
     Deterministic by construction: input = the audited admission set (journal
@@ -412,8 +506,16 @@ def build_manifest(report: dict[str, Any], *, root: str | pathlib.Path, target: 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--root", required=True, help="scene root, e.g. /data/robocasa365_cache/build_l1s1")
-    ap.add_argument("--teacher", required=True, help="recorded in the report; paths come from the run-plan")
+    ap.add_argument(
+        "--root",
+        required=True,
+        help="scene root, e.g. /data/robocasa365_cache/build_l1s1",
+    )
+    ap.add_argument(
+        "--teacher",
+        required=True,
+        help="recorded in the report; paths come from the run-plan",
+    )
     ap.add_argument("--journal", required=True)
     ap.add_argument(
         "--run-plan",
@@ -429,8 +531,19 @@ def main() -> None:
         "its recorded realized objects, not its claimed identity -- that it "
         "actually ran these exact meshes.",
     )
-    ap.add_argument("--report-out", default="", help="write the JSON report here (default: stdout only)")
-    ap.add_argument("--manifest-out", default="", help="write the deterministic manifest here")
+    ap.add_argument(
+        "--require-denoise-schedule",
+        action="store_true",
+        help="fail any episode without a denoise_schedule_id stamp (warm-start corpora)",
+    )
+    ap.add_argument(
+        "--report-out",
+        default="",
+        help="write the JSON report here (default: stdout only)",
+    )
+    ap.add_argument(
+        "--manifest-out", default="", help="write the deterministic manifest here"
+    )
     args = ap.parse_args()
 
     run_cli(args)
@@ -485,6 +598,7 @@ def run_cli(args: argparse.Namespace) -> dict[str, Any]:
         target=args.target,
         pin_id=pin_id,
         pin_table=pin_table,
+        require_denoise_schedule=bool(getattr(args, "require_denoise_schedule", False)),
     )
     report["teacher"] = args.teacher
     rendered = json.dumps(report, sort_keys=True, indent=1)

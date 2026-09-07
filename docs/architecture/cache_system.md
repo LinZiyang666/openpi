@@ -513,7 +513,7 @@ Determines whether search results constitute a valid hit. Returns `JudgeResult(h
 
 Score semantics depend on fusion method — see [../cache/tutorial.md §6](../cache/tutorial.md#6-component-judge) for details.
 
-> Judge returns `JudgeResult` (not a tuple). Payload fetch is done by the orchestrator after judge returns. On WARM_START, the orchestrator validates payload completeness (intermediates exist, start_t is a valid key) and downgrades to MISS if validation fails.
+> Judge returns `JudgeResult` (not a tuple). Payload fetch is done by the orchestrator after judge returns. On WARM_START, the orchestrator validates entry-local schedule identity, step count, intermediates, and the requested `start_t`; malformed library data raises instead of being disguised as a MISS.
 
 #### Purity contract
 
@@ -544,6 +544,7 @@ class CachePayload:
     action_chunk: torch.Tensor                          # [action_horizon, action_dim]
     intermediates: Optional[dict[float, torch.Tensor]]  # {t: x_t}, CP1 warm start
     denoising_num_steps: Optional[int]                  # for warm start
+    schedule_id: Optional[str]                          # denoise direction + step identity
     next_action_chunk: Optional[torch.Tensor]           # CP3 only
     task_key: str = ""
     factors: Optional[dict[str, float]] = None
@@ -938,7 +939,7 @@ Empty library on the cache arm degrades to `MISS` with `fallback: true`, and cos
 **Per-episode RNG.** `seed_ep = sha256(run_seed, task_uid, attempt, weights_version)` reseeds a private generator at `on_episode_start`; replaying the same identity replays the same arm sequence, which is what makes an interrupted run and its resume the same experiment without persisting live RNG state. An episode whose identity is incomplete is forced to argmax and isolated — never trained on.
 
 
-### 5.17 GR00T N1.5 Two-Stage Path (RoboCasa365 cross-scene line)
+### 5.17 GR00T N1.5 Staged Path (RoboCasa365 cross-scene line + LIBERO)
 
 第二个模型族接入 cache，走**平行实现**而非共用基类。设计与实现细节见
 [`logs/groot_cache_integration.log.md`](../../logs/groot_cache_integration.log.md)；
@@ -946,14 +947,44 @@ Empty library on the cache arm degrades to `MISS` with `fallback: true`, and cos
 
 **为什么平行而非抽象**：`src/openpi/cache/interceptor.py:75` 是模块级 `import jax`，
 而 GR00T 的 venv 没有 jax，**导都导不进去**；且其 coordinator 路由 / routing sidecar /
-meta-device 哨兵 / WARM_START / CP3 在本路径一项不用。真正被复用的是模型无关的那半边：
+meta-device 哨兵 / CP3 在本路径一项不用。真正被复用的是模型无关的那半边：
 Orchestrator / CacheStorage / judge / gate / search strategy —— 它们只看见
 `stage1=<不透明对象>` 被转给 KeyBuilder。
 
-**切点**：`Eagle2_5_VLForConditionalGeneration.forward` 里视觉 token 已散射进语言序列、
-尚未进 Qwen3 第 0 层的 `input_embeds`。stage1 的产物既是 key 源、又是 stage2 的唯一输入，
-故切分干净。stage2 = Qwen3 12 层 + `eagle_linear` + flow-matching action head，
-**命中时整段跳过**；不设第三阶段，`CheckpointID.CP3` 恒 disabled。
+⚠ 本节的代码 **RoboCasa365 与 LIBERO 两条 GR00T 线共用**（`cache/groot/*`、
+`exp/robocasa365/groot_cache_collector.py` 被 `serve_groot_libero.py` 直接构造）。两线的差异
+只有几何（3 路相机 / 20 宽 state vs 2 路 / 8 宽）与**去噪步数**——后者是**运行时属性**，见下。
+
+**切点（两处）**：第一刀在 `Eagle2_5_VLForConditionalGeneration.forward` 里视觉 token 已散射进
+语言序列、尚未进 Qwen3 第 0 层的 `input_embeds`。stage1 的产物既是 key 源、又是 stage2 的唯一
+输入，故切分干净。第二刀在语言模型与 action head 之间：`run_stage2_llm` 止于 backbone features，
+`run_stage3` 是 flow-matching 循环，`run_stage3_from` 从缓存快照 `x_t` 续跑——即 **WARM_START**。
+三种判决与 Pi0.5 同形：FULL_HIT 回放整段、WARM_START 跑 stage2 + 部分 stage3、MISS 全跑。
+`CheckpointID.CP3` 仍恒 disabled。
+
+**去噪 schedule 是显式身份，不是常量**（`openpi.cache.types.DenoiseSchedule`）：
+上游 `get_action` 在函数体内 `torch.randn` 起噪、时间 **0→1 递增**（Pi0.5 是 1→0 递减），
+步数取 `action_head.num_inference_timesteps`——RoboCasa 用 ckpt 内置值、LIBERO 由
+`--denoising-steps` 覆盖。⇒ `schedule_id = groot_n15_k<N>_v1` **由活值派生**
+（`GrootStagedRunner.live_schedule()`），代码里不出现字面步数；采集器把它盖在 h5 file attrs
+（`denoise_schedule_id` / `denoising_num_steps`），builder 从 attrs 而非 `_NUM_STEPS=10` 取
+索引→t 映射（`openpi.collect.h5_intermediates`），artifact 盖 `schedule_id`，`load_artifact`
+拒混库并为旧 payload 回填 `pi05_v1`；每条 `CachePayload` 也携带 `schedule_id`。
+orchestrator 返回 WARM_START 前校验身份、步数、实际 snapshot key 及 shape/dtype，
+Pi0.5/GR00T 消费者再与自身循环绑定；坏 payload 响亮失败。`build_shared_storage` 的 `_check_denoise_schedule_binding` /
+`_check_warm_library_completeness` 在装配期比对，`validate_groot_cache_config(...,
+num_inference_timesteps=)` 再对活值。**漏写任一环都是响亮失败**：warm 配方必须显式写
+`denoise_schedule`，没有默认值。剩余步数是 `N - i`（k=4：0.25→3 / 0.5→2 / 0.75→1），
+**与 Pi0.5 的 `floor(start_t·N+0.5)` 恰好相反**——一切索引换算走 `DenoiseSchedule`，不得自算。
+
+**MISS 路径仍是上游原子 `get_action`**；转写循环 `staged.denoise_loop`（钉在
+`UPSTREAM_ACTION_HEAD_SHA256`）只用于续跑与等价门，两者在固定噪声下逐位相等是
+`tests/cache/groot/test_groot_stage3.py` 的合同。转写结果必须封装为上游要求的
+`BatchFeature` 后再调用 `validate_data`，普通 dict 会被真实模型拒绝。
+真机版 `tests/robocasa365/test_groot_warmstart_manual.py` 在孤岛 B 验证两条线的
+完整动作与全部 HDF5 往返续跑点（2026-09-06：k4/k8 各两份输入，全部逐位一致，含负对照）。采集侧用
+`action_head.action_encoder` 的 forward hook 从**上游循环**捕获 `x_t`（每步一次，
+第 0 次是纯噪声 → `noise_action_0`），因此库里的快照来自上游而非转写。
 
 **三条与 Pi0.5 不同、且不同处都会静默出错的地方**：
 
@@ -963,8 +994,8 @@ Orchestrator / CacheStorage / judge / gate / search strategy —— 它们只看
 | 2 | `LayerNorm` 在 autocast 的 fp32 名单上（实测 `max\|Δ\|=1.4e-2`） | 在线/采集/测试任一处漏开 autocast，key 就整体对不上 |
 | 3 | inference tensor 在 context *内* 做 `.cpu().float()` **逃不掉** | 跨 step 存活后被 storage 就地改写即 `RuntimeError` |
 
-⇒ `GrootStagedRunner.session()` 拥有 inference/autocast 上下文并在两个 stage 入口断言；
-**session 只包两段前向**，CP1 检查与所有跨 step 张量都在 session 外产生。
+⇒ `GrootStagedRunner.session()` 拥有 inference/autocast 上下文并在每个 stage 入口断言；
+**session 只包前向**，CP1 检查与所有跨 step 张量都在 session 外产生。
 
 **新增的两处共享缝**（Pi0.5 行为不变）：
 * `_CP1BaseKeyBuilder.build()` 内联切片抽成可覆写的 `self._slice()`；
@@ -977,8 +1008,8 @@ Orchestrator / CacheStorage / judge / gate / search strategy —— 它们只看
 cell 的权重上，调度器为这条性质付出了每 cell 重启的代价。打开该 flag 后由驱动方（conductor）
 拥有换库时刻表，于是**三道 GR00T 守卫从"启动期跑一次"变成"每个 bundle 跑一次"**
 （`validate_groot_cache_config` / `_check_libero_builder` / `validate_artifact_identity`）——
-`load_cache_config` 只跑通用校验器，而两阶段拆分无法承载的配方**全都是静默失败**
-（不可满足的 WARM_START 降级为 MISS、CP3 建了不用、三相机 builder 拒绝每一个 LIBERO 观测）。
+`load_cache_config` 只跑通用校验器；额外守卫在起服务之前拒绝不兼容配方
+（schedule 对不上的 WARM_START 会在运行期报错、CP3 建了不用、三相机 builder 拒绝每一个 LIBERO 观测）。
 ⚠ 共享 storage **只读不重建**：server 的 `load_cache_config` handler 已经付过那次 GB 级 artifact 加载
 并把结果挂在 bundle 上，工厂再建一次就等于每连接、每臂各加载一遍。
 

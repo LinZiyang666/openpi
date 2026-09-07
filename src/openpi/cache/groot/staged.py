@@ -1,4 +1,4 @@
-"""Split one GR00T N1.5 forward pass into two cacheable stages.
+"""Split one GR00T N1.5 forward pass into three cacheable stages.
 
 Where the cut is
 ----------------
@@ -17,6 +17,19 @@ Stage 1's output is therefore both the cache key source and the *only* input
 stage 2 needs, which is what makes the cut clean. Cutting earlier — at the
 vision tower's output — would force stage 2 to redo the language embedding
 and the scatter, so neither the split nor its timings would be honest.
+
+The second cut is between the language model and the action head. Stage 2
+(`run_stage2_llm`) stops at the backbone features; stage 3 (`run_stage3`) is
+the flow-matching loop, and `run_stage3_from` resumes that loop from a cached
+snapshot x_t — the WARM_START path. Upstream's `get_action` draws its noise
+internally and runs the whole loop as one call, so the resumable path is a
+transcription of that loop (`denoise_loop`) with the noise hoisted out, pinned
+by `UPSTREAM_ACTION_HEAD_SHA256`. The full MISS path still calls upstream's
+`get_action` itself: the transcription is only ever used where upstream has no
+entry point, and its equivalence to upstream is a tested gate, not an assumption.
+The loop's step count is a runtime property of the served policy
+(`action_head.num_inference_timesteps`), so the schedule every snapshot is keyed
+under is derived from that live value (`live_schedule`) and never restated.
 
 Why the upstream statements are copied rather than called
 ---------------------------------------------------------
@@ -49,9 +62,11 @@ tensor produced inside `inference_mode` stays an inference tensor even after
 also means pooling happens in fp32, matching the offline artifact path.
 
 Coupling map:
-  DEPENDS ON:  a GR00T_N1_5-shaped model (duck-typed), SystemTimer
-  CONSUMED BY: openpi.cache.groot.interceptor, the HDF5 collector
-  IF CHANGED:  G0-C two-stage equivalence must be re-run
+  DEPENDS ON:  a GR00T_N1_5-shaped model (duck-typed), SystemTimer,
+               openpi.cache.types.DenoiseSchedule
+  CONSUMED BY: openpi.cache.groot.interceptor, the HDF5 collector,
+               exp/robocasa365/bench_groot_stages.py (imports the loop)
+  IF CHANGED:  G0-C three-stage equivalence (full and resumed) must be re-run
 """
 
 from __future__ import annotations
@@ -62,12 +77,13 @@ import inspect
 import logging
 import os
 from dataclasses import dataclass
-from typing import Any, Iterator, Optional
+from typing import Any, Callable, Iterator, Optional
 
 import torch
 import torch.nn.functional as F
 
 from openpi.cache.timing import SystemTimer
+from openpi.cache.types import DenoiseSchedule, groot_n15_schedule
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +101,15 @@ _COMPILED_VISION_REGISTRY: dict[int, dict[str, Any]] = {}
 # cache copy verified byte-identical, 2026-08-17).
 UPSTREAM_FORWARD_SHA256 = (
     "5c58c1d2d2a9893d3f9dd1790e0e2161e94be375b4e826e46f2b26384f55c056"
+)
+
+# sha256 of the upstream action-head source file
+# (gr00t/model/action_head/flow_matching_action_head.py) at the same n1.5
+# worktree. `denoise_loop` below is a transcription of its `get_action`; the
+# file is hashed rather than the method because the head is loaded through
+# trust_remote_code and its dynamic-module copy is what actually runs.
+UPSTREAM_ACTION_HEAD_SHA256 = (
+    "8a8e6cf7ec63e2a335559990c4ab62bbb81e487d82ea4a969f452a93e0dbdd69"
 )
 
 # Exactly the keys the RoboCasa transform chain produces, minus `image_sizes`
@@ -140,10 +165,38 @@ class GrootStage1Output:
 
 @dataclass
 class GrootStage2Output:
+    """Language-model output, plus the action chunk when the head already ran.
+
+    ``backbone_features`` / ``attention_mask`` are the raw conditioning the
+    action head consumes; every stage-3 call rebuilds the head's input mapping
+    from them because ``process_backbone_output`` normalises in place.
+    """
+
+    backbone_features: torch.Tensor
+    """[B, N, C] ``eagle_linear(hidden_states[select_layer])``, un-normalised."""
+
+    attention_mask: torch.Tensor
+    """[B, N]"""
+
+    action_inputs: Any = None
+    """Opaque BatchFeature from stage 1 (state, state_mask, embodiment_id), forwarded."""
+
+    action_pred: Optional[torch.Tensor] = None
+    """[B, action_horizon, action_dim]; ``None`` after ``run_stage2_llm`` alone."""
+
+
+@dataclass
+class GrootStage3Output:
     """Action chunk in normalised space, before the policy's inverse transform."""
 
     action_pred: torch.Tensor
     """[B, action_horizon, action_dim]"""
+
+    start_t: Optional[float]
+    """Snapshot timestep the loop resumed from; ``None`` for a full run."""
+
+    steps_run: int
+    """Euler steps actually executed (``num_steps`` for a full run)."""
 
 
 # ------------------------------------------------------------------
@@ -232,12 +285,16 @@ class GrootStagedRunner:
 
         if verify_upstream:
             self._verify_upstream_forward()
+            self._verify_upstream_action_head()
 
         self._timer = timer if timer is not None else SystemTimer(enabled=False)
         device_type = self._infer_device_type()
         self._device_type = device_type
         probe_backend = "cuda" if device_type == "cuda" else "cpu"
-        for probe in ("stage1_vision", "stage2_llm", "stage2_action"):
+        # ``stage2_action`` keeps its historical name for the full action-head
+        # run so existing CSV consumers read unchanged; ``stage3_warm`` matches
+        # the Pi0.5 interceptor's probe for the resumed loop.
+        for probe in ("stage1_vision", "stage2_llm", "stage2_action", "stage3_warm"):
             self._timer.register_probe(probe, backend=probe_backend)
 
         # Optional compiled vision tower (owner directive 2026-08-22): the
@@ -294,6 +351,38 @@ class GrootStagedRunner:
                 "vision-scatter block changed, then repin the hash and re-run "
                 "the two-stage equivalence gate."
             )
+
+    def _verify_upstream_action_head(self) -> None:
+        head = self._model.action_head
+        try:
+            path = inspect.getsourcefile(type(head))
+            data = open(path, "rb").read() if path else None  # noqa: SIM115
+        except (OSError, TypeError) as exc:
+            raise RuntimeError(
+                "Cannot read the source file of "
+                f"{type(head).__module__}.{type(head).__name__} to verify it "
+                "against the pinned hash. Pass verify_upstream=False only if "
+                "you have checked the stage-3 transcription by other means."
+            ) from exc
+        if data is None:
+            raise RuntimeError(
+                f"{type(head).__name__} has no source file; cannot pin the action head."
+            )
+        digest = hashlib.sha256(data).hexdigest()
+        if digest != UPSTREAM_ACTION_HEAD_SHA256:
+            raise RuntimeError(
+                "Upstream action head has changed; denoise_loop may no longer "
+                "transcribe its get_action.\n"
+                f"  file:     {path}\n"
+                f"  expected: {UPSTREAM_ACTION_HEAD_SHA256}\n"
+                f"  actual:   {digest}\n"
+                "Re-read get_action, update denoise_loop / denoise_step, repin "
+                "the hash and re-run the three-stage equivalence gate."
+            )
+
+    def live_schedule(self) -> DenoiseSchedule:
+        """The schedule the action head runs *right now*, from its live step count."""
+        return groot_n15_schedule(self._model.action_head.num_inference_timesteps)
 
     def _infer_device_type(self) -> str:
         device = getattr(self._model, "device", None)
@@ -375,10 +464,13 @@ class GrootStagedRunner:
                 # It is not sufficient on its own: the graph's *input* buffer is
                 # static too, so a concurrent caller can still replay on another
                 # caller's pixels. The lock remains required.
-                vit_embeds = self._compiled_entry["fn"](eagle_input["pixel_values"]).clone()
+                vit_embeds = self._compiled_entry["fn"](
+                    eagle_input["pixel_values"]
+                ).clone()
                 if not self._compiled_entry["checked"]:
                     vit_embeds = self._verify_compiled_vision(
-                        eagle_input["pixel_values"], vit_embeds,
+                        eagle_input["pixel_values"],
+                        vit_embeds,
                     )
 
             b, n, c = input_embeds.shape
@@ -396,8 +488,8 @@ class GrootStagedRunner:
                     f"{n_image_tokens} image tokens in the prompt but the vision "
                     f"tower produced {n_expected} embeddings."
                 )
-            flat_embeds[selected] = (
-                flat_embeds[selected] * 0.0 + vit_embeds.reshape(-1, c)
+            flat_embeds[selected] = flat_embeds[selected] * 0.0 + vit_embeds.reshape(
+                -1, c
             )
             input_embeds = flat_embeds.reshape(b, n, c)
             # --- end copied block ---
@@ -410,7 +502,9 @@ class GrootStagedRunner:
         )
 
     def _verify_compiled_vision(
-        self, pixel_values: torch.Tensor, compiled_out: torch.Tensor,
+        self,
+        pixel_values: torch.Tensor,
+        compiled_out: torch.Tensor,
     ) -> torch.Tensor:
         """One-time eager-vs-compiled gate on the FIRST real input.
 
@@ -438,8 +532,19 @@ class GrootStagedRunner:
         return compiled_out
 
     def run_stage2(self, stage1: GrootStage1Output) -> GrootStage2Output:
-        """Language model + action head. This is the half a cache hit skips."""
-        self._require_session("run_stage2")
+        """Language model + full action head: the MISS path, upstream's own loop."""
+        stage2 = self.run_stage2_llm(stage1)
+        stage3 = self.run_stage3(stage2)
+        return GrootStage2Output(
+            backbone_features=stage2.backbone_features,
+            attention_mask=stage2.attention_mask,
+            action_inputs=stage2.action_inputs,
+            action_pred=stage3.action_pred,
+        )
+
+    def run_stage2_llm(self, stage1: GrootStage1Output) -> GrootStage2Output:
+        """Language model only, stopping at the backbone features the head consumes."""
+        self._require_session("run_stage2_llm")
 
         with self._timer.measure("stage2_llm"):
             # Argument list mirrors upstream's call verbatim. `return_dict` is
@@ -457,26 +562,195 @@ class GrootStagedRunner:
             features = outputs.hidden_states[self._backbone.select_layer]
             features = self._backbone.eagle_linear(features)
 
-        # Rebuilt every call, never cached on the stage-1 output: the action
+        return GrootStage2Output(
+            backbone_features=features,
+            attention_mask=stage1.attention_mask,
+            action_inputs=stage1.action_inputs,
+        )
+
+    def _head_inputs(self, stage2: GrootStage2Output) -> Any:
+        # Rebuilt every call, never cached on the stage-2 output: the action
         # head's process_backbone_output writes the normalised features back
         # into this mapping in place, so a reused object would get its
         # LayerNorm applied twice.
-        backbone_outputs = _batch_feature(
+        return _batch_feature(
             {
-                "backbone_features": features,
-                "backbone_attention_mask": stage1.attention_mask,
+                "backbone_features": stage2.backbone_features,
+                "backbone_attention_mask": stage2.attention_mask,
             }
         )
 
-        with self._timer.measure("stage2_action"):
-            action_head_outputs = self._model.action_head.get_action(
-                backbone_outputs, stage1.action_inputs
-            )
+    def run_stage3(
+        self, stage2: GrootStage2Output, *, noise: Optional[torch.Tensor] = None
+    ) -> GrootStage3Output:
+        """Full flow-matching loop from pure noise.
 
+        With ``noise=None`` this is upstream's ``get_action`` verbatim -- the
+        production MISS path. Passing ``noise`` runs the pinned transcription
+        instead, which is what the equivalence gate and the benchmark use to
+        compare the two under identical inputs.
+        """
+        self._require_session("run_stage3")
+        backbone_outputs = self._head_inputs(stage2)
+        head = self._model.action_head
+        with self._timer.measure("stage2_action"):
+            if noise is None:
+                action_head_outputs = head.get_action(
+                    backbone_outputs, stage2.action_inputs
+                )
+                action_pred = action_head_outputs["action_pred"]
+            else:
+                action_pred = denoise_loop(
+                    head,
+                    backbone_outputs,
+                    stage2.action_inputs,
+                    noise=noise,
+                    num_steps=head.num_inference_timesteps,
+                )
+                action_head_outputs = _batch_feature({"action_pred": action_pred})
         self._model.validate_data(
             action_head_outputs, backbone_outputs, is_training=False
         )
-        return GrootStage2Output(action_pred=action_head_outputs["action_pred"])
+        return GrootStage3Output(
+            action_pred=action_pred,
+            start_t=None,
+            steps_run=head.num_inference_timesteps,
+        )
+
+    def run_stage3_from(
+        self,
+        stage2: GrootStage2Output,
+        start_x: torch.Tensor,
+        start_t: float,
+        *,
+        schedule: DenoiseSchedule,
+    ) -> GrootStage3Output:
+        """Resume the flow-matching loop from a cached snapshot: the WARM_START path.
+
+        ``schedule`` is the library's stamp; it must be the schedule the head is
+        running right now, otherwise ``start_t`` names a different step than
+        the one ``start_x`` was taken from. Step arithmetic goes through the
+        schedule object -- ``remaining_steps`` is ``N - i`` for this ascending
+        loop, which is the *opposite* of what the Pi0.5 formula would give.
+        """
+        self._require_session("run_stage3_from")
+        live = self.live_schedule()
+        if schedule != live:
+            raise RuntimeError(
+                f"run_stage3_from: library schedule {schedule.schedule_id} but the "
+                f"action head is running {live.schedule_id}; a snapshot at "
+                f"t={start_t} would be resumed at the wrong step."
+            )
+        start_index = schedule.snapshot_index(start_t)
+        backbone_outputs = self._head_inputs(stage2)
+        head = self._model.action_head
+        if start_x.dim() == 2:
+            start_x = start_x[None, ...]
+        with self._timer.measure("stage3_warm"):
+            action_pred = denoise_loop(
+                head,
+                backbone_outputs,
+                stage2.action_inputs,
+                noise=start_x,
+                num_steps=schedule.num_steps,
+                start_index=start_index,
+            )
+        self._model.validate_data(
+            _batch_feature({"action_pred": action_pred}),
+            backbone_outputs,
+            is_training=False,
+        )
+        return GrootStage3Output(
+            action_pred=action_pred,
+            start_t=start_t,
+            steps_run=schedule.remaining_steps(start_t),
+        )
+
+
+# ------------------------------------------------------------------
+# Transcription of upstream FlowmatchingActionHead.get_action
+# ------------------------------------------------------------------
+
+
+def denoise_step(
+    action_head: Any,
+    vl: torch.Tensor,
+    state_features: torch.Tensor,
+    embodiment_id: torch.Tensor,
+    actions: torch.Tensor,
+    timesteps_tensor: torch.Tensor,
+    dt: float,
+) -> torch.Tensor:
+    """One Euler step of the upstream loop: encode, DiT, decode, ``x + dt * v``."""
+    action_features = action_head.action_encoder(
+        actions, timesteps_tensor, embodiment_id
+    )
+    if action_head.config.add_pos_embed:
+        pos_ids = torch.arange(
+            action_features.shape[1], dtype=torch.long, device=vl.device
+        )
+        action_features = action_features + action_head.position_embedding(
+            pos_ids
+        ).unsqueeze(0)
+    future_tokens = action_head.future_tokens.weight.unsqueeze(0).expand(
+        vl.shape[0], -1, -1
+    )
+    sa_embs = torch.cat((state_features, future_tokens, action_features), dim=1)
+    model_output = action_head.model(
+        hidden_states=sa_embs, encoder_hidden_states=vl, timestep=timesteps_tensor
+    )
+    pred = action_head.action_decoder(model_output, embodiment_id)
+    return actions + dt * pred[:, -action_head.action_horizon :]
+
+
+def denoise_loop(
+    action_head: Any,
+    backbone_output: Any,
+    action_input: Any,
+    *,
+    noise: torch.Tensor,
+    num_steps: int,
+    start_index: int = 0,
+    step_fn: Callable[..., torch.Tensor] = denoise_step,
+) -> torch.Tensor:
+    """Upstream ``get_action`` with the noise hoisted out and a resume point.
+
+    Upstream draws ``torch.randn`` inside the function body; here ``noise`` is
+    the loop's starting chunk -- pure noise for a full run, or a cached
+    snapshot when ``start_index`` is the step that snapshot feeds. Everything
+    else is upstream's, character for character: the **ascending**
+    ``t_cont = t/N``, the integer bucket discretisation, the position
+    embedding, the ``future_tokens`` expansion and the ``+dt*v`` Euler update.
+    ``step_fn`` exists so a caller may substitute a compiled single step.
+    ``action_input`` is indexed rather than attribute-accessed so the loop also
+    runs against plain-dict stand-ins; ``BatchFeature`` supports both.
+    """
+    processed = action_head.process_backbone_output(backbone_output)
+    vl = processed.backbone_features
+    embodiment_id = action_input["embodiment_id"]
+    state_features = action_head.state_encoder(action_input["state"], embodiment_id)
+
+    batch_size = vl.shape[0]
+    actions = noise.to(device=vl.device, dtype=vl.dtype)
+    dt = 1.0 / num_steps
+    for t in range(start_index, num_steps):
+        t_cont = t / float(num_steps)  # ascending: 0, 1/N, 2/N, ...
+        t_discretized = int(t_cont * action_head.num_timestep_buckets)
+        timesteps_tensor = torch.full(
+            size=(batch_size,), fill_value=t_discretized, device=vl.device
+        )
+        # A reduce-overhead graph returns a static output buffer. Clone after
+        # every step because the next denoise step consumes this value.
+        actions = step_fn(
+            action_head,
+            vl,
+            state_features,
+            embodiment_id,
+            actions,
+            timesteps_tensor,
+            dt,
+        ).clone()
+    return actions
 
 
 def _batch_feature(data: dict) -> Any:

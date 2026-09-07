@@ -10,10 +10,10 @@ import torch
 
 from openpi.cache.components.judge import HitType
 from openpi.cache.groot.interceptor import GrootCacheInterceptor
-from openpi.cache.groot.staged import GrootStagedRunner
+from openpi.cache.groot.staged import GrootStage3Output, GrootStagedRunner
 from openpi.cache.storage_types import CachePayload
 from openpi.cache.timing import SystemTimer
-from openpi.cache.types import CheckpointID
+from openpi.cache.types import CheckpointID, groot_n15_schedule
 
 from .conftest import ACTION_DIM, ACTION_HORIZON, StubGrootModel
 
@@ -35,9 +35,13 @@ class _StubPolicy:
 
 
 class _StubOrchestrator:
-    def __init__(self, verdict: HitType, payload=None) -> None:
+    def __init__(
+        self, verdict: HitType, payload=None, *, start_t=None, artifact_meta=None
+    ) -> None:
         self._verdict = verdict
         self._payload = payload
+        self._start_t = start_t
+        self.artifact_meta = artifact_meta
         self.calls: list[str] = []
         self.broadcast: list[torch.Tensor] = []
         self.buffered: list[tuple] = []
@@ -49,6 +53,7 @@ class _StubOrchestrator:
         return types.SimpleNamespace(
             hit_type=self._verdict,
             payload=self._payload,
+            start_t=self._start_t,
             score=0.5,
             entry_id="traj:7",
             query_keys={"robot_state": torch.zeros(3)},
@@ -83,14 +88,14 @@ def _obs():
     return {"state.x": np.zeros((1, 3), dtype=np.float32)}
 
 
-def _build(verdict, payload=None, timer=None):
+def _build(verdict, payload=None, timer=None, *, start_t=None, artifact_meta=None):
     model = StubGrootModel()
     policy = _StubPolicy(model)
     runner = GrootStagedRunner(model, timer=timer, verify_upstream=False)
-    orch = _StubOrchestrator(verdict, payload)
-    interceptor = GrootCacheInterceptor(
-        policy, runner, orchestrator=orch, timer=timer
+    orch = _StubOrchestrator(
+        verdict, payload, start_t=start_t, artifact_meta=artifact_meta
     )
+    interceptor = GrootCacheInterceptor(policy, runner, orchestrator=orch, timer=timer)
     return model, orch, interceptor
 
 
@@ -119,16 +124,109 @@ def test_bookkeeping_order_matches_pi05():
 
 
 def test_clear_runs_even_when_the_cycle_raises():
-    _, orch, interceptor = _build(HitType.FULL_HIT, payload=None)  # payload=None -> AttributeError
+    _, orch, interceptor = _build(
+        HitType.FULL_HIT, payload=None
+    )  # payload=None -> AttributeError
     with pytest.raises(Exception):
         interceptor.get_action(_obs())
     assert orch.calls[-1] == "clear"
 
 
-def test_warm_start_is_refused():
-    _, _, interceptor = _build(HitType.WARM_START)
-    with pytest.raises(RuntimeError, match="WARM_START"):
+def _warm_payload(start_t: float, num_steps: int = 4) -> CachePayload:
+    snapshot = torch.full((ACTION_HORIZON, ACTION_DIM), start_t)
+    return CachePayload(
+        action_chunk=torch.ones(ACTION_HORIZON, ACTION_DIM),
+        intermediates={start_t: snapshot},
+        denoising_num_steps=num_steps,
+        schedule_id=f"groot_n15_k{num_steps}_v1",
+    )
+
+
+def _spy_stage3(interceptor, calls: list):
+    """Replace the runner's resume path with a recorder returning a fixed chunk."""
+    runner = interceptor._runner  # noqa: SLF001 - test seam
+
+    def fake_from(stage2, start_x, start_t, *, schedule):
+        calls.append(
+            {
+                "stage2": stage2,
+                "start_x": start_x,
+                "start_t": start_t,
+                "schedule": schedule,
+            }
+        )
+        return GrootStage3Output(
+            action_pred=torch.full((1, ACTION_HORIZON, ACTION_DIM), 2.0),
+            start_t=start_t,
+            steps_run=schedule.remaining_steps(start_t),
+        )
+
+    runner.run_stage3_from = fake_from
+    full = runner.run_stage2
+
+    def spy_full(stage1):
+        calls.append({"full": True})
+        return full(stage1)
+
+    runner.run_stage2 = spy_full
+
+
+def test_warm_start_resumes_from_the_cached_snapshot():
+    """The library's snapshot at start_t is handed to run_stage3_from under the
+    library's schedule; the full head never runs."""
+    payload = _warm_payload(0.5)
+    _, orch, interceptor = _build(
+        HitType.WARM_START,
+        payload,
+        start_t=0.5,
+        artifact_meta={"schedule_id": "groot_n15_k4_v1"},
+    )
+    calls: list = []
+    _spy_stage3(interceptor, calls)
+
+    out = interceptor.get_action(_obs())
+
+    assert [c for c in calls if c.get("full")] == []
+    (resume,) = [c for c in calls if "start_t" in c]
+    assert resume["start_t"] == 0.5
+    assert resume["schedule"] == groot_n15_schedule(4)
+    assert torch.equal(resume["start_x"], payload.intermediates[0.5])
+    assert resume["stage2"].action_pred is None  # LLM-only stage 2
+    assert out["__hit_meta__"]["hit_type"] == "WARM_START"
+    assert out["__hit_meta__"]["start_t"] == 0.5
+    assert torch.equal(orch.broadcast[0], torch.full((ACTION_HORIZON, ACTION_DIM), 2.0))
+
+
+def test_warm_start_without_artifact_schedule_uses_the_entry_schedule_identity():
+    payload = _warm_payload(0.25, num_steps=4)
+    _, _, interceptor = _build(HitType.WARM_START, payload, start_t=0.25)
+    calls: list = []
+    _spy_stage3(interceptor, calls)
+    interceptor.get_action(_obs())
+    (resume,) = [c for c in calls if "start_t" in c]
+    assert resume["schedule"] == groot_n15_schedule(4)
+
+
+def test_warm_start_refuses_a_payload_that_disagrees_with_the_library_schedule():
+    payload = _warm_payload(0.5, num_steps=8)
+    _, _, interceptor = _build(
+        HitType.WARM_START,
+        payload,
+        start_t=0.5,
+        artifact_meta={"schedule_id": "groot_n15_k4_v1"},
+    )
+    calls: list = []
+    _spy_stage3(interceptor, calls)
+    with pytest.raises(RuntimeError, match="payload is stamped"):
         interceptor.get_action(_obs())
+
+
+def test_warm_start_hit_meta_carries_the_real_start_t():
+    payload = _warm_payload(0.75)
+    _, _, interceptor = _build(HitType.WARM_START, payload, start_t=0.75)
+    _spy_stage3(interceptor, [])
+    out = interceptor.get_action(_obs())
+    assert out["__hit_meta__"]["start_t"] == 0.75
 
 
 def test_persisted_tensors_satisfy_the_storage_contract():
@@ -195,7 +293,9 @@ def test_probe_counts_are_the_gate_evidence():
         _, _, interceptor = _build(HitType.FULL_HIT, payload, timer=timer)
         interceptor.get_action(_obs())
 
-        counts = {name: stats.count for name, stats in timer.summary(task_only=False).items()}
+        counts = {
+            name: stats.count for name, stats in timer.summary(task_only=False).items()
+        }
         # Positive controls first: without them "stage2 recorded nothing" would
         # be indistinguishable from a timer that never recorded anything.
         assert counts.get("stage1_vision") == 1

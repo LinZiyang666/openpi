@@ -25,6 +25,11 @@ class InferenceEmbeddings:
     # Post-transform model input images, mask=True slots only.
     # e.g. {"base_0_rgb": (224,224,3) uint8, "left_wrist_0_rgb": ...}
     input_images: dict[str, np.ndarray] | None = None
+    # The pure-noise x_0 the denoise loop started from. Written as
+    # ``noise_action_0`` so a teacher action can be reproduced bit-for-bit;
+    # never a warm-start point, so it stays out of ``noise_action_steps`` and
+    # the 1-based numbering below is untouched.
+    init_noise: np.ndarray | None = None
 
 
 class EpisodeDataCollector:
@@ -49,13 +54,18 @@ class EpisodeDataCollector:
     # attrs. An allowlist, not a passthrough: free-form client metadata must
     # not silently become schema (dispatch-surface cohort identity, G2-B4).
     _METADATA_ATTR_ALLOWLIST = (
-        "task_id", "init_state_idx", "orig_init_state_idx",
-        "subset_init_state_idx", "split",
+        "task_id",
+        "init_state_idx",
+        "orig_init_state_idx",
+        "subset_init_state_idx",
+        "split",
         # Pinned-object provenance: the identity the episode claims plus the
         # slot->mesh map the scene actually realized (JSON). The auditor admits
         # an episode on the realized value, so it has to survive the allowlist
         # or the check would silently have nothing to read.
-        "pin_id", "pin_task_id", "realized_objects",
+        "pin_id",
+        "pin_task_id",
+        "realized_objects",
     )
 
     def on_episode_start(
@@ -78,7 +88,12 @@ class EpisodeDataCollector:
                 for key in self._METADATA_ATTR_ALLOWLIST:
                     if key in extra_metadata:
                         self._episode_attrs[key] = extra_metadata[key]
-        logger.info("EpisodeDataCollector: episode %d started (%s / %s)", episode_id, experiment, task)
+        logger.info(
+            "EpisodeDataCollector: episode %d started (%s / %s)",
+            episode_id,
+            experiment,
+            task,
+        )
 
     def record_inference(self, embs: InferenceEmbeddings) -> None:
         with self._lock:
@@ -103,7 +118,10 @@ class EpisodeDataCollector:
     def on_episode_end(self, success: bool) -> None:
         with self._lock:
             if not self._buffer:
-                logger.warning("EpisodeDataCollector: episode %d has no data, skipping write.", self._episode_id)
+                logger.warning(
+                    "EpisodeDataCollector: episode %d has no data, skipping write.",
+                    self._episode_id,
+                )
                 return
 
             buffer = self._buffer
@@ -157,9 +175,15 @@ class EpisodeDataCollector:
                 for step_idx, embs in enumerate(buffer):
                     grp = f.create_group(f"step_{step_idx:04d}")
                     for i, vision_emb in enumerate(embs.vision_embs):
-                        grp.create_dataset(f"vision_{i}", data=vision_emb, compression="lzf")
-                    grp.create_dataset("prompt_emb", data=embs.prompt_emb, compression="lzf")
+                        grp.create_dataset(
+                            f"vision_{i}", data=vision_emb, compression="lzf"
+                        )
+                    grp.create_dataset(
+                        "prompt_emb", data=embs.prompt_emb, compression="lzf"
+                    )
                     grp.create_dataset("robot_state", data=embs.robot_state)
+                    if embs.init_noise is not None:
+                        grp.create_dataset("noise_action_0", data=embs.init_noise)
                     for i, noise_action in enumerate(embs.noise_action_steps, start=1):
                         grp.create_dataset(f"noise_action_{i}", data=noise_action)
                     grp.create_dataset("clean_action", data=embs.clean_action)
@@ -177,5 +201,7 @@ class EpisodeDataCollector:
                 success,
             )
         except Exception:
-            logger.exception("EpisodeDataCollector: failed to write episode %d", episode_id)
+            logger.exception(
+                "EpisodeDataCollector: failed to write episode %d", episode_id
+            )
             tmp_path.unlink(missing_ok=True)

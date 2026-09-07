@@ -1,7 +1,7 @@
 # Session Handoff —— WARM_START 引入 RoboCasa365（开发线）
 
 > 2026-09-06 晚。**上一条实验线已收官并拆干净，不要再碰它**（见 §5）。
-> 当前唯一活跃的工作是 **warm-start 开发线**，卡在 **G2 Round 4 待审**（R3 执行方答复已追加）。
+> 当前唯一活跃的工作是 **warm-start 开发线**：阶段 B 代码已 **CODE APPROVED（owner override）**，本次提交后进入运行动作（W13 重采集 / 阶段 A 测量）。
 > 范围已由 owner 扩到 **RoboCasa365 + LIBERO 两条 GR00T 线**。
 
 ---
@@ -42,11 +42,19 @@ benchmark 侧等价体 + `index_copy`（生产 eager 那次调用独占所有 `T
 `cudaProfilerStart/Stop` 界定并压 NVTX cell marker，certify 时要求 `cudaGraphLaunch` **恰等于**
 `iters·(2+k)` 且 capture 计数为 0；每段 parity 都吃**同一份 eager 上游**，另加 end-to-end 链路指标。
 
-⚠ **提交发生在 G2 APPROVED 之前，这是 owner 的越门指示，不是流程走完了。**
+**G2 收口方式（2026-09-07）**：reviewer（codex）在 R3 NEEDS REVISION 后按 owner 授权**直接修改工作区**到可放行，写下「CODE APPROVED — owner override」；我以 §10.2 逐项审计接受（plan Review Log「G2 Round 4 — Executor」）。它抓出我一个真实生产缺陷（`validate_data` 要 `BatchFeature`，dict 会让真 warm hit 必炸）并在 weilandserver 跑通了真机 G0-C（k4/k8 逐位相等）。⚠ 两处行为变更要记住：① orchestrator 对坏 WARM_START payload **raise 而非降级 MISS**（legacy pi0.5 配方也是）；② reviewer 对 54 个文件整文件 `ruff format`，diff 里大量换行噪音是它的，不是语义。
+
+⚠ **之前那次提交（8af28fd）发生在 G2 APPROVED 之前，是 owner 的越门指示。**
 owner 2026-09-06 明示「检查审核之后推进流程…前进到 commit push」，据 WA 抬头「Project Owner…
 May override any process at will」执行。⇒ **G2 仍未 APPROVED**，Round 4 的裁决照旧要等；
 若返回 NEEDS REVISION，**先重读 `protocols/execution_authority.md` §10.2**，每条意见恰好一条
 `Accepted`/`Rejected`，Review Log 追加式。**不要**因为已经 commit/push 就当 G2 结了。
+
+**阶段 B 已实现（2026-09-06 深夜，owner 两次明示后解除 D2）**：W5-W12 + W14 全部落地，
+清单与五处有意偏离见 plan Review Log 末尾「§4 Code 交付（阶段 B）」。关键口径：schedule id
+**只从活值派生**（`live_schedule()`），YAML 无默认；legacy pi0.5 路径零改动；MISS 仍走上游原子
+`get_action`，转写循环只用于续跑；`emit_gate_yamls.py` 未改，warm yaml 只由两个新 emitter 产出。
+新增测试 9 个文件，等价门（转写↔上游 stub 逐位、hook 快照续跑↔全程逐位）在 `test_groot_stage3.py`。
 
 **唯一未完成项**：真模型 parity/trace 仍没跑。GPU 窗口现在是开的（两机全空），但
 ① 它是 §6 执行顺序里 W0→stage1 诊断→W2 三步，计划明确要 owner 起跑；
@@ -77,8 +85,8 @@ LIBERO 的 server 在 `exp/libero_groot/serve_groot_libero.py:400-409` **直接�
 | L-2 | **第二道守卫**：emitter 也拒 warm tier，必须与 `load_guard` 同时最后放开 | `emit_gate_yamls.py:177-182` |
 | L-3 | 三个装配点带 `allow_hysteresis_gate=True` 既有豁免，放宽时别冲掉 | `serve_groot_libero.py:160,235,429` |
 
-k=8 的 timesteps `{0.125…0.875}` 与 `CANONICAL_DENOISE_TIMESTEPS` **交集为空** ⇒ LIBERO 侧
-没有 k=4 那个"碰巧全合法"的静默坑，失败是响亮的。
+k=8 的 timesteps `{0.125…0.875}` 与 `CANONICAL_DENOISE_TIMESTEPS` 交集是 **`{0.5}`**（不是空，
+早先写错了）⇒ LIBERO 也有一个静默口子 `start_t: 0.5`，只是比 k=4 的三个值小。
 ⚠ **术语陷阱**：`exp/libero_groot/` 里的 "warmup" 指**阈值标定的 force-MISS 臂**，
 与 warm-**start**（中途续跑）毫无关系，只是共用一个英文词，且在同一条流水线里相邻出现。
 

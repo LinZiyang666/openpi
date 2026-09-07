@@ -16,6 +16,7 @@ import pytest
 from exp.robocasa365.run_collect import RobocasaCollectStrategy, build_run_plan
 from exp.robocasa365.run_collect import write_run_plan
 from exp.robocasa365.verify_collection_artifacts import (
+    _check_h5_schema,
     audit,
     build_manifest,
     is_admissible,
@@ -24,6 +25,7 @@ from exp.robocasa365.verify_collection_artifacts import (
     min_episodes_for_target,
     prob_at_least,
 )
+from openpi.cache.types import groot_n15_schedule
 from openpi.conductor.driver import assign_servers
 from openpi.conductor.task import ServerEndpoint
 
@@ -48,9 +50,16 @@ def _run_plan(
     # keeps hashing the exact plan it hashed before; the pinned-object tests
     # pass a table and get a plan whose params carry that identity.
     strategy = RobocasaCollectStrategy(
-        teacher="pi05", layout=1, style=1, base_seed=0, replan_steps=5,
-        tasks=tasks, batch=batch, episode_lo=episode_lo,
-        pin_id=pin_id, pinned_objects=pinned_objects,
+        teacher="pi05",
+        layout=1,
+        style=1,
+        base_seed=0,
+        replan_steps=5,
+        tasks=tasks,
+        batch=batch,
+        episode_lo=episode_lo,
+        pin_id=pin_id,
+        pinned_objects=pinned_objects,
     )
     servers = [ServerEndpoint("127.0.0.1", 8010)]
     weights = {yid: n for yid, (_, n) in zip(strategy.yaml_ids, tasks)}
@@ -85,18 +94,54 @@ def _write_h5(
         for i in range(steps):
             grp = f.create_group(f"step_{i:04d}")
             for j in range(3):
-                grp.create_dataset(f"vision_{j}", data=np.zeros((4, 8), dtype=np.float16))
+                grp.create_dataset(
+                    f"vision_{j}", data=np.zeros((4, 8), dtype=np.float16)
+                )
             grp.create_dataset("prompt_emb", data=np.zeros((5, 8), dtype=np.float16))
             grp.create_dataset("robot_state", data=np.zeros(16, dtype=np.float32))
-            grp.create_dataset("clean_action", data=np.zeros((50, 32), dtype=np.float32))
+            grp.create_dataset(
+                "clean_action", data=np.zeros((50, 32), dtype=np.float32)
+            )
     return path
 
 
-def _journal_row(uid: str, *, success=True, accepted=True, attempt=1, error=None) -> dict:
+def test_warm_snapshot_shape_and_dtype_are_audited(tmp_path):
+    path = _write_h5(
+        tmp_path,
+        "groot/OpenCabinet/episode_0000",
+        1,
+        task="OpenCabinet",
+        success=True,
+        steps=1,
+    )
+    schedule = groot_n15_schedule(4)
+    with h5py.File(path, "a") as f:
+        f.attrs["denoise_schedule_id"] = schedule.schedule_id
+        f.attrs["denoising_num_steps"] = schedule.num_steps
+        group = f["step_0000"]
+        group.create_dataset("noise_action_0", data=np.zeros((49, 32), np.float64))
+        for index in range(1, schedule.num_steps):
+            group.create_dataset(
+                f"noise_action_{index}", data=np.zeros((50, 32), np.float64)
+            )
+
+    problems = _check_h5_schema(path, "OpenCabinet", require_schedule=True)
+    assert any("noise_action_0 shape" in problem for problem in problems)
+    assert any("noise_action_1 dtype" in problem for problem in problems)
+
+
+def _journal_row(
+    uid: str, *, success=True, accepted=True, attempt=1, error=None
+) -> dict:
     return {
-        "task_uid": uid, "yaml_id": uid.split(":")[0], "phase": "eval",
+        "task_uid": uid,
+        "yaml_id": uid.split(":")[0],
+        "phase": "eval",
         "status": "done" if success else "failed",
-        "success": success, "attempt": attempt, "accepted": accepted, "error": error,
+        "success": success,
+        "attempt": attempt,
+        "accepted": accepted,
+        "error": error,
     }
 
 
@@ -140,7 +185,9 @@ def test_retry_case_a_kill_no_first_row(tmp_path):
     task = prefix.split("/")[1]
     journal = [r for r in journal if r["task_uid"] != uid]
     journal.append(_journal_row(uid, attempt=2))
-    _write_h5(root, prefix, 2, task=task, success=True)  # rerun's file (a01 remains on disk)
+    _write_h5(
+        root, prefix, 2, task=task, success=True
+    )  # rerun's file (a01 remains on disk)
     report = audit(root=root, journal_records=journal, plans=[plan], target=1)
     assert report["ok"], report
     assert report["admitted"][uid]["attempt"] == 2
@@ -208,7 +255,9 @@ def test_schema_checks_every_step_not_just_the_first(tmp_path):
         del f["step_0001"]["clean_action"]
     report = audit(root=root, journal_records=journal, plans=[plan], target=1)
     assert not report["ok"]
-    assert any("step_0001" in p and "clean_action" in p for p in report["schema_errors"][uid])
+    assert any(
+        "step_0001" in p and "clean_action" in p for p in report["schema_errors"][uid]
+    )
 
 
 def test_false_success_attr_rejected_despite_clean_journal(tmp_path):
@@ -238,8 +287,13 @@ def test_cli_writes_no_manifest_on_failed_audit(tmp_path):
     plan_path = tmp_path / "run_plan_collect_l1s1_pi05_b01.json"
     manifest_path = tmp_path / "manifest.json"
     args = argparse.Namespace(
-        root=str(root), teacher="pi05", journal=str(journal_path),
-        run_plan=[str(plan_path)], target=1, report_out="", manifest_out=str(manifest_path),
+        root=str(root),
+        teacher="pi05",
+        journal=str(journal_path),
+        run_plan=[str(plan_path)],
+        target=1,
+        report_out="",
+        manifest_out=str(manifest_path),
     )
     with pytest.raises(SystemExit):
         run_cli(args)
@@ -257,8 +311,13 @@ def test_cli_writes_manifest_on_passing_audit(tmp_path):
     plan_path = tmp_path / "run_plan_collect_l1s1_pi05_b01.json"
     manifest_path = tmp_path / "manifest.json"
     args = argparse.Namespace(
-        root=str(root), teacher="pi05", journal=str(journal_path),
-        run_plan=[str(plan_path)], target=1, report_out="", manifest_out=str(manifest_path),
+        root=str(root),
+        teacher="pi05",
+        journal=str(journal_path),
+        run_plan=[str(plan_path)],
+        target=1,
+        report_out="",
+        manifest_out=str(manifest_path),
     )
     report = run_cli(args)
     assert report["ok"] and manifest_path.exists()
@@ -266,7 +325,9 @@ def test_cli_writes_manifest_on_passing_audit(tmp_path):
 
 def test_case_e_multi_batch_union_and_duplicate_rejection(tmp_path):
     plan1 = _run_plan(tmp_path, batch=1)
-    plan2 = _run_plan(tmp_path, batch=2, episode_lo={"OpenCabinet": 2, "CloseDrawer": 1})
+    plan2 = _run_plan(
+        tmp_path, batch=2, episode_lo={"OpenCabinet": 2, "CloseDrawer": 1}
+    )
     uids, _prefixes, batches, hashes = merge_run_plans([plan1, plan2])
     assert len(uids) == len(set(uids)) == 6
     assert len(hashes) == 2
@@ -279,10 +340,22 @@ def test_run_plan_params_schema_matches_frozen_text(tmp_path):
     # Frozen §4.3.6-(6): tasks carry inclusive episode_lo/episode_hi (batch
     # boundaries live in the hash), and collect_root is canonicalized.
     plan = _run_plan(tmp_path, batch=2, episode_lo={"OpenCabinet": 2, "CloseDrawer": 1})
+    assert plan["params"]["collect_schema"] == "v2"
     rows = {row["task_name"]: row for row in plan["params"]["tasks"]}
-    assert set(rows["OpenCabinet"]) == {"task_name", "task_id", "episode_lo", "episode_hi"}
-    assert (rows["OpenCabinet"]["episode_lo"], rows["OpenCabinet"]["episode_hi"]) == (2, 3)
-    assert (rows["CloseDrawer"]["episode_lo"], rows["CloseDrawer"]["episode_hi"]) == (1, 1)
+    assert set(rows["OpenCabinet"]) == {
+        "task_name",
+        "task_id",
+        "episode_lo",
+        "episode_hi",
+    }
+    assert (rows["OpenCabinet"]["episode_lo"], rows["OpenCabinet"]["episode_hi"]) == (
+        2,
+        3,
+    )
+    assert (rows["CloseDrawer"]["episode_lo"], rows["CloseDrawer"]["episode_hi"]) == (
+        1,
+        1,
+    )
     assert not plan["params"]["collect_root"].endswith("/")
 
 
