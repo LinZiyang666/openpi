@@ -139,7 +139,11 @@ WARM_START 但拿的是错的 x_t；而真值 0.25/0.5/0.75 写进 yaml **反而
 | 5 | W3 跑 G-A1 步数敏感筛查 | 约 1.2 h |
 | 6 | **owner 唯一裁决点**：是否进阶段 B（L3 改造，含 LIBERO 的 W14） | |
 
-**⚠ 阶段 A 现场拓扑（2026-09-06 23:54 起，无人值守）**：
+**阶段 A 已收官（2026-09-07 00:05，owner：只要三段延迟）**：G-M 两格 certified，三段延迟 s1 8.1 / s2 9.4 / s3 17.8 ms（k=4）、
+每步去噪 2.60 ms、stage3 固定前奏 7.41 ms；W3 按 owner 指示中止未出数；两机已拆干净（weilandserver 无 tmux/无监听/GPU 0 MiB；timan107 无 tmux/无 worker）。
+`/tmp/openpi-stageA` 隔离克隆与 `/tmp/stageA/*`、`/tmp/w2_traces/*` 留在 weilandserver（可删）。下面这段拓扑已失效，仅作记录：
+
+**⚠ 阶段 A 现场拓扑（2026-09-06 23:54 起，已结束）**：
 - weilandserver tmux `w2full`：`bash /tmp/stageA/run_w2.sh "0" "1 2 3 4" "0 1 2"` 然后 `"1 2 3 4" "1 2 3 4" "0 1 2"`，
   日志 `/tmp/stageA/w2.log`，收官标记 `W2_ALL_DONE`；每格约 2 min，共 60 格（k4_p0_r0 已 certified valid）。
   cell JSON 在 `/tmp/openpi-stageA/exp/robocasa365/data/latency/`，trace 在 `/tmp/w2_traces/`。
