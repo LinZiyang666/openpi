@@ -408,9 +408,9 @@ warm-start yaml 只由新 emitter（`exp/robocasa365/emit_ws_warmstart_yamls.py`
 |---|---|
 | 计时契约 | `time.monotonic()` + 每阶段后 `torch.cuda.synchronize()`，照抄台账 teacher 路径（`policy.py:101-131`）。**不用 `SystemTimer`**：batch=1 是 launch-bound，CUDA event 测 GPU timeline 会系统性漏掉主导项；且 SNAPSHOT 档的 sync 本身压 GPU |
 | **LLM 注意力实现（bench 内）** | 生产 LLM 走 flash-attention-2，其 transformers 包装在因果路径上有 `(torch.diff(position_ids) >= 0).all()` 的 Python 判断，Dynamo 无法整图追踪 ⇒ bench 内把 LLM 切到 **SDPA**（torch 原生算子，flash 后端）以保证 stage 2 单图；每个 cell 记录同一输入下 eager 的 flash vs SDPA stage-2 耗时（`stage2_eager_ms_by_attn`）以量化换核代价；生产代码不动，字段 `llm_attn_implementation_*` 记录两侧实现 |
-| prompt 形状集 | ⚠ 必须用**真实 RoboCasa365 的 5 个 PickPlace prompt**（钉死后每任务恰好 1 个，见 §1），逐形状各测一遍并**分别报告**；不得只测一个形状就外推。变长 N 在 CUDA Graph 下每形状一张图，这正是 §7.2 的风险 |
+| prompt 形状集 | 5 个 PickPlace prompt 的 N 不同（prompt 0 为 823）；**收窄后只测 prompt 0**，报告注明 N 并把"每形状一张图"（§7.2）列为已知未测项，不外推到其它形状 |
 | warmup / 迭代 | warmup 30（覆盖编译 + graph capture + 时钟爬升）；measurement 200 次/进程 |
-| 重复 | 每 cell **3 个独立进程串行执行**（独占 GPU，禁止并跑），cell 顺序随机交错；报 median-of-medians + 跨进程离散度（进程间方差是主要不确定度来源） |
+| 重复 | **owner 2026-09-06 裁定收窄（"测个 latency 跑两小时干毛"）**：G-M 只需 k 阶梯的斜率与三段绝对值 ⇒ **一个 prompt 形状（prompt 0，N=823）× k∈{1,2,3,4} × 1 进程 = 4 格**，每格 warmup 30 + 200 iters；pi0.5 同卡复标定三次的跨进程离散 <0.5% 已证明进程间方差不是主要不确定度。其余 prompt 形状与重复进程不跑 |
 | 逐次列表 | ⚠ **必须落盘**（台账的已知缺陷：15 个文件里只有 4 个带逐次列表，n=30 只存了摘要） |
 | eager↔compiled parity | 每段各一条断言，与延迟同一次运行内产出并记录在 cell 的 `parity_*` 字段。**owner 2026-09-06 裁定（"我们要效率数据"）：parity 只记录、不作废 cell** —— 阶段 A 第 1 步已证明 bf16 视觉塔在 5-8% relF 量级上对舍入顺序敏感、eager 不是真值（§9）。作废 cell 的只剩"计时不是稳态单图 CUDA-Graph 重放"的证据：unique graph ≠ 3 / warmup 后再编译 / cudagraph skip / RNG 重放不一致 / trace 无 `cudaGraphLaunch` 或计数 ≠ `iters·(2+k)` / 测量窗口内出现 capture |
 | **graph 确实 replay 的证据** | ⚠ 时延分布不能证明 graph replay。可执行契约（G2 R2 后冻结）：measurement 区间由 `cudaProfilerStart/Stop` 界定，外层 `nsys profile --trace=cuda,nvtx --capture-range=cudaProfilerApi --capture-range-end=stop`，区间内再压一个 cell 身份 NVTX marker（`trace_marker`，由 cell 身份字段派生）；导出用 `nsys stats --report cuda_api_sum,nvtx_sum --format csv`，按列名 `Name` + `Num Calls` 读**整数调用数**（不得数字符串出现次数）。判据三条全部必须成立：trace 内出现该 cell 的 marker；`cudaGraphLaunch` 计数**恰等于** `iters·(2+k)`（三段各一次 replay + 每步一张 stage-3 图）；区间内 `cudaStreamBeginCapture`/`EndCapture`/`cudaGraphInstantiate` 计数为 **0**（warmup 允许 capture，measurement 不允许）。inductor `perf_hints` 落在 cell JSON 的 `inductor_perf_hints` 字段，unique-graph 计数取 Dynamo `stats.unique_graphs`（必须恰好新增 3），任何 cudagraph skip 都使该 cell 作废。**拿不到 trace，G-M 不成立** |
@@ -418,6 +418,29 @@ warm-start yaml 只由新 emitter（`exp/robocasa365/emit_ws_warmstart_yamls.py`
 | 输出 JSON schema | 权威定义是 `bench_groot_stages.py` 的模块级 `MEASURE_RECORD_FIELDS`，落盘前由 `assert_record_schema()` 强制：`{schedule_id, k, prompt_sha256, trace_marker, prompt_shape_n, mode, warmup, iters, proc_idx, stage1_ms[], stage2_llm_ms[], stage3_ms[], total_ms[], parity_stage1, parity_stage2, parity_stage3_copy_vs_upstream, parity_stage3_eager_vs_compiled, parity_worst, fixed_noise_replay_equal, sampled_noise_distinct, cuda_trace_path, cudagraph_launch_count, expected_cudagraph_launch_count, capture_calls_after_warmup, compile_count, cudagraph_skips, inductor_perf_hints, busy_gpu_override, gpu_name, gpu_uuid, torch, driver, ckpt_sha256, upstream_get_action_sha256, git_commit, host, ts}`。raw cell 的 `cudagraph_launch_count` / `capture_calls_after_warmup` 恒为 `null`，只能由 `--mode certify` 从 trace 回填 |
 | provenance | `gpu_uuid` + `torch` 版本必录 —— ⚠ weilandserver 的卡 2026-08-26 换过、GR00T 岛 torch 2.5.1+cu124 与 pi0.5 栈 2.7.1+cu126 不同，这两条是跨表对读时唯一能发现混淆的字段 |
 | pi0.5 复标定 | 同一空窗、同一张卡复跑台账脚本的 CUDA-Graph 档；三段偏差 < 5% 则直接引用台账，否则报告须**同列"台账值 / 本卡值"**并给缩放因子 |
+
+**G-M 结果（2026-09-06 23:5x，weilandserver RTX 4090，torch 2.5.1+cu124，prompt 0 / N=823，CUDA Graph 三段各一张图，
+每格 warmup 30 + 200 iters，trace 证书 `cudaGraphLaunch == iters·(2+k)`、窗口内 0 capture，两格均 valid）**：
+
+| k | s1 | s2 (SDPA) | s3 | MISS |
+|---|---|---|---|---|
+| 1 | 8.20 | 9.35 | 10.01 | 27.67 ms |
+| 4 | 8.12 | 9.36 | 17.80 | 35.39 ms |
+
+⇒ **每步去噪 b = 2.60 ms；stage 3 固定开销 a = 7.41 ms**（`process_backbone_output` 的 vlln LayerNorm + `state_encoder`
+在 bench 里为 eager 前奏，未进图 —— 这是阶段 B §7.4-6 可再压的一块，但它不改变下面的结论）。
+eager 参照：stage 2 flash-attn 25.0 ms / SDPA 24.0 ms（CUDA Graph 后 9.4 ms，换核不虚增收益）。
+pi0.5 同卡复标定 ×3 vs 台账：s1 −4.8% / s2 −1.9% / s3 −2.1%，全 <5% ⇒ 台账直接引用。
+
+| 判决 | ms | 占 MISS |
+|---|---|---|
+| MISS | 35.3 | 100% |
+| WARM_START@0.25 / 0.5 / 0.75 | 32.7 / 30.1 / 27.5 | 93% / 85% / 78% |
+| FULL_HIT | 8.1 | 23% |
+
+**G-T：`3b/T = 7.8/35.3 = 22%`**，仅在 t=0.75 时刚过 20% 线；t=0.5 为 15%。折到 episode 墙钟（97 s/集 × 132 次推理）
+t=0.5 每集省 ≈0.7 s（**0.7%**）。⇒ **不得以"省延迟"为由立项**（与 D1 一致，立论只能走精度）。
+未测项：其余 4 个 prompt 形状（N 不同，每形状一张图）；重复进程（pi0.5 复标定的跨进程离散 <0.5% 支持单进程口径）。
 
 **G-T（时间门，无否决权）**：若 `3b/T < 20%`，则**不得以"省延迟"为由立项**。
 
