@@ -139,7 +139,13 @@ WARM_START 但拿的是错的 x_t；而真值 0.25/0.5/0.75 写进 yaml **反而
 | 5 | W3 跑 G-A1 步数敏感筛查 | 约 1.2 h |
 | 6 | **owner 唯一裁决点**：是否进阶段 B（L3 改造，含 LIBERO 的 W14） | |
 
-**⚠ 已查明**：stage1 等价门那次 `cos=0.8716` 的 FAIL **与 CUDA Graph 无关** ——
+**⚠ 阶段 A 第 1 步已跑完（2026-09-06 深夜，真 ckpt）**：偏差在 bf16 视觉塔的舍入顺序敏感性（编译 fp32 vs eager fp32
+relF 8e-6；两条 bf16 轨迹各距 fp32 真值 5-7%，编译版更近；pooled key 余弦 0.99966）。假设 A/B 都否定。
+**W2 正式 cell 阻塞在 owner 对 G-M stage-1 门的修正裁决**（plan §9 写了建议）。stage 2 的 fullgraph 边界也修了（mask 不传 + 等价守卫）。
+诊断脚本 `exp/robocasa365/diag_stage1_bisect{,2,3}.py`，产物 `exp/robocasa365/data/latency/diag_stage1_*.json`（gitignored，本地已拉回）。
+远端隔离克隆 `/tmp/openpi-stageA`（不是 `/home/weiland/openpi`，那里有别人的未提交改动），驱动脚本 `/tmp/stageA/run_w2.sh` / `run_pi05_recal.sh`。
+
+**⚠ 早前查明**：stage1 等价门那次 `cos=0.8716` 的 FAIL **与 CUDA Graph 无关** ——
 `cudagraph_trees` 第一次调用走 warmup 不重放，而那道门只在第一次真实推理跑
 ⇒ **CUDA Graph 从未被真正试过**，退回 `default` 档也救不了它。根因二选一：
 autocast dtype 处置（仓内实测同族 LayerNorm fp32/bf16 差 max|Δ|≈1.4e-2），或判据过脆

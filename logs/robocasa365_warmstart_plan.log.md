@@ -583,7 +583,22 @@ inductor 默认 `fallback_random=False`（`_inductor/config.py:413`），把 `at
 
 **本 plan 内的未决**：
 
-- **§7.4-1 的诊断结果**：stage1 等价门 FAIL 的根因是假设 A（autocast dtype 处置）还是假设 B（判据过脆）尚未判定。这是阶段 A 第 1 步的产出，也是 CUDA-Graph 档全部后续动作的前置。
+- **§7.4-1 的诊断结果（2026-09-06 已判，weilandserver 真 ckpt，prompt 0，`exp/robocasa365/diag_stage1_bisect{,2,3}.py`）**：
+  **假设 A 与 B 都不成立，真因是第三种**。数据：`default` 与 `reduce-overhead` 两档对 eager 的偏差**逐位相同**
+  （cos_min 0.9719 / relF 7.85e-2 / max|Δ| 0.887）⇒ 与 CUDA Graph 无关；偏差**全部**在 `extract_feature`（视觉塔），
+  embedding 与 text token 逐位相等；autocast 开/关对视觉塔 eager 输出**无影响**（relF 0）⇒ A 否定；最坏 token 范数 49.8、
+  gap 与范数相关仅 0.10 ⇒ B 否定；`emulate_precision_casts` 与强制 SDPA MATH 均不改变结果（该塔走 flash-attn，不走 torch SDPA）。
+  决定性对照：**编译 fp32 vs eager fp32 relF 8.2e-6**（inductor 代码生成无问题）；eager-bf16 与编译-bf16 距 fp32 真值分别
+  6.7e-2 / **5.1e-2**（编译版更接近真值）；eager 换 SDPA 核就差 2.1e-2。⇒ **bf16 SigLIP 塔在 5-8% relF 量级上对舍入顺序敏感，
+  eager-bf16 不是真值而是一条舍入轨迹**；生产门「最坏 token 余弦 ≥ 0.999 vs eager」对任何编译变体都不可达，且量错了对象。
+  下游 4×4 pooled key（`spatial_pool_16` 几何）余弦：编译 vs eager **0.99966**，vs fp32 真值 eager 0.99974 / 编译 0.99987。
+  ⇒ **待 owner 裁决的计划修正（阻塞 W2 的正式 cell）**：G-M 的 stage-1 parity 门改为
+  ① 每种 prompt 形状证明一次「编译 fp32 vs eager fp32 relF < 1e-4」（证明图是真计算），
+  ② 每 cell 的 pooled-key 余弦 ≥ 0.999 vs eager-bf16（保下游量）；
+  生产 `staged.py` 的 0.999 门何时/如何改属阶段 B 的 §7.4-2，G0-D2(b)（真库 argmax/margin）才是最终裁决。
+- **W2 冒烟发现的第二个编译边界**：stage 2 的 `fullgraph=True` 撞上 transformers Qwen3 `_update_causal_mask` 的
+  `0.0 in attention_mask`（数据依赖的 Python `in`）。bench 改为不传 mask 编译（B=1 无 padding 时 mask 全 1，数学等价），
+  并加守卫：带 mask 的生产调用与不带 mask 的调用不逐位相等即 VOID。
 - **变长 N 的处置选路**：§7.2 的三条出路（不填充 / 左填充到固定桶长 / 砍 lm_head）需在拿到 G-M 的 per-shape 数据后才能定，且第 2 条会动所有 cache key（唯一有"库不可比"风险的改动）。
 
 ## Review Log
