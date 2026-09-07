@@ -66,7 +66,7 @@ so the exported summary cannot hide a recapture among allowed warmup captures::
       /home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/bench_groot_stages.py \\
         --mode measure --checkpoint <ckpt> --k 4 --prompt-index 0 --proc-idx 0 \\
         --out exp/robocasa365/data/latency/groot_cg_k4_p0_r0.json
-    nsys stats --report cuda_api_sum,nvtx_sum --format csv \\
+    nsys stats --report cuda_api_sum,nvtx_pushpop_sum --format csv \\
       /tmp/groot_cg_k4_p0_r0.nsys-rep > /tmp/groot_cg_k4_p0_r0.trace.csv
     python exp/robocasa365/bench_groot_stages.py --mode certify \\
       --out <same json> --cuda-trace /tmp/groot_cg_k4_p0_r0.trace.csv
@@ -558,8 +558,14 @@ def parse_cuda_trace(
     if not text.strip():
         raise SystemExit(f"CUDA trace is empty: {path}. An empty file is not evidence.")
     rows = list(csv.reader(text.splitlines()))
+    # nsys renders an NVTX range as ``<domain>:<name>``; torch's range_push
+    # uses the default (empty) domain, so the cell marker arrives as
+    # ``:openpi_w1_...``. Match the name, not the domain prefix.
     if expected_marker and not any(
-        value.strip() == expected_marker for row in rows for value in row
+        value.strip() == expected_marker
+        or value.strip().rsplit(":", 1)[-1] == expected_marker
+        for row in rows
+        for value in row
     ):
         raise SystemExit(
             f"CUDA trace {path} does not contain cell marker {expected_marker!r}"
@@ -588,7 +594,7 @@ def parse_cuda_trace(
     captures = 0
     parsed_rows = 0
     for row in rows[header_index + 1 :]:
-        # ``nsys stats --report cuda_api_sum,nvtx_sum`` emits two complete CSV
+        # ``nsys stats --report cuda_api_sum,nvtx_pushpop_sum`` emits two complete CSV
         # tables. Stop at the separator/new header instead of interpreting the
         # NVTX ``Instances`` column using CUDA-table positions.
         if not row or not any(value.strip() for value in row):

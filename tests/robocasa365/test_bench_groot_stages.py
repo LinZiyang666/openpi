@@ -230,6 +230,23 @@ def test_certify_rejects_capture_in_measurement_range(tmp_path: pathlib.Path) ->
     assert any("capture" in reason.lower() for reason in out["void_reasons"])
 
 
+def test_parse_cuda_trace_accepts_nsys_domain_prefixed_marker(
+    tmp_path: pathlib.Path,
+) -> None:
+    """nsys prints NVTX ranges as ``<domain>:<name>``; the default domain is empty."""
+    trace = tmp_path / "t.csv"
+    trace.write_text(
+        "Time (%),Total Time (ns),Num Calls,Avg (ns),Med (ns),Min (ns),Max (ns),StdDev (ns),Name\n"
+        "2.8,1,1200,1,1,1,1,0,cudaGraphLaunch_v10000\n\n"
+        "Time (%),Total Time (ns),Instances,Avg (ns),Med (ns),Min (ns),Max (ns),StdDev (ns),Range\n"
+        f"100.0,1,1,1,1,1,1,0,:{TRACE_MARKER}\n"
+    )
+    counts = bench.parse_cuda_trace(trace, expected_marker=TRACE_MARKER)
+    assert counts["cudagraph_launch_count"] == 1200
+    with pytest.raises(SystemExit, match="does not contain cell marker"):
+        bench.parse_cuda_trace(trace, expected_marker="openpi_w1_other")
+
+
 def test_certify_rejects_trace_from_another_cell(tmp_path: pathlib.Path) -> None:
     rec = tmp_path / "cell.json"
     bench.atomic_write_json(rec, _raw_cell())
