@@ -145,9 +145,14 @@ class StubGrootModel:
         }
 
     def prepare_input(self, inputs):
+        # Upstream wraps both halves in transformers' BatchFeature (a UserDict).
+        # Reproducing that here is what lets CPU tests catch a compiled region
+        # that swallows prepare_input: Dynamo refuses to inline UserDict.__init__.
+        from transformers.feature_extraction_utils import BatchFeature
+
         backbone = {k: v for k, v in inputs.items() if k.startswith("eagle_")}
         action = {k: v for k, v in inputs.items() if not k.startswith("eagle_")}
-        return backbone, action
+        return BatchFeature(data=backbone), BatchFeature(data=action)
 
     def validate_data(self, action_head_outputs, backbone_outputs, is_training):
         self.validate_calls += 1

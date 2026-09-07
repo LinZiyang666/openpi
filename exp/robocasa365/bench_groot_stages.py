@@ -799,36 +799,65 @@ def timed(fn: Callable[[], Any]) -> tuple[Any, float]:
 # ---------------------------------------------------------------------------
 
 
+def prepare_stage1_inputs(
+    runner: Any, normalized: dict
+) -> tuple[tuple[torch.Tensor, torch.Tensor, torch.Tensor], Any]:
+    """Run the model's eager input shaping once, outside every compiled graph.
+
+    ``model.prepare_input`` is CPU-side glue -- it filters the normalised dict
+    and wraps it in a ``BatchFeature`` (a ``UserDict``, which Dynamo refuses to
+    inline under ``fullgraph=True``; the real checkpoint broke exactly there,
+    the CPU stub did not). Production's ``stage1_vision`` timer also starts
+    *after* ``prepare_input`` (staged.py), so excluding it keeps the boundary
+    this benchmark reports identical to the one the ledger reports.
+
+    Returns the three eagle tensors in the order ``stage1_full`` takes them,
+    plus the opaque ``action_inputs`` forwarded to the later stages.
+    """
+    backbone_inputs, action_inputs = runner._model.prepare_input(normalized)  # noqa: SLF001
+    eagle_input = {
+        key.removeprefix("eagle_"): value
+        for key, value in backbone_inputs.items()
+        if key.startswith("eagle_")
+    }
+    eagle_input.pop("image_sizes", None)
+    return (
+        (
+            eagle_input["input_ids"],
+            eagle_input["attention_mask"],
+            eagle_input["pixel_values"],
+        ),
+        action_inputs,
+    )
+
+
 def _stage_callables(
     runner: Any, image_positions: torch.Tensor
 ) -> tuple[Callable, Callable]:
     """Return ``(stage1_full, stage2_llm)`` as plain callables ready to compile.
 
-    ``stage1_full`` is the *whole* stage-1 boundary, not just the vision tower:
-    the production runner compiles only ``extract_feature`` and leaves the
-    embedding lookup and the scatter eager, which would make "three stages,
-    three graphs" untrue for the boundary this benchmark reports.
-    ``stage2_llm`` is the LLM half of ``run_stage2`` (staged.py:444-458).
+    ``stage1_full`` is the *whole* tensor side of the stage-1 boundary, not
+    just the vision tower: the production runner compiles only
+    ``extract_feature`` and leaves the embedding lookup and the scatter eager,
+    which would make "three stages, three graphs" untrue for the boundary this
+    benchmark reports. It takes the tensors ``prepare_stage1_inputs`` produces;
+    the dict/``BatchFeature`` shaping stays outside the graph.
+    ``stage2_llm`` is the LLM half of ``run_stage2_llm``.
     """
-    model = runner._model  # noqa: SLF001 - the bench measures the split it reaches into
-    eagle = runner._eagle  # noqa: SLF001
+    eagle = runner._eagle  # noqa: SLF001 - the bench measures the split it reaches into
     backbone = runner._backbone  # noqa: SLF001
 
-    def stage1_full(normalized: dict) -> tuple[Any, ...]:
+    def stage1_full(
+        input_ids: torch.Tensor,
+        attention_mask: torch.Tensor,
+        pixel_values: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         # Benchmark-local tensor equivalent of GrootStagedRunner.run_stage1.
         # The eager production call runs once first and owns all fail-loud
         # schema/count guards. Keeping those data-dependent Tensor.item guards
         # out of this callable lets fullgraph=True prove there is no eager tail.
-        backbone_inputs, action_inputs = model.prepare_input(normalized)
-        eagle_input = {
-            key.removeprefix("eagle_"): value
-            for key, value in backbone_inputs.items()
-            if key.startswith("eagle_")
-        }
-        eagle_input.pop("image_sizes", None)
-        input_ids = eagle_input["input_ids"]
         input_embeds = eagle.language_model.get_input_embeddings()(input_ids)
-        vit_embeds = eagle.extract_feature(eagle_input["pixel_values"])
+        vit_embeds = eagle.extract_feature(pixel_values)
         b, n, width = input_embeds.shape
         flat = input_embeds.reshape(b * n, width)
         old_image_values = flat.index_select(0, image_positions)
@@ -836,9 +865,8 @@ def _stage_callables(
         flat = flat.index_copy(0, image_positions, replacement)
         return (
             flat.reshape(b, n, width),
-            eagle_input["attention_mask"],
+            attention_mask,
             input_ids == eagle.image_token_index,
-            action_inputs,
         )
 
     def stage2_llm(
@@ -880,13 +908,15 @@ def compile_stages(runner: Any, image_positions: torch.Tensor) -> dict[str, Any]
     }
 
 
-def _materialize_stage1(values: tuple[Any, ...], output_type: type) -> Any:
+def _materialize_stage1(
+    values: tuple[Any, ...], action_inputs: Any, output_type: type
+) -> Any:
     """Wrap a compiled tensor tuple in the production stage-output type."""
     return output_type(
         input_embeds=values[0],
         attention_mask=values[1],
         image_token_mask=values[2],
-        action_inputs=values[3],
+        action_inputs=action_inputs,
     )
 
 
@@ -948,12 +978,15 @@ def run_diagnose_stage1(
             eager.image_token_mask.reshape(-1), as_tuple=False
         ).flatten()
         stage1_full, _ = _stage_callables(runner, image_positions)
+        eagle_tensors, action_inputs = prepare_stage1_inputs(runner, normalized)
         for mode in ("reduce-overhead", "default"):
             kwargs = {} if mode == "default" else {"mode": mode}
             compiled_fn = torch.compile(
                 stage1_full, dynamic=False, fullgraph=True, **kwargs
             )
-            got = _materialize_stage1(compiled_fn(normalized), type(eager))
+            got = _materialize_stage1(
+                compiled_fn(*eagle_tensors), action_inputs, type(eager)
+            )
             out[mode] = stage1_parity(got, eager)
             out[mode]["passes_production_gate"] = (
                 out[mode]["cos_min"] >= STAGE1_GATE_COS
@@ -1005,13 +1038,16 @@ def run_measure(
             s1_eager.image_token_mask.reshape(-1), as_tuple=False
         ).flatten()
         _, stage2_llm = _stage_callables(runner, image_positions)
+        eagle_tensors, action_inputs = prepare_stage1_inputs(runner, normalized)
         stages = compile_stages(runner, image_positions)
         compiled_stage1 = stages["compiled_stage1"]
         compiled_stage2_llm = stages["compiled_stage2_llm"]
         compiled_denoise_step = stages["compiled_denoise_step"]
 
         def call_stage1() -> Any:
-            return _materialize_stage1(compiled_stage1(normalized), type(s1_eager))
+            return _materialize_stage1(
+                compiled_stage1(*eagle_tensors), action_inputs, type(s1_eager)
+            )
 
         def call_stage3(
             stage1: Any, features: torch.Tensor, noise: torch.Tensor

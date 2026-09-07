@@ -409,10 +409,36 @@ def test_stage1_copy_has_no_dynamo_graph_break() -> None:
             eager.image_token_mask.reshape(-1), as_tuple=False
         ).flatten()
         stage1, _ = bench._stage_callables(runner, positions)
+        eagle_tensors, action_inputs = bench.prepare_stage1_inputs(runner, normalized)
         compiled = torch.compile(stage1, backend="eager", fullgraph=True, dynamic=False)
-        values = compiled(normalized)
+        values = compiled(*eagle_tensors)
     assert torch.equal(values[0], eager.input_embeds)
     assert torch.equal(values[2], eager.image_token_mask)
+    assert action_inputs["embodiment_id"] is not None
+
+
+def test_prepare_input_is_a_batchfeature_and_stays_outside_the_graph():
+    """The real model's prepare_input returns a UserDict that Dynamo cannot
+    inline; compiling it inside stage 1 is exactly how the first island-B run
+    of --mode diagnose-stage1 failed."""
+    from transformers.feature_extraction_utils import BatchFeature
+
+    from openpi.cache.groot.staged import GrootStagedRunner
+    from tests.cache.groot.conftest import StubGrootModel
+
+    model = StubGrootModel()
+    runner = GrootStagedRunner(model, verify_upstream=False, compile_vision=False)
+    backbone_inputs, _ = model.prepare_input(model.build_inputs())
+    assert isinstance(backbone_inputs, BatchFeature)
+
+    def would_inline(normalized):
+        backbone_inputs, _ = runner._model.prepare_input(normalized)  # noqa: SLF001
+        return backbone_inputs["eagle_input_ids"]
+
+    with pytest.raises(Exception, match="UserDict|skipfiles|Unsupported"):
+        torch.compile(would_inline, backend="eager", fullgraph=True)(
+            model.build_inputs()
+        )
 
 
 def test_stage1_parity_checks_all_consumed_outputs() -> None:
