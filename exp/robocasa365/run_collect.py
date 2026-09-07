@@ -43,9 +43,19 @@ import json
 import os
 import pathlib
 import subprocess
+import sys
 import threading
 import time
 from typing import Any
+
+# Run as a plain script (`python exp/robocasa365/run_collect.py`, the form the
+# collection guide documents) and sys.path[0] is this file's directory, so the
+# first-party `exp.` import below cannot resolve. Run as a module or imported by
+# run_ws_search it resolves fine. Put the repo root on the path so both callers
+# keep working -- the alternative is a silent ModuleNotFoundError for whoever
+# still uses the documented command.
+if __package__ in (None, ""):
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
 
 from openpi.conductor import task as _task
 from openpi.conductor.agent import WorkerAgent, WorkerSpec
