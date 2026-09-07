@@ -139,36 +139,8 @@ WARM_START 但拿的是错的 x_t；而真值 0.25/0.5/0.75 写进 yaml **反而
 | 5 | W3 跑 G-A1 步数敏感筛查 | 约 1.2 h |
 | 6 | **owner 唯一裁决点**：是否进阶段 B（L3 改造，含 LIBERO 的 W14） | |
 
-**阶段 A 已收官（2026-09-07 00:05，owner：只要三段延迟）**：G-M 两格 certified，三段延迟 s1 8.1 / s2 9.4 / s3 17.8 ms（k=4）、
-每步去噪 2.60 ms、stage3 固定前奏 7.41 ms；W3 按 owner 指示中止未出数；两机已拆干净（weilandserver 无 tmux/无监听/GPU 0 MiB；timan107 无 tmux/无 worker）。
-`/tmp/openpi-stageA` 隔离克隆与 `/tmp/stageA/*`、`/tmp/w2_traces/*` 留在 weilandserver（可删）。下面这段拓扑已失效，仅作记录：
-
-**⚠ 阶段 A 现场拓扑（2026-09-06 23:54 起，已结束）**：
-- weilandserver tmux `w2full`：`bash /tmp/stageA/run_w2.sh "0" "1 2 3 4" "0 1 2"` 然后 `"1 2 3 4" "1 2 3 4" "0 1 2"`，
-  日志 `/tmp/stageA/w2.log`，收官标记 `W2_ALL_DONE`；每格约 2 min，共 60 格（k4_p0_r0 已 certified valid）。
-  cell JSON 在 `/tmp/openpi-stageA/exp/robocasa365/data/latency/`，trace 在 `/tmp/w2_traces/`。
-- **owner 裁定**：G-M 只要延迟；parity 只记录不作废。bench 内 LLM 切 SDPA 以保证 stage2 单图
-  （eager 下 flash 25.0 ms vs SDPA 24.0 ms，换核不虚增收益）。硬门只剩：unique graph=3 / 无重编译 / 无 skip / RNG 重放 /
-  trace 里 `cudaGraphLaunch == iters·(2+k)` 且窗口内 0 capture。
-- 已有的数（k=4, prompt 0, N=823, CUDA Graph）：**s1 8.12 / s2 9.36 / s3 17.80 / 总 35.39 ms**；eager stage2 ≈ 25 ms。
-- pi0.5 同卡复标定 ×3 vs 台账：−4.8% / −1.9% / −2.1%，全 <5% ⇒ 直接引台账（`pi05_compile_ro_3stage.json`）。
-- W2 收官后 → W3（G-A1）：weilandserver `bash /tmp/stageA/ga1_launch_server.sh <k>`（tmux `ga1srv`，:23160，
-  等 `POLICY-READY`）→ timan107 `bash /tmp/ga1_launch_client.sh <k>`（tmux `ga1`，250 ep，run-prefix `ga1k<k>`，
-  journal `$REPO/exp/robocasa365/data/ws_search/groot_tp/journal_ga1k<k>__l1s1_groot_tp.jsonl`）；k=1,2,3 依次；
-  k=4 = 既有 `ws2t` 地板臂（75.2%，同 seed 段）。每个 k 约 30 min。结束后 `tmux kill-session -t ga1srv`（只杀自己的）。
-- 驱动脚本已入库：`exp/robocasa365/stageA/`。
-
-**⚠ 阶段 A 第 1 步已跑完（2026-09-06 深夜，真 ckpt）**：偏差在 bf16 视觉塔的舍入顺序敏感性（编译 fp32 vs eager fp32
-relF 8e-6；两条 bf16 轨迹各距 fp32 真值 5-7%，编译版更近；pooled key 余弦 0.99966）。假设 A/B 都否定。
-**W2 正式 cell 阻塞在 owner 对 G-M stage-1 门的修正裁决**（plan §9 写了建议）。stage 2 的 fullgraph 边界也修了（mask 不传 + 等价守卫）。
-诊断脚本 `exp/robocasa365/diag_stage1_bisect{,2,3}.py`，产物 `exp/robocasa365/data/latency/diag_stage1_*.json`（gitignored，本地已拉回）。
-远端隔离克隆 `/tmp/openpi-stageA`（不是 `/home/weiland/openpi`，那里有别人的未提交改动），驱动脚本 `/tmp/stageA/run_w2.sh` / `run_pi05_recal.sh`。
-
-**⚠ 早前查明**：stage1 等价门那次 `cos=0.8716` 的 FAIL **与 CUDA Graph 无关** ——
-`cudagraph_trees` 第一次调用走 warmup 不重放，而那道门只在第一次真实推理跑
-⇒ **CUDA Graph 从未被真正试过**，退回 `default` 档也救不了它。根因二选一：
-autocast dtype 处置（仓内实测同族 LayerNorm fp32/bf16 差 max|Δ|≈1.4e-2），或判据过脆
-（min-cos 对低范数 token 极敏感）。**第 1 步就是判这个。**
+**阶段 A 已收官（2026-09-07）**：三段 CUDA Graph 延迟 **stage1 8.12 / stage2 9.36 / stage3 17.80 ms**。
+owner 裁定只记录这三个数，其余测量记录与分析不保留。两机已拆干净；`/tmp/openpi-stageA`、`/tmp/stageA/*`、`/tmp/w2_traces/*` 留在 weilandserver（可删）。
 
 **⚠ 真正的新问题不在编译，在 §7.2**：stage2/stage3 吃 `[1,N,2048]`，N 随 prompt 变，
 CUDA Graph 要静态形状；每形状 247 MB lm_head 静态缓冲；左填充会稀释 `prompt_emb`
