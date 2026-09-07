@@ -799,6 +799,25 @@ def timed(fn: Callable[[], Any]) -> tuple[Any, float]:
 # ---------------------------------------------------------------------------
 
 
+def set_attention_implementation(module: Any, impl: str) -> list[str]:
+    """Point every transformers config in ``module`` at ``impl``; return what it was.
+
+    The production LLM runs flash-attention-2, whose transformers wrapper
+    tests ``(torch.diff(position_ids) >= 0).all()`` in Python on the causal
+    path -- data-dependent control flow Dynamo cannot trace, so stage 2 can
+    never be one graph under it. SDPA is a first-class torch op (flash kernel
+    underneath) and traces cleanly. The swap is benchmark-local; production
+    is untouched, and each cell records the eager cost of the swap.
+    """
+    seen: set[str] = set()
+    for sub in module.modules():
+        cfg = getattr(sub, "config", None)
+        if cfg is not None and hasattr(cfg, "_attn_implementation"):
+            seen.add(str(cfg._attn_implementation))  # noqa: SLF001
+            cfg._attn_implementation = impl  # noqa: SLF001
+    return sorted(seen)
+
+
 def prepare_stage1_inputs(
     runner: Any, normalized: dict
 ) -> tuple[tuple[torch.Tensor, torch.Tensor, torch.Tensor], Any]:
@@ -1088,6 +1107,22 @@ def run_measure(
                 step_fn=compiled_denoise_step,
             )
 
+        # Cost of the benchmark-local attention swap, measured eager on this
+        # very input so the CUDA-graph numbers can be read against production.
+        llm = runner._eagle.language_model  # noqa: SLF001
+        production_attn = set_attention_implementation(llm, "flash_attention_2")
+        attn_eager_ms: dict[str, list[float]] = {}
+        for impl in ("flash_attention_2", "sdpa"):
+            set_attention_implementation(llm, impl)
+            stage2_llm(s1_eager.input_embeds)
+            torch.cuda.synchronize()
+            samples: list[float] = []
+            for _ in range(20):
+                _, ms = timed(lambda: stage2_llm(s1_eager.input_embeds))
+                samples.append(ms)
+            attn_eager_ms[impl] = samples
+        set_attention_implementation(llm, "sdpa")
+
         f_eager = stage2_llm(s1_eager.input_embeds)
         f_production = stage2_llm_production(runner)(
             s1_eager.input_embeds, s1_eager.attention_mask
@@ -1183,8 +1218,14 @@ def run_measure(
     )
     skips = cudagraph_skips(counters_end) - skips_before
 
+    # Owner ruling (2026-09-06): G-M measures latency. Numerical parity is
+    # recorded for the reader (the bf16 vision tower is rounding-order
+    # sensitive at the 5-8% level, see diag_stage1_bisect3) but does not void
+    # a cell; only evidence that the timing is not a steady-state single-graph
+    # CUDA-graph replay does.
+    parity_notes: list[str] = []
     if parity_s1["cos_min"] < STAGE1_GATE_COS:
-        void.append(f"stage1 parity cos_min={parity_s1['cos_min']:.6f}")
+        parity_notes.append(f"stage1 parity cos_min={parity_s1['cos_min']:.6f}")
     for field in (
         "attention_mask_equal",
         "image_token_mask_equal",
@@ -1192,21 +1233,19 @@ def run_measure(
         "embodiment_id_equal",
     ):
         if not parity_s1[field]:
-            void.append(f"stage1 parity {field}=false")
+            parity_notes.append(f"stage1 parity {field}=false")
     if parity_s1["state_rel_err"] > STAGE3_PARITY_REL_TOL:
-        void.append(f"stage1 state rel_err={parity_s1['state_rel_err']:.3e}")
+        parity_notes.append(f"stage1 state rel_err={parity_s1['state_rel_err']:.3e}")
     if parity_s2["cos_min"] < STAGE1_GATE_COS:
-        void.append(f"stage2 parity cos_min={parity_s2['cos_min']:.6f}")
+        parity_notes.append(f"stage2 parity cos_min={parity_s2['cos_min']:.6f}")
     if not parity_s2["mask_drop_equal"]:
-        void.append(
-            "stage2 mask-free call is not bit-identical to the production masked call"
-        )
+        parity_notes.append("stage2 mask-free call differs from the masked call")
     if parity_upstream > STAGE3_PARITY_REL_TOL:
-        void.append(f"stage3 copy-vs-upstream rel_err={parity_upstream:.3e}")
+        parity_notes.append(f"stage3 copy-vs-upstream rel_err={parity_upstream:.3e}")
     if parity_s3 > STAGE3_PARITY_REL_TOL:
-        void.append(f"stage3 eager-vs-compiled rel_err={parity_s3:.3e}")
+        parity_notes.append(f"stage3 eager-vs-compiled rel_err={parity_s3:.3e}")
     if parity_chain > STAGE3_PARITY_REL_TOL:
-        void.append(f"compiled chain-vs-upstream rel_err={parity_chain:.3e}")
+        parity_notes.append(f"compiled chain-vs-upstream rel_err={parity_chain:.3e}")
     if not fixed_noise_replay_equal:
         void.append(
             "fixed noise replayed to a different action (static buffers clobbered)"
@@ -1228,8 +1267,11 @@ def run_measure(
         "stage2_llm_ms": s2_ms,
         "stage3_ms": s3_ms,
         "total_ms": tot_ms,
-        "parity_stage1": parity_s1,
+        "parity_stage1": {**parity_s1, "notes": parity_notes},
         "parity_stage2": parity_s2,
+        "llm_attn_implementation_production": production_attn,
+        "llm_attn_implementation_compiled": "sdpa",
+        "stage2_eager_ms_by_attn": attn_eager_ms,
         "parity_stage3_copy_vs_upstream": parity_upstream,
         "parity_stage3_eager_vs_compiled": parity_s3,
         "parity_compiled_chain_vs_upstream": parity_chain,
