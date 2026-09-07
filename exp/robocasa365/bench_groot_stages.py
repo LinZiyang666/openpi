@@ -869,9 +869,36 @@ def _stage_callables(
             input_ids == eagle.image_token_index,
         )
 
-    def stage2_llm(
-        input_embeds: torch.Tensor, attention_mask: torch.Tensor
-    ) -> torch.Tensor:
+    def stage2_llm(input_embeds: torch.Tensor) -> torch.Tensor:
+        # Production passes stage1.attention_mask, which for the B=1 unpadded
+        # prompts this benchmark serves is all ones. Passing ``None`` is the
+        # same computation but skips transformers' `0.0 in attention_mask`
+        # (a data-dependent Python test that breaks fullgraph=True); the
+        # measurement voids itself unless the two calls agree bit for bit.
+        outputs = eagle.language_model(
+            inputs_embeds=input_embeds,
+            attention_mask=None,
+            position_ids=None,
+            past_key_values=None,
+            use_cache=None,
+            output_attentions=None,
+            output_hidden_states=True,
+        )
+        return backbone.eagle_linear(outputs.hidden_states[backbone.select_layer])
+
+    return stage1_full, stage2_llm
+
+
+def stage2_llm_production(runner: Any) -> Callable:
+    """The stage-2 LLM call exactly as production makes it, mask included.
+
+    Used only as the eager reference that proves the mask-free compiled form
+    is the same computation on this input.
+    """
+    eagle = runner._eagle  # noqa: SLF001
+    backbone = runner._backbone  # noqa: SLF001
+
+    def call(input_embeds: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
         outputs = eagle.language_model(
             inputs_embeds=input_embeds,
             attention_mask=attention_mask,
@@ -883,7 +910,7 @@ def _stage_callables(
         )
         return backbone.eagle_linear(outputs.hidden_states[backbone.select_layer])
 
-    return stage1_full, stage2_llm
+    return call
 
 
 def compile_stages(runner: Any, image_positions: torch.Tensor) -> dict[str, Any]:
@@ -1061,23 +1088,24 @@ def run_measure(
                 step_fn=compiled_denoise_step,
             )
 
-        f_eager = stage2_llm(s1_eager.input_embeds, s1_eager.attention_mask)
+        f_eager = stage2_llm(s1_eager.input_embeds)
+        f_production = stage2_llm_production(runner)(
+            s1_eager.input_embeds, s1_eager.attention_mask
+        )
+        mask_drop_equal = bool(torch.equal(f_production, f_eager))
         torch.compiler.cudagraph_mark_step_begin()
         s1_comp = call_stage1()
         parity_s1 = stage1_parity(s1_comp, s1_eager)
 
         # Isolated Stage-2 parity: both sides consume the same eager Stage-1.
-        f_comp_isolated = compiled_stage2_llm(
-            s1_eager.input_embeds, s1_eager.attention_mask
-        ).clone()
+        f_comp_isolated = compiled_stage2_llm(s1_eager.input_embeds).clone()
         parity_s2 = tensor_stats(f_comp_isolated, f_eager)
+        parity_s2["mask_drop_equal"] = mask_drop_equal
 
         # Build the separate end-to-end compiled chain only after isolated parity.
         torch.compiler.cudagraph_mark_step_begin()
         s1_chain = call_stage1()
-        f_chain = compiled_stage2_llm(
-            s1_chain.input_embeds, s1_chain.attention_mask
-        ).clone()
+        f_chain = compiled_stage2_llm(s1_chain.input_embeds).clone()
 
         noise_for_head = fixed_noise.to(dtype=f_eager.dtype)
         upstream_act = upstream_reference_action(
@@ -1119,7 +1147,7 @@ def run_measure(
         for _ in range(args.warmup):
             torch.compiler.cudagraph_mark_step_begin()
             s1 = call_stage1()
-            features = compiled_stage2_llm(s1.input_embeds, s1.attention_mask).clone()
+            features = compiled_stage2_llm(s1.input_embeds).clone()
             call_stage3(s1, features, noise_for_head)
         torch.cuda.synchronize()
         counters_after_warmup = inductor_counters()
@@ -1138,9 +1166,7 @@ def run_measure(
                 t0 = time.monotonic()
                 st1, m1 = timed(call_stage1)
                 features, m2 = timed(
-                    lambda: compiled_stage2_llm(
-                        st1.input_embeds, st1.attention_mask
-                    ).clone()
+                    lambda: compiled_stage2_llm(st1.input_embeds).clone()
                 )
                 _, m3 = timed(lambda: call_stage3(st1, features, noise_for_head))
                 torch.cuda.synchronize()
@@ -1171,6 +1197,10 @@ def run_measure(
         void.append(f"stage1 state rel_err={parity_s1['state_rel_err']:.3e}")
     if parity_s2["cos_min"] < STAGE1_GATE_COS:
         void.append(f"stage2 parity cos_min={parity_s2['cos_min']:.6f}")
+    if not parity_s2["mask_drop_equal"]:
+        void.append(
+            "stage2 mask-free call is not bit-identical to the production masked call"
+        )
     if parity_upstream > STAGE3_PARITY_REL_TOL:
         void.append(f"stage3 copy-vs-upstream rel_err={parity_upstream:.3e}")
     if parity_s3 > STAGE3_PARITY_REL_TOL:
