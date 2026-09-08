@@ -228,7 +228,9 @@ def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
     config = load_cache_config(args.cache_config)
     validate_cache_config(config)
     validate_groot_cache_config(
-        config, num_inference_timesteps=live_num_inference_timesteps(policy)
+        config,
+        num_inference_timesteps=live_num_inference_timesteps(policy),
+        allow_hysteresis_gate=True,
     )
 
     components = build_cache_components(config)
@@ -255,6 +257,38 @@ def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
     runner = GrootStagedRunner(
         policy.model, timer=timer, compile_vision=args.compile_stage1
     )
+
+    if getattr(args, "rit_shadow_out", None):
+        # Calibration pass: same orchestrator, same retrieval, but the verdict
+        # is only read. The executed action stays the teacher's, so the cohort
+        # walks the teacher's trajectory and the labels describe what each rung
+        # would have cost at states the teacher actually visits.
+        import numpy as _np
+        import torch as _torch
+
+        from exp.robocasa365.rit_shadow import GrootRitShadow
+
+        if not args.rit_warm_ts:
+            raise SystemExit("--rit-shadow-out requires --rit-warm-ts")
+        if not args.rit_weights:
+            raise SystemExit("--rit-shadow-out requires --rit-weights")
+        warm_ts = [float(x) for x in args.rit_warm_ts.split(",") if x.strip()]
+        wz = _np.load(args.rit_weights)
+        shadow = GrootRitShadow(
+            policy,
+            runner,
+            orchestrator=orchestrator,
+            out_path=args.rit_shadow_out,
+            warm_ts=warm_ts,
+            w=_torch.as_tensor(wz["w"], dtype=_torch.float32),
+            active_mask=_torch.as_tensor(wz["active_mask"], dtype=_torch.bool),
+            h_exec=args.rit_h_exec,
+        )
+        return (
+            shadow,
+            f"rit-shadow -> {args.rit_shadow_out} (ts={warm_ts}, h_exec={args.rit_h_exec})",
+        )
+
     return (
         GrootCacheInterceptor(policy, runner, orchestrator=orchestrator, timer=timer),
         f"cache -> {args.cache_config} ({config.key_builder.type})",
@@ -352,7 +386,11 @@ def _resolve_bundle(
     )
 
     config = bundle.cache_config
-    validate_groot_cache_config(config, num_inference_timesteps=num_inference_timesteps)
+    validate_groot_cache_config(
+        config,
+        num_inference_timesteps=num_inference_timesteps,
+        allow_hysteresis_gate=True,
+    )
     validate_artifact_identity(bundle.shared_storage, config)
     return config, bundle.shared_storage
 
@@ -393,7 +431,9 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     config = load_cache_config(args.cache_config)
     validate_cache_config(config)
     validate_groot_cache_config(
-        config, num_inference_timesteps=live_num_inference_timesteps(policy)
+        config,
+        num_inference_timesteps=live_num_inference_timesteps(policy),
+        allow_hysteresis_gate=True,
     )
     shared_storage = build_shared_storage(config)
     validate_artifact_identity(shared_storage, config)
@@ -477,6 +517,32 @@ def main() -> None:
         "later server starts reuse it; the first real inference double-runs "
         "eager vs compiled and refuses to serve on divergence. Eval paths "
         "only — collection stays eager (frozen byte-fidelity).",
+    )
+    parser.add_argument(
+        "--rit-shadow-out",
+        default=None,
+        help="JSONL sink for the RIT calibration pass. Requires --cache-config "
+        "(the always_search / always_hit calibration yaml): the cache is queried "
+        "in the shadow while the teacher's own chunk stays the executed action.",
+    )
+    parser.add_argument(
+        "--rit-warm-ts",
+        default="",
+        help="Comma-separated resume timesteps to label, ladder order "
+        "(RoboCasa GR00T: 0.75,0.5). Required with --rit-shadow-out.",
+    )
+    parser.add_argument(
+        "--rit-weights",
+        default="",
+        help="NPZ with the library's action weights (w, active_mask), frozen "
+        "once so every server of the fleet labels on the same scale.",
+    )
+    parser.add_argument(
+        "--rit-h-exec",
+        type=int,
+        default=5,
+        help="Executed window the deviation averages over; match the driver's "
+        "--replan-steps, since steps past it are never executed.",
     )
     parser.add_argument(
         "--concurrent",

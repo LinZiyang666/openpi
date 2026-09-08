@@ -1,0 +1,73 @@
+enabled: true
+timer:
+  enabled: false
+keys:
+  vision_0:
+    enabled: true
+    weight: 0.0
+  vision_1:
+    enabled: false
+    weight: 0.0
+  vision_2:
+    enabled: true
+    weight: 0.125
+  prompt_emb:
+    enabled: true
+    weight: 0.0
+  robot_state:
+    enabled: true
+    weight: 0.875
+key_builder:
+  type: cp1_groot_spatial_pool_16
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: always_hit
+    search_strategy:
+      type: text_ivf_knn
+      top_k: 1
+      step_filter: all
+      field_similarity:
+        vision_2:
+          type: cosine
+        robot_state:
+          type: l2
+          to_similarity:
+            type: exp
+            tau: 1.0
+      score_normalization:
+        type: per_field
+        fields:
+          vision_2:
+            method: zscore
+            params:
+              mu: 0.7931121447730244
+              sigma: 0.055737756650100896
+              squash: tanh
+          robot_state:
+            method: zscore
+            params:
+              mu: -1.2339666252379
+              sigma: 0.39987545175284595
+              squash: tanh
+  cp3:
+    enabled: false
+    search_strategy:
+      type: weighted_rrf_knn
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 32768
+    vision_1: 32768
+    vision_2: 32768
+    prompt_emb: 2048
+    robot_state: 20
+  in_memory:
+    preload_path: /data/robocasa365_cache/cache_artifacts_pnp_pinned/groot_tp_spatial_pool_16_pnp_pinned.pkl
+    index_type: text_ivf
+    expected_pin_id: 4d13ac5effce76c0ec253c9cef7dc2ed25dcb7d9ed4bae596e8b08ca483edcaa
+write_policy:
+  type: never

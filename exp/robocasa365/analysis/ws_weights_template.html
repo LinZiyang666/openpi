@@ -1,0 +1,571 @@
+<title>Retrieval Weight Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#eef1ef; --panel:#f9fbfa; --panel-2:#e4e9e6; --sunk:#e7ecea;
+  --ink:#131b19; --ink-2:#3d4a46; --muted:#6b7a75; --rule:#cfd8d4;
+  --groot:#0e7268; --pi05:#a9601a; --warn:#8c3b2a; --good:#1d6b4f;
+  --shadow:0 1px 2px rgba(19,27,25,.06),0 8px 24px rgba(19,27,25,.05);
+  --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+  --cond:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+:root:not([data-theme="light"]){ }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0d1211; --panel:#141b19; --panel-2:#1c2523; --sunk:#111817;
+    --ink:#e4ebe8; --ink-2:#b6c3bf; --muted:#7f8f8a; --rule:#26302d;
+    --groot:#3fbdaf; --pi05:#d79a52; --warn:#d2705a; --good:#5fbd93;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0d1211; --panel:#141b19; --panel-2:#1c2523; --sunk:#111817;
+  --ink:#e4ebe8; --ink-2:#b6c3bf; --muted:#7f8f8a; --rule:#26302d;
+  --groot:#3fbdaf; --pi05:#d79a52; --warn:#d2705a; --good:#5fbd93;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 22px 90px;
+  display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:var(--cond);text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,4.4vw,46px);font-weight:700;letter-spacing:-.015em;line-height:1.06}
+h2{font-size:23px;font-weight:600;letter-spacing:-.005em}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+a{color:inherit}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted)}
+.lede{font-size:17px;color:var(--ink-2);max-width:64ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* ---------- header ---------- */
+header{display:flex;flex-direction:column;gap:16px;
+  border-bottom:1px solid var(--rule);padding-bottom:26px}
+.prov{display:flex;flex-wrap:wrap;gap:0 30px;row-gap:10px;
+  font-size:12.5px;color:var(--muted);font-family:var(--mono)}
+.prov b{color:var(--ink-2);font-weight:500}
+
+/* ---------- tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.tile{background:var(--panel);border:1px solid var(--rule);border-radius:3px;
+  padding:15px 16px 14px;display:flex;flex-direction:column;gap:5px}
+.tile .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--muted)}
+.tile .v{font-family:var(--mono);font-size:27px;font-weight:500;line-height:1;
+  font-variant-numeric:tabular-nums}
+.tile .s{font-size:12.5px;color:var(--ink-2)}
+
+/* ---------- sections ---------- */
+section{display:flex;flex-direction:column;gap:16px}
+.shead{display:flex;flex-direction:column;gap:6px}
+.note{font-size:13.5px;color:var(--muted);max-width:76ch}
+
+/* ---------- controls ---------- */
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:3px;overflow:hidden}
+.seg button{font-family:var(--cond);font-size:14px;font-weight:600;letter-spacing:.01em;
+  padding:7px 15px;background:var(--panel);color:var(--ink-2);border:0;cursor:pointer;
+  border-right:1px solid var(--rule)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--paper)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--mono);font-size:11.5px;padding:4px 9px;border-radius:2px;
+  border:1px solid var(--rule);background:transparent;color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--panel-2);color:var(--ink);border-color:var(--ink-2)}
+.hint{font-size:12.5px;color:var(--muted)}
+
+/* ---------- matrix ---------- */
+.scroll{overflow-x:auto;border:1px solid var(--rule);border-radius:3px;background:var(--panel)}
+table.mx{border-collapse:separate;border-spacing:0;font-family:var(--mono);
+  font-size:11.5px;font-variant-numeric:tabular-nums;width:max-content;min-width:100%}
+table.mx th,table.mx td{padding:0;text-align:center;white-space:nowrap}
+table.mx thead th{position:sticky;top:0;z-index:3;background:var(--panel-2);
+  border-bottom:1px solid var(--rule);vertical-align:bottom;
+  padding:8px 6px;font-weight:500;color:var(--ink-2);cursor:pointer;user-select:none}
+table.mx thead th.lead{cursor:default}
+th.tsk{width:64px;min-width:64px;white-space:normal;line-height:1.2;font-size:10.5px}
+th.tsk .n{display:block;font-size:9.5px;color:var(--muted);margin-top:3px}
+th[aria-sort]{color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
+th.sep,td.sep{border-left:1px solid var(--rule)}
+.cidcol{position:sticky;left:0;z-index:2;background:var(--panel);text-align:left;
+  padding:0 10px 0 12px!important;min-width:176px;max-width:176px}
+thead .cidcol{z-index:4;background:var(--panel-2)}
+tbody tr:hover .cidcol,tbody tr.open .cidcol{background:var(--sunk)}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background-color:var(--sunk)}
+tbody td{border-bottom:1px solid var(--rule);height:26px}
+td.heat{background-image:linear-gradient(var(--hc),var(--hc))}
+.cid{display:block;overflow:hidden;text-overflow:ellipsis;font-size:11px;color:var(--ink-2)}
+tr.open .cid,tr.tier .cid{color:var(--ink)}
+.rank{display:inline-block;width:26px;color:var(--muted);font-size:10.5px}
+.tierdot{display:inline-block;width:5px;height:5px;border-radius:50%;
+  background:var(--accent);margin-right:5px;vertical-align:middle}
+.tierdot.off{background:transparent}
+.wbar{display:flex;width:78px;height:9px;border-radius:1px;overflow:hidden;
+  background:var(--panel-2);margin:0 auto}
+.wbar i{display:block;height:100%}
+.w0{background:color-mix(in srgb,var(--accent) 22%,transparent)}
+.w1{background:color-mix(in srgb,var(--accent) 45%,transparent)}
+.w2{background:color-mix(in srgb,var(--accent) 78%,transparent)}
+.w3{background:var(--ink-2)}
+td.macro{font-weight:600;color:var(--ink)}
+td.zero{color:var(--muted)}
+tr.detail td{background:var(--sunk);padding:14px 16px;text-align:left;white-space:normal;
+  border-bottom:1px solid var(--rule)}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px 20px;
+  font-size:12px}
+.dgrid div span{color:var(--muted)}
+.dhead{font-family:var(--cond);font-size:14px;font-weight:600;margin-bottom:9px;
+  display:flex;flex-wrap:wrap;gap:12px;align-items:baseline}
+.wchips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.wchip{font-size:11px;padding:2px 7px;border:1px solid var(--rule);border-radius:2px}
+
+/* ---------- bars ---------- */
+.bars{display:flex;flex-direction:column;gap:9px;background:var(--panel);
+  border:1px solid var(--rule);border-radius:3px;padding:18px 18px 16px}
+.brow{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center}
+.brow .lb{font-size:12.5px;color:var(--ink-2);text-align:right;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bstack{display:flex;flex-direction:column;gap:3px}
+.bline{display:flex;align-items:center;gap:8px}
+.btrack{flex:1;height:11px;background:var(--panel-2);border-radius:1px;overflow:hidden}
+.bfill{height:100%;border-radius:1px}
+.bval{font-family:var(--mono);font-size:11px;width:46px;text-align:right;
+  font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.bsplit{border-top:1px dashed var(--rule);margin:6px 0 3px;padding-top:8px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted)}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:1px;margin-right:6px;
+  vertical-align:-1px}
+
+/* ---------- plain tables ---------- */
+table.plain{border-collapse:collapse;width:100%;font-size:13px}
+table.plain th,table.plain td{padding:8px 11px;border-bottom:1px solid var(--rule);
+  text-align:right}
+table.plain th{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--muted);font-weight:500;
+  border-bottom:1px solid var(--ink-2)}
+table.plain td:first-child,table.plain th:first-child{text-align:left}
+table.plain td.n{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.up{color:var(--good)} .down{color:var(--warn)}
+
+/* ---------- callouts ---------- */
+.call{border:1px solid var(--rule);border-left:3px solid var(--accent);
+  background:var(--panel);border-radius:2px;padding:16px 18px;
+  display:flex;flex-direction:column;gap:9px}
+.call.warn{border-left-color:var(--warn)}
+.call h3{font-size:15px}
+.call p,.call li{font-size:13.5px;color:var(--ink-2)}
+.call ul{margin:0;padding-left:19px;display:flex;flex-direction:column;gap:5px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+footer{border-top:1px solid var(--rule);padding-top:20px;font-size:12.5px;color:var(--muted);
+  display:flex;flex-direction:column;gap:7px}
+code{font-family:var(--mono);font-size:.92em;background:var(--panel-2);
+  padding:1px 5px;border-radius:2px}
+@media (prefers-reduced-motion:no-preference){
+  tbody tr,td{transition:background-color .12s ease}
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+
+<div class="wrap" style="--accent:var(--groot)">
+
+<header>
+  <p class="eyebrow">RoboCasa365 · pure-retrieval field-weight search · round 2</p>
+  <h1>Retrieval Weight Atlas</h1>
+  <p class="lede">132 modality-weight configurations, scored on all 13 RoboCasa tasks, for
+  both executors. Every control step is answered from the cache, so each number below is the
+  success rate of <em>retrieval alone</em> — not of the teacher policy.</p>
+  <div class="prov">
+    <span><b>arms</b> ws2 main · ws2c control · ws2e densify · pnp pinned</span>
+    <span><b>episodes</b> 104/cell (8 per task)</span>
+    <span><b>retrieval</b> text_ivf · top_k 1</span>
+    <span><b>judge</b> always_search / always_hit / write never</span>
+    <span><b>completeness</b> n_err 0 · n_missing 0</span>
+  </div>
+</header>
+
+<div class="tiles" id="tiles"></div>
+
+<section>
+  <div class="shead">
+    <h2>Per-task decomposition</h2>
+    <p class="note">One row per weight configuration; one column per task. Tint is the task's
+    success rate over its 8 episodes in that cell — <code>·</code> means a clean zero. The bar
+    left of the numbers is the weight vector itself. Click a column header to sort by that task,
+    click a row to open its counts. A dot marks cells within one replay-noise floor (3.0 pp) of
+    the best macro — those cells are not distinguishable from the leader.</p>
+  </div>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="executor">
+      <button id="tGroot" aria-pressed="true">GR00T N1.5</button>
+      <button id="tPi05" aria-pressed="false">pi0.5</button>
+    </div>
+    <div class="chips" id="fams"></div>
+    <span class="hint" id="mxHint"></span>
+  </div>
+  <div class="scroll"><table class="mx" id="mx"></table></div>
+  <div class="legend">
+    <span><i class="w0"></i>vision_0</span><span><i class="w1"></i>vision_1</span>
+    <span><i class="w2"></i>vision_2</span><span><i class="w3"></i>robot_state</span>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>Where the success rate lives</h2>
+    <p class="note">Each task pooled over all 132 configurations (1,056 episodes per task per
+    executor). The split is the finding: contact manipulation carries the whole result, transport
+    sits near the floor for both executors.</p>
+  </div>
+  <div class="bars" id="bars"></div>
+  <div class="legend">
+    <span><i style="background:var(--groot)"></i>GR00T N1.5</span>
+    <span><i style="background:var(--pi05)"></i>pi0.5</span>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>The winning field is executor-specific</h2>
+    <p class="note">Single-field baselines, and what happens to the ranking when the same 132
+    configurations are scored by the other executor.</p>
+  </div>
+  <div class="two">
+    <table class="plain" id="iso"></table>
+    <div class="call warn">
+      <h3>Weights do not transfer</h3>
+      <p>Spearman rank correlation of the two executors' orderings of the same 132
+      configurations: <b class="num" id="rho"></b> — essentially uncorrelated. The best single
+      field is inverted: <code>vision_1</code> for pi0.5, <code>vision_2</code> for GR00T.</p>
+      <p>Recomputed here from the per-cell macro rates with tie-corrected average ranks. The
+      round's own write-up records ρ = +0.175 from a one-off script that was not kept, so the
+      third digit does not reproduce; the reading is the same either way.</p>
+      <p>The absolute level gap is confounded (different libraries, models and render
+      resolutions) and must not be read as one executor retrieving better. The rank finding is
+      computed within each arm and is not affected.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>What survives four times the episodes</h2>
+    <p class="note">Ten cells re-run at 416 episodes each. The eight top cells all fall, both
+    floor cells rise — textbook selection bias, because those cells were picked <em>because</em>
+    they scored extreme on 104 episodes.</p>
+  </div>
+  <table class="plain" id="dens"></table>
+  <div class="call">
+    <h3>There is no single best configuration</h3>
+    <p>At 416 episodes the top eight collapse into a band narrower than twice the replay noise
+    floor. Report a first tier of balanced mixtures, not a champion cell.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>Pinned PickPlace: the search has no signal here</h2>
+    <p class="note">The same 132-cell matrix re-run over the five transport tasks after every
+    object slot was pinned to one exact mesh instance (<code>pin_id 4d13ac5e…</code>), against a
+    250-episode teacher floor on the identical scene and seed segment.</p>
+  </div>
+  <div class="two">
+    <div class="bars" id="pnpBars"></div>
+    <div class="call warn">
+      <h3>Best cell sits below the noise ceiling</h3>
+      <ul>
+        <li>Observed spread across 132 cells: mean <b class="num">0.0458</b>, sd <b class="num">0.0344</b>, max <b class="num">0.1250</b>.</li>
+        <li>Expected maximum of 132 cells under the pure-noise null: <b class="num">0.1502</b> (p95 0.2000).</li>
+        <li>Winner's curse for this arm: <b class="num">10.43 pp</b>; single-cell noise floor <b class="num">3.44 pp</b>.</li>
+      </ul>
+      <p>The observed best is <em>below</em> what pure sampling noise produces. No weight
+      configuration in this arm is demonstrably better than any other, so no "best weights" may
+      be reported for the pinned pick family.</p>
+    </div>
+  </div>
+  <div class="scroll"><table class="mx" id="pnpMx"></table></div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>What this means for the warm-start run</h2>
+  </div>
+  <div class="two">
+    <div class="call">
+      <h3>Freeze one config per executor</h3>
+      <ul>
+        <li><b>GR00T</b>: a balanced mixture with <code>robot_state</code> at 37–50 and moderate
+        <code>vision_2</code>. Any cell in the marked tier is defensible; picking the 104-episode
+        argmax is not.</li>
+        <li><b>pi0.5</b>: a <code>vision_1</code>-dominant mixture. Reusing GR00T's weights costs
+        real success rate — the orderings barely correlate.</li>
+        <li>The pinned pick family gives no basis for a separate weight choice; it inherits the
+        13-task config.</li>
+      </ul>
+    </div>
+    <div class="call warn">
+      <h3>Carry these caveats forward</h3>
+      <ul>
+        <li>These are <em>pure-retrieval</em> rates with <code>always_hit</code>. A warm-start run
+        gates on a judge, so absolute levels here are not the levels you will see.</li>
+        <li>Differences below ~3 pp per cell are inside replay noise; the same (cell, task, seed)
+        flips outcome 3.0 % of the time.</li>
+        <li>No latency evidence was collected in this round. text-IVF is supported as
+        SR-neutral, not as cheaper.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Sources: <code>summary_ws2*-*.json</code> per cell, both executors, re-aggregated from the
+  run artifacts; teacher floor from <code>summary_ws2t-teacher</code>.</span>
+  <span>Statistical constants (replay noise floor, winner's curse, null-maximum simulation) are
+  quoted from the round's own analyses and are not recomputed on this page.</span>
+</footer>
+
+</div>
+
+<script>
+const D = __DATA__;
+const T = D.tasks.length;
+
+const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c;
+  if (x !== undefined) n.textContent = x; return n; };
+const pct = v => (v * 100).toFixed(1);
+const srOf = (r, i) => r[4] ? r[3][i] / r[4] : 0;
+
+/* ---------- tiles ---------- */
+function macroStats(rows) {
+  const v = rows.map(r => r[5]).sort((a, b) => a - b);
+  const mean = v.reduce((a, b) => a + b, 0) / v.length;
+  return { mean, min: v[0], max: v[v.length - 1], med: v[(v.length / 2) | 0] };
+}
+const gs = macroStats(D.arms.groot_tp.rows), ps = macroStats(D.arms.pi05.rows);
+const tiles = [
+  ['cells scored', '132 × 2', 'every cell complete, 104 episodes each'],
+  ['mean macro SR', pct(gs.mean) + ' / ' + pct(ps.mean) + '%', 'GR00T / pi0.5, pooled over all cells'],
+  ['best cell at 104 ep', pct(gs.max) + ' / ' + pct(ps.max) + '%', 'GR00T leader falls to 33.4% at 416 ep'],
+  ['rank agreement', 'ρ ' + D.rho.toFixed(3), 'between the two executors over 132 cells'],
+];
+const tw = document.getElementById('tiles');
+for (const [k, v, s] of tiles) {
+  const d = el('div', 'tile'); d.append(el('span', 'k', k), el('span', 'v', v), el('span', 's', s));
+  tw.append(d);
+}
+
+/* ---------- matrix ---------- */
+let teacher = 'groot_tp';
+const mxSort = { key: 'macro', dir: -1 }, pnpSort = { key: 'macro', dir: -1 };
+const fams = [...new Set(D.arms.groot_tp.rows.map(r => r[1]))].sort();
+const famOn = new Set(fams);
+const famBox = document.getElementById('fams');
+for (const f of fams) {
+  const b = el('button', 'chip', f); b.setAttribute('aria-pressed', 'true');
+  b.onclick = () => { famOn.has(f) ? famOn.delete(f) : famOn.add(f);
+    b.setAttribute('aria-pressed', String(famOn.has(f))); draw(); };
+  famBox.append(b);
+}
+
+function headerRow(tasks, labels, nContact, withMacro) {
+  const tr = el('tr');
+  const th0 = el('th', 'cidcol lead', 'configuration'); tr.append(th0);
+  tr.append(el('th', 'lead', 'weights'));
+  labels.forEach((lb, i) => {
+    const th = el('th', 'tsk' + (i === nContact ? ' sep' : ''));
+    th.append(document.createTextNode(lb));
+    th.dataset.k = String(i);
+    tr.append(th);
+  });
+  if (withMacro) { const th = el('th', 'sep', 'macro'); th.dataset.k = 'macro'; tr.append(th); }
+  return tr;
+}
+
+function wbar(w) {
+  const b = el('div', 'wbar');
+  ['w0', 'w1', 'w2', 'w3'].forEach((c, i) => {
+    if (w[i] > 0) { const s = el('i', c); s.style.width = w[i] + '%'; b.append(s); }
+  });
+  return b;
+}
+
+function detailRow(r, tasks, labels, span) {
+  const tr = el('tr', 'detail'); const td = el('td'); td.colSpan = span;
+  const h = el('div', 'dhead');
+  h.append(el('span', null, r[0]), el('span', 'num', 'macro ' + pct(r[5]) + '%'),
+    el('span', 'num', r[4] + ' episodes per task'));
+  td.append(h);
+  const wc = el('div', 'wchips');
+  D.fields.forEach((f, i) => { if (r[2][i] > 0) wc.append(el('span', 'wchip', f + ' ' + r[2][i] + '%')); });
+  td.append(wc);
+  const g = el('div', 'dgrid');
+  tasks.forEach((t, i) => {
+    const d = el('div');
+    d.append(el('span', null, (labels[i] || t) + ' '),
+      el('b', 'num', r[3][i] + '/' + r[4] + '  ' + pct(srOf(r, i)) + '%'));
+    g.append(d);
+  });
+  td.append(g); tr.append(td); return tr;
+}
+
+function build(tableId, arm, tasks, labels, nContact, opts) {
+  const table = document.getElementById(tableId);
+  table.replaceChildren();
+  const thead = el('thead'); const hr = headerRow(tasks, labels, nContact, true);
+  thead.append(hr); table.append(thead);
+  const rows = arm.rows.filter(r => !opts.filter || opts.filter(r));
+  const best = Math.max(...arm.rows.map(r => r[5]));
+  const st = opts.sort;
+  const sorted = rows.slice().sort((a, b) => {
+    const va = st.key === 'macro' ? a[5] : srOf(a, +st.key);
+    const vb = st.key === 'macro' ? b[5] : srOf(b, +st.key);
+    return va === vb ? b[5] - a[5] : (va - vb) * st.dir;
+  });
+  [...hr.querySelectorAll('th[data-k]')].forEach(th => {
+    if (th.dataset.k === String(st.key)) th.setAttribute('aria-sort',
+      st.dir === -1 ? 'descending' : 'ascending');
+    th.onclick = () => {
+      if (String(st.key) === th.dataset.k) st.dir = -st.dir;
+      else { st.key = th.dataset.k; st.dir = -1; }
+      opts.rerender();
+    };
+  });
+  const tb = el('tbody');
+  sorted.forEach((r, idx) => {
+    const tr = el('tr'); if (opts.tier && r[5] >= best - 0.03) tr.classList.add('tier');
+    const c0 = el('td', 'cidcol');
+    const rk = el('span', 'rank', String(idx + 1));
+    const dot = el('span', 'tierdot' + (opts.tier && r[5] >= best - 0.03 ? '' : ' off'));
+    const cid = el('span', 'cid', r[0]); cid.title = r[0];
+    const box = el('div'); box.style.display = 'flex'; box.style.alignItems = 'center';
+    box.append(rk, dot, cid);
+    c0.append(box); tr.append(c0);
+    const cw = el('td'); cw.append(wbar(r[2])); tr.append(cw);
+    tasks.forEach((t, i) => {
+      const sr = srOf(r, i);
+      const td = el('td', 'heat' + (i === nContact ? ' sep' : '') + (sr === 0 ? ' zero' : ''));
+      td.style.setProperty('--hc', 'color-mix(in srgb, var(--accent) ' +
+        (sr * 58).toFixed(1) + '%, transparent)');
+      td.textContent = sr === 0 ? '·' : (sr * 100).toFixed(0);
+      tr.append(td);
+    });
+    const tm = el('td', 'macro sep', pct(r[5])); tr.append(tm);
+    let open = null;
+    tr.onclick = () => {
+      if (open) { open.remove(); open = null; tr.classList.remove('open'); return; }
+      open = detailRow(r, tasks, labels, T === tasks.length ? tasks.length + 3 : tasks.length + 3);
+      tr.after(open); tr.classList.add('open');
+    };
+    tb.append(tr);
+  });
+  table.append(tb);
+  return sorted.length;
+}
+
+function draw() {
+  const wrap = document.querySelector('.wrap');
+  wrap.style.setProperty('--accent', teacher === 'groot_tp' ? 'var(--groot)' : 'var(--pi05)');
+  document.getElementById('tGroot').setAttribute('aria-pressed', String(teacher === 'groot_tp'));
+  document.getElementById('tPi05').setAttribute('aria-pressed', String(teacher === 'pi05'));
+  const n = build('mx', D.arms[teacher], D.tasks, D.taskLabels, D.nContact,
+    { filter: r => famOn.has(r[1]), tier: true, sort: mxSort, rerender: draw });
+  document.getElementById('mxHint').textContent =
+    n + ' of 132 configurations shown · sorted by ' +
+    (mxSort.key === 'macro' ? 'macro SR' : D.taskLabels[+mxSort.key]) +
+    (mxSort.dir === -1 ? ' ▾' : ' ▴');
+}
+document.getElementById('tGroot').onclick = () => { teacher = 'groot_tp'; draw(); };
+document.getElementById('tPi05').onclick = () => { teacher = 'pi05'; draw(); };
+draw();
+
+/* ---------- per-task bars ---------- */
+const bw = document.getElementById('bars');
+const gT = D.arms.groot_tp.per_task, pT = D.arms.pi05.per_task;
+const maxSR = Math.max(...D.tasks.map(t => Math.max(gT[t][0] / gT[t][1], pT[t][0] / pT[t][1])));
+D.tasks.forEach((t, i) => {
+  if (i === D.nContact) bw.append(el('div', 'bsplit', 'transport (pick & place)'));
+  else if (i === 0) bw.append(el('div', 'bsplit', 'contact manipulation'));
+  const row = el('div', 'brow');
+  const lb = el('div', 'lb', D.taskLabels[i]); lb.title = t; row.append(lb);
+  const st = el('div', 'bstack');
+  [[gT[t], 'var(--groot)'], [pT[t], 'var(--pi05)']].forEach(([v, col]) => {
+    const sr = v[0] / v[1];
+    const line = el('div', 'bline');
+    const tr = el('div', 'btrack'); const f = el('div', 'bfill');
+    f.style.width = (sr / maxSR * 100).toFixed(1) + '%'; f.style.background = col;
+    tr.append(f);
+    line.append(tr, el('span', 'bval', pct(sr) + '%'));
+    st.append(line);
+  });
+  row.append(st); bw.append(row);
+});
+
+/* ---------- iso baselines ---------- */
+const isoTbl = document.getElementById('iso');
+const gm = Object.fromEntries(D.arms.groot_tp.rows.map(r => [r[0], r[5]]));
+const pm = Object.fromEntries(D.arms.pi05.rows.map(r => [r[0], r[5]]));
+isoTbl.innerHTML = '<thead><tr><th>single-field cell</th><th>GR00T</th><th>pi0.5</th></tr></thead>';
+const ib = el('tbody');
+D.fields.forEach(f => {
+  const cid = 'iso_' + f;
+  const tr = el('tr');
+  tr.append(el('td', null, f));
+  const g = el('td', 'n', pct(gm[cid]) + '%'), p = el('td', 'n', pct(pm[cid]) + '%');
+  const bestG = D.fields.every(o => gm['iso_' + o] <= gm[cid]);
+  const bestP = D.fields.every(o => pm['iso_' + o] <= pm[cid]);
+  if (bestG) g.classList.add('up'); if (bestP) p.classList.add('up');
+  tr.append(g, p); ib.append(tr);
+});
+isoTbl.append(ib);
+document.getElementById('rho').textContent = 'ρ = ' + D.rho.toFixed(3);
+
+/* ---------- densify ---------- */
+const dt = document.getElementById('dens');
+dt.innerHTML = '<thead><tr><th>configuration</th><th>104 ep</th><th>416 ep</th><th>shift</th></tr></thead>';
+const db = el('tbody');
+D.densify.rows.forEach(r => {
+  const at104 = gm[r[0]];
+  const tr = el('tr');
+  tr.append(el('td', null, r[0]), el('td', 'n', pct(at104) + '%'), el('td', 'n', pct(r[5]) + '%'));
+  const d = r[5] - at104;
+  const c = el('td', 'n ' + (d >= 0 ? 'up' : 'down'), (d >= 0 ? '+' : '') + pct(d) + ' pp');
+  tr.append(c); db.append(tr);
+});
+dt.append(db);
+
+/* ---------- pinned PickPlace ---------- */
+const pnpLabels = D.pnp.tasks.map(t => t.replace('PickPlace', '')
+  .replace(/([a-z])([A-Z])/g, '$1 $2').replace(' To ', ' → '));
+const drawPnp = () => build('pnpMx', { rows: D.pnp.rows }, D.pnp.tasks, pnpLabels, 99,
+  { tier: false, sort: pnpSort, rerender: drawPnp });
+drawPnp();
+const pb = document.getElementById('pnpBars');
+pb.append(el('div', 'bsplit', 'teacher floor vs. cache, per task'));
+D.pnp.tasks.forEach((t, i) => {
+  let succ = 0, n = 0;
+  D.pnp.rows.forEach(r => { succ += r[3][i]; n += r[4]; });
+  const row = el('div', 'brow');
+  row.append(el('div', 'lb', pnpLabels[i]));
+  const st = el('div', 'bstack');
+  [[D.pnp.teacher[t], 'var(--ink-2)'], [succ / n, 'var(--pi05)']].forEach(([sr, col]) => {
+    const line = el('div', 'bline');
+    const tr = el('div', 'btrack'); const f = el('div', 'bfill');
+    f.style.width = (sr * 100).toFixed(1) + '%'; f.style.background = col; tr.append(f);
+    line.append(tr, el('span', 'bval', pct(sr) + '%'));
+    st.append(line);
+  });
+  row.append(st); pb.append(row);
+});
+const pnpMacro = D.pnp.rows.reduce((a, r) => a + r[5], 0) / D.pnp.rows.length;
+const foot = el('div', 'bsplit', 'macro: teacher ' + pct(D.pnp.teacherMacro) +
+  '% vs cache ' + pct(pnpMacro) + '% — a ' +
+  (D.pnp.teacherMacro / pnpMacro).toFixed(0) + '× gap');
+pb.append(foot);
+</script>

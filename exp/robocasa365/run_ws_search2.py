@@ -276,12 +276,15 @@ def ws2_spawn_fn(
 def resolve_cells(run_prefix: str, config_dir: pathlib.Path, manifest_path: str) -> tuple[list[str], str]:
     """Return (cids, manifest_sha) for the phase; manifest_sha is "" for ws2.
 
-    - ws2 (screening): every cid in the emitted ``index.json``.
+    - ws2 (screening) / rit (the IR-addressed ladder): every cid in the
+      emitted ``index.json``. The RIT tree is a different emitter's, but its
+      index has the same shape and its freeze record is checked separately by
+      ``--index-provenance``.
     - ws2c / ws2e: ONLY the cells of the manifest segment named after the
       prefix; the manifest is the single audited source (plan §3-W8) and its
       sha is pinned so a resume can prove it never re-selected.
     """
-    if run_prefix == "ws2":
+    if run_prefix in ("ws2", "rit"):
         index = json.loads((config_dir / "index.json").read_text())
         return sorted(index), ""
     if not manifest_path:
@@ -472,10 +475,19 @@ def main() -> None:
     ap.add_argument("--teacher", required=True, choices=("groot_tp", "pi05"))
     ap.add_argument("--servers", required=True,
                     help='comma-separated "host:port" pool of dynamic-bundle servers')
-    ap.add_argument("--run-prefix", default="ws2", choices=("ws2", "ws2c", "ws2e"))
+    ap.add_argument("--run-prefix", default="ws2", choices=("ws2", "ws2c", "ws2e", "rit"))
     ap.add_argument("--config-dir", required=True,
                     help="emitted yaml dir for the phase (…/ws_search2/groot_tp/main or …/control)")
     ap.add_argument("--manifest", default="", help="selection_manifest.json (required for ws2c/ws2e)")
+    ap.add_argument(
+        "--index-provenance",
+        default="",
+        help="Provenance JSON of a config tree emitted by another emitter "
+        "({cid: sha256(yaml_text)} plus the emitter hashes). Replaces the ws2 "
+        "index-digest preflight for that tree -- the pinned run still refuses "
+        "to dispatch a yaml that drifted since it was frozen, it just checks "
+        "the freeze record the emitter that owns the tree actually wrote.",
+    )
     ap.add_argument("--only", default="", help="comma-separated cid subset (rerun/backfill)")
     ap.add_argument("--tasks", default=DEFAULT_EVAL_TASKS)
     ap.add_argument("--episodes", type=int, default=8)
@@ -537,7 +549,26 @@ def main() -> None:
     validate_teacher_endpoints(args.teacher, servers, env_config)
 
     config_dir = pathlib.Path(args.config_dir)
-    if pin_path:
+    if pin_path and args.index_provenance:
+        prov = json.loads(pathlib.Path(args.index_provenance).read_text())
+        drift = []
+        for cid, want in sorted(prov["cells"].items()):
+            path = config_dir / f"{cid}.yaml"
+            if not path.exists():
+                drift.append(f"{cid}: missing")
+                continue
+            got = hashlib.sha256(path.read_text().encode()).hexdigest()
+            if got != want:
+                drift.append(f"{cid}: {got} != {want}")
+        if drift:
+            raise SystemExit(f"[run_ws_search2] provenance preflight failed: {drift}")
+        config_dir = config_dir.resolve()
+        print(
+            f"[run_ws_search2] provenance verified: {len(prov['cells'])} cells "
+            f"against {args.index_provenance}",
+            flush=True,
+        )
+    elif pin_path:
         # Before a single cell is dispatched: the 132 yamls this run will ship
         # to the servers must be the exact ones that were frozen, for BOTH
         # teachers. Checking only the teacher in play would let the other half

@@ -1,0 +1,91 @@
+enabled: true
+timer:
+  enabled: false
+keys:
+  vision_0:
+    enabled: true
+    weight: 0.125
+  vision_1:
+    enabled: true
+    weight: 0.375
+  vision_2:
+    enabled: true
+    weight: 0.25
+  prompt_emb:
+    enabled: true
+    weight: 0.0
+  robot_state:
+    enabled: true
+    weight: 0.25
+key_builder:
+  type: cp1_spatial_pool_16
+  prompt_masked_pool: true
+  prompt_instruction_span: true
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      type: always_search
+    judge:
+      type: always_hit
+    search_strategy:
+      type: text_ivf_knn
+      top_k: 1
+      step_filter: all
+      field_similarity:
+        vision_0:
+          type: cosine
+        vision_1:
+          type: cosine
+        vision_2:
+          type: cosine
+        robot_state:
+          type: l2
+          to_similarity:
+            type: exp
+            tau: 1.0
+      score_normalization:
+        type: per_field
+        fields:
+          vision_0:
+            method: zscore
+            params:
+              mu: 0.9772320291511294
+              sigma: 0.008773173686199415
+              squash: tanh
+          vision_1:
+            method: zscore
+            params:
+              mu: 0.9698171821336758
+              sigma: 0.00777276955282754
+              squash: tanh
+          vision_2:
+            method: zscore
+            params:
+              mu: 0.9778475278162826
+              sigma: 0.007041077453165851
+              squash: tanh
+          robot_state:
+            method: zscore
+            params:
+              mu: -4.758144050975704
+              sigma: 3.4440623874506895
+              squash: tanh
+  cp3:
+    enabled: false
+    search_strategy:
+      type: weighted_rrf_knn
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 32768
+    vision_1: 32768
+    vision_2: 32768
+    prompt_emb: 2048
+    robot_state: 32
+  in_memory:
+    preload_path: /data/robocasa365_cache/cache_artifacts_pnp_pinned/pi05_spatial_pool_16_pnp_pinned.pkl
+    index_type: text_ivf
+    expected_pin_id: 4d13ac5effce76c0ec253c9cef7dc2ed25dcb7d9ed4bae596e8b08ca483edcaa
+write_policy:
+  type: never

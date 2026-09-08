@@ -1,112 +1,102 @@
-# Session Handoff —— GR00T/pi0.5 warm-start 数据重采集（W13）
+# Session Handoff —— W13 语料重采完成，下一步做实验
 
-> 2026-09-07 凌晨。阶段 B 代码已入库放行，阶段 A 只留三段延迟。
-> **下一步工作：三条线重采数据** —— RoboCasa365 × pi0.5、RoboCasa365 × GR00T、LIBERO × GR00T（spatial + libero_10）。
-> 原因：现存语料全部**没有去噪快照**（`noise_action_*`）且没有 schedule 戳，warm-start 库无法从旧语料建出。
+> 2026-09-08 上午。**四条线的 warm-start 语料重采 + pkl 建库切分全部完成并验收通过**。
+> 语料正由**另一个会话**搬到 `/archive`（原位留软链，路径不变），本会话不必管。
+> 本会话的下一步：**用这批新 pkl 跑实验**。
 
 ---
 
 ## 0. 接手第一步
 
 ```bash
-cd /home/weiland/projects/openpi            # 分支 Ziyang，与 origin 同步
+cd /home/weiland/projects/openpi            # 分支 Ziyang
 cat logs/robocasa365_warmstart_plan.log.md  # 权威 plan（§1.8 两线差异、§3.2 W14、Review Log）
-uv run pytest tests/cache/groot tests/collect tests/robocasa365 tests/libero_groot -q   # 应全过（既有失败仅 test_prebuilt_matrix_backend ×2）
-git status --short | grep -v rit_pareto      # exp/rit_pareto/* 是另一个 session 的，不碰
+git status --short | grep -v rit_pareto      # exp/rit_pareto/* 属另一 session，永不碰
 ```
 
-Authority = Execution，只读 `protocols/execution_authority.md`。W13 是**运行动作**，不需要新 G1/G2；
-若要改采集代码，按 WA 定级（`exp/` 脚本 L1）。**不 `git add`** 除非 owner 明示；commit 英文、无 AI 署名。
+Authority = Execution，只读 `protocols/execution_authority.md`。跑实验是运行动作，不需要新 G1/G2。
+纪律：**不 `git add`/commit/push** 除非 owner 当次明示；commit 英文、无 AI 署名；跨机同步一律 `tether`，不用 git。
 
 ---
 
-## 1. 现状一句话
+## 1. 产物：四套 pkl（全部已回环校验，`bad=0`）
 
-- 代码：`2e51b02`（阶段 B 全链路，G2 在 owner override 下 CODE APPROVED）+ 后续 `00d2739…ba0eb4e`（bench 修正、阶段 A 记录）。
-- 阶段 A 结论只记三个数（CUDA Graph，三段各一张图）：**stage1 8.12 / stage2 9.36 / stage3 17.80 ms**。owner 裁定其余不记录。
-- 未提交（owner 未指示）：`exp/robocasa365/analysis/pnp_pinned_results.md`、`exp/robocasa365/config/ws_search2_pnp/`、
-  `config/calibration_normalizers_pnp_pinned.json`、`config/collect_pnp_{weilandserver,timan107}.env`、`logs/pnp_run_progress.md`。
-  ⚠ 两个 `collect_pnp_*.env` 是上一轮采集的**精确部署参数**（端口组、worker 解释器、EGL 路径），重采要用，先入库。
+**RoboCasa** `/data/robocasa365_cache/cache_artifacts_w13/`
 
----
-
-## 2. 新采集 schema（v2）—— 重采要交付的东西
-
-每个 h5 文件 file-level attrs：`denoise_schedule_id`、`denoising_num_steps`（取自**活值**，不是常量）。
-每个 step group 除原有字段外新增：`noise_action_0`（纯噪声起点，D5）与 `noise_action_1..N-1`（第 i 步去噪前的 x_t）。
-
-| 线 | schedule_id | N | 相机 / state 宽 | 谁写快照 |
+| stem | schedule | full | 档位（轨迹数） | 几何 |
 |---|---|---|---|---|
-| RoboCasa × pi0.5 | `pi05_v1` | 10 | 3 路 / 32 | `src/openpi/collect/collection_policy.py`（hook `action_in_proj`，写 `noise_action_0` + 戳，步数≠10 即拒） |
-| RoboCasa × GR00T | `groot_n15_k4_v1` | **4**（ckpt 内置，server 不传步数） | 3 路 / 20 | `exp/robocasa365/groot_cache_collector.py`（hook `action_head.action_encoder`，每集重读活值，hook 计数≠N 即拒） |
-| LIBERO × GR00T | `groot_n15_k8_v1` | **8**（`--denoising-steps 8` CLI 默认） | 2 路 / 8 | 同上一个采集器（`serve_groot_libero.py:400` 直接构造它） |
+| `groot_tp_spatial_pool_16_w13` | `groot_n15_k4_v1` | 650 集 / 46,216 条 / 19.0 GB | S1-S6 = 13/26/65/130/260/650 | 3 相机 / 20 维 state |
+| `pi05_spatial_pool_16_w13` | `pi05_v1` | 650 集 / 60,096 条 / 28.0 GB | 同上 | 3 相机 / 32 维 state |
 
-⚠ 步数是**运行时属性**：GR00T 的 id 由 `GrootStagedRunner.live_schedule()` 派生，代码里没有字面 4/8。
-⚠ run-plan 的 hashed params 现固定带 `collect_schema: v2` ⇒ **旧 journal 不能续进新采集**；重采必须换新的 collect_root / run id，不要在旧目录上"续跑"。
-⚠ RoboCasa pi0.5 旧语料本来就有 `noise_action_1..9`，缺的是 `noise_action_0` 与戳；GR00T 两线旧语料**零快照**。
+两条线各另有 `_pnp_pinned.pkl`（pick 族 5 任务 × 50 集，戳 `pin_id=4d13ac5e…`）：GR00T 17,493 条 / 7.2 GB，pi0.5 21,963 条 / 10.2 GB。
 
----
+**LIBERO** `/data/libero_cache/libraries_w13/{libero_spatial,libero_10}/`
 
-## 3. 采集配方
+| stem | schedule | full | 档位（轨迹数） |
+|---|---|---|---|
+| `libero_spatial_w13` | `groot_n15_k8_v1` | 450 集 / 9,638 条 / 4.0 GB | S1-S6 = 10/20/50/100/200/450 |
+| `libero_10_w13` | `groot_n15_k8_v1` | 436 集 / 22,662 条 / 9.5 GB | S1-S6 = 10/20/50/100/200/436 |
 
-### 3.1 RoboCasa365（两个 teacher，同一套 conductor）
+共 30 个 pkl / 185.8 GB。⚠ **S6 与 full 内容等价**（名义 k=50 在各任务成功数处触顶），保留两份只为将来重切档位时不必再扫语料。
 
-- 入口：`exp/robocasa365/run_collect.py --role all --teacher {pi05|groot_tp} --servers … --tasks … --layout 1 --style 1
-  --base-seed 0 --collect-root <scene-root> --env-config <env> [--pinned-objects exp/robocasa365/config/pnp_pinned_objects.json]`；
-  完整说明 `docs/data_collection/guide.md` §"RoboCasa365 teacher-library collection"。
-- 拓扑（**一 server ↔ 一连接 ↔ 一 worker**，`--collect` 与并发互斥）：server 全在 weilandserver（4090 48G），
-  driver + sim worker 在 timan107（`/scratch/zixuans8/openpi_rc365`，8×1080，原生 EGL）。**两个 teacher 不能同时在 48G 卡上**
-  （GR00T 5×8.5G / pi0.5 4×10.5G）。上一轮：pi0.5 4 server @8010-8013（公网 23110-23113），GR00T 5 server @8020-8024（23120-23124），
-  参数全在 `config/collect_pnp_{weilandserver,timan107}.env`。
-- server 命令：pi0.5 = `uv run scripts/serve_policy.py --port <p> --non-concurrent --collect --collect_dir <scene-root> policy:checkpoint --policy.config pi05_robocasa --policy.dir /home/weiland/ckpt_pi05_robocasa_pytorch`；
-  GR00T = `serve_groot_n15.py --port <p> --collect-hdf5 <scene-root> --checkpoint /home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000`
-  （GR00T venv `/home/weiland/gr00t_n15_venv/.venv/bin/python`，`PYTHONPATH=/home/weiland/gr00t_n15:<repo>/src:<repo>`，`HF_HUB_OFFLINE=1`）。
-- 上一轮（pnp 定物体线）的任务集与规模：5 个 PickPlace 任务、`pnp_pinned_objects.json`（pin_id 4d13ac5e…）、每任务目标 50 条成功、
-  `--layout 1 --style 1 --base-seed 0`（评测段用 1,000,000，两段不相交），采集根 `/data/robocasa365_cache/build_l1s1_pnp`（CMR 盘 /data，**不要放叠瓦盘 /archive**）。
-  ⚠ 是否仍限 PickPlace / 是否钉物体 / K 值，由 owner 定；**`--pinned-objects` 一旦用就必须传给该 run 的每一个 driver**。
-- 审计与入库：`verify_collection_artifacts.py --run-plan … --journal … --require-denoise-schedule --manifest-out …`
-  （新 flag 让无戳文件成为 schema 错误；戳存在时逐 step 核对 `noise_action_0..N-1` 的基数、连续性、shape/dtype 对 `clean_action`）
-  → `build_in_memory_cache_artifact.py --builder-type {cp1_spatial_pool_16|cp1_groot_spatial_pool_16} --expected-schedule <id> --manifest …`
-  ⚠ pi0.5 建库必须 `--vision-slots 3`（默认 2，第三路会被**静默丢掉**，到 emit 才炸）；GR00T builder 默认 (3, 20)。
-  → `calibrate_score_normalizers.py`（按 pkl stem 键入）→ warm-start yaml 只由 `exp/robocasa365/emit_ws_warmstart_yamls.py` 产出
-  （`--groot-steps` 无默认必须显式，产物根 `config/ws_warmstart_pnp/`，库 tag `pnp_warm`，自带 digest）。
-
-### 3.2 LIBERO × GR00T（spatial + libero_10，weilandserver 单机闭环）
-
-- 权威 runbook：`logs/libero_groot_collection.log.md`（§5 参数、§7 铁律、§10 建库）。一键：
-  `bash exp/libero_groot/launch_collection.sh <suite> <ckpt> <out-dir> [lanes=6] [base-port=8030]`
-  （spatial：`libero_spatial /home/weiland/ckpt_n15_libero_spatial /data/libero_cache/build_spatial`；
-  l10：`libero_10 /home/weiland/ckpt_n15_libero_10 /data/libero_cache/build_libero10`）。**重跑即续跑**（按已落盘 h5 重算分片）
-  ⇒ 重采必须换 out-dir（或清空旧目录），否则脚本会把旧无戳文件当成已采完。
-- server 走 `serve_groot_libero.py --collect-hdf5 … --denoising-steps 8`（默认 8）；client 是 `examples/libero/main.py`，
-  6 路 × `--episode-filter` 分片，B 池 init `exp/common/data/db_init/libero/<suite>`（**不得含 `.pruned_init`**，脚本会拒）。
-  6 路实测 15.6 ep/min；spatial 500 集约 35 min，l10 约 1.5–2 h、95–100 GB。
-- 审计/建库：`report_collection.py <h5dir> --trials 50 --num-tasks 10`；
-  `build_size_libraries.py … --denoise-schedule groot_n15_k8_v1`（透传为 builder `--expected-schedule`，manifest 记 schedule）；
-  `verify_libraries.py <manifest> --expected-schedule groot_n15_k8_v1`；warm yaml 由 `exp/libero_groot/emit_warmstart_yamls.py --suite … --library … --denoising-steps 8` 产出，
-  eval 入口（`orchestrate_search.py` / `run_conductor.py`）会先 `verify_warm_sweep` 校验 index/digest/schedule/库。
-- ⚠ GR00T→LIBERO 夹爪必须走官方 `normalize_gripper_action`（漏掉 = 静默 0%）；replan_steps=5；keepwarm 脚本不许关。
+**建库口径（复现/重建时必须照抄）**
+- 切分：`seed=0` 确定性洗牌、**整条 episode 为单位**、每任务取 `min(k, n_t)`、逐档真包含；x 轴报**实测均值**不是名义 k。
+- pi0.5 建库必须 `--vision-slots 3` + text-IVF 三旗标 `--prompt-masked-pool --prompt-instruction-span --discrete-state-input`（manifest 里 `prompt_pool={masked:True, instruction_span:True}` 是它生效的证据）；GR00T 侧不带这三个（prompt_emb 天然位稳定）。
+- 全部用 `--trajectory-id-mode relpath`（RoboCasa 的 `<teacher>/<Task>/episode_NNNN_aAA` 会跨任务撞 stem）与 `--expected-schedule`。
 
 ---
 
-## 4. 远端仓状态（开工前必须先对齐）
+## 2. 语料现状（另一会话在搬，路径不变）
 
-| 机器 | 路径 | 状态 |
+| 语料 | 位置 | 规模 |
 |---|---|---|
-| weilandserver | `/home/weiland/openpi` | 分支 Ziyang 停在 **9da3983**（落后 origin 多个提交），且有**别人的未提交改动**，其中 **`exp/robocasa365/run_collect.py` 与我的提交重叠** ⇒ `git pull --ff-only` 被拒。**不要 stash 别人的东西**：先问 owner，或看那处改动能否直接 commit/丢弃。阶段 A 用的是 `/tmp/openpi-stageA` 浅克隆（可删）。 |
-| timan107 | `/scratch/zixuans8/openpi_rc365` | 停在 **3598534**，没有新采集代码（`collect/`、`groot_cache_collector.py`、`run_collect.py`、`verify_collection_artifacts.py`、`cache/groot/staged.py`…）。上一轮是 tether push 逐文件补的；这次建议 `git pull`。`/scratch` 不在 tether allow_roots，push 须经 `/tmp` 中转。 |
+| RoboCasa W13（13 任务 × 2 teacher） | `/data/robocasa365_cache/build_l1s1_w13/<teacher>/<Task>/` | 1.2 T |
+| RoboCasa 多采的 5 个任务 | `…/build_l1s1_w13_extra/`（已移出正式集） | 193 G |
+| LIBERO spatial / libero_10 | `/data/libero_cache/build_{spatial,libero10}_w13/` | 26 G / 63 G |
 
-两机对齐后用 sha256 逐文件对账（上一轮的做法），再起 server。
+归档惯例：搬到 `/archive/<同名相对路径>` 后**原位留软链**——LIBERO 在 build 根一条，RoboCasa 在**每个任务目录**一条（`<root>/<teacher>/<Task>` 级），所以 h5 的绝对路径逐字不变，读的人无感。`/archive` 是 host-managed SMR，单流串行。
+
+**schema v2**：每个 h5 file-level 带 `denoise_schedule_id` / `denoising_num_steps`（取自活值），每 step 带 `noise_action_0..N-1`（0 是起点噪声）。四份审计全 `ok=True`，`schema_errors / pin_errors / missing_file / missing_terminal / multiple_accepted` 均 0。
 
 ---
 
-## 5. 纪律与本线踩过的坑
+## 3. 数据规模与成功率（决定 tier 上界）
 
-- **`pgrep -f`/`pkill -f` 自匹配**：模式本身要用字符类（`[w]orker_entry`），且**脚本正文任何地方（含注释、echo）都不能出现裸的匹配串**，
-  否则 `bash -lc '<script>'` 的 argv 含该串 → 杀掉自己的 tether shell（本线连踩两次）。共享机禁宽模式 pkill，按端口/tmux 名/PID 定点。
-- weilandserver 23100-23199 端口段与 `srvN` tmux 名是**多 session 共享**命名空间；自己的 tmux 起别的名字。
-- `tether exec` 单次约 10 min 上限，长跑一律 tmux + `tee` 日志；`tether push` 目标已存在要 `--force`；别把 stderr 重定向掉。
-- Bash 工具单次 120 s 超时，远端等待循环要拆短。
-- 采集期间两机别的 session 可能在跑：起 server 前 `ss -tlnp` 侦察端口、`tmux ls` 侦察归属，别人的一律不动。
-- 数据一律落 `/data`（weilandserver）；HDD 顺序流要串行化。
-- 删除类操作前先 `wc -l` 核对清单规模。
+- RoboCasa（13 任务，每任务恰好 50 条进 manifest）：GR00T 全部 ≥50；pi0.5 逐任务成功 50-91。
+- LIBERO spatial：500/500 init 全覆盖，SR 90.0%，逐任务成功 38-49。
+- LIBERO libero_10：500/500 全覆盖，SR 87.2%，逐任务成功 33-48（task 8 `both moka pots` 最低 33）。
+- ⚠ **S5(k=20) 是最后一个所有任务都达名义值的档**；S6 触顶。做 cache-size 曲线时 x 轴用 manifest 里的 `realized_mean`。
+
+---
+
+## 4. 未入库的代码（本轮为完成任务所写，owner 未授权提交）
+
+| 文件 | 作用 |
+|---|---|
+| `exp/robocasa365/merge_collection_manifests.py`（新） | 合并多批审计 manifest，`--only-tasks` 收窄到正式任务集 |
+| `exp/robocasa365/build_size_libraries_rc.py`（新） | RoboCasa 版档位切分（复用 libero 版的 `verify_tier`/seed 口径，任务名从 relpath id 取） |
+| `exp/robocasa365/verify_collection_artifacts.py`（改） | 加 `--only-tasks`：把期望 uid 集收窄到正式任务集 |
+| `exp/robocasa365/config/collect_w13_timan107.env`（新） | W13 采集部署参数（6 GR00T + 6 pi0.5 端点） |
+
+另有更早的未入库物：`analysis/pnp_pinned_results.md`、`config/ws_search2_pnp/`、`config/calibration_normalizers_pnp_pinned.json`、`config/collect_pnp_*.env`、`logs/pnp_run_progress.md`。
+
+---
+
+## 5. 下一步实验前必须知道的坑
+
+1. **conductor 一个 yaml 绑一个 server**（`driver.assign_servers` 返回 `yaml_id -> 单个 endpoint`）⇒ 单个任务永远只用一个 worker。收尾只剩一个任务时并行度掉到 1/N；要并行只能起**多个 driver 各切一段**（本轮这样提速 5.7×）。
+2. **`task_uid` 含任务序号**（`<run>__<Task>:eval:<task_ordinal>:<episode_idx>`）⇒ 补批必须保持**同样的任务顺序**（不需要的任务写 `:0` 占位），否则整批行与账本对不上。审计器要求各批 uid **不相交**。
+3. **`pgrep -f` 自匹配**：命令正文任何位置出现匹配串（含注释、sed 模式）都会匹配自己 → 杀掉 tether shell。更狠的是 `tmux new-session -d "<整条命令>"` 派生的 **tmux server 进程 argv 里带着那条命令**，误杀它会带走该机所有 tmux 会话。定式：模式写在**远端脚本文件**里、只杀 `readlink /proc/<pid>/exe` 是 python 的进程（见 `/tmp/w13/kill_lane.sh`）。
+4. **tether agent 的 HOME 是 `/srv/local/<user>/tether-home`**，tmux 会话继承它 ⇒ LIBERO 找不到 `~/.libero/config.yaml` 会**弹交互提示卡死**。跨机跑 LIBERO client 必须在 tmux 内层写死 `HOME=/home/zixuans8 LIBERO_CONFIG_PATH=/home/zixuans8/.libero`。
+5. **`ionice -c 3`（idle）在有写盘负载时会被彻底饿死**（实测 0.9 MB/s），且非特权进程**无法把自己提回**普通优先级——只能杀掉重起。长任务别用 idle 类。
+6. **EGL context 残留**：被杀的 LIBERO lane 会在那张 GPU 上留 ~2 GB context，新 lane 在同卡起会 `EGLError`。换一张空卡即可。
+7. LIBERO 跨机（client@timan107 → server@ziyanglin.com）实测 **13-15 s/集**，比同机还快，网络不是瓶颈。
+8. 机器纪律：server 只在 weilandserver（公网段 23100-23199，1:1 NAT），worker 只在 timan107；`tether exec` 单次 ~10 min 上限，长跑一律 tmux + tee。
+
+---
+
+## 6. 监控体系（本轮验证好用的形态）
+
+- **cron 定时巡检**：固定间隔跑远端一行 health 脚本，健康只在主会话记一行。
+- **Monitor 条件触发**：轮询同一个 health 脚本，只在 ALERT / DONE / STALL / 里程碑时出声；用 `until <条件>; do sleep; done` 等一次性事件。
+- health 脚本写在远端 `/tmp/w13/h*.sh`，判「driver 退出」看日志**最后一行**是不是退出标记（不能数累计次数——重启会追加到同一日志）。

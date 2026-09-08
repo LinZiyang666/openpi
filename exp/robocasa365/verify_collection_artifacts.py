@@ -525,6 +525,13 @@ def main() -> None:
     )
     ap.add_argument("--target", type=int, default=20)
     ap.add_argument(
+        "--only-tasks",
+        default="",
+        help="comma-separated task names; restricts the expected-uid set to these "
+        "tasks so a run that also collected out-of-scope tasks can be audited "
+        "against the formal set (their journal rows and files are ignored)",
+    )
+    ap.add_argument(
         "--pinned-objects",
         default="",
         help="pin table path. Given, every admitted episode must prove -- from "
@@ -558,6 +565,19 @@ def run_cli(args: argparse.Namespace) -> dict[str, Any]:
     """
     plans = [load_run_plan(path) for path in args.run_plan]
     records = load_journal(args.journal)
+    only_tasks = {t for t in (getattr(args, "only_tasks", "") or "").split(",") if t}
+    if only_tasks:
+        # Narrow every plan to the formal task set before the uid union is
+        # built: uids of dropped tasks are neither expected nor admitted, so
+        # their journal rows and HDF5 files fall out of every check below.
+        for plan in plans:
+            keep = [u for u in plan["uids"] if plan["prefixes"][u].split("/")[1] in only_tasks]
+            plan["uids"] = keep
+            plan["prefixes"] = {u: plan["prefixes"][u] for u in keep}
+        seen = {pfx.split("/")[1] for plan in plans for pfx in plan["prefixes"].values()}
+        absent = sorted(only_tasks - seen)
+        if absent:
+            raise SystemExit(f"--only-tasks names tasks absent from every run-plan: {absent}")
     pin_id, pin_table = (None, None)
     # getattr: existing callers build the Namespace by hand (test seam), so a
     # newly added flag must not become a required attribute.
