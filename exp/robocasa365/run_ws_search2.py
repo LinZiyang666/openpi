@@ -589,7 +589,13 @@ def main() -> None:
     cells, manifest_sha = resolve_cells(args.run_prefix, config_dir, args.manifest)
     all_cells = list(cells)
     if pin_path:
-        frozen_cells = set(digest_doc["per_teacher"][args.teacher]["cells"])
+        # The frozen cell set comes from whichever freeze record was checked
+        # above: the ws2 index digest, or the provenance file of a tree emitted
+        # elsewhere. Both name exactly the cells the run is allowed to dispatch.
+        if args.index_provenance:
+            frozen_cells = set(prov["cells"])
+        else:
+            frozen_cells = set(digest_doc["per_teacher"][args.teacher]["cells"])
         try:
             assert_frozen_cell_set(all_cells, frozen_cells)
         except ValueError as exc:

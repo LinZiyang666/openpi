@@ -117,9 +117,9 @@ class GrootRitShadow:
 
     # -- lifecycle -------------------------------------------------------
 
-    def on_task_begin(self) -> None:
+    def on_task_begin(self, task_key: str = "") -> None:
         if self._orchestrator is not None:
-            self._orchestrator.on_task_begin()
+            self._orchestrator.on_task_begin(task_key)
 
     def on_task_end(self) -> None:
         if self._orchestrator is not None:
@@ -133,14 +133,20 @@ class GrootRitShadow:
         episode_name: str = "",
         extra_metadata: dict | None = None,
     ) -> None:
-        del episode_name, extra_metadata
+        del episode_name
         self._task = task
         self._episode_id = episode_id
         self._step = 0
         self._rows = []
         self._schedule = self._runner.live_schedule()
         if self._orchestrator is not None:
-            self._orchestrator.on_episode_start()
+            # Same identity the interceptor binds, so the search session this
+            # cohort is scored under is the one a deployed arm would open.
+            self._orchestrator.on_episode_start(
+                task_key=task,
+                episode_id=str(episode_id),
+                extra_metadata=extra_metadata,
+            )
 
     def on_episode_end(self, success: bool) -> None:
         """Flush the episode's rows, stamped with the outcome.

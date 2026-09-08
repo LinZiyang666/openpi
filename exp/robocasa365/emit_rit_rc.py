@@ -78,11 +78,14 @@ def w13_spec(teacher: str, library_dir: str = DEFAULT_LIBRARY_DIR) -> dict:
     id every input agrees on. The pin is therefore asserted at collection time
     and in the run plan, not by the artifact binding.
     """
-    stem = f"{teacher}_spatial_pool_16_{LIBRARY_TAG}"
+    # The stem is the artifact's file stem, which is also the key the Phase-1
+    # normalizer calibration writes: the two must agree or the calibration
+    # lookup fails at emit time rather than at serve time.
+    stem = f"{teacher}_spatial_pool_16_{LIBRARY_TAG}_full"
     return {
         **ws2.TEACHERS[teacher],
         "stem": stem,
-        "preload": f"{library_dir.rstrip('/')}/{stem}_full.pkl",
+        "preload": f"{library_dir.rstrip('/')}/{stem}.pkl",
     }
 
 
@@ -96,13 +99,25 @@ def _base_cell(teacher: str, calib: dict, spec: dict, weight_cid: str) -> dict:
     return cfg
 
 
-def build_calibration_cell(teacher: str, calib: dict, spec: dict, weight_cid: str) -> dict:
-    """The shadow pass's cell: real retrieval, verdict read but never applied."""
+def build_calibration_cell(
+    teacher: str, calib: dict, spec: dict, weight_cid: str,
+    schedule: DenoiseSchedule | None = None,
+) -> dict:
+    """The shadow pass's cell: real retrieval, verdict read but never applied.
+
+    The schedule is stamped even though an ``always_hit`` recipe is not a warm
+    one and the guard would not ask for it: the shadow resumes the winner's
+    intermediates at every rung, so this cell does depend on the library's loop
+    identity even though its verdict does not.
+    """
     cfg = _base_cell(teacher, calib, spec, weight_cid)
     cp1 = cfg["checkpoints"]["cp1"]
     cp1["gate"] = {"type": "always_search"}
     cp1["judge"] = {"type": "always_hit"}
     cfg["write_policy"] = {"type": "never"}
+    schedule = schedule_of(teacher) if schedule is None else schedule
+    if schedule is not PI05_V1:
+        cfg["denoise_schedule"] = schedule.schedule_id
     return cfg
 
 
@@ -130,19 +145,36 @@ def build_arm_cell(
     warm = [t for t in tiers if t.hit_type == "WARM_START"]
     if len(full) != 1:
         raise ValueError("the ladder needs exactly one FULL_HIT rung")
-    judge = {"type": "threshold", "cp1_threshold": _cut(thetas[full[0].name])}
-    if warm:
+    # At the cheap end of the grid the fit puts two rungs at the same cut. The
+    # judge walks the ladder and takes the first rung the score clears, so a
+    # rung whose cut is not strictly below the one above it can never fire;
+    # the loader rejects that shape rather than serving a dead rung. Drop the
+    # dead ones instead of nudging the cuts: an unreachable rung changes
+    # neither the cost nor the verdict, so dropping it emits the same rule
+    # honestly, and the dropped names are recorded on the arm.
+    kept, dropped, prev = [], [], None
+    for tier in [full[0]] + sorted(warm, key=lambda t: t.cost_ms):
+        cut = _cut(thetas[tier.name])
+        if prev is not None and cut >= prev:
+            dropped.append(tier.name)
+            continue
+        kept.append((tier, cut))
+        prev = cut
+    judge = {"type": "threshold", "threshold": kept[0][1]}
+    warm_kept = [(t, c) for t, c in kept[1:]]
+    if warm_kept:
         judge["warm_tiers"] = [
-            {"threshold": _cut(thetas[t.name]), "start_t": float(t.start_t)}
-            for t in sorted(warm, key=lambda t: t.cost_ms)
+            {"threshold": c, "start_t": float(t.start_t)} for t, c in warm_kept
         ]
     cp1["judge"] = judge
+    cfg["_dropped_rungs"] = dropped
     cp1["gate"] = gate_section(LAYER_SECONDARY, float(gate_theta))
     cfg["write_policy"] = {"type": "never"}
     if schedule is not PI05_V1:
         cfg["denoise_schedule"] = schedule.schedule_id
+    dropped = cfg.pop("_dropped_rungs")
     _verify_arm(cfg, tiers, thetas)
-    return cfg
+    return cfg, dropped
 
 
 #: A cut the fit puts out of reach. Per-field z-score with a tanh squash bounds
@@ -163,14 +195,17 @@ def _verify_arm(cfg: dict, tiers: tuple[rc.RCTier, ...], thetas: dict[str, float
     """Shape invariants a mis-ordered ladder would otherwise pass silently."""
     judge = cfg["checkpoints"]["cp1"]["judge"]
     assert judge["type"] == "threshold", judge
-    cuts = [judge["cp1_threshold"]] + [t["threshold"] for t in judge.get("warm_tiers", [])]
-    if any(b > a for a, b in zip(cuts, cuts[1:])):
-        raise ValueError(f"cuts must be non-increasing down the ladder: {cuts}")
+    cuts = [judge["threshold"]] + [t["threshold"] for t in judge.get("warm_tiers", [])]
+    # The loader demands strictly decreasing, not merely non-increasing: two
+    # rungs at the same cut would make the cheaper one unreachable, and a
+    # ladder whose rungs cannot all fire is not the ladder that was priced.
+    if any(b >= a for a, b in zip(cuts, cuts[1:])):
+        raise ValueError(f"cuts must strictly decrease down the ladder: {cuts}")
     gate = cfg["checkpoints"]["cp1"]["gate"]
     assert gate["type"] == "score_hysteresis", gate
-    for tier in tiers:
-        if tier.name not in thetas:
-            raise ValueError(f"no cut for rung {tier.name!r}")
+    missing = [t.name for t in tiers if t.name not in thetas]
+    if missing:
+        raise ValueError(f"no cut for rungs {missing}")
 
 
 # ------------------------------------------------------------------
@@ -226,6 +261,41 @@ def fit_ladders(rows: list[dict], cost: rc.StageCost, warm_ts: list[float],
     return fits
 
 
+def per_task_stats(rows: list[dict], warm_ts: list[float], cost: rc.StageCost) -> dict:
+    """Per-task calibration summary: row counts, score quantiles, risk means.
+
+    The deployed ladder in this run is global -- one set of cuts over all
+    thirteen tasks. Tasks differ enormously in how well the cache answers them,
+    so a per-task ladder is a live alternative; recording the per-task view now
+    means that variant can be fitted from the same shadow rows instead of
+    costing another calibration pass.
+    """
+    y_keys = [t.y_key for t in rc.ladder(cost, warm_ts)]
+    by_task: dict[str, list[dict]] = {}
+    for r in rows:
+        by_task.setdefault(r.get("task", ""), []).append(r)
+    out = {}
+    for task, rs in sorted(by_task.items()):
+        s = np.array([float(r["s"]) for r in rs
+                      if r.get("s") is not None and math.isfinite(float(r["s"]))])
+        entry = {"n_rows": len(rs), "n_scored": int(s.size)}
+        if s.size:
+            entry["score_quantiles"] = {
+                str(q): float(np.quantile(s, q)) for q in (0.0, 0.05, 0.15, 0.5, 0.85, 0.95, 1.0)
+            }
+            entry["gate_theta_if_per_task"] = float(
+                derive_thresholds(s.tolist(), THETA_TOP_FRACTION, 0.0)[0]
+            )
+        for key in y_keys:
+            vals = np.array([float(r[key]) for r in rs
+                             if r.get(key) is not None and math.isfinite(float(r[key]))])
+            if vals.size:
+                entry[key] = {"n": int(vals.size), "mean": float(vals.mean()),
+                              "q95": float(np.quantile(vals, 0.95))}
+        out[task] = entry
+    return out
+
+
 def emit_arms(out_dir: Path, teacher: str, calib: dict, spec: dict, weight_cid: str,
               fits: dict, cost: rc.StageCost, targets: list[float],
               gate_theta: float, schedule: DenoiseSchedule) -> dict:
@@ -239,9 +309,10 @@ def emit_arms(out_dir: Path, teacher: str, calib: dict, spec: dict, weight_cid: 
                                                     "ir_range": [lo, hi]}
                 continue
             sol = rc.delta_for_ir(blob["fit"], blob["s"], target, cost)
-            cfg = build_arm_cell(teacher, calib, spec, weight_cid, tiers=blob["tiers"],
-                                 thetas=sol["thetas"], gate_theta=gate_theta,
-                                 schedule=schedule)
+            cfg, dropped = build_arm_cell(
+                teacher, calib, spec, weight_cid, tiers=blob["tiers"],
+                thetas=sol["thetas"], gate_theta=gate_theta, schedule=schedule,
+            )
             cid = f"k{k}__ir{target:05.1f}"
             path = out_dir / f"{cid}.yaml"
             path.write_text(yaml.safe_dump(cfg, sort_keys=False))
@@ -254,7 +325,8 @@ def emit_arms(out_dir: Path, teacher: str, calib: dict, spec: dict, weight_cid: 
                           # Whether each cut is carried by data or is resting on
                           # the LP's strict-monotonicity floor: a cut on the floor
                           # is an artefact of invertibility, not evidence.
-                          "floor": floor_info(blob["fit"], blob["s"], sol["delta"])}
+                          "floor": floor_info(blob["fit"], blob["s"], sol["delta"]),
+                          "dropped_rungs": dropped}
     # The all-FULL_HIT reference: the cheapest point the ladder can ever reach.
     cfg = build_calibration_cell(teacher, calib, spec, weight_cid)
     cfg["checkpoints"]["cp1"]["gate"] = gate_section(LAYER_SECONDARY, float(gate_theta))
@@ -361,6 +433,7 @@ def main() -> None:
     targets = rc.common_grid(ranges, args.n_targets)
     all_s = [float(r["s"]) for r in rows if r.get("s") is not None and math.isfinite(float(r["s"]))]
     gate_theta = float(derive_thresholds(all_s, THETA_TOP_FRACTION, 0.0)[0])
+    per_task = per_task_stats(rows, WARM_TS[teacher], cost)
     index = emit_arms(Path(args.out_dir), teacher, calib, spec, weight_cid, fits, cost,
                       targets, gate_theta, schedule_of(teacher))
     record = {
@@ -368,6 +441,11 @@ def main() -> None:
         "alpha": args.alpha, "targets_ir": targets,
         "gate": {"theta": gate_theta, "top_fraction": THETA_TOP_FRACTION,
                  "n_scores": len(all_s)},
+        # Kept so a per-task variant of the ladder needs no second calibration
+        # pass: the shadow rows already carry the task, and these are the
+        # summaries a per-task cut would be derived from. This run deploys ONE
+        # ladder over all tasks; the per-task theta here is recorded, not used.
+        "per_task": per_task,
         "cost": {"stage1_ms": cost.stage1_ms, "stage2_ms": cost.stage2_ms,
                  "stage3_head_ms": cost.stage3_head_ms, "stage3_step_ms": cost.stage3_step_ms,
                  "miss_ms": rc.miss_cost(cost), "provenance": cost.provenance},
