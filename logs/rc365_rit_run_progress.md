@@ -13,7 +13,7 @@
 | 帕累托 | 按 **IR 网格**寻址（不是 delta），**6 个点**，四条线取可达区间交集铺公共网格 |
 | 部署/报告 | 用**预测**切点发 yaml，用**实测** IR + SR 出图 |
 | 标定 | 评测段 `base_seed=1,000,000`，每任务 10 集共 130；owner 裁定不涉及污染问题 |
-| 评测 | 每任务 20 集、每 cell 260 集；14 cell/teacher（12 RIT + always_hit + teacher 地板） |
+| 评测 | **每任务 50 集、每个点 650 集**；13 arm/teacher（12 RIT + always_hit），teacher 地板由标定跑充当 |
 | 拓扑 | server 只在 weilandserver：GR00T 5 进程 23160-23164；pi0.5 一端口 23170 `--replicas 4`。worker 只在 timan107，30 个 |
 | 顺序 | **先 GR00T，全跑完再 pi0.5** |
 
@@ -25,7 +25,7 @@ P0b 成本权威      [##########]  DONE   rit_cost_rc.py：按 schedule 方向�
 P0c RIT 链路移植  [##########]  DONE   shadow 单集冒烟通过（s/winner/三档 y 齐全）
 P1a GR00T 标定    [##########]  DONE   130/130 集，13 任务各 10；teacher 地板臂 macro SR 0.7462
 P1b GR00T 拟合发射[##########]  DONE   shadow 12,817 行/13 任务/130 集；13 个 arm 已发
-P1c GR00T 主跑    [>.........]  server 启动中
+P1c GR00T 主跑    [##........]  pnp lane 在跑（3,250 集）；main lane 待从 20 续补到 50
 P2  pi0.5 全流程  [..........]  待 P1
 P3  四线帕累托图  [..........]  待 P2
 ```
@@ -215,3 +215,34 @@ pi0.5 主跑同样用现成的 `serve_policy --cache_config` + 动态 bundle。
 ### 逐任务 θ（若按任务各自切，仅记录不启用）
 差异极大：SlideDishwasherRack **0.812** ↔ PickPlaceSinkToCounter **0.995**，全局单一 θ 是 0.963。
 ⇒ owner 提的 per-task threshold 变体有很强的动机，原料在 `shadow_all.jsonl` 里，不需重采。
+
+
+## 12. 评测预算更正（owner 2026-09-08 17:00）
+
+正式口径是**每任务 50 集、每个点 650 集**（13 任务 × 50），不是我先前按的 20 集/任务。
+per teacher = 13 点 × 650 = **8,450 集**（main lane 5,200 + pnp lane 3,250）。
+
+已按 20 集/任务跑完的那轮**保留为试跑**（`data/rit/groot_tp/main_pilot20/`，2,080 集），
+它的价值是把信噪比问题量化出来了：
+
+- IR=100 的两个 arm 实测 **99.96% / 99.76% 全 MISS**，即纯推理臂，macro SR 0.5687 / 0.5625；
+- 全命中臂 0.6000；这 8 个接触任务的 teacher 地板 0.7000。
+  ⇒ **整条曲线的 y 动态范围只有约 0.10**。
+- 20 集/任务时 macro SE ≈ 0.039，arm 间差别小于 ~0.11（3σ）分辨不出来，
+  而实测跨度只有 0.15 ⇒ 曲线在噪声带里随机游走，这就是「为什么还会下跌」。
+- 同一批 seed（episode 0-9）下，标定跑的纯 teacher 0.7000 vs IR=100 arm 0.6125 ——
+  **同配置的可复现精度本身约 ±0.09**（n=10/任务）。
+
+50 集/任务把 macro SE 降到 ≈ 0.019（13 任务），是能让曲线读出趋势的最低预算。
+
+⚠ 排除项：H-gate 不是原因。`score_hysteresis` 关闭时那一步**跑全量推理**、不复用动作，
+`L=6` 还会在连续 6 次 FULL_HIT 后强制插一次新推理；它只省检索、不改执行。
+
+### 续补口径
+main lane 的 uid（`rit-<cid>__l1s1_groot_tp__<Task>:eval:<ord>:<idx>`）在 20 集与 50 集两轮**完全一致**
+（同任务表、同顺序），所以把试跑的 journal 带进新目录即可让 driver 的 resume 丢弃已完成 uid、
+只跑 20-49，补 3,120 集而不是重跑 5,200 集。⚠ **run plan 不能带过去**：它按 episodes 入哈希，
+20 与 50 是两个 plan_hash，带过去会被拒绝续跑。
+
+⚠ 另一个踩到的坑：两条 lane 共用 `--data-dir` 时 run plan 按 cell id 命名而不含 lane，
+第二条 lane 一启动就撞 plan_hash。已改成每 lane 一个数据目录。

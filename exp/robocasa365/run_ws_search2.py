@@ -632,8 +632,21 @@ def main() -> None:
         # Gated on the immutable full cell list, not on `ordered_cells`: a
         # --only resume legitimately dispatches a subset, but the experiment's
         # shape must still be the frozen one.
+        # PNP_CACHE_ARM freezes the ws2 pinned round's own design (132 cells x
+        # 8 episodes). A tree emitted elsewhere carries a different design and
+        # its own freeze record, so the gate is pointed at THAT design instead
+        # of being switched off: the roster order still has to be the frozen
+        # one (it is what task_id is cut from), and the cell count and budget
+        # still have to match what the run declares.
+        arm = PNP_CACHE_ARM
+        if args.index_provenance:
+            arm = {
+                "episodes_per_task": args.episodes,
+                "cells": len(all_cells),
+                "total": len(all_cells) * args.episodes * len(tasks),
+            }
         assert_pnp_eval_identity(
-            tasks, cells=len(all_cells), arm=PNP_CACHE_ARM,
+            tasks, cells=len(all_cells), arm=arm,
             label="run_ws_search2 (cache arm)",
         )
     cell_strategies: dict[str, WsSearchStrategy] = {}
@@ -675,9 +688,11 @@ def main() -> None:
                 "uids": list(run_plan["uids"]),
             }
         if pin_path:
+            # Same substitution as the eval-shape gate above: a tree with its
+            # own freeze record is checked against its own declared design.
             assert_pnp_run_plan_identity(
                 run_plans,
-                arm=PNP_CACHE_ARM,
+                arm=arm,
                 pin_id=pin_id,
                 label="run_ws_search2 (cache arm)",
             )

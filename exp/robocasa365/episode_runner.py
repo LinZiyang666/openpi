@@ -554,6 +554,12 @@ class RobocasaEpisodeRunner(EpisodeRunner):
                                 "yaml_id": task.yaml_id,
                                 "step_idx": step,
                                 "hit_type": meta.get("hit_type"),
+                                # Which rung of a warm ladder fired. Two rungs
+                                # of one ladder are different costs, so without
+                                # this a k>2 arm cannot be priced from its own
+                                # evidence -- only reconstructed from the score
+                                # against the cuts it was emitted with.
+                                "start_t": meta.get("start_t"),
                                 "winner_id": meta.get("winner_id"),
                                 "cp1_score": meta.get("cp1_score"),
                                 "searched": meta.get("searched"),
