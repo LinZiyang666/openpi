@@ -1,0 +1,1517 @@
+{
+  "arms": {
+    "sp_anchor_cache": {
+      "note": "every step FULL_HIT (pure cache)",
+      "rule": "anchor",
+      "sha256": "1716749a3f1e068ca9a4650ee3d4e2b956e25675c640e8e042705e6fc1ee47dd",
+      "threshold": -1.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_anchor_cache.yaml"
+    },
+    "sp_anchor_teacher": {
+      "note": "every step MISS (pure teacher)",
+      "rule": "anchor",
+      "sha256": "fb4f9e325b49479f1c4cae7adf05c42ad7c4d9361533eec15baaf9258831aebb",
+      "threshold": 2.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_anchor_teacher.yaml"
+    },
+    "sp_gst_f00w00v20": {
+      "cell": [
+        0,
+        0,
+        20
+      ],
+      "cuts": [
+        null,
+        null,
+        0.9922504425048828
+      ],
+      "dropped_rungs": [
+        "warm75"
+      ],
+      "rule": "gst",
+      "sha256": "6d868a96ec513ad022e3025e30614c356dc72678a350c8c217935f5815f3102c",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w00v20.yaml"
+    },
+    "sp_gst_f00w00v40": {
+      "cell": [
+        0,
+        0,
+        40
+      ],
+      "cuts": [
+        null,
+        null,
+        0.9908960461616516
+      ],
+      "dropped_rungs": [
+        "warm75"
+      ],
+      "rule": "gst",
+      "sha256": "5b5ef48f87e72adc9f48081187d8c83122d02442d619dd3fd038c8b3beb9c2b5",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w00v40.yaml"
+    },
+    "sp_gst_f00w00v60": {
+      "cell": [
+        0,
+        0,
+        60
+      ],
+      "cuts": [
+        null,
+        null,
+        0.9894858598709106
+      ],
+      "dropped_rungs": [
+        "warm75"
+      ],
+      "rule": "gst",
+      "sha256": "3b8304a1c512ace6dc77c723e1eb5a1c2cf227ea4c82e439f646d2473136897a",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w00v60.yaml"
+    },
+    "sp_gst_f00w00v80": {
+      "cell": [
+        0,
+        0,
+        80
+      ],
+      "cuts": [
+        null,
+        null,
+        0.9866477251052856
+      ],
+      "dropped_rungs": [
+        "warm75"
+      ],
+      "rule": "gst",
+      "sha256": "4594598a6d7c446c222bc3cc746a1ac8bab4ac3bc63223d447ad861fbc05bc4b",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w00v80.yaml"
+    },
+    "sp_gst_f00w20v00": {
+      "cell": [
+        0,
+        20,
+        0
+      ],
+      "cuts": [
+        null,
+        0.9922504425048828,
+        null
+      ],
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "2dfbf647dded828f81bb30cbf0268538397d9141179a44a10181acbe068d48b3",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w20v00.yaml"
+    },
+    "sp_gst_f00w20v20": {
+      "cell": [
+        0,
+        20,
+        20
+      ],
+      "cuts": [
+        null,
+        0.9922504425048828,
+        0.9908960461616516
+      ],
+      "dropped_rungs": [],
+      "rule": "gst",
+      "sha256": "a7dd303e252d9cab50b710e84c7a84b059a0a74cd30a1da12887bdc666954dba",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w20v20.yaml"
+    },
+    "sp_gst_f00w20v40": {
+      "cell": [
+        0,
+        20,
+        40
+      ],
+      "cuts": [
+        null,
+        0.9922504425048828,
+        0.9894858598709106
+      ],
+      "dropped_rungs": [],
+      "rule": "gst",
+      "sha256": "721d65bef99aa532c7ee02c4393abcbfaed75cb0d884cafb4e66a13fe5ef3c56",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w20v40.yaml"
+    },
+    "sp_gst_f00w20v60": {
+      "cell": [
+        0,
+        20,
+        60
+      ],
+      "cuts": [
+        null,
+        0.9922504425048828,
+        0.9866477251052856
+      ],
+      "dropped_rungs": [],
+      "rule": "gst",
+      "sha256": "a5a2e7241d2a525e8f0ed59ba36b310863bc1ae40696737510131b91aa864cc8",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w20v60.yaml"
+    },
+    "sp_gst_f00w40v00": {
+      "cell": [
+        0,
+        40,
+        0
+      ],
+      "cuts": [
+        null,
+        0.9908960461616516,
+        null
+      ],
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "0b933bdcaf7979d1873db2260671ca08b953fa4ffeed39137c13d809d0960532",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w40v00.yaml"
+    },
+    "sp_gst_f00w40v20": {
+      "cell": [
+        0,
+        40,
+        20
+      ],
+      "cuts": [
+        null,
+        0.9908960461616516,
+        0.9894858598709106
+      ],
+      "dropped_rungs": [],
+      "rule": "gst",
+      "sha256": "05fe89a9969fb0aef7ea7038ba582e2901678821aee8b14e5001dc2e5576e8fc",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w40v20.yaml"
+    },
+    "sp_gst_f00w40v40": {
+      "cell": [
+        0,
+        40,
+        40
+      ],
+      "cuts": [
+        null,
+        0.9908960461616516,
+        0.9866477251052856
+      ],
+      "dropped_rungs": [],
+      "rule": "gst",
+      "sha256": "71df9193efcb6fa263baedcd69404e234c881a18b9be0f7e08493ef93ac0e5e0",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w40v40.yaml"
+    },
+    "sp_gst_f00w60v00": {
+      "cell": [
+        0,
+        60,
+        0
+      ],
+      "cuts": [
+        null,
+        0.9894858598709106,
+        null
+      ],
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "1313a815292f53c4a3a00bc41c783181ee59680ca51c2d09eccb59ae5d1ec56d",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w60v00.yaml"
+    },
+    "sp_gst_f00w60v20": {
+      "cell": [
+        0,
+        60,
+        20
+      ],
+      "cuts": [
+        null,
+        0.9894858598709106,
+        0.9866477251052856
+      ],
+      "dropped_rungs": [],
+      "rule": "gst",
+      "sha256": "8e6c8ac253e0813c9f047c1b6c80ccc6656f88c87316b927ac382fd4dbdb21fa",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w60v20.yaml"
+    },
+    "sp_gst_f00w80v00": {
+      "cell": [
+        0,
+        80,
+        0
+      ],
+      "cuts": [
+        null,
+        0.9866477251052856,
+        null
+      ],
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "365ea49f6ebef036d62e8ca379eb26fc8a8f611e6002e47e958ab4c0bf3a798f",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f00w80v00.yaml"
+    },
+    "sp_gst_f20w00v00": {
+      "cell": [
+        20,
+        0,
+        0
+      ],
+      "cuts": [
+        0.9922504425048828,
+        null,
+        null
+      ],
+      "dropped_rungs": [
+        "warm75",
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "d88b80366490d612a695cd0b498cb717dacd7ca39e6dc78870cef2d17d0a9577",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f20w00v00.yaml"
+    },
+    "sp_gst_f20w00v20": {
+      "cell": [
+        20,
+        0,
+        20
+      ],
+      "cuts": [
+        0.9922504425048828,
+        null,
+        0.9908960461616516
+      ],
+      "dropped_rungs": [
+        "warm75"
+      ],
+      "rule": "gst",
+      "sha256": "9a7b1c5488832cde7e33d1990a258e63c856a2fa6bec1b0edbbbdef5eb13c09d",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f20w00v20.yaml"
+    },
+    "sp_gst_f20w00v40": {
+      "cell": [
+        20,
+        0,
+        40
+      ],
+      "cuts": [
+        0.9922504425048828,
+        null,
+        0.9894858598709106
+      ],
+      "dropped_rungs": [
+        "warm75"
+      ],
+      "rule": "gst",
+      "sha256": "01d8034880a9da84a900f0c7b97b692d66911e85e2bc7c181f6412108ab1e713",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f20w00v40.yaml"
+    },
+    "sp_gst_f20w00v60": {
+      "cell": [
+        20,
+        0,
+        60
+      ],
+      "cuts": [
+        0.9922504425048828,
+        null,
+        0.9866477251052856
+      ],
+      "dropped_rungs": [
+        "warm75"
+      ],
+      "rule": "gst",
+      "sha256": "18b2185f6573d7536cf89afe382947ce60b1480ab259787865943f9ce896dd0f",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f20w00v60.yaml"
+    },
+    "sp_gst_f20w20v00": {
+      "cell": [
+        20,
+        20,
+        0
+      ],
+      "cuts": [
+        0.9922504425048828,
+        0.9908960461616516,
+        null
+      ],
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "3e41ab17a15e95b011dddca0ac9b9616a5ec67b445758f988ae93ef6a9291ab9",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f20w20v00.yaml"
+    },
+    "sp_gst_f20w20v20": {
+      "cell": [
+        20,
+        20,
+        20
+      ],
+      "cuts": [
+        0.9922504425048828,
+        0.9908960461616516,
+        0.9894858598709106
+      ],
+      "dropped_rungs": [],
+      "rule": "gst",
+      "sha256": "0c66b8125a2dcb7521f3279dd11b01e22f22d0ab0f5ca3897865c08ab27d37b7",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f20w20v20.yaml"
+    },
+    "sp_gst_f20w20v40": {
+      "cell": [
+        20,
+        20,
+        40
+      ],
+      "cuts": [
+        0.9922504425048828,
+        0.9908960461616516,
+        0.9866477251052856
+      ],
+      "dropped_rungs": [],
+      "rule": "gst",
+      "sha256": "0640969e6059067494bbf1bafece7e31e3a29bb1a4b68a6228f6cbc1801bc731",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f20w20v40.yaml"
+    },
+    "sp_gst_f20w40v00": {
+      "cell": [
+        20,
+        40,
+        0
+      ],
+      "cuts": [
+        0.9922504425048828,
+        0.9894858598709106,
+        null
+      ],
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "059e8b2c8d0ef5427bbb80ce28ff4bc30119562c592a46b4b2878d3115b019d5",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f20w40v00.yaml"
+    },
+    "sp_gst_f20w40v20": {
+      "cell": [
+        20,
+        40,
+        20
+      ],
+      "cuts": [
+        0.9922504425048828,
+        0.9894858598709106,
+        0.9866477251052856
+      ],
+      "dropped_rungs": [],
+      "rule": "gst",
+      "sha256": "57c4975988c31e74f4c5529bf88ed37fe57d1f02f17a8e15830982d6a8bd54e3",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f20w40v20.yaml"
+    },
+    "sp_gst_f20w60v00": {
+      "cell": [
+        20,
+        60,
+        0
+      ],
+      "cuts": [
+        0.9922504425048828,
+        0.9866477251052856,
+        null
+      ],
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "1896135c659b6a0419c200a79c2373bc095843d7ea2da932e38b96271f073a2b",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f20w60v00.yaml"
+    },
+    "sp_gst_f40w00v00": {
+      "cell": [
+        40,
+        0,
+        0
+      ],
+      "cuts": [
+        0.9908960461616516,
+        null,
+        null
+      ],
+      "dropped_rungs": [
+        "warm75",
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "fbdad332d4f58ee6d93b434c698c57b25500525c57421cf1eb699f50d548deaa",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f40w00v00.yaml"
+    },
+    "sp_gst_f40w00v20": {
+      "cell": [
+        40,
+        0,
+        20
+      ],
+      "cuts": [
+        0.9908960461616516,
+        null,
+        0.9894858598709106
+      ],
+      "dropped_rungs": [
+        "warm75"
+      ],
+      "rule": "gst",
+      "sha256": "5a8786a8a493b424cf4bc96fea33a6008e9cf73c2b8ad95d704b685225d8a05e",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f40w00v20.yaml"
+    },
+    "sp_gst_f40w00v40": {
+      "cell": [
+        40,
+        0,
+        40
+      ],
+      "cuts": [
+        0.9908960461616516,
+        null,
+        0.9866477251052856
+      ],
+      "dropped_rungs": [
+        "warm75"
+      ],
+      "rule": "gst",
+      "sha256": "178456b4154254c0348346f3df6ebca7f46277e97cf510df540e639d427f90b8",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f40w00v40.yaml"
+    },
+    "sp_gst_f40w20v00": {
+      "cell": [
+        40,
+        20,
+        0
+      ],
+      "cuts": [
+        0.9908960461616516,
+        0.9894858598709106,
+        null
+      ],
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "918717ea91e9e5011736341ea5857fa24643e57984069faf7d69b3ddedba9d85",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f40w20v00.yaml"
+    },
+    "sp_gst_f40w20v20": {
+      "cell": [
+        40,
+        20,
+        20
+      ],
+      "cuts": [
+        0.9908960461616516,
+        0.9894858598709106,
+        0.9866477251052856
+      ],
+      "dropped_rungs": [],
+      "rule": "gst",
+      "sha256": "3d65be560de26e6f07979b8dafb6fa473bcc60778793a80eb33d2855d492ea7d",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f40w20v20.yaml"
+    },
+    "sp_gst_f40w40v00": {
+      "cell": [
+        40,
+        40,
+        0
+      ],
+      "cuts": [
+        0.9908960461616516,
+        0.9866477251052856,
+        null
+      ],
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "137a14f052df5068fcc493abd5116d276154bea58c60e9f7516ab6034e6f6afe",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f40w40v00.yaml"
+    },
+    "sp_gst_f60w00v00": {
+      "cell": [
+        60,
+        0,
+        0
+      ],
+      "cuts": [
+        0.9894858598709106,
+        null,
+        null
+      ],
+      "dropped_rungs": [
+        "warm75",
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "68db5816999caacc1d5ff99c7b101671442f17d48227d79ff20f85ab0128f01d",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f60w00v00.yaml"
+    },
+    "sp_gst_f60w00v20": {
+      "cell": [
+        60,
+        0,
+        20
+      ],
+      "cuts": [
+        0.9894858598709106,
+        null,
+        0.9866477251052856
+      ],
+      "dropped_rungs": [
+        "warm75"
+      ],
+      "rule": "gst",
+      "sha256": "a6f079eddef3bebc3c5267268959375d28fa6d32a3149b2a15608fab0bea0f50",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f60w00v20.yaml"
+    },
+    "sp_gst_f60w20v00": {
+      "cell": [
+        60,
+        20,
+        0
+      ],
+      "cuts": [
+        0.9894858598709106,
+        0.9866477251052856,
+        null
+      ],
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "33390d3fc4908bfdb4f1bab5144d9c52e69d5f36f95ef622836e513ed6d84289",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f60w20v00.yaml"
+    },
+    "sp_gst_f80w00v00": {
+      "cell": [
+        80,
+        0,
+        0
+      ],
+      "cuts": [
+        0.9866477251052856,
+        null,
+        null
+      ],
+      "dropped_rungs": [
+        "warm75",
+        "warm50"
+      ],
+      "rule": "gst",
+      "sha256": "f041160f9bd4f865a1f0aed41c677d933ae13602d628a431a2e1e6cf0d6057d5",
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_gst_f80w00v00.yaml"
+    },
+    "sp_rit_k1_ir20": {
+      "cuts": [
+        0.8924213953180445
+      ],
+      "delta": 8.608618634023655,
+      "dropped_rungs": [],
+      "ir_gap": 0.013880043703721867,
+      "k": 1,
+      "predicted_ir": 20.013880043703722,
+      "rule": "rit",
+      "sha256": "6151a846fd5bad7da6eeacc177b91505adddc626462e1360c6292ac6390f2067",
+      "target_ir": 20.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir20.yaml"
+    },
+    "sp_rit_k1_ir25": {
+      "cuts": [
+        0.978341957098858
+      ],
+      "delta": 8.379675039778867,
+      "dropped_rungs": [],
+      "ir_gap": -0.014140260763074508,
+      "k": 1,
+      "predicted_ir": 24.985859739236925,
+      "rule": "rit",
+      "sha256": "8c50de9a050f1bc0cef398f50f857fcfcdee857ba1104caa6eb24e0c837c58d0",
+      "target_ir": 25.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir25.yaml"
+    },
+    "sp_rit_k1_ir30": {
+      "cuts": [
+        0.9849674713418618
+      ],
+      "delta": 8.04754661507849,
+      "dropped_rungs": [],
+      "ir_gap": -0.01802474146514399,
+      "k": 1,
+      "predicted_ir": 29.981975258534856,
+      "rule": "rit",
+      "sha256": "1ee9b3e92d467859188fec215acf285e37a77052fe554bb5f8c2e7ea63fba401",
+      "target_ir": 30.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir30.yaml"
+    },
+    "sp_rit_k1_ir35": {
+      "cuts": [
+        0.9869898068661361
+      ],
+      "delta": 8.047474914795808,
+      "dropped_rungs": [],
+      "ir_gap": 0.0022266015974992115,
+      "k": 1,
+      "predicted_ir": 35.0022266015975,
+      "rule": "rit",
+      "sha256": "c3064602bf1d46b84a32e28d43341ec632f8f6b1c80224257f1b7f0528982c8a",
+      "target_ir": 35.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir35.yaml"
+    },
+    "sp_rit_k1_ir40": {
+      "cuts": [
+        0.988079620453092
+      ],
+      "delta": 7.984720213688336,
+      "dropped_rungs": [],
+      "ir_gap": -0.0016578791045631647,
+      "k": 1,
+      "predicted_ir": 39.99834212089544,
+      "rule": "rit",
+      "sha256": "9b16f57f7ad4ef4a27beac2044162d3c3c377806e15fcd402a621b8581f5cf5e",
+      "target_ir": 40.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir40.yaml"
+    },
+    "sp_rit_k1_ir45": {
+      "cuts": [
+        0.9888488413045476
+      ],
+      "delta": 7.958679236143906,
+      "dropped_rungs": [],
+      "ir_gap": 0.01859346395808359,
+      "k": 1,
+      "predicted_ir": 45.018593463958084,
+      "rule": "rit",
+      "sha256": "be09c5f0b95e409e7f5235b99bc423c0624d52bd88a12b49297c28f70f30ec30",
+      "target_ir": 45.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir45.yaml"
+    },
+    "sp_rit_k1_ir50": {
+      "cuts": [
+        0.9894593625561113
+      ],
+      "delta": 7.949666281028692,
+      "dropped_rungs": [],
+      "ir_gap": 0.014708983256014108,
+      "k": 1,
+      "predicted_ir": 50.014708983256014,
+      "rule": "rit",
+      "sha256": "55a50c734a47f7b048e1c6488cbbd07f1798cb91855fc0fd54c04f1ace9a09fc",
+      "target_ir": 50.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir50.yaml"
+    },
+    "sp_rit_k1_ir55": {
+      "cuts": [
+        0.9899101540953698
+      ],
+      "delta": 7.949650298576518,
+      "dropped_rungs": [],
+      "ir_gap": 0.03496032631866797,
+      "k": 1,
+      "predicted_ir": 55.03496032631867,
+      "rule": "rit",
+      "sha256": "622aea2fed5e7e5542065ef3b5c0328de1f12e132280af0a5951475ef5dba796",
+      "target_ir": 55.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir55.yaml"
+    },
+    "sp_rit_k1_ir60": {
+      "cuts": [
+        0.9903684173176153
+      ],
+      "delta": 7.949634051221821,
+      "dropped_rungs": [],
+      "ir_gap": -0.017195801912869513,
+      "k": 1,
+      "predicted_ir": 59.98280419808713,
+      "rule": "rit",
+      "sha256": "5038a2ffb8c77bb8187a0f3bdfac3368965c13b2a8889a46f2d324d5e90b9bfc",
+      "target_ir": 60.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir60.yaml"
+    },
+    "sp_rit_k1_ir65": {
+      "cuts": [
+        0.9907434710746305
+      ],
+      "delta": 7.744564531889699,
+      "dropped_rungs": [],
+      "ir_gap": 0.003055541149791452,
+      "k": 1,
+      "predicted_ir": 65.00305554114979,
+      "rule": "rit",
+      "sha256": "9670b48e7b5e5bd5e0025fbf995679eb521f7f3d75c9ae261dbe5a0a1148b4f4",
+      "target_ir": 65.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir65.yaml"
+    },
+    "sp_rit_k1_ir70": {
+      "cuts": [
+        0.9911529373832807
+      ],
+      "delta": 7.708783750859499,
+      "dropped_rungs": [],
+      "ir_gap": 0.0233068842124311,
+      "k": 1,
+      "predicted_ir": 70.02330688421243,
+      "rule": "rit",
+      "sha256": "6937d70e48b421111d80f445f937aecf8c1fc4f478a0ddf66d8598079411b663",
+      "target_ir": 70.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir70.yaml"
+    },
+    "sp_rit_k1_ir75": {
+      "cuts": [
+        0.9915296347323951
+      ],
+      "delta": 7.708770395357338,
+      "dropped_rungs": [],
+      "ir_gap": -0.004713420254347511,
+      "k": 1,
+      "predicted_ir": 74.99528657974565,
+      "rule": "rit",
+      "sha256": "1c6b563ab61ab5a0328c29b7397bd1d5bc644a7e05c7b0d27c1c51faad22af1d",
+      "target_ir": 75.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir75.yaml"
+    },
+    "sp_rit_k1_ir80": {
+      "cuts": [
+        0.9919661055461012
+      ],
+      "delta": 7.708754920634998,
+      "dropped_rungs": [],
+      "ir_gap": -0.008597900956431204,
+      "k": 1,
+      "predicted_ir": 79.99140209904357,
+      "rule": "rit",
+      "sha256": "1f69df3d5627689f23fd3df7d563e49ab8ce8bce1cfbc9bf1786ba35c890db64",
+      "target_ir": 80.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir80.yaml"
+    },
+    "sp_rit_k1_ir85": {
+      "cuts": [
+        0.9923695764268385
+      ],
+      "delta": 7.708740615898799,
+      "dropped_rungs": [],
+      "ir_gap": 0.011653442106222656,
+      "k": 1,
+      "predicted_ir": 85.01165344210622,
+      "rule": "rit",
+      "sha256": "2866fb602f3e29c1661539db6cccc79ceb6d00d389acf0650c895a18b2912800",
+      "target_ir": 85.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir85.yaml"
+    },
+    "sp_rit_k1_ir90": {
+      "cuts": [
+        0.9928004434782832
+      ],
+      "delta": 7.70872533985335,
+      "dropped_rungs": [],
+      "ir_gap": -0.016366862360570167,
+      "k": 1,
+      "predicted_ir": 89.98363313763943,
+      "rule": "rit",
+      "sha256": "eff32c04c154dfdb62d9a1b58689c7682f266fdd4376af0bd508266aa9601ff7",
+      "target_ir": 90.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir90.yaml"
+    },
+    "sp_rit_k1_ir95": {
+      "cuts": [
+        0.9933682913840397
+      ],
+      "delta": 7.708705207261663,
+      "dropped_rungs": [],
+      "ir_gap": 0.028020304466792822,
+      "k": 1,
+      "predicted_ir": 95.02802030446679,
+      "rule": "rit",
+      "sha256": "a25bbc258dffc28df33b84d832266756d56dc49bba1de1711d913ce586ad0363",
+      "target_ir": 95.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k1_ir95.yaml"
+    },
+    "sp_rit_k2_ir20": {
+      "cuts": [
+        0.9647925017916449,
+        0.430431991815567
+      ],
+      "delta": 8.597765107757045,
+      "dropped_rungs": [],
+      "ir_gap": 0.031760121328769486,
+      "k": 2,
+      "predicted_ir": 20.03176012132877,
+      "rule": "rit",
+      "sha256": "d6e7c89763e6c7563180ea5bdd26921fd202fa6e9890adf7bc591443ba5716f8",
+      "target_ir": 20.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir20.yaml"
+    },
+    "sp_rit_k2_ir25": {
+      "cuts": [
+        0.9858203131432912,
+        0.430431991815567
+      ],
+      "delta": 8.047516378257003,
+      "dropped_rungs": [],
+      "ir_gap": -0.018036391817798147,
+      "k": 2,
+      "predicted_ir": 24.981963608182202,
+      "rule": "rit",
+      "sha256": "0d52159d28fe5404efb3f94e956f40f8885f8dac143621ee7ab8a6a8da396e34",
+      "target_ir": 25.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir25.yaml"
+    },
+    "sp_rit_k2_ir30": {
+      "cuts": [
+        0.9882037116966081,
+        0.430431991815567
+      ],
+      "delta": 7.964619685137805,
+      "dropped_rungs": [],
+      "ir_gap": 0.010328202722792668,
+      "k": 2,
+      "predicted_ir": 30.010328202722793,
+      "rule": "rit",
+      "sha256": "815c63d956fdd80a97f6a62db9a3b8663d400e44356b861406c1e471ff2cec7d",
+      "target_ir": 30.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir30.yaml"
+    },
+    "sp_rit_k2_ir35": {
+      "cuts": [
+        0.9894737236043907,
+        0.430431991815567
+      ],
+      "delta": 7.949665771869244,
+      "dropped_rungs": [],
+      "ir_gap": -0.00038775658019574166,
+      "k": 2,
+      "predicted_ir": 34.999612243419804,
+      "rule": "rit",
+      "sha256": "1b1d4365614f93dd827673bc160d44a3a313ce8cd189e498ebd49cfccb8fffb1",
+      "target_ir": 35.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir35.yaml"
+    },
+    "sp_rit_k2_ir40": {
+      "cuts": [
+        0.9903169224349829,
+        0.430431991815567
+      ],
+      "delta": 7.949635876931541,
+      "dropped_rungs": [],
+      "ir_gap": -0.011103715883180598,
+      "k": 2,
+      "predicted_ir": 39.98889628411682,
+      "rule": "rit",
+      "sha256": "e84d2c24ceb4f6d46483d2a48bfb9ff20191fb5a3f6ff152c735cf4c1db5a495",
+      "target_ir": 40.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir40.yaml"
+    },
+    "sp_rit_k2_ir45": {
+      "cuts": [
+        0.9910297917248833,
+        0.430431991815567
+      ],
+      "delta": 7.708788116889959,
+      "dropped_rungs": [],
+      "ir_gap": -0.008792823904983038,
+      "k": 2,
+      "predicted_ir": 44.99120717609502,
+      "rule": "rit",
+      "sha256": "891870e0cea530ac369232c7c3cf8ed062745c28a347d411e5d6c9e0720bf1b8",
+      "target_ir": 45.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir45.yaml"
+    },
+    "sp_rit_k2_ir50": {
+      "cuts": [
+        0.9917669595647112,
+        0.430431991815567
+      ],
+      "delta": 7.708761981195922,
+      "dropped_rungs": [],
+      "ir_gap": -0.03253563448916452,
+      "k": 2,
+      "predicted_ir": 49.967464365510835,
+      "rule": "rit",
+      "sha256": "426a826f4031dd3bae655f9bb459eb684e0dd30433a2834b7edaec66b0cc8811",
+      "target_ir": 50.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir50.yaml"
+    },
+    "sp_rit_k2_ir55": {
+      "cuts": [
+        0.9925748147319595,
+        0.430431991815567
+      ],
+      "delta": 7.708733339339441,
+      "dropped_rungs": [],
+      "ir_gap": -0.01719789122976323,
+      "k": 2,
+      "predicted_ir": 54.98280210877024,
+      "rule": "rit",
+      "sha256": "fa31c7e42b7557d9b25935293a3b2e9d40e8cfc7b9f8328489d1d3fdea1442ee",
+      "target_ir": 55.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir55.yaml"
+    },
+    "sp_rit_k2_ir60": {
+      "cuts": [
+        0.9935442409323364,
+        0.430431991815567
+      ],
+      "delta": 7.708698969111664,
+      "dropped_rungs": [],
+      "ir_gap": 0.011166703310834691,
+      "k": 2,
+      "predicted_ir": 60.011166703310835,
+      "rule": "rit",
+      "sha256": "d7b18c296b6f270f98e8ba5ef6bec76de3ddeb75510287c85386472a18feeba0",
+      "target_ir": 60.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir60.yaml"
+    },
+    "sp_rit_k2_ir65": {
+      "cuts": [
+        null,
+        0.9749884555357515
+      ],
+      "delta": 7.649398869454073,
+      "dropped_rungs": [],
+      "ir_gap": 0.006736676877210357,
+      "k": 2,
+      "predicted_ir": 65.00673667687721,
+      "rule": "rit",
+      "sha256": "406d2607cb72ad25bd5b95984c3476494ee98535b4d05fa24386449770b16943",
+      "target_ir": 65.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir65.yaml"
+    },
+    "sp_rit_k2_ir70": {
+      "cuts": [
+        null,
+        0.9869528121709578
+      ],
+      "delta": 7.590693804364866,
+      "dropped_rungs": [],
+      "ir_gap": 0.005774294466178276,
+      "k": 2,
+      "predicted_ir": 70.00577429446618,
+      "rule": "rit",
+      "sha256": "e28e205acb03feff0bf18dc3100a21ba7c3532be3a1a65b8083e8eb0a29bd04e",
+      "target_ir": 70.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir70.yaml"
+    },
+    "sp_rit_k2_ir75": {
+      "cuts": [
+        null,
+        0.9889522537093455
+      ],
+      "delta": 7.590622915770076,
+      "dropped_rungs": [],
+      "ir_gap": -0.006297060428380519,
+      "k": 2,
+      "predicted_ir": 74.99370293957162,
+      "rule": "rit",
+      "sha256": "60676716a1b7e1c5a51addeb3a963b42b81a83d7833fd6da5fd7119cee5aa44b",
+      "target_ir": 75.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir75.yaml"
+    },
+    "sp_rit_k2_ir80": {
+      "cuts": [
+        null,
+        0.990052956374397
+      ],
+      "delta": 7.590583891240621,
+      "dropped_rungs": [],
+      "ir_gap": 0.0038495296441283244,
+      "k": 2,
+      "predicted_ir": 80.00384952964413,
+      "rule": "rit",
+      "sha256": "a0f5991d863417ac6d43afa1cdb5bb7620cb88f0b9cb4e377caff091987f6ac3",
+      "target_ir": 80.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir80.yaml"
+    },
+    "sp_rit_k2_ir85": {
+      "cuts": [
+        null,
+        0.9909269547705212
+      ],
+      "delta": 7.559237348450153,
+      "dropped_rungs": [],
+      "ir_gap": -0.019330797733942973,
+      "k": 2,
+      "predicted_ir": 84.98066920226606,
+      "rule": "rit",
+      "sha256": "5e149a0903b14c8c5ecf731e8831001a9fb421535eba3a151f1379cadec2de5b",
+      "target_ir": 85.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir85.yaml"
+    },
+    "sp_rit_k2_ir90": {
+      "cuts": [
+        null,
+        0.9918034852831528
+      ],
+      "delta": 7.547033590438545,
+      "dropped_rungs": [],
+      "ir_gap": -0.009184207661462551,
+      "k": 2,
+      "predicted_ir": 89.99081579233854,
+      "rule": "rit",
+      "sha256": "eaae7422c674ef11be38e7fe71766294fa97570ec14f2f1124723c602c02da45",
+      "target_ir": 90.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir90.yaml"
+    },
+    "sp_rit_k2_ir95": {
+      "cuts": [
+        null,
+        0.9927274696301761
+      ],
+      "delta": 7.547000831315196,
+      "dropped_rungs": [],
+      "ir_gap": 0.0009623824110320811,
+      "k": 2,
+      "predicted_ir": 95.00096238241103,
+      "rule": "rit",
+      "sha256": "5b1a0e0f0e07f63cd63a89f07a606eb8e46176bdbf53436ed848d1bee6ba67f6",
+      "target_ir": 95.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k2_ir95.yaml"
+    },
+    "sp_rit_k3_ir20": {
+      "cuts": [
+        0.9639960824423464,
+        0.430431991815567,
+        0.430431991815567
+      ],
+      "delta": 8.59779334416579,
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "ir_gap": -0.007320432514809738,
+      "k": 3,
+      "predicted_ir": 19.99267956748519,
+      "rule": "rit",
+      "sha256": "f1761c686c1ad662692590c9a1c9aab3a9473f4f0130015cf47405eccf52432a",
+      "target_ir": 20.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir20.yaml"
+    },
+    "sp_rit_k3_ir25": {
+      "cuts": [
+        0.9858220406940637,
+        0.430431991815567,
+        0.430431991815567
+      ],
+      "delta": 8.047516317008078,
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "ir_gap": -0.018036391817798147,
+      "k": 3,
+      "predicted_ir": 24.981963608182202,
+      "rule": "rit",
+      "sha256": "c444ea737e1afb08092460779bd652555d74314801bc44d11dfaf862410602fa",
+      "target_ir": 25.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir25.yaml"
+    },
+    "sp_rit_k3_ir30": {
+      "cuts": [
+        0.9881987332201214,
+        0.430431991815567,
+        0.430431991815567
+      ],
+      "delta": 7.965426107943511,
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "ir_gap": -0.0026986485583933018,
+      "k": 3,
+      "predicted_ir": 29.997301351441607,
+      "rule": "rit",
+      "sha256": "d1c2c7863fb282e6d43a2f11cbf3947272df20b66559d938cff32218a798d05b",
+      "target_ir": 30.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir30.yaml"
+    },
+    "sp_rit_k3_ir35": {
+      "cuts": [
+        0.989479578747049,
+        0.430431991815567,
+        0.430431991815567
+      ],
+      "delta": 7.949665564279847,
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "ir_gap": 0.01263909470099378,
+      "k": 3,
+      "predicted_ir": 35.012639094700994,
+      "rule": "rit",
+      "sha256": "1595279ee36148586b1490653aa6b384d55de88a5ea50d9102f902a9f092dca5",
+      "target_ir": 35.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir35.yaml"
+    },
+    "sp_rit_k3_ir40": {
+      "cuts": [
+        0.9903180334488604,
+        0.430431991815567,
+        0.430431991815567
+      ],
+      "delta": 7.949635837541429,
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "ir_gap": -0.011103715883180598,
+      "k": 3,
+      "predicted_ir": 39.98889628411682,
+      "rule": "rit",
+      "sha256": "7b935f345cf97508645946a69b3717da36b36ca77cbe6c0ad6329286281b64f8",
+      "target_ir": 40.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir40.yaml"
+    },
+    "sp_rit_k3_ir45": {
+      "cuts": [
+        0.9910327470457966,
+        0.430431991815567,
+        0.430431991815567
+      ],
+      "delta": 7.708788012111423,
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "ir_gap": 0.01726087865740311,
+      "k": 3,
+      "predicted_ir": 45.0172608786574,
+      "rule": "rit",
+      "sha256": "a6385f62b46bf3321badbd76bdd13ee90b12abfa62a4b34b60af566a1b613869",
+      "target_ir": 45.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir45.yaml"
+    },
+    "sp_rit_k3_ir50": {
+      "cuts": [
+        0.9917701831087037,
+        0.430431991815567,
+        0.430431991815567
+      ],
+      "delta": 7.708761866907754,
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "ir_gap": -0.03253563448916452,
+      "k": 3,
+      "predicted_ir": 49.967464365510835,
+      "rule": "rit",
+      "sha256": "89adcdef905150012bd228994b427f1a2c7df96f4d6f77c8a0dd195659454f1c",
+      "target_ir": 50.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir50.yaml"
+    },
+    "sp_rit_k3_ir55": {
+      "cuts": [
+        0.9925783322189274,
+        0.430431991815567,
+        0.430431991815567
+      ],
+      "delta": 7.70873321462976,
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "ir_gap": -0.004171039948566602,
+      "k": 3,
+      "predicted_ir": 54.99582896005143,
+      "rule": "rit",
+      "sha256": "5cda73f56096c9c931d425892a479847c26863fb5cab8dd81a223fdc084acbdb",
+      "target_ir": 55.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir55.yaml"
+    },
+    "sp_rit_k3_ir60": {
+      "cuts": [
+        0.9935380092870942,
+        0.430431991815567,
+        0.430431991815567
+      ],
+      "delta": 7.708699190049643,
+      "dropped_rungs": [
+        "warm50"
+      ],
+      "ir_gap": -0.0018601479703619361,
+      "k": 3,
+      "predicted_ir": 59.99813985202964,
+      "rule": "rit",
+      "sha256": "6983ff43f158f6f373826a9dd3381727fb908c56080fbf45df8d59672bce70e0",
+      "target_ir": 60.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir60.yaml"
+    },
+    "sp_rit_k3_ir65": {
+      "cuts": [
+        null,
+        0.9876626416415365,
+        0.430431991815567
+      ],
+      "delta": 7.590668637930765,
+      "dropped_rungs": [],
+      "ir_gap": 0.03265761267212497,
+      "k": 3,
+      "predicted_ir": 65.03265761267212,
+      "rule": "rit",
+      "sha256": "194eb6d524592486c270cf0a3be83b861e0fe94399f9fd96295b8870c7dea80c",
+      "target_ir": 65.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir65.yaml"
+    },
+    "sp_rit_k3_ir70": {
+      "cuts": [
+        null,
+        0.9907263794284279,
+        0.8884690033986866
+      ],
+      "delta": 7.5658528999608095,
+      "dropped_rungs": [],
+      "ir_gap": 0.013180276121886436,
+      "k": 3,
+      "predicted_ir": 70.01318027612189,
+      "rule": "rit",
+      "sha256": "0eb273ad1b10880a4887bfde576265fefb80d050d2d7276748fb986ed1446df4",
+      "target_ir": 70.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir70.yaml"
+    },
+    "sp_rit_k3_ir75": {
+      "cuts": [
+        null,
+        0.9907621048507276,
+        0.9872393140262317
+      ],
+      "delta": 7.561759922049472,
+      "dropped_rungs": [],
+      "ir_gap": 0.0048119120551604055,
+      "k": 3,
+      "predicted_ir": 75.00481191205516,
+      "rule": "rit",
+      "sha256": "268c8ee5b990ae4a8322df6440cc3c2494ca52c6788f0c0c8920ba14de82da8f",
+      "target_ir": 75.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir75.yaml"
+    },
+    "sp_rit_k3_ir80": {
+      "cuts": [
+        null,
+        0.990762848869848,
+        0.989643557628481
+      ],
+      "delta": 7.561674681522442,
+      "dropped_rungs": [],
+      "ir_gap": -0.04799234194568669,
+      "k": 3,
+      "predicted_ir": 79.95200765805431,
+      "rule": "rit",
+      "sha256": "4afa8d28f72af174442d037662c4b7169de5a55d761bc69cd854074c63d45eaf",
+      "target_ir": 80.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir80.yaml"
+    },
+    "sp_rit_k3_ir85": {
+      "cuts": [
+        null,
+        0.9911888916131457,
+        0.9908145176403866
+      ],
+      "delta": 7.553200053998989,
+      "dropped_rungs": [],
+      "ir_gap": 0.017699110544484142,
+      "k": 3,
+      "predicted_ir": 85.01769911054448,
+      "rule": "rit",
+      "sha256": "78d23343bc1f5d460338ff58ba600e569ed20a29b6435843c354963483557b93",
+      "target_ir": 85.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir85.yaml"
+    },
+    "sp_rit_k3_ir90": {
+      "cuts": [
+        null,
+        0.9940523880409299,
+        0.9909589269810103
+      ],
+      "delta": 7.546953857396458,
+      "dropped_rungs": [],
+      "ir_gap": 0.03154869144481154,
+      "k": 3,
+      "predicted_ir": 90.03154869144481,
+      "rule": "rit",
+      "sha256": "c17c80bf8e3083dd21f3033618b245aa1ace68c6b87c73a084a14ec950254974",
+      "target_ir": 90.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir90.yaml"
+    },
+    "sp_rit_k3_ir95": {
+      "cuts": [
+        null,
+        null,
+        0.9922790849225268
+      ],
+      "delta": 7.5426456292466995,
+      "dropped_rungs": [
+        "warm75"
+      ],
+      "ir_gap": 0.000962382411046292,
+      "k": 3,
+      "predicted_ir": 95.00096238241105,
+      "rule": "rit",
+      "sha256": "47e9dfe2bd77cbc60489a5b1724e200d861658def47ab5aff9b378d955a58616",
+      "target_ir": 95.0,
+      "yaml": "exp/libero_groot/config/rit/libero_spatial/arms/sp_rit_k3_ir95.yaml"
+    }
+  },
+  "cost": {
+    "miss_ms": 47.30321339660557,
+    "provenance": "INTERIM (owner ruling 2026-09-11): the RoboCasa GR00T stage split -- stage1/stage2 from the Stage A G-M record (CUDA graph, RTX 4090, k=4) with stage 3 as a+b*k from the W2 ladder -- used to price this line until the LIBERO x GR00T ledger is measured. Geometry differs (2 cameras at 224 vs 3 at 256, different checkpoint), so absolute IR from this file is provisional. Re-pricing needs no new rollouts: the per-step verdicts are stored, so the aggregator re-run with the measured ledger relabels the same episodes.",
+    "stage1_ms": 8.12,
+    "stage2_ms": 9.36,
+    "stage3_head_ms": 5.776786603394429,
+    "stage3_step_ms": 3.005803349151393
+  },
+  "denoising_steps": 8,
+  "fits": {
+    "1": {
+      "ir_range": [
+        17.165852839466254,
+        100.0
+      ],
+      "knots": [
+        0.430431991815567,
+        0.9171070431669552,
+        0.9752374291419983,
+        0.9830769151449203,
+        0.985503633817037,
+        0.9868330955505371,
+        0.9876923561096191,
+        0.9882348701357841,
+        0.9888064463933309,
+        0.9892861917614937,
+        0.989612211783727,
+        0.9899149412910143,
+        0.990227609872818,
+        0.9905106574296951,
+        0.990784078836441,
+        0.9910575300455093,
+        0.9913227955500284,
+        0.9915871197978655,
+        0.9918942600488663,
+        0.9921868517994881,
+        0.9924825231234232,
+        0.9927682131528854,
+        0.993120421965917,
+        0.9935419484972954,
+        0.9945400953292847
+      ],
+      "n_rows": 3432,
+      "n_seg_req": 24,
+      "tier_cost_ms": [
+        8.12
+      ],
+      "tiers": [
+        "full"
+      ]
+    },
+    "2": {
+      "ir_range": [
+        17.165852839466254,
+        100.0
+      ],
+      "knots": [
+        0.430431991815567,
+        0.9171070431669552,
+        0.9752374291419983,
+        0.9830769151449203,
+        0.985503633817037,
+        0.9868330955505371,
+        0.9876923561096191,
+        0.9882348701357841,
+        0.9888064463933309,
+        0.9892861917614937,
+        0.989612211783727,
+        0.9899149412910143,
+        0.990227609872818,
+        0.9905106574296951,
+        0.990784078836441,
+        0.9910575300455093,
+        0.9913227955500284,
+        0.9915871197978655,
+        0.9918942600488663,
+        0.9921868517994881,
+        0.9924825231234232,
+        0.9927682131528854,
+        0.993120421965917,
+        0.9935419484972954,
+        0.9945400953292847
+      ],
+      "n_rows": 3432,
+      "n_seg_req": 24,
+      "tier_cost_ms": [
+        8.12,
+        29.268393301697213
+      ],
+      "tiers": [
+        "full",
+        "warm75"
+      ]
+    },
+    "3": {
+      "ir_range": [
+        17.165852839466254,
+        100.0
+      ],
+      "knots": [
+        0.430431991815567,
+        0.9171070431669552,
+        0.9752374291419983,
+        0.9830769151449203,
+        0.985503633817037,
+        0.9868330955505371,
+        0.9876923561096191,
+        0.9882348701357841,
+        0.9888064463933309,
+        0.9892861917614937,
+        0.989612211783727,
+        0.9899149412910143,
+        0.990227609872818,
+        0.9905106574296951,
+        0.990784078836441,
+        0.9910575300455093,
+        0.9913227955500284,
+        0.9915871197978655,
+        0.9918942600488663,
+        0.9921868517994881,
+        0.9924825231234232,
+        0.9927682131528854,
+        0.993120421965917,
+        0.9935419484972954,
+        0.9945400953292847
+      ],
+      "n_rows": 3432,
+      "n_seg_req": 24,
+      "tier_cost_ms": [
+        8.12,
+        29.268393301697213,
+        35.28
+      ],
+      "tiers": [
+        "full",
+        "warm75",
+        "warm50"
+      ]
+    }
+  },
+  "gate_theta": 0.9846344590187073,
+  "gate_theta_fraction": 0.85,
+  "matrices": {
+    "anchor": "exp/libero_groot/config/rit/libero_spatial/arm_matrix_anchor.yaml",
+    "hg": "exp/libero_groot/config/rit/libero_spatial/arm_matrix_hg.yaml"
+  },
+  "n_scored": 3432,
+  "n_shadow_rows": 3432,
+  "protocol": "libero_groot_rit_arms_v1",
+  "rules": [
+    "anchors",
+    "gst",
+    "rit"
+  ],
+  "shadow": "exp/libero_groot/data/rit/shadow/libero_spatial/shadow_rows.jsonl",
+  "shadow_sha256": "8e80c97ce0b1340a35d1efab13a47286dfb31c9df08dddd291080212c950967f",
+  "suite": "libero_spatial",
+  "template": "exp/libero_groot/config/rit/libero_spatial/template.yaml",
+  "template_sha256": "2f834f9ebc0450e3e6414af207bc6b2930af568ba6e1abbe3130c7f4cbee7ffa",
+  "warm_ts": [
+    0.75,
+    0.5
+  ]
+}

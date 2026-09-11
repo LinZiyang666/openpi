@@ -1,0 +1,12 @@
+{
+  "calibration": "exp/libero_groot/config/calibration_normalizers_w13_S3.json",
+  "calibration_sha256": "bcaaa03ec70229f6e54a410047189d215c636a2066229edff1067aaf1b0931a4",
+  "denoise_schedule": "groot_n15_k8_v1",
+  "library_path": "/data/libero_cache/libraries_w13/libero_10/libero_10_w13_S3.pkl",
+  "library_stem": "libero_10_w13_S3",
+  "protocol": "libero_groot_rit_template_v1",
+  "source_template": "exp/libero_groot/config/rit/libero_10/source_template.yaml",
+  "source_template_sha256": "a950edc85ed02662ffc73def6177380d1fd0f02643b69bef621a8868e1dd6a60",
+  "suite": "libero_10",
+  "template_sha256": "deafc62eb15405e03e6365c8aadef55733ee09d0139099866eb81785bd022efd"
+}

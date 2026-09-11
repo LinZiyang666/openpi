@@ -1,0 +1,7 @@
+arms:
+- arm: sp_anchor_cache
+  yaml: /home/weiland/projects/openpi/exp/libero_groot/config/rit/libero_spatial/arms/sp_anchor_cache.yaml
+  suite: libero_spatial
+- arm: sp_anchor_teacher
+  yaml: /home/weiland/projects/openpi/exp/libero_groot/config/rit/libero_spatial/arms/sp_anchor_teacher.yaml
+  suite: libero_spatial

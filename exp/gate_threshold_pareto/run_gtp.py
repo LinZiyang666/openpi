@@ -35,6 +35,7 @@ from openpi.conductor import ServerEndpoint
 from openpi.conductor import WorkerAgent
 from openpi.conductor import WorkerSpec
 from openpi.conductor import strategy as _strat
+from openpi.conductor.sharding import shard_eval_stage
 from openpi.conductor import task as _task
 
 from exp.ablation_study.cache_size.run_size_eval import (
@@ -51,56 +52,113 @@ NUM_TASKS = 10
 
 
 class SweepStrategy(_strat.ExperimentStrategy):
-    """One independent stage per arm yaml; the bundle is hot-swapped per stage."""
+    """One eval stage per arm yaml; the bundle is hot-swapped per stage.
+
+    With ``servers`` given, each arm is instead fanned out into one sibling
+    stage per server (``sharding.shard_eval_stage``). The reason is the one
+    that module documents: ``assign_servers`` puts a yaml on exactly one
+    endpoint and a worker only receives episodes whose stage sits on the
+    endpoint it is bound to, so a phase holding fewer arms than servers runs at
+    a fraction of the pool. Measured on this line 2026-09-11: the two-arm
+    anchor group left 38 of 64 workers with nothing to receive on a five-server
+    lane, and the fleet ran at 35/64.
+
+    Resharding is safe for a resume: ``make_task_uid`` does not encode the
+    server, so an episode keeps its identity and a run resumed under a
+    different shard count replays its journal exactly (``sharding`` docstring).
+    """
 
     def __init__(
-        self, task_suite: str, yaml_paths: dict[str, str], trials: int
+        self,
+        task_suite: str,
+        yaml_paths: dict[str, str],
+        trials: int,
+        servers: list[_task.ServerEndpoint] | None = None,
+        done_uids: set[str] | None = None,
     ) -> None:
         self._task_suite = task_suite
         self._yaml_paths = yaml_paths
         self._trials = trials
+        self._servers = servers
+        self._done_uids = set(done_uids or ())
+
+    def _episodes(self, yaml_id: str, server: _task.ServerEndpoint) -> list[_task.EpisodeTask]:
+        """This arm's outstanding episodes, addressed at ``server``.
+
+        Journalled episodes are dropped from the plan rather than left for the
+        scheduler to skip: the scheduler empties its own ``pending`` but leaves
+        ``Stage.episodes`` full, and a strategy only sees the latter -- so a
+        sibling with nothing left would still look non-empty at
+        ``on_stage_begin`` and pay a full bundle reload for no work.
+        """
+        out = []
+        for task_id in range(NUM_TASKS):
+            for ep_idx in range(self._trials):
+                uid = _task.make_task_uid(yaml_id, "eval", task_id, ep_idx)
+                if uid in self._done_uids:
+                    continue
+                out.append(
+                    _task.EpisodeTask(
+                        task_uid=uid,
+                        yaml_id=yaml_id,
+                        phase="eval",
+                        experiment=self._task_suite,
+                        task_id=task_id,
+                        episode_idx=ep_idx,
+                        orig_init_state_idx=ep_idx,
+                        server_host=server.host,
+                        server_port=server.port,
+                        bundle_id=yaml_id,
+                        extra={"num_trials_per_task": self._trials},
+                    )
+                )
+        return out
 
     def plan(self, yamls, server_assignment) -> _task.TaskGraph:
         graph = _task.TaskGraph()
         for yaml_id in yamls:
+            setup = {"yaml_path": self._yaml_paths[yaml_id]}
+            if self._servers:
+                # server_assignment is ignored here on purpose: it maps the yaml
+                # to one endpoint, which is exactly the placement this widens.
+                for stage in shard_eval_stage(
+                    stage_id=f"eval__{yaml_id}",
+                    yaml_id=yaml_id,
+                    episodes=self._episodes(yaml_id, self._servers[0]),
+                    servers=self._servers,
+                    # Eval episodes here are pure rollouts: each writes only its
+                    # own result and per-step rows, both keyed by episode id.
+                    episodes_are_idempotent=True,
+                    setup=setup,
+                ):
+                    graph.add_stage(stage)
+                continue
             server = server_assignment[yaml_id]
             stage = _task.Stage(
                 stage_id=f"eval__{yaml_id}",
                 yaml_id=yaml_id,
                 phase="eval",
                 server=server,
-                setup={"yaml_path": self._yaml_paths[yaml_id]},
+                setup=setup,
             )
-            for task_id in range(NUM_TASKS):
-                for ep_idx in range(self._trials):
-                    stage.episodes.append(
-                        _task.EpisodeTask(
-                            task_uid=_task.make_task_uid(
-                                yaml_id, "eval", task_id, ep_idx
-                            ),
-                            yaml_id=yaml_id,
-                            phase="eval",
-                            experiment=self._task_suite,
-                            task_id=task_id,
-                            episode_idx=ep_idx,
-                            orig_init_state_idx=ep_idx,
-                            server_host=server.host,
-                            server_port=server.port,
-                            bundle_id=yaml_id,
-                            extra={"num_trials_per_task": self._trials},
-                        )
-                    )
+            stage.episodes.extend(self._episodes(yaml_id, server))
             graph.add_stage(stage)
         return graph
 
     def on_stage_begin(self, stage, ctl, ctx) -> None:
+        # An empty sibling still reaches this hook -- the driver runs setup
+        # before it learns there is nothing to dispatch. A bundle load tears
+        # down and rebuilds a gigabyte-scale library, and a burst of those is
+        # what put the GPU into an MMU fault on 2026-08-20.
+        if not stage.episodes:
+            return
         yaml_path = stage.setup["yaml_path"]
         ctl.load_cache_config(
             yaml_content=pathlib.Path(yaml_path).read_text(encoding="utf-8"),
             yaml_id=stage.yaml_id,
             bundle_id=stage.yaml_id,
         )
-        logger.info("arm %s: bundle loaded from %s", stage.yaml_id, yaml_path)
+        logger.info("%s: bundle loaded from %s", stage.stage_id, yaml_path)
 
 
 def gpu_slots(gpus: int, gpu_ids: str = "") -> list[str]:
@@ -118,6 +176,26 @@ def gpu_slots(gpus: int, gpu_ids: str = "") -> list[str]:
     if gpus <= 0:
         raise SystemExit("--gpus must be positive")
     return [str(i) for i in range(gpus)]
+
+
+def journal_uids(journal_path: str | pathlib.Path) -> set[str]:
+    """Every task_uid the journal already carries, for dropping from the plan."""
+    journal_path = pathlib.Path(journal_path)
+    if not journal_path.exists():
+        return set()
+    out: set[str] = set()
+    with journal_path.open(encoding="utf-8") as handle:
+        for raw in handle:
+            line = raw.strip()
+            if not line:
+                continue
+            try:
+                uid = json.loads(line).get("task_uid", "")
+            except json.JSONDecodeError:
+                continue
+            if uid:
+                out.add(uid)
+    return out
 
 
 def arms_with_work_left(
@@ -308,6 +386,14 @@ def main() -> None:
     )
     ap.add_argument("--conda-env", default="")
     ap.add_argument(
+        "--resize-size", type=int, default=None,
+        help="client --resize-size; omit to keep main.Args' default (GR00T needs 256)",
+    )
+    ap.add_argument(
+        "--replan-steps", type=int, default=None,
+        help="client --replan-steps; omit to keep main.Args' default",
+    )
+    ap.add_argument(
         "--gate-l",
         type=int,
         default=GATE_L,
@@ -450,7 +536,11 @@ def main() -> None:
             for row in rows:
                 f.write(json.dumps({"yaml_id": yaml_id, **row}) + "\n")
 
-    strategy = SweepStrategy(args.task_suite, yaml_paths, args.trials)
+    strategy = SweepStrategy(
+        args.task_suite, yaml_paths, args.trials,
+        servers=servers,
+        done_uids=journal_uids(args.journal),
+    )
     driver = ConductorDriver(
         strategy,
         yaml_weights={arm: 100 for arm in yaml_paths},
@@ -490,6 +580,20 @@ def main() -> None:
             conda_env=args.conda_env,
             task_suite_name=args.task_suite,
             init_states_dir=apool["apool_dir"],
+            # Rollout knobs, not feature switches: a GR00T server needs 256
+            # because its evaluator crops the raw render to 224 itself, so
+            # main.Args' 224 default crops twice and the wire contract rejects
+            # the frame -- after the whole fleet is already up.
+            resize_size=args.resize_size,
+            replan_steps=args.replan_steps,
+            # CUDA_VISIBLE_DEVICES alone does not move the render context:
+            # MuJoCo picks its EGL device from MUJOCO_EGL_DEVICE_ID and, unset,
+            # every worker lands on the same physical card whatever its CUDA
+            # mask says. Measured on timan108: 32 workers spread over CUDA
+            # 0..3 put all 32 render contexts (539 MiB each) on GPU 2. This is
+            # what ``WorkerSpec.gpu_id`` already calls an "EGL slot binding";
+            # only the EGL half was never wired.
+            env={"MUJOCO_EGL_DEVICE_ID": slots[i % len(slots)]},
         )
         for i in range(len(worker_server_keys))
     ]

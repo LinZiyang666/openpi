@@ -58,6 +58,18 @@ EMBODIMENT_TAG = "new_embodiment"
 # config. ``Gr00tPolicy`` writes it onto ``action_head.num_inference_timesteps``,
 # which the staged runner reads too, so the cache split stays in lockstep.
 DEFAULT_DENOISING_STEPS = 8
+#: RIT ladder rungs, ladder order (cheapest first). Written as resume
+#: timesteps, not as step counts, because that is what the judge and the
+#: payload key on. Under the ascending k=8 schedule ``t`` is elapsed flow, so
+#: ``remaining = 8 - 8t``: 0.75 leaves 2 steps, 0.5 leaves 4. Quoting the
+#: fractions instead (0.25 / 0.5 of stage 3) is the portable reading -- the
+#: RoboCasa ladder uses the same two fractions at k=4, where they are 1 and 2
+#: steps. Never reuse Pi0.5's numbers here: that schedule descends, so its
+#: ``start_t`` means the opposite fraction.
+DEFAULT_RIT_WARM_TS = "0.75,0.5"
+#: Matches the LIBERO client's ``--replan-steps 5``. A window wider than the
+#: client's would average deviation over actions the robot never executes.
+DEFAULT_RIT_H_EXEC = 5
 
 
 class _InferLockedPolicy:
@@ -180,6 +192,89 @@ def _check_libero_builder(builder_type: str, fail) -> None:
         )
 
 
+def _build_shadow_factory(
+    args: Any, config: Any, shared_storage: Any, lock: Any
+) -> tuple[Any, str]:
+    """Per-connection factory for the RIT calibration pass.
+
+    The shadow is the same object the RoboCasa line calibrates with
+    (``exp.robocasa365.rit_shadow.GrootRitShadow``) -- one implementation, so
+    the two teachers' ladders are fitted on columns produced by the same code.
+    It satisfies ``get_action`` plus the episode hooks, which is exactly the
+    surface ``GrootLiberoPolicyAdapter`` forwards, so it drops into the place
+    the interceptor would otherwise take.
+
+    Two things are per-connection rather than shared:
+
+    *   **the output file.** ``on_episode_end`` appends a whole episode's rows
+        under one ``open(..., "a")``; two connections flushing at once would
+        interleave at line granularity and no column would reveal it. Each
+        connection therefore writes ``<stem>.conn_<id>.jsonl`` and the fit
+        reads the glob.
+    *   **the orchestrator.** Retrieval state is per-episode and the search
+        session identity is bound in ``on_episode_start``.
+
+    The action weights are read once from the library the recipe names, not
+    from a separate npz: a weights file that drifted from the deployed library
+    would rescale every deviation without failing anything.
+    """
+    import numpy as _np
+    import torch as _torch
+
+    from openpi.cache.config import build_per_connection_components
+    from openpi.cache.groot.staged import GrootStagedRunner
+    from openpi.cache.orchestrator import CacheOrchestrator
+
+    from exp.libero_groot.policy_adapter import GrootLiberoPolicyAdapter
+    from exp.robocasa365.rit_shadow import GrootRitShadow, library_action_weights
+
+    warm_ts = [float(x) for x in str(args.rit_warm_ts).split(",") if x.strip()]
+    if not warm_ts:
+        raise SystemExit("--rit-warm-ts is empty")
+    preload = config.backend.in_memory.preload_path
+    w, active_mask = library_action_weights(preload)
+    w = _torch.as_tensor(_np.asarray(w), dtype=_torch.float32)
+    active_mask = _torch.as_tensor(_np.asarray(active_mask), dtype=_torch.bool)
+    out_stem = pathlib.Path(args.rit_shadow_out)
+    out_stem.parent.mkdir(parents=True, exist_ok=True)
+
+    def shadow_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
+        _require_default_bundle(bundle_id)
+        components = build_per_connection_components(config, shared_storage, quiet=True)
+        orchestrator = CacheOrchestrator(
+            storage=components["storage"],
+            key_builder=components["key_builder"],
+            gates=components["gates"],
+            judges=components["judges"],
+            search_strategies=components["search_strategies"],
+            timer=components["timer"],
+            write_policy=components["write_policy"],
+            offline_writers=components["offline_writers"],
+            library_stats=components["library_stats"],
+        )
+        runner = GrootStagedRunner(shared_base_policy.model, timer=components["timer"])
+        conn_out = out_stem.with_name(
+            f"{out_stem.stem}.conn_{uuid.uuid4().hex[:8]}{out_stem.suffix or '.jsonl'}"
+        )
+        shadow = GrootRitShadow(
+            shared_base_policy,
+            runner,
+            orchestrator=orchestrator,
+            out_path=str(conn_out),
+            warm_ts=warm_ts,
+            w=w,
+            active_mask=active_mask,
+            h_exec=int(args.rit_h_exec),
+            experiment=args.experiment,
+        )
+        return _InferLockedPolicy(GrootLiberoPolicyAdapter(shadow), lock)
+
+    return shadow_factory, (
+        f"rit-shadow -> {out_stem}.conn_*{out_stem.suffix or '.jsonl'} "
+        f"(ts={warm_ts}, h_exec={args.rit_h_exec}, library={pathlib.Path(preload).name})"
+    )
+
+
 def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     """Per-connection policy factory for concurrent serving.
 
@@ -254,6 +349,9 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
         # max-pool libraries are dimensionally identical -- nothing else would ever
         # notice a swapped artifact.
         validate_artifact_identity(shared_storage, config)
+
+    if getattr(args, "rit_shadow_out", None):
+        return _build_shadow_factory(args, config, shared_storage, lock)
 
     def cache_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
         conn_config, conn_storage = _resolve_bundle(
@@ -355,10 +453,52 @@ def main() -> None:
         "weights. Turn it on only for a driver that owns the swap schedule "
         "(the conductor); the guards then re-run per bundle.",
     )
+    parser.add_argument(
+        "--rit-shadow-out",
+        default=None,
+        help="JSONL sink for the RIT calibration pass. The served action stays "
+        "the teacher's; the cache is queried in the shadow and each rung's "
+        "deviation is labelled. One file per connection is written beside this "
+        "path so simultaneous connections cannot interleave rows.",
+    )
+    parser.add_argument(
+        "--rit-warm-ts",
+        default=DEFAULT_RIT_WARM_TS,
+        help="Resume timesteps to label, ladder order, comma separated. The "
+        "default is the k=8 schedule's 2-steps-remaining and 4-steps-remaining "
+        "rungs (t=0.75 / t=0.5) -- the same 25%% / 50%% fractions of stage 3 "
+        "the RoboCasa ladder uses at k=4.",
+    )
+    parser.add_argument(
+        "--rit-h-exec",
+        type=int,
+        default=DEFAULT_RIT_H_EXEC,
+        help="Executed window the deviation is averaged over; must equal the "
+        "client's --replan-steps, because steps past it are never executed.",
+    )
     args = parser.parse_args()
 
     if args.cache_config and args.collect_hdf5:
         parser.error("--cache-config and --collect-hdf5 are mutually exclusive")
+    if args.rit_shadow_out:
+        # The shadow labels rungs against one library with one retrieval stack.
+        # Dynamic bundles would let the library change under a single output
+        # file, and the fit has no column that would reveal the swap.
+        if not args.cache_config:
+            parser.error("--rit-shadow-out requires --cache-config")
+        if not args.concurrent:
+            # Only the concurrent factory is wired for the shadow. The pass is
+            # 150 episodes per suite and labels every rung on every step, so a
+            # one-connection server would spend hours where the fleet spends
+            # minutes; there is no reason to carry a second code path for it.
+            parser.error("--rit-shadow-out requires --concurrent")
+        if args.allow_dynamic_bundles:
+            parser.error(
+                "--rit-shadow-out cannot be combined with --allow-dynamic-bundles: "
+                "the calibration rows must all describe one library"
+            )
+        if args.collect_hdf5:
+            parser.error("--rit-shadow-out and --collect-hdf5 are mutually exclusive")
     if args.concurrent and args.collect_hdf5:
         parser.error(
             "--concurrent cannot be combined with --collect-hdf5: the collector "

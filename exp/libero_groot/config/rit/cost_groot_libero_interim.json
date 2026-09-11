@@ -1,0 +1,11 @@
+{
+  "linear_stage3": false,
+  "num_steps": 8,
+  "provenance": "INTERIM (owner ruling 2026-09-11): the RoboCasa GR00T stage split -- stage1/stage2 from the Stage A G-M record (CUDA graph, RTX 4090, k=4) with stage 3 as a+b*k from the W2 ladder -- used to price this line until the LIBERO x GR00T ledger is measured. Geometry differs (2 cameras at 224 vs 3 at 256, different checkpoint), so absolute IR from this file is provisional. Re-pricing needs no new rollouts: the per-step verdicts are stored, so the aggregator re-run with the measured ledger relabels the same episodes.",
+  "schedule_id": "groot_n15_k8_v1",
+  "stage1_ms": 8.12,
+  "stage2_ms": 9.36,
+  "stage3_head_ms": 5.776786603394429,
+  "stage3_step_ms": 3.005803349151393,
+  "teacher": "groot_libero"
+}

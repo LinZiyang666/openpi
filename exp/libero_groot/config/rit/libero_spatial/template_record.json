@@ -1,0 +1,12 @@
+{
+  "calibration": "exp/libero_groot/config/calibration_normalizers_w13_S3.json",
+  "calibration_sha256": "bcaaa03ec70229f6e54a410047189d215c636a2066229edff1067aaf1b0931a4",
+  "denoise_schedule": "groot_n15_k8_v1",
+  "library_path": "/data/libero_cache/libraries_w13/libero_spatial/libero_spatial_w13_S3.pkl",
+  "library_stem": "libero_spatial_w13_S3",
+  "protocol": "libero_groot_rit_template_v1",
+  "source_template": "exp/libero_groot/config/rit/libero_spatial/source_template.yaml",
+  "source_template_sha256": "8fd21bfdec39b569352370748483afcb3204f2ff4de0e94cccf1c879c89a03db",
+  "suite": "libero_spatial",
+  "template_sha256": "2f834f9ebc0450e3e6414af207bc6b2930af568ba6e1abbe3130c7f4cbee7ffa"
+}

@@ -1,0 +1,7 @@
+arms:
+- arm: l10_anchor_cache
+  yaml: /home/weiland/projects/openpi/exp/libero_groot/config/rit/libero_10/arms/l10_anchor_cache.yaml
+  suite: libero_10
+- arm: l10_anchor_teacher
+  yaml: /home/weiland/projects/openpi/exp/libero_groot/config/rit/libero_10/arms/l10_anchor_teacher.yaml
+  suite: libero_10
