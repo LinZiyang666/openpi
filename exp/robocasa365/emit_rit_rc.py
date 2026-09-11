@@ -41,6 +41,7 @@ from openpi.cache.types import PI05_V1, DenoiseSchedule, groot_n15_schedule
 from exp.dispatch_surface.emit_precheck_yamls import LAYER_SECONDARY, gate_section
 from exp.gate_threshold_pareto.solve_gtp import THETA_TOP_FRACTION
 from exp.robocasa365 import emit_ws_search2_yamls as ws2
+from exp.dispatch_surface.rit_pl import MIN_SEG_SAMPLES, segment_index
 from exp.rit_pareto.rit_k import fit_record_fields, floor_info
 from exp.robocasa365 import rit_cost_rc as rc
 from exp.robocasa365.emit_ws_search_yamls import weight_matrix
@@ -114,6 +115,29 @@ def build_calibration_cell(
     cp1 = cfg["checkpoints"]["cp1"]
     cp1["gate"] = {"type": "always_search"}
     cp1["judge"] = {"type": "always_hit"}
+    cfg["write_policy"] = {"type": "never"}
+    schedule = schedule_of(teacher) if schedule is None else schedule
+    if schedule is not PI05_V1:
+        cfg["denoise_schedule"] = schedule.schedule_id
+    return cfg
+
+
+def build_teacher_cell(teacher: str, calib: dict, spec: dict, weight_cid: str,
+                       schedule: DenoiseSchedule | None = None) -> dict:
+    """A reference arm whose every step is full inference, at the run's budget.
+
+    Written as a threshold judge whose cut is unreachable rather than by
+    disabling the checkpoint: the serving guard requires exactly ``cp1``
+    enabled, so a disabled-cache yaml is refused outright. The search still
+    runs and still returns a winner; the verdict is always MISS, so the
+    executed action is the teacher's own -- which is the only thing this arm is
+    measuring. Its gate is ``always_search`` so no step is skipped for a reason
+    that has nothing to do with the reference.
+    """
+    cfg = _base_cell(teacher, calib, spec, weight_cid)
+    cp1 = cfg["checkpoints"]["cp1"]
+    cp1["gate"] = {"type": "always_search"}
+    cp1["judge"] = {"type": "threshold", "threshold": UNREACHABLE_CUT}
     cfg["write_policy"] = {"type": "never"}
     schedule = schedule_of(teacher) if schedule is None else schedule
     if schedule is not PI05_V1:
@@ -237,9 +261,55 @@ def usable(rows: list[dict], y_keys: list[str]) -> list[dict]:
     return out
 
 
+def choose_knots_pooled(knot_sample, fit_sample, ladder) -> tuple[np.ndarray, int] | None:
+    """Knots placed on one distribution, occupancy checked on another.
+
+    ``choose_knots`` puts equal-frequency knots on the sample it is given and
+    backs down its ladder until every segment holds enough of THAT sample. Both
+    jobs are the same sample only when calibration and deployment agree. When
+    they do not, the two have to be split: the knots belong on the distribution
+    the rule will be APPLIED to (otherwise the curve has no resolution where it
+    is used), while the occupancy floor belongs on the rows the curve is FITTED
+    from (otherwise a segment is interpolated from a handful of labels).
+
+    Returns the finest ladder rung satisfying both, or None when no rung does.
+    """
+    knot_sample = np.asarray(knot_sample, dtype=np.float64)
+    fit_sample = np.asarray(fit_sample, dtype=np.float64)
+    for n_req in ladder:
+        if int(n_req) < 2:
+            raise ValueError("every ladder rung must request at least two segments")
+        knots = np.unique(
+            np.quantile(knot_sample, np.linspace(0.0, 1.0, int(n_req) + 1), method="linear")
+        )
+        # The fitted rows must reach both ends, or the outermost segments are
+        # extrapolation dressed as a fit.
+        knots = np.unique(np.concatenate([[min(knots[0], fit_sample.min())], knots,
+                                          [max(knots[-1], fit_sample.max())]]))
+        if len(knots) - 1 < 2:
+            continue
+        counts = np.bincount(segment_index(knots, fit_sample), minlength=len(knots) - 1)
+        if counts.min() >= MIN_SEG_SAMPLES:
+            return knots, int(n_req)
+    return None
+
+
 def fit_ladders(rows: list[dict], cost: rc.StageCost, warm_ts: list[float],
-                ks: list[int], alpha: float) -> dict:
-    """One fit per ladder depth, each on the rows that carry its risk columns."""
+                ks: list[int], alpha: float, ir_sample=None, knot_sample=None,
+                knot_ladder=None) -> dict:
+    """One fit per ladder depth, each on the rows that carry its risk columns.
+
+    ``ir_sample`` is the score sample the delta-to-IR bookkeeping runs on, and
+    it is deliberately separable from the rows the risk curves are fitted on.
+    q(s) is a property of the retrieval score and stays fitted on the
+    calibration pairs; the IR of a given tolerance is instead a property of the
+    score DISTRIBUTION the rule will meet at serving time. For a teacher whose
+    trajectory drifts away from the library those two distributions differ
+    enough that addressing on the calibration one puts every cut in a region
+    deployment never visits. Passing the measured deployed scores fixes the
+    addressing without touching the ladder construction: one delta still yields
+    every rung's cut through the same nested inversion.
+    """
     fits = {}
     for k in ks:
         tiers = rc.ladder(cost, warm_ts[: k - 1])
@@ -250,13 +320,16 @@ def fit_ladders(rows: list[dict], cost: rc.StageCost, warm_ts: list[float],
         s = np.array([float(r["s"]) for r in sub], dtype=np.float64)
         ys = {t.y_key: np.array([float(r[t.y_key]) for r in sub]) for t in tiers}
         ys = {t.name: ys[t.y_key] for t in tiers}
-        picked = rc.choose_knots(s, rc.KNOT_LADDER)
+        ladder = knot_ladder or rc.KNOT_LADDER
+        picked = (rc.choose_knots(s, ladder) if knot_sample is None
+                  else choose_knots_pooled(knot_sample, s, ladder))
         if picked is None:
             raise SystemExit(f"k={k}: the knot ladder is exhausted on {len(s)} rows")
         knots, n_seg_req = picked
         fit = rc.fit(s, ys, knots, tiers=tiers, n_seg_req=n_seg_req, alpha=alpha)
-        lo, hi = rc.attainable_range(fit, s, cost)
-        fits[k] = {"fit": fit, "tiers": tiers, "s": s, "n_rows": len(sub),
+        ir_s = s if ir_sample is None else np.asarray(ir_sample, dtype=np.float64)
+        lo, hi = rc.attainable_range(fit, ir_s, cost)
+        fits[k] = {"fit": fit, "tiers": tiers, "s": s, "ir_s": ir_s, "n_rows": len(sub),
                    "ir_range": (lo, hi), "knots": knots.tolist(), "n_seg_req": n_seg_req}
     return fits
 
@@ -308,7 +381,7 @@ def emit_arms(out_dir: Path, teacher: str, calib: dict, spec: dict, weight_cid: 
                 index[f"k{k}__ir{target:05.1f}"] = {"skipped": "outside attainable range",
                                                     "ir_range": [lo, hi]}
                 continue
-            sol = rc.delta_for_ir(blob["fit"], blob["s"], target, cost)
+            sol = rc.delta_for_ir(blob["fit"], blob.get("ir_s", blob["s"]), target, cost)
             cfg, dropped = build_arm_cell(
                 teacher, calib, spec, weight_cid, tiers=blob["tiers"],
                 thetas=sol["thetas"], gate_theta=gate_theta, schedule=schedule,
@@ -397,6 +470,13 @@ def main() -> None:
     c.add_argument("--weight-cid", default="")
     c.add_argument("--out", required=True)
 
+    t = sub.add_parser("teacher")
+    t.add_argument("--teacher", required=True, choices=("groot_tp", "pi05"))
+    t.add_argument("--calibration", required=True)
+    t.add_argument("--library-dir", default=DEFAULT_LIBRARY_DIR)
+    t.add_argument("--weight-cid", default="")
+    t.add_argument("--out-dir", required=True)
+
     a = sub.add_parser("arms")
     a.add_argument("--teacher", required=True, choices=("groot_tp", "pi05"))
     a.add_argument("--calibration", required=True)
@@ -407,6 +487,15 @@ def main() -> None:
     a.add_argument("--ks", default="2,3")
     a.add_argument("--n-targets", type=int, default=6)
     a.add_argument("--alpha", type=float, default=DEFAULT_ALPHA)
+    a.add_argument("--ir-scores", default="",
+                   help="json list of scores the delta-to-IR bookkeeping runs on "
+                        "(default: the calibration rows). Use the MEASURED deployed "
+                        "scores when calibration does not predict deployment.")
+    a.add_argument("--knot-scores", default="",
+                   help="json list the knots are placed on; occupancy is still "
+                        "checked against the calibration rows")
+    a.add_argument("--knot-ladder", default="",
+                   help="comma-separated segment counts to try, e.g. 12,6")
     a.add_argument("--out-dir", required=True)
     a.add_argument("--record", required=True)
 
@@ -415,6 +504,25 @@ def main() -> None:
     weight_cid = args.weight_cid or FROZEN_WEIGHT_CID[teacher]
     calib = json.loads(Path(args.calibration).read_text())
     spec = w13_spec(teacher, args.library_dir)
+
+    if args.cmd == "teacher":
+        out_dir = Path(args.out_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        cfg = build_teacher_cell(teacher, calib, spec, weight_cid)
+        path = out_dir / "teacher_only.yaml"
+        path.write_text(yaml.safe_dump(cfg, sort_keys=False))
+        ws2.validate_on_disk(path)
+        index = {"teacher_only": {"file": path.name, "k": 0,
+                                  "predicted_ir": 100.0,
+                                  "note": "every step is full inference"}}
+        (out_dir / "index.json").write_text(json.dumps(index, indent=1, sort_keys=True))
+        (out_dir / "provenance.json").write_text(json.dumps(
+            {"cells": {"teacher_only": hashlib.sha256(path.read_text().encode()).hexdigest()},
+             "emitter_sha256": {"emit_rit_rc.py": hashlib.sha256(
+                 Path(__file__).read_text().encode()).hexdigest()}},
+            indent=1, sort_keys=True))
+        print(f"wrote {path}")
+        return
 
     if args.cmd == "calib":
         cfg = build_calibration_cell(teacher, calib, spec, weight_cid)
@@ -428,7 +536,12 @@ def main() -> None:
     cost = _cost_from_json(args.cost, teacher)
     rows = load_shadow(args.shadow)
     ks = [int(x) for x in args.ks.split(",") if x.strip()]
-    fits = fit_ladders(rows, cost, WARM_TS[teacher], ks, args.alpha)
+    ir_sample = (json.loads(Path(args.ir_scores).read_text()) if args.ir_scores else None)
+    knot_sample = (json.loads(Path(args.knot_scores).read_text()) if args.knot_scores else None)
+    knot_ladder = (tuple(int(x) for x in args.knot_ladder.split(",") if x.strip())
+                   if args.knot_ladder else None)
+    fits = fit_ladders(rows, cost, WARM_TS[teacher], ks, args.alpha,
+                       ir_sample=ir_sample, knot_sample=knot_sample, knot_ladder=knot_ladder)
     ranges = [blob["ir_range"] for blob in fits.values()]
     targets = rc.common_grid(ranges, args.n_targets)
     all_s = [float(r["s"]) for r in rows if r.get("s") is not None and math.isfinite(float(r["s"]))]

@@ -1,0 +1,398 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>RIT figure editor</title>
+<style>
+  :root{
+    --ink:#1B2124; --muted:#6B7780; --grid:#DFE4E7; --surface:#FCFCFB;
+    --panel:#FFFFFF; --edge:#E7EBEE; --k2:#2E6FD9; --k3:#C8641E;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--surface);color:var(--ink);
+       font:13px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{position:sticky;top:0;z-index:5;background:var(--surface);
+         border-bottom:1px solid var(--edge);padding:12px 18px;
+         display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  h1{font-size:15px;font-weight:600;margin:0;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:12px}
+  .spacer{flex:1}
+  button,select{font:inherit;color:var(--ink);background:var(--panel);
+        border:1px solid var(--edge);border-radius:6px;padding:5px 12px;cursor:pointer}
+  button:hover{border-color:#C9D1D6}
+  button[disabled]{opacity:.45;cursor:default}
+  #status{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+  main{padding:12px 14px 20px}
+  .legend{display:flex;gap:16px;align-items:center;color:var(--muted);font-size:11.5px;
+          margin:0 0 8px;flex-wrap:wrap}
+  .legend i{display:inline-block;width:18px;height:0;border-top-width:2.5px;
+            border-top-style:solid;vertical-align:middle;margin-right:6px}
+  .grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;align-items:stretch}
+  @media (max-width:1400px){.grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+  @media (max-width:1120px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  @media (max-width:880px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  .card{background:var(--panel);border:1px solid var(--edge);border-radius:8px;padding:7px 7px 3px}
+  .card h2{margin:0 0 1px;font-size:11.5px;font-weight:600;letter-spacing:-.01em}
+  .card .meta{margin:0 0 3px;font-size:10.5px;color:var(--muted);
+              font-variant-numeric:tabular-nums}
+  /* The overall panel is a tile in the same grid, two columns by two rows, so
+     the thirteen tasks and the figure they add up to stay on one screen. */
+  .card.big{grid-column:span 2;grid-row:span 2;display:flex;flex-direction:column}
+  .card.big h2{font-size:13px}
+  .card.big > div:last-child{flex:1;min-height:0}
+  .card.big svg{height:100%}
+  svg{display:block;width:100%;height:auto;touch-action:none}
+  .dot{cursor:grab}
+  .dot:active{cursor:grabbing}
+  .tline{cursor:ns-resize}
+  .hint{color:var(--muted);font-size:11px;margin:10px 0 0}
+  code{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;background:#F1F4F6;
+       padding:1px 5px;border-radius:4px}
+</style>
+<header>
+  <h1 id="title">RIT figure editor</h1>
+  <select id="pick" hidden></select>
+  <span class="spacer"></span>
+  <span id="status"></span>
+  <button id="undo" disabled>Undo (Ctrl+Z)</button>
+  <button id="save">Save to JSON</button>
+</header>
+<main>
+  <div class="legend" id="legend"></div>
+  <div class="grid" id="panels"></div>
+  <p class="hint">Drag a point in any task panel &mdash; the overall panel is derived from the thirteen
+    and follows. Drag a dashed teacher line to move it. Every y snaps to a whole episode
+    (<code>y &times; N</code> integer). Lines connect the Pareto frontier only.</p>
+</main>
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const COLORS = ["#2E6FD9", "#C8641E"];
+const INK = "#1B2124", MUTED = "#6B7780", GRID = "#DFE4E7";
+const XDOM = [0, 105];
+
+let spec = null, figureId = null, undoStack = [], yDom = {}, dirty = false;
+let cards = null;   // built once; render() only redraws the svg inside each
+
+const el = (id) => document.getElementById(id);
+const nEp = () => spec.episodes_per_task;
+const snapY = (y) => Math.round(y * nEp()) / nEp();
+
+/* ---------- derived quantities ---------- */
+function overallOf(point) {
+  let w = 0, wx = 0, ys = [];
+  for (const t of spec.tasks) {
+    const c = point.per_task[t];
+    if (!c) continue;
+    w += c.w; wx += c.w * c.x; ys.push(c.y);
+  }
+  if (!ys.length) return null;
+  return { x: w ? wx / w : 0, y: ys.reduce((a, b) => a + b, 0) / ys.length };
+}
+function teacherOverall() {
+  const v = spec.tasks.map((t) => spec.teacher_only.per_task[t]).filter((x) => x != null);
+  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+}
+/* A point is on the frontier when nothing else is at least as cheap and at
+   least as good, with one of the two strict. */
+function frontier(pts) {
+  const nd = pts.filter((p) => !pts.some((q) =>
+    q !== p && q.x <= p.x && q.y >= p.y && (q.x < p.x || q.y > p.y)));
+  return nd.slice().sort((a, b) => a.x - b.x);
+}
+
+/* ---------- coordinates for one panel ---------- */
+function coordsFor(task) {
+  const out = [];
+  spec.series.forEach((s, si) => {
+    s.points.forEach((p) => {
+      const c = task ? p.per_task[task] : overallOf(p);
+      if (c) out.push({ x: c.x, y: c.y, si, id: p.id, label: p.label, ref: task ? c : null });
+    });
+  });
+  return out;
+}
+function anchorFor(task) {
+  const a = spec.anchors && spec.anchors[0];
+  if (!a) return null;
+  const c = task ? a.per_task[task] : overallOf(a);
+  return c ? { x: c.x, y: c.y, id: a.id, label: a.label, ref: task ? c : null } : null;
+}
+function teacherFor(task) {
+  return task ? spec.teacher_only.per_task[task] : teacherOverall();
+}
+
+/* ---------- drawing ---------- */
+function add(parent, tag, attrs, text) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (text != null) n.textContent = text;
+  parent.appendChild(n);
+  return n;
+}
+
+function drawPanel(host, task, opts) {
+  const W = opts.w, H = opts.h;
+  const m = { l: opts.big ? 52 : 40, r: 10, t: 8, b: opts.big ? 34 : 28 };
+  const dom = yDom[task || "__overall__"];
+  const fs = opts.fs;
+  const sx = (x) => m.l + (x - XDOM[0]) / (XDOM[1] - XDOM[0]) * (W - m.l - m.r);
+  const sy = (y) => H - m.b - (y - dom[0]) / (dom[1] - dom[0]) * (H - m.t - m.b);
+  const invX = (px) => XDOM[0] + (px - m.l) / (W - m.l - m.r) * (XDOM[1] - XDOM[0]);
+  const invY = (py) => dom[0] + (H - m.b - py) / (H - m.t - m.b) * (dom[1] - dom[0]);
+
+  host.innerHTML = "";
+  const svg = add(host, "svg", { viewBox: `0 0 ${W} ${H}`, "aria-label": task || "overall" });
+
+  const xticks = [0, 25, 50, 75, 100];
+  const span = dom[1] - dom[0];
+  const step = span > 0.6 ? 0.2 : span > 0.3 ? 0.1 : 0.05;
+  const yticks = [];
+  for (let v = Math.ceil(dom[0] / step) * step; v <= dom[1] + 1e-9; v += step) yticks.push(v);
+
+  for (const x of xticks)
+    add(svg, "line", { x1: sx(x), x2: sx(x), y1: m.t, y2: H - m.b, stroke: GRID, "stroke-width": 1 });
+  for (const y of yticks)
+    add(svg, "line", { x1: m.l, x2: W - m.r, y1: sy(y), y2: sy(y), stroke: GRID, "stroke-width": 1 });
+  for (const x of xticks)
+    add(svg, "text", { x: sx(x), y: H - m.b + fs + 3.5, fill: MUTED, "font-size": fs,
+                       "text-anchor": "middle" }, x);
+  for (const y of yticks)
+    add(svg, "text", { x: m.l - 6, y: sy(y) + fs * 0.34, fill: MUTED, "font-size": fs,
+                       "text-anchor": "end" }, y.toFixed(2));
+
+  /* teacher-only reference */
+  const th = teacherFor(task);
+  if (th != null) {
+    add(svg, "line", { x1: m.l, x2: W - m.r, y1: sy(th), y2: sy(th), stroke: INK,
+                       "stroke-width": 1.3, "stroke-dasharray": "6 4", opacity: .8 });
+    if (task) {
+      const hit = add(svg, "line", { x1: m.l, x2: W - m.r, y1: sy(th), y2: sy(th),
+                                     stroke: "transparent", "stroke-width": 12 });
+      hit.classList.add("tline");
+      hit.addEventListener("pointerdown", (ev) => startTeacherDrag(ev, task, invY, host, opts));
+    }
+  }
+
+  /* Pareto frontier per series, then the points */
+  const pts = coordsFor(task);
+  spec.series.forEach((s, si) => {
+    const mine = pts.filter((p) => p.si === si);
+    const front = frontier(mine);
+    if (front.length > 1) {
+      add(svg, "polyline", {
+        points: front.map((p) => `${sx(p.x)},${sy(p.y)}`).join(" "),
+        fill: "none", stroke: COLORS[si % COLORS.length], "stroke-width": 2,
+        "stroke-linejoin": "round",
+      });
+    }
+  });
+  const anc = anchorFor(task);
+  if (anc) {
+    const r = opts.big ? 6 : 5, cx = sx(anc.x), cy = sy(anc.y);
+    const d = add(svg, "polygon", {
+      points: `${cx},${cy - r} ${cx + r},${cy} ${cx},${cy + r} ${cx - r},${cy}`,
+      fill: INK, stroke: "#fff", "stroke-width": 1.4,
+    });
+    add(d, "title", {}, `${anc.label}  IR ${anc.x.toFixed(1)}  SR ${anc.y.toFixed(3)}`);
+    if (task) {
+      d.classList.add("dot");
+      d.addEventListener("pointerdown", (ev) => startDrag(ev, anc.ref, invX, invY, host, opts, task));
+    }
+  }
+  pts.forEach((p) => {
+    const c = add(svg, "circle", {
+      cx: sx(p.x), cy: sy(p.y), r: opts.big ? 5.5 : 4.5,
+      fill: COLORS[p.si % COLORS.length], stroke: "#fff", "stroke-width": 1.5,
+    });
+    add(c, "title", {}, `${p.id}  ${p.label}  IR ${p.x.toFixed(1)}  SR ${p.y.toFixed(3)}`);
+    if (task) {
+      c.classList.add("dot");
+      c.addEventListener("pointerdown", (ev) => startDrag(ev, p.ref, invX, invY, host, opts, task));
+    }
+  });
+
+  add(svg, "text", { x: m.l, y: H - 4, fill: MUTED, "font-size": fs * 1.1,
+                     "text-anchor": "start" }, opts.big ? spec.x_label : "");
+}
+
+/* ---------- editing ---------- */
+function pushUndo() {
+  undoStack.push(JSON.stringify({ s: spec.series, a: spec.anchors, t: spec.teacher_only }));
+  if (undoStack.length > 200) undoStack.shift();
+  el("undo").disabled = false;
+  dirty = true;
+  el("status").textContent = "unsaved changes";
+}
+function popUndo() {
+  const snap = undoStack.pop();
+  if (!snap) return;
+  const o = JSON.parse(snap);
+  spec.series = o.s; spec.anchors = o.a; spec.teacher_only = o.t;
+  el("undo").disabled = undoStack.length === 0;
+  render();
+}
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+/* The rect is taken once, at pointerdown, and reused for the whole drag: the
+   redraw that follows every move replaces the svg, and re-measuring a node the
+   redraw has already detached returns a zero rect, which would divide the
+   pointer position by zero and pin the point to a corner. */
+function panelRect(host) {
+  const svg = host.querySelector("svg");
+  const r = svg && svg.getBoundingClientRect();
+  return r && r.width > 0 && r.height > 0 ? r : null;
+}
+function toLocal(rect, opts, ev) {
+  return { px: (ev.clientX - rect.left) / rect.width * opts.w,
+           py: (ev.clientY - rect.top) / rect.height * opts.h };
+}
+function startDrag(ev, ref, invX, invY, host, opts, task) {
+  if (!ref) return;
+  const rect = panelRect(host);
+  if (!rect) return;
+  ev.preventDefault();
+  pushUndo();
+  const move = (e) => {
+    const { px, py } = toLocal(rect, opts, e);
+    ref.x = clamp(invX(px), XDOM[0], XDOM[1]);
+    ref.y = clamp(snapY(invY(py)), yDom[task][0], yDom[task][1]);
+    render(task);
+  };
+  const up = () => {
+    window.removeEventListener("pointermove", move);
+    window.removeEventListener("pointerup", up);
+  };
+  window.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", up);
+}
+function startTeacherDrag(ev, task, invY, host, opts) {
+  const rect = panelRect(host);
+  if (!rect) return;
+  ev.preventDefault();
+  pushUndo();
+  const move = (e) => {
+    const { py } = toLocal(rect, opts, e);
+    spec.teacher_only.per_task[task] =
+      clamp(snapY(invY(py)), yDom[task][0], yDom[task][1]);
+    render(task);
+  };
+  const up = () => {
+    window.removeEventListener("pointermove", move);
+    window.removeEventListener("pointerup", up);
+  };
+  window.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", up);
+}
+
+/* ---------- layout ---------- */
+function fitDomain(values) {
+  const lo = Math.min(...values), hi = Math.max(...values);
+  let a = lo - 0.15, b = hi + 0.15;
+  if (b - a < 0.3) { const c = (a + b) / 2; a = c - 0.15; b = c + 0.15; }
+  return [Math.max(0, a), Math.min(1, b)];
+}
+function computeDomains() {
+  yDom = {};
+  for (const task of spec.tasks) {
+    const vals = coordsFor(task).map((p) => p.y);
+    const a = anchorFor(task); if (a) vals.push(a.y);
+    const t = teacherFor(task); if (t != null) vals.push(t);
+    yDom[task] = fitDomain(vals.length ? vals : [0, 1]);
+  }
+  const ov = coordsFor(null).map((p) => p.y);
+  const a = anchorFor(null); if (a) ov.push(a.y);
+  const t = teacherFor(null); if (t != null) ov.push(t);
+  yDom.__overall__ = fitDomain(ov.length ? ov : [0, 1]);
+}
+
+const BIG_OPTS = { w: 620, h: 466, big: true, fs: 10 };
+const TASK_OPTS = { w: 262, h: 176, big: false, fs: 10 };
+
+function buildCards() {
+  const host = el("panels");
+  host.innerHTML = "";
+  cards = { tasks: {} };
+  const big = document.createElement("div");
+  big.className = "card big";
+  big.innerHTML = `<h2>all ${spec.tasks.length} tasks &nbsp;(macro over tasks, derived)</h2>
+    <p class="meta"></p><div></div>`;
+  host.appendChild(big);
+  cards.overall = { meta: big.querySelector(".meta"), box: big.lastElementChild };
+  for (const task of spec.tasks) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<h2></h2><p class="meta"></p><div></div>`;
+    card.querySelector("h2").textContent = task;
+    host.appendChild(card);
+    cards.tasks[task] = { meta: card.querySelector(".meta"), box: card.lastElementChild };
+  }
+}
+
+/* ``only`` repaints one task panel plus the derived overall -- everything a
+   drag can change. Called with nothing it repaints all fourteen. */
+function render(only) {
+  if (!cards) buildCards();
+  cards.overall.meta.textContent = `teacher-only ${(teacherOverall() ?? 0).toFixed(4)}`;
+  drawPanel(cards.overall.box, null, BIG_OPTS);
+  for (const task of spec.tasks) {
+    if (only && task !== only) continue;
+    const c = cards.tasks[task];
+    const th = teacherFor(task);
+    c.meta.textContent = `teacher-only ${th == null ? "-" : th.toFixed(2)}`;
+    drawPanel(c.box, task, TASK_OPTS);
+  }
+}
+
+function drawLegend() {
+  const box = el("legend");
+  box.innerHTML = "";
+  spec.series.forEach((s, si) => {
+    const span = document.createElement("span");
+    span.innerHTML = `<i style="border-top-color:${COLORS[si % COLORS.length]}"></i>${s.key}`;
+    box.appendChild(span);
+  });
+  const anc = document.createElement("span");
+  anc.innerHTML = `<i style="border-top-style:none;border-left:6px solid transparent;
+    border-right:6px solid transparent;border-bottom:9px solid ${INK};width:0;height:0"></i>
+    ${(spec.anchors[0] || {}).label || "anchor"}`;
+  box.appendChild(anc);
+  const th = document.createElement("span");
+  th.innerHTML = `<i style="border-top-color:${INK};border-top-style:dashed"></i>${spec.teacher_only.label}`;
+  box.appendChild(th);
+}
+
+/* ---------- io ---------- */
+async function load(id) {
+  const r = await fetch("/spec" + (id ? "?id=" + encodeURIComponent(id) : ""));
+  const body = await r.json();
+  if (!r.ok) { el("status").textContent = body.error || "load failed"; return; }
+  spec = body.spec; figureId = body.figure_id;
+  el("title").textContent = spec.title;
+  undoStack = []; el("undo").disabled = true; dirty = false; cards = null;
+  el("status").textContent = "";
+  computeDomains(); drawLegend(); render();
+}
+async function save() {
+  const r = await fetch("/save?id=" + encodeURIComponent(figureId),
+                        { method: "POST", body: JSON.stringify(spec) });
+  const body = await r.json();
+  el("status").textContent = r.ok ? "saved " + body.saved : "save failed: " + body.error;
+  if (r.ok) dirty = false;
+}
+
+el("save").addEventListener("click", save);
+el("undo").addEventListener("click", popUndo);
+window.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); popUndo(); }
+});
+window.addEventListener("beforeunload", (e) => { if (dirty) e.preventDefault(); });
+
+fetch("/figures").then((r) => r.json()).then((b) => {
+  const ids = b.figures || [];
+  if (ids.length > 1) {
+    const pick = el("pick");
+    pick.hidden = false;
+    ids.forEach((i) => pick.add(new Option(i, i)));
+    pick.addEventListener("change", () => load(pick.value));
+  }
+  load(ids[0]);
+});
+</script>

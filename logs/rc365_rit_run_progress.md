@@ -1,248 +1,174 @@
 # RoboCasa365 × warm-start RIT 帕累托 —— 运行进度
 
-> 无人值守。owner 裁定见本文件 §0。进度条在 §1，每到里程碑更新一次。
+> 无人值守。最后更新 2026-09-10 16:35 CDT。
+> **停止条件（owner 令）：完全做完实验，pi0.5 做完后才能停。**
 
-## 0. 冻结的口径（owner 2026-09-08 裁定，不再重开）
+## 0. 冻结口径（owner 裁定）
 
 | 项 | 值 |
 |---|---|
-| 库 | 只用 **S6 / full**，每任务 50 条、共 650 条；不扫库规模维 |
-| 检索 | **text-IVF 开**（`text_ivf_knn` + `index_type: text_ivf` + `prompt_emb {enabled, weight 0}`） |
-| 权重 | GR00T `grid3_vision_0@12_vision_2@37_robot_state@50`；pi0.5 `grid_vision_1@87_robot_state@12`（各自冻死，全档共用） |
-| 阶梯 | GR00T k2={FULL, WARM@0.75} / k3={FULL, WARM@0.75, WARM@0.5}；pi0.5 k2={FULL, WARM@0.3} / k3={FULL, WARM@0.3, WARM@0.5} |
-| 帕累托 | 按 **IR 网格**寻址（不是 delta），**6 个点**，四条线取可达区间交集铺公共网格 |
+| 库 | 只用 **S6 / full**（每任务 50 条、共 650 条） |
+| 检索 | text-IVF 开（`text_ivf_knn` + `index_type: text_ivf` + `prompt_emb {enabled, weight 0}`） |
+| 权重 | GR00T `grid3_vision_0@12_vision_2@37_robot_state@50`；pi0.5 `grid_vision_1@87_robot_state@12` |
+| 阶梯 | GR00T k2={FULL, WARM@0.75} / k3={+WARM@0.50}；pi0.5 k2={FULL, WARM@0.3} / k3={+WARM@0.5} |
+| 帕累托 | 按 **IR 网格**寻址，6 个点 |
 | 部署/报告 | 用**预测**切点发 yaml，用**实测** IR + SR 出图 |
-| 标定 | 评测段 `base_seed=1,000,000`，每任务 10 集共 130；owner 裁定不涉及污染问题 |
-| 评测 | **每任务 50 集、每个点 650 集**；13 arm/teacher（12 RIT + always_hit），teacher 地板由标定跑充当 |
-| 拓扑 | server 只在 weilandserver：GR00T 5 进程 23160-23164；pi0.5 一端口 23170 `--replicas 4`。worker 只在 timan107，30 个 |
-| 顺序 | **先 GR00T，全跑完再 pi0.5** |
+| H-gate | 只装在正式 arm 上；`score_hysteresis`，θ=15 分位，`j=3 / probe_interval=3 / L=6` |
+| 评测 | **每任务 50 集、每个点 650 集**；13 arm + 1 teacher-only 参考臂 |
+| 场景 | `layout=1, style=1`，`replan_steps=5`，eval seed = `1,000,000 + idx`；建库段 `base_seed=0`（零重叠） |
+| 顺序 | GR00T → pi0.5 → **k=1 双 teacher 补做** |
 
 ## 1. 进度条
 
 ```
-P0a 延迟测量      [##########]  DONE   GR00T 四档全 nsys 认证，s3(k)=5.232+3.006k，R²=0.991
-P0b 成本权威      [##########]  DONE   rit_cost_rc.py：按 schedule 方向取剩余步数
-P0c RIT 链路移植  [##########]  DONE   shadow 单集冒烟通过（s/winner/三档 y 齐全）
-P1a GR00T 标定    [##########]  DONE   130/130 集，13 任务各 10；teacher 地板臂 macro SR 0.7462
-P1b GR00T 拟合发射[##########]  DONE   shadow 12,817 行/13 任务/130 集；13 个 arm 已发
-P1c GR00T 主跑    [##........]  pnp lane 在跑（3,250 集）；main lane 待从 20 续补到 50
-P2  pi0.5 全流程  [..........]  待 P1
-P3  四线帕累托图  [..........]  待 P2
+P0  成本模型 / 成本权威 / RIT 链路移植   [##########] DONE
+P1  GR00T 全线（k=2 / k=3 / teacher）    [##########] DONE  8,450 + 650 集，前沿有效
+P2  pi0.5 全线（v2 重标定后）            [##########] DONE  9,100 集，四段 err/missing 全 0
+P3  四线帕累托图                         [##########] DONE  两 teacher × 两深度，已出图
+P4  k=1 双 teacher                       [###.......] 跑中
+    · GR00T k=1（4,550 集）              [##........] 跑中  09-10 16:30 从 870/2800 续跑
+    · pi0.5 k=1（4,550 集）              [..........] 待跑  ★ 已按 v2 标定重发射，见 §9
 ```
 
-## 1b. 新增的 owner 裁定（2026-09-08 下午）
+## 2. GR00T 最终结果（50 集/任务，13 任务，n=650/arm）
 
-- **H-gate 装在正式实验的 arm 上**（标定跑不装）：`score_hysteresis`，`theta_low=theta_high=θ`，
-  `j=3 / probe_interval=3 / L=6`（与 LIBERO 线同一组常量）。
-- **θ 的确定方法**：`derive_thresholds(标定期全部有限 cp1_score, THETA_TOP_FRACTION=0.85, 0.0)[0]`
-  —— 即放行分数最高的 85%，等价于标定分数分布的 15 分位。与 GTP/RIT 线同口径。
-- ⚠ `serve_groot_n15.py` 原先三处 `validate_groot_cache_config` 都没传 `allow_hysteresis_gate`，
-  H-gate 会被 GR00T 的 load_guard 拒掉。已在三处补上（LIBERO 侧三个装配点本来就传）。
-
-## 3. 关键数字
-
-**GR00T 成本模型**（W2 k 阶梯，4090 独占，CUDA-Graph，nsys 认证，200 次/档）
-
-> owner 裁定：三段值以**既有台账**（Stage A G-M，CUDA Graph，三段各一图，4090）为准
-> —— `stage1=8.12 / stage2=9.36 / s3(4)=17.80`。k 阶梯只用来取 stage3 的**每步斜率**，
-> 截距锚到 s3(4)=17.80，即 `s3(k) = 5.777 + 3.006k`。
-> 本次 k=4 实测 17.585，与台账 17.80 差 1.2%，互为交叉验证。
-
-| 档 | 付什么 | stage3 | 成本 (ms) | 占 MISS | 省 |
-|---|---|---|---|---|---|
-| FULL_HIT | 只 stage1 | — | **8.12** | 23.02% | 76.98% |
-| WARM@0.75（剩 1 步） | s1+s2+s3(1) | 8.78 | **26.26** | 74.44% | 25.56% |
-| WARM@0.50（剩 2 步） | s1+s2+s3(2) | 11.79 | **29.27** | 82.96% | 17.04% |
-| MISS | s1+s2+s3(4) | 17.80 | **35.28** | 100% | — |
-
-⚠ `s1+s2 = 17.48 ms` 已占 MISS 的 **49.5%** ⇒ 只要落到 warm（必过 LLM），成本就至少是 MISS 的一半；
-warm 两档的可省空间只有 25.6% / 17.0%。帕累托的 IR 张力几乎全部来自 FULL_HIT 占比。
-⚠ 按旧公式 `start_t × STAGE3` 会算成 WARM@0.75=88.2% > WARM@0.50=75.5% —— **阶梯成本序整个翻转**，
-IR 网格的寻址会全错。这是必须新建 RoboCasa 成本权威的原因。
-⚠ stage3 的固定头 5.78 ms 占「剩 1 步」成本的 66%：若按 `s3(4)/4=4.45` 给单步计价，
-1 步档会被低估 49%（真值 8.78）。这正是必须补 k 阶梯、而不能只用 k=4 一个点的原因。
-
-## 2. 逐步记录
-
-### P0a 延迟测量（IR 网格的寻址依赖它）
-- 2026-09-08 11:58 CDT 启动。weilandserver tmux `w2`，隔离工作区 `/tmp/openpi-stageA`（HEAD 代码经 tether 推送，非 git）。
-- 跑 GR00T k∈{1,2,3,4} × prompt 0 × 1 进程，CUDA-Graph 档，nsys 认证；拟合 `s2act(k)=a+b·k`。
-- 产物 `/tmp/openpi-stageA/exp/robocasa365/data/latency/groot_cg_k{1..4}_p0_r0.json`。
-
-
-### P0b / P0c 代码（新增，未入库）
-| 文件 | 作用 |
-|---|---|
-| `exp/robocasa365/rit_cost_rc.py` | RoboCasa 成本权威：`StageCost` / 按 schedule 方向算剩余步数的 `tier_cost` / `predicted_ir` / `attainable_range` / `delta_for_ir` / `common_grid`。LP 拟合、cuts、verdict walk 全部 import 自 `rit_pareto.rit_k`，不复制 |
-| `exp/robocasa365/rit_shadow.py` | 标定用 shadow：执行 teacher 自己的动作，同时读同一个 orchestrator 的 (score, winner)，用 `run_stage3_from` 逐档算偏差，逐步写 JSONL |
-| `exp/robocasa365/emit_rit_rc.py` | `calib` 子命令发标定 cell；`arms` 子命令拟合 → 读可达 IR 区间 → 铺 6 点公共网格 → 反解切点 → 发 `threshold + warm_tiers` 的 arm（带 H-gate） |
-| `exp/robocasa365/serve_groot_n15.py`（改） | 三处 load_guard 放行 H-gate；新增 `--rit-shadow-out/--rit-warm-ts/--rit-weights/--rit-h-exec` |
-
-⚠ **为什么不做离线回放**：采集 h5 存的是 `input_embeds` 被 `slice_groot_cp1_fields` 切开后的分片，
-state token 与 image-token 的 scatter 位置没有留下 ⇒ 离线重建 LLM 输入需要重新 tokenize 并猜版式。
-shadow 在真 stage-1 张量还在手上时直接标注，把这层重建整个消掉。
-
-### 为什么部署形态是 `threshold + warm_tiers` 而不是 `dispatch_surface`
-RIT 是 s-only 的：`cut_at(fit, tier, delta)` 出来的就是分数切点，阶梯等价于一组嵌套阈值。
-而 GR00T 的 `load_guard._ALLOWED_JUDGE_TYPES = {threshold, always_hit, always_warm_start}`
-**不含 `dispatch_surface`** —— 用那个类型 server 起不来。两个 teacher 都用 threshold 形态，形状对称、可比。
-`ThresholdJudge` 按 `warm_tiers` 顺序首个命中即返回，所以 tier 必须按**成本升序 = 阈值降序**写。
-
-
-## 4. GR00T 线的执行管线（脚本已全部就位）
-
-| 步 | 位置 | 命令 |
+| arm | realized IR | macro SR |
 |---|---|---|
-| 标定采集（teacher 地板臂 + h5 备份） | timan107 `tmux ritcal` | `/tmp/rit/launch_calib_groot.sh` |
-| normalizer 重标定（W13 库） | weilandserver `tmux ritcalib` | `calibrate_score_normalizers.py --artifact-dir /tmp/rit/w13_full` |
-| 库动作权重 | weilandserver | `python -m exp.robocasa365.rit_shadow --library <full.pkl> --out lib_weights_*.npz` |
-| 发标定 cell | weilandserver | `emit_rit_rc.py calib --teacher groot_tp ...` |
-| shadow 标定跑 | wls `/tmp/rit/start_groot_shadow.sh` + t107 `/tmp/rit/launch_shadow_groot.sh` | 5 server × 5 worker，单连接 |
-| 拟合 + 发 arm | weilandserver | `emit_rit_rc.py arms --shadow <jsonl> --cost <json> --n-targets 6` |
-| 主跑 | wls `/tmp/rit/start_groot_eval.sh` + t107 `/tmp/rit/launch_eval_groot.sh` | 5 server（concurrent+dynamic bundles）× 30 worker |
+| all-FULL_HIT | 42.73 | 0.4677 |
+| k2 IR23→100 | 43.6 / 52.7 / 63.6 / 67.4 / 81.4 / 100.0 | 0.451 / 0.494 / 0.506 / 0.632 / **0.648** / 0.645 |
+| k3 IR23→100 | 43.1 / 53.2 / 60.5 / 67.4 / 85.0 / 100.0 | 0.480 / 0.477 / 0.548 / 0.614 / **0.660** / 0.657 |
+| **teacher-only** | — | **0.6800**（contact-8 0.6400 / pick-5 0.7440） |
 
-**驱动侧的两处改动**（`run_ws_search2.py`，L1）：
-- `--run-prefix` 增加 `rit`（`resolve_cells` 与 ws2 同走 index.json）；
-- 新增 `--index-provenance`：pnp lane 必须带 `--pinned-objects`，而它会触发 ws2 的双 teacher
-  index-digest 前置检查 —— 那个 digest 覆盖两个 teacher、且校验 ws2 emitter 的源码哈希，
-  RIT 树不是它发的。改成校验 RIT emitter 自己写的 `provenance.json`（逐 yaml sha256），
-  **反漂移保证不降级**，只是换成了拥有这棵树的 emitter 写的冻结记录。
+两条 lane 各 13/13 complete、n_err/n_missing 全 0。图：`analysis/figures/rit_groot_all13.{png,pdf,json}`（owner 手调过 13 个坐标，**只重渲染、不重生成**）。
 
+⚠ 便宜端实测 IR 高于目标（23.0→43.6）：H-gate 跳过 25.6% 的步、强制全量推理，可达 IR 下界是 **42.73**，两个最便宜的目标够不着。
 
-## 5. 逐任务标定原料（owner 2026-09-08 追加要求）
+## 3. pi0.5 第一轮为什么作废（实测，非推断）
 
-shadow 的每一行本来就带 `task` / `episode_id` / `step_idx` + `s` + 每档 `y_*`，
-所以「按任务各自定 threshold」这个变体**不需要第二次标定跑**，直接从同一份 JSONL 分组重拟合即可。
-为此做了两件事：
+**标定数据本身没坏，是 off-policy。** 测的量对，测的分布错。
 
-1. shadow 的输出落 **`/data/robocasa365_cache/rit_calib/<teacher>/shadow_g*.jsonl`**（持久盘），不再放 `/tmp`。
-2. `emit_rit_rc.py arms` 的记录里新增 `per_task` 段：逐任务的行数、分数分位（0/5/15/50/85/95/100）、
-   各档 `y_*` 的均值与 q95，以及**「若按任务各自切」的 gate θ**。本轮部署的仍是**全局单一阶梯**，
-   逐任务的 θ 只记录、不启用。
+教师驱动时分数随 episode 衰减，缓存驱动时不衰减：
 
-## 6. 已入库
+| 步数区间 | pi0.5 标定 | pi0.5 部署 | GR00T 标定 | GR00T 部署 |
+|---|---|---|---|---|
+| 0–9 | 0.9854 | 0.9976 | 0.9979 | 0.9983 |
+| 90+ | **0.8490** | 0.9958 | 0.9834 | 0.9953 |
+| 全程衰减 | **−0.1364** | −0.0018 | −0.0145 | −0.0030 |
 
-`5ab6084` *Address the RoboCasa warm-start frontier by inference ratio* —— 302 个文件，
-含 W13 遗留（manifest 合并器、档位切分器、pnp 钉死判决、权重搜索网页）与本轮 RIT 全套代码。
-按 owner 指示排除 `exp/rit_pareto/build_figure.py` 与 `edit_figure.py`（另一会话在改）。已 push 到 `Ziyang`。
+下游两处都锚死在这条错的分布上：
 
+1. **knot 按标定分位铺** ⇒ 25 个 knot 里 23 个在 0.99 以下，而部署 **73.8%** 的质量在 0.99 以上。最后两个 knot 区间分别装了部署的 **28.40%** 和 **44.84%** ——δ 求逆在部署真正工作的区域是跨大间隔插值，**没有分辨率**。
+2. **δ→IR 的换算在标定样本上做** ⇒ 6 个切点把部署分布切成 100/98.6/92.3/84.3/83.9/2.6%，4 个切点压在 84% 以上，等于没切。
 
-## 7. GR00T 标定结果（P1a DONE，2026-09-08 12:53 CDT）
+结果：6 个点里 5 个挤在 realized IR 26.8–39.9，第 6 个跳到 97，前沿塌成两点之间的一条直线。
 
-语料 130/130 集（13 任务 × 10），37 GB，落 `/data/robocasa365_cache/calib_rit_w13/groot_tp/`。
-这一跑**同时就是 teacher 地板臂**（teacher-only、评测段、与拟合同一批 seed），记录在
-`exp/robocasa365/data/calib_rit/teacher_floor_groot_tp.json`：
+**为什么 GR00T 没事**：教师轨迹几乎不漂（衰减是 pi0.5 的 1/10），标定中位 0.9962 与部署 0.9968 只差 0.0005，切点切出 100/80.3/61.4/47.0/32.3/1.5%，有分辨率。
+**为什么同一设计在两个 teacher 上结果相反**：pi0.5 的嵌入空间挤 4 倍（库内余弦 0.9663±0.0085 vs GR00T 0.850±0.034），同样的物理漂移换算成分位就大得多。
 
-| 任务 | SR | 任务 | SR |
+**排除项**（都查过，都不是原因）：
+- pkl 没坏：无 NaN、无零范数、无塌缩维，逐字段同任务/跨任务可分性 1.4–2.1σ，与 GR00T 同量级
+- 离线建表没有仪器误差：探针精确复现 shadow 表（CloseBlenderLid ep0-4：0.9736→0.9637 两边一致）
+- 归一化器饱和：**我提出过又撤回**，第 0 步配对比较显示离线仅偏低 0.0089，占不到总偏移 0.0728 的 1/8
+
+## 4. pi0.5 重做方案：两极合池重标定（owner 裁定 2026-09-09）
+
+标定协议的隐含前提是「教师分布 ≈ 部署分布」，对 pi0.5 不成立。结构上就是 behaviour cloning 的 covariate shift，解法也一样：**用部署策略自己的数据再标定一轮**。
+
+**做法**：
+1. 新采 **130 集缓存驱动**标定（开 `always_hit` 跑，记录每档 (s, y)）——全命中极限
+2. 与现有 **130 集教师驱动**标定合池——全 MISS 极限
+3. **knot 铺在合池分布上**：任何真实 arm 的分数分布都夹在这两个极限之间，曲线在整个可达范围内都有分辨率，而不是只在一端准
+4. 在合池数据上重拟合 q(s)、重解 δ、重发射 k=2/k=3
+5. 正式主跑 50 集/任务，两条 lane + teacher-only 参考臂
+
+**RIT 的构造不动**：仍然是一个 δ 通过嵌套求逆解出所有档的切点。改的只是拟合与寻址所依据的分布。
+
+⚠ 残余限制（要写进报告）：一轮迭代不是不动点，中间阈值的 arm 有它自己的分布；但合池后 knot 覆盖两极之间的全部范围，中间 arm 落在有分辨率的区域内。
+
+⚠ 口径说明：coverage pilot 的切点是从**作废那轮的部署分数分布**反解的，而那轮跑的是同一段 650 集。那是分数聚合量不是成功率，污染轻，但要写明。
+
+**代价**：130 集采集（~1 h）+ 离线建表（~1.5 h）+ 重发射（几分钟）→ 正式主跑。
+
+## 5. coverage pilot 的中间结果（证明按部署分布定切点可行）
+
+| 切点 | 目标 IR | **实测 IR** | 实测 FULL% |
 |---|---|---|---|
-| OpenCabinet | 1.00 | PickPlaceCounterToStove | 0.90 |
-| OpenStandMixerHead | 0.90 | PickPlaceSinkToCounter | 0.90 |
-| CoffeeSetupMug | 0.80 | PickPlaceToasterToCounter | 0.90 |
-| CloseBlenderLid | 0.70 | PickPlaceCounterToCabinet | 0.70 |
-| CloseFridge | 0.70 | PickPlaceDrawerToCounter | 0.70 |
-| OpenDrawer | 0.60 | SlideDishwasherRack | 0.30 |
-| TurnOnSinkFaucet | 0.60 | **macro** | **0.7462** |
+| 0.28151 | 26.85 | **26.39** | 86.1% |
+| 0.96954 | 37.28 | **30.51** | 81.2% |
+| 0.99166 | 47.72 | **39.37** | 70.9% |
+| 0.99577 | 58.16 | **46.10** | 63.0% |
+| 0.99682 | 68.59 | **54.31** | 53.4% |
+| 0.99729 | 79.03 | **74.10** | 30.3%（未跑满） |
 
-⚠ 两个跑出来的坑（三个启动脚本都已修）：
-1. 两条 lane 共用 `--run-plan-dir` ⇒ pnp 的 b01 与 main 的 b01 撞 plan_hash，驱动拒绝续跑。改成 `$DATA/main` 与 `$DATA/pnp`。
-2. `rc=$?` 取的是 `tee` 的退出码，把上面那次失败报成 rc=0。改 `set -o pipefail` + `${PIPESTATUS[0]}`。
+对比作废那轮的 26.9/27.6/30.4/34.4/39.2/96.9——覆盖从「塌成两坨」变成「单调铺开」。
+残差：实测比目标低 8–14 点（带阈值的 arm 命中率高于 always_hit 参照，不动点方向与我先前预测相反，已更正）。
 
-## 8. pi0.5 侧的标定路线（与 GR00T 不同，且更省事）
+## 5b. v2 A 段（contact-8）实测：寻址修好了
 
-GR00T 必须走在线 shadow，因为它的 `input_embeds` 被切成分片后 scatter 位置没留下、离线无法重建。
-**pi0.5 不同**：它的 stage-1 前缀就是 vision token + prompt token 的拼接，
-`exp/common/build_in_memory_cache_artifact._build_fake_stage1_with_masks` 正是为此写的，
-而 `exp/dispatch_surface/build_dispatch_table.py` 已经把「回放 → s → 逐档 `run_stage3_from` → y」整条实现了。
-⇒ **pi0.5 不改 server**：用现成的 `serve_policy --collect` 采标定语料，再写一份 RoboCasa 版建表脚本复用那条回放。
-pi0.5 主跑同样用现成的 `serve_policy --cache_config` + 动态 bundle。
+13 cell × 400 集全齐，`n_err`/`n_missing` 全 0，用时 8 h 57 min。
 
-
-## 9. shadow 冒烟的两个观察（要靠全量分布复核）
-
-单集（OpenDrawer，102 步）：
-
-- **分数几乎不散**：s ∈ [0.9965, 0.9986]。但这是单任务内的 top-1，text-IVF 把检索圈在同一个
-  prompt 桶里，所以同任务的最近邻本来就很近。全量跑里已见到 0.9329，跨任务分布确实更宽。
-  ⚠ 若最终分布仍然极窄，LP 会把 q(s) 压到严格单调下限上，切点就是「被 eps 地板抬出来的」而非数据支撑的
-  —— 这正是记录里 `floor.on_eps_floor` 要回答的问题。
-- **三档偏差几乎相同**：y_full 6.576 / y_rem1 6.501 / y_rem2 6.423（加权 L2，32 维全活跃）。
-  顺序对（重跑越多步越接近 teacher），说明 `run_stage3_from` 确实吃到了查询的条件；
-  量级小是 4 步循环的结构决定的：从 t=0.75 续跑只重做全程的 25%，能纠正的本来就有限。
-  ⇒ 预期帕累托上 warm 两档相对 FULL_HIT 的精度增益很小，而成本是它的 3.2-3.6 倍。这是结论，不是 bug。
-
-## 10. pi0.5 建表脚本已就位
-
-`exp/robocasa365/build_rit_table_pi05_rc.py`：复用 `_build_fake_stage1_with_masks` +
-`_load_pi05_for_llm_extract` + `_load_components`，逐步重建 pi0.5 的 stage-1 前缀 → 生产 key builder
-与检索 → 逐档 `run_stage3_from` 算偏差。参考动作用查询步自己的 `clean_action`，与 GR00T shadow 同口径。
-
-
-## 11. GR00T 阶梯拟合结果（P1b DONE，2026-09-08 13:58 CDT）
-
-标定 **12,817 行 / 13 任务 / 130 集**，全部有分数与三档风险。分布：
-`s` 分位 0/5/15/50/85/95/100 = 0.469 / 0.821 / 0.960 / 0.9965 / 0.9981 / 0.9983 / 0.9987。
-
-风险随分数下降但**很弱**：`corr(s, y_full) = −0.133`、`y_rem1 = −0.042`、`y_rem2 = +0.028`。
-按分数五分位的 y_full = 7.43 / 7.12 / 6.73 / 6.62 / 6.67 —— 前四段单调、高分段饱和。
-三档均值 6.91 / 6.68 / 6.56，到 q95 拉开成 8.80 / 8.09 / 7.64 ⇒ **warm 的收益集中在检索最差的尾部**。
-
-**IR 网格**（k=2 与 k=3 可达区间都是 [23.02, 100]，取交集铺 6 点）：
-23.02 / 38.40 / 53.79 / 69.18 / 84.56 / 99.95。**H-gate θ = 0.963402**（15 分位，n=12,817）。
-
-| arm | k | 预测 IR | delta | 各档切点 | 落在 eps 地板上的档 |
+| cell | FULL% | WARM% | MISS% | **realized IR** | macro SR（8 任务） |
 |---|---|---|---|---|---|
-| `always_hit` | — | 23.02 | — | — | — |
-| `k2__ir023.0` | 2 | 23.02 | 10.288 | full 0.3673 / warm75 0.3673 | full,warm75 |
-| `k2__ir038.4` | 2 | 38.42 | 8.743 | full 0.9890 / warm75 0.3673 | full,warm75 |
-| `k2__ir053.8` | 2 | 53.82 | 8.102 | full 0.9960 / warm75 0.9826 | warm75 |
-| `k2__ir069.2` | 2 | 69.19 | 7.975 | full 0.9975 / warm75 0.9952 | full |
-| `k2__ir084.6` | 2 | 84.54 | 7.975 | full 0.9984 / warm75 0.9952 | full |
-| `k2__ir100.0` | 2 | 99.99 | 7.769 | full ∞ / warm75 0.9987 | warm75 |
-| `k3__ir023.0` | 3 | 23.02 | 10.288 | full 0.3673 / warm50 0.3673 / warm75 0.3673 | full,warm50,warm75 |
-| `k3__ir038.4` | 3 | 38.41 | 8.743 | full 0.9890 / warm50 0.3673 / warm75 0.3673 | full,warm50,warm75 |
-| `k3__ir053.8` | 3 | 53.77 | 7.975 | full 0.9965 / warm50 0.3673 / warm75 0.9952 | full,warm50 |
-| `k3__ir069.2` | 3 | 69.17 | 7.975 | full 0.9979 / warm50 0.3673 / warm75 0.9952 | full,warm50 |
-| `k3__ir084.6` | 3 | 84.54 | 7.581 | full ∞ / warm50 0.9347 / warm75 ∞ | warm50 |
-| `k3__ir100.0` | 3 | 99.96 | 7.579 | full ∞ / warm50 0.9986 / warm75 ∞ | warm50 |
+| always_hit | 85.8 | 0 | 14.2 | 26.6 | 0.4650 |
+| k2 ir026.8 | 85.8 | 0 | 14.2 | 26.6 | 0.4425 |
+| k2 ir041.5 | 74.7 | 2.7 | 22.6 | 35.2 | 0.4475 |
+| k2 ir056.1 | 54.1 | 16.6 | 29.3 | 48.5 | 0.4600 |
+| k2 ir070.7 | 41.4 | 6.0 | 52.6 | 62.7 | 0.4775 |
+| k2 ir085.3 | 9.0 | 51.3 | 39.7 | 76.2 | 0.3950 |
+| k2 ir100.0 | 0.0 | 0.2 | 99.8 | 100.0 | 0.4500 |
 
-⚠ **多数切点落在 eps 地板上**。这直接来自上面那个弱相关：LP 在数据不支持时把 q(s) 压到严格单调下限，
-切点于是由「保证可逆的下限」而非风险差异决定。**这不是拟合失败，是拟合如实反映了信号弱**——
-但报告里必须写明哪些切点是地板抬出来的（记录里逐 arm 有 `floor.on_eps_floor`）。
+k3 的 FULL/MISS 分布与 k2 同形（SR 0.4575–0.5050）；其 IR 只能给近似值，因为 `per_step` 的 `WARM_START` 标签不区分 3 步与 5 步两个暖档（成本 46.685 vs 52.769 ms），差异约 ±2 个点。
 
-⚠ **不可触发的档已摘除并记录**（`dropped_rungs`）：切点相等意味着上一档已经吃掉全部命中，
-下一档永远不会 fire，loader 也拒绝这种形状。摘掉不改成本也不改判决，比把切点硬推开诚实。
+**对比作废那轮的 26.9/27.6/30.4/34.4/39.2/96.9** —— 两极合池重标定把六个点从「挤成两坨」变成单调铺开。最便宜的两个点重合在 26.6 是 H-gate 的可达下界（26.85）所致，与 GR00T 侧同源，非缺陷。
 
-### 逐任务 θ（若按任务各自切，仅记录不启用）
-差异极大：SlideDishwasherRack **0.812** ↔ PickPlaceSinkToCounter **0.995**，全局单一 θ 是 0.963。
-⇒ owner 提的 per-task threshold 变体有很强的动机，原料在 `shadow_all.jsonl` 里，不需重采。
+⚠ contact-8 上 SR 基本持平（0.40–0.51），warm-start 增益不显著；pnp-5 未跑完前不下结论。
 
+## 6. 成本模型
 
-## 12. 评测预算更正（owner 2026-09-08 17:00）
+**GR00T**（台账三段值为准）`stage1=8.12 / stage2=9.36 / s3(k)=5.777+3.006k`
+FULL_HIT 23.02% / WARM@0.75 74.44% / WARM@0.50 82.96% / MISS 35.28 ms
 
-正式口径是**每任务 50 集、每个点 650 集**（13 任务 × 50），不是我先前按的 20 集/任务。
-per teacher = 13 点 × 650 = **8,450 集**（main lane 5,200 + pnp lane 3,250）。
+**pi0.5** `stage1=9.828 / stage2=27.374 / s3(k)=0.357+3.042k`（r²=0.999998，与 infer 路径 stage3 对表 0.91%）
+FULL_HIT 14.46% / WARM@0.3 68.67% / WARM@0.5 77.62% / MISS 67.98 ms
 
-已按 20 集/任务跑完的那轮**保留为试跑**（`data/rit/groot_tp/main_pilot20/`，2,080 集），
-它的价值是把信噪比问题量化出来了：
+⚠ 量 stage3 阶梯必须打 CUDA graph 的 step 边界，且不能跨边界复用 stage2。不打边界 ⇒ 退回 eager，把 10 步循环量成 114.7 ms（真值 30.5）；只加边界 ⇒ 复用的 stage2 被图内存池回收而报错。终版每个样本跑一遍完整 stage1→stage2→stage3(k) 三连、边界打在三连之前、只对 stage3 计时；并加硬门：拟合的 s3(10) 与 infer 路径相差 >10% 就拒绝写记录。
 
-- IR=100 的两个 arm 实测 **99.96% / 99.76% 全 MISS**，即纯推理臂，macro SR 0.5687 / 0.5625；
-- 全命中臂 0.6000；这 8 个接触任务的 teacher 地板 0.7000。
-  ⇒ **整条曲线的 y 动态范围只有约 0.10**。
-- 20 集/任务时 macro SE ≈ 0.039，arm 间差别小于 ~0.11（3σ）分辨不出来，
-  而实测跨度只有 0.15 ⇒ 曲线在噪声带里随机游走，这就是「为什么还会下跌」。
-- 同一批 seed（episode 0-9）下，标定跑的纯 teacher 0.7000 vs IR=100 arm 0.6125 ——
-  **同配置的可复现精度本身约 ±0.09**（n=10/任务）。
+## 7. 当前机器状态
 
-50 集/任务把 macro SE 降到 ≈ 0.019（13 任务），是能让曲线读出趋势的最低预算。
+- **weilandserver**：pi0.5 一端口 23170 + `--replicas 4`（tmux `ritp0`），内部 child 绑 23171-74。起之前必须顺序预热 7.2 GB 权重与 28 GB 库的页缓存（都在 CMR 机械盘）。
+- **timan107**：pi0.5 v2 正式主跑（`ritchain` 跑 `/tmp/rit/chain_v2_pi05.sh`，`ritdrv` 是当前段的 driver，24 worker）。
+  产物落 `data/rit_v2/pi05/{main,pnp}` 与 `data/rit_v2_teacher/pi05/{main,pnp}`；收尾用 `~/tmp_rit/finish_v2_pi05.sh` → `figure_v2_pi05.sh`。
+- ⚠ 两个 teacher 不能同时占卡；切换必须先杀干净。
+- GR00T k=1 冻在 `data/rit_k1/groot_tp/main` journal 870/2800，恢复配方见任务 #28。
 
-⚠ 排除项：H-gate 不是原因。`score_hysteresis` 关闭时那一步**跑全量推理**、不复用动作，
-`L=6` 还会在连续 6 次 FULL_HIT 后强制插一次新推理；它只省检索、不改执行。
+## 8. 出图流程（唯一来源）
 
-### 续补口径
-main lane 的 uid（`rit-<cid>__l1s1_groot_tp__<Task>:eval:<ord>:<idx>`）在 20 集与 50 集两轮**完全一致**
-（同任务表、同顺序），所以把试跑的 journal 带进新目录即可让 driver 的 resume 丢弃已完成 uid、
-只跑 20-49，补 3,120 集而不是重跑 5,200 集。⚠ **run plan 不能带过去**：它按 episodes 入哈希，
-20 与 50 是两个 plan_hash，带过去会被拒绝续跑。
+```
+实测前沿 → build_rit_figure_spec → spec JSON →（owner 网页拖点）→ render_rit_figure / plot_rit_pareto_four
+```
+大图**派生**自 13 个小图：`y = 13 个逐任务 SR 均值`，`x = Σ(w·x)/Σw`（w = 该任务判决行数）。连线只连非受支配点。小图 y 吸附 1/50 网格，服务端保存前再验一次整数。
+编辑器 `edit_rit_figure.py` **无命令行参数**，固定 `127.0.0.1:8765`，**owner 自己启动**（我起了会占端口）。
 
-⚠ 另一个踩到的坑：两条 lane 共用 `--data-dir` 时 run plan 按 cell id 命名而不含 lane，
-第二条 lane 一启动就撞 plan_hash。已改成每 lane 一个数据目录。
+## 9. k=1 控制族（最后一档）
+
+**GR00T k=1**：09-10 16:30 起从 journal 870/2800 续跑（`k1chain` → `chain_k1_groot.sh`，5 个 server 在 23160-64、30 worker）。
+臂是 09-09 发的、来自 GR00T 自己那份健康的拟合，不用重做。目标 IR 23.0/38.4/53.8/69.2/84.6/100。
+
+**pi0.5 k=1**：⚠ **原来那批臂作废，已重发射。** 09-09 20:07 发的那批是在**作废那轮的 off-policy 拟合**上做的，
+症状与 v1 的 k=2/k=3 完全一样：
+
+| | 作废批（v1） | 重发批（v2） |
+|---|---|---|
+| 可达 IR 下界 | 14.46（错，没算 H-gate 强制的全量推理） | **26.85**（对，与 k=2/k=3 同源） |
+| 目标网格 | 14.5/31.6/48.7/65.8/82.9/100 | **26.85/41.47/56.09/70.71/85.33/99.95**（与 k=2/k=3 逐点相同） |
+| ir≈31.6 / 56.1 的切点 | 0.8226 / 0.9446 —— **都在 0.99 以下** | **0.99538 / 0.99747** —— 落在部署分布内 |
+
+部署分数 73.8% 的质量在 0.99 以上，所以作废批的切点会把绝大多数步判成 FULL_HIT，六个点又会挤成一坨。
+重发批的目标网格与 k=2/k=3 **逐点相同**，三个深度在同样六个预算上对比，图上可直接叠。
+
+⚠ 一个良性差异：k=1 的 `n_seg_req` 是 **24**，k=2/k=3 是 12。不是 bug —— `usable()` 按档数过滤行，
+k=1 只要一列风险标签、可用行更多，占用下限（每段 ≥8 行）在 24 段上就能满足，分辨率反而更细。
+
+**产物路径**：臂 `arms_k1_pi05_v2/`（weilandserver `/tmp/rit/`、timan107 `config/rit_k1_v2/pi05/main`），
+记录 `~/tmp_rit/rit_record_k1_pi05_v2.json`，跑批脚本 `/tmp/rit/{launch,chain}_k1_pi05.sh`（已就位、语法已验）。
+GR00T k=1 收工后：杀 GR00T server → 起 pi0.5 server（`BOOT=/tmp/rit/arms_k1_pi05_v2/always_hit.yaml`）→ `chain_k1_pi05.sh`。

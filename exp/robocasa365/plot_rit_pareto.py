@@ -1,7 +1,7 @@
 """Draw the RIT frontier: one overall panel and one small multiple per task.
 
 x is the realized inference ratio (percent of always-MISS cost), y is success
-rate. One line per ladder depth; the all-FULL_HIT arm and the teacher floor are
+rate. One line per ladder depth; the all-FULL_HIT arm and the teacher-only arm are
 drawn as reference marks rather than points on a frontier, because neither is
 addressed by an IR target.
 
@@ -29,10 +29,21 @@ MUTED = "#6B7780"
 GRID = "#DFE4E7"
 
 
-def curves(points: dict, key_ir: str, key_y: str, task: str | None = None):
+def curves(points: dict, key_ir: str, key_y: str, task: str | None = None,
+           require_tasks: int | None = None):
+    """Points of each ladder depth, cheapest first.
+
+    ``require_tasks`` drops a cell whose task coverage is short of the full
+    roster. A partially dispatched cell has a macro over whichever tasks the
+    scheduler reached first, which is a different quantity from the macro every
+    other point carries -- plotting the two together reads as a trend and is a
+    coverage artefact.
+    """
     out = {}
     for cid, pt in points.items():
         if "missing" in pt or pt.get("k") not in SERIES:
+            continue
+        if require_tasks is not None and len(pt.get("per_task", {})) < require_tasks:
             continue
         if task is None:
             ir, y = pt.get(key_ir), pt.get(key_y)
@@ -95,6 +106,8 @@ def main() -> None:
     ap.add_argument("--floor", default="")
     ap.add_argument("--title", default="RoboCasa365 x GR00T N1.5 -- warm-start RIT frontier")
     ap.add_argument("--out-stem", required=True)
+    ap.add_argument("--require-tasks", type=int, default=None,
+                    help="drop cells covering fewer tasks than this (partial runs)")
     args = ap.parse_args()
 
     fr = json.loads(pathlib.Path(args.frontier).read_text())
@@ -113,8 +126,9 @@ def main() -> None:
                           height_ratios=[1.5] + [1] * ((len(tasks) + 3) // 4))
 
     ax0 = fig.add_subplot(gs[0, :2])
-    draw(ax0, curves(points, "realized_ir", "macro_sr"), anchors(points), floor,
-         "all 8 tasks  (macro over tasks)")
+    n_tasks = max((len(pt.get("per_task", {})) for pt in points.values()), default=0)
+    draw(ax0, curves(points, "realized_ir", "macro_sr", require_tasks=args.require_tasks),
+         anchors(points), floor, f"all {n_tasks} tasks  (macro over tasks)")
 
     handles = [plt.Line2D([], [], color=c, marker="o", linewidth=2.0, markersize=6,
                           markeredgecolor="white", markeredgewidth=1.5, label=lab)
@@ -124,7 +138,7 @@ def main() -> None:
                               markeredgewidth=1.5, label="all-FULL_HIT arm"))
     if floor is not None:
         handles.append(plt.Line2D([], [], color=INK, linestyle=(0, (5, 3)),
-                                  linewidth=1.4, label="teacher floor"))
+                                  linewidth=1.4, label="teacher-only (no cache)"))
     lg = fig.add_subplot(gs[0, 2:])
     lg.axis("off")
     lg.legend(handles=handles, loc="center left", frameon=False, fontsize=10,

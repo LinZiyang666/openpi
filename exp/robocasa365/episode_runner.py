@@ -49,6 +49,7 @@ from __future__ import annotations
 
 import collections
 import contextlib
+import fcntl
 import os
 import threading
 import time
@@ -366,6 +367,47 @@ class RobocasaEpisodeRunner(EpisodeRunner):
 
     # -- env lifecycle ---------------------------------------------------
 
+    @staticmethod
+    @contextlib.contextmanager
+    def _env_build_lock() -> Iterator[None]:
+        """Serialise env construction across every worker on this host.
+
+        Building a RoboCasa env creates an EGL offscreen render context, and
+        tearing the previous one down destroys one. With ``max_cached_envs=1``
+        every worker does both at once the moment the driver moves to the next
+        task, so a fleet of N workers issues N simultaneous context
+        create/destroy pairs against the same GPU. That storm is what wedged
+        timan108: the NVIDIA module's context path serialised on a per-device
+        lock, forty-five processes piled into it in D state, and the box went
+        down with it.
+
+        Holding one file lock across the construction turns the stampede into a
+        queue. It costs a few seconds per worker per task change and changes
+        nothing about the episode itself -- same env, same seed, same rollout --
+        so results stay comparable with runs made before this existed.
+
+        Set ``RC365_ENV_BUILD_LOCK=`` (empty) to opt out.
+        """
+        path = os.environ.get("RC365_ENV_BUILD_LOCK", "/tmp/rc365_env_build.lock")
+        if not path:
+            yield
+            return
+        # The lock file is shared by every worker on the host, so it must stay
+        # world-writable; a stale root-owned one would silently serialise
+        # nothing (the open fails and we fall through to the unlocked path).
+        try:
+            fd = os.open(path, os.O_CREAT | os.O_RDWR, 0o666)
+        except OSError:
+            yield
+            return
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX)
+            yield
+        finally:
+            with contextlib.suppress(Exception):
+                fcntl.flock(fd, fcntl.LOCK_UN)
+            os.close(fd)
+
     def _ensure_env(
         self,
         task_name: str,
@@ -378,19 +420,23 @@ class RobocasaEpisodeRunner(EpisodeRunner):
         key = (task_name, layout, style, pin_task_id)
         env = self._envs.get(key)
         if env is None:
-            if self._max_cached_envs is not None:
-                while len(self._envs) >= self._max_cached_envs:
-                    evict_key, evict_env = next(iter(self._envs.items()))
-                    del self._envs[evict_key]
-                    with contextlib.suppress(Exception):
-                        evict_env.close()
-            # Unpinned runs must call gym_make exactly as before -- injected
-            # fakes in the existing tests take (task, layout, style, **kwargs)
-            # and an always-present pinned_objects kwarg would change that call.
-            pin_kw = {} if pinned_objects is None else {"pinned_objects": pinned_objects}
-            env = self._gym_make(
-                task_name, layout, style, **pin_kw, **self._adapter.env_kwargs()
-            )
+            # Both halves belong inside the lock: the close() releases a render
+            # context and the make() claims one, and it is the two racing across
+            # workers that overloads the driver.
+            with self._env_build_lock():
+                if self._max_cached_envs is not None:
+                    while len(self._envs) >= self._max_cached_envs:
+                        evict_key, evict_env = next(iter(self._envs.items()))
+                        del self._envs[evict_key]
+                        with contextlib.suppress(Exception):
+                            evict_env.close()
+                # Unpinned runs must call gym_make exactly as before -- injected
+                # fakes in the existing tests take (task, layout, style, **kwargs)
+                # and an always-present pinned_objects kwarg would change that call.
+                pin_kw = {} if pinned_objects is None else {"pinned_objects": pinned_objects}
+                env = self._gym_make(
+                    task_name, layout, style, **pin_kw, **self._adapter.env_kwargs()
+                )
             self._envs[key] = env
         return env
 

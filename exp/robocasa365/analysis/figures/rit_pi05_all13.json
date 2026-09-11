@@ -1,0 +1,981 @@
+{
+  "schema": "robocasa365.rit_figure/v1",
+  "figure_id": "rit_pi05_all13",
+  "teacher": "pi05",
+  "title": "RoboCasa365 x pi0.5 -- warm-start RIT frontier",
+  "x_label": "realized inference ratio  (% of all-MISS)",
+  "y_label": "success rate",
+  "episodes_per_task": 50,
+  "tasks": [
+    "CloseBlenderLid",
+    "CloseFridge",
+    "CoffeeSetupMug",
+    "OpenCabinet",
+    "OpenDrawer",
+    "OpenStandMixerHead",
+    "PickPlaceCounterToCabinet",
+    "PickPlaceCounterToStove",
+    "PickPlaceDrawerToCounter",
+    "PickPlaceSinkToCounter",
+    "PickPlaceToasterToCounter",
+    "SlideDishwasherRack",
+    "TurnOnSinkFaucet"
+  ],
+  "series": [
+    {
+      "key": "k=2  FULL + WARM@1 step",
+      "color": "#2E6FD9",
+      "points": [
+        {
+          "id": "k2__ir026.8",
+          "label": "IR=27",
+          "per_task": {
+            "CloseBlenderLid": {
+              "x": 26.3447,
+              "y": 0.08,
+              "w": 8930
+            },
+            "CloseFridge": {
+              "x": 26.3743,
+              "y": 0.5,
+              "w": 7867
+            },
+            "CoffeeSetupMug": {
+              "x": 26.5361,
+              "y": 0.18,
+              "w": 5800
+            },
+            "OpenCabinet": {
+              "x": 26.5576,
+              "y": 0.52,
+              "w": 8172
+            },
+            "OpenDrawer": {
+              "x": 27.0514,
+              "y": 0.68,
+              "w": 4442
+            },
+            "OpenStandMixerHead": {
+              "x": 25.8199,
+              "y": 0.46,
+              "w": 3478
+            },
+            "PickPlaceCounterToCabinet": {
+              "x": 26.8309,
+              "y": 0.22,
+              "w": 6920
+            },
+            "PickPlaceCounterToStove": {
+              "x": 27.0082,
+              "y": 0.34,
+              "w": 5132
+            },
+            "PickPlaceDrawerToCounter": {
+              "x": 26.5907,
+              "y": 0.22,
+              "w": 7064
+            },
+            "PickPlaceSinkToCounter": {
+              "x": 29.1425,
+              "y": 0.44,
+              "w": 6920
+            },
+            "PickPlaceToasterToCounter": {
+              "x": 26.5262,
+              "y": 0.16,
+              "w": 5826
+            },
+            "SlideDishwasherRack": {
+              "x": 28.8345,
+              "y": 0.6,
+              "w": 3195
+            },
+            "TurnOnSinkFaucet": {
+              "x": 26.3975,
+              "y": 0.52,
+              "w": 5373
+            }
+          }
+        },
+        {
+          "id": "k2__ir041.5",
+          "label": "IR=41",
+          "per_task": {
+            "CloseBlenderLid": {
+              "x": 41.3554,
+              "y": 0.06,
+              "w": 8882
+            },
+            "CloseFridge": {
+              "x": 27.3911,
+              "y": 0.5,
+              "w": 7908
+            },
+            "CoffeeSetupMug": {
+              "x": 33.8479,
+              "y": 0.06,
+              "w": 5918
+            },
+            "OpenCabinet": {
+              "x": 38.9925,
+              "y": 0.62,
+              "w": 7978
+            },
+            "OpenDrawer": {
+              "x": 41.751,
+              "y": 0.78,
+              "w": 4040
+            },
+            "OpenStandMixerHead": {
+              "x": 27.8914,
+              "y": 0.54,
+              "w": 3420
+            },
+            "PickPlaceCounterToCabinet": {
+              "x": 62.8355,
+              "y": 0.28,
+              "w": 6531
+            },
+            "PickPlaceCounterToStove": {
+              "x": 60.8386,
+              "y": 0.22,
+              "w": 5429
+            },
+            "PickPlaceDrawerToCounter": {
+              "x": 47.759,
+              "y": 0.16,
+              "w": 7137
+            },
+            "PickPlaceSinkToCounter": {
+              "x": 62.7189,
+              "y": 0.48,
+              "w": 6921
+            },
+            "PickPlaceToasterToCounter": {
+              "x": 29.9301,
+              "y": 0.22,
+              "w": 5752
+            },
+            "SlideDishwasherRack": {
+              "x": 44.334,
+              "y": 0.56,
+              "w": 3294
+            },
+            "TurnOnSinkFaucet": {
+              "x": 26.8939,
+              "y": 0.46,
+              "w": 5466
+            }
+          }
+        },
+        {
+          "id": "k2__ir056.1",
+          "label": "IR=56",
+          "per_task": {
+            "CloseBlenderLid": {
+              "x": 59.7098,
+              "y": 0.0,
+              "w": 9000
+            },
+            "CloseFridge": {
+              "x": 37.2553,
+              "y": 0.62,
+              "w": 7666
+            },
+            "CoffeeSetupMug": {
+              "x": 44.1326,
+              "y": 0.16,
+              "w": 5834
+            },
+            "OpenCabinet": {
+              "x": 60.0502,
+              "y": 0.4,
+              "w": 9086
+            },
+            "OpenDrawer": {
+              "x": 49.7384,
+              "y": 0.8,
+              "w": 4111
+            },
+            "OpenStandMixerHead": {
+              "x": 43.7965,
+              "y": 0.54,
+              "w": 3421
+            },
+            "PickPlaceCounterToCabinet": {
+              "x": 79.1527,
+              "y": 0.32,
+              "w": 6490
+            },
+            "PickPlaceCounterToStove": {
+              "x": 70.521,
+              "y": 0.32,
+              "w": 5235
+            },
+            "PickPlaceDrawerToCounter": {
+              "x": 65.626,
+              "y": 0.3,
+              "w": 7059
+            },
+            "PickPlaceSinkToCounter": {
+              "x": 67.7402,
+              "y": 0.6,
+              "w": 6568
+            },
+            "PickPlaceToasterToCounter": {
+              "x": 44.3075,
+              "y": 0.16,
+              "w": 5901
+            },
+            "SlideDishwasherRack": {
+              "x": 48.7122,
+              "y": 0.6,
+              "w": 3232
+            },
+            "TurnOnSinkFaucet": {
+              "x": 32.6234,
+              "y": 0.56,
+              "w": 5300
+            }
+          }
+        },
+        {
+          "id": "k2__ir070.7",
+          "label": "IR=71",
+          "per_task": {
+            "CloseBlenderLid": {
+              "x": 67.581,
+              "y": 0.08,
+              "w": 8901
+            },
+            "CloseFridge": {
+              "x": 57.4554,
+              "y": 0.64,
+              "w": 7533
+            },
+            "CoffeeSetupMug": {
+              "x": 68.0295,
+              "y": 0.28,
+              "w": 5766
+            },
+            "OpenCabinet": {
+              "x": 75.0959,
+              "y": 0.58,
+              "w": 7865
+            },
+            "OpenDrawer": {
+              "x": 63.0607,
+              "y": 0.74,
+              "w": 4223
+            },
+            "OpenStandMixerHead": {
+              "x": 69.6853,
+              "y": 0.38,
+              "w": 3699
+            },
+            "PickPlaceCounterToCabinet": {
+              "x": 88.0815,
+              "y": 0.62,
+              "w": 5751
+            },
+            "PickPlaceCounterToStove": {
+              "x": 80.0642,
+              "y": 0.76,
+              "w": 4234
+            },
+            "PickPlaceDrawerToCounter": {
+              "x": 77.1418,
+              "y": 0.4,
+              "w": 6731
+            },
+            "PickPlaceSinkToCounter": {
+              "x": 70.9307,
+              "y": 0.88,
+              "w": 4686
+            },
+            "PickPlaceToasterToCounter": {
+              "x": 55.7048,
+              "y": 0.24,
+              "w": 5869
+            },
+            "SlideDishwasherRack": {
+              "x": 54.0709,
+              "y": 0.66,
+              "w": 3090
+            },
+            "TurnOnSinkFaucet": {
+              "x": 38.1423,
+              "y": 0.46,
+              "w": 5351
+            }
+          }
+        },
+        {
+          "id": "k2__ir085.3",
+          "label": "IR=85",
+          "per_task": {
+            "CloseBlenderLid": {
+              "x": 79.2701,
+              "y": 0.0,
+              "w": 9000
+            },
+            "CloseFridge": {
+              "x": 68.9048,
+              "y": 0.48,
+              "w": 7774
+            },
+            "CoffeeSetupMug": {
+              "x": 78.3146,
+              "y": 0.22,
+              "w": 5751
+            },
+            "OpenCabinet": {
+              "x": 85.2408,
+              "y": 0.54,
+              "w": 8629
+            },
+            "OpenDrawer": {
+              "x": 79.9486,
+              "y": 0.68,
+              "w": 4553
+            },
+            "OpenStandMixerHead": {
+              "x": 83.6999,
+              "y": 0.4,
+              "w": 3751
+            },
+            "PickPlaceCounterToCabinet": {
+              "x": 93.4283,
+              "y": 0.6,
+              "w": 5642
+            },
+            "PickPlaceCounterToStove": {
+              "x": 89.968,
+              "y": 0.74,
+              "w": 4286
+            },
+            "PickPlaceDrawerToCounter": {
+              "x": 83.8295,
+              "y": 0.24,
+              "w": 6944
+            },
+            "PickPlaceSinkToCounter": {
+              "x": 81.0858,
+              "y": 0.94,
+              "w": 4462
+            },
+            "PickPlaceToasterToCounter": {
+              "x": 72.855,
+              "y": 0.14,
+              "w": 5865
+            },
+            "SlideDishwasherRack": {
+              "x": 71.365,
+              "y": 0.64,
+              "w": 3104
+            },
+            "TurnOnSinkFaucet": {
+              "x": 60.4655,
+              "y": 0.2,
+              "w": 5722
+            }
+          }
+        },
+        {
+          "id": "k2__ir100.0",
+          "label": "IR=100",
+          "per_task": {
+            "CloseBlenderLid": {
+              "x": 100.0,
+              "y": 0.06,
+              "w": 8910
+            },
+            "CloseFridge": {
+              "x": 99.7253,
+              "y": 0.36,
+              "w": 7983
+            },
+            "CoffeeSetupMug": {
+              "x": 100.0,
+              "y": 0.48,
+              "w": 5537
+            },
+            "OpenCabinet": {
+              "x": 99.9918,
+              "y": 0.62,
+              "w": 7635
+            },
+            "OpenDrawer": {
+              "x": 99.9927,
+              "y": 0.74,
+              "w": 4267
+            },
+            "OpenStandMixerHead": {
+              "x": 100.0,
+              "y": 0.1,
+              "w": 4287
+            },
+            "PickPlaceCounterToCabinet": {
+              "x": 100.0,
+              "y": 0.64,
+              "w": 5416
+            },
+            "PickPlaceCounterToStove": {
+              "x": 100.0,
+              "y": 0.76,
+              "w": 3936
+            },
+            "PickPlaceDrawerToCounter": {
+              "x": 100.0,
+              "y": 0.26,
+              "w": 7116
+            },
+            "PickPlaceSinkToCounter": {
+              "x": 99.9919,
+              "y": 1.0,
+              "w": 3876
+            },
+            "PickPlaceToasterToCounter": {
+              "x": 100.0,
+              "y": 0.56,
+              "w": 5512
+            },
+            "SlideDishwasherRack": {
+              "x": 99.9428,
+              "y": 0.54,
+              "w": 3288
+            },
+            "TurnOnSinkFaucet": {
+              "x": 100.0,
+              "y": 0.7,
+              "w": 4829
+            }
+          }
+        }
+      ]
+    },
+    {
+      "key": "k=3  FULL + WARM@1 + WARM@2 steps",
+      "color": "#C8641E",
+      "points": [
+        {
+          "id": "k3__ir026.8",
+          "label": "IR=27",
+          "per_task": {
+            "CloseBlenderLid": {
+              "x": 26.3538,
+              "y": 0.12,
+              "w": 8765
+            },
+            "CloseFridge": {
+              "x": 26.3527,
+              "y": 0.54,
+              "w": 7644
+            },
+            "CoffeeSetupMug": {
+              "x": 26.5292,
+              "y": 0.18,
+              "w": 5860
+            },
+            "OpenCabinet": {
+              "x": 26.5703,
+              "y": 0.52,
+              "w": 8227
+            },
+            "OpenDrawer": {
+              "x": 26.1827,
+              "y": 0.84,
+              "w": 3830
+            },
+            "OpenStandMixerHead": {
+              "x": 25.9038,
+              "y": 0.44,
+              "w": 3729
+            },
+            "PickPlaceCounterToCabinet": {
+              "x": 26.7846,
+              "y": 0.22,
+              "w": 6828
+            },
+            "PickPlaceCounterToStove": {
+              "x": 27.1141,
+              "y": 0.3,
+              "w": 5231
+            },
+            "PickPlaceDrawerToCounter": {
+              "x": 26.557,
+              "y": 0.2,
+              "w": 7013
+            },
+            "PickPlaceSinkToCounter": {
+              "x": 30.981,
+              "y": 0.38,
+              "w": 7377
+            },
+            "PickPlaceToasterToCounter": {
+              "x": 26.5534,
+              "y": 0.18,
+              "w": 5820
+            },
+            "SlideDishwasherRack": {
+              "x": 29.6053,
+              "y": 0.54,
+              "w": 3343
+            },
+            "TurnOnSinkFaucet": {
+              "x": 26.4378,
+              "y": 0.58,
+              "w": 5205
+            }
+          }
+        },
+        {
+          "id": "k3__ir041.5",
+          "label": "IR=41",
+          "per_task": {
+            "CloseBlenderLid": {
+              "x": 42.4101,
+              "y": 0.1,
+              "w": 8862
+            },
+            "CloseFridge": {
+              "x": 30.4852,
+              "y": 0.58,
+              "w": 7706
+            },
+            "CoffeeSetupMug": {
+              "x": 32.9364,
+              "y": 0.16,
+              "w": 5881
+            },
+            "OpenCabinet": {
+              "x": 41.2391,
+              "y": 0.46,
+              "w": 8656
+            },
+            "OpenDrawer": {
+              "x": 45.3306,
+              "y": 0.74,
+              "w": 4575
+            },
+            "OpenStandMixerHead": {
+              "x": 27.2563,
+              "y": 0.5,
+              "w": 3583
+            },
+            "PickPlaceCounterToCabinet": {
+              "x": 61.8639,
+              "y": 0.26,
+              "w": 6729
+            },
+            "PickPlaceCounterToStove": {
+              "x": 60.2366,
+              "y": 0.26,
+              "w": 5347
+            },
+            "PickPlaceDrawerToCounter": {
+              "x": 47.7505,
+              "y": 0.18,
+              "w": 7123
+            },
+            "PickPlaceSinkToCounter": {
+              "x": 55.7556,
+              "y": 0.6,
+              "w": 6440
+            },
+            "PickPlaceToasterToCounter": {
+              "x": 28.3474,
+              "y": 0.16,
+              "w": 5854
+            },
+            "SlideDishwasherRack": {
+              "x": 45.4359,
+              "y": 0.58,
+              "w": 3310
+            },
+            "TurnOnSinkFaucet": {
+              "x": 26.84,
+              "y": 0.54,
+              "w": 5228
+            }
+          }
+        },
+        {
+          "id": "k3__ir056.1",
+          "label": "IR=56",
+          "per_task": {
+            "CloseBlenderLid": {
+              "x": 54.988,
+              "y": 0.06,
+              "w": 8874
+            },
+            "CloseFridge": {
+              "x": 36.6243,
+              "y": 0.58,
+              "w": 7603
+            },
+            "CoffeeSetupMug": {
+              "x": 43.7286,
+              "y": 0.18,
+              "w": 5828
+            },
+            "OpenCabinet": {
+              "x": 56.3206,
+              "y": 0.56,
+              "w": 8459
+            },
+            "OpenDrawer": {
+              "x": 50.6845,
+              "y": 0.78,
+              "w": 4152
+            },
+            "OpenStandMixerHead": {
+              "x": 46.5619,
+              "y": 0.44,
+              "w": 3736
+            },
+            "PickPlaceCounterToCabinet": {
+              "x": 80.475,
+              "y": 0.32,
+              "w": 6768
+            },
+            "PickPlaceCounterToStove": {
+              "x": 72.2721,
+              "y": 0.34,
+              "w": 5123
+            },
+            "PickPlaceDrawerToCounter": {
+              "x": 65.3674,
+              "y": 0.32,
+              "w": 7026
+            },
+            "PickPlaceSinkToCounter": {
+              "x": 70.7182,
+              "y": 0.56,
+              "w": 6486
+            },
+            "PickPlaceToasterToCounter": {
+              "x": 44.4638,
+              "y": 0.12,
+              "w": 5897
+            },
+            "SlideDishwasherRack": {
+              "x": 48.63,
+              "y": 0.6,
+              "w": 3261
+            },
+            "TurnOnSinkFaucet": {
+              "x": 30.4801,
+              "y": 0.6,
+              "w": 5151
+            }
+          }
+        },
+        {
+          "id": "k3__ir070.7",
+          "label": "IR=71",
+          "per_task": {
+            "CloseBlenderLid": {
+              "x": 61.9358,
+              "y": 0.14,
+              "w": 8830
+            },
+            "CloseFridge": {
+              "x": 55.3119,
+              "y": 0.6,
+              "w": 7555
+            },
+            "CoffeeSetupMug": {
+              "x": 66.6806,
+              "y": 0.28,
+              "w": 5781
+            },
+            "OpenCabinet": {
+              "x": 68.0096,
+              "y": 0.7,
+              "w": 7849
+            },
+            "OpenDrawer": {
+              "x": 63.6944,
+              "y": 0.76,
+              "w": 4442
+            },
+            "OpenStandMixerHead": {
+              "x": 71.4869,
+              "y": 0.46,
+              "w": 3669
+            },
+            "PickPlaceCounterToCabinet": {
+              "x": 88.8481,
+              "y": 0.54,
+              "w": 5887
+            },
+            "PickPlaceCounterToStove": {
+              "x": 79.9415,
+              "y": 0.74,
+              "w": 4394
+            },
+            "PickPlaceDrawerToCounter": {
+              "x": 78.2958,
+              "y": 0.28,
+              "w": 6871
+            },
+            "PickPlaceSinkToCounter": {
+              "x": 68.7686,
+              "y": 0.96,
+              "w": 4678
+            },
+            "PickPlaceToasterToCounter": {
+              "x": 53.986,
+              "y": 0.28,
+              "w": 5764
+            },
+            "SlideDishwasherRack": {
+              "x": 57.5939,
+              "y": 0.6,
+              "w": 3291
+            },
+            "TurnOnSinkFaucet": {
+              "x": 37.5964,
+              "y": 0.5,
+              "w": 5335
+            }
+          }
+        },
+        {
+          "id": "k3__ir085.3",
+          "label": "IR=85",
+          "per_task": {
+            "CloseBlenderLid": {
+              "x": 79.3447,
+              "y": 0.14,
+              "w": 8859
+            },
+            "CloseFridge": {
+              "x": 66.6219,
+              "y": 0.42,
+              "w": 8054
+            },
+            "CoffeeSetupMug": {
+              "x": 77.9022,
+              "y": 0.24,
+              "w": 5740
+            },
+            "OpenCabinet": {
+              "x": 85.4258,
+              "y": 0.56,
+              "w": 8450
+            },
+            "OpenDrawer": {
+              "x": 75.7794,
+              "y": 0.86,
+              "w": 3976
+            },
+            "OpenStandMixerHead": {
+              "x": 84.6312,
+              "y": 0.42,
+              "w": 3708
+            },
+            "PickPlaceCounterToCabinet": {
+              "x": 92.8081,
+              "y": 0.48,
+              "w": 5902
+            },
+            "PickPlaceCounterToStove": {
+              "x": 90.1432,
+              "y": 0.72,
+              "w": 4452
+            },
+            "PickPlaceDrawerToCounter": {
+              "x": 84.6279,
+              "y": 0.34,
+              "w": 6999
+            },
+            "PickPlaceSinkToCounter": {
+              "x": 80.5948,
+              "y": 1.0,
+              "w": 4317
+            },
+            "PickPlaceToasterToCounter": {
+              "x": 72.756,
+              "y": 0.14,
+              "w": 5854
+            },
+            "SlideDishwasherRack": {
+              "x": 71.5093,
+              "y": 0.66,
+              "w": 3127
+            },
+            "TurnOnSinkFaucet": {
+              "x": 60.9518,
+              "y": 0.34,
+              "w": 5547
+            }
+          }
+        },
+        {
+          "id": "k3__ir100.0",
+          "label": "IR=100",
+          "per_task": {
+            "CloseBlenderLid": {
+              "x": 100.0,
+              "y": 0.1,
+              "w": 8927
+            },
+            "CloseFridge": {
+              "x": 99.9205,
+              "y": 0.52,
+              "w": 7880
+            },
+            "CoffeeSetupMug": {
+              "x": 100.0,
+              "y": 0.48,
+              "w": 5556
+            },
+            "OpenCabinet": {
+              "x": 99.9969,
+              "y": 0.76,
+              "w": 7136
+            },
+            "OpenDrawer": {
+              "x": 99.9734,
+              "y": 0.74,
+              "w": 4202
+            },
+            "OpenStandMixerHead": {
+              "x": 100.0,
+              "y": 0.2,
+              "w": 4261
+            },
+            "PickPlaceCounterToCabinet": {
+              "x": 100.0,
+              "y": 0.56,
+              "w": 5773
+            },
+            "PickPlaceCounterToStove": {
+              "x": 100.0,
+              "y": 0.72,
+              "w": 4149
+            },
+            "PickPlaceDrawerToCounter": {
+              "x": 100.0,
+              "y": 0.36,
+              "w": 6721
+            },
+            "PickPlaceSinkToCounter": {
+              "x": 99.9365,
+              "y": 1.0,
+              "w": 3874
+            },
+            "PickPlaceToasterToCounter": {
+              "x": 100.0,
+              "y": 0.54,
+              "w": 5504
+            },
+            "SlideDishwasherRack": {
+              "x": 99.9677,
+              "y": 0.46,
+              "w": 3467
+            },
+            "TurnOnSinkFaucet": {
+              "x": 100.0,
+              "y": 0.74,
+              "w": 4938
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "anchors": [
+    {
+      "id": "always_hit",
+      "label": "all-FULL_HIT",
+      "per_task": {
+        "CloseBlenderLid": {
+          "x": 26.3522,
+          "y": 0.06,
+          "w": 8910
+        },
+        "CloseFridge": {
+          "x": 26.3566,
+          "y": 0.52,
+          "w": 7699
+        },
+        "CoffeeSetupMug": {
+          "x": 26.5114,
+          "y": 0.3,
+          "w": 5748
+        },
+        "OpenCabinet": {
+          "x": 26.575,
+          "y": 0.46,
+          "w": 8485
+        },
+        "OpenDrawer": {
+          "x": 27.485,
+          "y": 0.66,
+          "w": 4675
+        },
+        "OpenStandMixerHead": {
+          "x": 25.9308,
+          "y": 0.64,
+          "w": 3340
+        },
+        "PickPlaceCounterToCabinet": {
+          "x": 26.9918,
+          "y": 0.22,
+          "w": 6954
+        },
+        "PickPlaceCounterToStove": {
+          "x": 27.2874,
+          "y": 0.32,
+          "w": 5227
+        },
+        "PickPlaceDrawerToCounter": {
+          "x": 26.7041,
+          "y": 0.16,
+          "w": 7271
+        },
+        "PickPlaceSinkToCounter": {
+          "x": 28.514,
+          "y": 0.46,
+          "w": 6700
+        },
+        "PickPlaceToasterToCounter": {
+          "x": 26.5433,
+          "y": 0.2,
+          "w": 5839
+        },
+        "SlideDishwasherRack": {
+          "x": 27.9145,
+          "y": 0.58,
+          "w": 3299
+        },
+        "TurnOnSinkFaucet": {
+          "x": 26.4209,
+          "y": 0.5,
+          "w": 5434
+        }
+      }
+    }
+  ],
+  "teacher_only": {
+    "label": "teacher-only (no cache)",
+    "per_task": {
+      "CloseBlenderLid": 0.06,
+      "CloseFridge": 0.62,
+      "CoffeeSetupMug": 0.34,
+      "OpenCabinet": 0.7,
+      "OpenDrawer": 0.68,
+      "OpenStandMixerHead": 0.26,
+      "PickPlaceCounterToCabinet": 0.74,
+      "PickPlaceCounterToStove": 0.84,
+      "PickPlaceDrawerToCounter": 0.3,
+      "PickPlaceSinkToCounter": 1.0,
+      "PickPlaceToasterToCounter": 0.5,
+      "SlideDishwasherRack": 0.44,
+      "TurnOnSinkFaucet": 0.76
+    }
+  }
+}
