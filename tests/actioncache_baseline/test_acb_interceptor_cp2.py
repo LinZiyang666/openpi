@@ -104,7 +104,8 @@ def _obs():
 def _payload(with_ws=False):
     inter = {0.1: torch.randn(10, 32)} if with_ws else None
     return CachePayload(action_chunk=torch.randn(10, 32), intermediates=inter,
-                        denoising_num_steps=10 if with_ws else None)
+                        denoising_num_steps=10 if with_ws else None,
+                        schedule_id="pi05_v1" if with_ws else None)
 
 
 def _make(cp, result, **kw):
