@@ -8,6 +8,7 @@
 |---|---|---|
 | `executor_substitution/` | 把 hit / miss 槽的**执行体**换掉，价值是掉在 payload 还是 index 上？ | 已收官（2026-08-14）。结论：payload 可替换（hit→学生 +6.0/+18.4pp 超整个 cache 系统），index 承重（miss 槽换学生 −19~−33pp）。报告见 `executor_substitution/analysis/analysis.md` |
 | `cache_size/` | 库**多大**才够用？纯 replay 的成功率随库规模怎么走？ | 设计冻结（G1 APPROVED），实施中。设计见 [`logs/cache_size_ablation_plan.log.md`](../../logs/cache_size_ablation_plan.log.md) |
+| `cache_prune/` | 跨轨迹短剩余剪枝如何改变纯 cache 的 SR、大小与检索成本？ | `G2 R2 APPROVED；Owner 并发替换已交付`；40 臂协议不变。87 项实验测试及基础设施相关回归共 566 passed/11 skipped；全仓 Verify 未完成。四源真实 grid/P05 全查询通过（33,448 query、max regret=0）；两 suite 各 500/500 common-unseen，L10 采用 owner 接受的集合证据。计划见 [`cache_prune_plan.log.md`](../../logs/cache_prune_plan.log.md)，当前入口见 [并发运行交接](../../logs/cache_prune_run_handoff.md) |
 | `latency_bench/` | 各**执行体**（teacher / ACT / SmolVLA）一次推理到底多贵？瓶颈在算力还是在 kernel 发射？ | 已收官（2026-08-19）。结论：eager 下三者全是 launch-bound（GPU 利用率 6–15%），编译后 3–9 倍加速；命中步换 ACT 稳定省 71–82%，换 SmolVLA 任何档位都不省；拆 stage 在 default 档要付 32%，CUDA Graph 下归零——而生产 interceptor 恰好降级掉了 CUDA Graph。报告见 `latency_bench/analysis/analysis.md` |
 
 ---

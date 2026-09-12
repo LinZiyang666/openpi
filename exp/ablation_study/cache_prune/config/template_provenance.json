@@ -1,0 +1,10 @@
+{
+  "libero_spatial": {
+    "path": "exp/rit_pareto/data/k3_rith/libero_spatial/k3/rith/k3_sp_rith_ir60.yaml",
+    "sha256": "93f67744e4850724a07290fac2b8c844e116f2b8b41fd9c6d79033ae46dadf0e"
+  },
+  "libero_10": {
+    "path": "exp/rit_pareto/data/k3_rith/libero_10/k3/rith/k3_l10_rith_ir60.yaml",
+    "sha256": "78ad5dcc864b675629206dc3e1be3fde87110fa53fa08cdd5747c96aafa90236"
+  }
+}

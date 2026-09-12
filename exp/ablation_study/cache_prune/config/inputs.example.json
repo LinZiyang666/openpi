@@ -1,0 +1,28 @@
+{
+  "sources": [
+    {
+      "source": "/data/openpi/ablation_study/cache_prune/libero_spatial/rit50/source.json",
+      "scores": "/data/openpi/ablation_study/cache_prune/libero_spatial/rit50/scores/scores.json",
+      "grid": "/data/openpi/ablation_study/cache_prune/libero_spatial/rit50/grid/grid_freeze.json"
+    },
+    {
+      "source": "/data/openpi/ablation_study/cache_prune/libero_spatial/cs500_success/source.json",
+      "scores": "/data/openpi/ablation_study/cache_prune/libero_spatial/cs500_success/scores/scores.json",
+      "grid": "/data/openpi/ablation_study/cache_prune/libero_spatial/cs500_success/grid/grid_freeze.json"
+    },
+    {
+      "source": "/data/openpi/ablation_study/cache_prune/libero_10/rit50/source.json",
+      "scores": "/data/openpi/ablation_study/cache_prune/libero_10/rit50/scores/scores.json",
+      "grid": "/data/openpi/ablation_study/cache_prune/libero_10/rit50/grid/grid_freeze.json"
+    },
+    {
+      "source": "/data/openpi/ablation_study/cache_prune/libero_10/cs500_success/source.json",
+      "scores": "/data/openpi/ablation_study/cache_prune/libero_10/cs500_success/scores/scores.json",
+      "grid": "/data/openpi/ablation_study/cache_prune/libero_10/cs500_success/grid/grid_freeze.json"
+    }
+  ],
+  "memberships": {
+    "libero_spatial": "/data/openpi/ablation_study/cache_prune/libero_spatial/eval_membership.json",
+    "libero_10": "/data/openpi/ablation_study/cache_prune/libero_10/eval_membership.json"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "server_python": "/REPLACE_WITH_SERVING_CHECKOUT/.venv/bin/python",
+  "model_config": "pi05_libero",
+  "checkpoint_dir": "/REPLACE_WITH_EXISTING_PI05_LIBERO_CHECKPOINT",
+  "host": "127.0.0.1",
+  "stage2_device": "meta",
+  "stage3_device": "meta",
+  "endpoints": [
+    {"port": 8801, "stage1_device": "cuda:0", "workers": 4},
+    {"port": 8802, "stage1_device": "cuda:0", "workers": 4}
+  ],
+  "gpus": 1,
+  "conda_env": "REPLACE_WITH_EXISTING_LIBERO_ENV",
+  "arms_per_server": 2,
+  "eval_concurrency": 2,
+  "resident_multiplier": 3,
+  "model_budget_gib": 4,
+  "client_worker_budget_gib": 2,
+  "host_budget_gib": 96,
+  "gpu_budget_gib": 40
+}

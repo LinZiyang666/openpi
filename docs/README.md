@@ -92,6 +92,8 @@ Each subdirectory has its own `README.md` index listing the docs inside.
 
 ### [experiments/](experiments/)
 
+`exp/ablation_study/` 已登记 `cache_prune`（G2 R2 APPROVED；Owner 并发替换已交付，相关回归通过、全仓 Verify 未完成）；目录见 [artifact_layout §1.1](experiments/artifact_layout.md#11-experiment-families-one-optional-nesting-level)，当前运行入口见 [并发运行交接](../logs/cache_prune_run_handoff.md)；数值验证修订、owner 接受的 L10 集合身份与四源真实证据见 [`cache_prune_plan.log.md`](../logs/cache_prune_plan.log.md#12-g2-r1-修订与真实数据证据)。
+
 | File | Description |
 |------|-------------|
 | [experiments/artifact_layout.md](experiments/artifact_layout.md) | Canonical `exp/<experiment>/{config,data,analysis}/` layout rules — where new files go, tracking policy, `.gitignore` exceptions; **§1.1 实验族**（`exp/<family>/<experiment>/`，族目录只放 README + 子实验、单层嵌套、测试 basename 须全局唯一；现有族 `exp/ablation_study/`）；**§1.2 登记目录**（registry — 非实验的第三类 `exp/` 条目：禁 `config/`/`data/` 两槽、台账目录禁名 `data/`（否则被 §3 忽略吞掉）、只存指针与校验和不存字节；**准 `analysis/` 且必须组织为 `analysis/<任务>/` —— 任务层强制 + 每任务必带 `MANIFEST.json`（逐文件 sha256 + source）+ 收编是复制不是移动**（移动会打断实验报告的相对路径引用）；设计依据落 `logs/`；现有登记目录 `exp/data_authority/` = 实验数据集的权威副本台账 + 收编的分析产物）；§7 verdict-factor enrichment (B2 `--factors-yaml` flag, `library_stats` field, legacy fallback) |
