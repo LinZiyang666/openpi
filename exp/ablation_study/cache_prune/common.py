@@ -193,32 +193,6 @@ def environment() -> dict:
     }
 
 
-def implementation_identity() -> list[dict]:
-    """Fingerprint this experiment and the shared code actually used by its runner."""
-    repository = ROOT.parents[2]
-    files = set(ROOT.glob("*.py")) | set((ROOT / "analysis").glob("*.py"))
-    for directory in (
-        "src/openpi/cache",
-        "src/openpi/conductor",
-        "src/openpi/models_pytorch",
-        "src/openpi/policies",
-        "src/openpi/serving",
-        "examples/libero",
-    ):
-        files.update((repository / directory).rglob("*.py"))
-    files.update(
-        repository / path
-        for path in (
-            "scripts/serve_policy.py",
-            "src/openpi/training/config.py",
-            "exp/ablation_study/cache_size/run_size_eval.py",
-            "exp/common/conductor_journal.py",
-            "uv.lock",
-        )
-    )
-    return [file_identity(path) for path in sorted(files)]
-
-
 def template(suite: str) -> dict:
     """Load the checked-in, fixed retrieval and pure-cache template."""
     require(suite in SUITES, f"unsupported suite {suite}")

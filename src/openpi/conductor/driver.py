@@ -169,6 +169,14 @@ class ConductorDriver:
         # writer callback ends up re-entering driver internals.
         self._per_step_writer = per_step_writer
         self._per_step_lock = threading.RLock()
+        # Who actually did the work. Workers may live on other machines, so the
+        # driver is the only place that can say which fleet served a run: each
+        # pull connection introduces itself with a worker id, its bound server
+        # and (optionally) a probe of its environment, and every pull / result
+        # on that connection is counted against that id. The census is
+        # exported by launchers as run evidence; nothing in scheduling reads it.
+        self._census: dict[str, dict[str, Any]] = {}
+        self._census_lock = threading.Lock()
         # Identifies this driver process's run. Dispatch generations restart at
         # 1 after a crash, so an episode re-run on resume produces rows and a
         # journal line that are indistinguishable from the pre-crash ones by
@@ -420,6 +428,11 @@ class ConductorDriver:
         # a prior timeout requeue.
         inflight: dict[str, int | None] = {}
         try:
+            peer = conn.getpeername()
+        except OSError:
+            peer = None
+        worker_id: str | None = None
+        try:
             while not stop():
                 try:
                     msg_type, payload = _proto.recv_message(conn)
@@ -427,6 +440,7 @@ class ConductorDriver:
                     break
                 if msg_type == _proto.MSG_PULL:
                     key = payload.get("server_host", "")
+                    worker_id = self._record_pull(payload, peer)
                     # Reuse handle_pull so the assign/none/shutdown/backoff logic
                     # lives in one place; honour the returned message type so an
                     # all-done run can hand the worker a clean MSG_SHUTDOWN.
@@ -441,6 +455,7 @@ class ConductorDriver:
                     # requeued by the finally block rather than silently lost.
                     self.handle_result(payload)
                     inflight.pop(payload.get("task_uid", ""), None)
+                    self._record_result(worker_id)
                 elif msg_type == _proto.MSG_REPORT_PROGRESS:
                     self.handle_progress(payload)
         finally:
@@ -452,6 +467,56 @@ class ConductorDriver:
                 self._scheduler.mark_result(uid, success=False, retriable=True, attempt=attempt)
             with contextlib.suppress(OSError):
                 conn.close()
+
+    def _record_pull(self, payload: dict[str, Any], peer: Any) -> str | None:
+        worker_id = payload.get("worker_id")
+        if not isinstance(worker_id, str) or not worker_id:
+            return None
+        with self._census_lock:
+            entry = self._census.setdefault(
+                worker_id,
+                {
+                    "worker_id": worker_id,
+                    "server_key": payload.get("server_host", ""),
+                    "peers": [],
+                    "probe": None,
+                    "pulls": 0,
+                    "results": 0,
+                    "first_seen": time.time(),
+                    "last_seen": None,
+                },
+            )
+            entry["pulls"] += 1
+            entry["last_seen"] = time.time()
+            entry["server_key"] = payload.get("server_host", entry["server_key"])
+            peer_text = f"{peer[0]}:{peer[1]}" if isinstance(peer, tuple) and len(peer) >= 2 else None
+            if peer_text is not None and peer_text not in entry["peers"]:
+                entry["peers"].append(peer_text)
+            probe = payload.get("probe")
+            if isinstance(probe, dict):
+                # A worker that reconnects re-sends its probe; an environment
+                # that changed under a worker id is worth knowing about, so the
+                # first probe is kept and later ones are only compared.
+                if entry["probe"] is None:
+                    entry["probe"] = probe
+                elif entry["probe"] != probe:
+                    entry["probe_conflict"] = True
+        return worker_id
+
+    def _record_result(self, worker_id: str | None) -> None:
+        if worker_id is None:
+            return
+        with self._census_lock:
+            entry = self._census.get(worker_id)
+            if entry is not None:
+                entry["results"] += 1
+                entry["last_seen"] = time.time()
+
+    @property
+    def worker_census(self) -> dict[str, dict[str, Any]]:
+        """Every worker id that pulled from this driver, with what it reported."""
+        with self._census_lock:
+            return {k: dict(v) for k, v in self._census.items()}
 
     @property
     def run_id(self) -> str:

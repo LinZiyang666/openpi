@@ -23,6 +23,16 @@ Three gates specific to this experiment:
 Episode identity, resume and per-step capture follow the established conductor
 contract (``task_uid`` = ``<yaml_id>:<phase>:<task_id>:<episode_idx>``), so the
 journal this writes is directly consumable by ``analysis/analyze_size.py``.
+
+Roles. ``--role all`` (default) is the single-host process: the driver and this
+host's worker fleet in one interpreter. When the servers live on one machine
+and the simulators on another, the same run is split: ``--role driver`` on the
+serving node owns the schedule and the ledgers and binds a fixed pull port;
+``--role agent`` on each simulator box supervises a fleet bound to one server
+endpoint, verifies the frozen A-pools on its own disk, and has every worker
+send a probe of its environment on its first pull. The driver records every
+worker that pulled, with that probe, in ``<per-step-out>.workers.json``, which
+is the run's only evidence of who actually served it.
 """
 
 from __future__ import annotations
@@ -180,7 +190,7 @@ def rehash_apool(apool_dir: pathlib.Path, *, expect_per_task: int = TRIALS_PER_T
 
 
 def load_apool_digest(path: str | None, *, required: bool = True,
-                      verify_contents: bool = True) -> dict | None:
+                      verify_contents: bool = True, require_dir: bool = True) -> dict | None:
     """Read the frozen A-pool record and check it against the files on disk.
 
     The record must name a directory, not just a digest: that directory is what
@@ -208,7 +218,10 @@ def load_apool_digest(path: str | None, *, required: bool = True,
             f"A-pool record declares {record['total_inits']} inits, expected {expected}"
         )
     apool_dir = pathlib.Path(record["apool_dir"])
-    if not apool_dir.is_dir():
+    # A worker box holds its own copy of the pool and re-hashes that against
+    # the record (``verify_local_pools``); the directory the record names lives
+    # on the driver's host and need not exist here.
+    if require_dir and not apool_dir.is_dir():
         raise SystemExit(f"A-pool directory {apool_dir} from the record does not exist")
     digests = record["per_task_digests"]
     if len(digests) != NUM_TASKS:
@@ -392,20 +405,146 @@ def journal_shortfall(journal_path: pathlib.Path, arms: set[str], expected: int)
     return {a: len(seen.get(a, ())) for a in sorted(arms) if len(seen.get(a, ())) < expected}
 
 
+def parse_suite_map(spec: str, default_suite: str) -> dict[str, str]:
+    """``suite=path[,suite=path]`` or a bare path bound to ``default_suite``."""
+    if not spec:
+        return {}
+    if "=" not in spec:
+        return {default_suite: spec}
+    out: dict[str, str] = {}
+    for item in spec.split(","):
+        suite, _, path = item.partition("=")
+        if not suite or not path:
+            raise SystemExit(f"malformed suite binding {item!r}")
+        out[suite] = path
+    return out
+
+
+def verify_local_pools(records: dict[str, dict], pools: dict[str, str]) -> dict[str, str]:
+    """Re-hash the pools on THIS host against each suite's frozen record.
+
+    The record names the directory the driver's host was frozen against; a
+    worker box keeps its own copy, so the record stays unedited and only the
+    bytes are compared. A suite without a local pool falls back to the record's
+    own directory, which must then exist here.
+    """
+    bound: dict[str, str] = {}
+    for suite, record in sorted(records.items()):
+        directory = pathlib.Path(pools.get(suite) or record["apool_dir"])
+        if not directory.is_dir():
+            raise SystemExit(f"A-pool for {suite} not found on this host: {directory}")
+        if list(directory.glob("*.pruned_init")):
+            raise SystemExit(f"{directory} carries .pruned_init overrides; refusing")
+        actual = rehash_apool(directory)
+        if actual["per_task_digests"] != record["per_task_digests"]:
+            changed = sorted(
+                k for k in set(actual["per_task_digests"]) | set(record["per_task_digests"])
+                if actual["per_task_digests"].get(k) != record["per_task_digests"].get(k)
+            )
+            raise SystemExit(
+                f"local A-pool {directory} differs from the frozen record for {suite}: {changed}"
+            )
+        bound[suite] = str(directory)
+    return bound
+
+
+def write_census(driver, per_step_path: pathlib.Path) -> pathlib.Path:
+    """Persist which workers served this driver, with their self-reported probes."""
+    path = pathlib.Path(str(per_step_path) + ".workers.json")
+    census = driver.worker_census
+    path.write_text(
+        json.dumps(
+            {"run_id": driver.run_id, "workers": census},
+            indent=2,
+            sort_keys=True,
+        )
+    )
+    logger.info("worker census: %d worker(s) -> %s", len(census), path)
+    return path
+
+
+def _install_stop_signals(stop_fn) -> None:
+    import signal
+
+    def handler(signum, frame):  # noqa: ARG001
+        logger.info("signal %d: stopping", signum)
+        stop_fn()
+
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        signal.signal(sig, handler)
+
+
+def run_agent_role(args) -> None:
+    """Supervise this host's worker fleet against a driver elsewhere.
+
+    The fleet binds to one server endpoint of the pool (``--agent-server``), is
+    pinned per worker to a render GPU (CUDA and EGL alike), verifies every
+    suite's frozen A-pool on this host before spawning, and keeps running
+    across drivers: a finished driver tells the workers to shut down, the
+    agent respawns them, and they retry the same address until the next wave's
+    driver binds it.
+    """
+    if not args.driver_host or not args.driver_port:
+        raise SystemExit("--role agent needs --driver-host and --driver-port")
+    if not args.agent_server:
+        raise SystemExit("--role agent needs --agent-server host:port")
+    host, _, port = args.agent_server.rpartition(":")
+    if not host or not port.isdigit():
+        raise SystemExit(f"--agent-server must be host:port, got {args.agent_server!r}")
+    fleet_server = ServerEndpoint(host, int(port))
+    records: dict[str, dict] = {}
+    for path in args.apool_record or []:
+        record = load_apool_digest(
+            path, required=True, verify_contents=False, require_dir=False
+        )
+        records[record["suite"]] = record
+    if not records:
+        raise SystemExit("--role agent needs at least one --apool-record")
+    pools = verify_local_pools(records, parse_suite_map(args.apool_dir, args.task_suite))
+    init_states_dir = ",".join(f"{s}={d}" for s, d in sorted(pools.items()))
+    slots = [g.strip() for g in args.gpu_ids.split(",") if g.strip()] or [
+        str(i) for i in range(args.gpus)
+    ]
+    specs = [
+        WorkerSpec(
+            worker_id=f"{args.worker_prefix}{i}",
+            server_key=fleet_server.key,
+            gpu_id=slots[i % len(slots)],
+            conda_env=args.conda_env,
+            task_suite_name=args.task_suite,
+            init_states_dir=init_states_dir,
+            # CUDA_VISIBLE_DEVICES does not move the render context; MuJoCo
+            # picks its EGL device from this variable and, unset, every worker
+            # lands on one card.
+            env={"MUJOCO_EGL_DEVICE_ID": slots[i % len(slots)]},
+            probe=True,
+        )
+        for i in range(args.workers)
+    ]
+    agent = WorkerAgent(specs, driver_host=args.driver_host, driver_port=args.driver_port)
+    _install_stop_signals(agent.stop)
+    logger.info(
+        "agent: %d worker(s) -> %s via driver %s:%d, pools %s",
+        len(specs), fleet_server.key, args.driver_host, args.driver_port, pools,
+    )
+    agent.run()
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--arm-matrix", required=True)
+    ap.add_argument("--arm-matrix", default=None)
     ap.add_argument("--task-suite", required=True)
     ap.add_argument("--servers", required=True, help="host:port[,host:port...]")
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--server-workers", default="")
     ap.add_argument("--arms", default="", help="comma list; empty = all arms")
     ap.add_argument("--trials", type=int, default=TRIALS_PER_TASK)
-    ap.add_argument("--journal", required=True)
-    ap.add_argument("--per-step-out", required=True)
-    ap.add_argument("--apool-record", default=None,
+    ap.add_argument("--journal", default=None)
+    ap.add_argument("--per-step-out", default=None)
+    ap.add_argument("--apool-record", action="append", default=None,
                     help="verify_apool.py output; binds the run to the frozen pool. "
-                         "Required unless --smoke.")
+                         "Required unless --smoke. Repeatable for --role agent, one "
+                         "record per suite the fleet may serve.")
     ap.add_argument("--smoke", action="store_true",
                     help="unbound subset run: skips the A-pool requirement. NEVER for "
                          "the reported experiment.")
@@ -413,12 +552,47 @@ def main() -> None:
                     help="post-run gate on each arm's FULL_HIT rate; only lowerable "
                          "under --smoke, since the frozen design requires 1.0")
     ap.add_argument("--bind-host", default="127.0.0.1")
+    ap.add_argument("--bind-port", type=int, default=0,
+                    help="fixed driver pull port; 0 picks a free one (fine for --role "
+                         "all, useless when a remote fleet must know the address)")
     ap.add_argument("--episode-timeout-s", type=float, default=1800.0)
     ap.add_argument("--eval-concurrency", type=int, default=0)
     ap.add_argument("--gpus", type=int, default=1)
+    ap.add_argument("--gpu-ids", default="",
+                    help="comma list of render GPU indices to cycle workers over "
+                         "(overrides --gpus; skip cards that are dead or taken)")
     ap.add_argument("--conda-env", default="")
+    # Roles. ``all`` is the historical single-host process: driver plus this
+    # host's worker fleet. ``driver`` owns the schedule and the ledgers and waits
+    # for fleets that other hosts run as ``agent``; those bind to one server
+    # endpoint each and need the driver's address.
+    ap.add_argument("--role", choices=("all", "driver", "agent"), default="all")
+    ap.add_argument("--driver-host", default="")
+    ap.add_argument("--driver-port", type=int, default=0)
+    ap.add_argument("--agent-server", default="",
+                    help='--role agent: the one "host:port" of --servers this fleet '
+                         "binds to")
+    ap.add_argument("--apool-dir", default="",
+                    help="--role agent: where the frozen pool lives on THIS host, as a "
+                         "bare path (for --task-suite) or suite=dir[,suite=dir]; the "
+                         "record is left unedited and its digests are re-hashed from "
+                         "these files")
+    ap.add_argument("--worker-prefix", default="w",
+                    help="worker id prefix; a remote fleet names its host here so the "
+                         "driver's census says who served")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO)
+
+    if args.role == "agent":
+        run_agent_role(args)
+        return
+    for flag, value in (("--arm-matrix", args.arm_matrix), ("--journal", args.journal),
+                        ("--per-step-out", args.per_step_out)):
+        if not value:
+            raise SystemExit(f"{flag} is required for --role {args.role}")
+    if args.apool_record and len(args.apool_record) != 1:
+        raise SystemExit("--role all/driver takes exactly one --apool-record")
+    apool_record = args.apool_record[0] if args.apool_record else None
 
     matrix = yaml.safe_load(pathlib.Path(args.arm_matrix).read_text(encoding="utf-8"))
     rows = matrix["arms"]
@@ -430,7 +604,7 @@ def main() -> None:
             raise SystemExit(f"unknown arms requested: {sorted(missing)}")
     yaml_paths = validate_pure_cache_arms(rows)
 
-    apool = load_apool_digest(args.apool_record, required=not args.smoke,
+    apool = load_apool_digest(apool_record, required=not args.smoke,
                               verify_contents=not args.smoke)
     if apool and apool["suite"] != args.task_suite:
         raise SystemExit(
@@ -497,6 +671,7 @@ def main() -> None:
         ctl_factory=default_client_factory,
         episode_timeout_s=args.episode_timeout_s,
         bind_host=args.bind_host,
+        bind_port=args.bind_port,
         scheduler_kwargs=(
             {"eval_concurrency": args.eval_concurrency} if args.eval_concurrency else None
         ),
@@ -521,24 +696,32 @@ def main() -> None:
         time.sleep(0.05)
     logger.info("driver pull port = %d", driver.port)
 
-    # Point every worker at the frozen pool. Leaving this empty would let each
-    # worker load whatever init states its own environment ships, which is what
-    # makes an unbound run unattestable.
-    init_states_dir = apool["apool_dir"] if apool else ""
-    specs = [
-        WorkerSpec(
-            worker_id=f"w{i}",
-            server_key=worker_server_keys[i],
-            gpu_id=str(i % args.gpus),
-            conda_env=args.conda_env,
-            task_suite_name=args.task_suite,
-            init_states_dir=init_states_dir,
+    agent = None
+    agent_thread = None
+    if args.role == "all":
+        # Point every worker at the frozen pool. Leaving this empty would let
+        # each worker load whatever init states its own environment ships,
+        # which is what makes an unbound run unattestable.
+        init_states_dir = apool["apool_dir"] if apool else ""
+        specs = [
+            WorkerSpec(
+                worker_id=f"w{i}",
+                server_key=worker_server_keys[i],
+                gpu_id=str(i % args.gpus),
+                conda_env=args.conda_env,
+                task_suite_name=args.task_suite,
+                init_states_dir=init_states_dir,
+            )
+            for i in range(len(worker_server_keys))
+        ]
+        agent = WorkerAgent(specs, driver_host=args.bind_host, driver_port=driver.port)
+        agent_thread = threading.Thread(target=agent.run, daemon=True)
+        agent_thread.start()
+    else:
+        logger.info(
+            "driver role: waiting for remote fleets on %s:%d (capacities %s)",
+            args.bind_host, driver.port, server_capacities,
         )
-        for i in range(len(worker_server_keys))
-    ]
-    agent = WorkerAgent(specs, driver_host=args.bind_host, driver_port=driver.port)
-    agent_thread = threading.Thread(target=agent.run, daemon=True)
-    agent_thread.start()
     try:
         driver_thread.join()
     finally:
@@ -556,8 +739,13 @@ def main() -> None:
             logger.info("final snapshot: %d in-memory rows dumped before merge", n)
         except Exception:  # noqa: BLE001 - never let bookkeeping mask the run's outcome
             logger.exception("final snapshot failed; trailing rows may be missing")
-        agent.stop()
-        agent_thread.join(timeout=30)
+        try:
+            write_census(driver, per_step_path)
+        except Exception:  # noqa: BLE001 - evidence, not outcome
+            logger.exception("worker census could not be written")
+        if agent is not None:
+            agent.stop()
+            agent_thread.join(timeout=30)
 
     # Canonical merge + retire the snapshot, so a later run reusing this output
     # path cannot fold stale evidence into fresh results.

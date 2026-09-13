@@ -580,3 +580,65 @@ def test_final_snapshot_is_idempotent_against_the_periodic_one(tmp_path):
     assert merge_snapshot(sink, sink.with_suffix(".snapshot.jsonl")) == 0
     assert len([x for x in sink.read_text().splitlines() if x.strip()]) == 2
 
+
+
+# ---------------------------------------------------------------------------
+# Remote fleets: the worker host re-hashes its own copy of the frozen pool
+# ---------------------------------------------------------------------------
+
+
+def test_local_pool_is_bound_when_its_bytes_match_the_record(tmp_path):
+    """A worker box keeps its own copy; the record stays unedited and is re-hashed."""
+    import shutil
+
+    from exp.ablation_study.cache_size.run_size_eval import (
+        load_apool_digest, parse_suite_map, verify_local_pools,
+    )
+
+    record_path = _apool_record(tmp_path)
+    record = load_apool_digest(record_path, required=True, verify_contents=False)
+    elsewhere = tmp_path / "box" / "spatial_apool"
+    shutil.copytree(record["apool_dir"], elsewhere)
+    pools = parse_suite_map(f"libero_spatial={elsewhere}", "libero_spatial")
+    bound = verify_local_pools({"libero_spatial": record}, pools)
+    assert bound == {"libero_spatial": str(elsewhere)}
+    # A bare path binds to the given suite; no path falls back to the record's.
+    assert parse_suite_map(str(elsewhere), "libero_10") == {"libero_10": str(elsewhere)}
+    assert verify_local_pools({"libero_spatial": record}, {}) == {
+        "libero_spatial": record["apool_dir"]
+    }
+
+
+def test_local_pool_that_differs_from_the_record_is_fatal(tmp_path):
+    import shutil
+
+    import torch
+
+    from exp.ablation_study.cache_size.run_size_eval import (
+        load_apool_digest, verify_local_pools,
+    )
+
+    record_path = _apool_record(tmp_path)
+    record = load_apool_digest(record_path, required=True, verify_contents=False)
+    elsewhere = tmp_path / "box" / "spatial_apool"
+    shutil.copytree(record["apool_dir"], elsewhere)
+    torch.save([[9.9, 9.9]] * 50, elsewhere / "task_3.init")
+    with pytest.raises(SystemExit, match="differs from the frozen record.*task_3"):
+        verify_local_pools({"libero_spatial": record}, {"libero_spatial": str(elsewhere)})
+    with pytest.raises(SystemExit, match="not found on this host"):
+        verify_local_pools({"libero_spatial": record}, {"libero_spatial": "/nowhere"})
+    (elsewhere / "task_0.pruned_init").write_bytes(b"x")
+    with pytest.raises(SystemExit, match="pruned_init"):
+        verify_local_pools({"libero_spatial": record}, {"libero_spatial": str(elsewhere)})
+
+
+def test_init_pool_bindings_parse_per_suite():
+    from examples.libero.worker_entry import parse_init_pools
+
+    assert parse_init_pools("", "libero_spatial") == {}
+    assert parse_init_pools("/p", "libero_10") == {"libero_10": "/p"}
+    assert parse_init_pools("libero_spatial=/a,libero_10=/b", "x") == {
+        "libero_spatial": "/a", "libero_10": "/b",
+    }
+    with pytest.raises(ValueError, match="malformed"):
+        parse_init_pools("libero_spatial=", "x")

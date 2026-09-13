@@ -1,0 +1,3865 @@
+{
+  "kind": "cache_prune_analysis",
+  "curves": [
+    {
+      "lane": "A",
+      "suite": "libero_spatial",
+      "regime": "rit50",
+      "complete": true,
+      "arms": [
+        {
+          "arm": "cache_prune_libero_spatial_rit50_P00",
+          "point": "P00",
+          "n": 500,
+          "sr": 0.664,
+          "sr_common_unseen": 0.664,
+          "n_common_unseen": 500,
+          "full_hit": 14660,
+          "non_full_hit": 0,
+          "ms_per_call": 152.7360009032397,
+          "mean_control_steps": 145.214,
+          "n_success": 332,
+          "mean_control_steps_success": 107.37048192771084
+        },
+        {
+          "arm": "cache_prune_libero_spatial_rit50_P01",
+          "point": "P01",
+          "n": 500,
+          "sr": 0.65,
+          "sr_common_unseen": 0.65,
+          "n_common_unseen": 500,
+          "full_hit": 14761,
+          "non_full_hit": 0,
+          "ms_per_call": 155.2261102977637,
+          "mean_control_steps": 146.26,
+          "n_success": 325,
+          "mean_control_steps_success": 106.55384615384615
+        },
+        {
+          "arm": "cache_prune_libero_spatial_rit50_P02",
+          "point": "P02",
+          "n": 500,
+          "sr": 0.708,
+          "sr_common_unseen": 0.708,
+          "n_common_unseen": 500,
+          "full_hit": 13997,
+          "non_full_hit": 0,
+          "ms_per_call": 151.59251092001955,
+          "mean_control_steps": 138.546,
+          "n_success": 354,
+          "mean_control_steps_success": 104.95197740112994
+        },
+        {
+          "arm": "cache_prune_libero_spatial_rit50_P03",
+          "point": "P03",
+          "n": 500,
+          "sr": 0.62,
+          "sr_common_unseen": 0.62,
+          "n_common_unseen": 500,
+          "full_hit": 14917,
+          "non_full_hit": 0,
+          "ms_per_call": 154.33829606620378,
+          "mean_control_steps": 147.954,
+          "n_success": 310,
+          "mean_control_steps_success": 103.79677419354839
+        },
+        {
+          "arm": "cache_prune_libero_spatial_rit50_P04",
+          "point": "P04",
+          "n": 500,
+          "sr": 0.612,
+          "sr_common_unseen": 0.612,
+          "n_common_unseen": 500,
+          "full_hit": 14921,
+          "non_full_hit": 0,
+          "ms_per_call": 153.93369727755515,
+          "mean_control_steps": 148.168,
+          "n_success": 306,
+          "mean_control_steps_success": 102.62745098039215
+        },
+        {
+          "arm": "cache_prune_libero_spatial_rit50_P05",
+          "point": "P05",
+          "n": 500,
+          "sr": 0.606,
+          "sr_common_unseen": 0.606,
+          "n_common_unseen": 500,
+          "full_hit": 14985,
+          "non_full_hit": 0,
+          "ms_per_call": 151.90130127057736,
+          "mean_control_steps": 148.796,
+          "n_success": 303,
+          "mean_control_steps_success": 102.5016501650165
+        },
+        {
+          "arm": "cache_prune_libero_spatial_rit50_P06",
+          "point": "P06",
+          "n": 500,
+          "sr": 0.486,
+          "sr_common_unseen": 0.486,
+          "n_common_unseen": 500,
+          "full_hit": 16496,
+          "non_full_hit": 0,
+          "ms_per_call": 153.63126898040437,
+          "mean_control_steps": 164.026,
+          "n_success": 243,
+          "mean_control_steps_success": 104.82716049382717
+        },
+        {
+          "arm": "cache_prune_libero_spatial_rit50_P07",
+          "point": "P07",
+          "n": 500,
+          "sr": 0.378,
+          "sr_common_unseen": 0.378,
+          "n_common_unseen": 500,
+          "full_hit": 17757,
+          "non_full_hit": 0,
+          "ms_per_call": 150.88882629571575,
+          "mean_control_steps": 176.834,
+          "n_success": 189,
+          "mean_control_steps_success": 105.80423280423281
+        },
+        {
+          "arm": "cache_prune_libero_spatial_rit50_P08",
+          "point": "P08",
+          "n": 500,
+          "sr": 0.346,
+          "sr_common_unseen": 0.346,
+          "n_common_unseen": 500,
+          "full_hit": 18288,
+          "non_full_hit": 0,
+          "ms_per_call": 150.85207057252128,
+          "mean_control_steps": 182.296,
+          "n_success": 173,
+          "mean_control_steps_success": 111.02890173410404
+        },
+        {
+          "arm": "cache_prune_libero_spatial_rit50_P09",
+          "point": "P09",
+          "n": 500,
+          "sr": 0.12,
+          "sr_common_unseen": 0.12,
+          "n_common_unseen": 500,
+          "full_hit": 20869,
+          "non_full_hit": 0,
+          "ms_per_call": 148.0733215342003,
+          "mean_control_steps": 208.43,
+          "n_success": 60,
+          "mean_control_steps_success": 123.58333333333333
+        }
+      ],
+      "libraries": [
+        {
+          "point": "P00",
+          "entries": 1018,
+          "bytes": 430792483,
+          "actual_rate": 0.0
+        },
+        {
+          "point": "P01",
+          "entries": 968,
+          "bytes": 409520802,
+          "actual_rate": 0.04911591355599214
+        },
+        {
+          "point": "P02",
+          "entries": 914,
+          "bytes": 386676020,
+          "actual_rate": 0.10216110019646366
+        },
+        {
+          "point": "P03",
+          "entries": 813,
+          "bytes": 343947762,
+          "actual_rate": 0.2013752455795678
+        },
+        {
+          "point": "P04",
+          "entries": 713,
+          "bytes": 301642564,
+          "actual_rate": 0.29960707269155207
+        },
+        {
+          "point": "P05",
+          "entries": 614,
+          "bytes": 259760461,
+          "actual_rate": 0.3968565815324165
+        },
+        {
+          "point": "P06",
+          "entries": 512,
+          "bytes": 216608897,
+          "actual_rate": 0.49705304518664045
+        },
+        {
+          "point": "P07",
+          "entries": 407,
+          "bytes": 172189080,
+          "actual_rate": 0.600196463654224
+        },
+        {
+          "point": "P08",
+          "entries": 308,
+          "bytes": 130307347,
+          "actual_rate": 0.6974459724950884
+        },
+        {
+          "point": "P09",
+          "entries": 206,
+          "bytes": 87156872,
+          "actual_rate": 0.7976424361493124
+        }
+      ],
+      "subsets": {
+        "common_unseen": {
+          "estimable": true,
+          "per_task_n": {
+            "0": 50,
+            "1": 50,
+            "2": 50,
+            "3": 50,
+            "4": 50,
+            "5": 50,
+            "6": 50,
+            "7": 50,
+            "8": 50,
+            "9": 50
+          },
+          "points": [
+            {
+              "point": "P00",
+              "n": 500,
+              "successes": 332,
+              "sr": 0.664,
+              "sr_ci95": [
+                0.5800000000000001,
+                0.7419999999999999
+              ],
+              "delta_sr": 0.0,
+              "delta_sr_ci95": [
+                0.0,
+                0.0
+              ],
+              "per_task_sr": [
+                0.54,
+                0.74,
+                0.82,
+                0.78,
+                0.54,
+                0.76,
+                0.68,
+                0.68,
+                0.66,
+                0.44
+              ],
+              "common_success_n": 332,
+              "mean_control_steps_delta": 0.0,
+              "lost_successes": 0,
+              "new_successes": 0,
+              "sum_infer_ms": 2239109.773241492,
+              "sum_infers": 14660,
+              "online_ms_per_call": 152.73600090323956,
+              "episode_mean_ms_per_call": 152.42385326284682
+            },
+            {
+              "point": "P01",
+              "n": 500,
+              "successes": 325,
+              "sr": 0.65,
+              "sr_ci95": [
+                0.5539999999999999,
+                0.738
+              ],
+              "delta_sr": -0.014000000000000012,
+              "delta_sr_ci95": [
+                -0.07399999999999995,
+                0.04400000000000004
+              ],
+              "per_task_sr": [
+                0.36,
+                0.64,
+                0.82,
+                0.78,
+                0.64,
+                0.78,
+                0.76,
+                0.6,
+                0.66,
+                0.46
+              ],
+              "common_success_n": 294,
+              "mean_control_steps_delta": -1.554421768707483,
+              "lost_successes": 38,
+              "new_successes": 31,
+              "sum_infer_ms": 2291292.6141052903,
+              "sum_infers": 14761,
+              "online_ms_per_call": 155.2261102977637,
+              "episode_mean_ms_per_call": 155.1157094945279
+            },
+            {
+              "point": "P02",
+              "n": 500,
+              "successes": 354,
+              "sr": 0.708,
+              "sr_ci95": [
+                0.626,
+                0.7820000000000001
+              ],
+              "delta_sr": 0.043999999999999984,
+              "delta_sr_ci95": [
+                -0.030000000000000027,
+                0.1200000000000001
+              ],
+              "per_task_sr": [
+                0.74,
+                0.62,
+                0.9,
+                0.76,
+                0.76,
+                0.7,
+                0.78,
+                0.72,
+                0.64,
+                0.46
+              ],
+              "common_success_n": 285,
+              "mean_control_steps_delta": -1.8701754385964913,
+              "lost_successes": 47,
+              "new_successes": 69,
+              "sum_infer_ms": 2121840.3753475146,
+              "sum_infers": 13997,
+              "online_ms_per_call": 151.59251092001963,
+              "episode_mean_ms_per_call": 151.34841461072276
+            },
+            {
+              "point": "P03",
+              "n": 500,
+              "successes": 310,
+              "sr": 0.62,
+              "sr_ci95": [
+                0.532,
+                0.7060000000000001
+              ],
+              "delta_sr": -0.04400000000000001,
+              "delta_sr_ci95": [
+                -0.12,
+                0.038000000000000034
+              ],
+              "per_task_sr": [
+                0.5,
+                0.62,
+                0.84,
+                0.68,
+                0.72,
+                0.56,
+                0.72,
+                0.56,
+                0.62,
+                0.38
+              ],
+              "common_success_n": 243,
+              "mean_control_steps_delta": -3.279835390946502,
+              "lost_successes": 89,
+              "new_successes": 67,
+              "sum_infer_ms": 2302264.362419563,
+              "sum_infers": 14917,
+              "online_ms_per_call": 154.33829606620387,
+              "episode_mean_ms_per_call": 154.14766116158208
+            },
+            {
+              "point": "P04",
+              "n": 500,
+              "successes": 306,
+              "sr": 0.612,
+              "sr_ci95": [
+                0.5,
+                0.698
+              ],
+              "delta_sr": -0.052000000000000005,
+              "delta_sr_ci95": [
+                -0.15000000000000013,
+                0.051999999999999824
+              ],
+              "per_task_sr": [
+                0.74,
+                0.64,
+                0.64,
+                0.52,
+                0.68,
+                0.66,
+                0.76,
+                0.64,
+                0.62,
+                0.22
+              ],
+              "common_success_n": 244,
+              "mean_control_steps_delta": -4.627049180327869,
+              "lost_successes": 88,
+              "new_successes": 62,
+              "sum_infer_ms": 2296844.6970783994,
+              "sum_infers": 14921,
+              "online_ms_per_call": 153.93369727755507,
+              "episode_mean_ms_per_call": 154.56559386553815
+            },
+            {
+              "point": "P05",
+              "n": 500,
+              "successes": 303,
+              "sr": 0.6060000000000001,
+              "sr_ci95": [
+                0.49400000000000005,
+                0.7040000000000001
+              ],
+              "delta_sr": -0.057999999999999996,
+              "delta_sr_ci95": [
+                -0.16199999999999992,
+                0.04999999999999993
+              ],
+              "per_task_sr": [
+                0.78,
+                0.68,
+                0.52,
+                0.68,
+                0.46,
+                0.64,
+                0.78,
+                0.56,
+                0.72,
+                0.24
+              ],
+              "common_success_n": 221,
+              "mean_control_steps_delta": -5.180995475113122,
+              "lost_successes": 111,
+              "new_successes": 82,
+              "sum_infer_ms": 2276240.9995396,
+              "sum_infers": 14985,
+              "online_ms_per_call": 151.90130127057725,
+              "episode_mean_ms_per_call": 151.5593351526314
+            },
+            {
+              "point": "P06",
+              "n": 500,
+              "successes": 243,
+              "sr": 0.48600000000000004,
+              "sr_ci95": [
+                0.32999999999999996,
+                0.6559999999999999
+              ],
+              "delta_sr": -0.17800000000000005,
+              "delta_sr_ci95": [
+                -0.374,
+                0.03400000000000003
+              ],
+              "per_task_sr": [
+                0.82,
+                0.26,
+                0.22,
+                0.32,
+                0.88,
+                0.32,
+                0.88,
+                0.44,
+                0.5,
+                0.22
+              ],
+              "common_success_n": 169,
+              "mean_control_steps_delta": -2.5976331360946747,
+              "lost_successes": 163,
+              "new_successes": 74,
+              "sum_infer_ms": 2534301.4131007507,
+              "sum_infers": 16496,
+              "online_ms_per_call": 153.63126898040437,
+              "episode_mean_ms_per_call": 153.01154203497438
+            },
+            {
+              "point": "P07",
+              "n": 500,
+              "successes": 189,
+              "sr": 0.378,
+              "sr_ci95": [
+                0.23199999999999998,
+                0.5219999999999999
+              ],
+              "delta_sr": -0.286,
+              "delta_sr_ci95": [
+                -0.45999999999999996,
+                -0.1140000000000001
+              ],
+              "per_task_sr": [
+                0.52,
+                0.54,
+                0.3,
+                0.0,
+                0.7,
+                0.48,
+                0.66,
+                0.3,
+                0.16,
+                0.12
+              ],
+              "common_success_n": 124,
+              "mean_control_steps_delta": -2.3629032258064515,
+              "lost_successes": 208,
+              "new_successes": 65,
+              "sum_infer_ms": 2679332.8885330264,
+              "sum_infers": 17757,
+              "online_ms_per_call": 150.88882629571586,
+              "episode_mean_ms_per_call": 150.43516607219777
+            },
+            {
+              "point": "P08",
+              "n": 500,
+              "successes": 173,
+              "sr": 0.346,
+              "sr_ci95": [
+                0.19,
+                0.51
+              ],
+              "delta_sr": -0.318,
+              "delta_sr_ci95": [
+                -0.4999999999999999,
+                -0.12199999999999994
+              ],
+              "per_task_sr": [
+                0.8,
+                0.06,
+                0.16,
+                0.62,
+                0.58,
+                0.4,
+                0.16,
+                0.1,
+                0.5,
+                0.08
+              ],
+              "common_success_n": 117,
+              "mean_control_steps_delta": 10.649572649572649,
+              "lost_successes": 215,
+              "new_successes": 56,
+              "sum_infer_ms": 2758782.66663027,
+              "sum_infers": 18288,
+              "online_ms_per_call": 150.8520705725213,
+              "episode_mean_ms_per_call": 150.79667175494714
+            },
+            {
+              "point": "P09",
+              "n": 500,
+              "successes": 60,
+              "sr": 0.12000000000000002,
+              "sr_ci95": [
+                0.028000000000000004,
+                0.23399999999999999
+              ],
+              "delta_sr": -0.544,
+              "delta_sr_ci95": [
+                -0.662,
+                -0.4180000000000001
+              ],
+              "per_task_sr": [
+                0.0,
+                0.0,
+                0.06,
+                0.0,
+                0.0,
+                0.52,
+                0.18,
+                0.3,
+                0.0,
+                0.14
+              ],
+              "common_success_n": 37,
+              "mean_control_steps_delta": 13.621621621621621,
+              "lost_successes": 295,
+              "new_successes": 23,
+              "sum_infer_ms": 3090142.1470972253,
+              "sum_infers": 20869,
+              "online_ms_per_call": 148.07332153420026,
+              "episode_mean_ms_per_call": 148.0836423819878
+            }
+          ]
+        },
+        "full": {
+          "estimable": true,
+          "per_task_n": {
+            "0": 50,
+            "1": 50,
+            "2": 50,
+            "3": 50,
+            "4": 50,
+            "5": 50,
+            "6": 50,
+            "7": 50,
+            "8": 50,
+            "9": 50
+          },
+          "points": [
+            {
+              "point": "P00",
+              "n": 500,
+              "successes": 332,
+              "sr": 0.664,
+              "sr_ci95": [
+                0.5800000000000001,
+                0.7419999999999999
+              ],
+              "delta_sr": 0.0,
+              "delta_sr_ci95": [
+                0.0,
+                0.0
+              ],
+              "per_task_sr": [
+                0.54,
+                0.74,
+                0.82,
+                0.78,
+                0.54,
+                0.76,
+                0.68,
+                0.68,
+                0.66,
+                0.44
+              ],
+              "common_success_n": 332,
+              "mean_control_steps_delta": 0.0,
+              "lost_successes": 0,
+              "new_successes": 0,
+              "sum_infer_ms": 2239109.773241492,
+              "sum_infers": 14660,
+              "online_ms_per_call": 152.73600090323956,
+              "episode_mean_ms_per_call": 152.42385326284682
+            },
+            {
+              "point": "P01",
+              "n": 500,
+              "successes": 325,
+              "sr": 0.65,
+              "sr_ci95": [
+                0.5539999999999999,
+                0.738
+              ],
+              "delta_sr": -0.014000000000000012,
+              "delta_sr_ci95": [
+                -0.07399999999999995,
+                0.04400000000000004
+              ],
+              "per_task_sr": [
+                0.36,
+                0.64,
+                0.82,
+                0.78,
+                0.64,
+                0.78,
+                0.76,
+                0.6,
+                0.66,
+                0.46
+              ],
+              "common_success_n": 294,
+              "mean_control_steps_delta": -1.554421768707483,
+              "lost_successes": 38,
+              "new_successes": 31,
+              "sum_infer_ms": 2291292.6141052903,
+              "sum_infers": 14761,
+              "online_ms_per_call": 155.2261102977637,
+              "episode_mean_ms_per_call": 155.1157094945279
+            },
+            {
+              "point": "P02",
+              "n": 500,
+              "successes": 354,
+              "sr": 0.708,
+              "sr_ci95": [
+                0.626,
+                0.7820000000000001
+              ],
+              "delta_sr": 0.043999999999999984,
+              "delta_sr_ci95": [
+                -0.030000000000000027,
+                0.1200000000000001
+              ],
+              "per_task_sr": [
+                0.74,
+                0.62,
+                0.9,
+                0.76,
+                0.76,
+                0.7,
+                0.78,
+                0.72,
+                0.64,
+                0.46
+              ],
+              "common_success_n": 285,
+              "mean_control_steps_delta": -1.8701754385964913,
+              "lost_successes": 47,
+              "new_successes": 69,
+              "sum_infer_ms": 2121840.3753475146,
+              "sum_infers": 13997,
+              "online_ms_per_call": 151.59251092001963,
+              "episode_mean_ms_per_call": 151.34841461072276
+            },
+            {
+              "point": "P03",
+              "n": 500,
+              "successes": 310,
+              "sr": 0.62,
+              "sr_ci95": [
+                0.532,
+                0.7060000000000001
+              ],
+              "delta_sr": -0.04400000000000001,
+              "delta_sr_ci95": [
+                -0.12,
+                0.038000000000000034
+              ],
+              "per_task_sr": [
+                0.5,
+                0.62,
+                0.84,
+                0.68,
+                0.72,
+                0.56,
+                0.72,
+                0.56,
+                0.62,
+                0.38
+              ],
+              "common_success_n": 243,
+              "mean_control_steps_delta": -3.279835390946502,
+              "lost_successes": 89,
+              "new_successes": 67,
+              "sum_infer_ms": 2302264.362419563,
+              "sum_infers": 14917,
+              "online_ms_per_call": 154.33829606620387,
+              "episode_mean_ms_per_call": 154.14766116158208
+            },
+            {
+              "point": "P04",
+              "n": 500,
+              "successes": 306,
+              "sr": 0.612,
+              "sr_ci95": [
+                0.5,
+                0.698
+              ],
+              "delta_sr": -0.052000000000000005,
+              "delta_sr_ci95": [
+                -0.15000000000000013,
+                0.051999999999999824
+              ],
+              "per_task_sr": [
+                0.74,
+                0.64,
+                0.64,
+                0.52,
+                0.68,
+                0.66,
+                0.76,
+                0.64,
+                0.62,
+                0.22
+              ],
+              "common_success_n": 244,
+              "mean_control_steps_delta": -4.627049180327869,
+              "lost_successes": 88,
+              "new_successes": 62,
+              "sum_infer_ms": 2296844.6970783994,
+              "sum_infers": 14921,
+              "online_ms_per_call": 153.93369727755507,
+              "episode_mean_ms_per_call": 154.56559386553815
+            },
+            {
+              "point": "P05",
+              "n": 500,
+              "successes": 303,
+              "sr": 0.6060000000000001,
+              "sr_ci95": [
+                0.49400000000000005,
+                0.7040000000000001
+              ],
+              "delta_sr": -0.057999999999999996,
+              "delta_sr_ci95": [
+                -0.16199999999999992,
+                0.04999999999999993
+              ],
+              "per_task_sr": [
+                0.78,
+                0.68,
+                0.52,
+                0.68,
+                0.46,
+                0.64,
+                0.78,
+                0.56,
+                0.72,
+                0.24
+              ],
+              "common_success_n": 221,
+              "mean_control_steps_delta": -5.180995475113122,
+              "lost_successes": 111,
+              "new_successes": 82,
+              "sum_infer_ms": 2276240.9995396,
+              "sum_infers": 14985,
+              "online_ms_per_call": 151.90130127057725,
+              "episode_mean_ms_per_call": 151.5593351526314
+            },
+            {
+              "point": "P06",
+              "n": 500,
+              "successes": 243,
+              "sr": 0.48600000000000004,
+              "sr_ci95": [
+                0.32999999999999996,
+                0.6559999999999999
+              ],
+              "delta_sr": -0.17800000000000005,
+              "delta_sr_ci95": [
+                -0.374,
+                0.03400000000000003
+              ],
+              "per_task_sr": [
+                0.82,
+                0.26,
+                0.22,
+                0.32,
+                0.88,
+                0.32,
+                0.88,
+                0.44,
+                0.5,
+                0.22
+              ],
+              "common_success_n": 169,
+              "mean_control_steps_delta": -2.5976331360946747,
+              "lost_successes": 163,
+              "new_successes": 74,
+              "sum_infer_ms": 2534301.4131007507,
+              "sum_infers": 16496,
+              "online_ms_per_call": 153.63126898040437,
+              "episode_mean_ms_per_call": 153.01154203497438
+            },
+            {
+              "point": "P07",
+              "n": 500,
+              "successes": 189,
+              "sr": 0.378,
+              "sr_ci95": [
+                0.23199999999999998,
+                0.5219999999999999
+              ],
+              "delta_sr": -0.286,
+              "delta_sr_ci95": [
+                -0.45999999999999996,
+                -0.1140000000000001
+              ],
+              "per_task_sr": [
+                0.52,
+                0.54,
+                0.3,
+                0.0,
+                0.7,
+                0.48,
+                0.66,
+                0.3,
+                0.16,
+                0.12
+              ],
+              "common_success_n": 124,
+              "mean_control_steps_delta": -2.3629032258064515,
+              "lost_successes": 208,
+              "new_successes": 65,
+              "sum_infer_ms": 2679332.8885330264,
+              "sum_infers": 17757,
+              "online_ms_per_call": 150.88882629571586,
+              "episode_mean_ms_per_call": 150.43516607219777
+            },
+            {
+              "point": "P08",
+              "n": 500,
+              "successes": 173,
+              "sr": 0.346,
+              "sr_ci95": [
+                0.19,
+                0.51
+              ],
+              "delta_sr": -0.318,
+              "delta_sr_ci95": [
+                -0.4999999999999999,
+                -0.12199999999999994
+              ],
+              "per_task_sr": [
+                0.8,
+                0.06,
+                0.16,
+                0.62,
+                0.58,
+                0.4,
+                0.16,
+                0.1,
+                0.5,
+                0.08
+              ],
+              "common_success_n": 117,
+              "mean_control_steps_delta": 10.649572649572649,
+              "lost_successes": 215,
+              "new_successes": 56,
+              "sum_infer_ms": 2758782.66663027,
+              "sum_infers": 18288,
+              "online_ms_per_call": 150.8520705725213,
+              "episode_mean_ms_per_call": 150.79667175494714
+            },
+            {
+              "point": "P09",
+              "n": 500,
+              "successes": 60,
+              "sr": 0.12000000000000002,
+              "sr_ci95": [
+                0.028000000000000004,
+                0.23399999999999999
+              ],
+              "delta_sr": -0.544,
+              "delta_sr_ci95": [
+                -0.662,
+                -0.4180000000000001
+              ],
+              "per_task_sr": [
+                0.0,
+                0.0,
+                0.06,
+                0.0,
+                0.0,
+                0.52,
+                0.18,
+                0.3,
+                0.0,
+                0.14
+              ],
+              "common_success_n": 37,
+              "mean_control_steps_delta": 13.621621621621621,
+              "lost_successes": 295,
+              "new_successes": 23,
+              "sum_infer_ms": 3090142.1470972253,
+              "sum_infers": 20869,
+              "online_ms_per_call": 148.07332153420026,
+              "episode_mean_ms_per_call": 148.0836423819878
+            }
+          ]
+        },
+        "seen": {
+          "estimable": false,
+          "reason": "at least one task has no seen init",
+          "per_task_n": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0,
+            "6": 0,
+            "7": 0,
+            "8": 0,
+            "9": 0
+          }
+        }
+      },
+      "bootstrap_draws": 10000,
+      "seed": 20260911,
+      "interval_interpretation": "descriptive two-level paired bootstrap; no selection correction"
+    },
+    {
+      "lane": "A",
+      "suite": "libero_10",
+      "regime": "rit50",
+      "complete": true,
+      "arms": [
+        {
+          "arm": "cache_prune_libero_10_rit50_P00",
+          "point": "P00",
+          "n": 500,
+          "sr": 0.454,
+          "sr_common_unseen": 0.454,
+          "n_common_unseen": 500,
+          "full_hit": 40088,
+          "non_full_hit": 0,
+          "ms_per_call": 190.0204906074586,
+          "mean_control_steps": 400.038,
+          "n_success": 227,
+          "mean_control_steps_success": 255.76651982378854
+        },
+        {
+          "arm": "cache_prune_libero_10_rit50_P01",
+          "point": "P01",
+          "n": 500,
+          "sr": 0.438,
+          "sr_common_unseen": 0.438,
+          "n_common_unseen": 500,
+          "full_hit": 40408,
+          "non_full_hit": 0,
+          "ms_per_call": 190.80373081252742,
+          "mean_control_steps": 403.24,
+          "n_success": 219,
+          "mean_control_steps_success": 253.42465753424656
+        },
+        {
+          "arm": "cache_prune_libero_10_rit50_P02",
+          "point": "P02",
+          "n": 500,
+          "sr": 0.452,
+          "sr_common_unseen": 0.452,
+          "n_common_unseen": 500,
+          "full_hit": 40233,
+          "non_full_hit": 0,
+          "ms_per_call": 190.2080515239089,
+          "mean_control_steps": 401.434,
+          "n_success": 226,
+          "mean_control_steps_success": 257.6858407079646
+        },
+        {
+          "arm": "cache_prune_libero_10_rit50_P03",
+          "point": "P03",
+          "n": 500,
+          "sr": 0.38,
+          "sr_common_unseen": 0.38,
+          "n_common_unseen": 500,
+          "full_hit": 42105,
+          "non_full_hit": 0,
+          "ms_per_call": 189.53677931304884,
+          "mean_control_steps": 420.352,
+          "n_success": 190,
+          "mean_control_steps_success": 257.7684210526316
+        },
+        {
+          "arm": "cache_prune_libero_10_rit50_P04",
+          "point": "P04",
+          "n": 500,
+          "sr": 0.348,
+          "sr_common_unseen": 0.348,
+          "n_common_unseen": 500,
+          "full_hit": 42915,
+          "non_full_hit": 0,
+          "ms_per_call": 190.2046032592811,
+          "mean_control_steps": 428.468,
+          "n_success": 174,
+          "mean_control_steps_success": 256.97701149425285
+        },
+        {
+          "arm": "cache_prune_libero_10_rit50_P05",
+          "point": "P05",
+          "n": 500,
+          "sr": 0.366,
+          "sr_common_unseen": 0.366,
+          "n_common_unseen": 500,
+          "full_hit": 42404,
+          "non_full_hit": 0,
+          "ms_per_call": 189.06319901732084,
+          "mean_control_steps": 423.396,
+          "n_success": 183,
+          "mean_control_steps_success": 256.05464480874315
+        },
+        {
+          "arm": "cache_prune_libero_10_rit50_P06",
+          "point": "P06",
+          "n": 500,
+          "sr": 0.276,
+          "sr_common_unseen": 0.276,
+          "n_common_unseen": 500,
+          "full_hit": 44462,
+          "non_full_hit": 0,
+          "ms_per_call": 189.68058966739298,
+          "mean_control_steps": 444.172,
+          "n_success": 138,
+          "mean_control_steps_success": 245.2608695652174
+        },
+        {
+          "arm": "cache_prune_libero_10_rit50_P07",
+          "point": "P07",
+          "n": 500,
+          "sr": 0.272,
+          "sr_common_unseen": 0.272,
+          "n_common_unseen": 500,
+          "full_hit": 44676,
+          "non_full_hit": 0,
+          "ms_per_call": 189.16225469052756,
+          "mean_control_steps": 446.308,
+          "n_success": 136,
+          "mean_control_steps_success": 249.0735294117647
+        },
+        {
+          "arm": "cache_prune_libero_10_rit50_P08",
+          "point": "P08",
+          "n": 500,
+          "sr": 0.294,
+          "sr_common_unseen": 0.294,
+          "n_common_unseen": 500,
+          "full_hit": 43847,
+          "non_full_hit": 0,
+          "ms_per_call": 187.54736202845928,
+          "mean_control_steps": 437.86,
+          "n_success": 147,
+          "mean_control_steps_success": 240.6122448979592
+        },
+        {
+          "arm": "cache_prune_libero_10_rit50_P09",
+          "point": "P09",
+          "n": 500,
+          "sr": 0.246,
+          "sr_common_unseen": 0.246,
+          "n_common_unseen": 500,
+          "full_hit": 45519,
+          "non_full_hit": 0,
+          "ms_per_call": 186.13904182792072,
+          "mean_control_steps": 454.758,
+          "n_success": 123,
+          "mean_control_steps_success": 254.78861788617886
+        }
+      ],
+      "libraries": [
+        {
+          "point": "P00",
+          "entries": 2640,
+          "bytes": 1103155631,
+          "actual_rate": 0.0
+        },
+        {
+          "point": "P01",
+          "entries": 2510,
+          "bytes": 1048540127,
+          "actual_rate": 0.04924242424242424
+        },
+        {
+          "point": "P02",
+          "entries": 2380,
+          "bytes": 994233620,
+          "actual_rate": 0.09848484848484848
+        },
+        {
+          "point": "P03",
+          "entries": 2111,
+          "bytes": 881861481,
+          "actual_rate": 0.20037878787878788
+        },
+        {
+          "point": "P04",
+          "entries": 1848,
+          "bytes": 771994964,
+          "actual_rate": 0.3
+        },
+        {
+          "point": "P05",
+          "entries": 1584,
+          "bytes": 661711247,
+          "actual_rate": 0.4
+        },
+        {
+          "point": "P06",
+          "entries": 1319,
+          "bytes": 551010234,
+          "actual_rate": 0.5003787878787879
+        },
+        {
+          "point": "P07",
+          "entries": 1059,
+          "bytes": 442395948,
+          "actual_rate": 0.5988636363636364
+        },
+        {
+          "point": "P08",
+          "entries": 781,
+          "bytes": 326264131,
+          "actual_rate": 0.7041666666666667
+        },
+        {
+          "point": "P09",
+          "entries": 532,
+          "bytes": 222248127,
+          "actual_rate": 0.7984848484848485
+        }
+      ],
+      "subsets": {
+        "common_unseen": {
+          "estimable": true,
+          "per_task_n": {
+            "0": 50,
+            "1": 50,
+            "2": 50,
+            "3": 50,
+            "4": 50,
+            "5": 50,
+            "6": 50,
+            "7": 50,
+            "8": 50,
+            "9": 50
+          },
+          "points": [
+            {
+              "point": "P00",
+              "n": 500,
+              "successes": 227,
+              "sr": 0.454,
+              "sr_ci95": [
+                0.29200000000000004,
+                0.618
+              ],
+              "delta_sr": 0.0,
+              "delta_sr_ci95": [
+                0.0,
+                0.0
+              ],
+              "per_task_sr": [
+                0.16,
+                0.54,
+                0.66,
+                0.72,
+                0.24,
+                0.86,
+                0.16,
+                0.34,
+                0.14,
+                0.72
+              ],
+              "common_success_n": 227,
+              "mean_control_steps_delta": 0.0,
+              "lost_successes": 0,
+              "new_successes": 0,
+              "sum_infer_ms": 7617541.427471803,
+              "sum_infers": 40088,
+              "online_ms_per_call": 190.02049060745867,
+              "episode_mean_ms_per_call": 189.97009899671596
+            },
+            {
+              "point": "P01",
+              "n": 500,
+              "successes": 219,
+              "sr": 0.43800000000000006,
+              "sr_ci95": [
+                0.26000000000000006,
+                0.6139999999999999
+              ],
+              "delta_sr": -0.015999999999999997,
+              "delta_sr_ci95": [
+                -0.08399999999999996,
+                0.04800000000000004
+              ],
+              "per_task_sr": [
+                0.08,
+                0.68,
+                0.7,
+                0.74,
+                0.26,
+                0.66,
+                0.12,
+                0.24,
+                0.12,
+                0.78
+              ],
+              "common_success_n": 183,
+              "mean_control_steps_delta": -2.5245901639344264,
+              "lost_successes": 44,
+              "new_successes": 36,
+              "sum_infer_ms": 7709997.154672601,
+              "sum_infers": 40408,
+              "online_ms_per_call": 190.80373081252725,
+              "episode_mean_ms_per_call": 190.77247406164074
+            },
+            {
+              "point": "P02",
+              "n": 500,
+              "successes": 226,
+              "sr": 0.45200000000000007,
+              "sr_ci95": [
+                0.278,
+                0.624
+              ],
+              "delta_sr": -0.0020000000000000018,
+              "delta_sr_ci95": [
+                -0.07200000000000006,
+                0.06999999999999995
+              ],
+              "per_task_sr": [
+                0.08,
+                0.74,
+                0.7,
+                0.74,
+                0.26,
+                0.66,
+                0.14,
+                0.26,
+                0.18,
+                0.76
+              ],
+              "common_success_n": 182,
+              "mean_control_steps_delta": -1.554945054945055,
+              "lost_successes": 45,
+              "new_successes": 44,
+              "sum_infer_ms": 7652640.536961423,
+              "sum_infers": 40233,
+              "online_ms_per_call": 190.2080515239088,
+              "episode_mean_ms_per_call": 190.0096132660814
+            },
+            {
+              "point": "P03",
+              "n": 500,
+              "successes": 190,
+              "sr": 0.38,
+              "sr_ci95": [
+                0.24400000000000005,
+                0.5200000000000001
+              ],
+              "delta_sr": -0.07400000000000001,
+              "delta_sr_ci95": [
+                -0.16799999999999998,
+                0.011999999999999955
+              ],
+              "per_task_sr": [
+                0.16,
+                0.58,
+                0.74,
+                0.52,
+                0.26,
+                0.5,
+                0.14,
+                0.2,
+                0.12,
+                0.58
+              ],
+              "common_success_n": 142,
+              "mean_control_steps_delta": 1.908450704225352,
+              "lost_successes": 85,
+              "new_successes": 48,
+              "sum_infer_ms": 7980446.092975926,
+              "sum_infers": 42105,
+              "online_ms_per_call": 189.53677931304895,
+              "episode_mean_ms_per_call": 189.5739297035772
+            },
+            {
+              "point": "P04",
+              "n": 500,
+              "successes": 174,
+              "sr": 0.348,
+              "sr_ci95": [
+                0.202,
+                0.5
+              ],
+              "delta_sr": -0.10600000000000001,
+              "delta_sr_ci95": [
+                -0.19599999999999995,
+                -0.02400000000000002
+              ],
+              "per_task_sr": [
+                0.06,
+                0.56,
+                0.66,
+                0.62,
+                0.2,
+                0.48,
+                0.16,
+                0.1,
+                0.08,
+                0.56
+              ],
+              "common_success_n": 126,
+              "mean_control_steps_delta": 5.261904761904762,
+              "lost_successes": 101,
+              "new_successes": 48,
+              "sum_infer_ms": 8162630.548872052,
+              "sum_infers": 42915,
+              "online_ms_per_call": 190.20460325928119,
+              "episode_mean_ms_per_call": 190.27075369956938
+            },
+            {
+              "point": "P05",
+              "n": 500,
+              "successes": 183,
+              "sr": 0.366,
+              "sr_ci95": [
+                0.20800000000000002,
+                0.5319999999999999
+              ],
+              "delta_sr": -0.08800000000000001,
+              "delta_sr_ci95": [
+                -0.18600000000000005,
+                0.0
+              ],
+              "per_task_sr": [
+                0.08,
+                0.58,
+                0.7,
+                0.7,
+                0.18,
+                0.46,
+                0.14,
+                0.08,
+                0.12,
+                0.62
+              ],
+              "common_success_n": 129,
+              "mean_control_steps_delta": 2.75968992248062,
+              "lost_successes": 98,
+              "new_successes": 54,
+              "sum_infer_ms": 8017035.891130467,
+              "sum_infers": 42404,
+              "online_ms_per_call": 189.0631990173207,
+              "episode_mean_ms_per_call": 189.10300681029946
+            },
+            {
+              "point": "P06",
+              "n": 500,
+              "successes": 138,
+              "sr": 0.276,
+              "sr_ci95": [
+                0.14200000000000004,
+                0.42399999999999993
+              ],
+              "delta_sr": -0.178,
+              "delta_sr_ci95": [
+                -0.30400000000000005,
+                -0.07000000000000003
+              ],
+              "per_task_sr": [
+                0.04,
+                0.46,
+                0.6,
+                0.64,
+                0.08,
+                0.44,
+                0.14,
+                0.1,
+                0.12,
+                0.14
+              ],
+              "common_success_n": 100,
+              "mean_control_steps_delta": -9.72,
+              "lost_successes": 127,
+              "new_successes": 38,
+              "sum_infer_ms": 8433578.377791623,
+              "sum_infers": 44462,
+              "online_ms_per_call": 189.6805896673929,
+              "episode_mean_ms_per_call": 189.75280345588266
+            },
+            {
+              "point": "P07",
+              "n": 500,
+              "successes": 136,
+              "sr": 0.27199999999999996,
+              "sr_ci95": [
+                0.13999999999999999,
+                0.42000000000000004
+              ],
+              "delta_sr": -0.182,
+              "delta_sr_ci95": [
+                -0.33799999999999997,
+                -0.053999999999999965
+              ],
+              "per_task_sr": [
+                0.1,
+                0.52,
+                0.58,
+                0.64,
+                0.14,
+                0.36,
+                0.16,
+                0.1,
+                0.1,
+                0.02
+              ],
+              "common_success_n": 95,
+              "mean_control_steps_delta": 1.1473684210526316,
+              "lost_successes": 132,
+              "new_successes": 41,
+              "sum_infer_ms": 8451012.890554007,
+              "sum_infers": 44676,
+              "online_ms_per_call": 189.1622546905275,
+              "episode_mean_ms_per_call": 188.9608668958478
+            },
+            {
+              "point": "P08",
+              "n": 500,
+              "successes": 147,
+              "sr": 0.29400000000000004,
+              "sr_ci95": [
+                0.12000000000000002,
+                0.484
+              ],
+              "delta_sr": -0.16,
+              "delta_sr_ci95": [
+                -0.30999999999999994,
+                -0.030000000000000027
+              ],
+              "per_task_sr": [
+                0.06,
+                0.56,
+                0.78,
+                0.7,
+                0.06,
+                0.5,
+                0.14,
+                0.1,
+                0.0,
+                0.04
+              ],
+              "common_success_n": 102,
+              "mean_control_steps_delta": -4.568627450980392,
+              "lost_successes": 125,
+              "new_successes": 45,
+              "sum_infer_ms": 8223389.182861855,
+              "sum_infers": 43847,
+              "online_ms_per_call": 187.5473620284593,
+              "episode_mean_ms_per_call": 187.38007848771596
+            },
+            {
+              "point": "P09",
+              "n": 500,
+              "successes": 123,
+              "sr": 0.246,
+              "sr_ci95": [
+                0.09,
+                0.41800000000000004
+              ],
+              "delta_sr": -0.20799999999999996,
+              "delta_sr_ci95": [
+                -0.342,
+                -0.10000000000000009
+              ],
+              "per_task_sr": [
+                0.0,
+                0.42,
+                0.64,
+                0.68,
+                0.0,
+                0.14,
+                0.0,
+                0.1,
+                0.02,
+                0.46
+              ],
+              "common_success_n": 89,
+              "mean_control_steps_delta": 1.5168539325842696,
+              "lost_successes": 138,
+              "new_successes": 34,
+              "sum_infer_ms": 8472863.04496512,
+              "sum_infers": 45519,
+              "online_ms_per_call": 186.13904182792064,
+              "episode_mean_ms_per_call": 186.4514260168333
+            }
+          ]
+        },
+        "full": {
+          "estimable": true,
+          "per_task_n": {
+            "0": 50,
+            "1": 50,
+            "2": 50,
+            "3": 50,
+            "4": 50,
+            "5": 50,
+            "6": 50,
+            "7": 50,
+            "8": 50,
+            "9": 50
+          },
+          "points": [
+            {
+              "point": "P00",
+              "n": 500,
+              "successes": 227,
+              "sr": 0.454,
+              "sr_ci95": [
+                0.29200000000000004,
+                0.618
+              ],
+              "delta_sr": 0.0,
+              "delta_sr_ci95": [
+                0.0,
+                0.0
+              ],
+              "per_task_sr": [
+                0.16,
+                0.54,
+                0.66,
+                0.72,
+                0.24,
+                0.86,
+                0.16,
+                0.34,
+                0.14,
+                0.72
+              ],
+              "common_success_n": 227,
+              "mean_control_steps_delta": 0.0,
+              "lost_successes": 0,
+              "new_successes": 0,
+              "sum_infer_ms": 7617541.427471803,
+              "sum_infers": 40088,
+              "online_ms_per_call": 190.02049060745867,
+              "episode_mean_ms_per_call": 189.97009899671596
+            },
+            {
+              "point": "P01",
+              "n": 500,
+              "successes": 219,
+              "sr": 0.43800000000000006,
+              "sr_ci95": [
+                0.26000000000000006,
+                0.6139999999999999
+              ],
+              "delta_sr": -0.015999999999999997,
+              "delta_sr_ci95": [
+                -0.08399999999999996,
+                0.04800000000000004
+              ],
+              "per_task_sr": [
+                0.08,
+                0.68,
+                0.7,
+                0.74,
+                0.26,
+                0.66,
+                0.12,
+                0.24,
+                0.12,
+                0.78
+              ],
+              "common_success_n": 183,
+              "mean_control_steps_delta": -2.5245901639344264,
+              "lost_successes": 44,
+              "new_successes": 36,
+              "sum_infer_ms": 7709997.154672601,
+              "sum_infers": 40408,
+              "online_ms_per_call": 190.80373081252725,
+              "episode_mean_ms_per_call": 190.77247406164074
+            },
+            {
+              "point": "P02",
+              "n": 500,
+              "successes": 226,
+              "sr": 0.45200000000000007,
+              "sr_ci95": [
+                0.278,
+                0.624
+              ],
+              "delta_sr": -0.0020000000000000018,
+              "delta_sr_ci95": [
+                -0.07200000000000006,
+                0.06999999999999995
+              ],
+              "per_task_sr": [
+                0.08,
+                0.74,
+                0.7,
+                0.74,
+                0.26,
+                0.66,
+                0.14,
+                0.26,
+                0.18,
+                0.76
+              ],
+              "common_success_n": 182,
+              "mean_control_steps_delta": -1.554945054945055,
+              "lost_successes": 45,
+              "new_successes": 44,
+              "sum_infer_ms": 7652640.536961423,
+              "sum_infers": 40233,
+              "online_ms_per_call": 190.2080515239088,
+              "episode_mean_ms_per_call": 190.0096132660814
+            },
+            {
+              "point": "P03",
+              "n": 500,
+              "successes": 190,
+              "sr": 0.38,
+              "sr_ci95": [
+                0.24400000000000005,
+                0.5200000000000001
+              ],
+              "delta_sr": -0.07400000000000001,
+              "delta_sr_ci95": [
+                -0.16799999999999998,
+                0.011999999999999955
+              ],
+              "per_task_sr": [
+                0.16,
+                0.58,
+                0.74,
+                0.52,
+                0.26,
+                0.5,
+                0.14,
+                0.2,
+                0.12,
+                0.58
+              ],
+              "common_success_n": 142,
+              "mean_control_steps_delta": 1.908450704225352,
+              "lost_successes": 85,
+              "new_successes": 48,
+              "sum_infer_ms": 7980446.092975926,
+              "sum_infers": 42105,
+              "online_ms_per_call": 189.53677931304895,
+              "episode_mean_ms_per_call": 189.5739297035772
+            },
+            {
+              "point": "P04",
+              "n": 500,
+              "successes": 174,
+              "sr": 0.348,
+              "sr_ci95": [
+                0.202,
+                0.5
+              ],
+              "delta_sr": -0.10600000000000001,
+              "delta_sr_ci95": [
+                -0.19599999999999995,
+                -0.02400000000000002
+              ],
+              "per_task_sr": [
+                0.06,
+                0.56,
+                0.66,
+                0.62,
+                0.2,
+                0.48,
+                0.16,
+                0.1,
+                0.08,
+                0.56
+              ],
+              "common_success_n": 126,
+              "mean_control_steps_delta": 5.261904761904762,
+              "lost_successes": 101,
+              "new_successes": 48,
+              "sum_infer_ms": 8162630.548872052,
+              "sum_infers": 42915,
+              "online_ms_per_call": 190.20460325928119,
+              "episode_mean_ms_per_call": 190.27075369956938
+            },
+            {
+              "point": "P05",
+              "n": 500,
+              "successes": 183,
+              "sr": 0.366,
+              "sr_ci95": [
+                0.20800000000000002,
+                0.5319999999999999
+              ],
+              "delta_sr": -0.08800000000000001,
+              "delta_sr_ci95": [
+                -0.18600000000000005,
+                0.0
+              ],
+              "per_task_sr": [
+                0.08,
+                0.58,
+                0.7,
+                0.7,
+                0.18,
+                0.46,
+                0.14,
+                0.08,
+                0.12,
+                0.62
+              ],
+              "common_success_n": 129,
+              "mean_control_steps_delta": 2.75968992248062,
+              "lost_successes": 98,
+              "new_successes": 54,
+              "sum_infer_ms": 8017035.891130467,
+              "sum_infers": 42404,
+              "online_ms_per_call": 189.0631990173207,
+              "episode_mean_ms_per_call": 189.10300681029946
+            },
+            {
+              "point": "P06",
+              "n": 500,
+              "successes": 138,
+              "sr": 0.276,
+              "sr_ci95": [
+                0.14200000000000004,
+                0.42399999999999993
+              ],
+              "delta_sr": -0.178,
+              "delta_sr_ci95": [
+                -0.30400000000000005,
+                -0.07000000000000003
+              ],
+              "per_task_sr": [
+                0.04,
+                0.46,
+                0.6,
+                0.64,
+                0.08,
+                0.44,
+                0.14,
+                0.1,
+                0.12,
+                0.14
+              ],
+              "common_success_n": 100,
+              "mean_control_steps_delta": -9.72,
+              "lost_successes": 127,
+              "new_successes": 38,
+              "sum_infer_ms": 8433578.377791623,
+              "sum_infers": 44462,
+              "online_ms_per_call": 189.6805896673929,
+              "episode_mean_ms_per_call": 189.75280345588266
+            },
+            {
+              "point": "P07",
+              "n": 500,
+              "successes": 136,
+              "sr": 0.27199999999999996,
+              "sr_ci95": [
+                0.13999999999999999,
+                0.42000000000000004
+              ],
+              "delta_sr": -0.182,
+              "delta_sr_ci95": [
+                -0.33799999999999997,
+                -0.053999999999999965
+              ],
+              "per_task_sr": [
+                0.1,
+                0.52,
+                0.58,
+                0.64,
+                0.14,
+                0.36,
+                0.16,
+                0.1,
+                0.1,
+                0.02
+              ],
+              "common_success_n": 95,
+              "mean_control_steps_delta": 1.1473684210526316,
+              "lost_successes": 132,
+              "new_successes": 41,
+              "sum_infer_ms": 8451012.890554007,
+              "sum_infers": 44676,
+              "online_ms_per_call": 189.1622546905275,
+              "episode_mean_ms_per_call": 188.9608668958478
+            },
+            {
+              "point": "P08",
+              "n": 500,
+              "successes": 147,
+              "sr": 0.29400000000000004,
+              "sr_ci95": [
+                0.12000000000000002,
+                0.484
+              ],
+              "delta_sr": -0.16,
+              "delta_sr_ci95": [
+                -0.30999999999999994,
+                -0.030000000000000027
+              ],
+              "per_task_sr": [
+                0.06,
+                0.56,
+                0.78,
+                0.7,
+                0.06,
+                0.5,
+                0.14,
+                0.1,
+                0.0,
+                0.04
+              ],
+              "common_success_n": 102,
+              "mean_control_steps_delta": -4.568627450980392,
+              "lost_successes": 125,
+              "new_successes": 45,
+              "sum_infer_ms": 8223389.182861855,
+              "sum_infers": 43847,
+              "online_ms_per_call": 187.5473620284593,
+              "episode_mean_ms_per_call": 187.38007848771596
+            },
+            {
+              "point": "P09",
+              "n": 500,
+              "successes": 123,
+              "sr": 0.246,
+              "sr_ci95": [
+                0.09,
+                0.41800000000000004
+              ],
+              "delta_sr": -0.20799999999999996,
+              "delta_sr_ci95": [
+                -0.342,
+                -0.10000000000000009
+              ],
+              "per_task_sr": [
+                0.0,
+                0.42,
+                0.64,
+                0.68,
+                0.0,
+                0.14,
+                0.0,
+                0.1,
+                0.02,
+                0.46
+              ],
+              "common_success_n": 89,
+              "mean_control_steps_delta": 1.5168539325842696,
+              "lost_successes": 138,
+              "new_successes": 34,
+              "sum_infer_ms": 8472863.04496512,
+              "sum_infers": 45519,
+              "online_ms_per_call": 186.13904182792064,
+              "episode_mean_ms_per_call": 186.4514260168333
+            }
+          ]
+        },
+        "seen": {
+          "estimable": false,
+          "reason": "at least one task has no seen init",
+          "per_task_n": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0,
+            "6": 0,
+            "7": 0,
+            "8": 0,
+            "9": 0
+          }
+        }
+      },
+      "bootstrap_draws": 10000,
+      "seed": 20260911,
+      "interval_interpretation": "descriptive two-level paired bootstrap; no selection correction"
+    },
+    {
+      "lane": "B",
+      "suite": "libero_spatial",
+      "regime": "cs500_success",
+      "complete": true,
+      "arms": [
+        {
+          "arm": "cache_prune_libero_spatial_cs500_success_P00",
+          "point": "P00",
+          "n": 500,
+          "sr": 0.808,
+          "sr_common_unseen": 0.808,
+          "n_common_unseen": 500,
+          "full_hit": 13187,
+          "non_full_hit": 0,
+          "ms_per_call": 259.16437019196115,
+          "mean_control_steps": 130.128,
+          "n_success": 404,
+          "mean_control_steps_success": 108.77227722772277
+        },
+        {
+          "arm": "cache_prune_libero_spatial_cs500_success_P01",
+          "point": "P01",
+          "n": 500,
+          "sr": 0.792,
+          "sr_common_unseen": 0.792,
+          "n_common_unseen": 500,
+          "full_hit": 13229,
+          "non_full_hit": 0,
+          "ms_per_call": 249.2950419387749,
+          "mean_control_steps": 130.648,
+          "n_success": 396,
+          "mean_control_steps_success": 107.18181818181819
+        },
+        {
+          "arm": "cache_prune_libero_spatial_cs500_success_P02",
+          "point": "P02",
+          "n": 500,
+          "sr": 0.79,
+          "sr_common_unseen": 0.79,
+          "n_common_unseen": 500,
+          "full_hit": 13219,
+          "non_full_hit": 0,
+          "ms_per_call": 251.73551612237725,
+          "mean_control_steps": 130.41,
+          "n_success": 395,
+          "mean_control_steps_success": 106.59493670886076
+        },
+        {
+          "arm": "cache_prune_libero_spatial_cs500_success_P03",
+          "point": "P03",
+          "n": 500,
+          "sr": 0.794,
+          "sr_common_unseen": 0.794,
+          "n_common_unseen": 500,
+          "full_hit": 13013,
+          "non_full_hit": 0,
+          "ms_per_call": 248.4865743490256,
+          "mean_control_steps": 128.482,
+          "n_success": 397,
+          "mean_control_steps_success": 104.73803526448363
+        },
+        {
+          "arm": "cache_prune_libero_spatial_cs500_success_P04",
+          "point": "P04",
+          "n": 500,
+          "sr": 0.762,
+          "sr_common_unseen": 0.762,
+          "n_common_unseen": 500,
+          "full_hit": 13295,
+          "non_full_hit": 0,
+          "ms_per_call": 243.95459721449114,
+          "mean_control_steps": 131.382,
+          "n_success": 381,
+          "mean_control_steps_success": 103.70341207349081
+        },
+        {
+          "arm": "cache_prune_libero_spatial_cs500_success_P05",
+          "point": "P05",
+          "n": 500,
+          "sr": 0.746,
+          "sr_common_unseen": 0.746,
+          "n_common_unseen": 500,
+          "full_hit": 13340,
+          "non_full_hit": 0,
+          "ms_per_call": 255.81883434327548,
+          "mean_control_steps": 131.952,
+          "n_success": 373,
+          "mean_control_steps_success": 101.97319034852546
+        },
+        {
+          "arm": "cache_prune_libero_spatial_cs500_success_P06",
+          "point": "P06",
+          "n": 500,
+          "sr": 0.742,
+          "sr_common_unseen": 0.742,
+          "n_common_unseen": 500,
+          "full_hit": 13427,
+          "non_full_hit": 0,
+          "ms_per_call": 238.73072802076496,
+          "mean_control_steps": 132.904,
+          "n_success": 371,
+          "mean_control_steps_success": 102.61994609164421
+        },
+        {
+          "arm": "cache_prune_libero_spatial_cs500_success_P07",
+          "point": "P07",
+          "n": 500,
+          "sr": 0.73,
+          "sr_common_unseen": 0.73,
+          "n_common_unseen": 500,
+          "full_hit": 13681,
+          "non_full_hit": 0,
+          "ms_per_call": 242.97709801267763,
+          "mean_control_steps": 135.322,
+          "n_success": 365,
+          "mean_control_steps_success": 104.0027397260274
+        },
+        {
+          "arm": "cache_prune_libero_spatial_cs500_success_P08",
+          "point": "P08",
+          "n": 500,
+          "sr": 0.704,
+          "sr_common_unseen": 0.704,
+          "n_common_unseen": 500,
+          "full_hit": 14029,
+          "non_full_hit": 0,
+          "ms_per_call": 233.56793128037054,
+          "mean_control_steps": 138.974,
+          "n_success": 352,
+          "mean_control_steps_success": 104.90625
+        },
+        {
+          "arm": "cache_prune_libero_spatial_cs500_success_P09",
+          "point": "P09",
+          "n": 500,
+          "sr": 0.606,
+          "sr_common_unseen": 0.606,
+          "n_common_unseen": 500,
+          "full_hit": 14985,
+          "non_full_hit": 0,
+          "ms_per_call": 228.61580810633768,
+          "mean_control_steps": 148.654,
+          "n_success": 303,
+          "mean_control_steps_success": 102.26732673267327
+        }
+      ],
+      "libraries": [
+        {
+          "point": "P00",
+          "entries": 9329,
+          "bytes": 3873026807,
+          "actual_rate": 0.0
+        },
+        {
+          "point": "P01",
+          "entries": 8862,
+          "bytes": 3678112288,
+          "actual_rate": 0.050058955943831064
+        },
+        {
+          "point": "P02",
+          "entries": 8408,
+          "bytes": 3489685264,
+          "actual_rate": 0.09872440776074606
+        },
+        {
+          "point": "P03",
+          "entries": 7443,
+          "bytes": 3089173919,
+          "actual_rate": 0.20216529102797728
+        },
+        {
+          "point": "P04",
+          "entries": 6534,
+          "bytes": 2711904566,
+          "actual_rate": 0.2996033872869547
+        },
+        {
+          "point": "P05",
+          "entries": 5603,
+          "bytes": 2325504485,
+          "actual_rate": 0.3993997212991746
+        },
+        {
+          "point": "P06",
+          "entries": 4658,
+          "bytes": 1933294167,
+          "actual_rate": 0.500696752063458
+        },
+        {
+          "point": "P07",
+          "entries": 3722,
+          "bytes": 1544819687,
+          "actual_rate": 0.601029049201415
+        },
+        {
+          "point": "P08",
+          "entries": 2780,
+          "bytes": 1153855366,
+          "actual_rate": 0.7020045020902562
+        },
+        {
+          "point": "P09",
+          "entries": 1846,
+          "bytes": 766212435,
+          "actual_rate": 0.8021224139779183
+        }
+      ],
+      "subsets": {
+        "common_unseen": {
+          "estimable": true,
+          "per_task_n": {
+            "0": 50,
+            "1": 50,
+            "2": 50,
+            "3": 50,
+            "4": 50,
+            "5": 50,
+            "6": 50,
+            "7": 50,
+            "8": 50,
+            "9": 50
+          },
+          "points": [
+            {
+              "point": "P00",
+              "n": 500,
+              "successes": 404,
+              "sr": 0.808,
+              "sr_ci95": [
+                0.7420000000000001,
+                0.868
+              ],
+              "delta_sr": 0.0,
+              "delta_sr_ci95": [
+                0.0,
+                0.0
+              ],
+              "per_task_sr": [
+                0.8,
+                0.88,
+                0.88,
+                0.94,
+                0.84,
+                0.64,
+                0.76,
+                0.84,
+                0.7,
+                0.8
+              ],
+              "common_success_n": 404,
+              "mean_control_steps_delta": 0.0,
+              "lost_successes": 0,
+              "new_successes": 0,
+              "sum_infer_ms": 3417600.549721392,
+              "sum_infers": 13187,
+              "online_ms_per_call": 259.16437019196115,
+              "episode_mean_ms_per_call": 257.5616310867855
+            },
+            {
+              "point": "P01",
+              "n": 500,
+              "successes": 396,
+              "sr": 0.792,
+              "sr_ci95": [
+                0.7180000000000001,
+                0.8640000000000001
+              ],
+              "delta_sr": -0.016000000000000004,
+              "delta_sr_ci95": [
+                -0.07999999999999996,
+                0.041999999999999815
+              ],
+              "per_task_sr": [
+                0.84,
+                0.96,
+                0.92,
+                0.92,
+                0.64,
+                0.7,
+                0.7,
+                0.74,
+                0.72,
+                0.78
+              ],
+              "common_success_n": 363,
+              "mean_control_steps_delta": -1.121212121212121,
+              "lost_successes": 41,
+              "new_successes": 33,
+              "sum_infer_ms": 3297924.109808053,
+              "sum_infers": 13229,
+              "online_ms_per_call": 249.2950419387749,
+              "episode_mean_ms_per_call": 249.50953835504467
+            },
+            {
+              "point": "P02",
+              "n": 500,
+              "successes": 395,
+              "sr": 0.7899999999999999,
+              "sr_ci95": [
+                0.714,
+                0.8620000000000001
+              ],
+              "delta_sr": -0.01799999999999998,
+              "delta_sr_ci95": [
+                -0.09400000000000008,
+                0.05799999999999983
+              ],
+              "per_task_sr": [
+                0.94,
+                0.9,
+                0.9,
+                0.9,
+                0.66,
+                0.8,
+                0.7,
+                0.68,
+                0.66,
+                0.76
+              ],
+              "common_success_n": 346,
+              "mean_control_steps_delta": -0.5664739884393064,
+              "lost_successes": 58,
+              "new_successes": 49,
+              "sum_infer_ms": 3327691.787621705,
+              "sum_infers": 13219,
+              "online_ms_per_call": 251.73551612237725,
+              "episode_mean_ms_per_call": 251.79879353451824
+            },
+            {
+              "point": "P03",
+              "n": 500,
+              "successes": 397,
+              "sr": 0.794,
+              "sr_ci95": [
+                0.7299999999999999,
+                0.858
+              ],
+              "delta_sr": -0.01399999999999999,
+              "delta_sr_ci95": [
+                -0.07199999999999995,
+                0.04399999999999993
+              ],
+              "per_task_sr": [
+                0.92,
+                0.88,
+                0.86,
+                0.92,
+                0.7,
+                0.68,
+                0.76,
+                0.78,
+                0.7,
+                0.74
+              ],
+              "common_success_n": 345,
+              "mean_control_steps_delta": -2.1797101449275362,
+              "lost_successes": 59,
+              "new_successes": 52,
+              "sum_infer_ms": 3233555.79200387,
+              "sum_infers": 13013,
+              "online_ms_per_call": 248.4865743490256,
+              "episode_mean_ms_per_call": 248.1886935055501
+            },
+            {
+              "point": "P04",
+              "n": 500,
+              "successes": 381,
+              "sr": 0.7619999999999999,
+              "sr_ci95": [
+                0.6780000000000002,
+                0.8440000000000001
+              ],
+              "delta_sr": -0.046000000000000006,
+              "delta_sr_ci95": [
+                -0.12000000000000022,
+                0.022049999999999393
+              ],
+              "per_task_sr": [
+                0.84,
+                0.88,
+                0.82,
+                0.98,
+                0.74,
+                0.62,
+                0.84,
+                0.66,
+                0.66,
+                0.58
+              ],
+              "common_success_n": 326,
+              "mean_control_steps_delta": -4.0920245398773005,
+              "lost_successes": 78,
+              "new_successes": 55,
+              "sum_infer_ms": 3243376.3699666597,
+              "sum_infers": 13295,
+              "online_ms_per_call": 243.95459721449114,
+              "episode_mean_ms_per_call": 243.33693172880956
+            },
+            {
+              "point": "P05",
+              "n": 500,
+              "successes": 373,
+              "sr": 0.746,
+              "sr_ci95": [
+                0.678,
+                0.8119999999999999
+              ],
+              "delta_sr": -0.062,
+              "delta_sr_ci95": [
+                -0.13400000000000012,
+                0.009999999999999898
+              ],
+              "per_task_sr": [
+                0.86,
+                0.88,
+                0.8,
+                0.86,
+                0.64,
+                0.72,
+                0.7,
+                0.7,
+                0.68,
+                0.62
+              ],
+              "common_success_n": 315,
+              "mean_control_steps_delta": -4.076190476190476,
+              "lost_successes": 89,
+              "new_successes": 58,
+              "sum_infer_ms": 3412623.250139295,
+              "sum_infers": 13340,
+              "online_ms_per_call": 255.81883434327548,
+              "episode_mean_ms_per_call": 255.2224053210087
+            },
+            {
+              "point": "P06",
+              "n": 500,
+              "successes": 371,
+              "sr": 0.7419999999999999,
+              "sr_ci95": [
+                0.68,
+                0.8039999999999999
+              ],
+              "delta_sr": -0.06599999999999999,
+              "delta_sr_ci95": [
+                -0.132,
+                -0.0020000000000000018
+              ],
+              "per_task_sr": [
+                0.78,
+                0.74,
+                0.84,
+                0.9,
+                0.7,
+                0.72,
+                0.68,
+                0.76,
+                0.68,
+                0.62
+              ],
+              "common_success_n": 311,
+              "mean_control_steps_delta": -5.434083601286174,
+              "lost_successes": 93,
+              "new_successes": 60,
+              "sum_infer_ms": 3205437.485134811,
+              "sum_infers": 13427,
+              "online_ms_per_call": 238.73072802076496,
+              "episode_mean_ms_per_call": 237.89672774075262
+            },
+            {
+              "point": "P07",
+              "n": 500,
+              "successes": 365,
+              "sr": 0.7299999999999999,
+              "sr_ci95": [
+                0.642,
+                0.8119999999999999
+              ],
+              "delta_sr": -0.078,
+              "delta_sr_ci95": [
+                -0.15600000000000014,
+                -0.01200000000000001
+              ],
+              "per_task_sr": [
+                0.68,
+                0.84,
+                0.86,
+                0.88,
+                0.82,
+                0.6,
+                0.76,
+                0.74,
+                0.64,
+                0.48
+              ],
+              "common_success_n": 307,
+              "mean_control_steps_delta": -2.9022801302931596,
+              "lost_successes": 97,
+              "new_successes": 58,
+              "sum_infer_ms": 3324169.6779114427,
+              "sum_infers": 13681,
+              "online_ms_per_call": 242.97709801267763,
+              "episode_mean_ms_per_call": 241.37589348185875
+            },
+            {
+              "point": "P08",
+              "n": 500,
+              "successes": 352,
+              "sr": 0.7040000000000001,
+              "sr_ci95": [
+                0.6039999999999999,
+                0.796
+              ],
+              "delta_sr": -0.10400000000000001,
+              "delta_sr_ci95": [
+                -0.19599999999999984,
+                -0.02400000000000002
+              ],
+              "per_task_sr": [
+                0.82,
+                0.86,
+                0.82,
+                0.9,
+                0.66,
+                0.6,
+                0.76,
+                0.64,
+                0.56,
+                0.42
+              ],
+              "common_success_n": 296,
+              "mean_control_steps_delta": -1.7195945945945945,
+              "lost_successes": 108,
+              "new_successes": 56,
+              "sum_infer_ms": 3276724.5079323184,
+              "sum_infers": 14029,
+              "online_ms_per_call": 233.56793128037054,
+              "episode_mean_ms_per_call": 232.58786920342106
+            },
+            {
+              "point": "P09",
+              "n": 500,
+              "successes": 303,
+              "sr": 0.6060000000000001,
+              "sr_ci95": [
+                0.4800000000000001,
+                0.716
+              ],
+              "delta_sr": -0.20199999999999996,
+              "delta_sr_ci95": [
+                -0.3279999999999998,
+                -0.08799999999999997
+              ],
+              "per_task_sr": [
+                0.74,
+                0.62,
+                0.78,
+                0.74,
+                0.8,
+                0.68,
+                0.54,
+                0.5,
+                0.46,
+                0.2
+              ],
+              "common_success_n": 241,
+              "mean_control_steps_delta": -5.83402489626556,
+              "lost_successes": 163,
+              "new_successes": 62,
+              "sum_infer_ms": 3425807.88447347,
+              "sum_infers": 14985,
+              "online_ms_per_call": 228.61580810633768,
+              "episode_mean_ms_per_call": 228.77970509000133
+            }
+          ]
+        },
+        "full": {
+          "estimable": true,
+          "per_task_n": {
+            "0": 50,
+            "1": 50,
+            "2": 50,
+            "3": 50,
+            "4": 50,
+            "5": 50,
+            "6": 50,
+            "7": 50,
+            "8": 50,
+            "9": 50
+          },
+          "points": [
+            {
+              "point": "P00",
+              "n": 500,
+              "successes": 404,
+              "sr": 0.808,
+              "sr_ci95": [
+                0.7420000000000001,
+                0.868
+              ],
+              "delta_sr": 0.0,
+              "delta_sr_ci95": [
+                0.0,
+                0.0
+              ],
+              "per_task_sr": [
+                0.8,
+                0.88,
+                0.88,
+                0.94,
+                0.84,
+                0.64,
+                0.76,
+                0.84,
+                0.7,
+                0.8
+              ],
+              "common_success_n": 404,
+              "mean_control_steps_delta": 0.0,
+              "lost_successes": 0,
+              "new_successes": 0,
+              "sum_infer_ms": 3417600.549721392,
+              "sum_infers": 13187,
+              "online_ms_per_call": 259.16437019196115,
+              "episode_mean_ms_per_call": 257.5616310867855
+            },
+            {
+              "point": "P01",
+              "n": 500,
+              "successes": 396,
+              "sr": 0.792,
+              "sr_ci95": [
+                0.7180000000000001,
+                0.8640000000000001
+              ],
+              "delta_sr": -0.016000000000000004,
+              "delta_sr_ci95": [
+                -0.07999999999999996,
+                0.041999999999999815
+              ],
+              "per_task_sr": [
+                0.84,
+                0.96,
+                0.92,
+                0.92,
+                0.64,
+                0.7,
+                0.7,
+                0.74,
+                0.72,
+                0.78
+              ],
+              "common_success_n": 363,
+              "mean_control_steps_delta": -1.121212121212121,
+              "lost_successes": 41,
+              "new_successes": 33,
+              "sum_infer_ms": 3297924.109808053,
+              "sum_infers": 13229,
+              "online_ms_per_call": 249.2950419387749,
+              "episode_mean_ms_per_call": 249.50953835504467
+            },
+            {
+              "point": "P02",
+              "n": 500,
+              "successes": 395,
+              "sr": 0.7899999999999999,
+              "sr_ci95": [
+                0.714,
+                0.8620000000000001
+              ],
+              "delta_sr": -0.01799999999999998,
+              "delta_sr_ci95": [
+                -0.09400000000000008,
+                0.05799999999999983
+              ],
+              "per_task_sr": [
+                0.94,
+                0.9,
+                0.9,
+                0.9,
+                0.66,
+                0.8,
+                0.7,
+                0.68,
+                0.66,
+                0.76
+              ],
+              "common_success_n": 346,
+              "mean_control_steps_delta": -0.5664739884393064,
+              "lost_successes": 58,
+              "new_successes": 49,
+              "sum_infer_ms": 3327691.787621705,
+              "sum_infers": 13219,
+              "online_ms_per_call": 251.73551612237725,
+              "episode_mean_ms_per_call": 251.79879353451824
+            },
+            {
+              "point": "P03",
+              "n": 500,
+              "successes": 397,
+              "sr": 0.794,
+              "sr_ci95": [
+                0.7299999999999999,
+                0.858
+              ],
+              "delta_sr": -0.01399999999999999,
+              "delta_sr_ci95": [
+                -0.07199999999999995,
+                0.04399999999999993
+              ],
+              "per_task_sr": [
+                0.92,
+                0.88,
+                0.86,
+                0.92,
+                0.7,
+                0.68,
+                0.76,
+                0.78,
+                0.7,
+                0.74
+              ],
+              "common_success_n": 345,
+              "mean_control_steps_delta": -2.1797101449275362,
+              "lost_successes": 59,
+              "new_successes": 52,
+              "sum_infer_ms": 3233555.79200387,
+              "sum_infers": 13013,
+              "online_ms_per_call": 248.4865743490256,
+              "episode_mean_ms_per_call": 248.1886935055501
+            },
+            {
+              "point": "P04",
+              "n": 500,
+              "successes": 381,
+              "sr": 0.7619999999999999,
+              "sr_ci95": [
+                0.6780000000000002,
+                0.8440000000000001
+              ],
+              "delta_sr": -0.046000000000000006,
+              "delta_sr_ci95": [
+                -0.12000000000000022,
+                0.022049999999999393
+              ],
+              "per_task_sr": [
+                0.84,
+                0.88,
+                0.82,
+                0.98,
+                0.74,
+                0.62,
+                0.84,
+                0.66,
+                0.66,
+                0.58
+              ],
+              "common_success_n": 326,
+              "mean_control_steps_delta": -4.0920245398773005,
+              "lost_successes": 78,
+              "new_successes": 55,
+              "sum_infer_ms": 3243376.3699666597,
+              "sum_infers": 13295,
+              "online_ms_per_call": 243.95459721449114,
+              "episode_mean_ms_per_call": 243.33693172880956
+            },
+            {
+              "point": "P05",
+              "n": 500,
+              "successes": 373,
+              "sr": 0.746,
+              "sr_ci95": [
+                0.678,
+                0.8119999999999999
+              ],
+              "delta_sr": -0.062,
+              "delta_sr_ci95": [
+                -0.13400000000000012,
+                0.009999999999999898
+              ],
+              "per_task_sr": [
+                0.86,
+                0.88,
+                0.8,
+                0.86,
+                0.64,
+                0.72,
+                0.7,
+                0.7,
+                0.68,
+                0.62
+              ],
+              "common_success_n": 315,
+              "mean_control_steps_delta": -4.076190476190476,
+              "lost_successes": 89,
+              "new_successes": 58,
+              "sum_infer_ms": 3412623.250139295,
+              "sum_infers": 13340,
+              "online_ms_per_call": 255.81883434327548,
+              "episode_mean_ms_per_call": 255.2224053210087
+            },
+            {
+              "point": "P06",
+              "n": 500,
+              "successes": 371,
+              "sr": 0.7419999999999999,
+              "sr_ci95": [
+                0.68,
+                0.8039999999999999
+              ],
+              "delta_sr": -0.06599999999999999,
+              "delta_sr_ci95": [
+                -0.132,
+                -0.0020000000000000018
+              ],
+              "per_task_sr": [
+                0.78,
+                0.74,
+                0.84,
+                0.9,
+                0.7,
+                0.72,
+                0.68,
+                0.76,
+                0.68,
+                0.62
+              ],
+              "common_success_n": 311,
+              "mean_control_steps_delta": -5.434083601286174,
+              "lost_successes": 93,
+              "new_successes": 60,
+              "sum_infer_ms": 3205437.485134811,
+              "sum_infers": 13427,
+              "online_ms_per_call": 238.73072802076496,
+              "episode_mean_ms_per_call": 237.89672774075262
+            },
+            {
+              "point": "P07",
+              "n": 500,
+              "successes": 365,
+              "sr": 0.7299999999999999,
+              "sr_ci95": [
+                0.642,
+                0.8119999999999999
+              ],
+              "delta_sr": -0.078,
+              "delta_sr_ci95": [
+                -0.15600000000000014,
+                -0.01200000000000001
+              ],
+              "per_task_sr": [
+                0.68,
+                0.84,
+                0.86,
+                0.88,
+                0.82,
+                0.6,
+                0.76,
+                0.74,
+                0.64,
+                0.48
+              ],
+              "common_success_n": 307,
+              "mean_control_steps_delta": -2.9022801302931596,
+              "lost_successes": 97,
+              "new_successes": 58,
+              "sum_infer_ms": 3324169.6779114427,
+              "sum_infers": 13681,
+              "online_ms_per_call": 242.97709801267763,
+              "episode_mean_ms_per_call": 241.37589348185875
+            },
+            {
+              "point": "P08",
+              "n": 500,
+              "successes": 352,
+              "sr": 0.7040000000000001,
+              "sr_ci95": [
+                0.6039999999999999,
+                0.796
+              ],
+              "delta_sr": -0.10400000000000001,
+              "delta_sr_ci95": [
+                -0.19599999999999984,
+                -0.02400000000000002
+              ],
+              "per_task_sr": [
+                0.82,
+                0.86,
+                0.82,
+                0.9,
+                0.66,
+                0.6,
+                0.76,
+                0.64,
+                0.56,
+                0.42
+              ],
+              "common_success_n": 296,
+              "mean_control_steps_delta": -1.7195945945945945,
+              "lost_successes": 108,
+              "new_successes": 56,
+              "sum_infer_ms": 3276724.5079323184,
+              "sum_infers": 14029,
+              "online_ms_per_call": 233.56793128037054,
+              "episode_mean_ms_per_call": 232.58786920342106
+            },
+            {
+              "point": "P09",
+              "n": 500,
+              "successes": 303,
+              "sr": 0.6060000000000001,
+              "sr_ci95": [
+                0.4800000000000001,
+                0.716
+              ],
+              "delta_sr": -0.20199999999999996,
+              "delta_sr_ci95": [
+                -0.3279999999999998,
+                -0.08799999999999997
+              ],
+              "per_task_sr": [
+                0.74,
+                0.62,
+                0.78,
+                0.74,
+                0.8,
+                0.68,
+                0.54,
+                0.5,
+                0.46,
+                0.2
+              ],
+              "common_success_n": 241,
+              "mean_control_steps_delta": -5.83402489626556,
+              "lost_successes": 163,
+              "new_successes": 62,
+              "sum_infer_ms": 3425807.88447347,
+              "sum_infers": 14985,
+              "online_ms_per_call": 228.61580810633768,
+              "episode_mean_ms_per_call": 228.77970509000133
+            }
+          ]
+        },
+        "seen": {
+          "estimable": false,
+          "reason": "at least one task has no seen init",
+          "per_task_n": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0,
+            "6": 0,
+            "7": 0,
+            "8": 0,
+            "9": 0
+          }
+        }
+      },
+      "bootstrap_draws": 10000,
+      "seed": 20260911,
+      "interval_interpretation": "descriptive two-level paired bootstrap; no selection correction"
+    },
+    {
+      "lane": "B",
+      "suite": "libero_10",
+      "regime": "cs500_success",
+      "complete": true,
+      "arms": [
+        {
+          "arm": "cache_prune_libero_10_cs500_success_P00",
+          "point": "P00",
+          "n": 500,
+          "sr": 0.512,
+          "sr_common_unseen": 0.512,
+          "n_common_unseen": 500,
+          "full_hit": 38692,
+          "non_full_hit": 0,
+          "ms_per_call": 358.95131777455833,
+          "mean_control_steps": 385.954,
+          "n_success": 256,
+          "mean_control_steps_success": 258.19140625
+        },
+        {
+          "arm": "cache_prune_libero_10_cs500_success_P01",
+          "point": "P01",
+          "n": 500,
+          "sr": 0.546,
+          "sr_common_unseen": 0.546,
+          "n_common_unseen": 500,
+          "full_hit": 37709,
+          "non_full_hit": 0,
+          "ms_per_call": 376.15357762849123,
+          "mean_control_steps": 376.09,
+          "n_success": 273,
+          "mean_control_steps_success": 256.42857142857144
+        },
+        {
+          "arm": "cache_prune_libero_10_cs500_success_P02",
+          "point": "P02",
+          "n": 500,
+          "sr": 0.526,
+          "sr_common_unseen": 0.526,
+          "n_common_unseen": 500,
+          "full_hit": 38102,
+          "non_full_hit": 0,
+          "ms_per_call": 374.2195421346771,
+          "mean_control_steps": 379.942,
+          "n_success": 263,
+          "mean_control_steps_success": 253.7300380228137
+        },
+        {
+          "arm": "cache_prune_libero_10_cs500_success_P03",
+          "point": "P03",
+          "n": 500,
+          "sr": 0.534,
+          "sr_common_unseen": 0.534,
+          "n_common_unseen": 500,
+          "full_hit": 37713,
+          "non_full_hit": 0,
+          "ms_per_call": 358.85077177042547,
+          "mean_control_steps": 376.012,
+          "n_success": 267,
+          "mean_control_steps_success": 250.35955056179776
+        },
+        {
+          "arm": "cache_prune_libero_10_cs500_success_P04",
+          "point": "P04",
+          "n": 500,
+          "sr": 0.51,
+          "sr_common_unseen": 0.51,
+          "n_common_unseen": 500,
+          "full_hit": 38478,
+          "non_full_hit": 0,
+          "ms_per_call": 371.48789107826985,
+          "mean_control_steps": 383.822,
+          "n_success": 255,
+          "mean_control_steps_success": 252.98431372549018
+        },
+        {
+          "arm": "cache_prune_libero_10_cs500_success_P05",
+          "point": "P05",
+          "n": 500,
+          "sr": 0.472,
+          "sr_common_unseen": 0.472,
+          "n_common_unseen": 500,
+          "full_hit": 39625,
+          "non_full_hit": 0,
+          "ms_per_call": 344.20241556264597,
+          "mean_control_steps": 395.276,
+          "n_success": 236,
+          "mean_control_steps_success": 255.75423728813558
+        },
+        {
+          "arm": "cache_prune_libero_10_cs500_success_P06",
+          "point": "P06",
+          "n": 500,
+          "sr": 0.442,
+          "sr_common_unseen": 0.442,
+          "n_common_unseen": 500,
+          "full_hit": 40064,
+          "non_full_hit": 0,
+          "ms_per_call": 353.9688368903721,
+          "mean_control_steps": 399.768,
+          "n_success": 221,
+          "mean_control_steps_success": 247.98190045248867
+        },
+        {
+          "arm": "cache_prune_libero_10_cs500_success_P07",
+          "point": "P07",
+          "n": 500,
+          "sr": 0.44,
+          "sr_common_unseen": 0.44,
+          "n_common_unseen": 500,
+          "full_hit": 40113,
+          "non_full_hit": 0,
+          "ms_per_call": 350.41801936954323,
+          "mean_control_steps": 400.274,
+          "n_success": 220,
+          "mean_control_steps_success": 247.89545454545456
+        },
+        {
+          "arm": "cache_prune_libero_10_cs500_success_P08",
+          "point": "P08",
+          "n": 500,
+          "sr": 0.392,
+          "sr_common_unseen": 0.392,
+          "n_common_unseen": 500,
+          "full_hit": 41454,
+          "non_full_hit": 0,
+          "ms_per_call": 336.92441298594946,
+          "mean_control_steps": 413.754,
+          "n_success": 196,
+          "mean_control_steps_success": 248.96428571428572
+        },
+        {
+          "arm": "cache_prune_libero_10_cs500_success_P09",
+          "point": "P09",
+          "n": 500,
+          "sr": 0.37,
+          "sr_common_unseen": 0.37,
+          "n_common_unseen": 500,
+          "full_hit": 42268,
+          "non_full_hit": 0,
+          "ms_per_call": 335.8946258489686,
+          "mean_control_steps": 421.888,
+          "n_success": 185,
+          "mean_control_steps_success": 254.83243243243243
+        }
+      ],
+      "libraries": [
+        {
+          "point": "P00",
+          "entries": 20461,
+          "bytes": 8494508270,
+          "actual_rate": 0.0
+        },
+        {
+          "point": "P01",
+          "entries": 19448,
+          "bytes": 8071679785,
+          "actual_rate": 0.049508821660720397
+        },
+        {
+          "point": "P02",
+          "entries": 18384,
+          "bytes": 7630078931,
+          "actual_rate": 0.10151019011778506
+        },
+        {
+          "point": "P03",
+          "entries": 16383,
+          "bytes": 6799586852,
+          "actual_rate": 0.1993059967743512
+        },
+        {
+          "point": "P04",
+          "entries": 14313,
+          "bytes": 5940459078,
+          "actual_rate": 0.30047407262597137
+        },
+        {
+          "point": "P05",
+          "entries": 12251,
+          "bytes": 5084651957,
+          "actual_rate": 0.40125116074483164
+        },
+        {
+          "point": "P06",
+          "entries": 10222,
+          "bytes": 4242541776,
+          "actual_rate": 0.5004154244660574
+        },
+        {
+          "point": "P07",
+          "entries": 8205,
+          "bytes": 3405413479,
+          "actual_rate": 0.5989932065881433
+        },
+        {
+          "point": "P08",
+          "entries": 6179,
+          "bytes": 2564548619,
+          "actual_rate": 0.6980108499095841
+        },
+        {
+          "point": "P09",
+          "entries": 4134,
+          "bytes": 1715802446,
+          "actual_rate": 0.7979570890963296
+        }
+      ],
+      "subsets": {
+        "common_unseen": {
+          "estimable": true,
+          "per_task_n": {
+            "0": 50,
+            "1": 50,
+            "2": 50,
+            "3": 50,
+            "4": 50,
+            "5": 50,
+            "6": 50,
+            "7": 50,
+            "8": 50,
+            "9": 50
+          },
+          "points": [
+            {
+              "point": "P00",
+              "n": 500,
+              "successes": 256,
+              "sr": 0.512,
+              "sr_ci95": [
+                0.34800000000000003,
+                0.67
+              ],
+              "delta_sr": 0.0,
+              "delta_sr_ci95": [
+                0.0,
+                0.0
+              ],
+              "per_task_sr": [
+                0.26,
+                0.68,
+                0.82,
+                0.78,
+                0.28,
+                0.84,
+                0.22,
+                0.48,
+                0.14,
+                0.62
+              ],
+              "common_success_n": 256,
+              "mean_control_steps_delta": 0.0,
+              "lost_successes": 0,
+              "new_successes": 0,
+              "sum_infer_ms": 13888544.387333222,
+              "sum_infers": 38692,
+              "online_ms_per_call": 358.9513177745586,
+              "episode_mean_ms_per_call": 358.7250680284061
+            },
+            {
+              "point": "P01",
+              "n": 500,
+              "successes": 273,
+              "sr": 0.546,
+              "sr_ci95": [
+                0.38,
+                0.704
+              ],
+              "delta_sr": 0.034,
+              "delta_sr_ci95": [
+                -0.008000000000000118,
+                0.07799999999999996
+              ],
+              "per_task_sr": [
+                0.24,
+                0.68,
+                0.86,
+                0.76,
+                0.32,
+                0.88,
+                0.3,
+                0.54,
+                0.16,
+                0.72
+              ],
+              "common_success_n": 222,
+              "mean_control_steps_delta": -4.216216216216216,
+              "lost_successes": 34,
+              "new_successes": 51,
+              "sum_infer_ms": 14184375.258792784,
+              "sum_infers": 37709,
+              "online_ms_per_call": 376.15357762849146,
+              "episode_mean_ms_per_call": 376.2450874390425
+            },
+            {
+              "point": "P02",
+              "n": 500,
+              "successes": 263,
+              "sr": 0.526,
+              "sr_ci95": [
+                0.358,
+                0.6920000000000001
+              ],
+              "delta_sr": 0.013999999999999985,
+              "delta_sr_ci95": [
+                -0.04600000000000004,
+                0.07799999999999985
+              ],
+              "per_task_sr": [
+                0.22,
+                0.58,
+                0.82,
+                0.82,
+                0.18,
+                0.86,
+                0.28,
+                0.52,
+                0.24,
+                0.74
+              ],
+              "common_success_n": 198,
+              "mean_control_steps_delta": -5.41919191919192,
+              "lost_successes": 58,
+              "new_successes": 65,
+              "sum_infer_ms": 14258512.994415496,
+              "sum_infers": 38102,
+              "online_ms_per_call": 374.21954213467785,
+              "episode_mean_ms_per_call": 374.53844725651373
+            },
+            {
+              "point": "P03",
+              "n": 500,
+              "successes": 267,
+              "sr": 0.534,
+              "sr_ci95": [
+                0.38,
+                0.686
+              ],
+              "delta_sr": 0.022,
+              "delta_sr_ci95": [
+                -0.03600000000000003,
+                0.08200000000000007
+              ],
+              "per_task_sr": [
+                0.36,
+                0.6,
+                0.9,
+                0.82,
+                0.26,
+                0.78,
+                0.3,
+                0.56,
+                0.16,
+                0.6
+              ],
+              "common_success_n": 194,
+              "mean_control_steps_delta": -17.50515463917526,
+              "lost_successes": 62,
+              "new_successes": 73,
+              "sum_infer_ms": 13533339.155778054,
+              "sum_infers": 37713,
+              "online_ms_per_call": 358.8507717704254,
+              "episode_mean_ms_per_call": 358.27489194834476
+            },
+            {
+              "point": "P04",
+              "n": 500,
+              "successes": 255,
+              "sr": 0.51,
+              "sr_ci95": [
+                0.358,
+                0.6520499999999994
+              ],
+              "delta_sr": -0.001999999999999999,
+              "delta_sr_ci95": [
+                -0.09399999999999997,
+                0.09200000000000008
+              ],
+              "per_task_sr": [
+                0.3,
+                0.46,
+                0.78,
+                0.74,
+                0.18,
+                0.68,
+                0.38,
+                0.7,
+                0.16,
+                0.72
+              ],
+              "common_success_n": 177,
+              "mean_control_steps_delta": -9.016949152542374,
+              "lost_successes": 79,
+              "new_successes": 78,
+              "sum_infer_ms": 14294111.072909676,
+              "sum_infers": 38478,
+              "online_ms_per_call": 371.4878910782701,
+              "episode_mean_ms_per_call": 372.0255329505906
+            },
+            {
+              "point": "P05",
+              "n": 500,
+              "successes": 236,
+              "sr": 0.472,
+              "sr_ci95": [
+                0.328,
+                0.6099999999999999
+              ],
+              "delta_sr": -0.039999999999999994,
+              "delta_sr_ci95": [
+                -0.12999999999999995,
+                0.04604999999999941
+              ],
+              "per_task_sr": [
+                0.28,
+                0.54,
+                0.74,
+                0.7,
+                0.16,
+                0.56,
+                0.24,
+                0.62,
+                0.18,
+                0.7
+              ],
+              "common_success_n": 163,
+              "mean_control_steps_delta": -11.680981595092025,
+              "lost_successes": 93,
+              "new_successes": 73,
+              "sum_infer_ms": 13639020.716669854,
+              "sum_infers": 39625,
+              "online_ms_per_call": 344.20241556264614,
+              "episode_mean_ms_per_call": 343.7918642689949
+            },
+            {
+              "point": "P06",
+              "n": 500,
+              "successes": 221,
+              "sr": 0.442,
+              "sr_ci95": [
+                0.31600000000000006,
+                0.5720000000000001
+              ],
+              "delta_sr": -0.07000000000000002,
+              "delta_sr_ci95": [
+                -0.16400000000000003,
+                0.024000000000000077
+              ],
+              "per_task_sr": [
+                0.22,
+                0.4,
+                0.76,
+                0.7,
+                0.3,
+                0.62,
+                0.38,
+                0.26,
+                0.18,
+                0.6
+              ],
+              "common_success_n": 148,
+              "mean_control_steps_delta": -8.202702702702704,
+              "lost_successes": 108,
+              "new_successes": 73,
+              "sum_infer_ms": 14181407.481175844,
+              "sum_infers": 40064,
+              "online_ms_per_call": 353.9688368903715,
+              "episode_mean_ms_per_call": 353.87696611391664
+            },
+            {
+              "point": "P07",
+              "n": 500,
+              "successes": 220,
+              "sr": 0.43999999999999995,
+              "sr_ci95": [
+                0.292,
+                0.59
+              ],
+              "delta_sr": -0.072,
+              "delta_sr_ci95": [
+                -0.1499999999999999,
+                0.00599999999999995
+              ],
+              "per_task_sr": [
+                0.26,
+                0.52,
+                0.78,
+                0.7,
+                0.2,
+                0.7,
+                0.34,
+                0.24,
+                0.06,
+                0.6
+              ],
+              "common_success_n": 152,
+              "mean_control_steps_delta": -13.480263157894736,
+              "lost_successes": 104,
+              "new_successes": 68,
+              "sum_infer_ms": 14056318.010970488,
+              "sum_infers": 40113,
+              "online_ms_per_call": 350.41801936954323,
+              "episode_mean_ms_per_call": 350.97553255305553
+            },
+            {
+              "point": "P08",
+              "n": 500,
+              "successes": 196,
+              "sr": 0.392,
+              "sr_ci95": [
+                0.266,
+                0.5199999999999999
+              ],
+              "delta_sr": -0.12000000000000002,
+              "delta_sr_ci95": [
+                -0.19399999999999995,
+                -0.045999999999999874
+              ],
+              "per_task_sr": [
+                0.26,
+                0.48,
+                0.68,
+                0.62,
+                0.14,
+                0.58,
+                0.26,
+                0.28,
+                0.1,
+                0.52
+              ],
+              "common_success_n": 144,
+              "mean_control_steps_delta": -9.92361111111111,
+              "lost_successes": 112,
+              "new_successes": 52,
+              "sum_infer_ms": 13966864.615919542,
+              "sum_infers": 41454,
+              "online_ms_per_call": 336.9244129859493,
+              "episode_mean_ms_per_call": 336.845969322452
+            },
+            {
+              "point": "P09",
+              "n": 500,
+              "successes": 185,
+              "sr": 0.37,
+              "sr_ci95": [
+                0.22799999999999998,
+                0.52
+              ],
+              "delta_sr": -0.142,
+              "delta_sr_ci95": [
+                -0.236,
+                -0.05400000000000005
+              ],
+              "per_task_sr": [
+                0.22,
+                0.42,
+                0.72,
+                0.72,
+                0.1,
+                0.44,
+                0.24,
+                0.22,
+                0.06,
+                0.56
+              ],
+              "common_success_n": 129,
+              "mean_control_steps_delta": -5.2015503875969,
+              "lost_successes": 127,
+              "new_successes": 56,
+              "sum_infer_ms": 14197594.045384187,
+              "sum_infers": 42268,
+              "online_ms_per_call": 335.8946258489682,
+              "episode_mean_ms_per_call": 334.8641881084894
+            }
+          ]
+        },
+        "full": {
+          "estimable": true,
+          "per_task_n": {
+            "0": 50,
+            "1": 50,
+            "2": 50,
+            "3": 50,
+            "4": 50,
+            "5": 50,
+            "6": 50,
+            "7": 50,
+            "8": 50,
+            "9": 50
+          },
+          "points": [
+            {
+              "point": "P00",
+              "n": 500,
+              "successes": 256,
+              "sr": 0.512,
+              "sr_ci95": [
+                0.34800000000000003,
+                0.67
+              ],
+              "delta_sr": 0.0,
+              "delta_sr_ci95": [
+                0.0,
+                0.0
+              ],
+              "per_task_sr": [
+                0.26,
+                0.68,
+                0.82,
+                0.78,
+                0.28,
+                0.84,
+                0.22,
+                0.48,
+                0.14,
+                0.62
+              ],
+              "common_success_n": 256,
+              "mean_control_steps_delta": 0.0,
+              "lost_successes": 0,
+              "new_successes": 0,
+              "sum_infer_ms": 13888544.387333222,
+              "sum_infers": 38692,
+              "online_ms_per_call": 358.9513177745586,
+              "episode_mean_ms_per_call": 358.7250680284061
+            },
+            {
+              "point": "P01",
+              "n": 500,
+              "successes": 273,
+              "sr": 0.546,
+              "sr_ci95": [
+                0.38,
+                0.704
+              ],
+              "delta_sr": 0.034,
+              "delta_sr_ci95": [
+                -0.008000000000000118,
+                0.07799999999999996
+              ],
+              "per_task_sr": [
+                0.24,
+                0.68,
+                0.86,
+                0.76,
+                0.32,
+                0.88,
+                0.3,
+                0.54,
+                0.16,
+                0.72
+              ],
+              "common_success_n": 222,
+              "mean_control_steps_delta": -4.216216216216216,
+              "lost_successes": 34,
+              "new_successes": 51,
+              "sum_infer_ms": 14184375.258792784,
+              "sum_infers": 37709,
+              "online_ms_per_call": 376.15357762849146,
+              "episode_mean_ms_per_call": 376.2450874390425
+            },
+            {
+              "point": "P02",
+              "n": 500,
+              "successes": 263,
+              "sr": 0.526,
+              "sr_ci95": [
+                0.358,
+                0.6920000000000001
+              ],
+              "delta_sr": 0.013999999999999985,
+              "delta_sr_ci95": [
+                -0.04600000000000004,
+                0.07799999999999985
+              ],
+              "per_task_sr": [
+                0.22,
+                0.58,
+                0.82,
+                0.82,
+                0.18,
+                0.86,
+                0.28,
+                0.52,
+                0.24,
+                0.74
+              ],
+              "common_success_n": 198,
+              "mean_control_steps_delta": -5.41919191919192,
+              "lost_successes": 58,
+              "new_successes": 65,
+              "sum_infer_ms": 14258512.994415496,
+              "sum_infers": 38102,
+              "online_ms_per_call": 374.21954213467785,
+              "episode_mean_ms_per_call": 374.53844725651373
+            },
+            {
+              "point": "P03",
+              "n": 500,
+              "successes": 267,
+              "sr": 0.534,
+              "sr_ci95": [
+                0.38,
+                0.686
+              ],
+              "delta_sr": 0.022,
+              "delta_sr_ci95": [
+                -0.03600000000000003,
+                0.08200000000000007
+              ],
+              "per_task_sr": [
+                0.36,
+                0.6,
+                0.9,
+                0.82,
+                0.26,
+                0.78,
+                0.3,
+                0.56,
+                0.16,
+                0.6
+              ],
+              "common_success_n": 194,
+              "mean_control_steps_delta": -17.50515463917526,
+              "lost_successes": 62,
+              "new_successes": 73,
+              "sum_infer_ms": 13533339.155778054,
+              "sum_infers": 37713,
+              "online_ms_per_call": 358.8507717704254,
+              "episode_mean_ms_per_call": 358.27489194834476
+            },
+            {
+              "point": "P04",
+              "n": 500,
+              "successes": 255,
+              "sr": 0.51,
+              "sr_ci95": [
+                0.358,
+                0.6520499999999994
+              ],
+              "delta_sr": -0.001999999999999999,
+              "delta_sr_ci95": [
+                -0.09399999999999997,
+                0.09200000000000008
+              ],
+              "per_task_sr": [
+                0.3,
+                0.46,
+                0.78,
+                0.74,
+                0.18,
+                0.68,
+                0.38,
+                0.7,
+                0.16,
+                0.72
+              ],
+              "common_success_n": 177,
+              "mean_control_steps_delta": -9.016949152542374,
+              "lost_successes": 79,
+              "new_successes": 78,
+              "sum_infer_ms": 14294111.072909676,
+              "sum_infers": 38478,
+              "online_ms_per_call": 371.4878910782701,
+              "episode_mean_ms_per_call": 372.0255329505906
+            },
+            {
+              "point": "P05",
+              "n": 500,
+              "successes": 236,
+              "sr": 0.472,
+              "sr_ci95": [
+                0.328,
+                0.6099999999999999
+              ],
+              "delta_sr": -0.039999999999999994,
+              "delta_sr_ci95": [
+                -0.12999999999999995,
+                0.04604999999999941
+              ],
+              "per_task_sr": [
+                0.28,
+                0.54,
+                0.74,
+                0.7,
+                0.16,
+                0.56,
+                0.24,
+                0.62,
+                0.18,
+                0.7
+              ],
+              "common_success_n": 163,
+              "mean_control_steps_delta": -11.680981595092025,
+              "lost_successes": 93,
+              "new_successes": 73,
+              "sum_infer_ms": 13639020.716669854,
+              "sum_infers": 39625,
+              "online_ms_per_call": 344.20241556264614,
+              "episode_mean_ms_per_call": 343.7918642689949
+            },
+            {
+              "point": "P06",
+              "n": 500,
+              "successes": 221,
+              "sr": 0.442,
+              "sr_ci95": [
+                0.31600000000000006,
+                0.5720000000000001
+              ],
+              "delta_sr": -0.07000000000000002,
+              "delta_sr_ci95": [
+                -0.16400000000000003,
+                0.024000000000000077
+              ],
+              "per_task_sr": [
+                0.22,
+                0.4,
+                0.76,
+                0.7,
+                0.3,
+                0.62,
+                0.38,
+                0.26,
+                0.18,
+                0.6
+              ],
+              "common_success_n": 148,
+              "mean_control_steps_delta": -8.202702702702704,
+              "lost_successes": 108,
+              "new_successes": 73,
+              "sum_infer_ms": 14181407.481175844,
+              "sum_infers": 40064,
+              "online_ms_per_call": 353.9688368903715,
+              "episode_mean_ms_per_call": 353.87696611391664
+            },
+            {
+              "point": "P07",
+              "n": 500,
+              "successes": 220,
+              "sr": 0.43999999999999995,
+              "sr_ci95": [
+                0.292,
+                0.59
+              ],
+              "delta_sr": -0.072,
+              "delta_sr_ci95": [
+                -0.1499999999999999,
+                0.00599999999999995
+              ],
+              "per_task_sr": [
+                0.26,
+                0.52,
+                0.78,
+                0.7,
+                0.2,
+                0.7,
+                0.34,
+                0.24,
+                0.06,
+                0.6
+              ],
+              "common_success_n": 152,
+              "mean_control_steps_delta": -13.480263157894736,
+              "lost_successes": 104,
+              "new_successes": 68,
+              "sum_infer_ms": 14056318.010970488,
+              "sum_infers": 40113,
+              "online_ms_per_call": 350.41801936954323,
+              "episode_mean_ms_per_call": 350.97553255305553
+            },
+            {
+              "point": "P08",
+              "n": 500,
+              "successes": 196,
+              "sr": 0.392,
+              "sr_ci95": [
+                0.266,
+                0.5199999999999999
+              ],
+              "delta_sr": -0.12000000000000002,
+              "delta_sr_ci95": [
+                -0.19399999999999995,
+                -0.045999999999999874
+              ],
+              "per_task_sr": [
+                0.26,
+                0.48,
+                0.68,
+                0.62,
+                0.14,
+                0.58,
+                0.26,
+                0.28,
+                0.1,
+                0.52
+              ],
+              "common_success_n": 144,
+              "mean_control_steps_delta": -9.92361111111111,
+              "lost_successes": 112,
+              "new_successes": 52,
+              "sum_infer_ms": 13966864.615919542,
+              "sum_infers": 41454,
+              "online_ms_per_call": 336.9244129859493,
+              "episode_mean_ms_per_call": 336.845969322452
+            },
+            {
+              "point": "P09",
+              "n": 500,
+              "successes": 185,
+              "sr": 0.37,
+              "sr_ci95": [
+                0.22799999999999998,
+                0.52
+              ],
+              "delta_sr": -0.142,
+              "delta_sr_ci95": [
+                -0.236,
+                -0.05400000000000005
+              ],
+              "per_task_sr": [
+                0.22,
+                0.42,
+                0.72,
+                0.72,
+                0.1,
+                0.44,
+                0.24,
+                0.22,
+                0.06,
+                0.56
+              ],
+              "common_success_n": 129,
+              "mean_control_steps_delta": -5.2015503875969,
+              "lost_successes": 127,
+              "new_successes": 56,
+              "sum_infer_ms": 14197594.045384187,
+              "sum_infers": 42268,
+              "online_ms_per_call": 335.8946258489682,
+              "episode_mean_ms_per_call": 334.8641881084894
+            }
+          ]
+        },
+        "seen": {
+          "estimable": false,
+          "reason": "at least one task has no seen init",
+          "per_task_n": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0,
+            "6": 0,
+            "7": 0,
+            "8": 0,
+            "9": 0
+          }
+        }
+      },
+      "bootstrap_draws": 10000,
+      "seed": 20260911,
+      "interval_interpretation": "descriptive two-level paired bootstrap; no selection correction"
+    }
+  ]
+}

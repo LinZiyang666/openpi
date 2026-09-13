@@ -25,10 +25,10 @@ from openpi.cache.types import CheckpointID
 
 from exp.ablation_study.cache_size.verify_apool import rollup_digest
 from exp.ablation_study.cache_prune import common, emit_prune_arms
-from exp.ablation_study.cache_prune.analysis.analyze_prune import analyze_run
+from exp.ablation_study.cache_prune.common import file_identity
+from exp.ablation_study.cache_prune.analysis.analyze_prune import analyze_families
 from exp.ablation_study.cache_prune.analysis.plot_prune import plot_prune
 from exp.ablation_study.cache_prune.analysis import benchmark_prune as microbench
-from exp.ablation_study.cache_prune.common import file_identity, seal
 from exp.ablation_study.cache_prune.prepare_membership import (
     prepare_membership,
     validate_membership,
@@ -36,13 +36,8 @@ from exp.ablation_study.cache_prune.prepare_membership import (
 from exp.ablation_study.cache_prune.prune_library import (
     audit_source,
     compute_task_scores,
-    export_pruned,
-    load_score_blocks,
-    select_retained,
 )
 from exp.ablation_study.cache_prune.select_prune_grid import grid_spec, select_grid
-from exp.ablation_study.cache_prune.verify_prune import verify_pruned
-from .batch_fixtures import write_batch_evidence
 
 
 def _source(root, suite, regime, config, seed):
@@ -260,8 +255,8 @@ def _membership(root, suite, sources):
     return result
 
 
-def test_complete_four_source_pipeline_and_corruption_gates(tmp_path, monkeypatch):
-    """Check complete four source pipeline and corruption gates."""
+def test_complete_four_source_pipeline(tmp_path, monkeypatch):
+    """Export, emit, evaluate (synthetic journals), analyse and plot four families."""
     torch.set_num_threads(1)
     configs = {suite: common.template(suite) for suite in common.SUITES}
     for config in configs.values():
@@ -298,130 +293,97 @@ def test_complete_four_source_pipeline_and_corruption_gates(tmp_path, monkeypatc
         )
         for suite in common.SUITES
     }
-    artifacts, verifications = {}, {}
+    artifacts = tmp_path / "artifacts"
+    grids = {(g["suite"], g["regime"]): g for _, _, g in triples}
+    # Export in two disjoint halves, the way a parallel run splits the points.
     for source, scores, grid in triples:
-        blocks = load_score_blocks(scores, source["rows"])
-        for point in grid["points"]:
-            name = emit_prune_arms.arm_name(
-                source["suite"], source["regime"], point["point"]
-            )
-            artifact = export_pruned(
-                source["file"]["path"],
-                select_retained(source["rows"], blocks, point["threshold"]),
-                tmp_path / "artifacts" / name,
-                source_manifest=source,
-            )
-            artifacts[name] = artifact
-            verifications[name] = verify_pruned(
-                source, artifact, configs[source["suite"]], score_manifest=scores
-            )
-    freeze = emit_prune_arms.emit_arms(
-        [s for s, _, _ in triples],
-        artifacts,
-        configs,
-        [g for _, _, g in triples],
-        tmp_path / "config",
-        memberships=memberships,
-        verifications=verifications,
-    )
-    emit_prune_arms.validate_freeze(freeze)
-    monkeypatch.setattr(
-        microbench, "template", lambda suite: copy.deepcopy(configs[suite])
-    )
-    latency = microbench.benchmark_prune(freeze, "libero_spatial", "rit50")
-    assert (
-        len(latency["samples"]) == 7000 and latency["environment"]["cpu_threads"] == 4
-    )
-    wrong_latency = copy.deepcopy(latency)
-    wrong_latency["samples"].pop()
-    with pytest.raises(ValueError, match="missing, duplicated or reordered"):
-        microbench.validate_benchmark(seal(wrong_latency), freeze)
-    assert len(freeze["arms"]) == 40
-    assert all(
-        len(yaml.safe_load(Path(v["path"]).read_text())["arms"]) == 20
-        for v in freeze["matrices"].values()
-    )
-    journals, traces, launches = {}, {}, {}
-    for arm in freeze["arms"]:
-        name = arm["arm"]
-        source = next(s for s, _, _ in triples if s["digest"] == arm["source_digest"])
-        terminals = {
-            r["task_key"]: r["id"] for r in source["rows"] if r["remaining"] == 0
-        }
-        jrows, prows = [], []
-        for task in range(10):
-            for index in range(50):
-                common_row = {
-                    "task_uid": f"{name}:eval:{task}:{index}",
-                    "yaml_id": name,
-                    "run_id": name + "_producer",
-                    "attempt": 1,
-                    "accepted": True,
-                }
-                jrows.append(
-                    {
-                        **common_row,
-                        "phase": "eval",
-                        "status": "done",
-                        "success": True,
-                        "duration_s": 0.1,
-                    }
-                )
-                prows.append(
-                    {
-                        **common_row,
-                        "step_idx": 0,
-                        "searched": True,
-                        "hit_type": "FULL_HIT",
-                        "winner_id": terminals[f"task {task}"],
-                    }
-                )
-                prows.append(
-                    {
-                        **common_row,
-                        "_kind": "client_timing",
-                        "steps": 11,
-                        "infers": 1,
-                        "infer_ms": 2.0,
-                    }
-                )
-        batch = tmp_path / "run" / f"batch_{name}"
-        batch.mkdir(parents=True)
-        journals[name], traces[name] = batch / "journal.jsonl", batch / "per_step.jsonl"
-        journals[name].write_text("".join(json.dumps(row) + "\n" for row in jrows))
-        traces[name].write_text("".join(json.dumps(row) + "\n" for row in prows))
-        launches[name] = write_batch_evidence(
-            batch,
-            freeze,
-            arm,
-            {
-                "freeze_digest": freeze["digest"],
-                "arm": name,
-                "num_steps_wait": 10,
-                "replan_steps": 5,
-                "max_steps": freeze["protocol"]["max_steps"][arm["suite"]],
-                "trials": 50,
-                "smoke": False,
-            },
+        emit_prune_arms.export_points(source, scores, grid, artifacts, {"P01", "P02", "P03", "P04"})
+        emit_prune_arms.export_points(
+            source, scores, grid, artifacts, {"P05", "P06", "P07", "P08", "P09"}
         )
-    analysis = analyze_run(freeze, journals, traces, memberships, launches=launches)
-    assert len(analysis["curves"]) == 4 and len(analysis["ledgers"]) == 40
-    assert all(
-        c["subsets"]["common_unseen"]["points"][0]["n"] == 470
-        for c in analysis["curves"]
-    )
-    figures = plot_prune(analysis, tmp_path / "figures")
-    assert len(figures) == 8 and all(
-        Path(path).stat().st_size > 1000 for path in figures
-    )
-    wrong = copy.deepcopy(freeze)
-    wrong["arms"].pop()
-    with pytest.raises(ValueError, match="40 arms"):
-        emit_prune_arms.validate_freeze(seal(wrong))
-    config_path = Path(freeze["arms"][0]["yaml"]["path"])
-    config_path.write_text(config_path.read_text().replace("top_k: 1", "top_k: 2"))
-    with pytest.raises(ValueError, match="identity changed"):
-        emit_prune_arms.validate_freeze(freeze)
+        emit_prune_arms.export_points(source, scores, grid, artifacts, {"P01"})  # present
+    config_dir = tmp_path / "config"
+    missing = emit_prune_arms.emit_yamls([s for s, _, _ in triples], grids, artifacts, config_dir)
+    assert missing == {}
+    matrices = {
+        (s, r): yaml.safe_load((config_dir / f"matrix_{s}_{r}.yaml").read_text())
+        for s in common.SUITES
+        for r in common.REGIMES
+    }
+    assert all(len(m["arms"]) == 10 for m in matrices.values())
+    for (suite, regime), matrix in matrices.items():
+        for row, point in zip(matrix["arms"], grids[suite, regime]["points"]):
+            config = yaml.safe_load(Path(row["yaml"]).read_text())
+            library = config["backend"]["in_memory"]["preload_path"]
+            expected = (
+                next(s for s, _, _ in triples if (s["suite"], s["regime"]) == (suite, regime))["file"]["path"]
+                if point["point"] == "P00"
+                else str(artifacts / row["arm"] / "library.pkl")
+            )
+            assert library == expected
+            assert config["checkpoints"]["cp1"]["judge"]["type"] == "always_hit"
+    # Re-emitting is idempotent; a hand-edited YAML is refused, not overwritten.
+    emit_prune_arms.emit_yamls([s for s, _, _ in triples], grids, artifacts, config_dir)
+    edited = Path(matrices["libero_spatial", "rit50"]["arms"][3]["yaml"])
+    edited.write_text(edited.read_text().replace("top_k: 1", "top_k: 2"))
+    with pytest.raises(ValueError, match="different content"):
+        emit_prune_arms.emit_yamls([s for s, _, _ in triples], grids, artifacts, config_dir)
+    edited.write_text(edited.read_text().replace("top_k: 2", "top_k: 1"))
+
+    monkeypatch.setattr(microbench, "template", lambda suite: copy.deepcopy(configs[suite]))
+    source = next(s for s, _, _ in triples if (s["suite"], s["regime"]) == ("libero_spatial", "rit50"))
+    latency = microbench.benchmark_prune(source, matrices["libero_spatial", "rit50"])
+    assert len(latency["samples"]) == 7000 and len(latency["summary"]) == 10
+    assert all(row["samples"] == 700 for row in latency["summary"])
+
+    # Synthetic conductor output: one family per directory, every episode a
+    # FULL_HIT success except one arm that loses a task, so the paired
+    # statistics have something to say.
+    direct = tmp_path / "direct"
+    for (suite, regime), matrix in matrices.items():
+        family = direct / "L" / f"{suite}_{regime}"
+        family.mkdir(parents=True)
+        jrows, prows = [], []
+        for row in matrix["arms"]:
+            name = row["arm"]
+            for task in range(10):
+                for index in range(50):
+                    success = not (name.endswith("P09") and task == 3)
+                    base = {
+                        "task_uid": f"{name}:eval:{task}:{index}",
+                        "yaml_id": name,
+                        "run_id": "producer",
+                        "attempt": 1,
+                        "accepted": True,
+                    }
+                    jrows.append({**base, "phase": "eval", "status": "done" if success else "failed",
+                                  "success": success, "duration_s": 0.1, "ts": 1.0})
+                    prows.append({**base, "step_idx": 0, "searched": True, "hit_type": "FULL_HIT"})
+                    prows.append({**base, "_kind": "client_timing", "steps": 20, "infers": 2, "infer_ms": 4.0})
+        (family / "journal.jsonl").write_text("".join(json.dumps(r) + "\n" for r in jrows))
+        (family / "per_step.jsonl").write_text("".join(json.dumps(r) + "\n" for r in prows))
+    rows = {s: memberships[s]["rows"] for s in common.SUITES}
+    sources = {(s["suite"], s["regime"]): s for s, _, _ in triples}
+    analysis = analyze_families(direct, rows, artifacts, {k: (grids[k], sources[k]) for k in grids})
+    assert len(analysis["curves"]) == 4 and all(c["complete"] for c in analysis["curves"])
+    curve = analysis["curves"][0]
+    assert [lib["entries"] for lib in curve["libraries"]][0] == 120
+    assert curve["arms"][0]["sr"] == 1.0 and curve["arms"][9]["sr"] == 0.9
+    assert curve["arms"][9]["full_hit"] == 500 and curve["arms"][9]["ms_per_call"] == 2.0
+    common_unseen = curve["subsets"]["common_unseen"]["points"]
+    assert common_unseen[0]["n"] == 470 and common_unseen[9]["delta_sr"] < 0
+    assert common_unseen[9]["lost_successes"] > 0 and common_unseen[9]["new_successes"] == 0
+    figures = plot_prune(analysis, tmp_path / "figures", latency=[latency])
+    assert len(figures) == 8 and all(Path(path).stat().st_size > 1000 for path in figures)
+
+    # An incomplete family is reported per arm without intervals.
+    short = direct / "L" / "libero_10_rit50" / "journal.jsonl"
+    lines = short.read_text().splitlines()
+    short.write_text("\n".join(lines[:-1]) + "\n")
+    partial = analyze_families(direct, rows, artifacts, {k: (grids[k], sources[k]) for k in grids})
+    incomplete = [c for c in partial["curves"] if not c["complete"]]
+    assert len(incomplete) == 1 and "subsets" not in incomplete[0]
+    assert incomplete[0]["arms"][9]["n"] == 499
     membership = memberships["libero_spatial"]
     override = Path(membership["apool"]["apool_dir"]) / "task_0.pruned_init"
     override.write_bytes(b"unapproved higher-priority file")

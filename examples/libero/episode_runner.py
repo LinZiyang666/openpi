@@ -193,6 +193,20 @@ class LiberoEpisodeRunner(EpisodeRunner):
         return self._client
 
     def run(self, task: _task.EpisodeTask, report: ProgressCallback) -> _task.EpisodeResult:
+        # The connection is reused across episodes of the same server, so a
+        # server that went away (restarted between arm families, or dropped
+        # under a connect burst) leaves a dead socket behind. Without dropping
+        # it here, every later episode on this worker fails at select_bundle
+        # in milliseconds until the scheduler exhausts its retries -- measured:
+        # 60 workers burned 19,884 attempts in three minutes. Failing once is
+        # fine (the driver requeues); failing forever is not.
+        try:
+            return self._run(task, report)
+        except Exception:
+            self.close()
+            raise
+
+    def _run(self, task: _task.EpisodeTask, report: ProgressCallback) -> _task.EpisodeResult:
         client = self._ensure_client(task)
         env, initial_state, task_description, max_steps = self._episode_setup(task)
         client.episode_start(

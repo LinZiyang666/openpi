@@ -1,6 +1,6 @@
 """Render complete pruning curves and paired diagnostics as standalone PNG/PDF.
 
-Plots consume the integrity-gated analysis and optional four-source retrieval
+Plots consume ``analyze_prune``'s output and optional four-source retrieval
 microbenchmarks. All ten points and all four sources remain visible.
 """
 
@@ -15,37 +15,28 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..common import check_seal, new_directory, read_json, require
+from ..common import new_directory, read_json, require
 
 
 def plot_prune(
     analysis: dict, out_dir: str | Path, *, latency: list[dict] = ()
 ) -> list[str]:
     """Publish SR, online/offline cost, paired length and per-task figures."""
-    check_seal(analysis)
-    require(len(analysis["curves"]) == 4, "figures require all four curves")
+    complete = [c for c in analysis["curves"] if c.get("complete")]
+    require(len(complete) == 4, "figures require all four complete curves")
     latency_map = {}
     for item in latency:
-        check_seal(item)
-        require(
-            item["freeze_digest"] == analysis["freeze_digest"],
-            "latency comes from another experiment",
-        )
         pair = item["suite"], item["regime"]
         require(
             pair not in latency_map and len(item["summary"]) == 10,
             "duplicate/incomplete latency curve",
         )
         latency_map[pair] = {p["point"]: p for p in item["summary"]}
-    require(
-        not latency_map or len(latency_map) == 4,
-        "report retrieval costs for all four sources together",
-    )
     written = []
     with new_directory(out_dir) as temporary:
         for figure_type in ("success_rate", "cost", "paired_length", "per_task"):
             fig, axes = plt.subplots(2, 2, figsize=(11, 8), constrained_layout=True)
-            for ax, curve in zip(axes.flat, analysis["curves"]):
+            for ax, curve in zip(axes.flat, complete):
                 subset = curve["subsets"]["common_unseen"]
                 require(
                     subset["estimable"] and len(subset["points"]) == 10,

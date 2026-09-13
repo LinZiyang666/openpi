@@ -360,8 +360,15 @@ def prepare_membership(
     )
 
 
-def validate_membership(manifest: dict, *, rehash: bool = True) -> None:
-    """Check exact evaluation coverage and reproducible frozen subset membership."""
+def validate_membership(
+    manifest: dict, *, rehash: bool = True, evidence: bool = True
+) -> None:
+    """Check exact evaluation coverage and reproducible frozen subset membership.
+
+    ``evidence=False`` keeps the A-pool re-hash but skips the collection files
+    the membership was derived from: a serving node that did not make the
+    freeze does not hold them, and does not read them.
+    """
     check_seal(manifest)
     require(
         manifest["kind"] == "membership" and manifest["complete"] is True,
@@ -403,8 +410,9 @@ def validate_membership(manifest: dict, *, rehash: bool = True) -> None:
         "empty common-unseen task",
     )
     if rehash:
-        for identity in manifest["evidence"]:
-            check_identity(identity)
+        if evidence:
+            for identity in manifest["evidence"]:
+                check_identity(identity)
         check_identity(manifest["apool_record"])
         require(
             checked_apool(manifest["apool_record"]["path"], manifest["suite"])

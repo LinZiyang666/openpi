@@ -80,6 +80,7 @@ class WorkerLoop:
         *,
         connect: Callable[[], socket.socket],
         max_backoff_s: float = 30.0,
+        probe: "dict | None" = None,
     ) -> None:
         # ``server_key`` is the bound ServerEndpoint key ("host:port"); the
         # driver schedules per this key (yaml->server affinity, plan §7).
@@ -88,6 +89,15 @@ class WorkerLoop:
         self._runner = runner
         self._connect = connect
         self._max_backoff_s = max_backoff_s
+        # What this worker's environment actually is (interpreter, simulator
+        # code, the init pool it loads), attached to the first pull of every
+        # connection. The driver may sit on another machine, so this is the
+        # only channel through which the run can attest the client side; a
+        # probe run on the driver's own host would describe an environment no
+        # worker uses. ``None`` keeps the pull payload byte-identical for
+        # callers that predate the field.
+        self._probe = probe
+        self._probe_sent = False
 
     # -- one request/response round against the driver --
 
@@ -95,11 +105,13 @@ class WorkerLoop:
         """Pull one assignment. Three-state return: an ``EpisodeTask`` (work to
         run), a ``dict`` carrying ``backoff_ms`` (no task ready — idle backoff),
         or ``None`` (shutdown)."""
-        _proto.send_message(
-            sock,
-            _proto.MSG_PULL,
-            {"worker_id": self._worker_id, "server_host": self._server_key},
-        )
+        payload: dict = {"worker_id": self._worker_id, "server_host": self._server_key}
+        if self._probe is not None and not self._probe_sent:
+            payload["probe"] = self._probe
+        _proto.send_message(sock, _proto.MSG_PULL, payload)
+        # Sent once per connection: the driver keys its census by connection, and
+        # a reconnect after a transport error must re-introduce the worker.
+        self._probe_sent = True
         msg_type, payload = _proto.recv_message(sock)
         if msg_type == _proto.MSG_SHUTDOWN:
             return None
@@ -162,6 +174,7 @@ class WorkerLoop:
                     sock = self._connect()
                     backoff = 1.0  # reset on a healthy connection
                     idle = 0
+                    self._probe_sent = False
                     try:
                         while not should_stop():
                             assignment = self._pull(sock)

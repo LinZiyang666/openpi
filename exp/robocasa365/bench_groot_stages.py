@@ -119,7 +119,24 @@ RUN_STAGE1_SRC_SHA256 = (
 # Step count is part of the identity: the same GR00T checkpoint runs 4 steps on
 # RoboCasa and 8 on LIBERO (serve_groot_libero.py:60), so a single shared id
 # would let two incompatible libraries validate against each other (plan D4).
-SCHEDULE_ID = "groot_n15_k4_v1"
+#: Derived from the measured step count rather than fixed: a cell run at k=1
+#: stamped with the k=4 id would be indistinguishable in the ledger from a
+#: four-step cell, and the ladder cells differ only by k.
+def schedule_id_for(k: int) -> str:
+    """``groot_n15_k<k>_v1``, checked against the canonical constructor.
+
+    ``groot_n15_schedule`` refuses k < 2 because a one-step loop has no
+    recoverable snapshot and so is not a deployable schedule. It is still a
+    legitimate *latency* cell: the ladder needs k=1 to separate the fixed
+    per-call cost from the per-step one. So the id is formatted here and the
+    constructor is used, where it applies, to prove the format has not drifted.
+    """
+    formatted = f"groot_n15_k{int(k)}_v1"
+    if k >= 2:
+        from openpi.cache.types import groot_n15_schedule  # noqa: PLC0415
+
+        assert groot_n15_schedule(k).schedule_id == formatted, formatted
+    return formatted
 EXPECTED_HOST = "weilandserver"
 COMPILE_MODE = "reduce-overhead"
 
@@ -707,6 +724,38 @@ def certify_cell(record_path: pathlib.Path, trace_path: pathlib.Path) -> dict[st
 # ---------------------------------------------------------------------------
 # production-faithful input
 # ---------------------------------------------------------------------------
+
+
+def resolve_profile(name: str):
+    """The per-line seams: prompts, input shaping, policy construction.
+
+    The measurement itself -- three compiled stages, the graph evidence, the
+    record schema -- stays in this module for both lines, because two teachers
+    measured by two implementations cannot be put in the same table.
+    """
+    if name == "robocasa":
+        import types as _types  # noqa: PLC0415
+
+        return _types.SimpleNamespace(
+            name="robocasa",
+            prompts=PROMPTS,
+            build_input=build_production_input,
+            load_policy=lambda ckpt, *, device, denoising_steps: load_policy(
+                ckpt, device=device
+            ),
+        )
+    if name == "libero":
+        from exp.libero_groot import bench_profile as _lib  # noqa: PLC0415
+
+        import types as _types  # noqa: PLC0415
+
+        return _types.SimpleNamespace(
+            name="libero",
+            prompts=_lib.PROMPTS,
+            build_input=_lib.build_input,
+            load_policy=_lib.load_policy,
+        )
+    raise SystemExit(f"unknown --profile {name!r}; known: robocasa, libero")
 
 
 def build_production_input(policy: Any, checkpoint: pathlib.Path, prompt: str) -> Any:
@@ -1311,8 +1360,15 @@ def main() -> None:
         "--mode", default="measure", choices=("measure", "diagnose-stage1", "certify")
     )
     ap.add_argument("--checkpoint", default="")
-    ap.add_argument("--k", type=int, default=4, choices=(1, 2, 3, 4))
-    ap.add_argument("--prompt-index", type=int, default=0, choices=range(len(PROMPTS)))
+    ap.add_argument(
+        "--profile", default="robocasa", choices=("robocasa", "libero"),
+        help="which line's prompts, input shaping and policy construction to use",
+    )
+    # No upper bound: the step count is a property of the served head, and
+    # LIBERO runs eight. The graph contract scales with it
+    # (expected launches = iters * (2 + k)), so nothing here assumes four.
+    ap.add_argument("--k", type=positive_int, default=4)
+    ap.add_argument("--prompt-index", type=int, default=0)
     ap.add_argument("--proc-idx", type=int, default=0)
     ap.add_argument("--warmup", type=positive_int, default=30)
     ap.add_argument("--iters", type=positive_int, default=200)
@@ -1367,17 +1423,26 @@ def main() -> None:
     checkpoint = pathlib.Path(args.checkpoint)
     assert_source_pins(pathlib.Path(args.gr00t_root), GrootStagedRunner)
 
-    policy = load_policy(checkpoint, device=f"cuda:{args.device_index}")
+    profile = resolve_profile(args.profile)
+    policy = profile.load_policy(
+        checkpoint, device=f"cuda:{args.device_index}", denoising_steps=args.k
+    )
     policy.model.action_head.num_inference_timesteps = args.k
     # compile_vision=False: this script owns the whole stage-1 boundary and its
     # own diagnosis; the production one-shot gate would raise before any number.
     runner = GrootStagedRunner(policy.model, compile_vision=False)
-    prompt = PROMPTS[args.prompt_index]
-    normalized = build_production_input(policy, checkpoint, prompt)
+    if not 0 <= args.prompt_index < len(profile.prompts):
+        raise SystemExit(
+            f"--prompt-index {args.prompt_index} outside the {profile.name} "
+            f"profile's {len(profile.prompts)} prompts"
+        )
+    prompt = profile.prompts[args.prompt_index]
+    normalized = profile.build_input(policy, checkpoint, prompt)
 
     record = {
         "mode_run": args.mode,
-        "schedule_id": SCHEDULE_ID,
+        "profile": args.profile,
+        "schedule_id": schedule_id_for(args.k),
         "k": args.k,
         "prompt_index": args.prompt_index,
         "prompt_sha256": sha256_text(prompt),

@@ -44,7 +44,6 @@ from exp.ablation_study.cache_prune.select_prune_grid import (
     match_targets,
     select_grid,
 )
-from exp.ablation_study.cache_prune.verify_prune import value_digest, verify_pruned
 
 
 @pytest.fixture
@@ -326,9 +325,7 @@ def test_real_backend_export_preserves_raw_arrays_missing_attrs_and_unknown_keys
     blocks = load_score_blocks(scores, source["rows"])
     selected = select_retained(source["rows"], blocks, 0.0)
     output = export_pruned(path, selected, tmp_path / "pruned", source_manifest=source)
-    report = verify_pruned(source, output, cfg, score_manifest=scores)
-    assert report["passed"] and report["queries"] == 24
-    assert report["retained_entries"] == 6
+    assert output["entries"] == 6 and len(output["selection"]["kept_ids"]) == 6
     assert file_identity(path) == before
     raw = load_raw(output["file"]["path"])
     assert "outcome" not in vars(raw["entries"][0])
@@ -342,34 +339,19 @@ def test_real_backend_export_preserves_raw_arrays_missing_attrs_and_unknown_keys
         source_manifest=source,
     )
     assert baseline["file"] == before
-    assert verify_pruned(source, baseline, cfg, score_manifest=scores)["passed"]
     with pytest.raises(ValueError, match="already exists"):
         export_pruned(path, selected, tmp_path / "pruned", source_manifest=source)
     assert not (tmp_path / "pruned.lock").exists()
 
 
-def test_export_and_verifier_reject_changed_parent_and_payload(tiny_source, tmp_path):
-    """Check export and verifier reject changed parent and payload."""
+def test_export_rejects_a_changed_parent(tiny_source, tmp_path):
+    """The exporter refuses a source whose bytes moved since it was audited."""
     path, expected, cfg, entries = tiny_source
     source = audit_source(path, expected)
     scores = compute_task_scores(
         entries, cfg, tmp_path / "scores", source_manifest=source
     )
     blocks = load_score_blocks(scores, source["rows"])
-    result = export_pruned(
-        path,
-        select_retained(source["rows"], blocks, 0.0),
-        tmp_path / "export",
-        source_manifest=source,
-    )
-    raw = load_raw(result["file"]["path"])
-    raw["unknown_future_field"]["values"][0] = 99
-    with Path(result["file"]["path"]).open("wb") as handle:
-        pickle.dump(raw, handle)
-    result["file"] = file_identity(result["file"]["path"])
-    result = seal(result)
-    with pytest.raises(ValueError, match="top-level value changed"):
-        verify_pruned(source, result, cfg, score_manifest=scores)
     with path.open("ab") as handle:
         handle.write(b"changed framing")
     with pytest.raises(ValueError, match="parent"):
@@ -462,14 +444,6 @@ def test_cache_templates_only_allow_preload_changes():
         cfg["keys"]["vision_0"]["weight"] += 0.001
         with pytest.raises(ValueError):
             validate_config(cfg, suite)
-
-
-def test_value_digest_distinguishes_missing_attributes_and_array_dtype():
-    """Check value digest distinguishes missing attributes and array dtype."""
-    assert value_digest(np.array([1], dtype=np.int32)) != value_digest(
-        np.array([1], dtype=np.int64)
-    )
-    assert value_digest({}) != value_digest({"outcome": None})
 
 
 def test_success_list_provenance_checks_complete_ids_and_outcome_census(

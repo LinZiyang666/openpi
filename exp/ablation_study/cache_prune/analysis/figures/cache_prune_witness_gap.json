@@ -1,0 +1,74 @@
+{
+  "libero_spatial/rit50/P03": {
+    "pruned": 205,
+    "median": 1.0,
+    "p90": 3.0,
+    "share_le_2": 0.8878048780487805
+  },
+  "libero_spatial/rit50/P06": {
+    "pruned": 506,
+    "median": 1.0,
+    "p90": 2.0,
+    "share_le_2": 0.9011857707509882
+  },
+  "libero_spatial/rit50/P09": {
+    "pruned": 812,
+    "median": 2.0,
+    "p90": 5.0,
+    "share_le_2": 0.6810344827586207
+  },
+  "libero_10/rit50/P03": {
+    "pruned": 529,
+    "median": 2.0,
+    "p90": 14.199999999999989,
+    "share_le_2": 0.55765595463138
+  },
+  "libero_10/rit50/P06": {
+    "pruned": 1321,
+    "median": 2.0,
+    "p90": 13.0,
+    "share_le_2": 0.554882664647994
+  },
+  "libero_10/rit50/P09": {
+    "pruned": 2108,
+    "median": 3.0,
+    "p90": 21.0,
+    "share_le_2": 0.4131878557874763
+  },
+  "libero_spatial/cs500_success/P03": {
+    "pruned": 1886,
+    "median": 1.0,
+    "p90": 4.0,
+    "share_le_2": 0.8096500530222693
+  },
+  "libero_spatial/cs500_success/P06": {
+    "pruned": 4671,
+    "median": 1.0,
+    "p90": 3.0,
+    "share_le_2": 0.8289445514879041
+  },
+  "libero_spatial/cs500_success/P09": {
+    "pruned": 7483,
+    "median": 2.0,
+    "p90": 4.0,
+    "share_le_2": 0.7883201924361887
+  },
+  "libero_10/cs500_success/P03": {
+    "pruned": 4078,
+    "median": 3.0,
+    "p90": 16.0,
+    "share_le_2": 0.4759686120647376
+  },
+  "libero_10/cs500_success/P06": {
+    "pruned": 10239,
+    "median": 2.0,
+    "p90": 13.0,
+    "share_le_2": 0.5130383826545561
+  },
+  "libero_10/cs500_success/P09": {
+    "pruned": 16327,
+    "median": 3.0,
+    "p90": 13.0,
+    "share_le_2": 0.48533104673240646
+  }
+}

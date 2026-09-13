@@ -4,6 +4,12 @@
 > 本文是当前运行入口；`cache_prune_plan.log.md` §6.3/§9/§11 的单臂运行安排已废弃。剪枝算法和统计定义仍按原计划。
 > 本会话交付运行代码和准备步骤，尚未启动模型服务、smoke 或正式 rollout。
 
+> ⚠ **2026-09-12 运行会话按 owner 指示改动**：本文 §2–§8 描述的 `run_concurrent` 分组/freeze/验证/证据链
+> 已整体删除（owner：「有 yaml 有 pkl 就能跑，freeze 那些画蛇添足的逻辑全部删掉」）。现在的入口是
+> `emit_prune_arms`（只导出子库 + 写 YAML/matrix）→ `ops/run_lane_chain.sh`（每 family 一次
+> `run_size_eval --role driver`，远端车队 `--role agent`）→ `analysis/analyze_prune`（直接读 journal）。
+> 拓扑与进度见 `logs/cache_prune_run_progress.md`。§1 的「不需要 warmup」与 §4 的数据表仍然有效。
+
 ## 1. 启动是否需要 warmup
 
 **不需要 RIT warmup、风险拟合或归一化重标定。** 每个臂只需已经冻结的 YAML 和对应 PKL。检索权重、μ/σ、`always_search`、`always_hit`、d1 保持不变。Stage 1 仍要运行以提取 query key，Stage 2/3 为 meta，不调用动作模型填补 cache miss。

@@ -79,6 +79,11 @@ class WorkerSpec:
     # ``MUJOCO_EGL_DEVICE_ID`` belongs here: ``CUDA_VISIBLE_DEVICES`` steers the
     # policy client, while EGL picks its render device independently.
     env: dict[str, str] = dataclasses.field(default_factory=dict)
+    # Ask the worker to hash its environment and init pools and send that on
+    # its first pull (``worker_entry --probe``). Needed when the driver runs on
+    # another machine and cannot inspect the client side itself; off by default
+    # so an older caller's argv stays byte-identical.
+    probe: bool = False
 
 
 class WorkerHandle(Protocol):
@@ -131,6 +136,8 @@ def _default_spawn(spec: WorkerSpec, driver_host: str, driver_port: int) -> Work
         base_cmd += ["--replan-steps", str(spec.replan_steps)]
     if spec.seed is not None:
         base_cmd += ["--seed", str(spec.seed)]
+    if spec.probe:
+        base_cmd += ["--probe"]
     if spec.conda_env:
         # Mirror legacy build_subprocess_cmd: strip the driver's uv-venv env
         # injections (VIRTUAL_ENV / PYTHONPATH / PYTHONHOME) and drop the uv venv
