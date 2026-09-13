@@ -23,6 +23,7 @@ ACTION_HORIZON = 4
 ACTION_DIM = 6
 STATE_WIDTH = 10
 STATE_VALID = 5
+STATE_FEAT_DIM = 6  # the stub state encoder's output width (1536 on the real head)
 
 
 class _StubLanguageModel:
@@ -83,11 +84,42 @@ class _StubActionHead:
         self.calls = 0
         self.num_inference_timesteps = num_inference_timesteps
         self.action_encoder = _StubActionEncoder()
+        # The two prologue encoders the CP2 key source reads (ActionCache §4.1).
+        # Counted separately so a test can tell "helper only" (FULL_HIT) from
+        # "helper + head" (WARM_START / MISS), and deterministic, non-identity
+        # maps so the encoded key source is distinguishable from the raw one.
+        self.training = False
+        self.process_calls = 0
+        self.state_calls = 0
+        self.poison_state = False  # emit NaN from state_encoder (finite-check test)
+        self._state_proj = torch.nn.Linear(STATE_WIDTH, STATE_FEAT_DIM)
+        torch.nn.init.normal_(
+            self._state_proj.weight, std=0.5, generator=torch.Generator().manual_seed(3)
+        )
+
+    def process_backbone_output(self, backbone_outputs):
+        """Upstream normalises *in place* and returns the same mapping."""
+        self.process_calls += 1
+        encoded = backbone_outputs["backbone_features"] * 3.0 + 1.0
+        backbone_outputs["backbone_features"] = encoded
+        return backbone_outputs
+
+    def state_encoder(self, state, embodiment_id):
+        del embodiment_id
+        self.state_calls += 1
+        out = self._state_proj(state.float())  # [B, T, STATE_FEAT_DIM]
+        if self.poison_state:
+            out = out * float("nan")
+        return out
 
     def get_action(self, backbone_outputs, action_inputs):
         self.calls += 1
         features = backbone_outputs["backbone_features"]
         value = features.float().mean()
+        # Upstream's prologue: the same two encoders run again inside the head,
+        # which is exactly the double count the CP2 cost formula's E term pays.
+        self.process_backbone_output(backbone_outputs)
+        self.state_encoder(action_inputs["state"], action_inputs["embodiment_id"])
         target = torch.full((1, ACTION_HORIZON, ACTION_DIM), value)
         # Deterministic "noise" so tests can check snapshots are distinct per step.
         actions = torch.zeros((1, ACTION_HORIZON, ACTION_DIM))

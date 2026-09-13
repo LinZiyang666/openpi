@@ -35,6 +35,25 @@ GUARDED_FILES = [
     "src/openpi/cache/groot/interceptor.py",
     "src/openpi/cache/groot/load_guard.py",
     "exp/robocasa365/groot_cache_collector.py",
+    "src/openpi/cache/groot/cp2_key_builder.py",
+    # ActionCache-baseline island scripts (plan actioncache_baseline_groot §3.6/§3.9/§3.11).
+    "exp/libero_groot/cp2_reconstruct.py",
+    "exp/libero_groot/build_cp2_artifact_groot.py",
+    "exp/libero_groot/build_shadow_table_groot.py",
+    "exp/libero_groot/groot_cp2_parity.py",
+    "exp/libero_groot/verify_shadow_h5.py",
+    "exp/libero_groot/emit_task_map.py",
+    "exp/libero_groot/bench_cp2_overhead_groot.py",
+]
+
+# Island entry points whose *transitive* module-level imports are checked too:
+# they reuse ``exp.actioncache_baseline`` helpers, and a jax import added to one
+# of those later would only fail on the machine.
+TRANSITIVE_ROOTS = [
+    "exp/libero_groot/build_cp2_artifact_groot.py",
+    "exp/libero_groot/build_shadow_table_groot.py",
+    "exp/libero_groot/groot_cp2_parity.py",
+    "exp/libero_groot/bench_cp2_overhead_groot.py",
 ]
 
 
@@ -64,6 +83,59 @@ def test_no_jax_bound_imports(relative: str) -> None:
         f"{relative} imports {offenders}, which pull in jax or a Pi0.5-only "
         "module. The GR00T island has neither."
     )
+
+
+def _module_level_imports(path: pathlib.Path) -> set[str]:
+    tree = ast.parse(path.read_text())
+    names: set[str] = set()
+    for node in tree.body:
+        if isinstance(node, ast.Import):
+            names.update(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
+            names.add(node.module)
+    return names
+
+
+def _module_path(name: str) -> pathlib.Path | None:
+    for base in ("src", "."):
+        for candidate in (
+            REPO_ROOT / base / (name.replace(".", "/") + ".py"),
+            REPO_ROOT / base / name.replace(".", "/") / "__init__.py",
+        ):
+            if candidate.exists():
+                return candidate
+    return None
+
+
+def _transitive_offenders(start: pathlib.Path) -> list[tuple[str, str]]:
+    """(offending module, importer) pairs reachable through module-level imports."""
+    seen: set[str] = set()
+    offenders: list[tuple[str, str]] = []
+    stack: list[tuple[pathlib.Path, str]] = [(start, str(start.relative_to(REPO_ROOT)))]
+    while stack:
+        path, label = stack.pop()
+        if label in seen:
+            continue
+        seen.add(label)
+        for name in sorted(_module_level_imports(path)):
+            if any(name == p or name.startswith(p + ".") for p in FORBIDDEN_PREFIXES):
+                offenders.append((name, label))
+            elif name.startswith(("openpi.", "exp.")):
+                child = _module_path(name)
+                if child is not None:
+                    stack.append((child, name))
+    return offenders
+
+
+@pytest.mark.parametrize("relative", TRANSITIVE_ROOTS)
+def test_island_scripts_stay_jax_free_transitively(relative: str) -> None:
+    offenders = _transitive_offenders(REPO_ROOT / relative)
+    assert not offenders, f"{relative} reaches {offenders} through module-level imports"
+
+
+def test_the_transitive_guard_would_actually_catch_something() -> None:
+    offenders = _transitive_offenders(REPO_ROOT / "exp/actioncache_baseline/build_cp2_artifact.py")
+    assert offenders, "the Pi0.5 builder no longer reaches a forbidden module; the transitive check is inert"
 
 
 def test_the_guard_would_actually_catch_something() -> None:

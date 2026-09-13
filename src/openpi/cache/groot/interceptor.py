@@ -126,8 +126,20 @@ class GrootCacheInterceptor:
         self._orchestrator = orchestrator
         self._timer = timer if timer is not None else SystemTimer(enabled=False)
         self._timer.register_probe("total_inference", backend="cpu")
+        # CP2-only (ActionCache-style post-backbone arm): frozen from THIS
+        # wrapper's orchestrator, so a hot-swapped bundle never changes what an
+        # already-bound connection does. The GR00T guard makes {cp1} and {cp2}
+        # mutually exclusive, so this is a two-way switch.
+        _has_cp = getattr(orchestrator, "has_checkpoint", None)
+        self._cp2_only = bool(
+            orchestrator is not None and _has_cp is not None and _has_cp(CheckpointID.CP2)
+        )
+        _meta = getattr(orchestrator, "artifact_meta", None) if self._cp2_only else None
+        self._cp2_library_sha256 = (
+            _meta.get("library_sha256") if isinstance(_meta, dict) else None
+        )
         if orchestrator is not None:
-            self._timer.register_probe("cp1_sum", backend="cpu")
+            self._timer.register_probe("cp2_sum" if self._cp2_only else "cp1_sum", backend="cpu")
 
     # -- TaskLifecycle ---------------------------------------------------
 
@@ -170,12 +182,22 @@ class GrootCacheInterceptor:
     # -- observability ---------------------------------------------------
 
     @staticmethod
-    def _build_hit_meta(cp1_result) -> dict:
+    def _build_hit_meta(
+        cp1_result, *, checkpoint: Optional[str] = None, library_sha256: Optional[str] = None
+    ) -> dict:
         """Same field set as the Pi0.5 interceptor, so one analysis path reads both.
 
         ``start_t`` is the real resume point on a WARM_START and ``None``
         otherwise; downstream cost summaries price a warm start by it, so a
         placeholder here would silently mis-price every warm step.
+
+        Two additive fields mirror the Pi0.5 wire: ``checkpoint`` names the
+        verdict's checkpoint (``"CP1"`` / ``"CP2"``, ``None`` when no
+        orchestrator ran) and ``score`` is the fused score whatever the
+        checkpoint. ``cp1_score`` keeps its legacy meaning -- filled on CP1,
+        ``None`` on CP2. On CP2 the loaded library's ``library_sha256`` rides
+        along (absent, not None, elsewhere) so the client ledger can prove
+        which artifact the server searched.
         """
         if cp1_result is None:
             return {
@@ -184,8 +206,11 @@ class GrootCacheInterceptor:
                 "winner_id": None,
                 "cp1_score": None,
                 "searched": True,
+                "checkpoint": None,
+                "score": None,
             }
-        return {
+        cp_name = "CP1" if checkpoint is None else checkpoint
+        meta = {
             "hit_type": cp1_result.hit_type.name,
             "start_t": (
                 cp1_result.start_t
@@ -193,9 +218,14 @@ class GrootCacheInterceptor:
                 else None
             ),
             "winner_id": cp1_result.entry_id,
-            "cp1_score": cp1_result.score,
+            "cp1_score": cp1_result.score if cp_name == "CP1" else None,
             "searched": cp1_result.searched,
+            "checkpoint": cp_name,
+            "score": cp1_result.score,
         }
+        if library_sha256 is not None:
+            meta["library_sha256"] = library_sha256
+        return meta
 
     # -- inference -------------------------------------------------------
 
@@ -218,6 +248,9 @@ class GrootCacheInterceptor:
                     obs_copy[key] = np.array(value)
 
             normalized_input = self._policy.apply_transforms(obs_copy)
+
+            if self._cp2_only:
+                return self._get_action_cp2(normalized_input, is_batch)
 
             with self._runner.session():
                 stage1 = self._runner.run_stage1(normalized_input)
@@ -271,6 +304,62 @@ class GrootCacheInterceptor:
                 unnormalized = _squeeze_values(unnormalized)
 
         unnormalized["__hit_meta__"] = self._build_hit_meta(cp1_result)
+        return unnormalized
+
+    def _get_action_cp2(self, normalized_input: dict, is_batch: bool) -> dict[str, Any]:
+        """The CP2-only decision cycle (ActionCache-style arm, plan §3.1).
+
+        stage 1 -> stage 2 (LM only) -> encoded key source, all in one session;
+        exactly one ``check(CP2)`` per decision, no CP1 and no CP3 probe.
+        FULL_HIT replays the cached chunk without touching the action head's
+        denoise loop; WARM_START resumes ``run_stage3_from`` at the library
+        snapshot; MISS runs upstream's full ``get_action`` from the already
+        computed stage-2 output (``run_stage3``), the same numbers as
+        ``run_stage2`` would give.
+        """
+        with self._runner.session():
+            stage1 = self._runner.run_stage1(normalized_input)
+            stage2 = self._runner.run_stage2_llm(stage1)
+            source = self._runner.run_cp2_key_source(stage2)
+
+        cp2_result = None
+        try:
+            with self._timer.measure("cp2_sum"):
+                cp2_result = self._orchestrator.check(
+                    CheckpointID.CP2, stage2=stage2, cp2_source=source
+                )
+            hit_type = cp2_result.hit_type
+            if hit_type == HitType.FULL_HIT:
+                chunk = cp2_result.payload.action_chunk
+            elif hit_type == HitType.WARM_START:
+                payload = cp2_result.payload
+                start_t = cp2_result.start_t
+                schedule = self._library_schedule(payload)
+                with self._runner.session():
+                    chunk = self._runner.run_stage3_from(
+                        stage2,
+                        payload.intermediates[start_t],
+                        start_t,
+                        schedule=schedule,
+                    ).action_pred
+            else:
+                with self._runner.session():
+                    chunk = self._runner.run_stage3(stage2).action_pred
+
+            action_cpu = self._to_storage_tensor(chunk)
+            self._orchestrator.broadcast_action(action_cpu)
+            if cp2_result.query_keys is not None:
+                self._orchestrator.buffer_for_write(cp2_result.query_keys, action_cpu)
+        finally:
+            source = None
+            self._orchestrator.clear()
+
+        unnormalized = self._policy.unapply_transforms({"action": action_cpu[None, ...]})
+        if not is_batch:
+            unnormalized = _squeeze_values(unnormalized)
+        unnormalized["__hit_meta__"] = self._build_hit_meta(
+            cp2_result, checkpoint="CP2", library_sha256=self._cp2_library_sha256
+        )
         return unnormalized
 
     def _library_schedule(self, payload) -> DenoiseSchedule:

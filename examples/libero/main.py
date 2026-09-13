@@ -246,6 +246,12 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
 
     t = 0
     done = False
+    # Why the loop stopped: ``success`` (env reported done), ``step_cap`` (the
+    # step budget ran out) or ``exception`` (the generic handler below broke
+    # out early). Reported through ``client_timing`` so an offline reader can
+    # tell a genuine failure from a truncated one -- the two look identical in
+    # the collector's HDF5, whose counts are self-consistent either way.
+    _termination = "step_cap"
 
     # Client-side wall-clock breakdown (closed-loop bottleneck attribution).
     # Accumulated only when ``client_timing`` is provided; near-zero overhead.
@@ -377,6 +383,7 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
                 _pending_executed.append(action_np.copy())
 
             if done:
+                _termination = "success"
                 break
             t += 1
 
@@ -384,6 +391,7 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
             raise  # Server error — let it propagate and stop the worker.
         except Exception as e:
             logging.error(f"Caught exception: {e}")
+            _termination = "exception"
             break
 
     # §20.R1.1: mid-chunk / end-of-loop finaliser. The tail cycle's
@@ -416,8 +424,31 @@ def _run_episode(env, client, initial_state, task_description, args, max_steps,
         client_timing["gap_n"] = client_timing.get("gap_n", 0) + _gap_n
         client_timing["steps"] = client_timing.get("steps", 0) + _ct_steps
         client_timing["infers"] = client_timing.get("infers", 0) + _ct_infers
+        client_timing["termination_reason"] = _termination
 
     return done, images, timestamps, traj_buffer, final_env_timestep
+
+
+def _episode_result_row(args: "Args", *, task_id: int, episode_idx: int, orig_init_state_idx: int,
+                        global_episode_id: int, done: bool, max_steps: int,
+                        client_timing: dict | None) -> dict[str, Any]:
+    """One ``--save-episode-results`` row: the legacy identity / success fields plus the
+    termination evidence an offline verifier binds to the collector's HDF5."""
+    ct = client_timing or {}
+    return {
+        "task_id": int(task_id),
+        "init_state_idx": int(episode_idx),
+        "orig_init_state_idx": int(orig_init_state_idx),
+        "episode_id": int(global_episode_id),
+        "seed": int(args.seed),
+        "success": bool(done),
+        "task_suite_name": str(args.task_suite_name),
+        "termination_reason": ct.get("termination_reason"),
+        "client_timing": {"steps": int(ct.get("steps", 0)), "infers": int(ct.get("infers", 0))},
+        "max_steps": int(max_steps),
+        "num_steps_wait": int(args.num_steps_wait),
+        "replan_steps": int(args.replan_steps),
+    }
 
 
 def _count_filtered_episodes(
@@ -709,16 +740,11 @@ def _eval_serial(
                 )
 
             if args.save_episode_results:
-                per_episode_log.append(
-                    {
-                        "task_id": int(task_id),
-                        "init_state_idx": int(episode_idx),
-                        "orig_init_state_idx": int(orig_init_state_idx),
-                        "episode_id": int(global_episode_id),
-                        "seed": int(args.seed),
-                        "success": bool(done),
-                    }
-                )
+                per_episode_log.append(_episode_result_row(
+                    args, task_id=task_id, episode_idx=episode_idx,
+                    orig_init_state_idx=orig_init_state_idx, global_episode_id=global_episode_id,
+                    done=done, max_steps=max_steps, client_timing=_ctiming,
+                ))
 
             if done:
                 task_successes += 1
@@ -974,16 +1000,12 @@ def _eval_concurrent(
                             if args.save_episode_results:
                                 # Under ``lock`` so concurrent appends from
                                 # multiple workers stay race-free.
-                                per_episode_log.append(
-                                    {
-                                        "task_id": int(task_id),
-                                        "init_state_idx": int(episode_idx),
-                                        "orig_init_state_idx": int(orig_init_state_idx),
-                                        "episode_id": int(global_episode_id),
-                                        "seed": int(args.seed),
-                                        "success": bool(done),
-                                    }
-                                )
+                                per_episode_log.append(_episode_result_row(
+                                    args, task_id=task_id, episode_idx=episode_idx,
+                                    orig_init_state_idx=orig_init_state_idx,
+                                    global_episode_id=global_episode_id, done=done,
+                                    max_steps=max_steps, client_timing=_ctiming,
+                                ))
                 finally:
                     env.close()
         finally:

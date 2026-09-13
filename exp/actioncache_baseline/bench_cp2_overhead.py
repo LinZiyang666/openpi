@@ -56,8 +56,8 @@ from openpi.cache.types import CheckpointID
 SEGMENTS = ("cp2_collect", "cp2_gate", "cp2_build", "cp2_search", "cp2_judge", "cp2_fetch")
 #: Probes every decision must record (fetch only fires on hits).
 CORE_SEGMENTS = ("cp2_collect", "cp2_build", "cp2_search", "cp2_judge")
-VERDICT_OK_MS = 10.0
-VERDICT_HALT_MS = 40.0
+VERDICT_OK_MS = libs.VERDICT_OK_MS
+VERDICT_HALT_MS = libs.VERDICT_HALT_MS
 
 
 def hardware_info(device: torch.device) -> dict:
@@ -87,14 +87,8 @@ def _pctl(xs: list[float]) -> dict:
 
 
 def verdict_for(warm_p95_ms: float | None) -> str:
-    """Plan §3.10 acceptance / fallback rule on the warm total P95."""
-    if warm_p95_ms is None:
-        return "insufficient_decisions"
-    if warm_p95_ms <= VERDICT_OK_MS:
-        return "ok_report"
-    if warm_p95_ms <= VERDICT_HALT_MS:
-        return "report_with_caption"
-    return "halt_profile_segments"
+    """Plan §3.10 acceptance / fallback rule on the warm total P95 (``libs.preflight_verdict``)."""
+    return libs.preflight_verdict(warm_p95_ms)
 
 
 def build_orchestrator(cache_yaml: str | pathlib.Path):

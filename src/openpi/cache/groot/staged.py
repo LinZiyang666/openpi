@@ -186,6 +186,31 @@ class GrootStage2Output:
 
 
 @dataclass
+class GrootCP2KeySource:
+    """The action head's *encoded* conditioning, as the CP2 cache key source.
+
+    ActionCache (arXiv 2607.06370 §4.1) keys GR00T on the encoded VLM output
+    embeddings concatenated with the encoded robot-state features. Both live
+    inside the action head's prologue: ``process_backbone_output`` (``vlln``
+    LayerNorm + the ``vl_self_attention`` block) and ``state_encoder``. This
+    object carries their outputs for one decision.
+
+    Lifetime contract (plan §3.2 R2-B11): the tensors are produced inside
+    ``GrootStagedRunner.session()`` and may therefore be *inference tensors*.
+    They are read-only, consumed by the CP2 key builder within the same
+    ``check()`` and released by ``clear()``; nothing here is stored, broadcast
+    or written back. The builder allocates the storable key outside the
+    session.
+    """
+
+    vl_encoded: torch.Tensor
+    """[N, C] encoded VLM tokens (``process_backbone_output(...).backbone_features[0]``)."""
+
+    state_encoded: torch.Tensor
+    """[S] encoded robot state (``state_encoder(state, embodiment_id)[0, -1]``)."""
+
+
+@dataclass
 class GrootStage3Output:
     """Action chunk in normalised space, before the policy's inverse transform."""
 
@@ -296,6 +321,9 @@ class GrootStagedRunner:
         # the Pi0.5 interceptor's probe for the resumed loop.
         for probe in ("stage1_vision", "stage2_llm", "stage2_action", "stage3_warm"):
             self._timer.register_probe(probe, backend=probe_backend)
+        # ``cp2_encode``: the head prologue run once more to cut the CP2 key
+        # (plan §3.11). Registered here, measured in ``run_cp2_key_source``.
+        self._timer.register_probe("cp2_encode", backend=probe_backend)
 
         # Optional compiled vision tower (owner directive 2026-08-22): the
         # stage1 forward is launch-bound at B=1, so mode="reduce-overhead"
@@ -579,6 +607,52 @@ class GrootStagedRunner:
                 "backbone_attention_mask": stage2.attention_mask,
             }
         )
+
+    def run_cp2_key_source(self, stage2: GrootStage2Output) -> GrootCP2KeySource:
+        """Run the action head's two encoders once, for the CP2 key (ActionCache §4.1).
+
+        Deliberately *not* wired into ``run_stage3`` / ``run_stage3_from``:
+        those keep upstream's ``get_action`` and its pinned transcription
+        byte-for-byte, so on a WARM_START / MISS the prologue runs twice (here
+        and inside the head) and on a FULL_HIT once. That extra model forward
+        is the ``E`` term of the CP2 cost formula (plan §3.5); it is timed by
+        the ``cp2_encode`` probe.
+
+        ``_head_inputs`` rebuilds the BatchFeature, so ``stage2`` itself is
+        never written back by the in-place ``process_backbone_output``. The
+        returned tensors are detached views that may still be inference
+        tensors (see ``GrootCP2KeySource``); the caller must not persist them.
+        """
+        self._require_session("run_cp2_key_source")
+        head = self._model.action_head
+        if getattr(head, "training", False):
+            raise RuntimeError(
+                "run_cp2_key_source: the action head is in training mode; the "
+                "encoders would apply dropout and the key would not be the one "
+                "the head conditions on."
+            )
+        action_inputs = stage2.action_inputs
+        if action_inputs is None:
+            raise RuntimeError("run_cp2_key_source: stage2.action_inputs is None")
+        with self._timer.measure("cp2_encode"):
+            processed = head.process_backbone_output(self._head_inputs(stage2))
+            vl = processed["backbone_features"]
+            state_feat = head.state_encoder(
+                action_inputs["state"], action_inputs["embodiment_id"]
+            )
+        if vl.dim() != 3 or vl.shape[0] != 1:
+            raise RuntimeError(
+                f"run_cp2_key_source: encoded VLM output must be [1, N, C], got {tuple(vl.shape)}"
+            )
+        if state_feat.dim() != 3 or state_feat.shape[0] != 1:
+            raise RuntimeError(
+                f"run_cp2_key_source: encoded state must be [1, T, S], got {tuple(state_feat.shape)}"
+            )
+        vl0 = vl[0].detach()
+        st0 = state_feat[0, -1].detach()
+        if not (torch.isfinite(vl0).all() and torch.isfinite(st0).all()):
+            raise RuntimeError("run_cp2_key_source: non-finite values in the encoded key source")
+        return GrootCP2KeySource(vl_encoded=vl0, state_encoded=st0)
 
     def run_stage3(
         self, stage2: GrootStage2Output, *, noise: Optional[torch.Tensor] = None

@@ -454,3 +454,127 @@ def test_run_episode_no_save_trajectory_returns_none() -> None:
         record_video=False,
     )
     assert traj is None
+
+
+# ---------------------------------------------------------------------------
+# Termination evidence in --save-episode-results (actioncache_baseline_groot
+# plan §3.9, R2-B10): success / step_cap / exception, counts include the wait
+# phase, RuntimeError still propagates, schema shared by both eval paths.
+# ---------------------------------------------------------------------------
+
+
+class _ArgsWait(_Args):
+    num_steps_wait = 2
+    save_trajectory = False
+    seed = 7
+    task_suite_name = "libero_spatial"
+
+
+class _RaisingClient(_FakeClient):
+    def __init__(self, chunk: np.ndarray, exc: Exception, *, after: int = 1) -> None:
+        super().__init__(chunk)
+        self._exc = exc
+        self._after = after
+
+    def infer(self, element: dict) -> dict:
+        if self.infer_calls >= self._after:
+            raise self._exc
+        return super().infer(element)
+
+
+def _run(env, client, *, max_steps: int, args=None):
+    timing: dict = {}
+    result = libero_main._run_episode(
+        env, client, initial_state=None, task_description="pick apple",
+        args=args or _ArgsWait(), max_steps=max_steps, record_video=False, client_timing=timing,
+    )
+    return result, timing
+
+
+def test_run_episode_termination_success_and_counts() -> None:
+    # done fires on the 3rd post-wait step (the fake counts wait steps too: 2 + 3).
+    env = _FakeEnv(done_at_step=5)
+    (done, *_rest), timing = _run(env, _FakeClient(np.ones((50, 7), dtype=np.float32)), max_steps=20)
+    assert done is True
+    assert timing["termination_reason"] == "success"
+    assert timing["steps"] == 5  # wait steps are counted
+    assert timing["infers"] == 1
+    assert len(_rest) == 4  # return tuple unchanged: (done, images, timestamps, traj, final_env_timestep)
+
+
+def test_run_episode_termination_step_cap_counts_wait_and_infers() -> None:
+    env = _FakeEnv(done_at_step=None)
+    (done, *_), timing = _run(env, _FakeClient(np.ones((50, 7), dtype=np.float32)), max_steps=10)
+    assert done is False
+    assert timing["termination_reason"] == "step_cap"
+    assert timing["steps"] == 10 + _ArgsWait.num_steps_wait
+    assert timing["infers"] == 2  # ceil(10 / replan_steps=5)
+
+
+def test_run_episode_termination_exception_is_labelled_not_step_cap() -> None:
+    env = _FakeEnv(done_at_step=None)
+    client = _RaisingClient(np.ones((50, 7), dtype=np.float32), ValueError("boom"), after=1)
+    (done, *_), timing = _run(env, client, max_steps=20)
+    assert done is False
+    assert timing["termination_reason"] == "exception"
+    assert timing["infers"] == 1
+    assert timing["steps"] < 20 + _ArgsWait.num_steps_wait
+
+
+def test_run_episode_runtime_error_still_propagates_without_a_verdict() -> None:
+    env = _FakeEnv(done_at_step=None)
+    client = _RaisingClient(np.ones((50, 7), dtype=np.float32), RuntimeError("server gone"), after=0)
+    timing: dict = {}
+    with pytest.raises(RuntimeError, match="server gone"):
+        libero_main._run_episode(
+            env, client, initial_state=None, task_description="pick apple",
+            args=_ArgsWait(), max_steps=20, record_video=False, client_timing=timing,
+        )
+    assert "termination_reason" not in timing  # no result row can be formed from this attempt
+
+
+def test_run_episode_without_client_timing_is_unchanged() -> None:
+    env = _FakeEnv(done_at_step=None)
+    result = libero_main._run_episode(
+        env, _FakeClient(np.ones((50, 7), dtype=np.float32)), initial_state=None,
+        task_description="pick apple", args=_ArgsWait(), max_steps=5, record_video=False,
+    )
+    assert len(result) == 5 and result[0] is False
+
+
+LEGACY_RESULT_KEYS = {"task_id", "init_state_idx", "orig_init_state_idx", "episode_id", "seed", "success"}
+EVIDENCE_RESULT_KEYS = {"task_suite_name", "termination_reason", "client_timing", "max_steps",
+                        "num_steps_wait", "replan_steps"}
+
+
+def test_episode_result_row_is_additive_over_the_legacy_schema() -> None:
+    row = libero_main._episode_result_row(
+        _ArgsWait(), task_id=3, episode_idx=1, orig_init_state_idx=17, global_episode_id=151,
+        done=False, max_steps=220,
+        client_timing={"steps": 230, "infers": 44, "termination_reason": "step_cap", "env_s": 1.0},
+    )
+    assert set(row) == LEGACY_RESULT_KEYS | EVIDENCE_RESULT_KEYS
+    assert (row["task_id"], row["init_state_idx"], row["orig_init_state_idx"], row["episode_id"],
+            row["seed"], row["success"]) == (3, 1, 17, 151, 7, False)
+    assert row["task_suite_name"] == "libero_spatial"
+    assert row["termination_reason"] == "step_cap"
+    assert row["client_timing"] == {"steps": 230, "infers": 44}  # only the two counts, no wall-clock
+    assert (row["max_steps"], row["num_steps_wait"], row["replan_steps"]) == (220, 2, 5)
+    assert json.loads(json.dumps(row)) == row
+
+
+def test_episode_result_row_without_timing_has_no_reason() -> None:
+    row = libero_main._episode_result_row(
+        _ArgsWait(), task_id=0, episode_idx=0, orig_init_state_idx=0, global_episode_id=0,
+        done=True, max_steps=220, client_timing=None,
+    )
+    assert row["termination_reason"] is None
+    assert row["client_timing"] == {"steps": 0, "infers": 0}
+
+
+def test_both_eval_paths_build_result_rows_through_the_shared_helper() -> None:
+    src = Path(libero_main.__file__).read_text()
+    assert src.count("_episode_result_row(") >= 3  # definition + serial + concurrent
+    assert src.count('"success": bool(done)') == 1  # the helper only; no inline row dicts left
+    # Both call sites hand over the client_timing dict the episode was run with.
+    assert src.count("client_timing=_ctiming") >= 2

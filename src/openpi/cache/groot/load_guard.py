@@ -58,6 +58,43 @@ _ALLOWED_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start"
 _BASE_ALLOWED_GATES = frozenset({"always_search"})
 #: The single documented exception, admitted only via ``allow_hysteresis_gate``.
 _HYSTERESIS_GATE = "score_hysteresis"
+#: The two checkpoint sets the GR00T split can serve: the CP1 arm (key cut from
+#: the stage-1 sequence) or the CP2 arm (ActionCache-style key cut from the
+#: action head's encoded conditioning). Never both -- the interceptor is a
+#: two-way switch -- and never CP3.
+_SERVICEABLE_CHECKPOINT_SETS = (frozenset({"cp1"}), frozenset({"cp2"}))
+#: The only key builder the CP2 arm may use on GR00T.
+_CP2_GROOT_BUILDER = "cp2_groot_ternary"
+
+
+def enabled_checkpoint_names(config: CacheConfig) -> frozenset[str]:
+    """Lower-case names of the enabled checkpoints (``_``-prefixed entries ignored)."""
+    return frozenset(
+        name.lower()
+        for name, cp in config.checkpoints.items()
+        if not name.startswith("_") and cp.enabled
+    )
+
+
+def single_enabled_checkpoint(config: CacheConfig) -> str | None:
+    """The one enabled checkpoint name when the set is serviceable, else None."""
+    enabled = enabled_checkpoint_names(config)
+    if enabled in _SERVICEABLE_CHECKPOINT_SETS:
+        return next(iter(enabled))
+    return None
+
+
+def _inspected_checkpoint(config: CacheConfig) -> str | None:
+    """The checkpoint whose judge / gate / warm shape the guard reports on.
+
+    The serviceable one when the set is valid; otherwise ``cp1`` if present,
+    so an invalid set (e.g. cp1+cp3) still gets every other problem reported
+    in the same pass, exactly as before the CP2 arm existed.
+    """
+    name = single_enabled_checkpoint(config)
+    if name is not None:
+        return name
+    return "cp1" if "cp1" in config.checkpoints else None
 
 
 def validate_groot_cache_config(
@@ -92,39 +129,51 @@ def validate_groot_cache_config(
     """
     errors: list[str] = []
 
-    enabled = {
-        name.lower()
-        for name, cp in config.checkpoints.items()
-        if not name.startswith("_") and cp.enabled
-    }
-    if enabled != {"cp1"}:
+    enabled = enabled_checkpoint_names(config)
+    if enabled not in _SERVICEABLE_CHECKPOINT_SETS:
         errors.append(
-            f"enabled checkpoints must be exactly {{'cp1'}}, got {sorted(enabled)}. "
-            "The GR00T split has no third stage, so CP3 would be built, "
-            "registered and never consulted."
+            f"enabled checkpoints must be exactly {{'cp1'}} or {{'cp2'}}, got "
+            f"{sorted(enabled)}. The GR00T split has no third stage, so CP3 would be "
+            "built, registered and never consulted; CP1 and CP2 are two mutually "
+            "exclusive arms of the same interceptor."
         )
+    cp_name = _inspected_checkpoint(config)
+    if cp_name == "cp2" and config.key_builder.type != _CP2_GROOT_BUILDER:
+        errors.append(
+            f"a CP2 recipe on GR00T must use key_builder.type={_CP2_GROOT_BUILDER!r} "
+            f"(got {config.key_builder.type!r}); the Pi0.5 CP2 builder reads "
+            "Stage2Output.prefix_out, which the GR00T split does not produce."
+        )
+    if cp_name == "cp2":
+        # The CP2 arm names its teacher loop even when it never warm-starts: an
+        # N_hit=0 arm's MISS is still the k=8 teacher its library and its cost
+        # table describe, and only the schedule stamp can tell that head from a
+        # k=4 one serving the same geometry (G2-B3).
+        errors.extend(_cp2_schedule_errors(config, num_inference_timesteps))
 
-    cp1 = config.checkpoints.get("cp1")
-    if cp1 is not None:
-        if cp1.judge.type not in _ALLOWED_JUDGE_TYPES:
+    cp = config.checkpoints.get(cp_name) if cp_name is not None else None
+    if cp is not None:
+        if cp.judge.type not in _ALLOWED_JUDGE_TYPES:
             errors.append(
-                f"cp1.judge.type={cp1.judge.type!r} is not serviceable; valid: "
+                f"{cp_name}.judge.type={cp.judge.type!r} is not serviceable; valid: "
                 f"{sorted(_ALLOWED_JUDGE_TYPES)}. Composite / router judges are "
                 "not enumerable for the warm-library completeness check."
             )
         errors.extend(_warm_start_schedule_errors(config, num_inference_timesteps))
+        # The hysteresis opt-in is a CP1 experiment's exception; the CP2 arm is
+        # the ActionCache baseline and searches every step by definition.
         allowed_gates = _BASE_ALLOWED_GATES | (
-            {_HYSTERESIS_GATE} if allow_hysteresis_gate else set()
+            {_HYSTERESIS_GATE} if allow_hysteresis_gate and cp_name == "cp1" else set()
         )
-        if cp1.gate.type not in allowed_gates:
+        if cp.gate.type not in allowed_gates:
             hint = (
                 ""
-                if allow_hysteresis_gate
-                else f" ({_HYSTERESIS_GATE!r} is available to entry points that "
+                if allow_hysteresis_gate and cp_name == "cp1"
+                else f" ({_HYSTERESIS_GATE!r} is available to CP1 entry points that "
                 "pass allow_hysteresis_gate=True and read `searched`)"
             )
             errors.append(
-                f"cp1.gate.type={cp1.gate.type!r} but only {sorted(allowed_gates)} "
+                f"{cp_name}.gate.type={cp.gate.type!r} but only {sorted(allowed_gates)} "
                 f"are supported here{hint}. Other gates emit searched=False steps, "
                 "which a downstream analysis that assumes every step searched "
                 "would count as real verdicts."
@@ -142,6 +191,38 @@ def validate_groot_cache_config(
         raise ConfigValidationError(
             "GR00T cache config rejected:\n  - " + "\n  - ".join(errors)
         )
+
+
+def _cp2_schedule_errors(
+    config: CacheConfig, num_inference_timesteps: int | None
+) -> list[str]:
+    """The CP2 arm's loop identity, warm start or not: named, a GR00T loop, the live one."""
+    if config.denoise_schedule is None:
+        return [
+            "a CP2 recipe on GR00T must name denoise_schedule (groot_n15_k<N>_v1 with "
+            "N = the served head's num_inference_timesteps) for both N_hit tiers: the "
+            "library, the cost table and the MISS fallback all belong to one loop."
+        ]
+    try:
+        schedule = schedule_from_id(config.denoise_schedule)
+    except ValueError as exc:
+        return [f"denoise_schedule: {exc}"]
+    errors: list[str] = []
+    if schedule.direction != DIRECTION_ASC:
+        errors.append(
+            f"denoise_schedule={schedule.schedule_id!r} is not a GR00T loop; the CP2 "
+            "arm's teacher runs time upward from 0."
+        )
+    if num_inference_timesteps is not None:
+        live = groot_n15_schedule(num_inference_timesteps)
+        if live != schedule:
+            errors.append(
+                f"denoise_schedule={schedule.schedule_id!r} but the served action head "
+                f"runs {live.num_steps} steps ({live.schedule_id}); a CP2 library keyed "
+                "and priced under one loop cannot be served by another, even for "
+                "FULL_HIT-only arms whose MISS is that teacher."
+            )
+    return errors
 
 
 def live_num_inference_timesteps(policy: Any) -> int:
@@ -162,7 +243,11 @@ def _warm_start_schedule_errors(
         warm = required_warm_timesteps(config)
     except ConfigValidationError as exc:
         return [str(exc)]
-    cp1 = config.checkpoints.get("cp1")
+    # ``required_warm_timesteps`` already walks every enabled checkpoint; only
+    # the judge-shape probe below is local, and it reads the one checkpoint the
+    # GR00T split serves (cp1 or cp2) rather than a fixed name.
+    cp_name = _inspected_checkpoint(config)
+    cp1 = config.checkpoints.get(cp_name) if cp_name is not None else None
     warm_judge = cp1 is not None and (
         cp1.judge.type == "always_warm_start" or bool(cp1.judge.warm_tiers)
     )
@@ -245,10 +330,30 @@ def validate_artifact_identity(storage: Any, config: CacheConfig) -> None:
             "silently mean something different from the queries."
         )
 
-    if checkpoint_id != "CP1":
+    expected_cp = (single_enabled_checkpoint(config) or "cp1").upper()
+    if checkpoint_id != expected_cp:
         raise ConfigValidationError(
-            f"Artifact checkpoint_id={checkpoint_id!r}, expected 'CP1'."
+            f"Artifact checkpoint_id={checkpoint_id!r}, expected {expected_cp!r} "
+            "(the recipe's enabled checkpoint)."
         )
+    if expected_cp == "CP2":
+        # The generic schedule binding is skipped for FULL_HIT-only recipes
+        # (they never read intermediates); the CP2 arm binds the loop anyway
+        # because its MISS is the library's teacher (G2-B3).
+        recorded = meta.get("schedule_id")
+        if config.denoise_schedule is None or recorded != config.denoise_schedule:
+            raise ConfigValidationError(
+                f"CP2 artifact denoise schedule {recorded!r} does not match the recipe's "
+                f"{config.denoise_schedule!r}; the library's teacher loop and the served "
+                "loop must be one and the same for every N_hit tier."
+            )
+        steps = meta.get("denoising_num_steps")
+        want = schedule_from_id(config.denoise_schedule).num_steps
+        if steps is not None and int(steps) != want:
+            raise ConfigValidationError(
+                f"CP2 artifact entries carry denoising_num_steps={steps} but "
+                f"{config.denoise_schedule!r} has {want} steps."
+            )
 
     # Warm-start libraries must be stamped: a GR00T library that predates
     # schedules carries no snapshots at all, so serving it under a warm recipe

@@ -182,9 +182,17 @@ def _resolve_bundle(
     return config, bundle.shared_storage
 
 
+#: The CP2 (ActionCache-style) builder keys on the action head's encoded
+#: conditioning, which is camera-count agnostic, so it is serviceable on LIBERO
+#: alongside the two-camera CP1 builders.
+_CP2_LIBERO_BUILDER = "cp2_groot_ternary"
+
+
 def _check_libero_builder(builder_type: str, fail) -> None:
     """The three-camera RoboCasa builders reject every LIBERO observation."""
-    if not builder_type.startswith("cp1_groot_libero"):
+    if not (
+        builder_type.startswith("cp1_groot_libero") or builder_type == _CP2_LIBERO_BUILDER
+    ):
         fail(
             f"key_builder.type {builder_type!r} is not a LIBERO builder; the "
             "three-camera RoboCasa builders assert three image-token runs and "

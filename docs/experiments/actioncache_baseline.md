@@ -122,3 +122,73 @@ uv run python -m exp.actioncache_baseline.bench_cp2_overhead \
 ## 8. 产物落位
 
 `exp/actioncache_baseline/{config,data}/` gitignored（yaml、库、shadow 表、raw、overhead）；`analysis/` 入库（图、结果 .md）。库组成表（来源采集/init 池、轨迹数、entries、成功/失败轨迹、每 task 最少轨迹、horizon）每库必报。
+
+## 9. GR00T N1.5 × LIBERO（同库 W13-S3 组）
+
+> 设计与 owner 决策：[`logs/actioncache_baseline_groot_plan.log.md`](../../logs/actioncache_baseline_groot_plan.log.md)（v0.3，G1 APPROVED R2）。架构：`cache_system.md` §3 CP2 “CP2 on GR00T N1.5”。
+> 只跑**同库大小对比**（每 suite 一个 W13-S3 50 轨迹库，与 `exp/libero_groot` RIT 线同一份 pkl 逐条构造），**不跑 500 集库版本**；每组 = 2 档（N_hit=0 / N_hit=1）× (4 目标臂 + 1 参考臂 θ_raw=0.65) = 10 臂 × 500 集。
+
+### 9.1 与 pi0.5 线的差异（其余协议不变）
+
+| | pi0.5（§0–§8） | GR00T N1.5 |
+|---|---|---|
+| key 来源 | Stage 2 `prefix_out` 968×2048 | action head **编码后**的条件：`process_backbone_output`（vlln + vl_self_attention）[N,2048] + `state_encoder` [1536]（论文 §4.1 / Table 5） |
+| builder / 布局 | `cp2_vlm_ternary`，D = 1,982,464 | `cp2_groot_ternary`，`groot_encoded_v1`：token 轴零填充到 640 → D = 640·2048 + 1536 = 1,312,256；`projection` 元数据多一个 `layout` 块 |
+| 投影 | 同一实现（seed 20260904, d=500, p=0.01, float32 累加） | 同 |
+| N_hit=1 | WARM_START@0.1（10 步降序） | WARM_START@**0.875**（`groot_n15_k8_v1` 升序 8 步，剩 1 个 Euler 步） |
+| 参考阈值 | 0.85 | **0.65**（Table 5 GR00T 默认） |
+| 成本 | 解析表 CUDA-graph / eager，E=0 | 实测表 `exp/libero_groot/config/rit/cost_groot_libero_measured.json`（P=13.338, L=28.104, M=41.442）+ 每 suite 实测编码单价 **E>0**：FULL = P+E，WARM = P+E+L/8，MISS = M+E；分母 M；全 MISS 臂 IR > 100 % |
+| 库构造 | H5 有原始图像 → 在线 Stage 1 | W13 H5 **无原始图像** → 零图模板重建（`stage1_path = groot_reconstructed_template`），逐步断言 `prompt_emb` / `robot_state` 回读一致 |
+| 切点 | GST K=1 阶梯 + 档预算 | 首选 {45,60,75,90}；任一不可达（含 E 抬高的 N_hit=1 地板）则**整档** fallback：候选 IR 两端 + 最接近 1/3、2/3 处（并列取高阈值），`t01`–`t04`，`target_ir` = 该切点预测 IR；不足 4 个不同候选即失败 |
+| 发臂前置门 | 无 | E 记录（CUDA-Graph certified）+ 决策开销 preflight（warm total P95 ≤10 报告 / 10–40 记提示 / >40 停发臂）缺一不可 |
+| shadow cohort | `exp/rit_pareto` 150 集 H5 | RIT 线同一 150 集 init 池，**本机 5 个非并发 collector + 串行 client** 采集 H5，`verify_shadow_h5` 用 client 终态证据验收 |
+| 执行环境 | 主 venv（jax） | GR00T 岛 venv（torch，无 jax）：`exp/libero_groot/*_groot.py` 与 `cp2_reconstruct.py` 在 `tests/cache/groot/test_import_isolation.py` 的（含传递）清单里 |
+| schedule 守卫 | — | `load_guard`：cp2 配方两档都必须写 `denoise_schedule = groot_n15_k8_v1` 并与 live head 一致（n0 的 MISS 仍是 k=8 teacher），库的 `schedule_id` / `denoising_num_steps` 也在 `validate_artifact_identity` 里绑定 |
+
+### 9.2 步骤（岛上，`PYTHONPATH=<gr00t>:<gr00t>/examples/Libero:<repo>/src:<repo>`，`HF_HUB_OFFLINE=1`）
+
+1. **parity 门（全库建库前置）**：
+   ```bash
+   <libero client python> -m exp.libero_groot.emit_task_map --suite <suite> --out <acc>/task_map.json
+   python -m exp.libero_groot.groot_cp2_parity --suite <suite> --checkpoint <ckpt> --task-map <acc>/task_map.json \
+       --h5-root /archive/libero_cache/build_<spatial|libero10>_w13/<suite> --samples 20 --out <parity.json>
+   ```
+   四项均 fail-closed：合成观测两路（在线 vs 采集切片 fp16 往返重建）序列/状态位同、key 余弦 ≥0.999；状态负例；20 个真实库步的文本/状态断言与 head 编码器直接比对；helper 纯度（stage 2 / action_inputs / RNG 不变）与 MISS、WARM@0.875 路径等价。
+2. **建库 + 验证**：
+   ```bash
+   python -m exp.libero_groot.build_cp2_artifact_groot --source-pkl /data/libero_cache/libraries_w13/<suite>/<suite>_w13_S3.pkl \
+       --h5-root <w13 h5 root> --out-pkl /data/libero_cache/libraries_w13_cp2/<suite>/<suite>_w13_S3_cp2.pkl \
+       --checkpoint <ckpt> --seed 20260904
+   uv run python -m exp.actioncache_baseline.verify_cp2_artifact --teacher groot_libero --cp2-pkl <out> --source-pkl <src>
+   ```
+   verifier 额外核对顶层/源/payload 的 `schedule_id == groot_n15_k8_v1`、`denoising_num_steps == 8`、`teacher`、`stage1_path`、chunk (16,32)、0.875 快照全覆盖。
+3. **cohort H5 采集与验收**（weilandserver 本机，每 suite 顺序）：
+   ```bash
+   # 复用步骤 1 的 task_map.json：task_id -> (task.name, task.language)，来自 benchmark 本身
+   python -m exp.libero_groot.verify_shadow_h5 --suite <suite> --shadow-manifest <manifest> --task-map <acc>/task_map.json \
+       --attempts-root <root>/<suite> --out-dir <acc> --emit-full-filter                                     # 先写 filter_task_<t>.json
+   bash exp/libero_groot/ops/launch_acb_collectors.sh <suite> <ckpt> <repo> <gr00t> <python> 0          # 5 个非并发 collector，8030+i
+   bash exp/libero_groot/ops/run_acb_collect_clients.sh <suite> <repo> <python> 0 <acc>                  # client i 串行跑 task i、i+5
+   python -m exp.libero_groot.verify_shadow_h5 --suite <suite> --shadow-manifest <manifest> --task-map <acc>/task_map.json \
+       --attempts-root <root>/<suite> --out-dir <acc>
+   ```
+   身份：一个 LIBERO task 有两个名字——manifest 的 `task_name` 是 `task.name`（定位 `.init` 池文件的下划线名），H5 的 `task` attr 是 `task.language`（client 在 `episode_start` 发送、模型实际条件的自然语言指令）。两者只通过 `task_id` 与 task map 绑定，**不从一个推导另一个**；验收记录同时保留 `task_name` 与 `task_language`，下游（shadow 表 / bench / parity）一律用指令建模板。
+   验收规则：H5 必须带 client 经 `episode_start` 打上的 `task_id` / `orig_init_state_idx` attrs 且与 client 行、manifest 一致，`episode_id == task_id*15+subset`；step 组恰为 `step_0000..step_{n-1}`；成功集 `termination_reason=success` 且 steps 不超过 `max_steps + 10`；失败集只接受 `step_cap` 且 `client_timing.steps == max_steps + 10`（230 / 530）；H5 `num_steps == step 组数 == infers == ceil((steps-10)/5)`；schedule 正确、数据集齐备。同一 attempt 里同一集出现两条 client 行或两个 H5 ⇒ 该 attempt 对该集无效（不取先/后者）；跨 attempt 两个合法终态报重复；同一 task 的指令串必须唯一。未通过时 `<acc>/retry/filter_task_<t>.json` 只含缺失集，用新的 attempt 编号串行补跑（`attempt_<a>` 目录不复用、不覆盖）。`accepted_shadow_manifest.json` 的 `ok:true` + `task_map_bound:true` 是后续所有步骤的准入。
+4. **shadow 表**：`python -m exp.libero_groot.build_shadow_table_groot --suite <suite> --accepted-manifest <acc>/accepted_shadow_manifest.json --library-pkl <cp2 pkl> --checkpoint <ckpt> --out-jsonl <shadow.jsonl>`（前 50 步真 backend 复核；检索在 session 外做，与在线 check 同口径）。
+5. **E 与 preflight**（独占 4090）：
+   ```bash
+   bash exp/libero_groot/ops/run_cp2_encoder_cost.sh <suite> <ckpt> <repo>       # nsys 三步：measure → trace → certify → config/actioncache/cost_groot_cp2_encoded_<suite>.json
+   bash exp/libero_groot/ops/run_cp2_overhead.sh <suite> <ckpt> <cp2 pkl> <acc>/accepted_shadow_manifest.json <repo>   # data/actioncache/overhead_<suite>/overhead.json
+   ```
+   E 记录与 teacher 表按内容绑定（`libs.groot_cost_record`）：两 suite 共用冻结 teacher 表并分别测 E；摘要的 `teacher_ckpt_sha256` 保留该表的标定 checkpoint，`ckpt_sha256` 保留本 suite 的 E checkpoint，两者允许不同。E 与 teacher 表使用同一 GPU（`gpu_uuid` / 名称）、冻结采样 N=566 / 30 warmup / 200 iters / `reduce-overhead`（两侧都核对）、`certified` 且 `valid`、`cudaGraphLaunch == expected > 0`、有限 `E > 0`、完整 `weights_digest`。measure 阶段若 GPU 与表不符或 live schedule 非 teacher8 则失败，E 的模型 digest 必须与本 suite 库一致；非冻结采样只能作调试（记录 `debug_sampling`），`certify-encoder` 拒绝认证；ops 脚本每次重测并归档旧记录，不凭 `certified:true` 跳过，measure / trace export / certify 任一步失败均返回非零退出码。
+6. **出臂**（主 venv）：
+   ```bash
+   uv run python -m exp.actioncache_baseline.export_arms --teacher groot_libero --suite <suite> --lib-tag w13s3 \
+       --shadow-table <shadow.jsonl> --library-pkl <cp2 pkl> --deploy-library-path <server path> \
+       --cost-record exp/libero_groot/config/rit/cost_groot_libero_measured.json \
+       --encoder-cost-record exp/libero_groot/config/actioncache/cost_groot_cp2_encoded_<suite>.json \
+       --preflight-record exp/libero_groot/data/actioncache/overhead_<suite>/overhead.json --out-dir <out>
+   ```
+   两档必须恰为各一次 `n0,n1`，首选和 fallback 都用固定 `t01`–`t04` 标识以防小数 IR 取整重名；参考阈值固定 0.65，`max_gap` 至多 1 IR 点。全部目标规划完成后才写文件，恰 10 个唯一臂（`acb_<sp|l10>_w13s3_<n0|n1>_<t01..t04|ref650>`），`export_record.json` 记 `cost`（含 E、三档单价与模型/硬件/采样 provenance）、`selection`（首选/fallback 与弃用原因）、`shadow_binding`、`preflight`。写任何臂文件之前的门：shadow 表必须带完整 sidecar（同 teacher/suite/库 sha/projection/schedule/模型，`cohort_episodes == cohort_expected == 150`、`complete` 且非 `limited`，`n_rows` 与 `out_jsonl_sha256` 与正在读的表一致——`--limit-episodes` 的调试表不能发臂）；JSONL 实际覆盖 10 task × 15 subset，原始 init 不重复、每集决策连续且唯一、指令/episode/success 身份一致、cosine 有限，cohort/task-map 摘要是完整 sha256；E 记录的模型 digest == 库的；preflight 记录绑定同 suite/库/accepted cohort/projection/模型，且由 warm total P95 **重算**裁决（有限且非负、`warm.count == n_decisions − 50 > 0`、各核心段样本数 == 决策数且 median/P95 均有限非负），标签不一致或 >40 ms 即拒绝。
+7. **评测**：server `launch_eval_servers.sh`（5 进程/lane，`--allow-dynamic-bundles`）；client 在 sim box 上 `bash exp/libero_groot/ops/run_acb_eval_group.sh <suite> <arm_matrix.yaml> <servers> <workers> <gpus> <run dir>`（`--checkpoint cp2 --judge-type threshold --eval-gate always_search --warm-tiers 0.875`）。先 smoke n0+n1 各 10 集。
+8. **聚合**：`aggregate.py` 读 export record 的 `teacher`/`cost` 自动按 GR00T 单价计价（只报 `measured` 档），并核对 record 与成本摘要的 `suite` 等于臂 id 推出的 suite（E 按 suite 标定，显式 `--suite` 也不得覆盖臂身份）；同时复核 E 的模型/layout 与库一致、摘要 provenance 的值合法，并重算分母与三档单价以拒绝被改写的价格；档纯度门要求 n1 的 WARM 行全在 0.875，不可恢复的时刻直接拒绝。跨线对照 `compare_to_reference --ref-record <rit arm_record.json>` 要求参考侧 protocol / suite / k=8 与臂集合一致，参考 ledger 用本线实测表按 CP1 路径（无 E）重新计价，RIT 记录里的 interim 成本只记录不使用；**本轮不执行**。

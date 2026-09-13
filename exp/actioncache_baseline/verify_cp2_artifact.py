@@ -11,12 +11,17 @@ Checks, each of which aborts the verification on first violation:
        outcome / prev_ids / next_ids identical
   (c)  every prev/next edge points inside the artifact
   (d)  ``vlm_out`` keys are finite float32 vectors of length ``d``
-  (e)  ``action_chunk`` shapes agree with the source consensus and every entry
-       carries the ``start_t=0.1`` intermediate (N_hit=1 tier)
+  (e)  every ``action_chunk`` is exactly the teacher's shape and every entry
+       carries the N_hit=1 intermediate (Pi0.5 ``start_t=0.1`` / GR00T
+       ``0.875``) under the teacher's step count
   (f)  ``vector_dims == {"vlm_out": d}``
   (g)  binding metadata present (projection, id_policy, source sha, H5
-       manifest, model, tokenizer) and the projection digest re-derives from
-       the recorded (seed, d, p, D)
+       manifest, model with a full-content weights digest, tokenizer) and the
+       projection metadata equals what the teacher's builder emits for the
+       recorded params (incl. the GR00T layout); the artifact's top-level
+       ``schedule_id`` equals the source's, the profile's and every payload's
+
+``--teacher`` selects the profile (``pi05`` default / ``groot_libero``).
 
 Usage:
   uv run python -m exp.actioncache_baseline.verify_cp2_artifact \\
@@ -36,7 +41,6 @@ import torch
 from exp.actioncache_baseline import libs
 from openpi.cache.backends.in_memory_backend import InMemoryBackend
 from openpi.cache.cache_storage import CacheStorage
-from openpi.cache.components.cp2_vlm_key_builder import get_projection_spec
 from openpi.cache.storage_types import QuerySpec
 from openpi.cache.types import CheckpointID
 
@@ -62,7 +66,8 @@ def _payload_equal(a, b) -> bool:
     for t in ia:
         if not np.array_equal(_as_np(ia[t]), _as_np(ib[t])):
             return False
-    return a.denoising_num_steps == b.denoising_num_steps and a.task_key == b.task_key
+    return (a.denoising_num_steps == b.denoising_num_steps and a.task_key == b.task_key
+            and getattr(a, "schedule_id", None) == getattr(b, "schedule_id", None))
 
 
 def cp2_query_spec(key: torch.Tensor, top_k: int = 1) -> QuerySpec:
@@ -79,7 +84,17 @@ def cp2_query_spec(key: torch.Tensor, top_k: int = 1) -> QuerySpec:
     )
 
 
-def verify(cp2_path: str, source_path: str, *, search_samples: int = 20, seed: int = 0) -> dict:
+def verify(cp2_path: str, source_path: str, *, search_samples: int = 20, seed: int = 0,
+           teacher: str = libs.PI05.name) -> dict:
+    """Fail-closed check that ``cp2_path`` is a faithful CP2 copy of ``source_path`` for ``teacher``.
+
+    Entry ids / payloads / chain edges must match one to one; the artifact's
+    projection, id policy, stage-1 path, model digest and (for GR00T) schedule
+    stamps must be the profile's; every key is a finite float32 ``[d]``; a
+    sample of self-queries round-trips through the real backend. Returns a
+    small report or raises ``VerificationError``.
+    """
+    prof = libs.profile(teacher)
     art = libs.load_pickle(cp2_path)
     src = libs.load_pickle(source_path)
     entries = list(art["entries"])
@@ -100,14 +115,17 @@ def verify(cp2_path: str, source_path: str, *, search_samples: int = 20, seed: i
     d = int(art["vector_dims"].get(libs.FIELD, -1)) if isinstance(art.get("vector_dims"), dict) else -1
     if art.get("vector_dims") != {libs.FIELD: d} or d < 1:
         raise VerificationError(f"(f) vector_dims must be {{'{libs.FIELD}': d}}, got {art.get('vector_dims')}")
-    if art.get("key_builder_type") != libs.KEY_BUILDER_TYPE:
-        raise VerificationError(f"(g) key_builder_type {art.get('key_builder_type')!r}")
+    if art.get("key_builder_type") != prof.builder:
+        raise VerificationError(f"(g) key_builder_type {art.get('key_builder_type')!r} != {prof.builder!r}")
     if art.get("id_policy") != libs.ID_POLICY:
         raise VerificationError(f"(g) id_policy {art.get('id_policy')!r}")
     proj = art.get("projection")
     if not isinstance(proj, dict):
         raise VerificationError("(g) projection metadata missing")
-    expected = get_projection_spec(proj["seed"], proj["d"], proj["p"], proj["D"]).meta()
+    try:
+        expected = libs.ProjectionArgs.from_projection_meta(proj).expected_projection_meta(prof)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise VerificationError(f"(g) projection metadata is not {prof.name}-shaped: {exc}") from exc
     if expected != proj:
         raise VerificationError(f"(g) projection metadata does not re-derive: {proj} != {expected}")
     if proj["d"] != d:
@@ -115,8 +133,23 @@ def verify(cp2_path: str, source_path: str, *, search_samples: int = 20, seed: i
     for field in ("source_pkl_sha256", "h5_manifest", "model", "tokenizer", "build_git_commit"):
         if not art.get(field):
             raise VerificationError(f"(g) metadata field {field!r} missing")
-    if art.get("stage1_path") not in ("offline", "online"):
-        raise VerificationError(f"(g) stage1_path must be 'online' or 'offline', got {art.get('stage1_path')!r}")
+    if art.get("stage1_path") not in prof.stage1_paths:
+        raise VerificationError(
+            f"(g) stage1_path must be one of {prof.stage1_paths}, got {art.get('stage1_path')!r}")
+    # Schedule identity (plan §3.6 R1-B5): the backend reads the top-level
+    # ``schedule_id`` and back-fills ``pi05_v1`` when it is absent, which then
+    # collides with GR00T payloads at load time.
+    if prof.denoise_schedule is not None:
+        if art.get("schedule_id") != prof.denoise_schedule:
+            raise VerificationError(
+                f"(g) top-level schedule_id {art.get('schedule_id')!r} != {prof.denoise_schedule!r}")
+        if src.get("schedule_id") != prof.denoise_schedule:
+            raise VerificationError(
+                f"(g) source schedule_id {src.get('schedule_id')!r} != {prof.denoise_schedule!r}")
+        if art.get("teacher") != prof.name:
+            raise VerificationError(f"(g) teacher {art.get('teacher')!r} != {prof.name!r}")
+    elif art.get("schedule_id") not in (None, "pi05_v1"):
+        raise VerificationError(f"(g) a Pi0.5 artifact must not be stamped {art.get('schedule_id')!r}")
     wd = art["model"].get("weights_digest") if isinstance(art["model"], dict) else None
     if not (isinstance(wd, str) and len(wd) == 64 and all(c in "0123456789abcdef" for c in wd)):
         raise VerificationError(f"(g) model.weights_digest must be a full-content sha256, got {wd!r}")
@@ -148,18 +181,30 @@ def verify(cp2_path: str, source_path: str, *, search_samples: int = 20, seed: i
         if k.dtype != np.float32 or k.shape != (d,) or not np.all(np.isfinite(k)):
             raise VerificationError(f"(d) key of {e.id}: dtype={k.dtype} shape={k.shape} finite={np.all(np.isfinite(k))}")
         shape = tuple(_as_np(e.payload.action_chunk).shape)
-        if shape != libs.ACTION_CHUNK_SHAPE:
+        if shape != prof.action_chunk_shape:
             raise VerificationError(
-                f"(e) action_chunk of {e.id} has shape {shape}, expected {libs.ACTION_CHUNK_SHAPE}"
+                f"(e) action_chunk of {e.id} has shape {shape}, expected {prof.action_chunk_shape}"
             )
         shapes[shape] = shapes.get(shape, 0) + 1
         inter = e.payload.intermediates or {}
-        if any(math.isclose(float(t), libs.WARM_START_T, abs_tol=1e-6) for t in inter):
+        if any(math.isclose(float(t), prof.warm_start_t, abs_tol=1e-6) for t in inter):
             n_with_ws += 1
+        if prof.denoise_schedule is not None:
+            if getattr(e.payload, "schedule_id", None) != prof.denoise_schedule:
+                raise VerificationError(
+                    f"(e) payload of {e.id} is stamped {getattr(e.payload, 'schedule_id', None)!r}, "
+                    f"expected {prof.denoise_schedule!r}")
+            from openpi.cache.types import schedule_from_id
+
+            n_steps = schedule_from_id(prof.denoise_schedule).num_steps
+            if e.payload.denoising_num_steps != n_steps:
+                raise VerificationError(
+                    f"(e) payload of {e.id} has denoising_num_steps={e.payload.denoising_num_steps}, "
+                    f"expected {n_steps}")
     if len(shapes) != 1:
         raise VerificationError(f"(e) heterogeneous action_chunk shapes {shapes}")
     if n_with_ws != len(entries):
-        raise VerificationError(f"(e) only {n_with_ws}/{len(entries)} entries carry the start_t={libs.WARM_START_T} intermediate")
+        raise VerificationError(f"(e) only {n_with_ws}/{len(entries)} entries carry the start_t={prof.warm_start_t} intermediate")
 
     # (a'') real backend round trip
     backend = InMemoryBackend(vector_dims={libs.FIELD: d})
@@ -189,9 +234,10 @@ def main() -> None:
     ap.add_argument("--cp2-pkl", required=True)
     ap.add_argument("--source-pkl", required=True)
     ap.add_argument("--search-samples", type=int, default=20)
+    ap.add_argument("--teacher", default=libs.PI05.name, choices=sorted(libs.PROFILES))
     ap.add_argument("--out", default="", help="optional JSON report path")
     args = ap.parse_args()
-    rec = verify(args.cp2_pkl, args.source_pkl, search_samples=args.search_samples)
+    rec = verify(args.cp2_pkl, args.source_pkl, search_samples=args.search_samples, teacher=args.teacher)
     if args.out:
         libs.dump_json(args.out, rec)
     print(json.dumps(rec))

@@ -72,6 +72,20 @@ uv run scripts/serve_policy.py --env LIBERO
 
 > 旧的 `--num-workers N` 单进程多线程方式仅适合单机小规模；它无法跨卡（单进程钉一个 `CUDA_VISIBLE_DEVICES`）且单卡 ≤15 worker。跨卡/跨机一律用 conductor。
 
+## `--save-episode-results` 记录格式
+
+`--save-episode-results [--episode-results-path <json>]` 在 serial 与 concurrent 两条路径下写出同一 schema（每集一行）：
+
+| 字段 | 含义 |
+|---|---|
+| `task_id` / `init_state_idx` / `orig_init_state_idx` / `episode_id` / `seed` / `success` | 原有身份与成功位（`init_state_idx` 是循环内的 subset 位置，`orig_init_state_idx` 来自 `--episode-filter` 映射） |
+| `task_suite_name` | 运行的 suite |
+| `termination_reason` | `_run_episode` 实际退出分支：`success`（env 报 done）/ `step_cap`（步数上限 `max_steps + num_steps_wait` 用尽）/ `exception`（一般异常 break）；`RuntimeError` 仍向上抛出，不形成记录 |
+| `client_timing.steps` / `client_timing.infers` | 该集 env.step 次数（**含等待段**）与 `client.infer` 次数 |
+| `max_steps` / `num_steps_wait` / `replan_steps` | suite 的步数上限与本次运行参数 |
+
+后三组是 additive 的终态证据，供离线验收（如 `exp/libero_groot/verify_shadow_h5.py`）把 client 终态与采集侧 HDF5 绑定：HDF5 的步数只能证明内部一致，"正常到达上限的失败"与"截断"只有 client 侧能区分。
+
 ## Results
 
 If you want to reproduce the following numbers, you can evaluate the checkpoint at `gs://openpi-assets/checkpoints/pi05_libero/`. This

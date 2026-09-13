@@ -18,8 +18,11 @@ from openpi.cache.types import CheckpointID, groot_n15_schedule
 from .conftest import ACTION_DIM, ACTION_HORIZON, StubGrootModel
 
 # The Pi0.5 interceptor's wire schema, which this one must reproduce exactly so
-# a single analysis path reads both.
+# a single analysis path reads both. ``checkpoint`` / ``score`` are the two
+# additive fields the ActionCache-baseline line added to that wire (CP2 arms);
+# ``library_sha256`` rides along on CP2 responses only.
 LEGACY_META_KEYS = {"hit_type", "start_t", "winner_id", "cp1_score", "searched"}
+WIRE_META_KEYS = LEGACY_META_KEYS | {"checkpoint", "score"}
 
 
 class _StubPolicy:
@@ -255,9 +258,13 @@ def test_hit_meta_field_set_is_exactly_the_legacy_one():
     payload = CachePayload(action_chunk=torch.ones(ACTION_HORIZON, ACTION_DIM))
     _, _, interceptor = _build(HitType.FULL_HIT, payload)
     out = interceptor.get_action(_obs())
-    assert set(out["__hit_meta__"]) == LEGACY_META_KEYS
+    assert set(out["__hit_meta__"]) == WIRE_META_KEYS
     assert out["__hit_meta__"]["hit_type"] == "FULL_HIT"
     assert out["__hit_meta__"]["start_t"] is None
+    # CP1 path: the legacy field keeps its meaning and the additive ones mirror Pi0.5.
+    assert out["__hit_meta__"]["checkpoint"] == "CP1"
+    assert out["__hit_meta__"]["score"] == out["__hit_meta__"]["cp1_score"] == 0.5
+    assert "library_sha256" not in out["__hit_meta__"]
 
 
 def test_cache_off_reports_a_miss_placeholder():

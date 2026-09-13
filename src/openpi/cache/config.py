@@ -574,6 +574,24 @@ class CP2VlmKeyBuilderConfig:
 
 
 @dataclass
+class CP2GrootKeyBuilderConfig:
+    """Params of the GR00T CP2 single-key builder (key_builder.type == 'cp2_groot_ternary').
+
+    Same projection as ``CP2VlmKeyBuilderConfig`` (seed / d / p); the input is
+    the action head's *encoded* VLM tokens zero-padded to ``token_len`` and
+    flattened, followed by the encoded robot state: ``input_dim = token_len *
+    feature_dim + state_feat_dim`` (GR00T N1.5 LIBERO: 640*2048 + 1536).
+    """
+
+    seed: int = 0
+    d: int = 500
+    p: float = 0.01
+    token_len: int = 640
+    feature_dim: int = 2048
+    state_feat_dim: int = 1536
+
+
+@dataclass
 class KeyBuilderConfig:
     type: str = "placeholder"
     # -- temporal prune params (only for cp1_temporal_prune) --
@@ -589,6 +607,8 @@ class KeyBuilderConfig:
     )
     # -- CP2 post-backbone single key (only for key_builder.type == 'cp2_vlm_ternary') --
     cp2_vlm: CP2VlmKeyBuilderConfig = field(default_factory=CP2VlmKeyBuilderConfig)
+    # -- CP2 GR00T encoded key (only for key_builder.type == 'cp2_groot_ternary') --
+    cp2_groot: CP2GrootKeyBuilderConfig = field(default_factory=CP2GrootKeyBuilderConfig)
     # -- instruction-span masked prompt pooling (text-IVF plan U1) --
     # Only honoured by builders in PROMPT_POOL_KNOB_BUILDERS (validated);
     # both default False => byte-identical legacy behaviour.
@@ -756,8 +776,12 @@ _PLACEHOLDER_SUPPORTED_FIELDS = frozenset({"robot_state"})
 # Valid checkpoint names (lowercase).
 _VALID_CHECKPOINTS = frozenset({"cp1", "cp2", "cp3"})
 
-# key_builder.type of the CP2 post-backbone single-key arm.
+# key_builder.type of the CP2 post-backbone single-key arm (Pi0.5) ...
 _CP2_KEY_BUILDER_TYPE = "cp2_vlm_ternary"
+# ... and of its GR00T N1.5 sibling (encoded VLM + encoded state). Every CP2
+# rule keys off the set; the two differ only in parameter block and layout.
+_CP2_GROOT_KEY_BUILDER_TYPE = "cp2_groot_ternary"
+_CP2_KEY_BUILDER_TYPES = frozenset({_CP2_KEY_BUILDER_TYPE, _CP2_GROOT_KEY_BUILDER_TYPE})
 
 # Valid step_filter values.
 _VALID_STEP_FILTERS = frozenset({"all", "exact", "window"})
@@ -887,6 +911,7 @@ _CONFIG_TYPES: dict[str, type] = {
     "PrefixReducerConfig": PrefixReducerConfig,
     "ProjectionKeyBuilderConfig": ProjectionKeyBuilderConfig,
     "CP2VlmKeyBuilderConfig": CP2VlmKeyBuilderConfig,
+    "CP2GrootKeyBuilderConfig": CP2GrootKeyBuilderConfig,
     "KeyBuilderConfig": KeyBuilderConfig,
     "WritePolicyConfig": WritePolicyConfig,
     "CollectionConfig": CollectionConfig,
@@ -1774,17 +1799,18 @@ def _validate_cp2_arm(
     CP2 code path and is rejected here rather than degrading silently.
     """
     cp2 = config.checkpoints.get("cp2")
-    is_cp2_kb = config.key_builder.type == _CP2_KEY_BUILDER_TYPE
+    kb_type = config.key_builder.type
+    is_cp2_kb = kb_type in _CP2_KEY_BUILDER_TYPES
     if (cp2 is not None) != is_cp2_kb:
         errors.append(
-            "checkpoints.cp2 and key_builder.type='cp2_vlm_ternary' must be configured "
-            f"together (cp2 present={cp2 is not None}, builder={config.key_builder.type!r})"
+            f"checkpoints.cp2 and a CP2 key builder ({sorted(_CP2_KEY_BUILDER_TYPES)}) must be "
+            f"configured together (cp2 present={cp2 is not None}, builder={kb_type!r})"
         )
         return
     if cp2 is None:
         if "vlm_out" in enabled_fields:
             errors.append(
-                "keys.vlm_out is only produced by key_builder.type='cp2_vlm_ternary'"
+                f"keys.vlm_out is only produced by a CP2 key builder ({sorted(_CP2_KEY_BUILDER_TYPES)})"
             )
         return
     prefix = "checkpoints.cp2"
@@ -1799,30 +1825,35 @@ def _validate_cp2_arm(
         errors.append(f"{prefix}.enabled must be true")
     if enabled_fields != ["vlm_out"]:
         errors.append(
-            f"key_builder.type='cp2_vlm_ternary' produces exactly keys.vlm_out; "
+            f"key_builder.type={kb_type!r} produces exactly keys.vlm_out; "
             f"enabled keys are {enabled_fields}"
         )
-    kb = config.key_builder.cp2_vlm
+    if kb_type == _CP2_KEY_BUILDER_TYPE:
+        kb = config.key_builder.cp2_vlm
+        block = "cp2_vlm"
+        int_fields = (("input_dim", 2),)
+    else:
+        kb = config.key_builder.cp2_groot
+        block = "cp2_groot"
+        int_fields = (("token_len", 1), ("feature_dim", 1), ("state_feat_dim", 0))
     if not isinstance(kb.seed, int) or isinstance(kb.seed, bool) or kb.seed < 0:
         errors.append(
-            f"key_builder.cp2_vlm.seed must be a non-negative int, got {kb.seed!r}"
+            f"key_builder.{block}.seed must be a non-negative int, got {kb.seed!r}"
         )
     if not isinstance(kb.d, int) or isinstance(kb.d, bool) or kb.d < 1:
-        errors.append(f"key_builder.cp2_vlm.d must be an int >= 1, got {kb.d!r}")
+        errors.append(f"key_builder.{block}.d must be an int >= 1, got {kb.d!r}")
     if (
         not isinstance(kb.p, (int, float))
         or isinstance(kb.p, bool)
         or not (0.0 < kb.p < 1.0)
     ):
-        errors.append(f"key_builder.cp2_vlm.p must be in (0, 1), got {kb.p!r}")
-    if (
-        not isinstance(kb.input_dim, int)
-        or isinstance(kb.input_dim, bool)
-        or kb.input_dim < 2
-    ):
-        errors.append(
-            f"key_builder.cp2_vlm.input_dim must be an int >= 2, got {kb.input_dim!r}"
-        )
+        errors.append(f"key_builder.{block}.p must be in (0, 1), got {kb.p!r}")
+    for name, lo in int_fields:
+        value = getattr(kb, name)
+        if not isinstance(value, int) or isinstance(value, bool) or value < lo:
+            errors.append(
+                f"key_builder.{block}.{name} must be an int >= {lo}, got {value!r}"
+            )
     if config.backend.type != "in_memory":
         errors.append(
             f"{prefix}: requires backend.type='in_memory', got {config.backend.type!r}"
@@ -1949,6 +1980,7 @@ def validate_cache_config(config: CacheConfig) -> None:
             "clip",
             "projection",  # M1 outcome-compatible projection over a pool inner
             _CP2_KEY_BUILDER_TYPE,  # CP2 post-backbone single key (ActionCache-style arm)
+            _CP2_GROOT_KEY_BUILDER_TYPE,  # its GR00T N1.5 sibling (encoded VLM + state)
             # GR00T N1.5 pools. The `cp1_` prefix is load-bearing: the field
             # enablement and in_memory-preload checks below key off it.
             "cp1_groot_mean_pool",
@@ -3477,6 +3509,39 @@ def _check_pin_identity_binding(storage, config: CacheConfig) -> None:
         )
 
 
+def cp2_expected_projection_meta(config: CacheConfig) -> dict:
+    """The projection metadata the configured CP2 builder will emit.
+
+    The single source for the online binding (``_check_cp2_projection_binding``)
+    and the offline verifier: it instantiates the very builder the factory
+    would and returns its ``projection_meta()``, so the two can never compare
+    against different dictionaries.
+    """
+    kb_type = config.key_builder.type
+    if kb_type == _CP2_KEY_BUILDER_TYPE:
+        from openpi.cache.components.cp2_vlm_key_builder import CP2VlmTernaryKeyBuilder
+
+        kb = config.key_builder.cp2_vlm
+        return CP2VlmTernaryKeyBuilder(
+            seed=kb.seed, d=kb.d, p=kb.p, input_dim=kb.input_dim
+        ).projection_meta()
+    if kb_type == _CP2_GROOT_KEY_BUILDER_TYPE:
+        from openpi.cache.groot.cp2_key_builder import GrootCP2TernaryKeyBuilder
+
+        kb = config.key_builder.cp2_groot
+        return GrootCP2TernaryKeyBuilder(
+            seed=kb.seed,
+            d=kb.d,
+            p=kb.p,
+            token_len=kb.token_len,
+            feature_dim=kb.feature_dim,
+            state_feat_dim=kb.state_feat_dim,
+        ).projection_meta()
+    raise ConfigValidationError(
+        f"key_builder.type={kb_type!r} is not a CP2 key builder ({sorted(_CP2_KEY_BUILDER_TYPES)})"
+    )
+
+
 def _check_cp2_projection_binding(storage, config: CacheConfig) -> None:
     """Fail-fast when a CP2 library was built with a different projection than configured.
 
@@ -3489,31 +3554,38 @@ def _check_cp2_projection_binding(storage, config: CacheConfig) -> None:
     verifier enforces. Runs at the single storage choke point so both the
     single-connection and the concurrent assembly entries are covered.
     """
-    if config.key_builder.type != _CP2_KEY_BUILDER_TYPE:
+    kb_type = config.key_builder.type
+    if kb_type not in _CP2_KEY_BUILDER_TYPES:
         return
     if config.backend.type != "in_memory" or not config.backend.in_memory.preload_path:
         return
-    from openpi.cache.components.cp2_vlm_key_builder import get_projection_spec
 
     meta = storage.artifact_meta
     if not meta:
         raise ConfigValidationError(
-            "cp2_vlm_ternary requires a preloaded artifact with identity metadata, "
+            f"{kb_type} requires a preloaded artifact with identity metadata, "
             "but the backend exposes none."
         )
     art_type = meta.get("key_builder_type")
-    if art_type != _CP2_KEY_BUILDER_TYPE:
+    if art_type != kb_type:
         raise ConfigValidationError(
             f"Artifact key_builder_type {art_type!r} does not match configured "
-            f"key_builder.type {_CP2_KEY_BUILDER_TYPE!r}. Build the library with "
-            "exp/actioncache_baseline/build_cp2_artifact.py."
+            f"key_builder.type {kb_type!r}. Build the library with the matching "
+            "CP2 artifact builder (exp/actioncache_baseline or exp/libero_groot)."
         )
-    kb = config.key_builder.cp2_vlm
-    expected = get_projection_spec(kb.seed, kb.d, kb.p, kb.input_dim).meta()
+    expected = cp2_expected_projection_meta(config)
     got = meta.get("projection")
     if not isinstance(got, dict):
         raise ConfigValidationError(
             "CP2 artifact lacks `projection` metadata; rebuild it with the CP2 builder."
+        )
+    # Full-dict equality both ways: a key the builder emits but the artifact
+    # lacks (e.g. the GR00T ``layout``) and a key the artifact carries but the
+    # builder does not are both a different projection space.
+    if set(got) != set(expected):
+        raise ConfigValidationError(
+            f"CP2 artifact projection metadata keys {sorted(got)} differ from the "
+            f"configured builder's {sorted(expected)} — rebuild one side."
         )
     for name, value in expected.items():
         if got.get(name) != value:
@@ -4014,6 +4086,17 @@ def _build_key_builder(
             d=cfg.cp2_vlm.d,
             p=cfg.cp2_vlm.p,
             input_dim=cfg.cp2_vlm.input_dim,
+        )
+    elif cfg.type == _CP2_GROOT_KEY_BUILDER_TYPE:
+        from openpi.cache.groot.cp2_key_builder import GrootCP2TernaryKeyBuilder
+
+        return GrootCP2TernaryKeyBuilder(
+            seed=cfg.cp2_groot.seed,
+            d=cfg.cp2_groot.d,
+            p=cfg.cp2_groot.p,
+            token_len=cfg.cp2_groot.token_len,
+            feature_dim=cfg.cp2_groot.feature_dim,
+            state_feat_dim=cfg.cp2_groot.state_feat_dim,
         )
     elif cfg.type == "projection":
         from openpi.cache.components.projection_key_builder import (
