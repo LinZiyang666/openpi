@@ -283,6 +283,103 @@ def _build_shadow_factory(
     )
 
 
+def _build_loto_factory(
+    args: Any, config: Any, shared_storage: Any, lock: Any
+) -> tuple[Any, str]:
+    """Per-connection factory for the LOTO closed-loop verification log.
+
+    The served stack is the production one -- ``GrootCacheInterceptor`` over the
+    CLI recipe -- wrapped by ``GrootLotoLogger`` (``exp.rit_loto.loto_logger``),
+    which records every decision's stage-1 slices, wire hit meta and executed
+    chunk without recomputing anything. Per-connection output directories keep
+    simultaneous connections apart exactly as the shadow factory does, and the
+    frozen identity (arm / library / checkpoint / pool manifest digests) is
+    stamped on every episode so the merge step can refuse a mismatched run.
+    """
+    from openpi.cache.config import build_per_connection_components
+    from openpi.cache.groot.load_guard import live_num_inference_timesteps
+    from openpi.cache.groot.staged import GrootStagedRunner
+    from openpi.cache.orchestrator import CacheOrchestrator
+    from openpi.cache.types import groot_n15_schedule
+
+    from exp.libero_groot.policy_adapter import GrootLiberoPolicyAdapter
+    from exp.rit_loto.build_loto_table import checkpoint_identity, sha256_file
+    from exp.rit_loto.emit_verify_arm import load_frozen_record
+    from exp.rit_loto.loto_logger import GrootLotoLogger
+
+    cp2 = config.checkpoints.get("cp2")
+    if cp2 is not None and getattr(cp2, "enabled", False):
+        raise SystemExit("--loto-log-out supports the CP1 recipe of this line only (cp2 is enabled in the yaml)")
+    record, record_sha = load_frozen_record(args.loto_frozen_record)
+    if bool(getattr(args, "compile_stage1", False)) != record["compile_stage1"]:
+        raise SystemExit("LOTO run must use the frozen eager stage-1 path")
+    if args.loto_run_tag not in set(record["run_tags"].values()):
+        raise SystemExit(f"run tag {args.loto_run_tag!r} is not one of the frozen record's {record['run_tags']}")
+    preload = config.backend.in_memory.preload_path
+    ident = record["identity"]
+    arm_sha = sha256_file(args.cache_config)
+    library_sha = sha256_file(preload)
+    ckpt = checkpoint_identity(args.checkpoint)
+    problems = []
+    if arm_sha != record["arm"]["yaml_sha256"]:
+        problems.append(f"arm yaml sha {arm_sha[:12]} != frozen {record['arm']['yaml_sha256'][:12]}")
+    if library_sha != ident["library_sha256"]:
+        problems.append(f"library sha {library_sha[:12]} != frozen {ident['library_sha256'][:12]}")
+    if ckpt["sha256"] != ident["checkpoint_identity_sha256"]:
+        problems.append(f"checkpoint identity {ckpt['sha256'][:12]} != frozen {ident['checkpoint_identity_sha256'][:12]}")
+    if int(args.rit_h_exec) != int(ident["h_exec"]):
+        problems.append(f"--rit-h-exec {args.rit_h_exec} != frozen h_exec {ident['h_exec']}")
+    if problems:
+        raise SystemExit("frozen run record does not describe this server: " + "; ".join(problems))
+    identity_attrs = {
+        "loto_frozen_record_sha256": record_sha,
+        "loto_arm_yaml_sha256": arm_sha,
+        "loto_library_sha256": library_sha,
+        "loto_checkpoint_identity_sha256": ckpt["sha256"],
+        "loto_pool_manifest_sha256": record["pool_manifest_sha256"],
+        "loto_fits_sha256": record["fits_sha256"],
+    }
+    frozen_schedule_id = ident["schedule_id"]
+    out_dir = pathlib.Path(args.loto_log_out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    def loto_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
+        _require_default_bundle(bundle_id)
+        live = groot_n15_schedule(live_num_inference_timesteps(shared_base_policy)).schedule_id
+        if live != frozen_schedule_id:
+            raise SystemExit(f"live schedule {live} != frozen {frozen_schedule_id}")
+        components = build_per_connection_components(config, shared_storage, quiet=True)
+        orchestrator = CacheOrchestrator(
+            storage=components["storage"],
+            key_builder=components["key_builder"],
+            gates=components["gates"],
+            judges=components["judges"],
+            search_strategies=components["search_strategies"],
+            timer=components["timer"],
+            write_policy=components["write_policy"],
+            offline_writers=components["offline_writers"],
+            library_stats=components["library_stats"],
+        )
+        runner = GrootStagedRunner(shared_base_policy.model, timer=components["timer"])
+        logger_policy = GrootLotoLogger(
+            shared_base_policy,
+            runner,
+            orchestrator=orchestrator,
+            timer=components["timer"],
+            out_dir=str(out_dir),
+            experiment=args.experiment,
+            run_tag=args.loto_run_tag,
+            identity_attrs=identity_attrs,
+            h_exec=int(args.rit_h_exec),
+        )
+        return _InferLockedPolicy(GrootLiberoPolicyAdapter(logger_policy), lock)
+
+    return loto_factory, (
+        f"loto-log -> {out_dir}/{args.loto_run_tag}/conn_*/ (arm={pathlib.Path(args.cache_config).name}, "
+        f"library={pathlib.Path(preload).name}, h_exec={args.rit_h_exec})"
+    )
+
+
 def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     """Per-connection policy factory for concurrent serving.
 
@@ -298,7 +395,6 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
 
     lock = threading.Lock()
     allow_dynamic = bool(getattr(args, "allow_dynamic_bundles", False))
-
     if not args.cache_config and not allow_dynamic:
 
         def teacher_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
@@ -360,6 +456,8 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
 
     if getattr(args, "rit_shadow_out", None):
         return _build_shadow_factory(args, config, shared_storage, lock)
+    if getattr(args, "loto_log_out", None):
+        return _build_loto_factory(args, config, shared_storage, lock)
 
     def cache_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
         conn_config, conn_storage = _resolve_bundle(
@@ -445,6 +543,15 @@ def main() -> None:
         help="Collection subdirectory name under --collect-hdf5.",
     )
     parser.add_argument(
+        "--compile-stage1",
+        action="store_true",
+        help="torch.compile the vision tower (mode=reduce-overhead / CUDA graphs), "
+        "as serve_groot_n15 --compile-stage1 does. Compilation is persisted via "
+        "TORCHINDUCTOR_CACHE_DIR so later server starts reuse it; the first real "
+        "inference double-runs eager vs compiled and refuses to serve on "
+        "divergence. Eval paths only -- collection stays eager (byte-fidelity).",
+    )
+    parser.add_argument(
         "--concurrent",
         action="store_true",
         help="Serve simultaneous connections from one loaded model via a "
@@ -484,7 +591,58 @@ def main() -> None:
         help="Executed window the deviation is averaged over; must equal the "
         "client's --replan-steps, because steps past it are never executed.",
     )
+    parser.add_argument(
+        "--loto-log-out",
+        default=None,
+        help="Root directory for the LOTO closed-loop verification log: one HDF5 "
+        "episode + one sidecar JSONL row per decision, written per connection "
+        "under <root>/<run_tag>/conn_<id>/. Requires --cache-config and "
+        "--concurrent; the served verdicts are the production ones.",
+    )
+    parser.add_argument(
+        "--loto-run-tag",
+        default=None,
+        help="Run tag of the verification log (e.g. smoke / verify); smoke and "
+        "formal runs must never share a tag or a directory.",
+    )
+    parser.add_argument(
+        "--loto-frozen-record",
+        default=None,
+        help="frozen_run.json written by exp.rit_loto.emit_verify_arm: the server refuses "
+        "to start unless the arm yaml, library, checkpoint content, H_exec and live "
+        "schedule match it, and stamps its digest on every logged episode.",
+    )
     args = parser.parse_args()
+
+    if args.compile_stage1:
+        if args.collect_hdf5:
+            parser.error(
+                "--compile-stage1 cannot be combined with --collect-hdf5: the "
+                "collection path is frozen eager (byte-fidelity)."
+            )
+        # Persist inductor/triton artifacts so only the first server start on
+        # a machine pays the compile; every later start reuses the cache.
+        os.environ.setdefault(
+            "TORCHINDUCTOR_CACHE_DIR",
+            os.path.expanduser("~/.cache/openpi_inductor"),
+        )
+
+    if args.loto_log_out or args.loto_run_tag or args.loto_frozen_record:
+        if not (args.loto_log_out and args.loto_run_tag and args.loto_frozen_record):
+            parser.error("--loto-log-out, --loto-run-tag and --loto-frozen-record must be given together")
+        if not args.cache_config:
+            parser.error("--loto-log-out requires --cache-config: it logs cache decisions")
+        if not args.concurrent:
+            parser.error("--loto-log-out requires --concurrent (per-connection log directories)")
+        if args.collect_hdf5:
+            parser.error("--loto-log-out and --collect-hdf5 are mutually exclusive")
+        if args.rit_shadow_out:
+            parser.error("--loto-log-out and --rit-shadow-out are mutually exclusive")
+        if args.allow_dynamic_bundles:
+            parser.error(
+                "--loto-log-out cannot be combined with --allow-dynamic-bundles: "
+                "every logged episode must describe one frozen arm and library"
+            )
 
     if args.cache_config and args.collect_hdf5:
         parser.error("--cache-config and --collect-hdf5 are mutually exclusive")
