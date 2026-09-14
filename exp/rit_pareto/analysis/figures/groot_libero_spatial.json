@@ -1,0 +1,1207 @@
+{
+  "schema": "rit_pareto.figure/v1",
+  "figure_id": "groot_libero_spatial",
+  "title": "LIBERO-Spatial: GR00T N1.5 warm-start cache, RIT ladder vs GST (500 episodes per arm)",
+  "x_label": "realized inference ratio (% of all-MISS GPU cost; FULL 14.8%, warm 49.1% / 66.1%)",
+  "y_label": "success rate",
+  "figsize": [
+    9,
+    6
+  ],
+  "dpi": 160,
+  "grid_alpha": 0.3,
+  "legend": {
+    "fontsize": 7,
+    "loc": "lower right"
+  },
+  "series": [
+    {
+      "key": "RIT k=1 (hit / miss)",
+      "style": {
+        "color": "#2E6FD9",
+        "marker": "o",
+        "marker_size": 34,
+        "alpha": 0.9,
+        "point_zorder": 3,
+        "linestyle": "-",
+        "linewidth": 2,
+        "line_zorder": 2,
+        "annotate_fontsize": 7
+      },
+      "show_points": true,
+      "show_frontier": true,
+      "annotate": false,
+      "scatter_label": "RIT k=1 (hit / miss): arms ({n_arms} x 500 ep)",
+      "frontier_label": "RIT k=1 (hit / miss): Pareto frontier ({n_front} non-dominated)",
+      "points": [
+        {
+          "id": "sp_rit_k1_ir20",
+          "x": 37.24455037929072,
+          "y": 0.778,
+          "label": "IR=20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir25",
+          "x": 41.81837173643024,
+          "y": 0.77,
+          "label": "IR=25",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir30",
+          "x": 42.86743322370088,
+          "y": 0.786,
+          "label": "IR=30",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir35",
+          "x": 43.87293012238408,
+          "y": 0.816,
+          "label": "IR=35",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir40",
+          "x": 45.17363246044237,
+          "y": 0.832,
+          "label": "IR=40",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir45",
+          "x": 47.38375247982051,
+          "y": 0.828,
+          "label": "IR=45",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir50",
+          "x": 48.604597478676816,
+          "y": 0.836,
+          "label": "IR=50",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir55",
+          "x": 51.55473374857443,
+          "y": 0.84,
+          "label": "IR=55",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir60",
+          "x": 53.17542575909176,
+          "y": 0.848,
+          "label": "IR=60",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir65",
+          "x": 56.93241963045478,
+          "y": 0.852,
+          "label": "IR=65",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir70",
+          "x": 58.66600948531831,
+          "y": 0.882,
+          "label": "IR=70",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir75",
+          "x": 62.66065431934001,
+          "y": 0.89,
+          "label": "IR=75",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir80",
+          "x": 66.94387331825668,
+          "y": 0.912,
+          "label": "IR=80",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir85",
+          "x": 72.73915747334107,
+          "y": 0.91,
+          "label": "IR=85",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir90",
+          "x": 79.06576287663377,
+          "y": 0.924,
+          "label": "IR=90",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k1_ir95",
+          "x": 89.38104259361712,
+          "y": 0.926,
+          "label": "IR=95",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "key": "RIT k=2 (+ warm, 2 steps left)",
+      "style": {
+        "color": "#C8641E",
+        "marker": "s",
+        "marker_size": 34,
+        "alpha": 0.9,
+        "point_zorder": 3,
+        "linestyle": "-",
+        "linewidth": 2,
+        "line_zorder": 2,
+        "annotate_fontsize": 7
+      },
+      "show_points": true,
+      "show_frontier": true,
+      "annotate": false,
+      "scatter_label": "RIT k=2 (+ warm, 2 steps left): arms ({n_arms} x 500 ep)",
+      "frontier_label": "RIT k=2 (+ warm, 2 steps left): Pareto frontier ({n_front} non-dominated)",
+      "points": [
+        {
+          "id": "sp_rit_k2_ir20",
+          "x": 37.250923815069044,
+          "y": 0.76,
+          "label": "IR=20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir25",
+          "x": 37.35767773610232,
+          "y": 0.802,
+          "label": "IR=25",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir30",
+          "x": 37.36278832115325,
+          "y": 0.82,
+          "label": "IR=30",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir35",
+          "x": 37.73317847454622,
+          "y": 0.836,
+          "label": "IR=35",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir40",
+          "x": 38.70215074906836,
+          "y": 0.852,
+          "label": "IR=40",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir45",
+          "x": 40.48492246082197,
+          "y": 0.868,
+          "label": "IR=45",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir50",
+          "x": 42.03968068612359,
+          "y": 0.894,
+          "label": "IR=50",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir55",
+          "x": 45.00123620486411,
+          "y": 0.922,
+          "label": "IR=55",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir60",
+          "x": 49.24772463570078,
+          "y": 0.936,
+          "label": "IR=60",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir65",
+          "x": 52.91157753203116,
+          "y": 0.934,
+          "label": "IR=65",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir70",
+          "x": 59.310466753837254,
+          "y": 0.938,
+          "label": "IR=70",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir75",
+          "x": 65.79316523827607,
+          "y": 0.938,
+          "label": "IR=75",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir80",
+          "x": 72.12700888994198,
+          "y": 0.932,
+          "label": "IR=80",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir85",
+          "x": 78.96735358666447,
+          "y": 0.94,
+          "label": "IR=85",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir90",
+          "x": 86.7399273011774,
+          "y": 0.942,
+          "label": "IR=90",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k2_ir95",
+          "x": 93.41695073371507,
+          "y": 0.944,
+          "label": "IR=95",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "key": "RIT k=3 (+ warm, 4 steps left)",
+      "style": {
+        "color": "#7A4FBF",
+        "marker": "^",
+        "marker_size": 34,
+        "alpha": 0.9,
+        "point_zorder": 3,
+        "linestyle": "-",
+        "linewidth": 2,
+        "line_zorder": 2,
+        "annotate_fontsize": 7
+      },
+      "show_points": true,
+      "show_frontier": true,
+      "annotate": false,
+      "scatter_label": "RIT k=3 (+ warm, 4 steps left): arms ({n_arms} x 500 ep)",
+      "frontier_label": "RIT k=3 (+ warm, 4 steps left): Pareto frontier ({n_front} non-dominated)",
+      "points": [
+        {
+          "id": "sp_rit_k3_ir35",
+          "x": 36.72862380570571,
+          "y": 0.86,
+          "label": "IR=35",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir20",
+          "x": 36.95678067775087,
+          "y": 0.77,
+          "label": "IR=20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir25",
+          "x": 37.12667772314808,
+          "y": 0.802,
+          "label": "IR=25",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir30",
+          "x": 37.34782680537589,
+          "y": 0.82,
+          "label": "IR=30",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir40",
+          "x": 37.88582543660179,
+          "y": 0.876,
+          "label": "IR=40",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir45",
+          "x": 39.86707060738543,
+          "y": 0.878,
+          "label": "IR=45",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir50",
+          "x": 42.00654437045848,
+          "y": 0.898,
+          "label": "IR=50",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir55",
+          "x": 45.3772327782851,
+          "y": 0.918,
+          "label": "IR=55",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir60",
+          "x": 49.633757135601286,
+          "y": 0.93,
+          "label": "IR=60",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir65",
+          "x": 55.145625648799516,
+          "y": 0.936,
+          "label": "IR=65",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir70",
+          "x": 61.416756511914414,
+          "y": 0.924,
+          "label": "IR=70",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir75",
+          "x": 65.9100153357153,
+          "y": 0.94,
+          "label": "IR=75",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir80",
+          "x": 72.30456300925985,
+          "y": 0.94,
+          "label": "IR=80",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir85",
+          "x": 78.69706311242463,
+          "y": 0.936,
+          "label": "IR=85",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir90",
+          "x": 86.49682673805668,
+          "y": 0.946,
+          "label": "IR=90",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_rit_k3_ir95",
+          "x": 93.78063535841297,
+          "y": 0.944,
+          "label": "IR=95",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "key": "GST grid-searched thresholds",
+      "style": {
+        "color": "#8A9299",
+        "marker": "D",
+        "marker_size": 34,
+        "alpha": 0.9,
+        "point_zorder": 3,
+        "linestyle": "-",
+        "linewidth": 2,
+        "line_zorder": 2,
+        "annotate_fontsize": 7
+      },
+      "show_points": true,
+      "show_frontier": true,
+      "annotate": false,
+      "scatter_label": "GST grid-searched thresholds: arms ({n_arms} x 500 ep)",
+      "frontier_label": "GST grid-searched thresholds: Pareto frontier ({n_front} non-dominated)",
+      "points": [
+        {
+          "id": "sp_gst_f60w20v00",
+          "x": 43.977642738006004,
+          "y": 0.842,
+          "label": "f60w20v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f80w00v00",
+          "x": 44.76571002066274,
+          "y": 0.786,
+          "label": "f80w0v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f40w40v00",
+          "x": 45.59060898534797,
+          "y": 0.872,
+          "label": "f40w40v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f60w00v20",
+          "x": 45.67487405926135,
+          "y": 0.844,
+          "label": "f60w0v20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f40w20v20",
+          "x": 46.89360947014985,
+          "y": 0.884,
+          "label": "f40w20v20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f60w00v00",
+          "x": 49.44488252049142,
+          "y": 0.814,
+          "label": "f60w0v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f40w00v40",
+          "x": 50.11017893692066,
+          "y": 0.85,
+          "label": "f40w0v40",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f20w60v00",
+          "x": 50.17560808713533,
+          "y": 0.898,
+          "label": "f20w60v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f40w20v00",
+          "x": 51.07940285147987,
+          "y": 0.88,
+          "label": "f40w20v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f20w40v20",
+          "x": 52.122583932417946,
+          "y": 0.906,
+          "label": "f20w40v20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f40w00v20",
+          "x": 53.481584801305154,
+          "y": 0.872,
+          "label": "f40w0v20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f20w20v40",
+          "x": 53.53443873592496,
+          "y": 0.924,
+          "label": "f20w20v40",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f20w40v00",
+          "x": 56.828809148698234,
+          "y": 0.896,
+          "label": "f20w40v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f40w00v00",
+          "x": 57.033120395768414,
+          "y": 0.862,
+          "label": "f40w0v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f20w00v60",
+          "x": 57.42547560843817,
+          "y": 0.892,
+          "label": "f20w0v60",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w80v00",
+          "x": 58.113481723470805,
+          "y": 0.93,
+          "label": "f0w80v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f20w20v20",
+          "x": 58.35998884811379,
+          "y": 0.916,
+          "label": "f20w20v20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w60v20",
+          "x": 61.468191573046326,
+          "y": 0.938,
+          "label": "f0w60v20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f20w00v40",
+          "x": 61.90753581625128,
+          "y": 0.888,
+          "label": "f20w0v40",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f20w20v00",
+          "x": 63.87804808656937,
+          "y": 0.896,
+          "label": "f20w20v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w40v40",
+          "x": 65.6308686126891,
+          "y": 0.94,
+          "label": "f0w40v40",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f20w00v20",
+          "x": 65.95322147243064,
+          "y": 0.906,
+          "label": "f20w0v20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w60v00",
+          "x": 68.36028916344833,
+          "y": 0.94,
+          "label": "f0w60v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w20v60",
+          "x": 69.28103675161132,
+          "y": 0.94,
+          "label": "f0w20v60",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f20w00v00",
+          "x": 71.3594153159295,
+          "y": 0.89,
+          "label": "f20w0v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w40v20",
+          "x": 72.0166074772448,
+          "y": 0.938,
+          "label": "f0w40v20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w00v80",
+          "x": 72.28928150052259,
+          "y": 0.92,
+          "label": "f0w0v80",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w20v40",
+          "x": 76.19940993663133,
+          "y": 0.938,
+          "label": "f0w20v40",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w40v00",
+          "x": 79.00218105478653,
+          "y": 0.942,
+          "label": "f0w40v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w00v60",
+          "x": 79.39016041844009,
+          "y": 0.912,
+          "label": "f0w0v60",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w20v20",
+          "x": 82.83434002417124,
+          "y": 0.94,
+          "label": "f0w20v20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w00v40",
+          "x": 86.1556205311689,
+          "y": 0.922,
+          "label": "f0w0v40",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w20v00",
+          "x": 90.0675434285873,
+          "y": 0.932,
+          "label": "f0w20v0",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_gst_f00w00v20",
+          "x": 93.7268063616615,
+          "y": 0.918,
+          "label": "f0w0v20",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "key": "anchors (cache-only / teacher-only)",
+      "style": {
+        "color": "#1B2124",
+        "marker": "*",
+        "marker_size": 46,
+        "alpha": 0.9,
+        "point_zorder": 4,
+        "linestyle": "-",
+        "linewidth": 2,
+        "line_zorder": 2,
+        "annotate_fontsize": 7
+      },
+      "show_points": true,
+      "show_frontier": false,
+      "annotate": true,
+      "scatter_label": "anchors (cache-only / teacher-only): arms ({n_arms} x 500 ep)",
+      "frontier_label": "anchors (cache-only / teacher-only): Pareto frontier ({n_front} non-dominated)",
+      "points": [
+        {
+          "id": "sp_anchor_cache",
+          "x": 14.830096428945374,
+          "y": 0.72,
+          "label": "cache-only",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "sp_anchor_teacher",
+          "x": 100,
+          "y": 0.946,
+          "label": "teacher-only",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "key": "ActionCache 50-traj lib N_hit=0 (FULL)",
+      "style": {
+        "color": "#7b3fa0",
+        "marker": "*",
+        "marker_size": 70,
+        "alpha": 0.85,
+        "point_zorder": 3,
+        "linestyle": "-",
+        "linewidth": 2,
+        "line_zorder": 2,
+        "annotate_fontsize": 7
+      },
+      "show_points": true,
+      "show_frontier": true,
+      "annotate": true,
+      "scatter_label": "ActionCache 50-traj lib N_hit=0 (FULL): arms ({n_arms} x 500 ep)",
+      "frontier_label": "ActionCache 50-traj lib N_hit=0 (FULL): Pareto frontier ({n_front} non-dominated)",
+      "points": [
+        {
+          "id": "acb_sp_w13s3_n0_t01",
+          "x": 51.28842368618817,
+          "y": 0.744,
+          "label": "N0 IR45",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "acb_sp_w13s3_n0_t02",
+          "x": 59.92054780129431,
+          "y": 0.834,
+          "label": "N0 IR60",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "acb_sp_w13s3_n0_t03",
+          "x": 70.48981775801285,
+          "y": 0.888,
+          "label": "N0 IR75",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "acb_sp_w13s3_n0_ref650",
+          "x": 78.76470510013714,
+          "y": 0.91,
+          "label": "N0 \u03b8=.65",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "acb_sp_w13s3_n0_t04",
+          "x": 85.69906522292469,
+          "y": 0.918,
+          "label": "N0 IR90",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "key": "ActionCache 50-traj lib N_hit=1 (WARM@0.875)",
+      "style": {
+        "color": "#b07cc6",
+        "marker": "X",
+        "marker_size": 42,
+        "alpha": 0.85,
+        "point_zorder": 3,
+        "linestyle": "-",
+        "linewidth": 2,
+        "line_zorder": 2,
+        "annotate_fontsize": 7
+      },
+      "show_points": true,
+      "show_frontier": true,
+      "annotate": true,
+      "scatter_label": "ActionCache 50-traj lib N_hit=1 (WARM@0.875): arms ({n_arms} x 500 ep)",
+      "frontier_label": "ActionCache 50-traj lib N_hit=1 (WARM@0.875): Pareto frontier ({n_front} non-dominated)",
+      "points": [
+        {
+          "id": "acb_sp_w13s3_n1_t01",
+          "x": 46.01622870328498,
+          "y": 0.892,
+          "label": "N1 IR47",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "acb_sp_w13s3_n1_t02",
+          "x": 62.81330263761593,
+          "y": 0.922,
+          "label": "N1 IR66",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "acb_sp_w13s3_n1_t03",
+          "x": 71.52969490158542,
+          "y": 0.93,
+          "label": "N1 IR86",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "acb_sp_w13s3_n1_ref650",
+          "x": 85.36547633322591,
+          "y": 0.94,
+          "label": "N1 \u03b8=.65",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "acb_sp_w13s3_n1_t04",
+          "x": 93.12454236989281,
+          "y": 0.942,
+          "label": "N1 IR106",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        }
+      ],
+      "hidden": false
+    }
+  ]
+}

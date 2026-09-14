@@ -8,7 +8,9 @@ before any full library is built):
    versus path (B) the collector's slicing of the same stage-1 sequence
    (``slice_groot_cp1_fields``, fp16 round trip into an in-memory HDF5 group)
    -> ``cp2_reconstruct.reconstruct_stage1`` -> the same chain. The rebuilt
-   ``input_embeds`` and the valid state must be bit-identical, the encoded
+   ``input_embeds`` must be bit-identical up to the fp16 subnormal round trip
+   the on-disk format imposes on image tokens (``FP16_SUBNORMAL_ULP``), the
+   valid state must be bit-identical, the encoded
    state segment of the flattened key source bit-identical, the encoded VLM
    segment is recorded bit-equal or not (attention kernels may pick a
    different reduction order for different strides), and the projected keys
@@ -70,6 +72,17 @@ from exp.libero_groot.cp2_reconstruct import (
 
 PROFILE = libs.GROOT_LIBERO
 MIN_COSINE = 0.999
+#: The collector stores embeddings as fp16. bf16 -> fp16 -> bf16 is exact for
+#: fp16-normal magnitudes, but below 2^-14 fp16 is subnormal and carries fewer
+#: mantissa bits than bf16, so a vanishing fraction of vision-token elements
+#: (measured on the 4090: 1-4 of ~1.1M per sequence, all |x| < 8e-6) read back
+#: one subnormal ulp off. That is a property of the on-disk format the whole
+#: W13 library shares, not of the reconstruction, so item 1 tolerates exactly
+#: that: differences only inside the image runs, only at fp16-subnormal
+#: magnitudes, and never larger than one fp16 subnormal ulp. Text positions and
+#: the state stay bitwise, and the encoded key source is compared separately.
+FP16_MIN_NORMAL = 2.0 ** -14
+FP16_SUBNORMAL_ULP = 2.0 ** -24
 
 
 class ParityError(RuntimeError):
@@ -117,8 +130,32 @@ def key_chain(runner, builder, stage1):
     return stage2, src, h, key
 
 
+def _fp16_roundtrip_delta(stage1_a, stage1_b) -> dict:
+    """Where path A and path B sequences differ, and whether that is only the fp16 subnormal round trip."""
+    a, b = stage1_a.input_embeds, stage1_b.input_embeds
+    ne = a != b
+    n_elems = int(ne.sum())
+    if n_elems == 0:
+        return {"n_diff_elems": 0, "n_diff_tokens": 0, "outside_image_runs": 0, "max_abs_diff": 0.0,
+                "max_abs_value": 0.0, "fp16_subnormal_only": True}
+    token_diff = ne[0].any(dim=-1)
+    outside = int((token_diff & ~stage1_a.image_token_mask[0]).sum())
+    a_vals, b_vals = a[ne].float(), b[ne].float()
+    max_abs_value = float(a_vals.abs().max())
+    max_abs_diff = float((a_vals - b_vals).abs().max())
+    return {"n_diff_elems": n_elems, "n_diff_tokens": int(token_diff.sum()), "outside_image_runs": outside,
+            "max_abs_diff": max_abs_diff, "max_abs_value": max_abs_value,
+            "fp16_subnormal_only": outside == 0 and max_abs_value < FP16_MIN_NORMAL
+            and max_abs_diff <= FP16_SUBNORMAL_ULP}
+
+
 def check_synthetic(policy, runner, builder, templates, tasks: list[str], rng, n: int) -> dict:
-    """Item 1: path A (online stage 1) vs path B (collector slicing -> fp16 -> reconstruction)."""
+    """Item 1: path A (online stage 1) vs path B (collector slicing -> fp16 -> reconstruction).
+
+    Sequences must agree bitwise except for the fp16 subnormal round trip the
+    on-disk format imposes (``_fp16_roundtrip_delta``); state and the flattened
+    state segment bitwise; key cosine >= ``MIN_COSINE``.
+    """
     results = []
     worst = 1.0
     with runner.session():
@@ -132,6 +169,7 @@ def check_synthetic(policy, runner, builder, templates, tasks: list[str], rng, n
                 stage1_b = reconstruct_stage1(templates.get(task), g)
                 _, src_b, h_b, key_b = key_chain(runner, builder, stage1_b)
             embeds_equal = torch.equal(stage1_a.input_embeds, stage1_b.input_embeds)
+            embeds_delta = _fp16_roundtrip_delta(stage1_a, stage1_b)
             valid = stage1_a.state_mask[0, -1]
             state_equal = torch.equal(stage1_a.state[0, -1][valid], stage1_b.state[0, -1][valid])
             state_dim = builder.state_feat_dim
@@ -139,11 +177,12 @@ def check_synthetic(policy, runner, builder, templates, tasks: list[str], rng, n
             vl_equal = torch.equal(h_a[:-state_dim], h_b[:-state_dim])
             cos = _cos(key_a, key_b)
             worst = min(worst, cos)
-            results.append({"task": task, "input_embeds_equal": embeds_equal, "state_equal": state_equal,
+            results.append({"task": task, "input_embeds_equal": embeds_equal, "input_embeds_delta": embeds_delta,
+                            "state_equal": state_equal,
                             "state_segment_equal": state_seg_equal, "vl_segment_equal": vl_equal,
                             "vl_segment_max_abs": float((h_a[:-state_dim] - h_b[:-state_dim]).abs().max()),
                             "key_cosine": cos})
-            if not (embeds_equal and state_equal and state_seg_equal):
+            if not ((embeds_equal or embeds_delta["fp16_subnormal_only"]) and state_equal and state_seg_equal):
                 raise ParityError(f"synthetic parity failed: {results[-1]}")
             if cos < MIN_COSINE:
                 raise ParityError(f"synthetic key cosine {cos:.6f} < {MIN_COSINE}")

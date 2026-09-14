@@ -1,0 +1,405 @@
+{
+  "arm_matrix": "/data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arm_matrix.yaml",
+  "arms": {
+    "acb_l10_w13s3_n0_ref650": {
+      "admit_frac": 0.32771535580524347,
+      "arm_id": "acb_l10_w13s3_n0_ref650",
+      "hit_type": "FULL_HIT",
+      "ir_gap": null,
+      "predicted_ir": 83.50110797213594,
+      "start_t": null,
+      "target_ir": null,
+      "theta_norm": 0.825,
+      "theta_raw": 0.65,
+      "tier": "n0",
+      "yaml": "/data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n0_ref650.yaml",
+      "yaml_sha256": "0ff077a619b165a66409d2b184ec03454e26d1979664a377642efd6555364927"
+    },
+    "acb_l10_w13s3_n0_t01": {
+      "admit_frac": 0.8954822097378277,
+      "arm_id": "acb_l10_w13s3_n0_t01",
+      "hit_type": "FULL_HIT",
+      "ir_gap": -0.002309055637006452,
+      "predicted_ir": 44.99769094436299,
+      "start_t": null,
+      "target_ir": 45.0,
+      "theta_norm": 0.7498974800109863,
+      "theta_raw": 0.49979496002197266,
+      "tier": "n0",
+      "yaml": "/data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n0_t01.yaml",
+      "yaml_sha256": "b88310650049bb3d58f168058af9f0ff11de15cc0027e7e5faa072d179676dec"
+    },
+    "acb_l10_w13s3_n0_t02": {
+      "admit_frac": 0.6742743445692884,
+      "arm_id": "acb_l10_w13s3_n0_t02",
+      "hit_type": "FULL_HIT",
+      "ir_gap": -0.0009777461150761724,
+      "predicted_ir": 59.999022253884924,
+      "start_t": null,
+      "target_ir": 60.0,
+      "theta_norm": 0.7847021222114563,
+      "theta_raw": 0.5694042444229126,
+      "tier": "n0",
+      "yaml": "/data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n0_t02.yaml",
+      "yaml_sha256": "d97ed00e5f3a28aaae2b959f44e37d5906743ec33f388e9de9bbfa6eb168de0c"
+    },
+    "acb_l10_w13s3_n0_t03": {
+      "admit_frac": 0.45306647940074907,
+      "arm_id": "acb_l10_w13s3_n0_t03",
+      "hit_type": "FULL_HIT",
+      "ir_gap": 0.00035356340686121257,
+      "predicted_ir": 75.00035356340686,
+      "start_t": null,
+      "target_ir": 75.0,
+      "theta_norm": 0.81088986992836,
+      "theta_raw": 0.62177973985672,
+      "tier": "n0",
+      "yaml": "/data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n0_t03.yaml",
+      "yaml_sha256": "098fd07f1cb203b06a14da2cdf93201793460fa5da96e4843b317f314453d0e1"
+    },
+    "acb_l10_w13s3_n0_t04": {
+      "admit_frac": 0.23185861423220974,
+      "arm_id": "acb_l10_w13s3_n0_t04",
+      "hit_type": "FULL_HIT",
+      "ir_gap": 0.0016848729287772812,
+      "predicted_ir": 90.00168487292878,
+      "start_t": null,
+      "target_ir": 90.0,
+      "theta_norm": 0.8384907245635986,
+      "theta_raw": 0.6769814491271973,
+      "tier": "n0",
+      "yaml": "/data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n0_t04.yaml",
+      "yaml_sha256": "4a15596275a916b6ddeadea3e7e34e0e5f078fe307664b86279ba783de8e8906"
+    },
+    "acb_l10_w13s3_n1_ref650": {
+      "admit_frac": 0.32771535580524347,
+      "arm_id": "acb_l10_w13s3_n1_ref650",
+      "hit_type": "WARM_START",
+      "ir_gap": null,
+      "predicted_ir": 86.2791322887141,
+      "start_t": 0.875,
+      "target_ir": null,
+      "theta_norm": 0.825,
+      "theta_raw": 0.65,
+      "tier": "n1",
+      "yaml": "/data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n1_ref650.yaml",
+      "yaml_sha256": "bf84fac2f37ff5b01834c5066913a78c4b8bf0239baf6df801b235fcb17fb979"
+    },
+    "acb_l10_w13s3_n1_t01": {
+      "admit_frac": 1.0,
+      "arm_id": "acb_l10_w13s3_n1_t01",
+      "hit_type": "WARM_START",
+      "ir_gap": 0.0,
+      "predicted_ir": 46.386703102652056,
+      "start_t": 0.875,
+      "target_ir": 46.386703102652056,
+      "theta_norm": 0.6718164682388306,
+      "theta_raw": 0.34363293647766113,
+      "tier": "n1",
+      "yaml": "/data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n1_t01.yaml",
+      "yaml_sha256": "293e891d4b48d43a8b59163053dd69463276096eea2652ed4c77ea79c8047c7e"
+    },
+    "acb_l10_w13s3_n1_t02": {
+      "admit_frac": 0.6666666666666666,
+      "arm_id": "acb_l10_w13s3_n1_t02",
+      "hit_type": "WARM_START",
+      "ir_gap": 0.0,
+      "predicted_ir": 66.16623623668839,
+      "start_t": 0.875,
+      "target_ir": 66.16623623668839,
+      "theta_norm": 0.7858258783817291,
+      "theta_raw": 0.5716517567634583,
+      "tier": "n1",
+      "yaml": "/data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n1_t02.yaml",
+      "yaml_sha256": "8e8066643a5bef0f71b7ef6fef4a9bac54ddc906232d8dd38507449714fc457c"
+    },
+    "acb_l10_w13s3_n1_t03": {
+      "admit_frac": 0.3334503745318352,
+      "arm_id": "acb_l10_w13s3_n1_t03",
+      "hit_type": "WARM_START",
+      "ir_gap": 0.0,
+      "predicted_ir": 85.93882430993328,
+      "start_t": 0.875,
+      "target_ir": 85.93882430993328,
+      "theta_norm": 0.8244636058807373,
+      "theta_raw": 0.6489272117614746,
+      "tier": "n1",
+      "yaml": "/data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n1_t03.yaml",
+      "yaml_sha256": "5db1bcce62687b56319cf1571e7d7e6f872948e6084dd5505dcd29f7033f3505"
+    },
+    "acb_l10_w13s3_n1_t04": {
+      "admit_frac": 0.00011704119850187266,
+      "arm_id": "acb_l10_w13s3_n1_t04",
+      "hit_type": "WARM_START",
+      "ir_gap": 0.0,
+      "predicted_ir": 105.7183574439696,
+      "start_t": 0.875,
+      "target_ir": 105.7183574439696,
+      "theta_norm": 0.9412513375282288,
+      "theta_raw": 0.8825026750564575,
+      "tier": "n1",
+      "yaml": "/data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n1_t04.yaml",
+      "yaml_sha256": "efaac198c68969136509c68a0a7b2b5ae0d061216b226210ca08a9d2c67b2682"
+    }
+  },
+  "attainable_ir": {
+    "n0": [
+      37.909760330922204,
+      105.72530250476103
+    ],
+    "n1": [
+      46.386703102652056,
+      105.72530250476103
+    ]
+  },
+  "budget": {
+    "arms_per_tier": {
+      "n0": 5,
+      "n1": 5
+    },
+    "group_arm_cap": 17,
+    "tier_target_cap": {
+      "n0": 8,
+      "n1": 7
+    },
+    "total_arms": 10
+  },
+  "cost": {
+    "ckpt_sha256": "d05a7af0bc84557f3462d06e4df6b8f593c9c0ac4d0c2f285a966cfb770e117d",
+    "cost_formula_version": "groot_cp2_encoded_additive_v1",
+    "cost_record": "/data/openpi_lg/exp/libero_groot/config/rit/cost_groot_libero_measured.json",
+    "cost_record_sha256": "93096709678e8d27beb6c57ad9f63f15db7c35fb63d478e0600f4c3e0cb64846",
+    "cost_table": "measured",
+    "encoder_cost_record": "/data/openpi_lg/exp/libero_groot/config/actioncache/cost_groot_cp2_encoded_libero_10.json",
+    "encoder_cost_record_sha256": "c1dea5306c17f41cb5a64e1fa20f4b00389557f63296c4165afd43d38ba6a7cd",
+    "encoder_ms": 2.3726699873805046,
+    "gpu_name": "NVIDIA GeForce RTX 4090",
+    "gpu_uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+    "iters": 200,
+    "layout": {
+      "feature_dim": 2048,
+      "kind": "groot_encoded_v1",
+      "state_feat_dim": 1536,
+      "token_len": 640
+    },
+    "mode": "reduce-overhead",
+    "model": {
+      "bytes": 7587167552,
+      "checkpoint_dir": "/data/ckpt/n15_libero_10",
+      "files": 22,
+      "weights_digest": "538ad6fa46ca654142913f887256df8224631ff0c1f32d67651e44a6c6bef60c"
+    },
+    "n_tokens": 566,
+    "schedule_id": "groot_n15_k8_v1",
+    "stage_ms": {
+      "stage1": 6.145862978883088,
+      "stage2": 7.191964512458071,
+      "stage3_full_loop": 28.104
+    },
+    "suite": "libero_10",
+    "teacher": "groot_libero",
+    "teacher_ckpt_sha256": "b68ec1b5b91ebfa3e0e72025d29762d1177f30eba0718fcb66444ade1796103a",
+    "teacher_forward_ms": 41.44182749134116,
+    "verdict_unit_ms": {
+      "FULL_HIT": 15.710497478721663,
+      "MISS": 43.81449747872166,
+      "WARM_START@0.875": 19.22349747872166
+    },
+    "warmup": 30
+  },
+  "cost_table": "measured",
+  "deploy_library_path": "/data/libero_cache/libraries_w13_cp2/libero_10/libero_10_w13_S3_cp2.pkl",
+  "git_commit": "3af3ef2592a6db66f86e92525b8c743a2b8c38ba",
+  "lib_tag": "w13s3",
+  "library_model": {
+    "bytes": 7587167552,
+    "checkpoint_dir": "/data/ckpt/n15_libero_10",
+    "config_name": "groot_n15_libero",
+    "denoising_steps": 8,
+    "files": 22,
+    "max_template_tokens": 566,
+    "weights_digest": "538ad6fa46ca654142913f887256df8224631ff0c1f32d67651e44a6c6bef60c"
+  },
+  "library_pkl": "/data/libero_cache/libraries_w13_cp2/libero_10/libero_10_w13_S3_cp2.pkl",
+  "library_sha256": "b24d4301878ad5916945f0cf9dbb4732d4761be28e141f9ef0cbbd02dfe215ab",
+  "max_gap": 1.0,
+  "n_rows": 8544,
+  "preflight": {
+    "n_decisions": 2000,
+    "path": "/data/openpi_lg/exp/libero_groot/data/actioncache/overhead_libero_10/overhead.json",
+    "sha256": "47bb2226adfcfe5966e42d4b5551c37525c83ca5254f87f26da48313fc2bfa44",
+    "verdict": "ok_report",
+    "warm_total_p95_ms": 5.826039821840823
+  },
+  "projection": {
+    "D": 1312256,
+    "accumulation_dtype": "float32",
+    "d": 500,
+    "digest": "fbab84d58e4f5f5de1114406903458ecd38f6005d1aa2b1b55cbfaf8da717a5a",
+    "layout": {
+      "feature_dim": 2048,
+      "kind": "groot_encoded_v1",
+      "state_feat_dim": 1536,
+      "token_len": 640
+    },
+    "nnz_per_sign": 6561,
+    "p": 0.01,
+    "seed": 20260904
+  },
+  "protocol": "actioncache_baseline/v1",
+  "ref_theta_raw": 0.65,
+  "schedule_id": "groot_n15_k8_v1",
+  "selection": {
+    "n0": {
+      "dropped": [],
+      "preferred": [
+        45.0,
+        60.0,
+        75.0,
+        90.0
+      ],
+      "selection_rule": "preferred_targets"
+    },
+    "n1": {
+      "candidate_range": {
+        "ir_hi": 105.7183574439696,
+        "ir_lo": 46.386703102652056,
+        "n_candidates": 8537
+      },
+      "dropped": [
+        {
+          "attainable": [
+            46.386703102652056,
+            105.72530250476103
+          ],
+          "reason": "below_tier_floor",
+          "target_ir": 45.0,
+          "tier": "n1"
+        }
+      ],
+      "preferred": [
+        45.0,
+        60.0,
+        75.0,
+        90.0
+      ],
+      "preferred_resolved": [
+        {
+          "admit_frac": 0.7705992509363296,
+          "ir_gap": -0.0009777461150903832,
+          "label": "ir60",
+          "predicted_ir": 59.99902225388491,
+          "target_ir": 60.0,
+          "theta_raw": 0.5460889339447021
+        },
+        {
+          "admit_frac": 0.5177902621722846,
+          "ir_gap": 0.00035356340686121257,
+          "label": "ir75",
+          "predicted_ir": 75.00035356340686,
+          "target_ir": 75.0,
+          "theta_raw": 0.6071420907974243
+        },
+        {
+          "admit_frac": 0.2649812734082397,
+          "ir_gap": 0.001684872928791492,
+          "label": "ir90",
+          "predicted_ir": 90.00168487292879,
+          "target_ir": 90.0,
+          "theta_raw": 0.6671077609062195
+        }
+      ],
+      "rule": "both ends of the distinct-cut IR span, then nearest unselected to 1/3 and 2/3 of the span (ties -> higher cut); target_ir = the cut's predicted IR",
+      "selection_rule": "fallback_quartiles"
+    }
+  },
+  "shadow_binding": {
+    "accepted_manifest_sha256": "3cc6ca937f13b4d7d9d7f1b85b8a2c8b503adc0b4c19e3be15fd21c488a7477e",
+    "cohort_episodes": 150,
+    "cohort_manifest_sha256": "7bdd4ed2e86ccd6db8a5fde39793c8053b914785fc8ef8ee6fcd2a72fe909ee0",
+    "n_rows": 8544,
+    "path": "/data/openpi_lg/exp/libero_groot/data/actioncache/shadow_libero_10/shadow.jsonl",
+    "sha256": "a2535cae384cbd683309fb43a410278338985a646521febd94f5d235fd32e0f1",
+    "task_map_sha256": "c390127859956d1fd0652a98a63a309c6f3aa69fe38a5c49d83e855dff855dc1"
+  },
+  "shadow_record": {
+    "accepted_manifest": "/data/openpi_lg/exp/libero_groot/data/actioncache/cohort_libero_10/accepted_shadow_manifest.json",
+    "accepted_manifest_sha256": "3cc6ca937f13b4d7d9d7f1b85b8a2c8b503adc0b4c19e3be15fd21c488a7477e",
+    "backend_checked_rows": 50,
+    "checkpoint": "/data/ckpt/n15_libero_10",
+    "cohort_episodes": 150,
+    "cohort_expected": 150,
+    "cohort_manifest_sha256": "7bdd4ed2e86ccd6db8a5fde39793c8053b914785fc8ef8ee6fcd2a72fe909ee0",
+    "complete": true,
+    "elapsed_s": 382.0,
+    "git_commit": "3af3ef2592a6db66f86e92525b8c743a2b8c38ba",
+    "library_entries": 2598,
+    "library_pkl": "/data/libero_cache/libraries_w13_cp2/libero_10/libero_10_w13_S3_cp2.pkl",
+    "library_sha256": "b24d4301878ad5916945f0cf9dbb4732d4761be28e141f9ef0cbbd02dfe215ab",
+    "limited": false,
+    "model": {
+      "bound_to_library": true,
+      "bytes": 7587167552,
+      "checkpoint_dir": "/data/ckpt/n15_libero_10",
+      "files": 22,
+      "library_model": {
+        "bytes": 7587167552,
+        "checkpoint_dir": "/data/ckpt/n15_libero_10",
+        "config_name": "groot_n15_libero",
+        "denoising_steps": 8,
+        "files": 22,
+        "max_template_tokens": 566,
+        "weights_digest": "538ad6fa46ca654142913f887256df8224631ff0c1f32d67651e44a6c6bef60c"
+      },
+      "weights_digest": "538ad6fa46ca654142913f887256df8224631ff0c1f32d67651e44a6c6bef60c"
+    },
+    "n_rows": 8544,
+    "out_jsonl": "/data/openpi_lg/exp/libero_groot/data/actioncache/shadow_libero_10/shadow.jsonl",
+    "out_jsonl_sha256": "a2535cae384cbd683309fb43a410278338985a646521febd94f5d235fd32e0f1",
+    "projection": {
+      "D": 1312256,
+      "accumulation_dtype": "float32",
+      "d": 500,
+      "digest": "fbab84d58e4f5f5de1114406903458ecd38f6005d1aa2b1b55cbfaf8da717a5a",
+      "layout": {
+        "feature_dim": 2048,
+        "kind": "groot_encoded_v1",
+        "state_feat_dim": 1536,
+        "token_len": 640
+      },
+      "nnz_per_sign": 6561,
+      "p": 0.01,
+      "seed": 20260904
+    },
+    "protocol": "actioncache_baseline/v1",
+    "schedule_id": "groot_n15_k8_v1",
+    "stage1_path": "groot_reconstructed_template",
+    "suite": "libero_10",
+    "task_map_sha256": "c390127859956d1fd0652a98a63a309c6f3aa69fe38a5c49d83e855dff855dc1",
+    "teacher": "groot_libero"
+  },
+  "shadow_table": "/data/openpi_lg/exp/libero_groot/data/actioncache/shadow_libero_10/shadow.jsonl",
+  "skipped": [
+    {
+      "attainable": [
+        46.386703102652056,
+        105.72530250476103
+      ],
+      "reason": "below_tier_floor",
+      "target_ir": 45.0,
+      "tier": "n1"
+    }
+  ],
+  "suite": "libero_10",
+  "targets": [
+    45.0,
+    60.0,
+    75.0,
+    90.0
+  ],
+  "teacher": "groot_libero",
+  "tiers": [
+    "n0",
+    "n1"
+  ]
+}

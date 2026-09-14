@@ -4,7 +4,8 @@ Two measurements, both required before a single GR00T CP2 arm is emitted:
 
 ``encoder-cost`` / ``certify-encoder``
     The extra model forward the CP2 key needs -- ``run_cp2_key_source``, i.e.
-    the action head's ``process_backbone_output`` + ``state_encoder`` run once
+    the action head's ``process_backbone_output`` (as its tensor-only twin,
+    asserted bitwise equal to the production path) + ``state_encoder`` run once
     more per decision. Measured under the owner's teacher-cost protocol: the
     RTX 4090, bf16 autocast, the representative prompt shape (N = 566 tokens),
     ``torch.compile(mode="reduce-overhead")``, 30 warmup + 200 timed calls,
@@ -179,13 +180,20 @@ def measure_encoder_cost(args: argparse.Namespace) -> dict:
         eager_src = runner.run_cp2_key_source(stage2)
 
         def encode(features_, mask_, state_, emb_):
-            from openpi.cache.groot.staged import _batch_feature
+            # Tensor-only twin of ``head.process_backbone_output`` (vlln ->
+            # vl_self_attention; the mask is carried by the BatchFeature but
+            # unused there). The production path is not compiled directly
+            # because its ``BatchFeature`` (a UserDict) is a Dynamo graph
+            # break whose resume frame is guarded on the object id of that
+            # fresh dict: every call recompiled and the "CUDA-Graph" number
+            # was ~370 ms of Dynamo, not the encoder (measured 2026-09-13).
+            # ``fullgraph=True`` below makes any future break fail loudly.
+            return head.vl_self_attention(head.vlln(features_)), head.state_encoder(state_, emb_)
 
-            processed = head.process_backbone_output(_batch_feature({"backbone_features": features_,
-                                                                     "backbone_attention_mask": mask_}))
-            return processed["backbone_features"], head.state_encoder(state_, emb_)
-
-        compiled = torch.compile(encode, mode=COMPILE_MODE, fullgraph=False)
+        twin_vl, twin_state = encode(features, mask, state, emb)
+        if not (torch.equal(twin_vl[0], eager_src.vl_encoded) and torch.equal(twin_state[0, -1], eager_src.state_encoded)):
+            raise SystemExit("the compiled encoder twin is not bitwise the production run_cp2_key_source path")
+        compiled = torch.compile(encode, mode=COMPILE_MODE, fullgraph=True)
         for _ in range(args.warmup):
             compiled(features, mask, state, emb)
         torch.cuda.synchronize()

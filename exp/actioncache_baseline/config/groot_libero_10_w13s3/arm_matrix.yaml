@@ -1,0 +1,36 @@
+protocol: actioncache_baseline/v1
+suite: libero_10
+rule: acb_w13s3
+checkpoint: cp2
+teacher: groot_libero
+arms:
+- arm: acb_l10_w13s3_n0_t01
+  yaml: /data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n0_t01.yaml
+  suite: libero_10
+- arm: acb_l10_w13s3_n0_t02
+  yaml: /data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n0_t02.yaml
+  suite: libero_10
+- arm: acb_l10_w13s3_n0_t03
+  yaml: /data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n0_t03.yaml
+  suite: libero_10
+- arm: acb_l10_w13s3_n0_t04
+  yaml: /data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n0_t04.yaml
+  suite: libero_10
+- arm: acb_l10_w13s3_n0_ref650
+  yaml: /data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n0_ref650.yaml
+  suite: libero_10
+- arm: acb_l10_w13s3_n1_t01
+  yaml: /data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n1_t01.yaml
+  suite: libero_10
+- arm: acb_l10_w13s3_n1_t02
+  yaml: /data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n1_t02.yaml
+  suite: libero_10
+- arm: acb_l10_w13s3_n1_t03
+  yaml: /data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n1_t03.yaml
+  suite: libero_10
+- arm: acb_l10_w13s3_n1_t04
+  yaml: /data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n1_t04.yaml
+  suite: libero_10
+- arm: acb_l10_w13s3_n1_ref650
+  yaml: /data/openpi_lg/exp/actioncache_baseline/config/groot_libero_10_w13s3/arms/acb_l10_w13s3_n1_ref650.yaml
+  suite: libero_10

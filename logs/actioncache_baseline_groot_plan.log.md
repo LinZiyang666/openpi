@@ -1,7 +1,7 @@
 # ActionCache 式 post-backbone 基线 × GR00T N1.5 LIBERO：CP2 单 key 阈值臂（两 suite × 同库 W13-S3）
 
 > Level: **L3**（GR00T 侧新增 CP2 检查点接线：`GrootCacheInterceptor` CP2 分支 + 新 KeyBuilder `cp2_groot_ternary` + `load_guard` / `config.py` CP2 规则扩展 + `exp/actioncache_baseline` 工具的 teacher 参数化 + GR00T 岛离线建库/shadow 脚本）
-> 状态：`Implemented`（v0.3 冻结；G1 APPROVED R2 2026-09-12（D3）；G2 R1 NEEDS REVISION → R2 APPROVED 2026-09-13（D4 owner 授权 Reviewer 修复后复核，执行方审查并接受）；§6 Verify 全量 5397 passed，失败项均为 HEAD 既有；§8 步骤 2–6 的 GPU parity / E 标定 / preflight / smoke / 主跑待 owner 指示后执行）
+> 状态：`Done`（§8 步骤 2–6 已于 2026-09-13 01:30–09:55 CDT 执行完毕，两组 10 臂 × 500 集 raw 已拉回并过 `aggregate` 完整性门，见 Review Log 末尾 Execution note；实现阶段：v0.3 冻结；G1 APPROVED R2 2026-09-12（D3）；G2 R1 NEEDS REVISION → R2 APPROVED 2026-09-13（D4 owner 授权 Reviewer 修复后复核，执行方审查并接受）；§6 Verify 全量 5397 passed，失败项均为 HEAD 既有；§8 步骤 2–6 的 GPU parity / E 标定 / preflight / smoke / 主跑待 owner 指示后执行）
 > 上位文档：`logs/actioncache_baseline_plan.log.md`（pi0.5 侧同一基线，v0.6，Done；本 plan 是它在 GR00T 执行体上的复刻，所有已冻结口径不重议）、`logs/libero_groot_rit_run_progress.md`（GR00T × LIBERO RIT/GST 主线，2026-09-12 收官；本 plan 的对照前沿）、`docs/papers/actioncache_2607.06370v2.txt` §3.2–3.3 / §4.1 / App. B.2（GR00T-N1.6 的 key = **encoded** VLM 输出 + **encoded** robot-state，T_hit=0.65）
 > 术语：不用 E/X/Arm 代号；实验一律写目录名 + 一句话。
 
@@ -345,3 +345,16 @@ export/aggregate record 明记 `teacher`、`suite`、`cost_table`、`cost_record
 #### §6 Verify — 2026-09-13
 
 `uv run pytest -q -m 'not manual' --ignore=tests/review_tests --continue-on-collection-errors`（全量，1200 s）：**5397 passed / 21 skipped / 9 failed / 1 collection error**。9 failed + 1 error 全部不在本线文件内，且在 HEAD `1470616` 的纯净导出树上同样复现（`tests/dispatch_surface/test_rit_pl.py::test_sonly_note_compiles` 缺 pdflatex 输入、`tests/exp/test_prebuilt_matrix_backend.py` 两例 bit-identical、`tests/robocasa365/test_ws2_evidence_runner.py` 两例——HEAD 的 runner 已多出 `start_t` 列而测试集合未更新、`tests/robocasa365/test_bench_groot_stages.py` 引用不存在的 `SCHEDULE_ID`）；其余 4 例（`test_groot_concurrent_serving` ×2 的 `gr00t.__spec__ is None`、`test_robocasa_policy_config` ×2 的 `/tmp/pytest-*` FileNotFoundError）为顺序/临时目录效应，单独运行 **22 passed**。本线新增与修改的测试全部通过；私有审查测试未纳入。完整日志留在会话 tmp（不入库）。
+
+### Execution note — Executor — §8 步骤 2–6 执行记录 — 2026-09-13
+
+拓扑：owner 指定只用 weilandserver（5 个 eval server `:23110-23114`）+ timan107（64 worker）；两 suite 顺序跑。cohort 采集 collector 在 weilandserver `:23130-23134`，LIBERO client 按 §0 纪律放在 timan107（`ACB_HOST=ziyanglin.com`），client 终态证据搬回 attempt 目录再验收。远端两个克隆 git HEAD 仍是 `3af3ef2`，内容经 tether 同步到 `ece4362`+下述补丁（record 里的 `git_commit` 因此显示 3af3ef2）。
+
+门与结果（只记通过/不通过，不做分析）：parity 两 suite 通过（min cos 0.9999999，VL 段位同）；建库 + `verify_cp2_artifact` 通过（spatial 1,078 / l10 2,598 条）；cohort 两 suite 150/150 accepted、`task_map_bound`；shadow 表 complete、非 limited（3,364 / 8,544 行）；E = 2.513 / 2.373 ms（certified，1 graph/call，200 launches）；preflight warm P95 7.0 / 5.8 ms → `ok_report`；出臂各恰 10 臂（n0 首选 {45,60,75,90}；n1 floor 46.7 / 46.4 % > 45 → 按 §3.9 fallback `t01–t04`）；smoke 40 集全 CP2、n1 全 0.875；主跑 2 × 5000 集，server 零错误；`aggregate` 完整性 / 纯度门全过。raw：`exp/actioncache_baseline/data/runs/groot_<suite>_w13s3/`（gitignored）。
+
+首次上 GPU 发现并修正的两处（均为 fail-closed 门误报，非实验口径变化）：
+
+- `groot_cp2_parity.py` 第 1 项要求重建序列与在线序列**位同**，但采集格式是 fp16：bf16→fp16→bf16 在 fp16 次正规区（|x| < 2⁻¹⁴）会丢 1 ulp，实测每序列 1–4 个图像 token 元素（|x| < 8e-6）不等，编码后 VL 段与 key 仍位同。改为只容忍这一类差异（图像 run 内、次正规量级、|Δ| ≤ 2⁻²⁴），文本位置 / state / 状态段仍位同。
+- `bench_cp2_overhead_groot.py --mode encoder-cost` 首测 E ≈ 370 ms：`torch.compile` 区域内构造 `BatchFeature`(UserDict) 触发 graph break，resume frame 按对象 id 守卫 → 每次调用重编译，认证（launch 计数）却通过。改为张量孪生 `vl_self_attention(vlln(x))`（先断言与生产路径 `run_cp2_key_source` 位同）+ `fullgraph=True`；重测 2.5 ms，旧记录归档为 `.superseded_*`。
+
+另：`ops/run_acb_collect_clients.sh` 加 `ACB_HOST`（client 与 collector 分机）并把 openpi-client 加进 PYTHONPATH。图数据：两条 ActionCache series（n0 / n1）按 owner 指示写入 `exp/rit_pareto/analysis/figures/groot_<suite>.json`（数据，非画图脚本）。

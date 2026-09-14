@@ -153,7 +153,7 @@ uv run python -m exp.actioncache_baseline.bench_cp2_overhead \
    python -m exp.libero_groot.groot_cp2_parity --suite <suite> --checkpoint <ckpt> --task-map <acc>/task_map.json \
        --h5-root /archive/libero_cache/build_<spatial|libero10>_w13/<suite> --samples 20 --out <parity.json>
    ```
-   四项均 fail-closed：合成观测两路（在线 vs 采集切片 fp16 往返重建）序列/状态位同、key 余弦 ≥0.999；状态负例；20 个真实库步的文本/状态断言与 head 编码器直接比对；helper 纯度（stage 2 / action_inputs / RNG 不变）与 MISS、WARM@0.875 路径等价。
+   四项均 fail-closed：合成观测两路（在线 vs 采集切片 fp16 往返重建）序列位同（只容忍 fp16 次正规区 1 ulp 的图像 token 差异——采集格式本身的限制，文本位置 / 状态仍位同）、key 余弦 ≥0.999；状态负例；20 个真实库步的文本/状态断言与 head 编码器直接比对；helper 纯度（stage 2 / action_inputs / RNG 不变）与 MISS、WARM@0.875 路径等价。
 2. **建库 + 验证**：
    ```bash
    python -m exp.libero_groot.build_cp2_artifact_groot --source-pkl /data/libero_cache/libraries_w13/<suite>/<suite>_w13_S3.pkl \
@@ -162,13 +162,13 @@ uv run python -m exp.actioncache_baseline.bench_cp2_overhead \
    uv run python -m exp.actioncache_baseline.verify_cp2_artifact --teacher groot_libero --cp2-pkl <out> --source-pkl <src>
    ```
    verifier 额外核对顶层/源/payload 的 `schedule_id == groot_n15_k8_v1`、`denoising_num_steps == 8`、`teacher`、`stage1_path`、chunk (16,32)、0.875 快照全覆盖。
-3. **cohort H5 采集与验收**（weilandserver 本机，每 suite 顺序）：
+3. **cohort H5 采集与验收**（collector 在 weilandserver，LIBERO client 在 sim box 上——`ACB_HOST=<collector host>`，client 终态 JSON 搬回 attempt 目录再验收；每 suite 顺序）：
    ```bash
    # 复用步骤 1 的 task_map.json：task_id -> (task.name, task.language)，来自 benchmark 本身
    python -m exp.libero_groot.verify_shadow_h5 --suite <suite> --shadow-manifest <manifest> --task-map <acc>/task_map.json \
        --attempts-root <root>/<suite> --out-dir <acc> --emit-full-filter                                     # 先写 filter_task_<t>.json
    bash exp/libero_groot/ops/launch_acb_collectors.sh <suite> <ckpt> <repo> <gr00t> <python> 0          # 5 个非并发 collector，8030+i
-   bash exp/libero_groot/ops/run_acb_collect_clients.sh <suite> <repo> <python> 0 <acc>                  # client i 串行跑 task i、i+5
+   ACB_HOST=<collector host> bash exp/libero_groot/ops/run_acb_collect_clients.sh <suite> <repo> <python> 0 <acc>   # sim box 上；client i 串行跑 task i、i+5
    python -m exp.libero_groot.verify_shadow_h5 --suite <suite> --shadow-manifest <manifest> --task-map <acc>/task_map.json \
        --attempts-root <root>/<suite> --out-dir <acc>
    ```
@@ -180,7 +180,7 @@ uv run python -m exp.actioncache_baseline.bench_cp2_overhead \
    bash exp/libero_groot/ops/run_cp2_encoder_cost.sh <suite> <ckpt> <repo>       # nsys 三步：measure → trace → certify → config/actioncache/cost_groot_cp2_encoded_<suite>.json
    bash exp/libero_groot/ops/run_cp2_overhead.sh <suite> <ckpt> <cp2 pkl> <acc>/accepted_shadow_manifest.json <repo>   # data/actioncache/overhead_<suite>/overhead.json
    ```
-   E 记录与 teacher 表按内容绑定（`libs.groot_cost_record`）：两 suite 共用冻结 teacher 表并分别测 E；摘要的 `teacher_ckpt_sha256` 保留该表的标定 checkpoint，`ckpt_sha256` 保留本 suite 的 E checkpoint，两者允许不同。E 与 teacher 表使用同一 GPU（`gpu_uuid` / 名称）、冻结采样 N=566 / 30 warmup / 200 iters / `reduce-overhead`（两侧都核对）、`certified` 且 `valid`、`cudaGraphLaunch == expected > 0`、有限 `E > 0`、完整 `weights_digest`。measure 阶段若 GPU 与表不符或 live schedule 非 teacher8 则失败，E 的模型 digest 必须与本 suite 库一致；非冻结采样只能作调试（记录 `debug_sampling`），`certify-encoder` 拒绝认证；ops 脚本每次重测并归档旧记录，不凭 `certified:true` 跳过，measure / trace export / certify 任一步失败均返回非零退出码。
+   E 的 compile 区域是 `process_backbone_output` 的张量孪生（`vl_self_attention(vlln(x))` + `state_encoder`，先断言与 `run_cp2_key_source` 位同，`fullgraph=True`）：直接 compile 带 `BatchFeature` 的生产路径会 graph break、每次调用重编译，E 会假到 ~370 ms 而 launch 计数认证照过。E 记录与 teacher 表按内容绑定（`libs.groot_cost_record`）：两 suite 共用冻结 teacher 表并分别测 E；摘要的 `teacher_ckpt_sha256` 保留该表的标定 checkpoint，`ckpt_sha256` 保留本 suite 的 E checkpoint，两者允许不同。E 与 teacher 表使用同一 GPU（`gpu_uuid` / 名称）、冻结采样 N=566 / 30 warmup / 200 iters / `reduce-overhead`（两侧都核对）、`certified` 且 `valid`、`cudaGraphLaunch == expected > 0`、有限 `E > 0`、完整 `weights_digest`。measure 阶段若 GPU 与表不符或 live schedule 非 teacher8 则失败，E 的模型 digest 必须与本 suite 库一致；非冻结采样只能作调试（记录 `debug_sampling`），`certify-encoder` 拒绝认证；ops 脚本每次重测并归档旧记录，不凭 `certified:true` 跳过，measure / trace export / certify 任一步失败均返回非零退出码。
 6. **出臂**（主 venv）：
    ```bash
    uv run python -m exp.actioncache_baseline.export_arms --teacher groot_libero --suite <suite> --lib-tag w13s3 \
