@@ -1,0 +1,72 @@
+{
+  "libero_spatial": {
+    "source_pkl": "/data/openpi/ablation_study/cache_size/artifacts/cache_size_libero_spatial_all_S6.pkl",
+    "success_episode_list": "/home/weiland/projects/openpi/exp/ablation_study/cache_size/config/lists_success/episodes_libero_spatial_S6.txt",
+    "length_unit": "cached policy calls",
+    "all": {
+      "trajectories": 450,
+      "total_entries": 9813,
+      "mean": 21.80666666666667,
+      "median": 21.0,
+      "p90": 26.0,
+      "min": 13,
+      "max": 44
+    },
+    "success": {
+      "trajectories": 439,
+      "total_entries": 9329,
+      "mean": 21.250569476082006,
+      "median": 21.0,
+      "p90": 26.0,
+      "min": 13,
+      "max": 39
+    },
+    "failure": {
+      "trajectories": 11,
+      "total_entries": 484,
+      "mean": 44.0,
+      "median": 44.0,
+      "p90": 44.0,
+      "min": 44,
+      "max": 44
+    },
+    "failure_length_counts": {
+      "44": 11
+    }
+  },
+  "libero_10": {
+    "source_pkl": "/data/openpi/ablation_study/cache_size/artifacts/cache_size_libero_10_all_S6.pkl",
+    "success_episode_list": "/home/weiland/projects/openpi/exp/ablation_study/cache_size/config/lists_success/episodes_libero_10_S6.txt",
+    "length_unit": "cached policy calls",
+    "all": {
+      "trajectories": 450,
+      "total_entries": 26493,
+      "mean": 58.873333333333335,
+      "median": 51.0,
+      "p90": 104.0,
+      "min": 31,
+      "max": 104
+    },
+    "success": {
+      "trajectories": 392,
+      "total_entries": 20461,
+      "mean": 52.19642857142857,
+      "median": 50.0,
+      "p90": 67.0,
+      "min": 31,
+      "max": 103
+    },
+    "failure": {
+      "trajectories": 58,
+      "total_entries": 6032,
+      "mean": 104.0,
+      "median": 104.0,
+      "p90": 104.0,
+      "min": 104,
+      "max": 104
+    },
+    "failure_length_counts": {
+      "104": 58
+    }
+  }
+}

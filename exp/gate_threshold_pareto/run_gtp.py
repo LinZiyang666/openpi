@@ -295,7 +295,9 @@ def validate_arms(
     yaml_paths: dict[str, str] = {}
     for row in arm_rows:
         arm, path = row["arm"], row["yaml"]
-        cfg = load_cache_config(path)
+        # Driver-side validation: server-side files (online_rit scales / init
+        # state) live on the serving box; the server re-checks them on load.
+        cfg = load_cache_config(path, check_files=False)
         if cfg.routing is not None:
             raise SystemExit(f"arm {arm}: this sweep has no executor routing ({path})")
         # ``cp1`` below is the validated checkpoint's config; under

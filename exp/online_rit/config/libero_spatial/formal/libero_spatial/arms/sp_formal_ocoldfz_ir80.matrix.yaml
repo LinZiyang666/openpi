@@ -1,0 +1,9 @@
+cohort:
+  pool: terminal
+  trials: 25
+  judge_type: online_rit
+  single_process: false
+arms:
+- arm: sp_formal_ocoldfz_ir80
+  yaml: exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_ocoldfz_ir80.yaml
+  suite: libero_spatial

@@ -1,0 +1,51 @@
+file,in_library,success,num_steps,task
+episode_0000_20260410_013433_002633.h5,True,True,16,pick up the black bowl between the plate and the ramekin and place it on the plate
+episode_0001_20260410_010833_643988.h5,True,True,17,pick up the black bowl between the plate and the ramekin and place it on the plate
+episode_0002_20260410_010929_991358.h5,True,True,17,pick up the black bowl between the plate and the ramekin and place it on the plate
+episode_0003_20260410_010946_600378.h5,True,True,16,pick up the black bowl between the plate and the ramekin and place it on the plate
+episode_0004_20260410_011001_080633.h5,True,True,14,pick up the black bowl between the plate and the ramekin and place it on the plate
+episode_0005_20260410_011022_801344.h5,True,True,23,pick up the black bowl next to the ramekin and place it on the plate
+episode_0006_20260410_011042_393597.h5,True,True,21,pick up the black bowl next to the ramekin and place it on the plate
+episode_0007_20260410_011103_871596.h5,True,True,24,pick up the black bowl next to the ramekin and place it on the plate
+episode_0008_20260410_011125_742216.h5,True,True,22,pick up the black bowl next to the ramekin and place it on the plate
+episode_0009_20260410_011147_027725.h5,True,True,22,pick up the black bowl next to the ramekin and place it on the plate
+episode_0010_20260410_011209_792025.h5,True,True,21,pick up the black bowl from table center and place it on the plate
+episode_0011_20260410_011228_856135.h5,True,True,20,pick up the black bowl from table center and place it on the plate
+episode_0012_20260410_011247_049104.h5,True,True,19,pick up the black bowl from table center and place it on the plate
+episode_0013_20260410_011306_565253.h5,True,True,19,pick up the black bowl from table center and place it on the plate
+episode_0014_20260410_011325_518817.h5,True,True,19,pick up the black bowl from table center and place it on the plate
+episode_0015_20260410_011344_869409.h5,True,True,17,pick up the black bowl on the cookie box and place it on the plate
+episode_0016_20260410_011401_521914.h5,True,True,17,pick up the black bowl on the cookie box and place it on the plate
+episode_0017_20260410_011417_292749.h5,True,True,17,pick up the black bowl on the cookie box and place it on the plate
+episode_0018_20260410_011434_257190.h5,True,True,17,pick up the black bowl on the cookie box and place it on the plate
+episode_0019_20260410_011451_488353.h5,True,True,17,pick up the black bowl on the cookie box and place it on the plate
+episode_0020_20260410_011517_357608.h5,True,True,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+episode_0021_20260410_011542_077616.h5,True,True,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+episode_0022_20260410_011605_263672.h5,True,True,23,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+episode_0023_20260410_011629_901435.h5,True,True,27,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+episode_0024_20260410_011654_131430.h5,True,True,26,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+episode_0025_20260410_011714_535001.h5,True,True,19,pick up the black bowl on the ramekin and place it on the plate
+episode_0026_20260410_011732_851293.h5,True,True,19,pick up the black bowl on the ramekin and place it on the plate
+episode_0027_20260410_013453_070393.h5,True,True,18,pick up the black bowl on the ramekin and place it on the plate
+episode_0028_20260410_011829_055003.h5,True,True,19,pick up the black bowl on the ramekin and place it on the plate
+episode_0029_20260410_011847_472194.h5,True,True,18,pick up the black bowl on the ramekin and place it on the plate
+episode_0030_20260410_011910_031319.h5,True,True,21,pick up the black bowl next to the cookie box and place it on the plate
+episode_0031_20260410_011933_301436.h5,True,True,24,pick up the black bowl next to the cookie box and place it on the plate
+episode_0032_20260410_011958_314386.h5,True,True,25,pick up the black bowl next to the cookie box and place it on the plate
+episode_0033_20260410_012019_825828.h5,True,True,21,pick up the black bowl next to the cookie box and place it on the plate
+episode_0034_20260410_012039_100030.h5,True,True,20,pick up the black bowl next to the cookie box and place it on the plate
+episode_0035_20260410_012102_164484.h5,True,True,23,pick up the black bowl on the stove and place it on the plate
+episode_0036_20260410_012124_203616.h5,True,True,23,pick up the black bowl on the stove and place it on the plate
+episode_0037_20260410_012148_210072.h5,True,True,25,pick up the black bowl on the stove and place it on the plate
+episode_0038_20260410_012213_950266.h5,True,True,26,pick up the black bowl on the stove and place it on the plate
+episode_0039_20260410_012242_511766.h5,True,True,27,pick up the black bowl on the stove and place it on the plate
+episode_0040_20260410_013533_614218.h5,False,False,44,pick up the black bowl next to the plate and place it on the plate
+episode_0041_20260410_012346_185785.h5,True,True,19,pick up the black bowl next to the plate and place it on the plate
+episode_0042_20260410_012403_121411.h5,True,True,17,pick up the black bowl next to the plate and place it on the plate
+episode_0043_20260410_012421_441671.h5,True,True,19,pick up the black bowl next to the plate and place it on the plate
+episode_0044_20260410_012440_275668.h5,True,True,19,pick up the black bowl next to the plate and place it on the plate
+episode_0045_20260410_012503_265735.h5,True,True,23,pick up the black bowl on the wooden cabinet and place it on the plate
+episode_0046_20260410_012526_676266.h5,True,True,25,pick up the black bowl on the wooden cabinet and place it on the plate
+episode_0047_20260410_012550_633036.h5,True,True,24,pick up the black bowl on the wooden cabinet and place it on the plate
+episode_0048_20260410_012613_367191.h5,True,True,23,pick up the black bowl on the wooden cabinet and place it on the plate
+episode_0049_20260410_012633_991054.h5,True,True,21,pick up the black bowl on the wooden cabinet and place it on the plate

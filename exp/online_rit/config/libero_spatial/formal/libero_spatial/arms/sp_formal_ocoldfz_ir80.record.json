@@ -1,0 +1,13 @@
+{
+  "source_yaml": "exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_ocold_ir80.yaml",
+  "source_yaml_sha256": "23a4da24d6570e178f6d2cac86b48c4c283cceddda5864512f22253f3a8ce271",
+  "matrix": "exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_ocoldfz_ir80.matrix.yaml",
+  "pool_manifest_sha256": "6d1f85ad582aaf7908137a972ef385d3cd14d6c594d655f7dadeb1a50a157bb2",
+  "terminal_snapshot": "exp/online_rit/data/libero_spatial/state/libero_spatial/sp_formal_ocold_ir80__7e8993793489/e2d9a496044f/state_00004900_atexit.json",
+  "terminal_sha256": "f06bfba53c5bd3b72eb031f900ff5cebf6be5295d03574c501c38bfa9a5b1d0d",
+  "learning_state_sha256": "c75bbb9351354067da82988abf4e8ac63fdf242d479c8351ec80a5cf773c2da1",
+  "n_updates": 4900,
+  "revision": 4900,
+  "out_yaml": "exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_ocoldfz_ir80.yaml",
+  "out_sha256": "a6de5ccd131c0470c98bff7aeae0a53ff356b67bd3ab27b35ca8c5974ba3db6d"
+}

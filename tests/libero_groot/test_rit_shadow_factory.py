@@ -49,7 +49,7 @@ class _FakeOrchestrator:
 
 
 class _FakeRunner:
-    def __init__(self, model, *, timer=None):
+    def __init__(self, model, *, timer=None, compile_vision=False):
         self.model = model
         self.timer = timer
 

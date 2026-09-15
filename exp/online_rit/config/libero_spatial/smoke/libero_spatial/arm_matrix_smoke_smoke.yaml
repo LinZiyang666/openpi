@@ -1,0 +1,12 @@
+arms:
+- arm: sp_smoke_oinit_ir70
+  yaml: /data/openpi_ort/exp/online_rit/config/libero_spatial/smoke/libero_spatial/arms/sp_smoke_oinit_ir70.yaml
+  suite: libero_spatial
+- arm: sp_smoke_ocold_ir70
+  yaml: /data/openpi_ort/exp/online_rit/config/libero_spatial/smoke/libero_spatial/arms/sp_smoke_ocold_ir70.yaml
+  suite: libero_spatial
+cohort:
+  pool: smoke
+  trials: 1
+  judge_type: online_rit
+  single_process: true

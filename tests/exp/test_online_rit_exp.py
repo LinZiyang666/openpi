@@ -579,6 +579,19 @@ def test_paired_bootstrap_pairs_on_task_and_init_position():
     assert paired_bootstrap(identified({"x:eval:0:0": True}), identified({"y:eval:1:0": True}))["n_shared"] == 0
 
 
+def test_stage_count_ledger_prices_a_side_step_as_one_denoise_step():
+    """Owner ruling 2026-09-14: the R line's stage-count IR with the certified prices; side step = one step."""
+    led = load_ledger(REPO / "exp/online_rit/config/cost_groot_libero_stage_count.json")
+    assert led.miss_ms == pytest.approx(6.145862978883088 + 7.191964512458071 + 8 * 3.513)
+    assert led.warm_ms(0.875) == pytest.approx(6.145862978883088 + 7.191964512458071 + 3.513)
+    assert led.fb_ms(2) == led.fb_ms(3) == pytest.approx(3.513)
+    warm = led.decision_ms("WARM_START", 0.875, 2, online=True)
+    assert warm == pytest.approx(led.warm_ms(0.875) + 3.513)
+    assert led.decision_ms("MISS", None, 3, online=True) == pytest.approx(led.miss_ms + 3.513)
+    assert led.decision_ms("MISS", None, 0, online=False) == pytest.approx(led.miss_ms)
+    assert led.episode_end_ms(online=True) == 0.0
+
+
 def test_load_ledger_requires_feedback_costs(tmp_path):
     p = tmp_path / "cost.json"
     p.write_text(json.dumps({"stage1_ms": 6.0, "stage2_ms": 7.0, "stage3_head_ms": 0.0, "stage3_step_ms": 3.5, "num_steps": 8}))

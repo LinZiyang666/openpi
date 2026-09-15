@@ -1,0 +1,40 @@
+{
+  "libero_spatial": {
+    "source_pkl": "/data/openpi/ablation_study/cache_size/artifacts/cache_size_libero_spatial_all_S6.pkl",
+    "source_bytes": 4073962521,
+    "source_mtime_ns": 1786976728594526023,
+    "length_unit": "cached policy calls (one cache entry per recorded decision)",
+    "trajectories": 450,
+    "tasks": 10,
+    "trajectories_per_task": 45,
+    "total_entries": 9813,
+    "min": 13,
+    "q25": 18.0,
+    "median": 21.0,
+    "q75": 24.0,
+    "mean": 21.80666666666667,
+    "p90": 26.0,
+    "p95": 30.0,
+    "max": 44,
+    "step_indices_contiguous": true
+  },
+  "libero_10": {
+    "source_pkl": "/data/openpi/ablation_study/cache_size/artifacts/cache_size_libero_10_all_S6.pkl",
+    "source_bytes": 10998722331,
+    "source_mtime_ns": 1786979537340365002,
+    "length_unit": "cached policy calls (one cache entry per recorded decision)",
+    "trajectories": 450,
+    "tasks": 10,
+    "trajectories_per_task": 45,
+    "total_entries": 26493,
+    "min": 31,
+    "q25": 46.0,
+    "median": 51.0,
+    "q75": 62.75,
+    "mean": 58.873333333333335,
+    "p90": 104.0,
+    "p95": 104.0,
+    "max": 104,
+    "step_indices_contiguous": true
+  }
+}

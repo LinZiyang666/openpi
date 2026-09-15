@@ -1,0 +1,19 @@
+{
+  "protocol": "online_rit_cost_stage_count_v1",
+  "teacher": "groot_libero",
+  "schedule_id": "groot_n15_k8_v1",
+  "num_steps": 8,
+  "stage1_ms": 6.145862978883088,
+  "stage2_ms": 7.191964512458071,
+  "stage3_head_ms": 0.0,
+  "stage3_step_ms": 3.513,
+  "stage3_full_loop_ms": 28.104,
+  "fb_batch_ms": {
+    "1": 3.513,
+    "2": 3.513,
+    "3": 3.513
+  },
+  "source_ledger": "exp/libero_groot/config/rit/cost_groot_libero_measured.json",
+  "source_ckpt_sha256": "b68ec1b5b91ebfa3e0e72025d29762d1177f30eba0718fcb66444ade1796103a",
+  "provenance": "Owner ruling 2026-09-14 (online RIT line): IR is the R line's stage-count ratio IR = spend / (N_dec x MISS) with the fixed per-stage prices of the certified 4090 CUDA-Graph ledger (stage1 6.146, stage2 7.192, one denoise step 3.513 ms; warm@t = stage1 + stage2 + remaining steps x step). The only new term of the online method, the batched side step (FM-1: batch 2 on warm starts, batch 3 on candidate misses), is priced as ONE denoise step regardless of batch size (batch-1 inference is launch-bound). No host / dispatch / commit / snapshot costs enter IR. No new latency benchmark is run; served-lane wall-clock latency is reported separately."
+}

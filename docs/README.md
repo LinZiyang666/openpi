@@ -137,6 +137,8 @@ ICLR 2027 投稿（TIER: experience-tiered inference）论文工作文档。⚠ 
 | File | Description |
 |------|-------------|
 | [iclr/paper_rethink_discussion.md](iclr/paper_rethink_discussion.md) | 现行讨论纪要（2026-08-22 起，已整体重构）：放弃旧 TIER 叙事回归 VLA cache 本身；novelty 叙事 / R(ε) 定义与数学 / 工作提纲 v0.2 / 实验对照表（E0–E13）/ defense 弹药库 / 部署生命周期 / deck 结构 |
+| [iclr/novelty_design_response_report_20260913.md](iclr/novelty_design_response_report_20260913.md) | Retrieve-then-Steer novelty 质疑与设计取舍（2026-09-13）：三角色分析；保留项目范围的设计候选；强对照、机制消融及决定是否改设计的实验判据 |
+| [iclr/modality_weight_selection_codex.md](iclr/modality_weight_selection_codex.md) | 纯离线融合权重选择（2026-09-13）：修正 GR00T 无效动作维度与库版本比较口径；有效 7 维动作误差搜索、四组离线权重、单点与前五候选历史成绩分别报告；备选凸标定、论文措辞及复现 |
 | [iclr/actioncache_response_plan.md](iclr/actioncache_response_plan.md) | ActionCache（concurrent work）攻防方案（2026-08-26）：核实（地板 45–53% vs 14%、端到端 1.26×、LIBERO 被 NFE=1 裸基线支配）/ ICLR 规则豁免 / 写作定位与三层攻防分工 / 12 条弹药 / 四臂对照（Arm1=激活 CP2，核心 ~3,000 ep）与预注册分支 |
 | [iclr/redundancy_structure_fig.html](iclr/redundancy_structure_fig.html) | §5.3 冗余结构三 panel 草图（真数据自包含页 + PNG）；讲法与裁决见纪要 §6.2 |
 | [iclr/tier_paper_outline.old.md](iclr/tier_paper_outline.old.md) \[[ZH](iclr/tier_paper_outline.zh.old.md)\] | **旧版（待重写取代）** TIER 论文提纲 v2：thesis「库的价值在索引不在 payload」、9 页结构/float 台账/appendix 预算/3 贡献；4 审稿人对抗评审 32 findings 裁决修订（裁决日志在文末）；scope lock=无 history 项、Markov 继承线独立成文；文末 Q&A rebuttal 弹药库（Q1 trained-router 质疑三层回应） |

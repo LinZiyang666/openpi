@@ -1,0 +1,51 @@
+file,in_library,success,num_steps,task
+episode_0000_20260421_145256_951882.h5,True,True,58,put both the alphabet soup and the tomato sauce in the basket
+episode_0001_20260421_145332_810413.h5,True,True,58,put both the alphabet soup and the tomato sauce in the basket
+episode_0002_20260421_145406_965462.h5,True,True,55,put both the alphabet soup and the tomato sauce in the basket
+episode_0003_20260421_145442_230258.h5,True,True,59,put both the alphabet soup and the tomato sauce in the basket
+episode_0004_20260421_145514_975870.h5,True,True,54,put both the alphabet soup and the tomato sauce in the basket
+episode_0004_20260421_154909_939096.h5,True,True,50,turn on the stove and put the moka pot on it
+episode_0005_20260421_145548_769987.h5,True,True,50,put both the cream cheese box and the butter in the basket
+episode_0006_20260421_145620_818834.h5,True,True,48,put both the cream cheese box and the butter in the basket
+episode_0007_20260421_145652_045135.h5,True,True,46,put both the cream cheese box and the butter in the basket
+episode_0008_20260421_145723_705415.h5,True,True,48,put both the cream cheese box and the butter in the basket
+episode_0009_20260421_145756_420411.h5,True,True,49,put both the cream cheese box and the butter in the basket
+episode_0010_20260421_154931_315472.h5,True,True,33,pick up the book and place it in the back compartment of the caddy
+episode_0011_20260421_150015_983808.h5,True,True,51,turn on the stove and put the moka pot on it
+episode_0012_20260421_150109_113391.h5,True,True,61,turn on the stove and put the moka pot on it
+episode_0012_20260421_154958_870693.h5,True,True,46,put the white mug on the plate and put the chocolate pudding to the right of the plate
+episode_0013_20260421_150147_027824.h5,True,True,46,turn on the stove and put the moka pot on it
+episode_0014_20260421_150234_937358.h5,True,True,60,turn on the stove and put the moka pot on it
+episode_0014_20260421_155029_148974.h5,True,True,51,put both the alphabet soup and the cream cheese box in the basket
+episode_0015_20260421_150306_477081.h5,True,True,42,put the black bowl in the bottom drawer of the cabinet and close it
+episode_0015_20260421_155056_818708.h5,True,True,47,put both the alphabet soup and the cream cheese box in the basket
+episode_0016_20260421_150341_358525.h5,True,True,55,put the black bowl in the bottom drawer of the cabinet and close it
+episode_0016_20260421_155154_891362.h5,True,True,74,put both moka pots on the stove
+episode_0017_20260421_150415_357328.h5,True,True,46,put the black bowl in the bottom drawer of the cabinet and close it
+episode_0018_20260421_150514_387668.h5,True,True,101,put the black bowl in the bottom drawer of the cabinet and close it
+episode_0018_20260421_155250_742134.h5,True,True,81,put the yellow and white mug in the microwave and close it
+episode_0019_20260421_150552_473180.h5,True,True,55,put the black bowl in the bottom drawer of the cabinet and close it
+episode_0020_20260421_150623_961895.h5,True,True,46,put the white mug on the left plate and put the yellow and white mug on the right plate
+episode_0021_20260421_150651_911856.h5,True,True,45,put the white mug on the left plate and put the yellow and white mug on the right plate
+episode_0022_20260421_150717_548811.h5,True,True,43,put the white mug on the left plate and put the yellow and white mug on the right plate
+episode_0023_20260421_150743_357926.h5,True,True,44,put the white mug on the left plate and put the yellow and white mug on the right plate
+episode_0024_20260421_150808_433812.h5,True,True,42,put the white mug on the left plate and put the yellow and white mug on the right plate
+episode_0025_20260421_150833_216666.h5,True,True,35,pick up the book and place it in the back compartment of the caddy
+episode_0026_20260421_150856_396048.h5,True,True,36,pick up the book and place it in the back compartment of the caddy
+episode_0027_20260421_150917_326437.h5,True,True,31,pick up the book and place it in the back compartment of the caddy
+episode_0029_20260421_151037_202698.h5,True,True,31,pick up the book and place it in the back compartment of the caddy
+episode_0030_20260421_151104_740343.h5,True,True,47,put the white mug on the plate and put the chocolate pudding to the right of the plate
+episode_0031_20260421_151130_944018.h5,True,True,47,put the white mug on the plate and put the chocolate pudding to the right of the plate
+episode_0032_20260421_151156_252142.h5,True,True,44,put the white mug on the plate and put the chocolate pudding to the right of the plate
+episode_0034_20260421_151316_981830.h5,True,True,40,put the white mug on the plate and put the chocolate pudding to the right of the plate
+episode_0035_20260421_151345_521435.h5,True,True,49,put both the alphabet soup and the cream cheese box in the basket
+episode_0038_20260421_151615_368946.h5,True,True,55,put both the alphabet soup and the cream cheese box in the basket
+episode_0039_20260421_151648_760002.h5,True,True,56,put both the alphabet soup and the cream cheese box in the basket
+episode_0040_20260421_151756_437258.h5,True,True,75,put both moka pots on the stove
+episode_0041_20260421_151903_896858.h5,True,True,75,put both moka pots on the stove
+episode_0042_20260421_152010_071054.h5,True,True,83,put both moka pots on the stove
+episode_0044_20260421_152242_971237.h5,True,True,92,put both moka pots on the stove
+episode_0045_20260421_152322_258450.h5,True,True,50,put the yellow and white mug in the microwave and close it
+episode_0046_20260421_152356_583015.h5,True,True,51,put the yellow and white mug in the microwave and close it
+episode_0047_20260421_152429_961806.h5,True,True,48,put the yellow and white mug in the microwave and close it
+episode_0049_20260421_152610_845700.h5,True,True,51,put the yellow and white mug in the microwave and close it

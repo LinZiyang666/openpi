@@ -1,0 +1,427 @@
+{
+  "direct_pruned_strategy_queries": 60,
+  "winner_agreement": 1.0,
+  "max_score_error": 0.0,
+  "checks": [
+    {
+      "query": "episode_0004_20260410_011001_080633:0",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0004_20260410_011001_080633:7",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0004_20260410_011001_080633:13",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0004_20260410_011001_080633:0",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0004_20260410_011001_080633:7",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0004_20260410_011001_080633:13",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0017_20260410_011417_292749:0",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0017_20260410_011417_292749:8",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0017_20260410_011417_292749:16",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0017_20260410_011417_292749:0",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0017_20260410_011417_292749:8",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0017_20260410_011417_292749:16",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0012_20260410_011247_049104:0",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0012_20260410_011247_049104:9",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0012_20260410_011247_049104:18",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0012_20260410_011247_049104:0",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0012_20260410_011247_049104:9",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0012_20260410_011247_049104:18",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0006_20260410_011042_393597:0",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0006_20260410_011042_393597:10",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0006_20260410_011042_393597:20",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0006_20260410_011042_393597:0",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0006_20260410_011042_393597:10",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0006_20260410_011042_393597:20",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0025_20260410_011714_535001:0",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0025_20260410_011714_535001:9",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0025_20260410_011714_535001:18",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0025_20260410_011714_535001:0",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0025_20260410_011714_535001:9",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0025_20260410_011714_535001:18",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0022_20260410_011605_263672:0",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0022_20260410_011605_263672:11",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0022_20260410_011605_263672:22",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0022_20260410_011605_263672:0",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0022_20260410_011605_263672:11",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0022_20260410_011605_263672:22",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0030_20260410_011910_031319:0",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0030_20260410_011910_031319:10",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0030_20260410_011910_031319:20",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0030_20260410_011910_031319:0",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0030_20260410_011910_031319:10",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0030_20260410_011910_031319:20",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0035_20260410_012102_164484:0",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0035_20260410_012102_164484:11",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0035_20260410_012102_164484:22",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0035_20260410_012102_164484:0",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0035_20260410_012102_164484:11",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0035_20260410_012102_164484:22",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0042_20260410_012403_121411:0",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0042_20260410_012403_121411:8",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0042_20260410_012403_121411:16",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0042_20260410_012403_121411:0",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0042_20260410_012403_121411:8",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0042_20260410_012403_121411:16",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0045_20260410_012503_265735:0",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0045_20260410_012503_265735:11",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0045_20260410_012503_265735:22",
+      "cross": true,
+      "theta": 0.985,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0045_20260410_012503_265735:0",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0045_20260410_012503_265735:11",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    },
+    {
+      "query": "episode_0045_20260410_012503_265735:22",
+      "cross": true,
+      "theta": 0.98,
+      "winner_match": true,
+      "score_error": 0.0
+    }
+  ]
+}

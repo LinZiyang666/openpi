@@ -181,6 +181,9 @@ class CostLedger:
         return base + self.fb_ms(fb_batch)
 
 
+STAGE_COUNT_PROTOCOL = "online_rit_cost_stage_count_v1"
+
+
 def load_ledger(path: str | pathlib.Path, *, require_fb: bool = True) -> CostLedger:
     """Read the complete eager v2 cost ledger, rejecting missing measurements.
 
@@ -194,7 +197,14 @@ def load_ledger(path: str | pathlib.Path, *, require_fb: bool = True) -> CostLed
     captured = {int(k): float(v) for k, v in d.get("captured_stage3_ms", {}).items()}
     executed = {int(k): float(v) for k, v in d.get("executed_feedback_ms", {}).items()}
     dispatch, commit, snapshot = (d.get(k, {}) for k in ("dispatch_ms", "commit_ms", "snapshot_ms"))
-    if require_fb:
+    if require_fb and d.get("protocol") == STAGE_COUNT_PROTOCOL:
+        # Owner ruling 2026-09-14: IR stays the stage-count ratio of the R line
+        # (fixed per-stage prices from the certified ledger); a side step at any
+        # batch size is priced as one denoise step; no host / commit / snapshot
+        # terms enter IR. Only the stage prices and fb_batch_ms are required.
+        if not {2, 3} <= set(fb):
+            raise SystemExit(f"{path}: stage-count ledger needs fb_batch_ms for batches 2 and 3")
+    elif require_fb:
         if (d.get("protocol") != "online_rit_cost_v2" or d.get("bench", {}).get("mode") != "eager"
                 or not {1, 2, 3} <= set(fb) or not {1, 2, 4, 8} <= set(ladder)
                 or not {1, 2, 4} <= set(captured) or not {1, 2, 4} <= set(executed)

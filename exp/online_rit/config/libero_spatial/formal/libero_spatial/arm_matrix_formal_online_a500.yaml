@@ -1,0 +1,24 @@
+arms:
+- arm: sp_formal_oinit_ir70
+  yaml: /data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_oinit_ir70.yaml
+  suite: libero_spatial
+- arm: sp_formal_oinit_fm0_ir70
+  yaml: /data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_oinit_fm0_ir70.yaml
+  suite: libero_spatial
+- arm: sp_formal_oinit_s3b_ir70
+  yaml: /data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_oinit_s3b_ir70.yaml
+  suite: libero_spatial
+- arm: sp_formal_oinit_ir80
+  yaml: /data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_oinit_ir80.yaml
+  suite: libero_spatial
+- arm: sp_formal_oinit_fm0_ir80
+  yaml: /data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_oinit_fm0_ir80.yaml
+  suite: libero_spatial
+- arm: sp_formal_oinit_s3b_ir80
+  yaml: /data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_oinit_s3b_ir80.yaml
+  suite: libero_spatial
+cohort:
+  pool: a500
+  trials: 50
+  judge_type: online_rit
+  single_process: true

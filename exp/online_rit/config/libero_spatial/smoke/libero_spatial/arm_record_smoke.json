@@ -1,0 +1,63 @@
+{
+  "protocol": "online_rit_arms_v1",
+  "suite": "libero_spatial",
+  "template": "exp/libero_groot/config/rit/libero_spatial/template.yaml",
+  "template_sha256": "2f834f9ebc0450e3e6414af207bc6b2930af568ba6e1abbe3130c7f4cbee7ffa",
+  "gate": {
+    "type": "score_hysteresis",
+    "theta_low": 0.9846344590187073,
+    "theta_high": 0.9846344590187073,
+    "j": 3,
+    "probe_interval": 3,
+    "L": 6,
+    "include_ws": true
+  },
+  "knots": [
+    0.0,
+    0.967820301652,
+    0.986771807075,
+    0.988847054541,
+    0.990013629198,
+    0.990873202682,
+    0.991686910391,
+    0.992601312697,
+    1.0
+  ],
+  "scales_sha256": "036df5f446220bf5d21f6fbcc76cf772e57df238df2e07352138181f88b04969",
+  "init_state_sha256": "2ea1ab419f12c7cf53d11e11452f5fe2421d131f50706393393c142b7fa81072",
+  "library_pkl": "/data/libero_cache/libraries_w13/libero_spatial/libero_spatial_w13_S3.pkl",
+  "common_targets": [
+    "70",
+    "80"
+  ],
+  "ladders": {
+    "online": "/data/openpi_ort/exp/online_rit/data/libero_spatial/offline/ladder_online_fm1.json",
+    "rprime": "/data/openpi_ort/exp/online_rit/data/libero_spatial/offline/ladder_rprime.json"
+  },
+  "run_tag": "smoke",
+  "arms": {
+    "sp_smoke_oinit_ir70": {
+      "rule": "oinit",
+      "target": 70,
+      "delta": 3.542983441376778,
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/smoke/libero_spatial/arms/sp_smoke_oinit_ir70.yaml",
+      "sha256": "ee0b98b37ead8918c1ec5112ae5b1ec9f24716fb505a4ea15e7c046369691afc"
+    },
+    "sp_smoke_ocold_ir70": {
+      "rule": "ocold",
+      "target": 70,
+      "delta": 3.542983441376778,
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/smoke/libero_spatial/arms/sp_smoke_ocold_ir70.yaml",
+      "sha256": "d08620ed926d9977b50e251ec1c8ff69e337535b5a4d0c9e25d4f35c9f39adfc"
+    }
+  },
+  "matrices": {
+    "smoke": {
+      "path": "/data/openpi_ort/exp/online_rit/config/libero_spatial/smoke/libero_spatial/arm_matrix_smoke_smoke.yaml",
+      "pool": "smoke",
+      "trials": 1,
+      "judge_type": "online_rit",
+      "single_process": true
+    }
+  }
+}

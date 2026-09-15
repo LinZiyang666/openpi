@@ -1086,8 +1086,14 @@ def _validate_online_rit_static(
     errors: list,
     *,
     cp_name: str,
+    check_files: bool = True,
 ) -> None:
-    """Static checks for the ``online_rit`` judge (plan online_rit_groot §3.9 / §6)."""
+    """Static checks for the ``online_rit`` judge (plan online_rit_groot §3.9 / §6).
+
+    ``check_files=False`` skips the existence checks of the server-side files
+    (scales / init state): a conductor driver validates an arm on a box that
+    never opens them; the serving process re-validates with the default.
+    """
     judge = cp_config.judge
     if cp_name != "cp1":
         errors.append(f"{prefix}.judge: online_rit is CP1-only")
@@ -1149,9 +1155,9 @@ def _validate_online_rit_static(
         errors.append(f"{prefix}.judge.snapshot_every must be an int >= 1")
     if not judge.update_scales_path:
         errors.append(f"{prefix}.judge.update_scales_path is required")
-    elif not Path(judge.update_scales_path).is_file():
+    elif check_files and not Path(judge.update_scales_path).is_file():
         errors.append(f"{prefix}.judge.update_scales_path not found: {judge.update_scales_path}")
-    if judge.init_state_path and not Path(judge.init_state_path).is_file():
+    if check_files and judge.init_state_path and not Path(judge.init_state_path).is_file():
         errors.append(f"{prefix}.judge.init_state_path not found: {judge.init_state_path}")
     gate = cp_config.gate
     if gate.type == "score_hysteresis" and gate.include_ws is not True:
@@ -1161,7 +1167,7 @@ def _validate_online_rit_static(
         )
 
 
-def load_cache_config(path: str | Path) -> CacheConfig:
+def load_cache_config(path: str | Path, *, check_files: bool = True) -> CacheConfig:
     """Load cache config from YAML file with environment variable substitution.
 
     Data flow: YAML file (disk) -> read text -> _substitute_env_vars()
@@ -1182,7 +1188,7 @@ def load_cache_config(path: str | Path) -> CacheConfig:
     if raw is None:
         raw = {}
     config = _dict_to_dataclass(CacheConfig, raw)
-    validate_cache_config(config)
+    validate_cache_config(config, check_files=check_files)
     logger.info(
         "Cache config loaded: backend=%s, key_builder=%s, checkpoints=%s, write_policy=%s",
         config.backend.type,
@@ -2014,7 +2020,7 @@ def _validate_cp2_arm(
         )
 
 
-def validate_cache_config(config: CacheConfig) -> None:
+def validate_cache_config(config: CacheConfig, *, check_files: bool = True) -> None:
     """Cross-validate cache config consistency. Called once at startup.
 
     Data flow: CacheConfig -> cross-field validation -> raise or pass
@@ -2475,6 +2481,7 @@ def validate_cache_config(config: CacheConfig) -> None:
                 config,
                 errors,
                 cp_name=cp_name,
+                check_files=check_files,
             )
 
         # risk_router judge parameter checks (X15).

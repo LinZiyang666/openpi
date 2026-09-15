@@ -131,6 +131,14 @@ def test_static_rejections(scales, over, needle):
         validate_cache_config(_config(judge_cfg(scales, **over)))
 
 
+def test_driver_side_validation_can_skip_server_file_checks(tmp_path):
+    scales = write_scales(tmp_path / "scales.npz")
+    cfg = _config(judge_cfg(scales, update_scales_path="/nonexistent/scales.npz", init_state_path="/nonexistent/init.json"))
+    with pytest.raises(ConfigValidationError, match="not found"):
+        validate_cache_config(cfg)
+    validate_cache_config(cfg, check_files=False)
+
+
 def test_requires_named_schedule_and_cp1(scales):
     with pytest.raises(ConfigValidationError, match="denoise_schedule"):
         validate_cache_config(_config(judge_cfg(scales), schedule=None))

@@ -260,7 +260,11 @@ def _build_shadow_factory(
             offline_writers=components["offline_writers"],
             library_stats=components["library_stats"],
         )
-        runner = GrootStagedRunner(shared_base_policy.model, timer=components["timer"])
+        runner = GrootStagedRunner(
+            shared_base_policy.model,
+            timer=components["timer"],
+            compile_vision=getattr(args, "compile_stage1", False),
+        )
         conn_out = out_stem.with_name(
             f"{out_stem.stem}.conn_{uuid.uuid4().hex[:8]}{out_stem.suffix or '.jsonl'}"
         )
@@ -360,7 +364,11 @@ def _build_loto_factory(
             offline_writers=components["offline_writers"],
             library_stats=components["library_stats"],
         )
-        runner = GrootStagedRunner(shared_base_policy.model, timer=components["timer"])
+        runner = GrootStagedRunner(
+            shared_base_policy.model,
+            timer=components["timer"],
+            compile_vision=getattr(args, "compile_stage1", False),
+        )
         logger_policy = GrootLotoLogger(
             shared_base_policy,
             runner,
@@ -525,7 +533,9 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
             offline_writers=components["offline_writers"],
             library_stats=components["library_stats"],
         )
-        runner = GrootStagedRunner(shared_base_policy.model, timer=timer)
+        runner = GrootStagedRunner(
+            shared_base_policy.model, timer=timer, compile_vision=getattr(args, "compile_stage1", False)
+        )
         interceptor = GrootCacheInterceptor(
             shared_base_policy, runner, orchestrator=orchestrator, timer=timer
         )
@@ -537,6 +547,37 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
         f"concurrent cache -> {args.cache_config} ({config.key_builder.type})"
         + (" + dynamic bundles" if allow_dynamic else "")
     )
+
+
+def _unload_stages_2_and_3(model: Any) -> None:
+    """Move every stage-2/3 module to the meta device; stage 1 keeps the GPU.
+
+    Stage 1 (``GrootStagedRunner.run_stage1``) touches the vision tower, the
+    ``mlp1`` projector and ``language_model.model.embed_tokens``; everything
+    else (the LLM's transformer layers, its norm and lm_head, the backbone's
+    post-LLM ``eagle_linear`` and the whole action head) only runs on MISS /
+    WARM_START. Meta parameters keep their shapes and attributes (the schedule
+    guards still read ``action_head.num_inference_timesteps``) but any forward
+    through them raises, which is the intended fail-loud behaviour for a
+    pure-cache replica.
+    """
+    import torch  # noqa: PLC0415
+
+    eagle = model.backbone.eagle_model
+    lm = eagle.language_model
+    before = torch.cuda.memory_allocated() / 2**30
+    for name, module in (
+        ("language_model.model.layers", lm.model.layers),
+        ("language_model.model.norm", lm.model.norm),
+        ("language_model.lm_head", lm.lm_head),
+        ("backbone.eagle_linear", model.backbone.eagle_linear),
+        ("action_head", model.action_head),
+    ):
+        module.to(device="meta")
+        print(f"stage1-only: {name} -> meta", flush=True)
+    torch.cuda.empty_cache()
+    after = torch.cuda.memory_allocated() / 2**30
+    print(f"stage1-only: GPU allocated {before:.2f} GB -> {after:.2f} GB", flush=True)
 
 
 def main() -> None:
@@ -567,6 +608,16 @@ def main() -> None:
         "--experiment",
         default="groot_libero",
         help="Collection subdirectory name under --collect-hdf5.",
+    )
+    parser.add_argument(
+        "--stage1-only",
+        action="store_true",
+        help="Pure-cache serving: after loading, move the language model's "
+        "transformer layers, its lm_head, the backbone's post-LLM projection and "
+        "the action head to the meta device, keeping only what stage 1 needs "
+        "(vision tower, projector, token embeddings). Frees ~4 GB per replica. "
+        "Any MISS or WARM_START then fails loudly, so use it only with "
+        "always_hit recipes on libraries that cover every task.",
     )
     parser.add_argument(
         "--compile-stage1",
@@ -646,6 +697,14 @@ def main() -> None:
         "schedule match it, and stamps its digest on every logged episode.",
     )
     args = parser.parse_args()
+
+    if args.stage1_only and (
+        args.collect_hdf5 or args.rit_shadow_out or getattr(args, "loto_log_out", None)
+    ):
+        parser.error(
+            "--stage1-only serves the cache path alone; collection, the RIT shadow "
+            "and the LOTO logger all run the teacher and cannot use it."
+        )
 
     if args.compile_stage1:
         if args.collect_hdf5:
@@ -740,6 +799,8 @@ def main() -> None:
         device="cuda",
     )
     print(f"denoising steps: {policy.denoising_steps}", flush=True)
+    if args.stage1_only:
+        _unload_stages_2_and_3(policy.model)
 
     served: Any = None
     stack = ""
@@ -795,7 +856,7 @@ def main() -> None:
         )
         _check_libero_builder(config.key_builder.type, parser.error)
         components = build_cache_components(config)
-        runner = GrootStagedRunner(policy.model)
+        runner = GrootStagedRunner(policy.model, compile_vision=getattr(args, "compile_stage1", False))
         served = GrootLiberoPolicyAdapter(
             GrootCacheInterceptor(policy, runner, **components)
         )

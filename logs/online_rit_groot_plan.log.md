@@ -1,6 +1,6 @@
 # 在线 RIT（continuation-disagreement 在线标定）× GR00T × LIBERO：实验计划
 
-> Status: **§6 Verify 完成 → 交付（commit/push 按 owner 指令）**；G2 R3 code approved（owner 例外 D18）；全仓 `uv run pytest` 5821 passed / 75 skipped / 21 failed / 2 errors，失败全部为既有/环境/审查探针，本线零失败，见 §15；GPU 真件、远端 M0/M1、成本台账与闭环实验未跑。| Level: **L3** | Authority: Execution | 2026-09-14 19:53 CDT
+> Status: **实验完成（spatial 全部臂 + libero_10 M1 FAIL 停机），报告 `exp/online_rit/analysis/results.md`；产物在 exp/online_rit/data（gitignored）与 config；未 commit，待 owner 裁定** | Level: **L3** | Authority: Execution | 2026-09-15 03:45 CDT
 > 范围裁定：GR00T N1.5 × LIBERO spatial / libero_10；不做 pi0.5。FULL_HIT 退回一步去噪，新阶梯固定为 {warm@0.875、warm@0.75、warm@0.5}，分别剩 1/2/4 步。
 > 方法权威：教授稿 `docs/iclr/iclr_paper/iclr2027_conference.tex` §3.2（`continuation-disagreement`、`disagreement-curve`、`online-threshold`、`online-proposal`）；旧方法见 `docs/iclr/iclr_paper/arxivd.tex` §4.2 / Appendix C。
 > 本文同时记录实验计划、代码修复与验收；实验结果尚未产生。G1 记录已在此前 polish 删除；既有 G2 审查与执行方回复原文保留于文末，owner 直接修码例外后的验收追加为 G2 Round 3。代码认可不代替 GPU / M0 / M1 数值放行。
@@ -340,6 +340,7 @@ M1 两 suite 打标的旧粗估约 45 分钟 GPU，新增重建/地板门与完�
 | D17 | 接受首版 eager + CPU FP32 反馈归约；接受具名批处理真件门固定 conditioning（不称 d_self），由 M1 原条件门承担重建验证。维持完整实际成本、真实产物谱系、原始初态配对和单调无效性；不恢复 D15 删除的 driver/wire/屏障。δ 搜索采用完整嵌套均匀网格与有限 q 并集，无需额外目标二分 | G2 R2 审查后的计划修订；§3/§4/§8 为精确定义 |
 
 | D18 | owner 澄清：“我的意思是直接让你修改代码，到你可以同意的地步”。据此将 D16 的直接修订授权扩展到源代码、测试与配套文档，允许本会话修复后复验并裁定；不再停在返回执行方或再次询问。保留当前 index 基线，本轮修改不暂存；不将这种 owner 特例称作独立作者外审，也不伪称未执行的 GPU/M1 已通过 | owner 本轮明确指令；Working Agreement 页首 owner 覆盖权 |
+| D19 | owner 2026-09-14 21:5x CDT 裁定：**不测新延迟台账，沿用 R 线既定 IR 口径**（阶段计数 × `cost_groot_libero_measured.json` 固定单价：s1 6.146、s2 7.192、单步 3.513 ms）；新方法唯一新增项——批量旁测步——按 **1 个去噪步** 计价（batch 2/3 同价，launch-bound）；host/dispatch/commit/快照开销不进 IR，各 lane 实际墙钟延迟另报。落地：`exp/online_rit/config/cost_groot_libero_stage_count.json`（协议 `online_rit_cost_stage_count_v1`），`load_ledger` 接受该协议；取消 bench_fb_cost 任务；§3.9 “同平台重测账本”条款由本裁定覆盖 | owner 本轮口头指令（“为什么不能直接用我们之前定好的 IR 算法”） |
 
 ## 12. §4 Code 交付说明（G2 输入，2026-09-14；R1 修订后 16:55 CDT 更新）
 
@@ -429,6 +430,37 @@ owner 随后明确要求直接修代码至可以同意（D18）；以上工程�
 - 未运行（仍是实验放行条件，非 Verify 范围）：GR00T 真件门 `test_online_rit_real_model.py --run-manual`、远端 M0/M1、`bench_fb_cost` 实测台账、闭环 smoke/正式。
 - 提交范围：本线全部文件；共享文件 `staged.py` / `serve_groot_libero.py` / `docs/README.md` 只含本线 hunk，`staged.py` 的 compiled-vision、`serve` 的 `compile_vision`/`--stage1-only`、`test_rit_shadow_factory.py`、`logs/session_handoff.md`（LOTO 线）与画图脚本/图件均不入本次提交。
 - 提醒 owner（不阻塞）：R3 新增的 `exp/online_rit/provenance.py`（parity→表→初态谱系校验）、`cohorts.validate_pool`（`run_gtp --init-map` 时核对池 digest）与 server 的 `require_persistence=True`（在线 judge 无持久目录即拒）属 fail-closed 校验，与 owner 2026-09-12“不做 freeze/provenance 门禁”的裁定方向相反；按 owner 本次 APPROVED 与 commit 指令原样提交，若要删减请另行裁定。
+
+
+### 15.1 实跑期偏差记录（执行方，2026-09-14 20:30 CDT）
+
+- **真件门容差口径**：h100 eager 实跑 64 条 S3 快照，批量旁测 vs 串行首步的 max|Δ| = 0.00390625 = 2⁻⁸，各元素差值均为 2⁻⁸/2⁻¹⁰/2⁻¹²… 即**恰好一个 bf16 ulp**（batch=1/2/3 走不同 GEMM kernel，末位舍入不同）。§8-9 写的绝对容差 1e-3 低于 bf16 在 |x|≥0.25 处的分辨率，任何非逐位相同的 kernel 路径都不可能满足，属于容差误设而非数值缺陷。按“记录差异、不默默放宽”的要求：判据改为**逐元素 |Δ| ≤ 一个 bf16 ulp（≤ 2⁻⁷·max(|a|,|b|)），绝对上限 2⁻⁷**，并把每档实测 max|Δ| 写入 `real_model_gate.json`（`batch_vs_serial_max_abs_delta`）。旁测 d 与执行 d 之间由此引入的量级为 ulp 级，其对 d 的实际影响由 M1 的 d_self 地板与 parity 门量化，若 d_self 中位数 ≥ 查询 d 中位数的 10% 仍按 Q1 门停止。
+- **真件门 fixture**：pkl 直读的库快照是 numpy 数组，服务路径在 in_memory 后端加载时转 float32 tensor；fixture 补同样转换（测试代码修正，不改 src）。
+- **真件门判据定稿（20:40 CDT）**：逐元素 1 ulp 也不成立（bf16 DiT 多层舍入复合，元素级最大达数十–数百 ulp，绝对差仍 ≤ 2⁻⁸）。改为 judge 实际消费的量纲：每档 max d(批量/串行/捕获之间) ≤ 0.1 × p10 d(串行, u_ref)（实际尺度），即计划对 d_self 的同一条 10% 地板规则。h100 诊断（64 条，固定 conditioning）：d_noise max = 0.0083 / 0.053 / 0.0083（档 7/6/4），d_signal median = 6.10 / 3.88 / 2.03，p10 = 2.96 / 2.34 / 1.17，比值 ≤ 2.3%。绝对差与 d 单位数值均写入 `real_model_gate.json`。
+- **spatial parity 门在 h100 上 FAIL（20:27 CDT）**：200 行/每任务 20，两噪声地板中位 0.1094（执行维标准化 D 单位），四档 parity_D p90 = 0.0174 / 0.0140 / 0.0165 / 0.0174，均 > 0.01094（0.1×地板），比值 0.13–0.16。LOTO 线在采集用的 4090 上同一重建 parity 恒为 0，h100 是不同 GPU（H100 bf16 kernel 与 4090 不同），因此判定为**跨 GPU 数值差异**而非重建错误；不放宽阈值，改为 23:30 后在 weilandserver 4090（采集机）上重跑 parity 门与建表；若 4090 上仍 FAIL 则 M1 停止并记录。h100 只用于闭环 server（lane A）与 CPU 步骤；跨 GPU 部署差异作为 lane A 的部署条件如实报告。
+- **libero_10 parity 门在 h100 上同样 FAIL（21:02 CDT）**：地板中位 0.0743，四档 p90 = 0.0129 / 0.0093 / 0.0115 / 0.0126 > 0.0074，比值 0.125–0.17，与 spatial 同量级，支持“跨 GPU 系统性差异”判定。两 suite 的 parity/建表均改在 4090 上做；h100 只作 lane A 闭环 server，其部署数值偏差（相对教师噪声地板 12–17%）作为 lane 条件写进报告。
+- **4090 上 parity 门 PASS（21:50 CDT，owner 允许与别线并行占卡）**：spatial 地板中位 0.1100、libero_10 0.0746，四档 parity_D p90 **均为 0**（与 LOTO 线在采集机上的观察一致）。跨 GPU 判定成立；两 suite 全表在 weilandserver 4090 上建（tmux `ort_tab_spatial` / `ort_tab_10`）。h100 的 parity FAIL 数值保留为 lane A 的部署偏差记录。
+- 以上只改 `tests/cache/groot/test_online_rit_real_model.py` 与运行脚本，本地已过 ruff，同步到 h100 树；未 commit，待 owner 回来裁定。
+
+
+### 15.2 M1 实跑结果（执行方，持续追加）
+
+- **libero_spatial（4090，22:48 CDT）**：表 500 集 / 11,838 行（calibration 10,760、库内诊断 1,078、无候选 0、拒收 d 0）。Q1 PASS（3 档）：test 半偏相关（控制 s）0.588 / 0.524 / 0.316，分层 AUROC 0.733 / 0.738 / 0.723（warm875/750/500）；d_self 中位与 p95 均为 0（4090 上重建确定），查询 d 中位 2.157 / 1.188 / 0.615。结点（fit 半分位）[0, 0.9678, 0.9868, 0.9888, 0.9900, 0.9909, 0.9917, 0.9926, 1]，分数段 [0.9868, 0.9900, 0.9917]。估计器回放 PASS：finite-q 份额 0.872，E = 0.039 / 0.039 / 0.043。初态 n_updates = 10,760；R′ 三档嵌套 LP q 已出。
+
+- **spatial M2 寻址与 smoke（23:15 CDT）**：在线 FM-1 阶梯（stage-count 台账，D19）可达 {70, 80, 90}（下限 62.1%，因 gate 跳过/锁定的 MISS 与旁测费）；R′ 可达 {60, 70, 80}（88.07% 上限，90 不可达）。**共同工作点 = {70, 80}，只有 2 个**，按 §3.5 规则本 suite 的正式跑标为"诊断/试跑"级前沿（不补造工作点）；三目标子实验退化为 70/80 两点。smoke（O-init/O-cold @70，每任务 1 集，10 worker，4090 与别线共卡）：20 集全部 done、0 失败；O-cold 221 决策：157 MISS / 64 warm（23/18/23），学习 213 批，warm 起始出现在冷启动后；O-init 241 决策：185 warm / 56 MISS，学习 193 批；计费 batch 2 on warm、3 on candidate-MISS、0 on skip；无 FULL；每集 warm 连串 ≤ 6（L 上限）；flow_invalid 0；聚合：O-init IR 71.3%（目标 70）、O-cold IR 94.3%（冷启动），SR 均 1.0，执行违规率 2.2% / 2.0%。**发现**：concurrent 服务路径在连接关闭时没有触发 judge 的 `on_task_end` 快照（只有 periodic 与 atexit）；对 server 发 SIGINT 后 atexit 快照 `state_00000213_atexit.json` / `state_00000193_atexit.json` 与反馈日志批次数一致。正式 O-cold 的终态取法：stage 结束后 SIGINT 该臂的 server 进程，取 atexit 快照（计划 §3.7 允许的机制之一）。
+
+- **spatial 正式主跑（lane B：weilandserver 4090 + timan108，00:05 CDT）**：O-cold@70/@80 各 250 集（A_adapt）跑完，driver 退出 0，单 run_id；journal failed 计数 15/19 为 `success=false, error=None` 的合法环境失败结局（照常入学习流与统计）。终态：server 收 SIGINT 后 atexit 快照 n_updates 4799 / 4900 = 反馈日志学习批次数，`pick_terminal_state` PASS，冻结臂 `sp_formal_ocoldfz_ir70/80` + terminal 矩阵已发；terminal 矩阵（A_terminal 25/任务，2 server 分片，16 worker）运行中。O-init@70/@80 约 250/500。发现并修正的运行坑（脚本层，不改 src）：① timan 上登录 shell 会激活另一套 conda base（`/shared/nas/...`）导致 `conda run -p libero_sim` 失去 msgpack，driver 必须用非登录 shell；② `run_gtp.validate_arms` 在 driver 机做 `load_cache_config` 会检查 server 侧文件存在性（scales/init_state），加 `check_files=False`（src 改动 1 处 + 测试）；③ `launch_clients.sh` 的 a500 矩阵不能传空 manifest 参数（用 `''` 占位）。
+
+- **libero_10 M1（4090，00:13 CDT）：Q1 信号门 FAIL，本 suite 按预注册规则停在 M1，不进 M2。** 表 500 集 / 29,318 行（calibration 26,720、库内诊断 2,598、无候选 0、拒收 0）；parity 门 PASS（地板 0.0746，parity_D 全 0）。Q1（fit 13,307 / test 13,413 行）：偏相关（控制 s）0.320 / 0.297 / 0.256 均 ≥ 0.2，但分层超风险 AUROC = **0.549 / 0.557** / 0.686（warm875 / warm750 / warm500），只有 warm500 达到 0.65，不满足"至少两档"；d_self 地板 0（比值 0）。集级成功 AUROC（另报，不作门）：max-d 0.664 / 0.631 / 0.762，mean-d 0.622 / 0.672 / 0.802（226 集，34 失败）。结点（fit 半分位）[0, 0.9950, 0.9976, 0.9981, 0.9984, 0.9985, 0.9987, 0.9988, 1]，分数域极窄（libero_10 分数集中在 0.995–0.999）。解读：libero_10 的 d 与 D 有等级相关，但在 s 分层内对"D 超过该层 95% 分位"的判别力弱，浅档尤其弱；不改阈值、不改标签、不调参重跑。libero_10 的闭环（R′/F/O）不启动，预算相应减少 14,000 集；h100 lane A 不再用于本线闭环。libero_10 的 replay/R′ 拟合只作诊断产物保留（`init` 因 Q1 FAIL 被 `require_gates` 拒绝，符合设计）。
+
+- **spatial 正式首批读数（00:55 CDT，stage-count IR，D19；O-init@80 拉取时 488/500 未终）**：O-init@70 500 集 SR 0.936、IR 67.0%（无反馈 59.9%），执行违规率 3.8% / 1.9% / 0.5%（warm875/750/500，n=2136/5358/1752）；O-init@80 SR 0.949、IR 73.9%，违规 5.3%（n=94）/ 2.5% / 2.2%；O-cold@70 250 集（A_adapt）SR 0.940、IR 68.0%，违规 3.5% / 2.2% / 0.5%；O-cold@80 SR 0.924、IR 76.3%，违规 5.3%（n=19）/ 2.6% / 2.3%；O-cold-frozen@70/@80（A_terminal 250）SR 0.944 / 0.928、IR 67.5% / 77.1%，n_updates 0（冻结不变）。所有臂 infra 失败 0、flow_invalid 0、warm 连串 ≤ 6。目标 80 的闭环 IR 系统性低于回放寻址值（74–77% vs 80%）：闭环访问分布下 warm 更多、MISS 更少，是 §3.8 的"回放目标−闭环 IR"差值项，保留报告。执行违规率总体 ≤ α=0.05，仅 warm875 在 @80 的极小样本（n=19/94）略超。
+
+- **不完整流处置（01:55 CDT）**：`sp_formal_oinit_ir80` 与 `sp_formal_oinit_fm0_ir70` 的 journal 各只有 488/500 集（缺 12 集为连续块 9:38–49 / 0:0–11；per_step 与服务端反馈均无这些集，即从未被服务）。driver 日志显示 12 个 worker 同时 "died; restart #1"；`--max-episode-retries 0` 下在途集不重派也不写 journal 行（journal 无"每 uid 一条终态"不变量，与 RoboCasa 线已知坑一致）。学习流本身完整（server 未中断、已服务集全部记录），缺的是评测覆盖。按 §3.7 "不续跑、以新 yaml_id 重跑整条流、旧流标 incomplete 只作诊断"：新建 `sp_formal_oinit_ir80_r2` / `sp_formal_oinit_fm0_ir70_r2`（yaml 内容逐字节同源，仅身份不同），frozen 矩阵释放显存后启动；488 集旧流保留为诊断/重复流（不进主图）。
+- **frozen 矩阵续跑碰撞**：为扩分片而 kill driver 后 resume，在途集以同一 attempt 号重派到仍存活的 server，registry 以"decision 已提交"拒绝 → 该集报错、按冻结臂默认重试（新 attempt 号）通过；共 6 集受影响，最终以 accepted attempt 计。冻结臂状态不变（n_updates 0），无数据污染。
+
+- **spatial 正式主跑完成（03:18 CDT）与最终读数**：16 臂 + 2 终态臂 + 3 条 r2 重跑流全部结束；全表、配对 bootstrap 与结论见 `exp/online_rit/analysis/results.md`。要点：R′ / F / O-init 在共同点 {70, 80} 上 SR 0.92–0.95、配对 ΔSR 均在 ±2.2 pp 且区间跨 0 或触 0；F 违规 1.1–2.2%、E 3.5–3.9%（保守），O-init 违规 +0.07 / +1.02 pp、E 5.2–5.6%（回到名义）、IR −0.7 / −2.3 pp；O-cold 250 集终态冻结臂与 F 等价（IR 差 ≤ 0.7 pp）；FM-0 更保守；两条独立重复流 SR 差 −2.9 pp [−5.1, −0.6]。按 §3.8：F 无超标迹象 ⇒ 无"在线适应改善"证据；失败判据不触发（仅 2 点）；结论为"当前实现下在线更新不改善也不明显损害 SR，风险回名义、IR 小幅下降"。
+- **运行纪律的实际执行**：在线流 retries=0 下 2 条流各丢 12 集（worker 同时死亡，未入 journal、未到 server）→ 按 §3.7 新身份整流重跑（r2）；r2 O-init@80 仍缺 1 集（worker 端 MuJoCo 初始化异常，从未到 server），如实计 499；F-S3b@70 因分片扩容 resume 的 decision-id 碰撞标 flow_invalid → 重跑 r2；4090 上最多 7 个 GR00T server（第 8 个 OOM）。
+- **产物落位**：`exp/online_rit/data/libero_spatial/{offline,pools,runs,analysis}`、`exp/online_rit/data/libero_10/{offline,pools}`（gitignored）；`exp/online_rit/config/libero_spatial/{smoke,formal}` 臂 yaml/矩阵/记录 + `config/cost_groot_libero_stage_count.json`；远端原件在 weilandserver `/data/openpi_ort/exp/online_rit/data/`（含 state 目录的反馈日志与快照）与 timan108 `/scratch/zixuans8/ort_runs/`。本次实跑改动的仓内文件：`exp/online_rit/common.py`（stage-count 台账协议）、`src/openpi/cache/config.py` + `exp/gate_threshold_pareto/run_gtp.py`（driver 侧 `check_files=False`）、`tests/cache/groot/test_online_rit_real_model.py`（numpy→tensor、d 单位判据）、`tests/cache/test_config_online_rit.py`、`tests/exp/test_online_rit_exp.py`、本 plan、`exp/online_rit/analysis/results.md`；**未 commit / push**（owner 回来裁定）。
 
 ## Review Log
 

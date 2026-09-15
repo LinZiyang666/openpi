@@ -1,0 +1,202 @@
+{
+  "protocol": "online_rit_arms_v1",
+  "suite": "libero_spatial",
+  "template": "exp/libero_groot/config/rit/libero_spatial/template.yaml",
+  "template_sha256": "2f834f9ebc0450e3e6414af207bc6b2930af568ba6e1abbe3130c7f4cbee7ffa",
+  "gate": {
+    "type": "score_hysteresis",
+    "theta_low": 0.9846344590187073,
+    "theta_high": 0.9846344590187073,
+    "j": 3,
+    "probe_interval": 3,
+    "L": 6,
+    "include_ws": true
+  },
+  "knots": [
+    0.0,
+    0.967820301652,
+    0.986771807075,
+    0.988847054541,
+    0.990013629198,
+    0.990873202682,
+    0.991686910391,
+    0.992601312697,
+    1.0
+  ],
+  "scales_sha256": "036df5f446220bf5d21f6fbcc76cf772e57df238df2e07352138181f88b04969",
+  "init_state_sha256": "2ea1ab419f12c7cf53d11e11452f5fe2421d131f50706393393c142b7fa81072",
+  "library_pkl": "/data/libero_cache/libraries_w13/libero_spatial/libero_spatial_w13_S3.pkl",
+  "common_targets": [
+    "70",
+    "80"
+  ],
+  "ladders": {
+    "online": "/data/openpi_ort/exp/online_rit/data/libero_spatial/offline/ladder_online_fm1.json",
+    "rprime": "/data/openpi_ort/exp/online_rit/data/libero_spatial/offline/ladder_rprime.json"
+  },
+  "run_tag": "formal",
+  "arms": {
+    "sp_formal_rprime_ir70": {
+      "rule": "rprime",
+      "target": 70,
+      "delta_D": 0.4437295439839271,
+      "dropped": [
+        "warm875"
+      ],
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_rprime_ir70.yaml",
+      "sha256": "f6dbeaef5c8e5ccded24da100d4eeb37dc732b41368fdc05fa74ae5a2d55d633"
+    },
+    "sp_formal_f_ir70": {
+      "rule": "f",
+      "target": 70,
+      "delta": 3.542983441376778,
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_f_ir70.yaml",
+      "sha256": "8ba8d8ae9af636e5540ef309e6730ef18765b7f4d4d6e9284ef3fef5014d8675"
+    },
+    "sp_formal_oinit_ir70": {
+      "rule": "oinit",
+      "target": 70,
+      "delta": 3.542983441376778,
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_oinit_ir70.yaml",
+      "sha256": "ee0b98b37ead8918c1ec5112ae5b1ec9f24716fb505a4ea15e7c046369691afc"
+    },
+    "sp_formal_ocold_ir70": {
+      "rule": "ocold",
+      "target": 70,
+      "delta": 3.542983441376778,
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_ocold_ir70.yaml",
+      "sha256": "d08620ed926d9977b50e251ec1c8ff69e337535b5a4d0c9e25d4f35c9f39adfc"
+    },
+    "sp_formal_oinit_fm0_ir70": {
+      "rule": "oinit_fm0",
+      "target": 70,
+      "delta": 3.542983441376778,
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_oinit_fm0_ir70.yaml",
+      "sha256": "0c4a971e2cbdc751a6a162af3bad6c95f9b041f42770e243d0478ba6b69190ad"
+    },
+    "sp_formal_rprime_s3b_ir70": {
+      "rule": "rprime_s3b",
+      "target": 70,
+      "delta_D": 0.4437295439839271,
+      "dropped": [
+        "warm875"
+      ],
+      "library_sha256": "2894817bc483adcaffccd47356819046482703f808605a5c4a2bd66f7e5d32fd",
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_rprime_s3b_ir70.yaml",
+      "sha256": "4bc31c4bc8d0f38ad77335da07e7588bb1391e9350bd4b3fd434233d49a5a420"
+    },
+    "sp_formal_f_s3b_ir70": {
+      "rule": "f_s3b",
+      "target": 70,
+      "delta": 3.542983441376778,
+      "library_sha256": "2894817bc483adcaffccd47356819046482703f808605a5c4a2bd66f7e5d32fd",
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_f_s3b_ir70.yaml",
+      "sha256": "c48e6bddf184e47af952b4615fe4afbc923dc2070e1537aa9e124f4b3f895b2e"
+    },
+    "sp_formal_oinit_s3b_ir70": {
+      "rule": "oinit_s3b",
+      "target": 70,
+      "delta": 3.542983441376778,
+      "library_sha256": "2894817bc483adcaffccd47356819046482703f808605a5c4a2bd66f7e5d32fd",
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_oinit_s3b_ir70.yaml",
+      "sha256": "c1eb6bb1aee64e67bc2fd68dac4dceeb0a2716ba86f8018299aad0e0f311a898"
+    },
+    "sp_formal_rprime_ir80": {
+      "rule": "rprime",
+      "target": 80,
+      "delta_D": 0.20619827315211522,
+      "dropped": [
+        "warm875",
+        "warm750"
+      ],
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_rprime_ir80.yaml",
+      "sha256": "047b62fbb6495713f18954d6d117cbedd4409344d274d21bafc1d0872596415d"
+    },
+    "sp_formal_f_ir80": {
+      "rule": "f",
+      "target": 80,
+      "delta": 2.6144152620846453,
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_f_ir80.yaml",
+      "sha256": "e61b3e85347b94d4c2e509b43f6d6753e13c21ae352ee2e2f90d7b08f2bd2d08"
+    },
+    "sp_formal_oinit_ir80": {
+      "rule": "oinit",
+      "target": 80,
+      "delta": 2.6144152620846453,
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_oinit_ir80.yaml",
+      "sha256": "614abbb56cc2835cda43c5c57cb160c140794a184925210778c90caf4ba13165"
+    },
+    "sp_formal_ocold_ir80": {
+      "rule": "ocold",
+      "target": 80,
+      "delta": 2.6144152620846453,
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_ocold_ir80.yaml",
+      "sha256": "23a4da24d6570e178f6d2cac86b48c4c283cceddda5864512f22253f3a8ce271"
+    },
+    "sp_formal_oinit_fm0_ir80": {
+      "rule": "oinit_fm0",
+      "target": 80,
+      "delta": 2.6144152620846453,
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_oinit_fm0_ir80.yaml",
+      "sha256": "3ab1459bce7c85cf49ea048953275d9335b31bcd8500fc02d5c3479a62b861f0"
+    },
+    "sp_formal_rprime_s3b_ir80": {
+      "rule": "rprime_s3b",
+      "target": 80,
+      "delta_D": 0.20619827315211522,
+      "dropped": [
+        "warm875",
+        "warm750"
+      ],
+      "library_sha256": "2894817bc483adcaffccd47356819046482703f808605a5c4a2bd66f7e5d32fd",
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_rprime_s3b_ir80.yaml",
+      "sha256": "b5db1605ed202a0f04bce8afb296d9e5106366a28d12dfe5a5ff22a064dd257a"
+    },
+    "sp_formal_f_s3b_ir80": {
+      "rule": "f_s3b",
+      "target": 80,
+      "delta": 2.6144152620846453,
+      "library_sha256": "2894817bc483adcaffccd47356819046482703f808605a5c4a2bd66f7e5d32fd",
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_f_s3b_ir80.yaml",
+      "sha256": "e70cc7daeb6ad3d8935272a233a8939dc6be272bbc555d788129dfa465db17f2"
+    },
+    "sp_formal_oinit_s3b_ir80": {
+      "rule": "oinit_s3b",
+      "target": 80,
+      "delta": 2.6144152620846453,
+      "library_sha256": "2894817bc483adcaffccd47356819046482703f808605a5c4a2bd66f7e5d32fd",
+      "yaml": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arms/sp_formal_oinit_s3b_ir80.yaml",
+      "sha256": "031682622519e10c2163e8dc283cacfada20a4ba7aa122e1b3b7de884117dcc7"
+    }
+  },
+  "matrices": {
+    "rprime": {
+      "path": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arm_matrix_formal_rprime.yaml",
+      "pool": "a500",
+      "trials": 50,
+      "judge_type": "threshold",
+      "single_process": false
+    },
+    "frozen": {
+      "path": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arm_matrix_formal_frozen.yaml",
+      "pool": "a500",
+      "trials": 50,
+      "judge_type": "online_rit",
+      "single_process": false
+    },
+    "online_a500": {
+      "path": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arm_matrix_formal_online_a500.yaml",
+      "pool": "a500",
+      "trials": 50,
+      "judge_type": "online_rit",
+      "single_process": true
+    },
+    "online_adapt": {
+      "path": "/data/openpi_ort/exp/online_rit/config/libero_spatial/formal/libero_spatial/arm_matrix_formal_online_adapt.yaml",
+      "pool": "adapt",
+      "trials": 25,
+      "judge_type": "online_rit",
+      "single_process": true
+    }
+  }
+}

@@ -1,0 +1,1202 @@
+[
+  {
+    "task": "put both moka pots on the stove",
+    "query": "episode_0016_20260421_155154_891362:37",
+    "theta": 0.995,
+    "keep": 191,
+    "winner_same": true,
+    "old_score": 0.9978257417678833,
+    "new_score": 0.9978258609771729,
+    "max_all_candidate_error": 8.153915405273438e-05
+  },
+  {
+    "task": "put both moka pots on the stove",
+    "query": "episode_0016_20260421_155154_891362:37",
+    "theta": 0.98,
+    "keep": 102,
+    "winner_same": true,
+    "old_score": 0.9978257417678833,
+    "new_score": 0.9978258609771729,
+    "max_all_candidate_error": 8.153915405273438e-05
+  },
+  {
+    "task": "put both the alphabet soup and the tomato sauce in the basket",
+    "query": "episode_0003_20260421_145442_230258:0",
+    "theta": 0.998,
+    "keep": 164,
+    "winner_same": true,
+    "old_score": 0.9975119829177856,
+    "new_score": 0.9975118637084961,
+    "max_all_candidate_error": 7.784366607666016e-05
+  },
+  {
+    "task": "put both the alphabet soup and the tomato sauce in the basket",
+    "query": "episode_0003_20260421_145442_230258:0",
+    "theta": 0.995,
+    "keep": 77,
+    "winner_same": true,
+    "old_score": 0.9975119829177856,
+    "new_score": 0.9975118637084961,
+    "max_all_candidate_error": 7.784366607666016e-05
+  },
+  {
+    "task": "put both the alphabet soup and the tomato sauce in the basket",
+    "query": "episode_0003_20260421_145442_230258:0",
+    "theta": 0.98,
+    "keep": 45,
+    "winner_same": true,
+    "old_score": 0.9974719285964966,
+    "new_score": 0.997471809387207,
+    "max_all_candidate_error": 7.784366607666016e-05
+  },
+  {
+    "task": "turn on the stove and put the moka pot on it",
+    "query": "episode_0004_20260421_154909_939096:49",
+    "theta": 0.995,
+    "keep": 171,
+    "winner_same": true,
+    "old_score": 0.9983046054840088,
+    "new_score": 0.9983047842979431,
+    "max_all_candidate_error": 7.605552673339844e-05
+  },
+  {
+    "task": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+    "query": "episode_0020_20260421_150623_961895:45",
+    "theta": 0.9985,
+    "keep": 149,
+    "winner_same": true,
+    "old_score": 0.998275637626648,
+    "new_score": 0.998275637626648,
+    "max_all_candidate_error": 7.37905502319336e-05
+  },
+  {
+    "task": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+    "query": "episode_0020_20260421_150623_961895:45",
+    "theta": 0.998,
+    "keep": 136,
+    "winner_same": true,
+    "old_score": 0.998275637626648,
+    "new_score": 0.998275637626648,
+    "max_all_candidate_error": 7.37905502319336e-05
+  },
+  {
+    "task": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+    "query": "episode_0020_20260421_150623_961895:45",
+    "theta": 0.995,
+    "keep": 80,
+    "winner_same": true,
+    "old_score": 0.9978456497192383,
+    "new_score": 0.997845470905304,
+    "max_all_candidate_error": 7.37905502319336e-05
+  },
+  {
+    "task": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+    "query": "episode_0020_20260421_150623_961895:45",
+    "theta": 0.98,
+    "keep": 52,
+    "winner_same": true,
+    "old_score": 0.9978456497192383,
+    "new_score": 0.997845470905304,
+    "max_all_candidate_error": 7.37905502319336e-05
+  },
+  {
+    "task": "put both moka pots on the stove",
+    "query": "episode_0016_20260421_155154_891362:73",
+    "theta": 0.995,
+    "keep": 191,
+    "winner_same": true,
+    "old_score": 0.997418224811554,
+    "new_score": 0.9974182844161987,
+    "max_all_candidate_error": 7.271766662597656e-05
+  },
+  {
+    "task": "put both moka pots on the stove",
+    "query": "episode_0016_20260421_155154_891362:73",
+    "theta": 0.98,
+    "keep": 102,
+    "winner_same": true,
+    "old_score": 0.997418224811554,
+    "new_score": 0.9974182844161987,
+    "max_all_candidate_error": 7.271766662597656e-05
+  },
+  {
+    "task": "put the black bowl in the bottom drawer of the cabinet and close it",
+    "query": "episode_0015_20260421_150306_477081:21",
+    "theta": 0.995,
+    "keep": 159,
+    "winner_same": true,
+    "old_score": 0.997883677482605,
+    "new_score": 0.997883677482605,
+    "max_all_candidate_error": 7.033348083496094e-05
+  },
+  {
+    "task": "put both the cream cheese box and the butter in the basket",
+    "query": "episode_0006_20260421_145620_818834:0",
+    "theta": 0.9985,
+    "keep": 184,
+    "winner_same": true,
+    "old_score": 0.9985664486885071,
+    "new_score": 0.9985665678977966,
+    "max_all_candidate_error": 6.935000419616699e-05
+  },
+  {
+    "task": "turn on the stove and put the moka pot on it",
+    "query": "episode_0004_20260421_154909_939096:25",
+    "theta": 0.995,
+    "keep": 171,
+    "winner_same": true,
+    "old_score": 0.9979073405265808,
+    "new_score": 0.9979072213172913,
+    "max_all_candidate_error": 6.914138793945312e-05
+  },
+  {
+    "task": "turn on the stove and put the moka pot on it",
+    "query": "episode_0004_20260421_154909_939096:25",
+    "theta": 0.98,
+    "keep": 87,
+    "winner_same": true,
+    "old_score": 0.992184042930603,
+    "new_score": 0.9921847581863403,
+    "max_all_candidate_error": 6.914138793945312e-05
+  },
+  {
+    "task": "put both the alphabet soup and the cream cheese box in the basket",
+    "query": "episode_0014_20260421_155029_148974:25",
+    "theta": 0.9985,
+    "keep": 198,
+    "winner_same": true,
+    "old_score": 0.9981098175048828,
+    "new_score": 0.9981098175048828,
+    "max_all_candidate_error": 6.908178329467773e-05
+  },
+  {
+    "task": "put both the alphabet soup and the cream cheese box in the basket",
+    "query": "episode_0014_20260421_155029_148974:25",
+    "theta": 0.998,
+    "keep": 148,
+    "winner_same": true,
+    "old_score": 0.9978389143943787,
+    "new_score": 0.9978389143943787,
+    "max_all_candidate_error": 6.908178329467773e-05
+  },
+  {
+    "task": "put both the alphabet soup and the cream cheese box in the basket",
+    "query": "episode_0014_20260421_155029_148974:25",
+    "theta": 0.995,
+    "keep": 85,
+    "winner_same": true,
+    "old_score": 0.9978389143943787,
+    "new_score": 0.9978389143943787,
+    "max_all_candidate_error": 6.908178329467773e-05
+  },
+  {
+    "task": "put both the alphabet soup and the cream cheese box in the basket",
+    "query": "episode_0014_20260421_155029_148974:25",
+    "theta": 0.98,
+    "keep": 47,
+    "winner_same": true,
+    "old_score": 0.9978389143943787,
+    "new_score": 0.9978389143943787,
+    "max_all_candidate_error": 6.908178329467773e-05
+  },
+  {
+    "task": "put both the alphabet soup and the cream cheese box in the basket",
+    "query": "episode_0014_20260421_155029_148974:50",
+    "theta": 0.9985,
+    "keep": 198,
+    "winner_same": true,
+    "old_score": 0.9985331892967224,
+    "new_score": 0.998533308506012,
+    "max_all_candidate_error": 6.878376007080078e-05
+  },
+  {
+    "task": "put both the alphabet soup and the cream cheese box in the basket",
+    "query": "episode_0014_20260421_155029_148974:50",
+    "theta": 0.998,
+    "keep": 148,
+    "winner_same": true,
+    "old_score": 0.9985331892967224,
+    "new_score": 0.998533308506012,
+    "max_all_candidate_error": 6.878376007080078e-05
+  },
+  {
+    "task": "put both the alphabet soup and the cream cheese box in the basket",
+    "query": "episode_0014_20260421_155029_148974:50",
+    "theta": 0.995,
+    "keep": 85,
+    "winner_same": true,
+    "old_score": 0.9983136653900146,
+    "new_score": 0.9983136653900146,
+    "max_all_candidate_error": 6.878376007080078e-05
+  },
+  {
+    "task": "put both the alphabet soup and the cream cheese box in the basket",
+    "query": "episode_0014_20260421_155029_148974:50",
+    "theta": 0.98,
+    "keep": 47,
+    "winner_same": true,
+    "old_score": 0.9983136653900146,
+    "new_score": 0.9983136653900146,
+    "max_all_candidate_error": 6.878376007080078e-05
+  },
+  {
+    "task": "put the yellow and white mug in the microwave and close it",
+    "query": "episode_0018_20260421_155250_742134:40",
+    "theta": 0.9985,
+    "keep": 200,
+    "winner_same": true,
+    "old_score": 0.9965170621871948,
+    "new_score": 0.9965171813964844,
+    "max_all_candidate_error": 6.449222564697266e-05
+  },
+  {
+    "task": "put the yellow and white mug in the microwave and close it",
+    "query": "episode_0018_20260421_155250_742134:40",
+    "theta": 0.998,
+    "keep": 161,
+    "winner_same": true,
+    "old_score": 0.9965170621871948,
+    "new_score": 0.9965171813964844,
+    "max_all_candidate_error": 6.449222564697266e-05
+  },
+  {
+    "task": "put the yellow and white mug in the microwave and close it",
+    "query": "episode_0018_20260421_155250_742134:40",
+    "theta": 0.995,
+    "keep": 75,
+    "winner_same": true,
+    "old_score": 0.9943150281906128,
+    "new_score": 0.9943148493766785,
+    "max_all_candidate_error": 6.449222564697266e-05
+  },
+  {
+    "task": "put the yellow and white mug in the microwave and close it",
+    "query": "episode_0018_20260421_155250_742134:40",
+    "theta": 0.98,
+    "keep": 53,
+    "winner_same": true,
+    "old_score": 0.993342399597168,
+    "new_score": 0.9933428168296814,
+    "max_all_candidate_error": 6.449222564697266e-05
+  },
+  {
+    "task": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+    "query": "episode_0012_20260421_154958_870693:0",
+    "theta": 0.9985,
+    "keep": 171,
+    "winner_same": true,
+    "old_score": 0.9985801577568054,
+    "new_score": 0.9985801577568054,
+    "max_all_candidate_error": 6.42538070678711e-05
+  },
+  {
+    "task": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+    "query": "episode_0012_20260421_154958_870693:0",
+    "theta": 0.998,
+    "keep": 158,
+    "winner_same": true,
+    "old_score": 0.9985801577568054,
+    "new_score": 0.9985801577568054,
+    "max_all_candidate_error": 6.42538070678711e-05
+  },
+  {
+    "task": "put both the alphabet soup and the tomato sauce in the basket",
+    "query": "episode_0003_20260421_145442_230258:58",
+    "theta": 0.998,
+    "keep": 164,
+    "winner_same": true,
+    "old_score": 0.9966253042221069,
+    "new_score": 0.9966250658035278,
+    "max_all_candidate_error": 6.264448165893555e-05
+  },
+  {
+    "task": "put both the alphabet soup and the tomato sauce in the basket",
+    "query": "episode_0003_20260421_145442_230258:58",
+    "theta": 0.98,
+    "keep": 45,
+    "winner_same": true,
+    "old_score": 0.9966253042221069,
+    "new_score": 0.9966250658035278,
+    "max_all_candidate_error": 6.264448165893555e-05
+  },
+  {
+    "task": "put the black bowl in the bottom drawer of the cabinet and close it",
+    "query": "episode_0015_20260421_150306_477081:41",
+    "theta": 0.995,
+    "keep": 159,
+    "winner_same": true,
+    "old_score": 0.9975027441978455,
+    "new_score": 0.9975026845932007,
+    "max_all_candidate_error": 6.16312026977539e-05
+  },
+  {
+    "task": "put the black bowl in the bottom drawer of the cabinet and close it",
+    "query": "episode_0015_20260421_150306_477081:41",
+    "theta": 0.98,
+    "keep": 84,
+    "winner_same": true,
+    "old_score": 0.9965538382530212,
+    "new_score": 0.9965535402297974,
+    "max_all_candidate_error": 6.16312026977539e-05
+  },
+  {
+    "task": "put the black bowl in the bottom drawer of the cabinet and close it",
+    "query": "episode_0015_20260421_150306_477081:0",
+    "theta": 0.995,
+    "keep": 159,
+    "winner_same": true,
+    "old_score": 0.9979267716407776,
+    "new_score": 0.9979265332221985,
+    "max_all_candidate_error": 6.151199340820312e-05
+  },
+  {
+    "task": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+    "query": "episode_0020_20260421_150623_961895:23",
+    "theta": 0.9985,
+    "keep": 149,
+    "winner_same": true,
+    "old_score": 0.9944489002227783,
+    "new_score": 0.9944490194320679,
+    "max_all_candidate_error": 6.03795051574707e-05
+  },
+  {
+    "task": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+    "query": "episode_0020_20260421_150623_961895:23",
+    "theta": 0.998,
+    "keep": 136,
+    "winner_same": true,
+    "old_score": 0.9944489002227783,
+    "new_score": 0.9944490194320679,
+    "max_all_candidate_error": 6.03795051574707e-05
+  },
+  {
+    "task": "put both the alphabet soup and the cream cheese box in the basket",
+    "query": "episode_0014_20260421_155029_148974:0",
+    "theta": 0.9985,
+    "keep": 198,
+    "winner_same": true,
+    "old_score": 0.9984097480773926,
+    "new_score": 0.9984097480773926,
+    "max_all_candidate_error": 6.014108657836914e-05
+  },
+  {
+    "task": "turn on the stove and put the moka pot on it",
+    "query": "episode_0004_20260421_154909_939096:49",
+    "theta": 0.98,
+    "keep": 87,
+    "winner_same": true,
+    "old_score": 0.9983046054840088,
+    "new_score": 0.9983047842979431,
+    "max_all_candidate_error": 5.990266799926758e-05
+  },
+  {
+    "task": "put both the cream cheese box and the butter in the basket",
+    "query": "episode_0006_20260421_145620_818834:0",
+    "theta": 0.998,
+    "keep": 143,
+    "winner_same": true,
+    "old_score": 0.9984111189842224,
+    "new_score": 0.9984111189842224,
+    "max_all_candidate_error": 5.942583084106445e-05
+  },
+  {
+    "task": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+    "query": "episode_0012_20260421_154958_870693:45",
+    "theta": 0.9985,
+    "keep": 171,
+    "winner_same": true,
+    "old_score": 0.9985899925231934,
+    "new_score": 0.9985899925231934,
+    "max_all_candidate_error": 5.900859832763672e-05
+  },
+  {
+    "task": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+    "query": "episode_0012_20260421_154958_870693:45",
+    "theta": 0.998,
+    "keep": 158,
+    "winner_same": true,
+    "old_score": 0.9985899925231934,
+    "new_score": 0.9985899925231934,
+    "max_all_candidate_error": 5.900859832763672e-05
+  },
+  {
+    "task": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+    "query": "episode_0012_20260421_154958_870693:23",
+    "theta": 0.9985,
+    "keep": 171,
+    "winner_same": true,
+    "old_score": 0.9977495074272156,
+    "new_score": 0.9977495074272156,
+    "max_all_candidate_error": 5.8650970458984375e-05
+  },
+  {
+    "task": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+    "query": "episode_0012_20260421_154958_870693:23",
+    "theta": 0.998,
+    "keep": 158,
+    "winner_same": true,
+    "old_score": 0.9977495074272156,
+    "new_score": 0.9977495074272156,
+    "max_all_candidate_error": 5.8650970458984375e-05
+  },
+  {
+    "task": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+    "query": "episode_0020_20260421_150623_961895:0",
+    "theta": 0.9985,
+    "keep": 149,
+    "winner_same": true,
+    "old_score": 0.9984444379806519,
+    "new_score": 0.9984444379806519,
+    "max_all_candidate_error": 5.793571472167969e-05
+  },
+  {
+    "task": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+    "query": "episode_0012_20260421_154958_870693:0",
+    "theta": 0.995,
+    "keep": 92,
+    "winner_same": true,
+    "old_score": 0.9985801577568054,
+    "new_score": 0.9985801577568054,
+    "max_all_candidate_error": 5.7756900787353516e-05
+  },
+  {
+    "task": "put both the cream cheese box and the butter in the basket",
+    "query": "episode_0006_20260421_145620_818834:47",
+    "theta": 0.9985,
+    "keep": 184,
+    "winner_same": true,
+    "old_score": 0.9982975125312805,
+    "new_score": 0.9982976317405701,
+    "max_all_candidate_error": 5.728006362915039e-05
+  },
+  {
+    "task": "put both the cream cheese box and the butter in the basket",
+    "query": "episode_0006_20260421_145620_818834:47",
+    "theta": 0.998,
+    "keep": 143,
+    "winner_same": true,
+    "old_score": 0.9982975125312805,
+    "new_score": 0.9982976317405701,
+    "max_all_candidate_error": 5.728006362915039e-05
+  },
+  {
+    "task": "put both the cream cheese box and the butter in the basket",
+    "query": "episode_0006_20260421_145620_818834:47",
+    "theta": 0.995,
+    "keep": 65,
+    "winner_same": true,
+    "old_score": 0.9982975125312805,
+    "new_score": 0.9982976317405701,
+    "max_all_candidate_error": 5.728006362915039e-05
+  },
+  {
+    "task": "put both the cream cheese box and the butter in the basket",
+    "query": "episode_0006_20260421_145620_818834:47",
+    "theta": 0.98,
+    "keep": 47,
+    "winner_same": true,
+    "old_score": 0.9982975125312805,
+    "new_score": 0.9982976317405701,
+    "max_all_candidate_error": 5.728006362915039e-05
+  },
+  {
+    "task": "put both the cream cheese box and the butter in the basket",
+    "query": "episode_0006_20260421_145620_818834:0",
+    "theta": 0.995,
+    "keep": 65,
+    "winner_same": true,
+    "old_score": 0.9973886609077454,
+    "new_score": 0.9973886013031006,
+    "max_all_candidate_error": 5.608797073364258e-05
+  },
+  {
+    "task": "put both the cream cheese box and the butter in the basket",
+    "query": "episode_0006_20260421_145620_818834:0",
+    "theta": 0.98,
+    "keep": 47,
+    "winner_same": true,
+    "old_score": 0.9973886609077454,
+    "new_score": 0.9973886013031006,
+    "max_all_candidate_error": 5.608797073364258e-05
+  },
+  {
+    "task": "put both the cream cheese box and the butter in the basket",
+    "query": "episode_0006_20260421_145620_818834:24",
+    "theta": 0.9985,
+    "keep": 184,
+    "winner_same": true,
+    "old_score": 0.9980716705322266,
+    "new_score": 0.9980717897415161,
+    "max_all_candidate_error": 5.53131103515625e-05
+  },
+  {
+    "task": "put both the cream cheese box and the butter in the basket",
+    "query": "episode_0006_20260421_145620_818834:24",
+    "theta": 0.998,
+    "keep": 143,
+    "winner_same": true,
+    "old_score": 0.9979029297828674,
+    "new_score": 0.9979031085968018,
+    "max_all_candidate_error": 5.53131103515625e-05
+  },
+  {
+    "task": "put both the cream cheese box and the butter in the basket",
+    "query": "episode_0006_20260421_145620_818834:24",
+    "theta": 0.995,
+    "keep": 65,
+    "winner_same": true,
+    "old_score": 0.9966704249382019,
+    "new_score": 0.9966703653335571,
+    "max_all_candidate_error": 5.53131103515625e-05
+  },
+  {
+    "task": "put both the cream cheese box and the butter in the basket",
+    "query": "episode_0006_20260421_145620_818834:24",
+    "theta": 0.98,
+    "keep": 47,
+    "winner_same": true,
+    "old_score": 0.9966704249382019,
+    "new_score": 0.9966703653335571,
+    "max_all_candidate_error": 5.53131103515625e-05
+  },
+  {
+    "task": "put the black bowl in the bottom drawer of the cabinet and close it",
+    "query": "episode_0015_20260421_150306_477081:21",
+    "theta": 0.98,
+    "keep": 84,
+    "winner_same": true,
+    "old_score": 0.9879021644592285,
+    "new_score": 0.9879027009010315,
+    "max_all_candidate_error": 5.441904067993164e-05
+  },
+  {
+    "task": "put the yellow and white mug in the microwave and close it",
+    "query": "episode_0018_20260421_155250_742134:80",
+    "theta": 0.9985,
+    "keep": 200,
+    "winner_same": true,
+    "old_score": 0.8827298879623413,
+    "new_score": 0.8827204704284668,
+    "max_all_candidate_error": 5.4001808166503906e-05
+  },
+  {
+    "task": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+    "query": "episode_0020_20260421_150623_961895:23",
+    "theta": 0.995,
+    "keep": 80,
+    "winner_same": true,
+    "old_score": 0.9937096238136292,
+    "new_score": 0.9937092661857605,
+    "max_all_candidate_error": 5.364418029785156e-05
+  },
+  {
+    "task": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+    "query": "episode_0020_20260421_150623_961895:23",
+    "theta": 0.98,
+    "keep": 52,
+    "winner_same": true,
+    "old_score": 0.9937096238136292,
+    "new_score": 0.9937092661857605,
+    "max_all_candidate_error": 5.364418029785156e-05
+  },
+  {
+    "task": "put both moka pots on the stove",
+    "query": "episode_0016_20260421_155154_891362:0",
+    "theta": 0.995,
+    "keep": 191,
+    "winner_same": true,
+    "old_score": 0.99820876121521,
+    "new_score": 0.9982088804244995,
+    "max_all_candidate_error": 5.245208740234375e-05
+  },
+  {
+    "task": "put both moka pots on the stove",
+    "query": "episode_0016_20260421_155154_891362:0",
+    "theta": 0.98,
+    "keep": 102,
+    "winner_same": true,
+    "old_score": 0.9863330125808716,
+    "new_score": 0.9863330125808716,
+    "max_all_candidate_error": 5.245208740234375e-05
+  },
+  {
+    "task": "put the yellow and white mug in the microwave and close it",
+    "query": "episode_0018_20260421_155250_742134:80",
+    "theta": 0.998,
+    "keep": 161,
+    "winner_same": true,
+    "old_score": 0.8827298879623413,
+    "new_score": 0.8827204704284668,
+    "max_all_candidate_error": 5.200505256652832e-05
+  },
+  {
+    "task": "put the yellow and white mug in the microwave and close it",
+    "query": "episode_0018_20260421_155250_742134:80",
+    "theta": 0.995,
+    "keep": 75,
+    "winner_same": true,
+    "old_score": 0.8827298879623413,
+    "new_score": 0.8827204704284668,
+    "max_all_candidate_error": 5.200505256652832e-05
+  },
+  {
+    "task": "put the yellow and white mug in the microwave and close it",
+    "query": "episode_0018_20260421_155250_742134:80",
+    "theta": 0.98,
+    "keep": 53,
+    "winner_same": true,
+    "old_score": 0.8827298879623413,
+    "new_score": 0.8827204704284668,
+    "max_all_candidate_error": 5.200505256652832e-05
+  },
+  {
+    "task": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+    "query": "episode_0020_20260421_150623_961895:0",
+    "theta": 0.998,
+    "keep": 136,
+    "winner_same": true,
+    "old_score": 0.9984444379806519,
+    "new_score": 0.9984444379806519,
+    "max_all_candidate_error": 5.143880844116211e-05
+  },
+  {
+    "task": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+    "query": "episode_0020_20260421_150623_961895:0",
+    "theta": 0.995,
+    "keep": 80,
+    "winner_same": true,
+    "old_score": 0.9971956014633179,
+    "new_score": 0.9971960783004761,
+    "max_all_candidate_error": 5.143880844116211e-05
+  },
+  {
+    "task": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+    "query": "episode_0012_20260421_154958_870693:45",
+    "theta": 0.995,
+    "keep": 92,
+    "winner_same": true,
+    "old_score": 0.9985899925231934,
+    "new_score": 0.9985899925231934,
+    "max_all_candidate_error": 4.929304122924805e-05
+  },
+  {
+    "task": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+    "query": "episode_0012_20260421_154958_870693:23",
+    "theta": 0.995,
+    "keep": 92,
+    "winner_same": true,
+    "old_score": 0.9977495074272156,
+    "new_score": 0.9977495074272156,
+    "max_all_candidate_error": 4.8488378524780273e-05
+  },
+  {
+    "task": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+    "query": "episode_0012_20260421_154958_870693:23",
+    "theta": 0.98,
+    "keep": 44,
+    "winner_same": true,
+    "old_score": 0.9977495074272156,
+    "new_score": 0.9977495074272156,
+    "max_all_candidate_error": 4.8488378524780273e-05
+  },
+  {
+    "task": "put the black bowl in the bottom drawer of the cabinet and close it",
+    "query": "episode_0015_20260421_150306_477081:0",
+    "theta": 0.98,
+    "keep": 84,
+    "winner_same": true,
+    "old_score": 0.9979267716407776,
+    "new_score": 0.9979265332221985,
+    "max_all_candidate_error": 4.693865776062012e-05
+  },
+  {
+    "task": "put both the alphabet soup and the tomato sauce in the basket",
+    "query": "episode_0003_20260421_145442_230258:29",
+    "theta": 0.998,
+    "keep": 164,
+    "winner_same": true,
+    "old_score": 0.99672532081604,
+    "new_score": 0.9967254996299744,
+    "max_all_candidate_error": 4.661083221435547e-05
+  },
+  {
+    "task": "put both the alphabet soup and the tomato sauce in the basket",
+    "query": "episode_0003_20260421_145442_230258:29",
+    "theta": 0.995,
+    "keep": 77,
+    "winner_same": true,
+    "old_score": 0.99672532081604,
+    "new_score": 0.9967254996299744,
+    "max_all_candidate_error": 4.661083221435547e-05
+  },
+  {
+    "task": "turn on the stove and put the moka pot on it",
+    "query": "episode_0004_20260421_154909_939096:0",
+    "theta": 0.995,
+    "keep": 171,
+    "winner_same": true,
+    "old_score": 0.997126579284668,
+    "new_score": 0.997126579284668,
+    "max_all_candidate_error": 4.6253204345703125e-05
+  },
+  {
+    "task": "turn on the stove and put the moka pot on it",
+    "query": "episode_0004_20260421_154909_939096:0",
+    "theta": 0.98,
+    "keep": 87,
+    "winner_same": true,
+    "old_score": 0.988112211227417,
+    "new_score": 0.9881135821342468,
+    "max_all_candidate_error": 4.6253204345703125e-05
+  },
+  {
+    "task": "put both the alphabet soup and the tomato sauce in the basket",
+    "query": "episode_0003_20260421_145442_230258:58",
+    "theta": 0.995,
+    "keep": 77,
+    "winner_same": true,
+    "old_score": 0.9966253042221069,
+    "new_score": 0.9966250658035278,
+    "max_all_candidate_error": 4.45246696472168e-05
+  },
+  {
+    "task": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+    "query": "episode_0020_20260421_150623_961895:0",
+    "theta": 0.98,
+    "keep": 52,
+    "winner_same": true,
+    "old_score": 0.9971956014633179,
+    "new_score": 0.9971960783004761,
+    "max_all_candidate_error": 4.0411949157714844e-05
+  },
+  {
+    "task": "put both the alphabet soup and the cream cheese box in the basket",
+    "query": "episode_0014_20260421_155029_148974:0",
+    "theta": 0.998,
+    "keep": 148,
+    "winner_same": true,
+    "old_score": 0.9984097480773926,
+    "new_score": 0.9984097480773926,
+    "max_all_candidate_error": 3.7550926208496094e-05
+  },
+  {
+    "task": "put both the alphabet soup and the cream cheese box in the basket",
+    "query": "episode_0014_20260421_155029_148974:0",
+    "theta": 0.995,
+    "keep": 85,
+    "winner_same": true,
+    "old_score": 0.9982678890228271,
+    "new_score": 0.9982678890228271,
+    "max_all_candidate_error": 3.725290298461914e-05
+  },
+  {
+    "task": "put both the alphabet soup and the cream cheese box in the basket",
+    "query": "episode_0014_20260421_155029_148974:0",
+    "theta": 0.98,
+    "keep": 47,
+    "winner_same": true,
+    "old_score": 0.9982678890228271,
+    "new_score": 0.9982678890228271,
+    "max_all_candidate_error": 3.725290298461914e-05
+  },
+  {
+    "task": "put both the alphabet soup and the tomato sauce in the basket",
+    "query": "episode_0003_20260421_145442_230258:29",
+    "theta": 0.98,
+    "keep": 45,
+    "winner_same": true,
+    "old_score": 0.9938482642173767,
+    "new_score": 0.9938480257987976,
+    "max_all_candidate_error": 3.695487976074219e-05
+  },
+  {
+    "task": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+    "query": "episode_0012_20260421_154958_870693:45",
+    "theta": 0.98,
+    "keep": 44,
+    "winner_same": true,
+    "old_score": 0.9985899925231934,
+    "new_score": 0.9985899925231934,
+    "max_all_candidate_error": 3.3736228942871094e-05
+  },
+  {
+    "task": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+    "query": "episode_0012_20260421_154958_870693:0",
+    "theta": 0.98,
+    "keep": 44,
+    "winner_same": true,
+    "old_score": 0.9985801577568054,
+    "new_score": 0.9985801577568054,
+    "max_all_candidate_error": 3.3020973205566406e-05
+  },
+  {
+    "task": "put the yellow and white mug in the microwave and close it",
+    "query": "episode_0018_20260421_155250_742134:0",
+    "theta": 0.9985,
+    "keep": 200,
+    "winner_same": true,
+    "old_score": 0.9987186193466187,
+    "new_score": 0.9987186193466187,
+    "max_all_candidate_error": 3.1948089599609375e-05
+  },
+  {
+    "task": "put the yellow and white mug in the microwave and close it",
+    "query": "episode_0018_20260421_155250_742134:0",
+    "theta": 0.998,
+    "keep": 161,
+    "winner_same": true,
+    "old_score": 0.9985723495483398,
+    "new_score": 0.9985722899436951,
+    "max_all_candidate_error": 3.1948089599609375e-05
+  },
+  {
+    "task": "put the yellow and white mug in the microwave and close it",
+    "query": "episode_0018_20260421_155250_742134:0",
+    "theta": 0.995,
+    "keep": 75,
+    "winner_same": true,
+    "old_score": 0.9967278242111206,
+    "new_score": 0.9967278838157654,
+    "max_all_candidate_error": 3.129243850708008e-05
+  },
+  {
+    "task": "put the yellow and white mug in the microwave and close it",
+    "query": "episode_0018_20260421_155250_742134:0",
+    "theta": 0.98,
+    "keep": 53,
+    "winner_same": true,
+    "old_score": 0.9985723495483398,
+    "new_score": 0.9985722899436951,
+    "max_all_candidate_error": 3.129243850708008e-05
+  },
+  {
+    "task": "pick up the book and place it in the back compartment of the caddy",
+    "query": "episode_0010_20260421_154931_315472:0",
+    "theta": 0.9985,
+    "keep": 115,
+    "winner_same": true,
+    "old_score": 0.9986971616744995,
+    "new_score": 0.9986971616744995,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "pick up the book and place it in the back compartment of the caddy",
+    "query": "episode_0010_20260421_154931_315472:16",
+    "theta": 0.9985,
+    "keep": 115,
+    "winner_same": true,
+    "old_score": 0.9980598092079163,
+    "new_score": 0.9980598092079163,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "pick up the book and place it in the back compartment of the caddy",
+    "query": "episode_0010_20260421_154931_315472:32",
+    "theta": 0.9985,
+    "keep": 115,
+    "winner_same": true,
+    "old_score": 0.9977226853370667,
+    "new_score": 0.9977226853370667,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "pick up the book and place it in the back compartment of the caddy",
+    "query": "episode_0010_20260421_154931_315472:0",
+    "theta": 0.998,
+    "keep": 91,
+    "winner_same": true,
+    "old_score": 0.9982233047485352,
+    "new_score": 0.9982233047485352,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "pick up the book and place it in the back compartment of the caddy",
+    "query": "episode_0010_20260421_154931_315472:16",
+    "theta": 0.998,
+    "keep": 91,
+    "winner_same": true,
+    "old_score": 0.9980598092079163,
+    "new_score": 0.9980598092079163,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "pick up the book and place it in the back compartment of the caddy",
+    "query": "episode_0010_20260421_154931_315472:32",
+    "theta": 0.998,
+    "keep": 91,
+    "winner_same": true,
+    "old_score": 0.9977226853370667,
+    "new_score": 0.9977226853370667,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "pick up the book and place it in the back compartment of the caddy",
+    "query": "episode_0010_20260421_154931_315472:0",
+    "theta": 0.995,
+    "keep": 61,
+    "winner_same": true,
+    "old_score": 0.9982233047485352,
+    "new_score": 0.9982233047485352,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "pick up the book and place it in the back compartment of the caddy",
+    "query": "episode_0010_20260421_154931_315472:16",
+    "theta": 0.995,
+    "keep": 61,
+    "winner_same": true,
+    "old_score": 0.9939150810241699,
+    "new_score": 0.9939150810241699,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "pick up the book and place it in the back compartment of the caddy",
+    "query": "episode_0010_20260421_154931_315472:32",
+    "theta": 0.995,
+    "keep": 61,
+    "winner_same": true,
+    "old_score": 0.996868908405304,
+    "new_score": 0.996868908405304,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "pick up the book and place it in the back compartment of the caddy",
+    "query": "episode_0010_20260421_154931_315472:0",
+    "theta": 0.98,
+    "keep": 29,
+    "winner_same": true,
+    "old_score": 0.9982233047485352,
+    "new_score": 0.9982233047485352,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "pick up the book and place it in the back compartment of the caddy",
+    "query": "episode_0010_20260421_154931_315472:16",
+    "theta": 0.98,
+    "keep": 29,
+    "winner_same": true,
+    "old_score": 0.9913623929023743,
+    "new_score": 0.9913623929023743,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "pick up the book and place it in the back compartment of the caddy",
+    "query": "episode_0010_20260421_154931_315472:32",
+    "theta": 0.98,
+    "keep": 29,
+    "winner_same": true,
+    "old_score": 0.996868908405304,
+    "new_score": 0.996868908405304,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put both moka pots on the stove",
+    "query": "episode_0016_20260421_155154_891362:0",
+    "theta": 0.9985,
+    "keep": 321,
+    "winner_same": true,
+    "old_score": 0.99820876121521,
+    "new_score": 0.99820876121521,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put both moka pots on the stove",
+    "query": "episode_0016_20260421_155154_891362:37",
+    "theta": 0.9985,
+    "keep": 321,
+    "winner_same": true,
+    "old_score": 0.9978257417678833,
+    "new_score": 0.9978257417678833,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put both moka pots on the stove",
+    "query": "episode_0016_20260421_155154_891362:73",
+    "theta": 0.9985,
+    "keep": 321,
+    "winner_same": true,
+    "old_score": 0.997511625289917,
+    "new_score": 0.997511625289917,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put both moka pots on the stove",
+    "query": "episode_0016_20260421_155154_891362:0",
+    "theta": 0.998,
+    "keep": 265,
+    "winner_same": true,
+    "old_score": 0.99820876121521,
+    "new_score": 0.99820876121521,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put both moka pots on the stove",
+    "query": "episode_0016_20260421_155154_891362:37",
+    "theta": 0.998,
+    "keep": 265,
+    "winner_same": true,
+    "old_score": 0.9978257417678833,
+    "new_score": 0.9978257417678833,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put both moka pots on the stove",
+    "query": "episode_0016_20260421_155154_891362:73",
+    "theta": 0.998,
+    "keep": 265,
+    "winner_same": true,
+    "old_score": 0.997511625289917,
+    "new_score": 0.997511625289917,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put both the alphabet soup and the tomato sauce in the basket",
+    "query": "episode_0003_20260421_145442_230258:0",
+    "theta": 0.9985,
+    "keep": 224,
+    "winner_same": true,
+    "old_score": 0.9983727335929871,
+    "new_score": 0.9983727335929871,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put both the alphabet soup and the tomato sauce in the basket",
+    "query": "episode_0003_20260421_145442_230258:29",
+    "theta": 0.9985,
+    "keep": 224,
+    "winner_same": true,
+    "old_score": 0.99672532081604,
+    "new_score": 0.99672532081604,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put both the alphabet soup and the tomato sauce in the basket",
+    "query": "episode_0003_20260421_145442_230258:58",
+    "theta": 0.9985,
+    "keep": 224,
+    "winner_same": true,
+    "old_score": 0.9966253042221069,
+    "new_score": 0.9966253042221069,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put the black bowl in the bottom drawer of the cabinet and close it",
+    "query": "episode_0015_20260421_150306_477081:0",
+    "theta": 0.9985,
+    "keep": 256,
+    "winner_same": true,
+    "old_score": 0.9979267716407776,
+    "new_score": 0.9979267716407776,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put the black bowl in the bottom drawer of the cabinet and close it",
+    "query": "episode_0015_20260421_150306_477081:21",
+    "theta": 0.9985,
+    "keep": 256,
+    "winner_same": true,
+    "old_score": 0.997883677482605,
+    "new_score": 0.997883677482605,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put the black bowl in the bottom drawer of the cabinet and close it",
+    "query": "episode_0015_20260421_150306_477081:41",
+    "theta": 0.9985,
+    "keep": 256,
+    "winner_same": true,
+    "old_score": 0.9975027441978455,
+    "new_score": 0.9975027441978455,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put the black bowl in the bottom drawer of the cabinet and close it",
+    "query": "episode_0015_20260421_150306_477081:0",
+    "theta": 0.998,
+    "keep": 229,
+    "winner_same": true,
+    "old_score": 0.9979267716407776,
+    "new_score": 0.9979267716407776,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put the black bowl in the bottom drawer of the cabinet and close it",
+    "query": "episode_0015_20260421_150306_477081:21",
+    "theta": 0.998,
+    "keep": 229,
+    "winner_same": true,
+    "old_score": 0.997883677482605,
+    "new_score": 0.997883677482605,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "put the black bowl in the bottom drawer of the cabinet and close it",
+    "query": "episode_0015_20260421_150306_477081:41",
+    "theta": 0.998,
+    "keep": 229,
+    "winner_same": true,
+    "old_score": 0.9975027441978455,
+    "new_score": 0.9975027441978455,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "turn on the stove and put the moka pot on it",
+    "query": "episode_0004_20260421_154909_939096:0",
+    "theta": 0.9985,
+    "keep": 217,
+    "winner_same": true,
+    "old_score": 0.997126579284668,
+    "new_score": 0.997126579284668,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "turn on the stove and put the moka pot on it",
+    "query": "episode_0004_20260421_154909_939096:25",
+    "theta": 0.9985,
+    "keep": 217,
+    "winner_same": true,
+    "old_score": 0.9979073405265808,
+    "new_score": 0.9979073405265808,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "turn on the stove and put the moka pot on it",
+    "query": "episode_0004_20260421_154909_939096:49",
+    "theta": 0.9985,
+    "keep": 217,
+    "winner_same": true,
+    "old_score": 0.9983046054840088,
+    "new_score": 0.9983046054840088,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "turn on the stove and put the moka pot on it",
+    "query": "episode_0004_20260421_154909_939096:0",
+    "theta": 0.998,
+    "keep": 214,
+    "winner_same": true,
+    "old_score": 0.997126579284668,
+    "new_score": 0.997126579284668,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "turn on the stove and put the moka pot on it",
+    "query": "episode_0004_20260421_154909_939096:25",
+    "theta": 0.998,
+    "keep": 214,
+    "winner_same": true,
+    "old_score": 0.9979073405265808,
+    "new_score": 0.9979073405265808,
+    "max_all_candidate_error": 0.0
+  },
+  {
+    "task": "turn on the stove and put the moka pot on it",
+    "query": "episode_0004_20260421_154909_939096:49",
+    "theta": 0.998,
+    "keep": 214,
+    "winner_same": true,
+    "old_score": 0.9983046054840088,
+    "new_score": 0.9983046054840088,
+    "max_all_candidate_error": 0.0
+  }
+]

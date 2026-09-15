@@ -1,0 +1,901 @@
+suite,task_id,trajectory_id,length,first_step,last_step,task
+libero_spatial,0,task_0/episode_0,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_1,17,0,16,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_10,44,0,43,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_11,17,0,16,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_12,18,0,17,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_13,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_14,15,0,14,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_15,14,0,13,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_16,14,0,13,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_18,14,0,13,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_19,18,0,17,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_2,18,0,17,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_20,30,0,29,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_21,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_22,15,0,14,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_23,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_24,15,0,14,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_25,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_26,14,0,13,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_27,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_28,21,0,20,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_29,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_3,19,0,18,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_30,15,0,14,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_31,15,0,14,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_33,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_35,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_36,15,0,14,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_38,44,0,43,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_39,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_4,17,0,16,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_40,14,0,13,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_41,15,0,14,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_42,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_43,14,0,13,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_44,18,0,17,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_45,14,0,13,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_46,15,0,14,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_47,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_48,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_49,16,0,15,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_5,44,0,43,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_6,13,0,12,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_7,44,0,43,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,0,task_0/episode_8,17,0,16,pick up the black bowl between the plate and the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_0,22,0,21,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_1,23,0,22,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_10,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_11,23,0,22,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_12,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_13,23,0,22,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_14,23,0,22,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_15,22,0,21,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_16,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_17,22,0,21,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_18,22,0,21,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_19,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_2,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_20,31,0,30,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_21,23,0,22,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_22,22,0,21,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_23,23,0,22,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_25,22,0,21,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_27,23,0,22,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_28,22,0,21,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_29,22,0,21,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_3,24,0,23,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_30,23,0,22,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_31,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_32,24,0,23,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_33,22,0,21,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_34,23,0,22,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_35,22,0,21,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_36,23,0,22,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_37,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_38,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_39,23,0,22,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_4,23,0,22,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_40,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_41,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_42,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_43,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_44,22,0,21,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_46,22,0,21,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_47,22,0,21,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_48,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_49,20,0,19,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_5,23,0,22,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_8,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,1,task_1/episode_9,21,0,20,pick up the black bowl next to the ramekin and place it on the plate
+libero_spatial,2,task_2/episode_0,20,0,19,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_1,20,0,19,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_11,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_12,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_14,22,0,21,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_15,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_16,20,0,19,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_17,23,0,22,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_18,22,0,21,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_19,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_2,20,0,19,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_20,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_22,18,0,17,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_23,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_24,17,0,16,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_25,18,0,17,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_26,17,0,16,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_27,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_28,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_29,27,0,26,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_3,20,0,19,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_30,23,0,22,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_31,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_32,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_33,21,0,20,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_34,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_35,21,0,20,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_36,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_37,18,0,17,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_38,20,0,19,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_39,21,0,20,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_4,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_40,21,0,20,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_41,20,0,19,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_42,21,0,20,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_43,21,0,20,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_44,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_45,18,0,17,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_46,20,0,19,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_47,21,0,20,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_48,19,0,18,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_49,20,0,19,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_6,20,0,19,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_8,21,0,20,pick up the black bowl from table center and place it on the plate
+libero_spatial,2,task_2/episode_9,21,0,20,pick up the black bowl from table center and place it on the plate
+libero_spatial,3,task_3/episode_1,18,0,17,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_10,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_11,18,0,17,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_12,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_13,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_14,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_15,18,0,17,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_17,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_18,19,0,18,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_19,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_2,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_20,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_21,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_22,18,0,17,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_23,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_24,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_25,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_26,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_28,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_29,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_3,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_30,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_31,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_33,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_34,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_35,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_36,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_37,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_38,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_39,18,0,17,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_4,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_40,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_41,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_42,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_43,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_44,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_45,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_47,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_48,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_49,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_5,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_6,16,0,15,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_7,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_8,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,3,task_3/episode_9,17,0,16,pick up the black bowl on the cookie box and place it on the plate
+libero_spatial,4,task_4/episode_0,26,0,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_1,25,0,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_10,28,0,27,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_12,25,0,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_13,25,0,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_14,28,0,27,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_15,23,0,22,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_17,27,0,26,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_18,26,0,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_19,27,0,26,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_2,25,0,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_22,25,0,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_23,26,0,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_24,26,0,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_25,26,0,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_26,24,0,23,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_27,26,0,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_28,26,0,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_29,22,0,21,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_3,28,0,27,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_31,25,0,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_32,26,0,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_33,26,0,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_34,25,0,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_35,26,0,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_36,23,0,22,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_37,25,0,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_38,24,0,23,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_39,29,0,28,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_4,24,0,23,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_40,24,0,23,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_41,26,0,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_42,24,0,23,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_43,27,0,26,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_44,27,0,26,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_45,24,0,23,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_46,25,0,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_47,44,0,43,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_48,25,0,24,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_49,27,0,26,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_5,26,0,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_6,26,0,25,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_7,24,0,23,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_8,34,0,33,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,4,task_4/episode_9,24,0,23,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+libero_spatial,5,task_5/episode_0,19,0,18,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_1,24,0,23,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_11,29,0,28,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_12,18,0,17,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_13,20,0,19,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_14,17,0,16,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_15,17,0,16,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_16,18,0,17,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_17,19,0,18,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_18,28,0,27,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_19,18,0,17,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_2,28,0,27,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_20,19,0,18,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_21,21,0,20,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_22,16,0,15,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_23,26,0,25,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_24,25,0,24,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_25,19,0,18,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_26,31,0,30,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_27,20,0,19,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_28,18,0,17,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_29,20,0,19,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_3,18,0,17,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_30,19,0,18,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_31,18,0,17,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_33,26,0,25,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_34,21,0,20,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_35,17,0,16,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_36,18,0,17,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_37,24,0,23,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_38,19,0,18,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_39,19,0,18,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_4,21,0,20,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_40,17,0,16,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_41,17,0,16,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_43,17,0,16,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_44,18,0,17,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_45,17,0,16,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_46,17,0,16,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_47,18,0,17,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_48,44,0,43,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_5,18,0,17,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_6,20,0,19,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_7,18,0,17,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,5,task_5/episode_8,19,0,18,pick up the black bowl on the ramekin and place it on the plate
+libero_spatial,6,task_6/episode_0,23,0,22,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_1,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_10,20,0,19,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_11,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_12,19,0,18,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_13,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_16,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_17,20,0,19,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_18,22,0,21,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_19,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_2,22,0,21,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_20,25,0,24,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_21,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_22,22,0,21,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_23,22,0,21,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_24,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_25,20,0,19,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_27,22,0,21,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_28,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_29,19,0,18,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_3,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_30,20,0,19,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_31,20,0,19,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_32,22,0,21,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_33,19,0,18,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_34,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_35,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_36,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_37,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_38,23,0,22,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_39,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_4,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_40,23,0,22,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_41,23,0,22,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_42,20,0,19,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_43,19,0,18,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_44,20,0,19,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_46,23,0,22,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_47,20,0,19,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_48,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_49,18,0,17,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_5,22,0,21,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_6,20,0,19,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_7,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,6,task_6/episode_8,21,0,20,pick up the black bowl next to the cookie box and place it on the plate
+libero_spatial,7,task_7/episode_1,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_10,24,0,23,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_12,24,0,23,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_13,22,0,21,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_14,33,0,32,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_16,21,0,20,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_17,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_18,24,0,23,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_19,30,0,29,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_2,22,0,21,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_20,25,0,24,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_21,24,0,23,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_22,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_23,27,0,26,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_24,22,0,21,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_25,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_26,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_27,24,0,23,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_28,24,0,23,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_29,24,0,23,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_3,24,0,23,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_30,24,0,23,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_32,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_33,26,0,25,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_34,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_35,27,0,26,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_36,32,0,31,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_37,25,0,24,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_39,26,0,25,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_4,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_40,32,0,31,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_41,25,0,24,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_42,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_43,26,0,25,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_44,25,0,24,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_45,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_46,24,0,23,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_47,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_48,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_49,24,0,23,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_5,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_6,24,0,23,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_7,24,0,23,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_8,23,0,22,pick up the black bowl on the stove and place it on the plate
+libero_spatial,7,task_7/episode_9,25,0,24,pick up the black bowl on the stove and place it on the plate
+libero_spatial,8,task_8/episode_0,44,0,43,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_1,39,0,38,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_11,19,0,18,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_12,19,0,18,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_13,20,0,19,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_14,17,0,16,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_16,20,0,19,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_17,18,0,17,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_18,20,0,19,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_19,24,0,23,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_2,44,0,43,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_20,20,0,19,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_21,21,0,20,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_23,18,0,17,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_25,19,0,18,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_26,30,0,29,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_27,29,0,28,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_28,18,0,17,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_29,19,0,18,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_3,44,0,43,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_30,20,0,19,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_31,19,0,18,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_32,18,0,17,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_33,20,0,19,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_34,26,0,25,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_35,32,0,31,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_36,32,0,31,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_37,20,0,19,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_38,20,0,19,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_39,18,0,17,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_4,30,0,29,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_40,19,0,18,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_41,20,0,19,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_42,25,0,24,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_43,20,0,19,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_44,20,0,19,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_45,19,0,18,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_46,19,0,18,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_47,17,0,16,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_48,28,0,27,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_49,17,0,16,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_5,19,0,18,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_6,44,0,43,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_7,20,0,19,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,8,task_8/episode_8,19,0,18,pick up the black bowl next to the plate and place it on the plate
+libero_spatial,9,task_9/episode_0,25,0,24,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_1,22,0,21,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_10,23,0,22,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_11,23,0,22,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_13,23,0,22,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_14,25,0,24,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_15,25,0,24,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_16,23,0,22,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_17,23,0,22,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_18,24,0,23,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_19,24,0,23,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_20,22,0,21,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_21,23,0,22,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_23,26,0,25,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_24,44,0,43,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_25,24,0,23,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_26,22,0,21,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_27,27,0,26,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_28,26,0,25,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_29,24,0,23,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_3,25,0,24,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_30,25,0,24,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_31,23,0,22,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_32,26,0,25,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_33,25,0,24,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_34,25,0,24,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_35,23,0,22,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_36,23,0,22,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_38,22,0,21,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_39,22,0,21,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_4,23,0,22,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_40,26,0,25,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_41,24,0,23,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_42,25,0,24,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_43,24,0,23,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_44,21,0,20,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_45,22,0,21,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_47,23,0,22,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_48,25,0,24,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_49,33,0,32,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_5,24,0,23,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_6,26,0,25,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_7,22,0,21,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_8,25,0,24,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_spatial,9,task_9/episode_9,23,0,22,pick up the black bowl on the wooden cabinet and place it on the plate
+libero_10,0,task_0/episode_0,53,0,52,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_1,56,0,55,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_10,60,0,59,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_11,51,0,50,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_12,51,0,50,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_13,57,0,56,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_14,57,0,56,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_16,50,0,49,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_17,58,0,57,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_18,54,0,53,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_19,59,0,58,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_2,54,0,53,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_20,52,0,51,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_21,55,0,54,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_22,59,0,58,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_23,53,0,52,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_24,59,0,58,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_25,50,0,49,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_26,104,0,103,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_27,54,0,53,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_28,56,0,55,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_29,56,0,55,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_3,53,0,52,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_30,52,0,51,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_31,78,0,77,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_33,55,0,54,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_35,57,0,56,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_36,57,0,56,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_38,60,0,59,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_39,56,0,55,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_4,58,0,57,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_40,53,0,52,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_41,58,0,57,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_42,67,0,66,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_43,52,0,51,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_44,52,0,51,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_45,51,0,50,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_46,53,0,52,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_47,54,0,53,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_48,53,0,52,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_49,56,0,55,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_5,52,0,51,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_6,48,0,47,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_7,54,0,53,put both the alphabet soup and the tomato sauce in the basket
+libero_10,0,task_0/episode_9,55,0,54,put both the alphabet soup and the tomato sauce in the basket
+libero_10,1,task_1/episode_0,48,0,47,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_1,54,0,53,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_10,49,0,48,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_11,47,0,46,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_12,51,0,50,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_13,59,0,58,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_14,49,0,48,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_15,48,0,47,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_16,51,0,50,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_17,50,0,49,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_18,51,0,50,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_19,51,0,50,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_2,51,0,50,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_20,52,0,51,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_21,48,0,47,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_22,49,0,48,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_23,51,0,50,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_24,47,0,46,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_25,55,0,54,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_27,47,0,46,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_29,46,0,45,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_3,47,0,46,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_30,55,0,54,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_31,49,0,48,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_32,50,0,49,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_33,47,0,46,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_34,49,0,48,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_35,50,0,49,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_36,54,0,53,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_37,53,0,52,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_38,47,0,46,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_39,51,0,50,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_4,53,0,52,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_40,55,0,54,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_41,47,0,46,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_42,51,0,50,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_43,50,0,49,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_44,49,0,48,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_45,48,0,47,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_47,52,0,51,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_48,50,0,49,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_49,56,0,55,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_5,48,0,47,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_6,49,0,48,put both the cream cheese box and the butter in the basket
+libero_10,1,task_1/episode_7,50,0,49,put both the cream cheese box and the butter in the basket
+libero_10,2,task_2/episode_0,48,0,47,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_1,50,0,49,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_10,48,0,47,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_11,44,0,43,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_13,50,0,49,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_14,49,0,48,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_15,66,0,65,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_16,104,0,103,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_17,47,0,46,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_18,54,0,53,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_19,66,0,65,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_2,104,0,103,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_21,104,0,103,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_22,49,0,48,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_23,57,0,56,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_24,50,0,49,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_25,51,0,50,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_26,55,0,54,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_27,49,0,48,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_28,67,0,66,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_29,52,0,51,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_3,46,0,45,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_30,51,0,50,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_31,46,0,45,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_32,50,0,49,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_33,52,0,51,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_34,47,0,46,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_35,47,0,46,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_36,53,0,52,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_37,56,0,55,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_38,52,0,51,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_39,67,0,66,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_40,55,0,54,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_41,104,0,103,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_42,49,0,48,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_43,52,0,51,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_44,50,0,49,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_45,57,0,56,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_46,45,0,44,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_47,46,0,45,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_48,54,0,53,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_49,53,0,52,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_5,53,0,52,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_7,49,0,48,turn on the stove and put the moka pot on it
+libero_10,2,task_2/episode_8,56,0,55,turn on the stove and put the moka pot on it
+libero_10,3,task_3/episode_0,43,0,42,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_1,51,0,50,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_10,104,0,103,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_11,52,0,51,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_12,45,0,44,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_13,48,0,47,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_14,44,0,43,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_15,43,0,42,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_16,46,0,45,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_17,43,0,42,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_19,48,0,47,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_20,44,0,43,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_21,44,0,43,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_22,65,0,64,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_23,104,0,103,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_24,42,0,41,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_25,104,0,103,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_26,71,0,70,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_27,50,0,49,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_29,49,0,48,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_3,49,0,48,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_30,45,0,44,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_31,41,0,40,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_33,79,0,78,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_34,43,0,42,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_35,45,0,44,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_36,104,0,103,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_37,52,0,51,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_38,41,0,40,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_39,45,0,44,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_4,104,0,103,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_40,56,0,55,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_41,93,0,92,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_42,104,0,103,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_43,44,0,43,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_44,46,0,45,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_45,52,0,51,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_47,41,0,40,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_48,60,0,59,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_49,54,0,53,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_5,47,0,46,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_6,42,0,41,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_7,43,0,42,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_8,47,0,46,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,3,task_3/episode_9,43,0,42,put the black bowl in the bottom drawer of the cabinet and close it
+libero_10,4,task_4/episode_0,44,0,43,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_1,45,0,44,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_10,50,0,49,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_11,41,0,40,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_12,52,0,51,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_13,44,0,43,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_14,46,0,45,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_16,46,0,45,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_17,41,0,40,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_18,43,0,42,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_19,47,0,46,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_2,46,0,45,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_22,45,0,44,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_23,43,0,42,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_24,51,0,50,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_25,55,0,54,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_26,54,0,53,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_27,43,0,42,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_28,42,0,41,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_29,44,0,43,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_3,104,0,103,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_30,46,0,45,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_32,43,0,42,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_33,47,0,46,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_34,47,0,46,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_35,48,0,47,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_36,104,0,103,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_37,54,0,53,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_38,48,0,47,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_39,42,0,41,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_4,43,0,42,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_40,42,0,41,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_41,44,0,43,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_42,50,0,49,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_43,48,0,47,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_44,49,0,48,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_45,49,0,48,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_46,43,0,42,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_47,55,0,54,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_48,44,0,43,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_49,45,0,44,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_5,42,0,41,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_6,45,0,44,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_7,45,0,44,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,4,task_4/episode_8,47,0,46,put the white mug on the left plate and put the yellow and white mug on the right plate
+libero_10,5,task_5/episode_0,33,0,32,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_1,33,0,32,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_11,104,0,103,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_12,34,0,33,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_13,35,0,34,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_14,42,0,41,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_15,34,0,33,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_16,35,0,34,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_17,36,0,35,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_18,36,0,35,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_19,35,0,34,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_2,35,0,34,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_20,35,0,34,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_21,34,0,33,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_22,35,0,34,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_23,37,0,36,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_24,38,0,37,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_25,36,0,35,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_26,104,0,103,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_27,104,0,103,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_28,38,0,37,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_29,33,0,32,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_3,37,0,36,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_30,34,0,33,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_31,37,0,36,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_32,32,0,31,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_34,33,0,32,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_35,35,0,34,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_36,36,0,35,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_37,104,0,103,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_38,31,0,30,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_39,39,0,38,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_4,32,0,31,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_40,104,0,103,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_41,37,0,36,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_43,38,0,37,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_44,104,0,103,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_45,36,0,35,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_46,32,0,31,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_47,32,0,31,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_48,32,0,31,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_5,104,0,103,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_6,37,0,36,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_7,33,0,32,pick up the book and place it in the back compartment of the caddy
+libero_10,5,task_5/episode_8,104,0,103,pick up the book and place it in the back compartment of the caddy
+libero_10,6,task_6/episode_0,40,0,39,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_1,44,0,43,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_10,45,0,44,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_12,46,0,45,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_13,53,0,52,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_14,46,0,45,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_15,44,0,43,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_16,42,0,41,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_19,46,0,45,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_2,47,0,46,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_20,104,0,103,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_21,42,0,41,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_22,43,0,42,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_23,104,0,103,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_24,49,0,48,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_25,63,0,62,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_26,42,0,41,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_28,43,0,42,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_29,48,0,47,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_3,44,0,43,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_30,40,0,39,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_31,57,0,56,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_32,41,0,40,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_33,44,0,43,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_34,104,0,103,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_35,41,0,40,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_36,51,0,50,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_37,104,0,103,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_38,42,0,41,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_39,104,0,103,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_4,104,0,103,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_40,63,0,62,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_41,48,0,47,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_42,43,0,42,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_43,50,0,49,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_44,39,0,38,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_46,41,0,40,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_47,41,0,40,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_48,43,0,42,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_49,46,0,45,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_5,41,0,40,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_6,96,0,95,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_7,44,0,43,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_8,44,0,43,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,6,task_6/episode_9,45,0,44,put the white mug on the plate and put the chocolate pudding to the right of the plate
+libero_10,7,task_7/episode_1,51,0,50,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_10,84,0,83,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_12,49,0,48,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_13,57,0,56,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_14,51,0,50,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_16,47,0,46,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_17,56,0,55,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_18,48,0,47,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_19,50,0,49,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_2,64,0,63,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_20,76,0,75,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_21,66,0,65,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_22,59,0,58,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_23,51,0,50,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_24,53,0,52,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_25,51,0,50,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_26,48,0,47,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_27,52,0,51,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_28,53,0,52,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_29,50,0,49,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_3,52,0,51,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_30,49,0,48,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_32,50,0,49,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_33,66,0,65,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_34,55,0,54,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_35,50,0,49,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_37,65,0,64,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_38,53,0,52,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_39,64,0,63,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_4,49,0,48,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_40,47,0,46,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_41,57,0,56,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_42,49,0,48,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_43,52,0,51,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_44,60,0,59,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_45,51,0,50,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_46,50,0,49,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_47,49,0,48,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_48,48,0,47,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_49,75,0,74,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_5,49,0,48,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_6,50,0,49,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_7,50,0,49,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_8,61,0,60,put both the alphabet soup and the cream cheese box in the basket
+libero_10,7,task_7/episode_9,66,0,65,put both the alphabet soup and the cream cheese box in the basket
+libero_10,8,task_8/episode_0,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_1,87,0,86,put both moka pots on the stove
+libero_10,8,task_8/episode_11,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_12,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_14,97,0,96,put both moka pots on the stove
+libero_10,8,task_8/episode_15,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_16,100,0,99,put both moka pots on the stove
+libero_10,8,task_8/episode_17,98,0,97,put both moka pots on the stove
+libero_10,8,task_8/episode_18,93,0,92,put both moka pots on the stove
+libero_10,8,task_8/episode_19,78,0,77,put both moka pots on the stove
+libero_10,8,task_8/episode_2,94,0,93,put both moka pots on the stove
+libero_10,8,task_8/episode_21,74,0,73,put both moka pots on the stove
+libero_10,8,task_8/episode_23,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_24,83,0,82,put both moka pots on the stove
+libero_10,8,task_8/episode_25,77,0,76,put both moka pots on the stove
+libero_10,8,task_8/episode_26,83,0,82,put both moka pots on the stove
+libero_10,8,task_8/episode_27,103,0,102,put both moka pots on the stove
+libero_10,8,task_8/episode_28,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_29,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_3,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_30,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_31,86,0,85,put both moka pots on the stove
+libero_10,8,task_8/episode_32,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_33,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_34,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_35,95,0,94,put both moka pots on the stove
+libero_10,8,task_8/episode_36,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_37,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_38,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_39,84,0,83,put both moka pots on the stove
+libero_10,8,task_8/episode_4,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_40,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_41,85,0,84,put both moka pots on the stove
+libero_10,8,task_8/episode_42,81,0,80,put both moka pots on the stove
+libero_10,8,task_8/episode_43,100,0,99,put both moka pots on the stove
+libero_10,8,task_8/episode_44,79,0,78,put both moka pots on the stove
+libero_10,8,task_8/episode_45,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_46,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_47,80,0,79,put both moka pots on the stove
+libero_10,8,task_8/episode_48,72,0,71,put both moka pots on the stove
+libero_10,8,task_8/episode_49,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_5,80,0,79,put both moka pots on the stove
+libero_10,8,task_8/episode_6,86,0,85,put both moka pots on the stove
+libero_10,8,task_8/episode_7,104,0,103,put both moka pots on the stove
+libero_10,8,task_8/episode_8,104,0,103,put both moka pots on the stove
+libero_10,9,task_9/episode_0,48,0,47,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_1,51,0,50,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_10,81,0,80,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_12,61,0,60,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_13,50,0,49,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_14,49,0,48,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_15,72,0,71,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_16,48,0,47,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_17,59,0,58,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_18,62,0,61,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_19,68,0,67,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_20,88,0,87,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_21,44,0,43,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_23,63,0,62,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_24,56,0,55,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_25,58,0,57,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_26,48,0,47,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_27,83,0,82,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_28,104,0,103,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_29,50,0,49,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_3,104,0,103,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_30,58,0,57,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_31,60,0,59,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_32,104,0,103,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_33,77,0,76,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_34,104,0,103,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_35,56,0,55,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_37,49,0,48,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_38,104,0,103,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_39,50,0,49,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_4,63,0,62,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_40,104,0,103,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_41,52,0,51,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_42,76,0,75,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_43,104,0,103,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_44,48,0,47,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_46,49,0,48,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_47,47,0,46,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_48,52,0,51,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_49,50,0,49,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_5,104,0,103,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_6,52,0,51,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_7,104,0,103,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_8,50,0,49,put the yellow and white mug in the microwave and close it
+libero_10,9,task_9/episode_9,67,0,66,put the yellow and white mug in the microwave and close it
