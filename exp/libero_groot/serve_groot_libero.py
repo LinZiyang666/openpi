@@ -380,6 +380,21 @@ def _build_loto_factory(
     )
 
 
+def yaml_identity(bundle_id: str, cache_config: str | None) -> str:
+    """The bundle identity an online judge learns under.
+
+    A dynamic bundle is addressed by its yaml stem already; the startup
+    ``--cache-config`` arm answers to the placeholder ``"default"``, so its
+    identity is the startup yaml's stem instead. Two runs of one arm that must
+    not pool their learning therefore need distinct yaml file names.
+    """
+    if bundle_id and bundle_id != "default":
+        return str(bundle_id)
+    if cache_config:
+        return pathlib.Path(cache_config).stem
+    return str(bundle_id or "default")
+
+
 def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     """Per-connection policy factory for concurrent serving.
 
@@ -395,6 +410,13 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
 
     lock = threading.Lock()
     allow_dynamic = bool(getattr(args, "allow_dynamic_bundles", False))
+    # One registry per process: every connection serving the same bundle
+    # attaches to the same online RIT curves (plan online_rit_groot §3.7).
+    # Built here, not at import, and only read by an ``online_rit`` judge.
+    from openpi.cache.online_state import CurveRegistry
+
+    online_registry = CurveRegistry(state_log_root=getattr(args, "online_state_dir", None), require_persistence=True)
+
     if not args.cache_config and not allow_dynamic:
 
         def teacher_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
@@ -475,7 +497,11 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
                 GrootLiberoPolicyAdapter(shared_base_policy), lock
             )
         components = build_per_connection_components(
-            conn_config, conn_storage, quiet=True
+            conn_config,
+            conn_storage,
+            quiet=True,
+            yaml_id=yaml_identity(bundle_id, args.cache_config),
+            online_registry=online_registry,
         )
         timer = components["timer"]
         if conn_config.timer.output_csv_dir:
@@ -592,6 +618,13 @@ def main() -> None:
         "client's --replan-steps, because steps past it are never executed.",
     )
     parser.add_argument(
+        "--online-state-dir",
+        default=None,
+        help="Root directory for online RIT state snapshots and feedback logs "
+        "(one subdirectory per bundle + library). Requires --concurrent; only an "
+        "online_rit judge writes there.",
+    )
+    parser.add_argument(
         "--loto-log-out",
         default=None,
         help="Root directory for the LOTO closed-loop verification log: one HDF5 "
@@ -644,6 +677,8 @@ def main() -> None:
                 "every logged episode must describe one frozen arm and library"
             )
 
+    if args.online_state_dir and not args.concurrent:
+        parser.error("--online-state-dir requires --concurrent")
     if args.cache_config and args.collect_hdf5:
         parser.error("--cache-config and --collect-hdf5 are mutually exclusive")
     if args.rit_shadow_out:

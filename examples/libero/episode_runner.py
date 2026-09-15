@@ -63,6 +63,8 @@ def _hit_row(task: _task.EpisodeTask, step: int, hit: dict, num_trials_per_task:
         "yaml_id": task.yaml_id,
         "task_id": task.task_id,
         "subset_init_state_idx": task.episode_idx,
+        "suite": getattr(task, "experiment", None),
+        "parent_pool_sha256": (getattr(task, "extra", None) or {}).get("parent_pool_sha256"),
         "orig_init_state_idx": task.orig_init_state_idx,
         "episode_id": _global_episode_id(task, num_trials_per_task),
         "task_uid": task.task_uid,
@@ -96,6 +98,9 @@ def _hit_row(task: _task.EpisodeTask, step: int, hit: dict, num_trials_per_task:
         # Judge diagnostics exported by the server (``export_factor_outputs`` or a
         # stateful CRD judge's commit record); None for every other yaml.
         "factor_outputs": hit.get("factor_outputs"),
+        # Online RIT decision snapshot + feedback (q_pre / cuts / d per tier);
+        # None for every yaml whose judge is not ``online_rit``.
+        "online_rit": hit.get("online_rit"),
     }
 
 

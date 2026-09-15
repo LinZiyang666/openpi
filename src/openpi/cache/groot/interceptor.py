@@ -183,7 +183,11 @@ class GrootCacheInterceptor:
 
     @staticmethod
     def _build_hit_meta(
-        cp1_result, *, checkpoint: Optional[str] = None, library_sha256: Optional[str] = None
+        cp1_result,
+        *,
+        checkpoint: Optional[str] = None,
+        library_sha256: Optional[str] = None,
+        online_rit: Optional[dict] = None,
     ) -> dict:
         """Same field set as the Pi0.5 interceptor, so one analysis path reads both.
 
@@ -225,11 +229,31 @@ class GrootCacheInterceptor:
         }
         if library_sha256 is not None:
             meta["library_sha256"] = library_sha256
+        if online_rit is not None:
+            # Additive, present only when the served judge is ``online_rit``:
+            # the decision snapshot (q_pre / cuts) and this step's feedback.
+            meta["online_rit"] = online_rit
         return meta
 
     # -- inference -------------------------------------------------------
 
     def get_action(self, observations: dict[str, Any]) -> dict[str, Any]:
+        """Run inference and invalidate an online stream on any failed request."""
+        try:
+            return self._get_action_impl(observations)
+        except Exception:
+            orchestrator = self._orchestrator
+            if orchestrator is not None and hasattr(orchestrator, "continuation_spec"):
+                try:
+                    if orchestrator.continuation_spec(CheckpointID.CP1) is not None:
+                        orchestrator.record_continuation(
+                            CheckpointID.CP1, None, [], invalid_reasons=["inference request failed"]
+                        )
+                except Exception:
+                    logger.exception("Could not persist the invalid online stream after inference failure")
+            raise
+
+    def _get_action_impl(self, observations: dict[str, Any]) -> dict[str, Any]:
         """One cache-aware inference cycle.
 
         Mirrors ``Gr00tPolicy.get_action`` step for step so that, with the
@@ -256,12 +280,21 @@ class GrootCacheInterceptor:
                 stage1 = self._runner.run_stage1(normalized_input)
 
             cp1_result = None
+            online_diag: Optional[dict] = None
             try:
                 if self._orchestrator is not None:
                     with self._timer.measure("cp1_sum"):
                         cp1_result = self._orchestrator.check(
                             CheckpointID.CP1, stage1=stage1
                         )
+                # Online RIT feedback contract; ``None`` for every other judge,
+                # in which case every branch below is the legacy path verbatim.
+                spec = (
+                    self._orchestrator.continuation_spec(CheckpointID.CP1)
+                    if self._orchestrator is not None
+                    and hasattr(self._orchestrator, "continuation_spec")
+                    else None
+                )
 
                 hit_type = None if cp1_result is None else cp1_result.hit_type
                 if hit_type == HitType.FULL_HIT:
@@ -275,15 +308,52 @@ class GrootCacheInterceptor:
                     schedule = self._library_schedule(payload)
                     with self._runner.session():
                         stage2 = self._runner.run_stage2_llm(stage1)
-                        chunk = self._runner.run_stage3_from(
+                        # The capture kwarg rides only for the online judge so
+                        # every legacy call (and its test spies) stays verbatim.
+                        capture = {"capture_first_step": True} if spec is not None else {}
+                        out = self._runner.run_stage3_from(
                             stage2,
                             payload.intermediates[start_t],
                             start_t,
                             schedule=schedule,
-                        ).action_pred
+                            **capture,
+                        )
+                        chunk = out.action_pred
+                        if spec is not None:
+                            online_diag = self._continuation_feedback(
+                                spec,
+                                stage2,
+                                payload,
+                                schedule,
+                                executed=(start_t, out.first_step_input, out.first_step_x),
+                            )
+                elif (
+                    spec is not None
+                    and cp1_result is not None
+                    and cp1_result.entry_id is not None
+                    and getattr(cp1_result, "searched", True)
+                ):
+                    # MISS with a candidate under the online judge: the same
+                    # two calls ``run_stage2`` makes (staged.py run_stage2),
+                    # split so the backbone output is in hand for the side
+                    # evaluation of every tier from the candidate's snapshots.
+                    with self._runner.session():
+                        stage2 = self._runner.run_stage2_llm(stage1)
+                        chunk = self._runner.run_stage3(stage2).action_pred
+                        payload = self._orchestrator.peek_payload(cp1_result.entry_id)
+                        schedule = self._library_schedule(payload)
+                        online_diag = self._continuation_feedback(
+                            spec, stage2, payload, schedule, executed=None
+                        )
                 else:
                     with self._runner.session():
                         chunk = self._runner.run_stage2(stage1).action_pred
+                    if spec is not None and cp1_result is not None:
+                        # No candidate or gate skip: nothing to compare, but the
+                        # decision still gets its (empty) feedback row.
+                        online_diag = self._orchestrator.record_continuation(
+                            CheckpointID.CP1, None, []
+                        )
 
                 action_cpu = self._to_storage_tensor(chunk)
 
@@ -303,8 +373,45 @@ class GrootCacheInterceptor:
             if not is_batch:
                 unnormalized = _squeeze_values(unnormalized)
 
-        unnormalized["__hit_meta__"] = self._build_hit_meta(cp1_result)
+        unnormalized["__hit_meta__"] = self._build_hit_meta(cp1_result, online_rit=online_diag)
         return unnormalized
+
+    def _continuation_feedback(self, spec, stage2, payload, schedule, *, executed) -> dict:
+        """Turn this decision's first-step updates into feedback and commit it.
+
+        ``executed`` is ``(start_t, x_in, x_out)`` of the warm start that ran
+        (its first step is free) or ``None`` on a MISS. Under ``fm1`` every
+        other tier is side-evaluated in one batched step from the candidate's
+        stored snapshots; under ``fm0`` only the executed tier contributes.
+        Runs inside the runner session (the side step needs the same autocast
+        as the loop). A non-finite disagreement is counted, never learned.
+        """
+        from openpi.cache.components.online_rit import feedback_from_updates
+
+        executed_index = None
+        if executed is not None:
+            executed_index = spec.tier_by_start_t(executed[0]).index
+        side: list = []
+        batch = 0
+        if spec.feedback_mode == "fm1":
+            others = [t for t in spec.tiers if t.index != executed_index]
+            snaps = []
+            for t in others:
+                payload.validate_for_warm_start(schedule, t.start_t)
+                snaps.append((t.start_t, payload.intermediates[t.start_t]))
+            pairs = self._runner.first_step_updates(stage2, snaps, schedule=schedule)
+            batch = len(snaps)
+            side = [(t.start_t, x_in, x_out) for t, (x_in, x_out) in zip(others, pairs)]
+        feedback, reasons = feedback_from_updates(spec, payload, schedule, executed=executed, side=side)
+        snapshot = self._orchestrator.pending_decision(CheckpointID.CP1)
+        return self._orchestrator.record_continuation(
+            CheckpointID.CP1,
+            snapshot,
+            feedback,
+            n_rejected=len(reasons),
+            fb_batch_size=batch,
+            invalid_reasons=reasons,
+        )
 
     def _get_action_cp2(self, normalized_input: dict, is_batch: bool) -> dict[str, Any]:
         """The CP2-only decision cycle (ActionCache-style arm, plan §3.1).

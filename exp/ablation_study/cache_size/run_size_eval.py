@@ -190,7 +190,8 @@ def rehash_apool(apool_dir: pathlib.Path, *, expect_per_task: int = TRIALS_PER_T
 
 
 def load_apool_digest(path: str | None, *, required: bool = True,
-                      verify_contents: bool = True, require_dir: bool = True) -> dict | None:
+                      verify_contents: bool = True, require_dir: bool = True,
+                      expect_per_task: int = TRIALS_PER_TASK) -> dict | None:
     """Read the frozen A-pool record and check it against the files on disk.
 
     The record must name a directory, not just a digest: that directory is what
@@ -199,6 +200,10 @@ def load_apool_digest(path: str | None, *, required: bool = True,
     a different environment's default pool and still "pass". And the digests are
     re-derived from that directory here -- see ``rehash_apool`` for why reading
     them back out of the record would attest nothing.
+
+    ``expect_per_task`` is the official 50 by default; a frozen *subset* pool
+    (the online RIT line's 25-init adapt / terminal halves) passes its own
+    count, and the record must declare exactly ``NUM_TASKS * expect_per_task``.
     """
     if not path:
         if required:
@@ -212,7 +217,7 @@ def load_apool_digest(path: str | None, *, required: bool = True,
     for key in ("suite", "total_inits", "rollup_sha256", "apool_dir", "per_task_digests"):
         if key not in record:
             raise SystemExit(f"A-pool record {path} lacks {key!r}")
-    expected = NUM_TASKS * TRIALS_PER_TASK
+    expected = NUM_TASKS * expect_per_task
     if record["total_inits"] != expected:
         raise SystemExit(
             f"A-pool record declares {record['total_inits']} inits, expected {expected}"
@@ -231,7 +236,7 @@ def load_apool_digest(path: str | None, *, required: bool = True,
     if not verify_contents:
         return record
 
-    actual = rehash_apool(apool_dir)
+    actual = rehash_apool(apool_dir, expect_per_task=expect_per_task)
     if set(actual["per_task_digests"]) != set(digests):
         only_disk = sorted(set(actual["per_task_digests"]) - set(digests))
         only_rec = sorted(set(digests) - set(actual["per_task_digests"]))
@@ -513,6 +518,8 @@ def run_agent_role(args) -> None:
             conda_env=args.conda_env,
             task_suite_name=args.task_suite,
             init_states_dir=init_states_dir,
+            resize_size=args.resize_size,
+            replan_steps=args.replan_steps,
             # CUDA_VISIBLE_DEVICES does not move the render context; MuJoCo
             # picks its EGL device from this variable and, unset, every worker
             # lands on one card.
@@ -577,6 +584,13 @@ def main() -> None:
                          "bare path (for --task-suite) or suite=dir[,suite=dir]; the "
                          "record is left unedited and its digests are re-hashed from "
                          "these files")
+    # Rollout knobs forwarded to every worker this process spawns. A GR00T
+    # server needs 256 because its evaluator crops the raw render itself;
+    # main.Args' 224 default would crop twice and fail the wire contract.
+    ap.add_argument("--resize-size", type=int, default=None,
+                    help="client --resize-size; omit to keep main.Args' default (GR00T needs 256)")
+    ap.add_argument("--replan-steps", type=int, default=None,
+                    help="client --replan-steps; omit to keep main.Args' default")
     ap.add_argument("--worker-prefix", default="w",
                     help="worker id prefix; a remote fleet names its host here so the "
                          "driver's census says who served")
@@ -711,6 +725,8 @@ def main() -> None:
                 conda_env=args.conda_env,
                 task_suite_name=args.task_suite,
                 init_states_dir=init_states_dir,
+                resize_size=args.resize_size,
+                replan_steps=args.replan_steps,
             )
             for i in range(len(worker_server_keys))
         ]

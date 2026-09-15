@@ -1098,6 +1098,112 @@ Collection-side mechanics — how the table reaches the environment and how each
 episode proves it was applied — are in
 [`../data_collection/guide.md`](../data_collection/guide.md).
 
+### 5.21 Online RIT Verdict Layer (continuation-disagreement feedback)
+
+Plan: `logs/online_rit_groot_plan.log.md`. The offline risk-indexed threshold
+(`threshold` judge with cuts exported from a shadow cohort) freezes its risk
+curves on the teacher's own state distribution; deployment under reuse walks a
+different one. `judge.type: online_rit` keeps the same monotone-cut rule class
+but learns the curves in place from a signal every warm start already exposes.
+
+**Signal.** For the candidate's snapshot `x_t` at loop index `i` of the GR00T
+ascending schedule, the library's own update is the difference of consecutive
+snapshots, `u_e = (x_{t_{i+1}} - x_t) * N` (`action_chunk` is the loop end, so
+no new storage), and the current update is the first Euler step the resumed
+loop executes under the current stage-2 output. The continuation disagreement
+`d = mean_h || W_i * m * (u_now - u_e)_h ||_2` uses an explicit executed-dim
+mask `m` (LIBERO: the first 7 action dims) and a per-tier inverse-sigma scale
+from the library's updates (`exp/online_rit/library_prep.py`). Implementation:
+`components/online_rit.py::reference_update / continuation_disagreement`.
+
+**Ladder.** Three warm tiers, riskiest first — `t = 0.875 / 0.75 / 0.5` (one,
+two, four remaining steps of k=8). There is no FULL_HIT (owner ruling
+2026-09-14: pure replay is retired in favour of one current-conditioned step),
+so `OnlineRitJudge` only ever returns `WARM_START(start_t)` or `MISS`; a MISS
+with a candidate keeps `winner_id`, which the orchestrator's MISS exit already
+forwards as `entry_id`.
+
+**Estimator** (`OnlineRiskCurves`). Shared score knots in `[0, 1]`; per
+(tier, knot) a window of the most recent kernel-weighted `d` samples (a row at
+`s ∈ [u_k, u_{k+1}]` is written to both knots with linear weights); the knot
+value is the weighted empirical `1-α` quantile, projected non-increasing in `s`
+by weighted PAV over the *valid* knots (weight sum ≥ `n_min`). Validity is a
+separate mask — value arrays never carry infinities — and a query is labelled
+`supported / gap_interpolated / tail_extrapolated / unavailable`. Cuts are the
+first crossing of the finite valid curve (`cut_at_pl`, same semantics as
+`rit_k.cut_at`); no nesting is imposed across tiers, a tier whose cut is not
+below every cheaper tier's is reported as *shadowed*. `update_enabled=False`
+freezes the state (feedback is still recorded and priced).
+
+**Feedback modes.** `fm0` learns from the executed tier only (the first step is
+free). `fm1` additionally side-evaluates every other tier on the decisions
+that already paid the backbone: one batched `denoise_step` from the
+candidate's stored snapshots (`GrootStagedRunner.first_step_updates`, batch 2
+on a warm start, batch 3 on a candidate MISS), priced separately in the
+inference ratio. Without it the feedback for a tier only arrives at scores
+above its own cut, so the region that could loosen the cut is never observed.
+
+The first implementation runs eager and reduces feedback on the CPU in FP32.
+`first_step_updates` returns the actual head-dtype input with its output;
+subtracting the original storage-dtype snapshot would introduce rounding error.
+The captured executed step needs no additional model forward, but capture,
+transfers, reduction and learning still cost time. The experiment's v2 ledger
+consumes the measured warm/MISS ladder directly, includes these costs and
+separately measures real dispatch, frozen/learning commits and file snapshots.
+Host prices are a documented maximum over sampled cold/partial/full windows,
+with periodic snapshots amortized and a task-end allowance per episode.
+
+**Atomic decision snapshot.** `CurveRegistry.decision_snapshot` copies
+`q_pre(s)`, the cuts, support kinds and the state revision under the entry's
+lock; the interceptor commits the decision's feedback with that snapshot
+(`record_continuation`), so the calibration diagnostics always use the
+pre-decision curve, never the one the feedback just moved.
+
+**Shared state.** `--concurrent` rebuilds every judge per connection, which
+would make one learner per worker. `openpi/cache/online_state.py::CurveRegistry`
+is created once per server process (`serve_groot_libero._build_concurrent_factory`)
+and injected through `build_per_connection_components(..., yaml_id=, online_registry=)`;
+entries are keyed by `(yaml_id, library_sha256)` and refuse a second
+configuration fingerprint under the same key. The registry writes a full
+state snapshot every `snapshot_every` committed batches, on every connection
+close (`on_task_end`) and at interpreter exit, plus feedback rows for candidate
+decisions. The judge's `state_log_dir` takes precedence over the server default;
+files live under `<root>/<yaml_id>__<sha12>/<server_instance_id>/`.
+Snapshots carry a monotone `snapshot_seq` covering non-learning events and are
+published with atomic replacement. `flow_invalid` never clears; inference or
+file-write failure invalidates the stream. Loading verifies the final canonical
+document hash (excluding its own hash field) and the learning hash before
+resetting stream counters. Terminal export rejects any historical invalid
+snapshot, verifies the latest event and feedback sequence, and checks the
+completed stage's existing journal/per-step evidence and frozen input identities.
+It emits a frozen arm and a terminal-cohort matrix without a new wire protocol.
+
+**Wire.** `__hit_meta__["online_rit"]` (present only for this judge) carries
+`decision_idx`, `verdict`, `q_pre`, `cuts`, `cut_available`, `support_kind`,
+`shadowed`, `fb: [{tier, d, source}]`, `fb_batch_size`, `rejected`,
+`update_revision_before/after`; `examples/libero/episode_runner._hit_row`
+copies it into the per-step row.
+
+**Config.** `JudgeConfig` fields `tiers, alpha, delta, knots,
+update_scales_path, init_state_path, feedback_mode, update_enabled, window,
+n_min, h_exec, state_log_dir, snapshot_every, source_library_sha256`
+(validated in `_validate_online_rit_static`; CP1-only, named `denoise_schedule`
+required). `required_warm_timesteps` enumerates each tier *and its successor
+snapshot* so the library-completeness check covers the stored update.
+`GateConfig.include_ws` (score_hysteresis only, `None` default) counts a
+WARM_START as a cache execution for the `L` cap; an `online_rit` recipe under
+that gate must set it, otherwise the cap would never fire on a ladder without
+FULL_HIT. The GR00T load guard admits `online_rit`.
+
+**Episode identity.** Materialized subsets load by local `episode_idx`
+(`WorkerSpec.init_state_index_mode="subset"`), while `orig_init_state_idx`
+retains the parent-pool index. Per-step rows also retain suite and parent-pool
+digest. The launcher verifies pool contents against the selected manifest;
+aggregation matches the full accepted run/yaml/task/attempt identity and pairs
+episodes by suite, parent digest, task and original index. Task-stratified
+bootstrap resamples whole paired episodes for SR and ratios of risk counts;
+it does not reproduce the shared learner or arrival-order uncertainty.
+
 ## 6. Data Flow and Timing
 
 > **Note**: The data flow diagrams below reference cache search/write operations that depend on the storage layer (Section 5.2/5.3). The storage layer is ⚠️ unstable — interfaces and backend implementations will change. The timing structure (stages, checkpoint positions) is stable; the storage interaction details are not.

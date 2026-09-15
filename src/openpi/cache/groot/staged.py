@@ -223,6 +223,12 @@ class GrootStage3Output:
     steps_run: int
     """Euler steps actually executed (``num_steps`` for a full run)."""
 
+    first_step_input: Optional[torch.Tensor] = None
+    """[B, H, D] the chunk the first executed step consumed (opt-in capture)."""
+
+    first_step_x: Optional[torch.Tensor] = None
+    """[B, H, D] the chunk that first step produced (opt-in capture)."""
+
 
 # ------------------------------------------------------------------
 # Runner
@@ -698,6 +704,7 @@ class GrootStagedRunner:
         start_t: float,
         *,
         schedule: DenoiseSchedule,
+        capture_first_step: bool = False,
     ) -> GrootStage3Output:
         """Resume the flow-matching loop from a cached snapshot: the WARM_START path.
 
@@ -706,6 +713,11 @@ class GrootStagedRunner:
         the one ``start_x`` was taken from. Step arithmetic goes through the
         schedule object -- ``remaining_steps`` is ``N - i`` for this ascending
         loop, which is the *opposite* of what the Pi0.5 formula would give.
+
+        ``capture_first_step`` records the input and output of the first Euler
+        step the resumed loop executes (the continuation-disagreement signal of
+        the online RIT judge). It is an observer on the same loop, never a
+        second denoise call, so the returned ``action_pred`` is unchanged.
         """
         self._require_session("run_stage3_from")
         live = self.live_schedule()
@@ -720,6 +732,15 @@ class GrootStagedRunner:
         head = self._model.action_head
         if start_x.dim() == 2:
             start_x = start_x[None, ...]
+        captured: dict[str, torch.Tensor] = {}
+        on_step = None
+        if capture_first_step:
+
+            def on_step(step: int, x_in: torch.Tensor, x_out: torch.Tensor) -> None:
+                if step == start_index:
+                    captured["input"] = x_in.detach().clone()
+                    captured["x"] = x_out.detach().clone()
+
         with self._timer.measure("stage3_warm"):
             action_pred = denoise_loop(
                 head,
@@ -728,6 +749,7 @@ class GrootStagedRunner:
                 noise=start_x,
                 num_steps=schedule.num_steps,
                 start_index=start_index,
+                on_step=on_step,
             )
         self._model.validate_data(
             _batch_feature({"action_pred": action_pred}),
@@ -738,7 +760,64 @@ class GrootStagedRunner:
             action_pred=action_pred,
             start_t=start_t,
             steps_run=schedule.remaining_steps(start_t),
+            first_step_input=captured.get("input"),
+            first_step_x=captured.get("x"),
         )
+
+    def first_step_updates(
+        self,
+        stage2: GrootStage2Output,
+        snapshots: list[tuple[float, torch.Tensor]],
+        *,
+        schedule: DenoiseSchedule,
+    ) -> list[tuple[torch.Tensor, torch.Tensor]]:
+        """One Euler step from each ``(t, x_t)`` under the current conditioning, batched.
+
+        This is the side evaluation of the online RIT judge's feedback mode
+        ``fm1``: every snapshot rides in the same head forward as one batch
+        row with its own timestep bucket, so the cost is one step at batch
+        ``len(snapshots)`` rather than one forward per tier. Returns, in input
+        order, ``(x_in_used, x_out)`` pairs ``[1, H, D]`` where ``x_in_used`` is
+        the input *as the head consumed it* (cast to the head dtype): a caller
+        that differenced the output against its own FP32 snapshot would count
+        the storage-to-BF16 rounding as disagreement. Numerically it is the same
+        ``denoise_step`` the loop runs; the batch-vs-serial equality is a tested
+        gate (``tests/cache/groot/test_first_step_updates.py``).
+        """
+        self._require_session("first_step_updates")
+        if not snapshots:
+            return []
+        live = self.live_schedule()
+        if schedule != live:
+            raise RuntimeError(
+                f"first_step_updates: library schedule {schedule.schedule_id} but the "
+                f"action head is running {live.schedule_id}"
+            )
+        head = self._model.action_head
+        backbone_outputs = self._head_inputs(stage2)
+        processed = head.process_backbone_output(backbone_outputs)
+        vl = processed.backbone_features
+        embodiment_id = stage2.action_inputs["embodiment_id"]
+        state_features = head.state_encoder(stage2.action_inputs["state"], embodiment_id)
+        k = len(snapshots)
+        xs = []
+        buckets = []
+        for t, x in snapshots:
+            index = schedule.snapshot_index(round(float(t), 4))
+            t_cont = index / float(schedule.num_steps)
+            buckets.append(int(t_cont * head.num_timestep_buckets))
+            x = x if x.dim() == 3 else x[None, ...]
+            xs.append(x.to(device=vl.device, dtype=vl.dtype))
+        actions = torch.cat(xs, dim=0)  # [K, H, D]
+        vl_k = vl.expand(k, *vl.shape[1:])
+        sf_k = state_features.expand(k, *state_features.shape[1:])
+        emb_k = embodiment_id.expand(k) if embodiment_id.dim() == 1 else embodiment_id.expand(k, *embodiment_id.shape[1:])
+        timesteps_tensor = torch.tensor(buckets, device=vl.device)
+        with self._timer.measure("stage3_side"):
+            out = denoise_step(
+                head, vl_k, sf_k, emb_k, actions, timesteps_tensor, 1.0 / schedule.num_steps
+            ).clone()
+        return [(actions[i : i + 1].clone(), out[i : i + 1]) for i in range(k)]
 
 
 # ------------------------------------------------------------------
@@ -786,6 +865,7 @@ def denoise_loop(
     num_steps: int,
     start_index: int = 0,
     step_fn: Callable[..., torch.Tensor] = denoise_step,
+    on_step: Optional[Callable[[int, torch.Tensor, torch.Tensor], None]] = None,
 ) -> torch.Tensor:
     """Upstream ``get_action`` with the noise hoisted out and a resume point.
 
@@ -798,6 +878,8 @@ def denoise_loop(
     ``step_fn`` exists so a caller may substitute a compiled single step.
     ``action_input`` is indexed rather than attribute-accessed so the loop also
     runs against plain-dict stand-ins; ``BatchFeature`` supports both.
+    ``on_step`` observes ``(step, x_in, x_out)`` after each Euler step; it is
+    a read-only hook and cannot change what the loop computes.
     """
     processed = action_head.process_backbone_output(backbone_output)
     vl = processed.backbone_features
@@ -815,6 +897,7 @@ def denoise_loop(
         )
         # A reduce-overhead graph returns a static output buffer. Clone after
         # every step because the next denoise step consumes this value.
+        x_in = actions
         actions = step_fn(
             action_head,
             vl,
@@ -824,6 +907,8 @@ def denoise_loop(
             timesteps_tensor,
             dt,
         ).clone()
+        if on_step is not None:
+            on_step(t, x_in, actions)
     return actions
 
 

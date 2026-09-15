@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import hashlib
 import logging
 import pathlib
 import threading
@@ -75,12 +76,27 @@ class SweepStrategy(_strat.ExperimentStrategy):
         trials: int,
         servers: list[_task.ServerEndpoint] | None = None,
         done_uids: set[str] | None = None,
+        init_index_map: dict[int, list[int]] | None = None,
+        parent_pool_sha256: str | None = None,
     ) -> None:
         self._task_suite = task_suite
         self._yaml_paths = yaml_paths
         self._trials = trials
         self._servers = servers
         self._done_uids = set(done_uids or ())
+        # Subset pools (the online RIT line's 25-init halves) keep their
+        # official A-pool indices: ``orig_init_state_idx`` is then the mapped
+        # original, not the position inside the materialised subset file.
+        if init_index_map is not None:
+            for task_id in range(NUM_TASKS):
+                idx = init_index_map.get(task_id)
+                if idx is None or len(idx) != trials:
+                    raise SystemExit(
+                        f"init index map for task {task_id} has {None if idx is None else len(idx)} "
+                        f"entries, expected {trials}"
+                    )
+        self._init_index_map = init_index_map
+        self._parent_pool_sha256 = parent_pool_sha256
 
     def _episodes(self, yaml_id: str, server: _task.ServerEndpoint) -> list[_task.EpisodeTask]:
         """This arm's outstanding episodes, addressed at ``server``.
@@ -97,6 +113,11 @@ class SweepStrategy(_strat.ExperimentStrategy):
                 uid = _task.make_task_uid(yaml_id, "eval", task_id, ep_idx)
                 if uid in self._done_uids:
                     continue
+                orig = (
+                    int(self._init_index_map[task_id][ep_idx])
+                    if self._init_index_map is not None
+                    else ep_idx
+                )
                 out.append(
                     _task.EpisodeTask(
                         task_uid=uid,
@@ -105,11 +126,11 @@ class SweepStrategy(_strat.ExperimentStrategy):
                         experiment=self._task_suite,
                         task_id=task_id,
                         episode_idx=ep_idx,
-                        orig_init_state_idx=ep_idx,
+                        orig_init_state_idx=orig,
                         server_host=server.host,
                         server_port=server.port,
                         bundle_id=yaml_id,
-                        extra={"num_trials_per_task": self._trials},
+                        extra={"num_trials_per_task": self._trials, "parent_pool_sha256": self._parent_pool_sha256},
                     )
                 )
         return out
@@ -241,7 +262,7 @@ def arms_with_work_left(
     return remaining, counts
 
 
-JUDGE_TYPES = ("threshold", "dispatch_surface")
+JUDGE_TYPES = ("threshold", "dispatch_surface", "online_rit")
 EVAL_GATES = ("score_hysteresis", "always_search")
 
 
@@ -351,6 +372,19 @@ def validate_arms(
     return yaml_paths
 
 
+def scheduler_kwargs_from_args(args) -> dict | None:
+    """``EvalScheduler`` overrides named on the CLI; ``None`` keeps every default."""
+    kwargs: dict = {}
+    if getattr(args, "eval_concurrency", 0):
+        kwargs["eval_concurrency"] = int(args.eval_concurrency)
+    retries = getattr(args, "max_episode_retries", None)
+    if retries is not None:
+        if int(retries) < 0:
+            raise SystemExit("--max-episode-retries must be >= 0")
+        kwargs["max_episode_retries"] = int(retries)
+    return kwargs or None
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Hybrid-gate threshold sweep runner")
     ap.add_argument("--arm-matrix", required=True)
@@ -378,6 +412,17 @@ def main() -> None:
     ap.add_argument("--bind-host", default="127.0.0.1")
     ap.add_argument("--episode-timeout-s", type=float, default=1800.0)
     ap.add_argument("--eval-concurrency", type=int, default=0)
+    ap.add_argument(
+        "--max-episode-retries", type=int, default=None,
+        help="scheduler retry cap per episode; 0 for an online-learning arm so a failed "
+        "attempt never enters the learning stream twice (default: the scheduler's)",
+    )
+    ap.add_argument(
+        "--init-map", default="",
+        help="init_pools_manifest.json of a materialised subset pool; with --init-map-key "
+        "the per-task original A-pool indices are stamped as orig_init_state_idx",
+    )
+    ap.add_argument("--init-map-key", default="", help="manifest key naming the subset (adapt | terminal)")
     ap.add_argument("--gpus", type=int, default=1)
     ap.add_argument(
         "--gpu-ids", default="",
@@ -472,10 +517,12 @@ def main() -> None:
         relocated = per_step_path.parent / f"apool_{args.task_suite}.local.yaml"
         relocated.parent.mkdir(parents=True, exist_ok=True)
         relocated.write_text(yaml.safe_dump(record, sort_keys=False), encoding="utf-8")
-        apool = load_apool_digest(str(relocated), required=True, verify_contents=True)
+        apool = load_apool_digest(
+            str(relocated), required=True, verify_contents=True, expect_per_task=args.trials
+        )
     else:
         apool = load_apool_digest(
-            args.apool_record, required=True, verify_contents=True
+            args.apool_record, required=True, verify_contents=True, expect_per_task=args.trials
         )
     if apool["suite"] != args.task_suite:
         raise SystemExit(
@@ -488,6 +535,7 @@ def main() -> None:
                 "phase": args.phase,
                 "suite": args.task_suite,
                 "arms": sorted(yaml_paths),
+                "yaml_sha256": {name: hashlib.sha256(pathlib.Path(path).read_bytes()).hexdigest() for name, path in yaml_paths.items()},
                 "trials_per_task": args.trials,
                 "gate_L": args.gate_l,
                 "judge_type": args.judge_type,
@@ -499,6 +547,8 @@ def main() -> None:
                 ),
                 "warm_tiers": list(warm_tiers),
                 "apool": apool,
+                "init_map_sha256": hashlib.sha256(pathlib.Path(args.init_map).read_bytes()).hexdigest() if args.init_map else None,
+                "init_map_key": args.init_map_key,
             },
             indent=2,
         )
@@ -536,10 +586,24 @@ def main() -> None:
             for row in rows:
                 f.write(json.dumps({"yaml_id": yaml_id, **row}) + "\n")
 
+    init_index_map = None
+    parent_pool_sha = apool["rollup_sha256"]
+    if args.init_map or args.init_map_key:
+        if not (args.init_map and args.init_map_key):
+            raise SystemExit("--init-map and --init-map-key must be given together")
+        manifest = json.loads(pathlib.Path(args.init_map).read_text(encoding="utf-8"))
+        if args.init_map_key not in manifest:
+            raise SystemExit(f"{args.init_map}: no key {args.init_map_key!r}")
+        from exp.online_rit.cohorts import validate_pool
+
+        init_index_map = validate_pool(manifest, args.init_map_key, apool, args.trials)
+        parent_pool_sha = manifest["parent_pool_sha256"]
     strategy = SweepStrategy(
         args.task_suite, yaml_paths, args.trials,
         servers=servers,
         done_uids=journal_uids(args.journal),
+        init_index_map=init_index_map,
+        parent_pool_sha256=parent_pool_sha,
     )
     driver = ConductorDriver(
         strategy,
@@ -549,11 +613,7 @@ def main() -> None:
         ctl_factory=default_client_factory,
         episode_timeout_s=args.episode_timeout_s,
         bind_host=args.bind_host,
-        scheduler_kwargs=(
-            {"eval_concurrency": args.eval_concurrency}
-            if args.eval_concurrency
-            else None
-        ),
+        scheduler_kwargs=scheduler_kwargs_from_args(args),
         server_capacities=server_capacities,
         per_step_writer=_per_step_writer,
     )
@@ -580,6 +640,7 @@ def main() -> None:
             conda_env=args.conda_env,
             task_suite_name=args.task_suite,
             init_states_dir=apool["apool_dir"],
+            init_state_index_mode="subset" if args.init_map else "orig",
             # Rollout knobs, not feature switches: a GR00T server needs 256
             # because its evaluator crops the raw render to 224 itself, so
             # main.Args' 224 default crops twice and the wire contract rejects

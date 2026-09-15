@@ -696,6 +696,23 @@ class SearchResult:
 
 ---
 
+### 5.21 在线 RIT 判定层（continuation-disagreement 反馈）
+
+计划：`logs/online_rit_groot_plan.log.md`。离线 RIT（`threshold` judge + shadow cohort 导出的切点）把风险曲线冻结在教师独跑的状态分布上；复用部署走的是另一分布。`judge.type: online_rit` 保持同一单调切点规则类，但用每次 warm start 本来就暴露的信号在线学习曲线。
+
+- **信号**：候选快照 `x_t`（GR00T 升序 schedule 第 `i` 步）的库存更新是相邻快照之差 `u_e = (x_{t_{i+1}} - x_t) * N`（`action_chunk` 即循环终点，零新存储）；当前更新是续跑循环在当前 stage-2 条件下执行的第一步。分歧 `d = mean_h || W_i * m * (u_now - u_e)_h ||_2`，`m` 为显式执行维 mask（LIBERO 前 7 维），`W_i` 为每档由库内更新算得的逆标准差（`exp/online_rit/library_prep.py`）。
+- **阶梯**：三个 warm 档 `t = 0.875 / 0.75 / 0.5`（剩 1/2/4 步），riskiest first；**无 FULL_HIT**（owner 2026-09-14 裁定），judge 只返回 `WARM_START(start_t)` 或 `MISS`，有候选的 MISS 保留 `winner_id`。
+- **估计器** `OnlineRiskCurves`：共享结点；每 (档, 结点) 一个定长核加权样本窗，值为加权经验 `1-α` 分位，有效结点（权重和 ≥ `n_min`）上做非增 PAV；有效性是独立掩码，值数组不含无穷；查询标 `supported / gap_interpolated / tail_extrapolated / unavailable`；切点为有限有效曲线的首个交点（`cut_at_pl`，与 `rit_k.cut_at` 同语义），档间不强加嵌套，被遮蔽档单独报告；`update_enabled=False` 冻结但仍记录/计费反馈。
+- **反馈模式**：`fm0` 只学被执行档；`fm1` 在已付 backbone 的决策上对其余档做一次 batched `denoise_step` 旁测（`GrootStagedRunner.first_step_updates`，warm 时 batch 2、候选 MISS 时 batch 3），单独计价。
+- **实际数值与成本**：首版 eager、CPU FP32 归约；旁测返回 head 实际消费的输入及输出，避免把存储到运算 dtype 的量化差计入 d。执行档首步无需额外模型 forward，但 capture、搬运、归约及学习仍计费。实验 v2 台账直接读取实测 warm/MISS 阶梯，包含真实检索/门/judge、冻结/学习 commit 与文件日志；CPU 项采用冷/半满/满窗样本中的已测最大值，周期快照摊销、集末快照另加保守额度。
+- **原子决策快照**：`CurveRegistry.decision_snapshot` 在锁内复制 `q_pre(s)`、切点、支持类型与 revision；拦截器用同一快照提交反馈（`record_continuation`），校准诊断永远用决策前曲线。
+- **共享状态**：`--concurrent` 按连接重建 judge；`CurveRegistry` 每进程一个，经 `build_per_connection_components(..., yaml_id=, online_registry=)` 注入；键 `(yaml_id, library_sha256)`，指纹冲突拒绝。judge 的 `state_log_dir` 优先于 server 缺省；目录 `<root>/<yaml_id>__<sha12>/<server_instance_id>/`。周期/连接关闭/进程退出写完整快照；`snapshot_seq` 包含不增加学习次数的事件，文件以原子替换发布。推理/写盘失败使 `flow_invalid` 单调置真；加载先验 canonical 文档哈希（排除哈希字段自身）和学习哈希，再重置本流计数。终态拒绝任何历史无效记录，校验最新事件、反馈序列、既有 journal/per_step 的完整集合及输入身份，再生成冻结 yaml 和 terminal cohort 矩阵，不新增 wire 协议。
+- **wire**：`__hit_meta__["online_rit"]`（仅此 judge 出现）携带 `decision_idx / verdict / q_pre / cuts / cut_available / support_kind / shadowed / fb / fb_batch_size / rejected / update_revision_before/after`；`examples/libero/episode_runner._hit_row` 原样复制到 per_step 行。
+- **配置**：`JudgeConfig` 新字段 `tiers, alpha, delta, knots, update_scales_path, init_state_path, feedback_mode, update_enabled, window, n_min, h_exec, state_log_dir, snapshot_every, source_library_sha256`（`_validate_online_rit_static`；CP1-only，须命名 `denoise_schedule`）；`required_warm_timesteps` 枚举每档及其后继快照；`GateConfig.include_ws`（仅 score_hysteresis，默认 None）把 WARM_START 计入 `L` 锁定，`online_rit` 配 hysteresis 门时必须为 true；GR00T load guard 放行 `online_rit`。
+- **初态与统计身份**：物化子池按本地 `episode_idx` 加载（WorkerSpec 的 subset 模式），`orig_init_state_idx` 保留父池下标，per_step 携带 suite/父池摘要。启动时校验所选 manifest 对应的实际池内容；聚合核验 run/yaml/task_uid/attempt 的 accepted 身份。配对使用 suite/父池 SHA/task/原始下标，按任务分层整集重采样 SR 与违规计数/分母，不重建共享学习或到达序不确定性。
+
+（章节编号沿用英文版；本中文版 §5.8–§5.20 尚未翻译。）
+
 ## 6. 数据流与时序
 
 > **注意**：以下数据流图中涉及的 cache search/write 操作依赖存储层（Section 5.2/5.3）。存储层当前 ⚠️ 不稳定——接口和 backend 实现将频繁变动。时序结构（stage 划分、checkpoint 位置）是稳定的，存储交互细节不是。

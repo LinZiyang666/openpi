@@ -112,14 +112,16 @@ class GateConfig:
     j: int | None = None
     probe_interval: int | None = None
     # Stage 3b N4 V2 injection threshold (score_hysteresis only): None -> pure N1
-    # (V2 disabled); int L -> cap continuous cache-execution run at L. include_ws
-    # is intentionally NOT a config field (constructor-only; a bool default would
-    # trip the stray-field check on every legacy gate).
+    # (V2 disabled); int L -> cap continuous cache-execution run at L.
     L: int | None = None
+    # score_hysteresis only: count WARM_START as a cache execution for the L cap
+    # (the online RIT ladder has no FULL_HIT, so without this the cap is dead).
+    # None keeps the constructor default (False) and, being None rather than a
+    # bool, does not trip the stray-field check on legacy gates.
+    include_ws: bool | None = None
     # Only for type="follow_winner" (Stage 4a N2, validated by validate_cache_config).
     # tolerate_delta0 is intentionally NOT a config field (constructor-only default
-    # True; a bool default would trip the stray-field check on every legacy gate,
-    # same rationale as include_ws above).
+    # True; a bool default would trip the stray-field check on every legacy gate).
     lock_streak: int | None = None
     budget: int | None = None
 
@@ -364,6 +366,33 @@ class JudgeConfig:
     #   mode:           "sample" (training) | "argmax" (frozen evaluation).
     #   dump_dir:       feature/sidecar dump root; empty => zero dump I/O.
     #   seed:           run seed folded into the per-episode RNG derivation.
+    # ── Online RIT (type="online_rit"; plan logs/online_rit_groot_plan.log.md) ──
+    # tiers: resume timesteps riskiest first (fewest remaining steps first),
+    # every one a snapshot of the named denoise_schedule; no FULL_HIT tier.
+    # delta: continuation-disagreement tolerance shared by every tier; knots:
+    # strictly increasing score knots in [0, 1]; update_scales_path: NPZ from
+    # exp/online_rit/library_prep.py (executed-dim masks + inverse-sigma scales
+    # per tier); init_state_path: optional full OnlineRiskCurves snapshot;
+    # feedback_mode: "fm0" (executed tier only) | "fm1" (side-evaluate every
+    # tier on backbone-paid decisions); update_enabled: False freezes the
+    # curves (they still record); state_log_dir: server-side snapshot/feedback
+    # root; snapshot_every: committed batches between full snapshots.
+    tiers: Optional[list[float]] = None
+    alpha: Optional[float] = None
+    delta: Optional[float] = None
+    knots: Optional[list[float]] = None
+    update_scales_path: Optional[str] = None
+    init_state_path: Optional[str] = None
+    feedback_mode: Optional[str] = None
+    update_enabled: Optional[bool] = None
+    window: Optional[int] = None
+    n_min: Optional[int] = None
+    h_exec: Optional[int] = None
+    state_log_dir: Optional[str] = None
+    snapshot_every: Optional[int] = None
+    # S3b library swap: the library the scales / init state were computed on,
+    # when it differs from the served one (explicit, recorded mapping).
+    source_library_sha256: Optional[str] = None
     arms: Optional[str] = None
     weights_path: Optional[str] = None
     constant_arm: Optional[str] = None
@@ -811,6 +840,7 @@ _JUDGE_TYPES = frozenset(
         "mlp_router",
         "risk_router",
         "dispatch_surface",
+        "online_rit",
     }
 )
 
@@ -1047,6 +1077,88 @@ def _dict_to_dataclass(cls: type, data: dict[str, Any]) -> Any:
 # ---------------------------------------------------------------------------
 # Public API: load, validate, build
 # ---------------------------------------------------------------------------
+
+
+def _validate_online_rit_static(
+    prefix: str,
+    cp_config,
+    config,
+    errors: list,
+    *,
+    cp_name: str,
+) -> None:
+    """Static checks for the ``online_rit`` judge (plan online_rit_groot §3.9 / §6)."""
+    judge = cp_config.judge
+    if cp_name != "cp1":
+        errors.append(f"{prefix}.judge: online_rit is CP1-only")
+    if config.denoise_schedule is None:
+        errors.append(f"{prefix}.judge: online_rit requires a named denoise_schedule")
+    if judge.warm_tiers:
+        errors.append(f"{prefix}.judge: online_rit does not take warm_tiers (use tiers)")
+    if judge.dump is not None:
+        errors.append(f"{prefix}.judge: online_rit cannot be dump-wrapped")
+    try:
+        schedule = effective_denoise_schedule(config)
+    except ConfigValidationError:
+        schedule = None
+    tiers = judge.tiers
+    if not tiers:
+        errors.append(f"{prefix}.judge: online_rit requires a non-empty 'tiers' list")
+    else:
+        prev = None
+        for i, t in enumerate(tiers):
+            if not isinstance(t, (int, float)) or isinstance(t, bool) or not math.isfinite(float(t)):
+                errors.append(f"{prefix}.judge.tiers[{i}] must be a finite number")
+                continue
+            t4 = round(float(t), 4)
+            if schedule is not None and t4 not in schedule.timestep_set:
+                errors.append(
+                    f"{prefix}.judge.tiers[{i}]={t} is not a snapshot of "
+                    f"{schedule.schedule_id} {list(schedule.timesteps)}"
+                )
+            if prev is not None and t4 >= prev:
+                errors.append(f"{prefix}.judge.tiers must be strictly decreasing (riskiest first)")
+            prev = t4
+    alpha = judge.alpha
+    if alpha is None or not (0.0 < float(alpha) <= 0.5):
+        errors.append(f"{prefix}.judge.alpha must lie in (0, 0.5], got {alpha!r}")
+    delta = judge.delta
+    if delta is None or not math.isfinite(float(delta)) or float(delta) < 0.0:
+        errors.append(f"{prefix}.judge.delta must be finite and >= 0, got {delta!r}")
+    knots = judge.knots
+    if not knots or len(knots) < 3:
+        errors.append(f"{prefix}.judge.knots needs at least three values")
+    else:
+        vals = [float(k) for k in knots]
+        if any(b <= a for a, b in zip(vals, vals[1:])):
+            errors.append(f"{prefix}.judge.knots must be strictly increasing")
+        if vals[0] < -1e-6 or vals[-1] > 1.0 + 1e-6:
+            errors.append(f"{prefix}.judge.knots must lie in the fused-score domain [0, 1]")
+    if judge.feedback_mode not in ("fm0", "fm1"):
+        errors.append(f"{prefix}.judge.feedback_mode must be 'fm0' or 'fm1', got {judge.feedback_mode!r}")
+    if judge.update_enabled is None or not isinstance(judge.update_enabled, bool):
+        errors.append(f"{prefix}.judge.update_enabled must be an explicit bool")
+    window, n_min = judge.window, judge.n_min
+    if not (isinstance(window, int) and isinstance(n_min, int)) or isinstance(window, bool) or isinstance(n_min, bool):
+        errors.append(f"{prefix}.judge: window and n_min must be ints")
+    elif not (window >= n_min >= 1):
+        errors.append(f"{prefix}.judge: window >= n_min >= 1 required, got window={window}, n_min={n_min}")
+    if judge.h_exec is None or not isinstance(judge.h_exec, int) or isinstance(judge.h_exec, bool) or judge.h_exec < 1:
+        errors.append(f"{prefix}.judge.h_exec must be an int >= 1")
+    if judge.snapshot_every is not None and (not isinstance(judge.snapshot_every, int) or judge.snapshot_every < 1):
+        errors.append(f"{prefix}.judge.snapshot_every must be an int >= 1")
+    if not judge.update_scales_path:
+        errors.append(f"{prefix}.judge.update_scales_path is required")
+    elif not Path(judge.update_scales_path).is_file():
+        errors.append(f"{prefix}.judge.update_scales_path not found: {judge.update_scales_path}")
+    if judge.init_state_path and not Path(judge.init_state_path).is_file():
+        errors.append(f"{prefix}.judge.init_state_path not found: {judge.init_state_path}")
+    gate = cp_config.gate
+    if gate.type == "score_hysteresis" and gate.include_ws is not True:
+        errors.append(
+            f"{prefix}.gate: online_rit under score_hysteresis requires include_ws: true "
+            "(the ladder has no FULL_HIT, so the L cap would otherwise never fire)"
+        )
 
 
 def load_cache_config(path: str | Path) -> CacheConfig:
@@ -2058,6 +2170,7 @@ def validate_cache_config(config: CacheConfig) -> None:
             "j",
             "probe_interval",
             "L",
+            "include_ws",
         }
         _gate_follow_winner_fields = {"lock_streak", "budget"}
         _gate_all_param_fields = (
@@ -2196,6 +2309,11 @@ def validate_cache_config(config: CacheConfig) -> None:
                     )
                 elif L_val < 1:
                     errors.append(f"{prefix}.gate.L={L_val} must be >= 1")
+            iw = cp_config.gate.include_ws
+            if iw is not None and not isinstance(iw, bool):
+                errors.append(
+                    f"{prefix}.gate.include_ws must be a bool, got {type(iw).__name__}={iw!r}"
+                )
             stray = gate_set_fields - _gate_score_hysteresis_fields
             if stray:
                 errors.append(
@@ -2344,6 +2462,16 @@ def validate_cache_config(config: CacheConfig) -> None:
             _validate_mlp_router_static(
                 prefix,
                 cp_config.judge,
+                config,
+                errors,
+                cp_name=cp_name,
+            )
+
+        # online_rit judge parameter checks (plan online_rit_groot §3.9 / §6).
+        if cp_config.judge.type == "online_rit":
+            _validate_online_rit_static(
+                prefix,
+                cp_config,
                 config,
                 errors,
                 cp_name=cp_name,
@@ -3319,6 +3447,19 @@ def required_warm_timesteps(config: CacheConfig) -> frozenset[float]:
                     if value is not None:
                         found.add(round(float(value), 4))
             continue
+        if judge.type == "online_rit":
+            # Every tier's own snapshot plus its successor: the stored update
+            # u_e is the difference of consecutive snapshots (the last tier's
+            # successor is action_chunk, which every entry carries).
+            schedule = effective_denoise_schedule(config)
+            for t in judge.tiers or []:
+                t4 = round(float(t), 4)
+                found.add(t4)
+                if t4 in schedule.timestep_set:
+                    index = schedule.snapshot_index(t4)
+                    if index + 1 < schedule.num_steps:
+                        found.add(schedule.snapshot_t(index + 1))
+            continue
         if judge.type in ("always_warm_start", "dispatch_surface"):
             continue
         if config.denoise_schedule is not None:
@@ -3394,7 +3535,7 @@ def _config_emits_warm_start(config: CacheConfig) -> bool:
             if judge.warm_tiers:
                 return True
             continue
-        if judge.type == "always_warm_start":
+        if judge.type in ("always_warm_start", "online_rit"):
             return True
         if judge.type == "composite":
             composer = judge.composer
@@ -3744,6 +3885,7 @@ def build_per_connection_components(
     *,
     yaml_id: Optional[str] = None,
     quiet: bool = False,
+    online_registry=None,
 ) -> dict[str, Any]:
     """Build per-connection cache components, reusing only the backend.
 
@@ -3760,6 +3902,9 @@ def build_per_connection_components(
     normalizer is pre-filled from that buffer so cold-start sentinel firing
     drops to ~0 on the first verdict; absent yaml_id or absent pool entry is
     a no-op (preserves the legacy code path).
+
+    ``online_registry`` is the process-level ``CurveRegistry`` an ``online_rit``
+    judge attaches to; every other judge ignores it.
     """
     from openpi.cache.timing import SystemTimer
 
@@ -3808,11 +3953,14 @@ def build_per_connection_components(
                 cp_config.judge,
                 library_stats,
             )
+        _meta = per_conn_storage.artifact_meta or {}
         judges[cp_id] = _build_judge(
             cp_config.judge,
             library_stats=library_stats,
             yaml_id=yaml_id,
             schedule=effective_denoise_schedule(config),
+            online_registry=online_registry,
+            library_sha256=_meta.get("library_sha256"),
         )
         # Forward the judge's min_required_top_k hint into the strategy so
         # F2 (and any future top-k-hungry factor) gets enough candidates.
@@ -4170,12 +4318,14 @@ def _build_gate(cfg: GateConfig):
             and cfg.theta_high is not None
             and cfg.j is not None
         )
+        kwargs = {} if cfg.include_ws is None else {"include_ws": bool(cfg.include_ws)}
         return ScoreHysteresisGate(
             theta_low=cfg.theta_low,
             theta_high=cfg.theta_high,
             j=cfg.j,
             probe_interval=cfg.probe_interval,
             L=cfg.L,
+            **kwargs,
         )
     if cfg.type == "follow_winner":
         from openpi.cache.components.gate import FollowWinnerGate
@@ -4195,6 +4345,8 @@ def _build_judge(
     *,
     yaml_id: Optional[str] = None,
     schedule: DenoiseSchedule = PI05_V1,
+    online_registry=None,
+    library_sha256: Optional[str] = None,
 ):
     """Instantiate a SimilarityJudge from config.
 
@@ -4212,7 +4364,12 @@ def _build_judge(
     judge's verdict surface byte-identically.
     """
     inner = _build_inner_judge(
-        cfg, library_stats=library_stats, yaml_id=yaml_id, schedule=schedule
+        cfg,
+        library_stats=library_stats,
+        yaml_id=yaml_id,
+        schedule=schedule,
+        online_registry=online_registry,
+        library_sha256=library_sha256,
     )
     if cfg.dump is None:
         return inner
@@ -4225,8 +4382,35 @@ def _build_inner_judge(
     *,
     yaml_id: Optional[str] = None,
     schedule: DenoiseSchedule = PI05_V1,
+    online_registry=None,
+    library_sha256: Optional[str] = None,
 ):
     """Build the unwrapped judge instance based on `cfg.type` only."""
+    if cfg.type == "online_rit":
+        # Lazy import (router precedent). The judge needs the bundle identity
+        # (yaml_id + served library sha) and the process-level registry; a
+        # missing one is refused here so a per-connection build can never
+        # silently become one learner per worker.
+        from openpi.cache.components.online_rit import build_online_rit_judge
+
+        if online_registry is None:
+            raise ConfigValidationError(
+                "online_rit requires a process-level CurveRegistry "
+                "(build_per_connection_components(..., online_registry=...))"
+            )
+        if not yaml_id:
+            raise ConfigValidationError("online_rit requires yaml_id (the bundle identity)")
+        if not library_sha256:
+            raise ConfigValidationError(
+                "online_rit requires the served library's sha256 (artifact_meta)"
+            )
+        return build_online_rit_judge(
+            cfg,
+            schedule=schedule,
+            registry=online_registry,
+            yaml_id=yaml_id,
+            library_sha256=library_sha256,
+        )
     if cfg.type == "threshold":
         from openpi.cache.components.judge import ThresholdJudge
 

@@ -53,7 +53,7 @@ from openpi.cache.config import (
 )
 from openpi.cache.types import DIRECTION_ASC, groot_n15_schedule, schedule_from_id
 
-_ALLOWED_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start"})
+_ALLOWED_JUDGE_TYPES = frozenset({"threshold", "always_hit", "always_warm_start", "online_rit"})
 #: Gates every GR00T serving entry point may use, with no opt-in.
 _BASE_ALLOWED_GATES = frozenset({"always_search"})
 #: The single documented exception, admitted only via ``allow_hysteresis_gate``.
@@ -249,7 +249,7 @@ def _warm_start_schedule_errors(
     cp_name = _inspected_checkpoint(config)
     cp1 = config.checkpoints.get(cp_name) if cp_name is not None else None
     warm_judge = cp1 is not None and (
-        cp1.judge.type == "always_warm_start" or bool(cp1.judge.warm_tiers)
+        cp1.judge.type in ("always_warm_start", "online_rit") or bool(cp1.judge.warm_tiers)
     )
     if not warm and not warm_judge:
         return []

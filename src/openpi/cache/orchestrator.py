@@ -524,6 +524,45 @@ class CacheOrchestrator:
                 start_t=start_t,
             )
 
+    # ------------------------------------------------------------------
+    # Online RIT continuation feedback (plan logs/online_rit_groot_plan §3.4)
+    # ------------------------------------------------------------------
+
+    def continuation_spec(self, checkpoint_id: CheckpointID):
+        """The judge's feedback contract, or ``None`` for every other judge."""
+        judge = self._judges.get(checkpoint_id)
+        return getattr(judge, "continuation_spec", None)
+
+    def pending_decision(self, checkpoint_id: CheckpointID):
+        """The decision snapshot the online judge captured for the current step."""
+        judge = self._judges.get(checkpoint_id)
+        return getattr(judge, "pending_snapshot", None)
+
+    def peek_payload(self, entry_id: str) -> CachePayload:
+        """Read-only payload of one entry, through the same view judges use.
+
+        The MISS exit of ``check()`` carries a candidate's id but no payload;
+        the online judge's side evaluation needs the candidate's snapshots, so
+        it reads them here rather than by re-searching. Never writes storage.
+        """
+        payload = StoragePayloadView(self._storage).get(entry_id)
+        if payload is None:
+            raise KeyError(f"no payload for entry {entry_id!r}")
+        return payload
+
+    def record_continuation(
+        self, checkpoint_id: CheckpointID, snapshot, feedback, **kwargs
+    ) -> dict:
+        """Forward this step's continuation feedback to a judge that takes it.
+
+        Mirrors ``_feed_verdict_to_gate``'s hasattr guard: legacy judges are
+        never called. Returns the judge's diagnostic dict (empty otherwise).
+        """
+        judge = self._judges.get(checkpoint_id)
+        if judge is None or not hasattr(judge, "record_continuation"):
+            return {}
+        return judge.record_continuation(checkpoint_id, snapshot, feedback, **kwargs)
+
     def _with_judge_diag(self, factor_outputs):
         """Merge a stateful judge's commit diagnostics into the step's factor_outputs."""
         diag = self._last_judge_commit
