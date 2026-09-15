@@ -309,13 +309,32 @@ def full_hit_rates(per_step_path: pathlib.Path) -> dict[str, float]:
 
 
 def assert_accepted_full_hit(journal_path: pathlib.Path, per_step_path: pathlib.Path,
-                             expected_arms: set[str]) -> dict:
+                             expected_arms: set[str], *, require_run_id: bool | None = None) -> dict:
     """Runner-side twin of the analyzer's per-episode FULL_HIT gate.
 
-    Deliberately the *same* functions, not a parallel implementation: a runner
-    gate that admits what the analyzer later rejects is worse than no gate, since
-    the episodes are already spent by then.
+    Modern ledgers use the shared run/attempt witness. Legacy callers with no
+    run stamps retain their historical reader; new driver launches explicitly
+    require run identity, so missing stamps cannot downgrade their exit gate.
     """
+    if require_run_id is None:
+        require_run_id = any(
+            r.get("run_id") for r in (
+                json.loads(line) for line in journal_path.read_text().splitlines() if line.strip()
+            ) if r.get("yaml_id") in expected_arms
+        )
+    if require_run_id:
+        from exp.common.conductor_evidence import merge_hits, merge_source, witness_full_hit
+
+        winners = {}
+        merge_source(winners, "driver", journal_path, expected_arms, restrict=False)
+        hits = merge_hits([str(per_step_path)])
+        missing = expected_arms - set(winners)
+        if missing:
+            raise SystemExit(f"journal has no accepted episodes for arm(s) {sorted(missing)}")
+        summary = {arm: witness_full_hit(arm, winners[arm], hits) for arm in sorted(expected_arms)}
+        logger.info("per-episode FULL_HIT witness: %s", summary)
+        return summary
+
     from exp.ablation_study.cache_size.full_hit import (
         assert_full_hit_per_episode,
         load_per_episode_hits,
@@ -453,17 +472,29 @@ def verify_local_pools(records: dict[str, dict], pools: dict[str, str]) -> dict[
     return bound
 
 
+def write_launch_records(per_step_path: pathlib.Path, launch_record: dict, run_id: str) -> pathlib.Path:
+    """Write ``<per_step>.launch.json`` and its per-run twin ``<per_step>.launch.<run_id>.json``.
+
+    Both carry ``run_id``, which is the same discriminator the driver stamps on
+    every journal and per-step row, so an analyzer can tie an accepted episode
+    back to the launch (suite, arms, A-pool digest) that produced it even
+    after a resume overwrote the fixed-name file.
+    """
+    record = {**launch_record, "run_id": run_id}
+    text = json.dumps(record, indent=2)
+    pathlib.Path(str(per_step_path) + ".launch.json").write_text(text)
+    per_run = pathlib.Path(str(per_step_path) + f".launch.{run_id}.json")
+    per_run.write_text(text)
+    return per_run
+
+
 def write_census(driver, per_step_path: pathlib.Path) -> pathlib.Path:
-    """Persist which workers served this driver, with their self-reported probes."""
+    """Persist worker probes at the legacy path and in a copy retained across driver launches."""
     path = pathlib.Path(str(per_step_path) + ".workers.json")
     census = driver.worker_census
-    path.write_text(
-        json.dumps(
-            {"run_id": driver.run_id, "workers": census},
-            indent=2,
-            sort_keys=True,
-        )
-    )
+    text = json.dumps({"run_id": driver.run_id, "workers": census}, indent=2, sort_keys=True)
+    pathlib.Path(str(per_step_path) + f".workers.{driver.run_id}.json").write_text(text)
+    path.write_text(text)
     logger.info("worker census: %d worker(s) -> %s", len(census), path)
     return path
 
@@ -634,9 +665,6 @@ def main() -> None:
         "smoke": bool(args.smoke),
         "apool": apool,
     }
-    pathlib.Path(str(per_step_path) + ".launch.json").write_text(
-        json.dumps(launch_record, indent=2)
-    )
     logger.info("launch bound to A-pool rollup %s",
                 (apool or {}).get("rollup_sha256", "<unbound>"))
 
@@ -692,6 +720,11 @@ def main() -> None:
         server_capacities=server_capacities,
         per_step_writer=_per_step_writer,
     )
+
+    # Written once the driver exists so the record names the run it launched:
+    # the fixed-name file keeps the historical contract (and is overwritten by
+    # a relaunch), the per-run copy is what a relaunch can never overwrite.
+    write_launch_records(per_step_path, launch_record, driver.run_id)
 
     driver_thread = threading.Thread(target=driver.run, daemon=True)
     driver_thread.start()
@@ -784,10 +817,9 @@ def main() -> None:
     if args.smoke:
         assert_full_hit(rates, set(yaml_paths), min_full_hit)
     else:
-        # The formal gate is the same per-episode join the analyzer runs, on
-        # (task_uid, accepted attempt), so the operator learns here rather than
-        # hours later in analysis.
-        assert_accepted_full_hit(pathlib.Path(args.journal), per_step_path, set(yaml_paths))
+        # Match the summary's (uid, run_id, accepted attempt) evidence before
+        # accepting the run, including after dispatch counters restart.
+        assert_accepted_full_hit(pathlib.Path(args.journal), per_step_path, set(yaml_paths), require_run_id=True)
 
     # N1: a uid whose retries are exhausted is terminal in the scheduler but is
     # never journaled, so the loss would only surface hours later in analysis.
