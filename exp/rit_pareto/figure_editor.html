@@ -45,7 +45,7 @@
 
 <header>
   <select id="figsel" title="switch figure"></select>
-  <button id="save">Save JSON</button>
+  <button id="save" hidden>Save JSON</button>
   <button id="export" class="primary">Export PNG + PDF</button>
   <button id="refit">Refit axes</button>
   <button id="reload" title="re-read the spec from disk, discarding unsaved changes">Revert to saved</button>
@@ -455,7 +455,8 @@ async function post(path) {
   } catch (err) { setStatus("error: " + err, "err"); }
 }
 
-document.getElementById("save").onclick = () => post("/api/save");
+// Save JSON is switched off (owner 2026-09-15): the button is hidden and the handler is a no-op; Export still writes the spec it renders from.
+document.getElementById("save").onclick = () => setStatus("Save JSON is disabled; use Export", "err");
 document.getElementById("export").onclick = () => post("/api/export");
 document.getElementById("refit").onclick = () => { fitAxes(); draw(); };
 document.getElementById("reload").onclick = () => { if (!dirty || confirm("Discard unsaved changes?")) load(spec.figure_id); };

@@ -806,6 +806,6 @@ Pi0.5 的 `action_chunk` 形状是 `[50, 32]`（50 步 × 32 维动作）。你�
 | Step 6 数据收集与 artifact | `exp/robocasa365/groot_cache_collector.py` 写现有 HDF5 schema ⇒ **建库脚本可原样复用** |
 
 三条本指南未覆盖、但迁移时会踩到的坑，见
-[`logs/groot_cache_integration.log.md`](../../logs/groot_cache_integration.log.md)：
+[`logs/archive/groot_cache_integration.log.md`](../../logs/archive/groot_cache_integration.log.md)：
 autocast 对 `LayerNorm` 的 fp32 提升、inference tensor 的逃逸时机、
 以及 `load_artifact` 只校验 `vector_dims` 导致同维库可被静默错配。

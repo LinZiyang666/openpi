@@ -54,17 +54,39 @@
   <span id="status"></span>
   <button id="undo" disabled>Undo (Ctrl+Z)</button>
   <button id="save">Save to JSON</button>
+  <button id="export">Save + export PNG/PDF</button>
 </header>
 <main>
   <div class="legend" id="legend"></div>
   <div class="grid" id="panels"></div>
   <p class="hint">Drag a point in any task panel &mdash; the overall panel is derived from the thirteen
     and follows. Drag a dashed teacher line to move it. Every y snaps to a whole episode
-    (<code>y &times; N</code> integer). Lines connect the Pareto frontier only.</p>
+    (<code>y &times; N</code> integer). Lines connect the Pareto frontier only. <b>Save + export</b> writes the spec and then rebuilds both the 13-task panels and the both-teachers figure.</p>
 </main>
 <script>
 const NS = "http://www.w3.org/2000/svg";
-const COLORS = ["#2E6FD9", "#C8641E"];
+const COLORS = ["#2E6FD9", "#C8641E", "#7A4FBF"];
+/* Each series carries its own colour in the spec; cycling a short local list
+   would repaint a third series in the first one's hue, and two series drawn
+   the same colour cannot be told apart while dragging. Fall back to the list
+   only for a spec that predates the field. */
+const seriesColor = (si) => (spec.series[si] && spec.series[si].color) || COLORS[si % COLORS.length];
+/* One shape per ladder depth, matching MARKERS in the renderers. Dragging a
+   point here has to land on the same mark the figure draws, or the editor and
+   the output disagree about which series a point belongs to. */
+const SHAPES = ["circle", "square", "triangle"];
+function markerEl(host, si, cx, cy, r) {
+  const shape = SHAPES[si % SHAPES.length];
+  if (shape === "square") {
+    return add(host, "rect", { x: cx - r, y: cy - r, width: 2 * r, height: 2 * r });
+  }
+  if (shape === "triangle") {
+    const pts = [[cx, cy - r * 1.2], [cx - r * 1.1, cy + r * 0.85], [cx + r * 1.1, cy + r * 0.85]];
+    return add(host, "polygon", { points: pts.map((q) => q.join(",")).join(" ") });
+  }
+  return add(host, "circle", { cx: cx, cy: cy, r: r });
+}
+const SHAPE_GLYPH = ["\u25CF", "\u25A0", "\u25B2"];
 const INK = "#1B2124", MUTED = "#6B7780", GRID = "#DFE4E7";
 const XDOM = [0, 105];
 
@@ -179,7 +201,7 @@ function drawPanel(host, task, opts) {
     if (front.length > 1) {
       add(svg, "polyline", {
         points: front.map((p) => `${sx(p.x)},${sy(p.y)}`).join(" "),
-        fill: "none", stroke: COLORS[si % COLORS.length], "stroke-width": 2,
+        fill: "none", stroke: seriesColor(si), "stroke-width": 2,
         "stroke-linejoin": "round",
       });
     }
@@ -198,10 +220,9 @@ function drawPanel(host, task, opts) {
     }
   }
   pts.forEach((p) => {
-    const c = add(svg, "circle", {
-      cx: sx(p.x), cy: sy(p.y), r: opts.big ? 5.5 : 4.5,
-      fill: COLORS[p.si % COLORS.length], stroke: "#fff", "stroke-width": 1.5,
-    });
+    const c = markerEl(svg, p.si, sx(p.x), sy(p.y), opts.big ? 5.5 : 4.5);
+    Object.entries({ fill: seriesColor(p.si), stroke: "#fff", "stroke-width": 1.5 })
+      .forEach(([k, v]) => c.setAttribute(k, v));
     add(c, "title", {}, `${p.id}  ${p.label}  IR ${p.x.toFixed(1)}  SR ${p.y.toFixed(3)}`);
     if (task) {
       c.classList.add("dot");
@@ -250,10 +271,19 @@ function startDrag(ev, ref, invX, invY, host, opts, task) {
   if (!rect) return;
   ev.preventDefault();
   pushUndo();
+  /* Clamp to grid-aligned bounds, not to the raw view window. Snapping first
+     and clamping second put the value back off the grid whenever the drag ran
+     past the top or bottom of a panel -- the clamp handed back an arbitrary
+     float like 0.27 and the save then refused the whole spec for a point the
+     user never meant to leave off-grid. Dragging must not be able to produce a
+     y the writer will reject. */
+  const step = 1 / nEp();
+  const lo = Math.ceil(yDom[task][0] / step - 1e-9) * step;
+  const hi = Math.floor(yDom[task][1] / step + 1e-9) * step;
   const move = (e) => {
     const { px, py } = toLocal(rect, opts, e);
     ref.x = clamp(invX(px), XDOM[0], XDOM[1]);
-    ref.y = clamp(snapY(invY(py)), yDom[task][0], yDom[task][1]);
+    ref.y = snapY(clamp(snapY(invY(py)), lo, hi));
     render(task);
   };
   const up = () => {
@@ -346,7 +376,7 @@ function drawLegend() {
   box.innerHTML = "";
   spec.series.forEach((s, si) => {
     const span = document.createElement("span");
-    span.innerHTML = `<i style="border-top-color:${COLORS[si % COLORS.length]}"></i>${s.key}`;
+    span.innerHTML = `<i style="border-top-color:${seriesColor(si)}"></i><b style="color:${seriesColor(si)}">${SHAPE_GLYPH[si % SHAPE_GLYPH.length]}</b> ${s.key}`;
     box.appendChild(span);
   });
   const anc = document.createElement("span");
@@ -370,15 +400,33 @@ async function load(id) {
   el("status").textContent = "";
   computeDomains(); drawLegend(); render();
 }
-async function save() {
-  const r = await fetch("/save?id=" + encodeURIComponent(figureId),
-                        { method: "POST", body: JSON.stringify(spec) });
-  const body = await r.json();
-  el("status").textContent = r.ok ? "saved " + body.saved : "save failed: " + body.error;
-  if (r.ok) dirty = false;
+async function save({ render: alsoRender = false } = {}) {
+  const btns = [el("save"), el("export")];
+  btns.forEach((b) => { b.disabled = true; });
+  try {
+    el("status").textContent = "saving\u2026";
+    const r = await fetch("/save?id=" + encodeURIComponent(figureId),
+                          { method: "POST", body: JSON.stringify(spec) });
+    const body = await r.json();
+    if (!r.ok) { el("status").textContent = "save failed: " + body.error; return; }
+    dirty = false;
+    if (!alsoRender) { el("status").textContent = "saved " + body.saved; return; }
+    /* Render after the write, never before: the renderers read the spec off
+       disk, so exporting a dirty page would publish the previous save. */
+    el("status").textContent = "saved, rendering\u2026";
+    const rr = await fetch("/render", { method: "POST" });
+    const rb = await rr.json();
+    el("status").textContent = (rb.lines || []).join("   ·   ")
+      || (rr.ok ? "rendered" : "render failed");
+  } catch (err) {
+    el("status").textContent = "failed: " + err;
+  } finally {
+    btns.forEach((b) => { b.disabled = false; });
+  }
 }
 
-el("save").addEventListener("click", save);
+el("save").addEventListener("click", () => save());
+el("export").addEventListener("click", () => save({ render: true }));
 el("undo").addEventListener("click", popUndo);
 window.addEventListener("keydown", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); popUndo(); }

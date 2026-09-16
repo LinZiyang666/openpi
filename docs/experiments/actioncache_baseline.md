@@ -1,6 +1,6 @@
 # ActionCache 式 post-backbone（CP2）基线 — runbook
 
-> 设计与 owner 决策：[`logs/actioncache_baseline_plan.log.md`](../../logs/actioncache_baseline_plan.log.md)（v0.6，G1 APPROVED R4）。
+> 设计与 owner 决策：[`logs/archive/actioncache_baseline_plan.log.md`](../../logs/archive/actioncache_baseline_plan.log.md)（v0.6，G1 APPROVED R4）。
 > 架构：[`docs/architecture/cache_system.md`](../architecture/cache_system.md) §3 CP2。
 > 代码：`exp/actioncache_baseline/`（README 有逐脚本一览）。原文本地副本：`docs/papers/actioncache_2607.06370v2.{pdf,txt}`。
 

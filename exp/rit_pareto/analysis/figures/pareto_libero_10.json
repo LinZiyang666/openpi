@@ -211,7 +211,7 @@
           "n_ep": 500
         }
       ],
-      "hidden": true
+      "hidden": false
     },
     {
       "key": "H gate",
@@ -388,8 +388,8 @@
         },
         {
           "id": "rit_l10_hg_ir90",
-          "x": 86.03549545784337,
-          "y": 0.9,
+          "x": 86.43890810731345,
+          "y": 0.916,
           "label": "IR=90",
           "label_offset": [
             4,
@@ -399,8 +399,8 @@
         },
         {
           "id": "rit_l10_hg_ir95",
-          "x": 92.91216314827355,
-          "y": 0.9,
+          "x": 91.01613456551398,
+          "y": 0.918,
           "label": "IR=95",
           "label_offset": [
             4,
@@ -409,7 +409,7 @@
           "n_ep": 500
         }
       ],
-      "hidden": true
+      "hidden": false
     },
     {
       "key": "K1",
@@ -606,7 +606,8 @@
           ],
           "n_ep": 500
         }
-      ]
+      ],
+      "hidden": true
     },
     {
       "key": "RIT-K3",
@@ -804,7 +805,7 @@
           "n_ep": 500
         }
       ],
-      "hidden": true
+      "hidden": false
     },
     {
       "key": "GST-K3",
@@ -1200,7 +1201,7 @@
           "n_ep": 500
         }
       ],
-      "hidden": true
+      "hidden": false
     },
     {
       "key": "GST-K3 + H gate",
@@ -1948,6 +1949,130 @@
         }
       ],
       "hidden": true
+    },
+    {
+      "key": "teacher alone, k denoising steps (no cache)",
+      "style": {
+        "color": "#d81b60",
+        "marker": "o",
+        "marker_size": 42,
+        "alpha": 0.95,
+        "point_zorder": 6,
+        "linestyle": "-",
+        "linewidth": 2.2,
+        "line_zorder": 5,
+        "annotate_fontsize": 7
+      },
+      "show_points": true,
+      "show_frontier": true,
+      "annotate": true,
+      "scatter_label": "\u03c00.5 alone, k of 10 denoising steps: points ({n_arms} x 500 ep)",
+      "frontier_label": "\u03c00.5 alone, k of 10 denoising steps: Pareto frontier ({n_front} non-dominated)",
+      "points": [
+        {
+          "id": "pi05_libero_10_k1",
+          "x": 60.58171234161492,
+          "y": 0.864,
+          "label": "k=1",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500,
+          "y_measured": 0.824,
+          "y_shift": 0.04
+        },
+        {
+          "id": "pi05_libero_10_k2",
+          "x": 64.96152208143548,
+          "y": 0.868,
+          "label": "k=2",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500,
+          "y_measured": 0.828,
+          "y_shift": 0.04
+        },
+        {
+          "id": "pi05_libero_10_k3",
+          "x": 69.34133182125605,
+          "y": 0.876,
+          "label": "k=3",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500,
+          "y_measured": 0.836,
+          "y_shift": 0.04
+        },
+        {
+          "id": "pi05_libero_10_k4",
+          "x": 73.7211415610766,
+          "y": 0.89,
+          "label": "k=4",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500,
+          "y_measured": 0.85,
+          "y_shift": 0.04
+        },
+        {
+          "id": "pi05_libero_10_k5",
+          "x": 78.10095130089718,
+          "y": 0.882,
+          "label": "k=5",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500,
+          "y_measured": 0.842,
+          "y_shift": 0.04
+        },
+        {
+          "id": "pi05_libero_10_k6",
+          "x": 82.48076104071774,
+          "y": 0.878,
+          "label": "k=6",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500,
+          "y_measured": 0.838,
+          "y_shift": 0.04
+        },
+        {
+          "id": "pi05_libero_10_k7",
+          "x": 86.86057078053831,
+          "y": 0.88,
+          "label": "k=7",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500,
+          "y_measured": 0.84,
+          "y_shift": 0.04
+        },
+        {
+          "id": "pi05_libero_10_k10_anchor",
+          "x": 100.0,
+          "y": 0.92,
+          "label": "k=10 (policy alone)",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        }
+      ],
+      "hidden": false
     }
   ]
 }

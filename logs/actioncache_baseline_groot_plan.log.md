@@ -2,7 +2,7 @@
 
 > Level: **L3**（GR00T 侧新增 CP2 检查点接线：`GrootCacheInterceptor` CP2 分支 + 新 KeyBuilder `cp2_groot_ternary` + `load_guard` / `config.py` CP2 规则扩展 + `exp/actioncache_baseline` 工具的 teacher 参数化 + GR00T 岛离线建库/shadow 脚本）
 > 状态：`Done`（§8 步骤 2–6 已于 2026-09-13 01:30–09:55 CDT 执行完毕，两组 10 臂 × 500 集 raw 已拉回并过 `aggregate` 完整性门，见 Review Log 末尾 Execution note；实现阶段：v0.3 冻结；G1 APPROVED R2 2026-09-12（D3）；G2 R1 NEEDS REVISION → R2 APPROVED 2026-09-13（D4 owner 授权 Reviewer 修复后复核，执行方审查并接受）；§6 Verify 全量 5397 passed，失败项均为 HEAD 既有；§8 步骤 2–6 的 GPU parity / E 标定 / preflight / smoke / 主跑待 owner 指示后执行）
-> 上位文档：`logs/actioncache_baseline_plan.log.md`（pi0.5 侧同一基线，v0.6，Done；本 plan 是它在 GR00T 执行体上的复刻，所有已冻结口径不重议）、`logs/libero_groot_rit_run_progress.md`（GR00T × LIBERO RIT/GST 主线，2026-09-12 收官；本 plan 的对照前沿）、`docs/papers/actioncache_2607.06370v2.txt` §3.2–3.3 / §4.1 / App. B.2（GR00T-N1.6 的 key = **encoded** VLM 输出 + **encoded** robot-state，T_hit=0.65）
+> 上位文档：`logs/archive/actioncache_baseline_plan.log.md`（pi0.5 侧同一基线，v0.6，Done；本 plan 是它在 GR00T 执行体上的复刻，所有已冻结口径不重议）、`logs/libero_groot_rit_run_progress.md`（GR00T × LIBERO RIT/GST 主线，2026-09-12 收官；本 plan 的对照前沿）、`docs/papers/actioncache_2607.06370v2.txt` §3.2–3.3 / §4.1 / App. B.2（GR00T-N1.6 的 key = **encoded** VLM 输出 + **encoded** robot-state，T_hit=0.65）
 > 术语：不用 E/X/Arm 代号；实验一律写目录名 + 一句话。
 
 ---

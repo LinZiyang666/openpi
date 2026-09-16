@@ -1,4 +1,4 @@
-"""Draw both teachers' RIT frontiers on one axis: four lines, two references.
+"""Draw both teachers' RIT frontiers on one axis: six lines, two references.
 
 Takes no arguments. It reads every figure spec in ``analysis/figures`` and
 draws one line per (teacher, ladder depth), so this figure and the per-teacher
@@ -10,10 +10,11 @@ shared millisecond axis would say the cheap teacher is always ahead. The ratio
 is what the ladder is addressed by, so it is also what makes the curves
 comparable.
 
-Identity is carried twice over, never by colour alone: hue names the teacher
-and dash pattern names the ladder depth. Four series therefore live inside a
-two-hue palette rather than inventing two more hues, and the figure survives
-both colour-vision deficiency and a greyscale print.
+Identity is carried three ways, never by colour alone: hue names the teacher,
+dash pattern and marker shape both name the ladder depth. Six series therefore
+live inside a two-hue palette rather than inventing four more hues, and the
+figure survives colour-vision deficiency, a greyscale print, and the short
+segments where a dash pattern has no room to read.
 
 Usage:
   uv run python -m exp.robocasa365.plot_rit_pareto_four
@@ -36,7 +37,12 @@ from exp.robocasa365.render_rit_figure import (  # noqa: E402
 #: Hue per teacher, fixed order, never cycled.
 TEACHERS = {"groot_tp": ("#2E6FD9", "GR00T N1.5"), "pi05": ("#C8641E", "pi0.5")}
 #: Dash per ladder depth: the shallower ladder is solid.
-DASHES = ((0, ()), (0, (6, 2.5)))
+DASHES = ((0, ()), (0, (6, 2.5)), (0, (1.5, 2)))
+#: Marker shape carries the ladder depth a second time. Hue already names the
+#: teacher and dash already names the depth, but dash is the encoding that dies
+#: first -- on a short segment between two adjacent points there is not enough
+#: line for a pattern to read, and the six series then differ only by hue.
+MARKERS = ("o", "s", "^")
 OUT_STEM = FIGURES_DIR / "rit_pareto_both_teachers"
 
 
@@ -71,10 +77,12 @@ def main() -> None:
             front = pareto(pts)
             if len(front) > 1:
                 ax.plot(*zip(*front), color=color, linewidth=2.0, linestyle=dash, zorder=3)
-            ax.plot(*zip(*pts), linestyle="none", marker="o", color=color, markersize=6,
+            ax.plot(*zip(*pts), linestyle="none", marker=MARKERS[si % len(MARKERS)],
+                    color=color, markersize=6,
                     markeredgecolor="white", markeredgewidth=1.5, zorder=4)
             depth = series["key"].split()[0]
-            handles.append(plt.Line2D([], [], color=color, linestyle=dash, marker="o",
+            handles.append(plt.Line2D([], [], color=color, linestyle=dash,
+                                      marker=MARKERS[si % len(MARKERS)],
                                       linewidth=2.0, markersize=6, markeredgecolor="white",
                                       markeredgewidth=1.5, label=f"{tlabel}  {depth}"))
         anchor = anchor_of(spec, None)
@@ -91,7 +99,11 @@ def main() -> None:
                               label="all-FULL_HIT arm"))
     handles.append(plt.Line2D([], [], color=INK, linestyle=(0, (2, 3)), linewidth=1.2,
                               label="teacher-only (no cache)"))
-    ax.legend(handles=handles, loc="lower right", frameon=False, fontsize=9.5,
+    # Lower right is where the cheap end of the pi0.5 curves lives once k=1 is
+    # in the figure -- eight entries there cover real marks. Upper left is the
+    # one quadrant no series reaches: the cheapest arms are also the weakest,
+    # so nothing is both cheap and accurate.
+    ax.legend(handles=handles, loc="upper left", frameon=False, fontsize=9.5,
               labelcolor=INK, handlelength=2.8)
 
     ax.grid(True, color=GRID, linewidth=0.8, zorder=0)

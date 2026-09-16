@@ -1,8 +1,11 @@
 """Serve the point editor for a RoboCasa365 RIT figure spec.
 
-Three routes and nothing else: the page, the spec it edits, and the write that
-overwrites that spec in place. Rendering, auditing and export are deliberately
-absent -- the page is the figure, and the spec is the only artifact.
+Four routes: the page, the spec it edits, the write that overwrites that spec
+in place, and a render that turns the saved spec into the published PNG/PDF.
+Auditing and export beyond that stay out -- the spec is still the only thing
+the page owns, and the renderers it shells out to are the same ones the CLI
+runs, so a figure exported here and a figure built from the command line
+cannot disagree.
 
 The write is atomic and its destination comes from the served directory, never
 from the request, so a half-posted body cannot truncate a good spec.
@@ -19,9 +22,14 @@ from __future__ import annotations
 import http.server
 import json
 import pathlib
+import subprocess
+import sys
 import urllib.parse
 
 FIGURES_DIR = pathlib.Path(__file__).with_name("analysis") / "figures"
+#: Repo root, derived from this file rather than from the served directory:
+#: the renderers are run as ``-m exp.robocasa365.*`` and only resolve from here.
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 HOST = "127.0.0.1"
 PORT = 8765
 _HTML = pathlib.Path(__file__).with_name("rit_figure_editor.html")
@@ -73,6 +81,36 @@ def write_spec(spec: dict, path: pathlib.Path) -> None:
     tmp.replace(path)
 
 
+#: Both renderers read every spec in the figures directory, so one click
+#: refreshes the per-teacher panels and the combined figure together. Running
+#: them as modules under this interpreter keeps the editor and the CLI on one
+#: code path -- importing them here instead would leave matplotlib state from a
+#: previous click alive across renders.
+RENDERERS = ("exp.robocasa365.render_rit_figure", "exp.robocasa365.plot_rit_pareto_four")
+
+
+def render_figures(repo_root: pathlib.Path = REPO_ROOT) -> tuple[bool, list[str]]:
+    """Run both renderers; return whether all succeeded and a line per module."""
+    lines, ok = [], True
+    for mod in RENDERERS:
+        proc = subprocess.run([sys.executable, "-m", mod], cwd=repo_root,
+                              capture_output=True, text=True, timeout=600, check=False)
+        if proc.returncode == 0:
+            # render_rit_figure writes one figure per spec, so keep every line
+            # it reports rather than the last -- showing only one would read as
+            # if the other teacher's panels had not been rebuilt. The status bar
+            # has room for names, not absolute paths, and the lines carry a
+            # literal " / .pdf" that a naive split on "/" would mistake for one.
+            wrote = [pathlib.Path(ln.split()[1]).stem for ln in proc.stdout.splitlines()
+                     if ln.startswith("wrote") and len(ln.split()) > 1]
+            lines.extend(wrote or [f"{mod.rsplit('.', 1)[-1]} ok"])
+        else:
+            ok = False
+            err = (proc.stderr or proc.stdout).strip().splitlines()
+            lines.append(f"{mod.rsplit('.', 1)[-1]} FAILED: {err[-1] if err else 'no output'}")
+    return ok, lines
+
+
 def make_handler(figures_dir: pathlib.Path) -> type[http.server.BaseHTTPRequestHandler]:
     class Handler(http.server.BaseHTTPRequestHandler):
         server_version = "rit-figure-editor/1"
@@ -121,6 +159,10 @@ def make_handler(figures_dir: pathlib.Path) -> type[http.server.BaseHTTPRequestH
 
         def do_POST(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler API
             url = urllib.parse.urlparse(self.path)
+            if url.path == "/render":
+                ok, lines = render_figures(REPO_ROOT)
+                self._json(200 if ok else 500, {"ok": ok, "lines": lines})
+                return
             if url.path != "/save":
                 self._json(404, {"error": "not found"})
                 return

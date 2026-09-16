@@ -1,6 +1,6 @@
 # 在线 RIT（continuation-disagreement 在线标定）× GR00T × LIBERO：实验计划
 
-> Status: **实验完成（spatial 全部臂 + libero_10 M1 FAIL 停机），报告 `exp/online_rit/analysis/results.md`；产物在 exp/online_rit/data（gitignored）与 config；未 commit，待 owner 裁定** | Level: **L3** | Authority: Execution | 2026-09-15 03:45 CDT
+> Status: **实验完成（spatial 全部臂 + libero_10 M1 FAIL 停机），报告 `exp/online_rit/analysis/results.md`；产物在 exp/online_rit/data（gitignored）与 config；未 commit，待 owner 裁定** | Level: **L3** | Authority: Execution | 2026-09-15 12:35 CDT（含前沿补点 17 臂）
 > 范围裁定：GR00T N1.5 × LIBERO spatial / libero_10；不做 pi0.5。FULL_HIT 退回一步去噪，新阶梯固定为 {warm@0.875、warm@0.75、warm@0.5}，分别剩 1/2/4 步。
 > 方法权威：教授稿 `docs/iclr/iclr_paper/iclr2027_conference.tex` §3.2（`continuation-disagreement`、`disagreement-curve`、`online-threshold`、`online-proposal`）；旧方法见 `docs/iclr/iclr_paper/arxivd.tex` §4.2 / Appendix C。
 > 本文同时记录实验计划、代码修复与验收；实验结果尚未产生。G1 记录已在此前 polish 删除；既有 G2 审查与执行方回复原文保留于文末，owner 直接修码例外后的验收追加为 G2 Round 3。代码认可不代替 GPU / M0 / M1 数值放行。
@@ -461,6 +461,8 @@ owner 随后明确要求直接修代码至可以同意（D18）；以上工程�
 - **spatial 正式主跑完成（03:18 CDT）与最终读数**：16 臂 + 2 终态臂 + 3 条 r2 重跑流全部结束；全表、配对 bootstrap 与结论见 `exp/online_rit/analysis/results.md`。要点：R′ / F / O-init 在共同点 {70, 80} 上 SR 0.92–0.95、配对 ΔSR 均在 ±2.2 pp 且区间跨 0 或触 0；F 违规 1.1–2.2%、E 3.5–3.9%（保守），O-init 违规 +0.07 / +1.02 pp、E 5.2–5.6%（回到名义）、IR −0.7 / −2.3 pp；O-cold 250 集终态冻结臂与 F 等价（IR 差 ≤ 0.7 pp）；FM-0 更保守；两条独立重复流 SR 差 −2.9 pp [−5.1, −0.6]。按 §3.8：F 无超标迹象 ⇒ 无"在线适应改善"证据；失败判据不触发（仅 2 点）；结论为"当前实现下在线更新不改善也不明显损害 SR，风险回名义、IR 小幅下降"。
 - **运行纪律的实际执行**：在线流 retries=0 下 2 条流各丢 12 集（worker 同时死亡，未入 journal、未到 server）→ 按 §3.7 新身份整流重跑（r2）；r2 O-init@80 仍缺 1 集（worker 端 MuJoCo 初始化异常，从未到 server），如实计 499；F-S3b@70 因分片扩容 resume 的 decision-id 碰撞标 flow_invalid → 重跑 r2；4090 上最多 7 个 GR00T server（第 8 个 OOM）。
 - **产物落位**：`exp/online_rit/data/libero_spatial/{offline,pools,runs,analysis}`、`exp/online_rit/data/libero_10/{offline,pools}`（gitignored）；`exp/online_rit/config/libero_spatial/{smoke,formal}` 臂 yaml/矩阵/记录 + `config/cost_groot_libero_stage_count.json`；远端原件在 weilandserver `/data/openpi_ort/exp/online_rit/data/`（含 state 目录的反馈日志与快照）与 timan108 `/scratch/zixuans8/ort_runs/`。本次实跑改动的仓内文件：`exp/online_rit/common.py`（stage-count 台账协议）、`src/openpi/cache/config.py` + `exp/gate_threshold_pareto/run_gtp.py`（driver 侧 `check_files=False`）、`tests/cache/groot/test_online_rit_real_model.py`（numpy→tensor、d 单位判据）、`tests/cache/test_config_online_rit.py`、`tests/exp/test_online_rit_exp.py`、本 plan、`exp/online_rit/analysis/results.md`；**未 commit / push**（owner 回来裁定）。
+
+- **前沿补点（owner 2026-09-15 10:00 CDT 要求完整帕累托前沿；10:10–12:20 CDT）**：在共同工作点规则之外，为三条线各补可达区间内的点（每臂 500 集，A500）：F / O-init @63/65/75/85/90（4090 lane：O-init 单进程 ×5、F 两次分片续跑）、R′ @53/55/60/65/75/85/88（h100 lane，threshold judge 无 d，与 R 线 lane A 同机）。结果：三条线 SR 均为 0.926–0.954 的平线，互不支配；新方法可达 IR 下限约 60%（F 59.9 / O-init 61.3），R′ 到 50.6%，R 线历史（含 FULL_HIT）到 37%——取消 FULL_HIT 的结构性代价。图 `exp/online_rit/analysis/figures/sr_ir_libero_spatial.png`，报告 §5 已更新。运行事故：timan107 被他人进程占满内存（218/220 GB）→ tether STALE/OFFLINE 约 25 min，其上 R′ 的首次 journal（2,934 集）作废不并入，R′ 改在 timan108 重跑并在 timan107 恢复后拆两 driver 完成；F 前沿矩阵为提速两次 kill-resume（重启 server 避免 decision-id 碰撞，无 flow_invalid）。arms/矩阵在 `exp/online_rit/config/libero_spatial/frontier/`，emit 脚本（复用 emit_online_arms 的构造函数）留在 job 临时目录。
 
 ## Review Log
 

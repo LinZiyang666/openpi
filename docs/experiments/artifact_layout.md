@@ -116,7 +116,7 @@ Rules:
 
 Current registries: `exp/data_authority/` — which copy of an experiment dataset
 is authoritative (node, path, sha256, content census, provenance, caveats).
-Design record: [`logs/data_authority_plan.log.md`](../../logs/data_authority_plan.log.md).
+Design record: [`logs/archive/data_authority_plan.log.md`](../../logs/archive/data_authority_plan.log.md).
 
 ## 2. File-kind rules
 

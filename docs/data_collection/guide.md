@@ -245,7 +245,7 @@ works under concurrent serving and (for `robot_state`) under the cross-machine
 conductor. The two collectors are **mutually exclusive** (`serve_policy` fails
 fast if both are on); use whichever the task needs.
 
-Design & rationale: [`logs/gate_data_collection_plan.log.md`](../../logs/gate_data_collection_plan.log.md).
+Design & rationale: [`logs/archive/gate_data_collection_plan.log.md`](../../logs/archive/gate_data_collection_plan.log.md).
 
 ### 1. Enable it on the server
 
@@ -358,7 +358,7 @@ mode, so the file carries no gate-skipped steps.
 
 ## RoboCasa365 teacher-library collection (conductor topology)
 
-> Added with the framework re-integration (plan: `logs/robocasa365_framework_integration.log.md`).
+> Added with the framework re-integration (plan: `logs/archive/robocasa365_framework_integration.log.md`).
 > Formal (paper-grade) collection is gated on the unified temporary G2 approval.
 
 ### Hard topology constraints

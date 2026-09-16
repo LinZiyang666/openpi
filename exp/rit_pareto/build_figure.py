@@ -237,9 +237,9 @@ def build_rit(suite: str, nogate: pathlib.Path, hgate: pathlib.Path | None = Non
         series.append(series_from_arms("H gate", json.loads(hgate.read_text()), prefix="RIT-PL "))
     if gst_plot_data is not None:
         series.append(series_from_arms(
-            "GST (GTP)", gtp_gst_arms(gst_plot_data, suite), style=_GTP_STYLE, annotate=False,
-            scatter_label="GST hysteresis-gate sweep, same library (GTP): arms",
-            frontier_label="GST: Pareto frontier (reference)"))
+            "K1", gtp_gst_arms(gst_plot_data, suite), style=_GTP_STYLE, annotate=False,
+            scatter_label="K1: arms ({n_arms} x 500 ep)",
+            frontier_label="K1: Pareto frontier ({n_front} non-dominated)"))
     if gsth:
         series.append(gsth_overlay(suite))
     if acb is not None:

@@ -1202,6 +1202,105 @@
         }
       ],
       "hidden": false
+    },
+    {
+      "key": "teacher alone, k denoising steps (no cache)",
+      "style": {
+        "color": "#d81b60",
+        "marker": "o",
+        "marker_size": 42,
+        "alpha": 0.95,
+        "point_zorder": 6,
+        "linestyle": "-",
+        "linewidth": 2.2,
+        "line_zorder": 5,
+        "annotate_fontsize": 7
+      },
+      "show_points": true,
+      "show_frontier": true,
+      "annotate": true,
+      "scatter_label": "GR00T N1.5 alone, k of 8 denoising steps: points ({n_arms} x 500 ep)",
+      "frontier_label": "GR00T N1.5 alone, k of 8 denoising steps: Pareto frontier ({n_front} non-dominated)",
+      "points": [
+        {
+          "id": "groot_libero_10_k1",
+          "x": 40.66140059789101,
+          "y": 0.856,
+          "label": "k=1",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "groot_libero_10_k2",
+          "x": 49.13834336962087,
+          "y": 0.872,
+          "label": "k=2",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "groot_libero_10_k3",
+          "x": 57.61528614135073,
+          "y": 0.862,
+          "label": "k=3",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "groot_libero_10_k4",
+          "x": 66.09222891308058,
+          "y": 0.886,
+          "label": "k=4",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "groot_libero_10_k5",
+          "x": 74.56917168481044,
+          "y": 0.858,
+          "label": "k=5",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "groot_libero_10_k6",
+          "x": 83.0461144565403,
+          "y": 0.842,
+          "label": "k=6",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        },
+        {
+          "id": "groot_libero_10_k7",
+          "x": 91.52305722827015,
+          "y": 0.858,
+          "label": "k=7",
+          "label_offset": [
+            4,
+            4
+          ],
+          "n_ep": 500
+        }
+      ],
+      "hidden": false
     }
   ]
 }

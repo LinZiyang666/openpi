@@ -26,7 +26,11 @@ import matplotlib.pyplot as plt  # noqa: E402
 FIGURES_DIR = pathlib.Path(__file__).with_name("analysis") / "figures"
 SCHEMA = "robocasa365.rit_figure/v1"
 
-COLORS = ("#2E6FD9", "#C8641E")
+COLORS = ("#2E6FD9", "#C8641E", "#7A4FBF")
+#: One shape per ladder depth, so the series stay separable where colour alone
+#: would not: printed in grey, under CVD, or on the small-multiple panels where
+#: two points can land within a marker's width of each other.
+MARKERS = ("o", "s", "^")
 INK, MUTED, GRID = "#1B2124", "#6B7780", "#DFE4E7"
 XDOM = (0.0, 105.0)
 #: The overall tile takes the top-left two-by-two block; the tasks fill the
@@ -103,6 +107,20 @@ def ydomain(values: list[float]) -> tuple[float, float]:
     return max(0.0, a), min(1.0, b)
 
 
+def series_color(spec: dict, i: int) -> str:
+    """The colour the spec assigns this series, not a position in a local list.
+
+    Cycling a short list repaints a third series in the first one's hue, which
+    is how k=1 came out the same blue as k=2 the first time it was drawn. The
+    spec is where the palette decision lives; ``COLORS`` is only the fallback
+    for a spec written before series carried a colour.
+    """
+    s = spec.get("series", [])
+    if i < len(s) and s[i].get("color"):
+        return str(s[i]["color"])
+    return COLORS[i % len(COLORS)]
+
+
 def draw(ax, spec: dict, task: str | None, *, big: bool) -> None:
     series = coords(spec, task)
     anchor = anchor_of(spec, task)
@@ -130,9 +148,10 @@ def draw(ax, spec: dict, task: str | None, *, big: bool) -> None:
             continue
         front = pareto(pts)
         if len(front) > 1:
-            ax.plot(*zip(*front), "-", color=COLORS[i % len(COLORS)],
+            ax.plot(*zip(*front), "-", color=series_color(spec, i),
                     linewidth=2.0 if big else 1.6, solid_joinstyle="round", zorder=3)
-        ax.plot(*zip(*pts), linestyle="none", marker="o", color=COLORS[i % len(COLORS)],
+        ax.plot(*zip(*pts), linestyle="none", marker=MARKERS[i % len(MARKERS)],
+                color=series_color(spec, i),
                 markersize=6 if big else 4.2, markeredgecolor="white",
                 markeredgewidth=1.3 if big else 1.0, zorder=4)
     if anchor:
@@ -156,7 +175,8 @@ def render(spec: dict, stem: pathlib.Path) -> None:
     for task, (r, c) in zip(spec["tasks"], SLOTS):
         draw(fig.add_subplot(gs[r, c]), spec, task, big=False)
 
-    handles = [plt.Line2D([], [], color=COLORS[i % len(COLORS)], marker="o", linewidth=2.0,
+    handles = [plt.Line2D([], [], color=series_color(spec, i),
+                          marker=MARKERS[i % len(MARKERS)], linewidth=2.0,
                           markersize=6, markeredgecolor="white", markeredgewidth=1.3,
                           label=s["key"])
                for i, s in enumerate(spec["series"])]
@@ -166,8 +186,14 @@ def render(spec: dict, stem: pathlib.Path) -> None:
                                   markeredgewidth=1.3, label=spec["anchors"][0]["label"]))
     handles.append(plt.Line2D([], [], color=INK, linestyle=(0, (5, 3)), linewidth=1.2,
                               label=spec["teacher_only"]["label"]))
-    fig.legend(handles=handles, loc="lower right", bbox_to_anchor=(0.995, 0.02),
-               frameon=False, fontsize=9.5, labelcolor=INK, ncol=2)
+    # Thirteen tasks plus the 2x2 overall panel leave exactly one cell free, the
+    # last of the bottom row. Anchoring the legend to that axes rather than to
+    # the figure keeps it off the neighbouring panel's tick labels, which a
+    # figure-relative "lower right" covered as soon as k=1 added a third entry.
+    lg = fig.add_subplot(gs[2, 5])
+    lg.axis("off")
+    lg.legend(handles=handles, loc="center left", bbox_to_anchor=(-0.05, 0.5),
+              frameon=False, fontsize=9, labelcolor=INK)
     fig.suptitle(spec["title"], color=INK, fontsize=13, x=0.006, ha="left", y=0.995)
 
     for ext in ("png", "pdf"):

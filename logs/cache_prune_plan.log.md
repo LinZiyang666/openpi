@@ -370,7 +370,7 @@ Owner 的不自行 git add 裁定继续有效，故 Post-G1 和 G2 的暂存步�
 
 ### 11.1 当前数据前置条件
 
-2026-09-11 实读发现 L10 历史 init map 只有 task/prompt/subset_idx/orig_init_state_idx，没有 trajectory_id/h5_path；HDF5 没有 init 身份，且重试使 episode 编号跨 task 重复。同一事实已载于 `logs/tracer_phase6_projection_training.log.md` §B2 和 `exp/data_authority/records/dispatch_surface__libero_10__init_pools.json`。因此不能从文件序号、采集顺序或 step0 robot_state 编造轨迹与 init 的对应关系。
+2026-09-11 实读发现 L10 历史 init map 只有 task/prompt/subset_idx/orig_init_state_idx，没有 trajectory_id/h5_path；HDF5 没有 init 身份，且重试使 episode 编号跨 task 重复。同一事实已载于 `logs/archive/tracer_phase6_projection_training.log.md` §B2 和 `exp/data_authority/records/dispatch_surface__libero_10__init_pools.json`。因此不能从文件序号、采集顺序或 step0 robot_state 编造轨迹与 init 的对应关系。
 
 Owner 在 G2 R1 修订会话已明确接受集合层面证据。`audit_source` 仍按确切 HDF5 stem/task/num_steps/success 验证成功来源；`prepare_membership` 新增紧凑 map 分支，逐 init 验证 subset/full 状态字节、完整子集覆盖、H5 task census 和 source ID 覆盖，再冻结每任务采集集合。不填写逐轨迹 init 绑定。状态字节不等、索引重复/遗漏、任务或 H5 census 不符均拒绝。这一分支支持 L10 两档，实际数据验收结果记录于 §12；不得把“接受证据类型”当作“任意 map 自动通过”。
 
