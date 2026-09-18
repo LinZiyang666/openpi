@@ -32,6 +32,12 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 
 ## Active Logs
 
+### Diffusion Policy 减步实验
+
+| File | Status | Description |
+|------|--------|-------------|
+| [x0_multimodal_plan.log.md](x0_multimodal_plan.log.md) | x₀ 头 × 标签过滤/混合数据：减步与条件多峰诊断（DP 官方仓；ε vs x₀ 头；trailing 网格自含采样器；固定 optimizer-step 训练 workspace；预注册 S_x0/H2/I 判据）plan v3，L2 | 2026-09-18 G2 R2 APPROVED（Owner 授权直接修复）→ Executor 复核 + §6 Verify 过（wls 固定 DP 环境 120 passed；全仓 5765 passed / 9 既有失败 = 9-15 基线）→ 已 commit/push；下一步：h100 DP 环境、数据下载、子集/normalizer 冻结、pilot、正式矩阵 |
+
 ### Cache System
 
 | File | Status | Description |
@@ -346,6 +352,8 @@ Completed and historical logs. See [`archive/`](archive/) for all files.
 | File | Status | Description |
 |------|--------|-------------|
 | [doc_cleanup_plan.log](archive/doc_cleanup_plan.log) \[[EN](archive/doc_cleanup_plan.en.log)\] | `Historical` | Documentation cleanup plan |
+| [xwam_dp_nfe_plan.log.md](xwam_dp_nfe_plan.log.md) | **X-WAM × RoboCasa-2024 与 Diffusion Policy DDPM-100 × robomimic 减步阶梯（2026-09-16 深夜立项）**：环境脚本与坑（X-WAM torch2.8+flash-attn wheel、broker/server/client；DP micromamba 顶替 apt GL 包、MuJoCo 2.1）、ladder 设计、数据摆放 |
+| [cosmos_nfe_plan.log.md](cosmos_nfe_plan.log.md) | **Cosmos Policy 减步阶梯（2026-09-16）**：LIBERO spatial/l10 k=1,2,3,5 近无损（k 步 = k+1 次网络评估）；RoboCasa-2024 24 任务 k=1..5 全量（server 跳未来图像 VAE decode + CUDA graph 提速 1.75×、ladder v2 平作业表、EGL 显存坑）与结果 |
 | [cache_direction_discussion_20260915.log.md](cache_direction_discussion_20260915.log.md) | **cache 方向讨论纪要与后续方向（2026-09-15/16）**：减步基线解读（一步=条件均值、电梯 vs 跳楼）、novelty 危机、7 路跨领域调研结论与排序、方向 A（决策回路世界模型）/ B（交互式世界模型）、Cosmos Policy 核实（检查点/规划模式只在 ALOHA/eval flags/4090 可跑/SO-101 无先例）与 cache 接入方案、模型组合 regime map、投稿计划（RSS 2027 + ICML/NeurIPS 2027，MLSys 需 wall-clock 口径）、下一步顺序 |
 
 ---

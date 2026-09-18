@@ -1,0 +1,41 @@
+# Task table of the x0-head x label-filtered-data experiment (plan logs/x0_multimodal_plan.log.md §3).
+# Paths are the weilandserver layout; h100 overrides live in hosts.yaml. Official DP task configs are referenced by name.
+dp_root: /home/weiland/dp/diffusion_policy
+data_root: /data/dp/x0_multimodal            # subsets/, runs/, results_trailing/, diagnostics/
+raw_root: /data/dp/data
+workspace_lowdim: train_diffusion_unet_lowdim_workspace
+workspace_image: train_diffusion_unet_hybrid_workspace
+budgets:                                     # candidates; the pilot picks the largest that fits the time budget
+  lowdim: [20000, 50000, 100000]
+  image: [10000, 20000, 40000]
+train_seeds: [42, 43, 44]
+frozen_budgets: {}                           # after pilots: {lowdim: {pusht: 50000, ...}, image: {pusht: 20000, ...}}
+core:                                        # label-filtered U/M pairs
+  pusht:     {task: pusht_lowdim,             path_key: task.dataset.zarr_path,    native: zarr, cap: 80,
+              src: /data/dp/data/pusht/pusht_cchi_v7_replay.zarr}
+  blockpush: {task: blockpush_lowdim_seed_abs, path_key: task.dataset.zarr_path,   native: zarr, cap: 250,
+              src: /data/dp/data/block_pushing/multimodal_push_seed_abs.zarr}
+  kitchen:   {task: kitchen_lowdim_abs,       path_key: task.dataset.dataset_dir,  native: npy,  cap: 150,
+              src: /data/dp/data/kitchen/kitchen_demos_multitask, runner_key: task.env_runner.dataset_dir}
+  square_mh: {task: square_lowdim_abs,        path_key: task.dataset.dataset_path, native: hdf5, cap: 50,
+              src: /data/dp/data/robomimic/datasets/square/mh/low_dim_abs.hdf5, runner_key: task.env_runner.dataset_path,
+              overrides: [task.dataset_type=mh]}
+explore:                                     # full official datasets, single seed, descriptive only
+  square_ph:    {task: square_lowdim_abs,    path_key: task.dataset.dataset_path, src: /data/dp/data/robomimic/datasets/square/ph/low_dim_abs.hdf5, runner_key: task.env_runner.dataset_path}
+  square_mh:    {task: square_lowdim_abs,    path_key: task.dataset.dataset_path, src: /data/dp/data/robomimic/datasets/square/mh/low_dim_abs.hdf5, runner_key: task.env_runner.dataset_path, overrides: [task.dataset_type=mh]}
+  transport_ph: {task: transport_lowdim_abs, path_key: task.dataset.dataset_path, src: /data/dp/data/robomimic/datasets/transport/ph/low_dim_abs.hdf5, runner_key: task.env_runner.dataset_path}
+  transport_mh: {task: transport_lowdim_abs, path_key: task.dataset.dataset_path, src: /data/dp/data/robomimic/datasets/transport/mh/low_dim_abs.hdf5, runner_key: task.env_runner.dataset_path, overrides: [task.dataset_type=mh]}
+  can_ph:       {task: can_lowdim_abs,       path_key: task.dataset.dataset_path, src: /data/dp/data/robomimic/datasets/can/ph/low_dim_abs.hdf5, runner_key: task.env_runner.dataset_path}
+  can_mh:       {task: can_lowdim_abs,       path_key: task.dataset.dataset_path, src: /data/dp/data/robomimic/datasets/can/mh/low_dim_abs.hdf5, runner_key: task.env_runner.dataset_path, overrides: [task.dataset_type=mh]}
+  tool_hang_ph: {task: tool_hang_lowdim_abs, path_key: task.dataset.dataset_path, src: /data/dp/data/robomimic/datasets/tool_hang/ph/low_dim_abs.hdf5, runner_key: task.env_runner.dataset_path}
+  kitchen:      {task: kitchen_lowdim_abs,   path_key: task.dataset.dataset_dir,  src: /data/dp/data/kitchen/kitchen_demos_multitask, runner_key: task.env_runner.dataset_dir}
+  blockpush:    {task: blockpush_lowdim_seed_abs, path_key: task.dataset.zarr_path, src: /data/dp/data/block_pushing/multimodal_push_seed_abs.zarr}
+  pusht:        {task: pusht_lowdim,         path_key: task.dataset.zarr_path,    src: /data/dp/data/pusht/pusht_cchi_v7_replay.zarr}
+image:                                       # confirmation pairs (same episode ids as the lowdim subsets)
+  pusht:     {task: pusht_image,     path_key: task.dataset.zarr_path,    src: /data/dp/data/pusht/pusht_cchi_v7_replay.zarr}
+  square_mh: {task: square_image_abs, path_key: task.dataset.dataset_path, src: /data/dp/data/robomimic/datasets/square/mh/image_abs.hdf5, runner_key: task.env_runner.dataset_path, overrides: [task.dataset_type=mh]}
+eval:
+  screen: {n: 32, start_seed: 90000}
+  test_lowdim: {n: 100, start_seed: 100000, n_envs: 25}
+  test_image: {n: 50, start_seed: 100000, n_envs: 25}
+  samplers: [[ddpm, 100], [ddim, 100], [ddim, 10], [ddim, 4], [ddim, 2], [ddim, 1]]

@@ -1,0 +1,35 @@
+# Per-host overrides of tasks.yaml for the x0-head experiment (plan §5 / G2 R1-N2). Both hosts run the full protocol;
+# the queue (x0_queue.py) reads tasks.yaml and dp_x0_env.sh resolves DP_BASE/DP_DATA by hostname. This file records
+# the concrete layout so a cell manifest generated on one host can be mirrored on the other by path substitution.
+hosts:
+  weilandserver:                       # RTX 4090 24 GB; code + venv on SSD /home/weiland, data on /data (HDD, CMR)
+    dp_root: /home/weiland/dp/diffusion_policy
+    openpi_exp: /home/weiland/dp/openpi_exp
+    data_root: /data/dp/x0_multimodal
+    raw_root: /data/dp/data
+    env: exp/dp_nfe/ops/dp_x0_env.sh   # DP_BASE=/home/weiland/dp DP_DATA=/data/dp
+    gpus: ["0"]
+    train_parallel: 2                  # two lowdim cells fit side by side (~3 GB each); image cells one at a time
+    eval_parallel: 3
+  h100:                                # H100 80 GB; root fs ~7 GB -> everything under /data
+    dp_root: /data/dp_h100/diffusion_policy
+    openpi_exp: /data/dp_h100/openpi_exp
+    data_root: /data/dp_h100/x0_multimodal
+    raw_root: /data/dp_h100/data
+    env: exp/dp_nfe/ops/dp_x0_env.sh   # DP_BASE=DP_DATA=/data/dp_h100
+    gpus: ["0"]
+    train_parallel: 4
+    eval_parallel: 4
+# Path substitution when mirroring cell yamls: weilandserver -> h100 replaces the prefixes below in every path field
+# (overrides, heldout_path, normalizer_path, identity.*_path, runner_overrides). Data/normalizer hashes are unchanged;
+# YAML/config hashes and path identities change. Freeze paths before training; collect the exact YAML bytes used on
+# each host with its results. Rewriting a trained cell YAML is not a valid resume or aggregation manifest.
+mirror:
+  weilandserver_to_h100:
+    - ["/data/dp/", "/data/dp_h100/"]
+    - ["/home/weiland/dp/", "/data/dp_h100/"]
+# Work split (plan §5.2): core lowdim cells by task -- weilandserver: pusht + blockpush; h100: kitchen + square_mh + all
+# image cells + explore. Each host evaluates the cells it trained (checkpoints never move between hosts).
+split:
+  weilandserver: {core: [pusht, blockpush], explore: [], image: []}
+  h100: {core: [kitchen, square_mh], explore: all, image: [pusht, square_mh]}
