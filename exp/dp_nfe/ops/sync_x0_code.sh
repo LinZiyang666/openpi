@@ -9,7 +9,7 @@ for f in exp/dp_nfe/__init__.py exp/dp_nfe/dp_sampler.py exp/dp_nfe/x0_workspace
          exp/dp_nfe/mode_filter_datasets.py exp/dp_nfe/x0_cells.py exp/dp_nfe/x0_identity.py exp/dp_nfe/x0_normalizer.py \
          exp/dp_nfe/x0_queue.py exp/dp_nfe/smoke_x0.py exp/dp_nfe/analysis/__init__.py \
          exp/dp_nfe/analysis/dispersion_index.py exp/dp_nfe/analysis/aggregate_x0.py exp/dp_nfe/analysis/plot_x0.py exp/dp_nfe/config/x0_multimodal/tasks.yaml \
-         exp/dp_nfe/config/x0_multimodal/hosts.yaml exp/dp_nfe/ops/dp_x0_env.sh exp/dp_nfe/ops/x0_queue.sh \
+         exp/dp_nfe/config/x0_multimodal/hosts.yaml exp/dp_nfe/ops/dp_x0_env.sh exp/dp_nfe/ops/x0_queue.sh exp/dp_nfe/ops/build_subsets.sh exp/dp_nfe/ops/x0_eval_loop.sh exp/dp_nfe/ops/prep_x0.sh exp/dp_nfe/ops/freeze_normalizers.sh exp/dp_nfe/ops/pilot_x0.sh exp/dp_nfe/ops/p0_official_wls.sh exp/dp_nfe/ops/download_dp_data_x0.sh exp/dp_nfe/ops/setup_dp_h100.sh exp/dp_nfe/ops/x0_dispersion.sh \
          tests/__init__.py tests/dp_nfe/__init__.py tests/dp_nfe/dp_stubs.py tests/dp_nfe/test_x0_sampler.py tests/dp_nfe/test_x0_aggregate.py \
          tests/dp_nfe/test_x0_data.py tests/dp_nfe/test_x0_workspace.py tests/dp_nfe/test_x0_workspace_cpu.py \
          tests/dp_nfe/test_x0_eval_keying.py tests/dp_nfe/test_x0_queue.py tests/dp_nfe/test_x0_cli.py tests/dp_nfe/test_x0_review_regressions.py; do

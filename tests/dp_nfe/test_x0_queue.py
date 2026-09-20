@@ -81,6 +81,14 @@ def test_train_queue_skips_only_verified_and_bounds_retries(tmp_path):
     assert Q.summarize(counts) == 2
 
 
+def test_load_matrix_task_name_filter(tmp_path):
+    cells_dir = _cells(tmp_path, ("cA", "cB", "cC"))
+    assert sorted(Q.load_matrix(cells_dir, ["core"])) == ["cA", "cB", "cC"]
+    assert sorted(Q.load_matrix(cells_dir, ["core"], task_names=["cA", "cC"])) == ["cA", "cC"]
+    assert sorted(Q.load_matrix(cells_dir, ["core"], only=["cB"], task_names=["cB"])) == ["cB"]
+    assert Q.load_matrix(cells_dir, ["core"], only=["cB"], task_names=["cA"]) == {}
+
+
 def test_train_queue_succeeds_on_retry_and_verifies_sha(tmp_path):
     cells_dir = _cells(tmp_path, ("cA",)); cells = Q.load_matrix(cells_dir, ["core"])
     runs = tmp_path / "runs"; state = Q.QueueState(tmp_path / "q.json")

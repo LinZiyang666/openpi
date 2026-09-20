@@ -2,7 +2,7 @@
 # the queue (x0_queue.py) reads tasks.yaml and dp_x0_env.sh resolves DP_BASE/DP_DATA by hostname. This file records
 # the concrete layout so a cell manifest generated on one host can be mirrored on the other by path substitution.
 hosts:
-  weilandserver:                       # RTX 4090 24 GB; code + venv on SSD /home/weiland, data on /data (HDD, CMR)
+  weilandserver:                       # RTX 4090 48 GB; code + venv on SSD /home/weiland, data on /data (HDD, CMR); torch 1.12.1+cu116
     dp_root: /home/weiland/dp/diffusion_policy
     openpi_exp: /home/weiland/dp/openpi_exp
     data_root: /data/dp/x0_multimodal
@@ -11,7 +11,7 @@ hosts:
     gpus: ["0"]
     train_parallel: 2                  # two lowdim cells fit side by side (~3 GB each); image cells one at a time
     eval_parallel: 3
-  h100:                                # H100 80 GB; root fs ~7 GB -> everything under /data
+  h100:                                # H100 80 GB; root fs ~7 GB -> everything under /data; torch 2.5.1+cu124 (1.12.1 cu116 has no sm_90)
     dp_root: /data/dp_h100/diffusion_policy
     openpi_exp: /data/dp_h100/openpi_exp
     data_root: /data/dp_h100/x0_multimodal

@@ -30,7 +30,7 @@ def _episodes(path: pathlib.Path, n: int, T: int, seed: int, scale=1.0):
 
 
 def _cfg(train_npz, heldout_npz, out, cell_id="cellU", head="epsilon", budget=6, save_every=100, identity=None,
-         normalizer_path=None, normalizer_sha=None, seed=42):
+         normalizer_path=None, normalizer_sha=None, seed=42, num_workers=0):
     ident = {"task_name": "toy", "modality": "lowdim", "variant": "full", "budget_id": "Btest", "subset_sha256": "s0",
              "resolved_config_sha256": "c0", "code_sha256": "k0", "deps": "{}"}
     ident.update(identity or {})
@@ -42,7 +42,7 @@ def _cfg(train_npz, heldout_npz, out, cell_id="cellU", head="epsilon", budget=6,
          "ema": {"_target_": "tests.dp_nfe.dp_stubs.EMAModel"},
          "task": {"name": "toy", "dataset": {"_target_": "tests.dp_nfe.dp_stubs.ArrayDataset", "path": str(train_npz), "horizon": 4}},
          "x0": {"cell_id": cell_id, "budget_steps": budget, "batch_size": 8, "window_seed": 7, "val_every": 2, "save_every": save_every,
-                "val_batch_size": 8, "identity": ident, "normalizer_path": normalizer_path, "normalizer_sha256": normalizer_sha,
+                "val_batch_size": 8, "num_workers": num_workers, "identity": ident, "normalizer_path": normalizer_path, "normalizer_sha256": normalizer_sha,
                 "heldout_dataset": {"_target_": "tests.dp_nfe.dp_stubs.ArrayDataset", "path": str(heldout_npz), "horizon": 4}}}
     return OmegaConf.create(c)
 
@@ -99,6 +99,18 @@ def test_resume_after_interruption_reproduces_uninterrupted_run(tmp_path, monkey
     for a, b in zip(logA, logB):
         assert a["loss"] == b["loss"] and a["lr"] == b["lr"] and a.get("val_mse_ema") == b.get("val_mse_ema")
     assert wsA.lr_scheduler.get_last_lr() == wsB.lr_scheduler.get_last_lr()
+
+
+def test_worker_dataloader_fetches_the_same_batches(tmp_path):
+    """num_workers=2 (worker processes assembling the fixed batches) trains bit-identically to the in-process loop."""
+    tr = _episodes(tmp_path / "tr.npz", 4, 12, 0); ho = _episodes(tmp_path / "ho.npz", 2, 12, 1)
+    ws0 = FixedStepWorkspace(_cfg(tr, ho, tmp_path / "w0", budget=5, num_workers=0), output_dir=str(tmp_path / "w0")); ws0.run()
+    ws2 = FixedStepWorkspace(_cfg(tr, ho, tmp_path / "w2", budget=5, num_workers=2), output_dir=str(tmp_path / "w2")); ws2.run()
+    for (k, a), (_, b) in zip(ws0.model.state_dict().items(), ws2.model.state_dict().items()):
+        assert torch.equal(a, b), k
+    l0 = [json.loads(l)["loss"] for l in (tmp_path / "w0" / "train_log.jsonl").read_text().splitlines()]
+    l2 = [json.loads(l)["loss"] for l in (tmp_path / "w2" / "train_log.jsonl").read_text().splitlines()]
+    assert l0 == l2 and len(l0) == 5
 
 
 def test_conflicting_or_missing_identity_is_refused(tmp_path):

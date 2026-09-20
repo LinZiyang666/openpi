@@ -36,7 +36,7 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 
 | File | Status | Description |
 |------|--------|-------------|
-| [x0_multimodal_plan.log.md](x0_multimodal_plan.log.md) | x₀ 头 × 标签过滤/混合数据：减步与条件多峰诊断（DP 官方仓；ε vs x₀ 头；trailing 网格自含采样器；固定 optimizer-step 训练 workspace；预注册 S_x0/H2/I 判据）plan v3，L2 | 2026-09-18 G2 R2 APPROVED（Owner 授权直接修复）→ Executor 复核 + §6 Verify 过（wls 固定 DP 环境 120 passed；全仓 5765 passed / 9 既有失败 = 9-15 基线）→ 已 commit/push；下一步：h100 DP 环境、数据下载、子集/normalizer 冻结、pilot、正式矩阵 |
+| [x0_multimodal_plan.log.md](x0_multimodal_plan.log.md) | x₀ 头 × 标签过滤/混合数据：减步与条件多峰诊断（DP 官方仓；ε vs x₀ 头；trailing 网格自含采样器；固定 optimizer-step 训练 workspace；预注册 S_x0/H2/I 判据）plan v3，L2 | **实验完成（2026-09-19 19:41）**：64 格两机矩阵全部训练+评测（466 记录 0 invalid），终报 `exp/dp_nfe/analysis/x0_multimodal.md`——pusht H2 supported / H1 not supported / I not supported，square_mh inconclusive，blockpush 门未过，kitchen 不可用；x₀ 头一步无损但锚点低 4–8 pp、条件离散度 ≈0（退化为确定性回归器）；§10 执行记录（并发/MPS 提速、再平衡跨机偏差）；产物/合并/诊断脚本已入工作树，未 commit |
 
 ### Cache System
 

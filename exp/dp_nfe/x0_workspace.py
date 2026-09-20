@@ -7,7 +7,8 @@ score. This workspace keeps the official policy / dataset / normaliser / EMA / o
 
 * exactly ``B = cfg.x0.budget_steps`` optimizer updates, each doing optimizer.step + LR.step + EMA.step once;
 * windows are drawn with replacement, ``batch_size`` per update, from a per-step RNG ``default_rng(window_seed + step)`` so
-  resuming at ``global_step`` reproduces the same batches; no epochs, no dataloader;
+  resuming at ``global_step`` reproduces the same batches; no epochs -- a DataLoader (``cfg.x0.num_workers`` workers,
+  ``StepBatchSampler``) only parallelises the assembly of these fixed batches;
 * LR schedule (``cfg.training.lr_scheduler``) sized by ``B`` with ``warmup = min(500, B // 10)``;
 * val MSE every ``cfg.x0.val_every`` updates on a fixed held-out batch with a fixed torch RNG state (fixed t / noise);
 * no env runner is built; ``latest.ckpt`` every ``cfg.x0.save_every`` updates and ``final.ckpt`` after update ``B``,
@@ -20,7 +21,8 @@ score. This workspace keeps the official policy / dataset / normaliser / EMA / o
   (dataset, normaliser, held-out batch, optimizer placement) so the resumed trajectory equals the uninterrupted one.
 
 Config additions (``cfg.x0``): ``cell_id, budget_steps, batch_size, window_seed, val_every, save_every, val_batch_size,
-heldout_dataset (hydra target, optional), normalizer_path / normalizer_sha256 (optional), identity (dict)``. Everything
+num_workers (default 0), heldout_dataset (hydra target, optional), normalizer_path / normalizer_sha256 (optional),
+identity (dict)``. Everything
 else is the official config with ``policy.noise_scheduler.prediction_type`` set to ``epsilon`` or ``sample`` and
 ``task.dataset.val_ratio=0``.
 """
@@ -40,7 +42,7 @@ import numpy as np
 import torch
 import hydra
 from omegaconf import OmegaConf
-from torch.utils.data import default_collate
+from torch.utils.data import DataLoader, default_collate
 
 from diffusion_policy.common.pytorch_util import dict_apply
 from diffusion_policy.model.common.lr_scheduler import get_scheduler
@@ -61,6 +63,23 @@ def window_indices(n_windows: int, batch_size: int, window_seed: int, step: int)
     """The batch of window indices for update ``step`` (with replacement; a pure function of (seed, step))."""
     rng = np.random.default_rng(int(window_seed) + int(step))
     return rng.integers(0, n_windows, size=batch_size)
+
+
+class StepBatchSampler:
+    """Batch sampler yielding, for every update ``step`` in ``[start, end)``, the window indices
+    ``window_indices(n_windows, batch_size, window_seed, step)`` -- a pure function of the step, so a DataLoader with
+    worker processes fetches exactly the batches the single-process loop would, and a resume at ``start`` continues the
+    same sequence."""
+
+    def __init__(self, n_windows: int, batch_size: int, window_seed: int, start: int, end: int):
+        self.n_windows, self.batch_size, self.window_seed, self.start, self.end = int(n_windows), int(batch_size), int(window_seed), int(start), int(end)
+
+    def __iter__(self):
+        for step in range(self.start, self.end):
+            yield window_indices(self.n_windows, self.batch_size, self.window_seed, step).tolist()
+
+    def __len__(self) -> int:
+        return max(0, self.end - self.start)
 
 
 def torch_rng_state() -> Dict[str, Any]:
@@ -236,6 +255,15 @@ class FixedStepWorkspace(BaseWorkspace):
                 raise ValueError(f"{ident_path} was written by a different cell: " + "; ".join(diff))
         else:
             ident_path.write_text(json.dumps(ident_now, indent=1))
+        # window fetching goes through a DataLoader with ``cfg.x0.num_workers`` worker processes (0 = in-process); the
+        # batches are fixed by StepBatchSampler, the workers only assemble them (DP datasets have no per-item randomness).
+        # The iterator is created *before* the RNG restore: creating it draws one number from the global torch RNG.
+        nw = int(cfg.x0.get("num_workers", 0) or 0)
+        sampler = StepBatchSampler(n_windows, bs, int(cfg.x0.window_seed), self.global_step, self.budget)
+        loader_kw = dict(batch_sampler=sampler, num_workers=nw, pin_memory=(device.type == "cuda"), collate_fn=default_collate)
+        if nw > 0:
+            loader_kw.update(persistent_workers=True, prefetch_factor=4)
+        batches = iter(DataLoader(self.dataset, **loader_kw))
         # the resumed RNG state is applied only now, after every initialisation that could consume random numbers
         if self._pending_rng is not None:
             set_torch_rng_state(self._pending_rng)
@@ -243,10 +271,10 @@ class FixedStepWorkspace(BaseWorkspace):
         self.model.train()
         t0 = time.time()
         with open(log_path, "a") as lf:
-            while self.global_step < self.budget:
+            for batch in batches:
+                if self.global_step >= self.budget:
+                    break
                 step = self.global_step
-                idx = window_indices(n_windows, bs, int(cfg.x0.window_seed), step)
-                batch = default_collate([self.dataset[int(i)] for i in idx])
                 batch = dict_apply(batch, lambda x: x.to(device, non_blocking=True))
                 loss = self.model.compute_loss(batch)
                 if not torch.isfinite(loss):

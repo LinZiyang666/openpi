@@ -166,15 +166,69 @@ def test_zarr_export_roundtrip(tmp_path):
     assert np.allclose(np.asarray(r["data/state"])[:5], st[25:30]) and np.allclose(np.asarray(r["data/state"])[5:], st[:10])
 
 
-def test_kitchen_export_roundtrip(tmp_path):
-    src = tmp_path / "kitchen"; src.mkdir()
-    obs = np.random.default_rng(0).normal(size=(4, 20, 60)); act = np.zeros((4, 20, 9)); mask = np.ones((4, 20), dtype=bool)
-    np.save(src / "observations_seq.npy", obs); np.save(src / "actions_seq.npy", act); np.save(src / "existence_mask.npy", mask)
-    np.save(src / "all_init_qpos.npy", np.zeros((4, 30)))
+def _write_mjl(path, qpos, nq=30, nv=29, nu=9, skip=40):
+    """A MuJoCo .mjl log in the upstream binary layout: header iiiiiii + name, then records of
+    1 + nq + nv + nu float32 (no mocap / sensor / user data); ``qpos`` [T, nq] is written once per kept record repeated
+    ``skip`` times so that reading with skipamount=skip returns it."""
+    import struct
+    T = qpos.shape[0]
+    recs = np.zeros((T * skip, 1 + nq + nv + nu), dtype="<f4")
+    recs[:, 0] = np.arange(T * skip) * 0.01
+    recs[:, 1:nq + 1] = np.repeat(qpos, skip, axis=0)
+    name = b"synthetic"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(struct.pack("iiiiiii", nq, nv, nu, 0, 0, 0, len(name)) + name + recs.tobytes())
+
+
+def test_kitchen_mjl_parse_label_and_export_roundtrip(tmp_path):
+    src = tmp_path / "kitchen_demos_multitask"
+    rng = np.random.default_rng(0)
+    demos = {}
+    for sess, name, done in (("friday_a", "d1", ("kettle", "microwave")), ("friday_a", "d2", ("microwave",)), ("postcorl_b", "d3", ())):
+        q = np.zeros((50, 30)); q[:, 23:30] = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]; q[:, :9] = rng.normal(size=(50, 9)) * 0.01
+        if "kettle" in done:
+            q[10:, 23:30] = MF.KITCHEN_GOAL["kettle"]
+        if "microwave" in done:
+            q[20:, 22] = -0.75
+        _write_mjl(src / sess / f"{name}.mjl", q); demos[f"{sess}/{name}.mjl"] = q
+    ids = MF.list_kitchen_demos(str(src))
+    assert ids == ["friday_a/d1.mjl", "friday_a/d2.mjl", "postcorl_b/d3.mjl"]
+    q1 = MF.read_mjl_qpos(str(src / "friday_a/d1.mjl"))
+    assert q1.shape == (50, 30) and np.allclose(q1, demos["friday_a/d1.mjl"], atol=1e-6)
+    assert MF.label_kitchen(q1[:, :30]) == "set=kettle+microwave|order=kettle>microwave"
+    assert MF.label_kitchen(MF.read_mjl_qpos(str(src / "friday_a/d2.mjl"))) == "set=microwave|order=microwave"
+    assert MF.label_kitchen(MF.read_mjl_qpos(str(src / "postcorl_b/d3.mjl"))) == MF.UNKNOWN
     dst = tmp_path / "kitchen_U"
-    MF.write_kitchen_subset(str(src), str(dst), [3, 1])
-    o, a, mk = MF.read_kitchen(str(dst))
-    assert o.shape == (2, 20, 60) and np.allclose(o[0], obs[3]) and (dst / "all_init_qpos.npy").exists()
+    MF.write_kitchen_subset(str(src), str(dst), ["postcorl_b/d3.mjl", "friday_a/d1.mjl"])
+    assert MF.list_kitchen_demos(str(dst)) == ["friday_a/d1.mjl", "postcorl_b/d3.mjl"]
+    assert (dst / "friday_a/d1.mjl").read_bytes() == (src / "friday_a/d1.mjl").read_bytes()
+    # a truncated file is refused by the parser (build() records it as unknown)
+    bad = tmp_path / "bad.mjl"; bad.write_bytes((src / "friday_a/d1.mjl").read_bytes()[:-7])
+    with pytest.raises(ValueError):
+        MF.read_mjl_qpos(str(bad))
+
+
+def test_build_end_to_end_kitchen(tmp_path):
+    src = tmp_path / "kitchen_demos_multitask"
+    rng = np.random.default_rng(1)
+    orders = [("kettle", "microwave")] * 30 + [("microwave", "kettle")] * 14 + [("kettle",)] * 20 + [()] * 6
+    for i, order in enumerate(orders):
+        q = np.zeros((40, 30)); q[:, 23:30] = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]; q[:, :9] = rng.normal(size=(40, 9)) * 0.01
+        for j, task in enumerate(order):
+            t0 = 5 + 10 * j
+            if task == "kettle":
+                q[t0:, 23:30] = MF.KITCHEN_GOAL["kettle"]
+            else:
+                q[t0:, 22] = -0.75
+        _write_mjl(src / f"sess{i % 3}" / f"demo{i:03d}.mjl", q)
+    man = MF.build("kitchen", str(src), str(tmp_path / "out"), cap=150, subset_seed=1)
+    assert man["n_total"] == 70 and man["n_heldout"] == 7 and man["selection"]["usable"]
+    assert man["kitchen"]["set"] == "kettle+microwave" and man["selection"]["u_label"] == "order=kettle>microwave"
+    assert set(man["exports"]) == {"trainpool", "U", "M", "heldout"}
+    for name in ("U", "M", "heldout", "trainpool"):
+        d = tmp_path / "out" / f"kitchen_{name}"
+        assert d.is_dir() and len(MF.list_kitchen_demos(str(d))) == len({"U": man["selection"]["U"], "M": man["selection"]["M"], "heldout": man["heldout"], "trainpool": man["train_pool"]}[name])
+    assert all(v > 0 for v in man["lengths"].values())
 
 
 def test_robomimic_export_and_operator_labels(tmp_path):
@@ -239,6 +293,7 @@ def _mh_pair(tmp_path, n=80):
                 g = data.create_group(f"demo_{i}"); L = 10 + i; g.attrs["num_samples"] = L
                 g.create_dataset("actions", data=np.full((L, 7), i, dtype=np.float32))
                 o = g.create_group("obs"); o.create_dataset("robot0_eef_pos", data=np.full((L, 3), i, dtype=np.float32))
+                o.create_dataset("object", data=np.full((L, 14), i, dtype=np.float32))
                 o.create_dataset("robot0_eef_quat", data=np.zeros((L, 4), dtype=np.float32))
                 o.create_dataset("robot0_gripper_qpos", data=np.zeros((L, 2), dtype=np.float32))
                 if with_img:
@@ -286,7 +341,8 @@ def _normalizer_files(subsets, task, modality, sha="n" * 64):
 def test_make_cells_binds_hashes_and_skips_unusable_or_unnormalized(tmp_path):
     import yaml
     from exp.dp_nfe import x0_cells
-    tasks = yaml.safe_load(open("exp/dp_nfe/config/x0_multimodal/tasks.yaml"))
+    tasks = x0_cells.resolve_raw_root(yaml.safe_load(open("exp/dp_nfe/config/x0_multimodal/tasks.yaml")), "/raw")
+    tasks["frozen_budgets"] = {}  # this test exercises the command-line defaults
     subsets = tmp_path / "subsets"; subsets.mkdir()
     (subsets / "pusht_subset_manifest.json").write_text(json.dumps(_subset_manifest(image=True)))
     (subsets / "kitchen_subset_manifest.json").write_text(json.dumps(_subset_manifest(usable=False)))
@@ -321,7 +377,7 @@ def test_make_cells_binds_hashes_and_skips_unusable_or_unnormalized(tmp_path):
 def test_per_task_budgets_and_wrong_normalizer_pool(tmp_path):
     import yaml
     from exp.dp_nfe import x0_cells
-    tasks = yaml.safe_load(open("exp/dp_nfe/config/x0_multimodal/tasks.yaml"))
+    tasks = x0_cells.resolve_raw_root(yaml.safe_load(open("exp/dp_nfe/config/x0_multimodal/tasks.yaml")), "/raw")
     tasks["frozen_budgets"] = {"lowdim": {"pusht": 50000, "square_mh": 100000}}
     subsets = tmp_path / "subsets"; subsets.mkdir()
     for task in ("pusht", "square_mh"):
@@ -342,13 +398,20 @@ def test_per_task_budgets_and_wrong_normalizer_pool(tmp_path):
     assert any(s["task"] == "pusht" and "different pool" in s["reason"] for s in rejected["skipped"])
 
 
-def test_image_source_requires_both_cameras_and_matched_actions(tmp_path):
+def test_image_source_requires_both_cameras_matched_observations_and_gripper(tmp_path):
     low, img = _mh_pair(tmp_path, n=2)
     assert MF.image_source_error("square_mh", str(low), str(img), ["demo_0", "demo_1"]) is None
+    with h5py.File(img, "a") as f:  # a slightly different absolute position target (separate conversion) is tolerated
+        f["data/demo_0/actions"][0, 0] += 0.03
+    assert MF.image_source_error("square_mh", str(low), str(img), ["demo_0"]) is None
+    with h5py.File(img, "a") as f:  # a different gripper command is not
+        f["data/demo_0/actions"][0, -1] = -5
+    assert "gripper" in MF.image_source_error("square_mh", str(low), str(img), ["demo_0"])
+    with h5py.File(img, "a") as f:  # a different proprioceptive trajectory is another demonstration
+        f["data/demo_0/actions"][0, -1] = 0
+        f["data/demo_0/obs/robot0_eef_pos"][3, 1] += 1.0
+    assert "observations differ" in MF.image_source_error("square_mh", str(low), str(img), ["demo_0"])
     with h5py.File(img, "a") as f:
-        f["data/demo_0/actions"][0, 0] = -123
-    assert "actions differ" in MF.image_source_error("square_mh", str(low), str(img), ["demo_0"])
-    with h5py.File(img, "a") as f:
-        f["data/demo_0/actions"][0, 0] = 0
+        f["data/demo_0/obs/robot0_eef_pos"][3, 1] -= 1.0
         del f["data/demo_0/obs/robot0_eye_in_hand_image"]
     assert "robot0_eye_in_hand_image" in MF.image_source_error("square_mh", str(low), str(img), ["demo_0"])

@@ -12,6 +12,7 @@ use the subset manifest's ``image_exports`` (square: hdf5 exported from the imag
 subsets that already carry ``data/img``) and never the lowdim files. The identity block of every cell carries the subset
 / held-out / manifest / normaliser hashes so the trainer can bind them into the checkpoint.
 
+``${RAW_ROOT}`` in tasks.yaml is replaced by ``--raw-root`` (default ``$DP_DATA/data``), so the same table serves both hosts.
 ``cells_manifest.json`` enumerates every *expected* cell of the matrix: ``cells`` (emitted, grouped by arm) and
 ``skipped`` (task, arm, reason), so completeness is judged against the plan and not against the files that happen to
 exist.
@@ -27,7 +28,7 @@ from typing import Dict, Optional
 import yaml
 
 HEADS = ("epsilon", "sample")
-EXT = {"zarr": ".zarr", "npy": "", "hdf5": ".hdf5"}
+EXT = {"zarr": ".zarr", "npy": "", "mjl": "", "hdf5": ".hdf5"}
 
 
 def _subset_paths(subsets: pathlib.Path, task: str, native: str, modality: str) -> Optional[Dict[str, object]]:
@@ -74,6 +75,12 @@ def _normalizer(subsets: pathlib.Path, task: str, modality: str, pool_sha: str) 
     return {"path": str(p), "sha256": metadata["sha256"]}
 
 
+def resolve_raw_root(tasks: dict, raw_root: str) -> dict:
+    """Return a copy of the task table with every ``${RAW_ROOT}`` replaced by ``raw_root`` (the host's raw data dir)."""
+    text = json.dumps(tasks).replace("${RAW_ROOT}", raw_root.rstrip("/"))
+    return json.loads(text)
+
+
 def make_cells(tasks: dict, subsets: pathlib.Path, out: pathlib.Path, budget_lowdim: int, budget_image: int,
                explore: bool, image: bool) -> dict:
     """Write one yaml per cell into ``out`` and ``out/cells_manifest.json``; returns the manifest dict
@@ -110,7 +117,7 @@ def make_cells(tasks: dict, subsets: pathlib.Path, out: pathlib.Path, budget_low
                     cid = f"{name}_lowdim_{variant}_{head}_s{seed}_{bid_l}"
                     emit({"cell_id": cid, "workspace_config": tasks["workspace_lowdim"], "task": t["task"], "head": head,
                           "train_seed": seed, "budget_steps": budget_lowdim, "batch_size": 256, "window_seed": 1000 + seed,
-                          "val_every": 1000, "save_every": 2000, "val_batch_size": 256,
+                          "val_every": 1000, "save_every": 2000, "val_batch_size": 256, "num_workers": 8,
                           "overrides": [f"{t['path_key']}={sp[variant]}"] + list(t.get("overrides", [])),
                           "heldout_path_key": t["path_key"].split(".")[-1], "heldout_path": sp["heldout"],
                           "normalizer_path": nz["path"], "normalizer_sha256": nz["sha256"],
@@ -120,7 +127,7 @@ def make_cells(tasks: dict, subsets: pathlib.Path, out: pathlib.Path, budget_low
                                        "heldout_path": sp["heldout"], "subset_manifest_path": sp["manifest_path"],
                                        "heldout_sha256": sp["hashes"]["heldout"], "subset_manifest_sha256": sp["manifest_sha256"],
                                        "kitchen_set": sp["kitchen_set"]},
-                          "runner_overrides": ([f"{t['runner_key']}={t['src']}"] if t.get("runner_key") else [])}, "core")
+                          "runner_overrides": ([f"{t['runner_key']}={t.get('runner_src', t['src'])}"] if t.get("runner_key") else [])}, "core")
     if explore:
         for name, t in tasks["explore"].items():
             budget_lowdim, bid_l = budget_for(name, "lowdim")
@@ -129,11 +136,11 @@ def make_cells(tasks: dict, subsets: pathlib.Path, out: pathlib.Path, budget_low
                 cid = f"{name}_lowdim_full_{head}_s{seed}_{bid_l}"
                 emit({"cell_id": cid, "workspace_config": tasks["workspace_lowdim"], "task": t["task"], "head": head,
                       "train_seed": seed, "budget_steps": budget_lowdim, "batch_size": 256, "window_seed": 1000 + seed,
-                      "val_every": 1000, "save_every": 2000, "val_batch_size": 256,
+                      "val_every": 1000, "save_every": 2000, "val_batch_size": 256, "num_workers": 8,
                       "overrides": [f"{t['path_key']}={t['src']}"] + list(t.get("overrides", [])),
                       "identity": {"task_name": name, "modality": "lowdim", "variant": "full", "budget_id": bid_l,
                                    "arm": "explore", "subset_path": t["src"]},
-                      "runner_overrides": ([f"{t['runner_key']}={t['src']}"] if t.get("runner_key") else [])}, "explore")
+                      "runner_overrides": ([f"{t['runner_key']}={t.get('runner_src', t['src'])}"] if t.get("runner_key") else [])}, "explore")
     if image:
         for name, t in tasks["image"].items():
             budget_image, bid_i = budget_for(name, "image")
@@ -149,7 +156,7 @@ def make_cells(tasks: dict, subsets: pathlib.Path, out: pathlib.Path, budget_low
                     cid = f"{name}_image_{variant}_{head}_s{seed}_{bid_i}"
                     emit({"cell_id": cid, "workspace_config": tasks["workspace_image"], "task": t["task"], "head": head,
                           "train_seed": seed, "budget_steps": budget_image, "batch_size": 64, "window_seed": 1000 + seed,
-                          "val_every": 1000, "save_every": 2000, "val_batch_size": 64,
+                          "val_every": 1000, "save_every": 2000, "val_batch_size": 64, "num_workers": 8,
                           "overrides": [f"{t['path_key']}={sp[variant]}"] + list(t.get("overrides", [])),
                           "heldout_path_key": t["path_key"].split(".")[-1], "heldout_path": sp["heldout"],
                           "normalizer_path": nz["path"], "normalizer_sha256": nz["sha256"],
@@ -158,7 +165,7 @@ def make_cells(tasks: dict, subsets: pathlib.Path, out: pathlib.Path, budget_low
                                        "subset_path": sp[variant], "subset_sha256": sp["hashes"][variant],
                                        "heldout_path": sp["heldout"], "subset_manifest_path": sp["manifest_path"],
                                        "heldout_sha256": sp["hashes"]["heldout"], "subset_manifest_sha256": sp["manifest_sha256"]},
-                          "runner_overrides": ([f"{t['runner_key']}={t['src']}"] if t.get("runner_key") else [])}, "image")
+                          "runner_overrides": ([f"{t['runner_key']}={t.get('runner_src', t['src'])}"] if t.get("runner_key") else [])}, "image")
     (out / "cells_manifest.json").write_text(json.dumps(manifest, indent=1))
     return manifest
 
@@ -169,9 +176,12 @@ def main() -> None:
     ap.add_argument("--tasks", required=True); ap.add_argument("--subsets", required=True); ap.add_argument("--out", required=True)
     ap.add_argument("--budget-lowdim", type=int, required=True); ap.add_argument("--budget-image", type=int, default=20000)
     ap.add_argument("--explore", action="store_true"); ap.add_argument("--image", action="store_true")
+    ap.add_argument("--raw-root", default=None, help="host raw data dir substituted for ${RAW_ROOT} (default $DP_DATA/data)")
     a = ap.parse_args()
-    m = make_cells(yaml.safe_load(open(a.tasks)), pathlib.Path(a.subsets), pathlib.Path(a.out), a.budget_lowdim,
-                   a.budget_image, a.explore, a.image)
+    import os
+    raw_root = a.raw_root or (os.environ.get("DP_DATA", "/data/dp") + "/data")
+    tasks = resolve_raw_root(yaml.safe_load(open(a.tasks)), raw_root)
+    m = make_cells(tasks, pathlib.Path(a.subsets), pathlib.Path(a.out), a.budget_lowdim, a.budget_image, a.explore, a.image)
     print(f"cells={len(m['cells'])} core={len(m['by_arm']['core'])} explore={len(m['by_arm']['explore'])} "
           f"image={len(m['by_arm']['image'])} skipped={m['skipped']}")
 

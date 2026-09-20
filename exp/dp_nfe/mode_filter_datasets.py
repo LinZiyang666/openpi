@@ -3,9 +3,10 @@
 Trajectory labels (plan §3.1) are computed from the released data only:
     blockpush : which block moves first (>1e-3 from its initial xy, the env's own criterion) x final block->target
                 assignment  (zarr ``data/obs`` 16-dim, DP's OrderedDict order)
-    kitchen   : the set of completed sub-tasks and their completion order, re-derived from the state with the frozen
-                KitchenBase constants (``observations_seq.npy`` [N, T, 60], first 30 dims = qpos); U/M are built inside
-                the most frequent completed set only (``kitchen_restrict_to_common_set``)
+    kitchen   : the set of completed sub-tasks and their completion order, re-derived from the qpos of each raw
+                ``.mjl`` demo (parsed exactly like the upstream ``KitchenMjlLowdimDataset``: ``skipamount=40``; 30-dim
+                qpos = 9 robot + 21 object joints, KitchenBase element indices); U/M are built inside the most frequent
+                completed set only (``kitchen_restrict_to_common_set``)
     pusht     : lateral side (left/right in the T-block frame) on which the agent first enters an approach band of
                 radius ``approach_radius`` px around the block centre (zarr ``data/state`` = [ax, ay, bx, by, theta])
     square_mh : operator id from the robomimic masks ``better_operator_1`` / ``better_operator_2``
@@ -15,7 +16,10 @@ Subset rules (plan §3.2): a 10% held-out set (split seed 20260918) is drawn fir
 enters U/M; U = the most frequent valid label (ties by label string); N = min(#U, task cap); M is a proportional draw
 across the valid labels with at least two labels of >=2 episodes each; both draws are without replacement with a fixed
 subset seed. Exports keep the native format so the official dataset classes load them unchanged:
-zarr (pusht/blockpush), npy triple + init files (kitchen), hdf5 with renumbered ``data/demo_i`` (robomimic).
+zarr (pusht/blockpush), a directory of the selected raw ``<session>/<demo>.mjl`` files (kitchen, the ``kitchen_lowdim_abs``
+recipe's ``KitchenMjlLowdimDataset`` input; the npy triple of ``kitchen_lowdim`` is unusable: 248/409 of its
+``existence_mask`` rows are not prefix masks, so the upstream reader takes zero rows), hdf5 with renumbered ``data/demo_i``
+(robomimic).
 
 usage: python -m exp.dp_nfe.mode_filter_datasets --task pusht --src <zarr> --out <dir> [--cap 80] [--subset-seed 1]
 """
@@ -83,7 +87,9 @@ def label_blockpush(obs: np.ndarray) -> str:
 
 
 def label_kitchen(obs: np.ndarray, mask: Optional[np.ndarray] = None) -> str:
-    """obs [T, >=30] (first 30 dims = qpos). 'set=a+b+c+d|order=a>b>c>d' over completed sub-tasks, or 'unknown'."""
+    """obs [T, >=30] (first 30 dims = qpos: 9 robot + 21 object joints). 'set=a+b+c+d|order=a>b>c>d' over the sub-tasks
+    whose element distance to the KitchenBase goal first drops below the threshold, or 'unknown'. ``mask`` (optional
+    row mask) selects the valid rows."""
     if obs.ndim != 2 or obs.shape[1] < 30:
         return UNKNOWN
     if mask is not None:
@@ -240,22 +246,40 @@ def _zarr_put(group, name, arr):
         group.create_dataset(name, data=arr)
 
 
-def read_kitchen(dataset_dir: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """``(observations_seq [N, T, 60], actions_seq [N, T, 9], existence_mask [N, T])`` of the kitchen npy dataset."""
+def read_mjl_qpos(path: str, skipamount: int = 40) -> np.ndarray:
+    """qpos [T, nq] of one MuJoCo ``.mjl`` log, transcribed from ``diffusion_policy.env.kitchen.kitchen_util.parse_mjl_logs``
+    (header ``iiiiiii`` = nq, nv, nu, nmocap, nsensordata, nuserdata, name_len; records of 1 + nq + nv + nu + 7 nmocap +
+    nsensordata + nuserdata float32; every ``skipamount``-th record kept, as the upstream dataset does)."""
+    import struct
+    raw = pathlib.Path(path).read_bytes()
+    nq, nv, nu, nmocap, nsensordata, nuserdata, name_len = struct.unpack("iiiiiii", raw[:28])
+    body = raw[28 + name_len:]
+    dat = np.frombuffer(body, dtype="<f4")
+    recsz = 1 + nq + nv + nu + 7 * nmocap + nsensordata + nuserdata
+    if len(dat) % recsz != 0:
+        raise ValueError(f"{path}: {len(dat)} floats not a multiple of the record size {recsz}")
+    dat = dat.reshape(-1, recsz)
+    return dat[::skipamount, 1:nq + 1].astype(np.float64)
+
+
+def list_kitchen_demos(dataset_dir: str) -> List[str]:
+    """Stable episode ids of a kitchen demo directory: sorted ``<session>/<file>.mjl`` relative paths (the upstream
+    reader globs ``*/*.mjl``)."""
     d = pathlib.Path(dataset_dir)
-    return np.load(d / "observations_seq.npy"), np.load(d / "actions_seq.npy"), np.load(d / "existence_mask.npy")
+    return sorted(p.relative_to(d).as_posix() for p in d.glob("*/*.mjl"))
 
 
-def write_kitchen_subset(dataset_dir: str, dst: str, keep: Sequence[int]) -> None:
-    """Copy the selected episode rows of the three kitchen npy arrays (+ ``all_init_qpos.npy``) into ``dst``."""
-    obs, act, mask = read_kitchen(dataset_dir)
-    d = pathlib.Path(dst); d.mkdir(parents=True, exist_ok=True)
-    np.save(d / "observations_seq.npy", obs[list(keep)]); np.save(d / "actions_seq.npy", act[list(keep)])
-    np.save(d / "existence_mask.npy", mask[list(keep)])
-    for extra in ("all_init_qpos.npy", "all_init_qvel.npy"):  # the runner's initial states, kept whole
-        src = pathlib.Path(dataset_dir) / extra
-        if src.exists():
-            shutil.copy(src, d / extra)
+def write_kitchen_subset(dataset_dir: str, dst: str, keep: Sequence[str]) -> None:
+    """Copy the selected ``<session>/<file>.mjl`` demos (byte-identical) into ``dst`` keeping the session sub-directory,
+    so ``KitchenMjlLowdimDataset(dataset_dir=dst)`` reads exactly these episodes."""
+    d = pathlib.Path(dst)
+    if d.exists():
+        shutil.rmtree(d)
+    for rel in keep:
+        src = pathlib.Path(dataset_dir) / rel
+        out = d / rel
+        out.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(src, out)
 
 
 def read_robomimic_operators(hdf5_path: str) -> Dict[str, str]:
@@ -305,15 +329,25 @@ def image_source_error(task: str, src: str, image_src: str, ids: Sequence[str]) 
         if "img" not in g["data"] or g["data/img"].shape[0] != g["data/state"].shape[0]:
             return "pusht source has no aligned data/img"
     elif task == "square_mh":
+        # Trajectory identity = same demo names, lengths and (bit-identical) proprioceptive / object observations. The
+        # official image_abs.hdf5 and low_dim_abs.hdf5 were converted to absolute actions in two separate replay runs:
+        # gripper columns agree, position targets differ by <= ~0.04 and rotations only by the axis-angle sign, so the
+        # action arrays are *not* required to be equal; the max |pos| difference is recorded by build().
         import h5py
         with h5py.File(src, "r") as low, h5py.File(image_src, "r") as img:
             for eid in ids:
                 if f"data/{eid}/actions" not in img:
                     return f"image source missing {eid}"
                 a, b = low[f"data/{eid}/actions"], img[f"data/{eid}/actions"]
-                if a.shape != b.shape or not np.array_equal(a[:], b[:]):
-                    return f"image actions differ from lowdim source for {eid}"
-                for key in ("agentview_image", "robot0_eye_in_hand_image", "robot0_eef_pos", "robot0_eef_quat", "robot0_gripper_qpos"):
+                if a.shape != b.shape:
+                    return f"image actions shape differs from lowdim source for {eid}"
+                if not np.array_equal(a[:, -1], b[:, -1]):
+                    return f"image gripper actions differ from lowdim source for {eid}"
+                for key in ("robot0_eef_pos", "robot0_eef_quat", "robot0_gripper_qpos", "object"):
+                    pa, pb = f"data/{eid}/obs/{key}", f"data/{eid}/obs/{key}"
+                    if pa not in low or pb not in img or low[pa].shape != img[pb].shape or not np.allclose(low[pa][:], img[pb][:], atol=1e-6):
+                        return f"image observations differ from lowdim source for {eid}/{key}"
+                for key in ("agentview_image", "robot0_eye_in_hand_image"):
                     path = f"data/{eid}/obs/{key}"
                     if path not in img or img[path].shape[0] != a.shape[0]:
                         return f"image source missing/alignment error: {eid}/{key}"
@@ -342,11 +376,16 @@ def build(task: str, src: str, out: str, cap: Optional[int] = None, subset_seed:
         exporter = lambda keep, dst: write_zarr_subset(src, str(dst), [ids.index(e) for e in keep])
         ext = ".zarr"
     elif task == "kitchen":
-        obs, act, mask = read_kitchen(src)
-        ids = [f"ep{i:05d}" for i in range(obs.shape[0])]
-        labels = {e: label_kitchen(obs[i], mask[i]) for i, e in enumerate(ids)}
-        lengths = {e: int(mask[i].sum()) for i, e in enumerate(ids)}
-        exporter = lambda keep, dst: write_kitchen_subset(src, str(dst), [ids.index(e) for e in keep])
+        ids = list_kitchen_demos(src)
+        labels, lengths = {}, {}
+        for e in ids:
+            try:
+                q = read_mjl_qpos(str(pathlib.Path(src) / e))
+            except Exception as exc:  # noqa: BLE001 - an unreadable demo is recorded, never guessed
+                labels[e] = UNKNOWN; lengths[e] = 0
+                continue
+            labels[e] = label_kitchen(q[:, :30]); lengths[e] = int(q.shape[0])
+        exporter = lambda keep, dst: write_kitchen_subset(src, str(dst), list(keep))
         ext = ""
     elif task == "square_mh":
         labels = read_robomimic_operators(src)
@@ -382,6 +421,12 @@ def build(task: str, src: str, out: str, cap: Optional[int] = None, subset_seed:
                 for name, keep in (("U", sel["U"]), ("M", sel["M"]), ("heldout", hold_ids), ("trainpool", train_ids)):
                     write_robomimic_subset(image_src, str(outp / f"{task}_image_{name}.hdf5"), list(keep))
                     manifest["image_exports"][name] = _sha(outp / f"{task}_image_{name}.hdf5")
+                import h5py
+                with h5py.File(src, "r") as low, h5py.File(image_src, "r") as img:
+                    diffs = {e: float(np.abs(low[f"data/{e}/actions"][:, :3] - img[f"data/{e}/actions"][:, :3]).max()) for e in ids}
+                manifest["image_action_note"] = ("separate absolute-action conversions of the same demonstrations: observations identical, "
+                                                 "gripper equal, max |pos target| difference per demo recorded")
+                manifest["image_action_pos_max_abs_diff"] = {"max": max(diffs.values()), "mean": float(np.mean(list(diffs.values())))}
             elif task == "pusht":  # the lowdim zarr already carries data/img: the same export serves the image policy
                 manifest["image_exports"] = {n: manifest["exports"][n] for n in ("U", "M", "heldout", "trainpool")}
                 manifest["image_note"] = "pusht zarr subsets carry data/img; image cells reuse them"

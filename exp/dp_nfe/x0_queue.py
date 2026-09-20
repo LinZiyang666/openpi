@@ -166,16 +166,20 @@ class QueueState:
 
 
 # ----------------------------------------------------------------------------- job construction
-def load_matrix(cells_dir: pathlib.Path, arms: Sequence[str], only: Sequence[str] = ()) -> Dict[str, dict]:
-    """``{cell_id: cell yaml}`` of the selected arms (in manifest order), optionally restricted to ``only``."""
+def load_matrix(cells_dir: pathlib.Path, arms: Sequence[str], only: Sequence[str] = (), task_names: Sequence[str] = ()) -> Dict[str, dict]:
+    """``{cell_id: cell yaml}`` of the selected arms (in manifest order), optionally restricted to ``only`` cell ids and/or
+    to cells whose ``identity.task_name`` is in ``task_names`` (the per-host split of hosts.yaml)."""
     man = json.loads((cells_dir / "cells_manifest.json").read_text())
     out = {}
     for arm in arms:
         for cid in man["by_arm"][arm]:
             if only and cid not in only:
                 continue
-            out[cid] = yaml.safe_load((cells_dir / f"{cid}.yaml").read_text())
-            out[cid]["_yaml_sha256"] = sha256_file(cells_dir / f"{cid}.yaml")
+            cell = yaml.safe_load((cells_dir / f"{cid}.yaml").read_text())
+            if task_names and cell["identity"]["task_name"] not in task_names:
+                continue
+            cell["_yaml_sha256"] = sha256_file(cells_dir / f"{cid}.yaml")
+            out[cid] = cell
     return out
 
 
@@ -332,6 +336,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     ap.add_argument("--runs", required=True); ap.add_argument("--results", default=None)
     ap.add_argument("--state", required=True)
     ap.add_argument("--arms", default="core"); ap.add_argument("--only", default="")
+    ap.add_argument("--task-names", default="", help="comma list of identity.task_name to keep (host split); default all")
     ap.add_argument("--splits", default="screen,test"); ap.add_argument("--samplers", default=",".join(DEFAULT_SAMPLERS))
     ap.add_argument("--max-attempts", type=int, default=3)
     ap.add_argument("--parallel", type=int, default=1); ap.add_argument("--gpus", default="0")
@@ -341,7 +346,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     tasks_cfg = yaml.safe_load(open(a.tasks))
     dp_root = a.dp_root or tasks_cfg["dp_root"]
     openpi_root = str(pathlib.Path(__file__).resolve().parents[2])
-    cells = load_matrix(pathlib.Path(a.cells), a.arms.split(","), [c for c in a.only.split(",") if c])
+    cells = load_matrix(pathlib.Path(a.cells), a.arms.split(","), [c for c in a.only.split(",") if c], [t for t in a.task_names.split(",") if t])
     state = QueueState(pathlib.Path(a.state))
     env = {"PYTHONPATH": f"{openpi_root}:{dp_root}"}
     if a.mode == "train":

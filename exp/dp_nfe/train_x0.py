@@ -102,7 +102,7 @@ def compose_cell(dp_root: pathlib.Path, cell: dict, out_dir: pathlib.Path, budge
     x0 = {"cell_id": cell["cell_id"], "budget_steps": budget, "batch_size": int(cell.get("batch_size", 256)),
           "window_seed": int(cell.get("window_seed", 1000 + int(cell["train_seed"]))),
           "val_every": int(cell.get("val_every", 1000)), "save_every": int(cell.get("save_every", 2000)),
-          "val_batch_size": int(cell.get("val_batch_size", 256)), "identity": identity,
+          "val_batch_size": int(cell.get("val_batch_size", 256)), "num_workers": int(cell.get("num_workers", 0)), "identity": identity,
           "normalizer_path": cell.get("normalizer_path"), "normalizer_sha256": cell.get("normalizer_sha256"),
           "heldout_dataset": None}
     if cell.get("heldout_path"):

@@ -17,6 +17,9 @@ import sys
 import time
 
 import torch
+from omegaconf import OmegaConf
+
+OmegaConf.register_new_resolver("eval", eval, replace=True)  # the official configs use ${eval:...}
 
 
 def _run(cmd):
@@ -65,7 +68,6 @@ def main() -> None:
         sys.path.insert(0, a.dp_root); os.chdir(a.dp_root)
         import hydra
         from hydra import compose, initialize_config_dir
-        from omegaconf import OmegaConf
         with initialize_config_dir(config_dir=str(pathlib.Path(a.dp_root) / "diffusion_policy" / "config"), version_base=None):
             cfg = compose(config_name="train_diffusion_unet_lowdim_workspace", overrides=[f"task={a.task}"])
         OmegaConf.set_struct(cfg, False)
