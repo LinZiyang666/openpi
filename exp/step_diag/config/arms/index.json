@@ -1,0 +1,328 @@
+{
+ "groot_libero_10": {
+  "benchmark": "libero_10",
+  "cells": {
+   "shadow": {
+    "file": "groot_libero_10/shadow.yaml",
+    "judge": {
+     "type": "always_hit"
+    },
+    "library": "/data/libero_cache/libraries_w13/libero_10/libero_10_w13_S3.pkl",
+    "remaining_steps": null,
+    "schedule_id": "groot_n15_k8_v1",
+    "sha256": "deafc62eb15405e03e6365c8aadef55733ee09d0139099866eb81785bd022efd",
+    "start_t": null
+   }
+  },
+  "env_id": "groot_libero_10",
+  "k_full": 8,
+  "k_set": [
+   1,
+   2,
+   4,
+   6
+  ],
+  "policy": "groot",
+  "server_host": "weilandserver",
+  "source_sha256": "deafc62eb15405e03e6365c8aadef55733ee09d0139099866eb81785bd022efd",
+  "source_template": "exp/libero_groot/config/rit/libero_10/template.yaml",
+  "warm_ts": [
+   0.875,
+   0.75,
+   0.5
+  ],
+  "worker_host": "timan107"
+ },
+ "groot_libero_spatial": {
+  "benchmark": "libero_spatial",
+  "cells": {
+   "shadow": {
+    "file": "groot_libero_spatial/shadow.yaml",
+    "judge": {
+     "type": "always_hit"
+    },
+    "library": "/data/libero_cache/libraries_w13/libero_spatial/libero_spatial_w13_S3.pkl",
+    "remaining_steps": null,
+    "schedule_id": "groot_n15_k8_v1",
+    "sha256": "2f834f9ebc0450e3e6414af207bc6b2930af568ba6e1abbe3130c7f4cbee7ffa",
+    "start_t": null
+   }
+  },
+  "env_id": "groot_libero_spatial",
+  "k_full": 8,
+  "k_set": [
+   1,
+   2,
+   4,
+   6
+  ],
+  "policy": "groot",
+  "server_host": "weilandserver",
+  "source_sha256": "2f834f9ebc0450e3e6414af207bc6b2930af568ba6e1abbe3130c7f4cbee7ffa",
+  "source_template": "exp/libero_groot/config/rit/libero_spatial/template.yaml",
+  "warm_ts": [
+   0.875,
+   0.75,
+   0.5
+  ],
+  "worker_host": "timan107"
+ },
+ "groot_rc": {
+  "benchmark": "robocasa365",
+  "cells": {
+   "shadow": {
+    "file": "groot_rc/shadow.yaml",
+    "judge": {
+     "type": "always_hit"
+    },
+    "library": "/data/robocasa365_cache/cache_artifacts_w13/groot_tp_spatial_pool_16_w13_full.pkl",
+    "remaining_steps": null,
+    "schedule_id": "groot_n15_k4_v1",
+    "sha256": "e6c9616803cf705bee787c44851005a36424f53a06046b15b4f039707bd8c299",
+    "start_t": null
+   },
+   "warm_t0.5": {
+    "file": "groot_rc/warm_t0.5.yaml",
+    "judge": {
+     "start_t": 0.5,
+     "type": "always_warm_start"
+    },
+    "library": "/data/robocasa365_cache/cache_artifacts_w13/groot_tp_spatial_pool_16_w13_full.pkl",
+    "remaining_steps": 2,
+    "schedule_id": "groot_n15_k4_v1",
+    "sha256": "db55b5d8b39634fbaaa4b8bd713132c27484773053ef4149853884c13e2aed0b",
+    "start_t": 0.5
+   },
+   "warm_t0.75": {
+    "file": "groot_rc/warm_t0.75.yaml",
+    "judge": {
+     "start_t": 0.75,
+     "type": "always_warm_start"
+    },
+    "library": "/data/robocasa365_cache/cache_artifacts_w13/groot_tp_spatial_pool_16_w13_full.pkl",
+    "remaining_steps": 1,
+    "schedule_id": "groot_n15_k4_v1",
+    "sha256": "0d4de705b60648a65f0ce44009a45ac4c50a9e9285581ec1e89c7e18caa69c40",
+    "start_t": 0.75
+   }
+  },
+  "env_id": "groot_rc",
+  "k_full": 4,
+  "k_set": [
+   1,
+   2,
+   3
+  ],
+  "plain_arms": {
+   "full": {
+    "exec_steps": 4
+   },
+   "plain_k1": {
+    "exec_steps": 1
+   },
+   "plain_k2": {
+    "exec_steps": 2
+   }
+  },
+  "policy": "groot",
+  "qb": {
+   "base_seed": 2000000,
+   "cliff": [
+    "PickPlaceDrawerToCounter",
+    "SlideDishwasherRack",
+    "TurnOnSinkFaucet",
+    "OpenCabinet"
+   ],
+   "episodes": 50,
+   "flat": [
+    "PickPlaceCounterToStove"
+   ],
+   "flat_episodes": 100,
+   "main_m": 1,
+   "main_t": 0.75
+  },
+  "server_host": "h100",
+  "source_sha256": "49a8c678b75df4cd429a21b570a7d819d212c540727e6f966385615625b65c3d",
+  "source_template": "exp/step_diag/config/base/groot_tp_rit_always_hit.yaml",
+  "warm_ts": [
+   0.75,
+   0.5
+  ],
+  "weight_cid": "grid3_vision_0@12_vision_2@37_robot_state@50",
+  "worker_host": "timan108"
+ },
+ "pi05_libero_10": {
+  "benchmark": "libero_10",
+  "cells": {
+   "shadow": {
+    "file": "pi05_libero_10/shadow.yaml",
+    "judge": {
+     "threshold": 99.0,
+     "type": "threshold"
+    },
+    "library": "exp/common/data/cache_artifacts/libero_10/cp1_spatial_pool_16.pkl",
+    "remaining_steps": null,
+    "schedule_id": "pi05_v1",
+    "sha256": "44d14a3f4bdc9a58b8bd24579953333f4c3c3aa9ba5045ef0aae602d66634994",
+    "start_t": null
+   }
+  },
+  "env_id": "pi05_libero_10",
+  "k_full": 10,
+  "k_set": [
+   1,
+   2,
+   3,
+   5
+  ],
+  "policy": "pi05",
+  "server_host": "weilandserver",
+  "source_sha256": "bb6ae8ba90d6403f841b840d9a80f482df195dae5f872dcd5662f941fccbd269",
+  "source_template": "exp/gate_research/config/libero_10/n4_server/cp1_spatial_pool_16__grid3_vision_0@56_vision_1@25_robot_state@18__d1__fh5_ws40_quantile.yaml",
+  "warm_ts": [
+   0.1,
+   0.2,
+   0.3
+  ],
+  "worker_host": "timan107"
+ },
+ "pi05_libero_spatial": {
+  "benchmark": "libero_spatial",
+  "cells": {
+   "shadow": {
+    "file": "pi05_libero_spatial/shadow.yaml",
+    "judge": {
+     "threshold": 99.0,
+     "type": "threshold"
+    },
+    "library": "exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl",
+    "remaining_steps": null,
+    "schedule_id": "pi05_v1",
+    "sha256": "76c93d13f459d7dd7de0170dbe4235d242d2981512e1a80da760ca22aef806d1",
+    "start_t": null
+   }
+  },
+  "env_id": "pi05_libero_spatial",
+  "k_full": 10,
+  "k_set": [
+   1,
+   2,
+   3,
+   5
+  ],
+  "policy": "pi05",
+  "server_host": "weilandserver",
+  "source_sha256": "d5e1a8ecd969d46ce451798b2d1960df848f280183420b3ebfa205e19feff101",
+  "source_template": "exp/gate_research/config/libero_spatial/n4_server/cp1_spatial_pool_16__grid3_vision_0@6_vision_1@50_robot_state@43__d1__fh75_ws10_quantile.yaml",
+  "warm_ts": [
+   0.1,
+   0.2,
+   0.3
+  ],
+  "worker_host": "timan107"
+ },
+ "pi05_rc": {
+  "benchmark": "robocasa365",
+  "cells": {
+   "shadow": {
+    "file": "pi05_rc/shadow.yaml",
+    "judge": {
+     "threshold": 99.0,
+     "type": "threshold"
+    },
+    "library": "/data/robocasa365_cache/cache_artifacts_w13/pi05_spatial_pool_16_w13_full.pkl",
+    "remaining_steps": null,
+    "schedule_id": "pi05_v1",
+    "sha256": "f481cd4095c52d546cc8e275bc1343b70cd0b7f5083c5c415a13fc25c23699ae",
+    "start_t": null
+   },
+   "warm_t0.1": {
+    "file": "pi05_rc/warm_t0.1.yaml",
+    "judge": {
+     "start_t": 0.1,
+     "type": "always_warm_start"
+    },
+    "library": "/data/robocasa365_cache/cache_artifacts_w13/pi05_spatial_pool_16_w13_full.pkl",
+    "remaining_steps": 1,
+    "schedule_id": "pi05_v1",
+    "sha256": "7bfd2c849d1fd66de51d347cd77ac8a14ed6092d2b0a69aba376b12a9b737d9f",
+    "start_t": 0.1
+   },
+   "warm_t0.2": {
+    "file": "pi05_rc/warm_t0.2.yaml",
+    "judge": {
+     "start_t": 0.2,
+     "type": "always_warm_start"
+    },
+    "library": "/data/robocasa365_cache/cache_artifacts_w13/pi05_spatial_pool_16_w13_full.pkl",
+    "remaining_steps": 2,
+    "schedule_id": "pi05_v1",
+    "sha256": "589d9c241402b783e208a22ab761e2d730924cb26316da2173d3832f62bec5e3",
+    "start_t": 0.2
+   },
+   "warm_t0.3": {
+    "file": "pi05_rc/warm_t0.3.yaml",
+    "judge": {
+     "start_t": 0.3,
+     "type": "always_warm_start"
+    },
+    "library": "/data/robocasa365_cache/cache_artifacts_w13/pi05_spatial_pool_16_w13_full.pkl",
+    "remaining_steps": 3,
+    "schedule_id": "pi05_v1",
+    "sha256": "566946b90da2280a2aa849bb02d2ca6a6ed65d907964a2ba21a8444252db3fce",
+    "start_t": 0.3
+   }
+  },
+  "env_id": "pi05_rc",
+  "k_full": 10,
+  "k_set": [
+   1,
+   2,
+   3,
+   5
+  ],
+  "plain_arms": {
+   "full": {
+    "exec_steps": 10
+   },
+   "plain_k1": {
+    "exec_steps": 1
+   },
+   "plain_k2": {
+    "exec_steps": 2
+   },
+   "plain_k3": {
+    "exec_steps": 3
+   }
+  },
+  "policy": "pi05",
+  "qb": {
+   "base_seed": 2000000,
+   "cliff": [
+    "CloseFridge",
+    "OpenCabinet",
+    "PickPlaceToasterToCounter",
+    "PickPlaceDrawerToCounter"
+   ],
+   "episodes": 50,
+   "flat": [
+    "PickPlaceSinkToCounter",
+    "OpenDrawer",
+    "PickPlaceCounterToStove"
+   ],
+   "flat_episodes": 100,
+   "main_m": 2,
+   "main_t": 0.2
+  },
+  "server_host": "h100",
+  "source_sha256": "d93533408fe174622e9aa2c0720ceb312ee6adfcc3f84c68fd6b166547d6dba5",
+  "source_template": "exp/step_diag/config/base/pi05_rit_always_hit.yaml",
+  "warm_ts": [
+   0.1,
+   0.2,
+   0.3
+  ],
+  "weight_cid": "grid_vision_1@87_robot_state@12",
+  "worker_host": "timan108"
+ }
+}

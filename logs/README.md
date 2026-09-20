@@ -37,6 +37,7 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 | File | Status | Description |
 |------|--------|-------------|
 | [x0_multimodal_plan.log.md](x0_multimodal_plan.log.md) | x₀ 头 × 标签过滤/混合数据：减步与条件多峰诊断（DP 官方仓；ε vs x₀ 头；trailing 网格自含采样器；固定 optimizer-step 训练 workspace；预注册 S_x0/H2/I 判据）plan v3，L2 | **实验完成（2026-09-19 19:41）**：64 格两机矩阵全部训练+评测（466 记录 0 invalid），终报 `exp/dp_nfe/analysis/x0_multimodal.md`——pusht H2 supported / H1 not supported / I not supported，square_mh inconclusive，blockpush 门未过，kitchen 不可用；x₀ 头一步无损但锚点低 4–8 pp、条件离散度 ≈0（退化为确定性回归器）；§10 执行记录（并发/MPS 提速、再平衡跨机偏差）；产物/合并/诊断脚本已入工作树，未 commit |
+| [step_vs_warmstart_diagnostics_plan.log.md](step_vs_warmstart_diagnostics_plan.log.md) | 减步 vs warm start：π0.5 / GR00T × LIBERO / RoboCasa365 教师 shadow 同噪声动作偏离与探索性关联；RC 固定任务组、同拓扑严格等决策 NFE 闭环（主预算 π0.5=2、GR00T=1），conductor 证据对齐；补 LIBERO object/goal 阶梯及全步锚点，L2 | `In Progress`（2026-09-20：G1 APPROVED（v3.1）→ Code → **G2 R1 APPROVED**（Codex 按 owner override 直接修复 11 项阻塞；执行者逐 hunk 复核，接受修复、收窄 provenance 门为记录项并修一处会令主判决必然 inconclusive 的 worker 身份门，见 §9.4）；`tests/exp/step_diag` 84 passed；全仓 Verify 6153 passed / 变更集零失败（既有失败归因见 §9.5）；已 commit） |
 
 ### Cache System
 
