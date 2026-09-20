@@ -1,6 +1,6 @@
 # Session handoff
 
-> 多条线共用本文件。§0 为常驻初始化（不动）。**§1 = x₀-head × 标签过滤数据实验线终态（实验完成 2026-09-19 19:41；等 owner 裁 commit）**；§2 = 减步基线线终态（已收工）。旧 §7（key builder × LDA）已删——其状态见记忆 `project_fusion_weight_lda_ablation`。
+> 多条线共用本文件。§0 为常驻初始化（不动）。**§1 = x₀-head × 标签过滤数据实验线终态（实验完成 2026-09-19 19:41；已 commit 3a99896）**；§2 = 减步基线线终态（已收工）。旧 §7（key builder × LDA）已删——其状态见记忆 `project_fusion_weight_lda_ablation`。
 
 ## 0. 初始化方式（不变）
 
@@ -71,7 +71,7 @@ owner 的常驻指令，逐字有效：
 
 ### 1.4 待 owner 裁
 
-1. commit/push：本线 Phase 2/3 全部改动（一次结构化 commit，英文 message，无 AI 署名）+ 减步基线线遗留未跟踪文件（`exp/{xwam_nfe,cosmos_nfe}`、`exp/dp_nfe/{eval_dp_steps,aggregate_dp}.py`、ladder 脚本、`logs/{xwam_dp_nfe,cosmos_nfe}_plan.log.md`、`logs/cache_transfer/*`、`logs/nfe_baseline_rc365_plan.log.md`）。
+1. ~~commit/push~~ 已做：`3a99896`（2026-09-19 21:0x，owner 指示「把之前的 commit push 了，把工作区洁净」）一次性包含本线 Phase 2/3 改动与减步基线线遗留文件，push origin/Ziyang；plot 脚本（`plot_x0.py`、`plot_rc365_*.py`）经 `.git/info/exclude` 本地排除。
 2. 两机 MPS daemon 是否保留；两机 ≈100 G checkpoint 是否清理（`runs/*/checkpoints/{final,latest}.ckpt`；identity/manifest/log 已拉回本机）。
 3. Jayanth 回信草稿（要点见 plan/对话）。
 4. 下一轮若继续：CUDA graph / torch.compile 训练提速（本轮明确不做，留作代码定稿后的 G1/G2 项）；square image 预算不足（40k 锚 0.52 vs 官方 0.72）；blockpush/kitchen 需要不同的数据或预算才能进正式族。
