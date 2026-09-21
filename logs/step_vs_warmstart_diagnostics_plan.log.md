@@ -248,6 +248,15 @@ worker 只在 timan107/108，server 只在 h100/weilandserver（owner 指定）�
 
 `uv run pytest -q --continue-on-collection-errors`（裸全量；不加 `--continue-on-collection-errors` 时被两处 HEAD 既有收集错误中断）：**6153 passed / 24 failed / 78 skipped / 2 errors，22m38s**。24 个失败逐条归因：15 个在 gitignored `tests/review_tests/`（其它线的审查探针，不在仓库）；5 个在 HEAD 干净 worktree 同样失败（`test_ws2_evidence_runner` ×2、`test_prebuilt_matrix_backend` ×2、`test_rit_pl::test_sonly_note_compiles`）；2 个为 tokenizer 网络下载（`test_robocasa_policy_config`，既有 GCS 网络失败）；2 个为既有测试顺序干扰（`test_groot_concurrent_serving`，`gr00t.__spec__ is None`，单独运行通过）。2 个收集错误：`test_review_cache_prune_g2.py`（需 `REVIEW_SCRATCH`）、`test_bench_groot_stages.py`（HEAD 缺 `SCHEDULE_ID`）。**本变更集（`exp/step_diag`、`tests/exp/step_diag`）在全量运行中零失败**；`src/` 未改。
 
+### 9.6 运行阶段记录（2026-09-20 13:46 → 2026-09-21 01:38 CDT，无人值守；结果见 `exp/step_diag/analysis/step_vs_warmstart.md`）
+
+- 顺序：Step 0 探查/清理 → 验库冻权重 → 六环境真 GPU parity（含上游 GR00T HDF5 parity，全过）→ RC/LIBERO smoke（含 driver 崩溃 resume 验证）→ shadow 660 → Q-B π0.5 2,750（h100 MPS ↔ timan108）‖ Q-B GR00T 1,350（owner 21:15 裁定"不许任何机器干等"后整体改 weilandserver MPS ↔ timan107；full main 三任务因槽位不足改 h100 ↔ timan108）‖ Q-C.3 5,000（weilandserver ↔ timan107，`nfe_baseline` 阶梯，信号切档）。共 9,760 集 = 计划预算。
+- 准入：shadow 六环境 100% admitted；Q-B 12 个主判决 cell 全部 `complete/equal_nfe/miss 0`；server 行 arrays sha 逐文件 0 bad。
+- 判决：π0.5 `inconclusive`（H25 上界 +0.006，差 0.006 到 not-supported）+ `harmful_on_flat`；GR00T `inconclusive` + `harmful_on_flat`；Q-A 两 policy `no_conclusion`。
+- 运行期代码改动（未 commit，四台远端已同步）：`test_parity_manual.py`（metadata 排除集、π0.5 参照钉 `_stage3_action_expert` 步数）、`conductor/driver.py`（py3.8 `socket.timeout`）、`run_rc_cell.sh`（tmux 名去 `.`）、`run_diag.py`（INCOMPLETE 退出码 1）、`aggregate_arms.py`/`analyze_shadow.py`（session/occurrence 消歧 + 测试）、`nfe_baseline/ops/ladder_server.sh`（删 v1 空闲超时换档，仅信号切档）、新 `config/rc_timan107.env`。
+- 偏差记录：GR00T full main 与其它臂跨机（`comparison_notes` 记 `worker_islands=2`，`comparison_identity` 一致，不门控）；π0.5 plain_k2 一 cell resume；GR00T plain_k1 PnP 旧 run-plan 删除重起（1 集重跑，2 个 stray session 不门控）；weilandserver 第 8 个 GR00T 进程 OOM（上限 7）。
+- 拉取：h100 无 ssh → tar + `split -b 400m` + `tether pull` 逐块 sha 对账；weilandserver LAN rsync（`ops/pull_server_rows.sh`）；timan tar + pull。
+
 ## Review Log
 
 ### G2 Round 1 — Reviewer — APPROVED — 2026-09-20 11:31 CDT

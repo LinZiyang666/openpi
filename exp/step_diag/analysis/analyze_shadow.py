@@ -110,15 +110,20 @@ def read_rows(paths: List[pathlib.Path]) -> List[dict]:
 
 
 def group_episodes(rows: List[dict]) -> Dict[tuple, dict]:
-    """``{(task_uid, attempt): {"decisions": {idx: row}, "finalize": row|None, "dupes": n}}``."""
+    """``{(task_uid, attempt, session_id, occurrence): {"decisions": {idx: row}, "finalize": row|None, "dupes": n}}``.
+
+    One serving session (connection) per key: a resumed driver restarts ``attempt`` at 1, so the
+    stale partial session of a crashed launch must not be merged with the accepted one.
+    """
     eps: Dict[tuple, dict] = collections.defaultdict(lambda: {"decisions": {}, "finalize": None, "dupes": 0})
+    closed: Dict[tuple, int] = collections.Counter()
     for r in rows:
-        key = (r["task_uid"], int(r.get("attempt", 1)))
+        visit = (r["task_uid"], int(r.get("attempt", 1)), r.get("session_id"))
+        key = (*visit, closed[visit])  # the finalize row closes one occurrence of the visit
         e = eps[key]
         if r.get("status") == "finalize":
-            if e["finalize"] is not None:
-                e["dupes"] += 1
             e["finalize"] = r
+            closed[visit] += 1
         else:
             idx = int(r["decision_idx"])
             if idx in e["decisions"]:
@@ -156,9 +161,11 @@ def admit_and_measure(rows: List[dict], arrays_root: pathlib.Path, w, mask, *, h
     decisions_out: List[dict] = []
     episodes_out: List[dict] = []
     cache: dict = {}
-    for (task_uid, attempt), e in sorted(eps.items()):
+    for (task_uid, attempt, session_id, occurrence), e in sorted(
+            eps.items(), key=lambda kv: (kv[0][0], kv[0][1], str(kv[0][2]), kv[0][3])):
         fin = e["finalize"]
-        if journal_accepted is not None and (task_uid, attempt) not in journal_accepted:
+        if journal_accepted is not None and (task_uid, attempt, session_id, occurrence) not in journal_accepted \
+                and (task_uid, attempt) not in journal_accepted:
             reasons["not_accepted_terminal"] += 1
             continue
         if fin is None or not fin.get("terminal"):
@@ -259,7 +266,7 @@ def admit_and_measure(rows: List[dict], arrays_root: pathlib.Path, w, mask, *, h
             reasons["episode_low_coverage"] += 1
             continue
         decisions_out.extend(valid)
-        episodes_out.append({"task_uid": task_uid, "attempt": attempt, "task": task, "n_decisions": n,
+        episodes_out.append({"task_uid": task_uid, "attempt": attempt, "session_id": session_id, "occurrence": occurrence, "task": task, "n_decisions": n,
                              "n_valid": len(valid), "coverage": coverage, "outcome": fin.get("outcome"),
                              "init_idx": fin.get("init_idx"), "env_seed": fin.get("env_seed"),
                              **{k: fin.get(k) for k in ("lane", "pin_id", "layout", "style", "config_sha", "env_id", "experiment_id")},
@@ -271,7 +278,7 @@ def admit_and_measure(rows: List[dict], arrays_root: pathlib.Path, w, mask, *, h
 
 def _stratified(eps: Dict[tuple, dict], admitted: List[dict]) -> dict:
     """Missing-label rates split by episode outcome (labels may be missing at random or not)."""
-    adm = {(e["task_uid"], e["attempt"]) for e in admitted}
+    adm = {(e["task_uid"], e["attempt"], e.get("session_id"), e.get("occurrence", 0)) for e in admitted}
     out: Dict[str, dict] = {}
     for key, e in eps.items():
         fin = e["finalize"]
@@ -296,12 +303,21 @@ def authoritative_stratified(arm: dict, rows: List[dict], admitted: List[dict]) 
     Outcome comes from the accepted conductor terminal. Missing or conflicting authority
     has its own unknown stratum; observed-row error rates never stand in for missing rows.
     """
-    eps = group_episodes(rows)
-    adm = {(e["task_uid"], e["attempt"]): e for e in admitted}
+    from exp.step_diag.analysis import aggregate_arms as B
+
+    grouped = group_episodes(rows)
+    by_pair: Dict[tuple, list] = collections.defaultdict(list)
+    for (uid, attempt, sid, occ), e in grouped.items():
+        launch_id = ((e["finalize"] or {}).get("client_stamp") or {}).get("launch_id")
+        by_pair[(uid, attempt)].append({**e, "session_id": sid, "occurrence": occ, "launch_id": launch_id})
+    adm = {(e["task_uid"], e["attempt"], e.get("session_id"), e.get("occurrence", 0)): e for e in admitted}
     out = {}
     for uid in arm["expected"]:
         rec = arm["outcomes"].get(uid) or {}
-        key = (uid, rec.get("attempt"))
+        slot = by_pair.get((uid, rec.get("attempt")))
+        wrapper = None if not slot else ({"sessions": slot, **slot[0]} if len(slot) == 1 else {"sessions": slot})
+        ep, _, _ = B.select_session(wrapper, B.launches_of_run(arm, rec.get("run_id")))
+        key = (uid, rec.get("attempt"), (ep or {}).get("session_id"), (ep or {}).get("occurrence", 0))
         launches = [launch for launch in arm["launches"].values()
                     if rec.get("run_id") and launch.get("driver_run_id") == rec["run_id"]
                     and uid in {i["task_uid"] for i in launch["expected"]}]
@@ -311,7 +327,7 @@ def authoritative_stratified(arm: dict, rows: List[dict], admitted: List[dict]) 
         s = out.setdefault(stratum, {"episodes": 0, "admitted": 0, "decisions": 0, "error_rows": 0,
             "expected_decisions": 0, "missing_decision_rows": 0, "valid_labels": 0,
             "unknown_decision_count_episodes": 0, "missing_finalize_episodes": 0})
-        ep = eps.get(key) or {"decisions": {}, "finalize": None}
+        ep = ep or {"decisions": {}, "finalize": None}
         decisions = list(ep["decisions"].values())
         s["episodes"] += 1
         s["admitted"] += int(key in adm)
@@ -504,8 +520,13 @@ def accepted_shadow_episodes(driver_dir: pathlib.Path, rows_dir: pathlib.Path, e
         if not rec:
             rejected["missing_terminal"] += 1
             continue
-        key = (uid, rec.get("attempt"))
-        ep = server.get(key, {})
+        ep, n_match, _stray = B.select_session(server.get((uid, rec.get("attempt"))),
+                                               B.launches_of_run(arm, rec.get("run_id")))
+        ep = ep or {}
+        key = (uid, rec.get("attempt"), ep.get("session_id"), ep.get("occurrence", 0))
+        if n_match > 1:
+            rejected["duplicate_accepted_session"] += 1
+            continue
         manifest = ep.get("manifest") or {}
         if (manifest.get("env", {}).get("env_id") != env_id
                 or manifest.get("library_sha256") != weights_info["library_sha256"]):

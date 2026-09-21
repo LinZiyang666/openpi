@@ -233,3 +233,39 @@ def test_similarity_bins_split_at_median_with_ties_low_and_min_bin(tmp_path):
     res = AG.aggregate(POLICY, arms, srv, boot=20, shadow_json=tmp_path / "shadow.json")
     assert res["similarity_bins"]["CloseFridge"]["status"] == "ok" and "similarity bins" in AG.markdown(res)
     assert AG.aggregate(POLICY, arms, srv, boot=20)["similarity_bins"] is None
+
+
+def test_resumed_attempt_collision_selects_the_accepted_launch_session(tmp_path):
+    """A driver crash leaves the partial session of attempt 1 on the server; the resumed driver
+    re-dispatches the identity as attempt 1 of a new launch. The accepted terminal's launch picks
+    the session; the stale one is a stray note, and two sessions of the same launch stay a duplicate."""
+    arms, srv = tmp_path / "arms", tmp_path / "srv"
+    _write_arm(arms, srv, "plain_k2", "plain", 2, {"CloseFridge": [1, 0]})
+    rows_path = srv / TEACHER / "plain_k2" / "rows_x.jsonl"
+    rows = [json.loads(line) for line in rows_path.read_text().splitlines() if line.strip()]
+    uid = "CloseFridge:0"
+    for r in rows:
+        r["session_id"] = 1
+    stale = [dict(r, session_id=7) for r in rows if r["task_uid"] == uid]
+    for r in stale:
+        if r["status"] == "finalize":
+            r["client_stamp"] = dict(r["client_stamp"], launch_id="Lcrashed")
+            r["terminal"] = False
+    stale = stale[:1] + [r for r in stale if r["status"] == "finalize"]  # one decision row + finalize
+    rows_path.write_text("\n".join(json.dumps(r) for r in rows + stale) + "\n")
+    arm = AG.load_arm(arms / TEACHER / "plain_k2")
+    server = AG.load_server_rows(srv / TEACHER / "plain_k2")
+    assert len(server[(uid, 1)]["sessions"]) == 2
+    cell = AG.cell_admission(arm, server, "CloseFridge", kind="plain", m=2)
+    assert cell["equal_nfe"] and cell["problems"] == {} and cell["stray_sessions"] == 1
+    # a single-connection server has ONE session id per process: the stale occurrence and the
+    # accepted one share it, and only the finalize row separates them (file order)
+    same = [dict(r, session_id=1) for r in stale]
+    rows_path.write_text("\n".join(json.dumps(r) for r in same + rows) + "\n")
+    cell = AG.cell_admission(arm, AG.load_server_rows(srv / TEACHER / "plain_k2"), "CloseFridge", kind="plain", m=2)
+    assert cell["equal_nfe"] and cell["problems"] == {} and cell["stray_sessions"] == 1
+    # the same launch twice on one identity is still a duplicate, never "take the first"
+    twin = [dict(r, session_id=9) for r in rows if r["task_uid"] == uid]
+    rows_path.write_text("\n".join(json.dumps(r) for r in rows + twin) + "\n")
+    cell = AG.cell_admission(arm, AG.load_server_rows(srv / TEACHER / "plain_k2"), "CloseFridge", kind="plain", m=2)
+    assert not cell["equal_nfe"] and cell["problems"].get("duplicate_finalize") == 1

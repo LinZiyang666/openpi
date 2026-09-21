@@ -121,6 +121,10 @@ report `step_vs_warmstart.md` is written by hand from them.
 
 ## Q-C ladders
 
-Reuse `exp/nfe_baseline/ops/launch_pi05_servers.sh` and `exp/nfe_baseline/ops/ladder_client.sh`
-for pi0.5 object/goal and the spatial/10 anchors, as specified in the plan. Do not mix the old RC
-4090/H100 ladder outcomes into the new paired Q-B comparison.
+Reuse `exp/nfe_baseline/ops/ladder_server.sh` (server lane, one process per port via
+`launch_pi05_servers.sh`) and `exp/nfe_baseline/ops/ladder_client.sh` (client lane) for pi0.5
+object/goal and the spatial/10 anchors, as specified in the plan. The ladder switches k on the client's
+DONE signal: run `ops/kdone_listener.py <port> pi05` on the serving host before the lane and
+`ops/rc/sig_client.sh <client lane log> <serving host> <port>` on the client host; the idle timeout is
+only a fallback (the idle-only protocol was removed on 2026-09-20). Do not mix the old RC 4090/H100
+ladder outcomes into the new paired Q-B comparison.

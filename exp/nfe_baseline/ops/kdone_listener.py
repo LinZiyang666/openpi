@@ -1,5 +1,5 @@
 """Tiny TCP listener on the server box: a client lane sends ``DONE k=<k>\\n`` when its k is finished;
-this touches /tmp/nfe/kdone_<tag>_<k> so ladder_server2.sh switches k at once instead of waiting for
+this touches /tmp/nfe/kdone_<tag>_<k> so ladder_server.sh switches k at once instead of waiting for
 the idle timeout. usage: python3 kdone_listener.py <port> <tag>"""
 import pathlib
 import re

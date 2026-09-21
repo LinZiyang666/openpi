@@ -1,0 +1,40 @@
+{
+ "env_id": "groot_rc",
+ "checkpoint_sha256": "c68a890ad86c3db12c8215b0d4bf97fa90d16f1a8cdd6ace2b5924d61a3cfd98",
+ "results": [
+  {
+   "mode": "plain",
+   "k": 1,
+   "actual_calls": 1
+  },
+  {
+   "mode": "plain",
+   "k": 2,
+   "actual_calls": 2
+  },
+  {
+   "mode": "plain",
+   "k": 3,
+   "actual_calls": 3
+  },
+  {
+   "mode": "plain",
+   "k": 4,
+   "actual_calls": 4
+  },
+  {
+   "mode": "shadow",
+   "k": 4,
+   "actual_calls": 44
+  },
+  {
+   "warm_t": 0.75,
+   "actual_calls": 1
+  },
+  {
+   "warm_t": 0.5,
+   "actual_calls": 2
+  }
+ ],
+ "torch": "2.5.1+cu124"
+}

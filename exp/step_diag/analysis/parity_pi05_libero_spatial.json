@@ -1,0 +1,49 @@
+{
+ "env_id": "pi05_libero_spatial",
+ "checkpoint_sha256": "962e629967886b130c56031844c11ca014ee89436ca6a64b163dd4220023c11c",
+ "results": [
+  {
+   "mode": "plain",
+   "k": 1,
+   "actual_calls": 1
+  },
+  {
+   "mode": "plain",
+   "k": 2,
+   "actual_calls": 2
+  },
+  {
+   "mode": "plain",
+   "k": 3,
+   "actual_calls": 3
+  },
+  {
+   "mode": "plain",
+   "k": 5,
+   "actual_calls": 5
+  },
+  {
+   "mode": "plain",
+   "k": 10,
+   "actual_calls": 10
+  },
+  {
+   "mode": "shadow",
+   "k": 10,
+   "actual_calls": 10
+  },
+  {
+   "warm_t": 0.1,
+   "actual_calls": 1
+  },
+  {
+   "warm_t": 0.2,
+   "actual_calls": 2
+  },
+  {
+   "warm_t": 0.3,
+   "actual_calls": 3
+  }
+ ],
+ "torch": "2.7.1+cu126"
+}

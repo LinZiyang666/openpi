@@ -25,6 +25,12 @@ from exp.step_diag import recorder as R
 
 pytestmark = pytest.mark.manual
 
+# Additive timing / hit metadata of a policy response; never an action field. ``stage_timing`` is the
+# per-stage breakdown the production staged path attaches (the server does not aggregate it), so
+# leaving it in would fail the parity join and make the "different noise, different actions"
+# check vacuous (timings always differ).
+METADATA_KEYS = frozenset({"policy_timing", "stage_timing", "server_timing", "__hit_meta__"})
+
 
 def _state():
     return [
@@ -36,7 +42,7 @@ def _state():
 def _equal(a, b):
     assert set(a) == set(b)
     for key in a:
-        if key in ("policy_timing", "__hit_meta__"):
+        if key in METADATA_KEYS:
             continue
         np.testing.assert_array_equal(
             np.asarray(a[key]), np.asarray(b[key]), err_msg=key
@@ -131,10 +137,27 @@ def test_real_plain_and_shadow_parity(tmp_path):
         rec = R.DiagRecorder(spec, tmp_path / f"{mode}_{k}")
         calls = []
         if env.policy == "pi05":
-            policy._sample_kwargs["num_steps"] = k
+            policy._sample_kwargs["num_steps"] = k  # honoured by the non-staged path only
+            had_expert = "_stage3_action_expert" in model.__dict__
+            saved_expert = model.__dict__.get("_stage3_action_expert")
+            expert = model._stage3_action_expert
 
             def reference():
-                return policy.infer(dict(obs))
+                # The production PyTorch staged path calls ``_stage3_action_expert`` with its
+                # default ``num_steps`` and ignores ``_sample_kwargs``; pin the reference the same
+                # way exp/nfe_baseline/serve_pi05_ksweep.py pins production reduced-step serving.
+                def pinned(state, prefix_pad_masks, past_key_values, noise, num_steps=10):
+                    del num_steps
+                    return expert(state, prefix_pad_masks, past_key_values, noise, k)
+
+                model._stage3_action_expert = pinned
+                try:
+                    return policy.infer(dict(obs))
+                finally:
+                    if had_expert:
+                        model._stage3_action_expert = saved_expert
+                    else:
+                        del model._stage3_action_expert
         else:
             model.action_head.num_inference_timesteps = k
 
@@ -146,7 +169,7 @@ def test_real_plain_and_shadow_parity(tmp_path):
         if mode == "plain" and k == env.k_full:
             torch.manual_seed(271828)
             other = reference()
-            keys = set(baseline) - {"policy_timing", "__hit_meta__"}
+            keys = set(baseline) - METADATA_KEYS
             assert any(
                 not np.array_equal(np.asarray(baseline[key]), np.asarray(other[key]))
                 for key in keys
@@ -200,7 +223,7 @@ def test_real_plain_and_shadow_parity(tmp_path):
             if env.policy == "groot":
                 handle.remove()
         # Timing/hit metadata is additive; compare every action field.
-        action_keys = set(baseline) - {"policy_timing", "__hit_meta__"}
+        action_keys = set(baseline) - METADATA_KEYS
         _equal(
             {k: baseline[k] for k in action_keys}, {k: actual[k] for k in action_keys}
         )

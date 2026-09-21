@@ -1,0 +1,49 @@
+{
+ "env_id": "groot_libero_10",
+ "checkpoint_sha256": "52e11142be7c00a048b316b013400ca9b99f8f9bc5494c79aecd2aa2897eecf6",
+ "results": [
+  {
+   "mode": "plain",
+   "k": 1,
+   "actual_calls": 1
+  },
+  {
+   "mode": "plain",
+   "k": 2,
+   "actual_calls": 2
+  },
+  {
+   "mode": "plain",
+   "k": 4,
+   "actual_calls": 4
+  },
+  {
+   "mode": "plain",
+   "k": 6,
+   "actual_calls": 6
+  },
+  {
+   "mode": "plain",
+   "k": 8,
+   "actual_calls": 8
+  },
+  {
+   "mode": "shadow",
+   "k": 8,
+   "actual_calls": 92
+  },
+  {
+   "warm_t": 0.875,
+   "actual_calls": 1
+  },
+  {
+   "warm_t": 0.75,
+   "actual_calls": 2
+  },
+  {
+   "warm_t": 0.5,
+   "actual_calls": 4
+  }
+ ],
+ "torch": "2.5.1+cu124"
+}

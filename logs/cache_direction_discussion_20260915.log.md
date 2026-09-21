@@ -60,3 +60,21 @@
 3. Diffusion Policy 接 robomimic（三天，最便宜的 warm 档证据）；TD-MPC2 接 Meta-World（wall-clock 地板 + AdaReP 式自身复用对照）。
 4. π0.5 / GR00T 补 "cache ∘ k=1 teacher" 联合前沿（现有管线一天）。
 5. DIAMOND 三天探针作 B 方向备选；SO-101 × Cosmos 等 1–2 出结果后再动。
+
+## 7. 待探索：卡尔曼式「预测–校正」思想进四层判决（2026-09-20 提出，未立项）
+
+> 背景：owner 2026-09-19 裁定不投 ICLR、转入探索，系统改四层 full hit / 单纯减步 / warm start / miss，着墨"何时减步、何时 warm start"（执行线 `step_vs_warmstart_diagnostics_plan.log.md`）。本节记录一个尚未验证的设计思路，只做备忘，不改变 §6 顺序。
+
+卡尔曼滤波可借用的不是"滤波"本身，是三件事：预测再校正、按两侧不确定性比值分配增益、用创新量（预测与观测之差）做验证门。对照现有系统：warm start 的 `start_t` 已经是离散化的增益（缓存 x_t 为先验，剩余去噪步为当前观测的校正）；RIT 的 q̂_a(s) 已经是缓存侧的噪声模型；缺的是策略侧噪声项和跨决策的时间递推。
+
+| # | 思路 | 对应现有部件 | 依赖 / 判据 |
+|---|---|---|---|
+| 1 | **档位选择改成不确定性比值**：增益 ≈ σ²_policy / (σ²_policy + σ²_cache(s))。σ²_cache(s) = RIT 风险曲线；σ²_policy = step_diag 的 `disp_K`（全步条件离散度）与 `d_k`（减步偏离）。规则：策略确定且减步偏离小 → 单纯减步；策略不确定但 s 高 → warm / full hit；两边都差 → miss。标定从一条曲线变为 (s, disp) 二维表，shadow 表已记录这两个量 | `dispatch_surface` judge、`exp/step_diag` shadow 表 | 等 Q-A / Q-B 出数：`disp_K`/`d_1` 与阶梯缺口的关联须过预注册门（ρ≥0.6），否则策略侧噪声项无依据 |
+| 2 | **创新量验证门替代手工计数 hysteresis**：用库 prev/next 链预测下一条应为上次 winner 的后继，与实际 CP1 key 比较得创新量；小则继续盲回放不搜，大则搜索或 miss。key 在 FULL_HIT 下也要建，创新量近乎免费；连续阈值可消 `score_hysteresis` L=6 带来的 IR≈39 硬地板 | `follow_winner` / `score_hysteresis` gate | 不依赖在跑数据，成本最低，建议先写一页 plan。与 `history_verdict.md` 结论一致：历史进打分净负，进门才是正确岗位（gate 线 AUC 0.97+） |
+| 3 | **在线 RIT 曲线更新换成递推分位估计**：增益按过程/观测噪声比自适应，附带后验方差可直接喂 `supported / gap_interpolated / unavailable` 分级 | `OnlineRiskCurves`（128 样本滑窗 + PAV） | 优先级最低：在线 RIT 负结果的瓶颈是信号（libero_10 AUROC 0.55），不是估计器 |
+
+**要避开的用法**：在动作空间对缓存 chunk 与策略输出做线性加权。流匹配头输出是多峰样本，两峰平均落在无效动作上；x₀ 线证据（确定性回归头离散度≈0、锚点低 4–8 pp）已说明这一点。融合只能发生在 x_t 噪声空间（即现有 warm start 形式）或只用于决定档位，不碰动作本身。
+
+**2026-09-21 更新（step_diag 出数）**：Q-A 两 policy ρ(d_1,g) = 0.085 / 0.377，均 `no_conclusion`，d_1 同 policy 内跨任务近常量 → 思路 1 的"策略侧噪声项"目前无依据；Q-B 显示无门 top-1 warm start 在 flat 任务上大幅有害且相似度分箱不区分好坏命中 → 支持思路 2（创新量/验证门）优先级前移。见 `exp/step_diag/analysis/step_vs_warmstart.md`。
+
+**边界**：三条都是 Judge / Gate 槽的新实现，interceptor 模式可容纳，不动推理内部；属 L2，立项须走 Plan → G1。高斯假设只作粗近似，实际按分位数版本写。

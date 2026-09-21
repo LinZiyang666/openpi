@@ -568,7 +568,9 @@ class ConductorDriver:
             while not should_stop() and not self._scheduler.all_done():
                 try:
                     conn, _ = srv.accept()
-                except TimeoutError:
+                except (TimeoutError, socket.timeout):
+                    # socket.timeout only became a TimeoutError alias in Python 3.10; the
+                    # LIBERO conductor driver runs on the simulator's Python 3.8.
                     continue
                 t = threading.Thread(target=self._handle_conn, args=(conn, loop_stop), daemon=True)
                 t.start()

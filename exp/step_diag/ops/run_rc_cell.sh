@@ -27,7 +27,8 @@ case "$LANE" in
 esac
 [ "$EPMAP" = "-" ] || EXTRA+=(--episodes-map "$EPMAP")
 NSRV=$(echo "$SERVERS" | tr ',' '\n' | grep -c .)
-NAME="sdcell_${TAG}_${TEACHER}_${ARM}_${LANE}"
+# tmux refuses "." in session names; the formal warm arms are warm_t0.1 etc.
+NAME="sdcell_${TAG}_${TEACHER}_${ARM//./_}_${LANE}"
 mkdir -p /tmp/sdiag
 if tmux has-session -t "$NAME" 2>/dev/null; then echo "$NAME already running; leaving it"; exit 0; fi
 CMD=(env "PYTHONPATH=$REPO/src:$REPO" "$PY" -m exp.step_diag.run_diag

@@ -37,7 +37,7 @@ English translations (`*.en.log.md`) are folded under the primary entry as `[EN]
 | File | Status | Description |
 |------|--------|-------------|
 | [x0_multimodal_plan.log.md](x0_multimodal_plan.log.md) | x₀ 头 × 标签过滤/混合数据：减步与条件多峰诊断（DP 官方仓；ε vs x₀ 头；trailing 网格自含采样器；固定 optimizer-step 训练 workspace；预注册 S_x0/H2/I 判据）plan v3，L2 | **实验完成（2026-09-19 19:41）**：64 格两机矩阵全部训练+评测（466 记录 0 invalid），终报 `exp/dp_nfe/analysis/x0_multimodal.md`——pusht H2 supported / H1 not supported / I not supported，square_mh inconclusive，blockpush 门未过，kitchen 不可用；x₀ 头一步无损但锚点低 4–8 pp、条件离散度 ≈0（退化为确定性回归器）；§10 执行记录（并发/MPS 提速、再平衡跨机偏差）；产物/合并/诊断脚本已入工作树，未 commit |
-| [step_vs_warmstart_diagnostics_plan.log.md](step_vs_warmstart_diagnostics_plan.log.md) | 减步 vs warm start：π0.5 / GR00T × LIBERO / RoboCasa365 教师 shadow 同噪声动作偏离与探索性关联；RC 固定任务组、同拓扑严格等决策 NFE 闭环（主预算 π0.5=2、GR00T=1），conductor 证据对齐；补 LIBERO object/goal 阶梯及全步锚点，L2 | `In Progress`（2026-09-20：G1 APPROVED（v3.1）→ Code → **G2 R1 APPROVED**（Codex 按 owner override 直接修复 11 项阻塞；执行者逐 hunk 复核，接受修复、收窄 provenance 门为记录项并修一处会令主判决必然 inconclusive 的 worker 身份门，见 §9.4）；`tests/exp/step_diag` 84 passed；全仓 Verify 6153 passed / 变更集零失败（既有失败归因见 §9.5）；已 commit） |
+| [step_vs_warmstart_diagnostics_plan.log.md](step_vs_warmstart_diagnostics_plan.log.md) | 减步 vs warm start：π0.5 / GR00T × LIBERO / RoboCasa365 教师 shadow 同噪声动作偏离与探索性关联；RC 固定任务组、同拓扑严格等决策 NFE 闭环（主预算 π0.5=2、GR00T=1），conductor 证据对齐；补 LIBERO object/goal 阶梯及全步锚点，L2 | `Done`（代码 `d8e464d`；**实验 2026-09-20/21 跑完 9,760 集**，全部 cell 准入；Q-B 两 policy `inconclusive` + `harmful_on_flat`（无门 top-1 warm start 不补缺口、在 flat PnP 任务上大幅有害），Q-A 两 policy `no_conclusion`，LIBERO object/goal 阶梯平坦；终报 `exp/step_diag/analysis/step_vs_warmstart.md`，运行记录 §9.6；运行期 7 处改动待 commit） |
 
 ### Cache System
 
@@ -355,7 +355,7 @@ Completed and historical logs. See [`archive/`](archive/) for all files.
 | [doc_cleanup_plan.log](archive/doc_cleanup_plan.log) \[[EN](archive/doc_cleanup_plan.en.log)\] | `Historical` | Documentation cleanup plan |
 | [xwam_dp_nfe_plan.log.md](xwam_dp_nfe_plan.log.md) | **X-WAM × RoboCasa-2024 与 Diffusion Policy DDPM-100 × robomimic 减步阶梯（2026-09-16 深夜立项）**：环境脚本与坑（X-WAM torch2.8+flash-attn wheel、broker/server/client；DP micromamba 顶替 apt GL 包、MuJoCo 2.1）、ladder 设计、数据摆放 |
 | [cosmos_nfe_plan.log.md](cosmos_nfe_plan.log.md) | **Cosmos Policy 减步阶梯（2026-09-16）**：LIBERO spatial/l10 k=1,2,3,5 近无损（k 步 = k+1 次网络评估）；RoboCasa-2024 24 任务 k=1..5 全量（server 跳未来图像 VAE decode + CUDA graph 提速 1.75×、ladder v2 平作业表、EGL 显存坑）与结果 |
-| [cache_direction_discussion_20260915.log.md](cache_direction_discussion_20260915.log.md) | **cache 方向讨论纪要与后续方向（2026-09-15/16）**：减步基线解读（一步=条件均值、电梯 vs 跳楼）、novelty 危机、7 路跨领域调研结论与排序、方向 A（决策回路世界模型）/ B（交互式世界模型）、Cosmos Policy 核实（检查点/规划模式只在 ALOHA/eval flags/4090 可跑/SO-101 无先例）与 cache 接入方案、模型组合 regime map、投稿计划（RSS 2027 + ICML/NeurIPS 2027，MLSys 需 wall-clock 口径）、下一步顺序 |
+| [cache_direction_discussion_20260915.log.md](cache_direction_discussion_20260915.log.md) | **cache 方向讨论纪要与后续方向（2026-09-15/16）**：减步基线解读（一步=条件均值、电梯 vs 跳楼）、novelty 危机、7 路跨领域调研结论与排序、方向 A（决策回路世界模型）/ B（交互式世界模型）、Cosmos Policy 核实（检查点/规划模式只在 ALOHA/eval flags/4090 可跑/SO-101 无先例）与 cache 接入方案、模型组合 regime map、投稿计划（RSS 2027 + ICML/NeurIPS 2027，MLSys 需 wall-clock 口径）、下一步顺序；**§7 待探索（2026-09-20）**：卡尔曼式预测–校正进四层判决（不确定性比值选档 / 创新量验证门替代 hysteresis / 在线 RIT 递推分位估计；禁动作空间线性融合） |
 
 ---
 

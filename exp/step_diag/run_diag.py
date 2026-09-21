@@ -356,6 +356,10 @@ def main() -> None:
         print(f"[step_diag] {'DONE' if summary['complete'] else 'INCOMPLETE'} arm={args.arm_id} "
               f"macro_sr={summary['macro_sr']} n_err={summary['n_err']} n_missing={summary['n_missing']} "
               f"-> {summary_path}", flush=True)
+        if not summary["complete"]:
+            # Operators chain cells on the exit code; an incomplete cell (retries exhausted, missing
+            # identities) must not read as success. Re-running the same command resumes it.
+            raise SystemExit(1)
 
 
 if __name__ == "__main__":

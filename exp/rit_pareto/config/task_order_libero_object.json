@@ -1,0 +1,36 @@
+{
+  "suite": "libero_object",
+  "source": "libero.libero.benchmark get_task(i).name on timan107 libero_sim (2026-09-20)",
+  "assignment": {
+    "0": {
+      "task_name": "pick_up_the_alphabet_soup_and_place_it_in_the_basket"
+    },
+    "1": {
+      "task_name": "pick_up_the_cream_cheese_and_place_it_in_the_basket"
+    },
+    "2": {
+      "task_name": "pick_up_the_salad_dressing_and_place_it_in_the_basket"
+    },
+    "3": {
+      "task_name": "pick_up_the_bbq_sauce_and_place_it_in_the_basket"
+    },
+    "4": {
+      "task_name": "pick_up_the_ketchup_and_place_it_in_the_basket"
+    },
+    "5": {
+      "task_name": "pick_up_the_tomato_sauce_and_place_it_in_the_basket"
+    },
+    "6": {
+      "task_name": "pick_up_the_butter_and_place_it_in_the_basket"
+    },
+    "7": {
+      "task_name": "pick_up_the_milk_and_place_it_in_the_basket"
+    },
+    "8": {
+      "task_name": "pick_up_the_chocolate_pudding_and_place_it_in_the_basket"
+    },
+    "9": {
+      "task_name": "pick_up_the_orange_juice_and_place_it_in_the_basket"
+    }
+  }
+}

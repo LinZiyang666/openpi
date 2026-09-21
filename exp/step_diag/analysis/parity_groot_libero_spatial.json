@@ -1,0 +1,49 @@
+{
+ "env_id": "groot_libero_spatial",
+ "checkpoint_sha256": "96d9b230046349bd73a85838a038abdb19f1b7825600703b40517586e04035d2",
+ "results": [
+  {
+   "mode": "plain",
+   "k": 1,
+   "actual_calls": 1
+  },
+  {
+   "mode": "plain",
+   "k": 2,
+   "actual_calls": 2
+  },
+  {
+   "mode": "plain",
+   "k": 4,
+   "actual_calls": 4
+  },
+  {
+   "mode": "plain",
+   "k": 6,
+   "actual_calls": 6
+  },
+  {
+   "mode": "plain",
+   "k": 8,
+   "actual_calls": 8
+  },
+  {
+   "mode": "shadow",
+   "k": 8,
+   "actual_calls": 92
+  },
+  {
+   "warm_t": 0.875,
+   "actual_calls": 1
+  },
+  {
+   "warm_t": 0.75,
+   "actual_calls": 2
+  },
+  {
+   "warm_t": 0.5,
+   "actual_calls": 4
+  }
+ ],
+ "torch": "2.5.1+cu124"
+}

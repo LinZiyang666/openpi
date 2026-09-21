@@ -1,0 +1,36 @@
+{
+  "suite": "libero_goal",
+  "source": "libero.libero.benchmark get_task(i).name on timan107 libero_sim (2026-09-20)",
+  "assignment": {
+    "0": {
+      "task_name": "open_the_middle_drawer_of_the_cabinet"
+    },
+    "1": {
+      "task_name": "put_the_bowl_on_the_stove"
+    },
+    "2": {
+      "task_name": "put_the_wine_bottle_on_top_of_the_cabinet"
+    },
+    "3": {
+      "task_name": "open_the_top_drawer_and_put_the_bowl_inside"
+    },
+    "4": {
+      "task_name": "put_the_bowl_on_top_of_the_cabinet"
+    },
+    "5": {
+      "task_name": "push_the_plate_to_the_front_of_the_stove"
+    },
+    "6": {
+      "task_name": "put_the_cream_cheese_in_the_bowl"
+    },
+    "7": {
+      "task_name": "turn_on_the_stove"
+    },
+    "8": {
+      "task_name": "put_the_bowl_on_the_plate"
+    },
+    "9": {
+      "task_name": "put_the_wine_bottle_on_the_rack"
+    }
+  }
+}

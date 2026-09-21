@@ -37,7 +37,7 @@ import json
 import math
 import hashlib
 import pathlib
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -113,23 +113,35 @@ def load_arm(arm_dir: pathlib.Path) -> dict:
 
 
 def load_server_rows(rows_dir: pathlib.Path) -> Dict[Tuple[str, int], dict]:
-    """``{(task_uid, attempt): {"finalize": row, "decisions": [rows]}}`` from the recorder rows."""
-    eps: Dict[Tuple[str, int], dict] = collections.defaultdict(lambda: {"finalize": None, "decisions": []})
+    """``{(task_uid, attempt): {"finalize": row, "decisions": [rows], ...}}`` from the recorder rows.
+
+    Rows are grouped per serving *session* (one connection) first. After a driver crash the resumed
+    driver re-dispatches an unfinished identity with ``attempt`` restarting at 1, so one
+    ``(task_uid, attempt)`` can hold the stale partial session of the dead launch next to the
+    accepted one. A single session is exposed directly; several are kept under ``sessions`` and
+    resolved by the caller against the accepted terminal's launch (``select_session``).
+    """
+    sessions: Dict[Tuple[str, int, Any, int], dict] = collections.defaultdict(
+        lambda: {"finalize": None, "decisions": []})
+    # A single-connection server keeps one DiagSession per process, so ``session_id`` does not
+    # separate two visits of the same identity: the finalize row closes an *occurrence*, and the
+    # rows after it (a re-dispatched attempt 1 after a driver crash) open the next one.
+    closed: Dict[Tuple[str, int, Any], int] = collections.Counter()
     manifests = _evidence.load_manifests(rows_dir)
     for p in sorted(rows_dir.glob("rows_*.jsonl")):
         for line in p.read_text().splitlines():
             if not line.strip():
                 continue
             r = json.loads(line)
-            key = (r["task_uid"], int(r.get("attempt", 1)))
+            visit = (r["task_uid"], int(r.get("attempt", 1)), r.get("session_id"))
+            key = (*visit, closed[visit])
             if r.get("status") == "finalize":
-                if eps[key]["finalize"] is not None:
-                    eps[key]["duplicate_finalize"] = True
-                eps[key]["finalize"] = r
-                eps[key]["manifest"] = manifests.get(r.get("config_sha"))
+                sessions[key]["finalize"] = r
+                sessions[key]["manifest"] = manifests.get(r.get("config_sha"))
+                closed[visit] += 1
             else:
-                eps[key]["decisions"].append(r)
-    for ep in eps.values():
+                sessions[key]["decisions"].append(r)
+    for ep in sessions.values():
         fin = ep["finalize"] or {}
         path = rows_dir / (fin.get("arrays") or "__missing__")
         ep["arrays_valid"] = False
@@ -149,7 +161,42 @@ def load_server_rows(rows_dir: pathlib.Path) -> Dict[Tuple[str, int], dict]:
                     for d in ep["decisions"])
         except (ValueError, KeyError, OSError):
             pass
+    eps: Dict[Tuple[str, int], dict] = {}
+    for (uid, attempt, sid, occ), ep in sessions.items():
+        ep["session_id"] = sid
+        ep["occurrence"] = occ
+        ep["launch_id"] = ((ep["finalize"] or {}).get("client_stamp") or {}).get("launch_id")
+        eps.setdefault((uid, attempt), {"sessions": []})["sessions"].append(ep)
+    for slot in eps.values():
+        if len(slot["sessions"]) == 1:
+            slot.update(slot["sessions"][0])
+        else:
+            slot.update({"finalize": None, "decisions": [], "arrays_valid": False, "manifest": None})
     return eps
+
+
+def launches_of_run(arm: dict, run_id) -> set:
+    """Driver launch ids whose ``driver_run_id`` is the accepted terminal's run."""
+    return {lid for lid, launch in arm.get("launches", {}).items()
+            if run_id and launch.get("driver_run_id") == run_id}
+
+
+def select_session(slot: Optional[dict], launch_ids: set) -> Tuple[Optional[dict], int, int]:
+    """Resolve one ``(task_uid, attempt)`` slot to the session of the accepted launch.
+
+    Returns ``(session or None, n_matching, n_stray)``; a lone session is taken as is (its stamp
+    is still checked downstream), several are matched on the driver launch stamped in their
+    finalize row, and sessions of other launches (a crashed driver's partial attempt, an orphaned
+    worker) are counted as stray: recorded, never admitted.
+    """
+    if not slot:
+        return None, 0, 0
+    sessions = slot.get("sessions") or [slot]
+    if len(sessions) == 1:
+        return slot, 1, 0  # the slot carries the lone session's fields (callers may annotate it)
+    matches = [s for s in sessions if s.get("launch_id") in launch_ids]
+    # Two occurrences stamped with the same launch: a genuine duplicate, reported downstream.
+    return (matches[0] if matches else None), len(matches), len(sessions) - len(matches)
 
 
 # ------------------------------------------------------------------
@@ -168,6 +215,7 @@ def cell_admission(arm: dict, server: Dict[Tuple[str, int], dict], task: str, *,
     problems = collections.Counter(arm.get("manifest_problems", []))
     steps, env_steps, worker_counts = [], [], []
     n_miss = 0
+    stray_sessions = 0  # sessions of other launches on an accepted identity: reported, not gated
     for uid, ident in exp_ids.items():
         rec = arm["outcomes"].get(uid)
         if rec is None:
@@ -180,7 +228,10 @@ def cell_admission(arm: dict, server: Dict[Tuple[str, int], dict], task: str, *,
         if type(rec.get("success")) is bool:
             outcomes[uid] = {**ident, "success": rec["success"], "attempt": rec.get("attempt")}
         attempt = rec.get("attempt")
-        ep = server.get((uid, attempt))
+        ep, n_match, n_stray = select_session(server.get((uid, attempt)), launches_of_run(arm, rec.get("run_id")))
+        stray_sessions += n_stray
+        if n_match > 1:
+            problems["duplicate_finalize"] += 1
         if not ep or not ep.get("finalize") or ep["finalize"].get("terminal") is not True:
             problems["server_evidence_missing"] += 1
             continue
@@ -277,6 +328,7 @@ def cell_admission(arm: dict, server: Dict[Tuple[str, int], dict], task: str, *,
             "miss_fraction": n_miss / n_dec if n_dec else None,
             "mean_executed_steps": float(np.mean(steps)) if steps else None,
             "episode_total_nfe": totals,
+            "stray_sessions": stray_sessions,
             "comparison_identities": sorted(comparisons),
             "worker_identities": sorted(worker_identities),
             "runtime_notes": sorted(runtime_notes),

@@ -1,0 +1,49 @@
+{
+ "env_id": "pi05_rc",
+ "checkpoint_sha256": "54cdb48964113e2452aadf893f03afa8650bb9e065ce0d5d70036871700e5d31",
+ "results": [
+  {
+   "mode": "plain",
+   "k": 1,
+   "actual_calls": 1
+  },
+  {
+   "mode": "plain",
+   "k": 2,
+   "actual_calls": 2
+  },
+  {
+   "mode": "plain",
+   "k": 3,
+   "actual_calls": 3
+  },
+  {
+   "mode": "plain",
+   "k": 5,
+   "actual_calls": 5
+  },
+  {
+   "mode": "plain",
+   "k": 10,
+   "actual_calls": 10
+  },
+  {
+   "mode": "shadow",
+   "k": 10,
+   "actual_calls": 10
+  },
+  {
+   "warm_t": 0.1,
+   "actual_calls": 1
+  },
+  {
+   "warm_t": 0.2,
+   "actual_calls": 2
+  },
+  {
+   "warm_t": 0.3,
+   "actual_calls": 3
+  }
+ ],
+ "torch": "2.7.1+cu126"
+}
