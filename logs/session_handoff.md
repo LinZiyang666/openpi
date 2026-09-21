@@ -57,7 +57,7 @@ owner 的常驻指令，逐字有效：
 - **全部 9,760 集正式数据已拉回本地并校验**（server 行 arrays sha 逐文件 0 bad；driver 产物 journal 集数齐全）：shadow 660、Q-B π0.5 2,750、Q-B GR00T 1,350、Q-C.3 5,000。分析产物：`exp/step_diag/data/analysis/{shadow_<env>,qb_pi05,qb_groot}.json`，表 `exp/step_diag/analysis/{shadow_<env>,qb_pi05,qb_groot}.md` + 拼接 `step_vs_warmstart_tables.md`，**手写终报 `exp/step_diag/analysis/step_vs_warmstart.md`**。
 - **结论**：Q-B 两 policy 均 `inconclusive` + `harmful_on_flat`（π0.5 cliff macro Δ −0.035 [−0.145,+0.075]、H50 上界 <0；GR00T Δ +0.055 [−0.045,+0.155]；flat PnP 任务 Δ −0.63/−0.78（π0.5）、−0.45（GR00T））；Q-A 两 policy `no_conclusion`（ρ 0.085 / 0.377）；Q-C.3 object/goal 阶梯平坦。全部 cell 准入（complete/equal_nfe/miss 0）。
 - **远端状态**：h100 与 weilandserver 全部 server 已停、MPS 已关（GPU 0 MiB）；timan107/108 无 driver/worker 残留（tmux `sdphase_*` 会话已自然退出）。远端树与数据保留（h100 `/data/openpi_sdiag`、wls 同、timan `/scratch/zixuans8/step_diag/openpi`；打包分块在各机 `/tmp/sdiag/pull/`，可删）。
-- **待 owner**：(1) 审阅终报；(2) 是否 commit 运行期 7 处代码改动（§6）+ 分析 md（`parity_*.json`、`shadow_*.md`、`qb_*.md`、`step_vs_warmstart_tables.md`、`step_vs_warmstart.md`）+ `config/rc_timan107.env` + `rit_pareto/config/task_order_libero_{object,goal}.json` + handoff/README/plan 日志——**未经 owner 指示不 add/commit**；(3) 四层设计下一步（终报 §0/§3.3 给了 warm start 必须带门、相似度分数不区分好坏命中的负证据）。
+- **已 commit + push `952dc99`（owner 2026-09-21 授权，单提交）**：运行期 7 处代码改动（§6）+ 分析 md（`parity_*.json`、`shadow_*.md`、`qb_*.md`、`step_vs_warmstart_tables.md`、`step_vs_warmstart.md`）+ `config/rc_timan107.env` + `rit_pareto/config/task_order_libero_{object,goal}.json` + handoff/README/plan 日志。**待 owner**：四层设计下一步（终报 §0/§3.3 给了 warm start 必须带门、相似度分数不区分好坏命中的负证据）。
 
 ## 2. 拓扑与资产（全部已验）
 
