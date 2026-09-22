@@ -9,7 +9,7 @@
 set -uo pipefail
 SUITE=${1:?suite}; HOST=${2:?host}; DRIVER_PORT=${3:?driver port}; PORTS=${4:?ports}; WORKERS=${5:?workers}; ARMS=${6:?arms}
 R=${FW_REPO:-/data/openpi_lg}
-PY=${FW_PY:-/home/weiland/openpi/.venv/bin/python}
+PY=${FW_PY:-/home/weiland/projects/openpi/.venv/bin/python}
 ISLAND_PY=${GROOT_N15_PYTHON:-/home/weiland/gr00t_n15_venv/.venv/bin/python}
 GROOT=${GROOT_N15_HOME:-/home/weiland/gr00t_n15}
 case "$SUITE" in

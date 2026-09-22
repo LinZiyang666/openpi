@@ -7,7 +7,7 @@ cd /data/openpi_dispatch
 export HOME=/home/weiland
 export PYTHONPATH=/data/openpi_dispatch/src:/data/openpi_dispatch
 export PATH=/home/weiland/miniconda3/bin:/usr/local/bin:/usr/bin:/bin
-PY=/home/weiland/openpi/.venv/bin/python
+PY=/home/weiland/projects/openpi/.venv/bin/python
 suite=$1 layer=$2; shift 2
 case "$layer" in
   ng) GATE=always_search ;;
@@ -30,6 +30,6 @@ $PY -m exp.gate_threshold_pareto.run_gtp \
   --journal "$OUT/journal.jsonl" \
   --per-step-out "$OUT/per_step.jsonl" \
   --apool-record exp/ablation_study/cache_size/config/apool_${suite}.yaml \
-  --apool-dir /home/weiland/openpi/exp/common/data/db_init/libero/${suite}_apool \
+  --apool-dir /home/weiland/projects/openpi/exp/common/data/db_init/libero/${suite}_apool \
   "$@"
 echo "RIT_RUN_EXIT=$?"

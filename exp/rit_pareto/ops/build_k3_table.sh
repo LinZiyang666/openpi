@@ -5,14 +5,14 @@ export PATH=/usr/local/bin:/usr/bin:/bin
 export HOME=/home/weiland
 R=/data/openpi_dispatch
 CKPT=/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch
-PY=/home/weiland/openpi/.venv/bin/python
+PY=/home/weiland/projects/openpi/.venv/bin/python
 cd $R
 export PYTHONPATH=$R/src:$R
 step() { echo "=== [$(date +%H:%M:%S)] $*"; }
 SUITE=$1
 for SUITE in $SUITE; do
   B=/tmp/dsp_shared/rit_pareto/$SUITE
-  PKL=/home/weiland/openpi/exp/common/data/cache_artifacts/$SUITE/cp1_spatial_pool_16.pkl
+  PKL=/home/weiland/projects/openpi/exp/common/data/cache_artifacts/$SUITE/cp1_spatial_pool_16.pkl
   step table k3 $SUITE
   $PY -m exp.dispatch_surface.build_dispatch_table --query-h5-dir $B/h5 --library-pkl $PKL --split-manifest $B/shadow_manifest.json --cache-yaml $B/calibration_retrieval.yaml --config-name pi05_libero --checkpoint-dir $CKPT --ref-mode tau1 --top-k 5 --h-exec 5 --extra-warm-tiers 0.5 --out-jsonl $B/table_tau1_k3.jsonl 2>&1 | grep -v -iE "warning|pynvml" || { echo K3_TABLE_FAILED $SUITE; exit 1; }
   step guard $SUITE

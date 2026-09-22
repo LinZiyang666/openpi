@@ -33,10 +33,10 @@ Launch::
     tmux new-session -d -s grootrollout "export HOME=/home/weiland; \\
       export LD_LIBRARY_PATH=/home/weiland/nvidia-gl/root/usr/lib/x86_64-linux-gnu:\\$LD_LIBRARY_PATH; \\
       export __EGL_VENDOR_LIBRARY_DIRS=/home/weiland/nvidia-gl/root/usr/share/glvnd/egl_vendor.d; \\
-      export MUJOCO_GL=egl PYTHONPATH=/home/weiland/openpi; \\
+      export MUJOCO_GL=egl PYTHONPATH=/home/weiland/projects/openpi; \\
       cd /home/weiland/Isaac-GR00T/external_dependencies/robocasa365 && \\
       /home/weiland/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv/bin/python \\
-      /home/weiland/openpi/exp/robocasa365/groot_rollout_client.py --n-trials 5"
+      /home/weiland/projects/openpi/exp/robocasa365/groot_rollout_client.py --n-trials 5"
 """
 
 from __future__ import annotations

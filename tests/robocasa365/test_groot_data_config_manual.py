@@ -25,8 +25,8 @@ Run inside the GR00T island.  Three things are easy to get wrong here:
 ::
 
     VIRTUAL_ENV=/home/weiland/gr00t_n15_venv/.venv uv pip install pytest decord
-    cd /home/weiland/openpi && \\
-    PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi \\
+    cd /home/weiland/projects/openpi && \\
+    PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi \\
       /home/weiland/gr00t_n15_venv/.venv/bin/python -m pytest \\
       tests/robocasa365/test_groot_data_config_manual.py --run-manual -q
 

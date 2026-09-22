@@ -1,0 +1,2714 @@
+{
+ "admitted": {
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:10": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0010_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:12": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0012_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:124": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0124_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:127": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/CloseBlenderLid/episode_0127_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:134": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/CloseBlenderLid/episode_0134_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:140": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/CloseBlenderLid/episode_0140_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:142": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/CloseBlenderLid/episode_0142_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:151": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/CloseBlenderLid/episode_0151_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:154": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/CloseBlenderLid/episode_0154_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:165": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/CloseBlenderLid/episode_0165_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:166": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/CloseBlenderLid/episode_0166_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:173": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/CloseBlenderLid/episode_0173_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:18": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0018_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:19": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0019_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:21": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0021_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:3": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0003_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:47": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0047_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:52": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0052_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:62": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0062_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:65": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0065_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:68": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0068_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:7": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0007_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:71": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0071_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:76": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0076_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:86": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseBlenderLid/episode_0086_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:0": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0000_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:1": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0001_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:10": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0010_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:13": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0013_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:14": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0014_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:15": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0015_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:18": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0018_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:19": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0019_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:20": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0020_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:21": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0021_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:24": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0024_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:26": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0026_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:27": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0027_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:29": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0029_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:3": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0003_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:30": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0030_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:31": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0031_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:36": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0036_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:37": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0037_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:38": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0038_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:39": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0039_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:4": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0004_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:40": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0040_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:41": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0041_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:42": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0042_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:43": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0043_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:46": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0046_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:47": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0047_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:6": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0006_a01.h5"
+  },
+  "collect_l1s1_pi05__CloseFridge:eval:1:7": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CloseFridge/episode_0007_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:1": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0001_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:10": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0010_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:11": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0011_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:13": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0013_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:16": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0016_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:17": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0017_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:18": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0018_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:19": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0019_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:2": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0002_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:22": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0022_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:23": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0023_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:25": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0025_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:26": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0026_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:3": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0003_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:33": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0033_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:34": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0034_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:35": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0035_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:39": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0039_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:41": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0041_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:44": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0044_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:5": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0005_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:7": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0007_a01.h5"
+  },
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:9": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/CoffeeSetupMug/episode_0009_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:0": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0000_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:1": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0001_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:10": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0010_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:11": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0011_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:12": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0012_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:13": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0013_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:14": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0014_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:15": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0015_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:18": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0018_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:19": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0019_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:2": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0002_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:20": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0020_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:21": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0021_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:23": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0023_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:24": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0024_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:25": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0025_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:26": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0026_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:27": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0027_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:28": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0028_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:29": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0029_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:3": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0003_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:30": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0030_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:31": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0031_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:32": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0032_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:33": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0033_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:35": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0035_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:36": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0036_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:38": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0038_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:5": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0005_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:6": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0006_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:7": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0007_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:8": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0008_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenCabinet:eval:3:9": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenCabinet/episode_0009_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:0": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0000_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:11": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0011_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:12": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0012_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:14": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0014_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:17": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0017_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:18": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0018_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:19": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0019_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:2": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0002_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:20": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0020_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:24": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0024_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:26": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0026_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:27": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0027_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:29": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0029_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:32": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0032_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:33": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0033_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:34": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0034_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:35": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0035_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:36": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0036_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:37": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0037_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:38": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0038_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:39": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0039_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:40": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0040_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:41": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0041_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:42": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0042_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:43": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0043_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:44": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0044_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:45": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0045_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:47": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0047_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:48": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0048_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:49": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0049_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:5": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0005_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:50": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0050_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:51": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0051_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:52": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0052_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:53": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0053_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:54": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0054_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:56": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0056_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:57": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0057_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:58": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0058_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:6": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0006_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:60": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0060_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:61": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0061_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:62": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0062_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:63": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0063_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:64": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0064_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:65": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0065_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:66": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0066_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:67": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0067_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:69": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0069_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:7": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0007_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:70": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0070_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:71": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0071_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:73": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0073_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:74": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0074_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:75": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0075_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:77": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0077_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:79": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0079_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:8": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0008_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:82": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0082_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenDrawer:eval:4:9": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenDrawer/episode_0009_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:10": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0010_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:14": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0014_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:17": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0017_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:19": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0019_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:22": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0022_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:24": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0024_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:25": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0025_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:26": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0026_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:31": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0031_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:37": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0037_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:38": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0038_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:43": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0043_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:49": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0049_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:5": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0005_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:50": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0050_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:51": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0051_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:55": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0055_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:58": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0058_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:59": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0059_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:7": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0007_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:71": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0071_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:73": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0073_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:75": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0075_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:81": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0081_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:82": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0082_a01.h5"
+  },
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:9": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/OpenStandMixerHead/episode_0009_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:1": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0001_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:10": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0010_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:11": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0011_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:12": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0012_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:17": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0017_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:18": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0018_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:2": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0002_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:20": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0020_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:21": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0021_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:22": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0022_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:23": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0023_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:24": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0024_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:25": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0025_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:26": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0026_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:28": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0028_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:29": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0029_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:3": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0003_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:30": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0030_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:32": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0032_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:35": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0035_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:36": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0036_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:37": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0037_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:38": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0038_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:39": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0039_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:5": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0005_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:7": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0007_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:8": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0008_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:9": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToCabinet/episode_0009_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:1:24": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/PickPlaceCounterToStove/episode_0024_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:1:25": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/PickPlaceCounterToStove/episode_0025_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:0": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0000_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:1": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0001_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:10": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0010_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:11": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0011_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:13": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0013_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:14": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0014_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:16": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0016_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:18": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0018_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:19": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0019_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:2": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0002_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:20": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0020_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:22": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0022_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:3": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0003_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:4": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0004_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:5": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0005_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:6": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0006_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:7": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0007_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:8": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0008_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:9": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceCounterToStove/episode_0009_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:2:33": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0033_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:2:37": {
+   "attempt": 1,
+   "batch": 2,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0037_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:0": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0000_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:1": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0001_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:11": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0011_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:13": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0013_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:15": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0015_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:16": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0016_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:2": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0002_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:21": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0021_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:22": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0022_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:24": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0024_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:26": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0026_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:3": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0003_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:30": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0030_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:31": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0031_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:32": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0032_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:6": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0006_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:8": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0008_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:9": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceDrawerToCounter/episode_0009_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:0": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0000_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:1": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0001_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:11": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0011_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:12": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0012_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:13": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0013_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:14": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0014_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:15": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0015_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:16": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0016_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:17": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0017_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:18": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0018_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:19": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0019_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:2": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0002_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:20": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0020_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:21": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0021_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:22": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0022_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:23": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0023_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:24": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0024_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:25": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0025_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:26": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0026_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:27": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0027_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:3": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0003_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:4": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0004_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:5": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0005_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:6": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0006_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:8": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0008_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:9": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceSinkToCounter/episode_0009_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:0": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0000_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:11": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0011_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:13": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0013_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:15": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0015_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:23": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0023_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:27": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0027_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:28": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0028_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:30": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0030_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:31": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0031_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:33": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0033_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:34": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0034_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:35": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0035_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:37": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0037_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:39": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0039_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:41": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0041_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:42": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0042_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:43": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0043_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:44": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0044_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:48": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0048_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:52": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0052_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:53": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0053_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:55": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0055_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:59": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0059_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:6": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0006_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:8": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0008_a01.h5"
+  },
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:9": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/PickPlaceToasterToCounter/episode_0009_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:10": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0010_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:11": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0011_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:14": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0014_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:16": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0016_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:18": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0018_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:19": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0019_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:2": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0002_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:21": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0021_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:24": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0024_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:25": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0025_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:26": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0026_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:3": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0003_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:30": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0030_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:36": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0036_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:37": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0037_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:4": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0004_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:40": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0040_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:43": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0043_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:44": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0044_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:45": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0045_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:46": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0046_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:47": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0047_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:48": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0048_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:53": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0053_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:56": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0056_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:57": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0057_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:58": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0058_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:59": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0059_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:60": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0060_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:7": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0007_a01.h5"
+  },
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:8": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/SlideDishwasherRack/episode_0008_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:1": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0001_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:10": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0010_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:11": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0011_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:13": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0013_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:14": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0014_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:15": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0015_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:16": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0016_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:17": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0017_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:18": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0018_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:19": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0019_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:20": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0020_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:21": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0021_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:22": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0022_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:23": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0023_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:24": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0024_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:25": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0025_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:26": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0026_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:28": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0028_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:29": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0029_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:3": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0003_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:30": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0030_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:31": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0031_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:33": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0033_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:34": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0034_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:35": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0035_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:37": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0037_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:38": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0038_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:39": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0039_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:4": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0004_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:5": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0005_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:6": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0006_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:7": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0007_a01.h5"
+  },
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:8": {
+   "attempt": 1,
+   "batch": 1,
+   "path": "pi05/TurnOnSinkFaucet/episode_0008_a01.h5"
+  }
+ },
+ "expected": 774,
+ "failed": [
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:0",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:1",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:100",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:101",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:102",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:103",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:104",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:105",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:106",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:107",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:108",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:109",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:11",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:110",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:111",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:112",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:113",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:114",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:115",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:116",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:117",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:118",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:119",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:120",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:121",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:122",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:123",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:125",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:126",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:128",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:129",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:13",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:130",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:131",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:132",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:133",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:135",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:136",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:137",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:138",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:139",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:14",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:141",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:143",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:144",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:145",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:146",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:147",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:148",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:149",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:15",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:150",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:152",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:153",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:155",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:156",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:157",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:158",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:159",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:16",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:160",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:161",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:162",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:163",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:164",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:167",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:168",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:169",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:17",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:170",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:171",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:172",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:174",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:175",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:176",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:2",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:20",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:22",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:23",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:24",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:25",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:26",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:27",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:28",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:29",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:30",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:31",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:32",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:33",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:34",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:35",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:36",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:37",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:38",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:39",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:4",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:40",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:41",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:42",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:43",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:44",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:45",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:46",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:48",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:49",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:5",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:50",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:51",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:53",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:54",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:55",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:56",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:57",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:58",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:59",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:6",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:60",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:61",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:63",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:64",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:66",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:67",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:69",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:70",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:72",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:73",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:74",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:75",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:77",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:78",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:79",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:8",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:80",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:81",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:82",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:83",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:84",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:85",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:87",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:88",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:89",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:9",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:90",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:91",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:92",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:93",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:94",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:95",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:96",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:97",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:98",
+  "collect_l1s1_pi05__CloseBlenderLid:eval:0:99",
+  "collect_l1s1_pi05__CloseFridge:eval:1:11",
+  "collect_l1s1_pi05__CloseFridge:eval:1:12",
+  "collect_l1s1_pi05__CloseFridge:eval:1:16",
+  "collect_l1s1_pi05__CloseFridge:eval:1:17",
+  "collect_l1s1_pi05__CloseFridge:eval:1:2",
+  "collect_l1s1_pi05__CloseFridge:eval:1:22",
+  "collect_l1s1_pi05__CloseFridge:eval:1:23",
+  "collect_l1s1_pi05__CloseFridge:eval:1:25",
+  "collect_l1s1_pi05__CloseFridge:eval:1:28",
+  "collect_l1s1_pi05__CloseFridge:eval:1:32",
+  "collect_l1s1_pi05__CloseFridge:eval:1:33",
+  "collect_l1s1_pi05__CloseFridge:eval:1:34",
+  "collect_l1s1_pi05__CloseFridge:eval:1:35",
+  "collect_l1s1_pi05__CloseFridge:eval:1:44",
+  "collect_l1s1_pi05__CloseFridge:eval:1:45",
+  "collect_l1s1_pi05__CloseFridge:eval:1:5",
+  "collect_l1s1_pi05__CloseFridge:eval:1:8",
+  "collect_l1s1_pi05__CloseFridge:eval:1:9",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:0",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:12",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:14",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:15",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:20",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:21",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:24",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:27",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:28",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:29",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:30",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:31",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:32",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:36",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:37",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:38",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:4",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:40",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:42",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:43",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:45",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:46",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:47",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:6",
+  "collect_l1s1_pi05__CoffeeSetupMug:eval:2:8",
+  "collect_l1s1_pi05__OpenCabinet:eval:3:16",
+  "collect_l1s1_pi05__OpenCabinet:eval:3:17",
+  "collect_l1s1_pi05__OpenCabinet:eval:3:22",
+  "collect_l1s1_pi05__OpenCabinet:eval:3:34",
+  "collect_l1s1_pi05__OpenCabinet:eval:3:37",
+  "collect_l1s1_pi05__OpenCabinet:eval:3:39",
+  "collect_l1s1_pi05__OpenCabinet:eval:3:4",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:1",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:10",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:13",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:15",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:16",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:21",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:22",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:23",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:25",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:28",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:3",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:30",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:31",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:4",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:46",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:55",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:59",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:68",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:72",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:76",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:78",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:80",
+  "collect_l1s1_pi05__OpenDrawer:eval:4:81",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:0",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:1",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:11",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:12",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:13",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:15",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:16",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:18",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:2",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:20",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:21",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:23",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:27",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:28",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:29",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:3",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:30",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:32",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:33",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:34",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:35",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:36",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:39",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:4",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:40",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:41",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:42",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:44",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:45",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:46",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:47",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:48",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:52",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:53",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:54",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:56",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:57",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:6",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:60",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:61",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:62",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:63",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:64",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:65",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:66",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:67",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:68",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:69",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:70",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:72",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:74",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:76",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:77",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:78",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:79",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:8",
+  "collect_l1s1_pi05__OpenStandMixerHead:eval:5:80",
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:0",
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:13",
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:14",
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:15",
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:16",
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:19",
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:27",
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:31",
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:33",
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:34",
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:4",
+  "collect_l1s1_pi05__PickPlaceCounterToCabinet:eval:6:6",
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:12",
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:15",
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:17",
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:21",
+  "collect_l1s1_pi05__PickPlaceCounterToStove:eval:7:23",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:2:34",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:2:35",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:2:36",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:2:38",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:10",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:12",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:14",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:17",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:18",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:19",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:20",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:23",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:25",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:27",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:28",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:29",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:4",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:5",
+  "collect_l1s1_pi05__PickPlaceDrawerToCounter:eval:8:7",
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:10",
+  "collect_l1s1_pi05__PickPlaceSinkToCounter:eval:9:7",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:1",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:10",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:12",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:14",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:16",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:17",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:18",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:19",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:2",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:20",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:21",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:22",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:24",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:25",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:26",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:29",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:3",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:32",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:36",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:38",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:4",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:40",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:45",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:46",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:47",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:49",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:5",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:50",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:51",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:54",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:56",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:57",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:58",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:60",
+  "collect_l1s1_pi05__PickPlaceToasterToCounter:eval:10:7",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:0",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:1",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:12",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:13",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:15",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:17",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:20",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:22",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:23",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:27",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:28",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:29",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:31",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:32",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:33",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:34",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:35",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:38",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:39",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:41",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:42",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:49",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:5",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:50",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:51",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:52",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:54",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:55",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:6",
+  "collect_l1s1_pi05__SlideDishwasherRack:eval:11:9",
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:0",
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:12",
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:2",
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:27",
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:32",
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:36",
+  "collect_l1s1_pi05__TurnOnSinkFaucet:eval:12:9"
+ ],
+ "insufficient": {},
+ "missing_file": [],
+ "missing_terminal": [],
+ "multiple_accepted": [],
+ "ok": true,
+ "orphan_attempts": [
+  "pi05/CloseBlenderLid/episode_0000_a01.h5",
+  "pi05/CloseBlenderLid/episode_0001_a01.h5",
+  "pi05/CloseBlenderLid/episode_0002_a01.h5",
+  "pi05/CloseBlenderLid/episode_0004_a01.h5",
+  "pi05/CloseBlenderLid/episode_0005_a01.h5",
+  "pi05/CloseBlenderLid/episode_0006_a01.h5",
+  "pi05/CloseBlenderLid/episode_0008_a01.h5",
+  "pi05/CloseBlenderLid/episode_0009_a01.h5",
+  "pi05/CloseBlenderLid/episode_0011_a01.h5",
+  "pi05/CloseBlenderLid/episode_0013_a01.h5",
+  "pi05/CloseBlenderLid/episode_0014_a01.h5",
+  "pi05/CloseBlenderLid/episode_0015_a01.h5",
+  "pi05/CloseBlenderLid/episode_0016_a01.h5",
+  "pi05/CloseBlenderLid/episode_0017_a01.h5",
+  "pi05/CloseBlenderLid/episode_0020_a01.h5",
+  "pi05/CloseBlenderLid/episode_0022_a01.h5",
+  "pi05/CloseBlenderLid/episode_0023_a01.h5",
+  "pi05/CloseBlenderLid/episode_0024_a01.h5",
+  "pi05/CloseBlenderLid/episode_0025_a01.h5",
+  "pi05/CloseBlenderLid/episode_0026_a01.h5",
+  "pi05/CloseBlenderLid/episode_0027_a01.h5",
+  "pi05/CloseBlenderLid/episode_0028_a01.h5",
+  "pi05/CloseBlenderLid/episode_0029_a01.h5",
+  "pi05/CloseBlenderLid/episode_0030_a01.h5",
+  "pi05/CloseBlenderLid/episode_0031_a01.h5",
+  "pi05/CloseBlenderLid/episode_0032_a01.h5",
+  "pi05/CloseBlenderLid/episode_0033_a01.h5",
+  "pi05/CloseBlenderLid/episode_0034_a01.h5",
+  "pi05/CloseBlenderLid/episode_0035_a01.h5",
+  "pi05/CloseBlenderLid/episode_0036_a01.h5",
+  "pi05/CloseBlenderLid/episode_0037_a01.h5",
+  "pi05/CloseBlenderLid/episode_0038_a01.h5",
+  "pi05/CloseBlenderLid/episode_0039_a01.h5",
+  "pi05/CloseBlenderLid/episode_0040_a01.h5",
+  "pi05/CloseBlenderLid/episode_0041_a01.h5",
+  "pi05/CloseBlenderLid/episode_0042_a01.h5",
+  "pi05/CloseBlenderLid/episode_0043_a01.h5",
+  "pi05/CloseBlenderLid/episode_0044_a01.h5",
+  "pi05/CloseBlenderLid/episode_0045_a01.h5",
+  "pi05/CloseBlenderLid/episode_0046_a01.h5",
+  "pi05/CloseBlenderLid/episode_0048_a01.h5",
+  "pi05/CloseBlenderLid/episode_0049_a01.h5",
+  "pi05/CloseBlenderLid/episode_0050_a01.h5",
+  "pi05/CloseBlenderLid/episode_0051_a01.h5",
+  "pi05/CloseBlenderLid/episode_0053_a01.h5",
+  "pi05/CloseBlenderLid/episode_0054_a01.h5",
+  "pi05/CloseBlenderLid/episode_0055_a01.h5",
+  "pi05/CloseBlenderLid/episode_0056_a01.h5",
+  "pi05/CloseBlenderLid/episode_0057_a01.h5",
+  "pi05/CloseBlenderLid/episode_0058_a01.h5",
+  "pi05/CloseBlenderLid/episode_0059_a01.h5",
+  "pi05/CloseBlenderLid/episode_0060_a01.h5",
+  "pi05/CloseBlenderLid/episode_0061_a01.h5",
+  "pi05/CloseBlenderLid/episode_0063_a01.h5",
+  "pi05/CloseBlenderLid/episode_0064_a01.h5",
+  "pi05/CloseBlenderLid/episode_0066_a01.h5",
+  "pi05/CloseBlenderLid/episode_0067_a01.h5",
+  "pi05/CloseBlenderLid/episode_0069_a01.h5",
+  "pi05/CloseBlenderLid/episode_0070_a01.h5",
+  "pi05/CloseBlenderLid/episode_0072_a01.h5",
+  "pi05/CloseBlenderLid/episode_0073_a01.h5",
+  "pi05/CloseBlenderLid/episode_0074_a01.h5",
+  "pi05/CloseBlenderLid/episode_0075_a01.h5",
+  "pi05/CloseBlenderLid/episode_0077_a01.h5",
+  "pi05/CloseBlenderLid/episode_0078_a01.h5",
+  "pi05/CloseBlenderLid/episode_0079_a01.h5",
+  "pi05/CloseBlenderLid/episode_0080_a01.h5",
+  "pi05/CloseBlenderLid/episode_0081_a01.h5",
+  "pi05/CloseBlenderLid/episode_0082_a01.h5",
+  "pi05/CloseBlenderLid/episode_0083_a01.h5",
+  "pi05/CloseBlenderLid/episode_0084_a01.h5",
+  "pi05/CloseBlenderLid/episode_0085_a01.h5",
+  "pi05/CloseBlenderLid/episode_0087_a01.h5",
+  "pi05/CloseBlenderLid/episode_0088_a01.h5",
+  "pi05/CloseBlenderLid/episode_0089_a01.h5",
+  "pi05/CloseBlenderLid/episode_0090_a01.h5",
+  "pi05/CloseBlenderLid/episode_0091_a01.h5",
+  "pi05/CloseBlenderLid/episode_0092_a01.h5",
+  "pi05/CloseBlenderLid/episode_0093_a01.h5",
+  "pi05/CloseBlenderLid/episode_0094_a01.h5",
+  "pi05/CloseBlenderLid/episode_0095_a01.h5",
+  "pi05/CloseBlenderLid/episode_0096_a01.h5",
+  "pi05/CloseBlenderLid/episode_0097_a01.h5",
+  "pi05/CloseBlenderLid/episode_0098_a01.h5",
+  "pi05/CloseBlenderLid/episode_0099_a01.h5",
+  "pi05/CloseBlenderLid/episode_0100_a01.h5",
+  "pi05/CloseBlenderLid/episode_0101_a01.h5",
+  "pi05/CloseBlenderLid/episode_0102_a01.h5",
+  "pi05/CloseBlenderLid/episode_0103_a01.h5",
+  "pi05/CloseBlenderLid/episode_0104_a01.h5",
+  "pi05/CloseBlenderLid/episode_0105_a01.h5",
+  "pi05/CloseBlenderLid/episode_0106_a01.h5",
+  "pi05/CloseBlenderLid/episode_0107_a01.h5",
+  "pi05/CloseBlenderLid/episode_0108_a01.h5",
+  "pi05/CloseBlenderLid/episode_0109_a01.h5",
+  "pi05/CloseBlenderLid/episode_0110_a01.h5",
+  "pi05/CloseBlenderLid/episode_0111_a01.h5",
+  "pi05/CloseBlenderLid/episode_0112_a01.h5",
+  "pi05/CloseBlenderLid/episode_0113_a01.h5",
+  "pi05/CloseBlenderLid/episode_0114_a01.h5",
+  "pi05/CloseBlenderLid/episode_0115_a01.h5",
+  "pi05/CloseBlenderLid/episode_0116_a01.h5",
+  "pi05/CloseBlenderLid/episode_0117_a01.h5",
+  "pi05/CloseBlenderLid/episode_0118_a01.h5",
+  "pi05/CloseBlenderLid/episode_0119_a01.h5",
+  "pi05/CloseBlenderLid/episode_0120_a01.h5",
+  "pi05/CloseBlenderLid/episode_0121_a01.h5",
+  "pi05/CloseBlenderLid/episode_0122_a01.h5",
+  "pi05/CloseBlenderLid/episode_0123_a01.h5",
+  "pi05/CloseBlenderLid/episode_0125_a01.h5",
+  "pi05/CloseBlenderLid/episode_0126_a01.h5",
+  "pi05/CloseBlenderLid/episode_0128_a01.h5",
+  "pi05/CloseBlenderLid/episode_0129_a01.h5",
+  "pi05/CloseBlenderLid/episode_0130_a01.h5",
+  "pi05/CloseBlenderLid/episode_0131_a01.h5",
+  "pi05/CloseBlenderLid/episode_0132_a01.h5",
+  "pi05/CloseBlenderLid/episode_0133_a01.h5",
+  "pi05/CloseBlenderLid/episode_0135_a01.h5",
+  "pi05/CloseBlenderLid/episode_0136_a01.h5",
+  "pi05/CloseBlenderLid/episode_0137_a01.h5",
+  "pi05/CloseBlenderLid/episode_0138_a01.h5",
+  "pi05/CloseBlenderLid/episode_0139_a01.h5",
+  "pi05/CloseBlenderLid/episode_0141_a01.h5",
+  "pi05/CloseBlenderLid/episode_0143_a01.h5",
+  "pi05/CloseBlenderLid/episode_0144_a01.h5",
+  "pi05/CloseBlenderLid/episode_0145_a01.h5",
+  "pi05/CloseBlenderLid/episode_0146_a01.h5",
+  "pi05/CloseBlenderLid/episode_0147_a01.h5",
+  "pi05/CloseBlenderLid/episode_0148_a01.h5",
+  "pi05/CloseBlenderLid/episode_0149_a01.h5",
+  "pi05/CloseBlenderLid/episode_0150_a01.h5",
+  "pi05/CloseBlenderLid/episode_0152_a01.h5",
+  "pi05/CloseBlenderLid/episode_0153_a01.h5",
+  "pi05/CloseBlenderLid/episode_0155_a01.h5",
+  "pi05/CloseBlenderLid/episode_0156_a01.h5",
+  "pi05/CloseBlenderLid/episode_0157_a01.h5",
+  "pi05/CloseBlenderLid/episode_0158_a01.h5",
+  "pi05/CloseBlenderLid/episode_0159_a01.h5",
+  "pi05/CloseBlenderLid/episode_0160_a01.h5",
+  "pi05/CloseBlenderLid/episode_0161_a01.h5",
+  "pi05/CloseBlenderLid/episode_0162_a01.h5",
+  "pi05/CloseBlenderLid/episode_0163_a01.h5",
+  "pi05/CloseBlenderLid/episode_0164_a01.h5",
+  "pi05/CloseBlenderLid/episode_0167_a01.h5",
+  "pi05/CloseBlenderLid/episode_0168_a01.h5",
+  "pi05/CloseBlenderLid/episode_0169_a01.h5",
+  "pi05/CloseBlenderLid/episode_0170_a01.h5",
+  "pi05/CloseBlenderLid/episode_0171_a01.h5",
+  "pi05/CloseBlenderLid/episode_0172_a01.h5",
+  "pi05/CloseBlenderLid/episode_0174_a01.h5",
+  "pi05/CloseBlenderLid/episode_0175_a01.h5",
+  "pi05/CloseBlenderLid/episode_0176_a01.h5",
+  "pi05/CloseFridge/episode_0002_a01.h5",
+  "pi05/CloseFridge/episode_0005_a01.h5",
+  "pi05/CloseFridge/episode_0008_a01.h5",
+  "pi05/CloseFridge/episode_0009_a01.h5",
+  "pi05/CloseFridge/episode_0011_a01.h5",
+  "pi05/CloseFridge/episode_0012_a01.h5",
+  "pi05/CloseFridge/episode_0016_a01.h5",
+  "pi05/CloseFridge/episode_0017_a01.h5",
+  "pi05/CloseFridge/episode_0022_a01.h5",
+  "pi05/CloseFridge/episode_0023_a01.h5",
+  "pi05/CloseFridge/episode_0025_a01.h5",
+  "pi05/CloseFridge/episode_0028_a01.h5",
+  "pi05/CloseFridge/episode_0032_a01.h5",
+  "pi05/CloseFridge/episode_0033_a01.h5",
+  "pi05/CloseFridge/episode_0034_a01.h5",
+  "pi05/CloseFridge/episode_0035_a01.h5",
+  "pi05/CloseFridge/episode_0044_a01.h5",
+  "pi05/CloseFridge/episode_0045_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0000_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0004_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0006_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0008_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0012_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0014_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0015_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0020_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0021_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0024_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0027_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0028_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0029_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0030_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0031_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0032_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0036_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0037_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0038_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0040_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0042_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0043_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0045_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0046_a01.h5",
+  "pi05/CoffeeSetupMug/episode_0047_a01.h5",
+  "pi05/OpenCabinet/episode_0004_a01.h5",
+  "pi05/OpenCabinet/episode_0016_a01.h5",
+  "pi05/OpenCabinet/episode_0017_a01.h5",
+  "pi05/OpenCabinet/episode_0022_a01.h5",
+  "pi05/OpenCabinet/episode_0034_a01.h5",
+  "pi05/OpenCabinet/episode_0037_a01.h5",
+  "pi05/OpenCabinet/episode_0039_a01.h5",
+  "pi05/OpenDrawer/episode_0001_a01.h5",
+  "pi05/OpenDrawer/episode_0003_a01.h5",
+  "pi05/OpenDrawer/episode_0004_a01.h5",
+  "pi05/OpenDrawer/episode_0010_a01.h5",
+  "pi05/OpenDrawer/episode_0013_a01.h5",
+  "pi05/OpenDrawer/episode_0015_a01.h5",
+  "pi05/OpenDrawer/episode_0016_a01.h5",
+  "pi05/OpenDrawer/episode_0021_a01.h5",
+  "pi05/OpenDrawer/episode_0022_a01.h5",
+  "pi05/OpenDrawer/episode_0023_a01.h5",
+  "pi05/OpenDrawer/episode_0025_a01.h5",
+  "pi05/OpenDrawer/episode_0028_a01.h5",
+  "pi05/OpenDrawer/episode_0030_a01.h5",
+  "pi05/OpenDrawer/episode_0031_a01.h5",
+  "pi05/OpenDrawer/episode_0046_a01.h5",
+  "pi05/OpenDrawer/episode_0055_a01.h5",
+  "pi05/OpenDrawer/episode_0059_a01.h5",
+  "pi05/OpenDrawer/episode_0068_a01.h5",
+  "pi05/OpenDrawer/episode_0072_a01.h5",
+  "pi05/OpenDrawer/episode_0076_a01.h5",
+  "pi05/OpenDrawer/episode_0078_a01.h5",
+  "pi05/OpenDrawer/episode_0080_a01.h5",
+  "pi05/OpenDrawer/episode_0081_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0000_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0001_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0002_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0003_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0004_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0006_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0008_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0011_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0012_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0013_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0015_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0016_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0018_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0020_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0021_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0023_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0027_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0028_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0029_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0030_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0032_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0033_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0034_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0035_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0036_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0039_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0040_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0041_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0042_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0044_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0045_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0046_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0047_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0048_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0052_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0053_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0054_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0056_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0057_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0060_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0061_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0062_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0063_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0064_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0065_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0066_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0067_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0068_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0069_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0070_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0072_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0074_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0076_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0077_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0078_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0079_a01.h5",
+  "pi05/OpenStandMixerHead/episode_0080_a01.h5",
+  "pi05/PickPlaceCounterToCabinet/episode_0000_a01.h5",
+  "pi05/PickPlaceCounterToCabinet/episode_0004_a01.h5",
+  "pi05/PickPlaceCounterToCabinet/episode_0006_a01.h5",
+  "pi05/PickPlaceCounterToCabinet/episode_0013_a01.h5",
+  "pi05/PickPlaceCounterToCabinet/episode_0014_a01.h5",
+  "pi05/PickPlaceCounterToCabinet/episode_0015_a01.h5",
+  "pi05/PickPlaceCounterToCabinet/episode_0016_a01.h5",
+  "pi05/PickPlaceCounterToCabinet/episode_0019_a01.h5",
+  "pi05/PickPlaceCounterToCabinet/episode_0027_a01.h5",
+  "pi05/PickPlaceCounterToCabinet/episode_0031_a01.h5",
+  "pi05/PickPlaceCounterToCabinet/episode_0033_a01.h5",
+  "pi05/PickPlaceCounterToCabinet/episode_0034_a01.h5",
+  "pi05/PickPlaceCounterToStove/episode_0012_a01.h5",
+  "pi05/PickPlaceCounterToStove/episode_0015_a01.h5",
+  "pi05/PickPlaceCounterToStove/episode_0017_a01.h5",
+  "pi05/PickPlaceCounterToStove/episode_0021_a01.h5",
+  "pi05/PickPlaceCounterToStove/episode_0023_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0004_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0005_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0007_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0010_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0012_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0014_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0017_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0018_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0019_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0020_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0023_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0025_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0027_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0028_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0029_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0034_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0035_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0036_a01.h5",
+  "pi05/PickPlaceDrawerToCounter/episode_0038_a01.h5",
+  "pi05/PickPlaceSinkToCounter/episode_0007_a01.h5",
+  "pi05/PickPlaceSinkToCounter/episode_0010_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0001_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0002_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0003_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0004_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0005_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0007_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0010_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0012_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0014_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0016_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0017_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0018_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0019_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0020_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0021_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0022_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0024_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0025_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0026_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0029_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0032_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0036_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0038_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0040_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0045_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0046_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0047_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0049_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0050_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0051_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0054_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0056_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0057_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0058_a01.h5",
+  "pi05/PickPlaceToasterToCounter/episode_0060_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0000_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0001_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0005_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0006_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0009_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0012_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0013_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0015_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0017_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0020_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0022_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0023_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0027_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0028_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0029_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0031_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0032_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0033_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0034_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0035_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0038_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0039_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0041_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0042_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0049_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0050_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0051_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0052_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0054_a01.h5",
+  "pi05/SlideDishwasherRack/episode_0055_a01.h5",
+  "pi05/TurnOnSinkFaucet/episode_0000_a01.h5",
+  "pi05/TurnOnSinkFaucet/episode_0002_a01.h5",
+  "pi05/TurnOnSinkFaucet/episode_0009_a01.h5",
+  "pi05/TurnOnSinkFaucet/episode_0012_a01.h5",
+  "pi05/TurnOnSinkFaucet/episode_0027_a01.h5",
+  "pi05/TurnOnSinkFaucet/episode_0032_a01.h5",
+  "pi05/TurnOnSinkFaucet/episode_0036_a01.h5"
+ ],
+ "plan_hashes": [
+  "cbb7978f9322a65fc35b71767175bc8d382f5cc539716380c11295a93ea5aa55",
+  "99c8f8cc1f2dfbf766cbdbb4106865d952f346cfad3fd3f7b4755359969d2d17"
+ ],
+ "schema_errors": {},
+ "teacher": "pi05"
+}

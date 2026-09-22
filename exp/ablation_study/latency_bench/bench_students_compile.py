@@ -14,7 +14,7 @@ import argparse, json, pathlib, statistics, subprocess, sys, threading, time
 import numpy as np
 import torch
 
-REPO = "/home/weiland/openpi"
+REPO = "/home/weiland/projects/openpi"
 sys.path.insert(0, REPO)
 from exp.ablation_study.sidecar_server import _obs_to_lerobot_batch  # noqa: E402
 

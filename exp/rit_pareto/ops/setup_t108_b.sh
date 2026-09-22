@@ -21,7 +21,7 @@ HOOK
 # openpi_client editable install -> point at the dispatch clone's package source.
 cd $P/lib/python3.8/site-packages
 for f in __editable__*openpi_client*.pth easy-install.pth openpi_client.egg-link __editable___openpi_client*finder.py; do
-  [ -f "$f" ] && { echo "editable file: $f"; sed -i "s#/home/weiland/openpi/packages/openpi-client#/scratch/zixuans8/openpi_dispatch/packages/openpi-client#g" "$f"; }
+  [ -f "$f" ] && { echo "editable file: $f"; sed -i "s#/home/weiland/projects/openpi/packages/openpi-client#/scratch/zixuans8/openpi_dispatch/packages/openpi-client#g" "$f"; }
 done
 grep -rl "/home/weiland" *.pth *.py 2>/dev/null | head -5
 step smoke-import

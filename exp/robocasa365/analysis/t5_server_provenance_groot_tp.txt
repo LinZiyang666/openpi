@@ -1,0 +1,27 @@
+== port 8020 pid guess ==
+== port 8021 pid guess ==
+== port 8022 pid guess ==
+== port 8023 pid guess ==
+-- pid 2009507 --
+bash -c export HOME=/home/weiland; cd /home/weiland/openpi && PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi /home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/serve_groot_n15.py --port 8021 --collect-hdf5 /data/robocasa365_cache/build_l1s1 2>&1 | tee /tmp/rc5_gsrv1.log 
+-- pid 2009508 --
+/home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/serve_groot_n15.py --port 8021 --collect-hdf5 /data/robocasa365_cache/build_l1s1 
+-- pid 2283749 --
+bash -c export HOME=/home/weiland; cd /home/weiland/openpi && PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi /home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/serve_groot_n15.py --port 8022 --collect-hdf5 /data/robocasa365_cache/build_l1s1 2>&1 | tee /tmp/rc5_gsrv2.log 
+-- pid 2283750 --
+/home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/serve_groot_n15.py --port 8022 --collect-hdf5 /data/robocasa365_cache/build_l1s1 
+-- pid 2283754 --
+bash -c export HOME=/home/weiland; cd /home/weiland/openpi && PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi /home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/serve_groot_n15.py --port 8023 --collect-hdf5 /data/robocasa365_cache/build_l1s1 2>&1 | tee /tmp/rc5_gsrv3.log 
+-- pid 2283755 --
+/home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/serve_groot_n15.py --port 8023 --collect-hdf5 /data/robocasa365_cache/build_l1s1 
+-- pid 4120600 --
+bash -c export HOME=/home/weiland; cd /home/weiland/openpi && PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi /home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/serve_groot_n15.py --collect-hdf5 /data/robocasa365_cache/build_l1s1 2>&1 | tee /tmp/rc5_gsrv.log 
+-- pid 4120601 --
+/home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/serve_groot_n15.py --collect-hdf5 /data/robocasa365_cache/build_l1s1 
+8020 {'checkpoint': '/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000', 'diagnostic_seed': None, 'action_horizon': 16}
+8021 {'checkpoint': '/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000', 'diagnostic_seed': None, 'action_horizon': 16}
+8022 {'checkpoint': '/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000', 'diagnostic_seed': None, 'action_horizon': 16}
+8023 {'checkpoint': '/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000', 'diagnostic_seed': None, 'action_horizon': 16}
+== checkpoint sha ==
+e1439b42088affcc75df6294863acd0b68eabc71bc31933eb69df2d0f9a3af2e  /home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000/model-00002-of-00002.safetensors
+50fc602096fb2df6adc2df2426bcab7b7f96c1f899c721b80b84096472312efb  /home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000/model-00001-of-00002.safetensors

@@ -12,7 +12,7 @@ SUITE=${1:?suite}
 PORTS=${2:-23160,23161,23162}
 WORKERS=${3:-12}
 R=${FW_REPO:-/data/openpi_lg}
-PY=${FW_PY:-/home/weiland/openpi/.venv/bin/python}
+PY=${FW_PY:-/home/weiland/projects/openpi/.venv/bin/python}
 BASE=/data/libero_cache/search/$SUITE
 case "$SUITE" in
   libero_spatial) CKPT=/home/weiland/ckpt_n15_libero_spatial ;;

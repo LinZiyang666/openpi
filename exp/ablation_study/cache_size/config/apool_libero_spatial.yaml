@@ -1,5 +1,5 @@
 suite: libero_spatial
-apool_dir: /home/weiland/openpi/exp/common/data/db_init/libero/libero_spatial_apool
+apool_dir: /home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_spatial_apool
 total_inits: 500
 per_task_digests:
   pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate: cbbc73792ce546c9bec181fd328a411d3183074840b282671dee481511381d0a

@@ -6,8 +6,8 @@ export HOME=/home/weiland
 R=/data/openpi_dispatch
 SUITE=$1
 B=/tmp/dsp_shared/rit_pareto/$SUITE
-PKL=/home/weiland/openpi/exp/common/data/cache_artifacts/$SUITE/cp1_spatial_pool_16.pkl
-PY=/home/weiland/openpi/.venv/bin/python
+PKL=/home/weiland/projects/openpi/exp/common/data/cache_artifacts/$SUITE/cp1_spatial_pool_16.pkl
+PY=/home/weiland/projects/openpi/.venv/bin/python
 cd $R
 export PYTHONPATH=$R/src:$R
 rm -rf $B/k3

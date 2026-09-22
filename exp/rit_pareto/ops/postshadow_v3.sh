@@ -6,9 +6,9 @@ export PATH=/usr/local/bin:/usr/bin:/bin
 export HOME=/home/weiland
 R=/data/openpi_dispatch
 B=/tmp/dsp_shared/rit_pareto/$SUITE
-PKL=/home/weiland/openpi/exp/common/data/cache_artifacts/$SUITE/cp1_spatial_pool_16.pkl
+PKL=/home/weiland/projects/openpi/exp/common/data/cache_artifacts/$SUITE/cp1_spatial_pool_16.pkl
 CKPT=/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch
-PY=/home/weiland/openpi/.venv/bin/python
+PY=/home/weiland/projects/openpi/.venv/bin/python
 cd $R
 export PYTHONPATH=$R/src:$R
 step() { echo "=== [$(date +%H:%M:%S)] $*"; }

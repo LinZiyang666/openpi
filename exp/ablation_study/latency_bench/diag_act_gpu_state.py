@@ -3,7 +3,7 @@ from __future__ import annotations
 import subprocess, sys, threading, time, statistics
 import numpy as np, torch
 
-REPO = "/home/weiland/openpi"; sys.path.insert(0, REPO)
+REPO = "/home/weiland/projects/openpi"; sys.path.insert(0, REPO)
 from exp.ablation_study.sidecar_server import make_act_policy  # noqa: E402
 
 fn = make_act_policy("/home/weiland/bench_latency/act_manifest_task0.json", "cuda")

@@ -10,7 +10,7 @@
 set -u
 K=${1:?k}; P=${2:?port}
 REPO=${NFE_REPO:-/data/openpi_nfe}
-PY=${NFE_PI05_PY:-/home/weiland/openpi/.venv/bin/python}
+PY=${NFE_PI05_PY:-/home/weiland/projects/openpi/.venv/bin/python}
 CKPT=${NFE_RC_PI05_CKPT:-/home/weiland/ckpt_pi05_robocasa_pytorch}
 export PATH=/usr/local/bin:/usr/bin:/bin
 export HOME=${NFE_HOME:-/home/weiland}

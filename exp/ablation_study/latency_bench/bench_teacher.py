@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse, json, pathlib, statistics, subprocess, sys, threading, time
 import numpy as np, torch
 
-sys.path.insert(0, "/home/weiland/openpi")
+sys.path.insert(0, "/home/weiland/projects/openpi")
 from openpi.policies import policy_config as pc          # noqa: E402
 from openpi.training import config as train_config       # noqa: E402
 

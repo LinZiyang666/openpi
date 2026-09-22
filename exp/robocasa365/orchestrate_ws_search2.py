@@ -82,7 +82,7 @@ TEACHERS: dict[str, dict[str, str | int]] = {
         # the clone's source in front of it via PYTHONPATH -- the same trick
         # GR00T uses. Without the graft the server would import the main
         # checkout's openpi and reject this round's pooling knobs.
-        "python": "/home/weiland/openpi/.venv/bin/python",
+        "python": "/home/weiland/projects/openpi/.venv/bin/python",
         "pythonpath": "{repo}/src:{repo}",
         "checkpoint": "/home/weiland/ckpt_pi05_robocasa_pytorch",
         "vram_mb": 10500,

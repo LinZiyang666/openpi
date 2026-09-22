@@ -22,7 +22,7 @@ REGIME=${7:?regime}
 : "${HOME:?set HOME to the node user home}"
 export OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4
 unset CUDA_VISIBLE_DEVICES
-R=/home/weiland/openpi
+R=/home/weiland/projects/openpi
 P=/data/openpi/ablation_study/cache_prune/concurrent_v1
 CFG=$P/config_direct
 OUT=$P/direct/${LANE}/${SUITE}_${REGIME}

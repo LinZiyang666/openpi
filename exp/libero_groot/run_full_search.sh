@@ -13,7 +13,7 @@
 # in the seconds between the file being updated and this script launching.
 set -u
 export HOME=/home/weiland
-REPO=/home/weiland/openpi
+REPO=/home/weiland/projects/openpi
 PY=$REPO/.venv/bin/python
 export PYTHONPATH=$REPO:$REPO/src
 SEARCH=/data/libero_cache/search

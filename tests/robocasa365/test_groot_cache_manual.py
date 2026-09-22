@@ -9,8 +9,8 @@ Run (the PYTHONPATH entry is not optional -- `gr00t` is a worktree, not an
 installed package, and without it `importorskip` turns this file into a silent
 skip that reads as a pass)::
 
-    cd /home/weiland/openpi
-    PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi \\
+    cd /home/weiland/projects/openpi
+    PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi \\
       /home/weiland/gr00t_n15_venv/.venv/bin/python -m pytest \\
       tests/robocasa365/test_groot_cache_manual.py --run-manual -v
 

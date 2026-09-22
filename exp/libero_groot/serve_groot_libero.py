@@ -34,7 +34,7 @@ image-token runs and would reject every LIBERO observation.
 Example::
 
     PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/gr00t_n15/examples/Libero:\\
-    /home/weiland/openpi:/home/weiland/openpi/src \\
+    /home/weiland/projects/openpi:/home/weiland/projects/openpi/src \\
     /home/weiland/gr00t_n15_venv/.venv/bin/python \\
       exp/libero_groot/serve_groot_libero.py \\
       --checkpoint /home/weiland/ckpt_n15_libero_spatial --port 8030 \\

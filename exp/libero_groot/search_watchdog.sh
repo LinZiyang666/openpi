@@ -17,7 +17,7 @@
 #     (a running scheduler owns those sessions and would race the reaper).
 set -u
 export HOME=/home/weiland
-REPO=/home/weiland/openpi
+REPO=/home/weiland/projects/openpi
 STATE=/data/libero_cache/search/current_search.env
 INTERVAL=${1:-300}
 

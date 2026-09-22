@@ -83,7 +83,7 @@ LLM_KEY_BUILDER = {"type": "cp1_llm_layer_extract", "extract_layer": 0,
                    "prefix_reducer": {"type": "prefix_mean_pool"}}
 
 LOCAL_ART = pathlib.Path("exp/common/data/cache_artifacts")
-SERVED_ART = "/home/weiland/openpi/exp/common/data/cache_artifacts"
+SERVED_ART = "/home/weiland/projects/openpi/exp/common/data/cache_artifacts"
 BASE_CALIB = "exp/weighted_sum/data/{suite}/phase1/calibration_normalizers.json"
 DATA = pathlib.Path("exp/weighted_sum/data/keybuilder_lda")
 CFG = pathlib.Path("exp/weighted_sum/config/keybuilder_lda")

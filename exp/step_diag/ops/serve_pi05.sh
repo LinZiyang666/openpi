@@ -12,7 +12,7 @@
 set -u
 ENV_ID=${1:?env_id}; MODE=${2:?mode}; ARM=${3:?arm_id}; P=${4:?port}; ARG=${5:--}
 REPO=${SD_REPO:-/data/openpi_sdiag}
-PY=${SD_PY:-/home/weiland/openpi/.venv/bin/python}
+PY=${SD_PY:-/home/weiland/projects/openpi/.venv/bin/python}
 EXP=${SD_EXP:-sdiag_v1}
 OUT=${SD_OUT:-$REPO/exp/step_diag/data/server}
 LAUNCH=${SD_LAUNCH:-$(date +%Y%m%dT%H%M%S)_$P}

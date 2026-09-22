@@ -21,10 +21,10 @@ gr00t source    NOT installed in that venv -- imported from the n1.5-release
 extra runtime   ``decord`` is required: the parent DataConfig's transform chain
                 loads it through a transformers dynamic module, and without it
                 construction fails with an ImportError.
-extra deps      ``uv pip install -e /home/weiland/openpi/packages/openpi-client``
+extra deps      ``uv pip install -e /home/weiland/projects/openpi/packages/openpi-client``
                 (its numpy<2.0.0 pin is satisfied here, so no --no-deps needed --
                 unlike the simulation island, where --no-deps is mandatory).
-PYTHONPATH      /home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi
+PYTHONPATH      /home/weiland/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi
                 the middle entry pulls in the websocket server only;
                 that module imports nothing heavier than openpi_client and
                 websockets, and openpi/__init__.py is empty, so no jax or torch
@@ -35,9 +35,9 @@ sim client      runs in a *different* island (py3.12 / numpy 2.2.5), which is wh
 Launch::
 
     tmux new-session -d -s grootsrv "export HOME=/home/weiland; \\
-      PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi \\
+      PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi \\
       /home/weiland/gr00t_n15_venv/.venv/bin/python \\
-      /home/weiland/openpi/exp/robocasa365/serve_groot_n15.py 2>&1 | tee /tmp/grootsrv.log"
+      /home/weiland/projects/openpi/exp/robocasa365/serve_groot_n15.py 2>&1 | tee /tmp/grootsrv.log"
 """
 
 from __future__ import annotations

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # pi0.5 same-card recalibration of the ledger's CUDA-Graph tier (3 repeats).
 # Same recipe as data/pi05_compile_ro_3stage.json: 3-stage, reduce-overhead,
-# mark_step, n=30. bench_teacher.py pins sys.path to /home/weiland/openpi,
+# mark_step, n=30. bench_teacher.py pins sys.path to /home/weiland/projects/openpi,
 # so the pi0.5 model code comes from the working repo (unchanged by 2e51b02).
 set -u
-PY=/home/weiland/openpi/.venv/bin/python
+PY=/home/weiland/projects/openpi/.venv/bin/python
 OUT=/tmp/openpi-stageA/exp/robocasa365/data/latency
 LOG=/tmp/stageA/pi05_recal.log
-mkdir -p "$OUT"; cd /home/weiland/openpi
+mkdir -p "$OUT"; cd /home/weiland/projects/openpi
 echo "[pi05] start $(date -Is)" | tee -a "$LOG"
 for r in 0 1 2; do
   echo "[pi05] === repeat $r $(date -Is)" | tee -a "$LOG"

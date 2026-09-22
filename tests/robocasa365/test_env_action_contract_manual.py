@@ -13,8 +13,8 @@ Run inside the simulation island::
 
     # pytest is already present in this island (verified); if it ever is not,
     # install via: VIRTUAL_ENV=<that venv> uv pip install pytest
-    cd /home/weiland/openpi && \\
-    PYTHONPATH=/home/weiland/openpi \\
+    cd /home/weiland/projects/openpi && \\
+    PYTHONPATH=/home/weiland/projects/openpi \\
       /home/weiland/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv/bin/python \\
       -m pytest tests/robocasa365/test_env_action_contract_manual.py --run-manual -q
 

@@ -60,10 +60,10 @@ worker 在完成一集后领取下一集；`eval_concurrency=2` 允许同一端�
 
 ## 5. 准备命令（运行会话执行）
 
-先将提交同步到 weilandserver 的 `/home/weiland/openpi`。该目录此前只上传了离线验证代码，不能假设已包含本轮新入口；交接提交可用 `git log -1 --format=%H -- logs/cache_prune_run_handoff.md` 定位，再核对服务节点版本。使用服务节点 `.venv`，保留既有库与原始 H5。可在同节点另建工作目录，但源 manifest 里的文件、配置证据路径仍须可读且 SHA 一致。
+先将提交同步到 weilandserver 的 `/home/weiland/projects/openpi`。该目录此前只上传了离线验证代码，不能假设已包含本轮新入口；交接提交可用 `git log -1 --format=%H -- logs/cache_prune_run_handoff.md` 定位，再核对服务节点版本。使用服务节点 `.venv`，保留既有库与原始 H5。可在同节点另建工作目录，但源 manifest 里的文件、配置证据路径仍须可读且 SHA 一致。
 
 ```bash
-cd /home/weiland/openpi
+cd /home/weiland/projects/openpi
 export OMP_NUM_THREADS=4
 export MKL_NUM_THREADS=4
 export OPENBLAS_NUM_THREADS=4

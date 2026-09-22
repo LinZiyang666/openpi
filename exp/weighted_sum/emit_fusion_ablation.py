@@ -32,7 +32,7 @@ FIELDS = ("vision_0", "vision_1", "robot_state")
 ZC = pathlib.Path("exp/weighted_sum/data/low_cost_weights/zero_cost_priors")
 CODEX = pathlib.Path("exp/weighted_sum/data/low_cost_weights/20260913")
 PI05_TEMPLATE = "exp/ablation_study/cache_prune/config/search_{suite}.yaml"
-PI05_LIBRARY = "/home/weiland/openpi/exp/common/data/cache_artifacts/{suite}/cp1_spatial_pool_16.pkl"
+PI05_LIBRARY = "/home/weiland/projects/openpi/exp/common/data/cache_artifacts/{suite}/cp1_spatial_pool_16.pkl"
 
 
 def lda_weights(tag: str) -> list[float]:

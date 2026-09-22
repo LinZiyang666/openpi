@@ -17,7 +17,7 @@
 #                     builder that runs LLM layers inside the builder
 #                     (cp1_llm_layer_extract) needs the language model resident.
 #   FW_EVAL_CONC      driver --eval-concurrency (default 2)
-#   FW_ROOT / FW_PY   repo root and interpreter (defaults: /home/weiland/openpi and
+#   FW_ROOT / FW_PY   repo root and interpreter (defaults: /home/weiland/projects/openpi and
 #                     its .venv); only tests point them elsewhere.
 # Every launch writes its own server_<port>.<stamp>.log and driver.<stamp>.log so a
 # relaunch never overwrites the previous attempt's evidence.
@@ -35,7 +35,7 @@ shift 5
 : "${HOME:?set HOME to the node user home}"
 export OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4
 unset CUDA_VISIBLE_DEVICES
-R=${FW_ROOT:-/home/weiland/openpi}
+R=${FW_ROOT:-/home/weiland/projects/openpi}
 CFG=${FW_CFG_DIR:-$R/exp/weighted_sum/config/fusion_ablation/pi05}/$SUITE
 OUT=${FW_OUT:-/data/openpi/weighted_sum/fusion_ablation}/$SUITE
 MATRIX=${FW_MATRIX:-$CFG/matrix_$SUITE.yaml}

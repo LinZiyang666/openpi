@@ -53,7 +53,7 @@ TIMAN = "timan107"
 TIMAN2 = "timan108"
 PUBLIC_HOST = "ziyanglin.com"
 
-REMOTE_REPO_WEILAND = "/home/weiland/openpi"
+REMOTE_REPO_WEILAND = "/home/weiland/projects/openpi"
 REMOTE_REPO_TIMAN = "/scratch/zixuans8/openpi_rc365"
 # The sim-island venv doubles as the timan107 agent interpreter: conductor
 # imports are light (verified 2026-08-21) and it carries websockets + msgpack.

@@ -60,7 +60,7 @@ Run (weilandserver, idle GPU, one process per cell, serially -- never in paralle
 The ``cudaProfilerApi`` range starts after warmup and stops after measurement,
 so the exported summary cannot hide a recapture among allowed warmup captures::
 
-    PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/openpi/src:/home/weiland/openpi \\
+    PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi \\
     nsys profile --trace=cuda,nvtx --capture-range=cudaProfilerApi --capture-range-end=stop \\
       --output /tmp/groot_cg_k4_p0_r0 \\
       /home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/bench_groot_stages.py \\

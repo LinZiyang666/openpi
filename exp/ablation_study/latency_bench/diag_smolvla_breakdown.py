@@ -16,7 +16,7 @@ import time
 import numpy as np
 import torch
 
-REPO = "/home/weiland/openpi"
+REPO = "/home/weiland/projects/openpi"
 sys.path.insert(0, REPO)
 CKPT = ("/data/openpi/ablation_study/executor_substitution/checkpoints/"
         "libero_spatial/smolvla/checkpoints/020000/pretrained_model")

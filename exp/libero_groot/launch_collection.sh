@@ -21,7 +21,7 @@ LANES=${4:-6}
 BASE=${5:-8030}
 
 PY=/home/weiland/gr00t_n15_venv/.venv/bin/python
-REPO=/home/weiland/openpi
+REPO=/home/weiland/projects/openpi
 SHARDS=/data/libero_cache/shards/$SUITE
 INIT=$REPO/exp/common/data/db_init/libero/$SUITE
 GR00T_PATH=/home/weiland/gr00t_n15:/home/weiland/gr00t_n15/examples/Libero:$REPO:$REPO/src

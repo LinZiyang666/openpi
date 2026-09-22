@@ -1,5 +1,5 @@
 suite: libero_10
-apool_dir: /home/weiland/openpi/exp/common/data/db_init/libero/libero_10_apool
+apool_dir: /home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_10_apool
 total_inits: 500
 per_task_digests:
   KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it: 02a8401f8d59f5447fc8c5a16f4c158dd8c426c3eaed6779927a2a53e9abf3c5

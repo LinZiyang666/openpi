@@ -45,7 +45,7 @@ conns() {
 for K in "${K_ARR[@]}"; do
   N=$(cat "$NFILE" 2>/dev/null | tr -dc 0-9); [ -z "$N" ] && N=3
   if [ "$POLICY" = "pi05" ]; then
-    bash "$HERE/launch_pi05_servers.sh" "$K" "$BASE" "$N" "$REPO" "${NFE_PI05_PY:-/home/weiland/openpi/.venv/bin/python}" \
+    bash "$HERE/launch_pi05_servers.sh" "$K" "$BASE" "$N" "$REPO" "${NFE_PI05_PY:-/home/weiland/projects/openpi/.venv/bin/python}" \
       "${NFE_PI05_CKPT:-/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch}"
   elif [ "$POLICY" = "pi05_rc" ]; then
     N=1; NFE_REPO=$REPO bash "$HERE/rc/launch_pi05_rc_server.sh" "$K" "$BASE"

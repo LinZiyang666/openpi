@@ -14,7 +14,7 @@
 # not from the exit status, because a lane can also die after its last flush.
 set -u
 export HOME=/home/weiland
-REPO=/home/weiland/openpi
+REPO=/home/weiland/projects/openpi
 PY=/home/weiland/gr00t_n15_venv/.venv/bin/python
 STATE=/data/libero_cache/current_run.env
 INTERVAL=${1:-300}

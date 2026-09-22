@@ -5,7 +5,7 @@
 set -eu
 OUT=${1:?out dir}; shift
 REPO=${SD_REPO:-/data/openpi_sdiag}
-PY=${SD_PY:-/home/weiland/openpi/.venv/bin/python}
+PY=${SD_PY:-/home/weiland/projects/openpi/.venv/bin/python}
 W13=${SD_W13:-/data/robocasa365_cache/cache_artifacts_w13}
 BIND=("$@")
 [ ${#BIND[@]} -gt 0 ] || BIND=("pi05_rc=$W13/pi05_spatial_pool_16_w13_full.pkl" "groot_rc=$W13/groot_tp_spatial_pool_16_w13_full.pkl")

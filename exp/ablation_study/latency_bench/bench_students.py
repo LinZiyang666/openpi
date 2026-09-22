@@ -27,7 +27,7 @@ import time
 import numpy as np
 import torch
 
-REPO = "/home/weiland/openpi"
+REPO = "/home/weiland/projects/openpi"
 sys.path.insert(0, REPO)
 
 from exp.ablation_study.sidecar_server import (  # noqa: E402
