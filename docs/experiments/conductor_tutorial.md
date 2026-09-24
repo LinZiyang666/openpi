@@ -372,7 +372,7 @@ cache 搜索路径（`InMemoryBackend.search` 的 `cosine_similarity`）释放 G
 | `--replica-spawn-batch` | `0` | `replicas>1` 时分批 spawn：每批并发起这么多子进程、等其加载+bind 完再起下一批（`0`=一次性全起；大库分批防同时加载撑爆）|
 | `--concurrent` / `--non-concurrent` | `True` | 并发多 client + 动态 bundle 热切（默认）；`--non-concurrent`=C1 原始单连接极速基线（无 coordinator/bundle/lazy；当前 sdpa 数值）|
 | `--cache-config` | `None` | 启动时加载的 cache yaml |
-| `--record` / `--collect` / `--collect-dir` / `--collect-images` / `--cache` | … | 录制 / 采集建库相关（采集即生成 h5：`collection_policy` 抽 vision/prompt embedding 存 float16）|
+| `--record` / `--trace-out` / `--trace-build-cache` / `--collect-images` / `--cache` | … | 录制 / 采集建库相关（采集即 trace 服务模式：每集一个 h5，prefix token 存 float16，`--trace-build-cache` 附 `noise_action_*`；见 `docs/data_collection/guide.md`）|
 
 ### 12.6 Server 环境变量
 

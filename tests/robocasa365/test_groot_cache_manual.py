@@ -327,40 +327,127 @@ def test_scattered_positions_hold_the_vision_output(policy, runner):
 # ------------------------------------------------------------------
 
 
+def _trace_build_episode(policy, runner, out_dir, *, n_steps: int, seed: int):
+    """Run ``n_steps`` decisions through the trace build form (no orchestrator).
+
+    Returns the per-step wire outputs and the produced H5 path. The trace
+    replaces the legacy ``GrootCacheCollector``; this is the island-B gate
+    that its file is the same file (plan §12-J).
+    """
+    from exp.robocasa365.groot_policy_adapter import build_groot_observation
+    from openpi.cache.groot.interceptor import GrootCacheInterceptor
+    from openpi.cache.trace.h5_sink import H5TraceSink, TraceWriter
+    from openpi.cache.trace.types import TracePlan, TraceRuntime
+
+    schedule = runner.live_schedule()
+    plan = TracePlan(
+        model="groot_n15", schedule=schedule, checkpoint=None, warm_tiers=(),
+        record_noise_actions=True, save_timesteps=schedule.timesteps,
+        record_prefix_tokens=True, record_raw_images=True, record_model_images=False,
+        record_query_keys=True, record_search=True, record_tokenized_prompt=True,
+        raw_image_keys=(), rng_isolation="verdict_aware", sidecar_jsonl=True, fail_loud=True,
+    )
+    writer = TraceWriter(str(out_dir), queue_steps=8)
+    rt = TraceRuntime(plan=plan, sink=H5TraceSink(out_dir, plan=plan, writer=writer), twins=None)
+    it = GrootCacheInterceptor(
+        policy, runner, trace=rt, trace_vision_fields=("vision_0", "vision_1", "vision_2")
+    )
+    it.on_task_begin()
+    it.on_episode_start("manual", "ManualParity", 0, "ep0", {"task_uid": "u0", "attempt": 1})
+    outs = []
+    for step in range(n_steps):
+        torch.manual_seed(seed + step)
+        outs.append(it.get_action(build_groot_observation(_observation(step))))
+    it.on_episode_end(True)
+    it.on_task_end()
+    report = writer.stop(timeout=30)
+    assert report.ok, report
+    return outs, pathlib.Path(out_dir) / "manual" / "ep0.h5"
+
+
+def test_trace_build_matches_the_legacy_hook_capture(policy, runner, tmp_path):
+    """Same seed: the trace file holds what the legacy collector's hook saw.
+
+    The legacy ``GrootCacheCollector`` captured ``action_encoder``'s input on
+    every Euler step around upstream's own ``get_action`` (noise drawn
+    inside). The trace draws that noise itself (``sample_noise``) and runs
+    the transcribed loop; under one seed both must consume the same noise
+    and produce the same snapshots and the same chunk.
+    """
+    import h5py
+
+    from openpi.cache.groot.key_builder import slice_groot_cp1_fields
+
+    seed = SEED + 7
+    n_steps = 3
+    outs, h5 = _trace_build_episode(policy, runner, tmp_path / "trace", n_steps=n_steps, seed=seed)
+    schedule = runner.live_schedule()
+    with h5py.File(h5, "r") as f:
+        assert f.attrs["denoise_schedule_id"] == schedule.schedule_id
+        assert int(f.attrs["num_steps"]) == n_steps
+        for step in range(n_steps):
+            inputs = _normalized(policy, _observation(step))
+            captures: list[torch.Tensor] = []
+            handle = policy.model.action_head.action_encoder.register_forward_hook(
+                lambda m, i, o: captures.append(i[0].detach().clone())
+            )
+            try:
+                torch.manual_seed(seed + step)
+                with runner.session():
+                    stage1 = runner.run_stage1(inputs)
+                    stage2 = runner.run_stage2(stage1)  # upstream get_action, noise inside
+            finally:
+                handle.remove()
+            assert len(captures) == schedule.num_steps
+            raw = slice_groot_cp1_fields(
+                stage1.input_embeds, stage1.image_token_mask, stage1.state, stage1.state_mask, None
+            )
+            g = f[f"step_{step:04d}"]
+            for i, name in enumerate(("vision_0", "vision_1", "vision_2")):
+                np.testing.assert_array_equal(g[f"vision_{i}"][...], raw[name].cpu().to(torch.float16).numpy())
+            np.testing.assert_array_equal(g["prompt_emb"][...], raw["prompt_emb"].cpu().to(torch.float16).numpy())
+            np.testing.assert_array_equal(g["robot_state"][...], raw["robot_state"].cpu().float().numpy())
+            for i, x in enumerate(captures):
+                np.testing.assert_array_equal(g[f"noise_action_{i}"][...], x[0].cpu().float().numpy())
+            assert f"noise_action_{schedule.num_steps}" not in g
+            np.testing.assert_array_equal(g["clean_action"][...], stage2.action_pred[0].cpu().float().numpy())
+            served = policy.unapply_transforms({"action": stage2.action_pred[0].detach().cpu().float()[None]})
+            for key, value in served.items():
+                np.testing.assert_array_equal(np.asarray(outs[step][key])[None], np.asarray(value))
+
+
 def test_online_and_offline_keys_retrieve_the_same_entry(policy, runner, tmp_path):
     from exp.common.build_in_memory_cache_artifact import build_artifact
-    from exp.robocasa365.groot_cache_collector import GrootCacheCollector
     from exp.robocasa365.groot_key_parity import check_key_parity
     from openpi.cache.groot.key_builder import GrootCP1SpatialPool16KeyBuilder
     from openpi.cache.types import CheckpointID
 
     n_steps = 6
     data_dir = tmp_path / "episodes"
-    collector = GrootCacheCollector(policy, runner, out_dir=str(data_dir))
-    collector.on_episode_start(task="ManualParity", episode_id=0)
+    _, h5 = _trace_build_episode(policy, runner, data_dir, n_steps=n_steps, seed=SEED)
+    # A trace build only reads an audited selection (plan §7.3): audit, then list.
+    from exp.robocasa365.verify_collection_artifacts import _check_h5_schema
+
+    problems = _check_h5_schema(h5, "ManualParity", require_schedule=True)
+    assert problems == [], problems
+    selected = tmp_path / "audited_episodes.txt"
+    selected.write_text(h5.name + "\n")
 
     online_keys = []
     builder = GrootCP1SpatialPool16KeyBuilder()
     for step in range(n_steps):
-        obs = _observation(step)
-        # Production shape: the server-side adapter reshapes wire observations
-        # (build_groot_observation adds the T axis) BEFORE the collector sees
-        # them; feeding the wire dict directly is not a path that exists live.
-        from exp.robocasa365.groot_policy_adapter import build_groot_observation
-
-        collector.get_action(build_groot_observation(obs))
-        inputs = _normalized(policy, obs)
+        inputs = _normalized(policy, _observation(step))
         with runner.session():
             stage1 = runner.run_stage1(inputs)
         builder.collect(CheckpointID.CP1, stage1=stage1)
         online_keys.append(builder.build(CheckpointID.CP1))
-    collector.on_episode_end(success=True)
 
     artifact = build_artifact(
-        str(data_dir), "cp1_groot_spatial_pool_16", "CP1", workers=-1
+        str(h5.parent), "cp1_groot_spatial_pool_16", "CP1", workers=-1, episode_list=str(selected)
     )
     entries = sorted(artifact["entries"], key=lambda e: e.step_idx)
     assert len(entries) == n_steps
+    assert artifact["schedule_id"] == runner.live_schedule().schedule_id
     offline_keys = [
         {k: torch.as_tensor(v).float() for k, v in entry.query_keys.items()}
         for entry in entries
@@ -376,3 +463,151 @@ def test_online_and_offline_keys_retrieve_the_same_entry(policy, runner, tmp_pat
     report = check_key_parity(online_keys, offline_keys, metrics)
     print("\n" + report.summary())
     assert report.passed, report.summary()
+
+
+def test_concurrent_trace_batches_same_shape_and_splits_lengths(policy, runner, tmp_path):
+    """Three connections trace-build concurrently through one stage-3 core (plan §12-I / §12-K).
+
+    Connections 0 and 1 share a prompt but see different images and state, so
+    their conditioning has one shape with different content and must meet in a
+    single stage-3 forward; connection 2 has a longer prompt and must never
+    share a bucket with them (no padding). Every stage-3 call is reproduced
+    directly with its composition and order, and the served replies must be
+    bit-identical to it (no cross-talk, exact split). Against the batch-1 loop
+    a B>1 call differs only by kernel numerics; that drift must stay an order of
+    magnitude below the spread two noise draws give on the same conditioning --
+    the noise-floor rule of the online-RIT real-model gate (a bf16 batch changes
+    GEMM tiling, so a fixed relative tolerance is not the right yardstick).
+    """
+    import threading
+
+    import h5py
+
+    from exp.robocasa365 import groot_keys
+    from exp.robocasa365.groot_policy_adapter import build_groot_observation
+    from openpi.cache.groot import batcher as gb
+    from openpi.cache.groot.interceptor import GrootCacheInterceptor
+    from openpi.cache.groot.staged import GrootStagedRunner
+    from openpi.cache.trace.h5_sink import H5TraceSink, TraceWriter
+    from openpi.cache.trace.types import TracePlan, TraceRuntime
+    from openpi.serving.batching_core import BatchingCore
+
+    prompts = (
+        "pick up the object",
+        "pick up the object",
+        "pick up the object from the counter and place it in the cabinet next to the sink",
+    )
+    n_steps = 2
+    schedule = runner.live_schedule()
+    plan = TracePlan(
+        model="groot_n15", schedule=schedule, checkpoint=None, warm_tiers=(),
+        record_noise_actions=True, save_timesteps=schedule.timesteps,
+        record_prefix_tokens=True, record_raw_images=True, record_model_images=False,
+        record_query_keys=True, record_search=True, record_tokenized_prompt=True,
+        raw_image_keys=(), rng_isolation="verdict_aware", sidecar_jsonl=True, fail_loud=True,
+        concurrent=True,
+    )
+    out_dir = tmp_path / "trace"
+    writer = TraceWriter(str(out_dir), queue_steps=16)
+    batcher = gb.GrootStageBatcher(runner)
+    calls: list[list[tuple[int, float]]] = []  # per call: (conditioning length, noise checksum) in order
+    real_miss = batcher.run_stage3_miss
+
+    def spy(payloads, **kw):
+        calls.append([
+            (int(p.stage2_out.stage2.backbone_features.shape[1]), float(p.noise.double().sum()))
+            for p in payloads
+        ])
+        return real_miss(payloads, **kw)
+
+    batcher.run_stage3_miss = spy
+
+    def obs_for(conn: int, step: int) -> dict:
+        obs = _observation(step + 10 * conn)  # different images and state per connection
+        for key in groot_keys.LANGUAGE_KEYS:
+            obs[key] = prompts[conn]
+        return obs
+
+    lock = threading.Lock()
+    barrier = threading.Barrier(len(prompts))
+    errors: list[BaseException] = []
+
+    with BatchingCore(batcher, device="cuda", max_batch_size=8, max_wait_ms=300.0) as core:
+
+        def connection(i: int) -> None:
+            try:
+                rt = TraceRuntime(plan=plan, sink=H5TraceSink(out_dir, plan=plan, writer=writer))
+                it = GrootCacheInterceptor(
+                    policy, GrootStagedRunner(policy.model), trace=rt, coordinator=core,
+                    model_lock=lock, trace_vision_fields=("vision_0", "vision_1", "vision_2"),
+                )
+                it.on_task_begin()
+                it.on_episode_start("manual_conc", "ManualConcurrent", i, f"c{i}", {"task_uid": f"u{i}", "attempt": 1})
+                for step in range(n_steps):
+                    barrier.wait(timeout=300)
+                    it.get_action(build_groot_observation(obs_for(i, step)))
+                it.on_episode_end(True)
+                it.on_task_end()
+            except BaseException as exc:  # noqa: BLE001 - re-raised below
+                errors.append(exc)
+                barrier.abort()
+
+        threads = [threading.Thread(target=connection, args=(i,)) for i in range(len(prompts))]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join(600)
+    assert not errors, errors
+    report = writer.stop(timeout=60)
+    assert report.ok, report
+
+    # What each connection's decision was served from, read back from its file.
+    served: dict[tuple[int, int], dict] = {}
+    for i in range(len(prompts)):
+        with h5py.File(out_dir / "manual_conc" / f"c{i}.h5", "r") as f:
+            assert int(f.attrs["num_steps"]) == n_steps and bool(f.attrs["trace_terminal"])
+            for step in range(n_steps):
+                g = f[f"step_{step:04d}"]
+                inputs = _normalized(policy, obs_for(i, step))
+                with runner.session():
+                    stage2 = runner.run_stage2_llm(runner.run_stage1(inputs))
+                    probe = runner.sample_noise(stage2, generator=torch.Generator(device="cuda").manual_seed(0))
+                noise = torch.from_numpy(g["noise_action_0"][...]).to(device=probe.device, dtype=probe.dtype)
+                served[(i, step)] = {
+                    "stage2": stage2,
+                    "noise": noise,
+                    "length": int(stage2.backbone_features.shape[1]),
+                    "clean": g["clean_action"][...],
+                }
+    assert served[(0, 0)]["length"] == served[(1, 0)]["length"] != served[(2, 0)]["length"]
+    print(f"\nstage-3 calls (conditioning length per payload): {[[n for n, _ in c] for c in calls]}")
+    assert all(len({n for n, _ in c}) == 1 for c in calls), calls  # never a mixed-length bucket
+    assert any(len(c) >= 2 for c in calls), calls  # same shape met in one forward
+    assert sum(len(c) for c in calls) == len(prompts) * n_steps
+
+    def member(noise_sum: float) -> tuple[int, int]:
+        (key,) = [k for k, v in served.items() if abs(float(v["noise"].double().sum()) - noise_sum) < 1e-6]
+        return key
+
+    def loop(stage2s, noises) -> np.ndarray:
+        out, _ = gb.run_miss(
+            runner, gb.cat_stage2([gb.stage3_input(runner, s) for s in stage2s]),
+            torch.stack(noises), schedule=schedule, capture=True,
+        )
+        return out.action_pred.float().cpu().numpy()
+
+    for call in calls:
+        keys = [member(noise_sum) for _, noise_sum in call]
+        direct = loop([served[k]["stage2"] for k in keys], [served[k]["noise"] for k in keys])
+        for row, k in enumerate(keys):
+            np.testing.assert_array_equal(served[k]["clean"], direct[row])  # exact, no cross-talk
+        if len(keys) < 2:
+            continue
+        for k in keys:
+            other = next(o for o in keys if o != k)
+            serial = loop([served[k]["stage2"]], [served[k]["noise"]])[0]
+            spread = loop([served[k]["stage2"]], [served[other]["noise"]])[0]
+            drift = float(np.linalg.norm(served[k]["clean"] - serial))
+            floor = float(np.linalg.norm(spread - serial))
+            print(f"{k}: batch drift {drift:.4f}, noise spread {floor:.4f}")
+            assert drift <= 0.1 * floor, (k, drift, floor)

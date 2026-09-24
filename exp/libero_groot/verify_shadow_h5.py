@@ -158,7 +158,20 @@ def _h5_identity(path: pathlib.Path) -> dict:
     task_id_from_episode, subset = divmod(episode_id, TRIALS)
     task_id_attr = _attr(attrs, "task_id")
     orig_attr = _attr(attrs, "orig_init_state_idx")
+    # Trace-mode files (plan cache_trace_mode §7.3): the version attr marks a
+    # file written by the trace writer, which must also be a committed one.
+    trace_version = _attr(attrs, "trace_schema_version")
+    trace = None
+    if trace_version is not None:
+        trace = {
+            "version": int(trace_version),
+            "closed_ok": bool(attrs.get("trace_closed_ok", False)),
+            "terminal": bool(attrs.get("trace_terminal", False)),
+            "write_errors": int(attrs.get("trace_write_errors", 1)),
+            "noise_recorded": bool(attrs.get("trace_noise_actions_recorded", False)),
+        }
     return {
+        "trace": trace,
         "path": str(path), "episode_id": episode_id, "task_id": task_id_from_episode, "subset": subset,
         "task_id_attr": None if task_id_attr is None else int(task_id_attr),
         "orig_attr": None if orig_attr is None else int(orig_attr),
@@ -253,6 +266,33 @@ def judge_episode(suite: str, key: tuple[int, int], exp: dict, client: dict | No
         problems.append(f"H5 stamped {h5['schedule_id']!r}/{h5['denoising_num_steps']}, expected {SCHEDULE_ID}/{NUM_STEPS}")
     if h5["missing_datasets"]:
         problems.append(f"H5 missing datasets: {h5['missing_datasets'][:3]}")
+    problems.extend(trace_problems(h5.get("trace")))
+    return problems
+
+
+KNOWN_TRACE_SCHEMA_VERSIONS = (1,)
+
+
+def trace_problems(trace: dict | None) -> list[str]:
+    """Commit-state checks of a trace-mode file; empty for a legacy collector file.
+
+    The cohort needs the loop inputs (the CP2 reconstruction reads the
+    snapshots), so a diagnostic trace file that recorded none is rejected
+    even though its other fields are present.
+    """
+    if trace is None:
+        return []
+    problems: list[str] = []
+    if trace["version"] not in KNOWN_TRACE_SCHEMA_VERSIONS:
+        return [f"unknown trace_schema_version {trace['version']}"]
+    if not trace["closed_ok"]:
+        problems.append("trace_closed_ok is not True (episode never committed)")
+    if not trace["terminal"]:
+        problems.append("trace_terminal is not True (connection dropped mid-episode)")
+    if trace["write_errors"] != 0:
+        problems.append(f"trace_write_errors={trace['write_errors']}")
+    if not trace["noise_recorded"]:
+        problems.append("trace file recorded no noise_action_* (diagnostic run)")
     return problems
 
 

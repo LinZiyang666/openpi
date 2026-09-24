@@ -32,10 +32,9 @@ Contract (the core "why each step exists"):
 - **Pure cache rollout** drives the env with ``env.step(action[0])`` per
   ``client.infer`` call. Loop exits on ``info["success"]`` (goal reached),
   ``done``, or a per-unit ``max_spawn_env_steps`` budget.
-- **No HDF5 capture** for spawn runs — the server-side ``CollectionPolicy``
-  is driven by ``episode_start(experiment=…, episode_name="")``; the empty
-  name tells the collector not to pin a filename. We only care about the
-  success flag.
+- **No HDF5 capture** for spawn runs — the server is not started in trace
+  mode; ``episode_start(experiment=…, episode_name="")`` only drives the
+  cache lifecycle. We only care about the success flag.
 
 Test hooks are kept first-class: ``_SpawnCommon`` accepts a
 ``client_factory`` and ``env_factory`` so unit tests can exercise the

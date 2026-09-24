@@ -29,6 +29,15 @@ Contracts implemented here (frozen in the approved plan §4.3.6):
   (no Wilson lower bound: stacked conservatism explodes the budget; deficits
   are covered by deterministic extension batches instead). Lower tails are
   summed via ``lgamma`` — ``math.comb`` products overflow floats near N≈1000.
+* **Trace files** (``logs/cache_trace_mode_plan.log.md`` §7.3) — a file that
+  carries ``trace_schema_version`` was written by the trace serving mode and
+  must additionally be a *committed* one: ``trace_closed_ok`` and
+  ``trace_terminal`` true, ``trace_write_errors == 0``, its embedded identity
+  (``trace_task_uid`` / ``trace_attempt``) equal to the admitted journal row,
+  and -- when ``trace_noise_actions_recorded`` is false -- it is a diagnostic
+  file that can never feed a warm-start library. Files without the version
+  attr keep the legacy rules unchanged; an unknown version is rejected.
+  ``.h5.tmp`` / ``.h5.failed`` leftovers are reported as ``unfinished_files``.
 """
 
 from __future__ import annotations
@@ -246,20 +255,83 @@ def _check_pin_provenance(
     return problems
 
 
+KNOWN_TRACE_SCHEMA_VERSIONS = (1,)
+
+
+def _check_trace_attrs(
+    f, *, expected_identity: tuple[str, int] | None
+) -> tuple[list[str], bool | None]:
+    """Trace-file commit + identity checks; ``(problems, noise_recorded)``.
+
+    ``noise_recorded`` is None for a legacy (non-trace) file so the caller
+    keeps the legacy snapshot rule for it.
+    """
+    problems: list[str] = []
+    if "trace_schema_version" not in f.attrs:
+        return problems, None
+    version = int(f.attrs["trace_schema_version"])
+    if version not in KNOWN_TRACE_SCHEMA_VERSIONS:
+        problems.append(f"unknown trace_schema_version {version}")
+        return problems, None
+    if not bool(f.attrs.get("trace_closed_ok", False)):
+        problems.append("trace_closed_ok is not True (episode never committed)")
+    if not bool(f.attrs.get("trace_terminal", False)):
+        problems.append("trace_terminal is not True (connection dropped mid-episode)")
+    if int(f.attrs.get("trace_write_errors", 1)) != 0:
+        problems.append(f"trace_write_errors={int(f.attrs.get('trace_write_errors', 1))}")
+    if expected_identity is not None:
+        uid, attempt = expected_identity
+        got_uid = str(f.attrs.get("trace_task_uid", ""))
+        got_attempt = int(f.attrs.get("trace_attempt", -1))
+        if got_uid != uid or got_attempt != attempt:
+            problems.append(
+                f"trace identity ({got_uid!r}, attempt {got_attempt}) != admitted "
+                f"({uid!r}, attempt {attempt})"
+            )
+    return problems, bool(f.attrs.get("trace_noise_actions_recorded", False))
+
+
+def _requires_trace_admission(path: pathlib.Path) -> bool:
+    """Use whole-batch admission for trace files or an unreadable schema."""
+    import h5py
+
+    try:
+        with h5py.File(path, "r") as f:
+            return "trace_schema_version" in f.attrs
+    except (OSError, ValueError):
+        # An interrupted header is not evidence that this is a legacy file.
+        return True
+
+
 def _check_h5_schema(
-    path: pathlib.Path, expected_task: str, *, require_schedule: bool = False
+    path: pathlib.Path,
+    expected_task: str,
+    *,
+    require_schedule: bool = False,
+    expected_identity: tuple[str, int] | None = None,
 ) -> list[str]:
     """Validate ONE admitted file: attrs (values included) + EVERY step group.
 
     Checking only the first step would pass a file whose write died halfway; an
     admitted file's ``success`` attr must also BE true, not merely exist — the
     journal said success, and a False attr means the h5 belongs to a different
-    outcome than the ledger claims.
+    outcome than the ledger claims. A trace-mode file (``trace_schema_version``)
+    additionally has to be committed and carry the admitted identity; with
+    ``require_schedule`` it must have recorded its loop inputs.
     """
     import h5py
 
     problems: list[str] = []
     with h5py.File(path, "r") as f:
+        trace_problems, noise_recorded = _check_trace_attrs(
+            f, expected_identity=expected_identity
+        )
+        problems.extend(trace_problems)
+        if noise_recorded is False and require_schedule:
+            problems.append(
+                "trace file recorded no noise_action_* (diagnostic run); it cannot "
+                "feed a warm-start library"
+            )
         for attr in ("task", "success", "num_steps"):
             if attr not in f.attrs:
                 problems.append(f"missing attr {attr!r}")
@@ -300,6 +372,11 @@ def _check_h5_schema(
         expected_snapshots = (
             list(range(1, schedule.num_steps)) if schedule is not None else None
         )
+        if noise_recorded is False:
+            # Diagnostic trace file: stamped (D4) but without loop inputs by
+            # design; the snapshot rule does not apply (it was refused above
+            # when the corpus needs them).
+            expected_snapshots = None
         for name in step_groups:
             group = f[name]
             for field in REQUIRED_STEP_FIELDS:
@@ -367,6 +444,7 @@ def audit(
     pin_errors: dict[str, list[str]] = {}
     multiple_accepted: list[str] = []
     admitted: dict[str, dict[str, Any]] = {}  # uid -> {path, attempt, ...}
+    trace_batch = False  # any trace-mode file: whole-batch admission (plan §7.3)
 
     for uid in expected_uids:
         rows = by_uid.get(uid, [])
@@ -390,7 +468,10 @@ def audit(
             continue
         task_name = prefixes[uid].split("/")[1]
         problems = _check_h5_schema(
-            h5_path, task_name, require_schedule=require_denoise_schedule
+            h5_path,
+            task_name,
+            require_schedule=require_denoise_schedule,
+            expected_identity=(uid, attempt),
         )
         if problems:
             schema_errors[uid] = problems
@@ -413,11 +494,27 @@ def audit(
     # expected leftovers of retries/failures, reported but never an error.
     admitted_paths = {entry["path"] for entry in admitted.values()}
     orphan_attempts = []
+    unfinished_files = []
     if root.is_dir():
-        for h5_file in sorted(root.rglob("episode_*_a*.h5")):
+        # Classification includes unadmitted files: missing journal rows and
+        # duplicate accepted attempts must not bypass whole-batch admission.
+        trace_batch = (root / "_trace_failures.jsonl").is_file() or any(root.rglob("*.h5.reserved"))
+        for h5_file in sorted(root.rglob("*.h5")):
+            trace_batch = trace_batch or _requires_trace_admission(h5_file)
             rel = str(h5_file.relative_to(root))
-            if rel not in admitted_paths:
+            if h5_file.match("episode_*_a*.h5") and rel not in admitted_paths:
                 orphan_attempts.append(rel)
+        # Trace-mode leftovers (never renamed to .h5): failed or interrupted
+        # attempts. Reported, never admitted; an admitted uid whose only file
+        # is one of these already failed above as ``missing_file``.
+        for pattern in ("*.h5.tmp", "*.h5.failed"):
+            for leftover in sorted(root.rglob(pattern)):
+                unfinished_files.append(str(leftover.relative_to(root)))
+                # The legacy collector also uses .h5.tmp. Only a readable
+                # legacy header establishes its old admission semantics;
+                # .failed and reservation/error markers belong to trace.
+                trace_batch = (trace_batch or leftover.suffix == ".failed"
+                               or _requires_trace_admission(leftover))
 
     # Per-task success census vs the target.
     per_task: dict[str, int] = {}
@@ -450,7 +547,9 @@ def audit(
         "pin_id": pin_id,
         "multiple_accepted": sorted(multiple_accepted),
         "orphan_attempts": orphan_attempts,
+        "unfinished_files": unfinished_files,
         "insufficient": insufficient,
+        "trace_batch": trace_batch,
     }
 
 
@@ -467,7 +566,14 @@ def build_manifest(
     Deterministic by construction: input = the audited admission set (journal
     semantics), order = episode_idx parsed from the canonical prefix, and the
     serialization sorts keys — the same tree always yields the same bytes.
+
+    A trace batch is admitted whole or not at all (plan §7.3): a failed audit of
+    one publishes no manifest. Only a report the auditor classified as a
+    legacy-schema batch keeps the per-episode rejection (rejected episodes left
+    out, admitted ones listed); a report that does not say is treated as trace.
     """
+    if report.get("trace_batch", True) and not report.get("ok", False):
+        raise ValueError("cannot publish a build manifest from a failed audit of a trace batch")
     root = pathlib.Path(root)
     per_task: dict[str, list[tuple[int, str, dict[str, Any]]]] = {}
     for uid, entry in report["admitted"].items():

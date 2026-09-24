@@ -379,7 +379,7 @@ def _handle_set_batch_params(payload: dict) -> dict:
     """Hot-mutate the coordinator's max_batch_size / max_wait_ms without
     restarting the server. Useful for sweeping param grids in benchmarks.
     """
-    from openpi.serving.batching_coordinator import get_active_coordinator
+    from openpi.serving.batching_core import get_active_coordinator
     coord = get_active_coordinator()
     if coord is None:
         return {"__ack__": "error", "msg": "no active coordinator (single-connection mode?)"}
@@ -504,12 +504,33 @@ class WebsocketPolicyServer:
         # supervisor (replica scale-out) wait for "actually serving" rather
         # than racing the bind.
         self._ready_callback = ready_callback
+        self._stop_requested = threading.Event()
         logging.getLogger("websockets.server").setLevel(logging.INFO)
 
-    def serve_forever(self) -> None:
-        asyncio.run(self.run())
+    def serve_forever(self, *, stop_on_request: bool = False) -> None:
+        asyncio.run(self.run(stop_on_request=stop_on_request))
 
-    async def run(self):
+    def request_stop(self) -> None:
+        """Ask a ``stop_on_request`` server to shut down (thread-safe, idempotent).
+
+        Only meaningful after ``run(stop_on_request=True)`` has started; the
+        trace serving mode uses it from the writer-failure watch and from the
+        SIGTERM handler. A server started on the default path ignores it.
+        """
+        self._stop_requested.set()
+        loop = getattr(self, "_loop", None)
+        event = getattr(self, "_stop_event", None)
+        if loop is None or event is None:
+            return
+        if not loop.is_closed():
+            loop.call_soon_threadsafe(event.set)
+
+    async def run(self, *, stop_on_request: bool = False):
+        if stop_on_request:
+            self._loop = asyncio.get_running_loop()
+            self._stop_event = asyncio.Event()
+            if self._stop_requested.is_set():
+                self._stop_event.set()
         async with _server.serve(
             self._handler,
             self._host,
@@ -524,7 +545,15 @@ class WebsocketPolicyServer:
         ) as server:
             if self._ready_callback is not None:
                 self._ready_callback()
-            await server.serve_forever()
+            if not stop_on_request:
+                await server.serve_forever()
+                return
+            # Trace serving mode: stay up until ``request_stop`` fires, then
+            # stop accepting and close the listening socket so the entry point
+            # can drain the writers with a bounded budget (plan §7.4-5).
+            await self._stop_event.wait()
+            server.close()
+            await server.wait_closed()
 
     async def _handler(self, websocket: _server.ServerConnection):
         # ------------------------------------------------------------------
@@ -651,7 +680,7 @@ class WebsocketPolicyServer:
                                 }))
                                 continue
                         # Keyword dispatch (plan §21.S1.3): wrappers such as
-                        # ``CollectionPolicy`` forward these kwargs through the
+                        # ``PolicyRecorder`` forward these kwargs through the
                         # chain; positional calls would break any wrapper that
                         # inserts an extra parameter (e.g. ``episode_name``).
                         if hasattr(conn_policy, "on_episode_start"):

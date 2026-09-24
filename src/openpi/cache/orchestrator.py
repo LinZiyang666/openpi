@@ -29,8 +29,9 @@ import inspect
 import logging
 import uuid
 from contextlib import contextmanager
-from dataclasses import dataclass
-from typing import Optional
+import dataclasses
+from dataclasses import dataclass, field
+from typing import Any, Optional
 
 import torch
 
@@ -40,6 +41,7 @@ from openpi.cache.components.factors.base import (
     LibraryStats,
     OfflineWriter,
 )
+from openpi.cache.components.gate import AlwaysSearchGate as _AlwaysSearchGate
 from openpi.cache.components.gate import ClientControlledGate, GateFunction
 from openpi.cache.components.judge import (
     HitType,
@@ -65,6 +67,60 @@ logger = logging.getLogger(__name__)
 # exclusive by config validation, so exactly one of them increments the counter
 # per inference cycle; CP3 never does (it reads the coordinate CP1/CP2 set).
 _STEP_OWNER_CPS = (CheckpointID.CP1, CheckpointID.CP2)
+
+
+@dataclass
+class _CheckState:
+    """Mutable per-connection state one component set drives through ``check``.
+
+    The real set owns the orchestrator's historical attributes (exposed as
+    compatibility properties below, one truth); the twin set owns its own
+    instance so a forced twin search can never move a real counter.
+    """
+
+    step_counter: int = 0
+    miss_by_checkpoint: dict = field(default_factory=dict)
+    action_history: list = field(default_factory=list)
+    state_history: list = field(default_factory=list)
+    last_judge_commit: Optional[dict] = None
+    strategy_session_ids: list = field(default_factory=list)
+
+
+@dataclass
+class TwinSet:
+    """The second, isolated component set the trace mode drives (plan §4.2).
+
+    Built by ``openpi.cache.trace.runtime.build_trace_twins`` from the
+    production factory on a stripped config copy: same component types and
+    parameters, separate instances, its own storage facade and (disabled)
+    timer. The orchestrator wraps it into a ``_ComponentSet`` with its own
+    ``_CheckState``.
+    """
+
+    key_builder: Any
+    gates: dict
+    judges: dict
+    strategies: dict
+    storage: Any
+    timer: Any
+    library_stats: Any = None
+
+
+@dataclass
+class _ComponentSet:
+    """Everything ``_check_impl`` touches, for one of the two sets."""
+
+    label: str
+    key_builder: Any
+    gates: dict
+    judges: dict
+    strategies: dict
+    storage: Any
+    timer: Any
+    judge_wants_query_keys: dict
+    judge_wants_step_features: dict
+    state_history_anchor_cp: Optional[CheckpointID]
+    state: _CheckState
 
 
 @dataclass
@@ -104,6 +160,10 @@ class CheckResult:
     # only by MlpRouterJudge. Interceptor stamps ``arm_executed`` onto it and
     # surfaces it through ``__hit_meta__``.
     router_outputs: Optional[dict] = None
+    # Trace serving mode (plan logs/cache_trace_mode_plan.log.md §4.5): what the
+    # twin component set recorded for this decision. None for every check()
+    # call that did not ask for it, so the legacy dataclass surface is unchanged.
+    trace: Optional[Any] = None
 
 
 class CacheOrchestrator:
@@ -140,7 +200,12 @@ class CacheOrchestrator:
         write_policy=None,
         offline_writers: tuple["OfflineWriter", ...] = (),
         library_stats: Optional["LibraryStats"] = None,
+        trace_twins: Optional[TwinSet] = None,
     ) -> None:
+        # One truth for the per-connection counters / histories: the real
+        # component set's state. The historical ``self._step_counter`` etc.
+        # attributes below are properties over this object.
+        self._real_state = _CheckState()
         self._storage = storage
         self._key_builder = key_builder
         self._gates = gates
@@ -232,6 +297,126 @@ class CacheOrchestrator:
             for step in ("collect", "gate", "build", "search", "judge", "fetch"):
                 self._timer.register_probe(f"{cp}_{step}", backend="cpu")
 
+        # The real component set is a view over the attributes above; the twin
+        # set (trace mode only) is a second, isolated set with its own state.
+        self._real = _ComponentSet(
+            label="real",
+            key_builder=self._key_builder,
+            gates=self._gates,
+            judges=self._judges,
+            strategies=self._search_strategies,
+            storage=self._storage,
+            timer=self._timer,
+            judge_wants_query_keys=self._judge_wants_query_keys,
+            judge_wants_step_features=self._judge_wants_step_features,
+            state_history_anchor_cp=self._state_history_anchor_cp,
+            state=self._real_state,
+        )
+        self._twins: Optional[_ComponentSet] = None
+        self._twin_source: Optional[TwinSet] = None
+        if trace_twins is not None:
+            self.attach_trace_twins(trace_twins)
+
+    def attach_trace_twins(self, twins: TwinSet) -> None:
+        """Install the trace mode's twin component set (plan §4.2).
+
+        The serving entry points build the orchestrator first and the
+        per-connection ``TraceRuntime`` (which owns the twins) second; the
+        interceptor attaches the latter here before the first lifecycle call.
+        Re-attaching the same set is a no-op; replacing one is refused.
+        """
+        if self._twin_source is twins:
+            return
+        if self._twins is not None:
+            raise RuntimeError("trace twins are already attached to this orchestrator")
+        self._twins = self._wrap_twins(twins)
+        self._twin_source = twins
+
+    def _wrap_twins(self, twins: TwinSet) -> _ComponentSet:
+        """Wrap a ``TwinSet`` into a component set with its own state and probes."""
+        for cp, judge in twins.judges.items():
+            if hasattr(judge, "commit_verdict") and not isinstance(
+                twins.gates.get(cp), _AlwaysSearchGate
+            ):
+                raise ValueError(
+                    f"{cp}: twin CRD judge requires gate.type=always_search, "
+                    f"got {type(twins.gates.get(cp)).__name__}"
+                )
+        for cp in ("cp1", "cp2", "cp3"):
+            for step in ("collect", "gate", "build", "search", "judge", "fetch"):
+                twins.timer.register_probe(f"{cp}_{step}", backend="cpu")
+        anchor = min(twins.gates.keys(), key=lambda cp: cp.value) if twins.gates else None
+        return _ComponentSet(
+            label="twin",
+            key_builder=twins.key_builder,
+            gates=twins.gates,
+            judges=twins.judges,
+            strategies=twins.strategies,
+            storage=twins.storage,
+            timer=twins.timer,
+            judge_wants_query_keys={
+                cp: judge_accepts_query_keys(j) for cp, j in twins.judges.items()
+            },
+            judge_wants_step_features={
+                cp: judge_accepts_kwarg(j, "step_features") for cp, j in twins.judges.items()
+            },
+            state_history_anchor_cp=anchor,
+            state=_CheckState(),
+        )
+
+    def _component_sets(self) -> list[_ComponentSet]:
+        return [self._real] if self._twins is None else [self._real, self._twins]
+
+    # -- compatibility views over the real state (one truth) -------------------
+
+    @property
+    def _step_counter(self) -> int:
+        return self._real_state.step_counter
+
+    @_step_counter.setter
+    def _step_counter(self, value: int) -> None:
+        self._real_state.step_counter = value
+
+    @property
+    def _miss_by_checkpoint(self) -> dict:
+        return self._real_state.miss_by_checkpoint
+
+    @_miss_by_checkpoint.setter
+    def _miss_by_checkpoint(self, value: dict) -> None:
+        self._real_state.miss_by_checkpoint = value
+
+    @property
+    def _action_history(self) -> list:
+        return self._real_state.action_history
+
+    @_action_history.setter
+    def _action_history(self, value: list) -> None:
+        self._real_state.action_history = value
+
+    @property
+    def _state_history(self) -> list:
+        return self._real_state.state_history
+
+    @_state_history.setter
+    def _state_history(self, value: list) -> None:
+        self._real_state.state_history = value
+
+    @property
+    def _last_judge_commit(self) -> Optional[dict]:
+        return self._real_state.last_judge_commit
+
+    @_last_judge_commit.setter
+    def _last_judge_commit(self, value: Optional[dict]) -> None:
+        self._real_state.last_judge_commit = value
+
+    @property
+    def _current_strategy_session_ids(self) -> list:
+        return self._real_state.strategy_session_ids
+
+    @_current_strategy_session_ids.setter
+    def _current_strategy_session_ids(self, value: list) -> None:
+        self._real_state.strategy_session_ids = value
+
     # ------------------------------------------------------------------
     # Public accessors
     # ------------------------------------------------------------------
@@ -247,6 +432,15 @@ class CacheOrchestrator:
         explicit and unit-testable.
         """
         return self._key_builder
+
+    @property
+    def twin_key_builder(self):
+        """The twin set's KeyBuilder (trace mode), or None."""
+        return None if self._twins is None else self._twins.key_builder
+
+    @property
+    def has_twins(self) -> bool:
+        return self._twins is not None
 
     def has_checkpoint(self, checkpoint_id: CheckpointID) -> bool:
         """True when ``checkpoint_id`` is wired (gate / judge / strategy configured)."""
@@ -288,6 +482,8 @@ class CacheOrchestrator:
     def on_task_begin(self, task_key: str = "") -> None:
         """Reset per-task state. Called when a client connection opens."""
         self._step_counter = 0
+        if self._twins is not None:
+            self._twins.state.step_counter = 0
         self._current_task_key = task_key
         self._reset_episode_buffer()
         # A connection opens before an identified episode_start frame arrives.
@@ -311,6 +507,8 @@ class CacheOrchestrator:
         ``_safe_call_lifecycle`` filtering path.
         """
         self._step_counter = 0
+        if self._twins is not None:
+            self._twins.state.step_counter = 0
         if task_key:
             self._current_task_key = task_key
         self._current_episode_id = episode_id
@@ -335,46 +533,47 @@ class CacheOrchestrator:
               through `storage.open_search_session(sid)` so the backend's
               mutation guard activates *before* any search runs.
         """
-        # (1) Close any stale sessions (idempotent).
-        self._close_current_search_sessions()
+        for cs in self._component_sets():
+            # (1) Close any stale sessions (idempotent).
+            self._close_search_sessions(cs)
 
-        # (2) Broadcast lifecycle to all components.
-        # Pass `extra_metadata` only to judges (DumpingJudge consumes it for
-        # JSONL identity); _safe_call_lifecycle filters via inspect.signature
-        # so existing kwargs-free judges (AlwaysHit / AlwaysWarmStart /
-        # Threshold / CompositeJudge) silently swallow the kwarg.
-        self._safe_call_lifecycle(self._key_builder, "on_episode_start")
-        for strategy in self._search_strategies.values():
-            self._safe_call_lifecycle(strategy, "on_episode_start")
-        for gate in self._gates.values():
-            # G0a: broadcast task_key to the gate. _safe_call_lifecycle filters
-            # by signature, so legacy gates (on_episode_start(self)) ignore it;
-            # gates that declare on_episode_start(self, task_key="") receive it.
-            self._safe_call_lifecycle(
-                gate, "on_episode_start", task_key=self._current_task_key
-            )
-        for judge in self._unique_judges():
-            self._safe_call_lifecycle(
-                judge,
-                "on_episode_start",
-                extra_metadata=self._current_episode_extra,
-                provisional=provisional,
-            )
+            # (2) Broadcast lifecycle to all components.
+            # Pass `extra_metadata` only to judges (DumpingJudge consumes it for
+            # JSONL identity); _safe_call_lifecycle filters via inspect.signature
+            # so existing kwargs-free judges (AlwaysHit / AlwaysWarmStart /
+            # Threshold / CompositeJudge) silently swallow the kwarg.
+            self._safe_call_lifecycle(cs.key_builder, "on_episode_start")
+            for strategy in cs.strategies.values():
+                self._safe_call_lifecycle(strategy, "on_episode_start")
+            for gate in cs.gates.values():
+                # G0a: broadcast task_key to the gate. _safe_call_lifecycle filters
+                # by signature, so legacy gates (on_episode_start(self)) ignore it;
+                # gates that declare on_episode_start(self, task_key="") receive it.
+                self._safe_call_lifecycle(
+                    gate, "on_episode_start", task_key=self._current_task_key
+                )
+            for judge in self._unique_judges(cs):
+                self._safe_call_lifecycle(
+                    judge,
+                    "on_episode_start",
+                    extra_metadata=self._current_episode_extra,
+                    provisional=provisional,
+                )
 
-        # (3) Collect strategy-minted sids and register with the backend.
-        # Sequential single-thread loop here; no contention with concurrent
-        # search because no search is in flight inside lifecycle hooks.
-        for strategy in self._search_strategies.values():
-            getter = getattr(strategy, "get_search_session_id", None)
-            if getter is None:
-                continue
-            sid = getter()
-            if sid is None:
-                continue
-            self._storage.open_search_session(sid)
-            self._current_strategy_session_ids.append(sid)
+            # (3) Collect strategy-minted sids and register with the backend.
+            # Sequential single-thread loop here; no contention with concurrent
+            # search because no search is in flight inside lifecycle hooks.
+            for strategy in cs.strategies.values():
+                getter = getattr(strategy, "get_search_session_id", None)
+                if getter is None:
+                    continue
+                sid = getter()
+                if sid is None:
+                    continue
+                cs.storage.open_search_session(sid)
+                cs.state.strategy_session_ids.append(sid)
 
-    def _unique_judges(self):
+    def _unique_judges(self, cs: Optional[_ComponentSet] = None):
         """Yield each distinct judge instance exactly once.
 
         ``judges`` is keyed by checkpoint, and a config may legitimately bind
@@ -384,8 +583,9 @@ class CacheOrchestrator:
         close and re-open its dump buffer inside a single episode start, and
         emit a spurious zero-step record for the buffer it just opened.
         """
+        judges = self._judges if cs is None else cs.judges
         seen: set[int] = set()
-        for judge in self._judges.values():
+        for judge in judges.values():
             if id(judge) in seen:
                 continue
             seen.add(id(judge))
@@ -404,8 +604,19 @@ class CacheOrchestrator:
         Signature-filtered like every other lifecycle broadcast, so judges
         without the hook are untouched.
         """
-        for judge in self._unique_judges():
-            self._safe_call_lifecycle(judge, method_name)
+        for cs in self._component_sets():
+            for judge in self._unique_judges(cs):
+                self._safe_call_lifecycle(judge, method_name)
+
+    def _close_search_sessions(self, cs: _ComponentSet) -> None:
+        for sid in cs.state.strategy_session_ids:
+            cs.storage.close_search_session(sid)
+        cs.state.strategy_session_ids = []
+
+    def close_trace_search_sessions(self) -> None:
+        """Release twin sessions on disconnect without changing real lifecycle calls."""
+        if self._twins is not None:
+            self._close_search_sessions(self._twins)
 
     def _close_current_search_sessions(self) -> None:
         """Close all currently-registered strategy search sessions.
@@ -415,9 +626,8 @@ class CacheOrchestrator:
         funnel through here. NO other path may mutate
         `_current_strategy_session_ids` directly.
         """
-        for sid in self._current_strategy_session_ids:
-            self._storage.close_search_session(sid)
-        self._current_strategy_session_ids = []
+        for cs in self._component_sets():
+            self._close_search_sessions(cs)
 
     @staticmethod
     def _safe_call_lifecycle(component, method_name: str, **kwargs) -> None:
@@ -441,6 +651,10 @@ class CacheOrchestrator:
         # action / state lists, not bleed across episode boundaries).
         self._action_history.clear()
         self._state_history.clear()
+        if self._twins is not None:
+            self._twins.state.miss_by_checkpoint.clear()
+            self._twins.state.action_history.clear()
+            self._twins.state.state_history.clear()
         # Identity payload from `episode_start.extra_metadata` is also
         # cleared here so any stray verdict between on_episode_end and the
         # next on_episode_start (defensive) sees an empty dict rather than
@@ -457,15 +671,16 @@ class CacheOrchestrator:
         Called by Interceptor after action is produced (cache hit or inference).
         Must be called after check() returns (all locks released).
         """
-        for strategy in self._search_strategies.values():
-            if hasattr(strategy, "record_action"):
-                strategy.record_action(action_chunk)
-        for gate in self._gates.values():
-            if hasattr(gate, "record_action"):
-                gate.record_action(action_chunk)
-        for judge in self._judges.values():
-            if hasattr(judge, "record_action"):
-                judge.record_action(action_chunk)
+        for cs in self._component_sets():
+            for strategy in cs.strategies.values():
+                if hasattr(strategy, "record_action"):
+                    strategy.record_action(action_chunk)
+            for gate in cs.gates.values():
+                if hasattr(gate, "record_action"):
+                    gate.record_action(action_chunk)
+            for judge in cs.judges.values():
+                if hasattr(judge, "record_action"):
+                    judge.record_action(action_chunk)
         # B1 — record into the orchestrator-owned action history (read by
         # CompositeJudge factors via HistoryView). Detaches the chunk so
         # the buffer never holds onto autograd state from inference.
@@ -479,9 +694,12 @@ class CacheOrchestrator:
         chunk_cpu = action_chunk.detach().cpu()
         first_action = chunk_cpu[0] if chunk_cpu.dim() >= 2 else chunk_cpu
         self._action_history.append(first_action)
+        if self._twins is not None:
+            self._twins.state.action_history.append(first_action)
 
     def _feed_verdict_to_gate(
         self,
+        cs: _ComponentSet,
         checkpoint_id: CheckpointID,
         *,
         hit_type: HitType,
@@ -500,7 +718,7 @@ class CacheOrchestrator:
         storage lock, no wire. searched=False marks a gate-skip step (no search
         ran; cp1_score is None).
         """
-        gate = self._gates.get(checkpoint_id)
+        gate = cs.gates.get(checkpoint_id)
         if gate is not None and hasattr(gate, "record_verdict"):
             gate.record_verdict(
                 checkpoint_id,
@@ -514,9 +732,9 @@ class CacheOrchestrator:
         # __call__; the FINAL executed verdict is committed here, on the same
         # every-successful-return hook. A malformed WARM_START payload raises
         # before this point and is never booked as a model MISS.
-        judge = self._judges.get(checkpoint_id)
+        judge = cs.judges.get(checkpoint_id)
         if searched and judge is not None and hasattr(judge, "commit_verdict"):
-            self._last_judge_commit = judge.commit_verdict(
+            cs.state.last_judge_commit = judge.commit_verdict(
                 checkpoint_id,
                 hit_type=hit_type,
                 cp1_score=cp1_score,
@@ -563,12 +781,34 @@ class CacheOrchestrator:
             return {}
         return judge.record_continuation(checkpoint_id, snapshot, feedback, **kwargs)
 
-    def _with_judge_diag(self, factor_outputs):
+    def twin_continuation_spec(self, checkpoint_id: CheckpointID):
+        """The twin judge's feedback contract (trace mode), or None."""
+        if self._twins is None:
+            return None
+        return getattr(self._twins.judges.get(checkpoint_id), "continuation_spec", None)
+
+    def twin_pending_decision(self, checkpoint_id: CheckpointID):
+        if self._twins is None:
+            return None
+        return getattr(self._twins.judges.get(checkpoint_id), "pending_snapshot", None)
+
+    def twin_record_continuation(
+        self, checkpoint_id: CheckpointID, snapshot, feedback, **kwargs
+    ) -> dict:
+        """Forward continuation feedback to the twin judge only."""
+        if self._twins is None:
+            return {}
+        judge = self._twins.judges.get(checkpoint_id)
+        if judge is None or not hasattr(judge, "record_continuation"):
+            return {}
+        return judge.record_continuation(checkpoint_id, snapshot, feedback, **kwargs)
+
+    def _with_judge_diag(self, cs: _ComponentSet, factor_outputs):
         """Merge a stateful judge's commit diagnostics into the step's factor_outputs."""
-        diag = self._last_judge_commit
+        diag = cs.state.last_judge_commit
         if not diag:
             return factor_outputs
-        self._last_judge_commit = None
+        cs.state.last_judge_commit = None
         merged = dict(factor_outputs or {})
         merged["crd"] = diag
         return merged
@@ -582,6 +822,8 @@ class CacheOrchestrator:
         checkpoint_id: CheckpointID,
         *,
         request_context: dict | None = None,
+        trace: bool = False,
+        fetch_top1: bool = False,
         **stage_outputs,
     ) -> CheckResult:
         """Cache check pipeline: collect -> gate -> build -> search -> judge -> fetch.
@@ -600,39 +842,187 @@ class CacheOrchestrator:
                 Default gates ignore it; ``ClientControlledGate`` consumes
                 ``gate_decision``. Kwarg-only to keep it out of the
                 ``**stage_outputs`` passthrough.
+            trace: Trace serving mode (plan logs/cache_trace_mode_plan.log.md
+                §4). The real pipeline runs exactly as without it; additionally
+                the twin component set runs the same pipeline with the search
+                forced and its record lands in ``CheckResult.trace``. Ignored
+                when no twins were injected.
+            fetch_top1: With ``trace``, also fetch the twin's top-1 payload (the
+                base of every warm variant). Never touches the real path.
             **stage_outputs: Stage tensors forwarded to ``KeyBuilder.collect``.
 
         CheckResult.query_keys is filled on all return paths.
         """
+        real_obs: Optional[dict] = {} if (trace and self._twins is not None) else None
+        result = self._check_impl(
+            self._real,
+            checkpoint_id,
+            request_context,
+            stage_outputs,
+            force_search=False,
+            observer=real_obs,
+        )
+        if real_obs is not None and checkpoint_id in self._twins.gates:
+            ct = self._twin_check(
+                checkpoint_id, request_context, stage_outputs, fetch_top1=fetch_top1, real_obs=real_obs
+            )
+            result = dataclasses.replace(result, trace=ct)
+        return result
+
+    def trace_check(
+        self,
+        checkpoint_id: CheckpointID,
+        *,
+        request_context: dict | None = None,
+        fetch_top1: bool = False,
+        **stage_outputs,
+    ):
+        """Run ONLY the twin pipeline for ``checkpoint_id`` (plan §4.1).
+
+        Used where the real path never runs this checkpoint (CP3 after a
+        FULL_HIT) so "every module runs" still holds without adding a real
+        handler call. Returns the ``CheckTrace`` or None without twins.
+        """
+        if self._twins is None or checkpoint_id not in self._twins.gates:
+            return None
+        return self._twin_check(
+            checkpoint_id, request_context, stage_outputs, fetch_top1=fetch_top1, real_obs=None
+        )
+
+    def _twin_check(
+        self,
+        checkpoint_id: CheckpointID,
+        request_context: dict | None,
+        stage_outputs: dict,
+        *,
+        fetch_top1: bool,
+        real_obs: Optional[dict],
+    ):
+        from openpi.cache.trace.types import CheckTrace
+
+        obs: dict = {}
+        self._check_impl(
+            self._twins,
+            checkpoint_id,
+            request_context,
+            stage_outputs,
+            force_search=True,
+            observer=obs,
+        )
+        results = obs.get("results") or []
+        view = obs.get("view")
+        top1_id = results[0].id if results else None
+        top1_payload = None
+        if fetch_top1 and top1_id is not None and view is not None:
+            top1_payload = view.get(top1_id)
+        per_field = self._twin_per_field(obs, results)
+        proposed = obs.get("proposed_verdict")
+        effective = proposed
+        if obs.get("validation_error") is not None and proposed is not None:
+            effective = dataclasses.replace(proposed, hit_type=HitType.MISS)
+        real_results = None
+        real_judge = None
+        gate_real = None
+        if real_obs is not None:
+            gate_real = real_obs.get("gate_should_search")
+            real_results = real_obs.get("results")
+            real_judge = real_obs.get("judge_result")
+        chain_scores = None
+        strategy = obs.get("strategy")
+        depth = getattr(strategy, "trajectory_depth", None) or getattr(strategy, "_trajectory_depth", None)
+        if isinstance(depth, int) and depth > 1:
+            chain_scores = [float(r.score) for r in results]
+        return CheckTrace(
+            checkpoint=checkpoint_id.name,
+            gate_real_should_search=gate_real,
+            gate_twin_should_search=bool(obs.get("gate_should_search", True)),
+            real_results=real_results,
+            real_judge_result=real_judge,
+            twin_results=list(results),
+            twin_step_features=obs.get("step_features"),
+            twin_per_field=per_field,
+            twin_chain_scores=chain_scores,
+            twin_retrieval_signals=obs.get("retrieval_signals"),
+            twin_proposed_verdict=proposed,
+            twin_verdict=effective,
+            twin_validation_error=obs.get("validation_error"),
+            twin_replay_target=obs.get("replay_target"),
+            top1_entry_id=top1_id,
+            top1_payload=top1_payload,
+        )
+
+    def _twin_per_field(self, obs: dict, results):
+        """Per-field scores of the twin top-k (plan §4.4); None without support."""
+        strategy = obs.get("strategy")
+        storage = self._twins.storage if self._twins is not None else None
+        fn = getattr(storage, "per_field_scores", None)
+        if fn is None or strategy is None:
+            return None
+        # Dynamic-depth and dual retrieval choose fusion independently of an
+        # optional (possibly unused) normalization block.
+        score_normalization = getattr(strategy, "_score_normalization", None)
+        fusion_method = getattr(strategy, "_base_fusion", None)
+        if fusion_method is None:
+            fusion_method = "weighted_score_sum" if score_normalization is not None else "weighted_rrf"
+        try:
+            return fn(
+                obs["query_keys"],
+                [r.id for r in results],
+                field_similarity=getattr(strategy, "_field_similarity", None),
+                score_normalization=score_normalization,
+                fusion_weights=getattr(strategy, "_fusion_weights", None),
+                fusion_method=fusion_method,
+            )
+        except NotImplementedError:
+            return None
+
+    def _check_impl(
+        self,
+        cs: _ComponentSet,
+        checkpoint_id: CheckpointID,
+        request_context: dict | None,
+        stage_outputs: dict,
+        *,
+        force_search: bool,
+        observer: Optional[dict],
+    ) -> CheckResult:
+        """The pipeline body, parameterised by the component set it drives.
+
+        With ``force_search=False`` and ``observer=None`` this is the historical
+        ``check`` statement for statement (the real path). ``force_search``
+        (twin only) records the gate decision, then takes the searched branch
+        regardless; ``observer`` receives copies of locals already computed
+        and never triggers an extra component call.
+        """
         prefix = checkpoint_id.name.lower()
 
         # If this checkpoint is not configured, skip gracefully.
-        if checkpoint_id not in self._gates:
+        if checkpoint_id not in cs.gates:
             if checkpoint_id in _STEP_OWNER_CPS:
-                self._step_counter += 1
+                cs.state.step_counter += 1
             return CheckResult(hit_type=HitType.MISS)
 
-        gate = self._gates[checkpoint_id]
-        judge = self._judges[checkpoint_id]
-        strategy = self._search_strategies[checkpoint_id]
+        gate = cs.gates[checkpoint_id]
+        judge = cs.judges[checkpoint_id]
+        strategy = cs.strategies[checkpoint_id]
 
-        with self._timer.measure(f"{prefix}_collect"):
-            self._key_builder.collect(checkpoint_id, **stage_outputs)
+        with cs.timer.measure(f"{prefix}_collect"):
+            cs.key_builder.collect(checkpoint_id, **stage_outputs)
 
-        with self._timer.measure(f"{prefix}_gate"):
+        with cs.timer.measure(f"{prefix}_gate"):
             should_search = gate(
-                checkpoint_id, self._key_builder.cached_data, request_context
+                checkpoint_id, cs.key_builder.cached_data, request_context
             )
         logger.info(
             "[step %d] %s gate: %s",
-            self._step_counter,
+            cs.state.step_counter,
             prefix,
             "SEARCH" if should_search else "SKIP",
         )
 
         # build() always executes (even on gate skip) for trajectory completeness
-        with self._timer.measure(f"{prefix}_build"):
-            query_keys = self._key_builder.build(checkpoint_id)
+        with cs.timer.measure(f"{prefix}_build"):
+            query_keys = cs.key_builder.build(checkpoint_id)
 
         # B1 — record state history at the anchor checkpoint.
         # Anchor = lowest-value enabled checkpoint, so multi-CP configs
@@ -641,10 +1031,21 @@ class CacheOrchestrator:
         # the episode (verdict factors use windowed scans that need
         # contiguous samples).
         if (
-            checkpoint_id == self._state_history_anchor_cp
+            checkpoint_id == cs.state_history_anchor_cp
             and "robot_state" in query_keys
         ):
-            self._state_history.append(query_keys["robot_state"].detach().cpu())
+            cs.state.state_history.append(query_keys["robot_state"].detach().cpu())
+
+        if observer is not None:
+            observer["gate_should_search"] = bool(should_search)
+        if not should_search and force_search:
+            # Twin set only: the gate's decision is recorded (and, for a
+            # FollowWinner gate, its replay target is read without walking or
+            # fetching it), then the searched branch runs unconditionally. The
+            # replay / skip early returns below are never taken by a twin.
+            if observer is not None and hasattr(gate, "replay_target"):
+                observer["replay_target"] = gate.replay_target()
+            should_search = True
 
         if not should_search:
             # N2 blind-replay branch (FollowWinnerGate): a gate that has locked a
@@ -655,12 +1056,12 @@ class CacheOrchestrator:
             replay_id = gate.replay_target() if hasattr(gate, "replay_target") else None
             if replay_id is not None:
                 try:
-                    entries = StoragePayloadView(self._storage).walk_next(replay_id, 1)
+                    entries = StoragePayloadView(cs.storage).walk_next(replay_id, 1)
                 except Exception:  # noqa: BLE001 - fork/missing-entry/backend fail-safe
                     logger.warning(
                         "[step %d] blind-replay walk_next(%s) failed; unlocking and "
                         "falling through to skip",
-                        self._step_counter,
+                        cs.state.step_counter,
                         replay_id,
                     )
                     entries = []
@@ -671,11 +1072,11 @@ class CacheOrchestrator:
                     if hasattr(strategy, "record_query_keys"):
                         strategy.record_query_keys(query_keys)
                     if checkpoint_id in _STEP_OWNER_CPS:
-                        self._step_counter += 1
+                        cs.state.step_counter += 1
                     # searched=False FULL_HIT: a cached action replayed without a
                     # real search. Feeds the gate so it advances its cursor / spends
                     # budget (winner_id is the replayed entry's id).
-                    self._feed_verdict_to_gate(
+                    self._feed_verdict_to_gate(cs, 
                         checkpoint_id,
                         hit_type=HitType.FULL_HIT,
                         cp1_score=None,
@@ -696,15 +1097,15 @@ class CacheOrchestrator:
             # Gate skip: record query_keys to strategy history (trajectory gap-free)
             if hasattr(strategy, "record_query_keys"):
                 strategy.record_query_keys(query_keys)
-            self._miss_by_checkpoint[checkpoint_id] = (
-                self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
+            cs.state.miss_by_checkpoint[checkpoint_id] = (
+                cs.state.miss_by_checkpoint.get(checkpoint_id, 0) + 1
             )
             if checkpoint_id in _STEP_OWNER_CPS:
-                self._step_counter += 1
+                cs.state.step_counter += 1
             # searched=False: gate skipped the search. Distinguishes this from a
             # real always-search MISS (which leaves searched=True) for the
             # gate-research collector's C5 selection-bias filter.
-            self._feed_verdict_to_gate(
+            self._feed_verdict_to_gate(cs, 
                 checkpoint_id,
                 hit_type=HitType.MISS,
                 cp1_score=None,
@@ -716,11 +1117,11 @@ class CacheOrchestrator:
                 hit_type=HitType.MISS, query_keys=query_keys, searched=False
             )
 
-        with self._timer.measure(f"{prefix}_search"):
+        with cs.timer.measure(f"{prefix}_search"):
             ctx = SearchContext(
                 query_keys=query_keys,
                 checkpoint_id=checkpoint_id,
-                current_step=self._step_counter,
+                current_step=cs.state.step_counter,
                 task_key=self._current_task_key or None,
             )
             results = strategy.search(ctx)
@@ -736,26 +1137,35 @@ class CacheOrchestrator:
         # PayloadView is per-check() so its memo (entry_id -> payload) gets
         # GC'd when this call returns. HistoryView snapshots the current
         # buffers (no aliasing — list copies; tensors stay shared).
-        view = StoragePayloadView(self._storage)
+        view = StoragePayloadView(cs.storage)
         history = HistoryView(
-            actions=list(self._action_history),
-            states=list(self._state_history),
+            actions=list(cs.state.action_history),
+            states=list(cs.state.state_history),
         )
 
-        with self._timer.measure(f"{prefix}_judge"):
+        if observer is not None:
+            observer["results"] = list(results)
+            observer["retrieval_signals"] = retrieval_signals
+            observer["view"] = view
+            _feat = getattr(strategy, "last_step_features", None)
+            observer["step_features"] = _feat() if _feat is not None else None
+            observer["query_keys"] = query_keys
+            observer["strategy"] = strategy
+
+        with cs.timer.measure(f"{prefix}_judge"):
             # X14 seam: query_keys rides in only for judges that declared it
             # (probe done once in __init__). Everything else sees the legacy
             # call verbatim.
             extra_kwargs = (
                 {"query_keys": query_keys}
-                if self._judge_wants_query_keys.get(checkpoint_id)
+                if cs.judge_wants_query_keys.get(checkpoint_id)
                 else {}
             )
             # X15 seam, same shape as the X14 one above: retrieval diagnostics
             # ride in only for judges that declared ``step_features``. The
             # snapshot is pulled from the strategy (which reads its own
             # per-connection storage facade), never from a shared backend slot.
-            if self._judge_wants_step_features.get(checkpoint_id):
+            if cs.judge_wants_step_features.get(checkpoint_id):
                 _feat_getter = getattr(strategy, "last_step_features", None)
                 extra_kwargs["step_features"] = (
                     _feat_getter() if _feat_getter is not None else None
@@ -763,7 +1173,7 @@ class CacheOrchestrator:
             judge_result = judge(
                 results,
                 checkpoint_id,
-                self._key_builder.cached_data,
+                cs.key_builder.cached_data,
                 view=view,
                 history=history,
                 retrieval_signals=retrieval_signals,
@@ -772,6 +1182,9 @@ class CacheOrchestrator:
         hit_type = judge_result.hit_type
         winner_id = judge_result.winner_id
         start_t = judge_result.start_t
+        if observer is not None:
+            observer["judge_result"] = judge_result
+            observer["proposed_verdict"] = judge_result
         # X14 router provenance / executor selector. Both are None for every
         # legacy judge, so the CheckResult wire below is unchanged for them.
         hit_override = getattr(judge_result, "hit_override", None)
@@ -784,7 +1197,7 @@ class CacheOrchestrator:
         top_score = results[0].score if results else None
         logger.info(
             "[step %d] %s judge: %s (top_score=%s, winner=%s)",
-            self._step_counter,
+            cs.state.step_counter,
             prefix,
             hit_type.name,
             top_score,
@@ -792,12 +1205,12 @@ class CacheOrchestrator:
         )
 
         if hit_type == HitType.MISS:
-            self._miss_by_checkpoint[checkpoint_id] = (
-                self._miss_by_checkpoint.get(checkpoint_id, 0) + 1
+            cs.state.miss_by_checkpoint[checkpoint_id] = (
+                cs.state.miss_by_checkpoint.get(checkpoint_id, 0) + 1
             )
 
         if checkpoint_id in _STEP_OWNER_CPS:
-            self._step_counter += 1
+            cs.state.step_counter += 1
 
         if hit_type == HitType.FULL_HIT and winner_id is None and hit_override is True:
             # X14 payloadless FULL_HIT (router student arm). Without this branch
@@ -806,7 +1219,7 @@ class CacheOrchestrator:
             # teacher. Nothing is fetched: the interceptor's hit_executor is the
             # action source, so `payload` stays None by design (the invariant is
             # documented on JudgeResult / CheckResult).
-            self._feed_verdict_to_gate(
+            self._feed_verdict_to_gate(cs, 
                 checkpoint_id,
                 hit_type=hit_type,
                 cp1_score=top_score,
@@ -819,21 +1232,22 @@ class CacheOrchestrator:
                 payload=None,
                 score=top_score,
                 query_keys=query_keys,
-                factor_outputs=self._with_judge_diag(factor_outputs),
+                factor_outputs=self._with_judge_diag(cs, factor_outputs),
                 hit_override=True,
                 router_outputs=router_outputs,
             )
 
         if hit_type in (HitType.FULL_HIT, HitType.WARM_START) and winner_id is not None:
-            with self._timer.measure(f"{prefix}_fetch"):
+            with cs.timer.measure(f"{prefix}_fetch"):
                 # Route through PayloadView so a Judge that already
                 # fetched the winner during extract (e.g. F1a-T touched
                 # winner.query_keys, F1b read winner.factors) doesn't
                 # incur a duplicate storage roundtrip.
                 payload = view.get(winner_id)
 
+            warm_invalid: Optional[str] = None
             if hit_type == HitType.WARM_START:
-                meta = self.artifact_meta or {}
+                meta = getattr(cs.storage, "artifact_meta", None) or {}
                 schedule_id = meta.get("schedule_id") or payload.schedule_id
                 if schedule_id is None:
                     raise ValueError(
@@ -841,9 +1255,42 @@ class CacheOrchestrator:
                         "the snapshot's denoise direction is unknowable"
                     )
                 schedule = schedule_from_id(schedule_id)
-                payload.validate_for_warm_start(schedule, start_t)
+                if force_search:
+                    # Twin: a proposed WARM whose snapshot check fails is
+                    # downgraded to an effective MISS and recorded, instead of
+                    # raising (the real path raises, exactly as before).
+                    try:
+                        payload.validate_for_warm_start(schedule, start_t)
+                    except (KeyError, ValueError) as exc:
+                        warm_invalid = f"{type(exc).__name__}: {exc}"
+                else:
+                    payload.validate_for_warm_start(schedule, start_t)
 
-            self._feed_verdict_to_gate(
+            if warm_invalid is not None:
+                if observer is not None:
+                    observer["validation_error"] = warm_invalid
+                cs.state.miss_by_checkpoint[checkpoint_id] = (
+                    cs.state.miss_by_checkpoint.get(checkpoint_id, 0) + 1
+                )
+                self._feed_verdict_to_gate(
+                    cs,
+                    checkpoint_id,
+                    hit_type=HitType.MISS,
+                    cp1_score=top_score,
+                    winner_id=winner_id,
+                    start_t=start_t,
+                    searched=True,
+                )
+                return CheckResult(
+                    hit_type=HitType.MISS,
+                    query_keys=query_keys,
+                    score=top_score,
+                    entry_id=winner_id,
+                    factor_outputs=self._with_judge_diag(cs, factor_outputs),
+                    router_outputs=router_outputs,
+                )
+
+            self._feed_verdict_to_gate(cs, 
                 checkpoint_id,
                 hit_type=hit_type,
                 cp1_score=results[0].score,
@@ -858,12 +1305,12 @@ class CacheOrchestrator:
                 score=results[0].score,
                 entry_id=winner_id,
                 query_keys=query_keys,
-                factor_outputs=self._with_judge_diag(factor_outputs),
+                factor_outputs=self._with_judge_diag(cs, factor_outputs),
                 hit_override=hit_override,
                 router_outputs=router_outputs,
             )
 
-        self._feed_verdict_to_gate(
+        self._feed_verdict_to_gate(cs, 
             checkpoint_id,
             hit_type=HitType.MISS,
             cp1_score=top_score,
@@ -876,7 +1323,7 @@ class CacheOrchestrator:
             query_keys=query_keys,
             score=top_score,
             entry_id=winner_id,
-            factor_outputs=self._with_judge_diag(factor_outputs),
+            factor_outputs=self._with_judge_diag(cs, factor_outputs),
             router_outputs=router_outputs,
         )
 
@@ -1021,3 +1468,5 @@ class CacheOrchestrator:
     def clear(self) -> None:
         """Release per-cycle state. Called at end of each inference cycle."""
         self._key_builder.clear()
+        if self._twins is not None:
+            self._twins.key_builder.clear()

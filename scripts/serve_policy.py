@@ -106,10 +106,6 @@ class Args:
 
     # Record the policy's behavior for debugging.
     record: bool = False
-    # Enable per-episode embedding collection to HDF5.
-    collect: bool = False
-    # Root directory for collected episode files.
-    collect_dir: str = "./data"
 
     # Pass model-input images (post-transform, mask-filtered) through cache
     # check() kwargs so that KeyBuilder implementations can optionally use them.
@@ -118,10 +114,18 @@ class Args:
 
     # Gate-research per-step collection. Tri-state override of the YAML
     # ``collection`` block: None => use YAML; otherwise CLI wins. Distinct from
-    # the legacy ``--collect`` (forward-hook HDF5) path above.
+    # the trace serving mode below.
     export_collect_meta: bool | None = None
     # Comma-separated field list; overrides ``collection.collect_fields`` when set.
     collect_fields: str | None = None
+
+    # Trace serving mode (plan logs/cache_trace_mode_plan.log.md). ``--trace-out``
+    # names the H5 output root and switches the mode on (overrides the yaml
+    # ``trace.out_dir``); ``--trace-build-cache`` forces
+    # ``trace.record_noise_actions`` on (unset => the yaml decides). With
+    # ``--cache`` and no yaml this is the build-cache form (library collection).
+    trace_out: str | None = None
+    trace_build_cache: bool = False
 
     # Enable the staged inference cache system.
     # When True, inference is routed through InferenceInterceptor (run_stage1/2/3).
@@ -391,15 +395,6 @@ def _resolve_collection(cache_config, args) -> tuple[bool, tuple[str, ...]]:
         fields = tuple(coll.collect_fields)
     else:
         fields = tuple(f.strip() for f in args.collect_fields.split(",") if f.strip())
-    # Legacy --collect (forward-hook HDF5) and gate collection are mutually
-    # exclusive. Check the EFFECTIVE export (YAML / bundle-enabled too), not just
-    # the raw CLI flag that _validate_collect_isolation already covers.
-    if export and getattr(args, "collect", False):
-        raise ValueError(
-            "--collect (legacy forward-hook HDF5) and gate-research collection "
-            "(collection.export_collect_meta / --export-collect-meta) are "
-            "mutually exclusive; enable only one."
-        )
     # Re-validate the EFFECTIVE config: load_cache_config() validated the YAML
     # before these CLI overrides, so this is the only place a CLI-enabled
     # collection gets the C5 always-search / field / frame-cap hard gate.
@@ -476,6 +471,81 @@ def _validate_cp2_stage_placement(cache_config, stage_config: StageDeviceConfig 
         )
 
 
+def _resolve_trace(cache_config, args: Args):
+    """Effective trace block (yaml + CLI), or None when tracing is off."""
+    from openpi.cache.config import validate_effective_trace
+
+    return validate_effective_trace(
+        cache_config, out_dir=args.trace_out, build_cache=True if args.trace_build_cache else None
+    )
+
+
+def _build_trace_runtime(
+    trace_cfg,
+    *,
+    cache_config,
+    components,
+    orchestrator,
+    bundle_id: str,
+    yaml_id: str | None,
+    yaml_path: str | None,
+    concurrent: bool,
+):
+    """Assemble the per-connection ``TraceRuntime`` (None when tracing is off)."""
+    if trace_cfg is None:
+        return None
+    import uuid as _uuid
+
+    from openpi.cache.config import effective_denoise_schedule
+    from openpi.cache.trace.runtime import build_trace_runtime
+    from openpi.cache.types import PI05_V1, CheckpointID
+
+    checkpoint = None
+    if orchestrator is not None:
+        checkpoint = (
+            CheckpointID.CP2 if orchestrator.has_checkpoint(CheckpointID.CP2) else CheckpointID.CP1
+        )
+    yaml_text = None
+    if yaml_path:
+        try:
+            yaml_text = Path(yaml_path).read_text(encoding="utf-8")
+        except OSError:
+            yaml_text = None
+    return build_trace_runtime(
+        trace_cfg,
+        cache_config=cache_config,
+        model="pi05",
+        schedule=effective_denoise_schedule(cache_config) if cache_config is not None else PI05_V1,
+        checkpoint=checkpoint,
+        real_components=components,
+        shared_storage=components["storage"] if components is not None else None,
+        artifact_meta=getattr(orchestrator, "artifact_meta", None),
+        bundle_id=bundle_id,
+        yaml_id=yaml_id,
+        yaml_text=yaml_text,
+        connection_id=_uuid.uuid4().hex[:12],
+        concurrent=concurrent,
+    )
+
+
+def _validate_trace_isolation(args: Args) -> None:
+    """Trace mode flag consistency (plan §10)."""
+    if not args.trace_out and not args.trace_build_cache:
+        return
+    if args.trace_build_cache and not args.trace_out:
+        raise ValueError("--trace-build-cache requires --trace-out <dir>.")
+    if args.export_collect_meta:
+        raise ValueError(
+            "--trace-out and --export-collect-meta are mutually exclusive; the "
+            "trace file already carries every query key."
+        )
+    if not (args.cache or args.cache_config):
+        raise ValueError(
+            "--trace-out requires the staged inference path: pass --cache "
+            "(build-cache form) or --cache_config <yaml>."
+        )
+
+
 def _wrap_policy(
     base_policy,
     args: Args,
@@ -489,10 +559,9 @@ def _wrap_policy(
     """Build the wrapper chain around a base policy.
 
     Wrapper ordering matters:
-      1. InferenceInterceptor (innermost -- needs direct Policy access)
-      2. PolicyRecorder (records interceptor's output)
-      3. CollectionPolicy (outermost -- hooks into model internals via _model)
-    DO NOT reorder without verifying CollectionPolicy._model lookup.
+      1. InferenceInterceptor (innermost -- needs direct Policy access; the
+         trace serving mode lives inside it, see ``trace=``)
+      2. PolicyRecorder (outermost -- records the interceptor's output)
 
     Args:
         base_policy: The unwrapped policy (shared GPU model).
@@ -532,6 +601,16 @@ def _wrap_policy(
         from openpi.cache.interceptor import InferenceInterceptor
         from openpi.cache.orchestrator import CacheOrchestrator
 
+        trace_cfg = _resolve_trace(bundle.cache_config, args)
+        startup_trace = getattr(args, "_trace_shutdown_enabled", None)
+        if trace_cfg is not None and startup_trace is None:
+            startup_trace = _startup_trace_mode(args)[0]
+        if trace_cfg is not None and not startup_trace:
+            raise ValueError(
+                "a trace bundle requires trace enabled at server startup "
+                "(--trace-out or the startup yaml), so shutdown can drain its writers"
+            )
+
         components = build_per_connection_components(
             bundle.cache_config,
             bundle.shared_storage,
@@ -555,6 +634,16 @@ def _wrap_policy(
             components["timer"].enable_csv(args.timing_csv_dir)
         _validate_cp2_stage_placement(bundle.cache_config, stage_config)
         _hit_ex, _miss_ex = _build_routing_executors(bundle.cache_config, stage_config)
+        _trace_rt = _build_trace_runtime(
+            trace_cfg,
+            cache_config=bundle.cache_config,
+            components=components,
+            orchestrator=orchestrator,
+            bundle_id=bundle_id,
+            yaml_id=bundle.yaml_id,
+            yaml_path=getattr(bundle, "config_path", None),
+            concurrent=coordinator is not None,
+        )
         policy = InferenceInterceptor(
             policy,
             timer=components["timer"],
@@ -570,6 +659,7 @@ def _wrap_policy(
             hit_executor=_hit_ex,
             miss_executor=_miss_ex,
             shadow_teacher=_build_shadow_teacher(bundle.cache_config),
+            trace=_trace_rt,
         )
     elif args.cache_config is not None:
         from openpi.cache.config import build_cache_components
@@ -618,6 +708,16 @@ def _wrap_policy(
             components["timer"].enable_csv(args.timing_csv_dir)
         _validate_cp2_stage_placement(cache_config, stage_config)
         _hit_ex, _miss_ex = _build_routing_executors(cache_config, stage_config)
+        _trace_rt = _build_trace_runtime(
+            _resolve_trace(cache_config, args),
+            cache_config=cache_config,
+            components=components,
+            orchestrator=orchestrator,
+            bundle_id=bundle_id,
+            yaml_id=None,
+            yaml_path=args.cache_config,
+            concurrent=coordinator is not None,
+        )
         policy = InferenceInterceptor(
             policy,
             timer=components["timer"],
@@ -633,6 +733,7 @@ def _wrap_policy(
             hit_executor=_hit_ex,
             miss_executor=_miss_ex,
             shadow_teacher=_build_shadow_teacher(cache_config),
+            trace=_trace_rt,
         )
     elif args.cache:
         from openpi.cache.interceptor import InferenceInterceptor
@@ -640,22 +741,26 @@ def _wrap_policy(
         timer = SystemTimer(enabled=True, output_csv_dir=args.timing_csv_dir, quiet=quiet)
         if args.timing_csv_dir:
             logging.info("Timing CSV output enabled: writing to %s", args.timing_csv_dir)
+        _trace_rt = _build_trace_runtime(
+            _resolve_trace(None, args),
+            cache_config=None,
+            components=None,
+            orchestrator=None,
+            bundle_id=bundle_id,
+            yaml_id=None,
+            yaml_path=None,
+            concurrent=coordinator is not None,
+        )
         policy = InferenceInterceptor(
             policy, timer=timer, eager=eager,
             collect_images=args.collect_images, stage_config=stage_config,
             coordinator=coordinator,
             bundle_id=bundle_id,
+            trace=_trace_rt,
         )
 
     if args.record:
         policy = _policy.PolicyRecorder(policy, "policy_records")
-
-    if args.collect:
-        from openpi.collect.collection_policy import CollectionPolicy
-        from openpi.collect.data_collector import EpisodeDataCollector
-        collector = EpisodeDataCollector(base_dir=args.collect_dir)
-        policy = CollectionPolicy(policy, collector)
-        logging.info("Data collection enabled -> %s", args.collect_dir)
 
     return policy
 
@@ -709,47 +814,8 @@ def _configure_monitor_level() -> None:
             )
 
 
-def _validate_collect_isolation(args: Args) -> None:
-    """Reject --collect combined with concurrent or multi-replica serving.
-
-    Embedding collection (``openpi.collect.CollectionPolicy``) attaches forward
-    hooks to the shared base model on every ``infer()`` call. Those hooks are
-    module-global, so under concurrent connections — or the batching
-    coordinator's worker threads — one connection's forward fires another
-    connection's hook and the captured tensors cross-contaminate, leaving the
-    recorded HDF5 silently corrupt or empty. Multiple replicas would
-    additionally race on identical ``collect_dir`` filenames across processes.
-    Collection is only correct on the single-connection C1 path with one
-    replica, so fail fast here instead of writing bad data.
-    """
-    if not args.collect:
-        return
-    # The legacy forward-hook HDF5 collector (--collect) and the gate-research
-    # per-step collector (--export-collect-meta / collection block) are distinct,
-    # mutually-exclusive subsystems (docs/data_collection/guide.md). Running both
-    # at once is a configuration error.
-    if args.export_collect_meta:
-        raise ValueError(
-            "--collect (legacy forward-hook HDF5) and --export-collect-meta "
-            "(gate-research per-step collection) are mutually exclusive; enable "
-            "only one."
-        )
-    if args.replicas > 1:
-        raise ValueError(
-            f"--collect requires a single replica (got --replicas {args.replicas}). "
-            "Embedding hooks cannot be isolated across replica processes; "
-            "use --replicas 1 --non-concurrent."
-        )
-    if args.concurrent and not args.non_concurrent:
-        raise ValueError(
-            "--collect requires the non-concurrent single-connection path; "
-            "concurrent forward hooks cross-contaminate captured embeddings. "
-            "Pass --non-concurrent (concurrent mode is the default)."
-        )
-
-
 def main(args: Args) -> None:
-    _validate_collect_isolation(args)
+    _validate_trace_isolation(args)
     if args.replicas > 1:
         _run_supervisor(args)
     else:
@@ -860,6 +926,8 @@ def _serve_single(args: Args, ready_callback=None, bind_host: str = "0.0.0.0") -
     # mode to provide the single-connection baseline path (hard constraint C1).
     if args.non_concurrent:
         args = dataclasses.replace(args, concurrent=False, non_concurrent=False)
+    trace_on, build_mode = _startup_trace_mode(args)
+    args._trace_shutdown_enabled = trace_on
     _configure_server_gpu_memory_lock()
     _configure_monitor_level()
     _configure_torchinductor_cache_dir()
@@ -1005,7 +1073,30 @@ def _serve_single(args: Args, ready_callback=None, bind_host: str = "0.0.0.0") -
             ready_callback=ready_callback,
         )
 
-    server.serve_forever()
+    if not trace_on:
+        server.serve_forever()
+        return
+    from openpi.serving.trace_serving import serve_with_trace_shutdown
+
+    serve_with_trace_shutdown(server, build_mode=build_mode)
+
+
+def _startup_trace_mode(args: Args) -> tuple[bool, bool]:
+    """``(trace on, build mode)`` of the startup configuration (plan §7.4-5).
+
+    The CLI flags or the startup yaml's ``trace`` block can switch tracing on;
+    either way the process must serve under the drain / exit-status protocol,
+    so the effective block decides, not the flag alone.
+    """
+    cache_config = None
+    if args.cache_config:
+        from openpi.cache.config import load_cache_config
+
+        cache_config = load_cache_config(args.cache_config)
+    effective = _resolve_trace(cache_config, args)
+    if effective is None:
+        return False, False
+    return True, bool(effective.record_noise_actions)
 
 
 if __name__ == "__main__":

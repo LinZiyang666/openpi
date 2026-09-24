@@ -1258,7 +1258,7 @@ def serve(monkeypatch):
     ["--loto-log-out", "/tmp/x", "--loto-run-tag", "smoke"],
     ["--loto-log-out", "/tmp/x", "--loto-run-tag", "smoke", "--loto-frozen-record", "f.json"],
     ["--loto-log-out", "/tmp/x", "--loto-run-tag", "smoke", "--loto-frozen-record", "f.json", "--cache-config", "a.yaml"],
-    ["--loto-log-out", "/tmp/x", "--loto-run-tag", "smoke", "--loto-frozen-record", "f.json", "--cache-config", "a.yaml", "--concurrent", "--collect-hdf5", "/tmp/h"],
+    ["--loto-log-out", "/tmp/x", "--loto-run-tag", "smoke", "--loto-frozen-record", "f.json", "--cache-config", "a.yaml", "--concurrent", "--trace-out", "/tmp/h"],
     ["--loto-log-out", "/tmp/x", "--loto-run-tag", "smoke", "--loto-frozen-record", "f.json", "--cache-config", "a.yaml", "--concurrent", "--rit-shadow-out", "/tmp/s.jsonl"],
     ["--loto-log-out", "/tmp/x", "--loto-run-tag", "smoke", "--loto-frozen-record", "f.json", "--cache-config", "a.yaml", "--concurrent", "--allow-dynamic-bundles"],
 ])

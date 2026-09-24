@@ -754,6 +754,47 @@ class ShadowTeacherConfig:
 
 
 @dataclass
+class TraceConfig:
+    """Trace serving mode (``trace:`` in the yaml; plan ``logs/cache_trace_mode_plan.log.md``).
+
+    Off by default and off means nothing is constructed: ``build_trace_runtime``
+    returns ``None`` and every inference path is byte-identical to a config
+    that has never heard of tracing. On, the executed path still follows the
+    yaml (gate + verdict decide what is sent), but every module runs on every
+    decision and the whole decision is written to one HDF5 file per episode.
+
+    ``record_noise_actions`` is the build-cache switch: it writes the full
+    ``noise_action_0..N-1`` set of the full inference (the library snapshots),
+    which the diagnostic default leaves out. ``record_prefix_tokens`` must stay
+    on for a build (the file would not be a superset of a collected one
+    otherwise). ``rng_isolation`` chooses how the extra full inference on hit
+    steps draws its noise: ``verdict_aware`` keeps MISS steps on the global RNG
+    (bit-identical to the normal path in non-concurrent serving) and gives hit
+    steps a private generator; ``global`` consumes the global stream on every
+    step.
+    """
+
+    enabled: bool = False
+    out_dir: str = ""
+    record_noise_actions: bool = False
+    record_prefix_tokens: bool = True
+    record_raw_images: bool = True
+    record_model_images: bool = False
+    record_query_keys: bool = True
+    record_search: bool = True
+    record_tokenized_prompt: bool = True
+    raw_image_keys: list[str] = field(
+        default_factory=lambda: ["observation/image", "observation/wrist_image"]
+    )
+    rng_isolation: str = "verdict_aware"  # "verdict_aware" | "global"
+    queue_steps: int = 256
+    sidecar_jsonl: bool = True
+
+
+_TRACE_RNG_MODES = frozenset({"verdict_aware", "global"})
+
+
+@dataclass
 class CacheConfig:
     """Top-level cache configuration. This is the root dataclass for cache.yaml."""
 
@@ -771,6 +812,8 @@ class CacheConfig:
     write_policy: WritePolicyConfig = field(default_factory=WritePolicyConfig)
     collection: CollectionConfig = field(default_factory=CollectionConfig)
     shadow_teacher: ShadowTeacherConfig = field(default_factory=ShadowTeacherConfig)
+    # Trace serving mode (default off -> inert; see TraceConfig).
+    trace: TraceConfig = field(default_factory=TraceConfig)
     # Ablation executor routing (None -> inert; see RoutingConfig).
     routing: Optional[RoutingConfig] = None
     # Identity of the flow-matching loop every warm-start timestep in this
@@ -946,6 +989,8 @@ _CONFIG_TYPES: dict[str, type] = {
     "WritePolicyConfig": WritePolicyConfig,
     "CollectionConfig": CollectionConfig,
     "RoutingConfig": RoutingConfig,
+    "ShadowTeacherConfig": ShadowTeacherConfig,
+    "TraceConfig": TraceConfig,
     "CacheConfig": CacheConfig,
 }
 
@@ -3284,8 +3329,108 @@ def validate_cache_config(config: CacheConfig, *, check_files: bool = True) -> N
     if config.routing is not None:
         errors.extend(_routing_errors(config))
 
+    # ── Trace serving mode (enabled ⇒ data-path exclusions) ──
+    errors.extend(_trace_errors(config))
+
     if errors:
         raise ConfigValidationError("\n\n".join(errors))
+
+
+def _trace_block_errors(t: "TraceConfig") -> list[str]:
+    """Errors internal to one ``TraceConfig`` (no other config section needed)."""
+    errors: list[str] = []
+    if t.rng_isolation not in _TRACE_RNG_MODES:
+        errors.append(
+            f"trace.rng_isolation={t.rng_isolation!r}: expected one of "
+            f"{sorted(_TRACE_RNG_MODES)}."
+        )
+    if t.queue_steps < 1:
+        errors.append(f"trace.queue_steps must be >= 1, got {t.queue_steps}.")
+    if t.record_noise_actions and not t.record_prefix_tokens:
+        errors.append(
+            "trace.record_noise_actions=true (build-cache) requires "
+            "trace.record_prefix_tokens=true: a library file without the "
+            "prefix tokens is not a superset of a collected one."
+        )
+    if t.enabled and not t.out_dir:
+        errors.append("trace.enabled=true requires a non-empty trace.out_dir.")
+    return errors
+
+
+def _trace_errors(config: CacheConfig) -> list[str]:
+    """Validate the ``trace`` block against the rest of a cache config.
+
+    Only the data-path exclusions live here; there is no judge / gate /
+    strategy allowlist because trace runs every configured component on a
+    twin instance (plan §4). The exclusions are the other collectors and the
+    external executors, which either duplicate the H5 writer or make the
+    executed action unobservable from the server.
+    """
+    t = getattr(config, "trace", None)
+    if t is None or not isinstance(t, TraceConfig):
+        return []
+    errors = _trace_block_errors(t)
+    if not t.enabled:
+        return errors
+    if config.write_policy.type != "never":
+        errors.append(
+            "trace.enabled=true requires write_policy.type='never': the twin "
+            "component set must never reach the library write path."
+        )
+    if config.collection.export_collect_meta:
+        errors.append(
+            "trace.enabled=true and collection.export_collect_meta=true are "
+            "mutually exclusive; the trace file already carries every query key."
+        )
+    if config.shadow_teacher.enabled:
+        errors.append(
+            "trace.enabled=true and shadow_teacher.enabled=true are mutually "
+            "exclusive; trace records the teacher chunk on every decision."
+        )
+    if config.routing is not None:
+        errors.append(
+            "trace.enabled=true is incompatible with a routing section: a "
+            "sidecar-executed action is not observable by the trace writer."
+        )
+    return errors
+
+
+def validate_effective_trace(
+    config: "CacheConfig | None",
+    *,
+    out_dir: str | None,
+    build_cache: bool | None,
+) -> "TraceConfig | None":
+    """Merge the yaml ``trace`` block with the CLI overrides and re-validate.
+
+    Mirrors ``validate_effective_collection``: ``validate_cache_config`` runs
+    on the yaml before CLI flags apply, so ``--trace-out`` / ``--trace-build-cache``
+    could otherwise enable tracing while bypassing the exclusions above.
+    Returns the effective config, or ``None`` when tracing stays off. With no
+    cache config at all (``--cache`` without a yaml, the build-cache form) the
+    CLI flags alone define the block.
+    """
+    base = config.trace if config is not None else TraceConfig()
+    enabled = base.enabled or bool(out_dir)
+    if not enabled:
+        return None
+    effective = replace(
+        base,
+        enabled=True,
+        out_dir=out_dir if out_dir else base.out_dir,
+        record_noise_actions=(
+            base.record_noise_actions if build_cache is None else bool(build_cache)
+        ),
+    )
+    if config is not None:
+        errors = _trace_errors(replace(config, trace=effective))
+    else:
+        # No cache config: no orchestrator, no write path, no other collector
+        # to collide with -- only the block itself can be wrong.
+        errors = _trace_block_errors(effective)
+    if errors:
+        raise ConfigValidationError("\n\n".join(errors))
+    return effective
 
 
 # Positive allowlist for routing-locked configs. Any component outside these

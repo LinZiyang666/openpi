@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Bring up an N-lane GR00T/LIBERO collection fleet on weilandserver.
 #
-# Collection is structurally single-connection (the collector hangs per-episode
-# state off one runner), so parallelism is N server processes each driven by one
-# client process. Lanes are carved with ``--episode-filter``: main.py only
+# Collection runs the trace serving mode (``--trace-out … --trace-build-cache``;
+# one h5 per episode under ``<out>/<suite>/``). The fleet keeps the one server
+# process per client lane topology (unique episode identity per lane, resume
+# by directory listing). Lanes are carved with ``--episode-filter``: main.py only
 # *skips* filtered-out episodes, never re-indexes, so every lane reproduces the
 # init state and the global episode id an unsharded run would have used.
 #
@@ -53,7 +54,7 @@ EOF
 echo "== starting $LANES servers =="
 for i in $(seq 0 $((LANES-1))); do
   P=$((BASE+i))
-  tmux new -s "lbsrv$P" -d "cd $REPO && PYTHONPATH=$GR00T_PATH OPENPI_MONITOR_LEVEL=BASIC $PY exp/libero_groot/serve_groot_libero.py --checkpoint $CKPT --port $P --collect-hdf5 $OUT --experiment groot_$SUITE 2>&1 | tee /tmp/lbsrv$P.log"
+  tmux new -s "lbsrv$P" -d "cd $REPO && PYTHONPATH=$GR00T_PATH OPENPI_MONITOR_LEVEL=BASIC $PY exp/libero_groot/serve_groot_libero.py --checkpoint $CKPT --port $P --trace-out $OUT --trace-build-cache 2>&1 | tee /tmp/lbsrv$P.log"
   sleep 10
 done
 for _ in $(seq 1 40); do

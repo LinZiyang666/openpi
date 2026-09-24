@@ -1545,6 +1545,76 @@ only owns the GPU forward. Stage 3 sub-buckets requests by
 (``run_stage3_from``, no noise arg) never mix in the same forward. CP3
 remains post-stage3 and next-cycle predictive only.
 
+The scheduling machinery is the model-agnostic, jax-free
+``openpi.serving.batching_core.BatchingCore`` over a ``StageBatcher``
+adapter: ``Pi05StageBatcher`` (``batching_coordinator.py``, the historical
+``BatchingCoordinator`` is that core wired to it) and
+``openpi.cache.groot.batcher.GrootStageBatcher`` (stage 3 only, same-shape
+buckets keyed by the full conditioning shape / dtype / device / embodiment,
+concatenated without padding because the upstream action head conditions
+without a mask). Additive core API: ``Stage3MissPayload.save_timesteps``
+(per-request snapshot set, ``None`` = the adapter's original call shape),
+``ready_events`` on both stage-3 payloads (producer-stream CUDA events the
+worker waits on before reading the inputs), ``submit_many_to_stage`` (one
+decision's variants enqueued together so they group with other connections'
+same-key requests) and per-bucket fault isolation.
+
+### Trace serving mode (`--trace-out`)
+
+> Plan: [`logs/cache_trace_mode_plan.log.md`](../../logs/cache_trace_mode_plan.log.md).
+> Replaces the hook-based `--collect` / `CollectionPolicy` and the GR00T
+> `--collect-hdf5` / `GrootCacheCollector`.
+
+With a `TraceRuntime` injected into the interceptor (`openpi.cache.trace`), the
+executed action still follows the yaml (gate and verdict decide what is
+served) but **every module runs on every decision**: the key is built, the
+search runs and the judge decides even on a gate-skipped step, stage 1/2 run,
+the full stage-3 inference runs from an explicitly drawn noise (it *is* the
+MISS arm), every executable warm tier resumes from the twin top-1 snapshot,
+and the top-1 chunk is the FULL_HIT arm; the verdict selects one, the rest is
+recorded. Mechanics:
+
+* **Twin component set** (`CacheOrchestrator(trace_twins=TwinSet)`): a second
+  instance set (key builder, gates, judges, strategies, storage facade, timer)
+  built from a stripped config copy (`TWIN_STRIP_FIELDS`: no dump / snapshot /
+  CSV outputs) and driven through the same `_check_impl` pipeline with
+  `force_search=True`. The real set keeps HEAD's statement order and state;
+  the twin never touches real components, session memos or files.
+  `check(trace=True, fetch_top1=...)` returns `CheckResult.trace`
+  (`CheckTrace`: real gate decision, real / twin top-k, twin per-field scores
+  via the backends' read-only `per_field_scores`, proposed vs effective twin
+  verdict, top-1 payload); `trace_check` runs only the twin (CP3 after a
+  FULL_HIT).
+* **Variants** (plan §5): `full` (noise `z`; global RNG on a MISS, a private
+  identity-seeded generator on a hit so the extra inference never shifts the
+  stream), `warm_<snapshot_index>` for every tier of `executable_warm_tiers`
+  (judge-type aware; distinct from the library-completeness set), and
+  `warm_exec` whenever the real WARM_START verdict is not among them. Under
+  the coordinator all variants go through one `submit_many_to_stage`; direct
+  calls otherwise (`save_timesteps=None` is never passed as a kwarg).
+* **GR00T** (plan §9): the same path in `GrootCacheInterceptor._get_action_traced`
+  (CP1 and CP2-only); `GrootStagedRunner.run_stage3(on_step=)` observes the
+  transcribed loop and `sample_noise(stage2, generator=)` reproduces
+  upstream's draw (dtype probed once from the head prologue, RNG-neutral).
+  Under `--concurrent` the shared model lock covers stage 1/2, the noise draw
+  and payload preparation only; stage 3 goes to the process-level GR00T
+  coordinator. The real and the twin online-RIT judges each receive their own
+  continuation feedback (the twin reuses the warm variants' captured first
+  steps for the same `(entry, tier, schedule)`).
+* **Data path** (plan §7): `H5TraceSink` per connection → `TraceWriter` per
+  output root (one writer thread, FIFO + `queue_steps` permits). One file per
+  episode, a strict superset of the legacy collector file (same
+  `write_step_group` keys, `denoise_schedule_id` always stamped) plus a
+  `step_XXXX/trace/` subgroup and `trace_*` file attrs; `.h5.tmp` → fsync →
+  sidecar → rename commit, `.h5.failed` on failure, sticky failure in build
+  mode (`--trace-build-cache`, which also records `noise_action_0..N-1`),
+  drain on shutdown with exit status 3 on any unfinished / failed episode
+  (`openpi.serving.trace_serving`). The auditors
+  (`verify_collection_artifacts.py`, `verify_shadow_h5.py`) accept a trace
+  file only when it is committed and carries the admitted identity.
+* Trace off: every existing path is byte-identical (`trace=None` never reaches
+  the traced methods).
+
 ### Wire-level protocol additions
 
 * ``__ctrl__: select_bundle`` — client signals which loaded ``bundle_id``

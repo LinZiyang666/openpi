@@ -5,16 +5,18 @@ Runs in the GR00T island (``/home/weiland/gr00t_n15_venv/.venv``) and speaks
 it unchanged. Two modes:
 
   * plain teacher -- what the collection campaign and the anchor arm use;
-  * ``--collect-hdf5 DIR`` -- additionally records per-episode CP1 embeddings
-    for offline library building, via the same ``GrootCacheCollector`` the
-    RoboCasa365 line uses.
+  * ``--trace-out DIR`` -- the trace serving mode (``logs/cache_trace_mode_plan.log.md``
+    §9): every module runs on every decision and everything is recorded; with
+    ``--trace-build-cache`` the loop inputs (``noise_action_*``) are recorded
+    too, which is how a library is collected. Works with or without
+    ``--cache-config`` and with ``--concurrent`` (stage-3 variants are batched
+    across connections through a process-level coordinator; the shared model
+    lock then covers stage 1/2 only).
 
 ``--concurrent`` serves many simultaneous connections from one loaded model
 (ported from ``exp/robocasa365/serve_groot_n15.py``, which the RoboCasa365
 search proved out): only the GPU policy and the read-only storage backend are
-shared, everything mutable is rebuilt per connection. It is refused together
-with ``--collect-hdf5`` -- collection hangs per-episode state off one runner and
-is single-connection by construction.
+shared, everything mutable is rebuilt per connection.
 
 Yaml hot-swap is off by default: the served configuration is then carried by
 the process, which is what makes a cell scheduler's results impossible to
@@ -38,7 +40,7 @@ Example::
     /home/weiland/gr00t_n15_venv/.venv/bin/python \\
       exp/libero_groot/serve_groot_libero.py \\
       --checkpoint /home/weiland/ckpt_n15_libero_spatial --port 8030 \\
-      --collect-hdf5 /data/libero_cache/build_spatial
+      --trace-out /data/libero_cache/build_spatial --trace-build-cache
 """
 
 from __future__ import annotations
@@ -120,6 +122,7 @@ def _resolve_bundle(
     cli_storage: Any,
     allow_dynamic: bool,
     num_inference_timesteps: int | None = None,
+    provenance: dict | None = None,
 ) -> tuple[Any, Any]:
     """Return the ``(config, shared_storage)`` this connection is served under.
 
@@ -179,6 +182,8 @@ def _resolve_bundle(
         config.key_builder.type, lambda m: (_ for _ in ()).throw(ValueError(m))
     )
     validate_artifact_identity(bundle.shared_storage, config)
+    if provenance is not None:
+        provenance["yaml_path"] = getattr(bundle, "config_path", None)
     return config, bundle.shared_storage
 
 
@@ -403,6 +408,90 @@ def yaml_identity(bundle_id: str, cache_config: str | None) -> str:
     return str(bundle_id or "default")
 
 
+#: LIBERO feeds two cameras; the trace records their prefix tokens in run order.
+_LIBERO_TRACE_CAMS = ("vision_0", "vision_1")
+
+
+
+def _require_trace_flag(config: Any, args: Any) -> None:
+    """A yaml that enables ``trace`` needs ``--trace-out`` on this entry point.
+
+    The GR00T servers build the process-level stage-3 coordinator and pick the
+    interceptor's lock granularity from the CLI flag at factory-build time; a
+    yaml-only switch would otherwise be honoured by the per-connection runtime
+    but not by the process, so it is refused instead of silently ignored.
+    """
+    trace_block = getattr(config, "trace", None) if config is not None else None
+    if getattr(trace_block, "enabled", False) and not getattr(args, "trace_out", None):
+        raise ValueError(
+            "the cache yaml enables trace.enabled but --trace-out was not passed; "
+            "the GR00T entry points take the trace mode from the CLI flag"
+        )
+
+def _resolve_trace(config: Any, args: Any) -> Any:
+    """Effective trace block (yaml + CLI), or None when tracing is off."""
+    from openpi.cache.config import validate_effective_trace
+
+    return validate_effective_trace(
+        config,
+        out_dir=getattr(args, "trace_out", None),
+        build_cache=getattr(args, "trace_build_cache", None),
+    )
+
+
+def _trace_runtime(
+    args: Any,
+    *,
+    config: Any,
+    components: Any,
+    orchestrator: Any,
+    runner: Any,
+    bundle_id: str,
+    concurrent: bool,
+    provenance: dict | None = None,
+) -> Any:
+    """Per-connection ``TraceRuntime`` (None when tracing is off)."""
+    from openpi.cache.trace.runtime import build_groot_trace_runtime
+
+    return build_groot_trace_runtime(
+        _resolve_trace(config, args),
+        cache_config=config,
+        components=components,
+        orchestrator=orchestrator,
+        runner=runner,
+        bundle_id=bundle_id,
+        yaml_id=yaml_identity(bundle_id, args.cache_config),
+        yaml_path=(provenance or {}).get("yaml_path", args.cache_config),
+        concurrent=concurrent,
+    )
+
+
+def _start_trace_coordinator(policy: Any) -> Any:
+    """Process-level stage-3 coordinator for concurrent trace serving (plan §6.3)."""
+    from openpi.cache.groot.batcher import GrootStageBatcher
+    from openpi.cache.groot.staged import GrootStagedRunner
+    from openpi.serving.batching_core import BatchingCore
+
+    if os.environ.get("OPENPI_STAGE3_BUCKET_FIRST", "") != "1":
+        print(
+            "WARNING: OPENPI_STAGE3_BUCKET_FIRST is not set; the stage-3 worker "
+            "pulls then groups, so same-shape variants of different connections "
+            "may land in separate batches",
+            flush=True,
+        )
+    runner = GrootStagedRunner(policy.model)
+    device = getattr(policy.model, "device", None) or "cuda"
+    core = BatchingCore(
+        GrootStageBatcher(runner),
+        device=device,
+        max_batch_size=int(os.environ.get("BATCHING_MAX_BATCH_SIZE", "8")),
+        max_wait_ms=float(os.environ.get("BATCHING_MAX_WAIT_MS", "10")),
+    )
+    core.start()
+    print("trace: GR00T stage-3 coordinator started", flush=True)
+    return core
+
+
 def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     """Per-connection policy factory for concurrent serving.
 
@@ -425,15 +514,37 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
 
     online_registry = CurveRegistry(state_log_root=getattr(args, "online_state_dir", None), require_persistence=True)
 
+    trace_on = bool(getattr(args, "trace_out", None))
+    coordinator = _start_trace_coordinator(policy) if trace_on else None
+
+    def _teacher(shared_base_policy: Any) -> Any:
+        """Teacher-only stack; under trace the interceptor records every decision."""
+        if not trace_on:
+            return _InferLockedPolicy(GrootLiberoPolicyAdapter(shared_base_policy), lock)
+        from openpi.cache.groot.interceptor import GrootCacheInterceptor
+        from openpi.cache.groot.staged import GrootStagedRunner
+
+        runner = GrootStagedRunner(shared_base_policy.model)
+        rt = _trace_runtime(
+            args, config=None, components=None, orchestrator=None, runner=runner,
+            bundle_id="default", concurrent=True,
+        )
+        return GrootLiberoPolicyAdapter(
+            GrootCacheInterceptor(
+                shared_base_policy, runner, trace=rt, coordinator=coordinator,
+                bundle_id="default", model_lock=lock, trace_vision_fields=_LIBERO_TRACE_CAMS,
+            )
+        )
+
     if not args.cache_config and not allow_dynamic:
 
         def teacher_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
             _require_default_bundle(bundle_id)
-            return _InferLockedPolicy(
-                GrootLiberoPolicyAdapter(shared_base_policy), lock
-            )
+            return _teacher(shared_base_policy)
 
-        return teacher_factory, "concurrent teacher-only (no cache)"
+        return teacher_factory, (
+            "concurrent teacher-only (no cache)" + (f" + trace -> {args.trace_out}" if trace_on else "")
+        )
 
     from openpi.cache.config import (
         build_per_connection_components,
@@ -478,6 +589,7 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
         _check_libero_builder(
             config.key_builder.type, lambda m: (_ for _ in ()).throw(ValueError(m))
         )
+        _require_trace_flag(config, args)
         shared_storage = build_shared_storage(config)
         # ``load_artifact`` only compares ``vector_dims``, and mean-pool and
         # max-pool libraries are dimensionally identical -- nothing else would ever
@@ -490,20 +602,21 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
         return _build_loto_factory(args, config, shared_storage, lock)
 
     def cache_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
+        provenance = {}
         conn_config, conn_storage = _resolve_bundle(
             bundle_id,
             cli_config=config,
             cli_storage=shared_storage,
             num_inference_timesteps=live_num_inference_timesteps(shared_base_policy),
             allow_dynamic=allow_dynamic,
+            provenance=provenance,
         )
         if conn_config is None:
             # Dynamic bundles enabled but nothing loaded yet: serve the teacher.
             # Refusing instead would break the runner's opening handshake, which
             # selects "default" before the first stage has been sent.
-            return _InferLockedPolicy(
-                GrootLiberoPolicyAdapter(shared_base_policy), lock
-            )
+            return _teacher(shared_base_policy)
+        _require_trace_flag(conn_config, args)
         components = build_per_connection_components(
             conn_config,
             conn_storage,
@@ -536,16 +649,32 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
         runner = GrootStagedRunner(
             shared_base_policy.model, timer=timer, compile_vision=getattr(args, "compile_stage1", False)
         )
-        interceptor = GrootCacheInterceptor(
-            shared_base_policy, runner, orchestrator=orchestrator, timer=timer
+        if not trace_on:
+            interceptor = GrootCacheInterceptor(
+                shared_base_policy, runner, orchestrator=orchestrator, timer=timer
+            )
+            return _InferLockedPolicy(GrootLiberoPolicyAdapter(interceptor), lock)
+        # Trace: the interceptor takes the shared lock around stage 1/2 itself
+        # and submits its stage-3 variants to the process coordinator.
+        rt = _trace_runtime(
+            args, config=conn_config, components=components, orchestrator=orchestrator,
+            runner=runner, bundle_id=bundle_id, concurrent=True,
+            provenance=provenance,
         )
-        return _InferLockedPolicy(GrootLiberoPolicyAdapter(interceptor), lock)
+        interceptor = GrootCacheInterceptor(
+            shared_base_policy, runner, orchestrator=orchestrator, timer=timer,
+            trace=rt, coordinator=coordinator, bundle_id=bundle_id, model_lock=lock,
+            trace_vision_fields=_LIBERO_TRACE_CAMS,
+        )
+        return GrootLiberoPolicyAdapter(interceptor)
 
+    trace_label = f" + trace -> {args.trace_out}" if trace_on else ""
     if config is None:
-        return cache_factory, "concurrent cache -> dynamic bundles (no startup yaml)"
+        return cache_factory, "concurrent cache -> dynamic bundles (no startup yaml)" + trace_label
     return cache_factory, (
         f"concurrent cache -> {args.cache_config} ({config.key_builder.type})"
         + (" + dynamic bundles" if allow_dynamic else "")
+        + trace_label
     )
 
 
@@ -597,17 +726,25 @@ def main() -> None:
         help="YAML cache config; routes inference through the CP1 cache.",
     )
     parser.add_argument(
-        "--collect-hdf5",
-        default=None,
-        help="Directory for per-episode HDF5 embeddings. Mutually exclusive "
-        "with --cache-config: a library must be collected from the teacher's "
-        "own actions, and with the cache active some recorded actions would be "
-        "replayed library entries.",
-    )
-    parser.add_argument(
         "--experiment",
         default="groot_libero",
-        help="Collection subdirectory name under --collect-hdf5.",
+        help="Experiment label of the RIT shadow / LOTO logs.",
+    )
+    parser.add_argument(
+        "--trace-out",
+        default=None,
+        help="Directory for the trace serving mode: every module runs on every "
+        "decision and one HDF5 per episode records the raw observation, prefix "
+        "tokens, query keys, search results, every arm's action and the verdict. "
+        "Works with or without --cache-config and with --concurrent.",
+    )
+    parser.add_argument(
+        "--trace-build-cache",
+        action="store_true",
+        default=None,
+        help="With --trace-out: also record the loop inputs (noise_action_*) so "
+        "the files can be built into a library; any write failure then stops "
+        "the server with exit status 3.",
     )
     parser.add_argument(
         "--stage1-only",
@@ -698,20 +835,27 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    if args.stage1_only and (
-        args.collect_hdf5 or args.rit_shadow_out or getattr(args, "loto_log_out", None)
-    ):
+    if args.trace_build_cache is not None and not args.trace_out:
+        parser.error("--trace-build-cache requires --trace-out <dir>")
+    if args.trace_out:
+        for flag, value in (
+            ("--stage1-only", args.stage1_only),
+            ("--compile-stage1", args.compile_stage1),
+            ("--rit-shadow-out", args.rit_shadow_out),
+            ("--loto-log-out", getattr(args, "loto_log_out", None)),
+        ):
+            if value:
+                parser.error(
+                    f"--trace-out cannot be combined with {flag}: the trace path runs "
+                    "every stage eagerly and replaces the legacy collectors / shadows"
+                )
+    if args.stage1_only and (args.rit_shadow_out or getattr(args, "loto_log_out", None)):
         parser.error(
-            "--stage1-only serves the cache path alone; collection, the RIT shadow "
-            "and the LOTO logger all run the teacher and cannot use it."
+            "--stage1-only serves the cache path alone; the RIT shadow "
+            "and the LOTO logger run the teacher and cannot use it."
         )
 
     if args.compile_stage1:
-        if args.collect_hdf5:
-            parser.error(
-                "--compile-stage1 cannot be combined with --collect-hdf5: the "
-                "collection path is frozen eager (byte-fidelity)."
-            )
         # Persist inductor/triton artifacts so only the first server start on
         # a machine pays the compile; every later start reuses the cache.
         os.environ.setdefault(
@@ -726,8 +870,6 @@ def main() -> None:
             parser.error("--loto-log-out requires --cache-config: it logs cache decisions")
         if not args.concurrent:
             parser.error("--loto-log-out requires --concurrent (per-connection log directories)")
-        if args.collect_hdf5:
-            parser.error("--loto-log-out and --collect-hdf5 are mutually exclusive")
         if args.rit_shadow_out:
             parser.error("--loto-log-out and --rit-shadow-out are mutually exclusive")
         if args.allow_dynamic_bundles:
@@ -738,8 +880,6 @@ def main() -> None:
 
     if args.online_state_dir and not args.concurrent:
         parser.error("--online-state-dir requires --concurrent")
-    if args.cache_config and args.collect_hdf5:
-        parser.error("--cache-config and --collect-hdf5 are mutually exclusive")
     if args.rit_shadow_out:
         # The shadow labels rungs against one library with one retrieval stack.
         # Dynamic bundles would let the library change under a single output
@@ -757,26 +897,11 @@ def main() -> None:
                 "--rit-shadow-out cannot be combined with --allow-dynamic-bundles: "
                 "the calibration rows must all describe one library"
             )
-        if args.collect_hdf5:
-            parser.error("--rit-shadow-out and --collect-hdf5 are mutually exclusive")
-    if args.concurrent and args.collect_hdf5:
-        parser.error(
-            "--concurrent cannot be combined with --collect-hdf5: the collector "
-            "hangs per-episode state off one runner and one HDF5 writer, so two "
-            "connections would interleave into the same episode buffer."
-        )
     if args.allow_dynamic_bundles and not args.concurrent:
         parser.error(
             "--allow-dynamic-bundles requires --concurrent: the server only "
             "consults a bundle when building a per-connection policy, so "
             "without the factory a loaded yaml would be acked and never served."
-        )
-    if args.allow_dynamic_bundles and args.collect_hdf5:
-        parser.error(
-            "--allow-dynamic-bundles cannot be combined with --collect-hdf5: "
-            "collection writes one HDF5 file per run and its provenance is the "
-            "process's single configuration, so swapping the library underneath "
-            "it would put entries from two configurations in one artifact."
         )
 
     from gr00t.model.policy import Gr00tPolicy
@@ -808,26 +933,6 @@ def main() -> None:
         # The factory owns the whole per-connection stack; building the
         # single-connection one too would load the artifact a second time.
         factory, stack = _build_concurrent_factory(policy, args)
-    elif args.collect_hdf5:
-        from openpi.cache.groot.staged import GrootStagedRunner
-
-        from openpi.cache.types import VISION_0, VISION_1
-
-        from exp.robocasa365.groot_cache_collector import GrootCacheCollector
-
-        runner = GrootStagedRunner(policy.model)
-        served = GrootLiberoPolicyAdapter(
-            GrootCacheCollector(
-                policy,
-                runner,
-                out_dir=args.collect_hdf5,
-                experiment=args.experiment,
-                # LIBERO feeds two cameras; the slicer's three-run default
-                # would reject every observation.
-                vision_fields=(VISION_0, VISION_1),
-            )
-        )
-        stack = f"collector -> {args.collect_hdf5}/{args.experiment}"
     elif args.cache_config:
         from openpi.cache.config import (
             build_cache_components,
@@ -855,12 +960,57 @@ def main() -> None:
             num_inference_timesteps=live_num_inference_timesteps(policy),
         )
         _check_libero_builder(config.key_builder.type, parser.error)
+        _require_trace_flag(config, args)
+        from openpi.cache.orchestrator import CacheOrchestrator
+
         components = build_cache_components(config)
-        runner = GrootStagedRunner(policy.model, compile_vision=getattr(args, "compile_stage1", False))
-        served = GrootLiberoPolicyAdapter(
-            GrootCacheInterceptor(policy, runner, **components)
+        timer = components["timer"]
+        if config.timer.output_csv_dir:
+            timer.enable_csv(config.timer.output_csv_dir)
+        orchestrator = CacheOrchestrator(
+            storage=components["storage"],
+            key_builder=components["key_builder"],
+            gates=components["gates"],
+            judges=components["judges"],
+            search_strategies=components["search_strategies"],
+            timer=timer,
+            write_policy=components["write_policy"],
+            offline_writers=components["offline_writers"],
+            library_stats=components["library_stats"],
         )
-        stack = f"cache -> {args.cache_config} ({config.key_builder.type})"
+        runner = GrootStagedRunner(
+            policy.model, timer=timer, compile_vision=getattr(args, "compile_stage1", False)
+        )
+        trace_rt = _trace_runtime(
+            args, config=config, components=components, orchestrator=orchestrator,
+            runner=runner, bundle_id="default", concurrent=False,
+        )
+        served = GrootLiberoPolicyAdapter(
+            GrootCacheInterceptor(
+                policy, runner, orchestrator=orchestrator, timer=timer,
+                trace=trace_rt, trace_vision_fields=_LIBERO_TRACE_CAMS if trace_rt else None,
+            )
+        )
+        stack = f"cache -> {args.cache_config} ({config.key_builder.type})" + (
+            f" + trace -> {args.trace_out}" if trace_rt else ""
+        )
+    elif args.trace_out:
+        from openpi.cache.groot.interceptor import GrootCacheInterceptor
+        from openpi.cache.groot.staged import GrootStagedRunner
+
+        runner = GrootStagedRunner(policy.model)
+        trace_rt = _trace_runtime(
+            args, config=None, components=None, orchestrator=None, runner=runner,
+            bundle_id="default", concurrent=False,
+        )
+        served = GrootLiberoPolicyAdapter(
+            GrootCacheInterceptor(
+                policy, runner, trace=trace_rt, trace_vision_fields=_LIBERO_TRACE_CAMS
+            )
+        )
+        stack = f"teacher + trace -> {args.trace_out}" + (
+            " (build-cache)" if args.trace_build_cache else ""
+        )
     else:
         served = GrootLiberoPolicyAdapter(policy)
         stack = "teacher-only (no cache, no collection)"
@@ -886,7 +1036,12 @@ def main() -> None:
             policy=served, host="0.0.0.0", port=args.port
         )
     print(f"SERVER-LISTENING on 0.0.0.0:{args.port}", flush=True)
-    server.serve_forever()
+    if not args.trace_out:
+        server.serve_forever()
+        return
+    from openpi.serving.trace_serving import serve_with_trace_shutdown
+
+    serve_with_trace_shutdown(server, build_mode=bool(args.trace_build_cache))
 
 
 if __name__ == "__main__":

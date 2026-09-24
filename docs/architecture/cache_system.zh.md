@@ -982,6 +982,37 @@ class TaskLifecycle(Protocol):
   total (sum)                    4     11.3     11.2     11.4     11.5
 ```
 
+### 9.6 Trace 服务模式（`--trace-out`）
+
+> 计划：[`logs/cache_trace_mode_plan.log.md`](../../logs/cache_trace_mode_plan.log.md)。
+> 取代基于 forward hook 的 `--collect` / `CollectionPolicy` 与 GR00T 的
+> `--collect-hdf5` / `GrootCacheCollector`（英文版 §9.X「Trace serving mode」为权威描述）。
+
+向 interceptor 注入 `TraceRuntime`（`openpi.cache.trace`）后，**真实执行流逐调用不变**
+（gate + verdict 决定发出什么），但**每步每个模块都运行**：key 必建、search 必跑、
+judge 必判（gate skip 步也一样）、stage 1/2 必跑、stage 3 从显式噪声全推理（= MISS 档）、
+每个可执行 warm 档从 twin top-1 快照续跑、top-1 chunk 即 FULL_HIT 档；按 verdict 选一发出，
+其余全部落盘。要点：
+
+* **twin 组件集**：`CacheOrchestrator(trace_twins=TwinSet)`——由剥离了 dump/快照/CSV 输出的
+  config 副本再建一套组件（key builder/gates/judges/strategies/storage facade/timer），
+  与真实件共用同一 `_check_impl` 流水线但 `force_search=True`；真实件保持 HEAD 语句顺序与状态，
+  twin 不触碰真实组件、session memo 与文件。`check(trace=True)` 返回 `CheckResult.trace`
+  （`CheckTrace`），`trace_check` 只跑 twin（FULL_HIT 后的 CP3）。
+* **变体**：`full`（MISS 步用全局 RNG，hit 步用身份种子的私有 generator）、
+  `executable_warm_tiers` 枚举的每个 `warm_<snapshot_index>`、以及真实 WARM_START 不在其中时的
+  `warm_exec`；并发下经一次 `submit_many_to_stage` 跨连接合批，否则直调。
+* **GR00T**：`GrootCacheInterceptor._get_action_traced`（CP1 与 CP2-only）；
+  `run_stage3(on_step=)` 观测转写 loop，`sample_noise` 复现上游采样；并发下共享锁只覆盖
+  stage 1/2 与 payload 准备，stage 3 交给进程级 `GrootStageBatcher`（同形分桶、不补零）。
+* **数据通路**：每连接 `H5TraceSink` → 每输出根 `TraceWriter`（单写线程）；每集一个文件，
+  为旧采集文件的严格超集（同 `write_step_group` 键 + `step_XXXX/trace/` 子组 + `trace_*` attrs）；
+  `.h5.tmp` → fsync → sidecar → rename 提交，失败 `.h5.failed`；`--trace-build-cache` 记录
+  `noise_action_0..N-1` 且写失败 sticky，退出码 3；审计器只接受已提交且身份一致的 trace 文件。
+* trace 关闭时现有一切路径逐字节不变。
+
+> Step 3a 表中的 `collection_policy.py` / `--collect` 为历史记录，已由本节取代并删除。
+
 ---
 
 ## 10. 配置系统

@@ -89,6 +89,10 @@ class _StubActionHead:
         # "helper + head" (WARM_START / MISS), and deterministic, non-identity
         # maps so the encoded key source is distinguishable from the raw one.
         self.training = False
+        # Upstream's get_action reads the noise shape off ``config``.
+        self.config = types.SimpleNamespace(
+            action_horizon=ACTION_HORIZON, action_dim=ACTION_DIM
+        )
         self.process_calls = 0
         self.state_calls = 0
         self.poison_state = False  # emit NaN from state_encoder (finite-check test)

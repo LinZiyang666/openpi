@@ -34,8 +34,19 @@ GUARDED_FILES = [
     "src/openpi/cache/groot/key_builder.py",
     "src/openpi/cache/groot/interceptor.py",
     "src/openpi/cache/groot/load_guard.py",
-    "exp/robocasa365/groot_cache_collector.py",
     "src/openpi/cache/groot/cp2_key_builder.py",
+    # Trace serving mode (plan cache_trace_mode §9-9): the model-agnostic
+    # runtime, the GR00T adapter and the jax-free batching core / server
+    # lifecycle are imported by the island's servers.
+    "src/openpi/cache/groot/batcher.py",
+    "src/openpi/cache/trace/__init__.py",
+    "src/openpi/cache/trace/types.py",
+    "src/openpi/cache/trace/records.py",
+    "src/openpi/cache/trace/runtime.py",
+    "src/openpi/cache/trace/h5_sink.py",
+    "src/openpi/cache/trace/groot.py",
+    "src/openpi/serving/batching_core.py",
+    "src/openpi/serving/trace_serving.py",
     # ActionCache-baseline island scripts (plan actioncache_baseline_groot §3.6/§3.9/§3.11).
     "exp/libero_groot/cp2_reconstruct.py",
     "exp/libero_groot/build_cp2_artifact_groot.py",
@@ -54,7 +65,16 @@ TRANSITIVE_ROOTS = [
     "exp/libero_groot/build_shadow_table_groot.py",
     "exp/libero_groot/groot_cp2_parity.py",
     "exp/libero_groot/bench_cp2_overhead_groot.py",
+    "src/openpi/cache/groot/interceptor.py",
+    "src/openpi/cache/groot/batcher.py",
+    "src/openpi/cache/trace/groot.py",
+    "src/openpi/cache/trace/runtime.py",
+    "src/openpi/serving/trace_serving.py",
 ]
+
+#: The Pi0.5 trace adapter is loaded lazily by the Pi0.5 interceptor only; no
+#: GR00T import chain may pass through it (plan §9-9).
+PI05_ONLY_MODULES = ("openpi.cache.trace.pi05",)
 
 
 def _imported_modules(path: pathlib.Path) -> set[str]:
@@ -131,6 +151,42 @@ def _transitive_offenders(start: pathlib.Path) -> list[tuple[str, str]]:
 def test_island_scripts_stay_jax_free_transitively(relative: str) -> None:
     offenders = _transitive_offenders(REPO_ROOT / relative)
     assert not offenders, f"{relative} reaches {offenders} through module-level imports"
+
+
+def _transitive_modules(start: pathlib.Path) -> set[str]:
+    seen: set[str] = set()
+    stack: list[tuple[pathlib.Path, str]] = [(start, str(start.relative_to(REPO_ROOT)))]
+    reached: set[str] = set()
+    while stack:
+        path, label = stack.pop()
+        if label in seen:
+            continue
+        seen.add(label)
+        for name in _imported_modules(path):
+            reached.add(name)
+            if name.startswith(("openpi.", "exp.")):
+                child = _module_path(name)
+                if child is not None:
+                    stack.append((child, name))
+    return reached
+
+
+@pytest.mark.parametrize(
+    "relative",
+    [
+        "src/openpi/cache/groot/interceptor.py",
+        "src/openpi/cache/groot/batcher.py",
+        "src/openpi/cache/trace/groot.py",
+        "src/openpi/cache/trace/runtime.py",
+        "exp/libero_groot/serve_groot_libero.py",
+        "exp/robocasa365/serve_groot_n15.py",
+    ],
+)
+def test_groot_chain_never_reaches_the_pi05_adapter(relative: str) -> None:
+    """Even through function-level imports: the GR00T path has no reason to load it."""
+    reached = _transitive_modules(REPO_ROOT / relative)
+    offenders = sorted(m for m in reached if m in PI05_ONLY_MODULES)
+    assert not offenders, f"{relative} reaches {offenders}"
 
 
 def test_the_transitive_guard_would_actually_catch_something() -> None:

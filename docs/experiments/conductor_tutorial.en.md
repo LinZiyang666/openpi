@@ -372,7 +372,7 @@ To retune (different model / GPU / cache mix), use `exp/serving_benchmark/autotu
 | `--replica-spawn-batch` | `0` | When `replicas>1`, spawn in batches: spawn this many child processes concurrently per batch, wait for them to load+bind, then spawn the next batch (`0` = spawn all at once; batching prevents large-library simultaneous-load OOM). |
 | `--concurrent` / `--non-concurrent` | `True` | Concurrent multi-client + dynamic bundle hot-swap (default); `--non-concurrent` = C1 raw single-connection max-speed baseline (no coordinator/bundle/lazy; current sdpa numerics). |
 | `--cache-config` | `None` | Cache yaml loaded at startup. |
-| `--record` / `--collect` / `--collect-dir` / `--collect-images` / `--cache` | … | Recording / collection-build flags (collection writes h5: `collection_policy` extracts vision/prompt embeddings stored as float16). |
+| `--record` / `--trace-out` / `--trace-build-cache` / `--collect-images` / `--cache` | … | Recording / collection-build flags (collection is the trace serving mode: one h5 per episode, prefix tokens stored as float16, `--trace-build-cache` adds `noise_action_*`; see `docs/data_collection/guide.md`). |
 
 ### 12.6 Server environment variables
 

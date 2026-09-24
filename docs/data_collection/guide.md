@@ -4,62 +4,85 @@
 
 ## Overview
 
-This data collection path records one HDF5 file per episode during remote inference.
+Collection is the **trace serving mode** (`--trace-out <dir>`; plan
+`logs/cache_trace_mode_plan.log.md`). The server records one HDF5 file per
+episode during remote inference; with `--trace-build-cache` the file also
+carries the denoise-loop inputs (`noise_action_*`) a warm-start library needs.
 
 Each file contains:
 
-- Episode metadata: experiment name, task name, episode id, success flag, timestamp
-- Per-step embeddings:
+- Episode metadata: experiment name, task name, episode id, success flag, timestamp,
+  the denoise-schedule stamp and the `trace_*` attributes (schema version, commit
+  state, identity, yaml / library provenance)
+- Per-step embeddings (the legacy collector's keys, unchanged):
   - `vision_0`, `vision_1`, `vision_2`
   - `prompt_emb`
   - `robot_state`
-  - `noise_action_*`
+  - `noise_action_*` (only with `--trace-build-cache`)
   - `clean_action`
+- Per-step `trace/` subgroup: the raw wire observation (images, prompt, state), the
+  tokenized prompt, the query keys, the twin search results (top-k ids, fused and
+  per-field scores) and every arm's action (`full_inference`, `full_hit`,
+  `warm_<snapshot_index>`, `warm_exec`, `executed`) with the verdict that chose one.
 
-The collector is designed as an outer wrapper around the normal policy path:
+How the trace mode records without changing what is served:
 
-- `--collect` off: no collection wrapper, no behavior change
-- `--collect` on but no active episode: pure delegation, no hooks
-- active episode: temporary forward hooks are attached during each `infer()` call and removed immediately afterward
+- every module runs on every decision (key build, search, judge, all stages, the full
+  inference and every executable warm tier), while the executed action still follows the
+  yaml exactly (gate and verdict decide what leaves the server; without a yaml the full
+  inference is served, i.e. the plain teacher);
+- the prefix tokens are sliced from the same stage-1 tensors the online keys are built
+  from (proved bit-identical to the legacy forward hooks on the real model by
+  `tests/cache/trace/test_trace_collect_parity_gpu.py`);
+- the `trace/` subgroup is additive: readers of the legacy keys never look into it.
 
 ## Output Location
 
-By default, collected files are written under the current working directory:
+Files are written under `--trace-out`:
 
 ```bash
-./data/<experiment_name>/episode_<episode_id>_<timestamp>.h5
+<trace-out>/<experiment_name>/<episode_name>.h5           # episode_name sent by the client
+<trace-out>/<experiment_name>/episode_<id>_<timestamp>_p<pid>.h5   # otherwise
 ```
 
-For LIBERO, `experiment_name` is usually the task suite name, for example:
-
-```bash
-./exp/common/data/libero_spatial/episode_0007_20260331_035410_446588.h5
-```
-
-You can override the root directory with `--collect_dir`.
+For LIBERO, `experiment_name` is usually the task suite name. A sidecar
+`<stem>.trace.jsonl` (one row per step: verdict, executed arm, scores) is written
+next to the file. While an episode is open the file is `<name>.h5.tmp`; it is renamed
+to `.h5` only after a successful close (fsync + attrs), so a `.h5.tmp` / `.h5.failed`
+on disk is never a finished episode.
 
 ## Server Command
 
-Start the policy server with collection enabled:
+Start the policy server with tracing enabled (Pi0.5, library build form):
 
 ```bash
-uv run scripts/serve_policy.py --collect --env LIBERO policy:checkpoint --policy.config pi05_libero --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+uv run scripts/serve_policy.py --cache --trace-out ./data --trace-build-cache \
+  --env LIBERO policy:checkpoint --policy.config pi05_libero \
+  --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
 ```
 
 Useful flags:
 
-- `--collect`: enables per-episode HDF5 recording
-- `--collect_dir ./data`: optional custom output root
-- `--env LIBERO`: selects the LIBERO policy setup
-- `policy:checkpoint`: load a specific checkpoint instead of the environment default
-- `--policy.config pi05_libero`: choose the train/inference config
-- `--policy.dir ...`: point to the PyTorch checkpoint directory
+- `--trace-out <dir>`: enables the trace mode and names the output root; requires the
+  staged inference path (`--cache` or `--cache_config <yaml>`)
+- `--trace-build-cache`: also record `noise_action_0..N-1` (library build). Any write
+  failure then stops the intake of new episodes and the server exits with status 3
+  after draining; the run-plan audit (below) is what decides which files are accepted
+- `--cache_config <yaml>`: trace the cache configuration instead of the plain teacher;
+  the served action follows the yaml, every other arm is recorded
+- `--concurrent`: allowed with tracing; the extra stage-3 variants of all connections
+  are batched by the coordinator
+- `--env LIBERO`, `policy:checkpoint`, `--policy.config`, `--policy.dir`: as before
 
-If you also enable staged cache timing:
+The yaml can also carry the block (`trace: {enabled, out_dir, record_noise_actions,
+record_raw_images, record_prefix_tokens, ...}`); CLI flags override it.
+Pi0.5 must enable trace at server startup (CLI or startup yaml) before loading
+trace bundles dynamically, so its shutdown handler owns every writer. GR00T
+requires `--trace-out` even when the yaml enables trace.
 
-```bash
-uv run scripts/serve_policy.py --cache --collect --env LIBERO policy:checkpoint --policy.config pi05_libero --policy.dir "$HOME/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
-```
+GR00T: `exp/libero_groot/serve_groot_libero.py` and `exp/robocasa365/serve_groot_n15.py`
+take the same `--trace-out` / `--trace-build-cache`, with or without `--cache-config`
+and with `--concurrent`.
 
 ## What Gets Saved
 
@@ -223,20 +246,21 @@ PY
 
 ## Important Notes
 
-- After you enable `--collect`, the first real simulator inference may trigger model compilation. This is especially noticeable when `--cache` is also enabled, but the first compiled inference can also happen on the normal PyTorch path.
+- After you enable `--trace-out`, the first real simulator inference may trigger model compilation. This is especially noticeable when `--cache` is also enabled, but the first compiled inference can also happen on the normal PyTorch path.
 - During that first compile, the server may look completely stuck for a long time and may not print new progress messages. This is normal. Do not assume it crashed immediately.
 - In practice, the most common symptom is: the simulator sends the first episode, and then the server appears to hang before returning the first action chunk.
 - The correct response is usually to wait patiently.
 - If you want a quick reality check, open another terminal and run `top` or `htop`. If the Python process is still using a lot of CPU, it is often still compiling rather than deadlocked.
-- The collector writes one file per episode, not one file per task suite.
-- Disconnect during an episode will flush partial data on connection close.
-- File names include timestamps, so repeated runs do not overwrite earlier files.
+- The writer produces one file per episode, not one file per task suite.
+- A disconnect during an episode closes the file with `trace_terminal=False`; the auditors
+  never accept such a file as a finished episode.
+- A name that already exists (final file, `.tmp` or a live reservation) is refused, never
+  overwritten: rerun a failed episode under a new attempt / episode name.
 
-## Gate-research per-step collection (distinct from `--collect`)
+## Gate-research per-step collection (distinct from `--trace-out`)
 
-The `--collect` mode above uses forward hooks to capture deep model internals and
-is **single-connection / single-replica only**. For GATE ("search or not")
-research there is a separate, **concurrency-native** collector that records a
+The trace mode above records deep model internals and supports concurrent
+connections. For GATE ("search or not") research there is a separate collector that records a
 lean per-step row — the model input the cache actually keys on (`robot_state` by
 default), the verdict (`hit_type` / `cp1_score` / `winner_id` / `start_t`), the
 `searched` flag, and the episode `success`. It reuses the `__hit_meta__` wire
@@ -363,32 +387,36 @@ mode, so the file carries no gate-skipped steps.
 
 ### Hard topology constraints
 
-`--collect` is structurally incompatible with concurrency: the embedding
-collector attaches module-global forward hooks, so `serve_policy.py` enforces
-`--non-concurrent --replicas 1`, and a non-concurrent server rejects a second
-connection outright (close code 1013). The collection topology is therefore
-**one server process ↔ one connection ↔ one worker**, scaled horizontally by
-launching N server processes; the conductor driver's control connection is
-replaced with a socket-free no-op ctl so it cannot consume the only slot.
-One `run_collect.py` invocation serves exactly ONE teacher (core
-`assign_servers` has no model-type notion); the per-teacher endpoint groups
-live in the env-config file and are validated before the graph is built.
+The trace mode replaces the hook-based collector and is not tied to one
+connection per process: a `--concurrent` server writes one file per episode
+per connection (each connection has its own writer sink; one writer thread per
+output root). The **one server process ↔ one connection ↔ one worker** topology
+below remains the reference recipe for a teacher build (it keeps each
+episode's identity trivially unique); the non-concurrent server still rejects
+a second connection outright (close code 1013) and the conductor driver's
+control connection is replaced with a socket-free no-op ctl so it cannot
+consume the only slot. One `run_collect.py` invocation serves exactly ONE
+teacher (core `assign_servers` has no model-type notion); the per-teacher
+endpoint groups live in the env-config file and are validated before the
+graph is built.
 
 ### Server (pi0.5 example)
 
 ```bash
 uv run scripts/serve_policy.py \
   --port 8010 --non-concurrent \
-  --collect --collect_dir /data/robocasa365_cache/build_l1s1 \
+  --cache --trace-out /data/robocasa365_cache/build_l1s1 --trace-build-cache \
   policy:checkpoint \
   --policy.config pi05_robocasa \
   --policy.dir /home/weiland/ckpt_pi05_robocasa_pytorch
 ```
 
-`--collect_dir` is the **scene root** (`build_l{L}s{S}`), never the teacher
-root: the collector inserts an `<experiment>` (= teacher id) directory level
+`--trace-out` is the **scene root** (`build_l{L}s{S}`), never the teacher
+root: the writer inserts an `<experiment>` (= teacher id) directory level
 itself. Final layout:
-`<scene-root>/<teacher>/<TaskName>/episode_NNNN_aAA.h5`.
+`<scene-root>/<teacher>/<TaskName>/episode_NNNN_aAA.h5`. A build server exits
+with status 3 when any episode failed to commit (the failed episode stays as
+`.h5.failed`); the audit below is the only acceptance evidence.
 
 ### Driver + workers
 
@@ -470,6 +498,29 @@ builds consume the manifest (first `--target` successes per task by
 `episode_idx`, sha256-pinned), never directory listings. Per-task episode
 counts come from `min_episodes_for_target(sr)` — the smallest N with
 `P(Binom(N, sr) ≥ 20) ≥ 0.90` at the SR point estimate.
+
+Trace-mode files add a commit check: a file carrying `trace_schema_version`
+is admitted only when `trace_closed_ok` and `trace_terminal` are true,
+`trace_write_errors == 0` and its embedded `trace_task_uid` / `trace_attempt`
+equal the admitted journal row; with `--require-denoise-schedule` it must also
+have been written with `--trace-build-cache` (`trace_noise_actions_recorded`).
+`.h5.tmp` / `.h5.failed` leftovers are listed under `unfinished_files` and
+never admitted. Files without the version attr keep the legacy rules; an
+unknown version is rejected. The server's exit status (3 on any writer
+failure) is a hint only — this audit is the acceptance evidence.
+
+Batch classification checks every H5 file, including attempts without an
+admitted journal row. Failed trace batches cannot export a partial manifest.
+A readable legacy `.h5.tmp` keeps the legacy rules; an unreadable header or a
+trace failure/reservation marker requires whole-batch admission. A fatal writer
+error also makes drain fail and the server exit with status 3, even if recording
+the error itself failed.
+
+The common library builder refuses directory scans when any input is a trace
+file. Pass the successful audit's `--manifest`, or an `--episode-list` containing
+exactly its selected relative paths; selected trace inputs are checked again
+for committed state and complete loop inputs. Legacy files without trace attrs
+keep their existing directory-scan support.
 
 For a LIBERO GR00T warm-start size library, the operator must also bind the
 expected live loop at build and verification time:

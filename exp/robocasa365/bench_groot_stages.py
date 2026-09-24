@@ -762,9 +762,9 @@ def build_production_input(policy: Any, checkpoint: pathlib.Path, prompt: str) -
     """Reproduce the serving path's observation shaping, all four steps of it.
 
     Production is ``build_groot_observation`` (validates and adds the ``T=1``
-    axis) then the collector's batch unsqueeze (``B=1``) then a numpy coercion
+    axis) then the interceptor's batch unsqueeze (``B=1``) then a numpy coercion
     then ``apply_transforms`` (groot_policy_adapter.py:206,
-    groot_cache_collector.py:118-126). Handing the raw wire observation straight
+    ``GrootCacheInterceptor._get_action_impl``). Handing the raw wire observation straight
     to ``apply_transforms`` -- which an earlier version of this script did --
     measures a shape the server never sees, and ``run_stage1`` asserts ``B=1``
     anyway.

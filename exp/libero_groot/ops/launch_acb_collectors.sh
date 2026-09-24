@@ -42,7 +42,7 @@ for i in $(seq 0 $((N-1))); do
   tmux new -s "acbsrv$P" -d "cd $REPO && PYTHONPATH=$PYPATH HF_HUB_OFFLINE=1 OPENPI_MONITOR_LEVEL=BASIC \
     $PY exp/libero_groot/serve_groot_libero.py \
       --checkpoint $CKPT --port $P --denoising-steps 8 \
-      --collect-hdf5 $ADIR/srv$i --experiment acb_shadow_$SUITE 2>&1 | tee $ADIR/srv$i.log"
+      --trace-out $ADIR/srv$i --trace-build-cache 2>&1 | tee $ADIR/srv$i.log"
   # Staggered: N processes loading a 7 GB checkpoint at once thrash the page
   # cache and the first connection then times out against a half-warm server.
   sleep 12

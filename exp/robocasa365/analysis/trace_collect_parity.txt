@@ -1,0 +1,3 @@
+trace vs legacy-hook parity: PASS
+checkpoint: /home/weiland/ckpt_pi05_robocasa_pytorch
+entries built: 1

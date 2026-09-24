@@ -492,9 +492,16 @@ entry = CacheEntry(
 
 你需要从目标模型的推理过程中采集 embedding 和动作数据。
 
-**现有 `collect/` 模块**是 Pi0.5 的参考实现——它硬编码了 `paligemma_with_expert`、`action_in_proj`、`action_out_proj` 等 Pi0.5 特有的 hook 点。对于其他模型，你有两个选择：
+**现有采集路径是 trace 服务模式**（`--trace-out <dir> --trace-build-cache`，
+`openpi.cache.trace`；见 [`../data_collection/guide.md`](../data_collection/guide.md)）：
+interceptor 在每步用 staged API 的输出切出 prefix token、用 `run_stage3(on_step=)` /
+`save_timesteps` 捕获 denoise loop 输入，由 `H5TraceSink` 写成旧 schema 的超集。
+模型特定的部分只有 `openpi/cache/trace/pi05.py` 与 `openpi/cache/trace/groot.py`
+两个 adapter（原始观测、prefix 切片、`noise_action_i` 映射、`StepTrace` 组装）。
+对于其他模型，你有两个选择：
 
-1. **参考现有实现自行编写采集逻辑**: 在你的模型推理流程中添加 forward hook 或手动采集中间表示，输出为 HDF5 文件
+1. **写一个 trace adapter**: 参照两个 adapter 为你的 staged 推理提供同样的切片与
+   映射函数，并在 interceptor 的 traced 路径中调用（框架层 sink / writer / 审计器可原样复用）
 2. **直接构建 artifact**: 如果你已有离线数据（如 demonstration 轨迹），跳过在线采集，直接编写脚本将数据转换为 `CacheEntry` 列表
 
 **最小 HDF5 schema**（如果你选择走 HDF5 中间格式）:
@@ -803,7 +810,7 @@ Pi0.5 的 `action_chunk` 形状是 `[50, 32]`（50 步 × 32 维动作）。你�
 | Step 3 自定义 KeyBuilder | `src/openpi/cache/groot/key_builder.py` —— §7「视觉 Token 布局不同」在这里是**掩码定位**而非固定偏移 |
 | Step 4 自定义 Interceptor | `src/openpi/cache/groot/interceptor.py`（平行实现，非派生） |
 | Step 5 注册到配置系统 | `config.py` 的 `_valid_key_builder_types` + `_build_key_builder`，类型名 `cp1_groot_*` |
-| Step 6 数据收集与 artifact | `exp/robocasa365/groot_cache_collector.py` 写现有 HDF5 schema ⇒ **建库脚本可原样复用** |
+| Step 6 数据收集与 artifact | `serve_groot_*.py --trace-out D --trace-build-cache`（`openpi/cache/trace/groot.py` adapter）写现有 HDF5 schema 的超集 ⇒ **建库脚本可原样复用** |
 
 三条本指南未覆盖、但迁移时会踩到的坑，见
 [`logs/archive/groot_cache_integration.log.md`](../../logs/archive/groot_cache_integration.log.md)：

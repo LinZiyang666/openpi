@@ -540,7 +540,7 @@ def _build_fake_stage1_with_masks(
 
     # prompt_emb is padded to max_token_len at collect time and captured via
     # a hook that already applies the `× sqrt(emb_dim)` scale in-place before
-    # store (`collection_policy.py:82-84`), so HDF5 prompt_emb is already what
+    # store (the trace prefix slice; formerly the legacy hook), so HDF5 prompt_emb is already what
     # `embed_prefix` would feed to layer 0. No extra scaling needed here.
     prompt = torch.from_numpy(np.array(group["prompt_emb"])).float()
     parts.append(prompt)
@@ -609,7 +609,7 @@ def _self_check_tokenizer_consistency(
 
     HDF5 `prompt_emb` is captured via a hook on `language_model.embed_tokens`
     that already multiplies by `sqrt(emb_dim)` in-place before storing
-    (`collection_policy.py:82-84`). The re-computed embedding here therefore
+    (the stored prefix slice). The re-computed embedding here therefore
     also applies the same scale to match the stored representation.
 
     Whether `state` is folded into the discrete prompt follows the same rule
@@ -759,6 +759,45 @@ def _process_episode_with_model(
 _TRAJECTORY_ID_MODES = ("stem", "relpath")
 
 
+def _validate_trace_build_input(path: Path, *, selected: bool, identity=None) -> None:
+    """Keep legacy scans; require audited, complete inputs for new trace files."""
+    from openpi.collect.h5_intermediates import episode_schedule
+
+    with h5py.File(path, "r") as handle:
+        if "trace_schema_version" not in handle.attrs:
+            return
+        if not selected:
+            raise ValueError(
+                f"{path}: trace builds require --manifest or an audited --episode-list; "
+                "directory scans cannot establish accepted attempts"
+            )
+        from exp.robocasa365.verify_collection_artifacts import _check_trace_attrs
+
+        problems, noise_recorded = _check_trace_attrs(handle, expected_identity=identity)
+        if noise_recorded is not True:
+            problems.append("trace build requires recorded noise_action_*")
+        schedule = episode_schedule(handle)
+        if schedule is None:
+            problems.append("trace build requires a denoise schedule")
+        steps = sorted(k for k in handle if k.startswith("step_"))
+        count = int(handle.attrs.get("num_steps", -1))
+        if not steps or steps != [f"step_{i:04d}" for i in range(count)]:
+            problems.append("trace step sequence does not match num_steps")
+        if schedule is not None:
+            for name in steps:
+                group = handle[name]
+                clean = group.get("clean_action")
+                expected = {f"noise_action_{i}" for i in range(schedule.num_steps)}
+                present = {k for k in group if k.startswith("noise_action_")}
+                if present != expected or clean is None:
+                    problems.append(f"{name}: incomplete trace loop inputs/actions")
+                    continue
+                if any(group[k].shape != clean.shape or group[k].dtype != clean.dtype for k in expected):
+                    problems.append(f"{name}: trace loop input shape/dtype mismatch")
+        if problems:
+            raise ValueError(f"{path}: " + "; ".join(problems))
+
+
 def resolve_from_manifest(
     data_dir: str | Path, manifest_path: str | Path
 ) -> tuple[list[Path], dict]:
@@ -801,6 +840,11 @@ def resolve_from_manifest(
                     f"manifest recorded {row['sha256']}; the file changed after "
                     "the audit admitted it"
                 )
+            _validate_trace_build_input(
+                resolved, selected=True,
+                identity=((row["task_uid"], int(row["attempt"]))
+                          if "task_uid" in row and "attempt" in row else None),
+            )
             if manifest_pin_id is not None:
                 # The digests only prove the bytes are unchanged; they say
                 # nothing about WHICH experiment those bytes came from. Without
@@ -840,7 +884,10 @@ def resolve_h5_paths(
     """
     root = Path(data_dir).resolve()
     if episode_list is None:
-        return sorted(Path(data_dir).rglob("*.h5"))
+        paths = sorted(Path(data_dir).rglob("*.h5"))
+        for path in paths:
+            _validate_trace_build_input(path, selected=False)
+        return paths
 
     raw = Path(episode_list).read_text().splitlines()
     paths: list[Path] = []
@@ -872,6 +919,7 @@ def resolve_h5_paths(
                 f"{episode_list}:{lineno}: duplicate entry {rel!r} (after normalization)"
             )
         seen.add(resolved)
+        _validate_trace_build_input(resolved, selected=True)
         paths.append(resolved)
 
     if not paths:

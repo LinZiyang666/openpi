@@ -84,8 +84,8 @@ def _write_hdf5(
         state = np.zeros(32, dtype=np.float32)
     if prompt_emb is None:
         # Match what _MockEmbedder produces for the mock tokenizer's tokens,
-        # scaled by sqrt(hidden_size) — matches how `collection_policy.py`
-        # captures prompt_emb (hook body applies the scale before store).
+        # scaled by sqrt(hidden_size) — matches the stored prompt_emb (the
+        # prefix slice of the scaled token embeddings).
         prompt_emb = np.zeros((max_len, hidden_size), dtype=np.float16)
         scale = math.sqrt(hidden_size)
         prompt_emb[:real_len] = scale  # tokens id=7 -> ones * sqrt(D)

@@ -31,6 +31,9 @@ PYTHONPATH      /home/weiland/gr00t_n15:/home/weiland/projects/openpi/src:/home/
                 gets dragged in from this repo.
 sim client      runs in a *different* island (py3.12 / numpy 2.2.5), which is why
                 this is a server rather than a single in-process script.
+trace mode      ``--trace-out DIR`` (``logs/cache_trace_mode_plan.log.md`` §9):
+                every module runs on every decision and everything is recorded;
+                ``--trace-build-cache`` adds the loop inputs for library builds.
 
 Launch::
 
@@ -191,25 +194,114 @@ def _handshake(
 # ------------------------------------------------------------------
 
 
-def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
-    """Pick exactly one of the three serving stacks and return it with a label.
+#: RoboCasa365 feeds three cameras; the trace records their prefix tokens in run order.
+_RC_TRACE_CAMS = ("vision_0", "vision_1", "vision_2")
 
-    Plain teacher / cache-aware / collecting are mutually exclusive by
+
+
+def _require_trace_flag(config: Any, args: Any) -> None:
+    """A yaml that enables ``trace`` needs ``--trace-out`` on this entry point.
+
+    The GR00T servers build the process-level stage-3 coordinator and pick the
+    interceptor's lock granularity from the CLI flag at factory-build time; a
+    yaml-only switch would otherwise be honoured by the per-connection runtime
+    but not by the process, so it is refused instead of silently ignored.
+    """
+    trace_block = getattr(config, "trace", None) if config is not None else None
+    if getattr(trace_block, "enabled", False) and not getattr(args, "trace_out", None):
+        raise ValueError(
+            "the cache yaml enables trace.enabled but --trace-out was not passed; "
+            "the GR00T entry points take the trace mode from the CLI flag"
+        )
+
+def _resolve_trace(config: Any, args: Any) -> Any:
+    """Effective trace block (yaml + CLI), or None when tracing is off."""
+    from openpi.cache.config import validate_effective_trace
+
+    return validate_effective_trace(
+        config,
+        out_dir=getattr(args, "trace_out", None),
+        build_cache=getattr(args, "trace_build_cache", None),
+    )
+
+
+def _trace_runtime(
+    args: Any,
+    *,
+    config: Any,
+    components: Any,
+    orchestrator: Any,
+    runner: Any,
+    bundle_id: str,
+    concurrent: bool,
+    provenance: dict | None = None,
+) -> Any:
+    """Per-connection ``TraceRuntime`` (None when tracing is off)."""
+    from openpi.cache.trace.runtime import build_groot_trace_runtime
+
+    yaml_id = bundle_id if bundle_id != "default" else (
+        pathlib.Path(args.cache_config).stem if args.cache_config else "default"
+    )
+    return build_groot_trace_runtime(
+        _resolve_trace(config, args),
+        cache_config=config,
+        components=components,
+        orchestrator=orchestrator,
+        runner=runner,
+        bundle_id=bundle_id,
+        yaml_id=yaml_id,
+        yaml_path=(provenance or {}).get("yaml_path", args.cache_config),
+        concurrent=concurrent,
+    )
+
+
+def _start_trace_coordinator(policy: Any) -> Any:
+    """Process-level stage-3 coordinator for concurrent trace serving (plan §6.3)."""
+    from openpi.cache.groot.batcher import GrootStageBatcher
+    from openpi.cache.groot.staged import GrootStagedRunner
+    from openpi.serving.batching_core import BatchingCore
+
+    if os.environ.get("OPENPI_STAGE3_BUCKET_FIRST", "") != "1":
+        print(
+            "WARNING: OPENPI_STAGE3_BUCKET_FIRST is not set; the stage-3 worker "
+            "pulls then groups, so same-shape variants of different connections "
+            "may land in separate batches",
+            flush=True,
+        )
+    runner = GrootStagedRunner(policy.model)
+    device = getattr(policy.model, "device", None) or "cuda"
+    core = BatchingCore(
+        GrootStageBatcher(runner),
+        device=device,
+        max_batch_size=int(os.environ.get("BATCHING_MAX_BATCH_SIZE", "8")),
+        max_wait_ms=float(os.environ.get("BATCHING_MAX_WAIT_MS", "10")),
+    )
+    core.start()
+    print("trace: GR00T stage-3 coordinator started", flush=True)
+    return core
+
+
+def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
+    """Pick exactly one serving stack and return it with a label.
+
+    Plain teacher / traced teacher / cache-aware are mutually exclusive by
     construction: whichever is chosen is the single object handed to the
     adapter, so there is never more than one wrapper in the chain.
     """
-    if not args.cache_config and not args.collect_hdf5:
-        return policy, "teacher-only (no cache, no collection)"
-
-    from openpi.cache.groot.staged import GrootStagedRunner
-
-    if args.collect_hdf5:
-        from exp.robocasa365.groot_cache_collector import GrootCacheCollector
+    if not args.cache_config:
+        if not getattr(args, "trace_out", None):
+            return policy, "teacher-only (no cache, no collection)"
+        from openpi.cache.groot.interceptor import GrootCacheInterceptor
+        from openpi.cache.groot.staged import GrootStagedRunner
 
         runner = GrootStagedRunner(policy.model)
+        rt = _trace_runtime(
+            args, config=None, components=None, orchestrator=None, runner=runner,
+            bundle_id="default", concurrent=False,
+        )
         return (
-            GrootCacheCollector(policy, runner, out_dir=args.collect_hdf5),
-            f"collector -> {args.collect_hdf5}",
+            GrootCacheInterceptor(policy, runner, trace=rt, trace_vision_fields=_RC_TRACE_CAMS),
+            f"teacher + trace -> {args.trace_out}" + (" (build-cache)" if args.trace_build_cache else ""),
         )
 
     from openpi.cache.config import (
@@ -232,6 +324,7 @@ def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
         num_inference_timesteps=live_num_inference_timesteps(policy),
         allow_hysteresis_gate=True,
     )
+    _require_trace_flag(config, args)
 
     components = build_cache_components(config)
     validate_artifact_identity(components["storage"], config)
@@ -289,9 +382,17 @@ def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
             f"rit-shadow -> {args.rit_shadow_out} (ts={warm_ts}, h_exec={args.rit_h_exec})",
         )
 
+    rt = _trace_runtime(
+        args, config=config, components=components, orchestrator=orchestrator,
+        runner=runner, bundle_id="default", concurrent=False,
+    )
     return (
-        GrootCacheInterceptor(policy, runner, orchestrator=orchestrator, timer=timer),
-        f"cache -> {args.cache_config} ({config.key_builder.type})",
+        GrootCacheInterceptor(
+            policy, runner, orchestrator=orchestrator, timer=timer,
+            trace=rt, trace_vision_fields=_RC_TRACE_CAMS if rt else None,
+        ),
+        f"cache -> {args.cache_config} ({config.key_builder.type})"
+        + (f" + trace -> {args.trace_out}" if rt else ""),
     )
 
 
@@ -348,6 +449,7 @@ def _resolve_bundle(
     cli_storage: Any,
     allow_dynamic: bool,
     num_inference_timesteps: int | None = None,
+    provenance: dict | None = None,
 ) -> tuple[Any, Any]:
     """Return the ``(config, shared_storage)`` this connection is served under.
 
@@ -392,6 +494,8 @@ def _resolve_bundle(
         allow_hysteresis_gate=True,
     )
     validate_artifact_identity(bundle.shared_storage, config)
+    if provenance is not None:
+        provenance["yaml_path"] = getattr(bundle, "config_path", None)
     return config, bundle.shared_storage
 
 
@@ -404,14 +508,33 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     orchestrator, staged runner, adapter — is built fresh per connection.
     """
     lock = threading.Lock()
+    trace_on = bool(getattr(args, "trace_out", None))
+    coordinator = _start_trace_coordinator(policy) if trace_on else None
 
     if not args.cache_config:
 
         def teacher_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
             _require_default_bundle(bundle_id)
-            return _InferLockedPolicy(GrootPolicyAdapter(shared_base_policy), lock)
+            if not trace_on:
+                return _InferLockedPolicy(GrootPolicyAdapter(shared_base_policy), lock)
+            from openpi.cache.groot.interceptor import GrootCacheInterceptor
+            from openpi.cache.groot.staged import GrootStagedRunner
 
-        return teacher_factory, "concurrent teacher-only (no cache)"
+            runner = GrootStagedRunner(shared_base_policy.model)
+            rt = _trace_runtime(
+                args, config=None, components=None, orchestrator=None, runner=runner,
+                bundle_id="default", concurrent=True,
+            )
+            return GrootPolicyAdapter(
+                GrootCacheInterceptor(
+                    shared_base_policy, runner, trace=rt, coordinator=coordinator,
+                    bundle_id="default", model_lock=lock, trace_vision_fields=_RC_TRACE_CAMS,
+                )
+            )
+
+        return teacher_factory, (
+            "concurrent teacher-only (no cache)" + (f" + trace -> {args.trace_out}" if trace_on else "")
+        )
 
     from openpi.cache.config import (
         build_per_connection_components,
@@ -435,19 +558,23 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
         num_inference_timesteps=live_num_inference_timesteps(policy),
         allow_hysteresis_gate=True,
     )
+    _require_trace_flag(config, args)
     shared_storage = build_shared_storage(config)
     validate_artifact_identity(shared_storage, config)
 
     allow_dynamic = bool(getattr(args, "allow_dynamic_bundles", False))
 
     def cache_factory(shared_base_policy: Any, bundle_id: str = "default") -> Any:
+        provenance = {}
         conn_config, conn_storage = _resolve_bundle(
             bundle_id,
             cli_config=config,
             cli_storage=shared_storage,
             num_inference_timesteps=live_num_inference_timesteps(shared_base_policy),
             allow_dynamic=allow_dynamic,
+            provenance=provenance,
         )
+        _require_trace_flag(conn_config, args)
         components = build_per_connection_components(
             conn_config, conn_storage, quiet=True
         )
@@ -476,13 +603,28 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
         runner = GrootStagedRunner(
             shared_base_policy.model, timer=timer, compile_vision=args.compile_stage1
         )
-        interceptor = GrootCacheInterceptor(
-            shared_base_policy, runner, orchestrator=orchestrator, timer=timer
+        if not trace_on:
+            interceptor = GrootCacheInterceptor(
+                shared_base_policy, runner, orchestrator=orchestrator, timer=timer
+            )
+            return _InferLockedPolicy(GrootPolicyAdapter(interceptor), lock)
+        # Trace: the interceptor takes the shared lock around stage 1/2 itself
+        # and submits its stage-3 variants to the process coordinator.
+        rt = _trace_runtime(
+            args, config=conn_config, components=components, orchestrator=orchestrator,
+            runner=runner, bundle_id=bundle_id, concurrent=True,
+            provenance=provenance,
         )
-        return _InferLockedPolicy(GrootPolicyAdapter(interceptor), lock)
+        interceptor = GrootCacheInterceptor(
+            shared_base_policy, runner, orchestrator=orchestrator, timer=timer,
+            trace=rt, coordinator=coordinator, bundle_id=bundle_id, model_lock=lock,
+            trace_vision_fields=_RC_TRACE_CAMS,
+        )
+        return GrootPolicyAdapter(interceptor)
 
     return cache_factory, (
         f"concurrent cache -> {args.cache_config} ({config.key_builder.type})"
+        + (f" + trace -> {args.trace_out}" if trace_on else "")
     )
 
 
@@ -504,10 +646,20 @@ def main() -> None:
         "without it the server is the plain teacher.",
     )
     parser.add_argument(
-        "--collect-hdf5",
+        "--trace-out",
         default=None,
-        help="Directory for per-episode HDF5 embeddings, for offline library "
-        "building. Mutually exclusive with --cache-config.",
+        help="Directory for the trace serving mode: every module runs on every "
+        "decision and one HDF5 per episode records the raw observation, prefix "
+        "tokens, query keys, search results, every arm's action and the verdict. "
+        "Works with or without --cache-config and with --concurrent.",
+    )
+    parser.add_argument(
+        "--trace-build-cache",
+        action="store_true",
+        default=None,
+        help="With --trace-out: also record the loop inputs (noise_action_*) so "
+        "the files can be built into a library; any write failure then stops "
+        "the server with exit status 3.",
     )
     parser.add_argument(
         "--compile-stage1",
@@ -564,12 +716,22 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    if args.trace_build_cache is not None and not args.trace_out:
+        parser.error("--trace-build-cache requires --trace-out <dir>")
+    if args.trace_out:
+        for flag, value in (
+            ("--compile-stage1", args.compile_stage1),
+            ("--rit-shadow-out", args.rit_shadow_out),
+            ("--diagnostic-seed", args.diagnostic_seed is not None),
+        ):
+            if value:
+                parser.error(
+                    f"--trace-out cannot be combined with {flag}: the trace path runs "
+                    "every stage eagerly through the staged runner and replaces the "
+                    "legacy collectors / shadows"
+                )
+
     if args.compile_stage1:
-        if args.collect_hdf5:
-            parser.error(
-                "--compile-stage1 cannot be combined with --collect-hdf5: the "
-                "collection path is frozen eager (byte-fidelity)."
-            )
         # Persist inductor/triton artifacts so only the first server start on
         # a machine pays the compile; every later start reuses the cache.
         os.environ.setdefault(
@@ -577,24 +739,12 @@ def main() -> None:
             os.path.expanduser("~/.cache/openpi_inductor"),
         )
 
-    if args.concurrent and args.collect_hdf5:
-        parser.error(
-            "--concurrent cannot be combined with --collect-hdf5: collection "
-            "topology is frozen at one server process <-> one connection <-> "
-            "one worker (plan D-L); horizontal scale = more server processes."
-        )
-    if args.cache_config and args.collect_hdf5:
-        parser.error(
-            "--cache-config and --collect-hdf5 are mutually exclusive. A library "
-            "must be collected from the teacher's own actions; with the cache "
-            "active some recorded actions would be replayed library entries."
-        )
-    if args.diagnostic_seed is not None and (args.cache_config or args.collect_hdf5):
+    if args.diagnostic_seed is not None and args.cache_config:
         parser.error(
             "--diagnostic-seed pins the flow-matching noise and cannot be "
-            "combined with --cache-config / --collect-hdf5: those paths drive "
-            "the model through the staged runner, which bypasses the seeding "
-            "wrapper, so the seed would appear to be set but would not be."
+            "combined with --cache-config: that path drives the model through "
+            "the staged runner, which bypasses the seeding wrapper, so the seed "
+            "would appear to be set but would not be."
         )
 
     if args.allow_dynamic_bundles and not args.cache_config:
@@ -613,13 +763,6 @@ def main() -> None:
             "--allow-dynamic-bundles requires --concurrent: the server only "
             "consults a bundle when building a per-connection policy, so "
             "without the factory a loaded yaml would be acked and never served."
-        )
-    if args.allow_dynamic_bundles and args.collect_hdf5:
-        parser.error(
-            "--allow-dynamic-bundles cannot be combined with --collect-hdf5: "
-            "collection writes one artifact whose provenance is the process's "
-            "single configuration, so swapping the library underneath it would "
-            "put entries from two configurations in one file."
         )
 
     from gr00t.model.policy import Gr00tPolicy
@@ -690,7 +833,12 @@ def main() -> None:
             adapter, host="0.0.0.0", port=args.port, metadata=metadata
         )
     print(f"SERVER-LISTENING on 0.0.0.0:{args.port}", flush=True)
-    server.serve_forever()
+    if not args.trace_out:
+        server.serve_forever()
+        return
+    from openpi.serving.trace_serving import serve_with_trace_shutdown
+
+    serve_with_trace_shutdown(server, build_mode=bool(args.trace_build_cache))
 
 
 if __name__ == "__main__":

@@ -64,8 +64,8 @@ def check_failure_h5_completeness(h5_dir: str, min_steps: int = 2) -> list:
     """Fail-loud gate on failure-rollout HDF5 before building D- (plan §5 / risk #10).
 
     Rejects (a) step holes (non-contiguous ``step_0000..N``), (b) stub episodes
-    below ``min_steps`` (mid-episode disconnect flushes success=False at
-    collection_policy.py:162), and (c) ANY step (not just step 0) missing a
+    below ``min_steps`` (a mid-episode disconnect closes the file with
+    success=False), and (c) ANY step (not just step 0) missing a
     required embedding dataset. Returns the validated h5 path list; raises
     SystemExit on any violation so a corrupt D- is never built.
     """

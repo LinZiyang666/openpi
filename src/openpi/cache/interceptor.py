@@ -70,6 +70,7 @@ Coupling map:
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any, Callable, Optional
 
 import jax
@@ -90,6 +91,11 @@ logger = logging.getLogger(__name__)
 # The Pi0.5 loop length, taken from its schedule identity rather than restated
 # here; matches the pi0_pytorch.run_stage3 default.
 _NUM_STEPS = PI05_V1.num_steps
+# The model's default ``run_stage3(save_timesteps=...)`` set. The legacy MISS
+# path buffers exactly these snapshots for the library write; a trace build
+# asks the model for the whole schedule and filters back to this set so the
+# real bookkeeping stays identical (guarded by a signature test).
+_LEGACY_SAVE_TIMESTEPS = (0.7, 0.5, 0.3)
 
 
 def _probe_backend(device_str: str | torch.device | None) -> str:
@@ -153,6 +159,36 @@ def _canonical_tokenized_prompt(observation) -> Optional[np.ndarray]:
     return arr.astype(np.int64, copy=False)
 
 
+def _attach_trace_twins(orchestrator, trace) -> None:
+    """Hand the runtime's twin component set to the orchestrator (plan §4.2)."""
+    twins = getattr(trace, "twins", None) if trace is not None else None
+    if orchestrator is None or twins is None:
+        return
+    attach = getattr(orchestrator, "attach_trace_twins", None)
+    if attach is None:
+        raise TypeError(
+            f"{type(orchestrator).__name__} cannot take trace twins; the trace "
+            "runtime was built with a twin component set for it"
+        )
+    attach(twins)
+
+
+def _same_device(actual: torch.device, expected) -> bool:
+    """Device equality that treats an index-less CUDA spec as the current device.
+
+    ``torch.device("cuda")`` and a tensor's ``cuda:0`` name the same device
+    when 0 is current; comparing their string forms would refuse every
+    correctly placed variant.
+    """
+    exp = torch.device(expected)
+    if actual.type != exp.type:
+        return False
+    if actual.type != "cuda":
+        return actual == exp
+    idx = exp.index if exp.index is not None else torch.cuda.current_device()
+    return actual.index == idx
+
+
 class InferenceInterceptor(_base_policy.BasePolicy):
     """Drop-in Policy replacement that routes inference through the staged API.
 
@@ -196,6 +232,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         hit_executor: Optional[Callable[[dict], dict]] = None,
         miss_executor: Optional[Callable[[dict], dict]] = None,
         shadow_teacher: Optional[Any] = None,
+        trace: Optional[Any] = None,
     ) -> None:
         if not policy._is_pytorch_model:  # noqa: SLF001
             raise ValueError(
@@ -245,6 +282,36 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # recorder-owned generator so the global RNG stream is untouched, and
         # any failure inside it is swallowed.
         self._shadow_teacher = shadow_teacher
+
+        # ---- Trace serving mode (default None => byte-identical paths) ----
+        # ``trace`` is a ``TraceRuntime`` (plan logs/cache_trace_mode_plan.log.md).
+        # It is mutually exclusive with everything that would make the
+        # executed action unobservable from the server (external executors)
+        # or duplicate the writer (shadow teacher, gate-research collection).
+        if trace is not None:
+            if hit_executor is not None or miss_executor is not None:
+                raise ValueError(
+                    "trace mode is incompatible with hit_executor / miss_executor: "
+                    "a sidecar-executed action cannot be recorded by the trace writer."
+                )
+            if shadow_teacher is not None:
+                raise ValueError(
+                    "trace mode is incompatible with the X15 shadow teacher; the "
+                    "trace records the teacher chunk on every decision already."
+                )
+            if export_collect_meta:
+                raise ValueError(
+                    "trace mode is incompatible with gate-research collection "
+                    "(export_collect_meta); the trace file carries every query key."
+                )
+            if stage_config is not None and (
+                stage_config.stage2 == "meta" or stage_config.stage3 == "meta"
+            ):
+                raise ValueError(
+                    "trace mode runs stage 2 and stage 3 on every decision; meta "
+                    "stage placement is incompatible."
+                )
+        self._trace = trace
 
         self._policy = policy
         # Borrow internals from the wrapped Policy — references only, no copy.
@@ -346,15 +413,20 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             ):
                 # The interceptor always asks for intermediates on MISS;
                 # the coordinator's MISS bucket already passes
-                # ``return_intermediates=True``. ``save_timesteps`` is
-                # accepted for signature parity but unused (the coordinator
-                # uses the model's default save_timesteps).
+                # ``return_intermediates=True``. ``save_timesteps=None`` keeps
+                # the model default (the legacy path never sets it); the trace
+                # build path forwards the full schedule.
                 payload = _bc.Stage3MissPayload(
                     stage2_out=stage2,
                     noise=noise.squeeze(0)
                     if (noise is not None and noise.dim() == 3)
                     else noise,
                     num_steps=num_steps,
+                    **(
+                        {"save_timesteps": tuple(save_timesteps)}
+                        if save_timesteps is not None
+                        else {}
+                    ),
                 )
                 return coordinator.submit_to_stage(3, bundle_id, payload)
 
@@ -392,6 +464,13 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 "stage3_flow", backend=_probe_backend(self._stage3_device)
             )
         self._timer.register_probe("total_inference", backend="cpu")
+        if self._trace is not None and self._stage3_device != "meta":
+            self._timer.register_probe(
+                "stage3_trace_full", backend=_probe_backend(self._stage3_device)
+            )
+            self._timer.register_probe(
+                "stage3_trace_warm", backend=_probe_backend(self._stage3_device)
+            )
 
         # ---- Image collection for cache key builders ----
         self._collect_images = collect_images
@@ -400,6 +479,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         # When orchestrator=None, all cache code paths are skipped (zero overhead).
         # Data flow: Interceptor -> Orchestrator -> CacheStorage facade
         self._orchestrator = orchestrator
+        _attach_trace_twins(orchestrator, trace)
         if orchestrator is not None:
             self._timer.register_probe("cp1_sum", backend="cpu")
             self._timer.register_probe("cp2_sum", backend="cpu")
@@ -421,6 +501,11 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             kb = orchestrator.key_builder
             if hasattr(kb, "attach_model"):
                 kb.attach_model(self._model)
+            # Trace mode: the twin key builder needs the same read-only model
+            # attachment before its first build (plan §4.2).
+            twin_kb = getattr(orchestrator, "twin_key_builder", None)
+            if twin_kb is not None and hasattr(twin_kb, "attach_model"):
+                twin_kb.attach_model(self._model)
 
     # -----------------------------------------------------------------------
     # Compile-once helpers
@@ -582,13 +667,30 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         """Reset per-episode state. Called when simulator sends episode_start.
 
         ``experiment`` and ``episode_name`` are accepted for wrapper-signature
-        alignment (``CollectionPolicy`` forwards both as kwargs) but are not
-        propagated to the orchestrator. ``extra_metadata`` carries
+        alignment (the server and ``PolicyRecorder`` forward both as kwargs);
+        the trace sink names the episode file after them, the orchestrator
+        never sees them. ``extra_metadata`` carries
         episode-level identity (e.g. ``{"task_id": int,
         "orig_init_state_idx": int}``) for server-side calibration loggers
         such as ``DumpingJudge``; the orchestrator stashes it for
         per-verdict consumption.
         """
+        trace = getattr(self, "_trace", None)
+        if trace is not None:
+            from openpi.cache.trace.types import EpisodeIdentity
+
+            # Before the ``del`` below: the trace file is named after the
+            # experiment / episode_name the client sent. A sticky build-mode
+            # writer failure raises here (plan §7.4-4).
+            trace.sink.on_episode_start(
+                EpisodeIdentity(
+                    experiment=str(experiment),
+                    task=str(task),
+                    episode_id=int(episode_id),
+                    episode_name=str(episode_name),
+                    extra_metadata=dict(extra_metadata or {}),
+                )
+            )
         del experiment, episode_name  # reserved; avoid unused-arg lint noise
         if self._shadow_teacher is not None:
             meta = extra_metadata or {}
@@ -615,6 +717,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             self._shadow_teacher.finalize_episode(terminal=True)
         if self._orchestrator is not None:
             self._orchestrator.on_episode_end()
+        trace = getattr(self, "_trace", None)
+        if trace is not None:
+            trace.sink.on_episode_end(bool(success))
         self._timer.on_task_end()
         self._timer.on_task_begin()
 
@@ -641,6 +746,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             shadow.close()
         if self._orchestrator is not None:
             self._orchestrator.on_task_end()
+        trace = getattr(self, "_trace", None)
+        if trace is not None:
+            trace.sink.on_task_end()
         # Deterministic sidecar teardown: executors owning a connection expose
         # close(); plain callables (tests) are left untouched. getattr keeps
         # partially-constructed instances (lifecycle tests) valid.
@@ -692,7 +800,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         if record:
             raise NotImplementedError(
                 "record=True. Future: capture prefill steps into HDF5 tagged "
-                "as 'prefill' for audit. Requires CollectionPolicy to "
+                "as 'prefill' for audit. Requires the trace sink to "
                 "distinguish prefill from real inference steps."
             )
         if on_miss != "error":
@@ -925,6 +1033,528 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
         return _stage3_from_via_coordinator
 
+    # -----------------------------------------------------------------------
+    # Trace serving mode (plan logs/cache_trace_mode_plan.log.md §5)
+    # -----------------------------------------------------------------------
+
+    def _infer_traced(self, obs: dict, *, noise: np.ndarray | None = None) -> dict:
+        """Run every module on this decision, send the verdict's arm, record all.
+
+        Mirrors ``infer`` statement for statement on the real path (transforms,
+        stage calls, checkpoint checks, bookkeeping) and adds, never replaces:
+        the full inference always runs (it IS the MISS arm), every executable
+        warm tier resumes from the twin top-1 snapshot, and the real verdict
+        selects which of those leaves the server. The legacy ``infer`` body is
+        untouched -- this method is only reached when a ``TraceRuntime`` was
+        injected at construction.
+        """
+        from openpi.cache.trace import pi05 as _tp
+        from openpi.cache.trace.records import check_trace_json, search_trace_from_check
+        from openpi.shared.image_extract import extract_valid_images
+
+        tr = self._trace
+        plan = tr.plan
+        sink = tr.sink
+        sink.begin_step()
+        timing: dict[str, float] = {}
+        t_wall = time.perf_counter()
+        try:
+            # ---- 1. Input transforms (same rules as the legacy path) ----
+            client_signal = obs.pop("__gate_decision__", None)
+            accepts_client_signal = (
+                self._orchestrator is not None and self._orchestrator.accepts_client_signal
+            )
+            if client_signal is not None and not accepts_client_signal:
+                raise ValueError(
+                    "obs carries '__gate_decision__' but no ClientControlledGate "
+                    "is configured at CP1 or CP3. Remove the field from obs, or "
+                    "load a cache config with gate.type='client_controlled'."
+                )
+            request_context: dict | None = (
+                {"gate_decision": client_signal} if client_signal is not None else None
+            )
+            # Raw observation BEFORE the transform chain pops / resizes it.
+            raw_images, prompt_text, raw_state = _tp.capture_raw_observation(
+                obs, plan.raw_image_keys
+            )
+            inputs = jax.tree.map(lambda x: x, obs)
+            inputs = self._input_transform(inputs)
+            input_images = extract_valid_images(inputs)
+            model_images = image_mask = None
+            if plan.record_model_images:
+                model_images = {
+                    k: np.array(v, copy=True) for k, v in (inputs.get("image") or {}).items()
+                }
+                image_mask = {
+                    k: bool(v) for k, v in (inputs.get("image_mask") or {}).items()
+                }
+            # The real key builder sees images under exactly the legacy rule.
+            check_images = input_images if self._collect_images else None
+
+            if self._coordinator is None:
+                inputs = jax.tree.map(
+                    lambda x: torch.from_numpy(np.array(x)).to(self._pytorch_device)[
+                        None, ...
+                    ],
+                    inputs,
+                )
+                observation = _model.Observation.from_dict(inputs)
+            else:
+                inputs = jax.tree.map(
+                    lambda x: (
+                        torch.from_numpy(np.array(x)) if not torch.is_tensor(x) else x
+                    ),
+                    inputs,
+                )
+                observation = inputs
+            tokenized_prompt = _canonical_tokenized_prompt(observation)
+
+            start_noise: torch.Tensor | None = None
+            if noise is not None:
+                start_noise = torch.from_numpy(noise).to(self._stage3_device)
+                if start_noise.ndim == 2:
+                    start_noise = start_noise[None, ...]
+
+            # ---- 2. Every stage, every checkpoint ----
+            torch.compiler.cudagraph_mark_step_begin()
+            with self._timer.measure("total_inference"):
+                with torch.no_grad():
+                    t0 = time.perf_counter()
+                    with self._timer.measure("stage1_vision"):
+                        stage1 = self._stage1_fn(observation)
+                    timing["stage1_ms"] = (time.perf_counter() - t0) * 1000.0
+
+                    cp = None
+                    if self._orchestrator is not None and not self._cp2_only:
+                        cp1_kwargs = {"stage1": stage1, "tokenized_prompt": tokenized_prompt}
+                        if check_images is not None:
+                            cp1_kwargs["input_images"] = check_images
+                        t0 = time.perf_counter()
+                        with self._timer.measure("cp1_sum"):
+                            cp = self._orchestrator.check(
+                                CheckpointID.CP1,
+                                request_context=request_context,
+                                trace=True,
+                                fetch_top1=plan.fetch_top1,
+                                **cp1_kwargs,
+                            )
+                        timing["cp1_ms"] = (time.perf_counter() - t0) * 1000.0
+
+                    if (
+                        self._stage_config is not None
+                        and self._stage_config.needs_relocation
+                    ):
+                        stage1 = stage1.to(self._stage2_device)
+                    t0 = time.perf_counter()
+                    with self._timer.measure("stage2_llm"):
+                        stage2 = self._stage2_fn(stage1)
+                    timing["stage2_ms"] = (time.perf_counter() - t0) * 1000.0
+
+                    if self._cp2_only:
+                        t0 = time.perf_counter()
+                        with self._timer.measure("cp2_sum"):
+                            cp = self._orchestrator.check(
+                                CheckpointID.CP2,
+                                request_context=request_context,
+                                trace=True,
+                                fetch_top1=plan.fetch_top1,
+                                stage2=stage2,
+                                tokenized_prompt=tokenized_prompt,
+                            )
+                        timing["cp2_ms"] = (time.perf_counter() - t0) * 1000.0
+
+                    if (
+                        self._stage_config is not None
+                        and self._stage_config.needs_relocation
+                    ):
+                        stage2 = stage2.to(self._stage3_device)
+
+                    effective_hit = cp.hit_type if cp is not None else HitType.MISS
+
+                    # ---- noise for the full inference (R8 / D3) ----
+                    shape = (1, self._model.config.action_horizon, self._model.config.action_dim)
+                    if start_noise is not None:
+                        z = start_noise
+                    elif effective_hit == HitType.MISS:
+                        z = self._model.sample_noise(shape, self._stage3_device)
+                    else:
+                        gen = tr.noise_generator(
+                            device=self._stage3_device,
+                            identity=sink.identity,
+                            step_idx=sink.step_idx,
+                        )
+                        z = self._model.sample_noise(shape, self._stage3_device, generator=gen)
+
+                    # ---- variants: full + every executable warm tier (+ warm_exec) ----
+                    t0 = time.perf_counter()
+                    variants, tier_status, warm_index_map, warm_exec_name = (
+                        self._trace_variants(stage2, cp, z=z)
+                    )
+                    outs = self._run_trace_variants(stage2, variants)
+                    timing["stage3_variants_ms"] = (time.perf_counter() - t0) * 1000.0
+                    full = outs["full"]
+                    executed_arm, executed = self._select_executed(cp, outs, warm_exec_name)
+
+                    # ---- bookkeeping, per-verdict identical to the legacy branch ----
+                    cp3_trace = None
+                    if self._orchestrator is not None:
+                        try:
+                            if not self._cp2_only and self._orchestrator.has_checkpoint(
+                                CheckpointID.CP3
+                            ):
+                                cp3_output = executed
+                                if cp3_output is None:
+                                    from openpi.models_pytorch.pi0_pytorch import Stage3Output
+
+                                    cp3_output = Stage3Output(
+                                        action_chunk=cp.payload.action_chunk[None].to(self._stage3_device),
+                                        intermediates=None,
+                                    )
+                                cp3_kwargs = {
+                                    "stage1": stage1,
+                                    "stage3": cp3_output,
+                                    "tokenized_prompt": tokenized_prompt,
+                                }
+                                if check_images is not None:
+                                    cp3_kwargs["input_images"] = check_images
+                                if effective_hit == HitType.FULL_HIT:
+                                    # The legacy FULL_HIT early return never ran CP3:
+                                    # only the twin handler runs here.
+                                    cp3_trace = self._orchestrator.trace_check(
+                                        CheckpointID.CP3,
+                                        request_context=request_context,
+                                        fetch_top1=False,
+                                        **cp3_kwargs,
+                                    )
+                                else:
+                                    with self._timer.measure("cp3_sum"):
+                                        cp3_result = self._orchestrator.check(
+                                            CheckpointID.CP3,
+                                            request_context=request_context,
+                                            trace=True,
+                                            fetch_top1=False,
+                                            **cp3_kwargs,
+                                        )
+                                    cp3_trace = cp3_result.trace
+                            if effective_hit == HitType.FULL_HIT:
+                                cached_action = cp.payload.action_chunk
+                                self._orchestrator.broadcast_action(cached_action)
+                                if cp.query_keys is not None:
+                                    self._orchestrator.buffer_for_write(
+                                        cp.query_keys, cached_action
+                                    )
+                            else:
+                                action_chunk_cpu = (
+                                    executed.action_chunk[0].detach().cpu().float().contiguous()
+                                )
+                                intermediates_cpu = None
+                                denoising_num_steps_val = None
+                                inter = getattr(executed, "intermediates", None)
+                                if effective_hit == HitType.MISS and inter:
+                                    # The legacy MISS buffers the model's default
+                                    # snapshot set; a build run asked for more,
+                                    # so filter back to that set.
+                                    intermediates_cpu = {
+                                        t: x[0].detach().cpu().float().contiguous()
+                                        for t, x in inter.items()
+                                        if t in _LEGACY_SAVE_TIMESTEPS
+                                    }
+                                    denoising_num_steps_val = _NUM_STEPS
+                                self._orchestrator.broadcast_action(action_chunk_cpu)
+                                if cp is not None and cp.query_keys is not None:
+                                    self._orchestrator.buffer_for_write(
+                                        cp.query_keys,
+                                        action_chunk_cpu,
+                                        intermediates=intermediates_cpu,
+                                        denoising_num_steps=denoising_num_steps_val,
+                                        schedule_id=(
+                                            PI05_V1.schedule_id
+                                            if intermediates_cpu is not None
+                                            else None
+                                        ),
+                                    )
+                        finally:
+                            self._orchestrator.clear()
+
+            # ---- 3. Outputs: the verdict's arm leaves the server ----
+            if effective_hit == HitType.FULL_HIT:
+                executed_batched = cp.payload.action_chunk.to(self._pytorch_device)[None, ...]
+            else:
+                executed_batched = executed.action_chunk
+            outputs = self._unbatch_outputs(inputs["state"], executed_batched)
+            outputs = self._output_transform(outputs)
+            if self._cp2_only:
+                hit_meta = self._build_hit_meta(
+                    cp,
+                    arm_executed=None if effective_hit == HitType.FULL_HIT else "teacher",
+                    checkpoint="CP2",
+                    library_sha256=self._cp2_library_sha256,
+                )
+            elif self._orchestrator is not None:
+                hit_meta = self._build_hit_meta(
+                    cp,
+                    arm_executed="cache" if effective_hit == HitType.FULL_HIT else "teacher",
+                )
+            else:
+                hit_meta = self._build_hit_meta(None, arm_executed="teacher", checkpoint="CP1")
+            outputs["__hit_meta__"] = dict(hit_meta)
+            timing["wall_ms"] = (time.perf_counter() - t_wall) * 1000.0
+
+            # ---- 4. Record ----
+            ct = cp.trace if cp is not None else None
+            top1 = ct.top1_payload if ct is not None else None
+            full_action = full.action_chunk[0].detach().cpu().float().numpy()
+            action_full_hit = None
+            if top1 is not None and getattr(top1, "action_chunk", None) is not None:
+                action_full_hit = top1.action_chunk.detach().cpu().float().numpy()
+            action_warm = {
+                idx: (
+                    outs[name].action_chunk[0].detach().cpu().float().numpy()
+                    if name in outs
+                    else None
+                )
+                for idx, name in warm_index_map.items()
+            }
+            action_warm_exec = (
+                outs[warm_exec_name].action_chunk[0].detach().cpu().float().numpy()
+                if warm_exec_name is not None
+                else None
+            )
+            step = _tp.build_step_trace(
+                plan=plan,
+                stage1=stage1,
+                input_images=input_images,
+                raw_images=raw_images,
+                prompt=prompt_text,
+                raw_state=raw_state,
+                model_images=model_images,
+                image_mask=image_mask,
+                tokenized_prompt=tokenized_prompt,
+                query_keys=cp.query_keys if cp is not None else None,
+                search=search_trace_from_check(ct),
+                cp3_twin_json=check_trace_json(cp3_trace),
+                full_action=full_action,
+                init_noise=z,
+                full_output=full,
+                action_full_hit=action_full_hit,
+                action_warm=action_warm,
+                action_warm_exec=action_warm_exec,
+                action_executed=np.asarray(executed_batched[0].detach().cpu().float()),
+                executed_arm=executed_arm,
+                verdict=hit_meta,
+                tier_status=tier_status,
+                timing_ms=timing,
+                warm_index_map={
+                    idx: {
+                        "arm": name,
+                        "start_t": plan.schedule.snapshot_t(idx),
+                        "schedule_id": plan.schedule.schedule_id,
+                        "entry_id": ct.top1_entry_id if ct is not None else None,
+                    }
+                    for idx, name in warm_index_map.items()
+                },
+            )
+            writer_error = None
+            try:
+                sink.record_step(step)
+            except Exception as exc:
+                if plan.fail_loud:
+                    raise
+                writer_error = repr(exc)
+                logger.warning("trace: record_step failed (diagnostic mode): %r", exc)
+            outputs["__hit_meta__"]["trace"] = {
+                "executed_arm": executed_arm,
+                "top1_entry_id": ct.top1_entry_id if ct is not None else None,
+                "tier_status": dict(tier_status),
+                **({"writer_error": writer_error} if writer_error else {}),
+            }
+            return outputs
+        finally:
+            sink.finish_step()
+
+    def _trace_variants(self, stage2, cp, *, z: torch.Tensor):
+        """Variant table for one decision (plan §5 step 9).
+
+        Returns ``(variants, tier_status, warm_index_map, warm_exec_name)``:
+        ``variants`` is an ordered list of ``(name, kind, spec)`` with ``full``
+        first; ``warm_index_map`` maps each executable snapshot index to its
+        arm name; ``warm_exec_name`` names the extra variant that guarantees
+        the real WARM_START verdict has something to execute when its
+        ``(winner, start_t)`` is not among the precomputed tiers.
+        """
+        from openpi.cache.trace.types import ARM_WARM_EXEC, warm_arm_name
+
+        plan = self._trace.plan
+        schedule = plan.schedule
+        ct = cp.trace if cp is not None else None
+        top1 = ct.top1_payload if ct is not None else None
+        top1_id = ct.top1_entry_id if ct is not None else None
+        variants: list[tuple[str, str, dict]] = []
+        tier_status: dict[str, str] = {}
+        warm_index_map: dict[int, str] = {}
+
+        self._precheck_variant_tensor(z.squeeze(0) if z.dim() == 3 else z, "noise")
+        variants.append(
+            (
+                "full",
+                "miss",
+                {
+                    "noise": z,
+                    "num_steps": _NUM_STEPS,
+                    "save_timesteps": plan.save_timesteps,
+                },
+            )
+        )
+        computed: set[tuple[str | None, float]] = set()
+        for idx in plan.warm_tiers:
+            name = warm_arm_name(idx)
+            t = schedule.snapshot_t(idx)
+            if top1 is None:
+                tier_status[name] = "no_top1"
+                continue
+            try:
+                top1.validate_for_warm_start(schedule, t)
+            except (KeyError, ValueError, AttributeError) as exc:
+                tier_status[name] = f"no_snapshot:{type(exc).__name__}"
+                continue
+            start_x = top1.intermediates[t].to(self._stage3_device)
+            if start_x.ndim == 3:
+                start_x = start_x[0]
+            self._precheck_variant_tensor(start_x, name)
+            variants.append(
+                (
+                    name,
+                    "warm",
+                    {"start_x": start_x, "start_t": t, "num_steps": top1.denoising_num_steps},
+                )
+            )
+            warm_index_map[idx] = name
+            tier_status[name] = "ok"
+            computed.add((top1_id, round(float(t), 4)))
+
+        warm_exec_name = None
+        if cp is not None and cp.hit_type == HitType.WARM_START:
+            start_t = cp.start_t
+            # The real payload must pass the real check (the legacy path raises).
+            cp.payload.validate_for_warm_start(PI05_V1, start_t)
+            key = (cp.entry_id, round(float(start_t), 4))
+            if key not in computed:
+                start_x = cp.payload.intermediates[start_t].to(self._stage3_device)
+                if start_x.ndim == 3:
+                    start_x = start_x[0]
+                self._precheck_variant_tensor(start_x, ARM_WARM_EXEC)
+                variants.append(
+                    (
+                        ARM_WARM_EXEC,
+                        "warm",
+                        {
+                            "start_x": start_x,
+                            "start_t": start_t,
+                            "num_steps": cp.payload.denoising_num_steps,
+                        },
+                    )
+                )
+                warm_exec_name = ARM_WARM_EXEC
+                reason = "winner_differs_from_top1" if cp.entry_id != top1_id else "tier_not_enumerated"
+                tier_status[ARM_WARM_EXEC] = f"warm_exec:{reason}"
+        return variants, tier_status, warm_index_map, warm_exec_name
+
+    def _precheck_variant_tensor(self, t: torch.Tensor, name: str) -> None:
+        """Refuse a malformed variant input on THIS connection, before it is shared."""
+        expected = (self._model.config.action_horizon, self._model.config.action_dim)
+        if tuple(t.shape) != expected:
+            raise ValueError(
+                f"trace variant {name!r}: expected shape {expected}, got {tuple(t.shape)}"
+            )
+        if t.dtype != torch.float32:
+            raise ValueError(f"trace variant {name!r}: expected float32, got {t.dtype}")
+        if not _same_device(t.device, self._stage3_device):
+            raise ValueError(
+                f"trace variant {name!r}: expected device {self._stage3_device}, got {t.device}"
+            )
+        if not bool(torch.isfinite(t).all()):
+            raise ValueError(f"trace variant {name!r}: non-finite values")
+
+    def _run_trace_variants(self, stage2, variants) -> dict[str, Any]:
+        """Run every variant: one batched submission under the coordinator,
+        direct model calls otherwise. Returns ``{name: Stage3Output}``."""
+        outs: dict[str, Any] = {}
+        if self._coordinator is not None:
+            from openpi.serving import batching_coordinator as _bc
+
+            payloads = []
+            for name, kind, spec in variants:
+                if kind == "miss":
+                    noise = spec["noise"]
+                    payloads.append(
+                        _bc.Stage3MissPayload(
+                            stage2_out=stage2,
+                            noise=noise.squeeze(0) if noise.dim() == 3 else noise,
+                            num_steps=spec["num_steps"],
+                            save_timesteps=spec["save_timesteps"],
+                            ready_events=_bc.record_ready_events(self._stage3_device),
+                        )
+                    )
+                else:
+                    payloads.append(
+                        _bc.Stage3WarmStartPayload(
+                            stage2_out=stage2,
+                            start_x=spec["start_x"],
+                            start_t=spec["start_t"],
+                            num_steps=spec["num_steps"],
+                            ready_events=_bc.record_ready_events(self._stage3_device),
+                        )
+                    )
+            with self._timer.measure("stage3_trace_full"):
+                results = self._coordinator.submit_many_to_stage(3, self._bundle_id, payloads)
+            for (name, _kind, _spec), out in zip(variants, results, strict=True):
+                outs[name] = out
+            return outs
+        for name, kind, spec in variants:
+            if kind == "miss":
+                extra = (
+                    {"save_timesteps": tuple(spec["save_timesteps"])}
+                    if spec["save_timesteps"] is not None
+                    else {}
+                )
+                with self._timer.measure("stage3_trace_full"):
+                    outs[name] = self._model.run_stage3(
+                        stage2,
+                        noise=spec["noise"],
+                        num_steps=spec["num_steps"],
+                        return_intermediates=True,
+                        **extra,
+                    )
+            else:
+                with self._timer.measure("stage3_trace_warm"):
+                    outs[name] = self._model.run_stage3_from(
+                        stage2,
+                        spec["start_x"][None, ...],
+                        spec["start_t"],
+                        num_steps=spec["num_steps"],
+                    )
+        return outs
+
+    @staticmethod
+    def _select_executed(cp, outs: dict[str, Any], warm_exec_name):
+        """``(executed_arm, Stage3Output | None)`` for the real verdict."""
+        from openpi.cache.trace.types import ARM_FULL_HIT, ARM_FULL_INFERENCE, warm_arm_name
+
+        if cp is None or cp.hit_type == HitType.MISS:
+            return ARM_FULL_INFERENCE, outs["full"]
+        if cp.hit_type == HitType.FULL_HIT:
+            return ARM_FULL_HIT, None
+        if warm_exec_name is not None:
+            return warm_exec_name, outs[warm_exec_name]
+        schedule = PI05_V1
+        name = warm_arm_name(schedule.snapshot_index(cp.start_t))
+        if name not in outs:
+            raise RuntimeError(
+                f"trace: WARM_START verdict start_t={cp.start_t} has no computed variant "
+                f"(have {sorted(outs)})"
+            )
+        return name, outs[name]
+
     def infer(self, obs: dict, *, noise: np.ndarray | None = None) -> dict:  # type: ignore[misc]
         """Cache-aware inference through the staged API.
 
@@ -946,6 +1576,9 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         Returns:
             Dict with keys ``"actions"`` and ``"state"``.
         """
+        if self._trace is not None:
+            return self._infer_traced(obs, noise=noise)
+
         # ---- 1. Input transforms (mirrors Policy.infer exactly) ----
         # Strip the reserved '__gate_decision__' field BEFORE _input_transform
         # so it never enters the model input pipeline. This is an in-place

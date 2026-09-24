@@ -186,9 +186,10 @@ def test_storage_is_read_from_the_bundle_never_rebuilt(monkeypatch, _no_op_guard
     [
         (["--allow-dynamic-bundles"], "requires --concurrent"),
         (
-            ["--allow-dynamic-bundles", "--concurrent", "--collect-hdf5", "/tmp/x"],
-            "cannot be combined with --collect-hdf5",
+            ["--trace-out", "/tmp/x", "--compile-stage1"],
+            "cannot be combined with --compile-stage1",
         ),
+        (["--trace-build-cache"], "requires --trace-out"),
     ],
 )
 def test_cli_refusals(monkeypatch, capsys, argv, message):

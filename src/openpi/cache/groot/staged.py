@@ -342,6 +342,9 @@ class GrootStagedRunner:
         # double-runs eager vs compiled and refuses to serve on divergence —
         # keys built from a miscompiled tower would be quietly wrong
         # everywhere downstream.
+        # (model, device, autocast dtype, input dtype) -> noise dtype (see _noise_dtype)
+        self._noise_dtype_cache: dict[tuple, torch.dtype] = {}
+
         self._compiled_entry = None
         if compile_vision:
             entry = _COMPILED_VISION_REGISTRY.get(id(self._eagle))
@@ -724,17 +727,92 @@ class GrootStagedRunner:
             raise RuntimeError("run_cp2_key_source: non-finite values in the encoded key source")
         return GrootCP2KeySource(vl_encoded=vl0, state_encoded=st0)
 
+    # -- noise for the transcribed loop -----------------------------------
+
+    def _noise_dtype(self, stage2: GrootStage2Output) -> torch.dtype:
+        """dtype of ``process_backbone_output(...).backbone_features`` for this input.
+
+        Upstream draws its noise in that dtype (``vl_embs.dtype``), which is
+        only known after the head's prologue ran under the live autocast: the
+        LayerNorm is promoted to fp32 and the attention block casts back, so
+        neither the parameter dtype nor the stage-2 dtype can stand in for it.
+        Probed once per ``(model, device, autocast, input dtype)`` on the first
+        real stage-2 output, read-only, with the CPU / CUDA RNG forked so the
+        probe never advances the global stream another producer may be on.
+        A fresh ``_head_inputs`` mapping is built for it: the prologue writes
+        the normalised features back in place.
+        """
+        features = stage2.backbone_features
+        key = (
+            id(self._model),
+            str(features.device),
+            _autocast_dtype(self._device_type),
+            features.dtype,
+        )
+        cached = self._noise_dtype_cache.get(key)
+        if cached is not None:
+            return cached
+        self._require_session("_noise_dtype")
+        head = self._model.action_head
+        if getattr(head, "training", False):
+            raise RuntimeError("_noise_dtype: the action head must be in eval mode")
+        devices = [features.device] if features.device.type == "cuda" else []
+        with torch.random.fork_rng(devices=devices, enabled=True):
+            processed = head.process_backbone_output(self._head_inputs(stage2))
+            probed = _processed_features(processed).dtype
+        self._noise_dtype_cache[key] = probed
+        return probed
+
+    def sample_noise(
+        self,
+        stage2: GrootStage2Output,
+        *,
+        generator: Optional[torch.Generator] = None,
+    ) -> torch.Tensor:
+        """The noise upstream's ``get_action`` would draw for this stage-2 output.
+
+        Same call as upstream's ``torch.randn`` -- ``(B, action_horizon,
+        action_dim)`` on the conditioning's device in the prologue's output
+        dtype -- so ``run_stage3(noise=sample_noise(stage2))`` under a seed
+        reproduces ``run_stage3(noise=None)`` under that seed (sampling
+        parity gate). ``generator=None`` consumes the global RNG exactly as
+        upstream does; a private generator leaves the global stream untouched.
+        """
+        self._require_session("sample_noise")
+        head = self._model.action_head
+        horizon, dim = _action_shape(head)
+        features = stage2.backbone_features
+        batch = int(features.shape[0])
+        return torch.randn(
+            size=(batch, horizon, dim),
+            dtype=self._noise_dtype(stage2),
+            device=features.device,
+            generator=generator,
+        )
+
     def run_stage3(
-        self, stage2: GrootStage2Output, *, noise: Optional[torch.Tensor] = None
+        self,
+        stage2: GrootStage2Output,
+        *,
+        noise: Optional[torch.Tensor] = None,
+        on_step: Optional[Callable[[int, torch.Tensor, torch.Tensor], None]] = None,
     ) -> GrootStage3Output:
         """Full flow-matching loop from pure noise.
 
         With ``noise=None`` this is upstream's ``get_action`` verbatim -- the
         production MISS path. Passing ``noise`` runs the pinned transcription
         instead, which is what the equivalence gate and the benchmark use to
-        compare the two under identical inputs.
+        compare the two under identical inputs. ``on_step`` is the loop's
+        read-only observer (``denoise_loop``) and therefore only exists on the
+        transcription: upstream's own loop has no hook, so asking for one with
+        ``noise=None`` is refused rather than silently ignored.
         """
         self._require_session("run_stage3")
+        if noise is None and on_step is not None:
+            raise ValueError(
+                "run_stage3: on_step needs the transcribed loop; pass an explicit "
+                "noise (sample_noise) -- upstream's get_action cannot be observed."
+            )
         backbone_outputs = self._head_inputs(stage2)
         head = self._model.action_head
         with self._timer.measure("stage2_action"):
@@ -750,6 +828,7 @@ class GrootStagedRunner:
                     stage2.action_inputs,
                     noise=noise,
                     num_steps=head.num_inference_timesteps,
+                    on_step=on_step,
                 )
                 action_head_outputs = _batch_feature({"action_pred": action_pred})
         self._model.validate_data(
@@ -974,6 +1053,27 @@ def denoise_loop(
         if on_step is not None:
             on_step(t, x_in, actions)
     return actions
+
+
+def _processed_features(processed: Any) -> torch.Tensor:
+    """``backbone_features`` of a ``process_backbone_output`` result (BatchFeature or dict)."""
+    features = getattr(processed, "backbone_features", None)
+    if features is None:
+        features = processed["backbone_features"]
+    return features
+
+
+def _action_shape(action_head: Any) -> tuple[int, int]:
+    """``(action_horizon, action_dim)`` as upstream's ``get_action`` reads them."""
+    config = getattr(action_head, "config", None)
+    horizon = getattr(config, "action_horizon", None)
+    dim = getattr(config, "action_dim", None)
+    if horizon is None or dim is None:
+        raise RuntimeError(
+            "action head exposes no config.action_horizon / config.action_dim; "
+            "cannot draw the noise upstream's get_action would draw"
+        )
+    return int(horizon), int(dim)
 
 
 def _batch_feature(data: dict) -> Any:

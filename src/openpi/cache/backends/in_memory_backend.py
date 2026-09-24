@@ -954,6 +954,88 @@ class InMemoryBackend(VectorStoreBackend):
         return result
 
     # -------------------------------------------------------------------
+    # Trace diagnostics: per-field scores of a given candidate list
+    # -------------------------------------------------------------------
+
+    def per_field_scores(
+        self,
+        query_keys: dict[str, torch.Tensor],
+        ids: list[str],
+        *,
+        field_similarity: Optional[dict[str, dict[str, Any]]] = None,
+        score_normalization: Optional[dict[str, Any]] = None,
+        fusion_weights: Optional[dict[str, float]] = None,
+        fusion_method: Optional[str] = None,
+    ):
+        """Per-field similarity of ``ids`` against ``query_keys`` (trace mode, plan §4.4).
+
+        Read-only diagnostic: recomputes each field's similarity for exactly
+        the given candidates with the same formulas the search uses
+        (``_compute_field_scores``), outside any search session, so no
+        history or score memo is touched. Under ``weighted_score_sum`` the
+        scores are Layer-1 normalized (masked, pre-weight) and
+        ``current_step_wss`` is their weighted sum for the current query;
+        under any other fusion the raw similarity is reported (cosine, or the
+        negated L2 distance so larger is always more similar) and no fused
+        value is fabricated. Rows follow ``ids``; an unknown id raises.
+        """
+        from openpi.cache.trace.types import PerFieldTrace
+
+        candidates: list[CacheEntry] = []
+        for entry_id in ids:
+            entry = self._entries.get(entry_id)
+            if entry is None:
+                raise KeyError(f"per_field_scores: unknown entry id {entry_id!r}")
+            candidates.append(entry)
+        spec = QuerySpec(
+            query_keys=query_keys,
+            fusion_weights=fusion_weights,
+            field_similarity=field_similarity,
+            score_normalization=score_normalization,
+            fusion_method=fusion_method,
+        )
+        active_fields = self._iter_active_fields(spec)
+        fields = tuple(f for f, _w, _c in active_fields)
+        k = len(candidates)
+        scores = torch.zeros((k, len(fields)))
+        present = torch.zeros((k, len(fields)), dtype=torch.bool)
+        kinds: dict[str, str] = {}
+        is_wss = fusion_method == "weighted_score_sum" and score_normalization is not None
+        normalizers = None
+        if is_wss:
+            normalizers = build_field_normalizers(
+                active_fields, score_normalization, field_similarity
+            )
+        fused = torch.zeros(k) if is_wss else None
+        for f_idx, (field_name, weight, sim_cfg) in enumerate(active_fields):
+            if k == 0:
+                kinds[field_name] = ("normalized_layer1" if is_wss else
+                                     "raw_neg_l2" if sim_cfg.get("type", "cosine") == "l2" else "raw_cosine")
+                continue
+            raw, mask = self._compute_field_scores(
+                query_keys[field_name], candidates, field_name, sim_cfg
+            )
+            if is_wss:
+                s = normalizers[field_name](raw) * mask
+                kinds[field_name] = "normalized_layer1"
+                fused += weight * s
+            else:
+                sim_type = sim_cfg.get("type", "cosine")
+                s = (-raw if sim_type == "l2" else raw) * mask
+                kinds[field_name] = "raw_neg_l2" if sim_type == "l2" else "raw_cosine"
+            scores[:, f_idx] = s
+            present[:, f_idx] = mask.bool()
+        return PerFieldTrace(
+            fields=fields,
+            ids=tuple(ids),
+            scores=scores.numpy(),
+            present=present.numpy(),
+            kind_by_field=kinds,
+            current_step_wss=None if fused is None else fused.numpy(),
+            not_applicable_reason=None if is_wss else f"fusion_method={fusion_method!r} has no per-query fused score",
+        )
+
+    # -------------------------------------------------------------------
     # Weighted RRF fusion
     # -------------------------------------------------------------------
 

@@ -32,6 +32,7 @@ openpi/
 │   │   ├── timing.py            #   SystemTimer - CUDA Event / PerfCounter timing
 │   │   ├── types.py             #   CheckpointID, field name constants
 │   │   ├── storage_types.py     #   CacheEntry, CachePayload, QuerySpec
+│   │   ├── trace/               #   Runtime, model adapters, H5TraceSink / TraceWriter
 │   │   ├── backend_base.py      #   VectorStoreBackend ABC
 │   │   ├── cache_storage.py     #   CacheStorage facade
 │   │   ├── backends/
@@ -45,14 +46,15 @@ openpi/
 │   │       ├── judge.py         #   Judge ABC + AlwaysHit/ThresholdJudge
 │   │       └── write_policy.py  #   WritePolicy ABC + AlwaysWrite
 │   │
-│   ├── collect/                 # [Fork] Data collection via forward hooks
-│   │   ├── collection_policy.py #   CollectionPolicy - captures embeddings per inference
-│   │   └── data_collector.py    #   EpisodeDataCollector - buffers & writes HDF5
+│   ├── collect/                 # [Fork] Shared legacy HDF5 schema helpers
+│   │   └── data_collector.py    #   Shared writers + EpisodeDataCollector
 │   │
 │   ├── training/                # Training infrastructure
 │   │   └── config.py            #   TrainConfig, named configs (_CONFIGS)
 │   │
 │   ├── serving/
+│   │   ├── batching_core.py     #   Model-independent stage queues and CUDA ownership
+│   │   ├── trace_serving.py     #   Trace failure monitoring and bounded shutdown
 │   │   └── websocket_policy_server.py
 │   │
 │   └── transforms.py            # Transform pipeline (repack → normalize → tokenize → model → unnormalize)

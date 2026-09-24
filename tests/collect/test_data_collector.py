@@ -123,9 +123,8 @@ def test_set_episode_attr_before_episode_start_silently_accepted(
     """Calls before ``on_episode_start`` must not raise (mirrors
     ``record_inference``'s tolerant contract). The attr survives until the
     next ``on_episode_start`` clears it, at which point the caller is
-    expected to re-set it — this is fine because the canonical integration
-    (``CollectionPolicy``) only ever calls ``set_episode_attr`` inside
-    ``infer``, which runs after ``on_episode_start``."""
+    expected to re-set it — this is fine because every integration only ever
+    calls ``set_episode_attr`` from an inference, after ``on_episode_start``."""
     collector = EpisodeDataCollector(str(tmp_path))
     # Must not raise.
     collector.set_episode_attr("stray", "value")

@@ -152,6 +152,14 @@ class GrootLiberoPolicyAdapter:
 
     def __init__(self, policy: _ActionPolicy) -> None:
         self._policy = policy
+        # The websocket server probes ``on_task_end`` with ``hasattr`` on
+        # connection close. This adapter never forwarded the connection
+        # lifecycle, so the untraced server keeps not exposing it; a traced
+        # interceptor gets a close hook for its trace episode (non-terminal)
+        # and twin sessions, leaving the real components' lifecycle exactly as the
+        # untraced server runs it.
+        if getattr(policy, "traced", False) is True:
+            self.on_task_end = policy.close_trace_episode
 
     def infer(self, obs: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
         """Run one inference and return ``{"actions": [T, 7], **side_channel}``.

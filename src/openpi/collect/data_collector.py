@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime
 import logging
+import os
 import pathlib
 import threading
 from dataclasses import dataclass
@@ -11,6 +12,111 @@ import h5py
 import numpy as np
 
 logger = logging.getLogger(__name__)
+
+
+# Identity keys persisted from ``extra_metadata`` into the episode's HDF5
+# attrs. An allowlist, not a passthrough: free-form client metadata must
+# not silently become schema (dispatch-surface cohort identity, G2-B4).
+# Module-level so the trace writer (``openpi.cache.trace.h5_sink``) and the
+# legacy collector persist exactly the same identity keys.
+METADATA_ATTR_ALLOWLIST = (
+    "task_id",
+    "init_state_idx",
+    "orig_init_state_idx",
+    "subset_init_state_idx",
+    "split",
+    # Pinned-object provenance: the identity the episode claims plus the
+    # slot->mesh map the scene actually realized (JSON). The auditor admits
+    # an episode on the realized value, so it has to survive the allowlist
+    # or the check would silently have nothing to read.
+    "pin_id",
+    "pin_task_id",
+    "realized_objects",
+)
+
+
+def resolve_episode_path(
+    base_dir: pathlib.Path,
+    experiment: str,
+    episode_id: int,
+    episode_name: str,
+    *,
+    pid_suffix: bool = False,
+) -> pathlib.Path:
+    """Final ``.h5`` path for one episode, creating the parent directories.
+
+    ``episode_name`` may embed subdirs ("task_3/episode_7"); the resolved
+    candidate is asserted to stay inside ``base_dir/experiment`` so a hostile
+    value like "../../etc/passwd" cannot escape. Empty ``episode_name`` falls
+    back to the legacy timestamp naming; ``pid_suffix`` appends ``_p<pid>`` to
+    that fallback so several server processes writing the same root cannot
+    collide (the trace writer turns it on; the legacy collector keeps its
+    exact historical names).
+    """
+    out_dir = pathlib.Path(base_dir) / experiment
+    out_dir.mkdir(parents=True, exist_ok=True)
+    if episode_name:
+        candidate = (out_dir / f"{episode_name}.h5").resolve()
+        out_dir_resolved = out_dir.resolve()
+        if not candidate.is_relative_to(out_dir_resolved):
+            raise ValueError(
+                f"episode_name {episode_name!r} escapes base directory "
+                f"{out_dir_resolved}; refusing to write."
+            )
+        candidate.parent.mkdir(parents=True, exist_ok=True)
+        return candidate
+    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    suffix = f"_p{os.getpid()}" if pid_suffix else ""
+    return out_dir / f"episode_{episode_id:04d}_{ts}{suffix}.h5"
+
+
+def write_episode_attrs(
+    f: h5py.File,
+    *,
+    experiment: str,
+    task: str,
+    episode_id: int,
+    num_steps: int,
+    success: bool,
+    episode_attrs: dict[str, Any],
+) -> None:
+    """Write the file-level attrs of one collected episode.
+
+    Standard keys are written first so ``episode_attrs`` cannot accidentally
+    shadow bookkeeping fields; any overlap is still allowed (last-write-wins)
+    if an advanced caller really wants to override, e.g. a canonicalised
+    ``task`` value.
+    """
+    f.attrs["experiment_name"] = experiment
+    f.attrs["task"] = task
+    f.attrs["episode_id"] = episode_id
+    f.attrs["num_steps"] = num_steps
+    f.attrs["timestamp"] = datetime.datetime.now().isoformat()
+    f.attrs["success"] = success
+    for k, v in episode_attrs.items():
+        f.attrs[k] = v
+
+
+def write_step_group(grp: h5py.Group, embs: "InferenceEmbeddings") -> None:
+    """Write one step's legacy datasets into an already-created step group.
+
+    This is the single definition of the collected-step schema: the legacy
+    collector and the trace writer both call it, which is what makes a trace
+    file a strict superset of a collected one.
+    """
+    for i, vision_emb in enumerate(embs.vision_embs):
+        grp.create_dataset(f"vision_{i}", data=vision_emb, compression="lzf")
+    grp.create_dataset("prompt_emb", data=embs.prompt_emb, compression="lzf")
+    grp.create_dataset("robot_state", data=embs.robot_state)
+    if embs.init_noise is not None:
+        grp.create_dataset("noise_action_0", data=embs.init_noise)
+    for i, noise_action in enumerate(embs.noise_action_steps, start=1):
+        grp.create_dataset(f"noise_action_{i}", data=noise_action)
+    grp.create_dataset("clean_action", data=embs.clean_action)
+    if embs.input_images:
+        img_grp = grp.create_group("input_images")
+        for key, img in embs.input_images.items():
+            img_grp.create_dataset(key, data=img, compression="lzf")
 
 
 @dataclass
@@ -50,23 +156,9 @@ class EpisodeDataCollector:
         self._episode_attrs: dict[str, Any] = {}
         self._lock = threading.Lock()
 
-    # Identity keys persisted from ``extra_metadata`` into the episode's HDF5
-    # attrs. An allowlist, not a passthrough: free-form client metadata must
-    # not silently become schema (dispatch-surface cohort identity, G2-B4).
-    _METADATA_ATTR_ALLOWLIST = (
-        "task_id",
-        "init_state_idx",
-        "orig_init_state_idx",
-        "subset_init_state_idx",
-        "split",
-        # Pinned-object provenance: the identity the episode claims plus the
-        # slot->mesh map the scene actually realized (JSON). The auditor admits
-        # an episode on the realized value, so it has to survive the allowlist
-        # or the check would silently have nothing to read.
-        "pin_id",
-        "pin_task_id",
-        "realized_objects",
-    )
+    # Kept as a class attribute for callers that read it; the definition
+    # lives at module level so the trace writer shares it.
+    _METADATA_ATTR_ALLOWLIST = METADATA_ATTR_ALLOWLIST
 
     def on_episode_start(
         self,
@@ -132,65 +224,27 @@ class EpisodeDataCollector:
             episode_attrs = dict(self._episode_attrs)  # snapshot under lock
             self._buffer = []
 
-        out_dir = self._base_dir / experiment
-        out_dir.mkdir(parents=True, exist_ok=True)
-        if episode_name:
-            # ``episode_name`` may embed subdirs ("task_3/episode_7"); resolve
-            # and assert containment so a hostile value like "../../etc/passwd"
-            # cannot escape ``out_dir``. This is belt-and-braces: the wire
-            # format is authenticated server-side, but path traversal is a
-            # one-line defense with zero legitimate cost.
-            candidate = (out_dir / f"{episode_name}.h5").resolve()
-            out_dir_resolved = out_dir.resolve()
-            if not candidate.is_relative_to(out_dir_resolved):
-                raise ValueError(
-                    f"episode_name {episode_name!r} escapes base directory "
-                    f"{out_dir_resolved}; refusing to write."
-                )
-            path = candidate
-            path.parent.mkdir(parents=True, exist_ok=True)
-        else:
-            ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-            path = out_dir / f"episode_{episode_id:04d}_{ts}.h5"
+        path = resolve_episode_path(
+            self._base_dir, experiment, episode_id, episode_name
+        )
         # ``with_suffix`` on a ``.h5`` path yields ``.h5.tmp`` cleanly even when
         # ``path.name`` already ends in ``.h5``.
         tmp_path = path.with_suffix(".h5.tmp")
 
         try:
             with h5py.File(tmp_path, "w") as f:
-                f.attrs["experiment_name"] = experiment
-                f.attrs["task"] = task
-                f.attrs["episode_id"] = episode_id
-                f.attrs["num_steps"] = len(buffer)
-                f.attrs["timestamp"] = datetime.datetime.now().isoformat()
-                f.attrs["success"] = success
-                # Merge caller-supplied attrs (prompt, init_state_idx, ...).
-                # Standard keys above are written first so episode_attrs cannot
-                # accidentally shadow bookkeeping fields; any overlap is still
-                # allowed (last-write-wins) if an advanced caller really wants
-                # to override, e.g. a canonicalised ``task`` value.
-                for k, v in episode_attrs.items():
-                    f.attrs[k] = v
-
+                write_episode_attrs(
+                    f,
+                    experiment=experiment,
+                    task=task,
+                    episode_id=episode_id,
+                    num_steps=len(buffer),
+                    success=success,
+                    episode_attrs=episode_attrs,
+                )
                 for step_idx, embs in enumerate(buffer):
                     grp = f.create_group(f"step_{step_idx:04d}")
-                    for i, vision_emb in enumerate(embs.vision_embs):
-                        grp.create_dataset(
-                            f"vision_{i}", data=vision_emb, compression="lzf"
-                        )
-                    grp.create_dataset(
-                        "prompt_emb", data=embs.prompt_emb, compression="lzf"
-                    )
-                    grp.create_dataset("robot_state", data=embs.robot_state)
-                    if embs.init_noise is not None:
-                        grp.create_dataset("noise_action_0", data=embs.init_noise)
-                    for i, noise_action in enumerate(embs.noise_action_steps, start=1):
-                        grp.create_dataset(f"noise_action_{i}", data=noise_action)
-                    grp.create_dataset("clean_action", data=embs.clean_action)
-                    if embs.input_images:
-                        img_grp = grp.create_group("input_images")
-                        for key, img in embs.input_images.items():
-                            img_grp.create_dataset(key, data=img, compression="lzf")
+                    write_step_group(grp, embs)
 
             tmp_path.rename(path)
             logger.info(

@@ -63,7 +63,7 @@ import base64
 import io
 import logging
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
     import numpy as np
@@ -263,6 +263,97 @@ class QdrantVectorStore(VectorStoreBackend):
                 )
             )
         return results
+
+    def per_field_scores(
+        self,
+        query_keys: dict[str, torch.Tensor],
+        ids: list[str],
+        *,
+        field_similarity: Optional[dict[str, dict[str, Any]]] = None,
+        score_normalization: Optional[dict[str, Any]] = None,
+        fusion_weights: Optional[dict[str, float]] = None,
+        fusion_method: Optional[str] = None,
+    ):
+        """Native per-field similarity of ``ids`` (trace mode, plan §4.4).
+
+        One read-only ``query_points`` per field chunk, restricted to the
+        given point ids, returning Qdrant's own single-vector score (the
+        collection's distance type). A chunked field reports the equal-weight
+        mean of its chunk scores (``qdrant_native_chunk_mean``); a point that
+        lacks a chunk is marked absent. This is NOT a decomposition of the RRF
+        ranking Qdrant fuses at search time, so no fused value is reported.
+        An unknown point id raises.
+        """
+        import numpy as np
+        from qdrant_client.models import HasIdCondition
+
+        from openpi.cache.trace.types import PerFieldTrace
+
+        del score_normalization, fusion_weights, fusion_method
+        point_ids = [self._parse_point_id(i) for i in ids]
+        if point_ids:
+            known = self._client.retrieve(
+                collection_name=self._config.collection_name,
+                ids=point_ids,
+                with_payload=False,
+                with_vectors=False,
+            )
+            found = {str(p.id) for p in known}
+            missing = [i for i in ids if i not in found]
+            if missing:
+                raise KeyError(f"per_field_scores: unknown point ids {missing}")
+        active_fields = sorted(f for f in query_keys if f in self._config.vector_dims)
+        fields = tuple(active_fields)
+        k = len(ids)
+        scores = np.zeros((k, len(fields)), dtype=np.float32)
+        present = np.zeros((k, len(fields)), dtype=bool)
+        kinds: dict[str, str] = {}
+        vectors = self._client.get_collection(self._config.collection_name).config.params.vectors
+        metadata: dict[str, dict[str, Any]] = {}
+        row_of = {i: r for r, i in enumerate(ids)}
+        id_filter = Filter(must=[HasIdCondition(has_id=point_ids)]) if point_ids else None
+        for f_idx, field_name in enumerate(active_fields):
+            chunks = self._field_to_chunks(field_name, query_keys[field_name])
+            metadata[field_name] = {
+                "chunk_count": len(chunks),
+                "distance_by_chunk": {
+                    name: vectors[name].distance.value for name, _values in chunks
+                },
+            }
+            kinds[field_name] = "qdrant_native" if len(chunks) == 1 else "qdrant_native_chunk_mean"
+            if k == 0:
+                continue
+            sums = np.zeros(k, dtype=np.float64)
+            counts = np.zeros(k, dtype=np.int64)
+            for chunk_name, values in chunks:
+                response = self._client.query_points(
+                    collection_name=self._config.collection_name,
+                    query=values,
+                    using=chunk_name,
+                    query_filter=id_filter,
+                    limit=k,
+                    with_payload=False,
+                    with_vectors=False,
+                )
+                for point in response.points:
+                    r = row_of.get(str(point.id))
+                    if r is None:
+                        continue
+                    sums[r] += float(point.score)
+                    counts[r] += 1
+            full = counts == len(chunks)
+            scores[full, f_idx] = (sums[full] / counts[full]).astype(np.float32)
+            present[:, f_idx] = full
+        return PerFieldTrace(
+            fields=fields,
+            ids=tuple(ids),
+            scores=scores,
+            present=present,
+            kind_by_field=kinds,
+            current_step_wss=None,
+            not_applicable_reason="qdrant native per-field scores are not an RRF decomposition",
+            field_metadata=metadata,
+        )
 
     @staticmethod
     def _parse_point_id(id: str) -> int | str:

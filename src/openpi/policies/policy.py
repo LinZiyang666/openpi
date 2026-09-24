@@ -236,8 +236,8 @@ class PolicyRecorder(_base_policy.BasePolicy):
     # ------------------------------------------------------------------
     # Lifecycle passthrough (plan §20.R2)
     #
-    # ``PolicyRecorder`` sits in the middle of wrapper chains such as
-    # ``CollectionPolicy(PolicyRecorder(InferenceInterceptor))``. Without the
+    # ``PolicyRecorder`` sits in wrapper chains such as
+    # ``PolicyRecorder(InferenceInterceptor)``. Without the
     # explicit forwarders below the ``on_*`` signals from the websocket server
     # would stop at this wrapper and the inner ``InferenceInterceptor`` would
     # never see ``episode_start`` / ``episode_end``, breaking cache semantics.

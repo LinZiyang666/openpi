@@ -188,3 +188,45 @@ class TestAdapter:
 
         # a policy without the hooks must not raise
         GrootLiberoPolicyAdapter(_Plain()).on_episode_end(success=False)
+
+    def test_untraced_policy_exposes_no_connection_lifecycle(self):
+        """HEAD never forwarded on_task_begin / on_task_end here; the untraced
+        server must keep not calling them (the server probes with hasattr)."""
+
+        class _Interceptor:
+            traced = False
+
+            def get_action(self, observations):
+                return _raw_chunk()
+
+            def on_task_begin(self):
+                raise AssertionError("untraced connection open must not reach the policy")
+
+            def on_task_end(self):
+                raise AssertionError("untraced connection close must not reach the policy")
+
+        adapter = GrootLiberoPolicyAdapter(_Interceptor())
+        assert not hasattr(adapter, "on_task_begin")
+        assert not hasattr(adapter, "on_task_end")
+
+    def test_traced_policy_closes_only_its_trace_episode(self):
+        """A dropped traced connection finalises its trace episode, and the
+        real components get no lifecycle call the untraced server skips."""
+        seen = []
+
+        class _Interceptor:
+            traced = True
+
+            def get_action(self, observations):
+                return _raw_chunk()
+
+            def on_task_end(self):
+                seen.append("real")
+
+            def close_trace_episode(self):
+                seen.append("trace")
+
+        adapter = GrootLiberoPolicyAdapter(_Interceptor())
+        assert not hasattr(adapter, "on_task_begin")
+        adapter.on_task_end()
+        assert seen == ["trace"]

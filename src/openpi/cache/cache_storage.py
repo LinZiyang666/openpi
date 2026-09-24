@@ -159,6 +159,20 @@ class CacheStorage:
             return self._prefill_payload
         return self._backend.fetch_payload(id)
 
+    def per_field_scores(self, query_keys, ids, **kwargs):
+        """Trace-mode per-field diagnostics (plan §4.4); read-only passthrough.
+
+        Duck-typed like ``fetch_entry``: a backend without the capability makes
+        this raise ``NotImplementedError`` so the trace records the gap instead
+        of an empty matrix.
+        """
+        fn = getattr(self._backend, "per_field_scores", None)
+        if fn is None:
+            raise NotImplementedError(
+                f"{type(self._backend).__name__} has no per_field_scores capability"
+            )
+        return fn(query_keys, ids, **kwargs)
+
     def fetch_entry(self, id: str) -> CacheEntry:
         """Fetch the full CacheEntry by id (duck-typed backend capability).
 

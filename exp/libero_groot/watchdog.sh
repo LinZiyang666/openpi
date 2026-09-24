@@ -40,7 +40,7 @@ start_server() {  # $1=port
   local P=$1
   log "HEAL server $P down -> restarting"
   tmux kill-session -t "lbsrv$P" 2>/dev/null
-  tmux new -s "lbsrv$P" -d "cd $REPO && PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/gr00t_n15/examples/Libero:$REPO:$REPO/src OPENPI_MONITOR_LEVEL=BASIC $PY exp/libero_groot/serve_groot_libero.py --checkpoint $CKPT --port $P --collect-hdf5 $OUT --experiment groot_$SUITE 2>&1 | tee /tmp/lbsrv$P.log"
+  tmux new -s "lbsrv$P" -d "cd $REPO && PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/gr00t_n15/examples/Libero:$REPO:$REPO/src OPENPI_MONITOR_LEVEL=BASIC $PY exp/libero_groot/serve_groot_libero.py --checkpoint $CKPT --port $P --trace-out $OUT --trace-build-cache 2>&1 | tee /tmp/lbsrv$P.log"
   for _ in $(seq 1 30); do ss -tln | grep -q ":$P " && return 0; sleep 5; done
   log "WARN server $P did not come up within 150s"
   return 1

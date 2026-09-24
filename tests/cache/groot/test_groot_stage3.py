@@ -34,7 +34,9 @@ class _FlowHeadStub(torch.nn.Module):
         self.num_inference_timesteps = num_inference_timesteps
         self.num_timestep_buckets = BUCKETS
         self.action_horizon = ACTION_HORIZON
-        self.config = types.SimpleNamespace(add_pos_embed=True)
+        self.config = types.SimpleNamespace(
+            add_pos_embed=True, action_horizon=ACTION_HORIZON, action_dim=ACTION_DIM
+        )
         self.action_encoder_proj = torch.nn.Linear(ACTION_DIM, HIDDEN)
         self.position_embedding = torch.nn.Embedding(ACTION_HORIZON, HIDDEN)
         self.future_tokens = torch.nn.Embedding(2, HIDDEN)
@@ -51,7 +53,7 @@ class _FlowHeadStub(torch.nn.Module):
     def state_encoder(self, state, embodiment_id):
         del embodiment_id
         value = state.float().mean()
-        return torch.zeros(state.shape[0], 1, HIDDEN) + value
+        return torch.zeros(state.shape[0], 1, HIDDEN, device=state.device) + value
 
     def action_encoder(self, actions, timesteps, embodiment_id):
         del embodiment_id
@@ -117,7 +119,7 @@ class _FlowHeadStub(torch.nn.Module):
 def _model_with_flow_head(num_steps: int) -> StubGrootModel:
     torch.manual_seed(0)
     model = StubGrootModel()
-    model.action_head = _FlowHeadStub(num_steps)
+    model.action_head = _FlowHeadStub(num_steps).eval()
     return model
 
 

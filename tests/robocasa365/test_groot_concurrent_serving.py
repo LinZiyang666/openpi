@@ -67,7 +67,6 @@ class _RecordingInner:
 def _args(**overrides) -> types.SimpleNamespace:
     ns = types.SimpleNamespace(
         cache_config=None,
-        collect_hdf5=None,
         concurrent=True,
         diagnostic_seed=None,
         compile_stage1=False,
@@ -403,22 +402,26 @@ def test_lifecycle_calls_stay_on_their_own_connection(cache_seams):
 # ---------------------------------------------------------------------------
 
 
-def test_concurrent_conflicts_with_collect(monkeypatch, capsys):
-    """T2a: the frozen collection topology cannot be served concurrently."""
+def test_trace_flags_are_guarded(monkeypatch, capsys):
+    """T2a: the trace mode refuses the wrappers it replaces / cannot observe."""
     monkeypatch.setattr(
         sys,
         "argv",
-        ["serve_groot_n15.py", "--concurrent", "--collect-hdf5", "/tmp/x"],
+        ["serve_groot_n15.py", "--trace-out", "/tmp/x", "--compile-stage1"],
     )
     with pytest.raises(SystemExit):
         sgn.main()
-    assert "--collect-hdf5" in capsys.readouterr().err
+    assert "--compile-stage1" in capsys.readouterr().err
+    monkeypatch.setattr(sys, "argv", ["serve_groot_n15.py", "--trace-build-cache"])
+    with pytest.raises(SystemExit):
+        sgn.main()
+    assert "--trace-out" in capsys.readouterr().err
 
 
 @pytest.mark.parametrize(
     "argv_tail",
-    [["--collect-hdf5", "/tmp/x"], ["--cache-config", "/tmp/y.yaml"]],
-    ids=["collect-alone", "cache-alone"],
+    [["--trace-out", "/tmp/x", "--trace-build-cache"], ["--cache-config", "/tmp/y.yaml"]],
+    ids=["trace-build-alone", "cache-alone"],
 )
 def test_frozen_commands_pass_the_new_guards(monkeypatch, argv_tail):
     """T2b/T2c: the approved single-connection commands (no --concurrent)

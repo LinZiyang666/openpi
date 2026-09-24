@@ -123,8 +123,6 @@ def _artifacts(_gate_environment):
 
     import torch
 
-    from openpi.collect.collection_policy import CollectionPolicy
-    from openpi.collect.data_collector import EpisodeDataCollector
     from openpi.policies import policy_config as _pc
     from openpi.shared import normalize as _normalize
     from openpi.training import config as _config
@@ -148,12 +146,6 @@ def _artifacts(_gate_environment):
     registry_meta = registry.metadata
     a_registry = np.asarray(registry.infer(dict(obs), noise=noise)["actions"])
     a_other = np.asarray(registry.infer(dict(obs), noise=other_noise)["actions"])
-    # t2c while the registry policy is still alive: the --collect wrapper must
-    # find the real model through the chain.
-    collect_wrap_ok = (
-        CollectionPolicy(registry, EpisodeDataCollector(base_dir="/tmp/t2c_probe"))._inner_model  # noqa: SLF001
-        is registry._model  # noqa: SLF001
-    )
     del registry
     gc.collect()
     torch.cuda.empty_cache()
@@ -167,7 +159,6 @@ def _artifacts(_gate_environment):
         "a_legacy": a_legacy,
         "a_registry": a_registry,
         "a_other": a_other,
-        "collect_wrap_ok": collect_wrap_ok,
     }
 
 
@@ -272,16 +263,6 @@ def test_t2b_bitwise_parity_with_shared_noise(_artifacts):
         f"legacy.metadata:   {_artifacts['legacy_meta']!r}\n"
         f"registry.metadata: {_artifacts['registry_meta']!r}\n"
     )
-
-
-def test_t2c_collect_wrapper_stack(_artifacts):
-    """The launch command's wrapper stack: CollectionPolicy directly over Policy.
-
-    Evaluated inside the fixture while the registry policy was still resident
-    (_find_inner_model walked the chain and accepted the PI0Pytorch model) —
-    exactly what serve_policy.py --collect builds with no cache flags.
-    """
-    assert _artifacts["collect_wrap_ok"] is True
 
 
 def _checkpoint_sha() -> str:

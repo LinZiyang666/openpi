@@ -1,9 +1,9 @@
 """Lifecycle passthrough tests for ``PolicyRecorder`` (plan §20.R2).
 
-``PolicyRecorder`` sits between ``CollectionPolicy`` and
-``InferenceInterceptor`` in the production wrapper chain. Before §20.R2 it
-had no ``on_episode_*`` methods, so the ``CollectionPolicy`` → inner-policy
-forwarding added in Layer B-3 would still stop at this wrapper. These tests
+``PolicyRecorder`` is the outermost wrapper over ``InferenceInterceptor`` in
+the production wrapper chain. Before §20.R2 it had no ``on_episode_*``
+methods, so the server's lifecycle frames would stop at it and never reach
+the interceptor (and, today, its trace sink). These tests
 lock the new contract: four lifecycle methods, passthrough semantics, and
 ``hasattr`` guarding when the inner policy does not implement the hook.
 """
