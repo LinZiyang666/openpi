@@ -245,16 +245,49 @@ def main() -> None:
     elif args.base_seed == _envs.RC_FORMAL_BASE_SEED:
         if "smoke" in args.experiment_id.lower():
             ap.error("formal seeds cannot use a smoke experiment id")
-        allowed = {"shadow", "full", *(f"plain_k{k}" for k in _envs.QB_PLAIN_KS[policy]),
-                   *(f"warm_t{t:g}" for t in _envs.QB_WARM_TS[policy])}
-        if args.arm_id not in allowed:
-            ap.error("unknown formal arm")
+        if args.experiment_id == _envs.MACRO13_EXPERIMENT_ID:
+            # macro view: any roster task (build_tasks already enforced roster membership), 50 episodes
+            if args.arm_id not in _envs.MACRO13_ARMS_BY_POLICY[policy]:
+                ap.error(f"{args.arm_id}: not an arm of {_envs.MACRO13_EXPERIMENT_ID}")
+            for name, n in tasks:
+                if n != _envs.MACRO13_EPISODES:
+                    ap.error(f"{name}/{args.arm_id}: {_envs.MACRO13_EXPERIMENT_ID} runs {_envs.MACRO13_EPISODES} episodes per task")
+            if pathlib.Path(args.out_root).resolve() == DEFAULT_OUT_ROOT.resolve():
+                ap.error(f"{_envs.MACRO13_EXPERIMENT_ID} needs its own --out-root (not the Q-B root)")
+        elif args.experiment_id == _envs.VAR500_EXPERIMENT_ID:
+            # second round of the continuation-variant comparison: 500 episodes/task, pi0.5 only
+            if policy != "pi05" or args.arm_id not in _envs.VAR500_ARMS:
+                ap.error(f"{args.arm_id}: not an arm of {_envs.VAR500_EXPERIMENT_ID}")
+            for name, n in tasks:
+                if name not in _envs.VAR500_TASKS or n != _envs.VAR500_EPISODES:
+                    ap.error(f"{name}/{args.arm_id}: {_envs.VAR500_EXPERIMENT_ID} runs "
+                             f"{_envs.VAR500_EPISODES} episodes on {list(_envs.VAR500_TASKS)}")
+            if pathlib.Path(args.out_root).resolve() == DEFAULT_OUT_ROOT.resolve():
+                ap.error(f"{_envs.VAR500_EXPERIMENT_ID} needs its own --out-root (not the Q-B root)")
+        else:
+            allowed = {"shadow", "full", *(f"plain_k{k}" for k in _envs.QB_PLAIN_KS[policy]),
+                       *(f"warm_t{t:g}" for t in _envs.QB_WARM_TS[policy])}
+            # warm-start continuation variants (2026-09-21/22 follow-ups): pi0.5 all three, GR00T without overshoot
+            modes = tuple(_envs.WARM_VARIANT_MODES) if policy == "pi05" else ("warmreset", "resetfinal", "midfinal", "midfinal50", "midreset", "midreset50")
+            allowed |= {f"{mode}_t{t:g}" for mode in modes for t in _envs.QB_WARM_TS[policy]}
+            if args.arm_id not in allowed:
+                ap.error("unknown formal arm")
+            for name, n in tasks:
+                want = 10 if args.arm_id == "shadow" else _envs.qb_episode_count(policy, name, args.arm_id)
+                if n != want or (args.arm_id != "shadow" and name not in _envs.qb_tasks(policy)):
+                    ap.error(f"{name}/{args.arm_id}: expected {want} episodes in the frozen task set")
+    elif args.base_seed == _envs.RC_XCHECK_BASE_SEED:
+        # historical evaluation segment: only the seed-segment cross-check of the variant comparison
+        xarms, xtasks = _envs.XSEED_ARMS_BY_POLICY[policy], _envs.XSEED_TASKS_BY_POLICY[policy]
+        if args.experiment_id != _envs.XSEED_EXPERIMENT_ID or args.arm_id not in xarms:
+            ap.error(f"seed {_envs.RC_XCHECK_BASE_SEED} is reserved for {_envs.XSEED_EXPERIMENT_ID} on {list(xarms)}")
         for name, n in tasks:
-            want = 10 if args.arm_id == "shadow" else _envs.qb_episode_count(policy, name, args.arm_id)
-            if n != want or (args.arm_id != "shadow" and name not in _envs.qb_tasks(policy)):
-                ap.error(f"{name}/{args.arm_id}: expected {want} episodes in the frozen task set")
+            if name not in xtasks or n != _envs.XSEED_EPISODES:
+                ap.error(f"{name}/{args.arm_id}: {_envs.XSEED_EXPERIMENT_ID} runs {_envs.XSEED_EPISODES} episodes on {list(xtasks)}")
+        if pathlib.Path(args.out_root).resolve() == DEFAULT_OUT_ROOT.resolve():
+            ap.error(f"{_envs.XSEED_EXPERIMENT_ID} needs its own --out-root (not the Q-B root)")
     else:
-        ap.error("base seed must be the frozen formal or smoke seed")
+        ap.error("base seed must be the frozen formal, cross-check or smoke seed")
     if pin_id is not None and pin_id != _envs.canonical_pin_id():
         ap.error("PnP requires the canonical frozen pin table")
     launch_id = args.launch_id or uuid.uuid4().hex[:10]

@@ -48,6 +48,7 @@
   | **mean** | **0.85** | **0.88** | **0.81** | **0.60** | **0.03** | **0.03** |
 
   结论：ε-prediction DDPM-100 头减步有硬悬崖——DDIM 到 4 步 −4 pp、2 步 −25 pp、1 步归零；DDPM 采样器直接砍到 10 步同样归零（DDPM 每步加噪、少步时 ε 估计累积偏差）。与 π0.5/GR00T/Cosmos/X-WAM（flow / x₀ 头，1–2 步近无损）形成对照：warm 档"少步续算"对 DP 这类 ε-DDPM 头不可用，须走 DDIM 且 ≥4 步。延迟列（batch-1，4090 与 X-WAM server 共卡时测）待 X-WAM 停后用 `ops/latency_dp_wls.sh`（`eval_dp_steps.py --latency_only`）在空卡重测。
+  **勘误（2026-09-23）**：上表 DDPM-10 = 0.00 是实现错误，不是 DDPM 的真实性质，结论中「DDPM 采样器直接砍到 10 步同样归零」作废。DP 官方 env 的 diffusers 0.11.1 `DDPMScheduler.step` 把上一时刻写死为 `t−1`（`alphas_cumprod[t-1]`），`set_timesteps(10)` 给出的 90,80,…,0 只决定喂给网络的 t，每次调用实际只去掉一格噪声 ⇒ 10 次调用后输出近似纯噪声。正确的少步 DDPM 需跨步后验（新版 diffusers 的 `prev_t = t − T/k`）。另：本表 DDIM 列用 0.11.1 默认 leading 网格（DDIM-1 喂 t=0、DDIM-2 喂 {50,0}），trailing 网格重测见 `exp/dp_nfe/analysis/x0_multimodal.md` §5.3（DDIM-1 仍 ≤0.07，DDIM-2 与本表不同，如 can_mh 0.04 vs 0.76）。汇报网页已删除 DDPM-10 列。
 - **07:42 X-WAM k=1 完成 → 阶梯全部完成**：k=1 macro **0.7933**（952/1200）；h100 server 0.22 s/查询。控制器已停 h100 两 server + wls server，我另停了 h100 broker 与 t108 残留的冒烟 client；三机 GPU 归零。结果 `exp/xwam_nfe/data/results_k{10,5,3,2,1}/`，汇总 `exp/xwam_nfe/data/aggregate_xwam.json`。
 
   | k（action_denoise_steps） | 10（官方默认） | 5 | 3 | 2 | 1 |

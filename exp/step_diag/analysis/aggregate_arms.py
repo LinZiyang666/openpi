@@ -289,7 +289,7 @@ def cell_admission(arm: dict, server: Dict[Tuple[str, int], dict], task: str, *,
         teacher = (launch or {}).get("teacher") or pathlib.Path(arm["dir"]).parent.name
         policy = "groot" if teacher == "groot_tp" else "pi05"
         schedule = "pi05_v1" if policy == "pi05" else f"groot_n15_k{4 if kind == 'warm' else m}_v1"
-        want_t = float(arm["arm_id"].removeprefix("warm_t")) if kind == "warm" else None
+        want_t = _envs.warm_t_of(arm["arm_id"]) if kind == "warm" else None
         ep_steps = []
         for d in decs:
             st = d.get("executed_steps")

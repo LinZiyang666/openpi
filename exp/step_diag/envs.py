@@ -81,6 +81,44 @@ ENVS: Dict[str, EnvSpec] = {
 }
 
 # Q-B fixed groups (plan §2 Q-B): frozen before any new closed-loop result is read.
+# Warm-start continuation variants (2026-09-21 reviewer question): served mode -> variant of
+# ``exp.step_diag.pi05.warm_variant_stage3``. Arm ids are ``<mode>_t<start_t>`` (e.g. ``warmreset_t0.2``);
+# they use the ``warm_t<start_t>.yaml`` cache config and run the same number of Euler steps as
+# ``warm_t<start_t>`` but with ``dt = -1/remaining_steps``. Pi0.5 RoboCasa only.
+WARM_VARIANT_MODES = {"warmreset": "reset_t", "warmshoot": "overshoot", "resetfinal": "reset_final",
+                      "midfinal": "mid_final", "midfinal50": "mid_final50",
+                      "midreset": "mid_snap", "midreset50": "mid_snap50"}
+# ``midfinal`` (owner 2026-09-22): the ``resetfinal`` start (the cache's final action chunk, fed as-is, no
+# noise added) entered at the intermediate noise level MID_ENTRY_T instead of pure noise, then n Euler
+# steps down to the clean end with dt = -MID_ENTRY_T/n. Written in pi0.5 flow time (1 = noise, 0 = clean);
+# GR00T's ascending loop enters at 1 - MID_ENTRY_T. The entry is ONE full-schedule grid step below pure
+# noise for each policy (pi0.5 K=10 -> 0.9, GR00T K=4 -> 0.75). The arm's ``start_t`` only sets the budget n.
+MID_ENTRY_T = {"pi05": 0.9, "groot": 0.75}
+# ``midfinal50`` (owner 2026-09-23): the same final-chunk start entered at flow time 0.5 for both policies.
+# ``midreset`` (owner 2026-09-23): the ``warmreset`` start (the cached snapshot at the arm's start_t) entered at
+# the same one-grid-step-below-noise level as ``midfinal`` instead of t = 1.
+MID_ENTRY_T_BY_VARIANT = {"mid_final": MID_ENTRY_T, "mid_final50": {"pi05": 0.5, "groot": 0.5}, "mid_snap": MID_ENTRY_T,
+                          "mid_snap50": {"pi05": 0.5, "groot": 0.5}}  # midreset50: snapshot start fed at 0.5
+MID_VARIANTS = tuple(MID_ENTRY_T_BY_VARIANT)
+WARM_ARM_PREFIXES = ("warm", *WARM_VARIANT_MODES)
+
+
+def warm_t_of(arm_id: str) -> float:
+    """start_t named by a warm-family arm id (``warm_t0.2``, ``warmreset_t0.2``, ``warmshoot_t0.2``)."""
+    for prefix in WARM_ARM_PREFIXES:
+        head = f"{prefix}_t"
+        if arm_id.startswith(head):
+            return float(arm_id[len(head):])
+    raise ValueError(f"{arm_id!r} is not a warm-family arm id")
+
+
+def warm_mode_of(arm_id: str) -> str:
+    for prefix in sorted(WARM_ARM_PREFIXES, key=len, reverse=True):
+        if arm_id.startswith(f"{prefix}_t"):
+            return prefix
+    raise ValueError(f"{arm_id!r} is not a warm-family arm id")
+
+
 QB_MAIN_M = {"pi05": 2, "groot": 1}
 QB_MAIN_T = {"pi05": 0.2, "groot": 0.75}
 QB_PLAIN_KS = {"pi05": (1, 2, 3), "groot": (1, 2)}
@@ -105,6 +143,44 @@ RC_MAIN_LANE = ("CloseFridge", "OpenCabinet", "OpenDrawer", "SlideDishwasherRack
 RC_PNP_LANE = ("PickPlaceCounterToCabinet", "PickPlaceCounterToStove", "PickPlaceDrawerToCounter",
                "PickPlaceSinkToCounter", "PickPlaceToasterToCounter")
 QB_EPISODES = 50
+
+# 2026-09-21 follow-up, second round (owner-approved): the warm-start continuation variants and their
+# two equal-NFE references re-run at 500 episodes per task on the two diagnostic tasks, under a
+# separate experiment id and a separate out root so nothing mixes with the 50/100-episode Q-B cells.
+# Seeds stay RC_FORMAL_BASE_SEED + idx (idx 0..499), so the first 50/100 identities coincide with Q-B.
+VAR500_EXPERIMENT_ID = "sdiag_var500"
+VAR500_EPISODES = 500
+VAR500_ARMS = ("plain_k2", "warm_t0.2", "warmreset_t0.2", "warmshoot_t0.2")
+VAR500_TASKS = ("CloseFridge", "PickPlaceCounterToStove")
+
+# Third round (owner 2026-09-21 23:50): the same four arms x two tasks x 50 episodes on the historical
+# evaluation segment (seed 1,000,000+idx, the segment of the nfe_baseline ladders and ws_search), as a
+# cross-check that the 2,000,000 segment of this line carries no seed-segment effect. Own experiment id
+# and out root; the driver refuses this seed under any other experiment id.
+RC_XCHECK_BASE_SEED = 1_000_000
+XSEED_EXPERIMENT_ID = "sdiag_xseed1m"
+XSEED_EPISODES = 50
+
+# Fourth round (owner 2026-09-22 00:00): the macro view — the variant arms on the whole 13-task RoboCasa
+# roster and the three Q-B references on the six tasks Q-B did not cover, 50 episodes each, seed 2M.
+# Own experiment id and out root; the analysis merges this root with the Q-B root (arms_root list).
+MACRO13_EXPERIMENT_ID = "sdiag_macro13"
+MACRO13_EPISODES = 50
+MACRO13_ARMS = ("full", "plain_k2", "warm_t0.2", "warmreset_t0.2", "warmshoot_t0.2",
+                "resetfinal_t0.1", "resetfinal_t0.2", "resetfinal_t0.3",  # resetfinal added 2026-09-22 (owner)
+                "midfinal_t0.2")  # midfinal 13-task round queued 2026-09-22 (owner)
+# GR00T mirror (owner 2026-09-22: symmetric to pi0.5, no 500-episode round, no warmshoot). K = 4, ascending:
+# warm_t0.75 resumes 1 step, warm_t0.5 resumes 2 steps.
+MACRO13_ARMS_BY_POLICY = {
+    "pi05": MACRO13_ARMS,
+    "groot": ("full", "plain_k1", "plain_k2", "warm_t0.75", "warm_t0.5", "warmreset_t0.75", "warmreset_t0.5",
+              "resetfinal_t0.75", "resetfinal_t0.5", "midfinal_t0.75", "midfinal_t0.5",
+              "midfinal50_t0.75", "midfinal50_t0.5", "midreset_t0.75", "midreset_t0.5",
+              "midreset50_t0.75", "midreset50_t0.5"),
+}
+# seed-segment cross-check arms / tasks per policy (pi0.5 = the VAR500 set; GR00T = one cliff + one flat Q-B task)
+XSEED_ARMS_BY_POLICY = {"pi05": VAR500_ARMS, "groot": ("plain_k1", "warm_t0.75", "warmreset_t0.75", "resetfinal_t0.75")}
+XSEED_TASKS_BY_POLICY = {"pi05": VAR500_TASKS, "groot": ("TurnOnSinkFaucet", "PickPlaceCounterToStove")}
 QB_FLAT_EPISODES = 100  # v3.1: the two arms defining the flat Delta run 100 episodes
 SHADOW_EPISODES = 10
 
@@ -307,18 +383,21 @@ def validate_arm(env_id: str, mode: str, arm_id: str, exec_steps: int | None, ca
     import yaml
 
     env = resolve_env(env_id)
+    warm_family = mode == "warm" or mode in WARM_VARIANT_MODES
     expected_arm = f"plain_k{exec_steps}" if mode == "plain" else mode
-    if mode != "warm" and arm_id != expected_arm:
+    if not warm_family and arm_id != expected_arm:
         raise ValueError(f"mode/step identity requires arm_id={expected_arm}")
-    if mode in ("shadow", "warm"):
+    if mode == "shadow" or warm_family:
         cfg = yaml.safe_load(pathlib.Path(cache_config).read_text())
         judge = cfg["checkpoints"]["cp1"]["judge"]
-        if mode == "warm":
-            if not arm_id.startswith("warm_t"):
-                raise ValueError("warm arm must name its start_t")
-            t = float(arm_id.removeprefix("warm_t"))
+        if warm_family:
+            if not arm_id.startswith(f"{mode}_t"):
+                raise ValueError(f"{mode} arm must be named {mode}_t<start_t>")
+            t = float(arm_id[len(mode) + 2:])
             if t not in QB_WARM_TS[env.policy] or env.benchmark != "robocasa365":
                 raise ValueError("warm start_t is outside the frozen arm set")
+            if mode == "warmshoot" and env.policy != "pi05":
+                raise ValueError("the overshoot variant is pi0.5 only (GR00T runs warmreset / resetfinal)")
             expected = {"type": "always_warm_start", "start_t": t}
         else:
             expected = {"type": "threshold", "threshold": 99.0} if env.policy == "pi05" else {"type": "always_hit"}

@@ -11,6 +11,9 @@ Composes ``scripts.serve_policy`` (unchanged) with ``Pi05DiagInterceptor`` by re
               is pinned for the process; the cache path is not loaded);
 * ``full``    ``plain`` with ``--exec-steps`` equal to the environment's full count;
 * ``warm``    ``--cache-config`` names the forced warm-start yaml (``always_warm_start``).
+* ``warmreset`` / ``warmshoot``  ``warm`` with the continuation of ``exp.step_diag.pi05.warm_variant_stage3``
+              (``dt = -1/remaining_steps``; flow time restarted at 1 / kept at start_t). Arm ids
+              ``warmreset_t<t>`` / ``warmshoot_t<t>``; same cache yaml as ``warm_t<t>``.
 
 Every mode serialises ``infer`` behind one process lock, stamps the arm into the handshake
 metadata and writes ``manifest_<arm>.json`` (config sha referenced by every row).
@@ -32,7 +35,8 @@ import threading
 from exp.step_diag import envs as _envs
 from exp.step_diag.recorder import DiagRecorder, DiagSpec
 
-MODES = ("shadow", "plain", "full", "warm")
+MODES = ("shadow", "plain", "full", "warm", *_envs.WARM_VARIANT_MODES)
+CACHE_MODES = ("shadow", "warm", *_envs.WARM_VARIANT_MODES)
 
 
 def parse(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
@@ -56,7 +60,7 @@ def parse(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     args = ap.parse_args(own)
     if args.n_primary != 4 or args.n_dense_extra != 28:
         ap.error("the frozen sampling contract is 4 primary + 28 extra dense samples")
-    if args.mode in ("shadow", "warm") and not args.cache_config:
+    if args.mode in CACHE_MODES and not args.cache_config:
         ap.error(f"--mode {args.mode} requires --cache-config")
     if args.mode in ("plain", "full") and args.cache_config:
         ap.error("--cache-config is refused for plain / full arms")
@@ -67,7 +71,7 @@ def parse(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
         ap.error("--mode plain requires --exec-steps")
     if args.mode in ("plain", "full") and "--cache" not in rest:
         rest = ["--cache", *rest]
-    if args.mode in ("shadow", "warm"):
+    if args.mode in CACHE_MODES:
         rest = [f"--cache_config={args.cache_config}", *rest]
     if "--non-concurrent" not in rest:
         # Single-connection serving: the per-request thread runs every stage inline (exact Euler
@@ -116,10 +120,11 @@ def install(args: argparse.Namespace, recorder: DiagRecorder) -> None:
     mode = args.mode
 
     exec_steps = int(args.exec_steps) if mode in ("plain", "full") else None
+    warm_variant = _envs.WARM_VARIANT_MODES.get(mode)
 
     class _Bound(Pi05DiagInterceptor):
         def __init__(self, *a, **kw):
-            super().__init__(*a, diag=recorder, mode=mode, exec_steps=exec_steps, **kw)
+            super().__init__(*a, diag=recorder, mode=mode, exec_steps=exec_steps, warm_variant=warm_variant, **kw)
 
         def infer(self, obs, *, noise=None):
             with lock:

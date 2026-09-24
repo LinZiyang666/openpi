@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # One GR00T N1.5 server process of the step-vs-warm-start line (h100 for RC, weilandserver for LIBERO).
 #
-# usage: serve_groot.sh <env_id> <mode shadow|plain|full|warm> <arm_id> <port> <exec_steps | cache_yaml | ->
+# usage: serve_groot.sh <env_id> <mode shadow|plain|full|warm|warmreset|resetfinal|midfinal|midfinal50|midreset|midreset50> <arm_id> <port> <exec_steps | cache_yaml | ->
 #   env:  SD_REPO SD_GROOT SD_GROOT_PY SD_CKPT SD_EXP SD_OUT SD_LAUNCH SD_HOME (defaults = weilandserver)
 #
 # RC (groot_rc): serve_groot_n15 without --concurrent = single connection per process (one worker).
 # LIBERO (groot_libero_*): shadow only, rides the production --rit-shadow-out factory, which needs
 # --concurrent; the served policy holds one DiagSession per connection and the infer lock
 # serialises the model, so several LIBERO client processes may share one server.
-# Same idempotent claim / readiness contract as serve_pi05.sh.
+# Same idempotent claim / readiness contract as serve_pi05.sh. The openpi-client package rides on PYTHONPATH
+# (the GR00T venv's editable install pointed at the archived tree after the 2026-09-21 migration).
 set -u
 ENV_ID=${1:?env_id}; MODE=${2:?mode}; ARM=${3:?arm_id}; P=${4:?port}; ARG=${5:--}
 REPO=${SD_REPO:-/data/openpi_sdiag}
@@ -20,9 +21,9 @@ LAUNCH=${SD_LAUNCH:-$(date +%Y%m%dT%H%M%S)_$P}
 export PATH=/usr/local/bin:/usr/bin:/bin
 export HOME=${SD_HOME:-/home/weiland}
 case "$ENV_ID" in
-  groot_rc) BENCH=rc; PYPATH=$GROOT:$REPO/src:$REPO; EXTRA=""
+  groot_rc) BENCH=rc; PYPATH=$GROOT:$REPO/src:$REPO:$REPO/packages/openpi-client/src; EXTRA=""
     CKPT=${SD_CKPT:-/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000} ;;
-  groot_libero_spatial|groot_libero_10) BENCH=libero; PYPATH=$GROOT:$GROOT/examples/Libero:$REPO:$REPO/src; EXTRA="--concurrent"
+  groot_libero_spatial|groot_libero_10) BENCH=libero; PYPATH=$GROOT:$GROOT/examples/Libero:$REPO:$REPO/src:$REPO/packages/openpi-client/src; EXTRA="--concurrent"
     SUITE=${ENV_ID#groot_libero_}
     CKPT=${SD_CKPT:-/home/weiland/ckpt_n15_libero_$SUITE} ;;
   *) echo "unknown env_id $ENV_ID"; exit 1 ;;
@@ -30,8 +31,8 @@ esac
 case "$MODE" in
   plain) [ "$ARG" != "-" ] || { echo "plain needs exec_steps"; exit 1; }; MODEARG="--exec-steps $ARG" ;;
   full) MODEARG="" ;;
-  shadow|warm) [ -f "$ARG" ] || { echo "cache yaml $ARG missing"; exit 1; }; MODEARG="--cache-config $ARG" ;;
-  *) echo "mode must be shadow|plain|full|warm"; exit 1 ;;
+  shadow|warm|warmreset|resetfinal|midfinal|midfinal50|midreset|midreset50) [ -f "$ARG" ] || { echo "cache yaml $ARG missing"; exit 1; }; MODEARG="--cache-config $ARG" ;;
+  *) echo "mode must be shadow|plain|full|warm|warmreset|resetfinal|midfinal|midfinal50|midreset|midreset50"; exit 1 ;;
 esac
 [ -d "$CKPT" ] || { echo "checkpoint dir $CKPT missing"; exit 1; }
 CELL=$ARM

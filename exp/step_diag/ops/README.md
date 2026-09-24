@@ -47,6 +47,20 @@ A claim that is not listening and a readiness timeout return failure; inspect th
 Pi0.5 and GR00T RC use one connection per server process. GR00T LIBERO supports concurrent connections;
 this experiment's launcher conservatively also assigns one worker per endpoint.
 
+## Warm-start continuation variants (2026-09-21 follow-up, pi0.5 RoboCasa only)
+
+`serve_pi05.sh pi05_rc warmreset warmreset_t0.2 <port> config/arms/pi05_rc/warm_t0.2.yaml` and
+`... warmshoot warmshoot_t0.2 ...` serve the reviewer's `dt = -1/remaining_steps` continuation
+(`exp.step_diag.pi05.warm_variant_stage3`): `warmreset` restarts the flow time at 1 (the cache is fed
+as if it were noise), `warmshoot` keeps the cache's start_t (t crosses 0). Same cache yaml, same
+Euler-step count as `warm_t0.2`, own manifest / config_sha. Cells run with `run_rc_cell.sh` per task
+(50 episodes, formal seeds); `python -m exp.step_diag.analysis.warm_variants` pairs them against the
+formal `full` / `plain_k2` / `warm_t0.2` cells. Descriptive only (not in the pre-registered family).
+
+`resetfinal` (2026-09-22 ablation) is the `warmreset` loop started from the payload's final action chunk (t = 0) instead of the snapshot at `start_t`; `start_t` then only sets the step budget `n = floor(start_t*K+0.5)`. Serve it as `serve_pi05.sh pi05_rc resetfinal resetfinal_t0.2 <port> config/arms/pi05_rc/warm_t0.2.yaml`; the diag layer stashes the retrieval result to fetch the chunk.
+
+GR00T (2026-09-22): `serve_groot.sh groot_rc warmreset|resetfinal <arm> <port> config/arms/groot_rc/warm_t0.75.yaml` (or `warm_t0.5.yaml`). `exp.step_diag.groot.groot_warm_variant_stage3` runs upstream's ascending `denoise_loop` as a fresh `n = K - snapshot_index(t)` step loop from `t = 0` with `dt = 1/n` (K = 4: t0.75 -> 1 step, t0.5 -> 2 steps); `install_warm_variant` routes the interceptor's `run_stage3_from` through it before the evidence capture wraps the runner. No overshoot for GR00T.
+
 ## RoboCasa cells
 
 ```bash

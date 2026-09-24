@@ -31,7 +31,8 @@ import uuid
 from exp.step_diag import envs as _envs
 from exp.step_diag.recorder import DiagRecorder, DiagSpec
 
-MODES = ("shadow", "plain", "full", "warm")
+GROOT_VARIANT_MODES = {"warmreset": "reset_t", "resetfinal": "reset_final", "midfinal": "mid_final", "midfinal50": "mid_final50", "midreset": "mid_snap", "midreset50": "mid_snap50"}  # no overshoot for GR00T (owner)
+MODES = ("shadow", "plain", "full", "warm", *GROOT_VARIANT_MODES)
 
 
 def parse(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
@@ -60,7 +61,7 @@ def parse(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
         ap.error("the frozen sampling contract is 4 primary + 28 extra dense samples")
     if args.benchmark == "libero" and args.mode != "shadow":
         ap.error("LIBERO GR00T serves only the shadow mode here (ladders use the production server)")
-    if args.mode in ("shadow", "warm") and not args.cache_config:
+    if args.mode in ("shadow", "warm", *GROOT_VARIANT_MODES) and not args.cache_config:
         ap.error(f"--mode {args.mode} requires --cache-config")
     if args.mode == "full":
         args.exec_steps = env.k_full
@@ -173,11 +174,16 @@ def install_rc(args: argparse.Namespace, recorder: DiagRecorder) -> None:
         if live != env.k_full:
             raise RuntimeError(f"live GR00T K={live}, expected {env.k_full}")
         schedule = groot_n15_schedule(live)
-        if args.mode == "warm":
+        if args.mode == "warm" or args.mode in GROOT_VARIANT_MODES:
             from openpi.cache.groot.interceptor import GrootCacheInterceptor
 
+            from exp.step_diag.groot import install_warm_variant
+
             inner = GrootCacheInterceptor(policy, runner, orchestrator=orchestrator, timer=runner._timer)  # noqa: SLF001
-            return GrootEvidencePolicy(inner, runner, recorder, schedule_id=schedule.schedule_id), f"step_diag warm -> {args.cache_config}"
+            if args.mode in GROOT_VARIANT_MODES:
+                # before the evidence capture wraps the runner (see install_warm_variant)
+                install_warm_variant(runner, orchestrator, GROOT_VARIANT_MODES[args.mode], schedule)
+            return GrootEvidencePolicy(inner, runner, recorder, schedule_id=schedule.schedule_id), f"step_diag {args.mode} -> {args.cache_config}"
         if args.mode == "shadow":
             served = GrootDiagPolicy(policy, runner, orchestrator=orchestrator, diag=recorder, schedule=schedule)
             return served, f"step_diag shadow (k_set={env.k_set}, warm_ts={env.warm_ts})"

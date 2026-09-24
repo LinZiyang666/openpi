@@ -1,0 +1,14 @@
+task,full,plain_k2,warm_t0.2,warmreset_t0.2,resetfinal_t0.2,warmshoot_t0.2
+CloseBlenderLid,0.14,0.04,0.02,0.34,0.34,0.0
+CloseFridge,0.62,0.08,0.3,0.5,0.76,0.0
+CoffeeSetupMug,0.4,0.36,0.04,0.42,0.48,0.0
+OpenCabinet,0.66,0.5,0.42,0.9,0.86,0.0
+OpenDrawer,0.62,0.74,0.68,0.88,0.82,0.0
+OpenStandMixerHead,0.16,0.2,0.44,0.72,0.68,0.0
+PickPlaceCounterToCabinet,0.54,0.58,0.14,0.68,0.64,0.0
+PickPlaceCounterToStove,0.84,0.94,0.16,0.82,0.72,0.0
+PickPlaceDrawerToCounter,0.32,0.18,0.1,0.48,0.42,0.0
+PickPlaceSinkToCounter,1.0,1.0,0.42,1.0,1.0,0.0
+PickPlaceToasterToCounter,0.4,0.28,0.08,0.64,0.68,0.0
+SlideDishwasherRack,0.56,0.6,0.6,0.88,0.92,0.06
+TurnOnSinkFaucet,0.86,0.74,0.22,0.94,0.88,0.0

@@ -3,7 +3,7 @@
 #
 # usage: run_rc_cell.sh <teacher pi05|groot_tp> <arm_id> <lane main|pnp> <servers host:port,...> \
 #                       <tasks csv> <episodes> <episodes_map json | -> <config_sha> [tag]
-#   env:  SD_RC_REPO SD_RC_PY SD_RC_ENV SD_EXP SD_BASE_SEED SD_HOME SD_GPUS
+#   env:  SD_RC_REPO SD_RC_PY SD_RC_ENV SD_EXP SD_BASE_SEED SD_HOME SD_GPUS SD_OUT_ROOT (optional --out-root)
 #
 # Every server in <servers> runs single-connection, so one worker is bound per server
 # (--workers-per-server 1) and the tasks are spread over the servers by the driver. Artifacts:
@@ -26,11 +26,16 @@ case "$LANE" in
   *) echo "lane must be main|pnp"; exit 1 ;;
 esac
 [ "$EPMAP" = "-" ] || EXTRA+=(--episodes-map "$EPMAP")
+[ -z "${SD_OUT_ROOT:-}" ] || EXTRA+=(--out-root "$SD_OUT_ROOT")
 NSRV=$(echo "$SERVERS" | tr ',' '\n' | grep -c .)
 # tmux refuses "." in session names; the formal warm arms are warm_t0.1 etc.
 NAME="sdcell_${TAG}_${TEACHER}_${ARM//./_}_${LANE}"
+[ "$EXP" = sdiag_v1 ] || NAME="${NAME}_${EXP}"
 mkdir -p /tmp/sdiag
-if tmux has-session -t "$NAME" 2>/dev/null; then echo "$NAME already running; leaving it"; exit 0; fi
+# SD_TMUX_SOCKET: run the cell on a private tmux server (tmux -L) so that another session ending the
+# default tmux server on a shared worker cannot take the cell down with it (timan107, 2026-09-23).
+TMUXC=(tmux); [ -n "${SD_TMUX_SOCKET:-}" ] && TMUXC=(tmux -L "$SD_TMUX_SOCKET")
+if "${TMUXC[@]}" has-session -t "$NAME" 2>/dev/null; then echo "$NAME already running; leaving it"; exit 0; fi
 CMD=(env "PYTHONPATH=$REPO/src:$REPO" "$PY" -m exp.step_diag.run_diag
   --teacher "$TEACHER" --servers "$SERVERS" --arm-id "$ARM" --experiment-id "$EXP" --lane "$LANE" --tasks "$TASKS"
   --episodes "$EPS" --base-seed "$SEED" --replan-steps 5 --config-sha "$CFGSHA" "${EXTRA[@]}" --env-config "$ENVCFG"
@@ -41,5 +46,5 @@ printf -v LOG '%q' "/tmp/sdiag/$NAME.log"
 printf -v SCRIPT '%s' "cd $WORKDIR && $COMMAND > $LOG 2>&1; rc=\$?; echo SDCELL_EXIT=\$rc >> $LOG; exit \$rc"
 # tmux's default shell may be dash; explicitly use bash for printf %q escapes.
 printf -v LAUNCH_CMD '%q ' bash -lc "$SCRIPT"
-tmux new -s "$NAME" -d "$LAUNCH_CMD"
+"${TMUXC[@]}" new -s "$NAME" -d "$LAUNCH_CMD"
 echo "started $NAME ($NSRV server(s), 1 worker each) -> /tmp/sdiag/$NAME.log"

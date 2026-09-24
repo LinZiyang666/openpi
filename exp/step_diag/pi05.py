@@ -35,6 +35,7 @@ import torch
 from openpi.cache.interceptor import InferenceInterceptor
 from openpi.cache.components.judge import HitType
 from openpi.cache.types import PI05_V1, CheckpointID
+from openpi.models_pytorch.pi0_pytorch import Stage3Output, _warm_start_num_steps
 
 from exp.step_diag.recorder import DiagRecorder, EpisodeIdentity
 
@@ -64,12 +65,75 @@ class _RecordingStrategy:
         return getattr(self._inner, name)
 
 
+WARM_VARIANTS = ("reset_t", "overshoot", "reset_final", "mid_final", "mid_final50", "mid_snap", "mid_snap50")
+FINAL_START_VARIANTS = ("reset_final", "mid_final", "mid_final50")  # start = the payload's final action chunk
+
+
+def warm_variant_stage3(model: Any, stage2: Any, start_x: torch.Tensor, start_t: float, *, num_steps: int,
+                        variant: str) -> Stage3Output:
+    """Warm-start continuation with ``dt = -1 / remaining_steps`` (the reviewer's proposal, 2026-09-21).
+
+    Both variants run ``n = floor(start_t * num_steps + 0.5)`` Euler steps from the cached ``start_x``
+    -- the same call count as ``run_stage3_from`` -- but with the enlarged step ``dt = -1/n``
+    instead of the library grid's ``-1/num_steps``:
+
+    * ``reset_t``  : the remaining denoising is treated as a NEW run -- the flow time restarts at
+                     ``t = 1`` (the model is told the cache is pure noise) and walks ``1, 1-1/n, ...``;
+    * ``overshoot``: the flow time starts at the cache's own ``start_t`` (replayed exactly like
+                     ``run_stage3_from``) but advances by ``-1/n`` per step, so it passes ``t = 0``
+                     after the first step and the later steps query negative ``t``.
+    * ``reset_final``: the ``reset_t`` loop, but the caller hands in the cache's FINAL action chunk
+                     (the payload's ``action_chunk``, t = 0) instead of the snapshot at ``start_t``;
+                     ``start_t`` then only sets the step budget ``n`` (ablation: budget vs snapshot
+                     noise level, 2026-09-22).
+    * ``mid_final``: the ``reset_final`` start entered at ``t = MID_ENTRY_T["pi05"]`` = 0.9, one
+                     full-schedule grid step below pure noise (not 1), with ``dt = -0.9/n``, ending at ``t = 0`` (owner 2026-09-22: does the cache
+                     survive when it is not declared pure noise?).
+
+    Every step goes through ``model.denoise_step`` (the instance attribute, so the interceptor's
+    step counter sees it). ``resume`` is not handled here: that is ``model.run_stage3_from``.
+    """
+    if variant not in WARM_VARIANTS:
+        raise ValueError(f"unknown warm variant {variant!r}")
+    stage1 = stage2.stage1
+    device = stage1.state.device
+    bsize = stage1.state.shape[0]
+    num_steps = int(num_steps)
+    n_steps = _warm_start_num_steps(float(start_t), num_steps)
+    if n_steps < 1:
+        raise ValueError(f"start_t={start_t} leaves no step to run")
+    dt = torch.tensor(-1.0 / n_steps, dtype=torch.float32, device=device)
+    if variant in ("mid_final", "mid_final50", "mid_snap", "mid_snap50"):
+        from exp.step_diag.envs import MID_ENTRY_T_BY_VARIANT
+
+        entry = MID_ENTRY_T_BY_VARIANT[variant]["pi05"]
+        dt = torch.tensor(-entry / n_steps, dtype=torch.float32, device=device)
+        timestep = torch.tensor(entry, dtype=torch.float32, device=device)
+    elif variant in ("reset_t", "reset_final"):
+        timestep = torch.tensor(1.0, dtype=torch.float32, device=device)
+    else:
+        grid = torch.tensor(-1.0 / num_steps, dtype=torch.float32, device=device)
+        timestep = torch.tensor(1.0, dtype=torch.float32, device=device)
+        for _ in range(num_steps - n_steps):  # the full loop's float32 accumulation, as run_stage3_from
+            timestep = timestep + grid
+    x_t = start_x
+    for _ in range(n_steps):
+        v_t = model.denoise_step(stage1.state, stage1.prefix_pad_masks, stage2.past_key_values, x_t,
+                                 timestep.expand(bsize))
+        x_t = x_t + dt * v_t
+        timestep = timestep + dt
+    return Stage3Output(action_chunk=x_t)
+
+
 class Pi05DiagInterceptor(InferenceInterceptor):
     """See module docstring. ``diag`` is the recorder; ``mode`` is shadow / plain / full / warm;
     ``exec_steps`` (plain / full only) pins the executed step count of this connection."""
 
     def __init__(self, *args: Any, diag: DiagRecorder, mode: str, exec_steps: Optional[int] = None,
-                 **kwargs: Any) -> None:
+                 warm_variant: Optional[str] = None, **kwargs: Any) -> None:
+        if warm_variant is not None and warm_variant not in WARM_VARIANTS:
+            raise ValueError(f"unknown warm variant {warm_variant!r}")
+        self._warm_variant = warm_variant
         super().__init__(*args, **kwargs)
         shape = (self._model.config.action_horizon, self._model.config.action_dim)
         if shape != diag.spec.action_shape:
@@ -121,10 +185,19 @@ class Pi05DiagInterceptor(InferenceInterceptor):
                 self._tl.n_calls = getattr(self._tl, "n_calls", 0) + 1
             return inner_run3(*a, **kw)
 
-        def _counted_run3f(*a, **kw):
+        variant = self._warm_variant
+
+        def _counted_run3f(stage2, start_x, start_t, *, num_steps=10, **kw):
             if not getattr(self._tl, "in_shadow", False):
                 self._tl.n_calls = getattr(self._tl, "n_calls", 0) + 1
-            return inner_run3f(*a, **kw)
+                if variant is not None:
+                    # warmreset / warmshoot arms: the executed WARM_START continuation uses the
+                    # enlarged step (dt = -1/remaining); the shadow bracket keeps the exact resume.
+                    if variant in FINAL_START_VARIANTS:
+                        start_x = self._final_chunk_like(start_x)
+                    return warm_variant_stage3(model, stage2, start_x, start_t, num_steps=num_steps,
+                                               variant=variant)
+            return inner_run3f(stage2, start_x, start_t, num_steps=num_steps, **kw)
 
         model.run_stage3 = _counted_run3
         model.run_stage3_from = _counted_run3f
@@ -140,6 +213,14 @@ class Pi05DiagInterceptor(InferenceInterceptor):
         # read-only retrieval winner for the shadow mode
         self._search_rec: Optional[_RecordingStrategy] = None
         orch = self._orchestrator
+        if variant in FINAL_START_VARIANTS and orch is not None:
+            stash_check = orch.check
+
+            def stashing_check(*a, **kw):
+                result = stash_check(*a, **kw)
+                self._tl.cp1_result = result
+                return result
+            orch.check = stashing_check
         if self._diag_mode == "shadow" and orch is not None:
             from openpi.cache.orchestrator import CheckResult
 
@@ -238,6 +319,19 @@ class Pi05DiagInterceptor(InferenceInterceptor):
             hit_type=hit_name if hit_name is not None else "MISS", start_t=start_t,
             schedule_id=PI05_V1.schedule_id, sample=sample, resume=resume, top1=top1, extra=extra,
         )
+
+    def _final_chunk_like(self, start_x: torch.Tensor) -> torch.Tensor:
+        """The hit payload's final action chunk (t = 0), shaped like the snapshot it replaces."""
+        cp = getattr(self._tl, "cp1_result", None)
+        entry_id = None if cp is None else getattr(cp, "entry_id", None)
+        orch = self._orchestrator
+        if entry_id is None or orch is None:
+            raise RuntimeError("reset_final: no WARM_START retrieval result to take the final chunk from")
+        payload = orch._storage.fetch_payload(entry_id)  # noqa: SLF001 - same seam as _top1_payload
+        chunk = getattr(payload, "action_chunk", None)
+        if chunk is None:
+            raise RuntimeError(f"reset_final: payload {entry_id} has no action_chunk")
+        return chunk.to(device=start_x.device, dtype=start_x.dtype).reshape(start_x.shape)
 
     def _top1_payload(self, cp1_result) -> tuple:
         """``(score, entry_id, intermediates)`` of the read-only retrieval winner, or Nones."""

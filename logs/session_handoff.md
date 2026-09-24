@@ -51,66 +51,104 @@ owner 的常驻指令，逐字有效：
 - **巡检就只巡检**：贴 PROBE 行，不要顺手做额外分析（owner 明确要求过）。
 
 
-## 1. 现在在哪（2026-09-21 02:05 CDT）— **实验全部跑完，终报已写，等 owner 审阅/commit 指示**
+## 1. 现在在哪（2026-09-23 01:40 CDT）— **本线全部实验（含 09-22 晚的追加）已跑完、分析与报告写完、全部机器已停；只等 owner 指示 commit**
 
-- 代码已 commit `d8e464d`（origin/Ziyang）。plan `logs/step_vs_warmstart_diagnostics_plan.log.md` v3.1（§9.6 已补运行记录）；手册 `exp/step_diag/ops/README.md`。
-- **全部 9,760 集正式数据已拉回本地并校验**（server 行 arrays sha 逐文件 0 bad；driver 产物 journal 集数齐全）：shadow 660、Q-B π0.5 2,750、Q-B GR00T 1,350、Q-C.3 5,000。分析产物：`exp/step_diag/data/analysis/{shadow_<env>,qb_pi05,qb_groot}.json`，表 `exp/step_diag/analysis/{shadow_<env>,qb_pi05,qb_groot}.md` + 拼接 `step_vs_warmstart_tables.md`，**手写终报 `exp/step_diag/analysis/step_vs_warmstart.md`**。
-- **结论**：Q-B 两 policy 均 `inconclusive` + `harmful_on_flat`（π0.5 cliff macro Δ −0.035 [−0.145,+0.075]、H50 上界 <0；GR00T Δ +0.055 [−0.045,+0.155]；flat PnP 任务 Δ −0.63/−0.78（π0.5）、−0.45（GR00T））；Q-A 两 policy `no_conclusion`（ρ 0.085 / 0.377）；Q-C.3 object/goal 阶梯平坦。全部 cell 准入（complete/equal_nfe/miss 0）。
-- **远端状态**：h100 与 weilandserver 全部 server 已停、MPS 已关（GPU 0 MiB）；timan107/108 无 driver/worker 残留（tmux `sdphase_*` 会话已自然退出）。远端树与数据保留（h100 `/data/openpi_sdiag`、wls 同、timan `/scratch/zixuans8/step_diag/openpi`；打包分块在各机 `/tmp/sdiag/pull/`，可删）。
-- **已 commit + push `952dc99`（owner 2026-09-21 授权，单提交）**：运行期 7 处代码改动（§6）+ 分析 md（`parity_*.json`、`shadow_*.md`、`qb_*.md`、`step_vs_warmstart_tables.md`、`step_vs_warmstart.md`）+ `config/rc_timan107.env` + `rit_pareto/config/task_order_libero_{object,goal}.json` + handoff/README/plan 日志。**待 owner**：四层设计下一步（终报 §0/§3.3 给了 warm start 必须带门、相似度分数不区分好坏命中的负证据）。
+**owner 指令**：`/goal`「我去睡觉了，你独自值守实验，不做完不停」（09-22 21:30）——已完成。此前各轮（§6.1–6.7）见上一版。commit 只在 owner 当次指示时。
 
-## 2. 拓扑与资产（全部已验）
+**终报** `exp/step_diag/analysis/step_vs_warmstart.md`：§0 结论（含 §6.8–6.10 一行）；§6.1–6.5 π0.5；§6.5.1 外部审查修正；§6.6 GR00T 对称；§6.7 运行记录与事故（含 09-22 20:55 OOM、09-23 00:01 timan107 tmux 事故）；**§6.8 midfinal 喂入点消融、§6.9 GR00T 2 步补齐 13 任务、§6.10 init_probe 机制探针**。
+- π0.5 13 任务（2 次前向）：full .548 / plain_k2 .481 / warm .277 / warmreset .708 / resetfinal .708 / **midfinal .545**（midfinal − resetfinal −0.163 [−0.205, −0.120]）。
+- GR00T 13 任务 1 次前向：full .638 / plain_k1 .575 / warm .555 / warmreset .562 / resetfinal .573 / **midfinal .611**（− resetfinal +0.038 [0.000, +0.075]，− full −0.028 含 0）。
+- GR00T 13 任务 2 次前向：full .638 / plain_k2 .629 / warmreset .632 / resetfinal .646（全部差值含 0）。
+- init_probe（40/40，完整模式）：t=1 喂入时 π0.5 输出保留缓存差异远多于 GR00T；报告 `analysis/init_probe_20260922/complete_results.{zh,en}.md`，合并视图 `data/init_probe_20260922/merged/`，工具 `ops/resume_init_probe.py`。
+- 表：`analysis/warm_variants_{pi05,groot}_*.md`（新增 `groot_macro13_t0.5`，`pi05_macro13`/`groot_macro13`/`*_t0.1/t0.2/t0.75/t0.5` 已含 midfinal）；图 `analysis/figures/{macro13_four_arms,groot_macro13_five_arms}.png`、`analysis/init_probe_20260922/*.png`。
+- 数据全部在本地 `exp/step_diag/data/`，server 行 arrays sha 全对（midfinal 两臂各 2 条被重跑覆盖的 stray finalize，不门控）。
+- 机器：h100 / weilandserver 全部 sd server 停、GPU 0 MiB、MPS 未开；timan107/108 无我们的 cell（timan107 用 `tmux -L sdiag ls` 查）。远端 `/tmp/sdiag/*.tgz`、`initprobe_r1_transfer/` 为临时包，可删，未删。
+
+**本轮新增代码（未 commit）**：`envs.py`（`midfinal` 模式、`MID_ENTRY_T`、macro13 放行 midfinal）、`pi05.py`（`mid_final` 分支、`FINAL_START_VARIANTS`）、`groot.py`（`mid_denoise_loop`、`mid_final`）、`serve_diag_groot.py`、`run_diag.py`、`ops/serve_{pi05,groot}.sh`、`ops/run_rc_cell.sh`（`SD_TMUX_SOCKET`）、`analysis/warm_variants.py`（midfinal 臂 + 外部审查三处修正）、新 `ops/resume_init_probe.py`；测试 `test_warm_variants.py`、`test_groot_warm_variants.py`、新 `test_resume_init_probe.py`（step_diag 套件 120 passed / 1 skipped，09-23 01:40）。另有 Codex 的 `serve_init_probe.py`、`analyze_init_probe.py`、`ops/run_init_probe_pilot.py`、`tests/.../test_init_probe.py` 与 `data/figures/plot_init_probe_*.py`（画图脚本不入库）。
+
+**09-23 上午追加（owner）**：① GR00T 喂入点补充（起点=缓存最终动作）：`midfinal50_t0.75/t0.5`（喂 t=0.5，n=1/2）全 13 任务 + `midfinal_t0.5`（喂 0.75，n=2）补 11 任务，09:35 起跑（h100 23250–59 ↔ timan108 main；wls 23150–56 ↔ timan107 pnp，私有 tmux `-L sdiag`）；`midfinal_t0.5` main 已完 .663。② 排队：GR00T `midreset_t0.75/t0.5`（起点=缓存快照，喂 t=0.75，n=1/2）× 13 任务，代码已同步（sha 5ffe8345，测试 126 passed）；① 的 server 空出即起。
+
+**09-23 12:50 状态（h100 即将关机；本会话在 auto 模式下对「从 h100 拉数据」被会话级安全检查拦截，需切出 auto 模式或新会话继续）**：
+- GR00T 喂入点补充全部完成并已拉取分析（`analysis/warm_variants_groot_macro13{,_t0.5}.md`）：起点=缓存最终动作，13 任务 macro：喂 t=1 1 步 .573 / 2 步 .646；喂 0.75 1 步 .611 / 2 步 .643；喂 0.5 1 步 .646 / 2 步 .600（full .638、plain_k1 .575、plain_k2 .629）。
+- midreset（快照起点喂 0.75）：main 两格完成（n=1 .5775、n=2 .645，8 任务），h100 server 已全停、GPU 0；PnP 两格仍在 wls 23150–56 ↔ timan107（私有 tmux `-L sdiag`）。**待办**：h100 上 `server_macro13/groot_tp/midreset_t0.{75,5}` 两个目录（约 230 MB）还没拉——用 `/tmp/sdiag/sd_h100_pack.sh` + `/tmp/sdiag/sd_pull_parts.sh` 拉回到 `exp/step_diag/data/server_macro13/groot_tp/`；timan108 `rc_macro13/groot_tp/midreset_*`、timan107 同名目录 tar+pull；wls server 行本地 cp；然后重跑 `warm_variants --policy groot --t 0.75/0.5` 13 任务并写报告 §6.11（起点 × 喂入点 × 步数总表）。
+- **h100 数据抢救**：清单 `/archive/h100_rescue/inventory_{data,home}.tsv.gz`（本机逐文件比对：h100 独有 542 GB，其中大部分是 env/cache/代码）；第一级 4.4 GB 已搬完到 `/archive/h100_rescue/h100/<原绝对路径>`（x0 结果除 ckpt、/tmp 日志、openpi 各线独有文件、home/openpi 独有、sdiag smoke；`/archive/h100_rescue/done/*` 记文件数全对）。工具 `~/.claude/jobs/ffa26b09/tmp/h100_rescue.sh <bundle> [gzip|plain]`（读 `/archive/h100_rescue/lists/<bundle>.lst`，tether 分块拉、逐块 sha、续传）。第二级待搬（按价值）：x0 `runs/*/checkpoints/final.ckpt` 38 个 66 GB（plain tar）→ `/data/dp_h100/data` 15 GB → x0 `*.hdf5` 8.5 GB → `/data/xwam/robotwin_data` 20 GB → `/data/libero_cache/corpus_w13` 95 GB。tether 实测 ~5 MB/s、同时仅 1 个传输；更快的通道（本机 rsync over ssh，需 owner 自行把本机 `~/.ssh/id_ed25519.pub` 加到 h100 `authorized_keys`）被权限规则拦，未绕过。
+
+**09-23 14:25 状态（会话已恢复为可执行模式）**：
+- midreset 两臂 13 任务完成并分析（`warm_variants_groot_macro13{,_t0.5}.md`，§6.11 已写、§0 已加一行）：快照喂 0.75 n=1 .628 / n=2 .669。
+- **在跑**：GR00T `midreset50_t0.75/t0.5`（快照喂 0.5，n=1/2）× 13 任务 × 50（审计 agent 找出的唯一欠账），09-23 14:20 起：h100 23250–54（n=1）/23255–59（n=2）↔ timan108 main；wls 23150–52（n=1）/23153,23155,23156（n=2）↔ timan107 pnp；两台 worker 都用私有 tmux `tmux -L sdiag`。跑完：拉 h100 `server_macro13/groot_tp/midreset50_*`（sd_h100_pack+sd_pull_parts）、wls 本地 cp、两台 `rc_macro13/groot_tp/midreset50_*` tar+pull，重跑 `warm_variants --policy groot --t 0.75/0.5` 13 任务，把快照喂 0.5 一行补进 §6.11 表。
+- **h100 搬运改用 rsync+ssh**（owner 授权；本机 `id_ed25519.pub` 临时加在 h100 exouser `authorized_keys`，**搬完要删**）：`/archive/h100_rescue/rsync_tier2.sh lane1|lane2`（tmux `h100_rsync_lane1`，lane2 等 lane1 结束后自动接），清单 `/archive/h100_rescue/lists/{lane1,lane2}.txt` → t2a x0 final.ckpt 117 GB、t2b DP 数据 15 GB、t2c x0 hdf5 8.5 GB、t2d xwam 29 GB、t2e libero corpus 95 GB、t2f cosmos-policy 13 GB、t2g robotwin 26 GB；约 30 MB/s（SMR 盘，单路）；日志 `/archive/h100_rescue/rsync_lane*.log`，完成标记 `/archive/h100_rescue/done/`。
+- job 临时目录已被清掉：巡检/监控脚本改在会话 scratchpad `/tmp/claude-1000/-home-weiland-projects-openpi/ffa26b09-*/scratchpad/`。
+- 审计 agent 标为「不确定、owner 未点名」未跑：π0.5 快照×步数解耦交叉臂；π0.5 版喂入点扫描；GR00T n=3 阶梯；GR00T warm_t0.5 补 8 任务。
+
+**09-23 16:25 状态**：
+- **GR00T 全部实验完成**：midreset50（快照喂 0.5，n=1/2）13 任务补跑完（审计 agent 找出的唯一欠账），§6.11 表已补齐、§0 已更新：13 任务 macro 1 步 final 喂 0.5 .646 / 快照喂 0.5 .637 / 快照喂 0.75 .628；2 步快照喂 0.75 .669 最高，喂 0.5 回落（快照 .632、final .600）。h100 与 wls 上全部 sd server 已停、GPU 0 MiB；两台 worker 无 cell。
+- **h100 搬运**：lane1 四包完成（t2a x0 final.ckpt 58/58、t2b DP 数据、t2c x0 hdf5、t2d xwam 52385 文件），lane2（libero corpus 95 GB → cosmos-policy → robotwin）在 tmux `h100_rsync_lane2` 自动续上，约 17:45 完成。**完成后**：删 h100 `/home/exouser/.ssh/authorized_keys` 里本机 `id_ed25519.pub` 那一行；删 h100 `/data/h100rescue/`（清单与空 stage）。
+- 监控脚本在 `/archive/h100_rescue/ops/`。审计 agent 标「不确定、owner 未点名」未跑：π0.5 快照×步数解耦交叉臂；π0.5 版喂入点扫描；GR00T n=3 阶梯；GR00T warm_t0.5 补 8 任务。
+
+**09-23 17:55 全部完成**：GR00T 起点×喂入点×步数网格 13 任务全齐（§6.11）；h100 数据抢救完成：195 613 个文件约 288 GB 在 `/archive/h100_rescue/h100/<原绝对路径>`，说明见 `/archive/h100_rescue/README.md`（与 h100 清单逐文件大小核对，仅 6 个当时仍在写的 server 日志不同）；h100 上临时 ssh 公钥已删（ssh 已拒绝）、`/data/h100rescue` 已删。所有 sd server 已停，h100 / weilandserver GPU 0 MiB。cron 巡检已撤。
+
+**剩下**：等 owner 决定是否 commit。
+
+## 2. 拓扑与资产（本机 = weilandserver，hostname 已确认）
 
 | 角色 | 主机 | 关键路径 |
 |---|---|---|
-| RC server π0.5 | h100 `149.165.153.233`，端口 23240-47；tree `/data/openpi_sdiag`（clone d8e464d）；`HOME=/home/exouser`；根盘 7 GB | py `/home/exouser/openpi/.venv/bin/python`；ckpt `/home/exouser/ckpt/pi05_robocasa_pytorch`；W13 库 `/data/robocasa365_cache/cache_artifacts_w13/{pi05,groot_tp}_spatial_pool_16_w13_full.pkl`（侧车已写）；server 产物 `exp/step_diag/data/server/<teacher>/<arm>/`（smoke 在 `server_smoke/`） |
-| RC server GR00T | weilandserver `ziyanglin.com` 23150-59；tree `/data/openpi_sdiag`；`HOME=/home/weiland` | serve_groot.sh 默认路径即可（gr00t `/home/weiland/gr00t_n15`，ckpt `/home/weiland/ckpt_n15_robocasa_tp/.../checkpoint-60000`）；每进程 ≈5.8 GB → 4090 最多 7 个 |
-| RC worker | timan108（3×24 GB，h100 lane，env `config/rc_timan.env`）；timan107（8×8 GB，weilandserver lane，env `config/rc_timan107.env`） | tree `/scratch/zixuans8/step_diag/openpi`；岛 python `/scratch/zixuans8/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv/bin/python`；driver 产物 `exp/step_diag/data/rc/<teacher>/<arm>/`（smoke 已挪到 `rc_smoke/`） |
-| LIBERO（已完） | weilandserver 23140-43/23150-52 ↔ timan107（sim python `/scratch/zixuans8/libero_sim/bin/python`，A 池 `/scratch/zixuans8/openpi/exp/common/data/db_init/libero/*_apool`，object/goal 池现场 materialize 在 step_diag 树）| 产物已在本地 `exp/step_diag/data/{server,libero,qc3}` |
+| 本机/开发树 | weilandserver `~/projects/openpi`（对本机操作直接做，不走 tether） | 岛树 `/data/openpi_sdiag`（server 用；改动文件用 cp 同步）；数据 `exp/step_diag/data/{rc,rc500,rc_x1m,rc_macro13,server,server500,server_x1m,server_macro13,analysis,figures}`（gitignored） |
+| wls server（公网 ziyanglin.com:2314x π0.5 / 2315x GR00T） | 本机 4090 48 GB，MPS 已开 | π0.5 启动器 `/tmp/sdiag/sd_servers_wls{,_launch}.sh`；GR00T 启动器 `/tmp/sdiag/sd_servers_wls_groot{,_launch}.sh`（tmux `sdlaunch_wls_groot`，日志 `/tmp/sdiag/sdlaunch_wls_groot.log`，server 日志 `/tmp/sdiag/sdsrv<port>.log`）；GR00T 上限约 7 进程；π0.5 每进程 GPU 7.5 GB |
+| h100 server（149.165.153.233，tether user exouser） | tree `/data/openpi_sdiag`，MPS 已开，根盘 91%（`/tmp/sdiag/pull` 用后即删） | `/tmp/sdiag/sd_servers_launch.sh <pi05|groot> <exp> <out> <mode:arm:port:arg>...`（tmux `sdlaunch_<teacher>`，日志 `/tmp/sdiag/sdlaunch_<teacher>.log`）；单 server 直起：`SD_EXP/SD_OUT/...` 环境 + `nohup bash exp/step_diag/ops/serve_{pi05,groot}.sh ...`（见 §3）；`sd_h100_pack.sh`、`sd_h100_relaunch_all.sh`（事故恢复用）；π0.5 ≤7 进程（RAM），GR00T 端口只能 23250–23259（`rc_timan.env`） |
+| worker | timan107 ↔ wls（`rc_timan107.env`：π0.5 23140-47、GR00T 23150-59）；timan108 ↔ h100（`rc_timan.env`：π0.5 23240-47、GR00T 23250-59） | tree `/scratch/zixuans8/step_diag/openpi`；`/tmp/sdiag/run_rc_cell.sh.new`（= 工作树 ops/run_rc_cell.sh，支持 `SD_EXP SD_BASE_SEED SD_OUT_ROOT SD_RC_ENV`）；cell 日志 `/tmp/sdiag/sdcell_v1_<teacher>_<arm>_<lane>[_<exp>].log`，尾行 `SDCELL_EXIT=<code>` |
+| 本地拉取 | `/tmp/sdiag/sd_pull_parts.sh <node> <name> /tmp/sdiag/pull`（分块 ≤447 MB、sha 对账、拼回 tgz） | |
 
-- 单连接硬约束：π0.5 / GR00T RC 一个 server 进程 ↔ 一个 worker；同一 server 不能同时被 main/pnp 两个 cell 用；跨臂同 lane 槽数一致（每臂每 lane 2 槽）。
-- tether：`/scratch` 不在 timan allow_roots → 推 `/tmp/sdiag/` 再 cp；`tether pull` 单文件上限 ≈447 MB（split -b 400m，按 sha 对账再 cat）；h100 无 ssh，数据 tar+pull；weilandserver 走 LAN `rsync weiland@192.168.0.200`。h100 `tether exec` 双执行，脚本全幂等。
+tether：`tether exec <node> -- bash -lc '...'`（h100 双执行、10 min 上限；引号坑：多行脚本先落盘再 push）；`tether push <local> <node>:<path> --force`；timan `/scratch` 不在 allow_roots → 推 `/tmp/sdiag/` 再 cp。
 
-## 3. 运行链（脚本在本机 `$CLAUDE_JOB_DIR/tmp/sd/`，远端副本 `/tmp/sdiag/`）
+## 3. 运行链（剩余 GR00T 工作）
 
-1. **起 server**（幂等，分批加载）：h100 `bash /tmp/sdiag/sd_servers_launch.sh <pi05|groot> sdiag_v1 /data/openpi_sdiag/exp/step_diag/data/server <mode:arm:port:arg>...`；weilandserver `bash /tmp/sdiag/sd_servers_wls_launch.sh sdiag_v1 <out> <env_id:mode:arm:port:arg>...`（arg = yaml 绝对路径 | 步数 | `-`）。就绪 = `sdlaunch_*.log` 出现 `SDSERVERS_EXIT` 且每行 `listening`；完整 phase 表 `sd/qb_phases.txt`。
-2. **读 config_sha**：`<out>/<teacher>/<arm>/manifest_<arm>.json` 的 `config_sha`。
-3. **起 phase**：`bash /tmp/sdiag/sd_cells_launch.sh sdphase_<tag> /tmp/sdiag/sd_rc_phase.sh <pi05|groot_tp> v1 "<arm>=<sha>=<main ports csv>=<pnp ports csv>" ...`；可加 `SD_LANES=main|pnp`（launcher 会写进 tmux 命令）。脚本自动填正式任务集/集数/flat 100 集、INCOMPLETE 自动 resume ≤3 次、开跑前扫孤儿。日志 `/tmp/sdiag/sdphase_<tag>.log`（`CELL … SDCELL_EXIT=0` / `SDPHASE_EXIT`），cell 日志 `/tmp/sdiag/sdcell_v1_<teacher>_<arm_>_<lane>.log`。
-4. **停 server**：`cd /data/openpi_sdiag && bash exp/step_diag/ops/stop_servers.sh <ports>`（释放锁）。换臂前必停旧的（RAM/显存）。
-5. **孤儿**：`bash /tmp/sdiag/sd_sweep_orphans.sh`（driver 端口无人监听即杀）。
-6. **拉取**：h100 `tar` + `split -b 400m` + `tether pull` 逐块 → `exp/step_diag/data/server/<teacher>/<arm>/`（`ops/pull_server_rows.sh` 的 sha 校验逻辑单独跑）；weilandserver `bash exp/step_diag/ops/pull_server_rows.sh weiland@192.168.0.200:/data/openpi_sdiag/exp/step_diag/data/server/<t>/<arm> exp/step_diag/data/server/<t>/<arm>`；driver 产物 timan tar → `tether pull` → 解到 `exp/step_diag/data/rc/`。
-7. **分析**：`uv run python -m exp.step_diag.analysis.aggregate_arms --policy pi05 --arms-root exp/step_diag/data/rc --server-rows exp/step_diag/data/server --shadow-json exp/step_diag/data/analysis/shadow_pi05_rc.json --out-json exp/step_diag/data/analysis/qb_pi05.json --out-md exp/step_diag/analysis/qb_pi05.md`（groot 同理）；或 `ops/analyze_all.sh`。
+**server 就绪判据**：启动器日志出现 `SERVE <port> ...| listening`（或 `SDSERVERS_EXIT`），`ss -ltnH` 端口在听；`config_sha` 读 `<out>/groot_tp/<arm>/manifest_<arm>.json`。GR00T 加载约 2 min。
+
+1. **起 server**（示例）：
+   - h100：`tether exec h100 -- bash -lc 'cd /data/openpi_sdiag && bash exp/step_diag/ops/stop_servers.sh <旧port>; A=/data/openpi_sdiag/exp/step_diag/config/arms; bash /tmp/sdiag/sd_servers_launch.sh groot sdiag_macro13 /data/openpi_sdiag/exp/step_diag/data/server_macro13 resetfinal:resetfinal_t0.75:<port>:$A/groot_rc/warm_t0.75.yaml'`（模式 `full:full:<port>:-`、`plain:plain_k1:<port>:1`、`warm|warmreset|resetfinal:<arm>:<port>:<yaml>`；warm_t0.5.yaml 对应 2 步臂）。若 `sdlaunch_groot` tmux 仍在，改用 nohup 直起：`export HOME=/home/exouser SD_REPO=/data/openpi_sdiag SD_EXP=sdiag_macro13 SD_OUT=.../server_macro13 SD_HOME=/home/exouser SD_GROOT=/home/exouser/gr00t_n15 SD_GROOT_PY=/home/exouser/gr00t_n15_venv/.venv/bin/python SD_CKPT=/home/exouser/ckpt/n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000; nohup bash exp/step_diag/ops/serve_groot.sh groot_rc <mode> <arm> <port> <yaml|-> > /tmp/sdiag/serve_<port>.out 2>&1 &`。
+   - wls：`bash exp/step_diag/ops/stop_servers.sh <旧port>; bash /tmp/sdiag/sd_servers_wls_groot_launch.sh sdiag_macro13 /data/openpi_sdiag/exp/step_diag/data/server_macro13 <mode:arm:port:arg>...`。
+2. **起 cell**：
+   - timan108（h100 server）：`tether exec timan108 -- bash -lc "cd /scratch/zixuans8/step_diag/openpi && export SD_EXP=sdiag_macro13 SD_OUT_ROOT=/scratch/zixuans8/step_diag/openpi/exp/step_diag/data/rc_macro13 && bash /tmp/sdiag/run_rc_cell.sh.new groot_tp <arm> <main|pnp> 149.165.153.233:<port>[,...] <tasks csv> 50 - <config_sha> v1"`。
+   - timan107（wls server）：同上，加 `SD_RC_ENV=/scratch/zixuans8/step_diag/openpi/exp/step_diag/config/rc_timan107.env`，server 写 `ziyanglin.com:<port>`。1M 段再加 `SD_EXP=sdiag_xseed1m SD_BASE_SEED=1000000 SD_OUT_ROOT=.../rc_x1m`。
+   - 待起 cell 的任务串：rf75 main 后半 `OpenDrawer,OpenStandMixerHead,SlideDishwasherRack,TurnOnSinkFaucet`（arm resetfinal_t0.75，需 exp macro13 的 resetfinal_t0.75 server，可复用 23253/23259 空出后）；full pnp `PickPlaceCounterToCabinet,PickPlaceSinkToCounter,PickPlaceToasterToCounter`（server 23256 空出后）；warm75 pnp 同三任务（23157 空出后）；wr5 main / rf5 main `OpenCabinet,SlideDishwasherRack`（23255 / 23254 空出后）。
+   - 判据：日志出现 `expected=<n> episodes`；`run-plan mismatch` = 同 lane 换了 server 列表，须把该 lane 的 launch/journal/run_plan/per_step/summary 移走再起（会重跑）；INCOMPLETE 同参数重跑即 resume。
+3. **监控**：Monitor 只报终态（`SDCELL_EXIT|INCOMPLETE|DONE arm`，去重），cron `5c94d7c0` 每 15 min PROBE 一行；就绪 Monitor 各起各的。
+4. **拉数**（GR00T）：h100 `bash /tmp/sdiag/sd_h100_pack.sh <name> <dir>`（幂等，`<name>.parts` 已存在则要先删 part 文件）对 `server/groot_tp/{warmreset_t0.75,warmreset_t0.5,resetfinal_t0.75,resetfinal_t0.5}`、`server_x1m/groot_tp/*`、`server_macro13/groot_tp/*` → 本地 `sd_pull_parts.sh` → `tar xzf -C exp/step_diag/data/<root>/groot_tp/`；wls 的 `server*/groot_tp/*` 直接 `cp -r --update=none`；timan107/108：`tar czf` 各 root 的 `groot_tp` 子目录 → pull → 解到对应本地 root（同臂两机文件名不冲突，manifest 内容寻址）。校验：`ops/pull_server_rows.sh` 里那段 python 逐 arrays sha。⚠ 拉前确认 cell 已 SDCELL_EXIT，否则要重拉（今天 warmshoot 一次）。
+5. **分析**：`uv run python -m exp.step_diag.analysis.warm_variants --policy groot --t 0.75 --tasks TurnOnSinkFaucet,PickPlaceCounterToStove --out-json data/analysis/warm_variants_groot_t0.75.json --out-md analysis/warm_variants_groot_t0.75.md`（阶梯；`--t 0.5` 同）；1M 段加 `--arms-root exp/step_diag/data/rc_x1m --server-rows exp/step_diag/data/server_x1m`；宏观 13 任务 `--arms-root exp/step_diag/data/rc,exp/step_diag/data/rc_macro13 --server-rows exp/step_diag/data/server,exp/step_diag/data/server_macro13 --tasks <13 任务>`（Q-B 5 任务复用 rc/）。分析前删掉本地作废 launch 文件（§7）。
+6. **写 §6.6**（GR00T：阶梯表、1M 段、宏观 macro + 逐任务），更新本文件 §1 与记忆；最后 `stop_servers.sh` 全部端口 + `echo quit | nvidia-cuda-mps-control` 两台、GPU 归零。
 
 ## 4. 监控
 
-- cron `5660763b`（每小时 :09/:39）：`bash $CLAUDE_JOB_DIR/tmp/sd/sd_probe.sh` 只贴 PROBE 行。
-- Monitor（会话级，compact 后要重挂）：timan108 `sdphase_Q*.log` 的 `SDPHASE_EXIT|GAVE_UP` + journal accepted 计数；timan107 `sdphase_G*.log` 同；server 就绪看 `sdlaunch_*.log` 的 `SDSERVERS_EXIT`。server 日志判活别 grep websockets 握手 Traceback。
+- Monitor = 条件触发（终态/就绪/错误），cron = 定时 PROBE（`5c94d7c0`，会话级）。compact 后两者都要重挂/重建。
+- 判 server 活别 grep websockets 握手 Traceback；h100 根盘 91%，`/tmp/sdiag/pull` 分块拉完即删。
 
-## 5. 准入要点（分析端会拒什么）
+## 5. 准入要点
 
-- 三方对账：journal accepted terminal ↔ launch manifest ↔ worker `episode_summary` ↔ server finalize/决策行（`client_stamp` launch/arm/experiment/config_sha、`executed_steps==m`、`n_stage3_calls==1`、hit_type、schedule、arrays sha）。
-- 非并发 server 每进程一个 `session_id`；同 uid 两次到访（driver 崩溃/孤儿后 resume，attempt 都从 1 起）靠 finalize 行分 occurrence，用 accepted terminal 的 run_id→launch 选 session，其余记 `stray_sessions` 不门控（本次运行期改的分析逻辑）。
-- 跨臂门只看 checkpoint 身份 + 环境合同 + experiment；host/GPU/MPS/worker 岛只作 notes。
+- 变体臂 kind='warm'：每决策 hit_type=WARM_START、start_t=t、executed_steps=n、n_stage3_calls=1；GR00T schedule `groot_n15_k4_v1`，n = K − snapshot_index(t)（t0.75→1，t0.5→2），π0.5 n = ⌊t·10+½⌋。
+- 跨臂比较门只看 checkpoint_sha256 + env 契约；同臂跨机 config_sha 不同（ckpt 路径）但可并存一目录。
+- 跨 root 合并（`warm_variants.py --arms-root a,b`）要求 task_uid 不重复；不要在两个 root 跑同一 (arm, task)。
 
-## 6. 运行期代码改动（本地工作树，未 commit，四台远端已同步）
+## 6. 本次改动清单（未 commit；commit 需 owner 指示，信息英文，无 AI 署名，画图脚本不入库）
 
-1. `tests/exp/step_diag/test_parity_manual.py`：排除 `stage_timing/server_timing`；π0.5 参照钉 `_stage3_action_expert` 的 num_steps。
-2. `src/openpi/conductor/driver.py`：`except (TimeoutError, socket.timeout)`（LIBERO driver 跑 py3.8）。
-3. `exp/step_diag/ops/run_rc_cell.sh`：tmux 名去掉臂名里的 `.`。
-4. `exp/step_diag/run_diag.py`：INCOMPLETE 退出码 1。
-5. `exp/step_diag/analysis/{aggregate_arms,analyze_shadow}.py` + `tests/exp/step_diag/test_aggregate.py`：occurrence/session 消歧（85 测试过）。
-6. `exp/nfe_baseline/ops/`：**删空闲超时换档 v1**，`ladder_server.sh` = 原 v2（信号切档，切档后消费 kdone 文件），`rc/sig_client.sh` 同时识别 `LANE|RCLANE`（owner 指示）。
-7. 新文件：`exp/step_diag/config/rc_timan107.env`、`exp/rit_pareto/config/task_order_libero_{object,goal}.json`、`exp/step_diag/analysis/parity_*.json`、`shadow_*.md`。
+- `exp/step_diag/pi05.py`：变体 `reset_t / overshoot / reset_final`（`warm_variant_stage3`、`_final_chunk_like`、变体模式下包 `orch.check`）。
+- `exp/step_diag/groot.py`：`groot_warm_variant_stage3`、`install_warm_variant`（升序循环 `denoise_loop(noise=起点, num_steps=n, start_index=0)`）。
+- `exp/step_diag/envs.py`：`WARM_VARIANT_MODES`（warmreset/warmshoot/resetfinal）、`warm_t_of/warm_mode_of`、validate_arm 放开（overshoot 仍 pi05-only）、`VAR500_*`、`RC_XCHECK_BASE_SEED/XSEED_*`、`MACRO13_ARMS(_BY_POLICY)`、`XSEED_ARMS/TASKS_BY_POLICY`。
+- `exp/step_diag/run_diag.py`：变体臂放行（GR00T 无 overshoot）、`sdiag_var500` / `sdiag_xseed1m`（seed 1M）/ `sdiag_macro13` 三个 exp id 的校验与 out-root 强制。
+- `exp/step_diag/serve_diag_pi05.py`、`serve_diag_groot.py`：新模式；`ops/serve_pi05.sh`、`ops/serve_groot.sh`（case + GR00T PYTHONPATH 加 `packages/openpi-client/src`）；`ops/run_rc_cell.sh`（`SD_OUT_ROOT`、tmux 名带 exp 后缀）；`ops/README.md` 两段。
+- `exp/step_diag/analysis/aggregate_arms.py`（`want_t`）、新 `analysis/warm_variants.py`（`--t --min-idx`、多 root 合并、macro 分层 bootstrap、`--policy groot`）。
+- 外部审查（Codex，16:16）三条统计修正已落 `analysis/warm_variants.py`：重复评测按身份取均值后配对（顺序无关）、逐任务跨臂模型/环境身份门（只比有数据的臂）、配对差全同时 Wilson 退化区间（† 标注）；全部 π0.5 表已重跑，仅宏观 13 任务数字微变（warmreset − full +0.161 [+0.116, +0.205]），报告 §6.5.1 已写。checkpoint 两机全量 sha 一致。
+- 测试：`tests/exp/step_diag/test_warm_variants.py`、`test_groot_warm_variants.py`（套件 106 passed / 1 skipped）。
+- 报告与产物：`analysis/step_vs_warmstart.md` §6.1–6.5、`analysis/warm_variants_*.md`、`analysis/pi05_macro13_success_rates.{md,csv}`、`analysis/warm_variants_note_for_professor.md`、`analysis/figures/macro13_four_arms.png`；`data/` 下全部 gitignored。
+- 别的会话/owner 的文件不动：`logs/README.md`、`logs/cache_trace_mode_plan.log.md`、根目录截图。
 
 ## 7. 坑与裁定（必读）
 
-- ⛔ owner 21:15：**任何机器不许干等**——某对机器空出来立刻把剩余队列整块（同 policy）搬过去。
-- owner 14:22：Q-B 全程 MPS（两 server 机都已开；结束后 `echo quit | nvidia-cuda-mps-control`）；终报写明 runtime。
-- ⛔ timan 上 `pgrep -fa` 里 `tmux new -s X …` 那个进程是 tmux **server**，杀它 = 全部 driver 死、worker 变孤儿霸占单连接端口（1013）。孤儿按 driver 端口无人监听判定。resume-noop 的 cell 也会留孤儿。
-- 1013 连败烧光重试 → cell INCOMPLETE；同参数重跑 = resume 只派发缺失身份（已验）。
-- 换 server 数目后同 run_id 的 `run_plan_*.json` 会 mismatch 拒启；零集完成时删该目录旧 plan/launch 再起。
-- h100 RAM：带库 π0.5 进程 29 GB、GR00T 库进程 ~22 GB；9 个 shadow 进程曾把 avail 压到 11 GB。GPU：π0.5 8 GB/进程。
-- 4090：GR00T RC ≈5.8 GB/进程，最多 7 个；π0.5 LIBERO ≈7 GB。
-- smoke 与正式共用 driver 产物目录 → `sd_move_smoke.py` 已挪走；server 侧 smoke 在 `server_smoke/`。
-- 阶梯（Q-C）只用信号切档；`analyze_shadow` CLI 钉正式参数，smoke 用 `sd_smoke_shadow_check.py`。
-- 全仓 `uv run pytest` 需 `--continue-on-collection-errors`；既有失败清单见 plan §9.5。
+- owner 裁定：本线追加实验 L1 无审查；不跑 row 4；英文对外；Monitor/cron 职责不重合；GR00T 不跑 500 集与 warmshoot；宏观轮四臂都跑（warmshoot 排最后）。
+- ⚠ **h100 事故 09-22 07:49**：exouser 全部进程（tmux server、MPS、8 server）同时消失，原因未定（紧随 `stop_servers.sh 23244 23245` + 双执行的 launch 之后）。恢复脚本 `/tmp/sdiag/sd_h100_relaunch_all.sh`（清 lock、重开 MPS、原端口原配置重起，sha 确定性相同）；受影响 cell 同参数 resume；卡死的 driver 按 tmux 会话名 kill + 按 driver 端口定点回收孤儿 worker（⛔ 不 kill tmux server 进程）。h100 π0.5 8 进程时 RAM avail 仅 3 GB → 保持 ≤7。
+- ⚠ GR00T venv 的 openpi-client editable 指向已归档旧树 → `serve_groot.sh` PYTHONPATH 已加 `$REPO/packages/openpi-client/src`。
+- ⚠ 「部分拉取」会把后来作废的 launch 文件带回本地 → 分析前删掉（`rc_macro13/pi05/full/launch_4355c2da3e.json` 已删）；server 端作废 run 的行成 stray（arrays 被同名新 run 覆盖 → sha 不符，属预期，不门控）。
+- ⚠ 拉 server 行必须在 cell 终态之后（warmshoot 500 集一次拉早了 7 集，已重拉）。
+- 满载速率比空载慢 2–3×（h100 8 进程 GPU 50%；wls warm server 检索吃 CPU ~10 核/进程）；full 单 server 每集 ~3 min → 多任务 lane 拆成多 cell 或多 server。
+- 单 server 单连接：一个 cell 的 server 列表起跑后固定；调度只能靠拆任务子集成多 cell。
+- 给教授的核心改口：reset 没抹掉缓存（预测错）；t 是噪声水平（对）；reset 式 = 「缓存初始化的减步推理」，起点用最终动作即可。
