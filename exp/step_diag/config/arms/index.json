@@ -12,6 +12,42 @@
     "schedule_id": "groot_n15_k8_v1",
     "sha256": "deafc62eb15405e03e6365c8aadef55733ee09d0139099866eb81785bd022efd",
     "start_t": null
+   },
+   "warm_t0.5": {
+    "file": "groot_libero_10/warm_t0.5.yaml",
+    "judge": {
+     "start_t": 0.5,
+     "type": "always_warm_start"
+    },
+    "library": "/data/libero_cache/libraries_w13/libero_10/libero_10_w13_S3.pkl",
+    "remaining_steps": 4,
+    "schedule_id": "groot_n15_k8_v1",
+    "sha256": "69bf608ac4dcd7ff6f03d49a247d112b1f3aab4ab783d1cb5d38a7c52c83c08f",
+    "start_t": 0.5
+   },
+   "warm_t0.75": {
+    "file": "groot_libero_10/warm_t0.75.yaml",
+    "judge": {
+     "start_t": 0.75,
+     "type": "always_warm_start"
+    },
+    "library": "/data/libero_cache/libraries_w13/libero_10/libero_10_w13_S3.pkl",
+    "remaining_steps": 2,
+    "schedule_id": "groot_n15_k8_v1",
+    "sha256": "acd48c3f6d7c544199acee06903fdd49af5bef748d55e04e9d3711d11afaebf3",
+    "start_t": 0.75
+   },
+   "warm_t0.875": {
+    "file": "groot_libero_10/warm_t0.875.yaml",
+    "judge": {
+     "start_t": 0.875,
+     "type": "always_warm_start"
+    },
+    "library": "/data/libero_cache/libraries_w13/libero_10/libero_10_w13_S3.pkl",
+    "remaining_steps": 1,
+    "schedule_id": "groot_n15_k8_v1",
+    "sha256": "3fa8c35a6aee113955c4e39b86050540e5c34347735fe7afc4f891dd80438afb",
+    "start_t": 0.875
    }
   },
   "env_id": "groot_libero_10",
@@ -22,6 +58,128 @@
    4,
    6
   ],
+  "libero_self": {
+   "arms": {
+    "full": {
+     "cell": null,
+     "exec_steps": 8
+    },
+    "midfinal50_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "midfinal50_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "midfinal_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "midfinal_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "midreset50_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "midreset50_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "midreset_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "midreset_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "plain_k1": {
+     "cell": null,
+     "exec_steps": 1
+    },
+    "plain_k2": {
+     "cell": null,
+     "exec_steps": 2
+    },
+    "resetfinal_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "resetfinal_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "selfmidfinal50_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "selfmidfinal50_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "selfmidfinal_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "selfmidfinal_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "selfmidreset50_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "selfmidreset50_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "selfmidreset_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "selfmidreset_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "selfresetfinal_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "selfresetfinal_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "selfwarmreset_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "selfwarmreset_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "warm_t0.75": {
+     "cell": "warm_t0.75",
+     "exec_steps": 2
+    },
+    "warm_t0.875": {
+     "cell": "warm_t0.875",
+     "exec_steps": 1
+    },
+    "warmreset_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "warmreset_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    }
+   },
+   "episodes": 50,
+   "experiment_id": "sdiag_libero_self"
+  },
   "policy": "groot",
   "server_host": "weilandserver",
   "source_sha256": "deafc62eb15405e03e6365c8aadef55733ee09d0139099866eb81785bd022efd",
@@ -46,6 +204,42 @@
     "schedule_id": "groot_n15_k8_v1",
     "sha256": "2f834f9ebc0450e3e6414af207bc6b2930af568ba6e1abbe3130c7f4cbee7ffa",
     "start_t": null
+   },
+   "warm_t0.5": {
+    "file": "groot_libero_spatial/warm_t0.5.yaml",
+    "judge": {
+     "start_t": 0.5,
+     "type": "always_warm_start"
+    },
+    "library": "/data/libero_cache/libraries_w13/libero_spatial/libero_spatial_w13_S3.pkl",
+    "remaining_steps": 4,
+    "schedule_id": "groot_n15_k8_v1",
+    "sha256": "9caac1782a5a9c4ce767361704469c146f02fa63a00d6a4e8c45189c20930995",
+    "start_t": 0.5
+   },
+   "warm_t0.75": {
+    "file": "groot_libero_spatial/warm_t0.75.yaml",
+    "judge": {
+     "start_t": 0.75,
+     "type": "always_warm_start"
+    },
+    "library": "/data/libero_cache/libraries_w13/libero_spatial/libero_spatial_w13_S3.pkl",
+    "remaining_steps": 2,
+    "schedule_id": "groot_n15_k8_v1",
+    "sha256": "41e75d1e1e05a18c8ffccc27ce51debe2af252a8190d2c7ba74bcfa30fd467e0",
+    "start_t": 0.75
+   },
+   "warm_t0.875": {
+    "file": "groot_libero_spatial/warm_t0.875.yaml",
+    "judge": {
+     "start_t": 0.875,
+     "type": "always_warm_start"
+    },
+    "library": "/data/libero_cache/libraries_w13/libero_spatial/libero_spatial_w13_S3.pkl",
+    "remaining_steps": 1,
+    "schedule_id": "groot_n15_k8_v1",
+    "sha256": "c45909c76b745ead12e5f7e2eacb684d8cd677eb351a86b99d96dc918c280492",
+    "start_t": 0.875
    }
   },
   "env_id": "groot_libero_spatial",
@@ -56,6 +250,128 @@
    4,
    6
   ],
+  "libero_self": {
+   "arms": {
+    "full": {
+     "cell": null,
+     "exec_steps": 8
+    },
+    "midfinal50_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "midfinal50_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "midfinal_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "midfinal_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "midreset50_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "midreset50_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "midreset_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "midreset_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "plain_k1": {
+     "cell": null,
+     "exec_steps": 1
+    },
+    "plain_k2": {
+     "cell": null,
+     "exec_steps": 2
+    },
+    "resetfinal_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "resetfinal_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "selfmidfinal50_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "selfmidfinal50_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "selfmidfinal_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "selfmidfinal_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "selfmidreset50_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "selfmidreset50_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "selfmidreset_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "selfmidreset_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "selfresetfinal_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "selfresetfinal_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "selfwarmreset_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "selfwarmreset_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    },
+    "warm_t0.75": {
+     "cell": "warm_t0.75",
+     "exec_steps": 2
+    },
+    "warm_t0.875": {
+     "cell": "warm_t0.875",
+     "exec_steps": 1
+    },
+    "warmreset_t0.5_n2": {
+     "cell": "warm_t0.5",
+     "exec_steps": 2
+    },
+    "warmreset_t0.75_n1": {
+     "cell": "warm_t0.75",
+     "exec_steps": 1
+    }
+   },
+   "episodes": 50,
+   "experiment_id": "sdiag_libero_self"
+  },
   "policy": "groot",
   "server_host": "weilandserver",
   "source_sha256": "2f834f9ebc0450e3e6414af207bc6b2930af568ba6e1abbe3130c7f4cbee7ffa",
@@ -165,6 +481,42 @@
     "schedule_id": "pi05_v1",
     "sha256": "44d14a3f4bdc9a58b8bd24579953333f4c3c3aa9ba5045ef0aae602d66634994",
     "start_t": null
+   },
+   "warm_t0.1": {
+    "file": "pi05_libero_10/warm_t0.1.yaml",
+    "judge": {
+     "start_t": 0.1,
+     "type": "always_warm_start"
+    },
+    "library": "exp/common/data/cache_artifacts/libero_10/cp1_spatial_pool_16.pkl",
+    "remaining_steps": 1,
+    "schedule_id": "pi05_v1",
+    "sha256": "98caa78b6246d48b89ba3eb1eddb12382d9cea2b2a71beb3db1318c03757aa74",
+    "start_t": 0.1
+   },
+   "warm_t0.2": {
+    "file": "pi05_libero_10/warm_t0.2.yaml",
+    "judge": {
+     "start_t": 0.2,
+     "type": "always_warm_start"
+    },
+    "library": "exp/common/data/cache_artifacts/libero_10/cp1_spatial_pool_16.pkl",
+    "remaining_steps": 2,
+    "schedule_id": "pi05_v1",
+    "sha256": "32093959572e412c503ed361c81ee18b000c7bb59a4df8fe306b3885459259cd",
+    "start_t": 0.2
+   },
+   "warm_t0.3": {
+    "file": "pi05_libero_10/warm_t0.3.yaml",
+    "judge": {
+     "start_t": 0.3,
+     "type": "always_warm_start"
+    },
+    "library": "exp/common/data/cache_artifacts/libero_10/cp1_spatial_pool_16.pkl",
+    "remaining_steps": 3,
+    "schedule_id": "pi05_v1",
+    "sha256": "1806999a3447ee920586d40969bc79ed72c6b8a2cd479e05582287ff8566e23c",
+    "start_t": 0.3
    }
   },
   "env_id": "pi05_libero_10",
@@ -175,6 +527,48 @@
    3,
    5
   ],
+  "libero_self": {
+   "arms": {
+    "full": {
+     "cell": null,
+     "exec_steps": 10
+    },
+    "midfinal_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    },
+    "plain_k2": {
+     "cell": null,
+     "exec_steps": 2
+    },
+    "resetfinal_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    },
+    "selfmidfinal_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    },
+    "selfresetfinal_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    },
+    "selfwarmreset_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    },
+    "warm_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    },
+    "warmreset_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    }
+   },
+   "episodes": 50,
+   "experiment_id": "sdiag_libero_self"
+  },
   "policy": "pi05",
   "server_host": "weilandserver",
   "source_sha256": "bb6ae8ba90d6403f841b840d9a80f482df195dae5f872dcd5662f941fccbd269",
@@ -200,6 +594,42 @@
     "schedule_id": "pi05_v1",
     "sha256": "76c93d13f459d7dd7de0170dbe4235d242d2981512e1a80da760ca22aef806d1",
     "start_t": null
+   },
+   "warm_t0.1": {
+    "file": "pi05_libero_spatial/warm_t0.1.yaml",
+    "judge": {
+     "start_t": 0.1,
+     "type": "always_warm_start"
+    },
+    "library": "exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl",
+    "remaining_steps": 1,
+    "schedule_id": "pi05_v1",
+    "sha256": "e7a45debf43ced925cbb947d377c6f5922425a0a6e63586648eeb0a206f79735",
+    "start_t": 0.1
+   },
+   "warm_t0.2": {
+    "file": "pi05_libero_spatial/warm_t0.2.yaml",
+    "judge": {
+     "start_t": 0.2,
+     "type": "always_warm_start"
+    },
+    "library": "exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl",
+    "remaining_steps": 2,
+    "schedule_id": "pi05_v1",
+    "sha256": "81a06183b37559ef347ba56e0aa2c3bc99026eb565fd3ac70e9ec1efd64f4436",
+    "start_t": 0.2
+   },
+   "warm_t0.3": {
+    "file": "pi05_libero_spatial/warm_t0.3.yaml",
+    "judge": {
+     "start_t": 0.3,
+     "type": "always_warm_start"
+    },
+    "library": "exp/common/data/cache_artifacts/libero_spatial/cp1_spatial_pool_16.pkl",
+    "remaining_steps": 3,
+    "schedule_id": "pi05_v1",
+    "sha256": "9fb51b94c0cd6b7df56caaa14b21ba4cf922fd487f2c3391b79166cc28ffde81",
+    "start_t": 0.3
    }
   },
   "env_id": "pi05_libero_spatial",
@@ -210,6 +640,48 @@
    3,
    5
   ],
+  "libero_self": {
+   "arms": {
+    "full": {
+     "cell": null,
+     "exec_steps": 10
+    },
+    "midfinal_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    },
+    "plain_k2": {
+     "cell": null,
+     "exec_steps": 2
+    },
+    "resetfinal_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    },
+    "selfmidfinal_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    },
+    "selfresetfinal_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    },
+    "selfwarmreset_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    },
+    "warm_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    },
+    "warmreset_t0.2": {
+     "cell": "warm_t0.2",
+     "exec_steps": 2
+    }
+   },
+   "episodes": 50,
+   "experiment_id": "sdiag_libero_self"
+  },
   "policy": "pi05",
   "server_host": "weilandserver",
   "source_sha256": "d5e1a8ecd969d46ce451798b2d1960df848f280183420b3ebfa205e19feff101",

@@ -198,6 +198,8 @@ def main() -> None:
     ap.add_argument("--pinned-objects", default="", help="pnp lane: the pinned-object manifest")
     ap.add_argument("--out-root", default=str(DEFAULT_OUT_ROOT))
     ap.add_argument("--launch-id", default="")
+    ap.add_argument("--run-prefix", default="sdiag",
+                    help="file-name prefix of journal/run_plan/summary (one per concurrent cell of the same arm and lane)")
     ap.add_argument("--config-sha", required=True, help="config_sha of the served arm (server manifest_<arm>.json)")
     ap.add_argument("--role", choices=("driver", "agent", "all"), default="all")
     ap.add_argument("--workers-per-server", type=int, default=1,
@@ -254,6 +256,15 @@ def main() -> None:
                     ap.error(f"{name}/{args.arm_id}: {_envs.MACRO13_EXPERIMENT_ID} runs {_envs.MACRO13_EPISODES} episodes per task")
             if pathlib.Path(args.out_root).resolve() == DEFAULT_OUT_ROOT.resolve():
                 ap.error(f"{_envs.MACRO13_EXPERIMENT_ID} needs its own --out-root (not the Q-B root)")
+        elif args.experiment_id == _envs.SELF13_EXPERIMENT_ID:
+            # self-start ablation (owner 2026-09-24): the warm-reset configurations with a self start, 13 tasks x 50
+            if args.arm_id not in _envs.SELF13_ARMS_BY_POLICY[policy]:
+                ap.error(f"{args.arm_id}: not an arm of {_envs.SELF13_EXPERIMENT_ID}")
+            for name, n in tasks:
+                if n != _envs.SELF13_EPISODES:
+                    ap.error(f"{name}/{args.arm_id}: {_envs.SELF13_EXPERIMENT_ID} runs {_envs.SELF13_EPISODES} episodes per task")
+            if pathlib.Path(args.out_root).resolve() == DEFAULT_OUT_ROOT.resolve():
+                ap.error(f"{_envs.SELF13_EXPERIMENT_ID} needs its own --out-root (not the Q-B root)")
         elif args.experiment_id == _envs.VAR500_EXPERIMENT_ID:
             # second round of the continuation-variant comparison: 500 episodes/task, pi0.5 only
             if policy != "pi05" or args.arm_id not in _envs.VAR500_ARMS:
@@ -293,6 +304,7 @@ def main() -> None:
     launch_id = args.launch_id or uuid.uuid4().hex[:10]
     strategy = StepDiagStrategy(
         arm_id=args.arm_id, experiment_id=args.experiment_id, lane=args.lane, launch_id=launch_id,
+        run_prefix=args.run_prefix,
         config_sha=args.config_sha, teacher=args.teacher, layout=args.layout, style=args.style,
         slots=slots,
         base_seed=args.base_seed, replan_steps=args.replan_steps, tasks=tasks, pin_id=pin_id,

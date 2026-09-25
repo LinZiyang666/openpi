@@ -7,9 +7,18 @@ this process (the same technique as ``serve_groot_n15_ksweep``, which rebinds th
 * ``--benchmark rc``    ``serve_groot_n15._build_served_policy`` -> ``GrootDiagPolicy`` (shadow /
                         plain / full; plain pins the head with the k-sweep constructor patch) or
                         ``GrootEvidencePolicy(GrootCacheInterceptor(...))`` (warm);
-* ``--benchmark libero`` ``serve_groot_libero._build_shadow_factory`` -> a per-connection
-                        ``GrootDiagPolicy`` behind the LIBERO adapter and infer lock (shadow only;
-                        the LIBERO ladders keep the production ``--denoising-steps`` server).
+* ``--benchmark libero`` the production ``--concurrent`` server with a per-connection factory: every
+                        connection gets its own served object (and so its own ``DiagSession``) behind
+                        the LIBERO adapter and the process infer lock, composed as on RoboCasa --
+                        ``GrootDiagPolicy`` (shadow / plain / full) or ``GrootEvidencePolicy(
+                        GrootCacheInterceptor(...))`` with ``install_warm_variant`` (warm / variants /
+                        self). Cache modes ride the production ``--rit-shadow-out`` switch to reach
+                        ``_build_shadow_factory`` after the production server loaded and validated the
+                        yaml and built the shared storage; plain / full (no yaml) rebind
+                        ``_build_concurrent_factory``. The head's K is the production
+                        ``--denoising-steps`` (the arm's ``--exec-steps`` for plain / full, else 8), and a
+                        GR00T LIBERO warm-reset arm's continuation runs the N its id names
+                        (``<mode>_t<start_t>_n<N>``, ``envs.warm_steps_of``).
 
 The runner, orchestrator and cache-config validation are built exactly as the production
 builder builds them (config loaded, validated against the live head, artifact identity checked).
@@ -32,6 +41,9 @@ from exp.step_diag import envs as _envs
 from exp.step_diag.recorder import DiagRecorder, DiagSpec
 
 GROOT_VARIANT_MODES = {"warmreset": "reset_t", "resetfinal": "reset_final", "midfinal": "mid_final", "midfinal50": "mid_final50", "midreset": "mid_snap", "midreset50": "mid_snap50"}  # no overshoot for GR00T (owner)
+GROOT_VARIANT_MODES.update(_envs.SELF_VARIANT_MODES)
+GROOT_VARIANT_MODES.update(_envs.GROOT_SHOOT_MODES)  # shoot ablation arms (no reset, warm-reset step size)
+GROOT_VARIANT_MODES.update(_envs.SELF_SHOOT_MODES)  # self-start ablation arms (start from a direct inference)
 MODES = ("shadow", "plain", "full", "warm", *GROOT_VARIANT_MODES)
 
 
@@ -59,8 +71,6 @@ def parse(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
         ap.error("--benchmark and --env-id disagree")
     if args.n_primary != 4 or args.n_dense_extra != 28:
         ap.error("the frozen sampling contract is 4 primary + 28 extra dense samples")
-    if args.benchmark == "libero" and args.mode != "shadow":
-        ap.error("LIBERO GR00T serves only the shadow mode here (ladders use the production server)")
     if args.mode in ("shadow", "warm", *GROOT_VARIANT_MODES) and not args.cache_config:
         ap.error(f"--mode {args.mode} requires --cache-config")
     if args.mode == "full":
@@ -71,7 +81,32 @@ def parse(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
         ap.error("--cache-config is refused for plain / full arms")
     if args.cache_config:
         rest = [*rest, "--cache-config", args.cache_config]
+    if args.benchmark == "libero":
+        # One served object per connection needs the production factory path (--concurrent); the head's K is
+        # the production --denoising-steps: the pinned count for plain / full, the frozen K otherwise.
+        want_k = int(args.exec_steps) if args.mode in ("plain", "full") else env.k_full
+        given = _flag_value(rest, "--denoising-steps")
+        if given is not None and int(given) != want_k:
+            ap.error(f"--denoising-steps {given} contradicts the arm (K={want_k})")
+        if given is None:
+            rest = [*rest, "--denoising-steps", str(want_k)]
+        if "--concurrent" not in rest:
+            rest = [*rest, "--concurrent"]
+        if args.mode not in ("plain", "full") and _flag_value(rest, "--rit-shadow-out") is None:
+            # cache modes reach the per-connection factory through the production --rit-shadow-out switch
+            rest = [*rest, "--rit-shadow-out", str(pathlib.Path(args.diag_out) / "unused_rit_shadow.jsonl"),
+                    "--rit-warm-ts", ",".join(str(t) for t in env.warm_ts)]
     return args, rest
+
+
+def _flag_value(argv: list[str], flag: str) -> str | None:
+    """Value of ``flag`` in ``argv`` (``--flag v`` or ``--flag=v``), or None."""
+    for i, arg in enumerate(argv):
+        if arg == flag and i + 1 < len(argv):
+            return argv[i + 1]
+        if arg.startswith(flag + "="):
+            return arg.split("=", 1)[1]
+    return None
 
 
 def build_recorder(args: argparse.Namespace, checkpoint: str = "") -> DiagRecorder:
@@ -182,7 +217,8 @@ def install_rc(args: argparse.Namespace, recorder: DiagRecorder) -> None:
             inner = GrootCacheInterceptor(policy, runner, orchestrator=orchestrator, timer=runner._timer)  # noqa: SLF001
             if args.mode in GROOT_VARIANT_MODES:
                 # before the evidence capture wraps the runner (see install_warm_variant)
-                install_warm_variant(runner, orchestrator, GROOT_VARIANT_MODES[args.mode], schedule)
+                install_warm_variant(runner, orchestrator, GROOT_VARIANT_MODES[args.mode], schedule,
+                                     self_start=_envs.is_self_mode(args.mode))
             return GrootEvidencePolicy(inner, runner, recorder, schedule_id=schedule.schedule_id), f"step_diag {args.mode} -> {args.cache_config}"
         if args.mode == "shadow":
             served = GrootDiagPolicy(policy, runner, orchestrator=orchestrator, diag=recorder, schedule=schedule)
@@ -191,45 +227,79 @@ def install_rc(args: argparse.Namespace, recorder: DiagRecorder) -> None:
     _srv._build_served_policy = _build  # noqa: SLF001 - process-local rebinding of the builder
 
 
+def _libero_connection_parts(srv_args, config, shared_storage, model):
+    """Per-connection ``(orchestrator, runner, timer)`` exactly as the production LIBERO cache factory builds
+    them (``serve_groot_libero._build_concurrent_factory``); no orchestrator without a yaml (plain / full)."""
+    from openpi.cache.groot.staged import GrootStagedRunner
+
+    if config is None:
+        return None, GrootStagedRunner(model), None
+    from openpi.cache.config import build_per_connection_components
+    from openpi.cache.orchestrator import CacheOrchestrator
+
+    components = build_per_connection_components(config, shared_storage, quiet=True)
+    orchestrator = CacheOrchestrator(
+        storage=components["storage"], key_builder=components["key_builder"], gates=components["gates"],
+        judges=components["judges"], search_strategies=components["search_strategies"],
+        timer=components["timer"], write_policy=components["write_policy"],
+        offline_writers=components["offline_writers"], library_stats=components["library_stats"],
+    )
+    runner = GrootStagedRunner(model, timer=components["timer"], compile_vision=getattr(srv_args, "compile_stage1", False))
+    return orchestrator, runner, components["timer"]
+
+
 def install_libero(args: argparse.Namespace, recorder: DiagRecorder) -> None:
-    from openpi.cache.types import groot_n15_schedule
+    import threading
 
     from exp.libero_groot import serve_groot_libero as _srv
-    from exp.step_diag.groot import GrootDiagPolicy
+    from exp.step_diag import groot as _groot
 
     env = _envs.resolve_env(args.env_id)
+    variant = GROOT_VARIANT_MODES.get(args.mode)
+    num_steps = _envs.warm_steps_of(args.arm_id) if variant is not None else None
+    live_k = int(args.exec_steps) if args.mode in ("plain", "full") else env.k_full
 
     def _factory(srv_args, config, shared_storage, lock):
-        from openpi.cache.config import build_per_connection_components
-        from openpi.cache.groot.staged import GrootStagedRunner
-        from openpi.cache.orchestrator import CacheOrchestrator
-
         from exp.libero_groot.policy_adapter import GrootLiberoPolicyAdapter
 
-        def shadow_factory(shared_base_policy, bundle_id: str = "default"):
+        def connection_factory(shared_base_policy, bundle_id: str = "default"):
             _srv._require_default_bundle(bundle_id)  # noqa: SLF001
-            head_config = shared_base_policy.model.action_head.config
-            if (int(head_config.action_horizon), int(head_config.action_dim)) != (env.action_horizon, env.action_dim):
+            head = shared_base_policy.model.action_head
+            if (int(head.config.action_horizon), int(head.config.action_dim)) != (env.action_horizon, env.action_dim):
                 raise RuntimeError("LIBERO GR00T action shape differs from the frozen environment")
-            components = build_per_connection_components(config, shared_storage, quiet=True)
-            orchestrator = CacheOrchestrator(
-                storage=components["storage"], key_builder=components["key_builder"], gates=components["gates"],
-                judges=components["judges"], search_strategies=components["search_strategies"],
-                timer=components["timer"], write_policy=components["write_policy"],
-                offline_writers=components["offline_writers"], library_stats=components["library_stats"],
-            )
-            runner = GrootStagedRunner(shared_base_policy.model, timer=components["timer"],
-                                       compile_vision=getattr(srv_args, "compile_stage1", False))
-            if int(shared_base_policy.model.action_head.num_inference_timesteps) != env.k_full:
-                raise RuntimeError("LIBERO live step count differs from the frozen environment")
-            schedule = groot_n15_schedule(int(runner.live_schedule().num_steps))
-            served = GrootDiagPolicy(shared_base_policy, runner, orchestrator=orchestrator, diag=recorder,
-                                     schedule=schedule)
+            if int(head.num_inference_timesteps) != live_k:
+                raise RuntimeError(f"LIBERO live step count {head.num_inference_timesteps} differs from the arm's {live_k}")
+            orchestrator, runner, timer = _libero_connection_parts(srv_args, config, shared_storage,
+                                                                   shared_base_policy.model)
+            if args.mode in ("plain", "full"):
+                # A one-step plain loop has no snapshot schedule (see install_rc): none is constructed here.
+                served = _groot.GrootDiagPolicy(shared_base_policy, runner, orchestrator=None, diag=recorder,
+                                                schedule=None, shadow=False)
+            else:
+                from openpi.cache.types import groot_n15_schedule
+
+                schedule = groot_n15_schedule(int(runner.live_schedule().num_steps))
+                if args.mode == "shadow":
+                    served = _groot.GrootDiagPolicy(shared_base_policy, runner, orchestrator=orchestrator,
+                                                    diag=recorder, schedule=schedule)
+                else:
+                    from openpi.cache.groot.interceptor import GrootCacheInterceptor
+
+                    inner = GrootCacheInterceptor(shared_base_policy, runner, orchestrator=orchestrator, timer=timer)
+                    if variant is not None:
+                        # before the evidence capture wraps the runner (see install_warm_variant)
+                        _groot.install_warm_variant(runner, orchestrator, variant, schedule,
+                                                    self_start=_envs.is_self_mode(args.mode),
+                                                    num_steps=num_steps)
+                    served = _groot.GrootEvidencePolicy(inner, runner, recorder, schedule_id=schedule.schedule_id)
             return _srv._InferLockedPolicy(GrootLiberoPolicyAdapter(served), lock)  # noqa: SLF001
 
-        return shadow_factory, f"step_diag shadow (k_set={env.k_set}, warm_ts={env.warm_ts}) conn={uuid.uuid4().hex[:6]}"
+        return connection_factory, (f"step_diag {args.mode} arm={args.arm_id} k={live_k} n={num_steps} "
+                                    f"(k_set={env.k_set}, warm_ts={env.warm_ts}) conn={uuid.uuid4().hex[:6]}")
 
-    _srv._build_shadow_factory = _factory  # noqa: SLF001
+    _srv._build_shadow_factory = _factory  # noqa: SLF001 - cache modes, after the production yaml / storage checks
+    if args.mode in ("plain", "full"):
+        _srv._build_concurrent_factory = lambda policy, srv_args: _factory(srv_args, None, None, threading.Lock())  # noqa: SLF001
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -247,12 +317,9 @@ def main(argv: list[str] | None = None) -> None:
         install_rc(args, recorder)
         from exp.robocasa365 import serve_groot_n15 as srv
     else:
+        # parse() added --concurrent / --denoising-steps and, for the cache modes, --rit-shadow-out
         install_libero(args, recorder)
         from exp.libero_groot import serve_groot_libero as srv
-        # the LIBERO shadow rides the production ``--rit-shadow-out`` switch to reach the factory
-        if "--rit-shadow-out" not in rest:
-            rest = [*rest, "--rit-shadow-out", str(pathlib.Path(args.diag_out) / "unused_rit_shadow.jsonl"),
-                    "--rit-warm-ts", ",".join(str(t) for t in _envs.resolve_env(args.env_id).warm_ts)]
     sys.argv = [sys.argv[0], *rest]
     try:
         srv.main()

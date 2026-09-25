@@ -35,7 +35,7 @@ from openpi.cache.groot.staged import GrootStage3Output
 from openpi.cache.groot.interceptor import _is_batched, _unsqueeze_values, _squeeze_values
 from openpi.cache.types import CheckpointID
 
-from exp.step_diag.recorder import DiagRecorder, EpisodeIdentity
+from exp.step_diag.recorder import DiagRecorder, EpisodeIdentity, make_noise
 
 logger = logging.getLogger("exp.step_diag.groot")
 
@@ -47,8 +47,40 @@ def _storage_chunk(chunk: torch.Tensor) -> torch.Tensor:
     return out
 
 
-GROOT_WARM_VARIANTS = ("reset_t", "reset_final", "mid_final", "mid_final50", "mid_snap", "mid_snap50")
+GROOT_SHOOT_VARIANTS = ("overshoot", "mid_shoot", "mid_shoot50")
+GROOT_WARM_VARIANTS = ("reset_t", "reset_final", "mid_final", "mid_final50", "mid_snap", "mid_snap50",
+                       *GROOT_SHOOT_VARIANTS)
 GROOT_FINAL_START_VARIANTS = ("reset_final", "mid_final", "mid_final50")
+
+# Self-start ablation: the evidence wrapper publishes the decision's private-noise seed here before the
+# served object runs, and the variant publishes what it did (seed, direct-inference NFE) for the row.
+_SELF = threading.local()
+
+
+def groot_self_start(runner: Any, stage2: Any, like: torch.Tensor, start_t: float, *, schedule: Any, variant: str,
+                     seed: int, step_fn: Any = None) -> torch.Tensor:
+    """The start a cache arm would have fed, produced by a direct full inference on this decision.
+
+    Runs upstream's K-step loop (``staged.denoise_loop``, the transcription ``run_stage3(noise=)`` uses) from
+    private float32 noise (``make_noise(seed)``; the loop casts it to the backbone-feature dtype, and the global RNG
+    is not touched) on the same stage-2 handle and returns its snapshot at native ``start_t`` -- the input of loop step
+    ``schedule.snapshot_index(start_t)``, the cache's snapshot convention -- or, for the final-start variants,
+    its final action. Nothing here is executed or counted as an executed stage-3 call.
+    """
+    head = runner._model.action_head  # noqa: SLF001 - same seam as groot_warm_variant_stage3
+    noise = make_noise(int(seed), tuple(like.shape[-2:]))[None, ...].to(device=like.device)
+    snap_index = int(schedule.snapshot_index(float(start_t)))
+    got = {}
+
+    def on_step(i, x_in, x_out):
+        if int(i) == snap_index:
+            got["snap"] = x_in.detach().clone()
+
+    extra = {} if step_fn is None else {"step_fn": step_fn}
+    final = _staged.denoise_loop(head, runner._head_inputs(stage2), stage2.action_inputs, noise=noise,  # noqa: SLF001
+                                 num_steps=int(schedule.num_steps), start_index=0, on_step=on_step, **extra)
+    x = final if variant in GROOT_FINAL_START_VARIANTS else got["snap"]
+    return x.to(device=like.device, dtype=like.dtype).reshape(like.shape)
 
 
 def mid_denoise_loop(action_head: Any, backbone_output: Any, action_input: Any, *, start: torch.Tensor,
@@ -75,14 +107,38 @@ def mid_denoise_loop(action_head: Any, backbone_output: Any, action_input: Any, 
     return actions
 
 
+def shoot_denoise_loop(action_head: Any, backbone_output: Any, action_input: Any, *, start: torch.Tensor,
+                       t0: float, dt: float, num_steps: int, step_fn: Any = None) -> torch.Tensor:
+    """Upstream's ascending loop on the grid ``t_i = t0 + i * dt`` (GR00T time), the same preprocessing, bucket
+    discretisation and ``step_fn`` as ``mid_denoise_loop``, but with a free step size: the shoot variants keep the
+    snapshot at its own ``t0`` and take the warm-reset step, so ``t0 + n * dt`` lands past the clean end (1)."""
+    if not 0.0 <= t0 < 1.0 or dt <= 0.0 or num_steps < 1:
+        raise ValueError(f"t0={t0} / dt={dt} / num_steps={num_steps} out of range")
+    step_fn = _staged.denoise_step if step_fn is None else step_fn
+    processed = action_head.process_backbone_output(backbone_output)
+    vl = processed.backbone_features
+    embodiment_id = action_input["embodiment_id"]
+    state_features = action_head.state_encoder(action_input["state"], embodiment_id)
+    batch_size = vl.shape[0]
+    actions = start.to(device=vl.device, dtype=vl.dtype)
+    for i in range(num_steps):
+        t_cont = float(t0) + i * float(dt)
+        timesteps_tensor = torch.full(size=(batch_size,), fill_value=int(t_cont * action_head.num_timestep_buckets),
+                                      device=vl.device)
+        actions = step_fn(action_head, vl, state_features, embodiment_id, actions, timesteps_tensor, float(dt)).clone()
+    return actions
+
+
 def groot_warm_variant_stage3(runner: Any, stage2: Any, start_x: torch.Tensor, start_t: float, *, schedule: Any,
-                              variant: str, step_fn: Any = None) -> GrootStage3Output:
+                              variant: str, step_fn: Any = None, num_steps: int | None = None) -> GrootStage3Output:
     """GR00T mirror of ``exp.step_diag.pi05.warm_variant_stage3`` (the reviewer's dt = 1/remaining proposal).
 
     The exact resume (``GrootStagedRunner.run_stage3_from``) continues the ascending K-step loop from
     ``start_index = schedule.snapshot_index(start_t)`` with the library grid ``dt = 1/K``. The variants keep
     the same call count ``n = schedule.remaining_steps(start_t)`` but run a NEW ``n``-step loop from
-    ``t = 0`` with ``dt = 1/n`` -- i.e. upstream's own ``denoise_loop(noise=<start>, num_steps=n)``:
+    ``t = 0`` with ``dt = 1/n`` -- i.e. upstream's own ``denoise_loop(noise=<start>, num_steps=n)``.
+    ``num_steps`` (GR00T LIBERO, K = 8) overrides ``n`` so an arm keeps RoboCasa's K = 4 (T, N, t) tuple while
+    its start stays the snapshot at ``start_t``; left at None, ``n`` is the remaining-step count as before:
 
     * ``reset_t``    : the start is the cached snapshot ``x_{start_t}`` (fed as if it were noise);
     * ``reset_final``: the start is the payload's final action chunk (the caller substitutes it).
@@ -90,12 +146,15 @@ def groot_warm_variant_stage3(runner: Any, stage2: Any, start_x: torch.Tensor, s
                        step below pure noise) instead of 0, ``n`` steps of ``dt = 0.75/n`` to the clean end
                        (``mid_denoise_loop``; upstream's loop cannot express a non-``i/N`` grid).
 
-    ``overshoot`` has no GR00T counterpart here (owner 2026-09-22: not run). The step count is stamped in
+    * ``overshoot`` / ``mid_shoot`` / ``mid_shoot50`` (shoot ablation, owner 2026-09-24): no reset -- the snapshot
+                       stays at its own GR00T time ``start_t`` and takes ``n`` steps of ``dt = SHOOT_ENTRY_T / n``
+                       (the warm-reset / midreset / midreset50 step), running past the clean end
+                       (``shoot_denoise_loop``). The step count is stamped in
     ``steps_run`` exactly like the resume so the evidence policy records ``executed_steps = n``.
     """
     if variant not in GROOT_WARM_VARIANTS:
         raise ValueError(f"unknown GR00T warm variant {variant!r}")
-    n_steps = int(schedule.remaining_steps(start_t))
+    n_steps = int(schedule.remaining_steps(start_t)) if num_steps is None else int(num_steps)
     if n_steps < 1:
         raise ValueError(f"start_t={start_t} leaves no step to run")
     head = runner._model.action_head  # noqa: SLF001 - same seam as the runner's own resume
@@ -104,7 +163,13 @@ def groot_warm_variant_stage3(runner: Any, stage2: Any, start_x: torch.Tensor, s
         start_x = start_x[None, ...]
     extra = {} if step_fn is None else {"step_fn": step_fn}
     with runner._timer.measure("stage3_warm"):  # noqa: SLF001
-        if variant in ("mid_final", "mid_final50", "mid_snap", "mid_snap50"):
+        if variant in GROOT_SHOOT_VARIANTS:
+            from exp.step_diag.envs import SHOOT_ENTRY_T
+
+            action_pred = shoot_denoise_loop(head, backbone_outputs, stage2.action_inputs, start=start_x,
+                                             t0=float(start_t), dt=SHOOT_ENTRY_T[variant] / n_steps,
+                                             num_steps=n_steps, **extra)
+        elif variant in ("mid_final", "mid_final50", "mid_snap", "mid_snap50"):
             from exp.step_diag.envs import MID_ENTRY_T_BY_VARIANT
 
             action_pred = mid_denoise_loop(head, backbone_outputs, stage2.action_inputs, start=start_x,
@@ -117,12 +182,16 @@ def groot_warm_variant_stage3(runner: Any, stage2: Any, start_x: torch.Tensor, s
     return GrootStage3Output(action_pred=action_pred, start_t=float(start_t), steps_run=n_steps)
 
 
-def install_warm_variant(runner: Any, orchestrator: Any, variant: str, schedule: Any, *, step_fn: Any = None) -> None:
+def install_warm_variant(runner: Any, orchestrator: Any, variant: str, schedule: Any, *, step_fn: Any = None,
+                         self_start: bool = False, num_steps: int | None = None) -> None:
     """Route the executed WARM_START continuation of ``runner`` through a variant (install BEFORE the
     evidence capture wraps the runner, so the capture still sees the variant's output).
 
     ``reset_final`` needs the hit payload: the orchestrator's ``check`` is wrapped to stash its result
     thread-locally, and the payload's ``action_chunk`` replaces the snapshot the interceptor hands in.
+    ``self_start`` (self-start ablation): the start comes from ``groot_self_start`` with the seed the evidence
+    wrapper published in ``_SELF.seed``; the retrieved payload is ignored. ``num_steps``: the continuation's
+    explicit step count (``groot_warm_variant_stage3``); None keeps ``remaining_steps(start_t)``.
     """
     if variant not in GROOT_WARM_VARIANTS:
         raise ValueError(f"unknown GR00T warm variant {variant!r}")
@@ -138,6 +207,15 @@ def install_warm_variant(runner: Any, orchestrator: Any, variant: str, schedule:
         orchestrator.check = stashing_check
 
     def variant_run3f(stage2, start_x, start_t, *, schedule=schedule, **kw):
+        if self_start:
+            seed = getattr(_SELF, "seed", None)
+            if seed is None:
+                raise RuntimeError("self start: no decision seed published by the evidence wrapper")
+            start_x = groot_self_start(runner, stage2, start_x, start_t, schedule=schedule, variant=variant,
+                                       seed=seed, step_fn=step_fn)
+            _SELF.info = {"self_start": True, "self_seed": int(seed), "self_direct_nfe": int(schedule.num_steps)}
+            return groot_warm_variant_stage3(runner, stage2, start_x, start_t, schedule=schedule, variant=variant,
+                                             step_fn=step_fn, num_steps=num_steps)
         if variant in GROOT_FINAL_START_VARIANTS:
             cp1 = getattr(local, "cp1", None)
             payload = None if cp1 is None else getattr(cp1, "payload", None)
@@ -146,7 +224,7 @@ def install_warm_variant(runner: Any, orchestrator: Any, variant: str, schedule:
                 raise RuntimeError("reset_final: no WARM_START retrieval payload to take the final chunk from")
             start_x = chunk.to(device=start_x.device, dtype=start_x.dtype).reshape(start_x.shape)
         return groot_warm_variant_stage3(runner, stage2, start_x, start_t, schedule=schedule, variant=variant,
-                                         step_fn=step_fn)
+                                         step_fn=step_fn, num_steps=num_steps)
 
     runner.run_stage3_from = variant_run3f
 
@@ -224,6 +302,8 @@ class GrootEvidencePolicy:
 
     def get_action(self, observations: dict) -> dict:
         self._capture.reset()
+        _SELF.seed = self._diag.self_start_seed()  # used only by self-start variants
+        _SELF.info = None
         out = self._inner.get_action(observations)
         meta = out.get("__hit_meta__") if isinstance(out, dict) else None
         last = self._capture.last
@@ -235,7 +315,8 @@ class GrootEvidencePolicy:
             hit_type = "MISS"
         if a_exec is not None:
             self._diag.record(a_exec=a_exec, executed_steps=steps, n_stage3_calls=self._capture.calls,
-                              hit_type=hit_type, start_t=start_t, schedule_id=self._schedule_id)
+                              hit_type=hit_type, start_t=start_t, schedule_id=self._schedule_id,
+                              extra=getattr(_SELF, "info", None) or None)
         else:
             # FULL_HIT (no stage-3 call) or an unexpected path: keep the row, mark the gap.
             self._diag.record(a_exec=np.zeros((1, 1), dtype=np.float32), executed_steps=0, n_stage3_calls=0,

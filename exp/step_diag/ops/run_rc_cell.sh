@@ -4,6 +4,7 @@
 # usage: run_rc_cell.sh <teacher pi05|groot_tp> <arm_id> <lane main|pnp> <servers host:port,...> \
 #                       <tasks csv> <episodes> <episodes_map json | -> <config_sha> [tag]
 #   env:  SD_RC_REPO SD_RC_PY SD_RC_ENV SD_EXP SD_BASE_SEED SD_HOME SD_GPUS SD_OUT_ROOT (optional --out-root)
+#         SD_RUN_PREFIX (optional --run-prefix: file names of concurrent cells of one arm and lane)
 #
 # Every server in <servers> runs single-connection, so one worker is bound per server
 # (--workers-per-server 1) and the tasks are spread over the servers by the driver. Artifacts:
@@ -27,6 +28,7 @@ case "$LANE" in
 esac
 [ "$EPMAP" = "-" ] || EXTRA+=(--episodes-map "$EPMAP")
 [ -z "${SD_OUT_ROOT:-}" ] || EXTRA+=(--out-root "$SD_OUT_ROOT")
+[ -z "${SD_RUN_PREFIX:-}" ] || EXTRA+=(--run-prefix "$SD_RUN_PREFIX")  # concurrent cells of one arm+lane
 NSRV=$(echo "$SERVERS" | tr ',' '\n' | grep -c .)
 # tmux refuses "." in session names; the formal warm arms are warm_t0.1 etc.
 NAME="sdcell_${TAG}_${TEACHER}_${ARM//./_}_${LANE}"

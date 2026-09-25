@@ -1,6 +1,7 @@
 """CPU tests for the argv contracts of exp/step_diag/serve_diag_pi05.py and serve_diag_groot.py:
 mode / cache-config coupling, full pins the env's K, plain requires --exec-steps, the served
-argv gets --non-concurrent and the cache flags, and LIBERO GR00T serves only shadow."""
+argv gets --non-concurrent and the cache flags, and LIBERO GR00T serves every mode on the
+production --concurrent factory with the head's K pinned by --denoising-steps."""
 
 import pytest
 
@@ -42,8 +43,7 @@ def test_groot_parse_modes_and_rejections():
     assert rest == ["--cache-config", "w.yaml"]
     args, rest = SG.parse(["--benchmark", "libero", "--mode", "shadow", "--env-id", "groot_libero_10", "--cache-config", "s.yaml", *COMMON])
     assert args.exec_steps is None
-    for argv in (["--benchmark", "libero", "--mode", "plain", "--env-id", "groot_libero_10", "--exec-steps", "1"],
-                 ["--benchmark", "rc", "--mode", "plain", "--env-id", "groot_rc"],
+    for argv in (["--benchmark", "rc", "--mode", "plain", "--env-id", "groot_rc"],
                  ["--benchmark", "rc", "--mode", "plain", "--env-id", "groot_rc", "--exec-steps", "1", "--cache-config", "c"],
                  ["--benchmark", "rc", "--mode", "shadow", "--env-id", "groot_rc"]):
         with pytest.raises(SystemExit):

@@ -1,8 +1,8 @@
 """CPU tests for exp/step_diag/emit_arms.py: every emitted yaml keeps its source template's retrieval
 identity and changes only the verdict layer, LIBERO cells come from the suite's own RIT template
-(shadow only), warm start_t must be a snapshot timestep of the teacher's schedule, GR00T cells
-stamp the denoise schedule, the index binds every file by sha256, and the library check reads the
-payload contract instead of the file name."""
+(shadow + the self-start round's warm cells), warm start_t must be a snapshot timestep of the teacher's
+schedule and one of the environment's warm_ts, GR00T cells stamp the denoise schedule, the index binds
+every file by sha256, and the library check reads the payload contract instead of the file name."""
 
 import hashlib
 import json
@@ -40,8 +40,10 @@ def test_cells_keep_retrieval_identity_and_change_only_the_verdict(env_id):
             EM.verify_cell(env_id, warm, base)
             assert warm["checkpoints"]["cp1"]["judge"] == {"type": "always_warm_start", "start_t": t}
     else:
-        with pytest.raises(ValueError):
-            EM.build_warm_cell(env_id, base, env.warm_ts[0])
+        for t in env.warm_ts:
+            warm = EM.build_warm_cell(env_id, base, t)
+            EM.verify_cell(env_id, warm, base)
+            assert warm["checkpoints"]["cp1"]["judge"] == {"type": "always_warm_start", "start_t": t}
         if env.policy == "pi05":
             # the N4 template itself is a gated / tiered cell, not an admissible shadow cell
             with pytest.raises(ValueError):
@@ -87,7 +89,8 @@ def test_emit_writes_bound_index_and_valid_configs(tmp_path):
             assert entry["plain_arms"]["full"]["exec_steps"] == env.k_full
             assert entry["qb"]["main_m"] == E.QB_MAIN_M[env.policy] and entry["qb"]["flat_episodes"] == 100
         else:
-            assert set(entry["cells"]) == {"shadow"} and "plain_arms" not in entry
+            assert set(entry["cells"]) == {"shadow", *(f"warm_t{t:g}" for t in env.warm_ts)} and "plain_arms" not in entry
+            assert set(entry["libero_self"]["arms"]) == set(E.LIBERO_SELF_ARMS_BY_POLICY[env.policy])
         assert entry["source_sha256"] == hashlib.sha256((EM.REPO / entry["source_template"]).read_bytes()).hexdigest()
         for arm_id, cell in entry["cells"].items():
             path = tmp_path / cell["file"]

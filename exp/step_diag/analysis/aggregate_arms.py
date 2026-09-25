@@ -204,18 +204,66 @@ def select_session(slot: Optional[dict], launch_ids: set) -> Tuple[Optional[dict
 # ------------------------------------------------------------------
 
 
+def expected_self_seed(experiment_id: str, env_id: str, ident: dict, attempt: Any, decision_idx: int) -> int:
+    """The private-noise seed a self-start decision must carry (``DiagSession.self_start_seed``), recomputed from
+    the expected identity (never from the evidence row being checked): ``recorder.noise_seed`` over the
+    experiment, environment, task, ``(env_seed, init_idx, init_pool_sha256)``, attempt and decision, sample
+    ``"self"``. RoboCasa identities carry no pool, exactly as their served ``episode_start`` does."""
+    from exp.step_diag.recorder import noise_seed
+
+    return noise_seed(experiment_id, env_id, ident.get("task"),
+                      (ident.get("env_seed"), ident.get("init_idx"), ident.get("init_pool_sha256")),
+                      attempt, decision_idx, "self")
+
+
+def self_start_problems(d: dict, *, is_self: bool, k_full: int, want_seed: Optional[int]) -> List[str]:
+    """Self-start evidence of one decision row: a self arm must carry ``self_start is True``, the recomputed
+    ``self_seed`` and ``self_direct_nfe == K`` (the direct inference that produced its start); any other arm
+    must carry none of the three fields."""
+    if not is_self:
+        fields = ("self_start", "self_seed", "self_direct_nfe")
+        return ["self_start_on_cache_arm"] if any(d.get(k) is not None for k in fields) else []
+    out = []
+    if d.get("self_start") is not True:
+        out.append("self_start_missing")
+    seed = d.get("self_seed")
+    if type(seed) is not int or want_seed is None or seed != want_seed:
+        out.append("self_seed_mismatch")
+    nfe = d.get("self_direct_nfe")
+    if type(nfe) is not int or nfe != k_full:
+        out.append("self_direct_nfe_mismatch")
+    return out
+
+
 def cell_admission(arm: dict, server: Dict[Tuple[str, int], dict], task: str, *, kind: str, m: int,
                    env_id: str | None = None) -> dict:
-    """Join terminal, worker and server evidence; every missing binding fails closed."""
+    """Join terminal, worker and server evidence; every missing binding fails closed.
+
+    ``equal_nfe`` is the gate on the *continuation*: every decision executed ``m`` Euler steps in one stage-3
+    call (``executed_steps`` / ``n_stage3_calls``). A self-start arm (``envs.is_self_mode``) additionally runs a
+    K-step direct inference per decision to produce its start; its rows must prove it (``self_start``, the
+    recomputed ``self_seed``, ``self_direct_nfe == K``), and it is counted apart: per episode
+    ``episode_continuation_nfe`` (sum of ``executed_steps``), ``episode_self_start_nfe`` (sum of
+    ``self_direct_nfe``; 0 off the self arms) and ``episode_total_nfe`` = their sum, so a self arm costs
+    K + m action-head steps per decision where its cache arm costs m.
+    """
     exp_ids = {uid: ident for uid, ident in arm["expected"].items() if ident["task"] == task}
-    outcomes, totals = {}, {}
+    outcomes, totals, continuation_totals, self_totals = {}, {}, {}, {}
     comparisons = set()
     worker_identities = set()
     runtime_notes = set()
     problems = collections.Counter(arm.get("manifest_problems", []))
-    steps, env_steps, worker_counts = [], [], []
+    steps, env_steps, worker_counts, self_steps = [], [], [], []
     n_miss = 0
     stray_sessions = 0  # sessions of other launches on an accepted identity: reported, not gated
+    # the environment every row must name; it is also part of the pairing identity of the outcomes
+    dir_teacher = pathlib.Path(arm["dir"]).parent.name
+    expected_env = env_id or f"{'groot' if dir_teacher == 'groot_tp' else 'pi05'}_rc"
+    try:
+        is_self = kind == "warm" and _envs.is_self_mode(_envs.warm_mode_of(arm["arm_id"] or ""))
+    except ValueError:
+        is_self = False
+    k_env = _envs.resolve_env(expected_env).k_full
     for uid, ident in exp_ids.items():
         rec = arm["outcomes"].get(uid)
         if rec is None:
@@ -226,7 +274,7 @@ def cell_admission(arm: dict, server: Dict[Tuple[str, int], dict], task: str, *,
         if rec.get("error") or type(rec.get("success")) is not bool:
             problems["terminal_error"] += 1
         if type(rec.get("success")) is bool:
-            outcomes[uid] = {**ident, "success": rec["success"], "attempt": rec.get("attempt")}
+            outcomes[uid] = {**ident, "env_id": expected_env, "success": rec["success"], "attempt": rec.get("attempt")}
         attempt = rec.get("attempt")
         ep, n_match, n_stray = select_session(server.get((uid, attempt)), launches_of_run(arm, rec.get("run_id")))
         stray_sessions += n_stray
@@ -241,9 +289,6 @@ def cell_admission(arm: dict, server: Dict[Tuple[str, int], dict], task: str, *,
         if ep.get("duplicate_finalize"):
             problems["duplicate_finalize"] += 1
         stamp = fin.get("client_stamp") or {}
-        teacher = pathlib.Path(arm["dir"]).parent.name
-        policy = "groot" if teacher == "groot_tp" else "pi05"
-        expected_env = env_id or f"{policy}_rc"
         if fin.get("env_id") != expected_env:
             problems["environment_identity_mismatch"] += 1
         manifest = ep.get("manifest")
@@ -288,11 +333,20 @@ def cell_admission(arm: dict, server: Dict[Tuple[str, int], dict], task: str, *,
         # Teacher identity comes from the manifest/directory, never from the evidence being checked.
         teacher = (launch or {}).get("teacher") or pathlib.Path(arm["dir"]).parent.name
         policy = "groot" if teacher == "groot_tp" else "pi05"
-        schedule = "pi05_v1" if policy == "pi05" else f"groot_n15_k{4 if kind == 'warm' else m}_v1"
+        # a warm arm runs the library's K-step schedule (RoboCasa K = 4, LIBERO K = 8); plain / full run K = m
+        k_warm = _envs.resolve_env(env_id).k_full if env_id else 4
+        schedule = "pi05_v1" if policy == "pi05" else f"groot_n15_k{k_warm if kind == 'warm' else m}_v1"
         want_t = _envs.warm_t_of(arm["arm_id"]) if kind == "warm" else None
-        ep_steps = []
+        experiment = (launch or {}).get("experiment_id") or stamp.get("experiment_id")
+        ep_steps, ep_self = [], []
         for d in decs:
             st = d.get("executed_steps")
+            want_seed = (expected_self_seed(experiment, expected_env, ident, attempt, d["decision_idx"])
+                         if is_self and experiment and type(d.get("decision_idx")) is int else None)
+            problems.update(self_start_problems(d, is_self=is_self, k_full=k_env, want_seed=want_seed))
+            if is_self and type(d.get("self_direct_nfe")) is int and d["self_direct_nfe"] >= 0:
+                self_steps.append(d["self_direct_nfe"])
+                ep_self.append(d["self_direct_nfe"])
             if d.get("status") != "ok":
                 problems["decision_error"] += 1
             if d.get("config_sha") != stamp.get("config_sha"):
@@ -317,7 +371,10 @@ def cell_admission(arm: dict, server: Dict[Tuple[str, int], dict], task: str, *,
             if type(st) is int and st >= 0:
                 steps.append(st)
                 ep_steps.append(st)
-        totals[uid] = sum(ep_steps) if len(ep_steps) == len(decs) == n else None
+        continuation = sum(ep_steps) if len(ep_steps) == len(decs) == n else None
+        self_nfe = (sum(ep_self) if len(ep_self) == len(decs) == n else None) if is_self else 0
+        continuation_totals[uid], self_totals[uid] = continuation, self_nfe
+        totals[uid] = None if continuation is None or self_nfe is None else continuation + self_nfe
     complete = bool(exp_ids) and len(outcomes) == len(exp_ids) and not any(
         problems[k] for k in ("missing_terminal", "terminal_error", "duplicate_accepted_terminal"))
     n_dec = sum(len(server.get((uid, rec.get("attempt")), {}).get("decisions", []))
@@ -327,6 +384,9 @@ def cell_admission(arm: dict, server: Dict[Tuple[str, int], dict], task: str, *,
             "problems": {k: v for k, v in problems.items() if v}, "n_decisions": n_dec,
             "miss_fraction": n_miss / n_dec if n_dec else None,
             "mean_executed_steps": float(np.mean(steps)) if steps else None,
+            "self_start": is_self, "k_self": k_env if is_self else 0,
+            "mean_self_direct_nfe": (float(np.mean(self_steps)) if self_steps else None) if is_self else 0.0,
+            "episode_continuation_nfe": continuation_totals, "episode_self_start_nfe": self_totals,
             "episode_total_nfe": totals,
             "stray_sessions": stray_sessions,
             "comparison_identities": sorted(comparisons),
@@ -342,8 +402,14 @@ def cell_admission(arm: dict, server: Dict[Tuple[str, int], dict], task: str, *,
 # ------------------------------------------------------------------
 
 
+PAIR_IDENTITY_KEYS = ("task", "init_idx", "env_seed", "lane", "pin_id", "layout", "style", "init_pool_sha256", "env_id")
+
+
 def pair_identity(v: dict) -> tuple:
-    return tuple(v.get(k) for k in ("task", "init_idx", "env_seed", "lane", "pin_id", "layout", "style"))
+    """The environment identity two arms' outcomes pair on: task, init_idx, env seed, the RoboCasa lane / pin /
+    layout / style, the LIBERO initial-state pool digest (None on RoboCasa) and the environment the cell was
+    admitted against. The same init_idx of two different pools or seeds is two different initial states."""
+    return tuple(v.get(k) for k in PAIR_IDENTITY_KEYS)
 
 
 def paired_outcomes(plain: dict, warm: dict) -> list:

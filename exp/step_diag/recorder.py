@@ -336,6 +336,17 @@ class DiagSession:
 
     # -- per decision ----------------------------------------------------
 
+    def self_start_seed(self) -> Optional[int]:
+        """Private-noise seed of the self-start direct inference for the decision about to be recorded
+        (the ``noise_seed`` identity with sample ``"self"``); ``None`` outside an episode."""
+        with self._lock:
+            ep = self._episode
+            if ep is None:
+                return None
+            return noise_seed(self.spec.experiment_id, self.spec.env_id, ep.task,
+                              (ep.env_seed, ep.init_idx, ep.extra.get("init_pool_sha256")), ep.attempt,
+                              self._decision_idx, "self")
+
     def record(
         self,
         *,

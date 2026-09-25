@@ -14,6 +14,11 @@ Composes ``scripts.serve_policy`` (unchanged) with ``Pi05DiagInterceptor`` by re
 * ``warmreset`` / ``warmshoot``  ``warm`` with the continuation of ``exp.step_diag.pi05.warm_variant_stage3``
               (``dt = -1/remaining_steps``; flow time restarted at 1 / kept at start_t). Arm ids
               ``warmreset_t<t>`` / ``warmshoot_t<t>``; same cache yaml as ``warm_t<t>``.
+* ``self<variant mode>``  the self-start ablation: the variant's start comes from a direct full inference on
+              the current observation instead of the cache (``envs.SELF_VARIANT_MODES``); same cache yaml.
+
+The LIBERO environments serve the same modes and arm ids (the self-start round,
+``envs.LIBERO_SELF_ARMS_BY_POLICY``) on their own ``warm_t<t>.yaml`` cells.
 
 Every mode serialises ``infer`` behind one process lock, stamps the arm into the handshake
 metadata and writes ``manifest_<arm>.json`` (config sha referenced by every row).
@@ -35,8 +40,8 @@ import threading
 from exp.step_diag import envs as _envs
 from exp.step_diag.recorder import DiagRecorder, DiagSpec
 
-MODES = ("shadow", "plain", "full", "warm", *_envs.WARM_VARIANT_MODES)
-CACHE_MODES = ("shadow", "warm", *_envs.WARM_VARIANT_MODES)
+MODES = ("shadow", "plain", "full", "warm", *_envs.WARM_VARIANT_MODES, *_envs.SELF_VARIANT_MODES)
+CACHE_MODES = ("shadow", "warm", *_envs.WARM_VARIANT_MODES, *_envs.SELF_VARIANT_MODES)
 
 
 def parse(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
@@ -120,11 +125,13 @@ def install(args: argparse.Namespace, recorder: DiagRecorder) -> None:
     mode = args.mode
 
     exec_steps = int(args.exec_steps) if mode in ("plain", "full") else None
-    warm_variant = _envs.WARM_VARIANT_MODES.get(mode)
+    warm_variant = _envs.WARM_VARIANT_MODES.get(mode) or _envs.SELF_VARIANT_MODES.get(mode)
+    self_start = mode in _envs.SELF_VARIANT_MODES
 
     class _Bound(Pi05DiagInterceptor):
         def __init__(self, *a, **kw):
-            super().__init__(*a, diag=recorder, mode=mode, exec_steps=exec_steps, warm_variant=warm_variant, **kw)
+            super().__init__(*a, diag=recorder, mode=mode, exec_steps=exec_steps, warm_variant=warm_variant,
+                             self_start=self_start, **kw)
 
         def infer(self, obs, *, noise=None):
             with lock:

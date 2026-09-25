@@ -18,8 +18,10 @@ Only the verdict layer changes:
   recorded by ``Pi05DiagInterceptor``; the template's warm tiers are dropped), ``always_hit`` for
   GR00T (``GrootDiagPolicy`` reads the verdict and never applies it, like ``GrootRitShadow``);
   ``write_policy: never``;
-* ``warm_t<t>`` (RoboCasa only, Q-B): ``gate: always_search``; judge ``always_warm_start`` at
-  ``start_t = t`` (top-1, no gate); ``write_policy: never``.
+* ``warm_t<t>`` (RoboCasa Q-B; LIBERO for the self-start round): ``gate: always_search``; judge
+  ``always_warm_start`` at ``start_t = t`` (top-1, no gate); ``write_policy: never``. ``t`` is one of the
+  environment's ``warm_ts``, the snapshot set the library check requires of every entry, so a LIBERO warm
+  cell is its ``shadow`` cell with only ``checkpoints.cp1.judge`` replaced (as on RoboCasa).
 
 ``index.json`` binds every emitted yaml (sha256), its source template sha, the library path named
 in it, the schedule and the arm's resume steps, plus the plain arms and the Q-B design. The library
@@ -99,13 +101,13 @@ def build_shadow_cell(env_id: str, cfg: dict) -> dict:
 
 def build_warm_cell(env_id: str, cfg: dict, start_t: float) -> dict:
     env = _envs.resolve_env(env_id)
-    if env.benchmark != "robocasa365":
-        raise ValueError(f"{env_id}: warm-start arms are RoboCasa-only in this line (Q-B)")
     out = _strip_verdict(cfg)
     schedule = PI05_V1 if env.policy == "pi05" else groot_n15_schedule(env.k_full)
     t = round(float(start_t), 4)
     if t not in schedule.timestep_set:
         raise ValueError(f"{env_id}: start_t {t} is not a snapshot timestep of {schedule.schedule_id}")
+    if t not in env.warm_ts:
+        raise ValueError(f"{env_id}: start_t {t} is outside warm_ts {env.warm_ts}, the snapshots the library check requires")
     out["checkpoints"]["cp1"]["judge"] = {"type": "always_warm_start", "start_t": t}
     if schedule is not PI05_V1:
         out["denoise_schedule"] = schedule.schedule_id
@@ -219,6 +221,10 @@ def emit(out_root: pathlib.Path, env_ids=tuple(_envs.ENVS), *, check_libraries: 
         if env.benchmark == "robocasa365":
             for t in _envs.QB_WARM_TS[env.policy]:
                 cells[arm_id_of("warm", t=t)] = build_warm_cell(env_id, base, t)
+        else:
+            # LIBERO self-start round: every warm-family arm serves the warm_t<start_t> cell of its start_t
+            for t in env.warm_ts:
+                cells[arm_id_of("warm", t=t)] = build_warm_cell(env_id, base, t)
         entries = {}
         for arm_id, cfg in cells.items():
             verify_cell(env_id, cfg, base)
@@ -250,6 +256,13 @@ def emit(out_root: pathlib.Path, env_ids=tuple(_envs.ENVS), *, check_libraries: 
                             "cliff": list(_envs.QB_CLIFF[env.policy]), "flat": list(_envs.QB_FLAT[env.policy]),
                             "episodes": _envs.QB_EPISODES, "flat_episodes": _envs.QB_FLAT_EPISODES,
                             "base_seed": _envs.RC_FORMAL_BASE_SEED}
+        else:
+            arms = _envs.LIBERO_SELF_ARMS_BY_POLICY[env.policy]
+            record["libero_self"] = {
+                "experiment_id": _envs.LIBERO_SELF_EXPERIMENT_ID, "episodes": _envs.LIBERO_SELF_EPISODES,
+                "arms": {a: {"exec_steps": _envs.executed_steps_of(env_id, a),
+                             "cell": None if a == "full" or a.startswith("plain_k") else arm_id_of("warm", t=_envs.warm_t_of(a))}
+                         for a in arms}}
         if check_libraries:
             lib_path = (library_paths or {}).get(env_id, entries["shadow"]["library"])
             record["library_check"] = verify_library(lib_path, env_id)

@@ -99,7 +99,7 @@ def test_groot_reset_final_takes_the_payload_chunk_and_refuses_without_it():
     with pytest.raises(RuntimeError):
         runner2.run_stage3_from(_stage2(), torch.zeros(H, D), 0.75, schedule=sched)
     with pytest.raises(ValueError):
-        G.install_warm_variant(_Runner(), None, "overshoot", sched)
+        G.install_warm_variant(_Runner(), None, "bogus", sched)
 
 
 def test_groot_variant_arm_validation_and_allow_lists(tmp_path):
@@ -110,8 +110,9 @@ def test_groot_variant_arm_validation_and_allow_lists(tmp_path):
     path.write_text(yaml.safe_dump(cfg))
     _envs.validate_arm("groot_rc", "warmreset", "warmreset_t0.75", None, str(path))
     _envs.validate_arm("groot_rc", "resetfinal", "resetfinal_t0.75", None, str(path))
-    with pytest.raises(ValueError):  # overshoot stays pi0.5-only
-        _envs.validate_arm("groot_rc", "warmshoot", "warmshoot_t0.75", None, str(path))
+    _envs.validate_arm("groot_rc", "warmshoot", "warmshoot_t0.75", None, str(path))  # shoot ablation (2026-09-24)
+    with pytest.raises(ValueError):  # midshoot is GR00T-only
+        _envs.validate_arm("pi05_rc", "midshoot", "midshoot_t0.75", None, str(path))
     assert "resetfinal_t0.75" in _envs.MACRO13_ARMS_BY_POLICY["groot"] and "warmshoot_t0.75" not in _envs.MACRO13_ARMS_BY_POLICY["groot"]
     assert _envs.XSEED_ARMS_BY_POLICY["pi05"] == _envs.VAR500_ARMS
     env = _envs.ENVS["groot_rc"]

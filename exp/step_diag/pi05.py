@@ -37,7 +37,7 @@ from openpi.cache.components.judge import HitType
 from openpi.cache.types import PI05_V1, CheckpointID
 from openpi.models_pytorch.pi0_pytorch import Stage3Output, _warm_start_num_steps
 
-from exp.step_diag.recorder import DiagRecorder, EpisodeIdentity
+from exp.step_diag.recorder import DiagRecorder, EpisodeIdentity, make_noise
 
 logger = logging.getLogger("exp.step_diag.pi05")
 
@@ -127,13 +127,18 @@ def warm_variant_stage3(model: Any, stage2: Any, start_x: torch.Tensor, start_t:
 
 class Pi05DiagInterceptor(InferenceInterceptor):
     """See module docstring. ``diag`` is the recorder; ``mode`` is shadow / plain / full / warm;
-    ``exec_steps`` (plain / full only) pins the executed step count of this connection."""
+    ``exec_steps`` (plain / full only) pins the executed step count of this connection.
+    ``self_start`` (self-start ablation arms): the variant's start is taken from a direct full inference
+    on the current observation instead of the retrieved cache entry (see ``_self_start``)."""
 
     def __init__(self, *args: Any, diag: DiagRecorder, mode: str, exec_steps: Optional[int] = None,
-                 warm_variant: Optional[str] = None, **kwargs: Any) -> None:
+                 warm_variant: Optional[str] = None, self_start: bool = False, **kwargs: Any) -> None:
         if warm_variant is not None and warm_variant not in WARM_VARIANTS:
             raise ValueError(f"unknown warm variant {warm_variant!r}")
+        if self_start and (warm_variant is None or warm_variant == "overshoot"):
+            raise ValueError("self_start needs a reset-family warm variant")
         self._warm_variant = warm_variant
+        self._self_start_on = bool(self_start)
         super().__init__(*args, **kwargs)
         shape = (self._model.config.action_horizon, self._model.config.action_dim)
         if shape != diag.spec.action_shape:
@@ -193,7 +198,9 @@ class Pi05DiagInterceptor(InferenceInterceptor):
                 if variant is not None:
                     # warmreset / warmshoot arms: the executed WARM_START continuation uses the
                     # enlarged step (dt = -1/remaining); the shadow bracket keeps the exact resume.
-                    if variant in FINAL_START_VARIANTS:
+                    if self._self_start_on:
+                        start_x = self._self_start(stage2, start_x, start_t, num_steps)
+                    elif variant in FINAL_START_VARIANTS:
                         start_x = self._final_chunk_like(start_x)
                     return warm_variant_stage3(model, stage2, start_x, start_t, num_steps=num_steps,
                                                variant=variant)
@@ -246,6 +253,7 @@ class Pi05DiagInterceptor(InferenceInterceptor):
         self._tl.n_calls = 0
         self._tl.stage2 = None
         self._tl.retrieval_error = None
+        self._tl.self_info = None
         if self._search_rec is not None:
             self._search_rec.clear()
         return super().infer(obs, noise=noise)
@@ -314,11 +322,41 @@ class Pi05DiagInterceptor(InferenceInterceptor):
                 return self._top1_payload(cp1_result)
 
         extra = {"top1_score": _score_of(cp1_result), "top1_entry_id": getattr(cp1_result, "entry_id", None)}
+        if getattr(self._tl, "self_info", None):
+            extra.update(self._tl.self_info)
         self._diag.record(
             a_exec=a_exec, executed_steps=executed_steps, n_stage3_calls=n_calls,
             hit_type=hit_name if hit_name is not None else "MISS", start_t=start_t,
             schedule_id=PI05_V1.schedule_id, sample=sample, resume=resume, top1=top1, extra=extra,
         )
+
+    def _self_start(self, stage2: Any, like: torch.Tensor, start_t: float, num_steps: int) -> torch.Tensor:
+        """Self-start ablation: the start the cache arm would have taken, produced on the spot.
+
+        Runs the policy's full ``num_steps`` loop on this decision's stage-2 handle from private noise
+        (``DiagSession.self_start_seed``; the global RNG is not touched) and returns its snapshot at
+        ``start_t`` (the input of the step at ``start_t``, the cache's snapshot convention) or, for the
+        final-start variants, its final action. The direct run is bracketed like a shadow sample: it is
+        not counted as an executed stage-3 call, its Euler steps are removed from ``executed_steps`` and
+        reported as ``self_direct_nfe``, so the executed continuation keeps the cache arm's accounting.
+        """
+        seed = self._diag.self_start_seed()
+        if seed is None:
+            raise RuntimeError("self start outside an episode")
+        noise = make_noise(seed, tuple(like.shape[-2:]))[None, ...].to(device=like.device)
+        before = int(getattr(self._tl, "n_steps", 0))
+        self._tl.in_shadow = True
+        try:
+            with torch.no_grad():
+                out = self._model.run_stage3(stage2, noise=noise, num_steps=int(num_steps), return_intermediates=True,
+                                             save_timesteps=(float(start_t),))
+        finally:
+            self._tl.in_shadow = False
+        self._tl.self_info = {"self_start": True, "self_seed": int(seed),
+                              "self_direct_nfe": int(getattr(self._tl, "n_steps", 0)) - before}
+        self._tl.n_steps = before
+        x = out.action_chunk if self._warm_variant in FINAL_START_VARIANTS else out.intermediates[float(start_t)]
+        return x.to(device=like.device, dtype=like.dtype).reshape(like.shape)
 
     def _final_chunk_like(self, start_x: torch.Tensor) -> torch.Tensor:
         """The hit payload's final action chunk (t = 0), shaped like the snapshot it replaces."""

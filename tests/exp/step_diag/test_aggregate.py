@@ -219,6 +219,7 @@ def test_similarity_bins_split_at_median_with_ties_low_and_min_bin(tmp_path):
     shadow_eps += [{"task": "CloseFridge", "init_idx": 12, "top1_score_median": 0.99}]
     for ep in shadow_eps:
         ep.update(env_seed=2_000_000 + ep['init_idx'], lane=E.lane_of(ep['task']), pin_id=None, layout=1, style=1,
+                  env_id="pi05_rc",  # analyze_shadow episodes name their environment (part of the pairing identity)
                   comparison_identity=cells[ep['task']]['plain_k2']['comparison_identities'][0])
     bins = AG.similarity_bins(shadow_eps, cells, "plain_k2", "warm_t0.2")
     cf = bins["CloseFridge"]

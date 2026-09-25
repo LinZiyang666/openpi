@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One pi0.5 server process of the step-vs-warm-start line (h100 for RC, weilandserver for LIBERO).
 #
-# usage: serve_pi05.sh <env_id> <mode shadow|plain|full|warm|warmreset|warmshoot|resetfinal|midfinal|midfinal50|midreset|midreset50> <arm_id> <port> <exec_steps | cache_yaml | ->
+# usage: serve_pi05.sh <env_id> <mode shadow|plain|full|warm|warmreset|warmshoot|resetfinal|midfinal|midfinal50|midreset|midreset50|selfwarmreset|selfresetfinal|selfmidfinal|selfmidfinal50|selfmidreset|selfmidreset50> <arm_id> <port> <exec_steps | cache_yaml | ->
 #   env:  SD_REPO SD_PY SD_CKPT SD_EXP SD_OUT SD_LAUNCH SD_HOME (defaults = weilandserver LIBERO)
 #
 # Single-connection by construction: serve_diag_pi05 passes --non-concurrent, so every process
@@ -27,12 +27,14 @@ esac
 case "$MODE" in
   plain) [ "$ARG" != "-" ] || { echo "plain needs exec_steps"; exit 1; }; MODEARG="--exec-steps $ARG" ;;
   full) MODEARG="" ;;
-  shadow|warm|warmreset|warmshoot|resetfinal|midfinal|midfinal50|midreset|midreset50) [ -f "$ARG" ] || { echo "cache yaml $ARG missing"; exit 1; }; MODEARG="--cache-config $ARG" ;;
-  *) echo "mode must be shadow|plain|full|warm|warmreset|warmshoot|resetfinal|midfinal|midfinal50|midreset|midreset50"; exit 1 ;;
+  shadow|warm|warmreset|warmshoot|resetfinal|midfinal|midfinal50|midreset|midreset50|selfwarmreset|selfresetfinal|selfmidfinal|selfmidfinal50|selfmidreset|selfmidreset50) [ -f "$ARG" ] || { echo "cache yaml $ARG missing"; exit 1; }; MODEARG="--cache-config $ARG" ;;
+  *) echo "mode must be shadow|plain|full|warm|warmreset|warmshoot|resetfinal|midfinal|midfinal50|midreset|midreset50|selfwarmreset|selfresetfinal|selfmidfinal|selfmidfinal50|selfmidreset|selfmidreset50"; exit 1 ;;
 esac
 [ -e "$CKPT" ] || { echo "checkpoint $CKPT missing"; exit 1; }
 CELL=$ARM
 [ "$MODE" != "shadow" ] || CELL="shadow_$ENV_ID"
+# LIBERO arms run on both suites under one arm id: <env_id>/<arm_id> keeps their manifests apart
+case "$ENV_ID" in pi05_libero_*) [ "$MODE" = shadow ] || CELL="$ENV_ID/$ARM" ;; esac
 OUT="$OUT/pi05/$CELL"
 mkdir -p /tmp/sdiag "$OUT"
 NAME="sdsrv$P"

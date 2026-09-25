@@ -21,6 +21,7 @@ serve_diag_*   server entry points composing the above into ``serve_policy`` /
 envs           the frozen environment identity table (§3.0), Q-B groups and manifest checks
 emit_arms      shadow / forced warm-start yamls (per teacher) + arm index
 run_diag       RoboCasa conductor driver for the shadow / plain / full / warm arms
+run_libero_diag  LIBERO conductor driver: the shadow, or any arm on a task subset (self-start round)
 worker_entry   ``StepDiagEpisodeRunner``: the production RoboCasa runner + client proxy
                (identity stamp, infer count), counting env and one summary row per episode
 analysis/      admission + metrics tables (``analyze_shadow``), equal-NFE pairing and the

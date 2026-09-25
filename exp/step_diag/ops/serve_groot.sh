@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 # One GR00T N1.5 server process of the step-vs-warm-start line (h100 for RC, weilandserver for LIBERO).
 #
-# usage: serve_groot.sh <env_id> <mode shadow|plain|full|warm|warmreset|resetfinal|midfinal|midfinal50|midreset|midreset50> <arm_id> <port> <exec_steps | cache_yaml | ->
+# usage: serve_groot.sh <env_id> <mode shadow|plain|full|warm|warmreset|resetfinal|midfinal|midfinal50|midreset|midreset50|selfwarmreset|selfresetfinal|selfmidfinal|selfmidfinal50|selfmidreset|selfmidreset50|warmshoot|midshoot|midshoot50|selfwarmshoot|selfmidshoot|selfmidshoot50> <arm_id> <port> <exec_steps | cache_yaml | ->
 #   env:  SD_REPO SD_GROOT SD_GROOT_PY SD_CKPT SD_EXP SD_OUT SD_LAUNCH SD_HOME (defaults = weilandserver)
 #
 # RC (groot_rc): serve_groot_n15 without --concurrent = single connection per process (one worker).
-# LIBERO (groot_libero_*): shadow only, rides the production --rit-shadow-out factory, which needs
-# --concurrent; the served policy holds one DiagSession per connection and the infer lock
-# serialises the model, so several LIBERO client processes may share one server.
+# LIBERO (groot_libero_*): every mode, on the production --concurrent per-connection factory (cache modes
+# ride its --rit-shadow-out switch; plain / full pin --denoising-steps); each connection holds its own
+# DiagSession and the infer lock serialises the model, so several LIBERO client processes may share one
+# server. A GR00T LIBERO warm-reset arm names its step count: <mode>_t<start_t>_n<N> (envs.warm_steps_of).
+# LIBERO cells land under <env_id>/<arm_id> (one arm id runs on both suites); RC and shadow cells keep their paths.
 # Same idempotent claim / readiness contract as serve_pi05.sh. The openpi-client package rides on PYTHONPATH
 # (the GR00T venv's editable install pointed at the archived tree after the 2026-09-21 migration).
 set -u
@@ -31,12 +33,13 @@ esac
 case "$MODE" in
   plain) [ "$ARG" != "-" ] || { echo "plain needs exec_steps"; exit 1; }; MODEARG="--exec-steps $ARG" ;;
   full) MODEARG="" ;;
-  shadow|warm|warmreset|resetfinal|midfinal|midfinal50|midreset|midreset50) [ -f "$ARG" ] || { echo "cache yaml $ARG missing"; exit 1; }; MODEARG="--cache-config $ARG" ;;
-  *) echo "mode must be shadow|plain|full|warm|warmreset|resetfinal|midfinal|midfinal50|midreset|midreset50"; exit 1 ;;
+  shadow|warm|warmreset|resetfinal|midfinal|midfinal50|midreset|midreset50|selfwarmreset|selfresetfinal|selfmidfinal|selfmidfinal50|selfmidreset|selfmidreset50|warmshoot|midshoot|midshoot50|selfwarmshoot|selfmidshoot|selfmidshoot50) [ -f "$ARG" ] || { echo "cache yaml $ARG missing"; exit 1; }; MODEARG="--cache-config $ARG" ;;
+  *) echo "mode must be shadow|plain|full|warm|warmreset|resetfinal|midfinal|midfinal50|midreset|midreset50|selfwarmreset|selfresetfinal|selfmidfinal|selfmidfinal50|selfmidreset|selfmidreset50|warmshoot|midshoot|midshoot50|selfwarmshoot|selfmidshoot|selfmidshoot50"; exit 1 ;;
 esac
 [ -d "$CKPT" ] || { echo "checkpoint dir $CKPT missing"; exit 1; }
 CELL=$ARM
 [ "$MODE" != "shadow" ] || CELL="shadow_$ENV_ID"
+[ "$BENCH" = rc ] || [ "$MODE" = shadow ] || CELL="$ENV_ID/$ARM"
 OUT="$OUT/groot_tp/$CELL"
 mkdir -p /tmp/sdiag "$OUT"
 NAME="sdsrv$P"

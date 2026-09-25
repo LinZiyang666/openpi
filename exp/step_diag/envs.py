@@ -9,7 +9,7 @@ manifest that every evidence row references by ``config_sha``.
 
 Seeds: RoboCasa formal runs use ``base_seed = 2_000_000`` (Q-B idx 0..49, shadow idx 0..9);
 smoke runs use ``3_000_000`` and a separate experiment id; LIBERO keeps its frozen init pools
-(shadow idx 0..9 of the pool).
+(shadow idx 0..9 of the pool, the self-start round idx 0..49) and env seed 7.
 """
 
 from __future__ import annotations
@@ -100,15 +100,51 @@ MID_ENTRY_T = {"pi05": 0.9, "groot": 0.75}
 MID_ENTRY_T_BY_VARIANT = {"mid_final": MID_ENTRY_T, "mid_final50": {"pi05": 0.5, "groot": 0.5}, "mid_snap": MID_ENTRY_T,
                           "mid_snap50": {"pi05": 0.5, "groot": 0.5}}  # midreset50: snapshot start fed at 0.5
 MID_VARIANTS = tuple(MID_ENTRY_T_BY_VARIANT)
-WARM_ARM_PREFIXES = ("warm", *WARM_VARIANT_MODES)
+# Self-start ablation (owner 2026-09-24): the same warm-reset variants, but the start is NOT the cache. Each
+# decision first runs the policy's own full inference on the current observation (private noise), then feeds
+# that run's snapshot at the arm's start_t (T = start_t in pi0.5 time) or its final action (T = 0) exactly as
+# the cache arm feeds the retrieved one. Arm ids are ``self`` + the cache arm id (``selfwarmreset_t0.2``); the
+# served yaml is the cache arm's, whose retrieval still runs so the serving path is unchanged, but its payload
+# is never used. The exact-resume arm (``warm``) has no self counterpart: resuming a run's own snapshot on its
+# own grid reproduces that run. No overshoot counterpart either.
+SELF_VARIANT_MODES = {f"self{mode}": variant for mode, variant in WARM_VARIANT_MODES.items() if mode != "warmshoot"}
+# Shoot ablation (owner 2026-09-24, GR00T only): no reset. The snapshot stays at its own flow time (T; GR00T native
+# 1 - T) and takes the arm's N steps with the step size of a warm-reset variant, dt = SHOOT_ENTRY_T / N in pi0.5 time:
+# ``warmshoot`` borrows warmreset's (entry 1), ``midshoot`` midreset's (0.75), ``midshoot50`` midreset50's (0.5), so
+# the flow time runs past the clean end. Cache and self starts, like the reset variants; RoboCasa ``sdiag_self13``.
+SHOOT_ENTRY_T = {"overshoot": 1.0, "mid_shoot": 0.75, "mid_shoot50": 0.5}
+GROOT_SHOOT_MODES = {"warmshoot": "overshoot", "midshoot": "mid_shoot", "midshoot50": "mid_shoot50"}
+SELF_SHOOT_MODES = {f"self{mode}": variant for mode, variant in GROOT_SHOOT_MODES.items()}
+WARM_ARM_PREFIXES = ("warm", *WARM_VARIANT_MODES, *SELF_VARIANT_MODES, *GROOT_SHOOT_MODES, *SELF_SHOOT_MODES)
+
+
+def is_self_mode(mode: str) -> bool:
+    """A self-start served mode: the start comes from a direct inference on the decision, not the cache."""
+    return mode in SELF_VARIANT_MODES or mode in SELF_SHOOT_MODES
+
+
+def split_warm_steps(arm_id: str) -> Tuple[str, Optional[int]]:
+    """``(arm id without the step suffix, N)`` of a warm-family arm id carrying an explicit Euler-step count
+    (``midreset_t0.75_n1`` -> ``("midreset_t0.75", 1)``); ``(arm_id, None)`` when it carries none."""
+    head, sep, n = arm_id.rpartition("_n")
+    if sep and n.isdigit() and "_t" in head:
+        return head, int(n)
+    return arm_id, None
+
+
+def warm_steps_of(arm_id: str) -> Optional[int]:
+    """Explicit Euler-step count N of a warm-reset arm id (GR00T LIBERO, ``..._n<N>``), or None: N then follows
+    the schedule, ``remaining_steps(start_t)`` (every RoboCasa arm and every exact-resume arm)."""
+    return split_warm_steps(arm_id)[1]
 
 
 def warm_t_of(arm_id: str) -> float:
-    """start_t named by a warm-family arm id (``warm_t0.2``, ``warmreset_t0.2``, ``warmshoot_t0.2``)."""
+    """start_t named by a warm-family arm id (``warm_t0.2``, ``warmreset_t0.2``, ``midreset_t0.75_n1``)."""
+    base = split_warm_steps(arm_id)[0]
     for prefix in WARM_ARM_PREFIXES:
         head = f"{prefix}_t"
-        if arm_id.startswith(head):
-            return float(arm_id[len(head):])
+        if base.startswith(head):
+            return float(base[len(head):])
     raise ValueError(f"{arm_id!r} is not a warm-family arm id")
 
 
@@ -117,6 +153,17 @@ def warm_mode_of(arm_id: str) -> str:
         if arm_id.startswith(f"{prefix}_t"):
             return prefix
     raise ValueError(f"{arm_id!r} is not a warm-family arm id")
+
+
+def executed_steps_of(env_id: str, arm_id: str) -> int:
+    """Euler steps every decision of ``arm_id`` executes under ``env_id`` (its equal-NFE budget m)."""
+    env = resolve_env(env_id)
+    if arm_id == "full":
+        return env.k_full
+    if arm_id.startswith("plain_k"):
+        return int(arm_id[len("plain_k"):])
+    n = warm_steps_of(arm_id)
+    return int(n) if n is not None else env.remaining_steps(warm_t_of(arm_id))
 
 
 QB_MAIN_M = {"pi05": 2, "groot": 1}
@@ -177,6 +224,43 @@ MACRO13_ARMS_BY_POLICY = {
               "resetfinal_t0.75", "resetfinal_t0.5", "midfinal_t0.75", "midfinal_t0.5",
               "midfinal50_t0.75", "midfinal50_t0.5", "midreset_t0.75", "midreset_t0.5",
               "midreset50_t0.75", "midreset50_t0.5"),
+}
+# Self-start ablation round (owner 2026-09-24): every warm-reset configuration shown on the macro-13 page, with
+# the self start, on the 13-task roster, 50 episodes per task, seed 2M (pairs with the macro-13 cache arms).
+SELF13_EXPERIMENT_ID = "sdiag_self13"
+SELF13_EPISODES = 50
+SELF13_ARMS_BY_POLICY = {
+    "pi05": ("selfwarmreset_t0.2", "selfresetfinal_t0.2", "selfmidfinal_t0.2"),
+    "groot": ("selfwarmreset_t0.75", "selfmidreset_t0.75", "selfmidreset50_t0.75",
+              "selfresetfinal_t0.75", "selfmidfinal_t0.75", "selfmidfinal50_t0.75",
+              "selfwarmreset_t0.5", "selfmidreset_t0.5", "selfresetfinal_t0.5", "selfmidfinal_t0.5", "selfmidfinal50_t0.5",
+              # shoot ablation (owner 2026-09-24): no reset, warm-reset step size, cache and self starts
+              "warmshoot_t0.75", "midshoot_t0.75", "midshoot50_t0.75", "warmshoot_t0.5", "midshoot_t0.5",
+              "selfwarmshoot_t0.75", "selfmidshoot_t0.75", "selfmidshoot50_t0.75", "selfwarmshoot_t0.5",
+              "selfmidshoot_t0.5"),
+}
+# LIBERO self-start round (owner 2026-09-24, logs/step_diag_libero_selfstart_plan.log.md): the macro-13 page's
+# configurations on LIBERO spatial and libero_10, on the frozen pruned A pool (10 tasks x init_idx 0..49 = 500
+# episodes per arm and suite, LIBERO env seed 7, as the LIBERO shadow). Own experiment id and out roots.
+LIBERO_SELF_EXPERIMENT_ID = "sdiag_libero_self"
+LIBERO_SELF_EPISODES = 50
+LIBERO_SELF_SUITES = ("libero_spatial", "libero_10")
+LIBERO_N_TASKS = 10
+LIBERO_ENV_SEED = 7
+# GR00T K = 8 (owner 2026-09-24): every warm-reset arm keeps RoboCasa's K = 4 (T, N, t) tuple, so the Euler-step
+# count N is decoupled from the snapshot's start_t and named in the arm id, ``<mode>_t<native start_t>_n<N>``:
+# N = 1 starts from the T = 0.25 snapshot (native 0.75), N = 2 from the T = 0.5 snapshot (native 0.5). A
+# final-action arm takes the final chunk of the entry retrieved at that same start_t and shares its yaml. The
+# exact resume (ours) stays on the native 8-step grid: warm_t0.875 (N = 1) and warm_t0.75 (N = 2).
+GROOT_LIBERO_START_T_BY_N = {1: 0.75, 2: 0.5}
+GROOT_LIBERO_RESET_MODES = ("warmreset", "midreset", "midreset50", "resetfinal", "midfinal", "midfinal50")
+_GROOT_LIBERO_CACHE_ARMS = tuple(f"{mode}_t{t:g}_n{n}" for n, t in GROOT_LIBERO_START_T_BY_N.items()
+                                 for mode in GROOT_LIBERO_RESET_MODES)
+LIBERO_SELF_ARMS_BY_POLICY = {
+    "pi05": ("full", "plain_k2", "warm_t0.2", "warmreset_t0.2", "selfwarmreset_t0.2", "resetfinal_t0.2",
+             "selfresetfinal_t0.2", "midfinal_t0.2", "selfmidfinal_t0.2"),
+    "groot": ("full", "plain_k1", "plain_k2", "warm_t0.875", "warm_t0.75", *_GROOT_LIBERO_CACHE_ARMS,
+              *(f"self{arm}" for arm in _GROOT_LIBERO_CACHE_ARMS)),
 }
 # seed-segment cross-check arms / tasks per policy (pi0.5 = the VAR500 set; GR00T = one cliff + one flat Q-B task)
 XSEED_ARMS_BY_POLICY = {"pi05": VAR500_ARMS, "groot": ("plain_k1", "warm_t0.75", "warmreset_t0.75", "resetfinal_t0.75")}
@@ -383,7 +467,8 @@ def validate_arm(env_id: str, mode: str, arm_id: str, exec_steps: int | None, ca
     import yaml
 
     env = resolve_env(env_id)
-    warm_family = mode == "warm" or mode in WARM_VARIANT_MODES
+    warm_family = (mode == "warm" or mode in WARM_VARIANT_MODES or mode in SELF_VARIANT_MODES
+                   or mode in GROOT_SHOOT_MODES or mode in SELF_SHOOT_MODES)
     expected_arm = f"plain_k{exec_steps}" if mode == "plain" else mode
     if not warm_family and arm_id != expected_arm:
         raise ValueError(f"mode/step identity requires arm_id={expected_arm}")
@@ -391,13 +476,26 @@ def validate_arm(env_id: str, mode: str, arm_id: str, exec_steps: int | None, ca
         cfg = yaml.safe_load(pathlib.Path(cache_config).read_text())
         judge = cfg["checkpoints"]["cp1"]["judge"]
         if warm_family:
-            if not arm_id.startswith(f"{mode}_t"):
+            base, n_steps = split_warm_steps(arm_id)
+            if not base.startswith(f"{mode}_t"):
                 raise ValueError(f"{mode} arm must be named {mode}_t<start_t>")
-            t = float(arm_id[len(mode) + 2:])
-            if t not in QB_WARM_TS[env.policy] or env.benchmark != "robocasa365":
-                raise ValueError("warm start_t is outside the frozen arm set")
-            if mode == "warmshoot" and env.policy != "pi05":
-                raise ValueError("the overshoot variant is pi0.5 only (GR00T runs warmreset / resetfinal)")
+            t = float(base[len(mode) + 2:])
+            if env.benchmark == "robocasa365":
+                if t not in QB_WARM_TS[env.policy] or n_steps is not None:
+                    raise ValueError("warm start_t is outside the frozen arm set")
+            else:
+                if t not in env.warm_ts:
+                    raise ValueError("warm start_t is outside the frozen arm set")
+                # GR00T LIBERO warm-reset arms name their step count (K=8 keeps RoboCasa's K=4 tuples);
+                # the exact resume and every pi0.5 arm run remaining_steps(start_t)
+                named = env.policy == "groot" and mode != "warm"
+                if named != (n_steps is not None) or (n_steps is not None and not 1 <= n_steps <= env.k_full):
+                    raise ValueError(f"{arm_id}: GR00T LIBERO warm-reset arms are named <mode>_t<start_t>_n<N> "
+                                     "(1 <= N <= K); no other warm arm carries a step count")
+            if mode in ("midshoot", "midshoot50", *SELF_SHOOT_MODES) and env.policy != "groot":
+                raise ValueError("the midshoot / self shoot variants are GR00T only (pi0.5 ran warmshoot)")
+            if (mode in GROOT_SHOOT_MODES or mode in SELF_SHOOT_MODES) and env.benchmark != "robocasa365":
+                raise ValueError("the shoot variants are a RoboCasa365 ablation only")
             expected = {"type": "always_warm_start", "start_t": t}
         else:
             expected = {"type": "threshold", "threshold": 99.0} if env.policy == "pi05" else {"type": "always_hit"}
