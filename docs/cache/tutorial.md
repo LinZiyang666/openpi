@@ -686,6 +686,9 @@ connection writes `<evidence_dir>/warm_reset_<yaml_id>_<host>_<pid>_<conn>.jsonl
 against expectations built from the journal, the driver-stamped per-step rows
 and the dispatched yaml.
 
+For runnable YAML generation, concurrent multi-arm scheduling, standard workers
+and trusted admission commands, see [Warm reset experiments](warm_reset_experiments.md).
+
 ### CLI Usage
 
 ```bash
