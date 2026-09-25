@@ -47,6 +47,13 @@ GUARDED_FILES = [
     "src/openpi/cache/trace/groot.py",
     "src/openpi/serving/batching_core.py",
     "src/openpi/serving/trace_serving.py",
+    # Warm reset continuation family (plan warm_continuation_first_class §5):
+    # the model-agnostic package root and the GR00T executor.
+    "src/openpi/cache/warm_reset/__init__.py",
+    "src/openpi/cache/warm_reset/types.py",
+    "src/openpi/cache/warm_reset/runtime.py",
+    "src/openpi/cache/warm_reset/evidence.py",
+    "src/openpi/cache/warm_reset/groot.py",
     # ActionCache-baseline island scripts (plan actioncache_baseline_groot §3.6/§3.9/§3.11).
     "exp/libero_groot/cp2_reconstruct.py",
     "exp/libero_groot/build_cp2_artifact_groot.py",
@@ -70,11 +77,14 @@ TRANSITIVE_ROOTS = [
     "src/openpi/cache/trace/groot.py",
     "src/openpi/cache/trace/runtime.py",
     "src/openpi/serving/trace_serving.py",
+    "src/openpi/cache/warm_reset/__init__.py",
+    "src/openpi/cache/warm_reset/groot.py",
 ]
 
 #: The Pi0.5 trace adapter is loaded lazily by the Pi0.5 interceptor only; no
-#: GR00T import chain may pass through it (plan §9-9).
-PI05_ONLY_MODULES = ("openpi.cache.trace.pi05",)
+#: GR00T import chain may pass through it (plan §9-9). The Pi0.5 warm reset
+#: executor imports the model and is assembled by ``serve_policy`` only.
+PI05_ONLY_MODULES = ("openpi.cache.trace.pi05", "openpi.cache.warm_reset.pi05")
 
 
 def _imported_modules(path: pathlib.Path) -> set[str]:

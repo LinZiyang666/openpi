@@ -315,7 +315,10 @@ def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
         validate_artifact_identity,
         validate_groot_cache_config,
     )
+    from openpi.cache.groot.staged import GrootStagedRunner
     from openpi.cache.orchestrator import CacheOrchestrator
+    from openpi.cache.warm_reset.groot import build_groot_warm_reset
+    from openpi.cache.warm_reset.runtime import refuse_warm_reset
 
     config = load_cache_config(args.cache_config)
     validate_cache_config(config)
@@ -361,6 +364,7 @@ def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
 
         from exp.robocasa365.rit_shadow import GrootRitShadow
 
+        refuse_warm_reset(config, where="--rit-shadow-out")
         if not args.rit_warm_ts:
             raise SystemExit("--rit-shadow-out requires --rit-warm-ts")
         if not args.rit_weights:
@@ -382,15 +386,22 @@ def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
             f"rit-shadow -> {args.rit_shadow_out} (ts={warm_ts}, h_exec={args.rit_h_exec})",
         )
 
+    if getattr(args, "trace_out", None):
+        refuse_warm_reset(config, where="--trace-out")
     rt = _trace_runtime(
         args, config=config, components=components, orchestrator=orchestrator,
         runner=runner, bundle_id="default", concurrent=False,
     )
+    warm_reset = build_groot_warm_reset(
+        config, bundle_id="default", yaml_id=None, yaml_path=args.cache_config
+    )
+    interceptor = GrootCacheInterceptor(
+        policy, runner, orchestrator=orchestrator, timer=timer,
+        trace=rt, trace_vision_fields=_RC_TRACE_CAMS if rt else None,
+        **({} if warm_reset is None else {"warm_reset": warm_reset.executor}),
+    )
     return (
-        GrootCacheInterceptor(
-            policy, runner, orchestrator=orchestrator, timer=timer,
-            trace=rt, trace_vision_fields=_RC_TRACE_CAMS if rt else None,
-        ),
+        interceptor if warm_reset is None else warm_reset.wrap(interceptor),
         f"cache -> {args.cache_config} ({config.key_builder.type})"
         + (f" + trace -> {args.trace_out}" if rt else ""),
     )
@@ -496,6 +507,8 @@ def _resolve_bundle(
     validate_artifact_identity(bundle.shared_storage, config)
     if provenance is not None:
         provenance["yaml_path"] = getattr(bundle, "config_path", None)
+        # The registered yaml id (not the bundle id) names a warm reset arm's evidence.
+        provenance["yaml_id"] = getattr(bundle, "yaml_id", None)
     return config, bundle.shared_storage
 
 
@@ -550,6 +563,8 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     )
     from openpi.cache.groot.staged import GrootStagedRunner
     from openpi.cache.orchestrator import CacheOrchestrator
+    from openpi.cache.warm_reset.groot import build_groot_warm_reset
+    from openpi.cache.warm_reset.runtime import refuse_warm_reset
 
     config = load_cache_config(args.cache_config)
     validate_cache_config(config)
@@ -604,12 +619,21 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
             shared_base_policy.model, timer=timer, compile_vision=args.compile_stage1
         )
         if not trace_on:
-            interceptor = GrootCacheInterceptor(
-                shared_base_policy, runner, orchestrator=orchestrator, timer=timer
+            warm_reset = build_groot_warm_reset(
+                conn_config,
+                bundle_id=bundle_id,
+                yaml_id=provenance.get("yaml_id"),
+                yaml_path=provenance.get("yaml_path", args.cache_config),
             )
-            return _InferLockedPolicy(GrootPolicyAdapter(interceptor), lock)
+            interceptor = GrootCacheInterceptor(
+                shared_base_policy, runner, orchestrator=orchestrator, timer=timer,
+                **({} if warm_reset is None else {"warm_reset": warm_reset.executor}),
+            )
+            served = interceptor if warm_reset is None else warm_reset.wrap(interceptor)
+            return _InferLockedPolicy(GrootPolicyAdapter(served), lock)
         # Trace: the interceptor takes the shared lock around stage 1/2 itself
         # and submits its stage-3 variants to the process coordinator.
+        refuse_warm_reset(conn_config, where="--trace-out")
         rt = _trace_runtime(
             args, config=conn_config, components=components, orchestrator=orchestrator,
             runner=runner, bundle_id=bundle_id, concurrent=True,

@@ -64,6 +64,7 @@ from openpi.serving.batching_core import (  # noqa: F401 - public re-exports
     Stage3InitPayload,
     Stage3MissPayload,
     Stage3VariantOutput,
+    Stage3WarmResetPayload,
     Stage3WarmStartPayload,
     StageBatcher,
     StageRequest,
@@ -91,6 +92,11 @@ class Pi05StageBatcher:
 
     @staticmethod
     def bucket_key(payload: Any) -> Hashable:
+        if isinstance(payload, Stage3WarmResetPayload):
+            from openpi.cache.warm_reset.types import SelfStartPlan
+
+            mode = "warm_reset_self" if isinstance(payload.plan, SelfStartPlan) else "warm_reset"
+            return (mode, payload.plan.grid_key())
         if isinstance(payload, Stage3MissPayload):
             return ("miss", None, payload.num_steps)
         if isinstance(payload, Stage3WarmStartPayload):
@@ -201,6 +207,48 @@ class Pi05StageBatcher:
             for i in range(len(payloads))
         ]
 
+    def run_stage3_warm_reset(self, payloads: list) -> list:
+        """One ``Stage3WarmResetPayload`` bucket (plan warm_continuation_first_class §4.5.2).
+
+        Every plan must be of one type and one grid, and each is validated on
+        its own (a reset bucket may mix ``start_t`` / source / point). A
+        continuation bucket runs one loop and splits it by row; a self-start
+        bucket passes every row's plan, so each row gets its own snapshot.
+        ``steps_run`` of a row is its measured iteration count, not B x N.
+        """
+        from openpi.cache.types import PI05_V1
+        from openpi.cache.warm_reset.pi05 import (
+            WarmResetStage3Output,
+            run_pi05_continuation,
+            run_pi05_self_start,
+        )
+        from openpi.cache.warm_reset.types import (
+            SelfStartPlan,
+            WarmResetPlan,
+            validate_plan,
+            validate_self_plan,
+        )
+
+        plans = [p.plan for p in payloads]
+        kind = type(plans[0])
+        if kind not in (WarmResetPlan, SelfStartPlan) or any(type(p) is not kind for p in plans):
+            raise TypeError("a warm reset bucket must hold plans of one type")
+        key = plans[0].grid_key()
+        if any(p.grid_key() != key for p in plans):
+            raise ValueError("a warm reset bucket must hold plans of one grid")
+        validate = validate_self_plan if kind is SelfStartPlan else validate_plan
+        for plan in plans:
+            validate(plan, PI05_V1)
+        stage2_batched = stage_io.stack_stage2_output([p.stage2_out for p in payloads])
+        x_batched = torch.stack([p.x for p in payloads], dim=0).to(self._device)
+        if kind is SelfStartPlan:
+            return run_pi05_self_start(self._model, stage2_batched, x_batched, plans)
+        out = run_pi05_continuation(self._model, stage2_batched, x_batched, plans[0])
+        return [
+            WarmResetStage3Output(action_chunk=out.action_chunk[i:i + 1], steps_run=out.steps_run)
+            for i in range(len(payloads))
+        ]
+
 
 def _Stage3Reply(*, action_chunk, intermediates):
     """The Stage-3 reply type legacy callers expect (``Stage3Output``)."""
@@ -258,6 +306,7 @@ __all__ = [
     "Stage3InitPayload",
     "Stage3MissPayload",
     "Stage3VariantOutput",
+    "Stage3WarmResetPayload",
     "Stage3WarmStartPayload",
     "StageBatcher",
     "StageRequest",

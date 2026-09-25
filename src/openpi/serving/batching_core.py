@@ -18,8 +18,13 @@ events the worker waits on before it reads the inputs),
 group with other connections' same-key requests), and per-bucket fault
 isolation in the Stage-3 loop.
 
+Warm reset addition (plan logs/warm_continuation_first_class_plan.log.md
+§4.5.2): ``Stage3WarmResetPayload``, dispatched to the adapter's optional
+``run_stage3_warm_reset`` (missing -> ``TypeError`` for that bucket only).
+
 This module imports torch and the serving monitor only — never jax, the
-models or ``stage_io``.
+models or ``stage_io``; the warm reset bucket metric lazily reads the
+jax-free ``openpi.cache.warm_reset.types``.
 """
 
 from __future__ import annotations
@@ -122,7 +127,23 @@ class Stage3WarmStartPayload:
     ready_events: tuple = ()
 
 
-Stage3InitPayload = Union[Stage3MissPayload, Stage3WarmStartPayload]
+@dataclass
+class Stage3WarmResetPayload:
+    """Warm reset path (plan logs/warm_continuation_first_class_plan.log.md §4.5.2).
+
+    ``plan`` is a frozen ``WarmResetPlan`` (continuation; ``x`` is its start)
+    or ``SelfStartPlan`` (direct self-start inference; ``x`` is its private
+    noise). A sibling of ``Stage3WarmStartPayload``, deliberately not a
+    subclass: an adapter that does not know this type must fail loudly
+    instead of running it as the exact resume.
+    """
+    stage2_out: Any
+    x: torch.Tensor          # [action_horizon, action_dim] — unbatched
+    plan: Hashable
+    ready_events: tuple = ()
+
+
+Stage3InitPayload = Union[Stage3MissPayload, Stage3WarmStartPayload, Stage3WarmResetPayload]
 
 
 @dataclass
@@ -138,6 +159,28 @@ class Stage3VariantOutput:
     intermediates: dict | None = None
     first_step_input: torch.Tensor | None = None
     first_step_x: torch.Tensor | None = None
+
+
+def _warm_reset_bucket_fields(bucket: list) -> dict:
+    """``3bucket`` metric fields of a finished ``Stage3WarmResetPayload`` bucket.
+
+    The legacy fields read payload-level ``start_t`` / ``num_steps``, which this
+    type carries on its plan: a continuation reports its ``start_t`` / ``N``, a
+    self start ``-1.0`` / ``K``. ``grid_key`` names the bucket and
+    ``steps_run`` is the adapter's measured count, read off the published reply.
+    """
+    from openpi.cache.warm_reset.types import SelfStartPlan
+
+    plan = bucket[0].payload.plan
+    reply = (bucket[0].reply_slot or [None])[0]
+    self_start = isinstance(plan, SelfStartPlan)
+    return {
+        "mode": "warm_reset_self" if self_start else "warm_reset",
+        "start_t": -1.0 if self_start else plan.start_t,
+        "num_steps": plan.k if self_start else plan.n_steps,
+        "grid_key": list(plan.grid_key()),
+        "steps_run": getattr(reply, "steps_run", None),
+    }
 
 
 # ------------------------------------------------------------------
@@ -182,6 +225,11 @@ class StageBatcher(Protocol):
     (``None`` = the adapter's default) and must return one native output per
     request carrying exactly that request's snapshot set; when no request set
     anything the adapter keeps its original call shape.
+
+    Optional: ``run_stage3_warm_reset(payloads) -> list`` runs one bucket of
+    ``Stage3WarmResetPayload`` and returns one output per request carrying its
+    measured ``steps_run``. An adapter without it fails such a bucket with
+    ``TypeError`` (only that bucket).
     """
 
     def bucket_key(self, payload: Any) -> Hashable: ...
@@ -796,12 +844,15 @@ class BatchingCore:
                         "q_depth": 0,
                         "enqueue_spread_ms": 0.0,
                     })
-                    self._recorder.record_batch({
+                    record = {
                         "stage": "3bucket", "mode": mode,
                         "start_t": getattr(p0, "start_t", -1.0) if getattr(p0, "start_t", None) is not None else -1.0,
                         "num_steps": getattr(p0, "num_steps", -1),
                         "size": len(bucket), "forward_ms": run_ms,
-                    })
+                    }
+                    if isinstance(p0, Stage3WarmResetPayload):
+                        record.update(_warm_reset_bucket_fields(bucket))
+                    self._recorder.record_batch(record)
                 except Exception:
                     logger.exception(
                         "BatchingCoordinator stage3 bucket-first metrics/record failed (non-fatal)"
@@ -1063,14 +1114,17 @@ class BatchingCore:
                     p0 = bucket[0].payload
                     mode = "miss" if isinstance(p0, Stage3MissPayload) else "warm_start"
                     start_t = getattr(p0, "start_t", None)
-                    self._recorder.record_batch({
+                    record = {
                         "stage": "3bucket",
                         "mode": mode,
                         "start_t": start_t if start_t is not None else -1.0,
                         "num_steps": getattr(p0, "num_steps", -1),
                         "size": len(bucket),
                         "forward_ms": (time.monotonic() - _bt) * 1000.0,
-                    })
+                    }
+                    if isinstance(p0, Stage3WarmResetPayload):
+                        record.update(_warm_reset_bucket_fields(bucket))
+                    self._recorder.record_batch(record)
                 except Exception:
                     logger.exception(
                         "BatchingCoordinator stage3 sub-bucket metrics/record failed (non-fatal)"
@@ -1084,7 +1138,7 @@ class BatchingCore:
         groups: dict[Hashable, list[StageRequest]] = collections.defaultdict(list)
         for req in reqs:
             p = req.payload
-            if not isinstance(p, (Stage3MissPayload, Stage3WarmStartPayload)):
+            if not isinstance(p, (Stage3MissPayload, Stage3WarmStartPayload, Stage3WarmResetPayload)):
                 req.error = TypeError(
                     f"Unknown Stage3 payload type: {type(p).__name__}"
                 )
@@ -1117,6 +1171,14 @@ class BatchingCore:
                 num_steps=p0.num_steps,
                 save_timesteps_per_request=[p.save_timesteps for p in payloads],
             )
+        elif isinstance(p0, Stage3WarmResetPayload):
+            run = getattr(self._batcher, "run_stage3_warm_reset", None)
+            if run is None:
+                raise TypeError(
+                    f"{type(self._batcher).__name__} cannot run Stage3WarmResetPayload "
+                    "(no run_stage3_warm_reset)"
+                )
+            outs = run(payloads)
         else:  # Stage3WarmStartPayload
             outs = self._batcher.run_stage3_warm(
                 payloads,

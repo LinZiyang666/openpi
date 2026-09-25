@@ -1029,6 +1029,7 @@ cell 的权重上，调度器为这条性质付出了每 cell 重启的代价。
 而注册表按 `id(eagle)` 进程内共享 ⇒ 在「编译调用」与「散射进语言序列」之间，那个张量是活的共享状态。
 `run_stage1` 因此**无条件** `.clone()`。⚠ 这只堵住**输出侧**：graph 的**输入**同样是静态缓冲，
 所以 `_InferLockedPolicy` 仍是必需的，不能据此认为拆锁安全了。
+warm reset 续跑族（§5.22）在 GR00T 上同样走这条 infer-lock 路径，**没有合批**：非 trace 路径本来就没有 coordinator。
 
 **yaml 类型名 `cp1_groot_*` 的前缀是有承载作用的**：`config.py` 的两条校验按
 `startswith("cp1_")` 触发（强制 enable `vision_0`+`robot_state`、强制 `preload_path`），
@@ -1203,6 +1204,125 @@ aggregation matches the full accepted run/yaml/task/attempt identity and pairs
 episodes by suite, parent digest, task and original index. Task-stratified
 bootstrap resamples whole paired episodes for SR and ratios of risk counts;
 it does not reproduce the shared learner or arrival-order uncertainty.
+
+### 5.22 Warm reset continuation family (`warm_reset`)
+
+> Plan: [`logs/warm_continuation_first_class_plan.log.md`](../../logs/warm_continuation_first_class_plan.log.md).
+> Source: `src/openpi/cache/warm_reset/` (`types`, `runtime`, `evidence`, `pi05`, `groot`).
+
+Only "resume the cached snapshot on the library grid" is **warm start** (a
+yaml without the block). Every other continuation of a WARM_START verdict --
+the step_diag `(T, N, t)` arms -- is a **warm reset**, described by an optional
+top-level `warm_reset:` block: where the continuation starts, which t grid it
+walks and how many Euler steps it takes. The block mirrors the existing
+WARM_START chain segment for segment and changes nothing else:
+
+| Segment | Exact WARM_START (unchanged) | Warm reset (parallel) |
+|---|---|---|
+| verdict | judge `start_t` | the same judge, unaware of the block |
+| orchestrator | payload + `validate_for_warm_start` | the same (the snapshot at `start_t` must exist for every arm) |
+| interceptor | `(start_x, start_t, K)` | the same branch resolves a frozen `WarmResetPlan` and the start |
+| runtime guards | inside `run_stage3_from` | inside the new entries, before any denoise call |
+| stage-3 entry | `run_stage3_from` | `run_pi05_continuation` / `run_pi05_self_start`; `run_groot_continuation` / `groot_self_start` |
+| coordinator | `Stage3WarmStartPayload`, `("warm_start", start_t, K)` | `Stage3WarmResetPayload`, `("warm_reset", grid_key)` / `("warm_reset_self", (schedule_id, K))` |
+| wire | `__hit_meta__` | plus the additive `__hit_meta__["warm_reset"]` |
+
+**yaml** (`WarmResetConfig`): `start: {source: cache|self, point: snapshot|final}`,
+`grid: {kind: reset, entry_t}` or `{kind: shoot, step_budget}`,
+`num_steps: remaining | N` (`1 <= N <= K`), `self_seed: {namespace,
+identity_keys}` (self starts only), `evidence_dir` (server-local).
+`entry_t` / `step_budget` are always in the Pi0.5 flow-time convention
+(1 = noise), while the judge's `start_t` stays in the schedule's native time
+(GR00T 0.75 = T 0.25). There is no `kind: exact`: the exact resume is the
+absent block. `validate_cache_config` (`_warm_reset_errors`) refuses a block
+that can never run (no WARM_START judge), the combinations trace / shadow
+teacher / routing / an enabled `cp2` / `online_rit`, a final start that
+shoots, `task_uid` in the seed keys (it embeds the yaml id and would unpair
+the self arms), and an `evidence_dir` whose nearest existing ancestor is not
+writable (at load, also for `load_cache_config` ctrl). Both interceptors refuse
+the same combinations at construction, because `--trace-out` can enable
+tracing without the yaml validator seeing it.
+
+**Grids.** `resolve_plan(spec, schedule, start_t)` always checks that
+`start_t` is a recoverable point, also for an explicit N; `grid_key` =
+`(schedule_id, K, kind, level, N, start_t if shoot)`, so cache / self and
+snapshot / final arms of one grid share a bucket and K=4 / K=8 GR00T never do.
+Bit-for-bit semantics are the step_diag reference (`exp/step_diag`):
+
+* Pi0.5: reset `t0 = level`, `dt = -level/N`; shoot replays `K - n(start_t)`
+  float32 grid steps from 1.0 (as `run_stage3_from`) and uses `dt = -level/N`.
+  The self start repeats `_stage3_with_intermediates` statement for statement.
+* GR00T dispatches to the same three loops as step_diag: a reset to pure
+  noise is upstream's own `denoise_loop` (`tau_i = i/float(N)`); a reset below
+  noise and a shoot are `grid_denoise_loop` (`tau_i = tau0 + i*dt`, with
+  `dt = (1 - tau0)/N` resp. `level/N` in exactly that expression order). The
+  two formulas are not bit-equal for general N, hence the dispatch.
+  `openpi.cache.groot.staged` is not modified.
+
+**Starts.** cache·snapshot = the snapshot the branch already took;
+cache·final = the payload's `action_chunk`, cast and shaped like it; self =
+one K-step inference on the decision's stage-2 handle from
+`private_noise(seed)` (private CPU generator, global RNG untouched), keeping
+its snapshot or final action. The seed is a strategy object
+(`EpisodeDigestSeed`: `stable_digest_int(namespace, *identity[keys],
+decision_idx, "self")`); without `yaml_id` / `bundle_id` every self arm of one
+namespace draws the same noise per decision, with `attempt` a retry draws new
+noise. The production recipe is not the step_diag `noise_seed` (the standard
+workers do not send env seed / pool sha); parity is proven per seed integer.
+
+**Runtime guards in the new entries.** The GR00T guards used to live inside
+`run_stage3_from`; a new entry would bypass them, so `run_groot_continuation`
+and `groot_self_start` check, before any head call: the autocast session
+(`runner._require_session`), library schedule == `runner.live_schedule()`
+(read per call), plan == library schedule, and a recoverable start
+(`validate_plan` / `validate_self_plan`, also for hand-built plans). The Pi0.5
+entries check the plan against `PI05_V1`; the executor checks the payload's K.
+
+**Measured counts.** No count is back-filled from the budget. Every Euler step
+goes through a call-local `_CountedStep` around the model's own step function
+(Pi0.5 `model.denoise_step`, GR00T `staged.denoise_step`; the GR00T self start
+counts the loop's `on_step` callbacks); nothing on the shared model instance
+is replaced. A batched bucket reports per row the iterations that row went
+through, not B x N. `WarmResetSession.begin_decision` zeroes the per-decision
+counters; the executor counts one call per entry into the continuation /
+self-start binding and adds each call's measured steps on return.
+
+**Evidence** (two layers). `__hit_meta__["warm_reset"]`
+(`warm_reset_meta_v1`: spec digest, plan values, measured `continuation_nfe`,
+`n_stage3_calls`, `self_start_calls`, `t`, `dt`, `decision_nfe`; GR00T adds
+`tau` / `bucket`; only self arms carry `self_start` / `self_seed` /
+`self_direct_nfe`). The standard workers copy hit meta through a whitelist, so
+the authoritative record is server-side: the evidence wrapper
+(`WarmResetEvidencePolicy` / `GrootWarmResetEvidencePolicy`, outermost cache
+wrapper, `hasattr` surface of the interceptor) writes one `decision` row per
+request (index assigned at the entry, `status: error` rows re-raised) and one
+`finalize` row per episode in the same `PerStepWriter` commit, one JSONL file
+per connection. A truncated tail therefore always loses the `finalize` first.
+`episode_problems(rows, expected=ExpectedEpisode)` admits an episode only
+against **trusted** inputs (the journal's accepted terminal, the
+driver-stamped per-step decision count, the dispatched yaml / task identity),
+never against values read off the checked rows, and reproduces the step_diag
+admission (equal continuation NFE, self-start proof, K + N pricing) plus
+closure, completeness and identity rules (problem codes: plan §4.7.3). A
+server running older code ignores the block silently (unknown yaml keys are
+only warned about); admission rejects its episodes because they carry no
+evidence.
+
+Admission also checks the row's source, point, grid kind, level and exact
+time sequence against the trusted spec, including the native GR00T times.
+Malformed session fields and inconsistent expectations return problem codes
+instead of interrupting analysis. Both GR00T entries reject empty or
+inconsistent start/noise and stage-2 batches before any head preprocessing.
+
+**Serving.** Pi0.5: direct and coordinator bindings (`_wrap_policy`, both
+branches); a self arm costs two stage-3 submissions per decision (self bucket
+K steps, continuation bucket N steps). GR00T: `serve_groot_n15` /
+`serve_groot_libero` single-connection and `--concurrent` infer-lock stacks
+(including `--allow-dynamic-bundles`, where the registered yaml id and the
+selected bundle id are recorded independently); the non-trace GR00T path has
+no batching coordinator (§5.17). The RIT shadow, LOTO logger and trace
+branches refuse a block (`refuse_warm_reset`). Without a block every assembly
+point builds exactly today's stack.
 
 ## 6. Data Flow and Timing
 
@@ -1558,6 +1678,20 @@ without a mask). Additive core API: ``Stage3MissPayload.save_timesteps``
 worker waits on before reading the inputs), ``submit_many_to_stage`` (one
 decision's variants enqueued together so they group with other connections'
 same-key requests) and per-bucket fault isolation.
+
+Warm reset (§5.22) adds a third stage-3 payload, ``Stage3WarmResetPayload``
+(``stage2_out``, unbatched ``x``, frozen ``plan``, ``ready_events``). It is a
+sibling of ``Stage3WarmStartPayload``, deliberately not a subclass: the core
+dispatches it to the adapter's optional ``run_stage3_warm_reset(payloads)``
+and an adapter without that method (``GrootStageBatcher``) fails only that
+bucket with ``TypeError`` instead of running it as the exact resume.
+``Pi05StageBatcher`` buckets continuations by ``("warm_reset", grid_key)``
+and self-start inferences by ``("warm_reset_self", (schedule_id, K))``, passes
+every row's own plan (each row gets its own capture) and returns per-row
+measured ``steps_run``. The ``3bucket`` metric of such a bucket records
+``mode`` ``warm_reset`` / ``warm_reset_self``, the plan's ``start_t`` / N
+(``-1.0`` / K for a self start) plus ``grid_key`` and the measured
+``steps_run``; the records of the two legacy payloads are unchanged.
 
 ### Trace serving mode (`--trace-out`)
 

@@ -795,6 +795,71 @@ _TRACE_RNG_MODES = frozenset({"verdict_aware", "global"})
 
 
 @dataclass
+class WarmResetStartConfig:
+    """Where a warm reset continuation starts (``warm_reset.start``).
+
+    ``source`` is ``cache`` (the retrieved entry) or ``self`` (a direct full
+    inference on the decision itself); ``point`` is ``snapshot`` (the x at the
+    verdict's ``start_t``) or ``final`` (the final action, T = 0). Both are
+    required; ``None`` only means "not written" and is reported by the
+    validator.
+    """
+
+    source: Optional[str] = None
+    point: Optional[str] = None
+
+
+@dataclass
+class WarmResetGridConfig:
+    """The t grid of a warm reset continuation (``warm_reset.grid``).
+
+    Written in the Pi0.5 flow-time convention (1 = noise, 0 = clean) for every
+    schedule. ``reset`` declares the start to sit at ``entry_t`` and walks to
+    the clean end; ``shoot`` keeps the start at its own flow time and takes
+    steps of ``step_budget / N``. Exactly one of the two levels is required.
+    """
+
+    kind: Optional[str] = None
+    entry_t: Optional[float] = None
+    step_budget: Optional[float] = None
+
+
+@dataclass
+class WarmResetSelfSeedConfig:
+    """Private-noise seed recipe of a self-start arm (``warm_reset.self_seed``).
+
+    The seed is a digest of ``namespace`` and the named ``episode_start``
+    identity keys plus the decision index; every self arm of one experiment
+    must share the namespace so they draw the same noise per decision.
+    """
+
+    namespace: str = ""
+    identity_keys: list[str] = field(
+        default_factory=lambda: ["experiment", "task", "orig_init_state_idx", "attempt"]
+    )
+
+
+@dataclass
+class WarmResetConfig:
+    """Warm reset continuation family (``warm_reset:``; plan
+    ``logs/warm_continuation_first_class_plan.log.md`` §4.2).
+
+    Absent means exactly today's WARM_START (the exact resume on the library
+    grid). Present, it only changes how stage 3 continues after a WARM_START
+    verdict; judge, retrieval and every other component are unaware of it.
+    ``num_steps`` is ``"remaining"`` (the schedule's remaining steps at the
+    verdict's ``start_t``) or an integer ``1 <= N <= K``. ``evidence_dir`` is
+    the server-local directory of the per-connection evidence JSONL.
+    """
+
+    start: Optional[WarmResetStartConfig] = None
+    grid: Optional[WarmResetGridConfig] = None
+    num_steps: int | str = "remaining"
+    self_seed: Optional[WarmResetSelfSeedConfig] = None
+    evidence_dir: str = ""
+
+
+@dataclass
 class CacheConfig:
     """Top-level cache configuration. This is the root dataclass for cache.yaml."""
 
@@ -822,6 +887,8 @@ class CacheConfig:
     # for anything else -- a GR00T warm-start recipe must name its schedule
     # explicitly, and the artifact / runtime binding checks refuse omission.
     denoise_schedule: Optional[str] = None
+    # Warm reset continuation family (None -> exact WARM_START; see WarmResetConfig).
+    warm_reset: Optional[WarmResetConfig] = None
 
 
 def effective_denoise_schedule(config: "CacheConfig") -> DenoiseSchedule:
@@ -991,6 +1058,10 @@ _CONFIG_TYPES: dict[str, type] = {
     "RoutingConfig": RoutingConfig,
     "ShadowTeacherConfig": ShadowTeacherConfig,
     "TraceConfig": TraceConfig,
+    "WarmResetStartConfig": WarmResetStartConfig,
+    "WarmResetGridConfig": WarmResetGridConfig,
+    "WarmResetSelfSeedConfig": WarmResetSelfSeedConfig,
+    "WarmResetConfig": WarmResetConfig,
     "CacheConfig": CacheConfig,
 }
 
@@ -3332,6 +3403,9 @@ def validate_cache_config(config: CacheConfig, *, check_files: bool = True) -> N
     # ── Trace serving mode (enabled ⇒ data-path exclusions) ──
     errors.extend(_trace_errors(config))
 
+    # ── Warm reset continuation family (present ⇒ schema + exclusions) ──
+    errors.extend(_warm_reset_errors(config, check_files))
+
     if errors:
         raise ConfigValidationError("\n\n".join(errors))
 
@@ -3543,6 +3617,154 @@ def _routing_errors(config: CacheConfig) -> list[str]:
         errors.append(
             f"routing allowlist: backend.type must be 'in_memory' (got {config.backend.type!r})."
         )
+    return errors
+
+
+_WARM_RESET_SOURCES = frozenset({"cache", "self"})
+_WARM_RESET_POINTS = frozenset({"snapshot", "final"})
+_WARM_RESET_KINDS = frozenset({"reset", "shoot"})
+
+
+def _is_level(value: Any) -> bool:
+    """A flow-time level in (0, 1]: a finite real number, never a bool."""
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and math.isfinite(value)
+        and 0.0 < value <= 1.0
+    )
+
+
+def _nearest_existing_dir(path: Path) -> Optional[Path]:
+    """The closest ancestor of ``path`` (itself included) that exists."""
+    current = path
+    while not current.exists():
+        if current.parent == current:
+            return None
+        current = current.parent
+    return current
+
+
+def _warm_reset_errors(config: CacheConfig, check_files: bool) -> list[str]:
+    """Validate the ``warm_reset`` block (plan warm_continuation_first_class §4.2.3).
+
+    The block only redefines the stage-3 continuation of a WARM_START verdict,
+    so it is refused wherever that continuation is not the plain resume it
+    replaces: no WARM_START at all (dead config), trace (records the exact
+    tiers), the X15 shadow teacher, sidecar routing, CP2 and the online RIT
+    judge (its feedback reads the exact resume's first step).
+    """
+    wr = getattr(config, "warm_reset", None)
+    if wr is None:
+        return []
+    if not isinstance(wr, WarmResetConfig):
+        return ["warm_reset must be a mapping (see WarmResetConfig)."]
+    errors: list[str] = []
+    if not _config_emits_warm_start(config):
+        errors.append(
+            "warm_reset is present but no enabled judge can return WARM_START; "
+            "the block would never run."
+        )
+    if config.trace.enabled:
+        errors.append("warm_reset and trace.enabled=true are mutually exclusive.")
+    if config.shadow_teacher.enabled:
+        errors.append("warm_reset and shadow_teacher.enabled=true are mutually exclusive.")
+    if config.routing is not None:
+        errors.append("warm_reset is incompatible with a routing section.")
+    active = [
+        (name, cp) for name, cp in config.checkpoints.items()
+        if not name.startswith("_") and cp.enabled
+    ]
+    if any(name == "cp2" for name, _ in active):
+        errors.append("warm_reset is incompatible with an enabled cp2 checkpoint.")
+    if any(cp.judge.type == "online_rit" for _, cp in active):
+        errors.append(
+            "warm_reset is incompatible with the online_rit judge: its feedback "
+            "reads the first step of the exact resume."
+        )
+
+    start, grid = wr.start, wr.grid
+    source = point = None
+    if not isinstance(start, WarmResetStartConfig):
+        errors.append("warm_reset.start is required ({source, point}).")
+    else:
+        source, point = start.source, start.point
+        if source not in _WARM_RESET_SOURCES:
+            errors.append(
+                f"warm_reset.start.source={source!r}: expected one of {sorted(_WARM_RESET_SOURCES)}."
+            )
+        if point not in _WARM_RESET_POINTS:
+            errors.append(
+                f"warm_reset.start.point={point!r}: expected one of {sorted(_WARM_RESET_POINTS)}."
+            )
+    if not isinstance(grid, WarmResetGridConfig):
+        errors.append("warm_reset.grid is required ({kind, entry_t | step_budget}).")
+    elif grid.kind == "reset":
+        if not _is_level(grid.entry_t):
+            errors.append(f"warm_reset.grid.entry_t={grid.entry_t!r}: reset needs a level in (0, 1].")
+        if grid.step_budget is not None:
+            errors.append("warm_reset.grid.step_budget is only valid with kind: shoot.")
+    elif grid.kind == "shoot":
+        if not _is_level(grid.step_budget):
+            errors.append(
+                f"warm_reset.grid.step_budget={grid.step_budget!r}: shoot needs a level in (0, 1]."
+            )
+        if grid.entry_t is not None:
+            errors.append("warm_reset.grid.entry_t is only valid with kind: reset.")
+        if point == "final":
+            errors.append(
+                "warm_reset: point: final cannot shoot -- the final action (T = 0) has "
+                "no flow time of its own to stay at."
+            )
+    else:
+        errors.append(
+            f"warm_reset.grid.kind={grid.kind!r}: expected one of {sorted(_WARM_RESET_KINDS)}."
+        )
+
+    n = wr.num_steps
+    if n != "remaining":
+        if not isinstance(n, int) or isinstance(n, bool):
+            errors.append(f"warm_reset.num_steps={n!r}: expected 'remaining' or an integer.")
+        else:
+            try:
+                k = effective_denoise_schedule(config).num_steps
+            except ConfigValidationError:
+                k = None  # the schedule id itself is reported by its own check
+            if n < 1 or (k is not None and n > k):
+                errors.append(f"warm_reset.num_steps={n}: expected 1 <= N <= K ({k}).")
+
+    seed = wr.self_seed
+    if source == "self":
+        if not isinstance(seed, WarmResetSelfSeedConfig):
+            errors.append("warm_reset.self_seed is required for start.source: self.")
+        else:
+            if not isinstance(seed.namespace, str) or not seed.namespace:
+                errors.append("warm_reset.self_seed.namespace must be a non-empty string.")
+            keys = seed.identity_keys
+            if (
+                not isinstance(keys, list)
+                or not keys
+                or not all(isinstance(k, str) and k for k in keys)
+            ):
+                errors.append("warm_reset.self_seed.identity_keys must be a non-empty list of names.")
+            elif "task_uid" in keys:
+                errors.append(
+                    "warm_reset.self_seed.identity_keys must not contain task_uid: it embeds "
+                    "the yaml_id, so every self arm would draw different noise for one decision."
+                )
+    elif source == "cache" and seed is not None:
+        errors.append("warm_reset.self_seed is only valid with start.source: self.")
+
+    evidence_dir = wr.evidence_dir
+    if not isinstance(evidence_dir, str) or not evidence_dir:
+        errors.append("warm_reset.evidence_dir is required (server-local evidence directory).")
+    elif check_files:
+        anchor = _nearest_existing_dir(Path(evidence_dir).expanduser().absolute())
+        if anchor is None or not anchor.is_dir() or not os.access(anchor, os.W_OK | os.X_OK):
+            errors.append(
+                f"warm_reset.evidence_dir={evidence_dir!r}: nearest existing ancestor "
+                f"{anchor} is not a writable directory."
+            )
     return errors
 
 

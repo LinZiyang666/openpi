@@ -184,6 +184,8 @@ def _resolve_bundle(
     validate_artifact_identity(bundle.shared_storage, config)
     if provenance is not None:
         provenance["yaml_path"] = getattr(bundle, "config_path", None)
+        # The registered yaml id (not the bundle id) names a warm reset arm's evidence.
+        provenance["yaml_id"] = getattr(bundle, "yaml_id", None)
     return config, bundle.shared_storage
 
 
@@ -237,10 +239,12 @@ def _build_shadow_factory(
     from openpi.cache.config import build_per_connection_components
     from openpi.cache.groot.staged import GrootStagedRunner
     from openpi.cache.orchestrator import CacheOrchestrator
+    from openpi.cache.warm_reset.runtime import refuse_warm_reset
 
     from exp.libero_groot.policy_adapter import GrootLiberoPolicyAdapter
     from exp.robocasa365.rit_shadow import GrootRitShadow, library_action_weights
 
+    refuse_warm_reset(config, where="--rit-shadow-out")
     warm_ts = [float(x) for x in str(args.rit_warm_ts).split(",") if x.strip()]
     if not warm_ts:
         raise SystemExit("--rit-warm-ts is empty")
@@ -310,12 +314,14 @@ def _build_loto_factory(
     from openpi.cache.groot.staged import GrootStagedRunner
     from openpi.cache.orchestrator import CacheOrchestrator
     from openpi.cache.types import groot_n15_schedule
+    from openpi.cache.warm_reset.runtime import refuse_warm_reset
 
     from exp.libero_groot.policy_adapter import GrootLiberoPolicyAdapter
     from exp.rit_loto.build_loto_table import checkpoint_identity, sha256_file
     from exp.rit_loto.emit_verify_arm import load_frozen_record
     from exp.rit_loto.loto_logger import GrootLotoLogger
 
+    refuse_warm_reset(config, where="--loto-log-out")
     cp2 = config.checkpoints.get("cp2")
     if cp2 is not None and getattr(cp2, "enabled", False):
         raise SystemExit("--loto-log-out supports the CP1 recipe of this line only (cp2 is enabled in the yaml)")
@@ -560,6 +566,8 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     )
     from openpi.cache.groot.staged import GrootStagedRunner
     from openpi.cache.orchestrator import CacheOrchestrator
+    from openpi.cache.warm_reset.groot import build_groot_warm_reset
+    from openpi.cache.warm_reset.runtime import refuse_warm_reset
 
     # With --allow-dynamic-bundles and no --cache-config the server starts with
     # no configuration at all and receives every arm over the wire; the guards
@@ -650,12 +658,21 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
             shared_base_policy.model, timer=timer, compile_vision=getattr(args, "compile_stage1", False)
         )
         if not trace_on:
-            interceptor = GrootCacheInterceptor(
-                shared_base_policy, runner, orchestrator=orchestrator, timer=timer
+            warm_reset = build_groot_warm_reset(
+                conn_config,
+                bundle_id=bundle_id,
+                yaml_id=provenance.get("yaml_id"),
+                yaml_path=provenance.get("yaml_path", args.cache_config),
             )
-            return _InferLockedPolicy(GrootLiberoPolicyAdapter(interceptor), lock)
+            interceptor = GrootCacheInterceptor(
+                shared_base_policy, runner, orchestrator=orchestrator, timer=timer,
+                **({} if warm_reset is None else {"warm_reset": warm_reset.executor}),
+            )
+            served = interceptor if warm_reset is None else warm_reset.wrap(interceptor)
+            return _InferLockedPolicy(GrootLiberoPolicyAdapter(served), lock)
         # Trace: the interceptor takes the shared lock around stage 1/2 itself
         # and submits its stage-3 variants to the process coordinator.
+        refuse_warm_reset(conn_config, where="--trace-out")
         rt = _trace_runtime(
             args, config=conn_config, components=components, orchestrator=orchestrator,
             runner=runner, bundle_id=bundle_id, concurrent=True,
@@ -945,6 +962,8 @@ def main() -> None:
             validate_groot_cache_config,
         )
         from openpi.cache.groot.staged import GrootStagedRunner
+        from openpi.cache.warm_reset.groot import build_groot_warm_reset
+        from openpi.cache.warm_reset.runtime import refuse_warm_reset
 
         config = load_cache_config(args.cache_config)
         validate_cache_config(config)
@@ -981,15 +1000,22 @@ def main() -> None:
         runner = GrootStagedRunner(
             policy.model, timer=timer, compile_vision=getattr(args, "compile_stage1", False)
         )
+        if args.trace_out:
+            refuse_warm_reset(config, where="--trace-out")
         trace_rt = _trace_runtime(
             args, config=config, components=components, orchestrator=orchestrator,
             runner=runner, bundle_id="default", concurrent=False,
         )
+        warm_reset = build_groot_warm_reset(
+            config, bundle_id="default", yaml_id=None, yaml_path=args.cache_config
+        )
+        interceptor = GrootCacheInterceptor(
+            policy, runner, orchestrator=orchestrator, timer=timer,
+            trace=trace_rt, trace_vision_fields=_LIBERO_TRACE_CAMS if trace_rt else None,
+            **({} if warm_reset is None else {"warm_reset": warm_reset.executor}),
+        )
         served = GrootLiberoPolicyAdapter(
-            GrootCacheInterceptor(
-                policy, runner, orchestrator=orchestrator, timer=timer,
-                trace=trace_rt, trace_vision_fields=_LIBERO_TRACE_CAMS if trace_rt else None,
-            )
+            interceptor if warm_reset is None else warm_reset.wrap(interceptor)
         )
         stack = f"cache -> {args.cache_config} ({config.key_builder.type})" + (
             f" + trace -> {args.trace_out}" if trace_rt else ""

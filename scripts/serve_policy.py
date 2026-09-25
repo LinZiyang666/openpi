@@ -561,7 +561,9 @@ def _wrap_policy(
     Wrapper ordering matters:
       1. InferenceInterceptor (innermost -- needs direct Policy access; the
          trace serving mode lives inside it, see ``trace=``)
-      2. PolicyRecorder (outermost -- records the interceptor's output)
+      2. warm reset evidence wrapper (only with a ``warm_reset`` block; shares
+         the session with the executor injected as ``warm_reset=``)
+      3. PolicyRecorder (outermost -- records the interceptor's output)
 
     Args:
         base_policy: The unwrapped policy (shared GPU model).
@@ -644,6 +646,14 @@ def _wrap_policy(
             yaml_path=getattr(bundle, "config_path", None),
             concurrent=coordinator is not None,
         )
+        from openpi.cache.warm_reset.pi05 import build_pi05_warm_reset
+
+        _warm_reset = build_pi05_warm_reset(
+            bundle.cache_config,
+            bundle_id=bundle_id,
+            yaml_id=bundle.yaml_id,
+            yaml_path=getattr(bundle, "config_path", None),
+        )
         policy = InferenceInterceptor(
             policy,
             timer=components["timer"],
@@ -660,7 +670,10 @@ def _wrap_policy(
             miss_executor=_miss_ex,
             shadow_teacher=_build_shadow_teacher(bundle.cache_config),
             trace=_trace_rt,
+            warm_reset=_warm_reset.executor if _warm_reset is not None else None,
         )
+        if _warm_reset is not None:
+            policy = _warm_reset.wrap(policy)
     elif args.cache_config is not None:
         from openpi.cache.config import build_cache_components
         from openpi.cache.config import build_per_connection_components
@@ -718,6 +731,11 @@ def _wrap_policy(
             yaml_path=args.cache_config,
             concurrent=coordinator is not None,
         )
+        from openpi.cache.warm_reset.pi05 import build_pi05_warm_reset
+
+        _warm_reset = build_pi05_warm_reset(
+            cache_config, bundle_id=bundle_id, yaml_id=None, yaml_path=args.cache_config
+        )
         policy = InferenceInterceptor(
             policy,
             timer=components["timer"],
@@ -734,7 +752,10 @@ def _wrap_policy(
             miss_executor=_miss_ex,
             shadow_teacher=_build_shadow_teacher(cache_config),
             trace=_trace_rt,
+            warm_reset=_warm_reset.executor if _warm_reset is not None else None,
         )
+        if _warm_reset is not None:
+            policy = _warm_reset.wrap(policy)
     elif args.cache:
         from openpi.cache.interceptor import InferenceInterceptor
         from openpi.cache.timing import SystemTimer

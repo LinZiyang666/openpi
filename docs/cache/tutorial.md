@@ -633,6 +633,59 @@ write_policy:
 | in_memory only for trajectory_depth > 1 | Qdrant rejected at config time |
 | write_policy.type valid | on_any_miss / always / never |
 
+### `warm_reset` Block (warm reset continuation family)
+
+Optional top-level block (architecture: [cache_system.md §5.22](../architecture/cache_system.md#522-warm-reset-continuation-family-warm_reset)).
+Absent = exactly today's WARM_START (the exact resume on the library grid).
+Present, it only changes how stage 3 continues after a WARM_START verdict;
+keep the judge block of the matching `warm_t<start_t>.yaml` verbatim.
+
+```yaml
+warm_reset:
+  start:
+    source: self         # cache | self   -- the retrieved entry, or a direct K-step inference on this decision
+    point: final         # snapshot | final -- the x at the verdict's start_t, or the final action (T = 0)
+  grid:
+    kind: reset          # reset | shoot
+    entry_t: 1.0         # reset: the flow time the start is declared at, (0, 1]
+    # step_budget: 1.0   # shoot: dt = step_budget / N; the start keeps its own flow time
+  num_steps: remaining   # remaining (= schedule.remaining_steps(start_t)) | integer 1 <= N <= K
+  self_seed:             # source: self only
+    namespace: sdiag_libero_self_prod     # one namespace per experiment: every self arm draws the same noise
+    identity_keys: [experiment, task, orig_init_state_idx, attempt]   # default; never task_uid
+  evidence_dir: /data/warm_reset_evidence/<run>   # server-local evidence JSONL directory
+```
+
+`entry_t` / `step_budget` are always written in the Pi0.5 flow-time
+convention (1 = noise, 0 = clean), also on GR00T; the judge's `start_t` stays
+in the schedule's native time (GR00T `start_t: 0.75` is T = 0.25). Load-time
+rules: the config must be able to return WARM_START; no trace, shadow teacher,
+routing, enabled `cp2` or `online_rit`; `reset` takes exactly `entry_t`,
+`shoot` exactly `step_budget`; `point: final` cannot shoot; `self_seed` only
+(and required) for `source: self`; `evidence_dir`'s nearest existing ancestor
+must be writable.
+
+step_diag arms as blocks (Pi0.5 levels / GR00T levels):
+
+| step_diag arm | start | grid |
+|---|---|---|
+| `warm_t<T>` (ours) | no block | -- |
+| `warmreset` / `selfwarmreset` | cache / self, snapshot | reset 1.0 |
+| `resetfinal` / `selfresetfinal` | cache / self, final | reset 1.0 |
+| `midfinal` / `selfmidfinal` | cache / self, final | reset 0.9 / 0.75 |
+| `midfinal50` / `selfmidfinal50` | cache / self, final | reset 0.5 |
+| `midreset` / `selfmidreset` | cache / self, snapshot | reset 0.9 / 0.75 |
+| `midreset50` / `selfmidreset50` | cache / self, snapshot | reset 0.5 |
+| `warmshoot` (+ GR00T `selfwarmshoot`) | cache (/ self), snapshot | shoot 1.0 |
+| GR00T `midshoot` / `midshoot50` (+ `self`) | cache / self, snapshot | shoot 0.75 / 0.5 |
+
+`num_steps: remaining` everywhere except GR00T LIBERO `<mode>_t<s>_n<N>`,
+which writes `num_steps: N` explicitly. Evidence and admission: every
+connection writes `<evidence_dir>/warm_reset_<yaml_id>_<host>_<pid>_<conn>.jsonl`;
+`openpi.cache.warm_reset.evidence.episode_problems` admits an episode only
+against expectations built from the journal, the driver-stamped per-step rows
+and the dispatched yaml.
+
 ### CLI Usage
 
 ```bash
@@ -699,6 +752,14 @@ infer(obs)
   ├─ broadcast_action + buffer_for_write
   └─ Output transforms → return actions
 ```
+
+On WARM_START, stage 3 is one of two alternatives: without a `warm_reset`
+executor (the default) `run_stage3_from` resumes the cached snapshot on the
+library grid; with one (`InferenceInterceptor(..., warm_reset=)`, injected by
+`serve_policy` for a yaml with a `warm_reset` block) the executor resolves the
+frozen plan, produces the start and runs the warm reset continuation, and the
+response carries `__hit_meta__["warm_reset"]`. `GrootCacheInterceptor` has the
+same switch.
 
 ### Episode Lifecycle
 

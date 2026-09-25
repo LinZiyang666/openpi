@@ -233,6 +233,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         miss_executor: Optional[Callable[[dict], dict]] = None,
         shadow_teacher: Optional[Any] = None,
         trace: Optional[Any] = None,
+        warm_reset: Optional[Any] = None,
     ) -> None:
         if not policy._is_pytorch_model:  # noqa: SLF001
             raise ValueError(
@@ -312,6 +313,23 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                     "stage placement is incompatible."
                 )
         self._trace = trace
+
+        # ---- Warm reset continuation (default None => byte-identical paths) ----
+        # ``warm_reset`` is a ``Pi05WarmResetExecutor`` (plan
+        # logs/warm_continuation_first_class_plan.log.md §4.5). It replaces only
+        # the continuation of a WARM_START verdict, so everything that reads or
+        # re-routes that continuation is refused here as well as at yaml load:
+        # --trace-out enables tracing without the yaml validator seeing it.
+        if warm_reset is not None:
+            if trace is not None:
+                raise ValueError("warm_reset is incompatible with the trace serving mode.")
+            if hit_executor is not None or miss_executor is not None:
+                raise ValueError("warm_reset is incompatible with hit_executor / miss_executor.")
+            if shadow_teacher is not None:
+                raise ValueError("warm_reset is incompatible with the X15 shadow teacher.")
+            if self._cp2_only:
+                raise ValueError("warm_reset is incompatible with a CP2 (post-backbone) config.")
+        self._warm_reset = warm_reset
 
         self._policy = policy
         # Borrow internals from the wrapped Policy — references only, no copy.
@@ -447,6 +465,15 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             self._stage3_from_fn = (
                 None  # legacy code path uses model.run_stage3_from directly
             )
+        if warm_reset is not None:
+            # The warm reset stage-3 binding, parallel to ``_stage3_from_fn``:
+            # coordinator submission of ``Stage3WarmResetPayload``, or the
+            # executor's model-bound entries on the direct path.
+            self._stage3_warm_reset_fn = (
+                self._make_warm_reset_via_coordinator(coordinator, bundle_id)
+                if coordinator is not None
+                else warm_reset.direct_runner(self._model)
+            )
 
         # ---- SystemTimer setup ----
         # Probe backend is derived from the normalized per-stage device,
@@ -492,6 +519,10 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 self._timer.register_probe(
                     "stage3_warm", backend=_probe_backend(self._stage3_device)
                 )
+                if warm_reset is not None and warm_reset.self_start:
+                    self._timer.register_probe(
+                        "stage3_self_start", backend=_probe_backend(self._stage3_device)
+                    )
 
             # Optional model attachment for KeyBuilders that need a slice of
             # the model (e.g. `cp1_llm_layer_extract` borrows
@@ -864,6 +895,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         arm_executed: Optional[str] = None,
         checkpoint: Optional[str] = None,
         library_sha256: Optional[str] = None,
+        warm_reset: Optional[dict] = None,
     ) -> dict:
         """Build the ``__hit_meta__`` payload surfaced via the WebSocket response.
 
@@ -885,6 +917,10 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         took. It is recorded only when the verdict carried ``router_outputs``,
         i.e. only under an MlpRouterJudge — every other config keeps its exact
         pre-X14 wire, including the no-orchestrator placeholder above.
+
+        ``warm_reset`` is the executed warm reset continuation's evidence
+        (``__hit_meta__["warm_reset"]``); only a warm reset WARM_START passes
+        it, so every other response keeps its exact wire.
         """
         if cp1_result is None:
             # cache-off / orchestrator never executed: every step is a full
@@ -936,6 +972,8 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             if arm_executed is not None:
                 stamped["arm_executed"] = arm_executed
             meta["router_outputs"] = stamped
+        if warm_reset is not None:
+            meta["warm_reset"] = warm_reset
         return meta
 
     @staticmethod
@@ -1032,6 +1070,28 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             return coordinator.submit_to_stage(3, bundle_id, payload)
 
         return _stage3_from_via_coordinator
+
+    @staticmethod
+    def _make_warm_reset_via_coordinator(coordinator, bundle_id: str):
+        """Build the warm reset stage-3 entry routed through the coordinator.
+
+        ``(stage2, x, plan)`` becomes a ``Stage3WarmResetPayload`` bucketed by
+        the plan's grid: a continuation start or a self-start noise, both
+        produced on the request thread, hence the producer-stream
+        ``ready_events``.
+        """
+        from openpi.serving import batching_coordinator as _bc
+
+        def _warm_reset_via_coordinator(stage2, x, plan):
+            payload = _bc.Stage3WarmResetPayload(
+                stage2_out=stage2,
+                x=x.squeeze(0) if x.dim() == 3 else x,
+                plan=plan,
+                ready_events=_bc.record_ready_events(x.device),
+            )
+            return coordinator.submit_to_stage(3, bundle_id, payload)
+
+        return _warm_reset_via_coordinator
 
     # -----------------------------------------------------------------------
     # Trace serving mode (plan logs/cache_trace_mode_plan.log.md §5)
@@ -1880,6 +1940,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                     stage2 = stage2.to(self._stage3_device)
 
                 # Stage 3: three-way branch
+                warm_reset_meta = None
                 if (
                     self._orchestrator is not None
                     and cp1_result.hit_type == HitType.WARM_START
@@ -1893,17 +1954,29 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                     )
                     if start_x.ndim == 2:
                         start_x = start_x[None, ...]
-                    # Route through coordinator when wired (Phase 4 M1);
-                    # otherwise fall back to the model directly.
-                    _run_stage3_from = (
-                        self._stage3_from_fn or self._model.run_stage3_from
-                    )
-                    with self._timer.measure("stage3_warm"):
-                        stage3 = _run_stage3_from(
-                            stage2,
-                            start_x,
-                            start_t,
-                            num_steps=cp1_result.payload.denoising_num_steps,
+                    if self._warm_reset is None:
+                        # Route through coordinator when wired (Phase 4 M1);
+                        # otherwise fall back to the model directly.
+                        _run_stage3_from = (
+                            self._stage3_from_fn or self._model.run_stage3_from
+                        )
+                        with self._timer.measure("stage3_warm"):
+                            stage3 = _run_stage3_from(
+                                stage2,
+                                start_x,
+                                start_t,
+                                num_steps=cp1_result.payload.denoising_num_steps,
+                            )
+                    else:
+                        # Warm reset (plan §4.5.1): the executor resolves the
+                        # frozen plan, produces the start and runs the
+                        # continuation through the same binding family.
+                        stage3, warm_reset_meta = self._warm_reset.run(
+                            stage2=stage2,
+                            cp_result=cp1_result,
+                            snapshot_x=start_x,
+                            run_stage3=self._stage3_warm_reset_fn,
+                            timer=self._timer,
                         )
                 elif self._orchestrator is not None:
                     # MISS: eager call with intermediates collection. When the
@@ -2041,6 +2114,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             arm_executed="teacher",
             checkpoint="CP2" if self._cp2_only else "CP1",
             library_sha256=self._cp2_library_sha256 if self._cp2_only else None,
+            warm_reset=warm_reset_meta,
         )
         if self._export_collect_meta:
             outputs["__collect_meta__"] = self._build_collect_meta(

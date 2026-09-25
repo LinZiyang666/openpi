@@ -147,6 +147,10 @@ class GrootCacheInterceptor:
             name it (CP2 or no library).
         model_lock: the lock shared by every connection's stage 1/2 (trace
             concurrent mode); ``None`` runs unlocked (single connection).
+        warm_reset: a ``GrootWarmResetExecutor`` replaces the WARM_START
+            continuation (plan ``logs/warm_continuation_first_class_plan.log.md``
+            §4.6); ``None`` keeps the exact resume. Refused with trace, CP2 and
+            the online RIT judge.
     """
 
     def __init__(
@@ -161,6 +165,7 @@ class GrootCacheInterceptor:
         bundle_id: str = "default",
         trace_vision_fields: Optional[tuple[str, ...]] = None,
         model_lock: Optional[Any] = None,
+        warm_reset: Optional[Any] = None,
     ) -> None:
         self._policy = policy
         self._runner = runner
@@ -203,6 +208,18 @@ class GrootCacheInterceptor:
         )
         if orchestrator is not None:
             self._timer.register_probe("cp2_sum" if self._cp2_only else "cp1_sum", backend="cpu")
+        # Warm reset replaces only the WARM_START continuation; trace, CP2 and
+        # the online RIT feedback all read the exact resume, so each is refused
+        # here as well as at yaml load (trace can be switched on from the CLI).
+        if warm_reset is not None:
+            if trace is not None:
+                raise ValueError("warm_reset is incompatible with the trace serving mode.")
+            if self._cp2_only:
+                raise ValueError("warm_reset is incompatible with a CP2 (post-backbone) config.")
+            spec_fn = getattr(orchestrator, "continuation_spec", None)
+            if spec_fn is not None and spec_fn(CheckpointID.CP1) is not None:
+                raise ValueError("warm_reset is incompatible with the online_rit judge.")
+        self._warm_reset = warm_reset
 
     # -- TaskLifecycle ---------------------------------------------------
 
@@ -299,6 +316,7 @@ class GrootCacheInterceptor:
         checkpoint: Optional[str] = None,
         library_sha256: Optional[str] = None,
         online_rit: Optional[dict] = None,
+        warm_reset: Optional[dict] = None,
     ) -> dict:
         """Same field set as the Pi0.5 interceptor, so one analysis path reads both.
 
@@ -344,6 +362,9 @@ class GrootCacheInterceptor:
             # Additive, present only when the served judge is ``online_rit``:
             # the decision snapshot (q_pre / cuts) and this step's feedback.
             meta["online_rit"] = online_rit
+        if warm_reset is not None:
+            # Additive, present only on a warm reset WARM_START continuation.
+            meta["warm_reset"] = warm_reset
         return meta
 
     # -- inference -------------------------------------------------------
@@ -401,6 +422,7 @@ class GrootCacheInterceptor:
 
             cp1_result = None
             online_diag: Optional[dict] = None
+            warm_reset_meta: Optional[dict] = None
             try:
                 if self._orchestrator is not None:
                     with self._timer.measure("cp1_sum"):
@@ -428,25 +450,36 @@ class GrootCacheInterceptor:
                     schedule = self._library_schedule(payload)
                     with self._runner.session():
                         stage2 = self._runner.run_stage2_llm(stage1)
-                        # The capture kwarg rides only for the online judge so
-                        # every legacy call (and its test spies) stays verbatim.
-                        capture = {"capture_first_step": True} if spec is not None else {}
-                        out = self._runner.run_stage3_from(
-                            stage2,
-                            payload.intermediates[start_t],
-                            start_t,
-                            schedule=schedule,
-                            **capture,
-                        )
-                        chunk = out.action_pred
-                        if spec is not None:
-                            online_diag = self._continuation_feedback(
-                                spec,
+                        if self._warm_reset is None:
+                            # The capture kwarg rides only for the online judge so
+                            # every legacy call (and its test spies) stays verbatim.
+                            capture = {"capture_first_step": True} if spec is not None else {}
+                            out = self._runner.run_stage3_from(
                                 stage2,
-                                payload,
-                                schedule,
-                                executed=(start_t, out.first_step_input, out.first_step_x),
+                                payload.intermediates[start_t],
+                                start_t,
+                                schedule=schedule,
+                                **capture,
                             )
+                            chunk = out.action_pred
+                            if spec is not None:
+                                online_diag = self._continuation_feedback(
+                                    spec,
+                                    stage2,
+                                    payload,
+                                    schedule,
+                                    executed=(start_t, out.first_step_input, out.first_step_x),
+                                )
+                        else:
+                            # Warm reset (plan §4.6): the executor's entries
+                            # re-check session / live schedule / plan first.
+                            out, warm_reset_meta = self._warm_reset.run(
+                                runner=self._runner,
+                                stage2=stage2,
+                                cp_result=cp1_result,
+                                schedule=schedule,
+                            )
+                            chunk = out.action_pred
                 elif (
                     spec is not None
                     and cp1_result is not None
@@ -493,7 +526,9 @@ class GrootCacheInterceptor:
             if not is_batch:
                 unnormalized = _squeeze_values(unnormalized)
 
-        unnormalized["__hit_meta__"] = self._build_hit_meta(cp1_result, online_rit=online_diag)
+        unnormalized["__hit_meta__"] = self._build_hit_meta(
+            cp1_result, online_rit=online_diag, warm_reset=warm_reset_meta
+        )
         return unnormalized
 
     def _continuation_feedback(self, spec, stage2, payload, schedule, *, executed) -> dict:
