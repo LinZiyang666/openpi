@@ -1,0 +1,183 @@
+[
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:B0TopkConsensus",
+  "kwargs": {
+   "k": 5,
+   "synth": "mean"
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:B0TopkConsensus",
+  "kwargs": {
+   "k": 5,
+   "synth": "kernel"
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:B0TopkConsensus",
+  "kwargs": {
+   "k": 5,
+   "synth": "med"
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:B0TopkConsensus",
+  "kwargs": {
+   "k": 3,
+   "synth": "med"
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:B0TopkConsensus",
+  "kwargs": {
+   "k": 8,
+   "synth": "mean"
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:B0ShortlistContRerank",
+  "kwargs": {
+   "lam": 1.0,
+   "k": 5
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:B0ShortlistContRerank",
+  "kwargs": {
+   "lam": 2.0,
+   "k": 3
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:B0ShortlistContRerank",
+  "kwargs": {
+   "lam": 2.0,
+   "k": 5
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:B0ShortlistContRerank",
+  "kwargs": {
+   "lam": "inf",
+   "k": 3
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:ConsistencyConfidence",
+  "kwargs": {
+   "base": "b0",
+   "weights": "equal",
+   "veto": false
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:ConsistencyConfidence",
+  "kwargs": {
+   "base": "b0",
+   "weights": "split",
+   "veto": false
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:ConsistencyConfidence",
+  "kwargs": {
+   "base": "b0",
+   "weights": "split",
+   "veto": true,
+   "tau": 0.3
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:ConsistencyConfidence",
+  "kwargs": {
+   "base": "m4k5med",
+   "weights": "split",
+   "veto": false
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:ConsistencyConfidence",
+  "kwargs": {
+   "base": "m5l2k3",
+   "weights": "split",
+   "veto": false
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:B0BigLibCons",
+  "kwargs": {
+   "synth": "top1"
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f3_b0plus/method.py:B0BigLibCons",
+  "kwargs": {
+   "k": 5,
+   "synth": "mean"
+  },
+  "family": "f3_b0plus",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ }
+]

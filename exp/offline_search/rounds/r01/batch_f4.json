@@ -1,0 +1,162 @@
+[
+ {
+  "method": "exp/offline_search/rounds/r01/f4_vision/m7_cascade.py:CascadeBigLib",
+  "kwargs": {
+   "rerank": "b0fused",
+   "keys": "raw"
+  },
+  "family": "f4_vision",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f4_vision/m7_cascade.py:CascadeBigLib",
+  "kwargs": {
+   "rerank": "v1only",
+   "keys": "raw"
+  },
+  "family": "f4_vision",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f4_vision/m7_cascade.py:CascadeBigLib",
+  "kwargs": {
+   "rerank": "none",
+   "keys": "raw"
+  },
+  "family": "f4_vision",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f4_vision/m7_cascade.py:CascadeBigLib",
+  "kwargs": {
+   "rerank": "v1only",
+   "keys": "pca64"
+  },
+  "family": "f4_vision",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f4_vision/m7_cascade.py:CascadeBigLib",
+  "kwargs": {
+   "rerank": "v1only",
+   "keys": "pca32"
+  },
+  "family": "f4_vision",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f4_vision/m7_cascade.py:CascadeBigLib",
+  "kwargs": {
+   "rerank": "v1only",
+   "keys": "pca128"
+  },
+  "family": "f4_vision",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f4_vision/m7_cascade.py:CascadeBigLib",
+  "kwargs": {
+   "rerank": "both",
+   "keys": "raw"
+  },
+  "family": "f4_vision",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f4_vision/m7_cascade.py:CascadeBigLib",
+  "kwargs": {
+   "rerank": "both",
+   "keys": "pca32"
+  },
+  "family": "f4_vision",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f4_vision/m7_cascade.py:CascadeBigLib",
+  "kwargs": {
+   "rerank": "both",
+   "keys": "pca32",
+   "M": 64
+  },
+  "family": "f4_vision",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f4_vision/m9_vision_zsum.py:VisionZSum",
+  "kwargs": {
+   "lib": "big",
+   "keys": "pca128",
+   "center": "tm",
+   "fields": "both",
+   "st": 1.0,
+   "synth": "top1"
+  },
+  "family": "f4_vision",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f4_vision/m9_vision_zsum.py:VisionZSum",
+  "kwargs": {
+   "lib": "big",
+   "keys": "pca128",
+   "center": "tm",
+   "fields": "both",
+   "st": 1.0,
+   "synth": "med3"
+  },
+  "family": "f4_vision",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f4_vision/m9_vision_zsum.py:VisionZSum",
+  "kwargs": {
+   "lib": "big",
+   "keys": "pca128",
+   "center": "tm",
+   "fields": "both",
+   "st": 0.0,
+   "synth": "top1"
+  },
+  "family": "f4_vision",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f4_vision/m9_vision_zsum.py:VisionZSum",
+  "kwargs": {
+   "lib": "current",
+   "keys": "raw",
+   "center": "tm",
+   "fields": "both",
+   "st": 1.0,
+   "synth": "top1"
+  },
+  "family": "f4_vision",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ }
+]

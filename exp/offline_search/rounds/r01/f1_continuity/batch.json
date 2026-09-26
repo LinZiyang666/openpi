@@ -1,0 +1,144 @@
+[
+ {
+  "method": "exp/offline_search/rounds/r01/f1_continuity/method.py:ChunkCont",
+  "kwargs": {
+   "lib": "big",
+   "alpha": 0.25,
+   "synth": "med3",
+   "stale": "window",
+   "beta": 0
+  },
+  "family": "f1_continuity",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f1_continuity/method.py:ChunkCont",
+  "kwargs": {
+   "lib": "current",
+   "alpha": 0.25,
+   "synth": "med3",
+   "stale": "window",
+   "beta": 0
+  },
+  "family": "f1_continuity",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f1_continuity/method.py:ChunkCont",
+  "kwargs": {
+   "lib": "big",
+   "alpha": 0.0,
+   "synth": "med3",
+   "stale": "window",
+   "beta": 0
+  },
+  "family": "f1_continuity",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f1_continuity/method.py:ChunkCont",
+  "kwargs": {
+   "lib": "big",
+   "alpha": 1.0,
+   "synth": "med3",
+   "stale": "window",
+   "beta": 0
+  },
+  "family": "f1_continuity",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f1_continuity/method.py:ChunkCont",
+  "kwargs": {
+   "lib": "big",
+   "alpha": 0.25,
+   "synth": "top1",
+   "stale": "window",
+   "beta": 0
+  },
+  "family": "f1_continuity",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f1_continuity/method.py:ChunkCont",
+  "kwargs": {
+   "lib": "big",
+   "alpha": 0.25,
+   "synth": "kmean5",
+   "stale": "window",
+   "beta": 0
+  },
+  "family": "f1_continuity",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f1_continuity/method.py:ChunkCont",
+  "kwargs": {
+   "lib": "big",
+   "alpha": 0.25,
+   "synth": "med3",
+   "stale": "cont",
+   "beta": 0
+  },
+  "family": "f1_continuity",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f1_continuity/method.py:ChunkCont",
+  "kwargs": {
+   "lib": "big",
+   "alpha": 0.25,
+   "synth": "med3",
+   "stale": "window",
+   "beta": 1
+  },
+  "family": "f1_continuity",
+  "cells": [
+   "groot_spatial_inf",
+   "groot_spatial_cache",
+   "groot_l10_inf",
+   "groot_l10_cache"
+  ],
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f1_continuity/method.py:ChunkCont",
+  "kwargs": {
+   "lib": "big",
+   "alpha": 0.25,
+   "synth": "med3",
+   "stale": "cont",
+   "beta": 1
+  },
+  "family": "f1_continuity",
+  "cells": [
+   "groot_spatial_cache",
+   "groot_l10_cache"
+  ],
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r01/f1_continuity/method.py:TailPassthrough",
+  "kwargs": {},
+  "family": "f1_continuity",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ }
+]
