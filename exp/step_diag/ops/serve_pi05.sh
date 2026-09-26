@@ -19,7 +19,7 @@ LAUNCH=${SD_LAUNCH:-$(date +%Y%m%dT%H%M%S)_$P}
 export PATH=/usr/local/bin:/usr/bin:/bin
 export HOME=${SD_HOME:-/home/weiland}
 case "$ENV_ID" in
-  pi05_rc) CFG=pi05_robocasa; CKPT=${SD_CKPT:-/home/weiland/ckpt_pi05_robocasa_pytorch} ;;
+  pi05_rc) CFG=pi05_robocasa; CKPT=${SD_CKPT:-/data/ckpt/pi05_robocasa_pytorch} ;;
   pi05_libero_spatial|pi05_libero_10|pi05_libero_object|pi05_libero_goal)
     CFG=pi05_libero; CKPT=${SD_CKPT:-/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch} ;;
   *) echo "unknown env_id $ENV_ID"; exit 1 ;;

@@ -38,7 +38,7 @@ from exp.ablation_study.sidecar_server import (  # noqa: E402
 
 # Single-model manifest: one ACT is all a per-call latency measurement needs
 # (the ensemble only adds load time and residency; routing is a dict lookup).
-MANIFEST = "/home/weiland/bench_latency/act_manifest_task0.json"
+MANIFEST = "/home/weiland/projects/openpi_ext/scratch/bench_latency/act_manifest_task0.json"
 SMOLVLA_CKPT = ("/data/openpi/ablation_study/executor_substitution/checkpoints/"
                 "libero_spatial/smolvla/checkpoints/020000/pretrained_model")
 

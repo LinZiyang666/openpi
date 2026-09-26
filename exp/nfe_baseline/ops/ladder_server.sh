@@ -52,8 +52,8 @@ for K in "${K_ARR[@]}"; do
   elif [ "$POLICY" = "groot_rc" ]; then
     N=1; NFE_REPO=$REPO bash "$HERE/rc/launch_groot_rc_server.sh" "$K" "$BASE"
   else
-    bash "$HERE/launch_groot_servers.sh" "$SUITE" "$K" "$BASE" "$N" "$REPO" "${NFE_GROOT:-/home/weiland/gr00t_n15}" \
-      "${NFE_GROOT_PY:-/home/weiland/gr00t_n15_venv/.venv/bin/python}" "${NFE_CKPT_DIR:-/home/weiland}"
+    bash "$HERE/launch_groot_servers.sh" "$SUITE" "$K" "$BASE" "$N" "$REPO" "${NFE_GROOT:-/home/weiland/projects/openpi_ext/third_party/gr00t_n15}" \
+      "${NFE_GROOT_PY:-/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python}" "${NFE_CKPT_DIR:-/home/weiland}"
   fi
   up=0; for i in $(seq 0 $((N-1))); do ss -tlnH "sport = :$((BASE+i))" | grep -q . && up=$((up+1)); done
   if [ "$up" -ne "$N" ]; then echo "LADDER FAIL k=$K only $up/$N listening $(date +%H:%M:%S)"; exit 1; fi

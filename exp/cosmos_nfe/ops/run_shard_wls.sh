@@ -3,11 +3,11 @@
 # Official eval command (LIBERO.md) with the task subset + results JSON from exp/cosmos_nfe/run_libero_shard.py.
 set -u
 SUITE=${1:?suite}; K=${2:?k}; S=${3:?shard idx}; TIDS=${4:?task ids}; SEED=${5:-195}; TRIALS=${6:-50}
-export HOME=/home/weiland/cosmos_home; export PATH=/home/weiland/.local/bin:/usr/local/bin:/usr/bin:/bin   # private HOME on the SSD: own ~/.libero config + assets, HF token; not the py3.8 libero_sim one
+export HOME=/home/weiland/projects/openpi_ext/lines/cosmos_home; export PATH=/home/weiland/.local/bin:/usr/local/bin:/usr/bin:/bin   # private HOME on the SSD: own ~/.libero config + assets, HF token; not the py3.8 libero_sim one
 export UV_CACHE_DIR=/home/weiland/.cache/uv HF_HOME=/data/cosmos/hf_home   # code+venv on SSD, model weights on /data
 export MUJOCO_GL=egl PYOPENGL_PLATFORM=egl MUJOCO_EGL_DEVICE_ID=0 CUDA_VISIBLE_DEVICES=0
-export PYTHONPATH=/home/weiland/cosmos_exp
-REPO=/home/weiland/cosmos-policy
+export PYTHONPATH=/home/weiland/projects/openpi_ext/lines/cosmos_exp
+REPO=/home/weiland/projects/openpi_ext/lines/cosmos-policy
 ROOT=${COSMOS_RESULTS_ROOT:-/data/cosmos/results}; TAG=${COSMOS_TAG:-}
 OUT=$ROOT/${SUITE}/k${K}/shard${S}.json
 LOG=/tmp/cosmos/${SUITE}_k${K}_s${S}${TAG}.log

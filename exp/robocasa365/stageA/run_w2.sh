@@ -5,13 +5,13 @@
 # Usage: run_w2.sh <prompt-indices e.g. "0 1 2 3 4"> <ks e.g. "1 2 3 4"> <procs e.g. "0 1 2">
 set -u
 ROOT=/tmp/openpi-stageA
-PY=/home/weiland/gr00t_n15_venv/.venv/bin/python
-CKPT=/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000
+PY=/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python
+CKPT=/data/ckpt/n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000
 OUT=$ROOT/exp/robocasa365/data/latency
 TR=/tmp/w2_traces
 LOG=/tmp/stageA/w2.log
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 NO_ALBUMENTATIONS_UPDATE=1
-export PYTHONPATH=/home/weiland/gr00t_n15:$ROOT/src:$ROOT
+export PYTHONPATH=/home/weiland/projects/openpi_ext/third_party/gr00t_n15:$ROOT/src:$ROOT
 mkdir -p "$OUT" "$TR"
 cd "$ROOT"
 PROMPTS=${1:-"0"}; KS=${2:-"1 2 3 4"}; PROCS=${3:-"0 1 2"}

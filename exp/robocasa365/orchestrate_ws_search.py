@@ -70,10 +70,10 @@ SUMMARY_DIRS = {
 
 CKPT = {
     "groot_tp": (
-        "/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/"
+        "/data/ckpt/n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/"
         "target_posttraining/atomic_seen/checkpoint-60000"
     ),
-    "pi05": "/home/weiland/ckpt_pi05_robocasa_pytorch",
+    "pi05": "/data/ckpt/pi05_robocasa_pytorch",
 }
 
 # Stable server footprint + headroom, required across a VRAM triple read
@@ -134,8 +134,8 @@ def server_launch(teacher: str, port: int, yaml_rel: str) -> tuple[str, list[str
     if teacher == "groot_tp":
         cmd = (
             f"export HOME=/home/weiland; cd {REMOTE_REPO_WEILAND} && OPENPI_MONITOR_LEVEL=BASIC "
-            f"PYTHONPATH=/home/weiland/gr00t_n15:{REMOTE_REPO_WEILAND}/src:{REMOTE_REPO_WEILAND} "
-            f"/home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/serve_groot_n15.py "
+            f"PYTHONPATH=/home/weiland/projects/openpi_ext/third_party/gr00t_n15:{REMOTE_REPO_WEILAND}/src:{REMOTE_REPO_WEILAND} "
+            f"/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python exp/robocasa365/serve_groot_n15.py "
             f"--checkpoint {CKPT[teacher]} --port {port} "
             f"--cache-config {yaml_rel} --concurrent {extra}".rstrip()
         )

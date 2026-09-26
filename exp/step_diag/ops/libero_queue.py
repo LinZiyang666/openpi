@@ -63,8 +63,8 @@ HOSTS = {
         "ports": {"pi05": list(range(23160, 23168)), "groot": list(range(23170, 23180))},
         "env": {"pi05": "SD_PY=/home/weiland/projects/openpi/.venv/bin/python "
                         "SD_CKPT=/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch",
-                "groot": "SD_GROOT=/home/weiland/gr00t_n15 SD_GROOT_PY=/home/weiland/gr00t_n15_venv/.venv/bin/python"},
-        "groot_ckpt": "/home/weiland/ckpt_n15_libero_{suite}",
+                "groot": "SD_GROOT=/home/weiland/projects/openpi_ext/third_party/gr00t_n15 SD_GROOT_PY=/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"},
+        "groot_ckpt": "/data/ckpt/n15_libero_{suite}",
         "worker_gpus": ["0", "1", "2", "4", "5", "6", "7"],  # GPU 3 of timan107 belongs to another project
     },
 }

@@ -22,7 +22,7 @@ guarded by the G0-B behavioural gate described in the plan.
 Environment
 -----------
 Imports ``gr00t``; runnable only inside the GR00T island on ``weilandserver``:
-``/home/weiland/gr00t_n15_venv/.venv``.
+``/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv``.
 """
 
 from __future__ import annotations

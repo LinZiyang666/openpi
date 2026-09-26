@@ -24,7 +24,7 @@ Usage:
       --calib-h5-dir /data/robocasa365_cache/calib_rit_w13_pi05/pi05 \\
       --cache-yaml /tmp/rit/calib_cell_pi05.yaml \\
       --library-pkl /data/.../pi05_spatial_pool_16_w13_full.pkl \\
-      --checkpoint-dir /home/weiland/ckpt_pi05_robocasa_pytorch \\
+      --checkpoint-dir /data/ckpt/pi05_robocasa_pytorch \\
       --config-name pi05_robocasa --h-exec 5 --out-jsonl /data/.../shadow_pi05.jsonl
 """
 

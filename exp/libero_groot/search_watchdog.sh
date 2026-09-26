@@ -26,7 +26,7 @@ log() { echo "[$(date '+%m-%d %H:%M:%S')] $*"; }
 heal_keepwarm() {
   tmux has-session -t keepwarm 2>/dev/null && return
   log "HEAL keepwarm was dead -> restarting"
-  tmux new -s keepwarm -d "cd $REPO && /home/weiland/.local/bin/uv run python /home/weiland/gtp_logs/gpu_keepwarm.py 2>&1 | tee -a /home/weiland/gtp_logs/keepwarm.log"
+  tmux new -s keepwarm -d "cd $REPO && /home/weiland/.local/bin/uv run python /home/weiland/projects/openpi_ext/scratch/gtp_logs/gpu_keepwarm.py 2>&1 | tee -a /home/weiland/projects/openpi_ext/scratch/gtp_logs/keepwarm.log"
 }
 
 reap_orphans() {

@@ -10,11 +10,11 @@ set -uo pipefail
 SUITE=${1:?suite}; HOST=${2:?host}; DRIVER_PORT=${3:?driver port}; PORTS=${4:?ports}; WORKERS=${5:?workers}; ARMS=${6:?arms}
 R=${FW_REPO:-/data/openpi_lg}
 PY=${FW_PY:-/home/weiland/projects/openpi/.venv/bin/python}
-ISLAND_PY=${GROOT_N15_PYTHON:-/home/weiland/gr00t_n15_venv/.venv/bin/python}
-GROOT=${GROOT_N15_HOME:-/home/weiland/gr00t_n15}
+ISLAND_PY=${GROOT_N15_PYTHON:-/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python}
+GROOT=${GROOT_N15_HOME:-/home/weiland/projects/openpi_ext/third_party/gr00t_n15}
 case "$SUITE" in
-  libero_spatial) CKPT=${FW_CKPT:-/home/weiland/ckpt_n15_libero_spatial} ;;
-  libero_10)      CKPT=${FW_CKPT:-/home/weiland/ckpt_n15_libero_10} ;;
+  libero_spatial) CKPT=${FW_CKPT:-/data/ckpt/n15_libero_spatial} ;;
+  libero_10)      CKPT=${FW_CKPT:-/data/ckpt/n15_libero_10} ;;
   *) echo "unknown suite $SUITE"; exit 2 ;;
 esac
 OUT=${FW_OUT:-/data/libero_cache/search/fusion_ablation_conductor}/$SUITE

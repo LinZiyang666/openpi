@@ -15,8 +15,8 @@
 set -u
 ENV_ID=${1:?env_id}; MODE=${2:?mode}; ARM=${3:?arm_id}; P=${4:?port}; ARG=${5:--}
 REPO=${SD_REPO:-/data/openpi_sdiag}
-GROOT=${SD_GROOT:-/home/weiland/gr00t_n15}
-PY=${SD_GROOT_PY:-/home/weiland/gr00t_n15_venv/.venv/bin/python}
+GROOT=${SD_GROOT:-/home/weiland/projects/openpi_ext/third_party/gr00t_n15}
+PY=${SD_GROOT_PY:-/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python}
 EXP=${SD_EXP:-sdiag_v1}
 OUT=${SD_OUT:-$REPO/exp/step_diag/data/server}
 LAUNCH=${SD_LAUNCH:-$(date +%Y%m%dT%H%M%S)_$P}
@@ -24,10 +24,10 @@ export PATH=/usr/local/bin:/usr/bin:/bin
 export HOME=${SD_HOME:-/home/weiland}
 case "$ENV_ID" in
   groot_rc) BENCH=rc; PYPATH=$GROOT:$REPO/src:$REPO:$REPO/packages/openpi-client/src; EXTRA=""
-    CKPT=${SD_CKPT:-/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000} ;;
+    CKPT=${SD_CKPT:-/data/ckpt/n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000} ;;
   groot_libero_spatial|groot_libero_10) BENCH=libero; PYPATH=$GROOT:$GROOT/examples/Libero:$REPO:$REPO/src:$REPO/packages/openpi-client/src; EXTRA="--concurrent"
     SUITE=${ENV_ID#groot_libero_}
-    CKPT=${SD_CKPT:-/home/weiland/ckpt_n15_libero_$SUITE} ;;
+    CKPT=${SD_CKPT:-/data/ckpt/n15_libero_$SUITE} ;;
   *) echo "unknown env_id $ENV_ID"; exit 1 ;;
 esac
 case "$MODE" in

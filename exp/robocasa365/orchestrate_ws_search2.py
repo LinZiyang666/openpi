@@ -65,11 +65,11 @@ TEACHERS: dict[str, dict[str, str | int]] = {
         # /proc-cmdline anchor for the shutdown sweep: must be the token that
         # identifies THIS teacher's serve process and no other.
         "anchor": "serve_groot_n15",
-        "python": "/home/weiland/gr00t_n15_venv/.venv/bin/python",
+        "python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python",
         # {repo} is filled from --repo so a different serving clone stays consistent.
-        "pythonpath": "/home/weiland/gr00t_n15:{repo}/src:{repo}",
+        "pythonpath": "/home/weiland/projects/openpi_ext/third_party/gr00t_n15:{repo}/src:{repo}",
         "checkpoint": (
-            "/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/"
+            "/data/ckpt/n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/"
             "target_posttraining/atomic_seen/checkpoint-60000"
         ),
         "vram_mb": 8500,
@@ -84,7 +84,7 @@ TEACHERS: dict[str, dict[str, str | int]] = {
         # checkout's openpi and reject this round's pooling knobs.
         "python": "/home/weiland/projects/openpi/.venv/bin/python",
         "pythonpath": "{repo}/src:{repo}",
-        "checkpoint": "/home/weiland/ckpt_pi05_robocasa_pytorch",
+        "checkpoint": "/data/ckpt/pi05_robocasa_pytorch",
         "vram_mb": 10500,
     },
 }

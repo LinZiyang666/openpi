@@ -64,8 +64,8 @@ HOSTS = {
         "worker_gpus": ["0", "1", "2", "4", "5", "6", "7"],  # GPU 3 belongs to another project
         "ports": {"pi05": list(range(23140, 23148)), "groot": list(range(23150, 23160))},
         "env": {"pi05": "SD_PY=/home/weiland/projects/openpi/.venv/bin/python SD_CKPT=/data/ckpt/pi05_robocasa_pytorch",
-                "groot": "SD_GROOT=/home/weiland/gr00t_n15 SD_GROOT_PY=/home/weiland/gr00t_n15_venv/.venv/bin/python "
-                         "SD_CKPT=/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000"},
+                "groot": "SD_GROOT=/home/weiland/projects/openpi_ext/third_party/gr00t_n15 SD_GROOT_PY=/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python "
+                         "SD_CKPT=/data/ckpt/n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000"},
     },
 }
 # initial per-host server caps per teacher while the other teacher still has work (SDQ_CAPS overrides)

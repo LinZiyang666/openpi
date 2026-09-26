@@ -14,16 +14,16 @@ through untouched -- N1.5 ``new_embodiment`` wants the env-native
 Where everything lives (all paths verified on the host named below)
 ------------------------------------------------------------------
 host          weilandserver
-this venv     /home/weiland/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv
+this venv     /home/weiland/projects/openpi_ext/third_party/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv
               py3.12, numpy 2.2.5.  Anything installed here needs --no-deps:
               openpi-client pins numpy<2.0.0 and would otherwise downgrade numpy,
               breaking robocasa's import assertions and scipy.
-working dir   must be /home/weiland/Isaac-GR00T/external_dependencies/robocasa365
+working dir   must be /home/weiland/projects/openpi_ext/third_party/Isaac-GR00T/external_dependencies/robocasa365
               (robocasa resolves its assets relative to it)
 server        exp/robocasa365/serve_groot_n15.py, in the *other* island, port 8020
 EGL           this host has no system EGL, so all three must be exported:
-                LD_LIBRARY_PATH=/home/weiland/nvidia-gl/root/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
-                __EGL_VENDOR_LIBRARY_DIRS=/home/weiland/nvidia-gl/root/usr/share/glvnd/egl_vendor.d
+                LD_LIBRARY_PATH=/home/weiland/projects/openpi_ext/envs/nvidia-gl/root/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+                __EGL_VENDOR_LIBRARY_DIRS=/home/weiland/projects/openpi_ext/envs/nvidia-gl/root/usr/share/glvnd/egl_vendor.d
                 MUJOCO_GL=egl
 results       exp/robocasa365/data/  (written incrementally, one flush per task,
               so a mid-run crash still leaves the completed tasks on disk)
@@ -31,11 +31,11 @@ results       exp/robocasa365/data/  (written incrementally, one flush per task,
 Launch::
 
     tmux new-session -d -s grootrollout "export HOME=/home/weiland; \\
-      export LD_LIBRARY_PATH=/home/weiland/nvidia-gl/root/usr/lib/x86_64-linux-gnu:\\$LD_LIBRARY_PATH; \\
-      export __EGL_VENDOR_LIBRARY_DIRS=/home/weiland/nvidia-gl/root/usr/share/glvnd/egl_vendor.d; \\
+      export LD_LIBRARY_PATH=/home/weiland/projects/openpi_ext/envs/nvidia-gl/root/usr/lib/x86_64-linux-gnu:\\$LD_LIBRARY_PATH; \\
+      export __EGL_VENDOR_LIBRARY_DIRS=/home/weiland/projects/openpi_ext/envs/nvidia-gl/root/usr/share/glvnd/egl_vendor.d; \\
       export MUJOCO_GL=egl PYTHONPATH=/home/weiland/projects/openpi; \\
-      cd /home/weiland/Isaac-GR00T/external_dependencies/robocasa365 && \\
-      /home/weiland/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv/bin/python \\
+      cd /home/weiland/projects/openpi_ext/third_party/Isaac-GR00T/external_dependencies/robocasa365 && \\
+      /home/weiland/projects/openpi_ext/third_party/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv/bin/python \\
       /home/weiland/projects/openpi/exp/robocasa365/groot_rollout_client.py --n-trials 5"
 """
 

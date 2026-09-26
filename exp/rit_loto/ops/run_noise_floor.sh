@@ -7,11 +7,11 @@ export HOME=/home/weiland
 SUITE=${1:?suite}
 NAME=${2:-lotonf_$SUITE}
 REPO=/data/openpi_lg
-G=/home/weiland/gr00t_n15
-PY=/home/weiland/gr00t_n15_venv/.venv/bin/python
+G=/home/weiland/projects/openpi_ext/third_party/gr00t_n15
+PY=/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python
 case "$SUITE" in
-  libero_spatial) CORPUS=/archive/libero_cache/build_spatial_w13/libero_spatial; CKPT=/home/weiland/ckpt_n15_libero_spatial ;;
-  libero_10)      CORPUS=/archive/libero_cache/build_libero10_w13/libero_10;    CKPT=/home/weiland/ckpt_n15_libero_10 ;;
+  libero_spatial) CORPUS=/archive/libero_cache/build_spatial_w13/libero_spatial; CKPT=/data/ckpt/n15_libero_spatial ;;
+  libero_10)      CORPUS=/archive/libero_cache/build_libero10_w13/libero_10;    CKPT=/data/ckpt/n15_libero_10 ;;
   *) echo "unknown suite $SUITE"; exit 2 ;;
 esac
 LIB=/data/libero_cache/libraries_w13/$SUITE/${SUITE}_w13_S3.pkl

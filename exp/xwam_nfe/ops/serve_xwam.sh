@@ -5,7 +5,7 @@
 set -u
 AK=${1:?action denoise steps}; VK=${2:-50}; GPU=${3:-0}; FP=${4:-23270}; BP=${5:-23271}; IDX=${6:-0}
 case "$(hostname)" in
-  weilandserver*) CODE=/home/weiland/x-wam; DATA=/data/xwam; UHOME=/home/weiland ;;
+  weilandserver*) CODE=/home/weiland/projects/openpi_ext/lines/x-wam; DATA=/data/xwam; UHOME=/home/weiland ;;
   *) CODE=/data/xwam/X-WAM; DATA=/data/xwam; UHOME=/home/exouser ;;
 esac
 export HOME=$UHOME; export PATH=$UHOME/.local/bin:/usr/local/bin:/usr/bin:/bin

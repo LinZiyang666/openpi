@@ -3,11 +3,11 @@
 # the concrete layout so a cell manifest generated on one host can be mirrored on the other by path substitution.
 hosts:
   weilandserver:                       # RTX 4090 48 GB; code + venv on SSD /home/weiland, data on /data (HDD, CMR); torch 1.12.1+cu116
-    dp_root: /home/weiland/dp/diffusion_policy
-    openpi_exp: /home/weiland/dp/openpi_exp
+    dp_root: /home/weiland/projects/openpi_ext/lines/dp/diffusion_policy
+    openpi_exp: /home/weiland/projects/openpi_ext/lines/dp/openpi_exp
     data_root: /data/dp/x0_multimodal
     raw_root: /data/dp/data
-    env: exp/dp_nfe/ops/dp_x0_env.sh   # DP_BASE=/home/weiland/dp DP_DATA=/data/dp
+    env: exp/dp_nfe/ops/dp_x0_env.sh   # DP_BASE=/home/weiland/projects/openpi_ext/lines/dp DP_DATA=/data/dp
     gpus: ["0"]
     train_parallel: 2                  # two lowdim cells fit side by side (~3 GB each); image cells one at a time
     eval_parallel: 3
@@ -27,7 +27,7 @@ hosts:
 mirror:
   weilandserver_to_h100:
     - ["/data/dp/", "/data/dp_h100/"]
-    - ["/home/weiland/dp/", "/data/dp_h100/"]
+    - ["/home/weiland/projects/openpi_ext/lines/dp/", "/data/dp_h100/"]
 # Work split (plan §5.2): core lowdim cells by task -- weilandserver: pusht + blockpush; h100: kitchen + square_mh + all
 # image cells + explore. Each host evaluates the cells it trained (checkpoints never move between hosts).
 split:

@@ -33,7 +33,7 @@ checkpoints:
       - robot_state
       hidden: 256
       mode: argmax
-      dump_dir: /home/weiland/rl_router/dump
+      dump_dir: /data/rl_router/dump
       constant_arm: student
     search_strategy:
       type: weighted_score_sum_knn

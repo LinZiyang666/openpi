@@ -11,12 +11,12 @@ host            weilandserver, single RTX 4090 (49140 MiB), shared with other
                 port 8000 and ~8.8 GB and must never be shut down; only ever act
                 on your own PID / tmux session, never a broad ``pkill``.
 port            8020  (8000 = foreign server, 8010 = the pi0.5 teacher)
-checkpoint      /home/weiland/ckpt_n15_robocasa/gr00t_n1-5/multitask_learning/checkpoint-120000
+checkpoint      /data/ckpt/n15_robocasa/gr00t_n1-5/multitask_learning/checkpoint-120000
                 7.2 GB, two safetensors shards, embodiment tag "new_embodiment".
-this venv       /home/weiland/gr00t_n15_venv/.venv
+this venv       /home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv
                 py3.11.15, numpy 1.26.4, transformers 4.51.3, torch 2.5.1+cu124.
 gr00t source    NOT installed in that venv -- imported from the n1.5-release
-                git worktree at /home/weiland/gr00t_n15, so PYTHONPATH must
+                git worktree at /home/weiland/projects/openpi_ext/third_party/gr00t_n15, so PYTHONPATH must
                 include it.
 extra runtime   ``decord`` is required: the parent DataConfig's transform chain
                 loads it through a transformers dynamic module, and without it
@@ -24,7 +24,7 @@ extra runtime   ``decord`` is required: the parent DataConfig's transform chain
 extra deps      ``uv pip install -e /home/weiland/projects/openpi/packages/openpi-client``
                 (its numpy<2.0.0 pin is satisfied here, so no --no-deps needed --
                 unlike the simulation island, where --no-deps is mandatory).
-PYTHONPATH      /home/weiland/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi
+PYTHONPATH      /home/weiland/projects/openpi_ext/third_party/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi
                 the middle entry pulls in the websocket server only;
                 that module imports nothing heavier than openpi_client and
                 websockets, and openpi/__init__.py is empty, so no jax or torch
@@ -38,8 +38,8 @@ trace mode      ``--trace-out DIR`` (``logs/cache_trace_mode_plan.log.md`` §9):
 Launch::
 
     tmux new-session -d -s grootsrv "export HOME=/home/weiland; \\
-      PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi \\
-      /home/weiland/gr00t_n15_venv/.venv/bin/python \\
+      PYTHONPATH=/home/weiland/projects/openpi_ext/third_party/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi \\
+      /home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python \\
       /home/weiland/projects/openpi/exp/robocasa365/serve_groot_n15.py 2>&1 | tee /tmp/grootsrv.log"
 """
 
@@ -66,11 +66,11 @@ logging.basicConfig(level=logging.INFO)
 # read from. The multitask checkpoint is kept only as an archived comparison
 # and must be requested explicitly.
 DEFAULT_CHECKPOINT = (
-    "/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/"
+    "/data/ckpt/n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/"
     "target_posttraining/atomic_seen/checkpoint-60000"
 )
 ARCHIVED_MULTITASK_CHECKPOINT = (
-    "/home/weiland/ckpt_n15_robocasa/gr00t_n1-5/multitask_learning/checkpoint-120000"
+    "/data/ckpt/n15_robocasa/gr00t_n1-5/multitask_learning/checkpoint-120000"
 )
 DEFAULT_PORT = 8020
 EMBODIMENT_TAG = "new_embodiment"

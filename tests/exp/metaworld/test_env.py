@@ -17,7 +17,7 @@ from exp.metaworld import tasks as T
 from exp.warm_reset.plan import validate_tasks
 
 REPO = pathlib.Path(__file__).resolve().parents[3]
-SIM_PYTHON = pathlib.Path("~/metaworld_sim/bin/python").expanduser()
+SIM_PYTHON = pathlib.Path("~/projects/openpi_ext/envs/metaworld_sim/bin/python").expanduser()
 
 
 # ------------------------------------------------------------------
@@ -263,7 +263,7 @@ def _probe(pairs):
 
 @pytest.mark.skipif(
     not SIM_PYTHON.exists(),
-    reason="MetaWorld simulator venv ~/metaworld_sim is not installed",
+    reason="MetaWorld simulator venv ~/projects/openpi_ext/envs/metaworld_sim is not installed",
 )
 def test_same_identity_same_initial_state_across_processes():
     pairs = [

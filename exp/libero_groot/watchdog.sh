@@ -15,7 +15,7 @@
 set -u
 export HOME=/home/weiland
 REPO=/home/weiland/projects/openpi
-PY=/home/weiland/gr00t_n15_venv/.venv/bin/python
+PY=/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python
 STATE=/data/libero_cache/current_run.env
 INTERVAL=${1:-300}
 
@@ -24,7 +24,7 @@ log() { echo "[$(date '+%m-%d %H:%M:%S')] $*"; }
 heal_keepwarm() {
   tmux has-session -t keepwarm 2>/dev/null && return
   log "HEAL keepwarm was dead -> restarting"
-  tmux new -s keepwarm -d "cd $REPO && /home/weiland/.local/bin/uv run python /home/weiland/gtp_logs/gpu_keepwarm.py 2>&1 | tee -a /home/weiland/gtp_logs/keepwarm.log"
+  tmux new -s keepwarm -d "cd $REPO && /home/weiland/.local/bin/uv run python /home/weiland/projects/openpi_ext/scratch/gtp_logs/gpu_keepwarm.py 2>&1 | tee -a /home/weiland/projects/openpi_ext/scratch/gtp_logs/keepwarm.log"
 }
 
 # Episodes of lane i's shard that have no HDF5 yet. With $2 set, the remainder
@@ -40,7 +40,7 @@ start_server() {  # $1=port
   local P=$1
   log "HEAL server $P down -> restarting"
   tmux kill-session -t "lbsrv$P" 2>/dev/null
-  tmux new -s "lbsrv$P" -d "cd $REPO && PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/gr00t_n15/examples/Libero:$REPO:$REPO/src OPENPI_MONITOR_LEVEL=BASIC $PY exp/libero_groot/serve_groot_libero.py --checkpoint $CKPT --port $P --trace-out $OUT --trace-build-cache 2>&1 | tee /tmp/lbsrv$P.log"
+  tmux new -s "lbsrv$P" -d "cd $REPO && PYTHONPATH=/home/weiland/projects/openpi_ext/third_party/gr00t_n15:/home/weiland/projects/openpi_ext/third_party/gr00t_n15/examples/Libero:$REPO:$REPO/src OPENPI_MONITOR_LEVEL=BASIC $PY exp/libero_groot/serve_groot_libero.py --checkpoint $CKPT --port $P --trace-out $OUT --trace-build-cache 2>&1 | tee /tmp/lbsrv$P.log"
   for _ in $(seq 1 30); do ss -tln | grep -q ":$P " && return 0; sleep 5; done
   log "WARN server $P did not come up within 150s"
   return 1
@@ -58,7 +58,7 @@ start_lane() {  # $1=lane index
   TASKS=$($PY -c "import json,sys;e=json.load(open(sys.argv[1]));print(' '.join(str(t) for t in sorted({x['task_id'] for x in e})))" "$F")
   [ -z "$TASKS" ] && return 0
   log "HEAL lane$i (port $P, tasks=[$TASKS]) -> restarting"
-  tmux new -s "lbrun$i" -d "cd $REPO && MUJOCO_EGL_DEVICE_ID=0 PYTHONPATH=. /home/weiland/miniconda3/bin/conda run -p /home/weiland/libero_sim --no-capture-output python examples/libero/main.py --host 127.0.0.1 --port $P --task-suite-name $SUITE --task-ids $TASKS --num-trials-per-task 50 --num-workers 1 --resize-size 256 --replan-steps 5 --init-states-dir $REPO/exp/common/data/db_init/libero/$SUITE --cuda-visible-devices 0 --episode-filter $F --save-episode-results --episode-results-path $OUT/results_lane$i.json 2>&1 | tee /tmp/lbrun$i.log"
+  tmux new -s "lbrun$i" -d "cd $REPO && MUJOCO_EGL_DEVICE_ID=0 PYTHONPATH=. /home/weiland/miniconda3/bin/conda run -p /home/weiland/projects/openpi_ext/envs/libero_sim --no-capture-output python examples/libero/main.py --host 127.0.0.1 --port $P --task-suite-name $SUITE --task-ids $TASKS --num-trials-per-task 50 --num-workers 1 --resize-size 256 --replan-steps 5 --init-states-dir $REPO/exp/common/data/db_init/libero/$SUITE --cuda-visible-devices 0 --episode-filter $F --save-episode-results --episode-results-path $OUT/results_lane$i.json 2>&1 | tee /tmp/lbrun$i.log"
 }
 
 log "watchdog up (interval ${INTERVAL}s)"

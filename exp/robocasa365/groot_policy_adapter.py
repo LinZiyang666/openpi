@@ -19,7 +19,7 @@ Runtime placement
 -----------------
 Shared by all three environments, which is exactly why it stays pure-numpy:
 the server imports it in the GR00T island
-(``/home/weiland/gr00t_n15_venv/.venv``, py3.11 / numpy 1.26.4), the rollout
+(``/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv``, py3.11 / numpy 1.26.4), the rollout
 client imports ``iter_step_actions`` from it in the simulation island
 (``.../robocasa365_uv/.venv``, py3.12 / numpy 2.2.5), and the test suite imports
 it in the main venv.  Both ends of the wire therefore enforce one contract.

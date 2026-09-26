@@ -408,7 +408,7 @@ uv run scripts/serve_policy.py \
   --cache --trace-out /data/robocasa365_cache/build_l1s1 --trace-build-cache \
   policy:checkpoint \
   --policy.config pi05_robocasa \
-  --policy.dir /home/weiland/ckpt_pi05_robocasa_pytorch
+  --policy.dir /data/ckpt/pi05_robocasa_pytorch
 ```
 
 `--trace-out` is the **scene root** (`build_l{L}s{S}`), never the teacher

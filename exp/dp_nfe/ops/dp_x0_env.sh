@@ -1,7 +1,7 @@
 #!/bin/bash
 # Source-able env for running exp.dp_nfe.* inside the official DP env on weilandserver / h100 (by hostname).
 case "$(hostname)" in
-  weilandserver*) export DP_BASE=/home/weiland/dp; export DP_DATA=/data/dp ;;
+  weilandserver*) export DP_BASE=/home/weiland/projects/openpi_ext/lines/dp; export DP_DATA=/data/dp ;;
   *) export DP_BASE=/data/dp_h100; export DP_DATA=/data/dp_h100 ;;
 esac
 export DP_ROOT=$DP_BASE/diffusion_policy

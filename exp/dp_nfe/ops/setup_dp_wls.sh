@@ -5,7 +5,7 @@
 # Everything under /scratch/zixuans8/dp. Idempotent.
 set -u -o pipefail
 export HOME=/home/weiland
-D=/home/weiland/dp; DATA=/data/dp; mkdir -p $D $DATA /tmp/dp; cd $D
+D=/home/weiland/projects/openpi_ext/lines/dp; DATA=/data/dp; mkdir -p $D $DATA /tmp/dp; cd $D
 export MAMBA_ROOT_PREFIX=$D/mamba
 if [ ! -x $D/bin/micromamba ]; then
   echo "== $(date +%H:%M:%S) micromamba"
@@ -27,7 +27,7 @@ if [ ! -x $D/env/bin/python ]; then
   # add the GL/build packages mujoco-py needs (apt not available); keep everything else verbatim
   python3 - <<'PY'
 import re
-p='/home/weiland/dp/env.yaml'; s=open(p).read()
+p='/home/weiland/projects/openpi_ext/lines/dp/env.yaml'; s=open(p).read()
 extra="  - glew\n  - mesalib\n  - glfw\n  - patchelf\n  - libglu\n  - gcc_linux-64=11\n  - gxx_linux-64=11\n"
 s=s.replace("dependencies:\n","dependencies:\n"+extra,1)
 open(p,'w').write(s); print("env.yaml patched")

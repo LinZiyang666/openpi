@@ -12,8 +12,8 @@ CKPT=${2:?checkpoint}
 REPO=${3:-/data/openpi_lg}
 OUT=${4:-$REPO/exp/libero_groot/config/actioncache/cost_groot_cp2_encoded_$SUITE.json}
 
-G=/home/weiland/gr00t_n15
-PY=/home/weiland/gr00t_n15_venv/.venv/bin/python
+G=/home/weiland/projects/openpi_ext/third_party/gr00t_n15
+PY=/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python
 TR=/tmp/lg_traces
 COST=$REPO/exp/libero_groot/config/rit/cost_groot_libero_measured.json
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 NO_ALBUMENTATIONS_UPDATE=1

@@ -20,8 +20,8 @@ R=${4:-0}
 OUT=${5:-/data/openpi_lg/exp/libero_groot/data/latency}
 
 REPO=/data/openpi_lg
-G=/home/weiland/gr00t_n15
-PY=/home/weiland/gr00t_n15_venv/.venv/bin/python
+G=/home/weiland/projects/openpi_ext/third_party/gr00t_n15
+PY=/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python
 TR=/tmp/lg_traces
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 NO_ALBUMENTATIONS_UPDATE=1
 export PYTHONPATH=$G:$G/examples/Libero:$REPO/src:$REPO

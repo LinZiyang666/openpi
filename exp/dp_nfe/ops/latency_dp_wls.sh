@@ -4,7 +4,7 @@
 # usage: latency_dp_wls.sh
 set -u
 export HOME=/home/weiland
-D=/home/weiland/dp; DATA=/data/dp; RES=$DATA/results; LOG=/tmp/dp/latency.log
+D=/home/weiland/projects/openpi_ext/lines/dp; DATA=/data/dp; RES=$DATA/results; LOG=/tmp/dp/latency.log
 export PATH=$D/env/bin:/usr/local/bin:/usr/bin:/bin MUJOCO_PY_MUJOCO_PATH=$D/mujoco210 LD_LIBRARY_PATH=$D/mujoco210/bin:$D/env/lib:/usr/lib/nvidia MUJOCO_GL=egl PYOPENGL_PLATFORM=egl CUDA_VISIBLE_DEVICES=0
 say() { echo "$(date +%H:%M:%S) $*" | tee -a $LOG; }
 cd $D/diffusion_policy

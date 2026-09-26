@@ -27,7 +27,7 @@ checkpoints:
     judge:
       type: mlp_router
       arms: ts
-      weights_path: /home/weiland/rl_router/art/warmstart_spatial.pt
+      weights_path: /data/rl_router/art/warmstart_spatial.pt
       feature_fields:
       - vision_0
       - vision_1

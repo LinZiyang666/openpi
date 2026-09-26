@@ -60,10 +60,10 @@ Run (weilandserver, idle GPU, one process per cell, serially -- never in paralle
 The ``cudaProfilerApi`` range starts after warmup and stops after measurement,
 so the exported summary cannot hide a recapture among allowed warmup captures::
 
-    PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi \\
+    PYTHONPATH=/home/weiland/projects/openpi_ext/third_party/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi \\
     nsys profile --trace=cuda,nvtx --capture-range=cudaProfilerApi --capture-range-end=stop \\
       --output /tmp/groot_cg_k4_p0_r0 \\
-      /home/weiland/gr00t_n15_venv/.venv/bin/python exp/robocasa365/bench_groot_stages.py \\
+      /home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python exp/robocasa365/bench_groot_stages.py \\
         --mode measure --checkpoint <ckpt> --k 4 --prompt-index 0 --proc-idx 0 \\
         --out exp/robocasa365/data/latency/groot_cg_k4_p0_r0.json
     nsys stats --report cuda_api_sum,nvtx_pushpop_sum --format csv \\
@@ -1375,7 +1375,7 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device-index", type=int, default=0)
     ap.add_argument("--out", required=True)
-    ap.add_argument("--gr00t-root", default="/home/weiland/gr00t_n15")
+    ap.add_argument("--gr00t-root", default="/home/weiland/projects/openpi_ext/third_party/gr00t_n15")
     ap.add_argument("--cuda-trace", default="")
     ap.add_argument(
         "--allow-busy-gpu",

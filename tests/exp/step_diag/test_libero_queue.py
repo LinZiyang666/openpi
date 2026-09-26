@@ -52,7 +52,7 @@ def test_every_arm_maps_to_a_served_mode_and_an_existing_yaml(teacher):
 
 def test_groot_server_env_names_the_suite_checkpoint():
     assert "SD_CKPT=/home/exouser/ckpt/n15_libero_10" in L.server_env("h100", "groot", "groot_libero_10")
-    assert "SD_CKPT=/home/weiland/ckpt_n15_libero_spatial" in L.server_env("wls", "groot", "groot_libero_spatial")
+    assert "SD_CKPT=/data/ckpt/n15_libero_spatial" in L.server_env("wls", "groot", "groot_libero_spatial")
     assert "pi05_libero_pytorch" in L.server_env("h100", "pi05", "pi05_libero_10")
 
 

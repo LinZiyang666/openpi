@@ -15,7 +15,7 @@ Run inside the simulation island::
     # install via: VIRTUAL_ENV=<that venv> uv pip install pytest
     cd /home/weiland/projects/openpi && \\
     PYTHONPATH=/home/weiland/projects/openpi \\
-      /home/weiland/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv/bin/python \\
+      /home/weiland/projects/openpi_ext/third_party/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv/bin/python \\
       -m pytest tests/robocasa365/test_env_action_contract_manual.py --run-manual -q
 
 ``--run-manual`` is required: conftest.py default-skips the manual marker, and

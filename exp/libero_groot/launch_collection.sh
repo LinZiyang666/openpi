@@ -21,11 +21,11 @@ OUT=${3:?out dir}
 LANES=${4:-6}
 BASE=${5:-8030}
 
-PY=/home/weiland/gr00t_n15_venv/.venv/bin/python
+PY=/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python
 REPO=/home/weiland/projects/openpi
 SHARDS=/data/libero_cache/shards/$SUITE
 INIT=$REPO/exp/common/data/db_init/libero/$SUITE
-GR00T_PATH=/home/weiland/gr00t_n15:/home/weiland/gr00t_n15/examples/Libero:$REPO:$REPO/src
+GR00T_PATH=/home/weiland/projects/openpi_ext/third_party/gr00t_n15:/home/weiland/projects/openpi_ext/third_party/gr00t_n15/examples/Libero:$REPO:$REPO/src
 
 [ -d "$INIT" ] || { echo "no B-pool init dir: $INIT"; exit 1; }
 if ls "$INIT"/*.pruned_init >/dev/null 2>&1; then
@@ -78,7 +78,7 @@ for i in $(seq 0 $((LANES-1))); do
   TASKS=$($PY -c "import json,sys;e=json.load(open(sys.argv[1]));print(' '.join(str(t) for t in sorted({x['task_id'] for x in e})))" "$F")
   [ -z "$TASKS" ] && { echo "lane$i: nothing left, skipping"; continue; }
   echo "lane$i -> port $P tasks=[$TASKS]"
-  tmux new -s "lbrun$i" -d "cd $REPO && MUJOCO_EGL_DEVICE_ID=0 PYTHONPATH=. /home/weiland/miniconda3/bin/conda run -p /home/weiland/libero_sim --no-capture-output python examples/libero/main.py --host 127.0.0.1 --port $P --task-suite-name $SUITE --task-ids $TASKS --num-trials-per-task 50 --num-workers 1 --resize-size 256 --replan-steps 5 --init-states-dir $INIT --cuda-visible-devices 0 --episode-filter $F --save-episode-results --episode-results-path $OUT/results_lane$i.json 2>&1 | tee /tmp/lbrun$i.log"
+  tmux new -s "lbrun$i" -d "cd $REPO && MUJOCO_EGL_DEVICE_ID=0 PYTHONPATH=. /home/weiland/miniconda3/bin/conda run -p /home/weiland/projects/openpi_ext/envs/libero_sim --no-capture-output python examples/libero/main.py --host 127.0.0.1 --port $P --task-suite-name $SUITE --task-ids $TASKS --num-trials-per-task 50 --num-workers 1 --resize-size 256 --replan-steps 5 --init-states-dir $INIT --cuda-visible-devices 0 --episode-filter $F --save-episode-results --episode-results-path $OUT/results_lane$i.json 2>&1 | tee /tmp/lbrun$i.log"
   sleep 5
 done
 tmux new -s lbwatch -d "bash $REPO/exp/libero_groot/watchdog.sh 2>&1 | tee -a /tmp/lbwatch.log"

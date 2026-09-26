@@ -27,7 +27,7 @@ checkpoints:
     judge:
       type: mlp_router
       arms: tsc
-      weights_path: /home/weiland/rl_router/weights/v0.pt
+      weights_path: /data/rl_router/weights/v0.pt
       feature_fields:
       - vision_0
       - vision_1
@@ -36,7 +36,7 @@ checkpoints:
       mode: sample
       temperature: 1.0
       seed: 0
-      dump_dir: /home/weiland/rl_router/dump
+      dump_dir: /data/rl_router/dump
     search_strategy:
       type: weighted_score_sum_knn
       top_k: 1

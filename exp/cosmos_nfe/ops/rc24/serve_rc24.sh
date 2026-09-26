@@ -4,7 +4,7 @@
 set -u
 PORT=${1:?port}; KDEF=${2:-5}
 case "$(hostname)" in
-  weilandserver*) REPO=/home/weiland/cosmos-policy; HF=/data/cosmos/hf_home; HOMEDIR=/home/weiland/cosmos_home; EXP=/home/weiland/cosmos_exp; UHOME=/home/weiland ;;
+  weilandserver*) REPO=/home/weiland/projects/openpi_ext/lines/cosmos-policy; HF=/data/cosmos/hf_home; HOMEDIR=/home/weiland/projects/openpi_ext/lines/cosmos_home; EXP=/home/weiland/projects/openpi_ext/lines/cosmos_exp; UHOME=/home/weiland ;;
   *) REPO=/data/cosmos/cosmos-policy; HF=/data/cosmos/hf_home; HOMEDIR=/home/exouser; EXP=/data/cosmos/openpi_exp; UHOME=/home/exouser ;;
 esac
 NV=$REPO/.venv/lib/python3.10/site-packages/nvidia

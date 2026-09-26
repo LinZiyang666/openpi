@@ -87,7 +87,7 @@
     ],
     "measured_at": "2026-08-19",
     "measured_by": "one process per cell, run serially on an otherwise idle RTX 4090; timing contract identical to the production sidecar forward_ms (sidecar_server.py:92-96) for students and to the staged Policy.infer path (policy.py:101-131) for the teacher; cross-checked against exp/rl_router/microbench_cost.py CUDA-event timing (415.45 ms, n=50)",
-    "notes": "Synthetic observations (uint8 224x224 dual view + 8-dim state + the real libero_spatial task_0 prompt) with real frozen weights. Latency depends on tensor shapes and graph structure, not on pixel or weight values. A byte-identical sibling copy of these JSONs sits on weilandserver at /home/weiland/bench_latency/results/, alongside the raw run logs."
+    "notes": "Synthetic observations (uint8 224x224 dual view + 8-dim state + the real libero_spatial task_0 prompt) with real frozen weights. Latency depends on tensor shapes and graph structure, not on pixel or weight values. A byte-identical sibling copy of these JSONs sits on weilandserver at /home/weiland/projects/openpi_ext/scratch/bench_latency/results/, alongside the raw run logs."
   },
   "caveats": [
     "The authority path is inside exp/**/data/** and is therefore swallowed by .gitignore line 6: the experiment-side originals never reach version control. The collected copy under analysis/latency_bench/results/ (next caveat) is what a later reader actually gets from git; verify either side before quoting numbers from a working tree you did not produce.",

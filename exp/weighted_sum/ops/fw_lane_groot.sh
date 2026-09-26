@@ -15,8 +15,8 @@ R=${FW_REPO:-/data/openpi_lg}
 PY=${FW_PY:-/home/weiland/projects/openpi/.venv/bin/python}
 BASE=/data/libero_cache/search/$SUITE
 case "$SUITE" in
-  libero_spatial) CKPT=/home/weiland/ckpt_n15_libero_spatial ;;
-  libero_10)      CKPT=/home/weiland/ckpt_n15_libero_10 ;;
+  libero_spatial) CKPT=/data/ckpt/n15_libero_spatial ;;
+  libero_10)      CKPT=/data/ckpt/n15_libero_10 ;;
   *) echo "unknown suite $SUITE"; exit 2 ;;
 esac
 cd "$R" || exit 1

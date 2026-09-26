@@ -137,7 +137,7 @@ uv run --no-sync python -m exp.warm_reset.run agent \
   --gpus 0 --workers-per-gpu 4 --prefix libero_host_a --conda-env "$WR_LIBERO_ENV"
 ```
 
-若 LIBERO 模拟器是 venv 而不是 conda 环境（如 weilandserver 的 `~/libero_sim`），省略
+若 LIBERO 模拟器是 venv 而不是 conda 环境（如 weilandserver 的 `~/projects/openpi_ext/envs/libero_sim`），省略
 `--conda-env`：agent 会直接启动 `PATH` 上的 `python`，因此用主 venv 的解释器运行 agent，
 并让 `PATH` 先指向模拟器 venv、`PYTHONPATH` 含仓库根与 `src`：
 

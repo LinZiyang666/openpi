@@ -18,9 +18,9 @@ K=${2:?k}
 BASE=${3:?base port}
 N=${4:?n servers}
 REPO=${5:-/data/openpi_nfe}
-GROOT=${6:-/home/weiland/gr00t_n15}
-PY=${7:-/home/weiland/gr00t_n15_venv/.venv/bin/python}
-CKPT_DIR=${8:-/home/weiland}
+GROOT=${6:-/home/weiland/projects/openpi_ext/third_party/gr00t_n15}
+PY=${7:-/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python}
+CKPT_DIR=${8:-/data/ckpt}
 case "$SUITE" in
   libero_spatial) CKPT=$CKPT_DIR/ckpt_n15_libero_spatial; [ -d "$CKPT" ] || CKPT=$CKPT_DIR/n15_libero_spatial ;;
   libero_10) CKPT=$CKPT_DIR/ckpt_n15_libero_10; [ -d "$CKPT" ] || CKPT=$CKPT_DIR/n15_libero_10 ;;

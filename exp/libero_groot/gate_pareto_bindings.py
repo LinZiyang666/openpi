@@ -91,7 +91,7 @@ BINDINGS: tuple[Binding, ...] = (
             "/data/libero_cache/libraries/libero_spatial/"
             "libero_spatial_sp16_S3.pkl"
         ),
-        checkpoint="/home/weiland/ckpt_n15_libero_spatial",
+        checkpoint="/data/ckpt/n15_libero_spatial",
         apool_dir="exp/common/data/db_init/libero/libero_spatial_apool",
         bpool_dir="exp/common/data/db_init/libero/libero_spatial",
     ),
@@ -102,7 +102,7 @@ BINDINGS: tuple[Binding, ...] = (
         # robot_state 0.083.
         source_template="/data/libero_cache/search/libero_10/r2/v0@6_v1@5_rs@1.yaml",
         library="/data/libero_cache/libraries/libero_10/libero_10_sp16_S3.pkl",
-        checkpoint="/home/weiland/ckpt_n15_libero_10",
+        checkpoint="/data/ckpt/n15_libero_10",
         apool_dir="exp/common/data/db_init/libero/libero_10_apool",
         bpool_dir="exp/common/data/db_init/libero/libero_10",
     ),

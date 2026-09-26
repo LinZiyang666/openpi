@@ -24,7 +24,7 @@ $PY -m exp.gate_threshold_pareto.run_gtp \
   --workers 48 \
   --trials 50 \
   --gpus 1 \
-  --conda-env /home/weiland/libero_sim \
+  --conda-env /home/weiland/projects/openpi_ext/envs/libero_sim \
   --judge-type dispatch_surface \
   --eval-gate $GATE \
   --journal "$OUT/journal.jsonl" \

@@ -1,7 +1,7 @@
 """G0-C against real RoboCasa-k4 and LIBERO-k8 checkpoints on island B.
 
 Run with the GR00T venv and ``--run-manual -s``; PYTHONPATH must contain this
-checkout's root/src, /home/weiland/gr00t_n15 and its examples/Libero directory.
+checkout's root/src, /home/weiland/projects/openpi_ext/third_party/gr00t_n15 and its examples/Libero directory.
 An explicit manual run fails on missing dependencies/assets, never skips.
 The upstream reference runs the entire model and supplies every snapshot via
 an action-encoder hook. Resume inputs round-trip through the HDF5 reader used
@@ -53,7 +53,7 @@ def real_stack(request):
     else:
         from custom_data_config import LiberoDataConfig
 
-        checkpoint = pathlib.Path("/home/weiland/ckpt_n15_libero_spatial")
+        checkpoint = pathlib.Path("/data/ckpt/n15_libero_spatial")
         data_config = LiberoDataConfig()
         steps = 8
     assert checkpoint.is_dir(), checkpoint

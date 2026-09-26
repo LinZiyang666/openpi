@@ -79,7 +79,7 @@ analyze() {  # $1=results $2=steps $3=summary out $4=label
 }
 
 # ---------------------------------------------------------------- spatial fine
-SP_CKPT=/home/weiland/ckpt_n15_libero_spatial
+SP_CKPT=/data/ckpt/n15_libero_spatial
 SP_R2=$SEARCH/libero_spatial/r2
 SP_R2_RES=$SEARCH/libero_spatial/r2_results
 if tmux has-session -t libsearch 2>/dev/null; then
@@ -102,7 +102,7 @@ fi
 analyze "$SP_R2_RES" 12 "$SEARCH/libero_spatial/r2_summary.json" "spatial fine"
 
 # ---------------------------------------------------------------- l10 coarse
-L10_CKPT=/home/weiland/ckpt_n15_libero_10
+L10_CKPT=/data/ckpt/n15_libero_10
 L10_LIB=/data/libero_cache/libraries/libero_10/libero_10_sp16_S3.pkl
 L10_CALIB=/data/libero_cache/calib_input_S3/libero_10_calibration.json
 for _ in $(seq 1 60); do [ -s "$L10_CALIB" ] && break; say "waiting for l10 calibration"; sleep 60; done

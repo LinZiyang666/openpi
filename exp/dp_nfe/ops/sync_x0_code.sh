@@ -1,6 +1,6 @@
 #!/bin/bash
 # Local: push the exp/dp_nfe code + tests to a host's DP layout (<root>/openpi_exp/exp/dp_nfe, <root>/openpi_exp/tests/dp_nfe)
-# so the DP env can import exp.dp_nfe.*  usage: sync_x0_code.sh <host> <dp base dir e.g. /home/weiland/dp or /data/dp_h100>
+# so the DP env can import exp.dp_nfe.*  usage: sync_x0_code.sh <host> <dp base dir e.g. /home/weiland/projects/openpi_ext/lines/dp or /data/dp_h100>
 set -euo pipefail
 H=${1:?host}; B=${2:?dp base}
 cd "$(dirname "$0")/../../.."

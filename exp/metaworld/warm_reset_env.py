@@ -46,7 +46,7 @@ ARMS = (
 )
 EPISODES_PER_TASK = T.EPISODES_PER_TASK
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
-DEFAULT_WORKER_PYTHON = str(pathlib.Path("~/metaworld_sim/bin/python").expanduser())
+DEFAULT_WORKER_PYTHON = str(pathlib.Path("~/projects/openpi_ext/envs/metaworld_sim/bin/python").expanduser())
 
 
 # ------------------------------------------------------------------

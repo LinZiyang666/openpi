@@ -854,7 +854,7 @@ def test_teacher_row_binds_interpreter_checkpoint_and_vram_floor():
 
     assert "gr00t_n15_venv" in groot.python and groot.checkpoint.endswith("checkpoint-60000")
     assert groot.min_free_vram_mb == 8500
-    assert pi05.checkpoint == "/home/weiland/ckpt_pi05_robocasa_pytorch"
+    assert pi05.checkpoint == "/data/ckpt/pi05_robocasa_pytorch"
     # pi0.5 needs a bigger slice of the card than GR00T (round-1 footprints).
     assert pi05.min_free_vram_mb == 10500
 
@@ -926,7 +926,7 @@ def test_groot_keeps_its_verified_recipe():
     assert "exp/robocasa365/serve_groot_n15.py" in cmd
     for flag in ("--concurrent", "--allow-dynamic-bundles", "--cache-config", "--checkpoint"):
         assert flag in cmd
-    assert "PYTHONPATH=/home/weiland/gr00t_n15:" in cmd
+    assert "PYTHONPATH=/home/weiland/projects/openpi_ext/third_party/gr00t_n15:" in cmd
     assert "policy:checkpoint" not in cmd
 
 

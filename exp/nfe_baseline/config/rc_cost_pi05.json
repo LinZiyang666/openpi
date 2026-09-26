@@ -24,6 +24,6 @@
  "gpu_name": "NVIDIA GeForce RTX 4090",
  "torch": "2.7.1+cu126",
  "config_name": "pi05_robocasa",
- "checkpoint": "/home/weiland/ckpt_pi05_robocasa_pytorch",
+ "checkpoint": "/data/ckpt/pi05_robocasa_pytorch",
  "provenance": "RoboCasa-geometry pi0.5 stage split, three cameras, stage-3 step ladder fitted as a + b*k"
 }

@@ -39,7 +39,7 @@ Usage (weilandserver, island venv):
       --corpus-dir /archive/libero_cache/build_libero10_w13/libero_10 \
       --library-pkl /data/libero_cache/libraries_w13/libero_10/libero_10_w13_S3.pkl \
       --template-yaml exp/libero_groot/config/rit/libero_10/template.yaml \
-      --checkpoint /home/weiland/ckpt_n15_libero_10 \
+      --checkpoint /data/ckpt/n15_libero_10 \
       --noise-floor-record <data>/libero_10/noise_floor.json \
       --parity-only --out-dir <data>/libero_10
   python -m exp.rit_loto.build_loto_table ... --parity-gate <data>/libero_10/parity_gate.json \

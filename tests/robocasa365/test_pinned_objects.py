@@ -67,7 +67,7 @@ class TestIdentity:
         # identity that changed with the prefix would make every cross-machine
         # comparison fail for a reason unrelated to the objects.
         weiland = (
-            "/home/weiland/Isaac-GR00T/external_dependencies/robocasa365/robocasa"
+            "/home/weiland/projects/openpi_ext/third_party/Isaac-GR00T/external_dependencies/robocasa365/robocasa"
             "/models/assets/objects/objaverse/plate/plate_9/model.xml"
         )
         timan = (

@@ -11,9 +11,9 @@
 set -u
 K=${1:?k}; P=${2:?port}
 REPO=${NFE_REPO:-/data/openpi_nfe}
-GROOT=${NFE_GROOT:-/home/weiland/gr00t_n15}
-PY=${NFE_GROOT_PY:-/home/weiland/gr00t_n15_venv/.venv/bin/python}
-CKPT=${NFE_RC_GROOT_CKPT:-/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000}
+GROOT=${NFE_GROOT:-/home/weiland/projects/openpi_ext/third_party/gr00t_n15}
+PY=${NFE_GROOT_PY:-/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python}
+CKPT=${NFE_RC_GROOT_CKPT:-/data/ckpt/n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/target_posttraining/atomic_seen/checkpoint-60000}
 export PATH=/usr/local/bin:/usr/bin:/bin
 export HOME=${NFE_HOME:-/home/weiland}
 mkdir -p /tmp/nfe

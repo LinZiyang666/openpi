@@ -28,9 +28,9 @@ ROOT = Path("exp/step_diag/data/init_probe_20260922")
 PILOT = ROOT / "pilot"
 EXPERIMENT = "init_probe_pilot_20260922"
 PORTS = {"groot": 23158, "pi05": 23147}
-PY = {"groot": "/home/weiland/gr00t_n15_venv/.venv/bin/python", "pi05": ".venv/bin/python"}
+PY = {"groot": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python", "pi05": ".venv/bin/python"}
 ENV = {
-    "groot": ("PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi:"
+    "groot": ("PYTHONPATH=/home/weiland/projects/openpi_ext/third_party/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi:"
               "/home/weiland/projects/openpi/packages/openpi-client/src HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 "
               "NO_ALBUMENTATIONS_UPDATE=1"),
     "pi05": ("PYTHONPATH=/home/weiland/projects/openpi/src:/home/weiland/projects/openpi:"

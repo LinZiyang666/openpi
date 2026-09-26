@@ -10,8 +10,8 @@ installed package, and without it `importorskip` turns this file into a silent
 skip that reads as a pass)::
 
     cd /home/weiland/projects/openpi
-    PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi \\
-      /home/weiland/gr00t_n15_venv/.venv/bin/python -m pytest \\
+    PYTHONPATH=/home/weiland/projects/openpi_ext/third_party/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi \\
+      /home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python -m pytest \\
       tests/robocasa365/test_groot_cache_manual.py --run-manual -v
 
 Negative controls are first-class here. `max|delta| == 0` between two paths
@@ -32,7 +32,7 @@ import torch
 pytestmark = pytest.mark.manual
 
 CHECKPOINT = pathlib.Path(
-    "/home/weiland/ckpt_n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/"
+    "/data/ckpt/n15_robocasa_tp/gr00t_n1-5/foundation_model_learning/"
     "target_posttraining/atomic_seen/checkpoint-60000"
 )
 EMBODIMENT_TAG = "new_embodiment"

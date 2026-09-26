@@ -13,7 +13,7 @@ would under-price a short rung exactly as it did on the GR00T side.
 
 Usage:
   uv run python -m exp.robocasa365.bench_pi05_stages_rc \\
-      --checkpoint /home/weiland/ckpt_pi05_robocasa_pytorch \\
+      --checkpoint /data/ckpt/pi05_robocasa_pytorch \\
       --mode reduce-overhead --out <json>
 """
 

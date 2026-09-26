@@ -1,6 +1,6 @@
 """Serve GR00T N1.5 on the LIBERO wire protocol, optionally collecting embeddings.
 
-Runs in the GR00T island (``/home/weiland/gr00t_n15_venv/.venv``) and speaks
+Runs in the GR00T island (``/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv``) and speaks
 ``examples/libero/main.py``'s wire format, so the existing LIBERO client drives
 it unchanged. Two modes:
 
@@ -35,11 +35,11 @@ image-token runs and would reject every LIBERO observation.
 
 Example::
 
-    PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/gr00t_n15/examples/Libero:\\
+    PYTHONPATH=/home/weiland/projects/openpi_ext/third_party/gr00t_n15:/home/weiland/projects/openpi_ext/third_party/gr00t_n15/examples/Libero:\\
     /home/weiland/projects/openpi:/home/weiland/projects/openpi/src \\
-    /home/weiland/gr00t_n15_venv/.venv/bin/python \\
+    /home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python \\
       exp/libero_groot/serve_groot_libero.py \\
-      --checkpoint /home/weiland/ckpt_n15_libero_spatial --port 8030 \\
+      --checkpoint /data/ckpt/n15_libero_spatial --port 8030 \\
       --trace-out /data/libero_cache/build_spatial --trace-build-cache
 """
 
@@ -52,7 +52,7 @@ import threading
 import uuid
 from typing import Any
 
-DEFAULT_CHECKPOINT = "/home/weiland/ckpt_n15_libero_spatial"
+DEFAULT_CHECKPOINT = "/data/ckpt/n15_libero_spatial"
 DEFAULT_PORT = 8030
 EMBODIMENT_TAG = "new_embodiment"
 # The published LIBERO numbers were produced with ``--denoising-steps 8``

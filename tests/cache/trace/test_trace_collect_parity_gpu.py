@@ -28,7 +28,7 @@ import pytest
 
 pytestmark = pytest.mark.manual
 
-CKPT = pathlib.Path("/home/weiland/ckpt_pi05_robocasa_pytorch")
+CKPT = pathlib.Path("/data/ckpt/pi05_robocasa_pytorch")
 EVIDENCE = pathlib.Path(__file__).resolve().parents[3] / "exp" / "robocasa365" / "analysis" / "trace_collect_parity.txt"
 
 

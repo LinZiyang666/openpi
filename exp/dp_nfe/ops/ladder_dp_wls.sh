@@ -5,7 +5,7 @@
 set -u
 NT=${1:-50}; NENV=${2:-25}
 export HOME=/home/weiland
-D=/home/weiland/dp; DATA=/data/dp; RES=$DATA/results; LOG=/tmp/dp/ladder.log
+D=/home/weiland/projects/openpi_ext/lines/dp; DATA=/data/dp; RES=$DATA/results; LOG=/tmp/dp/ladder.log
 export PATH=$D/env/bin:/usr/local/bin:/usr/bin:/bin MUJOCO_PY_MUJOCO_PATH=$D/mujoco210 LD_LIBRARY_PATH=$D/mujoco210/bin:$D/env/lib:/usr/lib/nvidia MUJOCO_GL=egl PYOPENGL_PLATFORM=egl CUDA_VISIBLE_DEVICES=0
 mkdir -p $RES /tmp/dp
 say() { echo "$(date +%H:%M:%S) $*" | tee -a $LOG; }

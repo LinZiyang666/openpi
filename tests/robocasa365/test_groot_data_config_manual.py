@@ -14,7 +14,7 @@ seconds.  GPU/simulation checks (G0-A wire parity, rollouts) stay out of here.
 Run inside the GR00T island.  Three things are easy to get wrong here:
 
 * ``gr00t`` is **not installed** in that venv -- it is imported from the
-  ``n1.5-release`` worktree at ``/home/weiland/gr00t_n15`` via ``PYTHONPATH``.
+  ``n1.5-release`` worktree at ``/home/weiland/projects/openpi_ext/third_party/gr00t_n15`` via ``PYTHONPATH``.
 * ``pytest`` and ``decord`` are not in that venv by default, and it has no
   ``pip`` -- install through ``uv pip`` with ``VIRTUAL_ENV`` pointed at it.  ``decord`` is
   pulled in indirectly when the parent DataConfig builds its transform chain, so
@@ -24,10 +24,10 @@ Run inside the GR00T island.  Three things are easy to get wrong here:
 
 ::
 
-    VIRTUAL_ENV=/home/weiland/gr00t_n15_venv/.venv uv pip install pytest decord
+    VIRTUAL_ENV=/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv uv pip install pytest decord
     cd /home/weiland/projects/openpi && \\
-    PYTHONPATH=/home/weiland/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi \\
-      /home/weiland/gr00t_n15_venv/.venv/bin/python -m pytest \\
+    PYTHONPATH=/home/weiland/projects/openpi_ext/third_party/gr00t_n15:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi \\
+      /home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python -m pytest \\
       tests/robocasa365/test_groot_data_config_manual.py --run-manual -q
 
 Point ``ROBOCASA365_N15_CHECKPOINT`` at the checkpoint if it is not at the
@@ -45,7 +45,7 @@ import pytest
 from exp.robocasa365 import groot_keys
 
 DEFAULT_CHECKPOINT = pathlib.Path(
-    "/home/weiland/ckpt_n15_robocasa/gr00t_n1-5/multitask_learning/checkpoint-120000"
+    "/data/ckpt/n15_robocasa/gr00t_n1-5/multitask_learning/checkpoint-120000"
 )
 EMBODIMENT_TAG = "new_embodiment"
 

@@ -1,7 +1,7 @@
 """MetaWorld conductor worker process: one EGL slot, one inference server.
 
 Launched by ``WorkerAgent`` through ``exp.metaworld.warm_reset_env.spawn_worker``
-inside the simulator venv (``~/metaworld_sim``: Python 3.11, metaworld 3.0.0,
+inside the simulator venv (``~/projects/openpi_ext/envs/metaworld_sim``: Python 3.11, metaworld 3.0.0,
 mujoco, openpi-client) with ``PYTHONPATH=<repo>:<repo>/src``. Builds a
 ``MetaworldEpisodeRunner`` and drives a ``WorkerLoop`` that pulls episodes from
 the driver and reports results. ``metaworld`` is imported only when an episode

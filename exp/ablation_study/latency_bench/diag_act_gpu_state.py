@@ -6,7 +6,7 @@ import numpy as np, torch
 REPO = "/home/weiland/projects/openpi"; sys.path.insert(0, REPO)
 from exp.ablation_study.sidecar_server import make_act_policy  # noqa: E402
 
-fn = make_act_policy("/home/weiland/bench_latency/act_manifest_task0.json", "cuda")
+fn = make_act_policy("/home/weiland/projects/openpi_ext/scratch/bench_latency/act_manifest_task0.json", "cuda")
 PROMPT = "pick up the black bowl between the plate and the ramekin and place it on the plate"
 rng = np.random.default_rng(20260819)
 obs = lambda: {"observation/image": rng.integers(0,256,(224,224,3),dtype=np.uint8),

@@ -1,6 +1,6 @@
 # Task table of the x0-head x label-filtered-data experiment (plan logs/x0_multimodal_plan.log.md §3).
 # Paths are the weilandserver layout; h100 overrides live in hosts.yaml. Official DP task configs are referenced by name.
-dp_root: /home/weiland/dp/diffusion_policy
+dp_root: /home/weiland/projects/openpi_ext/lines/dp/diffusion_policy
 data_root: /data/dp/x0_multimodal            # subsets/, runs/, results_trailing/, diagnostics/
 raw_root: "${RAW_ROOT}"                    # x0_cells substitutes --raw-root (default $DP_DATA/data of the host)
 workspace_lowdim: train_diffusion_unet_lowdim_workspace

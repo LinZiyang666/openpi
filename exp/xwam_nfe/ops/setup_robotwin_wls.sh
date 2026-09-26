@@ -1,13 +1,13 @@
 #!/bin/bash
 # weilandserver: RoboTwin 2.0 simulator env for the X-WAM RoboTwin client (follows RoboTwin's script/_install.sh; CuRobo is
 # mandatory: every robot load builds a CuroboPlanner and the eval loop replays the scripted expert once per seed).
-# Storage discipline: code + env on the SSD under $ROOT (/home/weiland/robotwin: micromamba, env, X-WAM + RoboTwin submodule
+# Storage discipline: code + env on the SSD under $ROOT (/home/weiland/projects/openpi_ext/lines/robotwin: micromamba, env, X-WAM + RoboTwin submodule
 # + curobo source), everything bulky under $DATA (/data/robotwin: the 14 GB assets, symlinked into the submodule, pip/HF caches,
 # results). 4090 (sm_89) + gcc 13 -> CUDA 12.4 toolkit from micromamba (nvcc for curobo) + torch 2.5.1 cu124. Idempotent.
-# usage: setup_robotwin_wls.sh [ROOT=/home/weiland/robotwin] [DATA=/data/robotwin]
+# usage: setup_robotwin_wls.sh [ROOT=/home/weiland/projects/openpi_ext/lines/robotwin] [DATA=/data/robotwin]
 set -u -o pipefail
-ROOT=${1:-/home/weiland/robotwin}; DATA=${2:-/data/robotwin}; export HOME=/home/weiland
-export MAMBA_ROOT_PREFIX=$ROOT/mamba; MM=/home/weiland/dp/bin/micromamba; ENV=$ROOT/mamba/envs/rt
+ROOT=${1:-/home/weiland/projects/openpi_ext/lines/robotwin}; DATA=${2:-/data/robotwin}; export HOME=/home/weiland
+export MAMBA_ROOT_PREFIX=$ROOT/mamba; MM=/home/weiland/projects/openpi_ext/lines/dp/bin/micromamba; ENV=$ROOT/mamba/envs/rt
 export PATH=$ENV/bin:/usr/local/bin:/usr/bin:/bin
 export CUDA_HOME=$ENV TORCH_CUDA_ARCH_LIST="8.9" MAX_JOBS=32 PIP_CACHE_DIR=$DATA/cache/pip HF_HOME=$DATA/cache/hf
 mkdir -p $ROOT $DATA/cache/pip $DATA/cache/hf $DATA/assets $DATA/results /tmp/robotwin

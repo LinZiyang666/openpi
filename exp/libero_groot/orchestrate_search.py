@@ -55,7 +55,7 @@ WEILAND_REPO = str(REPO_ROOT)
 # The GR00T island is a separate install with no relation to this checkout, so
 # it stays a constant -- but an overridable one, since it is the single thing
 # here that a different host would legitimately place elsewhere.
-GR00T_HOME = os.environ.get("GROOT_N15_HOME", "/home/weiland/gr00t_n15")
+GR00T_HOME = os.environ.get("GROOT_N15_HOME", "/home/weiland/projects/openpi_ext/third_party/gr00t_n15")
 TIMAN = "timan107"
 TIMAN_REPO = "/scratch/zixuans8/openpi"
 TIMAN_HOME = "/home/zixuans8"
@@ -69,7 +69,7 @@ GR00T_PATH = (
     f"{GR00T_HOME}:{GR00T_HOME}/examples/Libero:{WEILAND_REPO}:{WEILAND_REPO}/src"
 )
 ISLAND_PY = os.environ.get(
-    "GROOT_N15_PYTHON", "/home/weiland/gr00t_n15_venv/.venv/bin/python"
+    "GROOT_N15_PYTHON", "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
 )
 
 
@@ -450,7 +450,7 @@ def main() -> None:
     ap.add_argument("--yaml-dir", required=True)
     ap.add_argument("--results-dir", required=True)
     ap.add_argument("--suite", default="libero_spatial")
-    ap.add_argument("--checkpoint", default="/home/weiland/ckpt_n15_libero_spatial")
+    ap.add_argument("--checkpoint", default="/data/ckpt/n15_libero_spatial")
     ap.add_argument("--ports", default="23160,23161,23162,23163,23164,23165")
     ap.add_argument("--workers", type=int, default=16, help="sim workers per slot")
     ap.add_argument(

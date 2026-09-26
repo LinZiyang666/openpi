@@ -10,9 +10,9 @@ FROZEN=${3:?frozen run record}
 PORT=${4:-23150}
 NAME=${5:-srv0}
 REPO=/data/openpi_lg
-G=/home/weiland/gr00t_n15
-PY=/home/weiland/gr00t_n15_venv/.venv/bin/python
-CKPT=/home/weiland/ckpt_n15_libero_10
+G=/home/weiland/projects/openpi_ext/third_party/gr00t_n15
+PY=/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python
+CKPT=/data/ckpt/n15_libero_10
 LOG_ROOT=/data/libero_cache/rit_loto/libero_10/verify_logs
 mkdir -p "$LOG_ROOT"
 if ss -tln | grep -q ":$PORT "; then echo "port $PORT is busy on this host; pick another"; exit 1; fi

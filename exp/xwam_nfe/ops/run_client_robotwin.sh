@@ -10,7 +10,7 @@
 set -u
 TASK=${1:?task}; NE=${2:?n evals}; BH=${3:?broker host}; FP=${4:?port}; GPU=${5:-0}; TAG=${6:-run}
 case "$(hostname)" in
-  weilandserver*) ROOT=/home/weiland/robotwin; DATA=/data/robotwin; UHOME=/home/weiland ;;
+  weilandserver*) ROOT=/home/weiland/projects/openpi_ext/lines/robotwin; DATA=/data/robotwin; UHOME=/home/weiland ;;
   timan107*) ROOT=/srv/local/zixuans8/robotwin; DATA=/srv/local/zixuans8/robotwin; UHOME=/home/zixuans8 ;;
   *) ROOT=/data/xwam/robotwin; DATA=/data/xwam/robotwin_data; UHOME=/home/exouser ;;
 esac
