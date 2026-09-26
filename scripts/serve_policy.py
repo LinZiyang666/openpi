@@ -671,6 +671,7 @@ def _wrap_policy(
             shadow_teacher=_build_shadow_teacher(bundle.cache_config),
             trace=_trace_rt,
             warm_reset=_warm_reset.executor if _warm_reset is not None else None,
+            miss_num_steps=_warm_reset.miss_num_steps if _warm_reset is not None else None,
         )
         if _warm_reset is not None:
             policy = _warm_reset.wrap(policy)
@@ -753,6 +754,7 @@ def _wrap_policy(
             shadow_teacher=_build_shadow_teacher(cache_config),
             trace=_trace_rt,
             warm_reset=_warm_reset.executor if _warm_reset is not None else None,
+            miss_num_steps=_warm_reset.miss_num_steps if _warm_reset is not None else None,
         )
         if _warm_reset is not None:
             policy = _warm_reset.wrap(policy)

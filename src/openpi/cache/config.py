@@ -850,12 +850,39 @@ class WarmResetConfig:
     ``num_steps`` is ``"remaining"`` (the schedule's remaining steps at the
     verdict's ``start_t``) or an integer ``1 <= N <= K``. ``evidence_dir`` is
     the server-local directory of the per-connection evidence JSONL.
+
+    ``trigger`` selects what runs the continuation: ``verdict`` (default,
+    today's behaviour: a WARM_START verdict and its ``start_t``) or
+    ``always`` (library-free self start: every decision runs the self-start
+    inference and the continuation from the block's own ``start_t``, without
+    any retrieval; only with ``start.source: self`` and no enabled
+    checkpoint). ``start_t`` is required with ``always`` and refused with
+    ``verdict``.
     """
 
     start: Optional[WarmResetStartConfig] = None
     grid: Optional[WarmResetGridConfig] = None
     num_steps: int | str = "remaining"
     self_seed: Optional[WarmResetSelfSeedConfig] = None
+    evidence_dir: str = ""
+    trigger: str = "verdict"
+    start_t: Optional[float] = None
+
+
+@dataclass
+class MissConfig:
+    """MISS-path step count and evidence of an arm (``miss:``; plain / full arms).
+
+    Absent means exactly today's MISS: the process-level step count (Pi0.5
+    ``interceptor._NUM_STEPS``, GR00T the live head's
+    ``num_inference_timesteps``) and no evidence wrapper. Present,
+    ``num_steps`` is the Euler step count of every MISS decision of this
+    bundle (Pi0.5: per bundle; GR00T: must equal the live head's count) and
+    ``evidence_dir`` the server-local directory of the per-connection
+    evidence JSONL, whose decision rows carry the executed ``miss_nfe``.
+    """
+
+    num_steps: Optional[int] = None
     evidence_dir: str = ""
 
 
@@ -889,6 +916,22 @@ class CacheConfig:
     denoise_schedule: Optional[str] = None
     # Warm reset continuation family (None -> exact WARM_START; see WarmResetConfig).
     warm_reset: Optional[WarmResetConfig] = None
+    # MISS step count + evidence of a plain / full arm (None -> today's MISS; see MissConfig).
+    miss: Optional[MissConfig] = None
+
+
+def is_library_free(config: Any) -> bool:
+    """A recipe that never retrieves: no enabled checkpoint, and a ``miss`` block
+    (plain / full arm) or a ``warm_reset`` block with ``trigger: always``
+    (library-free self start). Its library, if any, is never consulted, so
+    serving guards that match a library or a key builder do not apply."""
+    checkpoints = getattr(config, "checkpoints", None) or {}
+    if any(not name.startswith("_") and cp.enabled for name, cp in checkpoints.items()):
+        return False
+    wr = getattr(config, "warm_reset", None)
+    return getattr(config, "miss", None) is not None or (
+        wr is not None and getattr(wr, "trigger", "verdict") == "always"
+    )
 
 
 def effective_denoise_schedule(config: "CacheConfig") -> DenoiseSchedule:
@@ -1062,6 +1105,7 @@ _CONFIG_TYPES: dict[str, type] = {
     "WarmResetGridConfig": WarmResetGridConfig,
     "WarmResetSelfSeedConfig": WarmResetSelfSeedConfig,
     "WarmResetConfig": WarmResetConfig,
+    "MissConfig": MissConfig,
     "CacheConfig": CacheConfig,
 }
 
@@ -3406,6 +3450,9 @@ def validate_cache_config(config: CacheConfig, *, check_files: bool = True) -> N
     # ── Warm reset continuation family (present ⇒ schema + exclusions) ──
     errors.extend(_warm_reset_errors(config, check_files))
 
+    # ── MISS step count + evidence (present ⇒ schema + exclusions) ──
+    errors.extend(_miss_errors(config, check_files))
+
     if errors:
         raise ConfigValidationError("\n\n".join(errors))
 
@@ -3623,6 +3670,7 @@ def _routing_errors(config: CacheConfig) -> list[str]:
 _WARM_RESET_SOURCES = frozenset({"cache", "self"})
 _WARM_RESET_POINTS = frozenset({"snapshot", "final"})
 _WARM_RESET_KINDS = frozenset({"reset", "shoot"})
+_WARM_RESET_TRIGGERS = frozenset({"verdict", "always"})
 
 
 def _is_level(value: Any) -> bool:
@@ -3660,11 +3708,45 @@ def _warm_reset_errors(config: CacheConfig, check_files: bool) -> list[str]:
     if not isinstance(wr, WarmResetConfig):
         return ["warm_reset must be a mapping (see WarmResetConfig)."]
     errors: list[str] = []
-    if not _config_emits_warm_start(config):
+    trigger = wr.trigger
+    if trigger not in _WARM_RESET_TRIGGERS:
         errors.append(
-            "warm_reset is present but no enabled judge can return WARM_START; "
-            "the block would never run."
+            f"warm_reset.trigger={trigger!r}: expected one of {sorted(_WARM_RESET_TRIGGERS)}."
         )
+    if trigger == "always":
+        # Library-free self start: no verdict runs the block, so no checkpoint
+        # may be enabled (a FULL_HIT / WARM_START would pre-empt "always").
+        enabled_cps = sorted(
+            name for name, cp in config.checkpoints.items()
+            if not name.startswith("_") and cp.enabled
+        )
+        if enabled_cps:
+            errors.append(
+                f"warm_reset.trigger: always runs without retrieval; disable every "
+                f"checkpoint (enabled: {enabled_cps})."
+            )
+        start_t = wr.start_t
+        if isinstance(start_t, bool) or not isinstance(start_t, (int, float)):
+            errors.append("warm_reset.start_t is required with trigger: always.")
+        else:
+            try:
+                effective_denoise_schedule(config).snapshot_index(float(start_t))
+            except (ConfigValidationError, ValueError) as exc:
+                errors.append(f"warm_reset.start_t={start_t!r}: {exc}")
+        source = wr.start.source if isinstance(wr.start, WarmResetStartConfig) else None
+        if source != "self":
+            errors.append("warm_reset.trigger: always is only valid with start.source: self.")
+    else:
+        if wr.start_t is not None:
+            errors.append(
+                "warm_reset.start_t is only valid with trigger: always (a verdict "
+                "arm starts from its verdict's start_t)."
+            )
+        if not _config_emits_warm_start(config):
+            errors.append(
+                "warm_reset is present but no enabled judge can return WARM_START; "
+                "the block would never run."
+            )
     if config.trace.enabled:
         errors.append("warm_reset and trace.enabled=true are mutually exclusive.")
     if config.shadow_teacher.enabled:
@@ -3755,16 +3837,62 @@ def _warm_reset_errors(config: CacheConfig, check_files: bool) -> list[str]:
     elif source == "cache" and seed is not None:
         errors.append("warm_reset.self_seed is only valid with start.source: self.")
 
-    evidence_dir = wr.evidence_dir
+    errors.extend(_evidence_dir_errors("warm_reset", wr.evidence_dir, check_files))
+    return errors
+
+
+def _evidence_dir_errors(block: str, evidence_dir: Any, check_files: bool) -> list[str]:
+    """A required server-local evidence directory whose nearest existing ancestor is writable."""
     if not isinstance(evidence_dir, str) or not evidence_dir:
-        errors.append("warm_reset.evidence_dir is required (server-local evidence directory).")
-    elif check_files:
+        return [f"{block}.evidence_dir is required (server-local evidence directory)."]
+    if check_files:
         anchor = _nearest_existing_dir(Path(evidence_dir).expanduser().absolute())
         if anchor is None or not anchor.is_dir() or not os.access(anchor, os.W_OK | os.X_OK):
-            errors.append(
-                f"warm_reset.evidence_dir={evidence_dir!r}: nearest existing ancestor "
+            return [
+                f"{block}.evidence_dir={evidence_dir!r}: nearest existing ancestor "
                 f"{anchor} is not a writable directory."
+            ]
+    return []
+
+
+def _miss_errors(config: CacheConfig, check_files: bool) -> list[str]:
+    """Validate the ``miss`` block (plain / full arms; ``MissConfig``).
+
+    The block pins the MISS step count and writes per-decision evidence, so it
+    is refused wherever the MISS path is not this process's own loop (routing
+    sends it to a sidecar; trace and the shadow teacher record a K-step
+    teacher) and next to a ``warm_reset`` block (one evidence stream per
+    arm). A step count other than the schedule's K would stamp a library
+    write with the wrong loop, so it requires ``write_policy: never``.
+    """
+    miss = getattr(config, "miss", None)
+    if miss is None:
+        return []
+    if not isinstance(miss, MissConfig):
+        return ["miss must be a mapping (see MissConfig)."]
+    errors: list[str] = []
+    n = miss.num_steps
+    if isinstance(n, bool) or not isinstance(n, int) or n < 1:
+        errors.append(f"miss.num_steps={n!r}: expected an integer >= 1.")
+    else:
+        try:
+            k = effective_denoise_schedule(config).num_steps
+        except ConfigValidationError:
+            k = None  # the schedule id itself is reported by its own check
+        if k is not None and n != k and config.write_policy.type != "never":
+            errors.append(
+                f"miss.num_steps={n} differs from the schedule's K={k}; a library write would "
+                "be stamped with the wrong loop, so write_policy.type must be 'never'."
             )
+    if config.warm_reset is not None:
+        errors.append("miss and warm_reset are mutually exclusive (one evidence stream per arm).")
+    if config.trace.enabled:
+        errors.append("miss and trace.enabled=true are mutually exclusive.")
+    if config.shadow_teacher.enabled:
+        errors.append("miss and shadow_teacher.enabled=true are mutually exclusive.")
+    if config.routing is not None:
+        errors.append("miss is incompatible with a routing section (MISS would run on a sidecar).")
+    errors.extend(_evidence_dir_errors("miss", miss.evidence_dir, check_files))
     return errors
 
 

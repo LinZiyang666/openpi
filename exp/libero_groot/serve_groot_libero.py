@@ -167,6 +167,7 @@ def _resolve_bundle(
             "configuration under another id."
         )
 
+    from openpi.cache.config import is_library_free
     from openpi.cache.groot.load_guard import (
         validate_artifact_identity,
         validate_groot_cache_config,
@@ -178,9 +179,10 @@ def _resolve_bundle(
         allow_hysteresis_gate=True,
         num_inference_timesteps=num_inference_timesteps,
     )
-    _check_libero_builder(
-        config.key_builder.type, lambda m: (_ for _ in ()).throw(ValueError(m))
-    )
+    if not is_library_free(config):  # a library-free arm never builds a key
+        _check_libero_builder(
+            config.key_builder.type, lambda m: (_ for _ in ()).throw(ValueError(m))
+        )
     validate_artifact_identity(bundle.shared_storage, config)
     if provenance is not None:
         provenance["yaml_path"] = getattr(bundle, "config_path", None)
@@ -555,6 +557,7 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
     from openpi.cache.config import (
         build_per_connection_components,
         build_shared_storage,
+        is_library_free,
         load_cache_config,
         validate_cache_config,
     )
@@ -594,9 +597,10 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
             allow_hysteresis_gate=True,
             num_inference_timesteps=live_num_inference_timesteps(policy),
         )
-        _check_libero_builder(
-            config.key_builder.type, lambda m: (_ for _ in ()).throw(ValueError(m))
-        )
+        if not is_library_free(config):  # a library-free arm never builds a key
+            _check_libero_builder(
+                config.key_builder.type, lambda m: (_ for _ in ()).throw(ValueError(m))
+            )
         _require_trace_flag(config, args)
         shared_storage = build_shared_storage(config)
         # ``load_artifact`` only compares ``vector_dims``, and mean-pool and
@@ -666,7 +670,7 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
             )
             interceptor = GrootCacheInterceptor(
                 shared_base_policy, runner, orchestrator=orchestrator, timer=timer,
-                **({} if warm_reset is None else {"warm_reset": warm_reset.executor}),
+                **({} if warm_reset is None else warm_reset.interceptor_kwargs()),
             )
             served = interceptor if warm_reset is None else warm_reset.wrap(interceptor)
             return _InferLockedPolicy(GrootLiberoPolicyAdapter(served), lock)
@@ -953,6 +957,7 @@ def main() -> None:
     elif args.cache_config:
         from openpi.cache.config import (
             build_cache_components,
+            is_library_free,
             load_cache_config,
             validate_cache_config,
         )
@@ -978,7 +983,8 @@ def main() -> None:
             allow_hysteresis_gate=True,
             num_inference_timesteps=live_num_inference_timesteps(policy),
         )
-        _check_libero_builder(config.key_builder.type, parser.error)
+        if not is_library_free(config):  # a library-free arm never builds a key
+            _check_libero_builder(config.key_builder.type, parser.error)
         _require_trace_flag(config, args)
         from openpi.cache.orchestrator import CacheOrchestrator
 
@@ -1012,7 +1018,7 @@ def main() -> None:
         interceptor = GrootCacheInterceptor(
             policy, runner, orchestrator=orchestrator, timer=timer,
             trace=trace_rt, trace_vision_fields=_LIBERO_TRACE_CAMS if trace_rt else None,
-            **({} if warm_reset is None else {"warm_reset": warm_reset.executor}),
+            **({} if warm_reset is None else warm_reset.interceptor_kwargs()),
         )
         served = GrootLiberoPolicyAdapter(
             interceptor if warm_reset is None else warm_reset.wrap(interceptor)

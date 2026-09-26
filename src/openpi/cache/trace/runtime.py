@@ -61,6 +61,8 @@ TWIN_READONLY_PATH_FIELDS: dict[str, tuple[str, ...]] = {
     "TraceConfig": ("out_dir",),
     # Never reaches a twin: warm_reset and trace are mutually exclusive.
     "WarmResetConfig": ("evidence_dir",),
+    # Never reaches a twin either: miss and trace are mutually exclusive.
+    "MissConfig": ("evidence_dir",),
     "CollectionConfig": (),
     # Not a path at all (composer sign directions); listed so the name-pattern
     # guard does not flag it.

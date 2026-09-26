@@ -1324,6 +1324,55 @@ no batching coordinator (§5.17). The RIT shadow, LOTO logger and trace
 branches refuse a block (`refuse_warm_reset`). Without a block every assembly
 point builds exactly today's stack.
 
+#### 5.22.1 Plain / full arms (`miss`) and the library-free self start (`trigger: always`)
+
+> Log: [`logs/warm_reset_framework_completion.log.md`](../../logs/warm_reset_framework_completion.log.md).
+
+Two sibling arm kinds share the session, the evidence wrapper and the
+admission of §5.22; both are absent-by-default and change nothing without
+their field.
+
+* **`miss: {num_steps, evidence_dir}`** (`MissConfig` / `MissSpec`): the MISS
+  Euler step count of a plain / full arm. Pi0.5 is **per bundle**: the
+  interceptor gets `miss_num_steps=` and its MISS branch (direct
+  `run_stage3(num_steps=)` and the coordinator's `Stage3MissPayload`, whose
+  bucket key `("miss", None, num_steps)` already separates counts) uses it;
+  without it the branch reads the module `_NUM_STEPS` at call time, so the
+  step_diag process pin still applies. GR00T's MISS is the live head's
+  `num_inference_timesteps` (process level): `miss_num_steps` is an assertion
+  checked before every MISS (and by the load guard), so each K is served by
+  its own process. The executed count rides the additive
+  `__hit_meta__["miss_nfe"]` and every evidence decision row; it is the count
+  handed to the model's own `range(num_steps)` loop (GR00T: the live head's
+  count, as `GrootStage3Output.steps_run` reports it), not a `denoise_step`
+  counter. Refused with a `warm_reset` block (one evidence stream per arm),
+  trace, the shadow teacher and routing; a count other than the schedule's K
+  requires `write_policy: never` (a written entry would be stamped with the
+  wrong loop).
+* **`warm_reset.trigger: always` + `warm_reset.start_t`** (library-free self
+  start): only with `start.source: self` and no enabled checkpoint, so the
+  verdict is structurally a MISS and nothing is retrieved. Both interceptors
+  then call the executor's `run_self_only` on every decision: the same
+  self-start + continuation body as the verdict path, from the block's own
+  `start_t`, with the start shaped like a library snapshot (Pi0.5 `[1, H, D]`
+  float32 on the stage-3 device, `(H, D)` from the model config; GR00T `[H, D]`
+  float32 host tensor, `(H, D)` from the action head config) -- so a
+  library-free self arm is bit-equal to the same self arm served over a
+  library. Decisions carry `hit_type: SELF_ONLY` (wire and evidence) and the
+  block's `start_t`. The GR00T executor takes the config's schedule at
+  assembly and its entries re-check it against the live head. The default
+  `trigger: verdict` keeps every existing spec digest (the new fields enter
+  the digest only when set).
+
+`is_library_free(config)` (no enabled checkpoint plus one of the two blocks)
+lets the GR00T guard skip the checkpoint-set, judge / gate and artifact
+identity rules for such recipes (it still checks the MISS count / self-start
+schedule against the live head), and the GR00T LIBERO entry skip its
+key-builder check. Admission: `ExpectedEpisode.spec` is a `WarmResetSpec`
+(WARM_START or, under `always`, SELF_ONLY decisions) or a `MissSpec` (MISS
+decisions, `start_t` `None`, `miss_nfe == num_steps`, totals
+`miss_nfe` = `total_nfe`); new problem code `miss_nfe_missing`.
+
 ## 6. Data Flow and Timing
 
 > **Note**: The data flow diagrams below reference cache search/write operations that depend on the storage layer (Section 5.2/5.3). The storage layer is ⚠️ unstable — interfaces and backend implementations will change. The timing structure (stages, checkpoint positions) is stable; the storage interaction details are not.

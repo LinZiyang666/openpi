@@ -44,6 +44,7 @@ from openpi.cache.warm_reset.runtime import (
     decision_meta,
 )
 from openpi.cache.warm_reset.types import (
+    HIT_SELF_ONLY,
     POINT_FINAL,
     SelfStartPlan,
     WarmResetPlan,
@@ -200,13 +201,28 @@ class GrootWarmResetExecutor:
 
     Called inside the interceptor's ``runner.session()`` with the library
     schedule ``_library_schedule`` resolved; the entries re-check it against
-    the live head themselves.
+    the live head themselves. Under ``trigger: always`` the interceptor calls
+    ``run_self_only`` on every decision instead; its schedule is the config's
+    (``schedule`` at assembly), re-checked against the live head by the entries.
     """
 
-    def __init__(self, spec: WarmResetSpec, session: WarmResetSession) -> None:
+    #: ``__hit_meta__["hit_type"]`` the interceptor stamps on a ``run_self_only`` decision.
+    self_only_hit_type = HIT_SELF_ONLY
+
+    def __init__(
+        self, spec: WarmResetSpec, session: WarmResetSession, *, schedule: Optional[DenoiseSchedule] = None
+    ) -> None:
+        if spec.always and schedule is None:
+            raise ValueError("a trigger: always GR00T arm needs the config's schedule at assembly")
         self.spec = spec
         self._session = session
         self._digest = spec.digest()
+        self._schedule = schedule
+
+    @property
+    def trigger_always(self) -> bool:
+        """Whether every decision runs ``run_self_only`` (library-free self start)."""
+        return self.spec.always
 
     def _self_start(self, runner: Any, stage2: Any, noise: torch.Tensor, plan: SelfStartPlan, schedule: DenoiseSchedule) -> torch.Tensor:
         self._session.count_self_start_call()
@@ -226,13 +242,45 @@ class GrootWarmResetExecutor:
         The start is shaped like the payload's snapshot at the verdict's
         ``start_t`` (``[H, D]`` host tensor), as the step_diag reference does.
         """
-        session = self._session
-        if session.decision_idx is None:
-            raise RuntimeError("warm reset: no open decision (the evidence wrapper is not installed)")
+        if self.spec.always:
+            raise RuntimeError("warm reset: a trigger: always arm runs run_self_only, never a verdict")
+        self._require_decision()
         payload = cp_result.payload
         start_t = cp_result.start_t
         plan = resolve_plan(self.spec, schedule, start_t)
-        like = payload.intermediates[start_t]
+        return self._execute(runner, stage2, plan, schedule, like=payload.intermediates[start_t],
+                             cache_final=payload.action_chunk)
+
+    def run_self_only(self, *, runner: Any, stage2: Any) -> tuple[GrootStage3Output, dict]:
+        """One library-free self-start decision (``trigger: always``); ``(stage3, hit meta)``.
+
+        Runs exactly the self-start body of ``run`` from the block's own
+        ``start_t`` under the config's schedule; the start is shaped like a
+        library snapshot (``[H, D]`` float32 host tensor, ``(H, D)`` read from
+        the action head's config), so a library-free arm is bit-equal to the
+        same self arm served over a library. Must be called inside
+        ``runner.session()``.
+        """
+        if not self.spec.always or not self.spec.self_start:
+            raise RuntimeError("warm reset: run_self_only needs a trigger: always self-start arm")
+        self._require_decision()
+        schedule = self._schedule
+        plan = resolve_plan(self.spec, schedule, self.spec.start_t)
+        horizon, dim = _staged._action_shape(runner._model.action_head)  # noqa: SLF001
+        like = torch.zeros((horizon, dim), dtype=torch.float32)
+        return self._execute(runner, stage2, plan, schedule, like=like, cache_final=None)
+
+    def _require_decision(self) -> None:
+        if self._session.decision_idx is None:
+            raise RuntimeError("warm reset: no open decision (the evidence wrapper is not installed)")
+
+    def _execute(
+        self, runner: Any, stage2: Any, plan: WarmResetPlan, schedule: DenoiseSchedule, *,
+        like: torch.Tensor, cache_final: Optional[torch.Tensor],
+    ) -> tuple[GrootStage3Output, dict]:
+        """Produce the start (self / cache final / snapshot ``like``) and run the continuation."""
+        session = self._session
+        start_t = plan.start_t
         seed = None
         if self.spec.self_start:
             self_plan = resolve_self_plan(self.spec, schedule, start_t)
@@ -243,7 +291,7 @@ class GrootWarmResetExecutor:
             x = self._self_start(runner, stage2, noise, self_plan, schedule)
             start_x = x.to(device=like.device, dtype=like.dtype).reshape(like.shape)
         elif self.spec.point == POINT_FINAL:
-            start_x = payload.action_chunk.to(device=like.device, dtype=like.dtype).reshape(like.shape)
+            start_x = cache_final.to(device=like.device, dtype=like.dtype).reshape(like.shape)
         else:
             start_x = like
         out = self._continue(runner, stage2, start_x, plan, schedule)

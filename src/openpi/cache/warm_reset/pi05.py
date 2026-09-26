@@ -29,7 +29,7 @@ from typing import Any, Callable, Optional, Sequence
 
 import torch
 
-from openpi.cache.types import PI05_V1
+from openpi.cache.types import PI05_V1, DenoiseSchedule
 from openpi.cache.warm_reset.evidence import WarmResetEvidencePolicy
 from openpi.cache.warm_reset.runtime import (
     WarmResetParts,
@@ -39,6 +39,7 @@ from openpi.cache.warm_reset.runtime import (
     decision_meta,
 )
 from openpi.cache.warm_reset.types import (
+    HIT_SELF_ONLY,
     KIND_RESET,
     POINT_FINAL,
     POINT_SNAPSHOT,
@@ -182,10 +183,19 @@ class Pi05WarmResetExecutor:
 
     Injected into the interceptor (``warm_reset=``); the interceptor only hands
     over the verdict, the stage-2 handle, the snapshot it already took and its
-    stage-3 binding (``direct_runner`` or the coordinator submission).
+    stage-3 binding (``direct_runner`` or the coordinator submission). Under
+    ``trigger: always`` the interceptor calls ``run_self_only`` on every
+    decision instead (no verdict, no library).
     """
 
-    def __init__(self, spec: WarmResetSpec, session: WarmResetSession) -> None:
+    #: ``__hit_meta__["hit_type"]`` the interceptor stamps on a ``run_self_only`` decision.
+    self_only_hit_type = HIT_SELF_ONLY
+
+    def __init__(
+        self, spec: WarmResetSpec, session: WarmResetSession, *, schedule: Optional[DenoiseSchedule] = None
+    ) -> None:
+        if schedule is not None and schedule != PI05_V1:
+            raise ValueError(f"a Pi0.5 warm reset runs {PI05_V1.schedule_id}, not {schedule.schedule_id}")
         self.spec = spec
         self._session = session
         self._digest = spec.digest()
@@ -194,6 +204,11 @@ class Pi05WarmResetExecutor:
     def self_start(self) -> bool:
         """Whether decisions run a direct self-start inference first."""
         return self.spec.self_start
+
+    @property
+    def trigger_always(self) -> bool:
+        """Whether every decision runs ``run_self_only`` (library-free self start)."""
+        return self.spec.always
 
     def direct_runner(self, model: Any) -> Callable[[Any, torch.Tensor, Any], Any]:
         """The non-coordinator binding: dispatch a plan to its entry on ``model``."""
@@ -224,9 +239,9 @@ class Pi05WarmResetExecutor:
         verdict's ``start_t``; the final action and the self-start result are
         cast and shaped like it, as the step_diag reference does.
         """
-        session = self._session
-        if session.decision_idx is None:
-            raise RuntimeError("warm reset: no open decision (the evidence wrapper is not installed)")
+        if self.spec.always:
+            raise RuntimeError("warm reset: a trigger: always arm runs run_self_only, never a verdict")
+        self._require_decision()
         payload = cp_result.payload
         plan = resolve_plan(self.spec, PI05_V1, cp_result.start_t)
         if payload.denoising_num_steps != plan.k:
@@ -234,10 +249,40 @@ class Pi05WarmResetExecutor:
                 f"warm reset: payload denoising_num_steps={payload.denoising_num_steps} "
                 f"but the plan runs K={plan.k}"
             )
-        like = snapshot_x
+        return self._execute(plan, stage2, like=snapshot_x, cache_final=payload.action_chunk,
+                             run_stage3=run_stage3, timer=timer)
+
+    def run_self_only(
+        self, *, stage2: Any, action_shape: tuple[int, int], device: Any, run_stage3: Callable, timer: Any
+    ) -> tuple[Stage3Output, dict]:
+        """One library-free self-start decision (``trigger: always``); ``(stage3, hit meta)``.
+
+        Runs exactly the self-start body of ``run`` from the block's own
+        ``start_t``: the start is shaped like a library snapshot would be
+        (``[1, H, D]`` float32 on the stage-3 device, ``action_shape`` from the
+        model config), so a library-free arm is bit-equal to the same self arm
+        served over a library.
+        """
+        if not self.spec.always or not self.spec.self_start:
+            raise RuntimeError("warm reset: run_self_only needs a trigger: always self-start arm")
+        self._require_decision()
+        plan = resolve_plan(self.spec, PI05_V1, self.spec.start_t)
+        like = torch.zeros((1, *tuple(action_shape)), dtype=torch.float32, device=device)
+        return self._execute(plan, stage2, like=like, cache_final=None, run_stage3=run_stage3, timer=timer)
+
+    def _require_decision(self) -> None:
+        if self._session.decision_idx is None:
+            raise RuntimeError("warm reset: no open decision (the evidence wrapper is not installed)")
+
+    def _execute(
+        self, plan: WarmResetPlan, stage2: Any, *, like: torch.Tensor, cache_final: Optional[torch.Tensor],
+        run_stage3: Callable, timer: Any,
+    ) -> tuple[Stage3Output, dict]:
+        """Produce the start (self / cache final / snapshot ``like``) and run the continuation."""
+        session = self._session
         seed = None
         if self.spec.self_start:
-            self_plan = resolve_self_plan(self.spec, PI05_V1, cp_result.start_t)
+            self_plan = resolve_self_plan(self.spec, PI05_V1, plan.start_t)
             if (self_plan.schedule_id, self_plan.k) != (plan.schedule_id, plan.k):
                 raise ValueError("warm reset: self-start and continuation plans disagree on the schedule")
             seed = session.self_seed()
@@ -247,7 +292,7 @@ class Pi05WarmResetExecutor:
             chosen = direct.snapshot if self.spec.point == POINT_SNAPSHOT else direct.action_chunk
             start_x = chosen.to(device=like.device, dtype=like.dtype).reshape(like.shape)
         elif self.spec.point == POINT_FINAL:
-            start_x = payload.action_chunk.to(device=like.device, dtype=like.dtype).reshape(like.shape)
+            start_x = cache_final.to(device=like.device, dtype=like.dtype).reshape(like.shape)
         else:
             start_x = like
         with timer.measure("stage3_warm"):

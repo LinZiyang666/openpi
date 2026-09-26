@@ -15,11 +15,15 @@ checks. Levels (``entry_t`` / ``step_budget``) are written in the Pi0.5
 flow-time convention (1 = noise, 0 = clean) for every schedule; the GR00T grid
 is converted to native ascending time by ``groot_loop_grid``.
 
-Public interface: ``WarmResetSpec``, ``WarmResetPlan``, ``SelfStartPlan``,
-``resolve_plan``, ``resolve_self_plan``, ``validate_plan``,
+``MissSpec`` is the frozen view of the sibling ``miss`` block (plain / full
+arms: the MISS step count and its evidence), and ``trigger: always`` on a
+self-start spec is the library-free self start (``HIT_SELF_ONLY`` decisions).
+
+Public interface: ``WarmResetSpec``, ``MissSpec``, ``WarmResetPlan``,
+``SelfStartPlan``, ``resolve_plan``, ``resolve_self_plan``, ``validate_plan``,
 ``validate_self_plan``, ``groot_loop_grid``, ``native_grid``, ``SelfSeedPolicy``,
 ``EpisodeDigestSeed``, ``stable_digest_int``, ``private_noise`` and the
-``SOURCE_*`` / ``POINT_*`` / ``KIND_*`` names.
+``SOURCE_*`` / ``POINT_*`` / ``KIND_*`` / ``TRIGGER_*`` / ``HIT_SELF_ONLY`` names.
 Depends on torch and ``openpi.cache.types`` only (jax-free: the GR00T island
 imports it).
 """
@@ -42,6 +46,11 @@ POINT_SNAPSHOT = "snapshot"
 POINT_FINAL = "final"
 KIND_RESET = "reset"
 KIND_SHOOT = "shoot"
+TRIGGER_VERDICT = "verdict"
+TRIGGER_ALWAYS = "always"
+#: ``__hit_meta__["hit_type"]`` of a library-free self-start decision
+#: (``trigger: always``): no verdict ran, so it is neither MISS nor WARM_START.
+HIT_SELF_ONLY = "SELF_ONLY"
 
 _SOURCES = frozenset({SOURCE_CACHE, SOURCE_SELF})
 _POINTS = frozenset({POINT_SNAPSHOT, POINT_FINAL})
@@ -71,8 +80,10 @@ class WarmResetSpec:
     """Frozen view of a validated ``warm_reset`` yaml block.
 
     ``level`` is the reset ``entry_t`` or the shoot ``step_budget`` (Pi0.5
-    convention); ``num_steps`` is ``None`` for ``remaining``. ``digest()`` is
-    the arm identity every evidence row carries.
+    convention); ``num_steps`` is ``None`` for ``remaining``. ``trigger`` is
+    ``verdict`` (a WARM_START verdict runs the block) or ``always`` (library-free
+    self start from the block's own ``start_t``; ``None`` under ``verdict``).
+    ``digest()`` is the arm identity every evidence row carries.
     """
 
     source: str
@@ -83,6 +94,8 @@ class WarmResetSpec:
     seed_namespace: Optional[str]
     seed_keys: tuple[str, ...]
     evidence_dir: str
+    trigger: str = TRIGGER_VERDICT
+    start_t: Optional[float] = None
 
     @classmethod
     def from_config(cls, cfg: Any) -> WarmResetSpec:
@@ -90,6 +103,8 @@ class WarmResetSpec:
         grid = cfg.grid
         level = grid.entry_t if grid.kind == KIND_RESET else grid.step_budget
         seed = cfg.self_seed
+        trigger = str(getattr(cfg, "trigger", TRIGGER_VERDICT))
+        start_t = getattr(cfg, "start_t", None)
         return cls(
             source=str(cfg.start.source),
             point=str(cfg.start.point),
@@ -99,6 +114,8 @@ class WarmResetSpec:
             seed_namespace=None if seed is None else str(seed.namespace),
             seed_keys=() if seed is None else tuple(str(k) for k in seed.identity_keys),
             evidence_dir=str(cfg.evidence_dir),
+            trigger=trigger,
+            start_t=None if start_t is None else float(start_t),
         )
 
     @property
@@ -106,9 +123,22 @@ class WarmResetSpec:
         """Whether the start comes from a direct inference on the decision."""
         return self.source == SOURCE_SELF
 
+    @property
+    def always(self) -> bool:
+        """Whether every decision runs the block without a verdict (library-free self start)."""
+        return self.trigger == TRIGGER_ALWAYS
+
     def digest(self) -> str:
-        """sha256 of the canonical JSON of every field."""
-        payload = json.dumps(dataclasses.asdict(self), sort_keys=True, separators=(",", ":"))
+        """sha256 of the canonical JSON of every field.
+
+        A verdict-triggered spec hashes exactly the fields it had before
+        ``trigger`` / ``start_t`` existed, so every digest already written into
+        a plan or an evidence row stays valid.
+        """
+        fields = dataclasses.asdict(self)
+        if self.trigger == TRIGGER_VERDICT and self.start_t is None:
+            del fields["trigger"], fields["start_t"]
+        payload = json.dumps(fields, sort_keys=True, separators=(",", ":"))
         return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
     def seed_policy(self) -> EpisodeDigestSeed:
@@ -116,6 +146,39 @@ class WarmResetSpec:
         if not self.self_start:
             raise ValueError("a cache-start warm reset arm has no self-start seed policy")
         return EpisodeDigestSeed(namespace=str(self.seed_namespace), keys=tuple(self.seed_keys))
+
+
+@dataclasses.dataclass(frozen=True)
+class MissSpec:
+    """Frozen view of a validated ``miss`` yaml block (plain / full arms).
+
+    ``num_steps`` is the Euler step count of every MISS decision of the arm;
+    ``digest()`` is the arm identity every evidence row carries. It shares the
+    session / evidence-wrapper surface of ``WarmResetSpec`` (``self_start`` is
+    always False: a MISS arm draws no private noise).
+    """
+
+    num_steps: int
+    evidence_dir: str
+
+    @classmethod
+    def from_config(cls, cfg: Any) -> MissSpec:
+        """Freeze a ``MissConfig`` that ``validate_cache_config`` accepted."""
+        return cls(num_steps=int(cfg.num_steps), evidence_dir=str(cfg.evidence_dir))
+
+    @property
+    def self_start(self) -> bool:
+        """A MISS arm never runs a self start."""
+        return False
+
+    def digest(self) -> str:
+        """sha256 of the canonical JSON of every field, tagged as a MISS arm."""
+        payload = json.dumps({"miss": dataclasses.asdict(self)}, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+    def seed_policy(self) -> EpisodeDigestSeed:
+        """Refused: a MISS arm has no self-start seed."""
+        raise ValueError("a MISS arm has no self-start seed policy")
 
 
 # ------------------------------------------------------------------
@@ -382,13 +445,17 @@ class EpisodeDigestSeed:
 
 
 __all__ = [
+    "HIT_SELF_ONLY",
     "KIND_RESET",
     "KIND_SHOOT",
     "POINT_FINAL",
     "POINT_SNAPSHOT",
     "SOURCE_CACHE",
     "SOURCE_SELF",
+    "TRIGGER_ALWAYS",
+    "TRIGGER_VERDICT",
     "EpisodeDigestSeed",
+    "MissSpec",
     "SelfSeedPolicy",
     "SelfStartPlan",
     "WarmResetPlan",

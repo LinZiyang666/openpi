@@ -2,6 +2,8 @@
 
 Run ``python -m exp.warm_reset.run --help``. Model/simulator imports are lazy,
 so task export can run inside a simulator island and the driver in the main venv.
+Environments come from ``exp.warm_reset.envs`` (plugins included); the paired
+analysis of finished runs is ``python -m exp.warm_reset.analysis``.
 """
 
 from __future__ import annotations
@@ -14,7 +16,18 @@ import socket
 import threading
 from pathlib import Path
 
-from exp.step_diag.envs import ENVS
+from exp.warm_reset.envs import env_ids, get_env
+
+
+def _k_servers(text: str) -> dict[int, list[str]]:
+    """``"1=h:p,2=h:p,2=h:q"`` -> ``{1: ["h:p"], 2: ["h:p", "h:q"]}``."""
+    out: dict[int, list[str]] = {}
+    for item in (x.strip() for x in text.split(",") if x.strip()):
+        k, sep, address = item.partition("=")
+        if not sep or not k.isdigit() or not address:
+            raise ValueError(f"--k-servers entry {item!r} is not <steps>=<host:port>")
+        out.setdefault(int(k), []).append(address)
+    return out
 
 
 def parser() -> argparse.ArgumentParser:
@@ -24,12 +37,14 @@ def parser() -> argparse.ArgumentParser:
     tasks = commands.add_parser(
         "tasks", help="export trusted task names in the simulator environment"
     )
-    tasks.add_argument("--env", required=True, choices=sorted(ENVS))
+    tasks.add_argument("--env", required=True, choices=env_ids())
     tasks.add_argument(
         "--task-ids", default="all", help="LIBERO task indices, comma separated"
     )
     tasks.add_argument(
-        "--task-names", default="", help="RoboCasa canonical env names, comma separated"
+        "--task-names",
+        default="",
+        help="RoboCasa canonical env names (or the environment adapter's names), comma separated",
     )
     tasks.add_argument("--episodes", required=True, type=int)
     tasks.add_argument("--init-offset", default=0, type=int)
@@ -37,12 +52,43 @@ def parser() -> argparse.ArgumentParser:
     prepare = commands.add_parser(
         "prepare", help="freeze YAMLs and the task/rollout plan; launch nothing"
     )
-    prepare.add_argument("--env", required=True, choices=sorted(ENVS))
-    prepare.add_argument("--base-yaml", required=True, type=Path)
+    prepare.add_argument("--env", required=True, choices=env_ids())
+    prepare.add_argument(
+        "--base-yaml",
+        type=Path,
+        help="retrieval + frozen library yaml; required by warm-family (library) arms only",
+    )
     prepare.add_argument(
         "--arms",
         default="all",
-        help="all existing self-family arms or comma-separated arm IDs",
+        help="all existing self-family arms or comma-separated arm IDs "
+        "(warm family, full, plain_k<k>)",
+    )
+    prepare.add_argument(
+        "--self-trigger",
+        default="verdict",
+        choices=("verdict", "always"),
+        help="always: self arms are library-free (trigger: always), no retrieval",
+    )
+    prepare.add_argument(
+        "--k-servers",
+        default="",
+        help="GR00T: endpoints started with another --denoising-steps, <steps>=<host:port>,...",
+    )
+    prepare.add_argument(
+        "--experiment-id",
+        default=None,
+        help="RoboCasa: stable episode experiment id (self noise shared across runs)",
+    )
+    prepare.add_argument(
+        "--pinned-objects",
+        default="",
+        help="RoboCasa PnP: pin manifest; per-task slot maps are frozen into the plan",
+    )
+    prepare.add_argument(
+        "--init-pool-sha256",
+        default=None,
+        help="LIBERO: digest of --init-states-dir when that pool is not readable here",
     )
     prepare.add_argument("--tasks", required=True, type=Path)
     prepare.add_argument("--servers", required=True, help="host:port,host:port")
@@ -109,6 +155,9 @@ def parser() -> argparse.ArgumentParser:
     agent.add_argument("--episode-deadline", default=1500.0, type=float)
     agent.add_argument("--terminate-grace", default=5.0, type=float)
     agent.add_argument("--max-cached-envs", default=1, type=int)
+    agent.add_argument(
+        "--pinned-objects", default="", help="RoboCasa PnP: this host's copy of the plan's pin manifest"
+    )
     admit = commands.add_parser(
         "admit", help="join all three evidence sources; exit 2 on rejection"
     )
@@ -131,34 +180,17 @@ def main(argv: list[str] | None = None) -> int:
             raise ValueError(
                 "episodes must be positive; init offset must be nonnegative"
             )
-        env = ENVS[args.env]
-        if env.benchmark == "robocasa365":
-            names = [
-                name.strip() for name in args.task_names.split(",") if name.strip()
-            ]
-            if not names:
-                raise ValueError("RoboCasa needs --task-names")
-            pairs = list(enumerate(names))
-        else:
-            from libero.libero import benchmark
+        from exp.warm_reset.plan import validate_tasks
 
-            suite = benchmark.get_benchmark_dict()[env.benchmark]()
-            ids = (
-                range(suite.n_tasks)
-                if args.task_ids == "all"
-                else [int(i) for i in args.task_ids.split(",")]
-            )
-            pairs = [(i, suite.get_task(i).language) for i in ids]
-        tasks = [
-            {
-                "task_id": i,
-                "name": name,
-                "init_indices": list(
-                    range(args.init_offset, args.init_offset + args.episodes)
-                ),
-            }
-            for i, name in pairs
-        ]
+        env = get_env(args.env)
+        tasks = env.adapter.export_tasks(
+            env,
+            task_ids=args.task_ids,
+            task_names=args.task_names,
+            episodes=args.episodes,
+            init_offset=args.init_offset,
+        )
+        validate_tasks(tasks)
         with args.out.open("x") as fh:
             json.dump(tasks, fh, indent=2)
             fh.write("\n")
@@ -169,6 +201,11 @@ def main(argv: list[str] | None = None) -> int:
             out=args.out,
             env_id=args.env,
             base_yaml=args.base_yaml,
+            self_trigger=args.self_trigger,
+            k_servers=_k_servers(args.k_servers) or None,
+            experiment_id=args.experiment_id,
+            pinned_objects=args.pinned_objects or None,
+            init_pool_sha256=args.init_pool_sha256,
             arms=default_arms(args.env) if args.arms == "all" else args.arms.split(","),
             tasks=json.loads(args.tasks.read_text()),
             servers=args.servers.split(","),
@@ -183,16 +220,19 @@ def main(argv: list[str] | None = None) -> int:
                 "style": args.style,
             },
         )
-        print(
-            json.dumps(
-                {
-                    "plan": str(args.out / "plan.json"),
-                    "arms": len(plan["arms"]),
-                    "server_evidence_dir": plan["evidence_dir"],
-                },
-                indent=2,
-            )
-        )
+        summary = {
+            "plan": str(args.out / "plan.json"),
+            "arms": len(plan["arms"]),
+            "server_evidence_dir": plan["evidence_dir"],
+        }
+        if "init_pool_sha256" in plan:
+            summary["init_pool_sha256"] = plan["init_pool_sha256"]
+            if plan["init_pool_sha256"] is None:
+                summary["warning"] = (
+                    "init pool not readable here and no --init-pool-sha256: "
+                    "pairs are keyed by the pool path"
+                )
+        print(json.dumps(summary, indent=2))
     elif args.command == "run":
         from exp.warm_reset.conductor import build_driver
         from exp.warm_reset.plan import read_plan
@@ -259,6 +299,7 @@ def main(argv: list[str] | None = None) -> int:
                 "terminate_grace_s": args.terminate_grace,
                 "max_cached_envs": args.max_cached_envs,
             },
+            pinned_objects=args.pinned_objects,
         )
         signal.signal(signal.SIGINT, lambda *_: agent.stop())
         signal.signal(signal.SIGTERM, lambda *_: agent.stop())

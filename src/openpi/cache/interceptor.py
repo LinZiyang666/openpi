@@ -234,6 +234,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
         shadow_teacher: Optional[Any] = None,
         trace: Optional[Any] = None,
         warm_reset: Optional[Any] = None,
+        miss_num_steps: Optional[int] = None,
     ) -> None:
         if not policy._is_pytorch_model:  # noqa: SLF001
             raise ValueError(
@@ -329,7 +330,29 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                 raise ValueError("warm_reset is incompatible with the X15 shadow teacher.")
             if self._cp2_only:
                 raise ValueError("warm_reset is incompatible with a CP2 (post-backbone) config.")
+            if orchestrator is None and getattr(warm_reset, "trigger_always", False):
+                raise ValueError("a trigger: always warm reset comes from a cache yaml; it needs an orchestrator.")
         self._warm_reset = warm_reset
+
+        # ---- Per-bundle MISS step count (default None => byte-identical paths) ----
+        # From a yaml ``miss`` block (plain / full arms). ``None`` keeps reading
+        # the module-level ``_NUM_STEPS`` at call time, so a process-level pin
+        # of that constant still reaches every MISS. Everything that runs the
+        # MISS elsewhere or records a K-step teacher is refused, as at yaml load.
+        if miss_num_steps is not None:
+            if isinstance(miss_num_steps, bool) or not isinstance(miss_num_steps, int) or miss_num_steps < 1:
+                raise ValueError(f"miss_num_steps={miss_num_steps!r}: expected an integer >= 1.")
+            if orchestrator is None:
+                raise ValueError("miss_num_steps comes from a cache yaml; it needs an orchestrator.")
+            if trace is not None:
+                raise ValueError("miss_num_steps is incompatible with the trace serving mode.")
+            if hit_executor is not None or miss_executor is not None:
+                raise ValueError("miss_num_steps is incompatible with hit_executor / miss_executor.")
+            if shadow_teacher is not None:
+                raise ValueError("miss_num_steps is incompatible with the X15 shadow teacher.")
+            if warm_reset is not None:
+                raise ValueError("miss_num_steps and warm_reset are mutually exclusive.")
+        self._miss_num_steps = miss_num_steps
 
         self._policy = policy
         # Borrow internals from the wrapped Policy — references only, no copy.
@@ -1048,6 +1071,10 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             "state": np.asarray(state.detach().cpu()),
             "actions": np.asarray(action_chunk[0, ...].detach().cpu()),
         }
+
+    def _miss_steps(self) -> int:
+        """Euler steps of a MISS: the bundle's ``miss`` block, else ``_NUM_STEPS`` read now."""
+        return _NUM_STEPS if self._miss_num_steps is None else self._miss_num_steps
 
     @staticmethod
     def _make_warm_start_via_coordinator(coordinator, bundle_id: str):
@@ -1941,7 +1968,32 @@ class InferenceInterceptor(_base_policy.BasePolicy):
 
                 # Stage 3: three-way branch
                 warm_reset_meta = None
+                miss_nfe = None
+                self_only = False
                 if (
+                    self._warm_reset is not None
+                    and getattr(self._warm_reset, "trigger_always", False)
+                ):
+                    # Library-free self start (``trigger: always``): no
+                    # checkpoint is enabled, so the verdict is structurally a
+                    # MISS; every decision runs the self start + continuation.
+                    if cp1_result.hit_type != HitType.MISS:
+                        raise RuntimeError(
+                            "warm_reset trigger: always got a "
+                            f"{cp1_result.hit_type.name} verdict; its config must enable no checkpoint."
+                        )
+                    stage3, warm_reset_meta = self._warm_reset.run_self_only(
+                        stage2=stage2,
+                        action_shape=(
+                            self._model.config.action_horizon,
+                            self._model.config.action_dim,
+                        ),
+                        device=self._stage3_device,
+                        run_stage3=self._stage3_warm_reset_fn,
+                        timer=self._timer,
+                    )
+                    self_only = True
+                elif (
                     self._orchestrator is not None
                     and cp1_result.hit_type == HitType.WARM_START
                 ):
@@ -2007,16 +2059,21 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                             stage3 = self._stage3_fn(
                                 stage2,
                                 noise=stage3_noise,
-                                num_steps=_NUM_STEPS,
+                                num_steps=self._miss_steps(),
                                 return_intermediates=True,
                             )
                         else:
                             stage3 = self._model.run_stage3(
                                 stage2,
                                 noise=start_noise,
-                                num_steps=_NUM_STEPS,
+                                num_steps=self._miss_steps(),
                                 return_intermediates=True,
                             )
+                    if self._miss_num_steps is not None:
+                        # The step count handed to the model's own
+                        # ``range(num_steps)`` loop (coordinator: the MISS
+                        # bucket keyed by it).
+                        miss_nfe = self._miss_num_steps
                 else:
                     # No-cache mode: compiled call
                     with self._timer.measure("stage3_flow"):
@@ -2067,7 +2124,7 @@ class InferenceInterceptor(_base_policy.BasePolicy):
                         t: x[0].detach().cpu().float().contiguous()
                         for t, x in stage3.intermediates.items()
                     }
-                    denoising_num_steps_val = _NUM_STEPS
+                    denoising_num_steps_val = self._miss_steps()
 
                 # Broadcast action + buffer for trajectory write
                 self._orchestrator.broadcast_action(action_chunk_cpu)
@@ -2116,6 +2173,12 @@ class InferenceInterceptor(_base_policy.BasePolicy):
             library_sha256=self._cp2_library_sha256 if self._cp2_only else None,
             warm_reset=warm_reset_meta,
         )
+        if miss_nfe is not None:
+            # Additive, present only under a ``miss`` block.
+            outputs["__hit_meta__"]["miss_nfe"] = miss_nfe
+        if self_only:
+            outputs["__hit_meta__"]["hit_type"] = self._warm_reset.self_only_hit_type
+            outputs["__hit_meta__"]["start_t"] = warm_reset_meta["start_t"]
         if self._export_collect_meta:
             outputs["__collect_meta__"] = self._build_collect_meta(
                 _cp1_result, self._collect_fields

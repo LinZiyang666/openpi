@@ -150,7 +150,14 @@ class GrootCacheInterceptor:
         warm_reset: a ``GrootWarmResetExecutor`` replaces the WARM_START
             continuation (plan ``logs/warm_continuation_first_class_plan.log.md``
             §4.6); ``None`` keeps the exact resume. Refused with trace, CP2 and
-            the online RIT judge.
+            the online RIT judge. Under ``trigger: always`` every decision runs
+            its library-free self start instead of a verdict.
+        miss_num_steps: a yaml ``miss`` block's MISS step count (plain / full
+            arms). GR00T's MISS runs the live head's ``num_inference_timesteps``
+            (process level), so this is an assertion checked before every MISS,
+            and the executed count rides ``__hit_meta__["miss_nfe"]``. ``None``
+            keeps the MISS path and its wire exactly as they were. Refused with
+            trace, CP2, the online RIT judge and ``warm_reset``.
     """
 
     def __init__(
@@ -166,6 +173,7 @@ class GrootCacheInterceptor:
         trace_vision_fields: Optional[tuple[str, ...]] = None,
         model_lock: Optional[Any] = None,
         warm_reset: Optional[Any] = None,
+        miss_num_steps: Optional[int] = None,
     ) -> None:
         self._policy = policy
         self._runner = runner
@@ -219,7 +227,33 @@ class GrootCacheInterceptor:
             spec_fn = getattr(orchestrator, "continuation_spec", None)
             if spec_fn is not None and spec_fn(CheckpointID.CP1) is not None:
                 raise ValueError("warm_reset is incompatible with the online_rit judge.")
+            if orchestrator is None and getattr(warm_reset, "trigger_always", False):
+                raise ValueError("a trigger: always warm reset comes from a cache yaml; it needs an orchestrator.")
         self._warm_reset = warm_reset
+        if miss_num_steps is not None:
+            if isinstance(miss_num_steps, bool) or not isinstance(miss_num_steps, int) or miss_num_steps < 1:
+                raise ValueError(f"miss_num_steps={miss_num_steps!r}: expected an integer >= 1.")
+            if trace is not None:
+                raise ValueError("miss_num_steps is incompatible with the trace serving mode.")
+            if self._cp2_only:
+                raise ValueError("miss_num_steps is incompatible with a CP2 (post-backbone) config.")
+            if warm_reset is not None:
+                raise ValueError("miss_num_steps and warm_reset are mutually exclusive.")
+            spec_fn = getattr(orchestrator, "continuation_spec", None)
+            if spec_fn is not None and spec_fn(CheckpointID.CP1) is not None:
+                raise ValueError("miss_num_steps is incompatible with the online_rit judge.")
+            self._require_miss_steps(miss_num_steps)
+        self._miss_num_steps = miss_num_steps
+
+    def _require_miss_steps(self, num_steps: int) -> int:
+        """The live head must run the declared MISS step count (read per call); returns it."""
+        live = int(self._runner._model.action_head.num_inference_timesteps)  # noqa: SLF001
+        if live != num_steps:
+            raise RuntimeError(
+                f"miss.num_steps={num_steps} but the action head runs {live} steps; GR00T's MISS "
+                "step count is process-level (--denoising-steps), serve this arm on a matching server."
+            )
+        return live
 
     # -- TaskLifecycle ---------------------------------------------------
 
@@ -423,6 +457,8 @@ class GrootCacheInterceptor:
             cp1_result = None
             online_diag: Optional[dict] = None
             warm_reset_meta: Optional[dict] = None
+            miss_nfe: Optional[int] = None
+            self_only = False
             try:
                 if self._orchestrator is not None:
                     with self._timer.measure("cp1_sum"):
@@ -439,7 +475,23 @@ class GrootCacheInterceptor:
                 )
 
                 hit_type = None if cp1_result is None else cp1_result.hit_type
-                if hit_type == HitType.FULL_HIT:
+                if self._warm_reset is not None and getattr(self._warm_reset, "trigger_always", False):
+                    # Library-free self start (``trigger: always``): no
+                    # checkpoint is enabled, so the verdict is structurally a
+                    # MISS; every decision runs the self start + continuation.
+                    if hit_type != HitType.MISS:
+                        raise RuntimeError(
+                            f"warm_reset trigger: always got a {hit_type} verdict; its config "
+                            "must enable no checkpoint."
+                        )
+                    with self._runner.session():
+                        stage2 = self._runner.run_stage2_llm(stage1)
+                        out, warm_reset_meta = self._warm_reset.run_self_only(
+                            runner=self._runner, stage2=stage2
+                        )
+                        chunk = out.action_pred
+                    self_only = True
+                elif hit_type == HitType.FULL_HIT:
                     chunk = cp1_result.payload.action_chunk
                 elif hit_type == HitType.WARM_START:
                     payload = cp1_result.payload
@@ -499,6 +551,9 @@ class GrootCacheInterceptor:
                             spec, stage2, payload, schedule, executed=None
                         )
                 else:
+                    if self._miss_num_steps is not None:
+                        # Checked before any head call; the loop is the head's own.
+                        miss_nfe = self._require_miss_steps(self._miss_num_steps)
                     with self._runner.session():
                         chunk = self._runner.run_stage2(stage1).action_pred
                     if spec is not None and cp1_result is not None:
@@ -529,6 +584,12 @@ class GrootCacheInterceptor:
         unnormalized["__hit_meta__"] = self._build_hit_meta(
             cp1_result, online_rit=online_diag, warm_reset=warm_reset_meta
         )
+        if miss_nfe is not None:
+            # Additive, present only under a ``miss`` block.
+            unnormalized["__hit_meta__"]["miss_nfe"] = miss_nfe
+        if self_only:
+            unnormalized["__hit_meta__"]["hit_type"] = self._warm_reset.self_only_hit_type
+            unnormalized["__hit_meta__"]["start_t"] = warm_reset_meta["start_t"]
         return unnormalized
 
     def _continuation_feedback(self, spec, stage2, payload, schedule, *, executed) -> dict:

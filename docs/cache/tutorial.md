@@ -689,6 +689,51 @@ and the dispatched yaml.
 For runnable YAML generation, concurrent multi-arm scheduling, standard workers
 and trusted admission commands, see [Warm reset experiments](warm_reset_experiments.md).
 
+#### Library-free self start (`trigger: always`)
+
+A self arm needs no library: the retrieved entry never contributes to its
+numbers. With `trigger: always` the block runs on every decision without a
+verdict, from its own `start_t` (architecture: [cache_system.md §5.22.1](../architecture/cache_system.md#5221-plain--full-arms-miss-and-the-library-free-self-start-trigger-always)):
+
+```yaml
+checkpoints:
+  cp1: {enabled: false, search_strategy: {type: weighted_rrf_knn}}   # no checkpoint may be enabled
+warm_reset:
+  start: {source: self, point: final}   # source must be self
+  grid: {kind: reset, entry_t: 1.0}
+  num_steps: remaining
+  self_seed: {namespace: mw_self_v1}
+  evidence_dir: /data/warm_reset_evidence/<run>
+  trigger: always        # default verdict = the WARM_START-triggered block above
+  start_t: 0.2           # required with always (a recoverable point of the schedule), refused with verdict
+```
+
+Decisions report `hit_type: SELF_ONLY` and this `start_t`; the actions are
+bit-equal to the same self arm served over a library (same seed identity).
+GR00T: name `denoise_schedule` (the live head's loop).
+
+### `miss` Block (plain / full arms)
+
+Optional top-level block: the MISS step count of a plain / full arm plus its
+server evidence. Absent = today's MISS (Pi0.5 `interceptor._NUM_STEPS` read at
+call time, GR00T the live head's `num_inference_timesteps`).
+
+```yaml
+checkpoints:
+  cp1: {enabled: false, search_strategy: {type: weighted_rrf_knn}}   # a plain arm retrieves nothing
+miss:
+  num_steps: 2                            # full = K; plain_k<k> = k
+  evidence_dir: /data/warm_reset_evidence/<run>
+```
+
+Pi0.5 honours it per bundle (one concurrent server serves `full`, `plain_k1`,
+`plain_k2` and every warm arm at once); GR00T refuses a bundle whose count is
+not the live head's, so each count needs a server started with
+`--denoising-steps <k>`. Responses carry `__hit_meta__["miss_nfe"]`, evidence
+rows `miss_nfe`. Load-time rules: `num_steps >= 1`; not with `warm_reset`,
+trace, shadow teacher or routing; a count other than the schedule's K needs
+`write_policy: never`; `evidence_dir` is required.
+
 ### CLI Usage
 
 ```bash

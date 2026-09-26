@@ -1,4 +1,11 @@
-"""Dispatch frozen warm reset plans through the standard conductor and workers."""
+"""Dispatch frozen warm reset plans through the standard conductor and workers.
+
+The benchmark-specific parts (episode experiment / extra fields, worker
+launch) come from the plan environment's adapter (``exp.warm_reset.envs``).
+An arm frozen with ``endpoints`` (GR00T per-step-count servers) is placed on
+those endpoints only, round-robin over the arms that share them; every other
+arm keeps the driver's balanced assignment.
+"""
 
 from __future__ import annotations
 
@@ -8,7 +15,7 @@ import json
 import threading
 from pathlib import Path
 
-from exp.step_diag.envs import ENVS
+from exp.warm_reset.envs import get_env
 from openpi.conductor import ConductorDriver
 from openpi.conductor.strategy import ExperimentStrategy
 from openpi.conductor.task import (
@@ -27,6 +34,21 @@ def manifest_digest(manifest: dict) -> str:
     ).hexdigest()
 
 
+def pinned_servers(manifest: dict) -> dict[str, ServerEndpoint]:
+    """``yaml_id -> endpoint`` of every arm frozen with ``endpoints`` (deterministic)."""
+    out: dict[str, ServerEndpoint] = {}
+    used: dict[tuple, int] = {}
+    for arm in manifest["arms"]:
+        allowed = arm.get("endpoints")
+        if not allowed:
+            continue
+        key = tuple(allowed)
+        host, port = allowed[used.get(key, 0) % len(allowed)].rsplit(":", 1)
+        used[key] = used.get(key, 0) + 1
+        out[arm["yaml_id"]] = ServerEndpoint(host, int(port))
+    return out
+
+
 class WarmResetStrategy(ExperimentStrategy):
     """One eval stage per arm, with unchanged episode identity across all arms."""
 
@@ -39,24 +61,16 @@ class WarmResetStrategy(ExperimentStrategy):
         """Build the actual dispatched graph and retain its trusted episode roster."""
         graph = TaskGraph()
         self.tasks = []
-        env = ENVS[self.manifest["env_id"]]
-        rollout = self.manifest["rollout"]
+        env = get_env(self.manifest["env_id"])
+        adapter = env.adapter
+        pinned = pinned_servers(self.manifest)
+        experiment = adapter.experiment(env, self.manifest)
         for yaml_id in yamls:
-            server = server_assignment[yaml_id]
+            server = pinned.get(yaml_id, server_assignment[yaml_id])
             episodes = []
             for task in self.manifest["tasks"]:
                 extra = {"num_trials_per_task": len(task["init_indices"])}
-                experiment = env.benchmark
-                if env.benchmark == "robocasa365":
-                    experiment = f"warm_reset_{self.manifest['token']}"
-                    extra.update(
-                        task_name=task["name"],
-                        teacher="groot_tp" if env.policy == "groot" else "pi05",
-                        **{
-                            k: rollout[k]
-                            for k in ("base_seed", "layout", "style", "replan_steps")
-                        },
-                    )
+                extra.update(adapter.episode_extra(env, self.manifest, task))
                 for ep, original in enumerate(task["init_indices"]):
                     episodes.append(
                         EpisodeTask(
@@ -160,13 +174,12 @@ def worker_agent(
     prefix: str,
     conda_env: str = "",
     rc_options: dict | None = None,
+    pinned_objects: str = "",
 ):
-    """Build standard LIBERO or RoboCasa workers with the plan's rollout knobs."""
-    from functools import partial
+    """Build the environment's standard workers with the plan's rollout knobs."""
+    from openpi.conductor.agent import WorkerSpec
 
-    from openpi.conductor.agent import WorkerAgent, WorkerSpec
-
-    env = ENVS[manifest["env_id"]]
+    env = get_env(manifest["env_id"])
     allowed = {f"{s['host']}:{s['port']}" for s in manifest["servers"]}
     if (
         server not in allowed
@@ -195,21 +208,11 @@ def worker_agent(
         for i, gpu in enumerate(gpus)
         for j in range(workers_per_gpu)
     ]
-    if env.benchmark == "robocasa365":
-        from exp.robocasa365.run_collect import robocasa_spawn_fn
-
-        if not rc_options or any(
-            not rc_options.get(k)
-            for k in ("worker_python", "robocasa_cwd", "egl_lib_dir", "egl_vendor_dir")
-        ):
-            raise ValueError(
-                "RoboCasa requires worker Python, cwd and EGL library/vendor paths"
-            )
-        spawn = partial(
-            robocasa_spawn_fn,
-            repo_root=str(Path(__file__).resolve().parents[2]),
-            teacher="groot_tp" if env.policy == "groot" else "pi05",
-            **rc_options,
-        )
-        return WorkerAgent(specs, driver_host, driver_port, spawn_fn=spawn)
-    return WorkerAgent(specs, driver_host, driver_port)
+    return env.adapter.worker_agent(
+        env,
+        manifest,
+        specs=specs,
+        driver_host=driver_host,
+        driver_port=driver_port,
+        options={"conda_env": conda_env, "rc": rc_options, "pinned_objects": pinned_objects},
+    )

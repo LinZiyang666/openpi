@@ -1,4 +1,11 @@
-"""Join trusted dispatch, terminal and worker records to server warm reset evidence."""
+"""Join trusted dispatch, terminal and worker records to server warm reset evidence.
+
+Every arm kind is admitted from the same three sources: warm arms expect
+WARM_START decisions at their ``start_t`` (``warm_t*`` is a worker-only
+reference), library-free self arms ``SELF_ONLY`` decisions at theirs, and
+``full`` / ``plain_k<k>`` arms MISS decisions whose server rows carry the
+executed ``miss_nfe``.
+"""
 
 from __future__ import annotations
 
@@ -7,11 +14,17 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from exp.step_diag.envs import ENVS
 from exp.warm_reset.conductor import WarmResetStrategy, manifest_digest
-from exp.warm_reset.plan import config_of, read_plan
+from exp.warm_reset.envs import get_env
+from exp.warm_reset.plan import (
+    KIND_MISS,
+    KIND_SELF_ONLY,
+    arm_kind_of,
+    config_of,
+    read_plan,
+)
 from openpi.cache.warm_reset.evidence import ExpectedEpisode, episode_problems
-from openpi.cache.warm_reset.types import WarmResetSpec
+from openpi.cache.warm_reset.types import HIT_SELF_ONLY, MissSpec, WarmResetSpec
 from openpi.conductor.task import EpisodeTask, ServerEndpoint
 
 
@@ -51,6 +64,8 @@ def trusted_expected(
     ]
     if len(terms) != 1:
         raise ValueError("expected exactly one accepted terminal")
+    kind = arm_kind_of(arm)
+    hit_type = {KIND_MISS: "MISS", KIND_SELF_ONLY: HIT_SELF_ONLY}.get(kind, "WARM_START")
     term = terms[0]
     outcome, attempt = term.get("success"), term.get("attempt")
     if (
@@ -93,16 +108,20 @@ def trusted_expected(
         step = row.get("step_idx")
         if type(step) is not int or step < 0:
             raise ValueError("invalid worker step_idx")
-        if row.get("hit_type") != "WARM_START" or row.get("start_t") != arm["start_t"]:
-            raise ValueError("worker did not execute the requested warm arm")
+        if row.get("hit_type") != hit_type or row.get("start_t") != arm["start_t"]:
+            raise ValueError("worker did not execute the requested arm")
         steps.append(step)
     stride = manifest["rollout"]["replan_steps"]
     if sorted(steps) != list(range(0, len(steps) * stride, stride)):
         raise ValueError("missing or duplicate worker decision")
     cfg = config_of(arm["yaml"])
-    if cfg.warm_reset is None:
+    if kind == KIND_MISS:
+        spec = MissSpec.from_config(cfg.miss)
+    elif cfg.warm_reset is None:
         return {"attempt": attempt, "outcome": outcome, "n_decisions": len(rows)}
-    spec = WarmResetSpec.from_config(cfg.warm_reset)
+    else:
+        spec = WarmResetSpec.from_config(cfg.warm_reset)
+    env = get_env(manifest["env_id"])
     identity = {
         "experiment": task.experiment,
         "task": task_name,
@@ -111,9 +130,8 @@ def trusted_expected(
         "orig_init_state_idx": task.orig_init_state_idx,
         "task_uid": task.task_uid,
         "attempt": attempt,
+        **env.adapter.identity(env, manifest, task),
     }
-    if ENVS[manifest["env_id"]].benchmark == "robocasa365":
-        identity["seed"] = manifest["rollout"]["base_seed"] + task.orig_init_state_idx
     return ExpectedEpisode(
         task_uid=task.task_uid,
         attempt=attempt,
@@ -160,6 +178,9 @@ def admit(root: Path, evidence_dirs: list[Path] | None = None) -> dict:
         )
         if task != want or (task.server_host, task.server_port) not in endpoints:
             raise ValueError("dispatch identity differs from frozen plan")
+        allowed = arms[task.yaml_id].get("endpoints")
+        if allowed and f"{task.server_host}:{task.server_port}" not in allowed:
+            raise ValueError("arm dispatched to an endpoint of another step count")
     global_problems = []
 
     def read(path):

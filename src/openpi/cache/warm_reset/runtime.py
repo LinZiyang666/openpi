@@ -29,7 +29,7 @@ import uuid
 from typing import Any, Callable, Mapping, Optional
 
 from openpi.cache.config import ConfigValidationError, effective_denoise_schedule
-from openpi.cache.warm_reset.types import WarmResetSpec
+from openpi.cache.warm_reset.types import MissSpec, WarmResetSpec
 
 #: Schema tag of ``__hit_meta__["warm_reset"]``.
 META_SCHEMA = "warm_reset_meta_v1"
@@ -233,12 +233,22 @@ class WarmResetParts:
 
     ``executor`` is injected into the interceptor (``warm_reset=``); ``wrap``
     puts the evidence wrapper around that interceptor. Both share ``session``.
+    For a ``miss`` block (plain / full arm) ``spec`` is a ``MissSpec``,
+    ``executor`` is ``None`` and ``miss_num_steps`` is injected instead
+    (``miss_num_steps=``); it is ``None`` for every warm reset arm.
     """
 
-    spec: WarmResetSpec
+    spec: Any
     session: WarmResetSession
     executor: Any
     wrap: Callable[[Any], Any]
+    miss_num_steps: Optional[int] = None
+
+    def interceptor_kwargs(self) -> dict:
+        """The interceptor keyword this arm injects: ``warm_reset=`` or ``miss_num_steps=``."""
+        if self.miss_num_steps is not None:
+            return {"miss_num_steps": self.miss_num_steps}
+        return {"warm_reset": self.executor}
 
 
 def _yaml_sha256(path: Optional[str]) -> Optional[str]:
@@ -259,22 +269,32 @@ def _build(
     bundle_id: str,
     yaml_id: Optional[str],
     yaml_path: Optional[str],
-    executor_factory: Callable[[WarmResetSpec, WarmResetSession], Any],
+    executor_factory: Callable[..., Any],
     wrapper_factory: Callable[..., Any],
 ) -> Optional[WarmResetParts]:
     """Assemble executor + evidence wrapper for one connection, or ``None`` without a block.
 
     ``yaml_id`` (the registered bundle's yaml id, ``None`` for a startup yaml)
     and ``bundle_id`` (the connection's selected bundle) are recorded
-    independently; ``yaml_path`` is hashed for ``yaml_sha256``.
+    independently; ``yaml_path`` is hashed for ``yaml_sha256``. A ``miss``
+    block yields the evidence wrapper and ``miss_num_steps`` without an
+    executor; the validator refuses both blocks in one config.
     """
     cfg = getattr(config, "warm_reset", None)
-    if cfg is None:
+    miss = getattr(config, "miss", None)
+    if cfg is None and miss is None:
         return None
-    spec = WarmResetSpec.from_config(cfg)
+    if cfg is not None and miss is not None:
+        raise ConfigValidationError("miss and warm_reset are mutually exclusive (one evidence stream per arm).")
     schedule = effective_denoise_schedule(config)
-    session = WarmResetSession(spec)
-    executor = executor_factory(spec, session)
+    if miss is not None:
+        spec: Any = MissSpec.from_config(miss)
+        session = WarmResetSession(spec)
+        executor = None
+    else:
+        spec = WarmResetSpec.from_config(cfg)
+        session = WarmResetSession(spec)
+        executor = executor_factory(spec, session, schedule=schedule)
     yaml_sha256 = _yaml_sha256(yaml_path)
 
     def wrap(policy: Any) -> Any:
@@ -289,20 +309,32 @@ def _build(
             k=schedule.num_steps,
         )
 
-    return WarmResetParts(spec=spec, session=session, executor=executor, wrap=wrap)
+    return WarmResetParts(
+        spec=spec,
+        session=session,
+        executor=executor,
+        wrap=wrap,
+        miss_num_steps=spec.num_steps if miss is not None else None,
+    )
 
 
 def refuse_warm_reset(config: Any, *, where: str) -> None:
-    """Raise ``ConfigValidationError`` if ``config`` carries a ``warm_reset`` block.
+    """Raise ``ConfigValidationError`` if ``config`` carries a ``warm_reset`` or ``miss`` block.
 
-    For serving paths that never execute the warm reset continuation (trace,
-    shadow / calibration loggers): the block would otherwise be silently
-    ignored and the arm would run the exact resume under its name.
+    For serving paths that never execute the warm reset continuation or the
+    per-bundle MISS step count (trace, shadow / calibration loggers): the
+    block would otherwise be silently ignored and the arm would run the exact
+    resume / the process-level MISS under its name.
     """
     if getattr(config, "warm_reset", None) is not None:
         raise ConfigValidationError(
             f"{where} does not support a warm_reset block: it would serve the exact "
             "resume under a warm reset arm's name."
+        )
+    if getattr(config, "miss", None) is not None:
+        raise ConfigValidationError(
+            f"{where} does not support a miss block: it would serve the process-level "
+            "MISS step count under a plain / full arm's name."
         )
 
 

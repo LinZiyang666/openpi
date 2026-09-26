@@ -19,6 +19,12 @@ never against values read off the rows it checks. It reproduces the step_diag
 admission rules (equal continuation NFE, self-start proof, K + N pricing) plus
 the completeness / closure / identity rules of the production evidence.
 
+The same wrapper and closure rules serve two sibling arm kinds: a ``miss``
+arm (plain / full; ``MissSpec``) whose decision rows are MISS verdicts
+carrying the executed ``miss_nfe``, and a library-free self start
+(``trigger: always``) whose decision rows carry ``hit_type: SELF_ONLY`` and
+the block's ``start_t``.
+
 Public interface: ``WarmResetEvidencePolicy`` (Pi0.5, wraps ``infer``),
 ``GrootWarmResetEvidencePolicy`` (GR00T, wraps ``get_action``),
 ``ExpectedEpisode``, ``decision_problems``, ``episode_problems``,
@@ -42,7 +48,14 @@ from typing import Any, Callable, Mapping, Optional
 
 from openpi.cache.types import DIRECTION_ASC, PI05_V1, schedule_from_id
 from openpi.cache.warm_reset.runtime import META_SCHEMA, WarmResetSession
-from openpi.cache.warm_reset.types import WarmResetSpec, _is_int, native_grid, resolve_plan
+from openpi.cache.warm_reset.types import (
+    HIT_SELF_ONLY,
+    MissSpec,
+    WarmResetSpec,
+    _is_int,
+    native_grid,
+    resolve_plan,
+)
 from openpi.serving.per_step_recorder import PerStepWriter
 
 #: Schema tag of every evidence row.
@@ -150,6 +163,9 @@ class _EvidencePolicy:
             error=error,
             wall_ms=(time.perf_counter() - started) * 1000.0,
         )
+        if "miss_nfe" in meta:
+            # A ``miss`` arm's executed MISS step count; absent on every other row.
+            row["miss_nfe"] = meta["miss_nfe"]
         self._writer.write_row(row)
 
     def _close_episode(self, *, terminal: bool, outcome: Optional[bool]) -> None:
@@ -262,6 +278,11 @@ class ExpectedEpisode:
     caller dispatched. ``schedule_id`` / ``k`` / ``start_t``: the arm
     definition. ``identity``: the episode_start identity rebuilt from the
     dispatched task. None of it is read from the rows being checked.
+
+    ``spec`` is a ``WarmResetSpec`` (a warm reset arm; ``trigger: always``
+    expects ``SELF_ONLY`` decisions at the block's ``start_t``) or a
+    ``MissSpec`` (a plain / full arm: ``MISS`` decisions of ``num_steps``
+    executed steps, ``start_t`` ``None``).
     """
 
     task_uid: str
@@ -270,12 +291,12 @@ class ExpectedEpisode:
     n_decisions: int
     yaml_id: Optional[str]
     bundle_id: str
-    spec: WarmResetSpec
+    spec: WarmResetSpec | MissSpec
     spec_digest: str
     yaml_sha256: Optional[str]
     schedule_id: str
     k: int
-    start_t: float
+    start_t: Optional[float]
     identity: Mapping[str, Any]
 
 
@@ -290,13 +311,32 @@ def _same(value: Any, want: Any) -> bool:
     return value == want
 
 
+def _is_miss(expected: ExpectedEpisode) -> bool:
+    return isinstance(expected.spec, MissSpec)
+
+
+def _expected_hit_type(expected: ExpectedEpisode) -> str:
+    """The ``hit_type`` every decision of the expected arm must carry."""
+    if _is_miss(expected):
+        return "MISS"
+    return HIT_SELF_ONLY if expected.spec.always else "WARM_START"
+
+
 def _expected_steps(expected: ExpectedEpisode) -> tuple[list[str], Optional[int]]:
-    """``(problems, N)`` of the trusted expectation itself."""
-    if not isinstance(expected, ExpectedEpisode) or not isinstance(expected.spec, WarmResetSpec):
+    """``(problems, N)`` of the trusted expectation itself (N = MISS steps on a ``miss`` arm)."""
+    if not isinstance(expected, ExpectedEpisode) or not isinstance(expected.spec, (WarmResetSpec, MissSpec)):
         return ["invalid_expected"], None
     if not isinstance(expected.identity, Mapping):
         return ["invalid_expected"], None
     identity, spec = expected.identity, expected.spec
+    if _is_miss(expected):
+        start_ok = expected.start_t is None and _is_int(spec.num_steps) and spec.num_steps >= 1
+    else:
+        start_ok = (
+            isinstance(expected.start_t, float)
+            and math.isfinite(expected.start_t)
+            and (not spec.always or spec.start_t == expected.start_t)
+        )
     ok = (
         _is_int(expected.attempt)
         and expected.attempt >= 0
@@ -304,8 +344,7 @@ def _expected_steps(expected: ExpectedEpisode) -> tuple[list[str], Optional[int]
         and expected.n_decisions >= 0
         and _is_int(expected.k)
         and isinstance(expected.outcome, bool)
-        and isinstance(expected.start_t, float)
-        and math.isfinite(expected.start_t)
+        and start_ok
         and isinstance(expected.task_uid, str) and bool(expected.task_uid)
         and isinstance(expected.bundle_id, str) and bool(expected.bundle_id)
         and (expected.yaml_id is None or isinstance(expected.yaml_id, str))
@@ -321,6 +360,14 @@ def _expected_steps(expected: ExpectedEpisode) -> tuple[list[str], Optional[int]
     )
     if not ok:
         return ["invalid_expected"], None
+    if _is_miss(expected):
+        try:
+            if expected.spec_digest != spec.digest():
+                return ["invalid_expected"], None
+            schedule = schedule_from_id(expected.schedule_id)
+        except (ValueError, TypeError, OverflowError):
+            return ["invalid_expected"], None
+        return ([] if schedule.num_steps == expected.k else ["invalid_expected"]), spec.num_steps
     if spec.self_start:
         if not (
             isinstance(spec.seed_namespace, str) and spec.seed_namespace
@@ -392,7 +439,8 @@ def _common_problems(row: dict, expected: ExpectedEpisode) -> list[str]:
     return sorted(out)
 
 
-def _decision_content_problems(row: dict, expected: ExpectedEpisode, n_steps: int) -> list[str]:
+def _decision_head_problems(row: dict, expected: ExpectedEpisode) -> set[str]:
+    """Index, required fields, wall time, status, hit type and start_t of one decision row."""
     out: set[str] = set()
     idx = row.get("decision_idx")
     if not (_is_int(idx) and idx >= 0):
@@ -406,10 +454,32 @@ def _decision_content_problems(row: dict, expected: ExpectedEpisode, n_steps: in
         out.add("invalid_field")
     if row.get("status") != "ok" or row.get("error") is not None:
         out.add("decision_error")
-    if row.get("hit_type") != "WARM_START":
+    if row.get("hit_type") != _expected_hit_type(expected):
         out.add("hit_type_mismatch")
     if not _same(row.get("start_t"), expected.start_t):
         out.add("schedule_mismatch")
+    return out
+
+
+def _miss_decision_problems(row: dict, expected: ExpectedEpisode, n_steps: int) -> list[str]:
+    """A ``miss`` arm's decision: a MISS with ``n_steps`` executed steps and no continuation."""
+    out = _decision_head_problems(row, expected)
+    if row.get("warm_reset") is not None:
+        out.add("spec_mismatch")
+    if "miss_nfe" not in row:
+        out.add("miss_nfe_missing")
+    elif not (_is_int(row["miss_nfe"]) and row["miss_nfe"] >= 0):
+        out.add("invalid_field")
+    elif row["miss_nfe"] != n_steps:
+        out.add("steps_mismatch")
+    return sorted(out)
+
+
+def _decision_content_problems(row: dict, expected: ExpectedEpisode, n_steps: int) -> list[str]:
+    if _is_miss(expected):
+        return _miss_decision_problems(row, expected, n_steps)
+    out = _decision_head_problems(row, expected)
+    idx = row.get("decision_idx")
     inner = row.get("warm_reset")
     if inner is None:
         out.add("warm_reset_missing")
@@ -511,10 +581,14 @@ def episode_problems(rows: list[dict], *, expected: ExpectedEpisode) -> dict:
     run-scoped evidence directory. Returns ``{problems, continuation_nfe,
     self_start_nfe, total_nfe}``; ``problems`` is a ``Counter`` and any
     non-zero code rejects the episode, in which case the three totals are
-    ``None`` (a partial sum is never a usable episode cost).
+    ``None`` (a partial sum is never a usable episode cost). A ``miss`` arm
+    also returns ``miss_nfe`` (= ``total_nfe``, the summed executed MISS
+    steps) and ``continuation_nfe`` ``None``.
     """
     problems: collections.Counter = collections.Counter()
     none = {"continuation_nfe": None, "self_start_nfe": None, "total_nfe": None}
+    if isinstance(expected, ExpectedEpisode) and _is_miss(expected):
+        none["miss_nfe"] = None
     exp_problems, n_steps = _expected_steps(expected)
     if exp_problems:
         problems.update(exp_problems)
@@ -560,6 +634,10 @@ def episode_problems(rows: list[dict], *, expected: ExpectedEpisode) -> dict:
         problems["decision_gap"] += 1
     if any(problems.values()):
         return {"problems": problems, **none}
+    if _is_miss(expected):
+        miss_total = sum(d["miss_nfe"] for d in decisions)
+        return {"problems": problems, "continuation_nfe": None, "self_start_nfe": 0,
+                "miss_nfe": miss_total, "total_nfe": miss_total}
     continuation = sum(d["warm_reset"]["continuation_nfe"] for d in decisions)
     self_start = (
         sum(d["warm_reset"]["self_direct_nfe"] for d in decisions)

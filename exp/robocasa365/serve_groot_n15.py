@@ -398,7 +398,7 @@ def _build_served_policy(policy: Any, args: Any) -> tuple[Any, str]:
     interceptor = GrootCacheInterceptor(
         policy, runner, orchestrator=orchestrator, timer=timer,
         trace=rt, trace_vision_fields=_RC_TRACE_CAMS if rt else None,
-        **({} if warm_reset is None else {"warm_reset": warm_reset.executor}),
+        **({} if warm_reset is None else warm_reset.interceptor_kwargs()),
     )
     return (
         interceptor if warm_reset is None else warm_reset.wrap(interceptor),
@@ -627,7 +627,7 @@ def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:
             )
             interceptor = GrootCacheInterceptor(
                 shared_base_policy, runner, orchestrator=orchestrator, timer=timer,
-                **({} if warm_reset is None else {"warm_reset": warm_reset.executor}),
+                **({} if warm_reset is None else warm_reset.interceptor_kwargs()),
             )
             served = interceptor if warm_reset is None else warm_reset.wrap(interceptor)
             return _InferLockedPolicy(GrootPolicyAdapter(served), lock)

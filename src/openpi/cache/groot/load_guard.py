@@ -35,6 +35,12 @@ The artifact identity check is here for a sharper reason: ``load_artifact``
 only compares ``vector_dims``, and mean-pool and max-pool libraries are
 dimensionally identical. Nothing else would ever notice the swap.
 
+Library-free recipes (``is_library_free``: no enabled checkpoint plus a
+``miss`` block or a ``trigger: always`` warm reset) retrieve nothing, so the
+checkpoint-set, judge / gate and artifact identity rules do not apply; only
+their loop identity is checked against the live head (the MISS step count,
+the self start's ``denoise_schedule``).
+
 Coupling map:
   DEPENDS ON:  CacheConfig, CacheStorage.artifact_meta
   CONSUMED BY: exp/robocasa365/serve_groot_n15.py (default),
@@ -49,6 +55,7 @@ from typing import Any
 from openpi.cache.config import (
     CacheConfig,
     ConfigValidationError,
+    is_library_free,
     required_warm_timesteps,
 )
 from openpi.cache.types import DIRECTION_ASC, groot_n15_schedule, schedule_from_id
@@ -74,6 +81,37 @@ def enabled_checkpoint_names(config: CacheConfig) -> frozenset[str]:
         for name, cp in config.checkpoints.items()
         if not name.startswith("_") and cp.enabled
     )
+
+
+def _library_free_errors(config: CacheConfig, num_inference_timesteps: int | None) -> list[str]:
+    """A library-free recipe's loop identity: the MISS count / self-start schedule is the live head's."""
+    errors: list[str] = []
+    miss = getattr(config, "miss", None)
+    if miss is not None and num_inference_timesteps is not None and miss.num_steps != num_inference_timesteps:
+        errors.append(
+            f"miss.num_steps={miss.num_steps} but the served action head runs "
+            f"{num_inference_timesteps} steps; GR00T's MISS step count is process-level "
+            "(--denoising-steps), serve this arm on a server started with that count."
+        )
+    if getattr(config, "warm_reset", None) is not None:
+        if config.denoise_schedule is None:
+            errors.append(
+                "a trigger: always warm reset must name denoise_schedule (groot_n15_k<N>_v1 with "
+                "N = the served head's num_inference_timesteps): its self start runs that loop."
+            )
+        else:
+            try:
+                schedule = schedule_from_id(config.denoise_schedule)
+            except ValueError as exc:
+                return errors + [f"denoise_schedule: {exc}"]
+            if schedule.direction != DIRECTION_ASC:
+                errors.append(f"denoise_schedule={schedule.schedule_id!r} is not a GR00T loop.")
+            elif num_inference_timesteps is not None and groot_n15_schedule(num_inference_timesteps) != schedule:
+                errors.append(
+                    f"denoise_schedule={schedule.schedule_id!r} but the served action head runs "
+                    f"{num_inference_timesteps} steps."
+                )
+    return errors
 
 
 def single_enabled_checkpoint(config: CacheConfig) -> str | None:
@@ -130,14 +168,19 @@ def validate_groot_cache_config(
     errors: list[str] = []
 
     enabled = enabled_checkpoint_names(config)
-    if enabled not in _SERVICEABLE_CHECKPOINT_SETS:
+    if is_library_free(config):
+        # Plain / full arm or library-free self start: nothing is retrieved,
+        # so no checkpoint set applies; only the loop identity is checked.
+        errors.extend(_library_free_errors(config, num_inference_timesteps))
+    elif enabled not in _SERVICEABLE_CHECKPOINT_SETS:
         errors.append(
             f"enabled checkpoints must be exactly {{'cp1'}} or {{'cp2'}}, got "
             f"{sorted(enabled)}. The GR00T split has no third stage, so CP3 would be "
             "built, registered and never consulted; CP1 and CP2 are two mutually "
             "exclusive arms of the same interceptor."
         )
-    cp_name = _inspected_checkpoint(config)
+    # A library-free recipe has no served checkpoint to inspect.
+    cp_name = None if is_library_free(config) else _inspected_checkpoint(config)
     if cp_name == "cp2" and config.key_builder.type != _CP2_GROOT_BUILDER:
         errors.append(
             f"a CP2 recipe on GR00T must use key_builder.type={_CP2_GROOT_BUILDER!r} "
@@ -295,9 +338,14 @@ def validate_artifact_identity(storage: Any, config: CacheConfig) -> None:
     backend never loaded an artifact at all, while present-but-empty fields
     mean the artifact predates identity recording.
 
+    A library-free recipe (``is_library_free``) never consults its storage,
+    so there is no identity to match and the check passes.
+
     Raises:
         ConfigValidationError: on mismatch or on any unknown identity.
     """
+    if is_library_free(config):
+        return
     expected = config.key_builder.type
     meta = storage.artifact_meta
 
