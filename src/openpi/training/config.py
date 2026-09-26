@@ -20,6 +20,7 @@ import openpi.models.tokenizer as _tokenizer
 import openpi.policies.aloha_policy as aloha_policy
 import openpi.policies.droid_policy as droid_policy
 import openpi.policies.libero_policy as libero_policy
+import openpi.policies.metaworld_policy as metaworld_policy
 import openpi.policies.robocasa_policy as robocasa_policy
 import openpi.shared.download as _download
 import openpi.shared.normalize as _normalize
@@ -262,6 +263,17 @@ class _RobocasaDataConfig(SimpleDataConfig):
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
         dc = super().create(assets_dirs, model_config)
         return dataclasses.replace(dc, use_quantile_norm=False)
+
+
+@dataclasses.dataclass(frozen=True)
+class _MetaworldGroup(GroupFactory):
+    """GroupFactory producing the MetaWorld MT50 input/output transforms (``pi05_metaworld``)."""
+
+    def __call__(self, model_config: _model.BaseModelConfig) -> _transforms.Group:
+        return _transforms.Group(
+            inputs=[metaworld_policy.MetaworldInputs()],
+            outputs=[metaworld_policy.MetaworldOutputs()],
+        )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -818,6 +830,24 @@ _CONFIGS = [
         data=_RobocasaDataConfig(
             assets=AssetsConfig(asset_id="robocasa"),
             data_transforms=_RobocasaGroup(),
+        ),
+    ),
+    #
+    # MetaWorld MT50 inference config (no training entry point).
+    #
+    # Serves the RLinf pi0.5 MetaWorld SFT checkpoint (RLinf/RLinf-Pi05-MetaWorld-SFT,
+    # openpi PyTorch weights) through scripts/serve_policy.py (policy:checkpoint
+    # --policy.config pi05_metaworld --policy.dir <ckpt>). Hyper-parameters follow the
+    # checkpoint's training config: action_horizon=5, discrete_state_input=False, the
+    # pi05 defaults otherwise (action_dim=32, max_token_len=200). Normalization is the
+    # quantile norm create_base_config selects for PI05, as RLinf trained it; the
+    # stats resolve from <ckpt>/assets/metaworld_mt50.
+    TrainConfig(
+        name="pi05_metaworld",
+        model=pi0_config.Pi0Config(pi05=True, action_horizon=5, discrete_state_input=False),
+        data=SimpleDataConfig(
+            assets=AssetsConfig(asset_id="metaworld_mt50"),
+            data_transforms=_MetaworldGroup(),
         ),
     ),
     #
