@@ -1,0 +1,15 @@
+# Offline search exploration: keep code, briefs, notes and the scoreboard; ignore generated/intermediate outputs.
+# Run outputs (per-decision npz, per-cell json, batch logs, oracle cache) — only the scoreboard is tracked.
+results/*
+!results/scoreboard.csv
+# smoke runs, scratch dirs and caches written by methods / tools
+**/_smoke/
+**/smoke/
+**/smoke_*.txt
+**/scratch/
+**/_cache/
+**/__pycache__/
+# raw arrays never belong in the tree (big arrays live under the store's derived/ dir)
+*.npz
+*.npy
+*.log
