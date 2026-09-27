@@ -1,0 +1,135 @@
+[
+ {
+  "method": "exp/offline_search/rounds/r02/g4_t2/method.py:AWMT2",
+  "kwargs": {
+   "phi": "awm",
+   "lib": "current"
+  },
+  "family": "g4_t2",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g4_t2/method.py:AWMT2",
+  "kwargs": {
+   "phi": "awm",
+   "lib": "big"
+  },
+  "family": "g4_t2",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g4_t2/method.py:AWMT2",
+  "kwargs": {
+   "phi": "awm",
+   "lib": "current",
+   "fit": "big"
+  },
+  "family": "g4_t2",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g4_t2/method.py:AWMT2",
+  "kwargs": {
+   "phi": "lin",
+   "lib": "current"
+  },
+  "family": "g4_t2",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g4_t2/method.py:AWMT2",
+  "kwargs": {
+   "phi": "lin",
+   "lib": "big"
+  },
+  "family": "g4_t2",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g4_t2/method.py:AWMT2",
+  "kwargs": {
+   "phi": "mlp",
+   "lib": "current"
+  },
+  "family": "g4_t2",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g4_t2/method.py:AWMT2",
+  "kwargs": {
+   "phi": "mlp",
+   "lib": "big"
+  },
+  "family": "g4_t2",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g4_t2/method.py:AWMT2",
+  "kwargs": {
+   "phi": "mlp",
+   "lib": "current",
+   "fit": "big"
+  },
+  "family": "g4_t2",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g4_t2/method.py:AWMT2",
+  "kwargs": {
+   "phi": "mlp",
+   "lib": "current",
+   "loss": "mlkr",
+   "lr_lin": 3e-05,
+   "lr_mlp": 3e-05
+  },
+  "family": "g4_t2",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g4_t2/method.py:AWMT2",
+  "kwargs": {
+   "phi": "mlp",
+   "lib": "big",
+   "loss": "mlkr",
+   "lr_lin": 3e-05,
+   "lr_mlp": 3e-05
+  },
+  "family": "g4_t2",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g4_t2/method.py:AWMT2",
+  "kwargs": {
+   "phi": "mlp",
+   "lib": "current",
+   "fit": "big",
+   "loss": "mlkr",
+   "lr_lin": 3e-05,
+   "lr_mlp": 3e-05
+  },
+  "family": "g4_t2",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ }
+]

@@ -1,0 +1,59 @@
+[
+ {
+  "method": "exp/offline_search/rounds/r02/g3_recovery/wrappers.py:StuckRecovery",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5
+   },
+   "ot_still": true
+  },
+  "family": "g3_recovery",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g3_recovery/wrappers.py:StuckRecovery",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {},
+   "ot_still": true
+  },
+  "family": "g3_recovery",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g3_recovery/wrappers.py:StuckRecovery",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "insure": true
+   },
+   "ot_still": true
+  },
+  "family": "g3_recovery",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g3_recovery/wrappers.py:StuckRecovery",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {
+    "insure": true
+   },
+   "ot_still": true
+  },
+  "family": "g3_recovery",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ }
+]

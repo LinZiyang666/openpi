@@ -1,0 +1,134 @@
+[
+ {
+  "method": "exp/offline_search/rounds/r02/g2_pcacos/method.py:PcaCosV4",
+  "kwargs": {},
+  "family": "g2_pcacos",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g2_pcacos/method.py:PcaCosV4",
+  "kwargs": {
+   "lib": "current"
+  },
+  "family": "g2_pcacos",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g2_pcacos/method.py:PcaCosV4",
+  "kwargs": {
+   "lib": "current",
+   "fit": "big"
+  },
+  "family": "g2_pcacos",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g2_pcacos/method.py:PcaCosV4",
+  "kwargs": {
+   "st": 0.5
+  },
+  "family": "g2_pcacos",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g2_pcacos/method.py:PcaCosV4",
+  "kwargs": {
+   "st": 3.0
+  },
+  "family": "g2_pcacos",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g2_pcacos/method.py:PcaCosV4",
+  "kwargs": {
+   "st": "pm"
+  },
+  "family": "g2_pcacos",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g2_pcacos/method.py:PcaCosV4",
+  "kwargs": {
+   "synth": "mean",
+   "kk": 5
+  },
+  "family": "g2_pcacos",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g2_pcacos/method.py:PcaCosV4",
+  "kwargs": {
+   "k": 64
+  },
+  "family": "g2_pcacos",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g2_pcacos/method.py:PcaCosV4",
+  "kwargs": {
+   "align0": false
+  },
+  "family": "g2_pcacos",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g2_pcacos/method.py:PcaCosV4",
+  "kwargs": {
+   "lib": "current",
+   "st": "pm"
+  },
+  "family": "g2_pcacos",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g2_pcacos/method.py:PcaCosV5Fresh",
+  "kwargs": {
+   "lam": 0.5
+  },
+  "family": "g2_pcacos",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g2_pcacos/method.py:PcaCosV5Fresh",
+  "kwargs": {
+   "lam": 1.0
+  },
+  "family": "g2_pcacos",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r02/g2_pcacos/method.py:PcaCosV5Fresh",
+  "kwargs": {
+   "lib": "current",
+   "lam": 0.5
+  },
+  "family": "g2_pcacos",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ }
+]
