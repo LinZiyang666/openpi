@@ -24,6 +24,8 @@ STOCK=${STOCK:-0}
 SESSION=oscl$PORT
 mkdir -p "$LOGD"
 LOG=$LOGD/server_$TAG.log
+# rotate a previous run's log so the chain's boot check (greps SERVER_EXIT= / Error) only sees this launch
+[ -f "$LOG" ] && mv "$LOG" "$LOG.prev.$(date +%s)"
 PIDF=$LOGD/server_$TAG.pid
 LAUNCH=$LOGD/launch_$TAG.sh
 tmux has-session -t "$SESSION" 2>/dev/null && { echo "tmux $SESSION exists"; exit 2; }

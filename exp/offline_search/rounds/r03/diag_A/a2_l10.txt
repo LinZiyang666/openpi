@@ -1,0 +1,68 @@
+
+===== l10: decision-level: stuck (in_spell) vs free decisions =====
+arm               cl0                   cl1                   cl2           
+which            free      spell       free      spell       free      spell
+n           28185.000  12098.000  24884.000  16492.000  24802.000  11390.000
+frac            0.700      0.300      0.601      0.399      0.685      0.315
+tnorm           1.653      1.430      1.552      1.166      1.555      1.289
+t1norm          1.653      1.430      1.656      1.315      1.651      1.472
+cancel          1.000      1.000      0.916      0.872      0.927      0.837
+gagree          1.000      1.000      0.907      0.751      0.935      0.781
+gabs            0.999      0.999      0.899      0.661      0.927      0.747
+spread          0.000      0.000      0.947      0.957      0.863      1.070
+lib_prog        0.506      0.719      0.489      0.620      0.488      0.710
+lib_end         0.022      0.295      0.021      0.181      0.019      0.178
+g_closed        0.430      0.511      0.434      0.542      0.436      0.472
+conf            0.980      0.941      0.983      0.937     -4.622    -19.424
+agree             NaN        NaN      1.000      1.000      0.428      0.285
+still             NaN        NaN        NaN        NaN      1.796      1.953
+dst               NaN        NaN        NaN        NaN      1.582      5.376
+fail_share      0.630      0.939      0.599      0.900      0.404      0.809
+
+--- l10: spells per episode: count, length, phase at start, escape ---
+arm                      cl0       cl1       cl2
+n_spells            1360.000  2001.000  1561.000
+per_ep                 2.720     4.002     3.122
+per_fail_ep            4.368     6.014     6.449
+len_mean               8.896     8.242     7.297
+len_p90               20.000    18.000    15.000
+escaped                0.877     0.886     0.883
+start_prog_mean        0.673     0.616     0.668
+start_prog_lt_p5       0.267     0.362     0.246
+term_row               0.197     0.133     0.094
+closed_at_start        0.490     0.540     0.482
+gchange_at_start       0.056     0.022     0.038
+tnorm_in               1.485     1.185     1.266
+cancel_in              1.000     0.874     0.847
+gagree_in              1.000     0.780     0.819
+spells_in_succ_eps     0.101     0.140     0.236
+start_step_mean       56.549    53.838    54.681
+
+--- l10: what changes at the escape (first decision after a spell) ---
+cl0 n=1193 same_lib_ep=0.55 step_adv_when_same=0.45 back_when_same=0.09 gflip_at_escape=0.18 tnorm_after/before=0.94 later_success=0.09
+cl1 n=1773 same_lib_ep=0.54 step_adv_when_same=0.68 back_when_same=0.09 gflip_at_escape=0.10 tnorm_after/before=1.05 later_success=0.13
+cl2 n=1378 same_lib_ep=0.40 step_adv_when_same=1.52 back_when_same=0.06 gflip_at_escape=0.11 tnorm_after/before=1.03 later_success=0.22
+
+--- l10: per-task deadlock share (fraction of decisions in spells) and SR ---
+      cl0_spell  cl1_spell  cl2_spell  cl0_SR  cl0_canc  cl0_gagr  cl1_SR  cl1_canc  cl1_gagr  cl2_SR  cl2_canc  cl2_gagr
+task                                                                                                                     
+0          0.44       0.45       0.44    0.10       1.0       1.0    0.20      0.91      0.77    0.32      0.91      0.86
+1          0.07       0.10       0.04    0.54       1.0       1.0    0.64      0.90      0.86    0.82      0.90      0.93
+2          0.23       0.35       0.37    0.64       1.0       1.0    0.50      0.87      0.89    0.52      0.86      0.86
+3          0.21       0.50       0.38    0.72       1.0       1.0    0.54      0.87      0.82    0.88      0.96      0.98
+4          0.53       0.58       0.39    0.24       1.0       1.0    0.22      0.88      0.84    0.62      0.86      0.78
+5          0.23       0.34       0.07    0.88       1.0       1.0    0.80      0.97      0.96    1.00      0.97      0.98
+6          0.47       0.52       0.42    0.14       1.0       1.0    0.26      0.88      0.78    0.50      0.88      0.81
+7          0.26       0.22       0.35    0.30       1.0       1.0    0.40      0.86      0.79    0.62      0.85      0.85
+8          0.18       0.44       0.26    0.14       1.0       1.0    0.10      0.96      0.87    0.32      0.95      0.93
+9          0.23       0.36       0.24    0.70       1.0       1.0    0.62      0.90      0.92    0.70      0.86      0.92
+  task 0 put both the alphabet soup and the tomato sauce in the basket
+  task 1 put both the cream cheese box and the butter in the basket
+  task 2 turn on the stove and put the moka pot on it
+  task 3 put the black bowl in the bottom drawer of the cabinet and close it
+  task 4 put the white mug on the left plate and put the yellow and white mug on the right plate
+  task 5 pick up the book and place it in the back compartment of the caddy
+  task 6 put the white mug on the plate and put the chocolate pudding to the right of the plate
+  task 7 put both the alphabet soup and the cream cheese box in the basket
+  task 8 put both moka pots on the stove
+  task 9 put the yellow and white mug in the microwave and close it

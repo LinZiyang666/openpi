@@ -1,0 +1,86 @@
+
+===== sp: library rows 1018, terminal 0.048, pause (top-decile stillness, non-terminal) 0.173; pause rows tnorm 2.70 vs other 2.98; terminal rows tnorm 2.73
+   pause rows by library progress tercile: [59 58 59]  all rows: [357 340 321]
+arm                        cl0      cl1      cl2
+P_succ_no_spell          0.973    1.000    1.000
+n_no_spell             295.000  338.000  373.000
+P_succ_1spell            0.521    0.551    0.558
+n_1                     71.000   69.000   43.000
+P_succ_2plus             0.075    0.065    0.036
+n_2p                   134.000   93.000   84.000
+fail_with_spell          0.952    1.000    1.000
+all_T_terminal           0.730    0.570    0.470
+all_H_hub                0.150    0.220    0.240
+all_P_pause              0.070    0.080    0.110
+all_Z_nearzero           0.050    0.080    0.080
+firstfail_T_terminal     0.670    0.620    0.380
+firstfail_H_hub          0.190    0.290    0.280
+firstfail_P_pause        0.090    0.040    0.170
+firstfail_Z_nearzero     0.050    0.020    0.030
+top1_pause               0.157    0.153    0.172
+top1_term                0.238    0.199    0.165
+top1_pause_free          0.179    0.170    0.192
+hub_top10                0.543    0.414    0.446
+n_distinct_spell_rows   85.000   77.000   95.000
+n_spells               431.000  345.000  305.000
+spellrow_vis               NaN      NaN      NaN
+served_vis                 NaN      NaN      NaN
+spellrow_drs             0.243    0.504    0.345
+served_drs               0.280    0.297    0.289
+all_G_gripsplit            NaN    0.040    0.100
+firstfail_G_gripsplit      NaN    0.030    0.140
+
+===== l10: library rows 2640, terminal 0.019, pause (top-decile stillness, non-terminal) 0.143; pause rows tnorm 1.66 vs other 2.57; terminal rows tnorm 2.05
+   pause rows by library progress tercile: [151  85 142]  all rows: [897 870 873]
+arm                         cl0       cl1       cl2
+P_succ_no_spell           0.953     0.989     0.993
+n_no_spell              129.000    92.000   145.000
+P_succ_1spell             0.724     0.927     0.929
+n_1                      98.000    55.000    84.000
+P_succ_2plus              0.095     0.204     0.343
+n_2p                    273.000   353.000   271.000
+fail_with_spell           0.979     0.997     0.995
+all_H_hub                 0.570     0.540     0.450
+all_T_terminal            0.200     0.130     0.090
+all_P_pause               0.150     0.120     0.220
+all_Z_nearzero            0.080     0.080     0.090
+firstfail_H_hub           0.610     0.540     0.470
+firstfail_P_pause         0.170     0.120     0.220
+firstfail_T_terminal      0.140     0.070     0.070
+firstfail_Z_nearzero      0.090     0.080     0.110
+top1_pause                0.107     0.119     0.162
+top1_term                 0.104     0.085     0.069
+top1_pause_free           0.096     0.081     0.096
+hub_top10                 0.186     0.132     0.179
+n_distinct_spell_rows   434.000   512.000   447.000
+n_spells               1360.000  2001.000  1561.000
+spellrow_vis                NaN       NaN       NaN
+served_vis                  NaN       NaN       NaN
+spellrow_drs              0.160     0.297     0.166
+served_drs                0.198     0.245     0.194
+all_G_gripsplit             NaN     0.140     0.140
+firstfail_G_gripsplit       NaN     0.190     0.120
+
+===== pi05_spatial_cache: per-task offline err (current library candidates) =====
+                   0        1       2       3        4       5        6        7       8        9
+rows         80.000  112.000  98.000  85.000  125.000  93.000  111.000  124.000  74.000  116.000
+B0            0.834    0.544   0.418   0.623    0.658   0.740    0.626    0.530   0.681    0.740
+AWM_fcur      0.732    0.480   0.385   0.534    0.605   0.628    0.600    0.482   0.590    0.702
+AWM_fbig      0.733    0.487   0.397   0.520    0.623   0.496    0.586    0.473   0.587    0.667
+AWM_vis       0.753    0.477   0.399   0.549    0.649   0.553    0.621    0.490   0.639    0.686
+M4            0.766    0.491   0.408   0.543    0.624   0.630    0.599    0.473   0.619    0.696
+gsplit_fcur   0.086    0.019   0.009   0.116    0.082   0.003    0.158    0.015   0.105    0.083
+gsplit_fbig   0.111    0.033   0.032   0.022    0.083   0.044    0.044    0.033   0.030    0.168
+gsplit_M4     0.025    0.027   0.029   0.018    0.030   0.039    0.050    0.030   0.031    0.075
+
+===== pi05_l10_cache: per-task offline err (current library candidates) =====
+                    0        1        2        3        4        5        6        7        8        9
+rows         284.000  241.000  268.000  299.000  220.000  166.000  224.000  258.000  399.000  281.000
+B0             0.548    0.687    0.542    0.460    0.651    0.515    0.677    0.775    0.438    0.624
+AWM_fcur       0.488    0.560    0.450    0.427    0.514    0.464    0.620    0.658    0.366    0.559
+AWM_fbig       0.446    0.572    0.451    0.432    0.496    0.432    0.534    0.632    0.364    0.542
+AWM_vis        0.429    0.509    0.462    0.423    0.479    0.445    0.577    0.617    0.377    0.556
+M4             0.477    0.596    0.495    0.440    0.635    0.488    0.572    0.678    0.414    0.578
+gsplit_fcur    0.247    0.088    0.137    0.030    0.359    0.012    0.230    0.158    0.082    0.058
+gsplit_fbig    0.320    0.121    0.113    0.050    0.135    0.024    0.421    0.209    0.138    0.071
+gsplit_M4      0.227    0.124    0.097    0.027    0.045    0.011    0.171    0.197    0.057    0.070

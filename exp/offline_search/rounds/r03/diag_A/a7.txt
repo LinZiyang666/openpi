@@ -1,0 +1,10 @@
+
+== sp: library rows near a gripper transition (+-2 steps): 0.244
+  cl0: spell rows near lib gripper transition 0.16 (all served 0.23); served gripper changed within 3 dec before spell start 0.11 (baseline per-3-dec 0.23); first spell of FAILED eps: near-trans 0.18, gripper closed 0.89, lib_prog 0.86, step 19.1
+  cl1: spell rows near lib gripper transition 0.39 (all served 0.27); served gripper changed within 3 dec before spell start 0.08 (baseline per-3-dec 0.22); first spell of FAILED eps: near-trans 0.38, gripper closed 0.75, lib_prog 0.81, step 17.2
+  cl2: spell rows near lib gripper transition 0.38 (all served 0.28); served gripper changed within 3 dec before spell start 0.17 (baseline per-3-dec 0.27); first spell of FAILED eps: near-trans 0.41, gripper closed 0.72, lib_prog 0.73, step 17.1
+
+== l10: library rows near a gripper transition (+-2 steps): 0.273
+  cl0: spell rows near lib gripper transition 0.43 (all served 0.35); served gripper changed within 3 dec before spell start 0.14 (baseline per-3-dec 0.18); first spell of FAILED eps: near-trans 0.58, gripper closed 0.38, lib_prog 0.54, step 30.7
+  cl1: spell rows near lib gripper transition 0.56 (all served 0.40); served gripper changed within 3 dec before spell start 0.09 (baseline per-3-dec 0.15); first spell of FAILED eps: near-trans 0.73, gripper closed 0.35, lib_prog 0.42, step 23.0
+  cl2: spell rows near lib gripper transition 0.48 (all served 0.34); served gripper changed within 3 dec before spell start 0.13 (baseline per-3-dec 0.17); first spell of FAILED eps: near-trans 0.52, gripper closed 0.42, lib_prog 0.50, step 27.3

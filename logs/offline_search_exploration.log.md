@@ -548,3 +548,21 @@ exp/offline_search/
 - 构思：两个 fable agent 并行。
   - A 以闭环为导向：分析第一批"非 B0 方法驱动"的闭环 trace，找出决定成功的因素，以及能正确给闭环臂排序的离线代理指标。CPU 9-17,53-61。
   - B 以部署为导向：设计 HIT/MISS 混合判决（AWM 加校准置信度），给出不同命中率下 SR 与推理占比的闭环方案。CPU 27-33,71-77。
+- **R3 构思增加第三路（owner 23:2x 指示）**：用 codex 插件（astra xhigh，与 fable 同级）做 agent C，作为独立的第三视角，同时覆盖闭环驱动和混合判决两个方向。
+  - 调用方式：`codex-companion.mjs task --background --write`，任务号 `task-mujb9tfb-uvmjd5`，只能写 `rounds/r03/ideation_C/`，CPU 9-17,53-61。
+  - 监控：Monitor 轮询 `status`，结束时通知。
+- **R3 A 的结论**（`rounds/r03/NOTES_ideation_A.md`）：
+  - 失败全部是超时，由死锁决定。
+  - 恢复机制救不回来，因为陷阱无法恢复，所以要在进入之前预防，或者及时 MISS。
+  - AWM 在 spatial 任务 6 上崩溃，原因是 50 集拟合出的度量让抓取时夹爪抖动；改用 500 集的度量后修复。
+  - 没有任何离线代理能同时排对两个 suite 的闭环顺序，建议改用约 100 集的闭环 pilot 来筛选方法。
+  - 提案：P1 先验收缩度量、P2 夹爪承诺、P3 终止行守卫、P4 陷阱触发 MISS。
+- **闭环第二处故障（23:22）**：
+  - **现象**：`oscl50_g_sp_cl0` 在重跑时被判为 `SERVER_DIED_AT_BOOT`，属于误报。原因是 server 日志以追加方式写入，上一次失败留下的 `SERVER_EXIT=` 和 ValueError 还在文件里。
+  - **连带后果**：g500 接力随即触发，但端口被残留的 server 占用，报 `PORT_BUSY` 后停止。
+  - **处理**：
+    - 按 PID 文件停掉 4 个残留 server。
+    - 修改 `start_server.sh`：每次启动前把旧日志轮转为 `.prev.<ts>`。
+    - 拉起 `oscl_chain_g50c`，跑剩下的 8 个 GR00T 臂，已完成的 8 个 π0.5 臂自动跳过。
+    - 新接力 `relay_g500b.sh`：g50c 结束后拉起 `oscl_chain_g500b`。
+- **CL3 结论（π0.5，50 集组）**：spatial .798（CL2 .800），l10 .642（CL2 .630）。恢复机制没有显著作用，与 R3 A 的分析一致。

@@ -1,0 +1,68 @@
+
+===== sp: decision-level: stuck (in_spell) vs free decisions =====
+arm               cl0                  cl1                  cl2          
+which            free     spell       free     spell       free     spell
+n           11769.000  2884.000  10408.000  2912.000  10275.000  2443.000
+frac            0.803     0.197      0.781     0.219      0.808     0.192
+tnorm           1.673     1.105      1.619     0.832      1.627     0.933
+t1norm          1.673     1.105      1.707     1.087      1.694     1.108
+cancel          1.000     1.000      0.931     0.816      0.946     0.851
+gagree          1.000     1.000      0.951     0.886      0.965     0.750
+gabs            0.999     0.997      0.936     0.760      0.952     0.650
+spread          0.000     0.000      1.082     1.701      0.964     1.589
+lib_prog        0.533     0.923      0.496     0.905      0.493     0.866
+lib_end         0.095     0.822      0.046     0.747      0.041     0.685
+g_closed        0.584     0.933      0.546     0.900      0.552     0.813
+conf            0.961     0.869      0.976     0.877     -6.940   -34.145
+agree             NaN       NaN      1.000     1.000      0.464     0.367
+still             NaN       NaN        NaN       NaN      1.716     1.930
+dst               NaN       NaN        NaN       NaN      0.948     5.309
+fail_share      0.403     0.886      0.244     0.912      0.203     0.946
+
+--- sp: spells per episode: count, length, phase at start, escape ---
+arm                     cl0      cl1      cl2
+n_spells            431.000  345.000  305.000
+per_ep                0.862    0.690    0.610
+per_fail_ep           2.247    2.483    2.750
+len_mean              6.691    8.441    8.010
+len_p90              14.000   19.000   20.000
+escaped               0.773    0.661    0.679
+start_prog_mean       0.883    0.827    0.783
+start_prog_lt_p5      0.123    0.154    0.170
+term_row              0.733    0.571    0.466
+closed_at_start       0.910    0.832    0.826
+gchange_at_start      0.030    0.003    0.066
+tnorm_in              1.113    1.009    1.073
+cancel_in             1.000    0.856    0.889
+gagree_in             1.000    0.886    0.808
+spells_in_succ_eps    0.135    0.151    0.098
+start_step_mean      25.072   23.194   22.800
+
+--- sp: what changes at the escape (first decision after a spell) ---
+cl0 n=333 same_lib_ep=0.27 step_adv_when_same=-3.35 back_when_same=0.12 gflip_at_escape=0.16 tnorm_after/before=1.18 later_success=0.13
+cl1 n=228 same_lib_ep=0.38 step_adv_when_same=0.47 back_when_same=0.11 gflip_at_escape=0.04 tnorm_after/before=1.03 later_success=0.13
+cl2 n=207 same_lib_ep=0.18 step_adv_when_same=2.18 back_when_same=0.02 gflip_at_escape=0.07 tnorm_after/before=1.03 later_success=0.10
+
+--- sp: per-task deadlock share (fraction of decisions in spells) and SR ---
+      cl0_spell  cl1_spell  cl2_spell  cl0_SR  cl0_canc  cl0_gagr  cl1_SR  cl1_canc  cl1_gagr  cl2_SR  cl2_canc  cl2_gagr
+task                                                                                                                     
+0          0.23       0.15       0.27    0.54       1.0       1.0    0.88      0.86      0.96    0.80      0.87      0.88
+1          0.15       0.12       0.15    0.74       1.0       1.0    0.88      0.94      0.97    0.84      0.95      0.98
+2          0.19       0.29       0.07    0.82       1.0       1.0    0.68      0.91      0.97    0.94      0.96      0.99
+3          0.13       0.29       0.03    0.78       1.0       1.0    0.72      0.85      0.97    0.98      0.94      0.97
+4          0.27       0.19       0.18    0.54       1.0       1.0    0.78      0.91      0.93    0.74      0.95      0.98
+5          0.16       0.16       0.11    0.74       1.0       1.0    0.88      0.93      0.97    0.92      0.95      0.99
+6          0.10       0.38       0.45    0.72       1.0       1.0    0.50      0.93      0.79    0.28      0.92      0.72
+7          0.20       0.14       0.05    0.68       1.0       1.0    0.80      0.94      0.95    0.96      0.96      0.98
+8          0.26       0.17       0.13    0.68       1.0       1.0    0.84      0.88      0.95    0.90      0.92      0.95
+9          0.24       0.23       0.27    0.44       1.0       1.0    0.68      0.89      0.97    0.64      0.88      0.92
+  task 0 pick up the black bowl between the plate and the ramekin and place it on the plate
+  task 1 pick up the black bowl next to the ramekin and place it on the plate
+  task 2 pick up the black bowl from table center and place it on the plate
+  task 3 pick up the black bowl on the cookie box and place it on the plate
+  task 4 pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate
+  task 5 pick up the black bowl on the ramekin and place it on the plate
+  task 6 pick up the black bowl next to the cookie box and place it on the plate
+  task 7 pick up the black bowl on the stove and place it on the plate
+  task 8 pick up the black bowl next to the plate and place it on the plate
+  task 9 pick up the black bowl on the wooden cabinet and place it on the plate

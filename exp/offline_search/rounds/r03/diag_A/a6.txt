@@ -1,0 +1,16 @@
+/home/weiland/.claude/jobs/a607dd74/tmp/r03_ideation_A/a6_cl3.py:27: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  g3 = D3.groupby("uid").apply(lambda g: (g.g0.values[1:] != g.g0.values[:-1]).sum()); g2 = D2.groupby("uid").apply(lambda g: (g.g0.values[1:] != g.g0.values[:-1]).sum())
+/home/weiland/.claude/jobs/a607dd74/tmp/r03_ideation_A/a6_cl3.py:27: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  g3 = D3.groupby("uid").apply(lambda g: (g.g0.values[1:] != g.g0.values[:-1]).sum()); g2 = D2.groupby("uid").apply(lambda g: (g.g0.values[1:] != g.g0.values[:-1]).sum())
+CL2 -> CL3 paired: {False: {False: 76, True: 25}, True: {False: 24, True: 375}}
+per task SR CL2 / CL3: task    0     1     2     3     4     5     6     7     8     9
+cl2   0.8  0.84  0.94  0.98  0.74  0.92  0.28  0.96  0.90  0.64
+cl3   0.8  0.88  0.88  0.94  0.76  1.00  0.26  0.96  0.86  0.64
+
+CL3 decisions 12762: stuck flag rate 0.113, still rate 0.080, terminal rate 0.072, level dist {0.0: 0.887, 1.0: 0.078, 2.0: 0.019, 3.0: 0.015}, blend used 0.848, nx_in 0.790, w_nx mean 0.220
+  stuck decisions in failed eps 0.299 vs succ 0.013; spells: frac decisions in spell 0.042 (CL2 0.192); spells/ep 0.29 (CL2 0.61)
+  within spells: stuck flag 0.02, still 0.05, level>0 0.02, motion 0.308, vself 0.887 | free: motion 0.260 vself 0.791
+  recovery decisions 1436 (0.113); top1 changed vs prev 1.00; in failed eps 0.93; level counts {1.0: 1000, 2.0: 241, 3.0: 195}; relaxed 0.00
+  spells 144: with any recovery 0.06; mean stuck-flag share 0.02; terminal share 0.01; P(success | spell w/ recovery) 0.00 vs w/o 0.16
+  gripper flips/ep CL3 1.79 (fail 4.86) vs CL2 1.39 (fail 2.93); tnorm CL3 1.53 vs CL2 1.49
+  task 6 CL3: SR 0.26, in_spell 0.13, stuck flag 0.21, recovery decisions 0.214, gagree-like gvote 0.76, flips/ep 5.10
