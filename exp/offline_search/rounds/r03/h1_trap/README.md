@@ -38,6 +38,13 @@ codes `((x − mean)/std) @ W`, kernel-16 with `kref = 5`, features = [PCA-64(v0
    variants err ≡ gripper-sign-faithful err). Translation/rotation = AWM's kernel mean over all members;
    `grip_class_mean` (`gcm`) = mean over the served class only (≥ 3 members) — variant only, C measured it worse and so
    do we (+.02 err).
+   **`grip_mode`**: `"symmetric"` (the above, name `gc`) is the **R3 pilot's measured negative** (see "Pilot result");
+   `"release_guard"` (name `gr`, added 2026-09-27 on the coordinator's follow-up): the served sign follows sign(v) freely
+   for open → close (a grasp is never delayed; threshold 0 = plain AWM sign behaviour, step 0 = sign(v)), and only a
+   close → open change (release) requires |v| ≥ `grip_thr` (default **.6** in this mode) on this AND the previous
+   decision plus dwell ≥ `grip_dwell` (3) decisions since the last executed change. State from `q.hist_a_exec` exactly as
+   in the symmetric mode; `_pv` the same. `grip_thr=None` resolves to .8 (symmetric) / .6 (release_guard); a non-default
+   value adds `t<thr>` to the token (`gct0p6`, `grt0p8`).
 4. **`term_guard`** (`…_tg`; A-P3). Candidate rows with `lib_step ≥ ep_len − term_rows` (2; `tg1` = 1) are dropped unless
    `q.step ≥ term_late (0.9) × median library episode length of the task` AND the executed gripper has re-opened after
    having been closed in this episode (from `q.hist_a_exec`; open sign = the library's step-0 gripper sign: −1 π0.5,
@@ -85,7 +92,48 @@ Variant table (`_make_batch.py`; names are AWM3's):
 | a1_gc / a1_tg / a1_gc_tg | `…_fbig_kr5_gc` / `_tg` / `_gc_tg` | borrowed |
 | a05_gc / a05_tg / a05_gc_tg | `…_fbig_kr5_pa0p5_gc` / `_tg` / `_gc_tg` | borrowed |
 | a1_gcm_tg / a1_gc_tg1 / a1_gct06_tg / a1_gc_tgp | `…_gcm_tg` / `…_gc_tg1` / `…_gct0p6_tg` / `…_gc_tgp` | borrowed variants |
+| gr / a1_gr / a05_gr | `AWM3_joint_cur_fcur_kr5_gr` / `AWM3_joint_cur_fbig_kr5_gr` / `…_pa0p5_gr` | release_guard gripper mode (2026-09-27) |
 | big / big_gc_tg | `AWM3_joint_big_fbig_kr5` / `…_gc_tg` | 10× |
+
+`batch.json` = 25 variants. `arms_pilot.json` = 15 rows (the 13 original + `r3p_p_sp_a05_gr`, `r3p_p_l10_a05_gr`).
+
+## Pilot result (2026-09-27, coordinator; π0.5 spatial, 100 episodes = tasks {6, 9, 0, 4, 1} × inits 0–19)
+
+| arm | SR | decisions / episode | \|v\| < .5 | \|v\| < .8 | held | flip |
+|---|---|---|---|---|---|---|
+| r3p_p_sp_cl2ref (AWM current kr5) | .70 | 28.6 | | | | |
+| r3p_p_sp_a1 | .74 | 27.5 | .033 | .144 | | |
+| r3p_p_sp_a05 | **.79** | 26.6 | .035 | .152 | | |
+| r3p_p_sp_a1_gc (symmetric grip_commit) | **.10** | 42.1 (cap 44) | .497 | .678 | **.395** | .010 |
+
+(Read from `r03_pilot/runs/<arm>/server_*/decisions_*.jsonl` extras + `summary.json`.) **Mechanism**: at the grasp the
+kernel vote sits at +.2…+.6 (held decisions: vote mean +.36, |v| p50 .32, only 3.8 % ≥ .8) for ~27 decisions, so the
+symmetric two-decision |v| ≥ .8 confirmation keeps the served sign OPEN, the robot hovers at grasp height and closes only
+at step ~38 → step-cap timeouts. The open-loop selftest replay could not show this (held 5.5 %, 1.0 flip/episode) because
+the recorded observations do not respond to the hover; the closed loop does. The symmetric mode stays in the code as the
+measured negative (`gc` rows). `release_guard` (`gr`) cannot delay a grasp by construction; it only guards releases.
+
+Own-history behaviour of `gr` vs `gc` (plugin selftest, recorded observations, own served chunks as history, 50
+episodes = 5 per task; `derived/r03/h1_trap/kpi/selftest_own_history_per_task.md`):
+
+| method (α = .5) | cell | task | held share | flips / ep | vote \|v\| < .5 / < .8 |
+|---|---|---|---|---|---|
+| pa0p5_**gr** | pi05_spatial_cache | 6 | **.000** | 1.00 | .031 / .071 |
+| pa0p5_gc | pi05_spatial_cache | 6 | .063 | 1.00 | .031 / .071 |
+| pa0p5_**gr** | pi05_spatial_cache | all 10 | **.001** | 1.04 | .042 / .084 |
+| pa0p5_gc | pi05_spatial_cache | all 10 | .055 | 1.00 | .042 / .084 |
+| pa0p5_**gr** | pi05_l10_cache | 6 | .054 | 3.00 | .277 / .398 |
+| pa0p5_gc | pi05_l10_cache | 6 | .165 | 3.00 | .277 / .398 |
+| pa0p5_**gr** | pi05_l10_cache | all 10 | .052 | 3.48 | .152 / .261 |
+| pa0p5_gc | pi05_l10_cache | all 10 | .149 | 3.32 | .152 / .261 |
+
+Every hold of the symmetric mode on spatial was a grasp delay (gr holds nothing there); on l10 gr still guards ~1/3 of
+gc's holds (releases). Offline (B0 history) task 6: `pa0p5_gr` err .579 / grip_mis .200 (spatial), .552 / .276 (l10)
+vs `pa0p5` .550 / .186, .532 / .283 and `pa0p5_gc` .567 / .171, .550 / .266. Checks for `gr`: contract_check PASS
+(pi05_spatial_cache 330 dec, groot_l10_inf 293), selftest + verify_logs bit-identical (1393 dec spatial, 4176 l10),
+harness smoke PASS on the 4 smoke cells (5 episodes: sp cache .621 / inf .315, GR00T l10 cache .662 / inf .388; `gr`
+alone .706 / .317 / .665 / .388), and the symmetric `a05_gc` smoke reproduces its earlier numbers exactly (.5917 /
+.3147) after the refactor.
 
 ## Smoke (official `harness.smoke`, 5 episodes, `--no-ref`): 88 / 88 PASS, 0 WARN, 0 FAIL
 All 22 variants on pi05_spatial_{inf,cache} + groot_l10_{inf,cache}; leak check (reversed episodes) identical everywhere;
@@ -200,8 +248,9 @@ Reading (offline, so only the parts that do not depend on the executed history a
   current π0.5-l10 1.35 (CL2) / 1.41 (a05_gc_tg); GR00T-l10 2.49 / 1.94; 10× π0.5-l10 1.90 (big) / 1.79 (big_gc_tg);
   GR00T-l10 2.37 / 2.12 — all ≲ 2.5 ms (harness smoke at 8 concurrent processes: 3.4–4.9 ms).
 - Arms: `arms_pilot.json` (spatial: cl2ref = `AWM(lib=current,kref=5)` re-run, a1, a05, ridge1, a1_gc, a1_tg, a1_gc_tg;
-  l10: cl2ref, a1, a05, a05_gc, a05_tg, a05_gc_tg; names ≤ 19 chars), `arms_full_template.json` (rows for all 4 cells +
-  10× + alternates `a1_gc_tgp`, `a1_gct06_tg`).
+  l10: cl2ref, a1, a05, a05_gc, a05_tg, a05_gc_tg; + `r3p_p_sp_a05_gr`, `r3p_p_l10_a05_gr` = α .5 + release_guard;
+  names ≤ 19 chars), `arms_full_template.json` (rows for all 4 cells + 10× + alternates `a05_gr`, `a1_gr`, `a1_gc_tgp`,
+  `a1_gct06_tg`).
 
 ## Library scale (protocol §9)
 
@@ -241,8 +290,10 @@ same bytes/entry, same pickle size as the current fit; only the metric's statist
 - The default `term_guard` gate (`both`) practically never opens in π0.5 spatial (library episodes end closed): terminal
   rows are masked for the whole normal episode. If the pilot shows late-phase stalls, run the `tgp` (progress-only)
   alternate; the arms in `arms_pilot.json` use the brief's specification.
-- `grip_commit` adds one decision of gripper latency in ~20 % of clean transitions (|v| < .8 at the transition decision);
-  the kernel vote itself lags the teacher at most transitions anyway. `grip_thr=.6` is in the batch / template.
+- **Symmetric `grip_commit` is a closed-loop negative** (pilot SR .10 vs .74): the offline latency estimate ("one decision
+  in ~20 % of transitions") missed the feedback loop — in the closed loop the ambiguous grasp vote persists while the
+  robot hovers, so the hold never resolves. Use `grip_mode="release_guard"` (`gr`); `gc` rows stay as the measured
+  negative. `grip_thr=.6` variants are in the batch / template.
 - `prior_alpha=1` on l10 doubles the task-6 severe vote split (as C measured); `a = .5` is the hedge, `a = 1` the spatial
   fix — the pilot compares both per suite.
 - AWM's `insure` / `hyst` cannot be combined with `grip_commit` (raises); `norm_cap` can.

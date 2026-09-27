@@ -33,6 +33,10 @@ VARIANTS = [
     ("a1_gc_tg1",  {"prior_alpha": 1.0, "grip_commit": True, "term_guard": True, "term_rows": 1}, "borrowed (last-1 variant)"),
     ("a1_gct06_tg", {"prior_alpha": 1.0, "grip_commit": True, "grip_thr": 0.6, "term_guard": True}, "borrowed (vote thr .6 variant)"),
     ("a1_gc_tgp",  {"prior_alpha": 1.0, "grip_commit": True, "term_guard": True, "term_gate": "late"}, "borrowed (progress-only gate variant)"),
+    # release_guard gripper mode (the symmetric mode is the pilot's measured negative; kept as gc rows above)
+    ("gr",         {"grip_commit": True, "grip_mode": "release_guard"},                   "current"),
+    ("a1_gr",      {"prior_alpha": 1.0, "grip_commit": True, "grip_mode": "release_guard"}, "borrowed"),
+    ("a05_gr",     {"prior_alpha": 0.5, "grip_commit": True, "grip_mode": "release_guard"}, "borrowed"),
     # 10x library (500 episodes candidates + fit)
     ("big",        {"lib": "big"},                                                         "10x"),
     ("big_gc_tg",  {"lib": "big", "grip_commit": True, "term_guard": True},                "10x"),

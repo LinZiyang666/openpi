@@ -223,6 +223,41 @@
  {
   "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
   "kwargs": {
+   "grip_commit": true,
+   "grip_mode": "release_guard"
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 1.0,
+   "grip_commit": true,
+   "grip_mode": "release_guard"
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 0.5,
+   "grip_commit": true,
+   "grip_mode": "release_guard"
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
    "lib": "big"
   },
   "family": "h1_trap",

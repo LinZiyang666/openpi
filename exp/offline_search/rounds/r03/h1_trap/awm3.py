@@ -29,6 +29,12 @@ Switches (every non-default value is encoded in `name`):
       The served sign (+-1: LIBERO applies sign(), the executed chunk then carries the sign exactly) replaces dim 6
       of executed steps 0..4; translation / rotation stay AWM's kernel mean over all members (grip_class_mean=True:
       mean over the served class only when it has >= 3 members -- a variant, C measured mode-only averaging worse).
+      grip_mode="symmetric" (above; name "gc") is the R3 pilot's measured NEGATIVE (pi0.5 spatial SR .10 vs .74: at the
+      grasp the vote sits at +.2..+.6 for ~27 decisions, so the two-decision |v| >= .8 confirmation blocks the grasp
+      itself). grip_mode="release_guard" (name "gr"): the served sign follows sign(v) freely for open -> close (grasping
+      is never delayed, threshold 0 = plain AWM sign behaviour) and only a close -> open change (release) needs |v| >=
+      grip_thr (.6 here) on this and the previous decision plus dwell >= grip_dwell decisions since the last executed
+      change; state from q.hist_a_exec exactly as in the symmetric mode; step 0 = sign(v).
   term_guard               -- A-P3. Candidate rows with lib_step >= ep_len - term_rows (2; variant 1) are dropped
       unless q.step >= term_late (0.9) * median library episode length of the task AND the executed gripper has
       already re-opened after having been closed in this episode (from q.hist_a_exec; open sign = the library's
@@ -107,14 +113,17 @@ def _stats(Xf, Hf, epf, Xc=None, Hc=None, epc=None, alpha=None, nn=3):
 class AWM3(AWM):
     """kwargs (on top of AWM's: features, lib, fit_data, kref (5 here), k, codes, lam, state_scale, early,
     step0_joint, lam_c, norm_cap, nn): prior_alpha (None | 0..1), ridge_main (None = lam), shared_beta (0),
-    grip_commit (False), grip_thr (0.8), grip_dwell (3), grip_confirm (mag | sign), grip_class_mean (False),
-    term_guard (False), term_rows (2), term_late (0.9), term_gate (both | late)."""
+    grip_commit (False), grip_mode (symmetric | release_guard), grip_thr (None = .8 symmetric / .6 release_guard),
+    grip_dwell (3), grip_confirm (mag | sign), grip_class_mean (False), term_guard (False), term_rows (2),
+    term_late (0.9), term_gate (both | late)."""
 
     family = "h1_trap"
 
     def __init__(self, lib="current", fit_data="same", kref=5, prior_alpha=None, ridge_main=None, shared_beta=0.0,
-                 grip_commit=False, grip_thr=0.8, grip_dwell=3, grip_confirm="mag", grip_class_mean=False,
-                 term_guard=False, term_rows=2, term_late=0.9, term_gate="both", **kw):
+                 grip_commit=False, grip_mode="symmetric", grip_thr=None, grip_dwell=3, grip_confirm="mag",
+                 grip_class_mean=False, term_guard=False, term_rows=2, term_late=0.9, term_gate="both", **kw):
+        if grip_mode not in ("symmetric", "release_guard"):
+            raise ValueError(f"grip_mode must be symmetric | release_guard, got {grip_mode!r}")
         if term_gate not in ("both", "late"):
             raise ValueError(f"term_gate must be both | late, got {term_gate!r}")
         if prior_alpha is not None:
@@ -141,7 +150,9 @@ class AWM3(AWM):
         self.prior_alpha = prior_alpha
         self.ridge_main = self.lam if ridge_main is None else float(ridge_main)
         self.shared_beta = float(shared_beta)
-        self.grip_commit, self.grip_thr, self.grip_dwell = bool(grip_commit), float(grip_thr), int(grip_dwell)
+        self.grip_commit, self.grip_mode, self.grip_dwell = bool(grip_commit), grip_mode, int(grip_dwell)
+        thr0 = 0.8 if grip_mode == "symmetric" else 0.6
+        self.grip_thr = thr0 if grip_thr is None else float(grip_thr)
         self.grip_confirm, self.grip_class_mean = grip_confirm, bool(grip_class_mean)
         self.term_guard, self.term_rows, self.term_late = bool(term_guard), int(term_rows), float(term_late)
         self.term_gate = term_gate
@@ -153,8 +164,8 @@ class AWM3(AWM):
         if self.shared_beta > 0:
             parts.append(f"sb{_fmt(self.shared_beta)}")
         if self.grip_commit:
-            g = "gc"
-            if self.grip_thr != 0.8:
+            g = "gc" if self.grip_mode == "symmetric" else "gr"
+            if self.grip_thr != thr0:
                 g += f"t{_fmt(self.grip_thr)}"
             if self.grip_dwell != 3:
                 g += f"d{self.grip_dwell}"
@@ -412,18 +423,21 @@ class AWM3(AWM):
             return
         step = int(q.step)
         held = flip = 0.0
+        release = self.grip_mode == "release_guard"
+        vs = 1.0 if v >= 0 else -1.0
         if step == 0 or q.prev_a_exec is None:
-            served = 1.0 if float(Ck[0, 0, GD]) >= 0 else -1.0
+            served = vs if release else (1.0 if float(Ck[0, 0, GD]) >= 0 else -1.0)
             dwell = 0
         else:
             s = self._hist_gsign(q) if gs is None else gs
             prev_sign = float(s[-1])
             chg = np.flatnonzero(s[1:] != s[:-1])
             dwell = step - int((chg[-1] + 1) // ES) if chg.size else step
-            vs = 1.0 if v >= 0 else -1.0
             if vs == prev_sign:
                 served = prev_sign
-            else:
+            elif release and vs == -self.open_sign:            # open -> close (grasp): never delayed
+                served, flip = vs, 1.0
+            else:                                               # symmetric: any change; release_guard: close -> open
                 pv = self._pv
                 confirmed = pv is not None and abs(pv) >= self.grip_thr and (
                     self.grip_confirm == "mag" or (pv >= 0) == (v >= 0))

@@ -38,5 +38,12 @@
   "plugin_args": ["--os-fit-artifact", "<RUN>/fits/r3p_p_l10_a05_tg.pkl"]},
  {"name": "r3p_p_l10_a05_gc_tg", "model": "pi05", "suite": "l10", "mode": "plugin",
   "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"prior_alpha": 0.5, "grip_commit": true, "term_guard": true},
-  "plugin_args": ["--os-fit-artifact", "<RUN>/fits/r3p_p_l10_a05_gc_tg.pkl"]}
+  "plugin_args": ["--os-fit-artifact", "<RUN>/fits/r3p_p_l10_a05_gc_tg.pkl"]},
+
+ {"name": "r3p_p_sp_a05_gr", "model": "pi05", "suite": "spatial", "mode": "plugin",
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"prior_alpha": 0.5, "grip_commit": true, "grip_mode": "release_guard"},
+  "plugin_args": ["--os-fit-artifact", "<RUN>/fits/r3p_p_sp_a05_gr.pkl"]},
+ {"name": "r3p_p_l10_a05_gr", "model": "pi05", "suite": "l10", "mode": "plugin",
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"prior_alpha": 0.5, "grip_commit": true, "grip_mode": "release_guard"},
+  "plugin_args": ["--os-fit-artifact", "<RUN>/fits/r3p_p_l10_a05_gr.pkl"]}
 ]
