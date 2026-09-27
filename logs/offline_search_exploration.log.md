@@ -53,6 +53,7 @@
 - **两个暂停点**：owner 可以指示跳过所有等待、让协调者自行推进。
 - **临时的 fable 咨询**：难题可以单独问，例如 GT 是否成立、指标怎么设计、理论上界。每次 1 个，不扇出。
 - **编码 agent 对底座 `harness/` 只读**。发现底座的 bug 就报告，由协调者修，以保证各轮口径一致。
+- ⛔ **只能使用 codex agent（owner 2026-09-27）**：上表中构思、编码、分析各阶段的执行者，以及临时咨询，从 R4 起一律改用 codex agent（`codex-companion.mjs task --background --write`），不再起 fable 或 Opus 子 agent，也不用 Workflow。各阶段 agent 数仍按上表固定，等待和查状态的方法见项目记忆 `feedback_codex_agents_only`。
 
 ## 3. 数据资产
 
@@ -360,6 +361,7 @@ exp/offline_search/
 5. 外部模型优先级低：cache 是为了节省算力，带外部模型不合适。
 6. 两个暂停点：产生方法清单时一次，一轮结束、进入下一轮之前一次。每轮的方法数量由协调者自定。owner 可以指示跳过所有等待。
 7. 协调者认为应当停止时就停，等 owner 指示（可能是方法本身有问题）。
+8. （2026-09-27）所有委派只能用 codex agent，fable 或 Claude 子 agent 与 Workflow 一律不用（见 §2）。
 
 ## 10. 台账
 
@@ -802,3 +804,4 @@ exp/offline_search/
   6. 纯缓存度量线只在约束是"轨迹数"时继续。
   - **需要 owner 裁定**：大库能否部署（字节约束已满足；如果约束是轨迹数，主线就留在 50 集），以及 R4 的方向。
   - 收尾：所有 server、tmux 队列和 relay 都已结束，cron 44664685 已删除，GPU 上只剩他项目的进程。
+- **owner 裁定（2026-09-27）**：只能使用 codex agent。已写入 §2、§9 和项目记忆；R4 起构思、编码、分析全部由 codex 执行。
