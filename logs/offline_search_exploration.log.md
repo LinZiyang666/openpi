@@ -584,3 +584,11 @@ exp/offline_search/
     - H4 为 KPI 工具与 pilot 封装。
     - pilot 基线直接取 R2 的同集结果（spatial CL2 .70 / l10 CL2 .52）。
   - **GR00T 50 集组进度**：g_sp CL0 .736，CL1 .852，合成效应 +11.6 pp，比 π0.5 的 +9.6 pp 更大。
+- **00:1x 派出 R3 编码 4 个 agent（fable）**，规范见 `rounds/r03/CODING_BRIEF.md`。
+  - **CPU 分配**：H1 用 18-21,62-65，H2 用 22-25,66-69，H3 用 26-29,70-73，H4 用 30-33,74-77。
+  - **各自任务**：
+    - H1：`AWM3` 子类，交付离线 batch 和 pilot 臂。
+    - H2：插件的混合模式，并在 GPU 上做 smoke。允许 1–2 个完整模型 server，端口 23160–23189；允许在 timan107 上做一次不超过 4 个 worker 的小闭环 smoke。
+    - H3：`MixedJudge`，交付 MX 臂和日志回放表。
+    - H4：`ops/kpi.py`、`ops/pilot.sh`，并在 R2 数据上做校验。
+  - **接口约定**：`Result.confidence` 越高越倾向 HIT；`extras.os_force_miss` / `os_reason` 为原因码（1–7）；新的决策日志字段为 hit / judge / tau / run / src / s1_ms / s23_ms。
