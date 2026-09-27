@@ -566,3 +566,6 @@ exp/offline_search/
     - 拉起 `oscl_chain_g50c`，跑剩下的 8 个 GR00T 臂，已完成的 8 个 π0.5 臂自动跳过。
     - 新接力 `relay_g500b.sh`：g50c 结束后拉起 `oscl_chain_g500b`。
 - **CL3 结论（π0.5，50 集组）**：spatial .798（CL2 .800），l10 .642（CL2 .630）。恢复机制没有显著作用，与 R3 A 的分析一致。
+- **23:50**：
+  - handoff 按 owner 要求覆写，提交号 `34e65b9`：§0 逐字未改，正文换成本线交接，step_diag 线的内容整体挪到附录 A。
+  - owner 指示：codex 是正式 agent，R3 选题必须等 C 交回后再定稿。`rounds/r03/SELECTION.md` 目前是草案（H1–H4），C 的提案之后并入。
