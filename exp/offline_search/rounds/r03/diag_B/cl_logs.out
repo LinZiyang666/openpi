@@ -1,0 +1,92 @@
+
+== oscl50_p_sp_cl0: n_dec 14653 n_ep 500 SR 0.668 dec/ep fail 44.0 succ 23.0
+  [own] AUROC dec->fail 0.817; ep min-conf->fail 0.983
+    h=0.3: miss in fail 0.855 vs succ 0.546; share of misses in failed eps 0.609 (dec share 0.498); fail eps reached 1.00, first miss at 0.0; ep AUROC 0.864
+    h=0.5: miss in fail 0.756 vs succ 0.245; share of misses in failed eps 0.754 (dec share 0.498); fail eps reached 1.00, first miss at 0.20930232558139536; ep AUROC 0.979
+    h=0.7: miss in fail 0.539 vs succ 0.062; share of misses in failed eps 0.896 (dec share 0.498); fail eps reached 1.00, first miss at 0.3488372093023256; ep AUROC 0.983
+    h=0.9: miss in fail 0.196 vs succ 0.004; share of misses in failed eps 0.977 (dec share 0.498); fail eps reached 0.78, first miss at 0.6744186046511628; ep AUROC 0.884
+  [b0_native] AUROC dec->fail 0.817; ep min-conf->fail 0.983
+    h=0.3: miss in fail 0.855 vs succ 0.546; share of misses in failed eps 0.609 (dec share 0.498); fail eps reached 1.00, first miss at 0.0; ep AUROC 0.864
+    h=0.5: miss in fail 0.756 vs succ 0.245; share of misses in failed eps 0.754 (dec share 0.498); fail eps reached 1.00, first miss at 0.20930232558139536; ep AUROC 0.979
+    h=0.7: miss in fail 0.539 vs succ 0.062; share of misses in failed eps 0.896 (dec share 0.498); fail eps reached 1.00, first miss at 0.3488372093023256; ep AUROC 0.983
+    h=0.9: miss in fail 0.196 vs succ 0.004; share of misses in failed eps 0.977 (dec share 0.498); fail eps reached 0.78, first miss at 0.6744186046511628; ep AUROC 0.884
+
+== oscl50_p_sp_cl1: n_dec 13320 n_ep 500 SR 0.764 dec/ep fail 44.0 succ 22.1
+  [own] AUROC dec->fail 0.809; ep min-conf->fail 0.986
+    h=0.3: miss in fail 0.846 vs succ 0.607; share of misses in failed eps 0.471 (dec share 0.390); fail eps reached 1.00, first miss at 0.09302325581395349; ep AUROC 0.899
+    h=0.5: miss in fail 0.769 vs succ 0.328; share of misses in failed eps 0.600 (dec share 0.390); fail eps reached 1.00, first miss at 0.20930232558139536; ep AUROC 0.976
+    h=0.7: miss in fail 0.648 vs succ 0.078; share of misses in failed eps 0.842 (dec share 0.390); fail eps reached 1.00, first miss at 0.2674418604651163; ep AUROC 0.993
+    h=0.9: miss in fail 0.253 vs succ 0.002; share of misses in failed eps 0.986 (dec share 0.390); fail eps reached 0.86, first miss at 0.627906976744186; ep AUROC 0.924
+  [b0_native] AUROC dec->fail 0.809; ep min-conf->fail 0.986
+    h=0.3: miss in fail 0.846 vs succ 0.607; share of misses in failed eps 0.471 (dec share 0.390); fail eps reached 1.00, first miss at 0.09302325581395349; ep AUROC 0.899
+    h=0.5: miss in fail 0.769 vs succ 0.328; share of misses in failed eps 0.600 (dec share 0.390); fail eps reached 1.00, first miss at 0.20930232558139536; ep AUROC 0.976
+    h=0.7: miss in fail 0.648 vs succ 0.078; share of misses in failed eps 0.842 (dec share 0.390); fail eps reached 1.00, first miss at 0.2674418604651163; ep AUROC 0.993
+    h=0.9: miss in fail 0.253 vs succ 0.002; share of misses in failed eps 0.986 (dec share 0.390); fail eps reached 0.86, first miss at 0.627906976744186; ep AUROC 0.924
+
+== oscl50_p_sp_cl2: n_dec 12718 n_ep 500 SR 0.800 dec/ep fail 44.0 succ 21.4 guard 0.207 (fail 0.506 / succ 0.048)
+  [own] AUROC dec->fail 0.850; ep min-conf->fail 0.996
+    h=0.3: miss in fail 0.886 vs succ 0.602; share of misses in failed eps 0.438 (dec share 0.346); fail eps reached 1.00, first miss at 0.023255813953488372; ep AUROC 0.798
+    h=0.5: miss in fail 0.821 vs succ 0.330; share of misses in failed eps 0.568 (dec share 0.346); fail eps reached 1.00, first miss at 0.18604651162790697; ep AUROC 0.910
+    h=0.7: miss in fail 0.723 vs succ 0.076; share of misses in failed eps 0.834 (dec share 0.346); fail eps reached 1.00, first miss at 0.2558139534883721; ep AUROC 0.983
+    h=0.9: miss in fail 0.287 vs succ 0.001; share of misses in failed eps 0.993 (dec share 0.346); fail eps reached 0.82, first miss at 0.6511627906976745; ep AUROC 0.909
+  [b0_native] AUROC dec->fail 0.831; ep min-conf->fail 0.990
+    h=0.3: miss in fail 0.858 vs succ 0.616; share of misses in failed eps 0.424 (dec share 0.346); fail eps reached 1.00, first miss at 0.046511627906976744; ep AUROC 0.873
+    h=0.5: miss in fail 0.793 vs succ 0.345; share of misses in failed eps 0.549 (dec share 0.346); fail eps reached 1.00, first miss at 0.20930232558139536; ep AUROC 0.968
+    h=0.7: miss in fail 0.720 vs succ 0.078; share of misses in failed eps 0.830 (dec share 0.346); fail eps reached 1.00, first miss at 0.2558139534883721; ep AUROC 0.997
+    h=0.9: miss in fail 0.288 vs succ 0.001; share of misses in failed eps 0.996 (dec share 0.346); fail eps reached 0.83, first miss at 0.6511627906976745; ep AUROC 0.914
+  [v7z] AUROC dec->fail 0.821; ep min-conf->fail 0.998
+    h=0.3: miss in fail 0.850 vs succ 0.620; share of misses in failed eps 0.420 (dec share 0.346); fail eps reached 1.00, first miss at 0.13953488372093023; ep AUROC 0.911
+    h=0.5: miss in fail 0.795 vs succ 0.344; share of misses in failed eps 0.550 (dec share 0.346); fail eps reached 1.00, first miss at 0.20930232558139536; ep AUROC 0.971
+    h=0.7: miss in fail 0.690 vs succ 0.094; share of misses in failed eps 0.795 (dec share 0.346); fail eps reached 1.00, first miss at 0.2441860465116279; ep AUROC 0.996
+    h=0.9: miss in fail 0.286 vs succ 0.002; share of misses in failed eps 0.990 (dec share 0.346); fail eps reached 0.89, first miss at 0.6976744186046512; ep AUROC 0.944
+  [v7z+g] AUROC dec->fail 0.803; ep min-conf->fail 0.632
+    h=0.3: miss in fail 0.850 vs succ 0.621; share of misses in failed eps 0.420 (dec share 0.346); fail eps reached 1.00, first miss at 0.13953488372093023; ep AUROC 0.910
+    h=0.5: miss in fail 0.794 vs succ 0.345; share of misses in failed eps 0.549 (dec share 0.346); fail eps reached 1.00, first miss at 0.20930232558139536; ep AUROC 0.973
+    h=0.7: miss in fail 0.677 vs succ 0.101; share of misses in failed eps 0.780 (dec share 0.346); fail eps reached 1.00, first miss at 0.2558139534883721; ep AUROC 0.996
+    h=0.9: miss in fail 0.506 vs succ 0.048; share of misses in failed eps 0.847 (dec share 0.346); fail eps reached 1.00, first miss at 0.5116279069767442; ep AUROC 0.999
+
+== oscl50_p_l10_cl0: n_dec 40283 n_ep 500 SR 0.440 dec/ep fail 104.0 succ 54.8
+  [own] AUROC dec->fail 0.815; ep min-conf->fail 0.965
+    h=0.3: miss in fail 0.810 vs succ 0.412; share of misses in failed eps 0.837 (dec share 0.723); fail eps reached 1.00, first miss at 0.0970873786407767; ep AUROC 0.876
+    h=0.5: miss in fail 0.642 vs succ 0.131; share of misses in failed eps 0.928 (dec share 0.723); fail eps reached 1.00, first miss at 0.17475728155339806; ep AUROC 0.963
+    h=0.7: miss in fail 0.405 vs succ 0.027; share of misses in failed eps 0.975 (dec share 0.723); fail eps reached 0.94, first miss at 0.42718446601941745; ep AUROC 0.951
+    h=0.9: miss in fail 0.137 vs succ 0.003; share of misses in failed eps 0.992 (dec share 0.723); fail eps reached 0.62, first miss at 0.6116504854368932; ep AUROC 0.806
+  [b0_native] AUROC dec->fail 0.815; ep min-conf->fail 0.965
+    h=0.3: miss in fail 0.810 vs succ 0.412; share of misses in failed eps 0.837 (dec share 0.723); fail eps reached 1.00, first miss at 0.0970873786407767; ep AUROC 0.876
+    h=0.5: miss in fail 0.642 vs succ 0.131; share of misses in failed eps 0.928 (dec share 0.723); fail eps reached 1.00, first miss at 0.17475728155339806; ep AUROC 0.963
+    h=0.7: miss in fail 0.405 vs succ 0.027; share of misses in failed eps 0.975 (dec share 0.723); fail eps reached 0.94, first miss at 0.42718446601941745; ep AUROC 0.951
+    h=0.9: miss in fail 0.137 vs succ 0.003; share of misses in failed eps 0.992 (dec share 0.723); fail eps reached 0.62, first miss at 0.6116504854368932; ep AUROC 0.806
+
+== oscl50_p_l10_cl1: n_dec 41376 n_ep 500 SR 0.428 dec/ep fail 104.0 succ 58.8
+  [own] AUROC dec->fail 0.764; ep min-conf->fail 0.923
+    h=0.3: miss in fail 0.789 vs succ 0.472; share of misses in failed eps 0.810 (dec share 0.719); fail eps reached 1.00, first miss at 0.10679611650485436; ep AUROC 0.870
+    h=0.5: miss in fail 0.627 vs succ 0.176; share of misses in failed eps 0.901 (dec share 0.719); fail eps reached 0.99, first miss at 0.18446601941747573; ep AUROC 0.932
+    h=0.7: miss in fail 0.400 vs succ 0.045; share of misses in failed eps 0.958 (dec share 0.719); fail eps reached 0.89, first miss at 0.4223300970873786; ep AUROC 0.909
+    h=0.9: miss in fail 0.138 vs succ 0.002; share of misses in failed eps 0.994 (dec share 0.719); fail eps reached 0.58, first miss at 0.6213592233009708; ep AUROC 0.782
+  [b0_native] AUROC dec->fail 0.764; ep min-conf->fail 0.923
+    h=0.3: miss in fail 0.789 vs succ 0.472; share of misses in failed eps 0.810 (dec share 0.719); fail eps reached 1.00, first miss at 0.10679611650485436; ep AUROC 0.870
+    h=0.5: miss in fail 0.627 vs succ 0.176; share of misses in failed eps 0.901 (dec share 0.719); fail eps reached 0.99, first miss at 0.18446601941747573; ep AUROC 0.932
+    h=0.7: miss in fail 0.400 vs succ 0.045; share of misses in failed eps 0.958 (dec share 0.719); fail eps reached 0.89, first miss at 0.4223300970873786; ep AUROC 0.909
+    h=0.9: miss in fail 0.138 vs succ 0.002; share of misses in failed eps 0.994 (dec share 0.719); fail eps reached 0.58, first miss at 0.6213592233009708; ep AUROC 0.782
+
+== oscl50_p_l10_cl2: n_dec 36192 n_ep 500 SR 0.630 dec/ep fail 104.0 succ 58.6 guard 0.295 (fail 0.460 / succ 0.108)
+  [own] AUROC dec->fail 0.780; ep min-conf->fail 0.951
+    h=0.3: miss in fail 0.816 vs succ 0.568; share of misses in failed eps 0.620 (dec share 0.532); fail eps reached 1.00, first miss at 0.009708737864077669; ep AUROC 0.739
+    h=0.5: miss in fail 0.691 vs succ 0.284; share of misses in failed eps 0.734 (dec share 0.532); fail eps reached 1.00, first miss at 0.0970873786407767; ep AUROC 0.832
+    h=0.7: miss in fail 0.522 vs succ 0.048; share of misses in failed eps 0.925 (dec share 0.532); fail eps reached 0.96, first miss at 0.3883495145631068; ep AUROC 0.951
+    h=0.9: miss in fail 0.188 vs succ 0.000; share of misses in failed eps 0.999 (dec share 0.532); fail eps reached 0.62, first miss at 0.6796116504854369; ep AUROC 0.810
+  [b0_native] AUROC dec->fail 0.787; ep min-conf->fail 0.957
+    h=0.3: miss in fail 0.834 vs succ 0.548; share of misses in failed eps 0.633 (dec share 0.532); fail eps reached 1.00, first miss at 0.04854368932038835; ep AUROC 0.840
+    h=0.5: miss in fail 0.700 vs succ 0.272; share of misses in failed eps 0.745 (dec share 0.532); fail eps reached 1.00, first miss at 0.10679611650485436; ep AUROC 0.905
+    h=0.7: miss in fail 0.514 vs succ 0.057; share of misses in failed eps 0.911 (dec share 0.532); fail eps reached 0.96, first miss at 0.32038834951456313; ep AUROC 0.949
+    h=0.9: miss in fail 0.188 vs succ 0.000; share of misses in failed eps 0.999 (dec share 0.532); fail eps reached 0.59, first miss at 0.5825242718446602; ep AUROC 0.794
+  [v7z] AUROC dec->fail 0.761; ep min-conf->fail 0.986
+    h=0.3: miss in fail 0.808 vs succ 0.578; share of misses in failed eps 0.613 (dec share 0.532); fail eps reached 1.00, first miss at 0.08737864077669903; ep AUROC 0.856
+    h=0.5: miss in fail 0.684 vs succ 0.291; share of misses in failed eps 0.727 (dec share 0.532); fail eps reached 1.00, first miss at 0.14563106796116504; ep AUROC 0.920
+    h=0.7: miss in fail 0.515 vs succ 0.056; share of misses in failed eps 0.912 (dec share 0.532); fail eps reached 1.00, first miss at 0.4174757281553398; ep AUROC 0.980
+    h=0.9: miss in fail 0.188 vs succ 0.000; share of misses in failed eps 0.998 (dec share 0.532); fail eps reached 0.77, first miss at 0.7427184466019418; ep AUROC 0.883
+  [v7z+g] AUROC dec->fail 0.725; ep min-conf->fail 0.584
+    h=0.3: miss in fail 0.806 vs succ 0.580; share of misses in failed eps 0.612 (dec share 0.532); fail eps reached 1.00, first miss at 0.08737864077669903; ep AUROC 0.855
+    h=0.5: miss in fail 0.673 vs succ 0.303; share of misses in failed eps 0.716 (dec share 0.532); fail eps reached 1.00, first miss at 0.1650485436893204; ep AUROC 0.920
+    h=0.7: miss in fail 0.469 vs succ 0.108; share of misses in failed eps 0.831 (dec share 0.532); fail eps reached 1.00, first miss at 0.5048543689320388; ep AUROC 0.977
+    h=0.9: miss in fail 0.460 vs succ 0.108; share of misses in failed eps 0.829 (dec share 0.532); fail eps reached 1.00, first miss at 0.5048543689320388; ep AUROC 0.977

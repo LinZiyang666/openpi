@@ -1,0 +1,80 @@
+
+[cur] pi05_spatial: AURC stale 0.365 fresh 0.227 pooled(1-scale) 0.289 | guard stale 0.239 (err 0.90 vs 0.49; terminal 0.218, stuck2 0.108) fresh 0.011
+   nog h=0.3: tau(pred_err)=0.253 rate 0.30 (stale 0.10 / fresh 0.39) err 0.212 (stale 0.203 fresh 0.213) bad 0.216 grip 0.004
+   nog h=0.5: tau(pred_err)=0.338 rate 0.50 (stale 0.33 / fresh 0.67) err 0.266 (stale 0.286 fresh 0.256) bad 0.340 grip 0.011
+   nog h=0.7: tau(pred_err)=0.491 rate 0.70 (stale 0.61 / fresh 0.92) err 0.350 (stale 0.378 fresh 0.306) bad 0.472 grip 0.036
+   nog h=0.8: tau(pred_err)=0.762 rate 0.80 (stale 0.75 / fresh 0.99) err 0.432 (stale 0.465 fresh 0.331) bad 0.553 grip 0.083
+   g   h=0.3: tau(pred_err)=0.253 rate 0.30 (stale 0.10 / fresh 0.39) err 0.212 (stale 0.203 fresh 0.213) bad 0.216 grip 0.004
+   g   h=0.5: tau(pred_err)=0.338 rate 0.50 (stale 0.33 / fresh 0.67) err 0.266 (stale 0.286 fresh 0.256) bad 0.341 grip 0.010
+   g   h=0.7: tau(pred_err)=0.504 rate 0.70 (stale 0.61 / fresh 0.92) err 0.350 (stale 0.377 fresh 0.307) bad 0.472 grip 0.035
+   g   h=0.8: tau(pred_err)=0.762 rate 0.80 (stale 0.76 / fresh 0.98) err 0.437 (stale 0.472 fresh 0.329) bad 0.553 grip 0.082
+
+[cur] pi05_l10: AURC stale 0.339 fresh 0.226 pooled(1-scale) 0.277 | guard stale 0.235 (err 0.62 vs 0.49; terminal 0.100, stuck2 0.181) fresh 0.084
+   nog h=0.3: tau(pred_err)=0.236 rate 0.30 (stale 0.10 / fresh 0.39) err 0.210 (stale 0.206 fresh 0.211) bad 0.161 grip 0.024
+   nog h=0.5: tau(pred_err)=0.323 rate 0.50 (stale 0.31 / fresh 0.69) err 0.258 (stale 0.268 fresh 0.253) bad 0.271 grip 0.029
+   nog h=0.7: tau(pred_err)=0.515 rate 0.70 (stale 0.61 / fresh 0.91) err 0.338 (stale 0.368 fresh 0.291) bad 0.396 grip 0.056
+   nog h=0.8: tau(pred_err)=0.523 rate 0.80 (stale 0.77 / fresh 0.91) err 0.401 (stale 0.433 fresh 0.291) bad 0.462 grip 0.093
+   g   h=0.3: tau(pred_err)=0.241 rate 0.30 (stale 0.10 / fresh 0.38) err 0.206 (stale 0.207 fresh 0.206) bad 0.160 grip 0.021
+   g   h=0.5: tau(pred_err)=0.338 rate 0.50 (stale 0.33 / fresh 0.67) err 0.257 (stale 0.274 fresh 0.248) bad 0.277 grip 0.027
+   g   h=0.7: tau(pred_err)=0.519 rate 0.70 (stale 0.64 / fresh 0.84) err 0.356 (stale 0.397 fresh 0.282) bad 0.410 grip 0.063
+   g   h=0.8: tau(pred_err)=1000000000.000 rate 0.80 (stale 0.77 / fresh 0.92) err 0.442 (stale 0.481 fresh 0.308) bad 0.491 grip 0.102
+
+[cur] groot_spatial: AURC stale 0.343 fresh 0.239 pooled(1-scale) 0.285 | guard stale 0.229 (err 0.90 vs 0.40; terminal 0.213, stuck2 0.133) fresh 0.040
+   nog h=0.3: tau(pred_err)=0.251 rate 0.30 (stale 0.15 / fresh 0.36) err 0.228 (stale 0.256 fresh 0.223) bad 0.962 grip 0.002
+   nog h=0.5: tau(pred_err)=0.353 rate 0.50 (stale 0.28 / fresh 0.72) err 0.282 (stale 0.293 fresh 0.278) bad 0.980 grip 0.008
+   nog h=0.7: tau(pred_err)=0.444 rate 0.70 (stale 0.63 / fresh 0.86) err 0.335 (stale 0.353 fresh 0.304) bad 0.988 grip 0.019
+   nog h=0.8: tau(pred_err)=0.611 rate 0.80 (stale 0.76 / fresh 0.97) err 0.371 (stale 0.384 fresh 0.330) bad 0.990 grip 0.034
+   g   h=0.3: tau(pred_err)=0.253 rate 0.30 (stale 0.16 / fresh 0.36) err 0.228 (stale 0.260 fresh 0.222) bad 0.962 grip 0.003
+   g   h=0.5: tau(pred_err)=0.355 rate 0.50 (stale 0.29 / fresh 0.71) err 0.281 (stale 0.294 fresh 0.276) bad 0.980 grip 0.007
+   g   h=0.7: tau(pred_err)=0.444 rate 0.70 (stale 0.64 / fresh 0.85) err 0.334 (stale 0.354 fresh 0.300) bad 0.988 grip 0.018
+   g   h=0.8: tau(pred_err)=0.946 rate 0.80 (stale 0.76 / fresh 0.96) err 0.375 (stale 0.388 fresh 0.335) bad 0.990 grip 0.035
+
+[cur] groot_l10: AURC stale 0.379 fresh 0.252 pooled(1-scale) 0.306 | guard stale 0.215 (err 0.61 vs 0.49; terminal 0.052, stuck2 0.161) fresh 0.075
+   nog h=0.3: tau(pred_err)=0.264 rate 0.30 (stale 0.06 / fresh 0.40) err 0.232 (stale 0.241 fresh 0.231) bad 0.962 grip 0.040
+   nog h=0.5: tau(pred_err)=0.376 rate 0.50 (stale 0.24 / fresh 0.76) err 0.289 (stale 0.307 fresh 0.283) bad 0.980 grip 0.050
+   nog h=0.7: tau(pred_err)=0.516 rate 0.70 (stale 0.60 / fresh 0.93) err 0.364 (stale 0.399 fresh 0.312) bad 0.989 grip 0.079
+   nog h=0.8: tau(pred_err)=0.629 rate 0.80 (stale 0.76 / fresh 0.98) err 0.418 (stale 0.448 fresh 0.324) bad 0.992 grip 0.120
+   g   h=0.3: tau(pred_err)=0.270 rate 0.30 (stale 0.07 / fresh 0.40) err 0.226 (stale 0.241 fresh 0.225) bad 0.964 grip 0.028
+   g   h=0.5: tau(pred_err)=0.381 rate 0.50 (stale 0.28 / fresh 0.72) err 0.286 (stale 0.316 fresh 0.274) bad 0.981 grip 0.037
+   g   h=0.7: tau(pred_err)=0.627 rate 0.70 (stale 0.61 / fresh 0.91) err 0.374 (stale 0.412 fresh 0.315) bad 0.990 grip 0.077
+   g   h=0.8: tau(pred_err)=0.629 rate 0.80 (stale 0.77 / fresh 0.91) err 0.443 (stale 0.480 fresh 0.315) bad 0.993 grip 0.121
+
+[big] pi05_spatial: AURC stale 0.303 fresh 0.177 pooled(1-scale) 0.231 | guard stale 0.265 (err 0.82 vs 0.40; terminal 0.232, stuck2 0.105) fresh 0.007
+   nog h=0.3: tau(pred_err)=0.218 rate 0.30 (stale 0.12 / fresh 0.38) err 0.168 (stale 0.171 fresh 0.168) bad 0.117 grip 0.004
+   nog h=0.5: tau(pred_err)=0.286 rate 0.50 (stale 0.30 / fresh 0.70) err 0.209 (stale 0.226 fresh 0.201) bad 0.196 grip 0.008
+   nog h=0.7: tau(pred_err)=0.465 rate 0.70 (stale 0.59 / fresh 0.95) err 0.270 (stale 0.291 fresh 0.240) bad 0.312 grip 0.019
+   nog h=0.8: tau(pred_err)=0.608 rate 0.80 (stale 0.76 / fresh 0.97) err 0.358 (stale 0.394 fresh 0.243) bad 0.416 grip 0.073
+   g   h=0.3: tau(pred_err)=0.218 rate 0.30 (stale 0.12 / fresh 0.38) err 0.168 (stale 0.171 fresh 0.168) bad 0.117 grip 0.004
+   g   h=0.5: tau(pred_err)=0.286 rate 0.50 (stale 0.30 / fresh 0.70) err 0.209 (stale 0.226 fresh 0.201) bad 0.197 grip 0.008
+   g   h=0.7: tau(pred_err)=0.465 rate 0.70 (stale 0.59 / fresh 0.95) err 0.271 (stale 0.292 fresh 0.240) bad 0.313 grip 0.019
+   g   h=0.8: tau(pred_err)=1000000000.000 rate 0.79 (stale 0.74 / fresh 0.99) err 0.354 (stale 0.387 fresh 0.255) bad 0.413 grip 0.069
+
+[big] pi05_l10: AURC stale 0.283 fresh 0.201 pooled(1-scale) 0.237 | guard stale 0.168 (err 0.53 vs 0.42; terminal 0.050, stuck2 0.123) fresh 0.042
+   nog h=0.3: tau(pred_err)=0.227 rate 0.30 (stale 0.21 / fresh 0.34) err 0.184 (stale 0.191 fresh 0.182) bad 0.142 grip 0.028
+   nog h=0.5: tau(pred_err)=0.282 rate 0.50 (stale 0.35 / fresh 0.65) err 0.217 (stale 0.220 fresh 0.215) bad 0.193 grip 0.031
+   nog h=0.7: tau(pred_err)=0.403 rate 0.70 (stale 0.62 / fresh 0.88) err 0.293 (stale 0.323 fresh 0.243) bad 0.301 grip 0.056
+   nog h=0.8: tau(pred_err)=0.487 rate 0.80 (stale 0.76 / fresh 0.96) err 0.342 (stale 0.368 fresh 0.259) bad 0.366 grip 0.083
+   g   h=0.3: tau(pred_err)=0.227 rate 0.30 (stale 0.21 / fresh 0.34) err 0.181 (stale 0.192 fresh 0.178) bad 0.141 grip 0.028
+   g   h=0.5: tau(pred_err)=0.288 rate 0.50 (stale 0.36 / fresh 0.64) err 0.215 (stale 0.222 fresh 0.212) bad 0.194 grip 0.030
+   g   h=0.7: tau(pred_err)=0.416 rate 0.70 (stale 0.64 / fresh 0.85) err 0.298 (stale 0.333 fresh 0.238) bad 0.307 grip 0.057
+   g   h=0.8: tau(pred_err)=0.516 rate 0.80 (stale 0.77 / fresh 0.92) err 0.356 (stale 0.387 fresh 0.253) bad 0.380 grip 0.089
+
+[big] groot_spatial: AURC stale 0.296 fresh 0.176 pooled(1-scale) 0.224 | guard stale 0.221 (err 0.74 vs 0.35; terminal 0.213, stuck2 0.099) fresh 0.022
+   nog h=0.3: tau(pred_err)=0.204 rate 0.30 (stale 0.06 / fresh 0.40) err 0.172 (stale 0.201 fresh 0.171) bad 0.880 grip 0.006
+   nog h=0.5: tau(pred_err)=0.294 rate 0.50 (stale 0.27 / fresh 0.73) err 0.218 (stale 0.254 fresh 0.205) bad 0.942 grip 0.007
+   nog h=0.7: tau(pred_err)=0.405 rate 0.70 (stale 0.63 / fresh 0.86) err 0.272 (stale 0.301 fresh 0.223) bad 0.970 grip 0.015
+   nog h=0.8: tau(pred_err)=0.512 rate 0.80 (stale 0.76 / fresh 0.95) err 0.309 (stale 0.330 fresh 0.239) bad 0.979 grip 0.029
+   g   h=0.3: tau(pred_err)=0.206 rate 0.30 (stale 0.06 / fresh 0.40) err 0.170 (stale 0.201 fresh 0.168) bad 0.883 grip 0.004
+   g   h=0.5: tau(pred_err)=0.297 rate 0.50 (stale 0.28 / fresh 0.72) err 0.218 (stale 0.256 fresh 0.203) bad 0.943 grip 0.006
+   g   h=0.7: tau(pred_err)=0.420 rate 0.70 (stale 0.63 / fresh 0.86) err 0.272 (stale 0.301 fresh 0.223) bad 0.970 grip 0.014
+   g   h=0.8: tau(pred_err)=0.533 rate 0.80 (stale 0.76 / fresh 0.94) err 0.311 (stale 0.333 fresh 0.240) bad 0.979 grip 0.027
+
+[big] groot_l10: AURC stale 0.325 fresh 0.204 pooled(1-scale) 0.253 | guard stale 0.146 (err 0.53 vs 0.43; terminal 0.052, stuck2 0.094) fresh 0.035
+   nog h=0.3: tau(pred_err)=0.233 rate 0.30 (stale 0.06 / fresh 0.40) err 0.193 (stale 0.196 fresh 0.193) bad 0.839 grip 0.055
+   nog h=0.5: tau(pred_err)=0.320 rate 0.50 (stale 0.27 / fresh 0.73) err 0.235 (stale 0.263 fresh 0.225) bad 0.915 grip 0.048
+   nog h=0.7: tau(pred_err)=0.462 rate 0.70 (stale 0.59 / fresh 0.96) err 0.308 (stale 0.343 fresh 0.258) bad 0.959 grip 0.070
+   nog h=0.8: tau(pred_err)=0.468 rate 0.80 (stale 0.76 / fresh 0.98) err 0.358 (stale 0.390 fresh 0.260) bad 0.973 grip 0.107
+   g   h=0.3: tau(pred_err)=0.236 rate 0.30 (stale 0.06 / fresh 0.40) err 0.181 (stale 0.197 fresh 0.180) bad 0.840 grip 0.037
+   g   h=0.5: tau(pred_err)=0.321 rate 0.50 (stale 0.26 / fresh 0.74) err 0.229 (stale 0.263 fresh 0.216) bad 0.917 grip 0.038
+   g   h=0.7: tau(pred_err)=0.463 rate 0.70 (stale 0.60 / fresh 0.93) err 0.309 (stale 0.350 fresh 0.247) bad 0.960 grip 0.069
+   g   h=0.8: tau(pred_err)=0.472 rate 0.80 (stale 0.76 / fresh 0.95) err 0.364 (stale 0.398 fresh 0.252) bad 0.974 grip 0.104

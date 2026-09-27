@@ -569,3 +569,18 @@ exp/offline_search/
 - **23:50**：
   - handoff 按 owner 要求覆写，提交号 `34e65b9`：§0 逐字未改，正文换成本线交接，step_diag 线的内容整体挪到附录 A。
   - owner 指示：codex 是正式 agent，R3 选题必须等 C 交回后再定稿。`rounds/r03/SELECTION.md` 目前是草案（H1–H4），C 的提案之后并入。
+- **00:0x 构思收齐，选题定稿**：
+  - **B 存档**：`rounds/r03/NOTES_ideation_B.md` 与 `diag_B/` 已写出。
+  - **codex C 交回**：`rounds/r03/ideation_C/REPORT.md`，运行约 40 分钟。
+    - 提案三条：借用先验度量、spatial 的 ridge 1.0、校准的事件触发交接。
+    - 关键实测：
+      - 原始低置信度是迟到的检测器，在 spell 第 2 步之前只触及 1.75% / 6% 的失败集；disp5 和"低票数下的夹爪换向"早得多。
+      - 借用 500 集拟合能修好 spatial 任务 6 的夹爪歧义，但会让 l10 任务 6 的歧义加倍。
+      - "只在一个夹爪模式内取均值"err 变差 .025–.034。
+    - C 更正了 A 的说法：CL3 是 successor blend + 恢复，保险（夹爪滞回）是关着的。
+    - 小插曲：compact 之后 `codex-companion status` 按会话过滤，查不到这个任务。改为直接读 `/tmp/codex-companion/openpi-*/jobs/<id>.json` 并检查 PID 存活。
+  - **定稿**：H1–H4，见 `rounds/r03/SELECTION.md`。
+    - C 的第 1、2 条并入 H1，第 3 条拆开：信号进 H3，插件进 H2。
+    - H4 为 KPI 工具与 pilot 封装。
+    - pilot 基线直接取 R2 的同集结果（spatial CL2 .70 / l10 CL2 .52）。
+  - **GR00T 50 集组进度**：g_sp CL0 .736，CL1 .852，合成效应 +11.6 pp，比 π0.5 的 +9.6 pp 更大。
