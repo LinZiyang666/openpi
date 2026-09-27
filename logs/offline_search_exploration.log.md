@@ -840,3 +840,18 @@ exp/offline_search/
   - 第 2 名：执行视觉那一步动作块的剩余部分，也作为必备对照。
   - 第 3 名：视觉锚点与策略 MISS 分成两个时钟。
   - 给出了完整的 server 规范：绕过点放在 `_ConnPolicy.infer`；稠密历史；orchestrator 计数器；守卫改成间隔感知的 noprog_span；两个模型各自的输入输出变换。
+- **13:56 C 第二遍交回**（`ideation_C/REPORT_2.md`）：
+  - 提案：`causal_rescue_credit`。现有日志识别不了"一次调用的因果价值"，要么做随机化 CALL / CACHE 实验，要么这件事无解。
+  - 实测结论：
+    - 置信度不代表"值不值得调用"：500 集上置信度臂比只用守卫多花 6,922 次 MISS，只多成功 4 集。
+    - "失败 N 次就停"不成立：连续 20 次 MISS 的集里仍有 23/50 成功。
+    - 跨任务 / 跨 suite 检索的 donor 很少胜出（0.1%–4%）。
+    - GR00T 的腕部 token 残差也许能早报失败（AUC .70–.75），但样本太小。
+- **14:0x R4 选题定稿**：`rounds/r04/SELECTION.md` 与 `CODING_BRIEF.md`。
+  - 四族：R4-1 盲走方法（K1）、R4-2 盲走 serving 与日志（K2）、R4-3 成本引擎（K3：MISS 减步、精确冗余消除、单相机 key、stage 耗时实测）、R4-4 评测与前沿（K4：臂类型、分层清单、成本口径）。
+  - CODING_BRIEF 写明了文件归属、方法与插件的接口（`blind_step` → `BlindResult` / `LookReason`）、日志字段和成本口径。
+  - C 第二遍的随机化实验留到最后，视时间再跑。
+- **14:0x 派出 4 个编码 codex**：K1 `task-muk6oxda-8kjs9e`（CPU 18-21,62-65）；K2 `task-muk6oxvt-ti1szi`（22-25,66-69，full-access，GPU ≤ 4 GB）；K3 `task-muk6oy57-rvqj1v`（26-29,70-73，full-access，stage 1 ≤ 4 GB，完整模型 ≤ 10 GB 且空闲 ≥ 14 GB 才用）；K4 `task-muk6oxm8-ufn0fx`（30-33,74-77）。
+- **14:03 第一批闭环开跑**：运行目录 `r04_frontier`，tmux `oscl_r4f`；2 个完整模型 server，每个 32 个 worker（他项目占着约 20 GB 显存）。共 11 臂，顺序如下：
+  - l10：500 集守卫 noprog 4 → 500 集周期 8 → 500 集周期 12 → 纯推理种子 1 → 50 集守卫 noprog 4 → 50 集周期 6 → 纯推理种子 2；
+  - sp：500 集只用守卫 → 500 集周期 12 → 纯推理种子 1 → 纯推理种子 2。
