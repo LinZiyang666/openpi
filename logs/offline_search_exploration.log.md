@@ -462,3 +462,19 @@ exp/offline_search/
 
 ### R2（2026-09-26 开始）
 - 构思：2 个 fable 构思 agent，在视觉必需的约束下工作。输入为 `IDEATION_BRIEF.md`、`rounds/r02/FINDINGS.md`、R1 的 `ANALYSIS.md`。
+- **R2 必须包含真实闭环实验（owner 2026-09-26 19:20）**，可以使用本机 weilandserver。
+  - **拓扑**：沿用推荐做法，与 trace_dual 相同。
+    - server 放在 weilandserver，使用 4090 的空闲显存，并发的单 replica server。
+    - worker 放在 timan107，64 个 worker；driver 用 `run_gtp`（role=all）。
+    - A 池 pruned_init 500 集，spatial 和 l10 都跑。
+  - **主考场是纯缓存闭环**：每一步都走 HIT。视觉编码器（stage1）照常运行以产出视觉 key，stage2/3 跳过。
+    - 对照组有两个：一是 trace_dual 已有的 B0 纯缓存成功率 .668 / .452 / .736 / .468；二是在同一版本的 harness 下重跑一次 B0 纯缓存，用来控制两次运行之间的差异。
+  - **接入方式**：新方法以插件形式接入 server 的检索路径，代码放在 `exp/offline_search/closed_loop/`，不改 `src/`。如果不改 `src` 就接不进去，停下来请 owner 裁定。
+  - **资源纪律**：
+    - server 进程只能用本线 CPU 池 0-37,44-81；38-43,82-87 属于他线。
+    - 显存只用空闲部分，他线的 GPU 训练优先；出现 OOM 就退让。
+    - 先 smoke，再放量。
+- **R2 构思完成（2026-09-26 20:1x CDT）**：
+  - A 提出 AWM（按动作相似度白化的联合度量）：陈旧状态、10× 库上 err 为 .511 / .437 / .439 / .451，在全部 40 个"任务 × 格子"上都胜过 M8 和 B0；每条 544 B，查询 1.1 ms。
+  - B 提出可部署版的 M8（PCA-32 余弦，288 B/条），外加卡住检测与恢复机制，以及预测误差置信度。
+  - 选题：8 个方法，分 4 族，另附闭环计划 CL0–CL3，见 `rounds/r02/SELECTION.md`。→ ⏸ 暂停点 1。

@@ -1,0 +1,619 @@
+
+## A. err by regime (cells: pi05_spatial / pi05_l10 / groot_spatial / groot_l10)
+### stale (cache arms, step>=1)
+| big_bbig_pca32_st0_mean1 | 0.616 | 0.541 | 0.582 | 0.601 |
+| big_bbig_pca32_st0_mean5 | 0.532 | 0.463 | 0.493 | 0.501 |
+| big_bbig_pca32_st0_mean8 | 0.529 | 0.457 | 0.491 | 0.493 |
+| big_bbig_pca32_st1_mean1 | 0.619 | 0.540 | 0.543 | 0.559 |
+| big_bbig_pca32_st1_mean5 | 0.535 | 0.468 | 0.466 | 0.478 |
+| big_bbig_pca32_st1_mean8 | 0.532 | 0.464 | 0.464 | 0.474 |
+| big_bbig_pca64_st0_mean1 | 0.616 | 0.539 | 0.573 | 0.596 |
+| big_bbig_pca64_st0_mean5 | 0.529 | 0.460 | 0.486 | 0.498 |
+| big_bbig_pca64_st0_mean8 | 0.526 | 0.455 | 0.485 | 0.490 |
+| big_bbig_pca64_st1_mean1 | 0.618 | 0.536 | 0.541 | 0.557 |
+| big_bbig_pca64_st1_mean5 | 0.531 | 0.465 | 0.464 | 0.478 |
+| big_bbig_pca64_st1_mean8 | 0.529 | 0.462 | 0.462 | 0.473 |
+| big_bcur_pca32_st0_mean1 | 0.612 | 0.539 | 0.587 | 0.599 |
+| big_bcur_pca32_st0_mean5 | 0.529 | 0.462 | 0.496 | 0.500 |
+| big_bcur_pca32_st0_mean8 | 0.527 | 0.456 | 0.493 | 0.492 |
+| big_bcur_pca32_st1_mean1 | 0.617 | 0.539 | 0.544 | 0.558 |
+| big_bcur_pca32_st1_mean5 | 0.533 | 0.469 | 0.468 | 0.476 |
+| big_bcur_pca32_st1_mean8 | 0.531 | 0.466 | 0.466 | 0.472 |
+| big_bcur_pca64_st0_mean1 | 0.613 | 0.539 | 0.580 | 0.595 |
+| big_bcur_pca64_st0_mean5 | 0.528 | 0.460 | 0.490 | 0.497 |
+| big_bcur_pca64_st0_mean8 | 0.526 | 0.454 | 0.487 | 0.490 |
+| big_bcur_pca64_st1_mean1 | 0.616 | 0.536 | 0.544 | 0.557 |
+| big_bcur_pca64_st1_mean5 | 0.530 | 0.466 | 0.466 | 0.476 |
+| big_bcur_pca64_st1_mean8 | 0.528 | 0.462 | 0.464 | 0.471 |
+| big_pca32_st1_mean5_align0 | 0.535 | 0.468 | 0.466 | 0.478 |
+| big_pca32_st1_mean5_align2 | 0.535 | 0.468 | 0.466 | 0.478 |
+| big_pca32_st1_mean5_alignw3 | 0.559 | 0.535 | 0.454 | 0.553 |
+| big_pca32_st1_mean5_alignw6 | 0.549 | 0.522 | 0.453 | 0.534 |
+| big_pca32_st1_mean5_succonly | 0.540 | 0.483 | 0.504 | 0.506 |
+| big_stateonly_mean5 | 0.617 | 0.547 | 0.446 | 0.491 |
+| current_bbig_pca32_st0_mean1 | 0.646 | 0.589 | 0.653 | 0.672 |
+| current_bbig_pca32_st0_mean5 | 0.605 | 0.530 | 0.590 | 0.577 |
+| current_bbig_pca32_st0_mean8 | 0.615 | 0.528 | 0.600 | 0.569 |
+| current_bbig_pca32_st1_mean1 | 0.652 | 0.589 | 0.634 | 0.630 |
+| current_bbig_pca32_st1_mean5 | 0.611 | 0.535 | 0.578 | 0.554 |
+| current_bbig_pca32_st1_mean8 | 0.618 | 0.534 | 0.586 | 0.549 |
+| current_bbig_pca64_st0_mean1 | 0.644 | 0.587 | 0.653 | 0.661 |
+| current_bbig_pca64_st0_mean5 | 0.601 | 0.530 | 0.588 | 0.571 |
+| current_bbig_pca64_st0_mean8 | 0.611 | 0.529 | 0.598 | 0.562 |
+| current_bbig_pca64_st1_mean1 | 0.648 | 0.588 | 0.634 | 0.628 |
+| current_bbig_pca64_st1_mean5 | 0.606 | 0.535 | 0.577 | 0.552 |
+| current_bbig_pca64_st1_mean8 | 0.613 | 0.534 | 0.584 | 0.547 |
+| current_bcur_pca32_st0_mean1 | 0.646 | 0.588 | 0.661 | 0.670 |
+| current_bcur_pca32_st0_mean5 | 0.603 | 0.530 | 0.595 | 0.577 |
+| current_bcur_pca32_st0_mean8 | 0.614 | 0.529 | 0.605 | 0.570 |
+| current_bcur_pca32_st1_mean1 | 0.651 | 0.587 | 0.636 | 0.629 |
+| current_bcur_pca32_st1_mean5 | 0.609 | 0.535 | 0.581 | 0.553 |
+| current_bcur_pca32_st1_mean8 | 0.617 | 0.535 | 0.589 | 0.549 |
+| current_bcur_pca64_st0_mean1 | 0.642 | 0.585 | 0.657 | 0.663 |
+| current_bcur_pca64_st0_mean5 | 0.601 | 0.528 | 0.591 | 0.572 |
+| current_bcur_pca64_st0_mean8 | 0.611 | 0.527 | 0.601 | 0.565 |
+| current_bcur_pca64_st1_mean1 | 0.647 | 0.585 | 0.639 | 0.629 |
+| current_bcur_pca64_st1_mean5 | 0.606 | 0.535 | 0.579 | 0.553 |
+| current_bcur_pca64_st1_mean8 | 0.613 | 0.534 | 0.586 | 0.548 |
+| current_pca32_st1_mean5_align0 | 0.609 | 0.535 | 0.581 | 0.553 |
+| current_pca32_st1_mean5_align2 | 0.609 | 0.535 | 0.581 | 0.553 |
+| current_pca32_st1_mean5_alignw3 | 0.621 | 0.608 | 0.588 | 0.632 |
+| current_pca32_st1_mean5_alignw6 | 0.621 | 0.592 | 0.588 | 0.610 |
+| current_pca32_st1_mean5_succonly | 0.609 | 0.535 | 0.581 | 0.553 |
+| current_stateonly_mean5 | 0.665 | 0.609 | 0.528 | 0.550 |
+### stale, success-only episodes / failed episodes (pca32 st1 mean5, per library)
+| current_bcur_pca32_st1_mean5 succ | 0.422 | 0.385 | 0.398 | 0.418 |
+| current_bcur_pca32_st1_mean5 fail | 0.792 | 0.596 | 0.828 | 0.611 |
+| current_bbig_pca32_st1_mean5 succ | 0.422 | 0.383 | 0.398 | 0.419 |
+| current_bbig_pca32_st1_mean5 fail | 0.796 | 0.596 | 0.822 | 0.612 |
+| big_bbig_pca32_st1_mean5 succ | 0.344 | 0.316 | 0.342 | 0.358 |
+| big_bbig_pca32_st1_mean5 fail | 0.721 | 0.530 | 0.633 | 0.530 |
+| big_bbig_pca64_st1_mean8 succ | 0.343 | 0.315 | 0.338 | 0.353 |
+| big_bbig_pca64_st1_mean8 fail | 0.710 | 0.521 | 0.628 | 0.524 |
+| current_stateonly_mean5 succ | 0.449 | 0.430 | 0.391 | 0.421 |
+| current_stateonly_mean5 fail | 0.876 | 0.682 | 0.713 | 0.606 |
+| big_stateonly_mean5 succ | 0.404 | 0.395 | 0.348 | 0.371 |
+| big_stateonly_mean5 fail | 0.827 | 0.609 | 0.578 | 0.542 |
+### fresh (inf arms, step>=1)
+| big_bbig_pca32_st0_mean1 | 0.394 | 0.342 | 0.475 | 0.464 |
+| big_bbig_pca32_st0_mean5 | 0.332 | 0.287 | 0.395 | 0.393 |
+| big_bbig_pca32_st0_mean8 | 0.335 | 0.287 | 0.393 | 0.393 |
+| big_bbig_pca32_st1_mean1 | 0.390 | 0.344 | 0.445 | 0.419 |
+| big_bbig_pca32_st1_mean5 | 0.327 | 0.288 | 0.372 | 0.358 |
+| big_bbig_pca32_st1_mean8 | 0.330 | 0.288 | 0.373 | 0.358 |
+| big_bbig_pca64_st0_mean1 | 0.390 | 0.340 | 0.467 | 0.459 |
+| big_bbig_pca64_st0_mean5 | 0.328 | 0.285 | 0.389 | 0.388 |
+| big_bbig_pca64_st0_mean8 | 0.331 | 0.286 | 0.388 | 0.388 |
+| big_bbig_pca64_st1_mean1 | 0.385 | 0.342 | 0.442 | 0.416 |
+| big_bbig_pca64_st1_mean5 | 0.323 | 0.286 | 0.371 | 0.356 |
+| big_bbig_pca64_st1_mean8 | 0.326 | 0.286 | 0.372 | 0.356 |
+| big_bcur_pca32_st0_mean1 | 0.395 | 0.341 | 0.477 | 0.464 |
+| big_bcur_pca32_st0_mean5 | 0.333 | 0.285 | 0.397 | 0.394 |
+| big_bcur_pca32_st0_mean8 | 0.336 | 0.287 | 0.395 | 0.394 |
+| big_bcur_pca32_st1_mean1 | 0.390 | 0.344 | 0.446 | 0.418 |
+| big_bcur_pca32_st1_mean5 | 0.327 | 0.288 | 0.374 | 0.357 |
+| big_bcur_pca32_st1_mean8 | 0.330 | 0.288 | 0.374 | 0.358 |
+| big_bcur_pca64_st0_mean1 | 0.390 | 0.339 | 0.468 | 0.459 |
+| big_bcur_pca64_st0_mean5 | 0.328 | 0.284 | 0.391 | 0.388 |
+| big_bcur_pca64_st0_mean8 | 0.332 | 0.285 | 0.389 | 0.388 |
+| big_bcur_pca64_st1_mean1 | 0.385 | 0.341 | 0.444 | 0.415 |
+| big_bcur_pca64_st1_mean5 | 0.324 | 0.285 | 0.373 | 0.355 |
+| big_bcur_pca64_st1_mean8 | 0.327 | 0.286 | 0.373 | 0.356 |
+| big_pca32_st1_mean5_align0 | 0.327 | 0.288 | 0.372 | 0.358 |
+| big_pca32_st1_mean5_align2 | 0.327 | 0.288 | 0.372 | 0.358 |
+| big_pca32_st1_mean5_alignw3 | 0.335 | 0.315 | 0.377 | 0.388 |
+| big_pca32_st1_mean5_alignw6 | 0.330 | 0.303 | 0.374 | 0.377 |
+| big_pca32_st1_mean5_succonly | 0.331 | 0.314 | 0.389 | 0.379 |
+| big_stateonly_mean5 | 0.381 | 0.359 | 0.380 | 0.372 |
+| current_bbig_pca32_st0_mean1 | 0.513 | 0.467 | 0.564 | 0.580 |
+| current_bbig_pca32_st0_mean5 | 0.465 | 0.421 | 0.488 | 0.510 |
+| current_bbig_pca32_st0_mean8 | 0.480 | 0.429 | 0.493 | 0.514 |
+| current_bbig_pca32_st1_mean1 | 0.504 | 0.457 | 0.540 | 0.546 |
+| current_bbig_pca32_st1_mean5 | 0.451 | 0.408 | 0.468 | 0.469 |
+| current_bbig_pca32_st1_mean8 | 0.463 | 0.412 | 0.474 | 0.469 |
+| current_bbig_pca64_st0_mean1 | 0.512 | 0.469 | 0.558 | 0.577 |
+| current_bbig_pca64_st0_mean5 | 0.460 | 0.423 | 0.485 | 0.508 |
+| current_bbig_pca64_st0_mean8 | 0.476 | 0.429 | 0.491 | 0.512 |
+| current_bbig_pca64_st1_mean1 | 0.502 | 0.455 | 0.535 | 0.542 |
+| current_bbig_pca64_st1_mean5 | 0.446 | 0.408 | 0.467 | 0.467 |
+| current_bbig_pca64_st1_mean8 | 0.458 | 0.412 | 0.472 | 0.467 |
+| current_bcur_pca32_st0_mean1 | 0.514 | 0.468 | 0.567 | 0.581 |
+| current_bcur_pca32_st0_mean5 | 0.465 | 0.423 | 0.490 | 0.511 |
+| current_bcur_pca32_st0_mean8 | 0.481 | 0.430 | 0.496 | 0.514 |
+| current_bcur_pca32_st1_mean1 | 0.503 | 0.459 | 0.540 | 0.544 |
+| current_bcur_pca32_st1_mean5 | 0.450 | 0.410 | 0.469 | 0.470 |
+| current_bcur_pca32_st1_mean8 | 0.463 | 0.413 | 0.474 | 0.469 |
+| current_bcur_pca64_st0_mean1 | 0.512 | 0.468 | 0.558 | 0.576 |
+| current_bcur_pca64_st0_mean5 | 0.461 | 0.423 | 0.486 | 0.508 |
+| current_bcur_pca64_st0_mean8 | 0.477 | 0.429 | 0.492 | 0.514 |
+| current_bcur_pca64_st1_mean1 | 0.502 | 0.456 | 0.535 | 0.541 |
+| current_bcur_pca64_st1_mean5 | 0.447 | 0.408 | 0.467 | 0.468 |
+| current_bcur_pca64_st1_mean8 | 0.459 | 0.412 | 0.473 | 0.467 |
+| current_pca32_st1_mean5_align0 | 0.450 | 0.410 | 0.469 | 0.470 |
+| current_pca32_st1_mean5_align2 | 0.450 | 0.410 | 0.469 | 0.470 |
+| current_pca32_st1_mean5_alignw3 | 0.465 | 0.501 | 0.478 | 0.532 |
+| current_pca32_st1_mean5_alignw6 | 0.459 | 0.473 | 0.472 | 0.506 |
+| current_pca32_st1_mean5_succonly | 0.450 | 0.410 | 0.469 | 0.470 |
+| current_stateonly_mean5 | 0.471 | 0.469 | 0.461 | 0.481 |
+### step 0 (inf arms)
+| big_bbig_pca32_st0_mean1 | 0.274 | 0.191 | 0.384 | 0.300 |
+| big_bbig_pca32_st0_mean5 | 0.230 | 0.169 | 0.301 | 0.260 |
+| big_bbig_pca32_st0_mean8 | 0.233 | 0.176 | 0.296 | 0.255 |
+| big_bbig_pca32_st1_mean1 | 0.274 | 0.188 | 0.351 | 0.228 |
+| big_bbig_pca32_st1_mean5 | 0.227 | 0.166 | 0.275 | 0.197 |
+| big_bbig_pca32_st1_mean8 | 0.230 | 0.172 | 0.272 | 0.201 |
+| big_bbig_pca64_st0_mean1 | 0.269 | 0.192 | 0.377 | 0.294 |
+| big_bbig_pca64_st0_mean5 | 0.225 | 0.168 | 0.301 | 0.253 |
+| big_bbig_pca64_st0_mean8 | 0.230 | 0.175 | 0.295 | 0.250 |
+| big_bbig_pca64_st1_mean1 | 0.268 | 0.185 | 0.347 | 0.239 |
+| big_bbig_pca64_st1_mean5 | 0.224 | 0.165 | 0.280 | 0.202 |
+| big_bbig_pca64_st1_mean8 | 0.229 | 0.172 | 0.277 | 0.207 |
+| big_bcur_pca32_st0_mean1 | 0.276 | 0.193 | 0.379 | 0.298 |
+| big_bcur_pca32_st0_mean5 | 0.231 | 0.168 | 0.303 | 0.263 |
+| big_bcur_pca32_st0_mean8 | 0.234 | 0.175 | 0.293 | 0.255 |
+| big_bcur_pca32_st1_mean1 | 0.275 | 0.192 | 0.357 | 0.228 |
+| big_bcur_pca32_st1_mean5 | 0.228 | 0.166 | 0.276 | 0.196 |
+| big_bcur_pca32_st1_mean8 | 0.231 | 0.171 | 0.272 | 0.200 |
+| big_bcur_pca64_st0_mean1 | 0.272 | 0.188 | 0.368 | 0.292 |
+| big_bcur_pca64_st0_mean5 | 0.225 | 0.168 | 0.300 | 0.247 |
+| big_bcur_pca64_st0_mean8 | 0.230 | 0.174 | 0.295 | 0.246 |
+| big_bcur_pca64_st1_mean1 | 0.272 | 0.187 | 0.347 | 0.236 |
+| big_bcur_pca64_st1_mean5 | 0.224 | 0.166 | 0.279 | 0.201 |
+| big_bcur_pca64_st1_mean8 | 0.227 | 0.171 | 0.275 | 0.206 |
+| big_pca32_st1_mean5_align0 | 0.217 | 0.164 | 0.259 | 0.169 |
+| big_pca32_st1_mean5_align2 | 0.227 | 0.166 | 0.275 | 0.193 |
+| big_pca32_st1_mean5_alignw3 | 0.227 | 0.166 | 0.275 | 0.196 |
+| big_pca32_st1_mean5_alignw6 | 0.227 | 0.166 | 0.275 | 0.197 |
+| big_pca32_st1_mean5_succonly | 0.227 | 0.172 | 0.277 | 0.200 |
+| big_stateonly_mean5 | 0.248 | 0.195 | 0.273 | 0.199 |
+| current_bbig_pca32_st0_mean1 | 0.326 | 0.254 | 0.415 | 0.336 |
+| current_bbig_pca32_st0_mean5 | 0.299 | 0.278 | 0.353 | 0.316 |
+| current_bbig_pca32_st0_mean8 | 0.333 | 0.311 | 0.381 | 0.329 |
+| current_bbig_pca32_st1_mean1 | 0.326 | 0.249 | 0.398 | 0.246 |
+| current_bbig_pca32_st1_mean5 | 0.295 | 0.269 | 0.346 | 0.260 |
+| current_bbig_pca32_st1_mean8 | 0.328 | 0.299 | 0.377 | 0.279 |
+| current_bbig_pca64_st0_mean1 | 0.321 | 0.249 | 0.403 | 0.332 |
+| current_bbig_pca64_st0_mean5 | 0.295 | 0.277 | 0.354 | 0.313 |
+| current_bbig_pca64_st0_mean8 | 0.329 | 0.310 | 0.379 | 0.326 |
+| current_bbig_pca64_st1_mean1 | 0.321 | 0.247 | 0.387 | 0.263 |
+| current_bbig_pca64_st1_mean5 | 0.290 | 0.271 | 0.344 | 0.268 |
+| current_bbig_pca64_st1_mean8 | 0.326 | 0.302 | 0.376 | 0.287 |
+| current_bcur_pca32_st0_mean1 | 0.330 | 0.255 | 0.409 | 0.321 |
+| current_bcur_pca32_st0_mean5 | 0.300 | 0.270 | 0.354 | 0.319 |
+| current_bcur_pca32_st0_mean8 | 0.334 | 0.309 | 0.382 | 0.332 |
+| current_bcur_pca32_st1_mean1 | 0.326 | 0.245 | 0.397 | 0.240 |
+| current_bcur_pca32_st1_mean5 | 0.296 | 0.266 | 0.347 | 0.260 |
+| current_bcur_pca32_st1_mean8 | 0.328 | 0.296 | 0.378 | 0.280 |
+| current_bcur_pca64_st0_mean1 | 0.322 | 0.253 | 0.399 | 0.352 |
+| current_bcur_pca64_st0_mean5 | 0.295 | 0.275 | 0.356 | 0.312 |
+| current_bcur_pca64_st0_mean8 | 0.329 | 0.312 | 0.380 | 0.332 |
+| current_bcur_pca64_st1_mean1 | 0.320 | 0.248 | 0.389 | 0.268 |
+| current_bcur_pca64_st1_mean5 | 0.291 | 0.270 | 0.348 | 0.269 |
+| current_bcur_pca64_st1_mean8 | 0.326 | 0.302 | 0.378 | 0.289 |
+| current_pca32_st1_mean5_align0 | 0.272 | 0.213 | 0.315 | 0.192 |
+| current_pca32_st1_mean5_align2 | 0.295 | 0.264 | 0.347 | 0.251 |
+| current_pca32_st1_mean5_alignw3 | 0.295 | 0.266 | 0.347 | 0.257 |
+| current_pca32_st1_mean5_alignw6 | 0.296 | 0.266 | 0.347 | 0.260 |
+| current_pca32_st1_mean5_succonly | 0.296 | 0.266 | 0.347 | 0.260 |
+| current_stateonly_mean5 | 0.268 | 0.255 | 0.334 | 0.207 |
+### step 0 (cache arms)
+| big_bbig_pca32_st1_mean5 | 0.225 | 0.166 | 0.275 | 0.196 |
+| big_bcur_pca32_st1_mean5 | 0.226 | 0.164 | 0.275 | 0.195 |
+| big_pca32_st1_mean5_align0 | 0.215 | 0.164 | 0.259 | 0.169 |
+| big_pca32_st1_mean5_align2 | 0.225 | 0.166 | 0.274 | 0.193 |
+| big_pca32_st1_mean5_alignw3 | 0.225 | 0.166 | 0.275 | 0.196 |
+| big_pca32_st1_mean5_alignw6 | 0.225 | 0.166 | 0.275 | 0.196 |
+| big_pca32_st1_mean5_succonly | 0.225 | 0.170 | 0.277 | 0.200 |
+| current_bbig_pca32_st1_mean5 | 0.293 | 0.266 | 0.346 | 0.259 |
+| current_bcur_pca32_st1_mean5 | 0.293 | 0.262 | 0.346 | 0.259 |
+| current_pca32_st1_mean5_align0 | 0.271 | 0.212 | 0.314 | 0.191 |
+| current_pca32_st1_mean5_align2 | 0.293 | 0.261 | 0.346 | 0.251 |
+| current_pca32_st1_mean5_alignw3 | 0.293 | 0.262 | 0.346 | 0.256 |
+| current_pca32_st1_mean5_alignw6 | 0.293 | 0.262 | 0.346 | 0.259 |
+| current_pca32_st1_mean5_succonly | 0.293 | 0.262 | 0.346 | 0.259 |
+
+## B. stale AURC (cache arms), pca32 st1 mean5; rows = signal; per library
+### library big
+| -d0 | 0.359 | 0.323 | 0.337 | 0.356 |
+| -d5 | 0.352 | 0.319 | 0.329 | 0.351 |
+| -disp5 | 0.372 | 0.360 | 0.341 | 0.396 |
+| -dnn | 0.349 | 0.320 | 0.339 | 0.355 |
+| -lag5 | 0.475 | 0.428 | 0.426 | 0.470 |
+| -libprog5 | 0.381 | 0.368 | 0.366 | 0.407 |
+| -overtime | 0.354 | 0.338 | 0.355 | 0.368 |
+| -step | 0.354 | 0.346 | 0.340 | 0.373 |
+| -stuck | 0.510 | 0.462 | 0.467 | 0.450 |
+| -vself | 0.461 | 0.445 | 0.379 | 0.467 |
+| -win_d | 0.348 | 0.320 | 0.339 | 0.355 |
+| -|lag5| | 0.390 | 0.361 | 0.362 | 0.385 |
+| -|lagfrac5| | 0.398 | 0.364 | 0.373 | 0.392 |
+| cos0_0 | 0.404 | 0.337 | 0.408 | 0.371 |
+| cos1_0 | 0.348 | 0.317 | 0.339 | 0.371 |
+| cosmax_sum | 0.348 | 0.315 | 0.353 | 0.369 |
+| err | 0.535 | 0.468 | 0.466 | 0.478 |
+| err_drift | 0.722 | 0.601 | 0.705 | 0.602 |
+| err_lag>5 | 0.825 | 0.593 | 0.824 | 0.589 |
+| err_mr<.3 | 0.624 | 0.549 | 0.627 | 0.565 |
+| err_nodrift | 0.312 | 0.301 | 0.331 | 0.335 |
+| err_notstuck | 0.512 | 0.457 | 0.418 | 0.461 |
+| err_overtime<=1 | 0.411 | 0.378 | 0.394 | 0.404 |
+| err_overtime>1 | 0.843 | 0.658 | 0.793 | 0.637 |
+| err_stuck>=2 | 0.682 | 0.528 | 0.800 | 0.568 |
+| frac_drift3x | 0.543 | 0.557 | 0.360 | 0.537 |
+| frac_motion_ratio<.3 | 0.107 | 0.264 | 0.089 | 0.257 |
+| frac_overtime>1 | 0.286 | 0.322 | 0.180 | 0.318 |
+| frac_stuck>=2 | 0.134 | 0.162 | 0.126 | 0.161 |
+| frac_|lag5|>5 | 0.226 | 0.467 | 0.169 | 0.487 |
+| motion_q | 0.510 | 0.466 | 0.429 | 0.467 |
+| motion_ratio | 0.605 | 0.460 | 0.520 | 0.465 |
+| n | 14121.000 | 39627.000 | 13320.000 | 39169.000 |
+| opt | 0.263 | 0.235 | 0.250 | 0.259 |
+| s0 | 0.515 | 0.426 | 0.469 | 0.466 |
+| s5 | 0.487 | 0.405 | 0.462 | 0.456 |
+| succ5 | 0.498 | 0.458 | 0.418 | 0.432 |
+| xfit_corr | 0.691 | 0.606 | 0.714 | 0.563 |
+| xfit_linear8_predicted_err | 0.321 | 0.293 | 0.304 | 0.332 |
+| z(-dnn)+z(-disp5) | 0.341 | 0.310 | 0.307 | 0.347 |
+| z(-dnn)+z(-disp5)+z(-overtime) | 0.331 | 0.303 | 0.308 | 0.334 |
+| z(-dnn)+z(-disp5)+z(-overtime)+z(cosmax) | 0.319 | 0.295 | 0.308 | 0.333 |
+| z(-dnn)+z(-disp5)+z(-|lag5|) | 0.336 | 0.305 | 0.303 | 0.336 |
+| z(-dnn)+z(cosmax) | 0.339 | 0.310 | 0.337 | 0.357 |
+| z(-win_d)+z(-disp5)+z(-overtime)+z(cosmax) | 0.319 | 0.295 | 0.308 | 0.333 |
+| z(-win_d)+z(-disp5)+z(-overtime)+z(cosmax)+z(-stuck) | 0.321 | 0.298 | 0.306 | 0.332 |
+| z(-win_d)+z(-disp5)+z(-stuck) | 0.345 | 0.310 | 0.302 | 0.336 |
+| z(-win_d)+z(-overtime) | 0.348 | 0.321 | 0.341 | 0.357 |
+| z(s0)+z(-d0)+z(-disp5) | 0.381 | 0.329 | 0.348 | 0.367 |
+| z(s0)+z(-dnn)+z(-disp5)+z(-stuck) | 0.378 | 0.324 | 0.338 | 0.364 |
+| z(s0)+z(-dnn)+z(-disp5)+z(motion_ratio) | 0.439 | 0.347 | 0.395 | 0.386 |
+| z(s0)+z(-win_d)+z(-disp5)+z(-stuck)+z(-|lag5|) | 0.371 | 0.317 | 0.329 | 0.352 |
+| z(s0)+z(-win_d)+z(-disp5)+z(-stuck)+z(motion_ratio) | 0.431 | 0.346 | 0.368 | 0.382 |
+| z(s0)+z(-win_d)+z(-disp5)+z(-stuck)+z(motion_ratio)+z(-|lag5|) | 0.417 | 0.338 | 0.356 | 0.370 |
+| z(s0)+z(-win_d)+z(-disp5)+z(-stuck)+z(motion_ratio)+z(-|lag5|)+z(-step) | 0.379 | 0.327 | 0.335 | 0.357 |
+### library current
+| -d0 | 0.437 | 0.380 | 0.400 | 0.410 |
+| -d5 | 0.436 | 0.376 | 0.385 | 0.404 |
+| -disp5 | 0.471 | 0.431 | 0.404 | 0.458 |
+| -dnn | 0.432 | 0.379 | 0.400 | 0.411 |
+| -lag5 | 0.520 | 0.453 | 0.431 | 0.463 |
+| -libprog5 | 0.446 | 0.427 | 0.412 | 0.481 |
+| -overtime | 0.425 | 0.401 | 0.394 | 0.433 |
+| -step | 0.425 | 0.407 | 0.401 | 0.435 |
+| -stuck | 0.581 | 0.521 | 0.564 | 0.521 |
+| -vself | 0.536 | 0.520 | 0.458 | 0.541 |
+| -win_d | 0.431 | 0.379 | 0.400 | 0.410 |
+| -|lag5| | 0.457 | 0.424 | 0.417 | 0.445 |
+| -|lagfrac5| | 0.458 | 0.420 | 0.422 | 0.445 |
+| cos0_0 | 0.489 | 0.410 | 0.483 | 0.434 |
+| cos1_0 | 0.418 | 0.381 | 0.396 | 0.431 |
+| cosmax_sum | 0.426 | 0.384 | 0.414 | 0.431 |
+| err | 0.609 | 0.535 | 0.581 | 0.553 |
+| err_drift | 0.863 | 0.704 | 1.016 | 0.718 |
+| err_lag>5 | 0.922 | 0.675 | 1.128 | 0.679 |
+| err_mr<.3 | 0.681 | 0.551 | 0.687 | 0.636 |
+| err_nodrift | 0.457 | 0.381 | 0.393 | 0.399 |
+| err_notstuck | 0.582 | 0.523 | 0.505 | 0.530 |
+| err_overtime<=1 | 0.482 | 0.431 | 0.412 | 0.463 |
+| err_overtime>1 | 0.919 | 0.714 | 1.111 | 0.719 |
+| err_stuck>=2 | 0.785 | 0.578 | 0.971 | 0.631 |
+| frac_drift3x | 0.375 | 0.476 | 0.302 | 0.483 |
+| frac_motion_ratio<.3 | 0.112 | 0.230 | 0.040 | 0.246 |
+| frac_overtime>1 | 0.291 | 0.367 | 0.243 | 0.351 |
+| frac_stuck>=2 | 0.133 | 0.213 | 0.163 | 0.231 |
+| frac_|lag5|>5 | 0.257 | 0.471 | 0.208 | 0.510 |
+| motion_q | 0.577 | 0.534 | 0.539 | 0.549 |
+| motion_ratio | 0.685 | 0.559 | 0.735 | 0.553 |
+| n | 14121.000 | 39627.000 | 13320.000 | 39169.000 |
+| opt | 0.325 | 0.283 | 0.300 | 0.306 |
+| s0 | 0.544 | 0.431 | 0.545 | 0.487 |
+| s5 | 0.504 | 0.418 | 0.544 | 0.479 |
+| succ5 | 0.619 | 0.522 | 0.662 | 0.546 |
+| xfit_corr | 0.703 | 0.611 | 0.807 | 0.536 |
+| xfit_linear8_predicted_err | 0.389 | 0.352 | 0.360 | 0.386 |
+| z(-dnn)+z(-disp5) | 0.426 | 0.366 | 0.363 | 0.397 |
+| z(-dnn)+z(-disp5)+z(-overtime) | 0.406 | 0.359 | 0.360 | 0.391 |
+| z(-dnn)+z(-disp5)+z(-overtime)+z(cosmax) | 0.387 | 0.352 | 0.361 | 0.389 |
+| z(-dnn)+z(-disp5)+z(-|lag5|) | 0.417 | 0.364 | 0.357 | 0.389 |
+| z(-dnn)+z(cosmax) | 0.422 | 0.373 | 0.394 | 0.416 |
+| z(-win_d)+z(-disp5)+z(-overtime)+z(cosmax) | 0.388 | 0.353 | 0.361 | 0.389 |
+| z(-win_d)+z(-disp5)+z(-overtime)+z(cosmax)+z(-stuck) | 0.389 | 0.357 | 0.360 | 0.390 |
+| z(-win_d)+z(-disp5)+z(-stuck) | 0.428 | 0.370 | 0.358 | 0.391 |
+| z(-win_d)+z(-overtime) | 0.418 | 0.379 | 0.389 | 0.414 |
+| z(s0)+z(-d0)+z(-disp5) | 0.443 | 0.366 | 0.394 | 0.411 |
+| z(s0)+z(-dnn)+z(-disp5)+z(-stuck) | 0.439 | 0.368 | 0.380 | 0.404 |
+| z(s0)+z(-dnn)+z(-disp5)+z(motion_ratio) | 0.499 | 0.396 | 0.457 | 0.430 |
+| z(s0)+z(-win_d)+z(-disp5)+z(-stuck)+z(-|lag5|) | 0.434 | 0.368 | 0.377 | 0.401 |
+| z(s0)+z(-win_d)+z(-disp5)+z(-stuck)+z(motion_ratio) | 0.494 | 0.397 | 0.429 | 0.430 |
+| z(s0)+z(-win_d)+z(-disp5)+z(-stuck)+z(motion_ratio)+z(-|lag5|) | 0.479 | 0.390 | 0.415 | 0.422 |
+| z(s0)+z(-win_d)+z(-disp5)+z(-stuck)+z(motion_ratio)+z(-|lag5|)+z(-step) | 0.443 | 0.382 | 0.394 | 0.412 |
+
+## B2. fresh AURC (inf arms), same features
+| -d0 | 0.272 | 0.242 | 0.319 | 0.305 |
+| -d5 | 0.267 | 0.238 | 0.312 | 0.301 |
+| -disp5 | 0.230 | 0.200 | 0.289 | 0.262 |
+| -dnn | 0.265 | 0.240 | 0.319 | 0.304 |
+| -lag5 | 0.323 | 0.299 | 0.377 | 0.367 |
+| -libprog5 | 0.292 | 0.247 | 0.337 | 0.317 |
+| -overtime | 0.281 | 0.243 | 0.338 | 0.314 |
+| -step | 0.281 | 0.246 | 0.332 | 0.319 |
+| -stuck | 0.323 | 0.284 | 0.378 | 0.360 |
+| -vself | 0.337 | 0.297 | 0.366 | 0.363 |
+| -win_d | 0.265 | 0.237 | 0.316 | 0.302 |
+| -|lag5| | 0.291 | 0.254 | 0.347 | 0.331 |
+| -|lagfrac5| | 0.303 | 0.253 | 0.349 | 0.329 |
+| cos0_0 | 0.292 | 0.256 | 0.351 | 0.325 |
+| cos1_0 | 0.279 | 0.243 | 0.326 | 0.321 |
+| cosmax_sum | 0.277 | 0.242 | 0.338 | 0.321 |
+| err | 0.327 | 0.288 | 0.372 | 0.358 |
+| motion_q | 0.331 | 0.297 | 0.400 | 0.385 |
+| motion_ratio | 0.337 | 0.292 | 0.398 | 0.376 |
+| n | 10298.000 | 28906.000 | 10838.000 | 28565.000 |
+| opt | 0.183 | 0.153 | 0.217 | 0.196 |
+| s0 | 0.343 | 0.286 | 0.372 | 0.360 |
+| s5 | 0.336 | 0.280 | 0.365 | 0.355 |
+| succ5 | 0.318 | 0.282 | 0.368 | 0.358 |
+| z(-dnn)+z(-disp5) | 0.227 | 0.194 | 0.279 | 0.255 |
+| z(-dnn)+z(-disp5)+z(-overtime) | 0.240 | 0.202 | 0.292 | 0.268 |
+| z(-dnn)+z(-disp5)+z(-overtime)+z(cosmax) | 0.239 | 0.202 | 0.294 | 0.271 |
+| z(-dnn)+z(-disp5)+z(-|lag5|) | 0.230 | 0.197 | 0.281 | 0.261 |
+| z(-dnn)+z(cosmax) | 0.263 | 0.237 | 0.321 | 0.309 |
+| z(-win_d)+z(-disp5)+z(-overtime)+z(cosmax) | 0.239 | 0.202 | 0.293 | 0.271 |
+| z(-win_d)+z(-disp5)+z(-overtime)+z(cosmax)+z(-stuck) | 0.239 | 0.204 | 0.291 | 0.274 |
+| z(-win_d)+z(-disp5)+z(-stuck) | 0.230 | 0.197 | 0.279 | 0.261 |
+| z(-win_d)+z(-overtime) | 0.272 | 0.237 | 0.325 | 0.306 |
+| z(s0)+z(-d0)+z(-disp5) | 0.259 | 0.213 | 0.297 | 0.278 |
+| z(s0)+z(-dnn)+z(-disp5)+z(-stuck) | 0.255 | 0.215 | 0.298 | 0.280 |
+| z(s0)+z(-dnn)+z(-disp5)+z(motion_ratio) | 0.277 | 0.228 | 0.318 | 0.297 |
+| z(s0)+z(-win_d)+z(-disp5)+z(-stuck)+z(-|lag5|) | 0.254 | 0.213 | 0.297 | 0.277 |
+| z(s0)+z(-win_d)+z(-disp5)+z(-stuck)+z(motion_ratio) | 0.274 | 0.228 | 0.321 | 0.298 |
+| z(s0)+z(-win_d)+z(-disp5)+z(-stuck)+z(motion_ratio)+z(-|lag5|) | 0.271 | 0.225 | 0.315 | 0.295 |
+| z(s0)+z(-win_d)+z(-disp5)+z(-stuck)+z(motion_ratio)+z(-|lag5|)+z(-step) | 0.262 | 0.223 | 0.307 | 0.294 |
+
+## C. synthesis variants, stale (cache arms): err / gmis / err_trans / gmis_trans / frac_trans
+### big_k5
+| mean err | 0.535 | 0.468 | 0.466 | 0.478 |
+| mean gmis | 0.199 | 0.147 | 0.136 | 0.185 |
+| mean err_trans | 0.839 | 0.698 | 0.698 | 0.668 |
+| mean gmis_trans | 0.529 | 0.468 | 0.469 | 0.544 |
+| mean err_steady | 0.427 | 0.397 | 0.420 | 0.405 |
+| mean_snap err | 0.549 | 0.480 | 0.476 | 0.494 |
+| mean_snap gmis | 0.199 | 0.147 | 0.136 | 0.185 |
+| mean_snap err_trans | 0.876 | 0.739 | 0.739 | 0.718 |
+| mean_snap gmis_trans | 0.529 | 0.468 | 0.469 | 0.544 |
+| mean_snap err_steady | 0.434 | 0.399 | 0.424 | 0.408 |
+| mean_gmaj err | 0.549 | 0.480 | 0.476 | 0.494 |
+| mean_gmaj gmis | 0.199 | 0.147 | 0.136 | 0.185 |
+| mean_gmaj err_trans | 0.876 | 0.739 | 0.739 | 0.718 |
+| mean_gmaj gmis_trans | 0.529 | 0.468 | 0.470 | 0.544 |
+| mean_gmaj err_steady | 0.434 | 0.399 | 0.424 | 0.408 |
+| cluster_end err | 0.548 | 0.483 | 0.475 | 0.490 |
+| cluster_end gmis | 0.196 | 0.156 | 0.135 | 0.177 |
+| cluster_end err_trans | 0.875 | 0.739 | 0.716 | 0.700 |
+| cluster_end gmis_trans | 0.524 | 0.463 | 0.456 | 0.509 |
+| cluster_end err_steady | 0.432 | 0.403 | 0.427 | 0.409 |
+| cluster_pattern err | 0.565 | 0.492 | 0.492 | 0.504 |
+| cluster_pattern gmis | 0.203 | 0.149 | 0.138 | 0.186 |
+| cluster_pattern err_trans | 0.926 | 0.784 | 0.787 | 0.751 |
+| cluster_pattern gmis_trans | 0.554 | 0.482 | 0.487 | 0.553 |
+| cluster_pattern err_steady | 0.437 | 0.402 | 0.433 | 0.409 |
+| cluster_end_w err | 0.545 | 0.479 | 0.472 | 0.486 |
+| cluster_end_w gmis | 0.197 | 0.152 | 0.135 | 0.175 |
+| cluster_end_w err_trans | 0.874 | 0.727 | 0.711 | 0.692 |
+| cluster_end_w gmis_trans | 0.523 | 0.449 | 0.455 | 0.502 |
+| cluster_end_w err_steady | 0.428 | 0.402 | 0.424 | 0.407 |
+| cluster_end_prior60 err | 0.548 | 0.483 | 0.475 | 0.490 |
+| cluster_end_prior60 gmis | 0.196 | 0.156 | 0.135 | 0.177 |
+| cluster_end_prior60 err_trans | 0.875 | 0.739 | 0.716 | 0.700 |
+| cluster_end_prior60 gmis_trans | 0.524 | 0.463 | 0.456 | 0.509 |
+| cluster_end_prior60 err_steady | 0.432 | 0.403 | 0.427 | 0.409 |
+| frac_trans | 0.262 | 0.237 | 0.166 | 0.277 |
+### big_k8
+| mean err | 0.532 | 0.464 | 0.464 | 0.474 |
+| mean gmis | 0.198 | 0.146 | 0.139 | 0.188 |
+| mean err_trans | 0.827 | 0.693 | 0.698 | 0.667 |
+| mean gmis_trans | 0.531 | 0.483 | 0.488 | 0.558 |
+| mean err_steady | 0.427 | 0.392 | 0.418 | 0.400 |
+| mean_snap err | 0.547 | 0.476 | 0.476 | 0.491 |
+| mean_snap gmis | 0.198 | 0.146 | 0.139 | 0.188 |
+| mean_snap err_trans | 0.867 | 0.740 | 0.746 | 0.720 |
+| mean_snap gmis_trans | 0.531 | 0.483 | 0.488 | 0.558 |
+| mean_snap err_steady | 0.434 | 0.394 | 0.422 | 0.403 |
+| mean_gmaj err | 0.550 | 0.478 | 0.475 | 0.493 |
+| mean_gmaj gmis | 0.206 | 0.151 | 0.136 | 0.191 |
+| mean_gmaj err_trans | 0.874 | 0.747 | 0.740 | 0.727 |
+| mean_gmaj gmis_trans | 0.547 | 0.503 | 0.472 | 0.568 |
+| mean_gmaj err_steady | 0.435 | 0.394 | 0.422 | 0.403 |
+| cluster_end err | 0.552 | 0.484 | 0.469 | 0.486 |
+| cluster_end gmis | 0.203 | 0.153 | 0.134 | 0.182 |
+| cluster_end err_trans | 0.884 | 0.763 | 0.707 | 0.706 |
+| cluster_end gmis_trans | 0.547 | 0.500 | 0.457 | 0.531 |
+| cluster_end err_steady | 0.434 | 0.398 | 0.422 | 0.402 |
+| cluster_pattern err | 0.563 | 0.490 | 0.494 | 0.501 |
+| cluster_pattern gmis | 0.206 | 0.148 | 0.138 | 0.193 |
+| cluster_pattern err_trans | 0.924 | 0.800 | 0.808 | 0.765 |
+| cluster_pattern gmis_trans | 0.571 | 0.514 | 0.508 | 0.587 |
+| cluster_pattern err_steady | 0.435 | 0.394 | 0.432 | 0.400 |
+| cluster_end_w err | 0.542 | 0.475 | 0.469 | 0.482 |
+| cluster_end_w gmis | 0.198 | 0.145 | 0.135 | 0.177 |
+| cluster_end_w err_trans | 0.867 | 0.729 | 0.711 | 0.693 |
+| cluster_end_w gmis_trans | 0.531 | 0.461 | 0.463 | 0.515 |
+| cluster_end_w err_steady | 0.426 | 0.396 | 0.421 | 0.401 |
+| cluster_end_prior60 err | 0.548 | 0.482 | 0.474 | 0.488 |
+| cluster_end_prior60 gmis | 0.197 | 0.150 | 0.132 | 0.182 |
+| cluster_end_prior60 err_trans | 0.882 | 0.766 | 0.737 | 0.723 |
+| cluster_end_prior60 gmis_trans | 0.555 | 0.511 | 0.487 | 0.553 |
+| cluster_end_prior60 err_steady | 0.429 | 0.394 | 0.422 | 0.398 |
+| frac_trans | 0.262 | 0.237 | 0.166 | 0.277 |
+### current_k5
+| mean err | 0.609 | 0.535 | 0.581 | 0.553 |
+| mean gmis | 0.219 | 0.176 | 0.168 | 0.218 |
+| mean err_trans | 0.915 | 0.784 | 0.894 | 0.766 |
+| mean gmis_trans | 0.573 | 0.543 | 0.587 | 0.642 |
+| mean err_steady | 0.501 | 0.458 | 0.519 | 0.471 |
+| mean_snap err | 0.621 | 0.546 | 0.591 | 0.569 |
+| mean_snap gmis | 0.219 | 0.176 | 0.168 | 0.218 |
+| mean_snap err_trans | 0.945 | 0.822 | 0.936 | 0.817 |
+| mean_snap gmis_trans | 0.573 | 0.543 | 0.587 | 0.642 |
+| mean_snap err_steady | 0.506 | 0.460 | 0.523 | 0.474 |
+| mean_gmaj err | 0.621 | 0.546 | 0.591 | 0.569 |
+| mean_gmaj gmis | 0.219 | 0.176 | 0.168 | 0.218 |
+| mean_gmaj err_trans | 0.945 | 0.822 | 0.936 | 0.817 |
+| mean_gmaj gmis_trans | 0.573 | 0.543 | 0.587 | 0.642 |
+| mean_gmaj err_steady | 0.506 | 0.460 | 0.523 | 0.474 |
+| cluster_end err | 0.638 | 0.550 | 0.594 | 0.574 |
+| cluster_end gmis | 0.221 | 0.185 | 0.158 | 0.217 |
+| cluster_end err_trans | 0.974 | 0.828 | 0.944 | 0.828 |
+| cluster_end gmis_trans | 0.574 | 0.558 | 0.554 | 0.632 |
+| cluster_end err_steady | 0.519 | 0.463 | 0.525 | 0.477 |
+| cluster_pattern err | 0.637 | 0.560 | 0.610 | 0.584 |
+| cluster_pattern gmis | 0.219 | 0.179 | 0.173 | 0.220 |
+| cluster_pattern err_trans | 0.992 | 0.876 | 1.010 | 0.863 |
+| cluster_pattern gmis_trans | 0.590 | 0.571 | 0.619 | 0.656 |
+| cluster_pattern err_steady | 0.511 | 0.462 | 0.530 | 0.477 |
+| cluster_end_w err | 0.613 | 0.540 | 0.586 | 0.571 |
+| cluster_end_w gmis | 0.210 | 0.179 | 0.156 | 0.215 |
+| cluster_end_w err_trans | 0.965 | 0.822 | 0.933 | 0.828 |
+| cluster_end_w gmis_trans | 0.574 | 0.551 | 0.551 | 0.626 |
+| cluster_end_w err_steady | 0.488 | 0.452 | 0.517 | 0.473 |
+| cluster_end_prior60 err | 0.638 | 0.550 | 0.594 | 0.574 |
+| cluster_end_prior60 gmis | 0.221 | 0.185 | 0.158 | 0.217 |
+| cluster_end_prior60 err_trans | 0.974 | 0.828 | 0.944 | 0.828 |
+| cluster_end_prior60 gmis_trans | 0.574 | 0.558 | 0.554 | 0.632 |
+| cluster_end_prior60 err_steady | 0.519 | 0.463 | 0.525 | 0.477 |
+| frac_trans | 0.262 | 0.237 | 0.166 | 0.277 |
+### fresh (inf arms) big_k5 mean vs mean_snap vs cluster_end
+| mean err | 0.327 | 0.288 | 0.372 | 0.358 |
+| mean gmis | 0.030 | 0.040 | 0.033 | 0.060 |
+| mean err_trans | 0.508 | 0.416 | 0.533 | 0.508 |
+| mean gmis_trans | 0.252 | 0.268 | 0.267 | 0.325 |
+| mean_snap err | 0.329 | 0.290 | 0.375 | 0.362 |
+| mean_snap gmis | 0.030 | 0.040 | 0.033 | 0.060 |
+| mean_snap err_trans | 0.537 | 0.450 | 0.564 | 0.546 |
+| mean_snap gmis_trans | 0.252 | 0.268 | 0.267 | 0.325 |
+| cluster_end err | 0.330 | 0.291 | 0.375 | 0.362 |
+| cluster_end gmis | 0.032 | 0.043 | 0.035 | 0.062 |
+| cluster_end err_trans | 0.535 | 0.444 | 0.559 | 0.544 |
+| cluster_end gmis_trans | 0.263 | 0.287 | 0.274 | 0.330 |
+| cluster_end_w err | 0.323 | 0.287 | 0.372 | 0.359 |
+| cluster_end_w gmis | 0.031 | 0.042 | 0.036 | 0.062 |
+| cluster_end_w err_trans | 0.525 | 0.438 | 0.555 | 0.542 |
+| cluster_end_w gmis_trans | 0.257 | 0.278 | 0.273 | 0.329 |
+
+## D. fresh regime: -c/s_c + lam*vis/2 + alpha*z(-d), all candidates, mean5 (inf arms)
+### library big
+| lam0.25_a0 err_fresh | 0.263 | 0.281 | 0.255 | 0.271 |
+| lam0.25_a0 aurc_cont | 0.185 | 0.215 | 0.179 | 0.206 |
+| lam0.25_a0 aurc_cont_disp | 0.182 | 0.215 | 0.178 | 0.209 |
+| lam0.25_a0 aurc_cont_disp_vis | 0.184 | 0.202 | 0.182 | 0.198 |
+| lam0.25_a0 err_trans | 0.505 | 0.557 | 0.476 | 0.610 |
+| lam0.25_a0.25 err_fresh | 0.262 | 0.280 | 0.254 | 0.270 |
+| lam0.25_a0.25 aurc_cont | 0.184 | 0.214 | 0.178 | 0.204 |
+| lam0.25_a0.25 aurc_cont_disp | 0.181 | 0.213 | 0.177 | 0.207 |
+| lam0.25_a0.25 aurc_cont_disp_vis | 0.184 | 0.200 | 0.181 | 0.196 |
+| lam0.25_a0.25 err_trans | 0.503 | 0.556 | 0.473 | 0.608 |
+| lam0.5_a0 err_fresh | 0.261 | 0.279 | 0.255 | 0.271 |
+| lam0.5_a0 aurc_cont | 0.184 | 0.214 | 0.179 | 0.205 |
+| lam0.5_a0 aurc_cont_disp | 0.180 | 0.213 | 0.178 | 0.208 |
+| lam0.5_a0 aurc_cont_disp_vis | 0.184 | 0.200 | 0.183 | 0.197 |
+| lam0.5_a0 err_trans | 0.501 | 0.556 | 0.477 | 0.610 |
+| lam0.5_a0.25 err_fresh | 0.261 | 0.278 | 0.254 | 0.270 |
+| lam0.5_a0.25 aurc_cont | 0.184 | 0.213 | 0.179 | 0.204 |
+| lam0.5_a0.25 aurc_cont_disp | 0.180 | 0.211 | 0.177 | 0.206 |
+| lam0.5_a0.25 aurc_cont_disp_vis | 0.184 | 0.199 | 0.182 | 0.196 |
+| lam0.5_a0.25 err_trans | 0.500 | 0.554 | 0.475 | 0.608 |
+| lam0_a0 err_fresh | 0.266 | 0.284 | 0.256 | 0.272 |
+| lam0_a0 aurc_cont | 0.186 | 0.218 | 0.179 | 0.208 |
+| lam0_a0 aurc_cont_disp | 0.184 | 0.219 | 0.180 | 0.211 |
+| lam0_a0 aurc_cont_disp_vis | 0.187 | 0.205 | 0.181 | 0.197 |
+| lam0_a0 err_trans | 0.509 | 0.559 | 0.480 | 0.609 |
+| lam0_a0.25 err_fresh | 0.265 | 0.282 | 0.255 | 0.271 |
+| lam0_a0.25 aurc_cont | 0.185 | 0.216 | 0.178 | 0.205 |
+| lam0_a0.25 aurc_cont_disp | 0.183 | 0.216 | 0.177 | 0.208 |
+| lam0_a0.25 aurc_cont_disp_vis | 0.186 | 0.203 | 0.181 | 0.196 |
+| lam0_a0.25 err_trans | 0.508 | 0.557 | 0.477 | 0.607 |
+| lam1_a0 err_fresh | 0.260 | 0.276 | 0.255 | 0.271 |
+| lam1_a0 aurc_cont | 0.184 | 0.212 | 0.180 | 0.205 |
+| lam1_a0 aurc_cont_disp | 0.179 | 0.210 | 0.179 | 0.206 |
+| lam1_a0 aurc_cont_disp_vis | 0.185 | 0.197 | 0.185 | 0.198 |
+| lam1_a0 err_trans | 0.497 | 0.553 | 0.476 | 0.610 |
+| lam1_a0.25 err_fresh | 0.260 | 0.275 | 0.255 | 0.270 |
+| lam1_a0.25 aurc_cont | 0.183 | 0.211 | 0.180 | 0.204 |
+| lam1_a0.25 aurc_cont_disp | 0.179 | 0.208 | 0.178 | 0.205 |
+| lam1_a0.25 aurc_cont_disp_vis | 0.184 | 0.196 | 0.185 | 0.197 |
+| lam1_a0.25 err_trans | 0.496 | 0.552 | 0.473 | 0.608 |
+| lam2_a0 err_fresh | 0.261 | 0.272 | 0.259 | 0.272 |
+| lam2_a0 aurc_cont | 0.185 | 0.209 | 0.184 | 0.205 |
+| lam2_a0 aurc_cont_disp | 0.179 | 0.205 | 0.182 | 0.204 |
+| lam2_a0 aurc_cont_disp_vis | 0.187 | 0.193 | 0.189 | 0.198 |
+| lam2_a0 err_trans | 0.490 | 0.548 | 0.475 | 0.610 |
+| lam2_a0.25 err_fresh | 0.260 | 0.271 | 0.259 | 0.271 |
+| lam2_a0.25 aurc_cont | 0.185 | 0.208 | 0.184 | 0.204 |
+| lam2_a0.25 aurc_cont_disp | 0.178 | 0.203 | 0.181 | 0.204 |
+| lam2_a0.25 aurc_cont_disp_vis | 0.186 | 0.192 | 0.189 | 0.197 |
+| lam2_a0.25 err_trans | 0.487 | 0.547 | 0.471 | 0.607 |
+| opt | 0.145 | 0.139 | 0.144 | 0.131 |
+### library current
+| lam0.25_a0 err_fresh | 0.347 | 0.326 | 0.349 | 0.339 |
+| lam0.25_a0 aurc_cont | 0.240 | 0.244 | 0.244 | 0.257 |
+| lam0.25_a0 aurc_cont_disp | 0.238 | 0.247 | 0.244 | 0.260 |
+| lam0.25_a0 aurc_cont_disp_vis | 0.243 | 0.237 | 0.246 | 0.253 |
+| lam0.25_a0 err_trans | 0.593 | 0.576 | 0.550 | 0.633 |
+| lam0.25_a0.25 err_fresh | 0.347 | 0.326 | 0.350 | 0.340 |
+| lam0.25_a0.25 aurc_cont | 0.240 | 0.243 | 0.244 | 0.257 |
+| lam0.25_a0.25 aurc_cont_disp | 0.237 | 0.244 | 0.244 | 0.256 |
+| lam0.25_a0.25 aurc_cont_disp_vis | 0.243 | 0.235 | 0.246 | 0.251 |
+| lam0.25_a0.25 err_trans | 0.593 | 0.575 | 0.545 | 0.633 |
+| lam0.5_a0 err_fresh | 0.347 | 0.326 | 0.351 | 0.342 |
+| lam0.5_a0 aurc_cont | 0.241 | 0.244 | 0.245 | 0.259 |
+| lam0.5_a0 aurc_cont_disp | 0.237 | 0.246 | 0.244 | 0.261 |
+| lam0.5_a0 aurc_cont_disp_vis | 0.244 | 0.236 | 0.248 | 0.255 |
+| lam0.5_a0 err_trans | 0.591 | 0.575 | 0.547 | 0.636 |
+| lam0.5_a0.25 err_fresh | 0.348 | 0.326 | 0.352 | 0.343 |
+| lam0.5_a0.25 aurc_cont | 0.241 | 0.242 | 0.246 | 0.258 |
+| lam0.5_a0.25 aurc_cont_disp | 0.237 | 0.243 | 0.245 | 0.258 |
+| lam0.5_a0.25 aurc_cont_disp_vis | 0.244 | 0.235 | 0.249 | 0.253 |
+| lam0.5_a0.25 err_trans | 0.591 | 0.573 | 0.549 | 0.636 |
+| lam0_a0 err_fresh | 0.349 | 0.328 | 0.351 | 0.337 |
+| lam0_a0 aurc_cont | 0.242 | 0.245 | 0.245 | 0.256 |
+| lam0_a0 aurc_cont_disp | 0.241 | 0.250 | 0.246 | 0.260 |
+| lam0_a0 aurc_cont_disp_vis | 0.247 | 0.239 | 0.247 | 0.255 |
+| lam0_a0 err_trans | 0.598 | 0.579 | 0.559 | 0.631 |
+| lam0_a0.25 err_fresh | 0.349 | 0.327 | 0.350 | 0.338 |
+| lam0_a0.25 aurc_cont | 0.241 | 0.244 | 0.244 | 0.255 |
+| lam0_a0.25 aurc_cont_disp | 0.240 | 0.247 | 0.245 | 0.255 |
+| lam0_a0.25 aurc_cont_disp_vis | 0.246 | 0.237 | 0.246 | 0.250 |
+| lam0_a0.25 err_trans | 0.598 | 0.576 | 0.549 | 0.631 |
+| lam1_a0 err_fresh | 0.353 | 0.327 | 0.363 | 0.348 |
+| lam1_a0 aurc_cont | 0.247 | 0.244 | 0.251 | 0.261 |
+| lam1_a0 aurc_cont_disp | 0.241 | 0.243 | 0.249 | 0.263 |
+| lam1_a0 aurc_cont_disp_vis | 0.249 | 0.236 | 0.257 | 0.259 |
+| lam1_a0 err_trans | 0.592 | 0.572 | 0.558 | 0.641 |
+| lam1_a0.25 err_fresh | 0.354 | 0.327 | 0.361 | 0.348 |
+| lam1_a0.25 aurc_cont | 0.247 | 0.243 | 0.252 | 0.261 |
+| lam1_a0.25 aurc_cont_disp | 0.241 | 0.242 | 0.250 | 0.261 |
+| lam1_a0.25 aurc_cont_disp_vis | 0.249 | 0.235 | 0.258 | 0.258 |
+| lam1_a0.25 err_trans | 0.592 | 0.568 | 0.557 | 0.636 |
+| lam2_a0 err_fresh | 0.370 | 0.333 | 0.378 | 0.357 |
+| lam2_a0 aurc_cont | 0.259 | 0.246 | 0.262 | 0.267 |
+| lam2_a0 aurc_cont_disp | 0.252 | 0.245 | 0.259 | 0.268 |
+| lam2_a0 aurc_cont_disp_vis | 0.262 | 0.239 | 0.271 | 0.266 |
+| lam2_a0 err_trans | 0.602 | 0.564 | 0.569 | 0.643 |
+| lam2_a0.25 err_fresh | 0.369 | 0.332 | 0.377 | 0.357 |
+| lam2_a0.25 aurc_cont | 0.259 | 0.245 | 0.263 | 0.265 |
+| lam2_a0.25 aurc_cont_disp | 0.252 | 0.244 | 0.259 | 0.265 |
+| lam2_a0.25 aurc_cont_disp_vis | 0.262 | 0.238 | 0.271 | 0.264 |
+| lam2_a0.25 err_trans | 0.600 | 0.560 | 0.569 | 0.637 |
+| opt | 0.203 | 0.176 | 0.211 | 0.186 |
+
+## E. timing (us, single thread)
+| current proj_us_D32 | 1153.790 | 469.318 | 512.747 | 496.956 |
+| current proj_us_32D | 811.359 | 363.523 | 388.994 | 378.416 |
+| current score_us_p50 | 579.067 | 362.231 | 300.092 | 315.406 |
+| current score_us_p95 | 727.596 | 397.648 | 363.110 | 365.262 |
+| current cands_mean | 101.800 | 264.000 | 106.300 | 264.500 |
+| big proj_us_D32 | 1433.396 | 446.206 | 601.561 | 532.000 |
+| big proj_us_32D | 1022.785 | 362.417 | 441.860 | 397.549 |
+| big score_us_p50 | 757.413 | 527.841 | 405.240 | 501.225 |
+| big score_us_p95 | 978.245 | 624.552 | 460.009 | 612.449 |
+| big cands_mean | 1090.900 | 2947.200 | 1175.100 | 2963.100 |
+
+cells loaded: ['groot_l10_cache', 'groot_l10_inf', 'groot_spatial_cache', 'groot_spatial_inf', 'pi05_l10_cache', 'pi05_l10_inf', 'pi05_spatial_cache', 'pi05_spatial_inf']
