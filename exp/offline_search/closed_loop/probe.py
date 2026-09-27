@@ -6,6 +6,9 @@ ProbeB0   B0Current (harness baseline) + extras = crc32 digests of every QueryVi
 ProbeHist A deterministic, history-driven toy selector (not B0): scores = -L2(rs, library rs) plus a tie-break on the
           previous executed chunk; exercises hist_* / prev_a_exec paths and returns a synthesized action (mean of the
           top-3 library actions) so the synthesized-payload serving path is covered too.
+ProbeForce ProbeB0 that raises the mixed-judge flags (extras os_force_miss = 1 with os_reason = 1 + step % 7) on two
+          consecutive steps of every five (step % 5 in {2, 3}) and adds ``prev_hit`` / ``n_miss_hist`` (count of 0 in
+          hist_hit) so the verdict-aware bookkeeping after a MISS is digested too.
 
 Each crc32 is split into two 16-bit halves so it survives the harness' float32 extras storage exactly.
 """
@@ -57,6 +60,28 @@ class ProbeB0(baselines.B0Current):
         r = super().query(q)
         ex = dict(r.extras or {})
         ex.update(digests(q))
+        return api.Result(topk=r.topk, scores=r.scores, confidence=r.confidence, extras=ex)
+
+
+class ProbeForce(ProbeB0):
+    """ProbeB0 + the H3 judge contract flags: forced MISS on steps with step % 5 in {2, 3}."""
+
+    name = "probe_force"
+
+    def __init__(self, period=5, force_steps=(2, 3)):
+        super().__init__()
+        self.name = "probe_force"
+        self.period = int(period)
+        self.force_steps = tuple(int(s) for s in force_steps)
+
+    def query(self, q):
+        r = super().query(q)
+        ex = dict(r.extras or {})
+        forced = (q.step % self.period) in self.force_steps
+        ex["os_force_miss"] = 1.0 if forced else 0.0
+        if forced:
+            ex["os_reason"] = float(1 + q.step % 7)
+        ex["n_miss_hist"] = float(int((np.asarray(q.hist_hit) == 0).sum()))
         return api.Result(topk=r.topk, scores=r.scores, confidence=r.confidence, extras=ex)
 
 

@@ -7,7 +7,9 @@ compares what the server's plugin logged (--os-log-inputs) with the store rows o
   * key_v0 / key_v1: the live pooled keys vs the offline store keys (bit-exact fraction, max |diff|, min cosine)
   * rs (robot_state key), raw_state
   * plugin top-1 and native-shadow top-1 vs the recorded online top-1 (rec_top1), when the method is B0 / ProbeB0
-  * every response is a FULL_HIT whose winner id is the plugin's logged winner
+  * every response is a FULL_HIT whose winner id is the plugin's logged winner (pure cache); on a mixed server
+    (--os-judge) the response hit_type mix is reported and must equal the plugin's logged hit flags decision by
+    decision (`verdict_matches_log`), the MISS responses carry the policy's actions and the proposal as winner_id
 
     taskset -c 34-37,78-81 .venv/bin/python -m exp.offline_search.closed_loop.replay_client --port 23140 \
         --cell pi05_spatial_cache --episodes 5 --log-dir <server --os-log-dir> [--bundle default]
@@ -99,6 +101,8 @@ def main(argv=None):
            "full_hit": 0, "winner_logged": 0}
     v0_max, v1_max, rs_max, cos_min = 0.0, 0.0, 0.0, 1.0
     rec = np.asarray(qc.rec_top1)
+    hit_mix: dict = {}
+    verdict_eq = verdict_n = 0
     for uid, (ei, metas) in resp_rows.items():
         z = logged.get(uid)
         if z is None:
@@ -107,6 +111,12 @@ def main(argv=None):
         rows = np.arange(e["start"], e["end"])
         n = rows.size
         acc["n"] += n
+        for s, m in enumerate(metas):
+            ht = m.get("hit_type")
+            hit_mix[ht] = hit_mix.get(ht, 0) + 1
+            if "hit" in z and s < z["hit"].shape[0]:
+                verdict_n += 1
+                verdict_eq += int((ht == "FULL_HIT") == bool(z["hit"][s]))
         sv0, sv1 = np.asarray(qc.key_v0[rows]), np.asarray(qc.key_v1[rows])
         srs, sraw = np.asarray(qc.rs[rows]), np.asarray(qc.raw_state[rows])
         acc["v0_exact"] += int((z["key_v0"] == sv0).all(1).sum())
@@ -131,6 +141,20 @@ def main(argv=None):
     n = max(acc["n"], 1)
     rep.update({k: (v / n if k != "n" else v) for k, v in acc.items()})
     rep.update({"v0_max_abs": v0_max, "v1_max_abs": v1_max, "rs_max_abs": rs_max, "key_cos_min": cos_min})
+    rep["hit_mix"] = hit_mix
+    if verdict_n:
+        # mixed server: the client-side verdicts vs the plugin's logged hit flags, realized hit rate, IR (pi05 formula)
+        hits = np.concatenate([z["hit"] for z in logged.values() if "hit" in z]).astype(int)
+        h = float(hits.mean()) if hits.size else None
+        rep["mixed"] = {"verdict_matches_log": verdict_eq / verdict_n, "n": int(hits.size), "h": h,
+                        "n_miss": int((hits == 0).sum()),
+                        "ir_pi05_formula": None if h is None else 0.152 + 0.848 * (1.0 - h),
+                        "judge_mix": {str(k): int(v) for k, v in zip(*np.unique(np.concatenate(
+                            [z["judge"] for z in logged.values() if "judge" in z]).astype(str), return_counts=True))}}
+        s23 = np.concatenate([z["s23_ms"] for z in logged.values() if "s23_ms" in z]).astype(np.float64)
+        s23 = s23[np.isfinite(s23)]
+        if s23.size:
+            rep["mixed"]["s23_ms"] = {"n": int(s23.size), "mean": float(s23.mean()), "p50": float(np.percentile(s23, 50))}
     print(json.dumps(rep, indent=1))
     if a.out:
         pathlib.Path(a.out).write_text(json.dumps(rep, indent=1))

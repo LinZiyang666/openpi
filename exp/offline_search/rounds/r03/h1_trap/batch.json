@@ -1,0 +1,245 @@
+[
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {},
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "ridge_main": 1.0
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "shared_beta": 0.5
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "grip_commit": true
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "term_guard": true
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "grip_commit": true,
+   "term_guard": true
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "grip_commit": true,
+   "grip_confirm": "sign",
+   "term_guard": true
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 1.0
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 0.5
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 0.0
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 1.0,
+   "grip_commit": true
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 1.0,
+   "term_guard": true
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 1.0,
+   "grip_commit": true,
+   "term_guard": true
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 0.5,
+   "grip_commit": true
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 0.5,
+   "term_guard": true
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 0.5,
+   "grip_commit": true,
+   "term_guard": true
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 1.0,
+   "grip_commit": true,
+   "grip_class_mean": true,
+   "term_guard": true
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 1.0,
+   "grip_commit": true,
+   "term_guard": true,
+   "term_rows": 1
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 1.0,
+   "grip_commit": true,
+   "grip_thr": 0.6,
+   "term_guard": true
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "prior_alpha": 1.0,
+   "grip_commit": true,
+   "term_guard": true,
+   "term_gate": "late"
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "lib": "big"
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+  "kwargs": {
+   "lib": "big",
+   "grip_commit": true,
+   "term_guard": true
+  },
+  "family": "h1_trap",
+  "cells": "all",
+  "subsample": null,
+  "allow_gpu_fit": false
+ }
+]

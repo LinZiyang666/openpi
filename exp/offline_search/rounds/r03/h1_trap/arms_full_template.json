@@ -1,0 +1,39 @@
+{
+ "_comment": [
+  "Template for the 500-episode full runs: the pilot rows for all 4 cells (names r3f_<p|g>_<sp|l10>_<short>), plus the",
+  "10x rows (AWM3 lib=big + grip_commit + term_guard) and two offline-motivated alternates. The coordinator picks the",
+  "rows to run (SELECTION: best borrowing + best non-borrowing per cell; 10x on the two pi0.5 cells first) and copies",
+  "them into a plain list for emit_arms.py. <RUN> = run root placeholder. Every kwargs set here has a PASSing harness",
+  "smoke on pi05_spatial_{inf,cache} + groot_l10_{inf,cache} and a PASSing G3 contract check (README.md)."
+ ],
+ "rows": {
+  "cl2ref":    {"method": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM", "kwargs": {"lib": "current", "kref": 5}},
+  "a1":        {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"prior_alpha": 1.0}},
+  "a05":       {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"prior_alpha": 0.5}},
+  "ridge1":    {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"ridge_main": 1.0}},
+  "gc_tg":     {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"grip_commit": true, "term_guard": true}},
+  "a1_gc":     {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"prior_alpha": 1.0, "grip_commit": true}},
+  "a1_tg":     {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"prior_alpha": 1.0, "term_guard": true}},
+  "a1_gc_tg":  {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"prior_alpha": 1.0, "grip_commit": true, "term_guard": true}},
+  "a05_gc":    {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"prior_alpha": 0.5, "grip_commit": true}},
+  "a05_tg":    {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"prior_alpha": 0.5, "term_guard": true}},
+  "a05_gc_tg": {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"prior_alpha": 0.5, "grip_commit": true, "term_guard": true}},
+  "a1_gc_tgp": {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"prior_alpha": 1.0, "grip_commit": true, "term_guard": true, "term_gate": "late"},
+                "_why": "alternate: progress-only terminal gate (halves term_guard's offline late-third cost; the re-open clause rarely holds in spatial)"},
+  "a1_gct06_tg": {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"prior_alpha": 1.0, "grip_commit": true, "grip_thr": 0.6, "term_guard": true},
+                "_why": "alternate: vote threshold .6 (fewer held transitions; offline neutral)"},
+  "big":       {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"lib": "big"},
+                "_why": "10x reference (== AWM lib=big kref=5 up to step-0 exact ties; 47 / 94 MB pickles pi0.5)"},
+  "big_gc_tg": {"method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3", "kwargs": {"lib": "big", "grip_commit": true, "term_guard": true},
+                "_why": "10x family: AWM_big + grip_commit + term_guard"}
+ },
+ "cells": {"p_sp": {"model": "pi05", "suite": "spatial"}, "p_l10": {"model": "pi05", "suite": "l10"},
+           "g_sp": {"model": "groot", "suite": "spatial"}, "g_l10": {"model": "groot", "suite": "l10"}},
+ "name_pattern": "r3f_<cell>_<row>   (e.g. r3f_p_sp_a1_gc_tg; <= 40 chars; [A-Za-z0-9_])",
+ "plugin_args_pattern": ["--os-fit-artifact", "<RUN>/fits/<name>.pkl"],
+ "example_arm": {"name": "r3f_p_sp_a1_gc_tg", "model": "pi05", "suite": "spatial", "mode": "plugin",
+                 "method": "exp/offline_search/rounds/r03/h1_trap/awm3.py:AWM3",
+                 "kwargs": {"prior_alpha": 1.0, "grip_commit": true, "term_guard": true},
+                 "plugin_args": ["--os-fit-artifact", "<RUN>/fits/r3f_p_sp_a1_gc_tg.pkl"]},
+ "prefit_note": "taskset -c <cpus> env OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv/bin/python -m exp.offline_search.closed_loop.plugin --os-method <method> --os-kwargs '<kwargs>' --os-cell <m>_<s>_cache --os-log-dir <RUN>/fits --os-fit-artifact <RUN>/fits/<name>.pkl ; measured: current 0.6-4.3 s, 21.9 / 26.0 MB (pi0.5 sp / l10), 22.8 / 28.1 MB (GR00T); 10x 2.8-11.5 s, 47.1 / 94.3 MB (pi0.5), 58.2 / 117.5 MB (GR00T); prior (borrowed) fits need ~1.3 GB RAM during fit (big-row features), the pickle is the same size as the current fit"
+}

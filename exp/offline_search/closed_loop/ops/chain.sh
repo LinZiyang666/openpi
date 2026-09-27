@@ -8,7 +8,9 @@
 # env: PORTS        comma list of free ports in 23100-23199 (scan: ss -ltnH | grep -oE ':231[0-9]{2}\b'), required
 #      WPS          timan107 workers per server (default 16; 4 servers x 16 = the recommended 64)
 #      SERVER_CPUS  taskset list for the servers (default 34-37,78-81)
-#      STAGE1_ONLY  1 = stage 2/3 weights on meta (default 1, see start_server.sh); 0 = full model
+#      STAGE1_ONLY  1 = stage 2/3 weights on meta (default 1, see start_server.sh); 0 = full model. An arm whose
+#                   arms.json row carries "full_model": true (emit_arms spec; mixed HIT/MISS arms) is always
+#                   started with STAGE1_ONLY=0 and the full-model NEED_MB, whatever this env says
 #      NEED_MB      free GPU MiB required per server before starting (default 3000 with STAGE1_ONLY=1, else
 #                   9000 pi05 / 8000 groot; measured 2.2 / 1.9 GB and 7.6 / 5.7-6.7 GB)
 #      OSCL_EPISODES / OSCL_TASKS  smoke subset (ep_idx / task_id lists); EXPECT follows automatically
@@ -31,6 +33,7 @@ ev() { echo "EV $(date +%m-%d_%H:%M:%S) $*" | tee -a "$LOG"; }
 note() { echo "   $(date +%H:%M:%S) $*" | tee -a "$LOG"; }
 rx() { timeout 300 tether exec timan107 -- bash -c "$1" 2>/dev/null; }
 field() { python3 -c "import json,sys; a={r['arm']:r for r in json.load(open('$RUN/arms.json'))}[sys.argv[1]]; v=a[sys.argv[2]]; print(json.dumps(v) if isinstance(v,(dict,list)) else v)" "$1" "$2"; }
+field_or() { python3 -c "import json,sys; a={r['arm']:r for r in json.load(open('$RUN/arms.json'))}[sys.argv[1]]; v=a.get(sys.argv[2], sys.argv[3]); print(json.dumps(v) if isinstance(v,(dict,list,bool)) else v)" "$1" "$2" "$3"; }
 
 if [ -n "${OSCL_EPISODES:-}" ]; then
   ne=$(echo "$OSCL_EPISODES" | tr ',' '\n' | grep -c .)
@@ -56,9 +59,11 @@ PY
 }
 
 servers_up() {  # $1 arm
-  local arm=$1 model suite yaml mode p need free args=()
+  local arm=$1 model suite yaml mode p need free s1 args=()
   model=$(field "$arm" model); suite=$(field "$arm" suite); yaml=$(field "$arm" yaml); mode=$(field "$arm" mode)
-  if [ "${STAGE1_ONLY:-1}" = "1" ]; then need=${NEED_MB:-3000}
+  s1=${STAGE1_ONLY:-1}
+  [ "$(field_or "$arm" full_model false)" = "true" ] && s1=0     # mixed HIT/MISS arm: stage 2/3 must be loaded
+  if [ "$s1" = "1" ]; then need=${NEED_MB:-3000}
   else need=${NEED_MB:-$([ "$model" = groot ] && echo 8000 || echo 9000)}; fi
   free=$(nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits | head -1)
   local n; n=$(echo "$PORTS" | tr , '\n' | grep -c .)
@@ -67,12 +72,13 @@ servers_up() {  # $1 arm
   for p in $(echo "$PORTS" | tr , ' '); do
     if ss -ltnH "sport = :$p" | grep -q .; then ev "PORT_BUSY arm=$arm port=$p"; return 1; fi
     if [ "$mode" = stock ]; then
-      STOCK=1 bash "$HERE/start_server.sh" "$model" "$suite" "$p" "$yaml" "$RUN/runs/$arm/server_$p" "${arm}_$p" >/dev/null || return 1
+      STOCK=1 STAGE1_ONLY=$s1 bash "$HERE/start_server.sh" "$model" "$suite" "$p" "$yaml" "$RUN/runs/$arm/server_$p" "${arm}_$p" >/dev/null || return 1
     else
-      bash "$HERE/start_server.sh" "$model" "$suite" "$p" "$yaml" "$RUN/runs/$arm/server_$p" "${arm}_$p" "${args[@]}" >/dev/null || return 1
+      STAGE1_ONLY=$s1 bash "$HERE/start_server.sh" "$model" "$suite" "$p" "$yaml" "$RUN/runs/$arm/server_$p" "${arm}_$p" "${args[@]}" >/dev/null || return 1
     fi
     sleep 10
   done
+  [ "$s1" = "0" ] && note "arm $arm: full-model servers (STAGE1_ONLY=0, need ${need}MiB each)"
   local t=0
   while :; do
     local up=0

@@ -8,8 +8,14 @@ QueryView the offline harness would construct for that trajectory. Checks:
   * offline topk / scores / confidence / library / synthesized action / scalar extras == online (bit-exact); with
     ProbeB0 / ProbeHist the extras include crc32 digests of every QueryView field (keys, rs, raw_state, hist_*,
     prev_a_exec, prev_hit, hist_hit, episode identity), so equality proves the online inputs match
-  * logged executed chunk == the chunk the method selected (library row action, or the synthesized action)
+  * logged executed chunk == the chunk the method selected (library row action, or the synthesized action) on every
+    HIT decision
   * native shadow (method mode) / native winner (native mode) vs offline B0Current on the same live keys
+  * mixed mode (server started with --os-judge; the npz carries hit / judge / tau / run): MISS rows enter the mini
+    store as policy rows (a_inf = the logged executed chunk, a_hit != it), so the offline replay sees prev_hit False /
+    prev_a_exec = policy chunk exactly like the online session; every verdict is re-derived from the logged
+    confidence / tau / run / step / os_force_miss and must equal the logged one (thr: conf >= tau; quantile: conf >=
+    logged tau_t; force: os_force_miss == 1 -> MISS; cap: run >= R -> MISS; periodic: step % k == k-1 -> MISS; step0)
 
     taskset -c 34-37,78-81 .venv/bin/python -m exp.offline_search.closed_loop.verify_logs --log-dir <server log dir> \
         [--tag <tag>] [--work /tmp/osplug_verify] [--b0-check]
@@ -25,11 +31,14 @@ for _v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
 import argparse  # noqa: E402
 import glob  # noqa: E402
 import json  # noqa: E402
+import math  # noqa: E402
 import pathlib  # noqa: E402
 import shutil  # noqa: E402
 import sys  # noqa: E402
 
 import numpy as np  # noqa: E402
+
+IR_PI05 = (0.152, 0.848)
 
 
 def load_logs(log_dir: pathlib.Path, tag: str | None):
@@ -42,6 +51,15 @@ def load_logs(log_dir: pathlib.Path, tag: str | None):
     return eps
 
 
+def hit_flags(z) -> np.ndarray:
+    """int8 per logged decision: 1 HIT (served payload executed), 0 MISS (policy chunk executed). Pure-cache logs
+    (no 'hit' array) are all HIT."""
+    n = int(z["step"].shape[0])
+    if "hit" in z:
+        return np.asarray(z["hit"], np.int8)[:n]
+    return np.ones(n, np.int8)
+
+
 def build_ministore(work: pathlib.Path, root: pathlib.Path, cell: str, eps, H: int):
     from exp.offline_search.harness import store
 
@@ -52,12 +70,18 @@ def build_ministore(work: pathlib.Path, root: pathlib.Path, cell: str, eps, H: i
     qd.mkdir(parents=True)
     (work / "library").mkdir()
     os.symlink(root / "library" / f"{m}_{s}", work / "library" / f"{m}_{s}")
-    episodes, cols = [], {k: [] for k in ("ep", "step", "key_v0", "key_v1", "rs", "raw_state", "a_exec")}
+    episodes, cols = [], {k: [] for k in ("ep", "step", "key_v0", "key_v1", "rs", "raw_state", "a_exec", "a_hit", "a_inf")}
     start = 0
     for i, (_f, meta, z) in enumerate(eps):
         n = int(z["step"].shape[0])
         aex = np.full((n, H, 32), np.nan, np.float32)
         aex[: z["a_exec"].shape[0]] = z["a_exec"][:n]
+        hit = hit_flags(z)
+        # exec_hit_flag (store.QueryCell) compares a_exec with a_hit / a_inf on [:, :, :7]: HIT rows -> a_hit ==
+        # a_exec, a_inf != ; MISS rows (policy chunk executed) -> a_inf == a_exec, a_hit != ; NaN rows stay undecidable
+        other = np.nan_to_num(aex) + 1.0
+        ahit = np.where((hit == 1)[:, None, None], aex, other)
+        ainf = np.where((hit == 0)[:, None, None], aex, other)
         episodes.append({"uid": meta["uid"], "file": _f, "task": meta["task"], "task_id": int(meta["task_id"]),
                          "init": int(meta["init"]), "success": bool(meta.get("success") or False),
                          "num_steps": n, "start": start, "end": start + n})
@@ -66,13 +90,13 @@ def build_ministore(work: pathlib.Path, root: pathlib.Path, cell: str, eps, H: i
         for k in ("key_v0", "key_v1", "rs", "raw_state"):
             cols[k].append(z[k].astype(np.float32))
         cols["a_exec"].append(aex)
+        cols["a_hit"].append(ahit.astype(np.float32))
+        cols["a_inf"].append(ainf.astype(np.float32))
         start += n
     arr = {k: np.concatenate(v) for k, v in cols.items()}
     N = arr["ep"].shape[0]
     for k, v in arr.items():
         np.save(qd / f"{k}.npy", v)
-    np.save(qd / "a_hit.npy", arr["a_exec"])                       # pure cache: executed == served library chunk
-    np.save(qd / "a_inf.npy", np.nan_to_num(arr["a_exec"]) + 1.0)   # != a_exec, so exec_hit_flag = 1 (HIT)
     np.save(qd / "rec_top1.npy", np.zeros(N, np.int32))
     np.save(qd / "rec_score.npy", np.zeros(N, np.float32))
     np.save(qd / "rec_perfield.npy", np.zeros((N, 3), np.float32))
@@ -90,6 +114,67 @@ def run_offline(method_spec, kwargs, cell, work, seed, episodes):
     qc = store.QueryCell(work, cell)
     jobs = [(i, np.arange(e["start"], e["end"], dtype=np.int64)) for i, e in enumerate(episodes)]
     return run.run_jobs_inprocess(F["method"], qc, jobs, lib_sizes=F["lib_sizes"], seed=seed, cell=cell), F
+
+
+def expected_verdict(J: dict, *, step: int, conf: float, tau: float, run: int, forced: bool, prev_reason: str | None,
+                     burst_left: int):
+    """Re-derive (hit, reason, burst_left_after) from the logged inputs with the plugin's rule (plugin._verdict)."""
+    mode = J["mode"]
+    if step == 0 and J.get("step0", "judge") != "judge":
+        hit, why = J["step0"] == "hit", "step0"
+    elif mode == "always":
+        hit, why = True, "always"
+    elif mode == "periodic":
+        k = int(J["k"])
+        hit, why = (step % k != k - 1), "periodic"
+    elif forced:
+        hit, why = False, "force"
+    elif burst_left > 0:
+        hit, why = False, "burst"
+    elif int(J.get("cap", 0)) > 0 and run >= int(J["cap"]):
+        hit, why = False, "cap"
+    elif mode == "guard_only":
+        hit, why = True, "guard_only"
+    else:
+        hit, why = bool(conf >= tau), ("thr" if mode == "threshold" else "quantile")
+    if why == "burst":
+        burst_left -= 1
+    elif forced and not hit and int(J.get("burst", 1)) > 1 and mode not in ("always", "periodic"):
+        burst_left = int(J["burst"]) - 1
+    return hit, why, burst_left
+
+
+def check_verdicts(J: dict, z: dict) -> dict:
+    """Per-episode verdict audit of a mixed-mode npz: counts by reason and the rows whose logged verdict differs from
+    the rule applied to the logged inputs. hist consistency: run == trailing HITs of the logged flags."""
+    n = int(z["step"].shape[0])
+    hit = hit_flags(z)
+    judge = np.asarray(z["judge"]).astype(str)[:n]
+    tau = np.asarray(z["tau"], np.float64)[:n]
+    run = np.asarray(z["run"], np.int64)[:n]
+    conf = np.asarray(z["conf"], np.float64)[:n]
+    force = np.asarray(z["x_os_force_miss"], np.float64)[:n] if "x_os_force_miss" in z else np.zeros(n)
+    out = {"n": n, "mix": {}, "bad": [], "run_bad": 0, "force_rows": int(np.sum(force == 1))}
+    burst_left = 0
+    for s in range(n):
+        forced = bool(force[s] == 1)
+        exp_hit, why, burst_left = expected_verdict(J, step=s, conf=float(conf[s]), tau=float(tau[s]), run=int(run[s]),
+                                                    forced=forced, prev_reason=None, burst_left=burst_left)
+        logged_why = judge[s].split(":")[0]
+        out["mix"][judge[s]] = out["mix"].get(judge[s], 0) + 1
+        if bool(hit[s]) != exp_hit or logged_why != why:
+            out["bad"].append({"step": s, "hit": int(hit[s]), "judge": judge[s], "expected": (exp_hit, why),
+                               "conf": float(conf[s]), "tau": float(tau[s]), "run": int(run[s]), "forced": forced})
+        if J["mode"] == "threshold" and math.isfinite(tau[s]) and tau[s] != float(J["tau"]):
+            out["bad"].append({"step": s, "tau_logged": float(tau[s]), "tau_flag": float(J["tau"])})
+        exp_run = 0
+        for f in hit[:s][::-1]:
+            if f != 1:
+                break
+            exp_run += 1
+        if exp_run != run[s]:
+            out["run_bad"] += 1
+    return out
 
 
 def main(argv=None):
@@ -110,17 +195,18 @@ def main(argv=None):
     if not eps:
         raise SystemExit(f"no inputs/*.npz under {log_dir}")
     metas = {(m["method_spec"], json.dumps(m["kwargs"], sort_keys=True), m["cell"], m.get("run_seed", 0),
-              m.get("root")) for _, m, _ in eps}
+              m.get("root"), json.dumps(m.get("judge"), sort_keys=True)) for _, m, _ in eps}
     if len(metas) != 1:
         raise SystemExit(f"logs mix several configurations {metas}; pass --tag")
-    spec, kw, cell, seed, root = next(iter(metas))
+    spec, kw, cell, seed, root, judge_js = next(iter(metas))
     root = root or a.root
     kwargs = json.loads(kw)
+    J = json.loads(judge_js)
     H = int(eps[0][1]["H"])
     native_mode = spec == "native"
     work = pathlib.Path(a.work) / (a.tag or "all")
     episodes = build_ministore(work, pathlib.Path(root), cell, eps, H)
-    rep = {"log_dir": str(log_dir), "tag": a.tag, "method_spec": spec, "kwargs": kwargs, "cell": cell,
+    rep = {"log_dir": str(log_dir), "tag": a.tag, "method_spec": spec, "kwargs": kwargs, "cell": cell, "judge": J,
            "episodes": len(eps), "decisions": int(sum(e["num_steps"] for e in episodes))}
 
     # seeds as the harness derives them
@@ -133,11 +219,15 @@ def main(argv=None):
         if ln != "current":
             tables[ln] = store.LibraryView(root, store.lib_key(cell), ln).action
 
-    # executed == selected
-    ex_ok = ex_n = 0
+    # executed == selected on HIT rows (MISS rows executed the policy chunk: nothing to compare)
+    ex_ok = ex_n = miss_rows = 0
     for _, m, z in eps:
+        hit = hit_flags(z)
         n_ex = z["a_exec"].shape[0]
         for s in range(n_ex):
+            if hit[s] != 1:
+                miss_rows += 1
+                continue
             sel = z["synth"][s] if z["used_synth"][s] else (
                 np.asarray(tables[str(z["lib"][s])][int(z["top1"][s])], np.float32) if str(z["lib"][s]) in tables
                 else None)
@@ -145,7 +235,31 @@ def main(argv=None):
                 continue
             ex_n += 1
             ex_ok += int(np.array_equal(z["a_exec"][s], sel))
-    rep["executed_equals_selected"] = {"n": ex_n, "equal": ex_ok}
+    rep["executed_equals_selected"] = {"n": ex_n, "equal": ex_ok, "miss_rows_skipped": miss_rows}
+
+    verdict_bad = 0
+    if J is not None:
+        hits = np.concatenate([hit_flags(z) for _, _, z in eps])
+        n = int(hits.size)
+        nm = int((hits == 0).sum())
+        mix: dict = {}
+        bad = []
+        run_bad = 0
+        for _, m, z in eps:
+            c = check_verdicts(J, z)
+            for k, v in c["mix"].items():
+                mix[k] = mix.get(k, 0) + v
+            bad += [{"uid": m["uid"], **b} for b in c["bad"]]
+            run_bad += c["run_bad"]
+        verdict_bad = len(bad) + run_bad
+        s23 = np.concatenate([np.asarray(z["s23_ms"], np.float64) for _, _, z in eps])
+        s23 = s23[np.isfinite(s23)]
+        rep["mixed"] = {"n": n, "n_hit": n - nm, "n_miss": nm, "h": (n - nm) / n if n else None,
+                        "ir_pi05_formula": IR_PI05[0] + IR_PI05[1] * (nm / n) if n else None,
+                        "judge_mix": mix, "verdict_violations": len(bad), "run_violations": run_bad,
+                        "first_violations": bad[:5],
+                        "s23_ms": {"n": int(s23.size), "mean": float(s23.mean()) if s23.size else None,
+                                   "p50": float(np.percentile(s23, 50)) if s23.size else None}}
 
     if not native_mode:
         off, F = run_offline(spec, kwargs, cell, work, seed, episodes)
@@ -194,7 +308,7 @@ def main(argv=None):
     out = pathlib.Path(a.out) if a.out else log_dir / f"verify_{a.tag or 'all'}.json"
     out.write_text(json.dumps(rep, indent=1))
     print(json.dumps(rep, indent=1))
-    ok = rep["episode_seed_equal"] and ex_ok == ex_n
+    ok = rep["episode_seed_equal"] and ex_ok == ex_n and verdict_bad == 0
     if not native_mode:
         ok = ok and all(v == 1.0 for v in rep["offline_equal"].values())
     return 0 if ok else 1

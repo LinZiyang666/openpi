@@ -569,7 +569,7 @@ exp/offline_search/
 - **23:50**：
   - handoff 按 owner 要求覆写，提交号 `34e65b9`：§0 逐字未改，正文换成本线交接，step_diag 线的内容整体挪到附录 A。
   - owner 指示：codex 是正式 agent，R3 选题必须等 C 交回后再定稿。`rounds/r03/SELECTION.md` 目前是草案（H1–H4），C 的提案之后并入。
-- **00:0x 构思收齐，选题定稿**：
+- **23:4x 构思收齐，选题定稿**：
   - **B 存档**：`rounds/r03/NOTES_ideation_B.md` 与 `diag_B/` 已写出。
   - **codex C 交回**：`rounds/r03/ideation_C/REPORT.md`，运行约 40 分钟。
     - 提案三条：借用先验度量、spatial 的 ridge 1.0、校准的事件触发交接。
@@ -584,7 +584,7 @@ exp/offline_search/
     - H4 为 KPI 工具与 pilot 封装。
     - pilot 基线直接取 R2 的同集结果（spatial CL2 .70 / l10 CL2 .52）。
   - **GR00T 50 集组进度**：g_sp CL0 .736，CL1 .852，合成效应 +11.6 pp，比 π0.5 的 +9.6 pp 更大。
-- **00:1x 派出 R3 编码 4 个 agent（fable）**，规范见 `rounds/r03/CODING_BRIEF.md`。
+- **23:47 派出 R3 编码 4 个 agent（fable）**，规范见 `rounds/r03/CODING_BRIEF.md`。
   - **CPU 分配**：H1 用 18-21,62-65，H2 用 22-25,66-69，H3 用 26-29,70-73，H4 用 30-33,74-77。
   - **各自任务**：
     - H1：`AWM3` 子类，交付离线 batch 和 pilot 臂。
@@ -592,3 +592,32 @@ exp/offline_search/
     - H3：`MixedJudge`，交付 MX 臂和日志回放表。
     - H4：`ops/kpi.py`、`ops/pilot.sh`，并在 R2 数据上做校验。
   - **接口约定**：`Result.confidence` 越高越倾向 HIT；`extras.os_force_miss` / `os_reason` 为原因码（1–7）；新的决策日志字段为 hit / judge / tau / run / src / s1_ms / s23_ms。
+- **00:0x–00:3x 编码陆续交付**：
+  - **H4**：`closed_loop/ops/kpi.py` 与 `pilot.sh`。在 R2 数据上与 A、C 的数字对照 30/30 一致。
+    - GR00T-sp 50 集组的 KPI 已出：失败集首个 spell 以终止行吸收为主，占 .72–.88。
+    - pilot 子集在 GR00T-sp 上的 CL2 为 .98，已到天花板，所以 **pilot 只跑 π0.5**。
+  - **H2**：混合模式插件（`--os-judge` 等）。
+    - 纯缓存路径前后逐字节一致：selftest 通过，另用真实 server 回放 68 行做了比对。
+    - GPU smoke：π0.5 的 s1 约 117 ms，MISS 时的 s23 约 483 ms；GR00T 分别为 58 ms 和 232 ms。
+    - timan107 上的真实混合闭环 smoke 2 个臂各 2/2 成功，collect 的 mixed 块正常。
+    - 注意：H2 在 R2 链运行期间用原子 `mv` 替换了 `chain.sh` / `plugin.py` / `collect.py`。在跑的 bash 持有旧 inode，不受影响；从 `g_l10_cl2` 起的 R2 臂用新 plugin 的纯缓存路径，已证实逐字节等价。
+  - **H1**：`AWM3`，22 个变体。
+    - `AWM3()` 与 CL2 的 AWM 逐位一致；α=1 与 `AWM(fit_data=big)` 逐位一致。
+    - 任务 6 夹爪严重歧义：spatial 上 .174 → .059（α=1）；l10 上 .224 → .403（α=1），α=.5 为 .329。
+    - 终止守卫在 spatial 上几乎全程屏蔽终止行，因为库里的集在夹爪闭合时就结束了；离线 err +.028，pilot 见分晓。
+- **调度调整（00:3x）**：R3 的关键路径是"pilot → 选定 → 全量 / 混合"，R2 的 500 集组只是分析附录的输入。
+  - 做法：
+    - 停掉 `relay_g500b`，改用 `relay_next.sh`；
+    - g50c 结束后，由 tmux `oscl_queue` 执行 `next_queue.sh`，顺序为 R3 pilot spatial（7 臂 × 100 集）→ pilot l10（6 臂）→ R2 500 集组（16 臂）→ 若存在则执行 `next_queue2.sh`。
+  - 代价：R2 的完成时间推迟约 1 小时，timan107 的总工时不变。
+  - pilot 的运行目录为 `/home/weiland/trace_runs/os_closed_loop/r03_pilot`；13 个拟合产物 6 秒拟合完，只推送 yaml，不重推 `run_arm.sh`，避免改写 R2 正在执行的脚本。
+- **H1 离线全量**（22 个变体 × 8 格 = 176 个作业）：00:32 开始，CPU 18-25,62-69。
+- **00:4x H3 交付，R3 编码阶段完成**：
+  - `MixedJudge` 基于 V7 构建，服务动作与 base 逐位一致。
+  - 守卫：卡住、终止且夹爪闭合、超时且滞后、无进度。早期事件：disp ≥ 1.0σ、低票数换向。另有 burst 2 与回归惩罚。
+  - 日志回放（按 init 留出）：守卫的早触及率 .74 / .68（π0.5 sp / l10），原始置信度只有 .02 / .06。代价是守卫标记 27–38% 的决策，且 80–89% 的成功集会被打断。l10 上只守卫就超出了 h=.7 的 MISS 预算，实际 h 约 .62。
+  - 交付 10 个 MX 臂，含 τ0。
+- **R2 GR00T-l10**：CL0 .468 → CL1 .466 → CL2 .552（方法 +8.6 pp）。
+- **R2 分析**：`rounds/r02/ANALYSIS.md` 已写出，覆盖 14 个完成的臂；500 集组待补附录。
+  - 新发现：GR00T-sp 任务 8 在 CL2 上是 .56（15 个 S→F），91% 是终止行吸收；借用先验对它无效，只能靠终止守卫。
+  - 据此给 pilot 加了 GR00T-sp 一组：任务 {8,2,3,7,5}，4 个臂为 cl2ref / tg / tgp / gc_tg，排在 π0.5 两组 pilot 之后。

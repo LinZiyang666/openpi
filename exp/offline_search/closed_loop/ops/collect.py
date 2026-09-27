@@ -8,6 +8,13 @@ success rate is success / complete over unique task_uids. Also reported: per-tas
 verdict mix (every decision must be FULL_HIT), server-side plugin logs (per-decision method / search / infer latency,
 native-shadow agreement, executed == selected), throughput. Writes <run-root>/runs/<arm>/summary.json and merges
 <run-root>/summary.json.
+
+Mixed HIT/MISS arms (arms.json row with "judge" / "--os-judge" in plugin_args) get an extra "mixed" block: realized
+hit rate h, MISS count, the inference ratio IR = 0.152 + 0.848 * (1 - h) (pi0.5 CUDA-graph three-stage formula) and
+the measured one from the logged stage-1 (s1_ms) and stage-2/3 (s23_ms, MISS only) times, the judge reason mix, the
+controller's tau (median over the second half of each server's decisions) and the check that the client verdict mix
+equals the server log's hit / miss counts (replaces the all-FULL_HIT check, which is reported but expected False).
+Pure-cache arms: output unchanged.
 """
 from __future__ import annotations
 
@@ -24,6 +31,66 @@ import time
 import numpy as np
 
 ISL = "/scratch/zixuans8/openpi_trace/os_cl"
+IR_PI05 = (0.152, 0.848)
+
+
+def is_mixed(meta: dict) -> bool:
+    return meta.get("judge") is not None or "--os-judge" in (meta.get("plugin_args") or [])
+
+
+def mixed_block(meta: dict, dd: list, decs: list, starts: list, comp: dict, ps_acc: list, hit_mix: dict) -> dict:
+    """Mixed-arm statistics from the server decision rows dd (complete uids) and the client per_step rows."""
+    n = len(dd)
+    nh = sum(1 for r in dd if r.get("hit") is True)
+    nm = sum(1 for r in dd if r.get("hit") is False)
+    h = nh / n if n else None
+    s1 = [r["s1_ms"] for r in dd if r.get("s1_ms") is not None]
+    s23 = [r["s23_ms"] for r in dd if r.get("s23_ms") is not None]
+    m1 = float(np.mean(s1)) if s1 else None
+    m23 = float(np.mean(s23)) if s23 else None
+    ir_meas = None
+    if n and m1 is not None and m23 is not None:
+        ir_meas = (n * m1 + nm * m23) / (n * (m1 + m23))          # (N_req*s1 + N_miss*(s2+s3)) / (N_req*sum s)
+    jm: dict = {}
+    for r in dd:
+        j = r.get("judge")
+        jm[str(j)] = jm.get(str(j), 0) + 1
+    # controller tau: per server (tag), median over the second half of its decisions (deployable value)
+    taus: dict = {}
+    for r in sorted(dd, key=lambda r: r["ts"]):
+        t = r.get("tau")
+        if isinstance(t, (int, float)):
+            taus.setdefault(r["tag"], []).append(float(t))
+    tau_stats = {tag: {"n": len(v), "median_second_half": float(np.median(v[len(v) // 2:])), "last": v[-1]}
+                 for tag, v in taus.items()}
+    per_ep: dict = {}
+    for r in dd:
+        d = per_ep.setdefault(r["uid"], [0, 0])
+        d[0] += 1
+        d[1] += int(r.get("hit") is False)
+    eps_with_miss = sum(1 for v in per_ep.values() if v[1] > 0)
+    fail_uids = {u for u, r in comp.items() if not r.get("success")}
+    miss_in_fail = sum(1 for r in dd if r.get("hit") is False and r.get("uid") in fail_uids)
+    client_full = hit_mix.get("FULL_HIT", 0)
+    client_miss = hit_mix.get("MISS", 0)
+    out = {"judge": (starts[0].get("judge") if starts else None) or meta.get("judge"),
+           "decisions": n, "hits": nh, "misses": nm, "h": round(h, 5) if h is not None else None,
+           "miss_frac": round(nm / n, 5) if n else None,
+           "ir_pi05_formula": round(IR_PI05[0] + IR_PI05[1] * (nm / n), 5) if n else None,
+           "ir_measured": round(ir_meas, 5) if ir_meas is not None else None,
+           "s1_ms": {"n": len(s1), "mean": m1, "p50": pct(s1, 50)},
+           "s23_ms": {"n": len(s23), "mean": m23, "p50": pct(s23, 50), "p95": pct(s23, 95)},
+           "judge_mix": jm, "tau": tau_stats,
+           "episodes_with_miss": eps_with_miss, "episodes": len(per_ep),
+           "miss_per_episode": round(nm / len(per_ep), 3) if per_ep else None,
+           "miss_in_failed_episodes": miss_in_fail,
+           "miss_in_failed_frac": round(miss_in_fail / nm, 4) if nm else None,
+           "client_verdict_mix": hit_mix,
+           "verdict_mix_matches_server": bool(ps_acc) and client_full == nh and client_miss == nm and
+                                         set(hit_mix) <= {"FULL_HIT", "MISS"}}
+    if meta.get("model") == "groot":
+        out["ir_note"] = "ir_pi05_formula is the pi0.5 three-stage formula; for GR00T use ir_measured (s1 / s23 ms)"
+    return out
 
 
 def sh(cmd: list[str], timeout=600) -> str:
@@ -124,6 +191,10 @@ def summarize(run: pathlib.Path, arm: str) -> dict:
     if decs:
         comp_uids = set(comp)
         dd = [r for r in decs if r.get("uid") in comp_uids] or decs
+        if is_mixed(meta):
+            # the accepted attempt only (a retried uid's earlier attempts are logged too)
+            att = {u: int(r.get("attempt", 1) or 1) for u, r in comp.items()}
+            dd = [r for r in decs if r.get("uid") in comp_uids and int(r.get("attempt", 1) or 1) == att[r["uid"]]] or dd
         q = [r["q_us"] for r in dd if r.get("q_us") is not None]
         su = [r["search_us"] for r in dd if r.get("search_us") is not None]
         im = [r["infer_ms"] for r in dd if r.get("infer_ms") is not None]
@@ -149,6 +220,8 @@ def summarize(run: pathlib.Path, arm: str) -> dict:
                                               sum(1 for e in epis if e.get("uid") in comp and e.get("reason") ==
                                                   "episode_end")),
         }
+        if is_mixed(meta):
+            s["mixed"] = mixed_block(meta, dd, decs, starts, comp, ps_acc, hit_mix)
     s["collected_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
     (run / "runs" / arm / "summary.json").write_text(json.dumps(s, indent=1))
     allp = run / "summary.json"
@@ -180,6 +253,11 @@ def main(argv=None):
               f"dec/ep={s['decisions_per_episode']} infer_ms_p50={sv.get('server_infer_ms', {}).get('p50')} "
               f"q_us_p50={sv.get('method_query_us', {}).get('p50')} native_agree={sv.get('native_shadow_agree')} "
               f"exec_ok={sv.get('exec_ok')}")
+        mx = s.get("mixed")
+        if mx:
+            print(f"{arm}: MIXED h={mx['h']} misses={mx['misses']}/{mx['decisions']} IR_formula={mx['ir_pi05_formula']} "
+                  f"IR_measured={mx['ir_measured']} s1_ms={mx['s1_ms']['mean']} s23_ms={mx['s23_ms']['mean']} "
+                  f"verdict_mix_matches_server={mx['verdict_mix_matches_server']} judge_mix={mx['judge_mix']}")
     return rc
 
 

@@ -1,0 +1,44 @@
+[
+ {
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {"base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM", "base_kwargs": {"lib": "current", "kref": 5},
+             "guards": false, "events": "none"},
+  "family": "h3_judge", "cells": "all", "subsample": null, "allow_gpu_fit": false,
+  "_note": "V7-only (B-P1): confidence = -pred_err, no flags. name MXJ_g0_ev0__AWM_joint_cur_fcur_kr5"
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {"base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM", "base_kwargs": {"lib": "current", "kref": 5},
+             "guards": true, "events": "none"},
+  "family": "h3_judge", "cells": "all", "subsample": null, "allow_gpu_fit": false,
+  "_note": "V7 + guards (MX-AWM arms; MX-G guard_only uses the same fit). name MXJ_g1_ev0__AWM_joint_cur_fcur_kr5"
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {"base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM", "base_kwargs": {"lib": "current", "kref": 5},
+             "guards": true, "events": "all", "burst": 2, "ret_margin": 0.1},
+  "family": "h3_judge", "cells": "all", "subsample": null, "allow_gpu_fit": false,
+  "_note": "C-P3 full: V7 + guards + events (disp, grip) + burst 2 (MX-EV arms). name MXJ_g1_evDG_b2_rm0p1__AWM_joint_cur_fcur_kr5"
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {"base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM", "base_kwargs": {"lib": "current", "kref": 5},
+             "guards": false, "events": "all", "burst": 2, "ret_margin": 0.1},
+  "family": "h3_judge", "cells": "all", "subsample": null, "allow_gpu_fit": false,
+  "_note": "events-only + burst 2. name MXJ_g0_evDG_b2_rm0p1__AWM_joint_cur_fcur_kr5"
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {"base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM", "base_kwargs": {},
+             "guards": true, "events": "none"},
+  "family": "h3_judge", "cells": "all", "subsample": null, "allow_gpu_fit": false,
+  "_note": "10x library twin of V7 + guards (AWM_joint_big_fbig). name MXJ_g1_ev0__AWM_joint_big_fbig"
+ },
+ {
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {"base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM", "base_kwargs": {},
+             "guards": true, "events": "all", "burst": 2, "ret_margin": 0.1},
+  "family": "h3_judge", "cells": "all", "subsample": null, "allow_gpu_fit": false,
+  "_note": "10x library twin of the C-P3 full variant. name MXJ_g1_evDG_b2_rm0p1__AWM_joint_big_fbig"
+ }
+]

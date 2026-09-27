@@ -1,0 +1,14 @@
+[
+ {"name": "r3mx_p_sp_b0h70", "model": "pi05", "suite": "spatial", "mode": "plugin", "full_model": true,
+  "method": "exp.offline_search.harness.baselines:B0Current", "kwargs": {},
+  "plugin_args": ["--os-judge", "quantile:0.7:1000:0.974", "--os-fit-artifact", "<RUN>/fits/r3mx_p_sp_b0h70.pkl"]},
+ {"name": "r3mx_p_l10_b0h70", "model": "pi05", "suite": "l10", "mode": "plugin", "full_model": true,
+  "method": "exp.offline_search.harness.baselines:B0Current", "kwargs": {},
+  "plugin_args": ["--os-judge", "quantile:0.7:1000:0.993", "--os-fit-artifact", "<RUN>/fits/r3mx_p_l10_b0h70.pkl"]},
+ {"name": "r3mx_p_sp_perk3", "model": "pi05", "suite": "spatial", "mode": "plugin", "full_model": true,
+  "method": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM", "kwargs": {"lib": "current", "kref": 5},
+  "plugin_args": ["--os-judge", "periodic:3", "--os-fit-artifact", "<RUN>/fits/r3mx_p_sp_perk3.pkl"]},
+ {"name": "r3mx_p_l10_perk3", "model": "pi05", "suite": "l10", "mode": "plugin", "full_model": true,
+  "method": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM", "kwargs": {"lib": "current", "kref": 5},
+  "plugin_args": ["--os-judge", "periodic:3", "--os-fit-artifact", "<RUN>/fits/r3mx_p_l10_perk3.pkl"]}
+]

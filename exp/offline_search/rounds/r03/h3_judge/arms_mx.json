@@ -1,0 +1,280 @@
+[
+ {
+  "name": "r3mx_p_sp_awm_h70",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5
+   },
+   "guards": true,
+   "events": "none"
+  },
+  "plugin_args": [
+   "--os-fit-artifact",
+   "<RUN>/fits/r3mx_p_sp_awm_h70.pkl",
+   "--os-judge",
+   "quantile:0.7:1000:-0.625119"
+  ],
+  "_offline_variant": "MXJ_g1_ev0__AWM_joint_cur_fcur_kr5",
+  "_target_h": 0.7,
+  "_tau0_capped": false,
+  "_note": "quantile controller target h=0.7, window 1000, tau0 = offline F4 mixture fixed point of MXJ_g1_ev0__AWM_joint_cur_fcur_kr5 on pi05_spatial (confidence units = -pred_err); forced decisions count as -inf. Do NOT add --os-judge-burst: the wrapper implements the burst itself (reason 7)."
+ },
+ {
+  "name": "r3mx_p_sp_ev_h70",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5
+   },
+   "guards": true,
+   "events": "all",
+   "burst": 2,
+   "ret_margin": 0.1
+  },
+  "plugin_args": [
+   "--os-fit-artifact",
+   "<RUN>/fits/r3mx_p_sp_ev_h70.pkl",
+   "--os-judge",
+   "quantile:0.7:1000:-0.515765"
+  ],
+  "_offline_variant": "MXJ_g1_evDG_b2_rm0p1__AWM_joint_cur_fcur_kr5",
+  "_target_h": 0.7,
+  "_tau0_capped": true,
+  "_note": "quantile controller target h=0.7, window 1000, tau0 = offline F4 mixture fixed point of MXJ_g1_evDG_b2_rm0p1__AWM_joint_cur_fcur_kr5 on pi05_spatial (confidence units = -pred_err); forced decisions count as -inf. CAPPED: the forced share alone exceeds 1-h offline, the fixed point is -inf; tau0 = the V7-only fixed point of this cell/h as a start, the controller will drift down. Do NOT add --os-judge-burst: the wrapper implements the burst itself (reason 7)."
+ },
+ {
+  "name": "r3mx_p_sp_g",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5
+   },
+   "guards": true,
+   "events": "none"
+  },
+  "plugin_args": [
+   "--os-fit-artifact",
+   "<RUN>/fits/r3mx_p_sp_g.pkl",
+   "--os-judge",
+   "guard_only"
+  ],
+  "_offline_variant": "MXJ_g1_ev0__AWM_joint_cur_fcur_kr5",
+  "_target_h": null,
+  "_tau0_capped": false,
+  "_note": "guard-only: the plugin forces MISS on extras os_force_miss (guards 1-4), hit rate emerges"
+ },
+ {
+  "name": "r3mx_p_sp_awm_h50",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5
+   },
+   "guards": true,
+   "events": "none"
+  },
+  "plugin_args": [
+   "--os-fit-artifact",
+   "<RUN>/fits/r3mx_p_sp_awm_h50.pkl",
+   "--os-judge",
+   "quantile:0.5:1000:-0.346344"
+  ],
+  "_offline_variant": "MXJ_g1_ev0__AWM_joint_cur_fcur_kr5",
+  "_target_h": 0.5,
+  "_tau0_capped": false,
+  "_note": "quantile controller target h=0.5, window 1000, tau0 = offline F4 mixture fixed point of MXJ_g1_ev0__AWM_joint_cur_fcur_kr5 on pi05_spatial (confidence units = -pred_err); forced decisions count as -inf. Do NOT add --os-judge-burst: the wrapper implements the burst itself (reason 7)."
+ },
+ {
+  "name": "r3mx_p_sp_ev_h50",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5
+   },
+   "guards": true,
+   "events": "all",
+   "burst": 2,
+   "ret_margin": 0.1
+  },
+  "plugin_args": [
+   "--os-fit-artifact",
+   "<RUN>/fits/r3mx_p_sp_ev_h50.pkl",
+   "--os-judge",
+   "quantile:0.5:1000:-0.353185"
+  ],
+  "_offline_variant": "MXJ_g1_evDG_b2_rm0p1__AWM_joint_cur_fcur_kr5",
+  "_target_h": 0.5,
+  "_tau0_capped": false,
+  "_note": "quantile controller target h=0.5, window 1000, tau0 = offline F4 mixture fixed point of MXJ_g1_evDG_b2_rm0p1__AWM_joint_cur_fcur_kr5 on pi05_spatial (confidence units = -pred_err); forced decisions count as -inf. Do NOT add --os-judge-burst: the wrapper implements the burst itself (reason 7)."
+ },
+ {
+  "name": "r3mx_p_l10_awm_h70",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5
+   },
+   "guards": true,
+   "events": "none"
+  },
+  "plugin_args": [
+   "--os-fit-artifact",
+   "<RUN>/fits/r3mx_p_l10_awm_h70.pkl",
+   "--os-judge",
+   "quantile:0.7:1000:-0.515697"
+  ],
+  "_offline_variant": "MXJ_g1_ev0__AWM_joint_cur_fcur_kr5",
+  "_target_h": 0.7,
+  "_tau0_capped": true,
+  "_note": "quantile controller target h=0.7, window 1000, tau0 = offline F4 mixture fixed point of MXJ_g1_ev0__AWM_joint_cur_fcur_kr5 on pi05_l10 (confidence units = -pred_err); forced decisions count as -inf. CAPPED: the forced share alone exceeds 1-h offline, the fixed point is -inf; tau0 = the V7-only fixed point of this cell/h as a start, the controller will drift down. Do NOT add --os-judge-burst: the wrapper implements the burst itself (reason 7)."
+ },
+ {
+  "name": "r3mx_p_l10_ev_h70",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5
+   },
+   "guards": true,
+   "events": "all",
+   "burst": 2,
+   "ret_margin": 0.1
+  },
+  "plugin_args": [
+   "--os-fit-artifact",
+   "<RUN>/fits/r3mx_p_l10_ev_h70.pkl",
+   "--os-judge",
+   "quantile:0.7:1000:-0.515697"
+  ],
+  "_offline_variant": "MXJ_g1_evDG_b2_rm0p1__AWM_joint_cur_fcur_kr5",
+  "_target_h": 0.7,
+  "_tau0_capped": true,
+  "_note": "quantile controller target h=0.7, window 1000, tau0 = offline F4 mixture fixed point of MXJ_g1_evDG_b2_rm0p1__AWM_joint_cur_fcur_kr5 on pi05_l10 (confidence units = -pred_err); forced decisions count as -inf. CAPPED: the forced share alone exceeds 1-h offline, the fixed point is -inf; tau0 = the V7-only fixed point of this cell/h as a start, the controller will drift down. Do NOT add --os-judge-burst: the wrapper implements the burst itself (reason 7)."
+ },
+ {
+  "name": "r3mx_p_l10_g",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5
+   },
+   "guards": true,
+   "events": "none"
+  },
+  "plugin_args": [
+   "--os-fit-artifact",
+   "<RUN>/fits/r3mx_p_l10_g.pkl",
+   "--os-judge",
+   "guard_only"
+  ],
+  "_offline_variant": "MXJ_g1_ev0__AWM_joint_cur_fcur_kr5",
+  "_target_h": null,
+  "_tau0_capped": false,
+  "_note": "guard-only: the plugin forces MISS on extras os_force_miss (guards 1-4), hit rate emerges"
+ },
+ {
+  "name": "r3mx_p_l10_awm_h50",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5
+   },
+   "guards": true,
+   "events": "none"
+  },
+  "plugin_args": [
+   "--os-fit-artifact",
+   "<RUN>/fits/r3mx_p_l10_awm_h50.pkl",
+   "--os-judge",
+   "quantile:0.5:1000:-0.354042"
+  ],
+  "_offline_variant": "MXJ_g1_ev0__AWM_joint_cur_fcur_kr5",
+  "_target_h": 0.5,
+  "_tau0_capped": false,
+  "_note": "quantile controller target h=0.5, window 1000, tau0 = offline F4 mixture fixed point of MXJ_g1_ev0__AWM_joint_cur_fcur_kr5 on pi05_l10 (confidence units = -pred_err); forced decisions count as -inf. Do NOT add --os-judge-burst: the wrapper implements the burst itself (reason 7)."
+ },
+ {
+  "name": "r3mx_p_l10_ev_h50",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+  "kwargs": {
+   "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5
+   },
+   "guards": true,
+   "events": "all",
+   "burst": 2,
+   "ret_margin": 0.1
+  },
+  "plugin_args": [
+   "--os-fit-artifact",
+   "<RUN>/fits/r3mx_p_l10_ev_h50.pkl",
+   "--os-judge",
+   "quantile:0.5:1000:-0.428410"
+  ],
+  "_offline_variant": "MXJ_g1_evDG_b2_rm0p1__AWM_joint_cur_fcur_kr5",
+  "_target_h": 0.5,
+  "_tau0_capped": false,
+  "_note": "quantile controller target h=0.5, window 1000, tau0 = offline F4 mixture fixed point of MXJ_g1_evDG_b2_rm0p1__AWM_joint_cur_fcur_kr5 on pi05_l10 (confidence units = -pred_err); forced decisions count as -inf. Do NOT add --os-judge-burst: the wrapper implements the burst itself (reason 7)."
+ }
+]

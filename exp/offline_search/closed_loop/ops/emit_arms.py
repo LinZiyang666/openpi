@@ -19,6 +19,14 @@ arms_in.json: [{"name": "oscl_pi05_sp_b0nat", "model": "pi05", "suite": "spatial
                {"name": "oscl_pi05_sp_b0plug", "model": "pi05", "suite": "spatial", "mode": "plugin",
                 "method": "exp.offline_search.harness.baselines:B0Current", "kwargs": {},
                 "plugin_args": ["--os-no-shadow-native"]}, ...]
+
+Mixed HIT/MISS arms (R3): add ``"full_model": true`` and the judge flags in plugin_args, e.g.
+    {"name": "r3mx_p_sp_b0h70", "model": "pi05", "suite": "spatial", "mode": "plugin", "full_model": true,
+     "method": "exp.offline_search.harness.baselines:B0Current", "kwargs": {},
+     "plugin_args": ["--os-judge", "quantile:0.7:1000:0.974", "--os-fit-artifact", "<RUN>/fits/r3mx_p_sp_b0h70.pkl"]}
+``full_model`` is carried into arms.json; chain.sh then starts that arm's servers with STAGE1_ONLY=0 (stage 2/3
+loaded, full-model NEED_MB). A judge that can MISS without full_model is refused here (the server would die on its
+first MISS). Pure-cache rows are emitted exactly as before (no new key unless the spec carries it).
 """
 from __future__ import annotations
 
@@ -57,6 +65,15 @@ def main(argv=None):
             raise SystemExit(f"bad arm {s}")
         if mode == "plugin" and not s.get("method"):
             raise SystemExit(f"plugin arm {name} needs 'method'")
+        pargs = list(s.get("plugin_args", []))
+        judge = next((pargs[i + 1] for i, x in enumerate(pargs[:-1]) if x == "--os-judge"), None)
+        step0 = next((pargs[i + 1] for i, x in enumerate(pargs[:-1]) if x == "--os-judge-step0"), "judge")
+        full_model = bool(s.get("full_model", False))
+        if judge is not None and mode != "plugin":
+            raise SystemExit(f"arm {name}: --os-judge needs mode plugin")
+        can_miss = judge is not None and (judge.split(":")[0] != "always" or step0 == "miss")
+        if can_miss and not full_model:
+            raise SystemExit(f"arm {name}: --os-judge {judge} can MISS (stage 2/3 needed) -> set \"full_model\": true")
         short, full = SUITES[suite]
         src = SRC / f"tr_{model}_{short}_cache.yaml"
         cfg = yaml.safe_load(src.read_text())
@@ -80,6 +97,9 @@ def main(argv=None):
                "src_sha256": hashlib.sha256(src.read_bytes()).hexdigest(),
                "yaml_sha256": hashlib.sha256(y.read_bytes()).hexdigest(),
                "library": cfg["backend"]["in_memory"]["preload_path"]}
+        if "full_model" in s or judge is not None:
+            row["full_model"] = full_model          # read by chain.sh (STAGE1_ONLY=0 + full-model NEED_MB)
+            row["judge"] = judge
         if prev and prev != row:
             print(f"note: arm {name} redefined")
         arms[name] = row

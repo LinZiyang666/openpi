@@ -27,6 +27,13 @@ tok subsample has them.
 
 ``--os-method native`` keeps the native retrieval untouched (control arm) and only logs: timing, native winner row,
 and (with --os-log-inputs) the same per-episode input arrays.
+
+Mixed HIT/MISS mode (R3 H2, ``--os-judge ...``; README "Mixed HIT/MISS mode"): the method still runs on every
+decision, but ``PluginJudge`` may return ``HitType.MISS``; the interceptor then runs stage 2/3 (the server must load
+the full model: STAGE1_ONLY=0) and ``Interceptor -> orchestrator.broadcast_action(policy chunk) ->
+PluginStrategy.record_action`` hands the executed policy chunk to the session, which records ``hits[step] = 0`` and the
+policy chunk in the history, so the next QueryView sees ``prev_hit=False`` / ``prev_a_exec = policy chunk`` exactly
+like the offline inf cells. Without ``--os-judge`` every code path and every log byte is the pure-cache one.
 """
 from __future__ import annotations
 
@@ -63,6 +70,10 @@ WIRE_STATE = "observation/state"
 WIRE_IMG0 = "observation/image"
 WIRE_IMG1 = "observation/wrist_image"
 EXTRA_SCALARS_MAX = 24
+EXTRA_SCALARS_MAX_MIXED = 40                       # mixed mode only: os_* extras first, then the rest up to this cap
+JUDGE_MODES = ("always", "threshold", "quantile", "guard_only", "periodic")
+FORCE_KEY, REASON_KEY = "os_force_miss", "os_reason"     # method extras read by the judge (H3 wrapper contract)
+IR_PI05 = (0.152, 0.848)                            # inference ratio (project definition): 0.152 + 0.848 * miss frac
 
 _TLS = threading.local()
 RUNTIME: "PluginRuntime | None" = None
@@ -90,6 +101,18 @@ def build_parser() -> argparse.ArgumentParser:
                     help="accept a served library pkl other than the store manifest source (payload check still runs)")
     ap.add_argument("--os-tokens", choices=("on", "off"), default="on",
                     help="expose tok_v0/tok_v1/img0/img1 online on every decision (default on)")
+    ap.add_argument("--os-judge", default=None,
+                    help="mixed HIT/MISS judge: always | threshold:<tau> | quantile:<h>:<W>[:<tau0>] | guard_only | "
+                         "periodic:<k>. Absent = pure cache (today's behaviour and logs, byte for byte); any value, "
+                         "'always' included, switches on the verdict-aware bookkeeping and the extra log fields. "
+                         "The server must load the full model (STAGE1_ONLY=0) unless the mode can never MISS.")
+    ap.add_argument("--os-judge-cap", type=int, default=0,
+                    help="MISS when the consecutive-HIT run before this decision is >= R (0 = off; not in always / "
+                         "periodic)")
+    ap.add_argument("--os-judge-step0", choices=("judge", "miss", "hit"), default="judge",
+                    help="step 0 of every episode: judge like any decision (default), or force MISS / HIT")
+    ap.add_argument("--os-judge-burst", type=int, default=1,
+                    help="after a forced MISS (extras os_force_miss == 1) MISS the next n-1 decisions too (1 = off)")
     return ap
 
 
@@ -102,7 +125,142 @@ def parse_cli(argv):
         raise SystemExit(f"--os-kwargs is not valid JSON: {e}") from None
     if not isinstance(opts.kwargs, dict):
         raise SystemExit("--os-kwargs must be a JSON object")
+    try:
+        opts.judge = JudgeSpec.parse(opts.os_judge, cap=opts.os_judge_cap, step0=opts.os_judge_step0,
+                                     burst=opts.os_judge_burst)
+    except ValueError as e:
+        raise SystemExit(f"--os-judge: {e}") from None
+    if opts.judge is not None and opts.os_method == "native":
+        raise SystemExit("--os-judge needs a method (--os-method native keeps the native judge)")
     return opts, rest
+
+
+# --------------------------------------------------------------------------------------- mixed judge
+class JudgeSpec:
+    """Parsed ``--os-judge`` (+ cap / step0 / burst). ``None`` (flag absent) = pure cache."""
+
+    __slots__ = ("mode", "tau", "h", "W", "tau0", "k", "cap", "step0", "burst", "text")
+
+    def __init__(self, mode, *, tau=None, h=None, W=None, tau0=None, k=None, cap=0, step0="judge", burst=1, text=""):
+        self.mode, self.tau, self.h, self.W, self.tau0, self.k = mode, tau, h, W, tau0, k
+        self.cap, self.step0, self.burst, self.text = int(cap), step0, int(burst), text
+
+    @classmethod
+    def parse(cls, text, *, cap=0, step0="judge", burst=1):
+        if text is None:
+            return None
+        parts = str(text).split(":")
+        mode = parts[0]
+        if mode not in JUDGE_MODES:
+            raise ValueError(f"unknown mode {mode!r} (choices {JUDGE_MODES})")
+        if int(cap) < 0:
+            raise ValueError("--os-judge-cap must be >= 0")
+        if int(burst) < 1:
+            raise ValueError("--os-judge-burst must be >= 1")
+        kw = dict(cap=cap, step0=step0, burst=burst, text=str(text))
+        if mode in ("always", "guard_only"):
+            if len(parts) != 1:
+                raise ValueError(f"{mode} takes no parameter")
+            return cls(mode, **kw)
+        if mode == "threshold":
+            if len(parts) != 2:
+                raise ValueError("threshold:<tau>")
+            return cls(mode, tau=float(parts[1]), **kw)
+        if mode == "periodic":
+            if len(parts) != 2 or int(parts[1]) < 1:
+                raise ValueError("periodic:<k> with k >= 1")
+            return cls(mode, k=int(parts[1]), **kw)
+        if len(parts) not in (3, 4):
+            raise ValueError("quantile:<h>:<W>[:<tau0>]")
+        h, W = float(parts[1]), int(parts[2])
+        if not (0.0 < h <= 1.0) or W < 1:
+            raise ValueError("quantile needs 0 < h <= 1 and W >= 1")
+        tau0 = float(parts[3]) if len(parts) == 4 else None
+        return cls(mode, h=h, W=W, tau0=tau0, **kw)
+
+    @property
+    def can_miss(self) -> bool:
+        """False only when no decision of this server can ever be a MISS (stage 2/3 never needed): mode always with
+        step0 != miss (cap / forced flags are ignored by always and periodic)."""
+        return self.mode != "always" or self.step0 == "miss"
+
+    def as_dict(self) -> dict:
+        d = {"mode": self.mode, "cap": self.cap, "step0": self.step0, "burst": self.burst, "text": self.text}
+        for k in ("tau", "h", "W", "tau0", "k"):
+            v = getattr(self, k)
+            if v is not None:
+                d[k] = v
+        return d
+
+
+class QuantileController:
+    """Server-wide online threshold: tau_t = the (1-h)-quantile of the effective confidences of the last W decisions
+    of this process (all connections; forced / cap / burst MISSes enter as -inf, forced HITs as +inf), so the realized
+    hit rate tracks h. Starts from tau0 until W // 10 decisions were seen (no tau0: the running quantile from the first
+    decision on, -inf on the empty window). Thread-safe (infer runs in asyncio.to_thread workers)."""
+
+    def __init__(self, h: float, W: int, tau0=None):
+        import bisect
+        import collections
+
+        self._bisect = bisect
+        self.h, self.W, self.tau0 = float(h), int(W), tau0
+        self.warm = self.W // 10 if tau0 is not None else 0
+        self._q = collections.deque()
+        self._sorted: list = []
+        self._lock = threading.Lock()
+        self.n_seen = 0
+
+    def _quantile_locked(self):
+        n = len(self._sorted)
+        if n == 0:
+            return -math.inf
+        m = int(round((1.0 - self.h) * n))
+        m = min(max(m, 0), n - 1)
+        return float(self._sorted[m])
+
+    def tau(self) -> float:
+        with self._lock:
+            if self.tau0 is not None and self.n_seen < self.warm:
+                return float(self.tau0)
+            return self._quantile_locked()
+
+    def push(self, v: float) -> None:
+        v = float(v)
+        with self._lock:
+            if len(self._q) == self.W:
+                old = self._q.popleft()
+                i = self._bisect.bisect_left(self._sorted, old)
+                del self._sorted[i]
+            self._q.append(v)
+            self._bisect.insort(self._sorted, v)
+            self.n_seen += 1
+
+    def state(self) -> dict:
+        with self._lock:
+            return {"n_seen": self.n_seen, "window": len(self._q), "tau": self._quantile_locked(),
+                    "warm": self.warm, "tau0": self.tau0}
+
+
+def _flag(ex: dict | None, key: str, default: int = 0) -> int:
+    """Integer value of a scalar extras entry (0 when absent / non-finite)."""
+    if not ex or key not in ex:
+        return default
+    try:
+        v = float(np.asarray(ex[key]).reshape(-1)[0])
+    except (TypeError, ValueError, IndexError):
+        return default
+    return int(round(v)) if math.isfinite(v) else default
+
+
+def _tau_json(t):
+    """tau for the JSONL row: finite float, or the strings "-inf" / "inf" (JSON has no infinities)."""
+    if t is None:
+        return None
+    t = float(t)
+    if math.isfinite(t):
+        return t
+    return "inf" if t > 0 else "-inf"
 
 
 # --------------------------------------------------------------------------------------- harness glue
@@ -286,15 +444,23 @@ class PluginRuntime:
         self.fit_info: dict = {}
         self.lib_sizes = {"current": self.L}
         self.tables = {"current": self.cur_action}
+        # mixed HIT/MISS mode (None = pure cache): the judge spec and, for quantile, the process-wide controller
+        self.judge: "JudgeSpec | None" = getattr(opts, "judge", None)
+        self.ctrl = None
+        if self.judge is not None and self.judge.mode == "quantile":
+            self.ctrl = QuantileController(self.judge.h, self.judge.W, self.judge.tau0)
         if not self.native_mode:
             self._load_and_fit()
-        self.emit({"ev": "startup", "schema": SCHEMA, "host": socket.gethostname(), "pid": os.getpid(),
-                   "argv": sys.argv, "tag": self.tag, "model": m, "suite": s, "cell": self.cell,
-                   "root": str(self.root), "method_spec": opts.os_method, "kwargs": opts.kwargs,
-                   "method": self.method_name, "native_mode": self.native_mode, "shadow_native": self.shadow_native,
-                   "tokens": opts.os_tokens, "log_inputs": bool(opts.os_log_inputs), "seed": opts.os_seed,
-                   "H": self.H, "L": self.L, "lib_sizes": self.lib_sizes, "expected_pkl": self.expected_pkl,
-                   "git_head": _git_head(), **self.fit_info})
+        row = {"ev": "startup", "schema": SCHEMA, "host": socket.gethostname(), "pid": os.getpid(),
+               "argv": sys.argv, "tag": self.tag, "model": m, "suite": s, "cell": self.cell,
+               "root": str(self.root), "method_spec": opts.os_method, "kwargs": opts.kwargs,
+               "method": self.method_name, "native_mode": self.native_mode, "shadow_native": self.shadow_native,
+               "tokens": opts.os_tokens, "log_inputs": bool(opts.os_log_inputs), "seed": opts.os_seed,
+               "H": self.H, "L": self.L, "lib_sizes": self.lib_sizes, "expected_pkl": self.expected_pkl,
+               "git_head": _git_head(), **self.fit_info}
+        if self.judge is not None:
+            row["judge"] = self.judge.as_dict()
+        self.emit(row)
         log.info("osplug ready: method=%s cell=%s L=%d libs=%s log=%s", self.method_name, self.cell, self.L,
                  self.lib_sizes, self.dec_path)
 
@@ -557,10 +723,60 @@ class PluginSession:
         self.hits: list = []
         self._recs = []
         self.step = 0
+        self.burst_left = 0
         self.ep_count += 1
         self.pending = False
         if self.method is not None:
             self.method.reset(self.ep)
+
+    # -- mixed HIT/MISS verdict (only with --os-judge)
+    def _verdict(self, step: int, conf: float, ex) -> dict:
+        """Decide HIT / MISS for this decision from the method's confidence / extras and the episode state.
+
+        Returns {hit, judge (reason string), tau (tau_t used, or None), run (consecutive HITs before this decision),
+        forced, reason}. Modes: always -> HIT; periodic:k -> MISS iff step % k == k-1 (confidence and flags ignored);
+        threshold / quantile / guard_only -> forced MISS when extras os_force_miss == 1 (reason 'force:<os_reason>'),
+        then burst continuation, then the run cap, then HIT iff conf >= tau_t (guard_only: HIT). --os-judge-step0
+        overrides step 0 in every mode. In quantile mode every decision feeds the controller: its confidence when it
+        was judged by the threshold, -inf for any other MISS, +inf for any other HIT."""
+        J, rt = self.rt.judge, self.rt
+        hits = self.hits
+        run = 0
+        for f in reversed(hits):
+            if f != 1:
+                break
+            run += 1
+        forced = _flag(ex, FORCE_KEY) == 1
+        reason = _flag(ex, REASON_KEY) if forced else 0
+        tau = None
+        judged = False
+        if J.mode == "quantile":
+            tau = rt.ctrl.tau()
+        elif J.mode == "threshold":
+            tau = J.tau
+        if step == 0 and J.step0 != "judge":
+            hit, why = (J.step0 == "hit"), "step0"
+        elif J.mode == "always":
+            hit, why = True, "always"
+        elif J.mode == "periodic":
+            hit, why = (step % J.k != J.k - 1), "periodic"
+        elif forced:
+            hit, why = False, f"force:{reason}"
+        elif self.burst_left > 0:
+            hit, why = False, "burst"
+        elif J.cap > 0 and run >= J.cap:
+            hit, why = False, "cap"
+        elif J.mode == "guard_only":
+            hit, why = True, "guard_only"
+        else:
+            hit, why, judged = bool(conf >= tau), ("thr" if J.mode == "threshold" else "quantile"), True
+        if why == "burst":
+            self.burst_left -= 1
+        elif forced and not hit and J.burst > 1 and J.mode not in ("always", "periodic"):
+            self.burst_left = J.burst - 1
+        if rt.ctrl is not None:
+            rt.ctrl.push(conf if judged else (math.inf if hit else -math.inf))
+        return {"hit": bool(hit), "judge": why, "tau": tau, "run": run, "forced": forced, "reason": reason}
 
     # -- per decision
     def _raw_state(self) -> np.ndarray:
@@ -635,6 +851,8 @@ class PluginSession:
                      "native_us": t_nat / 1e3, "native_top1": n_top1, "native_score": n_score,
                      "agree": (n_top1 == top1 and lib == "current") if self.shadow else None,
                      "served": served, "extras": ex, "act": None if act is None else served}
+        if rt.judge is not None:
+            self._dec.update(self._verdict(step, float(conf), ex))
         self.step += 1
         t_end = time.perf_counter_ns()
         self._dec["search_us"] = (t_end - t_all) / 1e3
@@ -665,6 +883,8 @@ class PluginSession:
         return CachePayload(action_chunk=torch.from_numpy(np.array(a, dtype=np.float32, copy=True)))
 
     def on_executed(self, chunk) -> None:
+        """The executed chunk (Interceptor -> orchestrator.broadcast_action -> PluginStrategy.record_action): the
+        served payload on a HIT, the policy's stage-2/3 output on a MISS (mixed mode)."""
         if self.ep is None:
             return
         a = _np32(chunk)
@@ -672,17 +892,28 @@ class PluginSession:
         if a.shape != (H, self.rt.dims.ACT_FULL_DIMS):
             a = a.reshape(H, self.rt.dims.ACT_FULL_DIMS)
         self.b_aex.append(a)
-        self.hits.append(1)
-        if self._dec is not None:
-            srv = self._dec.get("served")
-            self._dec["exec_ok"] = bool(srv is not None and np.array_equal(a, srv))
+        d = self._dec
+        hit = True if d is None else bool(d.get("hit", True))
+        self.hits.append(1 if hit else 0)
+        if d is not None:
+            if hit:
+                srv = d.get("served")
+                d["exec_ok"] = bool(srv is not None and np.array_equal(a, srv))
+            else:
+                d["exec_ok"] = None          # policy chunk executed: nothing to compare with the served payload
+                d["policy"] = a
+            if self.rt.judge is not None:
+                d["t_exec"] = time.perf_counter_ns()
 
     def wire_diag(self):
         d = self._dec
         if d is None:
             return None
-        return {"os_row": d["top1"], "os_lib": d["lib"], "os_conf": _jsonable(d["conf"]),
-                "os_q_us": round(d["q_us"], 1), "os_native_row": d["native_top1"], "os_agree": d["agree"]}
+        out = {"os_row": d["top1"], "os_lib": d["lib"], "os_conf": _jsonable(d["conf"]),
+               "os_q_us": round(d["q_us"], 1), "os_native_row": d["native_top1"], "os_agree": d["agree"]}
+        if self.rt.judge is not None:
+            out.update({"os_hit": d["hit"], "os_judge": d["judge"], "os_tau": _tau_json(d["tau"]), "os_run": d["run"]})
+        return out
 
     def set_obs(self, obs) -> None:
         self.cur_obs = obs
@@ -700,10 +931,18 @@ class PluginSession:
         m = self.ep_meta
         ex = d.get("extras") or {}
         exs = {}
-        for k, v in ex.items():
-            va = np.asarray(v)
-            if va.size == 1 and len(exs) < EXTRA_SCALARS_MAX:
+        mixed = rt.judge is not None
+        if mixed:
+            # the judge's own inputs (os_force_miss / os_reason) must never fall off the cap: os_* keys first
+            keys = [k for k in ex if k.startswith("os_")] + [k for k in ex if not k.startswith("os_")]
+            cap = EXTRA_SCALARS_MAX_MIXED
+        else:
+            keys, cap = list(ex), EXTRA_SCALARS_MAX
+        for k in keys:
+            va = np.asarray(ex[k])
+            if va.size == 1 and len(exs) < cap:
                 exs[k] = _jsonable(va.reshape(-1)[0])
+        pre_ms = round((d["t_s0"] - self.t_obs) / 1e6, 3) if getattr(self, "t_obs", None) else None
         row = {"ev": "dec", "tag": rt.tag, "conn": self.conn, "bundle": self.bundle_id, "yaml_id": self.yaml_id,
                "uid": m.get("uid"), "attempt": m.get("attempt"), "task_id": m.get("task_id"), "init": m.get("init"),
                "step": d["step"], "ctx_step": d["ctx_step"], "method": rt.method_name, "lib": d["lib"],
@@ -712,18 +951,33 @@ class PluginSession:
                "search_us": round(d["search_us"], 1), "native_us": round(d["native_us"], 1),
                "native_top1": d["native_top1"], "native_score": _jsonable(d["native_score"]), "agree": d["agree"],
                "exec_ok": d.get("exec_ok"), "infer_ms": round(infer_ms, 3), "ok": ok,
-               "pre_ms": round((d["t_s0"] - self.t_obs) / 1e6, 3) if getattr(self, "t_obs", None) else None,
+               "pre_ms": pre_ms,
                "post_ms": round((t_done - d["t_s1"]) / 1e6, 3)}
+        if mixed:
+            hit = bool(d.get("hit", True))
+            t_exec = d.get("t_exec")
+            row.update({"hit": hit, "judge": d.get("judge"), "tau": _tau_json(d.get("tau")), "run": d.get("run"),
+                        "src": "cache" if hit else "policy", "s1_ms": pre_ms,
+                        "s23_ms": round((t_exec - d["t_s1"]) / 1e6, 3) if (not hit and t_exec is not None) else None})
+            if not hit and d.get("policy") is not None:
+                # the executed policy chunk's valid block [:5, :7] (what the KPI tool needs for gripper / motion facts)
+                row["a_exec"] = rt.dims.valid_action(np.asarray(d["policy"], np.float32)).astype(np.float64).tolist()
         if err:
             row["error"] = err[-2000:]
         if exs:
             row["extras"] = exs
         rt.emit(row)
         if rt.opts.os_log_inputs:
-            self._recs.append({"top1": d["top1"], "lib": d["lib"], "topk": np.asarray(d["topk"]),
-                               "scores": np.asarray(d["scores"], np.float64), "conf": d["conf"],
-                               "act": d["act"], "extras": ex, "native_top1": d["native_top1"],
-                               "native_score": d["native_score"], "q_us": d["q_us"], "infer_ms": infer_ms})
+            rec = {"top1": d["top1"], "lib": d["lib"], "topk": np.asarray(d["topk"]),
+                   "scores": np.asarray(d["scores"], np.float64), "conf": d["conf"],
+                   "act": d["act"], "extras": ex, "native_top1": d["native_top1"],
+                   "native_score": d["native_score"], "q_us": d["q_us"], "infer_ms": infer_ms}
+            if mixed:
+                rec.update({"hit": bool(d.get("hit", True)), "judge": str(d.get("judge")),
+                            "tau": math.nan if d.get("tau") is None else float(d["tau"]), "run": int(d.get("run", 0)),
+                            "s23_ms": ((d["t_exec"] - d["t_s1"]) / 1e6)
+                            if (d.get("t_exec") is not None and not d.get("hit", True)) else math.nan})
+            self._recs.append(rec)
 
     def finish_episode(self, reason: str, success=None) -> None:
         if self.ep is None:
@@ -734,6 +988,9 @@ class PluginSession:
         n = self.step
         m.update({"ev": "episode", "tag": rt.tag, "reason": reason, "success": success, "n_decisions": n,
                   "n_exec": self.b_aex.n, "method": rt.method_name, "t_end": time.time()})
+        if rt.judge is not None:
+            m.update({"n_hit": int(sum(1 for f in self.hits if f == 1)), "n_miss": int(sum(1 for f in self.hits if f == 0)),
+                      "ctrl": rt.ctrl.state() if rt.ctrl is not None else None})
         rt.emit(m)
         if not rt.opts.os_log_inputs or n == 0:
             return
@@ -755,12 +1012,14 @@ class PluginSession:
             scores[i, : r["scores"].size] = r["scores"]
             if r["act"] is not None:
                 synth[i] = r["act"]
+        meta = {**m, "model": rt.model, "suite": rt.suite, "cell": rt.cell,
+                "method_spec": rt.opts.os_method, "kwargs": rt.opts.kwargs,
+                "native_mode": rt.native_mode, "H": rt.H, "run_seed": rt.opts.os_seed,
+                "tokens": rt.opts.os_tokens, "root": str(rt.root)}
+        if rt.judge is not None:
+            meta["judge"] = rt.judge.as_dict()
         arrays = {
-            "meta": np.array(json.dumps({**m, "model": rt.model, "suite": rt.suite, "cell": rt.cell,
-                                         "method_spec": rt.opts.os_method, "kwargs": rt.opts.kwargs,
-                                         "native_mode": rt.native_mode, "H": rt.H, "run_seed": rt.opts.os_seed,
-                                         "tokens": rt.opts.os_tokens, "root": str(rt.root)},
-                                        default=_json_default)),
+            "meta": np.array(json.dumps(meta, default=_json_default)),
             "step": np.arange(n, dtype=np.int16),
             "key_v0": self.b_v0.a[:n], "key_v1": self.b_v1.a[:n], "rs": self.b_rs.a[:n],
             "raw_state": self.b_raw.a[:n], "a_exec": self.b_aex.a[: self.b_aex.n],
@@ -773,6 +1032,12 @@ class PluginSession:
             "q_us": np.array([r["q_us"] for r in recs], np.float64),
             "infer_ms": np.array([r["infer_ms"] for r in recs], np.float64),
         }
+        if rt.judge is not None:
+            arrays.update({"hit": np.array([1 if r["hit"] else 0 for r in recs], np.int8),
+                           "judge": np.array([r["judge"] for r in recs]),
+                           "tau": np.array([r["tau"] for r in recs], np.float64),
+                           "run": np.array([r["run"] for r in recs], np.int64),
+                           "s23_ms": np.array([r["s23_ms"] for r in recs], np.float64)})
         keys = sorted({kk for r in recs for kk in (r["extras"] or {})})
         for kk in keys:
             col = np.full(len(recs), np.nan, np.float64)
@@ -969,7 +1234,9 @@ class NativeProxy:
 
 
 class PluginJudge:
-    """Pure cache: FULL_HIT on the plugin's pick, always."""
+    """Pure cache: FULL_HIT on the plugin's pick, always. Mixed mode (--os-judge): the verdict the session took in
+    on_search (HIT -> FULL_HIT with the pick as winner; MISS -> HitType.MISS, winner_id = the pick so the client's
+    __hit_meta__.winner_id still names the proposal; the interceptor then runs stage 2/3)."""
 
     def __init__(self, session: PluginSession):
         self._s = session
@@ -979,6 +1246,12 @@ class PluginJudge:
 
         if not results:
             raise RuntimeError("osplug: the plugin strategy returned no candidate")
+        d = self._s._dec
+        if self._s.rt.judge is not None:
+            if d is None or d.get("winner") != results[0].id:
+                raise RuntimeError("osplug: judge called without the matching plugin search result")
+            if not d["hit"]:
+                return JudgeResult(HitType.MISS, results[0].id, factor_outputs={"osplug": self._s.wire_diag()})
         return JudgeResult(HitType.FULL_HIT, results[0].id, factor_outputs={"osplug": self._s.wire_diag()})
 
     def on_episode_start(self, extra_metadata=None, provisional=False):
@@ -1083,6 +1356,16 @@ def install(opts, model: str) -> PluginRuntime:
     global RUNTIME
     if RUNTIME is not None:
         raise RuntimeError("osplug already installed")
+    J = getattr(opts, "judge", None)
+    if J is not None and J.can_miss:
+        # a MISS runs stage 2/3: refuse the stage-1-only server up front instead of dying on the first MISS
+        argv = [str(a) for a in sys.argv]
+        s1only = "--stage1-only" in argv or any(
+            argv[i] in ("--stage2-device", "--stage3-device") and i + 1 < len(argv) and argv[i + 1] == "meta"
+            for i in range(len(argv))) or any(a in ("--stage2-device=meta", "--stage3-device=meta") for a in argv)
+        if s1only:
+            raise SystemExit(f"osplug: --os-judge {J.text} can MISS but the server is stage-1 only (meta stage 2/3); "
+                             f"start it with STAGE1_ONLY=0 (full model)")
     RUNTIME = PluginRuntime(opts, model)
 
     import openpi.cache.config as cc
