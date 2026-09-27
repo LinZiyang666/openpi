@@ -1,4 +1,4 @@
-# R2 analysis — offline families and the pure-cache closed loop (2026-09-27 00:3x CDT; addendum 1 with the complete 50-episode group 01:0x CDT)
+# R2 analysis — offline families and the pure-cache closed loop (2026-09-27 00:3x CDT; addendum 1 = complete 50-episode group 01:0x CDT; addendum 2 = complete 500-episode group 04:3x CDT)
 
 Analysis agent (fable), R2 of `logs/offline_search_exploration.log.md`. Cell order everywhere: **π0.5-sp / π0.5-l10 / GR00T-sp /
 GR00T-l10**. err = executed-segment RMS `[:5,:7]` in σ units vs the teacher's `a_inf` (lower is better); **stale** = cache cells,
@@ -19,58 +19,61 @@ regeneration scripts are in `/home/weiland/.claude/jobs/a607dd74/tmp/analysis_r0
 `closed_loop/ops/kpi.py` (validated against ideation A / C in `rounds/r03/h4_kpi/r02_kpi.md`, 30/30 checks); offline paired
 statistics from `profile.compare` (episode bootstrap) and `g4_t2/decompose.py` (episode bootstrap, 2,000 reps).
 
-**Arms complete (16 of 32): the whole 50-episode group** (`r02_g50` CHAIN_DONE 00:51 CDT; addendum 1 folded GR00T-l10
-CL2 / CL3 in). **Pending:** the whole 500-episode group (16 arms, ≈ 3 h, now scheduled ≈ 03:00 CDT after the R3 pilots). See §7;
-addendum 2 will fill those rows with one regeneration command.
+**All 32 arms complete**: the 50-episode group (`r02_g50`, CHAIN_DONE 00:51 CDT) and the 500-episode group (`r02_g500`,
+CHAIN_DONE 04:23 CDT). Nothing is pending; §7 lists the regeneration commands.
 
 ---
 
 ## 0. Headline verdicts
 
-1. **The exam is passed at the deployed library scale by AWM, and the win is real on four of four cells.**
-   Pure-cache SR at 49–50 episodes: π0.5-sp .668 → **.800** (+13.2 pp), π0.5-l10 .440 → **.630** (+19.0 pp), GR00T-sp .736 →
-   **.888** (+15.2 pp), GR00T-l10 .468 → **.552** (+8.4 pp), each on the same 500 inits (paired CL0→CL2 F→S / S→F: 137 / 71,
-   173 / 78, 128 / 52, exact McNemar p < 1e-4; GR00T-l10 CL1→CL2 97 / 54, p = .0006). Against the pure-inference reference
-   (.986 / .844 / .940 / .870) the remaining gap is 18.6 / 21.4 / 5.2 / 31.8 pp — GR00T-l10 is now the weakest cell for the cache.
-   The AWM library is 21–27 MB (fit pickle incl. 17 MB PCA bases) against 429–1,103 MB deployed.
-2. **The three layers do not have the same weight in closed loop as offline.** Offline stale err at 50 episodes attributes
-   −.054 / −.058 / −.074 / −.077 to synthesis (top-1 → mean-5) and only −.011 / −.026 / −.038 / −.055 to the AWM ranking.
-   Closed loop: synthesis +9.6 [+4.8, +14.4] / **−1.2 [−6.0, +3.8]** / +11.6 [+7.0, +16.0] / **−0.2 [−5.2, +4.8]** pp; ranking
-   +3.6 [−0.6, +8.0] / **+20.2 [+15.4, +25.2]** / +3.6 [+0.0, +7.2] / **+8.6 [+3.8, +13.4]** pp. Synthesis alone is worth nothing on l10 for
-   **both** models (GR00T-l10 CL1 .466 vs CL0 .468, 85 S→F / 84 F→S) while it is the larger layer on spatial; the ranking layer
-   decides l10. Offline mean err (−.05 … −.08 for synthesis in all four cells) cannot tell which (§3).
-3. **The recovery wrapper (CL3 = V6 blend + escalating recovery around AWM, insurance OFF) is not a general lever**: −0.2
-   [−3.0, +2.6] / +1.2 [−2.2, +4.6] / **−2.6 [−5.6, +0.4]** / **+5.4 [+1.2, +9.8]** pp. Pooled over the four cells 142 S→F vs
-   161 F→S = +0.95 pp, McNemar p = .30. The one positive cell (GR00T-l10, 47 S→F / 74 F→S, p = .018) is above the rerun noise
-   floor (a same-arm rerun flips ≈ 6 % of inits ⇒ ≈ 30 symmetric discordant pairs, sd(ΔSR) ≈ 1.1 pp; CL2→CL3 has 121 discordant
-   pairs, asymmetric) but it is task-specific: t6 +26 pp (16 / 3, p = .004), t4 +16, t8 +14 against t9 −16 (2 / 10, p = .04) and
-   t5 −8. Everywhere the wrapper breaks the identical-pick spells (failed-episode spell share .525 → .105 / .479 → .228 / .438 →
-   .021 / .515 → .286) and raises gripper flips in failed episodes (2.9 → 4.9 / 4.6 → 9.0 / 1.4 → 3.9 / 3.1 → 5.5). Verdict
-   unchanged: drop as a pure-cache mechanism; keep its detector as a MISS trigger (R3 H3); the GR00T-l10 exception says a
-   *forced trajectory switch* can rescue some multi-object l10 traps and is worth one targeted R3 look (§6.5).
-4. **Every closed-loop failure is a step-cap timeout and ≥ 95 % of failed episodes contain a spell**, on GR00T exactly as on
-   π0.5. GR00T-spatial is π0.5-spatial with a higher ceiling and an even purer terminal-row trap (first spell of failed episodes
-   T = .88 / .72 / .82 for CL0 / CL1 / CL2 vs .67 / .62 / .38 on π0.5). GR00T-l10 CL0–CL3 show the l10 pattern (first spell of failed
-   episodes H .60 / .62 / .50 / .57, Z .21 / .16 / .16 / .21, P .12 / .08 / .14 / .13, G – / .13 / .20 / .09, T .07 / 0 / 0 / 0; SR
-   .468 / .466 / .552 / .606) with the largest gripper vote splits of any arms (CL1 S .197 / F .399, CL2 .196 / .334) — the same
-   mean-5-at-the-grasp mechanism as π0.5-l10.
-5. **Mean SR hides task collapses with two different mechanisms.** π0.5-sp task 6: .72 → .50 → .28 (CL0 → CL1 → CL2); the
-   offline signature is the gripper vote split of the 50-episode metric (severe split .163 vs .045 with the borrowed 500-episode
-   fit) — R3 H1's borrowed prior targets exactly this. GR00T-sp task 8: .62 → .78 → **.56** (15 S→F vs CL1, p = .019); its first
-   spells are 91 % terminal-row absorption, its vote split is .013, and the borrowed fit does not change it — only a terminal
-   guard (H1 ④) can. GR00T-l10 task 9 is a third collapse (.54 → .34 → .18 for CL1 → CL2 → CL3; 16 S→F vs CL1, p = .05; 10 S→F
-   vs CL2, p = .04) of the hub class (first spell H .67 / .63, no gripper split .12) that no R3 switch targets. R3 must keep the H1
-   switches separate and read per-task SR, not the mean.
-6. **The 10× library is worth about as much offline as the whole method layer** (stale −.078 / −.080 / −.079 / −.065 at fixed
-   method; oracle −29 … −37 %), and historically +12.2 / +6.0 pp SR for B0-style top-1 (S3 → S6). Its closed-loop value for AWM
-   is **pending** (500-episode group). The borrowed 500-episode *fit* with 50-episode candidates is worth −.020 … −.025 stale err
-   and −.01 … −.02 AURC ("borrowed big-library information"), but it doubles the severe gripper split on π0.5-l10 task 6 (.23 →
-   .43) and raises it on GR00T-l10 overall (.20 → .26) — the α = .5 hedge in R3 SELECTION is justified.
-7. **Offline verdicts**: keep G1 AWM (kr5 at 50 ep, kr8 at 10×; r32 codes as the compressed variant; insurance, λ .01, lc1,
-   state×3 dropped); keep G2 V4 only as the π0.5 backup / ablation (ties AWM on π0.5 at 50 ep, loses .03–.05 on GR00T) and V5 as
-   the fresh-regime branch (equal or better than AWM's continuity branch); drop V6 (blend ≤ −.007 offline, recovery no SR); keep
-   V7 (AURC −.06 stale / −.04…−.06 fresh vs the base, one scale across regimes) but it is measured only on the stand-in base;
-   drop G4 T2 (MLKR variant beats AWM by ≤ .017 in 3/4 cells, plain MLP is worse everywhere; GPU fit).
+1. **The exam is passed by AWM at both library scales, on all four cells, on the same inits.** Pure-cache SR (B0 top-1 →
+   AWM kernel-16) at 49–50 episodes: .668 → **.800** / .440 → **.630** / .736 → **.888** / .468 → **.552** (+13.2 / +19.0 / +15.2 /
+   +8.4 pp); at 500 episodes (M8x top-1 → AWM): .808 → **.954** / .502 → **.768** / .812 → **.966** / .608 → **.706** (+14.6 /
+   +26.6 / +15.4 / +9.8 pp). Every CL0→CL2 pair has McNemar p < 1e-4 except GR00T-l10 (CL1→CL2 p .0006 at 50 ep, p .15 at
+   500 ep). Deployable size: 21–27 MB (50 ep) / 47–117 MB (500 ep) fit pickles vs 429–1,103 MB deployed today; the 500-episode
+   reference arms CL0 / CL1 (M8x, 262 KB/entry, 2.9–7.8 GB keys) are not deployable.
+2. **At 500 episodes the cache reaches the pure policy on GR00T-spatial and comes within 3 pp on π0.5-spatial** (paired on
+   the same inits against the trace_dual pure-inference arm): GR00T-sp AWM .966 vs .940 (+2.6 pp, 29 F→S / 16 S→F, p .07;
+   with V6 .976, +3.6 pp, 28 / 10, p .005), π0.5-sp .954 vs .986 (−3.2 pp, 7 / 23, p .005), π0.5-l10 .768 vs .844 (−7.6 pp,
+   43 / 81), GR00T-l10 .706 vs .870 (−16.4 pp, 32 / 114). The pure-inference arm is one sample of a stochastic policy (Sept 23
+   session, same A-pool inits), so "reaches" means indistinguishable, not better. At 50 episodes the gaps are −18.6 / −21.4 /
+   −5.2 / −31.8 pp.
+3. **The library layer is the largest closed-loop layer for AWM, and it is paired and significant in 16/16 arms** (500 vs 50
+   episodes on the same inits): CL2 +15.4 [+11.8, +19.2] / +13.8 [+8.8, +18.8] / +7.8 [+4.8, +11.0] / +15.4 [+10.4, +20.2] pp
+   (S→F / F→S 11 / 88, 50 / 119, 13 / 52, 43 / 120); for B0-style top-1 (CL0) +14.0 / +6.2 / +7.6 / +14.0 pp, which
+   reproduces the cache_size history (S3 → S6 +12.2 / +6.0; CL0-500 .808 / .502 vs S6 .810 / .516). Offline the same layer is
+   −.078 / −.080 / −.079 / −.065 stale err — the one layer whose offline size and closed-loop size agree in rank across cells.
+   The three per-task collapses of the 50-episode AWM are all removed by the 10× library: π0.5-sp t6 .28 → .86 (30 F→S / 1),
+   GR00T-sp t8 .56 → .92 (18 / 0), GR00T-l10 t9 .34 → .74 (24 / 4).
+4. **Method vs library at both scales.** Method layer (AWM − mean-5 at fixed library): 50 ep +3.6 / +20.2 / +3.6 / +8.6 pp,
+   500 ep +7.2 [+4.0, +10.4] / +23.0 [+18.4, +27.6] / +4.8 [+2.2, +7.4] / +3.4 [−1.0, +7.8] pp. Library layer at fixed AWM
+   +15.4 / +13.8 / +7.8 / +15.4 pp. So on spatial the library is worth 2× the method; on π0.5-l10 the method is worth 1.7× the
+   library; on GR00T-l10 the library is worth 4.5× the method. Offline stale err says the opposite ordering for the method layer
+   (largest on GR00T-l10, −.046 … −.055; smallest on π0.5-sp, −.011 … −.027) — the method layer remains unpredictable from
+   offline err at either scale (per-task Spearman −.44 … +.62, §3.2).
+5. **Synthesis (top-1 → mean-5) is worth +7 … +12 pp on spatial at both scales but nothing on l10 at 50 episodes** (−1.2 /
+   −0.2 pp) **and only +3.6 [−1.2, +8.4] / +6.4 [+1.4, +11.2] pp at 500**; offline it is −.05 … −.09 everywhere. The l10
+   mechanism (mean of five chunks straddling a grasp: CL1 carries the largest gripper vote splits of any arm, F .399 / .289 on
+   GR00T-l10 at 50 / 500 ep) is model-independent and only partly diluted by more candidates.
+6. **The recovery wrapper (CL3 = V6 blend + escalating recovery, insurance OFF) is not a general lever at either scale**:
+   50 ep −0.2 / +1.2 / −2.6 / **+5.4** pp (pooled 142 S→F / 161 F→S, p .30); 500 ep +0.2 [−1.6, +2.0] / +0.2 [−2.8, +3.2] / +1.0
+   [−0.4, +2.4] / +3.0 [−0.2, +6.2] pp (pooled 68 / 90, +1.1 pp, p ≈ .09). Its one clear win (GR00T-l10 at 50 ep, p .018) is
+   task-specific (t6 +26, t9 −16) and shrinks to +3.0 pp (p .086) with the 10× library; it always breaks the identical-pick
+   spells and raises failed-episode gripper flips. Drop as a pure-cache mechanism; keep its detector as a MISS trigger (R3 H3).
+7. **Every closed-loop failure is a step-cap timeout and ≥ 77 % (50 ep: ≥ 95 %) of failed episodes contain a spell at both
+   scales**; the trap classes persist with the 10× library (π0.5-sp CL2 first spell T .52 / G .22, GR00T-sp T .33 / Z .33,
+   l10 H .39–.56), so the remaining 3–29 pp to the policy are the same terminal-row / gripper-split / hub traps, fewer of them.
+8. **Mean SR hides task collapses with two different mechanisms at 50 episodes.** π0.5-sp task 6 (.72 → .50 → .28): gripper vote
+   split of the under-determined 50-episode metric (severe split .163 vs .045 with the borrowed 500-episode fit) — R3 H1's
+   borrowed prior targets exactly this. GR00T-sp task 8 (.62 → .78 → .56): 91 % terminal-row absorption, vote split .013,
+   borrowed fit does nothing — only a terminal guard (H1 ④) can. GR00T-l10 task 9 (.54 → .34 → .18): hub class, no gripper
+   split. All three are fixed by the 10× library, not by any R3 switch — the cheapest cure for the deployed-scale collapses is
+   more library episodes on the collapsing task, if the owner's deployability constraint is bytes (AWM 10× = 47–117 MB) rather
+   than trajectories.
+9. **Offline verdicts (unchanged by the 500-episode loop)**: keep G1 AWM (kr5 at 50 ep, kr8 at 10×; r32 codes as the compressed
+   variant; insurance, λ .01, lc1, state×3 dropped); keep G2 V4 only as the π0.5 backup / ablation and V5 as the fresh-regime
+   branch; drop V6; keep V7 (measured only on the stand-in base); drop G4 T2. M8x is confirmed as a reference only: at 10× it
+   costs 9.6–24.3 ms p50 per query on the server (p95 13–54 ms) against AWM's 2.7–4.9 ms, at 450× the entry size.
 
 ---
 
@@ -96,19 +99,37 @@ addendum 2 will fill those rows with one regeneration command.
 | GR00T-l10 | 50 ep | oscl50_g_l10_cl1 | M4 | **.466** | [.423, .510] | 52.3 \| 104 | 8,702 / – | 950 / – | 1.000 | | |
 | GR00T-l10 | 50 ep | oscl50_g_l10_cl2 | AWM cur kr5 | **.552** | [.508, .595] | 53.9 \| 104 | 2,752 / 3,743 | 842 / 1,013 | .354 | | |
 | GR00T-l10 | 50 ep | oscl50_g_l10_cl3 | V6(AWM) | **.606** | [.563, .648] | 53.6 \| 104 | 3,493 / 4,841 | 885 / 1,159 | .326 | | |
-| all four | 500 ep (10×) | oscl500_* (CL0 = M8x top-1, CL1 = M8x mean-5, CL2 = AWM big kr8, CL3 = V6(AWM big)) | | *pending* | | | | | | | |
+| π0.5-sp | **500 ep (10,909)** | oscl500_p_sp_cl0 | M8x = B0 formula over all 10× candidates, top-1 (262 KB/entry, reference) | **.808** | [.771, .840] | 22.1 \| 44 | 11,914 / 26,720 | 170 / 263 | n/a | .986 | S6 .810 |
+| π0.5-sp | 500 ep | oscl500_p_sp_cl1 | M8x mean-5 (reference) | **.882** | [.851, .907] | 21.3 \| 44 | 11,377 / 25,234 | 166 / 245 | n/a | | |
+| π0.5-sp | 500 ep | oscl500_p_sp_cl2 | AWM joint, fit on the 500 ep, kr8, kernel-16 | **.954** | [.932, .969] | 20.9 \| 44 | 3,324 / 7,314 | 147 / 215 | n/a | | |
+| π0.5-sp | 500 ep | oscl500_p_sp_cl3 | V6(AWM big), insurance off | **.956** | [.934, .971] | 20.9 \| 44 | 5,320 / 11,340 | 149 / 222 | n/a | | |
+| π0.5-l10 | **500 ep (29,472)** | oscl500_p_l10_cl0 | M8x top-1 (reference) | **.502** | [.458, .546] | 53.4 \| 104 | 24,307 / 49,893 | 231 / 320 | n/a | .844 | S6 .516 |
+| π0.5-l10 | 500 ep | oscl500_p_l10_cl1 | M8x mean-5 (reference) | **.538** | [.494, .581] | 51.1 \| 104 | 24,449 / 53,888 | 233 / 334 | n/a | | |
+| π0.5-l10 | 500 ep | oscl500_p_l10_cl2 | AWM big kr8 | **.768** | [.729, .803] | 51.2 \| 104 | 4,917 / 10,637 | 178 / 248 | n/a | | |
+| π0.5-l10 | 500 ep | oscl500_p_l10_cl3 | V6(AWM big) | **.770** | [.731, .805] | 50.7 \| 104 | 8,503 / 17,725 | 188 / 262 | n/a | | |
+| GR00T-sp | **500 ep (11,751)** | oscl500_g_sp_cl0 | M8x top-1 (reference) | **.812** | [.775, .844] | 21.8 \| 44 | 9,713 / 15,835 | 434 / 767 | n/a | .940 | – |
+| GR00T-sp | 500 ep | oscl500_g_sp_cl1 | M8x mean-5 (reference) | **.918** | [.891, .939] | 21.3 \| 44 | 9,615 / 13,444 | 419 / 796 | n/a | | |
+| GR00T-sp | 500 ep | oscl500_g_sp_cl2 | AWM big kr8 | **.966** | [.946, .979] | 21.3 \| 44 | 2,704 / 3,470 | 330 / 686 | n/a | | |
+| GR00T-sp | 500 ep | oscl500_g_sp_cl3 | V6(AWM big) | **.976** | [.959, .986] | 21.4 \| 44 | 3,493 / 4,608 | 337 / 691 | n/a | | |
+| GR00T-l10 | **500 ep (29,631)** | oscl500_g_l10_cl0 | M8x top-1 (reference) | **.608** | [.565, .650] | 51.5 \| 104 | 15,072 / 59,440 | 1,031 / 1,276 | n/a | .870 | – |
+| GR00T-l10 | 500 ep | oscl500_g_l10_cl1 | M8x mean-5 (reference) | **.672** | [.630, .712] | 51.1 \| 104 | 14,676 / 58,975 | 1,023 / 1,357 | n/a | | |
+| GR00T-l10 | 500 ep | oscl500_g_l10_cl2 | AWM big kr8 | **.706** | [.665, .744] | 51.3 \| 104 | 2,957 / 3,833 | 781 / 999 | n/a | | |
+| GR00T-l10 | 500 ep | oscl500_g_l10_cl3 | V6(AWM big) | **.736** | [.696, .773] | 50.8 \| 104 | 4,115 / 5,456 | 853 / 1,019 | n/a | | |
 
 Reading notes. (i) `method q_us` is the method's own `query()` on the server (numpy, 1 BLAS thread, 4 servers sharing 9 cores,
 so 2–3× the offline single-thread numbers); AWM is *faster* than the native search at l10 (4.5 vs 10.6 ms p50) because it
 scores 136-d codes instead of 2 × 32,768-d keys. (ii) `server infer ms` includes stage 1 and, for the plugin arms, the
 **native shadow search** run for logging (CL1 l10 277 vs CL0 194 ms is the shadow, not M4) — use `q_us` for method cost.
 (iii) native agreement = plugin top-1 == native B0 winner on the same live keys: AWM agrees with B0 on 45 / 38 / 47 % of
-decisions (CL1 = 1.0 by construction); GR00T-l10 CL2 / CL3 .354 / .326. (iv) The native reruns reproduce trace_dual's pure-cache
+decisions (CL1 = 1.0 by construction); GR00T-l10 CL2 / CL3 .354 / .326; n/a for the 500-episode arms, whose shadow B0 runs
+on the current library while the plugin serves bpool rows. At 10× the M8x reference arms cost 9.6–24.3 ms p50 per query
+(p95 13–54 ms; the B0 formula over 1.1–3.0 k raw-key candidates) against AWM's 2.7–4.9 ms — the 10× library is affordable
+only in the compact representation. (iv) The native reruns reproduce trace_dual's pure-cache
 SR to 0 / −1.2 / 0 / 0 pp; the R3 pilot rerun of π0.5-sp CL2 on 100 inits flipped 3 S→F / 3 F→S (≈ 6 % discordant, symmetric,
 from GPU nondeterminism), i.e. sd(ΔSR) ≈ 1.1 pp and a 95 % rerun band of ± 2.2 pp at n = 500 — the floor every paired ΔSR
 below has to clear, on top of its McNemar p.
-(v) All failures are timeouts at the step cap (44 / 104 decisions); successful episodes take half the cap in every arm, so no
-method is "slow but succeeds" and AWM is not faster on l10 (53.8 vs 50.7 dec/ep).
+(v) All failures are timeouts at the step cap (44 / 104 decisions) at both scales; successful episodes take half the cap in
+every arm, so no method is "slow but succeeds" and AWM is not faster on l10 (53.8 vs 50.7 dec/ep).
 
 ### 1.2 Paired comparisons on the same inits (exact two-sided McNemar on the discordant pairs; multinomial bootstrap 95 % of ΔSR, 10,000 reps)
 
@@ -128,10 +149,28 @@ method is "slow but succeeds" and AWM is not faster on l10 (53.8 vs 50.7 dec/ep)
 | GR00T-l10 | CL1 → CL2 | .466 → .552 | **+8.6** | 54 | 97 | .0006 | [+3.8, +13.4] | method @ 50-ep library |
 | GR00T-l10 | CL2 → CL3 | .552 → .606 | **+5.4** | 47 | 74 | .018 | [+1.2, +9.8] | recovery wrapper (task-specific: t6 +26 p .004, t4 +16, t8 +14; t9 −16 p .04, t5 −8) |
 | all four | recovery pooled | | +0.95 | 142 | 161 | .30 | – | recovery wrapper, 2,000 paired inits |
-| all | 500 vs 50 per CL | | *pending* (library layer) | | | | | |
+| π0.5-sp | 500 ep: CL0 → CL1 | .808 → .882 | **+7.4** | 37 | 74 | .0006 | [+3.4, +11.6] | synthesis @ 10× |
+| π0.5-sp | 500 ep: CL1 → CL2 | .882 → .954 | **+7.2** | 16 | 52 | < 1e-4 | [+4.0, +10.4] | method @ 10× library |
+| π0.5-sp | 500 ep: CL2 → CL3 | .954 → .956 | +0.2 | 10 | 11 | 1.000 | [−1.6, +2.0] | recovery wrapper @ 10× |
+| π0.5-l10 | 500 ep: CL0 → CL1 | .502 → .538 | +3.6 | 66 | 84 | .165 | [−1.2, +8.4] | synthesis @ 10× |
+| π0.5-l10 | 500 ep: CL1 → CL2 | .538 → .768 | **+23.0** | 22 | 137 | < 1e-4 | [+18.4, +27.6] | method @ 10× library |
+| π0.5-l10 | 500 ep: CL2 → CL3 | .768 → .770 | +0.2 | 28 | 29 | 1.000 | [−2.8, +3.2] | recovery wrapper @ 10× |
+| GR00T-sp | 500 ep: CL0 → CL1 | .812 → .918 | **+10.6** | 25 | 78 | < 1e-4 | [+6.6, +14.6] | synthesis @ 10× |
+| GR00T-sp | 500 ep: CL1 → CL2 | .918 → .966 | **+4.8** | 11 | 35 | .0005 | [+2.2, +7.4] | method @ 10× library |
+| GR00T-sp | 500 ep: CL2 → CL3 | .966 → .976 | +1.0 | 4 | 9 | .267 | [−0.4, +2.4] | recovery wrapper @ 10× |
+| GR00T-l10 | 500 ep: CL0 → CL1 | .608 → .672 | **+6.4** | 64 | 96 | .014 | [+1.4, +11.2] | synthesis @ 10× |
+| GR00T-l10 | 500 ep: CL1 → CL2 | .672 → .706 | +3.4 | 52 | 69 | .146 | [−1.0, +7.8] | method @ 10× library |
+| GR00T-l10 | 500 ep: CL2 → CL3 | .706 → .736 | +3.0 | 26 | 41 | .086 | [−0.2, +6.2] | recovery wrapper @ 10× |
+| all four | 500 ep: recovery pooled | | +1.1 | 68 | 90 | ≈ .09 | – | recovery wrapper, 2,000 paired inits |
+| π0.5-sp | **library**: 50 → 500 @ CL0 / CL1 / CL2 / CL3 | .668 → .808 / .764 → .882 / .800 → .954 / .798 → .956 | **+14.0 / +11.8 / +15.4 / +15.8** | 63 / 34 / 11 / 9 | 133 / 93 / 88 / 88 | all < 1e-4 | [+8.8,+19.2] / [+7.6,+16.0] / [+11.8,+19.2] / [+12.2,+19.4] | library (same inits; CL2 kr5 → kr8) |
+| π0.5-l10 | library: 50 → 500 @ CL0 / CL1 / CL2 / CL3 | .440 → .502 / .428 → .538 / .630 → .768 / .642 → .770 | **+6.2 / +11.0 / +13.8 / +12.8** | 80 / 58 / 50 / 41 | 111 / 113 / 119 / 105 | .030 / < 1e-4 / < 1e-4 / < 1e-4 | [+0.8,+11.6] / [+5.8,+16.0] / [+8.8,+18.8] / [+8.2,+17.4] | library |
+| GR00T-sp | library: 50 → 500 @ CL0 / CL1 / CL2 / CL3 | .736 → .812 / .852 → .918 / .888 → .966 / .862 → .976 | **+7.6 / +6.6 / +7.8 / +11.4** | 58 / 29 / 13 / 6 | 96 / 62 / 52 / 63 | .003 / .0007 / < 1e-4 / < 1e-4 | [+2.6,+12.4] / [+2.8,+10.4] / [+4.8,+11.0] / [+8.4,+14.6] | library |
+| GR00T-l10 | library: 50 → 500 @ CL0 / CL1 / CL2 / CL3 | .468 → .608 / .466 → .672 / .552 → .706 / .606 → .736 | **+14.0 / +20.6 / +15.4 / +13.0** | 55 / 30 / 43 / 57 | 125 / 133 / 120 / 122 | all < 1e-4 | [+8.8,+19.0] / [+16.0,+25.2] / [+10.4,+20.2] / [+8.0,+18.0] | library |
 
-The two spatial method-layer gains (+3.6 pp each) are not individually significant at n = 500 (p .07–.12); the synthesis gains
-on spatial, the ranking gains on both l10 cells, the GR00T-l10 recovery gain and the CL0 → CL2 totals are. Paired CI half-widths are ± 4–5 pp at 500 inits (± 9–10 pp
+At 50 episodes the two spatial method-layer gains (+3.6 pp each) are not individually significant (p .07–.12); at 500 they are
+(+7.2 p < 1e-4, +4.8 p .0005). The synthesis gains on spatial, the ranking gains on both π0.5-l10 scales, the GR00T-l10
+recovery gain at 50 ep, the CL0 → CL2 totals and all 16 library-layer pairs are significant; recovery at 500 ep and the GR00T-l10
+method layer at 500 ep are not. Paired CI half-widths are ± 4–5 pp at 500 inits (± 9–10 pp
 for a 100-episode pilot): R3 must decide on paired counts, not point SR.
 
 ### 1.3 Per-task SR (n = 50 inits per task)
@@ -154,6 +193,28 @@ for a 100-episode pilot): R3 must decide on paired counts, not point SR.
 | GR00T-l10 CL1 | .08 | .50 | .78 | .92 | .24 | .80 | .38 | .28 | .14 | .54 | t0 .08 |
 | GR00T-l10 CL2 | .20 | .64 | .94 | .86 | .34 | .98 | .38 | .42 | .42 | **.34** | t0 .20 |
 | GR00T-l10 CL3 | .26 | .68 | .94 | .88 | .50 | .90 | .64 | .52 | .56 | **.18** | t9 .18 |
+| **500 ep** π0.5-sp CL0 | .78 | .86 | .90 | .90 | .82 | .72 | .76 | .86 | .64 | .84 | t8 .64 |
+| π0.5-sp CL1 | .84 | .96 | .78 | 1.00 | .98 | .86 | .86 | .94 | .74 | .86 | t8 .74 |
+| π0.5-sp CL2 | .96 | 1.00 | .98 | 1.00 | .96 | .98 | .86 | .96 | .88 | .96 | t6 .86 |
+| π0.5-sp CL3 | .94 | 1.00 | .94 | 1.00 | .96 | .96 | .88 | .98 | .94 | .96 | t6 .88 |
+| π0.5-l10 CL0 | .32 | .66 | .68 | .80 | .26 | .80 | .30 | .48 | .22 | .50 | t8 .22 |
+| π0.5-l10 CL1 | .26 | .70 | .76 | .84 | .40 | .84 | .28 | .54 | .06 | .70 | t8 .06 |
+| π0.5-l10 CL2 | .84 | .92 | .78 | .90 | .78 | .98 | .52 | .88 | .40 | .68 | t8 .40 |
+| π0.5-l10 CL3 | .76 | .92 | .80 | .96 | .80 | .98 | .64 | .84 | .30 | .70 | t8 .30 |
+| GR00T-sp CL0 | .68 | .76 | .96 | .90 | .82 | .78 | .92 | .84 | .74 | .72 | t0 .68 |
+| GR00T-sp CL1 | .86 | .90 | .92 | .96 | .98 | .92 | 1.00 | .84 | .86 | .94 | t7 .84 |
+| GR00T-sp CL2 | .92 | .98 | 1.00 | 1.00 | 1.00 | .96 | 1.00 | .90 | .92 | .98 | t7 .90 |
+| GR00T-sp CL3 | .94 | 1.00 | 1.00 | 1.00 | 1.00 | .98 | 1.00 | .94 | .92 | .98 | t8 .92 |
+| GR00T-l10 CL0 | .30 | .82 | .86 | .90 | .46 | .92 | .32 | .50 | .22 | .78 | t8 .22 |
+| GR00T-l10 CL1 | .36 | .92 | .86 | .98 | .58 | .92 | .60 | .54 | .22 | .74 | t8 .22 |
+| GR00T-l10 CL2 | .52 | .90 | .92 | .98 | .52 | .98 | .40 | .80 | .30 | .74 | t8 .30 |
+| GR00T-l10 CL3 | .48 | .90 | .98 | 1.00 | .66 | .98 | .58 | .74 | .28 | .76 | t8 .28 |
+
+At 500 episodes AWM's minimum task is .86 / .40 / .90 / .30 (50 ep: .28 / .32 / .56 / .34). Library layer per task at CL2
+(F→S / S→F): the three 50-episode collapses are removed — π0.5-sp t6 +58 pp (30 / 1), GR00T-sp t8 +36 (18 / 0), GR00T-l10 t9
++40 (24 / 4) — and the largest other library gains are π0.5-l10 t0 +52 (28 / 2), t2 / t7 +26, GR00T-l10 t7 +38, t0 +32,
+GR00T-sp t2 +24 (12 / 0); the only per-task losses are GR00T-l10 t8 −12 (7 / 13) and ≤ 2 pp elsewhere. The remaining hard
+tasks at 10× are l10 t8 (.40 / .30, the lowest of any cell) and π0.5-l10 t6 (.52).
 
 AWM wins 8 of 10 spatial tasks on π0.5 (t2/t3 +26 pp each vs CL1) and 9 of 10 on GR00T, and 9 of 10 l10 tasks on π0.5 (t4
 +40, t3 +34 pp vs CL1), and 7 of 10 l10 tasks on GR00T (t8 +28, t5 +18, t2 +16 vs CL1), while collapsing on one task per cell (π0.5-sp t6, GR00T-sp
@@ -180,6 +241,44 @@ t9 to CL1's .54 +2.0 pp.
 | GR00T-l10 CL1 | .466 | 1.45 \| 6.07 | .133 \| .539 | 1.00 (92) | .25 (346) | 1.00 | .00/.13/.16/.08/.62 | 2.64 \| 3.27 | .08 | **.197 \| .399** | 2.7 \| 2.3 |
 | GR00T-l10 CL2 | .552 | 1.32 \| 7.02 | .107 \| .515 | 1.00 (112) | .29 (311) | 1.00 | .00/.20/.16/.14/.50 | 2.92 \| 3.10 | .06 | .196 \| .334 | 3.2 \| 3.0 |
 | GR00T-l10 CL3 | .606 | 1.09 \| 6.35 | .073 \| .286 | .98 (141) | .33 (281) | .98 | .00/.09/.21/.13/.57 | 3.16 \| 5.49 | .06 | .187 \| .245 | 3.2 \| 2.8 |
+| **500 ep** π0.5-sp CL0 (M8x top-1) | .808 | .07 \| 1.78 | .015 \| .234 | .96 (398) | .08 (63) | .82 | .70/.00/.01/.18/.11 | 1.26 \| 3.81 | .50 | – | 1.0 |
+| π0.5-sp CL1 (M8x mean-5) | .882 | .06 \| 2.58 | .012 \| .381 | 1.00 (419) | .07 (55) | 1.00 | .66/.12/.02/.05/.15 | 1.08 \| 2.08 | .48 | .049 \| .262 | 4.6 \| 3.8 |
+| π0.5-sp CL2 (AWM big) | .954 | .01 \| 2.83 | .002 \| .383 | 1.00 (472) | .05 (21) | 1.00 | .52/.22/.13/.13/.00 | 1.08 \| 2.17 | .48 | .033 \| .257 | 7.5 \| 5.7 |
+| π0.5-sp CL3 | .956 | .00 \| 0.59 | .000 \| .048 | .97 (491) | .00 (3) | .41 | .00/.44/.11/.33/.11 | 1.10 \| 2.86 | .30 | .033 \| .246 | 7.5 \| 5.5 |
+| π0.5-l10 CL0 | .502 | .60 \| 4.56 | .053 \| .290 | .98 (174) | .12 (249) | .99 | .08/.00/.20/.14/.59 | 3.46 \| 8.59 | .10 | – | 1.0 |
+| π0.5-l10 CL1 | .538 | .64 \| 6.48 | .063 \| .463 | 1.00 (186) | .15 (270) | 1.00 | .02/.10/.12/.20/.56 | 2.83 \| 4.77 | .06 | .111 \| .289 | 3.6 \| 2.6 |
+| π0.5-l10 CL2 | .768 | .48 \| 6.28 | .048 \| .441 | 1.00 (288) | .28 (147) | .99 | .03/.05/.15/.22/.56 | 2.99 \| 3.70 | .05 | .096 \| .235 | 5.9 \| 3.7 |
+| π0.5-l10 CL3 | .770 | .36 \| 4.89 | .028 \| .210 | .98 (318) | .24 (134) | .94 | .00/.06/.12/.23/.58 | 3.09 \| 6.00 | .03 | .092 \| .222 | 5.9 \| 3.8 |
+| GR00T-sp CL0 | .812 | .06 \| 1.41 | .013 \| .176 | .95 (408) | .12 (43) | .77 | .42/.00/.29/.06/.24 | 1.10 \| 3.03 | .27 | – | 1.0 |
+| GR00T-sp CL1 | .918 | .03 \| 1.95 | .008 \| .287 | .99 (448) | .04 (28) | .90 | .32/.08/.30/.11/.19 | 1.01 \| 2.10 | .32 | .055 \| .152 | 4.8 \| 3.5 |
+| GR00T-sp CL2 | .966 | .01 \| 1.94 | .002 \| .271 | 1.00 (478) | .00 (11) | .88 | .33/.13/.33/.00/.20 | 1.00 \| 2.41 | .33 | .065 \| .207 | 7.8 \| 5.7 |
+| GR00T-sp CL3 | .976 | .01 \| 0.75 | .001 \| .061 | .99 (489) | .00 (1) | .58 | .00/.00/.86/.00/.14 | 1.01 \| 4.33 | .20 | .064 \| .269 | 7.8 \| 5.0 |
+| GR00T-l10 CL0 | .608 | .56 \| 5.50 | .048 \| .337 | 1.00 (207) | .17 (227) | .99 | .05/.00/.25/.13/.57 | 3.10 \| 5.64 | .09 | – | 1.0 |
+| GR00T-l10 CL1 | .672 | .79 \| 6.71 | .078 \| .462 | 1.00 (214) | .29 (226) | 1.00 | .02/.04/.33/.12/.49 | 2.85 \| 4.01 | .04 | .137 \| .279 | 3.9 \| 2.6 |
+| GR00T-l10 CL2 | .706 | .66 \| 6.87 | .056 \| .424 | 1.00 (218) | .29 (205) | .99 | .01/.21/.25/.13/.39 | 3.07 \| 3.82 | .02 | .190 \| **.434** | 6.2 \| 4.0 |
+| GR00T-l10 CL3 | .736 | .55 \| 5.61 | .044 \| .248 | .98 (257) | .26 (164) | .97 | .00/.20/.28/.10/.42 | 3.00 \| 5.00 | .03 | .184 \| .370 | 6.2 \| 4.0 |
+
+The 10× library does not change the anatomy of failure: P(success | no spell) stays ≥ .95, spells per failed episode stay at
+1.4–2.8 (spatial) / 4.6–6.9 (l10), and the first-spell classes are the same families with the terminal share of the spatial
+top-1 arms lower (T .70 / .42 vs .67 / .88 at 50 ep) and the Z class (frozen, near-zero translation) larger on GR00T
+(.29–.33 spatial, .25–.33 l10). The kernel set spreads over 6–8 effective library episodes at 10× (3–4 at 50 ep), and the
+gripper vote split in failed episodes is unchanged or higher (GR00T-l10 CL2 .434) — the 10× library adds candidates, not
+decisiveness at the grasp.
+
+### 1.5 Paired against the pure policy (trace_dual pure-inference arm, same (task, init) inits; `pair_inf.py`)
+
+| cell | pure inference | AWM 50 ep (CL2) | AWM 500 ep (CL2) | V6(AWM) 500 ep (CL3) |
+|---|---|---|---|---|
+| π0.5-sp | .986 | .800: −18.6 pp, cache S→F 97 / F→S 4, p < 1e-4 | .954: −3.2 pp, 23 / 7, p .005 | .956: −3.0 pp, 20 / 5, p .004 |
+| π0.5-l10 | .844 | .630: −21.4 pp, 147 / 40 | .768: −7.6 pp, 81 / 43, p .0008 | .770: −7.4 pp, 77 / 40, p .0008 |
+| GR00T-sp | .940 | .888: −5.2 pp, 52 / 26, p .004 | **.966: +2.6 pp, 16 / 29, p .07** | **.976: +3.6 pp, 10 / 28, p .005** |
+| GR00T-l10 | .870 | .552: −31.8 pp, 187 / 28 | .706: −16.4 pp, 114 / 32 | .736: −13.4 pp, 96 / 29 |
+
+The pure-inference arm is one closed-loop sample of a stochastic policy, recorded on 2026-09-23 with the same A-pool inits
+(trace_dual; its journal success agrees with its traces 500/500). On GR00T-spatial the 10× cache is statistically
+indistinguishable from the policy (CL2) or above it (CL3, 28 policy failures converted vs 10 lost); the policy's own
+failures on that suite are 30 inits, of which the cache rescues 28–29. On π0.5-spatial the 10× cache loses 20–23 inits the
+policy completes and wins 5–7; on the l10 suites it remains 7–16 pp below.
 
 ---
 
@@ -196,10 +295,10 @@ fit" row is `AWM(lib = current, fit_data = big)` at kr8 against `AWM cur fcur` k
 | **synthesis** M4 − B0 (same ranking, top-1 → mean-5) | **+9.6** [+4.8,+14.4] / **−1.2** [−6.0,+3.8] / **+11.6** [+7.0,+16.0] / **−0.2** [−5.2,+4.8] | −.054 [−.063,−.046] / −.058 [−.064,−.051] / −.074 [−.090,−.059] / −.077 [−.085,−.070] | +.008 / −.011 / −.025 / −.030 | −.057 / −.054 / −.067 / −.068 | −.031 / +.019 / −.039 / +.021 |
 | **method** AWM cur kr5 − M4 (same 50-ep library, fit on it) | +3.6 [−0.6,+8.0] / **+20.2** [+15.4,+25.2] / +3.6 [+0.0,+7.2] / **+8.6** [+3.8,+13.4] | −.011 [−.017,−.004] / −.026 [−.034,−.019] / −.038 [−.047,−.030] / −.055 [−.064,−.047] | −.047 / −.046 / −.033 / −.036 | −.103 / −.097 / −.119 / −.139 | −.005 / −.044 / −.020 / −.052 |
 | **borrowed fit** AWM cur fbig − cur fcur (kr8; labelled: borrowed big-library information) | not run closed loop (R3 H1 α = 1) | −.025 [−.034,−.017] / −.020 [−.026,−.013] / −.019 [−.024,−.015] / −.023 [−.030,−.017] | −.019 / −.009 / −.005 / −.008 | −.000 / −.001 / −.001 / −.001 | −.017 / −.023 / −.006 / −.000 |
-| **library** AWM big kr5 − AWM cur kr5 (10× candidates *and* 10× fit) | **pending** (500-episode group); history B0-style S3 → S6: +12.2 / +6.0 / – / – | −.078 [−.088,−.068] / −.080 [−.088,−.072] / −.079 [−.087,−.070] / −.065 [−.074,−.057] (of which candidates alone, kr8: −.063 / −.059 / −.067 / −.045) | −.075 / −.062 / −.051 / −.052 | −.084 / −.044 / −.094 / −.066 | −.072 / −.089 / −.077 / −.048 |
+| **library** AWM big − AWM cur (10× candidates *and* 10× fit; closed loop CL2-500 kr8 vs CL2-50 kr5) | **+15.4** [+11.8,+19.2] / **+13.8** [+8.8,+18.8] / **+7.8** [+4.8,+11.0] / **+15.4** [+10.4,+20.2] (11/88, 50/119, 13/52, 43/120); at CL0 (B0-style top-1) +14.0 / +6.2 / +7.6 / +14.0, reproducing history S3 → S6 +12.2 / +6.0 | −.078 [−.088,−.068] / −.080 [−.088,−.072] / −.079 [−.087,−.070] / −.065 [−.074,−.057] (of which candidates alone, kr8: −.063 / −.059 / −.067 / −.045) | −.075 / −.062 / −.051 / −.052 | −.084 / −.044 / −.094 / −.066 | −.072 / −.089 / −.077 / −.048 |
 | **recovery** V6(AWM) − AWM | −0.2 [−3.0,+2.6] / +1.2 [−2.2,+4.6] / **−2.6** [−5.6,+0.4] / **+5.4** [+1.2,+9.8]; pooled +0.95 (p .30) | not a verdict offline (recorded states do not respond); blend-only component ≤ −.007 (stand-in base) | | | |
 | total B0 → AWM cur kr5 | **+13.2 / +19.0 / +15.2 / +8.4** | −.064 / −.084 / −.111 / −.133 | −.039 / −.057 / −.058 / −.066 | −.160 / −.151 / −.187 / −.207 | −.035 / −.024 / −.059 / −.030 |
-| total B0 → AWM big kr5 | pending | −.143 / −.164 / −.191 / −.198 | −.114 / −.119 / −.109 / −.118 | −.244 / −.196 / −.280 / −.274 | −.107 / −.113 / −.136 / −.079 |
+| total B0 → AWM big kr5 | **+28.6 / +32.8 / +23.0 / +23.8** (CL0-50 → CL2-500, unpaired difference of SR) | −.143 / −.164 / −.191 / −.198 | −.114 / −.119 / −.109 / −.118 | −.244 / −.196 / −.280 / −.274 | −.107 / −.113 / −.136 / −.079 |
 
 Absolute levels behind the table (stale err / stale AURC; gs in parentheses): B0 .654 .601 .629 .649 / .414 .394 .410 .443;
 M4 .600 .543 .556 .571 (gs .611 .554 .565 .586) / .422 .383 .385 .413; AWM cur kr5 .590 .517 .518 .516 (gs .602 .530 .525 .534) /
@@ -209,9 +308,20 @@ M4 .600 .543 .556 .571 (gs .611 .554 .565 .586) / .422 .383 .385 .413; AWM cur k
 .256 .275 .250 .267. Step 0 (inf): B0 .317 .268 .392 .248; M4 .287 .287 .353 .270; AWM cur kr5 .282 .244 .333 .218; AWM big .210
 .154 .256 .169; oracle over the current library .212 .140 .233 .132.
 
+**The same three layers measured inside the 10× library** (offline chain M8 top-1 → M8 mean-5 → AWM big fbig, paired
+decisions, episode-bootstrap CIs; closed loop oscl500 chain, paired inits):
+
+| layer @ 10× | closed-loop ΔSR pp | offline stale Δerr | offline stale ΔAURC | offline fresh Δerr | offline step-0 Δerr |
+|---|---|---|---|---|---|
+| synthesis M8 mean-5 − M8 top-1 | **+7.4** [+3.4,+11.6] / +3.6 [−1.2,+8.4] / **+10.6** [+6.6,+14.6] / **+6.4** [+1.4,+11.2] | −.094 [−.100,−.088] / −.075 [−.080,−.070] / −.074 [−.080,−.068] / −.081 [−.087,−.075] | −.066 / −.057 / −.064 / −.055 | −.067 / −.063 / −.068 / −.059 | −.052 / −.013 / −.070 / −.032 |
+| method AWM big − M8 mean-5 (same 10× library) | **+7.2** [+4.0,+10.4] / **+23.0** [+18.4,+27.6] / **+4.8** [+2.2,+7.4] / +3.4 [−1.0,+7.8] | −.027 [−.033,−.021] / −.049 [−.054,−.043] / −.023 [−.029,−.017] / −.046 [−.055,−.038] | −.042 / −.052 / −.028 / −.026 | −.075 / −.030 / −.111 / −.081 | −.008 / −.027 / −.018 / −.028 |
+| recovery V6(AWM big) − AWM big | +0.2 [−1.6,+2.0] / +0.2 [−2.8,+3.2] / +1.0 [−0.4,+2.4] / +3.0 [−0.2,+6.2]; pooled +1.1 (68/90, p ≈ .09) | not a verdict offline | | | |
+| library (AWM, 500 vs 50 episodes) | +15.4 / +13.8 / +7.8 / +15.4 | −.078 / −.080 / −.079 / −.065 | −.075 / −.062 / −.051 / −.052 | −.084 / −.044 / −.094 / −.066 | −.072 / −.089 / −.077 / −.048 |
+
 What the side-by-side says:
 
-* **Synthesis** is worth −.05 … −.08 stale err in every cell offline, but +9.6 / −1.2 / +11.6 pp closed loop. On l10 the mean of
+* **Synthesis** is worth −.05 … −.09 stale err in every cell offline at both scales, but +9.6 / −1.2 / +11.6 / −0.2 pp closed
+  loop at 50 episodes and +7.4 / +3.6 / +10.6 / +6.4 pp at 500. On l10 the mean of
   five chunks straddling a gripper transition hovers at grasp height (ideation A §A.5; CL1's l10 vote split .149 / .333 S / F
   is the largest of any arm, its spells/episode 4.0 vs B0 2.7). Offline err rewards that hedge; the loop punishes it. On spatial
   the same averaging removes the terminal-row absorption (w_term_late F .72 → .47 π0.5, .84 → .57 GR00T) and wins big.
@@ -222,9 +332,16 @@ What the side-by-side says:
   show this because its states are B0's.
 * **Borrowed fit** is a pure metric-quality effect (fresh Δ = 0, because the fresh branch is continuity-dominated), and it lowers
   AURC too. Its per-task footprint is not uniform (§3.3): it fixes the π0.5-sp task-6 split and worsens the l10 splits.
-* **Library** is the largest offline layer (≈ −.07 … −.08 stale, −.05 … −.09 AURC, −.05 … −.09 at step 0) and roughly matches the
-  method layer's whole offline size. Closed loop it is unmeasured for AWM; the historical B0-style S3 → S6 gain (+12.2 / +6.0 pp)
-  is the prior, and it says the 10× library helps spatial about twice as much as l10 — the opposite of AWM's method layer.
+* **Library** is the largest offline layer (≈ −.07 … −.08 stale, −.05 … −.09 AURC, −.05 … −.09 at step 0) and, now measured, the
+  largest closed-loop layer for AWM on three of four cells (+15.4 / +13.8 / +7.8 / +15.4 pp; only π0.5-l10's method layer is
+  larger, +20.2 / +23.0). Unlike the method layer, its closed-loop size is *not* predicted by its offline size either: the four
+  offline library deltas are within .015 of each other while the SR gains range 7.8–15.4 pp; GR00T-sp gains least because it is
+  already at .888 / .966 and its remaining failures are terminal-row and frozen (Z) traps that more candidates do not remove.
+  For B0-style top-1 the layer reproduces the cache_size history (+14.0 / +6.2 vs S3 → S6 +12.2 / +6.0; CL0-500 .808 / .502 vs
+  S6 .810 / .516), which also confirms that the closed loop is run-to-run reproducible across sessions to ≈ 1–2 pp.
+* **Method vs library at both scales** (closed loop): spatial — library ≈ 2× method (π0.5 +15.4 vs +7.2, GR00T +7.8 vs +4.8);
+  π0.5-l10 — method ≈ 1.7× library (+23.0 vs +13.8); GR00T-l10 — library ≈ 4.5× method (+15.4 vs +3.4). Offline the method layer
+  is largest on GR00T-l10 and smallest on π0.5-sp at both scales, i.e. its closed-loop ordering is not recoverable from err.
 
 ---
 
@@ -234,9 +351,10 @@ What the side-by-side says:
 
 | question | offline (stale err, 50-ep library) | closed loop (50-ep library) | agree? |
 |---|---|---|---|
-| does mean-5 beat top-1? | yes in 4/4 (−.05 … −.08) | yes on spatial (+9.6 / +11.6 pp), **no on l10 for either model** (−1.2 / −0.2 pp) | 2 of 4 |
-| does AWM beat M4 at the same library? | yes in 4/4, smallest on π0.5-sp (−.011), largest on GR00T-l10 (−.055) | yes in 4/4 (+3.6 / +20.2 / +3.6 / +8.6 pp), largest on π0.5-l10 | direction yes, **magnitude order no**: π0.5-l10 has the 2nd-smallest offline Δ and the largest SR gain; GR00T-l10 has the largest offline Δ for the 2nd-smallest SR gain; GR00T-sp's offline Δ is 3× π0.5-sp's for the same +3.6 pp |
-| is AWM ≥ B0 on every cell? | yes (−.064 … −.133) | yes in 4/4 (+13.2 / +19.0 / +15.2 / +8.4 pp) | yes |
+| does mean-5 beat top-1? | yes in 4/4 at both scales (−.05 … −.09) | 50 ep: yes on spatial (+9.6 / +11.6 pp), **no on l10 for either model** (−1.2 / −0.2 pp); 500 ep: yes in 4/4 (+7.4 / +3.6 n.s. / +10.6 / +6.4) | 2 of 4 at 50 ep, 4 of 4 at 500 ep |
+| does AWM beat mean-5 at the same library? | yes in 4/4 at both scales, smallest on π0.5-sp (−.011 / −.027), largest on GR00T-l10 (−.055 / −.046) | 50 ep +3.6 / +20.2 / +3.6 / +8.6 pp; 500 ep +7.2 / +23.0 / +4.8 / +3.4 (n.s.); largest on π0.5-l10 at both scales, smallest on GR00T-l10 at 500 | direction yes, **magnitude order no**: π0.5-l10 has the 2nd-smallest offline Δ and the largest SR gain; GR00T-l10 has the largest offline Δ for the 2nd-smallest SR gain; GR00T-sp's offline Δ is 3× π0.5-sp's for the same +3.6 pp |
+| is AWM ≥ B0 on every cell? | yes (−.064 … −.133 at 50 ep; −.121 … −.127 vs M8 top-1 at 10×) | yes in 4/4 at both scales (+13.2 / +19.0 / +15.2 / +8.4 pp; +14.6 / +26.6 / +15.4 / +9.8) | yes |
+| does the 10× library help? | yes, −.065 … −.080 stale, within .015 across cells | yes in 16/16 paired arms, +6.2 … +20.6 pp; for AWM +7.8 … +15.4 | direction yes; magnitude not ordered |
 | does recovery help? | unmeasurable (blend ≤ −.007) | no in 3/4 (−0.2 / +1.2 / −2.6 pp), yes on GR00T-l10 (+5.4, task-specific); pooled +0.95 pp, p .30 | – |
 | which model gains more from vision-aware ranking? | GR00T (offline method layer −.038 / −.055 vs −.011 / −.026) | π0.5 on l10 (+20.2 vs +8.6 pp); spatial equal (+3.6 / +3.6) | no |
 | AURC as a proxy? | AWM −.047 … −.036 vs M4; M4 vs B0 mixed (+.008 … −.030) | no confidence gating in pure cache; irrelevant to SR here | – |
@@ -253,12 +371,18 @@ states while the traps are method-specific dynamic events at grasps / terminal r
 | π0.5-l10 | +.72 | +.07 | +.39 |
 | GR00T-sp | +.22 | −.10 | +.36 |
 | GR00T-l10 | −.10 | **−.35** | −.33 |
+| **at 10×** (M8 top-1 → M8 mean-5 → AWM big vs oscl500): π0.5-sp | −.16 | +.26 | +.89 |
+| π0.5-l10 | +.54 | −.35 | +.27 |
+| GR00T-sp | +.05 | −.44 | −.05 |
+| GR00T-l10 | +.03 | +.62 | +.47 |
 
 The synthesis layer is weakly-to-moderately predictable per task from offline err in the three cells where the layer has
 an effect (ideation A reported the same magnitudes with the sign convention Spearman(ΔSR, Δerr) = −.3 … −.7; that is
 agreement, not disagreement); on GR00T-l10, where synthesis is worth −0.2 pp overall, the per-task correlation is −.10. The **method layer is not
 predictable at all** (≈ 0 in three cells and −.35 on GR00T-l10, where the task with the largest offline gain, t9 err .784 →
-.651, is the one AWM loses, .54 → .34): where AWM's ranking lowers err most is unrelated to — or opposite to — where it raises SR. This is
+.651, is the one AWM loses, .54 → .34): where AWM's ranking lowers err most is unrelated to — or opposite to — where it raises SR. At 10× the picture is the same
+(method layer −.44 … +.62 across cells, mean +.02); the one strong correlation, π0.5-sp total +.89, comes from tasks whose SR is
+saturating at .96–1.00. This is
 the quantitative basis for R3's decision to screen by closed-loop pilots rather than by offline err — supported.
 
 ### 3.3 The two collapse tasks — same symptom, different mechanism (task-restricted KPIs, n = 50 inits each)
@@ -278,12 +402,15 @@ vote on 16 % of stale decisions (≤ 12 % on every other spatial task) and the b
 R3 H1's borrowed prior is the right lever there. GR00T-sp task 8 has **no gripper ambiguity at all** (.013–.026 under every
 fit) and a 91 % terminal-row first spell with w_term_late .73: AWM parks on the last row of a library episode while the task
 is not finished. The borrowed fit leaves its err unchanged (.599 → .597). The lever is the terminal guard (H1 ④), and it must
-be evaluated on GR00T-sp task 8, not only on the π0.5 pilot tasks (R3's pilot set is π0.5-only).
+be evaluated on GR00T-sp task 8, not only on the π0.5 pilot tasks (R3's pilot set is π0.5-only). **The 10× library removes all
+three collapses** (t6 .28 → .86, 30 F→S / 1 S→F; t8 .56 → .92, 18 / 0; GR00T-l10 t9 .34 → .74, 24 / 4): with 45–50 library
+episodes per task the metric is determined and the terminal / hub rows are outnumbered. Whether R3's switches can buy the same at
+50 episodes is exactly what its pilot measures.
 
 ### 3.4 Is GR00T's pattern π0.5's?
 
-Yes on spatial, with three quantitative differences: (i) the ceiling is higher (.888 vs .800; pure inference .940 vs .986, so
-the cache closes the gap to 5 pp on GR00T vs 19 pp on π0.5); (ii) the synthesis layer is larger (+11.6 vs +9.6 pp) and the
+Yes on spatial, with three quantitative differences: (i) the ceiling is higher (.888 vs .800 at 50 ep, .966 vs .954 at 10×; pure
+inference .940 vs .986, so the cache closes the gap to 5 pp on GR00T vs 19 pp on π0.5 at 50 ep and reaches the policy at 10×); (ii) the synthesis layer is larger (+11.6 vs +9.6 pp) and the
 terminal-row trap dominates even more (T .88 / .72 / .82 vs .67 / .62 / .38; w_term_late F .84 / .57 / .60 vs .72 / .47 / .40);
 (iii) AWM's vote split is smaller (F .083 vs .282) — the near-deterministic teacher gives cleaner gripper neighbourhoods — so
 the G / P classes that appear for π0.5's synthesized arms barely appear on GR00T (.04 / .02). Recovery hurts GR00T-sp
@@ -296,7 +423,10 @@ and a G class (.13) that the top-1 arm cannot have — the "mean-5 hovers at the
 (CL2 .552, +8.6 pp [+3.8, +13.4]) wins 7 of 10 tasks but loses t9 (−20 pp, hub class) and leaves the vote split high (S .196 /
 F .334); the recovery wrapper (CL3 .606, +5.4 pp [+1.2, +9.8]) is the only positive recovery cell: it lifts t6 / t4 / t8 / t7
 (+26 / +16 / +14 / +10 pp) and sinks t9 / t5 (−16 / −8 pp), halves the failed-episode spell share (.515 → .286) without removing
-spells from failed episodes (.98 still have one), and raises failed-episode gripper flips 3.1 → 5.5 (t6: 10.8). Where it wins
+spells from failed episodes (.98 still have one), and raises failed-episode gripper flips 3.1 → 5.5 (t6: 10.8). At 10× GR00T-l10
+is .608 / .672 / .706 / .736 — the cell where the library (+15.4) dwarfs the method (+3.4, n.s.) and where synthesis becomes
+positive (+6.4, p .014); its AWM vote split in failed episodes is the highest of all 32 arms (.434), so the grasp ambiguity is not
+a small-library artefact on this suite. Where it wins
 the first spell is G / Z-dominated (t6 G .26–.28, t4 Z .52–.71); where it loses it is H-dominated (t9 H .63–.67) — a forced
 trajectory switch helps out of a gripper-split or frozen trap and hurts in a hub, which is consistent with the null on
 π0.5-l10 (+1.2) and the loss on the terminal-row cells (GR00T-sp −2.6).
@@ -326,8 +456,8 @@ V4's plain cosine z-sum loses to AWM by .05 / .03 on GR00T while tying on π0.5 
 | AWM r32 codes (offline variant) | either | | | 288 | | + rank-32 W | | | 2.8 |
 | AWM cur, borrowed fit (R3 H1 α = 1) | current candidates, **500-episode fit** | 49–50 candidates / 500 fit | same as CL2 | 580 | same | same (basis and W from the 500 ep) | ≈ CL2 (same arrays) | ≈ CL2 | 2.7 |
 | CL3 V6(AWM cur kr5) | current | same | same | 580 + 46 (next, episode, step, progress, rs8) | | + 2.6 MB task-mean raw keys | **26.0 / 32.6 / 27.9 / 36.7** | 6 % / 3 % / 6.5 % / 3.4 % | + 1.3 (wrapper) |
-| oscl500 CL0 / CL1 M8x (B0 formula over all 10× candidates; exact M8, 4–10× faster) | 10× | 500 | 10,909 / 29,472 / 11,751 / 29,631 | 262,176 | **2.86 / 7.73 / 3.08 / 7.77 GB** | – | (fitted at server start) | 6.6–7.3× **not deployable**; reference arm only | 50 (M8, conc. 4) |
-| oscl500 CL2 AWM big kr8 | 10× | 500 | same | 580 | 6.0 / 16.3 / 6.5 / 16.4 MB codes (+ 3.1 / 8.3 / 5.3 / 13.3 MB `[H,7]` actions) | 18.5 MB | **47.0 / 94.1 / 58.2 / 117.3** (the pickle carries the full `(H,32)` f32 action table: 14 / 38 / 24 / 61 MB) | 11 % / 8.5 % / 13.6 % / 11 % | 2.9 |
+| oscl500 CL0 / CL1 M8x (B0 formula over all 10× candidates; exact M8, 4–10× faster) | 10× | 500 | 10,909 / 29,472 / 11,751 / 29,631 | 262,176 | **2.86 / 7.73 / 3.08 / 7.77 GB** | – | (fitted at server start) | 6.6–7.3× **not deployable**; reference arm only (SR .808 / .502 / .812 / .608 top-1, .882 / .538 / .918 / .672 mean-5) | 50 (M8, conc. 4); server p50 9.6–24.3 ms |
+| oscl500 CL2 AWM big kr8 (SR .954 / .768 / .966 / .706) | 10× | 500 | same | 580 | 6.0 / 16.3 / 6.5 / 16.4 MB codes (+ 3.1 / 8.3 / 5.3 / 13.3 MB `[H,7]` actions) | 18.5 MB | **47.0 / 94.1 / 58.2 / 117.3** (the pickle carries the full `(H,32)` f32 action table: 14 / 38 / 24 / 61 MB) | 11 % / 8.5 % / 13.6 % / 11 % | 2.9; server p50 2.7–4.9 ms |
 | oscl500 CL3 V6(AWM big) | 10× | 500 | same | 626 | | | **66.3 / 141.7 / 87.7 / 187.9** (two copies of the action table) | 15 % / 13 % / 20 % / 18 % | 4.2 |
 | V4 PCA-32 cosine z-sum, kernel-8 (offline only) | current / 10× | 50 / 500 | | **292** | 0.3 / 0.7 / 0.3 / 0.7 MB; 3.0 / 8.2 / 3.3 / 8.3 MB | PCA-32 basis 8.4 MB | – | | 1.1–1.4 |
 | T2 MLP metric (offline only, GPU fit) | current / 10× | | | 544 | | + MLP 136→64 | – | | 2.8–4.7 |
@@ -441,9 +571,11 @@ and step 0 are identical to AWM (they do not use the trained metric). GPU fit, 5
    failed-episode decisions vs ≤ 8 % in successes on π0.5) — but C showed raw low confidence is a *late* detector; the spell
    proxies here are also retrospective.
 6. **Kref mismatch in the 500-vs-50 pairing.** CL2-50 is kr5, CL2-500 is kr8 (default kwargs). Offline the two differ by
-   ≤ .005 stale and 0 at step 0 on the 10× library, so the library layer will be readable, but note it in the addendum.
+   ≤ .005 stale and 0 at step 0 on the 10× library; the measured library layer (+7.8 … +15.4 pp) is 15–30× that, so it is
+   readable, but a kr5-vs-kr8 replicate at 10× would cost one arm if anyone wants the layer clean.
 7. **The 500-episode CL0 / CL1 arms are M8x (262 KB/entry, 2.9–7.8 GB)**: they measure the library layer for the B0 formula
-   (a replication of S6 .810 / .516) and are not deployable candidates.
+   (.808 / .502 replicate S6 .810 / .516) and are not deployable candidates; on the server they cost 9.6–24.3 ms p50 per query
+   against AWM's 2.7–4.9 ms.
 8. **Confidence calibration at the deployed scale has no failed episodes.** V7's LOEO pseudo-queries on the current libraries
    (100 % successful episodes) never see drifted states; the 10× libraries have 13–73 failed episodes. R3 H3 must calibrate on
    the closed-loop logs (held out by init) or borrow the 10× library — and label it.
@@ -454,10 +586,14 @@ and step 0 are identical to AWM (they do not use the trained metric). GPU fit, 5
     projections that belong on the GPU next to the pooled key.
 11. **No arm has a replicate yet.** The native reruns match trace_dual to 0 / −1.2 / 0 / 0 pp; R3's CL2 rerun in the pilot is
     the first same-method replicate and should be reported as the noise floor of the exam.
-12. **Library layer for AWM is the largest unknown**: offline it equals the whole method layer (≈ −.08 stale, −.05 … −.09 step 0);
-    history says +12 / +6 pp for B0 top-1. If AWM-500 lands near .85 / .70 on π0.5, the owner's deployability question (bytes vs
-    trajectories) becomes decisive: at 580 B/entry the 10× AWM library is 47–117 MB (26–47 MB with `[5, 7]` payloads) against
-    431–1,103 MB deployed today.
+12. **The library layer is now measured and it is decisive**: +15.4 / +13.8 / +7.8 / +15.4 pp for AWM (paired, all p < 1e-4),
+    taking the cache to .954 / .768 / .966 / .706 — within 3 pp of the policy on π0.5-spatial and at the policy on GR00T-spatial
+    (§1.5) — and it removes every 50-episode task collapse. The owner's deployability question (bytes vs trajectories) is
+    therefore the single most valuable ruling for R3/R4: at 580 B/entry the 10× AWM library is 47–117 MB as pickled (26–47 MB
+    with `[5, 7]` action payloads) against 431–1,103 MB deployed today, i.e. the byte constraint is already satisfied; only a
+    trajectory-count constraint keeps the exam at 50 episodes. If the constraint is trajectories, the R3 levers (borrowed prior,
+    terminal guard, gripper commitment) are chasing the +7.8 … +15.4 pp that the library gives for free, and the l10 gap of
+    7–16 pp that remains even at 10× is the mixed-mode (H2/H3) problem.
 
 Where the R2 data supports R3 SELECTION: pilot-based screening over offline err (§3.2); dropping recovery (§1.2); keeping
 the vision-mandatory joint metric (vision-only loses on GR00T-sp at 50 ep); the α = .5 hedge (§6.3); logging per-task KPIs
@@ -467,24 +603,22 @@ used as the handoff confidence.
 
 ---
 
-## 7. Pending arms and regeneration
+## 7. Reproduction
 
-**Pending after addendum 1 (01:0x CDT):** the 500-episode group only — 16 `oscl500_*` arms (≈ 3 h), now scheduled ≈ 03:00 CDT
-after the R3 pilots (the 50-episode chain finished 00:51 CDT; its last two arms started with 13–16 GB already in use on the
-4090 by another process, without incident).
-The `CHAIN_STOPPED at oscl500_p_sp_cl0 / PORT_BUSY` line of 23:22 in `r02_g500/runs/chain.log` is the premature relay (no
-arm ran; `oscl500_p_sp_cl0.ERROR` is that leftover). Rows / sections that will change with addendum 2: §1.1–1.4 the `oscl500_*` rows; §2 the library layer (500 vs 50 per CL,
-paired on the same inits; note the kref 5 vs 8 mismatch of §6.6); §4 nothing (sizes already listed); §6.12.
-
-Everything regenerates with (read-only on the run roots; CPU 30-33,74-77):
+All 32 arms are complete (`r02_g50` CHAIN_DONE 00:51 CDT, `r02_g500` CHAIN_DONE 04:23 CDT; the `oscl500_p_sp_cl0.ERROR`
+marker in `r02_g500/state` is the harmless leftover of the premature 23:22 relay). Everything regenerates with (read-only on
+the run roots; CPU 30-33,74-77):
 
 ```bash
 bash /home/weiland/.claude/jobs/a607dd74/tmp/analysis_r02/regen_cl.sh          # kpi.py per group/run for every state/<arm>.DONE, + 500-vs-50 pairs -> cl/*.json|md, cl/STATUS.txt
-taskset -c 30-33,74-77 .venv/bin/python /home/weiland/.claude/jobs/a607dd74/tmp/analysis_r02/cl_table.py     # -> cl/CL_TABLES.md (arm / paired / per-task / spell tables)
-taskset -c 30-33,74-77 .venv/bin/python /home/weiland/.claude/jobs/a607dd74/tmp/analysis_r02/task_map.py     # -> task_map.md (per-task offline<->loop, vote splits, latency)
+taskset -c 30-33,74-77 .venv/bin/python /home/weiland/.claude/jobs/a607dd74/tmp/analysis_r02/cl_table.py     # -> cl/CL_TABLES.md (arm / paired / per-task / spell tables, both groups)
+taskset -c 30-33,74-77 .venv/bin/python /home/weiland/.claude/jobs/a607dd74/tmp/analysis_r02/task_map.py     # -> task_map.md (per-task offline<->loop at 50 ep, vote splits, latency of all 32 arms)
+taskset -c 30-33,74-77 .venv/bin/python /home/weiland/.claude/jobs/a607dd74/tmp/analysis_r02/task_map500.py  # -> task_map500.md (the same at 10x: M8 top-1 / mean-5 / AWM big vs oscl500)
+taskset -c 30-33,74-77 .venv/bin/python /home/weiland/.claude/jobs/a607dd74/tmp/analysis_r02/pair_inf.py     # -> paired cache vs trace_dual pure inference (§1.5)
 taskset -c 30-33,74-77 .venv/bin/python /home/weiland/.claude/jobs/a607dd74/tmp/analysis_r02/offline_regimes.py --out .../offline --procs 4   # -> offline/regimes.csv, regimes_wide.md
 ```
 
-Other scratch outputs used above: `decomp/{awm_kr8,awm_kr5_cl2,v4,t2_mlp}/*.csv` (three-layer offline decomposition with
-CIs), `profile/cmp_*` (paired compare), `profile/bd_{b0,awm_cur_kr5}` (breakdown), `cl/task_{p_sp_t6,g_sp_t8,g_sp_t0}.md`
-(task-restricted KPIs). Coverage was read from the existing `profile_cache/reports/coverage/{current,bpool_cs,bpool_all}`.
+Other scratch outputs used above: `decomp/{awm_kr8,awm_kr5_cl2,v4,t2_mlp,big500}/*.csv` (three-layer offline decomposition
+with CIs at 50 ep and inside the 10× library), `profile/cmp_*` (paired compare), `profile/bd_{b0,awm_cur_kr5}` (breakdown),
+`cl/task_{p_sp_t6,g_sp_t8,g_sp_t0,g_l10_t6,g_l10_t9,g_l10_t4}.md` (task-restricted KPIs), `cl/lib_*.json` (500-vs-50 pairs with
+per-task counts). Coverage was read from the existing `profile_cache/reports/coverage/{current,bpool_cs,bpool_all}`.
