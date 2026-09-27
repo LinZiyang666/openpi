@@ -12,7 +12,10 @@ export LIBERO_CONFIG_PATH=$HOME/.libero
 export PYTHONPATH=$R/packages/openpi-client/src:$R/src:$R
 export PATH=/scratch/zixuans8/dsp_bin:/usr/local/bin:/usr/bin:/bin
 PY=/scratch/zixuans8/openpi/.venv/bin/python
-case "$ARM" in *groot*) RES=(--resize-size 256) ;; *) RES=() ;; esac
+# GR00T arms need the raw 256x256 render (the transform chain crops to 224). Decide from the arm name OR the arm's
+# yaml (GR00T yamls carry the cp1_groot_* key builder) so arm naming cannot silently break it.
+if [[ "$ARM" == *groot* ]] || grep -qi groot "$R/os_cl/cfg/$ARM.yaml" 2>/dev/null; then RES=(--resize-size 256); else RES=(); fi
+echo "RUN_ARM_RESIZE arm=$ARM res=${RES[*]:-none}"
 W=0; for n in $(echo "$SW" | tr ',' ' '); do W=$((W+n)); done
 if [ -n "${OSCL_EPISODES:-}" ]; then ENTRY=("$R/os_cl/run_gtp_subset.py"); else ENTRY=(-m exp.gate_threshold_pareto.run_gtp); fi
 mkdir -p "$OUT"
