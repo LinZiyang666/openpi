@@ -40,6 +40,10 @@ os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
 
 import numpy as np  # noqa: E402
 
+from exp.offline_search.closed_loop.ops.collect import arm_manifest
+from exp.offline_search.rounds.r04.k4_eval.cost_ledger import ledger, r4_enabled
+from exp.offline_search.rounds.r04.k4_eval.estimators import design_estimate
+
 SCHEMA = "offline_search.closed_loop.kpi.v1"
 TOPK = 10
 EXEC_STEPS, ACT_DIMS, GRIP = 5, 7, 6
@@ -52,7 +56,7 @@ SUITE_SHORT = {"libero_spatial": "spatial", "libero_10": "l10", "spatial": "spat
 MODEL_OF_LETTER = {"p": "pi05", "g": "groot"}
 CLASS_ORDER = ("T", "G", "Z", "P", "H")
 CLASS_LONG = {"T": "terminal_row", "G": "gripper_split", "Z": "near_zero_translation", "P": "pause_row", "H": "hub"}
-EXEC_KEYS = ("a_exec", "exec_chunk", "exec", "policy_chunk", "act_exec", "served")
+EXEC_KEYS = ("served_head", "a_exec", "exec_chunk", "exec", "policy_chunk", "act_exec", "served")
 Z95 = 1.959963984540054
 
 
@@ -424,11 +428,13 @@ def _exec_head(row: dict):
 
 
 def load_arm(run: pathlib.Path, arm: str, *, store: str | None, tasks, episodes, act_eps: float,
-             recon_override: dict | None, cache_dir: pathlib.Path | None, want_client: bool) -> dict:
+             recon_override: dict | None, cache_dir: pathlib.Path | None, want_client: bool,
+             manifest=None, include_ledger=False, cost_table=None) -> dict:
     """Parse one arm into per-decision arrays + per-episode records, then compute its KPIs."""
     t0 = time.perf_counter()
     warns = []
     meta = arm_meta(run, arm)
+    design = arm_manifest(run, arm, meta, manifest)
     comp = load_journal(run, arm)
     if not comp:
         raise SystemExit(f"{arm}: no complete episodes in {run / 'runs' / arm / 'client' / 'journal.jsonl'}")
@@ -443,6 +449,8 @@ def load_arm(run: pathlib.Path, arm: str, *, store: str | None, tasks, episodes,
         if tasks is not None and task not in tasks:
             continue
         if episodes is not None and ep_idx not in episodes:
+            continue
+        if design and (task, ep_idx) not in design["selected"]:
             continue
         keep_uid[uid] = (task, ep_idx, bool(r.get("success")), r.get("attempt"), r.get("duration_s"))
     if not keep_uid:
@@ -531,6 +539,7 @@ def load_arm(run: pathlib.Path, arm: str, *, store: str | None, tasks, episodes,
     extras = {k: np.full(N, np.nan) for k in ex_keys}
     exec_head = np.full((N, EXEC_STEPS, ACT_DIMS), np.nan)
     has_exec = np.zeros(N, bool)
+    has_served = np.zeros(N, bool)
     for i, k in enumerate(keys):
         d = recs[k]
         uid = k[0]
@@ -593,6 +602,7 @@ def load_arm(run: pathlib.Path, arm: str, *, store: str | None, tasks, episodes,
         if eh is not None:
             exec_head[i] = eh
             has_exec[i] = True
+            has_served[i] = d.get("served_head") is not None
     valid = topk >= 0
     if not has_hit_field:
         hit[:] = 1
@@ -660,6 +670,7 @@ def load_arm(run: pathlib.Path, arm: str, *, store: str | None, tasks, episodes,
         lib_eplen[idx] = L.ep_len[t1]
         lib_prog[idx] = L.prog[t1]
     # executed head: served head on HIT, logged policy chunk on MISS (NaN when absent)
+    head[has_served & (hit == 1)] = exec_head[has_served & (hit == 1)]
     exec_h = head.copy()
     miss = hit == 0
     exec_h[miss] = np.nan
@@ -764,7 +775,17 @@ def load_arm(run: pathlib.Path, arm: str, *, store: str | None, tasks, episodes,
                 server_episode_rows=len(ep_rows), server_success_agree=(int(sum(srv_agree)), len(srv_agree)),
                 mixed=bool(has_hit_field and (hit == 0).any()), has_hit_field=has_hit_field,
                 subset={"tasks": tasks, "episodes": episodes}, parse_s=round(dt, 2), warnings=warns, **client)
-    return {"info": info, "dec": dec, "ep": epi}
+    out = {"info": info, "dec": dec, "ep": epi}
+    modern = r4_enabled(meta, recs.values(), startups)
+    if modern or include_ledger or cost_table is not None or design:
+        out["cost_ledger"] = ledger({**meta, "model": model}, list(recs.values()), startups,
+                                    {u: comp[u] for u in uid_list}, cost_table)
+        out["r4_log"] = modern
+    if design:
+        out["manifest"] = design
+    if has_served.any():
+        info["recon_note"] = f"served_head {int(has_served.sum())}/{N}; kernel diagnostics {rule_note}"
+    return out
 
 
 def _runs(vals: np.ndarray, served: np.ndarray):
@@ -918,6 +939,18 @@ def arm_kpis(A: dict, ir_ref_ms: float | None) -> dict:
     # mixed
     if info["has_hit_field"]:
         out["mixed_mode"] = mixed_kpis(A, ir_ref_ms)
+    if "cost_ledger" in A:
+        out["cost_ledger"] = A["cost_ledger"]
+        if A.get("r4_log") and "mixed_mode" in out:
+            out["mixed_mode"]["ir_formula_pi05"] = (A["cost_ledger"]["ir_per_five_controls"]
+                                                       if info["model"] == "pi05" else None)
+            out["mixed_mode"]["ir_formula_note"] = "R4 stage ledger, normalized per five nominal controls; see cost_ledger"
+            out["mixed_mode"]["ir_stage_measured"] = A["cost_ledger"]["ir_measured_per_five_controls"]
+            out["mixed_mode"]["ir_stage_note"] = "sum logged stage costs / reference full cost / nominal controls * 5"
+    if A.get("manifest"):
+        out["weighted"] = design_estimate(A["manifest"], {(int(t), int(i)): int(s) for t, i, s in
+                                                        zip(E["task"], E["ep_idx"], E["success"])})
+        out["weighted"]["sr"] = out["weighted"]["estimate"]
     return out
 
 
@@ -1022,7 +1055,12 @@ def paired(ref: dict, arm: dict, boot: int, seed: int) -> dict:
     common = sorted(set(kr) & set(ka))
     n = len(common)
     if n == 0:
-        return {"ref": ref["info"]["arm"], "arm": arm["info"]["arm"], "n_common": 0}
+        out = {"ref": ref["info"]["arm"], "arm": arm["info"]["arm"], "n_common": 0}
+        design = arm.get("manifest") or ref.get("manifest")
+        if design:
+            out["weighted"] = design_estimate(design, {})
+            out["weighted"]["delta_sr"] = None
+        return out
     r = np.array([kr[k] for k in common])
     a = np.array([ka[k] for k in common])
     A = int((r & a).sum())
@@ -1042,7 +1080,7 @@ def paired(ref: dict, arm: dict, boot: int, seed: int) -> dict:
         b_t, c_t, n_t = int((r & ~a & m).sum()), int((~r & a & m).sum()), int(m.sum())
         per_task[str(t)] = {"n": n_t, "sr_ref": float(r[m].mean()), "sr_arm": float(a[m].mean()),
                             "delta": (c_t - b_t) / n_t, "s_to_f": b_t, "f_to_s": c_t, "mcnemar_p": mcnemar_exact(b_t, c_t)}
-    return {"ref": ref["info"]["arm"], "arm": arm["info"]["arm"], "n_common": n,
+    out = {"ref": ref["info"]["arm"], "arm": arm["info"]["arm"], "n_common": n,
             "sr_ref": float(r.mean()), "sr_arm": float(a.mean()), "delta_sr": delta,
             "both_success": A, "s_to_f": B, "f_to_s": C, "both_fail": Dd,
             "mcnemar_exact_p": mcnemar_exact(B, C),
@@ -1050,6 +1088,17 @@ def paired(ref: dict, arm: dict, boot: int, seed: int) -> dict:
             "newcombe95": list(newcombe_paired(A, B, C, Dd)),
             "normal95": [delta - Z95 * se, delta + Z95 * se] if n > 1 else None,
             "per_task": per_task}
+    design = arm.get("manifest") or ref.get("manifest")
+    if design:
+        if arm.get("manifest") and ref.get("manifest") and arm["manifest"]["data"] != ref["manifest"]["data"]:
+            raise ValueError("paired weighted comparison requires the same sampling manifest on both arms")
+        w = design_estimate(design, {k: int(ka[k]) - int(kr[k]) for k in common})
+        w["delta_sr"] = w["estimate"]
+        w["sr_ref"] = design_estimate(design, {k: int(kr[k]) for k in common})["estimate"]
+        w["sr_arm"] = design_estimate(design, {k: int(ka[k]) for k in common})["estimate"]
+        w["unweighted_note"] = "raw McNemar/bootstrap above describe the sampled rows, not the full population"
+        out["weighted"] = w
+    return out
 
 
 # ----------------------------------------------------------------------------------------------------- report
@@ -1154,6 +1203,30 @@ def md_report(res: dict) -> str:
                 L.append(f"{a['arm']} judge reasons on MISS: " + ", ".join(f"{k} {v}" for k, v in m["judge_reason_counts_on_miss"].items()))
         L.append("")
     # notes
+    if any("cost_ledger" in a for a in arms):
+        L.extend(["## R4 cost ledger (per five nominal control steps)\n",
+                  "| arm | v | m | K/MISS | L/request | IR | controls/ep | cost source |",
+                  "|---|---|---|---|---|---|---|---|"])
+        for a in arms:
+            if "cost_ledger" in a:
+                c = a["cost_ledger"]
+                L.append(f"| {a['arm']} | {_fmt(c['v'])} | {_fmt(c['m'])} | {_fmt(c['k_per_miss']['mean'])} | "
+                         f"{_fmt(c['l_per_request']['mean'])} | {_fmt(c['ir_per_five_controls'])} | "
+                         f"{_fmt(c['controls_per_episode'], 1)} | {c['cost_source']} |")
+        L.append("\nControls are requests × L; the final chunk can be partially executed.\n")
+    if any("weighted" in a for a in arms):
+        L.append("## Manifest-weighted estimates\n")
+        for a in arms:
+            if "weighted" in a:
+                w = a["weighted"]
+                L.append(f"- {a['arm']}: weighted SR {_fmt(w['estimate'])}; design variance {_fmt(w['design_variance'], 8)}; "
+                         f"95% design interval {w.get('design_normal95')}; completed {w['observed_pairs']}/{w['expected_pairs']} pairs.")
+        for p in res["paired"]:
+            if "weighted" in p:
+                w = p["weighted"]
+                L.append(f"- {p['ref']} -> {p['arm']}: weighted ΔSR {_fmt(w['estimate'])}; design variance "
+                         f"{_fmt(w['design_variance'], 8)}; 95% design interval {w.get('design_normal95')}.")
+        L.append("\nRaw SR and paired tests describe the oversampled rows only. Design intervals exclude rollout randomness.\n")
     L.append("## Notes\n")
     for a in arms:
         L.append(f"- {a['arm']}: method `{a['method']}`, served-action reconstruction `{a['recon']['rule']}` ({a['recon']['note']}), libraries "
@@ -1188,6 +1261,9 @@ def main(argv=None):
     ap.add_argument("--pilot", action="store_true", help=f"R3 pilot subset per suite: tasks {PILOT_TASKS}, ep_idx 0-19")
     ap.add_argument("--tasks", default=None, help="task ids, e.g. 6,9,0,4,1")
     ap.add_argument("--episodes", default=None, help="ep_idx list / ranges, e.g. 0-19 or 0,5,10")
+    ap.add_argument("--manifest", help="exact pairs / stratified pilot manifest (same design for both paired arms)")
+    ap.add_argument("--ledger", action="store_true", help="add R4 ledger even for legacy logs")
+    ap.add_argument("--cost-table", help="stage cost JSON override")
     ap.add_argument("--json", default=None, help="write the full result JSON here")
     ap.add_argument("--md", default=None, help="write the markdown report here")
     ap.add_argument("--store", default=None, help="store root (default: the server's logged root, else /dev/shm/offline_search_store)")
@@ -1217,6 +1293,8 @@ def main(argv=None):
     episodes = parse_int_list(a.episodes)
     if a.pilot and (tasks is not None or episodes is not None):
         raise SystemExit("--pilot excludes --tasks / --episodes")
+    if a.manifest and (a.pilot or tasks is not None or episodes is not None):
+        raise SystemExit("--manifest excludes --pilot / --tasks / --episodes")
     cache_dir = pathlib.Path(a.cache_dir) if a.cache_dir else None
 
     targets = []
@@ -1240,7 +1318,8 @@ def main(argv=None):
                 raise SystemExit(f"{arm}: --pilot needs a known suite (spatial | l10), got {suite!r}")
             tk, epi = PILOT_TASKS[suite], PILOT_EPISODES
         return dict(store=a.store, tasks=tk, episodes=epi, act_eps=a.act_eps, recon_override=override or None,
-                    cache_dir=cache_dir, want_client=not a.no_client)
+                    cache_dir=cache_dir, want_client=not a.no_client, manifest=a.manifest,
+                    include_ledger=a.ledger, cost_table=a.cost_table)
 
     work = [(str(run), arm, kw_for(run, arm)) for run, arm in jobs]
     nw = max(1, min(a.workers, len(work)))

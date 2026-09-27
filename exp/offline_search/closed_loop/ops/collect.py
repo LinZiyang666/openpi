@@ -30,6 +30,10 @@ import time
 
 import numpy as np
 
+from exp.offline_search.closed_loop.ops.remote.run_gtp_subset import load_manifest, uid_pair, check_manifest
+from exp.offline_search.rounds.r04.k4_eval.cost_ledger import ledger, r4_enabled
+from exp.offline_search.rounds.r04.k4_eval.estimators import design_estimate
+
 ISL = "/scratch/zixuans8/openpi_trace/os_cl"
 IR_PI05 = (0.152, 0.848)
 
@@ -140,9 +144,23 @@ def pct(a, q):
     return float(np.percentile(a, q)) if len(a) else None
 
 
-def summarize(run: pathlib.Path, arm: str) -> dict:
+def arm_manifest(run, arm, meta, manifest=None):
+    selection = run / "runs" / arm / "selection.json"
+    if manifest is None and selection.exists():
+        manifest = json.loads(selection.read_text()).get("manifest")
+    elif manifest is None:
+        manifest = meta.get("manifest")
+    if not manifest:
+        return None
+    result = load_manifest(manifest)
+    check_manifest(result, meta.get("model"), meta.get("suite_short") or meta.get("suite"))
+    return result
+
+
+def summarize(run: pathlib.Path, arm: str, *, manifest=None, include_ledger=False, cost_table=None, write=True) -> dict:
     arms = {r["arm"]: r for r in json.loads((run / "arms.json").read_text())}
     meta = arms.get(arm, {})
+    design = arm_manifest(run, arm, meta, manifest)
     cd = run / "runs" / arm / "client"
     jr = _jsonl(cd / "journal.jsonl")
     comp = {}
@@ -152,6 +170,8 @@ def summarize(run: pathlib.Path, arm: str) -> dict:
             errors += 1
         if r.get("accepted") and r.get("status") in ("done", "failed") and not r.get("error"):
             comp[r["task_uid"]] = r
+    if design:
+        comp = {u: r for u, r in comp.items() if uid_pair(u) in design["selected"]}
     succ = sum(1 for r in comp.values() if r.get("success"))
     per_task = {}
     for uid, r in comp.items():
@@ -191,10 +211,14 @@ def summarize(run: pathlib.Path, arm: str) -> dict:
     if decs:
         comp_uids = set(comp)
         dd = [r for r in decs if r.get("uid") in comp_uids] or decs
-        if is_mixed(meta):
+        modern = r4_enabled(meta, decs, starts) or include_ledger or cost_table is not None or design is not None
+        if is_mixed(meta) or modern:
             # the accepted attempt only (a retried uid's earlier attempts are logged too)
             att = {u: int(r.get("attempt", 1) or 1) for u, r in comp.items()}
             dd = [r for r in decs if r.get("uid") in comp_uids and int(r.get("attempt", 1) or 1) == att[r["uid"]]] or dd
+        if modern:
+            dd = list({(r["uid"], r["step"]): r for r in decs if r.get("uid") in comp_uids
+                       and int(r.get("attempt", 1) or 1) == att[r["uid"]]}.values())
         q = [r["q_us"] for r in dd if r.get("q_us") is not None]
         su = [r["search_us"] for r in dd if r.get("search_us") is not None]
         im = [r["infer_ms"] for r in dd if r.get("infer_ms") is not None]
@@ -208,11 +232,11 @@ def summarize(run: pathlib.Path, arm: str) -> dict:
             "plugin_search_us": {"p50": pct(su, 50), "p95": pct(su, 95)},
             "server_infer_ms": {"p50": pct(im, 50), "p95": pct(im, 95), "p99": pct(im, 99)},
             "native_shadow_agree": round(sum(1 for r in nat if r["agree"]) / len(nat), 5) if nat else None,
-            "exec_ok": round(sum(1 for r in dd if r.get("exec_ok")) / len(dd), 5),
-            "synth_frac": round(sum(1 for r in dd if r.get("synth")) / len(dd), 5),
-            "lib_mix": {k: sum(1 for r in dd if r.get("lib") == k) for k in sorted({r.get("lib") for r in dd})},
+            "exec_ok": round(sum(1 for r in dd if r.get("exec_ok")) / len(dd), 5) if dd else None,
+            "synth_frac": round(sum(1 for r in dd if r.get("synth")) / len(dd), 5) if dd else None,
+            "lib_mix": {k: sum(1 for r in dd if r.get("lib") == k) for k in sorted({r.get("lib") for r in dd}, key=str)},
             "not_ok": sum(1 for r in decs if not r.get("ok", True)),
-            "decisions_per_s": round(len(tsd) / (max(tsd) - min(tsd)), 3) if len(tsd) > 1 else None,
+            "decisions_per_s": round(len(tsd) / (max(tsd) - min(tsd)), 3) if len(tsd) > 1 and max(tsd) > min(tsd) else None,
             "server_episode_rows": len(epis),
             "server_success_agrees_journal": (sum(1 for e in epis if e.get("uid") in comp and e.get("reason") ==
                                                   "episode_end" and bool(e.get("success")) ==
@@ -222,7 +246,18 @@ def summarize(run: pathlib.Path, arm: str) -> dict:
         }
         if is_mixed(meta):
             s["mixed"] = mixed_block(meta, dd, decs, starts, comp, ps_acc, hit_mix)
+        if modern:
+            s["cost_ledger"] = ledger(meta, dd, starts, comp, cost_table)
+            if "mixed" in s and r4_enabled(meta, dd, starts):
+                s["mixed"]["ir_pi05_formula"] = (round(s["cost_ledger"]["ir_per_five_controls"], 5)
+                                                   if dd and meta.get("model") == "pi05" else None)
+                s["mixed"]["ir_measured"] = s["cost_ledger"]["ir_measured_per_five_controls"]
+    if design:
+        s["weighted"] = design_estimate(design, {uid_pair(u): int(bool(r.get("success"))) for u, r in comp.items()})
+        s["weighted"]["sr"] = s["weighted"]["estimate"]
     s["collected_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+    if not write:
+        return s
     (run / "runs" / arm / "summary.json").write_text(json.dumps(s, indent=1))
     allp = run / "summary.json"
     allv = json.loads(allp.read_text()) if allp.exists() else {}
@@ -235,8 +270,14 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-root", required=True)
     ap.add_argument("--no-pull", action="store_true")
+    ap.add_argument("--manifest", help="exact pairs, with strata/inclusion probabilities for weighted SR")
+    ap.add_argument("--ledger", action="store_true", help="add the R4 ledger even for old logs")
+    ap.add_argument("--cost-table", help="stage cost JSON (default closed_loop/ops/cost_table.json)")
+    ap.add_argument("--no-write", action="store_true", help="read-only local summary; requires --no-pull")
     ap.add_argument("arms", nargs="+")
     a = ap.parse_args(argv)
+    if a.no_write and not a.no_pull:
+        ap.error("--no-write requires --no-pull")
     run = pathlib.Path(a.run_root)
     rc = 0
     for arm in a.arms:
@@ -247,7 +288,7 @@ def main(argv=None):
                 print(f"{arm}: pull failed: {e}", file=sys.stderr)
                 rc = 1
                 continue
-        s = summarize(run, arm)
+        s = summarize(run, arm, manifest=a.manifest, include_ledger=a.ledger, cost_table=a.cost_table, write=not a.no_write)
         sv = s.get("server", {})
         print(f"{arm}: complete={s['complete']} success={s['success']} SR={s['sr']} full_hit={s['all_full_hit']} "
               f"dec/ep={s['decisions_per_episode']} infer_ms_p50={sv.get('server_infer_ms', {}).get('p50')} "

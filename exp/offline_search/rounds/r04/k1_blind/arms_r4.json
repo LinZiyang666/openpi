@@ -1,0 +1,2902 @@
+[
+  {
+    "name": "r4b3_p_l10_50_b0g",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 0,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_b0g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_b0c",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 0,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_b0c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_ph1g",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_ph1g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_ph1c",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_ph1c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_ph2g",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_ph2g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_ph2c",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 2,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_ph2c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_clk1g",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "kernel_clock",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_clk1g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_clk1c",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "kernel_clock",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_clk1c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_tail1gg",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_tail1gg.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_tail1gc",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_tail1gc.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_tail1ug",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_tail1ug.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_tail1uc",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_tail1uc.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_ph0k5",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 0
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "periodic:5",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_ph0k5.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_ph2k5",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 2
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "periodic:5",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_ph2k5.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_50_inferL10",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "budget": 0
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "periodic:1",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_50_inferL10.pkl"
+    ],
+    "replan_steps": 10
+  },
+  {
+    "name": "r4b3_p_l10_500_b0g",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 0,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_b0g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_b0c",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 0,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_b0c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_ph1g",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_ph1g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_ph1c",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_ph1c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_ph2g",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_ph2g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_ph2c",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 2,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_ph2c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_clk1g",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "kernel_clock",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_clk1g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_clk1c",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "kernel_clock",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_clk1c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_tail1gg",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_tail1gg.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_tail1gc",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_tail1gc.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_tail1ug",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_tail1ug.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_tail1uc",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_tail1uc.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_ph0k8",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 0
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "periodic:8",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_ph0k8.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_ph2k8",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 2
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "periodic:8",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_ph2k8.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_l10_500_inferL10",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "budget": 0
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "periodic:1",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_l10_500_inferL10.pkl"
+    ],
+    "replan_steps": 10
+  },
+  {
+    "name": "r4b3_p_sp_50_b0g",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 0,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_b0g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_b0c",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 0,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_b0c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_ph1g",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_ph1g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_ph1c",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_ph1c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_ph2g",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_ph2g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_ph2c",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 2,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_ph2c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_clk1g",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "kernel_clock",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_clk1g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_clk1c",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "kernel_clock",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_clk1c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_tail1gg",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_tail1gg.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_tail1gc",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_tail1gc.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_tail1ug",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_tail1ug.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_tail1uc",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_tail1uc.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_ph0k5",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 0
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "periodic:5",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_ph0k5.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_ph2k5",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 2
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "periodic:5",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_ph2k5.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_50_inferL10",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "budget": 0
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "periodic:1",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_50_inferL10.pkl"
+    ],
+    "replan_steps": 10
+  },
+  {
+    "name": "r4b3_p_sp_500_b0g",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 0,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_b0g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_b0c",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 0,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_b0c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_ph1g",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_ph1g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_ph1c",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_ph1c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_ph2g",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_ph2g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_ph2c",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 2,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_ph2c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_clk1g",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "kernel_clock",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_clk1g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_clk1c",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "kernel_clock",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_clk1c.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_tail1gg",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_tail1gg.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_tail1gc",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_tail1gc.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_tail1ug",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_tail1ug.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_tail1uc",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_tail1uc.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_ph0k8",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 0
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "periodic:8",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_ph0k8.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_ph2k8",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 2
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "periodic:8",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_ph2k8.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_p_sp_500_inferL10",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "budget": 0
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "periodic:1",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_p_sp_500_inferL10.pkl"
+    ],
+    "replan_steps": 10
+  },
+  {
+    "name": "r4b3_g_l10_50_b0",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 0,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_50_b0.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_l10_50_ph1",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_50_ph1.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_l10_50_ph2",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 2,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_50_ph2.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_l10_50_tail1g",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_50_tail1g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_l10_50_tail1u",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_50_tail1u.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_l10_50_tail2g",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_50_tail2g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_l10_50_tail2u",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_50_tail2u.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_l10_500_b0",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 0,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_500_b0.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_l10_500_ph1",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_500_ph1.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_l10_500_ph2",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 2,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_500_ph2.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_l10_500_tail1g",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_500_tail1g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_l10_500_tail1u",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_500_tail1u.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_l10_500_tail2g",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_500_tail2g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_l10_500_tail2u",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_l10_500_tail2u.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_50_b0",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 0,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_50_b0.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_50_ph1",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_50_ph1.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_50_ph2",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 2,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_50_ph2.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_50_tail1g",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_50_tail1g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_50_tail1u",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_50_tail1u.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_50_tail2g",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_50_tail2g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_50_tail2u",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_50_tail2u.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_500_b0",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 0,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_500_b0.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_500_ph1",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_500_ph1.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_500_ph2",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 2,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_500_ph2.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_500_tail1g",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_500_tail1g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_500_tail1u",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_500_tail1u.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_500_tail2g",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_500_tail2g.pkl"
+    ]
+  },
+  {
+    "name": "r4b3_g_sp_500_tail2u",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b3_g_sp_500_tail2u.pkl"
+    ]
+  },
+  {
+    "name": "r4b4_p_l10_50_ph1_k2",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_50_ph1_k2.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_l10_50_ph1_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_50_ph1_k2dc",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "dummy_cached",
+      "--os-pack-prefix",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_50_ph1_k2dc.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_l10_50_ph1_k2dc"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_50_ph1_k2wp",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "wrist_only",
+      "--os-pack-prefix",
+      "--os-tokens",
+      "off",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_50_ph1_k2wp.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_l10_50_ph1_k2wp"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_50_ph2_k2",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_50_ph2_k2.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_l10_50_ph2_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_50_ph2_k2dc",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "dummy_cached",
+      "--os-pack-prefix",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_50_ph2_k2dc.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_l10_50_ph2_k2dc"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_50_ph2_k2wp",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "wrist_only",
+      "--os-pack-prefix",
+      "--os-tokens",
+      "off",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_50_ph2_k2wp.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_l10_50_ph2_k2wp"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_50_cslG",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.control_step:ControlStepLibrary",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "ablation": "G"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_50_cslG.pkl"
+    ]
+  },
+  {
+    "name": "r4b4_p_l10_50_cslGS",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.control_step:ControlStepLibrary",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "ablation": "GS"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_50_cslGS.pkl"
+    ]
+  },
+  {
+    "name": "r4b4_p_l10_500_ph1_k2",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_500_ph1_k2.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_l10_500_ph1_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_500_ph1_k2dc",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "dummy_cached",
+      "--os-pack-prefix",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_500_ph1_k2dc.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_l10_500_ph1_k2dc"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_500_ph1_k2wp",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "wrist_only",
+      "--os-pack-prefix",
+      "--os-tokens",
+      "off",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_500_ph1_k2wp.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_l10_500_ph1_k2wp"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_500_ph2_k2",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_500_ph2_k2.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_l10_500_ph2_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_500_ph2_k2dc",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "dummy_cached",
+      "--os-pack-prefix",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_500_ph2_k2dc.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_l10_500_ph2_k2dc"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_500_ph2_k2wp",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "wrist_only",
+      "--os-pack-prefix",
+      "--os-tokens",
+      "off",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_500_ph2_k2wp.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_l10_500_ph2_k2wp"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_500_cslG",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.control_step:ControlStepLibrary",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "ablation": "G"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_500_cslG.pkl"
+    ]
+  },
+  {
+    "name": "r4b4_p_l10_500_cslGS",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.control_step:ControlStepLibrary",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "ablation": "GS"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_l10_500_cslGS.pkl"
+    ]
+  },
+  {
+    "name": "r4b4_p_sp_50_ph1_k2",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_sp_50_ph1_k2.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_sp_50_ph1_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_sp_50_ph1_k2dc",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "dummy_cached",
+      "--os-pack-prefix",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_sp_50_ph1_k2dc.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_sp_50_ph1_k2dc"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_sp_50_ph1_k2wp",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "wrist_only",
+      "--os-pack-prefix",
+      "--os-tokens",
+      "off",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_sp_50_ph1_k2wp.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_sp_50_ph1_k2wp"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_sp_50_ph2_k2",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_sp_50_ph2_k2.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_sp_50_ph2_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_sp_50_ph2_k2dc",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "dummy_cached",
+      "--os-pack-prefix",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_sp_50_ph2_k2dc.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_sp_50_ph2_k2dc"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_sp_50_ph2_k2wp",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "wrist_only",
+      "--os-pack-prefix",
+      "--os-tokens",
+      "off",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_sp_50_ph2_k2wp.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_sp_50_ph2_k2wp"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_sp_500_ph1_k2",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_sp_500_ph1_k2.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_sp_500_ph1_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_sp_500_ph1_k2dc",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "dummy_cached",
+      "--os-pack-prefix",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_sp_500_ph1_k2dc.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_sp_500_ph1_k2dc"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_sp_500_ph1_k2wp",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "wrist_only",
+      "--os-pack-prefix",
+      "--os-tokens",
+      "off",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_sp_500_ph1_k2wp.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_sp_500_ph1_k2wp"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_sp_500_ph2_k2",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_sp_500_ph2_k2.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_sp_500_ph2_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_sp_500_ph2_k2dc",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "dummy_cached",
+      "--os-pack-prefix",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_sp_500_ph2_k2dc.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_sp_500_ph2_k2dc"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_sp_500_ph2_k2wp",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "wrist_only",
+      "--os-pack-prefix",
+      "--os-tokens",
+      "off",
+      "--os-fit-artifact",
+      "<RUN>/fits/r4b4_p_sp_500_ph2_k2wp.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "<RUN>/evidence/r4b4_p_sp_500_ph2_k2wp"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  }
+]

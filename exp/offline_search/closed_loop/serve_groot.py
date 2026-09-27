@@ -36,6 +36,14 @@ def main() -> None:
             raise SystemExit(f"osplug: {bad} is not supported with the plugin")
     if not any(a == "--cache-config" or a.startswith("--cache-config=") for a in rest):
         raise SystemExit("osplug: --cache-config <yaml> is required (the served library and key builder)")
+    import argparse
+    from exp.offline_search.closed_loop import stage_overrides as cost
+    cp = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
+    cp.add_argument("--cache-config", required=True)
+    cp.add_argument("--denoising-steps", type=int, default=8)
+    parsed, _ = cp.parse_known_args(rest)
+    steps = cost.miss_steps_from_yaml(parsed.cache_config, "groot", parsed.denoising_steps)
+    cost.install_startup_hook(plugin, stage1_mode="full", miss_steps=steps)
     plugin.install(opts, model="groot")     # fits the method before the model loads (fail fast)
     from exp.libero_groot import serve_groot_libero as sg
 

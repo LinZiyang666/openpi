@@ -183,6 +183,173 @@ def compare_offline(off, sel, qc, online, ep_ok):
     return compared, {k: v / max(compared, 1) for k, v in eq.items()}, first_diff
 
 
+def blind_main(a):
+    """Two real orchestrators, two reset episodes each, poison stage 1 on blind rows."""
+    from . import plugin, verify_logs
+    from exp.offline_search.harness import store
+    import openpi.cache.config as cc
+    from openpi.cache.orchestrator import CacheOrchestrator
+
+    out = pathlib.Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+    args = ["--os-method", a.method, "--os-kwargs", a.kwargs, "--os-cell", a.cell, "--os-root", a.root,
+            "--os-log-dir", str(out), "--os-tag", "blindtest", "--os-log-inputs", "--os-blind"]
+    if a.judge:
+        args += ["--os-judge", a.judge, "--os-judge-cap", str(a.judge_cap),
+                 "--os-judge-step0", a.judge_step0, "--os-judge-burst", str(a.judge_burst)]
+    if a.fit_artifact:
+        args += ["--os-fit-artifact", a.fit_artifact]
+    opts, _ = plugin.parse_cli(args)
+    rt = plugin.install(opts, store.parse_cell(a.cell)[0])
+    cfg = cc.load_cache_config(a.yaml)
+    shared = cc.build_shared_storage(cfg)
+    qc = store.QueryCell(a.root, a.replay_cell or a.cell)
+
+    class BlindFake(FakePolicy):
+        def __init__(self, *args):
+            super().__init__(*args)
+            self.calls = self.broadcasts = 0
+            broadcast = self.orch.broadcast_action
+            def counted(chunk):
+                self.broadcasts += 1
+                return broadcast(chunk)
+            self.orch.broadcast_action = counted
+
+        def stage1(self, obs):
+            if obs.get("_expect_blind"):
+                raise AssertionError("stage 1 called on an expected blind decision")
+            self.calls += 1
+
+        def infer(self, obs):
+            self.stage1(obs)
+            return super().infer(obs)
+
+        def _osp_prepare_blind(self, obs):
+            return np.array(qc.rs[int(obs["_row"])], copy=True), None
+
+        def _osp_blind_output(self, action, state):
+            return {"actions": action.copy()}
+
+    def factory(_base, bundle_id="default"):
+        comps = cc.build_per_connection_components(cfg, shared, quiet=True)
+        kb = FakeKB(qc)
+        for s in plugin._TLS.new_sessions:
+            s.kb = kb
+        orch = CacheOrchestrator(storage=comps["storage"], key_builder=kb, gates=comps["gates"],
+                                 judges=comps["judges"], search_strategies=comps["search_strategies"],
+                                 timer=comps["timer"], write_policy=comps.get("write_policy"),
+                                 offline_writers=comps.get("offline_writers", ()), library_stats=comps.get("library_stats"))
+        return BlindFake(orch, kb, np.asarray(qc.a_inf))
+
+    conns = [plugin._wrap_factory(factory)(None, str(i)) for i in range(2)]
+    eps = pick_episodes(qc, 2)
+    served, expected, snapshots = [], [], []
+    rejected_preflight = output_fallbacks = partial_looks = 0
+    is_probe = a.method.endswith(":ProbeBlind")
+    for restart in range(2):
+        for i, conn in enumerate(conns):
+            e = qc.episodes[eps[i]]
+            conn.on_episode_start(task=e["task"], episode_id=e["init"],
+                                  extra_metadata={"task_uid": f"blind-c{i}-e{restart}", "task_id": e["task_id"],
+                                                  "orig_init_state_idx": e["init"]})
+        for step in range(12):
+            for i, conn in enumerate(conns):
+                e = qc.episodes[eps[i]]
+                s = conn._osp_sessions[0]
+                due = rt.judge and rt.judge.mode == "periodic" and rt.decision_count % rt.judge.k == rt.judge.k - 1
+                blind = bool(is_probe and step % 6 in (1, 2) and s.hits and s.hits[-1] and not due
+                             and s.blind_age < s.method.budget
+                             and not (rt.judge and (s.burst_left > 0 or
+                                 (rt.judge.cap > 0 and rt.judge.mode not in ("always", "periodic")
+                                  and plugin._trailing_hits(s.hits) >= rt.judge.cap))))
+                obs = {"observation/state": np.asarray(qc.raw_state[e["start"] + step], np.float64),
+                       "prompt": e["task"], "_row": e["start"] + step, "_expect_blind": blind,
+                       "observation/image": np.zeros((2, 2, 3), np.uint8),
+                       "observation/wrist_image": np.zeros((2, 2, 3), np.uint8),
+                       "__extra__": {"decision_id": step, "executed_steps": 5}}
+                if is_probe and step == 1 and blind:
+                    from exp.offline_search.closed_loop.blind import BlindResult
+                    adapter = conn._osp_adapter
+                    before = (s.step, s.b_aex.n, len(s.has_vision), conn.orch._step_counter, rt.decision_count)
+                    original_step = s.method.blind_step
+                    s.method.blind_step = lambda bq: BlindResult(np.zeros((1, 32), np.float32),
+                        np.array([0], np.int64), np.ones(1, np.float32), "current", {})
+                    s.set_obs(obs)
+                    s._decision_index = rt.decision_count
+                    assert plugin._try_blind(s, adapter, obs) is None and s._look_reason == 8
+                    rejected_preflight += 1
+                    del s.method.blind_step  # restore class dispatch
+                    assert before == (s.step, s.b_aex.n, len(s.has_vision), conn.orch._step_counter, rt.decision_count)
+                    saved_method, _ = plugin.clone_method(s.method)
+                    output = adapter.output
+                    def fail_output(*args):
+                        raise ValueError("intentional output-transform failure before commit")
+                    adapter.output = fail_output
+                    s.set_obs(obs)
+                    assert plugin._try_blind(s, adapter, obs) is None and s._look_reason == 8
+                    output_fallbacks += 1
+                    adapter.output = output
+                    s.method = saved_method
+                    assert before == (s.step, s.b_aex.n, len(s.has_vision), conn.orch._step_counter, rt.decision_count)
+                    partial = {**obs, "__extra__": {"decision_id": step, "executed_steps": 4}}
+                    s.set_obs(partial)
+                    assert plugin._try_blind(s, adapter, partial) is None and s._look_reason == 6
+                    partial_looks += 1
+                    assert before == (s.step, s.b_aex.n, len(s.has_vision), conn.orch._step_counter, rt.decision_count)
+                result = conn.infer(obs)
+                served.append(np.asarray(result["actions"]))
+                expected.append(blind)
+                assert s.step == step + 1 == s.b_aex.n == len(s.hits) == len(s.has_vision)
+                assert conn.orch._step_counter == step + 1
+                assert len(conn.orch._state_history) == step + 1 == len(conn.orch._action_history)
+                assert np.array_equal(s.b_aex.a[step], result["actions"])
+                assert np.array_equal(s.b_rs.a[step], qc.rs[e["start"] + step])
+                if not s.has_vision[-1]:
+                    assert np.isnan(s.b_v0.a[step]).all() and np.isnan(s.b_v1.a[step]).all()
+                    assert result["__hit_meta__"]["searched"] is False
+                    assert s.hits[-1] == 1
+                    q = plugin.OnlineQueryView(s, step, s.ep.task_id, s.ep)
+                    assert not q.has_tok and not q.has_vision
+                    for field in ("key_v0", "key_v1", "tok_v0", "tok_v1", "img0", "img1"):
+                        try:
+                            getattr(q, field)
+                        except rt.api.TokensUnavailable:
+                            pass
+                        else:
+                            raise AssertionError(f"blind query exposed {field}")
+                if step == 2:
+                    before = (s.step, s.b_aex.n, conn.orch._step_counter, rt.decision_count)
+                    try:
+                        conn.infer(obs)
+                    except ValueError as exc:
+                        assert "duplicate decision_id" in str(exc)
+                    else:
+                        raise AssertionError("duplicate decision was not rejected")
+                    assert before == (s.step, s.b_aex.n, conn.orch._step_counter, rt.decision_count)
+        for conn in conns:
+            conn.on_episode_end(success=False)
+    decs = [json.loads(line) for line in rt.dec_path.read_text().splitlines() if '"ev": "dec"' in line]
+    visions = sum(d["vision"] for d in decs)
+    assert len(decs) == 48
+    assert sum(c.calls for c in conns) == visions
+    assert sum(c.broadcasts for c in conns) == 48
+    assert all(d["s1_ms"] is None and d["s23_ms"] is None for d in decs if not d["vision"])
+    assert all(d["served_head"] == action[:5, :7].tolist() for d, action in zip(decs, served))
+    if is_probe:
+        assert [not d["vision"] for d in decs] == expected
+        if a.judge == "guard_only" and json.loads(a.kwargs).get("budget", 2) == 2 and not a.judge_cap and a.judge_burst == 1:
+            seq = [d["src"] for d in decs if d["conn"] == 0][:6]
+            assert seq == ["cache", "cache_blind", "cache_blind", "cache", "policy", "cache"], seq
+    rc = verify_logs.main(["--log-dir", str(out), "--tag", "blindtest", "--work", str(out / "verify")])
+    rep = dict(PASS=rc == 0, decisions=48, vision=visions, blind=48-visions,
+               miss=sum(not d["hit"] for d in decs), stage1_calls=sum(c.calls for c in conns),
+               broadcasts=sum(c.broadcasts for c in conns), connections=2, episodes=4, duplicate_rejections=4,
+               rejected_preflight=rejected_preflight, output_fallbacks=output_fallbacks, partial_looks=partial_looks)
+    (out / "selftest_report.json").write_text(json.dumps(rep, indent=2))
+    print(json.dumps(rep, indent=2))
+    return rc
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--cell", required=True, help="library cell the method is fitted on (<m>_<s>_cache)")
@@ -200,7 +367,10 @@ def main(argv=None):
     ap.add_argument("--judge-burst", type=int, default=1)
     ap.add_argument("--replay-cell", default="", help="query cell whose recorded episodes are replayed (default --cell); "
                     "an _inf cell with --judge periodic:1 checks the after-MISS QueryView against the inf-cell view")
+    ap.add_argument("--blind", action="store_true", help="run the interleaved R4 blind serving test")
     a = ap.parse_args(argv)
+    if a.blind:
+        return blind_main(a)
 
     from . import plugin
     from . import verify_logs as vl

@@ -23,20 +23,38 @@ case "$SUITE" in
   l10|libero_10)             SUITE_FULL=libero_10;      TASKS_DEFAULT=0,4,6,8,7 ;;
   *) echo "pilot.sh: suite must be sp | l10, got '$SUITE'" >&2; exit 2 ;;
 esac
-export OSCL_TASKS=${PILOT_TASKS:-$TASKS_DEFAULT}
-export OSCL_EPISODES=${PILOT_EPISODES:-0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}
+if [ -z "${OSCL_MANIFEST:-}" ]; then
+  export OSCL_TASKS=${PILOT_TASKS:-$TASKS_DEFAULT}
+  export OSCL_EPISODES=${PILOT_EPISODES:-0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}
+else
+  export OSCL_MANIFEST=$(realpath "$OSCL_MANIFEST")
+  INFO=$(python3 "$HERE/remote/count.py" --manifest-info "$OSCL_MANIFEST" --suite "$SUITE_FULL") || exit 2
+  read -r MANIFEST_EXPECT MANIFEST_SHA <<< "$INFO"
+fi
 : "${PORTS:?set PORTS (free ports in 23100-23199, comma list; scan: ss -ltnH | grep -oE ':231[0-9]{2}\b')}"
 [ -f "$RUN/arms.json" ] || { echo "pilot.sh: $RUN/arms.json missing (ops/emit_arms.py first)" >&2; exit 2; }
 
-nt=$(echo "$OSCL_TASKS" | tr ',' '\n' | grep -c .); ne=$(echo "$OSCL_EPISODES" | tr ',' '\n' | grep -c .)
+nt=$(echo "${OSCL_TASKS:-}" | tr ',' '\n' | grep -c .); ne=$(echo "${OSCL_EPISODES:-}" | tr ',' '\n' | grep -c .)
 rc=0
 for arm in "$@"; do
   s=$(python3 -c "import json,sys; a={r['arm']:r for r in json.load(open(sys.argv[1]))}.get(sys.argv[2]); print(a['suite'] if a else 'MISSING')" "$RUN/arms.json" "$arm")
   if [ "$s" = MISSING ]; then echo "pilot.sh: arm $arm not in $RUN/arms.json" >&2; rc=1
   elif [ "$s" != "$SUITE_FULL" ]; then echo "pilot.sh: arm $arm is a $s arm, not $SUITE_FULL" >&2; rc=1; fi
-  [ -f "$RUN/state/$arm.DONE" ] && echo "pilot.sh: note: $RUN/state/$arm.DONE exists -> chain.sh will skip $arm" >&2
+  MARKER="$RUN/state/$arm.DONE"
+  [ -n "${OSCL_MANIFEST:-}" ] && MARKER="$RUN/state/$arm.manifest_$MANIFEST_SHA.DONE"
+  [ -f "$MARKER" ] && echo "pilot.sh: note: $MARKER exists -> chain.sh will skip $arm" >&2
 done
 [ $rc -eq 0 ] || exit 2
+
+if [ -n "${OSCL_MANIFEST:-}" ]; then
+  echo "pilot.sh: suite=$SUITE_FULL manifest=$OSCL_MANIFEST expect=$MANIFEST_EXPECT/arm ports=$PORTS wps=${WPS:-16} arms=$*"
+  echo "pilot.sh: afterwards: $R/.venv/bin/python -m exp.offline_search.closed_loop.ops.kpi --run-root $RUN --run-root <R2 run root> $* --ref <R2 run>:<R2 arm> --manifest $OSCL_MANIFEST --md $RUN/kpi_manifest.md --json $RUN/kpi_manifest.json"
+  if [ "${PILOT_DRY:-0}" = "1" ]; then
+    echo "DRY: OSCL_MANIFEST=$OSCL_MANIFEST PORTS=$PORTS bash $HERE/chain.sh $RUN $*"
+    exit 0
+  fi
+  exec bash "$HERE/chain.sh" "$RUN" "$@"
+fi
 
 echo "pilot.sh: suite=$SUITE_FULL tasks=$OSCL_TASKS episodes=$OSCL_EPISODES expect=$((nt * ne))/arm ports=$PORTS wps=${WPS:-16}" \
      "server_cpus=${SERVER_CPUS:-34-37,78-81} stage1_only=${STAGE1_ONLY:-1} arms=$*"

@@ -270,3 +270,43 @@ journal's accepted attempt and de-duplicated per (uid, step); warnings list gaps
 given suite, warns about existing `state/<arm>.DONE` markers (chain.sh skips those — pilot arms need their own names,
 `r3p_*`), `PILOT_TASKS` / `PILOT_EPISODES` override the subset, `PILOT_DRY=1` prints the chain command only. It does not
 sync yamls to timan107 (`ops/sync_remote.sh` first) and never touches ports / tmux sessions it did not create.
+
+
+## R4: opt-in vision-free serving (K2)
+
+`--os-blind` enables the pre-interceptor `method.blind_step(BlindQueryView)` path and the R4 log schema.
+`--os-log-r4` enables the R4 schema alone. Without either flag, the plugin's legacy pure-cache and mixed rows
+remain unchanged. K3's serving entry points separately attach their startup cost metadata.
+
+The contract is in `blind.py`: `LookReason(code, name)`, `BlindResult(action, rows, weights, library, extras)`,
+and a frozen state-only `BlindQueryView`. The action is the normalized float32 `(H,32)` library chunk; the
+plugin applies the normal model output transforms. Vision keys in dense blind history are NaN, with
+`hist_has_vision` indicating validity. `prev_a_exec` is the actual normalized chunk served, including a policy
+MISS. First decisions and post-MISS decisions require vision. No client image handshake is needed: continue
+sending fresh full observations every five controls.
+
+With `--os-blind`, periodic MISS uses a **server-wide**, zero-based `decision_index`, shared by connections
+and continuing across episode resets: index `% k == k-1` is due. It is checked before `blind_step` and before
+a step-0 HIT override. Without blind serving, periodic mode keeps its legacy episode-step clock.
+
+Every R4 decision carries `vision`, `src` (`cache`, `cache_blind`, `policy`), `hit`, `blind_age` (number of
+blind decisions BEFORE this one), `look_reason`, `miss_k`, `s1_ms`, `s23_ms`, and normalized `served_head`
+(`[:5,:7]`). Blind rows have null stage timings, `searched=false`, and `shadow_available=false`.
+`stage1_calls` counts actual stage function calls; `robot_state`, full supplied member rows/weights, and
+`blind_extras` retain anchor/gate/phase diagnostics. `--os-log-inputs` also saves wire actions and dense masks.
+`miss_k` is null on HIT; its MISS value comes from the live interceptor/action head.
+
+Blind serving requires an untraced CP1 stack and one plugin session per connection. Quantile controllers
+receive +infinity for a blind HIT. Judge caps/bursts require vision; malformed blind candidates or output
+preflight failures fall back before committing histories. Optional `obs["__extra__"]` audit fields are
+`decision_id` and `executed_steps`: a duplicate last ID is rejected with no commit; a count other than five
+forces vision. This is not a state-only network protocol.
+
+CPU regression and interleaving checks: `selftest --blind`; toy method:
+`exp.offline_search.closed_loop.probe:ProbeBlind` (kwargs `library`, `budget`). With `--os-judge guard_only`
+its first six decisions are vision HIT, blind, blind, vision HIT, MISS, vision HIT. Live stage-1-only smoke
+uses `--os-judge always`. `verify_logs` replays both method interfaces; `replay_client --max-decisions 12
+--wire-checkpoint <checkpoint>` compares actual wire actions with CPU-only output recomputation.
+
+See `../rounds/r04/k2_serving/HANDBACK.md` for exact launch commands, completed checks, and the smoke-only
+GR00T CPU-first loader that avoids the stock loader's transient full-model GPU allocation.

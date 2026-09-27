@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import contextlib
 import hashlib
 import importlib
 import importlib.util
@@ -113,6 +114,10 @@ def build_parser() -> argparse.ArgumentParser:
                     help="step 0 of every episode: judge like any decision (default), or force MISS / HIT")
     ap.add_argument("--os-judge-burst", type=int, default=1,
                     help="after a forced MISS (extras os_force_miss == 1) MISS the next n-1 decisions too (1 = off)")
+    ap.add_argument("--os-blind", action="store_true",
+                    help="enable pre-inference blind_step serving and R4 decision logs")
+    ap.add_argument("--os-log-r4", action="store_true",
+                    help="emit R4 vision/source/served-head fields without enabling blind serving")
     return ap
 
 
@@ -132,6 +137,8 @@ def parse_cli(argv):
         raise SystemExit(f"--os-judge: {e}") from None
     if opts.judge is not None and opts.os_method == "native":
         raise SystemExit("--os-judge needs a method (--os-method native keeps the native judge)")
+    if opts.os_blind and opts.os_method == "native":
+        raise SystemExit("--os-blind requires a method")
     return opts, rest
 
 
@@ -398,6 +405,10 @@ class PluginRuntime:
 
         self.api, self.dims, self.store = api, dims, store
         self.opts = opts
+        self.blind = bool(getattr(opts, "os_blind", False))
+        self.r4 = self.blind or bool(getattr(opts, "os_log_r4", False))
+        self.decision_count = 0
+        self.decision_lock = threading.RLock()
         m, s, a = store.parse_cell(opts.os_cell)
         if m != model:
             raise SystemExit(f"--os-cell {opts.os_cell} is a {m} cell but this is the {model} server")
@@ -460,6 +471,10 @@ class PluginRuntime:
                "git_head": _git_head(), **self.fit_info}
         if self.judge is not None:
             row["judge"] = self.judge.as_dict()
+        if self.r4:
+            row.update(blind=self.blind, r4=True, periodic_clock="server" if self.blind else "episode",
+                       stage1_mode=getattr(opts, "os_stage1_mode", "full"),
+                       miss_steps=getattr(opts, "os_miss_steps", None) or (10 if m == "pi05" else 8))
         self.emit(row)
         log.info("osplug ready: method=%s cell=%s L=%d libs=%s log=%s", self.method_name, self.cell, self.L,
                  self.lib_sizes, self.dec_path)
@@ -676,6 +691,13 @@ class PluginSession:
         self._dec = None
         self._synth: dict = {}
         self._tok_cache: dict = {}
+        self.blind_age = 0
+        self.last_vision_step = -1
+        self.has_vision = []
+        self._look_reason = None
+        self._prepared_rs = None
+        self._s1_ms = None
+        self.stage1_calls = 0
         self._recs: list = []
         rt.sessions.add(self)
 
@@ -721,6 +743,9 @@ class PluginSession:
         self.b_raw = _Buf((rt.dims.RAW_STATE_DIM,), np.float32)
         self.b_aex = _Buf((H, rt.dims.ACT_FULL_DIMS), np.float32)
         self.hits: list = []
+        self.has_vision = []
+        self.blind_age = 0
+        self.last_vision_step = -1
         self._recs = []
         self.step = 0
         self.burst_left = 0
@@ -754,12 +779,15 @@ class PluginSession:
             tau = rt.ctrl.tau()
         elif J.mode == "threshold":
             tau = J.tau
-        if step == 0 and J.step0 != "judge":
+        if rt.blind and J.mode == "periodic" and self._decision_index % J.k == J.k - 1:
+            hit, why = False, "periodic"
+        elif step == 0 and J.step0 != "judge":
             hit, why = (J.step0 == "hit"), "step0"
         elif J.mode == "always":
             hit, why = True, "always"
         elif J.mode == "periodic":
-            hit, why = (step % J.k != J.k - 1), "periodic"
+            clock = self._decision_index if rt.blind else step
+            hit, why = (clock % J.k != J.k - 1), "periodic"
         elif forced:
             hit, why = False, f"force:{reason}"
         elif self.burst_left > 0:
@@ -800,6 +828,11 @@ class PluginSession:
         self.b_v1.append(_np32(qk["vision_1"]).reshape(-1))
         self.b_rs.append(_np32(qk["robot_state"]).reshape(-1))
         self.b_raw.append(self._raw_state())
+        self.has_vision.append(True)
+        if self.rt.blind and self._prepared_rs is not None:
+            if not np.array_equal(self._prepared_rs, self.b_rs.a[self.step]):
+                raise RuntimeError("osplug: blind CPU state does not match the live key builder")
+        self.last_vision_step = self.step
         self._tok_cache = {}
 
     def on_search(self, ctx):
@@ -851,6 +884,17 @@ class PluginSession:
                      "native_us": t_nat / 1e3, "native_top1": n_top1, "native_score": n_score,
                      "agree": (n_top1 == top1 and lib == "current") if self.shadow else None,
                      "served": served, "extras": ex, "act": None if act is None else served}
+        if rt.r4:
+            anchor_owner = self.method
+            for _ in range(8):
+                anchor = getattr(anchor_owner, "_anchor", None)
+                if isinstance(anchor, dict) and "rows" in anchor and "weights" in anchor:
+                    self._dec.update(rows=np.array(anchor["rows"], np.int64, copy=True),
+                                     weights=np.array(anchor["weights"], np.float32, copy=True))
+                    break
+                anchor_owner = getattr(anchor_owner, "base", None)
+                if anchor_owner is None:
+                    break
         if rt.judge is not None:
             self._dec.update(self._verdict(step, float(conf), ex))
         self.step += 1
@@ -902,7 +946,9 @@ class PluginSession:
             else:
                 d["exec_ok"] = None          # policy chunk executed: nothing to compare with the served payload
                 d["policy"] = a
-            if self.rt.judge is not None:
+                if self.rt.blind and callable(getattr(self.method, "invalidate_anchor", None)):
+                    self.method.invalidate_anchor()
+            if self.rt.judge is not None or self.rt.r4:
                 d["t_exec"] = time.perf_counter_ns()
 
     def wire_diag(self):
@@ -918,6 +964,13 @@ class PluginSession:
     def set_obs(self, obs) -> None:
         self.cur_obs = obs
         self.t_obs = time.perf_counter_ns()
+        self._look_reason = None
+        self._prepared_rs = None
+        self._s1_ms = None
+        self._blind_extras = {}
+        self._prepare_ms = None
+        self._output_ms = None
+        self._age_before = self.blind_age
 
     def after_infer(self, infer_ms: float, ok: bool, err: str | None = None) -> None:
         t_done = time.perf_counter_ns()
@@ -962,6 +1015,31 @@ class PluginSession:
             if not hit and d.get("policy") is not None:
                 # the executed policy chunk's valid block [:5, :7] (what the KPI tool needs for gripper / motion facts)
                 row["a_exec"] = rt.dims.valid_action(np.asarray(d["policy"], np.float32)).astype(np.float64).tolist()
+        if rt.r4:
+            hit = bool(d.get("hit", True))
+            vision = bool(d.get("vision", True))
+            served = d.get("served") if hit else d.get("policy")
+            row.update(vision=vision, src="cache_blind" if not vision else ("cache" if hit else "policy"),
+                       hit=hit, blind_age=self._age_before, look_reason=self._look_reason,
+                       miss_k=None if hit else getattr(self, "miss_steps", 10 if rt.model == "pi05" else 8),
+                       s1_ms=self._s1_ms if vision else None,
+                       s23_ms=round((d["t_exec"] - d["t_s1"]) / 1e6, 3)
+                       if not hit and d.get("t_exec") is not None else None,
+                       served_head=None if served is None else np.asarray(served)[:5, :7].tolist(),
+                       searched=vision, source="cache_blind" if not vision else ("cache" if hit else "policy"),
+                       decision_index=getattr(self, "_decision_index", d["step"]),
+                       stage1_calls=self.stage1_calls, shadow_available=vision and self.shadow,
+                       robot_state=self.b_rs.a[d["step"]].tolist(),
+                       last_vision_step=self.last_vision_step,
+                       blind_prepare_ms=getattr(self, "_prepare_ms", None),
+                       blind_output_ms=getattr(self, "_output_ms", None))
+            if not vision:
+                row["blind_extras"] = ex
+            elif getattr(self, "_blind_extras", None):
+                row["blind_extras"] = self._blind_extras
+            if "rows" in d:
+                row.update(rows=d["rows"], weights=d["weights"])
+            self.blind_age = 0 if vision else self._age_before + 1
         if err:
             row["error"] = err[-2000:]
         if exs:
@@ -977,6 +1055,11 @@ class PluginSession:
                             "tau": math.nan if d.get("tau") is None else float(d["tau"]), "run": int(d.get("run", 0)),
                             "s23_ms": ((d["t_exec"] - d["t_s1"]) / 1e6)
                             if (d.get("t_exec") is not None and not d.get("hit", True)) else math.nan})
+            if rt.r4:
+                rec.update({k: row[k] for k in ("vision", "blind_age", "look_reason", "miss_k", "s1_ms", "s23_ms",
+                                               "decision_index", "stage1_calls", "hit")})
+                rec["wire_actions"] = d.get("wire_actions")
+                rec["rows"], rec["weights"] = d.get("rows"), d.get("weights")
             self._recs.append(rec)
 
     def finish_episode(self, reason: str, success=None) -> None:
@@ -1016,6 +1099,8 @@ class PluginSession:
                 "method_spec": rt.opts.os_method, "kwargs": rt.opts.kwargs,
                 "native_mode": rt.native_mode, "H": rt.H, "run_seed": rt.opts.os_seed,
                 "tokens": rt.opts.os_tokens, "root": str(rt.root)}
+        if rt.r4:
+            meta.update(blind=rt.blind, r4=True)
         if rt.judge is not None:
             meta["judge"] = rt.judge.as_dict()
         arrays = {
@@ -1038,6 +1123,20 @@ class PluginSession:
                            "tau": np.array([r["tau"] for r in recs], np.float64),
                            "run": np.array([r["run"] for r in recs], np.int64),
                            "s23_ms": np.array([r["s23_ms"] for r in recs], np.float64)})
+        if rt.r4:
+            arrays.update(has_vision=np.array(self.has_vision[:n], bool),
+                          wire_actions=np.asarray([r["wire_actions"] for r in recs]))
+            for key in ("blind_age", "look_reason", "miss_k", "s1_ms", "s23_ms", "decision_index", "stage1_calls", "hit"):
+                arrays[key] = np.asarray([math.nan if r[key] is None else r[key] for r in recs])
+            arrays["vision"] = arrays["has_vision"]
+            arrays["periodic_global"] = np.full(n, rt.blind, bool)
+            width = max([len(r["rows"]) if r["rows"] is not None else 0 for r in recs] + [0])
+            arrays["blind_rows"] = np.full((n, width), -1, np.int64)
+            arrays["blind_weights"] = np.full((n, width), np.nan, np.float32)
+            for i, rec in enumerate(recs):
+                if rec["rows"] is not None:
+                    arrays["blind_rows"][i, :len(rec["rows"])] = rec["rows"]
+                    arrays["blind_weights"][i, :len(rec["weights"])] = rec["weights"]
         keys = sorted({kk for r in recs for kk in (r["extras"] or {})})
         for kk in keys:
             col = np.full(len(recs), np.nan, np.float64)
@@ -1053,7 +1152,7 @@ class PluginSession:
     # -- tokens (online on every decision)
     def tokens(self, field: str) -> np.ndarray:
         api = self.rt.api
-        if self.rt.opts.os_tokens != "on" or self.kb is None:
+        if (self.has_vision and not self.has_vision[-1]) or self.rt.opts.os_tokens != "on" or self.kb is None:
             raise api.TokensUnavailable("tokens are disabled on this server (--os-tokens off)")
         if field not in self._tok_cache:
             try:
@@ -1069,7 +1168,7 @@ class PluginSession:
 
     def image(self, key: str) -> np.ndarray:
         api = self.rt.api
-        if self.rt.opts.os_tokens != "on" or self.cur_obs is None or key not in self.cur_obs:
+        if (self.has_vision and not self.has_vision[-1]) or self.rt.opts.os_tokens != "on" or self.cur_obs is None or key not in self.cur_obs:
             raise api.TokensUnavailable(f"wire image {key} unavailable")
         return _ro(np.asarray(self.cur_obs[key], dtype=np.uint8))
 
@@ -1096,10 +1195,14 @@ class OnlineQueryView:
 
     @property
     def key_v0(self):
+        if not self.has_vision:
+            raise self._s.rt.api.TokensUnavailable("no visual key on a blind decision")
         return self._s.b_v0.view(self.step, self.step + 1)[0]
 
     @property
     def key_v1(self):
+        if not self.has_vision:
+            raise self._s.rt.api.TokensUnavailable("no visual key on a blind decision")
         return self._s.b_v1.view(self.step, self.step + 1)[0]
 
     @property
@@ -1150,8 +1253,24 @@ class OnlineQueryView:
         return np.asarray(self._s.hits[: self.step], dtype=np.int8)
 
     @property
+    def has_vision(self):
+        return bool(self._s.has_vision[self.step])
+
+    @property
+    def hist_has_vision(self):
+        return _ro(np.asarray(self._s.has_vision[:self.step], bool))
+
+    @property
+    def last_vision_step(self):
+        return self._s.last_vision_step
+
+    @property
+    def blind_age(self):
+        return self._s._age_before
+
+    @property
     def has_tok(self):
-        return self._s.rt.opts.os_tokens == "on"
+        return self.has_vision and self._s.rt.opts.os_tokens == "on"
 
     @property
     def tok_v0(self):
@@ -1275,6 +1394,231 @@ class PluginStorage:
 
 
 # ----------------------------------------------------------------------------- connection wrapper
+def commit_external_hit(orch, rs, *, step, winner):
+    """Advance the real CP1 component set once, without key construction or search.
+
+    Keep the private orchestrator coupling in this one plugin helper. Action history
+    is committed separately by the single broadcast_action call, just as on CP1 HIT.
+    """
+    import torch
+    from openpi.cache.components.judge import HitType
+    from openpi.cache.types import CheckpointID
+
+    cs = orch._real
+    if orch._twins is not None or cs.state.step_counter != step:
+        raise RuntimeError("osplug: external HIT requires a synchronized, non-trace CP1 orchestrator")
+    cs.state.state_history.append(torch.from_numpy(np.array(rs, np.float32, copy=True)))
+    cs.state.step_counter += 1
+    orch._feed_verdict_to_gate(cs, CheckpointID.CP1, hit_type=HitType.FULL_HIT,
+                              cp1_score=None, winner_id=winner, start_t=None, searched=False)
+
+
+class _BlindAdapter:
+    """CPU transforms around a per-connection interceptor; never calls a model."""
+
+    def __init__(self, inner, session):
+        self.s = session
+        self.lock = contextlib.nullcontext()
+        obj = inner
+        seen = set()
+        while id(obj) not in seen:
+            seen.add(id(obj))
+            fields = vars(obj)
+            if "_lock" in fields:
+                self.lock = fields["_lock"]
+            if "_orchestrator" in fields or "_osp_prepare_blind" in fields or hasattr(type(obj), "_osp_prepare_blind"):
+                break
+            nxt = next((fields[k] for k in ("_osp_inner", "_inner", "_policy") if k in fields), None)
+            if nxt is None:
+                raise RuntimeError("osplug: unsupported blind policy adapter stack")
+            obj = nxt
+        self.policy = obj
+        self.fake = hasattr(obj, "_osp_prepare_blind")
+        self.orch = obj.orch if self.fake else obj._orchestrator
+        if self.orch is None or self.orch._twins is not None:
+            raise RuntimeError("osplug: blind serving requires the real CP1 orchestrator without trace twins")
+        if not self.fake:
+            if getattr(obj, "_trace", None) is not None or getattr(obj, "_cp2_only", False):
+                raise RuntimeError("osplug: blind serving is for untraced CP1 policies")
+            if session.rt.model == "pi05":
+                session.miss_steps = obj._miss_steps()
+                self._instrument(obj, "_stage1_fn")
+            else:
+                session.miss_steps = int(obj._runner._model.action_head.num_inference_timesteps)
+                self._instrument(obj._runner, "run_stage1")
+        else:
+            session.miss_steps = 10 if session.rt.model == "pi05" else 8
+            self._instrument(obj, "stage1")
+
+    def _instrument(self, owner, key):
+        fn = getattr(owner, key)
+        def counted(*args, **kwargs):
+            t0 = time.perf_counter_ns()
+            self.s.stage1_calls += 1
+            out = fn(*args, **kwargs)
+            # Stage functions may enqueue CUDA work; opt-in diagnostics time its completion.
+            torch = sys.modules.get("torch")
+            if torch is not None and torch.cuda.is_initialized():
+                torch.cuda.synchronize()
+            self.s._s1_ms = (time.perf_counter_ns() - t0) / 1e6
+            return out
+        setattr(owner, key, counted)
+
+    def prepare(self, obs):
+        import torch
+        p = self.policy
+        if self.fake:
+            return p._osp_prepare_blind(obs)
+        if self.s.rt.model == "pi05":
+            # The same composed CPU transform that precedes Observation.from_dict.
+            inputs = p._input_transform(dict(obs))
+            state = torch.from_numpy(np.array(inputs["state"]))
+            return _np32(state).reshape(-1), state
+        from exp.libero_groot.policy_adapter import build_groot_observation
+        from openpi.cache.groot.interceptor import _unsqueeze_values
+        inputs = _unsqueeze_values(build_groot_observation(obs))
+        inputs = {k: v if isinstance(v, np.ndarray) else np.array(v) for k, v in inputs.items()}
+        norm = p._policy.apply_transforms(inputs)
+        # Exact CPU counterpart of GR00T.prepare_input's floating tensor cast.
+        state = torch.as_tensor(norm["state"]).to(device="cpu", dtype=p._runner._model.action_head.dtype)
+        mask = torch.as_tensor(norm["state_mask"], device="cpu")[0, -1].bool()
+        expected = getattr(self.s.kb, "_state_index", None)
+        if expected is not None and not torch.equal(mask, expected.cpu()):
+            raise ValueError("GR00T state validity mask changed within the episode")
+        return _np32(state[0, -1][mask]), None
+
+    def output(self, action, state):
+        import torch
+        p = self.policy
+        if self.fake:
+            return p._osp_blind_output(action, state)
+        chunk = torch.from_numpy(np.array(action, np.float32, copy=True))
+        if self.s.rt.model == "pi05":
+            return p._output_transform(p._unbatch_outputs(state, chunk[None, ...]))
+        from openpi.cache.groot.interceptor import _squeeze_values
+        from exp.libero_groot.policy_adapter import validate_action_chunk, chunk_to_libero_actions
+        raw = _squeeze_values(p._policy.unapply_transforms({"action": chunk[None, ...]}))
+        return {"actions": chunk_to_libero_actions(validate_action_chunk(raw))}
+
+
+def _blind_view(s, rs):
+    from exp.offline_search.closed_loop.blind import BlindQueryView
+    return BlindQueryView(s.step, s.ep.task_id, s.ep, _ro(np.array(rs, np.float32, copy=True)),
+                          _ro(s._raw_state().copy()), None if not s.step else bool(s.hits[-1]),
+                          None if not s.step else s.b_aex.view(s.step - 1, s.step)[0],
+                          s.b_aex.view(0, s.step), _ro(np.asarray(s.hits, np.int8)),
+                          s.b_rs.view(0, s.step), _ro(np.asarray(s.has_vision, bool)), s.blind_age)
+
+
+def _try_blind(s, adapter, obs):
+    from exp.offline_search.closed_loop.blind import BlindResult, LookReason
+    import torch
+
+    # CPU preparation does not append a decision. Invalid client audit metadata
+    # requests vision; duplicate explicit IDs are rejected before any mutation.
+    extra = obs.get("__extra__") or {}
+    did = extra.get("decision_id")
+    if did is not None and did == getattr(s, "_last_decision_id", None) and not s.pending:
+        raise ValueError("duplicate decision_id; no action or history committed")
+    s._pending_decision_id = did
+    task = str(obs.get("prompt") or s.ident.get("task") or "")
+    if s.ep is not None and task != s.ep.task:
+        s.finish_episode(reason="task_change")
+        s.ident = {"task": task, "extra": {}}
+        adapter.orch.on_episode_start(task_key=task)
+        s.pending = True
+    prepare_start = time.perf_counter_ns()
+    rs, state = adapter.prepare(obs)
+    s._prepare_ms = (time.perf_counter_ns() - prepare_start) / 1e6
+    if s.pending or s.ep is None:
+        s._begin(types.SimpleNamespace(task_key=task, query_keys={"robot_state": rs}))
+        s._age_before = 0
+    s._prepared_rs = rs
+    J = s.rt.judge
+    if J is not None and J.mode == "periodic" and s._decision_index % J.k == J.k - 1:
+        reason = LookReason(7, "periodic MISS due")
+    elif s.step == 0 or not s.hits[-1] or extra.get("executed_steps", 5) != 5:
+        reason = LookReason(6, "lifecycle")
+    elif J is not None and (s.burst_left > 0 or (J.cap > 0 and J.mode not in ("always", "periodic")
+                                              and _trailing_hits(s.hits) >= J.cap)):
+        reason = LookReason(8, "judge requires vision")
+    elif not callable(getattr(s.method, "blind_step", None)):
+        reason = LookReason(8, "method has no blind_step")
+    else:
+        t0 = time.perf_counter_ns()
+        reason = s.method.blind_step(_blind_view(s, rs))
+        q_us = (time.perf_counter_ns() - t0) / 1e3
+    if isinstance(reason, LookReason):
+        s._blind_extras = copy.deepcopy(getattr(s.method, "last_blind_extras", {}))
+        s._look_reason = int(reason.code)
+        return None
+    if not isinstance(reason, BlindResult):
+        raise TypeError("blind_step must return BlindResult or LookReason")
+    res = reason
+    action, rows, weights = np.asarray(res.action), np.asarray(res.rows), np.asarray(res.weights)
+    if (action.shape != (s.rt.H, 32) or action.dtype != np.float32 or not np.isfinite(action).all()
+            or rows.ndim != 1 or not rows.size or rows.dtype != np.int64 or weights.dtype != np.float32
+            or weights.shape != rows.shape or not np.isfinite(weights).all() or (weights < 0).any()
+            or not np.isclose(weights.sum(), 1, atol=1e-5) or res.library not in s.rt.lib_sizes
+            or (rows < 0).any() or (rows >= s.rt.lib_sizes[res.library]).any()):
+        log.warning("osplug: invalid blind candidate; requesting vision before commit")
+        s._look_reason = 8
+        invalidate = getattr(s.method, "invalidate_anchor", None)
+        if callable(invalidate):
+            invalidate()
+        return None
+    if s.b_aex.n != s.step or adapter.orch._real.state.step_counter != s.step:
+        raise RuntimeError("osplug: blind history/counter out of sync")
+    # Finish fallible transforms before committing dense histories.
+    output_start = time.perf_counter_ns()
+    try:
+        output = adapter.output(action, state)
+    except Exception:
+        log.exception("osplug: blind output preflight failed; requesting vision before commit")
+        s._look_reason = 8
+        invalidate = getattr(s.method, "invalidate_anchor", None)
+        if callable(invalidate):
+            invalidate()
+        return None
+    s._output_ms = (time.perf_counter_ns() - output_start) / 1e6
+    now = time.perf_counter_ns()
+    winner = f"{SYNTH_PREFIX}blind:{s.rt.tag}:{s.conn}:{s.n_synth}"
+    s.n_synth += 1
+    s.b_v0.append(np.full(s.rt.dims.KEY_DIM, np.nan, np.float32))
+    s.b_v1.append(np.full(s.rt.dims.KEY_DIM, np.nan, np.float32))
+    s.b_rs.append(rs)
+    s.b_raw.append(s._raw_state())
+    s.has_vision.append(False)
+    served = action.copy()
+    s._dec = dict(step=s.step, ctx_step=s.step, top1=int(rows[0]), lib=res.library,
+                  topk=rows[:s.rt.api.TOPK_SAVE], scores=np.zeros(min(len(rows), s.rt.api.TOPK_SAVE)),
+                  conf=math.nan, synth=True, nfix=0, winner=winner, q_us=q_us, native_us=0.,
+                  native_top1=-1, native_score=math.nan, agree=None, served=served, act=served,
+                  extras=res.extras, search_us=0., t_s0=now, t_s1=now, hit=True, vision=False,
+                  judge="blind", tau=None, run=_trailing_hits(s.hits), rows=rows.copy(), weights=weights.copy())
+    commit_external_hit(adapter.orch, rs, step=s.step, winner=winner)
+    s.step += 1
+    if s.rt.ctrl is not None:
+        s.rt.ctrl.push(math.inf)
+    adapter.orch.broadcast_action(torch.from_numpy(served.copy()))
+    adapter.orch.clear()
+    meta = dict(hit_type="FULL_HIT", start_t=None, winner_id=winner, cp1_score=None, checkpoint="CP1", score=None,
+                searched=False, source="cache_blind", factor_outputs={"osplug": s.wire_diag()})
+    output["__hit_meta__"] = meta
+    if adapter.fake:
+        output.update(winner=winner, hit_type="FULL_HIT", diag=s.wire_diag())
+    return output
+
+
+def _trailing_hits(hits):
+    n = 0
+    for h in reversed(hits):
+        if h != 1:
+            break
+        n += 1
+    return n
+
+
 class _ConnPolicy:
     """Per-connection policy wrapper: wire obs + episode identity to the session, infer timing. The hasattr surface
     of the wrapped policy is preserved (lifecycle hooks are only defined when the inner policy has them)."""
@@ -1284,6 +1628,12 @@ class _ConnPolicy:
         object.__setattr__(self, "_osp_sessions", list(sessions))
         for s in sessions:
             s.bundle_id = bundle_id
+        self._osp_adapter = None
+        enabled = [s for s in sessions if s.rt.r4]
+        if enabled:
+            if len(sessions) != 1:
+                raise RuntimeError("osplug: R4 serving expects one CP1 session per connection")
+            self._osp_adapter = _BlindAdapter(inner, enabled[0])
         if hasattr(inner, "on_episode_start"):
             object.__setattr__(self, "on_episode_start", self._osp_episode_start)
         if hasattr(inner, "on_episode_end"):
@@ -1318,7 +1668,23 @@ class _ConnPolicy:
         t0 = time.perf_counter()
         ok, err = False, None
         try:
-            out = self._osp_inner.infer(obs, *a, **kw)
+            adapter = self._osp_adapter
+            if adapter is None:
+                out = self._osp_inner.infer(obs, *a, **kw)
+            else:
+                s = sessions[0]
+                with s.rt.decision_lock:
+                    s._decision_index = s.rt.decision_count
+                    out = None
+                    if s.rt.blind:
+                        with adapter.lock:
+                            out = _try_blind(s, adapter, obs)
+                    if out is None:
+                        out = self._osp_inner.infer(obs, *a, **kw)
+                    if s._dec is not None:
+                        s._dec["wire_actions"] = np.asarray(out["actions"]).copy()
+                    s.rt.decision_count += 1
+                    s._last_decision_id = getattr(s, "_pending_decision_id", None)
             ok = True
             return out
         except Exception:

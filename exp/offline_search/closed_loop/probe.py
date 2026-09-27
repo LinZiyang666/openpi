@@ -114,3 +114,57 @@ class ProbeHist(api.Method):
 
     def bytes_per_entry(self):
         return float(dims.RS_VALID["pi05"] * 4)
+
+
+class ProbeBlind(ProbeHist):
+    """Bounded CPU/GPU serving probe: vision -> blind -> blind -> vision -> MISS -> vision.
+
+    The MISS flag at step 4 requires --os-judge guard_only; always ignores it.
+    All sixteen members advance independently, with fixed weights. This deliberately
+    simple selector is a bookkeeping probe, not an evaluated controller.
+    """
+
+    def __init__(self, library="current", budget=2):
+        self.library, self.budget = str(library), int(budget)
+        self.name = "probe_blind"
+
+    def fit(self, lib, ctx):
+        lib = lib if self.library == "current" else ctx.open_library(self.library)
+        super().fit(lib, ctx)
+        self.next = np.asarray(lib.next, np.int64)
+
+    def reset(self, episode):
+        super().reset(episode)
+        self.anchor_rows = None
+        self.blind_calls = 0
+
+    def query(self, q):
+        rows = self.rows[q.task_id]
+        d = np.linalg.norm(self.rs[rows] - dims.valid_state(np.asarray(q.rs, np.float32), q.model), axis=1)
+        o = np.argsort(d, kind="stable")[:16]
+        self.anchor_rows = rows[o].astype(np.int64).copy()
+        self.weights = np.full(len(o), 1 / len(o), np.float32)
+        self._anchor = dict(rows=self.anchor_rows.copy(), weights=self.weights.copy())
+        self.n += 1
+        ex = digests(q)
+        ex.update(os_force_miss=float(q.step % 6 == 4), os_reason=8., n_calls=float(self.n))
+        return api.Result(self.anchor_rows, -d[o], float(-d[o[0]]),
+                          action=np.sum(self.act[self.anchor_rows] * self.weights[:, None, None], axis=0),
+                          library=self.library, extras=ex)
+
+    def blind_step(self, bq):
+        from exp.offline_search.closed_loop.blind import BlindResult, LookReason
+        if bq.step == 0 or bq.prev_hit is False or self.anchor_rows is None:
+            return LookReason(6, "lifecycle")
+        if bq.blind_age >= self.budget or bq.step % 6 not in (1, 2):
+            return LookReason(1, "probe budget")
+        self.blind_calls += 1
+        self.anchor_rows = np.where(self.next[self.anchor_rows] >= 0,
+                                    self.next[self.anchor_rows], self.anchor_rows).astype(np.int64)
+        a = np.sum(self.act[self.anchor_rows] * self.weights[:, None, None], axis=0).astype(np.float32)
+        ex = {"prev_hit": float(bq.prev_hit), "n_miss_hist": float((bq.hist_hit == 0).sum()),
+              "n_vision_hist": float(bq.hist_has_vision.sum()), "blind_age": float(bq.blind_age)}
+        for key in ("rs", "raw_state", "prev_a_exec", "hist_a_exec", "hist_hit", "hist_rs", "hist_has_vision"):
+            c = _crc(getattr(bq, key))
+            ex[f"d_{key}_hi"], ex[f"d_{key}_lo"] = float(c >> 16), float(c & 65535)
+        return BlindResult(a, self.anchor_rows.copy(), self.weights.copy(), self.library, ex)

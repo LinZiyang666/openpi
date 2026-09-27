@@ -11,6 +11,7 @@
 #                   loudly. Verified: identical keys; GPU per server pi05 7.6 -> 2.2 GB, GR00T 5.7 -> 1.9 GB. 0 = full model
 #      OMP (default 4) torch intra-op threads (OMP/MKL); numpy's OpenBLAS is always pinned to 1 thread
 #      (OPENBLAS_NUM_THREADS=1, as the harness workers) so online method outputs are bit-identical to offline
+#      GROOT_DENOISING_STEPS (default 8) live GR00T K; must match yaml miss.num_steps when present
 #      GPU_LOCK (default 0 = OPENPI_SERVER_GPU_MEMORY_LOCK off: freed memory is released on connection close)
 # Writes <log-dir>/server_<tag>.log (ends with SERVER_EXIT=<rc>), <log-dir>/server_<tag>.pid, <log-dir>/launch_<tag>.sh.
 set -u
@@ -59,7 +60,9 @@ case "$MODEL" in
       *) echo "bad suite $SUITE"; exit 2 ;; esac
     EXTRA=()
     [ "$S1" = "1" ] && EXTRA=(--stage1-only)
-    ARGS=("${PLUG[@]}" --checkpoint "$CKPT" --port "$PORT" --denoising-steps 8 --concurrent --allow-dynamic-bundles
+    GROOT_K=${GROOT_DENOISING_STEPS:-8}
+    [[ "$GROOT_K" =~ ^[1-9][0-9]*$ ]] || { echo "GROOT_DENOISING_STEPS must be an integer >= 1"; exit 2; }
+    ARGS=("${PLUG[@]}" --checkpoint "$CKPT" --port "$PORT" --denoising-steps "$GROOT_K" --concurrent --allow-dynamic-bundles
           --cache-config "$YAML" "${EXTRA[@]}")
     ENVS="export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 OPENPI_MONITOR_LEVEL=BASIC PYTHONPATH=$G:$G/examples/Libero:$R:$R/src:$R/packages/openpi-client/src"
     ;;

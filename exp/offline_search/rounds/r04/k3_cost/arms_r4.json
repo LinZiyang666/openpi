@@ -1,0 +1,936 @@
+[
+  {
+    "name": "r4b2_p_l10_g500_k2",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {},
+      "guards": true,
+      "events": "none"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r03_mx/fits/r3mx_p_l10_g500.pkl",
+      "--os-judge",
+      "guard_only"
+    ],
+    "_r4_batch": 2,
+    "stage1_mode": "full",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b2_p_l10_g500_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b2_p_l10_g_k2",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5
+      },
+      "guards": true,
+      "events": "none"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r03_mx/fits/r3mx_p_l10_g.pkl",
+      "--os-judge",
+      "guard_only"
+    ],
+    "_offline_variant": "MXJ_g1_ev0__AWM_joint_cur_fcur_kr5",
+    "_target_h": null,
+    "_tau0_capped": false,
+    "_note": "guard-only: the plugin forces MISS on extras os_force_miss (guards 1-4), hit rate emerges",
+    "_r4_batch": 2,
+    "stage1_mode": "full",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b2_p_l10_g_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b2_p_l10_perk5_k2",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "method": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r03_mx/fits/r3mx_p_l10_perk5.pkl",
+      "--os-judge",
+      "periodic:5"
+    ],
+    "_r4_batch": 2,
+    "stage1_mode": "full",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b2_p_l10_perk5_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b2_p_sp_g_k2",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5
+      },
+      "guards": true,
+      "events": "none"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r03_mx/fits/r3mx_p_sp_g.pkl",
+      "--os-judge",
+      "guard_only"
+    ],
+    "_offline_variant": "MXJ_g1_ev0__AWM_joint_cur_fcur_kr5",
+    "_target_h": null,
+    "_tau0_capped": false,
+    "_note": "guard-only: the plugin forces MISS on extras os_force_miss (guards 1-4), hit rate emerges",
+    "_r4_batch": 2,
+    "stage1_mode": "full",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b2_p_sp_g_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b2_p_sp_g500_k2",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {},
+      "guards": true,
+      "events": "none"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r03_mx/fits/r3mx_p_sp_awm500_h70.pkl",
+      "--os-judge",
+      "guard_only"
+    ],
+    "_r4_batch": 2,
+    "stage1_mode": "full",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b2_p_sp_g500_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b2_p_l10_perk5_500_k2",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "method": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r04_cost/fits/r4b2_perbig.pkl",
+      "--os-judge",
+      "periodic:5"
+    ],
+    "_r4_batch": 2,
+    "stage1_mode": "full",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b2_p_l10_perk5_500_k2"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 1101,
+    "method": "exp.offline_search.harness.baselines:B0Current",
+    "kwargs": {},
+    "plugin_args": [
+      "--os-no-shadow-native"
+    ],
+    "name": "r4b2_p_sp_inf_k2_s1101",
+    "full_model": true,
+    "_r4_batch": 2,
+    "stage1_mode": "full",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b2_p_sp_inf_k2_s1101"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 1102,
+    "method": "exp.offline_search.harness.baselines:B0Current",
+    "kwargs": {},
+    "plugin_args": [
+      "--os-no-shadow-native"
+    ],
+    "name": "r4b2_p_sp_inf_k2_s1102",
+    "full_model": true,
+    "_r4_batch": 2,
+    "stage1_mode": "full",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b2_p_sp_inf_k2_s1102"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_sp_g50_k2_dummy",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5
+      },
+      "guards": true,
+      "events": "none"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r03_mx/fits/r3mx_p_sp_g.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "dummy_cached"
+    ],
+    "_offline_variant": "MXJ_g1_ev0__AWM_joint_cur_fcur_kr5",
+    "_target_h": null,
+    "_tau0_capped": false,
+    "_note": "guard-only: the plugin forces MISS on extras os_force_miss (guards 1-4), hit rate emerges",
+    "_r4_batch": 4,
+    "stage1_mode": "dummy_cached",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_sp_g50_k2_dummy"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k3_cost.method:WristMixedJudge",
+    "kwargs": {
+      "lib": "current",
+      "guards": true,
+      "events": "none"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/offline_search_store/derived/r04/k3_cost/fits/pi05_spatial_current.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-stage1-mode",
+      "wrist_only"
+    ],
+    "name": "r4b4_p_sp_g50_k2_wrist",
+    "full_model": true,
+    "_r4_batch": 4,
+    "stage1_mode": "wrist_only",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_sp_g50_k2_wrist"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "guards": true,
+      "events": "none",
+      "progress_guard": "noprog_span"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r04_cost/fits/r4b4_p_sp_b2g50_k2_dummy.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-blind",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-stage1-mode",
+      "dummy_cached"
+    ],
+    "_note": "Prespecified B2 composition; coordinator selects B1/B2 winner after batch three, then re-prefits if kwargs change.",
+    "name": "r4b4_p_sp_b2g50_k2_dummy",
+    "full_model": true,
+    "_r4_batch": 4,
+    "stage1_mode": "dummy_cached",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_sp_b2g50_k2_dummy"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "guards": true,
+      "events": "none",
+      "progress_guard": "noprog_span"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r04_cost/fits/r4b4_p_sp_b2g50_k2_wrist.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-blind",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-stage1-mode",
+      "wrist_only"
+    ],
+    "_note": "Prespecified B2 composition; coordinator selects B1/B2 winner after batch three, then re-prefits if kwargs change.",
+    "name": "r4b4_p_sp_b2g50_k2_wrist",
+    "full_model": true,
+    "_r4_batch": 4,
+    "stage1_mode": "wrist_only",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_sp_b2g50_k2_wrist"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_sp_g500_k2_dummy",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {},
+      "guards": true,
+      "events": "none"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r03_mx/fits/r3mx_p_sp_awm500_h70.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "dummy_cached"
+    ],
+    "_r4_batch": 4,
+    "stage1_mode": "dummy_cached",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_sp_g500_k2_dummy"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k3_cost.method:WristMixedJudge",
+    "kwargs": {
+      "lib": "big",
+      "guards": true,
+      "events": "none"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/offline_search_store/derived/r04/k3_cost/fits/pi05_spatial_big.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-stage1-mode",
+      "wrist_only"
+    ],
+    "name": "r4b4_p_sp_g500_k2_wrist",
+    "full_model": true,
+    "_r4_batch": 4,
+    "stage1_mode": "wrist_only",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_sp_g500_k2_wrist"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "guards": true,
+      "events": "none",
+      "progress_guard": "noprog_span"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r04_cost/fits/r4b4_p_sp_b2g500_k2_dummy.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-blind",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-stage1-mode",
+      "dummy_cached"
+    ],
+    "_note": "Prespecified B2 composition; coordinator selects B1/B2 winner after batch three, then re-prefits if kwargs change.",
+    "name": "r4b4_p_sp_b2g500_k2_dummy",
+    "full_model": true,
+    "_r4_batch": 4,
+    "stage1_mode": "dummy_cached",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_sp_b2g500_k2_dummy"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "guards": true,
+      "events": "none",
+      "progress_guard": "noprog_span"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r04_cost/fits/r4b4_p_sp_b2g500_k2_wrist.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-blind",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-stage1-mode",
+      "wrist_only"
+    ],
+    "_note": "Prespecified B2 composition; coordinator selects B1/B2 winner after batch three, then re-prefits if kwargs change.",
+    "name": "r4b4_p_sp_b2g500_k2_wrist",
+    "full_model": true,
+    "_r4_batch": 4,
+    "stage1_mode": "wrist_only",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_sp_b2g500_k2_wrist"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 1101,
+    "method": "exp.offline_search.harness.baselines:B0Current",
+    "kwargs": {},
+    "plugin_args": [
+      "--os-no-shadow-native"
+    ],
+    "name": "r4b2_p_l10_inf_k2_s1101",
+    "full_model": true,
+    "_r4_batch": 2,
+    "stage1_mode": "full",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b2_p_l10_inf_k2_s1101"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 1102,
+    "method": "exp.offline_search.harness.baselines:B0Current",
+    "kwargs": {},
+    "plugin_args": [
+      "--os-no-shadow-native"
+    ],
+    "name": "r4b2_p_l10_inf_k2_s1102",
+    "full_model": true,
+    "_r4_batch": 2,
+    "stage1_mode": "full",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b2_p_l10_inf_k2_s1102"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_g50_k2_dummy",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5
+      },
+      "guards": true,
+      "events": "none"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r03_mx/fits/r3mx_p_l10_g.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "dummy_cached"
+    ],
+    "_offline_variant": "MXJ_g1_ev0__AWM_joint_cur_fcur_kr5",
+    "_target_h": null,
+    "_tau0_capped": false,
+    "_note": "guard-only: the plugin forces MISS on extras os_force_miss (guards 1-4), hit rate emerges",
+    "_r4_batch": 4,
+    "stage1_mode": "dummy_cached",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_l10_g50_k2_dummy"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k3_cost.method:WristMixedJudge",
+    "kwargs": {
+      "lib": "current",
+      "guards": true,
+      "events": "none"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/offline_search_store/derived/r04/k3_cost/fits/pi05_l10_current.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-stage1-mode",
+      "wrist_only"
+    ],
+    "name": "r4b4_p_l10_g50_k2_wrist",
+    "full_model": true,
+    "_r4_batch": 4,
+    "stage1_mode": "wrist_only",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_l10_g50_k2_wrist"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "guards": true,
+      "events": "none",
+      "progress_guard": "noprog_span"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r04_cost/fits/r4b4_p_l10_b2g50_k2_dummy.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-blind",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-stage1-mode",
+      "dummy_cached"
+    ],
+    "_note": "Prespecified B2 composition; coordinator selects B1/B2 winner after batch three, then re-prefits if kwargs change.",
+    "name": "r4b4_p_l10_b2g50_k2_dummy",
+    "full_model": true,
+    "_r4_batch": 4,
+    "stage1_mode": "dummy_cached",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_l10_b2g50_k2_dummy"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "guards": true,
+      "events": "none",
+      "progress_guard": "noprog_span"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r04_cost/fits/r4b4_p_l10_b2g50_k2_wrist.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-blind",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-stage1-mode",
+      "wrist_only"
+    ],
+    "_note": "Prespecified B2 composition; coordinator selects B1/B2 winner after batch three, then re-prefits if kwargs change.",
+    "name": "r4b4_p_l10_b2g50_k2_wrist",
+    "full_model": true,
+    "_r4_batch": 4,
+    "stage1_mode": "wrist_only",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_l10_b2g50_k2_wrist"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r4b4_p_l10_g500_k2_dummy",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {},
+      "guards": true,
+      "events": "none"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r03_mx/fits/r3mx_p_l10_g500.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-stage1-mode",
+      "dummy_cached"
+    ],
+    "_r4_batch": 4,
+    "stage1_mode": "dummy_cached",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_l10_g500_k2_dummy"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k3_cost.method:WristMixedJudge",
+    "kwargs": {
+      "lib": "big",
+      "guards": true,
+      "events": "none"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/offline_search_store/derived/r04/k3_cost/fits/pi05_l10_big.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-stage1-mode",
+      "wrist_only"
+    ],
+    "name": "r4b4_p_l10_g500_k2_wrist",
+    "full_model": true,
+    "_r4_batch": 4,
+    "stage1_mode": "wrist_only",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_l10_g500_k2_wrist"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "guards": true,
+      "events": "none",
+      "progress_guard": "noprog_span"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r04_cost/fits/r4b4_p_l10_b2g500_k2_dummy.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-blind",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-stage1-mode",
+      "dummy_cached"
+    ],
+    "_note": "Prespecified B2 composition; coordinator selects B1/B2 winner after batch three, then re-prefits if kwargs change.",
+    "name": "r4b4_p_l10_b2g500_k2_dummy",
+    "full_model": true,
+    "_r4_batch": 4,
+    "stage1_mode": "dummy_cached",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_l10_b2g500_k2_dummy"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "guards": true,
+      "events": "none",
+      "progress_guard": "noprog_span"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r04_cost/fits/r4b4_p_l10_b2g500_k2_wrist.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-blind",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-stage1-mode",
+      "wrist_only"
+    ],
+    "_note": "Prespecified B2 composition; coordinator selects B1/B2 winner after batch three, then re-prefits if kwargs change.",
+    "name": "r4b4_p_l10_b2g500_k2_wrist",
+    "full_model": true,
+    "_r4_batch": 4,
+    "stage1_mode": "wrist_only",
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2,
+        "evidence_dir": "/home/weiland/trace_runs/os_closed_loop/r04_cost/evidence/r4b4_p_l10_b2g500_k2_wrist"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  }
+]

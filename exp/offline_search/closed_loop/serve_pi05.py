@@ -27,7 +27,9 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, force=True)
     from exp.offline_search.closed_loop import plugin
 
-    opts, rest = plugin.parse_cli(sys.argv[1:])
+    from exp.offline_search.closed_loop import stage_overrides as cost
+    cost_opts, remaining = cost.parse_flags(sys.argv[1:])
+    opts, rest = plugin.parse_cli(remaining)
     import tyro
 
     spec = importlib.util.spec_from_file_location("serve_policy", REPO / "scripts" / "serve_policy.py")
@@ -43,6 +45,11 @@ def main() -> None:
         raise SystemExit("osplug: --trace-out / --trace-build-cache are not supported with the plugin")
     if not args.cache_config:
         raise SystemExit("osplug: --cache-config <yaml> is required (the served library and key builder)")
+    cost.validate_method(opts, cost_opts.os_stage1_mode)
+    steps = cost.miss_steps_from_yaml(args.cache_config, "pi05")
+    cost.install_startup_hook(plugin, stage1_mode=cost_opts.os_stage1_mode, miss_steps=steps,
+                              prefix_packing=cost_opts.os_pack_prefix)
+    cost.install_pi05(cost_opts.os_stage1_mode, cost_opts.os_pack_prefix)
     plugin.install(opts, model="pi05")      # fits the method before the model loads (fail fast)
     logging.basicConfig(level=logging.INFO, force=True)
     sp.main(args)

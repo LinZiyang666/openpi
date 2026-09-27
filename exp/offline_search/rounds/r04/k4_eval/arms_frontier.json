@@ -1,0 +1,383 @@
+[
+  {
+    "name": "r4f_p_l10_inf_s1001",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 1001,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_l10_inf_s1001.pkl",
+      "--os-log-r4"
+    ],
+    "_batch": 1,
+    "_library_episodes": null,
+    "_prefit": "SeededInference B0 proposal, all MISS. Reuse only same SeededInference spec/kwargs/cell. Library not used for executed actions; plot on both 50/500 panels.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_l10_inf_s2001",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 2001,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_l10_inf_s2001.pkl",
+      "--os-log-r4"
+    ],
+    "_batch": 1,
+    "_library_episodes": null,
+    "_prefit": "SeededInference B0 proposal, all MISS. Reuse only same SeededInference spec/kwargs/cell. Library not used for executed actions; plot on both 50/500 panels.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_sp_inf_s1001",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 1001,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_sp_inf_s1001.pkl",
+      "--os-log-r4"
+    ],
+    "_batch": 1,
+    "_library_episodes": null,
+    "_prefit": "SeededInference B0 proposal, all MISS. Reuse only same SeededInference spec/kwargs/cell. Library not used for executed actions; plot on both 50/500 panels.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_sp_inf_s2001",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 2001,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_sp_inf_s2001.pkl",
+      "--os-log-r4"
+    ],
+    "_batch": 1,
+    "_library_episodes": null,
+    "_prefit": "SeededInference B0 proposal, all MISS. Reuse only same SeededInference spec/kwargs/cell. Library not used for executed actions; plot on both 50/500 panels.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_l10_g500_np4",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {},
+      "guards": true,
+      "events": "none",
+      "noprog_n": 4
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_l10_g500_np4.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-log-r4"
+    ],
+    "_batch": 1,
+    "_library_episodes": 500,
+    "_prefit": "New fit required: noprog_n=4 changes kwargs; do not relabel an R3 noprog_n=3 pickle.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_l10_lib500_per8",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+    "kwargs": {},
+    "full_model": true,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_l10_lib500_per8.pkl",
+      "--os-judge",
+      "periodic:8",
+      "--os-log-r4"
+    ],
+    "_batch": 1,
+    "_library_episodes": 500,
+    "_prefit": "Reuse R2 r02_g500/fits/oscl500_p_l10_cl2.pkl (exact AWM spec/kwargs/cell); copy to this path.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_l10_lib500_per12",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+    "kwargs": {},
+    "full_model": true,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_l10_lib500_per12.pkl",
+      "--os-judge",
+      "periodic:12",
+      "--os-log-r4"
+    ],
+    "_batch": 1,
+    "_library_episodes": 500,
+    "_prefit": "Reuse R2 r02_g500/fits/oscl500_p_l10_cl2.pkl (exact AWM spec/kwargs/cell); copy to this path.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_sp_g500",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {},
+      "guards": true,
+      "events": "none"
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_sp_g500.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-log-r4"
+    ],
+    "_batch": 1,
+    "_library_episodes": 500,
+    "_prefit": "Reuse matching spec/kwargs/cell R4 frontier guard fit if available; l10 R3 fit cannot be reused for spatial.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_sp_lib500_per12",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+    "kwargs": {},
+    "full_model": true,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_sp_lib500_per12.pkl",
+      "--os-judge",
+      "periodic:12",
+      "--os-log-r4"
+    ],
+    "_batch": 1,
+    "_library_episodes": 500,
+    "_prefit": "Reuse R2 r02_g500/fits/oscl500_p_sp_cl2.pkl (exact AWM spec/kwargs/cell); copy to this path.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_l10_lib50_per6",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_l10_lib50_per6.pkl",
+      "--os-judge",
+      "periodic:6",
+      "--os-log-r4"
+    ],
+    "_batch": 1,
+    "_library_episodes": 50,
+    "_prefit": "Reuse R2 r02_g50/fits/oscl50_p_l10_cl2.pkl (exact AWM spec/kwargs/cell); copy to this path.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_l10_g50_np4",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5
+      },
+      "guards": true,
+      "events": "none",
+      "noprog_n": 4
+    },
+    "full_model": true,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_l10_g50_np4.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-log-r4"
+    ],
+    "_batch": 1,
+    "_library_episodes": 50,
+    "_prefit": "New fit required: noprog_n=4 changes kwargs; do not relabel an R3 noprog_n=3 pickle.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_l10_inf_k10_L10",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 3001,
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 10
+      }
+    },
+    "client_overrides": {
+      "replan_steps": 10
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_l10_inf_k10_L10.pkl",
+      "--os-log-r4"
+    ],
+    "_batch": 3,
+    "_library_episodes": null,
+    "_prefit": "Reuse same SeededInference spec/kwargs/cell pickle from first batch; K/L/seed do not change fit. Library not used for executed actions; plot on both 50/500 panels.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_l10_inf_k2_L10",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 3001,
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2
+      }
+    },
+    "client_overrides": {
+      "replan_steps": 10
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_l10_inf_k2_L10.pkl",
+      "--os-log-r4"
+    ],
+    "_batch": 3,
+    "_library_episodes": null,
+    "_prefit": "Reuse same SeededInference spec/kwargs/cell pickle from first batch; K/L/seed do not change fit. Library not used for executed actions; plot on both 50/500 panels.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_l10_inf_k2_L5",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 3001,
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2
+      }
+    },
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_l10_inf_k2_L5.pkl",
+      "--os-log-r4"
+    ],
+    "_batch": 2,
+    "_library_episodes": null,
+    "_prefit": "Reuse same SeededInference spec/kwargs/cell pickle from first batch; K/L/seed do not change fit. Library not used for executed actions; plot on both 50/500 panels.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_sp_inf_k10_L10",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 3001,
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 10
+      }
+    },
+    "client_overrides": {
+      "replan_steps": 10
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_sp_inf_k10_L10.pkl",
+      "--os-log-r4"
+    ],
+    "_batch": 3,
+    "_library_episodes": null,
+    "_prefit": "Reuse same SeededInference spec/kwargs/cell pickle from first batch; K/L/seed do not change fit. Library not used for executed actions; plot on both 50/500 panels.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_sp_inf_k2_L10",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 3001,
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2
+      }
+    },
+    "client_overrides": {
+      "replan_steps": 10
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_sp_inf_k2_L10.pkl",
+      "--os-log-r4"
+    ],
+    "_batch": 3,
+    "_library_episodes": null,
+    "_prefit": "Reuse same SeededInference spec/kwargs/cell pickle from first batch; K/L/seed do not change fit. Library not used for executed actions; plot on both 50/500 panels.",
+    "cost_ledger": true
+  },
+  {
+    "name": "r4f_p_sp_inf_k2_L5",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "pure_inference": true,
+    "server_seed": 3001,
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 2
+      }
+    },
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r4f_p_sp_inf_k2_L5.pkl",
+      "--os-log-r4"
+    ],
+    "_batch": 2,
+    "_library_episodes": null,
+    "_prefit": "Reuse same SeededInference spec/kwargs/cell pickle from first batch; K/L/seed do not change fit. Library not used for executed actions; plot on both 50/500 panels.",
+    "cost_ledger": true
+  }
+]

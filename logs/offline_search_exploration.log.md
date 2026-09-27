@@ -856,3 +856,19 @@ exp/offline_search/
   - l10：500 集守卫 noprog 4 → 500 集周期 8 → 500 集周期 12 → 纯推理种子 1 → 50 集守卫 noprog 4 → 50 集周期 6 → 纯推理种子 2；
   - sp：500 集只用守卫 → 500 集周期 12 → 纯推理种子 1 → 纯推理种子 2。
 - **14:2x** 500 集库 l10 守卫 noprog 4 为 **.808 @ IR .214**（h .927），落在 CL2-500 与 g500 两点连线之下（该 IR 处连线约 .837），作废；原 noprog 3 仍是这一段的最优。handoff 已更新到 R4 进行中的状态。
+- **14:2x–14:4x R4 编码全部交回**（各自的 HANDBACK.md 在 `rounds/r04/k*/`）：
+  - **K3 成本引擎**：
+    - MISS 减步只要在 yaml 里设 `miss.num_steps`（外加 evidence_dir）；GR00T 用 `GROOT_DENOISING_STEPS`。
+    - `--os-stage1-mode dummy_cached`：stage 1 从 65.8 降到 45.0 ms，动作逐位一致。
+    - `wrist_only`：HIT 时 stage 1 为 23.9 ms，MISS 时补齐另一路相机 +21.6 ms，MISS 动作逐位一致。
+    - stage 2 打包（`--os-pack-prefix`）在 bf16 下动作差 0.014，**拒绝使用**。
+    - 实测的 eager serving 成本（未开 CUDA graph）写在 `ops/cost_table.json`：π0.5 三段占比为 .142 / .072 / .786，stage 3 每步 36.4 ms；GR00T 为 .130 / .116 / .754。它与 owner 口径（.152 / .410 / .438）是两套不同的成本基准，**不能混用**；主口径仍用 owner 的定义。
+    - 交付 26 个臂规格，已预拟合，运行目录 `r04_cost`。
+  - **K1 盲走方法**：`k1_blind/{blind_awm,judge,control_step,wrist}.py`。
+    - 视觉路径与 AWM 逐位一致的比对 26,880 次；复现 A 的回放；插件盲走 selftest 10/10。
+    - 116 个候选臂在 `arms_r4.json`。其中第四批的行带 `--os-pack-prefix`，已作废，第四批改用 K3 的规格。
+  - **K4 评测**：`yaml_patch`、`replan_steps`、`pure_inference`、`server_seed`、清单子集、成本口径（`cost_ledger.ir_per_five_controls`）、加权估计。70 个历史臂的 SR 和 IR 全部复现；`arms_frontier.json` 共 17 行。
+  - **K2 盲走 serving**：`--os-blind`，另有 `--os-log-r4` 输出新日志字段。在 π0.5 和 GR00T 的真实 GPU server 上 smoke：16 次视觉决策正好 16 次 stage 1，盲走决策不跑视觉，下发给 client 的动作 24/24 逐位一致。真实 GPU 上的 MISS 未测。开了 `--os-blind` 时，周期时钟是 server 级的，跨集连续计数。
+  - **timan107 远端脚本**：K4 版本 14:3x 以"先写 .new 再 mv"的原子方式推送，sha 已核对。
+- **第一批闭环结果**（500 集库，π0.5-l10）：周期 8 为 .850 @ IR .245（h .880），低于只用守卫的 .864 @ .238。collect 出过一次 `tether pull` 瞬时失败（退出码 75），手动重跑成功。
+- **调度**：第一批里 4 个纯推理种子臂推迟（写了 DONE 加 DEFERRED），以后改用 K4 的 seeded `pure_inference` 重跑。第三批 15 个盲走臂已在 `r04_blind` 生成并预拟合（1.1 GB）。

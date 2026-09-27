@@ -117,16 +117,18 @@ def run_offline(method_spec, kwargs, cell, work, seed, episodes):
 
 
 def expected_verdict(J: dict, *, step: int, conf: float, tau: float, run: int, forced: bool, prev_reason: str | None,
-                     burst_left: int):
+                     burst_left: int, decision_index=None):
     """Re-derive (hit, reason, burst_left_after) from the logged inputs with the plugin's rule (plugin._verdict)."""
     mode = J["mode"]
-    if step == 0 and J.get("step0", "judge") != "judge":
+    if mode == "periodic" and decision_index is not None and decision_index % int(J["k"]) == int(J["k"])-1:
+        hit, why = False, "periodic"
+    elif step == 0 and J.get("step0", "judge") != "judge":
         hit, why = J["step0"] == "hit", "step0"
     elif mode == "always":
         hit, why = True, "always"
     elif mode == "periodic":
         k = int(J["k"])
-        hit, why = (step % k != k - 1), "periodic"
+        hit, why = ((step if decision_index is None else decision_index) % k != k - 1), "periodic"
     elif forced:
         hit, why = False, "force"
     elif burst_left > 0:
@@ -159,7 +161,11 @@ def check_verdicts(J: dict, z: dict) -> dict:
     for s in range(n):
         forced = bool(force[s] == 1)
         exp_hit, why, burst_left = expected_verdict(J, step=s, conf=float(conf[s]), tau=float(tau[s]), run=int(run[s]),
-                                                    forced=forced, prev_reason=None, burst_left=burst_left)
+                                                    forced=forced, prev_reason=None, burst_left=burst_left,
+                                                    decision_index=int(z["decision_index"][s]) if "has_vision" in z
+                                                    and ("periodic_global" not in z or z["periodic_global"][s]) else None)
+        if "has_vision" in z and not z["has_vision"][s]:
+            exp_hit, why = True, "blind"
         logged_why = judge[s].split(":")[0]
         out["mix"][judge[s]] = out["mix"].get(judge[s], 0) + 1
         if bool(hit[s]) != exp_hit or logged_why != why:
@@ -175,6 +181,132 @@ def check_verdicts(J: dict, z: dict) -> dict:
         if exp_run != run[s]:
             out["run_bad"] += 1
     return out
+
+
+def verify_blind_logs(log_dir, eps, *, out=None):
+    """Replay the method on dense histories, calling blind_step only before vision.
+
+    This uses logged normalized states/actions as observations, independently builds
+    the contract facades, and recomputes all selected/propagated action chunks.
+    """
+    from types import SimpleNamespace
+    from exp.offline_search.closed_loop.blind import BlindQueryView, BlindResult, LookReason
+    from exp.offline_search.harness import api, run, store
+
+    configs = {(m["method_spec"], json.dumps(m["kwargs"], sort_keys=True), m["cell"], m["root"], m["run_seed"],
+                json.dumps(m.get("judge"), sort_keys=True)) for _, m, _ in eps}
+    if len(configs) != 1:
+        raise ValueError("blind logs mix configurations; select one server tag")
+    _, meta, _ = eps[0]
+    root, cell = meta["root"], meta["cell"]
+    cls, _ = run.load_method_class(meta["method_spec"])
+    F = run._fit_cell(cls, meta["kwargs"], cell, root=root, out_dir=pathlib.Path(log_dir) / "blind_verify_fit",
+                      seed=meta["run_seed"], profile=False)
+    method = F["method"]
+    lib = store.LibraryView(root, store.lib_key(cell), "current")
+    tables = {"current": lib.action}
+    for name in store.library_names(root, store.lib_key(cell)):
+        tables[name] = store.LibraryView(root, store.lib_key(cell), name).action
+    tables.update({k: v["action"] for k, v in F.get("registered", {}).items()})
+    total = vision_n = blind_n = hit_n = 0
+    checks = {k: 0 for k in ("topk", "scores", "conf", "lib", "action", "extras", "look_reason", "dense_history")}
+    errors = []
+    decs = {}
+    for path in pathlib.Path(log_dir).glob("decisions_*.jsonl"):
+        for line in path.read_text().splitlines():
+            d = json.loads(line)
+            if d.get("ev") == "dec":
+                decs[(d["conn"], d["uid"], d["step"])] = d
+    for _, m, z in eps:
+        ep = api.EpisodeView(m["uid"], m["task"], m["task_id"], m["init"], m["index"], m["seed"])
+        method.reset(ep)
+        age, last_vision, burst_left = 0, -1, 0
+        J = m.get("judge")
+        if J:
+            verdict = check_verdicts(J, z)
+            errors.extend(verdict["bad"])
+            if verdict["run_bad"]:
+                errors.append({"run_bad": verdict["run_bad"]})
+        hit = hit_flags(z)
+        for s in range(len(z["step"])):
+            total += 1
+            v = bool(z["has_vision"][s])
+            vision_n += v
+            blind_n += not v
+            hit_n += bool(hit[s])
+            common = dict(step=s, task_id=ep.task_id, episode=ep, rs=z["rs"][s], raw_state=z["raw_state"][s],
+                          prev_hit=None if s == 0 else bool(hit[s-1]),
+                          prev_a_exec=None if s == 0 else z["a_exec"][s-1], hist_a_exec=z["a_exec"][:s],
+                          hist_hit=hit[:s], hist_rs=z["rs"][:s], hist_has_vision=z["has_vision"][:s], blind_age=age)
+            reason = None
+            if J and J["mode"] == "periodic" and int(z["decision_index"][s]) % J["k"] == J["k"]-1:
+                reason = LookReason(7, "periodic")
+            elif s == 0 or hit[s-1] == 0:
+                reason = LookReason(6, "lifecycle")
+            elif J and (burst_left > 0 or (J.get("cap", 0) > 0 and J["mode"] not in ("always", "periodic")
+                                          and int(z["run"][s]) >= J["cap"])):
+                reason = LookReason(8, "judge requires vision")
+            elif not hasattr(method, "blind_step"):
+                reason = LookReason(8, "unsupported")
+            else:
+                reason = method.blind_step(BlindQueryView(**common))
+            if v:
+                if not isinstance(reason, LookReason):
+                    errors.append({"uid": m["uid"], "step": s, "error": "offline chose blind on vision row"})
+                elif reason.code == z["look_reason"][s]:
+                    checks["look_reason"] += 1
+                last_vision = s
+                q = SimpleNamespace(**common, model=m["model"], key_v0=z["key_v0"][s], key_v1=z["key_v1"][s],
+                                    hist_key_v0=z["key_v0"][:s], hist_key_v1=z["key_v1"][:s],
+                                    hist_raw_state=z["raw_state"][:s], has_vision=True, has_tok=False,
+                                    last_vision_step=last_vision)
+                res = method.query(q)
+                rows, scores, conf, lname, action, extras = api.validate_result(
+                    res, lib_sizes=F["lib_sizes"], H=int(m["H"]), where=f"blind replay {m['uid']}:{s}")
+                if action is None:
+                    action = np.asarray(tables[lname][rows[0]], np.float32)
+                checks["scores"] += np.array_equal(z["scores"][s, :min(len(scores), api.TOPK_SAVE)], scores[:api.TOPK_SAVE])
+                checks["conf"] += z["conf"][s] == conf
+                age = 0
+            else:
+                if not isinstance(reason, BlindResult):
+                    errors.append({"uid": m["uid"], "step": s, "error": "offline requested vision on blind row"})
+                    continue
+                rows, lname, action, extras = reason.rows, reason.library, reason.action, reason.extras
+                checks["look_reason"] += np.isnan(z["look_reason"][s])
+                checks["scores"] += bool(np.all(z["scores"][s, :min(len(rows), api.TOPK_SAVE)] == 0))
+                checks["conf"] += bool(np.isnan(z["conf"][s]))
+                assert np.array_equal(z["blind_rows"][s, :len(rows)], rows)
+                assert np.array_equal(z["blind_weights"][s, :len(rows)], reason.weights)
+                age += 1
+            checks["topk"] += np.array_equal(z["topk"][s, :min(len(rows), api.TOPK_SAVE)], rows[:api.TOPK_SAVE])
+            checks["lib"] += str(z["lib"][s]) == lname
+            checks["action"] += bool(not hit[s] or np.array_equal(z["a_exec"][s], action))
+            ex_ok = all(f"x_{k}" in z and np.array_equal(np.asarray(z[f"x_{k}"][s]), np.asarray(v).reshape(-1)[0],
+                                                       equal_nan=True)
+                        for k, v in (extras or {}).items() if np.asarray(v).size == 1)
+            checks["extras"] += ex_ok
+            d = decs[(m["conn"], m["uid"], s)]
+            dense_ok = (len(common["hist_rs"]) == s == len(common["hist_a_exec"]) == len(common["hist_has_vision"])
+                        and (v or (hit[s] == 1 and np.isnan(z["key_v0"][s]).all() and np.isnan(z["key_v1"][s]).all()))
+                        and d["vision"] == v and d["served_head"] == z["a_exec"][s, :5, :7].tolist()
+                        and (v or (d["s1_ms"] is None and d["s23_ms"] is None and not d["shadow_available"]))
+                        and d["blind_age"] == common["blind_age"])
+            checks["dense_history"] += dense_ok
+            if J:
+                why = str(z["judge"][s])
+                forced = (z.get("x_os_force_miss", np.zeros(len(hit)))[s] == 1)
+                if why == "burst":
+                    burst_left -= 1
+                elif forced and not hit[s] and J.get("burst", 1) > 1 and J["mode"] not in ("always", "periodic"):
+                    burst_left = J["burst"] - 1
+    rep = dict(PASS=not errors and all(n == total for n in checks.values()), episodes=len(eps), decisions=total,
+               vision=vision_n, blind=blind_n, hit=hit_n, miss=total-hit_n,
+               equal={k: int(v) for k, v in checks.items()}, errors=errors[:10])
+    path = pathlib.Path(out) if out else pathlib.Path(log_dir) / "verify_blind.json"
+    path.write_text(json.dumps(rep, indent=2))
+    print(json.dumps(rep, indent=2))
+    return 0 if rep["PASS"] else 1
 
 
 def main(argv=None):
@@ -194,6 +326,8 @@ def main(argv=None):
     eps = load_logs(log_dir, a.tag or None)
     if not eps:
         raise SystemExit(f"no inputs/*.npz under {log_dir}")
+    if any(m.get("blind", False) for _, m, _ in eps):
+        return verify_blind_logs(log_dir, eps, out=a.out or None)
     metas = {(m["method_spec"], json.dumps(m["kwargs"], sort_keys=True), m["cell"], m.get("run_seed", 0),
               m.get("root"), json.dumps(m.get("judge"), sort_keys=True)) for _, m, _ in eps}
     if len(metas) != 1:

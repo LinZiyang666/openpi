@@ -1,0 +1,582 @@
+[
+  {
+    "name": "r4b3_p_l10_50_b0g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_l10_50_b0c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_l10_50_ph1g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_l10_50_ph1c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_l10_50_ph2g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_l10_50_ph2c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_l10_50_clk1g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_l10_50_clk1c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_l10_50_tail1gg",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_l10_50_tail1gc",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_l10_50_tail1ug",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_l10_50_tail1uc",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_l10_50_ph0k5",
+    "batch": 3,
+    "note": "Periodic due is evaluated by plugin on the dense decision counter."
+  },
+  {
+    "name": "r4b3_p_l10_50_ph2k5",
+    "batch": 3,
+    "note": "Periodic due is evaluated by plugin on the dense decision counter."
+  },
+  {
+    "name": "r4b3_p_l10_50_inferL10",
+    "batch": 3,
+    "note": "Policy execute-L10 baseline; cost per five controls. Same baseline duplicated across library labels."
+  },
+  {
+    "name": "r4b3_p_l10_500_b0g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_l10_500_b0c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_l10_500_ph1g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_l10_500_ph1c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_l10_500_ph2g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_l10_500_ph2c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_l10_500_clk1g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_l10_500_clk1c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_l10_500_tail1gg",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_l10_500_tail1gc",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_l10_500_tail1ug",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_l10_500_tail1uc",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_l10_500_ph0k8",
+    "batch": 3,
+    "note": "Periodic due is evaluated by plugin on the dense decision counter."
+  },
+  {
+    "name": "r4b3_p_l10_500_ph2k8",
+    "batch": 3,
+    "note": "Periodic due is evaluated by plugin on the dense decision counter."
+  },
+  {
+    "name": "r4b3_p_l10_500_inferL10",
+    "batch": 3,
+    "note": "Policy execute-L10 baseline; cost per five controls. Same baseline duplicated across library labels."
+  },
+  {
+    "name": "r4b3_p_sp_50_b0g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_sp_50_b0c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_sp_50_ph1g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_sp_50_ph1c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_sp_50_ph2g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_sp_50_ph2c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_sp_50_clk1g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_sp_50_clk1c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_sp_50_tail1gg",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_sp_50_tail1gc",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_sp_50_tail1ug",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_sp_50_tail1uc",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_sp_50_ph0k5",
+    "batch": 3,
+    "note": "Periodic due is evaluated by plugin on the dense decision counter."
+  },
+  {
+    "name": "r4b3_p_sp_50_ph2k5",
+    "batch": 3,
+    "note": "Periodic due is evaluated by plugin on the dense decision counter."
+  },
+  {
+    "name": "r4b3_p_sp_50_inferL10",
+    "batch": 3,
+    "note": "Policy execute-L10 baseline; cost per five controls. Same baseline duplicated across library labels."
+  },
+  {
+    "name": "r4b3_p_sp_500_b0g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_sp_500_b0c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_sp_500_ph1g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_sp_500_ph1c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_sp_500_ph2g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_sp_500_ph2c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_sp_500_clk1g",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_sp_500_clk1c",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_sp_500_tail1gg",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_sp_500_tail1gc",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_sp_500_tail1ug",
+    "batch": 3,
+    "note": "Gap-aware guard; B0 isolates adapter with the same new guard."
+  },
+  {
+    "name": "r4b3_p_sp_500_tail1uc",
+    "batch": 3,
+    "note": "Pure-cache serving control."
+  },
+  {
+    "name": "r4b3_p_sp_500_ph0k8",
+    "batch": 3,
+    "note": "Periodic due is evaluated by plugin on the dense decision counter."
+  },
+  {
+    "name": "r4b3_p_sp_500_ph2k8",
+    "batch": 3,
+    "note": "Periodic due is evaluated by plugin on the dense decision counter."
+  },
+  {
+    "name": "r4b3_p_sp_500_inferL10",
+    "batch": 3,
+    "note": "Policy execute-L10 baseline; cost per five controls. Same baseline duplicated across library labels."
+  },
+  {
+    "name": "r4b3_g_l10_50_b0",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_l10_50_ph1",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_l10_50_ph2",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_l10_50_tail1g",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_l10_50_tail1u",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_l10_50_tail2g",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_l10_50_tail2u",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_l10_500_b0",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_l10_500_ph1",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_l10_500_ph2",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_l10_500_tail1g",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_l10_500_tail1u",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_l10_500_tail2g",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_l10_500_tail2u",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_50_b0",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_50_ph1",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_50_ph2",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_50_tail1g",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_50_tail1u",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_50_tail2g",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_50_tail2u",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_500_b0",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_500_ph1",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_500_ph2",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_500_tail1g",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_500_tail1u",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_500_tail2g",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b3_g_sp_500_tail2u",
+    "batch": 3,
+    "note": "GR00T pure-cache only."
+  },
+  {
+    "name": "r4b4_p_l10_50_ph1_k2",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_l10_50_ph1_k2dc",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_l10_50_ph1_k2wp",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_l10_50_ph2_k2",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_l10_50_ph2_k2dc",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_l10_50_ph2_k2wp",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_l10_50_cslG",
+    "batch": 4,
+    "note": "G fixes actions; GS changes aligned synthesis. Pure-cache only."
+  },
+  {
+    "name": "r4b4_p_l10_50_cslGS",
+    "batch": 4,
+    "note": "G fixes actions; GS changes aligned synthesis. Pure-cache only."
+  },
+  {
+    "name": "r4b4_p_l10_500_ph1_k2",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_l10_500_ph1_k2dc",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_l10_500_ph1_k2wp",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_l10_500_ph2_k2",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_l10_500_ph2_k2dc",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_l10_500_ph2_k2wp",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_l10_500_cslG",
+    "batch": 4,
+    "note": "G fixes actions; GS changes aligned synthesis. Pure-cache only."
+  },
+  {
+    "name": "r4b4_p_l10_500_cslGS",
+    "batch": 4,
+    "note": "G fixes actions; GS changes aligned synthesis. Pure-cache only."
+  },
+  {
+    "name": "r4b4_p_sp_50_ph1_k2",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_sp_50_ph1_k2dc",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_sp_50_ph1_k2wp",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_sp_50_ph2_k2",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_sp_50_ph2_k2dc",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_sp_50_ph2_k2wp",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_sp_500_ph1_k2",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_sp_500_ph1_k2dc",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_sp_500_ph1_k2wp",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_sp_500_ph2_k2",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_sp_500_ph2_k2dc",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  },
+  {
+    "name": "r4b4_p_sp_500_ph2_k2wp",
+    "batch": 4,
+    "note": "Conditional combination candidate, not a claimed winner; stage optimizations require K3 validation."
+  }
+]

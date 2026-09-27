@@ -1,0 +1,766 @@
+[
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 0,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 0,
+      "gates": "all"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache",
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 1,
+      "gates": "all"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache",
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "phase_particles",
+      "budget": 2,
+      "gates": "all"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache",
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "kernel_clock",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "kernel_clock",
+      "budget": 1,
+      "gates": "all"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "all"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache",
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache",
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 0,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 0,
+      "gates": "all"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache",
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 1,
+      "gates": "all"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache",
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 2,
+      "gates": "all"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache",
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "kernel_clock",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "kernel_clock",
+      "budget": 1,
+      "gates": "all"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "all"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "all"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache",
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.judge:BlindMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache",
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "all"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "budget_only"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "all"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "budget_only"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "groot_l10_inf",
+      "groot_l10_cache",
+      "groot_spatial_inf",
+      "groot_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.control_step:ControlStepLibrary",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "ablation": "G"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.control_step:ControlStepLibrary",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "ablation": "GS"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 1
+      },
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.wrist:BlindWristMixedJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "phase_particles",
+        "budget": 2
+      },
+      "events": "none"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache",
+      "pi05_spatial_inf",
+      "pi05_spatial_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.control_step:ControlStepLibrary",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "ablation": "G"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  },
+  {
+    "method": "exp.offline_search.rounds.r04.k1_blind.control_step:ControlStepLibrary",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "ablation": "GS"
+    },
+    "family": "k1_blind",
+    "cells": [
+      "pi05_l10_inf",
+      "pi05_l10_cache"
+    ],
+    "subsample": null,
+    "allow_gpu_fit": false
+  }
+]
