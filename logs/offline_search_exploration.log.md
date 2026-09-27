@@ -821,3 +821,9 @@ exp/offline_search/
   - C：探索者，告知了 A/B 与 R5 的方向以及失效清单，不许碰这些，只去别处找。CPU 24-37,68-81，不用 GPU。job `task-muk4k9ny-ydn6mt`。
   - 要求："时间不是问题，仔细研究"；每个提案都要落在自己跑过的诊断上。
   - codex 的状态目录在插件重载后移到了 `~/.claude/plugins/data/codex-openai-codex/state/`；Monitor 轮询其中的 state.json 并检查 PID。
+- **13:25 C 第一遍交回**：`rounds/r04/ideation_C/REPORT.md`，用时 22 分钟。
+  - 提案 1：control_step_library，在示范的过渡段内按更细的时间偏移检索并拼接动作，针对"反复重放同一个夹爪事件"的死锁。
+  - 提案 2：分层配对 pilot，按任务 × 参照臂成败分层抽样；在历史数据上回测，方差降低 37% / 30%，已冻结 24 份抽样清单。
+  - 实测否决 3 个想法：硬阶段门、局部仿射合成、后继感知白化。
+  - owner 要求思路不受限，C 的第一遍偏保守，所以 13:3x 另派 **C 第二遍**（job `task-muk5htfw-28zt1k`，输出 `REPORT_2.md`），专找未覆盖的方向：可恢复性（MISS 何时真正救回一集）、缓存与策略的其他协作方式、每步已算出的便宜信号、GR00T 的特殊性、跨任务与跨 suite 结构。
+  - 顺带一个小插曲：`codex-companion task --help` 并不是帮助命令，它被当成 prompt 起了一个只读的小会话，读完 `codex --help` 就结束了，无害。
