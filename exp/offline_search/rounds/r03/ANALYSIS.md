@@ -1,4 +1,4 @@
-# R3 analysis — pure-cache trap prevention (H1) and the mixed HIT/MISS cache (H2/H3), closed loop (2026-09-27 09:27 CDT)
+# R3 analysis — pure-cache trap prevention (H1) and the mixed HIT/MISS cache (H2/H3), closed loop (2026-09-27 09:27 CDT; addendum with the last three l10 arms 10:0x CDT)
 
 Analysis agent (fable), R3 of `logs/offline_search_exploration.log.md`. Cell order: **π0.5-sp / π0.5-l10 / GR00T-sp /
 GR00T-l10**. Closed loop = A-pool 500 inits (pilots: 5 trap tasks × ep_idx 0–19 = 100 inits), servers on the 4090, timan107
@@ -16,10 +16,10 @@ episodes (`bpool_cs` / `bpool_all`): 10,909 / 29,472 / 11,751 / 29,631 entries. 
 mask), MixedJudge 626 B/entry; fit pickles actually shipped: 20.9–26.8 MB (current), 63.0 / 134.7 MB (10×, wrapper), B0Current
 254.6 / 660.4 MB (raw keys). Full table §4.
 
-**Status.** Complete: all 13 pilot arms (6 skipped on purpose), all 6 full pure-cache arms, 14 mixed arms (`r3mx_p_{sp,l10}_
-{b0h70, awm_h70, ev_h70, g, perk3}`, `_awm_h50` both suites, `_awm500_h70` both suites). **Pending** (queue `oscl_queue2d`,
-2 full-model servers, ≈ 11:00 CDT): `r3mx_p_l10_b0perk3`, `r3mx_p_l10_perk5`, `r3mx_p_l10_g500`; `_ev_h50` skipped on both
-suites. §2.7 says what each pending arm decides; every script re-runs unchanged when they land.
+**Status.** Everything is complete (queue `oscl_queue2d` ended ≈ 10:1x CDT): all 13 pilot arms (6 skipped on purpose), all 6
+full pure-cache arms, 17 mixed arms (`r3mx_p_{sp,l10}_{b0h70, awm_h70, ev_h70, g, perk3}`, `_awm_h50` and `_awm500_h70` on
+both suites, and the three l10 controls `b0perk3`, `perk5`, `g500` that ran last on 2 servers); `_ev_h50` skipped on both suites.
+§2.7 states what the last three arms settled.
 
 ---
 
@@ -28,18 +28,27 @@ suites. §2.7 says what each pending arm decides; every script re-runs unchanged
 1. **The mixed cache reaches the policy on both π0.5 suites, at 43–61 % of the policy's inference.** V7 + guards on AWM (50-episode
    library) at h ≈ .67: spatial **.980** (IR .43; vs pure inference .986: 9 S→F / 6 F→S, p .61) and at h ≈ .46 **.986** (IR .61;
    7 / 7, p 1.0); l10 **.816** (IR .44; −2.8 pp, p .21). With the 500-episode library at h ≈ .66: l10 **.872** (IR .44; +2.8 pp
-   over the policy, 49 policy failures rescued / 35 lost, p .16), spatial .978. Paired against pure cache CL2 on the same inits
-   the mixed arms are +18.0 / +18.6 pp (50 ep) and +2.4 (p .036) / **+10.4** (p < 1e-4) pp (500 ep).
+   over the policy, 49 policy failures rescued / 35 lost, p .16), spatial .978; **guard-only on the 500-episode AWM reaches the same
+   SR at half the inference: l10 .864 at IR .24 (formula; .29 measured), +2.0 pp over the policy (44 / 54, p .36) and −0.8 vs
+   awm500_h70 (31 / 27, p .69)**. Paired against pure cache CL2 on the same inits the mixed arms are +18.0 / +18.6 pp (50 ep) and
+   +2.4 (p .036) / **+10.4** (awm500_h70) / **+9.6** (g500; 12 / 60, p < 1e-4) pp (500 ep).
 2. **The SR gain is not just more inference.** Every AWM-based mixed arm sits 6–13 pp *above* the straight time-share line between
    pure cache and pure inference at its own IR (§2.2): the policy is worth 5–7 pp of SR per 0.1 of inference ratio when it is
    inserted into the cache loop, against 2.2–2.5 pp per 0.1 IR for replacing the cache wholesale.
-3. **Targeting beats periodic MISS on spatial, not on l10.** At matched realized h ≈ .67, V7 + guards vs the periodic k = 3 control:
-   spatial **+4.2 pp** (7 / 28, p .0005), l10 −1.6 pp (55 / 47, p .49). On l10 the whole gain at h ≈ .67 comes from "the policy is
-   called every few decisions" (the drift-breaking effect); the judge line's own kill condition (periodic ≥ targeted − 2 pp, B-P2)
-   is met there. Early events + burst add nothing (l10 +0.6, p .82) and cost −2.4 pp on spatial (p .023). **B0's fused score is a
-   useless judge**: l10 .632 = pure-cache AWM (.630) for +.29 IR; its MISSes come in blocks (MISS-after-MISS .90, mean MISS run 8.8).
-4. **Guard-only is the cheap operating point**: IR .27 / .32 → .888 / .740 (+8.8 / +11.0 pp over CL2, p < 1e-4), 100 % of its MISSes
-   are forced by no-progress / stuck / terminal∧closed; it interrupts 83 % / 91 % of successful episodes with 1.6 / 5.8 MISSes.
+3. **Targeting beats periodic MISS on spatial; on l10 periodic MISS dominates targeting at both budgets.** At matched realized h ≈ .67,
+   V7 + guards vs the periodic k = 3 control: spatial **+4.2 pp** (7 / 28, p .0005), l10 −1.6 pp (55 / 47, p .49); at the low budget
+   (IR ≈ .32) periodic k = 5 beats guard-only on l10 by **+5.2 pp** (.792 vs .740; 45 / 71, p .020). On l10 the gain comes from "the
+   policy is called every few decisions" (drift interruption) and the judge's timing adds nothing; the judge line's own kill
+   condition (periodic ≥ targeted − 2 pp, B-P2) is met there at both budgets. Early events + burst add nothing (l10 +0.6, p .82)
+   and cost −2.4 pp on spatial (p .023). **B0 is dead on both sides of the mixed loop** (`b0perk3` splits the 18.4 pp l10 gap): with
+   the same periodic judge the B0 *selector* costs −11.8 pp vs AWM (.714 vs .832; 96 / 37, p < 1e-4), and with the same B0 selector
+   the B0 fused-score *judge* costs a further −8.2 pp vs periodic (.632 vs .714; 54 / 95, p .001) — its MISSes come in blocks
+   (MISS-after-MISS .90, mean MISS run 8.8) and start late.
+4. **Guard-only is the cheap operating point, and on the 500-episode library it is the best l10 point of the round**: 50 ep IR .27 / .32
+   → .888 / .740 (+8.8 / +11.0 pp over CL2, p < 1e-4); 500 ep l10 IR .24 → **.864** (+9.6 over CL2-500, +12.4 over the 50-ep guard arm,
+   31 / 93), 8.8 pp above the time-share line and 11 pp of SR per 0.1 IR — the most inference-efficient point measured. 100 % of its
+   MISSes are forced (no-progress .64, stuck .23, terminal∧closed .08 on the 500 base); it interrupts 81–91 % of successful episodes
+   but with only 1.6 / 5.8 / 2.8 MISSes each.
 5. **Pure cache, the borrowed prior α = .5 is real but small on π0.5 and nothing on GR00T** (500 inits, paired vs R2 CL2): +4.8
    [+1.6, +8.0] (21 / 45, p .004) / +4.4 [+0.6, +8.4] (40 / 62, p .037) / +2.2 [−1.0, +5.4] (p .21) / −0.8 [−5.0, +3.4] (p .78; GR00T-l10
    t8 .42 → .08). The non-borrowing ridge-1.0 twin gets **+4.0** [+1.2, +6.8] (p .009) on π0.5-sp, i.e. ≈ 80 % of the borrowed gain
@@ -53,7 +62,7 @@ suites. §2.7 says what each pending arm decides; every script re-runs unchanged
 7. **The library layer still dwarfs every R3 switch.** From the best 50-episode R3 arm to the 500-episode AWM (same inits):
    +10.6 / +9.4 / +5.6 / +16.2 pp (all p ≤ .0002). On spatial the 500-episode *pure cache* (.954 at IR .152) dominates every
    50-episode mixed arm below IR ≈ .43; on l10 the 500-episode cache (.768) is what the mixed judge should be wrapped around
-   (awm500_h70 .872 vs awm_h70 .816: +5.6 pp, p .005, at equal IR).
+   (awm500_h70 .872 vs awm_h70 .816: +5.6 pp, p .005, at equal IR; g500 .864 vs g .740: +12.4 pp at IR .24 vs .32).
 8. **Noise floor, quantified**: same-method reruns flip 6 % (π0.5-sp), 13 % (π0.5-l10), 2 % (GR00T-sp) of inits ⇒ sd(ΔSR) 2.4 / 3.6 /
    1.4 pp at n = 100 and 1.1 / 1.6 / 0.6 pp at n = 500. A 100-init l10 pilot cannot see anything below ± 7 pp; the l10 pilot
    ordered a05 at −6 pp (vs its own rerun) where the 500-init arm gives +4.4 — the pilot subset (5 trap tasks) is not where a05
@@ -214,7 +223,9 @@ window per server; forced MISSes enter as −∞ and consume budget), .46–.47 
 | g | guard-only (forced MISS only) | 3 | .798 / .904 / .354 | **.323** / .329 | .740 [.700, .777] | +11.0 (25 / 80) | −9.2 (83 / 37, < 1e-4) | −10.4 (96 / 44) | 5.8 \| 34.9 | .34 \| .11 | .68 (.41) | .91 | 52.6 |
 | awm_h50 | V7 + guards, quantile .5 | 3 | .468 / .604 / .330 | .603 / .600 | **.868** [.836, .895] | +23.8 (24 / 143) | +3.6 (vs awm_h70 +5.2, 31 / 57, .007) | +2.4 (40 / 52, .25) | 25.2 \| 71.1 | .68 \| .49 | .30 (.23) | 1.00 | 51.7 |
 | awm500_h70 | V7 + guards, .7, **500-ep AWM** | 3 | .659 / .830 / .301 | .441 / .439 | **.872** [.840, .898] | +24.2 (27 / 148); **vs CL2-500 +10.4** (18 / 70, < 1e-4) | vs awm_h70 +5.6 (33 / 61, .005) | **+2.8** (35 / 49, .16) | 15.2 \| 51.5 | .49 \| .30 | .33 (.23) | .98 | 51.4 |
-| b0perk3, perk5, g500 | | | **PENDING** (§2.7) | | | | | | | | | | |
+| b0perk3 | **B0 selector**, MISS every 3rd | 2 | .673 / .506 / 1.0 | .429 / .411 | .714 [.673, .752] | +8.4 (60 / 102, .001) | **−11.8** (96 / 37, < 1e-4); vs b0h70 +8.2 (54 / 95, .001) | −13.0 (110 / 45) | 16.5 \| 34.0 | .33 \| .33 | .45 (.45) | 1.00 | 50.3 |
+| perk5 | AWM selector, MISS every 5th | 2 | .808 / .758 / 1.0 | **.315** / .325 | **.792** [.754, .825] | +16.2 (31 / 112) | vs g **+5.2** (45 / 71, .020) at IR .32 | −5.2 (70 / 44, .019) | 9.8 \| 20.0 | .19 \| .19 | .35 (.35) | 1.00 | 51.1 |
+| g500 | guard-only, **500-ep AWM** | 2 | .898 / .934 / .548 | **.238** / .289 | **.864** [.831, .891] | +23.4 (28 / 145); **vs CL2-500 +9.6** (12 / 60, < 1e-4) | vs g +12.4 (31 / 93); vs awm500_h70 −0.8 (31 / 27, .69) | **+2.0** (44 / 54, .36) | 2.8 \| 25.8 | .25 \| .06 | .59 (.24) | .81 | 51.5 |
 
 **π0.5-spatial** (pure cache B0 .668 / AWM-50 .800 / AWM-500 .954; pure inference .986, 21.6 dec/ep)
 
@@ -231,7 +242,9 @@ window per server; forced MISSes enter as −∞ and consume budget), .46–.47 
 Per-task (mixed vs CL2-50): the π0.5-sp task-6 collapse is gone in every AWM-judge arm (.28 → 1.00 / .98 / .96 / .70 (g) / .98
 (awm500); 36 F→S / 0 S→F for awm_h70) and in b0h70 (.92) — the policy rescues the split-grasp trap the borrowed prior only half
 fixed; the remaining spatial failures are t4 (.86 awm_h70; the policy itself is .98 there, 1 / 6 in awm_h70's favour). On l10 the
-per-task minimum stays t8 (.36 awm_h70 / .56 awm_h50 / .50 awm500; policy .36–.40 in the same inits: t8 is a policy-hard task).
+per-task minimum stays t8 (.36 awm_h70 / .56 awm_h50 / .50 awm500 / .60 g500 / .56 perk5; policy .36–.40 in the same inits: t8 is a
+policy-hard task — g500 and perk5 win it from the policy 18 / 6 and 16 / 6). The B0-selector periodic arm loses to the AWM-selector
+periodic arm on t0 / t4 / t7 / t8 / t9 (−30 / −30 / −28 / −22 / −18) and wins t2 (+14): the served HIT actions decide those tasks.
 
 ### 2.2 SR-vs-IR frontier (π0.5; endpoints = pure cache h = 1 at IR .152 and pure inference h = 0 at IR 1)
 
@@ -242,8 +255,11 @@ between the arm's own pure-cache base and pure inference at the same IR); "margi
 |---|---|---|---|---|---|---|---|---|
 | l10 | pure cache AWM CL2 | 50 | 1 | .152 | .630 | – | – | – |
 | l10 | pure cache AWM CL2 | 500 | 1 | .152 | .768 | – | – | – |
+| l10 | **guard-only `g500`, 500-ep base** | **500** | .898 | **.238** (.289 measured) | **.864** | .776 | +8.8 | **11.1** |
+| l10 | periodic k5 | 50 | .808 | .315 | .792 | .671 | +12.1 | 9.9 |
 | l10 | guard-only `g` | 50 | .798 | .323 | .740 | .673 | +6.7 | 6.4 |
 | l10 | periodic k3 | 50 | .673 | .429 | .832 | .700 | +13.2 | 7.3 |
+| l10 | B0 selector, periodic k3 (base CL0 .440) | 50 | .673 | .429 | .714 | .572 | +14.2 | 9.9 |
 | l10 | B0 judge h.7 (base CL0 .440) | 50 | .660 | .440 | .632 | .577 | +5.5 | 6.7 |
 | l10 | V7 + guards h.7 | 50 | .657 | .443 | .816 | .704 | +11.2 | 6.4 |
 | l10 | **V7 + guards h.7, 500-ep base** | **500** | .659 | .441 | **.872** | .794 | +7.8 | 3.6 |
@@ -260,9 +276,11 @@ between the arm's own pure-cache base and pure inference at the same IR); "margi
 | sp | V7 + guards h.5 | 50 | .459 | .611 | **.986** | .901 | +8.5 | 4.1 |
 | sp | pure inference | – | 0 | 1 | .986 | – | – | – |
 
-Frontier reading. **l10**: the 50-episode frontier is g (.32, .740) → perk3 / awm_h70 (.43–.44, .82–.83) → awm_h50 (.60, .868); the
-500-episode point awm500_h70 (.44, .872) dominates awm_h50 (same SR at IR .44 instead of .60) and is the only point above the
-policy; CL2-500 (.152, .768) is the cheap end (g500 pending will fill IR ≈ .3). **Spatial**: CL2-500 pure cache (.152, .954) beats
+Frontier reading. **l10**: the 50-episode frontier is perk5 (.32, .792) → perk3 (.43, .832) → awm_h50 (.60, .868), with the targeted
+arms (g .740 at .32, awm_h70 .816 at .44) below the periodic ones at both budgets; the 500-episode frontier is CL2-500 (.152, .768)
+→ **g500 (.24, .864)** → awm500_h70 (.44, .872): g500 dominates every 50-episode point (it beats awm_h50 at 40 % of its IR) and is
+statistically at the policy (+2.0, p .36), so on l10 the frontier's knee is at IR ≈ .24 on the 500-episode library, and the 16 pp of
+inference ratio between g500 and awm500_h70 buy +0.8 pp (n.s.). **Spatial**: CL2-500 pure cache (.152, .954) beats
 every 50-episode mixed point below IR .43 (g .888 at .27, perk3 .938 at .42) and is 2.6 pp below awm_h70 (.43, .980); the policy is
 matched at IR .43 (h .7, −0.6 pp n.s.) and reached exactly at IR .61 (h .5). Every AWM-based point is 6–13 pp above the time-share
 line: the policy is worth 5–7 pp per 0.1 IR inside the cache loop versus 2.2–2.5 pp per 0.1 IR when it replaces the cache — the
@@ -277,8 +295,13 @@ spatial point (+1.3 pp above the line; +2.4 pp, p .036 over CL2-500): at .954 th
 | + events + burst − V7 + guards | +0.6 (37 / 40, .82) | **−2.4** (18 / 6, .023) | events / burst: dead (skipped at h .5) |
 | guard-only − V7 + guards (IR .32 / .27 vs .44 / .43) | −7.6 (68 / 30, .0002) | −9.2 (48 / 2, < 1e-4) | the quantile MISSes on top of the guards buy 8–9 pp for +.12–.16 IR |
 | guard-only − periodic k3 | −9.2 (83 / 37) | −5.0 (48 / 23, .004) | at 2/3 of the periodic arm's IR |
-| B0 judge + B0 selector − periodic k3 (AWM) | −20.0 (134 / 34) | −4.4 (50 / 28, .017) | selector + judge confounded until `b0perk3` lands |
-| V7 + guards (AWM) − B0 judge (B0) | +18.4 (30 / 122) | +8.6 (7 / 50) | same |
+| B0 judge + B0 selector − periodic k3 (AWM) | −20.0 (134 / 34) | −4.4 (50 / 28, .017) | split below on l10 |
+| **selector**: B0 periodic k3 − AWM periodic k3 (same judge) | **−11.8** (96 / 37, < 1e-4) | not run | the served HIT actions carry 2/3 of the l10 gap |
+| **judge**: B0 fused score h .7 − B0 periodic k3 (same selector) | **−8.2** (54 / 95, .001) | not run | the B0 score as a judge costs the other third |
+| V7 + guards (AWM) − B0 judge (B0) | +18.4 (30 / 122) | +8.6 (7 / 50) | ≈ selector 11.8 + judge 8.2 − 1.6 |
+| periodic k5 − guard-only (IR .315 vs .323) | **+5.2** (45 / 71, .020) | not run | periodic dominates targeting on l10 at the low budget too |
+| guard-only 500-ep − V7 + guards h .7 500-ep (IR .24 vs .44) | −0.8 (31 / 27, .69) | not run | the quantile MISSes buy nothing on the 500 base |
+| guard-only 500-ep − guard-only 50-ep (IR .24 vs .32) | **+12.4** (31 / 93, < 1e-4) | not run | library layer inside the guard-only loop |
 | h .5 − h .7 (V7 + guards) | +5.2 (31 / 57, .007) for +.16 IR | +0.6 (7 / 10, .63) for +.18 IR | l10 still inference-limited at h .7; spatial saturated |
 | 500-ep base − 50-ep base (V7 + guards h .7, equal IR) | **+5.6** (33 / 61, .005) | −0.2 (9 / 8, 1.0) | the library layer survives inside the mixed loop on l10 |
 | h .5 (50 ep) − h .7 (500 ep) | −0.4 (40 / 38, .91) at +.16 IR | – | 450 extra library episodes ≈ 16 pp of inference ratio |
@@ -286,15 +309,21 @@ spatial point (+1.3 pp above the line; +2.4 pp, p .036 over CL2-500): at .954 th
 Is targeting worth anything over periodic MISS? On **spatial, yes**: +4.2 pp (p .0005) at equal IR, and the periodic arm is
 significantly below the policy (−4.8, p .0001) while the targeted one is not (−0.6, p .61); the difference is where the MISSes
 land — awm_h70 puts 75 % of the decisions of failed episodes on the policy versus 31 % in successful ones (perk3: 32 % / 32 % by
-construction), and only 9 % of its MISSes fall in failed episodes because it has almost none. On **l10, no**: perk3 .832 ≥ awm_h70
-.816 ≥ ev .822 within noise, all three ≈ the policy (−1.2 … −2.8, n.s.). The l10 mechanism is drift interruption: any MISS every 2–3
+construction), and only 9 % of its MISSes fall in failed episodes because it has almost none. On **l10, no, at either budget**: perk3 .832 ≥ awm_h70
+.816 ≥ ev .822 within noise, all three ≈ the policy (−1.2 … −2.8, n.s.), and at IR ≈ .32 periodic k5 .792 beats guard-only .740
+(p .020). The l10 mechanism is drift interruption: any MISS every 2–3
 decisions keeps the cache's states on the policy's manifold; the targeted judge spends its budget the same way (mean HIT run at a
 MISS 1.8, 48 % of its MISSes inside MISS runs ≥ 5, after-MISS h .38), it just concentrates it in the failing episodes (52 % vs 26 %),
 which on l10 does not convert into SR because those episodes then become policy failures (§2.4). The B0 judge is worse than
 periodic on both suites and worse than *no judge* on l10 (.632 vs AWM pure cache .630): with a fused-score threshold the policy is
 handed the episode in blocks (after-HIT h .94, after-MISS h .10, mean MISS run 8.8, MISS runs ≥ 5 hold 88 % of the MISSes) and
 half its failed episodes end in ≥ 20 consecutive MISSes — the policy takes over late (first MISS at step 35 of 104, 34 % into the
-episode; targeted judges: 12–20) and from a state it did not produce.
+episode; targeted judges: 12–20) and from a state it did not produce. `b0perk3` (B0 selector, periodic judge, .714) separates the
+two: the B0 selector's HIT actions alone cost 11.8 pp against AWM's under the identical periodic schedule, and the B0 score as a
+judge costs another 8.2 pp against the blind schedule. Neither half of B0 has a place in the mixed line. On the 500-episode base the
+guard-only arm equals the quantile arm (.864 vs .872, p .69) at 55 % of its inference: with fresher neighbourhoods the after-MISS
+re-acceptance is fast (MISS-after-MISS .45 vs .65 on the 50-ep guard arm, mean MISS run 1.75) and the stuck / no-progress guards are
+sufficient — the l10 lever at 500 episodes is the guard set plus the library, not the confidence.
 
 ### 2.4 MISS timing, reason codes, interruptions, run structure (`RUNS_MX.md`, kpi mixed block)
 
@@ -305,6 +334,9 @@ episode; targeted judges: 12–20) and from a state it did not produce.
 | l10 ev_h70 | .75 | .24 / .06 / .05 / .30 / .03 / .05 / .28 | 11.5 (.11) | −20; .84 | 1.8 / 57 | 3.7 | .75 | .56 | .27 | 42 / 89 |
 | l10 perk3 | 0 | – | 2.0 | – | 2.0 / 2 | 1.0 | 0 | 0 | 0 | 0 / 84 |
 | l10 g | 1.0 | .33 / .08 / .06 / .52 | 20.4 (.20) | −12; .65 | 3.4 / 58 | 2.7 | .65 | .48 | .07 | 13 / 130 |
+| l10 g500 | 1.0 | .23 / .08 / .05 / .64 | 21.6 (.21) | −14; .82 | 6.4 / 60 | 1.75 | .45 | .23 | .03 | 2 / 68 |
+| l10 perk5 | 0 | – | 4.0 | – | 4.0 / 4 | 1.0 | 0 | 0 | 0 | 0 / 104 |
+| l10 b0perk3 | 0 | – | 2.0 | – | 2.0 / 2 | 1.0 | 0 | 0 | 0 | 0 / 143 |
 | l10 awm_h50 | .29 | .36 / .09 / .06 / .49 | 12.8 (.12) | −24; .84 | 0.9 / 35 | 2.9 | .67 | .57 | .80 | 35 / 66 |
 | l10 awm500_h70 | .29 | .20 / .09 / .04 / .66 | 20.3 (.20) | −14; .67 | 1.9 / 71 | 3.1 | .70 | .56 | .50 | 21 / 64 |
 | sp b0h70 | 0 | – | 10.2 (.23) | −6; .85 | 1.0 / 27 | 7.9 | .93 | .87 | .91 | 41 / 53 |
@@ -323,7 +355,9 @@ on spatial); guard-only 83 % / 91 % with 1.6 / 5.8 MISSes; B0 62 % / 77 %. "Leav
 judge at these budgets; the guard-only arm is the only one whose MISSes are concentrated (68 % / 55 % of its MISSes in failed
 episodes, which hold 41 % / 21 % of decisions). (iv) **MISS runs are where the budget goes**: after a MISS the judges MISS again 51–75 %
 of the time (the policy's fresh states score below τ and the no-progress memo keeps firing), 26–57 % of all MISSes sit in runs ≥ 5.
-The periodic arm has no runs at all and matches the targeted arm on l10 at a slightly lower IR. (v) **Spells are gone, failures are not**:
+The periodic arms have no runs at all and match (k3) or beat (k5) the targeted arms on l10 at equal or lower IR; on the 500-ep
+base the guard-only arm's MISS-after-MISS drops to .45 (mean MISS run 1.75, only 23 % of MISSes in runs ≥ 5) and only 2 of its 68
+failures end in ≥ 20 straight MISSes — the fresher library returns control to the cache quickly. (v) **Spells are gone, failures are not**:
 no identical-pick spell survives in any AWM-judge arm (max served run 1.7–2.0; b0h70 still has 1.8 spells per failed episode), yet
 all failures are cap timeouts; in 50–80 % of the failed episodes the policy held the majority of decisions, and 7–35 of them end with
 ≥ 20 straight MISSes — the policy could not finish from the state the cache left it in (or fails on its own: on l10 32 of awm_h70's 92
@@ -338,12 +372,19 @@ therefore *earlier* handover in the failing episodes or a better return decision
 | l10 ev_h70 (resumed), g, perk3, awm_h50, awm500 | 3 | 456 / 439 / 421 / 534 / 418 | 2574 / 2319 / 2274 / 3158 / 2377 | | within .004 |
 | sp b0h70 … awm500 | 3 | 287–465 | 1616–2836 | | within .007 |
 | sp awm_h50 (resumed) | 3 → 2 (32 workers each) | 433 | 3867 | | .611 / .587 |
+| l10 b0perk3, perk5, g500 (queue 2d) | 2 (32 workers each) | 547 / 575 / 594 | 3822 / 2912 / 2258 | | .429 / .411; .315 / .325; **.238 / .289** |
 
 The single-server CUDA-graph reference is s1 117 ms / s23 483 ms (H2 smoke); under 3–4 full-model servers plus a foreign training
 job both stages are 3–8× slower and s23 scales with the MISS load (awm_h50 3.2–3.9 s). The IR formula is the project definition
 and is what the frontier uses; the measured stage ratio agrees within .02 because the loaded s1 : s23 ratio (.15–.17) is close to the
 formula's .152 / .848 split. The judge itself costs nothing measurable (`q_us` p50 8.8 ms for MixedJudge vs 4.5 ms for AWM on a loaded
-server, both dominated by the native shadow search). Bookkeeping notes: `r3mx_p_l10_ev_h70` was aborted at 06:10 and resumed
+server, both dominated by the native shadow search). **The g500 gap (IR .238 formula vs .289 measured) is latency composition,
+nothing else**: the measured ratio is s1/(s1+s23) + (1 − s1/(s1+s23))·(1 − h) with the *loaded* stage means, and with 2 servers ×
+32 workers the stage-1 share is 594 / (594 + 2258) = .208 instead of the CUDA-graph reference .152, so measured − formula =
+(.208 − .152)·h = .056 × .898 = .050 exactly. Both IRs are linear in the MISS share, so episode composition (MISS-heavy failed
+episodes, step-0 decisions — step 0 is always a HIT in the guard arms) cannot open a gap; the gap grows with h because a
+high-h arm's cost is dominated by stage 1, which the shared GPU inflates most (g500 has the highest s1 of the round). The formula
+is the project definition and is what the frontier uses; on a single CUDA-graph server g500's cost is IR .238. Bookkeeping notes: `r3mx_p_l10_ev_h70` was aborted at 06:10 and resumed
 (7 server startups; kpi's server-side h .637 vs the client mix .653 and collect's .660 — the resumed episodes share attempt = 1 with
 their aborted first run, so ± .02 on h / ± .015 on IR is the uncertainty of that arm); `r3mx_p_sp_awm_h50` was restarted after 3
 episodes with 2 servers (5 startups; the client and server mixes agree).
@@ -354,16 +395,13 @@ Journal ↔ server success 500 / 500 in every arm; client FULL_HIT / MISS counts
 true); `exec_ok` 1.0 on every HIT row; the executed policy chunk is logged on 100 % of MISS rows; realized-h per regime shows the
 controller working (step 0 always judged: h_step0 = 1.0 in the quantile arms).
 
-### 2.7 Pending arms (queue `oscl_queue2d`; ≈ 11:00 CDT) — what each one decides
+### 2.7 What the last three l10 arms settled (2 servers, queue 2d)
 
-| arm | judge | decides | how to add it |
-|---|---|---|---|
-| `r3mx_p_l10_b0perk3` | B0 selector + periodic k = 3 | **selector vs judge** in the 18.4 pp l10 gap between awm_h70 and b0h70: if ≈ perk3 (.83) the B0 *judge* was the problem; if ≈ b0h70 (.63) the *selector* (served HIT actions) is | rows `judge l10 b0perk3 vs …` in `pairs_r03.txt` |
-| `r3mx_p_l10_perk5` | AWM + periodic k = 5 (h ≈ .8, IR ≈ .32) | whether targeting starts to matter at the guard-only budget: compare with `g` (.740 at IR .32) | `judge l10 perk5 vs g` |
-| `r3mx_p_l10_g500` | guard-only on the 500-ep AWM | the cheap end of the 500-episode frontier (expected IR ≈ .3); vs CL2-500 .768 and awm500_h70 .872 | `mx l10 g500 vs CL2-500`, `judge l10 g500 vs …` |
-
-`bash regen_kpi.sh && python pair.py … && python r3_tables.py && python runs_mx.py && python frontier.py` regenerates every table
-including these rows once `state/<arm>.DONE` exists (§7).
+| arm | question | answer |
+|---|---|---|
+| `r3mx_p_l10_b0perk3` .714 | selector vs judge in the 18.4 pp awm_h70 − b0h70 gap | both: B0 selector −11.8 pp under the same periodic schedule (vs perk3 .832), B0 score judge −8.2 pp under the same selector (b0h70 .632); ≈ additive (11.8 + 8.2 − 1.6 = 18.4) |
+| `r3mx_p_l10_perk5` .792 at IR .315 | does targeting start to pay at the guard-only budget? | no: periodic k5 beats guard-only (.740 at IR .323) by +5.2 (45 / 71, p .020); periodic dominates targeting on l10 at IR .32 and .43 |
+| `r3mx_p_l10_g500` .864 at IR .238 | the cheap end of the 500-episode frontier | at the policy (+2.0, p .36), equal to awm500_h70 (−0.8, p .69) at 55 % of its inference, +9.6 over CL2-500 (p < 1e-4), +12.4 over the 50-ep guard arm; the best l10 point of the round |
 
 ---
 
@@ -381,14 +419,17 @@ including these rows once `state/<arm>.DONE` exists (§7).
 | control at the 50-ep library, periodic k3 (no judge): ΔIR +.27 | +13.8 (5.1) | +20.2 (7.3) | | | CL2-50 → perk3 |
 | control at the 50-ep library, guard-only: ΔIR +.11 / +.17 | +8.8 (7.7) | +11.0 (6.4) | | | CL2-50 → g |
 | control at the 500-ep library, V7 + guards h .7: ΔIR +.29 | +2.4 [+0.4, +4.4] (0.8) | **+10.4** [+6.8, +14.0] (3.6) | | | CL2-500 → awm500_h70 |
+| control at the 500-ep library, guard-only: ΔIR +.086 | not run | **+9.6** [+6.4, +12.8] (**11.1**) | | | CL2-500 → g500 |
+| control at the 50-ep library, periodic k5: ΔIR +.16 | not run | +16.2 [+11.8, +20.6] (9.9) | | | CL2-50 → perk5 |
+| selector inside the mixed loop (AWM − B0 served HIT actions, periodic k3 judge) | not run | **+11.8** [+7.4, +16.2] | | | b0perk3 → perk3 |
 | control at the 50-ep library, h .5: ΔIR +.45 / +.46 | +18.6 (4.1) | +23.8 (5.3) | | | CL2-50 → awm_h50 |
 | replacing the cache by the policy (reference cost): ΔIR +.85 | +18.6 (2.2) | +21.4 (2.5) | +5.2 (0.6) | +31.8 (3.7) | CL2-50 → pure inference |
-| **total, deployed scale → best point** | .668 → .980 (awm_h70, IR .43) or .954 (CL2-500, IR .152) | .440 → .872 (awm500_h70, IR .44) or .768 (CL2-500, IR .152) | .736 → .966 (CL2-500) | .468 → .706 / .736 (CL2-500 / CL3-500) | |
+| **total, deployed scale → best point** | .668 → .980 (awm_h70, IR .43) or .954 (CL2-500, IR .152) | .440 → .864 (g500, IR .24) / .872 (awm500_h70, IR .44) or .768 (CL2-500, IR .152) | .736 → .966 (CL2-500) | .468 → .706 / .736 (CL2-500 / CL3-500) | |
 
 Reading. The control layer is the largest single layer at the deployed 50-episode scale on both π0.5 suites (+18 pp), but it is
 paid for in inference (IR .152 → .43); normalised by cost it is 2.5–3× more efficient than replacing the cache. At the 500-episode
-library the control layer shrinks to +2.4 pp on spatial (saturated at .954) and stays +10.4 pp on l10, where it also lifts the cache
-above the policy. The library layer remains the largest *free* layer (IR unchanged) and, measured from the R3 metric, is still
+library the control layer shrinks to +2.4 pp on spatial (saturated at .954) and stays +9.6–10.4 pp on l10, where it also lifts the
+cache to the policy — and the guard-only version gets it for ΔIR .086 (11 pp per 0.1 IR, the best cost efficiency of the round). The library layer remains the largest *free* layer (IR unchanged) and, measured from the R3 metric, is still
 2–3× the R3 switch on π0.5 and 3–20× on GR00T. Every "borrowed" row is labelled; the awm500 arms are library-layer arms (500-episode
 candidates and fit), not borrowed ones.
 
@@ -419,26 +460,33 @@ maps, thresholds). Fit walls: AWM3 current 0.6–4.3 s (borrowed fits need ≈ 1
   π0.5-sp fallback (+4.0); GR00T keeps plain AWM. No pure-cache switch touches the l10 gap (−17 / −33 pp to the policy).
 - The mixed cache with V7 + guards is *the* deployable system: at h ≈ .7 (IR .43) it equals the policy on spatial (.980 / .978) and
   is within 3 pp on l10 with 50 episodes (.816) / above it with 500 (.872); at h ≈ .5 it equals the policy on spatial (.986) and
-  beats it on l10 (.868, n.s.). Guard-only is the low-budget point (IR .27 / .32 → .888 / .740).
+  beats it on l10 (.868, n.s.). Guard-only is the low-budget point (50 ep: IR .27 / .32 → .888 / .740; **500 ep l10: IR .24 → .864 = the
+  policy, = the quantile arm at 55 % of its inference**).
+- On l10 the judge's *timing* is worth nothing at 50 episodes: periodic k3 ≥ V7 + guards at IR .43 (−1.6 n.s.) and periodic k5 >
+  guard-only at IR .32 (+5.2, p .02); on spatial targeting is worth +4.2 pp. The selector is worth 11.8 pp inside the mixed loop
+  (AWM vs B0 under the same schedule).
 - The library layer is decisive everywhere and survives inside the mixed loop on l10 (+5.6 pp at equal IR). The owner's ruling
   (bytes vs trajectories) is still the single most valuable decision: at 63–135 MB the 500-episode MixedJudge pickle is 12–15 % of
   the deployed pkl.
 
 **Dead** (do not spend arms on): symmetric gripper commitment, release guard, terminal-row masking (both gates), early events +
-burst, B0's fused score as a judge, library-side recovery (R2), α = 1 borrowing on l10, GR00T borrowing.
+burst, B0 as a judge (−8.2 vs periodic) and B0 as the selector of a mixed cache (−11.8 vs AWM), library-side recovery (R2), α = 1
+borrowing on l10, GR00T borrowing, quantile-threshold MISSes on top of the guards at the 500-episode l10 base (+0.8 n.s. for +.20 IR).
 
 **Ranked R4 list.**
-1. **Build the frontier on the 500-episode library, both suites, and the low-IR end first** (g500 pending; then periodic k = 5 / 8
-   on AWM-500 and V7 + guards at h .85 / .9): find the knee between CL2-500 (IR .152: .954 / .768) and awm500_h70 (IR .44: .978 / .872).
-   On spatial anything above IR .2 is wasted; on l10 the question is how little inference lifts .768 to ≥ .844. Report every point
-   paired vs CL2-500 and vs the policy.
-2. **Fix the return decision, not the trigger.** 51–75 % of after-MISS decisions are MISSes again and 26–57 % of the budget sits in
-   MISS runs ≥ 5, while the periodic arm (MISS runs of exactly 1) matches the targeted arm on l10 at lower IR. Arms: (a) V7 + guards
-   with a hard MISS-run cap of 1–2 (re-judge with the fresh-regime τ after one policy chunk), (b) no-progress memo reset on MISS,
-   (c) `--os-judge-cap R` (HIT-run cap 6–8) *without* the quantile threshold = guards + cap, aiming at the guard-only IR with the
-   h .7 SR. Kill: no arm beats awm_h70 at IR ≤ .35 on l10.
-3. **Isolate selector vs judge on l10** (b0perk3 pending). If the selector carries the gap, drop every B0-served configuration from
-   the mixed line; if the judge does, the B0 score is confirmed dead as a confidence and nothing else changes.
+1. **Close the l10 frontier on the 500-episode library between IR .152 and .24**, where the knee now is: g500 (.864 at .24) already
+   equals the policy, so the open question is how much of its 8.6 pp of inference is needed. Arms (all on AWM-500, paired vs CL2-500,
+   g500 and the policy): periodic k = 8 and k = 12 (IR ≈ .26 / .22 — the periodic control g500 never had; if k = 8 ≥ g500 − 2 pp the
+   guard timing is also worth nothing at 500 episodes), guards with `noprog_n = 4` (halves the no-progress volume, the .64 driver of
+   g500's MISSes), and guards + HIT-run cap 8 without a threshold. Spatial needs nothing above IR .2 (CL2-500 .954; g500-sp is a
+   one-arm sanity check). Kill for any new point: not above the g500 ↔ CL2-500 line.
+2. **Fix the return decision on the 50-episode base, if the deployed scale stays 50 episodes.** 51–75 % of after-MISS decisions are
+   MISSes again there (g500: .45) and 26–57 % of the budget sits in MISS runs ≥ 5, while the periodic arms (MISS runs of exactly 1)
+   match or beat the targeted arms at every l10 budget. Arms: (a) guards with a hard MISS-run cap of 1 (re-judge after one policy
+   chunk), (b) no-progress memo reset on MISS, (c) guards + HIT-run cap 6–8 without the quantile threshold. Kill: no arm beats
+   perk5 (.792 at IR .32) or perk3 (.832 at .43) on l10 at equal IR — otherwise ship the periodic schedule, which needs no judge at all.
+3. **Selector vs judge is resolved** (b0perk3): both halves of B0 are dead in the mixed line (selector −11.8, judge −8.2). No further
+   B0 arms; every mixed arm is built on AWM (borrowed prior on π0.5 at 50 episodes, plain AWM at 500).
 4. **GR00T mixed arms** (none run in R3: GPU budget). GR00T-l10 is the largest remaining gap (CL2-500 .706 / CL3-500 .736 vs .870) and
    GR00T-sp is already at the policy with 500 episodes; run V7 + guards h .7 and guard-only on GR00T-l10 at both library scales,
    with the measured stage split for IR (GR00T s1 58 / s23 232 ms single-server). The stuck / overtime guards never fire on GR00T
@@ -461,7 +509,9 @@ burst, B0's fused score as a judge, library-side recovery (R2), α = 1 borrowing
   indistinguishable on 500 paired inits (± 2–3 pp), not better. The l10 arms that are nominally above it (+2.4 / +2.8) are n.s.
 - MX arms ran under a shared, changing GPU load (4 → 3 → 2 servers, a foreign training job); latencies are load numbers, IR uses the
   project formula; the policy and the judge are identical across server counts. `ev_h70` (l10) and `awm_h50` (sp) were resumed from
-  their journals; `ev_h70`'s h is .64–.66 depending on the attempt bookkeeping.
+  their journals; `ev_h70`'s h is .64–.66 depending on the attempt bookkeeping. The last three l10 arms (`b0perk3`, `perk5`, `g500`)
+  ran on 2 servers × 32 workers: their stage times are the most inflated of the round (s1 547–594 ms) and g500's measured IR (.289)
+  is above its formula IR (.238) for that reason alone (§2.5); SR is unaffected (the policy and judge are identical).
 - Served-action KPIs (flips, vote split, classes) are reconstructed from the logged top-10 of 16 kernel members (≈ .03 σ RMS, ideation
   C); gripper signs and votes are robust to it. In mixed arms spells / flips are computed on HIT decisions only.
 - "Proposal spell" timing in the mixed arms is counterfactual after the first MISS; the early-share numbers say when the judge fires
@@ -483,4 +533,4 @@ taskset -c 18-33,62-77 .venv/bin/python $S/runs_mx.py       # -> RUNS_MX.md (MIS
 taskset -c 18-33,62-77 .venv/bin/python $S/frontier.py      # -> FRONTIER.md (above-time-share-line, marginal pp / 0.1 IR, noise floor)
 ```
 
-Pending arms are picked up automatically (DONE marker → kpi row; missing journal → `PENDING` row in `pair.py` / `TABLES.md`).
+All arms are complete; the scripts re-run unchanged (a missing journal would show as a `PENDING` row in `pair.py` / `TABLES.md`).

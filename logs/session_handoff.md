@@ -52,123 +52,98 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-09-27 01:50 CDT）—— 离线检索探索线（offline_search），R2 收尾 + R3 闭环进行中
+## 1. 现在在哪（2026-09-27 10:1x CDT）—— 离线检索探索线（offline_search），R2 和 R3 都已完成，等 owner
 
-**owner 已睡，协调者全自主推进。目标（/goal 已设）**：
-- 把 R2 做完：闭环两组全部跑完，再做分析并提交；
-- 接着独立做完一整轮 R3，允许跑闭环；
-- 中途不停、不问，暂停点全部跳过，决策记进台账。
+**owner 睡前的两个 /goal 均已完成**：
+- R2 做完，两组闭环都拿到了结果；
+- R3 独立做完，含闭环。
 
-**唯一权威**：`logs/offline_search_exploration.log.md`（章程；§8 纪律，§9 owner 裁定，§10 台账）。compact 之后**先读 §8、§9 和 §10 的最后 150 行**，再读本节。
+没有任何东西在跑：所有 server、tmux 队列和 relay 都已结束，GPU 上只剩他项目的 sandpile。**下一步等 owner 裁定**（见 §5）。
+
+**唯一权威**：`logs/offline_search_exploration.log.md`（章程；§8 纪律，§9 owner 裁定，§10 台账逐条记录了每个决定和数字）。
 
 | 阶段 | 状态 |
 |---|---|
-| R0 / R1 / R2 离线 | ✅ 已提交 |
-| R2 闭环 50 集组（16 臂） | ✅ 全部完成（00:51），结果见 §2 |
-| R2 分析 | ✅ `rounds/r02/ANALYSIS.md` 已含 50 集组全部结果（提交 85a201c）；**500 集组跑完后要发附录 2**：SendMessage 给 agent `aa44db0c1790670fa`，它的重算脚本在 `tmp/analysis_r02/regen_cl.sh` |
-| R2 闭环 500 集组（16 臂） | 🔄 01:45 起由 tmux `oscl_queue` 在跑，预计约 04:30 完成 |
-| R3 构思 | ✅ A（fable）、B（fable）、C（codex）三路，选题定稿见 `rounds/r03/SELECTION.md`（H1–H4） |
-| R3 编码 | ✅ H1 `AWM3`（含后补的 release_guard）、H2 混合模式插件、H3 `MixedJudge`、H4 `ops/kpi.py` 与 `pilot.sh`（提交 cf2fb8d、8bf2a33） |
-| R3 离线全量 | ✅ H1 176 个作业，H3 48 个作业，结果在 `results/r03/` |
-| R3 pilot | ✅ 结论见 §2；gr 的 2 个 pilot 臂排在 queue2 开头 |
-| R3 全量（500 集）+ MX 混合模式 | ⏳ 由 queue2 在 R2 500 集组之后自动执行 |
-| R3 分析与提交 | ⏳ 全部跑完后派 fable 分析 agent，然后提交并向 owner 汇报 |
+| R0 / R1 / R2 | ✅ R2 分析见 `rounds/r02/ANALYSIS.md`，覆盖 32 个闭环臂 |
+| R3 构思 / 选题 / 编码 | ✅ 构思 A、B（fable）与 C（codex）；H1–H4 |
+| R3 离线、pilot、全量、MX 混合模式 | ✅ 共 17 个 pilot 臂、6 个全量臂、18 个 MX 臂 |
+| R3 分析 | ✅ `rounds/r03/ANALYSIS.md`（若台账里还没有"附录已并入"一条，就 SendMessage 给 agent `a80c05286ec2bb58e`，让它补最后 3 个臂） |
 
 ## 2. 关键结果
 
-**R2 闭环，50 集组**（纯缓存，A 池 500 集）：
+**R2（纯缓存）**，SR 依次为 π0.5-sp / π0.5-l10 / GR00T-sp / GR00T-l10：
+- AWM：50 集库 .800 / .630 / .888 / .552；500 集库 .954 / .768 / .966 / .706。
+- B0：50 集库 .668 / .440 / .736 / .468。
+- 纯推理：.986 / .844 / .940 / .870。
+- 库层（+8 到 +16 pp）是最大的一层；恢复机制无效。
 
-| 格子 | CL0 B0 | CL1 前 5 均值 | CL2 AWM | CL3 +恢复 | 纯推理 |
-|---|---|---|---|---|---|
-| π0.5-sp | .668 | .764 | .800 | .798 | .986 |
-| π0.5-l10 | .440 | .428 | .630 | .642 | .844 |
-| GR00T-sp | .736 | .852 | .888 | .862 | .940 |
-| GR00T-l10 | .468 | .466 | .552 | .606 | .870 |
+**R3 纯缓存（50 集库）**：
+- α.5 借用先验在 π0.5 两个 suite 上 +4.8 / +4.4 pp，显著；spatial 上不借用的 ridge1 为 +4.0 pp，也显著；GR00T 上两者都不显著。
+- 夹爪承诺（对称版和只守释放版）与终止行守卫在闭环中全部崩溃，机制已用日志坐实。
 
-- 合成层在 spatial 上 +10～+12 pp，在 l10 上为 0；方法层（AWM）+3.6 / +20.2 / +3.6 / +8.6 pp。
-- 恢复机制不是通用手段，只有 GR00T-l10 +5.4 pp。
-- 历史对照：S3 为 .688 / .456，S6 为 .810 / .516。
+**R3 混合模式（π0.5；IR = 0.152 + 0.848 × MISS 比例）**：
+- spatial：
+  - V7 + 守卫：.980 @ IR .43；h=.5 时 .986 @ .61，等于纯推理。
+  - 只用守卫：.888 @ .27。
+  - 周期 MISS：.938 @ .42，比定向低 4.2 pp（p = .0005）。
+- l10：
+  - V7 + 守卫：.816 @ .44；h=.5 时 .868 @ .60。
+  - 周期 k3：.832 @ .43；周期 k5：.792 @ .32。
+  - 只用守卫：.740 @ .32。
+  - B0 分数判决：.632；B0 周期：.714（B0 做选择器 −11.8 pp，B0 做判决再 −8.2 pp）。
+  - **500 集库**：V7 + 守卫 .872 @ .44，只用守卫 **.864 @ .24**（与纯推理 .844 配对 +2.0 pp，p = .36；比 500 集纯缓存高 9.6 pp，p < 1e-4），拐点在 IR ≈ .24。
+- **结论**：
+  - 定向 MISS 在 spatial 上有用（+4.2 pp，p = .0005）；在 l10 上两档预算都不如周期（k5 比只用守卫高 5.2 pp，p = .02）。
+  - AWM 选择器比 B0 高 12–18 pp。
+  - 500 集库加少量 MISS 就能在 l10 上达到或超过纯推理。
 
-**R3 pilot**（100 集，陷阱任务 × init 0–19，与 R2 同集配对比较）：
-- **π0.5-sp**：cl2ref .70（与 R2 3/3 持平，重跑噪声约 6%）；借用先验 α.5 为 **.79**（p = .064）；ridge1 .75；α1 .74。
-- **两个开关失败**：夹爪承诺（对称）**.10**，因为它挡住了抓取；终止守卫 **.23**，陷阱只是挪到停顿行。
-- **π0.5-l10**：cl2ref .59（相对 R2 .52，l10 噪声更大）；α1 .49（任务 4 崩）；α.5 .53，借用先验在 l10 上无益。
-- **GR00T-sp**（弱任务 {8,2,3,7,5}）：cl2ref .75，tgp **.60**（任务 3 从 .95 掉到 .30），任何终止行屏蔽都有害。
-- **推论**：纯缓存能拿到的只剩 spatial 上的借用先验；终止吸收和死锁要交给混合模式的 MISS。
+## 3. 需要 owner 裁定的事
 
-## 3. 离线要点（陈旧状态 err；四格依次为 π0.5-sp / π0.5-l10 / GR00T-sp / GR00T-l10）
+1. **大库能不能部署**：
+   - 如果约束是字节，AWM-500 为 47–188 MB，现役 pkl 为 431–1103 MB，已经满足；
+   - 如果约束是轨迹数，主线只能留在 50 集。
+   - 这决定了 R4 往哪个方向做。
+2. **R4 方向**（R3 分析附录后的排序）：
+   1. 在 500 集库上补齐 l10 的 SR 对 IR 曲线在 IR .152–.24 之间的一段：在 AWM-500 上做周期 k=8 / 12，守卫改 noprog_n=4，守卫加连续 HIT 上限 8 且不设阈值。否决条件：结果不在 g500 与 CL2-500 连线之上。
+   2. 如果只能用 50 集库，就改进 MISS 之后回到 HIT 的规则。否决条件：同 IR 下打不过周期 k5 / k3，那就直接用周期方案，不要判决。
+   3. GR00T 的混合模式（GR00T-l10 差距最大）。
+   4. l10 按任务设 τ。
+   5. l10 pilot 扩到至少 250 个 init。
+   6. 纯缓存度量线只在约束是"轨迹数"时才继续。
+   - 已结案：选择器与判决的拆分；B0 作为混合模式的选择器或判决都作废。
 
-- **三层拆分**：
-  1. 合成：B0 .643/.597/.621/.644 → M4 .589/.540/.548/.568；
-  2. 方法（50 集库）：AWM .579/.513/.511/.513；
-  3. 库（500 集）：AWM .501/.433/.432/.447。
-- **R3**：借用先验 α.5 为 .550/.487/.494/.489（标注"借用大库信息"）；ridge1 为 .570/.505/.508/.517。夹爪承诺和终止守卫离线分别 +.006～.031 和 +.028。
-- **离线 err 不能给闭环排序**：A、C 和 R2 分析三方都证实了。筛选一律靠闭环 pilot。
-- **库体积**：AWM 每条目 580 B，另加每个 suite 约 17 MB 的 PCA；拟合 pickle 在 50 集库上 22–28 MB，在 500 集库上 47–118 MB（MixedJudge 为 26–187 MB）；现役 pkl 431–1103 MB。
+## 4. 资产位置
 
-## 4. 正在运行的东西（compact 后先核对）
+- **代码**：
+  - `exp/offline_search/`：harness、profile、closed_loop（插件已支持混合模式，另有 `ops/kpi.py`、`pilot.sh`）；
+  - `rounds/r01..r03/`。
+- **闭环数据**：`/home/weiland/trace_runs/os_closed_loop/{r02_g50, r02_g500, r03_pilot, r03_full, r03_mx, r03_smoke}`。每个目录有 `runs/<arm>/summary.json`，server 决策日志在 `runs/<arm>/server_*/decisions_*.jsonl`，客户端数据在 `runs/<arm>/client/`；timan107 侧在 `/scratch/zixuans8/openpi_trace/os_cl/runs/<RUN>/`。
+- **离线结果**：`exp/offline_search/results/r0{0..3}/`、`results/scoreboard.csv`。评测库在 `/dev/shm/offline_search_store`，重启后执行 `r0/stage_shm.sh`。
+- **分析脚本**：`/home/weiland/.claude/jobs/a607dd74/tmp/analysis_r0{2,3}/`，一键重算。
+- **子 agent**：R2 分析 `aa44db0c1790670fa`，R3 分析 `a80c05286ec2bb58e`，H1 `afebf8d0cb4cbec0d`，H2 `afc4b1c2ad16e1e8a`，H3 `a064bd459192fc74b`，H4 `ad7ecadd78517868f`。
 
-- **tmux `oscl_queue`** 执行 `/home/weiland/.claude/jobs/a607dd74/tmp/next_queue.sh`，日志在同目录的 `next_queue.log`：
-  - 步骤：pilot sp → pilot l10 → pilot GR00T（这三步已完成）→ **R2 500 集组的 chain（正在跑）** → 若存在则执行 `next_queue2.sh`。
-  - ⛔ 正在执行的 bash 脚本不能原地改。要跳过某个臂，就在对应运行目录写 `state/<arm>.DONE` 加 `.SKIPPED`；`next_queue2.sh` 在被执行之前都可以改，先写 `.tmp` 再 `mv`。
-- **queue2**：
-  1. gr pilot（sp、l10）；
-  2. R3 全量：`r03_full` 的 r3f_{p,g}_{sp_a05, sp_rm1, l10_a05}；
-  3. 条件步骤：若 gr 的 pilot 比 a05 高 ≥ 3 pp，追加 a05gr 的全量；
-  4. MX l10 核心 5 个臂：b0h70 / awm_h70 / ev_h70 / g / perk3，完整模型 server；
-  5. MX sp 核心 5 个臂；
-  6. MX h50 共 4 个臂。
-- **运行目录**（均在 `/home/weiland/trace_runs/os_closed_loop/` 下）：
-  - `r02_g50`：完成；`r02_g500`：在跑；
-  - `r03_pilot`、`r03_full`、`r03_mx`：拟合产物、yaml、timan107 端的 yaml 都已就绪。
-  - 结构统一为 `runs/<arm>/summary.json`、`runs/chain.log`（EV 行）、`state/`。
-- **监控**：
-  - Monitor 在 `tail -F` 以上各个 chain.log 和 `next_queue.log`，过滤条件为 `^EV .*(ARM_DONE|ARM_FAILED|SERVER_DIED|GPU_TIGHT|PORT_BUSY|CHAIN_DONE|CHAIN_STOPPED)|Traceback|^QUEUE`，30 分钟到期后需要重挂。
-  - cron `44664685` 在每小时第 7/27/47 分做 PROBE。
-- **KPI 工具**：
-  ```bash
-  taskset -c <cpus> .venv/bin/python -m exp.offline_search.closed_loop.ops.kpi \
-    --run-root <R> [--run-root <R2>] <arm…> --ref <run:arm> [--pilot | --tasks … --episodes 0-19] \
-    --recon AWM3=awm:5 --json … --md …
-  ```
-- **codex**：companion 的 `status` 在 compact 后按会话过滤、找不到任务。直接读 `/tmp/codex-companion/openpi-*/jobs/<id>.json` 并检查 PID 是否存活。
-- **子 agent**：A `a0c7646ef8d80b670`、B `a27181135033e9710`、H1 `afebf8d0cb4cbec0d`、H2 `afc4b1c2ad16e1e8a`、H3 `a064bd459192fc74b`、H4 `ad7ecadd78517868f`、R2 分析 `aa44db0c1790670fa`。
+## 5. 下一步
 
-## 5. 下一步（按顺序）
-
-1. **R2 500 集组完成后**（约 04:30）：
-   - SendMessage 给 R2 分析 agent 做附录 2：500 集组，库效应按每个 CL 配对；
-   - 提交；台账写 R2 小结；task #28 完成。
-2. **queue2 各步骤完成时**：用 KPI 工具做配对，结果记台账。
-   - R3 全量臂的参照是 R2 同格的 CL2（50 集组）。
-   - MX 臂报实际 h、IR（π0.5 为 0.152 + 0.848 × MISS 比例）、SR，以及 MISS 落在失败集中的比例和原因码占比。
-3. **全部跑完后**：
-   - 派 fable 写 `rounds/r03/ANALYSIS.md`：三层拆分加"控制效应"，两种库规模，SR 与 IR 曲线（点包括纯推理、纯缓存 CL2、MX 各臂）；
-   - 提交，向 owner 汇报；task #30 完成。
+- 等 owner 对 §3 两条的裁定，然后按章程 §6 开 R4：构思（A / B 用 fable，C 用 codex）→ 选题 → 编码 → pilot / 全量 / 混合 → 分析。
+- cron `44664685`（每 20 分钟一次的 PROBE）在 R3 结束时已删除；R4 起闭环后重新创建。
 
 ## 6. 纪律与坑（本线专有，章程 §8/§9 有全文）
 
 - **禁止事项**：
   - ⛔ 视觉必需。
-  - ⛔ CPU 38-43,82-87 已让给他线，本线池为 0-37,44-81。闭环 server 用 0-17,44-61，chain 用 34-37,78-81，其余给 agent 和离线任务，一律 `taskset`。
-  - ⛔ 不 pkill、不 pgrep -f 自匹配，只按 PID 或 PID 文件 kill。前台不长时间 sleep，等待交给 Monitor；Monitor 只报事件，cron 只做巡检。
-- **结论必须带的内容**：三层拆分；两种库规模和体积，并与现役对照；"借用大库信息"要单独标注。
-- **每个阶段完成就 commit**：
-  - 只加本线路径，被忽略的 json spec 用 `git add -f`。
-  - 作者 LinZiyang666，提交信息用英文，不加 AI 署名。不 push。
+  - ⛔ CPU 38-43,82-87 属于他线，本线池为 0-37,44-81。闭环 server 用 0-17,44-61，chain 用 34-37,78-81，其余一律 `taskset`。
+  - ⛔ 不 pkill、不 pgrep -f 自匹配，只按 PID 或 PID 文件 kill。前台不长时间 sleep；Monitor 只报事件，cron 只做巡检。
+- **结论必须带的内容**：三层拆分，混合模式另加"控制效应"；两种库规模和体积，并与现役对照；"借用大库信息"要单独标注。
+- **每个阶段完成就 commit**：只加本线路径，被忽略的 json spec 用 `git add -f`；作者 LinZiyang666，提交信息用英文，不加 AI 署名，不 push。
 - **已踩过的坑**：
-  - GR00T 需要 `--resize-size 256`（已修）。
-  - server 日志要轮转（已修）。
-  - 每臂的 chain 失败后要用同一份臂列表重新起链。
-  - Monitor 只看最新一次 ARM_START 之后的日志。
-  - `xargs` 默认会吃掉引号：并行跑 prefit 脚本时用 `xargs -d '\n' -P N -I{} bash -c '{}'`。
-  - 推送 yaml 到 timan107 时不要用 `sync_remote.sh` 重推 `run_arm.sh`，那样会原地改写正在执行的脚本。只推 yaml（先 `tether push` 到 `/tmp/oscl_stage`，再在远端 `cp` 到 `os_cl/cfg/`）。
-  - 混合模式的分位数控制器必须给 τ0；l10 上只开守卫就超出了 h=.7 的 MISS 预算，实际 h 约 .62。
-- **评测库与工具**：
-  - `/dev/shm/offline_search_store`，重启后执行 `stage_shm.sh`。
-  - 离线批量用 `harness.batch`，启动脚本在 `tmp/run_r03_h{1,3}.sh`。
-  - `tmp/rtable.py` 汇总结果表。
-- **本线提交历史**（最新在前）：8bf2a33、85a201c、cf2fb8d、6ce5e60、3dd12f7、411dfd1、34e65b9、80bd7ce、08f7fcb、4fcb316、5bde9de、a0c60a4、21236f5、596b00b、8edc377、897dc8a、cbc7e7a、db5c0bf、e9dcd98、03e6e0e、5ee0058、d975009。
+  - GR00T 需要 `--resize-size 256`；server 日志要轮转。
+  - 推送 yaml 到 timan107 时不要用 `sync_remote.sh` 重推 `run_arm.sh`（会原地改写正在执行的脚本）。只推 yaml：先 `tether push` 到 `/tmp/oscl_stage`，再在远端 `cp` 到 `os_cl/cfg/`。
+  - `xargs` 默认会吃掉引号：用 `xargs -d '\n' -P N -I{} bash -c '{}'`。
+  - 正在执行的 bash 队列脚本不能原地改。要跳过臂就写 `state/<arm>.DONE` 加 `.SKIPPED`；要追加臂，就另写一个 relay 脚本，等当前 tmux 会话结束后再拉起新队列。
+  - **4090 与他项目 sandpile 训练共用**（本次先后占 15 GB、19 GB）。完整模型 server 在 21–32 个 worker 下会涨到 9–10 GB。开 MX 前先看空闲显存，按"显存 ÷ 10 GB"定 server 数；本次先后用了 4、3、2 个。
+  - 混合模式的分位数控制器必须给 τ0；codex companion 的 `status` 在 compact 后会查不到任务，直接读 `/tmp/codex-companion/openpi-*/jobs/<id>.json`。
+  - l10 的 100 集 pilot 分辨不出 ±7 pp 以内的差别，只能用来排除崩溃的方案。
+- **本线提交历史**（最新在前）：a39b095、d9fc09b、176c364、c95ba5f、c0c1362、8bf2a33、85a201c、cf2fb8d、6ce5e60、3dd12f7、411dfd1、34e65b9、80bd7ce、08f7fcb、4fcb316，以及更早的。
 
 ---
 ## 附录 A：step_diag / warm reset 线交接（2026-09-26 03:20 CDT 版，原文保留，标题降一级）
