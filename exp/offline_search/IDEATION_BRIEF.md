@@ -53,3 +53,9 @@ The machine is shared by several agents running at once. You get a fixed logical
   (a single one-off BLAS-heavy process may use threads = your range size instead).
 - If you started something that exceeds the budget, stop it by PID (never `pkill -f`) and relaunch within budget.
 - Full-scale runs belong to the coordinator (it reserves CPUs with batch `--cpus`).
+
+## ⛔ Library scale in every conclusion (owner rule)
+Every result or comparison must state the library it used: episodes, entries, key bytes/entry, action bytes/entry,
+total library volume (+ fixed overhead such as PCA bases), next to the current deployed library (pkl on disk:
+π0.5 431 MB spatial / 1103 MB l10, GR00T 429 / 1068 MB; 262 KB key per entry). Until the owner settles whether the
+10× library is deployable, report every conclusion both at current library size (~50 episodes) and on the 10× library.

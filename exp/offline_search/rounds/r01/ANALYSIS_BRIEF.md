@@ -32,3 +32,9 @@ Rules: CPU only; run tools with `taskset -c <range given in your prompt>` and �
 `rounds/r01/ANALYSIS.md` and scratch under `/home/weiland/.claude/jobs/a607dd74/tmp/analysis_r01/`; no git; no repo
 edits elsewhere. Be quantitative and skeptical: check that apparent gains are not artefacts (regime identity, the
 metric's executed-segment definition, duplicate variants, library overlap with queries, teacher-noise floor).
+
+## ⛔ Library scale in every conclusion (owner rule)
+Every result or comparison must state the library it used: episodes, entries, key bytes/entry, action bytes/entry,
+total library volume (+ fixed overhead such as PCA bases), next to the current deployed library (pkl on disk:
+π0.5 431 MB spatial / 1103 MB l10, GR00T 429 / 1068 MB; 262 KB key per entry). Until the owner settles whether the
+10× library is deployable, report every conclusion both at current library size (~50 episodes) and on the 10× library.
