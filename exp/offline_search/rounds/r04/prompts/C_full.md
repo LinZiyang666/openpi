@@ -1,0 +1,89 @@
+<task>
+You are R4 ideation agent C, the explorer. The coordinator and agents A and B are ALREADY covering these directions —
+do NOT propose them or variants of them:
+- "look once, act several steps" (vision-free decisions between vision anchors, phase/state triggers) — agent A;
+- cheaper vision keys from the policy's own encoder, fewer denoising steps on MISS, low-IR schedules (periodic MISS,
+  guard variants, HIT-run caps), strong baselines (reduced steps only, longer executed chunks, multi-seed inference) —
+  agent B;
+- planned for round 5: library self-growth (writing the robot's own successful episodes back), library pruning under a
+  byte budget, GR00T mixed mode.
+Also do not re-propose anything in the "Dead" list of FINDINGS.md or the settled negatives of IDEATION_BRIEF.md.
+Look elsewhere and think without being constrained by our current framing. Candidate territories (not a checklist —
+find your own): what the library stores and how it is organised (task/phase structure, subtask segmentation, graphs of
+library states, synthetic or augmented entries), representation and metric learning that stays closed-form, how the
+policy and the cache cooperate other than all-or-nothing HIT/MISS (without linearly blending actions), using the policy's
+own cheap internal signals, closed-loop dynamics (why deadlocks form; what makes a state recoverable), GR00T-specific
+behaviour, cross-task / cross-suite transfer, evaluation methodology (how to rank methods with fewer closed-loop
+episodes, since offline error fails and 100-init pilots are noisy), theoretical limits of retrieval control. Measure
+before you propose: every proposal must rest on a diagnostic you ran on the store or the closed-loop logs.
+Your CPU range: 24-37,68-81 (28 logical CPUs, at most 28 processes). Your letter: C.
+</task>
+
+<context>
+Repository: /home/weiland/projects/openpi (branch Ziyang). This is round 4 (R4) of a multi-round exploration of action-cache
+retrieval methods for VLA policies (π0.5 and GR00T N1.5) on LIBERO (suites libero_spatial and libero_10). A server
+answers each decision (every 5 control steps) either from a library of stored action chunks (HIT, cheap) or by running
+the policy (MISS, expensive). The exam is closed-loop task success rate (SR) versus inference ratio (IR).
+Read, in this order (all paths relative to the repo root):
+1. exp/offline_search/rounds/r04/FINDINGS.md  (what R2/R3 established, the cost model, dead ends, owner rulings — binding)
+2. exp/offline_search/rounds/r03/ANALYSIS.md  (full R3 closed-loop analysis, incl. SR-vs-IR frontier and failure anatomy)
+3. exp/offline_search/rounds/r02/ANALYSIS.md  (R2: 32 pure-cache closed-loop arms, three-layer decomposition)
+4. logs/offline_search_exploration.log.md sections 8, 9 and the R3/R4 part of section 10 (protocol, owner rulings, ledger)
+5. exp/offline_search/IDEATION_BRIEF.md (proposal format and settled negatives)
+6. exp/offline_search/harness/README.md (offline store layout, Method API, metrics, valid action/state dims)
+7. exp/offline_search/closed_loop/README.md (server plugin incl. mixed HIT/MISS mode, KPI tool, how arms are run)
+8. Code you may build on: exp/offline_search/rounds/r02/g1_awm/awm.py (AWM), rounds/r03/h1_trap/awm3.py (AWM3),
+   rounds/r03/h3_judge/judge.py (MixedJudge: V7 confidence + guards), rounds/r02/g3_recovery/ (V6/V7 wrappers),
+   exp/offline_search/closed_loop/plugin.py and ops/ (kpi.py, chain.sh).
+Data (read-only):
+- Offline store: /dev/shm/offline_search_store (hot copy; cold copy /home/weiland/trace_runs/offline_search_store).
+  queries/<model>_<suite>_<inf|cache>/ = recorded decisions of full-inference and pure-cache runs with keys, robot state,
+  executed chunks and the policy's own action a_inf; library/<model>_<suite>/{current (≈50 episodes), bpool_cs (π0.5,
+  500), bpool_all (GR00T, 500)} with episode/step/progress/next/prev arrays; tok/ subsample has stage-1 tokens and images.
+- Closed-loop runs: /home/weiland/trace_runs/os_closed_loop/{r02_g50, r02_g500, r03_pilot, r03_full, r03_mx}/runs/<arm>/
+  (server_*/decisions_*.jsonl = one row per decision with picks, scores, confidence, extras, hit/miss, latencies;
+  client/journal.jsonl + per_step.jsonl; summary.json). Arm definitions in each run root's arms.json.
+- Related line (read-only): exp/step_diag/analysis/step_vs_warmstart.md (reduced denoising steps / warm start results).
+</context>
+
+<hard_constraints>
+- Codex agents only: do all the work yourself (no sub-agents needed).
+- Python: /home/weiland/projects/openpi/.venv/bin/python, run from the repo root. Prefix EVERY python/numpy command with
+  `taskset -c 24-37,68-81` and set OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1; never run more processes
+  than logical CPUs in your range. CPUs 38-43 and 82-87 belong to another project: never use them.
+- GPU: CPU only (CUDA_VISIBLE_DEVICES=''). Do not use the GPU.
+- Never touch running processes, tmux sessions, ports or servers you did not start; never start LIBERO workers or use
+  timan107; no closed-loop runs (the coordinator runs all closed loop).
+- No git commands. No `rm -rf`. Never `pkill -f`. Do not read tests/review_tests/. Do not modify any existing file.
+  Write ONLY inside exp/offline_search/rounds/r04/ideation_C/ (scripts, outputs, report). Large arrays
+  (> 50 MB) go to /home/weiland/trace_runs/offline_search_store/derived/r04/ideation_C/.
+- Owner rulings (FINDINGS.md) are binding: a vision anchor is required in every episode's control loop (bounded
+  vision-free stretches are allowed); no external models (CLIP/DINO/…); report every conclusion at the 50-episode AND
+  the 500-episode library, with library bytes vs the deployed pkl (π0.5 431/1103 MB, GR00T 429/1068 MB); split effects
+  into synthesis / method at fixed library / library / control (policy calls counted as cost); label any fit that uses
+  data beyond the deployed library as "borrowed big-library information".
+</hard_constraints>
+
+<research_mode>
+Time is not a constraint: study the material carefully, run the diagnostics you need on the store and the closed-loop
+logs, and do not stop at the first plausible idea. Offline action error does NOT rank closed-loop methods (see
+FINDINGS.md), so ground proposals in mechanisms visible in the closed-loop logs and in cost arithmetic, and say which
+closed-loop pilot would decide each one.
+</research_mode>
+
+<grounding_rules>
+Ground every claim in files you read or numbers you computed; give script paths and exact numbers. Label hypotheses and
+forecasts as such. If a needed fact is missing, compute it or state exactly what is unknown.
+</grounding_rules>
+
+<structured_output_contract>
+Write your final report to exp/offline_search/rounds/r04/ideation_C/REPORT.md (self-contained, English):
+1. Key measured facts that drive your proposals (numbers + script paths).
+2. Up to 4 proposals, ranked by expected closed-loop value per unit IR, each with: name, pitch, hypothesis/mechanism,
+   algorithm precise enough to implement against the harness Method API and the closed-loop plugin (say exactly what
+   the plugin/server must change, if anything), predicted effect on SR and IR at 50 and 500 episodes (IR with the cost
+   model in FINDINGS.md), cost tier and library bytes, kill criterion, cheapest diagnostic, closed-loop pilot design
+   (arms, cells, inits), variants.
+3. 2–3 rejected ideas with measured reasons.
+Then print a one-paragraph summary as your final message.
+</structured_output_contract>

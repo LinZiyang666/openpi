@@ -812,3 +812,12 @@ exp/offline_search/
   - 收尾：所有 server、tmux 队列和 relay 都已结束，cron 44664685 已删除，GPU 上只剩他项目的进程。
 - **owner 裁定（2026-09-27）**：只能使用 codex agent。已写入 §2、§9 和项目记忆；R4 起构思、编码、分析全部由 codex 执行。
 - **owner 裁定（2026-09-27，R4/R5 开题前）**：见 §9 第 9 条。再做两轮（R4、R5），只用 codex agent。R4 的构思必须包含"看一眼，做几步"这个方向。协调者做了一个诊断：在 R2 的 CL2 闭环日志里，AWM 下一步选中"同一条示范的下一行"只占 18–29%；停在同一行占 15–40%；留在同一条示范里占 44–71%。所以盲走不能直接照抄示范后续，要按机器人状态对齐示范进度，并且在夹爪切换点必须看一眼。
+
+### R4（2026-09-27 12:58 开始，只用 codex agent，/goal "前进到R4结束"）
+- 输入：`rounds/r04/FINDINGS.md`，内容是 R2/R3 的摘要、成本模型（stage 1/2/3 分别占 .152 / .410 / .438）、失效方法清单、R4/R5 的 owner 裁定。
+- **构思：3 个 codex agent**（gpt-6-astra，xhigh；owner 要求再加一个"探索者"），13:0x 派出，prompt 原文在 `rounds/r04/prompts/`：
+  - A：看一眼，做几步。CPU 0-11,44-55，不用 GPU。job `task-muk4k95g-su7iaa`。
+  - B：降低单次成本，包括便宜的视觉 key、便宜的 MISS、低 IR 配置和强 baseline。CPU 12-23,56-67；GPU 限 1 个进程、≤8 GB，且空闲 ≥16 GB 时才用。job `task-muk4k9eb-bst6q3`。
+  - C：探索者，告知了 A/B 与 R5 的方向以及失效清单，不许碰这些，只去别处找。CPU 24-37,68-81，不用 GPU。job `task-muk4k9ny-ydn6mt`。
+  - 要求："时间不是问题，仔细研究"；每个提案都要落在自己跑过的诊断上。
+  - codex 的状态目录在插件重载后移到了 `~/.claude/plugins/data/codex-openai-codex/state/`；Monitor 轮询其中的 state.json 并检查 PID。
