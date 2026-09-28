@@ -1,0 +1,148 @@
+[
+ {
+  "name": "r5x_g_l10_500_tail1u",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_500_tail1u.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5x_g_l10_50_tail1u",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_50_tail1u.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5x_g_sp_500_tail1u",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_sp_500_tail1u.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5x_g_sp_50_tail1u",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_sp_50_tail1u.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5x_p_l10_500_k7tail_repa",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k7_guard.judge:VisionConfirmedBlindMixedJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed"
+  },
+  "full_model": true,
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-judge",
+   "guard_only",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r04_k7/fits/r4k7_p_l10_500_tail1ug.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5x_p_l10_500_k7tail_repb",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k7_guard.judge:VisionConfirmedBlindMixedJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed"
+  },
+  "full_model": true,
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-judge",
+   "guard_only",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r04_k7/fits/r4k7_p_l10_500_tail1ug.pkl"
+  ],
+  "cost_ledger": true
+ }
+]

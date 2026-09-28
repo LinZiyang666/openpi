@@ -715,6 +715,9 @@ K=2 as a system component (owner ruling; SR-neutral anyway).
 
 ## 12. Reproduction (read-only on the run roots; CPU 26-29,70-73; scratch `/home/weiland/.claude/jobs/a607dd74/tmp/analysis_r04/`)
 
+> Scripts are preserved in `analysis_scripts/` (copied from the job scratch directory `tmp/analysis_r04/` at 05:1x CDT on 2026-09-28).
+
+
 ```bash
 cd /home/weiland/projects/openpi; S=/home/weiland/.claude/jobs/a607dd74/tmp/analysis_r04
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES=''

@@ -52,69 +52,38 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-09-27 22:25 CDT）—— 离线检索探索线（offline_search），R4 闭环收尾 + R5 编码基本完成、闭环排队
+## 1. 现在在哪（2026-09-28 05:2x CDT）—— 离线检索探索线（offline_search）：R4、R5 全部完成并提交，等 owner 裁定下一步
 
-**目标（/goal，owner 已离开）**：独自推进 R4 和 R5，中间没有阻塞（章程 §9 第 13 条，跳过所有暂停点）。
-- ⛔ **agent 分工（§9 第 15 条，22:28 起取代"只用 codex"）**：opus 做常规编码；codex 与 fable 只接最难、最耗智力的任务（工程、研究都行）；同一个问题不同时交给两者，不让它们干一样的事；**fable 不许用得很频繁**，与 codex 混着派、以 codex 为主（R5 分析派 codex）。任何 agent 都**不看守长实验**（§9 第 14 条），闭环的运行与看守一律由协调者自己做。
-- **R4 分析 agent（fable）已于 22:3x 派出**：brief 为 `rounds/r04/ANALYSIS_BRIEF.md`，GR00T 盲走 8 臂与 s2001 两臂是待填槽位。这些臂跑完后用 SendMessage 续聊该 agent 补齐（agent id 见会话；若会话已换，则重新派一个 fable 补齐）。
-- **续聊指定的 codex**：job 记录 `~/.claude/plugins/data/codex-openai-codex/state/openpi-50fd553c5e274099/jobs/<id>.json` 里有 `threadId`。该 job 这一轮结束后，用 `codex exec resume <threadId> "<增量指令>" -c sandbox_mode="danger-full-access" -c approval_policy="never" -o <out.md>` 续跑，进程要自己用 `kill -0` 看。正在执行的一轮不能插话。追加工作优先续聊原 agent（Q4 已这样做过）。
-- **唯一权威**：`logs/offline_search_exploration.log.md`。§9 的 owner 裁定到第 14 条；§10 台账含 R4 / R5 全部条目。**compact 之后先读 §9 和 §10 最后 300 行，再读本节。**
-- 任务列表：#37 R4 分析、#40 K8 复测、#43 R5 总项、#45 R4 剩余闭环、#46 R5 闭环、#47 Q5、#48 R5 分析。
+**目标（/goal）**：独自推进 R4 与 R5（章程 §9 第 13 条）—— **已完成**。没有在跑的实验、没有在跑的 agent；cron 与 watcher 已撤。
+- ⛔ **agent 分工（§9 第 15 条）**：opus 做常规编码；codex 与 fable 只接最难的任务（工程、研究都行），同一个问题不同时交给两者；**fable 不许用得很频繁**，以 codex 为主。任何 agent 都**不看守长实验**（§9 第 14 条）。
+- **唯一权威**：`logs/offline_search_exploration.log.md`（§9 裁定到第 15 条，§10 台账到 R5 结束）。
+- **续聊 codex**：`codex exec resume <threadId> "<指令>" -c sandbox_mode=workspace-write -c approval_policy=never -o <out>`，放 tmux，用 Monitor 等会话结束；若报 active writer，先按 PID 停掉本会话 companion 起的 `app-server-broker.mjs`（见记忆 feedback_codex_agents_only）。
 
 | 阶段 | 状态 |
 |---|---|
-| R4 编码 K1–K10 | ✅ 已提交（6e1cab5、e8980cd） |
-| R4 闭环 | 🔄 只剩 GR00T 纯缓存盲走 8 臂（l10 4 臂在 23160 跑，sp 4 臂在 23150 队列）和 K10 种子 `r4f_p_{l10,sp}_inf_s2001`（l10 在 23150 跑） |
-| R4 分析与提交 | ⏳ `rounds/r04/ANALYSIS_BRIEF.md` 初稿要按 §2 更新，然后派 codex 分析 agent |
-| R5 构思 A–D、选题、CODING_BRIEF、FINDINGS | ✅（`rounds/r05/`） |
-| R5 编码 | Q1 ✅、Q2 ✅（插件已装）、Q3 ✅（结论：一律调用，不开臂）、Q4 ✅（grow250 + 示范规模曲线）、Q6 ✅；**Q5 在做**（GPU 检索影子模式，task-mukmfjxz-i7jxc2，PID 2938164，正在跑安装前回归） |
-| R5 闭环 | ⏳ 45 臂排在两条线的 R4 尾巴之后（见 §4）；各 smoke 已通过 |
+| R4（K1–K10 + 88 臂闭环 + 分析） | ✅ 提交 90a3cef；`rounds/r04/ANALYSIS.md`（fable） |
+| R5（构思 A–D、Q1–Q6 编码、52 臂闭环 + R4 补格 1 臂、分析） | ✅ 本次提交；`rounds/r05/ANALYSIS.md`（codex，745 行） |
+| K8 空闲复测（task #40） | ✅ `rounds/r04/k8_search_latency/IDLE_RECHECK.md` |
 
-## 2. 关键结果（owner 口径：vision .152、MISS +.848、盲走 / 块尾 0；每个 MISS 按完整推理计）
-- **噪声基准**：stock g500（l10 500 集只用守卫）三次运行 .864 / .850 / .832，**均值 .849 ± .016**，约等于 L=5 纯推理（l10 .848 / .850 / .844）。l10 上 2–3 pp 的差别单跑分不清。
-- **执行段长度**：l10 纯推理 L=10 为 **.904 / .900**（两次，IR .5），配对 52 对 24，p=.0018。spatial 上 L=10 为 .986，无差别；spatial 纯推理 L=5 为 .986–.992。
-- **盲走（看一眼，走几步）**：
-  - K1 的稠密卡住守卫去掉了视觉确认，误触发约 2.8 倍。K7 视觉确认守卫在 B=0 时与 stock 逐位一致。
-  - **K7 anchor_tail**：l10 500 **.880 @ .203**（K1 版 .878 @ .223），l10 50 **.806 @ .242**（50 集新前沿），sp 500 **.982 @ .128**；sp 50 在 R5 队列。
-  - **K7 phase B=2**：l10 500 **.862 @ .178**；l10 50 为 .700（稀疏库上失败）；sp 500 为 .968 @ .140。B=1 被 B=2 支配。
-  - K1 守卫、B=1 时：tail .878 > kernel_clock .868 > phase .838。两时钟方案被支配（.822 / .776）。sp 50 的 K1 phase B=2 为 .884 @ .204。
-- **纯缓存（不调用策略）盲走**：phase B=2 在 l10 500 为 .778 @ .091、l10 50 为 .620 @ .098、sp 500 为 .954 @ .083，SR 与 CL2 持平，IR 少 36–46%。**★ 纯缓存 anchor_tail sp 500：.982 @ .078**（stage1_only，0 次 MISS），对 CL2 p=.013，对纯推理 .992 为 p=.27（不可分）。l10 的纯缓存 tail 在 R5 队列（r05_ptail）。
-- **wrist_only key（只用守卫，K10 MISS）**：l10 500 .820、l10 50 .734、sp 500 .974、sp 50 .924。配对检验只在 sp50 显著优于双相机（p=.027，来自任务 4、9），l10 500 更差（p=.021），其余持平。IR 按比例折算（假设）。
-- **MISS 减步 K2**：SR 与 K10 无差别。owner 裁定不纳入系统（§9 第 12 条），只作附注。
-- **K5 因果识别**（守卫 MISS 处 CALL 对 CACHE）：**g500 ΔY=+.034 [+.004, +.066]**，成本持平；**g50 ΔY=−.002 [−.040, +.032]**，后续调用更多。**Q3**：两个规模都"一律调用"，没有任何有支持的节省情境。
-- **control_step_library**：G 崩（.222 / .114），GS 持平（.772 / .628），关闭。
-- **两时钟、noprog 4、周期类在 500 集库**：都被支配。
-- **工程**：K6 修了串行锁；K8 测得 CPU 检索每决策 1.2–2.2 ms（PCA 占 31–49%），原生检索 2.1–7.4 ms；K9 GPU 同图增量 .36–.63 ms，PCIe 131 KB → 1.4 KB，top-1 ≥99.9%。
-- **R5 构思要点**：A 发现 K10 的块尾被继承门否决 → C10（Q1）；B 认为离线目标排不了闭环 SR → 受限双损失求解器（r05_b1）；C 认为库增长慢、硬剪枝不行；D 的抓取核验收益很小（Q1 的 D1）。
-- **R5 编码与 smoke 结果**：
-  - C10 smoke：17 次 MISS 后都发出了策略块尾。D1 smoke：触发 1 次。
-  - GR00T G10 smoke：14 次 MISS、13 次策略块尾、39 次缓存 HIT、39 次缓存块尾，owner IR .19。
-  - Q6 wrist 盲走 smoke 正常。
-  - Q4：grow250（l10 13,121 行 = 50 集 + 208 个成功集；sp 6,240 行）；示范数据 demo100 / 200 / 300（current 不在 bpool_cs 中，所以只有 100 ⊂ 200 ⊂ 300 ⊂ 500 是嵌套的；曲线全程 kref 5，而 500 端点用 kref 8）。
+## 2. 关键结果（owner 口径；详见两份 ANALYSIS.md 与台账）
+- **噪声地板**：stock g500 三次 .864 / .850 / .832（均值 .849）。**K7 tail l10-500 四次 .880 / .906 / .876 / .882，均值 .886**，对 g500 +3.7 pp [+1.3, +6.3]，成立。
+- **执行段长度**：π0.5 l10 纯推理 L=10 .904 / .900 对 L=5 ≈ .851；GR00T 策略侧没有此效应（L=10 .866 / .938 ≈ trace_dual L=5 .870 / .940）。**缓存侧"把块执行完"四格都成立**：π0.5 纯缓存 anchor_tail 对 CL2 +2.8 ~ +7.6 pp、IR ≈ .077（l10-500 .828 与 L=5 纯推理不可分；sp-500 .982）。GR00T 单块（10 步）tail l10-500 .830 @ .074 = CycleTail G10 .828 @ .186；spatial 上 15 步伤、10 步不伤。
+- **各格最好点**：l10-500 Q6 wrist+tail .892 @ .162（wrist 成本为假设）/ K7 tail .886 @ .20 / C10 .866 @ .161；l10-50 C10 .830 @ .181；sp-500 Q6 .990 @ .074、纯缓存 tail .982 @ .078；sp-50 wrist 守卫 .924 / .928 @ .155（R4 的 p=.027 已复现）、C10 .910 @ .141。GR00T 50 集库需要 G10（l10 .718、sp .920），500 集库纯缓存即可（l10 单块 tail .830，sp phase .976）。
+- **库增长**：grow250 refit（50 + 250 集付费策略数据）在 inits 25–49 上把 50→500 差距补满（l10 +14.4、sp +18.0 pp），frozen 只拿 55–58%；示范曲线 l10 .706 / .748 / .788 / .806 / .828（50→500），sp 100 集即饱和（.950）；冻结 50 集表示时加数据无用。**表示必须随库重拟合。**
+- **B1 离线求解器**（owner §9 第 10 条）：六对合并 −0.53 pp [−1.6, +0.6]，没有一对显著；离线目标排不了闭环 SR。
+- **D1** 两规模都无效，关闭。**Q3** 一律调用。
+- **Q5 GPU 检索影子**：在线 67,585 个决策，top-1 ≥99.997%，块 99.4–99.7%（首步为主），延迟 GPU p50 2.0–2.7 ms 对 CPU 4.9–9.0 ms（24 连接，GIL）；serve 前需定首步数值策略与并列处理。
+- **工程观察**：客户端每个决策（含盲走）都发两张 256×256 原图（392 KB），盲走时可省 1−v 的带宽（记为工程想法，未做）。
 
-## 3. 需要 owner 的事
-无。owner 已离开，/goal 要求不设阻塞。裁定在章程 §9 第 9–14 条。
+## 3. 需要 owner 的事（醒来后看）
+1. 看 `rounds/r05/ANALYSIS.md` §11 的五条排序提议，决定是否开 R6（建议优先：Q6 / C10 对重复 K7 的非劣效检验 + 实测 wrist 成本；GPU 检索严格一致性后切 serve；GR00T 50 集库定向干预）。
+2. 盲走决策省带宽（不发图）要不要做成工程项。
 
-## 4. 正在运行的东西（compact 后先核对：`tmux ls`，以及各运行目录 `chain_console.log` 的最后几行）
-端口与 CPU：23150 / 23151（server CPU 0-17,44-61，chain 34-37,78-81），23160 / 23161（server 18-25,62-69，chain 30-33,74-77），23162 用于 smoke（14-17,58-61）。每个 server 24 个 worker。所有运行目录都在 `/home/weiland/trace_runs/os_closed_loop/`。
-- **23160 / 61**：
-  - `relay_B5`：正在跑 r04_gblind 的 l10 4 臂（ph2 / tail2u × 500 / 50），csl 已完成。
-  - 之后 `relay_R5B4`：r05_ptail 4（纯缓存 tail l10 500 / l10 50 / sp 50，外加 wrist sp50 重复）→ r05_growth 4（grow250 refit / frozen × {l10, sp}，按清单 inits 25–49，每臂 250 集）→ r05_q1 6（C10 × {l10, sp} × {50, 500}、D1 × l10 × {50, 500}）→ r04_k7 的 `r4k7_p_sp_50_tail1ug` → r05_b1 π0.5 6（l10 500、sp 500、sp 50 的 hand / solve 成对）。
-- **23150 / 51**：
-  - `relay_A4`：正在跑 `r4f_p_l10_inf_s2001`，之后 `r4f_p_sp_inf_s2001`，再到 r04_gblind 的 sp 4 臂。
-  - 之后 `relay_R5A4`：r05_q2 6（GR00T CycleTail G10 × {l10, sp} × {50, 500}，GR00T 纯策略 L10 × 2）→ r05_q6 4（wrist + tail + wrist 守卫）→ r05_demo_curve 8（DemoBlindAWM tail：refit 100 / 200 / 300 × 两套件，frozen50 200 × 两套件）→ r05_b1 GR00T 6。
-- **codex**：只有 Q5 在跑（`task-mukmfjxz-i7jxc2`，thread `01a0e5d1-1b69-7583-b2ab-4826599464e9`，PID 2938164，CPU 34-37,78-81，可用 GPU ≤6 GB）。它会先跑完所有旧回归测试，再原子安装进插件（Q2 已交回）。影子模式有 2 臂规格（l10 50 / 500 纯缓存 AWM）；K7 tail 明确不支持。
-- **Monitor**：合并 watcher `bash /home/weiland/.claude/jobs/a607dd74/tmp/r4_watch.sh`，读 `tmp/r4_watch.jobs` 与 `tmp/r4_watch.runs`（23 个运行目录），已报事件记在 `tmp/r4_watch.seen`。30 分钟到期后**静默重挂**。新运行目录追加进 runs，新 codex job 追加进 jobs。
-- 接力脚本在 `/home/weiland/.claude/jobs/a607dd74/tmp/relay_*.sh`。
-  - **插队方法**：正在执行的脚本不能原地改。只 `kill` 那个接力的 bash PID（它的子 chain 照跑），用 sed 生成新脚本、新 tmux 会话，等旧 chain 或旧接力结束再接手。`relay_R5A4` 和 `relay_R5B4` 还在等待，可以直接替换。
-  - 跳过：写 `state/<arm>.DONE` + `.SKIPPED`。推迟：写 `.DONE` + `.DEFERRED`，由后面的接力删掉 DONE 后再跑。
+## 4. 正在运行的东西
+无。两条闭环线、所有 relay、codex、cron、watcher 都已结束或撤掉；GPU 上本线没有 server。本线的 tmux 会话只剩已退出的记录。
 
-## 5. 下一步（按顺序）
-1. **Q5 交回后**：读 HANDBACK，确认插件已原子安装、旧回归全部通过；在 23162 上做影子 smoke（`--os-gpu-retrieval shadow`，看一致率、延迟和动作逐位一致）；把它的 2 臂追加到某条线的接力末尾。
-2. **R4 闭环结束**（GR00T 盲走 8 臂、两个种子臂）后：更新 `rounds/r04/ANALYSIS_BRIEF.md`，加入 §2 的全部 R4 结果（K7 / K10 / wrist / K5 + Q3 / g500 三次 / L10 两次 / 纯缓存盲走与 tail / csl / GR00T 盲走 / K8 / K9；K2 放附注）。然后派 1 个 codex 分析 agent 写 `rounds/r04/ANALYSIS.md`，提交，R4 结束（task #37）。
-3. **R5 闭环**：每出一臂就用 v、m 算 owner IR 并记账。r05_b1 用配对（同一批 init）比较 hand 与 solve；r05_growth 用清单子集，与 R2 的 50 / 500 CL2 在同一批 inits 25–49 上比；r05_demo_curve 拼出 50 → 100 → 200 → 300 → 500 的曲线（注意 kref 与 current 的差异）。
-4. **R5 闭环结束后**：写 `rounds/r05/ANALYSIS_BRIEF.md`（仿 R4），派 codex 分析 agent 写 `rounds/r05/ANALYSIS.md`，提交，R5 结束（task #48）。然后用 K8 的脚本在空闲机器上复测搜索延迟（task #40）。
-5. **每个阶段都提交**：只加本线的 .py / .sh / .md 与臂规格 json（`git add -f`），不加 results/、dev/、before/ 和大于 1 MB 的文件；作者 LinZiyang666，英文，不加 AI 署名，不 push。
+## 5. 下一步
+等 owner 裁定（§3）。若开 R6：按章程 §6 流程，构思 agent 用 codex 为主。
 
 ## 6. 纪律与坑（本线专有，章程 §8 / §9 有全文）
 - ⛔ CPU 38-43,82-87 属于他线；只按 PID kill；不 pkill；前台不长时间 sleep（等待用 Monitor）。
