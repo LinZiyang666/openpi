@@ -1,6 +1,6 @@
 # Session handoff
 
-> 多条线共用本文件。§0 为常驻初始化（不动）。**§1–§6 = 离线检索探索线（offline_search）交接，2026-09-26 23:50 CDT 覆写（owner 要求，compact 前）**。step_diag / warm reset 线的交接原文移到附录 A（该线已全部完成、待 owner 裁定提交）。
+> 多条线共用本文件。§0 为常驻初始化（不动）。**§1–§6 = 离线检索探索线（offline_search）交接，2026-09-28 16:1x CDT 覆写（owner 要求，compact 前；R6 进行中）**。step_diag / warm reset 线的交接原文移到附录 A（该线已全部完成、待 owner 裁定提交）。
 
 ## 0. 初始化方式（不变）
 
@@ -52,38 +52,66 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-09-28 05:2x CDT）—— 离线检索探索线（offline_search）：R4、R5 全部完成并提交，等 owner 裁定下一步
+## 1. 现在在哪（2026-09-28 16:1x CDT）—— 离线检索探索线（offline_search）R6 进行中
 
-**目标（/goal）**：独自推进 R4 与 R5（章程 §9 第 13 条）—— **已完成**。没有在跑的实验、没有在跑的 agent；cron 与 watcher 已撤。
-- ⛔ **agent 分工（§9 第 15 条）**：opus 做常规编码；codex 与 fable 只接最难的任务（工程、研究都行），同一个问题不同时交给两者；**fable 不许用得很频繁**，以 codex 为主。任何 agent 都**不看守长实验**（§9 第 14 条）。
-- **唯一权威**：`logs/offline_search_exploration.log.md`（§9 裁定到第 15 条，§10 台账到 R5 结束）。
-- **续聊 codex**：`codex exec resume <threadId> "<指令>" -c sandbox_mode=workspace-write -c approval_policy=never -o <out>`，放 tmux，用 Monitor 等会话结束；若报 active writer，先按 PID 停掉本会话 companion 起的 `app-server-broker.mjs`（见记忆 feedback_codex_agents_only）。
+**目标（/goal，owner 12:2x 设）**：「我们开始R6，不做完不停」。R4（90a3cef）、R5（10b31b9）已完成并提交。
+- **唯一权威**：`logs/offline_search_exploration.log.md`。§9 裁定到第 15 条（含补充）；§10 台账到 R6 进行中。**compact 之后先读 §9 第 15 条和 §10 最后 200 行，再读本节。**
+- ⛔ **agent 分工（§9 第 15 条）**：
+  - codex 优先（owner 12:4x：额度重置后，原给 opus 的编码也多交 codex），opus 次选；
+  - codex / fable 只接难任务（工程、研究都行），同一个问题不同时交给两者；fable 少用；
+  - 任何 agent 都**不看守实验**，闭环由协调者自己跑和看守。
+- **续聊 codex**：
+  - 命令：`codex exec resume <threadId> "<指令>" -c sandbox_mode=danger-full-access -c approval_policy=never -o <out.md>`，放进 tmux，用 Monitor 等 tmux 会话结束。
+  - 若报 active writer：停掉本会话 companion 起的 broker 再试，但先确认不影响其他在跑的 codex 作业。
+  - 线程 id：P1 由 opus 做（已交回）；P2 `01a0e910-d07f-7bc3-828f-384b819a0919`；P3 `01a0e926-15b5-73c1-aab9-e72c2f9a330a`；Q1 `01a0e921-c2fb-7f73-9e3f-0d928cb3e9d6`；Q2 `01a0e921-cc1b-77e0-b857-c76556a1826b`；Q3 `01a0e921-d521-7da0-b464-4f2c797922f9`。
+- **R6 的内容**（owner 12:3x–13:0x）：
+  1. **论文定稿**：一个方法、两个嵌套配置——A = Commit-Cache（看一眼、检索合成、执行满 10 步，不调用策略）；B = A + 守卫触发的承诺式策略救援（C10 语义）。按库的疏密区分，不按成功率 / 成本区分。要补：GR00T B、A/B 各三次重复、度量消融、触发器逐项消融。
+  2. **owner 的三个问题**：库质量怎么判断（留一，在轨迹上搜库）、用多少 MISS、MISS 放在哪里。方法必须可迁移到别的 benchmark / 机器人，不许为 LIBERO 写死。
+  3. **数据**：现有数据不够 → 写一个尽量强的"超集 profiler"，一次实验收齐所有数据，不为不同字段重复跑。各 agent 已列出"想要但没有的数据"。
 
-| 阶段 | 状态 |
+| 项 | 状态 |
 |---|---|
-| R4（K1–K10 + 88 臂闭环 + 分析） | ✅ 提交 90a3cef；`rounds/r04/ANALYSIS.md`（fable） |
-| R5（构思 A–D、Q1–Q6 编码、52 臂闭环 + R4 补格 1 臂、分析） | ✅ 本次提交；`rounds/r05/ANALYSIS.md`（codex，745 行） |
-| K8 空闲复测（task #40） | ✅ `rounds/r04/k8_search_latency/IDLE_RECHECK.md` |
+| P1 GR00T B（opus） | ✅ `rounds/r06/p1_groot_commit/`（`GrootCommitJudge` = C10 + GR00T 夹爪闭合符号；A ⊂ B 逐位检验通过） |
+| 论文定稿臂 `r06_paper` 36 臂 | 🔄 14 / 36 完成（GR00T B 四格 + 其重复四格；π0.5 A 重复四格；π0.5 B 重复 l10 两格） |
+| P2 消融（codex） | ✅ 代码；度量消融 8 / 8 完成；触发器逐项 16 臂排在 `line_P6B2` |
+| 构思 Q1 / Q2 / Q3（codex）+ G（fable） | ✅ `rounds/r06/ideation_{Q1,Q2,Q3,G}/REPORT.md`；数据清单合并在 `rounds/r06/DATA_WISHLIST.md` |
+| P3 超集 profiler（codex） | ✅ v1、v2、客户端部署包；v2 客户端已部署到 timan107（py3.8 自检通过）；v2 客户端 smoke 8 臂中 2 臂完成，读取器严格核验通过；第 3 臂 16:05 起在跑 |
+| pilot 采集（4,320 集） | ⏳ v2 smoke 全过后起 |
+| 全量采集 | ⏳ 规模待 owner 定（P3 保守估 254 GPU 小时 / 3.5 TB；/home 剩 2.4 TB） |
+| R6 选题 / 新方法编码 / 闭环 / 分析 / 提交 | ⏳ 等 pilot 数据 |
 
-## 2. 关键结果（owner 口径；详见两份 ANALYSIS.md 与台账）
-- **噪声地板**：stock g500 三次 .864 / .850 / .832（均值 .849）。**K7 tail l10-500 四次 .880 / .906 / .876 / .882，均值 .886**，对 g500 +3.7 pp [+1.3, +6.3]，成立。
-- **执行段长度**：π0.5 l10 纯推理 L=10 .904 / .900 对 L=5 ≈ .851；GR00T 策略侧没有此效应（L=10 .866 / .938 ≈ trace_dual L=5 .870 / .940）。**缓存侧"把块执行完"四格都成立**：π0.5 纯缓存 anchor_tail 对 CL2 +2.8 ~ +7.6 pp、IR ≈ .077（l10-500 .828 与 L=5 纯推理不可分；sp-500 .982）。GR00T 单块（10 步）tail l10-500 .830 @ .074 = CycleTail G10 .828 @ .186；spatial 上 15 步伤、10 步不伤。
-- **各格最好点**：l10-500 Q6 wrist+tail .892 @ .162（wrist 成本为假设）/ K7 tail .886 @ .20 / C10 .866 @ .161；l10-50 C10 .830 @ .181；sp-500 Q6 .990 @ .074、纯缓存 tail .982 @ .078；sp-50 wrist 守卫 .924 / .928 @ .155（R4 的 p=.027 已复现）、C10 .910 @ .141。GR00T 50 集库需要 G10（l10 .718、sp .920），500 集库纯缓存即可（l10 单块 tail .830，sp phase .976）。
-- **库增长**：grow250 refit（50 + 250 集付费策略数据）在 inits 25–49 上把 50→500 差距补满（l10 +14.4、sp +18.0 pp），frozen 只拿 55–58%；示范曲线 l10 .706 / .748 / .788 / .806 / .828（50→500），sp 100 集即饱和（.950）；冻结 50 集表示时加数据无用。**表示必须随库重拟合。**
-- **B1 离线求解器**（owner §9 第 10 条）：六对合并 −0.53 pp [−1.6, +0.6]，没有一对显著；离线目标排不了闭环 SR。
-- **D1** 两规模都无效，关闭。**Q3** 一律调用。
-- **Q5 GPU 检索影子**：在线 67,585 个决策，top-1 ≥99.997%，块 99.4–99.7%（首步为主），延迟 GPU p50 2.0–2.7 ms 对 CPU 4.9–9.0 ms（24 连接，GIL）；serve 前需定首步数值策略与并列处理。
-- **工程观察**：客户端每个决策（含盲走）都发两张 256×256 原图（392 KB），盲走时可省 1−v 的带宽（记为工程想法，未做）。
+## 2. 关键结果（R6；owner 口径 π0.5 IR = .152v + .848m，GR00T .148v + .852m）
+- **GR00T B（守卫触发）四格**：l10-500 .864 @ .187（A .830，+3.4 pp，p=.07）；sp500 .958 @ .127（A .964，持平）；l10-50 .726 @ .222（A .608，+11.8 pp）；**sp50 .874 @ .148（A .868，持平；旧的定时 G10 为 .920，p=.015）**——守卫在这一格触发太少、没触发在该救的地方，是 R6 的直接反例。重复：.868 / .960 / .702 / .874。
+- **A 重复（π0.5）**：l10-50 .710（原 .706）、l10-500 .820（.828）、sp50 .844（.838）、sp500 .974（.982）。**B 重复（π0.5）**：l10-50 .794（.830，p=.07）、l10-500 .864（.866）。
+- **度量消融**（z-score 后欧氏距离 vs 按任务学到的度量，其余全同，A 配置）：π0.5 −12.6 / −9.4 / −6.2 / −2.6 pp，GR00T −10.2 / −11.2 / −1.0 / −1.2 pp（l10-50 / l10-500 / sp50 / sp500）。l10 四格都 ≥ 9 pp 且显著；spatial 变小，GR00T spatial 不显著。我建议补"无监督白化 Σ⁻¹"对照（8 臂纯缓存），用来区分"满矩阵白化"与"动作监督"各自的功劳，**等 owner 点头**。
+- **构思要点**：
+  - Q1：留一覆盖在同一模型 × 任务集内随库变大单调变好（π0.5 l10 留出覆盖率 .22 → .64 → .85 → .93），但没有跨格的绝对刻度（GR00T sp50 覆盖 .005 而 A 成功率 .868）；库内留一偏乐观（度量重拟合后误差 +15–18%）。
+  - Q2：B 调用的 29–82% 落在 A 已不输纯推理的任务上；库质量只解释 21% 的任务差距方差；建议旋钮 = 目标 IR ρ，按任务覆盖度分配调用。
+  - Q3：守卫之前的调用从没被随机化，价值不可识别；覆盖 / 分歧能识别缓存出错，但多晚于守卫；π0.5 l10 上覆盖差的组 B 收益大得多（500 集 +37 pp），spatial 与 GR00T 不成立。
+  - G：守卫手写阈值在各库成功 episode 上的误报率 0–38%；统一规则 = 留一 conformal 分位 + 一个族水平 α；迁移目标 RoboCasa365。
+- **P3**：v1 真模型 smoke 四臂通过（注入块与影子块逐字节一致，p0 无 MISS，p1 每锚点都有策略块尾）；v2 客户端 smoke 前两臂 `read_v2 --require-stage-counts --require-snapshots` 通过；约 100 MB / 集。
+- **给 owner 的材料**：
+  - 网页 https://claude.ai/artifact/N9KTGqB8Hkpt5wUBEZcrRd（英文方法说明，含前沿图与 B − A 表）。源文件 `~/projects/openpi_ext/artifacts/commit_cache/commit-cache.html`，由 `commit-cache.en.template.html` 注入 `frontier.png` 生成；republish 用同一文件路径，或传 `url`。
+  - 演示图 `~/projects/openpi_ext/artifacts/fig2_frontier_ab/`。脚本 `tmp/fig_ab/fig2_ab.py`，不入库；l10 新点按 owner 约定 +0.04 显示，表格用原始值——这个口径差已经告诉 owner，还没定怎么统一。
 
-## 3. 需要 owner 的事（醒来后看）
-1. 看 `rounds/r05/ANALYSIS.md` §11 的五条排序提议，决定是否开 R6（建议优先：Q6 / C10 对重复 K7 的非劣效检验 + 实测 wrist 成本；GPU 检索严格一致性后切 serve；GR00T 50 集库定向干预）。
-2. 盲走决策省带宽（不发图）要不要做成工程项。
+## 3. 需要 owner 的事
+1. 全量采集规模：先跑 pilot（4,320 集），全量等 pilot 实测开销后再定。
+2. 是否补"无监督白化"对照。
+3. 网页 / 图里 l10 +0.04 的显示口径怎么统一：表格也加，或在图注里说明。
 
-## 4. 正在运行的东西
-无。两条闭环线、所有 relay、codex、cron、watcher 都已结束或撤掉；GPU 上本线没有 server。本线的 tmux 会话只剩已退出的记录。
+## 4. 正在运行的东西（compact 后先核对 `tmux ls`、各 run root 的 `state/` 与 `chain_console*.log`）
+- **GPU 与他项目共享**：另一会话的 `sandpile.train` 训练（约 26–33 GB）时有时无。不碰它，我们让路。显存预算：π0.5 全模型 server 约 9 GB、GR00T 约 6.5 GB、只加载 stage 1 约 2.4 GB。
+- **`line_P6B`**（tmux）：23160/61，`tmp/line_P6B.sh` 在 `r06_paper` 上跑 chain（GR00T B 重复已完，接着 π0.5 A rep3 → GR00T B rep3）。之后 **`line_P6B2`**（tmux，在等 P6B 结束）在 23160/61 跑 `r06_abl` 的触发器逐项 16 臂。
+- **`line_P6A`**（tmux）：`tmp/line_P6A_loop2.sh`，等 GPU——需空闲 ≥ 20 GB，且 smoke 已结束或空闲 ≥ 30 GB，连续 3 分钟——再续跑 `r06_paper` 的 π0.5 B 重复（从 `r5q1_c10_p_sp_50_rep2` 起）与 GR00T A 重复。每次续跑前按 PID 清掉 23150/51 上本线残留的 server。
+- **`p3v2_smoke`**（tmux）：`tmp/p3v2_smoke_wait.sh`，在 23164 用 `rounds/r06/p3_profiling/chain_p3.sh` 跑 `r06_p3_v2_client_smoke`（8 臂：π0.5 l10-50 与 GR00T l10-500 × A / P10 / factorial / window，任务 0–1 × 初始 0–1）。GPU 不够就等（≥ 10 GB），优先级高于 line_P6A。
+- **巡检**：cron `640820dc`（:17 / :47 一行 PROBE，含 watcher 重挂）；Monitor watcher `tmp/r4_watch.sh`，读 `tmp/r4_watch.jobs` 与 `tmp/r4_watch.runs`，已报事件记在 `tmp/r4_watch.seen`，30 分钟到期后静默重挂。
+- **codex / fable**：当前没有在跑的 agent。
 
-## 5. 下一步
-等 owner 裁定（§3）。若开 R6：按章程 §6 流程，构思 agent 用 codex 为主。
+## 5. 下一步（按顺序）
+1. **v2 smoke 8 臂跑完** → `read_v2 --run-root r06_p3_v2_client_smoke --arms <8 臂> --client-root <RUN>/runs --require-stage-counts --require-snapshots --out <新目录>`，全过后起 **pilot**。步骤见 `rounds/r06/p3_profiling/HANDBACK.md` 的 "Coordinator preparation"：campaign_v2 → emit `arms_v2.json`（pilot 部分）→ 复制 `calibration_v2/*.json` 与 `manifests_v2` → prefit → `build_client_bundle` → `deploy_client.sh`（已补 HOME）→ `chain_p3.sh` 加 `P3_PHASE=pilot`。先算 GPU 预算。
+2. **论文定稿 36 臂与触发器逐项 16 臂**：跑完后逐臂记账、配对（`tmp/pair.py`），A / B 按三次合并。
+3. **pilot 数据到**：续聊 Q1 / Q2 / Q3 的 codex 线程，用 pilot 数据回答三个问题 → 写 `rounds/r06/SELECTION.md` → codex 编码新方法（统一标定的触发水平 / 目标 IR 分配 / 放置规则）→ smoke → 闭环 → R6 分析（codex）→ 提交。
+4. **每阶段提交**：只加 .py / .sh / .md 与臂规格 json（`git add -f`，单文件 < 1 MB；不含 results/、dev/、before/、client_bundle/、__pycache__/、画图脚本）；作者 LinZiyang666，英文，无 AI 署名，不 push。
 
 ## 6. 纪律与坑（本线专有，章程 §8 / §9 有全文）
 - ⛔ CPU 38-43,82-87 属于他线；只按 PID kill；不 pkill；前台不长时间 sleep（等待用 Monitor）。
@@ -95,7 +123,13 @@ owner 的常驻指令，逐字有效：
 - **插件现状**：K6（按连接加锁）、K5（随机化）、K10（π0.5 policy tail）、Q2（GR00T policy tail、blocks、CycleTail）都已安装。不带新 flag 时行为逐字节不变。Q5 下一个合入。
 - **collect** 偶尔因 `tether pull` 瞬时失败（COLLECT_FAILED），手动重跑 `ops.collect --run-root <R> <arm>`。
 - **台账时间戳**：写之前先 `date`，别写超前（犯过一次）。
-- **最近的本线提交**：bcd3d1c、e8980cd、44c9136、6e1cab5。
+- **最近的本线提交**：10b31b9（R5 完成）、90a3cef（R4 完成）、561498f、e8980cd。
+- **（R6 新增）共享 GPU**：启动新线前先算显存预算；我自己的临时 smoke 也要计入（犯过：smoke 占显存导致 23150 线 OOM）。
+- **（R6 新增）chain.sh 缺口**：一个端口 SERVER_DIED_AT_BOOT 时，同一臂另一个端口已起的 server 不会被关，孤儿会占端口和显存，下次报 PORT_BUSY。处理：`ss -ltnp | grep :<port>` 取 pid，确认 `--os-tag` 是本线的臂，按 PID kill，再 `tmux kill-session -t oscl<port>`。`line_P6A_loop2.sh` 已自动做这件事。
+- **（R6 新增）同一 run root 两条 chain 并行**：`state/current`、`CHAIN.DONE` / `CHAIN.ERROR` 会互相覆盖（无害）；读结果用每臂自己的 `runs/<arm>/summary.json`。
+- **（R6 新增）tether 偶发短暂离线**（14:29–14:51 timan107 STALE）：臂会停在 495–498 / 500，chain 自动续跑补齐，不用处理。
+- **（R6 新增）远端 LIBERO 导入**：tether exec 的默认 HOME 不对，会触发 LIBERO 的交互提问。远端命令要 `export HOME=/home/zixuans8 LIBERO_CONFIG_PATH=/home/zixuans8/.libero`，并加 `< /dev/null`。
+- **（R6 新增）codex companion**：`task --help` 会被当成 prompt 起一个真任务，并让 `--resume-last` 指向它，所以续聊一律按 threadId。
 
 ---
 ## 附录 A：step_diag / warm reset 线交接（2026-09-26 03:20 CDT 版，原文保留，标题降一级）

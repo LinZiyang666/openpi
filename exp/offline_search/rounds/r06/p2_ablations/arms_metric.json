@@ -1,0 +1,169 @@
+[
+ {
+  "name": "r6p2_identity_p_l10_50",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p2_ablations.metric:IdentityBlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p2_identity_p_l10_50.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r6p2_identity_p_l10_500",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p2_ablations.metric:IdentityBlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p2_identity_p_l10_500.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r6p2_identity_p_sp_50",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p2_ablations.metric:IdentityBlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p2_identity_p_sp_50.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r6p2_identity_p_sp_500",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p2_ablations.metric:IdentityBlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p2_identity_p_sp_500.pkl"
+  ]
+ },
+ {
+  "name": "r6p2_identity_g_l10_50",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p2_ablations.metric:IdentityBlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p2_identity_g_l10_50.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r6p2_identity_g_l10_500",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p2_ablations.metric:IdentityBlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p2_identity_g_l10_500.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r6p2_identity_g_sp_50",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p2_ablations.metric:IdentityBlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p2_identity_g_sp_50.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r6p2_identity_g_sp_500",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p2_ablations.metric:IdentityBlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p2_identity_g_sp_500.pkl"
+  ],
+  "cost_ledger": true
+ }
+]

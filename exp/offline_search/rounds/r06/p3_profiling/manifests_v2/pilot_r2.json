@@ -1,0 +1,86 @@
+{
+  "stage": "pilot",
+  "replicate": 2,
+  "selected": [
+    {
+      "task": 0,
+      "init": 0
+    },
+    {
+      "task": 0,
+      "init": 1
+    },
+    {
+      "task": 1,
+      "init": 0
+    },
+    {
+      "task": 1,
+      "init": 1
+    },
+    {
+      "task": 2,
+      "init": 0
+    },
+    {
+      "task": 2,
+      "init": 1
+    },
+    {
+      "task": 3,
+      "init": 0
+    },
+    {
+      "task": 3,
+      "init": 1
+    },
+    {
+      "task": 4,
+      "init": 0
+    },
+    {
+      "task": 4,
+      "init": 1
+    },
+    {
+      "task": 5,
+      "init": 0
+    },
+    {
+      "task": 5,
+      "init": 1
+    },
+    {
+      "task": 6,
+      "init": 0
+    },
+    {
+      "task": 6,
+      "init": 1
+    },
+    {
+      "task": 7,
+      "init": 0
+    },
+    {
+      "task": 7,
+      "init": 1
+    },
+    {
+      "task": 8,
+      "init": 0
+    },
+    {
+      "task": 8,
+      "init": 1
+    },
+    {
+      "task": 9,
+      "init": 0
+    },
+    {
+      "task": 9,
+      "init": 1
+    }
+  ]
+}

@@ -1,0 +1,1935 @@
+{
+  "schema": "r6p3.calibration.v2",
+  "stride": 2,
+  "records": [
+    {
+      "episode": 0,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.4800292608708202,
+        "stuck": 0.0,
+        "lag": 27.4,
+        "overtime": 1.0,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11400223697225252,
+      "anchors": 30
+    },
+    {
+      "episode": 1,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.4381727207842434,
+        "stuck": 0.0,
+        "lag": 15.0,
+        "overtime": 0.896551724137931,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11583459749817848,
+      "anchors": 27
+    },
+    {
+      "episode": 2,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.43942443148401,
+        "stuck": 2.0,
+        "lag": 15.399999999999999,
+        "overtime": 0.9655172413793104,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.09923820685723732,
+      "anchors": 29
+    },
+    {
+      "episode": 3,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.4452777675256823,
+        "stuck": 0.0,
+        "lag": 21.799999999999997,
+        "overtime": 0.9310344827586207,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10484754660033754,
+      "anchors": 28
+    },
+    {
+      "episode": 4,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.4780115384746189,
+        "stuck": 0.0,
+        "lag": 21.6,
+        "overtime": 0.9655172413793104,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11557857640858354,
+      "anchors": 29
+    },
+    {
+      "episode": 5,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.4400775618547584,
+        "stuck": 0.0,
+        "lag": 0.0,
+        "overtime": 0.9411764705882353,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1023402301222086,
+      "anchors": 25
+    },
+    {
+      "episode": 6,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.43057187856520857,
+        "stuck": 0.0,
+        "lag": 14.600000000000001,
+        "overtime": 0.9583333333333334,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13046952399114767,
+      "anchors": 24
+    },
+    {
+      "episode": 7,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.4287483575650113,
+        "stuck": 0.0,
+        "lag": 14.0,
+        "overtime": 1.0,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.12132959187030792,
+      "anchors": 25
+    },
+    {
+      "episode": 8,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.44031512526632627,
+        "stuck": 0.0,
+        "lag": 15.2,
+        "overtime": 0.9166666666666666,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1290013596577489,
+      "anchors": 23
+    },
+    {
+      "episode": 9,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.4371754370227472,
+        "stuck": 0.0,
+        "lag": 12.799999999999997,
+        "overtime": 0.9583333333333334,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.12407060371090968,
+      "anchors": 24
+    },
+    {
+      "episode": 10,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.40344192111020777,
+        "stuck": 0.0,
+        "lag": 1.6000000000000014,
+        "overtime": 0.9696969696969697,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10532848931410733,
+      "anchors": 17
+    },
+    {
+      "episode": 11,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.42904324330009275,
+        "stuck": 0.0,
+        "lag": 11.0,
+        "overtime": 1.0,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.12079790472984314,
+      "anchors": 25
+    },
+    {
+      "episode": 12,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.3655603491127206,
+        "stuck": 0.0,
+        "lag": 3.799999999999997,
+        "overtime": 0.9565217391304348,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11195442396337571,
+      "anchors": 23
+    },
+    {
+      "episode": 13,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.401449952361334,
+        "stuck": 0.0,
+        "lag": 3.0,
+        "overtime": 0.9803921568627451,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11570770064225563,
+      "anchors": 26
+    },
+    {
+      "episode": 14,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.5156403556802404,
+        "stuck": 0.0,
+        "lag": 19.200000000000003,
+        "overtime": 1.1764705882352942,
+        "progress": 6.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.17936838814808476,
+      "anchors": 31
+    },
+    {
+      "episode": 15,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.4736536413294921,
+        "stuck": 0.0,
+        "lag": 1.2000000000000028,
+        "overtime": 0.8627450980392157,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1502777904919956,
+      "anchors": 23
+    },
+    {
+      "episode": 16,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.47292488575578423,
+        "stuck": 0.0,
+        "lag": 1.1999999999999993,
+        "overtime": 0.7272727272727273,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.14870921061152503,
+      "anchors": 21
+    },
+    {
+      "episode": 17,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.3850679308453452,
+        "stuck": 0.0,
+        "lag": 0.20000000000000018,
+        "overtime": 0.9803921568627451,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.14311396130002463,
+      "anchors": 26
+    },
+    {
+      "episode": 18,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.5198569293966312,
+        "stuck": 7.0,
+        "lag": 9.600000000000001,
+        "overtime": 1.1372549019607843,
+        "progress": 10.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1175904023150603,
+      "anchors": 30
+    },
+    {
+      "episode": 19,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.4043268384319553,
+        "stuck": 0.0,
+        "lag": 0.20000000000000018,
+        "overtime": 0.9019607843137255,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.126142966405799,
+      "anchors": 24
+    },
+    {
+      "episode": 20,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.5199805384218672,
+        "stuck": 2.0,
+        "lag": 6.0,
+        "overtime": 0.9818181818181818,
+        "progress": 4.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13428931962698698,
+      "anchors": 28
+    },
+    {
+      "episode": 21,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.46088629642544093,
+        "stuck": 0.0,
+        "lag": 2.1999999999999993,
+        "overtime": 0.8,
+        "progress": 4.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1335814729656862,
+      "anchors": 23
+    },
+    {
+      "episode": 22,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.4311735575948431,
+        "stuck": 0.0,
+        "lag": 1.2000000000000028,
+        "overtime": 0.96,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.0909315925091505,
+      "anchors": 37
+    },
+    {
+      "episode": 23,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.520485098402399,
+        "stuck": 8.0,
+        "lag": 1.3999999999999986,
+        "overtime": 0.9818181818181818,
+        "progress": 8.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1303902291027563,
+      "anchors": 28
+    },
+    {
+      "episode": 24,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.7459336854625518,
+        "stuck": 8.0,
+        "lag": 52.0,
+        "overtime": 1.8181818181818181,
+        "progress": 16.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        true,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.17200981292362308,
+      "anchors": 51
+    },
+    {
+      "episode": 25,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.4281233711251367,
+        "stuck": 0.0,
+        "lag": 12.0,
+        "overtime": 1.0,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.12102300511754077,
+      "anchors": 23
+    },
+    {
+      "episode": 26,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.6784798772070231,
+        "stuck": 4.0,
+        "lag": 57.6,
+        "overtime": 1.5686274509803921,
+        "progress": 8.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.19323373213410378,
+      "anchors": 41
+    },
+    {
+      "episode": 27,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.4625931979625202,
+        "stuck": 0.0,
+        "lag": 11.0,
+        "overtime": 1.0,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11843742308733256,
+      "anchors": 23
+    },
+    {
+      "episode": 28,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.43788710306640743,
+        "stuck": 0.0,
+        "lag": 17.8,
+        "overtime": 0.9545454545454546,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1308452891693874,
+      "anchors": 22
+    },
+    {
+      "episode": 29,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.3764963942328511,
+        "stuck": 0.0,
+        "lag": 2.1999999999999993,
+        "overtime": 0.9090909090909091,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10590638841191928,
+      "anchors": 21
+    },
+    {
+      "episode": 30,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.41039799267688926,
+        "stuck": 0.0,
+        "lag": 2.8000000000000007,
+        "overtime": 1.0303030303030303,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.07369755539629194,
+      "anchors": 18
+    },
+    {
+      "episode": 31,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.4065347324670307,
+        "stuck": 0.0,
+        "lag": 9.0,
+        "overtime": 0.9545454545454546,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11500916037369859,
+      "anchors": 22
+    },
+    {
+      "episode": 32,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.4418136485830317,
+        "stuck": 0.0,
+        "lag": 4.800000000000001,
+        "overtime": 1.0303030303030303,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10666327695879671,
+      "anchors": 18
+    },
+    {
+      "episode": 33,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.424897802110713,
+        "stuck": 0.0,
+        "lag": 3.8000000000000007,
+        "overtime": 0.9090909090909091,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10749842715449631,
+      "anchors": 16
+    },
+    {
+      "episode": 34,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.41751272929005157,
+        "stuck": 0.0,
+        "lag": -0.7999999999999998,
+        "overtime": 0.9090909090909091,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.09512608451768756,
+      "anchors": 16
+    },
+    {
+      "episode": 35,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.43773900278592354,
+        "stuck": 0.0,
+        "lag": 2.799999999999997,
+        "overtime": 1.0,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11255505572383602,
+      "anchors": 24
+    },
+    {
+      "episode": 36,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.4354096279015355,
+        "stuck": 0.0,
+        "lag": 2.0,
+        "overtime": 0.9130434782608695,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.09815171868963675,
+      "anchors": 22
+    },
+    {
+      "episode": 37,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.44610602104518166,
+        "stuck": 0.0,
+        "lag": 14.8,
+        "overtime": 1.0,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11120067699812353,
+      "anchors": 24
+    },
+    {
+      "episode": 38,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.3412678645086072,
+        "stuck": 0.0,
+        "lag": -0.4,
+        "overtime": 0.8260869565217391,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10482995137572289,
+      "anchors": 20
+    },
+    {
+      "episode": 39,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.4232968364891815,
+        "stuck": 0.0,
+        "lag": 1.0,
+        "overtime": 0.9411764705882353,
+        "progress": 4.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1392345416545868,
+      "anchors": 25
+    },
+    {
+      "episode": 40,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.4355230325359544,
+        "stuck": 0.0,
+        "lag": 6.199999999999999,
+        "overtime": 1.0588235294117647,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13464525142418488,
+      "anchors": 28
+    },
+    {
+      "episode": 41,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.48519385685694794,
+        "stuck": 0.0,
+        "lag": 17.2,
+        "overtime": 1.0588235294117647,
+        "progress": 8.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.17342303813036,
+      "anchors": 28
+    },
+    {
+      "episode": 42,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.4470168560009996,
+        "stuck": 0.0,
+        "lag": 7.799999999999997,
+        "overtime": 0.9866666666666667,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.0982346869514961,
+      "anchors": 38
+    },
+    {
+      "episode": 43,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.4340808332641916,
+        "stuck": 0.0,
+        "lag": 0.1999999999999993,
+        "overtime": 0.9866666666666667,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.09006499347129934,
+      "anchors": 38
+    },
+    {
+      "episode": 44,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.507443788798895,
+        "stuck": 0.0,
+        "lag": 3.6000000000000014,
+        "overtime": 0.9411764705882353,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.14037220194935798,
+      "anchors": 25
+    },
+    {
+      "episode": 45,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.46522021486884463,
+        "stuck": 0.0,
+        "lag": 20.200000000000003,
+        "overtime": 1.0933333333333333,
+        "progress": 4.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11236466848779292,
+      "anchors": 42
+    },
+    {
+      "episode": 46,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.4454890376597641,
+        "stuck": 0.0,
+        "lag": 2.0,
+        "overtime": 0.9803921568627451,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10700132941397336,
+      "anchors": 26
+    },
+    {
+      "episode": 47,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.5183412883651493,
+        "stuck": 14.0,
+        "lag": 23.799999999999997,
+        "overtime": 1.2,
+        "progress": 8.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.09626545036292594,
+      "anchors": 46
+    },
+    {
+      "episode": 48,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.4968100406704619,
+        "stuck": 0.0,
+        "lag": 0.0,
+        "overtime": 0.9019607843137255,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10662976877453427,
+      "anchors": 24
+    },
+    {
+      "episode": 49,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.4577348512180535,
+        "stuck": 0.0,
+        "lag": 1.6000000000000014,
+        "overtime": 0.9803921568627451,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1759084822753301,
+      "anchors": 26
+    }
+  ],
+  "per_task": {
+    "0": {
+      "coverage": [
+        0.4381727207842434,
+        0.43942443148401,
+        0.4452777675256823,
+        0.4780115384746189,
+        0.4800292608708202
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.0
+      ],
+      "lag": [
+        15.0,
+        15.399999999999999,
+        21.6,
+        21.799999999999997,
+        27.4
+      ],
+      "overtime": [
+        0.896551724137931,
+        0.9310344827586207,
+        0.9655172413793104,
+        0.9655172413793104,
+        1.0
+      ],
+      "progress": [
+        0.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "1": {
+      "coverage": [
+        0.4287483575650113,
+        0.42904324330009275,
+        0.43057187856520857,
+        0.4371754370227472,
+        0.44031512526632627
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        11.0,
+        12.799999999999997,
+        14.0,
+        14.600000000000001,
+        15.2
+      ],
+      "overtime": [
+        0.9166666666666666,
+        0.9583333333333334,
+        0.9583333333333334,
+        1.0,
+        1.0
+      ],
+      "progress": [
+        0.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "2": {
+      "coverage": [
+        0.401449952361334,
+        0.4400775618547584,
+        0.4736536413294921,
+        0.5156403556802404,
+        0.5198569293966312
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        7.0
+      ],
+      "lag": [
+        0.0,
+        1.2000000000000028,
+        3.0,
+        9.600000000000001,
+        19.200000000000003
+      ],
+      "overtime": [
+        0.8627450980392157,
+        0.9411764705882353,
+        0.9803921568627451,
+        1.1372549019607843,
+        1.1764705882352942
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        2.0,
+        6.0,
+        10.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "3": {
+      "coverage": [
+        0.46088629642544093,
+        0.47292488575578423,
+        0.5199805384218672,
+        0.520485098402399,
+        0.7459336854625518
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        2.0,
+        8.0,
+        8.0
+      ],
+      "lag": [
+        1.1999999999999993,
+        1.3999999999999986,
+        2.1999999999999993,
+        6.0,
+        52.0
+      ],
+      "overtime": [
+        0.7272727272727273,
+        0.8,
+        0.9818181818181818,
+        0.9818181818181818,
+        1.8181818181818181
+      ],
+      "progress": [
+        2.0,
+        4.0,
+        4.0,
+        8.0,
+        16.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "4": {
+      "coverage": [
+        0.3764963942328511,
+        0.4065347324670307,
+        0.4281233711251367,
+        0.43788710306640743,
+        0.4625931979625202
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        2.1999999999999993,
+        9.0,
+        11.0,
+        12.0,
+        17.8
+      ],
+      "overtime": [
+        0.9090909090909091,
+        0.9545454545454546,
+        0.9545454545454546,
+        1.0,
+        1.0
+      ],
+      "progress": [
+        0.0,
+        0.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "5": {
+      "coverage": [
+        0.40344192111020777,
+        0.41039799267688926,
+        0.41751272929005157,
+        0.424897802110713,
+        0.4418136485830317
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        -0.7999999999999998,
+        1.6000000000000014,
+        2.8000000000000007,
+        3.8000000000000007,
+        4.800000000000001
+      ],
+      "overtime": [
+        0.9090909090909091,
+        0.9090909090909091,
+        0.9696969696969697,
+        1.0303030303030303,
+        1.0303030303030303
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    "6": {
+      "coverage": [
+        0.3412678645086072,
+        0.3655603491127206,
+        0.4354096279015355,
+        0.43773900278592354,
+        0.44610602104518166
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        -0.4,
+        2.0,
+        2.799999999999997,
+        3.799999999999997,
+        14.8
+      ],
+      "overtime": [
+        0.8260869565217391,
+        0.9130434782608695,
+        0.9565217391304348,
+        1.0,
+        1.0
+      ],
+      "progress": [
+        0.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    "7": {
+      "coverage": [
+        0.3850679308453452,
+        0.4043268384319553,
+        0.4232968364891815,
+        0.4355230325359544,
+        0.48519385685694794
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        0.20000000000000018,
+        0.20000000000000018,
+        1.0,
+        6.199999999999999,
+        17.2
+      ],
+      "overtime": [
+        0.9019607843137255,
+        0.9411764705882353,
+        0.9803921568627451,
+        1.0588235294117647,
+        1.0588235294117647
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        2.0,
+        4.0,
+        8.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "8": {
+      "coverage": [
+        0.4311735575948431,
+        0.4340808332641916,
+        0.4470168560009996,
+        0.46522021486884463,
+        0.5183412883651493
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        14.0
+      ],
+      "lag": [
+        0.1999999999999993,
+        1.2000000000000028,
+        7.799999999999997,
+        20.200000000000003,
+        23.799999999999997
+      ],
+      "overtime": [
+        0.96,
+        0.9866666666666667,
+        0.9866666666666667,
+        1.0933333333333333,
+        1.2
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        2.0,
+        4.0,
+        8.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    "9": {
+      "coverage": [
+        0.4454890376597641,
+        0.4577348512180535,
+        0.4968100406704619,
+        0.507443788798895,
+        0.6784798772070231
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        4.0
+      ],
+      "lag": [
+        0.0,
+        1.6000000000000014,
+        2.0,
+        3.6000000000000014,
+        57.6
+      ],
+      "overtime": [
+        0.9019607843137255,
+        0.9411764705882353,
+        0.9803921568627451,
+        0.9803921568627451,
+        1.5686274509803921
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        8.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "pooled": {
+    "coverage": [
+      0.3412678645086072,
+      0.3655603491127206,
+      0.3764963942328511,
+      0.3850679308453452,
+      0.401449952361334,
+      0.40344192111020777,
+      0.4043268384319553,
+      0.4065347324670307,
+      0.41039799267688926,
+      0.41751272929005157,
+      0.4232968364891815,
+      0.424897802110713,
+      0.4281233711251367,
+      0.4287483575650113,
+      0.42904324330009275,
+      0.43057187856520857,
+      0.4311735575948431,
+      0.4340808332641916,
+      0.4354096279015355,
+      0.4355230325359544,
+      0.4371754370227472,
+      0.43773900278592354,
+      0.43788710306640743,
+      0.4381727207842434,
+      0.43942443148401,
+      0.4400775618547584,
+      0.44031512526632627,
+      0.4418136485830317,
+      0.4452777675256823,
+      0.4454890376597641,
+      0.44610602104518166,
+      0.4470168560009996,
+      0.4577348512180535,
+      0.46088629642544093,
+      0.4625931979625202,
+      0.46522021486884463,
+      0.47292488575578423,
+      0.4736536413294921,
+      0.4780115384746189,
+      0.4800292608708202,
+      0.48519385685694794,
+      0.4968100406704619,
+      0.507443788798895,
+      0.5156403556802404,
+      0.5183412883651493,
+      0.5198569293966312,
+      0.5199805384218672,
+      0.520485098402399,
+      0.6784798772070231,
+      0.7459336854625518
+    ],
+    "stuck": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      2.0,
+      2.0,
+      4.0,
+      7.0,
+      8.0,
+      8.0,
+      14.0
+    ],
+    "lag": [
+      -0.7999999999999998,
+      -0.4,
+      0.0,
+      0.0,
+      0.1999999999999993,
+      0.20000000000000018,
+      0.20000000000000018,
+      1.0,
+      1.1999999999999993,
+      1.2000000000000028,
+      1.2000000000000028,
+      1.3999999999999986,
+      1.6000000000000014,
+      1.6000000000000014,
+      2.0,
+      2.0,
+      2.1999999999999993,
+      2.1999999999999993,
+      2.799999999999997,
+      2.8000000000000007,
+      3.0,
+      3.6000000000000014,
+      3.799999999999997,
+      3.8000000000000007,
+      4.800000000000001,
+      6.0,
+      6.199999999999999,
+      7.799999999999997,
+      9.0,
+      9.600000000000001,
+      11.0,
+      11.0,
+      12.0,
+      12.799999999999997,
+      14.0,
+      14.600000000000001,
+      14.8,
+      15.0,
+      15.2,
+      15.399999999999999,
+      17.2,
+      17.8,
+      19.200000000000003,
+      20.200000000000003,
+      21.6,
+      21.799999999999997,
+      23.799999999999997,
+      27.4,
+      52.0,
+      57.6
+    ],
+    "overtime": [
+      0.7272727272727273,
+      0.8,
+      0.8260869565217391,
+      0.8627450980392157,
+      0.896551724137931,
+      0.9019607843137255,
+      0.9019607843137255,
+      0.9090909090909091,
+      0.9090909090909091,
+      0.9090909090909091,
+      0.9130434782608695,
+      0.9166666666666666,
+      0.9310344827586207,
+      0.9411764705882353,
+      0.9411764705882353,
+      0.9411764705882353,
+      0.9545454545454546,
+      0.9545454545454546,
+      0.9565217391304348,
+      0.9583333333333334,
+      0.9583333333333334,
+      0.96,
+      0.9655172413793104,
+      0.9655172413793104,
+      0.9696969696969697,
+      0.9803921568627451,
+      0.9803921568627451,
+      0.9803921568627451,
+      0.9803921568627451,
+      0.9818181818181818,
+      0.9818181818181818,
+      0.9866666666666667,
+      0.9866666666666667,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0303030303030303,
+      1.0303030303030303,
+      1.0588235294117647,
+      1.0588235294117647,
+      1.0933333333333333,
+      1.1372549019607843,
+      1.1764705882352942,
+      1.2,
+      1.5686274509803921,
+      1.8181818181818181
+    ],
+    "progress": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      4.0,
+      4.0,
+      4.0,
+      4.0,
+      6.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      10.0,
+      16.0
+    ],
+    "terminal": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "effective_alpha_successful_library_episodes": 0.94,
+  "effective_alpha_by_task": {
+    "0": 1.0,
+    "1": 0.8,
+    "2": 1.0,
+    "3": 1.0,
+    "4": 0.8,
+    "5": 1.0,
+    "6": 0.8,
+    "7": 1.0,
+    "8": 1.0,
+    "9": 1.0
+  },
+  "quality": {
+    "loeo_chunk_rms_episode_mean": 0.12210456593487207,
+    "label": "frozen-fit imitation diagnostic; not Q1 SR probability"
+  },
+  "caveat": "successful-library recorded policy states, synthetic all-HIT history, vision stride; candidate LOEO only; finite sample p-values, no coverage theorem",
+  "guard_fit_sha256": "16ddfec3dc8d3af95c1a39c1f483475746e3ee8194e0730ef38a7f043b77c69a",
+  "library_manifest": {
+    "path": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/manifest.json",
+    "sha256": "075bbeff4896384e1dd2afeefeb148ca6c8ede2e2827b73af5ee94706f9fe270"
+  }
+}

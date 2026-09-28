@@ -1,0 +1,1935 @@
+{
+  "schema": "r6p3.calibration.v2",
+  "stride": 2,
+  "records": [
+    {
+      "episode": 0,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.5029773620883616,
+        "stuck": 0.0,
+        "lag": 0.40000000000000036,
+        "overtime": 0.875,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1474999226629734,
+      "anchors": 8
+    },
+    {
+      "episode": 1,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.5095574522933695,
+        "stuck": 0.0,
+        "lag": 0.6000000000000001,
+        "overtime": 0.875,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1619894253090024,
+      "anchors": 8
+    },
+    {
+      "episode": 2,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.6370406402827555,
+        "stuck": 0.0,
+        "lag": 6.199999999999999,
+        "overtime": 1.0,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1561393356985516,
+      "anchors": 9
+    },
+    {
+      "episode": 3,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.49909978930101323,
+        "stuck": 0.0,
+        "lag": 0.0,
+        "overtime": 0.875,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1343925641849637,
+      "anchors": 8
+    },
+    {
+      "episode": 4,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.5640833752576054,
+        "stuck": 0.0,
+        "lag": 0.6000000000000001,
+        "overtime": 0.875,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.15856661926954985,
+      "anchors": 8
+    },
+    {
+      "episode": 5,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.5718449056969285,
+        "stuck": 0.0,
+        "lag": 4.600000000000001,
+        "overtime": 1.0434782608695652,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13643776811659336,
+      "anchors": 13
+    },
+    {
+      "episode": 6,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.6327414569280286,
+        "stuck": 0.0,
+        "lag": -0.5999999999999996,
+        "overtime": 0.8695652173913043,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13748466900803827,
+      "anchors": 11
+    },
+    {
+      "episode": 7,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.4967320277298954,
+        "stuck": 0.0,
+        "lag": 1.1999999999999993,
+        "overtime": 0.9565217391304348,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13582747553785643,
+      "anchors": 12
+    },
+    {
+      "episode": 8,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.540731488221169,
+        "stuck": 0.0,
+        "lag": 0.1999999999999993,
+        "overtime": 0.9565217391304348,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1571527123451233,
+      "anchors": 12
+    },
+    {
+      "episode": 9,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.49040477626356793,
+        "stuck": 0.0,
+        "lag": 0.8000000000000007,
+        "overtime": 0.9565217391304348,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13465512668093046,
+      "anchors": 12
+    },
+    {
+      "episode": 10,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.515422171354422,
+        "stuck": 0.0,
+        "lag": 1.0,
+        "overtime": 0.9523809523809523,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.12876090542836624,
+      "anchors": 11
+    },
+    {
+      "episode": 11,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.44403984325455137,
+        "stuck": 0.0,
+        "lag": 1.8000000000000007,
+        "overtime": 0.9523809523809523,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11760010265491226,
+      "anchors": 11
+    },
+    {
+      "episode": 12,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.5332790770233892,
+        "stuck": 0.0,
+        "lag": 0.0,
+        "overtime": 0.8571428571428571,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13416191413998604,
+      "anchors": 10
+    },
+    {
+      "episode": 13,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.568553578516326,
+        "stuck": 0.0,
+        "lag": 8.2,
+        "overtime": 1.1428571428571428,
+        "progress": 6.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13943301341854608,
+      "anchors": 13
+    },
+    {
+      "episode": 14,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.44404914094811304,
+        "stuck": 0.0,
+        "lag": 0.3999999999999999,
+        "overtime": 0.8571428571428571,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10261907018721103,
+      "anchors": 10
+    },
+    {
+      "episode": 15,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.45635121233324877,
+        "stuck": 0.0,
+        "lag": 0.6000000000000001,
+        "overtime": 0.8235294117647058,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10934291547164321,
+      "anchors": 8
+    },
+    {
+      "episode": 16,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.5066841675896906,
+        "stuck": 0.0,
+        "lag": 0.5999999999999996,
+        "overtime": 0.9411764705882353,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.16292225900623533,
+      "anchors": 9
+    },
+    {
+      "episode": 17,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.4962435239967675,
+        "stuck": 0.0,
+        "lag": 2.4,
+        "overtime": 0.9411764705882353,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.21460897475481033,
+      "anchors": 9
+    },
+    {
+      "episode": 18,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.4440639567074883,
+        "stuck": 0.0,
+        "lag": 0.20000000000000018,
+        "overtime": 0.8235294117647058,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.14407023880630732,
+      "anchors": 8
+    },
+    {
+      "episode": 19,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.44442413216950205,
+        "stuck": 0.0,
+        "lag": 0.5999999999999996,
+        "overtime": 0.9411764705882353,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.15334298461675644,
+      "anchors": 9
+    },
+    {
+      "episode": 20,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.40824539240659524,
+        "stuck": 0.0,
+        "lag": 0.3999999999999999,
+        "overtime": 0.88,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11648461439957221,
+      "anchors": 12
+    },
+    {
+      "episode": 21,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.4846379628742077,
+        "stuck": 0.0,
+        "lag": 2.3999999999999986,
+        "overtime": 1.04,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13837628971253121,
+      "anchors": 14
+    },
+    {
+      "episode": 22,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.4440313890049332,
+        "stuck": 0.0,
+        "lag": 0.5999999999999996,
+        "overtime": 0.96,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11760810676675576,
+      "anchors": 13
+    },
+    {
+      "episode": 23,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.4501027392245715,
+        "stuck": 0.0,
+        "lag": 1.0,
+        "overtime": 0.96,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10687610392387097,
+      "anchors": 13
+    },
+    {
+      "episode": 24,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.444065337365728,
+        "stuck": 0.0,
+        "lag": 0.3999999999999999,
+        "overtime": 0.88,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.09999163666119178,
+      "anchors": 12
+    },
+    {
+      "episode": 25,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.9459173722090635,
+        "stuck": 0.0,
+        "lag": 21.6,
+        "overtime": 1.1,
+        "progress": 4.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.22187037455538908,
+      "anchors": 12
+    },
+    {
+      "episode": 26,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.5013709129784931,
+        "stuck": 0.0,
+        "lag": 1.0,
+        "overtime": 0.9,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1362517222762108,
+      "anchors": 10
+    },
+    {
+      "episode": 27,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.5071337602689929,
+        "stuck": 0.0,
+        "lag": 0.0,
+        "overtime": 0.8,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1386236904395951,
+      "anchors": 9
+    },
+    {
+      "episode": 28,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.5086251213684782,
+        "stuck": 0.0,
+        "lag": 2.1999999999999993,
+        "overtime": 0.9,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1230742245912552,
+      "anchors": 10
+    },
+    {
+      "episode": 29,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.8339100946425109,
+        "stuck": 0.0,
+        "lag": 11.2,
+        "overtime": 1.0,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.23817009614272552,
+      "anchors": 11
+    },
+    {
+      "episode": 30,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.44402615373217774,
+        "stuck": 0.0,
+        "lag": 0.8000000000000007,
+        "overtime": 0.9090909090909091,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11497752266851338,
+      "anchors": 11
+    },
+    {
+      "episode": 31,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.4607515278778864,
+        "stuck": 0.0,
+        "lag": 0.1999999999999993,
+        "overtime": 0.8181818181818182,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.14154102876782418,
+      "anchors": 10
+    },
+    {
+      "episode": 32,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.5121087436385292,
+        "stuck": 0.0,
+        "lag": 1.1999999999999993,
+        "overtime": 0.9090909090909091,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1610202860425819,
+      "anchors": 11
+    },
+    {
+      "episode": 33,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.504050912772912,
+        "stuck": 0.0,
+        "lag": 0.8000000000000007,
+        "overtime": 0.9090909090909091,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10005383125760338,
+      "anchors": 11
+    },
+    {
+      "episode": 34,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.44979513613168504,
+        "stuck": 0.0,
+        "lag": 1.3999999999999986,
+        "overtime": 1.0,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.15521340258419514,
+      "anchors": 12
+    },
+    {
+      "episode": 35,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.4440505860340842,
+        "stuck": 0.0,
+        "lag": 0.8000000000000007,
+        "overtime": 0.9565217391304348,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11585869112362464,
+      "anchors": 12
+    },
+    {
+      "episode": 36,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.45228278687798196,
+        "stuck": 0.0,
+        "lag": 1.1999999999999993,
+        "overtime": 0.9565217391304348,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.0998515731965502,
+      "anchors": 12
+    },
+    {
+      "episode": 37,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.447781717932547,
+        "stuck": 0.0,
+        "lag": 0.40000000000000036,
+        "overtime": 0.9565217391304348,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10795716630915801,
+      "anchors": 12
+    },
+    {
+      "episode": 38,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.40627882726338,
+        "stuck": 0.0,
+        "lag": 0.8000000000000007,
+        "overtime": 0.9565217391304348,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.0968861673027277,
+      "anchors": 12
+    },
+    {
+      "episode": 39,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.46933613293405707,
+        "stuck": 0.0,
+        "lag": 0.7999999999999998,
+        "overtime": 0.9565217391304348,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13873344101011753,
+      "anchors": 12
+    },
+    {
+      "episode": 40,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.5053931591483606,
+        "stuck": 0.0,
+        "lag": 1.6000000000000014,
+        "overtime": 1.0,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.15691336007280784,
+      "anchors": 11
+    },
+    {
+      "episode": 41,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.48478276500182566,
+        "stuck": 0.0,
+        "lag": 0.3999999999999999,
+        "overtime": 0.9,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1357228897511959,
+      "anchors": 10
+    },
+    {
+      "episode": 42,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.5003771714806059,
+        "stuck": 0.0,
+        "lag": 1.0,
+        "overtime": 0.9,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13967721909284592,
+      "anchors": 10
+    },
+    {
+      "episode": 43,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.5093610454402553,
+        "stuck": 0.0,
+        "lag": 0.7999999999999998,
+        "overtime": 0.9,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13363917544484138,
+      "anchors": 10
+    },
+    {
+      "episode": 44,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.5333915017604272,
+        "stuck": 0.0,
+        "lag": 1.6000000000000014,
+        "overtime": 1.0,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1268716102296656,
+      "anchors": 11
+    },
+    {
+      "episode": 45,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.506812173478581,
+        "stuck": 0.0,
+        "lag": 0.6000000000000014,
+        "overtime": 0.9166666666666666,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11826772491137187,
+      "anchors": 12
+    },
+    {
+      "episode": 46,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.4548795128496503,
+        "stuck": 0.0,
+        "lag": 2.1999999999999993,
+        "overtime": 1.0,
+        "progress": 0.0,
+        "terminal": 0.0
+      },
+      "fired_any": false,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13019433818184412,
+      "anchors": 13
+    },
+    {
+      "episode": 47,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.5061415106217928,
+        "stuck": 0.0,
+        "lag": 3.6000000000000014,
+        "overtime": 0.9166666666666666,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13556232831130424,
+      "anchors": 12
+    },
+    {
+      "episode": 48,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.44404835188247344,
+        "stuck": 0.0,
+        "lag": -0.2,
+        "overtime": 0.9166666666666666,
+        "progress": 0.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11169390846043825,
+      "anchors": 12
+    },
+    {
+      "episode": 49,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.46201676429455507,
+        "stuck": 0.0,
+        "lag": 2.5999999999999996,
+        "overtime": 1.0,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11073966381641534,
+      "anchors": 13
+    }
+  ],
+  "per_task": {
+    "0": {
+      "coverage": [
+        0.49909978930101323,
+        0.5029773620883616,
+        0.5095574522933695,
+        0.5640833752576054,
+        0.6370406402827555
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        0.0,
+        0.40000000000000036,
+        0.6000000000000001,
+        0.6000000000000001,
+        6.199999999999999
+      ],
+      "overtime": [
+        0.875,
+        0.875,
+        0.875,
+        0.875,
+        1.0
+      ],
+      "progress": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "1": {
+      "coverage": [
+        0.49040477626356793,
+        0.4967320277298954,
+        0.540731488221169,
+        0.5718449056969285,
+        0.6327414569280286
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        -0.5999999999999996,
+        0.1999999999999993,
+        0.8000000000000007,
+        1.1999999999999993,
+        4.600000000000001
+      ],
+      "overtime": [
+        0.8695652173913043,
+        0.9565217391304348,
+        0.9565217391304348,
+        0.9565217391304348,
+        1.0434782608695652
+      ],
+      "progress": [
+        0.0,
+        0.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    "2": {
+      "coverage": [
+        0.44403984325455137,
+        0.44404914094811304,
+        0.515422171354422,
+        0.5332790770233892,
+        0.568553578516326
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        0.0,
+        0.3999999999999999,
+        1.0,
+        1.8000000000000007,
+        8.2
+      ],
+      "overtime": [
+        0.8571428571428571,
+        0.8571428571428571,
+        0.9523809523809523,
+        0.9523809523809523,
+        1.1428571428571428
+      ],
+      "progress": [
+        0.0,
+        2.0,
+        2.0,
+        2.0,
+        6.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    "3": {
+      "coverage": [
+        0.4440639567074883,
+        0.44442413216950205,
+        0.45635121233324877,
+        0.4962435239967675,
+        0.5066841675896906
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        0.20000000000000018,
+        0.5999999999999996,
+        0.5999999999999996,
+        0.6000000000000001,
+        2.4
+      ],
+      "overtime": [
+        0.8235294117647058,
+        0.8235294117647058,
+        0.9411764705882353,
+        0.9411764705882353,
+        0.9411764705882353
+      ],
+      "progress": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "4": {
+      "coverage": [
+        0.40824539240659524,
+        0.4440313890049332,
+        0.444065337365728,
+        0.4501027392245715,
+        0.4846379628742077
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        0.3999999999999999,
+        0.3999999999999999,
+        0.5999999999999996,
+        1.0,
+        2.3999999999999986
+      ],
+      "overtime": [
+        0.88,
+        0.88,
+        0.96,
+        0.96,
+        1.04
+      ],
+      "progress": [
+        0.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "5": {
+      "coverage": [
+        0.5013709129784931,
+        0.5071337602689929,
+        0.5086251213684782,
+        0.8339100946425109,
+        0.9459173722090635
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        0.0,
+        1.0,
+        2.1999999999999993,
+        11.2,
+        21.6
+      ],
+      "overtime": [
+        0.8,
+        0.9,
+        0.9,
+        1.0,
+        1.1
+      ],
+      "progress": [
+        0.0,
+        0.0,
+        2.0,
+        2.0,
+        4.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "6": {
+      "coverage": [
+        0.44402615373217774,
+        0.44979513613168504,
+        0.4607515278778864,
+        0.504050912772912,
+        0.5121087436385292
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        0.1999999999999993,
+        0.8000000000000007,
+        0.8000000000000007,
+        1.1999999999999993,
+        1.3999999999999986
+      ],
+      "overtime": [
+        0.8181818181818182,
+        0.9090909090909091,
+        0.9090909090909091,
+        0.9090909090909091,
+        1.0
+      ],
+      "progress": [
+        0.0,
+        0.0,
+        0.0,
+        2.0,
+        2.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    "7": {
+      "coverage": [
+        0.40627882726338,
+        0.4440505860340842,
+        0.447781717932547,
+        0.45228278687798196,
+        0.46933613293405707
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        0.40000000000000036,
+        0.7999999999999998,
+        0.8000000000000007,
+        0.8000000000000007,
+        1.1999999999999993
+      ],
+      "overtime": [
+        0.9565217391304348,
+        0.9565217391304348,
+        0.9565217391304348,
+        0.9565217391304348,
+        0.9565217391304348
+      ],
+      "progress": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.0
+      ],
+      "terminal": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "8": {
+      "coverage": [
+        0.48478276500182566,
+        0.5003771714806059,
+        0.5053931591483606,
+        0.5093610454402553,
+        0.5333915017604272
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        0.3999999999999999,
+        0.7999999999999998,
+        1.0,
+        1.6000000000000014,
+        1.6000000000000014
+      ],
+      "overtime": [
+        0.9,
+        0.9,
+        0.9,
+        1.0,
+        1.0
+      ],
+      "progress": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "9": {
+      "coverage": [
+        0.44404835188247344,
+        0.4548795128496503,
+        0.46201676429455507,
+        0.5061415106217928,
+        0.506812173478581
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        -0.2,
+        0.6000000000000014,
+        2.1999999999999993,
+        2.5999999999999996,
+        3.6000000000000014
+      ],
+      "overtime": [
+        0.9166666666666666,
+        0.9166666666666666,
+        0.9166666666666666,
+        1.0,
+        1.0
+      ],
+      "progress": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "pooled": {
+    "coverage": [
+      0.40627882726338,
+      0.40824539240659524,
+      0.44402615373217774,
+      0.4440313890049332,
+      0.44403984325455137,
+      0.44404835188247344,
+      0.44404914094811304,
+      0.4440505860340842,
+      0.4440639567074883,
+      0.444065337365728,
+      0.44442413216950205,
+      0.447781717932547,
+      0.44979513613168504,
+      0.4501027392245715,
+      0.45228278687798196,
+      0.4548795128496503,
+      0.45635121233324877,
+      0.4607515278778864,
+      0.46201676429455507,
+      0.46933613293405707,
+      0.4846379628742077,
+      0.48478276500182566,
+      0.49040477626356793,
+      0.4962435239967675,
+      0.4967320277298954,
+      0.49909978930101323,
+      0.5003771714806059,
+      0.5013709129784931,
+      0.5029773620883616,
+      0.504050912772912,
+      0.5053931591483606,
+      0.5061415106217928,
+      0.5066841675896906,
+      0.506812173478581,
+      0.5071337602689929,
+      0.5086251213684782,
+      0.5093610454402553,
+      0.5095574522933695,
+      0.5121087436385292,
+      0.515422171354422,
+      0.5332790770233892,
+      0.5333915017604272,
+      0.540731488221169,
+      0.5640833752576054,
+      0.568553578516326,
+      0.5718449056969285,
+      0.6327414569280286,
+      0.6370406402827555,
+      0.8339100946425109,
+      0.9459173722090635
+    ],
+    "stuck": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "lag": [
+      -0.5999999999999996,
+      -0.2,
+      0.0,
+      0.0,
+      0.0,
+      0.1999999999999993,
+      0.1999999999999993,
+      0.20000000000000018,
+      0.3999999999999999,
+      0.3999999999999999,
+      0.3999999999999999,
+      0.3999999999999999,
+      0.40000000000000036,
+      0.40000000000000036,
+      0.5999999999999996,
+      0.5999999999999996,
+      0.5999999999999996,
+      0.6000000000000001,
+      0.6000000000000001,
+      0.6000000000000001,
+      0.6000000000000014,
+      0.7999999999999998,
+      0.7999999999999998,
+      0.8000000000000007,
+      0.8000000000000007,
+      0.8000000000000007,
+      0.8000000000000007,
+      0.8000000000000007,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.1999999999999993,
+      1.1999999999999993,
+      1.1999999999999993,
+      1.3999999999999986,
+      1.6000000000000014,
+      1.6000000000000014,
+      1.8000000000000007,
+      2.1999999999999993,
+      2.1999999999999993,
+      2.3999999999999986,
+      2.4,
+      2.5999999999999996,
+      3.6000000000000014,
+      4.600000000000001,
+      6.199999999999999,
+      8.2,
+      11.2,
+      21.6
+    ],
+    "overtime": [
+      0.8,
+      0.8181818181818182,
+      0.8235294117647058,
+      0.8235294117647058,
+      0.8571428571428571,
+      0.8571428571428571,
+      0.8695652173913043,
+      0.875,
+      0.875,
+      0.875,
+      0.875,
+      0.88,
+      0.88,
+      0.9,
+      0.9,
+      0.9,
+      0.9,
+      0.9,
+      0.9090909090909091,
+      0.9090909090909091,
+      0.9090909090909091,
+      0.9166666666666666,
+      0.9166666666666666,
+      0.9166666666666666,
+      0.9411764705882353,
+      0.9411764705882353,
+      0.9411764705882353,
+      0.9523809523809523,
+      0.9523809523809523,
+      0.9565217391304348,
+      0.9565217391304348,
+      0.9565217391304348,
+      0.9565217391304348,
+      0.9565217391304348,
+      0.9565217391304348,
+      0.9565217391304348,
+      0.9565217391304348,
+      0.96,
+      0.96,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.04,
+      1.0434782608695652,
+      1.1,
+      1.1428571428571428
+    ],
+    "progress": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      4.0,
+      6.0
+    ],
+    "terminal": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "effective_alpha_successful_library_episodes": 0.7,
+  "effective_alpha_by_task": {
+    "0": 0.0,
+    "1": 0.8,
+    "2": 0.8,
+    "3": 0.6,
+    "4": 1.0,
+    "5": 0.8,
+    "6": 0.8,
+    "7": 0.8,
+    "8": 0.8,
+    "9": 0.6
+  },
+  "quality": {
+    "loeo_chunk_rms_episode_mean": 0.13671420370606163,
+    "label": "frozen-fit imitation diagnostic; not Q1 SR probability"
+  },
+  "caveat": "successful-library recorded policy states, synthetic all-HIT history, vision stride; candidate LOEO only; finite sample p-values, no coverage theorem",
+  "guard_fit_sha256": "9bdfa36b2765c1d8365d60c3de31041cd93de2b208c092cf85cf2db8f816943f",
+  "library_manifest": {
+    "path": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/manifest.json",
+    "sha256": "58abc19724b4f222276ba7efd4f09325652800f4472b2096a5f1e7cd9e51476c"
+  }
+}

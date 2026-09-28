@@ -1,0 +1,1935 @@
+{
+  "schema": "r6p3.calibration.v2",
+  "stride": 2,
+  "records": [
+    {
+      "episode": 0,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.4686782716457374,
+        "stuck": 0.0,
+        "lag": 7.600000000000001,
+        "overtime": 0.9259259259259259,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.12241602674699746,
+      "anchors": 26
+    },
+    {
+      "episode": 1,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.4598876042096823,
+        "stuck": 0.0,
+        "lag": 15.8,
+        "overtime": 0.9629629629629629,
+        "progress": 4.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.12160927871311153,
+      "anchors": 27
+    },
+    {
+      "episode": 2,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.4968400453674754,
+        "stuck": 0.0,
+        "lag": 31.6,
+        "overtime": 1.2222222222222223,
+        "progress": 8.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13810711649849133,
+      "anchors": 34
+    },
+    {
+      "episode": 3,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.47598094401463914,
+        "stuck": 0.0,
+        "lag": 8.200000000000003,
+        "overtime": 0.92,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.14358300793295106,
+      "anchors": 24
+    },
+    {
+      "episode": 4,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.4665466763381933,
+        "stuck": 0.0,
+        "lag": 8.200000000000003,
+        "overtime": 0.9629629629629629,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11069588294183766,
+      "anchors": 27
+    },
+    {
+      "episode": 5,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.4870951106151758,
+        "stuck": 0.0,
+        "lag": 11.2,
+        "overtime": 0.88,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.15067007214478825,
+      "anchors": 23
+    },
+    {
+      "episode": 6,
+      "task_id": 0,
+      "maxima": {
+        "coverage": 0.48631178722264373,
+        "stuck": 0.0,
+        "lag": 18.0,
+        "overtime": 0.8888888888888888,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1074571069329977,
+      "anchors": 25
+    },
+    {
+      "episode": 7,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.4805371729124722,
+        "stuck": 0.0,
+        "lag": 15.8,
+        "overtime": 0.96,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.166771020591259,
+      "anchors": 25
+    },
+    {
+      "episode": 8,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.5198388355816166,
+        "stuck": 0.0,
+        "lag": 17.4,
+        "overtime": 0.96,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.14055451586842538,
+      "anchors": 25
+    },
+    {
+      "episode": 9,
+      "task_id": 1,
+      "maxima": {
+        "coverage": 0.5076679011641747,
+        "stuck": 0.0,
+        "lag": 22.8,
+        "overtime": 1.04,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.16055873284737268,
+      "anchors": 27
+    },
+    {
+      "episode": 10,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.461911655747721,
+        "stuck": 2.0,
+        "lag": 4.800000000000001,
+        "overtime": 1.04,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1187631333315814,
+      "anchors": 27
+    },
+    {
+      "episode": 11,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.46849302972254636,
+        "stuck": 0.0,
+        "lag": 0.0,
+        "overtime": 0.96,
+        "progress": 4.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.12694644637405872,
+      "anchors": 25
+    },
+    {
+      "episode": 12,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.4650707567305711,
+        "stuck": 2.0,
+        "lag": 1.2000000000000002,
+        "overtime": 0.92,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.14574499164397517,
+      "anchors": 24
+    },
+    {
+      "episode": 13,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.433775533826152,
+        "stuck": 0.0,
+        "lag": 0.8000000000000007,
+        "overtime": 0.96,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.09665471836924552,
+      "anchors": 25
+    },
+    {
+      "episode": 14,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.46860184853096765,
+        "stuck": 0.0,
+        "lag": 0.6000000000000001,
+        "overtime": 0.8695652173913043,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10449886144626708,
+      "anchors": 21
+    },
+    {
+      "episode": 15,
+      "task_id": 2,
+      "maxima": {
+        "coverage": 0.6286936937888151,
+        "stuck": 2.0,
+        "lag": 26.799999999999997,
+        "overtime": 1.28,
+        "progress": 6.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1672995143541784,
+      "anchors": 33
+    },
+    {
+      "episode": 16,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.46579738328701115,
+        "stuck": 2.0,
+        "lag": 1.8000000000000007,
+        "overtime": 0.9130434782608695,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11846644541418011,
+      "anchors": 22
+    },
+    {
+      "episode": 17,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.4669476401106307,
+        "stuck": 0.0,
+        "lag": 3.6000000000000014,
+        "overtime": 0.9565217391304348,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10790045867147653,
+      "anchors": 23
+    },
+    {
+      "episode": 18,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.4793940200171324,
+        "stuck": 2.0,
+        "lag": 4.399999999999999,
+        "overtime": 1.0,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11325916523734729,
+      "anchors": 24
+    },
+    {
+      "episode": 19,
+      "task_id": 3,
+      "maxima": {
+        "coverage": 0.4853021898813218,
+        "stuck": 0.0,
+        "lag": 1.6000000000000014,
+        "overtime": 0.9565217391304348,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.09535460481825082,
+      "anchors": 23
+    },
+    {
+      "episode": 20,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.48572946734622174,
+        "stuck": 0.0,
+        "lag": 5.399999999999999,
+        "overtime": 0.8979591836734694,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.15197525189622588,
+      "anchors": 23
+    },
+    {
+      "episode": 21,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.4379626379102238,
+        "stuck": 0.0,
+        "lag": 6.600000000000001,
+        "overtime": 0.8979591836734694,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.12997187706439392,
+      "anchors": 23
+    },
+    {
+      "episode": 22,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.4827575945808397,
+        "stuck": 0.0,
+        "lag": 15.799999999999997,
+        "overtime": 0.9795918367346939,
+        "progress": 4.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.15077990598976612,
+      "anchors": 25
+    },
+    {
+      "episode": 23,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.45504216062334746,
+        "stuck": 0.0,
+        "lag": 10.2,
+        "overtime": 1.0612244897959184,
+        "progress": 4.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.17243081703782082,
+      "anchors": 27
+    },
+    {
+      "episode": 24,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.4213521554257468,
+        "stuck": 0.0,
+        "lag": 3.1999999999999993,
+        "overtime": 0.8571428571428571,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.08820385951548815,
+      "anchors": 16
+    },
+    {
+      "episode": 25,
+      "task_id": 4,
+      "maxima": {
+        "coverage": 0.4670212834176255,
+        "stuck": 0.0,
+        "lag": 9.0,
+        "overtime": 0.9795918367346939,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1395321613550186,
+      "anchors": 25
+    },
+    {
+      "episode": 26,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.49603401202935127,
+        "stuck": 0.0,
+        "lag": -0.1999999999999993,
+        "overtime": 0.9714285714285714,
+        "progress": 4.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.08709639083180162,
+      "anchors": 18
+    },
+    {
+      "episode": 27,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.48590211361030333,
+        "stuck": 0.0,
+        "lag": 3.2,
+        "overtime": 0.9714285714285714,
+        "progress": 4.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10546480305492878,
+      "anchors": 18
+    },
+    {
+      "episode": 28,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.4895247416468757,
+        "stuck": 2.0,
+        "lag": 19.2,
+        "overtime": 1.4285714285714286,
+        "progress": 6.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10081600970946826,
+      "anchors": 26
+    },
+    {
+      "episode": 29,
+      "task_id": 5,
+      "maxima": {
+        "coverage": 0.41937670442949043,
+        "stuck": 0.0,
+        "lag": 0.1999999999999993,
+        "overtime": 0.9142857142857143,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.09154977430315579,
+      "anchors": 17
+    },
+    {
+      "episode": 30,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.45280829298121,
+        "stuck": 0.0,
+        "lag": 5.199999999999999,
+        "overtime": 0.8333333333333334,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11180187637607257,
+      "anchors": 21
+    },
+    {
+      "episode": 31,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.4848351313435555,
+        "stuck": 0.0,
+        "lag": 7.799999999999997,
+        "overtime": 1.0416666666666667,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.16579906370204228,
+      "anchors": 26
+    },
+    {
+      "episode": 32,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.45446470022902713,
+        "stuck": 0.0,
+        "lag": 8.399999999999999,
+        "overtime": 1.0416666666666667,
+        "progress": 6.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1364528716613467,
+      "anchors": 26
+    },
+    {
+      "episode": 33,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.6290386085957849,
+        "stuck": 0.0,
+        "lag": 57.6,
+        "overtime": 1.0740740740740742,
+        "progress": 10.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.16066797847549122,
+      "anchors": 30
+    },
+    {
+      "episode": 34,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.47143726747139914,
+        "stuck": 0.0,
+        "lag": 5.600000000000001,
+        "overtime": 0.7916666666666666,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13591793663799762,
+      "anchors": 20
+    },
+    {
+      "episode": 35,
+      "task_id": 6,
+      "maxima": {
+        "coverage": 0.493202140486049,
+        "stuck": 4.0,
+        "lag": 1.4,
+        "overtime": 0.9583333333333334,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10355209202195208,
+      "anchors": 24
+    },
+    {
+      "episode": 36,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.48504472731685955,
+        "stuck": 0.0,
+        "lag": 3.6000000000000014,
+        "overtime": 0.8518518518518519,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.16407634566227594,
+      "anchors": 24
+    },
+    {
+      "episode": 37,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.4864635671526813,
+        "stuck": 0.0,
+        "lag": 18.8,
+        "overtime": 0.9629629629629629,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.17908606623057965,
+      "anchors": 27
+    },
+    {
+      "episode": 38,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.4786143501256221,
+        "stuck": 0.0,
+        "lag": 1.8000000000000007,
+        "overtime": 0.8888888888888888,
+        "progress": 4.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.17512187778949737,
+      "anchors": 25
+    },
+    {
+      "episode": 39,
+      "task_id": 7,
+      "maxima": {
+        "coverage": 0.479693265867291,
+        "stuck": 0.0,
+        "lag": 13.200000000000003,
+        "overtime": 0.9629629629629629,
+        "progress": 4.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.17539253679138642,
+      "anchors": 27
+    },
+    {
+      "episode": 40,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.48432073742186793,
+        "stuck": 4.0,
+        "lag": 4.199999999999999,
+        "overtime": 0.9876543209876543,
+        "progress": 4.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.12641372118236088,
+      "anchors": 41
+    },
+    {
+      "episode": 41,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.4881093211464102,
+        "stuck": 0.0,
+        "lag": 20.4,
+        "overtime": 0.9382716049382716,
+        "progress": 4.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.11913555526198485,
+      "anchors": 39
+    },
+    {
+      "episode": 42,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.48856641877378537,
+        "stuck": 2.0,
+        "lag": 2.6000000000000014,
+        "overtime": 0.8888888888888888,
+        "progress": 2.0,
+        "terminal": 1.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.1161250949308679,
+      "anchors": 37
+    },
+    {
+      "episode": 43,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.49544255711363416,
+        "stuck": 20.0,
+        "lag": 21.400000000000006,
+        "overtime": 1.2098765432098766,
+        "progress": 12.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.12452193863689899,
+      "anchors": 50
+    },
+    {
+      "episode": 44,
+      "task_id": 8,
+      "maxima": {
+        "coverage": 0.4855408124985912,
+        "stuck": 0.0,
+        "lag": 10.200000000000003,
+        "overtime": 1.037037037037037,
+        "progress": 4.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.10144716007418411,
+      "anchors": 43
+    },
+    {
+      "episode": 45,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.4860057318648506,
+        "stuck": 0.0,
+        "lag": 0.19999999999999996,
+        "overtime": 0.8363636363636363,
+        "progress": 4.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.16475974504525462,
+      "anchors": 24
+    },
+    {
+      "episode": 46,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.4852536410003291,
+        "stuck": 0.0,
+        "lag": 5.799999999999997,
+        "overtime": 0.9818181818181818,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13450172490307263,
+      "anchors": 28
+    },
+    {
+      "episode": 47,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.507457160611898,
+        "stuck": 0.0,
+        "lag": 5.799999999999997,
+        "overtime": 0.9818181818181818,
+        "progress": 4.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.2249476212475981,
+      "anchors": 28
+    },
+    {
+      "episode": 48,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.485559164105566,
+        "stuck": 0.0,
+        "lag": 2.0,
+        "overtime": 0.8727272727272727,
+        "progress": 2.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.13060352474451065,
+      "anchors": 25
+    },
+    {
+      "episode": 49,
+      "task_id": 9,
+      "maxima": {
+        "coverage": 0.6290302017396845,
+        "stuck": 6.0,
+        "lag": 30.2,
+        "overtime": 1.4181818181818182,
+        "progress": 12.0,
+        "terminal": 0.0
+      },
+      "fired_any": true,
+      "fired_bits": [
+        true,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "loeo_chunk_rms_mean": 0.18771714381873608,
+      "anchors": 40
+    }
+  ],
+  "per_task": {
+    "0": {
+      "coverage": [
+        0.4598876042096823,
+        0.4665466763381933,
+        0.4686782716457374,
+        0.48631178722264373,
+        0.4968400453674754
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        7.600000000000001,
+        8.200000000000003,
+        15.8,
+        18.0,
+        31.6
+      ],
+      "overtime": [
+        0.8888888888888888,
+        0.9259259259259259,
+        0.9629629629629629,
+        0.9629629629629629,
+        1.2222222222222223
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        2.0,
+        4.0,
+        8.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "1": {
+      "coverage": [
+        0.47598094401463914,
+        0.4805371729124722,
+        0.4870951106151758,
+        0.5076679011641747,
+        0.5198388355816166
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        8.200000000000003,
+        11.2,
+        15.8,
+        17.4,
+        22.8
+      ],
+      "overtime": [
+        0.88,
+        0.92,
+        0.96,
+        0.96,
+        1.04
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    "2": {
+      "coverage": [
+        0.433775533826152,
+        0.461911655747721,
+        0.4650707567305711,
+        0.46849302972254636,
+        0.6286936937888151
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "lag": [
+        0.0,
+        0.8000000000000007,
+        1.2000000000000002,
+        4.800000000000001,
+        26.799999999999997
+      ],
+      "overtime": [
+        0.92,
+        0.96,
+        0.96,
+        1.04,
+        1.28
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        2.0,
+        4.0,
+        6.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    "3": {
+      "coverage": [
+        0.46579738328701115,
+        0.4669476401106307,
+        0.46860184853096765,
+        0.4793940200171324,
+        0.4853021898813218
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        2.0,
+        2.0
+      ],
+      "lag": [
+        0.6000000000000001,
+        1.6000000000000014,
+        1.8000000000000007,
+        3.6000000000000014,
+        4.399999999999999
+      ],
+      "overtime": [
+        0.8695652173913043,
+        0.9130434782608695,
+        0.9565217391304348,
+        0.9565217391304348,
+        1.0
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "4": {
+      "coverage": [
+        0.4379626379102238,
+        0.45504216062334746,
+        0.4670212834176255,
+        0.4827575945808397,
+        0.48572946734622174
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        5.399999999999999,
+        6.600000000000001,
+        9.0,
+        10.2,
+        15.799999999999997
+      ],
+      "overtime": [
+        0.8979591836734694,
+        0.8979591836734694,
+        0.9795918367346939,
+        0.9795918367346939,
+        1.0612244897959184
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        2.0,
+        4.0,
+        4.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "5": {
+      "coverage": [
+        0.41937670442949043,
+        0.4213521554257468,
+        0.48590211361030333,
+        0.4895247416468757,
+        0.49603401202935127
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.0
+      ],
+      "lag": [
+        -0.1999999999999993,
+        0.1999999999999993,
+        3.1999999999999993,
+        3.2,
+        19.2
+      ],
+      "overtime": [
+        0.8571428571428571,
+        0.9142857142857143,
+        0.9714285714285714,
+        0.9714285714285714,
+        1.4285714285714286
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        4.0,
+        4.0,
+        6.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "6": {
+      "coverage": [
+        0.45280829298121,
+        0.45446470022902713,
+        0.47143726747139914,
+        0.4848351313435555,
+        0.493202140486049
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        4.0
+      ],
+      "lag": [
+        1.4,
+        5.199999999999999,
+        5.600000000000001,
+        7.799999999999997,
+        8.399999999999999
+      ],
+      "overtime": [
+        0.7916666666666666,
+        0.8333333333333334,
+        0.9583333333333334,
+        1.0416666666666667,
+        1.0416666666666667
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        6.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "7": {
+      "coverage": [
+        0.4786143501256221,
+        0.479693265867291,
+        0.48504472731685955,
+        0.4864635671526813,
+        0.6290386085957849
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lag": [
+        1.8000000000000007,
+        3.6000000000000014,
+        13.200000000000003,
+        18.8,
+        57.6
+      ],
+      "overtime": [
+        0.8518518518518519,
+        0.8888888888888888,
+        0.9629629629629629,
+        0.9629629629629629,
+        1.0740740740740742
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        4.0,
+        4.0,
+        10.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    "8": {
+      "coverage": [
+        0.48432073742186793,
+        0.4855408124985912,
+        0.4881093211464102,
+        0.48856641877378537,
+        0.49544255711363416
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        2.0,
+        4.0,
+        20.0
+      ],
+      "lag": [
+        2.6000000000000014,
+        4.199999999999999,
+        10.200000000000003,
+        20.4,
+        21.400000000000006
+      ],
+      "overtime": [
+        0.8888888888888888,
+        0.9382716049382716,
+        0.9876543209876543,
+        1.037037037037037,
+        1.2098765432098766
+      ],
+      "progress": [
+        2.0,
+        4.0,
+        4.0,
+        4.0,
+        12.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "9": {
+      "coverage": [
+        0.4852536410003291,
+        0.485559164105566,
+        0.4860057318648506,
+        0.507457160611898,
+        0.6290302017396845
+      ],
+      "stuck": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        6.0
+      ],
+      "lag": [
+        0.19999999999999996,
+        2.0,
+        5.799999999999997,
+        5.799999999999997,
+        30.2
+      ],
+      "overtime": [
+        0.8363636363636363,
+        0.8727272727272727,
+        0.9818181818181818,
+        0.9818181818181818,
+        1.4181818181818182
+      ],
+      "progress": [
+        2.0,
+        2.0,
+        4.0,
+        4.0,
+        12.0
+      ],
+      "terminal": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "pooled": {
+    "coverage": [
+      0.41937670442949043,
+      0.4213521554257468,
+      0.433775533826152,
+      0.4379626379102238,
+      0.45280829298121,
+      0.45446470022902713,
+      0.45504216062334746,
+      0.4598876042096823,
+      0.461911655747721,
+      0.4650707567305711,
+      0.46579738328701115,
+      0.4665466763381933,
+      0.4669476401106307,
+      0.4670212834176255,
+      0.46849302972254636,
+      0.46860184853096765,
+      0.4686782716457374,
+      0.47143726747139914,
+      0.47598094401463914,
+      0.4786143501256221,
+      0.4793940200171324,
+      0.479693265867291,
+      0.4805371729124722,
+      0.4827575945808397,
+      0.48432073742186793,
+      0.4848351313435555,
+      0.48504472731685955,
+      0.4852536410003291,
+      0.4853021898813218,
+      0.4855408124985912,
+      0.485559164105566,
+      0.48572946734622174,
+      0.48590211361030333,
+      0.4860057318648506,
+      0.48631178722264373,
+      0.4864635671526813,
+      0.4870951106151758,
+      0.4881093211464102,
+      0.48856641877378537,
+      0.4895247416468757,
+      0.493202140486049,
+      0.49544255711363416,
+      0.49603401202935127,
+      0.4968400453674754,
+      0.507457160611898,
+      0.5076679011641747,
+      0.5198388355816166,
+      0.6286936937888151,
+      0.6290302017396845,
+      0.6290386085957849
+    ],
+    "stuck": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      4.0,
+      4.0,
+      6.0,
+      20.0
+    ],
+    "lag": [
+      -0.1999999999999993,
+      0.0,
+      0.1999999999999993,
+      0.19999999999999996,
+      0.6000000000000001,
+      0.8000000000000007,
+      1.2000000000000002,
+      1.4,
+      1.6000000000000014,
+      1.8000000000000007,
+      1.8000000000000007,
+      2.0,
+      2.6000000000000014,
+      3.1999999999999993,
+      3.2,
+      3.6000000000000014,
+      3.6000000000000014,
+      4.199999999999999,
+      4.399999999999999,
+      4.800000000000001,
+      5.199999999999999,
+      5.399999999999999,
+      5.600000000000001,
+      5.799999999999997,
+      5.799999999999997,
+      6.600000000000001,
+      7.600000000000001,
+      7.799999999999997,
+      8.200000000000003,
+      8.200000000000003,
+      8.399999999999999,
+      9.0,
+      10.2,
+      10.200000000000003,
+      11.2,
+      13.200000000000003,
+      15.799999999999997,
+      15.8,
+      15.8,
+      17.4,
+      18.0,
+      18.8,
+      19.2,
+      20.4,
+      21.400000000000006,
+      22.8,
+      26.799999999999997,
+      30.2,
+      31.6,
+      57.6
+    ],
+    "overtime": [
+      0.7916666666666666,
+      0.8333333333333334,
+      0.8363636363636363,
+      0.8518518518518519,
+      0.8571428571428571,
+      0.8695652173913043,
+      0.8727272727272727,
+      0.88,
+      0.8888888888888888,
+      0.8888888888888888,
+      0.8888888888888888,
+      0.8979591836734694,
+      0.8979591836734694,
+      0.9130434782608695,
+      0.9142857142857143,
+      0.92,
+      0.92,
+      0.9259259259259259,
+      0.9382716049382716,
+      0.9565217391304348,
+      0.9565217391304348,
+      0.9583333333333334,
+      0.96,
+      0.96,
+      0.96,
+      0.96,
+      0.9629629629629629,
+      0.9629629629629629,
+      0.9629629629629629,
+      0.9629629629629629,
+      0.9714285714285714,
+      0.9714285714285714,
+      0.9795918367346939,
+      0.9795918367346939,
+      0.9818181818181818,
+      0.9818181818181818,
+      0.9876543209876543,
+      1.0,
+      1.037037037037037,
+      1.04,
+      1.04,
+      1.0416666666666667,
+      1.0416666666666667,
+      1.0612244897959184,
+      1.0740740740740742,
+      1.2098765432098766,
+      1.2222222222222223,
+      1.28,
+      1.4181818181818182,
+      1.4285714285714286
+    ],
+    "progress": [
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      4.0,
+      4.0,
+      4.0,
+      4.0,
+      4.0,
+      4.0,
+      4.0,
+      4.0,
+      4.0,
+      4.0,
+      4.0,
+      4.0,
+      4.0,
+      6.0,
+      6.0,
+      6.0,
+      8.0,
+      10.0,
+      12.0,
+      12.0
+    ],
+    "terminal": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "effective_alpha_successful_library_episodes": 1.0,
+  "effective_alpha_by_task": {
+    "0": 1.0,
+    "1": 1.0,
+    "2": 1.0,
+    "3": 1.0,
+    "4": 1.0,
+    "5": 1.0,
+    "6": 1.0,
+    "7": 1.0,
+    "8": 1.0,
+    "9": 1.0
+  },
+  "quality": {
+    "loeo_chunk_rms_episode_mean": 0.1342634765366194,
+    "label": "frozen-fit imitation diagnostic; not Q1 SR probability"
+  },
+  "caveat": "successful-library recorded policy states, synthetic all-HIT history, vision stride; candidate LOEO only; finite sample p-values, no coverage theorem",
+  "guard_fit_sha256": "407836eb861d7eefc58b8ab288f5f95cedb13d677c2d0ef42741baf0a1295d1f",
+  "library_manifest": {
+    "path": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/manifest.json",
+    "sha256": "9f9e034c3a26b90b14a56553db5c1d6ddc0741164ed7acaef18a99b364e767d8"
+  }
+}

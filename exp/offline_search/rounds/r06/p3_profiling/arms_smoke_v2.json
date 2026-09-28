@@ -1,0 +1,650 @@
+[
+  {
+    "name": "r6p3v2_pi05_l10_50_A_r0_client_smoke",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_50_tail1uc.pkl",
+      "enabled": true,
+      "p": 0.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "current",
+          "kref": 5,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_l10_50.pkl",
+      "design": {
+        "cohort": "A",
+        "cohort_probability": 1.0
+      },
+      "blind_shadow": true,
+      "resample_p": 1.0,
+      "resample_draws": 4,
+      "calibration_path": "<RUN>/calibration/pi05_l10_50.json",
+      "provenance": {
+        "population": "equal weight on ten LIBERO tasks",
+        "task_probability": 0.1,
+        "init_pool_size": 50,
+        "init_pool": "stock benchmark; repeated IDs are not new scenes",
+        "block": 0,
+        "validation_split": "init % 5 != 0; freeze score before unsealing",
+        "design_assignment": "complete matched block; equal cohort allocation, not stochastic assignment"
+      }
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6p3v2_pi05_l10_50_A_r0_client_smoke.pkl"
+    ],
+    "manifest": "<RUN>/manifests/smoke.json"
+  },
+  {
+    "name": "r6p3v2_pi05_l10_50_P10_r0_client_smoke",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_50_tail1uc.pkl",
+      "enabled": true,
+      "p": 1.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "current",
+          "kref": 5,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_l10_50.pkl",
+      "design": {
+        "cohort": "P10",
+        "cohort_probability": 1.0
+      },
+      "blind_shadow": true,
+      "resample_p": 1.0,
+      "resample_draws": 4,
+      "calibration_path": "<RUN>/calibration/pi05_l10_50.json",
+      "provenance": {
+        "population": "equal weight on ten LIBERO tasks",
+        "task_probability": 0.1,
+        "init_pool_size": 50,
+        "init_pool": "stock benchmark; repeated IDs are not new scenes",
+        "block": 0,
+        "validation_split": "init % 5 != 0; freeze score before unsealing",
+        "design_assignment": "complete matched block; equal cohort allocation, not stochastic assignment"
+      }
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6p3v2_pi05_l10_50_P10_r0_client_smoke.pkl"
+    ],
+    "manifest": "<RUN>/manifests/smoke.json"
+  },
+  {
+    "name": "r6p3v2_pi05_l10_50_factorial_r0_client_smoke",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+      "base_kwargs": {
+        "base_kwargs": {
+          "lib": "current",
+          "kref": 5,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_l10_50.pkl",
+      "enabled": true,
+      "p": 0.25,
+      "seed": 603,
+      "replicate": 0,
+      "design": {
+        "cohort": "factorial",
+        "cohort_probability": 1.0,
+        "pre_guard": true,
+        "durations": [
+          5,
+          10
+        ],
+        "holds": [
+          1,
+          2,
+          3
+        ],
+        "cooldown": 1
+      },
+      "blind_shadow": true,
+      "resample_p": 1.0,
+      "resample_draws": 4,
+      "calibration_path": "<RUN>/calibration/pi05_l10_50.json",
+      "provenance": {
+        "population": "equal weight on ten LIBERO tasks",
+        "task_probability": 0.1,
+        "init_pool_size": 50,
+        "init_pool": "stock benchmark; repeated IDs are not new scenes",
+        "block": 0,
+        "validation_split": "init % 5 != 0; freeze score before unsealing",
+        "design_assignment": "complete matched block; equal cohort allocation, not stochastic assignment"
+      },
+      "strata": {
+        "edges": [
+          0.3333333333333333,
+          0.6666666666666666
+        ],
+        "p": [
+          0.125,
+          0.25,
+          0.5
+        ]
+      }
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6p3v2_pi05_l10_50_factorial_r0_client_smoke.pkl"
+    ],
+    "manifest": "<RUN>/manifests/smoke.json"
+  },
+  {
+    "name": "r6p3v2_pi05_l10_50_window_r0_client_smoke",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_50_tail1uc.pkl",
+      "enabled": true,
+      "p": 1.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "current",
+          "kref": 5,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_l10_50.pkl",
+      "design": {
+        "cohort": "window",
+        "cohort_probability": 1.0,
+        "cap": 1,
+        "delays": [
+          0,
+          1,
+          2
+        ],
+        "start_anchor": 2
+      },
+      "blind_shadow": true,
+      "resample_p": 1.0,
+      "resample_draws": 4,
+      "calibration_path": "<RUN>/calibration/pi05_l10_50.json",
+      "provenance": {
+        "population": "equal weight on ten LIBERO tasks",
+        "task_probability": 0.1,
+        "init_pool_size": 50,
+        "init_pool": "stock benchmark; repeated IDs are not new scenes",
+        "block": 0,
+        "validation_split": "init % 5 != 0; freeze score before unsealing",
+        "design_assignment": "complete matched block; equal cohort allocation, not stochastic assignment"
+      }
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6p3v2_pi05_l10_50_window_r0_client_smoke.pkl"
+    ],
+    "manifest": "<RUN>/manifests/smoke.json"
+  },
+  {
+    "name": "r6p3v2_groot_l10_500_A_r0_client_smoke",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_500_tail1u.pkl",
+      "enabled": true,
+      "p": 0.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "big",
+          "kref": 8,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r06_paper/fits/r6p1_c10_g_l10_500.pkl",
+      "design": {
+        "cohort": "A",
+        "cohort_probability": 1.0
+      },
+      "blind_shadow": true,
+      "resample_p": 1.0,
+      "resample_draws": 4,
+      "calibration_path": "<RUN>/calibration/groot_l10_500.json",
+      "provenance": {
+        "population": "equal weight on ten LIBERO tasks",
+        "task_probability": 0.1,
+        "init_pool_size": 50,
+        "init_pool": "stock benchmark; repeated IDs are not new scenes",
+        "block": 0,
+        "validation_split": "init % 5 != 0; freeze score before unsealing",
+        "design_assignment": "complete matched block; equal cohort allocation, not stochastic assignment"
+      }
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6p3v2_groot_l10_500_A_r0_client_smoke.pkl"
+    ],
+    "manifest": "<RUN>/manifests/smoke.json"
+  },
+  {
+    "name": "r6p3v2_groot_l10_500_P10_r0_client_smoke",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_500_tail1u.pkl",
+      "enabled": true,
+      "p": 1.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "big",
+          "kref": 8,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r06_paper/fits/r6p1_c10_g_l10_500.pkl",
+      "design": {
+        "cohort": "P10",
+        "cohort_probability": 1.0
+      },
+      "blind_shadow": true,
+      "resample_p": 1.0,
+      "resample_draws": 4,
+      "calibration_path": "<RUN>/calibration/groot_l10_500.json",
+      "provenance": {
+        "population": "equal weight on ten LIBERO tasks",
+        "task_probability": 0.1,
+        "init_pool_size": 50,
+        "init_pool": "stock benchmark; repeated IDs are not new scenes",
+        "block": 0,
+        "validation_split": "init % 5 != 0; freeze score before unsealing",
+        "design_assignment": "complete matched block; equal cohort allocation, not stochastic assignment"
+      }
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6p3v2_groot_l10_500_P10_r0_client_smoke.pkl"
+    ],
+    "manifest": "<RUN>/manifests/smoke.json"
+  },
+  {
+    "name": "r6p3v2_groot_l10_500_factorial_r0_client_smoke",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+      "base_kwargs": {
+        "base_kwargs": {
+          "lib": "big",
+          "kref": 8,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r06_paper/fits/r6p1_c10_g_l10_500.pkl",
+      "enabled": true,
+      "p": 0.25,
+      "seed": 603,
+      "replicate": 0,
+      "design": {
+        "cohort": "factorial",
+        "cohort_probability": 1.0,
+        "pre_guard": true,
+        "durations": [
+          5,
+          10
+        ],
+        "holds": [
+          1,
+          2,
+          3
+        ],
+        "cooldown": 1
+      },
+      "blind_shadow": true,
+      "resample_p": 1.0,
+      "resample_draws": 4,
+      "calibration_path": "<RUN>/calibration/groot_l10_500.json",
+      "provenance": {
+        "population": "equal weight on ten LIBERO tasks",
+        "task_probability": 0.1,
+        "init_pool_size": 50,
+        "init_pool": "stock benchmark; repeated IDs are not new scenes",
+        "block": 0,
+        "validation_split": "init % 5 != 0; freeze score before unsealing",
+        "design_assignment": "complete matched block; equal cohort allocation, not stochastic assignment"
+      },
+      "strata": {
+        "edges": [
+          0.3333333333333333,
+          0.6666666666666666
+        ],
+        "p": [
+          0.125,
+          0.25,
+          0.5
+        ]
+      }
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6p3v2_groot_l10_500_factorial_r0_client_smoke.pkl"
+    ],
+    "manifest": "<RUN>/manifests/smoke.json"
+  },
+  {
+    "name": "r6p3v2_groot_l10_500_window_r0_client_smoke",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_500_tail1u.pkl",
+      "enabled": true,
+      "p": 1.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "big",
+          "kref": 8,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r06_paper/fits/r6p1_c10_g_l10_500.pkl",
+      "design": {
+        "cohort": "window",
+        "cohort_probability": 1.0,
+        "cap": 1,
+        "delays": [
+          0,
+          1,
+          2
+        ],
+        "start_anchor": 2
+      },
+      "blind_shadow": true,
+      "resample_p": 1.0,
+      "resample_draws": 4,
+      "calibration_path": "<RUN>/calibration/groot_l10_500.json",
+      "provenance": {
+        "population": "equal weight on ten LIBERO tasks",
+        "task_probability": 0.1,
+        "init_pool_size": 50,
+        "init_pool": "stock benchmark; repeated IDs are not new scenes",
+        "block": 0,
+        "validation_split": "init % 5 != 0; freeze score before unsealing",
+        "design_assignment": "complete matched block; equal cohort allocation, not stochastic assignment"
+      }
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6p3v2_groot_l10_500_window_r0_client_smoke.pkl"
+    ],
+    "manifest": "<RUN>/manifests/smoke.json"
+  }
+]

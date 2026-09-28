@@ -1,0 +1,952 @@
+[
+ {
+  "name": "r5t_p_l10_50_tail1uc_rep2",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_50_tail1uc.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5t_p_l10_50_tail1uc_rep3",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_50_tail1uc.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5t_p_l10_500_tail1uc_rep2",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_500_tail1uc.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5t_p_l10_500_tail1uc_rep3",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_500_tail1uc.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5t_p_sp_50_tail1uc_rep2",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_sp_50_tail1uc.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5t_p_sp_50_tail1uc_rep3",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_sp_50_tail1uc.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r4b3_p_sp_500_tail1uc_rep2",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r04_blind/fits/r4b3_p_sp_500_tail1uc.pkl"
+  ]
+ },
+ {
+  "name": "r4b3_p_sp_500_tail1uc_rep3",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r04_blind/fits/r4b3_p_sp_500_tail1uc.pkl"
+  ]
+ },
+ {
+  "name": "r5q1_c10_p_l10_50_rep2",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_l10_50.pkl"
+  ]
+ },
+ {
+  "name": "r5q1_c10_p_l10_50_rep3",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_l10_50.pkl"
+  ]
+ },
+ {
+  "name": "r5q1_c10_p_l10_500_rep2",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_l10_500.pkl"
+  ]
+ },
+ {
+  "name": "r5q1_c10_p_l10_500_rep3",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_l10_500.pkl"
+  ]
+ },
+ {
+  "name": "r5q1_c10_p_sp_50_rep2",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_sp_50.pkl"
+  ]
+ },
+ {
+  "name": "r5q1_c10_p_sp_50_rep3",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_sp_50.pkl"
+  ]
+ },
+ {
+  "name": "r5q1_c10_p_sp_500_rep2",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_sp_500.pkl"
+  ]
+ },
+ {
+  "name": "r5q1_c10_p_sp_500_rep3",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_sp_500.pkl"
+  ]
+ },
+ {
+  "name": "r5x_g_l10_50_tail1u_rep2",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_50_tail1u.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5x_g_l10_50_tail1u_rep3",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_50_tail1u.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5x_g_l10_500_tail1u_rep2",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_500_tail1u.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5x_g_l10_500_tail1u_rep3",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_500_tail1u.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5x_g_sp_50_tail1u_rep2",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_sp_50_tail1u.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5x_g_sp_50_tail1u_rep3",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_sp_50_tail1u.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5x_g_sp_500_tail1u_rep2",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_sp_500_tail1u.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r5x_g_sp_500_tail1u_rep3",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "plugin_args": [
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-fit-artifact",
+   "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_sp_500_tail1u.pkl"
+  ],
+  "cost_ledger": true
+ },
+ {
+  "name": "r6p1_c10_g_l10_50_rep2",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p1_c10_g_l10_50.pkl"
+  ]
+ },
+ {
+  "name": "r6p1_c10_g_l10_50_rep3",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p1_c10_g_l10_50.pkl"
+  ]
+ },
+ {
+  "name": "r6p1_c10_g_l10_500_rep2",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p1_c10_g_l10_500.pkl"
+  ]
+ },
+ {
+  "name": "r6p1_c10_g_l10_500_rep3",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p1_c10_g_l10_500.pkl"
+  ]
+ },
+ {
+  "name": "r6p1_c10_g_sp_50_rep2",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p1_c10_g_sp_50.pkl"
+  ]
+ },
+ {
+  "name": "r6p1_c10_g_sp_50_rep3",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p1_c10_g_sp_50.pkl"
+  ]
+ },
+ {
+  "name": "r6p1_c10_g_sp_500_rep2",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p1_c10_g_sp_500.pkl"
+  ]
+ },
+ {
+  "name": "r6p1_c10_g_sp_500_rep3",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+  "kwargs": {
+   "base_kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "progress_guard": "noprog_span",
+   "events": "none",
+   "stuck_guard": "vision_confirmed",
+   "policy_tail_gate": "lifecycle",
+   "monitor": "off"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-no-shadow-native",
+   "--os-fit-artifact",
+   "<RUN>/fits/r6p1_c10_g_sp_500.pkl"
+  ]
+ }
+]

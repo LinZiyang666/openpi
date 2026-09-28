@@ -1,0 +1,2594 @@
+[
+  {
+    "arm": "r6p3v2_pi05_l10_50_A_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_A_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_A_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_dose125_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_dose125_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_dose125_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_dose25_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_dose25_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_dose25_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_dose50_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_dose50_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_dose50_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_P10_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_P10_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_P10_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_B_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_B_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_B_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_factorial_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_factorial_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_factorial_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_window_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_window_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_window_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_dose_mix_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_dose_mix_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_50_dose_mix_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_A_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_A_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_A_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_dose125_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_dose125_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_dose125_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_dose25_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_dose25_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_dose25_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_dose50_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_dose50_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_dose50_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_P10_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_P10_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_P10_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_B_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_B_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_B_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_factorial_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_factorial_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_factorial_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_window_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_window_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_window_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_dose_mix_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_dose_mix_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_l10_500_dose_mix_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_A_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_A_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_A_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_dose125_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_dose125_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_dose125_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_dose25_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_dose25_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_dose25_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_dose50_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_dose50_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_dose50_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_P10_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_P10_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_P10_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_B_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_B_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_B_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_factorial_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_factorial_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_factorial_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_window_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_window_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_window_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_dose_mix_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_dose_mix_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_50_dose_mix_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_A_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_A_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_A_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_dose125_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_dose125_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_dose125_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_dose25_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_dose25_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_dose25_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_dose50_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_dose50_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_dose50_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_P10_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_P10_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_P10_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_B_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_B_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_B_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_factorial_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_factorial_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_factorial_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_window_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_window_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_window_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_dose_mix_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_dose_mix_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_pi05_sp_500_dose_mix_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_A_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_A_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_A_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_dose125_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_dose125_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_dose125_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_dose25_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_dose25_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_dose25_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_dose50_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_dose50_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_dose50_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_P10_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_P10_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_P10_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_B_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_B_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_B_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_factorial_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_factorial_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_factorial_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_window_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_window_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_window_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_dose_mix_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_dose_mix_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_50_dose_mix_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_A_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_A_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_A_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_dose125_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_dose125_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_dose125_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_dose25_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_dose25_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_dose25_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_dose50_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_dose50_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_dose50_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_P10_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_P10_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_P10_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_B_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_B_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_B_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_factorial_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_factorial_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_factorial_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_window_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_window_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_window_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_dose_mix_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_dose_mix_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_l10_500_dose_mix_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_A_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_A_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_A_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_dose125_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_dose125_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_dose125_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_dose25_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_dose25_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_dose25_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_dose50_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_dose50_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_dose50_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_P10_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_P10_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_P10_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_B_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_B_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_B_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_factorial_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_factorial_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_factorial_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_window_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_window_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_window_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_dose_mix_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_dose_mix_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_50_dose_mix_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_A_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_A_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_A_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_dose125_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_dose125_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_dose125_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_dose25_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_dose25_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_dose25_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_dose50_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_dose50_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_dose50_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_P10_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_P10_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_P10_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_B_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_B_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_B_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_factorial_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_factorial_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_factorial_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_window_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_window_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_window_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_dose_mix_r0",
+    "pilot_manifest": "<RUN>/manifests/pilot_r0.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r0.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 230,
+    "full_episodes": 250,
+    "client_env": {
+      "P3_ENV_SEED": "603"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_dose_mix_r1",
+    "pilot_manifest": "<RUN>/manifests/pilot_r1.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r1.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 130,
+    "full_episodes": 150,
+    "client_env": {
+      "P3_ENV_SEED": "604"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  },
+  {
+    "arm": "r6p3v2_groot_sp_500_dose_mix_r2",
+    "pilot_manifest": "<RUN>/manifests/pilot_r2.json",
+    "continuation_manifest": "<RUN>/manifests/continuation_r2.json",
+    "pilot_episodes": 20,
+    "continuation_episodes": 80,
+    "full_episodes": 100,
+    "client_env": {
+      "P3_ENV_SEED": "605"
+    },
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh"
+  }
+]
