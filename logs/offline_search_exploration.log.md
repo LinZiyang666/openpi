@@ -1152,3 +1152,4 @@ exp/offline_search/
 - **21:4x Q4 第一轮交回**（`rounds/r05/q4_growth/HANDBACK.md`）：grow250 已写入两份 store。l10 为 50 集 + 250 集采集中的 208 个成功集，共 13,121 行，付费策略调用 14,849 次；spatial 为 49 集 + 248 个成功集，共 6,240 行，付费调用 5,310 次。去重 0；标注"50 + 250 集策略数据"。`GrowthAWM` 有 refit / frozen 两种变体（frozen 沿用 R2 CL2-50 的拟合），4 个 CL2 预拟合在 `r05_growth/fits`。
 - **21:4x 续聊 Q4**（`codex exec resume 01a0e5d0-5d54-7670-bbb9-b5b2b3f76b7a`，PID 2294080，danger-full-access，gpt-6-astra xhigh）：追加示范数据规模曲线（100 / 200 / 300 集嵌套子集 × refit / frozen50，离线曲线，8 个纯缓存 anchor_tail 臂）。**这是第一次按 thread id 续聊指定的 codex**，保留了完整上下文。
 - **21:4x handoff 覆写**（owner 要求，compact 前）：§0 的 md5 不变（aa8781613cf4）。
+- **21:5x 提交 e8980cd**：R4 追加编码 K5–K10、R5 构思 A–D、选题、CODING_BRIEF、FINDINGS、Q2，以及台账和 handoff（212 个文件，只含代码、文档和臂规格）。

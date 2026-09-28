@@ -62,7 +62,7 @@ owner 的常驻指令，逐字有效：
 | 阶段 | 状态 |
 |---|---|
 | R4 构思 / 选题 / 编码 K1–K4 | ✅ 已提交 6e1cab5 |
-| R4 追加编码 K5–K10 | ✅ 全部交回，**尚未提交**（见 §5 第 1 步） |
+| R4 追加编码 K5–K10 | ✅ 全部交回，已提交 e8980cd（只提交代码、文档与臂规格；大的结果 JSON / NPZ 没进 git） |
 | R4 闭环 | 🔄 剩 csl（GS 在跑，还有 50 集的 G / GS）、K5 g50 的 r2（在跑）、两个 K10 种子臂、GR00T 纯缓存盲走 8 臂 |
 | R4 分析与提交 | ⏳ `rounds/r04/ANALYSIS_BRIEF.md` 初稿已写，需按 §2 更新后派 codex 分析 agent |
 | R5 构思 A–D | ✅ `rounds/r05/ideation_{A,B,C,D}/REPORT.md` |
@@ -115,7 +115,7 @@ owner 的常驻指令，逐字有效：
   - 要跳过某臂：写 `state/<arm>.DONE` + `.SKIPPED`。要推迟：写 `.DONE` + `.DEFERRED`，由后面的接力删掉 DONE 后再跑。
 
 ## 5. 下一步（按顺序）
-1. **提交 R4 编码阶段**（K5–K10 + R5 构思与选题；只加本线路径；json 规格要 `git add -f`；大的结果 JSON / NPZ 不提交；作者 LinZiyang666，英文信息，不加 AI 署名，不 push）。
+1. ✅ 已提交 e8980cd（K5–K10、R5 构思 / 选题 / Q2）。以后每个阶段照此：只加本线的 .py / .sh / .md 和臂规格 json（`git add -f`），不加 results/、dev/、before/ 和大于 1 MB 的文件。
 2. **GR00T smoke**：通过就给 `r05_q2` 的 6 臂开一个接力，排在某条线的末尾。
 3. **Q4 交回**：读 HANDBACK，再续聊 Q4（thread 见 §4）加示范数据规模曲线，指令在 `rounds/r05/prompts/Q4_followup_demo_curve.md`。grow250 的 4 臂用清单 inits 25–49 跑，与 R2 的 50 / 500 CL2 同一批初始状态的子集比较（K4 的 kpi 支持 `--manifest`）。
 4. **Q1 交回**：做 C10 的 smoke，确认 policy_tail 真的在 MISS 后发出。然后跑 C10 × {l10, sp} × {50, 500} 和 D1 × l10 两种规模。
@@ -132,7 +132,7 @@ owner 的常驻指令，逐字有效：
 - **store root**：arm 的 plugin_args 带 `--os-root /home/weiland/trace_runs/offline_search_store` 时，预拟合要用同一个 root（冷、热两份内容相同）。
 - **插件现状**：K6（按连接加锁）、K5（随机化）、K10（π0.5 policy tail）、Q2（GR00T policy tail、blocks、CycleTail）都已安装。不带新 flag 时行为逐字节不变。Q5 下一个合入。
 - **collect** 偶尔因 `tether pull` 瞬时失败（COLLECT_FAILED），手动重跑 `ops.collect --run-root <R> <arm>` 即可。
-- **提交**：只加本线路径，作者 LinZiyang666，英文，不加 AI 署名，不 push。最近的本线提交：44c9136、6e1cab5。
+- **提交**：只加本线路径，作者 LinZiyang666，英文，不加 AI 署名，不 push。最近的本线提交：e8980cd、44c9136、6e1cab5。
 - **台账时间戳**：写之前先 `date`，别写超前（犯过一次）。
 
 ---
