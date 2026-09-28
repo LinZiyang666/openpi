@@ -17,6 +17,8 @@ def main():
             ("P3_SNAPSHOT_DIR", ""), ("P3_SNAPSHOT_EVERY", "1"), ("P3_SNAPSHOT_P", "1"), ("P3_ENV_SEED", "7"))}}
         if not kw["env"]["P3_SNAPSHOT_DIR"]:
             raise ValueError("P3_SNAPSHOT_DIR required")
+        if os.environ.get("P3_STREAM"):
+            kw["env"].update({k: v for k, v in os.environ.items() if k == "P3_STREAM" or k.startswith("P3_STREAM_")})
         return original(*args, **kw)
     run_gtp.WorkerSpec = spec
     if (os.environ.get("OSCL_EPISODES") or os.environ.get("OSCL_MANIFEST")

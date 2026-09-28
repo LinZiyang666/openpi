@@ -57,6 +57,7 @@ def main():
     ap.add_argument("--run-root", type=Path, required=True)
     ap.add_argument("--arm", required=True)
     ap.add_argument("--archive", type=Path, help="local fixture/already pulled tar; no remote access")
+    ap.add_argument("--cleanup", action="store_true", help="verify extracted SHA and accepted journal attempts, then remove exact remote telemetry/tar")
     a = ap.parse_args()
     for value in (a.run_root.name, a.arm):
         if not re.fullmatch(r"[A-Za-z0-9_-]+", value):
@@ -88,6 +89,15 @@ def main():
         raise ValueError("telemetry archive has no control traces")
     report = dict(files=count, local_sha256=digest, remote_sha256=remote_sha,
                   directory=str(dest), network_used=a.archive is None)
+    if a.cleanup:
+        if a.archive is not None:
+            raise ValueError("--cleanup requires this collector's verified remote archive")
+        from .stream_collect import certify_tree, verify_archive, verify_arm, cleanup_remote
+        proof = verify_archive(archive, dest)
+        certify_tree(a.run_root, a.arm)
+        report["accepted_verification"] = verify_arm(a.run_root, a.arm)
+        cleanup_remote(a.run_root, a.arm, proof, digest)
+        report["cleaned_remote"] = True
     (parent / "client_telemetry_collect.json").write_text(json.dumps(report, indent=2)+"\n")
     print(json.dumps(report))
 

@@ -27,7 +27,7 @@
  WPS=${WPS:-16}
  MAX_ATTEMPTS=${MAX_ATTEMPTS:-3}
 -export CPUS=${SERVER_CPUS:-34-37,78-81}
-+export CPUS=${SERVER_CPUS:-2-5,46-49}
++export CPUS=${SERVER_CPUS:-6-9,50-53}
  LOG=$RUN/runs/chain.log
  STATE=$RUN/state
  mkdir -p "$RUN/runs" "$STATE"
@@ -36,20 +36,22 @@
  rx() { timeout 300 tether exec timan107 -- bash -c "$1" 2>/dev/null; }
 -field() { python3 -c "import json,sys; a={r['arm']:r for r in json.load(open('$RUN/arms.json'))}[sys.argv[1]]; v=a[sys.argv[2]]; print(json.dumps(v) if isinstance(v,(dict,list)) else v)" "$1" "$2"; }
 -field_or() { python3 -c "import json,sys; a={r['arm']:r for r in json.load(open('$RUN/arms.json'))}[sys.argv[1]]; v=a.get(sys.argv[2], sys.argv[3]); print(json.dumps(v) if isinstance(v,(dict,list,bool)) else v)" "$1" "$2" "$3"; }
-+py() { taskset -c 2-5,46-49 env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src "$R/.venv/bin/python" "$@"; }
++py() { taskset -c 6-9,50-53 env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src "$R/.venv/bin/python" "$@"; }
 +field() { py -c "import json,sys; a={r['arm']:r for r in json.load(open('$RUN/arms.json'))}[sys.argv[1]]; v=a[sys.argv[2]]; print(json.dumps(v) if isinstance(v,(dict,list)) else v)" "$1" "$2"; }
 +field_or() { py -c "import json,sys; a={r['arm']:r for r in json.load(open('$RUN/arms.json'))}[sys.argv[1]]; v=a.get(sys.argv[2], sys.argv[3]); print(json.dumps(v) if isinstance(v,(dict,list,bool)) else v)" "$1" "$2" "$3"; }
  
  if [ -n "${OSCL_EPISODES:-}" ]; then
    ne=$(echo "$OSCL_EPISODES" | tr ',' '\n' | grep -c .)
-@@ -49,12 +52,16 @@
+@@ -48,13 +51,18 @@
+ 
  selection_for() {
    local arm=$1 info
++  if [ -f "$STATE/P3_STREAM_PORT" ]; then export P3_STREAM_PORT=$(cat "$STATE/P3_STREAM_PORT"); fi
    MANIFEST=${OSCL_MANIFEST:-$(field_or "$arm" manifest '')}
 +  local planned
-+  planned=$(py "$P3/client_plan.py" --run-root "$RUN" --arm "$arm" --field manifest) || return 1
++  planned=$(py -m exp.offline_search.rounds.r06.p3_profiling.client_plan --run-root "$RUN" --arm "$arm" --field manifest) || return 1
 +  [ -z "$MANIFEST" ] && MANIFEST=$planned
-+  P3_ENVS=$(py "$P3/client_plan.py" --run-root "$RUN" --arm "$arm" --field env_prefix) || return 1
++  P3_ENVS=$(py -m exp.offline_search.rounds.r06.p3_profiling.client_plan --run-root "$RUN" --arm "$arm" --field env_prefix) || return 1
    EXPECT=$LEGACY_EXPECT
    DONE="$STATE/$arm.DONE"
    REMOTE_MANIFEST=""
@@ -60,7 +62,7 @@
      read -r EXPECT MANIFEST_SHA <<< "$info"
      DONE="$STATE/$arm.manifest_$MANIFEST_SHA.DONE"
      REMOTE_MANIFEST="$ISL/cfg/manifest_${TAG}_${arm}_${MANIFEST_SHA}.json"
-@@ -72,7 +79,7 @@
+@@ -72,7 +80,7 @@
      MANIFEST="$saved"
    fi
    if [ -n "$MANIFEST" ] || [ -f "$RUN/runs/$arm/selection.json" ]; then
@@ -69,7 +71,7 @@
  import json, os, sys
  p, manifest = sys.argv[1:]
  with open(p + '.tmp', 'w') as f:
-@@ -83,7 +90,7 @@
+@@ -83,7 +91,7 @@
  }
  
  server_args() {  # $1 arm -> NUL-separated plugin args on stdout
@@ -78,7 +80,7 @@
  import json, sys
  a = {r["arm"]: r for r in json.load(open(sys.argv[1]))}[sys.argv[2]]
  if a["mode"] == "stock":
-@@ -109,7 +116,7 @@
+@@ -109,7 +117,7 @@
    if [ "$free" -lt $((need * n)) ]; then ev "GPU_TIGHT arm=$arm free=${free}MiB need=$((need * n))MiB -> not starting"; return 1; fi
    mapfile -d '' args < <(server_args "$arm")
    seed_base=$(field_or "$arm" server_seed '')
@@ -87,11 +89,17 @@
  import json, sys
  a = {r['arm']: r for r in json.load(open(sys.argv[1]))}[sys.argv[2]]
  sys.stdout.write(''.join(f'{k}={v}\0' for k, v in a.get('server_env', {}).items()))
-@@ -170,11 +177,12 @@
+@@ -169,12 +177,18 @@
+   sw=$(echo "$PORTS" | tr , '\n' | sed "s/.*/$WPS/" | paste -sd,)
    echo "$arm" > "$STATE/current"
    mkdir -p "$RUN/runs/$arm"
++  if [ -n "${P3_STREAM_PORT:-}" ]; then
++    py -m exp.offline_search.rounds.r06.p3_profiling.stream_collect --run-root "$RUN" --arm "$arm" \
++      --health "127.0.0.1:$P3_STREAM_PORT" --token-file "${P3_STREAM_TOKEN_FILE:-$RUN/state/p3_stream.token}" \
++      >> "$LOG" 2>&1 || { ev "P3_RECEIVER_UNHEALTHY arm=$arm"; return 1; }
++  fi
    prepare_selection "$arm" || return 1
-+  py "$P3/client_plan.py" --run-root "$RUN" --arm "$arm" > "$RUN/runs/$arm/p3_client_plan.json" || return 1
++  py -m exp.offline_search.rounds.r06.p3_profiling.client_plan --run-root "$RUN" --arm "$arm" > "$RUN/runs/$arm/p3_client_plan.json" || return 1
    ev "ARM_START arm=$arm suite=$suite ports=$PORTS workers=$sw expect=$EXPECT t107=[$(rx 'uptime | sed "s/.*average: //"; free -g | awk "/^Mem/{print \$7\"G\"}"' | tr '\n' ' ')]"
    servers_up "$arm" || return 1
    ev "SERVERS_READY arm=$arm gpu_used=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader)"
@@ -102,7 +110,7 @@
    [ -n "${OSCL_TASKS:-}" ] && envs="${envs}OSCL_TASKS=$OSCL_TASKS "
    [ -n "$REMOTE_MANIFEST" ] && envs="${envs}OSCL_MANIFEST=$REMOTE_MANIFEST "
    local replan; replan=$(field_or "$arm" replan_steps '')
-@@ -185,7 +193,7 @@
+@@ -185,7 +199,7 @@
      collect_args=(--manifest "$MANIFEST")
    fi
    for a in $(seq 1 "$MAX_ATTEMPTS"); do
@@ -111,7 +119,7 @@
      note "driver attempt $a launched"
      while :; do
        sleep 60
-@@ -204,13 +212,15 @@
+@@ -204,13 +218,20 @@
        st=$(rx "tmux -L oscl has-session -t oscl_$arm 2>/dev/null && echo RUN || echo GONE \$(grep -o 'RUN_ARM_EXIT=[0-9]*' $O/$arm/driver.log | tail -1)")
        case "$st" in RUN) ;; GONE*) note "driver ended: $st"; break ;; *) note "remote status unreadable" ;; esac
      done
@@ -126,16 +134,25 @@
 -        || ev "COLLECT_FAILED arm=$arm"
 +      py -m exp.offline_search.closed_loop.ops.collect --run-root "$RUN" "$arm" "${collect_args[@]}" >> "$LOG" 2>&1 \
 +        || { ev "COLLECT_FAILED arm=$arm"; return 1; }
-+      py "$P3/collect_client.py" --run-root "$RUN" --arm "$arm" >> "$LOG" 2>&1 \
-+        || { ev "P3_COLLECT_FAILED arm=$arm"; return 1; }
++      if [ -n "${P3_STREAM_PORT:-}" ]; then
++        py -m exp.offline_search.rounds.r06.p3_profiling.stream_collect --run-root "$RUN" --arm "$arm" --collect >> "$LOG" 2>&1 \
++          || { ev "P3_STREAM_VERIFY_FAILED arm=$arm"; return 1; }
++      else
++        py -m exp.offline_search.rounds.r06.p3_profiling.collect_client --run-root "$RUN" --arm "$arm" --cleanup >> "$LOG" 2>&1 \
++          || { ev "P3_COLLECT_FAILED arm=$arm"; return 1; }
++      fi
        touch "$DONE"
        return 0
      fi
-@@ -218,6 +228,7 @@
+@@ -218,6 +239,11 @@
    done
    ev "ARM_FAILED arm=$arm after $MAX_ATTEMPTS attempts"
    servers_down "$arm"
-+  py "$P3/collect_client.py" --run-root "$RUN" --arm "$arm" >> "$LOG" 2>&1 || ev "P3_PREFIX_COLLECT_FAILED arm=$arm"
++  if [ -z "${P3_STREAM_PORT:-}" ]; then
++    py -m exp.offline_search.rounds.r06.p3_profiling.collect_client --run-root "$RUN" --arm "$arm" >> "$LOG" 2>&1 || ev "P3_PREFIX_COLLECT_FAILED arm=$arm"
++  else
++    ev "P3_STREAM_PREFIX_RETAINED arm=$arm (receiver partials and any marked remote spill; no cleanup)"
++  fi
    return 1
  }
  

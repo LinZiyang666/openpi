@@ -381,6 +381,7 @@ exp/offline_search/
    - **fable 不许用得很频繁**（22:5x 补充）：困难任务在 codex 与 fable 之间混着派，以 codex 为主，fable 偶尔用。
    - （2026-09-28 12:4x 补充）codex 额度即将重置：**之后多用 codex，把原先给 opus 的很多编码工作也交给 codex**。
    - 三者都不看守长实验（第 14 条照旧）；每阶段 agent 数仍是静态常量。
+   - ⛔ （2026-09-28 16:2x 补充，取代上面关于 fable 的两条）**没有 owner 的允许不准用 fable**。困难任务一律交 codex，常规编码 codex 优先、opus 次选。
 
 ## 10. 台账
 
@@ -1356,3 +1357,63 @@ exp/offline_search/
 - **15:5x B 重复**：GR00T sp 50 `r6p1_c10_g_sp_50_rep2` **SR .874**（原 .874，持平；守卫版 B 在这一格仍然不优于 A .868）。
 - **16:0x B 重复**：GR00T sp 500 `r6p1_c10_g_sp_500_rep2` **SR .960**（原 .958）。
 - **16:1x handoff 覆写**（owner 要求，compact 前；§0 未动，diff 只在第 3 行与第 55 行之后）。R6 当前状态、线程 id、在跑的 tmux / 等待脚本、下一步都写入 §1–§6。R6 目前的代码与文档（P1 / P2 / P3、四份构思报告与脚本、FINDINGS、DATA_WISHLIST、prompts、接力脚本拷到 `rounds/r06/ops/`）随本次提交入库（构思的分析输出 json、results/、client_bundle/ 不入库）。
+- **16:2x A 第三次**：π0.5 l10 50 `r5t_p_l10_50_tail1uc_rep3` **SR .726**。A l10-50 三次：.706 / .710 / .726，均值 .714。
+- **16:1x v2 客户端 smoke 第 3 臂**（`r6p3v2_pi05_l10_50_factorial_r0_client_smoke`，守卫前随机化的析因队列）：4 集 SR .5，v .588、m .305，owner IR .348（影子策略的 profiling 开销另计，不进 IR）。第 4 臂（延迟窗口）16:1x 起跑。
+- **16:2x A 第三次**：π0.5 l10 500 `r5t_p_l10_500_tail1uc_rep3` **SR .834** @ owner IR .077（对原 .828 +25/−22，p=.77）。A l10-500 三次：.828 / .820 / .834，均值 .827。
+- **16:2x v2 客户端 smoke 第 4 臂**（`r6p3v2_pi05_l10_50_window_r0_client_smoke`，延迟窗口队列）：4 集 SR .5，v .500、m .013，owner IR .087。π0.5 四臂跑完，GR00T 四臂接着跑。
+- **16:2x owner 两条新指令**：
+  1. **没有 owner 的允许不准用 fable**（记入 §9 第 15 条补充与记忆）。
+  2. **数据不存 timan107，尝试实时回传本机**。实测客户端遥测每集约 35 MB，几乎全是逐控制步的 `controls.jsonl`，快照 npz 很小。现状是写在 timan107 的 `/scratch`，每臂结束时打包进同盘的 `/tmp` 再拉回，**从不删除**；而 timan107 根盘只剩 40 GB，pilot 约 150 GB。处理分两步：
+     - 立即：pilot 包装 `tmp/p3_pilot_line.sh`（拷在 `rounds/r06/ops/`）每臂收回后核对本地 sha 等于远端 sha，再删远端目录与 tar（`rm -r`，不带 -f），远端最多只留在跑的一臂。
+     - 真正实时回传交 codex（P3 线程续聊，tmux `cx_p3s`，任务 `rounds/r06/prompts/P3_stream.md`）：本机接收端 + 客户端后台流式发送（py3.8、断线续传、失败时本地落盘兜底）+ chain_p3 集成，落盘布局与现在逐字节一致，读取器不改；交回后先跑 stream smoke，再把 pilot 余下的臂切过去。
+- **16:2x pilot 准备**：运行目录 `r06_p3_pilot`，216 臂（8 格 × 9 队列 × 3 种子块，每臂 20 集 = 10 任务 × 初始 0–1），规格占位符已替换，emit 完成；prefit 在 tmux `p3pilot_prefit` 跑（26-29,70-73）；客户端包（444 文件，含 432 个臂配置）已部署到 timan107，远端 sha 逐文件一致。
+  - 队列顺序 `pilot_queue.txt`：先 50 集库格（π0.5 l10、GR00T sp、π0.5 sp、GR00T l10），再 500 集库格；格内按种子块，每块 9 个队列。
+  - chain_p3 冻结一份到 `r06_p3_pilot/ops/`，避免 codex 改文件时影响在跑的 bash。
+  - line_P6A 改为 `line_P6A_loop3.sh`：smoke 或 pilot 在跑时，空闲显存 ≥ 30 GB 才启动（原来只让位给 smoke）。
+- **16:3x A 第三次**：π0.5 sp 50 `r5t_p_sp_50_tail1uc_rep3` **SR .828** @ owner IR .077（对原 .838 +12/−17，p=.46）。A sp50 三次：.838 / .844 / .828，均值 .837。
+- **16:31 line_P6B 在 `r4b3_p_sp_500_tail1uc_rep3` 启动时 OOM**（纯缓存 server 也放不下：他项目 sandpile 此时约 35 GB，加上 smoke 的 GR00T server）。23160/61 无残留 server。line_P6B2 原本会在 P6B 结束后立刻起触发器逐项臂（需 2 × 9 GB），趁它还在等待循环里就停掉了（没有产生任何产物）。**按显存需求重排剩下的论文臂**：
+  - **纯缓存线** `line_P6C2`（23162/63，`tmp/line_P6C2.sh`）：A sp500 rep3 与 GR00T A rep2/rep3 共 9 臂（每臂约 5 GB）。空闲 ≥ 6.5 GB 连续 3 分钟才启动；pilot 换臂空档（23164 没在监听）时要 ≥ 17 GB，不抢 pilot。pilot 起来后再开。
+  - **全模型线** `line_P6A`（23150/51，`tmp/line_P6A_loop4.sh` → `line_P6A_v2.sh`）：π0.5 B 重复 6 臂（sp50 rep2、sp500 rep2、四格 rep3）、GR00T B rep3 4 臂，接着 `r06_abl` 触发器逐项 16 臂。空闲 ≥ 20 GB，且 smoke 或 pilot 在跑时 ≥ 30 GB。
+  - **优先级**：pilot > 纯缓存线 > 全模型线。sandpile 占 26–35 GB 时，全模型臂要等它让出显存。
+- **16:3x owner 让 sandpile 让出约 10 GB 显存**。v2 smoke 已完成的 6 臂 `read_v2 --require-stage-counts --require-snapshots` 通过（24 集、8,235 条控制记录、1,606 个决策、834 个锚点，无报错；表在 `r06_p3_v2_client_smoke/tables_v2_smoke6`）。pilot 第一格就是 π0.5 l10-50，π0.5 四臂已验过，所以 **16:39 在 23165 起 pilot 第一条线 L1**（`p3pilot_L1`），不等 GR00T 最后两臂；GR00T 两臂跑完后补核，赶在 pilot 跑到 GR00T 格之前。
+- **16:4x 显存按预算分配**：
+  - sandpile 让出后预计还占约 25 GB，我们的长期预算约 23.5 GB，写在 `tmp/gpu_budget_mb`（owner 再调时改这个数）。
+  - 各线启动条件统一改为 `tmp/gpu_gate.sh`：我们自己 server 的显存 + 新需求 + pilot 换臂预留 ≤ 预算，且实际空闲够用；不再只看当下空闲（sandpile 用量起伏，曾在 16:38 临时掉到 6 GB，全模型线趁机起了两个 server）。
+  - 这两个 server 已按 PID 停掉（第一臂还在启动，没有任何产物）。
+  - 预算内的分配：pilot 两条线（L1 23165；L2 等 smoke 让出 23164 后起）约 2 × 8–9 GB + 纯缓存线 `line_P6C2` 约 5 GB。
+  - 全模型线 `line_P6A`（`line_P6A_loop5.sh`，π0.5 B 重复 6、GR00T B rep3 4、触发器逐项 16）在预算内放不下，等 pilot 结束或预算上调。
+- **pilot 监控**：Monitor `tmp/p3_pilot_watch.sh` 只报车道异常、第一臂完成、每格 27 臂完成；逐臂进度归 cron（`ff6cb457`，:17 / :47）。
+- **16:47 pilot 第一臂**（`r6p3v2_pi05_l10_50_A_r0`，一个 π0.5 server、20 个 worker）：20 集 5 分钟跑完，SR .8，每集 63 个决策；账本 IR .072（影子策略的实测开销另计 .32）。**客户端遥测收回失败**：未压缩 tar 482 MB，超过 tether broker 单文件上限 447,074,607 字节（`pull refused: code=too_large`）。
+  - 处理：`r06_p3_pilot/ops/collect_client_pilot.py`（远端 `gzip -1`；仍超过 400 MB 就切块逐块拉取，本地拼回后核对整包 sha，再删远端分块），冻结的 chain 副本原子替换为调用它。P3 原文件没动，codex 正在改它。
+  - 重试后 16:54 通过：压缩后 185 MB，一次拉完，660 个文件，本地 sha 等于远端 sha，远端已清理。
+  - 两条线：L1 23165、L2 23164（server CPU 10-13,54-57），每臂约 8.5 分钟（含约 2.3 分钟 server 启动与收回），预计约 15 小时跑完 216 臂。
+- **16:4x v2 客户端 smoke 8 臂全部通过**：`read_v2 --require-stage-counts --require-snapshots`，32 集、10,876 条控制记录、2,120 个决策、1,111 个锚点，表在 `tables_v2_smoke8b`。第一次 8 臂合查报"缺遥测"，是因为最后一臂还没收回就跑了读取器，单臂复查与重跑均通过。timan107 上的 smoke 遥测已在核对 sha 后删除。GR00T smoke：A .75、P10 1.0、析因 .75、窗口 .75。
+- **16:5x 续聊 codex Q1 / Q2 / Q3**（tmux `cx_q1p` / `cx_q2p` / `cx_q3p`，任务 `rounds/r06/prompts/Q{1,2,3}_prereg.md`，公共部分 `Q_prereg_common.md`）：趁 pilot 第一格还没跑完，在 smoke 表上把各自的 pilot 分析管线写好，并**预先登记**主要估计量、对照与判定规则（`ideation_Q*/PREREG.md`），数据一到直接跑，不先看数据再定分析。
+  - 分工：Q1 用逐锚点的"缓存块与影子策略块的距离"检验并重拟库质量分；Q2 用固定剂量 / 剂量混合 / B 估剂量–成功率曲线，定调用预算规则；Q3 用守卫前随机化 / 延迟窗口的倾向分估一次调用的因果价值随状态的变化，定放置规则。
+  - fable 的 G 报告作为 Q2 / Q3 的输入。按 owner 16:2x 裁定不再派 fable。
+- **17:2x codex P3 交回实时回传**（`rounds/r06/p3_profiling/STREAMING.md`，HANDBACK 首节）：本机接收端 `stream_receiver`，客户端后台发送（py3.8 标准库，8 MiB 有界队列，按字节偏移确认、断线续传、幂等重发，持续失败时本地落盘兜底），落盘布局与文件模式逐字节一致（读取器不改），两种模式都在核对 sha 后清理远端。chain_p3 新版支持 `P3_STREAM_PORT`（也可在换臂时读 `<RUN>/state/P3_STREAM_PORT`）。本机回环测试：20 个 worker 以 3.42 MB/s 传完 699 MB，无落盘兜底，入队 p95 2.1 ms；接收端被杀后重启、丢确认、重复帧、慢接收端、兜底恢复都通过。跨网与真实仿真未验证。
+  - **17:27 起 stream smoke**（`r06_p3_stream_smoke`，接收端 23170、策略 23166，π0.5 l10-50 与 GR00T l10-500 各一个 P10 臂 × 4 集，`tmp/p3_stream_smoke.sh`，过显存预算门）。客户端包已部署（新版客户端模块，文件模式下与旧版逐字节一致，pilot 后续臂也会用到），接收端健康检查通过。
+- **17:2x Q2 预登记交回**（`ideation_Q2/PREREG.md`）：
+  - 给 owner 的旋钮定为**目标 IR ρ**，不是守卫水平 α。
+  - 预算算法：按库给出的风险（Q1 分数，或兜底用库内留一状态距离）或均匀方式，把总推理预算分到各任务；每集开头在两个相邻固定剂量之间抽签，整集保持，这样 pilot 的固定剂量队列能直接估出它的 SR / IR。
+  - 判定规则：SR 不低于 P10 超过 2 pp，且 SR、IR 都不输 B 的候选里取 IR 最低者（Bonferroni 296 个检验）。pilot 半宽约 14 pp，只能看趋势，全量约 5 pp；2 pp 级别的认证需要远超全量的样本。
+- **17:3x Q3 预登记交回**（`ideation_Q3/PREREG.md`，`analyze_pilot.py`；smoke 32 集 / 1,111 个锚点跑通，16 项统计自检通过）：
+  - pilot 结果不自动替换 B。
+  - 候选"零成本门"6 个：覆盖好、近邻分歧大、早期阶段、进度停滞、此前无 MISS、G 的六项守卫门（α=.20）。只有当某个门的调用效应富集与门内调用效应的同时置信下界都为正时才提名（6 × 8 = 48 个次级选择位）。
+  - 放置策略 P(g)：门开时以概率 q 调用一次策略块，执行 min(H, 2R) 步、保持 1、冷却 1 个锚点；q 只在任务的少量记录轨迹上回放标定，使计划 IR 不超过 B。
+  - 接受条件：新的配对闭环里 SR(P) − SR(P10) 与 SR(P) − SR(B) 的单侧 95% 下界都 > −1 pp，且 IR 不高于 B。
+  - 与 Q2 一致：pilot 只能看方向，下结论需要全量续跑（Q3 必需的队列是 A、B、P10、析因、窗口、dose25，共 21,120 集）；1 pp 级别的认证即使全量也做不到。
+- **17:3x Q1 预登记交回**（`ideation_Q1/PREREG.md`，`pilot_q1.py`；smoke 32 集 / 1,111 个锚点跑通，10 项统计自检通过）：
+  - 标签 E = 同一观测下缓存块与影子策略块在前 min(2R, H) 步上的均方根差（按库动作标准差归一化）。
+  - 4 个预先固定、完全由库算出的风险分：C 留一最近距离分位、D 旧 Q1 的 d1 / 跨集尺度、R 近邻留一动作残差的核加权、Qrisk = D + R + S。
+  - 保留条件：8 格合并后集内 Spearman ≥ .20 且同时下界 > 0；验证集 MAE 降 ≥ 5% 且下界 > 0；每格点估计非负；覆盖 ≥ 80% 的验证 A 集。
+  - 可迁移标定：只在校准初始状态（init % 5 == 0）上做两参数非负拟合。
+  - 库整体质量与 A 成功率、P10 − A、B − A 的秩相关另报。库间排名靠同 8 个库重复跑解决不了，需要每种尺寸再独立建 3 个库。
+- **17:3x stream smoke 通过**（`r06_p3_stream_smoke`，接收端 23170）：
+  - π0.5 P10 4/4、GR00T P10 4/4。
+  - 两臂遥测全部经流式到达本机：π0.5 111 个文件 97 MB，GR00T 110 个文件 101 MB。按 journal 逐个已接受尝试核验通过，**0 次落盘兜底**，远端目录为空（空树 sha），已清理。
+  - π0.5 臂 4 分钟跑完（同样的文件模式臂 5 分钟），没有额外开销。
+  - `read_v2 --require-stage-counts --require-snapshots` 通过：8 集、2,177 条控制记录、422 个决策、213 个锚点。
+  - GR00T 臂一度 COLLECT_FAILED，是标准 journal 收回的 tether pull 瞬时失败（退出码 75，与 17:08 pilot dose50 那次相同），与实时回传无关，手动补收后通过。
+- **17:39 pilot 切流式**（`tmp/p3_pilot_switch_stream.sh`）：部署 pilot 流式客户端包（446 文件）；接收端 `p3rx_r06_p3_pilot` 在 23171 起，健康检查通过；让文件模式车道 L1 / L2 跑完当前臂后停下，释放未完成臂的认领，再用新 chain 的冻结副本（`ops/chain_p3.stream.frozen.sh`）起流式车道 L3（23165）/ L4（23164）。之后 timan107 上不再存放 pilot 遥测。
+- **17:52 pilot 第一个流式臂通过**（`r6p3v2_pi05_l10_50_dose50_r1`，L4）：20 集 SR .95；遥测 428 MB / 584 个文件全部经流式到达本机，按 journal 核验 20 个已接受尝试，0 次落盘兜底，远端为空并已清理。ARM_DONE 到 CHAIN_DONE 只用 5 秒（文件模式打包拉取约 30 秒），整臂 6.4 分钟（文件模式约 8.5 分钟）。切换前文件模式完成 11 臂（π0.5 l10-50 的 r0 九个队列 + r1 两个），此后都走流式。

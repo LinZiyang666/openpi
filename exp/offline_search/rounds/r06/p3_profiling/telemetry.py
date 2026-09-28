@@ -6,6 +6,7 @@ Privileged observations are written locally and never sent to the server.
 """
 import copy
 import hashlib
+import io
 import json
 import os
 import random
@@ -149,6 +150,7 @@ class Client:
         self.env = None
         self.identity = {}
         self.file = None
+        self.stream = None
         self.failure = None
         self.controls = self.offset = 0
         self.decision = self.parent_anchor = None
@@ -172,8 +174,14 @@ class Client:
         uid, attempt = self.identity["task_uid"], int(self.identity.get("attempt", 1))
         key = hashlib.sha256(uid.encode()).hexdigest()[:24]
         self.path = self.directory / f"{key}_a{attempt}"
-        self.path.mkdir(parents=True, exist_ok=True)
-        self.file = (self.path / "controls.jsonl").open("x")
+        if os.environ.get("P3_STREAM"):
+            from .stream_sink import StreamSink
+            self.stream = StreamSink.from_environment(self.directory, uid, attempt)
+            self.file = self.stream
+        else:
+            self.stream = None
+            self.path.mkdir(parents=True, exist_ok=True)
+            self.file = (self.path / "controls.jsonl").open("x")
         self.controls = self.offset = self.anchors = 0
         self.decision = self.parent_anchor = self.failure = None
         self.source = "settle"
@@ -224,8 +232,16 @@ class Client:
                         snapshot_probability=row["snapshot"]["probability"]))))
                     start = time.perf_counter()
                     path = self.path / f"step_{self.decision:06d}.npz"
-                    atomic_npz(path, values)
-                    row["snapshot"].update(path=path.name, bytes=path.stat().st_size, write_ms=(time.perf_counter() - start) * 1000)
+                    if self.stream is None:
+                        atomic_npz(path, values)
+                        size = path.stat().st_size
+                    else:
+                        buffer = io.BytesIO()
+                        np.savez_compressed(buffer, **values)
+                        data = buffer.getvalue()
+                        self.stream.write_file(path.name, data)
+                        size = len(data)
+                    row["snapshot"].update(path=path.name, bytes=size, write_ms=(time.perf_counter() - start) * 1000)
             self.emit(row)
             return result
         except Exception as exc:
@@ -254,3 +270,8 @@ def run_episode(env, client, *args, **kw):
     except Exception as exc:
         client.emit(dict(ev="rollout_error", controls=client.controls, error=type(exc).__name__ + ":" + str(exc)))
         raise
+    finally:
+        if client.stream is not None:
+            # The control loop has ended. Flush/receipt or durable local spill
+            # precedes journal acceptance; file-mode lifecycle stays unchanged.
+            client.stream.close()

@@ -25,6 +25,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--smoke-run", type=Path, required=True)
+    ap.add_argument("--report", type=Path, default=HERE/'results/client_deploy_tests.json')
     a = ap.parse_args()
     a.out.mkdir(parents=True, exist_ok=False)
     bundle = a.out / "bundle"
@@ -138,7 +139,7 @@ for name, module in list(sys.modules.items()):
                 isolated_import_modules=len(MODULES),worker_factory_and_seed=True,stock_preserved=True,
                 hash_corruption_rejected=True,strict_zip_cases=5,deferred_annotation=True,
                 telemetry_unpack=True,unsafe_archive_rejected=True,remote_calls=0,simulator_runs=0)
-    (HERE/'results/client_deploy_tests.json').write_text(json.dumps(report,indent=2)+'\n')
+    a.report.write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(report))
 
 

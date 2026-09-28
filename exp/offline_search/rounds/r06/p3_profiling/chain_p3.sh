@@ -29,14 +29,14 @@ O=$ISL/runs/$TAG
 PORTS=${PORTS:?set PORTS}
 WPS=${WPS:-16}
 MAX_ATTEMPTS=${MAX_ATTEMPTS:-3}
-export CPUS=${SERVER_CPUS:-2-5,46-49}
+export CPUS=${SERVER_CPUS:-6-9,50-53}
 LOG=$RUN/runs/chain.log
 STATE=$RUN/state
 mkdir -p "$RUN/runs" "$STATE"
 ev() { echo "EV $(date +%m-%d_%H:%M:%S) $*" | tee -a "$LOG"; }
 note() { echo "   $(date +%H:%M:%S) $*" | tee -a "$LOG"; }
 rx() { timeout 300 tether exec timan107 -- bash -c "$1" 2>/dev/null; }
-py() { taskset -c 2-5,46-49 env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src "$R/.venv/bin/python" "$@"; }
+py() { taskset -c 6-9,50-53 env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src "$R/.venv/bin/python" "$@"; }
 field() { py -c "import json,sys; a={r['arm']:r for r in json.load(open('$RUN/arms.json'))}[sys.argv[1]]; v=a[sys.argv[2]]; print(json.dumps(v) if isinstance(v,(dict,list)) else v)" "$1" "$2"; }
 field_or() { py -c "import json,sys; a={r['arm']:r for r in json.load(open('$RUN/arms.json'))}[sys.argv[1]]; v=a.get(sys.argv[2], sys.argv[3]); print(json.dumps(v) if isinstance(v,(dict,list,bool)) else v)" "$1" "$2" "$3"; }
 
@@ -51,11 +51,12 @@ LEGACY_EXPECT=$EXPECT
 
 selection_for() {
   local arm=$1 info
+  if [ -f "$STATE/P3_STREAM_PORT" ]; then export P3_STREAM_PORT=$(cat "$STATE/P3_STREAM_PORT"); fi
   MANIFEST=${OSCL_MANIFEST:-$(field_or "$arm" manifest '')}
   local planned
-  planned=$(py "$P3/client_plan.py" --run-root "$RUN" --arm "$arm" --field manifest) || return 1
+  planned=$(py -m exp.offline_search.rounds.r06.p3_profiling.client_plan --run-root "$RUN" --arm "$arm" --field manifest) || return 1
   [ -z "$MANIFEST" ] && MANIFEST=$planned
-  P3_ENVS=$(py "$P3/client_plan.py" --run-root "$RUN" --arm "$arm" --field env_prefix) || return 1
+  P3_ENVS=$(py -m exp.offline_search.rounds.r06.p3_profiling.client_plan --run-root "$RUN" --arm "$arm" --field env_prefix) || return 1
   EXPECT=$LEGACY_EXPECT
   DONE="$STATE/$arm.DONE"
   REMOTE_MANIFEST=""
@@ -176,8 +177,13 @@ run_arm() {  # $1 arm
   sw=$(echo "$PORTS" | tr , '\n' | sed "s/.*/$WPS/" | paste -sd,)
   echo "$arm" > "$STATE/current"
   mkdir -p "$RUN/runs/$arm"
+  if [ -n "${P3_STREAM_PORT:-}" ]; then
+    py -m exp.offline_search.rounds.r06.p3_profiling.stream_collect --run-root "$RUN" --arm "$arm" \
+      --health "127.0.0.1:$P3_STREAM_PORT" --token-file "${P3_STREAM_TOKEN_FILE:-$RUN/state/p3_stream.token}" \
+      >> "$LOG" 2>&1 || { ev "P3_RECEIVER_UNHEALTHY arm=$arm"; return 1; }
+  fi
   prepare_selection "$arm" || return 1
-  py "$P3/client_plan.py" --run-root "$RUN" --arm "$arm" > "$RUN/runs/$arm/p3_client_plan.json" || return 1
+  py -m exp.offline_search.rounds.r06.p3_profiling.client_plan --run-root "$RUN" --arm "$arm" > "$RUN/runs/$arm/p3_client_plan.json" || return 1
   ev "ARM_START arm=$arm suite=$suite ports=$PORTS workers=$sw expect=$EXPECT t107=[$(rx 'uptime | sed "s/.*average: //"; free -g | awk "/^Mem/{print \$7\"G\"}"' | tr '\n' ' ')]"
   servers_up "$arm" || return 1
   ev "SERVERS_READY arm=$arm gpu_used=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader)"
@@ -219,8 +225,13 @@ run_arm() {  # $1 arm
       servers_down "$arm"
       py -m exp.offline_search.closed_loop.ops.collect --run-root "$RUN" "$arm" "${collect_args[@]}" >> "$LOG" 2>&1 \
         || { ev "COLLECT_FAILED arm=$arm"; return 1; }
-      py "$P3/collect_client.py" --run-root "$RUN" --arm "$arm" >> "$LOG" 2>&1 \
-        || { ev "P3_COLLECT_FAILED arm=$arm"; return 1; }
+      if [ -n "${P3_STREAM_PORT:-}" ]; then
+        py -m exp.offline_search.rounds.r06.p3_profiling.stream_collect --run-root "$RUN" --arm "$arm" --collect >> "$LOG" 2>&1 \
+          || { ev "P3_STREAM_VERIFY_FAILED arm=$arm"; return 1; }
+      else
+        py -m exp.offline_search.rounds.r06.p3_profiling.collect_client --run-root "$RUN" --arm "$arm" --cleanup >> "$LOG" 2>&1 \
+          || { ev "P3_COLLECT_FAILED arm=$arm"; return 1; }
+      fi
       touch "$DONE"
       return 0
     fi
@@ -228,7 +239,11 @@ run_arm() {  # $1 arm
   done
   ev "ARM_FAILED arm=$arm after $MAX_ATTEMPTS attempts"
   servers_down "$arm"
-  py "$P3/collect_client.py" --run-root "$RUN" --arm "$arm" >> "$LOG" 2>&1 || ev "P3_PREFIX_COLLECT_FAILED arm=$arm"
+  if [ -z "${P3_STREAM_PORT:-}" ]; then
+    py -m exp.offline_search.rounds.r06.p3_profiling.collect_client --run-root "$RUN" --arm "$arm" >> "$LOG" 2>&1 || ev "P3_PREFIX_COLLECT_FAILED arm=$arm"
+  else
+    ev "P3_STREAM_PREFIX_RETAINED arm=$arm (receiver partials and any marked remote spill; no cleanup)"
+  fi
   return 1
 }
 

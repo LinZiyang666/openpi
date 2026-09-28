@@ -303,3 +303,21 @@ exp/offline_search/rounds/**/client_bundle*/
 exp/offline_search/rounds/**/verify_work/library/
 exp/offline_search/rounds/**/verify/selftest/library/
 exp/offline_search/rounds/**/launcher/bin/
+
+# offline_search R4/R5 development snapshots, regression copies and old result launchers (never committed on purpose)
+exp/offline_search/rounds/r0[45]/**/dev/
+exp/offline_search/rounds/r0[45]/**/before/
+exp/offline_search/rounds/r0[45]/**/baseline/
+exp/offline_search/rounds/r0[45]/**/regression/
+exp/offline_search/rounds/r0[45]/**/final_regression/
+exp/offline_search/rounds/r0[45]/**/q2checks/
+exp/offline_search/rounds/r0[45]/**/final_q2checks/
+exp/offline_search/rounds/r0[45]/**/results/
+# R6 smoke-analysis outputs of the ideation agents
+exp/offline_search/rounds/r06/ideation_Q*/smoke_analysis*/
+exp/offline_search/rounds/r06/ideation_Q*/pilot_s*/
+exp/offline_search/rounds/r05/q5_gpu/boot/
+exp/offline_search/rounds/r05/q3_callvalue/rerun/
+# figure / plot scripts are never committed (owner rule)
+exp/offline_search/rounds/**/plot.py
+exp/offline_search/rounds/**/plot_*.py

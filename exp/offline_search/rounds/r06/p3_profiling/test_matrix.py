@@ -10,7 +10,7 @@ import numpy as np
 from .campaign import make_kwargs, source_rows, fitpath, HERE
 from .read_logs import load
 
-PREFIX = ["taskset", "-c", "2-5,46-49", "env", "OMP_NUM_THREADS=1", "OPENBLAS_NUM_THREADS=1",
+PREFIX = ["taskset", "-c", "6-9,50-53", "env", "OMP_NUM_THREADS=1", "OPENBLAS_NUM_THREADS=1",
           "MKL_NUM_THREADS=1", "CUDA_VISIBLE_DEVICES=", "PYTHONDONTWRITEBYTECODE=1", "PYTHONPATH=.:src", ".venv/bin/python"]
 
 

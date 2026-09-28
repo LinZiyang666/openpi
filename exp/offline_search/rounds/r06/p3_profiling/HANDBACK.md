@@ -11,13 +11,105 @@ semantics, including its existing cache early-look veto. Profile policy samples
 have explicit private seeds; this is not a claim of sample-wise parity with an
 unseeded real-model B run.
 
-All local orchestration commands used repository `.venv/bin/python`, affinity
+Earlier v1/v2 orchestration commands used repository `.venv/bin/python`, affinity
 `2-5,46-49`, OMP/OPENBLAS/MKL threads=1, CUDA hidden, no bytecode, PYTHONPATH=.:src.
 No server, LIBERO worker, chain, tmux, port, remote host, GPU inference, git, src
 edit or review-test read was performed. At most two matrix children per matrix
 were used; overlapping CPU jobs stayed within eight processes.
 
-## Client deployment delivery
+## Streaming delivery — current coordinator handoff
+
+The opt-in transport is ready locally; **no remote deployment or cleanup was
+performed**. Normal streaming writes no P3 telemetry on timan107. No shared
+plugin, shared launcher/chain or `src/` file was edited. This continuation used
+CPUs **6–9,50–53**, one OMP/OpenBLAS/MKL thread and CUDA hidden. Only test receivers
+on loopback ephemeral ports were launched; no real ports, LIBERO workers,
+policy servers, chains or tmux sessions were touched.
+
+[STREAMING.md](STREAMING.md) contains the protocol, complete commands, switching
+recipe and detailed test evidence. Use its commands for this continuation;
+older CPU settings and client deployment recipes below are historical.
+
+**Files:** new `stream_protocol.py`, `stream_sink.py`, `stream_receiver.py`,
+`stream_collect.py`, `prepare_stream_smoke.py`, plus three stream test scripts.
+Updated guarded client sink/environment hooks, bundle/preflight/compatibility
+helpers, `client_plan.py`, `collect_client.py`, and the atomically replaced owned
+`chain_p3.sh`. [chain_p3.diff](chain_p3.diff) retains the full diff against the
+unchanged shared chain. `read_v2.py`, v1/v2 serving engines, action logic and
+ledger accounting remain unchanged.
+
+**Bundle:** [client_bundle_stream_release/client_manifest.json](client_bundle_stream_release/client_manifest.json)
+maps all fourteen installed files; the tar is 102,400 bytes. SHA256:
+`fc225d41d27d1939d415ba00f2e0e82423610c20bfb9139b74ef6fc1fd7fbd04`.
+Use this release bundle, not the earlier intermediate `client_bundle_stream`.
+Source hashes are in `results/install_manifest_stream.json`. Local delivery
+published 2026-09-28T22:25:23.531828+00:00; no remote installation was performed.
+
+**Switches:** `P3_STREAM=host:port` activates the Python 3.8 stdlib sender;
+unset preserves file mode. The owned chain takes `P3_STREAM_PORT`, checks local
+receiver health, then forwards `P3_STREAM=ziyanglin.com:<port>`, the run token and
+arm/run identity along with the existing seed/snapshot settings. It also rereads
+`<RUN>/state/P3_STREAM_PORT` at each arm boundary. Defaults: 8 MiB bounded queue,
+5 s persistent-error threshold, 1 s data/connect timeout, at least 10 s final
+receipt timeout, 10 s episode-boundary drain deadline. Token file defaults to
+`<RUN>/state/p3_stream.token`; private token values are redacted from saved plans.
+
+**Durability/cleanup:** durable byte-offset ACKs and overlap verification make
+retries idempotent; finished files publish by atomic rename with SHA/size
+receipts. A bounded-queue overflow or prolonged outage preserves unacknowledged
+frames in marked local spills. The coordinator pulls only spills and replays
+against the preserved receiver prefix. Both stream and file modes verify every
+accepted journal attempt and local file SHA before DONE. Cleanup rechecks the
+current remote tree/tar hashes, then uses `rm -r` / `rm` (no `-f`) on only that
+arm's exact `p3_telemetry` directory and `/tmp/p3_telemetry_<run>_<arm>.tar`.
+Unfinished arms are not cleaned. No actual remote deletion was performed here.
+
+| Local validation | Observed result |
+|---|---|
+| Byte parity | Old file / new file / stream trees identical: two files, 41,230 bytes, synthetic clocks; actions unchanged. |
+| Recovery | Receiver killed/restarted mid-episode: 1,010,079 control + 600,423 snapshot bytes exact; lost ACK, duplicate frames, slow receiver, queue spill, persistent outage, close-deadline spill/replay all PASS. Seven invalid/conflicting frames rejected. |
+| Multiple arms / cleanup | Two concurrent arms and 100 lines PASS; mutated tree blocks cleanup, good local fixture deletes only its exact paths. File-mode remote calls mocked; bad archive SHA blocks cleanup. |
+| Pilot-rate load | Twenty worker threads, 698.9 MB, offered 3.5 MB/s; 204.13 s including finalization = 3.42 MB/s, zero spills. Queue high-water 33,541 bytes. Enqueue p50/p95/p99/max 0.591/2.118/3.434/8.434 ms. |
+| Burst load | Twenty workers, 39.45 MB / 1.80 s = 21.88 MB/s, zero spills; enqueue p99 10.97 ms under same-process GIL contention. |
+| Reader | Unchanged `read_v2 --require-stage-counts --require-snapshots`: four streamed fixture episodes, 96 decisions, 48 anchors, 468 controls, 48 snapshots; PASS. |
+| Real Python 3.8.20 | 67 files compile, nine owned Python files, six isolated imports; real stdlib sink streams two files on loopback, no spill. |
+| Packaging / units | 18-file smoke bundle, eight isolated imports, five dispatch routes, preserved stock/markers; v2 six staged + six coexistence cases, 12,000 assignment units, seven controls/21 substeps/one snapshot PASS. |
+| Preparation | Two P10 smoke arms emitted/prefitted under `/tmp/p3_stream_smoke_fixture`; deploy dry-run only. Pilot's 216 arms/schedule/first manifest inspected read-only. |
+
+An initial paced test failed on terminal-ACK timeout/reparse churn. The fix and
+recovered twenty completion-frame spills (6,699 bytes; 698.9 MB certified) are
+recorded in `results/stream_development_recovery.json`. That failed run is not
+counted as passing throughput evidence. Final numeric reports are
+`results/stream_tests.json`, `stream_rate.json`, `stream_reader.json`,
+`stream_coordinator.json`, `python38_stream.json`, and
+`client_deploy_stream_tests.json`.
+
+**Coordinator commands:** follow [the fresh two-arm stream-smoke recipe](STREAMING.md#exact-coordinator-commands-fresh-two-arm-stream-smoke)
+for calibration copy → emit → prefit → run-specific bundle → deploy → pinned
+receiver tmux launch → health check → owned chain with WPS=2 → strict reader.
+It uses a fresh `r06_p3_stream_smoke` root and coordinator-selected distinct
+receiver/policy port placeholders; no active smoke port is assumed free.
+[The pilot handover recipe](STREAMING.md#switch-the-existing-pilots-remaining-arms)
+reuses the emitted 216 arms and existing prefits. It derives arm names from
+`arms.json` (the actual pilot has no `arm_names.txt`) and skips existing
+manifest-hash DONE markers. A new-version chain can switch via the port file at
+an arm boundary. An older running shell must finish its current arm and hand
+over its launch loop; replacing its script or exporting an environment variable
+elsewhere does not upgrade that running shell. No running chain was interrupted.
+
+**Caveats:** this is loopback/synthetic evidence, not WAN or live simulator
+performance. The receiver/20 senders/20 producers share one Python process in
+the stress test. Normal enqueue performs no network wait; outage spills may
+block on local disk. Killing the client can lose unacknowledged RAM, and missing
+receipts prevent DONE; this is not a client-crash WAL. Preserve receiver data
+and token across restarts. Snapshots remain uncertified for exact restoration.
+The owner's reported ongoing real-model file-client smoke was not touched.
+At 35 MB/episode, client telemetry alone needs about 151.2 GB for the pilot and
+1.26 TB for the full campaign on weilandserver, plus snapshots/server archives.
+Healthy transport adds no policy forward or GPU-hour charge; real-host overhead
+must be checked by the coordinator's stream smoke.
+
+## Earlier client deployment delivery (historical)
 
 The client package is now prepared for the Python 3.8 island with no
 `exp/offline_search` tree. **Nothing was deployed remotely.** Shared
@@ -335,7 +427,7 @@ dimensions. It does not meet every ideation agent's requested precision target,
 independent-bank count or 100/300 matched simulator-equivalence trials. Those
 counts are not relabeled as logging fields; the validation limits remain above.
 
-## Coordinator preparation and smoke recipe (not launched)
+## Historical v2 smoke recipe (superseded by STREAMING.md)
 
 
 Interpretation: **four cohorts per cell**, eight arms / 32 episodes total;
@@ -346,6 +438,7 @@ factorial retains its state strata, durations/holds/cooldown. Production pilot
 parameters in arms_v2.json are unchanged.
 
 ```bash
+set -euo pipefail
 cd /home/weiland/projects/openpi
 D=exp/offline_search/rounds/r06/p3_profiling
 RUN=/home/weiland/trace_runs/os_closed_loop/r06_p3_v2_client_smoke
