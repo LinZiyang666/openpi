@@ -1153,3 +1153,39 @@ exp/offline_search/
 - **21:4x 续聊 Q4**（`codex exec resume 01a0e5d0-5d54-7670-bbb9-b5b2b3f76b7a`，PID 2294080，danger-full-access，gpt-6-astra xhigh）：追加示范数据规模曲线（100 / 200 / 300 集嵌套子集 × refit / frozen50，离线曲线，8 个纯缓存 anchor_tail 臂）。**这是第一次按 thread id 续聊指定的 codex**，保留了完整上下文。
 - **21:4x handoff 覆写**（owner 要求，compact 前）：§0 的 md5 不变（aa8781613cf4）。
 - **21:5x 提交 e8980cd**：R4 追加编码 K5–K10、R5 构思 A–D、选题、CODING_BRIEF、FINDINGS、Q2，以及台账和 handoff（212 个文件，只含代码、文档和臂规格）。
+- **21:5x GR00T 混合 smoke 第一臂通过**（G10，l10 500，2 集，SR 2/2）：105 个决策 = 策略 MISS 14 + 策略块尾 13 + 缓存 HIT 39 + 缓存块尾 39；v .505、m .133，owner 口径 IR .190。块尾的成本为 0，与预期一致。等纯策略 L10 的 smoke 跑完后，把 r05_q2 的 6 臂排进队列。
+- **21:42 GR00T smoke 全部通过**：纯策略 L10 2/2（每集 29 个决策，确认执行 10 步）。`r05_q2` 的 6 臂排进 `relay_R5A2`（23150/51，排在 r05_b1 的 GR00T 6 臂之前；已停掉 relay_R5A 的 bash，它当时还没开始）。
+- **21:4x Q1 交回**（`rounds/r05/q1_commit/HANDBACK.md`）：
+  - `CommitJudge`：`policy_tail_gate="lifecycle"` 时，368 个符合条件的 MISS 全部发出了块尾，每个都是 `policy_chunk[5:10]` 逐字节的切片，即使无进度跨度 > 0、缓存预算为 0 也照发；"inherited" 与 K10 逐位一致。
+  - `GraspCheckJudge`（D1，LookReason 9 + 强制 MISS，每集一次）。可选 `monitor="loeo_xyz99"`（默认关）。
+  - 协调者：建 `r05_q1`（C10 × {l10, sp} × {50, 500} 4 臂，D1 × l10 × {50, 500} 2 臂），拟合从 /tmp/q1_fits 复制过来，yaml 已推，sha 一致。smoke `r05_q1_smoke`（C10 l10 500 与 D1 l10 500，各 2 集）由 `relay_sq1` 在 GR00T smoke 结束后接着在 23162 上跑。
+- **21:5x control_step_library GS**（纯缓存，l10 500）为 **SR .772**，与 CL2-500（.768）持平。G（.222）崩掉而 GS 正常：G 只改了检索的几何（按时间偏移重新排序），却仍然送出没有对齐偏移的原始块；GS 送出的是按偏移对齐拼接的动作头。结论：时间偏移检索必须配合动作对齐，而对齐之后也没有增益。50 集库的 G / GS 还在跑。
+- **21:47 C10 smoke 通过**（l10 500，2 集，SR 1/2，样本不足以说明成功率）：152 个决策中，策略 MISS 17 次、策略块尾 17 次，lifecycle 门控在真实闭环里生效（K10 原版是 0）。`r05_q1` 的 6 臂排进 `relay_R5B3`（23160/61，在 r05_ptail 之后、K7 sp50 tail 之前；已停掉 relay_R5B2 的 bash，它当时还没开始）。D1 的 smoke 在跑，不通过就给 D1 的两臂写 SKIPPED。
+- 当前 R5 队列：
+  - 23160/61（在 relay_B5 的 csl 50 与 GR00T l10 盲走之后）：r05_ptail 4 → r05_q1 6 → K7 sp50 tail → r05_b1 π0.5 6。
+  - 23150/51（在 relay_A4 的 K5 g50 r2、种子 ×2、GR00T sp 盲走 4 之后）：r05_q2 6 → r05_b1 GR00T 6。
+- **21:51 D1 smoke 通过**（l10 500，2 集，SR 2/2）：运行正常；2 集内抓取核验触发了 1 次（look_reason 9，随后强制 MISS），链路打通。
+- **21:5x ★ K5 随机化识别，g50（50 集库 l10，只用守卫）**：副本 r1 .768、r2 .738。
+  - **ITT：ΔY=−.002 [−.040, +.032]**，ΔN=−.04，ΔM=+.47 [−.85, +1.75]，ΔC(ρ=.323)=+.41 [−.45, +1.20]。第一个机会 ΔY=−.008，第三个 +.004，区间都跨 0。
+  - **与 g500 形成对照**：500 集库上 CALL 让 SR 高 3.4 pp，而且不增加成本；50 集库上一次调用对 SR 没有可测的影响，只会带来更多后续调用。解释（假设）：稀疏库里一次策略救援之后，缓存很快又落回陷阱，救援不持久；密库里救回来之后缓存能接住。
+  - 含义：B2 / Q3 的"可省调用表"在 g50 上可能找到有支持的情境（SR 不掉、省成本），在 g500 上大概率找不到。派 Q3。
+- **21:5x 派出 Q3**（codex `task-muknn3y2-jkijth`，沙箱，CPU 26-29,70-73）：在两种规模上跑 `causal_fit`，交叉拟合、留出评估。只对有支持、且留出评估为正的规模实现 `--os-call-table`（插件改动要等 Q5 交回后再合入），并交基线 / 表 / 等量随机覆盖三臂的规格。
+- **21:5x Q6 交回**（`rounds/r05/q6_wrist_blind/HANDBACK.md`，审计 PASS）：`WristVisionConfirmedBlindJudge` = K7 的视觉确认守卫 + K1 BlindWristAWM（K3 WristAWM），卡住的视觉确认只用 wrist 余弦（与部署库的 wrist p95 比），运动部分与 K7 相同；B=0 时与 K3 的 wrist 判决器逐位一致。不改插件。
+  - 协调者：建 `r05_q6`（wrist + anchor_tail + wrist 守卫 × {l10, sp} × {50, 500} 4 臂；phase 变体的拟合备用、不跑），yaml 已推，sha 一致。smoke `r05_q6_smoke`（l10 500，2 集）在 23162 上跑（tmux `oscl_q6s`）。
+  - 4 臂排进 `relay_R5A3`（23150/51：r05_q2 6 → r05_q6 4 → r05_b1 GR00T 6；已停掉 relay_R5A2 的 bash，它当时还没开始）。smoke 不通过就给这 4 臂写 SKIPPED。
+- **22:00 Q6 smoke 通过**（l10 500，2 集，SR 2/2）：wrist_only 的 stage 1 在视觉决策上运行，盲走块尾正常，账本字段齐全。4 臂维持排队。
+- **22:0x grow250 的 4 臂就绪**（Q4 已在 `r05_growth` emit；清单 `evaluation_pairs.json` 为 250 对，inits 25–49；纯缓存 GrowthAWM refit / frozen × {l10, sp}），yaml 已推，sha 一致，排进 `relay_R5B4`（23160/61：r05_ptail → r05_growth → r05_q1 → K7 sp50 tail → r05_b1 π0.5）。
+- **22:1x ✗ control_step_library G，50 集库**：SR .114（CL2-50 为 .630）。G 在两种规模上都崩溃，死路。
+- **22:1x Q4 续聊交回**（HANDBACK.md 第 124 行起）：`bpool_cs` 是 8 月 B 池 H5 的导出（l10 成功 436/500，spatial 487/500，成败都保留），**部署中的 current 50 集不在其中**（路径、行 ID、payload 哈希都零重合）。所以只有 100 ⊂ 200 ⊂ 300 ⊂ 500 是嵌套序列，50 → 100 同时换了数据来源。
+  - 选取规则：按任务对 SHA256 排序后取前 10 / 20 / 30 集。demo100 / 200 / 300 已写入两份 store，每份 12.75 GB；/dev/shm 剩余 42 GB。
+  - DemoAWM 在各规模都固定 kref 5，分 refit / frozen50 两种。
+  - 离线曲线：动作误差在 100 → 500 上对两种变体、两个套件、两种查询流都单调下降，refit 始终优于 frozen50；推理查询的后继误差也下降，但缓存查询的后继误差不单调。
+  - `r05_demo_curve` 的 8 臂（DemoBlindAWM anchor_tail 纯缓存：refit 100 / 200 / 300 × 两套件，frozen50 200 × 两套件）已 emit、预拟合（sha 见 HANDBACK），yaml 已推，排进 `relay_R5A4`（23150/51：r05_q2 → r05_q6 → r05_demo_curve → r05_b1 GR00T）。注意：500 端点用的是 r05_ptail / R4 的 tail1uc，kref 为 8，与本曲线的 kref 5 不同，分析时要注明。
+- **22:1x Q3 交回**（`rounds/r05/q3_callvalue/HANDBACK.md`）：**两个规模都是"在符合条件的地标上一律调用"**。
+  - 原样使用 B 的 `causal_fit`：支持门槛 ≥30 个 init 簇、每种处理 ≥10；SR 损失上限 .01；Bonferroni 界。
+  - 所有情境与父节点都没有"有支持且下界为正"的节省。20 个 init 折、40 个任务折的留出拟合全部给出 p=0。
+  - 最接近的是 g50 的一个叶子（地标 1，进度 ≥.5，夹爪闭合，置信度 ≤−.3，停滞 0–9）：全压制时节省 +.30，但 Bonferroni 下界为 −.013。
+  - 不做插件改动，`arms_q3.json` 为空。标签：借用大库信息。
+  - 结论：守卫判出的 MISS 在当前数据下不能被安全地省掉。500 集库上调用有价值（ΔY +.034）；50 集库上调用的价值测不出，但节省也不够确定，不足以支持部署。
+- **22:20 control_step_library GS，50 集库**：SR .628（CL2-50 为 .630），持平。csl 4 臂全部完成：G 在两种规模上都崩（.222 / .114），GS 持平（.772 / .628）。时间偏移检索没有增益，关闭。relay_B5 接着跑 GR00T l10 纯缓存盲走 4 臂。
+- **22:2x handoff 再次覆写**（owner 要求，compact 前）：§0 的 md5 不变（aa8781613cf4）。
