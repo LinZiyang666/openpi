@@ -275,3 +275,31 @@ docs/skills/
 
 # ICLR paper workdir (Overleaf git working copy + drafts, not project deliverables)
 docs/iclr/
+
+# Generated outputs and scratch (added 2026-09-28)
+# Scope: exp/offline_search/rounds/** only (other experiment lines are unaffected).
+# These patterns are extension/name-based, never *.py / *.sh / *.md / *.diff / *.toml,
+# so source and analysis write-ups under the same trees stay visible.
+exp/offline_search/rounds/**/*.csv
+exp/offline_search/rounds/**/*.jsonl
+exp/offline_search/rounds/**/*.txt
+exp/offline_search/rounds/**/*.png
+exp/offline_search/rounds/**/*.pdf
+exp/offline_search/rounds/**/*.svg
+exp/offline_search/rounds/**/*.sha256
+exp/offline_search/rounds/**/*.meta
+exp/offline_search/rounds/**/*.stdout
+exp/offline_search/rounds/**/*.tar
+exp/offline_search/rounds/**/*.pid
+exp/offline_search/rounds/**/*.DONE
+
+# Packaged client deployment bundles (built by build_client_bundle.py): the
+# payload/*.py copies inside are duplicated snapshots for the tarball, not
+# source-of-truth (the real sources live at the round's top level, tracked).
+exp/offline_search/rounds/**/client_bundle*/
+
+# Bundled cache-library blobs and copied CLI binaries inside verification
+# result trees (extensionless artifacts, not source).
+exp/offline_search/rounds/**/verify_work/library/
+exp/offline_search/rounds/**/verify/selftest/library/
+exp/offline_search/rounds/**/launcher/bin/
