@@ -41,3 +41,19 @@ class BlindQueryView:
     hist_rs: np.ndarray
     hist_has_vision: np.ndarray
     blind_age: int
+
+
+def policy_tail_chunk(chunk, offset=5):
+    """Shift a saved H-row chunk by offset; repeat its last row to pad back to H.
+
+    Preserves dtype and every column, for normalized history AND original wire
+    actions. Only the first five rows may be executed by a policy-tail request.
+    The optional method hook ``policy_tail_step(bq)`` returns a BlindResult with
+    this exact action, or LookReason. Member rows/weights describe gate provenance
+    (the last vision proposal), not the source of the policy action.
+    """
+    a = np.asarray(chunk)
+    if (offset not in (5, 10) or a.ndim != 2 or len(a) < offset + 5
+            or not np.isfinite(a).all()):
+        raise ValueError("policy tail requires a finite chunk and a complete five-control block at offset 5 or 10")
+    return np.concatenate((a[offset:], np.repeat(a[-1:], offset, axis=0)), axis=0)

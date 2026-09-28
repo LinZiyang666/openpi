@@ -219,7 +219,13 @@ def main(argv=None):
         max_abs = 0.
         for uid, z in logged.items():
             for s, action in enumerate(z["a_exec"]):
-                want = transform(observation_rows[uid][s], action)
+                if "source" in z and z["source"][s] == "policy_tail":
+                    from .blind import policy_tail_chunk
+                    anchor = int(np.flatnonzero(z["has_vision"][:s])[-1])
+                    want = policy_tail_chunk(transform(observation_rows[uid][anchor], z["a_exec"][anchor]),
+                                             5 * (s - anchor))
+                else:
+                    want = transform(observation_rows[uid][s], action)
                 got = wire_rows[uid][s]
                 checked += 1
                 equal += int(np.array_equal(want, got))

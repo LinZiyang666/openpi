@@ -52,109 +52,88 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-09-27 14:40 CDT）—— 离线检索探索线（offline_search），R4 闭环阶段
+## 1. 现在在哪（2026-09-27 21:40 CDT）—— 离线检索探索线（offline_search），R4 收尾 + R5 编码 / 闭环并行
 
-**目标（/goal 已设）**：前进到 R4 结束，其后再做 R5。
-- ⛔ owner 规定**只用 codex agent**，不起 Claude 子 agent，不用 Workflow。
-- owner 的要求：思路不受限；时间不是问题；要仔细研究。
-- **唯一权威**：`logs/offline_search_exploration.log.md`（章程）。§8 纪律，§9 owner 裁定到第 9 条，§10 台账含 R4 全部条目。**compact 之后先读 §8、§9 和 §10 的最后 150 行，再读本节。**
+**目标（/goal，owner 已离开）**：独自推进 R4 和 R5，中间没有阻塞（章程 §9 第 13 条，跳过所有暂停点）。
+- ⛔ 所有 agent 只用 codex；codex 只做开发、调试、离线分析，**不看守长实验**（§9 第 14 条）。闭环的运行与看守一律由协调者自己做。
+- **续聊指定的 codex**：job 记录 `~/.claude/plugins/data/codex-openai-codex/state/openpi-50fd553c5e274099/jobs/<id>.json` 里有 `threadId`。该 job 这一轮结束后，用 `codex exec resume <threadId> "<增量指令>" -c sandbox_mode="danger-full-access" -c approval_policy="never" -o <out.md>` 续跑（沙箱档位照原 job）。正在执行的一轮不能插话。追加工作优先续聊原 agent，不要新派（owner 21:3x 提醒）。
+- **唯一权威**：`logs/offline_search_exploration.log.md`。§9 的 owner 裁定到第 14 条；§10 台账含 R4 / R5 全部条目。**compact 之后先读 §9 和 §10 最后 250 行，再读本节。**
 
 | 阶段 | 状态 |
 |---|---|
-| R0–R3 | ✅ `rounds/r02/ANALYSIS.md`、`rounds/r03/ANALYSIS.md` |
-| R4 构思 | ✅ 4 份 codex 报告：`rounds/r04/ideation_A/REPORT.md`（看一眼，做几步）、`ideation_B/REPORT.md`（降低单次成本）、`ideation_C/REPORT.md` 和 `REPORT_2.md`（时间偏移检索、分层 pilot、随机化识别调用价值） |
-| R4 选题 | ✅ `rounds/r04/SELECTION.md`（中文）、`CODING_BRIEF.md`（英文：文件归属、方法与插件接口、日志字段、成本口径） |
-| R4 编码 | ✅ K1–K4 均已交回并提交（6e1cab5），各自的 HANDBACK.md 在 `rounds/r04/k{1_blind,2_serving,3_cost,4_eval}/` |
-| R4 第一批闭环（`r04_frontier`） | 🔄 正在跑，见 §4 |
-| R4 第二到四批 | ⏳ 第三批已生成并预拟合，见 §5 |
-| R4 分析与提交 | ⏳ 派 1 个 codex 分析 agent，然后提交，R4 结束 |
+| R4 构思 / 选题 / 编码 K1–K4 | ✅ 已提交 6e1cab5 |
+| R4 追加编码 K5–K10 | ✅ 全部交回，**尚未提交**（见 §5 第 1 步） |
+| R4 闭环 | 🔄 剩 csl（GS 在跑，还有 50 集的 G / GS）、K5 g50 的 r2（在跑）、两个 K10 种子臂、GR00T 纯缓存盲走 8 臂 |
+| R4 分析与提交 | ⏳ `rounds/r04/ANALYSIS_BRIEF.md` 初稿已写，需按 §2 更新后派 codex 分析 agent |
+| R5 构思 A–D | ✅ `rounds/r05/ideation_{A,B,C,D}/REPORT.md` |
+| R5 选题 | ✅ `rounds/r05/SELECTION.md`、`CODING_BRIEF.md`、`FINDINGS.md` |
+| R5 编码 | Q2 ✅ 已安装；Q1、Q4、Q5、Q6 在做；Q3 待派（等 K5 g50）；Q4 交回后续聊加示范数据规模曲线 |
+| R5 闭环 | 🔄 GR00T smoke 在跑；r05_ptail 4 臂 + r05_b1 12 臂已排队 |
 
-## 2. 关键结果
-- **R2 纯缓存 AWM**：50 集库 .800 / .630 / .888 / .552；500 集库 .954 / .768 / .966 / .706（依次为 π0.5-sp / π0.5-l10 / GR00T-sp / GR00T-l10）。纯推理为 .986 / .844 / .940 / .870。
-- **R3 混合模式（π0.5，IR 用 owner 口径 .152 + .848m）**：
-  - spatial：V7 + 守卫 .980 @ .43。
-  - l10：周期 k3 .832 @ .43，k5 .792 @ .32；500 集库只用守卫（g500）**.864 @ .238**。
-- **R4 第一批（500 集库，π0.5-l10）**：
-  - 守卫 noprog 4 为 .808 @ .214，落在两点连线之下，作废。
-  - 周期 8 为 .850 @ .245，低于 g500。
-  - g500 仍是这一段的最优点。
-- **K3 实测**：
-  - dummy_cached 让 stage 1 从 65.8 降到 45.0 ms；wrist_only 让 HIT 的 stage 1 降到 23.9 ms，MISS 时再补 21.6 ms。两者 MISS 动作都与原来逐位一致。
-  - stage 2 打包**作废**：bf16 下动作差 0.014。
-  - eager serving 的实测成本在 `closed_loop/ops/cost_table.json`：π0.5 三段占比 .142 / .072 / .786，stage 3 每步 36.4 ms。它和 owner 口径是**两套不同的成本基准**，报告时各自单列，主口径仍是 owner 的。
-- **K2 实测**：在真实 GPU server 上，盲走决策不跑 stage 1，下发给 client 的动作逐位一致（π0.5 与 GR00T 各 24/24）。真实 GPU 上的 MISS 没有测过。
-- **B 的发现**：π0.5 纯推理 K2 与 K10 持平（.996 / .848），见 step_diag 线 §6.15。
+## 2. 关键结果（owner 口径：vision .152、MISS +.848、盲走 / 块尾 0；每个 MISS 按完整推理计）
+- **噪声基准**：stock g500（l10 500 集只用守卫）三次运行 .864 / .850 / .832，**均值 .849 ± .016**，约等于 L=5 纯推理（.845–.850）。l10 上 2–3 pp 的差别单跑分不清。
+- **执行段长度**：l10 纯推理 L=10 为 **.904 / .900**（两次独立运行，IR .5），L=5 为 .845–.850；配对 52 对 24，p=.0018。spatial 上无差别（.986）。
+- **盲走（看一眼，走几步）**：
+  - K1 的稠密卡住守卫去掉了视觉确认，误触发约 2.8 倍。K7 视觉确认守卫在 B=0 时与 stock 逐位一致。
+  - **K7 anchor_tail**：l10 500 **.880 @ .203**（K1 版 .878 @ .223，两次一致），l10 50 **.806 @ .242**（50 集新前沿），sp 500 **.982 @ .128**。
+  - **K7 phase B=2**：l10 500 **.862 @ .178**；l10 50 为 .700（稀疏库上失败）；sp 500 为 .968 @ .140。B=1 被 B=2 支配。
+  - K1 守卫下同为 B=1：tail .878 > kernel_clock .868 > phase .838。两时钟方案（盲走 + 周期 MISS）被支配。
+- **纯缓存盲走（不调用策略）**：phase B=2 在 l10 500 为 .778 @ .091、l10 50 为 .620 @ .098、sp 500 为 .954 @ .083，SR 与 CL2 持平，IR 少 36–46%。**★ 纯缓存 anchor_tail，sp 500：.982 @ .078**（stage1_only，0 次 MISS），对 CL2 p=.013，与纯推理 .992 统计上不可分（p=.27）。l10 的纯缓存 tail 在 r05_ptail 排队。
+- **wrist_only key（只用守卫）**：l10 500 .820、l10 50 .734、sp 500 .974、sp 50 .924。配对检验只在 sp50 显著优于双相机（p=.027，来自任务 4、9），l10 500 更差（p=.021）。wrist 的 IR 按比例折算（假设）。
+- **MISS 减步 K2**：与 K10 在 SR 上无差别。**owner 裁定不纳入系统**（§9 第 12 条），只作附注。
+- **K5 因果识别（g500）**：CALL 减 CACHE 的 **ΔY=+.034 [+.004, +.066]**，ΔN=−1.6，ΔM=−.24，成本持平。**守卫判出的 MISS 有因果价值，省调用不被支持**。g50 的一对还在跑。
+- **control_step_library G**（纯缓存 l10 500）：**.222**，崩了。GS 与 50 集还在跑。
+- **工程**：K6 修了 R4 serving 的全局串行锁；K8 测得 CPU 检索每决策 1.2–2.2 ms（PCA 投影占 31–49%）、原生检索 2.1–7.4 ms；K9 GPU 常驻检索与 stage 1 同图，增量 .36–.63 ms，PCIe 131 KB → 1.4 KB，top-1 ≥99.9%。
+- **R5 构思要点**：
+  - A：K10 的块尾被继承来的无进度门否决（88–94% 的 MISS 被挡）→ C10。
+  - B：离线能定统计量，但没有能给闭环 SR 排序的离线目标 → 受限双损失求解器 B1。
+  - C：库增长很慢；硬剪枝不行；把库编进模型。
+  - D：抓取核验收益很小。
 
 ## 3. 需要 owner 的事
-暂无。R4 / R5 的裁定在 §9 第 9 条：
-- 500 集库算可部署，但也要有 50 集库的实验；
-- 便宜 key 可用；
-- 不在 weilandserver 起 worker；
-- 不做系统测量；
-- "看一眼，做几步"已放宽。
+无。owner 已离开，/goal 要求不设阻塞。R4 / R5 的全部裁定在章程 §9 第 9–14 条。
 
-## 4. 正在运行的东西（compact 后先核对）
-- **第一批 chain**：
-  - tmux `oscl_r4f`，运行目录 `/home/weiland/trace_runs/os_closed_loop/r04_frontier`。
-  - 2 个完整模型 server（端口 23150、23151），每个 32 个 worker；server CPU 0-17,44-61，chain CPU 34-37,78-81。
-  - 进度：已完成 `r4_p_l10_g500_np4`（.808）和 `r4_p_l10_per8_500`（.850）；正在跑 `r4_p_l10_per12_500`。
-  - 之后依次：`r4_p_l10_g50_np4`、`r4_p_l10_per6_50`、`r4_p_sp_g500`、`r4_p_sp_per12_500`。
-  - 4 个纯推理种子臂已写 DONE 加 DEFERRED 推迟。**以后改用 K4 的 seeded `pure_inference` 臂重跑**（`k4_eval/arms_frontier.json` 里有 seeds 1001 / 2001），不要删掉这些 DONE 来重跑老臂。
-  - 预计 15:40 左右跑完。
-- **Monitor**：
-  - 一个合并的无损 watcher：`bash /home/weiland/.claude/jobs/a607dd74/tmp/r4_watch.sh`。它读 `tmp/r4_watch.jobs`（codex job 列表）和 `tmp/r4_watch.runs`（运行目录列表），已报过的事件记在 `tmp/r4_watch.seen`，重挂时既不漏也不重。
-  - Monitor 最长 30 分钟，**到期静默重挂即可**（owner 不希望看到反复的"已重挂"消息）。新开运行目录时，把路径追加进 `r4_watch.runs`。
-- **codex job**：R4 的 7 个（A、B、C、C 第二遍、K1–K4）全部已结束，目前没有在跑的 codex。
-- **显存**：他项目的训练时有时无，时而占 15–20 GB。我方完整模型 server 每个约 9–10 GB。开臂前 chain 会检查 NEED_MB × 端口数（完整模型时 NEED_MB 为 9000）。
+## 4. 正在运行的东西（compact 后先核对：`tmux ls`、各运行目录 `chain_console.log` 最后几行）
+端口与 CPU：23150 / 23151（server CPU 0-17,44-61，chain 34-37,78-81），23160 / 23161（server 18-25,62-69，chain 30-33,74-77），smoke 在 23162（14-17,58-61）。每个 server 24 个 worker（timan107 内存上限约 100 个 worker）。
+- **23160 / 61 这条线**：
+  - `relay_B5`：正在跑 r04_csl（G .222 已完成；GS 在跑；还有 50 集的 G / GS）→ r04_gblind 的 l10 4 臂。
+  - 之后 `relay_R5B2`（等 relay_B5 结束）：r05_ptail（纯缓存 tail l10 500 / l10 50 / sp 50，外加 wrist sp50 重复）→ r04_k7 的 `r4k7_p_sp_50_tail1ug` → r05_b1 的 π0.5 6 臂。
+- **23150 / 51 这条线**：
+  - `relay_A4`：K5 g50 r2（在跑）→ 释放 DEFERRED 后跑 `r4f_p_{l10,sp}_inf_s2001` → r04_gblind 的 sp 4 臂。
+  - 之后 `relay_R5A`（等 relay_A4 结束）：r05_b1 的 GR00T 6 臂。
+- **23162 smoke**：tmux `oscl_q2s`，运行目录 `r05_q2_smoke`（GR00T G10 l10 500 与纯策略 L10 l10，各 2 集）。验收：policy_tail 行存在且成本为 0，vision / MISS 计数合理，SR 正常。通过后把 `r05_q2` 的 6 臂追加进某条线的接力。
+- **codex job**（状态看 state.json 或 jobs/<id>.json，并用 `kill -0` 核对进程）：
+  - Q1 `task-mukka6t9-5wipxd`（C10 + D1，CPU 26-29,70-73）；
+  - Q4 `task-mukmeifw-3q7hsc`（grow250，thread `01a0e5d0-5d54-7670-bbb9-b5b2b3f76b7a`，CPU 26-29,70-73）；
+  - Q5 `task-mukmfjxz-i7jxc2`（GPU 检索影子模式，Q2 已交回，可以合入插件，CPU 34-37,78-81）；
+  - Q6 `task-mukmfk8c-iyuwso`（wrist + 盲走守卫，CPU 10-13,54-57）。
+  - Q2 已完成。Q4 第一轮已完成（grow250：l10 13,121 行、spatial 6,240 行，两份 store 都已写入；GrowthAWM 的 refit / frozen 两种变体；4 个 CL2 预拟合在 `r05_growth/fits`；详见 `rounds/r05/q4_growth/HANDBACK.md`）。
+  - **Q4 续聊（示范数据规模曲线）正在跑**：`codex exec resume 01a0e5d0-…`，PID 2294080，输出在 `tmp/q4_followup/{run.log,last_message.md}`。它不在 companion 的 state 里，watcher 看不到，要用 `kill -0 2294080` 查；结束后按它的 HANDBACK 追加段落建 `r05_demo_curve` 的 8 臂。
+- **Monitor**：合并 watcher `bash /home/weiland/.claude/jobs/a607dd74/tmp/r4_watch.sh`，读 `tmp/r4_watch.jobs` 与 `tmp/r4_watch.runs`，已报事件记在 `tmp/r4_watch.seen`。30 分钟到期后**静默重挂**。新运行目录要追加进 runs，新 codex job 要追加进 jobs。
+- 接力脚本都在 `/home/weiland/.claude/jobs/a607dd74/tmp/`（relay_B5.sh、relay_A4.sh、relay_R5B2.sh、relay_R5A.sh）。
+  - **改排队的方法**：正在执行的脚本不能原地改。要插队，就只 `kill` 那个接力的 bash PID（它的子 chain 照跑），另起新接力，等子 chain 的 PID 结束再接手。
+  - 要跳过某臂：写 `state/<arm>.DONE` + `.SKIPPED`。要推迟：写 `.DONE` + `.DEFERRED`，由后面的接力删掉 DONE 后再跑。
 
 ## 5. 下一步（按顺序）
-1. **盲走闭环 smoke**：用一个单独的运行目录（例如 `r04_bsmoke`），不要用 `r04_blind`，否则 legacy 子集会写 DONE，导致后面的全量被跳过。
-   - 臂：`r4b3_p_l10_500_ph2g`（盲走 + 守卫，完整模型）和 `r4b3_p_l10_500_ph2c`（纯缓存盲走，STAGE1_ONLY）。
-   - 参数：`OSCL_EPISODES=0 OSCL_TASKS=0,1`，端口 23160，每 server 2 个 worker，SERVER_CPUS 18-25,62-69。
-   - 验收：vision 占比明显小于 1，blind 行的 `s1_ms` 为 null，SR 正常，collect 有 cost_ledger。
-2. **第三批全量**：运行目录 `/home/weiland/trace_runs/os_closed_loop/r04_blind`，15 臂已生成并预拟合，yaml **还没推到 timan107**。
-   - 推送：只推 yaml，逐个 `tether push` 到 `/tmp/oscl_stage`，再在远端 `cp` 到 `/scratch/zixuans8/openpi_trace/os_cl/cfg/`。
-   - 等第一批 chain 结束后再起，tmux 名如 `oscl_r4b`，2–3 个 server 按显存定。
-   - 臂与对照关系：
-     - l10 500 集库：`b0g`（B=0 适配器对照；与 g500 .864 比）、`ph2g`、`ph1g`、`tail1ug`（不门控的剩余块）、`ph2k8`（与 per8 .850 比）、`clk1g`、`ph2c`（纯缓存，与 CL2-500 .768 比）。
-     - l10 50 集库：`b0g`、`ph2g`、`ph2k5`（与 perk5 .792 比）、`ph2c`（与 CL2 .630 比）。
-     - sp：500 集 `ph2c`（与 .954 比）、500 集 `tail1uc`、50 集 `ph2g`（与 g .888 比）。
-     - baseline：`r4b3_p_l10_50_inferL10`（纯推理，L=10）。
-   - 列表以 `r04_blind/arms_in.json` 为准。
-3. **第二批**（K3 规格，运行目录 `r04_cost`，已预拟合，还要 emit 和推 yaml）：
-   - MISS K2：g500、g50、perk5、sp 只用守卫；
-   - K2 纯推理 baseline；
-   - K4 的 `arms_frontier.json`：seeded 纯推理，以及 L=10 的 K10 / K2 baseline。
-4. **第四批**：从 K3 的 `arms_r4.json` 取 dummy_cached / wrist_only × 是否盲走 × 两种库规模，盲走预算按第三批的赢家定。**不用** K1 第四批里带 `--os-pack-prefix` 的行。另加 control_step_library 的 G 与 GS，l10 两种规模。视时间再加 C 第二遍的随机化 CALL / CACHE。
-5. **统计与分析**：
-   - KPI：`taskset -c <cpus> .venv/bin/python -m exp.offline_search.closed_loop.ops.kpi --run-root <R> ... --ref <run:arm> --json/--md`，新臂带 `cost_ledger`。
-   - 派 1 个 codex 分析 agent 写 `rounds/r04/ANALYSIS.md`（brief 仿照 `rounds/r03/ANALYSIS_BRIEF.md`）：SR 对 IR 前沿（owner 口径为主，eager 口径单列），四层拆分外加成本实现层，两种库规模，体积与现役对照。
-   - 然后提交，R4 结束。
+1. **提交 R4 编码阶段**（K5–K10 + R5 构思与选题；只加本线路径；json 规格要 `git add -f`；大的结果 JSON / NPZ 不提交；作者 LinZiyang666，英文信息，不加 AI 署名，不 push）。
+2. **GR00T smoke**：通过就给 `r05_q2` 的 6 臂开一个接力，排在某条线的末尾。
+3. **Q4 交回**：读 HANDBACK，再续聊 Q4（thread 见 §4）加示范数据规模曲线，指令在 `rounds/r05/prompts/Q4_followup_demo_curve.md`。grow250 的 4 臂用清单 inits 25–49 跑，与 R2 的 50 / 500 CL2 同一批初始状态的子集比较（K4 的 kpi 支持 `--manifest`）。
+4. **Q1 交回**：做 C10 的 smoke，确认 policy_tail 真的在 MISS 后发出。然后跑 C10 × {l10, sp} × {50, 500} 和 D1 × l10 两种规模。
+5. **Q5**（影子模式，2 臂）和 **Q6**（wrist + 盲走 4 臂）交回后：smoke，再闭环。
+6. **K5 g50 r2 跑完**：跑估计器，命令同 g500：`rounds/r04/k5_rand/estimate.py --run-root r04_k5 --run-root r03_mx --arms r4k5_p_l10_g50_r1 r4k5_p_l10_g50_r2 --baseline r3mx_p_l10_g`。然后派 Q3（B2 的因果调用表，`rounds/r05/ideation_B/cost_solver.py:causal_fit`）。如果没有情境有支持，Q3 只交分析，不开臂。
+7. **R4 闭环全部结束后**（csl、gblind、K5、种子臂）：更新 `rounds/r04/ANALYSIS_BRIEF.md`，加入 K7 / K10 / wrist / K5 / g500 重复 / L10 / 纯缓存 tail / csl 的结果；K2 放附注；R4 臂里的 GR00T 部分在 gblind。然后派 1 个 codex 分析 agent 写 `rounds/r04/ANALYSIS.md`，提交，R4 结束。
+8. **R5 闭环全部结束后**：写 `rounds/r05/ANALYSIS_BRIEF.md`（仿 R4），派 codex 分析 agent 写 `rounds/r05/ANALYSIS.md`，提交，R5 结束。之后用 K8 的脚本在空闲机器上复测搜索延迟（task #40）。
 
-## 6. 纪律与坑（本线专有，章程 §8/§9 有全文）
-- **禁止事项**：
-  - ⛔ 只用 codex，不用 Claude 子 agent / Workflow。
-  - ⛔ CPU 38-43,82-87 属于他线，本线池为 0-37,44-81。
-  - ⛔ 不 pkill、不 pgrep -f 自匹配，只按 PID kill。
-  - ⛔ 前台不长时间 sleep；等待交给 Monitor 或 until 循环。
-- **codex 调用**：
-  - 命令：`node /home/weiland/.claude/plugins/cache/openai-codex/codex/1.0.6/scripts/codex-companion.mjs task --background --write [--full-access] "<prompt>"`。
-  - 不带 `--model` 时用默认的 gpt-6-astra xhigh。
-  - 状态在 `~/.claude/plugins/data/codex-openai-codex/state/openpi-50fd553c5e274099/{state.json,jobs/}`。
-  - 沙箱里看不到 GPU 和 `/dev/shm`，需要 GPU 就加 `--full-access`。
-  - ⚠ `task --help` 会被当成 prompt 起一个会话。
-  - 只能 `--resume-last`，续跑就另起一个新 job。
-  - prompt 结构参考 `rounds/r04/prompts/`（XML 块）。
-- **闭环运维**：
-  - 推 yaml 不要用 `sync_remote.sh`。推远端脚本用"先写 .new 再 mv"的原子方式。
-  - `xargs` 要加 `-d '\n'`。
-  - 正在执行的队列脚本不能原地改；要跳过臂，写 DONE 加 SKIPPED / DEFERRED。
-  - legacy 子集（`OSCL_EPISODES`）会写 legacy DONE；K4 的清单子集写的是专用 marker，不会误跳过全量。
-  - `tether pull` 偶尔返回 75，重跑 collect 即可。
-  - collect 里旧的 `ir_measured` 字段受负载延迟影响（会出现 1.40 这种值），不用它；新臂看 `cost_ledger`。
-- **结论必须带的内容**：拆分为合成 / 方法 / 库 / 控制四层，外加成本实现层；50 集与 500 集两种库规模；体积与现役对照（π0.5 431 / 1103 MB，GR00T 429 / 1068 MB）；"借用大库信息"单独标注。
-- **提交**：每个阶段完成就 commit；只加本线路径（被忽略的 json spec 用 `git add -f`）；作者 LinZiyang666；提交信息用英文，不加 AI 署名，不 push。
-- **本线最近的提交**：6e1cab5、dc5e3cb、c0f621d、cd77717、3ede7fc、72dffef、dde14f8、97c6343。
+## 6. 纪律与坑（本线专有，章程 §8 / §9 有全文）
+- ⛔ CPU 38-43,82-87 属于他线；只按 PID kill；不 pkill；前台不长时间 sleep（等待用 Monitor）。
+- **成本口径**：owner 口径为主，eager 口径（`closed_loop/ops/cost_table.json`）单列，不混用；owner 口径的 wrist / dummy 成本表在 `rounds/r04/cost_table_owner.json`（比例迁移假设）。collect 旧的 `ir_measured` 不用。watcher 报的 IR 对 R4 臂是 eager 账本，**报告前自己用 v、m 算 owner 口径**：`.152·v + .848·m`。
+- **推 yaml**：`tether push --force` 到 `timan107:/tmp/oscl_stage/`，再在远端 `cp` 到 `.new` 后 `mv` 到 `/scratch/zixuans8/openpi_trace/os_cl/cfg/`；用 `sha256sum | sort -k2 | sha256sum` 对账。不用 `sync_remote.sh`。
+- **smoke 用单独的运行目录**（legacy 子集会写 DONE）。codex 沙箱里 `/home/weiland/trace_runs` 只读，它们的拟合落在 `/tmp/<agent>_fits/`，要自己复制并核对 sha；需要写 store 的 agent 用 `--full-access`。
+- **store root**：arm 的 plugin_args 带 `--os-root /home/weiland/trace_runs/offline_search_store` 时，预拟合要用同一个 root（冷、热两份内容相同）。
+- **插件现状**：K6（按连接加锁）、K5（随机化）、K10（π0.5 policy tail）、Q2（GR00T policy tail、blocks、CycleTail）都已安装。不带新 flag 时行为逐字节不变。Q5 下一个合入。
+- **collect** 偶尔因 `tether pull` 瞬时失败（COLLECT_FAILED），手动重跑 `ops.collect --run-root <R> <arm>` 即可。
+- **提交**：只加本线路径，作者 LinZiyang666，英文，不加 AI 署名，不 push。最近的本线提交：44c9136、6e1cab5。
+- **台账时间戳**：写之前先 `date`，别写超前（犯过一次）。
 
 ---
 ## 附录 A：step_diag / warm reset 线交接（2026-09-26 03:20 CDT 版，原文保留，标题降一级）

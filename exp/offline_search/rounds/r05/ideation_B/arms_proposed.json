@@ -1,0 +1,416 @@
+[
+  {
+    "arm": "r5b_p_sp_50_hand",
+    "model": "pi05",
+    "suite": "libero_spatial",
+    "cell": "pi05_spatial_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k7_guard.judge:VisionConfirmedBlindMixedJudge",
+    "kwargs": {
+      "base": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM3",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "ridge_main": 0.1,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "events": "none",
+      "progress_guard": "noprog_span",
+      "stuck_guard": "vision_confirmed",
+      "noprog_n": 3
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only"
+    ],
+    "full_model": true,
+    "selected_rule": "ridge1.0",
+    "run_needed": true,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_p_sp_50_solve",
+    "model": "pi05",
+    "suite": "libero_spatial",
+    "cell": "pi05_spatial_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k7_guard.judge:VisionConfirmedBlindMixedJudge",
+    "kwargs": {
+      "base": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM3",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "ridge_main": 1.0,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "events": "none",
+      "progress_guard": "noprog_span",
+      "stuck_guard": "vision_confirmed",
+      "noprog_n": 3
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only"
+    ],
+    "full_model": true,
+    "selected_rule": "ridge1.0",
+    "run_needed": true,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_p_sp_500_hand",
+    "model": "pi05",
+    "suite": "libero_spatial",
+    "cell": "pi05_spatial_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k7_guard.judge:VisionConfirmedBlindMixedJudge",
+    "kwargs": {
+      "base": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "events": "none",
+      "progress_guard": "noprog_span",
+      "stuck_guard": "vision_confirmed",
+      "noprog_n": 3
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only"
+    ],
+    "full_model": true,
+    "selected_rule": "kref5",
+    "run_needed": true,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_p_sp_500_solve",
+    "model": "pi05",
+    "suite": "libero_spatial",
+    "cell": "pi05_spatial_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k7_guard.judge:VisionConfirmedBlindMixedJudge",
+    "kwargs": {
+      "base": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "events": "none",
+      "progress_guard": "noprog_span",
+      "stuck_guard": "vision_confirmed",
+      "noprog_n": 3
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only"
+    ],
+    "full_model": true,
+    "selected_rule": "kref5",
+    "run_needed": true,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_p_l10_50_hand",
+    "model": "pi05",
+    "suite": "libero_10",
+    "cell": "pi05_l10_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k7_guard.judge:VisionConfirmedBlindMixedJudge",
+    "kwargs": {
+      "base": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "events": "none",
+      "progress_guard": "noprog_span",
+      "stuck_guard": "vision_confirmed",
+      "noprog_n": 3
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only"
+    ],
+    "full_model": true,
+    "selected_rule": "base",
+    "run_needed": false,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_p_l10_50_solve",
+    "model": "pi05",
+    "suite": "libero_10",
+    "cell": "pi05_l10_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k7_guard.judge:VisionConfirmedBlindMixedJudge",
+    "kwargs": {
+      "base": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "events": "none",
+      "progress_guard": "noprog_span",
+      "stuck_guard": "vision_confirmed",
+      "noprog_n": 3
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only"
+    ],
+    "full_model": true,
+    "selected_rule": "base",
+    "run_needed": false,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_p_l10_500_hand",
+    "model": "pi05",
+    "suite": "libero_10",
+    "cell": "pi05_l10_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k7_guard.judge:VisionConfirmedBlindMixedJudge",
+    "kwargs": {
+      "base": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "events": "none",
+      "progress_guard": "noprog_span",
+      "stuck_guard": "vision_confirmed",
+      "noprog_n": 3
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only"
+    ],
+    "full_model": true,
+    "selected_rule": "kref5",
+    "run_needed": true,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_p_l10_500_solve",
+    "model": "pi05",
+    "suite": "libero_10",
+    "cell": "pi05_l10_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r04.k7_guard.judge:VisionConfirmedBlindMixedJudge",
+    "kwargs": {
+      "base": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "events": "none",
+      "progress_guard": "noprog_span",
+      "stuck_guard": "vision_confirmed",
+      "noprog_n": 3
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only"
+    ],
+    "full_model": true,
+    "selected_rule": "kref5",
+    "run_needed": true,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_g_sp_50_hand",
+    "model": "groot",
+    "suite": "libero_spatial",
+    "cell": "groot_spatial_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r03.h1_trap.awm3:AWM3",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "ridge_main": 0.1
+    },
+    "plugin_args": [
+      "--os-no-shadow-native"
+    ],
+    "full_model": false,
+    "selected_rule": "ridge1.0",
+    "run_needed": true,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_g_sp_50_solve",
+    "model": "groot",
+    "suite": "libero_spatial",
+    "cell": "groot_spatial_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r03.h1_trap.awm3:AWM3",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "ridge_main": 1.0
+    },
+    "plugin_args": [
+      "--os-no-shadow-native"
+    ],
+    "full_model": false,
+    "selected_rule": "ridge1.0",
+    "run_needed": true,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_g_sp_500_hand",
+    "model": "groot",
+    "suite": "libero_spatial",
+    "cell": "groot_spatial_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r02.g1_awm.awm:AWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8
+    },
+    "plugin_args": [
+      "--os-no-shadow-native"
+    ],
+    "full_model": false,
+    "selected_rule": "state3.0",
+    "run_needed": true,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_g_sp_500_solve",
+    "model": "groot",
+    "suite": "libero_spatial",
+    "cell": "groot_spatial_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r02.g1_awm.awm:AWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "state_scale": 3.0
+    },
+    "plugin_args": [
+      "--os-no-shadow-native"
+    ],
+    "full_model": false,
+    "selected_rule": "state3.0",
+    "run_needed": true,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_g_l10_50_hand",
+    "model": "groot",
+    "suite": "libero_10",
+    "cell": "groot_l10_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r02.g1_awm.awm:AWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5
+    },
+    "plugin_args": [
+      "--os-no-shadow-native"
+    ],
+    "full_model": false,
+    "selected_rule": "base",
+    "run_needed": false,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_g_l10_50_solve",
+    "model": "groot",
+    "suite": "libero_10",
+    "cell": "groot_l10_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r02.g1_awm.awm:AWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5
+    },
+    "plugin_args": [
+      "--os-no-shadow-native"
+    ],
+    "full_model": false,
+    "selected_rule": "base",
+    "run_needed": false,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_g_l10_500_hand",
+    "model": "groot",
+    "suite": "libero_10",
+    "cell": "groot_l10_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r02.g1_awm.awm:AWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8
+    },
+    "plugin_args": [
+      "--os-no-shadow-native"
+    ],
+    "full_model": false,
+    "selected_rule": "state3.0",
+    "run_needed": true,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  },
+  {
+    "arm": "r5b_g_l10_500_solve",
+    "model": "groot",
+    "suite": "libero_10",
+    "cell": "groot_l10_cache",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r02.g1_awm.awm:AWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "state_scale": 3.0
+    },
+    "plugin_args": [
+      "--os-no-shadow-native"
+    ],
+    "full_model": false,
+    "selected_rule": "state3.0",
+    "run_needed": true,
+    "note": "Proposal only; coordinator must prefit into its own output path, emit configs and run. No server launched."
+  }
+]

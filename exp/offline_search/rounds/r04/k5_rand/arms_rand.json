@@ -1,0 +1,116 @@
+[
+  {
+    "name": "r4k5_p_l10_g50_r1",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5
+      },
+      "guards": true,
+      "events": "none"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r3mx_p_l10_g.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-log-r4",
+      "--os-rand-seed",
+      "20260927",
+      "--os-rand-replicate",
+      "1"
+    ],
+    "_reuse_fit": "/home/weiland/trace_runs/os_closed_loop/r03_mx/fits/r3mx_p_l10_g.pkl"
+  },
+  {
+    "name": "r4k5_p_l10_g50_r2",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5
+      },
+      "guards": true,
+      "events": "none"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r3mx_p_l10_g.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-log-r4",
+      "--os-rand-seed",
+      "20260927",
+      "--os-rand-replicate",
+      "2"
+    ],
+    "_reuse_fit": "/home/weiland/trace_runs/os_closed_loop/r03_mx/fits/r3mx_p_l10_g.pkl"
+  },
+  {
+    "name": "r4k5_p_l10_g500_r1",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {},
+      "guards": true,
+      "events": "none"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r3mx_p_l10_g500.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-log-r4",
+      "--os-rand-seed",
+      "20260927",
+      "--os-rand-replicate",
+      "1"
+    ],
+    "_reuse_fit": "/home/weiland/trace_runs/os_closed_loop/r03_mx/fits/r3mx_p_l10_g500.pkl"
+  },
+  {
+    "name": "r4k5_p_l10_g500_r2",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {},
+      "guards": true,
+      "events": "none"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r3mx_p_l10_g500.pkl",
+      "--os-judge",
+      "guard_only",
+      "--os-log-r4",
+      "--os-rand-seed",
+      "20260927",
+      "--os-rand-replicate",
+      "2"
+    ],
+    "_reuse_fit": "/home/weiland/trace_runs/os_closed_loop/r03_mx/fits/r3mx_p_l10_g500.pkl"
+  }
+]

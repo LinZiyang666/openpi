@@ -194,6 +194,10 @@ def blind_main(a):
     out.mkdir(parents=True, exist_ok=True)
     args = ["--os-method", a.method, "--os-kwargs", a.kwargs, "--os-cell", a.cell, "--os-root", a.root,
             "--os-log-dir", str(out), "--os-tag", "blindtest", "--os-log-inputs", "--os-blind"]
+    if a.policy_tail:
+        args += ["--os-policy-tail"]
+    if a.policy_tail_blocks is not None:
+        args += ["--os-policy-tail-blocks", str(a.policy_tail_blocks)]
     if a.judge:
         args += ["--os-judge", a.judge, "--os-judge-cap", str(a.judge_cap),
                  "--os-judge-step0", a.judge_step0, "--os-judge-burst", str(a.judge_burst)]
@@ -329,6 +333,17 @@ def blind_main(a):
         for conn in conns:
             conn.on_episode_end(success=False)
     decs = [json.loads(line) for line in rt.dec_path.read_text().splitlines() if '"ev": "dec"' in line]
+    if a.policy_tail:
+        tails = [d for d in decs if d["src"] == "policy_tail"]
+        for file in (out / "inputs").glob("*.npz"):
+            z = np.load(file, allow_pickle=False)
+            from .blind import policy_tail_chunk
+            for step in np.flatnonzero(z["source"] == "policy_tail"):
+                anchor = np.flatnonzero(z["vision"][:step])[-1]
+                offset = 5 * (step - anchor)
+                assert z["hit"][anchor] == 0 and offset <= 5 * (a.policy_tail_blocks or 1)
+                assert np.array_equal(z["a_exec"][step], policy_tail_chunk(z["a_exec"][anchor], offset))
+                assert np.array_equal(z["wire_actions"][step], policy_tail_chunk(z["wire_actions"][anchor], offset))
     visions = sum(d["vision"] for d in decs)
     assert len(decs) == 48
     assert sum(c.calls for c in conns) == visions
@@ -345,6 +360,8 @@ def blind_main(a):
                miss=sum(not d["hit"] for d in decs), stage1_calls=sum(c.calls for c in conns),
                broadcasts=sum(c.broadcasts for c in conns), connections=2, episodes=4, duplicate_rejections=4,
                rejected_preflight=rejected_preflight, output_fallbacks=output_fallbacks, partial_looks=partial_looks)
+    if a.policy_tail:
+        rep["policy_tail"] = len(tails)
     (out / "selftest_report.json").write_text(json.dumps(rep, indent=2))
     print(json.dumps(rep, indent=2))
     return rc
@@ -368,7 +385,15 @@ def main(argv=None):
     ap.add_argument("--replay-cell", default="", help="query cell whose recorded episodes are replayed (default --cell); "
                     "an _inf cell with --judge periodic:1 checks the after-MISS QueryView against the inf-cell view")
     ap.add_argument("--blind", action="store_true", help="run the interleaved R4 blind serving test")
+    ap.add_argument("--policy-tail", action="store_true", help="enable K10 policy tail in the blind fake driver")
+    ap.add_argument("--policy-tail-blocks", type=int, choices=(1, 2), default=None)
+    ap.add_argument("--rand-seed", type=int, default=None)
+    ap.add_argument("--rand-replicate", type=int, choices=(1, 2), default=None)
     a = ap.parse_args(argv)
+    if a.policy_tail and not a.blind:
+        ap.error("--policy-tail requires --blind")
+    if a.blind and (a.rand_seed is not None or a.rand_replicate is not None):
+        ap.error("randomization does not support --blind")
     if a.blind:
         return blind_main(a)
 
@@ -392,6 +417,17 @@ def main(argv=None):
     if mixed:
         pargs += ["--os-judge", a.judge, "--os-judge-cap", str(a.judge_cap), "--os-judge-step0", a.judge_step0,
                   "--os-judge-burst", str(a.judge_burst)]
+    if a.rand_seed is not None or a.rand_replicate is not None:
+        pargs += ["--os-rand-seed", str(a.rand_seed), "--os-rand-replicate", str(a.rand_replicate), "--os-log-r4"]
+        # R4 timing adapter around the same fake interceptor, with no GPU stages.
+        original_infer = FakePolicy.infer
+        FakePolicy.stage1 = lambda self, obs: None
+        FakePolicy._osp_prepare_blind = lambda self, obs: None
+        FakePolicy._osp_blind_output = lambda self, action, state: {"actions": action}
+        def timed_infer(self, obs):
+            self.stage1(obs)
+            return original_infer(self, obs)
+        FakePolicy.infer = timed_infer
     opts, rest = plugin.parse_cli(pargs)
     assert not rest, rest
     rt = plugin.install(opts, model=model)

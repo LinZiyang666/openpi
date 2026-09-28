@@ -158,6 +158,11 @@ def check_verdicts(J: dict, z: dict) -> dict:
     force = np.asarray(z["x_os_force_miss"], np.float64)[:n] if "x_os_force_miss" in z else np.zeros(n)
     out = {"n": n, "mix": {}, "bad": [], "run_bad": 0, "force_rows": int(np.sum(force == 1))}
     burst_left = 0
+    randomization = None
+    if "randomization" in z:
+        from exp.offline_search.rounds.r04.k5_rand.overlay import RandomizedLandmark
+        first = json.loads(str(z["randomization"][0]))
+        randomization = RandomizedLandmark(first["experiment_seed"], first["task_id"], first["init"], first["replicate"])
     for s in range(n):
         forced = bool(force[s] == 1)
         exp_hit, why, burst_left = expected_verdict(J, step=s, conf=float(conf[s]), tau=float(tau[s]), run=int(run[s]),
@@ -166,6 +171,14 @@ def check_verdicts(J: dict, z: dict) -> dict:
                                                     and ("periodic_global" not in z or z["periodic_global"][s]) else None)
         if "has_vision" in z and not z["has_vision"][s]:
             exp_hit, why = True, "blind"
+        if randomization is not None:
+            extras = {k[2:]: float(v[s]) for k, v in z.items() if k.startswith("x_")}
+            exp_hit, record = randomization.apply(s, exp_hit, float(conf[s]), extras,
+                                                  None if s == 0 else z["a_exec"][s-1])
+            if json.loads(str(z["randomization"][s])) != record:
+                out["bad"].append({"step": s, "error": "randomization assignment/context/opportunity mismatch"})
+            if record["eligible"]:
+                why = "randomized"
         logged_why = judge[s].split(":")[0]
         out["mix"][judge[s]] = out["mix"].get(judge[s], 0) + 1
         if bool(hit[s]) != exp_hit or logged_why != why:
@@ -194,7 +207,8 @@ def verify_blind_logs(log_dir, eps, *, out=None):
     from exp.offline_search.harness import api, run, store
 
     configs = {(m["method_spec"], json.dumps(m["kwargs"], sort_keys=True), m["cell"], m["root"], m["run_seed"],
-                json.dumps(m.get("judge"), sort_keys=True)) for _, m, _ in eps}
+                json.dumps(m.get("judge"), sort_keys=True), m.get("policy_tail", False),
+                m.get("policy_tail_blocks", 1)) for _, m, _ in eps}
     if len(configs) != 1:
         raise ValueError("blind logs mix configurations; select one server tag")
     _, meta, _ = eps[0]
@@ -222,6 +236,8 @@ def verify_blind_logs(log_dir, eps, *, out=None):
         method.reset(ep)
         age, last_vision, burst_left = 0, -1, 0
         J = m.get("judge")
+        policy_tail = m.get("policy_tail", False)
+        tail_blocks = m.get("policy_tail_blocks", 1)
         if J:
             verdict = check_verdicts(J, z)
             errors.extend(verdict["bad"])
@@ -239,13 +255,23 @@ def verify_blind_logs(log_dir, eps, *, out=None):
                           prev_a_exec=None if s == 0 else z["a_exec"][s-1], hist_a_exec=z["a_exec"][:s],
                           hist_hit=hit[:s], hist_rs=z["rs"][:s], hist_has_vision=z["has_vision"][:s], blind_age=age)
             reason = None
+            use_tail = bool(policy_tail and s and
+                            (hit[s-1] == 0 or z["source"][s-1] == "policy_tail"))
+            tail_valid = bool(last_vision >= 0 and hit[last_vision] == 0
+                              and 1 <= s - last_vision <= tail_blocks
+                              and 5 * (s - last_vision + 1) <= int(m["H"]))
             if J and J["mode"] == "periodic" and int(z["decision_index"][s]) % J["k"] == J["k"]-1:
                 reason = LookReason(7, "periodic")
-            elif s == 0 or hit[s-1] == 0:
+            elif (s == 0 or (hit[s-1] == 0 and not policy_tail) or (use_tail and not tail_valid)
+                  or (policy_tail and (z["previous_executed_steps"][s] != 5
+                       or not np.isfinite(z["rs"][s]).all() or not np.isfinite(z["raw_state"][s]).all()))):
                 reason = LookReason(6, "lifecycle")
             elif J and (burst_left > 0 or (J.get("cap", 0) > 0 and J["mode"] not in ("always", "periodic")
                                           and int(z["run"][s]) >= J["cap"])):
                 reason = LookReason(8, "judge requires vision")
+            elif use_tail:
+                hook = getattr(method, "policy_tail_step", None)
+                reason = hook(BlindQueryView(**common)) if hook else LookReason(8, "unsupported")
             elif not hasattr(method, "blind_step"):
                 reason = LookReason(8, "unsupported")
             else:
@@ -279,6 +305,15 @@ def verify_blind_logs(log_dir, eps, *, out=None):
                 assert np.array_equal(z["blind_rows"][s, :len(rows)], rows)
                 assert np.array_equal(z["blind_weights"][s, :len(rows)], reason.weights)
                 age += 1
+            if policy_tail and not v and use_tail:
+                from exp.offline_search.closed_loop.blind import policy_tail_chunk
+                offset = 5 * (s - last_vision)
+                if (z["source"][s] != "policy_tail" or not hit[s] or not 1 <= age <= tail_blocks
+                        or not np.array_equal(action, policy_tail_chunk(z["a_exec"][last_vision], offset))
+                        or not np.array_equal(z["wire_actions"][s], policy_tail_chunk(z["wire_actions"][last_vision], offset))):
+                    errors.append({"uid": m["uid"], "step": s, "error": "policy tail mismatch"})
+            if policy_tail and not hit[s] and hasattr(method, "invalidate_anchor"):
+                method.invalidate_anchor()
             checks["topk"] += np.array_equal(z["topk"][s, :min(len(rows), api.TOPK_SAVE)], rows[:api.TOPK_SAVE])
             checks["lib"] += str(z["lib"][s]) == lname
             checks["action"] += bool(not hit[s] or np.array_equal(z["a_exec"][s], action))
