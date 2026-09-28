@@ -1,0 +1,94 @@
+[
+  {
+    "name": "r5q4_p_l10_grow250_refit",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r05/q4_growth/method.py:GrowthAWM",
+    "kwargs": {
+      "library": "grow250",
+      "variant": "refit",
+      "kref": 5
+    },
+    "full_model": false,
+    "server_env": {
+      "STAGE1_ONLY": "1"
+    },
+    "manifest": "<RUN>/evaluation_pairs.json",
+    "replan_steps": 5,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q4_p_l10_grow250_refit.pkl"
+    ]
+  },
+  {
+    "name": "r5q4_p_l10_grow250_frozen",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r05/q4_growth/method.py:GrowthAWM",
+    "kwargs": {
+      "library": "grow250",
+      "variant": "frozen",
+      "kref": 5
+    },
+    "full_model": false,
+    "server_env": {
+      "STAGE1_ONLY": "1"
+    },
+    "manifest": "<RUN>/evaluation_pairs.json",
+    "replan_steps": 5,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q4_p_l10_grow250_frozen.pkl"
+    ]
+  },
+  {
+    "name": "r5q4_p_sp_grow250_refit",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r05/q4_growth/method.py:GrowthAWM",
+    "kwargs": {
+      "library": "grow250",
+      "variant": "refit",
+      "kref": 5
+    },
+    "full_model": false,
+    "server_env": {
+      "STAGE1_ONLY": "1"
+    },
+    "manifest": "<RUN>/evaluation_pairs.json",
+    "replan_steps": 5,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q4_p_sp_grow250_refit.pkl"
+    ]
+  },
+  {
+    "name": "r5q4_p_sp_grow250_frozen",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r05/q4_growth/method.py:GrowthAWM",
+    "kwargs": {
+      "library": "grow250",
+      "variant": "frozen",
+      "kref": 5
+    },
+    "full_model": false,
+    "server_env": {
+      "STAGE1_ONLY": "1"
+    },
+    "manifest": "<RUN>/evaluation_pairs.json",
+    "replan_steps": 5,
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q4_p_sp_grow250_frozen.pkl"
+    ]
+  }
+]

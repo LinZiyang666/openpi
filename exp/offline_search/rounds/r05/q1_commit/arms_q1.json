@@ -1,0 +1,218 @@
+[
+  {
+    "name": "r5q1_c10_p_l10_50",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q1_c10_p_l10_50.pkl"
+    ]
+  },
+  {
+    "name": "r5q1_c10_p_l10_500",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q1_c10_p_l10_500.pkl"
+    ]
+  },
+  {
+    "name": "r5q1_c10_p_sp_50",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q1_c10_p_sp_50.pkl"
+    ]
+  },
+  {
+    "name": "r5q1_c10_p_sp_500",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q1_c10_p_sp_500.pkl"
+    ]
+  },
+  {
+    "name": "r5q1_d1_p_l10_50",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r05.q1_commit.judge:GraspCheckJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q1_d1_p_l10_50.pkl"
+    ]
+  },
+  {
+    "name": "r5q1_d1_p_l10_500",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r05.q1_commit.judge:GraspCheckJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q1_d1_p_l10_500.pkl"
+    ]
+  }
+]

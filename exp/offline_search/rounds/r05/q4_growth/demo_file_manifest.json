@@ -1,0 +1,1932 @@
+{
+  "generated_utc": "2026-09-28T03:05:15.928297+00:00",
+  "previous_handback_sha256": "97b769bd95ea2bf9aee03698b3832428aa689cf84874650dc93401f11acdc6dc",
+  "files": [
+    {
+      "path": "/dev/shm/offline_search_store/library/pi05_l10/demo100/checksums.json",
+      "bytes": 2532,
+      "sha256": "9dace3adf55d53385649d2839700135c95826ba2fc765fb8448a483eebf0ee4b",
+      "mtime_utc": "2026-09-28T02:42:45.177917+00:00"
+    },
+    {
+      "path": "/dev/shm/offline_search_store/library/pi05_l10/demo100/manifest.json",
+      "bytes": 5487,
+      "sha256": "9101821eecb73bf353260f3a53597a2eaebca4df10cf27fb70f90b33233d93a3",
+      "mtime_utc": "2026-09-28T02:42:40.154912+00:00"
+    },
+    {
+      "path": "/dev/shm/offline_search_store/library/pi05_l10/demo200/checksums.json",
+      "bytes": 2541,
+      "sha256": "dc93ee37934273cdd3b70561e833b0247e63f560d83923e5b36680896e8a58a2",
+      "mtime_utc": "2026-09-28T02:43:08.335937+00:00"
+    },
+    {
+      "path": "/dev/shm/offline_search_store/library/pi05_l10/demo200/manifest.json",
+      "bytes": 5514,
+      "sha256": "cc41bb256dc7a19b726af63ebf488539a15a54c8d4725a9aeb888c69268bd2b3",
+      "mtime_utc": "2026-09-28T02:42:58.228928+00:00"
+    },
+    {
+      "path": "/dev/shm/offline_search_store/library/pi05_l10/demo300/checksums.json",
+      "bytes": 2542,
+      "sha256": "252390b80604dec706489c5e94bb263d9a1d452ad632c384258067049af5d2bb",
+      "mtime_utc": "2026-09-28T02:43:48.862989+00:00"
+    },
+    {
+      "path": "/dev/shm/offline_search_store/library/pi05_l10/demo300/manifest.json",
+      "bytes": 5515,
+      "sha256": "f0b88d212b8ea0e5f1e87df72bbaa6164cfaf5163fafb99579fb67244dde89bb",
+      "mtime_utc": "2026-09-28T02:43:33.435969+00:00"
+    },
+    {
+      "path": "/dev/shm/offline_search_store/library/pi05_spatial/demo100/checksums.json",
+      "bytes": 2523,
+      "sha256": "86e1634ac7286ba467092b7179b5f2efcc6ad4ba17f7b82c11a6dff96e3e2a57",
+      "mtime_utc": "2026-09-28T02:43:45.320985+00:00"
+    },
+    {
+      "path": "/dev/shm/offline_search_store/library/pi05_spatial/demo100/manifest.json",
+      "bytes": 5642,
+      "sha256": "7363ed14399f0876d360571077cb61c7f5a94eebb189d189bfa4a8c4ba943baf",
+      "mtime_utc": "2026-09-28T02:43:43.348982+00:00"
+    },
+    {
+      "path": "/dev/shm/offline_search_store/library/pi05_spatial/demo200/checksums.json",
+      "bytes": 2530,
+      "sha256": "9a406ca02dc751a329bc685c31e514f392dab62b15565e9466dff636db95198b",
+      "mtime_utc": "2026-09-28T02:43:54.466996+00:00"
+    },
+    {
+      "path": "/dev/shm/offline_search_store/library/pi05_spatial/demo200/manifest.json",
+      "bytes": 5649,
+      "sha256": "c40f39e541692327a9221f9fe7714f0c975e177a78222f8f3736c32aa6efc53d",
+      "mtime_utc": "2026-09-28T02:43:50.526991+00:00"
+    },
+    {
+      "path": "/dev/shm/offline_search_store/library/pi05_spatial/demo300/checksums.json",
+      "bytes": 2533,
+      "sha256": "6522b9e67b81916cd1d182cc9add2185652697f7d8f42457105ebc585b845ff1",
+      "mtime_utc": "2026-09-28T02:44:08.634015+00:00"
+    },
+    {
+      "path": "/dev/shm/offline_search_store/library/pi05_spatial/demo300/manifest.json",
+      "bytes": 5652,
+      "sha256": "471539dafe369b01ea38c9aa621689bf488f3fbb3784ad92420c096388b698ae",
+      "mtime_utc": "2026-09-28T02:44:02.724007+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/HANDBACK.md",
+      "bytes": 46745,
+      "sha256": "5d9442197e3a31b6ffc2a3d576d340afcd337eb0f2cf5e8c43fe7803cdfe5708",
+      "mtime_utc": "2026-09-28T03:05:15.927365+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/arms_q4_demo.json",
+      "bytes": 5069,
+      "sha256": "82eab6c7d0d9aa4a6ff9bd510ac9a93d9f7b80c4e0b336cbfeda1671106eeaf4",
+      "mtime_utc": "2026-09-28T02:43:21.583953+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/demo_build.py",
+      "bytes": 7298,
+      "sha256": "020694a8d28819cd031c5f5d5e18c89ee9a4cf81811834180a23535415606181",
+      "mtime_utc": "2026-09-28T02:41:40.458860+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/demo_check.py",
+      "bytes": 4613,
+      "sha256": "8fbdb942c6243bda6de6accb7ff3701869b39c051abc1540e655951afc5415a6",
+      "mtime_utc": "2026-09-28T02:51:29.694531+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/demo_method.py",
+      "bytes": 6411,
+      "sha256": "86a2d6b2aa2387ea7ad6f355635686a4743e0a7ce00b750202b4dde3813a041f",
+      "mtime_utc": "2026-09-28T02:53:50.123681+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/demo_offline.py",
+      "bytes": 8250,
+      "sha256": "59751dfa99ce7d3386653e9f2c920c307c91eafb525e12c196f8dd7b6f03dd25",
+      "mtime_utc": "2026-09-28T02:54:37.344730+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/demo_plot.py",
+      "bytes": 3008,
+      "sha256": "c08c39807dca19a0b29e58a9eeb5b09e215b828f56e1c398ca1d9b9cd15aa2fd",
+      "mtime_utc": "2026-09-28T02:49:45.077416+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/demo_prefit_l10.sh",
+      "bytes": 3806,
+      "sha256": "e7ddb5df6201d0b6c16e2f54202f0b1bb7d6fd75f8f842957bcefa29a3ac9a4e",
+      "mtime_utc": "2026-09-28T02:43:21.583953+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/demo_prefit_spatial.sh",
+      "bytes": 3806,
+      "sha256": "cd7672f6a9b03b29f19540a51449d0aeaeafae5887b962d1e263037753d4e093",
+      "mtime_utc": "2026-09-28T02:43:21.583953+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/demo_prepare.py",
+      "bytes": 2998,
+      "sha256": "812a7070daa884d064c9f4751bfe451166e5455c758d382f7c77bae9f341128f",
+      "mtime_utc": "2026-09-28T02:43:20.193952+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/demo_report.py",
+      "bytes": 18903,
+      "sha256": "fc11dc0f3a9a62fcaebd379e0f034649d3366dbb49af7702205427ce3c106c48",
+      "mtime_utc": "2026-09-28T03:04:56.399346+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/demo_semantics.py",
+      "bytes": 4296,
+      "sha256": "5b7021e92f2b2cc4fd76ea96389b124566bd7cc801fb01252c8cbb55493f6bbe",
+      "mtime_utc": "2026-09-28T02:51:29.694531+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/demo_validate.py",
+      "bytes": 4159,
+      "sha256": "0c76defeabc7a385a7705688bf37b2a53a033a267e067536e65aedb39f4f4e1d",
+      "mtime_utc": "2026-09-28T02:43:20.194952+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/arms_validation.json",
+      "bytes": 192,
+      "sha256": "94b8f4ad0cd0aef5ace0b32b826bd6c41e612f019ad121e2d084f9d11555922e",
+      "mtime_utc": "2026-09-28T02:43:21.669954+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/build_l10.json",
+      "bytes": 1770,
+      "sha256": "30bca73c453bfe6be93a0162c1139a11050f9383651215a3edb8a8f0be8f2363",
+      "mtime_utc": "2026-09-28T02:43:52.016993+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/build_l10.log",
+      "bytes": 1291,
+      "sha256": "ae3607fde37dfd6e185b1c25aaa4bf1a98b6cbb050162a5045a872d865c865de",
+      "mtime_utc": "2026-09-28T02:43:52.015993+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/build_spatial.json",
+      "bytes": 1779,
+      "sha256": "2b8438901d65dce069fa59dffa585096386d48f8f9ea725b039240d69fc6fb2a",
+      "mtime_utc": "2026-09-28T02:44:09.771016+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/build_spatial.log",
+      "bytes": 1304,
+      "sha256": "26c61f14838a214153201f3747dbfeb46a56525436c3076ceb67ce49302e4dde",
+      "mtime_utc": "2026-09-28T02:44:09.771016+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_l10_100_refit.log",
+      "bytes": 1795,
+      "sha256": "50d4bf9810de557b0543de692fef9117b346ae2960b24281ed4a8da156f950d1",
+      "mtime_utc": "2026-09-28T02:48:06.894305+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_l10_100_refit_final.log",
+      "bytes": 1795,
+      "sha256": "50d4bf9810de557b0543de692fef9117b346ae2960b24281ed4a8da156f950d1",
+      "mtime_utc": "2026-09-28T02:53:15.487645+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_l10_200_frozen50.log",
+      "bytes": 1930,
+      "sha256": "4691d025aad6a63a347cbdc5106814bd443fb323be98a55e297fc5861ae044f9",
+      "mtime_utc": "2026-09-28T02:47:28.085259+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_l10_200_frozen50_final.log",
+      "bytes": 1930,
+      "sha256": "2ab357feffcba01aab907d0fe60662578897b139b9347482b5193bb47514826b",
+      "mtime_utc": "2026-09-28T02:56:43.616860+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_l10_200_refit.log",
+      "bytes": 1795,
+      "sha256": "ddc1771f62ee9a5801d94552e203a585375bf723b900ec671dd1333ea66f83da",
+      "mtime_utc": "2026-09-28T02:49:26.430395+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_l10_200_refit_final.log",
+      "bytes": 1795,
+      "sha256": "ddc1771f62ee9a5801d94552e203a585375bf723b900ec671dd1333ea66f83da",
+      "mtime_utc": "2026-09-28T02:54:33.526726+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_l10_300_refit.log",
+      "bytes": 1795,
+      "sha256": "e8321cd37cc0ff834b6761f4373a52a6bb577d4b69d464b5e952d0716734aec1",
+      "mtime_utc": "2026-09-28T02:51:11.980512+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_l10_300_refit_final.log",
+      "bytes": 1795,
+      "sha256": "e8321cd37cc0ff834b6761f4373a52a6bb577d4b69d464b5e952d0716734aec1",
+      "mtime_utc": "2026-09-28T02:56:21.636838+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_r5q4d_p_l10_100_refit_tail1.json",
+      "bytes": 1080,
+      "sha256": "dec97ac38f441af7b3a1770544ad8efa8436d625d7a1014d95846b78eb282830",
+      "mtime_utc": "2026-09-28T02:53:15.487645+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_r5q4d_p_l10_200_frozen50_tail1.json",
+      "bytes": 1227,
+      "sha256": "7c087ec4b7e6b033a989f1101bbc6e15001ae3e9f930e4135fc1d80972a87a59",
+      "mtime_utc": "2026-09-28T02:56:43.615860+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_r5q4d_p_l10_200_refit_tail1.json",
+      "bytes": 1080,
+      "sha256": "54a429b7de3665daac3e49e24b1957d41187691a5d8734134252d49eab207d46",
+      "mtime_utc": "2026-09-28T02:54:33.526726+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_r5q4d_p_l10_300_refit_tail1.json",
+      "bytes": 1080,
+      "sha256": "e90ac20123179dc3df0b81979aa3d73e704e0a345115b4a4ea3910307cede64d",
+      "mtime_utc": "2026-09-28T02:56:21.636838+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_r5q4d_p_sp_100_refit_tail1.json",
+      "bytes": 1078,
+      "sha256": "8e7af2cc1f0ea71c129484b87163ed7c94a334b5d2593fdf30c95d6476f58272",
+      "mtime_utc": "2026-09-28T02:53:02.503631+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_r5q4d_p_sp_200_frozen50_tail1.json",
+      "bytes": 1225,
+      "sha256": "68067cfd9bd988703f53123a148c859d1b821f9f0dd96e3d3e1a23e211f4e525",
+      "mtime_utc": "2026-09-28T02:59:38.457036+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_r5q4d_p_sp_200_refit_tail1.json",
+      "bytes": 1078,
+      "sha256": "228a3f0a5f3c75af8d707a3bda33bb6d843adcd65bac0b6215097c31383f5cc7",
+      "mtime_utc": "2026-09-28T02:53:41.265672+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_r5q4d_p_sp_300_refit_tail1.json",
+      "bytes": 1078,
+      "sha256": "a3f13968be09003b80b77391f05e69de08f35ec524701d205994c9d2a97caa94",
+      "mtime_utc": "2026-09-28T02:54:31.267724+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_spatial_100_refit.log",
+      "bytes": 1793,
+      "sha256": "6660e4ec15fdfc270842d9ca11a066f9862e757f41f34d1c5a2cf81cdcd58f81",
+      "mtime_utc": "2026-09-28T02:48:39.138342+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_spatial_100_refit_final.log",
+      "bytes": 1793,
+      "sha256": "6660e4ec15fdfc270842d9ca11a066f9862e757f41f34d1c5a2cf81cdcd58f81",
+      "mtime_utc": "2026-09-28T02:53:02.503631+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_spatial_200_frozen50.log",
+      "bytes": 1928,
+      "sha256": "f33ecc9e8b993e56a23ddd64eb612127dd85dece47128184a085cadeb48ce0ae",
+      "mtime_utc": "2026-09-28T02:50:19.265454+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_spatial_200_frozen50_final.log",
+      "bytes": 2549,
+      "sha256": "f81e866733e5fe802a7f83865ada07a4122bdc6b0408f1544956f7fd71b810e9",
+      "mtime_utc": "2026-09-28T02:54:42.314736+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_spatial_200_frozen50_rowwise.log",
+      "bytes": 1928,
+      "sha256": "23b8d234ba8e7442c016ee2c865befc0867dddb182a167af8da4957c41904c8b",
+      "mtime_utc": "2026-09-28T02:59:38.458035+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_spatial_200_refit.log",
+      "bytes": 1793,
+      "sha256": "5d86613e28a407c41c745515ac27deb169f0fd7c7ba8f4edef164d0986a2e50d",
+      "mtime_utc": "2026-09-28T02:49:21.356390+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_spatial_200_refit_final.log",
+      "bytes": 1793,
+      "sha256": "5d86613e28a407c41c745515ac27deb169f0fd7c7ba8f4edef164d0986a2e50d",
+      "mtime_utc": "2026-09-28T02:53:41.265672+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_spatial_300_refit.log",
+      "bytes": 1793,
+      "sha256": "368b9c11679aae1575f2d0af083bcd13601228cfea5d2bdc37824362669eb07a",
+      "mtime_utc": "2026-09-28T02:50:11.069445+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/check_spatial_300_refit_final.log",
+      "bytes": 1793,
+      "sha256": "368b9c11679aae1575f2d0af083bcd13601228cfea5d2bdc37824362669eb07a",
+      "mtime_utc": "2026-09-28T02:54:31.267724+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10.json",
+      "bytes": 17234,
+      "sha256": "e77fe387360ab9fa51d9087df046054ef059da4bfbdd3d7b30f50a83452cd627",
+      "mtime_utc": "2026-09-28T03:03:43.274276+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_cache_100_frozen50.npz",
+      "bytes": 460586,
+      "sha256": "5317e66382b7354da5d94412b5d0704bbc600eff6c04512e460051b49a2d4351",
+      "mtime_utc": "2026-09-28T03:03:42.366275+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_cache_100_refit.npz",
+      "bytes": 460533,
+      "sha256": "680f98b4e79ee1688eed7c46cfd013f46a99345c52452d14187cca3d156056ca",
+      "mtime_utc": "2026-09-28T03:03:42.215275+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_cache_200_frozen50.npz",
+      "bytes": 459070,
+      "sha256": "788c2b14e98522e8f05e0d824b3ab919078561c8aa4ac95f0d4d6e11ebc7ac3f",
+      "mtime_utc": "2026-09-28T03:03:42.670275+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_cache_200_refit.npz",
+      "bytes": 458705,
+      "sha256": "768af3542857b57b292a1044f5b8cf3a2d6ea4fbc8cac52684da71f6bde2e602",
+      "mtime_utc": "2026-09-28T03:03:42.518275+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_cache_300_frozen50.npz",
+      "bytes": 458531,
+      "sha256": "418faeb05bebc13a40bcd6839f8f39fff52dbb0ef2313d4b6cea7ae87783390d",
+      "mtime_utc": "2026-09-28T03:03:42.976275+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_cache_300_refit.npz",
+      "bytes": 458583,
+      "sha256": "099d7443d4f49272377ffe3d4754a7fd620c7cda0e9b97d5487deca1bbda3848",
+      "mtime_utc": "2026-09-28T03:03:42.818275+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_cache_500_frozen50.npz",
+      "bytes": 458969,
+      "sha256": "ab10fd45e8e4d71d635ba2b24e58e5cef7ada621346c2946d0089c11a23ff0ea",
+      "mtime_utc": "2026-09-28T03:03:43.272276+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_cache_500_refit.npz",
+      "bytes": 459274,
+      "sha256": "2f30edaa3795a26bd1436a57aa61b9f01e4abc1c31426a8aa98518ddd02da87a",
+      "mtime_utc": "2026-09-28T03:03:43.123276+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_cache_50_frozen50.npz",
+      "bytes": 462228,
+      "sha256": "e19df6733d66cf7c51add5f99a4ba3d74364b2c511f9aa72e155d4681a77faae",
+      "mtime_utc": "2026-09-28T03:03:42.066274+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_cache_50_refit.npz",
+      "bytes": 462228,
+      "sha256": "e19df6733d66cf7c51add5f99a4ba3d74364b2c511f9aa72e155d4681a77faae",
+      "mtime_utc": "2026-09-28T03:03:41.915274+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_inf_100_frozen50.npz",
+      "bytes": 335557,
+      "sha256": "40b54fef8355444cb4a26eeb4c28dcdb3f8deb62416974a7b02f40a5171b18da",
+      "mtime_utc": "2026-09-28T03:03:40.991273+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_inf_100_refit.npz",
+      "bytes": 334785,
+      "sha256": "f97a22600914f166cef54a18da327e8a88797cc40eed00cf9125c7931ebc49f9",
+      "mtime_utc": "2026-09-28T03:03:40.856273+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_inf_200_frozen50.npz",
+      "bytes": 335143,
+      "sha256": "d318dd8150ddd7e2d636aae1d0f641ad391653162ec7fd362f2c053ab8115379",
+      "mtime_utc": "2026-09-28T03:03:41.245274+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_inf_200_refit.npz",
+      "bytes": 334440,
+      "sha256": "4644cf215bbe5442c2a18757264f209ed30d576b54e51ce1d3f260e805df06c6",
+      "mtime_utc": "2026-09-28T03:03:41.120274+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_inf_300_frozen50.npz",
+      "bytes": 334924,
+      "sha256": "9ed7c821996eafde84c508874baf59968fde667324fd63ba1ea9e2af4b2d6f31",
+      "mtime_utc": "2026-09-28T03:03:41.501274+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_inf_300_refit.npz",
+      "bytes": 334165,
+      "sha256": "b2408ae70ffea5f48a71f3633729722364251bc881b82f028e8af434c84e5883",
+      "mtime_utc": "2026-09-28T03:03:41.372274+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_inf_500_frozen50.npz",
+      "bytes": 334704,
+      "sha256": "0a66ee97060beb77b94b92cd9d94633c1e99028e14e5603d70b0828e2fd6e37d",
+      "mtime_utc": "2026-09-28T03:03:41.762274+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_inf_500_refit.npz",
+      "bytes": 334008,
+      "sha256": "397c4fa8721c004e8cc6ccba04d828dd291dcf800fafd8790cd8f6e578616dd1",
+      "mtime_utc": "2026-09-28T03:03:41.634274+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_inf_50_frozen50.npz",
+      "bytes": 336090,
+      "sha256": "e2f6f16c25d14e3764655d377581c8c24a44cae20c00319c60a807549883af47",
+      "mtime_utc": "2026-09-28T03:03:40.727273+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_l10_inf_50_refit.npz",
+      "bytes": 336090,
+      "sha256": "e2f6f16c25d14e3764655d377581c8c24a44cae20c00319c60a807549883af47",
+      "mtime_utc": "2026-09-28T03:03:40.600273+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial.json",
+      "bytes": 17300,
+      "sha256": "925408cd24215146e548ad578d4299984e74bf07b2e5bfa9ca14df0977f6f7d4",
+      "mtime_utc": "2026-09-28T03:01:20.121136+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_cache_100_frozen50.npz",
+      "bytes": 177490,
+      "sha256": "a33c18ddfcdb08b14c2f802ca7d35a206e7f15d28e6f414772d8fcf03980b37c",
+      "mtime_utc": "2026-09-28T03:01:19.541135+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_cache_100_refit.npz",
+      "bytes": 176765,
+      "sha256": "daff5608633a84b44916f3f21ced6dea93400401a6da3eded3fb3315a1d04e2c",
+      "mtime_utc": "2026-09-28T03:01:19.446135+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_cache_200_frozen50.npz",
+      "bytes": 177802,
+      "sha256": "1017261367b26162b77a23b505579770c2469775edb7c2783fb869e1191aa5e7",
+      "mtime_utc": "2026-09-28T03:01:19.733135+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_cache_200_refit.npz",
+      "bytes": 176985,
+      "sha256": "7b11437e99a4b18de4bf610af4ceca1a68929cd747e87d44aae5934b79472b65",
+      "mtime_utc": "2026-09-28T03:01:19.636135+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_cache_300_frozen50.npz",
+      "bytes": 177641,
+      "sha256": "552a8a4687fdc0af9f5edf9cc35006725b80c7344500f963cea741f22d72711e",
+      "mtime_utc": "2026-09-28T03:01:19.929136+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_cache_300_refit.npz",
+      "bytes": 177162,
+      "sha256": "94d810264d4642051b5aeacf5d5474c7769eb235eb38e4a1024262b3331b7367",
+      "mtime_utc": "2026-09-28T03:01:19.830136+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_cache_500_frozen50.npz",
+      "bytes": 177652,
+      "sha256": "83ed16f7ca8c3e354c26858f78b85b2e178a3406bfa986ef1eaf7b670950a29f",
+      "mtime_utc": "2026-09-28T03:01:20.119136+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_cache_500_refit.npz",
+      "bytes": 177117,
+      "sha256": "e54993ed692b7cdc6bc614d17ef06e15d2002ca37a2abe30a80fc145454b2518",
+      "mtime_utc": "2026-09-28T03:01:20.024136+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_cache_50_frozen50.npz",
+      "bytes": 178297,
+      "sha256": "1833531fb3e6a28347f63df832f3d7e0206f740ce795e2ad0d99d073bab99e44",
+      "mtime_utc": "2026-09-28T03:01:19.354135+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_cache_50_refit.npz",
+      "bytes": 178297,
+      "sha256": "1833531fb3e6a28347f63df832f3d7e0206f740ce795e2ad0d99d073bab99e44",
+      "mtime_utc": "2026-09-28T03:01:19.263135+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_inf_100_frozen50.npz",
+      "bytes": 130325,
+      "sha256": "608d53f50040073186c1a4c425d1faa86feb0a21a60a180857291c40b1329723",
+      "mtime_utc": "2026-09-28T03:01:18.669134+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_inf_100_refit.npz",
+      "bytes": 128681,
+      "sha256": "03de3f3ca4bf0bdebdd12526ff2ab29a8e8c9028d285f0cefa2155b7b6bd41e6",
+      "mtime_utc": "2026-09-28T03:01:18.583134+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_inf_200_frozen50.npz",
+      "bytes": 129833,
+      "sha256": "074ab0d70bc97c5613b609e6200fe2c714331283b4d9adcfdf33814deee17edc",
+      "mtime_utc": "2026-09-28T03:01:18.835135+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_inf_200_refit.npz",
+      "bytes": 128474,
+      "sha256": "be91fede15dfcf4be63db3e1346ba82b98f556daa5ff558a2086d847a54f3ede",
+      "mtime_utc": "2026-09-28T03:01:18.752135+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_inf_300_frozen50.npz",
+      "bytes": 129551,
+      "sha256": "54b6bf7d627ff02fd42245b6f4202931f9529e01ae1a5b70e3e6c80a56f8327d",
+      "mtime_utc": "2026-09-28T03:01:19.002135+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_inf_300_refit.npz",
+      "bytes": 128344,
+      "sha256": "32e01e4f12f3ed421416fb3f5f01623812561337771b0691ef121e1a7b0612ef",
+      "mtime_utc": "2026-09-28T03:01:18.918135+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_inf_500_frozen50.npz",
+      "bytes": 129376,
+      "sha256": "ae627fabc28e37539fdf7d010ca5523b74cee1d64d1b07801df985aed45a73e0",
+      "mtime_utc": "2026-09-28T03:01:19.170135+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_inf_500_refit.npz",
+      "bytes": 128422,
+      "sha256": "46f274290c6d4194daa06a843f23bbed5e6c729b55c4e6f17a08f0a068d5afa5",
+      "mtime_utc": "2026-09-28T03:01:19.087135+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_inf_50_frozen50.npz",
+      "bytes": 130179,
+      "sha256": "f35ad588dccd08e638f4534351feaaf3de500eed46465470344985baf41dff04",
+      "mtime_utc": "2026-09-28T03:01:18.493134+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/curve_spatial_inf_50_refit.npz",
+      "bytes": 130179,
+      "sha256": "f35ad588dccd08e638f4534351feaaf3de500eed46465470344985baf41dff04",
+      "mtime_utc": "2026-09-28T03:01:18.406134+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/demo_curve_density.pdf",
+      "bytes": 18960,
+      "sha256": "9b25373837bf14baf8f73faecbae0a5f30aff58b8ee2d614da242fde009fcee6",
+      "mtime_utc": "2026-09-28T03:04:11.276303+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/demo_curve_density.png",
+      "bytes": 131034,
+      "sha256": "a124d6cf21316accbabb351ba8cb75ecb2be72ddebf2de1ba76fc098c60b7f06",
+      "mtime_utc": "2026-09-28T03:04:10.937302+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/demo_curve_losses.pdf",
+      "bytes": 25474,
+      "sha256": "23e9f62979e1fbbc13ad6dc5b3c68b7d4eb0895a8a560e607c57af072aea65df",
+      "mtime_utc": "2026-09-28T03:04:10.481302+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/demo_curve_losses.png",
+      "bytes": 254787,
+      "sha256": "a588a0218c9dfd8d2e1e454ff5d44e2d22388aa57c90db3ec93c753ff498169c",
+      "mtime_utc": "2026-09-28T03:04:09.703301+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/handback_original.md",
+      "bytes": 21459,
+      "sha256": "97b769bd95ea2bf9aee03698b3832428aa689cf84874650dc93401f11acdc6dc",
+      "mtime_utc": "2026-09-28T03:05:15.927365+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/offline_l10.log",
+      "bytes": 11644,
+      "sha256": "73060dc6a602f208d3373cc95d5e44461fb5d74e515fa7d8b2881c8e07daa7bd",
+      "mtime_utc": "2026-09-28T03:03:43.272276+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/offline_spatial.log",
+      "bytes": 11747,
+      "sha256": "e4b5cf12c8307f8381aa9cb4b50ab14b494f91681227d43f4d8b98f7786aaf70",
+      "mtime_utc": "2026-09-28T03:01:20.119136+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/offline_spatial_firstpass.log",
+      "bytes": 7086,
+      "sha256": "8756a506d37ae0fb769b51d579a4693c915409e00ea108d1f1cc3e9e81cbc74e",
+      "mtime_utc": "2026-09-28T02:51:56.952561+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/plot.log",
+      "bytes": 44,
+      "sha256": "1a0638214e433787aa81f233d9d41af5576bb0a4db59090e3541df12cb0469c6",
+      "mtime_utc": "2026-09-28T03:04:11.277303+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/prefit_r5q4d_p_l10_100_refit_tail1.log",
+      "bytes": 888,
+      "sha256": "9ff92da2d651dfa9878a7032bd456658934adb8d314c73264f37702a72da61df",
+      "mtime_utc": "2026-09-28T02:43:59.881003+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/prefit_r5q4d_p_l10_200_frozen50_tail1.log",
+      "bytes": 900,
+      "sha256": "866a4beef8a3aa392bfb5e590e3dd2e832d4d09c8c3dfd40d886d9169011f504",
+      "mtime_utc": "2026-09-28T02:56:02.586818+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/prefit_r5q4d_p_l10_200_refit_tail1.log",
+      "bytes": 888,
+      "sha256": "8bdeba3da9654385d367a415a67ea29840acb4dae6bc16509aa17aec8a3f68e5",
+      "mtime_utc": "2026-09-28T02:45:08.678091+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/prefit_r5q4d_p_l10_300_refit_tail1.log",
+      "bytes": 888,
+      "sha256": "fe8a1a27e26fecfdfb2ea2d9d6de0a9f109bf959cac545d23e4536495934d5c8",
+      "mtime_utc": "2026-09-28T02:46:44.305208+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/prefit_r5q4d_p_sp_100_refit_tail1.log",
+      "bytes": 886,
+      "sha256": "17131cd58ffa06a5b799ad793f17505a5c68dc41a815c29f6068fd198914b3bc",
+      "mtime_utc": "2026-09-28T02:45:49.795142+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/prefit_r5q4d_p_sp_200_frozen50_tail1.log",
+      "bytes": 896,
+      "sha256": "cdb4b91f12af9c57bef86cc69fddabd4f841178a85915ed6d1b0d00a6c821a48",
+      "mtime_utc": "2026-09-28T02:56:07.625823+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/prefit_r5q4d_p_sp_200_refit_tail1.log",
+      "bytes": 886,
+      "sha256": "603379626cae6e8930108760219b6696efc5feca699217ff8645bbed87f10d1a",
+      "mtime_utc": "2026-09-28T02:46:21.295180+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/prefit_r5q4d_p_sp_300_refit_tail1.log",
+      "bytes": 886,
+      "sha256": "508f61534124f5883f41b12c766cac399acccb0f9017ae695dab432c152a40bf",
+      "mtime_utc": "2026-09-28T02:47:03.020230+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/prepare.log",
+      "bytes": 1561,
+      "sha256": "ec6f94ae1d409df53d09e8535a5321696043e62bb246e9ad9ab8ad885ea74e4e",
+      "mtime_utc": "2026-09-28T02:43:21.669954+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/semantics.json",
+      "bytes": 7990,
+      "sha256": "8cd58f7b1e03aa763a4d8d4f4d52baff96e160f75b93b6e0b212986848f41fb9",
+      "mtime_utc": "2026-09-28T03:01:29.435145+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/semantics.log",
+      "bytes": 5141,
+      "sha256": "bb8ae6dc67bcd5db48cea07571ce4c0e2909ac3beb1edf99a5c646fe85728400",
+      "mtime_utc": "2026-09-28T03:01:29.459145+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/semantics_firstpass.log",
+      "bytes": 599,
+      "sha256": "9096241bc2e9cacde0f61fa6b231aaad9688feda0a1486143191969956b129a9",
+      "mtime_utc": "2026-09-28T02:51:56.950561+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/validation.json",
+      "bytes": 8124,
+      "sha256": "e5c8f3276956daed2462350495ac526267754a87d8010471c4547396fa80b3ba",
+      "mtime_utc": "2026-09-28T02:47:32.753265+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/validation.log",
+      "bytes": 5371,
+      "sha256": "23924ebe068284e7f38c19d0549a24e1391884bdd0014efa0f0fe8294da22914",
+      "mtime_utc": "2026-09-28T02:47:32.754265+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/validation_final.json",
+      "bytes": 8123,
+      "sha256": "8bf0d37f48f4461e5ffabd9fd58b924bfb45978198a7e8bcc24bc071895b221b",
+      "mtime_utc": "2026-09-28T02:54:35.337728+00:00"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q4_growth/results/demo/validation_final.log",
+      "bytes": 5370,
+      "sha256": "f1784f5aa8ca4842ca91308378cdd9c6220ed77287d3adc144658b8798df757b",
+      "mtime_utc": "2026-09-28T02:54:35.337728+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/demo100/checksums.json",
+      "bytes": 2532,
+      "sha256": "9dace3adf55d53385649d2839700135c95826ba2fc765fb8448a483eebf0ee4b",
+      "mtime_utc": "2026-09-28T02:42:45.177917+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/demo100/manifest.json",
+      "bytes": 5487,
+      "sha256": "9101821eecb73bf353260f3a53597a2eaebca4df10cf27fb70f90b33233d93a3",
+      "mtime_utc": "2026-09-28T02:42:40.154912+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/demo200/checksums.json",
+      "bytes": 2541,
+      "sha256": "dc93ee37934273cdd3b70561e833b0247e63f560d83923e5b36680896e8a58a2",
+      "mtime_utc": "2026-09-28T02:43:08.335937+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/demo200/manifest.json",
+      "bytes": 5514,
+      "sha256": "cc41bb256dc7a19b726af63ebf488539a15a54c8d4725a9aeb888c69268bd2b3",
+      "mtime_utc": "2026-09-28T02:42:58.228928+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/demo300/checksums.json",
+      "bytes": 2542,
+      "sha256": "252390b80604dec706489c5e94bb263d9a1d452ad632c384258067049af5d2bb",
+      "mtime_utc": "2026-09-28T02:43:48.862989+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/demo300/manifest.json",
+      "bytes": 5515,
+      "sha256": "f0b88d212b8ea0e5f1e87df72bbaa6164cfaf5163fafb99579fb67244dde89bb",
+      "mtime_utc": "2026-09-28T02:43:33.435969+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/demo100/checksums.json",
+      "bytes": 2523,
+      "sha256": "86e1634ac7286ba467092b7179b5f2efcc6ad4ba17f7b82c11a6dff96e3e2a57",
+      "mtime_utc": "2026-09-28T02:43:45.320985+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/demo100/manifest.json",
+      "bytes": 5642,
+      "sha256": "7363ed14399f0876d360571077cb61c7f5a94eebb189d189bfa4a8c4ba943baf",
+      "mtime_utc": "2026-09-28T02:43:43.348982+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/demo200/checksums.json",
+      "bytes": 2530,
+      "sha256": "9a406ca02dc751a329bc685c31e514f392dab62b15565e9466dff636db95198b",
+      "mtime_utc": "2026-09-28T02:43:54.466996+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/demo200/manifest.json",
+      "bytes": 5649,
+      "sha256": "c40f39e541692327a9221f9fe7714f0c975e177a78222f8f3736c32aa6efc53d",
+      "mtime_utc": "2026-09-28T02:43:50.526991+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/demo300/checksums.json",
+      "bytes": 2533,
+      "sha256": "6522b9e67b81916cd1d182cc9add2185652697f7d8f42457105ebc585b845ff1",
+      "mtime_utc": "2026-09-28T02:44:08.634015+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/demo300/manifest.json",
+      "bytes": 5652,
+      "sha256": "471539dafe369b01ea38c9aa621689bf488f3fbb3784ad92420c096388b698ae",
+      "mtime_utc": "2026-09-28T02:44:02.724007+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/arms.json",
+      "bytes": 11744,
+      "sha256": "717aaefa189bb134a2b8ba987cb127e0812c04b248d4ff43fdf98d9639a71bfc",
+      "mtime_utc": "2026-09-28T02:43:21.669954+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/arms_q4_demo_resolved.json",
+      "bytes": 5461,
+      "sha256": "68ab6594cdd73d39d784c647d81ac7b3a88ffd968f07dfe6de7524fc7c951188",
+      "mtime_utc": "2026-09-28T02:43:21.583953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_100_refit_tail1/decisions_blindtest.jsonl",
+      "bytes": 185763,
+      "sha256": "30d56d43f922606fb78b9d33fb41fb5e0049a1515bfd2a8ce54a9104173a0835",
+      "mtime_utc": "2026-09-28T02:52:27.429594+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_100_refit_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229736,
+      "sha256": "63b2fdbe5104a80d57533e8942098f64690a09d96f58b82c2fa466ad812f894d",
+      "mtime_utc": "2026-09-28T02:52:27.224593+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_100_refit_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229732,
+      "sha256": "5d4d195dfa7dbfeab70bc87d21ad021e3c21f7fdd60d9af4a1c6f6a2566a3ab4",
+      "mtime_utc": "2026-09-28T02:52:27.429594+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_100_refit_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229728,
+      "sha256": "d7662738cf9eae9e3cd369aafe1498bfb892efd0ee93d643dbaad98c4c25881c",
+      "mtime_utc": "2026-09-28T02:52:27.235593+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_100_refit_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229720,
+      "sha256": "4babd433d8dc7b7995c289d1fe397601288caaaf2bbccf07132f58c3b4becc83",
+      "mtime_utc": "2026-09-28T02:52:27.440594+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_100_refit_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1517,
+      "sha256": "165eec9557f322fd1e4e7f5b83e9f2114f222d88e69c60a3d0d7d4aa01fcab7c",
+      "mtime_utc": "2026-09-28T02:53:15.138644+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_100_refit_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1501,
+      "sha256": "d385b291c352a0f0f99042857a482c108c0d7d96e35adf4ab6eed853212a2f7a",
+      "mtime_utc": "2026-09-28T02:53:14.893644+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_100_refit_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:53:14.844644+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_100_refit_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:53:14.840644+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_frozen50_tail1/decisions_blindtest.jsonl",
+      "bytes": 186582,
+      "sha256": "4da8a47818096245a16999945470863c2bba261d6414b3db1b2878247303d86d",
+      "mtime_utc": "2026-09-28T02:56:30.618847+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_frozen50_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229756,
+      "sha256": "e2a0cf6badba40e67b4a17a04a972ac4c7d48d41dbaf5162b9b46ae6e885b74c",
+      "mtime_utc": "2026-09-28T02:56:30.396847+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_frozen50_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229760,
+      "sha256": "874a5e9dae7ae0b670112b3583ae110fae591bc517768eb98cdc7f9bb91bf285",
+      "mtime_utc": "2026-09-28T02:56:30.618847+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_frozen50_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229752,
+      "sha256": "ba13e421291bc5b2a3df5b22de302b31fb874a244508a3991fcfe64115f022ab",
+      "mtime_utc": "2026-09-28T02:56:30.407847+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_frozen50_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229744,
+      "sha256": "e49be45a17c4d2c55ae36bfb56a13e957a59d63c725683e9dffd11405b2162ce",
+      "mtime_utc": "2026-09-28T02:56:30.629847+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_frozen50_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1527,
+      "sha256": "06bd5fd2ed408fbd6aa785720448128a1bdf62ecd2a1062e04332adfb1bd4ad2",
+      "mtime_utc": "2026-09-28T02:56:43.150860+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_frozen50_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1511,
+      "sha256": "5f14ddcf449bb4acbf40f39e53272b64aee61fc2910b506055a75ac58b3aa465",
+      "mtime_utc": "2026-09-28T02:56:42.814859+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_frozen50_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:56:42.712859+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_frozen50_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:56:42.676859+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_refit_tail1/decisions_blindtest.jsonl",
+      "bytes": 186296,
+      "sha256": "1ace2463c01db32ca27e3836bcf5e166a401c654e1d5603d13f9e7540631dd9e",
+      "mtime_utc": "2026-09-28T02:53:24.329654+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_refit_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229728,
+      "sha256": "75fb99b62403b5f2c704f5e7794263b31e3fae3d30aacdc71ee15e706857efba",
+      "mtime_utc": "2026-09-28T02:53:24.121654+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_refit_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229736,
+      "sha256": "34a4e5455bf9de23fd0f7350325be52f8908cbfe1fe542dc078544f2043d163f",
+      "mtime_utc": "2026-09-28T02:53:24.328654+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_refit_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229728,
+      "sha256": "abc486d0848c6f4ad65e74f4de150faff909e6ce90005d875185b676174d32af",
+      "mtime_utc": "2026-09-28T02:53:24.132654+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_refit_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229716,
+      "sha256": "14cc38c0bc6f83a3c45ed3e58ebd8154200734eaf290fff18c6ae41f3ee90ad2",
+      "mtime_utc": "2026-09-28T02:53:24.339654+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_refit_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1518,
+      "sha256": "6fbdbe78598e5c0ec58b4e402852013dd6ad9513ce91f32bdcb1cd66fe5d0efb",
+      "mtime_utc": "2026-09-28T02:54:33.051726+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_refit_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1502,
+      "sha256": "0833f55934040668ce228a9b511de1907fdcdd7dd373f34e6192e4059e12161a",
+      "mtime_utc": "2026-09-28T02:54:32.736726+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_refit_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:54:32.676726+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_200_refit_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:54:32.675725+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_300_refit_tail1/decisions_blindtest.jsonl",
+      "bytes": 186523,
+      "sha256": "053fe3a2c39c5981f1fcef8055968484896c46b3537463c5a0cef2183095d8b1",
+      "mtime_utc": "2026-09-28T02:54:42.302736+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_300_refit_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229728,
+      "sha256": "b75a37366c31e4bbed7f07796fef05ba55739e07022c3a3e97ec7b6f60362e7f",
+      "mtime_utc": "2026-09-28T02:54:42.100735+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_300_refit_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229736,
+      "sha256": "8e21dc637e6d193cdb4883d393f00d33cec5bd113b7cf9e97747470e1525fd91",
+      "mtime_utc": "2026-09-28T02:54:42.302736+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_300_refit_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229728,
+      "sha256": "ba13036cff65f3ef4208ec0b9c4e14890eba0dceb8e699ad40d5578610bfe3f0",
+      "mtime_utc": "2026-09-28T02:54:42.111735+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_300_refit_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229720,
+      "sha256": "4fb856fc4a5dadfbf4eb9d638711a1f03b0b759c535b308d7474967eae131f48",
+      "mtime_utc": "2026-09-28T02:54:42.313735+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_300_refit_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1518,
+      "sha256": "2e016771324681922e7de215c9d8dfe50b7f5cc88696adad637157da8252dd98",
+      "mtime_utc": "2026-09-28T02:56:21.123837+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_300_refit_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1501,
+      "sha256": "1a90d2ddf8612c230068b81f27e5a011f1d439db9606f5a5a7fa3ece5096cbd5",
+      "mtime_utc": "2026-09-28T02:56:20.819837+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_300_refit_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:56:20.750837+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_l10_300_refit_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:56:20.748837+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_100_refit_tail1/decisions_blindtest.jsonl",
+      "bytes": 184417,
+      "sha256": "4a15ef4cd4d3058968eed3e0bf9ad881d376da6e405c2d807ad221f019a75a37",
+      "mtime_utc": "2026-09-28T02:52:26.504593+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_100_refit_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229844,
+      "sha256": "9887a9be04a7b10a2c117f51f66a3f6317230bea765c455c841fb4b3239798b7",
+      "mtime_utc": "2026-09-28T02:52:26.277592+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_100_refit_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229852,
+      "sha256": "47c5d624ccc0d578cf857dda1c7fbbe07b372e0480e43c8fc8c29b8b721be738",
+      "mtime_utc": "2026-09-28T02:52:26.503593+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_100_refit_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229792,
+      "sha256": "73ca44da6cd6bf93cd320c3c867c3e6457182936b0c68b60ddf5cfa7c9796dca",
+      "mtime_utc": "2026-09-28T02:52:26.296592+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_100_refit_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229796,
+      "sha256": "eebbac5620204237e723a3f2aeee572dea35ee8a831d84e1206ba63114c5e4eb",
+      "mtime_utc": "2026-09-28T02:52:26.522593+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_100_refit_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1530,
+      "sha256": "b57da2bf7e31ab4bbe1fb54deb19abf7fc73dbc96b38d0454412390626758b1f",
+      "mtime_utc": "2026-09-28T02:53:02.218631+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_100_refit_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1515,
+      "sha256": "6514b1bfa589917167796916ca357f8185009f912a49c7ec1522317f27d0d239",
+      "mtime_utc": "2026-09-28T02:53:02.010630+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_100_refit_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:53:01.970630+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_100_refit_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:53:01.969630+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_frozen50_tail1/decisions_blindtest.jsonl",
+      "bytes": 185210,
+      "sha256": "939f9fd60c585b206912c78431cab844b6254e6c75a0d5af8515e459932500e6",
+      "mtime_utc": "2026-09-28T02:54:36.523730+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_frozen50_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229876,
+      "sha256": "b7ae7d183b3c06e32be344b15dded60c4ec99b005c320798e1a68587aec3ce26",
+      "mtime_utc": "2026-09-28T02:54:36.378729+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_frozen50_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229876,
+      "sha256": "f5e7d8174ef2094f09b3620137ee8b387cc107433680b19b5c73533a53bd9e9f",
+      "mtime_utc": "2026-09-28T02:54:36.522730+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_frozen50_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229820,
+      "sha256": "ae3ad5e3dea3383a55a7c3867ccd714061934f6e1271f2d05679aec87ef72128",
+      "mtime_utc": "2026-09-28T02:54:36.388729+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_frozen50_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229816,
+      "sha256": "497f6f06a809eec3367ea100a69d72943db0c943f6b97706e6ce38d4c1935848",
+      "mtime_utc": "2026-09-28T02:54:36.533730+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_refit_tail1/decisions_blindtest.jsonl",
+      "bytes": 184653,
+      "sha256": "24e3639b1fe2f70e3cee9ab5bd063893252e87fd698fbb239d991fed629c6b57",
+      "mtime_utc": "2026-09-28T02:53:08.081637+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_refit_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229852,
+      "sha256": "747661b9a59ce97331d97437fc57f3ad405dbdaae88af5e3967e216f8d39272d",
+      "mtime_utc": "2026-09-28T02:53:07.930637+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_refit_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229848,
+      "sha256": "349c29a77e0a8e69b05e1413c1157d8e4dd40fb951d2b1eb81544995e7c0ff5f",
+      "mtime_utc": "2026-09-28T02:53:08.080637+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_refit_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229796,
+      "sha256": "608749a5a847fb68573a72cffc8c347712d964343d71bafb3ef654cb1822c58e",
+      "mtime_utc": "2026-09-28T02:53:07.940637+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_refit_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229796,
+      "sha256": "db69d4bb778fbf5239d725f206f4d71c45ba45bd5072a0380580ed1feecdda28",
+      "mtime_utc": "2026-09-28T02:53:08.091637+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_refit_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1532,
+      "sha256": "7c36513fe3a3a8a9d2b28f5c3199534dd58b855c73f2c6114e8a61c43b3c29e6",
+      "mtime_utc": "2026-09-28T02:53:40.925672+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_refit_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1516,
+      "sha256": "3410bb45bb45e7ada23b018dd3700e18f56f64c9de42766269ee2a8d92a79094",
+      "mtime_utc": "2026-09-28T02:53:40.649671+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_refit_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:53:40.599671+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_200_refit_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:53:40.597671+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_300_refit_tail1/decisions_blindtest.jsonl",
+      "bytes": 184671,
+      "sha256": "2849c79e7beeb7960ff7f144cf3c2fe3767361841c46765519a2587fd3e047a9",
+      "mtime_utc": "2026-09-28T02:53:46.653677+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_300_refit_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229852,
+      "sha256": "d93faa7c7ef02975e56f5a6124cd091cffa66066d849a0896c2475459969f4b5",
+      "mtime_utc": "2026-09-28T02:53:46.512677+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_300_refit_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229852,
+      "sha256": "9ab218b7e71c63588e32c02f7be87e4c7a802d202f905af7f6ca94151dfe7e91",
+      "mtime_utc": "2026-09-28T02:53:46.652678+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_300_refit_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229800,
+      "sha256": "7d931ce75ec8bc55d1f805f13c649182f8e494fc1716d133eb67e53c1881d07e",
+      "mtime_utc": "2026-09-28T02:53:46.523677+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_300_refit_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229796,
+      "sha256": "952acdcaece82e09f75234a14935a91b1433e3a65c18e191651dfe78668c241d",
+      "mtime_utc": "2026-09-28T02:53:46.662678+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_300_refit_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1532,
+      "sha256": "2391dd2f91ef0b499f769812f2a72493fec95b4637d49a79b7e414a2836add97",
+      "mtime_utc": "2026-09-28T02:54:30.982724+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_300_refit_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1515,
+      "sha256": "dbf7c3b2467a858c1be5eeccd4e3caef929775fbf36d3e0d300406dfd3a34bf1",
+      "mtime_utc": "2026-09-28T02:54:30.808724+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_300_refit_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:54:30.763724+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/final/r5q4d_p_sp_300_refit_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:54:30.762723+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_100_refit_tail1/decisions_blindtest.jsonl",
+      "bytes": 185749,
+      "sha256": "a281fafe4756044e444517577d15d7f735aade4ae52f5b7e4b01a1e2f3bc584d",
+      "mtime_utc": "2026-09-28T02:47:21.495252+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_100_refit_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229736,
+      "sha256": "80e4869fa0fe7f496cf938e24ac0bfc0e5e81c23cfaab2b1b10bf3ee914e5aa8",
+      "mtime_utc": "2026-09-28T02:47:21.275252+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_100_refit_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229736,
+      "sha256": "d91884d053f071d0cc8021717f6605dffd2f684cb7a3a695f16edf5f7b93990a",
+      "mtime_utc": "2026-09-28T02:47:21.495252+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_100_refit_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229728,
+      "sha256": "37273fbdf6843142472ce7d80dc895ff1260d924427b3d6d6247e934e033836b",
+      "mtime_utc": "2026-09-28T02:47:21.286252+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_100_refit_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229720,
+      "sha256": "be7f426019bed1c3152196391f27c327f813ab3fdebf6cb31f873d7919d960ee",
+      "mtime_utc": "2026-09-28T02:47:21.511252+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_100_refit_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1518,
+      "sha256": "174c53218a2dee80c6460c9adc96902491ca3077cd49649d0de3d7700fd1daac",
+      "mtime_utc": "2026-09-28T02:48:06.290304+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_100_refit_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1502,
+      "sha256": "8bd4aeda2e34cf58ca4319f590d9518eb0a09038bd78b65f1b16e0c0e2be0de9",
+      "mtime_utc": "2026-09-28T02:48:05.865304+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_100_refit_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:48:05.812304+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_100_refit_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:48:05.808304+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_frozen50_tail1/decisions_blindtest.jsonl",
+      "bytes": 186577,
+      "sha256": "3065cdee90099fa6be139d6eaac4b86e3c00989cb2e4cc14a1168a547c45834d",
+      "mtime_utc": "2026-09-28T02:47:21.331252+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_frozen50_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229760,
+      "sha256": "0dfc289cbbc00eeeb664baea46a17ad3f853e6038ba851d6a937ed6e6f57f954",
+      "mtime_utc": "2026-09-28T02:47:21.131251+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_frozen50_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229760,
+      "sha256": "9bf50ba796690175fe646bf5708a216a77de9c19476cd5449d897a014b684b43",
+      "mtime_utc": "2026-09-28T02:47:21.331252+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_frozen50_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229752,
+      "sha256": "0fc3cab635dfd9d76de32dcc56a78575798932b620baf63795760b952bc336ac",
+      "mtime_utc": "2026-09-28T02:47:21.142251+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_frozen50_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229748,
+      "sha256": "ece761e7e9959136a632ca3aa8831f895d7f761ec0e3bec9e3fc16f98c5e4846",
+      "mtime_utc": "2026-09-28T02:47:21.342252+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_frozen50_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1526,
+      "sha256": "0bfaaf150fc2c7a03a1bbe3ff23d6b412a3a6ebe2e0b0e797136ba539c2ba8cf",
+      "mtime_utc": "2026-09-28T02:47:27.582259+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_frozen50_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1510,
+      "sha256": "8cfca2e3655f7d8ab6c00b5e5ab054d0963b9e6173f86b2b34d25061c5c22261",
+      "mtime_utc": "2026-09-28T02:47:27.041258+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_frozen50_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:47:26.876258+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_frozen50_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:47:26.833258+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_refit_tail1/decisions_blindtest.jsonl",
+      "bytes": 186315,
+      "sha256": "634be7c1c6d51967a08636e0f3cbd661e9cf4f5c29245e70dfc9200392a0752c",
+      "mtime_utc": "2026-09-28T02:48:12.346311+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_refit_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229736,
+      "sha256": "18677755ffb60277c7d036fcdc99868d9c3464ec3c50d4de1944f68b17b8b17f",
+      "mtime_utc": "2026-09-28T02:48:12.072311+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_refit_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229732,
+      "sha256": "ff5277822d03a728876aa462a8af4f858bb3e198c007914c3649cf2409830e38",
+      "mtime_utc": "2026-09-28T02:48:12.345311+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_refit_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229728,
+      "sha256": "7ad31d3af99008acc9c24651807079ce4fc15419ed37a18ded599b7ca969ba25",
+      "mtime_utc": "2026-09-28T02:48:12.084311+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_refit_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229716,
+      "sha256": "12315aee485f516b6275df0cd185758f0acf5a1609c3675ab3af017efb42230d",
+      "mtime_utc": "2026-09-28T02:48:12.356311+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_refit_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1516,
+      "sha256": "559688e04b2d99fbf896ee103bd604f68d68c106666d71c4b39e3b56916ec838",
+      "mtime_utc": "2026-09-28T02:49:25.944395+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_refit_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1500,
+      "sha256": "e824d91958700de043e1bff02379338790a416c14b7a834bb14ac229a189af25",
+      "mtime_utc": "2026-09-28T02:49:25.504395+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_refit_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:49:25.345394+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_200_refit_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:49:25.343394+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_300_refit_tail1/decisions_blindtest.jsonl",
+      "bytes": 186517,
+      "sha256": "c12ebde0325115c89d81c861640af1f0b87d9b93efa1d740953d6c8a6af4bf72",
+      "mtime_utc": "2026-09-28T02:49:35.548406+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_300_refit_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229736,
+      "sha256": "4001a5b63e02248837c498cd965ecde568451d5a501300e9c930b93e3fd953c5",
+      "mtime_utc": "2026-09-28T02:49:35.347405+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_300_refit_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229736,
+      "sha256": "3b893f78d80f0adc4a7d205537dd55490054af334db3723c3cf96e1661508d01",
+      "mtime_utc": "2026-09-28T02:49:35.548406+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_300_refit_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229728,
+      "sha256": "2b77c5761abeff7e3b639f8316a7952e8152cf2a82b4c2cc212c7c8b769ff6ec",
+      "mtime_utc": "2026-09-28T02:49:35.358406+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_300_refit_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229716,
+      "sha256": "2cb093afc880a8a9364cbedaba0ce225020866cee806436c74ef0f5691181ec9",
+      "mtime_utc": "2026-09-28T02:49:35.558406+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_300_refit_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1517,
+      "sha256": "1eeb28583f05837b467085ec275afa0f46cff286c8b489d4d510572f7a297a92",
+      "mtime_utc": "2026-09-28T02:51:11.555512+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_300_refit_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1501,
+      "sha256": "fa00b567e42ebc9f7a6c678ee983d4abb6d477cc632b2819e54c363965ad20e4",
+      "mtime_utc": "2026-09-28T02:51:11.312511+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_300_refit_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:51:11.245512+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_l10_300_refit_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:51:11.244511+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_100_refit_tail1/decisions_blindtest.jsonl",
+      "bytes": 184370,
+      "sha256": "165c673e4fa127f668fadce5bfd5d416281fe2096c51b78903861d8da22b0d85",
+      "mtime_utc": "2026-09-28T02:48:08.159306+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_100_refit_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229852,
+      "sha256": "5c272668d5b5f61bb56d75f6866eb3c9d99891b61abc83399355edb8d8da13a4",
+      "mtime_utc": "2026-09-28T02:48:08.004306+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_100_refit_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229848,
+      "sha256": "e898220220e9c049aed11eece6d4261012cbbf98e5b4c4036ecf5e76118e0c5d",
+      "mtime_utc": "2026-09-28T02:48:08.158306+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_100_refit_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229800,
+      "sha256": "4febaab7d780f2f72d8678a334537c4cfad7e986523f027725d6ad7594761393",
+      "mtime_utc": "2026-09-28T02:48:08.015306+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_100_refit_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229792,
+      "sha256": "0a3c34da14ad48b662d1c1af64c8ef9f10952ce6731caa8f3471daf02e8e03d2",
+      "mtime_utc": "2026-09-28T02:48:08.170306+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_100_refit_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1528,
+      "sha256": "c23122e7d796d685776187219032bc79297c707d58bc786404ecf582977789df",
+      "mtime_utc": "2026-09-28T02:48:38.699341+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_100_refit_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1514,
+      "sha256": "bea229e4ba4a848e4256f1b37a461dc81d268b3f056a9a1727887adca6beba6f",
+      "mtime_utc": "2026-09-28T02:48:38.277341+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_100_refit_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:48:38.162341+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_100_refit_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:48:38.161341+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_frozen50_tail1/decisions_blindtest.jsonl",
+      "bytes": 185197,
+      "sha256": "b78559606edbfcb825dddfae2c1413844afe3a3fb57f8e0e714462e402fa7c48",
+      "mtime_utc": "2026-09-28T02:50:16.365451+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_frozen50_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229876,
+      "sha256": "9e2d8184faa317904e607c8fbf1a5674f7c2b2448952915bd54dd69def664f4a",
+      "mtime_utc": "2026-09-28T02:50:16.226451+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_frozen50_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229872,
+      "sha256": "94a8c740ae8866e18e3cdc61a62447d1c56d4bcd7e5871d65acdbf4aad0e6df7",
+      "mtime_utc": "2026-09-28T02:50:16.364451+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_frozen50_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229816,
+      "sha256": "207a6190161220e2f8c1db6207fd586f9b107982c02fcaf70295d3885ee13388",
+      "mtime_utc": "2026-09-28T02:50:16.236451+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_frozen50_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229820,
+      "sha256": "32184bc34ebd411e277e60ed3d1873cfb2733f5b7f4bcc220e9ceb0d51cfcf1e",
+      "mtime_utc": "2026-09-28T02:50:16.375451+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_frozen50_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1539,
+      "sha256": "f83c10b4b3c3d8455eb22836130a0edeb49242c978d0efee8f7c0a1f8e2be81b",
+      "mtime_utc": "2026-09-28T02:50:18.906454+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_frozen50_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1522,
+      "sha256": "d68be7d633ae86425561d9ccc91051c7645907f93d8fa686c4c1e3b90c719164",
+      "mtime_utc": "2026-09-28T02:50:18.648454+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_frozen50_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:50:18.580454+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_frozen50_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:50:18.565454+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_refit_tail1/decisions_blindtest.jsonl",
+      "bytes": 184641,
+      "sha256": "6ae15043ec88ef482edab921ef9300f8d500d2f40fccd849572eaf681bb23111",
+      "mtime_utc": "2026-09-28T02:48:46.402350+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_refit_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229848,
+      "sha256": "9048d544e1703de10eaa331f227f982a2821f4f904c1501bd9c618d8953d2963",
+      "mtime_utc": "2026-09-28T02:48:46.247350+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_refit_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229852,
+      "sha256": "4d77fb7410175611756866d446901779eaea0d39fbfb22097086e3f9f34e9229",
+      "mtime_utc": "2026-09-28T02:48:46.402350+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_refit_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229800,
+      "sha256": "87b0e5cf995005c585edc9dd4188608af943cb16fe14935a318f145912784c54",
+      "mtime_utc": "2026-09-28T02:48:46.258350+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_refit_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229796,
+      "sha256": "8b06ba9b19cb0d12a0ff17b421375e7c8a058a5a56ff5a6e6a7661f870e32578",
+      "mtime_utc": "2026-09-28T02:48:46.414350+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_refit_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1531,
+      "sha256": "13ac7b9560b3700ad2b3d362163f9cc14f2b0ad066a0d930af8c45617ed0e748",
+      "mtime_utc": "2026-09-28T02:49:20.974389+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_refit_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1515,
+      "sha256": "a2ddc9b85e6af502af43d9325b5a111ca353c57080959209f7a62b434a5fd283",
+      "mtime_utc": "2026-09-28T02:49:20.724389+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_refit_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:49:20.679389+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_200_refit_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:49:20.678389+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_300_refit_tail1/decisions_blindtest.jsonl",
+      "bytes": 184668,
+      "sha256": "3f3696b1ba8fc1a41cccb6d4ebb34b9d0b514408d83f5830c9c505a2ffd05f34",
+      "mtime_utc": "2026-09-28T02:49:26.973396+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_300_refit_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229844,
+      "sha256": "305969d1ce6248735eca55ddd2992fe74425e12b09a49dbe231d45eb8a73ee39",
+      "mtime_utc": "2026-09-28T02:49:26.832396+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_300_refit_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229848,
+      "sha256": "9bc822d3aba2d88eb9a40782b93c3596c82e95cae17b35231ba2f38e18696ba0",
+      "mtime_utc": "2026-09-28T02:49:26.973396+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_300_refit_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229796,
+      "sha256": "da9fc8f147334e6627dc4cf50f584510e29cd501a39a30891e6d1075e204807b",
+      "mtime_utc": "2026-09-28T02:49:26.843396+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_300_refit_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229792,
+      "sha256": "199b1f31c47f293a407fe10ce408af085544084cddfc65d481a014f81266557c",
+      "mtime_utc": "2026-09-28T02:49:26.983396+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_300_refit_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1531,
+      "sha256": "8cb8385fe669622201787f865c1a288bad457fa6f01a77c18c95f2a8d082987e",
+      "mtime_utc": "2026-09-28T02:50:10.774445+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_300_refit_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1515,
+      "sha256": "56948abb437a836145a8640f300f13ac5e3ae01d4834a88bfa325ac451a781f0",
+      "mtime_utc": "2026-09-28T02:50:10.591445+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_300_refit_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:50:10.544445+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/r5q4d_p_sp_300_refit_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:50:10.542445+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/rowwise/r5q4d_p_sp_200_frozen50_tail1/decisions_blindtest.jsonl",
+      "bytes": 185154,
+      "sha256": "86726ed069ed260fd867cf1c800f00a38a04dfe6c172cb329649a7c198ce466f",
+      "mtime_utc": "2026-09-28T02:59:27.642025+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/rowwise/r5q4d_p_sp_200_frozen50_tail1/inputs/blindtest_c0_e0_blind-c0-e0_a1.npz",
+      "bytes": 3229872,
+      "sha256": "588c98aec3e437277aa3e7d8576756db341f8bebb6afc08e4c264b955eea62df",
+      "mtime_utc": "2026-09-28T02:59:27.489025+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/rowwise/r5q4d_p_sp_200_frozen50_tail1/inputs/blindtest_c0_e1_blind-c0-e1_a1.npz",
+      "bytes": 3229876,
+      "sha256": "82cc5272fba19134f51ef15a65f4c55669144fa20dce7ec2bc6c5f1b36bd85fa",
+      "mtime_utc": "2026-09-28T02:59:27.642025+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/rowwise/r5q4d_p_sp_200_frozen50_tail1/inputs/blindtest_c1_e0_blind-c1-e0_a1.npz",
+      "bytes": 3229820,
+      "sha256": "75f13e36714e1cac4dfc045040aa1031068cad4021286b5b0364381d01fb9730",
+      "mtime_utc": "2026-09-28T02:59:27.501024+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/rowwise/r5q4d_p_sp_200_frozen50_tail1/inputs/blindtest_c1_e1_blind-c1-e1_a1.npz",
+      "bytes": 3229820,
+      "sha256": "3898af9429d8ffe1f2f7173e88b4cd8c3ad065606ce8c464123deca94f68242f",
+      "mtime_utc": "2026-09-28T02:59:27.653025+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/rowwise/r5q4d_p_sp_200_frozen50_tail1/load_checks/cold/decisions_load.jsonl",
+      "bytes": 1559,
+      "sha256": "228c9c596fa86f6374b1eed98773ba007e38870bdadec9731f4beb5fca69d257",
+      "mtime_utc": "2026-09-28T02:59:38.123035+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/rowwise/r5q4d_p_sp_200_frozen50_tail1/load_checks/shm/decisions_load.jsonl",
+      "bytes": 1543,
+      "sha256": "e4ae206c64053075ba3ba142314a8ae910365b9625a4af42081b0ac6b48fca1a",
+      "mtime_utc": "2026-09-28T02:59:37.868035+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/rowwise/r5q4d_p_sp_200_frozen50_tail1/selftest_report.json",
+      "bytes": 263,
+      "sha256": "3f786c82ddbc379c6d210dfeee7822f8a08053c447dadc059d10f1d56a421144",
+      "mtime_utc": "2026-09-28T02:59:37.795035+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/checks/rowwise/r5q4d_p_sp_200_frozen50_tail1/verify_blind.json",
+      "bytes": 293,
+      "sha256": "1166597cfd5cc93028fe4b5f66df53826e9bc8b3a610ea33e48d09b6253c3b41",
+      "mtime_utc": "2026-09-28T02:59:37.782035+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/matrix_r5q4d_p_l10_100_refit_tail1.yaml",
+      "bytes": 151,
+      "sha256": "1e5cfb808afd8fcf84e7dc8d9b8a41c58dffad1ed243949f4d471fda38fe46e6",
+      "mtime_utc": "2026-09-28T02:43:21.597953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/matrix_r5q4d_p_l10_200_frozen50_tail1.yaml",
+      "bytes": 157,
+      "sha256": "26933b2dc08eeb9e8052d3e8eed37a13ac5fe33d11c71cdd8ce3fe9c35ce6d76",
+      "mtime_utc": "2026-09-28T02:43:21.628953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/matrix_r5q4d_p_l10_200_refit_tail1.yaml",
+      "bytes": 151,
+      "sha256": "7c877f161327e04456a6db645033757ab5edfdaf75273c9d968a44d89f68de3a",
+      "mtime_utc": "2026-09-28T02:43:21.607953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/matrix_r5q4d_p_l10_300_refit_tail1.yaml",
+      "bytes": 151,
+      "sha256": "89ad81e5de0e9bba88e873a7be3f45e241fd6f4ef312082fbf77435509cf9a88",
+      "mtime_utc": "2026-09-28T02:43:21.618953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/matrix_r5q4d_p_sp_100_refit_tail1.yaml",
+      "bytes": 154,
+      "sha256": "9bd73f34bb29cb4ff82138e35bb94134da736e5f5c12d0041c94c33c04a29a7e",
+      "mtime_utc": "2026-09-28T02:43:21.638953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/matrix_r5q4d_p_sp_200_frozen50_tail1.yaml",
+      "bytes": 160,
+      "sha256": "3690a92aa36182ee0492601dc4c4d96648d5cbfe96e6aebbebf666034fa8768a",
+      "mtime_utc": "2026-09-28T02:43:21.668953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/matrix_r5q4d_p_sp_200_refit_tail1.yaml",
+      "bytes": 154,
+      "sha256": "307ceeb9fbdb34599e15b64eb4139f541e13b4b40695e80ffe4d7235f3667b11",
+      "mtime_utc": "2026-09-28T02:43:21.648953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/matrix_r5q4d_p_sp_300_refit_tail1.yaml",
+      "bytes": 154,
+      "sha256": "4c9885f4dd9c145f89eb5c25917044ccc264e19dd5c9b3a14986a4421d25f8e0",
+      "mtime_utc": "2026-09-28T02:43:21.658953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/r5q4d_p_l10_100_refit_tail1.yaml",
+      "bytes": 1649,
+      "sha256": "a0b99278e026edf9004b92700c9aa2542341cb1c00432c7b2c270e76e38f9fd9",
+      "mtime_utc": "2026-09-28T02:43:21.597953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/r5q4d_p_l10_200_frozen50_tail1.yaml",
+      "bytes": 1649,
+      "sha256": "a0b99278e026edf9004b92700c9aa2542341cb1c00432c7b2c270e76e38f9fd9",
+      "mtime_utc": "2026-09-28T02:43:21.628953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/r5q4d_p_l10_200_refit_tail1.yaml",
+      "bytes": 1649,
+      "sha256": "a0b99278e026edf9004b92700c9aa2542341cb1c00432c7b2c270e76e38f9fd9",
+      "mtime_utc": "2026-09-28T02:43:21.607953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/r5q4d_p_l10_300_refit_tail1.yaml",
+      "bytes": 1649,
+      "sha256": "a0b99278e026edf9004b92700c9aa2542341cb1c00432c7b2c270e76e38f9fd9",
+      "mtime_utc": "2026-09-28T02:43:21.618953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/r5q4d_p_sp_100_refit_tail1.yaml",
+      "bytes": 1650,
+      "sha256": "8a30db28a0f74e0a720f2c792fa6cd6e4456a8c67401469a07fff49f80b332cf",
+      "mtime_utc": "2026-09-28T02:43:21.637954+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/r5q4d_p_sp_200_frozen50_tail1.yaml",
+      "bytes": 1650,
+      "sha256": "8a30db28a0f74e0a720f2c792fa6cd6e4456a8c67401469a07fff49f80b332cf",
+      "mtime_utc": "2026-09-28T02:43:21.668953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/r5q4d_p_sp_200_refit_tail1.yaml",
+      "bytes": 1650,
+      "sha256": "8a30db28a0f74e0a720f2c792fa6cd6e4456a8c67401469a07fff49f80b332cf",
+      "mtime_utc": "2026-09-28T02:43:21.648953+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/config/r5q4d_p_sp_300_refit_tail1.yaml",
+      "bytes": 1650,
+      "sha256": "8a30db28a0f74e0a720f2c792fa6cd6e4456a8c67401469a07fff49f80b332cf",
+      "mtime_utc": "2026-09-28T02:43:21.657954+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/fits/r5q4d_p_l10_100_refit_tail1.pkl",
+      "bytes": 34145321,
+      "sha256": "3cd2b5320540afb2e3f5ea87e67d7edb4c5599e4376734d91c702bfc97e61722",
+      "mtime_utc": "2026-09-28T02:43:59.875003+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/fits/r5q4d_p_l10_200_frozen50_tail1.pkl",
+      "bytes": 49494984,
+      "sha256": "e95e1e9780aca841ced3cc2b9eef1862bb8afe0edeeff64860e57b3282e746d4",
+      "mtime_utc": "2026-09-28T02:56:02.544818+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/fits/r5q4d_p_l10_200_refit_tail1.pkl",
+      "bytes": 49494769,
+      "sha256": "41a2a847fc4954663981c9cfab9df74bf6cd4c9013a2cdf8babd520022e92970",
+      "mtime_utc": "2026-09-28T02:45:08.672091+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/fits/r5q4d_p_l10_300_refit_tail1.pkl",
+      "bytes": 64689528,
+      "sha256": "04cc1b25ef39a65a7b55c3a0a911e9858dbc37f37f4650b9ab18f7c91968bcce",
+      "mtime_utc": "2026-09-28T02:46:44.298208+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/fits/r5q4d_p_sp_100_refit_tail1.pkl",
+      "bytes": 25104085,
+      "sha256": "937ddeff5e7302ff22d43c79cd7d16f745137b4731e8afad8f10e4d6555063c2",
+      "mtime_utc": "2026-09-28T02:45:49.790142+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/fits/r5q4d_p_sp_200_frozen50_tail1.pkl",
+      "bytes": 30732276,
+      "sha256": "b4abd5c090245e98dd526562b7a896c93685bb4b9c10b06a4b358b7a89f9ab4c",
+      "mtime_utc": "2026-09-28T02:56:07.607823+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/fits/r5q4d_p_sp_200_refit_tail1.pkl",
+      "bytes": 30732026,
+      "sha256": "0d79a8dbec35894c0ba872a52b8300c2dcd34d377c50724d847ea42f6a4f56bb",
+      "mtime_utc": "2026-09-28T02:46:21.290180+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/fits/r5q4d_p_sp_300_refit_tail1.pkl",
+      "bytes": 36241257,
+      "sha256": "abc1ccb1a70df2af842d1ce2864b1c48c4d493f17096f186844009a677ebeead",
+      "mtime_utc": "2026-09-28T02:47:03.014230+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/prefit_logs/r5q4d_p_l10_100_refit_tail1/decisions_r5q4d_p_l10_100_refit_tail1.jsonl",
+      "bytes": 2077,
+      "sha256": "bf02976dc9faddd2b8c352809ffeeb70c8c02943d1077f831b3986e5d14b5df0",
+      "mtime_utc": "2026-09-28T02:43:59.880003+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/prefit_logs/r5q4d_p_l10_200_frozen50_tail1/decisions_r5q4d_p_l10_200_frozen50_tail1.jsonl",
+      "bytes": 6294,
+      "sha256": "46835c26ecbc252a0c46a82f6f322529e1d324ef2eb10f315cee390971be3fca",
+      "mtime_utc": "2026-09-28T02:56:02.551818+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/prefit_logs/r5q4d_p_l10_200_refit_tail1/decisions_r5q4d_p_l10_200_refit_tail1.jsonl",
+      "bytes": 2078,
+      "sha256": "af7f8245453ef04bf6b94cb343a34d9fff0c9fefcd808dd6e41657cfb341a76f",
+      "mtime_utc": "2026-09-28T02:45:08.677091+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/prefit_logs/r5q4d_p_l10_300_refit_tail1/decisions_r5q4d_p_l10_300_refit_tail1.jsonl",
+      "bytes": 2078,
+      "sha256": "490e44beed2620235cd0866017962debfd75de1f5e4da653143f6fb9dc6bd8e4",
+      "mtime_utc": "2026-09-28T02:46:44.304208+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/prefit_logs/r5q4d_p_sp_100_refit_tail1/decisions_r5q4d_p_sp_100_refit_tail1.jsonl",
+      "bytes": 2088,
+      "sha256": "8adb1758f51868fd1411561dc6fcdd9531010c48130bbb5523fbf0d7daf68b0e",
+      "mtime_utc": "2026-09-28T02:45:49.795142+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/prefit_logs/r5q4d_p_sp_200_frozen50_tail1/decisions_r5q4d_p_sp_200_frozen50_tail1.jsonl",
+      "bytes": 6322,
+      "sha256": "2bc7d0723b10e40b7c5f777ad8feaf23711bb097ea73f05806d8ac9c1535078b",
+      "mtime_utc": "2026-09-28T02:56:07.612823+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/prefit_logs/r5q4d_p_sp_200_refit_tail1/decisions_r5q4d_p_sp_200_refit_tail1.jsonl",
+      "bytes": 2088,
+      "sha256": "37d1a41018e6125d884f9ab934806cc8e2e4a8d627906b37e21c3b37896eaf3d",
+      "mtime_utc": "2026-09-28T02:46:21.295180+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/prefit_logs/r5q4d_p_sp_300_refit_tail1/decisions_r5q4d_p_sp_300_refit_tail1.jsonl",
+      "bytes": 2087,
+      "sha256": "be2f42a8f4fea7982a43ee73acbec81c0fbfdc4a366d4107a1206f414335e2b7",
+      "mtime_utc": "2026-09-28T02:47:03.019230+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/superseded/r5q4d_p_l10_200_frozen50_tail1_firstpass.pkl",
+      "bytes": 49494984,
+      "sha256": "22ac30f7b5cf19b44196f35cabaaadb912af83673c445b682e0962e27b673a61",
+      "mtime_utc": "2026-09-28T02:46:49.318214+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/superseded/r5q4d_p_l10_200_frozen50_tail1_paddedbatch.pkl",
+      "bytes": 49494984,
+      "sha256": "55a3647726d39703418c4f0358ac437e35914fafdf8f5ba598651fae1f070a90",
+      "mtime_utc": "2026-09-28T02:51:35.685538+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/superseded/r5q4d_p_sp_200_frozen50_tail1_firstpass.pkl",
+      "bytes": 30732276,
+      "sha256": "488d32c7ab9f2e0f5d1a001d0379fa04314220942ef083ded0785b20f9594101",
+      "mtime_utc": "2026-09-28T02:47:05.327233+00:00"
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r05_demo_curve/superseded/r5q4d_p_sp_200_frozen50_tail1_paddedbatch.pkl",
+      "bytes": 30732276,
+      "sha256": "f1379c1eca06ae02b51d84876caca15ced1f2b0e74554812241e495f46eb00df",
+      "mtime_utc": "2026-09-28T02:51:38.257541+00:00"
+    }
+  ]
+}

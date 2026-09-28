@@ -1,0 +1,178 @@
+[
+  {
+    "name": "r5q6_p_l10_50_tail",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r05.q6_wrist_blind.judge:WristVisionConfirmedBlindJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "events": "none",
+      "progress_guard": "noprog_span",
+      "stuck_guard": "vision_confirmed"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-stage1-mode",
+      "wrist_only",
+      "--os-tokens",
+      "off",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q6_p_l10_50_tail.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 10,
+        "evidence_dir": "<RUN>/evidence/r5q6_p_l10_50_tail"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r5q6_p_l10_500_tail",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r05.q6_wrist_blind.judge:WristVisionConfirmedBlindJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "events": "none",
+      "progress_guard": "noprog_span",
+      "stuck_guard": "vision_confirmed"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-stage1-mode",
+      "wrist_only",
+      "--os-tokens",
+      "off",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q6_p_l10_500_tail.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 10,
+        "evidence_dir": "<RUN>/evidence/r5q6_p_l10_500_tail"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r5q6_p_spatial_50_tail",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r05.q6_wrist_blind.judge:WristVisionConfirmedBlindJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "events": "none",
+      "progress_guard": "noprog_span",
+      "stuck_guard": "vision_confirmed"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-stage1-mode",
+      "wrist_only",
+      "--os-tokens",
+      "off",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q6_p_spatial_50_tail.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 10,
+        "evidence_dir": "<RUN>/evidence/r5q6_p_spatial_50_tail"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  },
+  {
+    "name": "r5q6_p_spatial_500_tail",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r05.q6_wrist_blind.judge:WristVisionConfirmedBlindJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "events": "none",
+      "progress_guard": "noprog_span",
+      "stuck_guard": "vision_confirmed"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-stage1-mode",
+      "wrist_only",
+      "--os-tokens",
+      "off",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r5q6_p_spatial_500_tail.pkl"
+    ],
+    "yaml_patch": {
+      "miss": {
+        "num_steps": 10,
+        "evidence_dir": "<RUN>/evidence/r5q6_p_spatial_500_tail"
+      },
+      "write_policy": {
+        "type": "never"
+      }
+    }
+  }
+]

@@ -1,0 +1,230 @@
+{
+  "HANDBACK.md": {
+    "bytes": 13269,
+    "modified_utc": "2026-09-28T03:09:34.708613+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/HANDBACK.md",
+    "sha256": "ab173ccb7e9862fed60b3d89fe4e46200e2d6d1672cd6656c2aeb3e73c0512a1"
+  },
+  "PROTOCOL.md": {
+    "bytes": 3446,
+    "modified_utc": "2026-09-28T02:57:58.307935+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/PROTOCOL.md",
+    "sha256": "d222969f52efd2ec4778f16d9365a5f35fc6530ff941e93101ed4ca929bcfd12"
+  },
+  "SENSITIVITY.md": {
+    "bytes": 2570,
+    "modified_utc": "2026-09-28T03:09:34.708613+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/SENSITIVITY.md",
+    "sha256": "75b4b702e8d03a16c4d0552c19554486cb4c6d6d29f0321f4f950db7ad33a775"
+  },
+  "analysis.log": {
+    "bytes": 1308,
+    "modified_utc": "2026-09-28T03:01:32.013148+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/analysis.log",
+    "sha256": "08b4d85b7fa74c6605c31f2aed5533f1046409f9e4a9947f4e995f32f2f35c2a"
+  },
+  "analyze.py": {
+    "bytes": 18823,
+    "modified_utc": "2026-09-28T03:02:19.075194+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/analyze.py",
+    "sha256": "1df17670837b1c3782f29529adb13ef9c1a34f195ecebc9883cf47c9d4c2bcc5"
+  },
+  "arms_q3.json": {
+    "bytes": 3,
+    "modified_utc": "2026-09-28T03:02:19.135194+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/arms_q3.json",
+    "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  "commands.json": {
+    "bytes": 863,
+    "modified_utc": "2026-09-28T03:09:34.707613+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/commands.json",
+    "sha256": "e6c07fe9eba6cfe0225c2f239d105544b245138dce7118464dcd32d30ea98674"
+  },
+  "cost_solver_reference.py": {
+    "bytes": 5704,
+    "modified_utc": "2026-09-28T02:57:58.217935+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/cost_solver_reference.py",
+    "sha256": "e24be42c36b244bcf025da921e0353646193c2e958dc753ac411828cc47babfb"
+  },
+  "delivery_metadata.json": {
+    "bytes": 1264,
+    "modified_utc": "2026-09-28T03:09:34.707613+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/delivery_metadata.json",
+    "sha256": "fda711f536f3b08430beaefe73ca92f0e8c17ec6245cb6f0559614e9737aa787"
+  },
+  "emitter.log": {
+    "bytes": 3,
+    "modified_utc": "2026-09-28T03:05:10.308360+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/emitter.log",
+    "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  "final_analysis.log": {
+    "bytes": 1308,
+    "modified_utc": "2026-09-28T03:04:31.223322+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/final_analysis.log",
+    "sha256": "08b4d85b7fa74c6605c31f2aed5533f1046409f9e4a9947f4e995f32f2f35c2a"
+  },
+  "rerun.log": {
+    "bytes": 1308,
+    "modified_utc": "2026-09-28T03:04:39.759330+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/rerun.log",
+    "sha256": "08b4d85b7fa74c6605c31f2aed5533f1046409f9e4a9947f4e995f32f2f35c2a"
+  },
+  "rerun/CONTEXTS.md": {
+    "bytes": 18388,
+    "modified_utc": "2026-09-28T03:04:39.759330+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/rerun/CONTEXTS.md",
+    "sha256": "0a018ed30378b97ea6221802222ed1bd9cbbcc4ebc697ce2095cb71d3866da29"
+  },
+  "rerun/audited_g500_episodes.json": {
+    "bytes": 1177556,
+    "modified_utc": "2026-09-28T03:04:33.504324+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/rerun/audited_g500_episodes.json",
+    "sha256": "faf3481078ea9e5f18efb298d4d4ec59c90480c95e6c25e12e20320de8130c47"
+  },
+  "rerun/audited_g50_episodes.json": {
+    "bytes": 1261364,
+    "modified_utc": "2026-09-28T03:04:37.022328+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/rerun/audited_g50_episodes.json",
+    "sha256": "b7d3408bfc6f38e896908dd0092ac15189cbacffc08ce66926e1ba0db5962190"
+  },
+  "rerun/deployment_decisions.json": {
+    "bytes": 1405,
+    "modified_utc": "2026-09-28T03:04:39.759330+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/rerun/deployment_decisions.json",
+    "sha256": "7a735352d8a2e9bd3e82cd491c24294ff179845b2d341d4b7e9608e61d20893c"
+  },
+  "rerun/g50.json": {
+    "bytes": 1168517,
+    "modified_utc": "2026-09-28T03:04:39.659330+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/rerun/g50.json",
+    "sha256": "bdaff4d0e0faa1d78ff7a7393298ffd1a1d51093528886105a4550426d7cd86a"
+  },
+  "rerun/g500.json": {
+    "bytes": 1153550,
+    "modified_utc": "2026-09-28T03:04:35.757326+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/rerun/g500.json",
+    "sha256": "3d1056b9385967143b06d09f9270136575b029a28b8a95291c084e3e9d348434"
+  },
+  "rerun/k5_g500_reproduced.json": {
+    "bytes": 73799,
+    "modified_utc": "2026-09-28T03:04:33.509324+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/rerun/k5_g500_reproduced.json",
+    "sha256": "07167119dcea49d687d433e503d3776c1c98d88144ac5412893d37f281667c4d"
+  },
+  "rerun/k5_g50_reproduced.json": {
+    "bytes": 74667,
+    "modified_utc": "2026-09-28T03:04:37.028328+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/rerun/k5_g50_reproduced.json",
+    "sha256": "72479b53d6bfb557f70b9103bf9c54e1fc9dbc819fb1acad22a48c35429bafb3"
+  },
+  "rerun/source_code.json": {
+    "bytes": 1275,
+    "modified_utc": "2026-09-28T03:04:39.757330+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/rerun/source_code.json",
+    "sha256": "7553657b7570dc11abb1c7307802e9af706a13321e5fc9ec44c6fa148e701df1"
+  },
+  "rerun/task_sensitivity.json": {
+    "bytes": 17247,
+    "modified_utc": "2026-09-28T03:04:39.756330+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/rerun/task_sensitivity.json",
+    "sha256": "dbf9eba3d406937d85f7385d6e8ad028094b475ebd13f347f1af990b79b042b5"
+  },
+  "results/CONTEXTS.md": {
+    "bytes": 18388,
+    "modified_utc": "2026-09-28T03:04:31.223322+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/results/CONTEXTS.md",
+    "sha256": "0a018ed30378b97ea6221802222ed1bd9cbbcc4ebc697ce2095cb71d3866da29"
+  },
+  "results/audited_g500_episodes.json": {
+    "bytes": 1177556,
+    "modified_utc": "2026-09-28T03:04:24.881316+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/results/audited_g500_episodes.json",
+    "sha256": "faf3481078ea9e5f18efb298d4d4ec59c90480c95e6c25e12e20320de8130c47"
+  },
+  "results/audited_g50_episodes.json": {
+    "bytes": 1261364,
+    "modified_utc": "2026-09-28T03:04:28.447319+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/results/audited_g50_episodes.json",
+    "sha256": "b7d3408bfc6f38e896908dd0092ac15189cbacffc08ce66926e1ba0db5962190"
+  },
+  "results/deployment_decisions.json": {
+    "bytes": 1405,
+    "modified_utc": "2026-09-28T03:04:31.223322+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/results/deployment_decisions.json",
+    "sha256": "7a735352d8a2e9bd3e82cd491c24294ff179845b2d341d4b7e9608e61d20893c"
+  },
+  "results/g50.json": {
+    "bytes": 1168517,
+    "modified_utc": "2026-09-28T03:04:31.129322+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/results/g50.json",
+    "sha256": "bdaff4d0e0faa1d78ff7a7393298ffd1a1d51093528886105a4550426d7cd86a"
+  },
+  "results/g500.json": {
+    "bytes": 1153550,
+    "modified_utc": "2026-09-28T03:04:27.188318+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/results/g500.json",
+    "sha256": "3d1056b9385967143b06d09f9270136575b029a28b8a95291c084e3e9d348434"
+  },
+  "results/k5_g500_reproduced.json": {
+    "bytes": 73799,
+    "modified_utc": "2026-09-28T03:04:24.887316+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/results/k5_g500_reproduced.json",
+    "sha256": "07167119dcea49d687d433e503d3776c1c98d88144ac5412893d37f281667c4d"
+  },
+  "results/k5_g50_reproduced.json": {
+    "bytes": 74667,
+    "modified_utc": "2026-09-28T03:04:28.453319+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/results/k5_g50_reproduced.json",
+    "sha256": "72479b53d6bfb557f70b9103bf9c54e1fc9dbc819fb1acad22a48c35429bafb3"
+  },
+  "results/source_code.json": {
+    "bytes": 1275,
+    "modified_utc": "2026-09-28T03:04:31.221322+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/results/source_code.json",
+    "sha256": "7553657b7570dc11abb1c7307802e9af706a13321e5fc9ec44c6fa148e701df1"
+  },
+  "results/task_sensitivity.json": {
+    "bytes": 17247,
+    "modified_utc": "2026-09-28T03:04:31.220322+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/results/task_sensitivity.json",
+    "sha256": "dbf9eba3d406937d85f7385d6e8ad028094b475ebd13f347f1af990b79b042b5"
+  },
+  "run_analysis.sh": {
+    "bytes": 373,
+    "modified_utc": "2026-09-28T02:57:58.368936+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/run_analysis.sh",
+    "sha256": "7882b6056ac7c72c16569f4ec7424a29bbc7d4200094a16531b8a5d59fa5065c"
+  },
+  "run_final.sh": {
+    "bytes": 959,
+    "modified_utc": "2026-09-28T03:04:22.620314+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/run_final.sh",
+    "sha256": "ce9e0755699e9cbf0a10e14376623beecc09d4ebd89092c25610180b08a9bc5b"
+  },
+  "verification.json": {
+    "bytes": 1951,
+    "modified_utc": "2026-09-28T03:05:10.130360+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/verification.json",
+    "sha256": "98ac3c55973c58fa7316a4a2d9124dbb19a23cac080c77eca6e274fd37756996"
+  },
+  "verification.log": {
+    "bytes": 163,
+    "modified_utc": "2026-09-28T03:05:10.133360+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/verification.log",
+    "sha256": "bc96303b0b9dc4b910d1d989aa4eb4b6eec59d51b3b1ddde7e5ba5bbea128905"
+  },
+  "verify.py": {
+    "bytes": 8701,
+    "modified_utc": "2026-09-28T03:04:22.560314+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/verify.py",
+    "sha256": "9ddc56ac761df2eca4c5c79661acf1eac706635590ee53cd6d5934fe4924ebd2"
+  },
+  "write_handback.py": {
+    "bytes": 20025,
+    "modified_utc": "2026-09-28T03:09:30.395609+00:00",
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q3_callvalue/write_handback.py",
+    "sha256": "58c6df2950902e7cbd7c0bd2e24b78f040040d6d0d16c3f0420e13180f0eb97f"
+  }
+}

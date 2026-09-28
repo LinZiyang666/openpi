@@ -126,6 +126,8 @@ def build_parser() -> argparse.ArgumentParser:
                     help="opt in to the single-landmark CALL/CACHE trial; stable experiment seed")
     ap.add_argument("--os-rand-replicate", type=int, choices=(1, 2), default=None,
                     help="replicate 2 complements replicate 1 for each (task, original init)")
+    ap.add_argument("--os-gpu-retrieval", choices=("shadow", "serve"), default=None,
+                    help="opt-in K9 CUDA graph retrieval; shadow keeps CPU actions, serve replaces retrieval")
     return ap
 
 
@@ -431,6 +433,10 @@ class PluginRuntime:
         if self.policy_tail and 5 * (1 + self.policy_tail_blocks) > dims.HORIZON[model]:
             raise ValueError("policy tail blocks exceed the model's complete five-control horizon")
         self.r4 = self.blind or bool(getattr(opts, "os_log_r4", False))
+        self.gpu = None
+        if getattr(opts, "os_gpu_retrieval", None):
+            from exp.offline_search.rounds.r05.q5_gpu.dev.gpu_retrieval import validate_options
+            validate_options(opts, model)
         self.randomized = getattr(opts, "os_rand_seed", None) is not None
         if self.randomized:
             from exp.offline_search.rounds.r04.k5_rand.overlay import validate_options
@@ -493,6 +499,9 @@ class PluginRuntime:
             self.ctrl = QuantileController(self.judge.h, self.judge.W, self.judge.tau0)
         if not self.native_mode:
             self._load_and_fit()
+        if getattr(opts, "os_gpu_retrieval", None):
+            from exp.offline_search.rounds.r05.q5_gpu.dev.gpu_retrieval import DeviceRuntime
+            self.gpu = DeviceRuntime(self)
         if self.randomized:
             from exp.offline_search.rounds.r04.k5_rand.overlay import validate_method
             validate_method(self.method)
@@ -516,6 +525,8 @@ class PluginRuntime:
         if self.randomized:
             row["randomization"] = dict(schema="causal_rescue_credit.v1", seed=opts.os_rand_seed,
                                          replicate=opts.os_rand_replicate, propensity=0.5)
+        if self.gpu is not None:
+            row["gpu_retrieval"] = self.gpu.info
         self.emit(row)
         log.info("osplug ready: method=%s cell=%s L=%d libs=%s log=%s", self.method_name, self.cell, self.L,
                  self.lib_sizes, self.dec_path)
@@ -617,6 +628,11 @@ class PluginRuntime:
             raise RuntimeError("osplug: the served yaml has no enabled cp1 checkpoint")
         if cp1.gate.type != "always_search":
             raise RuntimeError(f"osplug: cp1 gate must be always_search (every decision searched), got {cp1.gate.type}")
+        if self.gpu is not None:
+            if any(k != "cp1" and c.enabled for k, c in config.checkpoints.items()):
+                raise RuntimeError("GPU retrieval supports only CP1")
+            if getattr(config.write_policy, "type", None) != "never":
+                raise RuntimeError("GPU retrieval requires write_policy=never")
         pp = getattr(getattr(config.backend, "in_memory", None), "preload_path", None)
         if self.expected_pkl and not self.opts.os_allow_other_pkl:
             if pp is None or os.path.realpath(pp) != os.path.realpath(self.expected_pkl):
@@ -659,6 +675,9 @@ class PluginRuntime:
         storage = comps["storage"]
         self.validate_library(storage)
         sess = PluginSession(self, native, storage, comps.get("key_builder"), yaml_id)
+        if self.gpu is not None:
+            from exp.offline_search.rounds.r05.q5_gpu.dev.gpu_retrieval import attach
+            attach(self, sess, comps)
         if self.native_mode:
             strategies[cp] = NativeProxy(native, sess)
         else:
@@ -725,12 +744,12 @@ class PluginSession:
         self.kb = key_builder
         self.yaml_id = yaml_id
         self.bundle_id = None
-        self.lock = threading.RLock() if rt.r4 else contextlib.nullcontext()
+        self.lock = threading.RLock() if rt.r4 or rt.gpu is not None else contextlib.nullcontext()
         with rt.decision_lock:
             self.conn = next(rt._conn_ids)
         self.method = None
         if not rt.native_mode:
-            self.method, _ = clone_method(rt.method, strict=rt.r4)
+            self.method, _ = clone_method(rt.method, strict=rt.r4 or rt.gpu is not None)
             self.method.prof = rt.api.NULL_PROFILER
         self.shadow = rt.shadow_native and not rt.native_mode
         self.pending = True
@@ -896,8 +915,12 @@ class PluginSession:
         if self.b_aex.n != self.step:
             raise RuntimeError(f"osplug: executed chunks recorded {self.b_aex.n} != decisions {self.step}")
         qk = ctx.query_keys
-        self.b_v0.append(_np32(qk["vision_0"]).reshape(-1))
-        self.b_v1.append(_np32(qk["vision_1"]).reshape(-1))
+        if self.rt.gpu is not None and self.rt.opts.os_gpu_retrieval == "serve":
+            self.b_v0.append(np.full(self.rt.dims.KEY_DIM, np.nan, np.float32))
+            self.b_v1.append(np.full(self.rt.dims.KEY_DIM, np.nan, np.float32))
+        else:
+            self.b_v0.append(_np32(qk["vision_0"]).reshape(-1))
+            self.b_v1.append(_np32(qk["vision_1"]).reshape(-1))
         self.b_rs.append(_np32(qk["robot_state"]).reshape(-1))
         self.b_raw.append(self._raw_state())
         self.has_vision.append(True)
@@ -913,11 +936,20 @@ class PluginSession:
 
         rt, api = self.rt, self.rt.api
         t_all = time.perf_counter_ns()
+        if rt.gpu is not None and ctx.current_step == 0 and self.step > 0:
+            raise RuntimeError("GPU retrieval needs an explicit episode reset before implicit restart")
         self._push_inputs(ctx)
+        if rt.gpu is not None:
+            self._gpu_host_keys_ms = (time.perf_counter_ns() - t_all) / 1e6
         step = self.step
         view = OnlineQueryView(self, step, self.ep.task_id, self.ep)
         t0 = time.perf_counter_ns()
-        res = self.method.query(view)
+        gpu_diag = None
+        if rt.gpu is None:
+            res = self.method.query(view)
+        else:
+            from exp.offline_search.rounds.r05.q5_gpu.dev.gpu_retrieval import query
+            res, gpu_diag = query(self, view)
         t_q = time.perf_counter_ns() - t0
         topk, scores, conf, lib, act, ex = api.validate_result(
             res, lib_sizes=rt.lib_sizes, H=rt.H, where=f"online uid={self.ep.uid} step={step}")
@@ -956,6 +988,8 @@ class PluginSession:
                      "native_us": t_nat / 1e3, "native_top1": n_top1, "native_score": n_score,
                      "agree": (n_top1 == top1 and lib == "current") if self.shadow else None,
                      "served": served, "extras": ex, "act": None if act is None else served}
+        if gpu_diag is not None:
+            self._dec["gpu_retrieval"] = gpu_diag
         if rt.r4:
             anchor_owner = self.method
             for _ in range(8):
@@ -1123,6 +1157,8 @@ class PluginSession:
             self.blind_age = 0 if vision else self._age_before + 1
         if rt.randomized:
             row.update(d["randomization"])
+        if "gpu_retrieval" in d:
+            row["gpu_retrieval"] = d["gpu_retrieval"]
         if err:
             row["error"] = err[-2000:]
         if exs:
@@ -1779,6 +1815,11 @@ class _ConnPolicy:
             s.bundle_id = bundle_id
         self._osp_adapter = None
         self._osp_lock = contextlib.nullcontext()
+        gpu_sessions = [s for s in sessions if s.rt.gpu is not None]
+        if gpu_sessions:
+            if len(sessions) != 1:
+                raise RuntimeError("GPU retrieval expects one CP1 session per connection")
+            self._osp_lock = gpu_sessions[0].lock
         enabled = [s for s in sessions if s.rt.r4]
         if enabled:
             if len(sessions) != 1:
@@ -1878,6 +1919,8 @@ class _ConnPolicy:
             return out
         except Exception:
             for session in sessions:
+                if session.rt.gpu is not None:
+                    session._gpu_failed = True
                 if session.rt.policy_tail and decision_admitted:
                     session._policy_tail = None
             err = traceback.format_exc()

@@ -1,0 +1,32 @@
+{
+  "completed_utc": "2026-09-28T03:09:30.536623+00:00",
+  "emitter_output": {
+    "bytes": 2,
+    "modified_utc": "2026-09-28T03:05:10.308360+00:00",
+    "path": "/tmp/q3_empty_arms_check/arms.json",
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "existing_guard_fits": {
+    "50": {
+      "bytes": 32602497,
+      "modified_utc": "2026-09-27T20:29:49.187764+00:00",
+      "path": "/home/weiland/trace_runs/os_closed_loop/r04_k5/fits/r3mx_p_l10_g.pkl",
+      "sha256": "a6fe33ee8dda8843e693880d224b0c7aff38ea48356692d58c97a34975ccfcd8"
+    },
+    "500": {
+      "bytes": 141226847,
+      "modified_utc": "2026-09-27T20:29:50.127765+00:00",
+      "path": "/home/weiland/trace_runs/os_closed_loop/r04_k5/fits/r3mx_p_l10_g500.pkl",
+      "sha256": "dfe51ea22257e877d4036933a8c7b60655e4ac0bf66ca948f4c9b76898cbf52f"
+    }
+  },
+  "new_serving_table_bytes": 0,
+  "original_deployed_pkl": {
+    "bytes": 1103155631,
+    "modified_utc": "2026-09-24T04:06:06.936285+00:00",
+    "path": "/home/weiland/trace_runs/dual_20260923/libs/libero_10/cp1_spatial_pool_16.pkl",
+    "sha256": "f13517ad907817a0739d5702b2d3244f85be8659e5a7f3eebfbc4424eb848ce8"
+  },
+  "q5_handback_exists_at_completion": false,
+  "shared_files_installed": []
+}

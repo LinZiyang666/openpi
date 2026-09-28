@@ -1,0 +1,65 @@
+{
+  "counts": {
+    "cells_checked": 912,
+    "fits_checked": 64,
+    "fold_OPE_checked": 60,
+    "identical_files": 10,
+    "nonzero_OPE_checks": 6,
+    "synthetic_solver_checks": 4
+  },
+  "identical_artifacts": [
+    {
+      "bytes": 18388,
+      "name": "CONTEXTS.md",
+      "sha256": "0a018ed30378b97ea6221802222ed1bd9cbbcc4ebc697ce2095cb71d3866da29"
+    },
+    {
+      "bytes": 1177556,
+      "name": "audited_g500_episodes.json",
+      "sha256": "faf3481078ea9e5f18efb298d4d4ec59c90480c95e6c25e12e20320de8130c47"
+    },
+    {
+      "bytes": 1261364,
+      "name": "audited_g50_episodes.json",
+      "sha256": "b7d3408bfc6f38e896908dd0092ac15189cbacffc08ce66926e1ba0db5962190"
+    },
+    {
+      "bytes": 1405,
+      "name": "deployment_decisions.json",
+      "sha256": "7a735352d8a2e9bd3e82cd491c24294ff179845b2d341d4b7e9608e61d20893c"
+    },
+    {
+      "bytes": 1168517,
+      "name": "g50.json",
+      "sha256": "bdaff4d0e0faa1d78ff7a7393298ffd1a1d51093528886105a4550426d7cd86a"
+    },
+    {
+      "bytes": 1153550,
+      "name": "g500.json",
+      "sha256": "3d1056b9385967143b06d09f9270136575b029a28b8a95291c084e3e9d348434"
+    },
+    {
+      "bytes": 73799,
+      "name": "k5_g500_reproduced.json",
+      "sha256": "07167119dcea49d687d433e503d3776c1c98d88144ac5412893d37f281667c4d"
+    },
+    {
+      "bytes": 74667,
+      "name": "k5_g50_reproduced.json",
+      "sha256": "72479b53d6bfb557f70b9103bf9c54e1fc9dbc819fb1acad22a48c35429bafb3"
+    },
+    {
+      "bytes": 1275,
+      "name": "source_code.json",
+      "sha256": "7553657b7570dc11abb1c7307802e9af706a13321e5fc9ec44c6fa148e701df1"
+    },
+    {
+      "bytes": 17247,
+      "name": "task_sensitivity.json",
+      "sha256": "dbf9eba3d406937d85f7385d6e8ad028094b475ebd13f347f1af990b79b042b5"
+    }
+  ],
+  "plugin_selftests": "not applicable: no plugin implementation or shared-file edit",
+  "status": "PASS",
+  "synthetic_fixtures": "verification only, not fitted rollout results"
+}

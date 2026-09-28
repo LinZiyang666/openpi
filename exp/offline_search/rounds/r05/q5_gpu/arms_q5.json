@@ -1,0 +1,47 @@
+[
+  {
+    "name": "r5q5_p_l10_50_cl2_shadow",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5
+    },
+    "full_model": false,
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-gpu-retrieval",
+      "shadow",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r02_g50/fits/oscl50_p_l10_cl2.pkl"
+    ],
+    "cost_ledger": true
+  },
+  {
+    "name": "r5q5_p_l10_500_cl2_shadow",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+    "kwargs": {},
+    "full_model": false,
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-gpu-retrieval",
+      "shadow",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r02_g500/fits/oscl500_p_l10_cl2.pkl"
+    ],
+    "cost_ledger": true
+  }
+]

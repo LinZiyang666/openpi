@@ -55,7 +55,8 @@ owner 的常驻指令，逐字有效：
 ## 1. 现在在哪（2026-09-27 22:25 CDT）—— 离线检索探索线（offline_search），R4 闭环收尾 + R5 编码基本完成、闭环排队
 
 **目标（/goal，owner 已离开）**：独自推进 R4 和 R5，中间没有阻塞（章程 §9 第 13 条，跳过所有暂停点）。
-- ⛔ 所有 agent 只用 codex；codex 只做开发、调试、离线分析，**不看守长实验**（§9 第 14 条）。闭环的运行与看守一律由协调者自己做。
+- ⛔ **agent 分工（§9 第 15 条，22:28 起取代"只用 codex"）**：opus 做常规编码；codex 与 fable 只接最难、最耗智力的任务（工程、研究都行）；同一个问题不同时交给两者，不让它们干一样的事；**fable 不许用得很频繁**，与 codex 混着派、以 codex 为主（R5 分析派 codex）。任何 agent 都**不看守长实验**（§9 第 14 条），闭环的运行与看守一律由协调者自己做。
+- **R4 分析 agent（fable）已于 22:3x 派出**：brief 为 `rounds/r04/ANALYSIS_BRIEF.md`，GR00T 盲走 8 臂与 s2001 两臂是待填槽位。这些臂跑完后用 SendMessage 续聊该 agent 补齐（agent id 见会话；若会话已换，则重新派一个 fable 补齐）。
 - **续聊指定的 codex**：job 记录 `~/.claude/plugins/data/codex-openai-codex/state/openpi-50fd553c5e274099/jobs/<id>.json` 里有 `threadId`。该 job 这一轮结束后，用 `codex exec resume <threadId> "<增量指令>" -c sandbox_mode="danger-full-access" -c approval_policy="never" -o <out.md>` 续跑，进程要自己用 `kill -0` 看。正在执行的一轮不能插话。追加工作优先续聊原 agent（Q4 已这样做过）。
 - **唯一权威**：`logs/offline_search_exploration.log.md`。§9 的 owner 裁定到第 14 条；§10 台账含 R4 / R5 全部条目。**compact 之后先读 §9 和 §10 最后 300 行，再读本节。**
 - 任务列表：#37 R4 分析、#40 K8 复测、#43 R5 总项、#45 R4 剩余闭环、#46 R5 闭环、#47 Q5、#48 R5 分析。
