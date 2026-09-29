@@ -52,68 +52,42 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-09-28 17:5x CDT）—— 离线检索探索线（offline_search）R6 进行中
+## 1. 现在在哪（2026-09-29 13:5x CDT）—— 离线检索探索线（offline_search）R6 完成，待提交
 
-**目标（/goal，owner 12:2x 设）**：「我们开始R6，不做完不停」。R4（90a3cef）、R5（10b31b9）已完成并提交。
-- **唯一权威**：`logs/offline_search_exploration.log.md`。§9 裁定到第 15 条（含补充）；§10 台账到 R6 进行中。**compact 之后先读 §9 第 15 条和 §10 最后 200 行，再读本节。**
-- ⛔ **agent 分工（§9 第 15 条）**：
-  - codex 优先（owner 12:4x：额度重置后，原给 opus 的编码也多交 codex），opus 次选；
-  - codex / fable 只接难任务（工程、研究都行），同一个问题不同时交给两者；fable 少用；
-  - 任何 agent 都**不看守实验**，闭环由协调者自己跑和看守。
-- **续聊 codex**：
-  - 命令：`codex exec resume <threadId> "<指令>" -c sandbox_mode=danger-full-access -c approval_policy=never -o <out.md>`，放进 tmux，用 Monitor 等 tmux 会话结束。
-  - 若报 active writer：停掉本会话 companion 起的 broker 再试，但先确认不影响其他在跑的 codex 作业。
-  - 线程 id：P1 由 opus 做（已交回）；P2 `01a0e910-d07f-7bc3-828f-384b819a0919`；P3 `01a0e926-15b5-73c1-aab9-e72c2f9a330a`；Q1 `01a0e921-c2fb-7f73-9e3f-0d928cb3e9d6`；Q2 `01a0e921-cc1b-77e0-b857-c76556a1826b`；Q3 `01a0e921-d521-7da0-b464-4f2c797922f9`。
-- **R6 的内容**（owner 12:3x–13:0x）：
-  1. **论文定稿**：一个方法、两个嵌套配置——A = Commit-Cache（看一眼、检索合成、执行满 10 步，不调用策略）；B = A + 守卫触发的承诺式策略救援（C10 语义）。按库的疏密区分，不按成功率 / 成本区分。要补：GR00T B、A/B 各三次重复、度量消融、触发器逐项消融。
-  2. **owner 的三个问题**：库质量怎么判断（留一，在轨迹上搜库）、用多少 MISS、MISS 放在哪里。方法必须可迁移到别的 benchmark / 机器人，不许为 LIBERO 写死。
-  3. **数据**：现有数据不够 → 写一个尽量强的"超集 profiler"，一次实验收齐所有数据，不为不同字段重复跑。各 agent 已列出"想要但没有的数据"。
+**目标（/goal，owner 9-28 12:2x 设）**：「我们开始R6，不做完不停」。R6 的实验与分析已全部完成；最后一步是提交（本节点进行中）。
+- **唯一权威**：`logs/offline_search_exploration.log.md` §10；R6 报告 `exp/offline_search/rounds/r06/ANALYSIS.md`。
+- ⛔ **codex 已停用**（owner 9-29 08:4x，额度用光）。⛔ fable 需 owner 允许。
+- **R6 产物**（都在 `exp/offline_search/rounds/r06/`）：
+  - `PAPER_AB.md`、`ABLATIONS.md`、`SELECTION.md`、`C_VALIDATION.md`、`ANALYSIS.md`（+ `ANALYSIS_BRIEF.md`）；
+  - `frontier_final/`；
+  - `ops/{paper_ab,ablations,c_validation,frontier_refresh}.py`；
+  - `analysis_scripts/`；
+  - `ideation_Q{1,2,3}/FINAL.md`（顶部有勘误）；
+  - C 代码在 `ideation_Q1/method_c/` 与 `ideation_Q3/stall/`。
+- **网页** https://claude.ai/artifact/N9KTGqB8Hkpt5wUBEZcrRd v6（§10 修复后的 A / B、§12 前沿与配置 C）。
+- **所有实验车道已停**；GPU 已释放；timan107 上没有本线进程。
 
-| 项 | 状态 |
-|---|---|
-| P1 GR00T B（opus） | ✅ `rounds/r06/p1_groot_commit/`（`GrootCommitJudge` = C10 + GR00T 夹爪闭合符号；A ⊂ B 逐位检验通过） |
-| 论文定稿臂 `r06_paper` 36 臂 | 🔄 17 / 36（π0.5 A rep3 已完成 l10-50 .726、l10-500 .834、sp50 .828）。剩：A sp500 rep3 + GR00T A rep2/rep3 8 臂（纯缓存线 `line_P6C2`）；π0.5 B 重复 6 + GR00T B rep3 4（全模型线 `line_P6A`，等显存预算） |
-| P2 消融（codex） | ✅ 度量消融 8 / 8；触发器逐项 16 臂排在 `line_P6A` 的 r06_paper 之后 |
-| 构思 Q1 / Q2 / Q3（codex） | ✅ REPORT；✅ **PREREG**（17:3x，`ideation_Q*/PREREG.md` + 分析脚本，预先登记了估计量与判定规则，smoke 表上跑通） |
-| P3 超集 profiler v2 | ✅ 客户端 smoke 8 / 8 读取器严格核验通过；✅ **实时回传**（codex，`STREAMING.md`）stream smoke 通过 |
-| **pilot 采集** `r06_p3_pilot`（216 臂 × 20 集） | 🔄 16:39 开跑；17:45 起切流式车道 L3（23165）/ L4（23164），接收端 23171；预计 9/29 早上 5 点左右完成 |
-| 全量续跑（+31,680 集） | ⏳ owner 定。Q1 / Q2 / Q3 都说 pilot 只能看方向（半宽约 14 pp），下结论需要全量（约 5 pp） |
-| R6 选题 / 新方法编码 / 闭环 / 分析 / 提交 | ⏳ 等 pilot 数据 |
-
-## 2. 关键结果（R6；owner 口径 π0.5 IR = .152v + .848m，GR00T .148v + .852m）
-- **GR00T B（守卫触发）四格**：l10-500 .864 @ .187（A .830，+3.4 pp，p=.07）；sp500 .958 @ .127（A .964，持平）；l10-50 .726 @ .222（A .608，+11.8 pp）；**sp50 .874 @ .148（A .868，持平；旧的定时 G10 为 .920，p=.015）**——守卫在这一格触发太少、没触发在该救的地方，是 R6 的直接反例。重复：.868 / .960 / .702 / .874。
-- **A 重复（π0.5）**：l10-50 .710（原 .706）、l10-500 .820（.828）、sp50 .844（.838）、sp500 .974（.982）。**B 重复（π0.5）**：l10-50 .794（.830，p=.07）、l10-500 .864（.866）。
-- **度量消融**（z-score 后欧氏距离 vs 按任务学到的度量，其余全同，A 配置）：π0.5 −12.6 / −9.4 / −6.2 / −2.6 pp，GR00T −10.2 / −11.2 / −1.0 / −1.2 pp（l10-50 / l10-500 / sp50 / sp500）。l10 四格都 ≥ 9 pp 且显著；spatial 变小，GR00T spatial 不显著。我建议补"无监督白化 Σ⁻¹"对照（8 臂纯缓存），用来区分"满矩阵白化"与"动作监督"各自的功劳，**等 owner 点头**。
-- **构思要点**：
-  - Q1：留一覆盖在同一模型 × 任务集内随库变大单调变好（π0.5 l10 留出覆盖率 .22 → .64 → .85 → .93），但没有跨格的绝对刻度（GR00T sp50 覆盖 .005 而 A 成功率 .868）；库内留一偏乐观（度量重拟合后误差 +15–18%）。
-  - Q2：B 调用的 29–82% 落在 A 已不输纯推理的任务上；库质量只解释 21% 的任务差距方差；建议旋钮 = 目标 IR ρ，按任务覆盖度分配调用。
-  - Q3：守卫之前的调用从没被随机化，价值不可识别；覆盖 / 分歧能识别缓存出错，但多晚于守卫；π0.5 l10 上覆盖差的组 B 收益大得多（500 集 +37 pp），spatial 与 GR00T 不成立。
-  - G：守卫手写阈值在各库成功 episode 上的误报率 0–38%；统一规则 = 留一 conformal 分位 + 一个族水平 α；迁移目标 RoboCasa365。
-- **P3**：v1 真模型 smoke 四臂通过（注入块与影子块逐字节一致，p0 无 MISS，p1 每锚点都有策略块尾）；v2 客户端 smoke 前两臂 `read_v2 --require-stage-counts --require-snapshots` 通过；约 100 MB / 集。
-- **给 owner 的材料**：
-  - 网页 https://claude.ai/artifact/N9KTGqB8Hkpt5wUBEZcrRd（英文方法说明，含前沿图与 B − A 表）。源文件 `~/projects/openpi_ext/artifacts/commit_cache/commit-cache.html`，由 `commit-cache.en.template.html` 注入 `frontier.png` 生成；republish 用同一文件路径，或传 `url`。
-  - 演示图 `~/projects/openpi_ext/artifacts/fig2_frontier_ab/`。脚本 `tmp/fig_ab/fig2_ab.py`，不入库；l10 新点按 owner 约定 +0.04 显示，表格用原始值——这个口径差已经告诉 owner，还没定怎么统一。
+## 2. 关键结果（R6，修复 exception 集之后；owner 口径 π0.5 IR = .152v + .848m，GR00T .148v + .852m）
+- **A / B 三次重复**（`PAPER_AB.md`）：π0.5 l10-50 .714 → .827（+11.3）、l10-500 .827 → .879、sp50 .837 → .910、sp500 .976 → .982；GR00T l10-50 .611 → .725（+11.4）、l10-500 .830 → .872、sp50 .867 → .876、sp500 .964 → .959。重复间最大差 2.4 pp。
+- **消融**（`ABLATIONS.md`）：学到的度量在所有 l10 格 +7.8~13.4 pp；直接 token PCA 与池化 PCA 在 7 / 8 格无差（GR00T sp50 直接 PCA +4.3），池化的理由是成本；无进展守卫在 l10-50 两格承担 B 的全部收益、π0.5 sp50 约 5 / 7 pp、GR00T sp50 有害（去掉后 .906）；其余三个守卫可单独去掉。
+- **Bmech**：只关无进展 MISS 位、保留看一眼否决，4 格都与"去掉守卫"打平 ⇒ 效应全部经由策略接管。
+- **前沿（修复后中间版 `frontier_repaired/`）**：按点估计追平纯推理 L=10 的最低 IR：π0.5 l10-500 .197、π0.5 sp50 .442、π0.5 sp500 .118、GR00T l10-50 .453、GR00T l10-500 .188、GR00T sp500 .052；π0.5 l10-50 最好 .886（< .904），GR00T sp50 最好 .934 @ .23（< .938）。2 pp 名义 NI 只有 π0.5 l10-500 对 L5、π0.5 sp500、GR00T sp500。
+- **三问**：Q1 选 R（留一动作重建残差，预测缓存–策略分歧，≤ 10 条轨迹可标定，不预测 SR）；Q2 旋钮 = 目标 IR ρ；Q3 没有提名放置门；三份都建议不做全量续跑。
+- **C 验证（进行中）**：π0.5 sp50 R30 .944 @ .278（IR 偏低 .022）；π0.5 l10-50 R30 .866 @ .295（与 B cap4 .866 @ .292 持平）。
+- **网页** https://claude.ai/artifact/N9KTGqB8Hkpt5wUBEZcrRd（源 `~/projects/openpi_ext/artifacts/commit_cache/commit-cache.html`），待用终版更新。
 
 ## 3. 需要 owner 的事
-1. 全量采集规模：先跑 pilot（4,320 集），全量等 pilot 实测开销后再定。
-2. 是否补"无监督白化"对照。
-3. 网页 / 图里 l10 +0.04 的显示口径怎么统一：表格也加，或在图注里说明。
+1. 是否全量续跑（+31,680 集）：等 Q 终稿给出按实测方差 / ICC 算的收益。
+2. 是否补"无监督白化 Σ⁻¹"对照（8 臂纯缓存）。
+3. 网页 / 图里 l10 +0.04 的显示口径怎么统一。
 
-## 4. 正在运行的东西（compact 后先核对 `tmux ls`、各 run root 的 `state/` 与日志）
-- **显存按预算分配**（owner 16:3x 让 sandpile 让出约 10 GB）：预算 `tmp/gpu_budget_mb` = 23500 MiB（owner 再调就改这个数）。所有线启动前经 `tmp/gpu_gate.sh`：我们 server 的显存 + 新需求 + pilot 换臂预留 ≤ 预算。sandpile 的进程绝不碰。
-- **pilot 车道**：tmux `p3pilot_L3`（23165，server CPU 30-33,74-77）、`p3pilot_L4`（23164，10-13,54-57）。脚本 `tmp/p3_pilot_line.sh`（按 `r06_p3_pilot/pilot_queue.txt` 顺序原子认领 `state/claim_<arm>`），环境变量 `CHAIN=r06_p3_pilot/ops/chain_p3.stream.frozen.sh`、`STREAM_ENV=P3_STREAM_PORT=23171`。**接收端** tmux `p3rx_r06_p3_pilot`（23171，CPU 6-9,50-53），数据直接落在 `r06_p3_pilot/runs/<arm>/client_telemetry`；chain 核验 journal 后清理远端。
-  - 文件模式的 L1 / L2 已停（`STOP_L1` / `STOP_L2`），完成了前 11 臂。文件模式要用 `ops/collect_client_pilot.py`（gzip + 切块），因为 tether 单文件上限约 447 MB。
-  - 停一条车道：`touch r06_p3_pilot/STOP_<label>`，它会跑完当前臂再停。
-- **纯缓存线** tmux `line_P6C2`（23162/63，`tmp/line_P6C2.sh`）：A sp500 rep3 + GR00T A rep2/rep3，等预算。
-- **全模型线** tmux `line_P6A`（23150/51，`tmp/line_P6A_loop5.sh` → `line_P6A_v2.sh`）：π0.5 B 重复 6、GR00T B rep3 4，再接 `r06_abl` 触发器逐项 16 臂；预算内放不下，等 pilot 结束或预算上调。
-- **巡检**：cron `ff6cb457`（:17 / :47 一行 PROBE）；Monitor：`tmp/r4_watch.sh`（论文 / 消融臂的逐臂结果与失败）、`tmp/p3_pilot_watch.sh`（pilot 车道异常与每格完成，已报事件记在 `tmp/p3_pilot_watch.seen`）。30 分钟到期后重挂。
-- **codex**：当前没有在跑的线程。线程 id：P3 `01a0e926-15b5-73c1-aab9-e72c2f9a330a`；Q1 `01a0e921-c2fb-7f73-9e3f-0d928cb3e9d6`；Q2 `01a0e921-cc1b-77e0-b857-c76556a1826b`；Q3 `01a0e921-d521-7da0-b464-4f2c797922f9`；P2 `01a0e910-d07f-7bc3-828f-384b819a0919`。⛔ **fable 没有 owner 允许不准用**（16:2x）。
+## 4. 正在运行的东西
+- 无。R6 闭环全部结束（最后一臂 13:26）。cron `ff6cb457`（:17 / :47 PROBE）在提交后应删除。
 
-## 5. 下一步（按顺序）
-1. **pilot 每格完成**（pilot Monitor 报 "cell … complete"）：用 `read_v2 --run-root r06_p3_pilot --arms <该格 27 臂> --client-root r06_p3_pilot/runs --require-stage-counts --require-snapshots --out <新目录>` 出表，再跑 Q1 / Q2 / Q3 的分析脚本（命令见各自 PREREG.md，只做描述；判定规则要 8 格齐了才用）。
-2. **pilot 全部完成后**：续聊 Q1 / Q2 / Q3（线程 id 见 §4），用全部 8 格的数据按预登记出结论，然后把结果和"是否全量续跑（+31,680 集）"的建议一起交给 owner；接着写 `rounds/r06/SELECTION.md` → codex 编码新方法 → smoke → 闭环 → R6 分析 → 提交。
-3. **论文臂与触发器逐项**：每臂出来就记账、配对（`tmp/pair.py`），A / B 按三次合并；pilot 结束后全模型线自动获得预算。
-4. **提交**：只加 .py / .sh / .md 与臂规格 json（`git add -f`，单文件 < 1 MB；不含 results/、client_bundle*/、__pycache__/、画图脚本）；作者 LinZiyang666，英文，无 AI 署名，不 push。
+## 5. 下一步
+1. 提交 R6（本节点）。
+2. 等 owner 裁定：全量续跑（建议不做）、Σ⁻¹ 白化对照（建议做，8 个纯缓存臂）、l10 +0.04 显示口径（建议表格用测量值、图注标明偏移）。
+3. 下一轮候选（ANALYSIS §7.2）：C′ = ρ + 均匀放置 + 标定停滞 + 预登记的库级不调用闸门；第二基准 RoboCasa365；C 插件先移植非 5 / 10 步传输。
 
 ## 6. 纪律与坑（本线专有，章程 §8 / §9 有全文）
 - ⛔ CPU 38-43,82-87 属于他线；只按 PID kill；不 pkill；前台不长时间 sleep（等待用 Monitor）。
@@ -135,6 +109,10 @@ owner 的常驻指令，逐字有效：
 - **（R6 新增）tether 单文件上限约 447 MB**（`pull refused: code=too_large`）：20 集的未压缩遥测 tar 就有 482 MB。文件模式要先 gzip 再切块（`r06_p3_pilot/ops/collect_client_pilot.py`）；流式模式不受影响。
 - **（R6 新增）读取器别抢在收回前跑**：watcher 在 ARM_DONE 时就报了，但 collect 在那之后，要等 CHAIN_DONE 或臂的 DONE 标记再跑 `read_v2`（犯过一次，报"缺遥测"）。
 - **（R6 新增）显存按预算而不是按当下空闲**：sandpile 用量会临时掉到 6 GB 又涨回来，16:38 全模型线曾趁机起两个 server，已停。所有线都经 `tmp/gpu_gate.sh`。
+- **（R6 新增）tether pull 并发被拒**（exit 75，`too_many_in_flight`）：`closed_loop/ops/collect.py` 已加重试；仍失败就手动重跑 collect。
+- **（R6 新增）DONE 标记有两种**：`state/<arm>.DONE` 与 `state/<arm>.manifest_<sha>.DONE`，检查要都认（`compgen -G`）；`ls A B` 在任一不存在时返回非零，别用它判断。
+- **（R6 新增）网络重置后 driver 会挂住**（9-29 02:46）：`stall_watch.sh` 报警后按 PID 杀远端 driver 与其 worker，再清孤儿 worker（PPID=1），chain 会续跑。
+- **（R6 新增）timan107 过载**（9-29 07:0x）：143 个 worker 时可用内存 0、PSI full 60%，driver 几分钟内 ARM_INCOMPLETE。并发 worker 控制在约 120 以内。
 
 ---
 ## 附录 A：step_diag / warm reset 线交接（2026-09-26 03:20 CDT 版，原文保留，标题降一级）

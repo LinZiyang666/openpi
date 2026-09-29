@@ -19,7 +19,7 @@ for row in report["files"]:
     compiled.append(row["path"])
 sys.path.insert(0, str(bundle / "payload"))
 prefix = "exp.offline_search.rounds.r06.p3_profiling."
-names = ("run_gtp_v2", "worker_v2", "client_compat", "client_preflight", "stream_protocol", "stream_sink")
+names = ("run_gtp_v2", "worker_v2", "client_compat", "client_preflight", "stream_protocol", "stream_sink", "dispatch_fence")
 for name in names:
     mod = importlib.import_module(prefix + name)
     assert str(bundle / "payload") in mod.__file__
@@ -44,6 +44,12 @@ for a, b in (([1], [2,3]), ([1,2], [3])):
         pass
     else:
         raise AssertionError("strict length mismatch was accepted")
+fence_module = importlib.import_module(prefix + "dispatch_fence")
+import tempfile
+fence_root = pathlib.Path(tempfile.mkdtemp(prefix="p3_py38_fence_"))
+fence = fence_module.DispatchFence(fence_root)
+assert fence.reserve("py38:eval:0:0", 1) == 1
+assert fence_module.DispatchFence(fence_root).reserve("py38:eval:0:0", 1) == 2
 stream_result = None
 if len(sys.argv) > 4:
     address, token, directory = sys.argv[4:7]
@@ -60,7 +66,7 @@ if len(sys.argv) > 4:
 print(json.dumps(dict(PASS=True, python=sys.version, executable=sys.executable,
     compiled_files=len(compiled), owned_compiled=sum(x["owned_client"] for x in report["files"]),
     isolated_import_modules=list(names), real_stock_types_loader=True,
-    idempotent_import_hook=True, strict_zip_cases=5,
+    idempotent_import_hook=True, strict_zip_cases=5, dispatch_fence_runtime=True,
     numpy_and_simulator_runtime="not tested: isolated cached interpreter has no third-party environment",
     stream_loopback=stream_result, compiled_paths=compiled), indent=2))
 '''

@@ -110,7 +110,16 @@ def pull(run: pathlib.Path, arm: str) -> None:
     local = pathlib.Path(f"/tmp/oscl_local_{tag}_{arm}.tar")
     if local.exists():
         local.unlink()
-    sh(["tether", "pull", f"timan107:{tar_remote}", str(local)])
+    for attempt in range(8):  # the broker refuses with exit 75 (too_many_in_flight) when many pulls overlap
+        try:
+            sh(["tether", "pull", f"timan107:{tar_remote}", str(local)])
+            break
+        except subprocess.CalledProcessError as e:
+            if e.returncode != 75 or attempt == 7:
+                raise
+            if local.exists():
+                local.unlink()
+            time.sleep(15 * (attempt + 1))
     lsha = hashlib.sha256(local.read_bytes()).hexdigest()
     if lsha != rsha:
         raise SystemExit(f"{arm}: SHA MISMATCH remote {rsha} local {lsha}")

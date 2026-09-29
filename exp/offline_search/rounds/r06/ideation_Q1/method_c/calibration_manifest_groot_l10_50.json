@@ -1,0 +1,63 @@
+{
+  "role": "NONTEST_BVAL",
+  "cell": "groot_l10_50",
+  "model": "groot",
+  "suite": "l10",
+  "pool_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+  "pool_record": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q1/method_c/bval_pool_l10.yaml",
+  "pool_directory": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10",
+  "split_sha256": "0a2775ec927acd4e73b17b35ad00ad4825292bb27bfa7ccab6c5492970110f86",
+  "exclusions_sha256": "e3436201ca616a2f39c0056cd454af5de42c6b0b144d2c0be504c8fd155dfad7",
+  "selected": [
+    {
+      "task": 0,
+      "init": 8,
+      "state_sha256": "2c814d7e51c0dea6aad6a74f8bf956ecefdc1226ea4f507962c8cf7a6d3f5a28"
+    },
+    {
+      "task": 1,
+      "init": 8,
+      "state_sha256": "1ba843810f548da420b52a74652db715f951d19816170146f582c6fbc6ef559c"
+    },
+    {
+      "task": 2,
+      "init": 4,
+      "state_sha256": "99849650df449cb080f3498b1f40e088b53610068719cdf7bd79c075ecd296d4"
+    },
+    {
+      "task": 3,
+      "init": 2,
+      "state_sha256": "46b9e49c1f662455a8e21b1868ea44ca30f27fbb7ac4701c45c6c8c3aa3f8b32"
+    },
+    {
+      "task": 4,
+      "init": 9,
+      "state_sha256": "229468045c9e80443438550d136e1b144acc2cae7924777f6195bbf0373e209b"
+    },
+    {
+      "task": 5,
+      "init": 9,
+      "state_sha256": "38b932e2512e95189ea71058b90be3e2d0d30c2a17eb29902f64403efdd41099"
+    },
+    {
+      "task": 6,
+      "init": 11,
+      "state_sha256": "6803b2079fc99de7e1e8f7bd043b73197f29004925d540516f82010fb1875aae"
+    },
+    {
+      "task": 7,
+      "init": 0,
+      "state_sha256": "2d7fba58f92ff9cab689bd43103f8a3fa63106cf06bb8f2085ea47ddcd81e3c8"
+    },
+    {
+      "task": 8,
+      "init": 9,
+      "state_sha256": "44d3602f2b0d430a52d2f477e9653f47a2bd4ca74b5782f0847ffd63492074a4"
+    },
+    {
+      "task": 9,
+      "init": 2,
+      "state_sha256": "3a0723b5b005fbbabf77ca92cb417adc0f00645abac5aa121b759521f9ae1d8e"
+    }
+  ]
+}

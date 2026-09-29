@@ -10,7 +10,8 @@ import tarfile
 HERE = Path(__file__).resolve().parent
 REMOTE = "/scratch/zixuans8/openpi_trace/"
 PREFIX = "exp/offline_search/rounds/r06/p3_profiling/"
-MODULES = ("run_gtp_v2", "worker_v2", "telemetry", "snapshots", "client_compat", "client_preflight", "stream_protocol", "stream_sink")
+# Install new dependencies before publishing the driver entrypoint.
+MODULES = ("stream_protocol", "dispatch_fence", "worker_v2", "telemetry", "snapshots", "client_compat", "client_preflight", "stream_sink", "run_gtp_v2")
 MARKER = b'"""P3 client package; preserve other namespace portions."""\nfrom pkgutil import extend_path\n__path__ = extend_path(__path__, __name__)\n'
 
 

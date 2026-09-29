@@ -1,0 +1,11 @@
+--- chain_calibration.sh
++++ chain_calibration.sh
+@@ -199,7 +199,7 @@
+     collect_args=(--manifest "$MANIFEST")
+   fi
+   for a in $(seq 1 "$MAX_ATTEMPTS"); do
+-    rx "mkdir -p $O/$arm; tmux -L oscl has-session -t oscl_$arm 2>/dev/null || tmux -L oscl new -s oscl_$arm -d '${envs}bash $ISL/run_arm_v2.sh $suite $arm $servers $sw $O/$arm >> $O/$arm/driver.log 2>&1'"
++    rx "mkdir -p $O/$arm; tmux -L oscl has-session -t oscl_$arm 2>/dev/null || tmux -L oscl new -s oscl_$arm -d '${envs}bash $ISL/run_arm_c_bval.sh $suite $arm $servers $sw $O/$arm >> $O/$arm/driver.log 2>&1'"
+     note "driver attempt $a launched"
+     while :; do
+       sleep 60

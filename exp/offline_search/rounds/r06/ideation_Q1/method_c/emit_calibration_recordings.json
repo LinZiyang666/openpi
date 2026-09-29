@@ -1,0 +1,586 @@
+[
+  {
+    "name": "r6c_cal_pi05_l10_50",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r06.ideation_Q1.method_c.recording:ExcludedRecordingA",
+      "base_kwargs": {
+        "bank_path": "<CAL>/pi05_l10_50/r_bank.json",
+        "exclusions_path": "<CAL>/pi05_l10_50/recording_exclusions.json",
+        "exclusions_sha256": "f107d5a9397f4490124e7e99c08265c33a0f21035cb26c25f5e83356df599eed"
+      },
+      "base_fit": "",
+      "enabled": true,
+      "p": 0.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "current",
+          "kref": 5,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_l10_50.pkl",
+      "design": {
+        "cohort": "A",
+        "cohort_probability": 1.0
+      },
+      "blind_shadow": true,
+      "resample_p": 0.0,
+      "resample_draws": 1,
+      "provenance": {
+        "q1_controller_version": "R6-C-v2",
+        "q1_recording_role": "NONTEST_BVAL",
+        "q1_pool_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+        "q1_selection_sha256": "c205fa060556cdafcec9bfb73c5384831b373e2cffd598f10123be47ba2ab1ff",
+        "population": "one lowest-numbered B-val initial state/task; outcome-blind",
+        "block": 0
+      },
+      "calibration_path": ""
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "manifest": "<RUN>/manifests/calibration_manifest_pi05_l10_50.json",
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_cal_pi05_l10_50.pkl"
+    ]
+  },
+  {
+    "name": "r6c_cal_pi05_l10_500",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r06.ideation_Q1.method_c.recording:ExcludedRecordingA",
+      "base_kwargs": {
+        "bank_path": "<CAL>/pi05_l10_500/r_bank.json",
+        "exclusions_path": "<CAL>/pi05_l10_500/recording_exclusions.json",
+        "exclusions_sha256": "f46081cdaee2b0782df476b0a5daef1c30da0c0f870f62b5795b408f3f047f47"
+      },
+      "base_fit": "",
+      "enabled": true,
+      "p": 0.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "big",
+          "kref": 8,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_l10_500.pkl",
+      "design": {
+        "cohort": "A",
+        "cohort_probability": 1.0
+      },
+      "blind_shadow": true,
+      "resample_p": 0.0,
+      "resample_draws": 1,
+      "provenance": {
+        "q1_controller_version": "R6-C-v2",
+        "q1_recording_role": "NONTEST_BVAL",
+        "q1_pool_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+        "q1_selection_sha256": "b015252bdaa34b5df81306f4428a7798909e197a2db415a92888194e6eedab67",
+        "population": "one lowest-numbered B-val initial state/task; outcome-blind",
+        "block": 0
+      },
+      "calibration_path": ""
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "manifest": "<RUN>/manifests/calibration_manifest_pi05_l10_500.json",
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_cal_pi05_l10_500.pkl"
+    ]
+  },
+  {
+    "name": "r6c_cal_groot_l10_50",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r06.ideation_Q1.method_c.recording:ExcludedRecordingA",
+      "base_kwargs": {
+        "bank_path": "<CAL>/groot_l10_50/r_bank.json",
+        "exclusions_path": "<CAL>/groot_l10_50/recording_exclusions.json",
+        "exclusions_sha256": "e3436201ca616a2f39c0056cd454af5de42c6b0b144d2c0be504c8fd155dfad7"
+      },
+      "base_fit": "",
+      "enabled": true,
+      "p": 0.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "current",
+          "kref": 5,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r06_paper/fits/r6p1_c10_g_l10_50.pkl",
+      "design": {
+        "cohort": "A",
+        "cohort_probability": 1.0
+      },
+      "blind_shadow": true,
+      "resample_p": 0.0,
+      "resample_draws": 1,
+      "provenance": {
+        "q1_controller_version": "R6-C-v2",
+        "q1_recording_role": "NONTEST_BVAL",
+        "q1_pool_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+        "q1_selection_sha256": "ff5b0388b8c4c53bae0756bee885ead049019e1635c67c11db5e2fc8003d393d",
+        "population": "one lowest-numbered B-val initial state/task; outcome-blind",
+        "block": 0
+      },
+      "calibration_path": ""
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "manifest": "<RUN>/manifests/calibration_manifest_groot_l10_50.json",
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_cal_groot_l10_50.pkl"
+    ]
+  },
+  {
+    "name": "r6c_cal_groot_l10_500",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r06.ideation_Q1.method_c.recording:ExcludedRecordingA",
+      "base_kwargs": {
+        "bank_path": "<CAL>/groot_l10_500/r_bank.json",
+        "exclusions_path": "<CAL>/groot_l10_500/recording_exclusions.json",
+        "exclusions_sha256": "7b91e440d7942f5bee98abcc08321765e15a038b9871d83b8594faee5a5de25a"
+      },
+      "base_fit": "",
+      "enabled": true,
+      "p": 0.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "big",
+          "kref": 8,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r06_paper/fits/r6p1_c10_g_l10_500.pkl",
+      "design": {
+        "cohort": "A",
+        "cohort_probability": 1.0
+      },
+      "blind_shadow": true,
+      "resample_p": 0.0,
+      "resample_draws": 1,
+      "provenance": {
+        "q1_controller_version": "R6-C-v2",
+        "q1_recording_role": "NONTEST_BVAL",
+        "q1_pool_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+        "q1_selection_sha256": "67e77f26f0836fe1d22988cfb3695a462fd694d46667d243dfc071b339ce5de2",
+        "population": "one lowest-numbered B-val initial state/task; outcome-blind",
+        "block": 0
+      },
+      "calibration_path": ""
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "manifest": "<RUN>/manifests/calibration_manifest_groot_l10_500.json",
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_cal_groot_l10_500.pkl"
+    ]
+  },
+  {
+    "name": "r6c_cal_pi05_spatial_50",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r06.ideation_Q1.method_c.recording:ExcludedRecordingA",
+      "base_kwargs": {
+        "bank_path": "<CAL>/pi05_spatial_50/r_bank.json",
+        "exclusions_path": "<CAL>/pi05_spatial_50/recording_exclusions.json",
+        "exclusions_sha256": "2b0b0b69ee41b2c7bb5bd6c1ba926a1ff3cffbb75bb3c1f0d46a8d0d47e9c1e6"
+      },
+      "base_fit": "",
+      "enabled": true,
+      "p": 0.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "current",
+          "kref": 5,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_sp_50.pkl",
+      "design": {
+        "cohort": "A",
+        "cohort_probability": 1.0
+      },
+      "blind_shadow": true,
+      "resample_p": 0.0,
+      "resample_draws": 1,
+      "provenance": {
+        "q1_controller_version": "R6-C-v2",
+        "q1_recording_role": "NONTEST_BVAL",
+        "q1_pool_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+        "q1_selection_sha256": "5b39a95fe7d6b37e79c856c1ae7a967444e136b980739015c19cb2bda62bf3ba",
+        "population": "one lowest-numbered B-val initial state/task; outcome-blind",
+        "block": 0
+      },
+      "calibration_path": ""
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "manifest": "<RUN>/manifests/calibration_manifest_pi05_spatial_50.json",
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_cal_pi05_spatial_50.pkl"
+    ]
+  },
+  {
+    "name": "r6c_cal_pi05_spatial_500",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r06.ideation_Q1.method_c.recording:ExcludedRecordingA",
+      "base_kwargs": {
+        "bank_path": "<CAL>/pi05_spatial_500/r_bank.json",
+        "exclusions_path": "<CAL>/pi05_spatial_500/recording_exclusions.json",
+        "exclusions_sha256": "4ae7fa264ed0bb974421105fdc5914b9bb7a706fa94144e91c63ff64cd2fbecc"
+      },
+      "base_fit": "",
+      "enabled": true,
+      "p": 0.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "big",
+          "kref": 8,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_sp_500.pkl",
+      "design": {
+        "cohort": "A",
+        "cohort_probability": 1.0
+      },
+      "blind_shadow": true,
+      "resample_p": 0.0,
+      "resample_draws": 1,
+      "provenance": {
+        "q1_controller_version": "R6-C-v2",
+        "q1_recording_role": "NONTEST_BVAL",
+        "q1_pool_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+        "q1_selection_sha256": "a12848ec474a5c19ed6992694b280a131533982be9afbc1ce2692bd50bcf70ee",
+        "population": "one lowest-numbered B-val initial state/task; outcome-blind",
+        "block": 0
+      },
+      "calibration_path": ""
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "manifest": "<RUN>/manifests/calibration_manifest_pi05_spatial_500.json",
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_cal_pi05_spatial_500.pkl"
+    ]
+  },
+  {
+    "name": "r6c_cal_groot_spatial_50",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r06.ideation_Q1.method_c.recording:ExcludedRecordingA",
+      "base_kwargs": {
+        "bank_path": "<CAL>/groot_spatial_50/r_bank.json",
+        "exclusions_path": "<CAL>/groot_spatial_50/recording_exclusions.json",
+        "exclusions_sha256": "718bfe9e261dd6efa9160fcb8bac1466864d6193992eae933dc08e8ee3931bda"
+      },
+      "base_fit": "",
+      "enabled": true,
+      "p": 0.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "current",
+          "kref": 5,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r06_paper/fits/r6p1_c10_g_sp_50.pkl",
+      "design": {
+        "cohort": "A",
+        "cohort_probability": 1.0
+      },
+      "blind_shadow": true,
+      "resample_p": 0.0,
+      "resample_draws": 1,
+      "provenance": {
+        "q1_controller_version": "R6-C-v2",
+        "q1_recording_role": "NONTEST_BVAL",
+        "q1_pool_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+        "q1_selection_sha256": "8d7c4e2f8f775027504cf38e2c799ccf37a86fcefeff51be7b94637badb920bb",
+        "population": "one lowest-numbered B-val initial state/task; outcome-blind",
+        "block": 0
+      },
+      "calibration_path": ""
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "manifest": "<RUN>/manifests/calibration_manifest_groot_spatial_50.json",
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_cal_groot_spatial_50.pkl"
+    ]
+  },
+  {
+    "name": "r6c_cal_groot_spatial_500",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.p3_profiling.v2:Profile",
+    "kwargs": {
+      "base_spec": "exp.offline_search.rounds.r06.ideation_Q1.method_c.recording:ExcludedRecordingA",
+      "base_kwargs": {
+        "bank_path": "<CAL>/groot_spatial_500/r_bank.json",
+        "exclusions_path": "<CAL>/groot_spatial_500/recording_exclusions.json",
+        "exclusions_sha256": "2e153710c52e04b53267bf4f35897769c4924595a656345a57fce413344e3ba4"
+      },
+      "base_fit": "",
+      "enabled": true,
+      "p": 0.0,
+      "seed": 603,
+      "replicate": 0,
+      "guard_spec": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+      "guard_kwargs": {
+        "base_kwargs": {
+          "lib": "big",
+          "kref": 8,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "guard_fit": "/home/weiland/trace_runs/os_closed_loop/r06_paper/fits/r6p1_c10_g_sp_500.pkl",
+      "design": {
+        "cohort": "A",
+        "cohort_probability": 1.0
+      },
+      "blind_shadow": true,
+      "resample_p": 0.0,
+      "resample_draws": 1,
+      "provenance": {
+        "q1_controller_version": "R6-C-v2",
+        "q1_recording_role": "NONTEST_BVAL",
+        "q1_pool_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+        "q1_selection_sha256": "0b59e1a8e4873b0676c98dccd2e72a2f747c08e5f7025d3f9039e4476e116940",
+        "population": "one lowest-numbered B-val initial state/task; outcome-blind",
+        "block": 0
+      },
+      "calibration_path": ""
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "manifest": "<RUN>/manifests/calibration_manifest_groot_spatial_500.json",
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-log-inputs",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_cal_groot_spatial_500.pkl"
+    ]
+  }
+]

@@ -204,6 +204,10 @@ run_arm() {  # $1 arm
       st=$(rx "tmux -L oscl has-session -t oscl_$arm 2>/dev/null && echo RUN || echo GONE \$(grep -o 'RUN_ARM_EXIT=[0-9]*' $O/$arm/driver.log | tail -1)")
       case "$st" in RUN) ;; GONE*) note "driver ended: $st"; break ;; *) note "remote status unreadable" ;; esac
     done
+    # An episode whose client loop ended on an exception (e.g. a keepalive timeout on an overloaded client host) is
+    # journaled as an ordinary failure; drop those records so the next attempt re-runs them (ops/remote/purge_exc.py).
+    local purged; purged=$(rx "python3 $ISL/purge_exc.py $O/$arm" | tail -1)
+    [ "${purged:-0}" -gt 0 ] 2>/dev/null && ev "EXC_PURGED arm=$arm n=$purged"
     read -r n s rows <<< "$(rx "python3 $ISL/count.py $O/$arm/journal.jsonl$count_args")"
     note "journal: complete=$n success=$s rows=$rows"
     if [ "${n:-0}" -ge "$EXPECT" ]; then

@@ -1,0 +1,74 @@
+[
+  {
+    "name": "r6c_pi05_l10_500_C18",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.18,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "/tmp/q3_stall_fits/pi05_l10_500",
+      "calibration_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_l10_500/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_l10_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_smoke/manifests/smoke4.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r06_c_smoke/fits/r6c_pi05_l10_500_C18.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_l10_500_C18",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.18,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "/tmp/q3_stall_fits/groot_l10_500",
+      "calibration_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_l10_500/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_l10_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_smoke/manifests/smoke4.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "/home/weiland/trace_runs/os_closed_loop/r06_c_smoke/fits/r6c_groot_l10_500_C18.pkl"
+    ]
+  }
+]

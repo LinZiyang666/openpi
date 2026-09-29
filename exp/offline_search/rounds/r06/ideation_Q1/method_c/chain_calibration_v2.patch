@@ -1,0 +1,39 @@
+--- chain_p3.stream.frozen.sh
++++ chain_calibration.sh
+@@ -20,6 +20,10 @@
+ #      MAX_ATTEMPTS driver (re)launches per arm (default 3; run_gtp resumes from its journal)
+ set -u
+ RUN=${1:?run-root}; shift
++# Q1 calibration: streaming is required; no whole-arm file-tar fallback.
++if [ -f "$RUN/state/P3_STREAM_PORT" ]; then export P3_STREAM_PORT=$(cat "$RUN/state/P3_STREAM_PORT"); fi
++: "${P3_STREAM_PORT:?calibration requires the run-specific P3 stream receiver}"
++case "$P3_STREAM_PORT" in *[!0-9]*) echo 'invalid P3_STREAM_PORT' >&2;exit 2;; esac
+ HERE=/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops
+ P3=/home/weiland/projects/openpi/exp/offline_search/rounds/r06/p3_profiling
+ R=/home/weiland/projects/openpi
+@@ -36,7 +40,7 @@
+ ev() { echo "EV $(date +%m-%d_%H:%M:%S) $*" | tee -a "$LOG"; }
+ note() { echo "   $(date +%H:%M:%S) $*" | tee -a "$LOG"; }
+ rx() { timeout 300 tether exec timan107 -- bash -c "$1" 2>/dev/null; }
+-py() { taskset -c 6-9,50-53 env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src "$R/.venv/bin/python" "$@"; }
++py() { taskset -c 14-17,58-61 env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src "$R/.venv/bin/python" "$@"; }
+ field() { py -c "import json,sys; a={r['arm']:r for r in json.load(open('$RUN/arms.json'))}[sys.argv[1]]; v=a[sys.argv[2]]; print(json.dumps(v) if isinstance(v,(dict,list)) else v)" "$1" "$2"; }
+ field_or() { py -c "import json,sys; a={r['arm']:r for r in json.load(open('$RUN/arms.json'))}[sys.argv[1]]; v=a.get(sys.argv[2], sys.argv[3]); print(json.dumps(v) if isinstance(v,(dict,list,bool)) else v)" "$1" "$2" "$3"; }
+ 
+@@ -52,6 +56,7 @@
+ selection_for() {
+   local arm=$1 info
+   if [ -f "$STATE/P3_STREAM_PORT" ]; then export P3_STREAM_PORT=$(cat "$STATE/P3_STREAM_PORT"); fi
++  : "${P3_STREAM_PORT:?stream mode cannot be disabled during calibration}"
+   MANIFEST=${OSCL_MANIFEST:-$(field_or "$arm" manifest '')}
+   local planned
+   planned=$(py -m exp.offline_search.rounds.r06.p3_profiling.client_plan --run-root "$RUN" --arm "$arm" --field manifest) || return 1
+@@ -199,7 +204,7 @@
+     collect_args=(--manifest "$MANIFEST")
+   fi
+   for a in $(seq 1 "$MAX_ATTEMPTS"); do
+-    rx "mkdir -p $O/$arm; tmux -L oscl has-session -t oscl_$arm 2>/dev/null || tmux -L oscl new -s oscl_$arm -d '${envs}bash $ISL/run_arm_v2.sh $suite $arm $servers $sw $O/$arm >> $O/$arm/driver.log 2>&1'"
++    rx "mkdir -p $O/$arm; tmux -L oscl has-session -t oscl_$arm 2>/dev/null || tmux -L oscl new -s oscl_$arm -d '${envs}bash $ISL/run_arm_c_bval.sh $suite $arm $servers $sw $O/$arm >> $O/$arm/driver.log 2>&1'"
+     note "driver attempt $a launched"
+     while :; do
+       sleep 60

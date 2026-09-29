@@ -1,0 +1,1204 @@
+[
+  {
+    "name": "r6c_pi05_l10_50_U30",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.3,
+      "allocation": "uniform",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_l10_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_l10_50_U30.pkl"
+    ]
+  },
+  {
+    "name": "r6c_pi05_l10_50_R30",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.3,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": null,
+      "calibration_path": "<CAL>/pi05_l10_50/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_l10_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_l10_50_R30.pkl"
+    ]
+  },
+  {
+    "name": "r6c_pi05_l10_50_C30",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.3,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "<STALL>/pi05_l10_50",
+      "calibration_path": "<CAL>/pi05_l10_50/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_l10_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_l10_50_C30.pkl"
+    ]
+  },
+  {
+    "name": "r6c_pi05_l10_50_C45",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.45,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "<STALL>/pi05_l10_50",
+      "calibration_path": "<CAL>/pi05_l10_50/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_l10_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_l10_50_C45.pkl"
+    ]
+  },
+  {
+    "name": "r6c_pi05_l10_500_U18",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.18,
+      "allocation": "uniform",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_l10_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_l10_500_U18.pkl"
+    ]
+  },
+  {
+    "name": "r6c_pi05_l10_500_R18",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.18,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": null,
+      "calibration_path": "<CAL>/pi05_l10_500/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_l10_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_l10_500_R18.pkl"
+    ]
+  },
+  {
+    "name": "r6c_pi05_l10_500_C18",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.18,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "<STALL>/pi05_l10_500",
+      "calibration_path": "<CAL>/pi05_l10_500/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_l10_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_l10_500_C18.pkl"
+    ]
+  },
+  {
+    "name": "r6c_pi05_spatial_50_U30",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.3,
+      "allocation": "uniform",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_spatial_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_spatial_50_U30.pkl"
+    ]
+  },
+  {
+    "name": "r6c_pi05_spatial_50_R30",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.3,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": null,
+      "calibration_path": "<CAL>/pi05_spatial_50/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_spatial_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_spatial_50_R30.pkl"
+    ]
+  },
+  {
+    "name": "r6c_pi05_spatial_50_C30",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.3,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "<STALL>/pi05_sp_50",
+      "calibration_path": "<CAL>/pi05_spatial_50/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_spatial_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_spatial_50_C30.pkl"
+    ]
+  },
+  {
+    "name": "r6c_pi05_spatial_50_C45",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.45,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "<STALL>/pi05_sp_50",
+      "calibration_path": "<CAL>/pi05_spatial_50/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_spatial_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_spatial_50_C45.pkl"
+    ]
+  },
+  {
+    "name": "r6c_pi05_spatial_500_U18",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.18,
+      "allocation": "uniform",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_spatial_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_spatial_500_U18.pkl"
+    ]
+  },
+  {
+    "name": "r6c_pi05_spatial_500_R18",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.18,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": null,
+      "calibration_path": "<CAL>/pi05_spatial_500/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_spatial_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_spatial_500_R18.pkl"
+    ]
+  },
+  {
+    "name": "r6c_pi05_spatial_500_C18",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.18,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "<STALL>/pi05_sp_500",
+      "calibration_path": "<CAL>/pi05_spatial_500/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_spatial_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_pi05_spatial_500_C18.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_l10_50_U30",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.3,
+      "allocation": "uniform",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_l10_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_l10_50_U30.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_l10_50_R30",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.3,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": null,
+      "calibration_path": "<CAL>/groot_l10_50/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_l10_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_l10_50_R30.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_l10_50_C30",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.3,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "<STALL>/groot_l10_50",
+      "calibration_path": "<CAL>/groot_l10_50/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_l10_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_l10_50_C30.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_l10_50_C45",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.45,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "<STALL>/groot_l10_50",
+      "calibration_path": "<CAL>/groot_l10_50/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_l10_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_l10_50_C45.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_l10_500_U18",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.18,
+      "allocation": "uniform",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_l10_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_l10_500_U18.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_l10_500_R18",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.18,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": null,
+      "calibration_path": "<CAL>/groot_l10_500/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_l10_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_l10_500_R18.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_l10_500_C18",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.18,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "<STALL>/groot_l10_500",
+      "calibration_path": "<CAL>/groot_l10_500/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_l10_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_l10_500_C18.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_spatial_50_U30",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.3,
+      "allocation": "uniform",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_spatial_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_spatial_50_U30.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_spatial_50_R30",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.3,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": null,
+      "calibration_path": "<CAL>/groot_spatial_50/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_spatial_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_spatial_50_R30.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_spatial_50_C30",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.3,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "<STALL>/groot_sp_50",
+      "calibration_path": "<CAL>/groot_spatial_50/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_spatial_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_spatial_50_C30.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_spatial_50_C45",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.45,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "<STALL>/groot_sp_50",
+      "calibration_path": "<CAL>/groot_spatial_50/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_spatial_50"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_spatial_50_C45.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_spatial_500_U18",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.18,
+      "allocation": "uniform",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_spatial_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_spatial_500_U18.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_spatial_500_R18",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.18,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": null,
+      "calibration_path": "<CAL>/groot_spatial_500/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_spatial_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_spatial_500_R18.pkl"
+    ]
+  },
+  {
+    "name": "r6c_groot_spatial_500_C18",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q1.method_c.methods:CalibratedRescue",
+    "kwargs": {
+      "rho": 0.18,
+      "placement": "R",
+      "cooldown_scope": "stall",
+      "stall_model_path": "<STALL>/groot_sp_500",
+      "calibration_path": "<CAL>/groot_spatial_500/calibrated/calibration.json",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_spatial_500"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6c_groot_spatial_500_C18.pkl"
+    ]
+  },
+  {
+    "name": "r6p5_bmech_g_l10_50",
+    "model": "groot",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q3.stall.bmech:BmechGrootCommitJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6p5_bmech_g_l10_50.pkl"
+    ],
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "name": "r6p5_bmech_g_sp_50",
+    "model": "groot",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q3.stall.bmech:BmechGrootCommitJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6p5_bmech_g_sp_50.pkl"
+    ],
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "name": "r6p5_bmech_p_l10_50",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q3.stall.bmech:BmechCommitJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6p5_bmech_p_l10_50.pkl",
+      "--os-policy-tail-blocks",
+      "1"
+    ],
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "name": "r6p5_bmech_p_sp_50",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r06.ideation_Q3.stall.bmech:BmechCommitJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6p5_bmech_p_sp_50.pkl",
+      "--os-policy-tail-blocks",
+      "1"
+    ],
+    "manifest": "<RUN>/manifests/eval500.json"
+  }
+]

@@ -1,0 +1,1675 @@
+[
+  {
+    "model": "pi05",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off",
+      "dose": 0.25,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_l10_50"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_l10_50_B_dose0p25.pkl",
+      "--os-policy-tail-blocks",
+      "1"
+    ],
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:ExtraDosePi05",
+    "name": "r6q2_pi05_l10_50_B_dose0p25",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off",
+      "dose": 0.5,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_l10_50"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_l10_50_B_dose0p5.pkl",
+      "--os-policy-tail-blocks",
+      "1"
+    ],
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:ExtraDosePi05",
+    "name": "r6q2_pi05_l10_50_B_dose0p5",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off",
+      "dose": 0.75,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_l10_50"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_l10_50_B_dose0p75.pkl",
+      "--os-policy-tail-blocks",
+      "1"
+    ],
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:ExtraDosePi05",
+    "name": "r6q2_pi05_l10_50_B_dose0p75",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.35,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_l10_50"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_l10_50_risk_rho0p35.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_pi05_l10_50_risk_rho0p35",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5
+    }
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.45,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_l10_50"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_l10_50_risk_rho0p45.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_pi05_l10_50_risk_rho0p45",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5
+    }
+  },
+  {
+    "model": "pi05",
+    "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_l10_50_B_cap4.pkl",
+      "--os-judge-cap",
+      "4"
+    ],
+    "cost_ledger": true,
+    "full_model": true,
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "replan_steps": 5,
+    "name": "r6q2_pi05_l10_50_B_cap4",
+    "suite": "l10",
+    "mode": "plugin",
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off",
+      "dose": 0.125,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_l10_500"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_l10_500_B_dose0p125.pkl",
+      "--os-policy-tail-blocks",
+      "1"
+    ],
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:ExtraDosePi05",
+    "name": "r6q2_pi05_l10_500_B_dose0p125",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off",
+      "dose": 0.25,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_l10_500"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_l10_500_B_dose0p25.pkl",
+      "--os-policy-tail-blocks",
+      "1"
+    ],
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:ExtraDosePi05",
+    "name": "r6q2_pi05_l10_500_B_dose0p25",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.18,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_l10_500"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_l10_500_risk_rho0p18.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_pi05_l10_500_risk_rho0p18",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5
+    }
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.24,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_l10_500"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_l10_500_risk_rho0p24.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_pi05_l10_500_risk_rho0p24",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5
+    }
+  },
+  {
+    "model": "pi05",
+    "method": "exp.offline_search.rounds.r04.k7_guard.judge:VisionConfirmedBlindMixedJudge",
+    "kwargs": {
+      "base": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "events": "none",
+      "progress_guard": "noprog_span",
+      "stuck_guard": "vision_confirmed",
+      "noprog_n": 3
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-judge",
+      "guard_only",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_l10_500_K7_confirmation.pkl"
+    ],
+    "cost_ledger": true,
+    "full_model": true,
+    "name": "r6q2_pi05_l10_500_K7_confirmation",
+    "suite": "l10",
+    "mode": "plugin",
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5
+    }
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off",
+      "dose": 0.25,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_spatial_50"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_spatial_50_B_dose0p25.pkl",
+      "--os-policy-tail-blocks",
+      "1"
+    ],
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:ExtraDosePi05",
+    "name": "r6q2_pi05_spatial_50_B_dose0p25",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off",
+      "dose": 0.5,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_spatial_50"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_spatial_50_B_dose0p5.pkl",
+      "--os-policy-tail-blocks",
+      "1"
+    ],
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:ExtraDosePi05",
+    "name": "r6q2_pi05_spatial_50_B_dose0p5",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off",
+      "dose": 0.75,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_spatial_50"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_spatial_50_B_dose0p75.pkl",
+      "--os-policy-tail-blocks",
+      "1"
+    ],
+    "client_overrides": {
+      "replan_steps": 5
+    },
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:ExtraDosePi05",
+    "name": "r6q2_pi05_spatial_50_B_dose0p75",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.35,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_spatial_50"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_spatial_50_risk_rho0p35.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_pi05_spatial_50_risk_rho0p35",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5
+    }
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.45,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_spatial_50"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_spatial_50_risk_rho0p45.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_pi05_spatial_50_risk_rho0p45",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5
+    }
+  },
+  {
+    "model": "pi05",
+    "method": "exp/offline_search/rounds/r03/h3_judge/judge.py:MixedJudge",
+    "kwargs": {
+      "base": "exp/offline_search/rounds/r02/g1_awm/awm.py:AWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5
+      },
+      "guards": true,
+      "events": "none"
+    },
+    "plugin_args": [
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_spatial_50_R3_h70_confirmation.pkl",
+      "--os-judge",
+      "quantile:0.7:1000:-0.625119",
+      "--os-no-shadow-native",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "full_model": true,
+    "name": "r6q2_pi05_spatial_50_R3_h70_confirmation",
+    "suite": "spatial",
+    "mode": "plugin",
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5
+    }
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "dose": 0.03125,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_spatial_500"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_spatial_500_A_dose0p03125.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:CacheDose",
+    "name": "r6q2_pi05_spatial_500_A_dose0p03125",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5
+    }
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "dose": 0.0625,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_spatial_500"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_spatial_500_A_dose0p0625.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:CacheDose",
+    "name": "r6q2_pi05_spatial_500_A_dose0p0625",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5
+    }
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.085,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_spatial_500"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_spatial_500_risk_rho0p085.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_pi05_spatial_500_risk_rho0p085",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5
+    }
+  },
+  {
+    "model": "pi05",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.105,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/pi05_spatial_500"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_spatial_500_risk_rho0p105.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_pi05_spatial_500_risk_rho0p105",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5
+    }
+  },
+  {
+    "model": "pi05",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_pi05_spatial_500_A15.pkl",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "name": "r6q2_pi05_spatial_500_A15",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5
+    }
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off",
+      "dose": 0.25,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_l10_50"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_l10_50_B_dose0p25.pkl"
+    ],
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:ExtraDoseGroot",
+    "name": "r6q2_groot_l10_50_B_dose0p25",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off",
+      "dose": 0.5,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_l10_50"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_l10_50_B_dose0p5.pkl"
+    ],
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:ExtraDoseGroot",
+    "name": "r6q2_groot_l10_50_B_dose0p5",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off",
+      "dose": 0.75,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_l10_50"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_l10_50_B_dose0p75.pkl"
+    ],
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:ExtraDoseGroot",
+    "name": "r6q2_groot_l10_50_B_dose0p75",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.35,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_l10_50"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_l10_50_risk_rho0p35.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_groot_l10_50_risk_rho0p35",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    }
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.45,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_l10_50"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_l10_50_risk_rho0p45.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_groot_l10_50_risk_rho0p45",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    }
+  },
+  {
+    "model": "groot",
+    "method": "exp.offline_search.rounds.r05.q2_groot.judge:CycleTail",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "cycle_k": 2,
+      "tail_blocks": 1
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_l10_50_CycleTail_k2.pkl"
+    ],
+    "cost_ledger": true,
+    "full_model": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "replan_steps": 5,
+    "name": "r6q2_groot_l10_50_CycleTail_k2",
+    "suite": "l10",
+    "mode": "plugin",
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "dose": 0.125,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_l10_500"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_l10_500_A_dose0p125.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:CacheDose",
+    "name": "r6q2_groot_l10_500_A_dose0p125",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    }
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "dose": 0.25,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_l10_500"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_l10_500_A_dose0p25.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:CacheDose",
+    "name": "r6q2_groot_l10_500_A_dose0p25",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    }
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.13,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_l10_500"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_l10_500_risk_rho0p13.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_groot_l10_500_risk_rho0p13",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    }
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.18,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_l10_500"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_l10_500_risk_rho0p18.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_groot_l10_500_risk_rho0p18",
+    "suite": "l10",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    }
+  },
+  {
+    "model": "groot",
+    "method": "exp.offline_search.rounds.r05.q2_groot.judge:CycleTail",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "cycle_k": 8,
+      "tail_blocks": 1
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_l10_500_CycleTail_k8.pkl"
+    ],
+    "cost_ledger": true,
+    "full_model": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "replan_steps": 5,
+    "name": "r6q2_groot_l10_500_CycleTail_k8",
+    "suite": "l10",
+    "mode": "plugin",
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off",
+      "dose": 0.125,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_spatial_50"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_spatial_50_B_dose0p125.pkl"
+    ],
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:ExtraDoseGroot",
+    "name": "r6q2_groot_spatial_50_B_dose0p125",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "progress_guard": "noprog_span",
+      "events": "none",
+      "stuck_guard": "vision_confirmed",
+      "policy_tail_gate": "lifecycle",
+      "monitor": "off",
+      "dose": 0.25,
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_spatial_50"
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_spatial_50_B_dose0p25.pkl"
+    ],
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:ExtraDoseGroot",
+    "name": "r6q2_groot_spatial_50_B_dose0p25",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.12,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_spatial_50"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_spatial_50_risk_rho0p12.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_groot_spatial_50_risk_rho0p12",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    }
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.2,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_spatial_50"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_spatial_50_risk_rho0p2.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_groot_spatial_50_risk_rho0p2",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    }
+  },
+  {
+    "model": "groot",
+    "method": "exp.offline_search.rounds.r05.q2_groot.judge:CycleTail",
+    "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "cycle_k": 3,
+      "tail_blocks": 1
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_spatial_50_CycleTail_k3.pkl"
+    ],
+    "cost_ledger": true,
+    "full_model": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "replan_steps": 5,
+    "name": "r6q2_groot_spatial_50_CycleTail_k3",
+    "suite": "spatial",
+    "mode": "plugin",
+    "manifest": "<RUN>/manifests/eval500.json"
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.065,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_spatial_500"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_spatial_500_risk_rho0p065.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_groot_spatial_500_risk_rho0p065",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    }
+  },
+  {
+    "model": "groot",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "rho": 0.09,
+      "allocation": "risk",
+      "calibration_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q2/frontier/adapters/calibration.json",
+      "calibration_sha256": "dd7ab24452609bf035f8d945a7fd7bdb33dbee60c13ae1e44f4d0ca8884b488d",
+      "random_seed": 26092901,
+      "randomization_key": "09eaec75f238f568561446fd64379ecec6f39af584ad41bf6007614e5d6341f6/groot_spatial_500"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_spatial_500_risk_rho0p09.pkl",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "1",
+      "--os-judge",
+      "guard_only",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "method": "exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods:RiskLottery",
+    "name": "r6q2_groot_spatial_500_risk_rho0p09",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "cost_ledger": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    }
+  },
+  {
+    "model": "groot",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 2,
+      "gates": "budget_only"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_spatial_500_A15_confirmation.pkl",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "cost_ledger": true,
+    "name": "r6q2_groot_spatial_500_A15_confirmation",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    }
+  },
+  {
+    "model": "groot",
+    "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "phase_particles",
+      "budget": 2,
+      "gates": "all"
+    },
+    "plugin_args": [
+      "--os-no-shadow-native",
+      "--os-blind",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_spatial_500_phase_confirmation.pkl",
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store"
+    ],
+    "cost_ledger": true,
+    "name": "r6q2_groot_spatial_500_phase_confirmation",
+    "suite": "spatial",
+    "mode": "plugin",
+    "full_model": true,
+    "manifest": "<RUN>/manifests/eval500.json",
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    }
+  },
+  {
+    "model": "groot",
+    "method": "exp.offline_search.rounds.r05.q2_groot.judge:CycleTail",
+    "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "cycle_k": 8,
+      "tail_blocks": 2
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-blind",
+      "--os-policy-tail",
+      "--os-policy-tail-blocks",
+      "2",
+      "--os-judge",
+      "guard_only",
+      "--os-no-shadow-native",
+      "--os-fit-artifact",
+      "<RUN>/fits/r6q2_groot_spatial_500_CycleTail15_k8.pkl"
+    ],
+    "cost_ledger": true,
+    "full_model": true,
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 256
+    },
+    "replan_steps": 5,
+    "name": "r6q2_groot_spatial_500_CycleTail15_k8",
+    "suite": "spatial",
+    "mode": "plugin",
+    "manifest": "<RUN>/manifests/eval500.json"
+  }
+]

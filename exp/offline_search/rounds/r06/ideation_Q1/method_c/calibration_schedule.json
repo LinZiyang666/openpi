@@ -1,0 +1,122 @@
+[
+  {
+    "arm": "r6c_cal_pi05_l10_50",
+    "manifest": "<RUN>/manifests/calibration_manifest_pi05_l10_50.json",
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh",
+    "client_env": {
+      "P3_ENV_SEED": "1603"
+    },
+    "extra_driver_args": [
+      "--apool-record",
+      "<REMOTE_RUN>/bval_pool_l10.yaml",
+      "--apool-dir",
+      "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10"
+    ],
+    "note": "extra args are last on stock launcher CLI and override its A-pool defaults; hash binding remains enabled"
+  },
+  {
+    "arm": "r6c_cal_pi05_l10_500",
+    "manifest": "<RUN>/manifests/calibration_manifest_pi05_l10_500.json",
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh",
+    "client_env": {
+      "P3_ENV_SEED": "1603"
+    },
+    "extra_driver_args": [
+      "--apool-record",
+      "<REMOTE_RUN>/bval_pool_l10.yaml",
+      "--apool-dir",
+      "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10"
+    ],
+    "note": "extra args are last on stock launcher CLI and override its A-pool defaults; hash binding remains enabled"
+  },
+  {
+    "arm": "r6c_cal_groot_l10_50",
+    "manifest": "<RUN>/manifests/calibration_manifest_groot_l10_50.json",
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh",
+    "client_env": {
+      "P3_ENV_SEED": "1603"
+    },
+    "extra_driver_args": [
+      "--apool-record",
+      "<REMOTE_RUN>/bval_pool_l10.yaml",
+      "--apool-dir",
+      "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10"
+    ],
+    "note": "extra args are last on stock launcher CLI and override its A-pool defaults; hash binding remains enabled"
+  },
+  {
+    "arm": "r6c_cal_groot_l10_500",
+    "manifest": "<RUN>/manifests/calibration_manifest_groot_l10_500.json",
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh",
+    "client_env": {
+      "P3_ENV_SEED": "1603"
+    },
+    "extra_driver_args": [
+      "--apool-record",
+      "<REMOTE_RUN>/bval_pool_l10.yaml",
+      "--apool-dir",
+      "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10"
+    ],
+    "note": "extra args are last on stock launcher CLI and override its A-pool defaults; hash binding remains enabled"
+  },
+  {
+    "arm": "r6c_cal_pi05_spatial_50",
+    "manifest": "<RUN>/manifests/calibration_manifest_pi05_spatial_50.json",
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh",
+    "client_env": {
+      "P3_ENV_SEED": "1603"
+    },
+    "extra_driver_args": [
+      "--apool-record",
+      "<REMOTE_RUN>/bval_pool_spatial.yaml",
+      "--apool-dir",
+      "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial"
+    ],
+    "note": "extra args are last on stock launcher CLI and override its A-pool defaults; hash binding remains enabled"
+  },
+  {
+    "arm": "r6c_cal_pi05_spatial_500",
+    "manifest": "<RUN>/manifests/calibration_manifest_pi05_spatial_500.json",
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh",
+    "client_env": {
+      "P3_ENV_SEED": "1603"
+    },
+    "extra_driver_args": [
+      "--apool-record",
+      "<REMOTE_RUN>/bval_pool_spatial.yaml",
+      "--apool-dir",
+      "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial"
+    ],
+    "note": "extra args are last on stock launcher CLI and override its A-pool defaults; hash binding remains enabled"
+  },
+  {
+    "arm": "r6c_cal_groot_spatial_50",
+    "manifest": "<RUN>/manifests/calibration_manifest_groot_spatial_50.json",
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh",
+    "client_env": {
+      "P3_ENV_SEED": "1603"
+    },
+    "extra_driver_args": [
+      "--apool-record",
+      "<REMOTE_RUN>/bval_pool_spatial.yaml",
+      "--apool-dir",
+      "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial"
+    ],
+    "note": "extra args are last on stock launcher CLI and override its A-pool defaults; hash binding remains enabled"
+  },
+  {
+    "arm": "r6c_cal_groot_spatial_500",
+    "manifest": "<RUN>/manifests/calibration_manifest_groot_spatial_500.json",
+    "client_launcher": "exp/offline_search/rounds/r06/p3_profiling/run_arm_v2.sh",
+    "client_env": {
+      "P3_ENV_SEED": "1603"
+    },
+    "extra_driver_args": [
+      "--apool-record",
+      "<REMOTE_RUN>/bval_pool_spatial.yaml",
+      "--apool-dir",
+      "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial"
+    ],
+    "note": "extra args are last on stock launcher CLI and override its A-pool defaults; hash binding remains enabled"
+  }
+]

@@ -10,6 +10,15 @@ def main():
     install_import_compat()
     from exp.gate_threshold_pareto import run_gtp
     install_driver_compat()
+    if os.environ.get("P3_STREAM"):
+        # Install only when the real driver is constructed; dependency-injected
+        # packaging tests and file mode do not touch scheduler state.
+        constructor = run_gtp.ConductorDriver
+        def driver(*args, **kw):
+            from .dispatch_fence import install
+            install(Path(os.environ["P3_SNAPSHOT_DIR"]).parent / ".p3_dispatch", kw.get("journal_path"))
+            return constructor(*args, **kw)
+        run_gtp.ConductorDriver = driver
     original = run_gtp.WorkerSpec
     def spec(*args, **kw):
         kw["worker_module"] = "exp.offline_search.rounds.r06.p3_profiling.worker_v2"

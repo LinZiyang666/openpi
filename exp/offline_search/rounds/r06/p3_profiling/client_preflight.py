@@ -7,7 +7,7 @@ from pathlib import Path
 import sys
 
 
-MODULES = ("run_gtp_v2", "worker_v2", "telemetry", "snapshots", "client_compat", "client_preflight", "stream_protocol", "stream_sink")
+MODULES = ("run_gtp_v2", "worker_v2", "telemetry", "snapshots", "client_compat", "client_preflight", "stream_protocol", "stream_sink", "dispatch_fence")
 
 
 def main():

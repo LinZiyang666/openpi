@@ -27,7 +27,7 @@ def main():
     assert plan['client_env']['P3_STREAM_TOKEN']==TOKEN and plan['client_env']['P3_STREAM_RUN']==run.name
     assert 'P3_STREAM' not in resolve(run,'test',{})['client_env']
     pkg,driver=ModuleType('exp.gate_threshold_pareto'),ModuleType('exp.gate_threshold_pareto.run_gtp')
-    pkg.run_gtp=driver;driver.WorkerSpec=lambda **kw:kw;captured=[]
+    pkg.run_gtp=driver;driver.WorkerSpec=lambda **kw:kw;driver.ConductorDriver=lambda **kw:kw;captured=[]
     driver.main=lambda:captured.append(driver.WorkerSpec(env={'MUJOCO_EGL_DEVICE_ID':'0'}))
     with patch.dict(sys.modules,{'exp.gate_threshold_pareto':pkg,'exp.gate_threshold_pareto.run_gtp':driver}), patch.dict(os.environ,plan['client_env'],clear=True), patch.object(sys,'argv',['run_gtp_v2']):
         run_gtp_v2.main()

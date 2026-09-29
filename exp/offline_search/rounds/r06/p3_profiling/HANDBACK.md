@@ -17,6 +17,50 @@ No server, LIBERO worker, chain, tmux, port, remote host, GPU inference, git, sr
 edit or review-test read was performed. At most two matrix children per matrix
 were used; overlapping CPU jobs stayed within eight processes.
 
+## 2026-09-29 attempt reuse repair — current handoff
+
+**Cause:** `r6p3v2_groot_l10_50_window_r2:eval:4:1` reused attempt 1 after a
+new driver launch. The receiver held an earlier error trace; the accepted new
+run's reset first differs at byte **23,130** (Python RNG state). Twelve frames
+conflict, all in `controls.jsonl`. This was not an ACK/close race.
+
+**Exact recovery is ready, not installed live.** The 1,048-byte acknowledged
+prefix plus the finished spill reconstruct all 24 affected files with their
+sender hashes. Ten terminal timing fields and 46 decision winners identify
+accepted driver `f6ae5e413713` / server connection 24. The isolated whole arm
+passes normal verification: **20 accepted attempts, 753 files, 580,503,832
+bytes**. Strict reader: **1,460 decisions, 733 anchors, 7,478 controls**. Installing
+and replaying the original spill on a disposable real-arm clone also passes.
+All live inputs remain unchanged; new run-root files are only in `repair_*`.
+
+**Prevention:** new `dispatch_fence.py`, activated by the owned `run_gtp_v2.py`
+only in stream mode, persists dispatch generations before sending work. Fresh
+arms still start at 1; retries/resumes cannot reuse an ID. Tiny `.p3_dispatch`
+metadata stays outside telemetry cleanup. Existing client files were replaced
+atomically. Sink, receiver, collector, telemetry, reader and chains are unchanged;
+**no receiver restart is required**. Client redeploy is required for future drivers.
+
+Use [ATTEMPT_REUSE.md](ATTEMPT_REUSE.md) for the exact repair/install → frozen-chain
+verification/cleanup/DONE commands and redeploy recipe. New 15-file bundle:
+`client_bundle_attempt_fence_20260929_release/`, SHA256
+`29ddcfb4984742db5661d05f741dbd23bbdbeb23d12b2965b2f88e68319e61d7`.
+Per-file hashes are in `results/install_manifest_attempt_reuse.json`.
+
+Tests: reproduced the collision; rejected missing bytes/wrong-driver evidence;
+real scheduler retries/resumes 1→2→3, stale-result rejection, 40 concurrent unique
+reservations and durable reopen pass. Existing byte-parity/spill assertions were
+rerun through direct Store delivery (no sockets/services); strict synthetic reader,
+packaging and mocked coordinator pass. Real Python 3.8.20: **68 files compile**,
+seven isolated imports and persistent counter runtime pass. Network/process-kill
+tests were not rerun under this turn's no-receiver constraint.
+
+Read-only full-hash scan: **99 verified streaming arms, 1,980 attempts, 44,770
+files, 38.15 GB, zero failures**. There is one earlier successfully recovered
+**timeout** spill in `groot_l10_50_dose50_r0`; this collision arm remains unverified
+live. Eleven earlier file-mode arms lack stream markers and are outside that
+count. Evidence: `results/attempt_reuse_*.json`. No remote command/deploy/cleanup,
+service operation, or live repair installation was performed.
+
 ## Streaming delivery — current coordinator handoff
 
 The opt-in transport is ready locally; **no remote deployment or cleanup was
